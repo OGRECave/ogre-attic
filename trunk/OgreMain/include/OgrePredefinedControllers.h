@@ -61,9 +61,9 @@ namespace Ogre {
     class _OgreExport TextureFrameControllerValue : public ControllerValue
     {
     protected:
-        Material::TextureLayer* mTextureLayer;
+        TextureUnitState* mTextureLayer;
     public:
-        TextureFrameControllerValue(Material::TextureLayer* t);
+        TextureFrameControllerValue(TextureUnitState* t);
 
         /** Gets the frame number as a parametric value in the range [0,1]
         */
@@ -88,11 +88,11 @@ namespace Ogre {
         bool mTransU, mTransV;
         bool mScaleU, mScaleV;
         bool mRotate;
-        Material::TextureLayer* mTextureLayer;
+        TextureUnitState* mTextureLayer;
     public:
         /** Constructor.
             @param
-                t TextureLayer to apply the modification to.
+                t TextureUnitState to apply the modification to.
             @param
                 translateU If true, the u coordinates will be translated by the modification.
             @param
@@ -104,7 +104,7 @@ namespace Ogre {
             @param
                 rotate If true, the texture will be rotated by the modification.
         */
-        TexCoordModifierControllerValue(Material::TextureLayer* t, bool translateU = false, bool translateV = false,
+        TexCoordModifierControllerValue(TextureUnitState* t, bool translateU = false, bool translateV = false,
             bool scaleU = false, bool scaleV = false, bool rotate = false );
 
         Real getValue(void) const;

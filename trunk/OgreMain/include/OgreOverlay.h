@@ -80,10 +80,10 @@ namespace Ogre {
         // Scale values
         Real mScaleX, mScaleY;
 
-        Matrix4 mTransform;
-        bool mTransformOutOfDate;
+        mutable Matrix4 mTransform;
+        mutable bool mTransformOutOfDate;
         /** Internal lazy update method. */
-        void updateTransform(void);
+        void updateTransform(void) const;
 
     public:
         /// Constructor: do not call direct, use SceneManager::createOverlay
@@ -222,7 +222,11 @@ namespace Ogre {
         Real getScaleY(void);
 
         /** Used to transform the overlay when scrolling, scaling etc. */
-        void _getWorldTransforms(Matrix4* xform);
+        void _getWorldTransforms(Matrix4* xform) const;
+        /** @copydoc Renderable::getWorldOrientation */
+        const Quaternion& getWorldOrientation(void) const;
+        /** @copydoc Renderable::getWorldPosition */
+        const Vector3& getWorldPosition(void) const;
 
         /** Internal method to put the overlay contents onto the render queue. */
         void _findVisibleObjects(Camera* cam, RenderQueue* queue);

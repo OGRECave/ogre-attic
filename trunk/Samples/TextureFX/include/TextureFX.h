@@ -104,7 +104,7 @@ protected:
         // Perform no dynamic lighting on the sky
         skyMat->setLightingEnabled(false);
         // Use a cloudy sky
-        Material::TextureLayer* t = skyMat->addTextureLayer("clouds.jpg");
+        TextureUnitState* t = skyMat->getTechnique(0)->getPass(0)->createTextureUnitState("clouds.jpg");
         // Scroll the clouds
         t->setScrollAnimation(0.15, 0);
 

@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreWin32Timer.h"
 #include "OgreRoot.h"
 #include "OgreLogManager.h"
+#include "OgreRenderWindow.h"
 
 namespace Ogre {
 

@@ -38,6 +38,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 #include "ExampleApplication.h"
+#include "OgreMaterial.h"
+#include "OgreTechnique.h"
+#include "OgrePass.h"
 
 class RttFrameListener : public ExampleFrameListener
 {
@@ -121,7 +124,7 @@ protected:
             v->setBackgroundColour( ColourValue::Black );
 
             Material* mat = mSceneMgr->createMaterial("RttMat");
-            mat->addTextureLayer("RttTex");
+            mat->getTechnique(0)->getPass(0)->createTextureUnitState("RttTex");
         }
 
         // Give the plane a texture

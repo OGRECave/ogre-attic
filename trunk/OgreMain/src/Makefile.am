@@ -36,6 +36,9 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreException.cpp \
                          OgreFont.cpp \
                          OgreFontManager.cpp \
+                         OgreGpuProgram.cpp \
+                         OgreGpuProgramManager.cpp \
+                         OgreGpuProgramUsage.cpp \
                          OgreGuiContainer.cpp \
                          OgreGuiControl.cpp \
 						 OgreGuiElement.cpp \
@@ -81,12 +84,13 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreParticleIterator.cpp \
                          OgreParticleSystem.cpp \
                          OgreParticleSystemManager.cpp \
+                         OgrePass.cpp \
 						 OgrePatchMesh.cpp \
                          OgrePatchSurface.cpp \
                          OgrePlane.cpp \
                          OgrePlatformManager.cpp \
                          OgrePredefinedControllers.cpp \
-			 OgreProfiler.cpp \
+						 OgreProfiler.cpp \
                          OgreProgressiveMesh.cpp \
                          OgreQuaternion.cpp \
                          OgreRenderQueue.cpp \
@@ -96,7 +100,6 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreRenderTexture.cpp \
                          OgreRenderWindow.cpp \
                          OgreResourceManager.cpp \
-                         OgreResourceMap.cpp \
                          OgreRoot.cpp \
                          OgreRotationSpline.cpp \
 						 OgreScrollEvent.cpp \
@@ -121,9 +124,10 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreSubMesh.cpp \
                          OgreTagPoint.cpp \
                          OgreTGACodec.cpp \
+                         OgreTechnique.cpp \
                          OgreTexture.cpp \
-                         OgreTextureLayer.cpp \
                          OgreTextureManager.cpp \
+                         OgreTextureUnitState.cpp \
 						 OgreTimer.cpp \
                          OgreUserDefinedObject.cpp \
                          OgreVector3.cpp \

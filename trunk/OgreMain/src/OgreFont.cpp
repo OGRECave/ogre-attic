@@ -32,6 +32,12 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreLogManager.h"
 #include "OgreStringConverter.h"
 #include "OgreRenderWindow.h"
+#include "OgreException.h"
+#include "OgreBlendMode.h"
+#include "OgreTextureUnitState.h"
+#include "OgreTechnique.h"
+#include "OgrePass.h"
+#include "OgreMaterial.h"
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
@@ -141,26 +147,26 @@ namespace Ogre
                     "Error creating new material!", "Font::load" );
             }
 
-            Material::TextureLayer *texLayer;
+            TextureUnitState *texLayer;
             bool blendByAlpha = true;
             if (mType == FT_TRUETYPE)
             {
                 createTextureFromFont();
-                texLayer = mpMaterial->getTextureLayer(0);
+                texLayer = mpMaterial->getTechnique(0)->getPass(0)->getTextureUnitState(0);
                 // Always blend by alpha
                 blendByAlpha = true;
             }
             else
             {
-                texLayer = mpMaterial->addTextureLayer(mSource);
-                Texture* tex = (Texture*)TextureManager::getSingleton().getByName(mSource);
+                texLayer = mpMaterial->getTechnique(0)->getPass(0)->createTextureUnitState(mSource);
+                Texture* tex = (Texture*)TextureManager::getSingleton().load(mSource);
 				if (!tex)
 				    Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find texture " + mSource,
 					    "Font::load" );
                 blendByAlpha = tex->hasAlpha();
             }
             // Clamp to avoid fuzzy edges
-            texLayer->setTextureAddressingMode( Material::TextureLayer::TAM_CLAMP );
+            texLayer->setTextureAddressingMode( TextureUnitState::TAM_CLAMP );
 
             // Set up blending
             if (blendByAlpha)
@@ -341,7 +347,7 @@ namespace Ogre
 
         String texName = mName + "Texture";
         TextureManager::getSingleton().loadImage( texName , img );
-        mpMaterial->addTextureLayer( texName );
+        mpMaterial->getTechnique(0)->getPass(0)->createTextureUnitState( texName );
         
         // SDDatachunk will delete imageData
 

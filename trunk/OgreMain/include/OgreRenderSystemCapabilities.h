@@ -125,7 +125,7 @@ namespace Ogre {
                 mNumVertexBlendMatrices = num;
             }
 
-            ushort numWorldMatricies(void) const
+            ushort getNumWorldMatricies(void) const
             { 
                 return mNumWorldMatrices;
             }
@@ -140,7 +140,7 @@ namespace Ogre {
                 available, and where it is not available, will perform multipass
                 rendering to achieve the same effect.
             */
-            ushort numTextureUnits(void) const
+            ushort getNumTextureUnits(void) const
             {
                 return mNumTextureUnits;
             }

@@ -247,7 +247,7 @@ namespace Ogre {
         return mActiveViewport;
     }
     //-----------------------------------------------------------------------
-    void RenderSystem::_setTextureUnitSettings(int texUnit, Material::TextureLayer& tl)
+    void RenderSystem::_setTextureUnitSettings(size_t texUnit, TextureUnitState& tl)
     {
         // This method is only ever called to set a texture unit to valid details
         // The method _disableTextureUnit is called to turn a unit off
@@ -259,7 +259,7 @@ namespace Ogre {
         _setTextureCoordSet(texUnit, tl.getTextureCoordSet());
 
         // Set texture layer filtering
-        _setTextureLayerFiltering(texUnit, tl.getTextureLayerFiltering());
+        _setTextureLayerFiltering(texUnit, tl.getTextureFiltering());
 
         // Set texture layer filtering
         _setTextureLayerAnisotropy(texUnit, tl.getTextureAnisotropy());
@@ -272,39 +272,39 @@ namespace Ogre {
         _setTextureAddressingMode(texUnit, tl.getTextureAddressingMode() );
 
         // Set texture effects
-        Material::TextureLayer::EffectMap::iterator effi;
+        TextureUnitState::EffectMap::iterator effi;
         // Iterate over new effects
         bool anyCalcs = false;
         for (effi = tl.mEffects.begin(); effi != tl.mEffects.end(); ++effi)
         {
             switch (effi->second.type)
             {
-            case Material::TextureLayer::ET_ENVIRONMENT_MAP:
-                if (effi->second.subtype == Material::TextureLayer::ENV_CURVED)
+            case TextureUnitState::ET_ENVIRONMENT_MAP:
+                if (effi->second.subtype == TextureUnitState::ENV_CURVED)
                 {
                     _setTextureCoordCalculation(texUnit, TEXCALC_ENVIRONMENT_MAP);
                     anyCalcs = true;
                 }
-                else if (effi->second.subtype == Material::TextureLayer::ENV_PLANAR)
+                else if (effi->second.subtype == TextureUnitState::ENV_PLANAR)
                 {
                     _setTextureCoordCalculation(texUnit, TEXCALC_ENVIRONMENT_MAP_PLANAR);
                     anyCalcs = true;
                 }
-                else if (effi->second.subtype == Material::TextureLayer::ENV_REFLECTION)
+                else if (effi->second.subtype == TextureUnitState::ENV_REFLECTION)
                 {
                     _setTextureCoordCalculation(texUnit, TEXCALC_ENVIRONMENT_MAP_REFLECTION);
                     anyCalcs = true;
                 }
-                else if (effi->second.subtype == Material::TextureLayer::ENV_NORMAL)
+                else if (effi->second.subtype == TextureUnitState::ENV_NORMAL)
                 {
                     _setTextureCoordCalculation(texUnit, TEXCALC_ENVIRONMENT_MAP_NORMAL);
                     anyCalcs = true;
                 }
                 break;
-	    case Material::TextureLayer::ET_BUMP_MAP:
-	    case Material::TextureLayer::ET_SCROLL:
-	    case Material::TextureLayer::ET_ROTATE:
-	    case Material::TextureLayer::ET_TRANSFORM:
+	    case TextureUnitState::ET_BUMP_MAP:
+	    case TextureUnitState::ET_SCROLL:
+	    case TextureUnitState::ET_ROTATE:
+	    case TextureUnitState::ET_TRANSFORM:
 	      break;
             }
         }
@@ -324,61 +324,32 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void RenderSystem::_disableTextureUnit(int texUnit)
+    void RenderSystem::_disableTextureUnit(size_t texUnit)
     {
         _setTexture(texUnit, false, "");
-        mTextureUnits[texUnit].setBlank();
-
-
+    }
+    //---------------------------------------------------------------------
+    void RenderSystem::_disableTextureUnitsFrom(size_t texUnit)
+    {
+        for (size_t i = texUnit; i < mCapabilities->getNumTextureUnits(); ++i)
+        {
+            _disableTextureUnit(i);
+        }
     }
     //---------------------------------------------------------------------
  	void RenderSystem::_setAnisotropy(int maxAnisotropy)
  	{
- 		for (int n = 0; n < mCapabilities->numTextureUnits(); n++)
+ 		for (int n = 0; n < mCapabilities->getNumTextureUnits(); n++)
  			_setTextureLayerAnisotropy(n, maxAnisotropy);
  	}
     //-----------------------------------------------------------------------
     void RenderSystem::setTextureFiltering(TextureFilterOptions fo)
     {
-        int units = mCapabilities->numTextureUnits();
+        int units = mCapabilities->getNumTextureUnits();
         for (int i = 0; i < units; ++i)
 			_setTextureLayerFiltering(i, fo);
     }
 
-    //-----------------------------------------------------------------------
-    /*
-    void RenderSystem::_setMaterial(Material &mat)
-    {
-
-        // Set surface properties
-        _setSurfaceParams(mat.ambient, mat.diffuse, mat.specular, mat.emmissive, mat.shininess);
-
-        // Set global blending
-        _setSceneBlending(mat.getSourceBlendFactor(), mat.getDestBlendFactor());
-
-        // Set textures
-        // Note that it is assumed caller has checked that there are
-        // enough texture units to support multitexturing all layers
-        // If not they should be calling _setTexture separately per multipass render
-        // If the texture layers exceed the number of supported texture
-        // units, the remaining textures will not be displayed
-        int matTexLayers = mat.getNumTextureLayers();
-        for (int texLayer = 0; texLayer < _getNumTextureUnits(); ++texLayer)
-        {
-            if (texLayer >= matTexLayers)
-            {
-                // Run out of material texture layers before h/w
-                // Turn off these units
-                _setTexture(texLayer, false, "");
-            }
-            else
-            {
-                Material::TextureLayer* tl = mat.getTextureLayer(texLayer);
-                _setTextureUnitSettings(texLayer, *tl);
-            }
-        }
-    }
-    */
     //-----------------------------------------------------------------------
     CullingMode RenderSystem::_getCullingMode(void) const
     {
@@ -434,8 +405,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void RenderSystem::softwareVertexBlend(VertexData* vertexData, Matrix4* pMatrices)
     {
-        // Source vector
-        Vector3 sourceVec;
+        // Source vectors
+        Vector3 sourceVec, sourceNorm;
         // Accumulation vectors
         Vector3 accumVecPos, accumVecNorm;
         Matrix3 rot3x3;
@@ -496,12 +467,13 @@ namespace Ogre {
 
             if (elemNorm) 
             {
-                accumVecNorm.x = *pSrcNorm++;
-                accumVecNorm.y = *pSrcNorm++;
-                accumVecNorm.z = *pSrcNorm++;
+                sourceNorm.x = *pSrcNorm++;
+                sourceNorm.y = *pSrcNorm++;
+                sourceNorm.z = *pSrcNorm++;
             }
-            // Load accumulator
+            // Load accumulators
             accumVecPos = Vector3::ZERO;
+            accumVecNorm = Vector3::ZERO;
 
             // Loop per blend weight 
             for (unsigned short blendIdx = 0; 
@@ -521,9 +493,9 @@ namespace Ogre {
                         // We should blend by inverse transpose here, but because we're assuming the 3x3
                         // aspect of the matrix is orthogonal (no non-uniform scaling), the inverse transpose
                         // is equal to the main 3x3 matrix
-                        // Note because it's a normal we just extract the rotational part, saves us renormalising
+                        // Note because it's a normal we just extract the rotational part, saves us renormalising here
                         pMatrices[*pBlendIdx].extract3x3Matrix(rot3x3);
-                        accumVecNorm = (rot3x3 * (*pBlendWeight)) * accumVecNorm;
+                        accumVecNorm += (rot3x3 * sourceNorm) * (*pBlendWeight)  ;
                     }
 
                 }
@@ -539,6 +511,8 @@ namespace Ogre {
             // Stored blended vertex in temp buffer
             if (elemNorm)
             {
+				// Normalise
+				accumVecNorm.normalise();
                 if (posNormShareBuffer)
                 {
                     // Pack into same buffer

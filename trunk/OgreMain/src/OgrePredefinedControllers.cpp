@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRoot.h"
 #include "OgreMath.h"
 #include "OgreLogManager.h"
+#include "OgreTextureUnitState.h"
 
 namespace Ogre
 {
@@ -75,7 +76,7 @@ namespace Ogre
     //-----------------------------------------------------------------------
     // TextureFrameControllerValue
     //-----------------------------------------------------------------------
-    TextureFrameControllerValue::TextureFrameControllerValue(Material::TextureLayer* t)
+    TextureFrameControllerValue::TextureFrameControllerValue(TextureUnitState* t)
     {
         mTextureLayer = t;
     }
@@ -94,7 +95,7 @@ namespace Ogre
     //-----------------------------------------------------------------------
     // TexCoordModifierControllerValue
     //-----------------------------------------------------------------------
-    TexCoordModifierControllerValue::TexCoordModifierControllerValue(Material::TextureLayer* t,
+    TexCoordModifierControllerValue::TexCoordModifierControllerValue(TextureUnitState* t,
         bool translateU, bool translateV, bool scaleU, bool scaleV, bool rotate )
     {
         mTextureLayer = t;

@@ -80,11 +80,22 @@ namespace Ogre {
 	}
 
 	// Override this method to prevent parent transforms (rotation,translation,scale)
-    void WireBoundingBox::getWorldTransforms( Matrix4* xform )
+    void WireBoundingBox::getWorldTransforms( Matrix4* xform ) const
     {
 		// return identity matrix to prevent parent transforms
         *xform = Matrix4::IDENTITY;
     }
+    //-----------------------------------------------------------------------
+    const Quaternion& WireBoundingBox::getWorldOrientation(void) const
+    {
+        return Quaternion::IDENTITY;
+    }
+    //-----------------------------------------------------------------------
+    const Vector3& WireBoundingBox::getWorldPosition(void) const
+    {
+        return Vector3::ZERO;
+    }
+
 
 	void WireBoundingBox::setupBoundingBoxVertices(AxisAlignedBox &aab) {
 

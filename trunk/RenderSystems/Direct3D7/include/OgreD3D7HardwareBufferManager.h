@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 #include "OgreDefaultHardwareBufferManager.h"
+#include "OgreException.h"
 
 namespace Ogre {
 

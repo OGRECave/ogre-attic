@@ -51,6 +51,7 @@ OgreGuiManager.h \
 OgreGuiPressable.h \
 OgreGpuProgram.h \
 OgreGpuProgramManager.h \
+OgreGpuProgramUsage.h \
 OgreHardwareBuffer.h \
 OgreHardwareBufferManager.h \
 OgreHardwareIndexBuffer.h \
@@ -101,6 +102,7 @@ OgreParticleEmitterFactory.h \
 OgreParticleIterator.h \
 OgreParticleSystem.h \
 OgreParticleSystemManager.h \
+OgrePass.h \
 OgrePatchMesh.h \
 OgrePatchSurface.h \
 OgrePlane.h \
@@ -127,7 +129,6 @@ OgreRenderWindow.h \
 OgreRenderable.h \
 OgreResource.h \
 OgreResourceManager.h \
-OgreResourceMap.h \
 OgreRoot.h \
 OgreRotationalSpline.h \
 OgreSDDataChunk.h \
@@ -159,6 +160,8 @@ OgreSubEntity.h \
 OgreSubMesh.h \
 OgreTagPoint.h \
 OgreTargetManager.h \
+OgreTechnique.h \
+OgreTextureUnitState.h \
 OgreTGACodec.h \
 OgreTexture.h \
 OgreTextureManager.h \

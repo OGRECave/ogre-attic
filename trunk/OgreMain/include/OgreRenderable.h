@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreRenderOperation.h"
 #include "OgreMatrix4.h"
+#include "OgreMaterial.h"
 
 
 namespace Ogre {
@@ -49,8 +50,17 @@ namespace Ogre {
     {
     public:
         /** Retrieves a pointer to the material this renderable object uses.
+        @remarks
+            Note that the Renderable also has the option to override the getTechnique method
+            to specify a particular Technique to use instead of the best one available.
         */
         virtual Material* getMaterial(void) const = 0;
+        /** Retrieves a pointer to the Material Technique this renderable object uses.
+        @remarks
+            This is to allow Renderables to use a chosen Technique if they wish, otherwise
+            they will use the best Technique available for the Material they are using.
+        */
+        virtual Technique* getTechnique(void) const { return getMaterial()->getBestTechnique(); }
         /** Gets the render operation required to send this object to the frame buffer.
         */
         virtual void getRenderOperation(RenderOperation& op) = 0;
@@ -63,7 +73,19 @@ namespace Ogre {
                 does use vertex blending it will fill the passed in pointer with an array of matrices,
                 the length being the value returned from getNumWorldTransforms.
         */
-        virtual void getWorldTransforms(Matrix4* xform) = 0;
+        virtual void getWorldTransforms(Matrix4* xform) const = 0;
+        /** Gets the worldspace orientation of this renderable; this is used in order to
+            more efficiently update parameters to vertex & fragment programs, since inverting Quaterion
+            and Vector in order to derive object-space positions / directions for cameras and
+            lights is much more efficient than inverting a complete 4x4 matrix, and also 
+            eliminates problems introduced by scaling. */
+        virtual const Quaternion& getWorldOrientation(void) const = 0;
+        /** Gets the worldspace orientation of this renderable; this is used in order to
+            more efficiently update parameters to vertex & fragment programs, since inverting Quaterion
+            and Vector in order to derive object-space positions / directions for cameras and
+            lights is much more efficient than inverting a complete 4x4 matrix, and also 
+            eliminates problems introduced by scaling. */
+        virtual const Vector3& getWorldPosition(void) const = 0;
 
         /** Returns the number of world transform matrices this renderable requires.
         @remarks
@@ -108,6 +130,7 @@ namespace Ogre {
 
         /** Returns whether or not this Renderable wishes the hardware to normalise normals. */
         virtual bool getNormaliseNormals(void) { return false; }
+
 
     };
 

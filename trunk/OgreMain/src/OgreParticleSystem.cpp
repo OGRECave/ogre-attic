@@ -422,11 +422,21 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void ParticleSystem::getWorldTransforms(Matrix4* xform)
+    void ParticleSystem::getWorldTransforms(Matrix4* xform) const
     {
         // Particles are already in world space
         *xform = Matrix4::IDENTITY;
 
+    }
+    //-----------------------------------------------------------------------
+    const Quaternion& ParticleSystem::getWorldOrientation(void) const
+    {
+        return mParentNode->_getDerivedOrientation();
+    }
+    //-----------------------------------------------------------------------
+    const Vector3& ParticleSystem::getWorldPosition(void) const
+    {
+        return mParentNode->_getDerivedPosition();
     }
     //-----------------------------------------------------------------------
     void ParticleSystem::initParameters(void)

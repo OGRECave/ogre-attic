@@ -24,6 +24,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreStableHeaders.h"
 #include "OgreSimpleRenderable.h"
+#include "OgreException.h"
+#include "OgreNode.h"
 
 #include "OgreMaterialManager.h"
 
@@ -80,9 +82,19 @@ namespace Ogre {
         m_matWorldTransform = xform;
     }
 
-    void SimpleRenderable::getWorldTransforms( Matrix4* xform )
+    void SimpleRenderable::getWorldTransforms( Matrix4* xform ) const
     {
         *xform = m_matWorldTransform * mParentNode->_getFullTransform();
+    }
+    //-----------------------------------------------------------------------
+    const Quaternion& SimpleRenderable::getWorldOrientation(void) const
+    {
+        return mParentNode->_getDerivedOrientation();
+    }
+    //-----------------------------------------------------------------------
+    const Vector3& SimpleRenderable::getWorldPosition(void) const
+    {
+        return mParentNode->_getDerivedPosition();
     }
 
     void SimpleRenderable::_notifyCurrentCamera(Camera* cam)
@@ -102,6 +114,7 @@ namespace Ogre {
 
     void SimpleRenderable::_updateRenderQueue(RenderQueue* queue)
     {
+        m_pMaterial->touch();
         queue->addRenderable( this );
     }
 

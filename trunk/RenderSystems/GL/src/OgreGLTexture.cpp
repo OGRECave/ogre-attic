@@ -30,6 +30,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreImage.h"
 #include "OgreLogManager.h"
 #include "OgreCamera.h"
+#include "OgreException.h"
+#include "OgreRoot.h"
 #include <limits>
 
 #if OGRE_PLATFORM == PLATFORM_WIN32

@@ -28,7 +28,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 
 #include "OgreResource.h"
-#include "OgreResourceMap.h"
 #include "OgreDataChunk.h"
 #include "OgreArchiveEx.h"
 
@@ -76,6 +75,9 @@ namespace Ogre {
         */
         virtual void load( Resource *res, int priority );
 
+        /** Add a resource to this manager; normally only done by subclasses.
+        */
+        virtual void add( Resource *res );
         /** Unloads a Resource from the managed resources list, calling it's unload() method.
             @remarks
                 This method removes a resource from the list maintained by this manager, and unloads it from
@@ -97,6 +99,9 @@ namespace Ogre {
         /** Retrieves a pointer to a resource by name, or null if the resource does not exist.
         */
         virtual Resource* getByName(const String& name);
+        /** Retrieves a pointer to a resource by handle, or null if the resource does not exist.
+        */
+        virtual Resource* getByHandle(ResourceHandle handle);
 
         /** Adds a relative path to search for resources of this type.
             @remarks
@@ -181,13 +186,24 @@ namespace Ogre {
         */
         static bool _findCommonResourceData( const String& filename, DataChunk& refChunk );
 
+
     protected:
 
+        /** Allocates the next handle. */
+        ResourceHandle getNextHandle(void);
+
         typedef HashMap< String, ArchiveEx *, _StringHash > FileMap;
+        typedef HashMap< String, Resource*, _StringHash > ResourceMap;
+
+
         static FileMap mCommonArchiveFiles;
         FileMap mArchiveFiles;
 
+        typedef std::map<ResourceHandle, Resource*> ResourceHandleMap;
+        ResourceHandleMap mResourcesByHandle;
         ResourceMap mResources;
+
+        ResourceHandle mNextHandle;
 
         size_t mMemoryBudget; // In bytes
         size_t mMemoryUsage; // In bytes, at last checkUsage() call

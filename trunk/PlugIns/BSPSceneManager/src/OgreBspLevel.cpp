@@ -36,6 +36,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringVector.h"
 #include "OgreStringConverter.h"
 #include "OgreLogManager.h"
+#include "OgreSceneManagerEnumerator.h"
+#include "OgreTechnique.h"
+#include "OgrePass.h"
+#include "OgreTextureUnitState.h"
 
 
 namespace Ogre {
@@ -47,6 +51,10 @@ namespace Ogre {
         mName = name;
         mRootNode = 0;
         mBrushes = 0;
+        mVertexData = 0;
+        mFaceGroups = 0;
+        mLeafFaceGroups = 0;
+        mVisData.tableData = 0;
     }
 
     //-----------------------------------------------------------------------
@@ -73,23 +81,32 @@ namespace Ogre {
         loadQuake3Level(q3);
 
         chunk.clear();
+        mIsLoaded = true;
 
     }
 
     //-----------------------------------------------------------------------
     void BspLevel::unload()
     {
-        delete mVertexData;
-        delete [] mFaceGroups;
-        delete [] mLeafFaceGroups;
-        delete [] mRootNode;
-        delete [] mVisData.tableData;
-        delete [] mBrushes;
+        if (mVertexData)
+            delete mVertexData;
+        if (mFaceGroups)
+            delete [] mFaceGroups;
+        if (mLeafFaceGroups)
+            delete [] mLeafFaceGroups;
+        if (mRootNode)
+            delete [] mRootNode;
+        if (mVisData.tableData)
+            delete [] mVisData.tableData;
+        if (mBrushes)
+            delete [] mBrushes;
 
+        mVertexData = 0;
         mRootNode = 0;
         mFaceGroups = 0;
         mLeafFaceGroups = 0;
         mBrushes = 0;
+        mVisData.tableData = 0;
     }
 
     //-----------------------------------------------------------------------
@@ -211,7 +228,6 @@ namespace Ogre {
             if (shadMat == 0)
             {
                 // Build new material
-                Material mat(shaderName);
 
                 // Colour layer
                 // NB no extension in Q3A(doh), have to try shader, .jpg, .tga
@@ -221,13 +237,15 @@ namespace Ogre {
                 if (pShad)
                 {
                     shadMat = pShad->createAsMaterial(sm, q3lvl.mFaces[face].lm_texture);
-                    matHandle = shadMat->getHandle();
                 }
                 else
                 {
                     // No shader script, try default type texture
+                    shadMat = sm->createMaterial(shaderName);
+                    Pass *shadPass = shadMat->getTechnique(0)->getPass(0);
                     // Try jpg
-                    Material::TextureLayer* tex = mat.addTextureLayer(tryName + ".jpg");
+                    TextureUnitState* tex = shadPass->createTextureUnitState(tryName + ".jpg");
+                    tex->_load();
                     if (tex->isBlank())
                     {
                         // Try tga
@@ -235,36 +253,31 @@ namespace Ogre {
                     }
                     // Set replace on all first layer textures for now
                     tex->setColourOperation(LBO_REPLACE);
-                    tex->setTextureAddressingMode(Material::TextureLayer::TAM_WRAP);
+                    tex->setTextureAddressingMode(TextureUnitState::TAM_WRAP);
 
                     if (q3lvl.mFaces[face].lm_texture != -1)
                     {
                         // Add lightmap, additive blending
                         char lightmapName[16];
                         sprintf(lightmapName, "@lightmap%d",q3lvl.mFaces[face].lm_texture);
-                        tex = mat.addTextureLayer(lightmapName);
+                        tex = shadPass->createTextureUnitState(lightmapName);
                         // Blend
                         tex->setColourOperation(LBO_MODULATE);
                         // Use 2nd texture co-ordinate set
                         tex->setTextureCoordSet(1);
                         // Clamp
-                        tex->setTextureAddressingMode(Material::TextureLayer::TAM_CLAMP);
+                        tex->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
 
                     }
                     // Set culling mode to none
-                    mat.setCullingMode(CULL_NONE);
+                    shadMat->setCullingMode(CULL_NONE);
                     // No dynamic lighting
-                    mat.setLightingEnabled(false);
+                    shadMat->setLightingEnabled(false);
 
-                    // Register material
-                    shadMat = MaterialManager::getSingleton().add(mat);
-                    matHandle = shadMat->getHandle();
                 }
             }
-            else
-            {
-                matHandle = shadMat->getHandle();
-            }
+            matHandle = shadMat->getHandle();
+            shadMat->load();
 
             // Copy face data
             StaticFaceGroup* dest = &mFaceGroups[face];

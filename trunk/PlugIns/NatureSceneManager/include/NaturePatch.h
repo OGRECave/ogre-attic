@@ -14,6 +14,7 @@ Author: Martin Persson
 #include <OgreSimpleRenderable.h>
 #include <OgreRenderOperation.h>
 #include <OgreCamera.h>
+#include <OgreNode.h>
 
 namespace Ogre
 {
@@ -206,12 +207,19 @@ namespace Ogre
             return mBounds;
         }
 
-        virtual void getWorldTransforms(Matrix4 *xform)
+        virtual void getWorldTransforms(Matrix4 *xform) const
         {
-            *xform = Matrix4::IDENTITY;
-            *xform = *xform * mParentNode->_getFullTransform();
+            *xform = mParentNode->_getFullTransform();
         }
 
+        virtual const Quaternion& getWorldOrientation(void) const
+        {
+            return mParentNode->_getDerivedOrientation();
+        }
+        virtual const Vector3& getWorldPosition(void) const
+        {
+            return mParentNode->_getDerivedPosition();
+        }
         virtual void _updateRenderQueue(RenderQueue *queue)
         {
             queue->addRenderable(this);

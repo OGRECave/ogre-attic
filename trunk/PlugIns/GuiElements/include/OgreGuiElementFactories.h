@@ -55,7 +55,7 @@ namespace Ogre {
             return new CursorGuiElement(instanceName);
         }
         /** See GuiElementFactory */
-        const String& getTypeName(void)
+        const String& getTypeName(void) const
         {
             static String name = "Cursor";
             return name;

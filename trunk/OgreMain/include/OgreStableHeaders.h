@@ -50,7 +50,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 #include "OgreQuaternion.h"
 #include "OgreResource.h"
-#include "OgreResourceMap.h"
 #include "OgreSDDataChunk.h"
 #include "OgreSerializer.h"
 #include "OgreSharedPtr.h"
