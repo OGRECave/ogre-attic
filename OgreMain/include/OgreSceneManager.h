@@ -330,6 +330,7 @@ namespace Ogre {
         Pass* mShadowDebugPass;
         Pass* mShadowStencilPass;
         Pass* mShadowModulativePass;
+		bool mShadowMaterialInitDone;
         LightList mLightsAffectingFrustum;
         HardwareIndexBufferSharedPtr mShadowIndexBuffer;
 		size_t mShadowIndexBufferSize;

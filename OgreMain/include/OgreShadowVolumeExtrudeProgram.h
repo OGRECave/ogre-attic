@@ -146,6 +146,8 @@ namespace Ogre {
         static String mDirArbvp1FiniteDebug;
         static String mDirVs_1_1FiniteDebug;
 
+		static bool mInitialised;
+
 	public:
 #define NUM_SHADOW_EXTRUDER_PROGRAMS 8
         enum Programs
