@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreVector3.h"
 #include "OgrePlane.h"
 #include "OgreHardwareBufferManager.h"
+#include "OgrePatchSurface.h"
 
 namespace Ogre
 {
@@ -738,7 +739,30 @@ namespace Ogre
         return Singleton<MeshManager>::getSingleton();
     }
     //-----------------------------------------------------------------------
+    PatchMesh* MeshManager::createBezierPatch(const String& name, 
+            void* controlPointBuffer, VertexDeclaration *declaration, 
+            size_t width, size_t height,
+            size_t uMaxSubdivisionLevel, size_t vMaxSubdivisionLevel,
+            PatchSurface::VisibleSide visibleSide, 
+            HardwareBuffer::Usage vbUsage, HardwareBuffer::Usage ibUsage,
+            bool vbUseShadow, bool ibUseShadow)
+    {
 
+        PatchMesh* pMesh = (PatchMesh*)(getByName(name));
+        if (pMesh)
+        {
+            Except(Exception::ERR_DUPLICATE_ITEM, "A mesh called " + name + 
+                " already exists!", "MeshManager::createBezierPatch");
+        }
+        pMesh = new PatchMesh(name, controlPointBuffer, declaration, width, height,
+            uMaxSubdivisionLevel, vMaxSubdivisionLevel, visibleSide, vbUsage, ibUsage,
+            vbUseShadow, ibUseShadow);
+        pMesh->setManuallyDefined(true);
+        ResourceManager::load(pMesh,0);
+
+        return pMesh;
+    }
+    //-----------------------------------------------------------------------
 
 
 }

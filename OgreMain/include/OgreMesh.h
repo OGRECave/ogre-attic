@@ -418,7 +418,7 @@ namespace Ogre {
 		*/
 		void setIndexBufferPolicy(HardwareBuffer::Usage usage, bool shadowBuffer = false);
 
-    private:
+    protected:
         typedef std::vector<SubMesh*> SubMeshList;
         /** A list of submeshes which make up this mesh.
             Each mesh is made up of 1 or more submeshes, which

@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSingleton.h"
 #include "OgreVector3.h"
 #include "OgreHardwareBuffer.h"
+#include "OgrePatchMesh.h"
 
 namespace Ogre {
 
@@ -243,6 +244,48 @@ namespace Ogre {
 			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY,
 			bool vertexShadowBuffer = false, bool indexShadowBuffer = false);
 
+        /** Creates a Bezier patch based on an array of control vertices.
+            @param
+                name The name to give the newly created mesh. 
+            @param
+                controlPointBuffer A pointer to a buffer containing the vertex data which defines control points 
+                of the curves rather than actual vertices. Note that you are expected to provide not
+                just position information, but potentially normals and texture coordinates too. The
+                format of the buffer is defined in the VertexDeclaration parameter
+            @param
+                decaration VertexDeclaration describing the contents of the buffer. 
+                Note this declaration must _only_ draw on buffer source 0!
+            @param
+                width Specifies the width of the patch in control points.
+            @param
+                height Specifies the height of the patch in control points. 
+            @param
+                uMaxSubdivisionLevel,vMaxSubdivisionLevel If you want to manually set the top level of subdivision, 
+                do it here, otherwise let the system decide.
+            @param
+                visibleSide Determines which side of the patch (or both) triangles are generated for.
+            @param
+                vbUsage Vertex buffer usage flags. Recommend the default since vertex buffer should be static.
+            @param
+                ibUsage Index buffer usage flags. Recommend the default since index buffer should 
+                be dynamic to change levels but not readable.
+            @param
+                vbUseShadow Flag to determine if a shadow buffer is generated for the vertex buffer. See
+                    HardwareBuffer for full details.
+            @param
+                ibUseShadow Flag to determine if a shadow buffer is generated for the index buffer. See
+                    HardwareBuffer for full details.
+        */
+        PatchMesh* createBezierPatch(
+            const String& name, void* controlPointBuffer, 
+            VertexDeclaration *declaration, size_t width, size_t height,
+            size_t uMaxSubdivisionLevel = PatchSurface::AUTO_LEVEL, 
+            size_t vMaxSubdivisionLevel = PatchSurface::AUTO_LEVEL,
+            PatchSurface::VisibleSide visibleSide = PatchSurface::VS_FRONT,
+            HardwareBuffer::Usage vbUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
+            HardwareBuffer::Usage ibUsage = HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY,
+            bool vbUseShadow = false, bool ibUseShadow = false);
+        
         /** Override standard Singleton retrieval.
             @remarks
                 Why do we do this? Well, it's because the Singleton implementation is in a .h file,

@@ -35,7 +35,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringConverter.h"
 
 // Hack struct for test
-PatchSurface ps;
+PatchMesh* patch;
 Entity* patchEntity;
 
 // Event handler to add ability to alter subdivision
@@ -51,26 +51,30 @@ public:
 
     bool frameStarted(const FrameEvent& evt)
     {
-        static Real timeLapse = 99.0f;
-        static int level = 0;
+        static Real timeLapse = 0.0f;
+        static Real factor = 0.0;
         static bool wireframe = 0;
 
 
         timeLapse += evt.timeSinceLastFrame;
 
-        if (timeLapse > 3.0f)
+        // Prgressively grow the patch
+        if (timeLapse > 1.0f)
         {
-            level = (level + 1) % 5;
-            ps.setSubdivisionLevel(level);
-            ps.build();
-            mWindow->setDebugText("Bezier subdivisions: " + StringConverter::toString(level));
-            timeLapse = 0.0f;
-            if (level == 0)
+            factor += 0.2;
+
+            if (factor > 1.0f) 
             {
                 wireframe = !wireframe;
                 //mCamera->setDetailLevel(wireframe ? SDL_WIREFRAME : SDL_SOLID);
                 patchEntity->setRenderDetail(wireframe ? SDL_WIREFRAME : SDL_SOLID);
+                factor = 0.0f;
+
             }
+
+            patch->setSubdivision(factor);
+            mWindow->setDebugText("Bezier subdivision factor: " + StringConverter::toString(factor));
+            timeLapse = 0.0f;
 
         }
 
@@ -177,9 +181,12 @@ protected:
         pVert++;
 
 
-        ps.defineSurface("Bezier1", patchCtlPoints, patchDecl, 3, 3, PatchSurface::PST_BEZIER, 1, 4, PatchSurface::VS_BOTH);
-        ps.build();
+        patch = MeshManager::getSingleton().createBezierPatch(
+            "Bezier1", patchCtlPoints, patchDecl, 
+            3, 3, 5, 5, PatchSurface::VS_BOTH);
 
+        // Start patch at 0 detail
+        patch->setSubdivision(0.0f);
         // Create entity based on patch
         patchEntity = mSceneMgr->createEntity("Entity1", "Bezier1");
 

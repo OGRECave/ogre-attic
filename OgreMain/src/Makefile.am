@@ -80,6 +80,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreParticleIterator.cpp \
                          OgreParticleSystem.cpp \
                          OgreParticleSystemManager.cpp \
+						 OgrePatchMesh.cpp \
                          OgrePatchSurface.cpp \
                          OgrePlane.cpp \
                          OgrePlatformManager.cpp \

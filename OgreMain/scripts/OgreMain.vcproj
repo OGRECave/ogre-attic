@@ -375,6 +375,9 @@
 				RelativePath="..\src\OgreParticleSystemManager.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgrePatchMesh.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgrePatchSurface.cpp">
 			</File>
 			<File
@@ -842,6 +845,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreParticleSystemManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgrePatchMesh.h">
 			</File>
 			<File
 				RelativePath="..\include\OgrePatchSurface.h">

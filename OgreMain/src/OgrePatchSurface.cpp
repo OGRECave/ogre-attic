@@ -42,32 +42,21 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     PatchSurface::PatchSurface()
     {
-        mMesh = 0;
         mType = PST_BEZIER;
-        mMemoryAllocated = false;
     }
     //-----------------------------------------------------------------------
     PatchSurface::~PatchSurface()
     {
-        /*
-        if (mMesh)
-        {
-            delete mMesh;
-            mMesh = 0;
-        }
-        */
-
     }
     //-----------------------------------------------------------------------
-    void PatchSurface::defineSurface(String meshName, void* controlPointBuffer, 
-        VertexDeclaration *declaration, size_t width, size_t height,
-        PatchSurface::PatchSurfaceType pType, size_t subdivisionLevel, size_t maxSubdivisionLevel,
-        VisibleSide visibleSide)
+    void PatchSurface::defineSurface(void* controlPointBuffer, 
+            VertexDeclaration *declaration, size_t width, size_t height,
+            PatchSurfaceType pType, size_t uMaxSubdivisionLevel, 
+            size_t vMaxSubdivisionLevel, VisibleSide visibleSide)
     {
         if (height == 0 || width == 0)
             return; // Do nothing - garbage
 
-        mMeshName = meshName;
         mType = pType;
         mCtlWidth = width;
         mCtlHeight = height;
@@ -90,37 +79,109 @@ namespace Ogre {
 
         mVSide = visibleSide;
 
-        setSubdivisionLevel(subdivisionLevel);
-        setMaxSubdivisionLevel(maxSubdivisionLevel);
+        // Determine max level
+        // Initialise to 100% detail
+        mSubdivisionFactor = 1.0f;
+        if (uMaxSubdivisionLevel == AUTO_LEVEL)
+        {
+            mULevel = mMaxULevel = getAutoULevel();
+        }
+        else
+        {
+            mULevel = mMaxULevel = uMaxSubdivisionLevel;
+        }
+
+        if (vMaxSubdivisionLevel == AUTO_LEVEL)
+        {
+            mVLevel = mMaxVLevel = getAutoVLevel();
+        }
+        else
+        {
+            mVLevel = mMaxVLevel = vMaxSubdivisionLevel;
+        }
 
 
-        mNeedsBuild = true;
+
+        // Derive mesh width / height
+        mMeshWidth  = (LEVEL_WIDTH(mMaxULevel)-1) * ((mCtlWidth-1)/2) + 1;
+        mMeshHeight = (LEVEL_WIDTH(mMaxVLevel)-1) * ((mCtlHeight-1)/2) + 1;
+
+
+        // Calculate number of required vertices / indexes at max resolution
+        mRequiredVertexCount = mMeshWidth * mMeshHeight;
+        int iterations = (mVSide == VS_BOTH)? 2 : 1;
+        mRequiredIndexCount = (mMeshWidth-1) * (mMeshHeight-1) * 2 * iterations * 3;
+
+        // Calculate bounds based on control points
+        std::vector<Vector3>::const_iterator ctli;
+        Vector3 min, max;
+        Real maxSqRadius;
+        bool first = true;
+        for (ctli = mVecCtlPoints.begin(); ctli != mVecCtlPoints.end(); ++ctli)
+        {
+            if (first)
+            {
+                min = max = *ctli;
+                maxSqRadius = ctli->squaredLength();
+                first = false;
+            }
+            else
+            {
+                min.makeFloor(*ctli);
+                max.makeCeil(*ctli);
+                maxSqRadius = std::max(ctli->squaredLength(), maxSqRadius);
+
+            }
+        }
+        mAABB.setExtents(min, max);
+        mBoundingSphere = Math::Sqrt(maxSqRadius);
 
     }
     //-----------------------------------------------------------------------
-    void PatchSurface::build(void)
+    const AxisAlignedBox& PatchSurface::getBounds(void)
+    {
+        return mAABB;
+    }
+    //-----------------------------------------------------------------------
+    Real PatchSurface::getBoundingSphereRadius(void)
+    {
+        return mBoundingSphere;
+    }
+    //-----------------------------------------------------------------------
+    size_t PatchSurface::getRequiredVertexCount(void)
+    {
+        return mRequiredVertexCount;
+    }
+    //-----------------------------------------------------------------------
+    size_t PatchSurface::getRequiredIndexCount(void)
+    {
+        return mRequiredIndexCount;
+    }
+    //-----------------------------------------------------------------------
+    void PatchSurface::build(HardwareVertexBufferSharedPtr destVertexBuffer, 
+        size_t vertexStart, HardwareIndexBufferSharedPtr destIndexBuffer, size_t indexStart)
     {
 
         if (mVecCtlPoints.empty())
             return;
 
-        // Set current vertex count
-        mMesh->sharedVertexData->vertexCount = mMeshWidth * mMeshHeight;
+        mVertexBuffer = destVertexBuffer;
+        mVertexOffset = vertexStart;
+        mIndexBuffer = destIndexBuffer;
+        mIndexOffset = indexStart;
 
-        HardwareVertexBufferSharedPtr vbuf = mMesh->sharedVertexData->vertexBufferBinding->getBuffer(0);
-        void* lockedBuffer = vbuf->lock(HardwareBuffer::HBL_DISCARD);
+        // Lock just the region we are interested in 
+        void* lockedBuffer = mVertexBuffer->lock(
+            mVertexOffset, 
+            mRequiredVertexCount * mDeclaration->getVertexSize(0),
+            HardwareBuffer::HBL_NO_OVERWRITE);
 
         distributeControlPoints(lockedBuffer);
 
-        // DEBUG
-        //mMesh->_dumpContents(mMesh->getName() + "_preSubdivision.log");
-
-
-        
-        // Subdivide the curve
+        // Subdivide the curve to the MAX :)
         // Do u direction first, so need to step over v levels not done yet
-        size_t vStep = 1 << mVLevel;
-        size_t uStep = 1 << mULevel;
+        size_t vStep = 1 << mMaxVLevel;
+        size_t uStep = 1 << mMaxULevel;
 
         size_t v, u;
         for (v = 0; v < mMeshHeight; v += vStep)
@@ -129,9 +190,6 @@ namespace Ogre {
             subdivideCurve(lockedBuffer, v*mMeshWidth, uStep, mMeshWidth / uStep, mULevel);
         }
 
-        // DEBUG
-        //mMesh->_dumpContents(mMesh->getName() + "_postSubdivisionU.log");
-
         // Now subdivide in v direction, this time all the u direction points are there so no step
         for (u = 0; u < mMeshWidth; ++u)
         {
@@ -139,144 +197,83 @@ namespace Ogre {
         }
         
 
-        vbuf->unlock();
+        mVertexBuffer->unlock();
 
-        // DEBUG
-        //mMesh->_dumpContents(mMesh->getName() + "_postSubdivisionV.log");
-
-        // Make triangles from mesh
+        // Make triangles from mesh at this current level of detail
         makeTriangles();
 
-        // Set bounds based on control points
-        std::vector<Vector3>::const_iterator ctli;
-        Vector3 min, max;
-        bool first = true;
-        for (ctli = mVecCtlPoints.begin(); ctli != mVecCtlPoints.end(); ++ctli)
-        {
-            if (first || ctli->x < min.x)
-                min.x = ctli->x;
-            if (first || ctli->y < min.y)
-                min.y = ctli->y;
-            if (first || ctli->z < min.z)
-                min.z = ctli->z;
-            if (first || ctli->x > max.x)
-                max.x = ctli->x;
-            if (first || ctli->y > max.y)
-                max.y = ctli->y;
-            if (first || ctli->z > max.z)
-                max.z = ctli->z;
-            first = false;
-        }
-        mMesh->_setBounds(AxisAlignedBox(min,max));
-
-        // Done!
-        mNeedsBuild = false;
-
     }
     //-----------------------------------------------------------------------
-    void PatchSurface::setSubdivisionLevel(size_t level)
+    size_t PatchSurface::getAutoULevel(bool forMax)
     {
-        if (level != AUTO_LEVEL)
-        {
-            mULevel = level;
-            mVLevel = level;
-        }
-        else
-        {
-            // determine levels
-            // Derived from work by Bart Sekura in Rogl
-            Vector3 a,b,c;
-            size_t u,v;
-            bool found=false;
-            // Find u level
-            for(v = 0; v < mCtlHeight; v++) {
-                for(u = 0; u < mCtlWidth-1; u += 2) {
-                    a = mVecCtlPoints[v * mCtlWidth + u];
-                    b = mVecCtlPoints[v * mCtlWidth + u+1];
-                    c = mVecCtlPoints[v * mCtlWidth + u+2];
-                    if(a!=c) {
-                        found=true;
-                        break;
-                    }
+        // determine levels
+        // Derived from work by Bart Sekura in Rogl
+        Vector3 a,b,c;
+        size_t u,v;
+        bool found=false;
+        // Find u level
+        for(v = 0; v < mCtlHeight; v++) {
+            for(u = 0; u < mCtlWidth-1; u += 2) {
+                a = mVecCtlPoints[v * mCtlWidth + u];
+                b = mVecCtlPoints[v * mCtlWidth + u+1];
+                c = mVecCtlPoints[v * mCtlWidth + u+2];
+                if(a!=c) {
+                    found=true;
+                    break;
                 }
-                if(found) break;
             }
-            if(!found) {
-                Except(Exception::ERR_INTERNAL_ERROR, "Can't find suitable control points for determining U subdivision level",
-                    "PatchSurface::setSubdivisionLevel");
-            }
+            if(found) break;
+        }
+        if(!found) {
+            Except(Exception::ERR_INTERNAL_ERROR, "Can't find suitable control points for determining U subdivision level",
+                "PatchSurface::getAutoULevel");
+        }
 
-            mULevel = findLevel(a,b,c);
+        return findLevel(a,b,c);
 
-
-            found=false;
-            for(u = 0; u < mCtlWidth; u++) {
-                for(v = 0; v < mCtlHeight-1; v += 2) {
-                    a = mVecCtlPoints[v * mCtlWidth + u];
-                    b = mVecCtlPoints[(v+1) * mCtlWidth + u];
-                    c = mVecCtlPoints[(v+2) * mCtlWidth + u];
-                    if(a!=c) {
-                        found=true;
-                        break;
-                    }
+    }
+    //-----------------------------------------------------------------------
+    size_t PatchSurface::getAutoVLevel(bool forMax)
+    {
+        Vector3 a,b,c;
+        size_t u,v;
+        bool found=false;
+        for(u = 0; u < mCtlWidth; u++) {
+            for(v = 0; v < mCtlHeight-1; v += 2) {
+                a = mVecCtlPoints[v * mCtlWidth + u];
+                b = mVecCtlPoints[(v+1) * mCtlWidth + u];
+                c = mVecCtlPoints[(v+2) * mCtlWidth + u];
+                if(a!=c) {
+                    found=true;
+                    break;
                 }
-                if(found) break;
             }
-            if(!found) {
-                Except(Exception::ERR_INTERNAL_ERROR, "Can't find suitable control points for determining V subdivision level",
-                    "PatchSurface::setSubdivisionLevel");
-            }
-
-            mVLevel = findLevel(a,b,c);
-
-
+            if(found) break;
         }
-        if (mVLevel > mMaxVLevel)
-        {
-            mVLevel = mMaxVLevel;
+        if(!found) {
+            Except(Exception::ERR_INTERNAL_ERROR, "Can't find suitable control points for determining V subdivision level",
+                "PatchSurface::getAutoVLevel");
         }
-        if (mULevel > mMaxULevel)
-        {
-            mULevel = mMaxULevel;
-        }
-        // Derive mesh width / height
-        mMeshWidth  = (LEVEL_WIDTH(mULevel)-1) * ((mCtlWidth-1)/2) + 1;
-        mMeshHeight = (LEVEL_WIDTH(mVLevel)-1) * ((mCtlHeight-1)/2) + 1;
 
+        return findLevel(a,b,c);
 
-
-        mNeedsBuild = true;
     }
     //-----------------------------------------------------------------------
-    void PatchSurface::setMaxSubdivisionLevel(size_t level)
+    void PatchSurface::setSubdivisionFactor(Real factor)
     {
-        size_t maxULevel, maxVLevel;
+        assert(factor >= 0.0f && factor <= 1.0f);
 
-        if (level != AUTO_LEVEL)
-        {
-            maxULevel = level;
-            maxVLevel = level;
-        }
-        else
-        {
-            maxULevel = mULevel;
-            maxVLevel = mVLevel;
-        }
+        mULevel = factor * mMaxULevel;
+        mVLevel = factor * mMaxVLevel;
 
-        mMaxULevel = maxULevel;
-        mMaxVLevel = maxVLevel;
-        // Derive mesh width / height
-        mMaxMeshWidth  = (LEVEL_WIDTH(mMaxULevel)-1) * ((mCtlWidth-1)/2) + 1;
-        mMaxMeshHeight = (LEVEL_WIDTH(mMaxVLevel)-1) * ((mCtlHeight-1)/2) + 1;
-        allocateMemory();
+        makeTriangles();
+
+
     }
     //-----------------------------------------------------------------------
-    Mesh* PatchSurface::getMesh(void)
+    size_t PatchSurface::getCurrentIndexCount(void)
     {
-        if (mNeedsBuild)
-            build();
-
-        return mMesh;
+        return mCurrIndexCount;
     }
     //-----------------------------------------------------------------------
     size_t PatchSurface::findLevel(Vector3& a, Vector3& b, Vector3& c)
@@ -304,14 +301,14 @@ namespace Ogre {
             if(d.dotProduct(d) < test) {
                 break;
             }
-            b=a; // BUG?
-            //b = s; // SJS fix
+            b=a; 
         }
 
         return level;
 
     }
 
+    /*
     //-----------------------------------------------------------------------
     void PatchSurface::allocateMemory(void)
     {
@@ -378,16 +375,7 @@ namespace Ogre {
 
 
     }
-    //-----------------------------------------------------------------------
-    void PatchSurface::deallocateMemory(void)
-    {
-        // All detailed deallocation will be done by Mesh
-        MeshManager::getSingleton().unload((Resource*)mMesh);
-
-        delete mMesh;
-        mMemoryAllocated = false;
-
-    }
+    */
     //-----------------------------------------------------------------------
     void PatchSurface::distributeControlPoints(void* lockedBuffer)
     {
@@ -506,6 +494,16 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void PatchSurface::makeTriangles(void)
     {
+        // Our vertex buffer is subdivided to the highest level, we need to generate tris
+        // which step over the vertices we don't need for this level of detail.
+
+        // Calculate steps
+        int vStep = 1 << (mMaxVLevel - mVLevel);
+        int uStep = 1 << (mMaxULevel - mULevel);
+        int currWidth = (LEVEL_WIDTH(mULevel)-1) * ((mCtlWidth-1)/2) + 1;
+        int currHeight = (LEVEL_WIDTH(mVLevel)-1) * ((mCtlHeight-1)/2) + 1;
+
+
         // The mesh is built, just make a list of indexes to spit out the triangles
         int vInc, uInc;
         
@@ -514,7 +512,7 @@ namespace Ogre {
         if (mVSide == VS_BOTH)
         {
             iterations = 2;
-            vInc = 1;
+            vInc = vStep;
             v = 0; // Start with front
         }
         else
@@ -522,34 +520,37 @@ namespace Ogre {
             iterations = 1;
             if (mVSide == VS_FRONT)
             {
-                vInc = 1;
+                vInc = vStep;
                 v = 0;
             }
             else
             {
-                vInc = -1;
+                vInc = -vStep;
                 v = mMeshHeight - 1;
             }
         }
 
-        SubMesh* sm = mMesh->getSubMesh(0);
-        // Num faces, width*height*2 (2 tris per square)
-        sm->indexData->indexCount = (mMeshWidth-1) * (mMeshHeight-1) * 2 * iterations * 3;
+        // Calc num indexes
+        mCurrIndexCount = (currWidth - 1) * (currHeight - 1) * 6 * iterations;
 
         size_t v1, v2, v3;
+        // Lock just the section of the buffer we need
         unsigned short* pIndexes = static_cast<unsigned short*>(
-            sm->indexData->indexBuffer->lock(HardwareBuffer::HBL_DISCARD));
+            mIndexBuffer->lock(
+                mIndexOffset, 
+                mRequiredIndexCount * sizeof(unsigned short), 
+                HardwareBuffer::HBL_NO_OVERWRITE));
 
         while (iterations--)
         {
             // Make tris in a zigzag pattern (compatible with strips)
             u = 0;
-            uInc = 1; // Start with moving +u
+            uInc = uStep; // Start with moving +u
 
-            vCount = mMeshHeight - 1;
+            vCount = currHeight - 1;
             while (vCount--)
             {
-                uCount = mMeshWidth - 1;
+                uCount = currWidth - 1;
                 while (uCount--)
                 {
                     // First Tri in cell
@@ -587,7 +588,7 @@ namespace Ogre {
 
         }
 
-        sm->indexData->indexBuffer->unlock();
+        mIndexBuffer->unlock();
 
 
     }
