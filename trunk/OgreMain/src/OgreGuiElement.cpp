@@ -463,14 +463,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	bool GuiElement::contains(Real x, Real y) const
 	{
-	return (x >= 0) && (x < mWidth ) && (y >= 0) && (y < mHeight );
+	return (x >= mDerivedLeft) && (x < mDerivedLeft + mWidth ) && (y >= mDerivedTop) && (y < mDerivedTop + mHeight );
 	}
 
     //-----------------------------------------------------------------------
 	GuiElement* GuiElement::findElementAt(Real x, Real y) 		// relative to parent
 	{
 		GuiElement* ret = NULL;
-		if (contains(x - mLeft, y - mTop))
+		if (contains(x , y ))
 		{
 			ret = this;
 		}
@@ -496,7 +496,6 @@ namespace Ogre {
 			break;
 		}
 	}
-
 
     //-----------------------------------------------------------------------
 	PositionTarget* GuiElement::getPositionTargetParent() 

@@ -139,6 +139,9 @@ namespace Ogre {
 		void layoutItems();
 		Real mVSpacing;
 		Real mHSpacing;
+
+		ushort mPixelVSpacing;
+		ushort mPixelHSpacing;
 		String mItemTemplateName;
 		String mItemPanelMaterial;
 		String mItemPanelMaterialSelected;

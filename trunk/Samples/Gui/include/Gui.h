@@ -52,7 +52,7 @@ public:
 
 };
 
-class GuiApplication : public ExampleApplication, public ActionListener
+class GuiApplication : public ExampleApplication, public ActionListener, public MouseListener
 {
 public:
     GuiApplication()
@@ -89,6 +89,7 @@ protected:
 		list->addListItem(new StringResource("test1"));
 		list->addListItem(new StringResource("test2"));
 
+		(GuiManager::getSingleton().getGuiElement("Core/CurrFps"))->addMouseListener(this);
 
 		GuiContainer* pCursorGui = OverlayManager::getSingleton().getCursorGui();
 		pCursorGui->setMaterialName("Cursor/default");
@@ -99,6 +100,18 @@ protected:
         // Think about doing something here
 
 	}
+
+
+	void mouseClicked(MouseEvent* e) 
+	{
+		  Entity *ent;
+
+
+	}
+	void mouseEntered(MouseEvent* e) {}
+	void mouseExited(MouseEvent* e) {}
+	void mousePressed(MouseEvent* e) {}
+	void mouseReleased(MouseEvent* e) {}
 
     // Create new frame listener
     void createFrameListener(void)
