@@ -85,7 +85,7 @@ namespace Ogre {
 	    */
 	    size_t getSize() const;	
 
-	    /** Returns a const pointer to the start of the memory.
+	    /** Returns a pointer to the start of the memory.
 	    */
 	    uchar * getPtr();
 
@@ -93,7 +93,15 @@ namespace Ogre {
 	    */
 	    const uchar* getPtr() const;
 
-	    /** Reads memory from the main buffer into another, incrementing an
+        /** Returns a pointer to the current position in memory.
+        */
+        uchar * getCurrentPtr();
+
+        /** Returns a const pointer to the current position in memory.
+        */
+        const uchar* getCurrentPtr() const;
+
+        /** Reads memory from the main buffer into another, incrementing an
 		    internal 'current' pointer to allow progressive reads.
 		    @param
 			    buffer Pointer to buffer to read into
