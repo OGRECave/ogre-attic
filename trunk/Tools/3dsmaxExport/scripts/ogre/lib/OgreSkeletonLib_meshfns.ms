@@ -53,7 +53,7 @@ function writeM tmesh flipyz scale flipNormal outFile =
 	-- Vertices positions and normals
 	--	
 	format("\t\t\t<geometry count=\"%\">\n") ((arrayLength ogreVertexTable)+1) to:outFile; -- +1 cf remarque en haut.
-	format("\t\t\t\t<vertexbuffer positions=\"true\" normals=\"true\" colours=\"false\" numtexcoords=\"%\" texcoordsets=\"0\" texcoorddimensions=\"2\">\n") currentMatId to:outFile ;
+	format("\t\t\t\t<vertexbuffer positions=\"true\" normals=\"true\" colours=\"false\" numtexcoords=\"1\" texcoordsets=\"0\" texcoorddimensions=\"2\">\n") to:outFile ;
 		
 		-- vertex number 0
 		format("\t\t\t\t\t<vertex>\n") to:outFile ;
