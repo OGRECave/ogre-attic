@@ -25,9 +25,9 @@
 			sourceTree = "<group>";
 		};
 		089C165DFE840E0CC02AAC07 = {
-			expectedFileType = text.plist.strings;
 			fileEncoding = 10;
 			isa = PBXFileReference;
+			lastKnownFileType = text.plist.strings;
 			name = English;
 			path = English.lproj/InfoPlist.strings;
 			refType = 4;
@@ -62,9 +62,9 @@
 			sourceTree = "<group>";
 		};
 		1058C7A1FEA54F0111CA2CBB = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = Cocoa.framework;
 			path = /System/Library/Frameworks/Cocoa.framework;
 			refType = 0;
@@ -97,7 +97,7 @@
 //173
 //174
 		17587328FF379C6511CA2CBB = {
-			expectedFileType = wrapper.application;
+			explicitFileType = wrapper.application;
 			fallbackIsa = PBXFileReference;
 			isa = PBXApplicationReference;
 			path = TextureFX.app;
@@ -199,18 +199,18 @@
 			sourceTree = "<group>";
 		};
 		29B97324FDCFA39411CA2CEA = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = AppKit.framework;
 			path = /System/Library/Frameworks/AppKit.framework;
 			refType = 0;
 			sourceTree = "<absolute>";
 		};
 		29B97325FDCFA39411CA2CEA = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = Foundation.framework;
 			path = /System/Library/Frameworks/Foundation.framework;
 			refType = 0;
@@ -322,9 +322,9 @@
 //3C3
 //3C4
 		3C0C93A0047A420A00A801FE = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = TextureFX.h;
 			path = ../../../../Samples/TextureFX/include/TextureFX.h;
 			refType = 2;
@@ -337,18 +337,18 @@
 			};
 		};
 		3CA52E92046F7A6400A801FE = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = SDLMain.h;
 			path = ../../Classes/SDLMain.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		3CA52E93046F7A6400A801FE = {
-			expectedFileType = sourcecode.c.objc;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			name = SDLMain.m;
 			path = ../../Classes/SDLMain.m;
 			refType = 2;
@@ -361,18 +361,18 @@
 			};
 		};
 		3CA52E9A046F7A8B00A801FE = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = ExampleApplication.h;
 			path = ../../../../Samples/Common/include/ExampleApplication.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		3CA52E9B046F7A8B00A801FE = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = ExampleFrameListener.h;
 			path = ../../../../Samples/Common/include/ExampleFrameListener.h;
 			refType = 2;
@@ -391,18 +391,18 @@
 			};
 		};
 		3CA52EA2046F7AA600A801FE = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = freetype.framework;
 			path = ../../../Frameworks/freetype.framework;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		3CA52EA4046F7AA600A801FE = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = SDL.framework;
 			path = ../../../Frameworks/SDL.framework;
 			refType = 2;
@@ -421,9 +421,9 @@
 			};
 		};
 		3CA52EA8046F7AB100A801FE = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = Ogre.framework;
 			path = ../../OgreFramework/build/Ogre.framework;
 			refType = 2;
@@ -466,9 +466,9 @@
 			};
 		};
 		3CD3F7ED047A157700A801FE = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = TextureFX.cpp;
 			path = ../../../../Samples/TextureFX/src/TextureFX.cpp;
 			refType = 2;
@@ -534,18 +534,18 @@
 //663
 //664
 		66CD7CA804A11C05000001C9 = {
-			expectedFileType = text;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = text;
 			name = plugins.cfg;
 			path = ../plugins.cfg;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CD7CA904A11C05000001C9 = {
-			expectedFileType = text;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = text;
 			name = resources.cfg;
 			path = ../resources.cfg;
 			refType = 2;

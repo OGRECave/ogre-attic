@@ -25,9 +25,9 @@
 			sourceTree = "<group>";
 		};
 		089C165DFE840E0CC02AAC07 = {
-			expectedFileType = text.plist.strings;
 			fileEncoding = 10;
 			isa = PBXFileReference;
+			lastKnownFileType = text.plist.strings;
 			name = English;
 			path = English.lproj/InfoPlist.strings;
 			refType = 4;
@@ -62,9 +62,9 @@
 			sourceTree = "<group>";
 		};
 		1058C7A1FEA54F0111CA2CBB = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = Cocoa.framework;
 			path = /System/Library/Frameworks/Cocoa.framework;
 			refType = 0;
@@ -97,7 +97,7 @@
 //173
 //174
 		17587328FF379C6511CA2CBB = {
-			expectedFileType = wrapper.application;
+			explicitFileType = wrapper.application;
 			fallbackIsa = PBXFileReference;
 			isa = PBXApplicationReference;
 			path = CubeMapping.app;
@@ -200,18 +200,18 @@
 			sourceTree = "<group>";
 		};
 		29B97324FDCFA39411CA2CEA = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = AppKit.framework;
 			path = /System/Library/Frameworks/AppKit.framework;
 			refType = 0;
 			sourceTree = "<absolute>";
 		};
 		29B97325FDCFA39411CA2CEA = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = Foundation.framework;
 			path = /System/Library/Frameworks/Foundation.framework;
 			refType = 0;
@@ -361,9 +361,9 @@
 //663
 //664
 		661D106604AA68D7000001C9 = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = Ogre.framework;
 			path = ../../OgreFramework/build/Ogre.framework;
 			refType = 2;
@@ -376,18 +376,18 @@
 			};
 		};
 		661D106A04AA68E1000001C9 = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = freetype.framework;
 			path = ../../../Frameworks/freetype.framework;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		661D106B04AA68E1000001C9 = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = SDL.framework;
 			path = ../../../Frameworks/SDL.framework;
 			refType = 2;
@@ -406,18 +406,18 @@
 			};
 		};
 		661D106E04AA6906000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = SDLMain.h;
 			path = ../../Classes/SDLMain.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		661D106F04AA6906000001C9 = {
-			expectedFileType = sourcecode.c.objc;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			name = SDLMain.m;
 			path = ../../Classes/SDLMain.m;
 			refType = 2;
@@ -436,9 +436,9 @@
 			};
 		};
 		661D107204AA6C70000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = CubeMapping.cpp;
 			path = ../../../../Samples/CubeMapping/src/CubeMapping.cpp;
 			refType = 2;
@@ -451,9 +451,9 @@
 			};
 		};
 		661D107404AA6C74000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = CubeMapping.h;
 			path = ../../../../Samples/CubeMapping/include/CubeMapping.h;
 			refType = 2;
@@ -466,18 +466,18 @@
 			};
 		};
 		661D107604AA6C7C000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = ExampleApplication.h;
 			path = ../../../../Samples/Common/include/ExampleApplication.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		661D107704AA6C7C000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = ExampleFrameListener.h;
 			path = ../../../../Samples/Common/include/ExampleFrameListener.h;
 			refType = 2;
@@ -526,18 +526,18 @@
 			};
 		};
 		661D129104AA6FEC000001C9 = {
-			expectedFileType = text;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = text;
 			name = plugins.cfg;
 			path = ../plugins.cfg;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		661D129204AA6FEC000001C9 = {
-			expectedFileType = text;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = text;
 			name = resources.cfg;
 			path = ../resources.cfg;
 			refType = 2;
@@ -566,9 +566,9 @@
 //823
 //824
 		829D531D0533282C0096483E = {
-			expectedFileType = text;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = text;
 			name = media.cfg;
 			path = ../media.cfg;
 			refType = 2;
