@@ -105,9 +105,6 @@ AC_CONFIG_FILES([Makefile \
     PlugIns/FileSystem/Makefile \
     PlugIns/FileSystem/src/Makefile \
     PlugIns/FileSystem/include/Makefile \
-    PlugIns/GuiElements/Makefile \
-    PlugIns/GuiElements/src/Makefile \
-    PlugIns/GuiElements/include/Makefile \
     PlugIns/NatureSceneManager/Makefile \
     PlugIns/NatureSceneManager/src/Makefile \
     PlugIns/NatureSceneManager/include/Makefile \
