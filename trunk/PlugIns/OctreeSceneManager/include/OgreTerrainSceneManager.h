@@ -317,6 +317,8 @@ public:
     SceneNode* getTerrainRootNode(void) const { return mTerrainRoot; }
     /** Overridden from SceneManager */
     void clearScene(void);
+	/** Overridden from SceneManager */
+	void setWorldGeometryRenderQueue(RenderQueueGroupID qid);
 
 
 protected:

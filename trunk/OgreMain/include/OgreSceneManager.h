@@ -112,6 +112,17 @@ namespace Ogre {
             IRS_RENDER_MODULATIVE_PASS
         };
 
+		/** Enumeration of the possible modes allowed for processing the special case
+		render queue list.
+		@see SceneManager::setSpecialCaseRenderQueueMode
+		*/
+		enum SpecialCaseRenderQueueMode
+		{
+			/// Render only the queues in the special case list
+			SCRQM_INCLUDE,
+			/// Render all except the queues in the special case list
+			SCRQM_EXCLUDE
+		};
     protected:
 
         /// Queue of objects for rendering
@@ -197,6 +208,11 @@ namespace Ogre {
         Real mFogStart;
         Real mFogEnd;
         Real mFogDensity;
+
+		typedef std::set<RenderQueueGroupID> SpecialCaseRenderQueueList;
+		SpecialCaseRenderQueueList mSpecialCaseQueueList;
+		SpecialCaseRenderQueueMode mSpecialCaseQueueMode;
+		RenderQueueGroupID mWorldGeometryRenderQueue;
 
         /** Internal method for initialising the render queue.
         @remarks
@@ -390,6 +406,7 @@ namespace Ogre {
         class _OgreExport ShadowCasterSceneQueryListener : public SceneQueryListener
         {
         protected:
+			SceneManager* mSceneMgr;
             ShadowCasterList* mCasterList;
             bool mIsLightInFrustum;
             const PlaneBoundedVolumeList* mLightClipVolumeList;
@@ -397,8 +414,8 @@ namespace Ogre {
             const Light* mLight;
             Real mFarDistSquared;
         public:
-            ShadowCasterSceneQueryListener() : mCasterList(0), 
-                mIsLightInFrustum(false), mLightClipVolumeList(0), 
+            ShadowCasterSceneQueryListener(SceneManager* sm) : mSceneMgr(sm),
+				mCasterList(0), mIsLightInFrustum(false), mLightClipVolumeList(0), 
                 mCamera(0) {}
             // Prepare the listener for use with a set of parameters  
             void prepare(bool lightInFrustum, 
@@ -417,7 +434,7 @@ namespace Ogre {
             bool queryResult(SceneQuery::WorldFragment* fragment);
         };
 
-        ShadowCasterSceneQueryListener mShadowCasterQueryListener;
+        ShadowCasterSceneQueryListener* mShadowCasterQueryListener;
 
         /** Internal method for locating a list of shadow casters which 
             could be affecting the frustum for a given light. 
@@ -1263,14 +1280,81 @@ namespace Ogre {
         /** Removes a listener previously added with addRenderQueueListener. */
         virtual void removeRenderQueueListener(RenderQueueListener* delListener);
 
+		/** Adds an item to the 'special case' render queue list.
+		@remarks
+			Normally all render queues are rendered, in their usual sequence, 
+			only varying if a RenderQueueListener nominates for the queue to be 
+			repeated or skipped. This method allows you to add a render queue to 
+			a 'special case' list, which varies the behaviour. The effect of this
+			list depends on the 'mode' in which this list is in, which might be
+			to exclude these render queues, or to include them alone (excluding
+			all other queues). This allows you to perform broad selective
+			rendering without requiring a RenderQueueListener.
+		@param qid The identifier of the queue which should be added to the
+			special case list. Nothing happens if the queue is already in the list.
+		*/
+		virtual void addSpecialCaseRenderQueue(RenderQueueGroupID qid);
+		/** Removes an item to the 'special case' render queue list.
+		@see SceneManager::addSpecialCaseRenderQueue
+		@param qid The identifier of the queue which should be removed from the
+			special case list. Nothing happens if the queue is not in the list.
+		*/
+		virtual void removeSpecialCaseRenderQueue(RenderQueueGroupID qid);
+		/** Clears the 'special case' render queue list.
+		@see SceneManager::addSpecialCaseRenderQueue
+		*/
+		virtual void clearSpecialCaseRenderQueues(void);
+		/** Sets the way the special case render queue list is processed.
+		@see SceneManager::addSpecialCaseRenderQueue
+		@param mode The mode of processing
+		*/
+		virtual void setSpecialCaseRenderQueueMode(SpecialCaseRenderQueueMode mode);
+		/** Gets the way the special case render queue list is processed. */
+		virtual SpecialCaseRenderQueueMode getSpecialCaseRenderQueueMode(void);
+		/** Returns whether or not the named queue will be rendered based on the
+			current 'special case' render queue list and mode.
+		@see SceneManager::addSpecialCaseRenderQueue
+		@param qid The identifier of the queue which should be tested
+		@returns true if the queue will be rendered, false otherwise
+		*/
+		virtual bool isRenderQueueToBeProcessed(RenderQueueGroupID qid);
+
+		/** Sets the render queue that the world geometry (if any) this SceneManager
+			renders will be associated with.
+		@remarks
+			SceneManagers which provide 'world geometry' should place it in a 
+			specialised render queue in order to make it possible to enable / 
+			disable it easily using the addSpecialCaseRenderQueue method. Even 
+			if the SceneManager does not use the render queues to render the 
+			world geometry, it should still pick a queue to represent it's manual
+			rendering, and check isRenderQueueToBeProcessed before rendering.
+		@note
+			Setting this may not affect the actual ordering of rendering the
+			world geometry, if the world geometry is being rendered manually
+			by the SceneManager. If the SceneManager feeds world geometry into
+			the queues, however, the ordering will be affected. 
+		*/
+		virtual void setWorldGeometryRenderQueue(RenderQueueGroupID qid);
+		/** Gets the render queue that the world geometry (if any) this SceneManager
+			renders will be associated with.
+		@remarks
+			SceneManagers which provide 'world geometry' should place it in a 
+			specialised render queue in order to make it possible to enable / 
+			disable it easily using the addSpecialCaseRenderQueue method. Even 
+			if the SceneManager does not use the render queues to render the 
+			world geometry, it should still pick a queue to represent it's manual
+			rendering, and check isRenderQueueToBeProcessed before rendering.
+		*/
+		virtual RenderQueueGroupID getWorldGeometryRenderQueue(void);
+
 		/** Allows all bounding boxes of scene nodes to be displayed. */
-		void showBoundingBoxes(bool bShow);
+		virtual void showBoundingBoxes(bool bShow);
 
 		/** Returns if all bounding boxes of scene nodes are to be displayed */
-		bool getShowBoundingBoxes() const;
+		virtual bool getShowBoundingBoxes() const;
 
         /** Internal method for notifying the manager that a SceneNode is autotracking. */
-        void _notifyAutotrackingSceneNode(SceneNode* node, bool autoTrack);
+        virtual void _notifyAutotrackingSceneNode(SceneNode* node, bool autoTrack);
 
         
         /** Creates an AxisAlignedBoxSceneQuery for this scene manager. 

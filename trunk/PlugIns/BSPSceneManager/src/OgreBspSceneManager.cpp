@@ -134,6 +134,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BspSceneManager::renderStaticGeometry(void)
     {
+		// Check we should be rendering
+		if (!isRenderQueueToBeProcessed(mWorldGeometryRenderQueue))
+			return;
+
         // Cache vertex/face data first
         std::vector<StaticFaceGroup*>::const_iterator faceGrpi;
         static RenderOperation patchOp;

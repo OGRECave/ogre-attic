@@ -77,6 +77,8 @@ mSkyPlaneEnabled(false),
 mSkyBoxEnabled(false),
 mSkyDomeEnabled(false),
 mFogMode(FOG_NONE),
+mSpecialCaseQueueMode(SCRQM_EXCLUDE),
+mWorldGeometryRenderQueue(RENDER_QUEUE_WORLD_GEOMETRY_1),
 mShadowCasterPlainBlackPass(0),
 mShadowReceiverPass(0),
 mDisplayNodes(false),
@@ -118,6 +120,8 @@ mShadowTextureFadeEnd(0.9)
         mSkyDomeEntity[i] = 0;
     }
 
+	mShadowCasterQueryListener = new ShadowCasterSceneQueryListener(this);
+
 
 }
 //-----------------------------------------------------------------------
@@ -125,6 +129,7 @@ SceneManager::~SceneManager()
 {
     clearScene();
     removeAllCameras();
+	delete mShadowCasterQueryListener;
     delete mSceneRoot;
     delete mFullScreenQuad;
     delete mShadowCasterSphereQuery;
@@ -149,6 +154,48 @@ void SceneManager::initRenderQueue(void)
     mRenderQueue->getQueueGroup(RENDER_QUEUE_OVERLAY)->setShadowsEnabled(false);
     mRenderQueue->getQueueGroup(RENDER_QUEUE_SKIES_EARLY)->setShadowsEnabled(false);
     mRenderQueue->getQueueGroup(RENDER_QUEUE_SKIES_LATE)->setShadowsEnabled(false);
+}
+//-----------------------------------------------------------------------
+void SceneManager::addSpecialCaseRenderQueue(RenderQueueGroupID qid)
+{
+	mSpecialCaseQueueList.insert(qid);
+}
+//-----------------------------------------------------------------------
+void SceneManager::removeSpecialCaseRenderQueue(RenderQueueGroupID qid)
+{
+	mSpecialCaseQueueList.erase(qid);
+}
+//-----------------------------------------------------------------------
+void SceneManager::clearSpecialCaseRenderQueues(void)
+{
+	mSpecialCaseQueueList.clear();
+}
+//-----------------------------------------------------------------------
+void SceneManager::setSpecialCaseRenderQueueMode(SceneManager::SpecialCaseRenderQueueMode mode)
+{
+	mSpecialCaseQueueMode = mode;
+}
+//-----------------------------------------------------------------------
+SceneManager::SpecialCaseRenderQueueMode SceneManager::getSpecialCaseRenderQueueMode(void)
+{
+	return mSpecialCaseQueueMode;
+}
+//-----------------------------------------------------------------------
+bool SceneManager::isRenderQueueToBeProcessed(RenderQueueGroupID qid)
+{
+	bool inList = mSpecialCaseQueueList.find(qid) != mSpecialCaseQueueList.end();
+	return (inList && mSpecialCaseQueueMode == SCRQM_INCLUDE)
+		|| (!inList && mSpecialCaseQueueMode == SCRQM_EXCLUDE);
+}
+//-----------------------------------------------------------------------
+void SceneManager::setWorldGeometryRenderQueue(RenderQueueGroupID qid)
+{
+	mWorldGeometryRenderQueue = qid;
+}
+//-----------------------------------------------------------------------
+RenderQueueGroupID SceneManager::getWorldGeometryRenderQueue(void)
+{
+	return mWorldGeometryRenderQueue;
 }
 //-----------------------------------------------------------------------
 Camera* SceneManager::createCamera(const String& name)
@@ -1330,7 +1377,10 @@ void SceneManager::_renderVisibleObjects(void)
     {
         // Get queue group id
         RenderQueueGroupID qId = queueIt.peekNextKey();
-        RenderQueueGroup* pGroup = queueIt.getNext();
+		RenderQueueGroup* pGroup = queueIt.getNext();
+		// Skip this one if not to be processed
+		if (!isRenderQueueToBeProcessed(qId))
+			continue;
 
 
         bool repeatQueue = false;
@@ -2620,7 +2670,8 @@ void SceneManager::findLightsAffectingFrustum(const Camera* camera)
 bool SceneManager::ShadowCasterSceneQueryListener::queryResult(
     MovableObject* object)
 {
-    if (object->getCastShadows() && object->isVisible())
+    if (object->getCastShadows() && object->isVisible() && 
+		mSceneMgr->isRenderQueueToBeProcessed(object->getRenderQueueGroup()))
     {
         if (mFarDistSquared)
         {
@@ -2705,10 +2756,10 @@ const SceneManager::ShadowCasterList& SceneManager::findShadowCastersForLight(
         else
             mShadowCasterAABBQuery->setBox(aabb);
         // Execute, use callback
-        mShadowCasterQueryListener.prepare(false, 
+        mShadowCasterQueryListener->prepare(false, 
             &(light->_getFrustumClipVolumes(camera)), 
             light, camera, &mShadowCasterList, mShadowFarDistSquared);
-        mShadowCasterAABBQuery->execute(&mShadowCasterQueryListener);
+        mShadowCasterAABBQuery->execute(mShadowCasterQueryListener);
 
 
     }
@@ -2734,9 +2785,9 @@ const SceneManager::ShadowCasterList& SceneManager::findShadowCastersForLight(
             }
 
             // Execute, use callback
-            mShadowCasterQueryListener.prepare(lightInFrustum, 
+            mShadowCasterQueryListener->prepare(lightInFrustum, 
                 volList, light, camera, &mShadowCasterList, mShadowFarDistSquared);
-            mShadowCasterSphereQuery->execute(&mShadowCasterQueryListener);
+            mShadowCasterSphereQuery->execute(mShadowCasterQueryListener);
 
         }
 
