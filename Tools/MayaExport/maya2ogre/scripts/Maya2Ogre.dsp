@@ -91,10 +91,6 @@ SOURCE=..\src\maya2ogre.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\shared\src\OgreMayaExportMesh.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\shared\src\OgreMayaMesh.cpp
 # End Source File
 # Begin Source File
@@ -103,7 +99,7 @@ SOURCE=..\..\shared\src\OgreMayaOptions.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\shared\src\OgreMayaScene.cpp
+SOURCE=..\src\OgreMayaScene.cpp
 # End Source File
 # Begin Source File
 
@@ -119,10 +115,6 @@ SOURCE=..\..\shared\include\OgreMayaCommon.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\shared\include\OgreMayaExportMesh.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\shared\include\OgreMayaMesh.h
 # End Source File
 # Begin Source File
@@ -131,7 +123,7 @@ SOURCE=..\..\shared\include\OgreMayaOptions.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\shared\include\OgreMayaScene.h
+SOURCE=..\include\OgreMayaScene.h
 # End Source File
 # Begin Source File
 
