@@ -270,7 +270,7 @@ namespace Ogre {
     }
     */
     //-----------------------------------------------------------------------
-    const AxisAlignedBox& Mesh::getBounds(void)
+    const AxisAlignedBox& Mesh::getBounds(void) const
     {
         /*
         if (mUpdateBounds)
@@ -766,7 +766,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    Real Mesh::getBoundingSphereRadius(void)
+    Real Mesh::getBoundingSphereRadius(void) const
     {
         return mBoundRadius;
     }
