@@ -68,9 +68,9 @@ bool GTKWindow::pump_events()
     return false;
 }
 
-OGREWidget& GTKWindow::get_ogre_widget()
+OGREWidget* GTKWindow::get_ogre_widget()
 {
-    return *ogre;
+    return ogre;
 }
 
 void GTKWindow::create(String name, int width, int height, int colourDepth, 
@@ -146,5 +146,6 @@ void GTKWindow::writeContentsToFile(const String& filename)
 bool GTKWindow::on_delete_event(GdkEventAny* event)
 {
     Root::getSingleton().getRenderSystem()->detachRenderTarget( getName() );
+    return false;
 }
 
