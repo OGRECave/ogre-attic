@@ -120,10 +120,12 @@ namespace Ogre {
     RenderWindow* RenderSystem::initialise(bool autoCreateWindow)
     {
         // Have I been registered by call to Root::setRenderSystem?
+		/** Don't do this anymore, just allow via Root
         RenderSystem* regPtr = Root::getSingleton().getRenderSystem();
         if (!regPtr || regPtr != this)
             // Register self - library user has come to me direct
             Root::getSingleton().setRenderSystem(this);
+		*/
 
         // Init mesh manager
         MeshManager::getSingleton()._initialise();
