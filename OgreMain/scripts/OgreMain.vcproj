@@ -274,9 +274,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreGuiContainer.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreGuiControl.cpp">
-			</File>
-			<File
 				RelativePath="..\src\OgreGuiElementCommands.cpp">
 			</File>
 			<File
@@ -796,9 +793,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreGuiContainer.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreGuiControl.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreGuiElementCommands.h">
