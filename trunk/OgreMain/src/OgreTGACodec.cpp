@@ -23,6 +23,7 @@ http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
 #include "OgreTGACodec.h"
+#include "OgreImage.h"
 #include "OgreException.h"
 
 BEGIN_OGRE_NAMESPACE
@@ -33,7 +34,7 @@ void TGACodec::code( const DataChunk& input, DataChunk* output, ... ) const
     OgreUnguard();
 }
 
-Codec::CodecData * TGACodec::decode( const DataChunk& input, DataChunk* output ) const
+Codec::CodecData * TGACodec::decode( const DataChunk& input, DataChunk* output, ... ) const
 {
     OgreGuard( "TGACodec::decode" );
     // Note that this implementation is modified from code
@@ -216,8 +217,16 @@ Codec::CodecData * TGACodec::decode( const DataChunk& input, DataChunk* output )
 
     ret_data->ulHeight = mHeight;
     ret_data->ulWidth = mWidth;
-    ret_data->bGreyS = mIsGreyscale;
-    ret_data->b32Bit = mHasAlpha;
+    
+    uchar ucBpp = 0;
+    if( mHasAlpha )
+        ucBpp += 8;
+    if( mIsGreyscale )
+        ucBpp += 8;
+    else
+        ucBpp += 24;
+
+    ret_data->eFormat = Image::BPP2PF( ucBpp );
 
     OgreUnguardRet( ret_data );
 }

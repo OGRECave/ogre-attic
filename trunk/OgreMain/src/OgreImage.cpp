@@ -26,213 +26,236 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "OgreArchiveManager.h"
 #include "OgreException.h"
-#include "OgrePNGCodec.h"
-#include "OgreJPEGCodec.h"
-#include "OgreTGACodec.h"
+#include "OgreImageCodec.h"
+#include "OgreSDDataChunk.h"
 
-namespace Ogre {
+BEGIN_OGRE_NAMESPACE
 
-    Bool Image::ms_bFlipX = false;
-    Bool Image::ms_bFlipY = false;
+//-----------------------------------------------------------------------------
+Image::Image()
+    : m_pBuffer( NULL )
+{
+}
 
-    //-----------------------------------------------------------------------
-    Image::Image()
+//-----------------------------------------------------------------------------
+Image::Image( const Image &img )
+{
+    // call assignment operator
+    *this = img;
+}
+
+//-----------------------------------------------------------------------------
+Image::~Image()
+{
+    if( m_pBuffer )
     {
-        mpBuffer = NULL;
-    }
-
-    //-----------------------------------------------------------------------
-    Image::~Image()
-    {
-        if (mpBuffer)
-        {
-            delete[] mpBuffer;
-            mpBuffer = NULL;
-        }
-    }
-
-    void Image::flipX()
-    {
-    }
-
-    //-----------------------------------------------------------------------
-    void Image::flipY()
-    {
-        if( !mpBuffer )
-            Except( 
-                Exception::ERR_INTERNAL_ERROR,
-                "Can not flip an unitialized texture",
-                "Image::flipY" );
-
-        size_t imgSize = mWidth * mHeight * ( mIsGreyscale ? ( mHasAlpha ? 2 : 1 ) : ( mHasAlpha ? 4 : 3 ) );
-        size_t linSize = imgSize / mHeight;
-        
-        byte *pTempBuffer = new byte[ imgSize ];
-        byte *ptr1 = mpBuffer, *ptr2 = pTempBuffer + ( ( mHeight - 1 ) * linSize );
-
-        for( size_t i = 0; i < mHeight; i++ )
-        {
-            memcpy( ptr2, ptr1, linSize );
-            ptr1 += linSize; ptr2 -= linSize;
-        }
-
-        memcpy( mpBuffer, pTempBuffer, imgSize );
-    }
-
-    //-----------------------------------------------------------------------
-    Byte * Image::load( const String& strFileName )
-    {
-        if( mpBuffer )
-        {
-            delete[] mpBuffer;
-            mpBuffer = NULL;
-        }
-
-        String strExt;
-
-        size_t pos = strFileName.find_last_of(".");
-		if( pos == String::npos )
-            Except(
-			Exception::ERR_INVALIDPARAMS, 
-			"Unable to load image file '" + strFileName + "' - invalid extension.",
-            "Image::load" );
-
-        while( pos != strFileName.length() )
-            strExt += strFileName[pos++];
-
-        Codec * pCodec = Codec::getColl()[strExt.toLowerCase()];
-        if( !pCodec )
-            Except(
-            Exception::ERR_INVALIDPARAMS, 
-            "Unable to load image file '" + strFileName + "' - invalid extension.",
-            "Image::load" );
-
-        SDDataChunk encoded;
-        DataChunk decoded;
-
-        if( !ArchiveManager::getSingleton()._findResourceData( strFileName, encoded ) )
-            Except(
-            Exception::ERR_INVALIDPARAMS, 
-            "Unable to find image file '" + strFileName + "'.",
-            "Image::load" );
-
-        ImageCodec::ImageData * pData = static_cast< ImageCodec::ImageData * > (
-            pCodec->decode( encoded, &decoded ) );
-
-        mWidth = pData->ulWidth;
-        mHeight = pData->ulHeight;
-        mIsGreyscale = pData->bGreyS;
-        mHasAlpha = pData->b32Bit;
-
-        delete pData;
-
-        mpBuffer = const_cast< unsigned char * >( decoded.getPtr() );
-
-        if( ms_bFlipY )
-            flipY();
-        
-        // Return ptr
-        return mpBuffer;
-    }
-
-    //-----------------------------------------------------------------------
-    unsigned char* Image::load( DataChunk& chunk, const String& ext )
-    {
-        String strExt = ext;
-
-        Codec * pCodec = Codec::getColl()[strExt.toLowerCase()];
-        if( !pCodec )
-            Except(
-            Exception::ERR_INVALIDPARAMS, 
-            "Unable to load image - invalid extension.",
-            "Image::load" );
-
-        DataChunk decoded;
-
-        ImageCodec::ImageData * pData = static_cast< ImageCodec::ImageData * > (
-            pCodec->decode( chunk, &decoded ) );
-
-        mWidth = pData->ulWidth;
-        mHeight = pData->ulHeight;
-        mIsGreyscale = pData->bGreyS;
-        mHasAlpha = pData->b32Bit;
-
-        delete pData;
-
-        mpBuffer = const_cast< unsigned char * >( decoded.getPtr() );
-
-        if( ms_bFlipY )
-            flipY();
-
-        // Return ptr
-        return mpBuffer;        
-    }
-    void Image::loadRawRGB( Byte *pData, UInt32 ulWidth, UInt32 ulHeight )
-    {
-        if( mpBuffer )
-            delete [] mpBuffer;
-
-        mpBuffer = new unsigned char[ ulHeight * ulWidth * 3 ];
-        mWidth = ulWidth;
-        mHeight = ulHeight;
-        mHasAlpha = false;
-        mIsGreyscale = false;
-
-        memcpy( mpBuffer, pData, ulHeight * ulWidth * 3 );
-
-        if( ms_bFlipY )
-            flipY();
-    }
-    void Image::loadRawRGBA( Byte *pData, UInt32 ulWidth, UInt32 ulHeight )
-    {
-        if( mpBuffer )
-            delete [] mpBuffer;
-
-        mpBuffer = new unsigned char[ ulHeight * ulWidth * 4 ];
-        mWidth = ulWidth;
-        mHeight = ulHeight;
-        mHasAlpha = true;
-        mIsGreyscale = false;
-
-        memcpy( mpBuffer, pData, ulHeight * ulWidth * 4 );
-
-        if( ms_bFlipY )
-            flipY();
-    }
-    //-----------------------------------------------------------------------
-    unsigned char* Image::getData(void)
-    {
-        return mpBuffer;
-    }
-
-    //-----------------------------------------------------------------------
-    unsigned short Image::getWidth(void)
-    {
-        return mWidth;
-    }
-
-    //-----------------------------------------------------------------------
-    unsigned short Image::getHeight(void)
-    {
-        return mHeight;
-    }
-
-    //-----------------------------------------------------------------------
-    unsigned short Image::getRowSpan(void)
-    {
-        return mRowSpan;
-    }
-
-    //-----------------------------------------------------------------------
-    bool Image::isGreyscale(void)
-    {
-        return mIsGreyscale;
-
-    }
-
-    //-----------------------------------------------------------------------
-    bool Image::hasAlphaChannel(void)
-    {
-        return mHasAlpha;
+        delete[] m_pBuffer;
+        m_pBuffer = NULL;
     }
 }
+
+//-----------------------------------------------------------------------------
+Image & Image::operator = ( const Image &img )
+{
+    m_uWidth = img.m_uWidth;
+    m_uHeight = img.m_uHeight;
+    m_eFormat = img.m_eFormat;
+    m_ucPixelSize = img.m_ucPixelSize;
+
+    m_pBuffer = new uchar[ m_uWidth * m_uHeight * m_ucPixelSize ];
+    memcpy( m_pBuffer, img.m_pBuffer, m_uWidth * m_uHeight * m_ucPixelSize );
+
+    return *this;
+}
+
+//-----------------------------------------------------------------------------
+Image & Image::flipAroundY()
+{
+    OgreGuard( "Image::flipAroundX" );
+    OgreUnguardRet( *this );
+}
+
+//-----------------------------------------------------------------------------
+Image & Image::flipAroundX()
+{
+    OgreGuard( "Image::flipAroundX" );
+
+    if( !m_pBuffer )
+    {
+        Except( 
+            Exception::ERR_INTERNAL_ERROR,
+            "Can not flip an unitialized texture",
+            "Image::flipAroundX" );
+    }
+    
+    size_t rowSpan = m_uWidth * m_ucPixelSize;
+    
+    uchar *pTempBuffer = new uchar[ rowSpan * m_uHeight ];
+    uchar *ptr1 = m_pBuffer, *ptr2 = pTempBuffer + ( ( m_uHeight - 1 ) * rowSpan );
+
+    for( ushort i = 0; i < m_uHeight; i++ )
+    {
+        memcpy( ptr2, ptr1, rowSpan );
+        ptr1 += rowSpan; ptr2 -= rowSpan;
+    }
+
+    memcpy( m_pBuffer, pTempBuffer, rowSpan * m_uHeight);
+
+    OgreUnguardRet( *this );
+}
+
+//-----------------------------------------------------------------------------
+Image & Image::loadRawData(
+    const DataChunk &pData,
+    ushort uWidth, ushort uHeight,
+    PixelFormat eFormat )
+{
+    OgreGuard( "Image::loadRawData" );
+
+    m_uWidth = uWidth;
+    m_uHeight = uHeight;
+    m_eFormat = eFormat;
+    m_ucPixelSize = PF2PS( m_eFormat );
+
+    m_pBuffer = new uchar[ uWidth * uHeight * m_ucPixelSize ];
+    memcpy( m_pBuffer, pData.getPtr(), uWidth * uHeight * m_ucPixelSize );
+
+    OgreUnguardRet( *this );
+}
+
+//-----------------------------------------------------------------------------
+Image & Image::load( const String& strFileName )
+{
+    OgreGuard( "Image::load" );
+
+    if( m_pBuffer )
+    {
+        delete[] m_pBuffer;
+        m_pBuffer = NULL;
+    }
+
+    String strExt;
+
+    size_t pos = strFileName.find_last_of(".");
+	if( pos == String::npos )
+        Except(
+		Exception::ERR_INVALIDPARAMS, 
+		"Unable to load image file '" + strFileName + "' - invalid extension.",
+        "Image::load" );
+
+    while( pos != strFileName.length() - 1 )
+        strExt += strFileName[++pos];
+
+    Codec * pCodec = Codec::getColl()[ strExt.toLowerCase() ];
+    if( !pCodec )
+        Except(
+        Exception::ERR_INVALIDPARAMS, 
+        "Unable to load image file '" + strFileName + "' - invalid extension.",
+        "Image::load" );
+
+    SDDataChunk encoded;
+    DataChunk decoded;
+
+    if( !ArchiveManager::getSingleton()._findResourceData( 
+        strFileName, 
+        encoded ) )
+    {
+        Except(
+        Exception::ERR_INVALIDPARAMS, 
+        "Unable to find image file '" + strFileName + "'.",
+        "Image::load" );
+    }
+
+    ImageCodec::ImageData * pData = static_cast< ImageCodec::ImageData * > (
+        pCodec->decode( encoded, &decoded ) );
+
+    // Get the format and compute the pixel size
+    m_uWidth = pData->ulWidth;
+    m_uHeight = pData->ulHeight;
+    m_eFormat = pData->eFormat;
+    m_ucPixelSize = PF2PS( m_eFormat );
+
+    delete pData;
+
+    m_pBuffer = decoded.getPtr();
+    
+    OgreUnguardRet( *this );
+}
+
+//-----------------------------------------------------------------------------
+Image & Image::load( const DataChunk& chunk, const String& type )
+{
+    OgreGuard( "Image::load" );
+
+    String strType = type;
+
+    Codec * pCodec = Codec::getColl()[ strType.toLowerCase() ];
+    if( !pCodec )
+        Except(
+        Exception::ERR_INVALIDPARAMS, 
+        "Unable to load image - invalid extension.",
+        "Image::load" );
+
+    DataChunk decoded;
+
+    ImageCodec::ImageData * pData = static_cast< ImageCodec::ImageData * >(
+        pCodec->decode( chunk, &decoded ) );
+
+    m_uWidth = pData->ulWidth;
+    m_uHeight = pData->ulHeight;
+    
+    // Get the format and compute the pixel size
+    m_eFormat = pData->eFormat;
+    m_ucPixelSize = PF2PS( m_eFormat );
+
+    delete pData;
+
+    m_pBuffer = decoded.getPtr();
+
+    OgreUnguardRet( *this );
+}
+
+//-----------------------------------------------------------------------------
+uchar* Image::getData()
+{
+    return m_pBuffer;
+}
+
+//-----------------------------------------------------------------------------
+const uchar* Image::getConstData() const
+{
+    assert( m_pBuffer );
+    return m_pBuffer;
+}
+
+//-----------------------------------------------------------------------------
+size_t Image::getSize() const
+{
+    return m_uWidth * m_uHeight * m_ucPixelSize;
+}
+
+//-----------------------------------------------------------------------------
+ushort Image::getWidth() const
+{
+    return m_uWidth;
+}
+
+//-----------------------------------------------------------------------------
+ushort Image::getHeight() const
+{
+    return m_uHeight;
+}
+
+//-----------------------------------------------------------------------------
+ushort Image::getRowSpan() const
+{
+    return m_uWidth * m_ucPixelSize;
+}
+
+//-----------------------------------------------------------------------------
+Image::PixelFormat Image::getFormat() const
+{
+    return m_eFormat;
+}
+
+END_OGRE_NAMESPACE

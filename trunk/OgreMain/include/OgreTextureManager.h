@@ -81,39 +81,13 @@ namespace Ogre {
                 ResourceManager::setMemoryBudget
 
         */
-        virtual Texture* load(String filename, int numMipMaps = -1, Real gamma = 1.0f, int priority = 1);
+        virtual Texture * load( 
+            const String& name, 
+            int numMipMaps = -1, Real gamma = 1.0f, int priority = 1 );
 
-        /** Loads a texture from a raw, uncompressed chunk of data, which
-            contains no header or format data, just pure RGB values.
-            @remarks
-                Because of the lack of any kind of header information, you must
-                supply details of the width and height of the texture.
-            @par
-                Note there is no priority on the textures created with this
-                method since it would be impossible for the manager to reload the
-                data if it was unloaded, therfore it will remain loaded unless
-                the user explicitly unloads it.
-            @param
-                name The name which this texture will be given for future reference
-            @param
-                buffer Pointer to raw RGB data, 3 bytes per pixel.
-            @param
-                width The width of the texture
-            @param
-                height The height of the texture
-            @param
-                numMipMaps The number of pre-filtered mipmaps to generate. If left to default (-1) then
-                the TextureManager's default number of mipmaps will be used (see setDefaultNumMipMaps())
-            @param
-                gamma The gamma adjustment factor to apply to this texture (brightening/darkening)
-        */
-        virtual void loadRawRGB(String name, void* buffer, int width, int height,
-            int numMipMaps = -1, Real gamma = 1.0f);
-		virtual void loadRawRGBA(String name, void* buffer, int width, int height,
-			int numMipMaps = -1, Real gamma = 1.0f);
-
-        virtual void loadImage( const String &name, Image &img, 
-            int iNumMipMaps = -1, Real gamma = 1.0f );
+        virtual Texture * loadImage( 
+            const String &name, const Image &img, 
+            int iNumMipMaps = -1, Real gamma = 1.0f, int priority = 1 );
 
         /** Manually unloads a texture from the loaded set.
         */

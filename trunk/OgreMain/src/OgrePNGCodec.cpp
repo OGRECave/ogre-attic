@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "png.h"
 
 #include "OgrePNGCodec.h"
+#include "OgreImage.h"
 #include "OgreException.h"
 
 BEGIN_OGRE_NAMESPACE
@@ -40,7 +41,7 @@ void PNGCodec::pngChunkRead(png_structp png_ptr, png_bytep data, png_size_t leng
 void PNGCodec::code( const DataChunk& input, DataChunk* output, ... ) const
 {        
 }
-Codec::CodecData * PNGCodec::decode( const DataChunk& input, DataChunk* output ) const
+Codec::CodecData * PNGCodec::decode( const DataChunk& input, DataChunk* output, ... ) const
 {
     OgreGuard( "PNGCodec::decode" );
 
@@ -152,14 +153,22 @@ Codec::CodecData * PNGCodec::decode( const DataChunk& input, DataChunk* output )
         &info_ptr,
         &end_info);
 
-    ImageData * data = new ImageData;
+    ImageData * ret_data = new ImageData;
 
-    data->ulHeight = height;
-    data->ulWidth = width;
-    data->bGreyS = greyscale;
-    data->b32Bit = has_alpha;
+    ret_data->ulHeight = height;
+    ret_data->ulWidth = width;
 
-    OgreUnguardRet( data );
+    uchar ucBpp = 0;
+    if( has_alpha )
+        ucBpp += 8;
+    if( greyscale )
+        ucBpp += 8;
+    else
+        ucBpp += 24;
+
+    ret_data->eFormat = Image::BPP2PF( ucBpp );
+
+    OgreUnguardRet( ret_data );
 }
 
 END_OGRE_NAMESPACE
