@@ -39,7 +39,7 @@ namespace Ogre {
     protected:
         /* Crappy  callbacks required by jpeglib */
         static void init_source(j_decompress_ptr cinfo);
-        static boolean fill_input_buffer(j_decompress_ptr cinfo);    
+        static bool fill_input_buffer(j_decompress_ptr cinfo);    
         static void skip_input_data(j_decompress_ptr cinfo, long count);
         static void term_source(j_decompress_ptr cinfo);
 
