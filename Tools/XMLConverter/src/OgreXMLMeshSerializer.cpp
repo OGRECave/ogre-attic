@@ -523,7 +523,7 @@ namespace Ogre {
             tmp = smElem->Attribute("use32bitindexes");
             bool use32BitIndexes = false;
             if (tmp)
-                bool use32BitIndexes = StringConverter::parseBool(tmp);
+                use32BitIndexes = StringConverter::parseBool(tmp);
             
             // Faces
             TiXmlElement* faces = smElem->FirstChildElement("faces");
