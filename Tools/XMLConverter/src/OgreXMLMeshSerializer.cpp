@@ -820,6 +820,9 @@ namespace Ogre {
     //---------------------------------------------------------------------
 	void XMLMeshSerializer::readLodInfo(TiXmlElement*  lodNode)
 	{
+		
+        LogManager::getSingleton().logMessage("Parsing LOD information...");
+
 		const char* val = lodNode->Attribute("numLevels");
 		unsigned short numLevels = static_cast<unsigned short>(
 			StringConverter::parseUnsignedInt(val));
@@ -832,26 +835,31 @@ namespace Ogre {
 
 		// Parse the detail, start from 1 (the first sub-level of detail)
 		unsigned short i = 1;
-		while (1)
+		TiXmlElement* usageElem;
+		if (manual)
 		{
-			TiXmlElement* usageElem;
+			usageElem = lodNode->FirstChildElement("lodmanual");
+		}
+		else
+		{
+			usageElem = lodNode->FirstChildElement("lodgenerated");
+		}
+		while (usageElem)
+		{
 			if (manual)
 			{
-				usageElem = lodNode->FirstChildElement("lodmanual");
-				if (!usageElem) break;
-
 				readLodUsageManual(usageElem, i);
+				usageElem = lodNode->NextSiblingElement("lodmanual");
 			}
 			else
 			{
-				usageElem = lodNode->FirstChildElement("lodgenerated");
-				if (!usageElem) break;
-
 				readLodUsageGenerated(usageElem, i);
+				usageElem = lodNode->NextSiblingElement("lodgenerated");
 			}
 			++i;
 		}
 		
+        LogManager::getSingleton().logMessage("LOD information done.");
 		
 	}
     //---------------------------------------------------------------------
@@ -870,11 +878,13 @@ namespace Ogre {
 		Mesh::MeshLodUsage usage;
 		const char* val = genNode->Attribute("fromDepthSquared");
 		usage.fromDepthSquared = StringConverter::parseReal(val);
+		usage.manualMesh = NULL;
+		usage.manualName = "";
 
 		mpMesh->_setLodUsage(index, usage);
 
 		// Read submesh face lists
-		TiXmlElement* faceListElem = genNode->FirstChildElement("lodgenerated");
+		TiXmlElement* faceListElem = genNode->FirstChildElement("lodfacelist");
 		while (faceListElem)
 		{
 			val = faceListElem->Attribute("submeshindex");
