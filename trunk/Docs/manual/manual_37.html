@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual: Introduction</TITLE>
+<TITLE>OGRE Manual: Shadow Buffers</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual: Introduction">
-<META NAME="keywords" CONTENT="OGRE Manual: Introduction">
+<META NAME="description" CONTENT="OGRE Manual: Shadow Buffers">
+<META NAME="keywords" CONTENT="OGRE Manual: Shadow Buffers">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,22 +23,22 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC1"></A>
+<A NAME="SEC137"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_2.html#SEC2"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_36.html#SEC136"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_34.html#SEC134"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_38.html#SEC138"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<A NAME="Introduction"></A>
-<H1> 1. Introduction </H1>
-<!--docid::SEC1::-->
-This chapter is intended to give you an overview of the main components of OGRE and why they have been put together that way.
-<A NAME="Object Orientation - more than just a buzzword"></A>
+<H2> 5.3 Shadow Buffers </H2>
+<!--docid::SEC137::-->
+As discussed in the previous section, reading data back from a hardware buffer performs very badly. However, if you have a cast-iron need to read the contents of the vertex buffer, you should set the 'shadowBuffer' parameter of createVertexBuffer or createIndexBuffer to 'true'. This causes the hardware buffer to be backed with a system memory copy, which you can read from with no more penalty than reading ordinary memory. The catch is that when you write data into this buffer, it will first update the system memory copy, then it will update the hardware buffer, as separate copying process - therefore this technique has an additional overhead when writing data. Don't use it unless you really need it.
+
+<A NAME="Locking buffers"></A>
 <HR SIZE=1>
 <BR>  
 <FONT SIZE="-1">
