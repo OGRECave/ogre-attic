@@ -721,6 +721,20 @@ namespace Ogre {
         */
         virtual void setWorldGeometry(const String& filename);
 
+        /** Estimate the number of loading stages required to load the named
+            world geometry. 
+        @remarks
+            This method should be overridden by SceneManagers that provide
+            custom world geometry that can take some time to load. They should
+            return from this method a count of the number of stages of progress
+            they can report on whilst loading. During real loading (setWorldGeomtry),
+            they should call ResourceGroupManager::_notifyWorldGeometryProgress exactly
+            that number of times when loading the geometry for real.
+        @note 
+            The default is to return 0, ie to not report progress. 
+        */
+        virtual size_t estimateWorldGeometry(const String& filename) { return 0; }
+
         /** Asks the SceneManager to provide a suggested viewpoint from which the scene should be viewed.
             @remarks
                 Typically this method returns the origin unless a) world geometry has been loaded using

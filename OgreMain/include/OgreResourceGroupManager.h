@@ -73,13 +73,22 @@ namespace Ogre {
 
 		/** This event is fired  when a resource group begins loading.
 		@param groupName The name of the group being loaded
-		@param resourceCount The number of resources which will be loaded
+		@param resourceCount The number of resources which will be loaded, including
+            a number of stages required to load any linked world geometry
 		*/
 		virtual void resourceGroupLoadStarted(const String& groupName, size_t resourceCount) = 0;
 		/** This event is fired when a resource is finished loading. 
 		@param resource Weak reference to the resource loaded.
 		*/
 		virtual void resourceLoaded(const ResourcePtr& resource) = 0;
+        /** This event is fired when a stage of loading linked world geometry 
+            has been completed. The number of stages required will have been 
+            included in the resourceCount passed in resourceGroupLoadStarted.
+        @param resource Weak reference to the resource loaded.
+        */
+        virtual void worldGeometryStageCompleted(void) = 0;
+
+        /** This event is fired
 		/** This event is fired when a resource group finished loading. */
 		virtual void resourceGroupLoadEnded(const String& groupName) = 0;
 
@@ -193,6 +202,10 @@ namespace Ogre {
 			// (e.g. skeletons and materials before meshes)
 			typedef std::map<Real, LoadUnloadResourceList*> LoadResourceOrderMap;
 			LoadResourceOrderMap loadResourceOrderMap;
+            /// Linked world geometry, as passed to setWorldGeometry
+            String worldGeometry;
+            /// Scene manager to use with linked world geometry
+            SceneManager* worldGeometrySceneManager;
 		};
         /// Map from resource group names to groups
         typedef std::map<String, ResourceGroup*> ResourceGroupMap;
@@ -408,7 +421,6 @@ namespace Ogre {
             <li>Mesh</li>
             <li>Overlay</li>
             <li>Skeleton</li>
-            <li>WorldGeometry</li>
             </ul>
             .. but more can be added by plugin ResourceManager classes.
         @param groupName The name of the group to which it will belong.
@@ -520,6 +532,28 @@ namespace Ogre {
         /// Sets the resource group that 'world' resources will use.
         const String& getWorldResourceGroupName(void) const { return mWorldGroupName; }
 
+        /** Associates some world geometry with a resource group, causing it to 
+            be loaded / unloaded with the resource group.
+        @remarks
+            You would use this method to essentially defer a call to 
+            SceneManager::setWorldGeometry to the time when the resource group
+            is loaded. The advantage of this is that compatible scene managers 
+            will include the estimate of the number of loading stages for that
+            world geometry when the resource group begins loading, allowing you
+            to include that in a loading progress report. 
+        @param group The name of the resource group
+        @param worldGeometry The parameter which should be passed to setWorldGeometry
+        @param sceneManager The SceneManager which should be called
+        */
+        void linkWorldGeometryToResourceGroup(const String& group, 
+            const String& worldGeometry, SceneManager* sceneManager);
+
+        /** Clear any link to world geometry from a resource group.
+        @remarks
+            Basically undoes a previous call to linkWorldGeometryToResourceGroup.
+        */
+        void unlinkWorldGeometryFromResourceGroup(const String& group);
+
         /** Shutdown all ResourceManagers, performed as part of clean-up. */
         void shutdownAll(void);
 
@@ -575,6 +609,15 @@ namespace Ogre {
 		@param manager Pointer to the manager for which all resources are being removed
 		*/
 		void _notifyAllResourcesRemoved(ResourceManager* manager);
+
+        /** Notify this manager that one stage of world geometry loading has been 
+            completed.
+        @remarks
+            Custom SceneManagers which load custom world geometry should call this 
+            method the number of times equal to the value they return from 
+            SceneManager::estimateWorldGeometry while loading their geometry.
+        */
+        void _notifyWorldGeometryProgress(void);
 
 		/** Internal method called by Root::initialise, it calls initialiseResourceGroup
 			for all the existing resource groups.
