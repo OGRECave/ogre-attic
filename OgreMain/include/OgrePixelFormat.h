@@ -49,12 +49,14 @@ namespace Ogre {
 		PF_BYTE_LA = 5,
         /// 16-bit pixel format, 5 bits red, 6 bits green, 5 bits blue.
         PF_R5G6B5 = 6,
-        /// 16-bit pixel format, 5 bits blue, 6 bits green, 5 bits red.
+		/// 16-bit pixel format, 5 bits red, 6 bits green, 5 bits blue.
         PF_B5G6R5 = 7,
+        /// 8-bit pixel format, 2 bits blue, 3 bits green, 3 bits red.
+        PF_R3G3B2 = 31,
         /// 16-bit pixel format, 4 bits for alpha, red, green and blue.
         PF_A4R4G4B4 = 8,
-        /// 16-bit pixel format, 4 bits for blue, green, red and alpha.
-        PF_B4G4R4A4 = 9,
+        /// 16-bit pixel format, 5 bits for blue, green, red and 1 for alpha.
+        PF_A1R5G5B5 = 9,
         /// 24-bit pixel format, 8 bits for red, green and blue.
         PF_R8G8B8 = 10,
         /// 24-bit pixel format, 8 bits for blue, green and red.
@@ -119,7 +121,7 @@ namespace Ogre {
 		// 64-bit pixel format, 16 bits for red, green, blue and alpha
 		PF_SHORT_RGBA = 30,
 		// Number of pixel formats currently defined
-        PF_COUNT = 31
+        PF_COUNT = 32
     };
 
     /**
