@@ -74,7 +74,7 @@ namespace Ogre {
         Mesh* load( const String& filename, 
 			HardwareBuffer::Usage vertexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
 			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
-			bool vertexBufferShadowed = false, bool indexBufferShadowed = false,
+			bool vertexBufferShadowed = true, bool indexBufferShadowed = true,
 			int priority = 1);
 
         /** Creates a Mesh resource.
@@ -138,7 +138,7 @@ namespace Ogre {
             Real uTile = 1.0f, Real vTile = 1.0f, const Vector3& upVector = Vector3::UNIT_Y,
 			HardwareBuffer::Usage vertexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
 			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY,
-			bool vertexShadowBuffer = false, bool indexShadowBuffer = false);
+			bool vertexShadowBuffer = true, bool indexShadowBuffer = true);
 
         
         /** Creates a plane, which because of it's texture coordinates looks like a curved
@@ -195,7 +195,7 @@ namespace Ogre {
             const Quaternion& orientation = Quaternion::IDENTITY,
 			HardwareBuffer::Usage vertexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
 			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY,
-			bool vertexShadowBuffer = false, bool indexShadowBuffer = false);
+			bool vertexShadowBuffer = true, bool indexShadowBuffer = true);
 
 		/** Creates a genuinely curved plane, by default majoring on the x/y axes facing positive Z.
             @param
@@ -244,7 +244,7 @@ namespace Ogre {
 			Real xTile = 1.0f, Real yTile = 1.0f, const Vector3& upVector = Vector3::UNIT_Y,
 			HardwareBuffer::Usage vertexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
 			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY,
-			bool vertexShadowBuffer = false, bool indexShadowBuffer = false);
+			bool vertexShadowBuffer = true, bool indexShadowBuffer = true);
 
         /** Creates a Bezier patch based on an array of control vertices.
             @param
@@ -286,7 +286,7 @@ namespace Ogre {
             PatchSurface::VisibleSide visibleSide = PatchSurface::VS_FRONT,
             HardwareBuffer::Usage vbUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
             HardwareBuffer::Usage ibUsage = HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY,
-            bool vbUseShadow = false, bool ibUseShadow = false);
+            bool vbUseShadow = true, bool ibUseShadow = true);
         
         /** Override standard Singleton retrieval.
             @remarks

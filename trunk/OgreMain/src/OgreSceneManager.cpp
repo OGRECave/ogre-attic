@@ -50,6 +50,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreTextureUnitState.h"
 #include "OgreException.h"
 #include "OgreLogManager.h"
+#include "OgreHardwareBufferManager.h"
 
 // This class implements the most basic scene manager
 
@@ -90,6 +91,7 @@ namespace Ogre {
 
 	    mShowBoundingBoxes = false;
         mShadowTechnique = SHADOWTYPE_NONE;
+        mDebugShadows = false;
     }
 
     SceneManager::~SceneManager()
@@ -1906,9 +1908,15 @@ namespace Ogre {
 		return mShowBoundingBoxes;
 	}
 	//---------------------------------------------------------------------
-    void SceneManager::setShadowTechnique(ShadowTechnique technique)
+    void SceneManager::setShadowTechnique(ShadowTechnique technique,
+        bool debug)
     {
         mShadowTechnique = technique;
+        mDebugShadows = debug;
+        // Create an estimated sized shadow index buffer
+        mShadowIndexBuffer = HardwareBufferManager::getSingleton().
+            createIndexBuffer(HardwareIndexBuffer::IT_16BIT, 50000, 
+            HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, false);
     }
 	//---------------------------------------------------------------------
     void SceneManager::findLightsAffectingFrustum(const Camera* camera)
@@ -1992,6 +2000,15 @@ namespace Ogre {
             stencil2sided = true;
         }
 
+        // Do we have access to vertex programs?
+        bool extrudeInSoftware = true;
+        if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM))
+        {
+            // TODO
+            //extrudeInSoftware = false;
+        }
+
+
         // Iterate over lights
         LightList::const_iterator li, liend;
         liend = mLightsAffectingFrustum.end();
@@ -2012,7 +2029,22 @@ namespace Ogre {
 
                 if (caster->getCastShadows())
                 {
-                    // Build and render a shadow volume here
+                    bool zfailAlgo = false;
+                    unsigned long flags = 0;
+
+                    // TODO
+                    // - determine if zfail is required
+
+                    if (zfailAlgo)
+                    {
+                        flags += SRF_INCLUDE_LIGHT_CAP +SRF_INCLUDE_DARK_CAP;
+                    }
+
+                    // Get shadow renderables
+                    caster->getShadowVolumeRenderableIterator(mShadowTechnique,
+                        l, &mShadowIndexBuffer, extrudeInSoftware, flags);
+
+                    // Render a shadow volume here
                     // TODO
                     //  - find out if we need to use zfail algo or is zpass ok (util method)
                     //  - if we have 2-sided stencil, one render with no culling

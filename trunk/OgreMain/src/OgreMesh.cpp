@@ -59,8 +59,8 @@ namespace Ogre {
 
 		mVertexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY;
 		mIndexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY;
-		mVertexBufferShadowBuffer = false;
-		mIndexBufferShadowBuffer = false;
+		mVertexBufferShadowBuffer = true;
+		mIndexBufferShadowBuffer = true;
 
         mBoundRadius = 0.0f;
 
@@ -1045,7 +1045,6 @@ namespace Ogre {
         for (i = mSubMeshList.begin(); i != iend; ++i)
         {
             SubMesh* s = *i;
-            size_t vertexSet;
             if (s->useSharedVertices)
             {
                 // Use shared vertex data, index as set 0

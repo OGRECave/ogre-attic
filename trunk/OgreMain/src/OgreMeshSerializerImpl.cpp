@@ -416,8 +416,8 @@ namespace Ogre {
 		if (mIsSkeletallyAnimated)
 		{
 			// If we're skeletally animated, we need to set the vertex buffer
-			// policy to dynamic and NOT shadowed, so we can update regularly
-			mpMesh->setVertexBufferPolicy(HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, false);
+			// policy to dynamic, so we can update regularly
+			mpMesh->setVertexBufferPolicy(HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, true);
             // Note that later on we'll have to set up a system memory copy of the 
             // positions & normals which will be used as the reference data
 		}
