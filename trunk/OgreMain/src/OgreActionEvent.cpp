@@ -34,7 +34,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	 ActionEvent::ActionEvent(ActionTarget* source, int id, Real when, int modifiers,
 		const String& actionCommand) :
-		InputEvent(source, id, when, modifiers),
+		InputEvent(source, id, (int)when, modifiers),
 		mActionCommand(actionCommand)
 	{
 	}

@@ -23,4 +23,4 @@ clean-local:
 	-rm -f $(BUILT_SOURCES)
 
 install-exec-local:
-	$(INSTALL_DATA) OgrePlatform.so $(top_builddir)/Samples/Common/bin/OgrePlatform.so
+	$(INSTALL) .libs/OgrePlatform.so $(top_builddir)/Samples/Common/bin/OgrePlatform.so

@@ -125,7 +125,10 @@ AC_CONFIG_FILES([Makefile \
     Samples/SkeletalAnimation/include/Makefile \
     Samples/Terrain/Makefile \
     Samples/Terrain/src/Makefile \
-    Samples/Terrain/include/Makefile
+    Samples/Terrain/include/Makefile \
+    Samples/Gui/Makefile \
+    Samples/Gui/src/Makefile \
+    Samples/Gui/include/Makefile
     ])
 
 AC_OUTPUT

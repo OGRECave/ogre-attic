@@ -1,1 +1,1 @@
-noinst_HEADERS = Gui.h
+noinst_HEADERS = SkyDome.h
