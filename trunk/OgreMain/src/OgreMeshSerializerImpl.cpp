@@ -900,8 +900,8 @@ namespace Ogre {
         writeInts(&(assign.vertexIndex), 1);
         // unsigned short boneIndex;
         writeShorts(&(assign.boneIndex), 1);
-        // Real weight;
-        writeReals(&(assign.weight), 1);
+        // float weight;
+        writeFloats(&(assign.weight), 1);
     }
     //---------------------------------------------------------------------
     void MeshSerializerImpl::writeSubMeshBoneAssignment(const VertexBoneAssignment& assign)
@@ -912,8 +912,8 @@ namespace Ogre {
         writeInts(&(assign.vertexIndex), 1);
         // unsigned short boneIndex;
         writeShorts(&(assign.boneIndex), 1);
-        // Real weight;
-        writeReals(&(assign.weight), 1);
+        // float weight;
+        writeFloats(&(assign.weight), 1);
     }
     //---------------------------------------------------------------------
     void MeshSerializerImpl::readMeshBoneAssignment(DataStreamPtr& stream, Mesh* pMesh)
@@ -924,8 +924,8 @@ namespace Ogre {
         readInts(stream, &(assign.vertexIndex),1);
         // unsigned short boneIndex;
         readShorts(stream, &(assign.boneIndex),1);
-        // Real weight;
-        readReals(stream, &(assign.weight), 1);
+        // float weight;
+        readFloats(stream, &(assign.weight), 1);
 
         pMesh->addBoneAssignment(assign);
 
@@ -940,8 +940,8 @@ namespace Ogre {
         readInts(stream, &(assign.vertexIndex),1);
         // unsigned short boneIndex;
         readShorts(stream, &(assign.boneIndex),1);
-        // Real weight;
-        readReals(stream, &(assign.weight), 1);
+        // float weight;
+        readFloats(stream, &(assign.weight), 1);
 
         sub->addBoneAssignment(assign);
 
@@ -956,7 +956,7 @@ namespace Ogre {
         // Bone index
         size += sizeof(unsigned short);
         // weight
-        size += sizeof(Real);
+        size += sizeof(float);
 
         return size;
     }
@@ -1009,8 +1009,8 @@ namespace Ogre {
         // Header
         size_t size = STREAM_OVERHEAD_SIZE;
         size_t manualSize = STREAM_OVERHEAD_SIZE;
-        // Real fromDepthSquared;
-        size += sizeof(Real);
+        // float fromDepthSquared;
+        size += sizeof(float);
         // Manual part size
 
         // String manualMeshName;
@@ -1019,7 +1019,7 @@ namespace Ogre {
         size += manualSize;
 
         writeChunkHeader(M_MESH_LOD_USAGE, size);
-        writeReals(&(usage.fromDepthSquared), 1);
+        writeFloats(&(usage.fromDepthSquared), 1);
 
         writeChunkHeader(M_MESH_LOD_MANUAL, manualSize);
         writeString(usage.manualName);
@@ -1034,8 +1034,8 @@ namespace Ogre {
         size_t size = STREAM_OVERHEAD_SIZE;
 		unsigned short subidx;
 
-        // Real fromDepthSquared;
-        size += sizeof(Real);
+        // float fromDepthSquared;
+        size += sizeof(float);
 
         // Calc generated SubMesh sections size
 		for(subidx = 0; subidx < pMesh->getNumSubMeshes(); ++subidx)
@@ -1064,7 +1064,7 @@ namespace Ogre {
 		}
 
         writeChunkHeader(M_MESH_LOD_USAGE, size);
-        writeReals(&(usage.fromDepthSquared), 1);
+        writeFloats(&(usage.fromDepthSquared), 1);
 
 		// Now write sections
         // Calc generated SubMesh sections size
@@ -1121,40 +1121,40 @@ namespace Ogre {
 		// Usage Header
         unsigned long size = STREAM_OVERHEAD_SIZE;
 
-        size += sizeof(Real) * 7;
+        size += sizeof(float) * 7;
         writeChunkHeader(M_MESH_BOUNDS, size);
 
-        // Real minx, miny, minz
+        // float minx, miny, minz
         const Vector3& min = pMesh->mAABB.getMinimum();
         const Vector3& max = pMesh->mAABB.getMaximum();
-        writeReals(&min.x, 1);
-        writeReals(&min.y, 1);
-        writeReals(&min.z, 1);
-        // Real maxx, maxy, maxz
-        writeReals(&max.x, 1);
-        writeReals(&max.y, 1);
-        writeReals(&max.z, 1);
-        // Real radius
-        writeReals(&pMesh->mBoundRadius, 1);
+        writeFloats(&min.x, 1);
+        writeFloats(&min.y, 1);
+        writeFloats(&min.z, 1);
+        // float maxx, maxy, maxz
+        writeFloats(&max.x, 1);
+        writeFloats(&max.y, 1);
+        writeFloats(&max.z, 1);
+        // float radius
+        writeFloats(&pMesh->mBoundRadius, 1);
 
     }
     //---------------------------------------------------------------------
     void MeshSerializerImpl::readBoundsInfo(DataStreamPtr& stream, Mesh* pMesh)
     {
         Vector3 min, max;
-        // Real minx, miny, minz
-        readReals(stream, &min.x, 1);
-        readReals(stream, &min.y, 1);
-        readReals(stream, &min.z, 1);
-        // Real maxx, maxy, maxz
-        readReals(stream, &max.x, 1);
-        readReals(stream, &max.y, 1);
-        readReals(stream, &max.z, 1);
+        // float minx, miny, minz
+        readFloats(stream, &min.x, 1);
+        readFloats(stream, &min.y, 1);
+        readFloats(stream, &min.z, 1);
+        // float maxx, maxy, maxz
+        readFloats(stream, &max.x, 1);
+        readFloats(stream, &max.y, 1);
+        readFloats(stream, &max.z, 1);
         AxisAlignedBox box(min, max);
         pMesh->_setBounds(box, true);
-        // Real radius
-        Real radius;
-        readReals(stream, &radius, 1);
+        // float radius
+        float radius;
+        readFloats(stream, &radius, 1);
         pMesh->_setBoundingSphereRadius(radius);
 
 
@@ -1193,7 +1193,7 @@ namespace Ogre {
 			}
 			// Read depth
 			Mesh::MeshLodUsage usage;
-			readReals(stream, &(usage.fromDepthSquared), 1);
+			readFloats(stream, &(usage.fromDepthSquared), 1);
 
 			if (pMesh->isLodManual())
 			{
@@ -1328,7 +1328,7 @@ namespace Ogre {
 				switch (VertexElement::getBaseType((*ei).getType()))
 				{
 					case VET_FLOAT1:
-						typeSize = sizeof(Real);
+						typeSize = sizeof(float);
 						break;
 					case VET_SHORT1:
 						typeSize = sizeof(short);
@@ -1389,9 +1389,9 @@ namespace Ogre {
             // unsigned long vertexSet
             // unsigned long vertIndex[3]
             // unsigned long sharedVertIndex[3] 
-            // Real normal[4] 
+            // float normal[4] 
             triSize += sizeof(uint32) * 8 
-                    + sizeof(Real) * 4;
+                    + sizeof(float) * 4;
 
             size += triSize * edgeData->triangles.size();
             // Write the groups
@@ -1473,8 +1473,8 @@ namespace Ogre {
                     tmp[1] = tri.sharedVertIndex[1];
                     tmp[2] = tri.sharedVertIndex[2];
                     writeInts(tmp, 3);
-                    // Real normal[4];   
-                    writeReals(&(tri.normal.x), 4);
+                    // float normal[4];   
+                    writeFloats(&(tri.normal.x), 4);
 
                 }
                 // Write the groups
@@ -1575,8 +1575,8 @@ namespace Ogre {
                         tri.sharedVertIndex[0] = tmp[0];
                         tri.sharedVertIndex[1] = tmp[1];
                         tri.sharedVertIndex[2] = tmp[2];
-                        // Real normal[4] 
-                        readReals(stream, &(tri.normal.x), 4);
+                        // float normal[4] 
+                        readFloats(stream, &(tri.normal.x), 4);
 
                     }
 
@@ -1735,18 +1735,18 @@ namespace Ogre {
     void MeshSerializerImpl_v1_2::readGeometryPositions(unsigned short bindIdx, 
         DataStreamPtr& stream, Mesh* pMesh, VertexData* dest)
     {
-        Real *pReal = 0;
+        float *pFloat = 0;
         HardwareVertexBufferSharedPtr vbuf;
-        // Real* pVertices (x, y, z order x numVertices)
+        // float* pVertices (x, y, z order x numVertices)
         dest->vertexDeclaration->addElement(bindIdx, 0, VET_FLOAT3, VES_POSITION);
         vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
             dest->vertexDeclaration->getVertexSize(bindIdx),
             dest->vertexCount,
             pMesh->mVertexBufferUsage, 
 			pMesh->mIndexBufferShadowBuffer);
-        pReal = static_cast<Real*>(
+        pFloat = static_cast<float*>(
             vbuf->lock(HardwareBuffer::HBL_DISCARD));
-        readReals(stream, pReal, dest->vertexCount * 3);
+        readFloats(stream, pFloat, dest->vertexCount * 3);
         vbuf->unlock();
         dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
     }
@@ -1754,18 +1754,18 @@ namespace Ogre {
     void MeshSerializerImpl_v1_2::readGeometryNormals(unsigned short bindIdx, 
         DataStreamPtr& stream, Mesh* pMesh, VertexData* dest)
     {
-        Real *pReal = 0;
+        float *pFloat = 0;
         HardwareVertexBufferSharedPtr vbuf;
-        // Real* pNormals (x, y, z order x numVertices)
+        // float* pNormals (x, y, z order x numVertices)
         dest->vertexDeclaration->addElement(bindIdx, 0, VET_FLOAT3, VES_NORMAL);
         vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
             dest->vertexDeclaration->getVertexSize(bindIdx),
             dest->vertexCount,
             pMesh->mVertexBufferUsage,
 			pMesh->mVertexBufferShadowBuffer);
-        pReal = static_cast<Real*>(
+        pFloat = static_cast<float*>(
             vbuf->lock(HardwareBuffer::HBL_DISCARD));
-        readReals(stream, pReal, dest->vertexCount * 3);
+        readFloats(stream, pFloat, dest->vertexCount * 3);
         vbuf->unlock();
         dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
     }
@@ -1792,12 +1792,12 @@ namespace Ogre {
     void MeshSerializerImpl_v1_2::readGeometryTexCoords(unsigned short bindIdx, 
         DataStreamPtr& stream, Mesh* pMesh, VertexData* dest, unsigned short texCoordSet)
     {
-        Real *pReal = 0;
+        float *pFloat = 0;
         HardwareVertexBufferSharedPtr vbuf;
         // unsigned short dimensions    (1 for 1D, 2 for 2D, 3 for 3D)
         unsigned short dim;
         readShorts(stream, &dim, 1);
-        // Real* pTexCoords  (u [v] [w] order, dimensions x numVertices)
+        // float* pTexCoords  (u [v] [w] order, dimensions x numVertices)
         dest->vertexDeclaration->addElement(
             bindIdx, 
             0, 
@@ -1809,9 +1809,9 @@ namespace Ogre {
             dest->vertexCount,
             pMesh->mVertexBufferUsage,
 			pMesh->mVertexBufferShadowBuffer);
-        pReal = static_cast<Real*>(
+        pFloat = static_cast<float*>(
             vbuf->lock(HardwareBuffer::HBL_DISCARD));
-        readReals(stream, pReal, dest->vertexCount * dim);
+        readFloats(stream, pFloat, dest->vertexCount * dim);
         vbuf->unlock();
         dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
     }
@@ -1831,12 +1831,12 @@ namespace Ogre {
     void MeshSerializerImpl_v1_1::readGeometryTexCoords(unsigned short bindIdx, 
         DataStreamPtr& stream, Mesh* pMesh, VertexData* dest, unsigned short texCoordSet)
     {
-        Real *pReal = 0;
+        float *pFloat = 0;
         HardwareVertexBufferSharedPtr vbuf;
         // unsigned short dimensions    (1 for 1D, 2 for 2D, 3 for 3D)
         unsigned short dim;
         readShorts(stream, &dim, 1);
-        // Real* pTexCoords  (u [v] [w] order, dimensions x numVertices)
+        // float* pTexCoords  (u [v] [w] order, dimensions x numVertices)
         dest->vertexDeclaration->addElement(
             bindIdx, 
             0, 
@@ -1848,18 +1848,18 @@ namespace Ogre {
             dest->vertexCount,
             pMesh->getVertexBufferUsage(),
 			pMesh->isVertexBufferShadowed());
-        pReal = static_cast<Real*>(
+        pFloat = static_cast<float*>(
             vbuf->lock(HardwareBuffer::HBL_DISCARD));
-        readReals(stream, pReal, dest->vertexCount * dim);
+        readFloats(stream, pFloat, dest->vertexCount * dim);
 
         // Adjust individual v values to (1 - v)
         if (dim == 2)
         {
             for (size_t i = 0; i < dest->vertexCount; ++i)
             {
-                ++pReal; // skip u
-                *pReal = 1.0 - *pReal; // v = 1 - v
-                ++pReal;
+                ++pFloat; // skip u
+                *pFloat = 1.0 - *pFloat; // v = 1 - v
+                ++pFloat;
             }
             
         }

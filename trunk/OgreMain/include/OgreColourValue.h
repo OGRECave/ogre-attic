@@ -53,10 +53,10 @@ namespace Ogre {
 	    static ColourValue Green;
 	    static ColourValue Blue;
 
-	    ColourValue( Real red = 1.0f,
-				    Real green = 1.0f,
-				    Real blue = 1.0f,
-				    Real alpha = 1.0f ) : r(red), g(green), b(blue), a(alpha)
+	    ColourValue( float red = 1.0f,
+				    float green = 1.0f,
+				    float blue = 1.0f,
+				    float alpha = 1.0f ) : r(red), g(green), b(blue), a(alpha)
         { }
 
 	    bool operator==(const ColourValue& rhs) const;
@@ -64,9 +64,9 @@ namespace Ogre {
 
         union {
             struct {
-	            Real r,g,b,a;
+	            float r,g,b,a;
             };
-            Real val[4];
+            float val[4];
         };
 
 	    /** Retrieves colour as RGBA.
@@ -105,7 +105,7 @@ namespace Ogre {
             return kDiff;
         }
 
-        inline ColourValue operator * ( Real fScalar ) const
+        inline ColourValue operator * ( float fScalar ) const
         {
             ColourValue kProd;
 
@@ -141,13 +141,13 @@ namespace Ogre {
             return kProd;
         }
 
-        inline ColourValue operator / ( Real fScalar ) const
+        inline ColourValue operator / ( float fScalar ) const
         {
             assert( fScalar != 0.0 );
 
             ColourValue kDiv;
 
-            Real fInv = 1.0 / fScalar;
+            float fInv = 1.0 / fScalar;
             kDiv.r = r * fInv;
             kDiv.g = g * fInv;
             kDiv.b = b * fInv;
@@ -156,7 +156,7 @@ namespace Ogre {
             return kDiv;
         }
 
-        inline friend ColourValue operator * ( Real fScalar, const ColourValue& rkVector )
+        inline friend ColourValue operator * ( float fScalar, const ColourValue& rkVector )
         {
             ColourValue kProd;
 
@@ -189,7 +189,7 @@ namespace Ogre {
             return *this;
         }
 
-        inline ColourValue& operator *= ( Real fScalar )
+        inline ColourValue& operator *= ( float fScalar )
         {
             r *= fScalar;
             g *= fScalar;
@@ -198,11 +198,11 @@ namespace Ogre {
             return *this;
         }
 
-        inline ColourValue& operator /= ( Real fScalar )
+        inline ColourValue& operator /= ( float fScalar )
         {
             assert( fScalar != 0.0 );
 
-            Real fInv = 1.0 / fScalar;
+            float fInv = 1.0 / fScalar;
 
             r *= fInv;
             g *= fInv;

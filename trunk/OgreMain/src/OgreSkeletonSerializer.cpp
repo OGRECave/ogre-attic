@@ -40,7 +40,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
     /// stream overhead = ID + size
-    const size_t STREAM_OVERHEAD_SIZE = sizeof(uint16) + sizeof(uint32);
+    const long STREAM_OVERHEAD_SIZE = sizeof(uint16) + sizeof(uint32);
     //---------------------------------------------------------------------
     SkeletonSerializer::SkeletonSerializer()
     {
@@ -171,9 +171,9 @@ namespace Ogre {
 
         // char* name                       : Name of the animation
         writeString(anim->getName());
-        // Real length                      : Length of the animation in seconds
-        Real len = anim->getLength();
-        writeReals(&len, 1);
+        // float length                      : Length of the animation in seconds
+        float len = anim->getLength();
+        writeFloats(&len, 1);
 
         // Write all tracks
         Animation::TrackIterator trackIt = anim->getTrackIterator();
@@ -209,9 +209,9 @@ namespace Ogre {
         writeChunkHeader(SKELETON_ANIMATION_TRACK_KEYFRAME, 
             calcKeyFrameSize(pSkel, key));
 
-        // Real time                    : The time position (seconds)
-        Real time = key->getTime();
-        writeReals(&time, 1);
+        // float time                    : The time position (seconds)
+        float time = key->getTime();
+        writeFloats(&time, 1);
         // Quaternion rotate            : Rotation to apply at this keyframe
         writeObject(key->getRotation());
         // Vector3 translate            : Translation to apply at this keyframe
@@ -229,10 +229,10 @@ namespace Ogre {
         size += sizeof(unsigned short);
 
         // position
-        size += sizeof(Real) * 3;
+        size += sizeof(float) * 3;
 
         // orientation
-        size += sizeof(Real) * 4;
+        size += sizeof(float) * 4;
 
         return size;
     }
@@ -258,7 +258,7 @@ namespace Ogre {
         // Name, including terminator
         size += pAnim->getName().length() + 1;
         // length
-        size += sizeof(Real);
+        size += sizeof(float);
 
         // Nested animation tracks
         for (unsigned short i = 0; i < pAnim->getNumTracks(); ++i)
@@ -291,14 +291,14 @@ namespace Ogre {
     {
         size_t size = STREAM_OVERHEAD_SIZE;
 
-        // Real time                    : The time position (seconds)
-        size += sizeof(Real);
+        // float time                    : The time position (seconds)
+        size += sizeof(float);
         // Quaternion rotate            : Rotation to apply at this keyframe
-        size += sizeof(Real) * 4;
+        size += sizeof(float) * 4;
         // Vector3 translate            : Translation to apply at this keyframe
-        size += sizeof(Real) * 3;
+        size += sizeof(float) * 3;
         // Vector3 scale                : Scale to apply at this keyframe
-        size += sizeof(Real) * 3;
+        size += sizeof(float) * 3;
 
         return size;
     }
@@ -349,9 +349,9 @@ namespace Ogre {
         // char* name                       : Name of the animation
         String name;
         name = readString(stream);
-        // Real length                      : Length of the animation in seconds
-        Real len;
-        readReals(stream, &len, 1);
+        // float length                      : Length of the animation in seconds
+        float len;
+        readFloats(stream, &len, 1);
 
         Animation *pAnim = pSkel->createAnimation(name, len);
 
@@ -422,9 +422,9 @@ namespace Ogre {
     void SkeletonSerializer::readKeyFrame(DataStreamPtr& stream, AnimationTrack* track, 
         Skeleton* pSkel)
     {
-        // Real time                    : The time position (seconds)
-        Real time;
-        readReals(stream, &time, 1);
+        // float time                    : The time position (seconds)
+        float time;
+        readFloats(stream, &time, 1);
 
         KeyFrame *kf = track->createKeyFrame(time);
 

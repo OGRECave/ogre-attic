@@ -380,7 +380,7 @@ namespace Ogre
         /// Optional set of delta buffers, used to morph from one LOD to the next
         HardwareVertexBufferSharedPtr* mDeltaBuffers;
         /// System-memory buffer with just positions in it, for CPU operations
-        Real* mPositionBuffer;
+        float* mPositionBuffer;
         /// Forced rendering LOD level, optional
         int mForcedRenderLevel;
         /// Array of LOD indexes specifying which LOD is the next one down

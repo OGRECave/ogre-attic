@@ -73,7 +73,7 @@ namespace Ogre {
             bind->setBinding(TEXCOORD_BINDING, tvbuf);
 
             // Set up basic tex coordinates
-            Real* pTex = static_cast<Real*>(
+            float* pTex = static_cast<float*>(
                 tvbuf->lock(HardwareBuffer::HBL_DISCARD));
             *pTex++ = 0.0f;
             *pTex++ = 0.0f;
@@ -102,23 +102,23 @@ namespace Ogre {
     {
         HardwareVertexBufferSharedPtr vbuf = 
             mRenderOp.vertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);
-        Real* pReal = static_cast<Real*>(vbuf->lock(HardwareBuffer::HBL_DISCARD));
+        float* pFloat = static_cast<float*>(vbuf->lock(HardwareBuffer::HBL_DISCARD));
 
-        *pReal++ = left;
-        *pReal++ = top;
-        *pReal++ = -1;
+        *pFloat++ = left;
+        *pFloat++ = top;
+        *pFloat++ = -1;
 
-        *pReal++ = left;
-        *pReal++ = bottom;
-        *pReal++ = -1;
+        *pFloat++ = left;
+        *pFloat++ = bottom;
+        *pFloat++ = -1;
 
-        *pReal++ = right;
-        *pReal++ = top;
-        *pReal++ = -1;
+        *pFloat++ = right;
+        *pFloat++ = top;
+        *pFloat++ = -1;
 
-        *pReal++ = right;
-        *pReal++ = bottom;
-        *pReal++ = -1;
+        *pFloat++ = right;
+        *pFloat++ = bottom;
+        *pFloat++ = -1;
 
         vbuf->unlock();
 

@@ -71,8 +71,8 @@ namespace Ogre {
         Viewport(
             Camera* camera,
             RenderTarget* target,
-            float left, float top,
-            float width, float height,
+            Real left, Real top,
+            Real width, Real height,
             int ZOrder);
 
         /** Default destructor.
@@ -108,23 +108,23 @@ namespace Ogre {
 		/** Gets one of the relative dimensions of the viewport,
             a value between 0.0 and 1.0.
         */
-        float getLeft(void) const;
+        Real getLeft(void) const;
 
         /** Gets one of the relative dimensions of the viewport, a value
             between 0.0 and 1.0.
         */
-        float getTop(void) const;
+        Real getTop(void) const;
 
         /** Gets one of the relative dimensions of the viewport, a value
             between 0.0 and 1.0.
         */
 
-        float getWidth(void) const;
+        Real getWidth(void) const;
         /** Gets one of the relative dimensions of the viewport, a value
             between 0.0 and 1.0.
         */
 
-        float getHeight(void) const;
+        Real getHeight(void) const;
         /** Gets one of the actual dimensions of the viewport, a value in
             pixels.
         */
@@ -157,7 +157,7 @@ namespace Ogre {
                 represented as real values between 0 and 1. i.e. the full
                 target area is 0, 0, 1, 1.
         */
-        void setDimensions(float left, float top, float width, float height);
+        void setDimensions(Real left, Real top, Real width, Real height);
 
         /** Sets the initial background colour of the viewport (before
             rendering).

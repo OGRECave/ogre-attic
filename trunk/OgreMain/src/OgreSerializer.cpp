@@ -64,19 +64,36 @@ namespace Ogre {
         writeInts(&size, 1);
     }
     //---------------------------------------------------------------------
-    void Serializer::writeReals(const Real* const pReal, size_t count = 1)
+    void Serializer::writeFloats(const float* const pFloat, size_t count)
     {
 #	if OGRE_ENDIAN == ENDIAN_BIG
-            Real * pRealToWrite = (Real *)malloc(sizeof(Real) * count);
-            memcpy(pRealToWrite, pReal, sizeof(Real) * count);
+            float * pFloatToWrite = (float *)malloc(sizeof(float) * count);
+            memcpy(pFloatToWrite, pFloat, sizeof(float) * count);
             
-            flipToLittleEndian(pRealToWrite, sizeof(Real), count);
-            writeData(pRealToWrite, sizeof(Real), count);
+            flipToLittleEndian(pFloatToWrite, sizeof(float), count);
+            writeData(pFloatToWrite, sizeof(float), count);
             
-            free(pRealToWrite);
+            free(pFloatToWrite);
 # 	else
-            writeData(pReal, sizeof(Real), count);
+            writeData(pFloat, sizeof(float), count);
 #	endif
+    }
+    //---------------------------------------------------------------------
+    void Serializer::writeFloats(const double* const pDouble, size_t count)
+    {
+		// Convert to float, then write
+		float* tmp = new float[count];
+		for (int i = 0; i < count; ++i)
+		{
+			tmp[i] = static_cast<float>(pDouble[i]);
+		}
+#	if OGRE_ENDIAN == ENDIAN_BIG
+            flipToLittleEndian(tmp, sizeof(float), count);
+            writeData(tmp, sizeof(float), count);
+# 	else
+            writeData(tmp, sizeof(float), count);
+#	endif
+		delete [] tmp;
     }
     //---------------------------------------------------------------------
     void Serializer::writeShorts(const uint16* const pShort, size_t count = 1)
@@ -195,10 +212,25 @@ namespace Ogre {
         //no flipping on 1-byte datatypes
     }
     //---------------------------------------------------------------------
-    void Serializer::readReals(DataStreamPtr& stream, Real* pDest, size_t count)
+    void Serializer::readFloats(DataStreamPtr& stream, float* pDest, size_t count)
     {
-        stream->read(pDest, sizeof(Real) * count);
-        flipFromLittleEndian(pDest, sizeof(Real), count);
+        stream->read(pDest, sizeof(float) * count);
+        flipFromLittleEndian(pDest, sizeof(float), count);
+    }
+    //---------------------------------------------------------------------
+    void Serializer::readFloats(DataStreamPtr& stream, double* pDest, size_t count)
+    {
+		// Read from float, convert to double
+		float* tmp = new float[count];
+		float* ptmp = tmp;
+        stream->read(tmp, sizeof(float) * count);
+        flipFromLittleEndian(tmp, sizeof(float), count);
+		// Convert to doubles (no cast required)
+		while(count--)
+		{
+			*pDest++ = *ptmp++;
+		}
+		delete [] tmp;
     }
     //---------------------------------------------------------------------
     void Serializer::readShorts(DataStreamPtr& stream, unsigned short* pDest, size_t count)
@@ -229,33 +261,33 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void Serializer::writeObject(const Vector3& vec)
     {
-        writeReals(&vec.x, 1);
-        writeReals(&vec.y, 1);
-        writeReals(&vec.z, 1);
+        writeFloats(&vec.x, 1);
+        writeFloats(&vec.y, 1);
+        writeFloats(&vec.z, 1);
 
     }
     //---------------------------------------------------------------------
     void Serializer::writeObject(const Quaternion& q)
     {
-        writeReals(&q.x, 1);
-        writeReals(&q.y, 1);
-        writeReals(&q.z, 1);
-        writeReals(&q.w, 1);
+        writeFloats(&q.x, 1);
+        writeFloats(&q.y, 1);
+        writeFloats(&q.z, 1);
+        writeFloats(&q.w, 1);
     }
     //---------------------------------------------------------------------
     void Serializer::readObject(DataStreamPtr& stream, Vector3& pDest)
     {
-        readReals(stream, &pDest.x, 1);
-        readReals(stream, &pDest.y, 1);
-        readReals(stream, &pDest.z, 1);
+        readFloats(stream, &pDest.x, 1);
+        readFloats(stream, &pDest.y, 1);
+        readFloats(stream, &pDest.z, 1);
     }
     //---------------------------------------------------------------------
     void Serializer::readObject(DataStreamPtr& stream, Quaternion& pDest)
     {
-        readReals(stream, &pDest.x, 1);
-        readReals(stream, &pDest.y, 1);
-        readReals(stream, &pDest.z, 1);
-        readReals(stream, &pDest.w, 1);
+        readFloats(stream, &pDest.x, 1);
+        readFloats(stream, &pDest.y, 1);
+        readFloats(stream, &pDest.z, 1);
+        readFloats(stream, &pDest.w, 1);
     }
     //---------------------------------------------------------------------
 

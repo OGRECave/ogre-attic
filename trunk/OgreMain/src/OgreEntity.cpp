@@ -1046,10 +1046,10 @@ namespace Ogre {
                     if (!extrude)
                     {
                         // Lock, we'll be locking the (suppressed hardware update) shadow buffer
-                        Real* pSrc = static_cast<Real*>(
+                        float* pSrc = static_cast<float*>(
                             esrPositionBuffer->lock(HardwareBuffer::HBL_NORMAL));
-                        Real* pDest = pSrc + (egi->vertexData->vertexCount * 3);
-                        memcpy(pDest, pSrc, sizeof(Real) * 3 * egi->vertexData->vertexCount);
+                        float* pDest = pSrc + (egi->vertexData->vertexCount * 3);
+                        memcpy(pDest, pSrc, sizeof(float) * 3 * egi->vertexData->vertexCount);
                         esrPositionBuffer->unlock();
                     }
                     if (egi->vertexData == mMesh->sharedVertexData)

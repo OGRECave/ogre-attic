@@ -329,7 +329,7 @@ namespace Ogre {
 
 			// Set up the data access for this buffer (lock read-only)
 			unsigned char* pVert;
-			Real* pReal;
+			float* pFloat;
 			ARGB* pColour;
 
 			pVert = static_cast<unsigned char*>(
@@ -382,20 +382,20 @@ namespace Ogre {
 					switch(elem.getSemantic())
 					{
 					case VES_POSITION:
-						elem.baseVertexPointerToElement(pVert, &pReal);
+						elem.baseVertexPointerToElement(pVert, &pFloat);
 						dataNode = 
 							vertexNode->InsertEndChild(TiXmlElement("position"))->ToElement();
-						dataNode->SetAttribute("x", StringConverter::toString(pReal[0]));
-						dataNode->SetAttribute("y", StringConverter::toString(pReal[1]));
-						dataNode->SetAttribute("z", StringConverter::toString(pReal[2]));
+						dataNode->SetAttribute("x", StringConverter::toString(pFloat[0]));
+						dataNode->SetAttribute("y", StringConverter::toString(pFloat[1]));
+						dataNode->SetAttribute("z", StringConverter::toString(pFloat[2]));
 						break;
 					case VES_NORMAL:
-						elem.baseVertexPointerToElement(pVert, &pReal);
+						elem.baseVertexPointerToElement(pVert, &pFloat);
 						dataNode = 
 							vertexNode->InsertEndChild(TiXmlElement("normal"))->ToElement();
-						dataNode->SetAttribute("x", StringConverter::toString(pReal[0]));
-						dataNode->SetAttribute("y", StringConverter::toString(pReal[1]));
-						dataNode->SetAttribute("z", StringConverter::toString(pReal[2]));
+						dataNode->SetAttribute("x", StringConverter::toString(pFloat[0]));
+						dataNode->SetAttribute("y", StringConverter::toString(pFloat[1]));
+						dataNode->SetAttribute("z", StringConverter::toString(pFloat[2]));
 						break;
 					case VES_DIFFUSE:
 						elem.baseVertexPointerToElement(pVert, &pColour);
@@ -426,23 +426,23 @@ namespace Ogre {
 						}
 						break;
 					case VES_TEXTURE_COORDINATES:
-						elem.baseVertexPointerToElement(pVert, &pReal);
+						elem.baseVertexPointerToElement(pVert, &pFloat);
 						dataNode = 
 							vertexNode->InsertEndChild(TiXmlElement("texcoord"))->ToElement();
 
 						switch(elem.getType())
                         {
                         case VET_FLOAT1:
-    						dataNode->SetAttribute("u", StringConverter::toString(*pReal++));
+    						dataNode->SetAttribute("u", StringConverter::toString(*pFloat++));
                             break;
                         case VET_FLOAT2:
-    						dataNode->SetAttribute("u", StringConverter::toString(*pReal++));
-    						dataNode->SetAttribute("v", StringConverter::toString(*pReal++));
+    						dataNode->SetAttribute("u", StringConverter::toString(*pFloat++));
+    						dataNode->SetAttribute("v", StringConverter::toString(*pFloat++));
                             break;
                         case VET_FLOAT3:
-    						dataNode->SetAttribute("u", StringConverter::toString(*pReal++));
-    						dataNode->SetAttribute("v", StringConverter::toString(*pReal++));
-    						dataNode->SetAttribute("w", StringConverter::toString(*pReal++));
+    						dataNode->SetAttribute("u", StringConverter::toString(*pFloat++));
+    						dataNode->SetAttribute("v", StringConverter::toString(*pFloat++));
+    						dataNode->SetAttribute("w", StringConverter::toString(*pFloat++));
                             break;
                         default:
                             break;
@@ -613,7 +613,7 @@ namespace Ogre {
     {
         LogManager::getSingleton().logMessage("Reading geometry...");
         unsigned char *pVert;
-        Real *pReal;
+        float *pFloat;
         ARGB *pCol;
 
         vertexData->vertexCount = StringConverter::parseInt(mGeometryNode->Attribute("vertexcount"));
@@ -727,13 +727,13 @@ namespace Ogre {
                             Except(Exception::ERR_ITEM_NOT_FOUND, "Missing <position> element.",
                                 "XMLSerializer::readGeometry");
                         }
-                        elem.baseVertexPointerToElement(pVert, &pReal);
+                        elem.baseVertexPointerToElement(pVert, &pFloat);
 
-                        *pReal++ = StringConverter::parseReal(
+                        *pFloat++ = StringConverter::parseReal(
                             xmlElem->Attribute("x"));
-                        *pReal++ = StringConverter::parseReal(
+                        *pFloat++ = StringConverter::parseReal(
                             xmlElem->Attribute("y"));
-                        *pReal++ = StringConverter::parseReal(
+                        *pFloat++ = StringConverter::parseReal(
                             xmlElem->Attribute("z"));
 
                         pos.x = StringConverter::parseReal(
@@ -763,13 +763,13 @@ namespace Ogre {
                             Except(Exception::ERR_ITEM_NOT_FOUND, "Missing <normal> element.",
                                 "XMLSerializer::readGeometry");
                         }
-                        elem.baseVertexPointerToElement(pVert, &pReal);
+                        elem.baseVertexPointerToElement(pVert, &pFloat);
 
-                        *pReal++ = StringConverter::parseReal(
+                        *pFloat++ = StringConverter::parseReal(
                             xmlElem->Attribute("x"));
-                        *pReal++ = StringConverter::parseReal(
+                        *pFloat++ = StringConverter::parseReal(
                             xmlElem->Attribute("y"));
-                        *pReal++ = StringConverter::parseReal(
+                        *pFloat++ = StringConverter::parseReal(
                             xmlElem->Attribute("z"));
                         break;
                     case VES_DIFFUSE:
@@ -820,18 +820,18 @@ namespace Ogre {
                         }
 						// Record the latest texture coord entry
 						texCoordElem = xmlElem;
-                        elem.baseVertexPointerToElement(pVert, &pReal);
+                        elem.baseVertexPointerToElement(pVert, &pFloat);
 
-                        *pReal++ = StringConverter::parseReal(
+                        *pFloat++ = StringConverter::parseReal(
                             xmlElem->Attribute("u"));
                         if (VertexElement::getTypeCount(elem.getType()) > 1)
                         {
-                            *pReal++ = StringConverter::parseReal(
+                            *pFloat++ = StringConverter::parseReal(
                                 xmlElem->Attribute("v"));
                         }
                         if (VertexElement::getTypeCount(elem.getType()) > 2)
                         {
-                            *pReal++ = StringConverter::parseReal(
+                            *pFloat++ = StringConverter::parseReal(
                                 xmlElem->Attribute("w"));
                         }
 

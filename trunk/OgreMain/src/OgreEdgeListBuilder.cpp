@@ -284,11 +284,11 @@ namespace Ogre {
 
                 // Retrieve the vertex position
                 unsigned char* pVertex = pBaseVertex + (index[i] * vbuf->getVertexSize());
-                Real* pReal;
-                posElem->baseVertexPointerToElement(pVertex, &pReal);
-                v[i].x = *pReal++;
-                v[i].y = *pReal++;
-                v[i].z = *pReal++;
+                float* pFloat;
+                posElem->baseVertexPointerToElement(pVertex, &pFloat);
+                v[i].x = *pFloat++;
+                v[i].y = *pFloat++;
+                v[i].z = *pFloat++;
                 // find this vertex in the existing vertex map, or create it
                 tri.sharedVertIndex[i] = 
                     findOrCreateCommonVertex(v[i], vertexSet, indexSet, index[i]);
@@ -404,11 +404,11 @@ namespace Ogre {
     void EdgeData::updateFaceNormals(size_t vertexSet, 
         HardwareVertexBufferSharedPtr positionBuffer)
     {
-        assert (positionBuffer->getVertexSize() == sizeof(Real) * 3
+        assert (positionBuffer->getVertexSize() == sizeof(float) * 3
             && "Position buffer should contain only positions!");
 
         // Lock buffer for reading
-        Real* pVert = static_cast<Real*>(
+        float* pVert = static_cast<float*>(
             positionBuffer->lock(HardwareBuffer::HBL_READ_ONLY));
 
         // Iterate over the triangles
@@ -421,13 +421,13 @@ namespace Ogre {
             if (t.vertexSet == vertexSet)
             {
                 size_t offset = t.vertIndex[0]*3;
-                Vector3 v1(pVert + offset);
+                Vector3 v1(pVert[offset], pVert[offset+1], pVert[offset+2]);
 
                 offset = t.vertIndex[1]*3;
-                Vector3 v2(pVert + offset);
+                Vector3 v2(pVert[offset], pVert[offset+1], pVert[offset+2]);
 
                 offset = t.vertIndex[2]*3;
-                Vector3 v3(pVert + offset);
+                Vector3 v3(pVert[offset], pVert[offset+1], pVert[offset+2]);
 
                 t.normal = Math::calculateFaceNormalWithoutNormalize(v1, v2, v3);
             }
@@ -460,14 +460,14 @@ namespace Ogre {
             // lock the buffer for reading
             unsigned char* pBaseVertex = static_cast<unsigned char*>(
                 vbuf->lock(HardwareBuffer::HBL_READ_ONLY));
-            Real* pReal;
+            float* pFloat;
             for (j = 0; j < vData->vertexCount; ++j)
             {
-                posElem->baseVertexPointerToElement(pBaseVertex, &pReal);
+                posElem->baseVertexPointerToElement(pBaseVertex, &pFloat);
                 l->logMessage("Vertex " + StringConverter::toString(j) + 
-                    ": (" + StringConverter::toString(pReal[0]) + 
-                    ", " + StringConverter::toString(pReal[1]) + 
-                    ", " + StringConverter::toString(pReal[2]) + ")");
+                    ": (" + StringConverter::toString(pFloat[0]) + 
+                    ", " + StringConverter::toString(pFloat[1]) + 
+                    ", " + StringConverter::toString(pFloat[2]) + ")");
                 pBaseVertex += vbuf->getVertexSize();
             }
             vbuf->unlock();

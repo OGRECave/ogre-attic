@@ -100,8 +100,14 @@ namespace Ogre {
     #define OGRE_VERSION_NAME "Azathoth"
 
     #if OGRE_DOUBLE_PRECISION == 1
+		/** Software floating point type.
+		@note Not valid as a pointer to GPU buffers / parameters
+		*/
         typedef double Real;
     #else
+		/** Software floating point type.
+		@note Not valid as a pointer to GPU buffers / parameters
+		*/
         typedef float Real;
     #endif
 

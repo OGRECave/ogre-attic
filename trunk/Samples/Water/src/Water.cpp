@@ -102,7 +102,7 @@ private:
 	static HardwareIndexBufferSharedPtr indexBuffer ; // indices for 2 faces
 	static HardwareVertexBufferSharedPtr *texcoordsVertexBuffers ;
 	
-	Real *texBufData;
+	float *texBufData;
 	void _prepareMesh()
 	{
 		int i,lvl ;
@@ -121,11 +121,11 @@ private:
 			// static buffer for position and normals
 			posnormVertexBuffer = 
 				HardwareBufferManager::getSingleton().createVertexBuffer( 
-					6*sizeof(Real), // size of one vertex data
+					6*sizeof(float), // size of one vertex data
 					4, // number of vertices
 					HardwareBuffer::HBU_STATIC_WRITE_ONLY, // usage
 					false); // no shadow buffer
-			Real *posnormBufData = (Real*) posnormVertexBuffer->
+			float *posnormBufData = (float*) posnormVertexBuffer->
 				lock(HardwareBuffer::HBL_DISCARD);
 			for(i=0;i<numVertices;i++) {
 				posnormBufData[6*i+0]=((Real)(i%2)-0.5f)*CIRCLE_SIZE; // pos X
@@ -142,11 +142,11 @@ private:
 			for(lvl=0;lvl<16;lvl++) {
 				texcoordsVertexBuffers[lvl] = 
 					HardwareBufferManager::getSingleton().createVertexBuffer( 
-						2*sizeof(Real), // size of one vertex data
+						2*sizeof(float), // size of one vertex data
 						numVertices, // number of vertices
 						HardwareBuffer::HBU_STATIC_WRITE_ONLY, // usage
 						false); // no shadow buffer
-				Real *texcoordsBufData = (Real*) texcoordsVertexBuffers[lvl]->
+				float *texcoordsBufData = (float*) texcoordsVertexBuffers[lvl]->
 					lock(HardwareBuffer::HBL_DISCARD);
 				float x0 = (Real)(lvl % 4) * 0.25 ;
 				float y0 = (Real)(lvl / 4) * 0.25 ;
@@ -184,7 +184,7 @@ private:
 		// now, set vertex buffer declaration
 		VertexDeclaration *vdecl = subMesh->vertexData->vertexDeclaration ;
 		vdecl->addElement(0, 0, VET_FLOAT3, VES_POSITION);
-		vdecl->addElement(0, 3*sizeof(Real), VET_FLOAT3, VES_NORMAL);
+		vdecl->addElement(0, 3*sizeof(float), VET_FLOAT3, VES_NORMAL);
 		vdecl->addElement(1, 0, VET_FLOAT2, VES_TEXTURE_COORDINATES); 
 		
 		// Initialize index data

@@ -127,8 +127,8 @@ private:
 	StringVector availableCubeMaps ;
 	MaterialPtr material ;
 	
-	void _updatePositionNoise(int numVertices, Real *dstVertices,
-		Real *defaultVertices)
+	void _updatePositionNoise(int numVertices, float *dstVertices,
+		float *defaultVertices)
 	{
 		for(int i=0;i<3*numVertices;i+=3) {
 			double n = 1 + displacement * noise3(
@@ -141,19 +141,19 @@ private:
 		}
 	}
 	
-	Real* _normalsGetCleared(VertexData *vertexData)
+	float* _normalsGetCleared(VertexData *vertexData)
 	{
 		const VertexElement *normVE = vertexData->
 			vertexDeclaration->findElementBySemantic(VES_NORMAL);
 		HardwareVertexBufferSharedPtr normHVB = vertexData->
 			vertexBufferBinding->getBuffer(normVE->getSource());
-		Real* normals = (Real*) normHVB->lock(0, normHVB->getSizeInBytes(), 
+		float* normals = (float*) normHVB->lock(0, normHVB->getSizeInBytes(), 
 			HardwareBuffer::HBL_DISCARD);
 		memset(normals, 0, normHVB->getSizeInBytes());
 		return normals;
 	}
 	
-	void _normalsSaveNormalized(VertexData *vertexData, Real *normals)
+	void _normalsSaveNormalized(VertexData *vertexData, float *normals)
 	{
 		const VertexElement *normVE = vertexData->
 			vertexDeclaration->findElementBySemantic(VES_NORMAL);
@@ -174,7 +174,7 @@ private:
 			VertexData *dstData, 
 			VertexData *orgData,
 			IndexData *indexData,
-			Real *normals)
+			float *normals)
 	{
 		size_t i ;
 		
@@ -189,9 +189,9 @@ private:
 		HardwareVertexBufferSharedPtr orgHVBPos = orgData->
 			vertexBufferBinding->getBuffer(orgVEPos->getSource());
 		// Lock these buffers
-		Real *dstDataPos = (Real*) dstHVBPos->lock(0, dstHVBPos->getSizeInBytes(),
+		float *dstDataPos = (float*) dstHVBPos->lock(0, dstHVBPos->getSizeInBytes(),
 			HardwareBuffer::HBL_DISCARD);
-		Real *orgDataPos = (Real*) orgHVBPos->lock(0, orgHVBPos->getSizeInBytes(),
+		float *orgDataPos = (float*) orgHVBPos->lock(0, orgHVBPos->getSizeInBytes(),
 			HardwareBuffer::HBL_READ_ONLY);
 		// make noise
 		size_t numVertices = orgHVBPos->getNumVertices();
@@ -244,7 +244,7 @@ private:
 
 	void updateNoise()
 	{
-		Real *sharedNormals = 0 ;
+		float *sharedNormals = 0 ;
 		for(int m=0;m<clonedMesh->getNumSubMeshes();m++) { // for each subMesh
 			SubMesh *subMesh = clonedMesh->getSubMesh(m);
 			SubMesh *orgSubMesh = originalMesh->getSubMesh(m);
@@ -258,7 +258,7 @@ private:
 					subMesh->indexData,
 					sharedNormals);
 			} else {
-				Real* normals = _normalsGetCleared(subMesh->vertexData);
+				float* normals = _normalsGetCleared(subMesh->vertexData);
 				_updateVertexDataNoiseAndNormals(
 					subMesh->vertexData, 
 					orgSubMesh->vertexData,

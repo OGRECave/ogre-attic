@@ -329,7 +329,7 @@ namespace Ogre
         if (res->getName() == "Prefab_Plane")
         {
             SubMesh* sub = msh->createSubMesh();
-            Real vertices[32] = {
+            float vertices[32] = {
 			    -100, -100, 0,	// pos
 			    0,0,1,			// normal
 			    0,1,			// texcoord
@@ -484,7 +484,7 @@ namespace Ogre
 
         // Generate vertex data
         // Lock the whole buffer
-        Real* pReal = static_cast<Real*>(
+        float* pReal = static_cast<float*>(
             vbuf->lock(HardwareBuffer::HBL_DISCARD) );
         Real xSpace = params.width / params.xsegments;
         Real ySpace = params.height / params.ysegments;
@@ -627,7 +627,7 @@ namespace Ogre
         xform = xlate * rot;
 
         // Generate vertex data
-        Real* pReal = static_cast<Real*>(
+        float* pFloat = static_cast<float*>(
             vbuf->lock(HardwareBuffer::HBL_DISCARD)); 
         Real xSpace = params.width / params.xsegments;
         Real ySpace = params.height / params.ysegments;
@@ -660,9 +660,9 @@ namespace Ogre
                 // Transform by orientation and distance
                 vec = xform * vec;
                 // Assign to geometry
-                *pReal++ = vec.x;
-                *pReal++ = vec.y;
-                *pReal++ = vec.z;
+                *pFloat++ = vec.x;
+                *pFloat++ = vec.y;
+                *pFloat++ = vec.z;
 
                 // Record bounds
                 if (first)
@@ -689,15 +689,15 @@ namespace Ogre
                     // Rotate
                     vec = rot * vec;
 
-                    *pReal++ = vec.x;
-                    *pReal++ = vec.y;
-                    *pReal++ = vec.z;
+                    *pFloat++ = vec.x;
+                    *pFloat++ = vec.y;
+                    *pFloat++ = vec.z;
                 }
 
                 for (i = 0; i < params.numTexCoordSets; ++i)
                 {
-                    *pReal++ = x * xTex;
-                    *pReal++ = 1 - (y * yTex);
+                    *pFloat++ = x * xTex;
+                    *pFloat++ = 1 - (y * yTex);
                 }
 
             } // x
@@ -804,7 +804,7 @@ namespace Ogre
         camPos = sphereRadius - CAM_DIST;
 
         // Lock the whole buffer
-        Real* pReal = static_cast<Real*>(
+        float* pFloat = static_cast<float*>(
             vbuf->lock(HardwareBuffer::HBL_DISCARD) );
         Real xSpace = params.width / params.xsegments;
         Real ySpace = params.height / params.ysegments;
@@ -826,9 +826,9 @@ namespace Ogre
                 // Transform by orientation and distance
                 vec = xform * vec;
                 // Assign to geometry
-                *pReal++ = vec.x;
-                *pReal++ = vec.y;
-                *pReal++ = vec.z;
+                *pFloat++ = vec.x;
+                *pFloat++ = vec.y;
+                *pFloat++ = vec.z;
 
                 // Build bounds as we go
                 if (firstTime)
@@ -852,9 +852,9 @@ namespace Ogre
                     // Rotate
                     norm = params.orientation * norm;
 
-                    *pReal++ = norm.x;
-                    *pReal++ = norm.y;
-                    *pReal++ = norm.z;
+                    *pFloat++ = norm.x;
+                    *pFloat++ = norm.y;
+                    *pFloat++ = norm.z;
                 }
 
                 // Generate texture coords
@@ -873,8 +873,8 @@ namespace Ogre
                 Real t = 1 - (vec.z * (0.01 * params.yTile));
                 for (i = 0; i < params.numTexCoordSets; ++i)
                 {
-                    *pReal++ = s;
-                    *pReal++ = t;
+                    *pFloat++ = s;
+                    *pFloat++ = t;
                 }
 
 

@@ -340,7 +340,7 @@ namespace Ogre {
 		HardwareVertexBufferSharedPtr vbuf = 
 			mRenderOp2.vertexData->vertexBufferBinding->getBuffer(TEXCOORD_BINDING);
 		// Can't use discard since this discards whole buffer
-		Real* pUV = static_cast<Real*>(vbuf->lock(HardwareBuffer::HBL_DISCARD));
+		float* pUV = static_cast<float*>(vbuf->lock(HardwareBuffer::HBL_DISCARD));
 		
 		for (uint i = 0; i < 8; ++i)
 		{
@@ -531,7 +531,7 @@ namespace Ogre {
 		// Lock the whole position buffer in discard mode
 		HardwareVertexBufferSharedPtr vbuf = 
 			mRenderOp2.vertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);
-		Real* pPos = static_cast<Real*>(
+		float* pPos = static_cast<float*>(
 			vbuf->lock(HardwareBuffer::HBL_DISCARD) );
 		// Use the furthest away depth value, since materials should have depth-check off
 		// This initialised the depth buffer for any 3D objects in front
@@ -567,7 +567,7 @@ namespace Ogre {
 		// Also update center geometry
 		// NB don't use superclass because we need to make it smaller because of border
 		vbuf = mRenderOp.vertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);
-		pPos = static_cast<Real*>(
+		pPos = static_cast<float*>(
 			vbuf->lock(HardwareBuffer::HBL_DISCARD) );
 		// Use cell 1 and 3 to determine positions
 		*pPos++ = left[1];

@@ -161,7 +161,7 @@ namespace Ogre
             mTerrain->vertexCount, 
             HardwareBuffer::HBU_STATIC_WRITE_ONLY);
         // Create system memory copy with just positions in it, for use in simple reads
-        mPositionBuffer = new Real[mTerrain->vertexCount * 3];
+        mPositionBuffer = new float[mTerrain->vertexCount * 3];
 
         bind->setBinding(MAIN_BINDING, mMainBuffer);
 
@@ -188,7 +188,7 @@ namespace Ogre
         const VertexElement* poselem = decl->findElementBySemantic(VES_POSITION);
         const VertexElement* texelem0 = decl->findElementBySemantic(VES_TEXTURE_COORDINATES, 0);
         const VertexElement* texelem1 = decl->findElementBySemantic(VES_TEXTURE_COORDINATES, 1);
-        Real* pSysPos = mPositionBuffer;
+        float* pSysPos = mPositionBuffer;
 
         unsigned char* pBase = static_cast<unsigned char*>(mMainBuffer->lock(HardwareBuffer::HBL_DISCARD));
 
@@ -196,7 +196,7 @@ namespace Ogre
         {
             for ( int i = startx; i < endx; i++ )
             {
-                Real *pPos, *pTex0, *pTex1;
+                float *pPos, *pTex0, *pTex1;
                 poselem->baseVertexPointerToElement(pBase, &pPos);
                 texelem0->baseVertexPointerToElement(pBase, &pTex0);
                 texelem1->baseVertexPointerToElement(pBase, &pTex1);
@@ -204,15 +204,15 @@ namespace Ogre
                 Real height = pageHeightData[j * msOptions->pageSize + i];
                 height = height * msOptions->scale.y; // scale height 
 
-                *pSysPos++ = *pPos++ = ( Real ) i * msOptions->scale.x; //x
+                *pSysPos++ = *pPos++ = ( float ) i * msOptions->scale.x; //x
                 *pSysPos++ = *pPos++ = height; // y
-                *pSysPos++ = *pPos++ = ( Real ) j * msOptions->scale.z; //z
+                *pSysPos++ = *pPos++ = ( float ) j * msOptions->scale.z; //z
 
-                *pTex0++ = ( Real ) i / ( Real ) msOptions->pageSize;
-                *pTex0++ = ( Real ) ( Real ) j / ( Real ) msOptions->pageSize;
+                *pTex0++ = ( float ) i / ( float ) msOptions->pageSize;
+                *pTex0++ = ( float ) ( float ) j / ( float ) msOptions->pageSize;
 
-                *pTex1++ = ( ( Real ) i / ( Real ) msOptions->tileSize ) * msOptions->detailTile;
-                *pTex1++ = ( ( Real ) ( Real ) j / ( Real ) msOptions->tileSize ) * msOptions->detailTile;
+                *pTex1++ = ( ( float ) i / ( float ) msOptions->tileSize ) * msOptions->detailTile;
+                *pTex1++ = ( ( float ) ( float ) j / ( float ) msOptions->tileSize ) * msOptions->detailTile;
 
                 if ( height < min )
                     min = ( Real ) height;
@@ -297,7 +297,7 @@ namespace Ogre
             mTerrain->vertexBufferBinding->getBuffer(MAIN_BINDING);
         const VertexElement* elem = mTerrain->vertexDeclaration->findElementBySemantic(VES_NORMAL);
         unsigned char* pBase = static_cast<unsigned char*>( vbuf->lock(HardwareBuffer::HBL_DISCARD) );
-        Real* pNorm;
+        float* pNorm;
 
         for ( size_t j = 0; j < msOptions->tileSize; j++ )
         {
@@ -366,7 +366,8 @@ namespace Ogre
                     Real percent = (L - mMinLevelDistSqr[mRenderLevel]) / range;
                     // scale result so that msLODMorphStart == 0, 1 == 1, clamp to 0 below that
                     Real rescale = 1.0f / (1.0f - msOptions->lodMorphStart);
-                    mLODMorphFactor = std::max((percent - msOptions->lodMorphStart) * rescale, 0.0f);
+                    mLODMorphFactor = std::max((percent - msOptions->lodMorphStart) * rescale, 
+						static_cast<Real>(0.0));
                 }
                 else
                 {
@@ -460,13 +461,13 @@ namespace Ogre
             // The step of the next higher LOD
             int higherstep = step >> 1;
 
-            Real* pDeltas = 0;
+            float* pDeltas = 0;
             if (msOptions->lodMorph)
             {
                 // Create a set of delta values (store at index - 1 since 0 has none)
                 mDeltaBuffers[level - 1]  = createDeltaBuffer();
                 // Lock, but don't discard (we want the pre-initialised zeros)
-                pDeltas = static_cast<Real*>(
+                pDeltas = static_cast<float*>(
                     mDeltaBuffers[level - 1]->lock(HardwareBuffer::HBL_NORMAL));
             }
 
@@ -1292,7 +1293,7 @@ namespace Ogre
             HardwareBuffer::HBU_STATIC_WRITE_ONLY);
         // Fill the buffer with zeros, we will only fill in delta
         void* pVoid = buf->lock(HardwareBuffer::HBL_DISCARD);
-        memset(pVoid, 0, msOptions->tileSize * msOptions->tileSize * sizeof(Real));
+        memset(pVoid, 0, msOptions->tileSize * msOptions->tileSize * sizeof(float));
         buf->unlock();
 
         return buf;

@@ -99,8 +99,8 @@ namespace Ogre {
     {
         ParticleIterator pi = pSystem->_getIterator();
         Particle *p;
-        Real dr1, dg1, db1, da1;
-		Real dr2, dg2, db2, da2;
+        float dr1, dg1, db1, da1;
+		float dr2, dg2, db2, da2;
 
 		// Scale adjustments by time
 		dr1 = mRedAdj1   * timeElapsed;
@@ -136,7 +136,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void ColourFaderAffector2::setAdjust1(Real red, Real green, Real blue, Real alpha)
+    void ColourFaderAffector2::setAdjust1(float red, float green, float blue, float alpha)
     {
         mRedAdj1 = red;
         mGreenAdj1 = green;
@@ -144,7 +144,7 @@ namespace Ogre {
         mAlphaAdj1 = alpha;
     }
 	//-----------------------------------------------------------------------
-    void ColourFaderAffector2::setAdjust2(Real red, Real green, Real blue, Real alpha)
+    void ColourFaderAffector2::setAdjust2(float red, float green, float blue, float alpha)
     {
         mRedAdj2 = red;
         mGreenAdj2 = green;
@@ -153,82 +153,82 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void ColourFaderAffector2::setRedAdjust1(Real red)
+    void ColourFaderAffector2::setRedAdjust1(float red)
     {
         mRedAdj1 = red;
     }
     //-----------------------------------------------------------------------
-    void ColourFaderAffector2::setRedAdjust2(Real red)
+    void ColourFaderAffector2::setRedAdjust2(float red)
     {
         mRedAdj2 = red;
     }
     //-----------------------------------------------------------------------
-    Real ColourFaderAffector2::getRedAdjust1(void) const
+    float ColourFaderAffector2::getRedAdjust1(void) const
     {
         return mRedAdj1;
     }
     //-----------------------------------------------------------------------
-    Real ColourFaderAffector2::getRedAdjust2(void) const
+    float ColourFaderAffector2::getRedAdjust2(void) const
     {
         return mRedAdj2;
     }
     //-----------------------------------------------------------------------
-    void ColourFaderAffector2::setGreenAdjust1(Real green)
+    void ColourFaderAffector2::setGreenAdjust1(float green)
     {
         mGreenAdj1 = green;
     }
     //-----------------------------------------------------------------------
-    void ColourFaderAffector2::setGreenAdjust2(Real green)
+    void ColourFaderAffector2::setGreenAdjust2(float green)
     {
         mGreenAdj2 = green;
     }
     //-----------------------------------------------------------------------
-    Real ColourFaderAffector2::getGreenAdjust1(void) const
+    float ColourFaderAffector2::getGreenAdjust1(void) const
     {
         return mGreenAdj1;
     }
     //-----------------------------------------------------------------------
-    Real ColourFaderAffector2::getGreenAdjust2(void) const
+    float ColourFaderAffector2::getGreenAdjust2(void) const
     {
         return mGreenAdj2;
     }
     //-----------------------------------------------------------------------
-    void ColourFaderAffector2::setBlueAdjust1(Real blue)
+    void ColourFaderAffector2::setBlueAdjust1(float blue)
     {
         mBlueAdj1 = blue;
     }
     //-----------------------------------------------------------------------
-    void ColourFaderAffector2::setBlueAdjust2(Real blue)
+    void ColourFaderAffector2::setBlueAdjust2(float blue)
     {
         mBlueAdj2 = blue;
     }
     //-----------------------------------------------------------------------
-    Real ColourFaderAffector2::getBlueAdjust1(void) const
+    float ColourFaderAffector2::getBlueAdjust1(void) const
     {
         return mBlueAdj1;
     }
     //-----------------------------------------------------------------------
-    Real ColourFaderAffector2::getBlueAdjust2(void) const
+    float ColourFaderAffector2::getBlueAdjust2(void) const
     {
         return mBlueAdj2;
     }
     //-----------------------------------------------------------------------
-    void ColourFaderAffector2::setAlphaAdjust1(Real alpha)
+    void ColourFaderAffector2::setAlphaAdjust1(float alpha)
     {
         mAlphaAdj1 = alpha;
     }
     //-----------------------------------------------------------------------
-    void ColourFaderAffector2::setAlphaAdjust2(Real alpha)
+    void ColourFaderAffector2::setAlphaAdjust2(float alpha)
     {
         mAlphaAdj2 = alpha;
     }
     //-----------------------------------------------------------------------
-    Real ColourFaderAffector2::getAlphaAdjust1(void) const
+    float ColourFaderAffector2::getAlphaAdjust1(void) const
     {
         return mAlphaAdj1;
     }
     //-----------------------------------------------------------------------
-    Real ColourFaderAffector2::getAlphaAdjust2(void) const
+    float ColourFaderAffector2::getAlphaAdjust2(void) const
     {
         return mAlphaAdj2;
     }

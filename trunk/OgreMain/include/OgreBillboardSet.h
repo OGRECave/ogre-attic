@@ -145,12 +145,11 @@ namespace Ogre {
 
 
         /// The vertex position data for all billboards in this set.
-        //Real* mpPositions;
         VertexData* mVertexData;
         /// Shortcut to main buffer (positions, colours, texture coords)
         HardwareVertexBufferSharedPtr mMainBuf;
         /// Locked pointer to buffer
-        Real* mLockPtr;
+        float* mLockPtr;
         /// Boundary offsets based on origin and camera orientation
         /// Vector3 vLeftOff, vRightOff, vTopOff, vBottomOff;
         /// Final vertex offsets, used where sizes all default to save calcs

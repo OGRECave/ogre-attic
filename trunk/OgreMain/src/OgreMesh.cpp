@@ -549,7 +549,7 @@ namespace Ogre {
 
         HardwareVertexBufferSharedPtr vbuf = 
             HardwareBufferManager::getSingleton().createVertexBuffer(
-                sizeof(unsigned char)*4 + sizeof(Real)*numBlendWeightsPerVertex,
+                sizeof(unsigned char)*4 + sizeof(float)*numBlendWeightsPerVertex,
                 targetVertexData->vertexCount, 
                 HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
                 true // use shadow buffer
@@ -601,7 +601,7 @@ namespace Ogre {
         unsigned char *pBase = static_cast<unsigned char*>(
             vbuf->lock(HardwareBuffer::HBL_DISCARD)); 
         // Iterate by vertex
-        Real *pWeight;
+        float *pWeight;
         unsigned char *pIndex;
         for (v = 0; v < targetVertexData->vertexCount; ++v)
         {
@@ -997,9 +997,9 @@ namespace Ogre {
 	    {
 		    // retrieve buffer pointers
 		    unsigned short	*pVIndices;	// the face indices buffer, read only
-		    Real			*p2DTC;		// pointer to 2D tex.coords, read only
-		    Real			*p3DTC;		// pointer to 3D tex.coords, write/read (discard)
-		    Real			*pVPos;		// vertex position buffer, read only
+		    float			*p2DTC;		// pointer to 2D tex.coords, read only
+		    float			*p3DTC;		// pointer to 3D tex.coords, write/read (discard)
+		    float			*pVPos;		// vertex position buffer, read only
 
 		    SubMesh *pSubMesh = getSubMesh(sm);
 
@@ -1415,7 +1415,7 @@ namespace Ogre {
         // Accumulation vectors
         Vector3 accumVecPos, accumVecNorm;
 
-        Real *pSrcPos, *pSrcNorm, *pDestPos, *pDestNorm, *pBlendWeight;
+        float *pSrcPos, *pSrcNorm, *pDestPos, *pDestNorm, *pBlendWeight;
         unsigned char* pBlendIdx;
         bool srcPosNormShareBuffer = false;
         bool destPosNormShareBuffer = false;
@@ -1466,14 +1466,14 @@ namespace Ogre {
         // Lock source buffers for reading
         assert (srcElemPos->getOffset() == 0 && 
             "Positions must be first element in dedicated buffer!");
-        pSrcPos = static_cast<Real*>(
+        pSrcPos = static_cast<float*>(
             srcPosBuf->lock(HardwareBuffer::HBL_READ_ONLY));
         if (includeNormals)
         {
             if (srcPosNormShareBuffer)
             {
                 // Same buffer, must be packed directly after position
-                assert (srcElemNorm->getOffset() == sizeof(Real) * 3 && 
+                assert (srcElemNorm->getOffset() == sizeof(float) * 3 && 
                     "Normals must be packed directly after positions in buffer!");
                 // pSrcNorm will not be used
             }
@@ -1482,7 +1482,7 @@ namespace Ogre {
                 // Different buffer
                 assert (srcElemNorm->getOffset() == 0 && 
                     "Normals must be first element in dedicated buffer!");
-                pSrcNorm = static_cast<Real*>(
+                pSrcNorm = static_cast<float*>(
                     srcNormBuf->lock(HardwareBuffer::HBL_READ_ONLY));
             }
         }
@@ -1506,7 +1506,7 @@ namespace Ogre {
             assert(srcElemBlendWeights->getOffset() == 0 &&
                 "Blend weights must be at the start of a dedicated buffer");
             // Lock buffer
-            pBlendWeight = static_cast<Real*>(
+            pBlendWeight = static_cast<float*>(
                 srcWeightBuf->lock(HardwareBuffer::HBL_READ_ONLY));
         }
         unsigned short numWeightsPerVertex = 
@@ -1516,14 +1516,14 @@ namespace Ogre {
         // Lock destination buffers for writing
         assert (destElemPos->getOffset() == 0 && 
             "Positions must be first element in dedicated buffer!");
-        pDestPos = static_cast<Real*>(
+        pDestPos = static_cast<float*>(
             destPosBuf->lock(HardwareBuffer::HBL_DISCARD));
         if (includeNormals)
         {
             if (destPosNormShareBuffer)
             {
                 // Same buffer, must be packed directly after position
-                assert (destElemNorm->getOffset() == sizeof(Real) * 3 && 
+                assert (destElemNorm->getOffset() == sizeof(float) * 3 && 
                     "Normals must be packed directly after positions in buffer!");
                 // Must be no other information in the buffer
                 assert(destPosBuf->getVertexSize() == 
@@ -1546,7 +1546,7 @@ namespace Ogre {
                     destElemNorm->getSize() && 
                     "When software skinning, dedicated normal buffer must not include "
                     "any other vertex elements!");
-                pDestNorm = static_cast<Real*>(
+                pDestNorm = static_cast<float*>(
                     destNormBuf->lock(HardwareBuffer::HBL_DISCARD));
             }
         }
@@ -1641,7 +1641,7 @@ namespace Ogre {
             if(weightsIndexesShareBuffer)
             {
                 // Skip index over weights
-                pBlendIdx += sizeof(Real) * numWeightsPerVertex;
+                pBlendIdx += sizeof(float) * numWeightsPerVertex;
                 // Re-base weights
                 srcElemBlendWeights->baseVertexPointerToElement(pBlendIdx, &pBlendWeight);
             }
