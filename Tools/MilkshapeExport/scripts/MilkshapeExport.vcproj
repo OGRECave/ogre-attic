@@ -23,7 +23,7 @@
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;MILKSHAPEEXPORT_EXPORTS"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough=""
 				PrecompiledHeaderFile=""
@@ -74,7 +74,7 @@
 				AdditionalIncludeDirectories="..\include;..\..\..\OgreMain\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;MILKSHAPEEXPORT_EXPORTS"
 				StringPooling="TRUE"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough=""
@@ -144,10 +144,10 @@
 				RelativePath="..\include\msPlugIn.h">
 			</File>
 			<File
-				RelativePath="..\misc\resource.h">
+				RelativePath="..\include\resource.h">
 			</File>
 			<File
-				RelativePath="..\include\resource.h">
+				RelativePath="..\misc\resource.h">
 			</File>
 		</Filter>
 		<Filter
