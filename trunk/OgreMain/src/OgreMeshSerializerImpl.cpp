@@ -46,7 +46,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     /// stream overhead = ID + size
-    const size_t STREAM_OVERHEAD_SIZE = sizeof(uint16) + sizeof(uint32);
+    const long STREAM_OVERHEAD_SIZE = sizeof(uint16) + sizeof(uint32);
     //---------------------------------------------------------------------
     MeshSerializerImpl::MeshSerializerImpl()
     {
