@@ -48,10 +48,9 @@ namespace Ogre {
     //---------------------------------------------------------------------
     OverlayManager::OverlayManager() :
         mCursorGuiInitialised(false), mLastViewportWidth(0), 
-        mLastViewportHeight(0), mViewportDimensionsChanged(false)
+        mLastViewportHeight(0), mViewportDimensionsChanged(false),
+        mEventDispatcher(this)
     {
-        mMouseX = 0;
-        mMouseY = 0;
 		mCursorGuiRegistered = 0;
 		mCursorLevelOverlay = 0;
     }
@@ -563,27 +562,60 @@ namespace Ogre {
 
 		return ret;
 	}
+
+	//-----------------------------------------------------------------------------
+    void OverlayManager::processEvent(InputEvent* e)
+    {
+        MouseMotionListenerList::iterator i, iEnd;
+
+        mEventDispatcher.dispatchEvent(e);
+
+            // process for cursor listeners
+        switch (e->getID())
+        {
+        case MouseEvent::ME_MOUSE_MOVED :
+            iEnd = mMouseMotionListenerList.end();
+            for (i = mMouseMotionListenerList.begin(); i != iEnd; ++i)
+                (*i)->mouseMoved(static_cast<MouseEvent*>(e));
+            break;
+
+        case MouseEvent::ME_MOUSE_DRAGGED :
+            iEnd = mMouseMotionListenerList.end();
+            for (i = mMouseMotionListenerList.begin(); i != iEnd; ++i) // FIX ME
+                (*i)->mouseDragged(static_cast<MouseEvent*>(e));
+            break;
+        }
+    }
+
 	//-----------------------------------------------------------------------------
 	void OverlayManager::setDefaultCursorGui(GuiContainer* cursor, MouseMotionListener* cursorListener)
 	{
 		mCursorGuiRegistered = cursor;
-		mCursorListener = cursorListener;
+		//mCursorListener = cursorListener;
         mCursorGuiInitialised = false;
+       
+        //if (mCursorListener != 0)
+        //    addMouseMotionListener(mCursorListener);
 	}
+
 	//-----------------------------------------------------------------------------
-	void OverlayManager::setCursorGui(GuiContainer* cursor, MouseMotionListener* cursorListener)
+	void OverlayManager::setCursorGui(GuiContainer* cursor)
 	{
-            // remove old cursor, if any
-        if (mCursorGuiRegistered != 0 && mCursorListener != 0)
+            // remove old cursor and listener, if any
+        if (mCursorGuiRegistered != 0)
             mCursorGuiRegistered->hide();
+        //if (mCursorListener != 0)
+        //    removeMouseMotionListener(mCursorListener);
 
 		mCursorGuiRegistered  = cursor;
-		mCursorListener       = cursorListener;
+		//mCursorListener       = cursorListener;
         mCursorGuiInitialised = true;
 
             // add new cursor, if any
-        if (mCursorGuiRegistered != 0 && mCursorListener != 0)
+        if (mCursorGuiRegistered != 0)
             mCursorGuiRegistered->show();            
+        //if (mCursorListener != 0)
+        //    addMouseMotionListener(mCursorListener);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -598,23 +630,23 @@ namespace Ogre {
 	}
 
     //-----------------------------------------------------------------------------
-    void OverlayManager::mouseMoved(MouseEvent* e)
+    void OverlayManager::addMouseMotionListener(MouseMotionListener* l)
     {
-        mMouseX = e->getX();
-        mMouseY = e->getY();
-
-        if (mCursorListener != 0)
-            mCursorListener->mouseMoved(e);
+        mMouseMotionListenerList.push_back(l);
     }
 
     //-----------------------------------------------------------------------------
-    void OverlayManager::mouseDragged(MouseEvent* e)
+    void OverlayManager::removeMouseMotionListener(MouseMotionListener* l)
     {
-        mMouseX = e->getX();
-        mMouseY = e->getY();
+        MouseMotionListenerList::iterator i, iEnd;
 
-        if (mCursorListener != 0)
-            mCursorListener->mouseDragged(e);
+        iEnd = mMouseMotionListenerList.end();
+        for (i = mMouseMotionListenerList.begin(); i != iEnd; ++i)
+            if (*i == l)
+            {
+                mMouseMotionListenerList.erase(i);
+                break;
+            }
     }
 
 	//-----------------------------------------------------------------------------
@@ -623,11 +655,10 @@ namespace Ogre {
 		mCursorLevelOverlay = static_cast<Overlay* > (create("CursorLevelOverlay"));
 		mCursorLevelOverlay->setZOrder(600);
 		mCursorLevelOverlay->show();
-		EventProcessor::getSingleton().addTargetManager(this);
-		EventProcessor::getSingleton().addCursorMoveListener(this);
+		EventProcessor::getSingleton().addEventTarget(this);
 
 		// register the new cursor and display it
-		if (mCursorGuiRegistered && mCursorListener)	
+		if (mCursorGuiRegistered/* && mCursorListener*/)	
 		{
 			mCursorLevelOverlay->add2D(mCursorGuiRegistered);
             mCursorGuiRegistered->show();

@@ -130,6 +130,18 @@ namespace Ogre {
 		  case ME_MOUSE_DRAGGED:
 			  typeStr = "MOUSE_DRAGGED";
 			  break;
+		  case ME_MOUSE_DRAGENTERED:
+			  typeStr = "MOUSE_DRAGENTERED";
+			  break;
+		  case ME_MOUSE_DRAGEXITED:
+			  typeStr = "MOUSE_DRAGEXITED";
+			  break;
+		  case ME_MOUSE_DRAGDROPPED:
+			  typeStr = "MOUSE_DRAGDROPPED";
+			  break;
+		  case ME_MOUSE_DRAGMOVED:
+			  typeStr = "MOUSE_DRAGMOVED";
+			  break;
 		  default:
 			  typeStr = "unknown type";
 		}

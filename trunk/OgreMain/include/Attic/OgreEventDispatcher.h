@@ -58,100 +58,153 @@ namespace Ogre {
     class _OgreExport EventDispatcher
     {
     protected:
-	TargetManager* mTargetManager;		
-	EventProcessor* mEventProcessor;
+	    TargetManager* mTargetManager;		
 
-	/**
-	 * The current PositionTarget that has focus that is being
-	 * hosted by this GuiContainer.  If this is a null reference then 
-	 * there is currently no focus on a PositionTarget being 
-	 * hosted by this GuiContainer 
-	 */
-	 PositionTarget* mFocus;	// isn't implemented yet
+	    /**
+	    * The current PositionTarget that has focus that is being
+	    * hosted by this GuiContainer.  If this is a null reference then 
+	    * there is currently no focus on a PositionTarget being 
+	    * hosted by this GuiContainer 
+	    */
+	    PositionTarget* mFocus;	// isn't implemented yet
 
-	/**
-	 * The current PositionTarget being hosted by this windowed
-	 * PositionTarget that has mouse events being forwarded to it.  If this
-	 * is null, there are currently no mouse events being forwarded to 
-	 * a PositionTarget.
-	 */
-	 PositionTarget* mMousePositionTarget;
+	    /**
+	    * The current PositionTarget, over which, the current drag operation originated.
+        * Only valid when mDragging is true.  May be null.
+	    */
+	    PositionTarget* mMouseDragSource;
 
-	/**
-	 * PositionTarget the Keycursor is on 
-	 */
-	  PositionTarget* mKeyCursorOn;	
+	    /**
+	    * PositionTarget the Keycursor is on 
+	    */
+	    PositionTarget* mKeyCursorOn;	
 
-	/**
-	 * The last PositionTarget entered
-	 */
-	  PositionTarget* mTargetLastEntered;
+	    /**
+	    * The last PositionTarget entered
+	    */
+            PositionTarget* mTargetLastEntered;
 
-	/**
-	 * Indicates if the mouse pointer is currently being dragged...
-	 * this is needed because we may receive exit events while dragging
-	 * and need to keep the current mouse target in this case.
-	 */
-	 bool mDragging;
+        /**
+        *  Screen coordinates of the last (or current) mouse event.  Will eventually be
+        *  useful for managing mouse cursors.
+        */
+        Real mMouseX;
+        Real mMouseY;
 
-	 int mEventMask;
+	    /**
+	    * Indicates if the mouse pointer is currently being dragged...
+	    * this is needed because we may receive exit events while dragging
+	    * and need to keep the current mouse target in this case.
+	    */
+	    bool mDragging;       // i.e. mouse grab
 
-	 //-------------------
-	 // protected methods	
+	    /**
+	    * Indicates whether or not Drag/Drop event will be generated during the
+        * next drag sequence.
+        *
+        * @see setDragDrop
+	    */
+        bool mDragDropOn;
 
-	bool processKeyEvent(KeyEvent* e) ;
+        /**
+	    * Indicates whether or not Drag/Drop events are currently being generated.
+	    */
+        bool mDragDropActive;
 
-	/**
-	 * This method attempts to distribute a mouse event to a lightweight
-	 * PositionTarget.  It tries to avoid doing any unnecessary probes down
-	 * into the PositionTarget tree to minimize the overhead of determining
-	 * where to route the event, since mouse movement events tend to
-	 * come in large and frequent amounts.
-	 */
+	    int mEventMask;
 
-	bool processMouseEvent(MouseEvent* e) ;
+	    //-------------------
+	    // protected methods	
 
-	/**
-	 * Sends a mouse event to the current mouse event recipient using
-	 * the given event (sent to the windowed host) as a srcEvent.  If
-	 * the mouse event target is still in the PositionTarget tree, the 
-	 * coordinates of the event are translated to those of the target.
-	 * If the target has been removed, we don't bother to send the
-	 * message.
-	 */
+	    bool processKeyEvent(KeyEvent* e) ;
 
-	void retargetMouseEvent(PositionTarget* target, int id, MouseEvent* e) ;
+	    /**
+	    * This method attempts to distribute a mouse event to a lightweight
+	    * PositionTarget.  It tries to avoid doing any unnecessary probes down
+	    * into the PositionTarget tree to minimize the overhead of determining
+	    * where to route the event, since mouse movement events tend to
+	    * come in large and frequent amounts.
+	    */
 
-	/**
-	 * Change the current target of mouse events.
-	 * the only place that modifies the member var mMousePositionTarget
-	 */
+	    bool processMouseEvent(MouseEvent* e) ;
 
-	void setMouseTarget(PositionTarget* target, MouseEvent* e) ;
+	    /**
+	    * Sends a mouse event to the current mouse event recipient using
+	    * the given event (sent to the windowed host) as a srcEvent.  If
+	    * the mouse event target is still in the PositionTarget tree, the 
+	    * coordinates of the event are translated to those of the target.
+	    * If the target has been removed, we don't bother to send the
+	    * message.
+	    */
 
-	/*
-	 * Generates enter/exit events as mouse moves over lw PositionTargets
-	 * @param targetOver	Target mouse is over (including native container)
-	 * @param e			Mouse event in native container
-	 */
+	    void retargetMouseEvent(PositionTarget* target, MouseEvent* e) ;
 
-	void trackMouseEnterExit(PositionTarget* targetOver, MouseEvent* e) ;
+	    /**
+	    * Sends a mouse event to the current mouse event recipient using
+	    * the given event (sent to the windowed host) as a srcEvent.  If
+	    * the mouse event target is still in the PositionTarget tree, the 
+	    * coordinates of the event are translated to those of the target.
+	    * If the target has been removed, we don't bother to send the
+	    * message.
+	    */
+
+	    void retargetMouseEvent(PositionTarget* target, int id, MouseEvent* e, bool consume = false) ;
+
+	    /**
+	    * Sends a key event to the current mouse event recipient using
+	    * the given event (sent to the windowed host) as a srcEvent.
+	    */
+
+	    void retargetKeyEvent(PositionTarget* target, int id, MouseEvent* e) ;
+
+	    /*
+	    * Generates enter/exit events as mouse moves over lw PositionTargets
+	    * @param targetOver	Target mouse is over (including native container)
+	    * @param e			Mouse event in native container
+	    */
+
+	    void trackMouseEnterExit(PositionTarget* targetOver, MouseEvent* e) ;
+
+        /*
+	    * Generates FocusIn/FocusOut events as the keyboard focus changes.
+	    * @param targetOver Target mouse is over (including native container)
+	    * @param e			 Mouse event in native container
+	    */
+        void trackKeyEnterExit(PositionTarget* targetOver, MouseEvent* e);
 
     public:
-	    EventDispatcher(TargetManager* pTargetManager, EventProcessor* pEventProcessor);
+	    EventDispatcher(TargetManager* pTargetManager);
         virtual ~EventDispatcher();       
 
-	/**
-	 * Dispatches an event to a PositionTarget if necessary, and
-	 * returns whether or not the event was forwarded to a 
-	 * sub-PositionTarget.
-	 *
-	 * @param e the event
-	 */
-		bool dispatchEvent(InputEvent* e) ;
+	    /**
+	    * Dispatches an event to a PositionTarget if necessary, and
+	    * returns whether or not the event was forwarded to a 
+	    * sub-PositionTarget.
+	    *
+	    * @param e the event
+	    */
+	    bool dispatchEvent(InputEvent* e);
+
+	    /**
+	    * Enables or disables the mouse drag/drop events on the next mouse
+        * drag sequence.   It has no effect on the current drag sequence, if any.
+        * Drag/drop events are typically enabled when the mouse enters the area
+        * of a particular PositionTarget.
+	    *
+	    * @param dragDropOn Indicates whether or not the drag/drop events should
+        * be enabled.
+	    */
+        void setDragDrop(bool dragDropOn);
+
+        /**
+	    * Returns the X screen coordinate of the current mouse position.
+	    */
+        inline Real getMouseX() const { return mMouseX; }
+        /**
+	    * Returns the Y screen coordinate of the current mouse position.
+	    */
+        inline Real getMouseY() const { return mMouseY; }
     };
-
-
 
 }
 

@@ -74,6 +74,7 @@ namespace Ogre {
 
         /** Inherited from PanelGuiElement, should only be called from the OverlayManager */
         void show(void);
+        void hide(void);
 
         /** Used to set the cursor's hot spot X coordinate */
         void setOffsetX(Real x);

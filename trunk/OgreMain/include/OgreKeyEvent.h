@@ -57,14 +57,16 @@ namespace Ogre {
 		enum
 		{
 			KE_FIRST_EVENT = 2500,
-			KE_LAST_EVENT = 2502
+			KE_LAST_EVENT = 2504
 		};
 
 		enum 
 		{
 			KE_KEY_CLICKED 	= KE_FIRST_EVENT,
 			KE_KEY_PRESSED,
-			KE_KEY_RELEASED
+			KE_KEY_RELEASED,
+            KE_KEY_FOCUSIN,
+            KE_KEY_FOCUSOUT
 		};
 
 		/**

@@ -562,10 +562,14 @@ namespace Ogre {
 		case MouseEvent::ME_MOUSE_CLICKED:
 		case MouseEvent::ME_MOUSE_ENTERED:
 		case MouseEvent::ME_MOUSE_EXITED:
+		case MouseEvent::ME_MOUSE_DRAGENTERED:
+		case MouseEvent::ME_MOUSE_DRAGEXITED:
+		case MouseEvent::ME_MOUSE_DRAGDROPPED:
 			processMouseEvent(static_cast<MouseEvent*>(e));
 			break;
 		case MouseEvent::ME_MOUSE_MOVED:
 		case MouseEvent::ME_MOUSE_DRAGGED:
+		case MouseEvent::ME_MOUSE_DRAGMOVED:
 			processMouseMotionEvent(static_cast<MouseEvent*>(e));
 			break;
 		}

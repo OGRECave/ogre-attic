@@ -109,8 +109,14 @@ namespace Ogre {
 
 	void EventProcessor::addTargetManager(TargetManager* targetManager)
 	{
-		EventDispatcher* pDispatcher = new EventDispatcher(targetManager, this);	
+		EventDispatcher* pDispatcher = new EventDispatcher(targetManager);	
 		mDispatcherList.push_back(pDispatcher);
+	}
+
+    //-----------------------------------------------------------------------------
+	void EventProcessor::addEventTarget(EventTarget* eventTarget)
+	{
+		mEventTargetList.push_back(eventTarget);
 	}
 
 
@@ -131,48 +137,64 @@ namespace Ogre {
 	bool EventProcessor::frameStarted(const FrameEvent& evt)
 	{
 		mInputDevice->capture();
+
 		while (mEventQueue->getSize() > 0)
 		{
 			InputEvent* e = mEventQueue->pop();
-			bool bIsConsumed = false;
-			for(DispatcherList::iterator i = mDispatcherList.begin(); i != mDispatcherList.end(); ++i )                 
-			{
-				bIsConsumed |= (*i)->dispatchEvent(e);
-			}
-			if (!bIsConsumed)
-			{
-				processEvent(e);		// nothing used it, so use default processing 
-
-			}
-
-			delete e;		// created from dispatch;
-
+            processEvent(e);
+			delete e;
 		}
+
 		return true;
 	}
 
 //-----------------------------------------------------------------------------
 	void EventProcessor::processEvent(InputEvent* e)
 	{
-		switch(e->getID()) 
-		{
-		case MouseEvent::ME_MOUSE_PRESSED:
-		case MouseEvent::ME_MOUSE_RELEASED:
-		case MouseEvent::ME_MOUSE_CLICKED:
-		case MouseEvent::ME_MOUSE_ENTERED:
-		case MouseEvent::ME_MOUSE_EXITED:
-			processMouseEvent(static_cast<MouseEvent*>(e));
-			break;
-		case MouseEvent::ME_MOUSE_MOVED:
-		case MouseEvent::ME_MOUSE_DRAGGED:
-			processMouseMotionEvent(static_cast<MouseEvent*>(e));
-			break;
-		case KeyEvent::KE_KEY_PRESSED:
-		case KeyEvent::KE_KEY_RELEASED:
-		case KeyEvent::KE_KEY_CLICKED:
-			processKeyEvent(static_cast<KeyEvent*>(e));
-			break;
+            // try the event dispatcher list
+    	for (DispatcherList::iterator i = mDispatcherList.begin(); i != mDispatcherList.end(); ++i )                 
+	    {
+			(*i)->dispatchEvent(e);
 		}
+
+            // try the event target list
+        if (!e->isConsumed())
+        {
+            EventTargetList::iterator i, iEnd;
+
+            iEnd = mEventTargetList.end();
+    	    for (i = mEventTargetList.begin(); i != iEnd; ++i )                 
+	        {
+			    (*i)->processEvent(e);
+		    }
+        }
+
+        if (!e->isConsumed())
+        {
+		    switch(e->getID()) 
+		    {
+		    case MouseEvent::ME_MOUSE_PRESSED:
+		    case MouseEvent::ME_MOUSE_RELEASED:
+		    case MouseEvent::ME_MOUSE_CLICKED:
+		    case MouseEvent::ME_MOUSE_ENTERED:
+		    case MouseEvent::ME_MOUSE_EXITED:
+		    case MouseEvent::ME_MOUSE_DRAGENTERED:
+		    case MouseEvent::ME_MOUSE_DRAGEXITED:
+		    case MouseEvent::ME_MOUSE_DRAGDROPPED:
+			    processMouseEvent(static_cast<MouseEvent*>(e));
+			    break;
+		    case MouseEvent::ME_MOUSE_MOVED:
+		    case MouseEvent::ME_MOUSE_DRAGGED:
+		    case MouseEvent::ME_MOUSE_DRAGMOVED:
+			    processMouseMotionEvent(static_cast<MouseEvent*>(e));
+			    break;
+		    case KeyEvent::KE_KEY_PRESSED:
+		    case KeyEvent::KE_KEY_RELEASED:
+		    case KeyEvent::KE_KEY_CLICKED:
+			    processKeyEvent(static_cast<KeyEvent*>(e));
+			    break;
+		    }
+        }
 	}
 
 //-----------------------------------------------------------------------------
