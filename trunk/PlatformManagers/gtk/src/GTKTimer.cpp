@@ -24,26 +24,29 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 #include "GTKTimer.h"
-#include <sys/time.h>
 
 using namespace Ogre;
 
 void GTKTimer::reset()
 {
-    Timer::reset();
-	gettimeofday(&start, NULL);
+    	Timer::reset();
+	start.assign_current_time();
 }
 
 unsigned long GTKTimer::getMilliseconds()
 {
-    struct timeval now;
-	gettimeofday(&now, NULL);
-    return (now.tv_sec-start.tv_sec)*1000+(now.tv_usec-start.tv_usec)/1000;
+    	Glib::TimeVal now;
+	now.assign_current_time();
+	now.subtract(start);
+
+	return (now.tv_sec*1000)+(now.tv_usec/1000);
 }
 
 unsigned long GTKTimer::getMicroseconds()
 {
-    struct timeval now;
-	gettimeofday(&now, NULL);
-    return (now.tv_sec-start.tv_sec)*1000000+(now.tv_usec-start.tv_usec);
+    	Glib::TimeVal now;
+	now.assign_current_time();
+	now.subtract(start);
+
+    	return now.tv_sec*1000000 + now.tv_usec;
 }
