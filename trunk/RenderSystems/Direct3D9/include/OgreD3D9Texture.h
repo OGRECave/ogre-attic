@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreTexture.h"
 #include "OgreRenderTexture.h"
 #include "OgreImage.h"
+#include "OgreException.h"
 
 #include "OgreNoMemoryMacros.h"
 #include <d3d9.h>
