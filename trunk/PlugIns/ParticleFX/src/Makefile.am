@@ -1,8 +1,8 @@
 INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/PlugIns/ParticleFX/include -I$(top_srcdir)/OgreMain/include
 
-noinst_PROGRAMS = ParticleFX.so
+noinst_PROGRAMS = Plugin_ParticleFX.so
 
-ParticleFX_so_SOURCES = OgreAreaEmitter.cpp \
+Plugin_ParticleFX_so_SOURCES = OgreAreaEmitter.cpp \
                         OgreBoxEmitter.cpp \
                         OgreColourFaderAffector.cpp \
                         OgreCylinderEmitter.cpp \
@@ -13,8 +13,8 @@ ParticleFX_so_SOURCES = OgreAreaEmitter.cpp \
                         OgrePointEmitter.cpp \
                         OgreRingEmitter.cpp
 
-ParticleFX_so_LDFLAGS = -shared
+Plugin_ParticleFX_so_LDFLAGS = -shared
 
 install-exec-local:
 	mkdir -m 755 -p $(pkglibdir)
-	$(INSTALL_DATA) ParticleFX.so $(pkglibdir)/ParticleFX.so
+	$(INSTALL_DATA) Plugin_ParticleFX.so $(pkglibdir)/Plugin_ParticleFX.so

@@ -191,7 +191,7 @@ namespace Ogre
             }
             // Set
             pFont->setTrueTypeResolution(
-                StringConverter::parseReal(params[1]) );
+                (uint)StringConverter::parseReal(params[1]) );
         }
 
 
