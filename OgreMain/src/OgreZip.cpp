@@ -52,6 +52,22 @@ namespace Ogre {
             zzip_error_t zzipError;
             mZzipDir = zzip_dir_open(mName.c_str(), &zzipError);
             checkZzipError(zzipError, "opening archive");
+
+            // Cache names
+            ZZIP_DIRENT zzipEntry;
+            while (zzip_dir_read(mZzipDir, &zzipEntry))
+            {
+                FileInfo info;
+                // Get basename / path
+                StringUtil::splitFilename(zzipEntry.d_name, info.basename, info.path);
+                // Get sizes
+                info.compressedSize = static_cast<size_t>(zzipEntry.d_csize);
+                info.uncompressedSize = static_cast<size_t>(zzipEntry.st_size);
+
+                mFileList.push_back(info);
+
+            }
+
         }
     }
     //-----------------------------------------------------------------------
@@ -61,12 +77,14 @@ namespace Ogre {
         {
             zzip_dir_close(mZzipDir);
             mZzipDir = 0;
+            mFileList.clear();
         }
     
     }
     //-----------------------------------------------------------------------
 	DataStreamPtr ZipArchive::open(const String& filename) const
     {
+
         // Format not used here (always binary)
         ZZIP_FILE* zzipFile = 
             zzip_file_open(mZzipDir, filename.c_str(), ZZIP_ONLYZIP);
@@ -87,13 +105,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     StringVectorPtr ZipArchive::list(bool recursive)
     {
-        ZZIP_DIRENT zzipEntry;
         StringVectorPtr ret = StringVectorPtr(new StringVector());
 
-        while (zzip_dir_read(mZzipDir, &zzipEntry))
+        FileInfoList::iterator i, iend;
+        iend = mFileList.end();
+        for (i = mFileList.begin(); i != iend; ++i)
         {
-            String name(zzipEntry.d_name);
-			if (recursive || name.find_first_of("/") == String::npos)
+            String name(i->path + i->basename);
+			if (recursive || i->path.empty())
             {
                 ret->push_back(name);
             }
@@ -104,43 +123,24 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Archive::FileInfoListPtr ZipArchive::listFileInfo(bool recursive)
     {
-        ZZIP_DIRENT zzipEntry;
-        FileInfoListPtr ret = FileInfoListPtr(new FileInfoList());
-
-        while (zzip_dir_read(mZzipDir, &zzipEntry))
-        {
-            String name(zzipEntry.d_name);
-            // Assume that the presence of '/' means file is in a subdir of the zip
-			if (recursive || name.find_first_of("/") == String::npos)
-            {
-                FileInfo info;
-                // Get basename / path
-                StringUtil::splitFilename(name, info.basename, info.path);
-                // Get sizes
-                info.compressedSize = static_cast<size_t>(zzipEntry.d_csize);
-                info.uncompressedSize = static_cast<size_t>(zzipEntry.st_size);
-
-                ret->push_back(info);
-            }
-        }
-        return ret;
+        FileInfoList* fil = new FileInfoList();
+        *fil = mFileList;
+        return FileInfoListPtr(fil);
     }
     //-----------------------------------------------------------------------
     StringVectorPtr ZipArchive::find(const String& pattern, bool recursive)
     {
-        ZZIP_DIRENT zzipEntry;
         StringVectorPtr ret = StringVectorPtr(new StringVector());
 
-        while (zzip_dir_read(mZzipDir, &zzipEntry))
+        FileInfoList::iterator i, iend;
+        iend = mFileList.end();
+        for (i = mFileList.begin(); i != iend; ++i)
         {
-            String name(zzipEntry.d_name);
-			if (recursive || name.find_first_of("/") == String::npos)
+            String name(i->path + i->basename);
+			if (recursive || i->path.empty())
             {
-                // Get basename / path
-                String basename, path;
-                StringUtil::splitFilename(name, basename, path);
                 // Check name matches pattern
-                if (StringUtil::match(basename, pattern))
+                if (StringUtil::match(i->basename, pattern))
                 {
                     ret->push_back(name);
                 }
@@ -152,26 +152,19 @@ namespace Ogre {
 	Archive::FileInfoListPtr ZipArchive::findFileInfo(const String& pattern, 
         bool recursive)
     {
-        ZZIP_DIRENT zzipEntry;
         FileInfoListPtr ret = FileInfoListPtr(new FileInfoList());
 
-        while (zzip_dir_read(mZzipDir, &zzipEntry))
+        FileInfoList::iterator i, iend;
+        iend = mFileList.end();
+        for (i = mFileList.begin(); i != iend; ++i)
         {
-            String name(zzipEntry.d_name);
-            // Assume that the presence of '/' means file is in a subdir of the zip
-			if (recursive || name.find_first_of("/") == String::npos)
+            String name(i->path + i->basename);
+            if (recursive || i->path.empty())
             {
-                FileInfo info;
-                // Get basename / path
-                StringUtil::splitFilename(name, info.basename, info.path);
                 // Check name matches pattern
-                if (StringUtil::match(info.basename, pattern))
+                if (StringUtil::match(i->basename, pattern))
                 {
-                    // Get sizes
-                    info.compressedSize = static_cast<size_t>(zzipEntry.d_csize);
-                    info.uncompressedSize = static_cast<size_t>(zzipEntry.st_size);
-
-                    ret->push_back(info);
+                    ret->push_back(*i);
                 }
             }
         }

@@ -46,6 +46,8 @@ namespace Ogre {
         ZZIP_DIR* mZzipDir;
         /// Handle any errors from zzip
         void checkZzipError(const zzip_error_t& zzipError, const String& operation) const;
+        /// File list (since zziplib seems to only allow scanning of dir tree once)
+        FileInfoList mFileList;
     public:
         ZipArchive(const String& name, const String& archType );
         ~ZipArchive();
