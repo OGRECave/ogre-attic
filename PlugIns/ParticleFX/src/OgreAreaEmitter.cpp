@@ -38,7 +38,7 @@ namespace Ogre {
     AreaEmitter::CmdDepth AreaEmitter::msDepthCmd;
 
     //-----------------------------------------------------------------------
-    void AreaEmitter::initDefaults(const String& t)
+    bool AreaEmitter::initDefaults(const String& t)
     {
         // called by the constructor as initDefaults("Type")
 
@@ -65,8 +65,10 @@ namespace Ogre {
             dict->addParameter(ParameterDef("depth", 
                 "Depth of the box in world coordinates.",
                 PT_REAL),&msDepthCmd);
+            return true;
 
         }
+        return false;
     }
 
     //-----------------------------------------------------------------------
