@@ -323,6 +323,12 @@ namespace Ogre
                 // Set as 4D vector for compatibility
                 setConstant(i->index, Vector4(vec3.x, vec3.y, vec3.z, 1.0f));
                 break;
+			case ACT_LIGHT_DISTANCE_OBJECT_SPACE:
+				vec3 = source.getInverseWorldMatrix() * source.getLight(i->data).getDerivedPosition();
+				setConstant(i->index, vec3.length());
+				break;
+			case ACT_SHADOW_EXTRUSION_DISTANCE:
+				setConstant(i->index, source.getShadowExtrusionDistance());
             case ACT_LIGHT_ATTENUATION:
                 // range, const, linear, quad
                 const Light& l = source.getLight(i->data);

@@ -138,9 +138,21 @@ namespace Ogre {
         mWorldDarkCapBounds = getLightCapBounds();
         this->extrudeBounds(mWorldDarkCapBounds, light.getAs4DVector(), 
             light.getType() == Light::LT_DIRECTIONAL? 
-                dirLightExtrusionDist : light.getAttenuationRange());
+                dirLightExtrusionDist : getPointExtrusionDistance(&light));
         return mWorldDarkCapBounds;
 
+    }
+    //-----------------------------------------------------------------------
+    Real MovableObject::getPointExtrusionDistance(const Light* l) const
+    {
+        if (mParentNode)
+        {
+            return getExtrusionDistance(mParentNode->_getDerivedPosition(), l);
+        }
+        else
+        {
+            return 0;
+        }
     }
 
 

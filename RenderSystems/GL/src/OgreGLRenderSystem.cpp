@@ -445,6 +445,9 @@ namespace Ogre {
 		// UBYTE4 always supported
 		mCapabilities->setCapability(RSC_VERTEX_FORMAT_UBYTE4);
 
+        // Inifinite far plane always supported
+        mCapabilities->setCapability(RSC_INFINITE_FAR_PLANE);
+
         // Get extension function pointers
         glActiveTextureARB_ptr = 
             (GL_ActiveTextureARB_Func)mGLSupport->getProcAddress("glActiveTextureARB");

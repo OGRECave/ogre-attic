@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __SHADOWVOLUMEEXTRUDEPROGRAM_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreLight.h"
 
 namespace Ogre {
     /** Static class containing source for vertex programs for extruding shadow volumes
@@ -75,6 +76,51 @@ namespace Ogre {
             oPosition = mul(worldViewProjMatrix, newpos);
 
         }
+        // Point light shadow volume extrude - FINITE
+        void shadowVolumeExtrudePointLightFinite_vp (
+            float4 position			: POSITION,
+            float  wcoord			: TEXCOORD0,
+
+            out float4 oPosition	: POSITION,
+
+            uniform float4x4 worldViewProjMatrix,
+            uniform float4   lightPos, // homogenous, object space
+			uniform float    extrusionDistance // how far to extrude
+            )
+        {
+            // extrusion in object space
+            // vertex unmodified if w==1, extruded if w==0
+			float3 extrusionDir = position.xyz - lightPos.xyz;
+			normalize(extrusionDir);
+			
+            float4 newpos = float4(position.xyz +  
+                ((1 - wcoord.x) * extrusionDistance * extrusionDir), 1);
+
+            oPosition = mul(worldViewProjMatrix, newpos);
+
+        }
+
+        // Directional light extrude - FINITE
+        void shadowVolumeExtrudeDirLightFinite_vp (
+            float4 position			: POSITION,
+            float  wcoord			: TEXCOORD0,
+
+            out float4 oPosition	: POSITION,
+
+            uniform float4x4 worldViewProjMatrix,
+            uniform float4   lightPos, // homogenous, object space
+			uniform float    extrusionDistance // how far to extrude
+            )
+        {
+            // extrusion in object space
+            // vertex unmodified if w==1, extruded if w==0
+			// -ve lightPos is direction
+            float4 newpos = float4(position.xyz - 
+                (wcoord.x * extrusionDistance * lightPos.xyz), 1);
+
+            oPosition = mul(worldViewProjMatrix, newpos);
+
+        }		
     @endcode
     */
     class _OgreExport ShadowVolumeExtrudeProgram
@@ -89,7 +135,43 @@ namespace Ogre {
         static String mPointVs_1_1Debug;
         static String mDirArbvp1Debug;
         static String mDirVs_1_1Debug;
-    public:
+		
+        static String mPointArbvp1Finite;
+        static String mPointVs_1_1Finite;
+        static String mDirArbvp1Finite;
+        static String mDirVs_1_1Finite;
+        // same as above, except the color is set to 1 to enable debug volumes to be seen
+        static String mPointArbvp1FiniteDebug;
+        static String mPointVs_1_1FiniteDebug;
+        static String mDirArbvp1FiniteDebug;
+        static String mDirVs_1_1FiniteDebug;
+
+	public:
+#define NUM_SHADOW_EXTRUDER_PROGRAMS 8
+        enum Programs
+        {
+            // Point light extruder, infinite distance
+            POINT_LIGHT = 0,
+            // Point light extruder, infinite distance, debug mode
+            POINT_LIGHT_DEBUG = 1,
+            // Directional light extruder, infinite distance
+            DIRECTIONAL_LIGHT = 2,
+            // Directional light extruder, infinite distance, debug mode
+            DIRECTIONAL_LIGHT_DEBUG = 3,
+            // Point light extruder, finite distance
+            POINT_LIGHT_FINITE = 4,
+            // Point light extruder, finite distance, debug mode
+            POINT_LIGHT_FINITE_DEBUG = 5,
+            // Directional light extruder, finite distance
+            DIRECTIONAL_LIGHT_FINITE = 6,
+            // Directional light extruder, finite distance, debug mode
+            DIRECTIONAL_LIGHT_FINITE_DEBUG = 7
+
+        };
+        static const String programNames[NUM_SHADOW_EXTRUDER_PROGRAMS];
+
+        /// Initialise the creation of these vertex programs
+        static void initialise(void);
         /// Get extruder program source for point lights, compatible with arbvp1
         static const String& getPointLightExtruderArbvp1(void) { return mPointArbvp1; }
         /// Get extruder program source for point lights, compatible with vs_1_1
@@ -107,7 +189,37 @@ namespace Ogre {
         static const String& getDirectionalLightExtruderArbvp1Debug(void) { return mDirArbvp1Debug; }
         /// Get extruder program source for debug directional lights, compatible with vs_1_1
         static const String& getDirectionalLightExtruderVs_1_1Debug(void) { return mDirVs_1_1Debug; }
+        /// General purpose method to get any of the program sources
+        static const String& getProgramSource(Light::LightTypes lightType, const String syntax, 
+            bool finite, bool debug);
 
+        static const String& getProgramName(Light::LightTypes lightType, bool finite, bool debug);
+
+
+
+
+
+        /// Get FINITE extruder program source for point lights, compatible with arbvp1
+        static const String& getPointLightExtruderArbvp1Finite(void) { return mPointArbvp1; }
+        /// Get FINITE extruder program source for point lights, compatible with vs_1_1
+        static const String& getPointLightExtruderVs_1_1Finite(void) { return mPointVs_1_1; }
+        /// Get FINITE extruder program source for directional lights, compatible with arbvp1
+        static const String& getDirectionalLightExtruderArbvp1Finite(void) { return mDirArbvp1; }
+        /// Get FINITE extruder program source for directional lights, compatible with vs_1_1
+        static const String& getDirectionalLightExtruderVs_1_1Finite(void) { return mDirVs_1_1; }
+
+        /// Get FINITE extruder program source for debug point lights, compatible with arbvp1
+        static const String& getPointLightExtruderArbvp1FiniteDebug(void) { return mPointArbvp1Debug; }
+        /// Get extruder program source for debug point lights, compatible with vs_1_1
+        static const String& getPointLightExtruderVs_1_1FiniteDebug(void) { return mPointVs_1_1Debug; }
+        /// Get FINITE extruder program source for debug directional lights, compatible with arbvp1
+        static const String& getDirectionalLightExtruderArbvp1FiniteDebug(void) { return mDirArbvp1Debug; }
+        /// Get FINITE extruder program source for debug directional lights, compatible with vs_1_1
+        static const String& getDirectionalLightExtruderVs_1_1FiniteDebug(void) { return mDirVs_1_1Debug; }
+
+
+
+		
     };
 }
 #endif

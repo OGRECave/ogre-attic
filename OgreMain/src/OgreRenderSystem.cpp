@@ -272,6 +272,7 @@ namespace Ogre {
     void RenderSystem::_disableTextureUnit(size_t texUnit)
     {
         _setTexture(texUnit, false, "");
+        _setTextureMatrix(texUnit, Matrix4::IDENTITY);
     }
     //---------------------------------------------------------------------
     void RenderSystem::_disableTextureUnitsFrom(size_t texUnit)

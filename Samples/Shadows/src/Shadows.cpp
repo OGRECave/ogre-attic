@@ -170,7 +170,7 @@ public:
             mLight->setCastShadows(true);
             mLight->setDiffuseColour(mMinLightColour);
             mLight->setSpecularColour(1, 1, 1);
-            mLight->setAttenuation(10000,1,0.0005,0);
+            mLight->setAttenuation(8000,1,0.0005,0);
 
             break;
         case SHADOWTYPE_STENCIL_MODULATIVE:
@@ -184,7 +184,7 @@ public:
             mLight->setCastShadows(true);
             mLight->setDiffuseColour(mMinLightColour);
             mLight->setSpecularColour(1, 1, 1);
-            mLight->setAttenuation(10000,1,0.0005,0);
+            mLight->setAttenuation(8000,1,0.0005,0);
             break;
         case SHADOWTYPE_TEXTURE_MODULATIVE:
             // Change fixed point light to spotlight
@@ -198,7 +198,7 @@ public:
             mLight->setCastShadows(true);
             mLight->setDiffuseColour(mMinLightColour);
             mLight->setSpecularColour(1, 1, 1);
-            mLight->setAttenuation(10000,1,0.0005,0);
+            mLight->setAttenuation(8000,1,0.0005,0);
             mLight->setSpotlightRange(80,90);
             break;
         default:
@@ -289,7 +289,7 @@ protected:
         mLight = mSceneMgr->createLight("Light2");
         mLight->setDiffuseColour(mMinLightColour);
         mLight->setSpecularColour(1, 1, 1);
-        mLight->setAttenuation(10000,1,0.0005,0);
+        mLight->setAttenuation(8000,1,0.0005,0);
 
         // Create light node
         mLightNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(
@@ -432,6 +432,11 @@ protected:
             mSceneMgr->setShadowTextureSettings(512, 2);
         }
         mSceneMgr->setShadowColour(ColourValue(0.5, 0.5, 0.5));
+
+        // incase infinite far distance is not supported
+        mCamera->setFarClipDistance(100000);
+
+        //mSceneMgr->setShowDebugShadows(true);
 
 
     }

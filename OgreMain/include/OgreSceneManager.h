@@ -340,7 +340,7 @@ namespace Ogre {
         typedef std::vector<RenderTexture*> ShadowTextureList;
         ShadowTextureList mShadowTextures;
         RenderTexture* mCurrentShadowTexture;
-
+		bool mShadowUseInfiniteFarPlane;
         /** Internal method for locating a list of lights which could be affecting the frustum. 
         @remarks
             Custom scene managers are encouraged to override this method to make use of their
@@ -1591,7 +1591,45 @@ namespace Ogre {
         virtual void setShadowTextureFadeEnd(Real fadeEnd) 
         { mShadowTextureFadeEnd = fadeEnd; }
 
-
+		/** Sets whether we should use an inifinite camera far plane
+			when rendering stencil shadows.
+		@remarks
+			Stencil shadow coherency is very reliant on the shadow volume
+			not being clipped by the far plane. If this clipping happens, you
+			get a kind of 'negative' shadow effect. The best way to achieve
+			coherency is to move the far plane of the camera out to infinity,
+			thus preventing the far plane from clipping the shadow volumes.
+			When combined with vertex program extrusion of the volume to 
+			infinity, which	Ogre does when available, this results in very
+			robust shadow volumes. For this reason, when you enable stencil 
+			shadows, Ogre automatically changes your camera settings to 
+			project to infinity if the card supports it. You can disable this
+			behaviour if you like by calling this method; although you can 
+			never enable infinite projection if the card does not support it.
+		@par	
+			If you disable infinite projection, or it is not available, 
+			you need to be far more careful with your light attenuation /
+			directional light extrusion distances to avoid clipping artefacts
+			at the far plane.
+		@note
+			Recent cards will generally support infinite far plane projection.
+			However, we have found some cases where they do not, especially
+			on Direct3D. There is no standard capability we can check to 
+			validate this, so we use some heuristics based on experience:
+			<UL>
+			<LI>OpenGL always seems to support it no matter what the card</LI>
+			<LI>Direct3D on non-vertex program capable systems (including 
+			vertex program capable cards on Direct3D7) does not
+			support it</LI>
+			<LI>Direct3D on GeForce3 and GeForce4 Ti does not seem to support
+			infinite projection<LI>
+			</UL>
+			Therefore in the RenderSystem implementation, we may veto the use
+			of an infinite far plane based on these heuristics. 
+		*/
+        virtual void setShadowUseInfiniteFarPlane(bool enable) {
+            mShadowUseInfiniteFarPlane = enable; }
+		
     };
 
     /** Default implementation of IntersectionSceneQuery. */
