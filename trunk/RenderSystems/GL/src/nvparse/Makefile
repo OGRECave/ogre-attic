@@ -55,6 +55,8 @@ $(MAIN):
 	make compile
 endif
 
+all: compile
+
 compile: $(OBJS)
 	$(AR) -rs $(MAIN) $(OBJS)
 
