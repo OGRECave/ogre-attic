@@ -57,7 +57,6 @@ Core/NodeMaterial
 
 Core/StatsBlockBorder
 {
-	cull_hardware none
 	lighting off
 	depth_write off
 	depth_check off
@@ -68,7 +67,6 @@ Core/StatsBlockBorder
 }
 Core/StatsBlockCenter
 {
-	cull_hardware none
 	lighting off
 	depth_write off
 	depth_check off

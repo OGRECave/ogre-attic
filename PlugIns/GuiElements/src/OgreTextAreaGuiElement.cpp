@@ -24,6 +24,7 @@ http://www.gnu.org/copyleft/lesser.txt
 -------------------------------------------------------------------------*/
 
 #include "OgreTextAreaGuiElement.h"
+#include "OgreRoot.h"
 
 namespace Ogre {
 
@@ -32,6 +33,9 @@ namespace Ogre {
     String TextAreaGuiElement::msTypeName = "TextArea";
     TextAreaGuiElement::CmdCharHeight TextAreaGuiElement::msCmdCharHeight;
     TextAreaGuiElement::CmdFontName TextAreaGuiElement::msCmdFontName;
+    TextAreaGuiElement::CmdColour TextAreaGuiElement::msCmdColour;
+    TextAreaGuiElement::CmdColourBottom TextAreaGuiElement::msCmdColourBottom;
+    TextAreaGuiElement::CmdColourTop TextAreaGuiElement::msCmdColourTop;
     //---------------------------------------------------------------------
     TextAreaGuiElement::TextAreaGuiElement(const String& name)
         : GuiElement(name)
@@ -41,9 +45,13 @@ namespace Ogre {
 
         memset( &mRenderOp, 0, sizeof( mRenderOp ) );
         mRenderOp.operationType = RenderOperation::OT_TRIANGLE_LIST;
-        mRenderOp.vertexOptions = RenderOperation::VO_TEXTURE_COORDS;
+        mRenderOp.vertexOptions = RenderOperation::VO_TEXTURE_COORDS | 
+            RenderOperation::VO_DIFFUSE_COLOURS;
         mRenderOp.numTextureCoordSets = 1;
         mRenderOp.numTextureDimensions[0] = 2;
+
+        mColourTop = ColourValue::White;
+        mColourBottom = ColourValue::White;
 
 
         mAllocSize = 0;
@@ -69,6 +77,7 @@ namespace Ogre {
             // 6 verts per char since we're doing tri lists without indexes
             mRenderOp.pVertices = new Real[ numChars * 6 * 3 ];
             mRenderOp.pTexCoords[0] = new Real[ numChars * 6 * 2 ];
+            mRenderOp.pDiffuseColour = new RGBA[numChars * 6];
 
             mAllocSize = numChars;
         }
@@ -217,6 +226,7 @@ namespace Ogre {
             *pTex++ = v2;
             //---------------------------------------------------------------------------------
         }
+        updateColours();
 
     }
 
@@ -266,13 +276,12 @@ namespace Ogre {
         if( mRenderOp.pVertices )
             delete [] mRenderOp.pVertices;
 
-        for( ushort i = 0; i < OGRE_MAX_TEXTURE_LAYERS; i++ )
-        {
-            if( mRenderOp.pTexCoords[i] )
-            {
-                delete [] mRenderOp.pTexCoords[i];
-            }
-        }
+        if( mRenderOp.pTexCoords[0] )
+            delete [] mRenderOp.pTexCoords[0];
+        
+        if( mRenderOp.pDiffuseColour )
+            delete [] mRenderOp.pDiffuseColour;
+
     }
     //---------------------------------------------------------------------
     const String& TextAreaGuiElement::getTypeName(void)
@@ -305,8 +314,77 @@ namespace Ogre {
             "Sets the name of the font to use."
             , PT_STRING),
             &msCmdFontName);
-    }
 
+        dict->addParameter(ParameterDef("colour", 
+            "Sets the colour of the font (a solid colour)."
+            , PT_STRING),
+            &msCmdColour);
+
+        dict->addParameter(ParameterDef("colour_bottom", 
+            "Sets the colour of the font at the bottom (a gradient colour)."
+            , PT_STRING),
+            &msCmdColourBottom);
+
+        dict->addParameter(ParameterDef("colour_top", 
+            "Sets the colour of the font at the top (a gradient colour)."
+            , PT_STRING),
+            &msCmdColourTop);
+    }
+    //---------------------------------------------------------------------
+    void TextAreaGuiElement::setColour(const ColourValue& col)
+    {
+        mColourBottom = mColourTop = col;
+        updateColours();
+    }
+    //---------------------------------------------------------------------
+    ColourValue TextAreaGuiElement::getColour(void) const
+    {
+        // Either one
+        return mColourTop;
+    }
+    //---------------------------------------------------------------------
+    void TextAreaGuiElement::setColourBottom(const ColourValue& col)
+    {
+        mColourBottom = col;
+        updateColours();
+    }
+    //---------------------------------------------------------------------
+    ColourValue TextAreaGuiElement::getColourBottom(void)
+    {
+        return mColourBottom;
+    }
+    //---------------------------------------------------------------------
+    void TextAreaGuiElement::setColourTop(const ColourValue& col)
+    {
+        mColourTop = col;
+        updateColours();
+    }
+    //---------------------------------------------------------------------
+    ColourValue TextAreaGuiElement::getColourTop(void)
+    {
+        return mColourTop;
+    }
+    //---------------------------------------------------------------------
+    void TextAreaGuiElement::updateColours(void)
+    {
+        // Convert to system-specific
+        RGBA topColour, bottomColour;
+        Root::getSingleton().convertColourValue(mColourTop, &topColour);
+        Root::getSingleton().convertColourValue(mColourBottom, &bottomColour);
+        RGBA* pDest = mRenderOp.pDiffuseColour;
+        for (int i = 0; i < mAllocSize; ++i)
+        {
+            // First tri (top, bottom, top)
+            *pDest++ = topColour;
+            *pDest++ = bottomColour;
+            *pDest++ = topColour;
+            // Second tri (top, bottom, bottom)
+            *pDest++ = topColour;
+            *pDest++ = bottomColour;
+            *pDest++ = bottomColour;
+        }
+
+    }
     //---------------------------------------------------------------------------------------------
     // Char height command object
     //
@@ -332,6 +410,50 @@ namespace Ogre {
     void TextAreaGuiElement::CmdFontName::doSet( void* target, const String& val )
     {
         static_cast< TextAreaGuiElement* >( target )->setFontName( val );
+    }
+    //---------------------------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------
+    // Colour command object
+    //
+    String TextAreaGuiElement::CmdColour::doGet( void* target )
+    {
+        return StringConverter::toString (
+            static_cast< TextAreaGuiElement* >( target )->getColour());
+    }
+    void TextAreaGuiElement::CmdColour::doSet( void* target, const String& val )
+    {
+        static_cast< TextAreaGuiElement* >( target )->setColour( 
+            StringConverter::parseColourValue(val) );
+    }
+    //---------------------------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------
+    // Top colour command object
+    //
+    String TextAreaGuiElement::CmdColourTop::doGet( void* target )
+    {
+        return StringConverter::toString (
+            static_cast< TextAreaGuiElement* >( target )->getColourTop());
+    }
+    void TextAreaGuiElement::CmdColourTop::doSet( void* target, const String& val )
+    {
+        static_cast< TextAreaGuiElement* >( target )->setColourTop( 
+            StringConverter::parseColourValue(val) );
+    }
+    //---------------------------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------
+    // Bottom colour command object
+    //
+    String TextAreaGuiElement::CmdColourBottom::doGet( void* target )
+    {
+        return StringConverter::toString (
+            static_cast< TextAreaGuiElement* >( target )->getColourBottom());
+    }
+    void TextAreaGuiElement::CmdColourBottom::doSet( void* target, const String& val )
+    {
+        static_cast< TextAreaGuiElement* >( target )->setColourBottom( 
+            StringConverter::parseColourValue(val) );
     }
     //---------------------------------------------------------------------------------------------
 }
