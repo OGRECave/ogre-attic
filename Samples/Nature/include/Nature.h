@@ -296,9 +296,11 @@ protected:
 
         mSceneMgr->setWorldGeometry( "world.cfg" );
 
-        mSceneMgr->setFog(FOG_EXP2, ColourValue(0.77, 0.86, 1.0), 0.005, 0,0 );
+        mSceneMgr->setFog(FOG_EXP2, ColourValue(0.77, 0.86, 1.0), 0.0015, 0,0 );
         //mSceneMgr->setFog(FOG_LINEAR, ColourValue(0.77, 0.86, 1.0), 0, 150, 500);
        mRoot -> showDebugOverlay( true );
+
+       mCamera->setPosition(2000,100,2000);
     }
 
 };

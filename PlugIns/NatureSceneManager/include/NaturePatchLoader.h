@@ -47,6 +47,9 @@ public:
     /// Returns the size of the map (in unscaled units)
     virtual int getMapSize() = 0;
 
+    /// Gets the index of the patch at a set of world coords
+    virtual void getPatchAtPosition(const Vector3& pos, int *px, int *py) = 0;
+
 protected:
     SceneNode *mSceneRoot;
 };

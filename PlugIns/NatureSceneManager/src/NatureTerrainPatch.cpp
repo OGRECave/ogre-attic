@@ -105,12 +105,12 @@ bool NatureTerrainPatch::initialise(Vector3 world, Vector3 zone,
     mData = data;
 
     // set bounding box extents, TODO: fix this so y gets set correctly
-    mBounds.setExtents(mWorld.x,
+    mBounds.setExtents(mWorld.x * mScale.x,
 		       mWorld.y,
-		       mWorld.z,
-		       mWorld.x + EDGE_LENGTH * mScale.x,
+		       mWorld.z * mScale.z,
+		       mWorld.x * mScale.x + EDGE_LENGTH * mScale.x,
 		       mWorld.y + 255 * mScale.y,	    // wrong
-		       mWorld.z + EDGE_LENGTH * mScale.z);
+		       mWorld.z  * mScale.z + EDGE_LENGTH * mScale.z);
 
     // calculate errors for the quadtree
     computeError();

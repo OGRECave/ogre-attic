@@ -92,8 +92,12 @@ bool HeightmapLoader::initialise(const String& filename)
     mHeightMap = new Image();
     mHeightMap->load(heightmap);
 
-    mHeightScale = atof(config.getSetting("HeightScale"));
-    if (mHeightScale == 0) mHeightScale = 0.25;
+    mScale.x = atof(config.getSetting("Scale.x"));
+    mScale.y = atof(config.getSetting("Scale.y"));
+    mScale.z = atof(config.getSetting("Scale.z"));
+    if (mScale.x == 0) mScale.x = 1.0;
+    if (mScale.y == 0) mScale.y = 0.25;
+    if (mScale.z == 0) mScale.z = 1.0;
 
     int sx = mHeightMap->getWidth() / PATCH_SIZE;
     int sy = mHeightMap->getHeight() / PATCH_SIZE;
@@ -182,9 +186,9 @@ NaturePatch::NaturePatchData *HeightmapLoader::requestData(int x, int y,
     worldPos->y = 0;
     worldPos->z = y * PATCH_SIZE;
 
-    scale->x = 1.0;
-    scale->y = mHeightScale;
-    scale->z = 1.0;
+    scale->x = mScale.x;
+    scale->y = mScale.y;
+    scale->z = mScale.z;
 
     return data;
 }
@@ -220,4 +224,11 @@ void HeightmapLoader::releaseData(NaturePatch::NaturePatchData *data)
 
 //----------------------------------------------------------------------------
 
+void HeightmapLoader::getPatchAtPosition(const Vector3& pos, int *px, int *py)
+{
+    // get patch x/y for position
+    *px = pos.x / (EDGE_LENGTH * mScale.x);
+    *py = pos.z / (EDGE_LENGTH * mScale.z);
+
+}
 } // namespace Ogre

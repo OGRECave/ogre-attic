@@ -193,9 +193,9 @@ private:
 	Real *vertexBuffer = &mManager->mVertexBuffer[v * 3];
 
 	// add the vertex to the vertexbuffer
-	*vertexBuffer++ = x * mScale.x + mWorld.x;
-	*vertexBuffer++ = y * mScale.y + mWorld.y;
-	*vertexBuffer   = z * mScale.z + mWorld.z;
+	*vertexBuffer++ = x * mScale.x + mWorld.x * mScale.x;
+	*vertexBuffer++ = y * mScale.y + mWorld.y * mScale.y;
+	*vertexBuffer   = z * mScale.z + mWorld.z * mScale.z;
 
 #if USE_NORMALS
 	// calculate normal
