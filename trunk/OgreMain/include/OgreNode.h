@@ -78,7 +78,7 @@ namespace Ogre {
         bool mInheritScale;
 
         /// Flag indicating derived transform is out of date 
-        bool mDerivedOutOfDate;
+        mutable bool mDerivedOutOfDate;
 
         /// Only available internally - notification of parent.
         void setParent(Node* parent);
@@ -90,7 +90,7 @@ namespace Ogre {
                 This is updated when _updateFromParent is called by the
                 SceneManager or the nodes parent.
         */
-        Quaternion mDerivedOrientation;
+        mutable Quaternion mDerivedOrientation;
 
         /** Cached combined position.
             @par
@@ -99,7 +99,7 @@ namespace Ogre {
                 This is updated when _updateFromParent is called by the
                 SceneManager or the nodes parent.
         */
-        Vector3 mDerivedPosition;
+        mutable Vector3 mDerivedPosition;
 
         /** Cached combined scale.
             @par
@@ -108,7 +108,7 @@ namespace Ogre {
                 This is updated when _updateFromParent is called by the
                 SceneManager or the nodes parent.
         */
-        Vector3 mDerivedScale;
+        mutable Vector3 mDerivedScale;
 
         /** Triggers the node to update it's combined transforms.
             @par
@@ -116,7 +116,7 @@ namespace Ogre {
                 to update it's complete transformation based on it's parents
                 derived transform.
         */
-        virtual void _updateFromParent(void);
+        virtual void _updateFromParent(void) const;
 
         /** Internal method for creating a new child node - must be overridden per subclass. */
         virtual Node* createChildImpl(void) = 0;
@@ -470,15 +470,15 @@ namespace Ogre {
 
         /** Gets the orientation of the node as derived from all parents.
         */
-        virtual const Quaternion & _getDerivedOrientation(void);
+        virtual const Quaternion & _getDerivedOrientation(void) const;
 
         /** Gets the position of the node as derived from all parents.
         */
-        virtual const Vector3 & _getDerivedPosition(void);
+        virtual const Vector3 & _getDerivedPosition(void) const;
 
         /** Gets the scaling factor of the node as derived from all parents.
         */
-        virtual const Vector3 & _getDerivedScale(void);
+        virtual const Vector3 & _getDerivedScale(void) const;
 
         /** Gets the full transformation matrix for this node.
             @remarks
@@ -560,6 +560,10 @@ namespace Ogre {
         */
         virtual void _weightedTransform(Real weight, const Vector3& translate, 
             const Quaternion& rotate, const Vector3& scale);
+
+        /** Overridden, see Renderable */
+        Real getViewDepth(const Camera* cam) const;
+
 
 
 

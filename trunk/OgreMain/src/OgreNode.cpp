@@ -116,7 +116,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void Node::_updateFromParent(void)
+    void Node::_updateFromParent(void) const
     {
         if (mParent)
         {
@@ -336,7 +336,7 @@ namespace Ogre {
         mDerivedOutOfDate = true;
     }
     //-----------------------------------------------------------------------
-    const Quaternion & Node::_getDerivedOrientation(void)
+    const Quaternion & Node::_getDerivedOrientation(void) const
     {
         if (mDerivedOutOfDate)
         {
@@ -345,7 +345,7 @@ namespace Ogre {
         return mDerivedOrientation;
     }
     //-----------------------------------------------------------------------
-    const Vector3 & Node::_getDerivedPosition(void)
+    const Vector3 & Node::_getDerivedPosition(void) const
     {
         if (mDerivedOutOfDate)
         {
@@ -354,7 +354,7 @@ namespace Ogre {
         return mDerivedPosition;
     }
     //-----------------------------------------------------------------------
-    const Vector3 & Node::_getDerivedScale(void)
+    const Vector3 & Node::_getDerivedScale(void) const
     {
         if (mDerivedOutOfDate)
         {
@@ -612,6 +612,14 @@ namespace Ogre {
         mScale = mInitialScale * mScaleFromInitial;
         mDerivedOutOfDate = true;
 
+    }
+    //-----------------------------------------------------------------------
+    Real Node::getViewDepth(const Camera* cam) const
+    {
+        Vector3 diff = _getDerivedPosition() - cam->getDerivedPosition();
+
+        // NB use squared length rather than real depth to avoid square root
+        return diff.squaredLength();
     }
 }
 

@@ -959,6 +959,13 @@ void TerrainRenderable::_generateVertexLighting( const Vector3 &sun, ColourValue
 
     printf( "." );
 }
+//-----------------------------------------------------------------------
+Real TerrainRenderable::getViewDepth(const Camera* cam) const
+{
+    Vector3 diff = mCenter - cam->getDerivedPosition();
+    // Use squared length to avoid square root
+    return diff.squaredLength();
+}
 
 
 } //namespace

@@ -1214,17 +1214,21 @@ namespace Ogre {
                 {
                     RenderPriorityGroup* pPriorityGrp = groupIt.getNext();
 
-                    // Just render each entity in turn, grouped by material
+                    // Render each non-transparent entity in turn, grouped by material
                     RenderPriorityGroup::MaterialGroupMap::iterator imat, imatend;
                     imatend = pPriorityGrp->mMaterialGroups.end();
                     static Matrix4 xform[256];
                     RenderOperation ro;
+                    int matLayersLeft;
+                    Material* thisMaterial;
+                    unsigned short numMatrices;
 
+                    // ----- NON-TRANSPARENT ENTITY LOOP -----
                     for (imat = pPriorityGrp->mMaterialGroups.begin(); imat != imatend; ++imat)
                     {
                         // Set Material
-                        Material* thisMaterial = imat->first;
-                        int matLayersLeft = thisMaterial->getNumTextureLayers();
+                        thisMaterial = imat->first;
+                        matLayersLeft = thisMaterial->getNumTextureLayers();
 
                         // NB do at least one rendering pass even if no layers! (Untextured materials)
                         do
@@ -1242,7 +1246,7 @@ namespace Ogre {
                             {
                                 // Set world transformation
                                 (*irend)->getWorldTransforms(xform);
-                                unsigned short numMatrices = (*irend)->getNumWorldTransforms();
+                                numMatrices = (*irend)->getNumWorldTransforms();
                                 if (numMatrices > 1)
                                 {
                                     mDestRenderSystem->_setWorldMatrices(xform, numMatrices);
@@ -1267,6 +1271,53 @@ namespace Ogre {
 
                     } // for each material
 
+                    // ----- TRANSPARENT ENTITY LOOP -----
+                    // This time we render by Z, not by material
+                    // The mTransparentObjects set needs to be ordered first
+                    pPriorityGrp->sortTransparentObjects(mCameraInProgress);
+
+                    std::vector<Renderable*>::iterator iTrans, iTransEnd;
+                    iTransEnd = pPriorityGrp->mTransparentObjects.end();
+                    for (iTrans = pPriorityGrp->mTransparentObjects.begin(); 
+                    iTrans != iTransEnd; ++iTrans)
+                    {
+                        thisMaterial = (*iTrans)->getMaterial();
+                        matLayersLeft = thisMaterial->getNumTextureLayers();
+                        // NB do at least one rendering pass even if no layers! (Untextured materials)
+                        do
+                        {
+                            // Set material - will return non-zero if multipass required so loop will continue, 0 otherwise
+                            matLayersLeft = setMaterial(thisMaterial, matLayersLeft);
+
+                            // Set world transformation
+                            (*iTrans)->getWorldTransforms(xform);
+                            numMatrices = (*iTrans)->getNumWorldTransforms();
+                            if (numMatrices > 1)
+                            {
+                                mDestRenderSystem->_setWorldMatrices(xform, numMatrices);
+                            }
+                            else
+                            {
+                                mDestRenderSystem->_setWorldMatrix(*xform);
+                            }
+
+                            // Issue view / projection changes if any
+                            useRenderableViewProjMode(*iTrans);
+
+                            // Set up rendering operation
+                            (*iTrans)->getRenderOperation(ro);
+
+                            if( ro.numVertices )
+                                mDestRenderSystem->_render(ro);
+
+                        } while (matLayersLeft > 0);
+
+
+                    }
+
+
+
+
                 }// for each priority
             
                 // Fire queue ended event
@@ -1283,52 +1334,7 @@ namespace Ogre {
 
         } // for each queue group
 
-        
-        /*
-        // BEGIN TEST HUD HACK
-        //---------------------------------------------------------------------
-        mDestRenderSystem->_setWorldMatrix(Matrix4::IDENTITY);
-        mDestRenderSystem->_setViewMatrix(Matrix4::IDENTITY);
-        mDestRenderSystem->_setProjectionMatrix(Matrix4::IDENTITY);
-        // Place at -1 z (as far forward in homogenous clip space as you can get)
-        // Use {-1, 1} 2D coords, make slightly smaller than total for effect
-        Real testPositions[4*3] = {
-            -0.5, -0.5, -1,
-             0.5, -0.5, -1,
-             0.5,  0.5, -1, 
-            -0.5,  0.5, -1};
-        Real testUV[4*2] = {
-            0, 0,
-            1, 0,
-            1, 1, 
-            0, 1};
-        ushort testIndices[6] = {
-            0, 1, 2,
-            0, 2, 3 };
-
-        RenderOperation op;
-        op.numVertices = 4;
-        op.numIndexes = 6;
-        op.vertexOptions = RenderOperation::VO_TEXTURE_COORDS;
-        op.numTextureCoordSets = 1;
-        op.numTextureDimensions[0] = 2;
-        op.vertexStride = 0;
-        op.texCoordStride[0] = 0;
-        op.operationType = RenderOperation::OT_TRIANGLE_LIST;
-        op.pVertices = testPositions;
-        op.pTexCoords[0] = testUV;
-        op.pIndexes = testIndices;
-        
-        Material* mat = getMaterial("Examples/OgreLogo");
-        mat->load();
-        mat->setLightingEnabled(false);
-        mat->setDepthCheckEnabled(false);
-        setMaterial(mat,1);
-        mDestRenderSystem->_render(op);
-        //---------------------------------------------------------------------
-        // END HUD TEST HACK 
-        */
-        
+               
 
 
     }

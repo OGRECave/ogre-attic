@@ -47,37 +47,35 @@ namespace Ogre {
     class RenderPriorityGroup
     {
         friend class Ogre::SceneManager;
-        /** Comparator for material map, for sorting materials into render order (e.g. transparent last).
+        /** Comparator to order transparent objects
         */
-        struct queueItemLess
+        struct TransparentQueueItemLess
         {
-            _OgreExport bool operator()(const Material* x, const Material* y) const
+            const Camera* camera;
+
+            _OgreExport bool operator()(const Renderable* x, const Renderable* y) const
             {
-                // If x transparent and y not, x > y (since x has to overlap y)
-                if (x->isTransparent() && !y->isTransparent())
-                {
-                    return false;
-                }
-                // If y is transparent and x not, x < y
-                else if (!x->isTransparent() && y->isTransparent())
-                {
-                    return true;
-                }
-                else
-                {
-                    // Otherwise don't care (both transparent or both solid)
-                    // Just arbitrarily use pointer
-                    return x < y;
-                }
+				// Sort DESCENDING by depth (ie far objects first)
+				if (x->getViewDepth(camera) > y->getViewDepth(camera))
+				{
+					return true;
+				}
+				else
+				{
+					return false;
+				}
 
             }
         };
     public:
-        /// Map on material within each queue group, outsort transparent
         typedef std::vector<Renderable*> RenderableList;
-        typedef std::map<Material*, RenderableList, queueItemLess > MaterialGroupMap;
+        /// Map on material within each queue group, this is for non-transparent objects only
+        typedef std::map<Material*, RenderableList > MaterialGroupMap;
+		/// Transparent object list, these are not grouped by material but will be sorted by descending Z
+		typedef std::vector<Renderable*> TransparentObjectList;
     protected:
         MaterialGroupMap mMaterialGroups;
+		TransparentObjectList mTransparentObjects;
 
     public:
         RenderPriorityGroup() {}
@@ -94,21 +92,44 @@ namespace Ogre {
 
             assert(pMat && "Can't add a renderable with a null material!");
 
-            // Try to insert, if already there existing will be returned
-            retPair = mMaterialGroups.insert(MaterialGroupMap::value_type(pMat, newList));
+			if (pMat->isTransparent())
+			{
+				// Insert into transparent object vector
+				mTransparentObjects.push_back(pRend);
+				
+			}
+			else
+			{
 
-            // Insert new Renderable
-            // retPair.first is iterator on map (Material*, std::vector)
-            // retPair.first->second is the vector of renderables
-            retPair.first->second.push_back(pRend);
+            	// Try to insert, if already there existing will be returned
+            	retPair = mMaterialGroups.insert(MaterialGroupMap::value_type(pMat, newList));
+
+	            // Insert new Renderable
+    	        // retPair.first is iterator on map (Material*, std::vector)
+        	    // retPair.first->second is the vector of renderables
+            	retPair.first->second.push_back(pRend);
+			}
 
         }
+
+		/** Sorts the transparent objects which have been added to the queue by their depth
+		    in relation to the passed in Camera. */
+		void sortTransparentObjects(const Camera* cam)
+		{
+            TransparentQueueItemLess lessFunctor;
+            lessFunctor.camera = cam;
+
+			std::sort(mTransparentObjects.begin(), mTransparentObjects.end(), 
+                lessFunctor);
+		}
+		 
 
         /** Clears this group of renderables. 
         */
         void clear(void)
         {
             mMaterialGroups.clear();
+            mTransparentObjects.clear();
 
         }
 
