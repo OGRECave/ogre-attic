@@ -6,6 +6,8 @@
 
 namespace Ogre {
 
+#define OGRE_MAX_PATH 256
+
 class FileSystem : public ArchiveEx {
 public:
     FileSystem();
@@ -50,7 +52,7 @@ private:
     void recursDeleDir( bool bRecursive );
 
     String mstrBasePath;
-    mutable char mszTempPath[261];
+    mutable char mszTempPath[OGRE_MAX_PATH];
 };
 
 #define retunset( a ) { unsetPath(); return a; }
