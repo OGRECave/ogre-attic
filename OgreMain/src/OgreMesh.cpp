@@ -582,7 +582,7 @@ namespace Ogre {
 
         // Iterate through, finding the largest # bones per vertex
         unsigned short maxBones = 0;
-        unsigned short currBones, lastVertIdx = -1;
+        unsigned short currBones, lastVertIdx = std::numeric_limits< ushort >::max();
         VertexBoneAssignmentList::iterator i, iend;
         i = mBoneAssignments.begin();
         iend = mBoneAssignments.end();
@@ -646,3 +646,13 @@ namespace Ogre {
 
 }
 
+//-----------------------------------------------------------------------------
+// This is the CVS log of the file. Do NOT modify beyond this point as this
+// may cause inconsistencies between the actual log and what's written here.
+// (for more info, see http://www.cvshome.org/docs/manual/cvs_12.html#SEC103 )
+//
+// $Log$
+// Revision 1.13  2002/08/22 14:52:13  cearny
+// Linux changes.
+//
+//-----------------------------------------------------------------------------
