@@ -173,7 +173,7 @@ Examples/TransparentTest
 	{
 		texture Water01.jpg
 		wave_xform scroll_y sine 0 0.1 0 0.5
-		colour_op add
+		colour_op modulate
 	}
 
 }
