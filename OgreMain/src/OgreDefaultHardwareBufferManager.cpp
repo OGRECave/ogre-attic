@@ -40,10 +40,21 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
     void* DefaultHardwareVertexBuffer::lockImpl(size_t offset, size_t length, LockOptions options)
 	{
-		return mpData + offset;
+        // Nothing to do
+        return NULL;
 	}
 	//-----------------------------------------------------------------------
 	void DefaultHardwareVertexBuffer::unlockImpl(void)
+	{
+        // Nothing to do
+	}
+	//-----------------------------------------------------------------------
+    void* DefaultHardwareVertexBuffer::lock(size_t offset, size_t length, LockOptions options)
+	{
+		return mpData + offset;
+	}
+	//-----------------------------------------------------------------------
+	void DefaultHardwareVertexBuffer::unlock(void)
 	{
         // Nothing to do
 	}
@@ -78,10 +89,21 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
     void* DefaultHardwareIndexBuffer::lockImpl(size_t offset, size_t length, LockOptions options)
 	{
-		return mpData + offset;
+        // Nothing to do
+        return NULL;
 	}
 	//-----------------------------------------------------------------------
 	void DefaultHardwareIndexBuffer::unlockImpl(void)
+	{
+        // Nothing to do
+	}
+	//-----------------------------------------------------------------------
+    void* DefaultHardwareIndexBuffer::lock(size_t offset, size_t length, LockOptions options)
+	{
+		return mpData + offset;
+	}
+	//-----------------------------------------------------------------------
+	void DefaultHardwareIndexBuffer::unlock(void)
 	{
         // Nothing to do
 	}

@@ -51,6 +51,10 @@ namespace Ogre {
         /** See HardwareBuffer. */
         void writeData(size_t offset, size_t length, const void* pSource,
 				bool discardWholeBuffer = false);
+        /** Override HardwareBuffer to turn off all shadowing. */
+        void* lock(size_t offset, size_t length, LockOptions options);
+        /** Override HardwareBuffer to turn off all shadowing. */
+		void unlock(void);
 
 
     };
@@ -72,6 +76,10 @@ namespace Ogre {
         /** See HardwareBuffer. */
         void writeData(size_t offset, size_t length, const void* pSource,
 				bool discardWholeBuffer = false);
+        /** Override HardwareBuffer to turn off all shadowing. */
+        void* lock(size_t offset, size_t length, LockOptions options);
+        /** Override HardwareBuffer to turn off all shadowing. */
+		void unlock(void);
 
     };
 
