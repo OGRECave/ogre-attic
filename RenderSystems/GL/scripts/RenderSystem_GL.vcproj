@@ -157,9 +157,6 @@
 				RelativePath="..\src\OgreGLTextureManager.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreGLVertexDeclaration.cpp">
-			</File>
-			<File
 				RelativePath="..\src\OgreWin32GLSupport.cpp">
 			</File>
 			<File
@@ -197,9 +194,6 @@
 				RelativePath="..\include\OgreGLTextureManager.h">
 			</File>
 			<File
-				RelativePath="..\include\OgreGLVertexDeclaration.h">
-			</File>
-			<File
 				RelativePath="..\include\OgreSDLGLSupport.h">
 			</File>
 			<File
@@ -216,6 +210,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreWin32Window.h">
+			</File>
+			<File
+				RelativePath="..\include\gl.h">
 			</File>
 			<File
 				RelativePath="..\include\glext.h">
