@@ -38,7 +38,8 @@ namespace Ogre {
           m_uDepth(0),
           m_uNumMipmaps(0),
           m_uFlags(0),
-          m_pBuffer( NULL )
+          m_pBuffer( NULL ),
+		  m_bAutoDelete( true )
     {
     }
 
@@ -52,7 +53,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     Image::~Image()
     {
-        if( m_pBuffer )
+		//Only delete if this was not a dynamic image (meaning app holds & destroys buffer)
+        if( m_pBuffer && m_bAutoDelete )
         {
             delete[] m_pBuffer;
             m_pBuffer = NULL;
@@ -71,8 +73,16 @@ namespace Ogre {
         m_ucPixelSize = img.m_ucPixelSize;
         m_uNumMipmaps = img.m_uNumMipmaps;
 
-        m_pBuffer = new uchar[ m_uSize ];
-        memcpy( m_pBuffer, img.m_pBuffer, m_uSize );
+		//Only create/copy when previous data was not dynamic data
+        if( m_bAutoDelete )
+		{
+			m_pBuffer = new uchar[ m_uSize ];
+			memcpy( m_pBuffer, img.m_pBuffer, m_uSize );
+		}
+		else
+		{
+			m_pBuffer = img.m_pBuffer;
+		}
 
         return *this;
     }
@@ -201,6 +211,25 @@ namespace Ogre {
 
         OgreUnguardRet( *this );
     }
+
+	//-----------------------------------------------------------------------------
+	Image& Image::loadDynamicImage( uchar* pData, ushort uWidth, ushort uHeight, 
+							 PixelFormat eFormat )
+	{
+        OgreGuard( "Image::loadDynamicImage" );
+
+        m_uWidth = uWidth;
+        m_uHeight = uHeight;
+        m_eFormat = eFormat;
+        m_ucPixelSize = PF2PS( m_eFormat );
+        m_uSize = m_uWidth * m_uHeight * m_ucPixelSize;
+
+        m_pBuffer = pData;
+		
+		m_bAutoDelete = false;
+        
+		OgreUnguardRet( *this );
+	}
 
     //-----------------------------------------------------------------------------
     Image & Image::loadRawData(

@@ -37,6 +37,8 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreEventProcessor.cpp \
                          OgreEventQueue.cpp \
                          OgreException.cpp \
+						 OgreExternalTextureSource.cpp \
+						 OgreExternalTextureSourceManager.cpp \
                          OgreFont.cpp \
                          OgreFontManager.cpp \
 						 OgreFrustum.cpp \

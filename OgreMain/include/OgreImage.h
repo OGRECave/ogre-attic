@@ -296,6 +296,27 @@ namespace Ogre {
 			return false;
 		}
 
+        /** Stores a pointer to raw data in memory. The pixel format has to be specified.
+            @remarks
+                This method loads an image into memory held in the object. The 
+                pixel format will be either greyscale or RGB with an optional
+                Alpha component.
+                The type can be determined by calling getFormat().             
+            @param
+                The data pointer
+            @param
+				Width of image
+            @param
+				Height of image
+            @param
+				Pixel Format
+            @note
+                The memory associated with this buffer is NOT destroyed with the
+                Image object.
+        */
+		Image& loadDynamicImage( uchar* pData, ushort uWidth, 
+								 ushort uHeight, PixelFormat eFormat );
+
         /** Loads raw data from memory. The pixel format has to be specified.
         */
         Image & loadRawData( 
@@ -415,6 +436,9 @@ namespace Ogre {
         // The number of bytes per pixel
         uchar m_ucPixelSize;
         uchar* m_pBuffer;
+
+		// A bool to determine if we delete the buffer or the calling app does
+		bool m_bAutoDelete;
     };
 
 } // namespace

@@ -131,6 +131,7 @@ namespace Ogre {
 	class ActionEvent;
 	class ActionListener;
 	class ActionTarget;
+	class ExternalTextureSourceManager;
     class Animation;
     class AnimationState;
     class AnimationTrack;
@@ -278,6 +279,7 @@ namespace Ogre {
 	class TagPoint;
 	class TargetManager;
     class Technique;
+	class ExternalTextureSource;
     class TextureUnitState;
     class Texture;
 	class TextureFont;

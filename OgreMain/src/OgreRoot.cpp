@@ -61,6 +61,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreOverlay.h"
 #include "OgreHighLevelGpuProgramManager.h"
 
+#include "OgreExternalTextureSourceManager.h"
+
 #if OGRE_PLATFORM == PLATFORM_WIN32
 
 #   define WIN32_LEAN_AND_MEAN
@@ -182,6 +184,8 @@ namespace Ogre {
 
         mHighLevelGpuProgramManager = new HighLevelGpuProgramManager();
 
+		mExternalTextureSourceManager = new ExternalTextureSourceManager();
+
         // Auto window
         mAutoWindow = 0;
 
@@ -230,6 +234,7 @@ namespace Ogre {
         shutdown();
         delete mSceneManagerEnum;
 
+		delete mExternalTextureSourceManager;
 
         delete mBMPCodec;
         delete mDDSCodec;

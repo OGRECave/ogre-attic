@@ -41,6 +41,8 @@ OgreEventProcessor.h \
 OgreEventQueue.h \
 OgreEventTarget.h \
 OgreException.h \
+OgreExternalTextureSource.h \
+OgreExternalTextureSourceManager.h \
 OgreFactoryObj.h \
 OgreFont.h \
 OgreFontManager.h \

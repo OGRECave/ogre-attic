@@ -250,6 +250,12 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreException.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreExternalTextureSource.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreExternalTextureSourceManager.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreFont.cpp">
 			</File>
 			<File
@@ -751,6 +757,12 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreException.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreExternalTextureSource.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreExternalTextureSourceManager.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreFactoryObj.h">

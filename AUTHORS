@@ -43,6 +43,7 @@ Sam le Pirate                         : BMP support
 Attila Tajti (attis)                  : Wings3D exporter
 ? (Firestorm)                         : Particle scale and rotate affectors
 Lee Sandberg                          : Hardware occlusion query support
+Phillip Castaneda (pjcast)            : External texture sources / dynamic textures
 
 Others
 ------

@@ -42,7 +42,8 @@ namespace Ogre {
         MSS_PASS,
         MSS_TEXTUREUNIT,
         MSS_PROGRAM_REF,
-		MSS_PROGRAM
+		MSS_PROGRAM,
+		MSS_TEXTURESOURCE
     };
 	/** Struct for holding a program definition which is in progress. */
 	struct MaterialScriptProgramDefinition
@@ -66,6 +67,10 @@ namespace Ogre {
         GpuProgram* program; // used when referencing a program, not when defining it
         GpuProgramParametersSharedPtr programParams;
 		MaterialScriptProgramDefinition* programDef; // this is used while defining a program
+
+		int techLev,	//Keep track of what tech, pass, and state level we are in
+			passLev,
+			stateLev;
 
 		// Error reporting state
         size_t lineNo;
