@@ -74,9 +74,9 @@ namespace Ogre {
             // Create basic texture
             if (pass[p].textureName == "$lightmap")
             {
-				str.clear();
-				str << "@lightmap" << lightmapNumber;
-                t = mat->getTechnique(0)->getPass(0)->createTextureUnitState(str.str());
+                StringUtil::StrStreamType str2;
+				str2 << "@lightmap" << lightmapNumber;
+                t = mat->getTechnique(0)->getPass(0)->createTextureUnitState(str2.str());
             }
             // Animated texture support
             else if (pass[p].animNumFrames > 0)
@@ -91,12 +91,12 @@ namespace Ogre {
                 for (unsigned int alt = 0; alt < pass[p].animNumFrames; ++alt)
                 {
                     if (!ResourceGroupManager::getSingleton().resourceExists(
-                        resourceGroup, pass[p].frames[alt]));
+                        resourceGroup, pass[p].frames[alt]))
                     {
                         // Try alternate extension
                         pass[p].frames[alt] = getAlternateName(pass[p].frames[alt]);
                         if (!ResourceGroupManager::getSingleton().resourceExists(
-                            resourceGroup, pass[p].frames[alt]));
+                            resourceGroup, pass[p].frames[alt]))
                         { 
                             // stuffed - no texture
                             continue;
@@ -114,12 +114,12 @@ namespace Ogre {
                 // Quake3 can still include alternate extension filenames e.g. jpg instead of tga
                 // Pain in the arse - have to check for failure
                 if (!ResourceGroupManager::getSingleton().resourceExists(
-                    resourceGroup, pass[p].textureName));
+                    resourceGroup, pass[p].textureName))
                 {
                     // Try alternate extension
                     pass[p].textureName = getAlternateName(pass[p].textureName);
                     if (!ResourceGroupManager::getSingleton().resourceExists(
-                        resourceGroup, pass[p].textureName));
+                        resourceGroup, pass[p].textureName))
                     { 
                         // stuffed - no texture
                         continue;
