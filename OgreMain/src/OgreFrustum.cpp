@@ -58,40 +58,11 @@ namespace Ogre {
 
         // Initialise vertex & index data
         mVertexData.vertexDeclaration->addElement(0, 0, VET_FLOAT3, VES_POSITION);
-        mVertexData.vertexCount = 9;
+        mVertexData.vertexCount = 24;
         mVertexData.vertexStart = 0;
         mVertexData.vertexBufferBinding->setBinding( 0,
             HardwareBufferManager::getSingleton().createVertexBuffer(
-                sizeof(Real)*3, 9, HardwareBuffer::HBU_DYNAMIC) );
-        mIndexData.indexStart = 0;
-        mIndexData.indexCount = 24; // 12 lines, 2 indexes each
-        mIndexData.indexBuffer = HardwareBufferManager::getSingleton().createIndexBuffer(
-            HardwareIndexBuffer::IT_16BIT, 24, HardwareBuffer::HBU_STATIC);
-        // Lock index buffer
-        unsigned short* pIdx = static_cast<unsigned short*>(
-            mIndexData.indexBuffer->lock(HardwareBuffer::HBL_DISCARD));
-        // 0 is the origin
-        // 1, 2, 3, 4 are the points on the near plane, top left first, clockwise
-        // 5, 6, 7, 8 are the points on the far plane, top left first, clockwise
-        // Do the near plane
-        *pIdx++ = 1; *pIdx++ = 2;
-        *pIdx++ = 2; *pIdx++ = 3;
-        *pIdx++ = 3; *pIdx++ = 4;
-        *pIdx++ = 4; *pIdx++ = 1;
-
-        // Do the far plane
-        *pIdx++ = 5; *pIdx++ = 6;
-        *pIdx++ = 6; *pIdx++ = 7;
-        *pIdx++ = 7; *pIdx++ = 8;
-        *pIdx++ = 8; *pIdx++ = 5;
-
-        // Do the 4 lines along the edges
-        *pIdx++ = 0; *pIdx++ = 5;
-        *pIdx++ = 0; *pIdx++ = 6;
-        *pIdx++ = 0; *pIdx++ = 7;
-        *pIdx++ = 0; *pIdx++ = 8;
-
-        mIndexData.indexBuffer->unlock();
+                sizeof(Real)*3, 24, HardwareBuffer::HBU_DYNAMIC) );
 
         // Initialise material
         mMaterial = static_cast<Material*>(
@@ -355,18 +326,46 @@ namespace Ogre {
             HardwareVertexBufferSharedPtr vbuf = mVertexData.vertexBufferBinding->getBuffer(0);
             Real* pReal = static_cast<Real*>(vbuf->lock(HardwareBuffer::HBL_DISCARD));
 
-            // origin
-            *pReal++ = 0.0f; *pReal++ = 0.0f; *pReal++ = 0.0f;
             // near plane (remember frustum is going in -Z direction)
             *pReal++ = vpLeft;  *pReal++ = vpTop;    *pReal++ = -mNearDist;
             *pReal++ = vpRight; *pReal++ = vpTop;    *pReal++ = -mNearDist;
+
+            *pReal++ = vpRight; *pReal++ = vpTop;    *pReal++ = -mNearDist;
+            *pReal++ = vpRight; *pReal++ = vpBottom; *pReal++ = -mNearDist;
+
             *pReal++ = vpRight; *pReal++ = vpBottom; *pReal++ = -mNearDist;
             *pReal++ = vpLeft;  *pReal++ = vpBottom; *pReal++ = -mNearDist;
+
+            *pReal++ = vpLeft;  *pReal++ = vpBottom; *pReal++ = -mNearDist;
+            *pReal++ = vpLeft;  *pReal++ = vpTop;    *pReal++ = -mNearDist;
+
             // far plane (remember frustum is going in -Z direction)
             *pReal++ = farLeft;  *pReal++ = farTop;    *pReal++ = -mFarDist;
             *pReal++ = farRight; *pReal++ = farTop;    *pReal++ = -mFarDist;
+
+            *pReal++ = farRight; *pReal++ = farTop;    *pReal++ = -mFarDist;
+            *pReal++ = farRight; *pReal++ = farBottom; *pReal++ = -mFarDist;
+
             *pReal++ = farRight; *pReal++ = farBottom; *pReal++ = -mFarDist;
             *pReal++ = farLeft;  *pReal++ = farBottom; *pReal++ = -mFarDist;
+
+            *pReal++ = farLeft;  *pReal++ = farBottom; *pReal++ = -mFarDist;
+            *pReal++ = farLeft;  *pReal++ = farTop;    *pReal++ = -mFarDist;
+
+            // Sides of the pyramid
+            *pReal++ = 0.0f;    *pReal++ = 0.0f;   *pReal++ = 0.0f;
+            *pReal++ = farLeft; *pReal++ = farTop; *pReal++ = -mFarDist;
+
+            *pReal++ = 0.0f;    *pReal++ = 0.0f;   *pReal++ = 0.0f;
+            *pReal++ = farRight; *pReal++ = farTop;    *pReal++ = -mFarDist;
+
+            *pReal++ = 0.0f;    *pReal++ = 0.0f;   *pReal++ = 0.0f;
+            *pReal++ = farRight; *pReal++ = farBottom; *pReal++ = -mFarDist;
+
+            *pReal++ = 0.0f;    *pReal++ = 0.0f;   *pReal++ = 0.0f;
+            *pReal++ = farLeft;  *pReal++ = farBottom; *pReal++ = -mFarDist;
+
+
 
             vbuf->unlock();
 
@@ -538,10 +537,9 @@ namespace Ogre {
     {
         updateView();
         updateFrustum();
-        op.indexData = &mIndexData;
         op.operationType = RenderOperation::OT_LINE_LIST;
         op.srcRenderable = this;
-        op.useIndexes = true;
+        op.useIndexes = false;
         op.vertexData = &mVertexData;
     }
     //-----------------------------------------------------------------------

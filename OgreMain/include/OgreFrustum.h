@@ -97,7 +97,6 @@ namespace Ogre
 
         mutable AxisAlignedBox mBoundingBox;
         mutable VertexData mVertexData;
-        mutable IndexData mIndexData;
 
         Material* mMaterial;
 
