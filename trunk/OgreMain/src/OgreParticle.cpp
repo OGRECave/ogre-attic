@@ -30,10 +30,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     //-----------------------------------------------------------------------
-    void Particle::setRotation(const Radian& rotation)
+    void Particle::setRotation(const Radian& rot)
     {
-        mRotation = rotation;
-        if (mRotation != Radian(0))
+        rotation = rot;
+        if (rotation != Radian(0))
             mParentSystem->_notifyParticleRotated();
     }
     //-----------------------------------------------------------------------
@@ -48,6 +48,11 @@ namespace Ogre {
     void Particle::_notifyOwner(ParticleSystem* owner)
     {
         mParentSystem = owner;
+    }
+    //-----------------------------------------------------------------------
+    void Particle::resetDimensions(void)
+    {
+        mOwnDimensions = false;
     }
 
 

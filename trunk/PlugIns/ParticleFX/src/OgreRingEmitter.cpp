@@ -79,13 +79,13 @@ namespace Ogre {
         // scale the found point to the ring's size and move it
         // relatively to the center of the emitter point
 
-        pParticle->mPosition = mPosition + 
+        pParticle->position = mPosition + 
          + x * mXRange + y * mYRange + z * mZRange;
 
         // Generate complex data by reference
-        genEmissionColour(pParticle->mColour);
-        genEmissionDirection(pParticle->mDirection);
-        genEmissionVelocity(pParticle->mDirection);
+        genEmissionColour(pParticle->colour);
+        genEmissionDirection(pParticle->direction);
+        genEmissionVelocity(pParticle->direction);
 
         // Generate simpler data
         pParticle->timeToLive = pParticle->totalTimeToLive = genEmissionTTL();

@@ -297,7 +297,7 @@ protected:
 		ParticleIterator pit = particleSystem->_getIterator() ;
 		while(!pit.end()) {
 			Particle *particle = pit.getNext();
-			Vector3 ppos = particle->getPosition();
+			Vector3 ppos = particle->position;
 			if (ppos.y<=0 && particle->timeToLive>0) { // hits the water!
 				// delete particle
 				particle->timeToLive = 0.0f;

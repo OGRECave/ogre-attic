@@ -54,10 +54,10 @@ namespace Ogre {
 		const uchar*		data			= mColourImage.getData();
 		const Real			div_255			= 1.0f / 255.f;
 		
-		pParticle->mColour.r = data[0] * div_255;
-		pParticle->mColour.g = data[1] * div_255;
-		pParticle->mColour.b = data[2] * div_255;
-		pParticle->mColour.a = data[3] * div_255;
+		pParticle->colour.r = data[0] * div_255;
+		pParticle->colour.g = data[1] * div_255;
+		pParticle->colour.b = data[2] * div_255;
+		pParticle->colour.a = data[3] * div_255;
     
 	}
     //-----------------------------------------------------------------------
@@ -87,11 +87,11 @@ namespace Ogre {
 
             if(index < 0)
             {
-                mColourImage.getColourAt(&p->mColour, 0, 0, 0);
+                mColourImage.getColourAt(&p->colour, 0, 0, 0);
             }
             else if(index >= width) 
             {
-                mColourImage.getColourAt(&p->mColour, width, 0, 0);
+                mColourImage.getColourAt(&p->colour, width, 0, 0);
             }
             else
             {
@@ -104,10 +104,10 @@ namespace Ogre {
                 mColourImage.getColourAt(&from, index, 0, 0);
                 mColourImage.getColourAt(&to, index+1, 0, 0);
 
-				p->mColour.r = from.r*from_colour + to.r*to_colour;
-                p->mColour.g = from.g*from_colour + to.g*to_colour;
-                p->mColour.b = from.b*from_colour + to.b*to_colour;
-                p->mColour.a = from.a*from_colour + to.a*to_colour;
+				p->colour.r = from.r*from_colour + to.r*to_colour;
+                p->colour.g = from.g*from_colour + to.g*to_colour;
+                p->colour.b = from.b*from_colour + to.b*to_colour;
+                p->colour.a = from.a*from_colour + to.a*to_colour;
 			}
 		}
     }

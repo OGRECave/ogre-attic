@@ -82,11 +82,11 @@ namespace Ogre {
             p = pi.getNext();
             if (mForceApplication == FA_ADD)
             {
-                p->mDirection += scaledVector;
+                p->direction += scaledVector;
             }
             else // FA_AVERAGE
             {
-                p->mDirection = (p->mDirection + mForceVector) / 2;
+                p->direction = (p->direction + mForceVector) / 2;
             }
         }
         
