@@ -112,8 +112,8 @@ namespace Ogre {
         *pReal++ = bottom;
         *pReal++ = -1;
 
-        *pReal++ = top;
         *pReal++ = right;
+        *pReal++ = top;
         *pReal++ = -1;
 
         *pReal++ = right;
