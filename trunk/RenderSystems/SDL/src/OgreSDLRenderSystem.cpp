@@ -512,7 +512,7 @@ namespace Ogre {
     void SDLRenderSystem::setGLLight(int index, Light* lt)
     {
         GLint gl_index = GL_LIGHT0 + index;
-        
+
         if (lt->isVisible())
         {
             switch (lt->getType())
@@ -528,6 +528,8 @@ namespace Ogre {
             // Color
             ColourValue col;
             col = lt->getDiffuseColour();
+
+
             GLfloat f4vals[4] = {col.r, col.g, col.b, col.a};
             glLightfv(gl_index, GL_DIFFUSE, f4vals);
             
@@ -545,6 +547,7 @@ namespace Ogre {
             Vector3 vec;
             if (lt->getType() != Light::LT_DIRECTIONAL)
             {
+            
                 vec = lt->getDerivedPosition();
                 f4vals[0] = vec.x;
                 f4vals[1] = vec.y;
@@ -555,6 +558,7 @@ namespace Ogre {
             // Direction (not needed for point lights)
             if (lt->getType() != Light::LT_POINT)
             {
+           
                 vec = lt->getDerivedDirection();
                 f4vals[0] = vec.x;
                 f4vals[1] = vec.y;
@@ -569,6 +573,7 @@ namespace Ogre {
             glLightf(gl_index, GL_QUADRATIC_ATTENUATION, lt->getAttenuationQuadric());
             // Enable in the scene
             glEnable(gl_index);
+
         }
         else
         {
@@ -641,7 +646,7 @@ namespace Ogre {
     {
         GLfloat mat[16];
         mWorldMatrix = m;
-        makeGLMatrix(mat, mViewMatrix * mWorldMatrix);
+        makeGLMatrix( mat, mViewMatrix * mWorldMatrix );
         glMatrixMode(GL_MODELVIEW);
         glLoadMatrixf(mat);
     }
@@ -652,9 +657,17 @@ namespace Ogre {
         mViewMatrix = m;
 
         GLfloat mat[16];
-        makeGLMatrix(mat, mViewMatrix * mWorldMatrix);
+        makeGLMatrix(mat, mViewMatrix);
         glMatrixMode(GL_MODELVIEW);
         glLoadMatrixf(mat);
+
+        /* Set the lights here everytime the view
+         * matrix changes.
+         */
+        setLights();
+         
+        makeGLMatrix(mat, mWorldMatrix);
+        glMultMatrixf(mat);
     }
     //-----------------------------------------------------------------------------
     void SDLRenderSystem::_setProjectionMatrix(const Matrix4 &m)
@@ -1022,41 +1035,8 @@ namespace Ogre {
               vp->_clearUpdatedFlag();
         }
     }
-
-    //-----------------------------------------------------------------------------
-    void SDLRenderSystem::_beginFrame(void)
-    {
-        OgreGuard( "SDLRenderSystem::_beginFrame" );
-
-        if (!mActiveViewport)
-            Except(999, "Cannot begin frame - no viewport selected.",
-                "SDLRenderSystem::_beginFrame");
-
-        // Clear the viewport if required
-        if (mActiveViewport->getClearEveryFrame())
-        {
-            // Activate the viewport clipping
-            glEnable(GL_SCISSOR_TEST);
-
-            ColourValue col = mActiveViewport->getBackgroundColour();
-            
-            glClearColor(col.r, col.g, col.b, col.a);
-            // Enable depth buffer for writing if it isn't
-            if (!mDepthWrite)
-            {
-                _setDepthBufferWriteEnabled(true);
-            }
-            // Clear buffers
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            // Reset depth write state if appropriate
-            // Enable depth buffer for writing if it isn't
-            if (!mDepthWrite)
-            {
-                _setDepthBufferWriteEnabled(false);
-            }
-
-        }        
-
+  void SDLRenderSystem::setLights()
+  {
         GLfloat f4vals[4];
         for (int i = 0; i < MAX_LIGHTS; ++i)
         {
@@ -1087,7 +1067,43 @@ namespace Ogre {
             }
         }
 
+  }
 
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_beginFrame(void)
+    {
+        OgreGuard( "SDLRenderSystem::_beginFrame" );
+        
+        if (!mActiveViewport)
+            Except(999, "Cannot begin frame - no viewport selected.",
+                "SDLRenderSystem::_beginFrame");
+
+        // Clear the viewport if required
+        if (mActiveViewport->getClearEveryFrame())
+        {
+            // Activate the viewport clipping
+            glEnable(GL_SCISSOR_TEST);
+
+            ColourValue col = mActiveViewport->getBackgroundColour();
+            
+            glClearColor(col.r, col.g, col.b, col.a);
+            // Enable depth buffer for writing if it isn't
+            if (!mDepthWrite)
+            {
+                _setDepthBufferWriteEnabled(true);
+            }
+            // Clear buffers
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            // Reset depth write state if appropriate
+            // Enable depth buffer for writing if it isn't
+            if (!mDepthWrite)
+            {
+                _setDepthBufferWriteEnabled(false);
+            }
+
+        }        
+
+        setLights();
         OgreUnguard();
     }
 
@@ -1136,6 +1152,7 @@ namespace Ogre {
         else
         {
             glDisableClientState(GL_COLOR_ARRAY);
+            glColor4f(1,1,1,1);
         }
         
         // Textures if available
@@ -1212,6 +1229,7 @@ namespace Ogre {
             glDrawArrays( primType, 0, op.numVertices );
         }
 
+     
         OgreUnguard();
     }
     
