@@ -65,6 +65,7 @@ void exportVector3()
 
     vec_class.attr("ZERO") = Vector3::ZERO;
     vec_class.attr("UNIT_X") = Vector3::UNIT_X;
+    vec_class.attr("UNIT_Y") = Vector3::UNIT_Y;
     vec_class.attr("UNIT_Z") = Vector3::UNIT_Z;
     vec_class.attr("UNIT_SCALE") = Vector3::UNIT_SCALE;
 }
