@@ -379,7 +379,7 @@ namespace Ogre
         /** Function for writing to a stream.
         */
         inline _OgreExport friend std::ostream& operator <<
-            ( std::ostream& o, Matrix4& m )
+            ( std::ostream& o, const Matrix4& m )
         {
             o << "Matrix4(";
             for (int i = 0; i < 4; ++i)

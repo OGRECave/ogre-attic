@@ -113,7 +113,7 @@ namespace Ogre {
         /** Function for writing to a stream.
         */
         inline _OgreExport friend std::ostream& operator <<
-            ( std::ostream& o, Quaternion& q )
+            ( std::ostream& o, const Quaternion& q )
         {
             o << "Quaternion(" << q.x << ", " << q.y << ", " << q.z << ", " << q.w << ")";
             return o;
