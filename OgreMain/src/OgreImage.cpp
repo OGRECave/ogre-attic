@@ -31,14 +31,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 /* Use new scaling code when possible */
 #define NEWSCALING
-/* This should really be defined as ./configure parameter later on*/
-#define USE_DEVIL 
 
 #ifdef NEWSCALING
 #include "OgreImageResampler.h"
 #endif
 
-#ifdef USE_DEVIL
+#ifndef OGRE_NO_DEVIL
+#include "OgreILUtil.h"
 // Dependency on IL/ILU for resize
 #include <IL/il.h>
 #include <IL/ilu.h>
@@ -572,7 +571,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------------
-#ifdef USE_DEVIL
+#ifndef OGRE_NO_DEVIL
 	// Local declaration of DevIL functions to prevent DevIL dependencies on header users
 	ILenum getILFilter(Image::Filter filter)
 	{
@@ -701,7 +700,7 @@ namespace Ogre {
 		default:
 			// fall back to old, slow, wildly incorrect DevIL code
 #endif
-#ifdef USE_DEVIL
+#ifndef OGRE_NO_DEVIL
 			ILuint ImageName;
 			ilGenImages( 1, &ImageName );
 			ilBindImage( ImageName );

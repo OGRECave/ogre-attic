@@ -31,6 +31,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreImage.h"
 #include "OgreException.h"
 
+#include "OgreILUtil.h"
+
 #include <IL/il.h>
 #include <IL/ilu.h>
 
