@@ -118,7 +118,7 @@ namespace Ogre {
         {
 			p = pi.getNext();
 
-			if( p->mTimeToLive > StateChangeVal )
+			if( p->timeToLive > StateChangeVal )
 			{
 				applyAdjustWithClamp(&p->mColour.r, dr1);
 				applyAdjustWithClamp(&p->mColour.g, dg1);

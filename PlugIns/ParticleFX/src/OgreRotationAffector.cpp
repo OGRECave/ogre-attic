@@ -75,10 +75,10 @@ namespace Ogre {
             mRotationRangeStart + 
             (Math::UnitRandom() * 
                 (mRotationRangeEnd - mRotationRangeStart)));
-        pParticle->setRotationSpeed(
+        pParticle->rotationSpeed =
             mRotationSpeedRangeStart + 
             (Math::UnitRandom() * 
-                (mRotationSpeedRangeEnd - mRotationSpeedRangeStart)));
+                (mRotationSpeedRangeEnd - mRotationSpeedRangeStart));
         
 	}
 	//-----------------------------------------------------------------------

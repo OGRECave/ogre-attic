@@ -79,8 +79,8 @@ namespace Ogre {
 		while (!pi.end())
         {
             p = pi.getNext();
-			const Real		life_time		= p->mTotalTimeToLive;
-			Real			particle_time	= 1.0f - (p->mTimeToLive / life_time); 
+			const Real		life_time		= p->totalTimeToLive;
+			Real			particle_time	= 1.0f - (p->timeToLive / life_time); 
 
 			if (particle_time <= mTimeAdj[0])
 			{
