@@ -756,25 +756,6 @@ namespace Ogre {
         return mActiveRenderer->getRenderTarget(name);
     }
     //-----------------------------------------------------------------------
-    /*
-    void Root::showDebugOverlay(bool show)
-    {
-        Overlay* o = (Overlay*)OverlayManager::getSingleton().getByName("Core/DebugOverlay");
-		if (!o)
-			Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find overlay Core/DebugOverlay",
-				"Root::showDebugOverlay" );
-        if (show)
-        {
-            o->show();
-        }
-        else
-        {
-            o->hide();
-        }
-        
-    }
-    */
-    //-----------------------------------------------------------------------
 	void Root::loadPlugin(const String& pluginName)
 	{
 		// Load plugin library
