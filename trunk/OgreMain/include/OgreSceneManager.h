@@ -370,6 +370,9 @@ namespace Ogre {
         AxisAlignedBoxSceneQuery* mShadowCasterAABBQuery;
         Real mShadowFarDist;
         Real mShadowFarDistSquared;
+        Real mShadowTextureOffset; // proportion of texture offset in view direction e.g. 0.4
+        Real mShadowTextureFadeStart; // as a proportion e.g. 0.6
+        Real mShadowTextureFadeEnd; // as a proportion e.g. 0.9
 
         /// Inner class to use as callback for shadow caster scene query
         class _OgreExport ShadowCasterSceneQueryListener : public SceneQueryListener
@@ -1548,6 +1551,41 @@ namespace Ogre {
             reallocation if the textures have already been created.
         */
         virtual void setShadowTextureSettings(unsigned short size, unsigned short count);
+        /** Sets the proportional distance which a texture shadow which is generated from a
+            directional light will be offset into the camera view to make best use of texture space.
+        @remarks
+            When generating a shadow texture from a directional light, an approximation is used
+            since it is not possible to render the entire scene to one texture. 
+            The texture is projected onto an area centred on the camera, and is
+            the shadow far distance * 2 in length (it is square). This wastes
+            a lot of texture space outside the frustum though, so this offset allows
+            you to move the texture in front of the camera more. However, be aware
+            that this can cause a little shadow 'jittering' during rotation, and
+            that if you move it too far then you'll start to get artefacts close 
+            to the camera. The value is represented as a proportion of the shadow
+            far distance, and the default is 0.6.
+        */
+        virtual void setShadowDirLightTextureOffset(Real offset) { mShadowTextureOffset = offset;}
+        /** Sets the proportional distance at which texture shadows begin to fade out.
+        @remarks
+            To hide the edges where texture shadows end (in directional lights)
+            Ogre will fade out the shadow in the distance. This value is a proportional
+            distance of the entire shadow visibility distance at which the shadow
+            begins to fade out. The default is 0.7
+        */
+        virtual void setShadowTextureFadeStart(Real fadeStart) 
+        { mShadowTextureFadeStart = fadeStart; }
+        /** Sets the proportional distance at which texture shadows finish to fading out.
+        @remarks
+        To hide the edges where texture shadows end (in directional lights)
+        Ogre will fade out the shadow in the distance. This value is a proportional
+        distance of the entire shadow visibility distance at which the shadow
+        is completely invisible. The default is 0.9.
+        */
+        virtual void setShadowTextureFadeEnd(Real fadeEnd) 
+        { mShadowTextureFadeEnd = fadeEnd; }
+
+
     };
 
     /** Default implementation of IntersectionSceneQuery. */
