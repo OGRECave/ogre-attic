@@ -204,6 +204,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     CgProgram::~CgProgram()
     {
+        freeCgArgs();
+        // unload will be called by superclass
     }
     //-----------------------------------------------------------------------
     bool CgProgram::isSupported(void)
