@@ -305,7 +305,7 @@ namespace Ogre {
         this->destPositionBuffer->suppressHardwareUpdate(suppressHardwareUpload);
         targetData->vertexBufferBinding->setBinding(
             this->posBindIndex, this->destPositionBuffer);
-        if (bindNormals && !posNormalShareBuffer)
+        if (bindNormals && !posNormalShareBuffer && !destNormalBuffer.isNull())
         {
             this->destNormalBuffer->suppressHardwareUpdate(suppressHardwareUpload);
             targetData->vertexBufferBinding->setBinding(
