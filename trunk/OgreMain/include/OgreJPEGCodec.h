@@ -27,18 +27,16 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 
-#include "OgreImageCodec.h"
+#include "OgreILImageCodec.h"
 
 namespace Ogre {
 
     /** ImageCodec specialized in JPEG images.
     */
-    class _OgreExport JPEGCodec : public ImageCodec
+    class _OgreExport JPEGCodec : public ILImageCodec
     {
     public:
         void code( const DataChunk& input, DataChunk* output, ... ) const;
-        virtual Codec::CodecData* decode(const DataChunk& input, 
-                                         DataChunk* output, ... ) const;
 
         String getType() const { return "jpeg"; }
 

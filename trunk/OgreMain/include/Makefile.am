@@ -60,6 +60,7 @@ OgreHardwareIndexBuffer.h \
 OgreHardwareVertexBuffer.h \
 OgreHighLevelGpuProgram.h \
 OgreHighLevelGpuProgramManager.h \
+OgreILImageCodec.h \
 OgreImage.h \
 OgreImageCodec.h \
 OgreInput.h \

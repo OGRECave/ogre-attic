@@ -22,45 +22,46 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#ifndef _TGACodec_H__
-#define _TGACodec_H__
+#ifndef _ILImageCodec_H__
+#define _ILImageCodec_H__
 
-#include "OgreILImageCodec.h"
+#include "OgreImageCodec.h"
 
 namespace Ogre {
 
-    /** ImageCodec specialized in Traga images.
+    /** Codec specialized in images.
+        @remarks
+            The users implementing subclasses of ImageCodec are required to return
+            a valid pointer to a ImageData class from the decode(...) function.
     */
-    class _OgreExport TGACodec : public ILImageCodec
+    class _OgreExport ILImageCodec : public ImageCodec
     {
-    protected:
-
-    // We're mapping onto raw file data, so ensure members are packed with no gaps 
-    //    by using uchars all the way (more portable than #pragma pack
-    typedef struct {
-	    uchar id_length;
-	    uchar color_map_type;
-	    uchar image_type;
-	    uchar first_entry_index[2];
-	    uchar color_map_length[2];
-	    uchar color_map_entry_size;
-	    uchar x_origin[2];
-	    uchar y_origin[2];
-	    uchar image_width[2];
-	    uchar image_height[2];
-	    uchar pixel_depth;
-	    uchar image_descriptor;
-    } TgaHeader;
+    private:
+		static bool _is_initialised;
 
     public:
-        void code( const DataChunk& input, DataChunk* output, ... ) const;
-        CodecData * decode( const DataChunk& input, DataChunk* output, ... ) const;
+        ILImageCodec() 
+        { 
+            initialiseIL();
+        }
+        virtual ~ILImageCodec() { }
 
-        String getType() const { return "tga"; }
+        virtual void code( const DataChunk& input, DataChunk* output, ... ) const = 0;
+        virtual CodecData * decode( const DataChunk& input, DataChunk* output, ... ) const;
+        /** Encodes data to a file.
+        @param input Chunk containing data to write
+        @param outFileName Filename to output to (extension implies type)
+        @param pData ImageData pointer
+        */
+        void codeToFile( const DataChunk& input, const String& outFileName, CodecData* pData) const;
 
-        unsigned int getILType(void) const;
+        virtual String getType() const = 0;
+
+        virtual unsigned int getILType(void) const = 0;
+
+        void initialiseIL(void);
     };
 
-}
+} // namespace
 
 #endif

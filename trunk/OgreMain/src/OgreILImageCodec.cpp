@@ -22,9 +22,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#include "OgreStableHeaders.h"
 
-#include "OgreImageCodec.h"
+#include "OgreILImageCodec.h"
 #include "OgreImage.h"
 #include "OgreException.h"
 
@@ -33,12 +32,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    bool ImageCodec::_is_initialised = false;
+	bool ILImageCodec::_is_initialised = false;    
     //---------------------------------------------------------------------
-    void ImageCodec::codeToFile( const DataChunk& input, 
+    void ILImageCodec::codeToFile( const DataChunk& input, 
         const String& outFileName, Codec::CodecData* pData) const
     {
-        OgreGuard( "ImageCodec::codeToFile" );
+        OgreGuard( "ILImageCodec::codeToFile" );
 
 		ILuint ImageName;
 
@@ -60,16 +59,16 @@ namespace Ogre {
         OgreUnguard();
     }
     //---------------------------------------------------------------------
-    Codec::CodecData* ImageCodec::decode( const DataChunk& input, DataChunk* output, ... ) const
+    Codec::CodecData * ILImageCodec::decode( const DataChunk& input, DataChunk* output, ... ) const
     {
-		OgreGuard( "ImageCodec::decode" );
+		OgreGuard( "ILImageCodec::decode" );
 
 		// DevIL variables
 		ILuint ImageName;
-		ILint ImageFormat, BytesPerPixel;
+		ILint Imagformat, BytesPerPixel;
 		ImageData * ret_data = new ImageData;
 
-		// Load the image 
+		// Load the image
 		ilGenImages( 1, &ImageName );
 		ilBindImage( ImageName );
 
@@ -78,20 +77,23 @@ namespace Ogre {
 			( void * )const_cast< uchar * >( input.getPtr() ), 
 			static_cast< ILuint >( input.getSize() ) );
 
-		// Check if everything was ok
-		ILenum PossibleError = ilGetError() ;
-		if( PossibleError != IL_NO_ERROR )
-		{
-			Except( Exception::UNIMPLEMENTED_FEATURE, 
-					"IL Error", 
-					iluErrorString(PossibleError) ) ;
-		}
+                // Check if everything was ok
+                ILenum PossibleError = ilGetError() ;
+                if( PossibleError != IL_NO_ERROR )
+                {
+                        Except( Exception::UNIMPLEMENTED_FEATURE,
+                                        "IL Error",
+                                        iluErrorString(PossibleError) ) ;
+                }
 
 		// Now sets some variables
-		ImageFormat = ilGetInteger( IL_IMAGE_FORMAT );
+		ret_data->width = ilGetInteger( IL_IMAGE_WIDTH );
+		ret_data->height = ilGetInteger( IL_IMAGE_HEIGHT );
+
+		Imagformat = ilGetInteger( IL_IMAGE_FORMAT );
 		BytesPerPixel = ilGetInteger( IL_IMAGE_BYTES_PER_PIXEL ); 
 
-		ret_data->format = ilFormat2OgreFormat( ImageFormat, BytesPerPixel );
+		ret_data->format = ilFormat2OgreFormat( Imagformat, BytesPerPixel );
 		ret_data->width = ilGetInteger( IL_IMAGE_WIDTH );
 		ret_data->height = ilGetInteger( IL_IMAGE_HEIGHT );
 
@@ -106,13 +108,13 @@ namespace Ogre {
 		OgreUnguardRet( ret_data );
     }
     //---------------------------------------------------------------------
-    void ImageCodec::initialiseIL(void)
+    void ILImageCodec::initialiseIL(void)
     {
-		if( !_is_initialised )
-		{
-			ilInit();
-			ilEnable( IL_FILE_OVERWRITE );
-			_is_initialised = true;
-		}
+        if( !_is_initialised )
+        {
+            ilInit();
+            ilEnable( IL_FILE_OVERWRITE );
+            _is_initialised = true;
+        }
     }
 }
