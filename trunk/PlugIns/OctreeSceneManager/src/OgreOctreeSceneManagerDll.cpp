@@ -34,7 +34,7 @@ OctreeSceneManager* octreePlugin;
 TerrainSceneManager* terrainPlugin;
 HeightmapTerrainPageSource* heightmapTerrainPageSource;
 
-extern "C" void dllStartPlugin( void )
+extern "C" void _OgreTerrainExport dllStartPlugin( void )
 {
     // Create new scene manager
     octreePlugin = new OctreeSceneManager();
@@ -49,7 +49,7 @@ extern "C" void dllStartPlugin( void )
     terrainPlugin->registerPageSource("Heightmap", heightmapTerrainPageSource);
 }
 
-extern "C" void dllStopPlugin( void )
+extern "C" void _OgreTerrainExport dllStopPlugin( void )
 {
     delete heightmapTerrainPageSource;
     delete octreePlugin;
