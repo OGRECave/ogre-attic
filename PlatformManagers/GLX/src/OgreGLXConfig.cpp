@@ -360,7 +360,7 @@ Pixmap GLXConfigurator::CreateBackdrop(Window rootWindow, int depth) {
 		(char*)data,
 		mWidth, mHeight, 8,
 		mWidth*bpl);
-#if OGRE_ENDIAN == ENDIAN_BIG
+#if OGRE_ENDIAN == OGRE_ENDIAN_BIG
 	image->byte_order = MSBFirst;
 #else
     image->byte_order = LSBFirst;
@@ -470,7 +470,7 @@ bool GLXConfig::display(void) {
 		test.SetRenderSystem(Root::getSingleton().getRenderSystem());
 	/* Attempt to create the window */
 	if(!test.CreateWindow()) {
-		Except(Exception::ERR_INTERNAL_ERROR,
+		OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR,
 		       "Could not create configuration dialog",
 		       "GLXConfig::display");
 	}

@@ -117,7 +117,7 @@ namespace Ogre {
             // Check we got it
             if (!obj.IsValid())
             {
-                Except(Exception::ERR_ITEM_NOT_FOUND, 
+                OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                     "No object named " + XSItoOgre(objectName) + " found.",
                     "XsiMeshExporter::exportMesh");
             }
@@ -159,7 +159,7 @@ namespace Ogre {
         // Check validity of current object
         if (!x3dObj.IsValid())
         {
-            Except(Exception::ERR_INTERNAL_ERROR, 
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
                 "Invalid X3DObject found",
                 "XsiMeshExporter::exportX3DObject");
         }
