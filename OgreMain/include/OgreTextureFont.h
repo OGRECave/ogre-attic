@@ -36,9 +36,12 @@ BEGIN_OGRE_NAMESPACE
 
 class _OgreExport TextureFont
 {
+public:
+    typedef std::map< String, std::map< String, TextureFont * > > TextureFontMap;
+
 protected:
-	static FT_LibraryRec_ **ms_pLibrary;
-	static std::map< String, std::map< String, TextureFont * > > ms_mapFonts;
+	static FT_LibraryRec_ **ms_pLibrary;    
+	static TextureFontMap ms_mapFonts;
 
 	FT_FaceRec_ **m_pFace;
 	static unsigned ms_uNumFonts;
@@ -65,6 +68,11 @@ public:
         unsigned uFontX = 600, unsigned uFontY = 0,
         unsigned uFontResX = 72, unsigned uFontResY = 0,
         unsigned uStartX = 1, unsigned uStartY = 1 );
+
+    static const TextureFontMap& getColl()
+    {
+        return ms_mapFonts;
+    }
 };
 
 END_OGRE_NAMESPACE
