@@ -433,8 +433,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void RenderSystem::softwareVertexBlend(VertexData* vertexData, Matrix4* pMatrices)
     {
-        // Source vector
-        Vector3 sourceVec;
+        // Source vectors
+        Vector3 sourceVec, sourceNorm;
         // Accumulation vectors
         Vector3 accumVecPos, accumVecNorm;
         Matrix3 rot3x3;
@@ -495,12 +495,13 @@ namespace Ogre {
 
             if (elemNorm) 
             {
-                accumVecNorm.x = *pSrcNorm++;
-                accumVecNorm.y = *pSrcNorm++;
-                accumVecNorm.z = *pSrcNorm++;
+                sourceNorm.x = *pSrcNorm++;
+                sourceNorm.y = *pSrcNorm++;
+                sourceNorm.z = *pSrcNorm++;
             }
-            // Load accumulator
+            // Load accumulators
             accumVecPos = Vector3::ZERO;
+            accumVecNorm = Vector3::ZERO;
 
             // Loop per blend weight 
             for (unsigned short blendIdx = 0; 
@@ -520,9 +521,9 @@ namespace Ogre {
                         // We should blend by inverse transpose here, but because we're assuming the 3x3
                         // aspect of the matrix is orthogonal (no non-uniform scaling), the inverse transpose
                         // is equal to the main 3x3 matrix
-                        // Note because it's a normal we just extract the rotational part, saves us renormalising
+                        // Note because it's a normal we just extract the rotational part, saves us renormalising here
                         pMatrices[*pBlendIdx].extract3x3Matrix(rot3x3);
-                        accumVecNorm = (rot3x3 * (*pBlendWeight)) * accumVecNorm;
+                        accumVecNorm += (rot3x3 * sourceNorm) * (*pBlendWeight)  ;
                     }
 
                 }
@@ -538,6 +539,8 @@ namespace Ogre {
             // Stored blended vertex in temp buffer
             if (elemNorm)
             {
+				// Normalise
+				accumVecNorm.normalise();
                 if (posNormShareBuffer)
                 {
                     // Pack into same buffer
