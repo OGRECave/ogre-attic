@@ -1,3 +1,8 @@
+2004-04-11  W.J. <wj@goliath.darktech.org>
+
+	* src/GTKTimer.cpp: Use the GLib abstraction of a timer instead
+        of the Unix gettimeofday call missing on some platforms.
+
 2004-04-04  W.J. <wj@goliath.darktech.org>
 
 	* License in all file headers changed to LGPL instead of GPL.

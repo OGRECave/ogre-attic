@@ -28,7 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreTimer.h"
 
-#include <time.h>
+#include <glibmm/timeval.h>
 
 namespace Ogre {
 
@@ -39,7 +39,7 @@ public:
     virtual unsigned long getMilliseconds();
     virtual unsigned long getMicroseconds();
 private:
-    struct timeval start;    
+    Glib::TimeVal start;    
 }; // class GTKTimer
 
 }; // namespace Ogre
