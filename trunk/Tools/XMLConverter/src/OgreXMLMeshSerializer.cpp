@@ -57,8 +57,11 @@ namespace Ogre {
         elem = rootElem->FirstChildElement("sharedgeometry");
         if (elem)
         {
-            mpMesh->sharedVertexData = new VertexData();
-            readGeometry(elem, mpMesh->sharedVertexData);
+            if(StringConverter::parseInt(elem->Attribute("vertexcount")) > 0)
+            {
+                mpMesh->sharedVertexData = new VertexData();
+                readGeometry(elem, mpMesh->sharedVertexData);
+            }
         }
 
         // submeshes
