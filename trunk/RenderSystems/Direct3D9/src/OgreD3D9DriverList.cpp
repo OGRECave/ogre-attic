@@ -77,7 +77,7 @@ namespace Ogre
 		for (;it != mDriverList.end(); ++it)
 		{
 			if (it->DriverDescription() == name)
-				return it;
+				return &(*it);
 		}
 
 		return NULL;

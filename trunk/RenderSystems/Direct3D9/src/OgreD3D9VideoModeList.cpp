@@ -134,7 +134,7 @@ namespace Ogre
 		for (;it != mModeList.end(); ++it)
 		{
 			if (it->getDescription() == name)
-				return it;
+				return &(*it);
 		}
 
 		return NULL;
