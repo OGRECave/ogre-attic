@@ -60,6 +60,8 @@ namespace Ogre {
 		mVertexBufferShadowBuffer = false;
 		mIndexBufferShadowBuffer = false;
 
+        mBoundRadius = 0.0f;
+
     }
 
     //-----------------------------------------------------------------------
