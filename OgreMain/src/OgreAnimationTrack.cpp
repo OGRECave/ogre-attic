@@ -89,6 +89,14 @@ namespace Ogre {
             ++firstIndex;
         }
 
+        // Trap case where there is no key before this time (problem with animation config)
+        // In this case use the first key anyway and pretend it's time index 0
+        if (firstIndex == -1)
+        {
+            *keyFrame1 = *i;
+            ++firstIndex;
+        }
+
         // Fill index of the first key
         if (firstKeyIndex != NULL)
         {
