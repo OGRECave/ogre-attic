@@ -84,6 +84,76 @@ CODE.str {
 <p align="center" class="header">OGRE (Object-Oriented Graphics
 Rendering Engine)</p>
 <p align="center" class="header">Change Log</p>
+<p align="left" class="MainHeader">v0.14.1 (28 July 2004) -
+Maintenance
+Release<br>
+</p>
+<p align="left">Enhancements:<br>
+</p>
+<ul>
+  <li><span style="font-weight: bold; color: rgb(255, 255, 51);">TerrainSceneManager
+improved<br>
+    </span></li>
+  <ul>
+    <li>Vertex program morphing allows for almost imperceptible
+level-of-detail changes<br>
+    </li>
+    <li>Improved efficiency allows for larger terrains</li>
+    <li>Improved LOD calculation leads to more accurate rendering with
+the same or fewer triangles<br>
+    </li>
+    <li>Custom terrain materials can now be used</li>
+    <li>Pluggable terrain data sources allow terrain data to come from
+any source</li>
+    <li>Demo now demonstrates the use of RaySceneQuery to 'stick' the
+camera to the terrain<br>
+    </li>
+  </ul>
+  <li>Maya, Blender and 3DS exporters updated</li>
+  <li>RenderSystem can now report the texel offset differences between
+systems (required for <a href="http://crayzedsgui.sourceforge.net">CrazyEddie's
+GUI</a>)</li>
+  <li>Code is now more 'MingW friendly', although this is still not
+officially supported, community supported DevPaks are available from <a
+ href="http://the-agency.sourceforge.net">The Agency</a></li>
+</ul>
+Bugfixes:<br>
+<ul>
+  <li>Visibility of child objects attached to the skeleton of an Entity
+was being ignored</li>
+  <li>Fixed infinite loop in resize() methods of D3D windows</li>
+  <li>Fixed XMLConverter bug when using constant reduction in
+interactive mode</li>
+  <li>Made the XML mesh serializer properly assume 'false' for
+usesharedvertices and use32bitindexes</li>
+  <li>Skeletally animated meshes with a vertex program which did not
+implement hardware skinning were transformed incorrectly.</li>
+  <li>Fixed some driver crashes on GL<br>
+  </li>
+  <li>Fixed a few memory leaks, especially when no rendering is
+performed before shutdown</li>
+  <li>Prevented multiple instances of HollowEllipsoidEmitter and
+RingEmitter from adding their custom params to the dictionary twice. <br>
+  </li>
+  <li>Math::UnitRandom should have been Math::SymmetricRandom in
+RingEmitter</li>
+  <li>Corrected docs for TextureUnitState::setAnimatedTextureName</li>
+  <li>Fixed light update so that lights attached to nodes update
+properly even when the node does not change.</li>
+  <li> Assign queue groups to manual LOD entities too <br>
+  </li>
+  <li>Fix to the early-exit in Overlay::_findVisibleObjects could cause
+important updates to be missed if the overlay wasn't visible on startup</li>
+  <li>Patched the EdgeBuilder (calculates stencil shadow structures) so
+that it detects when there are too many triangles attached to a single
+edge, and reverts to not welding vertices across vertex sets. This
+allow it to deal with multiple capped submeshes with their own geometry
+(which are manifold in themselves) even if they touch at the
+boundaries. At the same time it still deals with the case where a model
+is only manifold when all submeshes are combined (it tries to find this
+case first).<br>
+  </li>
+</ul>
 <p align="left" class="MainHeader">v0.14.0 (12 May 2004) - Major
 Release<br>
 </p>
