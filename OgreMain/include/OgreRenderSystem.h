@@ -446,9 +446,9 @@ namespace Ogre
             be more (10.0 gives a modest sheen to an object).
 
         */
-        virtual void _setSurfaceParams(ColourValue &ambient,
-            ColourValue &diffuse, ColourValue &specular,
-            ColourValue &emissive, Real shininess) = 0;
+        virtual void _setSurfaceParams(const ColourValue &ambient,
+            const ColourValue &diffuse, const ColourValue &specular,
+            const ColourValue &emissive, Real shininess) = 0;
         /**
           Sets the status of a single texture stage.
 

@@ -226,9 +226,9 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void _setSurfaceParams(ColourValue &ambient,
-            ColourValue &diffuse, ColourValue &specular,
-            ColourValue &emissive, Real shininess);
+        void _setSurfaceParams(const ColourValue &ambient,
+            const ColourValue &diffuse, const ColourValue &specular,
+            const ColourValue &emissive, Real shininess);
         /** See
           RenderSystem
          */

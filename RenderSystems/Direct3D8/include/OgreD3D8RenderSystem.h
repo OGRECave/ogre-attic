@@ -137,8 +137,8 @@ namespace Ogre {
 		void _setWorldMatrix( const Matrix4 &m );
 		void _setViewMatrix( const Matrix4 &m );
 		void _setProjectionMatrix( const Matrix4 &m );
-		void _setSurfaceParams( ColourValue &ambient, ColourValue &diffuse, ColourValue &specular,
-			ColourValue &emissive, Real shininess );
+		void _setSurfaceParams( const ColourValue &ambient, const ColourValue &diffuse, const ColourValue &specular,
+			const ColourValue &emissive, Real shininess );
 		unsigned short _getNumTextureUnits(void);
 		void _setTexture( int unit, bool enabled, const String &texname );
 		void _setTextureCoordSet( int stage, int index );
