@@ -67,8 +67,7 @@ namespace Ogre {
             half is used for the 'extruded' version. The vertex count used to render will remain 
             the same though, so as not to add any overhead to regular rendering of the object.
             Both copies of the position are required in one buffer because shadow volumes stretch 
-            from the original mesh to the extruded version. Note that <strong>the position type
-            will be changed to VET_FLOAT4</strong>, so do not assume VET_FLOAT3; if in doubt, check.
+            from the original mesh to the extruded version. 
         @par
             It's important to appreciate that this method can fundamentally change the structure of your
             vertex buffers, although in reality they will be new buffers. As it happens, if other 
@@ -77,6 +76,22 @@ namespace Ogre {
             structure of the vertex data in the buffers of this object, you may have to rethink them.
         */
         void prepareForShadowVolume(void);
+
+        /** Additional shadow volume vertex buffer storage. 
+        @remarks
+            This additional buffer is only used where we have prepared this VertexData for
+            use in shadow volume contruction, and where the current render system supports
+            vertex programs. This buffer contains the 'w' vertex position component which will
+            be used by that program to differentiate between extruded and non-extruded vertices.
+            This 'w' component cannot be included in the original position buffer because
+            DirectX does not allow 4-component positions in the fixed-function pipeline, and the original
+            position buffer must still be usable for fixed-function rendering.
+        @par    
+            Note that we don't store any vertex declaration or vertex buffer binding here becuase this
+            can be reused in the shadow algorithm.
+        */
+        HardwareVertexBufferSharedPtr mHardwareShadowVolWBuffer;
+
 
 
 		

@@ -555,8 +555,7 @@ namespace Ogre {
             VertexData used to render the mesh will remain the same though, so as not to add any 
             overhead to regular rendering of the object.
             Both copies of the position are required in one buffer because shadow volumes stretch 
-            from the original mesh to the extruded version. Note that <strong>the position type
-            will be changed to VET_FLOAT4</strong>, so do not assume VET_FLOAT3; if in doubt, check.
+            from the original mesh to the extruded version. 
         @par
             Because shadow volumes are rendered in turn, no additional
             index buffer space is allocated by this method, a shared index buffer allocated by the
