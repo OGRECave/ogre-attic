@@ -41,7 +41,7 @@ typedef struct HINSTANCE__* hInstance;
 
 #elif OGRE_PLATFORM == PLATFORM_LINUX || OGRE_PLATFORM == PLATFORM_APPLE
 #    define DYNLIB_HANDLE void*
-#    define DYNLIB_LOAD( a ) dlopen( a, RTLD_NOW )
+#    define DYNLIB_LOAD( a ) dlopen( a, RTLD_LAZY )
 #    define DYNLIB_GETSYM( a, b ) dlsym( a, b )
 #    define DYNLIB_UNLOAD( a ) dlclose( a )
 #    define DYNLIB_ERROR( ) dlerror( )
