@@ -83,7 +83,7 @@ void meshToXML(String source, String dest)
 
     meshSerializer->importMesh(chunk, &mesh);
    
-    xmlMeshSerializer->exportMesh(&mesh, dest, true);
+    xmlMeshSerializer->exportMesh(&mesh, dest);
 
 }
 
@@ -188,7 +188,7 @@ void XMLToBinary(String source)
         }
 
 
-        meshSerializer->exportMesh(&newMesh, dest, true);
+        meshSerializer->exportMesh(&newMesh, dest);
     }
     else if (!stricmp(root->Value(), "skeleton"))
     {

@@ -110,7 +110,7 @@ int main(int numargs, char** args)
         dest = source;
     }
 
-    meshSerializer->exportMesh(&mesh, dest, true);
+    meshSerializer->exportMesh(&mesh, dest);
     
 
 
