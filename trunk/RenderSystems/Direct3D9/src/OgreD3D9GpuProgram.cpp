@@ -25,12 +25,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreD3D9GpuProgram.h"
 #include "OgreMatrix4.h"
 #include "OgreException.h"
-
+#include "OgreLogManager.h"
 namespace Ogre {
 
     //-----------------------------------------------------------------------------
-	D3D9GpuProgram::D3D9GpuProgram(GpuProgramType gptype, LPDIRECT3DDEVICE9 pDev) 
-        : GpuProgram(gptype), mpDevice(pDev)
+	D3D9GpuProgram::D3D9GpuProgram(const String& name, GpuProgramType gptype, LPDIRECT3DDEVICE9 pDev) 
+        : GpuProgram(name, gptype), mpDevice(pDev)
     {
     }
 	//-----------------------------------------------------------------------------
@@ -39,8 +39,8 @@ namespace Ogre {
         // TODO
     }
 	//-----------------------------------------------------------------------------
-    D3D9GpuVertexProgram::D3D9GpuVertexProgram(LPDIRECT3DDEVICE9 pDev) 
-        : D3D9GpuProgram(GPT_VERTEX_PROGRAM, pDev), mpVertexShader(NULL)
+    D3D9GpuVertexProgram::D3D9GpuVertexProgram(const String& name, LPDIRECT3DDEVICE9 pDev) 
+        : D3D9GpuProgram(name, GPT_VERTEX_PROGRAM, pDev), mpVertexShader(NULL)
     {
         // do nothing here, all is done in load()
     }
@@ -50,9 +50,10 @@ namespace Ogre {
         // Assemble source into microcode
         LPD3DXBUFFER microcode;
         LPD3DXBUFFER errors;
+		LogManager::getSingleton().logMessage(mSource);
         HRESULT hr = D3DXAssembleShader(
             mSource.c_str(),
-            static_cast<UINT>(mSource.length()),
+            static_cast<UINT>(mSource.length()+1),
             NULL,               // no #define support
             NULL,               // no #include support
             0,                  // standard compile options
@@ -61,7 +62,10 @@ namespace Ogre {
 
         if (FAILED(hr))
         {
-            Except(hr, "Cannot assemble D3D9 vertex shader " + mName,
+			
+			Except(hr, "Cannot assemble D3D9 vertex shader " + mName + 
+				": " + DXGetErrorDescription9(hr) + "\n" + 
+				(const char*)errors->GetBufferPointer(),
                 "D3D9GpuVertexProgram::loadFromSource");
             
         }
@@ -89,8 +93,8 @@ namespace Ogre {
     }
 	//-----------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------
-    D3D9GpuFragmentProgram::D3D9GpuFragmentProgram(LPDIRECT3DDEVICE9 pDev) 
-        : D3D9GpuProgram(GPT_FRAGMENT_PROGRAM, pDev), mpPixelShader(NULL)
+    D3D9GpuFragmentProgram::D3D9GpuFragmentProgram(const String& name, LPDIRECT3DDEVICE9 pDev) 
+        : D3D9GpuProgram(name, GPT_FRAGMENT_PROGRAM, pDev), mpPixelShader(NULL)
     {
         // do nothing here, all is done in load()
     }

@@ -41,11 +41,11 @@ namespace Ogre {
     {
         if (gptype == GPT_VERTEX_PROGRAM)
         {
-            return new D3D9GpuVertexProgram(mpDevice);
+            return new D3D9GpuVertexProgram(name, mpDevice);
         }
         else
         {
-            return new D3D9GpuFragmentProgram(mpDevice);
+            return new D3D9GpuFragmentProgram(name, mpDevice);
         }
     }
 

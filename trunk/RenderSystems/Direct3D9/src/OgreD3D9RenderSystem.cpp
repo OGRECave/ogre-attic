@@ -39,6 +39,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreD3D9HardwareVertexBuffer.h"
 #include "OgreD3D9VertexDeclaration.h"
 #include "OgreD3D9GpuProgram.h"
+#include "OgreD3D9GpuProgramManager.h"
 
 
 namespace Ogre 
@@ -60,6 +61,7 @@ namespace Ogre
 		mExternalHandle = NULL;
         mTextureManager = NULL;
         mHardwareBufferManager = NULL;
+		mGpuProgramManager = NULL;
 
 		// init lights
 		for(int i = 0; i < MAX_LIGHTS; i++ )
@@ -107,6 +109,7 @@ namespace Ogre
 		SAFE_DELETE( mDriverList );
 		SAFE_DELETE( mTextureManager );
         SAFE_DELETE(mHardwareBufferManager);
+		SAFE_DELETE(mGpuProgramManager);
 		SAFE_RELEASE( mpD3D );
 
         if (mCapabilities)
@@ -602,6 +605,9 @@ namespace Ogre
 
 			// Set number of texture units
 			mCapabilities->setNumTextureUnits(mCaps.MaxSimultaneousTextures);
+
+			// Create the GPU program manager
+			mGpuProgramManager = new D3D9GpuProgramManager(mpD3DDevice);
 
 			firstWindow = false;
 			

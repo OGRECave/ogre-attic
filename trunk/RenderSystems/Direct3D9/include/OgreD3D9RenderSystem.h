@@ -119,6 +119,7 @@ namespace Ogre
 		void _setFSAA(D3DMULTISAMPLE_TYPE type, DWORD qualityLevel);
 		
 		D3D9HardwareBufferManager* mHardwareBufferManager;
+		D3D9GpuProgramManager* mGpuProgramManager;
 		size_t mLastVertexSourceCount;
 
         /// Flag to indicate normal normalisation is forced

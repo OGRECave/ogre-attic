@@ -43,6 +43,8 @@ namespace Ogre {
 		/// Supported program syntax codes
 		SyntaxCodes mSyntaxCodes;
 	public:
+		GpuProgramManager() {}
+		virtual ~GpuProgramManager() {}
 
         /** Creates a new blank resource, compatible with this manager.
             @remarks
