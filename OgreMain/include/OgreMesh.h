@@ -75,6 +75,7 @@ namespace Ogre {
 
     class _OgreExport Mesh: public Resource
     {
+        friend class MeshSerializer;
     public:
         /** Default constructor - used by MeshManager
             @warning

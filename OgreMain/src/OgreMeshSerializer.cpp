@@ -221,10 +221,19 @@ namespace Ogre {
             writeSubMesh(pMesh->getSubMesh(i));
         }
 
-        // Write skeleton link if required
+        // Write skeleton info if required
         if (pMesh->hasSkeleton())
         {
+            // Write skeleton link
             writeSkeletonLink(pMesh->getSkeleton());
+
+            // Write bone assignments
+            Mesh::VertexBoneAssignmentList::const_iterator vi;
+            for (vi = pMesh->mBoneAssignments.begin(); 
+            vi != pMesh->mBoneAssignments.end(); ++vi)
+            {
+                writeBoneAssignment(&(vi->second));
+            }
         }
 
 
@@ -531,6 +540,9 @@ namespace Ogre {
                 case M_MESH_SKELETON_LINK:
                     readSkeletonLink(chunk);
                     break;
+                case M_MESH_BONE_ASSIGNMENT:
+                    readBoneAssignment(chunk);
+                    break;
                 }
 
                 if (!chunk.isEOF())
@@ -669,6 +681,50 @@ namespace Ogre {
         return size;
 
     }
+    //---------------------------------------------------------------------
+    void MeshSerializer::writeBoneAssignment(const VertexBoneAssignment* assign)
+    {
+        writeChunkHeader(M_MESH_BONE_ASSIGNMENT, calcBoneAssignmentSize());
+
+        // unsigned short vertexIndex;
+        writeShorts(&(assign->vertexIndex), 1);
+        // unsigned short boneIndex;
+        writeShorts(&(assign->boneIndex), 1);
+        // Real weight;
+        writeReals(&(assign->weight), 1);
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializer::readBoneAssignment(DataChunk& chunk)
+    {
+        VertexBoneAssignment assign;
+
+        // unsigned short vertexIndex;
+        readShorts(chunk, &(assign.vertexIndex),1);
+        // unsigned short boneIndex;
+        readShorts(chunk, &(assign.boneIndex),1);
+        // Real weight;
+        readReals(chunk, &(assign.weight), 1);
+
+        mpMesh->addBoneAssignment(assign);
+
+    }
+    //---------------------------------------------------------------------
+    unsigned long MeshSerializer::calcBoneAssignmentSize(void)
+    {
+        unsigned long size;
+
+        size = CHUNK_OVERHEAD_SIZE;
+
+        // Vert index
+        size += sizeof(unsigned short);
+        // Bone index
+        size += sizeof(unsigned short);
+        // weight
+        size += sizeof(Real);
+
+        return size;
+    }
+
 
 
 }
