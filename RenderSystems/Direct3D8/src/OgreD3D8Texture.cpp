@@ -16,21 +16,26 @@
 
 namespace Ogre {
 
-	D3D8Texture::D3D8Texture( String name, LPDIRECT3DDEVICE8 pD3DDevice, TextureUsage usage )
+	D3D8Texture::D3D8Texture( String name, TextureType texType, LPDIRECT3DDEVICE8 pD3DDevice, TextureUsage usage )
 	{
-        mName = name;
 		mpD3DDevice = pD3DDevice;
 		if( !mpD3DDevice )
 			Except( 999, "Invalid Direct3D Device passed in", "D3D8Texture::D3D8Texture" );
 		mpD3DDevice->AddRef();
+
+		mName = name;
+		mTextureType = texType;
+
 		enable32Bit( false );
         mUsage = usage;
 		mpTexture = NULL;
 		mpTempTexture = NULL;       
         mpRenderZBuffer = NULL;
 	}
+
 	D3D8Texture::D3D8Texture( 
 		String name, 
+		TextureType texType, 
 		IDirect3DDevice8 * device, 
 		uint width, 
 		uint height, 
@@ -38,9 +43,14 @@ namespace Ogre {
 		PixelFormat format,
 		TextureUsage usage )
 	{
-		mName = name;
 		mpD3DDevice = device;
-		
+		if( !mpD3DDevice )
+			Except( 999, "Invalid Direct3D Device passed in", "D3D8Texture::D3D8Texture" );
+		mpD3DDevice->AddRef();
+
+		mName = name;
+		mTextureType = texType;
+
 		mSrcWidth = width;
 		mSrcHeight = height;
 		mNumMipMaps = num_mips;

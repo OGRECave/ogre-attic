@@ -69,7 +69,10 @@ namespace Ogre {
                 The budget for texture memory can be set through the
                 ResourceManager::setMemoryBudget method.
             @param
-                filename The file to load (JPG or PNG accepted, also BMP on Windows)
+                filename The file to load (JPG or PNG accepted, also BMP on Windows), 
+                or a String identifier in some cases
+            @param
+                texType The type of texture to load/create, defaults to normal 2D textures
             @param
                 numMipMaps The number of pre-filtered mipmaps to generate. If left to default (-1) then
                 the TextureManager's default number of mipmaps will be used (see setDefaultNumMipMaps())
@@ -82,28 +85,37 @@ namespace Ogre {
 
         */
         virtual Texture * load( 
-            const String& name, 
+            const String& name, TextureType texType = TEX_TYPE_2D,
             int numMipMaps = -1, Real gamma = 1.0f, int priority = 1 );
 
         virtual Texture * loadImage( 
             const String &name, const Image &img, 
+            TextureType texType = TEX_TYPE_2D,
             int iNumMipMaps = -1, Real gamma = 1.0f, int priority = 1 );
 
-		/** @copydoc ResourceManager::load */
-		virtual void load( Resource *res, int priority = 1 )
+        /** @copydoc ResourceManager::load */
+        virtual void load( Resource *res, int priority = 1 )
         {
             ResourceManager::load( res, priority );
         }
 
+        virtual Texture * create( const String& name )
+        {
+            return create(name, TEX_TYPE_2D);
+        }
+
+        virtual Texture * create( const String& name, TextureType texType) = 0;
+
         virtual Texture * createAsRenderTarget( const String& name ) = 0;
 
-		virtual Texture * createManual( 
-			const String & name,
-			uint width,
-			uint height,
-			uint num_mips,
-			PixelFormat format,
-			TextureUsage usage ) = 0;
+        virtual Texture * createManual( 
+            const String & name,
+            TextureType texType,
+            uint width,
+            uint height,
+            uint num_mips,
+            PixelFormat format,
+            TextureUsage usage ) = 0;
 
         /** Manually unloads a texture from the loaded set.
         */
@@ -140,6 +152,7 @@ namespace Ogre {
                 single compilation unit, preventing link errors.
         */
         static TextureManager& getSingleton(void);
+
     protected:
         bool mIs32Bit;
         int mDefaultNumMipMaps;

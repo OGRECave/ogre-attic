@@ -108,6 +108,9 @@ namespace Ogre {
         const Image& src, 
         unsigned uStartX, unsigned uStartY )
     {
+		if (this->getTextureType() != TEX_TYPE_2D)
+          Except( Exception::UNIMPLEMENTED_FEATURE, "**** Blit to texture implemented only for 2D textures!!! ****", "GLTexture::blitToTexture" );
+
         Image img = src;
         img.flipAroundX();
 
@@ -233,6 +236,9 @@ namespace Ogre {
     
     void GLTexture::createRenderTexture(void)
     {
+        if (this->getTextureType() != TEX_TYPE_2D)
+            Except( Exception::UNIMPLEMENTED_FEATURE, "**** Create render texture implemented only for 2D textures!!! ****", "GLTexture::createRenderTexture" );
+
         // Create the GL texture
         glGenTextures( 1, &mTextureID );
         glBindTexture( GL_TEXTURE_2D, mTextureID );
@@ -261,12 +267,12 @@ namespace Ogre {
 
                 loadImage( img );
             }
-            else
+            else if (mTextureType == TEX_TYPE_CUBE_MAP)
             {
                 Image img;
                 String baseName, ext;
                 std::vector<Image> images;
-                String suffixes[6] = {"_fr", "_bk", "_lf", "_rt", "_up", "_dn"};
+                String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_fr", "_bk"};
 
                 for(unsigned int i = 0; i < 6; i++)
                 {
@@ -282,6 +288,8 @@ namespace Ogre {
                 loadImages( images );
                 images.clear();
             }
+            else
+                Except( Exception::UNIMPLEMENTED_FEATURE, "**** Unknown texture type ****", "GLTexture::load" );
         }
     }
     
@@ -298,12 +306,12 @@ namespace Ogre {
         unsigned int faceNumber )
     {
         GLenum cubeFaces [] = { 
-            GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB,
-            GL_TEXTURE_CUBE_MAP_POSITIVE_Z_ARB,
-            GL_TEXTURE_CUBE_MAP_NEGATIVE_X_ARB,
             GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB,
+            GL_TEXTURE_CUBE_MAP_NEGATIVE_X_ARB,
             GL_TEXTURE_CUBE_MAP_POSITIVE_Y_ARB,
             GL_TEXTURE_CUBE_MAP_NEGATIVE_Y_ARB,
+            GL_TEXTURE_CUBE_MAP_POSITIVE_Z_ARB,
+            GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB,
         };
 
         if(useSoftware && mNumMipMaps)

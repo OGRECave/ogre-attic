@@ -34,7 +34,7 @@ namespace Ogre
     class _OgreExport RenderTexture : public RenderTarget
     {
     public:
-        RenderTexture( const String & name, uint width, uint height );
+        RenderTexture( const String & name, uint width, uint height, TextureType texType = TEX_TYPE_2D );
 
     protected:
 		RenderTexture() {};

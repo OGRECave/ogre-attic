@@ -16,14 +16,16 @@
 
 namespace Ogre 
 {
-	D3D9Texture::D3D9Texture( String name, LPDIRECT3DDEVICE9 pD3DDevice, TextureUsage usage )
+	D3D9Texture::D3D9Texture( String name, TextureType texType, LPDIRECT3DDEVICE9 pD3DDevice, TextureUsage usage )
 	{
-        mName = name;
-
 		mpD3DDevice = pD3DDevice;
 		if( !mpD3DDevice )
 			Except( 999, "Invalid Direct3D9 Device passed in", "D3D9Texture::D3D9Texture" );
 		mpD3DDevice->AddRef();
+
+        mName = name;
+        mTextureType = texType;
+
         HRESULT hr;
 		if (FAILED(hr = mpD3DDevice->GetDeviceCaps(&mCaps)))
 		{
@@ -45,14 +47,23 @@ namespace Ogre
 		mIsLoaded = false;
 	}
 
-	D3D9Texture::D3D9Texture( String name, IDirect3DDevice9 * device, uint width, uint height, uint num_mips, PixelFormat format, TextureUsage usage )
+	D3D9Texture::D3D9Texture( String name, 
+        TextureType texType, 
+        IDirect3DDevice9 * device, 
+        uint width, 
+        uint height, 
+        uint num_mips, 
+        PixelFormat format, 
+        TextureUsage usage )
 	{
-		mName = name;
-
 		mpD3DDevice = device;
 		if( !mpD3DDevice )
 			Except( 999, "Invalid Direct3D9 Device passed in", "D3D9Texture::D3D9Texture" );
 		mpD3DDevice->AddRef();
+
+		mName = name;
+        mTextureType = texType;
+
         HRESULT hr;
         if (FAILED(hr = mpD3DDevice->GetDeviceCaps(&mCaps)))
 		{

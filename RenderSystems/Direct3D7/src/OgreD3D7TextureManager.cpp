@@ -52,16 +52,16 @@ namespace Ogre {
         __safeRelease( &mlpD3DDevice );
     }
     //-----------------------------------------------------------------------
-    Resource* D3DTextureManager::create( const String& name)
+    Texture* D3DTextureManager::create( const String& name, TextureType texType )
     {
-        D3DTexture* t = new D3DTexture( name, mlpD3DDevice, TU_DEFAULT );
+        D3DTexture* t = new D3DTexture( name, texType, mlpD3DDevice, TU_DEFAULT );
         t->enable32Bit(mIs32Bit);
         return t;
     }
     //-----------------------------------------------------------------------
     Texture * D3DTextureManager::createAsRenderTarget( const String& name )
     {
-        D3DTexture* t = new D3DTexture( name, mlpD3DDevice, TU_RENDERTARGET );
+        D3DTexture* t = new D3DTexture( name, TEX_TYPE_2D, mlpD3DDevice, TU_RENDERTARGET );
         t->enable32Bit( mIs32Bit );
         t->load();
         return t;
@@ -69,12 +69,13 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	Texture * D3DTextureManager::createManual( 
 		const String & name,
+		TextureType texType, 
 		uint width,
 		uint height,
 		uint num_mips,
 		PixelFormat format,
 		TextureUsage usage )
 	{
-		return new D3DTexture( name, mlpD3DDevice, width, height, num_mips, format, usage );
+		return new D3DTexture( name, texType, mlpD3DDevice, width, height, num_mips, format, usage );
 	}
 }

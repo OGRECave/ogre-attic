@@ -27,14 +27,22 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre
 {
-	RenderTexture::RenderTexture( const String & name, uint width, uint height )
+	RenderTexture::RenderTexture( const String & name, uint width, uint height, TextureType texType )
 	{
+        if (texType != TEX_TYPE_2D &&
+			texType != TEX_TYPE_CUBE_MAP)
+		{
+			Except( Exception::UNIMPLEMENTED_FEATURE, 
+					"Render to texture is implemented only for 2D and cube textures !!!", 
+					"RenderTexture::RenderTexture" );
+		}
+
         mName = name;
         mWidth = width;
         mHeight = height;
         mPriority = OGRE_REND_TO_TEX_RT_GROUP;
 
-        mTexture = TextureManager::getSingleton().createManual( mName, mWidth, mHeight, 0, PF_R8G8B8, TU_RENDERTARGET );
+		mTexture = TextureManager::getSingleton().createManual( mName, texType, mWidth, mHeight, 0, PF_R8G8B8, TU_RENDERTARGET );
 		TextureManager::getSingleton().load( static_cast< Resource * >( mTexture ) );
     }
 

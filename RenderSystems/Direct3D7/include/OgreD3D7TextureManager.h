@@ -42,7 +42,7 @@ namespace Ogre {
 
         /** Creates a D3DTexture resource. 
         */
-        virtual Resource* create( const String& name);
+        virtual Texture* create( const String& name, TextureType texType );
         /** Note that this function is not yet implemented.
             @todo
                 Implement correct surface creation in the texture source file.
@@ -51,6 +51,7 @@ namespace Ogre {
 
 		virtual Texture * createManual( 
 			const String & name,
+            TextureType texType,
 			uint width,
 			uint height,
 			uint num_mips,
@@ -59,9 +60,6 @@ namespace Ogre {
 
     private:
         LPDIRECT3DDEVICE7 mlpD3DDevice;
-
-
-
     };
 }
 #endif

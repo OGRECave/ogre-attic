@@ -22,29 +22,30 @@ namespace Ogre {
 		SAFE_RELEASE( mpD3DDevice );
 	}
 
-	Resource* D3D8TextureManager::create( const String& name )
+	Texture* D3D8TextureManager::create( const String& name, TextureType texType )
 	{
-		D3D8Texture* t = new D3D8Texture( name, mpD3DDevice, TU_DEFAULT );
+		D3D8Texture* t = new D3D8Texture( name, texType, mpD3DDevice, TU_DEFAULT );
 		t->enable32Bit( mIs32Bit );
 		return t;
 	}
 
     Texture * D3D8TextureManager::createAsRenderTarget( const String& name )
     {
-        D3D8Texture * newTex = new D3D8Texture( name, mpD3DDevice, TU_RENDERTARGET  );
+        D3D8Texture * newTex = new D3D8Texture( name, TEX_TYPE_2D, mpD3DDevice, TU_RENDERTARGET  );
         newTex->enable32Bit( mIs32Bit );
         return newTex;
     }
 
 	Texture * D3D8TextureManager::createManual( 
 		const String & name,
+		TextureType texType,
 		uint width,
 		uint height,
 		uint num_mips,
 		PixelFormat format,
 		TextureUsage usage )
 	{
-		return new D3D8Texture( name, mpD3DDevice, width, height, num_mips, format, usage );
+		return new D3D8Texture( name, texType, mpD3DDevice, width, height, num_mips, format, usage );
 	}
 
 	void D3D8TextureManager::unloadAndDestroyAll()
