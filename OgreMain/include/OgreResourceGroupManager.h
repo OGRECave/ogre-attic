@@ -358,12 +358,18 @@ namespace Ogre {
 			ResourceManager::create, or declared using declareResource() or
 			in a script (such as .material and .overlay). The latter requires
 			that initialiseResourceGroup has been called. 
-
+		
 			When this method is called, this class will callback any ResourceGroupListeners
 			which have been registered to update them on progress. 
         @param name The name to of the resource group to load.
+		@param loadMainResources If true, loads normal resources associated 
+			with the group (you might want to set this to false if you wanted
+			to just load world geometry in bulk)
+		@param loadWorldGeom If true, loads any linked world geometry
+			@see ResourceGroupManager::linkWorldGeometryToResourceGroup
         */
-        void loadResourceGroup(const String& name);
+        void loadResourceGroup(const String& name, bool loadMainResources = true, 
+			bool loadWorldGeom = true);
 
         /** Unloads a resource group.
         @remarks
