@@ -123,7 +123,9 @@ namespace Ogre {
 
         /** Initialise this tile source based on a series of options as
             dictated by the scene manager. 
-        @param tsm The TerrainSceneManager doing the initialising
+        @param tsm The TerrainSceneManager doing the initialising. This should be 
+            allowed NULL, for use by external tools if they want to read data 
+            generically without necessarily having a real scene manager involved
         @param tileSize The number of horizontal (and hence also vertical) 
             vertices in a single tile (which is a TerrainRenderable). This will
             always be (2^n)+1.
