@@ -462,7 +462,8 @@ macroScript showOgreExportTools
 			if ((select[1]!=undefined) and (classof select[1]==Editable_mesh)) then
 			(
 				max modify mode ;
-				modPanel.setCurrentObject select[1].modifiers["OctopusExport"] ;
+				--if (select[1].modifiers["OctopusExport"]!=undefined) then
+				--	modPanel.setCurrentObject select[1].modifiers["OctopusExport"] ;
 				octexp = getOctopusExport select[1];
 				
 				if (octexp!=undefined) then
