@@ -26,7 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define _Texture_H__
 
 #include "OgrePrerequisites.h"
-
+#include "OgreHardwareBuffer.h"
 #include "OgreResource.h"
 #include "OgreImage.h"
 
@@ -36,8 +36,22 @@ namespace Ogre {
     */
     enum TextureUsage
     {
-        TU_DEFAULT = 0x0, /// default usage
-        TU_RENDERTARGET = 0x1 /// this texture will be a render target, ie. used as a target for render to texture
+		/// @copydoc HardwareBuffer::Usage
+		TU_STATIC = HardwareBuffer::HBU_STATIC,
+		TU_DYNAMIC = HardwareBuffer::HBU_DYNAMIC,
+		TU_WRITE_ONLY = HardwareBuffer::HBU_WRITE_ONLY,
+		TU_DISCARDABLE = HardwareBuffer::HBU_DISCARDABLE,
+		TU_STATIC_WRITE_ONLY = HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
+		TU_DYNAMIC_WRITE_ONLY = HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY,
+		TU_DYNAMIC_WRITE_ONLY_DISCARDABLE = HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE,
+		/// mipmaps will be automatically generated for this texture
+		TU_AUTOMIPMAP = 0x100,
+		/// this texture will be a render target, ie. used as a target for render to texture
+		/// setting this flag will ignore all other texture usages except TU_AUTOMIPMAP
+		TU_RENDERTARGET = 0x200,
+		// default to automatic mipmap generation static textures
+		TU_DEFAULT = TU_AUTOMIPMAP | TU_STATIC
+        
     };
 
     /** Enum identifying the texture type
