@@ -80,10 +80,13 @@ You will get a detailed log of the export process. Use the OgreXmlConverter to c
 <DT>Quit
 <DD>Exit from the export script.
 </DL>
+<P>
+The script loads and saves its options to a file named after the current .blend file with suffix ".ogre". You can disable this behaviour by changing the script variable KEEP_SETTINGS to 0.
+</P>
 </P>
 <H2>Specifics</H2>
 <H3>Mesh</H3>
-<P>The script supports sticky and per face vertex uv coordinates, smooth and non-smoothed normals. Each rectangle face is automatically converted into two triangle faces in the exported mesh.</P>
+<P>The script supports sticky and per face vertex uv coordinates, smoothed and non-smoothed normals. Each rectangle face is automatically converted into two triangle faces in the exported mesh.</P>
 <P>The script does not support subdivision surface (SubSurf) options. To export a SubSurf object, you have to convert it into a Mesh object, "Object -> Convert Object Type... -> Mesh (keep original)".</P>
 <P> The script does not support double sided faces (Double Sided/Two Sided). To make a face double sided, select the face in the "Edit Mode", duplicate it ("Mesh -> Duplicate", RMB) and flip the normals ("Mesh -> Normals -> Flip").</P>
 <H3>Material</H3>
@@ -177,7 +180,7 @@ Blender's material settings that effect the exported Ogre material are marked gr
 Blender's face settings that effect the exported Ogre material are marked green.
 <H3>Armature</H3>
 <P>
-You must have no more than four weighted bone assignments per mesh vertex. If you have more, Ogre will eliminate the lowest weighted assignments and renormalise the other weights. All vertices must be assigned to at least one bone.
+You must have no more than four weighted bone assignments per mesh vertex. If you have more, the script will eliminate the lowest weighted assignments and renormalise the other weights. All vertices must be assigned to at least one bone.
 </P>
 <P>
 Armature animations are exported based upon keyframe ranges and action names. Action ipos are associated with bones according to their names. Therefore make sure all bone names of all armature objects are unique. Also make sure that the name of an ipo of a bone contains the full bone name. You can choose any frame as start and end frame of an animation. The script will automatically insert keyframes at the start and end of the exported animation and reverse the exported animation if the end frame is lesser than the start frame. In order to export armature animations of a mesh you don't have to select the armature separately.

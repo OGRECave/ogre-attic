@@ -7,7 +7,7 @@ Group: 'Export'
 Tooltip: 'Export Mesh and Armature to Ogre'
 """
 
-# Blender to Ogre Mesh and Skeleton Exporter v0.12.1
+# Blender to Ogre Mesh and Skeleton Exporter v0.13.1
 # url: http://www.ogre3d.org
 
 # Ogre exporter written by Jens Hoffmann and Michael Reimpell
@@ -64,12 +64,20 @@ Tooltip: 'Export Mesh and Armature to Ogre'
 #          - added frame based animation export
 #   0.12.1: * Wed Feb 18 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
 #          - changed two user interface strings to avoid confusion
+#   0.13:  * Mon Feb 23 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
+#          - scrollbar marker moves on focus click without MOUSEY event
+#          - scrollbar marker focus light
+#          - show version number in GUI
+#          - transparent load and save of export settings
+#   0.13.1: * Wed Feb 25 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
+#          - added support for vertices with different uv coordinates but same normal
+#          - improved button handling
+#          - added support for sticky uv coordinates
 #
 # TODO:
 #          - TWOSIDE face mode, TWOSIDED mesh mode
 #          - SUBSURF mesh mode
 #          - load/save animation export settings
-#          - documentation
 #          - help button
 #          - code cleanup
 #
@@ -88,7 +96,7 @@ Tooltip: 'Export Mesh and Armature to Ogre'
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-# this export script needs blender 2.28 or newer.
+# this export script is assumed to be used with the latest blender version.
 
 # Usage:
 # select the meshes you want to export and run this script (alt-p)
@@ -104,13 +112,18 @@ Tooltip: 'Export Mesh and Armature to Ogre'
 # the ipo for its bone.
 # then, you have to rename the bone _and_ the ipo.
 
+# KEEP_SETTINGS (enable = 1, disable = 0)
+#  transparently load and save settings to a file named after the current
+#  .blend file with suffix ".ogre".
+KEEP_SETTINGS = 1
+
 #######################################################################################
 ## Code starts here.
 
 ######
 # imports
 ######
-import Blender, sys, os, math, string
+import Blender, sys, os, math, string, pickle
 
 ######
 # namespaces
@@ -149,8 +162,9 @@ class ReplacementScrollbar:
 		self.positionRect = [0,0,0,0]
 		self.markerRect = [0,0,0,0]
 		self.mousePressed = 0
-		self.mouseFocusY = 0
 		self.mouseFocusX = 0
+		self.mouseFocusY = 0
+		self.mousePositionY = 0		
 		return
 	
 	def getCurrentValue(self):
@@ -232,7 +246,11 @@ class ReplacementScrollbar:
 			Blender.BGL.glRectf(remainRect[0], remainRect[1], remainRect[2], remainRect[3])
 			remainRect[1] += 1
 			remainRect[2] -= 1
-			Blender.BGL.glColor3f(0.56,0.56,0.56) # marker grey
+			# check if marker has foucs
+			if (self.mouseFocusX and self.mouseFocusY and (self.mousePositionY > self.markerRect[1]) and (self.mousePositionY < self.markerRect[3])):
+				Blender.BGL.glColor3f(0.64,0.64,0.64) # marker focus grey
+			else:
+				Blender.BGL.glColor3f(0.60,0.60,0.60) # marker grey
 			Blender.BGL.glRectf(remainRect[0], remainRect[1], remainRect[2], remainRect[3])
 		else:
 			print "scrollbar draw size to small!"
@@ -267,26 +285,35 @@ class ReplacementScrollbar:
 				# check if mouse is inside positionRect
 				if (value >= (self.guiRect[1] + self.positionRect[1])) and (value <= (self.guiRect[1] + self.positionRect[3])):
 					self.mouseFocusY = 1
+					# relative mouse position
+					self.mousePositionY = value - self.guiRect[1]
+					# move marker
+					if (self.mousePressed == 1):
+						# calculate step from distance to marker
+						if (self.mousePositionY > self.markerRect[3]):
+							# up
+							self.up(1)
+						elif (self.mousePositionY < self.markerRect[1]):
+							# down
+							self.down(1)
+					Blender.Draw.Redraw(1)
 				else:
 					self.mouseFocusY = 0
-				# move marker
-				if ((self.mousePressed == 1) and (self.mouseFocusY == 1)):
-					# relative mouse position
-					mousePositionY = value - self.guiRect[1]
-					# calculate step from distance to marker
-					if (mousePositionY > self.markerRect[3]):
-						# up
-						self.up(1)
-						Blender.Draw.Redraw(1)
-					elif (mousePositionY < self.markerRect[1]):
-						# down
-						self.down(1)
-						Blender.Draw.Redraw(1)
 			elif ((event == Blender.Draw.LEFTMOUSE) and (self.mouseFocusX == 1) and (self.mouseFocusY == 1)):
 				self.mousePressed = 1
+				# move marker
+				if (self.mousePositionY > self.markerRect[3]):
+					# up
+					self.up(1)
+					Blender.Draw.Redraw(1)
+				elif (self.mousePositionY < self.markerRect[1]):
+					# down
+					self.down(1)
+					Blender.Draw.Redraw(1)
 		else: # released keys and buttons
 			if (event == Blender.Draw.LEFTMOUSE):
 				self.mousePressed = 0
+				
 		return
 		
 	def buttonFilter(self, event):
@@ -436,7 +463,7 @@ class ActionActuator:
 		return
 
 class ActionActuatorListView:
-	def __init__(self, actionDict, maxActuators, buttonEventRangeStart):
+	def __init__(self, actionDict, maxActuators, buttonEventRangeStart, animationDictList=None):
 		"""Mangages a list of ActionActuators.
 		   
 		   - import Blender
@@ -447,7 +474,7 @@ class ActionActuatorListView:
 		   	maxActuators - maximal number of actuator list elements
 		   	buttonEventRangeStart - first button event number
 		   		number of used event numbers is (3 + maxActuators*5)
-		   		
+			animationDictList - list of animations (see getAnimationDictList())
 		"""
 		self.actionDict = actionDict
 		self.maxActuators = maxActuators
@@ -461,38 +488,40 @@ class ActionActuatorListView:
 		#   0:(len(self.actionActuatorList)-1) = listIndex
 		#   len(self.actionActuatorList) = addbuttonline
 		self.scrollbar = ReplacementScrollbar(0,0,0, self.buttonEventRangeStart+1, self.buttonEventRangeStart+2)
-		# create default ActionActuators
-		self.refresh(self.actionDict)
-		return
-		
-	def refresh(self, actionDict):
-		"""Delete ActionActuators for removed Actions,
-		   add default ActionActuators for new Actions.
-		    
-		   Parameters:
-		   	actionDict - possible actuator actions
-		"""
-		usedActionKeyList = []
-		# delete ActionActuators for removed Actions
-		for actionActuator in self.actionActuatorList[:]:
-			key = (actionActuator.action.ipoPrefix, actionActuator.action.ipoPostfix)
-			# check if action is still available
-			if not actionDict.has_key(key):
-				# remove actionActuator from lists
-				listIndex = self.actionActuatorList.index(actionActuator)
-				self.deleteActionActuator(listIndex)
-			else:
-				# mark action as used
-				usedActionKeyList.append(key)
-		
-		# add default ActionActuators for new Actions
-		self.actionDict = actionDict
-		for actionKey in self.actionDict.keys():
-			if (usedActionKeyList.count(actionKey) == 0):
+		if not(animationDictList is None):
+			# rebuild ActionActuators for animationList animations
+			for animationDict in animationDictList:
+				# check if Action is available
+				if self.actionDict.has_key(animationDict['actionKey']):
+					actionActuator = ActionActuator(animationDict['name'], \
+					                                animationDict['startFrame'], \
+					                                animationDict['endFrame'], \
+					                                self.actionDict[animationDict['actionKey']])
+					self.addActionActuator(actionActuator)
+		else:
+			# create default ActionActuators
+			for actionKey in self.actionDict.keys():
 				# add default action
 				action = self.actionDict[actionKey]
 				actionActuator = ActionActuator(action.ipoPrefix + action.ipoPostfix, action.firstKeyFrame, action.lastKeyFrame, action)
 				self.addActionActuator(actionActuator)
+		return
+		
+	def refresh(self, actionDict):
+		"""Delete ActionActuators for removed Actions.
+		    
+		   Parameters:
+		   	actionDict - possible actuator actions
+		"""
+		self.actionDict = actionDict
+		# delete ActionActuators for removed Actions
+		for actionActuator in self.actionActuatorList[:]:
+			key = (actionActuator.action.ipoPrefix, actionActuator.action.ipoPostfix)
+			# check if action is still available
+			if not self.actionDict.has_key(key):
+				# remove actionActuator from lists
+				listIndex = self.actionActuatorList.index(actionActuator)
+				self.deleteActionActuator(listIndex)
 		Blender.Draw.Redraw(1)
 		return
 		
@@ -648,6 +677,28 @@ class ActionActuatorListView:
 			Blender.Draw.Redraw(1)
 		return
 		
+	def getAnimationDictList(self):
+		"""serialize the actionActuatorList into a pickle storable list
+		   Each item of the returned list is a dictionary with key-value pairs:
+		   	name - ActionActuator.name
+		   	startFrame - ActionActuator.startFrame
+		   	endFrame - ActionActuator.endFrame
+		   	actionKey - (ActionActuator.Action.ipoPrefix, ActionActuator.Action.ipoPostfix)
+		   
+		   Return:
+		   	serialized actionActuatorList
+		"""
+		animationDictList = []
+		for actionActuator in self.actionActuatorList:
+			# create animationDict
+			animationDict = {}
+			animationDict['name'] = actionActuator.name
+			animationDict['startFrame'] = actionActuator.startFrame
+			animationDict['endFrame'] = actionActuator.endFrame
+			animationDict['actionKey'] = (actionActuator.action.ipoPrefix, actionActuator.action.ipoPostfix)
+			animationDictList.append(animationDict)
+		return animationDictList
+		
 	# private methods
 	def addActionActuator(self, actionActuator):
 		"""adds an ActionActuator to the list
@@ -719,7 +770,10 @@ doneMessage = ""
 # key: objectName, value: armatureName
 armatureDict = {}
 # key: armatureName, value: actionActuatorListView
+# does only contain keys for the current selected objects
 actionActuatorListViewDict = {}
+# key: armatureName, value: animationDictList
+animationDictListDict = {}
 MAXACTUATORS = 100
 
 # button event numbers:
@@ -1023,7 +1077,7 @@ class Vertex:
     submesh.vertices.append(self)
 
 class UVMap:
-  def __init__(self, u, v):
+  def __init__(self, u=None, v=None):
     self.u = u
     self.v = v
 
@@ -1375,7 +1429,7 @@ def export_skeleton(object):
 													have_quat = 1
 												else:
 													exportLog.append("Error: IpoCurve.getName() not available!")
-													exportLog.append("       Could not guess the IpoCurve names. Blender versions 2.28 - 3.31a may work.")
+													exportLog.append("       Could not guess the IpoCurve names. Other Blender versions may work.")
 													exportStatus = EXPORT_ERROR
 									# get all frame numbers between startFrame and endFrame where this ipo has a point in one of its curves
 									frameNumberDict = {}
@@ -1516,104 +1570,178 @@ def export_testskel(testskel):
 ## Mesh stuff
 
 # remap vertices for faces
-def process_face(face, submesh, data, matrix, skeleton):
-  global verticesDict
-  global exportStatus, exportLog
+def process_face(face, submesh, mesh, matrix, skeleton):
+	"""Process a face of a mesh
+	
+	   Parameters:
+	   	face - Blender.NMesh.NMFace
+	   	submesh - SubMesh the face belongs to
+	   	mesh - Blender.NMesh.NMesh the face belongs to
+	   	matrix - export translation
+	   	skeleton - skeleton of the mesh (if any)
+	"""
+	global verticesDict
+	global exportStatus, exportLog
+	# threshold to compare floats
+	threshold = 1e-6
+	if len(face.v) in [ 3, 4 ]:
+		if not face.smooth:
+			# calculate the face normal.
+			p1 = face.v[0].co
+			p2 = face.v[1].co
+			p3 = face.v[2].co
+			faceNormal = vector_crossproduct(
+				[p3[0] - p2[0], p3[1] - p2[1], p3[2] - p2[2]],
+				[p1[0] - p2[0], p1[1] - p2[1], p1[2] - p2[2]],
+				)
+			faceNormal = normal_by_matrix(faceNormal, matrix)
 
-  if not len(face.v) in [ 3, 4 ]:
-    exportLog.append("ignored face with %d edges" % len(face.v))
-    exportStatus = EXPORT_WARNING
-    return
+		face_vertices = [ 0, 0, 0, 0]
+		for i in range(len(face.v)):
+			# normal
+			if face.smooth:
+				normal = normal_by_matrix(face.v[i].no, matrix)
+			else:
+				normal = faceNormal
+			# get vertex 
+			if verticesDict.has_key(face.v[i].index):
+				# vertex already exists
+				vertex = verticesDict[face.v[i].index]
+				# uv
+				if submesh.material.texture:
+					# compare uv and normal
+					uv = UVMap()
+					if mesh.hasVertexUV():
+						# mesh has sticky/per vertex uv coordinates
+						uv.u = face.v[i].uvco[0]
+						# origin is now in the top-left (Ogre v0.13.0)
+						uv.v = 1 - face.v[i].uvco[1]
+					else:
+						# mesh has per face vertex uv coordinates
+						uv.u = face.uv[i][0]
+						# origin is now in the top-left (Ogre v0.13.0)
+						uv.v = 1 - face.uv[i][1]
+					vertexFound = 0
+					# check if it has uv
+					if (len(vertex.uvmaps) > 0):
+						# check if same uv and normal
+						if ((math.fabs(vertex.normal[0] - normal[0]) > threshold) or
+						    (math.fabs(vertex.normal[1] - normal[1]) > threshold) or
+						    (math.fabs(vertex.normal[2] - normal[2]) > threshold) or
+						    (math.fabs(vertex.uvmaps[0].u - uv.u) > threshold) or
+						    (math.fabs(vertex.uvmaps[0].v - uv.v) > threshold)):
+							# check clones
+							iClone = 0
+							while ((iClone < len(vertex.clones)) and (not vertexFound)):
+								# check clone uv and normal
+								clone = vertex.clones[iClone]
+								if ((math.fabs(clone.normal[0] - normal[0]) < threshold) and
+								    (math.fabs(clone.normal[1] - normal[1]) < threshold) and
+								    (math.fabs(clone.normal[2] - normal[2]) < threshold) and
+								    (math.fabs(clone.uvmaps[0].u - uv.u) < threshold) and
+								    (math.fabs(clone.uvmaps[0].v - uv.v) < threshold)):
+									vertexFound = 1
+									vertex = clone
+								iClone += 1
+						else:
+							# same vertex
+							vertexFound = 1
+							# vertex = vertex
+					if not vertexFound:
+						# create new clone
+						clone = Vertex(submesh, vertex.loc, normal)
+						clone.cloned_from = vertex
+						clone.influences = vertex.influences
+						clone.uvmaps.append(uv)
+						vertex.clones.append(clone)
+						# write back to dictionary
+						verticesDict[face.v[i].index] = vertex
+						vertex = clone
 
-  if not face.smooth:
-    # calculate the normal. (blender only provides the smoothed normal)
-    p1 = face.v[0].co
-    p2 = face.v[1].co
-    p3 = face.v[2].co
-    normal = vector_crossproduct(
-      [p3[0] - p2[0], p3[1] - p2[1], p3[2] - p2[2]],
-      [p1[0] - p2[0], p1[1] - p2[1], p1[2] - p2[2]],
-      )
-    normal = normal_by_matrix(normal, matrix)
+				else:
+					# compare normal (no uv coordinates)
+					vertexFound = 0
+					# check if same normal
+					if ((math.fabs(vertex.normal[0] - normal[0]) > threshold) or
+					    (math.fabs(vertex.normal[1] - normal[1]) > threshold) or
+					    (math.fabs(vertex.normal[2] - normal[2]) > threshold)):
+						# check clones
+						iClone = 0
+						while ((iClone < len(vertex.clones)) and (not vertexFound)):
+							# check clone normal
+							clone = vertex.clones[iClone]
+							if ((math.fabs(clone.normal[0] - normal[0]) < threshold) and
+							    (math.fabs(clone.normal[1] - normal[1]) < threshold) and
+							    (math.fabs(clone.normal[2] - normal[2]) < threshold)):
+								vertexFound = 1
+								vertex = clone
+							iClone += 1
+					else:
+						# same vertex
+						vertexFound = 1
+						# vertex = vertex
+					if not vertexFound:
+						# create new clone
+						clone = Vertex(submesh, vertex.loc, normal)
+						clone.cloned_from = vertex
+						clone.influences = vertex.influences
+						vertex.clones.append(clone)
+						# write back to dictionary
+						verticesDict[face.v[i].index] = vertex
+						vertex = clone
 
-  face_vertices = [ 0, 0, 0, 0]
-  for i in range(len(face.v)):
-    vertex = verticesDict.get(face.v[i].index)
+			else:
+				# vertex does not exist yet
+				# coordinates
+				coord  = point_by_matrix (face.v[i].co, matrix)
+				# create vertex
+				vertex = Vertex(submesh, coord, normal)
+				if submesh.material.texture:
+					uv = UVMap()
+					if mesh.hasVertexUV():
+						# mesh has sticky/per vertex uv coordinates
+						uv.u = face.v[i].uvco[0]
+						# origin is now in the top-left (Ogre v0.13.0)
+						uv.v = 1 - face.v[i].uvco[1]
+					else:
+						# mesh has per face vertex uv coordinates
+						uv.u = face.uv[i][0]
+						# origin is now in the top-left (Ogre v0.13.0)
+						uv.v = 1 - face.uv[i][1]
+					vertex.uvmaps.append(uv)
+				# set bone influences
+				if skeleton:
+					influences = mesh.getVertexInfluences(face.v[i].index)
+					if not influences:
+						exportLog.append("Error: vertex in skinned mesh without influence! check your mesh")
+						exportStatus = EXPORT_ERROR
 
-    if not vertex:
-      coord  = point_by_matrix (face.v[i].co, matrix)
+					# limit influences to 4 bones per vertex
+					def cmpfunc(x, y):
+						xname, xweight = x
+						yname, yweight = y
+						return cmp(yweight, xweight)
+					influences.sort(cmpfunc)
+					influences = influences[0:4]
 
-      if face.smooth:
-        normal = normal_by_matrix(face.v[i].no, matrix)
+					# and make sure the sum is 1.0
+					total = 0.0
+					for name, weight in influences:
+						total += weight
 
-      vertex = Vertex(submesh, coord, normal)
-      verticesDict[face.v[i].index] = vertex
-
-      # set bone influences
-      if skeleton:
-        influences = data.getVertexInfluences(face.v[i].index)
-        if not influences:
-          exportLog.append("Error: vertex in skinned mesh without influence! check your mesh")
-          exportStatus = EXPORT_ERROR
-
-        # limit influences to 4 bones per vertex
-        def cmpfunc(x, y):
-          xname, xweight = x
-          yname, yweight = y
-          return cmp(yweight, xweight)
-        influences.sort(cmpfunc)
-        influences = influences[0:4]
-
-        # and make sure the sum is 1.0
-        total = 0.0
-        for name, weight in influences:
-            total += weight
-
-        for name, weight in influences:
-          vertex.influences.append(Influence(skeleton.bonesDict[name], weight/total))
-
-    elif not face.smooth:
-      if (vertex.normal[0] != normal[0] or
-          vertex.normal[1] != normal[1] or
-          vertex.normal[2] != normal[2]):
-        # the vertex in blender has different normals for each face:
-        # we need to clone the vertex for each normal..
-        # note: for smoothed faces there is only one (averaged) normal for all faces 
-
-        old_vertex = vertex
-        vertex = Vertex(submesh, vertex.loc, normal)
-        vertex.cloned_from = old_vertex
-        vertex.influences = old_vertex.influences
-        old_vertex.clones.append(vertex)
-
-    if submesh.material.texture:
-      # origin is now in the top-left (Ogre v0.13.0)
-      uv = [face.uv[i][0], 1 - face.uv[i][1]]
-
-      if not vertex.uvmaps:
-        vertex.uvmaps.append(UVMap(*uv))
-      elif (vertex.uvmaps[0].u != uv[0]) or (vertex.uvmaps[0].v != uv[1]):
-        # the vertex in blender has different uv maps for each face
-        # we need to clone the vertex for each uv coordinate
-
-        for clone in vertex.clones:
-          if (clone.uvmaps[0].u == uv[0]) and (clone.uvmaps[0].v == uv[1]):
-            vertex = clone
-            break
-          else: # Not yet cloned...
-            old_vertex = vertex
-            vertex = Vertex(submesh, vertex.loc, vertex.normal)
-            vertex.cloned_from = old_vertex
-            vertex.influences = old_vertex.influences
-            vertex.uvmaps.append(UVMap(*uv))
-            old_vertex.clones.append(vertex)
-
-    face_vertices[i] = vertex
-
-  # Split faces with more than 3 vertices
-  Face(submesh, face_vertices[0], face_vertices[1], face_vertices[2])
-  if len(face.v) == 4:
-    Face(submesh, face_vertices[2], face_vertices[3], face_vertices[0])
+					for name, weight in influences:
+						vertex.influences.append(Influence(skeleton.bonesDict[name], weight/total))
+				verticesDict[face.v[i].index] = vertex
+			# postcondition: vertex is current vertex
+			face_vertices[i] = vertex
+		# Split faces with more than 3 vertices
+		Face(submesh, face_vertices[0], face_vertices[1], face_vertices[2])
+		if len(face.v) == 4:
+			Face(submesh, face_vertices[2], face_vertices[3], face_vertices[0])
+	else:
+		exportLog.append("ignored face with %d edges" % len(face.v))
+		exportStatus = EXPORT_WARNING
+	return
 
 def export_mesh(object):
 	global uvToggle, armatureToggle
@@ -1993,17 +2121,140 @@ def export(selectedObjectsList):
 ######
 # methods
 ######
+def saveSettings(filename):
+	"""Save all exporter settings of selected and unselected objects to a file.
+	
+	   Settings belonging to removed objects in the .blend file will not be saved.
+	   
+	   Parameters:
+	   	filename - where to store the settings
+	   Return:
+	   	 true on success, else false
+	"""
+	global uvToggle
+	global armatureToggle
+	global armatureMeshToggle
+	global pathString
+	global materialString
+	global scaleNumber
+	global fpsNumber
+	global selectedObjectsList
+	global armatureDict
+	global actionActuatorListViewDict
+	global animationDictListDict
+	settingsDict = {}
+	success = 0
+	# to open file
+	try:
+		fileHandle = open(filename,'w')
+		# save general settings
+		settingsDict['uvToggle'] = uvToggle.val
+		settingsDict['armatureToggle'] = armatureToggle.val
+		settingsDict['armatureMeshToggle'] = armatureMeshToggle.val
+		settingsDict['pathString'] = pathString.val
+		settingsDict['materialString'] = materialString.val
+		settingsDict['scaleNumber'] = scaleNumber.val
+		settingsDict['fpsNumber'] = fpsNumber.val
+		# save object specific settings
+		# check if armature exists (I think this is cleaner than catching NameError exceptions.)
+		# create list of valid armature names
+		armatureNameList = []
+		for object in Blender.Object.Get():
+			if (object.getType() == "Armature"):
+				armatureNameList.append(object.getName())
+		for armatureName in animationDictListDict.keys():
+			if not(armatureName in armatureNameList):
+				# remove obsolete settings
+				del animationDictListDict[armatureName]
+		# update settings
+		for armatureName in actionActuatorListViewDict.keys():
+			animationDictListDict[armatureName] = actionActuatorListViewDict[armatureName].getAnimationDictList()
+		settingsDict['animationDictListDict'] = animationDictListDict
+		pickler = pickle.Pickler(fileHandle)
+		pickler.dump(settingsDict)
+		# close file
+		fileHandle.close()
+		success = 1
+	except IOError, (errno, strerror):
+		print "I/O Error(%s): %s" % (errno, strerror)
+	return success
+
+def loadSettings(filename):
+	"""Load all exporter settings from a file.
+	
+	   You have to create actionActuatorListViews with the new
+	   animationDictListDict if you want the animation settings
+	   to take effect.
+	
+	   Parameters:
+	   	filename - where to store the settings
+	   Return:
+	   	 true on success, else false
+	"""
+	global uvToggle
+	global armatureToggle
+	global armatureMeshToggle
+	global pathString
+	global materialString
+	global scaleNumber
+	global fpsNumber
+	global selectedObjectsList
+	global armatureDict
+	global actionActuatorListViewDict
+	global animationDictListDict
+	success = 0
+	if os.path.isfile(filename) :
+		# open file
+		try:
+			fileHandle = open(filename,'r')
+		except IOError, (errno, strerror):
+			print "I/O Error(%s): %s" % (errno, strerror)
+		else:
+			try:
+				# load settings
+				unpickler = pickle.Unpickler(fileHandle) 
+				settingsDict = unpickler.load()
+				# close file
+				fileHandle.close()
+			except EOFError:
+				print "EOF Error"
+			else:
+				# set general settings
+				if settingsDict.has_key('uvToggle'):
+					uvToggle = Blender.Draw.Create(settingsDict['uvToggle'])
+				if settingsDict.has_key('armatureToggle'):
+					armatureToggle = Blender.Draw.Create(settingsDict['armatureToggle'])
+				if settingsDict.has_key('armatureMeshToggle'):
+					armatureMeshToggle = Blender.Draw.Create(settingsDict['armatureMeshToggle'])
+				if settingsDict.has_key('pathString'):
+					pathString = Blender.Draw.Create(settingsDict['pathString'])
+				if settingsDict.has_key('materialString'):
+					materialString = Blender.Draw.Create(settingsDict['materialString'])
+				if settingsDict.has_key('scaleNumber'):
+					scaleNumber = Blender.Draw.Create(settingsDict['scaleNumber'])
+				if settingsDict.has_key('fpsNumber'):
+					fpsNumber = Blender.Draw.Create(settingsDict['fpsNumber'])
+				# set object specific settings
+				if settingsDict.has_key('animationDictListDict'):
+					animationDictListDict = settingsDict['animationDictListDict']
+				success = 1
+	return success
+	
 def refreshGUI():
-	"""refresh GUI after export
+	"""refresh GUI after export and selection change
 	"""
 	global exportStatus, exportLog
 	global selectedObjectsList, armatureToggle, armatureDict, actionActuatorListViewDict
+	global animationDictListDict
 	# export settings
 	exportStatus = EXPORT_SUCCESS
 	exportLog = []
+	# synchronize animationDictListDict
+	for armatureName in actionActuatorListViewDict.keys():
+		animationDictListDict[armatureName] = actionActuatorListViewDict[armatureName].getAnimationDictList()
 	selectedObjectsList = Blender.Object.GetSelected()
 	armatureDict = {}
-	# create armatureDict
+	# create fresh armatureDict
 	for object in selectedObjectsList:
 		if (object.getType() == "Armature"):
 			# add armature to armatureDict
@@ -2013,24 +2264,38 @@ def refreshGUI():
 			if parent and parent.getType() == "Armature":
 				# add armature to armatureDict
 				armatureDict[object.getName()] = parent.getName()
-	# create ActionActuatorListView
+	# refresh ActionActuatorListViews
 	for armatureName in armatureDict.values():
 		# create actionDict
 		actionDict = Action.createActionDict(Action(), Blender.Object.Get(armatureName).data)
+		# get animationDictList
+		animationDictList = None
+		if animationDictListDict.has_key(armatureName):
+			animationDictList = animationDictListDict[armatureName]
 		if actionActuatorListViewDict.has_key(armatureName):
 			# refresh actionActuators
 			actionActuatorListViewDict[armatureName].refresh(actionDict)
 		else:
 			# create actionActuatorListView
-			actionActuatorListViewDict[armatureName] = ActionActuatorListView(actionDict, MAXACTUATORS, BUTTON_EVENT_ACTUATOR_RANGESTART)
+			actionActuatorListViewDict[armatureName] = ActionActuatorListView(actionDict, MAXACTUATORS, BUTTON_EVENT_ACTUATOR_RANGESTART, animationDictList)
 	return
 
 def initGUI():
 	"""initialization of the GUI
 	"""
 	global actionActuatorListViewDict
+	if KEEP_SETTINGS:
+		# load exporter settings
+		loadSettings(Blender.Get('filename')+".ogre")
 	actionActuatorListViewDict = {}
 	refreshGUI()
+	return
+
+def exitGUI():
+	if KEEP_SETTINGS:
+		# save exporter settings
+		saveSettings(Blender.Get('filename')+".ogre")
+	Blender.Draw.Exit()
 	return
 
 def pathSelectCallback(fileName):
@@ -2038,7 +2303,7 @@ def pathSelectCallback(fileName):
 	"""
 	global pathString
 	# strip path from fileName
-	pathString.val = os.path.dirname(fileName)
+	pathString = Blender.Draw.Create(os.path.dirname(fileName))
 	return
 	
 def eventCallback(event,value):
@@ -2060,11 +2325,9 @@ def eventCallback(event,value):
 	if not(value == 0):
 		# pressed
 		if (event == Draw.ESCKEY):
-			Draw.Exit()
-			return
+			exitGUI()
 		if (event == Draw.QKEY):
-			Draw.Exit()
-			return
+			exitGUI()
 	return
 
 def buttonCallback(event):
@@ -2092,17 +2355,16 @@ def buttonCallback(event):
 		# selected object changed
 		Draw.Redraw(1)
 	elif (event  == BUTTON_EVENT_QUIT): # Quit
-		Draw.Exit()
-		return
+		exitGUI()
 	elif (event == BUTTON_EVENT_ARMATURETOGGLE): # armatureToggle
 		Draw.Redraw(1)
 	elif (event == BUTTON_EVENT_PATHBUTTON): # pathButton
 		Blender.Window.FileSelector(pathSelectCallback, "Export Directory")
 		Draw.Redraw(1)
 	elif (event == BUTTON_EVENT_MATERIALSTRING): # materialString
-		materialString.val = os.path.basename(materialString.val)
+		materialString = Blender.Draw.Create(os.path.basename(materialString.val))
 		if (len(materialString.val) == 0):
-			materialString.val = "export.material"
+			materialString = Blender.Draw.Create("export.material")
 		Draw.Redraw(1)
 	elif (event == BUTTON_EVENT_SCROLLBAR): # scrollbar
 		Draw.Redraw(1)
@@ -2149,7 +2411,7 @@ def gui():
 	remainRect[3] -= 20
 	glColor3f(0,0,0) # Defaul color: black
 	glRasterPos2i(remainRect[0]+4,remainRect[3]+7)
-	Draw.Text("Ogre Exporter","normal")
+	Draw.Text("Ogre Exporter 0.13.1","normal")
 	
 	# export settings
 	remainRect[3] -= 5
