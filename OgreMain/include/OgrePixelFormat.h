@@ -169,12 +169,12 @@ namespace Ogre {
         }
         /**	Get the number of elements between one past the rightmost pixel of 
          	one row and the leftmost pixel of the next row. (IE this is zero if rows
-         	are consecutive). This can be a negative value.
+         	are consecutive).
         */
         size_t getRowSkip() const { return rowPitch - getWidth(); }
         /** Get the number of elements between one past the right bottom pixel of
          	one slice and the left top pixel of the next slice. (IE this is zero if slices
-         	are consecutive). This can be a negative value.
+         	are consecutive).
         */
         size_t getSliceSkip() const { return slicePitch - (getHeight() * rowPitch); }
 
