@@ -141,6 +141,7 @@ namespace Ogre
 		SecondaryWindowList mSecondaryWindows;
 
 		bool mDeviceLost;
+		bool mBasicStatesInitialised;
 
 	public:
 		// constructor

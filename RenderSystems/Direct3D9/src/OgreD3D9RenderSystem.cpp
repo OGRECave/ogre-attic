@@ -81,6 +81,7 @@ namespace Ogre
 		mGpuProgramManager = NULL;
 		mPrimaryWindow = NULL;
 		mDeviceLost = false;
+		mBasicStatesInitialised = false;
         //mHLSLProgramFactory = NULL;
 
 		// init lights
@@ -554,6 +555,7 @@ namespace Ogre
 		SAFE_DELETE( mDriverList );
 		mActiveD3DDriver = NULL;
 		mpD3DDevice = NULL;
+		mBasicStatesInitialised = false;
 		LogManager::getSingleton().logMessage("D3D9 : Shutting down cleanly.");
 	}
 	//---------------------------------------------------------------------
@@ -1972,8 +1974,7 @@ namespace Ogre
 			OGRE_EXCEPT( hr, "Error beginning frame :" + msg, "D3D9RenderSystem::_beginFrame" );
 		}
 
-		static bool firstTime = true;
-		if( firstTime )
+		if(!mBasicStatesInitialised)
 		{
 			// First-time 
 			// setup some defaults
@@ -1991,7 +1992,7 @@ namespace Ogre
 				String msg = DXGetErrorDescription9(hr);
 				OGRE_EXCEPT(hr, "Error enabling alpha blending option : " + msg, "D3D9RenderSystem::_beginFrame");
 			}
-			firstTime = false;
+			mBasicStatesInitialised = true;
 		}
 
 		OgreUnguard();
@@ -2645,6 +2646,8 @@ namespace Ogre
 	void D3D9RenderSystem::_notifyDeviceLost(void)
 	{
 		mDeviceLost = true;
+		// will have lost basic states
+		mBasicStatesInitialised = false;
 	}
 
 }
