@@ -193,28 +193,28 @@ protected:
 		mRedLight->setType(Light::LT_POINT);
 		mRedLight->setPosition(redLightPosition);
 		mRedLight->setDiffuseColour(ColourValue::Black);
-		mRedYellowLightsNode->attachLight(mRedLight);
+		mRedYellowLightsNode->attachObject(mRedLight);
 
 		// Blue light, in "off" state
 		mBlueLight = mSceneMgr->createLight("BlueFlyingLight");
 		mBlueLight->setType(Light::LT_POINT);
 		mBlueLight->setPosition(blueLightPosition);
 		mBlueLight->setDiffuseColour(ColourValue::Black);
-		mGreenBlueLightsNode->attachLight(mBlueLight);
+		mGreenBlueLightsNode->attachObject(mBlueLight);
 
 		// Yellow light in "off" state
 		mYellowLight = mSceneMgr->createLight("YellowFlyingLight");
 		mYellowLight->setType(Light::LT_POINT);
 		mYellowLight->setPosition(yellowLightPosition);
 		mYellowLight->setDiffuseColour(ColourValue::Black);
-		mRedYellowLightsNode->attachLight(mYellowLight);
+		mRedYellowLightsNode->attachObject(mYellowLight);
 
 		// Yellow light in "off" state
 		mGreenLight = mSceneMgr->createLight("GreenFlyingLight");
 		mGreenLight->setType(Light::LT_POINT);
 		mGreenLight->setPosition(greenLightPosition);
 		mGreenLight->setDiffuseColour(ColourValue::Black);
-		mGreenBlueLightsNode->attachLight(mGreenLight);
+		mGreenBlueLightsNode->attachObject(mGreenLight);
 
 		// Light flashers
 		mRedLightFlasher = new LightFlasher(mRedLight, mRedLightBoard, ColourValue::Red);
