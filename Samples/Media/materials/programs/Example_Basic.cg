@@ -107,7 +107,7 @@ void hardwareSkinningFourWeights_vp(
 	uniform float4   ambient)
 {
 	// transform by indexed matrix
-	float4 blendPos = float4(0,0,0,1);
+	float4 blendPos = float4(0,0,0,0);
 	int i;
 	for (i = 0; i < 4; ++i)
 	{
