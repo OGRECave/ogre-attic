@@ -43,6 +43,7 @@ namespace Ogre {
         mTargetNode = 0;
         mMaxKeyFrameTime = -1;
         mSplineBuildNeeded = false;
+		mUseShortestRotationPath = true ;
     }
     //---------------------------------------------------------------------
     AnimationTrack::AnimationTrack(Animation* parent, Node* targetNode) 
@@ -50,6 +51,7 @@ namespace Ogre {
     {
         mMaxKeyFrameTime = -1;
         mSplineBuildNeeded = false;
+		mUseShortestRotationPath = true ;
     }
     //---------------------------------------------------------------------
     AnimationTrack::~AnimationTrack()
@@ -223,8 +225,9 @@ namespace Ogre {
             case Animation::IM_LINEAR:
                 // Interpolate linearly
                 // Rotation
-                // Interpolate to nearest rotation
-                kret.setRotation( Quaternion::Slerp(t, k1->getRotation(), k2->getRotation(), true) );
+                // Interpolate to nearest rotation if mUseShortestRotationPath set
+                kret.setRotation( Quaternion::Slerp(t, k1->getRotation(), 
+					k2->getRotation(), mUseShortestRotationPath) );
 
                 // Translation
                 base = k1->getTranslate();
@@ -244,8 +247,9 @@ namespace Ogre {
                     buildInterpolationSplines();
                 }
 
-                // Rotation
-                kret.setRotation( mRotationSpline.interpolate(firstKeyIndex, t) );
+                // Rotation, take mUseShortestRotationPath into account
+                kret.setRotation( mRotationSpline.interpolate(firstKeyIndex, t, 
+					mUseShortestRotationPath) );
 
                 // Translation
                 kret.setTranslate( mPositionSpline.interpolate(firstKeyIndex, t) );
@@ -349,6 +353,18 @@ namespace Ogre {
 
         mSplineBuildNeeded = false;
     }
-
+	
+    //---------------------------------------------------------------------
+	void AnimationTrack::setUseShortestRotationPath(bool useShortestPath)
+	{
+		mUseShortestRotationPath = useShortestPath ;
+	}
+	
+    //---------------------------------------------------------------------
+	bool AnimationTrack::getUseShortestRotationPath() const
+	{
+		return mUseShortestRotationPath ;
+	}
+	
 }
 
