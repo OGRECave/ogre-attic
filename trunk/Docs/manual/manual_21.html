@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 11 2004 by texi2html 1.64 -->
+<!-- Created on , 25 2004 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -71,7 +71,7 @@ example: param_indexed 0 float4 10.0 0 0 0<BR><BR>
 
 The 'index' is simply a number representing the position in the parameter list which the value should be written, and you should derive this from your program definition. The index is relative to the way constants are stored on the card, which is in 4-element blocks. For example if you defined a float4 parameter at index 0, the next index would be 1. If you defined a matrix4x4 at index 0, the next usable index would be 4, since a 4x4 matrix takes up 4 indexes.<BR><BR>
 
-The value of 'type' can be float4, matrix4x4, float&#60;n&#62; (where &#60;n&#62; is a multiple of 4), int4, int&#60;n&#62; (where &#60;n&#62; is a mutiple of 4 again). Note that 'int' parameters are only available on some more advanced program syntaxes, check the D3D or GL vertex / fragment program documentation for full details. Typically the most useful ones will be float4 and matrix4x4. <BR><BR>
+The value of 'type' can be float4, matrix4x4, float&#60;n&#62;, int4, int&#60;n&#62;. Note that 'int' parameters are only available on some more advanced program syntaxes, check the D3D or GL vertex / fragment program documentation for full details. Typically the most useful ones will be float4 and matrix4x4. Note that if you use a type which is not a multiple of 4, then the remaining values up to the multiple of 4 will be filled with zeroes for you (since GPUs always use banks of 4 floats per constant even if only one is used).<BR><BR>
 
 'value' is simply a space or tab-delimited list of values which can be converted into the type you have specified.
 
@@ -194,7 +194,7 @@ For the purposes of writing this alternate program, there is an automatic parame
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 11 2004</I>
+by <I>Steve Streeting</I> on <I>, 25 2004</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
