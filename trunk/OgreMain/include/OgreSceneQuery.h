@@ -26,6 +26,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __SceneQuery_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreAxisAlignedBox.h"
+#include "OgreSphere.h"
 
 namespace Ogre {
 
@@ -128,6 +130,62 @@ namespace Ogre {
         virtual unsigned long getQueryMask(void);
 
         
+    };
+
+    /** Specialises the SceneQuery class for querying within an axis aligned box. */
+    class _OgreExport AxisAlignedBoxSceneQuery : public SceneQuery
+    {
+    protected:
+        AxisAlignedBox mAABB;
+    public:
+        AxisAlignedBoxSceneQuery(SceneManager* mgr);
+        virtual ~AxisAlignedBoxSceneQuery();
+
+        /** Sets the size of the box you wish to query. */
+        void setBox(const AxisAlignedBox& box);
+
+        /** Gets the box which is being used for this query. */
+        const AxisAlignedBox& getBox(void);
+
+    };
+
+    /** Specialises the SceneQuery class for querying within a sphere. */
+    class _OgreExport SphereSceneQuery : public SceneQuery
+    {
+    protected:
+        Sphere mSphere;
+    public:
+        SphereSceneQuery(SceneManager* mgr);
+        virtual ~SphereSceneQuery();
+        /** Sets the sphere which is to be used for this query. */
+        void setSphere(const Sphere& sphere);
+
+        /** Gets the sphere which is being used for this query. */
+        const Sphere& getSphere();
+
+    };
+
+    /** Specialises the SceneQuery class for querying along a ray. */
+    class _OgreExport RaySceneQuery : public SceneQuery
+    {
+    };
+
+    /** Specialises the SceneQuery class for querying within a pyramid. */
+    class _OgreExport PyramidSceneQuery : public SceneQuery
+    {
+    };
+
+    /** Specialises the SceneQuery class to query for pairs of objects which are
+        possibly intersecting one another.
+    @remarks
+        This SceneQuery subclass differs from all the others because instead of dealing 
+        with a region, it considers the whole world and returns pairs of objects
+        which are close enough to each other that they may be intersecting. Because of
+        this slightly different focus, the return types and listener interface are
+        different for this class. 
+    */
+    class _OgreExport IntersectionSceneQuery : public SceneQuery
+    {
     };
     
 

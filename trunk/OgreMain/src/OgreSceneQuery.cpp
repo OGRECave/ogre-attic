@@ -61,6 +61,50 @@ namespace Ogre {
     {
         return mQueryMask;
     }
+    //-----------------------------------------------------------------------
+    AxisAlignedBoxSceneQuery::AxisAlignedBoxSceneQuery(SceneManager* mgr)
+        : SceneQuery(mgr)
+    {
+    }
+    //-----------------------------------------------------------------------
+    AxisAlignedBoxSceneQuery::~AxisAlignedBoxSceneQuery()
+    {
+    }
+    //-----------------------------------------------------------------------
+    void AxisAlignedBoxSceneQuery::setBox(const AxisAlignedBox& box)
+    {
+        mAABB = box;
+    }
+    //-----------------------------------------------------------------------
+    const AxisAlignedBox& AxisAlignedBoxSceneQuery::getBox(void)
+    {
+        return mAABB;
+    }
+    //-----------------------------------------------------------------------
+    SphereSceneQuery::SphereSceneQuery(SceneManager* mgr)
+        : SceneQuery(mgr)
+    {
+    }
+    //-----------------------------------------------------------------------
+    SphereSceneQuery::~SphereSceneQuery()
+    {
+    }
+    //-----------------------------------------------------------------------
+    void SphereSceneQuery::setSphere(const Sphere& sphere)
+    {
+        mSphere = sphere;
+    }
+    //-----------------------------------------------------------------------
+    const Sphere& SphereSceneQuery::getSphere()
+    {
+        return mSphere;
+    }
+    //-----------------------------------------------------------------------
+
+
+
+
+
 
 }
     
