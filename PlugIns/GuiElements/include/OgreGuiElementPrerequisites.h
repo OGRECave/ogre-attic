@@ -42,6 +42,8 @@ http://www.gnu.org/copyleft/lgpl.html.
 #           define _OgreGuiElementExport __declspec(dllimport)
 #       endif
 #   endif
+#else
+#   define _OgreGuiElementExport
 #endif
 
 
