@@ -161,6 +161,7 @@ OgreTextureManager.h \
 OgreTimer.h \
 OgreUserDefinedObject.h \
 OgreVector3.h \
+OgreVector4.h \
 OgreVertexBoneAssignment.h \
 OgreVertexIndexData.h \
 OgreViewport.h \
