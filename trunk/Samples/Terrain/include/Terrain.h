@@ -91,7 +91,7 @@ protected:
         // Look back along -Z
         mCamera->lookAt(Vector3(0,0,-300));
         mCamera->setNearClipDistance( 1 );
-        mCamera->setFarClipDistance( 384 );
+        mCamera->setFarClipDistance( 1000 );
 
     }
    
