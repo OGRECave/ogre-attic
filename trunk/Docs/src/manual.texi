@@ -1220,7 +1220,8 @@ These are the DirectX vertex shader assembler syntaxes.
 @item arbvp1
 This is the OpenGL standard assembler format for vertex programs. It's roughly equivalent to DirectX vs_1_1.
 @item ps_1_1, ps_1_2, ps_1_3, ps_1_4, ps_2_x, ps_3_0, ps_3_x
-These are the DirectX pixel shader (ie fragment program) assembler syntaxes.
+These are the DirectX pixel shader (ie fragment program) assembler syntaxes.@*
+NOTE: for ATI 8500, 9000, 9100, 9200 hardware, ps_1_1 to ps_1_4 can also be used in OpenGL.  The ATI 8500 to 9200 do not support arbfp1 but do support atifs extension in OpenGL which is very similar in function to ps_1_4 in DirectX.  Ogre has a built in ps_1_x to atifs compiler that is automatically invoked when ps_1_x is used in OpenGL on ATI hardware.
 @item arbfp1
 This is the OpenGL standard assembler format for fragment programs. It's roughly equivalent to ps_2_0, which means that not all cards that support basic pixel shaders under DirectX support arbfp1 (for example neither the GeForce3 or GeForce4 support arbfp1, but they do support ps_1_1).
 @item fp20
@@ -1252,7 +1253,7 @@ The syntax of the parameter definition is exactly the same as when you define pa
 
 @node High-level Programs
 @heading High-level Programs
-Support for high level vertex and fragment programs is provided through plugins; this is to make sure that an application using OGRE can use as little or as much of the high-level program functionality as they like. OGRE currently supports 2 high-level program types, Cg (an API- and card-independent, high-level language which lets you write programs for both OpenGL and DirectX for lots of cards), and DirectX 9 High-Level Shader Language (HLSL). HLSL is provided for people who only want to deploy in DirectX, or who don't want to include the Cg plugin for whatever reason. To be honest, Cg is a better bet because it lets you stay API independent - and don't be put off by the fact that it's made by nVidia, it will happily compile programs down to vendor-independent standards like DirectX and OpenGL's assembler formats, so you're not limited to nVidia cards.@*@*
+Support for high level vertex and fragment programs is provided through plugins; this is to make sure that an application using OGRE can use as little or as much of the high-level program functionality as they like. OGRE currently supports 3 high-level program types, Cg (an API- and card-independent, high-level language which lets you write programs for both OpenGL and DirectX for lots of cards), DirectX 9 High-Level Shader Language (HLSL), and OpenGL Shader Language (GLSL). HLSL is provided for people who only want to deploy in DirectX, or who don't want to include the Cg plugin for whatever reason. GLSL is only for the OpenGL API and can not be used with the DirectX api.  To support both DirectX and OpenGL you could write your shaders in both HLSL and GLSL along with having seperate techniques in the material script.  To be honest, Cg is a better bet because it lets you stay API independent - and don't be put off by the fact that it's made by nVidia, it will happily compile programs down to vendor-independent standards like DirectX and OpenGL's assembler formats, so you're not limited to nVidia cards.@*@*
 
 @subheading Cg programs
 In order to define Cg programs, you have to have to load Plugin_CgProgramManager.so/.dll at startup, either through plugins.cfg or through your own plugin loading code. They are very easy to define:
@@ -1269,7 +1270,7 @@ Here is where things start to change. Firstly, we need to define an 'entry_point
 Next, instead of a fixed 'syntax' parameter, you specify one or more 'profiles'; profiles are how Cg compiles a program down to the low-level assembler. The profiles have the same names as the assembler syntax codes mentioned above; the main difference is that you can list more than one, thus allowing the program to be compiled down to more low-level syntaxes so you can write a single high-level program which runs on both D3D and GL. You are advised to just enter the simplest profiles under which your programs can be compiled in order to give it the maximum compatibility. The ordering also matters; if a card supports more than one syntax then the one listed first will be used.
 
 @subheading DirectX9 HLSL
-DirectX9 HLSL has a vert similar language syntax to Cg but is tied to the DirectX API. The only benefit over Cg is that it only requires the DirectX 9 render system plugin, not any additional plugins. Declaring a DirectX9 HLSL program is very similar to Cg. Here's an example:
+DirectX9 HLSL has a very similar language syntax to Cg but is tied to the DirectX API. The only benefit over Cg is that it only requires the DirectX 9 render system plugin, not any additional plugins. Declaring a DirectX9 HLSL program is very similar to Cg. Here's an example:
 @example
 vertex_program myHLSLVertexProgram hlsl
 {
@@ -1278,7 +1279,9 @@ vertex_program myHLSLVertexProgram hlsl
     target vs_2_0
 }
 @end example
-As you can see, the syntax is almost identical, except that instead of 'profiles' with a list of assembler formats, you have a 'target' parameter which allows a single assembler target to be specified - obviously this has to be a DirectX assembler format syntax code.
+As you can see, the syntax is almost identical, except that instead of 'profiles' with a list of assembler formats, you have a 'target' parameter which allows a single assembler target to be specified - obviously this has to be a DirectX assembler format syntax code.@*@*
+
+@include glsl.inc
 
 @subheading Skeletal Animation in Vertex Programs
 You can implement skeletal animation in hardware by writing a vertex program which uses the per-vertex blending indices and blending weights, together with an array of world matrices (which will be provided for you by Ogre if you bind the automatic parameter 'world_matrix_array_3x4'). However, you need to communicate this support to Ogre so it does not perform skeletal animation in software for you. You do this by adding the following attribute to your vertex_program definition:
