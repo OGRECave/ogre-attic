@@ -86,16 +86,16 @@ namespace Ogre {
         virtual void writeBoundsInfo(const Mesh* pMesh);
         virtual void writeEdgeList(const Mesh* pMesh);
 
-        virtual unsigned long calcMeshSize(const Mesh* pMesh);
-        virtual unsigned long calcSubMeshSize(const SubMesh* pSub);
-        virtual unsigned long calcGeometrySize(const VertexData* pGeom);
-        virtual unsigned long calcSkeletonLinkSize(const String& skelName);
-        virtual unsigned long calcBoneAssignmentSize(void);
-        virtual unsigned long calcSubMeshOperationSize(const SubMesh* pSub);
-        virtual unsigned long calcSubMeshNameTableSize(const Mesh* pMesh);
-        virtual unsigned long calcEdgeListSize(const Mesh* pMesh);
-        virtual unsigned long calcEdgeListLodSize(const EdgeData* data, bool isManual);
-        virtual unsigned long calcEdgeGroupSize(const EdgeData::EdgeGroup& group);
+        virtual uint32 calcMeshSize(const Mesh* pMesh);
+        virtual uint32 calcSubMeshSize(const SubMesh* pSub);
+        virtual uint32 calcGeometrySize(const VertexData* pGeom);
+        virtual uint32 calcSkeletonLinkSize(const String& skelName);
+        virtual uint32 calcBoneAssignmentSize(void);
+        virtual uint32 calcSubMeshOperationSize(const SubMesh* pSub);
+        virtual uint32 calcSubMeshNameTableSize(const Mesh* pMesh);
+        virtual uint32 calcEdgeListSize(const Mesh* pMesh);
+        virtual uint32 calcEdgeListLodSize(const EdgeData* data, bool isManual);
+        virtual uint32 calcEdgeGroupSize(const EdgeData::EdgeGroup& group);
 
         virtual void readTextureLayer(DataStreamPtr& stream, Mesh* pMesh, MaterialPtr& pMat);
         virtual void readSubMeshNameTable(DataStreamPtr& stream, Mesh* pMesh);
