@@ -51,20 +51,36 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #endif
 
-// Release asserts - throw exceptions
+// Backwards compatibility with old assert mode definitions
 #if OGRE_RELEASE_ASSERT == 1
+#   define OGRE_ASSERT_MODE 1
+#endif
+
+// Check for OGRE assert mode
+
+// RELEASE_EXCEPTIONS mode
+#if OGRE_ASSERT_MODE == 1
 #   ifdef _DEBUG
 #       define OgreAssert( a, b ) assert( (a) && (b) )
 
 #   else
-#       if OGRE_COMP != COMP_BORL
-#           define OgreAssert( a, b ) if( !(a) ) Except( Ogre::Exception::ERR_RT_ASSERTION_FAILED, (b), "no function info" )
+#       if OGRE_COMP != COMPILER_BORL
+#           define OgreAssert( a, b ) if( !(a) ) Except( Ogre::Exception::ERR_RT_ASSERTION_FAILED, (b), "no function info")
 #       else
 #           define OgreAssert( a, b ) if( !(a) ) Except( Ogre::Exception::ERR_RT_ASSERTION_FAILED, (b), __FUNC__ )
 #       endif
 
 #   endif
 
+// EXCEPTIONS mode
+#elif OGRE_ASSERT_MODE == 2
+#   if OGRE_COMP != COMPILER_BORL
+#       define OgreAssert( a, b ) if( !(a) ) Except( Ogre::Exception::ERR_RT_ASSERTION_FAILED, (b), "no function info")
+#   else
+#       define OgreAssert( a, b ) if( !(a) ) Except( Ogre::Exception::ERR_RT_ASSERTION_FAILED, (b), __FUNC__ )
+#   endif
+
+// STANDARD mode
 #else
 #   define OgreAssert( a, b ) assert( (a) && (b) )
 
@@ -151,6 +167,15 @@ namespace Ogre {
         */
         int getNumber(void) const throw();
 
+        /** Gets source file name.
+        */
+        String getFile() {return file; }
+
+        /** Gets line number.
+        */
+        long getLine() {return line; }
+            
+
         /** Retrieves a pointer to the last exception created.
         */
         static Exception* getLastException(void) throw();
@@ -162,6 +187,7 @@ namespace Ogre {
         */
         static void _popFunction() throw();
 
+        
     };
 
     /** Internal class. Objects will automatically push/pop the function name for unwinding. */
