@@ -140,6 +140,12 @@ makeall_vc7.bat
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
+				RelativePath="..\src\OgreAnimation.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreAnimationTrack.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreArchiveEx.cpp">
 			</File>
 			<File
@@ -156,6 +162,9 @@ makeall_vc7.bat
 			</File>
 			<File
 				RelativePath="..\src\OgreBitwise.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreBoneTrack.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreCamera.cpp">
@@ -195,6 +204,9 @@ makeall_vc7.bat
 			</File>
 			<File
 				RelativePath="..\src\OgreInput.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreKeyFrame.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreLight.cpp">
@@ -357,6 +369,12 @@ makeall_vc7.bat
 				RelativePath="..\include\Ogre.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreAnimation.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreAnimationTrack.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreArchiveEx.h">
 			</File>
 			<File
@@ -379,6 +397,9 @@ makeall_vc7.bat
 			</File>
 			<File
 				RelativePath="..\include\OgreBlendMode.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreBoneTrack.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreCamera.h">
@@ -439,6 +460,9 @@ makeall_vc7.bat
 			</File>
 			<File
 				RelativePath="..\include\OgreInput.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreKeyFrame.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreLight.h">
