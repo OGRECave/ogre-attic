@@ -435,7 +435,6 @@ namespace Ogre {
 
         /** Overridden from MovableObject */
         Real getBoundingRadius(void) const;
-            const Vector3& offset = Vector3::ZERO);
 		/** Get the auto tracking target for this camera, if any. */
         SceneNode* getAutoTrackTarget(void) { return mAutoTrackTarget; }
 		/** Get the auto tracking offset for this camera, if it is auto tracking. */
