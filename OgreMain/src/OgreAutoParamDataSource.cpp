@@ -45,6 +45,8 @@ namespace Ogre {
          mInverseWorldMatrixDirty(true),
          mInverseWorldViewMatrixDirty(true),
          mInverseViewMatrixDirty(true),
+         mInverseTransposeWorldMatrixDirty(true),
+         mInverseTransposeWorldViewMatrixDirty(true),
          mCameraPositionObjectSpaceDirty(true),
          mTextureViewProjMatrixDirty(true),
          mCurrentRenderable(NULL),
@@ -70,6 +72,8 @@ namespace Ogre {
 		mWorldViewProjMatrixDirty = true;
 		mInverseWorldMatrixDirty = true;
 		mInverseWorldViewMatrixDirty = true;
+		mInverseTransposeWorldMatrixDirty = true;
+		mInverseTransposeWorldViewMatrixDirty = true;
 		mCameraPositionObjectSpaceDirty = true;
     }
     //-----------------------------------------------------------------------------
@@ -81,6 +85,7 @@ namespace Ogre {
         mWorldViewProjMatrixDirty = true;
         mInverseViewMatrixDirty = true;
         mInverseWorldViewMatrixDirty = true;
+        mInverseTransposeWorldViewMatrixDirty = true;
         mCameraPositionObjectSpaceDirty = true;
     }
     //-----------------------------------------------------------------------------
@@ -198,6 +203,26 @@ namespace Ogre {
             mInverseViewMatrixDirty = false;
         }
         return mInverseViewMatrix;
+    }
+    //-----------------------------------------------------------------------------
+    const Matrix4& AutoParamDataSource::getInverseTransposeWorldMatrix(void) const
+    {
+        if (mInverseTransposeWorldMatrixDirty)
+        {
+            mInverseTransposeWorldMatrix = getInverseWorldMatrix().transpose();
+            mInverseTransposeWorldMatrixDirty = false;
+        }
+        return mInverseWorldMatrix;
+    }
+    //-----------------------------------------------------------------------------
+    const Matrix4& AutoParamDataSource::getInverseTransposeWorldViewMatrix(void) const
+    {
+        if (mInverseTransposeWorldViewMatrixDirty)
+        {
+            mInverseTransposeWorldViewMatrix = getInverseWorldViewMatrix().transpose();
+            mInverseTransposeWorldViewMatrixDirty = false;
+        }
+        return mInverseWorldViewMatrix;
     }
     //-----------------------------------------------------------------------------
     const Vector4& AutoParamDataSource::getCameraPositionObjectSpace(void) const
