@@ -2069,11 +2069,9 @@ namespace Ogre {
         }
     }
 	//---------------------------------------------------------------------
-    void SceneManager::setShadowTechnique(ShadowTechnique technique,
-        bool debug)
+    void SceneManager::setShadowTechnique(ShadowTechnique technique)
     {
         mShadowTechnique = technique;
-        mDebugShadows = debug;
         if (technique == SHADOWTYPE_STENCIL_ADDITIVE || 
             technique == SHADOWTYPE_STENCIL_MODULATIVE)
         {
@@ -2381,6 +2379,24 @@ namespace Ogre {
                 twosided
                 );
         }
+    }
+    //---------------------------------------------------------------------
+    void SceneManager::setShadowColour(const ColourValue& colour)
+    {
+        if (!mShadowModulativePass)
+            initShadowVolumeMaterials();
+
+        mShadowModulativePass->getTextureUnitState(0)->setColourOperationEx(
+            LBX_MODULATE, LBS_MANUAL, LBS_CURRENT, colour);
+    }
+    //---------------------------------------------------------------------
+    const ColourValue& SceneManager::getShadowColour(void) const
+    {
+        if (!mShadowModulativePass)
+            return ColourValue::Black;
+
+        return mShadowModulativePass->getTextureUnitState(0)
+            ->getColourBlendMode().colourArg1;
     }
     //---------------------------------------------------------------------
     AxisAlignedBoxSceneQuery* 

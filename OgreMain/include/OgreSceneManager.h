@@ -1277,14 +1277,31 @@ namespace Ogre {
             is supported at once. Also, you should call this method at the start of the 
             scene setup. 
         @param technique The shadowing technique to use for the scene.
-        @param debug Adds additional debugging information to the scene, such
-            as rendering shadow volumes
         */
-        virtual void setShadowTechnique(ShadowTechnique technique, 
-            bool debug = false);
-
+        virtual void setShadowTechnique(ShadowTechnique technique);
+        
         /** Gets the current shadow technique. */
         virtual ShadowTechnique getShadowTechnique(void) { return mShadowTechnique; }
+
+        /** Enables / disables the rendering of debug information for shadows. */
+        virtual void setShowDebugShadows(bool debug) { mDebugShadows = debug; }
+        /** Are debug shadows shown? */
+        virtual bool getShowDebugShadows(void ) const { return mDebugShadows; }
+
+        /** Set the colour used to modulate areas in shadow. 
+        @remarks This is only applicable for shadow techniques which involve 
+            darkening the area in shadow, as opposed to masking out the light. 
+            This colour provided is used as a modulative value to darken the
+            areas.
+        */
+        virtual void setShadowColour(const ColourValue& colour);
+        /** Get the colour used to modulate areas in shadow. 
+        @remarks This is only applicable for shadow techniques which involve 
+        darkening the area in shadow, as opposed to masking out the light. 
+        This colour provided is used as a modulative value to darken the
+        areas.
+        */
+        virtual const ColourValue& getShadowColour(void) const;
 
 
     };
