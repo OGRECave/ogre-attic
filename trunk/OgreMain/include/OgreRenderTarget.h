@@ -116,7 +116,7 @@ namespace Ogre {
             @param
                 height The relative height of the viewport on the target, as a value between 0 and 1.
         */
-        virtual Viewport* addViewport(Camera* cam, int ZOrder = 0.0f, float left = 0.0f, float top = 0.0f ,
+        virtual Viewport* addViewport(Camera* cam, int ZOrder = 0, float left = 0.0f, float top = 0.0f ,
             float width = 1.0f, float height = 1.0f);
 
         /** Returns the number of viewports attached to this target.*/
