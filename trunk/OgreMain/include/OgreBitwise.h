@@ -81,7 +81,7 @@ namespace Ogre {
          * Convert N bit colour channel value to P bits. It fills P bits with the
          * bit pattern repeated. (this is /((1<<n)-1) in fixed point)
          */
-        static inline unsigned int fixedToFixed(uint32 value, unsigned int n, int p) 
+        static inline unsigned int fixedToFixed(uint32 value, unsigned int n, unsigned int p) 
         {
             if(n > p) 
             {
