@@ -610,9 +610,13 @@ namespace Ogre {
            the first 2 gives us the most benefit for now.
        */
         _StringHash H;
-        mHash = (mIndex << 28) +  
-            (( H(mTextureUnitStates[0]->getTextureName()) % (2^14)) << 14 ) + 
-            ( H(mTextureUnitStates[1]->getTextureName()) % (2^14)); 
+        mHash = (mIndex << 28);
+        size_t c = getNumTextureUnitStates();
+
+        if (c)
+            mHash += (H(mTextureUnitStates[0]->getTextureName()) % (2^14)) << 14;
+        if (c > 1)
+            mHash += (H(mTextureUnitStates[1]->getTextureName()) % (2^14));
     }
 
     //-----------------------------------------------------------------------
