@@ -148,9 +148,12 @@ namespace Ogre {
 
     void SDLInput::initialise(RenderWindow* pWindow, bool useKeyboard, bool useMouse, bool useGameController)
     {
-        // Hide the cursor
-        SDL_ShowCursor(0);
-        SDL_WM_GrabInput(SDL_GRAB_ON);
+        if(useMouse) {
+          // Hide the cursor
+          SDL_ShowCursor(0);
+          SDL_WM_GrabInput(SDL_GRAB_ON);
+        }
+        warpMouse=useMouse;
 
         // Get the center and put the mouse there
         int width, height, depth, left, top;
@@ -159,7 +162,8 @@ namespace Ogre {
         mMouseX = mMouseCenterX = width / 2;
         mMouseY = mMouseCenterY = height / 2;
 
-        SDL_WarpMouse(mMouseCenterX, mMouseCenterY);
+        if(warpMouse)
+          SDL_WarpMouse(mMouseCenterX, mMouseCenterY);
     }
 
     void SDLInput::capture()
@@ -224,7 +228,8 @@ namespace Ogre {
             // XXX Fix me up
             // Game controller state
         }
-        SDL_WarpMouse( mMouseCenterX, mMouseCenterY );
+        if(warpMouse)
+          SDL_WarpMouse( mMouseCenterX, mMouseCenterY );
     }
 
     bool SDLInput::isKeyDown(KeyCode kc) const

@@ -175,6 +175,7 @@ namespace Ogre {
         if (sharedVertexData)
         {
             delete sharedVertexData;
+            sharedVertexData = NULL;
         }
 		// Clear SubMesh lists
 		mSubMeshList.clear();

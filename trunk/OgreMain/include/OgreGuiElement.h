@@ -181,10 +181,10 @@
 
 
         /** Shows this element if it was hidden. */
-        void show(void);
+        virtual void show(void);
 
         /** Hides this element if it was visible. */
-        void hide(void);
+        virtual void hide(void);
 
         /** Returns whether or not the element is visible. */
         bool isVisible(void);

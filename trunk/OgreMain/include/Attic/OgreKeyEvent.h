@@ -64,7 +64,7 @@ namespace Ogre {
 		{
 			KE_KEY_CLICKED 	= KE_FIRST_EVENT,
 			KE_KEY_PRESSED,
-			KE_KEY_RELEASED,
+			KE_KEY_RELEASED
 		};
 
 		/**

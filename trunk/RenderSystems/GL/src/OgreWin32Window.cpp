@@ -257,8 +257,9 @@ namespace Ogre {
 		mHeight = height;
 
 		// Notify viewports of resize
-		ViewportList::iterator it = mViewportList.begin();
-		while( it != mViewportList.end() )
+		ViewportList::iterator it, itend;
+        itend = mViewportList.end();
+		for( it = mViewportList.begin(); it != itend; ++it )
 			(*it).second->_updateDimensions();
 		// TODO - resize window
     }

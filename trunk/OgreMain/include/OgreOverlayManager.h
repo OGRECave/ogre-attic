@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __OverlayManager_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreEventListeners.h"
 #include "OgreResourceManager.h"
 #include "OgreSingleton.h"
 #include "OgreStringVector.h"
@@ -37,13 +38,15 @@ namespace Ogre {
     /** Manages Overlay objects, parsing them from .overlay files and
         storing a lookup library of them.
     */
-    class _OgreExport OverlayManager : public ResourceManager, public Singleton<OverlayManager>, public TargetManager
+    class _OgreExport OverlayManager : public ResourceManager, public Singleton<OverlayManager>, public TargetManager, public MouseMotionListener
     {
     protected:
 		GuiContainer* mCursorGuiRegistered;
 		MouseMotionListener* mCursorListener;
 		Overlay* mCursorLevelOverlay;
         bool mCursorGuiInitialised;
+        Real mMouseX;
+        Real mMouseY;
 
         void parseNewElement( DataChunk& chunk, String& elemType, String& elemName, 
             bool isContainer, Overlay* pOverlay, bool isTemplate, String templateName = String(""), GuiContainer* container = 0);
@@ -107,8 +110,14 @@ namespace Ogre {
         /** This returns a PositionTarget at position x,y. */
 		PositionTarget* getPositionTargetAt(Real x, Real y);
 
+		/** register the default cursor GUI implementation with the manager */
+		void setDefaultCursorGui(GuiContainer* cursor, MouseMotionListener* cursorListener);
 		/** register the cursor GUI implementation with the manager */
 		void setCursorGui(GuiContainer* cursor, MouseMotionListener* cursorListener);
+		void mouseMoved(MouseEvent* e);
+		void mouseDragged(MouseEvent* e);
+        Real getMouseX() { return mMouseX; }
+        Real getMouseY() { return mMouseY; }
 
 		/** returns the registered cursor GUI */
 		GuiContainer* getCursorGui();
