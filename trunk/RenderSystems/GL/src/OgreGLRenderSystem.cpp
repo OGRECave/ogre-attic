@@ -1731,13 +1731,17 @@ namespace Ogre {
     void GLRenderSystem::bindGpuProgram(GpuProgram* prg)
     {
         GLGpuProgram* glprg = static_cast<GLGpuProgram*>(prg);
-        glBindProgramARB(glprg->getProgramType(), glprg->getProgramID());
+        GLuint glProgType = glprg->getProgramType();
+        glEnable(glProgType);
+        glBindProgramARB(glProgType, glprg->getProgramID());
     }
 	//---------------------------------------------------------------------
     void GLRenderSystem::unbindGpuProgram(GpuProgramType gptype)
     {
-        glBindProgramARB((gptype == GPT_VERTEX_PROGRAM) ? 
-            GL_VERTEX_PROGRAM_ARB : GL_FRAGMENT_PROGRAM_ARB, 0);
+        GLuint glProgType = (gptype == GPT_VERTEX_PROGRAM) ? 
+            GL_VERTEX_PROGRAM_ARB : GL_FRAGMENT_PROGRAM_ARB;
+        glBindProgramARB(glProgType, 0);
+        glDisable(glProgType);
     }
 	//---------------------------------------------------------------------
     void GLRenderSystem::bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParametersSharedPtr params)
