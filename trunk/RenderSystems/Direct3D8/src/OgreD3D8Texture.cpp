@@ -27,6 +27,30 @@ namespace Ogre {
         mUsage = usage;
 		mpTexture = NULL;
 		mpTempTexture = NULL;       
+        mpRenderZBuffer = NULL;
+	}
+	D3D8Texture::D3D8Texture( 
+		String name, 
+		IDirect3DDevice8 * device, 
+		uint width, 
+		uint height, 
+		uint num_mips,
+		PixelFormat format,
+		TextureUsage usage )
+	{
+		mName = name;
+		mpD3DDevice = device;
+		
+		mSrcWidth = width;
+		mSrcHeight = height;
+		mNumMipMaps = num_mips;
+
+		mUsage = usage;
+		mFormat = format;
+		mSrcBpp = mFinalBpp = Image::getNumElemBits( mFormat );
+
+		createTexture();
+		mIsLoaded = true;
 	}
 
 	D3D8Texture::~D3D8Texture()
@@ -34,11 +58,15 @@ namespace Ogre {
 		if( mIsLoaded )
 			unload();
 		SAFE_RELEASE( mpD3DDevice );
-        SAFE_RELEASE( mpRenderSurface );
+        SAFE_RELEASE( mpTexture );
+        SAFE_RELEASE( mpRenderZBuffer );
 	}
 
 	void D3D8Texture::load()
 	{
+		if( mIsLoaded )
+			return;
+
         if( mUsage == TU_RENDERTARGET )
         {
             mSrcWidth = mSrcHeight = 256;
@@ -53,6 +81,8 @@ namespace Ogre {
 
 		    loadImage( img );
         }
+
+		mIsLoaded = true;
 	}
 
 	void D3D8Texture::loadImage( const Image& img )
@@ -78,7 +108,26 @@ namespace Ogre {
 		copyMemoryToTexture( pTempData );
 
 		SAFE_DELETE_ARRAY( pTempData );
+	}
 
+	void D3D8Texture::copyToTexture( Texture * target )
+	{
+		HRESULT hr;
+		D3D8Texture * other;
+		IDirect3DSurface8 * dstSurf, * srcSurf;
+
+		other = reinterpret_cast< D3D8Texture * >( target );
+
+		mpTexture->GetSurfaceLevel( 0, &srcSurf );
+		other->getD3DTexture()->GetSurfaceLevel( 0, &dstSurf );
+
+		if( FAILED( hr = mpD3DDevice->CopyRects( srcSurf, NULL, 0, dstSurf, NULL ) ) )
+		{
+			__d3dExcept( hr, "D3D8Texture::copyToTexture" );
+		}
+
+		srcSurf->Release();
+		dstSurf->Release();
 	}
 
 	void D3D8Texture::unload()
@@ -112,32 +161,54 @@ namespace Ogre {
 			Except( hr, "Error creating temp Direct3D texture", "D3DXTexture::createTexture" );
 		}
 
-		if( FAILED( hr = D3DXCreateTexture( mpD3DDevice, mSrcWidth, mSrcHeight, (mNumMipMaps ? mNumMipMaps : 1), 
-            0, format, D3DPOOL_DEFAULT, &mpTexture ) ) )
-		{
-			Except( hr, "Error creating Direct3D texture", "D3D8Texture::createTexture" );
-		}
-
-        if( mUsage == TU_RENDERTARGET )
+        if( mUsage == TU_DEFAULT )
         {
-            if( FAILED( hr = D3DXCreateTexture( mpD3DDevice, mSrcWidth, mSrcHeight, 1, 
-                D3DUSAGE_RENDERTARGET, format, D3DPOOL_DEFAULT, &mpRenderSurface ) ) )
+            if( FAILED( hr = D3DXCreateTexture( 
+                mpD3DDevice, 
+                mSrcWidth, 
+                mSrcHeight, 
+                (mNumMipMaps ? mNumMipMaps : 1), 
+                0, format, D3DPOOL_DEFAULT, &mpTexture ) ) )
 		    {
-			    Except( hr, "Error creating Direct3D texture", "D3D8Texture::createTexture" );
+                __d3dExcept( hr, "D3D8Texture::createTexture" );
+		    }
+        }
+        else
+        {
+            /* We need to set the pixel format of the render target texture to be the same as the
+			   one of the front buffer. */
+			IDirect3DSurface8 * tempSurf;
+			D3DSURFACE_DESC tempDesc;
+
+			mpD3DDevice->GetRenderTarget( & tempSurf );
+			tempSurf->GetDesc( & tempDesc );
+			format = tempDesc.Format;
+			tempSurf->Release();
+
+			/** Now we create the texture. */
+            if( FAILED( hr = D3DXCreateTexture( mpD3DDevice, mSrcWidth, mSrcHeight, 1, 
+                D3DUSAGE_RENDERTARGET, format, D3DPOOL_DEFAULT, &mpTexture ) ) )
+		    {
+			    __d3dExcept( hr, "D3D8Texture::createTexture" );
 		    }
 
-            if( FAILED( hr = mpD3DDevice->CreateDepthStencilSurface( mSrcWidth, mSrcHeight, D3DFMT_D32, D3DMULTISAMPLE_NONE, &mpRenderZBuffer ) ) )
+			/* Now get the format of the depth stencil surface. */
+			mpD3DDevice->GetDepthStencilSurface( & tempSurf );
+			tempSurf->GetDesc( & tempDesc );
+			tempSurf->Release();
+
+			/** We also create a depth buffer for our render target. */
+            if( FAILED( hr = mpD3DDevice->CreateDepthStencilSurface( mSrcWidth, mSrcHeight, tempDesc.Format, tempDesc.MultiSampleType, &mpRenderZBuffer ) ) )
             {
-                const char *ch = DXGetErrorDescription8( hr );
-                _asm int 3;
-            }          
+				__d3dExcept( hr, "D3D8Texture::createTexture" );
+            }
         }
 
 		// Check the actual dimensions vs requested
 		D3DSURFACE_DESC desc;
 		if( FAILED( hr = mpTexture->GetLevelDesc( 0, &desc ) ) )
 		{
-			Except( hr, "Failed to get level 0 surface description", "D3D8Texture::createTexture" );
+			__d3dExcept( hr, "D3D8Texture::createTexture" );
 		}
 		if( desc.Width != mSrcWidth || desc.Height != mSrcHeight )
 		{
@@ -407,7 +478,7 @@ namespace Ogre {
         {
             LPDIRECT3DSURFACE8 *pSurf = (LPDIRECT3DSURFACE8*)pData;
 
-            mpRenderSurface->GetSurfaceLevel( 0, &(*pSurf) );
+            mpTexture->GetSurfaceLevel( 0, &(*pSurf) );
             (*pSurf)->Release();
             return;
         }
@@ -416,14 +487,6 @@ namespace Ogre {
             LPDIRECT3DSURFACE8 *pSurf = (LPDIRECT3DSURFACE8*)pData;
 
             *pSurf = mpRenderZBuffer;
-            return;
-        }
-        else if( name == "DDFRONTBUFFER" )
-        {
-            LPDIRECT3DSURFACE8 *pSurf = (LPDIRECT3DSURFACE8*)pData;
-
-            mpRenderSurface->GetSurfaceLevel( 0, &(*pSurf) );
-            (*pSurf)->Release();
             return;
         }
         else if( name == "HWND" )

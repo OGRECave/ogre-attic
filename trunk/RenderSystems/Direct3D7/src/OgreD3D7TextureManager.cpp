@@ -66,4 +66,15 @@ namespace Ogre {
         t->load();
         return t;
     }
+	//-----------------------------------------------------------------------
+	Texture * D3DTextureManager::createManual( 
+		const String & name,
+		uint width,
+		uint height,
+		uint num_mips,
+		PixelFormat format,
+		TextureUsage usage )
+	{
+		return new D3DTexture( name, mlpD3DDevice, width, height, num_mips, format, usage );
+	}
 }

@@ -815,6 +815,11 @@ namespace Ogre {
 	{
 		D3DXMATRIX d3dMat = makeD3DXMatrix( m );
 
+        if( mActiveRenderTarget->requiresTextureFlipping() )
+		{
+			d3dMat._22 = - d3dMat._22;
+		}
+
 		HRESULT hr;
 		if( FAILED( hr = mpD3DDevice->SetTransform( D3DTS_PROJECTION, &d3dMat ) ) )
 			Except( hr, "Cannot set D3D8 view matrix", "D3D8RenderSystem::_setProjectionMatrix" );
@@ -1207,6 +1212,7 @@ namespace Ogre {
 		if( vp != mActiveViewport || vp->_isUpdated() )
 		{
 			mActiveViewport = vp;
+            mActiveRenderTarget = vp->getTarget();
 
 			// ok, it's different, time to set render target (maybe) and viewport params
 			D3DVIEWPORT8 d3dvp;
@@ -1225,6 +1231,8 @@ namespace Ogre {
 
 			hr = mpD3DDevice->SetRenderTarget( pBack, pZBuffer );
 
+            _setCullingMode( mCullingMode );
+
 			// set viewport dimensions
 			d3dvp.X = vp->getActualLeft();
 			d3dvp.Y = vp->getActualTop();
@@ -1236,7 +1244,7 @@ namespace Ogre {
 			d3dvp.MaxZ = 1.0f;
 
 			if( FAILED( hr = mpD3DDevice->SetViewport( &d3dvp ) ) )
-				Except( hr, "Error setting D3D viewport", "D3D8RenderSystem::_setViewport" );
+				__d3dExcept( hr, "D3D8RenderSystem::_setViewport" );
 
 			vp->_clearUpdatedFlag();
 
@@ -1741,23 +1749,29 @@ namespace Ogre {
 		HRESULT hr;
 		DWORD d3dMode;
 
-		switch( mode )
-		{
-		case CULL_NONE:
-			d3dMode = D3DCULL_NONE;
-			break;
+        mCullingMode = mode;
 
-		case CULL_CLOCKWISE:
-			d3dMode = D3DCULL_CW;
-			break;
-
-		case CULL_ANTICLOCKWISE:
-			d3dMode = D3DCULL_CCW;
-			break;
-		}
+		if (mode == CULL_NONE)
+        {
+            d3dMode = D3DCULL_NONE;
+        }
+        else if( mode == CULL_CLOCKWISE )
+        {
+			if( mActiveRenderTarget->requiresTextureFlipping() )
+				d3dMode = D3DCULL_CCW;
+			else
+				d3dMode = D3DCULL_CW;
+        }
+        else if (mode == CULL_ANTICLOCKWISE)
+        {
+            if( mActiveRenderTarget->requiresTextureFlipping() )
+				d3dMode = D3DCULL_CW;
+			else
+				d3dMode = D3DCULL_CCW;
+        }
 
 		if( FAILED( hr = mpD3DDevice->SetRenderState( D3DRS_CULLMODE, d3dMode ) ) )
-			Except( hr, "Unable to set D3D culling mode", "D3D8RenderSystem::_setCullingMode" );
+			__d3dExcept( hr, "D3D8RenderSystem::_setCullingMode" );
 	}
 
 	void D3D8RenderSystem::_setDepthBufferParams( bool depthTest, bool depthWrite, CompareFunction depthFunction )

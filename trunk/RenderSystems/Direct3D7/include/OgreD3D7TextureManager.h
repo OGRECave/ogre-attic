@@ -49,6 +49,14 @@ namespace Ogre {
         */
         virtual Texture * createAsRenderTarget( const String& name );
 
+		virtual Texture * createManual( 
+			const String & name,
+			uint width,
+			uint height,
+			uint num_mips,
+			PixelFormat format,
+			TextureUsage usage );
+
     private:
         LPDIRECT3DDEVICE7 mlpD3DDevice;
 

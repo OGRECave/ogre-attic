@@ -34,6 +34,184 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+    static bool OgreFormatRequiresEndianFlipping( PixelFormat format )
+    {
+        switch( format )
+        {
+        case PF_L4A4:
+        case PF_B5G6R5:
+        case PF_B4G4R4A4:
+        case PF_B8R8G8:
+        case PF_B8G8R8A8:
+        case PF_B10G10R10A2:
+            return true;
+
+        case PF_L8:
+        case PF_A8:
+        case PF_R5G6B5:
+        case PF_A4R4G4B4:
+        case PF_R8G8B8:
+        case PF_A8R8G8B8:
+        case PF_A2R10G10B10:
+        case PF_A4L4:
+        case PF_UNKNOWN:
+        default:
+            return false;
+        }
+    }
+    static D3DX_SURFACEFORMAT OgreFormat_to_D3DXFormat( PixelFormat format )
+    {
+        switch( format )
+        {
+        case PF_L8:
+            return D3DX_SF_L8;
+        case PF_A8:
+            return D3DX_SF_A8;
+        case PF_R5G6B5:
+        case PF_B5G6R5:
+            return D3DX_SF_R5G6B5;
+        case PF_A4R4G4B4:
+        case PF_B4G4R4A4:
+            return D3DX_SF_A4R4G4B4;
+        case PF_R8G8B8:
+        case PF_B8R8G8:
+            return D3DX_SF_R8G8B8;
+        case PF_A8R8G8B8:
+        case PF_B8G8R8A8:
+            return D3DX_SF_A8R8G8B8;
+        case PF_UNKNOWN:
+        case PF_A4L4:
+        case PF_L4A4:
+        case PF_A2R10G10B10:
+        case PF_B10G10R10A2:
+        default:
+            return D3DX_SF_UNKNOWN;
+        }
+    }
+
+    static void OgreFormat_to_DDPixelFormat( PixelFormat format, DDPIXELFORMAT & out )
+    {
+        memset( &out, 0, sizeof( DDPIXELFORMAT ) );
+        out.dwSize = sizeof( DDPIXELFORMAT );
+
+        switch( format )
+        {
+        case PF_A8:
+            out.dwFlags = DDPF_ALPHA;
+            out.dwAlphaBitDepth = 8;
+            
+            break;
+
+        case PF_L8:
+            out.dwFlags = DDPF_LUMINANCE ;
+            out.dwLuminanceBitCount = 8;
+
+            break;
+
+        case PF_A4L4:
+        case PF_L4A4:
+            out.dwFlags = DDPF_LUMINANCE | DDPF_ALPHAPIXELS;
+            out.dwLuminanceBitCount = 4;
+
+            if( format == PF_A4L4 )
+            {
+                out.dwLuminanceAlphaBitMask = 0xf0;
+                out.dwLuminanceBitMask = 0x0f;
+            }
+            else
+            {
+                out.dwLuminanceAlphaBitMask = 0x0f;
+                out.dwLuminanceBitMask = 0xf0;
+            }
+
+            break;
+
+        case PF_R5G6B5:
+        case PF_B5G6R5:
+            out.dwFlags = DDPF_RGB;
+            out.dwRGBBitCount = 16;
+
+            if( format == PF_R5G6B5 )
+            {
+                out.dwRBitMask = 0xf800;
+                out.dwGBitMask = 0x07e0;
+                out.dwBBitMask = 0x001f;
+            }
+            else
+            {
+                out.dwRBitMask = 0x001f;
+                out.dwGBitMask = 0x07e0;
+                out.dwBBitMask = 0xf800;
+            }
+
+            break;
+
+        case PF_A4R4G4B4:
+        case PF_B4G4R4A4:
+            out.dwFlags = DDPF_RGB | DDPF_ALPHAPIXELS;
+            out.dwRGBBitCount = 12;
+
+            if( format == PF_A4R4G4B4 )
+            {
+                out.dwRGBAlphaBitMask = 0xf000;
+                out.dwRBitMask        = 0x0f00;
+                out.dwGBitMask        = 0x00f0;
+                out.dwBBitMask        = 0x000f;
+            }
+            else
+            {
+                out.dwRGBAlphaBitMask = 0x000f;
+                out.dwRBitMask          = 0x00f0;
+                out.dwGBitMask          = 0x0f00;
+                out.dwBBitMask          = 0xf000;
+            }
+
+            break;
+
+        case PF_R8G8B8:
+        case PF_B8R8G8:
+            out.dwFlags = DDPF_RGB;
+            out.dwRGBBitCount = 24;
+
+            if( format == PF_R8G8B8 )
+            {
+                out.dwRBitMask = 0xff0000;
+                out.dwGBitMask = 0x00ff00;
+                out.dwBBitMask = 0x0000ff;
+            }
+            else
+            {
+                out.dwRBitMask = 0x0000ff;
+                out.dwGBitMask = 0x00ff00;
+                out.dwBBitMask = 0xff0000;
+            }
+
+            break;
+
+        case PF_A8R8G8B8:
+        case PF_B8G8R8A8:
+            out.dwFlags = DDPF_RGB | DDPF_ALPHAPIXELS;
+            out.dwRGBBitCount = 24;
+
+            if( format == PF_A8R8G8B8 )
+            {
+                out.dwRGBAlphaBitMask = 0xff000000;
+                out.dwRBitMask        = 0x00ff0000;
+                out.dwGBitMask        = 0x0000ff00;
+                out.dwBBitMask        = 0x000000ff;
+            }
+            else
+            {
+                out.dwRGBAlphaBitMask = 0x000000ff;
+                out.dwRBitMask        = 0x0000ff00;
+                out.dwGBitMask        = 0x00ff0000;
+                out.dwBBitMask        = 0xff000000;
+            }
+
+            break;
+        }
+    }
+
     //---------------------------------------------------------------------------------------------
     D3DTexture::D3DTexture(String name, LPDIRECT3DDEVICE7 lpDirect3dDevice, TextureUsage usage )
     {
@@ -44,7 +222,30 @@ namespace Ogre {
         // Default to 16-bit texture
         enable32Bit( false );
     }
+    //---------------------------------------------------------------------------------------------
+    D3DTexture::D3DTexture( 
+        String name, 
+        IDirect3DDevice7 * lpDirect3dDevice, 
+        uint width, 
+        uint height, 
+        uint num_mips,
+        PixelFormat format,
+        TextureUsage usage )
+    {
+        mName = name;
+        mD3DDevice = lpDirect3dDevice; mD3DDevice->AddRef();
 
+        mSrcWidth = width;
+        mSrcHeight = height;
+        mNumMipMaps = num_mips;
+
+        mUsage = usage;
+        mFormat = format;
+        mSrcBpp = mFinalBpp = Image::getNumElemBits( mFormat );
+
+        createSurface();
+        mIsLoaded = true;
+    }
     //---------------------------------------------------------------------------------------------
     D3DTexture::~D3DTexture()
     {
@@ -58,7 +259,7 @@ namespace Ogre {
     void D3DTexture::blitToTexture( 
         const Image &src, unsigned uStartX, unsigned uStartY )
     {
-		blitImage( src, Image::Rect( uStartX, uStartY, src.getWidth(), src.getHeight() ),
+        blitImage( src, Image::Rect( uStartX, uStartY, src.getWidth(), src.getHeight() ),
             Image::Rect( 0, 0, Texture::getWidth(), Texture::getHeight() ) );
     }
 
@@ -130,7 +331,7 @@ namespace Ogre {
 
         /* We generate the mip-maps by hand. */
         DWORD mipFlag, numMips;
-		mipFlag = D3DX_TEXTURE_NOMIPMAP;
+        mipFlag = D3DX_TEXTURE_NOMIPMAP;
 
         /* Set the width and height. */
         DWORD dwWidth = src.getWidth(), dwHeight = src.getHeight();
@@ -176,8 +377,8 @@ namespace Ogre {
         finalRect.left   = Real( imgRect.left )   * fWidthFactor;
         finalRect.right  = Real( imgRect.right )  * fWidthFactor;
 
-		/* We have to use a mirror up/down (around the X axis) effect since in DirectX the
-		   positive Y is downward, which is different from OGRE's way. */
+        /* We have to use a mirror up/down (around the X axis) effect since in DirectX the
+           positive Y is downward, which is different from OGRE's way. */
         DDBLTFX  ddbltfx;
         ZeroMemory(&ddbltfx, sizeof(ddbltfx));
 
@@ -241,15 +442,23 @@ namespace Ogre {
         OgreUnguard();
     }
 
-	void D3DTexture::copyToTexture( Texture * target )
-	{
-		D3DTexture * other = (D3DTexture *)target;
+    //---------------------------------------------------------------------------------------------
+    void D3DTexture::copyToTexture( Texture * target )
+    {
+        HRESULT hr;
+        D3DTexture * other;
 
-		if( FAILED( other->getDDSurface()->Blt( NULL, mSurface, NULL, DDBLT_WAIT, NULL ) ) )
-		{
-			Except( Exception::ERR_RENDERINGAPI_ERROR, "Couldn't blit!", "" );
-		}
-	}
+        if( target->getUsage() != mUsage )
+            return;
+
+        other = reinterpret_cast< D3DTexture * >( target );
+
+        //if( FAILED( hr = other->getDDSurface()->BltFast( 0, 0, mSurface, NULL, DDBLTFAST_WAIT ) ) )
+        if( FAILED( hr = other->getDDSurface()->Blt( NULL, mSurface, NULL, DDBLT_WAIT, NULL ) ) )
+        {
+            Except( Exception::ERR_RENDERINGAPI_ERROR, "Couldn't blit!", "" );
+        }
+    }
 
     //---------------------------------------------------------------------------------------------
     void D3DTexture::loadImage( const Image & img )
@@ -257,9 +466,7 @@ namespace Ogre {
         OgreGuard( "D3DTexture::loadImage" );
 
         if( mIsLoaded )
-        {
             unload();
-        }
 
         LogManager::getSingleton().logMessage( 
             LML_TRIVIAL,
@@ -271,6 +478,7 @@ namespace Ogre {
         mSrcWidth = img.getWidth();
         mSrcHeight = img.getHeight();
         mSrcBpp = img.getBPP();
+        mFormat = img.getFormat();
 
         /* Now that we have the image's parameters, create the D3D surface based on them. */
         createSurface();
@@ -306,12 +514,14 @@ namespace Ogre {
 
             loadImage( img );
         }
-        else
+        else if( mUsage == TU_RENDERTARGET )
         {
             mSrcWidth = mSrcHeight = 512;
             mSrcBpp = mFinalBpp;
             createSurface();
         }
+
+        mIsLoaded = true;
     }
 
     //---------------------------------------------------------------------------------------------
@@ -342,7 +552,7 @@ namespace Ogre {
         ddsd.dwSize          = sizeof(DDSURFACEDESC2);
         ddsd.dwFlags         = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
         ddsd.ddsCaps.dwCaps  = DDSCAPS_TEXTURE;
-		ddsd.ddsCaps.dwCaps2 = DDSCAPS2_TEXTUREMANAGE;
+        ddsd.ddsCaps.dwCaps2 = 0;
         ddsd.dwWidth         = mSrcWidth;
         ddsd.dwHeight        = mSrcHeight;
 
@@ -350,17 +560,23 @@ namespace Ogre {
         if( mUsage == TU_RENDERTARGET )
         {
             ddsd.ddsCaps.dwCaps |= DDSCAPS_3DDEVICE | DDSCAPS_LOCALVIDMEM | DDSCAPS_VIDEOMEMORY;
-			ddsd.ddsCaps.dwCaps2 = 0;
+            ddsd.ddsCaps.dwCaps2 = 0;
+            mNumMipMaps = 0;
         }
+        else
+        {
+            ddsd.ddsCaps.dwCaps2 = DDSCAPS2_D3DTEXTUREMANAGE;
+        }
+        
         /* If we want to have mip-maps, set the flags. Note that if the
-        texture is the render target type mip-maps are automatically 
-        disabled. */
-        else if( mUsage == TU_DEFAULT && mNumMipMaps )
+           texture is the render target type mip-maps are automatically 
+           disabled. */
+        if( mNumMipMaps )
         {
             ddsd.dwFlags |= DDSD_MIPMAPCOUNT;
-			ddsd.dwMipMapCount = mNumMipMaps;
+            ddsd.dwMipMapCount = mNumMipMaps;
 
-			ddsd.ddsCaps.dwCaps |= DDSCAPS_MIPMAP | DDSCAPS_COMPLEX;            
+            ddsd.ddsCaps.dwCaps |= DDSCAPS_MIPMAP | DDSCAPS_COMPLEX;            
         }
 
         /* The pixel format is always RGB */
@@ -462,41 +678,41 @@ namespace Ogre {
                 "D3DTexture::createSurfaces" );
         }
 
-        if( mUsage != TU_RENDERTARGET )
+        if( mUsage == TU_RENDERTARGET )
         {
-            pDD->Release();
-            return;
-        }
+            LPDIRECTDRAWSURFACE7 pddsZBuffer, pddsBackBuffer, pddsTexZBuffer;
 
-        LPDIRECTDRAWSURFACE7 pddsZBuffer, pddsBackBuffer, pddsTexZBuffer;
+            DDSCAPS2 ZBuffDDSCaps;
+            DDSURFACEDESC2 ZBuffDDSD;
 
-        DDSCAPS2 ZBuffDDSCaps;
-        DDSURFACEDESC2 ZBuffDDSD;
+            ZBuffDDSCaps.dwCaps = DDSCAPS_ZBUFFER;
+            ZBuffDDSCaps.dwCaps2 = ZBuffDDSCaps.dwCaps3 = ZBuffDDSCaps.dwCaps4 = 0;
 
-        ZBuffDDSCaps.dwCaps = DDSCAPS_ZBUFFER;
-        ZBuffDDSCaps.dwCaps2 = ZBuffDDSCaps.dwCaps3 = ZBuffDDSCaps.dwCaps4 = 0;
+            memset( &ZBuffDDSD, 0, sizeof( DDSURFACEDESC2 ) );
+            ZBuffDDSD.dwSize = sizeof( DDSURFACEDESC2 );
 
-        memset( &ZBuffDDSD, 0, sizeof( DDSURFACEDESC2 ) );
-        ZBuffDDSD.dwSize = sizeof( DDSURFACEDESC2 );
-
-        /* If the primary surface has an attached z-buffer, we need one for our texture
-        too. Here, we get the primary surface's z-buffer format and we create a new
-        z-buffer that we attach to the our texture. */
-        if( SUCCEEDED( mD3DDevice->GetRenderTarget( &pddsBackBuffer ) ) )
-            if( SUCCEEDED( pddsBackBuffer->GetAttachedSurface( &ZBuffDDSCaps, &pddsZBuffer ) ) )
+            /* If the primary surface has an attached z-buffer, we need one for our texture
+               too. Here, we get the primary surface's z-buffer format and we create a new
+               Z-buffer that we attach to the our texture. */
+            if( SUCCEEDED( mD3DDevice->GetRenderTarget( &pddsBackBuffer ) ) )
             {
-                pddsZBuffer->GetSurfaceDesc( &ZBuffDDSD );
+                if( SUCCEEDED( pddsBackBuffer->GetAttachedSurface( &ZBuffDDSCaps, &pddsZBuffer ) ) )
+                {
+                    pddsZBuffer->GetSurfaceDesc( &ZBuffDDSD );
 
-                ZBuffDDSD.dwWidth = ddsd.dwWidth;
-                ZBuffDDSD.dwHeight = ddsd.dwHeight;
+                    /* Our new Z-buffer should have the size of the new render target. */
+                    ZBuffDDSD.dwWidth = ddsd.dwWidth;
+                    ZBuffDDSD.dwHeight = ddsd.dwHeight;
 
-                hr = pDD->CreateSurface( &ZBuffDDSD, &pddsTexZBuffer, NULL );
-                hr = mSurface->AddAttachedSurface( pddsTexZBuffer );
+                    hr = pDD->CreateSurface( &ZBuffDDSD, &pddsTexZBuffer, NULL );
+                    hr = mSurface->AddAttachedSurface( pddsTexZBuffer );
 
-                pddsBackBuffer->Release();
-                pddsZBuffer->Release();
-                pddsTexZBuffer->Release();
+                    pddsBackBuffer->Release();
+                    pddsZBuffer->Release();
+                    pddsTexZBuffer->Release();
+                }
             }
+        }
 
         /* Release the DirectDraw interface used in the surface creation */
         pDD->Release();
@@ -590,10 +806,10 @@ namespace Ogre {
         DDSURFACEDESC2 ZBuffDDSD;
 
         ZBuffDDSCaps.dwCaps = DDSCAPS_ZBUFFER;
-	    ZBuffDDSCaps.dwCaps2 = ZBuffDDSCaps.dwCaps3 = ZBuffDDSCaps.dwCaps4 = 0;
+        ZBuffDDSCaps.dwCaps2 = ZBuffDDSCaps.dwCaps3 = ZBuffDDSCaps.dwCaps4 = 0;
 
-		memset( &ZBuffDDSD, 0, sizeof( DDSURFACEDESC2 ) );
-		ZBuffDDSD.dwSize = sizeof( DDSURFACEDESC2 );
+        memset( &ZBuffDDSD, 0, sizeof( DDSURFACEDESC2 ) );
+        ZBuffDDSD.dwSize = sizeof( DDSURFACEDESC2 );
 
         /* If the primary surface has an attached z-buffer, we need one for our texture
            too. Here, we get the primary surface's z-buffer format and we create a new
