@@ -566,9 +566,11 @@ namespace Ogre {
 	}
     
     //-----------------------------------------------------------------------------    
-    void Image::getColourAt(ColourValue *out, int x, int y, int z) 
+    ColourValue Image::getColourAt(int x, int y, int z) 
     {
-        PixelUtil::unpackColour(out, m_eFormat, &m_pBuffer[m_ucPixelSize * (z * m_uWidth * m_uHeight + m_uWidth * y + x)]);
+		ColourValue rval;
+        PixelUtil::unpackColour(&rval, m_eFormat, &m_pBuffer[m_ucPixelSize * (z * m_uWidth * m_uHeight + m_uWidth * y + x)]);
+		return rval;
     }
     
     //-----------------------------------------------------------------------------    
