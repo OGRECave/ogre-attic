@@ -1699,9 +1699,7 @@ namespace Ogre
     bool parseTextureCustomParameter(String& params, MaterialScriptContext& context)
     {
 		// This params object does not have the command stripped
-		// Lower case the all
 		// Split only up to first delimiter, program deals with the rest
-		params.toLowerCase();
 		StringVector vecparams = params.split(" \t", 1);
 		if (vecparams.size() != 2)
 		{
