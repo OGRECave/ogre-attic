@@ -68,6 +68,11 @@ namespace Ogre {
         mStencilRef = 0;
         mStencilMask = 0xffffffff;
 
+        for (int i = 0; i < OGRE_MAX_TEXTURE_LAYERS; i++)
+        {
+            mTextureTypes[i] = 0;
+        }
+
         OgreUnguard();
     }
 
@@ -504,15 +509,23 @@ namespace Ogre {
     {
         GLTexture* tex = static_cast<GLTexture*>(TextureManager::getSingleton().getByName(texname));
 
+        GLenum lastTextureType = mTextureTypes[stage];
+
 		glActiveTextureARB( GL_TEXTURE0 + stage );
 		if (enabled && tex)
         {
-            glEnable( GL_TEXTURE_2D );
-            glBindTexture( GL_TEXTURE_2D, tex->getGLID() );
+            mTextureTypes[stage] = tex->getGLTextureType();
+            if(lastTextureType != mTextureTypes[stage] && lastTextureType != 0)
+            {
+                glDisable( lastTextureType );
+            }
+
+            glEnable( mTextureTypes[stage] );
+            glBindTexture( mTextureTypes[stage], tex->getGLID() );
         }
         else
         {
-			glDisable( GL_TEXTURE_2D );
+			glDisable( mTextureTypes[stage] );
 			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
         }
         glActiveTextureARB( GL_TEXTURE0 );
@@ -533,20 +546,18 @@ namespace Ogre {
         case TEXCALC_NONE:
             glDisable( GL_TEXTURE_GEN_S );
             glDisable( GL_TEXTURE_GEN_T );
+            glDisable( GL_TEXTURE_GEN_R );
+            glDisable( GL_TEXTURE_GEN_Q );
             break;
 
         case TEXCALC_ENVIRONMENT_MAP:
-/* Removed by SJS - NORMAL_MAP is a different effect entirely
-#ifdef GL_VERSION_1_3
-            glTexGeni( GL_S, GL_TEXTURE_GEN_MODE, GL_NORMAL_MAP );
-            glTexGeni( GL_T, GL_TEXTURE_GEN_MODE, GL_NORMAL_MAP );
-#else
-*/
             glTexGeni( GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );
             glTexGeni( GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );
-//#endif
+
             glEnable( GL_TEXTURE_GEN_S );
             glEnable( GL_TEXTURE_GEN_T );
+            glDisable( GL_TEXTURE_GEN_R );
+            glDisable( GL_TEXTURE_GEN_Q );
             break;
 
         case TEXCALC_ENVIRONMENT_MAP_PLANAR:            
@@ -554,16 +565,43 @@ namespace Ogre {
 #ifdef GL_VERSION_1_3
             glTexGeni( GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP );
             glTexGeni( GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP );
+            glTexGeni( GL_R, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP );
+
+            glEnable( GL_TEXTURE_GEN_S );
+            glEnable( GL_TEXTURE_GEN_T );
+            glEnable( GL_TEXTURE_GEN_R );
+            glDisable( GL_TEXTURE_GEN_Q );
 #else
             glTexGeni( GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );
             glTexGeni( GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );
-#endif
+
             glEnable( GL_TEXTURE_GEN_S );
             glEnable( GL_TEXTURE_GEN_T );
+            glDisable( GL_TEXTURE_GEN_R );
+            glDisable( GL_TEXTURE_GEN_Q );
+#endif
             break;
         case TEXCALC_ENVIRONMENT_MAP_REFLECTION:
+            glTexGeni( GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP );
+            glTexGeni( GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP );
+            glTexGeni( GL_R, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP );
+
+            glEnable( GL_TEXTURE_GEN_S );
+            glEnable( GL_TEXTURE_GEN_T );
+            glEnable( GL_TEXTURE_GEN_R );
+            glDisable( GL_TEXTURE_GEN_Q );
             break;
         case TEXCALC_ENVIRONMENT_MAP_NORMAL:
+            glTexGeni( GL_S, GL_TEXTURE_GEN_MODE, GL_NORMAL_MAP );
+            glTexGeni( GL_T, GL_TEXTURE_GEN_MODE, GL_NORMAL_MAP );
+            glTexGeni( GL_R, GL_TEXTURE_GEN_MODE, GL_NORMAL_MAP );
+
+            glEnable( GL_TEXTURE_GEN_S );
+            glEnable( GL_TEXTURE_GEN_T );
+            glEnable( GL_TEXTURE_GEN_R );
+            glDisable( GL_TEXTURE_GEN_Q );
+            break;
+        default:
             break;
         }
         glActiveTextureARB( GL_TEXTURE0 );
@@ -586,8 +624,9 @@ namespace Ogre {
         }
 
         glActiveTextureARB( GL_TEXTURE0 + stage );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, type );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, type );
+        glTexParameteri( mTextureTypes[stage], GL_TEXTURE_WRAP_S, type );
+        glTexParameteri( mTextureTypes[stage], GL_TEXTURE_WRAP_T, type );
+        glTexParameteri( mTextureTypes[stage], GL_TEXTURE_WRAP_R, type );
         glActiveTextureARB( GL_TEXTURE0 );
     }
     //-----------------------------------------------------------------------------
@@ -826,17 +865,24 @@ namespace Ogre {
                 glClientActiveTextureARB(index + i);
 				if (glIsEnabled(GL_TEXTURE_2D))
 				{
+                    //int coordI = mTextureCoordIndex[i];
+                    //if(coordI >= op.numTextureCoordSets) coordI = 0;
 					int texCoordSet = (i < op.numTextureCoordSets) ? i : 0;
 					glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 					stride = 
+						//op.texCoordStride[coordI] ?  
+						//op.texCoordStride[coordI] + 
 						op.texCoordStride[mTextureCoordIndex[texCoordSet]] ?  
 						op.texCoordStride[mTextureCoordIndex[texCoordSet]] + 
 						((unsigned short)sizeof(GL_FLOAT) * 
+						//op.numTextureDimensions[coordI])
 						op.numTextureDimensions[mTextureCoordIndex[texCoordSet]])
 						: 0;
 					glTexCoordPointer(
+						//op.numTextureDimensions[coordI],
 						op.numTextureDimensions[mTextureCoordIndex[texCoordSet]],
 						GL_FLOAT, stride, 
+						//op.pTexCoords[coordI] );
 						op.pTexCoords[mTextureCoordIndex[texCoordSet]] );
 				}
             }
@@ -1214,48 +1260,48 @@ namespace Ogre {
 		{
 		case TFO_ANISOTROPIC:
 			glTexParameteri(
-				GL_TEXTURE_2D, 
+                mTextureTypes[unit],
 				GL_TEXTURE_MAG_FILTER, 
 				GL_LINEAR);
 
 			glTexParameteri(
-				GL_TEXTURE_2D, 
+				mTextureTypes[unit], 
 				GL_TEXTURE_MIN_FILTER,
 				GL_LINEAR_MIPMAP_LINEAR);
 			break;
 
 		case TFO_TRILINEAR:
 			glTexParameteri(
-				GL_TEXTURE_2D, 
+				mTextureTypes[unit], 
 				GL_TEXTURE_MAG_FILTER, 
 				GL_LINEAR);
 
 			glTexParameteri(
-				GL_TEXTURE_2D, 
+				mTextureTypes[unit], 
 				GL_TEXTURE_MIN_FILTER,
 				GL_LINEAR_MIPMAP_LINEAR);
 			break;
 
 		case TFO_BILINEAR:
 			glTexParameteri(
-				GL_TEXTURE_2D, 
+				mTextureTypes[unit], 
 				GL_TEXTURE_MAG_FILTER, 
 				GL_LINEAR);
 
 			glTexParameteri(
-				GL_TEXTURE_2D, 
+				mTextureTypes[unit], 
 				GL_TEXTURE_MIN_FILTER,
 				GL_LINEAR_MIPMAP_NEAREST);
 			break;
 
 		case TFO_NONE:
 			glTexParameteri(
-				GL_TEXTURE_2D, 
+				mTextureTypes[unit], 
 				GL_TEXTURE_MAG_FILTER, 
 				GL_NEAREST);
 
 			glTexParameteri(
-				GL_TEXTURE_2D, 
+				mTextureTypes[unit], 
 				GL_TEXTURE_MIN_FILTER,
 				GL_NEAREST);
 			break;
@@ -1264,10 +1310,11 @@ namespace Ogre {
 		OgreUnguard();
 	}
 	//---------------------------------------------------------------------
-	GLfloat GLRenderSystem::_getCurrentAnisotropy()
+	GLfloat GLRenderSystem::_getCurrentAnisotropy(int unit)
 	{
 		GLfloat curAniso = 0;
-		glGetTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, &curAniso);
+		glGetTexParameterfv(mTextureTypes[unit], 
+            GL_TEXTURE_MAX_ANISOTROPY_EXT, &curAniso);
 		return curAniso ? curAniso : 1;
 	}
 	//---------------------------------------------------------------------
@@ -1280,8 +1327,8 @@ namespace Ogre {
 		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest_supported_anisotropy);
 		if (maxAnisotropy > largest_supported_anisotropy)
 			maxAnisotropy = largest_supported_anisotropy ? largest_supported_anisotropy : 1;
-		if (_getCurrentAnisotropy() != maxAnisotropy)
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy);
+		if (_getCurrentAnisotropy(unit) != maxAnisotropy)
+			glTexParameterf(mTextureTypes[unit], GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy);
 	}
 	//---------------------------------------------------------------------
 	void GLRenderSystem::_setAnisotropy(int maxAnisotropy)
@@ -1332,8 +1379,10 @@ namespace Ogre {
         case LBS_MANUAL:
             src1op = GL_CONSTANT;
 			break;
-        // XXX
         case LBS_DIFFUSE:
+            src1op = GL_PRIMARY_COLOR;
+			break;
+        // XXX
         case LBS_SPECULAR:
 		default:
             src1op = 0;
@@ -1350,8 +1399,10 @@ namespace Ogre {
         case LBS_MANUAL:
 			src2op = GL_CONSTANT;
 			break;
-        // XXX
 		case LBS_DIFFUSE:
+            src2op = GL_PRIMARY_COLOR;
+			break;
+        // XXX
         case LBS_SPECULAR:
 		default:
             src2op = 0;
@@ -1404,15 +1455,15 @@ namespace Ogre {
 
         if (bm.blendType == LBT_COLOUR)
         {
-            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, cmd);
+            if (cmd != GL_DOT3_RGB)
+                glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, cmd);
             glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, src1op);
             glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, src2op);
             glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_CONSTANT);
         }
         else
         {
-            if (cmd != GL_DOT3_RGB)
-                glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, cmd);
+            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, cmd);
             glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, src1op);
             glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA, src2op);
             glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA, GL_CONSTANT);

@@ -376,12 +376,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     int Material::TextureLayer::getTextureCoordSet(void) const
     {
-        return textureCoordSetIndex;
+        return mTextureCoordSetIndex;
     }
     //-----------------------------------------------------------------------
     void Material::TextureLayer::setTextureCoordSet(int set)
     {
-        textureCoordSetIndex = set;
+        mTextureCoordSetIndex = set;
     }
     //-----------------------------------------------------------------------
     void Material::TextureLayer::setColourOperationEx(LayerBlendOperationEx op,
@@ -517,11 +517,11 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Material::TextureLayer::setEnvironmentMap(bool enable, EnvMapType envMapType)
     {
-        TextureEffect eff;
-        eff.type = ET_ENVIRONMENT_MAP;
-
         if (enable)
         {
+            TextureEffect eff;
+            eff.type = ET_ENVIRONMENT_MAP;
+
             eff.subtype = envMapType;
             addEffect(eff);
         }
