@@ -135,12 +135,13 @@ namespace Ogre
     {
         AxisAlignedBox b( -500, -500, -500, 500, 500, 500 );
         int depth = 5; //infinite depth
+        mOctree = 0;
         init( b, depth );
     }
 
     OctreeSceneManager::OctreeSceneManager( AxisAlignedBox &box, int max_depth ) : SceneManager()
     {
-
+        mOctree = 0;
         init( box, max_depth );
     }
 
