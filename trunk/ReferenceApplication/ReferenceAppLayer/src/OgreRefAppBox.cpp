@@ -61,7 +61,7 @@ namespace OgreRefApp
         // Set reverse reference
         mOdeBody->setData(this);
         // Set mass 
-        setMassBox(0.5, mDimensions);
+        setMassBox(0.05, mDimensions);
 
         this->setBounceParameters(0.0, 0.0);
         this->setSoftness(0.0f);

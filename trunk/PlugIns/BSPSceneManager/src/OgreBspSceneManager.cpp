@@ -37,6 +37,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreControllerManager.h"
 #include "OgreLogManager.h"
 #include "OgreBspSceneNode.h"
+#include "OgreStringConverter.h"
+#include "OgreLogManager.h"
+
 
 #include <fstream>
 
@@ -622,6 +625,87 @@ namespace Ogre {
         Issue: some movable-movable intersections could be reported twice if 2 movables
         overlap 2 leaves?
         */
+        BspLevel* lvl = ((BspSceneManager*)mParentSceneMgr)->getLevel();
+        BspNode* leaf = lvl->getLeafStart();
+        int numLeaves = lvl->getNumLeaves();
+        
+        while (numLeaves--)
+        {
+            const BspNode::IntersectingObjectSet& objects = leaf->getObjects();
+            int numObjects = (int)objects.size();
+
+            BspNode::IntersectingObjectSet::const_iterator a, b, theEnd;
+            theEnd = objects.end();
+            a = objects.begin();
+            for (int oi = 0; oi < (numObjects - 1); ++oi, ++a)
+            {
+                // Check object against others in this node
+                b = a;
+                const MovableObject* aObj = *a;
+                for (++b; b != theEnd; ++b)
+                {
+                    const MovableObject* bObj = *b;
+                    // Apply mask (both must pass)
+                    if ( (aObj->getQueryFlags() & mQueryMask) && 
+                        (bObj->getQueryFlags() & mQueryMask))
+                    {
+                        const AxisAlignedBox& box1 = aObj->getWorldBoundingBox();
+                        const AxisAlignedBox& box2 = bObj->getWorldBoundingBox();
+
+                        if (box1.intersects(box2))
+                        {
+                            listener->queryResult(const_cast<MovableObject*>(aObj), 
+                                const_cast<MovableObject*>(bObj)); // hacky
+                        }
+                    }
+
+
+                }
+                // Check object against brushes
+                const BspNode::BrushList& brushes = leaf->getSolidBrushes();
+                BspNode::BrushList::const_iterator bi, biend;
+                biend = brushes.end();
+                Real radius = aObj->getBoundingRadius();
+                const Vector3& pos = aObj->getParentNode()->_getDerivedPosition();
+                String msg = "Radius: " + StringConverter::toString(radius) + " Position: " +
+                    StringConverter::toString(pos);
+                LogManager::getSingleton().logMessage(msg);
+
+                for (bi = brushes.begin(); bi != biend; ++bi)
+                {
+                    std::list<Plane>::const_iterator planeit, planeitend;
+                    planeitend = bi->planes.end();
+                    bool brushIntersect = true; // Assume intersecting for now
+
+                    for (planeit = bi->planes.begin(); planeit != planeitend; ++planeit)
+                    {
+                        Real dist = planeit->getDistance(pos);
+                        msg = "Versus plane ";
+                        msg << *planeit;
+                        msg += " dist = " + StringConverter::toString(dist) + "  \n";
+                        LogManager::getSingleton().logMessage(msg);
+                        if ( dist > radius)
+                        {
+                            // Definitely excluded
+                            brushIntersect = false;
+                            //break;
+                        }
+                    }
+                    if (brushIntersect)
+                    {
+                        // report this brush as it's WorldFragment
+                        listener->queryResult(const_cast<MovableObject*>(aObj), // hacky
+                                const_cast<WorldFragment*>(&(bi->fragment))); 
+                    }
+
+                }
+
+
+            }
+
+            ++leaf;
+        }
+
 
 
     }

@@ -274,7 +274,7 @@ namespace Ogre {
 
         BoneList::iterator i;
         for (i = mBoneList.begin(); i != mBoneList.end(); ++i)
-        {
+        {            
             i->second->setBindingPose();
         }
     }
@@ -284,7 +284,8 @@ namespace Ogre {
         BoneList::iterator i;
         for (i = mBoneList.begin(); i != mBoneList.end(); ++i)
         {
-            i->second->reset();
+            if(!i->second->isManuallyControlled())
+                i->second->reset();
         }
     }
     //---------------------------------------------------------------------

@@ -35,9 +35,9 @@ template<> OgreRefApp::World* Ogre::Singleton<OgreRefApp::World>::ms_Singleton =
 namespace OgreRefApp
 {
     //-------------------------------------------------------------------------
-    World::World(SceneManager* sceneMgr)
+    World::World(SceneManager* sceneMgr, WorldType worldType)
+        : mSceneMgr(sceneMgr), mWorldType(worldType)
     {
-        mSceneMgr = sceneMgr;
         mSimulationStepSize = 0.01f;
 
         // Create the dynamics world
@@ -45,6 +45,15 @@ namespace OgreRefApp
         mOdeContactGroup = new dJointGroup();
 
         mIntersectionQuery = mSceneMgr->createIntersectionQuery();
+        switch (worldType)
+        {
+        case World::WT_REFAPP_GENERIC:
+            mIntersectionQuery->setWorldFragmentType(SceneQuery::WFT_NONE);
+            break;
+        case World::WT_REFAPP_BSP:
+            mIntersectionQuery->setWorldFragmentType(SceneQuery::WFT_PLANE_BOUNDED_REGION);
+            break;
+        };
 
     }
     //-------------------------------------------------------------------------
@@ -77,10 +86,10 @@ namespace OgreRefApp
         return head;
     }
     //-------------------------------------------------------------------------
-    OgreRefApp::Plane* World::createPlane(const String& name, Real width, Real height, const Vector3& pos, 
+    FinitePlane* World::createPlane(const String& name, Real width, Real height, const Vector3& pos, 
         const Quaternion& orientation)
     {
-        OgreRefApp::Plane* plane = new OgreRefApp::Plane(name, width, height);
+        FinitePlane* plane = new FinitePlane(name, width, height);
         plane->setPosition(pos);
         plane->setOrientation(orientation);
 
@@ -89,7 +98,7 @@ namespace OgreRefApp
         return plane;
     }
     //-------------------------------------------------------------------------
-    OgreRefApp::Ball* World::createBall(const String& name, Real radius, const Vector3& pos, 
+    Ball* World::createBall(const String& name, Real radius, const Vector3& pos, 
         const Quaternion& orientation)
     {
         OgreRefApp::Ball* ball = new OgreRefApp::Ball(name, radius);
@@ -164,7 +173,7 @@ namespace OgreRefApp
     void World::setGravity(const Vector3& vec)
     {
         mGravity = vec;
-        mOdeWorld->setGravity(vec.x, vec.y, vec.x);
+        mOdeWorld->setGravity(vec.x, vec.y, vec.z);
     }
     //-------------------------------------------------------------------------
     const Vector3& World::getGravity(void)
@@ -182,6 +191,7 @@ namespace OgreRefApp
         // Collision detection
         IntersectionSceneQueryResult& results = mIntersectionQuery->execute();
 
+        // Movables to Movables
         SceneQueryMovableIntersectionList::iterator it, itend;
         itend = results.movables2movables.end();
         for (it = results.movables2movables.begin(); it != itend; ++it)
@@ -208,6 +218,28 @@ namespace OgreRefApp
                 ao1->testCollide(ao2);
             }
         }
+
+        // Movables to World
+        SceneQueryMovableWorldFragmentIntersectionList::iterator wit, witend;
+        witend = results.movables2world.end();
+        for (wit = results.movables2world.begin(); wit != witend; ++wit)
+        {
+            MovableObject *mo = wit->first;
+            SceneQuery::WorldFragment *wf = wit->second;
+
+            // Get user defined objects (generic in OGRE)
+            UserDefinedObject *uo = mo->getUserObject();
+
+            // Only perform collision if we have UserDefinedObject link
+            if (uo)
+            {
+                // Cast to ApplicationObject
+                ApplicationObject *ao = static_cast<ApplicationObject*>(uo);
+                // Do detailed collision test
+                ao->testCollide(wf);
+            }
+        }
+
     }
     //-------------------------------------------------------------------------
     Joint* World::createJoint(const String& name, Joint::JointType jtype,

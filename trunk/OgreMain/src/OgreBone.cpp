@@ -31,12 +31,12 @@ namespace Ogre {
 
     //---------------------------------------------------------------------
     Bone::Bone(unsigned short handle, Skeleton* creator) 
-        : Node(), mHandle(handle), mCreator(creator)
+        : Node(), mManuallyControlled(false), mHandle(handle), mCreator(creator)
     {
     }
     //---------------------------------------------------------------------
     Bone::Bone(const String& name, unsigned short handle, Skeleton* creator) 
-        : Node(name), mHandle(handle), mCreator(creator)
+        : Node(name), mManuallyControlled(false), mHandle(handle), mCreator(creator)
     {
     }
     //---------------------------------------------------------------------
@@ -76,6 +76,14 @@ namespace Ogre {
     void Bone::reset(void)
     {
         resetToInitialState();
+    }
+    //---------------------------------------------------------------------
+    void Bone::setManuallyControlled(bool manuallyControlled) {
+        this->mManuallyControlled = manuallyControlled;
+    }
+    //---------------------------------------------------------------------
+    bool Bone::isManuallyControlled() {
+        return mManuallyControlled;
     }
     //---------------------------------------------------------------------
     Matrix4 Bone::_getBindingPoseInverseTransform(void)

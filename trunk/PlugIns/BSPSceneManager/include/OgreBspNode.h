@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreBspPrerequisites.h"
 #include "OgrePlane.h"
 #include "OgreAxisAlignedBox.h"
+#include "OgreSceneQuery.h"
 
 namespace Ogre {
 
@@ -143,8 +144,9 @@ namespace Ogre {
         struct Brush
         {
             std::list<Plane> planes;
+            SceneQuery::WorldFragment fragment; // For query reporting
         };
-        typedef std::list<Brush> BrushList;
+        typedef std::vector<Brush> BrushList;
 
         /** Get the list of solid Brushes for this node.
         @remarks Only applicable for leaf nodes. 

@@ -147,6 +147,9 @@
 				RelativePath="..\src\OgreColourFaderAffector.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreColourFaderAffector2.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreCylinderEmitter.cpp">
 			</File>
 			<File
@@ -167,6 +170,9 @@
 			<File
 				RelativePath="..\src\OgreRingEmitter.cpp">
 			</File>
+			<File
+				RelativePath="..\src\OgreScaleAffector.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -184,7 +190,13 @@
 				RelativePath="..\include\OgreColourFaderAffector.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreColourFaderAffector2.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreColourFaderAffectorFactory.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreColourFaderAffectorFactory2.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreCylinderEmitter.h">
@@ -227,6 +239,12 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreRingEmitterFactory.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreScaleAffector.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreScaleAffectorFactory.h">
 			</File>
 		</Filter>
 		<Filter

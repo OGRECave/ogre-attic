@@ -349,10 +349,111 @@ namespace OgreRefApp
 
     }
     //-------------------------------------------------------------------------
+    bool ApplicationObject::testCollide(SceneQuery::WorldFragment* wf)
+    {
+        switch (wf->fragmentType)
+        {
+        case SceneQuery::WFT_NONE:
+            return false;
+        case SceneQuery::WFT_PLANE_BOUNDED_REGION:
+            return testCollidePlaneBounds(wf);
+        };
+
+        // not handled
+        return false;
+    }
+    //-------------------------------------------------------------------------
+    bool ApplicationObject::testCollidePlaneBounds(SceneQuery::WorldFragment* wf)
+    {
+        bool collided = false;
+        dContactGeom contactGeom;
+        dGeom *obj;
+        CollisionProxyList::const_iterator proxy, proxyend;
+        proxyend = mCollisionProxies.end();
+
+        std::list<Plane>::const_iterator pi, piend;
+        piend = wf->planes->end();
+
+        CollisionInfo collInfo;
+
+        for (proxy = mCollisionProxies.begin(); proxy != proxyend; ++proxy)
+        {
+            obj = *proxy;
+            for (pi = wf->planes->begin(); pi != piend; ++pi)
+            {
+                const Plane& boundPlane = *pi;
+                dPlane odePlane(0, boundPlane.normal.x, boundPlane.normal.y, boundPlane.normal.z, 
+                    -boundPlane.d);
+
+                int numc = dCollide(obj->id(), odePlane.id() , 0, &contactGeom, sizeof(dContactGeom));
+                if (numc)
+                {
+                    // Create contact joints if either object is dynamics simulated
+                    // If one is not, then sim will not affect it anyway, it will be fixed
+                    // However if one is enabled, we need the contact joint
+                    if (this->isDynamicsEnabled())
+                    {
+                        // TODO: combine object parameters with WorldFragment physical properties
+                        dContact contact;
+					    // Set flags
+					    contact.surface.mode = dContactBounce | dContactApprox1;
+					    contact.surface.bounce = this->getBounceRestitutionValue();
+					    contact.surface.bounce_vel = this->getBounceVelocityThreshold();
+					    Real softness = this->getSoftness();
+					    if (softness > 0)
+					    {
+                            contact.surface.mode |= dContactSoftCFM;
+						    contact.surface.soft_cfm = softness;
+					    }
+    					
+                        // Set friction 
+                        contact.surface.mu = this->getFriction();
+                        contact.surface.mu2 = 0;
+                        contact.geom = contactGeom;
+                        dContactJoint contactJoint(
+                            World::getSingleton().getOdeWorld()->id(), 
+                            World::getSingleton().getOdeContactJointGroup()->id(), 
+                            &contact);
+
+                        // Get ODE body,world fragment body is 0 clearly (immovable)
+                        dBody* body = this->getOdeBody();
+                        dBodyID bid;
+                        bid = 0;
+                        if (body) bid = body->id();
+                        contactJoint.attach(bid, 0);
+                    }
+
+                    // Tell object about the collision
+                    collInfo.position.x = contactGeom.pos[0];
+                    collInfo.position.y = contactGeom.pos[1];
+                    collInfo.position.z = contactGeom.pos[2];
+                    collInfo.normal.x = contactGeom.normal[0];
+                    collInfo.normal.y = contactGeom.normal[1];
+                    collInfo.normal.z = contactGeom.normal[2];
+                    collInfo.penetrationDepth = contactGeom.depth;
+                    this->_notifyCollided(wf, collInfo);
+
+
+                    // set return 
+                    collided = true;
+                }
+            }
+        }
+        return collided;
+    }
+    //-------------------------------------------------------------------------
     void ApplicationObject::_notifyCollided(ApplicationObject* otherObj, 
         const ApplicationObject::CollisionInfo& info)
     {
         // NB contacts for physics are not created here but in testCollide
+        // Application subclasses should do their own respose here if required
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::_notifyCollided(SceneQuery::WorldFragment* wf, 
+        const CollisionInfo& info)
+    {
+        // NB contacts for physics are not created here but in testCollide
+        // Application subclasses should do their own respose here if required
     }
     //-------------------------------------------------------------------------
 	void ApplicationObject::setBounceParameters(Real restitutionValue, 

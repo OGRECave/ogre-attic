@@ -80,7 +80,7 @@ namespace Ogre {
             @par
                 Attaching an object is done via the SceneNode::attachObject method.
         */
-        virtual Node* getParentNode(void);
+        virtual Node* getParentNode(void) const;
 
         /** Internal method called to notify the object that it has been attached to a node.
         */
@@ -173,7 +173,7 @@ namespace Ogre {
         virtual void removeQueryFlags(unsigned long flags) { mQueryFlags ^= flags; }
         
         /// Returns the query flags relevant for this object
-        virtual unsigned long getQueryFlags(void) { return mQueryFlags; }
+        virtual unsigned long getQueryFlags(void) const { return mQueryFlags; }
 
 
 

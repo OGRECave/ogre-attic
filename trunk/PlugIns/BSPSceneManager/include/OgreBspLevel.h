@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreResource.h"
 #include "OgreStaticFaceGroup.h"
 #include "OgreSceneManager.h"
+#include "OgreBspNode.h"
 
 
 namespace Ogre {
@@ -77,6 +78,10 @@ namespace Ogre {
             const Vector3& pos);
 		/** Internal method, makes sure an object is removed from the leaves when detached from a node. */
 		void _notifyObjectDetached(const MovableObject* mov);
+        /** Gets a pointer to the start of the leaf nodes. */
+        BspNode* getLeafStart(void) {return &mRootNode[mLeafStart]; }
+        /** Gets the number of leaf nodes */
+        int getNumLeaves(void) { return mNumLeaves; }
     protected:
         /** Pointer to the root node of the BSP tree;
             This pointer actually has a dual purpose; to avoid allocating lots of small chunks of
@@ -161,6 +166,7 @@ namespace Ogre {
         MovableToNodeMap mMovableToNodeMap;
 
         void tagNodesWithMovable(BspNode* node, const MovableObject* mov, const Vector3& pos);
+
 
 
     };

@@ -73,7 +73,7 @@ namespace OgreRefApp {
     class ApplicationObject;
     class OgreHead;
     class Player;
-    class Plane;
+    class FinitePlane;
     class Ball;
     class Box;
 
