@@ -46,8 +46,6 @@ namespace Ogre {
         // Start next handle
         mNextAutoHandle = 0;
 
-        // Indicate root has not been derived yet
-        mRootBone = 0;
 		// set animation blending to weighted, not cumulative
 		mBlendState = ANIMBLEND_AVERAGE;
 
@@ -173,12 +171,12 @@ namespace Ogre {
     //---------------------------------------------------------------------
     Bone* Skeleton::getRootBone(void) const
     {
-        if (mRootBone == 0)
+        if (mRootBones.empty())
         {
             deriveRootBone();
         }
 
-        return mRootBone;
+        return mRootBones[0];
     }
     //---------------------------------------------------------------------
     void Skeleton::setAnimationState(const AnimationStateSet& animSet)
@@ -240,7 +238,7 @@ namespace Ogre {
     void Skeleton::setBindingPose(void)
     {
         // Update the derived transforms
-        getRootBone()->_update(true, false);
+        _updateTransforms();
 
 
         BoneList::iterator i;
@@ -330,7 +328,7 @@ namespace Ogre {
     void Skeleton::_getBoneMatrices(Matrix4* pMatrices)
     {
         // Update derived transforms
-        getRootBone()->_update(true, false);
+        _updateTransforms();
 
         /* 
             Calculating the bone matrices
@@ -402,18 +400,20 @@ namespace Ogre {
                 "skeleton has no bones!", "Skeleton::deriveRootBone");
         }
 
+        mRootBones.empty();
+
         Bone* currentBone;
-        BoneList::const_iterator i = mBoneList.begin();
-
-        currentBone = *i;
-        while (currentBone->getParent() != 0)
+        BoneList::const_iterator i;
+        BoneList::const_iterator iend = mBoneList.end();
+        for (i = mBoneList.begin(); i != iend; ++i)
         {
-            // Keep going up the tree
-            currentBone = (Bone*)currentBone->getParent();
+            currentBone = *i;
+            if (currentBone->getParent() == 0)
+            {
+                // This is a root
+                mRootBones.push_back(currentBone);
+            }
         }
-
-        // No more parents, this must be the root
-        mRootBone = currentBone;
     }
     //---------------------------------------------------------------------
     void Skeleton::_dumpContents(const String& filename)
@@ -492,6 +492,29 @@ namespace Ogre {
     {
 		mBlendState = state;
 	}
-
+    //---------------------------------------------------------------------
+    Skeleton::BoneIterator Skeleton::getRootBoneIterator(void)
+    {
+        if (mRootBones.empty())
+        {
+            deriveRootBone();
+        }
+        return BoneIterator(mRootBones.begin(), mRootBones.end());
+    }
+    //---------------------------------------------------------------------
+    Skeleton::BoneIterator Skeleton::getBoneIterator(void)
+    {
+        return BoneIterator(mBoneList.begin(), mBoneList.end());
+    }
+    //---------------------------------------------------------------------
+    void Skeleton::_updateTransforms(void)
+    {
+        BoneList::iterator i, iend;
+        iend = mRootBones.end();
+        for (i = mRootBones.begin(); i != iend; ++i)
+        {
+            (*i)->_update(true, false);
+        }
+    }
 }
 
