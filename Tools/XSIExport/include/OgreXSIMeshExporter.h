@@ -52,6 +52,12 @@ namespace Ogre {
         XsiMeshExporter();
         virtual ~XsiMeshExporter();
 
+		struct LodData
+		{
+			Mesh::LodDistanceList distances;
+			ProgressiveMesh::VertexReductionQuota quota;
+			Real reductionValue;
+		};
         /** Perform an export of the selection to Ogre .mesh.
         @remarks
             Every PolygonMesh object is exported as a different SubMesh. Other
@@ -61,9 +67,11 @@ namespace Ogre {
 		@param exportChildren Whether to cascade down each objects children
         @param edgeLists Whether to calculate edge lists
         @param tangents Whether to calculate tangents
+		@param lod LOD generation parameters (if required)
         */
         void exportMesh(const XSI::CString& fileName, 
-            bool mergeSubMeshes, bool exportChildren, bool edgeLists, bool tangents);
+            bool mergeSubMeshes, bool exportChildren, bool edgeLists, 
+			bool tangents, LodData* lod = 0);
 
     protected:
 

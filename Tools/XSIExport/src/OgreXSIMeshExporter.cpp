@@ -84,7 +84,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	void XsiMeshExporter::exportMesh(const XSI::CString& fileName, 
 		bool mergeSubMeshes, bool exportChildren, 
-		bool edgeLists, bool tangents)
+		bool edgeLists, bool tangents, LodData* lod)
     {
         LogManager logMgr;
 		logMgr.createLog("OgreXSIExporter.log", true);
@@ -108,6 +108,10 @@ namespace Ogre {
 		buildMesh(pMesh.getPointer(), mergeSubMeshes);
 
 
+		if (lod)
+		{
+			pMesh->generateLodLevels(lod->distances, lod->quota, lod->reductionValue);
+		}
 
         if(edgeLists)
         {

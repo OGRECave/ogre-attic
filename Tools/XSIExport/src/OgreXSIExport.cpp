@@ -46,6 +46,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreLogManager.h"
 #include "OgreException.h"
 #include "OgreXSIHelper.h"
+#include "OgreProgressiveMesh.h"
 
 using namespace XSI;
 
@@ -97,7 +98,7 @@ CStatus XSILoadPlugin( XSI::PluginRegistrar& registrar )
 {
 	registrar.PutAuthor( L"Steve Streeting" );
 	registrar.PutName( L"OGRE Exporter Plugin" );	
-    registrar.PutVersion( 0, 15 );
+    registrar.PutVersion( 1, 0 );
     registrar.PutURL(L"http://www.ogre3d.org");
     
 
@@ -241,8 +242,36 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
         bool edgeLists = param.GetValue();
         param = prop.GetParameters().GetItem( L"calculateTangents" );
         bool tangents = param.GetValue();
+		param = prop.GetParameters().GetItem( L"numLodLevels" );
+		long numlods = param.GetValue();
+		Ogre::XsiMeshExporter::LodData* lodData = 0;
+		if (numlods > 0)
+		{
+			param = prop.GetParameters().GetItem( L"lodDistanceIncrement" );
+			float distanceInc = param.GetValue();
+
+			param = prop.GetParameters().GetItem(L"lodQuota");
+			CString quota = param.GetValue();
+
+			param = prop.GetParameters().GetItem(L"lodReduction");
+			float reduction = param.GetValue();
+
+			lodData = new Ogre::XsiMeshExporter::LodData;
+			float currentInc = distanceInc;
+			for (int l = 0; l < numlods; ++l)
+			{
+				lodData->distances.push_back(currentInc);
+				currentInc += distanceInc;
+			}
+			lodData->quota = (quota == L"p") ?
+				Ogre::ProgressiveMesh::VRQ_PROPORTIONAL : Ogre::ProgressiveMesh::VRQ_CONSTANT;
+			if (lodData->quota == Ogre::ProgressiveMesh::VRQ_PROPORTIONAL)
+				lodData->reductionValue = reduction * 0.01;
+			else
+				lodData->reductionValue = reduction;
+
+		}
         /* TODO
-        "lodGeneration"
         "targetSkeletonFileName"
         "fps"
         "animationSplit"
@@ -251,7 +280,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
         try 
         {
             exporter.exportMesh(meshFileName, mergeSubmeshes, 
-				exportChildren, edgeLists, tangents);
+				exportChildren, edgeLists, tangents, lodData);
         }
         catch (Ogre::Exception& e)
         {
@@ -259,6 +288,9 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
             // Tell XSI
             app.LogMessage(OgretoXSI(e.getFullDescription()), XSI::siErrorMsg);
         }
+		
+		delete lodData;
+
 
 	}
 	DeleteObj( L"OgreMeshExportOptions" );
@@ -322,6 +354,22 @@ CStatus OgreMeshExportOptions_Define( const CRef & in_Ctx )
         L"calculateTangents",CValue::siBool, caps, 
         L"Calculate Tangents (normal mapping)", L"", 
         CValue(false), param) ;	
+	prop.AddParameter(	
+		L"numLodLevels",CValue::siInt2, caps, 
+		L"Levels of Detail", L"", 
+		CValue(0L), param) ;	
+	prop.AddParameter(	
+		L"lodDistanceIncrement",CValue::siFloat, caps, 
+		L"Distance Increment", L"", 
+		CValue(2000L), param) ;	
+	prop.AddParameter(	
+		L"lodQuota",CValue::siString, caps, 
+		L"Reduction Style", L"", 
+		L"p", param) ;	
+	prop.AddParameter(	
+		L"lodReduction",CValue::siFloat, caps, 
+		L"Reduction Value", L"", 
+		CValue(20.0f), param) ;	
     prop.AddParameter(	// TODO, review this
         L"lodGeneration",CValue::siString, caps, 
         L"LOD Generation", L"", 
@@ -363,9 +411,9 @@ CStatus OgreMeshExportOptions_DefineLayout( const CRef & in_Ctx )
 
 	oLayout.Clear() ;
 
-    // Object picker
+    // Object 
+	oLayout.AddTab(L"Basic");
     oLayout.AddGroup(L"Object(s) to Export");
-    oLayout.AddRow();
 
     item = oLayout.AddItem(L"objectName");
     item.PutAttribute( siUINoLabel, true );
@@ -375,7 +423,6 @@ CStatus OgreMeshExportOptions_DefineLayout( const CRef & in_Ctx )
     item.PutWidthPercentage(1) ;
 	*/
 
-    oLayout.EndRow();
     oLayout.EndGroup();
 
 	// Mesh group
@@ -387,24 +434,38 @@ CStatus OgreMeshExportOptions_DefineLayout( const CRef & in_Ctx )
 	item = oLayout.AddItem(L"mergeSubmeshes") ;
 	item = oLayout.AddItem(L"exportChildren") ;
 
+	oLayout.EndGroup();
+	// Skeleton Group
+	item = oLayout.AddGroup(L"Skeleton");
+
+	item = oLayout.AddItem(L"exportSkeleton");
+	item = oLayout.AddItem(L"targetSkeletonFileName", L"Target", siControlFilePath);
+	item.PutAttribute( siUINoLabel, true );
+	item.PutAttribute( siUIFileFilter, L"OGRE Skeleton format (*.skeleton)|*.skeleton|All Files (*.*)|*.*||" );
+	item = oLayout.AddItem(L"fps");
+	item = oLayout.AddItem(L"animationSplit");
+
+	oLayout.EndGroup();
+
+
+	oLayout.AddTab(L"Advanced");
+
+	oLayout.AddGroup(L"Mesh options");
     item = oLayout.AddItem(L"calculateEdgeLists");
     item = oLayout.AddItem(L"calculateTangents");
-    item = oLayout.AddItem(L"lodGeneration");
-
-    oLayout.EndGroup();
-
-    // Skeleton Group
-    item = oLayout.AddGroup(L"Skeleton");
-
-    item = oLayout.AddItem(L"exportSkeleton");
-    item = oLayout.AddItem(L"targetSkeletonFileName", L"Target", siControlFilePath);
-    item.PutAttribute( siUINoLabel, true );
-    item.PutAttribute( siUIFileFilter, L"OGRE Skeleton format (*.skeleton)|*.skeleton|All Files (*.*)|*.*||" );
-    item = oLayout.AddItem(L"fps");
-    item = oLayout.AddItem(L"animationSplit");
+	oLayout.AddGroup(L"Level of Detail Reduction");
+    item = oLayout.AddItem(L"numLodLevels");
+	item = oLayout.AddItem(L"lodDistanceIncrement");
+	CValueArray vals;
+	vals.Add(L"Percentage");
+	vals.Add(L"p");
+	vals.Add(L"Constant");
+	vals.Add(L"c");
+	item = oLayout.AddEnumControl(L"lodQuota", vals, L"Quota", XSI::siControlCombo);
+	item = oLayout.AddItem(L"lodReduction");
+	oLayout.EndGroup();
 
 
-    oLayout.EndGroup();
 
 
 	return CStatus::OK;	
