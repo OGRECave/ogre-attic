@@ -161,7 +161,6 @@ namespace Ogre
         uint data_width = tex_side * 4;
         // Add a gap between letters vert and horz
         // prevents nasty artefacts when letters are too close together
-        // TODO this should be parametric, based on height.
         uint char_spacer = 5;
 
         uchar* imageData = new uchar[tex_side * tex_side * 4];
