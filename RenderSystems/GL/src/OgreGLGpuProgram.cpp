@@ -32,18 +32,18 @@ GLGpuProgram::GLGpuProgram(const String& name, GpuProgramType gptype, const Stri
     GpuProgram(name, gptype, syntaxCode)
 {
     mProgramType = (gptype == GPT_VERTEX_PROGRAM) ? GL_VERTEX_PROGRAM_ARB : GL_FRAGMENT_PROGRAM_ARB;
-    glGenProgramsARB(1, &mProgramID);
+    glGenProgramsARB_ptr(1, &mProgramID);
 }
 
 void GLGpuProgram::unload(void)
 {
-    glDeleteProgramsARB(1, &mProgramID);
+    glDeleteProgramsARB_ptr(1, &mProgramID);
 }
 
 void GLGpuProgram::loadFromSource(void)
 {
-    glBindProgramARB(mProgramType, mProgramID);
-    glProgramStringARB(mProgramType, GL_PROGRAM_FORMAT_ASCII_ARB, mSource.length(), mSource.c_str());
+    glBindProgramARB_ptr(mProgramType, mProgramID);
+    glProgramStringARB_ptr(mProgramType, GL_PROGRAM_FORMAT_ASCII_ARB, mSource.length(), mSource.c_str());
     if (GL_INVALID_OPERATION == glGetError())
     {
         int errPos;
@@ -56,6 +56,6 @@ void GLGpuProgram::loadFromSource(void)
             "Cannot load GL vertex program " + mName + 
             ".  Line " + errPosStr + ":\n" + errStr, mName);
     }
-    glBindProgramARB(mProgramType, 0);
+    glBindProgramARB_ptr(mProgramType, 0);
 }
 

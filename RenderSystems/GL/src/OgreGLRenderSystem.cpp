@@ -56,6 +56,11 @@ GL_UnmapBufferARB_Func glUnmapBufferARB_ptr;
 GL_BufferDataARB_Func glBufferDataARB_ptr;
 GL_BufferSubDataARB_Func glBufferSubDataARB_ptr;
 GL_GetBufferSubDataARB_Func glGetBufferSubDataARB_ptr;
+GL_GenProgramsARB_Func glGenProgramsARB_ptr;
+GL_DeleteProgramsARB_Func glDeleteProgramsARB_ptr;
+GL_BindProgramARB_Func glBindProgramARB_ptr;
+GL_ProgramStringARB_Func glProgramStringARB_ptr;
+GL_ProgramLocalParameter4fvARB_Func glProgramLocalParameter4fvARB_ptr;
 
 namespace Ogre {
 
@@ -107,6 +112,11 @@ namespace Ogre {
         glBufferDataARB_ptr = 0;
         glBufferSubDataARB_ptr = 0;
         glGetBufferSubDataARB_ptr = 0;
+        glGenProgramsARB_ptr = 0;
+        glDeleteProgramsARB_ptr = 0;
+        glBindProgramARB_ptr = 0;
+        glProgramStringARB_ptr = 0;
+        glProgramLocalParameter4fvARB_ptr = 0;
 
         mCurrentLights = 0;
         mMinFilter = FO_LINEAR;
@@ -317,6 +327,16 @@ namespace Ogre {
             (GL_BufferSubDataARB_Func)mGLSupport->getProcAddress("glBufferSubDataARB");
         glGetBufferSubDataARB_ptr = 
             (GL_GetBufferSubDataARB_Func)mGLSupport->getProcAddress("glGetBufferSubDataARB");
+        glGenProgramsARB_ptr =
+            (GL_GenProgramsARB_Func)mGLSupport->getProcAddress("glGenProgramsARB");
+        glDeleteProgramsARB_ptr =
+            (GL_DeleteProgramsARB_Func)mGLSupport->getProcAddress("glDeleteProgramsARB");
+        glBindProgramARB_ptr =
+            (GL_BindProgramARB_Func)mGLSupport->getProcAddress("glBindProgramARB");
+        glProgramStringARB_ptr =
+            (GL_ProgramStringARB_Func)mGLSupport->getProcAddress("glProgramStringARB");
+        glProgramLocalParameter4fvARB_ptr =
+            (GL_ProgramLocalParameter4fvARB_Func)mGLSupport->getProcAddress("glProgramLocalParameter4fvARB");
 
         mCapabilities->log(LogManager::getSingleton().getDefaultLog());
     }
@@ -1764,14 +1784,14 @@ namespace Ogre {
         GLGpuProgram* glprg = static_cast<GLGpuProgram*>(prg);
         GLuint glProgType = glprg->getProgramType();
         glEnable(glProgType);
-        glBindProgramARB(glProgType, glprg->getProgramID());
+        glBindProgramARB_ptr(glProgType, glprg->getProgramID());
     }
 	//---------------------------------------------------------------------
     void GLRenderSystem::unbindGpuProgram(GpuProgramType gptype)
     {
         GLuint glProgType = (gptype == GPT_VERTEX_PROGRAM) ? 
             GL_VERTEX_PROGRAM_ARB : GL_FRAGMENT_PROGRAM_ARB;
-        glBindProgramARB(glProgType, 0);
+        glBindProgramARB_ptr(glProgType, 0);
         glDisable(glProgType);
     }
 	//---------------------------------------------------------------------
@@ -1792,7 +1812,7 @@ namespace Ogre {
                 GpuProgramParameters::RealConstantEntry* e = realIt.peekNextPtr();
                 if (e->isSet)
                 {
-                    glProgramLocalParameter4fvARB(type, index++, e->val);
+                    glProgramLocalParameter4fvARB_ptr(type, index++, e->val);
                 }
                 realIt.moveNext();
             }
