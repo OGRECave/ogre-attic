@@ -41,6 +41,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRoot.h"
 #include "OgreTechnique.h"
 #include "OgrePass.h"
+#include "OgreSkeletonInstance.h"
 
 namespace Ogre {
     String Entity::msMovableType = "Entity";
@@ -52,6 +53,7 @@ namespace Ogre {
         mCastShadows = true;
         mFrameAnimationLastUpdated = 0;
         mHardwareSkinning = false;
+        mSkeletonInstance = 0;
     }
     //-----------------------------------------------------------------------
     Entity::Entity( const String& name, Mesh* mesh, SceneManager* creator) :
@@ -63,10 +65,21 @@ namespace Ogre {
         mHardwareSkinning = false;
         mSharedBlendedVertexData = NULL;
 	
-		// Build main subentity list
+        // Is mesh skeletally animated?
+        if (mMesh->hasSkeleton())
+        {
+            mSkeletonInstance = new SkeletonInstance(mMesh->getSkeleton());
+            mSkeletonInstance->load();
+        }
+        else
+        {
+            mSkeletonInstance = 0;
+        }
+
+        // Build main subentity list
 		buildSubEntityList(mesh, &mSubEntityList);
 
-		// Check if mesh is using manual LOD
+        // Check if mesh is using manual LOD
 		if (mesh->isLodManual())
 		{
 			ushort i, numLod;
@@ -84,10 +97,10 @@ namespace Ogre {
 
 
         // Initialise the AnimationState, if Mesh has animation
-        if (mesh->hasSkeleton())
+        if (hasSkeleton())
         {
             mesh->_initAnimationState(&mAnimationState);
-            mNumBoneMatrices = mesh->_getNumBoneMatrices();
+            mNumBoneMatrices = mSkeletonInstance->getNumBones();
             mBoneMatrices = new Matrix4[mNumBoneMatrices];
             if (mesh->sharedVertexData)
             {
@@ -328,7 +341,7 @@ namespace Ogre {
 
         // Since we know we're going to be rendered, take this opportunity to 
         // update the animation
-        if (mMesh->hasSkeleton())
+        if (hasSkeleton())
         {
             updateAnimation();
 			
@@ -344,13 +357,12 @@ namespace Ogre {
         // HACK to display bones
         // This won't work if the entity is not centered at the origin
         // TODO work out a way to allow bones to be rendered when Entity not centered
-        if (mDisplaySkeleton && mMesh->hasSkeleton())
+        if (mDisplaySkeleton && hasSkeleton())
         {
-            Skeleton* pSkel = mMesh->getSkeleton();
-            int numBones = pSkel->getNumBones();
+            int numBones = mSkeletonInstance->getNumBones();
             for (int b = 0; b < numBones; ++b)
             {
-                Bone* bone = pSkel->getBone(b);
+                Bone* bone = mSkeletonInstance->getBone(b);
                 queue->addRenderable(bone, mRenderQueueID);
             }
         }
@@ -430,10 +442,11 @@ namespace Ogre {
 
                 }
 
-
-
             }
 
+            // Trigger update of bounding box if necessary
+            if (!mChildObjectList.empty())
+                mParentNode->needUpdate();
             mFrameAnimationLastUpdated = currentFrameNumber;
         }
     }
@@ -463,10 +476,8 @@ namespace Ogre {
 			theMesh = mMesh;
 		}
 	
-		// Tell the skeleton who's making a call to update him
-		theMesh->getSkeleton()->setCurrentEntity(this);
-
-        theMesh->_getBoneMatrices(mAnimationState, mBoneMatrices);
+        mSkeletonInstance->setAnimationState(mAnimationState);
+        mSkeletonInstance->_getBoneMatrices(mBoneMatrices);
 		//--- Update the child object's transforms
 		ChildObjectList::iterator child_itr = mChildObjectList.begin();
 		ChildObjectList::iterator child_itr_end = mChildObjectList.end();
@@ -474,14 +485,12 @@ namespace Ogre {
 		{
             (*child_itr).second->getParentNode()->_update(true, true);
 		}
-		// Reset the skeleton to 'no caller'
-        theMesh->getSkeleton()->setCurrentEntity(0);
 		
         // Apply our current world transform to these too, since these are used as
         // replacement world matrices
 		unsigned short i;
         Matrix4 worldXform = _getParentNodeFullTransform();
-		mNumBoneMatrices = theMesh->_getNumBoneMatrices();
+		mNumBoneMatrices = mSkeletonInstance->getNumBones();
 
         for (i = 0; i < mNumBoneMatrices; ++i)
         {
@@ -550,19 +559,20 @@ namespace Ogre {
             Except(Exception::ERR_INVALIDPARAMS, "Object already attached to a sceneNode or a Bone", 
             "Entity::attachObjectToBone");
 		}
-        if (!mMesh->hasSkeleton())
+        if (!hasSkeleton())
         {
             Except(Exception::ERR_INVALIDPARAMS, "This entity's mesh has no skeleton to attach object to.", 
             "Entity::attachObjectToBone");
         }
-        Bone* bone = mMesh->getSkeleton()->getBone(boneName);
+        Bone* bone = mSkeletonInstance->getBone(boneName);
         if (!bone)
         {
             Except(Exception::ERR_INVALIDPARAMS, "Cannot locate bone named " + boneName, 
             "Entity::attachObjectToBone");
         }
 
-		TagPoint *tp = bone->createChildTagPoint(offsetOrientation, offsetPosition);
+		TagPoint *tp = mSkeletonInstance->createTagPointOnBone(
+            bone, offsetOrientation, offsetPosition);
 		tp->setParentEntity(this);
 		tp->setChildObject(pMovable);
 		

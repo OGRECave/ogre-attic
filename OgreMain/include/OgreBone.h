@@ -62,9 +62,6 @@ namespace Ogre
             const Vector3& translate = Vector3::ZERO, const Quaternion& rotate = Quaternion::IDENTITY);
 
 
-		TagPoint *createChildTagPoint(const Quaternion &offsetOrientation = Quaternion::IDENTITY, 
-								      const Vector3	   &offsetPosition    = Vector3::UNIT_SCALE);
-
         /** Gets the numeric handle for this bone (unique within the skeleton). */
         unsigned short getHandle(void) const;
 
@@ -86,7 +83,7 @@ namespace Ogre
             Manually controlled bones can be altered by the application at runtime, 
             and their positions will not be reset by the animation routines. Note 
             that you should also make sure that there are no AnimationTrack objects
-            referencing this bone, or if there are, you should delete them using
+            referencing this bone, or if there are, you should disable them using
             pAnimation->destroyTrack(pBone->getHandle());
         */
         void setManuallyControlled(bool manuallyControlled);
@@ -100,6 +97,7 @@ namespace Ogre
             Internal use only.
         */
         const Matrix4& _getBindingPoseInverseTransform(void) const;
+
 
     protected:
         /// The numeric handle of this bone
@@ -118,6 +116,8 @@ namespace Ogre
 
         /// The inversed derived transform of the bone in the binding pose
         Matrix4 mBindDerivedInverseTransform;
+
+
 
     };
 

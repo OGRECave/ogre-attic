@@ -47,7 +47,7 @@ namespace Ogre {
 
 
         // Prepare temp vertex data if needed
-        if (mParentEntity->mMesh->hasSkeleton() && !mSubMesh->useSharedVertices)
+        if (mParentEntity->hasSkeleton() && !mSubMesh->useSharedVertices)
         {
             // Clone without copying data
             mBlendedVertexData = 
@@ -117,7 +117,7 @@ namespace Ogre {
 		// Use LOD
         mSubMesh->_getRenderOperation(op, mParentEntity->mMeshLodIndex);
         // Do we need to use software skinned vertex data?
-        if (mParentEntity->mMesh->hasSkeleton() && !mParentEntity->mHardwareSkinning)
+        if (mParentEntity->hasSkeleton() && !mParentEntity->mHardwareSkinning)
         {
             op.vertexData = mSubMesh->useSharedVertices ? 
                 mParentEntity->mSharedBlendedVertexData : mBlendedVertexData;

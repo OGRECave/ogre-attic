@@ -522,6 +522,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreSkeleton.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreSkeletonInstance.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreSkeletonManager.cpp">
 			</File>
 			<File
@@ -1084,6 +1087,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreSkeletonFileFormat.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreSkeletonInstance.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreSkeletonManager.h">

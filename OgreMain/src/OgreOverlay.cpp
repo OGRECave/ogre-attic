@@ -47,13 +47,13 @@ namespace Ogre {
         mVisible = false;
         mTransformOutOfDate = true;
         mZOrder = 100; // Default
-        mRootNode = Root::getSingleton().getSceneManager(ST_GENERIC)->createSceneNode();
+        mRootNode = new SceneNode(NULL);
 
     }
     //---------------------------------------------------------------------
     Overlay::~Overlay()
     {
-        //mRootNode->getCreator()->destroySceneNode(mRootNode->getName());
+        delete mRootNode;
     }
     //---------------------------------------------------------------------
     const String& Overlay::getName(void) const

@@ -71,6 +71,7 @@ namespace Ogre {
     */
     class _OgreExport Skeleton : public Resource
     {
+        friend class SkeletonInstance;
     public:
         /** Constructor, don't call directly, use SkeletonManager.
         @remarks
@@ -79,7 +80,7 @@ namespace Ogre {
             a higher bone, the first bone you create is deemed to be the root bone.
         */
         Skeleton(const String& name);
-        ~Skeleton();
+        virtual ~Skeleton();
 
         /** Generic load - called by SkeletonManager.
         */
@@ -102,7 +103,7 @@ namespace Ogre {
             handle, use the alternate form of this method which takes a handle as a parameter,
             although you should note the restrictions.
         */
-        Bone* createBone(void);
+        virtual Bone* createBone(void);
 
         /** Creates a brand new Bone owned by this Skeleton. 
         @remarks
@@ -118,7 +119,7 @@ namespace Ogre {
             it is advised that you use the simpler createBone method which automatically assigns a
             sequential handle starting from 0.
         */
-        Bone* createBone(unsigned short handle);
+        virtual Bone* createBone(unsigned short handle);
 
         /** Creates a brand new Bone owned by this Skeleton. 
         @remarks
@@ -134,7 +135,7 @@ namespace Ogre {
             for your convenience, although it is recommended that you only use the handle to 
             retrieve the bone in performance-critical code.
         */
-        Bone* createBone(const String& name);
+        virtual Bone* createBone(const String& name);
 
         /** Creates a brand new Bone owned by this Skeleton. 
         @remarks
@@ -147,10 +148,10 @@ namespace Ogre {
         @param name The name to give to this new bone - must be unique within this skeleton. 
         @param handle The handle to give to this new bone - must be unique within this skeleton. 
         */
-        Bone* createBone(const String& name, unsigned short handle);
+        virtual Bone* createBone(const String& name, unsigned short handle);
 
         /** Returns the number of bones in this skeleton. */
-        unsigned short getNumBones(void) const;
+        virtual unsigned short getNumBones(void) const;
 
         /** Gets the root bone of the skeleton. 
         @remarks
@@ -163,18 +164,18 @@ namespace Ogre {
             only once, and then use Bone::createChild from then on, then inherently the first
             bone you create will by default be the root.
         */
-        Bone* getRootBone(void) const;
+        virtual Bone* getRootBone(void) const;
 
         /** Gets a bone by it's handle. */
-        Bone* getBone(unsigned short handle) const;
+        virtual Bone* getBone(unsigned short handle) const;
 
         /** Gets a bone by it's name. */
-        Bone* getBone(const String& name) const;
+        virtual Bone* getBone(const String& name) const;
 
         /** Sets the current position / orientation to be the 'binding pose' ie the layout in which 
             bones were originally bound to a mesh.
         */
-        void setBindingPose(void);
+        virtual void setBindingPose(void);
 
         /** Resets the position and orientation of all bones in this skeleton to their original binding position.
         @remarks
@@ -182,19 +183,19 @@ namespace Ogre {
             position during animation. This method returns all the bones to their original position and
             orientation.
         */
-        void reset(void);
+        virtual void reset(void);
 
         /** Creates a new Animation object for animating this skeleton. 
         @param name The name of this animation
         @param length The length of the animation in seconds
         */
-        Animation* createAnimation(const String& name, Real length);
+        virtual Animation* createAnimation(const String& name, Real length);
 
         /** Returns the named Animation object. */
-        Animation* getAnimation(const String& name) const;
+        virtual Animation* getAnimation(const String& name) const;
 
         /** Removes an Animation from this skeleton. */
-        void removeAnimation(const String& name);
+        virtual void removeAnimation(const String& name);
 
         /** Changes the state of the skeleton to reflect the application of the passed in collection of animations.
         @remarks
@@ -207,17 +208,17 @@ namespace Ogre {
             movement will just be exaggerated.
             @param 
         */
-        void setAnimationState(const AnimationStateSet& animSet);
+        virtual void setAnimationState(const AnimationStateSet& animSet);
 
         /** Gets the last animation state of this skeleton. */
-        const AnimationStateSet& getAnimationState(void) const;
+        virtual const AnimationStateSet& getAnimationState(void) const;
         
 
         /** Initialise an animation set suitable for use with this mesh. 
         @remarks
             Only recommended for use inside the engine, not by applications.
         */
-        void _initAnimationState(AnimationStateSet* animSet);
+        virtual void _initAnimationState(AnimationStateSet* animSet);
 
         /** Populates the passed in array with the bone matrices based on the current position.
         @remarks
@@ -225,53 +226,36 @@ namespace Ogre {
             be at least as large as the number of bones.
             Assumes animation has already been updated.
         */
-        void _getBoneMatrices(Matrix4* pMatrices);
+        virtual void _getBoneMatrices(Matrix4* pMatrices);
 
         /** Gets the number of animations on this skeleton. */
-        unsigned short getNumAnimations(void) const;
+        virtual unsigned short getNumAnimations(void) const;
 
         /** Gets a single animation by index. */
-        Animation* getAnimation(unsigned short index) const;
+        virtual Animation* getAnimation(unsigned short index) const;
 
 
-		/** Creates a TagPoint ready to be attached to a bone */
-		TagPoint* createTagPoint(const Quaternion &offsetOrientation = Quaternion::IDENTITY, 
-								 const Vector3	  &offsetPosition    = Vector3::UNIT_SCALE);
-
-		/** Sets the entity that is currently updating this skeleton */
-		void setCurrentEntity(Entity *pCurrentEntity);
-		/** Gets the entity that is currently updating this skeleton */
-		Entity *getCurrentEntity(void);
-  
 		/** Gets the animation blending mode which this skeleton will use. */
-        SkeletonAnimationBlendMode getBlendMode();
+        virtual SkeletonAnimationBlendMode getBlendMode();
         /** Sets the animation blending mode this skeleton will use. */
-		void setBlendMode(SkeletonAnimationBlendMode state);
+		virtual void setBlendMode(SkeletonAnimationBlendMode state);
 
 
     protected:
 		SkeletonAnimationBlendMode mBlendState;
-        /// Storage of bones, lookup by bone handle
-        typedef std::map<unsigned short, Bone*> BoneList;
+        /// Storage of bones, indexed by bone handle
+        typedef std::vector<Bone*> BoneList;
         BoneList mBoneList;
         /// Lookup by bone name
         typedef std::map<String, Bone*> BoneListByName;
         BoneListByName mBoneListByName;
 
-        /// Storage of tagPoints, lookup by handle
-        typedef std::map<unsigned short, TagPoint*> TagPointList;
-        TagPointList mTagPointList;
-
-		/// Entity that is currently updating this skeleton
-		Entity *mCurrentEntity;
 
         /// Pointer to root bone (all others follow)
         mutable Bone *mRootBone;
         /// Bone automatic handles
         unsigned short mNextAutoHandle;
 
-        /// TagPoint automatic handles
-        unsigned short mNextTagPointAutoHandle;
 
         /// Storage of animations, lookup by name
         typedef std::map<String, Animation*> AnimationList;

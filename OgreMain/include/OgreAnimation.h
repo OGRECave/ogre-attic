@@ -106,6 +106,15 @@ namespace Ogre {
         */
         void apply(Real timePos, Real weight = 1.0, bool accumulate = false);
 
+        /** Applies an animation given a specific time point and weight to a given skeleton.
+        @remarks
+        Where you have associated animation tracks with Node objects, you can eaily apply
+        an animation to those nodes by calling this method.
+        @param timePos The time position in the animation to apply.
+        @param weight The influence to give to this track, 1.0 for full influence, less to blend with
+        other animations.
+        */
+        void apply(Skeleton* skeleton, Real timePos, Real weight = 1.0, bool accumulate = false);
 
         /** Tells the animation how to interpolate between keyframes.
         @remarks

@@ -154,6 +154,7 @@ OgreSimpleRenderable.h \
 OgreSimpleSpline.h \
 OgreSingleton.h \
 OgreSkeleton.h \
+OgreSkeletonInstance.h \
 OgreSkeletonFileFormat.h \
 OgreSkeletonManager.h \
 OgreSkeletonSerializer.h \

@@ -279,7 +279,7 @@ namespace Ogre {
 
 		// Check if the bounding box should be shown.
 		// See if our flag is set or if the scene manager flag is set.
-		if (mShowBoundingBox || mCreator->getShowBoundingBoxes()) 
+		if (mShowBoundingBox || (mCreator && mCreator->getShowBoundingBoxes())) 
 		{ 
 			_addBoundingBoxToQueue(queue);
 		}
@@ -309,12 +309,28 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Node* SceneNode::createChildImpl(void)
     {
-        return mCreator->createSceneNode();
+        // Support detached scene nodes
+        if (mCreator)
+        {
+            return mCreator->createSceneNode();
+        }
+        else
+        {
+            return new SceneNode(NULL);
+        }
     }
     //-----------------------------------------------------------------------
     Node* SceneNode::createChildImpl(const String& name)
     {
-        return mCreator->createSceneNode(name);
+        // Support detached scene nodes
+        if (mCreator)
+        {
+            return mCreator->createSceneNode(name);
+        }
+        else
+        {
+            return new SceneNode(NULL, name);
+        }
     }
     //-----------------------------------------------------------------------
     AxisAlignedBox SceneNode::_getWorldAABB(void) const
@@ -385,6 +401,7 @@ namespace Ogre {
         // visible nodes, so temporarily visible nodes will not be updated
         // Since this is only called for visible nodes, skip the check for now
         //if (mLightListDirty)
+        if (mCreator)
         {
             // Use SceneManager to calculate
             mCreator->_populateLightList(this->_getDerivedPosition(), mLightList);
@@ -408,7 +425,8 @@ namespace Ogre {
         {
             mAutoTrackTarget = 0;
         }
-        mCreator->_notifyAutotrackingSceneNode(this, enabled);
+        if (mCreator)
+            mCreator->_notifyAutotrackingSceneNode(this, enabled);
     }
     //-----------------------------------------------------------------------
     void SceneNode::setFixedYawAxis(bool useFixed, const Vector3& fixedAxis)

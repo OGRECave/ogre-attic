@@ -97,14 +97,6 @@ namespace Ogre {
         return mHandle;
     }
 
-	TagPoint *Bone::createChildTagPoint(const Quaternion &offsetOrientation,const Vector3 &offsetPosition)
-	{
-		TagPoint *tp = mCreator->createTagPoint(offsetOrientation, offsetPosition);
-		addChild(tp);
-		
-		return tp;
-	}
-
 
 
 

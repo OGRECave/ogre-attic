@@ -79,6 +79,7 @@ namespace Ogre	{
         const LightList& getLights(void) const;
 
 
+
 	private:
 		Entity *mParentEntity;
 		MovableObject *mChildObject;
