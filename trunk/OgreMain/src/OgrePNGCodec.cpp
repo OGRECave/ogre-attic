@@ -44,6 +44,13 @@ namespace Ogre {
         OgreUnguard();
 
     }
+
+    Codec::CodecData* PNGCodec::decode( const DataChunk& input, 
+					DataChunk* output, ... ) const
+    {
+        return ILImageCodec::decode( input, output );
+    }
+
     //---------------------------------------------------------------------
     unsigned int PNGCodec::getILType(void) const
     {

@@ -49,7 +49,7 @@ namespace Ogre {
 
     Codec::CodecData* JPEGCodec::decode(const DataChunk& input, DataChunk* output, ...) const
     {
-        return ImageCodec::decode(input, output);
+        return ILImageCodec::decode(input, output);
     }
     
     //---------------------------------------------------------------------
