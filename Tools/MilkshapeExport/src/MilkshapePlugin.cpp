@@ -469,7 +469,7 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
 
     // Set bounds
     ogreMesh->_setBoundingSphereRadius(Ogre::Math::Sqrt(maxSquaredRadius));
-    ogreMesh->_setBounds(Ogre::AxisAlignedBox(min, max));
+    ogreMesh->_setBounds(Ogre::AxisAlignedBox(min, max), false);
 
 
     // Keep hold of a Skeleton pointer for deletion later
