@@ -579,6 +579,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreUserDefinedObject.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreVector2.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreVector3.cpp">
 			</File>
 			<File
@@ -1168,6 +1171,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreUserDefinedObject.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreVector2.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreVector3.h">
