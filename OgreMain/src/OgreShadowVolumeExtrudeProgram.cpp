@@ -373,6 +373,19 @@ namespace Ogre {
 		}
     }
     //---------------------------------------------------------------------
+    void ShadowVolumeExtrudeProgram::shutdown(void)
+    {
+        if (mInitialised)
+        {
+            for (unsigned short v = 0; v < NUM_SHADOW_EXTRUDER_PROGRAMS; ++v)
+            {
+                // Destroy debug extruders
+                GpuProgramManager::getSingleton().remove(programNames[v]);
+            }
+            mInitialised = false;
+        }
+    }
+    //---------------------------------------------------------------------
     const String& ShadowVolumeExtrudeProgram::getProgramSource(
         Light::LightTypes lightType, const String syntax, bool finite, bool debug)
     {

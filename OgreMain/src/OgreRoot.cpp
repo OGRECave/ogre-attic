@@ -51,6 +51,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreArchiveManager.h"
 #include "OgreZip.h"
 #include "OgreFileSystem.h"
+#include "OgreShadowVolumeExtrudeProgram.h"
 
 #include "OgreILCodecs.h"
 
@@ -631,6 +632,7 @@ namespace Ogre {
     void Root::shutdown(void)
     {
         SceneManagerEnumerator::getSingleton().shutdownAll();
+        ShadowVolumeExtrudeProgram::shutdown();
         ResourceGroupManager::getSingleton().shutdownAll();
 
         mLogManager->logMessage("*-*-* OGRE Shutdown");
