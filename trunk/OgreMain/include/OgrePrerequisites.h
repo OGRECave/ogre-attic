@@ -224,6 +224,7 @@ namespace Ogre {
     class HardwareIndexBuffer;
     class HardwareOcclusionQuery;
     class HardwareVertexBuffer;
+    class HardwarePixelBuffer;
 	class HighLevelGpuProgram;
     class HighLevelGpuProgramPtr;
 	class HighLevelGpuProgramManager;
@@ -276,6 +277,7 @@ namespace Ogre {
     class ParticleVisualData;
     class Pass;
     class PatchMesh;
+    class PixelBox;
     class PlatformManager;
     class Plane;
     class PlaneBoundedVolume;
