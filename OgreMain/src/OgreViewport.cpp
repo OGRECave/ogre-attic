@@ -81,10 +81,10 @@ namespace Ogre {
         float height = (float) mTarget->getHeight();
         float width = (float) mTarget->getWidth();
 
-        mActLeft = (int) ((mRelLeft * width) / 100.0f);
-        mActTop = (int) ((mRelTop * height) / 100.0f);
-        mActWidth = (int) ((mRelWidth * width) / 100.0f);
-        mActHeight = (int) ((mRelHeight * height) / 100.0f);
+        mActLeft = (int) (mRelLeft * width);
+        mActTop = (int) (mRelTop * height);
+        mActWidth = (int) (mRelWidth * width);
+        mActHeight = (int) (mRelHeight * height);
 
         // Note that we don't propagate any changes to the Camera
         // This is because the Camera projects into a space with

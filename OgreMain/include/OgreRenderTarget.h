@@ -99,7 +99,7 @@ namespace Ogre {
                 a viewport to the render target, rendering from the supplied camera. The
                 rest of the parameters are only required if you wish to add more than one viewport
                 to a single rendering target. Note that size information passed to this method is
-                passed as a percentage, i.e. it is relative rather than absolute. This is to allow
+                passed as a parametric, i.e. it is relative rather than absolute. This is to allow
                 viewports to automatically resize along with the target.
             @param
                 cam The camera from which the viewport contents will be rendered (mandatory)
@@ -108,16 +108,16 @@ namespace Ogre {
                 viewports i.e. picture-in-picture). Higher ZOrders are on top of lower ones. The actual number
                 is irrelevant, only the relative ZOrder matters (you can leave gaps in the numbering)
             @param
-                left The relative position of the left of the viewport on the target, as a percentage.
+                left The relative position of the left of the viewport on the target, as a value between 0 and 1.
             @param
-                top The relative position of the top of the viewport on the target, as a percentage.
+                top The relative position of the top of the viewport on the target, as a value between 0 and 1.
             @param
-                width The relative width of the viewport on the target, as a percentage.
+                width The relative width of the viewport on the target, as a value between 0 and 1.
             @param
-                height The relative height of the viewport on the target, as a percentage.
+                height The relative height of the viewport on the target, as a value between 0 and 1.
         */
-        virtual Viewport* addViewport(Camera* cam, int ZOrder = 0, float left = 0, float top = 0 ,
-            float width = 100, float height = 100);
+        virtual Viewport* addViewport(Camera* cam, int ZOrder = 0.0f, float left = 0.0f, float top = 0.0f ,
+            float width = 1.0f, float height = 1.0f);
 
         /** Returns the number of viewports attached to this target.*/
         virtual unsigned short getNumViewports(void);
