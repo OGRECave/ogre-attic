@@ -33,7 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     /** Abstract class representing a Texture resource.
-        @return
+        @remarks
             The actual concrete subclass which will exist for a texture
             is dependent on the rendering system in use (Direct3D, OpenGL etc).
             This class represents the commonalities, and is the one 'used'
@@ -71,14 +71,33 @@ namespace Ogre {
 
         /** Returns the width of the texture.
         */
-        unsigned int getWidth(void) { return mHeight; }
+        unsigned int getWidth(void) { return mWidth; }
+
+        /** Returns both the width and height of the texture.
+        */
+        std::pair< uint, uint > getDimensions() { return std::pair< uint, uint >( mWidth, mHeight ); }
 
         /** Blits the contents of src on the texture.
+            @deprecated
+                This feature is superseded by the blitImage function.
             @param
                 src the image with the source data
         */
         virtual void blitToTexture( 
             const Image &src, unsigned uStartX, unsigned uStartY ) = 0;
+
+        /** Blits a rect from an image to the texture.
+            @param
+                src The image with the source data.
+            @param
+                imgRect The data rect to be copied from the image.
+            @param
+                texRect The rect in which to copy the data in the texture.
+        */
+        virtual void blitImage(
+            const Image& src, const Image::Rect imgRect, const Image::Rect texRect )
+        {
+        }
 
         /** Loads the data from an image.
         */
@@ -89,10 +108,18 @@ namespace Ogre {
             setting ? mFinalBpp = 32 : mFinalBpp = 16;
         }
 
-        // Tests whether this texture has an alpha layer
+        /** Returns true if the texture has an alpha layer.
+        */
         virtual bool hasAlpha(void)
         {
             return mHasAlpha;
+        }
+
+        /** Returns true if the texture can be used as a render target.
+        */
+        virtual bool isRenderTarget() 
+        { 
+            return false; 
         }
 
     protected:
@@ -107,13 +134,6 @@ namespace Ogre {
         unsigned long mSrcWidth, mSrcHeight;
         unsigned short mFinalBpp;
         bool mHasAlpha;
-
-        /** Internal method for gamma adjustment.
-            @note
-                Basic algo taken from Titan engine, copyright (c) 2000 Ignacio 
-                Castano Iguado
-        */
-        void applyGamma(unsigned char* p, uint size, int bpp);
     };
 }
 
