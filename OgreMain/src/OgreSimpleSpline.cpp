@@ -150,7 +150,7 @@ namespace Ogre {
 
         mTangents.resize(mPoints.size());
 
-        numPoints = mPoints.size();
+        numPoints = (unsigned int)mPoints.size();
 
         if (numPoints < 2)
         {
@@ -178,6 +178,35 @@ namespace Ogre {
 
 
     }
+    //---------------------------------------------------------------------
+    const Vector3& SimpleSpline::getPoint(unsigned short index) const
+    {
+        assert (index >= 0 && index < mPoints.size() && 
+            "Point index is out of bounds!!");
+
+        return mPoints[index];
+    }
+    //---------------------------------------------------------------------
+    unsigned short SimpleSpline::getNumPoints(void) const
+    {
+        return (unsigned short)mPoints.size();
+    }
+    //---------------------------------------------------------------------
+    void SimpleSpline::clear(void)
+    {
+        mPoints.clear();
+        mTangents.clear();
+    }
+    //---------------------------------------------------------------------
+    void SimpleSpline::updatePoint(unsigned short index, const Vector3& value)
+    {
+        assert (index >= 0 && index < mPoints.size() && 
+            "Point index is out of bounds!!");
+
+        mPoints[index] = value;
+        recalcTangents();
+    }
+    //---------------------------------------------------------------------
 
 
 

@@ -50,8 +50,23 @@ namespace Ogre {
         SimpleSpline();
         ~SimpleSpline();
 
-        /** Adds a point to the spline. */
+        /** Adds a control point to the end of the spline. */
         void addPoint(const Vector3& p);
+
+        /** Gets the detail of one of the control points of the spline. */
+        const Vector3& getPoint(unsigned short index) const;
+
+        /** Gets the number of control points in the spline. */
+        unsigned short getNumPoints(void) const;
+
+        /** Clears all the points in the spline. */
+        void clear(void);
+
+        /** Updates a single point in the spline. 
+        @remarks
+            This point must already exist in the spline.
+        */
+        void updatePoint(unsigned short index, const Vector3& value);
 
         /** Returns an interpolated point based on a parametric value over the whole series.
         @remarks
@@ -66,6 +81,7 @@ namespace Ogre {
         @param t Parametric value
         */
         Vector3 interpolate(unsigned int fromIndex, Real t);
+
 
     protected:
 
