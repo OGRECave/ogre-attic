@@ -11,5 +11,5 @@ TestSuite_SOURCES = main.cpp \
                     ../OgreMain/src/BitwiseTests.cpp \
                     ../OgreMain/src/PixelFormatTests.cpp
 
-TestSuite_LDFLAGS = -L$(top_srcdir)/OgreMain/src $(CPPUNIT_LIBS)
+TestSuite_LDFLAGS = -L$(top_builddir)/OgreMain/src $(CPPUNIT_LIBS)
 TestSuite_LDADD = -lOgreMain
