@@ -148,33 +148,35 @@ namespace Ogre {
 		if (newHeight != mSrcHeight)
 			newHeight <<= 1;
 
-        uchar *pTempData;
-        if(newWidth != mSrcWidth || newHeight != mSrcHeight)
+        uchar* pTempData;
+        if(!Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_NON_POWER_OF_2_TEXTURES) && 
+            (newWidth != mSrcWidth || newHeight != mSrcHeight))
         {
-          unsigned int newImageSize = newWidth * newHeight * 
-            (mHasAlpha ? 4 : 3);
+            unsigned int newImageSize = newWidth * newHeight * 
+                (mHasAlpha ? 4 : 3);
 
-          pTempData = new uchar[ newImageSize ];
-          mGLSupport.begin_context();
-          if(gluScaleImage(getGLTextureFormat(), mSrcWidth, mSrcHeight,
+            pTempData = new uchar[ newImageSize ];
+            mGLSupport.begin_context();
+            if(gluScaleImage(getGLTextureFormat(), mSrcWidth, mSrcHeight,
                 GL_UNSIGNED_BYTE, src.getData(), newWidth, newHeight, 
                 GL_UNSIGNED_BYTE, pTempData) != 0)
-          {
-            Except(Exception::ERR_INTERNAL_ERROR, 
-                "Error while rescaling image!", "GLTexture::rescaleNPower2");
-          }
-          mGLSupport.end_context();
+            {
+                Except(Exception::ERR_INTERNAL_ERROR, 
+                    "Error while rescaling image!", 
+                    "GLTexture::rescaleNPower2");
+            }
+            mGLSupport.end_context();
 
-          Image::applyGamma( pTempData, mGamma, newImageSize, mSrcBpp );
+            Image::applyGamma( pTempData, mGamma, newImageSize, mSrcBpp );
 
-          mSrcWidth = mWidth = newWidth; 
-          mSrcHeight = mHeight = newHeight;
+            mSrcWidth = mWidth = newWidth; 
+            mSrcHeight = mHeight = newHeight;
         }
         else
         {
-          pTempData = new uchar[ src.getSize() ];
-          memcpy( pTempData, src.getData(), src.getSize() );
-          Image::applyGamma( pTempData, mGamma, src.getSize(), mSrcBpp );
+            pTempData = new uchar[ src.getSize() ];
+            memcpy( pTempData, src.getData(), src.getSize() );
+            Image::applyGamma( pTempData, mGamma, src.getSize(), mSrcBpp );
         }
 
         return pTempData;

@@ -73,7 +73,9 @@ namespace Ogre {
 		/// Supports infinite far plane projection
 		RSC_INFINITE_FAR_PLANE      = 0x00100000,
         /// Supports float textures and render targets
-        RSC_TEXTURE_FLOAT           = 0x00400000
+        RSC_TEXTURE_FLOAT           = 0x00400000,
+        /// Supports non-power of two textures
+        RSC_NON_POWER_OF_2_TEXTURES = 0x00800000
     };
 
     /** singleton class for storing the capabilities of the graphics card. 

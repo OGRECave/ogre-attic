@@ -687,7 +687,8 @@ namespace Ogre
 			}
 			
 		}
-				
+        // non-power-of-two texturs always supported
+        mCapabilities->setCapability(RSC_NON_POWER_OF_2_TEXTURES);
 
         mCapabilities->log(LogManager::getSingleton().getDefaultLog());
     }
