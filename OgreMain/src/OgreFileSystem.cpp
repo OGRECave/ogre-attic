@@ -85,6 +85,7 @@ namespace Ogre {
                 else if (detailList)
                 {
                     FileInfo fi;
+					fi.archive = this;
                     fi.filename = currentDir + tagData.name;
                     fi.basename = tagData.name;
                     fi.path = currentDir;

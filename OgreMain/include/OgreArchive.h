@@ -39,6 +39,9 @@ namespace Ogre {
     Archive
     */
     struct FileInfo {
+		/// The archive in which the file has been found (for info when performing
+		/// multi-Archive searches, note you should still open through ResourceGroupManager)
+		Archive* archive;
         /// The file's fully qualified name
         String filename;
         /// Path name; separated by '/' and ending with '/'
