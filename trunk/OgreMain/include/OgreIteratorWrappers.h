@@ -47,14 +47,14 @@ namespace Ogre {
     class VectorIterator
     {
     private:
-        T::iterator mCurrent;
-        T::iterator mEnd;
+        typename T::iterator mCurrent;
+        typename T::iterator mEnd;
     public:
         /** Constructor.
         @remarks
             Provide a start and end iterator to initialise.
         */
-        VectorIterator(T::iterator start, T::iterator end)
+        VectorIterator(typename T::iterator start, typename T::iterator end)
             : mCurrent(start), mEnd(end)
         {
         }
@@ -66,7 +66,7 @@ namespace Ogre {
         }
 
         /** Returns the next element in the collection, and advances to the next. */
-        T::value_type getNext(void)
+        typename T::value_type getNext(void)
         {
             return *mCurrent++;
         }
@@ -91,14 +91,14 @@ namespace Ogre {
     class MapIterator
     {
     private:
-        T::iterator mCurrent;
-        T::iterator mEnd;
+        typename T::iterator mCurrent;
+        typename T::iterator mEnd;
     public:
         /** Constructor.
         @remarks
             Provide a start and end iterator to initialise.
         */
-        MapIterator(T::iterator start, T::iterator end)
+        MapIterator(typename T::iterator start, typename T::iterator end)
             : mCurrent(start), mEnd(end)
         {
         }
@@ -110,7 +110,7 @@ namespace Ogre {
         }
 
         /** Returns the next value element in the collection, and advances to the next. */
-        T::mapped_type getNext(void)
+        typename T::mapped_type getNext(void)
         {
             return (mCurrent++)->second;
         }
