@@ -296,12 +296,14 @@ namespace Ogre {
         Real* pReal;
         ushort i;
 
+        // Set num verts on parent
+        mParentNode->SetAttribute("count", StringConverter::toString(pGeom->numVertices));
+
         vbNode = mParentNode->InsertEndChild(TiXmlElement("vertexbuffer"))->ToElement();
-        vbNode->SetAttribute("count", StringConverter::toString(pGeom->numVertices));
         vbNode->SetAttribute("positions","true");
         vbNode->SetAttribute("normals","false");
         vbNode->SetAttribute("colours","false");
-        vbNode->SetAttribute("texcoords","false");
+        vbNode->SetAttribute("numtexcoords","0");
         pReal = pGeom->pVertices;
         for (i = 0; i < pGeom->numVertices; ++i)
         {
@@ -321,7 +323,7 @@ namespace Ogre {
             vbNode->SetAttribute("positions","false");
             vbNode->SetAttribute("normals","true");
             vbNode->SetAttribute("colours","false");
-            vbNode->SetAttribute("texcoords","false");
+            vbNode->SetAttribute("numtexcoords","0");
             pReal = pGeom->pNormals;
             for (i = 0; i < pGeom->numVertices; ++i)
             {
@@ -342,7 +344,7 @@ namespace Ogre {
             vbNode->SetAttribute("positions","false");
             vbNode->SetAttribute("normals","false");
             vbNode->SetAttribute("colours","true");
-            vbNode->SetAttribute("texcoords","false");
+            vbNode->SetAttribute("numtexcoords","0");
             RGBA* pColour = pGeom->pColours;
             for (i = 0; i < pGeom->numVertices; ++i)
             {
@@ -351,9 +353,7 @@ namespace Ogre {
                 dataNode = 
                     vertexNode->InsertEndChild(TiXmlElement("colour"))->ToElement();
 
-                dataNode->SetAttribute("r", StringConverter::toString(*pColour++));
-                dataNode->SetAttribute("g", StringConverter::toString(*pColour++));
-                dataNode->SetAttribute("b", StringConverter::toString(*pColour++));
+                dataNode->SetAttribute("value", StringConverter::toString(*pColour++));
             }
         }
 
@@ -364,8 +364,10 @@ namespace Ogre {
             vbNode->SetAttribute("positions","false");
             vbNode->SetAttribute("normals","false");
             vbNode->SetAttribute("colours","false");
-            vbNode->SetAttribute("texcoords","true");
-            vbNode->SetAttribute("texcoordset", StringConverter::toString(t));
+            vbNode->SetAttribute("numtexcoords","1");
+            // NB if later we do shared buffers this will be space-separated per set
+            vbNode->SetAttribute("texcoordsets", StringConverter::toString(t));
+            // NB if later we do shared buffers this will be space-separated per set
             vbNode->SetAttribute("texcoorddimensions", 
                 StringConverter::toString(pGeom->numTexCoordDimensions[t]));
             pReal = pGeom->pTexCoords[t];
@@ -524,7 +526,74 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void XMLMeshSerializer::readGeometry(TiXmlElement* mGeometryNode, GeometryData* pGeom)
     {
-        // TODO
+        pGeom->numVertices = StringConverter::parseInt(mGeometryNode->Attribute("count"));
+        // Skip empty 
+        if (pGeom->numVertices <= 0) return;
+
+        // Iterate over all children (vertexbuffer entries)
+        for (TiXmlElement* vbElem = mGeometryNode->FirstChildElement();
+            vbElem != 0; vbElem = vbElem->NextSiblingElement())
+        {
+            // Skip non-vertexbuffer elems
+            if (stricmp(vbElem->Value(), "vertexbuffer")) continue;
+
+            // Determine type(s) present per vertex
+            pGeom->hasNormals = pGeom->hasColours = false;
+            pGeom->numTexCoords = 0;
+
+            const char* attrib = vbElem->Attribute("positions");
+            if (attrib && StringConverter::parseBool(attrib))
+            {
+                pGeom->pVertices = new Real[pGeom->numVertices * 3];
+                // TODO change when we do shared bufs
+                pGeom->vertexStride = 0;
+            }
+            attrib = vbElem->Attribute("normals");
+            if (attrib && StringConverter::parseBool(attrib))
+            {
+                pGeom->hasNormals = true;
+                pGeom->pNormals = new Real[pGeom->numVertices * 3];
+                // TODO change when we do shared bufs
+                pGeom->normalStride = 0;
+            }
+            attrib = vbElem->Attribute("colours");
+            if (attrib && StringConverter::parseBool(attrib))
+            {
+                pGeom->hasColours = true;
+                pGeom->pColours = new RGBA[pGeom->numVertices];
+                // TODO change when we do shared bufs
+                pGeom->colourStride = 0;
+            }
+            attrib = vbElem->Attribute("texcoords");
+            if (attrib && StringConverter::parseBool(attrib))
+            {
+                pGeom->numTexCoords = StringConverter::parseInt(vbElem->Attribute("numtexcoords"));
+                String sets = vbElem->Attribute("texcoordsets");
+                String dims = vbElem->Attribute("texcoorddimensions");
+
+                std::vector<String> vecSets = sets.split(" ");
+                std::vector<String> vecDims = dims.split(" ");
+
+                for (int v = 0; v < vecSets.size(); ++v)
+                {
+                    int set = StringConverter::parseInt(vecSets[v]);
+                    int dim = StringConverter::parseInt(vecDims[v]);
+                    pGeom->numTexCoordDimensions[set] = dim;
+                    pGeom->pTexCoords[set] = new Real[pGeom->numVertices * dim];
+                    // TODO change when we do shared bufs
+                    pGeom->texCoordStride[set] = 0;
+
+                }
+
+
+            }
+
+
+
+
+        }
+
+
     }
     //---------------------------------------------------------------------
     void XMLMeshSerializer::readSkeletonLink(TiXmlElement* mSkelNode)
