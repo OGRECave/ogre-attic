@@ -753,9 +753,9 @@ float TerrainRenderable::getHeightAt( float x, float z )
     start.y = _vertex( 0, 0, 1 );
     start.z = _vertex( 0, 0, 2 );
 
-    end.x = _vertex( mSize - 1, mSize - 1, 0 );
-    end.y = _vertex( mSize - 1, mSize - 1, 1 );
-    end.z = _vertex( mSize - 1, mSize - 1, 2 );
+    end.x = _vertex( mSize - 2, mSize - 2, 0 );
+    end.y = _vertex( mSize - 2, mSize - 2, 1 );
+    end.z = _vertex( mSize - 2, mSize - 2, 2 );
 
     /* Safety catch, if the point asked for is outside
      * of this tile, it will ask the appropriate tile
@@ -798,8 +798,8 @@ float TerrainRenderable::getHeightAt( float x, float z )
     float x_pct = ( x - start.x ) / ( end.x - start.x );
     float z_pct = ( z - start.z ) / ( end.z - start.z );
 
-    float x_pt = x_pct * ( float ) ( mSize - 1 );
-    float z_pt = z_pct * ( float ) ( mSize - 1 );
+    float x_pt = x_pct * ( float ) ( mSize - 2 );
+    float z_pt = z_pct * ( float ) ( mSize - 2 );
 
     int x_index = ( int ) x_pt;
     int z_index = ( int ) z_pt;
