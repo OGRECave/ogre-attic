@@ -583,8 +583,9 @@ namespace Ogre {
 
         // Assign data
         size_t v;
-        VertexBoneAssignmentList::const_iterator i;
+        VertexBoneAssignmentList::const_iterator i, iend;
         i = boneAssignments.begin();
+		iend = boneAssignments.end();
         unsigned char *pBase = static_cast<unsigned char*>(
             vbuf->lock(HardwareBuffer::HBL_DISCARD)); 
         // Iterate by vertex
@@ -598,7 +599,7 @@ namespace Ogre {
             for (unsigned short bone = 0; bone < numBlendWeightsPerVertex; ++bone)
             {
                 // Do we still have data for this vertex?
-                if (i->second.vertexIndex == v)
+                if (i != iend && i->second.vertexIndex == v)
                 {
                     // If so, write weight
                     *pWeight++ = i->second.weight;
