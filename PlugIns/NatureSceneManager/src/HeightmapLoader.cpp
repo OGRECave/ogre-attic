@@ -156,6 +156,8 @@ bool HeightmapLoader::initialise(const String& filename)
     }
 #endif
 
+    mMaterial->load();
+
     mInited = true;
     return true;
 }

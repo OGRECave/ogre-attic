@@ -591,10 +591,18 @@ void TerrainRenderable::getRenderOperation( RenderOperation& op )
 
 }
 
-void TerrainRenderable::getWorldTransforms( Matrix4* xform )
+void TerrainRenderable::getWorldTransforms( Matrix4* xform ) const
 {
-    *xform = Matrix4::IDENTITY;
-    *xform = *xform * mParentNode->_getFullTransform();
+    *xform = mParentNode->_getFullTransform();
+}
+
+const Quaternion& TerrainRenderable::getWorldOrientation(void) const
+{
+    return mParentNode->_getDerivedOrientation();
+}
+const Vector3& TerrainRenderable::getWorldPosition(void) const
+{
+    return mParentNode->_getDerivedPosition();
 }
 
 bool TerrainRenderable::_checkSize( int n )

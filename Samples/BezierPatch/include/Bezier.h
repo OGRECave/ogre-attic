@@ -191,7 +191,7 @@ protected:
         patchEntity = mSceneMgr->createEntity("Entity1", "Bezier1");
 
         Material *pMat = (Material*)MaterialManager::getSingleton().create( "TextMat" );
-        pMat->addTextureLayer( "BumpyMetal.jpg" );
+        pMat->getTechnique(0)->getPass(0)->createTextureUnitState( "BumpyMetal.jpg" );
         patchEntity->setMaterialName("TextMat");
 
         // Attach the entity to the root of the scene

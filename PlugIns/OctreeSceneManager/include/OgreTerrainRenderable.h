@@ -180,7 +180,10 @@ public:
         return mMaterial;
     };
 
-    virtual void getWorldTransforms( Matrix4* xform );
+    virtual void getWorldTransforms( Matrix4* xform ) const;
+
+    virtual const Quaternion& getWorldOrientation(void) const;
+    virtual const Vector3& getWorldPosition(void) const;
 
     /** Returns the size of the TerrainRenderable */
     inline int getSize()
