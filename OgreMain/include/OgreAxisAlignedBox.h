@@ -182,9 +182,9 @@ namespace Ogre {
 			    anticlockwise around this face (looking onto the face from
 			    outside the box). Like this:
 			    <pre>
-			    1-----2
-			    /|    /|
-			    / |   / |
+			       1-----2
+			      /|    /|
+			     / |   / |
 			    5-----4  |
 			    |  0--|--3
 			    | /   | /
