@@ -75,7 +75,7 @@ namespace Ogre {
 
 	    /** Allocates the passed number of bytes.
 	    */
-	    uchar * allocate( size_t size, uchar * ptr = NULL );
+	    uchar * allocate( size_t size, const uchar * ptr = NULL );
 
 	    /** Frees all internally allocated memory.
 	    */
