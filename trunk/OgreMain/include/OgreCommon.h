@@ -128,11 +128,11 @@ namespace Ogre {
     enum SceneDetailLevel
     {
 		/// Only points are rendered.
-        SDL_POINTS,
+        SDL_POINTS = 1,
 		/// Wireframe models are rendered.
-        SDL_WIREFRAME,
+        SDL_WIREFRAME = 2,
 		/// Solid polygons are rendered.
-        SDL_SOLID
+        SDL_SOLID = 3
     };
 
 	/** The pixel format used for textures. */

@@ -1191,6 +1191,10 @@ namespace Ogre {
         RenderQueue::QueueGroupIterator queueIt = mRenderQueue._getQueueGroupIterator();
         // NB only queues which have been created are rendered, no time is wasted
         //   parsing through non-existent queues (even though there are 10 available)
+        SceneDetailLevel lastDetailLevel, camDetailLevel;
+        camDetailLevel = mCameraInProgress->getDetailLevel();
+        lastDetailLevel = camDetailLevel;
+
         while (queueIt.hasMoreElements())
         {
             // Get queue group id
@@ -1260,6 +1264,20 @@ namespace Ogre {
                                 // Issue view / projection changes if any
                                 useRenderableViewProjMode(*irend);
 
+                                // Set up the solid / wireframe override
+                                SceneDetailLevel reqDetail = (*irend)->getRenderDetail();
+                                if (reqDetail != lastDetailLevel)
+                                {
+                                    if (reqDetail > camDetailLevel)
+                                    {
+                                        // only downgrade detail; if cam says wireframe we don't go up to solid
+                                        reqDetail = camDetailLevel;
+                                    }
+                                    mDestRenderSystem->_setRasterisationMode(reqDetail);
+                                    lastDetailLevel = reqDetail;
+
+                                }
+
                                 // Set up rendering operation
                                 (*irend)->getRenderOperation(ro);
 
@@ -1304,6 +1322,20 @@ namespace Ogre {
 
                             // Issue view / projection changes if any
                             useRenderableViewProjMode(*iTrans);
+
+                            // Set up the solid / wireframe override
+                            SceneDetailLevel reqDetail = (*iTrans)->getRenderDetail();
+                            if (reqDetail != lastDetailLevel)
+                            {
+                                if (reqDetail > camDetailLevel)
+                                {
+                                    // only downgrade detail; if cam says wireframe we don't go up to solid
+                                    reqDetail = camDetailLevel;
+                                }
+                                mDestRenderSystem->_setRasterisationMode(reqDetail);
+                                lastDetailLevel = reqDetail;
+
+                            }
 
                             // Set up rendering operation
                             (*iTrans)->getRenderOperation(ro);
