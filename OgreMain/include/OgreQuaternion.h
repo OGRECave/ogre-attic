@@ -72,7 +72,7 @@ namespace Ogre {
         void FromAxes (const Vector3* akAxis);
         void FromAxes (const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis);
         void ToAxes (Vector3* akAxis) const;
-        void ToAxes (Vector3& xAxis, Vector3& yAxis, Vector3& zAxis);
+        void ToAxes (Vector3& xAxis, Vector3& yAxis, Vector3& zAxis) const;
 
         inline Quaternion& operator= (const Quaternion& rkQ)
 		{

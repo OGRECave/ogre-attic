@@ -94,6 +94,7 @@ void GTKWindow::create(String name, int width, int height, int colourDepth,
     }
 
     ogre = Gtk::manage(new OGREWidget(depthBuffer));
+    ogre->set_size_request(width, height);
     add(*ogre);
 
     signal_delete_event().connect(SigC::slot(*this, &GTKWindow::on_delete_event));
