@@ -65,6 +65,8 @@ namespace Ogre {
             @param
                 numMipmaps The number of pre-filtered mipmaps to generate. If left to default (-1) then
                 the TextureManager's default number of mipmaps will be used (see setDefaultNumMipmaps())
+				If set to MIP_UNLIMITED mipmaps will be generated until the lowest possible
+				level, 1x1x1.
             @param
                 gamma The gamma adjustment factor to apply to this texture (brightening/darkening)
         */
@@ -85,6 +87,8 @@ namespace Ogre {
             @param
                 numMipmaps The number of pre-filtered mipmaps to generate. If left to default (-1) then
                 the TextureManager's default number of mipmaps will be used (see setDefaultNumMipmaps())
+				If set to MIP_UNLIMITED mipmaps will be generated until the lowest possible
+				level, 1x1x1.
             @param
                 gamma The gamma adjustment factor to apply to this texture (brightening/darkening)
         */
@@ -111,6 +115,8 @@ namespace Ogre {
             @param
                 numMipmaps The number of pre-filtered mipmaps to generate. If left to default (-1) then
                 the TextureManager's default number of mipmaps will be used (see setDefaultNumMipmaps())
+				If set to MIP_UNLIMITED mipmaps will be generated until the lowest possible
+				level, 1x1x1.
             @param
                 gamma The gamma adjustment factor to apply to this texture (brightening/darkening)
         */
@@ -131,6 +137,8 @@ namespace Ogre {
             @param
                 numMipmaps The number of pre-filtered mipmaps to generate. If left to default (-1) then
                 the TextureManager's default number of mipmaps will be used (see setDefaultNumMipmaps())
+				If set to MIP_UNLIMITED mipmaps will be generated until the lowest possible
+				level, 1x1x1.
             @param
                 format The internal format you wish to request; the manager reserves
                 the right to create a different format if the one you select is
@@ -153,7 +161,7 @@ namespace Ogre {
         */
         virtual TexturePtr createManual(const String & name, const String& group,
             TextureType texType, uint width, uint height, uint depth, 
-			uint num_mips, PixelFormat format, int usage = TU_DEFAULT, ManualResourceLoader* loader = 0 );
+			int num_mips, PixelFormat format, int usage = TU_DEFAULT, ManualResourceLoader* loader = 0 );
 			
         /** Create a manual texture with a depth of 1 (not loaded from a file).
             @param
@@ -166,7 +174,9 @@ namespace Ogre {
                 width, height The dimensions of the texture
             @param
                 numMipmaps The number of pre-filtered mipmaps to generate. If left to default (-1) then
-                the TextureManager's default number of mipmaps will be used (see setDefaultNumMipmaps())
+                the TextureManager's default number of mipmaps will be used (see setDefaultNumMipmaps()).
+				If set to MIP_UNLIMITED mipmaps will be generated until the lowest possible
+				level, 1x1x1.
             @param
                 format The internal format you wish to request; the manager reserves
                 the right to create a different format if the one you select is
@@ -188,7 +198,7 @@ namespace Ogre {
                 will be called to do it.
         */
         TexturePtr createManual(const String & name, const String& group,
-            TextureType texType, uint width, uint height, uint num_mips,
+            TextureType texType, uint width, uint height, int num_mips,
             PixelFormat format, int usage = TU_DEFAULT, ManualResourceLoader* loader = 0 )
 		{
 			return createManual(name, group, texType, width, height, 1, 
@@ -202,14 +212,16 @@ namespace Ogre {
         /** Sets the default number of mipmaps to be used for loaded textures, for when textures are
             loaded automatically (e.g. by Material class) or when 'load' is called with the default
             parameters by the application.
+			If set to MIP_UNLIMITED mipmaps will be generated until the lowest possible
+				level, 1x1x1.
             @note
                 The default value is 0.
         */
-        virtual void setDefaultNumMipmaps(int num);
+        virtual void setDefaultNumMipmaps(size_t num);
 
         /** Sets the default number of mipmaps to be used for loaded textures.
         */
-        virtual int getDefaultNumMipmaps()
+        virtual size_t getDefaultNumMipmaps()
         {
             return mDefaultNumMipmaps;
         }
@@ -250,7 +262,7 @@ namespace Ogre {
     protected:
 
         bool mIs32Bit;
-        int mDefaultNumMipmaps;
+        size_t mDefaultNumMipmaps;
     };
 }// Namespace
 

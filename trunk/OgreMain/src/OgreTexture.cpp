@@ -87,7 +87,7 @@ namespace Ogre {
 		return mWidth * mHeight * mDepth * mFinalBpp;
 	}
 	//--------------------------------------------------------------------------
-	int Texture::getNumFaces(void) const
+	size_t Texture::getNumFaces(void) const
 	{
 		return getTextureType() == TEX_TYPE_CUBE_MAP ? 6 : 1;
 	}
