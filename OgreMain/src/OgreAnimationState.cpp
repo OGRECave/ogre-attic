@@ -36,7 +36,7 @@ namespace Ogre
         mLength = 0;
         mInvLength = 0;
         mWeight = 1.0;
-
+        mLoop = true;
     }
 	//---------------------------------------------------------------------
 	AnimationState::~AnimationState()
@@ -67,6 +67,21 @@ namespace Ogre
     void AnimationState::setTimePosition(Real timePos)
     {
         mTimePos = timePos;
+        if (mLoop)
+        {
+            // Wrap
+            mTimePos = fmod(mTimePos, mLength);
+            if(mTimePos < 0)
+                mTimePos += mLength;     
+        }
+        else
+        {
+            // Clamp
+            if(mTimePos < 0)
+                mTimePos = 0;
+            else if (mTimePos > mLength)
+                mTimePos = mLength;
+        }
     }
     //---------------------------------------------------------------------
     Real AnimationState::getLength() const
@@ -99,9 +114,7 @@ namespace Ogre
     //---------------------------------------------------------------------
     void AnimationState::addTime(Real offset)
     {
-        mTimePos = fmod(mTimePos + offset, mLength);
-        if(mTimePos < 0)
-            mTimePos += mLength;     
+        setTimePosition(mTimePos += offset);
     }
     //---------------------------------------------------------------------
     bool AnimationState::getEnabled(void) const
