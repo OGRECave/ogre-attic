@@ -688,6 +688,7 @@ namespace Ogre {
                     if (brushIntersect)
                     {
                         // report this brush as it's WorldFragment
+                        assert((*bi)->fragment.fragmentType == SceneQuery::WFT_PLANE_BOUNDED_REGION);
                         listener->queryResult(const_cast<MovableObject*>(aObj), // hacky
                                 const_cast<WorldFragment*>(&((*bi)->fragment))); 
                     }

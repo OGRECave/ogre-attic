@@ -359,11 +359,10 @@ namespace Ogre {
         mBrushes = new BspNode::Brush[q3lvl.mNumBrushes];
         for (i = 0; i < q3lvl.mNumBrushes; ++i)
         {
-            int realBrushIdx = q3lvl.mLeafBrushes[i];
-            bsp_brush_t* q3brush = &q3lvl.mBrushes[realBrushIdx];
+            bsp_brush_t* q3brush = &q3lvl.mBrushes[i];
 
             // Create a new OGRE brush
-            BspNode::Brush *pBrush = &(mBrushes[realBrushIdx]);
+            BspNode::Brush *pBrush = &(mBrushes[i]);
             int brushSideIdx, numBrushSides;
             numBrushSides = q3brush->numsides;
             brushSideIdx = q3brush->firstside;
@@ -423,6 +422,7 @@ namespace Ogre {
                 {
                     // Get brush 
                     BspNode::Brush *pBrush = &(mBrushes[realBrushIdx]);
+                    assert(pBrush->fragment.fragmentType == SceneQuery::WFT_PLANE_BOUNDED_REGION);
                     // Assign node pointer
                     node->mSolidBrushes.push_back(pBrush);
                 }
