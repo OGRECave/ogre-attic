@@ -520,7 +520,7 @@ namespace Ogre {
         // Texture layers
         int texLayer = mat->getNumTextureLayers() - numLayersLeft;
         int thisUnitsRequested = numLayersLeft;
-        int texUnits = RenderSystemCapabilities::getSingleton().numTextureUnits();
+        int texUnits = mDestRenderSystem->getCapabilities()->numTextureUnits();
 
 #if OGRE_TEST_MULTIPASS == 1
         texUnits = 1;

@@ -58,7 +58,7 @@ namespace Ogre {
         mTimer = Root::getSingleton().getTimer();
 
         // instanciate RenderSystemCapabilities
-        mCapabilities = new RenderSystemCapabilities;
+        mCapabilities = new RenderSystemCapabilities();
     }
 
     //-----------------------------------------------------------------------

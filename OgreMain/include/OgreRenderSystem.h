@@ -774,6 +774,9 @@ namespace Ogre
          */
         virtual void _render(const RenderOperation& op);
 
+		/** Gets the capabilities of the render system. */
+		const RenderSystemCapabilities* getCapabilities(void) { return mCapabilities; }
+
     protected:
 
         /** Set of registered frame listeners */

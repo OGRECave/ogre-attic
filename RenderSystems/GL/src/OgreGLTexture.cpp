@@ -212,7 +212,8 @@ namespace Ogre {
         glGenTextures( 1, &mTextureID );
         glBindTexture( getGLTextureType(), mTextureID );
 
-        if(mNumMipMaps && RenderSystemCapabilities::getSingleton().hasCapability(RSC_AUTOMIPMAP))
+        if(mNumMipMaps && 
+			Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_AUTOMIPMAP))
         {
             glTexParameteri( getGLTextureType(), GL_GENERATE_MIPMAP, GL_TRUE );
             useSoftwareMipmaps = false;
