@@ -10,8 +10,4 @@ noinst_HEADERS = OgreGLPrerequisites.h \
                  OgreSDLGLSupport.h \
                  OgreSDLPrerequisites.h \
                  OgreSDLWindow.h \
-                 OgreGLXGLSupport.h \
-                 OgreGLXRenderTexture.h \
-                 OgreGLXWindow.h \
-                 OgreGLContext.h \
-                 OgreGLXContext.h
+                 OgreGLContext.h
