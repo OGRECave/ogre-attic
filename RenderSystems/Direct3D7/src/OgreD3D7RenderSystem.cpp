@@ -1273,6 +1273,11 @@ namespace Ogre {
 
         hr = __SetRenderState(D3DRENDERSTATE_DESTBLEND, d3dDestBlend);
 
+        // Save last scene blend, because colour write off is simulated 
+        // through scene blend
+        mSavedDestFactor = destFactor;
+        mSavedSrcFactor = sourceFactor;
+
 
     }
     //-----------------------------------------------------------------------
@@ -2708,6 +2713,22 @@ namespace Ogre {
     HardwareOcclusionQuery* D3DRenderSystem::createHardwareOcclusionQuery(void)
     {
         return (HardwareOcclusionQuery*) 0;	// Hardware occlusion is not supported when DirectX7 is used
+    }
+    //-----------------------------------------------------------------------
+    void D3DRenderSystem::_setColourBufferWriteEnabled(bool red, bool green, bool blue, bool alpha)
+    {
+        // D3D7 does not have a colour write mask setting, so emulate it using
+        // scene blending, on the assumption that setSceneBlend will be called
+        // before this
+        if (red || green || blue || alpha)
+        {
+            // restore saved scene blend
+            _setSceneBlending(mSavedSrcFactor, mSavedDestFactor);
+        }
+        else
+        {
+            _setSceneBlending(SBF_ZERO, SBF_ONE);
+        }
     }
 
 }

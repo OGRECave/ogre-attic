@@ -142,6 +142,8 @@ namespace Ogre {
 
         unsigned short mCurrentLights;
         Matrix4 mViewMatrix;
+        // saved scene blending factors
+        SceneBlendFactor mSavedSrcFactor, mSavedDestFactor;
 
 
 	public:
@@ -319,10 +321,11 @@ namespace Ogre {
         void _setDepthBias(ushort bias);
         /** See RenderSystem
 		@remarks
-			Direct3D7 DOES NOT SUPPORT COLOUR WRITE MASKING! This feature will not work
-			on this legacy render system.
+			Direct3D7 DOES NOT SUPPORT COLOUR WRITE MASKING! This feature is 
+            emulated by using a null scene blend which will only work as long
+            as setSceneBlend is called before it. 
          */
-		void _setColourBufferWriteEnabled(bool red, bool green, bool blue, bool alpha) {}
+		void _setColourBufferWriteEnabled(bool red, bool green, bool blue, bool alpha);
         
 		/** See
           RenderSystem
