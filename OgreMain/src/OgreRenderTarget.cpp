@@ -104,9 +104,9 @@ namespace Ogre {
         {
             fireViewportPreUpdate((*it).second);
             (*it).second->update();
-            mTris += (*it++).second->_getNumRenderedFaces();
+            mTris += (*it).second->_getNumRenderedFaces();
             fireViewportPostUpdate((*it).second);
-
+			++it;
         }
 
         // notify listeners (post)
