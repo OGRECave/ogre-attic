@@ -1,4 +1,0 @@
-LIBRARY RenderSystem_SDL
-EXPORTS	
-	dllStartPlugin @1
-	dllStopPlugin  @2
