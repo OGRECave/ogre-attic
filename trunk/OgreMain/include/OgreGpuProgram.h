@@ -232,6 +232,12 @@ namespace Ogre {
         @param extraInfo If the constant type needs more information (like a light index) put it here.
         */
         void setAutoConstant(size_t index, AutoConstantType acType, size_t extraInfo = 0);
+        /** Sets a named parameter up to track a derivation of the current time.
+        @param index The index of the parameter
+        @param factor The amount by which to scale the time value
+        */  
+        void setConstantFromTime(size_t index, Real factor);
+
         /** Clears all the existing automatic constants. */
         void clearAutoConstants(void);
         typedef VectorIterator<AutoConstantList> AutoConstantIterator;
@@ -371,6 +377,15 @@ namespace Ogre {
         @param extraInfo If the constant type needs more information (like a light index) put it here.
         */
         void setNamedAutoConstant(const String& name, AutoConstantType acType, size_t extraInfo = 0);
+
+        /** Sets a named parameter up to track a derivation of the current time.
+        @note
+            This named option will only work if you are using a parameters object created
+            from a high-level program (HighLevelGpuProgram).
+        @param name The name of the parameter
+        @param factor The amount by which to scale the time value
+        */  
+        void setNamedConstantFromTime(const String& name, Real factor);
         /// Internal method for associating a parameter name with an index
         void _mapParameterNameToIndex(const String& name, size_t index);
 

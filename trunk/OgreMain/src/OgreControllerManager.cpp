@@ -176,6 +176,19 @@ namespace Ogre {
         return createController(mFrameTimeController, val, func);
     }
     //-----------------------------------------------------------------------
+    Controller<Real>* ControllerManager::createGpuProgramTimerParam(
+        GpuProgramParametersSharedPtr params, size_t paramIndex, Real timeFactor)
+    {
+        SharedPtr< ControllerValue<Real> > val;
+        SharedPtr< ControllerFunction<Real> > func;
+
+        val.bind(new FloatGpuParameterControllerValue(params, paramIndex));
+        func.bind(new ScaleControllerFunction(timeFactor, true));
+
+        return createController(mFrameTimeController, val, func);
+
+    }
+    //-----------------------------------------------------------------------
     ControllerManager& ControllerManager::getSingleton(void)
     {
         return Singleton<ControllerManager>::getSingleton();

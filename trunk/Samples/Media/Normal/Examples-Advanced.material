@@ -705,17 +705,19 @@ material Examples/Heatwave
 			{
 				param_named_auto worldViewProjMatrix worldviewproj_matrix
 				param_named_auto eyePosition camera_position_object_space
-				param_named fresnelBias float4 0 0 0 0
+				param_named fresnelBias float4 -0.3 0 0 0
 				param_named fresnelScale float4 1.4 0 0 0
-				param_named fresnelPower float4 3 0 0 0
-				param_named scroll float4 0 0 0 0
-				param_named noisePos float4 0 0 0 0
+				param_named fresnelPower float4 8 0 0 0
+				param_named_auto timeVal time 0.05
+				param_named scroll float4 1 0 0 0
+				param_named scale float4 4 0 0 0
+				param_named noise float4 1 0 0 0
 				// scroll and noisePos will need updating per frame
 			}
 			fragment_program_ref Examples/DistortFP
 			{
 				param_named distortionRange float4 0.025 0 0 0
-				param_named tintColour float4 0 0 0.3 1
+				param_named tintColour float4 0 0 0.1 1
 			}
 			// Noise
 			texture_unit

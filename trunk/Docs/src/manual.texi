@@ -1320,6 +1320,8 @@ The direction of a given light in object space (ie when the object is at (0,0,0)
 The colour of the ambient light currently set in the scene.
 @item camera_position_object_space
 The current cameras position in object space (ie when the object is at (0,0,0)).
+@item time
+The current time, factored by the optional parameter (or 1.0f if not supplied).
 @end table
 
 @anchor{param_named}

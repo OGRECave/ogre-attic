@@ -1283,6 +1283,18 @@ namespace Ogre
         {
             acType = GpuProgramParameters::ACT_CAMERA_POSITION_OBJECT_SPACE;
         }
+        else if (vecparams[1] == "time")
+        {
+            // Special case!
+            Real factor = 1.0f;
+            if (vecparams.size() == 3)
+            {
+                factor = StringConverter::parseReal(vecparams[2]);
+            }
+            
+            context.programParams->setConstantFromTime(index, factor);
+            return;
+        }
 
         // Do we need any extra parameters?
         size_t extraParam = 0;
@@ -1676,6 +1688,7 @@ namespace Ogre
         mProgramRefAttribParsers.insert(AttribParserList::value_type("param_indexed_auto", (ATTRIBUTE_PARSER)parseParamIndexedAuto));
         mProgramRefAttribParsers.insert(AttribParserList::value_type("param_named", (ATTRIBUTE_PARSER)parseParamNamed));
         mProgramRefAttribParsers.insert(AttribParserList::value_type("param_named_auto", (ATTRIBUTE_PARSER)parseParamNamedAuto));
+        mProgramRefAttribParsers.insert(AttribParserList::value_type("param_named", (ATTRIBUTE_PARSER)parseParamNamedAuto));
 
         // Set up program definition attribute parsers
         mProgramAttribParsers.insert(AttribParserList::value_type("source", (ATTRIBUTE_PARSER)parseProgramSource));

@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreVector4.h"
 #include "OgreAutoParamDataSource.h"
 #include "OgreLight.h"
+#include "OgreControllerManager.h"
 
 namespace Ogre
 {
@@ -320,6 +321,18 @@ namespace Ogre
     void GpuProgramParameters::setNamedAutoConstant(const String& name, AutoConstantType acType, size_t extraInfo)
     {
         setAutoConstant(getParamIndex(name), acType, extraInfo);
+    }
+    //---------------------------------------------------------------------------
+    void GpuProgramParameters::setConstantFromTime(size_t index, Real factor)
+    {
+        // Create controller
+        ControllerManager::getSingleton().createGpuProgramTimerParam(this, index, factor);
+
+    }
+    //---------------------------------------------------------------------------
+    void GpuProgramParameters::setNamedConstantFromTime(const String& name, Real factor)
+    {
+        setConstantFromTime(getParamIndex(name), factor);
     }
     //---------------------------------------------------------------------------
     GpuProgramParameters::RealConstantIterator GpuProgramParameters::getRealConstantIterator(void)

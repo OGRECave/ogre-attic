@@ -138,7 +138,17 @@ namespace Ogre {
         Controller<Real>* createTextureWaveTransformer(TextureUnitState* layer, TextureUnitState::TextureTransformType ttype,
             WaveformType waveType, Real base = 0, Real frequency = 1, Real phase = 0, Real amplitude = 1);
 
-
+        /** Creates a controller for passing a frame time value through to a vertex / fragment program parameter.
+        @remarks
+            The destination parameter is expected to be a float, and the '.x' attribute will be populated
+            with the appropriately scaled time value.
+        @param params The parameters to update
+        @param paramIndex The index of the parameter to update; if you want a named parameter, then
+            retrieve the index beforehand using GpuProgramParameters::getParamIndex
+        @param factor The factor by which to adjust the time elapsed by before passing it to the program
+        */
+        Controller<Real>* createGpuProgramTimerParam(GpuProgramParametersSharedPtr params, size_t paramIndex,
+            Real timeFactor = 1.0f);
         /** Override standard Singleton retrieval.
             @remarks
                 Why do we do this? Well, it's because the Singleton implementation is in a .h file,
