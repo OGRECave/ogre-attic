@@ -683,6 +683,14 @@ protected:
     // Just override the mandatory create scene method
     void createScene(void)
     {
+        // First check that cube mapping is supported
+        if (!Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_CUBEMAPPING))
+        {
+            Except(1, "Your card does not support cube mapping, so cannot "
+                "run this demo. Sorry!", 
+                "CubeMapApplication::createScene");
+        }
+
         // Set ambient light
         mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
 
