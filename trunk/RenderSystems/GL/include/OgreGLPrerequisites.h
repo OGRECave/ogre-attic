@@ -55,6 +55,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #       define GL_ADD_SIGNED GL_ADD_SIGNED_ARB
 #       define GL_INTERPOLATE GL_INTERPOLATE_ARB
 #       define GL_CONSTANT GL_CONSTANT_ARB
+#       define GL_PRIMARY_COLOR GL_PRIMARY_COLOR_ARB
 #       define GL_PREVIOUS GL_PREVIOUS_ARB
 #       define GL_SOURCE0_RGB GL_SOURCE0_RGB_ARB
 #       define GL_SOURCE1_RGB GL_SOURCE1_RGB_ARB
@@ -76,6 +77,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #       define GL_ADD_SIGNED GL_ADD_SIGNED_EXT
 #       define GL_INTERPOLATE GL_INTERPOLATE_EXT
 #       define GL_CONSTANT GL_CONSTANT_EXT
+#       define GL_PRIMARY_COLOR GL_PRIMARY_COLOR_EXT
 #       define GL_PREVIOUS GL_PREVIOUS_EXT
 #       define GL_SOURCE0_RGB GL_SOURCE0_RGB_EXT
 #       define GL_SOURCE1_RGB GL_SOURCE1_RGB_EXT
