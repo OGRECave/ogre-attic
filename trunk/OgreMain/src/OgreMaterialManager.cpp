@@ -201,13 +201,10 @@ namespace Ogre {
         {
         case FT_MIN:
             return mDefaultMinFilter;
-            break;
         case FT_MAG:
             return mDefaultMagFilter;
-            break;
         case FT_MIP:
             return mDefaultMipFilter;
-            break;
         }
         // to keep compiler happy
         return mDefaultMinFilter;
