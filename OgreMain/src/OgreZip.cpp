@@ -44,27 +44,6 @@ static void strlwr(char* x)
 
 namespace Ogre {
 
-
-    //-----------------------------------------------------------------------
-    ZipArchiveFactory* pZipArchFactory = NULL;
-    //-----------------------------------------------------------------------
-
-    //-----------------------------------------------------------------------
-    extern "C" void dllStartPlugin(void)
-    {
-        SET_TERM_HANDLER;
-
-        // Register archive
-        pZipArchFactory = new ZipArchiveFactory();
-        ArchiveManager::getSingleton().addArchiveFactory(pZipArchFactory);
-    }
-
-    //-----------------------------------------------------------------------
-    extern "C" void dllStopPlugin(void)
-    {
-        delete pZipArchFactory;
-    }
-
     //-----------------------------------------------------------------------
     bool Zip::fileOpen( const String& strFile, FILE** ppFile ) const
     {
