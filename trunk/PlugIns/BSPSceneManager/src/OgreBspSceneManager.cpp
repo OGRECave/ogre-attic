@@ -625,8 +625,9 @@ namespace Ogre {
 
                             if (box1.intersects(box2))
                             {
-                                listener->queryResult(const_cast<MovableObject*>(aObj), 
-                                    const_cast<MovableObject*>(bObj)); // hacky
+                                if (!listener->queryResult(const_cast<MovableObject*>(aObj), 
+                                    const_cast<MovableObject*>(bObj)))
+									return; 
                             }
                         }
                     }
@@ -660,8 +661,9 @@ namespace Ogre {
                         {
                             // report this brush as it's WorldFragment
                             assert((*bi)->fragment.fragmentType == SceneQuery::WFT_PLANE_BOUNDED_REGION);
-                            listener->queryResult(const_cast<MovableObject*>(aObj), // hacky
-                                    const_cast<WorldFragment*>(&((*bi)->fragment))); 
+                            if (!listener->queryResult(const_cast<MovableObject*>(aObj), 
+                                    const_cast<WorldFragment*>(&((*bi)->fragment))))
+								return; 
                         }
 
                     }
@@ -789,7 +791,8 @@ namespace Ogre {
             // the node, fire the event handler
             if(result.first && result.second <= maxDistance)
             {
-                listener->queryResult(obj, result.second + traceDistance);
+                if (!listener->queryResult(obj, result.second + traceDistance))
+					return false;
             }
         }
 
@@ -821,14 +824,16 @@ namespace Ogre {
                         wf->singleIntersection = tracingRay.getPoint(result.second);
                         // save this so we can clean up later
                         mSingleIntersections.push_back(wf);
-                        listener->queryResult(wf, result.second + traceDistance);
+                        if (!listener->queryResult(wf, result.second + traceDistance))
+							return false;
                     }
                     else if (mWorldFragmentType ==  SceneQuery::WFT_PLANE_BOUNDED_REGION)
                     {
                         // We want the whole bounded volume
                         assert((*bi)->fragment.fragmentType == SceneQuery::WFT_PLANE_BOUNDED_REGION);
-                        listener->queryResult(const_cast<WorldFragment*>(&(brush->fragment)), 
-                            result.second + traceDistance); 
+                        if (!listener->queryResult(const_cast<WorldFragment*>(&(brush->fragment)), 
+                            result.second + traceDistance))
+							return false; 
 
                     }
                 }

@@ -3699,7 +3699,7 @@ void DefaultIntersectionSceneQuery::execute(IntersectionSceneQueryListener* list
 
                 if (box1.intersects(box2))
                 {
-                    listener->queryResult(a->second, b->second);
+                    if (!listener->queryResult(a->second, b->second)) return;
                 }
             }
 
@@ -3729,7 +3729,7 @@ void DefaultAxisAlignedBoxSceneQuery::execute(SceneQueryListener* listener)
     {
         if ((i->second->getQueryFlags() & mQueryMask) && mAABB.intersects(i->second->getWorldBoundingBox()))
         {
-            listener->queryResult(i->second);
+            if (!listener->queryResult(i->second)) return;
         }
     }
 }
@@ -3767,7 +3767,7 @@ void DefaultRaySceneQuery::execute(RaySceneQueryListener* listener)
 
             if (result.first)
             {
-                listener->queryResult(i->second, result.second);
+                if (!listener->queryResult(i->second, result.second)) return;
             }
         }
     }
@@ -3803,7 +3803,7 @@ void DefaultSphereSceneQuery::execute(SceneQueryListener* listener)
         testSphere.setRadius(i->second->getBoundingRadius());
         if (mSphere.intersects(testSphere))
         {
-            listener->queryResult(i->second);
+            if (!listener->queryResult(i->second)) return;
         }
     }
 }
@@ -3836,7 +3836,7 @@ void DefaultPlaneBoundedVolumeListSceneQuery::execute(SceneQueryListener* listen
             // Do AABB / plane volume test
             if ((i->second->getQueryFlags() & mQueryMask) && vol.intersects(i->second->getWorldBoundingBox()))
             {
-                listener->queryResult(i->second);
+                if (!listener->queryResult(i->second)) return;
                 break;
             }
         }
