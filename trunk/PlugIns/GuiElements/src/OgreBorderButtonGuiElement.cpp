@@ -42,7 +42,7 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
 	BorderButtonGuiElement::BorderButtonGuiElement(const String& name) :
-		BorderPanelGuiElement(name),
+		BorderPanelOverlayElement(name),
 		GuiPressable(name)
 	{
 		mButtonDown = false;
@@ -66,7 +66,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	void BorderButtonGuiElement::processEvent(InputEvent* e) 
 	{
-		BorderPanelGuiElement::processEvent(e);
+		BorderPanelOverlayElement::processEvent(e);
 
 		updateMaterials();
 	}
@@ -106,7 +106,7 @@ namespace Ogre {
 				borderMaterialName = mBorderUpMaterialName;
 		}
 
-		BorderPanelGuiElement::setBorderMaterialName(borderMaterialName);
+		BorderPanelOverlayElement::setBorderMaterialName(borderMaterialName);
 
 		if (buttonStatus && !init)
 		{
@@ -134,7 +134,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void BorderButtonGuiElement::addBaseParameters(void)
     {
-        BorderPanelGuiElement::addBaseParameters();
+        BorderPanelOverlayElement::addBaseParameters();
         ParamDictionary* dict = getParamDictionary();
 
         dict->addParameter(ParameterDef("border_down_material", 

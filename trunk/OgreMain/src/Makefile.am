@@ -13,8 +13,9 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreAxisAlignedBox.cpp \
                          OgreBillboard.cpp \
                          OgreBillboardSet.cpp \
-                         OgreBone.cpp \
                          OgreBitwise.cpp \
+                         OgreBone.cpp \
+                         OgreBorderPanelOverlayElement.cpp \
                          OgreCamera.cpp \
                          OgreCodec.cpp \
                          OgreColourValue.cpp \
@@ -86,6 +87,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreNode.cpp \
                          OgreOverlay.cpp \
                          OgreOverlayManager.cpp \
+                         OgrePanelOverlayElement.cpp \
                          OgreParticleEmitter.cpp \
                          OgreParticleEmitterCommands.cpp \
                          OgreParticleIterator.cpp \
@@ -136,6 +138,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreSubMesh.cpp \
                          OgreTagPoint.cpp \
                          OgreTechnique.cpp \
+                         OgreTextAreaOverlayElement.cpp \
                          OgreTexture.cpp \
                          OgreTextureManager.cpp \
                          OgreTextureUnitState.cpp \

@@ -43,7 +43,7 @@ namespace Ogre {
 
 
 	ListGuiElement::ListGuiElement(const String& name) :
-		PanelGuiElement(name)
+		PanelOverlayElement(name)
 	{
         if (createParamDictionary("ListGuiElement"))
         {
@@ -70,7 +70,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void ListGuiElement::addBaseParameters(void)
     {
-        PanelGuiElement::addBaseParameters();
+        PanelOverlayElement::addBaseParameters();
         ParamDictionary* dict = getParamDictionary();
 
         dict->addParameter(ParameterDef("item_template", 

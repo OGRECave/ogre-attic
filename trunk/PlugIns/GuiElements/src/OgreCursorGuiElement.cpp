@@ -39,7 +39,7 @@ namespace Ogre {
     CursorGuiElement::CmdOffsetY CursorGuiElement::msCmdOffsetY;
 
 	CursorGuiElement::CursorGuiElement(const String& name) :
-		PanelGuiElement(name), mOffsetX(0.0), mOffsetY(0.0)
+		PanelOverlayElement(name), mOffsetX(0.0), mOffsetY(0.0)
 	{
         mVisible = false; // cursors are initially hidden
 
@@ -65,7 +65,7 @@ namespace Ogre {
 	    	setTop(om.getMouseY() - mOffsetY);
             om.addMouseMotionListener(this);
         }
-        PanelGuiElement::show();
+        PanelOverlayElement::show();
     }
     //---------------------------------------------------------------------
     void CursorGuiElement::hide(void)
@@ -74,7 +74,7 @@ namespace Ogre {
             OverlayManager &om = OverlayManager::getSingleton();
             om.removeMouseMotionListener(this);
         }
-        PanelGuiElement::hide();
+        PanelOverlayElement::hide();
     }
     //---------------------------------------------------------------------
 	void CursorGuiElement::setOffsetX(Real x)
@@ -107,7 +107,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void CursorGuiElement::addBaseParameters(void)
     {
-        PanelGuiElement::addBaseParameters();
+        PanelOverlayElement::addBaseParameters();
         ParamDictionary* dict = getParamDictionary();
 
         dict->addParameter(ParameterDef("x_offset", 

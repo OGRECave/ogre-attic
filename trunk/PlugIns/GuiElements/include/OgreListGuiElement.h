@@ -27,7 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreGuiElementPrerequisites.h"
 #include "OgreListSelectionTarget.h"
-#include "OgreBorderPanelGuiElement.h"
+#include "OgreBorderPanelOverlayElement.h"
 #include "OgreListChanger.h"
 #include "OgreScrollBarGuiElement.h"
 #include "OgreEventListeners.h"
@@ -56,7 +56,7 @@ namespace Ogre {
 	 *
 	 */
 
-	class _OgreGuiElementExport ListGuiElement : public PanelGuiElement, public ListSelectionTarget, public ListChanger, public ScrollListener, public MouseListener, public MouseMotionListener
+	class _OgreGuiElementExport ListGuiElement : public PanelOverlayElement, public ListSelectionTarget, public ListChanger, public ScrollListener, public MouseListener, public MouseMotionListener
     {
 	public :
 

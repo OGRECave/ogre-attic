@@ -4,7 +4,7 @@ This source file is part of OGRE
     (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
-Copyright © 2000-2002 The OGRE Team
+Copyright  2000-2002 The OGRE Team
 Also see acknowledgements in Readme.html
 
 This program is free software; you can redistribute it and/or modify it under
@@ -23,7 +23,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 
-#include "OgrePanelGuiElement.h"
+#include "OgrePanelOverlayElement.h"
 #include "OgreMaterial.h"
 #include "OgreTechnique.h"
 #include "OgrePass.h"
@@ -32,16 +32,16 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
     //---------------------------------------------------------------------
-    String PanelGuiElement::msTypeName = "Panel";
-    PanelGuiElement::CmdTiling PanelGuiElement::msCmdTiling;
-    PanelGuiElement::CmdTransparent PanelGuiElement::msCmdTransparent;
+    String PanelOverlayElement::msTypeName = "Panel";
+    PanelOverlayElement::CmdTiling PanelOverlayElement::msCmdTiling;
+    PanelOverlayElement::CmdTransparent PanelOverlayElement::msCmdTransparent;
     //---------------------------------------------------------------------
     // vertex buffer bindings, set at compile time (we could look these up but no point)
     #define POSITION_BINDING 0
     #define TEXCOORD_BINDING 1
 
     //---------------------------------------------------------------------
-    PanelGuiElement::PanelGuiElement(const String& name)
+    PanelOverlayElement::PanelOverlayElement(const String& name)
         : GuiContainer(name)
     {
         mTransparent = false;
@@ -56,19 +56,19 @@ namespace Ogre {
         mNumTexCoordsInBuffer = 0;
 
         // No normals or colours
-        if (createParamDictionary("PanelGuiElement"))
+        if (createParamDictionary("PanelOverlayElement"))
         {
             addBaseParameters();
         }
 
     }
     //---------------------------------------------------------------------
-    PanelGuiElement::~PanelGuiElement()
+    PanelOverlayElement::~PanelOverlayElement()
     {
         delete mRenderOp.vertexData;
     }
     //---------------------------------------------------------------------
-    void PanelGuiElement::initialise(void)
+    void PanelOverlayElement::initialise(void)
     {
         // Setup render op in advance
         mRenderOp.vertexData = new VertexData();
@@ -95,7 +95,7 @@ namespace Ogre {
         mRenderOp.operationType = RenderOperation::OT_TRIANGLE_STRIP;
     }
     //---------------------------------------------------------------------
-    void PanelGuiElement::setTiling(Real x, Real y, ushort layer)
+    void PanelOverlayElement::setTiling(Real x, Real y, ushort layer)
     {
         assert (layer < OGRE_MAX_TEXTURE_COORD_SETS);
         assert (x != 0 && y != 0);
@@ -107,43 +107,43 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    Real PanelGuiElement::getTileX(ushort layer) const
+    Real PanelOverlayElement::getTileX(ushort layer) const
     {
         return mTileX[layer];
     }
     //---------------------------------------------------------------------
-    Real PanelGuiElement::getTileY(ushort layer) const
+    Real PanelOverlayElement::getTileY(ushort layer) const
     {
         return mTileY[layer];
     }
     //---------------------------------------------------------------------
-    void PanelGuiElement::setTransparent(bool isTransparent)
+    void PanelOverlayElement::setTransparent(bool isTransparent)
     {
         mTransparent = isTransparent;
     }
     //---------------------------------------------------------------------
-    bool PanelGuiElement::isTransparent(void) const
+    bool PanelOverlayElement::isTransparent(void) const
     {
         return mTransparent;
     }
     //---------------------------------------------------------------------
-    const String& PanelGuiElement::getTypeName(void) const
+    const String& PanelOverlayElement::getTypeName(void) const
     {
         return msTypeName;
     }
     //---------------------------------------------------------------------
-    void PanelGuiElement::getRenderOperation(RenderOperation& op)
+    void PanelOverlayElement::getRenderOperation(RenderOperation& op)
     {
         op = mRenderOp;
     }
     //---------------------------------------------------------------------
-    void PanelGuiElement::setMaterialName(const String& matName)
+    void PanelOverlayElement::setMaterialName(const String& matName)
     {
         GuiContainer::setMaterialName(matName);
         updateTextureGeometry();
     }
     //---------------------------------------------------------------------
-    void PanelGuiElement::_updateRenderQueue(RenderQueue* queue)
+    void PanelOverlayElement::_updateRenderQueue(RenderQueue* queue)
     {
         if (mVisible)
         {
@@ -163,7 +163,7 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
-    void PanelGuiElement::updatePositionGeometry(void)
+    void PanelOverlayElement::updatePositionGeometry(void)
     {
         /*
             0-----2
@@ -191,27 +191,27 @@ namespace Ogre {
         Real* pPos = static_cast<Real*>(
             vbuf->lock(HardwareBuffer::HBL_DISCARD) );
         
-        // Use -1 for Z position, furthest forward in homogenous clip space
+        // Use 1 for Z position, furthest backward in homogenous clip space
         *pPos++ = left;
         *pPos++ = top;
-        *pPos++ = -1;
+        *pPos++ = 1;
 
         *pPos++ = left;
         *pPos++ = bottom;
-        *pPos++ = -1;
+        *pPos++ = 1;
 
         *pPos++ = right;
         *pPos++ = top;
-        *pPos++ = -1;
+        *pPos++ = 1;
 
         *pPos++ = right;
         *pPos++ = bottom;
-        *pPos++ = -1;
+        *pPos++ = 1;
         
         vbuf->unlock();
     }
     //---------------------------------------------------------------------
-    void PanelGuiElement::updateTextureGeometry(void)
+    void PanelOverlayElement::updateTextureGeometry(void)
     {
         // Generate for as many texture layers as there are in material
         if (mpMaterial)
@@ -300,7 +300,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void PanelGuiElement::addBaseParameters(void)
+    void PanelOverlayElement::addBaseParameters(void)
     {
         GuiContainer::addBaseParameters();
         ParamDictionary* dict = getParamDictionary();
@@ -319,16 +319,16 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     // Command objects
     //-----------------------------------------------------------------------
-    String PanelGuiElement::CmdTiling::doGet(const void* target) const
+    String PanelOverlayElement::CmdTiling::doGet(const void* target) const
     {
         // NB only returns 1st layer tiling
         String ret = "0 " + StringConverter::toString(
-            static_cast<const PanelGuiElement*>(target)->getTileX() );
+            static_cast<const PanelOverlayElement*>(target)->getTileX() );
         ret += " " + StringConverter::toString(
-            static_cast<const PanelGuiElement*>(target)->getTileY() );
+            static_cast<const PanelOverlayElement*>(target)->getTileY() );
         return ret;
     }
-    void PanelGuiElement::CmdTiling::doSet(void* target, const String& val)
+    void PanelOverlayElement::CmdTiling::doSet(void* target, const String& val)
     {
         // 3 params: <layer> <x_tile> <y_tile>
         // Param count is validated higher up
@@ -337,17 +337,17 @@ namespace Ogre {
         Real x_tile = StringConverter::parseReal(vec[1]);
         Real y_tile = StringConverter::parseReal(vec[2]);
 
-        static_cast<PanelGuiElement*>(target)->setTiling(x_tile, y_tile, layer);
+        static_cast<PanelOverlayElement*>(target)->setTiling(x_tile, y_tile, layer);
     }
     //-----------------------------------------------------------------------
-    String PanelGuiElement::CmdTransparent::doGet(const void* target) const
+    String PanelOverlayElement::CmdTransparent::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<const PanelGuiElement*>(target)->isTransparent() );
+            static_cast<const PanelOverlayElement*>(target)->isTransparent() );
     }
-    void PanelGuiElement::CmdTransparent::doSet(void* target, const String& val)
+    void PanelOverlayElement::CmdTransparent::doSet(void* target, const String& val)
     {
-        static_cast<PanelGuiElement*>(target)->setTransparent(
+        static_cast<PanelOverlayElement*>(target)->setTransparent(
             StringConverter::parseBool(val));
     }
 

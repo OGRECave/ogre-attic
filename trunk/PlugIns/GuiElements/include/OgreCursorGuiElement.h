@@ -27,7 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreGuiElementPrerequisites.h"
 #include "OgreEventListeners.h"
-#include "OgrePanelGuiElement.h"
+#include "OgrePanelOverlayElement.h"
 
 namespace Ogre {
 
@@ -37,12 +37,12 @@ namespace Ogre {
 	 * The CursorGuiElement may be used to create visible cursors for use with
      * the OverlayManager's cursor facility.
      * @par
-     * The CursorGuiElements class is sub-classed from the the PanelGuiElement
+     * The CursorGuiElements class is sub-classed from the the PanelOverlayElement
      * class.  The element size, material and other attributes may be specified to
      * define the appearance of the cursor.
      * @par
      * In addition, the CursorGuiElement class provide a mechanism for specifing
-     * the cursor's <I>hot spot</I> in relation to the PanelGuiClass's visual area.  This
+     * the cursor's <I>hot spot</I> in relation to the PanelOverlayClass's visual area.  This
      * is specified by setting the x_offset and y_offset attributes of the cursor.
      * @par
      * To use a cursor, it must first be created (typically from an overlay script)
@@ -65,14 +65,14 @@ namespace Ogre {
      * @see OverlayManager::setCursorGui.
 	 */
 
-	class CursorGuiElement : public PanelGuiElement, public MouseMotionListener
+	class CursorGuiElement : public PanelOverlayElement, public MouseMotionListener
     {
 	public :
 		CursorGuiElement(const String& name);
 
 		const String& getTypeName(void) const;
 
-        /** Inherited from PanelGuiElement, should only be called from the OverlayManager */
+        /** Inherited from PanelOverlayElement, should only be called from the OverlayManager */
         void show(void);
         void hide(void);
 

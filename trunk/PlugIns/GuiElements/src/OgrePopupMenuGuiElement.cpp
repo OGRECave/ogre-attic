@@ -41,7 +41,7 @@ namespace Ogre {
 	PopupMenuGuiElement::CmdItemPanelMaterialSelected PopupMenuGuiElement::msCmdItemPanelMaterialSelected;
 
 	PopupMenuGuiElement::PopupMenuGuiElement(const String& name) :
-		PanelGuiElement(name),
+		PanelOverlayElement(name),
 		GuiPressable(name)
 	{
         if (createParamDictionary("PopupMenuGuiElement"))
@@ -73,7 +73,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void PopupMenuGuiElement::addBaseParameters(void)
     {
-        PanelGuiElement::addBaseParameters();
+        PanelOverlayElement::addBaseParameters();
         ParamDictionary* dict = getParamDictionary();
 
         dict->addParameter(ParameterDef("item_template", 

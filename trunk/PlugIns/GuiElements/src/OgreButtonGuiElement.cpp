@@ -42,7 +42,7 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
 	ButtonGuiElement::ButtonGuiElement(const String& name) :
-		PanelGuiElement(name),
+		PanelOverlayElement(name),
 		GuiPressable(name)
 	{
 		mButtonDown = false;
@@ -69,7 +69,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	void ButtonGuiElement::processEvent(InputEvent* e) 
 	{
-		PanelGuiElement::processEvent(e);
+		PanelOverlayElement::processEvent(e);
 
 		updateMaterials();
 	}
@@ -130,7 +130,7 @@ namespace Ogre {
 			}
 		}
 
-		PanelGuiElement::setMaterialName(materialName);
+		PanelOverlayElement::setMaterialName(materialName);
 
 		if (buttonStatus && !init)
 		{
@@ -158,7 +158,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void ButtonGuiElement::addBaseParameters(void)
     {
-        PanelGuiElement::addBaseParameters();
+        PanelOverlayElement::addBaseParameters();
         ParamDictionary* dict = getParamDictionary();
 
         dict->addParameter(ParameterDef("button_down_material", 

@@ -39,7 +39,7 @@ namespace Ogre {
 	static Real mouseDragBitOffset = 0;
 
 	ScrollBarGuiElement::ScrollBarGuiElement(const String& name) :
-		PanelGuiElement(name)
+		PanelOverlayElement(name)
 	{
         if (createParamDictionary("ScrollBarGuiElement"))
         {
@@ -59,7 +59,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void ScrollBarGuiElement::addBaseParameters(void)
     {
-        PanelGuiElement::addBaseParameters();
+        PanelOverlayElement::addBaseParameters();
         ParamDictionary* dict = getParamDictionary();
 
         dict->addParameter(ParameterDef("up_button", 
@@ -164,7 +164,7 @@ namespace Ogre {
 	{
 		Real buttonSize = getWidth();
 		mScrollBitName = val;
-		mScrollBit = static_cast<PanelGuiElement*> (
+		mScrollBit = static_cast<PanelOverlayElement*> (
 			GuiManager::getSingleton().createGuiElementFromTemplate(mScrollBitName, "", mName + "/" + "ScrollBit"));
 		// do not make this cloneable, otherwise there will be 2 copies of it when it is cloned,
 		// one copy when the children are copied, and another copy when setScrollBitName is set.
@@ -280,7 +280,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	void ScrollBarGuiElement::processEvent(InputEvent* e) 
 	{
-		PanelGuiElement::processEvent(e);
+		PanelOverlayElement::processEvent(e);
 
 		if (!e->isConsumed())
 		{
