@@ -79,7 +79,8 @@ namespace Ogre {
             }
             if (!dclsFound)
             {
-                args.push_back("-profileopts dcls");
+                args.push_back("-profileopts");
+				args.push_back("dcls");
             }
         }
         // Now split args into that god-awful char** that Cg insists on

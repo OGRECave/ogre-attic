@@ -23,7 +23,6 @@ void main_vp(float4 position	: POSITION,
 			 out float3 oTSLightDir	 : TEXCOORD1,
 			 // parameters
 			 uniform float3 lightPosition, // object space
-			 uniform float3 eyePosition,   // object space
 			 uniform float4x4 worldViewProj)
 {
 	// calculate output position

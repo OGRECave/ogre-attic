@@ -415,6 +415,10 @@ namespace Ogre {
 		/// Notify this particle system of it's origin
 		void _notifyOrigin(const String& origin) { mOrigin = origin; }
 
+		/** @copydoc MovableObject::setRenderQueueGroup */
+		void setRenderQueueGroup(RenderQueueGroupID queueID);
+
+
     protected:
 
         /// Command objects

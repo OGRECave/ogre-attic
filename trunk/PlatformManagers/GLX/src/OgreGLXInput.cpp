@@ -130,7 +130,7 @@ GLXInput::GLXInput()
 	_key_map.insert(InputKeyMap::value_type(XK_F15, KC_F15));
 	_key_map.insert(InputKeyMap::value_type(XK_KP_Equal, KC_NUMPADEQUALS));
 	_key_map.insert(InputKeyMap::value_type(XK_KP_Divide, KC_DIVIDE));
-	_key_map.insert(InputKeyMap::value_type(XK_Sys_Req, KC_SYSRQ));
+	_key_map.insert(InputKeyMap::value_type(XK_Print, KC_SYSRQ));
 	_key_map.insert(InputKeyMap::value_type(XK_Alt_R, KC_RMENU)); // ?
 	_key_map.insert(InputKeyMap::value_type(XK_Home, KC_HOME));
 	_key_map.insert(InputKeyMap::value_type(XK_Up, KC_UP));

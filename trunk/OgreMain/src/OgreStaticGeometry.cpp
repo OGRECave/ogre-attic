@@ -115,7 +115,16 @@ namespace Ogre {
 		// Get bounds of indexed region
 		AxisAlignedBox regionBounds = getRegionBounds(x, y, z);
 		AxisAlignedBox intersectBox = regionBounds.intersection(box);
-		return intersectBox.volume();
+		// return a 'volume' which ignores zero dimensions
+		// since we only use this for relative comparisons of the same bounds
+		// this will still be internally consistent
+		Vector3 boxdiff = box.getMaximum() - box.getMinimum();
+		Vector3 intersectDiff = intersectBox.getMaximum() - intersectBox.getMinimum();
+
+		return (boxdiff.x == 0 ? 1 : intersectDiff.x) * 
+			(boxdiff.y == 0 ? 1 : intersectDiff.y) * 
+			(boxdiff.z == 0 ? 1 : intersectDiff.z);
+
 	}
 	//--------------------------------------------------------------------------
 	AxisAlignedBox StaticGeometry::getRegionBounds(ushort x, ushort y, ushort z)

@@ -286,12 +286,12 @@ namespace Ogre {
 		{
 			trimCR = true;
 		}
-		while (chunkSize && (readCount = zzip_file_read(mZzipFile, mTmpArea, chunkSize)))
+		while (chunkSize && (readCount = zzip_file_read(mZzipFile, mZipTmpArea, chunkSize)))
 		{
 			// Terminate
-			mTmpArea[readCount] = '\0';
+			mZipTmpArea[readCount] = '\0';
 			// Find first delimiter
-			size_t pos = strcspn(mTmpArea, delim.c_str());
+			size_t pos = strcspn(mZipTmpArea, delim.c_str());
 
 			if (pos < readCount)
 			{
@@ -303,7 +303,7 @@ namespace Ogre {
 
 			if (pos > 0)
 			{
-				if (trimCR && mTmpArea[pos-1] == '\r')
+				if (trimCR && mZipTmpArea[pos-1] == '\r')
 				{
 					// strip off CR
 					--pos;
@@ -311,7 +311,7 @@ namespace Ogre {
 				// Are we genuinely copying?
 				if (buf)
 				{
-					memcpy(buf, (const void*)mTmpArea, pos);
+					memcpy(buf, (const void*)mZipTmpArea, pos);
                     buf[pos] = '\0';
 				}
 				totalCount += pos;
