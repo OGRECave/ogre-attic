@@ -37,12 +37,6 @@ namespace Ogre {
     {
     public:
         void code( const DataChunk& input, DataChunk* output, ... ) const;
-        /** Encodes data to a jpeg file.
-        @param input Chunk containing data to write
-        @param outFileName Filename to output to
-        @param pData ImageData pointer
-        */
-        void codeToFile( const DataChunk& input, const String& outFileName, CodecData* pData) const;
         CodecData * decode( const DataChunk& input, DataChunk* output, ... ) const;
 
         String getType() const { return "jpeg"; }

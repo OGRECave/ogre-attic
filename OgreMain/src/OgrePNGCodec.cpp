@@ -31,7 +31,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-	bool ImageCodec::_is_initialized = false;    
 
     //---------------------------------------------------------------------
     void PNGCodec::code( const DataChunk& input, DataChunk* output, ... ) const
@@ -43,34 +42,6 @@ namespace Ogre {
 
         OgreUnguard();
 
-    }
-    //---------------------------------------------------------------------
-    void PNGCodec::codeToFile( const DataChunk& input, 
-        const String& outFileName, Codec::CodecData* pData) const
-    {
-        OgreGuard( "PNGCodec::codeToFile" );
-
-		ILuint ImageName;
-
-		if( !_is_initialized )
-		{
-			ilInit();
-			ilEnable( IL_FILE_OVERWRITE );
-			_is_initialized = true;
-		}
-
-		ilGenImages( 1, &ImageName );
-		ilBindImage( ImageName );
-
-		ImageData* pImgData = static_cast< ImageData * >( pData );
-		std::pair< int, int > fmt_bpp = OgreFormat2ilFormat( pImgData->format );
-
-		ilTexImage( 
-			pImgData->width, pImgData->height, 1, fmt_bpp.second, fmt_bpp.first, IL_RAW, 
-			static_cast< void * >( const_cast< uchar * >( ( input.getPtr() ) ) ) );
-		ilSave( IL_PNG, const_cast< char * >( outFileName.c_str() ) );
-        
-        OgreUnguard();
     }
     //---------------------------------------------------------------------
     Codec::CodecData * PNGCodec::decode( const DataChunk& input, DataChunk* output, ... ) const

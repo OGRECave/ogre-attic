@@ -38,17 +38,6 @@ namespace Ogre {
         OgreUnguard();
     }
     //---------------------------------------------------------------------
-    void TGACodec::codeToFile( const DataChunk& input, 
-        const String& outFileName, Codec::CodecData* pData) const
-    {
-        OgreGuard( "TGACodec::codeToFile" );
-
-        Except(Exception::UNIMPLEMENTED_FEATURE, "code to file not implemented",
-            "TGACodec::code");
-
-        OgreUnguard();
-    }
-    //---------------------------------------------------------------------
     Codec::CodecData * TGACodec::decode( const DataChunk& input, DataChunk* output, ... ) const
     {
         OgreGuard( "TGACodec::decode" );

@@ -252,6 +252,9 @@
 				RelativePath="..\src\OgreImage.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreImageCodec.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreInput.cpp">
 			</File>
 			<File
