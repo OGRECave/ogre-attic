@@ -290,7 +290,7 @@ namespace Ogre
                 This function will not crash for zero-sized vectors, but there
                 will be no changes made to their components.
         */
-        inline void normalise(void)
+        inline Vector3 & normalise()
         {
             Real fLength = Math::Sqrt( x * x + y * y + z * z );
 
@@ -302,6 +302,8 @@ namespace Ogre
                 y *= fInvLength;
                 z *= fInvLength;
             }
+
+            return *this;
         }
 
         /** Calculates the cross-product of 2 vectors, i.e. the vector that
