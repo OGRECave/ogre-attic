@@ -509,7 +509,7 @@ namespace Ogre {
 		return 1;
 	}
 	//-----------------------------------------------------------------------------
-	ushort Image::getRowSpan() const
+	size_t Image::getRowSpan() const
 	{
 		return m_uWidth * m_ucPixelSize;
 	}
