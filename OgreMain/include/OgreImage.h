@@ -33,7 +33,13 @@ http://www.gnu.org/copyleft/gpl.html.
 // Library includes
 #include "png.h"
 // jpeglib hack to stop redefinition of INT32
-#define XMD_H
+#ifndef XMD_H
+#   define XMD_H
+#endif
+// hack to stop warning about re-definition of FAR
+#ifdef FAR
+#   undef FAR
+#endif
 extern "C" {
     #include "jpeglib.h"
 }
