@@ -1,87 +1,54 @@
-***Prerequisites***
--Mac OS 10.2
--You will need to have the Mac OS X Developer Tools installed.
- See http://developer.apple.com/tools/ for more information.
--You should download the latest 3rd party Frameworks from the 
-site. These frameworks go in ogrenew/Mac/Frameworks.
--You will need the Cg Toolkit from http://developer.nvidia.com
+QuickStart
+----------
+1)  Check your OS X and XCode install
+    - OS X 10.2, minimum
+    - Latest XCode (1.5) suggested
+    - X11 Install Required (for freetype2 dylib)
+2)  Retrieve the necessary external frameworks
+    - SDL 1.2 (http://www.libsdl.org/download-1.2.php)
+    - DevIL 1.6.7 (http://openil.sourceforge.net/download.php)
+    - Cg 1.2 (http://developer.nvidia.com/object/cg_toolkit_1_2.html)
+3)  Open and build Ogre.xcode
+4)  Install the built Ogre.framework
+5)  Open and build Samples.xcode
+6)  Run samples and be happy.
 
-***Building the Ogre Framework***
-Open OgreFramework.pbproj in the ogrenew/Mac/PB/OgreFramework 
-directory. Choose Build from the Build menu.
+FAQ
+---
 
-***Building the Samples***
-You may build the individual samples in ogrenew/Mac/PB/Samples by
-opening them and choosing build. You can batch-build the samples
-by running the buildSamples script from the command line in that
-directory. There is also a cleanSamples to batch clean them all.
+Q:  How to I build individual samples?
+A:  In Samples.xcode select an individual app as the target rather than the
+    aggregate target.  Build.
 
-***Using the Ogre Framework in your applications***
-To create an application that uses the Ogre framework:
-1) Build the Ogre frameworks as above.
-2) Create a new project, using the Cocoa Application template
-3) Delete the files main.m, MainMenu.nib and MyApp_Prefix.h.
-4) Add SDLMain.m and SDLMain.h to your project. These are in the
-ogrenew/Mac/PB/Classes folder. You probably want to copy these
-items so you may change them without affecting the originals.
-5) Add the freetype, SDL and Ogre frameworks to your project. The
-first two are in the ogrenew/Mac/Frameworks folder, and the Ogre
-framework will be in ogrenew/Mac/PB/OgreFramework/build after you
-build it as above.
+Q:  How to I run other samples?
+A:  In Samples.xcode open the Run window (cmd-shift-R) and change the target
+    executable in the toolbar.  Run.
 
-You may either place these in a standard location for frameworks
-(eg /Library/Frameworks or ~/Library/Frameworks) or copy them into
-your executable. To copy them into your executable, choose 'Edit
-Active Target' from the project menu, control-click on the last
-in the list of build phases and create a new Copy Files build 
-phase. Choose 'Frameworks' from the 'Where' pop-up menu, and 
-drag the Ogre, SDL and freetype frameworks to the 'Files' area.
-
-If you copy them into the application, then users do not need
-to install the Ogre, SDL or freetype frameworks before using
-your application. On the other hand, the application is larger.
-
-6) Create the required plugins.cfg and resources.cfg files. You 
-may start from the examples of these files in ogrenew/Mac/PB/Samples.
-The plugins.cfg can probably be left as is, but you will want to
-remove the entries from resources.cfg, as they refer to the Sample
-resources. The entries in resources.cfg are relative to the
-'Resources' group in your application. By default, it and all of
-its sub-directories are searched by Ogre.
-
-7) There are some target settings to be changed. Choose
-'Edit Current Target' from the 'Project' menu. Under 'GCC Compiler
-Settings', clear the box that reads MyApp_Prefix.h. Under 'Search
-Paths', you may wish to add the 'Headers' folder from the Ogre
-framework to the 'Headers' section, so that you can refer to Ogre
-headers as, eg, "OgreCamera.h" instead of <Ogre/OgreCamera.h>.
-
-8) If you have built the Ogre framework with the Development build
-style (the default), you will have to edit the Development build 
-style of your Application to use the Ogre debug headers. To do this,
-select 'Edit Current Build Style' from the 'Project' menu. Click the
-add button, and fill in 'OTHER_CFLAGS' for the name and '-DDEBUG' for
-the value, without the quotes.
-
-9) Ogre requires a few resources for the debug overlays, so these 
-should be added to the project, under Resources. The 
-required files are all found in ogrenew/Samples/Media. They are:
-
-New_Ogre_Border_Break.png
-New_Ogre_Border_Center.png
-New_Ogre_Border.png
-New_Ogre_Logo.png
-Ogre.material
-Ogre.overlay
-ogrelogo-small.jpg
-sample.fontdef
-trebucbd.ttf
-
+Using the Ogre.framework in Your Applications
+---------------------------------------------
+1)  Build the Ogre.framework
+2)  Create a new project, using the Cocoa Application template
+3)  Delete the generated files.
+4)  Add SDLMain.m and SDLMain.h to your project. These are in the
+    ogrenew/Mac/XCode/Classes folder. You will  probably want to copy 
+    these items so you may change them without affecting the originals.
+5)  Add the SDL and Ogre frameworks to your project. 
+    You can have these copied into your application when it is built, and then
+    not have your users install these themselves.  For information on how to do
+    this refer to the XCode documentation.
+6)  Create the required plugins.cfg and resources.cfg files. 
+    You may start from the examples of these files in 
+    ogrenew/Mac/XCode/Samples.  The plugins.cfg can probably be left as is,
+    but you will want to remove the entries from resources.cfg, as they refer
+    to the Sample resources. The entries in resources.cfg are relative to the
+    'Resources' group in your application. By default, it and all of its 
+    sub-directories are searched by Ogre.
+7)  If you have built the Ogre framework with the Development build
+    style (the default), you will have to edit the Development build 
+    style of your Application to use the Ogre debug headers. To do this,
+    set your 'OTHER_CFLAGS' and 'OTHER_CXXFLAGS' to '-DDEBUG'.
 10) You are now ready to add your own resources and source files.
-Take a look at the Samples and the documentation on the ogre
-website for guidance. You should be able to replicate the Samples
-by adding all of the source files from the Sample to your application,
-and adding the files from Media that it uses to your Resources.
-
-*NB* The header Ogre.h must be included in the file that defines
-your main method for SDL to work properly.
+    Take a look at the Samples and the documentation on the ogre
+    website for guidance. You should be able to replicate the Samples
+    by adding all of the source files from the Sample to your application,
+    and adding the files from Media that it uses to your Resources.
