@@ -93,6 +93,15 @@ http://www.gnu.org/copyleft/gpl.html.
 #   define OGRE_CHAR_TYPE char
 #endif
 
+#if OGRE_WCHAR_T_STRINGS == 1
+namespace Ogre { typedef wchar_t Char; }
+#else
+namespace Ogre { typedef char Char; }
+#endif
+
+#define BEGIN_OGRE_NAMESPACE namespace Ogre {
+#define END_OGRE_NAMESPACE }
+
 // For generating compiler warnings - should work on any compiler
 #define _QUOTE_INPLACE_(x) # x
 #define QUOTE(x) _QUOTE_INPLACE_(x)
