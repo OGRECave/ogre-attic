@@ -27,6 +27,8 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "Ogre.h"
 #include "OgreXMLMeshSerializer.h"
 #include "OgreMeshSerializer.h"
+#include "OgreXMLSkeletonSerializer.h"
+#include "OgreSkeletonSerializer.h"
 #include "OgreDataChunk.h"
 #include <iostream.h>
 #include <sys/stat.h>
@@ -54,10 +56,13 @@ using namespace Ogre;
 // NB some of these are not directly used, but are required to
 //   instantiate the singletons used in the dlls
 LogManager logMgr;
+Math mth;
 MaterialManager matMgr;
 SkeletonManager skelMgr;
 MeshSerializer meshSerializer;
 XMLMeshSerializer xmlMeshSerializer;
+SkeletonSerializer skeletonSerializer;
+XMLSkeletonSerializer xmlSkeletonSerializer;
 
 
 void meshToXML(String source, String dest)
@@ -88,7 +93,21 @@ void XMLToBinary(String source)
 
 void skeletonToXML(String source, String dest)
 {
-    // TODO
+    struct stat tagStat;
+
+    SDDataChunk chunk;
+    stat( source, &tagStat );
+    chunk.allocate( tagStat.st_size );
+    FILE* pFile = fopen( source.c_str(), "rb" );
+    fread( (void*)chunk.getPtr(), tagStat.st_size, 1, pFile );
+    fclose( pFile );
+
+    Skeleton skel("conversion");
+
+    skeletonSerializer.importSkeleton(chunk, &skel);
+   
+    xmlSkeletonSerializer.exportSkeleton(&skel, dest);
+
 }
 
 int main(int numargs, char** args)

@@ -477,7 +477,7 @@ namespace Ogre {
         destMatrix.setTrans(invTranslate);
     }
     //-----------------------------------------------------------------------
-    const String& Node::getName(void)
+    const String& Node::getName(void) const
     {
         return mName;
     }

@@ -177,7 +177,7 @@ namespace Ogre {
         virtual ~Node();  
 
         /** Returns the name of the node. */
-        const String& getName(void);
+        const String& getName(void) const;
 
         /** Gets this node's parent (NULL if this is the root).
         */
