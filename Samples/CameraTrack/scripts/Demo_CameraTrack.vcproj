@@ -130,9 +130,6 @@
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
-			<File
-				RelativePath="..\include\CameraTrack.h">
-			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
