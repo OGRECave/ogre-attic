@@ -90,6 +90,7 @@ namespace Ogre
         ArchiveFactory *mZipArchiveFactory;
         Codec* mPNGCodec, *mJPGCodec, *mJPEGCodec, *mTGACodec;
         Timer* mTimer;
+        RenderWindow* mAutoWindow;
 
         std::vector<DynLib*> mPluginLibs;
         /** Method reads a plugins configuration file and instantiates all
@@ -410,6 +411,16 @@ namespace Ogre
         @param pDest Pointer to location to put the result.
         */
         void convertColourValue(const ColourValue& colour, unsigned long* pDest);
+
+        /** Retrieves a pointer to the window that was created automatically
+            @remarks
+                When Root is initialised an optional window is created. This
+                method retreives a pointer to that window.
+            @note
+                returns a null pointer when Root has not been initialised with
+                the option of creating a window.
+        */
+        RenderWindow* getAutoCreatedWindow(void);
 
         /** Creates a new rendering window.
             @remarks
