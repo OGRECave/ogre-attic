@@ -45,6 +45,9 @@ namespace Ogre {
 
     class _OgreExport KeyTarget : public EventTarget
     {
+    private:
+        std::set<KeyListener*> mRemovedListeners;
+
     protected:
         std::set<KeyListener*> mKeyListeners;
 

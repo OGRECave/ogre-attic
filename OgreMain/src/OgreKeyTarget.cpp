@@ -34,10 +34,16 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	void KeyTarget::processKeyEvent(KeyEvent* e) 
 	{
-        // Tell all listeners
+        // Remove all marked listeners
         std::set<KeyListener*>::iterator i;
-        for (i= mKeyListeners.begin(); i != mKeyListeners.end();
- ++i)
+        for (i = mRemovedListeners.begin(); i != mRemovedListeners.end(); i++)
+        {
+            mKeyListeners.erase(*i);
+        }
+        mRemovedListeners.clear();
+
+        // Tell all listeners
+        for (i= mKeyListeners.begin(); i != mKeyListeners.end(); i++)
         {
 		    KeyListener* listener = *i;
 		    if (listener != 0) 
@@ -66,7 +72,7 @@ namespace Ogre {
 
 	void KeyTarget::removeKeyListener(KeyListener* l) 
 	{
-         mKeyListeners.erase(l);
+         mRemovedListeners.insert(l);
 	}
 }
 
