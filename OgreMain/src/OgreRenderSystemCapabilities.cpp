@@ -126,6 +126,9 @@ namespace Ogre {
         pLog->logMessage(
             " * Infinite far plane projection: " 
             + StringConverter::toString(hasCapability(RSC_INFINITE_FAR_PLANE), true));
+        pLog->logMessage(
+            " * Floating point textures: " 
+            + StringConverter::toString(hasCapability(RSC_TEXTURE_FLOAT), true));
 
 
     }
