@@ -1,4 +1,5 @@
 pkginclude_HEADERS = Ogre.h \
+OgreArchive.h \
 OgreActionEvent.h \
 OgreActionTarget.h \
 OgreAnimation.h \
@@ -9,6 +10,7 @@ OgreArchiveManager.h \
 OgreAutoParamDataSource.h \
 OgreAxisAlignedBox.h \
 OgreBillboard.h \
+OgreBillboardParticleRenderer.h \
 OgreBillboardSet.h \
 OgreBitwise.h \
 OgreBlendMode.h \
@@ -141,6 +143,7 @@ OgreRenderTexture.h \
 OgreRenderWindow.h \
 OgreRenderable.h \
 OgreResource.h \
+OgreResourceGroupManager.h \
 OgreResourceManager.h \
 OgreRoot.h \
 OgreRotationalSpline.h \
@@ -148,8 +151,10 @@ OgreSceneManager.h \
 OgreSceneManagerEnumerator.h \
 OgreSceneNode.h \
 OgreSceneQuery.h \
+OgreScriptLoader.h \
 OgreScrollEvent.h \
 OgreScrollTarget.h \
+OgreSearchOps.h \
 OgreSerializer.h \
 OgreShadowCaster.h \
 OgreShadowVolumeExtrudeProgram.h \

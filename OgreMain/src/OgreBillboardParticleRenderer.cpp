@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreBillboardParticleRenderer.h"
 #include "OgreParticle.h"
+#include "OgreStringConverter.h"
 
 namespace Ogre {
     String rendererTypeName = "Billboard";

@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 #include "OgreResourceGroupManager.h"
 #include "OgreException.h"
+#include "OgreArchive.h"
 #include "OgreArchiveManager.h"
 #include "OgreLogManager.h"
 #include "OgreScriptLoader.h"

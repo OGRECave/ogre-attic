@@ -26,7 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 // Emulate _findfirst, _findnext on non-Windows platforms
 
 
-#include "SearchOps.h"
+#include "OgreSearchOps.h"
 #include <stdio.h>
 #include <ctype.h>
 

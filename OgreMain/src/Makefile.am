@@ -1,4 +1,4 @@
-INCLUDES = $(STLPORT_CFLAGS) $(FT2_CFLAGS) -I$(top_srcdir)/OgreMain/include -DOGRE_NONCLIENT_BUILD
+INCLUDES = $(STLPORT_CFLAGS) $(FT2_CFLAGS) -I$(top_srcdir)/OgreMain/include -DOGRE_NONCLIENT_BUILD $(ZZIPLIB_CFLAGS)
 
 lib_LTLIBRARIES=libOgreMain.la
 
@@ -11,6 +11,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
 						 OgreAutoParamDataSource.cpp \
                          OgreAxisAlignedBox.cpp \
                          OgreBillboard.cpp \
+                         OgreBillboardParticleRenderer.cpp \
                          OgreBillboardSet.cpp \
                          OgreBitwise.cpp \
                          OgreBone.cpp \
@@ -88,6 +89,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
 						 OgreOverlayElement.cpp \
                          OgreOverlayManager.cpp \
                          OgrePanelOverlayElement.cpp \
+                         OgreParticle.cpp \
                          OgreParticleEmitter.cpp \
                          OgreParticleEmitterCommands.cpp \
                          OgreParticleIterator.cpp \
@@ -110,6 +112,8 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreRenderTarget.cpp \
                          OgreRenderTexture.cpp \
                          OgreRenderWindow.cpp \
+                         OgreResource.cpp \
+                         OgreResourceGroupManager.cpp \
                          OgreResourceManager.cpp \
                          OgreRoot.cpp \
                          OgreRotationSpline.cpp \
@@ -119,6 +123,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreSceneManagerEnumerator.cpp \
                          OgreSceneNode.cpp \
                          OgreSceneQuery.cpp \
+                         OgreSearchOps.cpp \
                          OgreSerializer.cpp \
 						 OgreShadowCaster.cpp \
 						 OgreShadowVolumeExtrudeProgram.cpp \
@@ -150,5 +155,5 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreWireBoundingBox.cpp \
                          OgreZip.cpp
 
-libOgreMain_la_LIBADD= $(STLPORT_LIBS) $(FT2_LIBS)
+libOgreMain_la_LIBADD= $(STLPORT_LIBS) $(FT2_LIBS) $(ZZIPLIB_LIBS)
 libOgreMain_la_LDFLAGS = -version-info @OGREMAIN_VERSION_INFO@
