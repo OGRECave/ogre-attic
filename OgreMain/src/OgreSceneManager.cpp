@@ -99,6 +99,7 @@ namespace Ogre {
         mShadowModulativePass = 0;
         mFullScreenQuad = 0;
         mShadowCasterSphereQuery = 0;
+        mShadowDirLightExtrudeDist = 10000;
 
 
 		// init render queues that do not need shadows
@@ -2391,7 +2392,8 @@ namespace Ogre {
             // Get shadow renderables
             ShadowCaster::ShadowRenderableListIterator iShadowRenderables =
                 caster->getShadowVolumeRenderableIterator(mShadowTechnique,
-                light, &mShadowIndexBuffer, extrudeInSoftware, flags);
+                light, &mShadowIndexBuffer, extrudeInSoftware, 
+                mShadowDirLightExtrudeDist, flags);
 
             while (iShadowRenderables.hasMoreElements())
             {
@@ -2504,6 +2506,16 @@ namespace Ogre {
 
         return mShadowModulativePass->getTextureUnitState(0)
             ->getColourBlendMode().colourArg1;
+    }
+    //---------------------------------------------------------------------
+    void SceneManager::setShadowDirectionalLightExtrusionDistance(Real dist)
+    {
+        mShadowDirLightExtrudeDist = dist;
+    }
+    //---------------------------------------------------------------------
+    Real SceneManager::getShadowDirectionalLightExtrusionDistance(void)
+    {
+        return mShadowDirLightExtrudeDist;
     }
     //---------------------------------------------------------------------
     AxisAlignedBoxSceneQuery* 

@@ -490,16 +490,20 @@ namespace Ogre {
             // Get worldspace frustum corners
             Real y = Math::Tan(mFOVy * 0.5);
             Real x = mAspect * y;
+            Real neary = y * mNearDist;
+            Real fary = y * mFarDist;
+            Real nearx = x * mNearDist;
+            Real farx = x * mFarDist;
             // near
-            mWorldSpaceCorners[0] = eyeToWorld * Vector3( x,  y, -mNearDist);
-            mWorldSpaceCorners[1] = eyeToWorld * Vector3(-x,  y, -mNearDist);
-            mWorldSpaceCorners[2] = eyeToWorld * Vector3(-x, -y, -mNearDist);
-            mWorldSpaceCorners[3] = eyeToWorld * Vector3( x, -y, -mNearDist);
+            mWorldSpaceCorners[0] = eyeToWorld * Vector3( nearx,  neary, -mNearDist);
+            mWorldSpaceCorners[1] = eyeToWorld * Vector3(-nearx,  neary, -mNearDist);
+            mWorldSpaceCorners[2] = eyeToWorld * Vector3(-nearx, -neary, -mNearDist);
+            mWorldSpaceCorners[3] = eyeToWorld * Vector3( nearx, -neary, -mNearDist);
             // far
-            mWorldSpaceCorners[4] = eyeToWorld * Vector3( x,  y, -mFarDist);
-            mWorldSpaceCorners[5] = eyeToWorld * Vector3(-x,  y, -mFarDist);
-            mWorldSpaceCorners[6] = eyeToWorld * Vector3(-x, -y, -mFarDist);
-            mWorldSpaceCorners[7] = eyeToWorld * Vector3( x, -y, -mFarDist);
+            mWorldSpaceCorners[4] = eyeToWorld * Vector3( farx,  fary, -mFarDist);
+            mWorldSpaceCorners[5] = eyeToWorld * Vector3(-farx,  fary, -mFarDist);
+            mWorldSpaceCorners[6] = eyeToWorld * Vector3(-farx, -fary, -mFarDist);
+            mWorldSpaceCorners[7] = eyeToWorld * Vector3( farx, -fary, -mFarDist);
 
 
             mRecalcView = false;

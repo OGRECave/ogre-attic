@@ -402,7 +402,6 @@ namespace Ogre {
         // 3D version (not the same as _getDerivedPosition, is -direction for
         // directional lights)
         Vector3 lightPos3 = Vector3(lightPos.x, lightPos.y, lightPos.z);
-        Vector3 lightDir;
 
         const Vector3 *clockwiseVerts[4];
 
@@ -473,9 +472,9 @@ namespace Ogre {
                 {
                     // Figure out light dir
                     lightDir = lightPos3 - (*(clockwiseVerts[i]) * lightPos.w);
+                    Vector3 edgeDir = *(clockwiseVerts[i]) - *(clockwiseVerts[(i-1)%4]);
                     // Cross with anticlockwise corner, therefore normal points in
-                    normal = (*(clockwiseVerts[i]) - *(clockwiseVerts[(i-1)%4]))
-                        .crossProduct(lightDir);
+                    normal = edgeDir.crossProduct(lightDir);
                     normal.normalise();
                     // NB last param to Plane constructor is negated because it's -d
                     vol.planes.push_back(
