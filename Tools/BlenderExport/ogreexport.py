@@ -2004,11 +2004,25 @@ def export_mesh(object):
 			if not(face.mode & Blender.NMesh.FaceModes["INVISIBLE"]):
 				# face is visible
 				hasTexture = 0
+				# texture image name
+				textureFile = None
 				if ((uvToggle.val) and (data.hasFaceUV()) and (face.mode & Blender.NMesh.FaceModes["TEX"])):
 					if face.image:
+						textureFile = face.image.filename
 						hasTexture = 1
 					else:
-						exportLogger.logError("Face is textured but has no image assigned!")
+						# check if image texture is assigend as material texture
+						if (nMaterials > 0):
+							for materialTexture in data.materials[face.materialIndex].getTextures():
+								if ((materialTexture is not None) \
+									and (materialTexture.mapto & Blender.Texture.MapTo['COL']) \
+									and (materialTexture.texco & Blender.Texture.TexCo['UV']) \
+									and (materialTexture.tex.type == Blender.Texture.Types.IMAGE)):
+										# use image as material.texture
+										textureFile = materialTexture.tex.image.filename
+										hasTexture = 1
+						if not hasTexture:
+							exportLogger.logError("Face is textured but has no image assigned!")
 				if ((nMaterials > 0 ) or (hasTexture == 1)):
 					# create material of the face:
 					# blenders material name / FaceTranspMode / texture image name
@@ -2030,10 +2044,7 @@ def export_mesh(object):
 						blendMode = Blender.NMesh.FaceTranspModes["ADD"]
 					else:
 						materialName += "SOLID/"
-					# texture image name
-					textureFile = None
 					if hasTexture:
-						textureFile = face.image.filename
 						materialName += os.path.basename(textureFile)
 					# insert into Dicts
 					material = objectMaterialDict.get(materialName)
