@@ -65,6 +65,12 @@ namespace Ogre {
         /// Stores the position/translation of the node relative to its parent.
         Vector3 mPosition;
 
+        /// Stores the scaling factor applied to this node
+        Vector3 mScale;
+
+        /// Stores whether this node inherits scale from it's parent
+        bool mInheritScale;
+
         /// Flag indicating derived transform is out of date 
         bool mDerivedOutOfDate;
 
@@ -92,6 +98,15 @@ namespace Ogre {
                 SceneManager or the nodes parent.
         */
         Vector3 mDerivedPosition;
+
+        /** Cached combined scale.
+            @par
+                This member is the position derived by combining the
+                local transformations and those of it's parents.
+                This is updated when _updateFromParent is called by the
+                SceneManager or the nodes parent.
+        */
+        Vector3 mDerivedScale;
 
         /** Triggers the node to update it's combined transforms.
             @par
@@ -139,6 +154,82 @@ namespace Ogre {
         */
         Vector3 getPosition(void);
 
+        /** Sets the scaling factor applied to this node.
+        @remarks
+            Scaling factors, unlike other transforms, are not always inherited by child nodes. 
+            Whether or not scalings affect both the size and position of the child nodes depends on
+            the setInheritScale option of the child. In some cases you want a scaling factor of a parent node
+            to apply to a child node (e.g. where the child node is a part of the same object, so you
+            want it to be the same relative size and position based on the parent's size), but
+            not in other cases (e.g. where the child node is just for positioning another object,
+            you want it to maintain it's own size and relative position). The default is to inherit
+            as with other transforms.
+        @par
+            Note that like rotations, scalings are oriented around the node's origin.
+        */
+        void setScale(const Vector3& scale);
+
+        /** Sets the scaling factor applied to this node.
+        @remarks
+            Scaling factors, unlike other transforms, are not always inherited by child nodes. 
+            Whether or not scalings affect both the size and position of the child nodes depends on
+            the setInheritScale option of the child. In some cases you want a scaling factor of a parent node
+            to apply to a child node (e.g. where the child node is a part of the same object, so you
+            want it to be the same relative size and position based on the parent's size), but
+            not in other cases (e.g. where the child node is just for positioning another object,
+            you want it to maintain it's own size and relative position). The default is to inherit
+            as with other transforms.
+        @par
+            Note that like rotations, scalings are oriented around the node's origin.
+        */
+        void setScale(Real x, Real y, Real z);
+
+        /** Gets the scaling factor of this node.
+        */
+        Vector3 getScale(void);
+
+        /** Tells the node whether it should inherit scaling factors from it's parent node.
+        @remarks
+            Scaling factors, unlike other transforms, are not always inherited by child nodes. 
+            Whether or not scalings affect both the size and position of the child nodes depends on
+            the setInheritScale option of the child. In some cases you want a scaling factor of a parent node
+            to apply to a child node (e.g. where the child node is a part of the same object, so you
+            want it to be the same relative size and position based on the parent's size), but
+            not in other cases (e.g. where the child node is just for positioning another object,
+            you want it to maintain it's own size and relative position). The default is to inherit
+            as with other transforms.
+        @param inherit If true, this node's scale and position will be affected by its parent's scale. If false,
+            it will not be affected.
+        */
+        void setInheritScale(bool inherit);
+
+        /** Returns true if this node is affected by scaling factors applied to the parent node. 
+        @remarks
+            See setInheritScale for more info.
+        */
+        bool getInheritScale(void);
+
+        /** Scales the node, combining it's current scale with the passed in scaling factor. 
+        @remarks
+            This method applies an extra scaling factor to the node's existing scale, (unlike setScale
+            which overwrites it) combining it's current scale with the new one. E.g. calling this 
+            method twice with Vector3(2,2,2) would have the same effect as setScale(Vector3(4,4,4)) if
+            the existing scale was 1.
+        @par
+            Note that like rotations, scalings are oriented around the node's origin.
+        */
+        void scale(const Vector3& scale);
+
+        /** Scales the node, combining it's current scale with the passed in scaling factor. 
+        @remarks
+            This method applies an extra scaling factor to the node's existing scale, (unlike setScale
+            which overwrites it) combining it's current scale with the new one. E.g. calling this 
+            method twice with Vector3(2,2,2) would have the same effect as setScale(Vector3(4,4,4)) if
+            the existing scale was 1.
+        @par
+            Note that like rotations, scalings are oriented around the node's origin.
+        */
+        void scale(Real x, Real y, Real z);
 
         /** Moves the node along the cartesian axes.
             @par
@@ -320,18 +411,16 @@ namespace Ogre {
         void detachAllCameras(void);
 
         /** Gets the orientation of the node as derived from all parents.
-            @note
-                Should only be used if you know the node has been updated from
-                it's parent. Designed for use internally only.
         */
         Quaternion _getDerivedOrientation(void);
 
         /** Gets the position of the node as derived from all parents.
-            @note
-                Should only be used if you know the node has been updated from
-                it's parent. Designed for use internally only.
         */
         Vector3 _getDerivedPosition(void);
+
+        /** Gets the scaling factor of the node as derived from all parents.
+        */
+        Vector3 _getDerivedScale(void);
 
         /** Gets the full transformation matrix for this node.
             @remarks

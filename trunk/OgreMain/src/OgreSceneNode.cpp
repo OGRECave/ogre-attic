@@ -39,6 +39,8 @@ namespace Ogre {
         mOrientation = mDerivedOrientation = Quaternion::IDENTITY;
         mPosition = mDerivedPosition = Vector3::ZERO;
         mCreator = creator;
+        mScale = Vector3(1.0, 1.0, 1.0);
+        mInheritScale = true;
         mDerivedOutOfDate = true;
 
     }
@@ -60,13 +62,20 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Matrix4 SceneNode::_getFullTransform(void)
     {
-        // Use derived orientations - assume up to date
+        // Use derived values 
         // Note that translation is always after rotation.
-        Matrix3 rot;
-        _getDerivedOrientation().ToRotationMatrix(rot);
+        // Parent scaling is already applied to derived position
+        // Own scale is applied after rotation
+        Matrix3 rot_scale;
+        _getDerivedOrientation().ToRotationMatrix(rot_scale);
+        // Apply scale
+        Vector3 scale = _getDerivedScale();
+        rot_scale[0][0] *= scale.x;
+        rot_scale[1][1] *= scale.y;
+        rot_scale[2][2] *= scale.z;
 
         Matrix4 result = Matrix4::IDENTITY;
-        result = rot;
+        result = rot_scale;
         result.setTrans(_getDerivedPosition());
 
         return result;
@@ -109,13 +118,32 @@ namespace Ogre {
             // Change position vector based on parent's orientation
             mDerivedPosition = mParentQ * mPosition;
 
+            // Update scale
+            if (mInheritScale)
+            {
+                // Scale own position by parent scale
+                Vector3 parentScale = mParent->_getDerivedScale();
+                mDerivedPosition = mDerivedPosition * parentScale;
+
+                // Set own scale, NB just combine as equivalent axes, no shearing
+                mDerivedScale = mScale * parentScale;
+
+            }
+            else
+            {
+                // No inheritence
+                mDerivedScale = mScale;
+            }
+
             // Add altered position vector to parents
             mDerivedPosition += mParent->_getDerivedPosition();
         }
         else
         {
+            // Root node, no parent
             mDerivedOrientation = mOrientation;
             mDerivedPosition = mPosition;
+            mDerivedScale = mScale;
         }
 
         mDerivedOutOfDate = false;
@@ -476,6 +504,15 @@ namespace Ogre {
         return mDerivedPosition;
     }
     //-----------------------------------------------------------------------
+    Vector3 SceneNode::_getDerivedScale(void)
+    {
+        if (mDerivedOutOfDate)
+        {
+            _updateFromParent();
+        }
+        return mDerivedScale;
+    }
+    //-----------------------------------------------------------------------
     void SceneNode::removeAllChildren(void)
     {
         mChildren.clear();
@@ -548,7 +585,53 @@ namespace Ogre {
         }
 
     }
+    //-----------------------------------------------------------------------
+    void SceneNode::setScale(const Vector3& scale)
+    {
+        mScale = scale;
+        mDerivedOutOfDate = true;
+    }
+    //-----------------------------------------------------------------------
+    void SceneNode::setScale(Real x, Real y, Real z)
+    {
+        mScale.x = x;
+        mScale.y = y;
+        mScale.z = z;
+        mDerivedOutOfDate = true;
+    }
+    //-----------------------------------------------------------------------
+    Vector3 SceneNode::getScale(void)
+    {
+        return mScale;
+    }
+    //-----------------------------------------------------------------------
+    void SceneNode::setInheritScale(bool inherit)
+    {
+        mInheritScale = inherit;
+        mDerivedOutOfDate = true;
+    }
+    //-----------------------------------------------------------------------
+    bool SceneNode::getInheritScale(void)
+    {
+        return mInheritScale;
+    }
+    //-----------------------------------------------------------------------
+    void SceneNode::scale(const Vector3& scale)
+    {
+        mScale = mScale * scale;
+        mDerivedOutOfDate = true;
 
+    }
+    //-----------------------------------------------------------------------
+    void SceneNode::scale(Real x, Real y, Real z)
+    {
+        mScale.x *= x;
+        mScale.y *= y;
+        mScale.z *= z;
+        mDerivedOutOfDate = true;
+
+    }
+    //-----------------------------------------------------------------------
 
 
 

@@ -147,6 +147,17 @@ namespace Ogre
             return kProd;
         }
 
+        inline Vector3 operator * ( const Vector3& rhs) const
+        {
+            Vector3 kProd;
+
+            kProd.x = rhs.x * x;
+            kProd.y = rhs.y * y;
+            kProd.z = rhs.z * z;
+
+            return kProd;
+        }
+
         inline Vector3 operator / ( Real fScalar ) const
         {
             assert( fScalar != 0.0 );
