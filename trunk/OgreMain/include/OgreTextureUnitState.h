@@ -86,7 +86,7 @@ namespace Ogre {
             /// Envmap entended to supply reflection vectors for cube mapping
             ENV_REFLECTION,
             /// Envmap entended to supply normal vectors for cube mapping
-            ENV_NORMAL,
+            ENV_NORMAL
         };
 
         /** Useful enumeration when dealing with procedural transforms.
