@@ -397,9 +397,6 @@ namespace Ogre {
         LogManager::getSingleton().logMessage("*****************************************");
 
 
-        // Set up default culling mode
-        _setCullingMode(mCullingMode);
-
 
         return autoWindow;
 
