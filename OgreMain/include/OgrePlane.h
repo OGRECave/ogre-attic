@@ -44,10 +44,7 @@ namespace Ogre {
             This equates to a vector (the normal of the plane, whose x, y
             and z components equate to the coefficients A, B and C
             respectively), and a constant (D) which represents the offset of
-            the plane from the origin along this normal (i.e. the distance
-            one has to cover if moving from the origin in the direction
-            pointed by the vector in order to reach the closest point on the
-            plane).
+            the plane from the origin along this normal.
      */
     class _OgreExport Plane
     {

@@ -41,13 +41,13 @@ namespace Ogre {
     Plane::Plane (const Vector3& rkNormal, Real fConstant)
     {
         normal = rkNormal;
-        d = fConstant;
+        d = -fConstant;
     }
     //-----------------------------------------------------------------------
     Plane::Plane (const Vector3& rkNormal, const Vector3& rkPoint)
     {
         normal = rkNormal;
-        d = rkNormal.dotProduct(rkPoint);
+        d = -rkNormal.dotProduct(rkPoint);
     }
     //-----------------------------------------------------------------------
     Plane::Plane (const Vector3& rkPoint0, const Vector3& rkPoint1,
@@ -57,12 +57,12 @@ namespace Ogre {
         Vector3 kEdge2 = rkPoint2 - rkPoint0;
         normal = kEdge1.crossProduct(kEdge2);
         normal.normalise();
-        d = normal.dotProduct(rkPoint0);
+        d = -normal.dotProduct(rkPoint0);
     }
     //-----------------------------------------------------------------------
     Real Plane::getDistance (const Vector3& rkPoint) const
     {
-        return normal.dotProduct(rkPoint) - d;
+        return normal.dotProduct(rkPoint) + d;
     }
     //-----------------------------------------------------------------------
     Plane::Side Plane::getSide (const Vector3& rkPoint) const

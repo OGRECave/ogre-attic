@@ -668,33 +668,33 @@ namespace Ogre {
             mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal = mCoeffL[0]*left +
                     mCoeffL[1]*camDirection;
             mFrustumPlanes[FRUSTUM_PLANE_LEFT].d =
-                    mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal);
+                    -mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal);
 
             // right plane
             mFrustumPlanes[FRUSTUM_PLANE_RIGHT].normal = mCoeffR[0]*left +
                     mCoeffR[1]*camDirection;
             mFrustumPlanes[FRUSTUM_PLANE_RIGHT].d =
-                    mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_RIGHT].normal);
+                    -mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_RIGHT].normal);
 
             // bottom plane
             mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].normal = mCoeffB[0]*up +
                     mCoeffB[1]*camDirection;
             mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].d =
-                    mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].normal);
+                    -mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].normal);
 
             // top plane
             mFrustumPlanes[FRUSTUM_PLANE_TOP].normal = mCoeffT[0]*up +
                     mCoeffT[1]*camDirection;
             mFrustumPlanes[FRUSTUM_PLANE_TOP].d =
-                    mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_TOP].normal);
+                    -mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_TOP].normal);
 
             // far plane
             mFrustumPlanes[FRUSTUM_PLANE_FAR].normal = -camDirection;
-            mFrustumPlanes[FRUSTUM_PLANE_FAR].d = -(fDdE + mFarDist);
+            mFrustumPlanes[FRUSTUM_PLANE_FAR].d = (fDdE + mFarDist);
 
             // near plane
             mFrustumPlanes[FRUSTUM_PLANE_NEAR].normal = camDirection;
-            mFrustumPlanes[FRUSTUM_PLANE_NEAR].d = fDdE + mNearDist;
+            mFrustumPlanes[FRUSTUM_PLANE_NEAR].d = -fDdE + mNearDist;
 
 
 
