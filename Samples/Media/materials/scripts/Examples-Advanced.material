@@ -951,7 +951,6 @@ material Examples/Athene/NormalMapped
 			texture_unit
 			{
 				texture egyptrockyfull.jpg 
-				scale 0.2 0.2
 			}
 			
 		}
@@ -1036,7 +1035,6 @@ material Examples/Athene/NormalMapped
 			texture_unit
 			{
 				texture egyptrockyfull.jpg
-				scale 0.2 0.2
 			}
 			
 		}
@@ -1054,12 +1052,10 @@ material Examples/Athene/Basic
 		{
 			ambient 0.3 0.3 0.3
 			diffuse 1.0 1.0 0.9
-			specular 1.0 1.0 1.0 15
 
 			texture_unit
 			{
 				texture egyptrockyfull.jpg 
-				scale 0.2 0.2
 			}
 			
 		}
@@ -1161,7 +1157,6 @@ material Examples/Athene/NormalMappedSpecular
 			texture_unit
 			{
 				texture egyptrockyfull.jpg 
-				scale 0.2 0.2
 			}
 			
 		}
@@ -1246,7 +1241,6 @@ material Examples/Athene/NormalMappedSpecular
 			texture_unit
 			{
 				texture egyptrockyfull.jpg 
-				scale 0.2 0.2
 			}
 			
 		}

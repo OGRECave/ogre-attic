@@ -38,10 +38,11 @@ LGPL like the rest of the engine.
 #include <crtdbg.h>
 #endi*/
 
-Entity* mEntity;
+Entity* mAthene;
 AnimationState* mAnimState = 0;
 Entity* pPlaneEnt;
 Light* mLight;
+Light* mSunLight;
 SceneNode* mLightNode = 0;
 AnimationState* mLightAnimationState = 0;
 ColourValue mMinLightColour(0.3, 0.0, 0);
@@ -49,7 +50,35 @@ ColourValue mMaxLightColour(0.5, 0.3, 0.1);
 Real mMinFlareSize = 40;
 Real mMaxFlareSize = 80;
 
+#define NUM_ATHENE_MATERIALS 2
+String mAtheneMaterials[NUM_ATHENE_MATERIALS] = 
+{
+    "Examples/Athene/NormalMapped",
+    "Examples/Athene/Basic"
+};
+#define NUM_SHADOW_TECH 4
+String mShadowTechDescriptions[NUM_SHADOW_TECH] = 
+{
+    "Stencil Shadows (Additive)",
+    "Stencil Shadows (Modulative)",
+    "Texture Shadows (Modulative)",
+    "None"
+};
+ShadowTechnique mShadowTech[NUM_SHADOW_TECH] = 
+{
+    SHADOWTYPE_STENCIL_ADDITIVE,
+    SHADOWTYPE_STENCIL_MODULATIVE,
+    SHADOWTYPE_TEXTURE_MODULATIVE,
+    SHADOWTYPE_NONE
+};
 
+
+int mCurrentAtheneMaterial;
+int mCurrentShadowTechnique = 0;
+
+GuiElement* mShadowTechniqueInfo;
+GuiElement* mMaterialInfo;
+GuiElement* mInfo;
 
 
 /** This class 'wibbles' the light and billboard */
@@ -102,49 +131,106 @@ public:
     }
 };
 
+Real timeDelay = 0;
+#define KEY_PRESSED(_key,_timeDelay, _macro) \
+{ \
+    if (mInputDevice->isKeyDown(_key) && timeDelay <= 0) \
+{ \
+    timeDelay = _timeDelay; \
+    _macro ; \
+} \
+}
+
 class ShadowsListener : public ExampleFrameListener
 {
 protected:
-
+    SceneManager* mSceneMgr;
 public:
-    ShadowsListener(RenderWindow* win, Camera* cam)
-        : ExampleFrameListener(win, cam)
+    ShadowsListener(RenderWindow* win, Camera* cam, SceneManager* sm)
+        : ExampleFrameListener(win, cam), mSceneMgr(sm)
     {
     }
 
 
+    void changeShadowTechnique()
+    {
+        mCurrentShadowTechnique = ++mCurrentShadowTechnique % NUM_SHADOW_TECH;
+        mShadowTechniqueInfo->setCaption("Current: " + mShadowTechDescriptions[mCurrentShadowTechnique]);
+
+        mSceneMgr->setShadowTechnique(mShadowTech[mCurrentShadowTechnique]);
+        Vector3 dir;
+        switch (mShadowTech[mCurrentShadowTechnique])
+        {
+        case SHADOWTYPE_STENCIL_ADDITIVE:
+            // Fixed light, dim
+            mSunLight->setCastShadows(true);
+
+            // Point light, movable, reddish
+            mLight->setType(Light::LT_POINT);
+            mLight->setCastShadows(true);
+            mLight->setDiffuseColour(mMinLightColour);
+            mLight->setSpecularColour(1, 1, 1);
+            mLight->setAttenuation(10000,1,0.0005,0);
+
+            break;
+        case SHADOWTYPE_STENCIL_MODULATIVE:
+            // Multiple lights cause obvious silhouette edges in modulative mode
+            // So turn off shadows on the direct light
+            // Fixed light, dim
+            mSunLight->setCastShadows(false);
+
+            // Point light, movable, reddish
+            mLight->setType(Light::LT_POINT);
+            mLight->setCastShadows(true);
+            mLight->setDiffuseColour(mMinLightColour);
+            mLight->setSpecularColour(1, 1, 1);
+            mLight->setAttenuation(10000,1,0.0005,0);
+            break;
+        case SHADOWTYPE_TEXTURE_MODULATIVE:
+            // Change fixed point light to spotlight
+            // Fixed light, dim
+            mSunLight->setCastShadows(false);
+
+            // Change moving light to spotlight
+            // Point light, movable, reddish
+            mLight->setType(Light::LT_SPOTLIGHT);
+            mLight->setDirection(Vector3::NEGATIVE_UNIT_Z);
+            mLight->setCastShadows(true);
+            mLight->setDiffuseColour(mMinLightColour);
+            mLight->setSpecularColour(1, 1, 1);
+            mLight->setAttenuation(10000,1,0.0005,0);
+            mLight->setSpotlightRange(80,90);
+            break;
+        default:
+            break;
+        };
+
+
+
+    }
+
+    void changeAtheneMaterial()
+    {
+        mCurrentAtheneMaterial = ++mCurrentAtheneMaterial % NUM_ATHENE_MATERIALS;
+        mMaterialInfo->setCaption("Current: " + mAtheneMaterials[mCurrentAtheneMaterial]);
+        mAthene->setMaterialName(mAtheneMaterials[mCurrentAtheneMaterial]);
+    }
+
     bool frameEnded(const FrameEvent& evt)
     {
-        // local just to stop toggles flipping too fast
-        static Real timeUntilNextToggle = 0;
-
-        if (timeUntilNextToggle >= 0) 
-            timeUntilNextToggle -= evt.timeSinceLastFrame;
-
-        static bool mWireframe = false;
-        if (mInputDevice->isKeyDown(KC_G) && timeUntilNextToggle <= 0)
-        {
-            mWireframe = !mWireframe;
-            if (mWireframe)
-            {
-                mCamera->setDetailLevel(SDL_WIREFRAME);
-            }
-            else
-            {
-                mCamera->setDetailLevel(SDL_SOLID);
-            }
-            timeUntilNextToggle = 0.5;
-
-        }
-
+        if (timeDelay >= 0) 
+            timeDelay -= evt.timeSinceLastFrame;
 
         if (mAnimState)
             mAnimState->addTime(evt.timeSinceLastFrame);
 
+        KEY_PRESSED(KC_O, 1, changeShadowTechnique());
+        KEY_PRESSED(KC_M, 0.5, changeAtheneMaterial());
 
         return ExampleFrameListener::frameStarted(evt) && ExampleFrameListener::frameEnded(evt);        
-
     }
+
+    
 
 
 };
@@ -168,21 +254,36 @@ protected:
     }
 
 
-
-    void testStencilShadows()
+    void generalSceneSetup()
     {
+        // do this first so we generate edge lists
         mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_ADDITIVE);
-        //mSceneMgr->setShowDebugShadows(true);
-        //mSceneMgr->setShadowColour(ColourValue(0.4, 0.25, 0.25));
-        //mSceneMgr->setShadowFarDistance(800);
-        // Set ambient light
+        // Set the default Athene material
+        // We'll default it to the normal map for ps_2_0 capable hardware
+        // everyone else will default to the basic
+        if (GpuProgramManager::getSingleton().isSyntaxSupported("ps_2_0") ||
+            GpuProgramManager::getSingleton().isSyntaxSupported("arbfp1"))
+        {
+            mCurrentAtheneMaterial = 0;
+        }
+        else
+        {
+            mCurrentAtheneMaterial = 1;
+        }
+
+        // Set ambient light off
         mSceneMgr->setAmbientLight(ColourValue(0.0, 0.0, 0.0));
 
         // Fixed light, dim
-        mLight = mSceneMgr->createLight("SunLight");
-        mLight->setPosition(1000,1250,500);
-        mLight->setDiffuseColour(0.35, 0.35, 0.38);
-        mLight->setSpecularColour(0.9, 0.9, 1);
+        mSunLight = mSceneMgr->createLight("SunLight");
+        mSunLight->setType(Light::LT_SPOTLIGHT);
+        mSunLight->setPosition(1000,1250,500);
+        Vector3 dir;
+        dir = -mSunLight->getPosition();
+        dir.normalise();
+        mSunLight->setDirection(dir);
+        mSunLight->setDiffuseColour(0.35, 0.35, 0.38);
+        mSunLight->setSpecularColour(0.9, 0.9, 1);
 
         // Point light, movable, reddish
         mLight = mSceneMgr->createLight("Light2");
@@ -200,7 +301,7 @@ protected:
         Billboard* bb = bbs->createBillboard(0,0,0,mMinLightColour);
         // attach
         mLightNode->attachObject(bbs);
-        
+
         // create controller, after this is will get updated on its own
         WaveformControllerFunction* func = new WaveformControllerFunction(Ogre::WFT_SINE, 0.75, 0.5);
         ControllerManager& contMgr = ControllerManager::getSingleton();
@@ -245,24 +346,25 @@ protected:
         // Create a new animation state to track this
         mAnimState = mSceneMgr->createAnimationState("LightTrack");
         mAnimState->setEnabled(true);
+        // Make light node look at origin, this is for when we
+        // change the moving light to a spotlight
+        mLightNode->setAutoTracking(true, mSceneMgr->getRootSceneNode());
 
-
-
-
-        // Prepare athene mesh
+        // Prepare athene mesh for normalmapping
         Mesh* pAthene = MeshManager::getSingleton().load("athene.mesh");
         pAthene->buildTangentVectors(0,1);
 
-        Entity* pEnt;
         SceneNode* node;
         node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-        pEnt = mSceneMgr->createEntity( "1", "athene.mesh" );
+        mAthene = mSceneMgr->createEntity( "athene", "athene.mesh" );
         //mAnimState = pEnt->getAnimationState("Walk");
         //mAnimState->setEnabled(true);
-        pEnt->setMaterialName("Examples/Athene/NormalMapped");
-        node->attachObject( pEnt );
+        mAthene->setMaterialName(mAtheneMaterials[mCurrentAtheneMaterial]);
+        node->attachObject( mAthene );
         node->translate(0,-20, 0);
         node->yaw(90);
+
+        Entity* pEnt;
 
         node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
         pEnt = mSceneMgr->createEntity( "col1", "column.mesh" );
@@ -295,126 +397,56 @@ protected:
         pEnt->setMaterialName("Examples/Rockwall");
         node->attachObject( pEnt );
         node->translate(-200,0, 200);
-
-        /*
-        pEnt = mSceneMgr->createEntity( "3", "column.mesh" );
-        pEnt->setMaterialName("Examples/Rockwall");
-        //Material* mat2 = (Material*)MaterialManager::getSingleton().getByName("Examples/EnvMappedRustySteel");
-        //mat2->setReceiveShadows(false);
-        node = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(-200, 0, -200));
-        node->attachObject( pEnt );
-        */
-
+        // Skybox
         mSceneMgr->setSkyBox(true, "Examples/StormySkyBox");
 
-
+        // Floor plane
         Plane plane;
         plane.normal = Vector3::UNIT_Y;
         plane.d = 100;
         MeshManager::getSingleton().createPlane("Myplane",plane,
-            1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
+            1500,1500,20,20,true,1,5,5,Vector3::UNIT_Z);
         Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
         pPlaneEnt->setMaterialName("Examples/Rockwall");
         pPlaneEnt->setCastShadows(false);
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
 
+        // show overlay
+        Overlay *pOver = (Overlay *)OverlayManager::getSingleton().getByName("Example/ShadowsOverlay");    
+        mShadowTechniqueInfo = GuiManager::getSingleton().getGuiElement("Example/Shadows/ShadowTechniqueInfo");
+        mMaterialInfo = GuiManager::getSingleton().getGuiElement("Example/Shadows/MaterialInfo");
+        mInfo = GuiManager::getSingleton().getGuiElement("Example/Shadows/Info");
+
+        mShadowTechniqueInfo->setCaption("Current: " + mShadowTechDescriptions[mCurrentShadowTechnique]);
+        mMaterialInfo->setCaption("Current: " + mAtheneMaterials[mCurrentAtheneMaterial]);
+        pOver->show();
+
+        if (mRoot->getRenderSystem()->getName().startsWith("direct"))
+        {
+            // In D3D, use a 1024x1024 shadow texture
+            mSceneMgr->setShadowTextureSettings(1024, 2);
+        }
+        else
+        {
+            // Use 512x512 texture in GL since we can't go higher than the window res
+            mSceneMgr->setShadowTextureSettings(512, 2);
+        }
+        mSceneMgr->setShadowColour(ColourValue(0.5, 0.5, 0.5));
+
 
     }
 
-    void testTextureShadows()
-    {
-        mSceneMgr->setShadowTextureSize(512);
-        mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);
-        mSceneMgr->setShadowFarDistance(1500);
-        mSceneMgr->setShadowColour(ColourValue(0, 0, 0));
-        //mSceneMgr->setShadowFarDistance(800);
-        // Set ambient light
-        mSceneMgr->setAmbientLight(ColourValue(0.3, 0.3, 0.3));
-
-        mLight = mSceneMgr->createLight("MainLight");
-
-        /*
-        // Directional test
-        mLight->setType(Light::LT_DIRECTIONAL);
-        Vector3 vec(-1,-1,0);
-        vec.normalise();
-        mLight->setDirection(vec);
-        */
-
-        // Spotlight test
-        mLight->setType(Light::LT_SPOTLIGHT);
-        mLight->setDiffuseColour(1.0, 1.0, 0.8);
-        SceneNode* node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-        node->setPosition(800,600,0);
-        node->lookAt(Vector3(0,0,0), Node::TS_WORLD, Vector3::UNIT_Z);
-        node->attachObject(mLight);
-
-        node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-
-
-        Entity* pEnt;
-        pEnt = mSceneMgr->createEntity( "1", "ninja.mesh" );
-        mAnimState = pEnt->getAnimationState("Walk");
-        mAnimState->setEnabled(true);
-        node->attachObject( pEnt );
-        node->translate(0,-100,0);
-
-        pEnt = mSceneMgr->createEntity( "3", "knot.mesh" );
-        node = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(-200, 0, -200));
-        node->attachObject( pEnt );
-
-        Mesh* msh = MeshManager::getSingleton().load("knot.mesh");
-        msh->buildTangentVectors();
-        pEnt = mSceneMgr->createEntity( "4", "knot.mesh" );
-        //pEnt->setMaterialName("Examples/BumpMapping/MultiLightSpecular");
-        node = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(100, 0, 200));
-        node->attachObject( pEnt );
-
-        mSceneMgr->setSkyBox(true, "Examples/CloudyNoonSkyBox");
-
-
-        Plane plane;
-        plane.normal = Vector3::UNIT_Y;
-        plane.d = 100;
-        MeshManager::getSingleton().createPlane("Myplane",plane,
-            1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
-        Entity* pPlaneEnt;
-        pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
-        pPlaneEnt->setMaterialName("2 - Default");
-        pPlaneEnt->setCastShadows(false);
-        mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
-
-        // Set up a debug panel to display the shadow
-        /*
-        Material* debugMat = (Material*)MaterialManager::getSingleton().create("Ogre/DebugShadowMap");
-        debugMat->getTechnique(0)->getPass(0)->setLightingEnabled(false);
-        TextureUnitState *t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState("Ogre/ShadowTexture0");
-        t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
-        //t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState("spot_shadow_fade.png");
-        //t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
-        //t->setColourOperation(LBO_ADD);
-
-        GuiContainer* debugPanel = (GuiContainer*)
-            (GuiManager::getSingleton().createGuiElement("Panel", "Ogre/DebugShadowPanel"));
-        debugPanel->_setPosition(0.8, 0);
-        debugPanel->_setDimensions(0.2, 0.3);
-        debugPanel->setMaterialName("Ogre/DebugShadowMap");
-        Overlay* debugOverlay = (Overlay*)OverlayManager::getSingleton().getByName("Core/DebugOverlay");
-        debugOverlay->add2D(debugPanel);
-        */
-
-    }
 
     // Just override the mandatory create scene method
     void createScene(void)
     {
-        testStencilShadows();
-        //testTextureShadows();
+        // set up general scene (this defaults to additive stencils)
+        generalSceneSetup();
     }
     // Create new frame listener
     void createFrameListener(void)
     {
-        mFrameListener= new ShadowsListener(mWindow, mCamera);
+        mFrameListener= new ShadowsListener(mWindow, mCamera, mSceneMgr);
         mFrameListener->showDebugOverlay(true);
         mRoot->addFrameListener(mFrameListener);
 
