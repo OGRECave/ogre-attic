@@ -50,7 +50,7 @@ namespace Ogre {
     public:
 
         ConfigFile();
-        void load(const String& filename, const String& separators = "\t:=");
+        void load(const String& filename, const String& separators = "\t:=", bool trimWhitespace = true);
 
         /** Gets the first setting from the file with the named key. */
         String getSetting(const String& key);
