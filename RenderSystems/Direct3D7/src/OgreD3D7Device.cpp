@@ -354,7 +354,7 @@ namespace Ogre {
 
     void D3DDevice::createDepthBuffer(LPDIRECTDRAWSURFACE7 renderTarget)
     {
-        DWORD bestDepth;
+        DWORD bestDepth, bestStencil;
         DDSURFACEDESC2 ddsd, src_ddsd;
         LPDIRECTDRAW7 lpDD7;
         LPDIRECTDRAWSURFACE7 lpZBuffer;
@@ -379,7 +379,9 @@ namespace Ogre {
 
             // Choose the best one
             // NB make sure Z buffer is the same depth as colour buffer (GeForce TnL problem)
+            // Also use best stencil if z depth is the same
             bestDepth = 0;
+            bestStencil = 0;
 
             std::vector<DDPIXELFORMAT>::iterator it, best_it;
             for( 
@@ -387,11 +389,13 @@ namespace Ogre {
                 it != mDepthBufferFormats.end();
                 ++it )
             {
-                if( (*it).dwZBufferBitDepth > bestDepth &&
+                if( ( (*it).dwZBufferBitDepth > bestDepth || (*it).dwStencilBitDepth > bestStencil)
+                    &&
                     (*it).dwZBufferBitDepth <= src_ddsd.ddpfPixelFormat.dwZBufferBitDepth )
                 {
                     best_it = it;
                     bestDepth = (*it).dwZBufferBitDepth;
+                    bestStencil = (*it).dwStencilBitDepth;
                 }
             }
 
@@ -430,9 +434,19 @@ namespace Ogre {
                     "Error attaching depth buffer to render target",
                     "D3DDevice::createDepthBuffer" );
 
+            // Log stencil buffer depth
+            mStencilBufferDepth = ddsd.ddpfPixelFormat.dwStencilBitDepth;
+
             LogManager::getSingleton().logMessage( 
                 LML_NORMAL, 
-                "Z-Buffer created (%i-bit)", ddsd.ddpfPixelFormat.dwZBufferBitDepth );
+                "Depth-Buffer created (%i-bit, %i-bit stencil)", 
+                ddsd.ddpfPixelFormat.dwZBufferBitDepth,
+                mStencilBufferDepth);
+            if (mStencilBufferDepth == 0)
+            {
+                LogManager::getSingleton().logMessage("Warning: software stencilling " 
+                    "in use, stencil operations will not be hardware accelerated.");
+            }
         }
     }
 
@@ -498,6 +512,11 @@ namespace Ogre {
         // The maximum number of texture layers the device can support in a singe pass
 
         return mD3DDeviceDesc.wMaxSimultaneousTextures;
+    }
+
+    ushort D3DDevice::StencilBufferBitDepth(void)
+    {
+        return mStencilBufferDepth;
     }
 
 

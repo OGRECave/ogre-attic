@@ -290,6 +290,35 @@ namespace Ogre {
           RenderSystem
          */
         void _setRasterisationMode(SceneDetailLevel level);
+        bool hasHardwareStencil(void);
+        /** See
+          RenderSystem
+         */
+        ushort getStencilBufferBitDepth(void);
+        /** See
+          RenderSystem
+         */
+        void setStencilBufferFunction(CompareFunction func);
+        /** See
+          RenderSystem
+         */
+        void setStencilBufferReferenceValue(ulong refValue);
+        /** See
+          RenderSystem
+         */
+        void setStencilBufferMask(ulong mask);
+        /** See
+          RenderSystem
+         */
+        void setStencilBufferFailOperation(StencilOperation op);
+        /** See
+          RenderSystem
+         */
+        void setStencilBufferDepthFailOperation(StencilOperation op);
+        /** See
+          RenderSystem
+         */
+        void setStencilBufferPassOperation(StencilOperation op);
         // ----------------------------------
         // End Overridden members
         // ----------------------------------
