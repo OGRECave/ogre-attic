@@ -578,10 +578,12 @@ namespace Ogre
 
             // Make sure no LOD transition within the tile
             // This is especially a problem when using large tiles with flat areas
+            /* Hmm, this can look bad on some areas, disable for now
             Vector3 delta(_vertex(0,0,0), mCenter.y, _vertex(0,0,2));
             delta = delta - mCenter;
             Real minDist = delta.squaredLength();
             mMinLevelDistSqr[ i ] = std::max(mMinLevelDistSqr[ i ], minDist);
+            */
 
             //make sure the levels are increasing...
             if ( mMinLevelDistSqr[ i ] < mMinLevelDistSqr[ i - 1 ] )
