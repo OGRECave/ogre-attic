@@ -262,7 +262,7 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
         } // Faces
     } // SubMesh
 
-    // Create singleton
+    // Create singletons
     Ogre::MaterialManager matMgr;
     if (exportMaterials)
     {
@@ -286,15 +286,25 @@ void MilkshapePlugin::doExportMaterials(msModel* pModel)
     for (int i = 0; i < matCount; ++i)
     {
         msMaterial *pMat = msModel_GetMaterialAt(pModel, i);
-        Ogre::Material* ogreMat = (Ogre::Material*)matMgr.create(pMat->szName);
+        // Create deferred material so no load
+        Ogre::Material* ogreMat = (Ogre::Material*)matMgr.createDeferred(pMat->szName);
 
-        ogreMat->setAmbient(pMat->Ambient[0], pMat->Ambient[1], pMat->Ambient[2]);
-        ogreMat->setDiffuse(pMat->Diffuse[0], pMat->Diffuse[1], pMat->Diffuse[2]);
-        ogreMat->setShininess(pMat->fShininess);
-        if (strlen(pMat->szDiffuseTexture) > 0)
+        msVec4 vec4;
+        msMaterial_GetAmbient (pMat, vec4);
+        ogreMat->setAmbient(vec4[0], vec4[1], vec4[2]);
+        msMaterial_GetDiffuse (pMat, vec4);
+        ogreMat->setDiffuse(vec4[0], vec4[1], vec4[2]);
+        msMaterial_GetSpecular (pMat, vec4);
+        ogreMat->setSpecular(vec4[0], vec4[1], vec4[2]);
+        ogreMat->setShininess(msMaterial_GetShininess(pMat));
+
+        char szTexture[MS_MAX_PATH];
+        msMaterial_GetDiffuseTexture (pMat, szTexture, MS_MAX_PATH);
+        if (strlen(szTexture) > 0)
         {
             // Diffuse texture only
-            ogreMat->addTextureLayer(pMat->szDiffuseTexture);
+            ogreMat->addTextureLayer(szTexture);
         }
+
     }
 }
