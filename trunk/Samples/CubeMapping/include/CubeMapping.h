@@ -693,7 +693,7 @@ protected:
         //  other objects, but I don't
         l->setPosition(20,80,50);
 
-        objectNode = static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild());
+        objectNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 
 		// show overlay
 		Overlay *overlay = (Overlay*)OverlayManager::getSingleton().getByName("Example/CubeMappingOverlay");    

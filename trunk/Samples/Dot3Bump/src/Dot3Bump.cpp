@@ -434,7 +434,7 @@ protected:
 		mEnt3 = mSceneMgr->createEntity("head", "ogrehead.mesh");
 		mEnt4 = mSceneMgr->createEntity("ball", "ball.mesh");
         // Attach to child of root node
-        mMainNode = static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild());
+        mMainNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 		mMainNode->attachObject(mEnt1);
 		mMainNode->attachObject(mEnt2);
 		mMainNode->attachObject(mEnt3);

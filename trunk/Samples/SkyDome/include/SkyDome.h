@@ -146,7 +146,7 @@ protected:
 
         ent = mSceneMgr->createEntity("head", "ogrehead.mesh");
         // Attach to child of root node, better for culling (otherwise bounds are the combination of the 2)
-        static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild())->attachObject(ent);
+        mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
 
     }
     // Create new frame listener

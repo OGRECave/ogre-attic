@@ -61,7 +61,7 @@ protected:
         ent->setMaterialName("Examples/EnvMappedRustySteel");
 
         // Add entity to the root scene node
-        static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild())->attachObject(ent);
+        mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
 
 
         
