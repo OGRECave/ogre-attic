@@ -39,10 +39,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "ExampleApplication.h"
 
-class TransFrameListener : public ExampleFrameListener
+class RttFrameListener : public ExampleFrameListener
 {
 public:
-    TransFrameListener(RenderWindow* win, Camera* cam, bool useBufferedInput = false)
+    RttFrameListener(RenderWindow* win, Camera* cam, bool useBufferedInput = false)
         : ExampleFrameListener( win, cam, useBufferedInput )
     {
     }
@@ -64,15 +64,15 @@ public:
     }
 };
 
-class TransApplication : public ExampleApplication
+class RenderToTextureApplication : public ExampleApplication
 {
 public:
-    TransApplication() {}
+    RenderToTextureApplication() {}
 
 protected:
     virtual void createFrameListener(void)
     {
-        mFrameListener= new TransFrameListener(mWindow, mCamera);
+        mFrameListener= new RttFrameListener(mWindow, mCamera);
         mRoot->addFrameListener(mFrameListener);
     }
 
@@ -101,12 +101,11 @@ protected:
         // Create an entity from a model (will be loaded automatically)
         Entity* ogreHead = mSceneMgr->createEntity("Head", "ogrehead.mesh");
 
-        knotEnt->setMaterialName("Examples/TransparentTest");
+        knotEnt->setMaterialName("Examples/TextureEffect2");
 
-        // Attach the 2 new entities to the root of the scene
+        // Attach the rtt entity to the root of the scene
         SceneNode* rootNode = mSceneMgr->getRootSceneNode();
         rootNode->attachObject(planeEnt);
-        rootNode->attachObject(knotEnt);
 
         rootNode->createChild( "Head" )->attachObject( ogreHead );
 
