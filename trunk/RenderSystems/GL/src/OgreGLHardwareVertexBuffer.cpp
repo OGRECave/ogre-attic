@@ -131,8 +131,20 @@ namespace Ogre {
     void GLHardwareVertexBuffer::readData(size_t offset, size_t length, 
         void* pDest)
     {
-        glBindBufferARB_ptr(GL_ARRAY_BUFFER_ARB, mBufferId);
-        glGetBufferSubDataARB_ptr(GL_ARRAY_BUFFER_ARB, offset, length, pDest);
+        if(mUseShadowBuffer)
+        {
+            // get data from the shadow buffer
+            void* srcData = mpShadowBuffer->lock(offset, length, HBL_READ_ONLY);
+            memcpy(pDest, srcData, length);
+            mpShadowBuffer->unlock();
+        }
+        else
+        {
+            // get data from the real buffer
+            glBindBufferARB_ptr(GL_ARRAY_BUFFER_ARB, mBufferId);
+        
+            glGetBufferSubDataARB_ptr(GL_ARRAY_BUFFER_ARB, offset, length, pDest);
+        }
     }
 	//---------------------------------------------------------------------
     void GLHardwareVertexBuffer::writeData(size_t offset, size_t length, 
@@ -140,12 +152,22 @@ namespace Ogre {
     {
         glBindBufferARB_ptr(GL_ARRAY_BUFFER_ARB, mBufferId);
 
+        // Update the shadow buffer
+        if(mUseShadowBuffer)
+        {
+            void* destData = mpShadowBuffer->lock(offset, length, 
+                discardWholeBuffer ? HBL_DISCARD : HBL_NORMAL);
+            memcpy(destData, pSource, length);
+            mpShadowBuffer->unlock();
+        }
+
         if(discardWholeBuffer)
         {
             glBufferDataARB_ptr(GL_ARRAY_BUFFER_ARB, mSizeInBytes, NULL, 
                 GLHardwareBufferManager::getGLUsage(mUsage));
         }
 
+        // Now update the real buffer
         glBufferSubDataARB_ptr(GL_ARRAY_BUFFER_ARB, offset, length, pSource); 
     }
 	//---------------------------------------------------------------------
