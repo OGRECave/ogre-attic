@@ -432,7 +432,7 @@ namespace Ogre {
     void RenderSystem::softwareVertexBlend(RenderOperation& op, Matrix4* pMatrices)
     {
         // Source vector
-        Vector3 sourceVec, sourceNorm;
+        Vector3 sourceVec;
         // Accumulation vectors
         Vector3 accumVecPos, accumVecNorm;
         
@@ -468,13 +468,12 @@ namespace Ogre {
 
             if (op.vertexOptions & RenderOperation::VO_NORMALS) 
             {
-                sourceNorm.x = *pNormElem++;
-                sourceNorm.y = *pNormElem++;
-                sourceNorm.z = *pNormElem++;
+                accumVecNorm.x = *pNormElem++;
+                accumVecNorm.y = *pNormElem++;
+                accumVecNorm.z = *pNormElem++;
             }
-            // Load accumulators
+            // Load accumulator
             accumVecPos = Vector3::ZERO;
-            accumVecNorm = Vector3::ZERO;
 
             // Loop per blend weight 
             for (unsigned short blendIdx = 0; blendIdx < op.numBlendWeightsPerVertex; ++blendIdx)
@@ -494,8 +493,8 @@ namespace Ogre {
                         // aspect of the matrix is orthogonal (no non-uniform scaling), the inverse transpose
                         // is equal to the main 3x3 matrix
                         // Note because it's a normal we just extract the rotational part, saves us renormalising
-                        pMatrices[pBlend->matrixIndex].extractRotationMatrix(rot3x3);
-                        accumVecNorm += (rot3x3 * pBlend->blendWeight) * sourceNorm;
+                        pMatrices[pBlend->matrixIndex].extract3x3Matrix(rot3x3);
+                        accumVecNorm = (rot3x3 * pBlend->blendWeight) * accumVecNorm;
                     }
 
                 }
