@@ -53,11 +53,13 @@ namespace Ogre {
        
         String tmpStr = (const char*)pcVer;
         LogManager::getSingleton().logMessage("GL_VERSION = " + tmpStr);
-        version = tmpStr.substr(0, tmpStr.find(" "));
+        mVersion = tmpStr.substr(0, tmpStr.find(" "));
 
         // Get vendor
         const GLubyte* pcVendor = glGetString(GL_VENDOR);
-        LogManager::getSingleton().logMessage("GL_VENDOR = " + String((const char*)pcVendor));
+        tmpStr = (const char*)pcVendor;
+        LogManager::getSingleton().logMessage("GL_VENDOR = " + tmpStr);
+        mVendor = tmpStr.substr(0, tmpStr.find(" "));
 
         // Set extension list
 		std::stringstream ext;
@@ -82,7 +84,7 @@ namespace Ogre {
     {
         unsigned int first, second, third;
         unsigned int cardFirst, cardSecond, cardThird;
-        if(v == version)
+        if(v == mVersion)
             return true;
 
         String::size_type pos = v.find(".");
@@ -97,17 +99,17 @@ namespace Ogre {
         second = ::atoi(v.substr(pos + 1, pos1 - (pos + 1)).c_str());
         third = ::atoi(v.substr(pos1 + 1, v.length()).c_str());
 
-        pos = version.find(".");
+        pos = mVersion.find(".");
         if(pos == String::npos)
             return false;
 
-        pos1 = version.rfind(".");
+        pos1 = mVersion.rfind(".");
         if(pos1 == String::npos)
             return false;
 
-        cardFirst  = ::atoi(version.substr(0, pos).c_str());
-        cardSecond = ::atoi(version.substr(pos + 1, pos1 - (pos + 1)).c_str());
-        cardThird  = ::atoi(version.substr(pos1 + 1, version.length()).c_str());
+        cardFirst  = ::atoi(mVersion.substr(0, pos).c_str());
+        cardSecond = ::atoi(mVersion.substr(pos + 1, pos1 - (pos + 1)).c_str());
+        cardThird  = ::atoi(mVersion.substr(pos1 + 1, mVersion.length()).c_str());
 
         if(first <= cardFirst && second <= cardSecond && third <= cardThird)
           return true;

@@ -150,6 +150,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 #   endif
 #endif
 
+// Need to define this for non win32 systems
+#ifndef APIENTRY
+#   define APIENTRY
+#endif
+
 namespace Ogre {
     // Forward declarations
     class GLSupport;
