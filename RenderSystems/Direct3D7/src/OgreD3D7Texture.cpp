@@ -53,7 +53,6 @@ namespace Ogre {
             return D3DX_SF_A8R8G8B8;
         case PF_UNKNOWN:
         case PF_A4L4:
-        case PF_L4A4:
         case PF_A2R10G10B10:
         case PF_A2B10G10R10:
         default:
@@ -81,21 +80,11 @@ namespace Ogre {
             break;
 
         case PF_A4L4:
-        case PF_L4A4:
             out.dwFlags = DDPF_LUMINANCE | DDPF_ALPHAPIXELS;
             out.dwLuminanceBitCount = 4;
 
-            if( format == PF_A4L4 )
-            {
-                out.dwLuminanceAlphaBitMask = 0xf0;
-                out.dwLuminanceBitMask = 0x0f;
-            }
-            else
-            {
-                out.dwLuminanceAlphaBitMask = 0x0f;
-                out.dwLuminanceBitMask = 0xf0;
-            }
-
+            out.dwLuminanceAlphaBitMask = 0xf0;
+            out.dwLuminanceBitMask = 0x0f;
             break;
 
         case PF_R5G6B5:
