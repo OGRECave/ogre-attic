@@ -53,7 +53,9 @@ namespace Ogre {
 
     protected:
 		void writeMaterial(const Material *pMat);
-		void writeTextureLayer(const TextureUnitState *pTex);
+        void MaterialSerializer::writeTechnique(const Technique* pTech);
+        void MaterialSerializer::writePass(const Pass* pPass);
+		void writeTextureUnit(const TextureUnitState *pTex);
 
 		void writeSceneBlendFactor(const SceneBlendFactor sbf_src, const SceneBlendFactor sbf_dest);
 		void writeSceneBlendFactor(const SceneBlendFactor sbf);
@@ -73,29 +75,33 @@ namespace Ogre {
 		String mBuffer;
 		bool mDefaults;
 
-		void beginSection(void)
+		void beginSection(unsigned short level)
 		{
-			mBuffer += "\n{";
+			mBuffer += "\n";
+            for (unsigned short i = 0; i < level; ++i)
+            {
+                mBuffer += "\t";
+            }
+            mBuffer += "{";
+		}
+		void endSection(unsigned short level)
+		{
+			mBuffer += "\n";
+            for (unsigned short i = 0; i < level; ++i)
+            {
+                mBuffer += "\t";
+            }
+            mBuffer += "}";
 		}
 
-		void endSection(void)
+		void writeAttribute(unsigned short level, const String& att)
 		{
-			mBuffer += "\n}\n";
-		}
-
-		void beginSubSection(void)
-		{
-			mBuffer += "\n\t{";
-		}
-
-		void endSubSection(void)
-		{
-			mBuffer += "\n\t}";
-		}
-
-		void writeAttribute(const String& att)
-		{
-			mBuffer += ("\n\t" + att);
+			mBuffer += "\n";
+            for (unsigned short i = 0; i < level; ++i)
+            {
+                mBuffer += "\t";
+            }
+            mBuffer += att;
 		}
 
 		void writeValue(const String& val)
@@ -103,20 +109,16 @@ namespace Ogre {
 			mBuffer += (" " + val);
 		}
 
-		void writeSubAttribute(const String& att)
+		void writeComment(unsigned short level, const String& comment)
 		{
-			mBuffer += ("\n\t\t" + att);
+			mBuffer += "\n";
+            for (unsigned short i = 0; i < level; ++i)
+            {
+                mBuffer += "\t";
+            }
+            mBuffer += "// " + comment;
 		}
 
-		void writeComment(const String& comment)
-		{
-			mBuffer += ("\n\t//" + comment);
-		}
-
-		void writeSubComment(const String& comment)
-		{
-			mBuffer += ("\n\t\t//" + comment);
-		}
     };
 }
 #endif
