@@ -94,29 +94,33 @@ namespace Ogre {
 		virtual void writeData(size_t offset, size_t length, const void* pSource,
 				bool discardWholeBuffer = false);
         
-        /** Copies a box from this PixelBuffer to a region of the 
-        	destination PixelBuffer. Only call this function when both 
-        	buffers are unlocked. 
-        	@param srcBox	Image::Box describing the source region in this buffer
-        	@param dst		Destination pixel buffer
-        	@param dstBox	Image::Box describing the destination region in dst
-        	@remarks Source and target boxes must be equally sized
+        /** Copies a box from another PixelBuffer to a region of the 
+        	this PixelBuffer. 
+			@param dst		Source pixel buffer
+        	@param srcBox	Image::Box describing the source region in src
+        	@param dstBox	Image::Box describing the destination region in this buffer
+			@remarks The source and destination regions dimensions don't have to match, in which
+		   	case scaling is done. This scaling is done in software for some render systems, 
+			thus for realtime usage it is recommended to pass the source image in the right dimensions.
+			@note Only call this function when both  buffers are unlocked. 
          */        
-        virtual void blit(const Image::Box &srcBox, HardwarePixelBuffer *dst, const Image::Box &dstBox);
+        virtual void blit(HardwarePixelBuffer *src, const Image::Box &srcBox, const Image::Box &dstBox);
 		
 		/** Copies a region from normal memory to a region of this pixelbuffer. The source
-			image can be in any pixel format supported by OGRE.
+			image can be in any pixel format supported by OGRE, and in any size. 
 		   	@param src		PixelBox containing the source pixels and format in memory
 		   	@param dstBox	Image::Box describing the destination region in this buffer
 		   	@remarks The source and destination regions dimensions don't have to match, in which
 		   	case scaling is done. This scaling is done in software for some render systems, 
 			so for realtime usage it is recommended to pass the source image in the right dimensions.
+			@note Only call this function when the buffer is unlocked. 
 		*/
 		virtual void blitFromMemory(const PixelBox &src, const Image::Box &dstBox) = 0;
 		
 		/** Convience function that blits a pixelbox from memory to the entire 
 			buffer. The source image is scaled as needed.
 			@param src		PixelBox containing the source pixels and format in memory
+			@note Only call this function when the buffer is unlocked. 
 		*/
 		void blitFromMemory(const PixelBox &src)
 		{
@@ -128,6 +132,7 @@ namespace Ogre {
 		   	@param dst		PixelBox describing the destination pixels and format in memory
 		   	@remarks The source and destination regions don't have to match, in which
 		   	case scaling is done.
+			@note Only call this function when the buffer is unlocked. 
 		 */
 		virtual void blitToMemory(const Image::Box &srcBox, const PixelBox &dst) = 0;
         
