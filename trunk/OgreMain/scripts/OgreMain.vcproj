@@ -141,6 +141,12 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
+				RelativePath="..\src\OgreActionEvent.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreActionTarget.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreAnimation.cpp">
 			</File>
 			<File
@@ -192,6 +198,9 @@
 				RelativePath="..\src\OgreControllerManager.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreCursor.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreDataChunk.cpp">
 			</File>
 			<File
@@ -202,6 +211,18 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreEntity.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreEventDispatcher.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreEventMulticaster.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreEventProcessor.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreEventQueue.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreException.cpp">
@@ -231,6 +252,9 @@
 				RelativePath="..\src\OgreInput.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreInputEvent.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreJPEGCodec.cpp">
 			</File>
 			<File
@@ -238,6 +262,9 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreLight.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreListSelectionTarget.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreLog.cpp">
@@ -271,6 +298,15 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreMeshSerializer.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreMouseEvent.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreMouseMotionTarget.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreMouseTarget.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreMovableObject.cpp">
@@ -316,6 +352,9 @@
 			</File>
 			<File
 				RelativePath="..\src\OgrePredefinedControllers.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreProgressiveMesh.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreQuaternion.cpp">
@@ -433,6 +472,12 @@
 				RelativePath="..\include\Ogre.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreActionEvent.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreActionTarget.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreAnimation.h">
 			</File>
 			<File
@@ -502,6 +547,9 @@
 				RelativePath="..\include\OgreControllerManager.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreCursor.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreDataChunk.h">
 			</File>
 			<File
@@ -515,6 +563,24 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreErrorDialog.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreEventDispatcher.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreEventListeners.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreEventMulticaster.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreEventProcessor.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreEventQueue.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreEventTarget.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreException.h">
@@ -559,6 +625,9 @@
 				RelativePath="..\include\OgreInput.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreInputEvent.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreIteratorWrappers.h">
 			</File>
 			<File
@@ -569,6 +638,15 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreLight.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreListChanger.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreListSelectionEvent.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreListSelectionTarget.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreLog.h">
@@ -608,6 +686,15 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreMeshSerializer.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreMouseEvent.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreMouseMotionTarget.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreMouseTarget.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreMovableObject.h">
@@ -673,10 +760,16 @@
 				RelativePath="..\include\OgrePlatformManager.h">
 			</File>
 			<File
+				RelativePath="..\include\OgrePositionTarget.h">
+			</File>
+			<File
 				RelativePath="..\include\OgrePredefinedControllers.h">
 			</File>
 			<File
 				RelativePath="..\include\OgrePrerequisites.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreProgressiveMesh.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreQuaternion.h">
@@ -781,6 +874,9 @@
 				RelativePath="..\include\OgreStringInterface.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreStringResource.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreStringVector.h">
 			</File>
 			<File
@@ -791,6 +887,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreTGACodec.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreTargetManager.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreTexture.h">

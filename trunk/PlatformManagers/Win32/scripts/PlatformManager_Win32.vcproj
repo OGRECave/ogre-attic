@@ -34,7 +34,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
-				AdditionalDependencies="OgreMain.lib dxguid.lib dinput.lib"
+				AdditionalDependencies="OgreMain.lib dxguid.lib dinput8.lib"
 				OutputFile="$(OutDir)/PlatformManager_Win32.dll"
 				Version="0.99"
 				LinkIncremental="2"
@@ -97,7 +97,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
-				AdditionalDependencies="OgreMain.lib dxguid.lib dinput.lib"
+				AdditionalDependencies="OgreMain.lib dxguid.lib dinput8.lib"
 				OutputFile="$(OutDir)/PlatformManager_Win32.dll"
 				Version="0.99"
 				LinkIncremental="1"
@@ -139,7 +139,7 @@
 				RelativePath="..\src\OgreWin32ErrorDialog.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreWin32Input.cpp">
+				RelativePath="..\src\OgreWin32Input8.cpp">
 			</File>
 			<File
 				RelativePath="..\misc\OgreWin32Platform.def">
@@ -158,7 +158,7 @@
 				RelativePath="..\include\OgreWin32ErrorDialog.h">
 			</File>
 			<File
-				RelativePath="..\include\OgreWin32Input.h">
+				RelativePath="..\include\OgreWin32Input8.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreWin32Prerequisites.h">

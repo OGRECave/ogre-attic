@@ -48,32 +48,35 @@ namespace Ogre {
         @param typeName The type of element to create.
         @param instanceName The name to give the new instance.
         */
-        GuiElement* createGuiElement(const String& typeName, const String& instanceName);
+        GuiElement* createGuiElement(const String& typeName, const String& instanceName, bool isTemplate = false);
 
         /** Gets a reference to an existing element. */
-        GuiElement* getGuiElement(const String& name);
+        GuiElement* getGuiElement(const String& name, bool isTemplate = false);
         
         /** Destroys a GuiElement. 
         @remarks
             Make sure you're not still using this in an Overlay. If in
             doubt, let OGRE destroy elements on shutdown.
         */
-        void destroyGuiElement(const String& instanceName);
+        void destroyGuiElement(const String& instanceName, bool isTemplate = false);
 
         /** Destroys a GuiElement. 
         @remarks
             Make sure you're not still using this in an Overlay. If in
             doubt, let OGRE destroy elements on shutdown.
         */
-        void destroyGuiElement(GuiElement* pInstance);
+        void destroyGuiElement(GuiElement* pInstance, bool isTemplate = false);
 
-        /** Destroys all the GuiElements created so far.
+        /** Destroys all the GuiElement  created so far.
         @remarks
             Best to leave this to the engine to call internally, there
             should rarely be a need to call it yourself.
         */
-        void destroyAllGuiElements(void);
-      
+        void destroyAllGuiElements(bool isTemplate = false);
+
+
+
+
         /** Registers a new GuiElementFactory with this manager.
         @remarks
             Should be used by plugins or other apps wishing to provide
@@ -94,13 +97,30 @@ namespace Ogre {
         */
         static GuiManager& getSingleton(void);
 
-    protected:
+	    GuiElement* createGuiElementFromTemplate(const String& templateName, const String& typeName, const String& instanceName, bool isTemplate = false);
+
+        GuiElement* createGuiElementFromFactory(const String& typeName, const String& instanceName);
+	protected:
         typedef std::map<String, GuiElementFactory*> FactoryMap;
         FactoryMap mFactories;
 
-        typedef std::map<String, GuiElement*> InstanceMap;
-        InstanceMap mInstances;
+        typedef std::map<String, GuiElement*> ElementMap;
+        ElementMap mInstances;
+        ElementMap mTemplates;
 
+
+
+	    ElementMap& getElementMap(bool isTemplate);
+
+        GuiElement* createGuiElementImpl(const String& typeName, const String& instanceName, ElementMap& elementMap);
+
+        GuiElement* getGuiElementImpl(const String& name, ElementMap& elementMap);
+        
+        void destroyGuiElementImpl(const String& instanceName, ElementMap& elementMap);
+
+        void destroyGuiElementImpl(GuiElement* pInstance, ElementMap& elementMap);
+
+        void destroyAllGuiElementsImpl(ElementMap& elementMap);
 
     };
 

@@ -23,8 +23,8 @@ CFG=Plugin_GuiElements - Win32 Debug
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
-# PROP Scc_ProjName ""
-# PROP Scc_LocalPath ""
+# PROP Scc_ProjName ""$/S&S/DEV/Ogrenew/Plugin_GuiElements", PKDAAAAA"
+# PROP Scc_LocalPath ".."
 CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
@@ -75,7 +75,7 @@ PostBuild_Cmds=copy ..\bin\Release\*.dll ..\..\..\Samples\Common\bin\Release
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "PLUGIN_GuiElements_EXPORTS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../include" /I "../../../OgreMain/include" /I "..\..\..\Dependencies\include" /D "_USRDLL" /D "PLUGIN_GUIELEMENTS_EXPORTS" /D "_MBCS" /D "OGRE_WIN32" /D "_WINDOWS" /D "_DEBUG" /D "WIN32" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../include" /I "../../../OgreMain/include" /I "..\..\..\Dependencies\include" /D "_USRDLL" /D "PLUGIN_GUIELEMENTS_EXPORTS" /D "_MBCS" /D "OGRE_WIN32" /D "_WINDOWS" /D "_DEBUG" /D "WIN32" /D "OGRE_DYNAMIC_LINKAGE" /YX /FD /GZ /c
 # SUBTRACT CPP /Fr
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
@@ -108,11 +108,23 @@ SOURCE=..\src\OgreBorderPanelGuiElement.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreButtonGuiElement.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreCursorGuiElement.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreGuiElements.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=..\misc\OgreGuiElements.def
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreListGuiElement.cpp
 # End Source File
 # Begin Source File
 
@@ -132,11 +144,27 @@ SOURCE=..\include\OgreBorderPanelGuiElement.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreButtonGuiElement.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreCursorGuiElement.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreCursorGuiManager.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreGuiElementFactories.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\include\OgreGuiElementPrerequisites.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreListGuiElement.h
 # End Source File
 # Begin Source File
 

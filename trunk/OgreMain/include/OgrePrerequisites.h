@@ -102,6 +102,9 @@ namespace Ogre {
 // Pre-declare classes
 // Allows use of pointers in header files without including individual .h
 // so decreases dependencies between files
+	class ActionEvent;
+	class ActionListener;
+	class ActionTarget;
     class Animation;
     class AnimationTrack;
     class AnimationState;
@@ -117,10 +120,16 @@ namespace Ogre {
     class ColourValue;
     class ControllerManager;
     class Controller;
+	class Cursor;
     class DataChunk;
     class DynLib;
     class DynLibManager;
     class Entity;
+	class EventDispatcher;
+	class EventMulticaster;
+	class EventProcessor;
+	class EventQueue;
+	class EventTarget;
     class Factory;
     class Font;
     class FontManager;
@@ -129,9 +138,13 @@ namespace Ogre {
     class GuiElementFactory;
     class GuiContainer;
     class GuiManager;
+	class InputEvent;
     class InputReader;
     class KeyFrame;
     class Light;
+	class ListSelectionEvent;
+	class ListSelectionListener;
+	class ListSelectionTarget;
     class LogManager;
     class Material;
     class MaterialManager;
@@ -142,6 +155,9 @@ namespace Ogre {
     class Mesh;
     class MeshManager;
     class MovableObject;
+	class MouseEvent;
+	class MouseListener;
+	class MouseMotionListener;
     class Node;
     class Overlay;
     class OverlayManager;
@@ -153,6 +169,7 @@ namespace Ogre {
     class ParticleSystem;
     class ParticleSystemManager;
     class Plane;
+	class PositionTarget;
     class Quaternion;
     class Renderable;
     class RenderPriorityGroup;
@@ -177,6 +194,7 @@ namespace Ogre {
     class StringInterface;
     class SubEntity;
     class SubMesh;
+	class TargetManager;
 	class TextureFont;
     class Vector3;
     class Viewport;   

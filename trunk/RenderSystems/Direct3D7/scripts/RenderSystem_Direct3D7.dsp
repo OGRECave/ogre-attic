@@ -23,8 +23,8 @@ CFG=RenderSystem_Direct3D7 - Win32 Debug
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
-# PROP Scc_ProjName ""
-# PROP Scc_LocalPath ""
+# PROP Scc_ProjName ""$/S&S/DEV/Ogrenew/RenderSystem_Direct3D7", DBDAAAAA"
+# PROP Scc_LocalPath ".."
 CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe

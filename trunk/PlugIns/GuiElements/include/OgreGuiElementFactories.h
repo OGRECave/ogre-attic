@@ -30,6 +30,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGuiElementFactory.h"
 #include "OgrePanelGuiElement.h"
 #include "OgreBorderPanelGuiElement.h"
+#include "OgreButtonGuiElement.h"
+#include "OgreListGuiElement.h"
 #include "OgreTextAreaGuiElement.h"
 
 
@@ -88,6 +90,41 @@ namespace Ogre {
             return name;
         }
     };
+
+    /** Factory for creating ButtonGuiElement instances. */
+    class _OgreGuiElementExport ButtonGuiElementFactory: public GuiElementFactory
+    {
+    public:
+        /** See GuiElementFactory */
+        GuiElement* createGuiElement(const String& instanceName)
+        {
+            return new ButtonGuiElement(instanceName);
+        }
+        /** See GuiElementFactory */
+        const String& getTypeName(void)
+        {
+            static String name = "Button";
+            return name;
+        }
+    };
+
+    /** Factory for creating ButtonGuiElement instances. */
+    class _OgreGuiElementExport ListGuiElementFactory: public GuiElementFactory
+    {
+    public:
+        /** See GuiElementFactory */
+        GuiElement* createGuiElement(const String& instanceName)
+        {
+            return new ListGuiElement(instanceName);
+        }
+        /** See GuiElementFactory */
+        const String& getTypeName(void)
+        {
+            static String name = "List";
+            return name;
+        }
+    };
+
 
 }
 

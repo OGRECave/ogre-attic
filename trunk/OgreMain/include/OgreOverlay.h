@@ -96,6 +96,8 @@ namespace Ogre {
         /** Generic unload - called by OverlayManager. */
         virtual void unload(void);
 
+	    GuiContainer* getChild(const String& name);
+
         /** Gets the name of this overlay. */
         const String& getName(void) const;
         /** Alters the ZOrder of this overlay. 
@@ -226,6 +228,8 @@ namespace Ogre {
         /** Internal method to put the overlay contents onto the render queue. */
         void _findVisibleObjects(Camera* cam, RenderQueue* queue);
 
+        /** This returns a GuiElement at position x,y. */
+		virtual GuiElement* findElementAt(Real x, Real y);
 
 
     };

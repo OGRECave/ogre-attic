@@ -23,8 +23,8 @@ CFG=PlatformManager_Win32 - Win32 Debug
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
-# PROP Scc_ProjName ""
-# PROP Scc_LocalPath ""
+# PROP Scc_ProjName ""$/S&S/DEV/Ogrenew/PlatformManager_Win32", VCDAAAAA"
+# PROP Scc_LocalPath ".."
 CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib OgreMain.lib dxguid.lib dinput.lib /nologo /dll /machine:I386 /out:"..\bin\Release/OgrePlatform.dll" /libpath:"..\..\..\OgreMain\lib\Release"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib OgreMain.lib dxguid.lib dinput8.lib /nologo /dll /machine:I386 /out:"..\bin\Release/OgrePlatform.dll" /libpath:"..\..\..\OgreMain\lib\Release"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy ..\bin\Release\*.dll ..\..\..\Samples\Common\bin\Release
@@ -83,7 +83,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib OgreMain.lib dxguid.lib dinput.lib /nologo /dll /debug /machine:I386 /out:"..\bin\Debug/OgrePlatform.dll" /pdbtype:sept /libpath:"..\..\..\OgreMain\lib\Debug"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib OgreMain.lib dxguid.lib dinput8.lib /nologo /dll /debug /machine:I386 /out:"..\bin\Debug/OgrePlatform.dll" /pdbtype:sept /libpath:"..\..\..\OgreMain\lib\Debug"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy ..\bin\Debug\*.dll ..\..\..\Samples\Common\bin\Debug
@@ -109,6 +109,11 @@ SOURCE=..\src\OgreWin32ErrorDialog.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreWin32Input.cpp
+# PROP Exclude_From_Build 1
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreWin32Input8.cpp
 # End Source File
 # Begin Source File
 
@@ -137,6 +142,10 @@ SOURCE=..\include\OgreWin32ErrorDialog.h
 # Begin Source File
 
 SOURCE=..\include\OgreWin32Input.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreWin32Input8.h
 # End Source File
 # Begin Source File
 

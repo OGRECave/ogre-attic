@@ -100,6 +100,14 @@ PostBuild_Cmds=copy ..\lib\Debug\OgreMain.dll ..\..\Samples\Common\bin\Debug
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=..\src\OgreActionEvent.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreActionTarget.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreAnimation.cpp
 # End Source File
 # Begin Source File
@@ -168,6 +176,10 @@ SOURCE=..\src\OgreControllerManager.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreCursor.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreDataChunk.cpp
 # End Source File
 # Begin Source File
@@ -181,6 +193,22 @@ SOURCE=..\src\OgreDynLibManager.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreEntity.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreEventDispatcher.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreEventMulticaster.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreEventProcessor.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreEventQueue.cpp
 # End Source File
 # Begin Source File
 
@@ -220,6 +248,10 @@ SOURCE=..\src\OgreInput.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreInputEvent.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreJPEGCodec.cpp
 # End Source File
 # Begin Source File
@@ -229,6 +261,10 @@ SOURCE=..\src\OgreKeyFrame.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreLight.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreListSelectionTarget.cpp
 # End Source File
 # Begin Source File
 
@@ -273,6 +309,18 @@ SOURCE=..\src\OgreMeshManager.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreMeshSerializer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreMouseEvent.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreMouseMotionTarget.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreMouseTarget.cpp
 # End Source File
 # Begin Source File
 
@@ -492,6 +540,14 @@ SOURCE=..\include\Ogre.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreActionEvent.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreActionTarget.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreAnimation.h
 # End Source File
 # Begin Source File
@@ -584,6 +640,10 @@ SOURCE=..\include\OgreControllerManager.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreCursor.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreCustomizable.h
 # End Source File
 # Begin Source File
@@ -605,6 +665,30 @@ SOURCE=..\include\OgreEntity.h
 # Begin Source File
 
 SOURCE=..\include\OgreErrorDialog.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreEventDispatcher.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreEventListeners.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreEventMulticaster.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreEventProcessor.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreEventQueue.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreEventTarget.h
 # End Source File
 # Begin Source File
 
@@ -664,6 +748,10 @@ SOURCE=..\include\OgreInput.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreInputEvent.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreIteratorWrappers.h
 # End Source File
 # Begin Source File
@@ -677,6 +765,18 @@ SOURCE=..\include\OgreKeyFrame.h
 # Begin Source File
 
 SOURCE=..\include\OgreLight.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreListChanger.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreListSelectionEvent.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreListSelectionTarget.h
 # End Source File
 # Begin Source File
 
@@ -729,6 +829,18 @@ SOURCE=..\include\OgreMeshManager.h
 # Begin Source File
 
 SOURCE=..\include\OgreMeshSerializer.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreMouseEvent.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreMouseMotionTarget.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreMouseTarget.h
 # End Source File
 # Begin Source File
 
@@ -813,6 +925,10 @@ SOURCE=..\include\OgrePlatformManager.h
 # Begin Source File
 
 SOURCE=..\include\OgrePNGCodec.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgrePositionTarget.h
 # End Source File
 # Begin Source File
 
@@ -956,6 +1072,10 @@ SOURCE=..\include\OgreStringInterface.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreStringResource.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreStringVector.h
 # End Source File
 # Begin Source File
@@ -965,6 +1085,10 @@ SOURCE=..\include\OgreSubEntity.h
 # Begin Source File
 
 SOURCE=..\include\OgreSubMesh.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreTargetManager.h
 # End Source File
 # Begin Source File
 

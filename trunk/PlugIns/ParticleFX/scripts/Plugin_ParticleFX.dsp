@@ -23,8 +23,8 @@ CFG=Plugin_ParticleFX - Win32 Debug
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
-# PROP Scc_ProjName ""
-# PROP Scc_LocalPath ""
+# PROP Scc_ProjName ""$/S&S/DEV/Ogrenew/Plugin_ParticleFX", OGDAAAAA"
+# PROP Scc_LocalPath ".."
 CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe

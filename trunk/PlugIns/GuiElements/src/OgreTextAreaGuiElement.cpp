@@ -44,6 +44,7 @@ namespace Ogre {
     {
         mTransparent = false;
         mAlignment = Left;
+		mpFont = 0;
 
         memset( &mRenderOp, 0, sizeof( mRenderOp ) );
         mRenderOp.operationType = RenderOperation::OT_TRIANGLE_LIST;
@@ -92,6 +93,11 @@ namespace Ogre {
     {
         Real *pVert, *pTex;
 
+		if (!mpFont)
+		{
+			// not initialised yet, probably due to the order of creation in a template
+			return;
+		}
         size_t charlen = mCaption.size();
         checkMemoryAllocation( charlen );
 

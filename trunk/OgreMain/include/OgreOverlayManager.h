@@ -28,17 +28,22 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 #include "OgreResourceManager.h"
 #include "OgreSingleton.h"
+#include "OgreEventDispatcher.h"
+#include "OgreTargetManager.h"
 
 namespace Ogre {
 
     /** Manages Overlay objects, parsing them from .overlay files and
         storing a lookup library of them.
     */
-    class _OgreExport OverlayManager : public ResourceManager, public Singleton<OverlayManager>
+    class _OgreExport OverlayManager : public ResourceManager, public Singleton<OverlayManager>, public TargetManager
     {
     protected:
+		GuiContainer* mCursorGuiRegistered;
+		MouseMotionListener* mCursorListener;
+		Overlay* mCursorLevelOverlay;
         void parseNewElement( DataChunk& chunk, String& elemType, String& elemName, 
-            bool isContainer, Overlay* pOverlay, GuiContainer* container = 0);
+            bool isContainer, Overlay* pOverlay, bool isTemplate, String templateName = String(""), GuiContainer* container = 0);
         void parseAttrib( const String& line, Overlay* pOverlay);
         void parseElementAttrib( const String& line, Overlay* pOverlay, GuiElement* pElement );
         void parseNewMesh(DataChunk& chunk, String& meshName, String& entityName, Overlay* pOverlay);
@@ -48,6 +53,10 @@ namespace Ogre {
         int mLastViewportWidth, mLastViewportHeight;
         bool mViewportDimensionsChanged;
 
+//		void dispatchEvent(InputEvent* e, 
+
+	    bool parseChildren( DataChunk& chunk, const String& line,
+            Overlay* pOverlay, bool isTemplate, GuiContainer* parent = NULL);
 
     public:
         OverlayManager();
@@ -88,6 +97,18 @@ namespace Ogre {
         */
         static OverlayManager& getSingleton(void);
 
+
+        /** This returns a PositionTarget at position x,y. */
+		PositionTarget* getPositionTargetAt(Real x, Real y);
+
+		/** register the cursor GUI implementation with the manager */
+		void setCursorGui(GuiContainer* cursor, MouseMotionListener* cursorListener);
+
+		/** returns the registered cursor GUI */
+		GuiContainer* getCursorGui();
+
+		/** create the high cursor level overlay and add the registered Cursor GUI implementation to it */
+		void createCursorOverlay();
     };
 
 

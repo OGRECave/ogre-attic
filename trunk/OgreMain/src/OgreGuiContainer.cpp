@@ -26,7 +26,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreGuiContainer.h"
 #include "OgreException.h"
-
+#include "OgreMouseEvent.h"
+#include "OgreGuiManager.h"
 
 namespace Ogre {
 
@@ -152,6 +153,68 @@ namespace Ogre {
         }
 
     }
+
+
+
+	GuiElement* GuiContainer::findElementAt(Real x, Real y) 		// relative to parent
+	{
+
+		GuiElement* ret = NULL;
+
+		int currZ = -1;
+
+		if (mVisible)
+		{
+			ret = GuiElement::findElementAt(x,y);	//default to the current container if no others are found
+			if (ret)
+			{
+				ChildIterator it = getChildIterator();
+				while (it.hasMoreElements())
+				{
+					GuiElement* currentGuiElement = it.getNext();
+					if (currentGuiElement->isVisible())
+					{
+						int z = currentGuiElement->getZOrder();
+						if (z > currZ)
+						{
+							GuiElement* elementFound = currentGuiElement->findElementAt(x - mLeft,y - mTop);
+							if (elementFound)
+							{
+								currZ = z;
+								ret = elementFound;
+							}
+						}
+					}
+				}
+			}
+		}
+		return ret;
+	}
+
+    void GuiContainer::copyFromTemplate(GuiElement* templateGui)
+	{
+
+		 GuiElement::copyFromTemplate(templateGui);
+
+		if (templateGui->isContainer() && isContainer())
+		{
+			GuiContainer::ChildIterator it = static_cast<GuiContainer*>(templateGui)->getChildIterator();
+			while (it.hasMoreElements())
+			{
+
+				GuiElement* oldChildElement = it.getNext();
+				if (oldChildElement->isCloneable())
+				{
+					GuiElement* newChildElement = 
+						GuiManager::getSingleton().createGuiElement(oldChildElement->getTypeName(), mName+"/"+oldChildElement->getName());
+					oldChildElement->copyParametersTo(newChildElement);
+
+					
+					addChild((GuiContainer*)newChildElement);
+				}
+			}
+		}
+	}
 
 }
 

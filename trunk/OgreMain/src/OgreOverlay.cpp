@@ -140,7 +140,23 @@ namespace Ogre {
     {
         return mScrollY;
     }
-    //---------------------------------------------------------------------
+      //---------------------------------------------------------------------
+    GuiContainer* Overlay::getChild(const String& name)
+    {
+
+        GuiContainerList::iterator i, iend;
+        iend = m2DElements.end();
+        for (i = m2DElements.begin(); i != iend; ++i)
+        {
+            if ((*i)->getName() == name)
+			{
+				return *i;
+
+			}
+        }
+        return NULL;
+    }
+  //---------------------------------------------------------------------
     void Overlay::scroll(Real xoff, Real yoff)
     {
         mScrollX += xoff;
@@ -252,6 +268,26 @@ namespace Ogre {
         // Do nothing
     }
 
-
+	GuiElement* Overlay::findElementAt(Real x, Real y)
+	{
+		GuiElement* ret = NULL;
+		int currZ = -1;
+        GuiContainerList::iterator i, iend;
+        iend = m2DElements.end();
+        for (i = m2DElements.begin(); i != iend; ++i)
+        {
+			int z = (*i)->getZOrder();
+			if (z > currZ)
+			{
+				GuiElement* elementFound = (*i)->findElementAt(x,y);
+				if(elementFound)
+				{
+					currZ = z;
+					ret = elementFound;
+				}
+			}
+        }
+		return ret;
+	}
 }
 

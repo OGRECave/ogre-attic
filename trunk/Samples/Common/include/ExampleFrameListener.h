@@ -49,21 +49,38 @@ class ExampleFrameListener: public FrameListener
 {
 public:
     // Constructor takes a RenderWindow because it uses that to determine input context
-    ExampleFrameListener(RenderWindow* win, Camera* cam)
+    ExampleFrameListener(RenderWindow* win, Camera* cam, bool useBufferedInput = false)
     {
-        mInputDevice = PlatformManager::getSingleton().createInputReader();
-        mInputDevice->initialise(win,true, true);
+        mUseBufferedInput = useBufferedInput;
+		if (mUseBufferedInput)
+		{
+            mEventProcessor = new EventProcessor();
+			mEventProcessor->initialise(win);
+            OverlayManager::getSingleton().createCursorOverlay();
+			mEventProcessor->startProcessingEvents();
+		}
+        else
+        {
+            mInputDevice = PlatformManager::getSingleton().createInputReader();
+            mInputDevice->initialise(win,true, true);
+        }
         mCamera = cam;
         mWindow = win;
         mStatsOn = true;
     }
     virtual ~ExampleFrameListener()
     {
-        PlatformManager::getSingleton().destroyInputReader( mInputDevice );
+		if (mUseBufferedInput)
+		{
+            delete mEventProcessor;
+		}
+        else
+        {
+            PlatformManager::getSingleton().destroyInputReader( mInputDevice );
+        }
     }
 
-    // Override frameStarted event to process that (don't care about frameEnded)
-    bool frameStarted(const FrameEvent& evt)
+    bool processUnbufferedInput(const FrameEvent& evt)
     {
         float moveScale;
         float rotScale;
@@ -189,11 +206,27 @@ public:
         return true;
     }
 
+    // Override frameStarted event to process that (don't care about frameEnded)
+    bool frameStarted(const FrameEvent& evt)
+    {
+        if (mUseBufferedInput)
+        {
+            // What to do here?
+            return true;
+        }
+        else
+        {
+            return processUnbufferedInput(evt);
+        }
+    }
+
 protected:
+    EventProcessor* mEventProcessor;
     InputReader* mInputDevice;
     Camera* mCamera;
     RenderWindow* mWindow;
     bool mStatsOn;
+    bool mUseBufferedInput;
 
 };
 
