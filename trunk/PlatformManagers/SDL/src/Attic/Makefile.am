@@ -19,7 +19,7 @@ pkgdata_DATA = ogre-config.glade
 
 OgreSDLConfig.cpp:
 	-rm -f OgreSDLConfig.cpp
-	$(LN_S) OgreSDLConfig_$(OGRE_CFGTK).cpp OgreSDLConfig.cpp
+	$(LN_S) $(srcdir)/OgreSDLConfig_$(OGRE_CFGTK).cpp OgreSDLConfig.cpp
 
 clean-local:
 	-rm -f $(BUILT_SOURCES)
