@@ -175,7 +175,7 @@ namespace Ogre {
         // Keep handle (see below, copy overrides everything)
         ResourceHandle savedHandle = mat->mHandle;
         String savedName = mat->mName;
-        String savedGroup = mat->mName;
+        String savedGroup = mat->mGroup;
         // Assign values from this
         *mat = *this;
         // Correct the name & handle, they get copied too
