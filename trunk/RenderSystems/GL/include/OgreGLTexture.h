@@ -37,14 +37,15 @@ namespace Ogre {
     {
     public:
         // Constructor, called from SDLTextureManager
-        GLTexture( String name );
-        GLTexture( String name, uint width, uint height, uint num_mips, 
-            PixelFormat format, TextureUsage usage );
+        GLTexture( String name, TextureType texType = TEX_TYPE_2D );
+        GLTexture( String name, TextureType texType, uint width, uint height, 
+            uint num_mips, PixelFormat format, TextureUsage usage );
 
         virtual ~GLTexture();        
         
         void load();
         void loadImage( const Image &img );
+        void loadImages( const std::vector<Image> images );
 
         void unload();
 
@@ -53,11 +54,15 @@ namespace Ogre {
         void blitToTexture( const Image& src, 
             unsigned uStartX, unsigned uStartY );
 
+        GLenum getGLTextureType(void);
+
         GLuint getGLID() const
         { return mTextureID; }
 
     protected:
-        void generateMipMaps( uchar *data );
+        void generateMipMaps( uchar *data, bool useSoftware, 
+            unsigned int faceNumber );
+        uchar* rescaleNPower2( const Image& src );
     private:
         GLuint mTextureID;
     };
