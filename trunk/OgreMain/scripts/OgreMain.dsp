@@ -404,10 +404,6 @@ SOURCE=..\src\OgreRenderWindow.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\OgreRenderWindowMap.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\OgreResourceManager.cpp
 # End Source File
 # Begin Source File
@@ -973,10 +969,6 @@ SOURCE=..\include\OgreRenderTargetListener.h
 # Begin Source File
 
 SOURCE=..\include\OgreRenderWindow.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreRenderWindowMap.h
 # End Source File
 # Begin Source File
 
