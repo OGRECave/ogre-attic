@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 21 2003 by texi2html 1.64 -->
+<!-- Created on , 23 2003 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual: Standard Particle Emitters</TITLE>
+<TITLE>OGRE Manual: Particle System Attributes</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual: Standard Particle Emitters">
-<META NAME="keywords" CONTENT="OGRE Manual: Standard Particle Emitters">
+<META NAME="description" CONTENT="OGRE Manual: Particle System Attributes">
+<META NAME="keywords" CONTENT="OGRE Manual: Particle System Attributes">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,132 +23,105 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC89"></A>
+<A NAME="SEC80"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC77"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC64"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_24.html#SEC96"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC76"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC76"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_24.html#SEC87"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H3> 3.2.4 Standard Particle Emitters </H3>
-<!--docid::SEC89::-->
-Ogre comes preconfigured with a few particle emitters. New ones can be added by creating plugins: see the Plugin_ParticleFX project as an example of how you would do this (this is where these emitters are implemented).
+<H3> 3.2.1 Particle System Attributes </H3>
+<!--docid::SEC80::-->
+This section describes to attributes which you can set on every particle system using scripts. All atributes have default values so all settings are optional in your script.<BR><BR>
 
-<UL>
-<LI>
-<A HREF="manual_23.html#SEC90">Point Emitter</A>
-<LI>
-<A HREF="manual_23.html#SEC91">Box Emitter</A>
-<LI>
-<A HREF="manual_23.html#SEC92">Cylinder Emitter</A>
-<LI>
-<A HREF="manual_23.html#SEC93">Ellipsoid Emitter</A>
-<LI>
-<A HREF="manual_23.html#SEC94">Hollow Ellipsoid Emitter</A>
-<LI>
-<A HREF="manual_23.html#SEC95">Ring Emitter</A>
-</UL>
-<BR><BR>
-<A NAME="Point Emitter"></A>
-<A NAME="SEC90"></A>
-<H3> Point Emitter </H3>
-<!--docid::SEC90::-->
+<A NAME="quota"></A>
+<A NAME="SEC81"></A>
+<H3> quota </H3>
+<!--docid::SEC81::-->
 
-This emitter emits particles from a single point, which is it's position. This emitter has no additional attributes over an above the standard emitter attributes.<BR><BR>
+Sets the maximum number of particles this system is allowed to contain at one time. When this limit is exhausted, the emitters will not be allowed to emit any more particles until some destroyed (e.g. through their time_to_live running out). Note that you will almost always want to change this, since it defaults to a very low value (particle pools are only ever increased in size, never decreased).<BR><BR>
 
-To create a point emitter, include a section like this within your particle system script:
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>
-emitter Point
-{
-    // Settings go here
-}
-</pre></td></tr></table><BR>
-Please note that the name of the emitter ('Point') is case-sensitive.
+format: quota &#60;max_particles&#62;<BR>
+example: quota 10000<BR>
+default: 10<BR>
 
-<A NAME="Box Emitter"></A>
-<A NAME="SEC91"></A>
-<H3> Box Emitter </H3>
-<!--docid::SEC91::-->
+<A NAME="material"></A>
+<A NAME="SEC82"></A>
+<H3> material </H3>
+<!--docid::SEC82::-->
 
-This emitter emits particles from a random location within a 3-dimensional box. It's extra attributes are:<BR><BR>
-<DL COMPACT>
-<DT>width
-<DD>Sets the width of the box (this is the size of the box along it's local X axis, which is dependent on the 'direction' attribute which forms the box's local Z).<BR>
-format: width &#60;units&#62;<BR>
-example: width 250<BR>
+Sets the name of the material which all particles in this system will use. All paticles in a system use the same material, although each particle can tint this material through the use of it's colour property.<BR><BR>
+
+format: material &#60;material_name&#62;<BR>
+example: material Examples/Flare<BR>
+default: none (blank material)<BR>
+
+<A NAME="particle_width"></A>
+<A NAME="SEC83"></A>
+<H3> particle_width </H3>
+<!--docid::SEC83::-->
+
+Sets the width of particles in world coordinates. Note that this property is absolute when billboard_type (see below) is set to 'point', but is scaled by the length of the direction vector when billboard_type is 'oriented_common' or 'oriented_self'.<BR>
+
+format: particle_width &#60;width&#62;<BR>
+example: particle_width 20<BR>
 default: 100<BR>
-<DT>height
-<DD>Sets the height of the box (this is the size of the box along it's local Y axis, which is dependent on the 'direction' attribute which forms the box's local Z).<BR>
-format: height &#60;units&#62;<BR>
-example: height 250<BR>
+
+<A NAME="particle_height"></A>
+<A NAME="SEC84"></A>
+<H3> particle_height </H3>
+<!--docid::SEC84::-->
+
+Sets the height of particles in world coordinates. Note that this property is absolute when billboard_type (see below) is set to 'point', but is scaled by the length of the direction vector when billboard_type is 'oriented_common' or 'oriented_self'.<BR>
+
+format: particle_height &#60;height&#62;<BR>
+example: particle_height 20<BR>
 default: 100<BR>
-<DT>depth
-<DD>Sets the depth of the box (this is the size of the box along it's local Z axis, which is the same as the 'direction' attribute).<BR>
-format: depth &#60;units&#62;<BR>
-example: depth 250<BR>
-default: 100<BR>
-</DL>
-<BR>
-To create a box emitter, include a section like this within your particle system script:
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>emitter Box
-{
-    // Settings go here
-}
-</pre></td></tr></table>
-<A NAME="Cylinder Emitter"></A>
-<A NAME="SEC92"></A>
-<H3> Cylinder Emitter </H3>
-<!--docid::SEC92::-->
 
-This emitter emits particles in a random direction from within a cylinder area, where the cylinder is oriented along the Z-axis. This emitter has exactly the same parameters as the <A HREF="manual_23.html#SEC91">Box Emitter</A> so there are no additional parameters to consider here - the width and height determine the shape of the cylinder along it's axis (if they are different it is an ellipsoid cylinder), the depth determines the length of the cylinder. 
+<A NAME="cull_each"></A>
+<A NAME="SEC85"></A>
+<H3> cull_each </H3>
+<!--docid::SEC85::-->
 
-<A NAME="Ellipsoid Emitter"></A>
-<A NAME="SEC93"></A>
-<H3> Ellipsoid Emitter </H3>
-<!--docid::SEC93::-->
-This emitter emits particles from within an ellipsoid shaped area, ie a sphere or squashed-sphere area. The parameters are again identical to the <A HREF="manual_23.html#SEC91">Box Emitter</A>, except that the dimensions describe the widest points along each of the axes.
+All particle systems are culled by the bounding box which contains all the particles in the system. This is normally sufficient for fairly locally constrained particle systems where most particles are either visible or not visible together. However, for those that spread particles over a wider area (e.g. a rain system), you may want to actually cull each particle individually to save on time, since it is far more likely that only a subset of the particles will be visible. You do this by setting the cull_each parameter to true.<BR><BR>
 
-<A NAME="Hollow Ellipsoid Emitter"></A>
-<A NAME="SEC94"></A>
-<H3> Hollow Ellipsoid Emitter </H3>
-<!--docid::SEC94::-->
-This emitter is just like <A HREF="manual_23.html#SEC93">Ellipsoid Emitter</A> except that there is a hollow area in the centre of the ellipsoid from which no particles are emitted. Therefore it has 3 extra parameters in order to define this area:
+format: cull_each &#60;true|false&#62;<BR>
+example: cull_each true<BR>
+default: false<BR>
 
+<A NAME="billboard_type"></A>
+<A NAME="SEC86"></A>
+<H3> billboard_type </H3>
+<!--docid::SEC86::-->
+
+Particles are rendered using billboards, which are rectangles formed by 2 triangles which rotate to face the camera. However, there is more than 1 way to orient a billboard. The classic approach is for the billboard to directly face the camera: this is the default behaviour. However this arrangement only looks good for particles which are representing something vaguely spherical like a light flare. For more linear effectd like laser fire, you actually want the particle to have an orientation of it's own.<BR><BR>
+
+format: billboard_type &#60;point|oriented_common|oriented_self&#62;<BR>
+example: billboard_type oriented_self<BR>
+default: point<BR>
+
+The options for this parameter are:
 <DL COMPACT>
-<DT>inner_width
-<DD>The width of the inner area which does not emit any particles.
-<DT>inner_height
-<DD>The height of the inner area which does not emit any particles.
-<DT>inner_depth
-<DD>The depth of the inner area which does not emit any particles.
-</DL>
-
-<A NAME="Ring Emitter"></A>
-<A NAME="SEC95"></A>
-<H3> Ring Emitter </H3>
-<!--docid::SEC95::-->
-This emitter emits particles from a ring-shaped area, ie a little like <A HREF="manual_23.html#SEC94">Hollow Ellipsoid Emitter</A> except only in 2 dimensions.
-
-<DL COMPACT>
-<DT>inner_width
-<DD>The width of the inner area which does not emit any particles.
-<DT>inner_height
-<DD>The height of the inner area which does not emit any particles.
+<DT>point
+<DD>	The default arrangement, this approximates spherical particles and the billboards always fully face the camera.
+<DT>oriented_common
+<DD>	Particles are oriented around a common, typically fixed direction vector (see <A HREF="manual_25.html#SEC100">common_direction</A>), which acts as their local Y axis. The billboard roatates only around this axis, giving the particle some sense of direction. Good for rainstorms, starfields etc where the particles will travelling in one direction - this is slightly faster than oriented_self (see below).
+<DT>oriented_self
+<DD>	Particles are oriented around their own direction vector, which acts as their local Y axis. As the particle changes direction, so the billboard reorients itself to face this way. Good for laser fire, fireworks and other 'streaky' particles that should look like they are travelling in their own direction.
 </DL>
 <BR><BR>
+See also: <A HREF="manual_24.html#SEC87">3.2.2 Particle Emitters</A>, <A HREF="manual_27.html#SEC108">3.2.5 Particle Affectors</A>
 
-See also: <A HREF="manual_19.html#SEC64">3.2 Particle Scripts</A>, <A HREF="manual_21.html#SEC75">3.2.2 Particle Emitters</A>
-
-<A NAME="Particle Affectors"></A>
+<A NAME="Particle Emitters"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC77"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC64"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_24.html#SEC96"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC76"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC76"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_24.html#SEC87"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -157,7 +130,7 @@ See also: <A HREF="manual_19.html#SEC64">3.2 Particle Scripts</A>, <A HREF="manu
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 21 2003</I>
+by <I>Steve Streeting</I> on <I>, 23 2003</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
