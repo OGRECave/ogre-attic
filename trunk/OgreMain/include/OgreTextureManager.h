@@ -119,7 +119,41 @@ namespace Ogre {
             PixelFormat format, TextureType texType = TEX_TYPE_2D, 
             int iNumMipmaps = -1, Real gamma = 1.0f);
 
-        /** Create a manual texture (not loaded from a file).
+		/** Create a manual texture with specified width, height and depth (not loaded from a file).
+            @param
+                name The name to give the resulting texture
+            @param
+                group The name of the resource group to assign the texture to
+            @param
+                img The Image object which contains the data to load
+            @param
+                texType The type of texture to load/create, defaults to normal 2D textures
+            @param
+                width, height, depth The dimensions of the texture
+            @param
+                numMipmaps The number of pre-filtered mipmaps to generate. If left to default (-1) then
+                the TextureManager's default number of mipmaps will be used (see setDefaultNumMipmaps())
+            @param
+                format The internal format you wish to request; the manager reserves
+                the right to create a different format if the one you select is
+                not available in this context.
+            @param
+                usage The kind of usage this texture is intended for
+            @param
+                loader If you intend the contents of the manual texture to be 
+                regularly updated, to the extent that you don't need to recover 
+                the contents if the texture content is lost somehow, you can leave
+                this parameter as 0. However, if you intend to populate the
+                texture only once, then you should implement ManualResourceLoader
+                and pass a pointer to it in this parameter; this means that if the
+                manual texture ever needs to be reloaded, the ManualResourceLoader
+                will be called to do it.
+        */
+        virtual TexturePtr createManual(const String & name, const String& group,
+            TextureType texType, uint width, uint height, uint depth, 
+			uint num_mips, PixelFormat format, TextureUsage usage = TU_DEFAULT, ManualResourceLoader* loader = 0 );
+			
+        /** Create a manual texture with a depth of 1 (not loaded from a file).
             @param
                 name The name to give the resulting texture
             @param
@@ -149,9 +183,13 @@ namespace Ogre {
                 manual texture ever needs to be reloaded, the ManualResourceLoader
                 will be called to do it.
         */
-        virtual TexturePtr createManual(const String & name, const String& group,
+        TexturePtr createManual(const String & name, const String& group,
             TextureType texType, uint width, uint height, uint num_mips,
-            PixelFormat format, TextureUsage usage = TU_DEFAULT, ManualResourceLoader* loader = 0 );
+            PixelFormat format, TextureUsage usage = TU_DEFAULT, ManualResourceLoader* loader = 0 )
+		{
+			return createManual(name, group, texType, width, height, 1, 
+				num_mips, format, usage, loader);
+		}
 
         /** Enables / disables 32-bit textures.
         */
