@@ -49,10 +49,6 @@ namespace Ogre
 		mType(GPT_VERTEX_PROGRAM), mLoadFromFile(true), mSkeletalAnimation(false),
 		mPassSurfaceAndLightStates(false)
 	{
-		if (createParamDictionary("GpuProgram"))
-		{
-			setupBaseParamDictionary();
-		}
 	}
 	//-----------------------------------------------------------------------------
 	void GpuProgram::setType(GpuProgramType t)

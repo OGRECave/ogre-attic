@@ -33,6 +33,10 @@ GLGpuProgram::GLGpuProgram(ResourceManager* creator, const String& name,
     ManualResourceLoader* loader) 
     : GpuProgram(creator, name, handle, group, isManual, loader)
 {
+    if (createParamDictionary("GLGpuProgram"))
+    {
+        setupBaseParamDictionary();
+    }
 }
 
 GLArbGpuProgram::GLArbGpuProgram(ResourceManager* creator, const String& name, 

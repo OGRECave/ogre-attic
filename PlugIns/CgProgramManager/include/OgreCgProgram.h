@@ -80,7 +80,7 @@ namespace Ogre {
         high-level program, must be implemented by subclasses. */
         void createLowLevelImpl(void);
         /// Internal unload implementation, must be implemented by subclasses
-        void unloadImpl(void);
+        void unloadHighLevelImpl(void);
         /// Populate the passed parameters with name->index map, must be overridden
         void populateParameterNames(GpuProgramParametersSharedPtr params);
 
@@ -102,7 +102,8 @@ namespace Ogre {
 
 
     public:
-        CgProgram(const String& name, GpuProgramType gpType, const String& language, 
+        CgProgram(ResourceManager* creator, const String& name, ResourceHandle handle,
+            const String& group, bool isManual, ManualResourceLoader* loader, 
             CGcontext context);
         ~CgProgram();
 

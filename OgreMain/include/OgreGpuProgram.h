@@ -487,6 +487,9 @@ namespace Ogre {
     /// Shared pointer used to hold references to GpuProgramParameters instances
     typedef SharedPtr<GpuProgramParameters> GpuProgramParametersSharedPtr;
 
+    // Forward declaration 
+    class GpuProgramPtr;
+
 	/** Defines a program which runs on the GPU such as a vertex or fragment program. 
 	@remarks
 		This class defines the low-level program in assembler code, the sort used to

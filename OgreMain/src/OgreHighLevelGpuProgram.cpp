@@ -31,19 +31,16 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre
 {
     //---------------------------------------------------------------------------
-    HighLevelGpuProgram::HighLevelGpuProgram(const String& name, GpuProgramType gptype, 
-        const String& language)
-        : GpuProgram(name, gptype, language), mHighLevelLoaded(false), mAssemblerProgram(0)
+    HighLevelGpuProgram::HighLevelGpuProgram(ResourceManager* creator, 
+        const String& name, ResourceHandle handle, const String& group, 
+        bool isManual, ManualResourceLoader* loader)
+        : GpuProgram(creator, name, handle, group, isManual, loader), 
+        mHighLevelLoaded(false), mAssemblerProgram(0)
     {
     }
     //---------------------------------------------------------------------------
-    void HighLevelGpuProgram::load()
+    void HighLevelGpuProgram::loadImpl()
     {
-        if (mIsLoaded)
-        {
-            unload();
-        }
-
         // load self 
         loadHighLevelImpl();
 
@@ -55,12 +52,14 @@ namespace Ogre
         mIsLoaded = true;
     }
     //---------------------------------------------------------------------------
-    void HighLevelGpuProgram::unload()
+    void HighLevelGpuProgram::unloadImpl()
     {   
-        if (mAssemblerProgram)
+        if (!mAssemblerProgram.isNull())
+        {
             mAssemblerProgram->unload();
-        unloadImpl();
-        mIsLoaded = false;
+            mAssemblerProgram.setNull();
+        }
+        unloadHighLevelImpl();
     }
     //---------------------------------------------------------------------------
     HighLevelGpuProgram::~HighLevelGpuProgram()
@@ -91,9 +90,11 @@ namespace Ogre
             if (mLoadFromFile)
             {
                 // find & load source code
-                SDDataChunk chunk;
-                GpuProgramManager::getSingleton()._findResourceData(mFilename, chunk);
-                mSource = chunk.getAsString();
+                DataStreamPtr stream = 
+                    ResourceGroupManager::getSingleton()._findResource(
+                        mFilename, mGroup);
+
+                mSource = stream->getAsString();
             }
             loadFromSource();
             mHighLevelLoaded = true;

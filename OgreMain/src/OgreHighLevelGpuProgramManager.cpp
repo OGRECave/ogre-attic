@@ -41,10 +41,20 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	HighLevelGpuProgramManager::HighLevelGpuProgramManager()
 	{
+        // Scripting is not supported by this manager (material scripts define)
+        mScriptingSupported = false;
+        // Loading order
+        mLoadOrder = 50.0f;
+        // Resource type
+        mResourceType = "HighLevelGpuProgram";
+
+        ResourceGroupManager::getSingleton()._registerResourceManager(mResourceType, this);    
+       
 	}
 	//-----------------------------------------------------------------------
 	HighLevelGpuProgramManager::~HighLevelGpuProgramManager()
 	{
+        ResourceGroupManager::getSingleton()._unregisterResourceManager(mResourceType);    
 	}
     //---------------------------------------------------------------------------
 	void HighLevelGpuProgramManager::addFactory(HighLevelGpuProgramFactory* factory)
@@ -66,12 +76,32 @@ namespace Ogre {
 		return i->second;
 	}
     //---------------------------------------------------------------------------
-    HighLevelGpuProgram* HighLevelGpuProgramManager::createProgram(
-			const String& name, const String& language, GpuProgramType gptype, 
-            int priority)
+    Resource* HighLevelGpuProgramManager::createImpl(const String& name, ResourceHandle handle, 
+        const String& group, bool isManual, ManualResourceLoader* loader,
+        const NameValuePairList* params)
     {
-        HighLevelGpuProgram* ret = getFactory(language)->create(name, gptype);
-        add(ret);
-        return ret;
+        NameValuePairList::const_iterator paramIt;
+
+        if (!params || (paramIt = params->find("language")) == params->end())
+        {
+            Except(Exception::ERR_INVALIDPARAMS, 
+                "You must supply a 'language' parameter",
+                "HighLevelGpuProgramManager::createImpl");
+        }
+
+        return getFactory(paramIt->second)->create(this, name, getNextHandle(), 
+            group, isManual, loader);
+    }
+    //---------------------------------------------------------------------------
+    HighLevelGpuProgramPtr HighLevelGpuProgramManager::createProgram(
+			const String& name, const String& groupName, 
+            const String& language, GpuProgramType gptype)
+    {
+        HighLevelGpuProgramPtr prg = HighLevelGpuProgramPtr(
+            getFactory(language)->create(this, name, getNextHandle(), 
+            groupName, false, 0));
+        prg->setType(gptype);
+        prg->setSyntaxCode(language);
+        return prg;
     }
 }

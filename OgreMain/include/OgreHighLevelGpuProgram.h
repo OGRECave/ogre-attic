@@ -57,7 +57,7 @@ namespace Ogre {
         /// Whether the high-level program (and it's parameter defs) is loaded
         bool mHighLevelLoaded;
         /// The underlying assembler program
-        GpuProgram* mAssemblerProgram;
+        GpuProgramPtr mAssemblerProgram;
 
         /** Internal load implementation, loads just the high-level portion, enough to 
             get parameters.
@@ -67,18 +67,19 @@ namespace Ogre {
         high-level program, must be implemented by subclasses. */
         virtual void createLowLevelImpl(void) = 0;
         /// Internal unload implementation, must be implemented by subclasses
-        virtual void unloadImpl(void) = 0;
+        virtual void unloadHighLevelImpl(void) = 0;
         /// Populate the passed parameters with name->index map, must be overridden
         virtual void populateParameterNames(GpuProgramParametersSharedPtr params) = 0;
+        /** @copydoc Resource::loadImpl */
+        void loadImpl();
+        /** @copydoc Resource::unloadImpl */
+        void unloadImpl();
     public:
         /** Constructor, should be used only by factory classes. */
-        HighLevelGpuProgram(const String& name, GpuProgramType gpType, const String& language);
+        HighLevelGpuProgram(ResourceManager* creator, const String& name, ResourceHandle handle,
+            const String& group, bool isManual = false, ManualResourceLoader* loader = 0);
         ~HighLevelGpuProgram();
 
-        /** @copydoc Resource::unload */
-        void load();
-        /** @copydoc Resource::unload */
-        void unload();
 
         /** Creates a new parameters object compatible with this program definition. 
         @remarks
@@ -89,10 +90,49 @@ namespace Ogre {
         */
         GpuProgramParametersSharedPtr createParameters(void);
         /** @copydoc GpuProgram::getBindingDelegate */
-        GpuProgram* _getBindingDelegate(void) { return mAssemblerProgram; }
+        GpuProgram* _getBindingDelegate(void) { return mAssemblerProgram.getPointer(); }
 
 
 
     };
+
+    /** Specialisation of SharedPtr to allow SharedPtr to be assigned to HighLevelGpuProgramPtr 
+    @note Has to be a subclass since we need operator=.
+    We could templatise this instead of repeating per Resource subclass, 
+    except to do so requires a form VC6 does not support i.e.
+    ResourceSubclassPtr<T> : public SharedPtr<T>
+    */
+    class _OgreExport HighLevelGpuProgramPtr : public SharedPtr<HighLevelGpuProgram> 
+    {
+    public:
+        HighLevelGpuProgramPtr() : SharedPtr<HighLevelGpuProgram>() {}
+        HighLevelGpuProgramPtr(HighLevelGpuProgram* rep) : SharedPtr<HighLevelGpuProgram>(rep) {}
+        HighLevelGpuProgramPtr(const HighLevelGpuProgramPtr& r) : SharedPtr<HighLevelGpuProgram>(r) {} 
+        HighLevelGpuProgramPtr(const ResourcePtr& r) : SharedPtr<HighLevelGpuProgram>()
+        {
+            pRep = static_cast<HighLevelGpuProgram*>(r.getPointer());
+            pUseCount = r.useCountPointer();
+            if (pUseCount)
+            {
+                ++(*pUseCount);
+            }
+        }
+
+        /// Operator used to convert a ResourcePtr to a HighLevelGpuProgramPtr
+        HighLevelGpuProgramPtr& operator=(const ResourcePtr& r)
+        {
+            if (pRep == static_cast<HighLevelGpuProgram*>(r.getPointer()))
+                return *this;
+            release();
+            pRep = static_cast<HighLevelGpuProgram*>(r.getPointer());
+            pUseCount = r.useCountPointer();
+            if (pUseCount)
+            {
+                ++(*pUseCount);
+            }
+            return *this;
+        }
+    };
+
 }
 #endif

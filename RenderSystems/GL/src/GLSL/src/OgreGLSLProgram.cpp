@@ -101,19 +101,23 @@ namespace Ogre {
     }
 
 	//-----------------------------------------------------------------------
-    GLSLProgram::GLSLProgram(const String& name, GpuProgramType gpType, 
-        const String& language)
-        : HighLevelGpuProgram(name, gpType, language)
+    GLSLProgram::GLSLProgram(ResourceManager* creator, 
+        const String& name, ResourceHandle handle,
+        const String& group, bool isManual, ManualResourceLoader* loader)
+        : HighLevelGpuProgram(createor, name, handle, group, isManual, loader)
     {
 		// add parameter command "attach" to the material serializer dictionary
         if (createParamDictionary("GLSLProgram"))
         {
+            setupBaseParamDictionary();
             ParamDictionary* dict = getParamDictionary();
 
             dict->addParameter(ParameterDef("attach", 
                 "name of another GLSL program needed by this program",
                 PT_STRING),&msCmdAttach);
         }
+        // Manually assign language now since we use it immediately
+        mSyntaxCode = "glsl";
 
 		// want scenemanager to pass on surface and light states to the rendersystem
 		mPassSurfaceAndLightStates = true;

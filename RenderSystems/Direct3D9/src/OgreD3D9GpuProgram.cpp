@@ -37,6 +37,10 @@ namespace Ogre {
         : GpuProgram(creator, name, handle, group, isManual, loader), 
         mpDevice(pDev), mpExternalMicrocode(NULL)
     {
+        if (createParamDictionary("D3D9GpuProgram"))
+        {
+            setupBaseParamDictionary();
+        }
     }
 	//-----------------------------------------------------------------------------
     void D3D9GpuProgram::loadImpl(void)
