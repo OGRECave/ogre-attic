@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt
 
 #include "OgreTextAreaGuiElement.h"
 #include "OgreRoot.h"
+#include "OgreLogManager.h"
 
 namespace Ogre {
 
@@ -88,9 +89,17 @@ namespace Ogre {
     {
         Real *pVert, *pTex;
 
-        checkMemoryAllocation( mCaption.length() );
+        size_t charlen = mCaption.size();
+        checkMemoryAllocation( charlen );
 
-        mRenderOp.numVertices = mCaption.length() * 6;
+        mRenderOp.numVertices = charlen * 6;
+
+        if (mCaption.substr(0,3) == "#TR")
+        {
+            char msg[30];
+            sprintf(msg, "%u", charlen);
+            LogManager::getSingleton().logMessage(msg);
+        }
 
         pVert = mRenderOp.pVertices;
         pTex = mRenderOp.pTexCoords[ 0 ];
@@ -142,6 +151,8 @@ namespace Ogre {
             {
                 // Just leave a gap, no tris
                 left += spaceWidth;
+                // Also reduce tri count
+                mRenderOp.numVertices -= 6;
                 continue;
             }
 
@@ -239,6 +250,7 @@ namespace Ogre {
     {
         mCaption = caption;
         updateGeometry();
+
     }
     const String& TextAreaGuiElement::getCaption() const
     {
@@ -372,7 +384,7 @@ namespace Ogre {
         Root::getSingleton().convertColourValue(mColourTop, &topColour);
         Root::getSingleton().convertColourValue(mColourBottom, &bottomColour);
         RGBA* pDest = mRenderOp.pDiffuseColour;
-        for (int i = 0; i < mAllocSize; ++i)
+        for (uint i = 0; i < mAllocSize; ++i)
         {
             // First tri (top, bottom, top)
             *pDest++ = topColour;
