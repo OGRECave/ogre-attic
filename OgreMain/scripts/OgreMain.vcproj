@@ -268,6 +268,9 @@
 				RelativePath="..\src\OgreFontManager.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreGpuProgram.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreGuiContainer.cpp">
 			</File>
 			<File
@@ -817,6 +820,12 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreGeometryData.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreGpuProgram.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreGpuProgramManager.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreGuiContainer.h">
