@@ -204,7 +204,16 @@ namespace Ogre {
             return mHasAlpha;
         }
 
-		/** Return hardware pixel buffer for a surface */
+		/** Return hardware pixel buffer for a surface. This buffer can then
+			be used to copy data from and to a particular level of the texture.
+			@param face 	Face number, in case of a cubemap texture. Must be 0
+							for other types of textures.
+			@param mipmap	Mipmap level. This goes from 0 for the first, largest
+							mipmap level to getNumMipmaps()-1 for the smallest.
+			@returns	A shared pointer to a hardware pixel buffer
+			@remarks	The buffer is invalidated when the resource is unloaded or destroyed.
+						Do not use it after the lifetime of the containing texture.
+		*/
 		virtual HardwarePixelBufferSharedPtr getBuffer(int face, int mipmap) = 0;
 
     protected:
