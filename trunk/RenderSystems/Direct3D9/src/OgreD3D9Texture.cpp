@@ -81,6 +81,7 @@ namespace Ogre
 	{
 		if (this->isLoaded())
 			unload();
+		SAFE_RELEASE(mpD3D);
 	}
 	/****************************************************************************************/
 	void D3D9Texture::blitImage(const Image& src, const Image::Rect imgRect, const Image::Rect texRect )
@@ -130,6 +131,7 @@ namespace Ogre
 			{
 				String msg = DXGetErrorDescription9(hr);
 				Except( hr, "Couldn't blit : " + msg, "D3D9Texture::copyToTexture" );
+				SAFE_RELEASE(pSrcSurface);
 			}
 
 			// target rectangle (whole surface)
@@ -139,6 +141,8 @@ namespace Ogre
 			{
 				String msg = DXGetErrorDescription9(hr);
 				Except( hr, "Couldn't blit : " + msg, "D3D9Texture::copyToTexture" );
+				SAFE_RELEASE(pSrcSurface);
+				SAFE_RELEASE(pDstSurface);
 			}
 
 			// release temp. surfaces
@@ -166,6 +170,7 @@ namespace Ogre
 				{
 					String msg = DXGetErrorDescription9(hr);
 					Except( hr, "Couldn't blit : " + msg, "D3D9Texture::copyToTexture" );
+					SAFE_RELEASE(pSrcSurface);
 				}
 
 				// do the blit, it's called StretchRect in D3D9 :)
@@ -173,6 +178,8 @@ namespace Ogre
 				{
 					String msg = DXGetErrorDescription9(hr);
 					Except( hr, "Couldn't blit : " + msg, "D3D9Texture::copyToTexture" );
+					SAFE_RELEASE(pSrcSurface);
+					SAFE_RELEASE(pDstSurface);
 				}
 
 				// release temp. surfaces
@@ -238,6 +245,7 @@ namespace Ogre
 			break;
 		default:
 			Except( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::load" );
+			this->_freeResources();
 		}
 
 		// generate mip maps if loaded
@@ -250,12 +258,17 @@ namespace Ogre
 		// unload if it's loaded
 		if (this->isLoaded())
 		{
-			SAFE_RELEASE(mpTex);
-			SAFE_RELEASE(mpNormTex);
-			SAFE_RELEASE(mpCubeTex);
-			SAFE_RELEASE(mpZBuff);
+			this->_freeResources();
 			mIsLoaded = false;
 		}
+	}
+	/****************************************************************************************/
+	void D3D9Texture::_freeResources()
+	{
+		SAFE_RELEASE(mpTex);
+		SAFE_RELEASE(mpNormTex);
+		SAFE_RELEASE(mpCubeTex);
+		SAFE_RELEASE(mpZBuff);
 	}
 	/****************************************************************************************/
 	void D3D9Texture::_loadCubeTex()
@@ -334,6 +347,7 @@ namespace Ogre
 			break;
 		default:
 			Except( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::_createTex" );
+			this->_freeResources();
 		}
 	}
 	/****************************************************************************************/
@@ -374,7 +388,10 @@ namespace Ogre
 						&mpTmpNormTex);						// data pointer
 					// check result and except if failed
 					if (FAILED(hr))
+					{
 						Except( hr, "Error creating texture", "D3D9Texture::_createNormTex" );
+						this->_freeResources();
+					}
 				}
 			}
 		}
@@ -397,20 +414,29 @@ namespace Ogre
 				&mpNormTex);						// data pointer
 		// check result and except if failed
 		if (FAILED(hr))
+		{
 			Except( hr, "Error creating texture", "D3D9Texture::_createNormTex" );
+			this->_freeResources();
+		}
 
 		// set final tex. attributes from tex. description
 		// they may differ from the source image !!!
 		D3DSURFACE_DESC desc;
 		hr = mpNormTex->GetLevelDesc(0, &desc);
 		if (FAILED(hr))
+		{
 			Except( hr, "Can't get texture description", "D3D9Texture::_createNormTex" );
+			this->_freeResources();
+		}
 		this->_setFinalAttributes(desc.Width, desc.Height, this->_getPF(desc.Format));
 		
 		// set the base texture we'll use in the render system
 		hr = mpNormTex->QueryInterface(IID_IDirect3DBaseTexture9, (void **)&mpTex);
 		if (FAILED(hr))
+		{
 			Except( hr, "Can't get base texture", "D3D9Texture::_createNormTex" );
+			this->_freeResources();
+		}
 		
 		// create a depth stencil if this is a render target
 		if (mUsage == TU_RENDERTARGET)
@@ -456,7 +482,10 @@ namespace Ogre
 						&mpTmpCubeTex);						// data pointer
 					// check result and except if failed
 					if (FAILED(hr))
+					{
 						Except( hr, "Error creating texture", "D3D9Texture::_createCubeTex" );
+						this->_freeResources();
+					}
 				}
 			}
 		}
@@ -478,20 +507,29 @@ namespace Ogre
 				&mpCubeTex);						// data pointer
 		// check result and except if failed
 		if (FAILED(hr))
+		{
 			Except( hr, "Error creating texture", "D3D9Texture::_createCubeTex" );
+			this->_freeResources();
+		}
 
 		// set final tex. attributes from tex. description
 		// they may differ from the source image !!!
 		D3DSURFACE_DESC desc;
 		hr = mpCubeTex->GetLevelDesc(0, &desc);
 		if (FAILED(hr))
+		{
 			Except( hr, "Can't get texture description", "D3D9Texture::_createCubeTex" );
+			this->_freeResources();
+		}
 		this->_setFinalAttributes(desc.Width, desc.Height, this->_getPF(desc.Format));
 
 		// set the base texture we'll use in the render system
 		hr = mpCubeTex->QueryInterface(IID_IDirect3DBaseTexture9, (void **)&mpTex);
 		if (FAILED(hr))
+		{
 			Except( hr, "Can't get base texture", "D3D9Texture::_createCubeTex" );
+			this->_freeResources();
+		}
 		
 		// create a depth stencil if this is a render target
 		if (mUsage == TU_RENDERTARGET)
@@ -517,6 +555,7 @@ namespace Ogre
 			mCubeFaceNames[i] = "";
 
 		mWidth = mHeight = mSrcWidth = mSrcHeight = 0;
+		mIsLoaded = false;
 	}
 	/****************************************************************************************/
 	void D3D9Texture::_setDevice(IDirect3DDevice9 *pDev)
@@ -549,9 +588,13 @@ namespace Ogre
 
 		hr = pSrf->GetDesc(&srfDesc);
 		if (FAILED(hr))
+		{
 			Except( hr, "Failed to get D3D9 device pixel format", "D3D9Texture::_setDevice" );
+			SAFE_RELEASE(pSrf);
+		}
 
 		mBBPixelFormat = srfDesc.Format;
+		SAFE_RELEASE(pSrf);
 	}
 	/****************************************************************************************/
 	void D3D9Texture::_constructCubeFaceNames(const String name)
@@ -567,7 +610,10 @@ namespace Ogre
 		// first find the base name
 		pos = fakeName.find_last_of(".");
 		if (pos == -1)
+		{
 			Except( Exception::ERR_INTERNAL_ERROR, "Invalid cube texture base name", "D3D9Texture::_constructCubeFaceNames" );
+			this->_freeResources();
+		}
 
 		baseName = fakeName.substr(0, pos);
 		ext = fakeName.substr(pos);
@@ -631,6 +677,7 @@ namespace Ogre
 			break;
 		default:
 			Except( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::_createTex" );
+			this->_freeResources();
 		}
 	}
 	/****************************************************************************************/
@@ -646,7 +693,10 @@ namespace Ogre
 			// use best filtering method supported by hardware
 			hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
 			if (FAILED(hr))
+			{
 				Except( hr, "Error generating mip maps", "D3D9Texture::_generateMipMaps" );
+				this->_freeResources();
+			}
 			else
 				mpTex->GenerateMipSubLevels();
 		}
@@ -665,6 +715,7 @@ namespace Ogre
 				break;
 			default:
 				Except( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::_generateMipMaps" );
+				this->_freeResources();
 			}
 		}
 	}
@@ -680,7 +731,10 @@ namespace Ogre
 			hr = D3DXFilterTexture(mpNormTex, NULL, D3DX_DEFAULT, D3DX_DEFAULT);
 			// check result and except if failed
 			if (FAILED(hr))
+			{
 				Except( hr, "Error filtering texture (generating mip maps)", "D3D9Texture::_generate2DMipMaps" );
+				this->_freeResources();
+			}
 			return;
 		}
 
@@ -691,13 +745,19 @@ namespace Ogre
 		hr = D3DXFilterTexture(mpTmpNormTex, NULL, D3DX_DEFAULT, D3DX_DEFAULT);
 		// check result and except if failed
 		if (FAILED(hr))
+		{
 			Except( hr, "Error filtering texture (generating mip maps)", "D3D9Texture::_generate2DMipMaps" );
+			this->_freeResources();
+		}
 
 		// blit the tmp. texture to the real texture
 		hr = mpDev->UpdateTexture(mpTmpNormTex, mpNormTex);
 		// check result and except if failed
 		if (FAILED(hr))
+		{
 			Except( hr, "Error filtering texture (generating mip maps)", "D3D9Texture::_generate2DMipMaps" );
+			this->_freeResources();
+		}
 
 		// release temp tex.
 		SAFE_RELEASE(mpTmpNormTex);
@@ -714,7 +774,10 @@ namespace Ogre
 			hr = D3DXFilterTexture(mpCubeTex, NULL, D3DX_DEFAULT, D3DX_DEFAULT);
 			// check result and except if failed
 			if (FAILED(hr))
+			{
 				Except( hr, "Error filtering texture (generating mip maps)", "D3D9Texture::_generate3DMipMaps" );
+				this->_freeResources();
+			}
 			return;
 		}
 
@@ -726,13 +789,19 @@ namespace Ogre
 		hr = D3DXFilterTexture(mpTmpCubeTex, NULL, D3DX_DEFAULT, D3DX_DEFAULT);
 		// check result and except if failed
 		if (FAILED(hr))
+		{
 			Except( hr, "Error filtering texture (generating mip maps)", "D3D9Texture::_generate3DMipMaps" );
+			this->_freeResources();
+		}
 
 		// blit the tmp. texture to the real texture
 		hr = mpDev->UpdateTexture(mpTmpCubeTex, mpCubeTex);
 		// check result and except if failed
 		if (FAILED(hr))
+		{
 			Except( hr, "Error filtering texture (generating mip maps)", "D3D9Texture::_generate3DMipMaps" );
+			this->_freeResources();
+		}
 
 		// release temp tex.
 		SAFE_RELEASE(mpTmpCubeTex);
@@ -837,7 +906,11 @@ namespace Ogre
 		this->_getColorMasks(desc.Format, &rMask, &gMask, &bMask, &aMask, &rgbBitCount);
 		// lock our surface to acces raw memory
 		if( FAILED( hr = pSurface->LockRect(&rect, NULL, D3DLOCK_NOSYSLOCK) ) )
+		{
 			Except( hr, "Unable to lock temp texture surface", "D3D9Texture::_copyMemoryToSurface" );
+			this->_freeResources();
+			SAFE_RELEASE(pSurface);
+		}
 		else
 			pBuf8 = (BYTE*)pBuffer;
 		// loop through data and do conv.
@@ -940,14 +1013,20 @@ namespace Ogre
 							NULL);
 			// check result and except if failed
 			if (FAILED(hr))
+			{
 				Except( hr, "Error loading surface from memory", "D3D9Texture::_blitImageToTexture" );
+				this->_freeResources();
+			}
 		}
 		else
 		{
 			hr = mpNormTex->GetSurfaceLevel(0, &pSrcSurface);
 			// check result and except if failed
 			if (FAILED(hr))
+			{
 				Except( hr, "Error loading surface from memory", "D3D9Texture::_blitImageToTexture" );
+				this->_freeResources();
+			}
 		}
 		
 		// create a temp. buffer that will hold the src. image data
@@ -961,7 +1040,10 @@ namespace Ogre
 
 		// if auto gen. mip map is present we are done with this texture
 		if (!mpTmpNormTex)
+		{
+			SAFE_RELEASE(pSrcSurface);
 			return;
+		}
 
 		// no auto gen. mip map...:(
 		// Now we need to copy the source surface (where our image is) to the temp. texture level 0 surface
@@ -969,13 +1051,22 @@ namespace Ogre
 		hr = mpTmpNormTex->GetSurfaceLevel(0, &pDstSurface);
 		// check result and except if failed
 		if (FAILED(hr))
+		{
 			Except( hr, "Error getting level 0 surface from temp. texture", "D3D9Texture::_blitImageToTexture" );
+			SAFE_RELEASE(pSrcSurface);
+			this->_freeResources();
+		}
 
 		// load the surface with an in memory buffer
 		hr = D3DXLoadSurfaceFromSurface(pDstSurface, NULL, NULL, pSrcSurface, NULL, NULL, D3DX_DEFAULT, 0);
 		// check result and except if failed
 		if (FAILED(hr))
+		{
 			Except( hr, "Error loading in temporary surface", "D3D9Texture::_blitImageToTexture" );
+			SAFE_RELEASE(pSrcSurface);
+			SAFE_RELEASE(pDstSurface);
+			this->_freeResources();
+		}
 
 		// that's it for now, generate mipmaps will do the rest...
 		SAFE_RELEASE(pSrcSurface);
@@ -1011,14 +1102,20 @@ namespace Ogre
 								NULL);
 				// check result and except if failed
 				if (FAILED(hr))
+				{
 					Except( hr, "Error loading surface from memory", "D3D9Texture::_blitImagesToCubeTex" );
+					this->_freeResources();
+				}
 			}
 			else
 			{
 				hr = mpCubeTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, 0, &pSrcSurface);
 				// check result and except if failed
 				if (FAILED(hr))
+				{
 					Except( hr, "Error loading surface from memory", "D3D9Texture::_blitImagesToCubeTex" );
+					this->_freeResources();
+				}
 			}
 
 			// don't know why but cube textures don't require fliping
@@ -1044,13 +1141,22 @@ namespace Ogre
 				hr = mpTmpCubeTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, 0, &pDstSurface);
 				// check result and except if failed
 				if (FAILED(hr))
+				{
 					Except( hr, "Error getting level 0 surface from temp. texture", "D3D9Texture::_blitImagesToCubeTex" );
+					SAFE_RELEASE(pSrcSurface);
+					this->_freeResources();
+				}
 
 				// load the surface with an in memory buffer
 				hr = D3DXLoadSurfaceFromSurface(pDstSurface, NULL, NULL, pSrcSurface, NULL, NULL, D3DX_DEFAULT, 0);
 				// check result and except if failed
 				if (FAILED(hr))
+				{
 					Except( hr, "Error loading in temporary surface", "D3D9Texture::_blitImagesToCubeTex" );
+					SAFE_RELEASE(pSrcSurface);
+					SAFE_RELEASE(pDstSurface);
+					this->_freeResources();
+				}
 
 				SAFE_RELEASE(pDstSurface);
 			}
@@ -1086,6 +1192,7 @@ namespace Ogre
 		{
 			String msg = DXGetErrorDescription9(hr);
 			Except( hr, "Error GetDepthStencilSurface : " + msg, "D3D9Texture::_createDepthStencil" );
+			this->_freeResources();
 		}
 		// get it's description
 		hr = pSrf->GetDesc(&srfDesc);
@@ -1093,6 +1200,8 @@ namespace Ogre
 		{
 			String msg = DXGetErrorDescription9(hr);
 			Except( hr, "Error GetDesc : " + msg, "D3D9Texture::_createDepthStencil" );
+			SAFE_RELEASE(pSrf);
+			this->_freeResources();
 		}
 		// release the temp. surface
 		SAFE_RELEASE(pSrf);
@@ -1113,6 +1222,7 @@ namespace Ogre
 		{
 			String msg = DXGetErrorDescription9(hr);
 			Except( hr, "Error CreateDepthStencilSurface : " + msg, "D3D9Texture::_createDepthStencil" );
+			this->_freeResources();
 		}
 	}
 	/****************************************************************************************/

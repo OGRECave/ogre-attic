@@ -114,7 +114,6 @@ namespace Ogre
 		D3DXMATRIX makeD3DXMatrix( const Matrix4& mat );
 		Matrix4 convertD3DXMatrix( const D3DXMATRIX& mat );
 
-		void initConfigOptions(void);
 		void initInputDevices(void);
 		void processInputDevices(void);
 		void setD3D9Light( int index, Light* light );
@@ -175,6 +174,7 @@ namespace Ogre
 		// destructor
 		~D3D9RenderSystem();
 
+		virtual initConfigOptions(void);
 		// method for resizing/repositing the render window
  		virtual ResizeRepositionWindow(HWND wich);
 		// method for setting external window hwnd
