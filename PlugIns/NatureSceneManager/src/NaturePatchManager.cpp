@@ -22,7 +22,7 @@ template<> NaturePatchManager* Singleton<NaturePatchManager>::ms_Singleton = 0;
 //----------------------------------------------------------------------------
 
 NaturePatchManager::NaturePatchManager()
-    : mCoordBuffer(0)
+    : mDataBuffer(0)
 {
     mInited = false;
 
@@ -31,9 +31,7 @@ NaturePatchManager::NaturePatchManager()
     mNorthNeighbor = mSouthNeighbor = mWestNeighbor = mEastNeighbor = 0;
     mNorthEdgeQuad = mSouthEdgeQuad = mWestEdgeQuad = mEastEdgeQuad = 0;
 
-    mVertexBuffer = 0;
     mIndexBuffer  = mVertexLookup   = 0;
-    mNormalBuffer = 0;
 
     mMinimumQuality = 10.0f;
     mTargetQuality  = 5.0f;
@@ -228,8 +226,8 @@ bool NaturePatchManager::initLookupTables()
 void NaturePatchManager::freeSharedBuffers()
 {
     // delete shared buffers
-    if (mVertexBuffer != 0)
-        delete[] mVertexBuffer;
+    if (mDataBuffer != 0)
+        delete[] mDataBuffer;
     
     if (mIndexBuffer != 0)
         delete[] mIndexBuffer;
@@ -237,14 +235,8 @@ void NaturePatchManager::freeSharedBuffers()
     if (mVertexLookup != 0)
         delete[] mVertexLookup;
 
-    if (mNormalBuffer != 0)
-        delete[] mNormalBuffer;
-
-    if (mCoordBuffer != 0)
-        delete[] mCoordBuffer;
-
     // clear the pointers
-    mVertexBuffer = mCoordBuffer = 0;
+    mDataBuffer = 0;
     mIndexBuffer  = mVertexLookup   = 0;
 }
 
@@ -253,19 +245,15 @@ void NaturePatchManager::freeSharedBuffers()
 bool NaturePatchManager::initSharedBuffers()
 {
     // allocate new memory for shared buffers
-    mVertexBuffer   = new Real[QUADTREE_SIZE * QUADTREE_SIZE * 3];
-    mNormalBuffer   = new Real[QUADTREE_SIZE * QUADTREE_SIZE * 3];
-    mCoordBuffer = new Real[QUADTREE_SIZE * QUADTREE_SIZE * 2 * 2];
-
-    mIndexBuffer    = new ushort[EDGE_LENGTH * EDGE_LENGTH * 2 * 3];
-    mVertexLookup   = new ushort[QUADTREE_SIZE * QUADTREE_SIZE];
+    mDataBuffer   = new Real[QUADTREE_SIZE * QUADTREE_SIZE * (3 + 3 + 4)];
+    mIndexBuffer  = new ushort[EDGE_LENGTH * EDGE_LENGTH * 2 * 3];
+    mVertexLookup = new ushort[QUADTREE_SIZE * QUADTREE_SIZE];
 
     // return false if allocation failed
-    if (mVertexBuffer == 0 || mIndexBuffer == 0 || mCoordBuffer == 0 || 
-        mVertexLookup == 0)
+    if (mDataBuffer == 0 || mIndexBuffer == 0 || mVertexLookup == 0)
     {
-	freeSharedBuffers();
-	return false;
+        freeSharedBuffers();
+        return false;
     }
 
     return true;

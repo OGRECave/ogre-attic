@@ -41,7 +41,7 @@ namespace Ogre
 
 #define USE_COLOURS	    0
 
-#define USE_TEXTURES	    1
+#define USE_TEXTURES    1
 
 } // namespace Ogre
 

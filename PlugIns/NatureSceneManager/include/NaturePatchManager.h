@@ -120,9 +120,7 @@ private:
     short *mEastEdgeQuad;
 
     // Shared buffers used when rendering NatureTerrainPatches
-    Real   *mVertexBuffer;
-    Real   *mNormalBuffer;
-    Real   *mCoordBuffer;
+    Real   *mDataBuffer;
     ushort *mIndexBuffer;
     ushort *mVertexLookup;
 

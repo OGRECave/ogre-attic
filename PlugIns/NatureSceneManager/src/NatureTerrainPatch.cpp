@@ -17,10 +17,6 @@
 namespace Ogre
 {
 
-#define POSITION_BINDING 0
-#define NORMAL_BINDING 1
-#define DIFFUSE_BINDING 2
-#define TEXCOORD_BINDING 3
 //----------------------------------------------------------------------------
 
 NatureTerrainPatch::NatureTerrainPatch()
@@ -198,64 +194,38 @@ void NatureTerrainPatch::generateMesh()
 
     size_t offset = 0;
 
-    decl->addElement(POSITION_BINDING, 0, VET_FLOAT3, VES_POSITION);
-#if USE_NORMALS
-    decl->addElement(NORMAL_BINDING, 0, VET_FLOAT3, VES_NORMAL);
-#endif
-#if USE_TEXTURES
-    decl->addElement(TEXCOORD_BINDING, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
-    offset += VertexElement::getTypeSize(VET_FLOAT2);
-    decl->addElement(TEXCOORD_BINDING, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 1);
-    offset += VertexElement::getTypeSize(VET_FLOAT2);
-#endif
-
     // positions
-    HardwareVertexBufferSharedPtr vbuf =
-        HardwareBufferManager::getSingleton().createVertexBuffer(
-            decl->getVertexSize(POSITION_BINDING),
-            mVertexData->vertexCount,
-            HardwareBuffer::HBU_STATIC_WRITE_ONLY);
-    bind->setBinding(POSITION_BINDING, vbuf);
-
-	// update vertex buffer
-    vbuf->writeData(0, vbuf->getSizeInBytes(), mManager->mVertexBuffer);
+    decl->addElement(0, offset, VET_FLOAT3, VES_POSITION);
+    offset += VertexElement::getTypeSize(VET_FLOAT3);
 
 #if USE_NORMALS
     // normals
-    vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
-            decl->getVertexSize(NORMAL_BINDING),
-            mVertexData->vertexCount,
-            HardwareBuffer::HBU_STATIC_WRITE_ONLY);
-    bind->setBinding(NORMAL_BINDING, vbuf);
-
-	// update normals
-    vbuf->writeData(0, vbuf->getSizeInBytes(), mManager->mNormalBuffer);
+    decl->addElement(0, offset, VET_FLOAT3, VES_NORMAL);
+    offset += VertexElement::getTypeSize(VET_FLOAT3);
 #endif
 
 #if USE_TEXTURES
     // texture coord sets
-    vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
+    decl->addElement(0, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
+    offset += VertexElement::getTypeSize(VET_FLOAT2);
+    decl->addElement(0, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 1);
+    offset += VertexElement::getTypeSize(VET_FLOAT2);
+#endif
+
+#if USE_COLOURS
+	// update colours
+    decl->addElement(1, 0, VET_COLOUR, VES_DIFFUSE);
+#endif
+
+    HardwareVertexBufferSharedPtr vbuf =
+        HardwareBufferManager::getSingleton().createVertexBuffer(
             offset, 
             mVertexData->vertexCount,
             HardwareBuffer::HBU_STATIC_WRITE_ONLY);
-    bind->setBinding(TEXCOORD_BINDING, vbuf);
+    bind->setBinding(0, vbuf);
 
-    vbuf->writeData(0, vbuf->getSizeInBytes(), mManager->mCoordBuffer);
-#endif
-
-    mIndexData = new IndexData;
-    mIndexData->indexStart = 0;
-    mIndexData->indexCount = mIndexCount;
-
-    mIndexData->indexBuffer =
-        HardwareBufferManager::getSingleton().createIndexBuffer(
-            HardwareIndexBuffer::IT_16BIT,
-            mIndexData->indexCount,
-            HardwareBuffer::HBU_STATIC_WRITE_ONLY);
-
-    // update index buffer
-    mIndexData->indexBuffer->writeData(0, 
-        mIndexData->indexBuffer->getSizeInBytes(), mManager->mIndexBuffer);
+	// update buffer
+    vbuf->writeData(0, vbuf->getSizeInBytes(), mManager->mDataBuffer);
 
 #if USE_COLOURS
     /* TODO
@@ -276,6 +246,21 @@ void NatureTerrainPatch::generateMesh()
 	}
     */
 #endif
+
+    mIndexData = new IndexData;
+    mIndexData->indexStart = 0;
+    mIndexData->indexCount = mIndexCount;
+
+    mIndexData->indexBuffer =
+        HardwareBufferManager::getSingleton().createIndexBuffer(
+            HardwareIndexBuffer::IT_16BIT,
+            mIndexData->indexCount,
+            HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+
+    // update index buffer
+    mIndexData->indexBuffer->writeData(0, 
+        mIndexData->indexBuffer->getSizeInBytes(), mManager->mIndexBuffer);
+
 	mNeedRendering = false;
     }
 //    saveASC(mVertexCount * 3, mIndexCount);
@@ -800,6 +785,47 @@ void NatureTerrainPatch::triangulate(int cx, int cz, int node, int level)
 //    return f;
 }
 
+//----------------------------------------------------------------------------
+void NatureTerrainPatch::getNormal(int x, int z, Vector3 *normal)
+{   
+    Vector3 here, left, down;
+                
+    here.x = x;
+    here.y = mHeight[z * mData->terrain.heightMapWidth + x]
+        * mScale.y + mWorld.y;
+    here.z = z;
+    
+    left.x = x - 1;
+    if (x > 0)
+        left.y = mHeight[z * mData->terrain.heightMapWidth + (x - 1)]
+            * mScale.y + mWorld.y;
+    else if (mWestNeighbor != 0)
+        left.y = mWestNeighbor->getHeightAt(EDGE_LENGTH - 1, z);
+    else
+        left.y = here.y;
+
+    left.z = z;
+
+    down.x = x;
+    if (z < EDGE_LENGTH)
+        down.y = mHeight[(z + 1) * mData->terrain.heightMapWidth + x]
+            * mScale.y + mWorld.y;
+    else if (mSouthNeighbor != 0)
+        down.y = mSouthNeighbor->getHeightAt(x, 1);
+    else
+        down.y = here.y;
+
+    down.z = z + 1;
+
+    left = left - here;
+    down = down - here;
+
+    left.normalise();
+    down.normalise();
+
+    *normal = left.crossProduct(down);
+    normal->normalise();
+}
 //----------------------------------------------------------------------------
 
 void NatureTerrainPatch::getRenderOperation(RenderOperation& op)
