@@ -170,6 +170,11 @@ namespace Ogre {
         /// Shared class-level name for Movable type
         static String msMovableType;
 
+        /// SceneNode which this Camera will automatically track
+        SceneNode* mAutoTrackTarget;
+        /// Tracking offset for fine tuning
+        Vector3 mAutoTrackOffset;
+
     public:
         /** Standard constructor.
         */
@@ -473,6 +478,32 @@ namespace Ogre {
 
         /** Overridden from MovableObject */
         const String getMovableType(void) const;
+
+        /** Enables / disables automatic tracking of a SceneNode.
+        @remarks
+            If you enable auto-tracking, this Camera will automatically rotate to
+            look at the target SceneNode every frame, no matter how 
+            it or SceneNode move. This is handy if you want a Camera to be focused on a
+            single object or group of objects. Note that by default the Camera looks at the 
+            origin of the SceneNode, if you want to tweak this, e.g. if the object which is
+            attached to this target node is quite big and you want to point the camera at
+            a specific point on it, provide a vector in the 'offset' parameter and the 
+            camera's target point will be adjusted.
+        @param enabled If true, the Camera will track the SceneNode supplied as the next 
+            parameter (cannot be null). If false the camera will cease tracking and will
+            remain in it's current orientation.
+        @param target Pointer to the SceneNode which this Camera will track. Make sure you don't
+            delete this SceneNode before turning off tracking (e.g. SceneManager::clearScene will
+            delete it so be careful of this). Can be null if and only if the enabled param is false.
+        @param offset If supplied, the camera targets this point in local space of the target node
+            instead of the origin of the target node. Good for fine tuning the look at point.
+        */
+        void setAutoTracking(bool enabled, SceneNode* target = 0, 
+            const Vector3& offset = Vector3::ZERO);
+
+
+        /** Internal method used by OGRE to update auto-tracking cameras. */
+        void _autoTrack(void);
     };
 
 } // namespace Ogre

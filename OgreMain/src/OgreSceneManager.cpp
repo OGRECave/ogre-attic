@@ -598,9 +598,15 @@ namespace Ogre {
         mCameraInProgress = camera;
 
 
+        // Update the scene
         _applySceneAnimations();
         _updateSceneGraph(camera);
         _updateDynamicLights();
+
+        // Auto-track camera if required
+        camera->_autoTrack();
+
+        // Parse the scene and tag visibles
         _findVisibleObjects(camera);
 
 
@@ -625,7 +631,6 @@ namespace Ogre {
             _renderSkyDome(camera);
 
         // Render scene content (only entities in this SceneManager, no world geometry)
-        //_renderEntities();
         _renderVisibleObjects();
 
         // Render the sky (last)
