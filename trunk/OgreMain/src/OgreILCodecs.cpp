@@ -153,7 +153,7 @@ namespace Ogre {
 		const char *il_version = ilGetString ( IL_VERSION_NUM );
 		LogManager::getSingleton().logMessage(
          LML_NORMAL,
-            "DevIL version: " + String(il_version));
+            "DevIL version: " + (il_version?String(il_version):String("(null)")));
         const char *il_extensions = ilGetString ( IL_LOAD_EXT );
         
         std::stringstream ext;
