@@ -133,6 +133,8 @@ AC_CONFIG_FILES([Makefile \
     Samples/EnvMapping/Makefile \
     Samples/EnvMapping/src/Makefile \
     Samples/EnvMapping/include/Makefile \
+    Samples/Fresnel/Makefile \
+    Samples/Fresnel/src/Makefile \
     Samples/Transpacency/Makefile \
     Samples/Transpacency/src/Makefile \
     Samples/Transpacency/include/Makefile \
