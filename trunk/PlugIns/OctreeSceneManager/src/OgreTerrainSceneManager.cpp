@@ -439,7 +439,7 @@ namespace Ogre
     void TerrainSceneManager::_renderScene(Camera* cam, Viewport *vp, bool includeOverlays)
     {
         // For now, no paging and expect immediate response
-        if (mTerrainPages[0][0] == 0)
+        if (!mTerrainPages.empty() && mTerrainPages[0][0] == 0)
         {
             mActivePageSource->requestPage(0, 0);
         }

@@ -622,7 +622,7 @@ namespace Ogre
 		DWORD usage = (mUsage == TU_RENDERTARGET) ? D3DUSAGE_RENDERTARGET : 0;
 		UINT numMips = (mNumMipMaps ? mNumMipMaps : 1);
 		// check if mip maps are supported on hardware
-		if (mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPMAP)
+		if ((mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPMAP) && mNumMipMaps > 0)
 		{
 			// use auto.gen. if available
             mAutoGenMipMaps = this->_canAutoGenMipMaps(usage, D3DRTYPE_TEXTURE, d3dPF);
@@ -634,7 +634,7 @@ namespace Ogre
 		}
 		else
 		{
-			// device don't support mip maps ???
+			// device don't support mip maps, or zero mipmaps requested
 			mNumMipMaps = 0;
 			numMips = 1;
 		}
@@ -1264,7 +1264,7 @@ namespace Ogre
 		if( mFinalBpp > 16 && mHasAlpha )
 			return D3DFMT_A8R8G8B8;
 		else if( mFinalBpp > 16 && !mHasAlpha )
-			return D3DFMT_R8G8B8;
+			return D3DFMT_X8R8G8B8;
 		else if( mFinalBpp == 16 && mHasAlpha )
 			return D3DFMT_A4R4G4B4;
 		else if( mFinalBpp == 16 && !mHasAlpha )
