@@ -356,7 +356,7 @@ namespace Ogre {
         assert (index < mViewportList.size() && "Index out of bounds");
 
         ViewportList::iterator i = mViewportList.begin();
-        while (index)
+        while (index--)
             ++i;
         return i->second;
 
