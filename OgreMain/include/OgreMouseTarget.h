@@ -57,13 +57,14 @@ namespace Ogre {
 	class _OgreExport MouseTarget : public PositionTarget
     {
     protected:
-		MouseListener* mMouseListener;
+        std::set<MouseListener*> mMouseListeners;
 
 		// is mouse inside the object
 		bool mMouseWithin;
 
     public:
 		MouseTarget();
+        virtual ~MouseTarget() { }
 
 		void processMouseEvent(MouseEvent* e) ;
 		void addMouseListener(MouseListener* l) ;

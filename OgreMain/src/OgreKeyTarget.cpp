@@ -26,59 +26,47 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 
 #include "OgreKeyTarget.h"
-
 #include "OgreKeyEvent.h"
 #include "OgreEventListeners.h"
-#include "OgreEventMulticaster.h"	
-
 
 
 namespace Ogre {
-
-
-	KeyTarget::KeyTarget() 
-	{
-		mKeyListener = 0;
-	}
     //-----------------------------------------------------------------------
-
 	void KeyTarget::processKeyEvent(KeyEvent* e) 
 	{
-		KeyListener* listener = mKeyListener;
-		if (listener != NULL) 
-		{
-			int id = e->getID();
-			switch(id) 
-			{
-			case KeyEvent::KE_KEY_PRESSED:
-				listener->keyPressed(e);
-				break;
-			case KeyEvent::KE_KEY_RELEASED:
-				listener->keyReleased(e);
-				break;
-			case KeyEvent::KE_KEY_CLICKED:
-				listener->keyClicked(e);
-				break;
-			}
+        // Tell all listeners
+        std::set<KeyListener*>::iterator i;
+        for (i= mKeyListeners.begin(); i != mKeyListeners.end();
+ ++i)
+        {
+		    KeyListener* listener = *i;
+		    if (listener != 0) 
+		    {
+			    int id = e->getID();
+			    switch(id) 
+			    {
+			    case KeyEvent::KE_KEY_PRESSED:
+				    listener->keyPressed(e);
+				    break;
+			    case KeyEvent::KE_KEY_RELEASED:
+				    listener->keyReleased(e);
+				    break;
+			    case KeyEvent::KE_KEY_CLICKED:
+				    listener->keyClicked(e);
+				    break;
+			    }
+            }
 		}
 	}
 
 	void KeyTarget::addKeyListener(KeyListener* l) 
 	{
-		if (l == NULL) 
-		{
-			return;
-		}
-		mKeyListener = EventMulticaster::add(mKeyListener,l);
+         mKeyListeners.insert(l);
 	}
 
 	void KeyTarget::removeKeyListener(KeyListener* l) 
 	{
-		if (l == NULL) 
-		{
-			return;
-		}
-		mKeyListener = EventMulticaster::remove(mKeyListener,l);
+         mKeyListeners.erase(l);
 	}
 }
 
