@@ -52,7 +52,7 @@ namespace Ogre {
         m_pCamera = NULL;
 
         // Generate name
-        m_strName << _T("SimpleRenderable") << ms_uGenNameCount ++;
+        m_strName << _TO_CHAR("SimpleRenderable") << ms_uGenNameCount ++;
     }
 
     Real **SimpleRenderable::getVertexCache()

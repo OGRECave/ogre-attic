@@ -41,7 +41,7 @@ namespace Ogre {
         OgreGuard("DynLib::DynLib");
 
         mName = name;
-#if OGRE_PLATFORM == PLATFORM_LINUX
+#if OGRE_PLATFORM == PLATFORM_LINUX || OGRE_PLATFORM == PLATFORM_APPLE
         // dlopen() does not add .so to the filename, like windows does for .dll
         if (mName.substr(mName.length() - 3, 3) != ".so")
             mName += ".so";

@@ -8,8 +8,8 @@ RenderSystem_SDL_so_SOURCES = OgreSDLEngineDll.cpp \
                            OgreSDLTextureManager.cpp \
                            OgreSDLWindow.cpp
 
-RenderSystem_SDL_so_LDFLAGS = -shared
-RenderSystem_SDL_so_LDADD = $(SDL_LIBS) -lGL -lGLU
+RenderSystem_SDL_so_LDFLAGS = $(SHARED_FLAGS)
+RenderSystem_SDL_so_LDADD = $(SDL_LIBS) $(GL_LIBS)
 
 install-exec-local:
 	mkdir -m 775 -p $(pkglibdir)

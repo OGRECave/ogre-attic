@@ -50,7 +50,10 @@ dnl Find the optional components we should build
 OGRE_BUILD_PYTHON_LINK
 
 dnl This needs to be figured out later (MingW)
-AC_DEFINE(OGRE_LINUX,,Linux Build of OGRE)
+OGRE_SETUP_FOR_HOST
+
+dnl Detect endianness
+OGRE_DETECT_ENDIAN
 
 CFLAGS="$CFLAGS $SDL_CFLAGS"
 CXXFLAGS="$CXXFLAGS $SDL_CFLAGS"

@@ -13,7 +13,7 @@ Plugin_ParticleFX_so_SOURCES = OgreAreaEmitter.cpp \
                         OgrePointEmitter.cpp \
                         OgreRingEmitter.cpp
 
-Plugin_ParticleFX_so_LDFLAGS = -shared
+Plugin_ParticleFX_so_LDFLAGS = $(SHARED_FLAGS)
 
 install-exec-local:
 	mkdir -m 755 -p $(pkglibdir)

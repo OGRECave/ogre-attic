@@ -389,7 +389,7 @@ namespace Ogre
 	{
 		// I have to figure out a better way to do this.  The problem here is that I *may* (most likely)
 		// need to setup a new scene, and this could slow the system down
-		static TCHAR buff[MAX_PATH] = _T("");
+		static TCHAR buff[MAX_PATH] = _TO_CHAR("");
 		_tcsncpy( buff, text.c_str(), MAX_PATH );
 		HRESULT hr = mpD3DDevice->BeginScene();
 		mpDbgFont->DrawText( (FLOAT)x, (FLOAT)y, D3DCOLOR_XRGB( 255, 255, 0 ), buff );

@@ -12,7 +12,7 @@ Plugin_BSPSceneManager_so_SOURCES = OgreBspLevel.cpp \
                              OgreQuake3Level.cpp
 
 
-Plugin_BSPSceneManager_so_LDFLAGS = -shared
+Plugin_BSPSceneManager_so_LDFLAGS = $(SHARED_FLAGS)
 
 install-exec-local:
 	mkdir -m 755 -p $(pkglibdir)

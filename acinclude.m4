@@ -265,3 +265,31 @@ AC_SUBST(PYTHON_CFLAGS)
 AC_SUBST(PYTHON_LIBS)
 
 ])
+
+AC_DEFUN([OGRE_SETUP_FOR_HOST],
+[case $target in
+powerpc-apple-darwin*)
+	AC_SUBST(SHARED_FLAGS, "-bundle -undefined suppress -flat_namespace")
+	AC_SUBST(GL_LIBS,,"-framework OpenGL")
+	;;
+*) dnl default to standard linux
+	AC_SUBST(SHARED_FLAGS, "-shared")
+	AC_SUBST(GL_LIBS, "-lGL -lGLU")
+;;
+esac
+])
+
+
+AC_DEFUN([OGRE_DETECT_ENDIAN],
+[AC_TRY_RUN([
+		int main()
+		{
+			short s = 1;
+			short* ptr = &s;
+			unsigned char c = *((char*)ptr);
+			return c;
+		}
+	]
+	,[AC_DEFINE(CONFIG_BIG_ENDIAN,,[Big endian machine])]
+	,[AC_DEFINE(CONFIG_LITTLE_ENDIAN,,[Little endian machine])])
+])

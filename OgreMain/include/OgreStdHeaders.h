@@ -62,7 +62,7 @@ extern "C" {
 
 #endif
 
-#if OGRE_PLATFORM == PLATFORM_LINUX
+#if OGRE_PLATFORM == PLATFORM_LINUX || OGRE_PLATFORM == PLATFORM_APPLE
 extern "C" {
 
 #   include <unistd.h>

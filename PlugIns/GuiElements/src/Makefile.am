@@ -10,7 +10,7 @@ Plugin_GuiElements_so_SOURCES = OgreBorderPanelGuiElement.cpp \
 				OgrePanelGuiElement.cpp \
 				OgreTextAreaGuiElement.cpp
 
-Plugin_GuiElements_so_LDFLAGS = -shared
+Plugin_GuiElements_so_LDFLAGS = $(SHARED_FLAGS)
 
 install-exec-local:
 	mkdir -m 755 -p $(pkglibdir)

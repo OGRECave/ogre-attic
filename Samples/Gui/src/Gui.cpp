@@ -39,7 +39,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
 #else
-int main(void)
+int main(int argc, char *argv[])
 #endif
 {
 

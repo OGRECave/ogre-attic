@@ -9,7 +9,7 @@ Plugin_OctreeSceneManager_so_SOURCES = OgreOctreeSceneManagerDll.cpp \
                              OgreOctree.cpp OgreTerrainRenderable.cpp OgreTerrainSceneManager.cpp 
 
 
-Plugin_OctreeSceneManager_so_LDFLAGS = -shared
+Plugin_OctreeSceneManager_so_LDFLAGS = $(SHARED_FLAGS)
 
 install-exec-local:
 	mkdir -m 755 -p $(pkglibdir)

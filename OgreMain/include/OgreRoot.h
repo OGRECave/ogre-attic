@@ -39,7 +39,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include <exception>
 
-#if OGRE_PLATFORM == PLATFORM_LINUX
+#if OGRE_PLATFORM == PLATFORM_LINUX || OGRE_PLATFORM == PLATFORM_APPLE
 #   define SET_TERM_HANDLER { std::set_terminate( &Root::termHandler ); }
 #else
 #define SET_TERM_HANDLER { set_terminate( &Root::termHandler ); }

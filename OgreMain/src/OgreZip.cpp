@@ -31,7 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringVector.h"
 #include "OgreRoot.h"
 
-#if OGRE_PLATFORM == PLATFORM_LINUX
+#if OGRE_PLATFORM == PLATFORM_LINUX || OGRE_PLATFORM == PLATFORM_APPLE
 static void strlwr(char* x)
 {
     while (*x)
