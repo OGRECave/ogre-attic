@@ -141,6 +141,8 @@ Exports selected meshs with armature animations to Ogre3D.
 #          - BPy documentation added
 #          - coloured log
 #          - crossplatform path handling
+#          - allow empty material list entries
+#          - material export distinguishs between rendering and game engine materials
 #   0.15.1: * Sun Nov 27 2004 John Bartholomew <johnb213@users.sourceforge.net>
 #          - option to run OgreXMLConverter automatically on the exported files
 #
@@ -180,6 +182,11 @@ KEEP_SETTINGS = 1
 #  the command line used to run the OgreXMLConverter tool.
 #  Set to '' to disable automatical conversion of XML files.
 OGRE_XML_CONVERTER = ''
+
+# OGRE_VERTEXCOLOUR_BGRA
+#  workaround for Ogre's vertex colour conversion bug.
+#  Set to 0 for RGBA, 1 for BGRA.
+OGRE_OPENGL_VERTEXCOLOUR = 0
 
 #######################################################################################
 ## Code starts here.
@@ -1563,7 +1570,7 @@ class ArmatureMeshExporter(ObjectExporter):
 		matName = "SkeletonMaterial"
 		material = materialsDict.get(matName)
 		if not material:
-			material = Material(matName, None, None)
+			material = DefaultMaterial(matName)
 			materialsDict[matName] = material
 
 		submesh = SubMesh(material)
@@ -1584,14 +1591,15 @@ class ArmatureMeshExporter(ObjectExporter):
 			self._makeFace(submesh, name, p2, c4, c1)
 			self._makeFace(submesh, name, c3, c2, c1)
 			self._makeFace(submesh, name, c1, c4, c3)
-		file = self.getName()
-		write_mesh(file, [submesh], self.skeleton)
+		mesh = Mesh([submesh], self.skeleton)
+		mesh.name = self.getName()
+		mesh.write()
 		return
 	
 ######
 # global variables
 ######
-uvToggle = Draw.Create(1)
+gameEngineMaterialsToggle = Draw.Create(0)
 armatureToggle = Draw.Create(1)
 worldCoordinatesToggle = Draw.Create(0)
 ambientToggle = Draw.Create(0)
@@ -1621,7 +1629,7 @@ MAXACTUATORS = 100
 BUTTON_EVENT_OK = 101
 BUTTON_EVENT_QUIT = 102
 BUTTON_EVENT_EXPORT = 103
-BUTTON_EVENT_UVTOGGLE = 104
+BUTTON_EVENT_GAMEENGINEMATERIALSTOGGLE = 104
 BUTTON_EVENT_ARMATURETOGGLE = 105
 BUTTON_EVENT_WORLDCOORDINATESTOGGLE = 106
 BUTTON_EVENT_AMBIENTTOGGLE = 107
@@ -1811,16 +1819,714 @@ def vector_crossproduct(v1, v2):
     v1[0] * v2[1] - v1[1] * v2[0],
     ]
 
-
 #######################################################################################
 ## data structures
+	
+class MaterialInterface:
+	def getName(self):
+		"""Returns the material name.
+		
+		   @return Material name.
+		"""
+		return
+	def write(self, f):
+		"""Write material script entry.
+		
+		   @param f Material script file object to write into.
+		"""
+		return
 
-class Material:
-  def __init__(self, name, mat, texname, mode=Blender.NMesh.FaceTranspModes["SOLID"]):
-    self.name = name
-    self.mat = mat
-    self.texture = texname
-    self.mode = mode
+class DefaultMaterial(MaterialInterface):
+	def __init__(self, name):
+		self.name = name
+		return
+	def getName(self):
+		return self.name
+	def write(self, f):
+		f.write("material %s\n" % self.getName())
+		f.write("{\n")
+		self.writeTechniques(f)
+		f.write("}\n")
+		return
+	def writeTechniques(self, f):
+		f.write(tab(1) + "technique\n" + tab(1) + "{\n")
+		f.write(tab(2) + "pass\n" + tab(2) + "{\n")
+		# empty pass
+		f.write(tab(2) + "}\n") # pass
+		f.write(tab(1) + "}\n") # technique
+		return
+	
+class GameEngineMaterial(DefaultMaterial):
+	def __init__(self, blenderMesh, blenderFace):
+		self.mesh = blenderMesh
+		self.face = blenderFace
+		DefaultMaterial.__init__(self, self._createName())
+		return
+	def writeTechniques(self, f):
+		mat = self.mesh.getMaterials(1)[self.face.materialIndex]
+		if (not(mat)
+			and not(self.mesh.hasVertexColours())
+			and not(self.mesh.hasVertexUV() or self.mesh.hasFaceUV())):
+			# default material
+			DefaultMaterial.writeTechniques(self, f)
+		else:
+			# default material
+			# SOLID, white, no specular
+			f.write(tab(1)+"technique\n")
+			f.write(tab(1)+"{\n")
+			f.write(tab(2)+"pass\n")
+			f.write(tab(2)+"{\n")
+			# ambient
+			# (not used in Blender's game engine)
+			if mat:
+				if (not(mat.mode & Blender.Material.Modes["TEXFACE"])
+					and not(mat.mode & Blender.Material.Modes["VCOL_PAINT"])
+					and (ambientToggle.val)):
+					ambientRGBList = mat.rgbCol
+				else:
+					ambientRGBList = [1.0, 1.0, 1.0]
+				# ambient <- amb * ambient RGB
+				ambR = clamp(mat.amb * ambientRGBList[0])
+				ambG = clamp(mat.amb * ambientRGBList[1])
+				ambB = clamp(mat.amb * ambientRGBList[2])
+				##f.write(tab(3)+"ambient %f %f %f\n" % (ambR, ambG, ambB))
+			# diffuse
+			# (Blender's game engine uses vertex colours
+			#  instead of diffuse colour.
+			#
+			#  diffuse is defined as
+			#  (mat->r, mat->g, mat->b)*(mat->emit + mat->ref)
+			#  but it's not used.)
+			if self.mesh.hasVertexColours():
+				#TODO: Broken in Blender 2.36.
+				# Blender does not handle "texface" mesh with vertexcolours
+				f.write(tab(3)+"diffuse vertexcolour\n")
+			elif mat:
+				if (not(mat.mode & Blender.Material.Modes["TEXFACE"])
+					and not(mat.mode & Blender.Material.Modes["VCOL_PAINT"])):
+					# diffuse <- rgbCol
+					diffR = clamp(mat.rgbCol[0])
+					diffG = clamp(mat.rgbCol[1])
+					diffB = clamp(mat.rgbCol[2])
+					f.write(tab(3)+"diffuse %f %f %f\n" % (diffR, diffG, diffB))
+				elif (mat.mode & Blender.Material.Modes["VCOL_PAINT"]):
+					f.write(tab(3)+"diffuse vertexcolour\n")
+			if mat:
+				# specular <- spec * specCol, hard/4.0
+				specR = clamp(mat.spec * mat.specCol[0])
+				specG = clamp(mat.spec * mat.specCol[1])
+				specB = clamp(mat.spec * mat.specCol[2])
+				specShine = mat.hard/4.0
+				f.write(tab(3)+"specular %f %f %f %f\n" % (specR, specG, specB, specShine))
+				# emissive
+				# (not used in Blender's game engine)
+				if(not(mat.mode & Blender.Material.Modes["TEXFACE"])
+					and not(mat.mode & Blender.Material.Modes["VCOL_PAINT"])):
+					# emissive <-emit * rgbCol
+					emR = clamp(mat.emit * mat.rgbCol[0])
+					emG = clamp(mat.emit * mat.rgbCol[1])
+					emB = clamp(mat.emit * mat.rgbCol[2])
+					##f.write(tab(3)+"emissive %f %f %f\n" % (emR, emG, emB))
+			# scene_blend <- transp
+			if (self.face.mode == Blender.NMesh.FaceTranspModes["ALPHA"]):
+				f.write(tab(3)+"scene_blend alpha_blend \n")
+			elif (self.face.mode == Blender.NMesh.FaceTranspModes["ADD"]):
+				#TODO: Broken in Blender 2.36.
+				#f.write(tab(3)+"scene_blend add\n")
+				pass
+			# cull_hardware/cull_software
+			if (self.face.mode & Blender.NMesh.FaceModes['TWOSIDE']):
+				f.write(tab(3) + "cull_hardware none\n")
+				f.write(tab(3) + "cull_software none\n")
+			# shading
+			# (Blender's game engine is initialized with glShadeModel(GL_FLAT))
+			##f.write(tab(3) + "shading flat\n")
+			# texture
+			if (self.face.mode & Blender.NMesh.FaceModes['TEX']) and (self.face.image):
+				f.write(tab(3)+"texture_unit\n")
+				f.write(tab(3)+"{\n")
+				f.write(tab(4)+"texture %s\n" % PathName(self.face.image.filename).basename())
+				f.write(tab(3)+"}\n") # texture_unit
+			f.write(tab(2)+"}\n") # pass
+			f.write(tab(1)+"}\n") # technique
+		return
+	# private
+	def _createName(self):
+		"""Create unique material name.
+		
+		   The name consists of several parts:
+		   <OL>
+		   <LI>rendering material name/</LI>
+		   <LI>blend mode (ALPHA, ADD, SOLID)</LI>
+		   <LI>/TEX</LI>
+		   <LI>/texture file name</LI>
+		   <LI>/VertCol</LI>
+		   <LI>/TWOSIDE></LI>
+		   </OL>
+		"""
+		materialName = ''
+		# nonempty rendering material?
+		faceMaterial = self.mesh.getMaterials(1)[self.face.materialIndex]
+		if faceMaterial:
+			materialName += faceMaterial.getName() + '/'
+		# blend mode
+		if (self.face.transp == Blender.NMesh.FaceTranspModes['ALPHA']):
+			materialName += 'ALPHA'
+		elif (self.face.transp == Blender.NMesh.FaceTranspModes['ADD']):
+			materialName += 'ADD'
+		else:
+			materialName += 'SOLID'
+		# TEX face mode and texture?
+		if (self.face.mode & Blender.NMesh.FaceModes['TEX']):
+			materialName += '/TEX'
+			if self.face.image:
+				materialName += '/' + PathName(self.face.image.filename).basename()
+		# vertex colours?
+		if self.mesh.hasVertexColours():
+			materialName += '/VertCol'
+		# two sided?
+		if (self.face.mode & Blender.NMesh.FaceModes['TWOSIDE']):
+			materialName += '/TWOSIDE'
+		return materialName
+
+class RenderingMaterial(DefaultMaterial):
+	def __init__(self, blenderMesh, blenderFace):
+		self.mesh = blenderMesh
+		self.face = blenderFace
+		self.material = self.mesh.getMaterials(1)[self.face.materialIndex]
+		if self.material:
+			DefaultMaterial.__init__(self, self._createName())
+		else:
+			DefaultMaterial.__init__(self, 'None')
+		return
+	def writeTechniques(self, f):
+		# parse material
+		if self.material:
+			if not(self.material.mode & Blender.Material.Modes['HALO']):
+				# non-Halo
+				key = 0
+				if (self.material.mode & Blender.Material.Modes['VCOL_LIGHT']):
+					key |= self.VCOLLIGHT
+				if (self.material.mode & Blender.Material.Modes['VCOL_PAINT']):
+					key |= self.VCOLPAINT
+				if (self.material.mode & Blender.Material.Modes['TEXFACE']):
+					key |= self.TEXFACE
+				# textures
+				for mtex in self.material.getTextures():
+					if mtex:
+						if (mtex.tex.type == Blender.Texture.Types['IMAGE']):
+							if (mtex.texco & Blender.Texture.TexCo['UV']):
+								if (mtex.mapto & Blender.Texture.MapTo['COL']):
+									key |= self.IMAGEUVCOL
+								if (mtex.mapto & Blender.Texture.MapTo['NOR']):
+									# Check "Normal Map" image option
+									if (mtex.tex.imageFlags & 2048):
+										key |= self.IMAGEUVNOR
+									# else bumpmap
+								if (mtex.mapto & Blender.Texture.MapTo['CSP']):
+									key |= self.IMAGEUVCSP
+				# choose techniques
+				if self.TECHNIQUES.has_key(key):
+					techniques = self.TECHNIQUES[key]
+					techniques(self, f)
+				else:
+					# default
+					self.writeColours(f)
+			else:
+				# Halo
+				DefaultMaterial('').writeTechniques(f)
+		else:
+			DefaultMaterial('').writeTechniques(f)
+		return
+	def writeColours(self, f):
+		global ambientToggle
+		# receive_shadows
+		self.writeReceiveShadows(f, 1)
+		f.write(tab(1) + "technique\n" + tab(1) + "{\n")
+		f.write(tab(2) + "pass\n" + tab(2) + "{\n")
+		# ambient
+		if (ambientToggle.val):
+			col = self.material.getRGBCol()
+		else:
+			col = [1.0, 1.0, 1.0]
+		self.writeAmbient(f, col, 3)
+		# diffuse
+		self.writeDiffuse(f, self.material.rgbCol, 3)
+		# specular
+		self.writeSpecular(f, 3)
+		# emissive
+		self.writeEmissive(f, self.material.rgbCol, 3)
+		# blend mode
+		self.writeSceneBlend(f,3)
+		# options
+		self.writeCommonOptions(f, 3)
+		# texture units
+		self.writeDiffuseTexture(f, 3)
+		f.write(tab(2) + "}\n") # pass
+		f.write(tab(1) + "}\n") # technique
+		return
+	def writeVertexColours(self, f):
+		# preconditions: VCOL_PAINT set
+		#
+		# ambient = Amb*White resp. Amb*VCol if "Coloured Ambient"
+		# diffuse = Ref*VCol
+		# specular = Spec*SpeRGB, Hard/4.0
+		# emissive = Emit*VCol
+		# alpha = A
+		# 
+		# Best match without vertex shader:
+		# ambient = Amb*white
+		# diffuse = Ref*VCol
+		# specular = Spec*SpeRGB, Hard/4.0
+		# emissive = black
+		# alpha = 1
+		#
+		self.writeReceiveShadows(f, 1)
+		f.write(tab(1) + "technique\n" + tab(1) + "{\n")
+		if (self.material.mode & Blender.Material.Modes['SHADELESS']):
+			f.write(tab(2) + "pass\n" + tab(2) + "{\n")
+			self.writeCommonOptions(f,3)
+			f.write(tab(2) + "}\n")
+		else:
+			# vertex colour pass
+			f.write(tab(2) + "pass\n" + tab(2) + "{\n")
+			f.write(tab(3) + "ambient 0.0 0.0 0.0\n")
+			f.write(tab(3) + "diffuse vertexcolour\n")
+			self.writeCommonOptions(f, 3)
+			f.write(tab(2) + "}\n") # vertex colour pass
+			
+			# factor pass
+			f.write(tab(2) + "pass\n" + tab(2) + "{\n")
+			f.write(tab(3) + "ambient 0.0 0.0 0.0\n")
+			ref = self.material.getRef()
+			f.write(tab(3) + "diffuse %f %f %f\n" % (ref, ref, ref))
+			f.write(tab(3) + "scene_blend modulate\n")
+			self.writeCommonOptions(f, 3)
+			f.write(tab(2) + "}\n") # factor pass
+			
+			# ambient and specular pass
+			f.write(tab(2) + "pass\n" + tab(2) + "{\n")
+			self.writeAmbient(f, [1.0, 1.0, 1.0], 3)
+			f.write(tab(3) + "diffuse 0.0 0.0 0.0\n")
+			self.writeSpecular(f, 3)
+			f.write(tab(3) + "scene_blend add\n")
+			self.writeCommonOptions(f, 3)
+			f.write(tab(2) + "}\n") # specular pass
+		
+		f.write(tab(1) + "}\n") # technique
+		return
+	def writeNormalMap(self, f):
+		# preconditions COL and NOR textures
+		for mtex in self.material.getTextures():
+			if mtex:
+				if (mtex.tex.type == Blender.Texture.Types['IMAGE']):
+					if (mtex.texco & Blender.Texture.TexCo['UV']):
+						if (mtex.mapto & Blender.Texture.MapTo['COL']):
+							colImage = PathName(mtex.tex.image.filename).basename()
+						if (mtex.mapto & Blender.Texture.MapTo['NOR']):
+							norImage = PathName(mtex.tex.image.filename).basename()
+		f.write("""	technique
+	{
+		pass
+		{
+			ambient 1 1 1
+			diffuse 0 0 0 
+			specular 0 0 0 0
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named_auto ambient ambient_light_colour
+			}
+		}
+		pass
+		{
+			ambient 0 0 0 
+			iteration once_per_light
+			scene_blend add
+			vertex_program_ref Examples/BumpMapVPSpecular
+			{
+				param_named_auto lightPosition light_position_object_space 0
+				param_named_auto eyePosition camera_position_object_space
+				param_named_auto worldViewProj worldviewproj_matrix
+			}
+			fragment_program_ref Examples/BumpMapFPSpecular
+			{
+				param_named_auto lightDiffuse light_diffuse_colour 0 
+				param_named_auto lightSpecular light_specular_colour 0
+			}
+			texture_unit
+			{
+				texture %s
+				colour_op replace
+			}
+			texture_unit
+			{
+				cubic_texture nm.png combinedUVW
+				tex_coord_set 1
+				tex_address_mode clamp
+			}
+			texture_unit
+			{
+				cubic_texture nm.png combinedUVW
+				tex_coord_set 2
+				tex_address_mode clamp
+			}
+		}
+		pass
+		{
+			lighting off
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named ambient float4 1 1 1 1
+			}
+			scene_blend dest_colour zero
+			texture_unit
+			{
+				texture %s
+			}
+		}
+	}
+	technique
+	{
+		pass
+		{
+			ambient 1 1 1
+			diffuse 0 0 0 
+			specular 0 0 0 0
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named_auto ambient ambient_light_colour
+			}
+		}
+		pass
+		{
+			ambient 0 0 0 
+			iteration once_per_light
+			scene_blend add
+			vertex_program_ref Examples/BumpMapVP
+			{
+				param_named_auto lightPosition light_position_object_space 0
+				param_named_auto eyePosition camera_position_object_space
+				param_named_auto worldViewProj worldviewproj_matrix
+			}
+			texture_unit
+			{
+				texture %s
+				colour_op replace
+			}
+			texture_unit
+			{
+				cubic_texture nm.png combinedUVW
+				tex_coord_set 1
+				tex_address_mode clamp
+				colour_op_ex dotproduct src_texture src_current
+				colour_op_multipass_fallback dest_colour zero
+			}
+		}
+		pass
+		{
+			lighting off
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named ambient float4 1 1 1 1
+			}
+			scene_blend dest_colour zero
+			texture_unit
+			{
+				texture %s
+			}
+		}
+	}
+""" % (norImage, colImage, norImage, colImage))	
+		return
+	def writeReceiveShadows(self, f, indent=0):
+		if (self.material.mode & Blender.Material.Modes["SHADOW"]):
+			f.write(tab(indent)+"receive_shadows on\n")
+		else:
+			f.write(tab(indent)+"receive_shadows off\n")
+		return
+	def writeAmbient(self, f, col, indent=0):
+		# ambient <- amb * ambient RGB
+		ambR = clamp(self.material.getAmb() * col[0])
+		ambG = clamp(self.material.getAmb() * col[1])
+		ambB = clamp(self.material.getAmb() * col[2])
+		if len(col) < 4:
+			alpha = self.material.getAlpha()
+		else:
+			alpha = col[3]
+		f.write(tab(indent)+"ambient %f %f %f %f\n" % (ambR, ambG, ambB, alpha))
+		return
+	def writeDiffuse(self, f, col, indent=0):
+		# diffuse = reflectivity*colour
+		diffR = clamp(col[0] * self.material.getRef())
+		diffG = clamp(col[1] * self.material.getRef())
+		diffB = clamp(col[2] * self.material.getRef())
+		if len(col) < 4:
+			alpha = self.material.getAlpha()
+		else:
+			alpha = col[3]
+		f.write(tab(indent)+"diffuse %f %f %f %f\n" % (diffR, diffG, diffB, alpha))
+		return
+	def writeSpecular(self, f, indent=0):
+		# specular <- spec * specCol, hard/4.0
+		specR = clamp(self.material.getSpec() * self.material.getSpecCol()[0])
+		specG = clamp(self.material.getSpec() * self.material.getSpecCol()[1])
+		specB = clamp(self.material.getSpec() * self.material.getSpecCol()[2])
+		specShine = self.material.getHardness()/4.0
+		alpha = self.material.getAlpha()
+		f.write(tab(indent)+"specular %f %f %f %f %f\n" % (specR, specG, specB, alpha, specShine))
+		return
+	def writeEmissive(self, f, col, indent=0):
+		# emissive <-emit * rgbCol
+		emR = clamp(self.material.getEmit() * col[0])
+		emG = clamp(self.material.getEmit() * col[1])
+		emB = clamp(self.material.getEmit() * col[2])
+		if len(col) < 4:
+			alpha = self.material.getAlpha()
+		else:
+			alpha = col[3]
+		f.write(tab(indent)+"emissive %f %f %f %f\n" % (emR, emG, emB, alpha))
+		return
+	def writeSceneBlend(self, f, indent=0):
+		hasAlpha = 0
+		if (self.material.getAlpha() < 1.0):
+			hasAlpha = 1
+		else:
+			for mtex in self.material.getTextures():
+				if mtex:
+					if ((mtex.tex.type == Blender.Texture.Types['IMAGE'])
+						and (mtex.mapto & Blender.Texture.MapTo['ALPHA'])):
+						hasAlpha = 1
+		if (hasAlpha):
+			f.write(tab(indent) + "scene_blend alpha_blend\n")
+			f.write(tab(indent) + "depth_write off\n")
+		return
+	def writeCommonOptions(self, f, indent=0):
+		# Shadeless, ZInvert, NoMist, Env
+		# depth_func  <- ZINVERT; ENV
+		if (self.material.mode & Blender.Material.Modes['ENV']):
+			f.write(tab(indent)+"depth_func always_fail\n")
+		elif (self.material.mode & Blender.Material.Modes['ZINVERT']):
+			f.write(tab(indent)+"depth_func greater_equal\n")
+		# twoside
+		if (self.face.mode & Blender.NMesh.FaceModes['TWOSIDE']):
+			f.write(tab(3) + "cull_hardware none\n")
+			f.write(tab(3) + "cull_software none\n")
+		# lighting <- SHADELESS
+		if (self.material.mode & Blender.Material.Modes['SHADELESS']):
+			f.write(tab(indent)+"lighting off\n")
+		# fog_override <- NOMIST
+		if (self.material.mode & Blender.Material.Modes['NOMIST']):
+			f.write(tab(indent)+"fog_override true\n")
+		return
+	def writeDiffuseTexture(self, f, indent = 0):
+		diffuseMTex = None
+		for mtex in self.material.getTextures():
+			if mtex:
+				if ((mtex.tex.type == Blender.Texture.Types['IMAGE'])
+				and (mtex.texco & Blender.Texture.TexCo['UV'])
+				and (mtex.mapto & Blender.Texture.MapTo['COL'])):
+					diffuseMTex = mtex
+		if diffuseMTex:
+			f.write(tab(indent)+"texture_unit\n")
+			f.write(tab(indent)+"{\n")
+			f.write(tab(indent + 1) + "texture %s\n" % PathName(diffuseMTex.tex.getImage().getFilename()).basename())
+			self.writeTextureAddressMode(f, diffuseMTex, indent + 1)
+			self.writeTextureFiltering(f, diffuseMTex, indent + 1)			
+			self.writeTextureColourOp(f, diffuseMTex, indent + 1)
+			f.write(tab(indent)+"}\n") # texture_unit
+		return
+	def writeTextureAddressMode(self, f, blenderMTex, indent = 0):
+		# tex_address_mode inside texture_unit
+		#
+		# EXTEND   | clamp 
+		# CLIP     |
+		# CLIPCUBE | 
+		# REPEAT   | wrap
+		#
+		if (blenderMTex.tex.extend & Blender.Texture.ExtendModes['REPEAT']):
+			f.write(tab(indent) + "tex_address_mode wrap\n")
+		elif (blenderMTex.tex.extend & Blender.Texture.ExtendModes['EXTEND']):
+			f.write(tab(indent) + "tex_address_mode clamp\n")		
+		return
+	def writeTextureFiltering(self, f, blenderMTex, indent = 0):
+		# filtering inside texture_unit
+		#
+		# InterPol | MidMap | filtering
+		# ---------+--------+----------
+		#    yes   |   yes  | trilinear
+		#    yes   |   no   | linear linear none
+		#    no    |   yes  | bilinear
+		#    no    |   no   | none
+		#
+		if (blenderMTex.tex.imageFlags & Blender.Texture.ImageFlags['INTERPOL']):
+			if (blenderMTex.tex.imageFlags & Blender.Texture.ImageFlags['MIPMAP']):
+				f.write(tab(indent) + "filtering trilinear\n")
+			else:
+				f.write(tab(indent) + "filtering linear linear none\n")
+		else:
+			if (blenderMTex.tex.imageFlags & Blender.Texture.ImageFlags['MIPMAP']):
+				f.write(tab(indent) + "filtering bilinear\n")
+			else:
+				f.write(tab(indent) + "filtering none\n")
+		return
+	def writeTextureColourOp(self, f, blenderMTex, indent = 0):
+		# colour_op inside texture_unit
+		if ((blenderMTex.tex.imageFlags & Blender.Texture.ImageFlags['USEALPHA'])
+			and not(blenderMTex.mapto & Blender.Texture.MapTo['ALPHA'])):
+			f.write(tab(indent) + "colour_op alpha_blend\n")
+		return
+	# private
+	def _createName(self):
+		materialName = self.material.getName()
+		# two sided?
+		if (self.face.mode & Blender.NMesh.FaceModes['TWOSIDE']):
+			materialName += '/TWOSIDE'
+		return materialName
+	VCOLLIGHT = 1
+	VCOLPAINT = 2
+	TEXFACE = 4
+	IMAGEUVCOL = 8
+	IMAGEUVNOR = 16
+	IMAGEUVCSP = 32
+	# material techniques export methods
+	TECHNIQUES = {
+	IMAGEUVCOL : writeColours,
+	IMAGEUVCOL|IMAGEUVCSP : writeColours,
+	VCOLPAINT : writeVertexColours,
+	IMAGEUVCOL|IMAGEUVNOR : writeNormalMap,
+	IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT : writeNormalMap,
+	IMAGEUVCOL|IMAGEUVNOR|VCOLPAINT : writeNormalMap,
+	IMAGEUVCOL|IMAGEUVNOR|TEXFACE : writeNormalMap,
+	IMAGEUVCOL|IMAGEUVNOR|IMAGEUVCSP : writeNormalMap,
+	IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT|VCOLPAINT : writeNormalMap,
+	IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT|TEXFACE : writeNormalMap,
+	IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT|IMAGEUVCSP : writeNormalMap,
+	IMAGEUVCOL|IMAGEUVNOR|VCOLPAINT|TEXFACE : writeNormalMap,
+	IMAGEUVCOL|IMAGEUVNOR|VCOLPAINT|IMAGEUVCSP : writeNormalMap,
+	IMAGEUVCOL|IMAGEUVNOR|TEXFACE|IMAGEUVCSP : writeNormalMap,
+	IMAGEUVCOL|IMAGEUVNOR|VCOLPAINT|TEXFACE|IMAGEUVCSP : writeNormalMap,
+	IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT|TEXFACE|IMAGEUVCSP : writeNormalMap,
+	IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT|VCOLPAINT|IMAGEUVCSP : writeNormalMap,
+	IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT|VCOLPAINT|TEXFACE : writeNormalMap,
+	IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT|VCOLPAINT|TEXFACE|IMAGEUVCSP : writeNormalMap
+	}	
+
+class Mesh:
+	def __init__(self, submeshList, skeleton=None, nmesh=None):
+		"""Constructor.
+		
+		   @param submeshList Submeshes.
+		   @param nmesh Blender NMesh.
+		"""
+		self.name = ''
+		self.submeshList = submeshList
+		self.skeleton = skeleton
+		# boolean
+		self.vertexColours = 0
+		# boolean
+		self.uvCoordinates = 0
+		# parse nmesh
+		self._parseNMesh(nmesh)
+		return
+	def hasVertexColours(self):
+		return self.vertexColours
+	def hasUVCoordinates(self):
+		return self.uvCoordinates
+	def write(self):
+		# write_mesh(name, submeshes, skeleton):
+		global pathString, exportLogger
+		file = self.name + ".mesh.xml"
+		exportLogger.logInfo("Mesh \"%s\"" % file)
+		
+		f = open(os.path.join(pathString.val, file), "w")
+		f.write(tab(0)+"<mesh>\n")
+		f.write(tab(1)+"<submeshes>\n")
+		for submesh in self.submeshList:
+			f.write(tab(2)+"<submesh")
+			f.write(" material=\"%s\"" % submesh.material.name)
+			f.write(" usesharedvertices=\"false\"")
+			f.write(" use32bitindexes=\"false\"")
+			f.write(" operationtype=\"triangle_list\"")
+			f.write(">\n")
+			
+			f.write(tab(3)+"<faces count=\"%d\">\n" % len(submesh.faces))
+			for face in submesh.faces:
+				v1, v2, v3  = face.vertex1.id, face.vertex2.id, face.vertex3.id
+				f.write(tab(4)+"<face v1=\"%d\" v2=\"%d\" v3=\"%d\"/>\n" % (v1, v2, v3))
+			f.write(tab(3)+"</faces>\n")
+	
+			f.write(tab(3)+"<geometry vertexcount=\"%d\">\n" % len(submesh.vertices))
+			if (armatureToggle.val):
+				# use seperate vertexbuffer for position and normals when animated
+				f.write(tab(4)+"<vertexbuffer positions=\"true\" normals=\"true\">\n")
+				for v in submesh.vertices:
+					f.write(XMLVertexStringView(v.xmlVertex).toString(5, ['normal','position']))
+				f.write(tab(4)+"</vertexbuffer>\n")
+				if (self.hasUVCoordinates() and self.hasVertexColours()):
+					f.write(tab(4)+"<vertexbuffer")
+					f.write(" texture_coord_dimensions_0=\"2\" texture_coords=\"1\"")
+					f.write(" colours_diffuse=\"true\">\n")
+					for v in submesh.vertices:
+							f.write(XMLVertexStringView(v.xmlVertex).toString(5, ['texcoordList','colourDiffuse']))
+					f.write(tab(4)+"</vertexbuffer>\n")
+				elif self.hasUVCoordinates():
+					f.write(tab(4)+"<vertexbuffer")
+					f.write(" texture_coord_dimensions_0=\"2\" texture_coords=\"1\">\n")
+					for v in submesh.vertices:
+							f.write(XMLVertexStringView(v.xmlVertex).toString(5, ['texcoordList']))
+					f.write(tab(4)+"</vertexbuffer>\n")
+				elif self.hasVertexColours():
+					f.write(tab(4)+"<vertexbuffer")
+					f.write(" colours_diffuse=\"true\">\n")
+					for v in submesh.vertices:
+							f.write(XMLVertexStringView(v.xmlVertex).toString(5, ['colourDiffuse']))
+					f.write(tab(4)+"</vertexbuffer>\n")
+			else:
+				# use only one vertex buffer if mesh is not animated
+				f.write(tab(4)+"<vertexbuffer ")
+				f.write("positions=\"true\" ")
+				f.write("normals=\"true\"")
+				if self.hasUVCoordinates():
+					f.write(" texture_coord_dimensions_0=\"2\" texture_coords=\"1\"")
+				if self.hasVertexColours():
+					f.write(" colours_diffuse=\"true\"")
+				f.write(">\n")
+				for v in submesh.vertices:
+					f.write(XMLVertexStringView(v.xmlVertex).toString(5))
+				f.write(tab(4)+"</vertexbuffer>\n")
+			f.write(tab(3)+"</geometry>\n")
+		
+			if self.skeleton:
+				f.write(tab(3)+"<boneassignments>\n")
+				for v in submesh.vertices:
+					for influence in v.influences:
+						f.write(tab(4)+"<vertexboneassignment ")
+						f.write("vertexindex=\"%d\" boneindex=\"%d\" weight=\"%.6f\"/>\n"
+							% (v.id, influence.bone.id, influence.weight))
+				f.write(tab(3)+"</boneassignments>\n")
+			f.write(tab(2)+"</submesh>\n")
+		f.write(tab(1)+"</submeshes>\n")
+	
+		if self.skeleton:
+			f.write(tab(1)+"<skeletonlink name=\"%s.skeleton\"/>\n" % self.skeleton.name) 
+	
+		f.write(tab(0)+"</mesh>\n")    
+		f.close()
+		convertXMLFile(os.path.join(pathString.val, file))
+		return
+	# private
+	def _parseNMesh(self, nmesh):
+		if nmesh:
+			self.name = nmesh.name
+			if nmesh.hasVertexColours():
+				self.vertexColours = 1
+			if (nmesh.hasFaceUV() or nmesh.hasVertexUV()):
+				self.uvCoordinates = 1
+		return
 
 class SubMesh:
   def __init__(self, material):
@@ -2033,17 +2739,25 @@ class XMLVertexStringView:
 			s += self._indent(indent+1)+"<normal x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % tuple(normal)
 		if keyList.count('colourDiffuse'):
 			colourDiffuse = self.xmlVertex.getColourDiffuse()
-			s += self._indent(indent+1)+"<colour_diffuse value=\"%.6f %.6f %.6f %.6f\"/>\n" % tuple(colourDiffuse)
+			if OGRE_OPENGL_VERTEXCOLOUR:
+				(r, g, b, a) = tuple(colourDiffuse)
+				s += self._indent(indent+1)+"<colour_diffuse value=\"%.6f %.6f %.6f %.6f\"/>\n" % (b, g, r, a)
+			else:
+				s += self._indent(indent+1)+"<colour_diffuse value=\"%.6f %.6f %.6f %.6f\"/>\n" % tuple(colourDiffuse)
 		if keyList.count('colourSpecular'):
 			colourSpecular = self.xmlVertex.getColourSpecular()
-			s += self._indent(indent+1)+"<colour_specular value=\"%.6f %.6f %.6f %.6f\"/>\n" % tuple(colourSpecular)
+			if OGRE_OPENGL_VERTEXCOLOUR:
+				(r, g, b, a) = tuple(colourSpecular)
+				s += self._indent(indent+1)+"<colour_specular value=\"%.6f %.6f %.6f %.6f\"/>\n" % (b, g, r, a)
+			else:
+				s += self._indent(indent+1)+"<colour_specular value=\"%.6f %.6f %.6f %.6f\"/>\n" % tuple(colourSpecular)
 		if keyList.count('texcoordList'):
 			for uv in self.xmlVertex.getTextureCoordinatesList():
 				s+=self._indent(indent+1)+"<texcoord u=\"%.6f\" v=\"%.6f\"/>\n" % tuple(uv)
 		s += self._indent(indent) + "</vertex>\n"
 		return s
 	def _indent(self, indent):
-		return "  "*indent
+		return "	"*indent
 
 class Vertex:
   def __init__(self, submesh, xmlVertex):
@@ -2196,7 +2910,8 @@ def process_face(face, submesh, mesh, matrix, skeleton=None):
 				normal = faceNormal
 			xmlVertex = XMLVertex(position, normal)
 			# uv coordinates
-			if submesh.material.texture:
+			#remove#if submesh.material.texture:
+			if (mesh.hasVertexUV() or mesh.hasFaceUV()):
 				uv = [0,0]
 				if mesh.hasVertexUV():
 					# mesh has sticky/per vertex uv coordinates
@@ -2210,10 +2925,11 @@ def process_face(face, submesh, mesh, matrix, skeleton=None):
 					uv[1] = 1 - face.uv[i][1]
 				xmlVertex.appendTextureCoordinates(uv)
 			# vertex colour
-			if submesh.material.mat:
-				if (submesh.material.mat.mode & Blender.Material.Modes["VCOL_PAINT"]):
-					colour = face.col[i]
-					xmlVertex.setColourDiffuse([colour.r/255.0, colour.g/255.0, colour.b/255.0, colour.a/255.0])
+			#remove#if submesh.material.mat:
+			#remove#	if (submesh.material.mat.mode & Blender.Material.Modes["VCOL_PAINT"]):
+			if (mesh.hasVertexColours()):
+				colour = face.col[i]
+				xmlVertex.setColourDiffuse([colour.r/255.0, colour.g/255.0, colour.b/255.0, colour.a/255.0])
 			# check if an equal xmlVertex already exist
 			# get vertex 
 			if verticesDict.has_key(face.v[i].index):
@@ -2284,7 +3000,8 @@ def process_face(face, submesh, mesh, matrix, skeleton=None):
 	return
 
 def export_mesh(object, exportOptions):
-	global uvToggle, armatureToggle
+	global gameEngineMaterialsToggle
+	global armatureToggle
 	global verticesDict
 	global skeletonsDict
 	global materialsDict
@@ -2322,72 +3039,40 @@ def export_mesh(object, exportOptions):
 
 		# note: these are blender materials. Evene if nMaterials = 0
 		#       the face can still have a texture (see above)
-		nMaterials = len(data.materials)
+		meshMaterialList = data.getMaterials(1)
+		# note: material slots may be empty, resp. meshMaterialList entries may be None
+		nMaterials = len(meshMaterialList)
 
 		# create ogre materials
 		for face in data.faces:
-			if not(face.mode & Blender.NMesh.FaceModes["INVISIBLE"]):
-				# face is visible
-				hasTexture = 0
-				# texture image name
-				textureFile = None
-				if ((uvToggle.val) and (data.hasFaceUV()) and (face.mode & Blender.NMesh.FaceModes["TEX"])):
-					if face.image:
-						textureFile = face.image.filename
-						hasTexture = 1
-					else:
-						# check if image texture is assigend as material texture
-						if (nMaterials > 0):
-							for materialTexture in data.materials[face.materialIndex].getTextures():
-								if ((materialTexture is not None) \
-									and (materialTexture.mapto & Blender.Texture.MapTo['COL']) \
-									and (materialTexture.texco & Blender.Texture.TexCo['UV']) \
-									and (materialTexture.tex.type == Blender.Texture.Types.IMAGE)):
-										# use image as material.texture
-										textureFile = materialTexture.tex.image.filename
-										hasTexture = 1
-						if not hasTexture:
-							exportLogger.logError("Face is textured but has no image assigned!")
-				if ((nMaterials > 0 ) or (hasTexture == 1)):
-					# create material of the face:
-					# blenders material name / FaceTranspMode / texture image name
-					# blenders material name
-					materialName = ""
-					# blenders material name
-					faceMaterial = None
-					if (nMaterials > 0):
-						faceMaterial = data.materials[face.materialIndex]
-						materialName += faceMaterial.getName() +"/"
-					# FaceTranspMode
-					# default: solid
-					blendMode = Blender.NMesh.FaceTranspModes["SOLID"]
-					if (face.transp == Blender.NMesh.FaceTranspModes["ALPHA"]):
-						materialName += "ALPHA/"
-						blendMode = Blender.NMesh.FaceTranspModes["ALPHA"]
-					elif (face.transp == Blender.NMesh.FaceTranspModes["ADD"]):
-						materialName += "ADD/"
-						blendMode = Blender.NMesh.FaceTranspModes["ADD"]
-					else:
-						materialName += "SOLID/"
-					if hasTexture:
-						materialName += PathName(textureFile).basename()
-					# insert into Dicts
-					material = objectMaterialDict.get(materialName)
-					if not material:
-						if hasTexture:
-							# log texture filename problems
-							pathName = PathName(textureFile)
-							pathName.addLogger(exportLogger)
-							pathName.basename()
-						material = Material(materialName, faceMaterial, textureFile, blendMode)
-						objectMaterialDict[materialName] = material
-						# faces
-						objectMaterialFacesDict[materialName] = [face]
-					else:
-						# append faces
-						faceList = objectMaterialFacesDict[materialName]
-						faceList.append(face)
-						objectMaterialFacesDict[materialName] = faceList
+			faceMaterial = None
+			# choose "rendering materials" or "game engine materials"
+			if not(gameEngineMaterialsToggle.val):
+				# rendering materials
+				blenderMaterial = meshMaterialList[face.materialIndex]
+				if blenderMaterial:
+					# non-empty material slot
+					faceMaterial = RenderingMaterial(data, face)
+				else:
+					faceMaterial = DefaultMaterial('default')
+			else:
+				# game engine materials
+				if (not(face.mode & Blender.NMesh.FaceModes['INVISIBLE'])
+					and not(face.flag & Blender.NMesh.FaceFlags['HIDE'])):
+					faceMaterial = GameEngineMaterial(data, face)
+			if faceMaterial:
+				# insert into Dicts
+				materialName = faceMaterial.getName()
+				material = objectMaterialDict.get(materialName)
+				if material:
+					# append faces
+					faceList = objectMaterialFacesDict[materialName]
+					faceList.append(face)
+					objectMaterialFacesDict[materialName] = faceList
+				else:
+					# create new faces list
+					objectMaterialDict[materialName] = faceMaterial
+					objectMaterialFacesDict[materialName] = [face]
 		# process faces
 		submeshes = []
 		for materialKey in objectMaterialDict.keys():
@@ -2407,7 +3092,8 @@ def export_mesh(object, exportOptions):
 			exportLogger.logWarning("Mesh %s has no visible faces!" % data.name)
 		else:
 			# write mesh
-			write_mesh(data.name, submeshes, skeleton)
+			mesh = Mesh(submeshes, skeleton, data)
+			mesh.write()
 	return
 
 #######################################################################################
@@ -2444,212 +3130,6 @@ def convertXMLFile(filename):
 			xmlConverter.close()
 	return
 
-def write_mesh(name, submeshes, skeleton):
-  global pathString, exportLogger
-  file = name+".mesh.xml"
-  exportLogger.logInfo("Mesh \"%s\"" % file)
-
-  f = open(os.path.join(pathString.val, file), "w")
-  f.write(tab(0)+"<mesh>\n")
-  f.write(tab(1)+"<submeshes>\n")
-  for submesh in submeshes:
-
-    f.write(tab(2)+"<submesh")
-    f.write(" material=\"%s\"" % submesh.material.name)
-    f.write(" usesharedvertices=\"false\"")
-    f.write(" use32bitindexes=\"false\"")
-    f.write(" operationtype=\"triangle_list\"")
-    f.write(">\n")
-    f.write(tab(3)+"<faces count=\"%d\">\n" % len(submesh.faces))
-
-    for face in submesh.faces:
-      v1, v2, v3  = face.vertex1.id, face.vertex2.id, face.vertex3.id
-      f.write(tab(4)+"<face v1=\"%d\" v2=\"%d\" v3=\"%d\"/>\n" % (v1, v2, v3))
-    f.write(tab(3)+"</faces>\n")
-
-    f.write(tab(3)+"<geometry vertexcount=\"%d\">\n" % len(submesh.vertices))
-
-    if (armatureToggle.val):
-      # use seperate vertexbuffer for position and normals when animated
-      f.write(tab(4)+"<vertexbuffer positions=\"true\" normals=\"true\">\n")
-      for v in submesh.vertices:
-        f.write(XMLVertexStringView(v.xmlVertex).toString(5, ['normal','position']))
-      f.write(tab(4)+"</vertexbuffer>\n")
-      if submesh.material.mat:
-        # Blender material
-        if submesh.material.texture or (submesh.material.mat.mode & Blender.Material.Modes["VCOL_PAINT"]):
-          f.write(tab(4)+"<vertexbuffer")
-          if submesh.material.texture:
-              f.write(" texture_coord_dimensions_0=\"2\" texture_coords=\"1\"")
-          if (submesh.material.mat.mode & Blender.Material.Modes["VCOL_PAINT"]):
-              f.write(" colours_diffuse=\"true\"")
-          f.write(">\n")
-          for v in submesh.vertices:
-            f.write(XMLVertexStringView(v.xmlVertex).toString(5, ['texcoordList','colourDiffuse']))
-          f.write(tab(4)+"</vertexbuffer>\n")
-      elif submesh.material.texture:
-        # texture only
-        f.write(tab(4)+"<vertexbuffer texture_coord_dimensions_0=\"2\" texture_coords=\"1\">\n")
-        for v in submesh.vertices:
-          f.write(XMLVertexStringView(v.xmlVertex).toString(5, ['texcoordList','colourDiffuse']))
-        f.write(tab(4)+"</vertexbuffer>\n")
-    else:
-      # use only one vertex buffer if mesh is not animated
-      f.write(tab(4)+"<vertexbuffer ")
-      f.write("positions=\"true\" ")
-      f.write("normals=\"true\"")
-      if submesh.material.texture:
-        f.write(" texture_coord_dimensions_0=\"2\" texture_coords=\"1\"")
-      if (submesh.material.mat.mode & Blender.Material.Modes["VCOL_PAINT"]):
-        f.write(" colours_diffuse=\"true\"")
-      f.write(">\n")
-      for v in submesh.vertices:
-        f.write(XMLVertexStringView(v.xmlVertex).toString(5))
-      f.write(tab(4)+"</vertexbuffer>\n")
-
-    f.write(tab(3)+"</geometry>\n")
-
-    if skeleton:
-      f.write(tab(3)+"<boneassignments>\n")
-      for v in submesh.vertices:
-        for influence in v.influences:
-          f.write(tab(4)+"<vertexboneassignment ")
-          f.write("vertexindex=\"%d\" boneindex=\"%d\" weight=\"%.6f\"/>\n"
-                  % (v.id, influence.bone.id, influence.weight))
-      f.write(tab(3)+"</boneassignments>\n")
-
-    f.write(tab(2)+"</submesh>\n")        
-
-  f.write(tab(1)+"</submeshes>\n")
-
-  if skeleton:
-    f.write(tab(1)+"<skeletonlink name=\"%s.skeleton\"/>\n" % skeleton.name) 
-
-  f.write(tab(0)+"</mesh>\n")    
-  f.close()
-  convertXMLFile(os.path.join(pathString.val, file))
-  return
-
-def writeNormalMapMaterial(file, colorImage, norImage):
-	file.write("""	technique
-	{
-		pass
-		{
-			ambient 1 1 1
-			diffuse 0 0 0 
-			specular 0 0 0 0
-			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
-			{
-				param_named_auto worldViewProj worldviewproj_matrix
-				param_named_auto ambient ambient_light_colour
-			}
-		}
-		pass
-		{
-			ambient 0 0 0 
-			iteration once_per_light
-			scene_blend add
-			vertex_program_ref Examples/BumpMapVPSpecular
-			{
-				param_named_auto lightPosition light_position_object_space 0
-				param_named_auto eyePosition camera_position_object_space
-				param_named_auto worldViewProj worldviewproj_matrix
-			}
-			fragment_program_ref Examples/BumpMapFPSpecular
-			{
-				param_named_auto lightDiffuse light_diffuse_colour 0 
-				param_named_auto lightSpecular light_specular_colour 0
-			}
-			texture_unit
-			{
-				texture %s
-				colour_op replace
-			}
-			texture_unit
-			{
-				cubic_texture nm.png combinedUVW
-				tex_coord_set 1
-				tex_address_mode clamp
-			}
-			texture_unit
-			{
-				cubic_texture nm.png combinedUVW
-				tex_coord_set 2
-				tex_address_mode clamp
-			}
-		}
-		pass
-		{
-			lighting off
-			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
-			{
-				param_named_auto worldViewProj worldviewproj_matrix
-				param_named ambient float4 1 1 1 1
-			}
-			scene_blend dest_colour zero
-			texture_unit
-			{
-				texture %s
-			}
-		}
-	}
-	technique
-	{
-		pass
-		{
-			ambient 1 1 1
-			diffuse 0 0 0 
-			specular 0 0 0 0
-			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
-			{
-				param_named_auto worldViewProj worldviewproj_matrix
-				param_named_auto ambient ambient_light_colour
-			}
-		}
-		pass
-		{
-			ambient 0 0 0 
-			iteration once_per_light
-			scene_blend add
-			vertex_program_ref Examples/BumpMapVP
-			{
-				param_named_auto lightPosition light_position_object_space 0
-				param_named_auto eyePosition camera_position_object_space
-				param_named_auto worldViewProj worldviewproj_matrix
-			}
-			texture_unit
-			{
-				texture %s
-				colour_op replace
-			}
-			texture_unit
-			{
-				cubic_texture nm.png combinedUVW
-				tex_coord_set 1
-				tex_address_mode clamp
-				colour_op_ex dotproduct src_texture src_current
-				colour_op_multipass_fallback dest_colour zero
-			}
-		}
-		pass
-		{
-			lighting off
-			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
-			{
-				param_named_auto worldViewProj worldviewproj_matrix
-				param_named ambient float4 1 1 1 1
-			}
-			scene_blend dest_colour zero
-			texture_unit
-			{
-				texture %s
-			}
-		}
-	}
-}
-""" % (colorImage, norImage, colorImage, norImage))	
-	return
-
 def write_materials():
 	global ambientToggle, pathString, materialString, exportLogger
 	global materialsDict
@@ -2657,106 +3137,8 @@ def write_materials():
 	exportLogger.logInfo("Materials \"%s\"" % file)
 
 	f = open(os.path.join(pathString.val, file), "w")
-	for name, material in materialsDict.items():
-		# material
-		f.write("material %s\n" % name)
-		f.write("{\n")
-		# receive_shadows <- SHADOW
-		if material.mat:
-			if (material.mat.mode & Blender.Material.Modes["SHADOW"]):
-				f.write(tab(1)+"receive_shadows on\n")
-			else:
-				f.write(tab(1)+"receive_shadows off\n")
-		# check material texture maps
-		hasNorMap = 0
-		iMaterialTexture = 0
-		if material.mat and material.texture:
-			while ((not hasNorMap) and (iMaterialTexture < 8)):
-				materialTexture = material.mat.getTextures()[iMaterialTexture]
-				iMaterialTexture += 1
-				if ((materialTexture is not None) \
-					and (materialTexture.mapto & Blender.Texture.MapTo['NOR']) \
-					and (materialTexture.texco & Blender.Texture.TexCo['UV']) \
-					and (materialTexture.tex.type == Blender.Texture.Types.IMAGE)):
-						# face has uv texture and material has enabled image texture, map input uv, map to nor
-						writeNormalMapMaterial(f, PathName(materialTexture.tex.image.filename).basename(), PathName(material.texture).basename())
-						hasNorMap = 1
-		if not hasNorMap:
-			# without material texture maps
-			# technique
-			f.write(tab(1)+"technique\n")
-			f.write(tab(1)+"{\n")
-			# pass
-			f.write(tab(2)+"pass\n")
-			f.write(tab(2)+"{\n")
-			if material.mat:
-				# pass attributes
-				mat = material.mat
-				## ambient
-				if (not(mat.mode & Blender.Material.Modes["TEXFACE"])
-					and not(mat.mode & Blender.Material.Modes["VCOL_PAINT"])
-					and (ambientToggle.val)):
-					ambientRGBList = mat.rgbCol
-				else:
-					ambientRGBList = [1.0, 1.0, 1.0]
-				# ambient <- amb * ambient RGB
-				ambR = clamp(mat.amb * ambientRGBList[0])
-				ambG = clamp(mat.amb * ambientRGBList[1])
-				ambB = clamp(mat.amb * ambientRGBList[2])
-				f.write(tab(3)+"ambient %f %f %f\n" % (ambR, ambG, ambB))
-				## diffuse
-				if (not(mat.mode & Blender.Material.Modes["TEXFACE"])
-					and not(mat.mode & Blender.Material.Modes["VCOL_PAINT"])):
-					# diffuse <- rgbCol
-					diffR = clamp(mat.rgbCol[0])
-					diffG = clamp(mat.rgbCol[1])
-					diffB = clamp(mat.rgbCol[2])
-					f.write(tab(3)+"diffuse %f %f %f\n" % (diffR, diffG, diffB))
-				## specular
-				# specular <- spec * specCol, hard
-				specR = clamp(mat.spec * mat.specCol[0])
-				specG = clamp(mat.spec * mat.specCol[1])
-				specB = clamp(mat.spec * mat.specCol[2])
-				specShine = mat.hard
-				f.write(tab(3)+"specular %f %f %f %f\n" % (specR, specG, specB, specShine))
-				## emissive
-				if(not(mat.mode & Blender.Material.Modes["TEXFACE"])
-					and not(mat.mode & Blender.Material.Modes["VCOL_PAINT"])):
-					# emissive <-emit * rgbCol
-					emR = clamp(mat.emit * mat.rgbCol[0])
-					emG = clamp(mat.emit * mat.rgbCol[1])
-					emB = clamp(mat.emit * mat.rgbCol[2])
-					f.write(tab(3)+"emissive %f %f %f\n" % (emR, emG, emB))
-				# depth_func  <- ZINVERT; ENV
-				if (mat.mode & Blender.Material.Modes["ENV"]):
-					f.write(tab(3)+"depth_func always_fail\n")
-				elif (mat.mode & Blender.Material.Modes["ZINVERT"]):
-					f.write(tab(3)+"depth_func greater_equal\n")
-				# lighting <- SHADELESS
-				if (mat.mode & Blender.Material.Modes["SHADELESS"]):
-					f.write(tab(3)+"lighting off\n")
-				# fog_override <- NOMIST
-				if (mat.mode & Blender.Material.Modes["NOMIST"]):
-					f.write(tab(3)+"fog_override true\n")
-			elif not(material.texture):
-				# default material
-				f.write(tab(3)+"ambient 0.5 0.22 0.5\n")
-				f.write(tab(3)+"diffuse 1.0 0.44 0.1\n")
-				f.write(tab(3)+"specular 0.5 0.22 0.5 50.0\n")
-				f.write(tab(3)+"emissive 0.0 0.0 0.0\n")
-			# scene_blend <- transp
-			if (material.mode == Blender.NMesh.FaceTranspModes["ALPHA"]):
-				f.write(tab(3)+"scene_blend alpha_blend \n")
-			elif (material.mode == Blender.NMesh.FaceTranspModes["ADD"]):
-				f.write(tab(3)+"scene_blend add\n")
-			if material.texture:
-				f.write(tab(3)+"texture_unit\n")
-				f.write(tab(3)+"{\n")
-				f.write(tab(4)+"texture %s\n" % PathName(material.texture).basename())
-				f.write(tab(3)+"}\n") # texture_unit
-			f.write(tab(2)+"}\n") # pass
-			f.write(tab(1)+"}\n") # technique
-		f.write("}\n\n") # material
+	for material in materialsDict.values():
+		material.write(f)
 	f.close()
 
 #######################################################################################
@@ -2793,15 +3175,17 @@ def export(selectedObjectsList):
       for obj in selectedObjectsList:
           if obj:
               if obj.getType() == "Mesh":
+                  exportLogger.logInfo("Exporting object \"%s\":" % obj.getName())
                   export_mesh(obj, exportOptions)
                   n = 1
               elif obj.getType() == "Armature":
+                  exportLogger.logInfo("Exporting object \"%s\":" % obj.getName())
                   actionActuatorList = armatureActionActuatorListViewDict[obj.getName()].armatureActionActuatorList
                   armatureMeshExporter = ArmatureMeshExporter(obj)
                   armatureMeshExporter.export(materialsDict, actionActuatorList, exportOptions, exportLogger)
       if n == 0:
           exportLogger.logWarning("No mesh objects selected!")
-      elif len(materialsDict) == 0:
+      if len(materialsDict) == 0:
           exportLogger.logWarning("No materials or textures defined!")
       else:
           write_materials()
@@ -2828,7 +3212,7 @@ def saveSettings():
 	   
 	   @return <code>true</code> on success, else <code>false</code>
 	"""
-	global uvToggle
+	global gameEngineMaterialsToggle
 	global armatureToggle
 	global worldCoordinatesToggle
 	global ambientToggle
@@ -2844,7 +3228,7 @@ def saveSettings():
 	settingsDict = {}
 	success = 0
 	# save general settings
-	settingsDict['uvToggle'] = uvToggle.val
+	settingsDict['gameEngineMaterialsToggle'] = gameEngineMaterialsToggle.val
 	settingsDict['armatureToggle'] = armatureToggle.val
 	settingsDict['worldCoordinatesToggle'] = worldCoordinatesToggle.val
 	settingsDict['ambientToggle'] = ambientToggle.val
@@ -2906,7 +3290,7 @@ def loadSettings(filename):
 	   @param filename where to store the settings
 	   @return <code>true</code> on success, else <code>false</code>
 	"""
-	global uvToggle
+	global gameEngineMaterialsToggle
 	global armatureToggle
 	global worldCoordinatesToggle
 	global ambientToggle
@@ -2951,8 +3335,8 @@ def loadSettings(filename):
 			else:
 				success = 1
 	# set general settings
-	if settingsDict.has_key('uvToggle'):
-		uvToggle = Blender.Draw.Create(settingsDict['uvToggle'])
+	if settingsDict.has_key('gameEngineMaterialsToggle'):
+		gameEngineMaterialsToggle = Blender.Draw.Create(settingsDict['gameEngineMaterialsToggle'])
 	if settingsDict.has_key('armatureToggle'):
 		armatureToggle = Blender.Draw.Create(settingsDict['armatureToggle'])
 	if settingsDict.has_key('worldCoordinatesToggle'):
@@ -3118,6 +3502,8 @@ def buttonCallback(event):
 		Draw.Redraw(1)
 	elif (event  == BUTTON_EVENT_QUIT): # Quit
 		exitGUI()
+	elif (event == BUTTON_EVENT_GAMEENGINEMATERIALSTOGGLE):
+		Draw.Redraw(1)
 	elif (event == BUTTON_EVENT_ARMATURETOGGLE): # armatureToggle
 		Draw.Redraw(1)
 	elif (event == BUTTON_EVENT_PATHBUTTON): # pathButton
@@ -3170,8 +3556,9 @@ def frameDecorator(x, y, width):
 def gui():
 	"""draws the screen
 	"""
-	global uvToggle, armatureToggle, worldCoordinatesToggle, ambientToggle, pathString, materialString, \
-		scaleNumber, fpsNumber, scrollbar, rotXNumber, rotYNumber, rotZNumber
+	global gameEngineMaterialsToggle, armatureToggle, worldCoordinatesToggle, \
+		ambientToggle, pathString, materialString, scaleNumber, fpsNumber, \
+		scrollbar, rotXNumber, rotYNumber, rotZNumber
 	global selectedObjectsList, selectedObjectsMenu, armatureActionActuatorListViewDict, armatureDict
 	# get size of the window
 	guiRectBuffer = Buffer(GL_FLOAT, 4)
@@ -3198,16 +3585,16 @@ def gui():
 			materialString.val, 255,"all material definitions go in this file (relative to the save path)")
 	remainRect[3] -= 25
 	# second row
-	uvToggle = Draw.Toggle("Export Textures", BUTTON_EVENT_UVTOGGLE, \
+	gameEngineMaterialsToggle = Draw.Toggle("Game Engine Materials", BUTTON_EVENT_GAMEENGINEMATERIALSTOGGLE, \
 				remainRect[0], remainRect[3]-25, 220, 20, \
-				uvToggle.val, "export uv coordinates and texture names, if available")
+				gameEngineMaterialsToggle.val, "export game engine materials instead of rendering materials")
 	# scale settings
 	scaleNumber = Draw.Number("Mesh Scale Factor: ", BUTTON_EVENT_SCALENUMBER, \
 			remainRect[0]+230, remainRect[3]-25, 220, 20, \
 			scaleNumber.val, 0.0, 1000.0, "scale factor")
 	remainRect[3] -= 25
 	# third row	
-	armatureToggle = Draw.Toggle("Export Armature", BUTTON_EVENT_ARMATURETOGGLE, \
+	armatureToggle = Draw.Toggle("Export Armatures", BUTTON_EVENT_ARMATURETOGGLE, \
 				remainRect[0], remainRect[3]-25, 220, 20, \
 				armatureToggle.val, "export skeletons and bone weights in meshes")
 	rotXNumber = Draw.Number("RotX: ", BUTTON_EVENT_ROTXNUMBER, \
