@@ -353,7 +353,7 @@ namespace Ogre {
         }
     }
 
-    void GLTexture::generateMipMaps( uchar *data, bool useSoftware, 
+    void GLTexture::generateMipMaps( const uchar *data, bool useSoftware, 
         bool isCompressed, size_t faceNumber )
     {
         mGLSupport.begin_context();
