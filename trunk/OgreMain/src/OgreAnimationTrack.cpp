@@ -236,7 +236,7 @@ namespace Ogre {
         mMainWindow->setDebugText(msg);
         */
 
-        node->rotate(kf.getRotation());
+        node->rotate(kf.getRotation() * weight);
         node->translate(kf.getTranslate() * weight);
 
 
