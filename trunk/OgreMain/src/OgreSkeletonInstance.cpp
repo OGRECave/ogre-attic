@@ -38,6 +38,11 @@ namespace Ogre {
     //-------------------------------------------------------------------------
     SkeletonInstance::~SkeletonInstance()
     {
+        // have to call this here rather than in Resource destructor
+        // since calling virtual methods in base destructors causes crash
+        // ...and calling it in Skeleton destructor does not unload
+        // SkeletonInstance since it has seized to be by then.
+        unload();
     }
     //-------------------------------------------------------------------------
     unsigned short SkeletonInstance::getNumAnimations(void) const

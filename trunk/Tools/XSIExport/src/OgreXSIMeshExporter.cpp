@@ -43,8 +43,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMesh.h"
 #include "OgreSubMesh.h"
 #include "OgreMeshManager.h"
-#include "OgreDefaultHardwareBufferManager.h"
 #include "OgreMeshSerializer.h"
+#include "OgreHardwareBufferManager.h"
 #include "OgreVertexBoneAssignment.h"
 
 using namespace XSI;
@@ -87,18 +87,10 @@ namespace Ogre {
 		cleanupDeformerList();
     }
     //-----------------------------------------------------------------------
-	XsiMeshExporter::DeformerList& 
-	XsiMeshExporter::exportMesh(const XSI::CString& fileName, 
+	DeformerList& XsiMeshExporter::exportMesh(const XSI::CString& fileName, 
 		bool mergeSubMeshes, bool exportChildren, 
 		bool edgeLists, bool tangents, LodData* lod, const String& skeletonName)
     {
-        LogManager logMgr;
-		logMgr.createLog("OgreXSIExporter.log", true);
-		ResourceGroupManager rgm;
-        MeshManager *meshMgr = new MeshManager();
-        DefaultHardwareBufferManager *hardwareBufMgr = new DefaultHardwareBufferManager();
-
-        logMgr.createLog("OgreXSIExport.log", true);
 
         // Derive the scene root
         X3DObject sceneRoot(mXsiApp.GetActiveSceneRoot());
@@ -151,8 +143,6 @@ namespace Ogre {
         serializer.exportMesh(pMesh.getPointer(), XSItoOgre(fileName));
 
 		cleanupPolygonMeshList();
-		delete meshMgr;
-        delete hardwareBufMgr;
 
 		return mXsiDeformerList;
     }
@@ -609,6 +599,9 @@ namespace Ogre {
 					{
 						size_t positionIndex = derefArray[w];
 						float weight = weights[w];
+						// Skip zero weights
+						if (weight == 0.0f)
+							continue;
 
 						// Locate ProtoSubMeshes which use this mesh
 						for (ProtoSubMeshList::iterator psi = mProtoSubmeshList.begin();

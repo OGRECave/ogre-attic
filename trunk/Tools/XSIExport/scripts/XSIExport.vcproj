@@ -127,6 +127,9 @@
 			<File
 				RelativePath="..\src\OgreXSIMeshExporter.cpp">
 			</File>
+			<File
+				RelativePath="..\src\OgreXSISkeletonExporter.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -136,6 +139,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreXSIMeshExporter.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreXSISkeletonExporter.h">
 			</File>
 		</Filter>
 		<Filter
