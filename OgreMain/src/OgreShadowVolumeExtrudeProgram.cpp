@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+    // c4 is the light position/direction in these
     String ShadowVolumeExtrudeProgram::mPointArbvp1 = 
         "!!ARBvp1.0\n"
         "PARAM c5 = { 0, 0, 0, 0 };\n"
@@ -154,7 +155,8 @@ namespace Ogre {
         "mov oD0, c5.x\n";
 
 
-
+    // c4 is the light position/direction in these
+    // c5 is extrusion distance
      String ShadowVolumeExtrudeProgram::mPointArbvp1Finite = 
         "!!ARBvp1.0\n" 
         "PARAM c6 = { 1, 0, 0, 0 };\n"
@@ -216,10 +218,70 @@ namespace Ogre {
          "dp4 oPos.y, c1, r0\n"
          "dp4 oPos.z, c2, r0\n"
          "dp4 oPos.w, c3, r0\n";
-     String ShadowVolumeExtrudeProgram::mPointArbvp1FiniteDebug = "";
-     String ShadowVolumeExtrudeProgram::mPointVs_1_1FiniteDebug = "";
-     String ShadowVolumeExtrudeProgram::mDirArbvp1FiniteDebug = "";
-     String ShadowVolumeExtrudeProgram::mDirVs_1_1FiniteDebug = "";
+     String ShadowVolumeExtrudeProgram::mPointArbvp1FiniteDebug = 
+        "!!ARBvp1.0\n"
+        "PARAM c6 = { 1, 0, 0, 0 };"
+        "TEMP R0;\n"
+        "ATTRIB v24 = vertex.texcoord[0];\n"
+        "ATTRIB v16 = vertex.position;\n"
+        "PARAM c0[4] = { program.local[0..3] };\n"
+        "PARAM c5 = program.local[5];\n"
+        "PARAM c4 = program.local[4];\n"
+        "MOV result.color.front.primary, c6.x;\n"
+        "ADD R0.x, c6.x, -v24.x;\n"
+        "MUL R0.w, R0.x, c5.x;\n"
+        "ADD R0.xyz, v16.xyzx, -c4.xyzx;\n"
+        "MAD R0.xyz, R0.w, R0.xyzx, v16.xyzx;\n"
+        "DPH result.position.x, R0.xyzz, c0[0];\n"
+        "DPH result.position.y, R0.xyzz, c0[1];\n"
+        "DPH result.position.z, R0.xyzz, c0[2];\n"
+        "DPH result.position.w, R0.xyzz, c0[3];\n"
+        "END\n";
+     String ShadowVolumeExtrudeProgram::mPointVs_1_1FiniteDebug = 
+         "vs_1_1\n"
+         "def c6, 1, 0, 0, 0\n"
+         "dcl_texcoord0 v7\n"
+         "dcl_position v0\n"
+         "mov oD0, c6.x\n"
+         "add r0.x, c6.x, -v7.x\n"
+         "mul r0.w, r0.x, c5.x\n"
+         "add r0.xyz, v0.xyz, -c4.xyz\n"
+         "mad r0.xyz, r0.w, r0.xyz, v0.xyz\n"
+         "mov r0.w, c6.x\n"
+         "dp4 oPos.x, c0, r0\n"
+         "dp4 oPos.y, c1, r0\n"
+         "dp4 oPos.z, c2, r0\n"
+         "dp4 oPos.w, c3, r0\n";
+     String ShadowVolumeExtrudeProgram::mDirArbvp1FiniteDebug = 
+        "!!ARBvp1.0\n"
+        "PARAM c6 = { 1, 0, 0, 0 };\n"
+        "TEMP R0;\n"
+        "ATTRIB v24 = vertex.texcoord[0];\n"
+        "ATTRIB v16 = vertex.position;\n"
+        "PARAM c0[4] = { program.local[0..3] };\n"
+        "PARAM c4 = program.local[4];\n"
+        "PARAM c5 = program.local[5];\n"
+        "MOV result.color.front.primary, c6.x;\n"
+        "MUL R0.x, v24.x, c5.x;\n"
+        "MAD R0.xyz, -R0.x, c4.xyzx, v16.xyzx;\n"
+        "DPH result.position.x, R0.xyzz, c0[0];\n"
+        "DPH result.position.y, R0.xyzz, c0[1];\n"
+        "DPH result.position.z, R0.xyzz, c0[2];\n"
+        "DPH result.position.w, R0.xyzz, c0[3];\n"
+        "END\n";
+     String ShadowVolumeExtrudeProgram::mDirVs_1_1FiniteDebug = 
+         "vs_1_1\n"
+         "def c6, 1, 0, 0, 0\n"
+         "dcl_texcoord0 v7\n"
+         "dcl_position v0\n"
+         "mov oD0, c6.x\n"
+         "mul r0.x, v7.x, c5.x\n"
+         "mad r0.xyz, -r0.x, c4.xyz, v0.xyz\n"
+         "mov r0.w, c6.x\n"
+         "dp4 oPos.x, c0, r0\n"
+         "dp4 oPos.y, c1, r0\n"
+         "dp4 oPos.z, c2, r0\n"
+         "dp4 oPos.w, c3, r0\n";
 
 
      const String ShadowVolumeExtrudeProgram::programNames[NUM_SHADOW_EXTRUDER_PROGRAMS] = 
