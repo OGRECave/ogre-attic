@@ -46,6 +46,7 @@ namespace Ogre {
 
         // set default queue
         mDefaultQueueGroup = RENDER_QUEUE_MAIN;
+		mDefaultRenderablePriority = RENDERABLE_DEFAULT_PRIORITY;
 
     }
     //---------------------------------------------------------------------
@@ -106,9 +107,14 @@ namespace Ogre {
         return QueueGroupIterator(mGroups.begin(), mGroups.end());
     }
     //-----------------------------------------------------------------------
-    void RenderQueue::addRenderable(Renderable* pRend, ushort priority)
+    void RenderQueue::addRenderable(Renderable* pRend, RenderQueueGroupID groupID)
     {
-        addRenderable(pRend, mDefaultQueueGroup, priority);
+        addRenderable(pRend, groupID, mDefaultRenderablePriority);
+    }
+	//-----------------------------------------------------------------------
+    void RenderQueue::addRenderable(Renderable* pRend)
+    {
+        addRenderable(pRend, mDefaultQueueGroup, mDefaultRenderablePriority);
     }
     //-----------------------------------------------------------------------
     RenderQueueGroupID RenderQueue::getDefaultQueueGroup(void) const
@@ -120,6 +126,18 @@ namespace Ogre {
     {
         mDefaultQueueGroup = grp;
     }
+    //-----------------------------------------------------------------------
+    ushort RenderQueue::getDefaultRenderablePriority(void) const
+    {
+        return mDefaultRenderablePriority;
+    }
+    //-----------------------------------------------------------------------
+    void RenderQueue::setDefaultRenderablePriority(ushort priority)
+    {
+        mDefaultRenderablePriority = priority;
+    }
+	
+	
 	//-----------------------------------------------------------------------
 	RenderQueueGroup* RenderQueue::getQueueGroup(RenderQueueGroupID groupID)
 	{

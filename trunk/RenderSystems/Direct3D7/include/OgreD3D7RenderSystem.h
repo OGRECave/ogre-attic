@@ -421,6 +421,8 @@ namespace Ogre {
         HardwareOcclusionQuery* createHardwareOcclusionQuery(void);
         Real getHorizontalTexelOffset(void);
         Real getVerticalTexelOffset(void);
+        Real getMinimumDepthInputValue(void);
+        Real getMaximumDepthInputValue(void);
         // ----------------------------------
         // End Overridden members
         // ----------------------------------

@@ -362,7 +362,16 @@ namespace Ogre {
         for (i = mSubEntityList.begin(); i != iend; ++i)
         {
             if((*i)->isVisible())  
-                queue->addRenderable(*i, mRenderQueueID, RENDERABLE_DEFAULT_PRIORITY);
+            {
+                if(mRenderQueueIDSet) 
+                {
+                    queue->addRenderable(*i, mRenderQueueID);
+                } 
+                else 
+                {
+                    queue->addRenderable(*i);
+                }
+            }
         }
 
         // Since we know we're going to be rendered, take this opportunity to 
@@ -390,7 +399,12 @@ namespace Ogre {
             for (int b = 0; b < numBones; ++b)
             {
                 Bone* bone = mSkeletonInstance->getBone(b);
-                queue->addRenderable(bone, mRenderQueueID, RENDERABLE_DEFAULT_PRIORITY);
+                if(mRenderQueueIDSet) 
+                {
+                     queue->addRenderable(bone, mRenderQueueID);
+                } else {
+                     queue->addRenderable(bone);
+                }
             }
         }
 
@@ -961,6 +975,13 @@ namespace Ogre {
 
         // We need to search the edge list for silhouette edges
         EdgeData* edgeList = getEdgeList();
+
+		if (!edgeList)
+		{
+			// we can't get an edge list for some reason, return blank
+			// really we shouldn't be able to get here, but this is a safeguard
+			return getLastShadowVolumeRenderableIterator();
+		}
 
         // Init shadow renderable list if required
         bool init = mShadowRenderables.empty();

@@ -485,7 +485,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------    
     void BillboardSet::_updateRenderQueue(RenderQueue* queue)
     {
-        queue->addRenderable(this, mRenderQueueID, RENDERABLE_DEFAULT_PRIORITY);
+        //only set the render queue group if it has been explicitly set.
+        if( mRenderQueueIDSet ) 
+        {
+           queue->addRenderable(this, mRenderQueueID);
+        } else {
+           queue->addRenderable(this);
+        }
+
     }
 
     //-----------------------------------------------------------------------
