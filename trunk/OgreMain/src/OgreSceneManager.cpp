@@ -97,6 +97,7 @@ namespace Ogre {
         mShadowDebugPass = 0;
         mShadowStencilPass = 0;
         mShadowModulativePass = 0;
+        mShadowCasterPlainBlackPass = 0;
         mFullScreenQuad = 0;
         mShadowCasterSphereQuery = 0;
         mShadowCasterAABBQuery = 0;
@@ -105,6 +106,7 @@ namespace Ogre {
         mShadowFarDist = 0;
         mShadowFarDistSquared = 0;
 		mShadowIndexBufferSize = 51200;
+        mForceShadowCasterPass = false;
 
 
 		// init render queues that do not need shadows
@@ -537,6 +539,12 @@ namespace Ogre {
     {
 		static bool lastUsedVertexProgram = false;
 		static bool lastUsedFragmentProgram = false;
+
+        if (mForceShadowCasterPass)
+        {
+            // Derive a special shadow caster pass from this one
+            pass = deriveShadowCasterPass(pass);
+        }
 
         // TEST
         /*
@@ -1258,6 +1266,8 @@ namespace Ogre {
             // Render all the ambient passes first, no light iteration, no lights
             mIlluminationStage = IS_AMBIENT;
             renderObjects(pPriorityGrp->_getSolidPasses(), false, &lightList);
+            // Also render any objects which have receive shadows disabled
+            renderObjects(pPriorityGrp->_getSolidPassesNoShadow(), true);
 
 
             // Now iterate per light
@@ -1325,7 +1335,7 @@ namespace Ogre {
 			// Sort the queue first
 			pPriorityGrp->sort(mCameraInProgress);
 
-			// Do solids
+			// Do (shadowable) solids
 			renderObjects(pPriorityGrp->_getSolidPasses(), true);
 		}
 
@@ -1357,12 +1367,23 @@ namespace Ogre {
 
 		}// for each light
 
+        // Iterate again - variable name changed to appease gcc.
+        RenderQueueGroup::PriorityMapIterator groupIt2 = pGroup->getIterator();
+        while (groupIt2.hasMoreElements())
+        {
+            RenderPriorityGroup* pPriorityGrp = groupIt2.getNext();
+
+            // Do non-shadowable solids
+            renderObjects(pPriorityGrp->_getSolidPassesNoShadow(), true);
+
+        }// for each priority
+
 
 		// Iterate again - variable name changed to appease gcc.
-        RenderQueueGroup::PriorityMapIterator groupIt2 = pGroup->getIterator();
+        RenderQueueGroup::PriorityMapIterator groupIt3 = pGroup->getIterator();
 		while (groupIt2.hasMoreElements())
 		{
-			RenderPriorityGroup* pPriorityGrp = groupIt2.getNext();
+			RenderPriorityGroup* pPriorityGrp = groupIt3.getNext();
 
 			// Do transparents
 			renderObjects(pPriorityGrp->_getTransparentPasses(), true);
@@ -1380,6 +1401,10 @@ namespace Ogre {
 		ipassend = objs.end();
 		for (ipass = objs.begin(); ipass != ipassend; ++ipass)
 		{
+            // Fast bypass if we're forcing a texture shadow render and 
+            // this pass is after the first (only 1 pass needed for shadow texture)
+            if (mForceShadowCasterPass && ipass->first->getIndex() > 0)
+                continue;
 			// Fast bypass if this group is now empty
 			if (ipass->second->empty()) continue;
 			// For solids, we try to do each pass in turn
@@ -2202,12 +2227,27 @@ namespace Ogre {
 					false);
             // tell all meshes to prepare shadow volumes
             MeshManager::getSingleton().setPrepareAllMeshesForShadowVolumes(true);
+
         }
 
         if (mShadowTechnique == SHADOWTYPE_STENCIL_ADDITIVE)
         {
             // Additive stencil, we need to split everything by illumination stage
             mRenderQueue.setSplitPassesByLightingType(true);
+        }
+        else
+        {
+            mRenderQueue.setSplitPassesByLightingType(false);
+        }
+
+        if (mShadowTechnique != SHADOWTYPE_NONE)
+        {
+            // Tell render queue to split off non-shadowable materials
+            mRenderQueue.setSplitNoShadowPasses(true);
+        }
+        else
+        {
+            mRenderQueue.setSplitNoShadowPasses(false);
         }
 
     }
@@ -2437,8 +2477,47 @@ namespace Ogre {
             mFullScreenQuad->setCorners(-1,1,1,-1);
         }
 
+        // Also init shadow caster material for texture shadows
+        Material* matPlainBlack = static_cast<Material*>(
+            MaterialManager::getSingleton().getByName("Ogre/TextureShadowCaster"));
+        if (!matPlainBlack)
+        {
+            matPlainBlack = static_cast<Material*>(
+                MaterialManager::getSingleton().create("Ogre/TextureShadowCaster"));
+            mShadowCasterPlainBlackPass = matPlainBlack->getTechnique(0)->getPass(0);
+            // Lighting has to be on, because we need black objects
+            // however, all lighting components are zero
+            // Note that because we can't predict vertex programs, we'll have to
+            // bind light values of 0 to those
+            mShadowCasterPlainBlackPass->setAmbient(ColourValue::Black);
+            mShadowCasterPlainBlackPass->setDiffuse(ColourValue::Black);
+            mShadowCasterPlainBlackPass->setSelfIllumination(ColourValue::Black);
+            mShadowCasterPlainBlackPass->setSpecular(ColourValue::Black);
+            // no textures or anything else, we will bind vertex programs
+            // every so often though
+        }
 
 
+
+
+    }
+    //---------------------------------------------------------------------
+    Pass* SceneManager::deriveShadowCasterPass(Pass* pass)
+    {
+        if (pass->hasVertexProgram())
+        {
+            // Have to merge the vertex program in
+            mShadowCasterPlainBlackPass->setVertexProgram(
+                pass->getVertexProgramName());
+            // Also have to hack the light autoparams, that is done later
+        }
+        else if (mShadowCasterPlainBlackPass->hasVertexProgram())
+        {
+            // reset
+            mShadowCasterPlainBlackPass->setVertexProgram("");
+
+        }
+        return mShadowCasterPlainBlackPass;
     }
     //---------------------------------------------------------------------
     void SceneManager::renderShadowVolumesToStencil(const Light* light, const Camera* camera)

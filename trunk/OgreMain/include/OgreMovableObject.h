@@ -199,10 +199,10 @@ namespace Ogre {
         @remarks
         This setting simply allows you to turn on/off shadows for a given object.
         An object will not cast shadows unless the scene supports it in any case
-        (see SceneManager::setShadowTechnique), and by default all entities cast
-        shadows if the scene-level feature is enabled. If, however, for some reason
-        you wish to disable this for a single object then you can do so using this
-        method.
+        (see SceneManager::setShadowTechnique), and also the material which is
+        in use must also have shadow casting enabled. By default all entities cast
+        shadows. If, however, for some reason you wish to disable this for a single 
+        object then you can do so using this method.
         @note This method normally refers to objects which block the light, but
         since Light is also a subclass of MovableObject, in that context it means
         whether the light causes shadows itself.

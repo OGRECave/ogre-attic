@@ -49,7 +49,7 @@ namespace Ogre {
         mCompilationRequired = true;
         mIsLoaded = false;
 		mLodDistances.push_back(0.0f);
-
+        mReceiveShadows = true;
     }
     //-----------------------------------------------------------------------
     Material::Material( const String& name )
@@ -75,6 +75,7 @@ namespace Ogre {
 	    mHandle = rhs.mHandle;
         mSize = rhs.mSize;
         mLastAccess = rhs.mLastAccess;
+        mReceiveShadows = rhs.mReceiveShadows;
 
 
 
@@ -579,7 +580,11 @@ namespace Ogre {
 		// If we fall all the way through, use the highest value
 		return static_cast<ushort>(mLodDistances.size() - 1);
     }
-
+    // --------------------------------------------------------------------
+    Material::LodDistanceIterator Material::getLodDistanceIterator(void) const
+    {
+        return LodDistanceIterator(mLodDistances.begin(), mLodDistances.end());
+    }
 
 }
 

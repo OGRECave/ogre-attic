@@ -628,7 +628,7 @@ namespace Ogre {
         if(!_fireFrameStarted())
             return false;
 
-        mActiveRenderer->_updateAllRenderTargets();
+        _updateAllRenderTargets();
 
         return _fireFrameEnded();
     }
@@ -872,5 +872,11 @@ namespace Ogre {
         }
 
         firsttime = false;
+    }
+    //-----------------------------------------------------------------------
+    void Root::_updateAllRenderTargets(void)
+    {
+        // delegate
+        mActiveRenderer->_updateAllRenderTargets();
     }
 }

@@ -631,6 +631,17 @@ namespace Ogre
         */
         void _setCurrentSceneManager(SceneManager* sm) { mCurrentSceneManager = sm; }
 
+        /** Internal method used for updating all RenderTarget objects (windows, 
+            renderable textures etc) which are set to auto-update.
+        @remarks
+            You don't need to use this method if you're using Ogre's own internal
+            rendering loop (Root::startRendering). If you're running your own loop
+            you may wish to call it to update all the render targets which are
+            set to auto update (RenderTarget::setAutoUpdated). You can also update
+            individual RenderTarget instances using their own update() method.
+        */
+        void _updateAllRenderTargets(void);
+
     };
 } // Namespace Ogre
 #endif

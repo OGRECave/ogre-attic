@@ -183,6 +183,20 @@ namespace Ogre {
                 pass The Pass details to set.
         */
         void setPass(Pass* pass);
+        /// Shadow render override pass - forces use of simpler pass details
+        bool mForceShadowCasterPass;
+        /// A pass designed to let us render black on white for texture shadows
+        Pass* mShadowCasterPlainBlackPass;
+        /** Internal method for turning a regular pass into a shadow caster pass.
+        @remarks
+            This is only used for texture shadows, basically we're trying to
+            ensure that objects are rendered solid black.
+            This method will usually return the standard solid black pass for
+            all fixed function passes, but will merge in a vertex program
+            and fudge the AutpoParamDataSource to set black lighting for
+            passes with vertex programs. 
+        */
+        Pass* deriveShadowCasterPass(Pass* pass);
 
         enum BoxPlane
         {

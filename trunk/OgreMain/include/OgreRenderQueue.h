@@ -79,6 +79,7 @@ namespace Ogre {
         /// The current default queue group
         RenderQueueGroupID mDefaultQueueGroup;
         bool mSplitPassesByLightingType;
+        bool mSplitNoShadowPasses;
     public:
         RenderQueue();
         virtual ~RenderQueue();
@@ -153,6 +154,11 @@ namespace Ogre {
             ie ambient, per-light and decal. 
         */
         void setSplitPassesByLightingType(bool split);
+        /** Sets whether or not the queue will split passes which have shadow receive
+        turned off (in their parent material), which is needed when certain shadow
+        techniques are used.
+        */
+        void setSplitNoShadowPasses(bool split);
     };
 
 
