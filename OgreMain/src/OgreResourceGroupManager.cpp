@@ -1062,6 +1062,59 @@ namespace Ogre {
         return vec;
     }
     //-----------------------------------------------------------------------
+	bool ResourceGroupManager::resourceExists(const String& groupName, const String& resourceName)
+	{
+        OGRE_LOCK_AUTO_MUTEX
+
+		// Try to find in resource index first
+        ResourceGroup* grp = getResourceGroup(groupName);
+        if (!grp)
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, 
+                "Cannot locate a resource group called '" + groupName + "'", 
+                "ResourceGroupManager::resourceExists");
+        }
+
+		OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME) // lock group mutex
+
+		// Try indexes first
+		ResourceLocationIndex::iterator rit = grp->resourceIndexCaseSensitive.find(resourceName);
+		if (rit != grp->resourceIndexCaseSensitive.end())
+		{
+			// Found in the index
+			return true;
+		}
+        else 
+        {
+            // try case insensitive
+            String lcResourceName = resourceName;
+            StringUtil::toLowerCase(lcResourceName);
+            rit = grp->resourceIndexCaseInsensitive.find(lcResourceName);
+            if (rit != grp->resourceIndexCaseInsensitive.end())
+            {
+                // Found in the index
+                return true;
+            }
+		    else
+		    {
+			    // Search the hard way
+			    LocationList::iterator li, liend;
+			    liend = grp->locationList.end();
+			    for (li = grp->locationList.begin(); li != liend; ++li)
+			    {
+				    Archive* arch = (*li)->archive;
+                    if (arch->exists(resourceName))
+				    {
+						return true;
+				    }
+			    }
+		    }
+        }
+
+		return false;
+
+	}
+    //-----------------------------------------------------------------------
 
 
 

@@ -74,6 +74,8 @@ namespace Ogre {
         /// @copydoc Archive::findFileInfo
         FileInfoListPtr findFileInfo(const String& pattern, bool recursive = true);
 
+        /// @copydoc Archive::exists
+		bool exists(const String& filename);
     };
 
     /** Specialisation of ArchiveFactory for Zip files. */
