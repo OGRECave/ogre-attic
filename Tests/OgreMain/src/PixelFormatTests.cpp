@@ -67,7 +67,7 @@ void PixelFormatTests::testFloatPackUnpack()
     // Float16
     setupBoxes(PF_A8B8G8R8, PF_FP_R16G16B16A16);
     dst2.format = PF_A8B8G8R8;
-    unsigned int eob = src.width*4;
+    unsigned int eob = src.getWidth()*4;
     
     PixelUtil::bulkPixelConversion(src, dst1);
     PixelUtil::bulkPixelConversion(dst1, dst2);
@@ -100,25 +100,27 @@ void naiveBulkPixelConversion(const PixelBox &src, const PixelBox &dst)
 
     int dstRowSkipBytes = dst.getRowSkip()*dstPixelSize;
     int dstSliceSkipBytes = dst.getSliceSkip()*dstPixelSize;
-
-    float r,g,b,a;
-    for(unsigned int z=0; z<src.depth; z++) 
-    {
-        for(unsigned int y=0; y<src.height; y++)
-        {
-            for(unsigned int x=0; x<src.width; x++)
-            {
-                PixelUtil::unpackColour(&r, &g, &b, &a, src.format, srcptr);
-                PixelUtil::packColour(r, g, b, a, dst.format, dstptr);
-                srcptr += srcPixelSize; 
-                dstptr += dstPixelSize;
-            }
-            srcptr += srcRowSkipBytes;
-            dstptr += dstRowSkipBytes;
-        }
-        srcptr += srcSliceSkipBytes;
-        dstptr += dstSliceSkipBytes;
-    }
+	
+	// The brute force fallback
+	float r,g,b,a;
+	for(size_t z=src.front; z<src.back; z++) 
+	{
+		for(size_t y=src.top; y<src.bottom; y++)
+		{
+			for(size_t x=src.left; x<src.right; x++)
+			{
+				PixelUtil::unpackColour(&r, &g, &b, &a, src.format, srcptr);
+				PixelUtil::packColour(r, g, b, a, dst.format, dstptr);
+				srcptr += srcPixelSize; 
+				dstptr += dstPixelSize;
+			}
+			srcptr += srcRowSkipBytes;
+			dstptr += dstRowSkipBytes;
+		}
+		srcptr += srcSliceSkipBytes;
+		dstptr += dstSliceSkipBytes;
+	}
+	
 }
 
 void PixelFormatTests::setupBoxes(PixelFormat srcFormat, PixelFormat dstFormat)
@@ -128,34 +130,17 @@ void PixelFormatTests::setupBoxes(PixelFormat srcFormat, PixelFormat dstFormat)
     if(width > width2)
         width = width2;
 
-    src.data = randomData;
-    src.format = srcFormat;
-    src.width = width;
-    src.height = 1;
-    src.depth = 1;
-    src.setConsecutive();
+    src = PixelBox(width, 1, 1, srcFormat, randomData);
+	dst1 = PixelBox(width, 1, 1, dstFormat, temp);
+	dst2 = PixelBox(width, 1, 1, dstFormat, temp2);
 
-    dst1.data = temp;
-    dst1.format = dstFormat;
-    dst1.width = width;
-    dst1.height = 1;
-    dst1.depth = 1;
-    dst1.setConsecutive();
-
-    dst2.data = temp2;
-    dst2.format = dstFormat;
-    dst2.width = width;
-    dst2.height = 1;
-    dst2.depth = 1;
-    dst2.setConsecutive();
-  
 }
 
 void PixelFormatTests::testCase(PixelFormat srcFormat, PixelFormat dstFormat)
 {
     setupBoxes(srcFormat, dstFormat);
     // Check end of buffer
-    unsigned int eob = dst1.width*PixelUtil::getNumElemBytes(dstFormat);
+    unsigned int eob = dst1.getWidth()*PixelUtil::getNumElemBytes(dstFormat);
     temp[eob] = (unsigned char)0x56;
     temp[eob+1] = (unsigned char)0x23;
 
@@ -213,6 +198,14 @@ void PixelFormatTests::testBulkConversion()
     testCase(PF_B8G8R8, PF_A8B8G8R8);
     testCase(PF_R8G8B8, PF_B8G8R8A8);
     testCase(PF_B8G8R8, PF_B8G8R8A8);
+	testCase(PF_A8R8G8B8, PF_R8G8B8);
+	testCase(PF_A8R8G8B8, PF_B8G8R8);
+	testCase(PF_X8R8G8B8, PF_A8R8G8B8);
+	testCase(PF_X8R8G8B8, PF_A8B8G8R8);
+	testCase(PF_X8R8G8B8, PF_B8G8R8A8);
+	testCase(PF_X8B8G8R8, PF_A8R8G8B8);
+	testCase(PF_X8B8G8R8, PF_A8B8G8R8);
+	testCase(PF_X8B8G8R8, PF_B8G8R8A8);
 
     //CPPUNIT_ASSERT_MESSAGE("Conversion mismatch", false);
 }
