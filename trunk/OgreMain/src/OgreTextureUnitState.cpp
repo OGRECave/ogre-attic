@@ -66,7 +66,7 @@ namespace Ogre {
         mAnimDuration = 0;
         mAnimController = 0;
         mCubic = false;
-        mIs3D = false;
+        mTextureType = TEX_TYPE_2D;
         mTextureCoordSetIndex = 0;
 
     }
@@ -109,7 +109,7 @@ namespace Ogre {
         mAlphaRejectVal = 0;
 
         mCubic = false;
-        mIs3D = false;
+        mTextureType = TEX_TYPE_2D;
         mTextureCoordSetIndex = 0;
 
         setTextureName(texName);
@@ -157,27 +157,35 @@ namespace Ogre {
         return mFrames[mCurrentFrame];
     }
     //-----------------------------------------------------------------------
-    void TextureUnitState::setTextureName( const String& name)
+    void TextureUnitState::setTextureName( const String& name, TextureType texType)
     {
-        mFrames[0] = name;
-        mNumFrames = 1;
-        mCurrentFrame = 0;
-        mCubic = false;
-
-        if (name == "")
+        if (texType == TEX_TYPE_CUBE_MAP)
         {
-            mIsBlank = true;
-            return;
+            // delegate to cubic texture implementation
+            setCubicTextureName(name, true);
         }
-        
-        // Load immediately ?
-        if (isLoaded())
+        else
         {
-            _load(); // reload
-            // Tell parent to recalculate hash
-            mParent->_recalculateHash();
-        }
+            mFrames[0] = name;
+            mNumFrames = 1;
+            mCurrentFrame = 0;
+            mCubic = false;
+            mTextureType = texType;
 
+            if (name == "")
+            {
+                mIsBlank = true;
+                return;
+            }
+            
+            // Load immediately ?
+            if (isLoaded())
+            {
+                _load(); // reload
+                // Tell parent to recalculate hash
+                mParent->_recalculateHash();
+            }
+        }
 
     }
     //-----------------------------------------------------------------------
@@ -213,7 +221,7 @@ namespace Ogre {
         mNumFrames = forUVW ? 1 : 6;
         mCurrentFrame = 0;
         mCubic = true;
-        mIs3D = forUVW;
+        mTextureType = forUVW ? TEX_TYPE_CUBE_MAP : TEX_TYPE_2D;
 
         for (int i = 0; i < mNumFrames; ++i)
         {
@@ -230,7 +238,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool TextureUnitState::is3D(void) const
     {
-        return mIs3D;
+        return mTextureType == TEX_TYPE_CUBE_MAP;
+    }
+    //-----------------------------------------------------------------------
+    TextureType TextureUnitState::getTextureType(void) const
+    {
+        return mTextureType;
 
     }
     //-----------------------------------------------------------------------
@@ -686,11 +699,7 @@ namespace Ogre {
                 // Ensure texture is loaded, default MipMaps and priority
                 try {
 
-                    if(is3D())
-                        TextureManager::getSingleton().load(mFrames[i], TEX_TYPE_CUBE_MAP);
-                    else
-                        TextureManager::getSingleton().load(mFrames[i]);
-
+                    TextureManager::getSingleton().load(mFrames[i], mTextureType);
                     mIsBlank = false;
                 }
                 catch (...) {

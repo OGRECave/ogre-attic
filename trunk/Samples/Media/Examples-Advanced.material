@@ -36,19 +36,19 @@ material Examples/OgreCelShading/Eyes
 			}
 			texture_unit
 			{
-				texture cel_shading_diffuse.png
+				texture cel_shading_diffuse.png 1d
 				tex_address_mode clamp
 				filtering none
 			}
 			texture_unit
 			{
-				texture cel_shading_specular.png
+				texture cel_shading_specular.png 1d
 				tex_address_mode clamp
 				filtering none
 			}
 			texture_unit
 			{
-				texture cel_shading_edge.png
+				texture cel_shading_edge.png 1d
 				tex_address_mode clamp
 				filtering none
 			}
@@ -77,19 +77,19 @@ material Examples/OgreCelShading/Skin
 			}
 			texture_unit
 			{
-				texture cel_shading_diffuse.png
+				texture cel_shading_diffuse.png 1d
 				tex_address_mode clamp
 				filtering none
 			}
 			texture_unit
 			{
-				texture cel_shading_specular.png
+				texture cel_shading_specular.png 1d
 				tex_address_mode clamp
 				filtering none
 			}
 			texture_unit
 			{
-				texture cel_shading_edge.png
+				texture cel_shading_edge.png 1d
 				tex_address_mode clamp
 				filtering none
 			}
@@ -118,19 +118,19 @@ material Examples/OgreCelShading/Teeth
 			}
 			texture_unit
 			{
-				texture cel_shading_diffuse.png
+				texture cel_shading_diffuse.png 1d
 				tex_address_mode clamp
 				filtering none
 			}
 			texture_unit
 			{
-				texture cel_shading_specular.png
+				texture cel_shading_specular.png 1d
 				tex_address_mode clamp
 				filtering none
 			}
 			texture_unit
 			{
-				texture cel_shading_edge.png
+				texture cel_shading_edge.png 1d
 				tex_address_mode clamp
 				filtering none
 			}
@@ -160,19 +160,19 @@ material Examples/OgreCelShading/Earring
 
 			texture_unit
 			{
-				texture cel_shading_diffuse.png
+				texture cel_shading_diffuse.png 1d
 				tex_address_mode clamp
 				filtering none
 			}
 			texture_unit
 			{
-				texture cel_shading_specular.png
+				texture cel_shading_specular.png 1d
 				tex_address_mode clamp
 				filtering none
 			}
 			texture_unit
 			{
-				texture cel_shading_edge.png
+				texture cel_shading_edge.png 1d
 				tex_address_mode clamp
 				filtering none
 			}

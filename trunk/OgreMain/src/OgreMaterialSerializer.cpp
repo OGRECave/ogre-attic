@@ -547,7 +547,30 @@ namespace Ogre
     // Texture layer attributes
     bool parseTexture(String& params, MaterialScriptContext& context)
     {
-        context.textureUnit->setTextureName(params);
+        StringVector vecparams = params.split(" \t");
+        if (vecparams.size() > 2)
+        {
+            logParseError("Invalid texture attribute - expected only 1 or 2 parameters.", 
+                context);
+        }
+        TextureType tt = TEX_TYPE_2D;
+        if (vecparams.size() == 2)
+        {
+            vecparams[1].toLowerCase();
+            if (vecparams[1] == "1d")
+            {
+                tt = TEX_TYPE_1D;
+            }
+            else if (vecparams[1] == "2d")
+            {
+                tt = TEX_TYPE_2D;
+            }
+            else if (vecparams[1] == "cubic")
+            {
+                tt = TEX_TYPE_CUBE_MAP;
+            }
+        }
+        context.textureUnit->setTextureName(vecparams[0], tt);
         return false;
     }
     //-----------------------------------------------------------------------
@@ -2256,6 +2279,18 @@ namespace Ogre
             {
                 writeAttribute(4, "texture");
                 writeValue(pTex->getTextureName());
+                switch (pTex->getTextureType())
+                {
+                case TEX_TYPE_1D:
+                    writeValue("1d");
+                    break;
+                case TEX_TYPE_2D:
+                    // nothing, this is the default
+                    break;
+                case TEX_TYPE_CUBE_MAP:
+                    // nothing, deal with this as cubic_texture since it copes with all variants
+                    break;
+                };
             }
 
             //anim. texture
@@ -2275,7 +2310,7 @@ namespace Ogre
                     writeValue(pTex->getFrameTextureName(n));
 
                 //combinedUVW/separateUW
-                if (pTex->is3D())
+                if (pTex->getTextureType() == TEX_TYPE_CUBE_MAP)
                     writeValue("combinedUVW");
                 else
                     writeValue("separateUV");
