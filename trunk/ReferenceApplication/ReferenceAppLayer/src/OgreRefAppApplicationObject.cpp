@@ -261,7 +261,7 @@ namespace OgreRefApp
         Real pos_x, Real pos_y, Real pos_z)
     {
         assert (mOdeBody && "No dynamics body set up for this object");
-        mOdeBody->addRelForceAtPos(dir_x, dir_y, dir_z, 
+        mOdeBody->addForceAtPos(dir_x, dir_y, dir_z, 
             pos_x, pos_y, pos_z);
     }
     //-------------------------------------------------------------------------
