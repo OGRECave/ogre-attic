@@ -26,7 +26,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __D3D9VIDEOMODELIST_H__
 
 #include "OgreD3D9Prerequisites.h"
-
 #include "OgreD3D9Driver.h"
 #include "OgreD3D9VideoMode.h"
 
@@ -46,6 +45,8 @@ namespace Ogre
 
 		D3D9VideoMode* item( int index );
 		unsigned int count();
+
+		D3D9VideoMode* item( const String &name );
 	};
 }
 #endif

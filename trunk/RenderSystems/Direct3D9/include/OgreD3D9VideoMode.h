@@ -26,9 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __D3D9VIDEOMODE_H__
 
 #include "OgreD3D9Prerequisites.h"
-
 #include "OgreString.h"
-#include "OgreLogManager.h"
 
 #include "OgreNoMemoryMacros.h"
 #include <d3d9.h>
@@ -51,7 +49,6 @@ namespace Ogre
 		~D3D9VideoMode()
 		{
 			modeCount--;
-			//LogManager::getSingleton().logMessage( LML_CRITICAL, "Mode %d removed from memory", modeNumber );
 		}
 
 		unsigned int getWidth() const { return mDisplayMode.Width; }

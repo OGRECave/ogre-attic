@@ -25,9 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef __D3D9DRIVER_H__
 #define __D3D9DRIVER_H__
 
-// Precomipler options
 #include "OgreD3D9Prerequisites.h"
-// Declaration
 #include "OgreString.h"
 
 #include "OgreNoMemoryMacros.h"
@@ -43,7 +41,7 @@ namespace Ogre
 	class D3D9VideoModeList;
 	class D3D9VideoMode;
 
-	class /*_OgreD3D9Export*/ D3D9Driver
+	class D3D9Driver
 	{
 	private:
 		LPDIRECT3D9 mpD3D;

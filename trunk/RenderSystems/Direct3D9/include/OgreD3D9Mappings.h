@@ -1,0 +1,101 @@
+/*
+-----------------------------------------------------------------------------
+This source file is part of OGRE
+    (Object-oriented Graphics Rendering Engine)
+For the latest info, see http://ogre.sourceforge.net/
+
+Copyright © 2000-2002 The OGRE Team
+Also see acknowledgements in Readme.html
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 2 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+Place - Suite 330, Boston, MA 02111-1307, USA, or go to
+http://www.gnu.org/copyleft/lesser.txt.
+-----------------------------------------------------------------------------
+*/
+#ifndef __D3D9MAPPINGS_H__
+#define __D3D9MAPPINGS_H__
+
+#include "OgreD3D9Prerequisites.h"
+#include "OgreCommon.h"
+#include "OgreLight.h"
+#include "OgreMaterial.h"
+#include "OgreRenderSystem.h"
+
+#include "OgreNoMemoryMacros.h"
+#include <d3d9.h>
+#include <d3dx9.h>
+#include <dxerr9.h>
+#include "OgreMemoryMacros.h"
+
+namespace Ogre 
+{
+	class D3D9Mappings
+	{
+	public:
+		/// enum identifying D3D9 tex. types
+		enum eD3DTexType
+		{
+			/// standard texture
+			D3D_TEX_TYPE_NORMAL,
+			/// cube texture
+			D3D_TEX_TYPE_CUBE,
+			/// volume texture
+			D3D_TEX_TYPE_VOLUME,
+			/// just to have it...
+			D3D_TEX_TYPE_NONE
+		};
+
+		/// enum identifying D3D9 filter usage type
+		enum eD3DFilterUsage
+		{
+			/// min filter
+			D3D_FUSAGE_MIN,
+			/// mag filter
+			D3D_FUSAGE_MAG,
+			/// mip filter
+			D3D_FUSAGE_MIP
+		};
+
+		/// return a D3D9 equivalent for a Ogre ShadeOptions value
+		static DWORD get(ShadeOptions so);
+		/// return a D3D9 equivalent for a Ogre LightTypes value
+		static D3DLIGHTTYPE get(Ogre::Light::LightTypes lightType);
+		/// return a D3D9 equivalent for a Ogre TexCoordCalsMethod value
+		static DWORD get(TexCoordCalcMethod m);
+		/// return a D3D9 equivalent for a Ogre TextureAddressingMode value
+		static D3DTEXTUREADDRESS get(Material::TextureLayer::TextureAddressingMode tam);
+		/// return a D3D9 equivalent for a Ogre LayerBlendType value
+		static D3DTEXTURESTAGESTATETYPE get(LayerBlendType lbt);
+		/// return a D3D9 equivalent for a Ogre LayerBlendOperationEx value
+		static DWORD get(LayerBlendOperationEx lbo, D3DCAPS9 devCaps);
+		/// return a D3D9 equivalent for a Ogre LayerBlendSource value
+		static DWORD get(LayerBlendSource lbs);
+		/// return a D3D9 equivalent for a Ogre SceneBlendFactor value
+		static D3DBLEND get(SceneBlendFactor sbf);
+		/// return a D3D9 equivalent for a Ogre CompareFunction value
+		static DWORD get(CompareFunction cf);
+		/// return a D3D9 equivalent for a Ogre CillingMode value
+		static DWORD get(CullingMode cm, bool flip);
+		/// return a D3D9 equivalent for a Ogre FogMode value
+		static D3DFOGMODE get(FogMode fm);
+		/// return a D3D9 equivalent for a Ogre SceneDetailLevel value
+		static D3DFILLMODE get(SceneDetailLevel level);
+		/// return a D3D9 equivalent for a Ogre StencilOperation value
+		static DWORD get(StencilOperation op);
+		/// return a D3D9 equivalent for a Ogre TextureFilterOptions value
+		static DWORD get(TextureFilterOptions tfo, D3DCAPS9 devCaps, eD3DTexType texType, eD3DFilterUsage usage);
+		/// return the D3DtexType equivalent of a Ogre tex. type
+		static eD3DTexType get(TextureType ogreTexType);
+	};
+}
+#endif

@@ -23,19 +23,16 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 #include "OgreD3D9RenderWindow.h"
-
 #include "OgreLogManager.h"
 #include "OgreViewport.h"
 #include "OgreException.h"
-#include "OgreRoot.h"
 #include "OgreRenderSystem.h"
+#include "OgreBitwise.h"
+#include "OgreImageCodec.h"
 
 #include "OgreNoMemoryMacros.h"
 #include <d3d9.h>
 #include "OgreMemoryMacros.h"
-#include "dxutil.h"
-#include "OgreBitwise.h"
-#include "OgreImageCodec.h"
 
 namespace Ogre
 {
@@ -151,7 +148,6 @@ namespace Ogre
 		mActive = false;
 		mReady = false;
 		mClosed = false;
-		mMultiSampleQuality = 0;
 		mExternalHandle = NULL;
 	}
 
@@ -160,13 +156,13 @@ namespace Ogre
 		SAFE_RELEASE( mpD3DDevice );
 	}
 
-	bool D3D9RenderWindow::_checkMultiSampleQuality(D3DMULTISAMPLE_TYPE type, DWORD *outQuality, D3DFORMAT fBack, D3DFORMAT fDepth, UINT adapterNum, D3DDEVTYPE deviceType, BOOL fullScreen)
+	bool D3D9RenderWindow::_checkMultiSampleQuality(D3DMULTISAMPLE_TYPE type, DWORD *outQuality, D3DFORMAT format, UINT adapterNum, D3DDEVTYPE deviceType, BOOL fullScreen)
 	{
 		LPDIRECT3D9 pD3D = mpD3DDriver->getD3D();
 
-		if (SUCCEEDED(pD3D->CheckDeviceMultiSampleType( 
+		if (SUCCEEDED(pD3D->CheckDeviceMultiSampleType(
 				adapterNum, 
-				deviceType, fBack, 
+				deviceType, format, 
 				fullScreen, type, outQuality)))
 			return true;
 		else
@@ -180,13 +176,16 @@ namespace Ogre
 		HINSTANCE hInst;
 		D3D9Driver* driver;
 		long tempPtr;
-
+		
+		D3DMULTISAMPLE_TYPE mFSAAType = D3DMULTISAMPLE_NONE;
+		DWORD mFSAAQuality = 0;
 		// Get variable-length params
 		// miscParam[0] = HINSTANCE
 		// miscParam[1] = D3D9Driver
 		// miscParam[2] = parent HWND
-		// miscParam[3] = multisample quality
-		// miscParam[4] = vsync
+		// miscParam[3] = multisample type
+		// miscParam[4] = multisample quality
+		// miscParam[5] = vsync
 
 		va_list marker;
 		va_start( marker, depthBuffer );
@@ -205,7 +204,10 @@ namespace Ogre
 			parentHWnd = parentRW->getWindowHandle();
 
 		tempPtr = va_arg( marker, long );
-		mMultiSampleQuality = (DWORD)tempPtr;
+		mFSAAType = (D3DMULTISAMPLE_TYPE)tempPtr;
+
+		tempPtr = va_arg( marker, long );
+		mFSAAQuality = (DWORD)tempPtr;
 
 		tempPtr = va_arg( marker, long );
 		bool vsync = tempPtr ? true : false;
@@ -216,10 +218,27 @@ namespace Ogre
 		if( mHWnd )
 			destroy();
 
+		// track the parent window handle
 		mParentHWnd = parentHWnd;
 
-        if (!mExternalHandle)
+		if (!mExternalHandle)
 		{
+			mWidth = width;
+			mHeight = height;
+			if (!fullScreen)
+			{
+				if (!left && GetSystemMetrics(SM_CXSCREEN) > mWidth)
+					mLeft = (GetSystemMetrics(SM_CXSCREEN) / 2) - (mWidth / 2);
+				else
+					mLeft = left;
+				if (!top && GetSystemMetrics(SM_CYSCREEN) > mHeight)
+					mTop = (GetSystemMetrics(SM_CYSCREEN) / 2) - (mHeight / 2);
+				else
+					mTop = top;
+			}
+			else
+				mTop = mLeft = 0;
+
 			// Register the window class
 			// NB allow 4 bytes of window data for D3D9RenderWindow pointer
 			WNDCLASS wndClass = { CS_HREDRAW | CS_VREDRAW, WndProc, 0, 4, hInst,
@@ -233,16 +252,14 @@ namespace Ogre
 			// Pass pointer to self
 			HWND hWnd = CreateWindow(TEXT(name.c_str()),
 									 TEXT(name.c_str()),
-									 WS_OVERLAPPEDWINDOW, left, top,
-									 width, height, 0L, 0L, hInst, this);
+									 WS_OVERLAPPEDWINDOW, mLeft, mTop,
+									 mWidth, mHeight, 0L, 0L, hInst, this);
 			ShowWindow(hWnd, SW_SHOWNORMAL);
 			UpdateWindow(hWnd);
 
 			mHWnd = hWnd;
 			// Store info
 			mName = name;
-			mWidth = width;
-			mHeight = height;
 			mIsDepthBuffered = depthBuffer;
 			mIsFullScreen = fullScreen;
 		}
@@ -255,29 +272,18 @@ namespace Ogre
 			GetClientRect(mHWnd,&rc);
 			mWidth = rc.right;
 			mHeight = rc.bottom;
+			mLeft = rc.left;
+			mTop = rc.top;
 			mName = name;
 			mIsDepthBuffered = depthBuffer;
 			mIsFullScreen = fullScreen;
 		}
 
-		if( fullScreen )
-		{
-			mColourDepth = colourDepth;
-			mLeft = 0;
-			mTop = 0;
-		}
-		else
-		{
-			// Get colour depth from display
-			HDC hdc = GetDC( mHWnd );
-			mColourDepth = GetDeviceCaps( hdc, BITSPIXEL );
-			ReleaseDC( mHWnd, hdc );
-			mTop = top;
-			mLeft = left;
-		}
+		// track colour depth
+		mColourDepth = colourDepth;
 
 		LogManager::getSingleton().logMessage(
-			LML_NORMAL, "Created D3D9 Rendering Window '%s' : %ix%i, %ibpp",
+			LML_NORMAL, "D3D9 : Created D3D9 Rendering Window '%s' : %ix%i, %ibpp",
 			mName.c_str(), mWidth, mHeight, mColourDepth );
 
 		if( driver && mParentHWnd == NULL )
@@ -301,15 +307,10 @@ namespace Ogre
 			else
 				md3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 
-			if( !fullScreen )
-				md3dpp.BackBufferFormat		= mpD3DDriver->getDesktopMode().Format;
-			else
-			{
-				md3dpp.BackBufferFormat		= D3DFMT_R5G6B5;
-				if( mColourDepth > 16 )
-					md3dpp.BackBufferFormat = D3DFMT_X8R8G8B8;
-			}
-			// Depth-stencil format
+			md3dpp.BackBufferFormat		= D3DFMT_R5G6B5;
+			if( mColourDepth > 16 )
+				md3dpp.BackBufferFormat = D3DFMT_X8R8G8B8;
+
 			if (mColourDepth > 16 )
 			{
 				// Try to create a 32-bit depth, 8-bit stencil
@@ -344,50 +345,13 @@ namespace Ogre
 				// 16-bit depth, software stencil
 				md3dpp.AutoDepthStencilFormat	= D3DFMT_D16;
 
-			if (mMultiSampleQuality < 2) // NONE
-				mMultiSampleQuality = 0;
-			if (mMultiSampleQuality > 16) // MAX
-				mMultiSampleQuality = 16;
-
-			//check for multisample capabilities
-			//fall to D3DMULTISAMPLE_NONMASKABLE if requested not supported
-			/*D3DMULTISAMPLE_TYPE msType = (D3DMULTISAMPLE_TYPE)mMultiSampleQuality;
-			if (_checkMultiSampleQuality(
-				msType,
-				&mMultiSampleQuality, 
-				md3dpp.BackBufferFormat, 
-				md3dpp.AutoDepthStencilFormat, 
-				mpD3DDriver->getAdapterNumber(), 
-				devType, 
-				fullScreen))
-			{
-				md3dpp.MultiSampleType			= msType;
-				md3dpp.MultiSampleQuality		= mMultiSampleQuality ? mMultiSampleQuality - 1 : 0;
-			}
-			else*/ if (	mMultiSampleQuality && 
-						_checkMultiSampleQuality(
-							D3DMULTISAMPLE_NONMASKABLE,
-							&mMultiSampleQuality, 
-							md3dpp.BackBufferFormat, 
-							md3dpp.AutoDepthStencilFormat, 
-							mpD3DDriver->getAdapterNumber(), 
-							devType, 
-							fullScreen))
-			{
-				md3dpp.MultiSampleType			= D3DMULTISAMPLE_NONMASKABLE;
-				md3dpp.MultiSampleQuality		= mMultiSampleQuality ? mMultiSampleQuality - 1 : NULL;
-			}
-			else
-			{
-				md3dpp.MultiSampleType			= D3DMULTISAMPLE_NONE;
-				md3dpp.MultiSampleQuality		= NULL;
-			}
+			md3dpp.MultiSampleType = mFSAAType;
+			md3dpp.MultiSampleQuality = (mFSAAQuality == 0) ? NULL : mFSAAQuality;
 
 			hr = pD3D->CreateDevice( mpD3DDriver->getAdapterNumber(), devType, mHWnd,
 				D3DCREATE_HARDWARE_VERTEXPROCESSING, &md3dpp, &mpD3DDevice );
 			if( SUCCEEDED( hr ) )
 			{
-				OutputDebugStr( "Created Direct3D9 device using hardware vertex processing" );
 				mpD3DDevice->GetRenderTarget( 0, &mpRenderSurface );
 				mpD3DDevice->GetDepthStencilSurface( &mpRenderZBuffer );
 			}
@@ -397,7 +361,6 @@ namespace Ogre
 					D3DCREATE_MIXED_VERTEXPROCESSING, &md3dpp, &mpD3DDevice );
 				if( SUCCEEDED( hr ) )
 				{
-					OutputDebugStr( "Created Direct3D9 device using mixed vertex processing" );
 					mpD3DDevice->GetRenderTarget( 0, &mpRenderSurface );
 					mpD3DDevice->GetDepthStencilSurface( &mpRenderZBuffer );
 				}
@@ -407,7 +370,6 @@ namespace Ogre
 						D3DCREATE_SOFTWARE_VERTEXPROCESSING, &md3dpp, &mpD3DDevice );
 					if( SUCCEEDED( hr ) )
 					{
-						OutputDebugString( "Created Direct3D9 device using software vertex processing" );
 						mpD3DDevice->GetRenderTarget( 0, &mpRenderSurface );
 						mpD3DDevice->GetDepthStencilSurface( &mpRenderZBuffer );
 					}
@@ -573,11 +535,7 @@ namespace Ogre
 
 			POINT pt={0, 0};
 			RECT srcRect;
-
-			srcRect.left = vp.X;
-			srcRect.top = vp.Y;
-			srcRect.right = srcRect.left + vp.Width;
-			srcRect.bottom = srcRect.top + vp.Height;
+			GetWindowRect(mHWnd, &srcRect);
 
 			// Copy
 			if (FAILED(hr = mpD3DDevice->UpdateSurface(pTempSurf, &srcRect, pSurf, &pt)))
