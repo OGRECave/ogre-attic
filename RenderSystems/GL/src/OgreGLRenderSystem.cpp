@@ -1682,17 +1682,11 @@ namespace Ogre {
 					if (mTextureCoordIndex[i] == elem->getIndex())
 					{
 						glClientActiveTextureARB_ptr(GL_TEXTURE0 + i);
-						if (glIsEnabled(GL_TEXTURE_2D))
-						{
-							//int texCoordIndex =
-							//    (mTextureCoordIndex[i] < op.numTextureCoordSets) ?
-							//    mTextureCoordIndex[i] : 0;
-							glTexCoordPointer(
-								VertexElement::getTypeCount(elem->getType()), 
-								GLHardwareBufferManager::getGLType(elem->getType()),
-								static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+						glTexCoordPointer(
+							VertexElement::getTypeCount(elem->getType()), 
+							GLHardwareBufferManager::getGLType(elem->getType()),
+                            static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
                                 pBufferData);
-						}
 						glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 					}
                 }
@@ -1748,6 +1742,7 @@ namespace Ogre {
             }
 
             GLenum indexType = (op.indexData->indexBuffer->getType() == HardwareIndexBuffer::IT_16BIT) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT;
+
             glDrawRangeElements(primType, op.indexData->indexStart, 
                 op.indexData->indexStart + op.indexData->indexCount - 1,
                 op.indexData->indexCount, indexType, pBufferData);
