@@ -1,0 +1,180 @@
+<HTML>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Created on , 15 2003 by texi2html 1.64 -->
+<!-- 
+Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
+            Karl Berry  <karl@freefriends.org>
+            Olaf Bachmann <obachman@mathematik.uni-kl.de>
+            and many others.
+Maintained by: Olaf Bachmann <obachman@mathematik.uni-kl.de>
+Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
+ 
+-->
+<HEAD>
+<TITLE>OGRE Manual: Material Scripts</TITLE>
+
+<META NAME="description" CONTENT="OGRE Manual: Material Scripts">
+<META NAME="keywords" CONTENT="OGRE Manual: Material Scripts">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+<META NAME="Generator" CONTENT="texi2html 1.64">
+<LINK TYPE="text/css" rel="stylesheet" href="../style.css"> 
+</HEAD>
+
+<BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+
+<A NAME="SEC25"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_15.html#SEC24"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_15.html#SEC24"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_17.html#SEC30"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<HR SIZE=1>
+<H2> 3.1 Material Scripts </H2>
+<!--docid::SEC25::-->
+
+Material scripts offer you the ability to define complex materials in a script which can be reused easily. Whilst you could set up all materials for a scene in code using the methods of the Material and TextureLayer classes, in practice it's a bit unwieldy. Instead you can store material definitions in text files which can then be loaded whenever required.<BR><BR>
+
+You can also use this facility to replace existing material definitions which get loaded in from resource files. For example, if you have a .3ds model which you converted using 3ds2oof, it contains a number of material definitions. You can replace any of the material definitions from the .3ds file with your own just by adding a material definition with the same name to a script (remember you can also rename materials in a .3ds file with the 3ds2oof utility with the -matnames option), which will override the one loaded from the .3ds file.<BR><BR>
+
+<A NAME="SEC26"></A>
+<H2> Loading scripts </H2>
+<!--docid::SEC26::-->
+
+Material scripts are loaded at initialisation time by the system: by default it looks in all common resource locations (see Root::addResourceLocation) for files with the '.material' extension and parses them. If you want to parse files with a different extension, use the MaterialManager::getSingleton().parseAllSources method with your own extension, or if you want to parse an individual file, use MaterialManager::getSingleton().parseScript.<BR><BR>
+
+It's important to realise that materials are not loaded completely by this parsing process: only the definition is loaded, no textures or other resources are loaded. This is because it is common to have a large library of materials, but only use a relatively small subset of them in any one scene. To load every material completely in every script would therefore cause unnecessary memory overhead. You can access a 'deferred load' Material in the normal way (getMaterial() from SceneManager, or MaterialManager::getSingleton().getByName()), but you must call the 'load' method before trying to usde it. Ogre does this for you when using the normal material assignment methods of entities etc.<BR><BR>
+
+Another important factor is that material names must be unique throughout ALL scripts loaded by the system, since materials are always identified by name.<BR><BR>
+
+<A NAME="SEC27"></A>
+<H2> Format </H2>
+<!--docid::SEC27::-->
+
+Several materials may be defined in a single script. The script format is pseudo-C++, with sections delimited by curly braces ({}), and comments indicated by starting a line with '//' (note, no nested form comments allowed). The general format is shown below in a typical example:<BR><BR>
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>// This is a comment
+walls/funkywall1
+{
+    ambient 0.5 0.5 0.5
+    diffuse 1.0 1.0 1.0
+    {
+        // Texture layer 1
+        texture wibbly.jpg
+        scroll_anim 0.1 0.0
+        wave_xform scale sine 0.0 0.7 0.0 1.0
+    }
+
+    {
+        // Texture Layer 2
+        texture wobbly.png
+        rotate_anim 0.25
+        colour_op add
+    }
+}
+</pre></td></tr></table>
+Every material in the script must be given a name, which is the line before the first opening '{'. This name must be globally unique. It can include path characters (as in the example) to logically divide up your materials, and also to avoid duplicate names, but the engine does not treat the name a hierarchical, just as a string.<BR><BR>
+
+A material can have top-level attributes set using the scripting commands available, such as 'ambient' to set the amount &#38; colour of the ambient light reflected by the material. Texture layers are added by nesting braces within the material definition, and attributes defined within these braces apply to the texture layer only. The order of the texture layers is important; subsequent texture layers are applied on top of existing ones in the script.<BR><BR>
+
+For a detailed description of the material and layer attributes, see the list below.
+
+<A NAME="SEC28"></A>
+<H2> Available Material Attributes </H2>
+<!--docid::SEC28::-->
+<UL>
+<LI>
+<A HREF="manual_17.html#SEC31">ambient</A>
+<LI>
+<A HREF="manual_17.html#SEC32">diffuse</A>
+<LI>
+<A HREF="manual_17.html#SEC33">specular</A>
+<LI>
+<A HREF="manual_17.html#SEC34">emissive</A>
+<LI>
+<A HREF="manual_17.html#SEC35">scene_blend</A>
+<LI>
+<A HREF="manual_17.html#SEC36">depth_check</A>
+<LI>
+<A HREF="manual_17.html#SEC37">depth_write</A>
+<LI>
+<A HREF="manual_17.html#SEC38">depth_func</A>
+<LI>
+<A HREF="manual_17.html#SEC39">depth_bias</A>
+<LI>
+<A HREF="manual_17.html#SEC40">cull_hardware</A>
+<LI>
+<A HREF="manual_17.html#SEC41">cull_software</A>
+<LI>
+<A HREF="manual_17.html#SEC42">lighting</A>
+<LI>
+<A HREF="manual_17.html#SEC43">shading</A>
+<LI>
+<A HREF="manual_17.html#SEC44">filtering</A>
+<LI>
+<A HREF="manual_17.html#SEC45">fog_override</A>
+</UL>
+
+<A NAME="SEC29"></A>
+<H2> Available Texture Layer Attributes </H2>
+<!--docid::SEC29::-->
+<UL>
+<LI>
+<A HREF="manual_18.html#SEC47">texture</A>
+<LI>
+<A HREF="manual_18.html#SEC48">anim_texture</A>
+<LI>
+<A HREF="manual_18.html#SEC49">cubic_texture</A>
+<LI>
+<A HREF="manual_18.html#SEC50">tex_coord_set</A>
+<LI>
+<A HREF="manual_18.html#SEC51">tex_address_mode</A>
+<LI>
+<A HREF="manual_18.html#SEC52">colour_op</A>
+<LI>
+<A HREF="manual_18.html#SEC53">alpha_rejection</A>
+<LI>
+<A HREF="manual_18.html#SEC54">colour_op_ex</A>
+<LI>
+<A HREF="manual_18.html#SEC55">colour_op_multipass_fallback</A>
+<LI>
+<A HREF="manual_18.html#SEC56">alpha_op_ex</A>
+<LI>
+<A HREF="manual_18.html#SEC57">env_map</A>
+<LI>
+<A HREF="manual_18.html#SEC58">scroll</A>
+<LI>
+<A HREF="manual_18.html#SEC59">scroll_anim</A>
+<LI>
+<A HREF="manual_18.html#SEC60">rotate</A>
+<LI>
+<A HREF="manual_18.html#SEC61">rotate_anim</A>
+<LI>
+<A HREF="manual_18.html#SEC62">scale</A>
+<LI>
+<A HREF="manual_18.html#SEC63">wave_xform</A>
+</UL>
+
+<A NAME="Material Attributes"></A>
+<HR SIZE=1>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_15.html#SEC24"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_15.html#SEC24"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_17.html#SEC30"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<BR>  
+<FONT SIZE="-1">
+This document was generated
+by <I>Steve Streeting</I> on <I>, 15 2003</I>
+using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
+"><I>texi2html</I></A>
+
+</BODY>
+</HTML>
