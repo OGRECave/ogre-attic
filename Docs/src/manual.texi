@@ -313,7 +313,7 @@ You can retrieve a pointer to the AnimationState object by calling Entity::getAn
 
 @node Scripts
 @chapter Scripts
-OGRE drives many of its features through scripts in order to make it easier to set up. The scripts are simply plain text files which can be edited in any standard text editor, and modiying them immediately takes effect on your OGRE-based applications, without any need to recompile. This makes prototyping a lot faster. ere are the items that OGRE lets you script:
+OGRE drives many of its features through scripts in order to make it easier to set up. The scripts are simply plain text files which can be edited in any standard text editor, and modiying them immediately takes effect on your OGRE-based applications, without any need to recompile. This makes prototyping a lot faster. Here are the items that OGRE lets you script:
 @itemize @bullet
 @item
 @ref{Material Scripts}
