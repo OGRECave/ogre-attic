@@ -167,7 +167,7 @@ namespace Ogre {
             /* Get the device. */
             FAILED( hr = mlpDIMouse->Acquire() ) )
         {
-            Except( Exception::ERR_INTERNAL_ERROR, DXGetErrorDescription8( hr ), "Win32Input8::initialiseImmediateMouse" );
+            Except( hr, "Unable to initialise mouse", "Win32Input8::initialiseImmediateMouse" );
         }
 
         /* Get initial mouse data. */
