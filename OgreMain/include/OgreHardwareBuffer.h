@@ -94,9 +94,9 @@ namespace Ogre {
     			
 		    };
 	    protected:
-		    bool mIsLocked;
 		    size_t mSizeInBytes;
 		    Usage mUsage;
+		    bool mIsLocked;
 			bool mSystemMemory;
             bool mUseShadowBuffer;
             HardwareBuffer* mpShadowBuffer;

@@ -40,6 +40,14 @@ namespace Ogre {
                 "Cannot create GL index buffer", 
                 "GLHardwareIndexBuffer::GLHardwareIndexBuffer");
         }
+
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, mBufferId);
+
+        // Initialise buffer and set usage
+        glBufferDataARB(GL_ARRAY_BUFFER_ARB, mSizeInBytes, NULL, 
+            (usage & HBU_STATIC) ? GL_STATIC_DRAW_ARB : GL_STREAM_DRAW_ARB);
+
+        std::cerr << "creating index buffer " << mBufferId << std::endl;
     }
 	//---------------------------------------------------------------------
     GLHardwareIndexBuffer::~GLHardwareIndexBuffer()
@@ -72,7 +80,7 @@ namespace Ogre {
             }
             */
 
-            glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, length, NULL, 
+            glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, mSizeInBytes, NULL, 
                 (mUsage & HBU_STATIC) ? GL_STATIC_DRAW_ARB : GL_STREAM_DRAW_ARB);
 
             access = (mUsage & HBU_WRITE_ONLY) ? GL_WRITE_ONLY_ARB : GL_READ_WRITE_ARB;
@@ -98,8 +106,7 @@ namespace Ogre {
                 "Invalid locking option set", "GLHardwareIndexBuffer::lock");
         }
 
-        void* pBuffer = 
-          glMapBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, access );
+        void* pBuffer = glMapBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, access );
 
         if(pBuffer == 0)
         {
