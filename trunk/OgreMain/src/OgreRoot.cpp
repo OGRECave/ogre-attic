@@ -104,7 +104,7 @@ namespace Ogre {
 
         // Init
         mActiveRenderer = 0;
-        mVersion = "0.98b";
+        mVersion = "0.99e";
 
         // Create log manager and default log file
         mLogManager = new LogManager();
