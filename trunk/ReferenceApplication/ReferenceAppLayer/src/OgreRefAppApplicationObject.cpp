@@ -221,7 +221,7 @@ namespace OgreRefApp
             // Ensure body is synced
             mOdeBody->enable();
         }
-        else
+        else if (mOdeBody)
         {
             mOdeBody->disable();
         }
