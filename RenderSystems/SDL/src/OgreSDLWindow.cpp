@@ -39,7 +39,6 @@ namespace Ogre {
         if (mScreen != NULL)
             SDL_FreeSurface(mScreen);
 
-        Root::getSingleton().getRenderSystem()->detachRenderTarget( this->getName() );
     }
 
     void SDLWindow::create(String name, int width, int height, int colourDepth,
@@ -64,6 +63,8 @@ namespace Ogre {
         }
         fprintf(stderr, "screen is valid\n");
         mScreen = screen;
+
+        mName = name;
 
         mWidth = width;
         mHeight = height;
