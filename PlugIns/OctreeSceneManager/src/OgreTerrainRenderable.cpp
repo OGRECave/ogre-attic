@@ -42,8 +42,8 @@ String TerrainRenderable::mType = "TerrainMipMap";
 LevelArray TerrainRenderable::mLevelIndex;
 bool TerrainRenderable::mLevelInit = false;
 
-TerrainRenderable::TerrainRenderable()
-    : mTerrain(0), mPositionBuffer(0)
+TerrainRenderable::TerrainRenderable(const String& name)
+    : mName(name), mTerrain(0), mPositionBuffer(0)
 {
     mForcedRenderLevel = -1;
 
@@ -228,9 +228,10 @@ void TerrainRenderable::init( TerrainOptions &options )
                         ( Real ) ( endx - 1 ) * options.scalex, max, ( Real ) ( endz - 1 ) * options.scalez );
 
 
-    mCenter = Vector3( ( options.startx * options.scalex + endx - 1 ) / 2,
+    mCenter = Vector3( ( options.startx * options.scalex + (endx - 1) * options.scalex ) / 2,
                        ( min + max ) / 2,
-                       ( options.startz * options.scalez + endz - 1 ) / 2 );
+                       ( options.startz * options.scalez + (endz - 1) * options.scalez ) / 2 );
+
 
 
     Real C = _calculateCFactor();
@@ -317,7 +318,7 @@ void TerrainRenderable::_notifyCurrentCamera( Camera* cam )
 
     int old_level = mRenderLevel;
 
-    Vector3 cpos = cam -> getPosition();
+    Vector3 cpos = cam -> getDerivedPosition();
     Vector3 diff = mCenter - cpos;
 
     Real L = diff.squaredLength();
@@ -668,9 +669,18 @@ void TerrainRenderable::_calculateMinLevelDist2( Real C )
 
     }
 
-    //make sure the levels are increasing...
+    // Post validate the whole set
     for ( int i = 1; i < mNumMipMaps; i++ )
     {
+    
+        // Make sure no LOD transition within the tile
+        // This is especially a problem when using large tiles with flat areas
+        Vector3 delta(_vertex(0,0,0), mCenter.y, _vertex(0,0,3));
+        delta = delta - mCenter;
+        Real minDist = delta.squaredLength();
+        mMinLevelDistSqr[ i ] = std::max(mMinLevelDistSqr[ i ], minDist);
+
+        //make sure the levels are increasing...
         if ( mMinLevelDistSqr[ i ] < mMinLevelDistSqr[ i - 1 ] )
             mMinLevelDistSqr[ i ] = mMinLevelDistSqr[ i - 1 ] + 1;
     }
