@@ -484,6 +484,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Root::shutdown(void)
     {
+        SceneManagerEnumerator::getSingleton().shutdownAll();
+
+        
         if (mActiveRenderer)
         {
             mActiveRenderer->shutdown();
@@ -538,6 +541,7 @@ namespace Ogre {
     void Root::unloadPlugins(void)
     {
         std::vector<DynLib*>::iterator i;
+
 
         for (i = mPluginLibs.begin(); i != mPluginLibs.end(); ++i)
         {

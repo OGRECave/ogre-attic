@@ -219,13 +219,9 @@ namespace Ogre {
         LightList::iterator i = mLights.begin();
         for (; i != mLights.end(); ++i)
         {
+            mDestRenderSystem->_removeLight(i->second);
             delete i->second;
         }
-        // BUG
-        // When shutting down plugins, this gets called by destructor
-        // But if this is a plugin, then sometimes rendersystem has already been destroyed
-        // TODO: plugins should all shutdown before destroying?
-        //mDestRenderSystem->_removeAllLights();
         mLights.clear();
     }
     //-----------------------------------------------------------------------

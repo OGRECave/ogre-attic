@@ -111,7 +111,16 @@ namespace Ogre {
 
 
     }
+    //-----------------------------------------------------------------------
+    void SceneManagerEnumerator::shutdownAll(void)
+    {
+        std::set<SceneManager*>::iterator i;
+        for (i = mUniqueSceneMgrs.begin(); i != mUniqueSceneMgrs.end(); ++i)
+        {
+            (*i)->clearScene();
+        }
 
+    }
     //-----------------------------------------------------------------------
     SceneManagerEnumerator& SceneManagerEnumerator::getSingleton(void)
     {
