@@ -187,7 +187,7 @@ void NatureTerrainPatch::generateMesh()
 
     mVertexData = new VertexData;
     mVertexData->vertexStart = 0;
-    mVertexData->vertexCount = mVertexCount * 3;
+    mVertexData->vertexCount = mVertexCount;
 
     VertexDeclaration* decl = mVertexData->vertexDeclaration;
     VertexBufferBinding* bind = mVertexData->vertexBufferBinding;
