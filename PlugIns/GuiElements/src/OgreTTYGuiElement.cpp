@@ -29,6 +29,8 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreRoot.h"
 #include "OgreLogManager.h"
 #include "OgreOverlayManager.h"
+#include "OgreHardwareBufferManager.h"
+#include "OgreHardwareVertexBuffer.h"
 
 namespace Ogre {
 
@@ -43,6 +45,9 @@ namespace Ogre {
     TTYGuiElement::CmdColourTop TTYGuiElement::msCmdColourTop;
     TTYGuiElement::CmdScrollBar TTYGuiElement::msCmdScrollBar;
     TTYGuiElement::CmdTextLimit TTYGuiElement::msCmdTextLimit;
+    //---------------------------------------------------------------------
+    #define POS_TEX_BINDING 0
+    #define COLOUR_BINDING 1
     //---------------------------------------------------------------------
     TTYGuiElement::TTYGuiElement(const String& name)
         : GuiElement(name)
@@ -84,18 +89,25 @@ namespace Ogre {
     {
         memset( &mRenderOp, 0, sizeof( mRenderOp ) );
 
-        mRenderOp.vertexData = new VertexData;
+       // Set up the render op
+        // Combine positions and texture coords since they tend to change together
+        // since character sizes are different
+        mRenderOp.vertexData = new VertexData();
+        VertexDeclaration* decl = mRenderOp.vertexData->vertexDeclaration;
+        size_t offset = 0;
+        // Positions
+        decl->addElement(POS_TEX_BINDING, offset, VET_FLOAT3, VES_POSITION);
+        offset += VertexElement::getTypeSize(VET_FLOAT3);
+        // Texcoords
+        decl->addElement(POS_TEX_BINDING, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
+        offset += VertexElement::getTypeSize(VET_FLOAT2);
+        // Colours - store these in a separate buffer because they change less often
+        decl->addElement(COLOUR_BINDING, 0, VET_COLOUR, VES_DIFFUSE);
+
+        mRenderOp.operationType = RenderOperation::OT_TRIANGLE_LIST;
+        mRenderOp.useIndexes = false;
         mRenderOp.vertexData->vertexStart = 0;
-        mRenderOp.vertexData->vertexCount = 0;
-
-        mRenderOp.operationType =RenderOperation::OT_TRIANGLE_LIST;
-
-        /* TODO
-        mRenderOp.vertexOptions = LegacyRenderOperation::VO_TEXTURE_COORDS | 
-            LegacyRenderOperation::VO_DIFFUSE_COLOURS;
-        mRenderOp.numTextureCoordSets = 1;
-        mRenderOp.numTextureDimensions[0] = 2;
-        */
+        // Vertex buffer will be created in checkMemoryAllocation
 
         checkMemoryAllocation( DEFAULT_INITIAL_CHARS );
 
@@ -204,25 +216,39 @@ namespace Ogre {
         }
     }
 
-    void TTYGuiElement::checkMemoryAllocation( uint numFaces )
+    void TTYGuiElement::checkMemoryAllocation( uint numChars )
     {
-        if( mAllocSize < numFaces)
+        if( mAllocSize < numChars )
         {
-            /* TODO
-            if( mRenderOp.pVertices )
-                delete [] mRenderOp.pVertices;
-            if (mRenderOp.pTexCoords[0])
-                delete [] mRenderOp.pTexCoords[0];
-            if (mRenderOp.pDiffuseColour)
-                delete [] mRenderOp.pDiffuseColour;
+            // Create and bind new buffers
+            // Note that old buffers will be deleted automatically through reference counting
             
             // 6 verts per char since we're doing tri lists without indexes
-            mRenderOp.pVertices = new Real[ numFaces * 3 * 3 ];
-            mRenderOp.pTexCoords[0] = new Real[ numFaces * 3 * 2 ];
-            mRenderOp.pDiffuseColour = new RGBA[numFaces * 3];
-            */
+            // Allocate space for positions & texture coords
+            VertexDeclaration* decl = mRenderOp.vertexData->vertexDeclaration;
+            VertexBufferBinding* bind = mRenderOp.vertexData->vertexBufferBinding;
 
-            mAllocSize = numFaces;
+            mRenderOp.vertexData->vertexCount = numChars * 6;
+
+            // Create dynamic since text tends to change alot
+            // positions & texcoords
+            HardwareVertexBufferSharedPtr vbuf = 
+                HardwareBufferManager::getSingleton().
+                    createVertexBuffer(
+                        decl->getVertexSize(POS_TEX_BINDING), 
+                        mRenderOp.vertexData->vertexCount,
+                        HardwareBuffer::HBU_DYNAMIC);
+            bind->setBinding(POS_TEX_BINDING, vbuf);
+
+            // colours
+            vbuf = HardwareBufferManager::getSingleton().
+                    createVertexBuffer(
+                        decl->getVertexSize(COLOUR_BINDING), 
+                        mRenderOp.vertexData->vertexCount,
+                        HardwareBuffer::HBU_DYNAMIC);
+            bind->setBinding(COLOUR_BINDING, vbuf);
+
+            mAllocSize = numChars;
         }
 
     }
@@ -345,6 +371,11 @@ namespace Ogre {
           mTopLine = mTtlLines - mScrLines;
     }
 
+
+    /**
+     *
+     */
+
     void TTYGuiElement::updateWindowGeometry()
     {
         Real *pVert;
@@ -361,15 +392,17 @@ namespace Ogre {
         if (!mUpdateGeometry)
           return;
 
-        checkMemoryAllocation(mTtlFaces);
+        checkMemoryAllocation(mTtlChars);
 
         height = mCharHeight * 2.0;
 
-        /* TODO
-        pVert = mRenderOp.pVertices;
-        pTex  = mRenderOp.pTexCoords[ 0 ];
-        pDest = mRenderOp.pDiffuseColour;
-        */
+        HardwareVertexBufferSharedPtr vbuf = 
+            mRenderOp.vertexData->vertexBufferBinding->getBuffer(POS_TEX_BINDING);
+        pVert = static_cast<Real*>( vbuf->lock(HardwareBuffer::HBL_DISCARD) );
+       
+        HardwareVertexBufferSharedPtr cbuf = 
+            mRenderOp.vertexData->vertexBufferBinding->getBuffer(COLOUR_BINDING);
+        pDest = static_cast<RGBA*>( cbuf->lock(HardwareBuffer::HBL_DISCARD) );
 
         farLeft = _getDerivedLeft() * 2.0 - 1.0;
 
@@ -439,20 +472,26 @@ namespace Ogre {
                 // First tri
                 //
                 // Upper left
-                /* TODO
                 *pVert++ = left;
                 *pVert++ = top;
                 *pVert++ = -1.0;
+                *pVert++ = u1;
+                *pVert++ = v1;
 
                 // Bottom left
                 *pVert++ = left;
                 *pVert++ = top - height;
                 *pVert++ = -1.0;
+                *pVert++ = u1;
+                *pVert++ = v2;
 
                 // Top right
                 *pVert++ = left + width;
                 *pVert++ = top;
                 *pVert++ = -1.0;
+                *pVert++ = u2;
+                *pVert++ = v1;
+
                 //-------------------------------------------------------------------------------------
 
                 //-------------------------------------------------------------------------------------
@@ -462,43 +501,23 @@ namespace Ogre {
                 *pVert++ = left + width;
                 *pVert++ = top;
                 *pVert++ = -1.0;
+                *pVert++ = u2;
+                *pVert++ = v1;
 
                 // Bottom left (again)
                 *pVert++ = left;
                 *pVert++ = top - height;
                 *pVert++ = -1.0;
+                *pVert++ = u1;
+                *pVert++ = v2;
 
                 // Bottom right
                 *pVert++ = left + width;
                 *pVert++ = top - height;
                 *pVert++ = -1.0;
+                *pVert++ = u2;
+                *pVert++ = v2;
                 //-------------------------------------------------------------------------------------
-
-                //---------------------------------------------------------------------------------
-                // First tri
-                //
-                *pTex++ = u1;
-                *pTex++ = v1;
-
-                *pTex++ = u1;
-                *pTex++ = v2;
-
-                *pTex++ = u2;
-                *pTex++ = v1;
-                //---------------------------------------------------------------------------------
-
-                //---------------------------------------------------------------------------------
-                // Second tri
-                //
-                *pTex++ = u2;
-                *pTex++ = v1;
-
-                *pTex++ = u1;
-                *pTex++ = v2;
-
-                *pTex++ = u2;
-                *pTex++ = v2;
-                //---------------------------------------------------------------------------------
 
                 // First tri (top, bottom, top)
                 *pDest++ = t->topColour;
@@ -508,7 +527,6 @@ namespace Ogre {
                 *pDest++ = t->topColour;
                 *pDest++ = t->bottomColour;
                 *pDest++ = t->bottomColour;
-                */
 
                 left += width;
                 len  += width;
@@ -516,10 +534,14 @@ namespace Ogre {
             }
         }
 
-        /* TODO
-        mRenderOp.numVertices = (pVert - mRenderOp.pVertices) / 3;
-        */
+        vbuf->unlock();
+        cbuf->unlock();
     }
+
+
+    /**
+     *
+     */
 
     void TTYGuiElement::updatePositionGeometry()
     {
@@ -612,23 +634,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     TTYGuiElement::~TTYGuiElement()
     {
-        //if( mScrollBar != NULL )
-        //    mScrollBar->removeScrollListener(this);
-
-        if( mRenderOp.vertexData )
-            delete mRenderOp.vertexData;
-
-      /* TODO
-        if( mRenderOp.pVertices )
-            delete [] mRenderOp.pVertices;
-
-        if( mRenderOp.pTexCoords[0] )
-            delete [] mRenderOp.pTexCoords[0];
-        
-        if( mRenderOp.pDiffuseColour )
-            delete [] mRenderOp.pDiffuseColour;
-            */
-
+       delete mRenderOp.vertexData;
     }
     //---------------------------------------------------------------------
     const String& TTYGuiElement::getTypeName(void)
