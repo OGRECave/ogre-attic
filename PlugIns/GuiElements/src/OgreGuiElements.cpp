@@ -106,6 +106,7 @@ namespace Ogre {
 		delete pListFactory;
 		delete pCursorGui;
         delete pTTYFactory;
+            delete pCursorFactory; 
 
     }
 
