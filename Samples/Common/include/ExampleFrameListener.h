@@ -199,25 +199,6 @@ public:
         mCamera->pitch(rotY);
         mCamera->moveRelative(vec);
 
-        // Rotate scene node if required
-        SceneNode* node = mCamera->getSceneManager()->getRootSceneNode();
-        if (mInputDevice->isKeyDown(KC_O))
-        {
-            node->yaw(rotScale);
-        }
-        if (mInputDevice->isKeyDown(KC_P))
-        {
-            node->yaw(-rotScale);
-        }
-        if (mInputDevice->isKeyDown(KC_I))
-        {
-            node->pitch(rotScale);
-        }
-        if (mInputDevice->isKeyDown(KC_K))
-        {
-            node->pitch(-rotScale);
-        }
-
         if (mInputDevice->isKeyDown(KC_F) && timeUntilNextToggle <= 0)
         {
             mStatsOn = !mStatsOn;
