@@ -29,16 +29,18 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     template<> GpuProgramManager* Singleton<GpuProgramManager>::ms_Singleton = 0;
     //---------------------------------------------------------------------------
-    GpuProgram* GpuProgramManager::load(const String& filename, GpuProgramType gptype, int priority)
+    GpuProgram* GpuProgramManager::load(const String& filename, GpuProgramType gptype, 
+        const String& syntaxCode, int priority)
     {
-        GpuProgram* prg = create(filename, gptype);
+        GpuProgram* prg = create(filename, gptype, syntaxCode);
         ResourceManager::load(prg, priority);
         return prg;
     }
     //---------------------------------------------------------------------------
-	GpuProgram* GpuProgramManager::load(const String& name, const String& code, GpuProgramType gptype, int priority)
+	GpuProgram* GpuProgramManager::load(const String& name, const String& code, 
+        GpuProgramType gptype, const String& syntaxCode, int priority)
     {
-        GpuProgram* prg = create(name, gptype);
+        GpuProgram* prg = create(name, gptype, syntaxCode);
         prg->setSource(code);
         ResourceManager::load(prg, priority);
         return prg;
@@ -50,21 +52,32 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------------
 	GpuProgram* GpuProgramManager::createProgram(const String& filename, GpuProgramType gptype, 
-        int priority)
+        const String& syntaxCode, int priority)
     {
-        GpuProgram* prg = create(filename, gptype);
+        GpuProgram* prg = create(filename, gptype, syntaxCode);
         ResourceManager::add(prg);
         return prg;
     }
     //---------------------------------------------------------------------------
 	GpuProgram* GpuProgramManager::createProgram(const String& name, const String& code, 
-        GpuProgramType gptype, int priority)
+        GpuProgramType gptype, const String& syntaxCode, int priority)
     {
-        GpuProgram* prg = create(name, gptype);
+        GpuProgram* prg = create(name, gptype, syntaxCode);
         prg->setSource(code);
         ResourceManager::add(prg);
         return prg;
     }
-
+    //---------------------------------------------------------------------------
+    bool GpuProgramManager::isSyntaxSupported(const String& syntaxCode)
+    {
+        if (std::find(mSyntaxCodes.begin(), mSyntaxCodes.end(), syntaxCode) != mSyntaxCodes.end())
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
 }

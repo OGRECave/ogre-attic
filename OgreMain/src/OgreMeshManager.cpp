@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePlane.h"
 #include "OgreHardwareBufferManager.h"
 #include "OgrePatchSurface.h"
+#include "OgreException.h"
 
 namespace Ogre
 {

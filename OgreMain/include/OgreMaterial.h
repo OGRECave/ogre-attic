@@ -27,14 +27,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 
-#include "OgreColourValue.h"
-#include "OgreException.h"
-#include "OgreTextureManager.h"
-#include "OgreBlendMode.h"
-#include "OgreRoot.h"
+#include "OgreResource.h"
+#include "OgreIteratorWrappers.h"
 #include "OgreCommon.h"
-#include "OgreMatrix4.h"
-#include "OgreGpuProgram.h"
+#include "OgreColourValue.h"
 
 
 namespace Ogre {
@@ -86,20 +82,9 @@ namespace Ogre {
         /// Default material settings - set up by SceneManager
         static Material* mDefaultSettings;
 
-        /** Numerical handle (constant).
-        @remarks
-        This is assigned automatically, and is useful where small system 
-        indexes to materials are needed.
-        */
-        int mHandle;    
-
-
         /** Internal method which sets the material up from the default settings.
         */
         void applyDefaults(void);
-
-        /** Method for retrieving next handle (internal only) */
-        void assignNextHandle(void);
 
         typedef std::vector<Technique*> Techniques;
         Techniques mTechniques;
@@ -130,15 +115,6 @@ namespace Ogre {
         */
         const String& getName(void) const;
 
-        /** Returns the numerical handle for this material, if a more compact refence is required.
-        @note
-        This handle will only be assigned after adding the material to the SceneManager.
-        Before this time it will be zero.
-        */
-        int getHandle(void) const;
-
-
-
         /** Determines if the material has any transparency with the rest of the scene (derived from 
             whether any Techniques say they involve transparency).
         */
@@ -152,6 +128,11 @@ namespace Ogre {
             one technique which is impressive but only runs on 4th-generation graphics cards, 
             for example. In this case you will want to create at least one fallback Technique.
             OGRE will work out which Techniques a card can support and pick the best one.
+        @par
+            If multiple Techniques are available, the order in which they are created is 
+            important - the engine will consider lower-indexed Techniques to be preferable
+            to higher-indexed Techniques, ie when asked for the 'best' technique it will
+            return the first one in the technique list which is supported by the hardware.
         */
         Technique* createTechnique(void);
         /** Gets the indexed technique. */
@@ -163,8 +144,24 @@ namespace Ogre {
         typedef VectorIterator<Techniques> TechniqueIterator;
         /** Get an iterator over the Techniques in this Material. */
         TechniqueIterator getTechniqueIterator(void);
-        /** Gets an iterator over the Techniques which are supported by the current card. */
+        /** Gets an iterator over the Techniques which are supported by the current card. 
+        @remarks
+            The supported technique list is only available after this material has been compiled,
+            which typically happens on loading the material. Therefore, if this method returns
+            an empty list, try calling Material::load.
+        */
         TechniqueIterator getSupportedTechniqueIterator(void);
+        /** Gets the best supported technique. 
+        @remarks
+            This method returns the lowest-index supported Technique in this material
+            (since lower-indexed Techniques are considered to be better than higher-indexed
+            ones).
+        @par
+            The best supported technique is only available after this material has been compiled,
+            which typically happens on loading the material. Therefore, if this method returns
+            NULL, try calling Material::load.
+        */
+        Technique* getBestTechnique(void);
 
         /** Overridden from Resource.
         @remarks
@@ -207,6 +204,228 @@ namespace Ogre {
                 this situation arises, an Exception will be thrown.
         */
         void compile(bool autoManageTextureUnits = true);
+
+        // -------------------------------------------------------------------------------
+        // The following methods are to make migration from previous versions simpler
+        // and to make code easier to write when dealing with simple materials
+        // They set the properties which have been moved to Pass for all Techniques and all Passes
+
+        /** Sets the ambient colour reflectance properties for every Pass in every Technique.
+        @note
+            This property has been moved to the Pass class, which is accessible via the 
+            Technique. For simplicity, this method allows you to set these properties for 
+            every current Technique, and for every current Pass within those Techniques. If 
+            you need more precision, retrieve the Technique and Pass instances and set the
+            property there.
+        @see Pass::setAmbient
+        */
+        void setAmbient(Real red, Real green, Real blue);
+
+        /** Sets the ambient colour reflectance properties for every Pass in every Technique.
+        @note
+            This property has been moved to the Pass class, which is accessible via the 
+            Technique. For simplicity, this method allows you to set these properties for 
+            every current Technique, and for every current Pass within those Techniques. If 
+            you need more precision, retrieve the Technique and Pass instances and set the
+            property there.
+        @see Pass::setAmbient
+        */
+        void setAmbient(const ColourValue& ambient);
+
+        /** Sets the diffuse colour reflectance properties of every Pass in every Technique.
+        @note
+            This property has been moved to the Pass class, which is accessible via the 
+            Technique. For simplicity, this method allows you to set these properties for 
+            every current Technique, and for every current Pass within those Techniques. If 
+            you need more precision, retrieve the Technique and Pass instances and set the
+            property there.
+        @see Pass::setDiffuse
+        */
+        void setDiffuse(Real red, Real green, Real blue);
+
+        /** Sets the diffuse colour reflectance properties of every Pass in every Technique.
+        @note
+            This property has been moved to the Pass class, which is accessible via the 
+            Technique. For simplicity, this method allows you to set these properties for 
+            every current Technique, and for every current Pass within those Techniques. If 
+            you need more precision, retrieve the Technique and Pass instances and set the
+            property there.
+        @see Pass::setDiffuse
+        */
+        void setDiffuse(const ColourValue& diffuse);
+
+        /** Sets the specular colour reflectance properties of every Pass in every Technique.
+        @note
+            This property has been moved to the Pass class, which is accessible via the 
+            Technique. For simplicity, this method allows you to set these properties for 
+            every current Technique, and for every current Pass within those Techniques. If 
+            you need more precision, retrieve the Technique and Pass instances and set the
+            property there.
+        @see Pass::setSpecular
+        */
+        void setSpecular(Real red, Real green, Real blue);
+
+        /** Sets the specular colour reflectance properties of every Pass in every Technique.
+        @note
+            This property has been moved to the Pass class, which is accessible via the 
+            Technique. For simplicity, this method allows you to set these properties for 
+            every current Technique, and for every current Pass within those Techniques. If 
+            you need more precision, retrieve the Technique and Pass instances and set the
+            property there.
+        @see Pass::setSpecular
+        */
+        void setSpecular(const ColourValue& specular);
+
+        /** Sets the shininess properties of every Pass in every Technique.
+        @note
+            This property has been moved to the Pass class, which is accessible via the 
+            Technique. For simplicity, this method allows you to set these properties for 
+            every current Technique, and for every current Pass within those Techniques. If 
+            you need more precision, retrieve the Technique and Pass instances and set the
+            property there.
+        @see Pass::setShininess
+        */
+        void setShininess(Real val);
+
+        /** Sets the amount of self-illumination of every Pass in every Technique.
+        @note
+            This property has been moved to the Pass class, which is accessible via the 
+            Technique. For simplicity, this method allows you to set these properties for 
+            every current Technique, and for every current Pass within those Techniques. If 
+            you need more precision, retrieve the Technique and Pass instances and set the
+            property there.
+        @see Pass::setSelfIllumination
+        */
+        void setSelfIllumination(Real red, Real green, Real blue);
+
+        /** Sets the amount of self-illumination of every Pass in every Technique.
+        @note
+            This property has been moved to the Pass class, which is accessible via the 
+            Technique. For simplicity, this method allows you to set these properties for 
+            every current Technique, and for every current Pass within those Techniques. If 
+            you need more precision, retrieve the Technique and Pass instances and set the
+            property there.
+        @see Pass::setSelfIllumination
+        */
+        void setSelfIllumination(const ColourValue& selfIllum);
+
+		/** Sets whether or not each Pass renders with depth-buffer checking on or not.
+        @note
+            This property has been moved to the Pass class, which is accessible via the 
+            Technique. For simplicity, this method allows you to set these properties for 
+            every current Technique, and for every current Pass within those Techniques. If 
+            you need more precision, retrieve the Technique and Pass instances and set the
+            property there.
+        @see Pass::setDepthCheckEnabled
+        */
+        void setDepthCheckEnabled(bool enabled);
+
+        /** Sets whether or not each Pass renders with depth-buffer writing on or not.
+        @note
+            This property has been moved to the Pass class, which is accessible via the 
+            Technique. For simplicity, this method allows you to set these properties for 
+            every current Technique, and for every current Pass within those Techniques. If 
+            you need more precision, retrieve the Technique and Pass instances and set the
+            property there.
+        @see Pass::setDepthWriteEnabled
+        */
+        void setDepthWriteEnabled(bool enabled);
+
+        /** Sets the function used to compare depth values when depth checking is on.
+        @note
+            This property has been moved to the Pass class, which is accessible via the 
+            Technique. For simplicity, this method allows you to set these properties for 
+            every current Technique, and for every current Pass within those Techniques. If 
+            you need more precision, retrieve the Technique and Pass instances and set the
+            property there.
+        @see Pass::setDepthFunction
+        */
+        void setDepthFunction( CompareFunction func );
+
+		/** Sets whether or not colour buffer writing is enabled for each Pass.
+        @note
+            This property has been moved to the Pass class, which is accessible via the 
+            Technique. For simplicity, this method allows you to set these properties for 
+            every current Technique, and for every current Pass within those Techniques. If 
+            you need more precision, retrieve the Technique and Pass instances and set the
+            property there.
+        @see Pass::setColourWriteEnabled
+		*/
+		void setColourWriteEnabled(bool enabled);
+
+        /** Sets the culling mode for each pass  based on the 'vertex winding'.
+        @note
+            This property has been moved to the Pass class, which is accessible via the 
+            Technique. For simplicity, this method allows you to set these properties for 
+            every current Technique, and for every current Pass within those Techniques. If 
+            you need more precision, retrieve the Technique and Pass instances and set the
+            property there.
+        @see Pass::setCullingMode
+        */
+        void setCullingMode( CullingMode mode );
+
+        /** Sets the manual culling mode, performed by CPU rather than hardware.
+        @note
+            This property has been moved to the Pass class, which is accessible via the 
+            Technique. For simplicity, this method allows you to set these properties for 
+            every current Technique, and for every current Pass within those Techniques. If 
+            you need more precision, retrieve the Technique and Pass instances and set the
+            property there.
+        @see Pass::setManualCullingMode
+        */
+        void setManualCullingMode( ManualCullingMode mode );
+
+        /** Sets whether or not dynamic lighting is enabled for every Pass.
+        @note
+            This property has been moved to the Pass class, which is accessible via the 
+            Technique. For simplicity, this method allows you to set these properties for 
+            every current Technique, and for every current Pass within those Techniques. If 
+            you need more precision, retrieve the Technique and Pass instances and set the
+            property there.
+        @see Pass::setLightingEnabled
+        */
+        void setLightingEnabled(bool enabled);
+
+        /** Sets the type of light shading required
+        @note
+            This property has been moved to the Pass class, which is accessible via the 
+            Technique. For simplicity, this method allows you to set these properties for 
+            every current Technique, and for every current Pass within those Techniques. If 
+            you need more precision, retrieve the Technique and Pass instances and set the
+            property there.
+        @see Pass::setShadingMode
+        */
+        void setShadingMode( ShadeOptions mode );
+
+        /** Sets the fogging mode applied to each pass.
+        @note
+            This property has been moved to the Pass class, which is accessible via the 
+            Technique. For simplicity, this method allows you to set these properties for 
+            every current Technique, and for every current Pass within those Techniques. If 
+            you need more precision, retrieve the Technique and Pass instances and set the
+            property there.
+        @see Pass::setFog
+        */
+        void setFog(
+            bool overrideScene,
+            FogMode mode = FOG_NONE,
+            const ColourValue& colour = ColourValue::White,
+            Real expDensity = 0.001, Real linearStart = 0.0, Real linearEnd = 1.0 );
+
+        /** Sets the depth bias to be used for each Pass.
+        @note
+            This property has been moved to the Pass class, which is accessible via the 
+            Technique. For simplicity, this method allows you to set these properties for 
+            every current Technique, and for every current Pass within those Techniques. If 
+            you need more precision, retrieve the Technique and Pass instances and set the
+            property there.
+        @see Pass::setDepthBias
+        */
+        void setDepthBias(ushort bias);
+
+        /** Tells the material that it needs recompilation. */
+        void _notifyNeedsRecompile(void) { mCompilationRequired = true; }
+
 
 
     };

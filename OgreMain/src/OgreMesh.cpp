@@ -34,6 +34,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSkeleton.h"
 #include "OgreHardwareBufferManager.h"
 #include "OgreStringConverter.h"
+#include "OgreException.h"
+#include "OgreMeshManager.h"
 
 
 namespace Ogre {

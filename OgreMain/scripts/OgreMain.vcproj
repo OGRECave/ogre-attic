@@ -519,9 +519,6 @@
 				RelativePath="..\src\OgreResourceManager.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreResourceMap.cpp">
-			</File>
-			<File
 				RelativePath="..\src\OgreRoot.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1090,9 +1087,6 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreResourceManager.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreResourceMap.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreRoot.h">

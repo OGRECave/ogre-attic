@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSceneManagerEnumerator.h"
 #include "OgreMaterialManager.h"
 #include "OgreIteratorWrappers.h"
+#include "OgreTechnique.h"
 
 namespace Ogre {
 
@@ -44,8 +45,6 @@ namespace Ogre {
 	    mName = name;
         mCompilationRequired = true;
 
-	    mHandle = -1;
-
     }
     //-----------------------------------------------------------------------
     Material::Material( const String& name )
@@ -54,7 +53,6 @@ namespace Ogre {
 
 	    // Assign name
 	    mName = name;
-	    mHandle = -1;
         mCompilationRequired = true;
 		
 		/** TODO: MOVE TO TEXTUREUNITSTATE
@@ -68,7 +66,6 @@ namespace Ogre {
     {
 	    mName = rhs.mName;
 	    mHandle = rhs.mHandle;
-        mCompilationRequired = rhs.mCompilationRequired;
         mSize = rhs.mSize;
         mLastAccess = rhs.mLastAccess;
 
@@ -82,29 +79,19 @@ namespace Ogre {
         {
             Technique* t = this->createTechnique();
             *t = *(*i);
+            if ((*i)->isSupported())
+                mSupportedTechniques.push_back(t);
         }
+        mCompilationRequired = rhs.mCompilationRequired;
 
 	    return *this;
     }
 
 
     //-----------------------------------------------------------------------
-    // Single definition of method to retrieve next handle, to avoid duplication of static member value
-    void Material::assignNextHandle(void)
-    {
-	    static int nextHandle = 1;
-
-	    mHandle = nextHandle++;
-    }
-    //-----------------------------------------------------------------------
     const String& Material::getName(void) const
     {
 	    return mName;
-    }
-    //-----------------------------------------------------------------------
-    int Material::getHandle(void) const
-    {
-	    return mHandle;
     }
     //-----------------------------------------------------------------------
     void Material::load(void)
@@ -177,12 +164,15 @@ namespace Ogre {
     void Material::applyDefaults(void)
     {
 	    *this = *mDefaultSettings;
+        mCompilationRequired = true;
+
     }
     //-----------------------------------------------------------------------
     Technique* Material::createTechnique(void)
     {
         Technique *t = new Technique(this);
         mTechniques.push_back(t);
+        mCompilationRequired = true;
         return t;
     }
     //-----------------------------------------------------------------------
@@ -192,12 +182,26 @@ namespace Ogre {
         return mTechniques[index];
     }
     //-----------------------------------------------------------------------
+    Technique* Material::getBestTechnique(void)
+    {
+        if (mSupportedTechniques.empty())
+        {
+            return NULL;
+        }
+        else
+        {
+            return mSupportedTechniques[0];
+        }
+    }
+    //-----------------------------------------------------------------------
     void Material::removeTechnique(unsigned short index)
     {
         assert (index < mTechniques.size() && "Index out of bounds.");
         Techniques::iterator i = mTechniques.begin() + index;
         delete(*i);
         mTechniques.erase(i);
+        mSupportedTechniques.clear();
+        mCompilationRequired = true;
     }
     //-----------------------------------------------------------------------
     void Material::removeAllTechniques(void)
@@ -209,6 +213,8 @@ namespace Ogre {
             delete(*i);
         }
         mTechniques.clear();
+        mSupportedTechniques.clear();
+        mCompilationRequired = true;
     }
     //-----------------------------------------------------------------------
     Material::TechniqueIterator Material::getTechniqueIterator(void) 
@@ -236,6 +242,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Material::compile(bool autoManageTextureUnits)
     {
+        if (!mCompilationRequired) return;
+
         // Compile each technique, then add it to the list of supported techniques
         mSupportedTechniques.clear();
 
@@ -249,9 +257,181 @@ namespace Ogre {
                 mSupportedTechniques.push_back(*i);
             }
         }
+        mCompilationRequired = false;
     }
     //-----------------------------------------------------------------------
+    void Material::setAmbient(Real red, Real green, Real blue)
+    {
+        Techniques::iterator i, iend;
+        iend = mTechniques.end();
+        for (i = mTechniques.begin(); i != iend; ++i)
+        {
+            (*i)->setAmbient(red, green, blue);
+        }
 
+    }
+    //-----------------------------------------------------------------------
+    void Material::setAmbient(const ColourValue& ambient)
+    {
+        setAmbient(ambient.r, ambient.g, ambient.b);
+    }
+    //-----------------------------------------------------------------------
+    void Material::setDiffuse(Real red, Real green, Real blue)
+    {
+        Techniques::iterator i, iend;
+        iend = mTechniques.end();
+        for (i = mTechniques.begin(); i != iend; ++i)
+        {
+            (*i)->setDiffuse(red, green, blue);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Material::setDiffuse(const ColourValue& diffuse)
+    {
+        setDiffuse(diffuse.r, diffuse.g, diffuse.b);
+    }
+    //-----------------------------------------------------------------------
+    void Material::setSpecular(Real red, Real green, Real blue)
+    {
+        Techniques::iterator i, iend;
+        iend = mTechniques.end();
+        for (i = mTechniques.begin(); i != iend; ++i)
+        {
+            (*i)->setSpecular(red, green, blue);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Material::setSpecular(const ColourValue& specular)
+    {
+        setSpecular(specular.r, specular.g, specular.b);
+    }
+    //-----------------------------------------------------------------------
+    void Material::setShininess(Real val)
+    {
+        Techniques::iterator i, iend;
+        iend = mTechniques.end();
+        for (i = mTechniques.begin(); i != iend; ++i)
+        {
+            (*i)->setShininess(val);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Material::setSelfIllumination(Real red, Real green, Real blue)
+    {
+        Techniques::iterator i, iend;
+        iend = mTechniques.end();
+        for (i = mTechniques.begin(); i != iend; ++i)
+        {
+            (*i)->setSelfIllumination(red, green, blue);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Material::setSelfIllumination(const ColourValue& selfIllum)
+    {
+        setSelfIllumination(selfIllum.r, selfIllum.g, selfIllum.b);
+    }
+    //-----------------------------------------------------------------------
+    void Material::setDepthCheckEnabled(bool enabled)
+    {
+        Techniques::iterator i, iend;
+        iend = mTechniques.end();
+        for (i = mTechniques.begin(); i != iend; ++i)
+        {
+            (*i)->setDepthCheckEnabled(enabled);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Material::setDepthWriteEnabled(bool enabled)
+    {
+        Techniques::iterator i, iend;
+        iend = mTechniques.end();
+        for (i = mTechniques.begin(); i != iend; ++i)
+        {
+            (*i)->setDepthWriteEnabled(enabled);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Material::setDepthFunction( CompareFunction func )
+    {
+        Techniques::iterator i, iend;
+        iend = mTechniques.end();
+        for (i = mTechniques.begin(); i != iend; ++i)
+        {
+            (*i)->setDepthFunction(func);
+        }
+    }
+    //-----------------------------------------------------------------------
+	void Material::setColourWriteEnabled(bool enabled)
+    {
+        Techniques::iterator i, iend;
+        iend = mTechniques.end();
+        for (i = mTechniques.begin(); i != iend; ++i)
+        {
+            (*i)->setColourWriteEnabled(enabled);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Material::setCullingMode( CullingMode mode )
+    {
+        Techniques::iterator i, iend;
+        iend = mTechniques.end();
+        for (i = mTechniques.begin(); i != iend; ++i)
+        {
+            (*i)->setCullingMode(mode);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Material::setManualCullingMode( ManualCullingMode mode )
+    {
+        Techniques::iterator i, iend;
+        iend = mTechniques.end();
+        for (i = mTechniques.begin(); i != iend; ++i)
+        {
+            (*i)->setManualCullingMode(mode);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Material::setLightingEnabled(bool enabled)
+    {
+        Techniques::iterator i, iend;
+        iend = mTechniques.end();
+        for (i = mTechniques.begin(); i != iend; ++i)
+        {
+            (*i)->setLightingEnabled(enabled);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Material::setShadingMode( ShadeOptions mode )
+    {
+        Techniques::iterator i, iend;
+        iend = mTechniques.end();
+        for (i = mTechniques.begin(); i != iend; ++i)
+        {
+            (*i)->setShadingMode(mode);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Material::setFog(bool overrideScene, FogMode mode, const ColourValue& colour,
+        Real expDensity, Real linearStart, Real linearEnd)
+    {
+        Techniques::iterator i, iend;
+        iend = mTechniques.end();
+        for (i = mTechniques.begin(); i != iend; ++i)
+        {
+            (*i)->setFog(overrideScene, mode, colour, expDensity, linearStart, linearEnd);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Material::setDepthBias(ushort bias)
+    {
+        Techniques::iterator i, iend;
+        iend = mTechniques.end();
+        for (i = mTechniques.begin(); i != iend; ++i)
+        {
+            (*i)->setDepthBias(bias);
+        }
+    }
+    //-----------------------------------------------------------------------
 
 
     /** TODO: MOVE TO TEXTUREUNITSTATE

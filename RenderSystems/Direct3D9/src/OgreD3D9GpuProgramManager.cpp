@@ -37,15 +37,15 @@ namespace Ogre {
         return GpuProgramParametersSharedPtr(new D3D9GpuProgramParameters());
     }
     //-----------------------------------------------------------------------------
-    GpuProgram* D3D9GpuProgramManager::create(const String& name, GpuProgramType gptype)
+    GpuProgram* D3D9GpuProgramManager::create(const String& name, GpuProgramType gptype, const String& syntaxCode)
     {
         if (gptype == GPT_VERTEX_PROGRAM)
         {
-            return new D3D9GpuVertexProgram(name, mpDevice);
+            return new D3D9GpuVertexProgram(name, syntaxCode, mpDevice);
         }
         else
         {
-            return new D3D9GpuFragmentProgram(name, mpDevice);
+            return new D3D9GpuFragmentProgram(name, syntaxCode, mpDevice);
         }
     }
 

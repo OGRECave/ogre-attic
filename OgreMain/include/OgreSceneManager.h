@@ -296,7 +296,8 @@ namespace Ogre {
         */
         virtual void removeAllLights(void);
 
-        /** Creates a new (blank) material with the specified name.
+        /** Creates a new material with default settings with the specified name.
+        @see SceneManager::getDefaultMaterialSettings
         */
         virtual Material* createMaterial(const String& name);
 
@@ -308,24 +309,27 @@ namespace Ogre {
                 settings. All materials created from then on will be configured
                 with the new defaults you have specified.
             @par
-                The default settings begin as a single Technique with a single Pass:
-                - ambient = ColourValue::White
-                - diffuse = ColourValue::White
-                - specular = ColourValue::Black
-                - emmissive = ColourValue::Black
-                - shininess = 0
-                - No texture layers (& hence no textures)
-                - SourceBlendFactor = SBF_ONE
-                - DestBlendFactor = SBF_ZERO (no blend, replace with new
-                  colour)
-                - Depth buffer checking on
-                - Depth buffer writing on
-                - Depth buffer comparison function = CMPF_LESS_EQUAL
-                - Culling mode = CULL_CLOCKWISE
-                - Ambient lighting = ColourValue(0.5, 0.5, 0.5) (mid-grey)
-                - Dynamic lighting enabled
-                - Gourad shading mode
-                - Bilinear texture filtering
+                The default settings begin as a single Technique with a single, non-programmable Pass:
+                <ul>
+                <li>ambient = ColourValue::White</li>
+                <li>diffuse = ColourValue::White</li>
+                <li>specular = ColourValue::Black</li>
+                <li>emmissive = ColourValue::Black</li>
+                <li>shininess = 0</li>
+                <li>No texture unit settings (& hence no textures)</li>
+                <li>SourceBlendFactor = SBF_ONE</li>
+                <li>DestBlendFactor = SBF_ZERO (no blend, replace with new
+                  colour)</li>
+                <li>Depth buffer checking on</li>
+                <li>Depth buffer writing on</li>
+                <li>Depth buffer comparison function = CMPF_LESS_EQUAL</li>
+                <li>Colour buffer writing on for all channels</li>
+                <li>Culling mode = CULL_CLOCKWISE</li>
+                <li>Ambient lighting = ColourValue(0.5, 0.5, 0.5) (mid-grey)</li>
+                <li>Dynamic lighting enabled</li>
+                <li>Gourad shading mode</li>
+                <li>Bilinear texture filtering</li>
+                </ul>
         */
         virtual Material* getDefaultMaterialSettings(void);
 

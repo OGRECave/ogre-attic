@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreArchiveEx.h"
 #include "OgreArchiveManager.h"
 #include "OgreStringVector.h"
+#include "OgreStringConverter.h"
 
 namespace Ogre {
 
@@ -54,9 +55,8 @@ namespace Ogre {
         // Init memory limit & usage
         mMemoryBudget = std::numeric_limits<unsigned long>::max();
         mMemoryUsage = 0;
-
+        mNextHandle = 1;
     }
-
     //-----------------------------------------------------------------------
     ResourceManager::~ResourceManager()
     {
@@ -81,6 +81,17 @@ namespace Ogre {
             Except(Exception::ERR_DUPLICATE_ITEM, "Resource with the name " + res->getName() + 
                 " already exists.", "ResourceManager::add");
         }
+        // Assign a new handle
+        res->mHandle = getNextHandle();
+        std::pair<ResourceHandleMap::iterator, bool> resultHandle = 
+            mResourcesByHandle.insert( ResourceHandleMap::value_type( res->mHandle, res ) );
+        if (!result.second)
+        {
+            Except(Exception::ERR_DUPLICATE_ITEM, "Resource with the handle " + 
+                StringConverter::toString(res->mHandle) + 
+                " already exists.", "ResourceManager::add");
+        }
+
     }
     //-----------------------------------------------------------------------
     void ResourceManager::setMemoryBudget( size_t bytes)
@@ -101,6 +112,7 @@ namespace Ogre {
 
         // Erase entry in map
         mResources.erase( res->getName() );
+        mResourcesByHandle.erase( res->getHandle() );
 
         // Update memory usage
         mMemoryUsage -= res->getSize();
@@ -121,6 +133,7 @@ namespace Ogre {
 
         // Empty the list
         mResources.clear();
+        mResourcesByHandle.clear();
     }
     //-----------------------------------------------------------------------
     Resource* ResourceManager::getByName(const String& name)
@@ -132,7 +145,24 @@ namespace Ogre {
         else
             return it->second;
     }
-
+    //-----------------------------------------------------------------------
+    Resource* ResourceManager::getByHandle(ResourceHandle handle)
+    {
+        ResourceHandleMap::iterator it = mResourcesByHandle.find(handle);
+        if (it == mResourcesByHandle.end())
+        {
+            return NULL;
+        }
+        else
+        {
+            return it->second;
+        }
+    }
+    //-----------------------------------------------------------------------
+    ResourceHandle ResourceManager::getNextHandle(void)
+    {
+        return mNextHandle++;
+    }
     //-----------------------------------------------------------------------
     void ResourceManager::checkUsage(void)
     {

@@ -25,12 +25,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 #include "OgreGpuProgram.h"
 #include "OgreGpuProgramManager.h"
+#include "OgreSDDataChunk.h"
+#include "OgreVector3.h"
+#include "OgreVector4.h"
 
 namespace Ogre
 {
 	//-----------------------------------------------------------------------------
-	GpuProgram::GpuProgram(const String& name, GpuProgramType gptype) 
-		: mType(gptype), mLoadFromFile(true)
+	GpuProgram::GpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode) 
+		: mType(gptype), mSyntaxCode(syntaxCode), mLoadFromFile(true)
 	{
 		mName = name;
 	}

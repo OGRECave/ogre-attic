@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 #include "OgreResource.h"
 #include "OgreSharedPtr.h"
+#include "OgreIteratorWrappers.h"
 
 namespace Ogre {
 
@@ -257,9 +258,12 @@ namespace Ogre {
         String mSource;
         /// Whether we need to load source from file or not
         bool mLoadFromFile;
+        /// Syntax code eg arbvp1, vs_2_0 etc
+        String mSyntaxCode;
 
 	public:
-		GpuProgram(const String& name, GpuProgramType gptype);
+
+		GpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode);
 		virtual ~GpuProgram() {}
 
         /** Sets the source assembly for this program.
@@ -269,6 +273,9 @@ namespace Ogre {
             Setting this will have no effect unless you reload the program in any case.
         */
         virtual void setSource(const String& source);
+
+        /** Gets the syntax code for this program e.g. arbvp1, fp20, vs_1_1 etc */
+        virtual const String& getSyntaxCode(void) const { return mSyntaxCode; }
 
         /** Gets the assembler source for this program. */
         virtual const String& getSource(void) const { return mSource; }

@@ -24,6 +24,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreStableHeaders.h"
 #include "OgreSimpleRenderable.h"
+#include "OgreException.h"
+#include "OgreNode.h"
 
 #include "OgreMaterialManager.h"
 

@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreRenderOperation.h"
 #include "OgreMatrix4.h"
+#include "OgreMaterial.h"
 
 
 namespace Ogre {
@@ -49,8 +50,17 @@ namespace Ogre {
     {
     public:
         /** Retrieves a pointer to the material this renderable object uses.
+        @remarks
+            Note that the Renderable also has the option to override the getTechnique method
+            to specify a particular Technique to use instead of the best one available.
         */
         virtual Material* getMaterial(void) const = 0;
+        /** Retrieves a pointer to the Material Technique this renderable object uses.
+        @remarks
+            This is to allow Renderables to use a chosen Technique if they wish, otherwise
+            they will use the best Technique available for the Material they are using.
+        */
+        virtual Technique* getTechnique(void) const { return getMaterial()->getBestTechnique(); }
         /** Gets the render operation required to send this object to the frame buffer.
         */
         virtual void getRenderOperation(RenderOperation& op) = 0;

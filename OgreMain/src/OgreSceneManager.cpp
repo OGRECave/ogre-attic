@@ -46,6 +46,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderQueueListener.h"
 #include "OgreBillboardSet.h"
 #include "OgrePass.h"
+#include "OgreTechnique.h"
+#include "OgreTextureUnitState.h"
+#include "OgreException.h"
 
 // This class implements the most basic scene manager
 
@@ -725,11 +728,11 @@ namespace Ogre {
             }
             // Make sure the material doesn't update the depth buffer
             m->setDepthWriteEnabled(false);
-            // Also clamp texture, don't wrap (otherwise edges can get filtered)
-            m->getTextureLayer(0)->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
-
             // Ensure loaded
             m->load();
+            // Also clamp texture, don't wrap (otherwise edges can get filtered)
+            m->getBestTechnique()->getPass(0)->getTextureUnitState(0)->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+
 
             mSkyBoxDrawFirst = drawFirst;
 
@@ -765,14 +768,17 @@ namespace Ogre {
                 {
                     // Create new by clone
                     boxMat = m->clone(entName);
+                    boxMat->load();
                 }
                 else
                 {
                     // Copy over existing
                     m->copyDetailsTo(boxMat);
+                    boxMat->load();
                 }
                 // Set active frame
-                boxMat->getTextureLayer(0)->setCurrentFrame(i);
+                boxMat->getBestTechnique()->getPass(0)->getTextureUnitState(0)
+                    ->setCurrentFrame(i);
 
                 mSkyBoxEntity[i]->setMaterialName(boxMat->getName());
 
