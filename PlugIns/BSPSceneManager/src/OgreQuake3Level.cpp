@@ -46,12 +46,34 @@ namespace Ogre {
 
 
     }
+   
+   // byte swapping functions
+   void SwapFourBytes(unsigned long *dw)
+   {
+      unsigned long tmp;
+      tmp =  (*dw & 0x000000FF);
+      tmp = ((*dw & 0x0000FF00) >> 0x08) | (tmp << 0x08);
+      tmp = ((*dw & 0x00FF0000) >> 0x10) | (tmp << 0x08);
+      tmp = ((*dw & 0xFF000000) >> 0x18) | (tmp << 0x08);
+      memcpy (dw, &tmp, sizeof(unsigned long));
+   }
+
+   void SwapFourBytesGrup (unsigned long *src, int size)
+   {
+      unsigned long *ptr = (unsigned long *)src;
+      int i;
+      for (i = 0; i < size/4; ++i) {
+         SwapFourBytes (&ptr[i]);
+      }
+   }
 
     void Quake3Level::initialise(void)
     {
+        int i=0;
+       
         mHeader = (bsp_header_t*)mChunk.getPtr();
         mLumpStart = ((unsigned char*)mHeader) + sizeof(mHeader);
-
+       
         mEntities = (unsigned char*)getLump(BSP_ENTITIES_LUMP);
         mNumEntities = getLumpSize(BSP_ENTITIES_LUMP);
 
@@ -96,15 +118,46 @@ namespace Ogre {
         mBrushSides = (bsp_brushside_t*) getLump(BSP_BRUSHSIDES_LUMP);
         mNumBrushSides = getLumpSize(BSP_BRUSHSIDES_LUMP)/sizeof(bsp_brushside_t);
 
+#if OGRE_PLATFORM == PLATFORM_APPLE
+      // swap header
+        SwapFourBytes (&mHeader->version);
+        SwapFourBytesGrup ((unsigned long*)mElements, mNumElements*sizeof(int));
+        SwapFourBytesGrup ((unsigned long*)mFaces, mNumFaces*sizeof(bsp_face_t));
+        SwapFourBytesGrup ((unsigned long*)mLeafFaces, mNumLeafFaces*sizeof(int));
+        SwapFourBytesGrup ((unsigned long*)mLeaves, mNumLeaves*sizeof(bsp_leaf_t));
+        SwapFourBytesGrup ((unsigned long*)mModels, mNumModels*sizeof(bsp_model_t));
+        SwapFourBytesGrup ((unsigned long*)mNodes, mNumNodes*sizeof(bsp_node_t));
+        SwapFourBytesGrup ((unsigned long*)mPlanes, mNumPlanes*sizeof(bsp_plane_t));
+        for (i=0; i < mNumShaders; ++i) {
+            SwapFourBytes(&mShaders[i].surface_flags);
+            SwapFourBytes(&mShaders[i].content_flags);
+        }   
+        SwapFourBytes(&mVis->cluster_count);
+        SwapFourBytes(&mVis->row_size);
+        SwapFourBytesGrup ((unsigned long*)mVertices, mNumVertices*sizeof(bsp_vertex_t));
+        SwapFourBytesGrup ((unsigned long*)mLeafBrushes, mNumLeafBrushes*sizeof(int));
+        SwapFourBytesGrup ((unsigned long*)mBrushes,  mNumBrushes*sizeof(bsp_brush_t));
+        SwapFourBytesGrup ((unsigned long*)mBrushSides, mNumBrushSides*sizeof(bsp_brushside_t));
+#endif
     }
 
     void* Quake3Level::getLump(int lumpType)
     {
+       
+#if OGRE_PLATFORM == PLATFORM_APPLE
+        // swap lump offset
+        SwapFourBytes (&mHeader->lumps[lumpType].offset);
+#endif
         return (unsigned char*)mHeader + mHeader->lumps[lumpType].offset;
     }
 
     int Quake3Level::getLumpSize(int lumpType)
     {
+
+#if OGRE_PLATFORM == PLATFORM_APPLE
+        // swap lump size
+        SwapFourBytes (&mHeader->lumps[lumpType].size);
+#endif
         return mHeader->lumps[lumpType].size;
     }
 
