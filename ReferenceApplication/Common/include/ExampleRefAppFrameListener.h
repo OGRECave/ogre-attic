@@ -53,6 +53,35 @@ using namespace OgreRefApp;
 
 class ExampleRefAppFrameListener: public FrameListener, public KeyListener
 {
+private:
+    void updateStats(void)
+    {
+        static String currFps = "Current FPS: ";
+        static String avgFps = "Average FPS: ";
+        static String bestFps = "Best FPS: ";
+        static String worstFps = "Worst FPS: ";
+        static String tris = "Triangle Count: ";
+
+        // update stats when necessary
+        GuiElement* guiAvg = GuiManager::getSingleton().getGuiElement("Core/AverageFps");
+        GuiElement* guiCurr = GuiManager::getSingleton().getGuiElement("Core/CurrFps");
+        GuiElement* guiBest = GuiManager::getSingleton().getGuiElement("Core/BestFps");
+        GuiElement* guiWorst = GuiManager::getSingleton().getGuiElement("Core/WorstFps");
+        
+        guiAvg->setCaption(avgFps + StringConverter::toString(mWindow->getAverageFPS()));
+        guiCurr->setCaption(currFps + StringConverter::toString(mWindow->getLastFPS()));
+        guiBest->setCaption(bestFps + StringConverter::toString(mWindow->getBestFPS())
+            +" "+StringConverter::toString(mWindow->getBestFrameTime())+" ms");
+        guiWorst->setCaption(worstFps + StringConverter::toString(mWindow->getWorstFPS())
+            +" "+StringConverter::toString(mWindow->getWorstFrameTime())+" ms");
+            
+        GuiElement* guiTris = GuiManager::getSingleton().getGuiElement("Core/NumTris");
+        guiTris->setCaption(tris + StringConverter::toString(mWindow->getTriangleCount()));
+
+        GuiElement* guiDbg = GuiManager::getSingleton().getGuiElement("Core/DebugText");
+        guiDbg->setCaption(mWindow->getDebugText());
+    }
+    
 public:
     // Constructor takes a RenderWindow because it uses that to determine input context
     ExampleRefAppFrameListener(RenderWindow* win, CollideCamera* cam, bool useBufferedInputKeys = false, bool useBufferedInputMouse = false)
@@ -81,6 +110,8 @@ public:
         mStatsOn = true;
 		mNumScreenShots = 0;
 		mTimeUntilNextToggle = 0;
+
+        showDebugOverlay(true);
     }
     virtual ~ExampleRefAppFrameListener()
     {
@@ -174,7 +205,7 @@ public:
         if (mInputDevice->isKeyDown(KC_F) && mTimeUntilNextToggle <= 0)
         {
             mStatsOn = !mStatsOn;
-            Root::getSingleton().showDebugOverlay(mStatsOn);
+            showDebugOverlay(mStatsOn);
 
             mTimeUntilNextToggle = 1;
         }
@@ -226,6 +257,22 @@ public:
 
 
 	}
+
+    void showDebugOverlay(bool show)
+    {   
+        Overlay* o = (Overlay*)OverlayManager::getSingleton().getByName("Core/DebugOverlay");
+        if (!o)
+            Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find overlay Core/DebugOverlay",
+                "showDebugOverlay" );
+        if (show)
+        {
+            o->show();
+        }
+        else
+        {
+            o->hide();
+        }
+    }
 
     // Override frameEnded event 
     bool frameEnded(const FrameEvent& evt)
@@ -298,6 +345,7 @@ public:
         // Perform simulation step
         World::getSingleton().simulationStep(evt.timeSinceLastFrame);
 
+        updateStats();
 		return true;
     }
 
