@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreQuake3ShaderManager.h"
 #include "OgreQuake3Shader.h"
 #include "OgreStringVector.h"
+#include "OgreException.h"
 
 namespace Ogre {
 
@@ -129,7 +130,21 @@ namespace Ogre {
     Resource* Quake3ShaderManager::create( const String& name)
     {
         Quake3Shader* s = new Quake3Shader(name);
-        load(s,1);
+        try {
+            // Gah, Q3A shader scripts include some duplicates - grr
+            this->add(s);
+        }
+        catch (Exception& e)
+        {
+            if (e.getNumber() == Exception::ERR_DUPLICATE_ITEM)
+            {
+                // deliberately ignore, will get parsed again but will not be used
+            }
+            else
+            {
+                throw;
+            }
+        }
         return s;
     }
     //-----------------------------------------------------------------------

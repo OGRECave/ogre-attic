@@ -125,13 +125,23 @@ namespace Ogre {
             }
             else
             {
-                t = mat->getTechnique(0)->getPass(0)->createTextureUnitState(pass[p].textureName);
                 // Quake3 can still include alternate extension filenames e.g. jpg instead of tga
                 // Pain in the arse - have to check for failure
-                if (t->isBlank())
-                {
-                    t->setTextureName(getAlternateName(pass[p].textureName));
+                try {
+                    TextureManager::getSingleton().load(pass[p].textureName);
                 }
+                catch (...)
+                {
+                    // Try alternate extension
+                    pass[p].textureName = getAlternateName(pass[p].textureName);
+                    try {
+                        TextureManager::getSingleton().load(pass[p].textureName);
+                    }
+                    catch (...)
+                    { // stuffed - no texture
+                    }
+                }
+                t = mat->getTechnique(0)->getPass(0)->createTextureUnitState(pass[p].textureName);
             }
             // Blending
             if (p == 0)
