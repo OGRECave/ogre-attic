@@ -128,10 +128,10 @@ namespace Ogre {
         {
             Bone* pBone = pSkel->getBone(i);
             unsigned short handle = pBone->getHandle();
-            if (handle != 0) // root bone
+            Bone* pParent = (Bone*)pBone->getParent(); 
+            if (pParent != NULL) 
             {
-                Bone* pParent = (Bone*)pBone->getParent();
-                writeBoneParent(handle, pParent->getHandle());
+                writeBoneParent(handle, pParent->getHandle());             
             }
         }
     }
