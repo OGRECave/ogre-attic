@@ -242,6 +242,8 @@ namespace Ogre
 
         /** Build a reflection matrix for the passed in plane. */
         static Matrix4 buildReflectionMatrix(const Plane& p);
+        /** Calculate a face normal, including the w component which is the offset from the origin. */
+        static Vector4 calculateFaceNormal(const Vector3& v1, const Vector3& v2, const Vector3& v3);
 
         static const Real POS_INFINITY;
         static const Real NEG_INFINITY;

@@ -805,7 +805,8 @@ namespace Ogre {
         EntityShadowRenderable* esr = 0;
         if (init)
             mShadowRenderables.resize(edgeList->edgeGroups.size());
-        
+
+        bool updatedSharedGeomNormals = false;
         siend = mShadowRenderables.end();
         egi = edgeList->edgeGroups.begin();
         for (si = mShadowRenderables.begin(); si != siend; ++si, ++egi)
@@ -826,6 +827,19 @@ namespace Ogre {
             }
             // Get shadow renderable
             esr = static_cast<EntityShadowRenderable*>(*si);
+            // For animated entities we need to recalculate the face normals
+            if (hasSkeleton())
+            {
+                if (egi->vertexData != mMesh->sharedVertexData || !updatedSharedGeomNormals)
+                {
+                    // recalculate face normals
+                    edgeList->updateFaceNormals(egi->vertexSet, esr->getPositionBuffer());
+                    if (egi->vertexData == mMesh->sharedVertexData)
+                    {
+                        updatedSharedGeomNormals = true;
+                    }
+                }
+            }
             // Extrude vertices in software if required
             if (extrude)
             {
@@ -834,12 +848,6 @@ namespace Ogre {
 
             }
 
-        }
-        // Ok, we do need the updated light pos for the edge list
-        if (hasSkeleton())
-        {
-            Matrix4 world2Obj = mParentNode->_getFullTransform().inverse();
-            lightPos =  world2Obj * lightPos; 
         }
         // Calc triangle light facing
         updateEdgeListLightFacing(edgeList, lightPos);

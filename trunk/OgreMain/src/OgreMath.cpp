@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMath.h"
 #include "asm_math.h"
 #include "OgreVector3.h"
+#include "OgreVector4.h"
 #include "OgreRay.h"
 #include "OgreSphere.h"
 #include "OgreAxisAlignedBox.h"
@@ -569,5 +570,13 @@ namespace Ogre
             -2 * p.normal.y * p.normal.x,       -2 * p.normal.y * p.normal.y + 1,   -2 * p.normal.y * p.normal.z,       -2 * p.normal.y * p.d, 
             -2 * p.normal.z * p.normal.x,       -2 * p.normal.z * p.normal.y,       -2 * p.normal.z * p.normal.z + 1,   -2 * p.normal.z * p.d, 
             0,                                  0,                                  0,                                  1);
+    }
+    //-----------------------------------------------------------------------
+    Vector4 Math::calculateFaceNormal(const Vector3& v1, const Vector3& v2, const Vector3& v3)
+    {
+        Vector3 normal = (v2 - v1).crossProduct(v3 - v1);
+        normal.normalise();
+        // Now set up the w (distance of tri from origin
+        return Vector4(normal.x, normal.y, normal.z, -(normal.dotProduct(v1)));
     }
 }

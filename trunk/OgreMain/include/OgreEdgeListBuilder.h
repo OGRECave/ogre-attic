@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 #include "OgreVector4.h"
+#include "OgreHardwareVertexBuffer.h"
 
 namespace Ogre {
 
@@ -98,6 +99,12 @@ namespace Ogre {
             is 0 and the x/y/z position are the direction.
         */
         void updateTriangleLightFacing(const Vector4& lightPos);
+        /** Updates the face normals for this edge list based on (changed)
+            position information, useful for animated objects. 
+        @param vertexSet The vertex set we are updating
+        @param positionBuffer The updated position buffer, must contain ONLY xyz
+        */
+        void updateFaceNormals(size_t vertexSet, HardwareVertexBufferSharedPtr positionBuffer);
 
 
         // Debugging method
