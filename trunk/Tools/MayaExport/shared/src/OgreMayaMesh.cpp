@@ -157,23 +157,27 @@ namespace OgreMaya {
 	*/	
 	//	--------------------------------------------------------------------------
 	MStatus MeshGenerator::_processPolyMesh(ofstream& out, const MDagPath dagPath) {
-		MStatus status = MStatus::kSuccess;
+		
+        cout << "dagPath = \"" << dagPath.fullPathName().asChar() << "\"\n";
+        
+        MFnMesh* fnMesh = 0;                                    
+
+        MStatus status = MStatus::kSuccess;
         MeshMayaGeometry MayaGeometry;
 
 //*******************************************************************
-
-        // ===== Calculate the influence of SkinCluter if any
-        bool hasSkinCluster = false;                    
-
         
-        MObject	kInputObject, kOutputObject;
-        MDagPath meshPath = dagPath;        
-        MFnMesh fnTargetMesh(dagPath, &status);
+        // ===== Calculate the influence of SkinCluter if any
+        bool hasSkinCluster = false;                                    
             
 	    //search the skin cluster affecting this geometry
 	    MItDependencyNodes kDepNodeIt( MFn::kSkinClusterFilter );            
 
-	    for( ;!kDepNodeIt.isDone() && !hasSkinCluster; kDepNodeIt.next())  {
+        MFnMesh fnTargetMesh(dagPath, &status);
+
+	    for( ;!kDepNodeIt.isDone() && !hasSkinCluster; kDepNodeIt.next())  {            
+
+            MObject	kInputObject, kOutputObject;                    
 		    MObject kObject = kDepNodeIt.item();
 
 		    MFnSkinCluster kSkinClusterFn(kObject, &status);
@@ -183,7 +187,7 @@ namespace OgreMaya {
 
             unsigned int uiNumGeometries = kSkinClusterFn.numOutputConnections();
 
-            cout << "  [" << uiNumGeometries << "] geometry objects\n";
+            cout << "[" << uiNumGeometries << "] geometry objects\n";
 
             for(unsigned int uiGeometry = 0; uiGeometry < uiNumGeometries; ++uiGeometry ) {
 	            unsigned int uiIndex = kSkinClusterFn.indexForOutputConnection( uiGeometry, &status );
@@ -196,6 +200,7 @@ namespace OgreMaya {
                     cout << "geometry found in skin cluster\n";
                     hasSkinCluster = true;
 
+                    fnMesh = new MFnMesh(kInputObject);
 
                     // get weights
                     MItGeometry kGeometryIt(kInputObject);
@@ -205,7 +210,7 @@ namespace OgreMaya {
 				        MFloatArray kWeightArray;
 				        unsigned int uiNumInfluences;
 
-				        kSkinClusterFn.getWeights(meshPath, kComponent, kWeightArray, uiNumInfluences);
+				        kSkinClusterFn.getWeights(dagPath, kComponent, kWeightArray, uiNumInfluences);
                                     
                         MayaGeometry.Weights.push_back(kWeightArray);
                     }
@@ -213,30 +218,35 @@ namespace OgreMaya {
             }
         
         }
+                
+        if(!hasSkinCluster)
+            fnMesh = new MFnMesh(dagPath, &status); 
 
-        MFnMesh fnMesh = hasSkinCluster ? MFnMesh(kInputObject) : MFnMesh(dagPath, &status);
+
+        //MFnMesh fnMesh(dagPath, &status); 
         
-//*******************************************************************
+//*******************************************************************        
 
-
-
-
+        cout << "_queryMayaGeometry\n";
         // ===== Get Maya geometry		
-		status = _queryMayaGeometry(fnMesh, MayaGeometry);
+		status = _queryMayaGeometry(*fnMesh, MayaGeometry);
 		if (status == MStatus::kFailure) {
 			return status;
 		}
 
 
+        cout << "_parseMayaGeometry\n";
 		// ===== Parse into MeshGenerator format
 		MeshFaceVertexVector FaceVertices;
 		MeshTriFaceList      TriFaces;
-		status = _parseMayaGeometry(fnMesh, MayaGeometry, FaceVertices, TriFaces);
+		status = _parseMayaGeometry(*fnMesh, MayaGeometry, FaceVertices, TriFaces);
 		if (status == MStatus::kFailure) {
 			return status;
 		}
 
 		
+        delete fnMesh;
+
 		// ===== Optimize Mesh
         // TODO
 		//_optimizeMesh(FaceVertices, TriFaces);
@@ -244,10 +254,8 @@ namespace OgreMaya {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-
-
-        // export as xml
-
+                
+        // export as XML
         out << "\t\t<submesh material=\"" << MayaGeometry.MaterialName.asChar() << "\" usesharedvertices=\"false\" use32bitindexes=\"false\">\n";    
 	
 
@@ -283,9 +291,9 @@ namespace OgreMaya {
 		for(vertexIt=FaceVertices.begin(); vertexIt!=vertexEnd; ++vertexIt)	{            
             out << "\t\t\t\t\t<vertex>\n";
             out << "\t\t\t\t\t\t<position ";
-            out << "x=\"" << vertexIt->vecPosition.x*100 << "\" ";
-			out << "y=\"" << vertexIt->vecPosition.y*100 << "\" ";
-			out << "z=\"" << vertexIt->vecPosition.z*100 << "\"/>\n";
+            out << "x=\"" << vertexIt->vecPosition.x << "\" ";
+			out << "y=\"" << vertexIt->vecPosition.y << "\" ";
+			out << "z=\"" << vertexIt->vecPosition.z << "\"/>\n";
             out << "\t\t\t\t\t</vertex>\n";
 		}
 		out << "\t\t\t\t</vertexbuffer>\n";
@@ -387,7 +395,8 @@ namespace OgreMaya {
 		return MStatus::kSuccess;
 	}
 
-    MString getMaterialName(MFnMesh &fnMesh) {
+    MString MeshGenerator::getMaterialName(MFnMesh &fnMesh) {
+
 		MStatus status = MStatus::kSuccess;
 		MString MaterialName = "";
 		
@@ -396,10 +405,11 @@ namespace OgreMaya {
 		// (Required to determine texturing of different faces)
 
 		// Determine instance number
-		fnMesh.dagPath().extendToShape();
+        MDagPath meshPath = fnMesh.dagPath();
+		meshPath.extendToShape();
 		int iInstance = 0;
-		if (fnMesh.dagPath().isInstanced()) {
-			iInstance = fnMesh.dagPath().instanceNumber();
+		if (meshPath.isInstanced()) {
+			iInstance = meshPath.instanceNumber();
 		}
 
 		// Get the connected sets and members
@@ -464,15 +474,15 @@ namespace OgreMaya {
 		\todo		Fix normals
 	*/	
 	//	--------------------------------------------------------------------------
-	MStatus MeshGenerator::_queryMayaGeometry(MFnMesh &fnMesh, 
-		                                      MeshMayaGeometry &rGeom)
-	{
-		MStatus status = MStatus::kSuccess;
+	MStatus MeshGenerator::_queryMayaGeometry(
+        MFnMesh &fnMesh, 
+		MeshMayaGeometry &rGeom
+    ) {
+		MStatus status = MStatus::kSuccess;                
 
-
-		// ===== Identification
-		rGeom.Name         = fnMesh.partialPathName(); // shortest unique name
-		rGeom.MaterialName = getMaterialName(fnMesh);
+		// ===== Identification		
+        rGeom.Name         = fnMesh.partialPathName(); // shortest unique name        
+		rGeom.MaterialName = getMaterialName(fnMesh);        
 
 
 		// ===== Geometry
@@ -529,8 +539,7 @@ namespace OgreMaya {
 		// Override non-existent colours with semi-transparent white
 		unsigned int iFaceVertex;
 		MColor mayaColour;
-		for (iFaceVertex=0; iFaceVertex < rGeom.FaceVertexColours.length(); ++iFaceVertex) 
-		{
+		for (iFaceVertex=0; iFaceVertex < rGeom.FaceVertexColours.length(); ++iFaceVertex) {
 			mayaColour = rGeom.FaceVertexColours[iFaceVertex];
 			if ((mayaColour.r) == -1) mayaColour.r = 1;
 			if ((mayaColour.g) == -1) mayaColour.g = 1;
@@ -579,11 +588,12 @@ namespace OgreMaya {
 	/** Parse Maya geometry into MeshGenerator format for further processing.
 	*/	
 	//	--------------------------------------------------------------------------
-	MStatus MeshGenerator::_parseMayaGeometry(MFnMesh &fnMesh,
-		                                      MeshMayaGeometry &MayaGeometry, 
-		                                      MeshFaceVertexVector &FaceVertices, 
-			    			                  MeshTriFaceList &TriFaces)
-	{
+	MStatus MeshGenerator::_parseMayaGeometry(
+        MFnMesh &fnMesh,
+		MeshMayaGeometry &MayaGeometry, 
+		MeshFaceVertexVector &FaceVertices, 
+		MeshTriFaceList &TriFaces
+    ) {
 		MStatus status;
 
 		// --- Determine number of triangles
@@ -619,7 +629,7 @@ namespace OgreMaya {
 
 			// --- Get indices of face-vertex normals
 			MIntArray NormalIds;
-			if (OPTIONS.exportNormals) {
+			/*if (OPTIONS.exportNormals)*/ {
 				fnMesh.getFaceNormalIds(iPoly, NormalIds);
 				if (status == MStatus::kFailure) {
 					MGlobal::displayError("MFnMesh::getFaceNormalIds()");
@@ -641,14 +651,19 @@ namespace OgreMaya {
 				MPoint mayaPoint;
 				int iVertex = VertexIds[iPolyVertex];
 				mayaPoint = MayaGeometry.Vertices[iVertex];
-                MFloatArray& weights = MayaGeometry.Weights[iVertex];
+                
+                MFloatArray* weights = 0;
+
+                if(iVertex < MayaGeometry.Weights.size()) {
+                    weights = &MayaGeometry.Weights[iVertex];
+                }
 
 				FaceVertex.vecPosition.x = mayaPoint.x;
 				FaceVertex.vecPosition.y = mayaPoint.y;
 				FaceVertex.vecPosition.z = mayaPoint.z;
 
 				// Lookup and store face-vertex normal
-				if (OPTIONS.exportNormals) {
+				/*if (OPTIONS.exportNormals)*/ {
 					MVector mayaNormal;
 					int iNormal = NormalIds[iPolyVertex];
 					mayaNormal = MayaGeometry.FaceVertexNormals[iNormal];
@@ -658,7 +673,7 @@ namespace OgreMaya {
 				}
 
 				// Lookup and store face-vertex colour
-				if (OPTIONS.exportColours) {
+				/*if (OPTIONS.exportColours)*/ {
 					int iColour;
 					MColor mayaColour;
 					status = fnMesh.getFaceVertexColorIndex(iPoly, iPolyVertex, iColour);
@@ -670,7 +685,7 @@ namespace OgreMaya {
 				}
 
 				// Loop over UV sets
-				if (OPTIONS.exportUVs) {
+				/*if (OPTIONS.exportUVs)*/ {
 					MeshMayaUVSetList::iterator iterUVSet;
 					iterUVSet = MayaGeometry.UVSets.begin();
 					while (iterUVSet != MayaGeometry.UVSets.end()) {
@@ -688,21 +703,21 @@ namespace OgreMaya {
 				}
 
                 // assign weights
-                {
+                if(weights) {
                     const float eps = 0.001f;
                     float acc;                    
 
-                    for(int i=weights.length()-1; i>=0; i--) {
+                    for(int i=weights->length()-1; i>=0; i--) {
                         acc = 0;
-                        if(weights[i] < eps) {
-                            acc += weights[i];
+                        if((*weights)[i] < eps) {
+                            acc += (*weights)[i];
                         }
                         else {
                             VertexBoneAssigment vba;
 
                             vba.boneId   = i;
                             vba.vertexId = FaceVertices.size();
-                            vba.weight   = weights[i];// + (acc/(float)i);
+                            vba.weight   = (*weights)[i];// + (acc/(float)i);
 
                             FaceVertex.boneAssigments.push_front(vba);
                         }
@@ -732,9 +747,10 @@ namespace OgreMaya {
 	*/	
 	//	--------------------------------------------------------------------------
     
-	void MeshGenerator::_optimizeMesh(MeshFaceVertexVector &FaceVertices,
-		                              MeshTriFaceList &TriFaces)
-	{
+	void MeshGenerator::_optimizeMesh(
+        MeshFaceVertexVector &FaceVertices,
+		MeshTriFaceList &TriFaces
+    ) {
         // TODO
         /*
 		// ===== Optimize
@@ -855,8 +871,7 @@ namespace OgreMaya {
 					unable to determine visibility
 	*/	
 	//	--------------------------------------------------------------------------
-	bool MeshGenerator::_isVisible(MFnDagNode &fnDag, MStatus &status) 
-	{
+	bool MeshGenerator::_isVisible(MFnDagNode &fnDag, MStatus &status) {
 		if(fnDag.isIntermediateObject()) {
 			return false;
 		}
@@ -896,10 +911,11 @@ namespace OgreMaya {
 					appended if there is no corresponding vertex.
 	*/	
 	//	--------------------------------------------------------------------------
-	void MeshGenerator::_convertObjectToFace(MItMeshPolygon &iterPoly, 
-		                                     MIntArray &objIndices, 
-							                 MIntArray &faceIndices)
-	{
+	void MeshGenerator::_convertObjectToFace(
+        MItMeshPolygon &iterPoly, 
+		MIntArray &objIndices, 
+		MIntArray &faceIndices
+    ) {
 		MIntArray polyIndices;
 		iterPoly.getVertices(polyIndices);
 			
