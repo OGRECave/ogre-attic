@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreAxisAlignedBox.h"
 #include "OgreVertexBoneAssignment.h"
 #include "OgreAnimationState.h"
+#include "OgreIteratorWrappers.h"
 
 
 namespace Ogre {
@@ -76,7 +77,6 @@ namespace Ogre {
     class _OgreExport Mesh: public Resource
     {
         friend class MeshSerializer;
-        friend class XMLMeshSerializer;
     public:
         /** Default constructor - used by MeshManager
             @warning
@@ -187,6 +187,8 @@ namespace Ogre {
         /** Gets a pointer to any linked Skeleton. */
         Skeleton* getSkeleton(void) const;
 
+        /** Gets the name of any linked Skeleton */
+        const String& getSkeletonName(void) const;
         /** Initialise an animation set suitable for use with this mesh. 
         @remarks
             Only recommended for use inside the engine, not by applications.
@@ -236,6 +238,13 @@ namespace Ogre {
         */
         void _notifySkeleton(Skeleton* pSkel);
 
+        /// Multimap of vertex bone assignments (orders by vertex index)
+        typedef std::multimap<unsigned short, VertexBoneAssignment> VertexBoneAssignmentList;
+        typedef MapIterator<VertexBoneAssignmentList> BoneAssignmentIterator;
+
+        /** Gets an iterator for access all bone assignments. 
+        */
+        BoneAssignmentIterator getBoneAssignmentIterator(void);
     private:
         typedef std::vector<SubMesh*> SubMeshList;
         /** A list of submeshes which make up this mesh.
@@ -259,10 +268,9 @@ namespace Ogre {
         bool mUpdateBounds;
 
         /// Optional linked skeleton
+        String mSkeletonName;
         Skeleton* mSkeleton;
 
-        /// Multimap of verex bone assignments (orders by vertex index)
-        typedef std::multimap<unsigned short, VertexBoneAssignment> VertexBoneAssignmentList;
        
         VertexBoneAssignmentList mBoneAssignments;
 

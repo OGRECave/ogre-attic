@@ -281,6 +281,12 @@ namespace Ogre {
 
 
     }
+    //---------------------------------------------------------------------
+    SubMesh::BoneAssignmentIterator SubMesh::getBoneAssignmentIterator(void)
+    {
+        return BoneAssignmentIterator(mBoneAssignments.begin(),
+            mBoneAssignments.end());
+    }
 
 
 

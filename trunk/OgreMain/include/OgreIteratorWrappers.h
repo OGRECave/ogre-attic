@@ -50,6 +50,7 @@ namespace Ogre {
         typename T::iterator mCurrent;
         typename T::iterator mEnd;
     public:
+        VectorIterator();
         /** Constructor.
         @remarks
             Provide a start and end iterator to initialise.
@@ -101,6 +102,7 @@ namespace Ogre {
         typename T::iterator mCurrent;
         typename T::iterator mEnd;
     public:
+        MapIterator();
         /** Constructor.
         @remarks
             Provide a start and end iterator to initialise.
