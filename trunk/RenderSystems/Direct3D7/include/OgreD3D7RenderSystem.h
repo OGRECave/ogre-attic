@@ -219,7 +219,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void convertColourValue(const ColourValue& colour, unsigned long* pDest);
+        void convertColourValue(const ColourValue& colour, uint32* pDest);
 
         // -----------------------------
         // Low-level overridden members

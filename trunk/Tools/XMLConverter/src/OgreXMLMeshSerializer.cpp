@@ -784,7 +784,7 @@ namespace Ogre {
 							ColourValue cv;
 							cv = StringConverter::parseColourValue(
 								xmlElem->Attribute("value"));
-							*pCol++ = cv.getAsLongARGB();
+							*pCol++ = cv.getAsARGB();
 						}
                         break;
                     case VES_SPECULAR:
@@ -799,7 +799,7 @@ namespace Ogre {
 							ColourValue cv;
 							cv = StringConverter::parseColourValue(
 								xmlElem->Attribute("value"));
-							*pCol++ = cv.getAsLongARGB();
+							*pCol++ = cv.getAsARGB();
 						}
                         break;
                     case VES_TEXTURE_COORDINATES:

@@ -161,7 +161,7 @@ namespace Ogre
 		void setShadingType( ShadeOptions so );
 		void setLightingEnabled( bool enabled );
 		void destroyRenderWindow( RenderWindow* pWin );
-		void convertColourValue( const ColourValue& colour, unsigned long* pDest );
+		void convertColourValue( const ColourValue& colour, uint32* pDest );
 		void setStencilCheckEnabled(bool enabled);
         void setStencilBufferParams(CompareFunction func = CMPF_ALWAYS_PASS, 
             ulong refValue = 0, ulong mask = 0xFFFFFFFF, 

@@ -613,7 +613,7 @@ namespace Ogre
         @param colour The colour to convert
         @param pDest Pointer to location to put the result.
         */
-        virtual void convertColourValue(const ColourValue& colour, unsigned long* pDest) = 0;
+        virtual void convertColourValue(const ColourValue& colour, uint32* pDest) = 0;
 
         /** Builds a perspective projection matrix suitable for this render system.
         @remarks
