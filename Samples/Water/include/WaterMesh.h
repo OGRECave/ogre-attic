@@ -49,6 +49,10 @@ private:
 	HardwareVertexBufferSharedPtr normVertexBuffer ;
 	HardwareVertexBufferSharedPtr texcoordsVertexBuffer ;
 	HardwareIndexBufferSharedPtr indexBuffer ;
+
+	Real lastTimeStamp ;
+	Real lastAnimationTimeStamp;
+	Real lastFrameTime ;
 	
 	void calculateFakeNormals();
 	void calculateNormals();

@@ -26,6 +26,8 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "WaterMesh.h"
 
+#define ANIMATIONS_PER_SECOND 100.0f
+
 WaterMesh::WaterMesh(const String& meshName, Real planeSize, int complexity)
 {
 	int i,x,y,b; // I prefer to initialize for() variables inside it, but VC doesn't like it ;(
@@ -34,6 +36,9 @@ WaterMesh::WaterMesh(const String& meshName, Real planeSize, int complexity)
 	this->complexity =  complexity ;
 	numFaces = 2 * complexity * complexity; 
 	numVertices = (complexity + 1) * (complexity + 1) ;
+	lastTimeStamp = 0 ;
+	lastAnimationTimeStamp = 0;
+	lastFrameTime = 0 ;
 	
 	// initialize algorithm parameters
 	PARAM_C = 0.3f ; // ripple speed 
@@ -160,6 +165,8 @@ WaterMesh::WaterMesh(const String& meshName, Real planeSize, int complexity)
 void WaterMesh::push(Real x, Real y, Real depth, bool absolute)
 {
 	Real *buf = vertexBuffers[currentBuffNumber]+1 ;
+	// scale pressure according to time passed
+	depth = depth * lastFrameTime * ANIMATIONS_PER_SECOND ;
 #define _PREP(addx,addy) { \
 	Real *vertex=buf+3*((int)(y+addy)*(complexity+1)+(int)(x+addx)) ; \
 	Real diffy = y - floor(y+addy); \
@@ -267,34 +274,43 @@ void WaterMesh::updateMesh(Real timeSinceLastFrame)
 {
 	int x, y ;
 	
-	// switch buffer numbers
-	currentBuffNumber = (currentBuffNumber + 1) % 3 ;
-	Real *buf = vertexBuffers[currentBuffNumber] + 1 ; // +1 for Y coordinate
-	Real *buf1 = vertexBuffers[(currentBuffNumber+2)%3] + 1 ; 
-	Real *buf2 = vertexBuffers[(currentBuffNumber+1)%3] + 1; 	
-
-	/* we use an algorithm from
-	 * http://collective.valve-erc.com/index.php?go=water_simulation
-	 * The params could be dynamically changed every frame ofcourse
-	 */
-	double C = PARAM_C; // ripple speed 
-	double D = PARAM_D; // distance
-	double U = PARAM_U; // viscosity
-	double T = PARAM_T; // time
-	Real TERM1 = ( 4.0f - 8.0f*C*C*T*T/(D*D) ) / (U*T+2) ;
-	Real TERM2 = ( U*T-2.0f ) / (U*T+2.0f) ;
-	Real TERM3 = ( 2.0f * C*C*T*T/(D*D) ) / (U*T+2) ;
-	for(y=1;y<complexity;y++) { // don't do anything with border values
-		Real *row = buf + 3*y*(complexity+1) ;
-		Real *row1 = buf1 + 3*y*(complexity+1) ;
-		Real *row1up = buf1 + 3*(y-1)*(complexity+1) ;
-		Real *row1down = buf1 + 3*(y+1)*(complexity+1) ;
-		Real *row2 = buf2 + 3*y*(complexity+1) ;
-		for(x=1;x<complexity;x++) {
-			row[3*x] = TERM1 * row1[3*x] 
-				+ TERM2 * row2[3*x]
-				+ TERM3 * ( row1[3*x-3] + row1[3*x+3] + row1up[3*x]+row1down[3*x] ) ;
+	lastFrameTime = timeSinceLastFrame ;
+	lastTimeStamp += timeSinceLastFrame ;
+	
+	// do rendering to get ANIMATIONS_PER_SECOND
+	while(lastAnimationTimeStamp <= lastTimeStamp) {
+	
+		// switch buffer numbers
+		currentBuffNumber = (currentBuffNumber + 1) % 3 ;
+		Real *buf = vertexBuffers[currentBuffNumber] + 1 ; // +1 for Y coordinate
+		Real *buf1 = vertexBuffers[(currentBuffNumber+2)%3] + 1 ; 
+		Real *buf2 = vertexBuffers[(currentBuffNumber+1)%3] + 1; 	
+	
+		/* we use an algorithm from
+		 * http://collective.valve-erc.com/index.php?go=water_simulation
+		 * The params could be dynamically changed every frame ofcourse
+		 */
+		double C = PARAM_C; // ripple speed 
+		double D = PARAM_D; // distance
+		double U = PARAM_U; // viscosity
+		double T = PARAM_T; // time
+		Real TERM1 = ( 4.0f - 8.0f*C*C*T*T/(D*D) ) / (U*T+2) ;
+		Real TERM2 = ( U*T-2.0f ) / (U*T+2.0f) ;
+		Real TERM3 = ( 2.0f * C*C*T*T/(D*D) ) / (U*T+2) ;
+		for(y=1;y<complexity;y++) { // don't do anything with border values
+			Real *row = buf + 3*y*(complexity+1) ;
+			Real *row1 = buf1 + 3*y*(complexity+1) ;
+			Real *row1up = buf1 + 3*(y-1)*(complexity+1) ;
+			Real *row1down = buf1 + 3*(y+1)*(complexity+1) ;
+			Real *row2 = buf2 + 3*y*(complexity+1) ;
+			for(x=1;x<complexity;x++) {
+				row[3*x] = TERM1 * row1[3*x] 
+					+ TERM2 * row2[3*x]
+					+ TERM3 * ( row1[3*x-3] + row1[3*x+3] + row1up[3*x]+row1down[3*x] ) ;
+			}
 		}
+		
+		lastAnimationTimeStamp += (1.0f / ANIMATIONS_PER_SECOND);
 	}
 
 	if (useFakeNormals) {

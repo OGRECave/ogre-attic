@@ -46,8 +46,7 @@ AnimationState* mAnimState;
 #define MATERIAL_NAME "Examples/Water0"
 #define COMPLEXITY 64 		// watch out - number of polys is 2*ACCURACY*ACCURACY !
 #define PLANE_SIZE 3000.0f
-//~ #define CIRCLES_MATERIAL "Examples/Water/Circles"
-#define CIRCLES_MATERIAL "Examples/Water6"
+#define CIRCLES_MATERIAL "Examples/Water/Circles"
 
 /* Some global variables */
 SceneNode *headNode ;
@@ -272,9 +271,9 @@ protected:
 	WaterMesh *waterMesh ;
 	Entity *waterEntity ;
 	int materialNumber ;
+	bool skyBoxOn ;
 	Real timeoutDelay ;
 
-#define RAIN_FREQ 2
 #define RAIN_HEIGHT_RANDOM 5
 #define RAIN_HEIGHT_CONSTANT 5
 	
@@ -330,17 +329,6 @@ protected:
 		}
 	}
 	
-	/** Simple rain */
-	void rain()
-	{
-		if (! (rand() % RAIN_FREQ )) { // every X frames
-			float x = rand() % (COMPLEXITY-1) + 1 ;
-			float y = rand() % (COMPLEXITY-1) + 1 ;
-			float h = rand() % RAIN_HEIGHT_RANDOM + RAIN_HEIGHT_CONSTANT ;
-			waterMesh->push(x,y,-h) ;
-		}
-	}
-
 	/** Head animation */
 	Real headDepth ;
 	void animateHead(Real timeSinceLastFrame)
@@ -402,7 +390,11 @@ protected:
 		GuiManager::getSingleton().getGuiElement("Example/Water/Depth") \
 			->setCaption(String("[U/J]Head depth: ")+StringConverter::toString(headDepth));
 	}
-	
+	void updateInfoSkyBox()
+	{
+		GuiManager::getSingleton().getGuiElement("Example/Water/SkyBox")
+			->setCaption(String("[B]SkyBox: ")+String((skyBoxOn)?"On":"Off") );
+	}
 	void updateMaterial()
 	{
 		String materialName = MATERIAL_PREFIX+StringConverter::toString(materialNumber);
@@ -422,11 +414,19 @@ protected:
 		GuiManager::getSingleton().getGuiElement("Example/Water/Material") \
 			->setCaption(String("[M]Material: ")+materialName);
 	}
+
 	void switchMaterial()
 	{
 		materialNumber++;
 		updateMaterial();
 	}
+	void switchSkyBox()
+	{
+		skyBoxOn = !skyBoxOn;
+		sceneMgr->setSkyBox(skyBoxOn, "Examples/SceneSkyBox2");
+		updateInfoSkyBox();
+	}
+
 public:
     WaterListener(RenderWindow* win, Camera* cam, 
 		WaterMesh *waterMesh, Entity *waterEntity)
@@ -434,9 +434,10 @@ public:
     {
 		this->waterMesh = waterMesh ;
 		this->waterEntity = waterEntity ;
-		materialNumber = 5;
+		materialNumber = 8;
 		timeoutDelay = 0.0f;
 		headDepth = 2.0f;
+		skyBoxOn = false ;
 		
 		updateMaterial();
 		updateInfoParamC();
@@ -445,12 +446,13 @@ public:
 		updateInfoParamT();
 		updateInfoNormals();
 		updateInfoHeadDepth();
+		updateInfoSkyBox();
     }
 
     bool frameStarted(const FrameEvent& evt)
     {
 		bool retval = ExampleFrameListener::frameStarted(evt); 
-        //~ mAnimState->addTime(evt.timeSinceLastFrame);
+        mAnimState->addTime(evt.timeSinceLastFrame);
 		
 		// process keyboard events
 		mInputDevice->capture();
@@ -467,7 +469,6 @@ public:
 		// rain
 		processCircles(evt.timeSinceLastFrame);
 		if (mInputDevice->isKeyDown(KC_SPACE)) {
-			//~ rain();
 			particleEmitter->setEmissionRate(20.0f);
 		} else {
 			particleEmitter->setEmissionRate(0.0f);
@@ -504,6 +505,8 @@ public:
 			
 		SWITCH_VALUE(KC_M, 0.5f, switchMaterial());
 
+		SWITCH_VALUE(KC_B, 0.5f, switchSkyBox());
+			
 		animateHead(evt.timeSinceLastFrame);
 			
 		waterMesh->updateMesh(evt.timeSinceLastFrame);
@@ -549,11 +552,9 @@ protected:
 		waterMesh = new WaterMesh(MESH_NAME, PLANE_SIZE, COMPLEXITY);
 		waterEntity = mSceneMgr->createEntity(ENTITY_NAME, 
 			MESH_NAME);
-		waterEntity->setMaterialName(MATERIAL_NAME);
+		//~ waterEntity->setMaterialName(MATERIAL_NAME);
 		SceneNode *waterNode = static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild());
 		waterNode->attachObject(waterEntity);
-		SceneNode *followNode = static_cast<SceneNode*>(waterNode->createChild());
-		followNode->translate(PLANE_SIZE/2, 0, PLANE_SIZE/2);
 
         // Add a head, give it it's own node
         headNode = static_cast<SceneNode*>(waterNode->createChild());
@@ -563,47 +564,22 @@ protected:
 		// Make sure the camera track this node
         //~ mCamera->setAutoTracking(true, headNode);
 
-		// Create the camera node & attach camera
+		// Create the camera node, set its position & attach camera
         SceneNode* camNode = static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild());
+		camNode->translate(0, 500, PLANE_SIZE);
+		camNode->yaw(-45);
         camNode->attachObject(mCamera);
 		
 		// Create light node
         SceneNode* lightNode = static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild());
 		lightNode->attachLight(l);
 
-        // set up spline animation of node
-        Animation* anim = mSceneMgr->createAnimation("WaterTracks", 20);
-        // Spline it for nice curves
-        anim->setInterpolationMode(Animation::IM_SPLINE);
-        // Create a track to animate the camera's node
-        AnimationTrack* track = anim->createTrack(0, camNode);
-        // Setup keyframes
-        KeyFrame* key ;
-		//~ = track->createKeyFrame(0); // startposition
-        //~ key = track->createKeyFrame(2.5);
-        //~ key->setTranslate(Vector3(500,500,-1000));
-        //~ key = track->createKeyFrame(5);
-        //~ key->setTranslate(Vector3(-1500,1000,-600));
-        //~ key = track->createKeyFrame(7.5);
-        //~ key->setTranslate(Vector3(0,200,0));
-		Vector3 cpos0 ;
-		for(int kf=0;kf<=16;kf+=2) {
-			Vector3 cpos (
-				rand()%(int)PLANE_SIZE,
-				rand()%500+500,
-				rand()%(int)PLANE_SIZE
-				);
-			key = track->createKeyFrame(kf);
-			key->setTranslate(cpos);
-			if (!kf) {
-				cpos0=cpos ;
-			}
-		}
-        key = track->createKeyFrame(20);
-        key->setTranslate(cpos0);
-		
-		// create a random spline for light as well 
-		track = anim->createTrack(1, lightNode);
+        // set up spline animation of light node
+        Animation* anim = mSceneMgr->createAnimation("WaterLight", 20);
+		AnimationTrack *track ;
+        KeyFrame *key ;
+		// create a random spline for light
+		track = anim->createTrack(0, lightNode);
 		key = track->createKeyFrame(0);
 		for(int ff=1;ff<=19;ff++) {
 			key = track->createKeyFrame(ff);
@@ -617,7 +593,7 @@ protected:
 		key = track->createKeyFrame(20);
 		
         // Create a new animation state to track this
-        mAnimState = mSceneMgr->createAnimationState("WaterTracks");
+        mAnimState = mSceneMgr->createAnimationState("WaterLight");
         mAnimState->setEnabled(true);
 
         // Put in a bit of fog for the hell of it
