@@ -31,6 +31,14 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     template<> HardwareBufferManager* Singleton<HardwareBufferManager>::ms_Singleton = 0;
+    template<> HardwareBufferManager* Singleton<HardwareBufferManager>::getSingletonPtr(void)
+    {
+        return ms_Singleton;
+    }
+    template<> HardwareBufferManager& Singleton<HardwareBufferManager>::getSingleton(void)
+    {  
+        assert( ms_Singleton );  return ( *ms_Singleton );  
+    }
     //-----------------------------------------------------------------------
     HardwareBufferManager::HardwareBufferManager()
     {
@@ -50,11 +58,6 @@ namespace Ogre {
         {
             delete i->second;
         }
-    }
-    //-----------------------------------------------------------------------
-    HardwareBufferManager& HardwareBufferManager::getSingleton(void)
-    {
-        return Singleton<HardwareBufferManager>::getSingleton();
     }
     //-----------------------------------------------------------------------
     VertexDeclaration* HardwareBufferManager::createVertexDeclaration(void)

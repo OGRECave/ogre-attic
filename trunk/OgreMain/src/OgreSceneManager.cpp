@@ -2814,9 +2814,11 @@ namespace Ogre {
         case SHADOWTYPE_TEXTURE_MODULATIVE:
             if (pass->hasVertexProgram())
             {
-                // Have to merge the vertex program in
+                // Have to merge the shadow caster vertex program in
+                // This may in fact be blank, in which case it falls back on 
+                // fixed function
                 mShadowCasterPlainBlackPass->setVertexProgram(
-                    pass->getVertexProgramName());
+                    pass->getVertexProgram()->getShadowCasterProgramName());
                 // Also have to hack the light autoparams, that is done later
             }
             else if (mShadowCasterPlainBlackPass->hasVertexProgram())
@@ -2843,12 +2845,10 @@ namespace Ogre {
         case SHADOWTYPE_TEXTURE_MODULATIVE:
             if (pass->hasVertexProgram())
             {
-                // Have to merge the vertex program in
-                // TODO: look for a projective texture capable vertex program
-                // if not found, use fixed function version
-
-                //mShadowReceiverPass->setVertexProgram(
-                //    pass->getProjectiveVertexProgramName());
+                // Have to merge the receiver vertex program in
+                // This may return "" which means fixed function will be used
+                mShadowReceiverPass->setVertexProgram(
+                    pass->getVertexProgram()->getShadowReceiverProgramName());
                 // Also have to hack the light autoparams, that is done later
             }
             else if (mShadowReceiverPass->hasVertexProgram())

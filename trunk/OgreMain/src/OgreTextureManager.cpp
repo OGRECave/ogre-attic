@@ -29,6 +29,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
     //-----------------------------------------------------------------------
     template<> TextureManager* Singleton<TextureManager>::ms_Singleton = 0;
+    template<> TextureManager* Singleton<TextureManager>::getSingletonPtr(void)
+    {
+        return ms_Singleton;
+    }
+    template<> TextureManager& Singleton<TextureManager>::getSingleton(void)
+    {  
+        assert( ms_Singleton );  return ( *ms_Singleton );  
+    }
     //-----------------------------------------------------------------------
     TextureManager::~TextureManager(){}
     //-----------------------------------------------------------------------
@@ -131,10 +139,5 @@ namespace Ogre {
     void TextureManager::setDefaultNumMipMaps( int num )
     {
         mDefaultNumMipMaps = num;
-    }
-    //-----------------------------------------------------------------------
-    TextureManager& TextureManager::getSingleton(void)
-    {
-        return Singleton<TextureManager>::getSingleton();
     }
 }

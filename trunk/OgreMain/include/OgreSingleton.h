@@ -66,10 +66,10 @@ namespace Ogre {
         }
         ~Singleton( void )
             {  assert( ms_Singleton );  ms_Singleton = 0;  }
-        static T& getSingleton( void )
-            {  assert( ms_Singleton );  return ( *ms_Singleton );  }
-        static T* getSingletonPtr( void )
-            {  return ( ms_Singleton );  }
+        // Singleton retrieval - unimplemented to force non-inline implementation
+        static T& getSingleton( void );
+            // Singleton retrieval - unimplemented to force non-inline implementation
+        static T* getSingletonPtr( void );
     };
 }
 #endif

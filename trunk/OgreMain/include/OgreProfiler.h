@@ -194,7 +194,6 @@ namespace Ogre {
             /** Gets the frequency that the Profiler display is updated */
             uint getUpdateDisplayFrequency() const;
 
-            static Profiler& getSingleton();
 
         protected:
 

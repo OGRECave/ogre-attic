@@ -32,6 +32,14 @@ namespace Ogre
 {
     //-----------------------------------------------------------------------
     template<> DynLibManager* Singleton<DynLibManager>::ms_Singleton = 0;
+    template<> DynLibManager* Singleton<DynLibManager>::getSingletonPtr(void)
+    {
+        return ms_Singleton;
+    }
+    template<> DynLibManager& Singleton<DynLibManager>::getSingleton(void)
+    {  
+        assert( ms_Singleton );  return ( *ms_Singleton );  
+    }
     //-----------------------------------------------------------------------
 
 	DynLibManager::DynLibManager()
@@ -54,11 +62,6 @@ namespace Ogre
     Resource* DynLibManager::create( const String& name )
     {
         return new DynLib( name );
-    }
-    //-----------------------------------------------------------------------
-    DynLibManager& DynLibManager::getSingleton(void)
-    {
-        return Singleton<DynLibManager>::getSingleton();
     }
 
     DynLibManager::~DynLibManager()

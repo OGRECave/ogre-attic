@@ -31,6 +31,14 @@ namespace Ogre
 {
     //-----------------------------------------------------------------------
     template<> SkeletonManager* Singleton<SkeletonManager>::ms_Singleton = 0;
+    template<> SkeletonManager* Singleton<SkeletonManager>::getSingletonPtr(void)
+    {
+        return ms_Singleton;
+    }
+    template<> SkeletonManager& Singleton<SkeletonManager>::getSingleton(void)
+    {  
+        assert( ms_Singleton );  return ( *ms_Singleton );  
+    }
     //-----------------------------------------------------------------------
     SkeletonManager::SkeletonManager()
     {
@@ -53,11 +61,6 @@ namespace Ogre
         }
         return pSkeleton;
 
-    }
-    //-----------------------------------------------------------------------
-    SkeletonManager& SkeletonManager::getSingleton(void)
-    {
-        return Singleton<SkeletonManager>::getSingleton();
     }
 
 

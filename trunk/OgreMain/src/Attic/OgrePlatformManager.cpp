@@ -32,6 +32,14 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     template<> PlatformManager* Singleton<PlatformManager>::ms_Singleton = 0;
+    template<> PlatformManager* Singleton<PlatformManager>::getSingletonPtr(void)
+    {
+        return ms_Singleton;
+    }
+    template<> PlatformManager& Singleton<PlatformManager>::getSingleton(void)
+    {  
+        assert( ms_Singleton );  return ( *ms_Singleton );  
+    }
     //-----------------------------------------------------------------------
     PlatformManager::PlatformManager()
     {
@@ -108,11 +116,6 @@ namespace Ogre {
         Timer* pTimer;
         mpfCreateTimer(&pTimer);
         return pTimer;
-    }
-    //-----------------------------------------------------------------------
-    PlatformManager& PlatformManager::getSingleton(void)
-    {
-        return Singleton<PlatformManager>::getSingleton();
     }
     //-----------------------------------------------------------------------
     void PlatformManager::destroyTimer(Timer* timer)

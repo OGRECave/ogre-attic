@@ -107,6 +107,14 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     template<> Root* Singleton<Root>::ms_Singleton = 0;
+    template<> Root* Singleton<Root>::getSingletonPtr(void)
+    {
+        return ms_Singleton;
+    }
+    template<> Root& Singleton<Root>::getSingleton(void)
+    {  
+        assert( ms_Singleton );  return ( *ms_Singleton );  
+    }
     //-----------------------------------------------------------------------
     Root::Root(const String& pluginFileName, const String& configFileName, const String& logFileName)
     {
@@ -648,11 +656,6 @@ namespace Ogre {
         mLogManager->logMessage("*-*-* OGRE Shutdown");
 
 
-    }
-    //-----------------------------------------------------------------------
-    Root& Root::getSingleton(void)
-    {
-        return Singleton<Root>::getSingleton();
     }
     //-----------------------------------------------------------------------
     void Root::loadPlugins( const String& pluginsfile )
