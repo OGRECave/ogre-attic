@@ -66,6 +66,7 @@ namespace Ogre {
 
         // Always use software blending for now
         mUseSoftwareBlending = true;
+        mPreparedForShadowVolumes = false;
 
         mEdgeData = 0;
 
@@ -1079,6 +1080,7 @@ namespace Ogre {
                 s->vertexData->prepareForShadowVolume();
             }
         }
+        mPreparedForShadowVolumes = true;
 
     }
     //---------------------------------------------------------------------
