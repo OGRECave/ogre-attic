@@ -51,17 +51,29 @@ namespace Ogre {
         size_t length, LockOptions options)
     {
         GLenum access = 0;
+
+        if(mIsLocked)
+        {
+            Except(Exception::ERR_INTERNAL_ERROR,
+                "Invalid attempt to lock an index buffer that has already been locked",
+                "GLHardwareIndexBuffer::lock");
+        }
+
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, mBufferId);
         
         if(options == HBL_DISCARD)
         {
+            /*
             if(mUsage != HBU_DYNAMIC)
             {
                 Except(Exception::ERR_INTERNAL_ERROR, 
                     "HBL_DISCARD is not allowed on a non-dynamic buffer",
                         "GLHardwareVertexBuffer::lock");
             }
+            */
 
-            glBufferDataARB(GL_ARRAY_BUFFER_ARB, length, NULL, GL_STREAM_DRAW_ARB);
+            glBufferDataARB(GL_ARRAY_BUFFER_ARB, length, NULL, 
+                mUsage == HBU_STATIC ? GL_STATIC_DRAW_ARB : GL_STREAM_DRAW_ARB);
 
             access = (mUsage == HBU_WRITE_ONLY) ? GL_WRITE_ONLY_ARB : GL_READ_WRITE_ARB;
 
@@ -86,10 +98,9 @@ namespace Ogre {
                 "Invalid locking option set", "GLHardwareVertexBuffer::lock");
         }
 
-        void* pBuffer = 
-          glMapBufferARB( GL_ARRAY_BUFFER_ARB, access);
+        void* pBuffer = glMapBufferARB( GL_ARRAY_BUFFER_ARB, access);
 
-        if(pBuffer == NULL)
+        if(pBuffer == 0)
         {
             Except(Exception::ERR_INTERNAL_ERROR, 
                 "Vertex Buffer: Out of memory", 
@@ -102,6 +113,8 @@ namespace Ogre {
 	//---------------------------------------------------------------------
 	void GLHardwareVertexBuffer::unlock(void)
     {
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, mBufferId);
+
         if(!glUnmapBufferARB( GL_ARRAY_BUFFER_ARB ))
         {
             Except(Exception::ERR_INTERNAL_ERROR, 
@@ -117,6 +130,7 @@ namespace Ogre {
     {
         if(mUsage == HBU_STATIC)
         {
+            glBindBufferARB(GL_ARRAY_BUFFER_ARB, mBufferId);
             glGetBufferSubDataARB(mBufferId, offset, length, pDest);
         }
         else
@@ -132,10 +146,9 @@ namespace Ogre {
             const void* pSource,
 			bool discardWholeBuffer)
     {
-        glBindBufferARB(GL_ARRAY_BUFFER_ARB, mBufferId);
-
         if(mUsage == HBU_STATIC)
         {
+            glBindBufferARB(GL_ARRAY_BUFFER_ARB, mBufferId);
             glBufferDataARB(GL_ARRAY_BUFFER_ARB, 
                 mNumVertices*3*sizeof(GL_FLOAT), pSource, GL_STATIC_DRAW_ARB);
         }

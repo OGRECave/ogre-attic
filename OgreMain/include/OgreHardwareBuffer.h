@@ -94,7 +94,7 @@ namespace Ogre {
     		
 	    public:
 		    /// Constructor, to be called by HardwareBufferManager only
-            HardwareBuffer(Usage usage) : mUsage(usage) {}
+            HardwareBuffer(Usage usage) : mUsage(usage), mIsLocked(false) {}
             virtual ~HardwareBuffer() {}
 		    /** Lock the buffer for (potentially) reading / writing.
 		    @param offset The byte offset from the start of the buffer to lock
