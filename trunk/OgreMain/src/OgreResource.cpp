@@ -74,7 +74,8 @@ namespace Ogre
 			// Now loaded
 			mIsLoaded = true;
 			// Notify manager
-			mCreator->_notifyResourceLoaded(this);
+			if(mCreator)
+				mCreator->_notifyResourceLoaded(this);
 		}
 
 	}
