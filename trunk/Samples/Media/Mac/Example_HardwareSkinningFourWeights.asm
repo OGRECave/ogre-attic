@@ -11,7 +11,7 @@ PARAM c82 = { 3, 2, 4, 0 };
 #program hardwareSkinningFourWeights_vp
 #semantic hardwareSkinningFourWeights_vp.worldMatrix3x4Array
 #semantic hardwareSkinningFourWeights_vp.viewProjectionMatrix
-#semantic hardwareSkinningFourWeights_vp.objectSpaceLightPos
+#semantic hardwareSkinningFourWeights_vp.lightPos
 #semantic hardwareSkinningFourWeights_vp.lightDiffuseColour
 #semantic hardwareSkinningFourWeights_vp.ambient
 #var float4 position : $vin.POSITION : POSITION : 0 : 1
@@ -47,8 +47,8 @@ PARAM c82 = { 3, 2, 4, 0 };
 #var float3x4 worldMatrix3x4Array[22] :  : c[66], 3 : 8 : 1
 #var float3x4 worldMatrix3x4Array[23] :  : c[69], 3 : 8 : 1
 #var float4x4 viewProjectionMatrix :  : c[72], 4 : 9 : 1
-#var float3 objectSpaceLightPos[0] :  : c[76] : 10 : 1
-#var float3 objectSpaceLightPos[1] :  : c[77] : 10 : 1
+#var float3 lightPos[0] :  : c[76] : 10 : 1
+#var float3 lightPos[1] :  : c[77] : 10 : 1
 #var float4 lightDiffuseColour[0] :  : c[78] : 11 : 1
 #var float4 lightDiffuseColour[1] :  : c[79] : 11 : 1
 #var float4 ambient :  : c[80] : 12 : 1

@@ -297,6 +297,15 @@ namespace Ogre
             case ACT_LIGHT_SPECULAR_COLOUR:
                 setConstant(i->index, source.getLight(i->data).getSpecularColour());
                 break;
+            case ACT_LIGHT_POSITION:
+                setConstant(i->index, 
+                    source.getLight(i->data).getDerivedPosition());
+                break;
+            case ACT_LIGHT_DIRECTION:
+                vec3 = source.getLight(i->data).getDerivedDirection();
+                // Set as 4D vector for compatibility
+                setConstant(i->index, Vector4(vec3.x, vec3.y, vec3.z, 1.0f));
+                break;
             case ACT_LIGHT_POSITION_OBJECT_SPACE:
                 setConstant(i->index, 
                     source.getInverseWorldMatrix() * source.getLight(i->data).getDerivedPosition());
