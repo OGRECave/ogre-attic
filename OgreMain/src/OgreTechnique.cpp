@@ -188,6 +188,7 @@ namespace Ogre {
     Technique& Technique::operator=(const Technique& rhs)
     {
 		this->mIsSupported = rhs.mIsSupported;
+        this->mLodIndex = rhs.mLodIndex;
 		// copy passes
 		removeAllPasses();
 		Passes::const_iterator i, iend;
