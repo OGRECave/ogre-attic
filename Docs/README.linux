@@ -3,6 +3,7 @@ Author: Ben Woodhead
 Last Updated: 09/27/02
 License: LGPL
 
+Edited by Steve Streeting following configuration changes.
 
 Downloading The Files
 =====================
@@ -106,27 +107,8 @@ Alright on to the samples, if you have not used Visual C++ you may find this a l
 
 cd <ogrenew>/Samples/Common/bin/ - you will see 2 directories there one is Release and Debug. If you were running windows the files would already be in these directories but with Linux there are files only in the Debug directory. 
 
-So the first thing is getting all the plugins (this worked for me, but I don't know about you). During the make install all the plugins were copied to /usr/local/lib/OGRE except for the OgrePlatform.so which is found in the <ogrenew>/Samples/Common/bin/Debug with the samples. This didn't work for me, so I made a few changes. I copied the OgrePlatform.so to /usr/local/lib and the plugins from /usr/local/lib/OGRE to /usr/local/lib and ran ldconfig. 
+So the first thing is getting all the plugins (this worked for me, but I don't know about you). During the make install all the plugins were copied to /usr/local/lib/ogre except for the OgrePlatform.so which is found in the <ogrenew>/Samples/Common/bin with the samples. This didn't work for me, so I made a few changes. I copied the OgrePlatform.so to /usr/local/lib and the plugins from /usr/local/lib/ogre to /usr/local/lib and ran ldconfig. 
 
-Config File
------------
-
-The next thing you are going to need is a plugin file. There is one there but don't worry it will not work. So there is still some fun left.
-Remember that linux is case sensitive so the Plugins.cfg file will not be found but its for windows anyway.
-
-plugins.cfg:
-# Defines plugins to load
-
-# Define plugin folder
-PluginFolder=/usr/local/lib
-
-# Define OpenGl rendering implementation plugin
-Plugin=OgreSDLEngine.so
-Plugin=FileSystem.so
-Plugin=ParticleFX.so
-Plugin=BSPSceneManager.so
-Plugin=OctreeSceneManager.so
-Plugin=Plugin_GuiElements.so
 
 Next, in windows you have a nice little popup window that you can say the resolution in, Linux has 2 options, due to the fact that a lot of people are not running gnome2 yet, it has a gtk2 config or a cli (command line interface). CLI is the default and I have not figured out how to change that yet. 
 
