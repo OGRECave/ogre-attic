@@ -57,10 +57,12 @@ namespace Ogre {
             if (tst.length() > 0 && tst.at(0) != '#' && tst.at(0) != '@' && tst.at(0) != '\n')
             {
                 // Tokenise on tab
-                optName = strtok(rec, separators);
-                optVal = strtok(NULL, "\n");
-                if (optName.length() != 0 && optVal != 0)
+                char* pName = strtok(rec, separators);
+                char* pVal = strtok(NULL, "\n");
+                if (pName && pVal)
                 {
+                    String optName = pName;
+                    String optVal = pVal;
                     if (trimWhitespace)
                     {
                         optVal.trim();
