@@ -701,9 +701,19 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void Pass::_updateAutoParams(Renderable* rend, Camera* cam)
+    void Pass::_updateAutoParams(const AutoParamDataSource& source)
     {
-        // TODO
+        if (hasVertexProgram())
+        {
+            // Update vertex program auto params
+            mVertexProgramUsage->getParameters()->_updateAutoParams(source);
+        }
+
+        if (hasFragmentProgram())
+        {
+            // Update fragment program auto params
+            mFragmentProgramUsage->getParameters()->_updateAutoParams(source);
+        }
     }
 
 }

@@ -127,6 +127,7 @@ namespace Ogre
         void _unload(void);
 
 
+
         /* TODO - high-level params */
 
 	protected:

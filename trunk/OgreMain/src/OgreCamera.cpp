@@ -294,7 +294,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    const Matrix4& Camera::getProjectionMatrix(void)
+    const Matrix4& Camera::getProjectionMatrix(void) const
     {
 
         updateFrustum();
@@ -304,7 +304,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    const Matrix4& Camera::getViewMatrix(void)
+    const Matrix4& Camera::getViewMatrix(void) const
     {
         updateView();
 

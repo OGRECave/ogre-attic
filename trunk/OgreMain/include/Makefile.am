@@ -7,6 +7,7 @@ OgreAnimationTrack.h \
 OgreArchiveEx.h \
 OgreArchiveFactory.h \
 OgreArchiveManager.h \
+OgreAutoParamDataSource.h \
 OgreAxisAlignedBox.h \
 OgreBillboard.h \
 OgreBillboardSet.h \

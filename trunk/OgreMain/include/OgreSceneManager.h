@@ -38,6 +38,7 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreDataChunk.h"
 #include "OgreAnimationState.h"
 #include "OgreSceneQuery.h"
+#include "OgreAutoParamDataSource.h"
 
 namespace Ogre {
 
@@ -227,6 +228,9 @@ namespace Ogre {
             Assumes that the pass has already bee set up.
         */
         virtual void renderSingleObject(Renderable* rend, Pass* pass);
+
+        /// Utility class for calculating automatic parameters for gpu programs
+        AutoParamDataSource mAutoParamDataSource;
 
     public:
         /** Default constructor.

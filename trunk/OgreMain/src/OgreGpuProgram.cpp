@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSDDataChunk.h"
 #include "OgreVector3.h"
 #include "OgreVector4.h"
+#include "OgreAutoParamDataSource.h"
 
 namespace Ogre
 {
@@ -133,6 +134,41 @@ namespace Ogre
     GpuProgramParameters::AutoConstantIterator GpuProgramParameters::getAutoConstantIterator(void)
     {
         return AutoConstantIterator(mAutoConstants.begin(), mAutoConstants.end());
+    }
+	//-----------------------------------------------------------------------------
+    void GpuProgramParameters::_updateAutoParams(const AutoParamDataSource& source)
+    {
+        if (!hasAutoConstants()) return; // abort early if no autos
+
+        AutoConstantList::const_iterator i, iend;
+        iend = mAutoConstants.end();
+        for (i = mAutoConstants.begin(); i != iend; ++i)
+        {
+            switch(i->paramType)
+            {
+            case ACT_WORLD_MATRIX:
+                setConstant(i->index, source.getWorldMatrix());
+                break;
+            case ACT_WORLDVIEW_MATRIX:
+                setConstant(i->index, source.getWorldViewMatrix());
+                break;
+            case ACT_INVERSE_WORLD_MATRIX:
+                setConstant(i->index, source.getInverseWorldMatrix());
+                break;
+            case ACT_INVERSE_WORLDVIEW_MATRIX:
+                setConstant(i->index, source.getInverseWorldViewMatrix());
+                break;
+            case ACT_LIGHT_POSITION_OBJECT_SPACE:
+                // TODO
+                break;
+            case ACT_LIGHT_DIRECTION_OBJECT_SPACE:
+                // TODO
+                break;
+            case ACT_CAMERA_POSITION_OBJECT_SPACE:
+                setConstant(i->index, source.getCameraPositionObjectSpace());
+                break;
+            }
+        }
     }
 
 }

@@ -128,6 +128,7 @@ namespace Ogre {
     class ArchiveEx;
     class ArchiveFactory;
     class ArchiveManager;
+    class AutoParamDataSource;
     class AxisAlignedBox;
     class AxisAlignedBoxSceneQuery;
     class Billboard;
