@@ -62,34 +62,50 @@ dnl Create the makefiles
 AC_OUTPUT(Makefile \
     OgreMain/Makefile \
     OgreMain/src/Makefile \
+    OgreMain/include/Makefile \
     PlatformManagers/Makefile \
     PlatformManagers/SDL/Makefile \
     PlatformManagers/SDL/src/Makefile
+    PlatformManagers/SDL/include/Makefile
     PlugIns/Makefile \
     PlugIns/BSPSceneManager/Makefile \
     PlugIns/BSPSceneManager/src/Makefile \
+    PlugIns/BSPSceneManager/include/Makefile \
     PlugIns/FileSystem/Makefile \
     PlugIns/FileSystem/src/Makefile \
+    PlugIns/FileSystem/include/Makefile \
     PlugIns/ParticleFX/Makefile \
     PlugIns/ParticleFX/src/Makefile
+    PlugIns/ParticleFX/include/Makefile
     RenderSystems/Makefile \
     RenderSystems/SDL/Makefile \
     RenderSystems/SDL/src/Makefile \
+    RenderSystems/SDL/include/Makefile \
     Samples/Makefile \
+    Samples/Common/Makefile \
+    Samples/Common/include/Makefile \
     Samples/BezierPatch/Makefile \
     Samples/BezierPatch/src/Makefile \
+    Samples/BezierPatch/include/Makefile \
     Samples/EnvMapping/Makefile \
     Samples/EnvMapping/src/Makefile \
+    Samples/EnvMapping/include/Makefile \
     Samples/Transpacency/Makefile \
     Samples/Transpacency/src/Makefile \
+    Samples/Transpacency/include/Makefile \
     Samples/Lighting/Makefile \
     Samples/Lighting/src/Makefile \
+    Samples/Lighting/include/Makefile \
     Samples/ParticleFX/Makefile \
     Samples/ParticleFX/src/Makefile \
+    Samples/ParticleFX/include/Makefile \
     Samples/TextureFX/Makefile \
     Samples/TextureFX/src/Makefile \
+    Samples/TextureFX/include/Makefile \
     Samples/SkyDome/Makefile \
     Samples/SkyDome/src/Makefile \
+    Samples/SkyDome/include/Makefile \
     Samples/BSP/Makefile \
-    Samples/BSP/src/Makefile
+    Samples/BSP/src/Makefile \
+    Samples/BSP/include/Makefile
     )
