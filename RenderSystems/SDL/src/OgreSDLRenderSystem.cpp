@@ -1,0 +1,1172 @@
+/*
+-----------------------------------------------------------------------------
+This source file is part of OGRE
+    (Object-oriented Graphics Rendering Engine)
+For the latest info, see http://www.stevestreeting.com/ogre/
+
+Copyright © 2000-2001 Steven J. Streeting
+Also see acknowledgements in Readme.html
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation; either version 2 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+Place - Suite 330, Boston, MA 02111-1307, USA, or go to
+http://www.gnu.org/copyleft/gpl.html.
+-----------------------------------------------------------------------------
+*/
+
+#include "OgreSDLRenderSystem.h"
+#include "OgreRenderSystem.h"
+#include "OgreLogManager.h"
+#include "OgreLight.h"
+#include "OgreCamera.h"
+#include "OgreSDLTextureManager.h"
+#include "OgreSDLWindow.h"
+
+#if OGRE_PLATFORM == PLATFORM_WIN32
+#   include <windows.h>
+#   include <wingdi.h>
+#endif
+
+
+namespace Ogre {
+
+    SDLRenderSystem::SDLRenderSystem()
+    {
+        OgreGuard( "SDLRenderSystem::SDLRenderSystem" );
+
+        LogManager::getSingleton().logMessage(getName() + " created.");
+
+        if (SDL_Init( SDL_INIT_VIDEO ) < 0)
+        {
+            /* XXX Blow up */
+            fprintf(stderr, "Error starting SDL!!!\n");
+        }
+
+        for( int i=0; i<MAX_LIGHTS; i++ )
+            mLights[i] = NULL;
+
+        mWorldMatrix = Matrix4::IDENTITY;
+        mViewMatrix = Matrix4::IDENTITY;
+        
+
+        atexit(SDL_Quit);
+
+        initConfigOptions();
+
+        OgreUnguard();
+    }
+
+    SDLRenderSystem::~SDLRenderSystem()
+    {
+        // Destroy render windows
+        RenderWindowMap::iterator i;
+        for (i = mRenderWindows.begin(); i != mRenderWindows.end(); ++i)
+        {
+            delete i->second;
+        }
+        mRenderWindows.clear();
+
+        SDL_Quit();
+
+    }
+
+    const String& SDLRenderSystem::getName(void) const
+    {
+        static String strName("OpenGL Rendering Subsystem");
+        return strName;
+    }
+
+    void SDLRenderSystem::initConfigOptions(void)
+    {
+        OgreGuard("SDLRenderSystem::initConfigOptions");
+        
+        mVideoModes = SDL_ListModes(NULL, SDL_FULLSCREEN | SDL_OPENGL);
+        
+        if (mVideoModes == (SDL_Rect **)0)
+        {
+            Except(999, "Unable to load video modes",
+                    "SDLRenderSystem::initConfigOptions");
+        }
+
+        ConfigOption optFullScreen;
+        ConfigOption optVideoMode;
+
+        // FS setting possiblities
+        optFullScreen.name = "Full Screen";
+        optFullScreen.possibleValues.push_back("Yes");
+        optFullScreen.possibleValues.push_back("no");
+        optFullScreen.currentValue = "Yes";
+
+        // Video mode possiblities
+        optVideoMode.name = "Video Mode";
+        optVideoMode.immutable = false;
+        for (int i = 0; mVideoModes[i]; i++)
+        {
+            char szBuf[16];
+#if OGRE_COMPILER == COMPILER_MSVC
+            _snprintf(szBuf, 16, "%d x %d", mVideoModes[i]->w, mVideoModes[i]->h);
+#else
+            snprintf(szBuf, 16, "%d x %d", mVideoModes[i]->w, mVideoModes[i]->h);
+#endif
+            optVideoMode.possibleValues.push_back(szBuf);
+            // Make the first one default
+            if (i == 0)
+            {
+                optVideoMode.currentValue = szBuf;
+            }
+        }
+        
+        mOptions[optFullScreen.name] = optFullScreen;
+        mOptions[optVideoMode.name] = optVideoMode;
+
+        OgreUnguard();
+    }
+    
+    ConfigOptionMap& SDLRenderSystem::getConfigOptions(void)
+    {
+        return mOptions;
+    }
+
+    void SDLRenderSystem::setConfigOption(const String &name, 
+                                          const String &value)
+    {
+        // XXX Update values based on set options
+    }
+
+    String SDLRenderSystem::validateConfigOptions(void)
+    {
+        // XXX Return an error string if something is invalid
+        return "";
+    }
+
+    RenderWindow* SDLRenderSystem::initialise(bool autoCreateWindow)
+    {
+        RenderWindow* autoWindow = NULL;
+
+        //The main startup
+        RenderSystem::initialise(autoCreateWindow);
+
+        LogManager::getSingleton().logMessage(
+            "******************************\n"
+            "*** Starting SDL Subsystem ***\n"
+            "******************************");
+
+        SDL_Init(SDL_INIT_VIDEO);
+        if (autoCreateWindow)
+        {
+            bool fullscreen = false;
+
+            /* XXX 
+            ConfigOptionMap::iterator opt = mOptions.find("Full Screen");
+            if (opt == mOptions.end())
+            {
+                Except(999, "Can't find full screen options!",
+                        "SDLRenderSystem::initialise");
+            }
+
+            if (opt->second.currentValue == "Yes")
+                fullscreen = true;
+            else
+                fullscreen = false;
+            */
+
+            // XXX Actually get the video mode from options
+            autoWindow = createRenderWindow("OGRE Render Window", 640, 480, 32, fullscreen);
+        }
+        else
+        {
+            // XXX What is the else?
+        }
+        
+        // XXX Investigate vSync
+        
+        LogManager::getSingleton().logMessage(
+            "*****************************\n"
+            "*** SDL Subsystem Started ***\n"
+            "*****************************");
+
+        _setCullingMode( mCullingMode );
+        
+        return autoWindow;
+    }
+
+    void SDLRenderSystem::reinitialise(void)
+    {
+        this->shutdown();
+        this->initialise(true);
+    }
+
+    void SDLRenderSystem::shutdown(void)
+    {
+        RenderSystem::shutdown();
+
+        SDL_Quit();
+        LogManager::getSingleton().logMessage("-+-+- SDL Shutting down");
+    }
+
+    void SDLRenderSystem::startRendering(void)
+    {
+        OgreGuard("SDLRenderSystem::startRendering");
+
+        bool isActive;
+        bool allWindowsClosed;
+        static float lastStartTime;
+        static float lastEndTime;
+
+        // Init times to avoid large first-frame time
+        lastStartTime = lastEndTime = ((float)clock())/CLOCKS_PER_SEC;
+        
+        RenderSystem::startRendering();
+        
+        mStopRendering = false;
+        while (!mStopRendering)
+        {
+            // Check all windows to see if any are active / closed
+            isActive = false;
+            allWindowsClosed = true; // assume all closed unless we find otherwise
+            for(
+                RenderWindowMap::iterator i = mRenderWindows.begin(); 
+                i != mRenderWindows.end(); 
+                /* Nada */ )
+            {
+                if (i->second->isActive())
+                    isActive = true;
+
+                if (i->second->isClosed())
+                {
+                    // Window has been closed, destroy
+                    destroyRenderWindow(i->second);
+
+                    RenderWindowMap::iterator j = i; ++j;
+                    mRenderWindows.erase(i);
+                    i = j;
+                }
+                else
+                {
+                    allWindowsClosed = false;
+                    ++i;
+                }
+
+            }
+
+            // Break out if all windows closed
+            if (allWindowsClosed)
+            {
+                return;
+            }
+
+
+            FrameEvent evt;
+
+            // Do frame start event
+            float fTime = ((float)clock())/CLOCKS_PER_SEC; // Get current time in seconds
+            evt.timeSinceLastFrame = fTime - lastStartTime;
+            evt.timeSinceLastEvent = fTime - lastEndTime;
+
+            // Stop rendering if frame callback says so
+            if(!fireFrameStarted(evt))
+                return;
+
+            lastStartTime = fTime;
+
+            // Render a frame during idle time (no messages are waiting)
+            for(
+                RenderWindowMap::iterator i = mRenderWindows.begin(); 
+                i != mRenderWindows.end(); 
+                ++i )
+            {
+                if (i->second->isActive())
+                {
+                    i->second->update();
+                }
+            }
+
+            // Do frame ended event
+            fTime = ((float)clock())/CLOCKS_PER_SEC; // Get current time in seconds
+            evt.timeSinceLastFrame = fTime - lastEndTime;
+            evt.timeSinceLastEvent = fTime - lastStartTime;
+
+            // Stop rendering if frame callback says so
+            if(!fireFrameEnded(evt))
+                return;
+
+            lastEndTime = fTime;
+        }
+
+        OgreUnguard();
+    }
+
+    void SDLRenderSystem::setAmbientLight(float r, float g, float b)
+    {
+        GLfloat lmodel_ambient[] = {r, g, b, 1.0};
+        glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambient);
+    }
+
+    void SDLRenderSystem::setShadingType(ShadeOptions so)
+    {
+        switch(so)
+        {
+        case SO_FLAT:
+            glShadeModel(GL_FLAT);
+            break;
+        default:
+            glShadeModel(GL_SMOOTH);
+            break;
+        }
+    }
+
+    void SDLRenderSystem::setTextureFiltering(TextureFilterOptions fo)
+    {
+        OgreGuard( "SDLRenderSystem::setTextureFiltering" );        
+
+        for (int i = 0; i < _getNumTextureUnits(); i++)
+        {
+            glActiveTextureARB( GL_TEXTURE0_ARB + i );
+            switch( fo )
+            {
+            case TFO_TRILINEAR:
+                glTexParameteri(
+                    GL_TEXTURE_2D, 
+                    GL_TEXTURE_MAG_FILTER, 
+                    GL_LINEAR);
+
+                glTexParameteri(
+                    GL_TEXTURE_2D, 
+                    GL_TEXTURE_MIN_FILTER,
+                    GL_LINEAR_MIPMAP_LINEAR);
+                break;
+
+            case TFO_BILINEAR:
+                glTexParameteri(
+                    GL_TEXTURE_2D, 
+                    GL_TEXTURE_MAG_FILTER, 
+                    GL_LINEAR);
+
+                glTexParameteri(
+                    GL_TEXTURE_2D, 
+                    GL_TEXTURE_MIN_FILTER,
+                    GL_LINEAR_MIPMAP_NEAREST);
+                break;
+
+            case TFO_NONE:
+                glTexParameteri(
+                    GL_TEXTURE_2D, 
+                    GL_TEXTURE_MAG_FILTER, 
+                    GL_NEAREST);
+
+                glTexParameteri(
+                    GL_TEXTURE_2D, 
+                    GL_TEXTURE_MIN_FILTER,
+                    GL_NEAREST);
+                break;
+            }
+        }
+
+        glActiveTextureARB( GL_TEXTURE0_ARB );
+
+        OgreUnguard();
+    }
+
+    RenderWindow* SDLRenderSystem::createRenderWindow(
+            const String & name, int width, int height, int colourDepth,
+            bool fullScreen, int left, int top, bool depthBuffer, 
+            RenderWindow* parentWindowHandle)
+    {
+        if (mRenderWindows.find(name) != mRenderWindows.end())
+        {
+            Except(
+                Exception::ERR_INVALIDPARAMS, 
+                "Window with name '" + name + "' already exists",
+                "SDLRenderSystem::createRenderWindow" );
+        }
+
+        RenderWindow* win = new SDLWindow();
+        // Create the window
+        win->create(name, width, height, colourDepth, fullScreen,
+            left, top, depthBuffer, parentWindowHandle);
+
+        mRenderWindows[name] = win;
+
+        if (parentWindowHandle == NULL)
+        {
+            mTextureManager = new SDLTextureManager();
+        }
+
+        // XXX Do more?
+
+        return win;
+    }
+
+    //-----------------------------------------------------------------------
+    void SDLRenderSystem::destroyRenderWindow(RenderWindow* pWin)
+    {
+        // Find it to remove from list
+        RenderWindowMap::iterator i = mRenderWindows.begin();
+
+        while (i->second != pWin && i != mRenderWindows.end())
+        {
+            if (i->second == pWin)
+            {
+                mRenderWindows.erase(i);
+                delete pWin;
+                break;
+            }
+        }
+    }
+
+    void SDLRenderSystem::_addLight(Light *lt)
+    {
+        // Find first free slot
+        int i;
+        for (i =0; i < MAX_LIGHTS; ++i)
+        {
+            if (!mLights[i])
+            {
+                mLights[i] = lt;
+                break;
+            }
+        }
+        // No space in array?
+
+        if (i == MAX_LIGHTS)
+            Except(
+                999, 
+                "No free light slots - cannot add light.", 
+                "SDLRenderSystem::addLight" );
+
+        setGLLight(i, lt);
+    }
+
+    void SDLRenderSystem::_modifyLight(Light *lt)
+    {
+        // Locate light in list
+        int lightIndex;
+        int i;
+        for (i = 0; i < MAX_LIGHTS; ++i)
+        {
+            if (mLights[i] == lt)
+            {
+                lightIndex = i;
+                break;
+            }
+        }
+
+        if (i == MAX_LIGHTS)
+            Except(
+                Exception::ERR_INVALIDPARAMS, 
+                "Cannot locate light to modify.",
+                "SDLRenderSystem::_modifyLight" );
+
+        setGLLight(lightIndex, lt);
+    }
+
+    void SDLRenderSystem::setGLLight(int index, Light* lt)
+    {
+        GLint gl_index = GL_LIGHT0 + index;
+        
+        switch (lt->getType())
+        {
+        case Light::LT_SPOTLIGHT:
+            glLightf( gl_index, GL_SPOT_CUTOFF, lt->getSpotlightOuterAngle() );
+            break;
+        default:
+            glLightf( gl_index, GL_SPOT_CUTOFF, 180.0 );
+            break;
+        }
+
+        // Color
+        ColourValue col;
+        col = lt->getDiffuseColour();
+        GLfloat f4vals[4] = {col.r, col.g, col.b, col.a};
+        glLightfv(gl_index, GL_DIFFUSE, f4vals);
+        
+        col = lt->getSpecularColour();
+        f4vals[0] = col.r;
+        f4vals[1] = col.g;
+        f4vals[2] = col.b;
+        f4vals[3] = col.a;
+        glLightfv(gl_index, GL_SPECULAR, f4vals);
+
+        // Disable ambient light for movables
+        glLighti(gl_index, GL_AMBIENT, 0);
+
+        // Setup matrices for the light position/direction
+#if 0
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glMultMatrixf(mWorldMatrix);
+        glMultMatrixf(mViewMatrix);
+#endif
+
+        // Position (don't set for directional)
+        Vector3 vec;
+        if (lt->getType() != Light::LT_DIRECTIONAL)
+        {
+            vec = lt->getPosition();
+            f4vals[0] = vec.x;
+            f4vals[1] = vec.y;
+            f4vals[2] = vec.z;
+            f4vals[3] = 1.0;
+            glLightfv(gl_index, GL_POSITION, f4vals);
+        }
+        // Direction (not needed for point lights)
+        if (lt->getType() != Light::LT_POINT)
+        {
+            vec = lt->getDirection();
+            f4vals[0] = vec.x;
+            f4vals[1] = vec.y;
+            f4vals[2] = vec.z;
+            f4vals[3] = 0.0;
+            glLightfv(gl_index, GL_SPOT_DIRECTION, f4vals);
+        }
+        
+        // Attenuation
+        glLightf(gl_index, GL_CONSTANT_ATTENUATION, lt->getAttenuationConstant());
+        glLightf(gl_index, GL_LINEAR_ATTENUATION, lt->getAttenuationLinear());
+        glLightf(gl_index, GL_QUADRATIC_ATTENUATION, lt->getAttenuationQuadric());
+
+        // Enable in the scene
+        glEnable(gl_index);
+
+        lt->_clearModified();
+    }
+
+    void SDLRenderSystem::_removeLight(Light *lt)
+    {
+        // Remove & disable light
+        for (int i = 0; i < MAX_LIGHTS; ++i)
+        {
+            if (mLights[i] == lt)
+            {
+                glDisable(GL_LIGHT0 + i);
+                mLights[i] = NULL;
+                return;
+            }
+        }
+    }
+
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_removeAllLights(void)
+    {
+        // Remove & disable all lights
+        for (int i = 0; i < MAX_LIGHTS; ++i)
+        {
+            if (mLights[i])
+            {
+                glDisable(GL_LIGHT0 + i);
+                mLights[i] = NULL;
+            }
+        }
+    }
+
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_pushRenderState(void)
+    {
+        Except(Exception::UNIMPLEMENTED_FEATURE,
+            "Sorry, this feature is not yet available.",
+            "SDLRenderSystem::_pushRenderState");
+    }
+
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_popRenderState(void)
+    {
+        Except(Exception::UNIMPLEMENTED_FEATURE,
+            "Sorry, this feature is not yet available.",
+            "SDLRenderSystem::_popRenderState");
+    }
+
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::makeGLMatrix(GLfloat gl_matrix[16], const Matrix4& m)
+    {
+        int x = 0;
+        for (int i=0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                gl_matrix[x] = m[j][i];
+                x++;
+            }
+        }
+    }
+
+    void SDLRenderSystem::_setWorldMatrix( const Matrix4 &m )
+    {
+        GLfloat mat[16];
+        mWorldMatrix = m;
+        makeGLMatrix(mat, mViewMatrix * mWorldMatrix);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadMatrixf(mat);
+    }
+
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_setViewMatrix( const Matrix4 &m )
+    {
+        mViewMatrix = m;
+
+        GLfloat mat[16];
+        makeGLMatrix(mat, mViewMatrix * mWorldMatrix);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadMatrixf(mat);
+    }
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_setProjectionMatrix(const Matrix4 &m)
+    {
+        GLfloat mat[16];
+        makeGLMatrix(mat, m);
+        glMatrixMode(GL_PROJECTION);
+        glLoadMatrixf(mat);
+        glMatrixMode(GL_MODELVIEW);
+    }
+
+
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_setSurfaceParams(ColourValue &ambient,
+        ColourValue &diffuse, ColourValue &specular,
+        ColourValue &emissive, Real shininess)
+    {
+        // XXX Cache previous values?
+        // XXX Front or Front and Back?
+
+        GLfloat f4val[4] = {diffuse.r, diffuse.g, diffuse.b, diffuse.a};
+        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, f4val);
+        f4val[0] = ambient.r;
+        f4val[1] = ambient.g;
+        f4val[2] = ambient.b;
+        f4val[3] = ambient.a;
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, f4val);
+        f4val[0] = specular.r;
+        f4val[1] = specular.g;
+        f4val[2] = specular.b;
+        f4val[3] = specular.a;
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, f4val);
+        f4val[0] = emissive.r;
+        f4val[1] = emissive.g;
+        f4val[2] = emissive.b;
+        f4val[3] = emissive.a;
+        glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, f4val);
+        glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
+    }
+
+    //-----------------------------------------------------------------------------
+    unsigned short SDLRenderSystem::_getNumTextureUnits(void)
+    {
+        GLint units;
+        glGetIntegerv( GL_MAX_TEXTURE_UNITS_ARB, &units );
+        return (unsigned short)units;
+
+    }
+
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_setTexture(int stage, bool enabled, const String &texname)
+    {
+        SDLTexture* tex = (SDLTexture*)TextureManager::getSingleton().getByName(texname);
+
+        glActiveTextureARB( GL_TEXTURE0_ARB + stage );
+        if (enabled && tex)
+        {
+            glEnable( GL_TEXTURE_2D );
+            glBindTexture( GL_TEXTURE_2D, tex->getGLID() );
+        }
+        else
+        {
+            glDisable( GL_TEXTURE_2D );
+        }
+        glActiveTextureARB( GL_TEXTURE0_ARB );
+    }
+
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_setTextureCoordSet(int stage, int index)
+    {
+        // XXX Will stage ever not be the same as previous _setTexture? aka Do I
+        // need to reset the texture unit? Can GL do that?
+
+        if( index )
+            Except(
+                9999,
+                "Feature not implemented.",
+                "SDLRenderSystem::_setTextureCoordSet" );
+
+        // XXX WTF Do I do here?
+    }
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_setTextureCoordCalculation(int stage, TexCoordCalcMethod m)
+    {
+        glActiveTextureARB( GL_TEXTURE0_ARB + stage );
+
+        switch( m )
+        {
+        case TEXCALC_NONE:
+            glDisable( GL_TEXTURE_GEN_S );
+            glDisable( GL_TEXTURE_GEN_T );
+            break;
+
+        case TEXCALC_ENVIRONMENT_MAP:
+            glTexGeni( GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );
+            glTexGeni( GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );
+            glEnable( GL_TEXTURE_GEN_S );
+            glEnable( GL_TEXTURE_GEN_T );
+            break;
+
+        case TEXCALC_ENVIRONMENT_MAP_PLANAR:            
+            glTexGeni( GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR );
+            glTexGeni( GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR );
+            glEnable( GL_TEXTURE_GEN_S );
+            glEnable( GL_TEXTURE_GEN_T );
+            break;
+        }
+
+        glActiveTextureARB( GL_TEXTURE0_ARB );
+    }
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_setTextureBlendMode(int stage, const LayerBlendModeEx& bm)
+    {
+        glActiveTextureARB(GL_TEXTURE0_ARB + stage);
+        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
+        glActiveTextureARB(GL_TEXTURE0_ARB);
+        // XXX Check for GL_EXT_texture_env_combine, with gluCheckExtension then code each type
+    }
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_setTextureAddressingMode(int stage, Material::TextureLayer::TextureAddressingMode tam)
+    {
+        GLint type;
+        switch(tam)
+        {
+        case Material::TextureLayer::TAM_WRAP:
+            type = GL_REPEAT;
+            break;
+        case Material::TextureLayer::TAM_MIRROR:
+            type = GL_MIRRORED_REPEAT_IBM;
+            break;
+        case Material::TextureLayer::TAM_CLAMP:
+            type = GL_CLAMP;
+            break;
+        }
+
+        glActiveTextureARB( GL_TEXTURE0_ARB + stage );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, type );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, type );
+        glActiveTextureARB( GL_TEXTURE0_ARB );
+    }
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_setTextureMatrix(int stage, const Matrix4& xform)
+    {
+        GLfloat mat[16];
+        makeGLMatrix(mat, xform);
+
+        glMatrixMode(GL_TEXTURE);
+        glLoadMatrixf(mat);
+
+        glMatrixMode(GL_MODELVIEW);
+    }
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_setSceneBlending(SceneBlendFactor sourceFactor, SceneBlendFactor destFactor)
+    {
+        GLint sourceBlend, destBlend;
+        GLint* pBlend = &sourceBlend;
+        
+        SceneBlendFactor ogreBlend = sourceFactor;
+        
+        for (int i = 0 ; i < 2; ++i)
+        {
+            switch(ogreBlend)
+            {
+            case SBF_ONE:
+                *pBlend = GL_ONE;
+                break;
+            case SBF_ZERO:
+                *pBlend = GL_ZERO;
+                break;
+            case SBF_DEST_COLOUR:
+                *pBlend = GL_DST_COLOR;
+                break;
+            case SBF_SOURCE_COLOUR:
+                *pBlend = GL_SRC_COLOR;
+                break;
+            case SBF_ONE_MINUS_DEST_COLOUR:
+                *pBlend = GL_ONE_MINUS_DST_COLOR;
+                break;
+            case SBF_ONE_MINUS_SOURCE_COLOUR:
+                *pBlend = GL_ONE_MINUS_SRC_COLOR;
+                break;
+            case SBF_DEST_ALPHA:
+                *pBlend = GL_DST_ALPHA;
+                break;
+            case SBF_SOURCE_ALPHA:
+                *pBlend = GL_SRC_ALPHA;
+                break;
+            case SBF_ONE_MINUS_DEST_ALPHA:
+                *pBlend = GL_ONE_MINUS_DST_ALPHA;
+                break;
+            case SBF_ONE_MINUS_SOURCE_ALPHA:
+                *pBlend = GL_ONE_MINUS_SRC_ALPHA;
+                break;
+            };
+            ogreBlend = destFactor;
+            pBlend = &destBlend;
+
+        }
+
+        glEnable(GL_BLEND);
+        glBlendFunc(sourceBlend, destBlend);
+    }
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_setAlphaRejectSettings(CompareFunction func, unsigned char value)
+    {
+        GLint compFunc;
+        switch(func)
+        {
+        case CMPF_ALWAYS_FAIL:
+            compFunc = GL_NEVER;
+            break;
+        case CMPF_ALWAYS_PASS:
+            compFunc = GL_ALWAYS;
+            break;
+        case CMPF_LESS:
+            compFunc = GL_LESS;
+            break;
+        case CMPF_LESS_EQUAL:
+            compFunc = GL_LEQUAL;
+            break;
+        case CMPF_EQUAL:
+            compFunc = GL_EQUAL;
+            break;
+        case CMPF_NOT_EQUAL:
+            compFunc = GL_NOTEQUAL;
+            break;
+        case CMPF_GREATER_EQUAL:
+            compFunc = GL_GEQUAL;
+            break;
+        case CMPF_GREATER:
+            compFunc = GL_GREATER;
+            break;
+        };
+
+        glEnable(GL_ALPHA_TEST);
+        glAlphaFunc(compFunc, value);
+    }
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_setViewport(Viewport *vp)
+    {
+        // Check if viewport is different
+        if (vp != mActiveViewport || vp->_isUpdated())
+        {
+            mActiveViewport = vp;
+
+            // XXX Rendering target stuff?
+            GLsizei w, h;
+
+            w = vp->getActualWidth();
+            h = vp->getActualHeight();
+            
+            glViewport(0, 0, w, h);
+            fprintf(stderr, "Reset perspective\n");
+            
+            vp->_clearUpdatedFlag();
+        }
+    }
+
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_beginFrame(void)
+    {
+        OgreGuard( "SDLRenderSystem::_beginFrame" );
+
+        if (!mActiveViewport)
+            Except(999, "Cannot begin frame - no viewport selected.",
+                "SDLRenderSystem::_beginFrame");
+
+        // Clear the viewport if required
+        if (mActiveViewport->getClearEveryFrame())
+        {
+            ColourValue col = mActiveViewport->getBackgroundColour();
+            
+            glClearColor(col.r, col.g, col.b, col.a);
+            // Enable depth buffer for writing if it isn't
+            if (!mDepthWrite)
+            {
+                _setDepthBufferWriteEnabled(true);
+            }
+            // Clear buffers
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            // Reset depth write state if appropriate
+            // Enable depth buffer for writing if it isn't
+            if (!mDepthWrite)
+            {
+                _setDepthBufferWriteEnabled(false);
+            }
+
+        }        
+
+        OgreUnguard();
+    }
+
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_render(RenderOperation& op)
+    {
+        OgreGuard("SDLRenderSystem::_render");
+        
+        RenderSystem::_render(op);
+
+        if (op.vertexOptions == 0)
+        {
+            // Must include at least vertex normal, colour or tex coords
+            Except(999, 
+                "You must specify at least vertex normals, "
+                "vertex colours or texture co-ordinates to render.", 
+                "SDLRenderSystem::_render" );
+        }
+
+        // Setup the vertex array
+        glEnableClientState( GL_VERTEX_ARRAY );
+        glVertexPointer( 3, GL_FLOAT, op.vertexStride, op.pVertices );
+
+        // Normals if available
+        if (op.vertexOptions & RenderOperation::VO_NORMALS)
+        {
+            glEnableClientState( GL_NORMAL_ARRAY );
+            glNormalPointer( GL_FLOAT, op.normalStride, op.pNormals );
+        }
+        else
+        {
+            glDisableClientState( GL_NORMAL_ARRAY );
+        }
+
+        // Color
+        if (op.vertexOptions & RenderOperation::VO_DIFFUSE_COLOURS)
+        {
+            glEnableClientState(GL_COLOR_ARRAY);
+            glColorPointer( 4, GL_UNSIGNED_BYTE, op.diffuseStride, op.pDiffuseColour );
+        }
+        else
+        {
+            glDisableClientState(GL_COLOR_ARRAY);
+        }
+        
+        // Textures if available
+        if (op.vertexOptions & RenderOperation::VO_TEXTURE_COORDS)
+        {
+            GLint index = GL_TEXTURE0_ARB;
+
+            for (int i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; i++)
+            {
+                if( i < op.numTextureCoordSets )
+                {                
+                    glClientActiveTextureARB(index + i);
+                    glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+                    glTexCoordPointer(
+                        op.numTextureDimensions[i],
+                        GL_FLOAT,
+                        op.texCoordStride[i], 
+                        op.pTexCoords[i] );
+                }
+                else
+                {
+                   glClientActiveTextureARB( index + i );
+                   glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+                }
+            }
+
+            // Reset the texture to 0
+            glClientActiveTextureARB(index);
+        }
+        else
+        {
+            glClientActiveTextureARB( GL_TEXTURE0_ARB );
+            glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+        }
+
+        // Find the correct type to render
+        GLint primType;
+        switch (op.operationType)
+        {
+        case RenderOperation::OT_POINT_LIST:
+            primType = GL_POINTS;
+            break;
+        case RenderOperation::OT_LINE_LIST:
+            primType = GL_LINES;
+            break;
+        case RenderOperation::OT_LINE_STRIP:
+            primType = GL_LINE_STRIP;
+            break;
+        case RenderOperation::OT_TRIANGLE_LIST:
+            primType = GL_TRIANGLES;
+            break;
+        case RenderOperation::OT_TRIANGLE_STRIP:
+            primType = GL_TRIANGLE_STRIP;
+            break;
+        case RenderOperation::OT_TRIANGLE_FAN:
+            primType = GL_TRIANGLE_FAN;
+            break;
+        }
+
+        if (op.useIndexes)
+        {
+            glDrawElements(
+                primType, 
+                op.numIndexes, 
+                GL_UNSIGNED_SHORT,
+                op.pIndexes);
+        }
+        else
+        {
+            glDrawArrays( primType, 0, op.numVertices );
+        }
+
+        OgreUnguard();
+    }
+    
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_endFrame(void)
+    {
+        // XXX Do something?
+    }
+
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_setCullingMode(CullingMode mode)
+    {
+        GLint cullMode;
+
+        switch( mode )
+        {
+        case CULL_NONE:
+            glDisable( GL_CULL_FACE );
+            return;
+        case CULL_CLOCKWISE:
+            cullMode = GL_CCW;
+            break;
+        case CULL_ANTICLOCKWISE:
+            cullMode = GL_CW;
+            break;
+        }
+
+        glEnable( GL_CULL_FACE );
+        glFrontFace( cullMode );
+    }
+
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_setDepthBufferParams(bool depthTest, bool depthWrite, CompareFunction depthFunction)
+    {
+        _setDepthBufferCheckEnabled(depthTest);
+        _setDepthBufferWriteEnabled(depthWrite);
+        _setDepthBufferFunction(depthFunction);
+
+    }
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_setDepthBufferCheckEnabled(bool enabled)
+    {
+        if (enabled)
+        {
+            glClearDepth(1.0f);
+            glEnable(GL_DEPTH_TEST);
+        }
+        else
+        {
+            glDisable(GL_DEPTH_TEST);
+        }
+    }
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_setDepthBufferWriteEnabled(bool enabled)
+    {
+        // XXX Why is this flipped so much?
+        GLboolean flag = enabled ? GL_TRUE : GL_FALSE;
+        glDepthMask( flag );  
+        // Store for reference in _beginFrame
+        mDepthWrite = enabled;
+    }
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_setDepthBufferFunction(CompareFunction func)
+    {
+        GLint depthFunc;
+        switch(func)
+        {
+        case CMPF_ALWAYS_FAIL:
+            depthFunc = GL_NEVER;
+            break;
+        case CMPF_ALWAYS_PASS:
+            depthFunc = GL_ALWAYS;
+            break;
+        case CMPF_LESS:
+            depthFunc = GL_LESS;
+            break;
+        case CMPF_LESS_EQUAL:
+            depthFunc = GL_LEQUAL;
+            break;
+        case CMPF_EQUAL:
+            depthFunc = GL_EQUAL;
+            break;
+        case CMPF_NOT_EQUAL:
+            depthFunc = GL_NOTEQUAL;
+            break;
+        case CMPF_GREATER_EQUAL:
+            depthFunc = GL_GEQUAL;
+            break;
+        case CMPF_GREATER:
+            depthFunc = GL_GREATER;
+            break;
+        };
+
+        glDepthFunc(depthFunc);
+    }
+    //-----------------------------------------------------------------------------
+    String SDLRenderSystem::getErrorDescription(long errCode)
+    {
+        // XXX FIXME
+
+        return String("Uknown Error");
+    }
+
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::setLightingEnabled(bool enabled)
+    {
+        if (enabled)
+            glEnable(GL_LIGHTING);
+        else
+            glDisable(GL_LIGHTING);
+    }
+    //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_setFog(FogMode mode, ColourValue colour, Real density, Real start, Real end)
+    {
+
+        GLint fogMode;
+        switch (mode)
+        {
+        case FOG_EXP:
+            fogMode = GL_EXP;
+            break;
+        case FOG_EXP2:
+            fogMode = GL_EXP2;
+            break;
+        case FOG_LINEAR:
+            fogMode = GL_LINEAR;
+            break;
+        default:
+            // Give up on it
+            glDisable(GL_FOG);
+            return;
+        }
+
+        glEnable(GL_FOG);
+        glFogi(GL_FOG_MODE, fogMode);
+        GLfloat fogColor[4] = {colour.r, colour.g, colour.b, colour.a};
+        glFogfv(GL_FOG_COLOR, fogColor);
+        glFogf(GL_FOG_DENSITY, density);
+        glFogf(GL_FOG_START, start);
+        glFogf(GL_FOG_END, end);
+        // XXX Hint here?
+    }
+
+    void SDLRenderSystem::convertColourValue(const ColourValue& colour, unsigned long* pDest)
+    {
+        // GL accesses by byte, so use ABGR so little-endian format will make it RGBA in byte mode
+        *pDest = colour.getAsLongABGR();
+    }
+
+}
