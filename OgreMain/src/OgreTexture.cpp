@@ -26,48 +26,5 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreTexture.h"
 
 namespace Ogre {
-
-    void Texture::applyGamma( unsigned char* p, uint size, int bpp )
-    {
-        if( mGamma == 1.0f )
-            return;
-
-        //float factor = mGamma;
-        //float inv_255 = 1.0f / 255.0f;
-
-        //NB only 24/32-bit supported
-        if( bpp != 24 && bpp != 32 ) return;
-
-        int stride = bpp >> 3;
-
-        for( uint i = 0; i < size/stride; i++, p+=stride) 
-        {
-            float r, g, b;
-
-            r = (float)p[0];
-            g = (float)p[1];
-            b = (float)p[2];
-
-            r = r * mGamma/* * inv_255*/;
-            g = g * mGamma/* * inv_255*/;
-            b = b * mGamma/* * inv_255*/;
-
-            float scale = 1.0f, tmp;
-
-            if( r > 255.0f && (tmp=(255.0f/r)) < scale )
-                scale = tmp;
-            if( g > 255.0f && (tmp=(255.0f/g)) < scale )
-                scale = tmp;
-            if( b > 255.0f && (tmp=(255.0f/b)) < scale )
-                scale = tmp;
-
-            //scale *= 255.0f;
-
-            r *= scale; g *= scale; b *= scale;
-
-            p[0] = (uchar)r;
-            p[1] = (uchar)g;
-            p[2] = (uchar)b;
-        }
-    }
+  
 }
