@@ -163,6 +163,9 @@ namespace Ogre {
         */
         void addBaseParameters(void);
 
+        /** Internal method for initialising the duration & repeat of an emitter. */
+        void initDurationRepeat(void);
+
 
     public:
         ParticleEmitter();
