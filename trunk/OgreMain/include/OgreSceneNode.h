@@ -367,6 +367,27 @@ namespace Ogre {
 		const Vector3& getAutoTrackLocalDirection(void) { return mAutoTrackLocalDirection; }
 		/** Internal method used by OGRE to update auto-tracking cameras. */
         void _autoTrack(void);
+        /** Gets the parent of this SceneNode. */
+        SceneNode* getParentSceneNode(void) const;
+        /** Makes all objects attached to this node become visible / invisble.
+        @remarks    
+            This is a shortcut to calling setVisible() on the objects attached
+            to this node, and optionally to all objects attached to child
+            nodes. 
+        @param visible Whether the objects are to be made visible or invisible
+        @param cascade If true, this setting cascades into child nodes too.
+        */
+        void setVisible(bool visible, bool cascade = true);
+        /** Inverts the visibility of all objects attached to this node.
+        @remarks    
+        This is a shortcut to calling setVisible(!isVisible()) on the objects attached
+        to this node, and optionally to all objects attached to child
+        nodes. 
+        @param cascade If true, this setting cascades into child nodes too.
+        */
+        void flipVisibility(bool cascade = true);
+
+
 
 
 

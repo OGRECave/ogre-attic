@@ -519,6 +519,52 @@ namespace Ogre {
             _update(true, true);
         }
     }
+    //-----------------------------------------------------------------------
+    SceneNode* SceneNode::getParentSceneNode(void) const
+    {
+        return static_cast<SceneNode*>(getParent());
+    }
+    //-----------------------------------------------------------------------
+    void SceneNode::setVisible(bool visible, bool cascade)
+    {
+        ObjectMap::iterator oi, oiend;
+        oiend = mObjectsByName.end();
+        for (oi = mObjectsByName.begin(); oi != oiend; ++oi)
+        {
+            oi->second->setVisible(visible);
+        }
+
+        if (cascade)
+        {
+            ChildNodeMap::iterator i, iend;
+            iend = mChildren.end();
+            for (i = mChildren.begin(); i != iend; ++i)
+            {
+                static_cast<SceneNode*>(i->second)->setVisible(visible, cascade);
+            }
+        }
+    }
+    //-----------------------------------------------------------------------
+    void SceneNode::flipVisibility(bool cascade)
+    {
+        ObjectMap::iterator oi, oiend;
+        oiend = mObjectsByName.end();
+        for (oi = mObjectsByName.begin(); oi != oiend; ++oi)
+        {
+            oi->second->setVisible(!oi->second->isVisible());
+        }
+
+        if (cascade)
+        {
+            ChildNodeMap::iterator i, iend;
+            iend = mChildren.end();
+            for (i = mChildren.begin(); i != iend; ++i)
+            {
+                static_cast<SceneNode*>(i->second)->flipVisibility(cascade);
+            }
+        }
+    }
+
 
 
 }
