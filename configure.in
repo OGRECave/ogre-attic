@@ -96,9 +96,6 @@ AC_CONFIG_FILES([Makefile \
     Samples/EnvMapping/Makefile \
     Samples/EnvMapping/src/Makefile \
     Samples/EnvMapping/include/Makefile \
-    dnl Samples/Gui/Makefile \
-    dnl Samples/Gui/src/Makefile \
-    dnl Samples/Gui/include/Makefile \
     Samples/Transpacency/Makefile \
     Samples/Transpacency/src/Makefile \
     Samples/Transpacency/include/Makefile \
