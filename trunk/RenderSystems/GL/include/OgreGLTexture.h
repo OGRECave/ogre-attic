@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderTexture.h"
 #include "OgreTexture.h"
 #include "OgreGLSupport.h"
+#include "OgreHardwarePixelBuffer.h"
 
 namespace Ogre {
 
@@ -50,7 +51,6 @@ namespace Ogre {
         void loadImage( const Image &img );
         void loadImages( const std::vector<Image>& images );
 
-
         void createRenderTexture();
 
         void blitToTexture( const Image& src, 
@@ -59,19 +59,8 @@ namespace Ogre {
 		/// @copydoc Texture::getBuffer
 		HardwarePixelBufferSharedPtr getBuffer(int face, int mipmap);
 
-        // Takes the OGRE texture type (2d/3d/cube) and returns the appropriate GL one
+        // Takes the OGRE texture type (1d/2d/3d/cube) and returns the appropriate GL one
         GLenum getGLTextureTarget(void) const;
-
-        // Takes the OGRE pixel format and returns the appropriate GL one
-        GLenum getGLTextureOriginFormat(void) const;
-
-        // Takes the OGRE pixel format and returns the type that must be provided
-        // to GL as data type for reading it into the GPU.
-        GLenum getGLTextureOriginDataType(void) const;
-
-        // Takes the OGRE pixel format and returns the type that must be provided
-        // to GL as internal format.
-        GLenum getGLTextureInternalFormat(void) const;
 
         GLuint getGLID() const
         { return mTextureID; }
@@ -82,12 +71,19 @@ namespace Ogre {
         /// @copydoc Resource::unloadImpl
         void unloadImpl(void);
 
-        void generateMipmaps( const uchar *data, bool useSoftware, bool isCompressed,
-            size_t faceNumber );
-        uchar* rescaleNPower2( const Image& src );
+		/** internal method, create GLHardwarePixelBuffers for every face and
+			 mipmap level. This method must be called after the GL texture object was created,
+			the number of mipmaps was set (GL_TEXTURE_MAX_LEVEL) and glTexImageXD was called to
+			actually allocate the buffer
+		*/
+		void _createSurfaceList();
     private:
         GLuint mTextureID;
         GLSupport& mGLSupport;
+		
+		/// Vector of pointers to subsurfaces
+		typedef std::vector<HardwarePixelBufferSharedPtr> SurfaceList;
+		SurfaceList	mSurfaceList;
     };
 
     /** Specialisation of SharedPtr to allow SharedPtr to be assigned to GLTexturePtr 
