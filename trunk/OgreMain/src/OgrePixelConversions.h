@@ -98,7 +98,23 @@ struct A8R8G8B8toA8B8G8R8: public PixelConverter <uint32, uint32, FMTCONVERTERID
 {
     inline static DstType pixelConvert(SrcType inp)
     {
-        return (inp&0xFF00FF00)|((inp&0x00FF0000)>>16)|((inp&0x000000FF)<<16);
+        return ((inp&0x000000FF)<<16)|(inp&0xFF00FF00)|((inp&0x00FF0000)>>16);
+    }
+};
+
+struct A8R8G8B8toB8G8R8A8: public PixelConverter <uint32, uint32, FMTCONVERTERID(PF_A8R8G8B8, PF_B8G8R8A8)>
+{
+    inline static DstType pixelConvert(SrcType inp)
+    {
+        return ((inp&0x000000FF)<<24)|((inp&0x0000FF00)<<8)|((inp&0x00FF0000)>>8)|((inp&0xFF000000)>>24);
+    }
+};
+
+struct A8R8G8B8toR8G8B8A8: public PixelConverter <uint32, uint32, FMTCONVERTERID(PF_A8R8G8B8, PF_R8G8B8A8)>
+{
+    inline static DstType pixelConvert(SrcType inp)
+    {
+        return ((inp&0x00FFFFFF)<<8)|((inp&0xFF000000)>>24);
     }
 };
 
@@ -106,15 +122,7 @@ struct A8B8G8R8toA8R8G8B8: public PixelConverter <uint32, uint32, FMTCONVERTERID
 {
     inline static DstType pixelConvert(SrcType inp)
     {
-        return (inp&0xFF00FF00)|((inp&0x00FF0000)>>16)|((inp&0x000000FF)<<16);
-    }
-};
-
-struct B8G8R8A8toA8B8G8R8: public PixelConverter <uint32, uint32, FMTCONVERTERID(PF_B8G8R8A8, PF_A8B8G8R8)>
-{
-    inline static DstType pixelConvert(SrcType inp)
-    {
-        return ((inp&0x00FFFF00)>>8)|((inp&0xFF000000)>>8)|((inp&0x000000FF)<<24);
+        return ((inp&0x000000FF)<<16)|(inp&0xFF00FF00)|((inp&0x00FF0000)>>16);
     }
 };
 
@@ -122,7 +130,63 @@ struct A8B8G8R8toB8G8R8A8: public PixelConverter <uint32, uint32, FMTCONVERTERID
 {
     inline static DstType pixelConvert(SrcType inp)
     {
-        return ((inp&0x0000FFFF)<<8)|((inp&0x00FF0000)<<8)|((inp&0xFF000000)>>24);
+        return ((inp&0x00FFFFFF)<<8)|((inp&0xFF000000)>>24);
+    }
+};
+
+struct A8B8G8R8toR8G8B8A8: public PixelConverter <uint32, uint32, FMTCONVERTERID(PF_A8B8G8R8, PF_R8G8B8A8)>
+{
+    inline static DstType pixelConvert(SrcType inp)
+    {
+        return ((inp&0x000000FF)<<24)|((inp&0x0000FF00)<<8)|((inp&0x00FF0000)>>8)|((inp&0xFF000000)>>24);
+    }
+};
+
+struct B8G8R8A8toA8R8G8B8: public PixelConverter <uint32, uint32, FMTCONVERTERID(PF_B8G8R8A8, PF_A8R8G8B8)>
+{
+    inline static DstType pixelConvert(SrcType inp)
+    {
+        return ((inp&0x000000FF)<<24)|((inp&0x0000FF00)<<8)|((inp&0x00FF0000)>>8)|((inp&0xFF000000)>>24);
+    }
+};
+
+struct B8G8R8A8toA8B8G8R8: public PixelConverter <uint32, uint32, FMTCONVERTERID(PF_B8G8R8A8, PF_A8B8G8R8)>
+{
+    inline static DstType pixelConvert(SrcType inp)
+    {
+        return ((inp&0x000000FF)<<24)|((inp&0xFFFFFF00)>>8);
+    }
+};
+
+struct B8G8R8A8toR8G8B8A8: public PixelConverter <uint32, uint32, FMTCONVERTERID(PF_B8G8R8A8, PF_R8G8B8A8)>
+{
+    inline static DstType pixelConvert(SrcType inp)
+    {
+        return ((inp&0x0000FF00)<<16)|(inp&0x00FF00FF)|((inp&0xFF000000)>>16);
+    }
+};
+
+struct R8G8B8A8toA8R8G8B8: public PixelConverter <uint32, uint32, FMTCONVERTERID(PF_R8G8B8A8, PF_A8R8G8B8)>
+{
+    inline static DstType pixelConvert(SrcType inp)
+    {
+        return ((inp&0x000000FF)<<24)|((inp&0xFFFFFF00)>>8);
+    }
+};
+
+struct R8G8B8A8toA8B8G8R8: public PixelConverter <uint32, uint32, FMTCONVERTERID(PF_R8G8B8A8, PF_A8B8G8R8)>
+{
+    inline static DstType pixelConvert(SrcType inp)
+    {
+        return ((inp&0x000000FF)<<24)|((inp&0x0000FF00)<<8)|((inp&0x00FF0000)>>8)|((inp&0xFF000000)>>24);
+    }
+};
+
+struct R8G8B8A8toB8G8R8A8: public PixelConverter <uint32, uint32, FMTCONVERTERID(PF_R8G8B8A8, PF_B8G8R8A8)>
+{
+    inline static DstType pixelConvert(SrcType inp)
+    {
+        return ((inp&0x0000FF00)<<16)|(inp&0x00FF00FF)|((inp&0xFF000000)>>16);
     }
 };
 
@@ -265,6 +329,14 @@ struct X8R8G8B8toB8G8R8A8: public PixelConverter <uint32, uint32, FMTCONVERTERID
         return ((inp&0x0000FF)<<24)|((inp&0xFF0000)>>8)|((inp&0x00FF00)<<8)|0x000000FF;
     }
 };
+struct X8R8G8B8toR8G8B8A8: public PixelConverter <uint32, uint32, FMTCONVERTERID(PF_X8R8G8B8, PF_R8G8B8A8)>
+{
+    inline static DstType pixelConvert(SrcType inp)
+    {
+        return ((inp&0xFFFFFF)<<8)|0x000000FF;
+    }
+};
+
 // X8B8G8R8
 struct X8B8G8R8toA8R8G8B8: public PixelConverter <uint32, uint32, FMTCONVERTERID(PF_X8B8G8R8, PF_A8R8G8B8)>
 {
@@ -287,6 +359,14 @@ struct X8B8G8R8toB8G8R8A8: public PixelConverter <uint32, uint32, FMTCONVERTERID
         return ((inp&0xFFFFFF)<<8)|0x000000FF;
     }
 };
+struct X8B8G8R8toR8G8B8A8: public PixelConverter <uint32, uint32, FMTCONVERTERID(PF_X8B8G8R8, PF_R8G8B8A8)>
+{
+    inline static DstType pixelConvert(SrcType inp)
+    {
+        return ((inp&0x0000FF)<<24)|((inp&0xFF0000)>>8)|((inp&0x00FF00)<<8)|0x000000FF;
+    }
+};
+
 
 #define CASECONVERTER(type) case type::ID : PixelBoxConverter<type>::conversion(src, dst); return 1;
 
@@ -295,10 +375,18 @@ inline int doOptimizedConversion(const PixelBox &src, const PixelBox &dst)
     switch(FMTCONVERTERID(src.format, dst.format))
     {
         // Register converters here
-        CASECONVERTER(A8R8G8B8toA8B8G8R8);
-        CASECONVERTER(A8B8G8R8toA8R8G8B8);
-        CASECONVERTER(B8G8R8A8toA8B8G8R8);
-        CASECONVERTER(A8B8G8R8toB8G8R8A8);
+		CASECONVERTER(A8R8G8B8toA8B8G8R8);
+		CASECONVERTER(A8R8G8B8toB8G8R8A8);
+		CASECONVERTER(A8R8G8B8toR8G8B8A8);
+		CASECONVERTER(A8B8G8R8toA8R8G8B8);
+		CASECONVERTER(A8B8G8R8toB8G8R8A8);
+		CASECONVERTER(A8B8G8R8toR8G8B8A8);
+		CASECONVERTER(B8G8R8A8toA8R8G8B8);
+		CASECONVERTER(B8G8R8A8toA8B8G8R8);
+		CASECONVERTER(B8G8R8A8toR8G8B8A8);
+		CASECONVERTER(R8G8B8A8toA8R8G8B8);
+		CASECONVERTER(R8G8B8A8toA8B8G8R8);
+		CASECONVERTER(R8G8B8A8toB8G8R8A8);
         CASECONVERTER(A8B8G8R8toL8);
         CASECONVERTER(L8toA8B8G8R8);
         CASECONVERTER(A8R8G8B8toL8);
@@ -320,9 +408,11 @@ inline int doOptimizedConversion(const PixelBox &src, const PixelBox &dst)
 		CASECONVERTER(X8R8G8B8toA8R8G8B8);
 		CASECONVERTER(X8R8G8B8toA8B8G8R8);
 		CASECONVERTER(X8R8G8B8toB8G8R8A8);
+		CASECONVERTER(X8R8G8B8toR8G8B8A8);
 		CASECONVERTER(X8B8G8R8toA8R8G8B8);
 		CASECONVERTER(X8B8G8R8toA8B8G8R8);
 		CASECONVERTER(X8B8G8R8toB8G8R8A8);
+		CASECONVERTER(X8B8G8R8toR8G8B8A8);
 
         default:
             return 0;

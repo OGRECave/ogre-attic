@@ -383,6 +383,29 @@ namespace Ogre {
         /* Masks and shifts */
         0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000,
         0, 8, 16, 24
+        },
+	//-----------------------------------------------------------------------
+        {"PF_R8G8B8A8", 
+        /* Bytes per element */ 
+        4,  
+        /* Flags */
+        PFF_HASALPHA | PFF_NATIVEENDIAN,  
+        /* rbits, gbits, bbits, abits */
+        8, 8, 8, 8,
+        /* Masks and shifts */
+        0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF,
+        24, 16, 8, 0
+        },
+	//-----------------------------------------------------------------------
+		{"PF_DEPTH", 
+        /* Bytes per element */ 
+        4,  
+        /* Flags */
+        PFF_DEPTH,  
+        /* rbits, gbits, bbits, abits */
+        0, 0, 0, 0,
+        /* Masks and shifts */
+		0, 0, 0, 0, 0, 0, 0, 0
         }
     };
     //-----------------------------------------------------------------------
