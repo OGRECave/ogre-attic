@@ -1051,7 +1051,6 @@ namespace Ogre {
         Vector3 sourceVec, sourceNorm;
         // Accumulation vectors
         Vector3 accumVecPos, accumVecNorm;
-        Matrix3 rot3x3;
 
         Real *pSrcPos, *pSrcNorm, *pDestPos, *pDestNorm, *pBlendWeight;
         unsigned char* pBlendIdx;
@@ -1176,7 +1175,6 @@ namespace Ogre {
         }
 
         // Loop per vertex
-        Vector3 tempVec;
         for (size_t vertIdx = 0; vertIdx < targetVertexData->vertexCount; ++vertIdx)
         {
             // Load source vertex elements
@@ -1212,10 +1210,26 @@ namespace Ogre {
                 // NB weights must be normalised!!
                 if (*pBlendWeight != 0.0) 
                 {
-                    // Blend position
-                    tempVec = pMatrices[*pBlendIdx] * sourceVec;
-                    tempVec *= *pBlendWeight;
-                    accumVecPos += tempVec;
+                    // Blend position, use 3x4 matrix
+                    const Matrix4& mat = pMatrices[*pBlendIdx];
+                    accumVecPos.x += 
+                        (mat[0][0] * sourceVec.x + 
+                         mat[0][1] * sourceVec.y + 
+                         mat[0][2] * sourceVec.z + 
+                         mat[0][3])
+                         * (*pBlendWeight);
+                    accumVecPos.y += 
+                        (mat[1][0] * sourceVec.x + 
+                         mat[1][1] * sourceVec.y + 
+                         mat[1][2] * sourceVec.z + 
+                         mat[1][3])
+                         * (*pBlendWeight);
+                    accumVecPos.z += 
+                        (mat[2][0] * sourceVec.x + 
+                         mat[2][1] * sourceVec.y + 
+                         mat[2][2] * sourceVec.z + 
+                         mat[2][3])
+                         * (*pBlendWeight);
                     if (includeNormals)
                     {
                         // Blend normal
@@ -1223,10 +1237,21 @@ namespace Ogre {
                         // aspect of the matrix is orthogonal (no non-uniform scaling), the inverse transpose
                         // is equal to the main 3x3 matrix
                         // Note because it's a normal we just extract the rotational part, saves us renormalising here
-                        pMatrices[*pBlendIdx].extract3x3Matrix(rot3x3);
-                        tempVec = rot3x3 * sourceNorm;
-                        tempVec *= *pBlendWeight;
-                        accumVecNorm += tempVec;
+                        accumVecNorm.x += 
+                            (mat[0][0] * sourceNorm.x + 
+                             mat[0][1] * sourceNorm.y + 
+                             mat[0][2] * sourceNorm.z) 
+                             * (*pBlendWeight);
+                        accumVecNorm.y += 
+                            (mat[1][0] * sourceNorm.x + 
+                             mat[1][1] * sourceNorm.y + 
+                             mat[1][2] * sourceNorm.z)
+                            * (*pBlendWeight);
+                        accumVecNorm.z += 
+                            (mat[2][0] * sourceNorm.x + 
+                             mat[2][1] * sourceNorm.y + 
+                             mat[2][2] * sourceNorm.z)
+                            * (*pBlendWeight);
                     }
 
                 }
