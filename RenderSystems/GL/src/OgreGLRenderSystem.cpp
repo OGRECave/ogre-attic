@@ -1129,7 +1129,8 @@ namespace Ogre {
         GLfloat mat[16];
         makeGLMatrix(mat, xform);
 
-		if(mTextureTypes[stage] != GL_TEXTURE_3D)
+		if(mTextureTypes[stage] != GL_TEXTURE_3D && 
+		   mTextureTypes[stage] != GL_TEXTURE_CUBE_MAP)
 		{
 			// Convert 3x3 rotation/translation matrix to 4x4
 			mat[12] = mat[8];
