@@ -842,8 +842,8 @@ namespace Ogre
 			case Light::LT_SPOTLIGHT:
 				d3dLight.Type = D3DLIGHT_SPOT;
 				d3dLight.Falloff = lt->getSpotlightFalloff();
-				d3dLight.Theta = Math::getSingleton().AngleUnitsToRadians( lt->getSpotlightInnerAngle() );
-				d3dLight.Phi = Math::getSingleton().AngleUnitsToRadians( lt->getSpotlightOuterAngle() );
+				d3dLight.Theta = Math::AngleUnitsToRadians( lt->getSpotlightInnerAngle() );
+				d3dLight.Phi = Math::AngleUnitsToRadians( lt->getSpotlightOuterAngle() );
 				break;
 			}
 

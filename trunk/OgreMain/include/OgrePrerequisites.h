@@ -59,6 +59,11 @@ http://www.gnu.org/copyleft/lesser.txt
 #   pragma warning( disable: 4661)
 #endif
 
+#if OGRE_COMPILER == COMPILER_MSVC && OGRE_COMP_VER > 1300
+#	undef _DEFINE_DEPRECATED_HASH_CLASSES
+#	define _DEFINE_DEPRECATED_HASH_CLASSES 0
+#endif
+
 /* Include all the standard header *after* all the configuration
    settings have been made.
 */
@@ -89,7 +94,7 @@ namespace Ogre {
     #ifdef GCC_3_1
     #   define HashMap ::__gnu_cxx::hash_map
     #else
-    #   if OGRE_COMP_VER > 1300
+    #   if OGRE_COMPILER == COMPILER_MSVC && OGRE_COMP_VER > 1300
     #       define HashMap ::stdext::hash_map
     #   else
     #       define HashMap ::std::hash_map

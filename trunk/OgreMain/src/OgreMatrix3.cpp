@@ -270,7 +270,7 @@ namespace Ogre
             m[0][1]*rkInverse[1][0]+
             m[0][2]*rkInverse[2][0];
 
-        if ( Math::getSingleton().Abs(fDet) <= fTolerance )
+        if ( Math::Abs(fDet) <= fTolerance )
             return false;
 
         Real fInvDet = 1.0/fDet;
@@ -315,7 +315,7 @@ namespace Ogre
         bool bIdentity;
 
         // map first column to (*,0,0)
-        fLength = Math::getSingleton().Sqrt(kA[0][0]*kA[0][0] + kA[1][0]*kA[1][0] +
+        fLength = Math::Sqrt(kA[0][0]*kA[0][0] + kA[1][0]*kA[1][0] +
             kA[2][0]*kA[2][0]);
         if ( fLength > 0.0 )
         {
@@ -352,7 +352,7 @@ namespace Ogre
         }
 
         // map first row to (*,*,0)
-        fLength = Math::getSingleton().Sqrt(kA[0][1]*kA[0][1]+kA[0][2]*kA[0][2]);
+        fLength = Math::Sqrt(kA[0][1]*kA[0][1]+kA[0][2]*kA[0][2]);
         if ( fLength > 0.0 )
         {
             fSign = (kA[0][1] > 0.0 ? 1.0 : -1.0);
@@ -382,7 +382,7 @@ namespace Ogre
         }
 
         // map second column to (*,*,0)
-        fLength = Math::getSingleton().Sqrt(kA[1][1]*kA[1][1]+kA[2][1]*kA[2][1]);
+        fLength = Math::Sqrt(kA[1][1]*kA[1][1]+kA[2][1]*kA[2][1]);
         if ( fLength > 0.0 )
         {
             fSign = (kA[1][1] > 0.0 ? 1.0 : -1.0);
@@ -430,15 +430,15 @@ namespace Ogre
         Real fT12 = kA[1][1]*kA[1][2];
         Real fTrace = fT11+fT22;
         Real fDiff = fT11-fT22;
-        Real fDiscr = Math::getSingleton().Sqrt(fDiff*fDiff+4.0*fT12*fT12);
+        Real fDiscr = Math::Sqrt(fDiff*fDiff+4.0*fT12*fT12);
         Real fRoot1 = 0.5*(fTrace+fDiscr);
         Real fRoot2 = 0.5*(fTrace-fDiscr);
 
         // adjust right
-        Real fY = kA[0][0] - (Math::getSingleton().Abs(fRoot1-fT22) <=
-            Math::getSingleton().Abs(fRoot2-fT22) ? fRoot1 : fRoot2);
+        Real fY = kA[0][0] - (Math::Abs(fRoot1-fT22) <=
+            Math::Abs(fRoot2-fT22) ? fRoot1 : fRoot2);
         Real fZ = kA[0][1];
-        Real fInvLength = 1.0/Math::getSingleton().Sqrt(fY*fY+fZ*fZ);
+        Real fInvLength = 1.0/Math::Sqrt(fY*fY+fZ*fZ);
         Real fSin = fZ*fInvLength;
         Real fCos = -fY*fInvLength;
 
@@ -461,7 +461,7 @@ namespace Ogre
         // adjust left
         fY = kA[0][0];
         fZ = kA[1][0];
-        fInvLength = 1.0/Math::getSingleton().Sqrt(fY*fY+fZ*fZ);
+        fInvLength = 1.0/Math::Sqrt(fY*fY+fZ*fZ);
         fSin = fZ*fInvLength;
         fCos = -fY*fInvLength;
 
@@ -485,7 +485,7 @@ namespace Ogre
         // adjust right
         fY = kA[0][1];
         fZ = kA[0][2];
-        fInvLength = 1.0/Math::getSingleton().Sqrt(fY*fY+fZ*fZ);
+        fInvLength = 1.0/Math::Sqrt(fY*fY+fZ*fZ);
         fSin = fZ*fInvLength;
         fCos = -fY*fInvLength;
 
@@ -508,7 +508,7 @@ namespace Ogre
         // adjust left
         fY = kA[1][1];
         fZ = kA[2][1];
-        fInvLength = 1.0/Math::getSingleton().Sqrt(fY*fY+fZ*fZ);
+        fInvLength = 1.0/Math::Sqrt(fY*fY+fZ*fZ);
         fSin = fZ*fInvLength;
         fCos = -fY*fInvLength;
 
@@ -543,10 +543,10 @@ namespace Ogre
             Real fSin0, fCos0, fTan0;
             Real fSin1, fCos1, fTan1;
 
-            bool bTest1 = (Math::getSingleton().Abs(kA[0][1]) <=
-                ms_fSvdEpsilon*(Math::getSingleton().Abs(kA[0][0])+Math::getSingleton().Abs(kA[1][1])));
-            bool bTest2 = (Math::getSingleton().Abs(kA[1][2]) <=
-                ms_fSvdEpsilon*(Math::getSingleton().Abs(kA[1][1])+Math::getSingleton().Abs(kA[2][2])));
+            bool bTest1 = (Math::Abs(kA[0][1]) <=
+                ms_fSvdEpsilon*(Math::Abs(kA[0][0])+Math::Abs(kA[1][1])));
+            bool bTest2 = (Math::Abs(kA[1][2]) <=
+                ms_fSvdEpsilon*(Math::Abs(kA[1][1])+Math::Abs(kA[2][2])));
             if ( bTest1 )
             {
                 if ( bTest2 )
@@ -561,8 +561,8 @@ namespace Ogre
                     // 2x2 closed form factorization
                     fTmp = (kA[1][1]*kA[1][1] - kA[2][2]*kA[2][2] +
                         kA[1][2]*kA[1][2])/(kA[1][2]*kA[2][2]);
-                    fTan0 = 0.5*(fTmp+Math::getSingleton().Sqrt(fTmp*fTmp + 4.0));
-                    fCos0 = 1.0/Math::getSingleton().Sqrt(1.0+fTan0*fTan0);
+                    fTan0 = 0.5*(fTmp+Math::Sqrt(fTmp*fTmp + 4.0));
+                    fCos0 = 1.0/Math::Sqrt(1.0+fTan0*fTan0);
                     fSin0 = fTan0*fCos0;
 
                     for (iCol = 0; iCol < 3; iCol++)
@@ -574,7 +574,7 @@ namespace Ogre
                     }
 
                     fTan1 = (kA[1][2]-kA[2][2]*fTan0)/kA[1][1];
-                    fCos1 = 1.0/Math::getSingleton().Sqrt(1.0+fTan1*fTan1);
+                    fCos1 = 1.0/Math::Sqrt(1.0+fTan1*fTan1);
                     fSin1 = -fTan1*fCos1;
 
                     for (iRow = 0; iRow < 3; iRow++)
@@ -600,8 +600,8 @@ namespace Ogre
                     // 2x2 closed form factorization
                     fTmp = (kA[0][0]*kA[0][0] + kA[1][1]*kA[1][1] -
                         kA[0][1]*kA[0][1])/(kA[0][1]*kA[1][1]);
-                    fTan0 = 0.5*(-fTmp+Math::getSingleton().Sqrt(fTmp*fTmp + 4.0));
-                    fCos0 = 1.0/Math::getSingleton().Sqrt(1.0+fTan0*fTan0);
+                    fTan0 = 0.5*(-fTmp+Math::Sqrt(fTmp*fTmp + 4.0));
+                    fCos0 = 1.0/Math::Sqrt(1.0+fTan0*fTan0);
                     fSin0 = fTan0*fCos0;
 
                     for (iCol = 0; iCol < 3; iCol++)
@@ -613,7 +613,7 @@ namespace Ogre
                     }
 
                     fTan1 = (kA[0][1]-kA[1][1]*fTan0)/kA[0][0];
-                    fCos1 = 1.0/Math::getSingleton().Sqrt(1.0+fTan1*fTan1);
+                    fCos1 = 1.0/Math::Sqrt(1.0+fTan1*fTan1);
                     fSin1 = -fTan1*fCos1;
 
                     for (iRow = 0; iRow < 3; iRow++)
@@ -688,7 +688,7 @@ namespace Ogre
         // product of vectors A and B.
 
         // compute q0
-        Real fInvLength = 1.0/Math::getSingleton().Sqrt(m[0][0]*m[0][0]
+        Real fInvLength = 1.0/Math::Sqrt(m[0][0]*m[0][0]
             + m[1][0]*m[1][0] +
             m[2][0]*m[2][0]);
 
@@ -706,7 +706,7 @@ namespace Ogre
         m[1][1] -= fDot0*m[1][0];
         m[2][1] -= fDot0*m[2][0];
 
-        fInvLength = 1.0/Math::getSingleton().Sqrt(m[0][1]*m[0][1] +
+        fInvLength = 1.0/Math::Sqrt(m[0][1]*m[0][1] +
             m[1][1]*m[1][1] +
             m[2][1]*m[2][1]);
 
@@ -729,7 +729,7 @@ namespace Ogre
         m[1][2] -= fDot0*m[1][0] + fDot1*m[1][1];
         m[2][2] -= fDot0*m[2][0] + fDot1*m[2][1];
 
-        fInvLength = 1.0/Math::getSingleton().Sqrt(m[0][2]*m[0][2] +
+        fInvLength = 1.0/Math::Sqrt(m[0][2]*m[0][2] +
             m[1][2]*m[1][2] +
             m[2][2]*m[2][2]);
 
@@ -769,7 +769,7 @@ namespace Ogre
         // U stores the entries U[0] = u01, U[1] = u02, U[2] = u12
 
         // build orthogonal matrix Q
-        Real fInvLength = 1.0/Math::getSingleton().Sqrt(m[0][0]*m[0][0]
+        Real fInvLength = 1.0/Math::Sqrt(m[0][0]*m[0][0]
             + m[1][0]*m[1][0] +
             m[2][0]*m[2][0]);
         kQ[0][0] = m[0][0]*fInvLength;
@@ -781,7 +781,7 @@ namespace Ogre
         kQ[0][1] = m[0][1]-fDot*kQ[0][0];
         kQ[1][1] = m[1][1]-fDot*kQ[1][0];
         kQ[2][1] = m[2][1]-fDot*kQ[2][0];
-        fInvLength = 1.0/Math::getSingleton().Sqrt(kQ[0][1]*kQ[0][1] + kQ[1][1]*kQ[1][1] +
+        fInvLength = 1.0/Math::Sqrt(kQ[0][1]*kQ[0][1] + kQ[1][1]*kQ[1][1] +
             kQ[2][1]*kQ[2][1]);
         kQ[0][1] *= fInvLength;
         kQ[1][1] *= fInvLength;
@@ -797,7 +797,7 @@ namespace Ogre
         kQ[0][2] -= fDot*kQ[0][1];
         kQ[1][2] -= fDot*kQ[1][1];
         kQ[2][2] -= fDot*kQ[2][1];
-        fInvLength = 1.0/Math::getSingleton().Sqrt(kQ[0][2]*kQ[0][2] + kQ[1][2]*kQ[1][2] +
+        fInvLength = 1.0/Math::Sqrt(kQ[0][2]*kQ[0][2] + kQ[1][2]*kQ[1][2] +
             kQ[2][2]*kQ[2][2]);
         kQ[0][2] *= fInvLength;
         kQ[1][2] *= fInvLength;
@@ -862,11 +862,11 @@ namespace Ogre
         if ( fPoly < 0.0 )
         {
             // uses a matrix norm to find an upper bound on maximum root
-            fX = Math::getSingleton().Abs(afCoeff[0]);
-            Real fTmp = 1.0+Math::getSingleton().Abs(afCoeff[1]);
+            fX = Math::Abs(afCoeff[0]);
+            Real fTmp = 1.0+Math::Abs(afCoeff[1]);
             if ( fTmp > fX )
                 fX = fTmp;
-            fTmp = 1.0+Math::getSingleton().Abs(afCoeff[2]);
+            fTmp = 1.0+Math::Abs(afCoeff[2]);
             if ( fTmp > fX )
                 fX = fTmp;
         }
@@ -876,7 +876,7 @@ namespace Ogre
         for (int i = 0; i < 16; i++)
         {
             fPoly = afCoeff[0]+fX*(afCoeff[1]+fX*(afCoeff[2]+fX));
-            if ( Math::getSingleton().Abs(fPoly) <= fEpsilon )
+            if ( Math::Abs(fPoly) <= fEpsilon )
                 return fX;
 
             Real fDeriv = afCoeff[1]+fX*(fTwoC2+3.0*fX);
@@ -923,7 +923,7 @@ namespace Ogre
         afCoeff[2] = -(kP[0][0]+kP[1][1]+kP[2][2]);
 
         Real fRoot = MaxCubicRoot(afCoeff);
-        Real fNorm = Math::getSingleton().Sqrt(fPmax*fRoot);
+        Real fNorm = Math::Sqrt(fPmax*fRoot);
         return fNorm;
     }
     //-----------------------------------------------------------------------
@@ -953,11 +953,11 @@ namespace Ogre
 
         Real fTrace = m[0][0] + m[1][1] + m[2][2];
         Real fCos = 0.5*(fTrace-1.0);
-        rfRadians = Math::getSingleton().ACos(fCos);  // in [0,PI]
+        rfRadians = Math::ACos(fCos);  // in [0,PI]
 
         if ( rfRadians > 0.0 )
         {
-            if ( rfRadians < Math::getSingleton().PI )
+            if ( rfRadians < Math::PI )
             {
                 rkAxis.x = m[2][1]-m[1][2];
                 rkAxis.y = m[0][2]-m[2][0];
@@ -974,7 +974,7 @@ namespace Ogre
                     if ( m[0][0] >= m[2][2] )
                     {
                         // r00 is maximum diagonal term
-                        rkAxis.x = 0.5*Math::getSingleton().Sqrt(m[0][0] -
+                        rkAxis.x = 0.5*Math::Sqrt(m[0][0] -
                             m[1][1] - m[2][2] + 1.0);
                         fHalfInverse = 0.5/rkAxis.x;
                         rkAxis.y = fHalfInverse*m[0][1];
@@ -983,7 +983,7 @@ namespace Ogre
                     else
                     {
                         // r22 is maximum diagonal term
-                        rkAxis.z = 0.5*Math::getSingleton().Sqrt(m[2][2] -
+                        rkAxis.z = 0.5*Math::Sqrt(m[2][2] -
                             m[0][0] - m[1][1] + 1.0);
                         fHalfInverse = 0.5/rkAxis.z;
                         rkAxis.x = fHalfInverse*m[0][2];
@@ -996,7 +996,7 @@ namespace Ogre
                     if ( m[1][1] >= m[2][2] )
                     {
                         // r11 is maximum diagonal term
-                        rkAxis.y = 0.5*Math::getSingleton().Sqrt(m[1][1] -
+                        rkAxis.y = 0.5*Math::Sqrt(m[1][1] -
                             m[0][0] - m[2][2] + 1.0);
                         fHalfInverse  = 0.5/rkAxis.y;
                         rkAxis.x = fHalfInverse*m[0][1];
@@ -1005,7 +1005,7 @@ namespace Ogre
                     else
                     {
                         // r22 is maximum diagonal term
-                        rkAxis.z = 0.5*Math::getSingleton().Sqrt(m[2][2] -
+                        rkAxis.z = 0.5*Math::Sqrt(m[2][2] -
                             m[0][0] - m[1][1] + 1.0);
                         fHalfInverse = 0.5/rkAxis.z;
                         rkAxis.x = fHalfInverse*m[0][2];
@@ -1026,8 +1026,8 @@ namespace Ogre
     //-----------------------------------------------------------------------
     void Matrix3::FromAxisAngle (const Vector3& rkAxis, Real fRadians)
     {
-        Real fCos = Math::getSingleton().Cos(fRadians);
-        Real fSin = Math::getSingleton().Sin(fRadians);
+        Real fCos = Math::Cos(fRadians);
+        Real fSin = Math::Sin(fRadians);
         Real fOneMinusCos = 1.0-fCos;
         Real fX2 = rkAxis.x*rkAxis.x;
         Real fY2 = rkAxis.y*rkAxis.y;
@@ -1057,19 +1057,19 @@ namespace Ogre
         //        cz*sx*sy+cx*sz  cx*cz-sx*sy*sz -cy*sx
         //       -cx*cz*sy+sx*sz  cz*sx+cx*sy*sz  cx*cy
 
-        rfPAngle = Math::getSingleton().ASin(m[0][2]);
+        rfPAngle = Math::ASin(m[0][2]);
         if ( rfPAngle < Math::HALF_PI )
         {
             if ( rfPAngle > -Math::HALF_PI )
             {
-                rfYAngle = Math::getSingleton().ATan2(-m[1][2],m[2][2]);
-                rfRAngle = Math::getSingleton().ATan2(-m[0][1],m[0][0]);
+                rfYAngle = Math::ATan2(-m[1][2],m[2][2]);
+                rfRAngle = Math::ATan2(-m[0][1],m[0][0]);
                 return true;
             }
             else
             {
                 // WARNING.  Not a unique solution.
-                float fRmY = Math::getSingleton().ATan2(m[1][0],m[1][1]);
+                float fRmY = Math::ATan2(m[1][0],m[1][1]);
                 rfRAngle = 0.0;  // any angle works
                 rfYAngle = rfRAngle - fRmY;
                 return false;
@@ -1078,7 +1078,7 @@ namespace Ogre
         else
         {
             // WARNING.  Not a unique solution.
-            float fRpY = Math::getSingleton().ATan2(m[1][0],m[1][1]);
+            float fRpY = Math::ATan2(m[1][0],m[1][1]);
             rfRAngle = 0.0;  // any angle works
             rfYAngle = fRpY - rfRAngle;
             return false;
@@ -1092,19 +1092,19 @@ namespace Ogre
         //        sx*sy+cx*cy*sz  cx*cz          -cy*sx+cx*sy*sz
         //       -cx*sy+cy*sx*sz  cz*sx           cx*cy+sx*sy*sz
 
-        rfPAngle = Math::getSingleton().ASin(-m[0][1]);
+        rfPAngle = Math::ASin(-m[0][1]);
         if ( rfPAngle < Math::HALF_PI )
         {
             if ( rfPAngle > -Math::HALF_PI )
             {
-                rfYAngle = Math::getSingleton().ATan2(m[2][1],m[1][1]);
-                rfRAngle = Math::getSingleton().ATan2(m[0][2],m[0][0]);
+                rfYAngle = Math::ATan2(m[2][1],m[1][1]);
+                rfRAngle = Math::ATan2(m[0][2],m[0][0]);
                 return true;
             }
             else
             {
                 // WARNING.  Not a unique solution.
-                float fRmY = Math::getSingleton().ATan2(-m[2][0],m[2][2]);
+                float fRmY = Math::ATan2(-m[2][0],m[2][2]);
                 rfRAngle = 0.0;  // any angle works
                 rfYAngle = rfRAngle - fRmY;
                 return false;
@@ -1113,7 +1113,7 @@ namespace Ogre
         else
         {
             // WARNING.  Not a unique solution.
-            float fRpY = Math::getSingleton().ATan2(-m[2][0],m[2][2]);
+            float fRpY = Math::ATan2(-m[2][0],m[2][2]);
             rfRAngle = 0.0;  // any angle works
             rfYAngle = fRpY - rfRAngle;
             return false;
@@ -1127,19 +1127,19 @@ namespace Ogre
         //        cx*sz           cx*cz          -sx
         //       -cz*sy+cy*sx*sz  cy*cz*sx+sy*sz  cx*cy
 
-        rfPAngle = Math::getSingleton().ASin(-m[1][2]);
+        rfPAngle = Math::ASin(-m[1][2]);
         if ( rfPAngle < Math::HALF_PI )
         {
             if ( rfPAngle > -Math::HALF_PI )
             {
-                rfYAngle = Math::getSingleton().ATan2(m[0][2],m[2][2]);
-                rfRAngle = Math::getSingleton().ATan2(m[1][0],m[1][1]);
+                rfYAngle = Math::ATan2(m[0][2],m[2][2]);
+                rfRAngle = Math::ATan2(m[1][0],m[1][1]);
                 return true;
             }
             else
             {
                 // WARNING.  Not a unique solution.
-                float fRmY = Math::getSingleton().ATan2(-m[0][1],m[0][0]);
+                float fRmY = Math::ATan2(-m[0][1],m[0][0]);
                 rfRAngle = 0.0;  // any angle works
                 rfYAngle = rfRAngle - fRmY;
                 return false;
@@ -1148,7 +1148,7 @@ namespace Ogre
         else
         {
             // WARNING.  Not a unique solution.
-            float fRpY = Math::getSingleton().ATan2(-m[0][1],m[0][0]);
+            float fRpY = Math::ATan2(-m[0][1],m[0][0]);
             rfRAngle = 0.0;  // any angle works
             rfYAngle = fRpY - rfRAngle;
             return false;
@@ -1162,19 +1162,19 @@ namespace Ogre
         //        sz              cx*cz          -cz*sx
         //       -cz*sy           cy*sx+cx*sy*sz  cx*cy-sx*sy*sz
 
-        rfPAngle = Math::getSingleton().ASin(m[1][0]);
+        rfPAngle = Math::ASin(m[1][0]);
         if ( rfPAngle < Math::HALF_PI )
         {
             if ( rfPAngle > -Math::HALF_PI )
             {
-                rfYAngle = Math::getSingleton().ATan2(-m[2][0],m[0][0]);
-                rfRAngle = Math::getSingleton().ATan2(-m[1][2],m[1][1]);
+                rfYAngle = Math::ATan2(-m[2][0],m[0][0]);
+                rfRAngle = Math::ATan2(-m[1][2],m[1][1]);
                 return true;
             }
             else
             {
                 // WARNING.  Not a unique solution.
-                float fRmY = Math::getSingleton().ATan2(m[2][1],m[2][2]);
+                float fRmY = Math::ATan2(m[2][1],m[2][2]);
                 rfRAngle = 0.0;  // any angle works
                 rfYAngle = rfRAngle - fRmY;
                 return false;
@@ -1183,7 +1183,7 @@ namespace Ogre
         else
         {
             // WARNING.  Not a unique solution.
-            float fRpY = Math::getSingleton().ATan2(m[2][1],m[2][2]);
+            float fRpY = Math::ATan2(m[2][1],m[2][2]);
             rfRAngle = 0.0;  // any angle works
             rfYAngle = fRpY - rfRAngle;
             return false;
@@ -1197,19 +1197,19 @@ namespace Ogre
         //        cz*sx*sy+cy*sz  cx*cz          -cy*cz*sx+sy*sz
         //       -cx*sy           sx              cx*cy
 
-        rfPAngle = Math::getSingleton().ASin(m[2][1]);
+        rfPAngle = Math::ASin(m[2][1]);
         if ( rfPAngle < Math::HALF_PI )
         {
             if ( rfPAngle > -Math::HALF_PI )
             {
-                rfYAngle = Math::getSingleton().ATan2(-m[0][1],m[1][1]);
-                rfRAngle = Math::getSingleton().ATan2(-m[2][0],m[2][2]);
+                rfYAngle = Math::ATan2(-m[0][1],m[1][1]);
+                rfRAngle = Math::ATan2(-m[2][0],m[2][2]);
                 return true;
             }
             else
             {
                 // WARNING.  Not a unique solution.
-                float fRmY = Math::getSingleton().ATan2(m[0][2],m[0][0]);
+                float fRmY = Math::ATan2(m[0][2],m[0][0]);
                 rfRAngle = 0.0;  // any angle works
                 rfYAngle = rfRAngle - fRmY;
                 return false;
@@ -1218,7 +1218,7 @@ namespace Ogre
         else
         {
             // WARNING.  Not a unique solution.
-            float fRpY = Math::getSingleton().ATan2(m[0][2],m[0][0]);
+            float fRpY = Math::ATan2(m[0][2],m[0][0]);
             rfRAngle = 0.0;  // any angle works
             rfYAngle = fRpY - rfRAngle;
             return false;
@@ -1232,19 +1232,19 @@ namespace Ogre
         //        cy*sz           cx*cz+sx*sy*sz -cz*sx+cx*sy*sz
         //       -sy              cy*sx           cx*cy
 
-        rfPAngle = Math::getSingleton().ASin(-m[2][0]);
+        rfPAngle = Math::ASin(-m[2][0]);
         if ( rfPAngle < Math::HALF_PI )
         {
             if ( rfPAngle > -Math::HALF_PI )
             {
-                rfYAngle = Math::getSingleton().ATan2(m[1][0],m[0][0]);
-                rfRAngle = Math::getSingleton().ATan2(m[2][1],m[2][2]);
+                rfYAngle = Math::ATan2(m[1][0],m[0][0]);
+                rfRAngle = Math::ATan2(m[2][1],m[2][2]);
                 return true;
             }
             else
             {
                 // WARNING.  Not a unique solution.
-                float fRmY = Math::getSingleton().ATan2(-m[0][1],m[0][2]);
+                float fRmY = Math::ATan2(-m[0][1],m[0][2]);
                 rfRAngle = 0.0;  // any angle works
                 rfYAngle = rfRAngle - fRmY;
                 return false;
@@ -1253,7 +1253,7 @@ namespace Ogre
         else
         {
             // WARNING.  Not a unique solution.
-            float fRpY = Math::getSingleton().ATan2(-m[0][1],m[0][2]);
+            float fRpY = Math::ATan2(-m[0][1],m[0][2]);
             rfRAngle = 0.0;  // any angle works
             rfYAngle = fRpY - rfRAngle;
             return false;
@@ -1265,16 +1265,16 @@ namespace Ogre
     {
         Real fCos, fSin;
 
-        fCos = Math::getSingleton().Cos(fYAngle);
-        fSin = Math::getSingleton().Sin(fYAngle);
+        fCos = Math::Cos(fYAngle);
+        fSin = Math::Sin(fYAngle);
         Matrix3 kXMat(1.0,0.0,0.0,0.0,fCos,-fSin,0.0,fSin,fCos);
 
-        fCos = Math::getSingleton().Cos(fPAngle);
-        fSin = Math::getSingleton().Sin(fPAngle);
+        fCos = Math::Cos(fPAngle);
+        fSin = Math::Sin(fPAngle);
         Matrix3 kYMat(fCos,0.0,fSin,0.0,1.0,0.0,-fSin,0.0,fCos);
 
-        fCos = Math::getSingleton().Cos(fRAngle);
-        fSin = Math::getSingleton().Sin(fRAngle);
+        fCos = Math::Cos(fRAngle);
+        fSin = Math::Sin(fRAngle);
         Matrix3 kZMat(fCos,-fSin,0.0,fSin,fCos,0.0,0.0,0.0,1.0);
 
         *this = kXMat*(kYMat*kZMat);
@@ -1285,16 +1285,16 @@ namespace Ogre
     {
         Real fCos, fSin;
 
-        fCos = Math::getSingleton().Cos(fYAngle);
-        fSin = Math::getSingleton().Sin(fYAngle);
+        fCos = Math::Cos(fYAngle);
+        fSin = Math::Sin(fYAngle);
         Matrix3 kXMat(1.0,0.0,0.0,0.0,fCos,-fSin,0.0,fSin,fCos);
 
-        fCos = Math::getSingleton().Cos(fPAngle);
-        fSin = Math::getSingleton().Sin(fPAngle);
+        fCos = Math::Cos(fPAngle);
+        fSin = Math::Sin(fPAngle);
         Matrix3 kZMat(fCos,-fSin,0.0,fSin,fCos,0.0,0.0,0.0,1.0);
 
-        fCos = Math::getSingleton().Cos(fRAngle);
-        fSin = Math::getSingleton().Sin(fRAngle);
+        fCos = Math::Cos(fRAngle);
+        fSin = Math::Sin(fRAngle);
         Matrix3 kYMat(fCos,0.0,fSin,0.0,1.0,0.0,-fSin,0.0,fCos);
 
         *this = kXMat*(kZMat*kYMat);
@@ -1305,16 +1305,16 @@ namespace Ogre
     {
         Real fCos, fSin;
 
-        fCos = Math::getSingleton().Cos(fYAngle);
-        fSin = Math::getSingleton().Sin(fYAngle);
+        fCos = Math::Cos(fYAngle);
+        fSin = Math::Sin(fYAngle);
         Matrix3 kYMat(fCos,0.0,fSin,0.0,1.0,0.0,-fSin,0.0,fCos);
 
-        fCos = Math::getSingleton().Cos(fPAngle);
-        fSin = Math::getSingleton().Sin(fPAngle);
+        fCos = Math::Cos(fPAngle);
+        fSin = Math::Sin(fPAngle);
         Matrix3 kXMat(1.0,0.0,0.0,0.0,fCos,-fSin,0.0,fSin,fCos);
 
-        fCos = Math::getSingleton().Cos(fRAngle);
-        fSin = Math::getSingleton().Sin(fRAngle);
+        fCos = Math::Cos(fRAngle);
+        fSin = Math::Sin(fRAngle);
         Matrix3 kZMat(fCos,-fSin,0.0,fSin,fCos,0.0,0.0,0.0,1.0);
 
         *this = kYMat*(kXMat*kZMat);
@@ -1325,16 +1325,16 @@ namespace Ogre
     {
         Real fCos, fSin;
 
-        fCos = Math::getSingleton().Cos(fYAngle);
-        fSin = Math::getSingleton().Sin(fYAngle);
+        fCos = Math::Cos(fYAngle);
+        fSin = Math::Sin(fYAngle);
         Matrix3 kYMat(fCos,0.0,fSin,0.0,1.0,0.0,-fSin,0.0,fCos);
 
-        fCos = Math::getSingleton().Cos(fPAngle);
-        fSin = Math::getSingleton().Sin(fPAngle);
+        fCos = Math::Cos(fPAngle);
+        fSin = Math::Sin(fPAngle);
         Matrix3 kZMat(fCos,-fSin,0.0,fSin,fCos,0.0,0.0,0.0,1.0);
 
-        fCos = Math::getSingleton().Cos(fRAngle);
-        fSin = Math::getSingleton().Sin(fRAngle);
+        fCos = Math::Cos(fRAngle);
+        fSin = Math::Sin(fRAngle);
         Matrix3 kXMat(1.0,0.0,0.0,0.0,fCos,-fSin,0.0,fSin,fCos);
 
         *this = kYMat*(kZMat*kXMat);
@@ -1345,16 +1345,16 @@ namespace Ogre
     {
         Real fCos, fSin;
 
-        fCos = Math::getSingleton().Cos(fYAngle);
-        fSin = Math::getSingleton().Sin(fYAngle);
+        fCos = Math::Cos(fYAngle);
+        fSin = Math::Sin(fYAngle);
         Matrix3 kZMat(fCos,-fSin,0.0,fSin,fCos,0.0,0.0,0.0,1.0);
 
-        fCos = Math::getSingleton().Cos(fPAngle);
-        fSin = Math::getSingleton().Sin(fPAngle);
+        fCos = Math::Cos(fPAngle);
+        fSin = Math::Sin(fPAngle);
         Matrix3 kXMat(1.0,0.0,0.0,0.0,fCos,-fSin,0.0,fSin,fCos);
 
-        fCos = Math::getSingleton().Cos(fRAngle);
-        fSin = Math::getSingleton().Sin(fRAngle);
+        fCos = Math::Cos(fRAngle);
+        fSin = Math::Sin(fRAngle);
         Matrix3 kYMat(fCos,0.0,fSin,0.0,1.0,0.0,-fSin,0.0,fCos);
 
         *this = kZMat*(kXMat*kYMat);
@@ -1365,16 +1365,16 @@ namespace Ogre
     {
         Real fCos, fSin;
 
-        fCos = Math::getSingleton().Cos(fYAngle);
-        fSin = Math::getSingleton().Sin(fYAngle);
+        fCos = Math::Cos(fYAngle);
+        fSin = Math::Sin(fYAngle);
         Matrix3 kZMat(fCos,-fSin,0.0,fSin,fCos,0.0,0.0,0.0,1.0);
 
-        fCos = Math::getSingleton().Cos(fPAngle);
-        fSin = Math::getSingleton().Sin(fPAngle);
+        fCos = Math::Cos(fPAngle);
+        fSin = Math::Sin(fPAngle);
         Matrix3 kYMat(fCos,0.0,fSin,0.0,1.0,0.0,-fSin,0.0,fCos);
 
-        fCos = Math::getSingleton().Cos(fRAngle);
-        fSin = Math::getSingleton().Sin(fRAngle);
+        fCos = Math::Cos(fRAngle);
+        fSin = Math::Sin(fRAngle);
         Matrix3 kXMat(1.0,0.0,0.0,0.0,fCos,-fSin,0.0,fSin,fCos);
 
         *this = kZMat*(kYMat*kXMat);
@@ -1399,9 +1399,9 @@ namespace Ogre
 
         afDiag[0] = fA;
         afSubDiag[2] = 0.0;
-        if ( Math::getSingleton().Abs(fC) >= EPSILON )
+        if ( Math::Abs(fC) >= EPSILON )
         {
-            Real fLength = Math::getSingleton().Sqrt(fB*fB+fC*fC);
+            Real fLength = Math::Sqrt(fB*fB+fC*fC);
             Real fInvLength = 1.0/fLength;
             fB *= fInvLength;
             fC *= fInvLength;
@@ -1452,16 +1452,16 @@ namespace Ogre
                 int i1;
                 for (i1 = i0; i1 <= 1; i1++)
                 {
-                    Real fSum = Math::getSingleton().Abs(afDiag[i1]) +
-                        Math::getSingleton().Abs(afDiag[i1+1]);
-                    if ( Math::getSingleton().Abs(afSubDiag[i1]) + fSum == fSum )
+                    Real fSum = Math::Abs(afDiag[i1]) +
+                        Math::Abs(afDiag[i1+1]);
+                    if ( Math::Abs(afSubDiag[i1]) + fSum == fSum )
                         break;
                 }
                 if ( i1 == i0 )
                     break;
 
                 Real fTmp0 = (afDiag[i0+1]-afDiag[i0])/(2.0*afSubDiag[i0]);
-                Real fTmp1 = Math::getSingleton().Sqrt(fTmp0*fTmp0+1.0);
+                Real fTmp1 = Math::Sqrt(fTmp0*fTmp0+1.0);
                 if ( fTmp0 < 0.0 )
                     fTmp0 = afDiag[i1]-afDiag[i0]+afSubDiag[i0]/(fTmp0-fTmp1);
                 else
@@ -1473,10 +1473,10 @@ namespace Ogre
                 {
                     Real fTmp3 = fSin*afSubDiag[i2];
                     Real fTmp4 = fCos*afSubDiag[i2];
-                    if ( Math::getSingleton().Abs(fTmp3) >= Math::getSingleton().Abs(fTmp0) )
+                    if ( Math::Abs(fTmp3) >= Math::Abs(fTmp0) )
                     {
                         fCos = fTmp0/fTmp3;
-                        fTmp1 = Math::getSingleton().Sqrt(fCos*fCos+1.0);
+                        fTmp1 = Math::Sqrt(fCos*fCos+1.0);
                         afSubDiag[i2+1] = fTmp3*fTmp1;
                         fSin = 1.0/fTmp1;
                         fCos *= fSin;
@@ -1484,7 +1484,7 @@ namespace Ogre
                     else
                     {
                         fSin = fTmp3/fTmp0;
-                        fTmp1 = Math::getSingleton().Sqrt(fSin*fSin+1.0);
+                        fTmp1 = Math::Sqrt(fSin*fSin+1.0);
                         afSubDiag[i2+1] = fTmp0*fTmp1;
                         fCos = 1.0/fTmp1;
                         fSin *= fCos;

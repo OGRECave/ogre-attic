@@ -231,7 +231,6 @@ namespace Ogre
     //-----------------------------------------------------------------------
     Real WaveformControllerFunction::calculate(Real source)
     {
-        Math& math = Math::getSingleton();
         Real input = getAdjustedInput(source * mFrequency);
         Real output;
         // For simplicity, factor input down to {0,1)
@@ -243,7 +242,7 @@ namespace Ogre
         switch (mWaveType)
         {
         case WFT_SINE:
-            output = math.Sin(input * Math::TWO_PI);
+			output = Math::Sin(input * Math::TWO_PI);
             break;
         case WFT_TRIANGLE:
             if (input < 0.25)

@@ -76,7 +76,7 @@ namespace Ogre {
         if ( fTrace > 0.0 )
         {
             // |w| > 1/2, may as well choose w > 1/2
-            fRoot = Math::getSingleton().Sqrt(fTrace + 1.0);  // 2w
+            fRoot = Math::Sqrt(fTrace + 1.0);  // 2w
             w = 0.5*fRoot;
             fRoot = 0.5/fRoot;  // 1/(4w)
             x = (kRot[2][1]-kRot[1][2])*fRoot;
@@ -95,7 +95,7 @@ namespace Ogre {
             int j = s_iNext[i];
             int k = s_iNext[j];
 
-            fRoot = Math::getSingleton().Sqrt(kRot[i][i]-kRot[j][j]-kRot[k][k] + 1.0);
+            fRoot = Math::Sqrt(kRot[i][i]-kRot[j][j]-kRot[k][k] + 1.0);
             Real* apkQuat[3] = { &x, &y, &z };
             *apkQuat[i] = 0.5*fRoot;
             fRoot = 0.5/fRoot;
@@ -140,8 +140,8 @@ namespace Ogre {
         //   q = cos(A/2)+sin(A/2)*(x*i+y*j+z*k)
 
         Real fHalfAngle = 0.5*rfAngle;
-        Real fSin = Math::getSingleton().Sin(fHalfAngle);
-        w = Math::getSingleton().Cos(fHalfAngle);
+        Real fSin = Math::Sin(fHalfAngle);
+        w = Math::Cos(fHalfAngle);
         x = fSin*rkAxis.x;
         y = fSin*rkAxis.y;
         z = fSin*rkAxis.z;
@@ -155,8 +155,8 @@ namespace Ogre {
         Real fSqrLength = x*x+y*y+z*z;
         if ( fSqrLength > 0.0 )
         {
-            rfAngle = 2.0*Math::getSingleton().ACos(w);
-            Real fInvLength = 1.0/Math::getSingleton().Sqrt(fSqrLength);
+            rfAngle = 2.0*Math::ACos(w);
+            Real fInvLength = 1.0/Math::Sqrt(fSqrLength);
             rkAxis.x = x*fInvLength;
             rkAxis.y = y*fInvLength;
             rkAxis.z = z*fInvLength;
@@ -325,13 +325,13 @@ namespace Ogre {
         // exp(q) = cos(A)+sin(A)*(x*i+y*j+z*k).  If sin(A) is near zero,
         // use exp(q) = cos(A)+A*(x*i+y*j+z*k) since A/sin(A) has limit 1.
 
-        Real fAngle = Math::getSingleton().Sqrt(x*x+y*y+z*z);
-        Real fSin = Math::getSingleton().Sin(fAngle);
+        Real fAngle = Math::Sqrt(x*x+y*y+z*z);
+        Real fSin = Math::Sin(fAngle);
 
         Quaternion kResult;
-        kResult.w = Math::getSingleton().Cos(fAngle);
+        kResult.w = Math::Cos(fAngle);
 
-        if ( Math::getSingleton().Abs(fSin) >= ms_fEpsilon )
+        if ( Math::Abs(fSin) >= ms_fEpsilon )
         {
             Real fCoeff = fSin/fAngle;
             kResult.x = fCoeff*x;
@@ -357,11 +357,11 @@ namespace Ogre {
         Quaternion kResult;
         kResult.w = 0.0;
 
-        if ( Math::getSingleton().Abs(w) < 1.0 )
+        if ( Math::Abs(w) < 1.0 )
         {
-            Real fAngle = Math::getSingleton().ACos(w);
-            Real fSin = Math::getSingleton().Sin(fAngle);
-            if ( Math::getSingleton().Abs(fSin) >= ms_fEpsilon )
+            Real fAngle = Math::ACos(w);
+            Real fSin = Math::Sin(fAngle);
+            if ( Math::Abs(fSin) >= ms_fEpsilon )
             {
                 Real fCoeff = fAngle/fSin;
                 kResult.x = fCoeff*x;
@@ -396,15 +396,15 @@ namespace Ogre {
         const Quaternion& rkQ)
     {
         Real fCos = rkP.Dot(rkQ);
-        Real fAngle = Math::getSingleton().ACos(fCos);
+        Real fAngle = Math::ACos(fCos);
 
-        if ( Math::getSingleton().Abs(fAngle) < ms_fEpsilon )
+        if ( Math::Abs(fAngle) < ms_fEpsilon )
             return rkP;
 
-        Real fSin = Math::getSingleton().Sin(fAngle);
+        Real fSin = Math::Sin(fAngle);
         Real fInvSin = 1.0/fSin;
-        Real fCoeff0 = Math::getSingleton().Sin((1.0-fT)*fAngle)*fInvSin;
-        Real fCoeff1 = Math::getSingleton().Sin(fT*fAngle)*fInvSin;
+        Real fCoeff0 = Math::Sin((1.0-fT)*fAngle)*fInvSin;
+        Real fCoeff1 = Math::Sin(fT*fAngle)*fInvSin;
         return fCoeff0*rkP + fCoeff1*rkQ;
     }
     //-----------------------------------------------------------------------
@@ -412,16 +412,16 @@ namespace Ogre {
         const Quaternion& rkP, const Quaternion& rkQ, int iExtraSpins)
     {
         Real fCos = rkP.Dot(rkQ);
-        Real fAngle = Math::getSingleton().ACos(fCos);
+        Real fAngle = Math::ACos(fCos);
 
-        if ( Math::getSingleton().Abs(fAngle) < ms_fEpsilon )
+        if ( Math::Abs(fAngle) < ms_fEpsilon )
             return rkP;
 
-        Real fSin = Math::getSingleton().Sin(fAngle);
+        Real fSin = Math::Sin(fAngle);
         Real fPhase = Math::PI*iExtraSpins*fT;
         Real fInvSin = 1.0/fSin;
-        Real fCoeff0 = Math::getSingleton().Sin((1.0-fT)*fAngle - fPhase)*fInvSin;
-        Real fCoeff1 = Math::getSingleton().Sin(fT*fAngle + fPhase)*fInvSin;
+        Real fCoeff0 = Math::Sin((1.0-fT)*fAngle - fPhase)*fInvSin;
+        Real fCoeff1 = Math::Sin(fT*fAngle + fPhase)*fInvSin;
         return fCoeff0*rkP + fCoeff1*rkQ;
     }
     //-----------------------------------------------------------------------

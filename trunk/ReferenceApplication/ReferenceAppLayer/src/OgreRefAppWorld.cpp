@@ -48,8 +48,12 @@ namespace OgreRefApp
     //-------------------------------------------------------------------------
     World::~World()
     {
-        clear();
+		clear();
+
+		delete mIntersectionQuery;
+
         // Destroy dynamix world
+		delete mOdeContactGroup;
         delete mOdeWorld;
 
     }
