@@ -58,7 +58,7 @@ namespace Ogre {
         with literally infinite combinations of emitter and affector types, and paramters within those
         types.
     */
-    class _OgreExport ParticleEmitter : public StringInterface, public IDestroyable
+    class _OgreExport ParticleEmitter : public StringInterface
     {
     protected:
 

@@ -51,7 +51,7 @@ namespace Ogre {
         with literally infinite combinations of affector and affector types, and paramters within those
         types.
     */
-    class _OgreExport ParticleAffector : public StringInterface, public IDestroyable
+    class _OgreExport ParticleAffector : public StringInterface
     {
     protected:
         /// Name of the type of affector, MUST be initialised by subclasses

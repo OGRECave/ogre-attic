@@ -99,14 +99,6 @@ namespace Ogre {
     typedef unsigned int uint;  
     typedef unsigned long ulong;
 
-    class IDestroyable
-    {
-    public:
-        virtual void destroy()
-        {
-            delete this;
-        }
-    };
 
 // Pre-declare classes
 // Allows use of pointers in header files without including individual .h
