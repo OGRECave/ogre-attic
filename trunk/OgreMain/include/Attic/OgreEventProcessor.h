@@ -99,16 +99,16 @@ namespace Ogre {
 		InputReader* mInputDevice;
 		typedef std::vector<EventDispatcher*> DispatcherList;
 		DispatcherList mDispatcherList;
+        bool mRegisteredAsFrameListener;
 
     public:
         EventProcessor();
         virtual ~EventProcessor();
 
 		/**
-		 * Removes this from being a FrameListener,
-		 * and deactivates the queue
+		 * Registers FrameListener, and activates the queue
 		 */
-		void startProcessingEvents();
+		void startProcessingEvents(bool registerListener=true);
 
 		/**
 		 * Removes this from being a FrameListener,

@@ -51,6 +51,7 @@ namespace Ogre {
     {
 		mEventQueue = 0;
 		mInputDevice = 0;
+        mRegisteredAsFrameListener = false;
     }
 
 //-----------------------------------------------------------------------------
@@ -81,7 +82,12 @@ namespace Ogre {
 	{
 
 		mEventQueue->activateEventQueue(false);
-		Root::getSingleton().removeFrameListener(this);
+
+        if(mRegisteredAsFrameListener)
+        {
+		    Root::getSingleton().removeFrameListener(this);
+            mRegisteredAsFrameListener = false;
+        }
 
 	}
 
@@ -108,9 +114,14 @@ namespace Ogre {
 
 
 //-----------------------------------------------------------------------------
-	void EventProcessor::startProcessingEvents()
+	void EventProcessor::startProcessingEvents(bool registerListener)
 	{
-		Root::getSingleton().addFrameListener(this);
+        if(registerListener)
+        {
+		    Root::getSingleton().addFrameListener(this);
+            mRegisteredAsFrameListener = true;
+        }
+
 		mEventQueue->activateEventQueue(true);
 	}
 
