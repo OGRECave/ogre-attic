@@ -235,9 +235,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreEventDispatcher.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreEventMulticaster.cpp">
-			</File>
-			<File
 				RelativePath="..\src\OgreEventProcessor.cpp">
 			</File>
 			<File
@@ -745,9 +742,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreEventListeners.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreEventMulticaster.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreEventProcessor.h">
