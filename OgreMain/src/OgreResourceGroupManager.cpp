@@ -279,6 +279,7 @@ namespace Ogre {
 		mCurrentGroup = grp;
         unloadResourceGroup(name); // will throw an exception if name not valid
 		dropGroupContents(grp);
+		deleteGroup(grp);
         mResourceGroupMap.erase(mResourceGroupMap.find(name));
 		// reset current group
 		mCurrentGroup = 0;
@@ -377,6 +378,7 @@ namespace Ogre {
                     }
                 }
 				// Erase list entry
+				delete *li;
 				grp->locationList.erase(li);
 				break;
 			}
