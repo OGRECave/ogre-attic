@@ -1632,7 +1632,7 @@ namespace Ogre {
         try 
         {
             pMat = (Material*)MaterialManager::getSingleton().create(name);
-            Pass* p = pMat->createTechnique()->createPass(false);
+            Pass* p = pMat->createTechnique()->createPass();
         }
         catch (Exception& e)
         {

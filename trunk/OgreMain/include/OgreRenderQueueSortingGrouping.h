@@ -48,7 +48,9 @@ namespace Ogre {
     */
     class RenderPriorityGroup
     {
-        /** Internal struct reflecting a single Pass for a Renderable. */
+        /** Internal struct reflecting a single Pass for a Renderable. 
+        This is used to sort transparent objects.
+        */
         struct RenderablePass
         {
             /// Pointer to the Renderable details
@@ -58,14 +60,15 @@ namespace Ogre {
 
             RenderablePass(Renderable* rend, Pass* p) :renderable(rend), pass(p) {}
         };
+
         friend class Ogre::SceneManager;
         /// Comparator to order non-transparent object passes
         struct SolidQueueItemLess
         {
-            _OgreExport bool operator()(const RenderablePass& a, const RenderablePass& b) const
+            _OgreExport bool operator()(const Pass* a, const Pass* b) const
             {
                 // Sort by passHash, which is pass, then texture unit changes
-                return a.pass->getHash() < b.pass->getHash();
+                return a->getHash() < b->getHash();
             }
         };
         /// Comparator to order transparent object passes
@@ -103,20 +106,38 @@ namespace Ogre {
         /** Vector of RenderablePass objects, this is built on the assumption that
          vectors only ever increase in size, so even if we do clear() the memory stays
          allocated, ie fast */
-        typedef std::vector<RenderablePass> RenderablePassList;
+        typedef std::vector<RenderablePass> TransparentRenderablePassList;
+        typedef std::vector<Renderable*> RenderableList;
+        /** Map of pass to renderable lists, used for solid objects since ordering within objects not
+        important. */
+        typedef std::map<Pass*, RenderableList*, SolidQueueItemLess> SolidRenderablePassMap;
     protected:
         /// Solid pass list
-        RenderablePassList mSolidPasses;
+        SolidRenderablePassMap mSolidPasses;
 		/// Transparent list
-		RenderablePassList mTransparentPasses;
+		TransparentRenderablePassList mTransparentPasses;
 
-        typedef std::vector<RenderablePass> RenderablePasses;
-        RenderablePasses mRenderablePasses;
+        /** Storage of transparent RenderablePass structs, this is separate from list because
+            it makes sorting faster */
+        typedef std::vector<RenderablePass> TransparentRenderablePasses;
+        TransparentRenderablePasses mRenderablePasses;
 
     public:
         RenderPriorityGroup() {}
 
-        ~RenderPriorityGroup() {}
+        ~RenderPriorityGroup() {
+            // destroy all the pass map entries
+            SolidRenderablePassMap::iterator i, iend;
+            iend = mSolidPasses.end();
+            for (i = mSolidPasses.begin(); i != iend; ++i)
+            {
+                // Free the list associated with this pass
+                delete i->second;
+            }
+            mSolidPasses.clear();
+            mTransparentPasses.clear();
+
+        }
 
         /** Add a renderable to this group. */
         void addRenderable(Renderable* pRend)
@@ -141,26 +162,36 @@ namespace Ogre {
 			{
                 while (pi.hasMoreElements())
                 {
-				    // Insert into transparent list
-				    mSolidPasses.push_back(RenderablePass(pRend, pi.getNext()));
+                    // Insert into solid list
+                    Pass* p = pi.getNext();
+                    SolidRenderablePassMap::iterator i = mSolidPasses.find(p);
+                    if (i == mSolidPasses.end())
+                    {
+                        std::pair<SolidRenderablePassMap::iterator, bool> retPair;
+                        // Create new pass entry, build a new list
+                        // Note that this pass and list are never destroyed until the engine
+                        // shuts down, although the lists will be cleared
+                        retPair = mSolidPasses.insert(
+                            SolidRenderablePassMap::value_type(p, new RenderableList() ) );
+                        assert(retPair.second && "Error inserting new pass entry into SolidRenderablePassMap");
+                        i = retPair.first;
+                    }
+                    // Insert renderable
+                    i->second->push_back(pRend);
 			    }
             }
 
         }
 
 		/** Sorts the objects which have been added to the queue; transparent objects by their 
-            depth in relation to the passed in Camera, solid objects in order to minimise
-            render state changes. */
+            depth in relation to the passed in Camera. */
 		void sort(const Camera* cam)
 		{
             TransparentQueueItemLess transFunctor;
-            SolidQueueItemLess solidFunctor;
             transFunctor.camera = cam;
 
 			std::stable_sort(mTransparentPasses.begin(), mTransparentPasses.end(), 
                 transFunctor);
-			std::stable_sort(mSolidPasses.begin(), mSolidPasses.end(), 
-                solidFunctor);
 		}
 
 		 
@@ -169,7 +200,15 @@ namespace Ogre {
         */
         void clear(void)
         {
-            mSolidPasses.clear();
+            // NB we do not clear the solid pass map, only the contents of each list
+            // This is because we assume passes are reused a lot and it saves resorting
+            SolidRenderablePassMap::iterator i, iend;
+            iend = mSolidPasses.end();
+            for (i = mSolidPasses.begin(); i != iend; ++i)
+            {
+                // Clear the list associated with this pass, but leave the pass entry
+                i->second->clear();
+            }
             mTransparentPasses.clear();
 
         }

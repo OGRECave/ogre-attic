@@ -162,6 +162,8 @@ namespace Ogre {
 
             return *this;
         }
+        /// Constant blank string, useful for returning by ref where local does not exist
+        static String BLANK;
     };
 
 #ifdef GCC_3_1

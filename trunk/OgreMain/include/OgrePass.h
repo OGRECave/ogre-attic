@@ -38,10 +38,7 @@ namespace Ogre {
         Rendering can be repeated with many passes for more complex effects.
         Each pass is either a fixed-function pass (meaning it does not use
         a vertex or fragment program) or a programmable pass (meaning it does
-        use a vertex and fragment program). Note that because of the nature of
-        the custom inputs and outputs of the programmable pipeline, you must use
-        both a vertex and fragment program, not just one or the other, if you
-        decide to use a programmable pass.
+        use either a vertex and fragment program, or both). 
     @par
         Programmable passes are complex to define, because they require custom
         programs and you have to set all constant inputs to the programs (like
@@ -60,8 +57,6 @@ namespace Ogre {
         Technique* mParent;
         unsigned short mIndex; // pass index
         unsigned long mHash; // pass hash
-        /// Is this a programmable pass?
-        bool mIsProgrammable;
         //-------------------------------------------------------------------------
         // Colour properties, only applicable in fixed-function passes
         ColourValue mAmbient;
@@ -130,17 +125,22 @@ namespace Ogre {
 		GpuProgramUsage *mFragmentProgramUsage;
     public:
         /// Default constructor
-		Pass(Technique* parent, unsigned short index, bool programmable = false);
+		Pass(Technique* parent, unsigned short index);
         /// Copy constructor
         Pass(Technique* parent, unsigned short index, const Pass& oth );
         /// Operator = overload
         Pass& operator=(const Pass& oth);
         ~Pass();
 
-        /// Returns true if this pass is programmable ie supports vertex & fragment programs.
-        bool isProgrammable(void) const { return mIsProgrammable; }
-        /// Sets whether this Pass is programmable or not
-        void setProgrammable(bool programmable) {mIsProgrammable = programmable;}
+        /// Returns true if this pass is programmable ie includes either a vertex or fragment program.
+        bool isProgrammable(void) const { return mVertexProgramUsage || mFragmentProgramUsage; }
+
+        /// Returns true if this pass uses a programmable vertex pipeline
+        bool hasVertexProgram(void) { return mVertexProgramUsage != NULL; }
+
+        /// Returns true if this pass uses a programmable fragment pipeline
+        bool hasFragmentProgram(void) { return mFragmentProgramUsage != NULL; }
+
         /// Gets the index of this Pass in the parent Technique
         unsigned short getIndex(void) const { return mIndex; }
         /** Sets the ambient colour reflectance properties of this pass.
@@ -586,7 +586,7 @@ namespace Ogre {
 			loaded until the parent Material is loaded.
 		@param name The name of the program - this must have been 
 			created using GpuProgramManager by the time that this Pass 
-			is loaded.
+			is loaded. If this parameter is blank, any vertex program in this pass is disabled.
 		*/
 		void setVertexProgram(const String& name);
 		/** Sets the vertex program parameters.
@@ -609,7 +609,7 @@ namespace Ogre {
 			loaded until the parent Material is loaded.
 		@param name The name of the program - this must have been 
 			created using GpuProgramManager by the time that this Pass 
-			is loaded.
+			is loaded. If this parameter is blank, any fragment program in this pass is disabled.
 		*/
 		void setFragmentProgram(const String& name);
 		/** Sets the vertex program parameters.

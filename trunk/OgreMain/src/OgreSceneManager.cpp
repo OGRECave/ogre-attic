@@ -451,30 +451,24 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void SceneManager::setPass(Pass* pass)
     {
-		static bool lastWasProgrammable = false;
-        if (pass->isProgrammable())
+		static bool lastUsedVertexProgram = false;
+		static bool lastUsedFragmentProgram = false;
+        if (pass->hasVertexProgram())
         {
-            // Programmable pass, we assume parameters have already been updated
             mDestRenderSystem->bindGpuProgram(pass->getVertexProgram());
             mDestRenderSystem->bindGpuProgramParameters(GPT_VERTEX_PROGRAM, 
                 pass->getVertexProgramParameters());
-
-            mDestRenderSystem->bindGpuProgram(pass->getFragmentProgram());
-            mDestRenderSystem->bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, 
-                pass->getFragmentProgramParameters());
-			lastWasProgrammable = true;
+            lastUsedVertexProgram = true;
         }
         else
         {
-            // Not programmable, set those things which are only of use in non-programmable mode
-			// Unbind programs first
-			if (lastWasProgrammable)
+			// Unbind program?
+			if (lastUsedVertexProgram)
 			{
 				mDestRenderSystem->unbindGpuProgram(GPT_VERTEX_PROGRAM);
-				mDestRenderSystem->unbindGpuProgram(GPT_FRAGMENT_PROGRAM);
-				lastWasProgrammable = false;
-			}
-			
+                lastUsedVertexProgram = false;
+            }
+            // Set fixed-function vertex parameters
 
             // Set surface reflectance properties        
             mDestRenderSystem->_setSurfaceParams( 
@@ -484,8 +478,30 @@ namespace Ogre {
                 pass->getSelfIllumination(), 
                 pass->getShininess() );
 
+            // Dynamic lighting enabled?
+            mDestRenderSystem->setLightingEnabled(pass->getLightingEnabled());
+        }
 
-            // Fog
+        // Using a fragment program?
+        if (pass->hasFragmentProgram())
+        {
+            mDestRenderSystem->bindGpuProgram(pass->getFragmentProgram());
+            mDestRenderSystem->bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, 
+                pass->getFragmentProgramParameters());
+			lastUsedFragmentProgram = true;
+        }
+        else
+        {
+			// Unbind program?
+			if (lastUsedFragmentProgram)
+			{
+				mDestRenderSystem->unbindGpuProgram(GPT_FRAGMENT_PROGRAM);
+				lastUsedFragmentProgram = false;
+			}
+
+            // Set fixed-function fragment settings
+
+            // Fog (assumes we want pixel fog which is the usual)
             // New fog params can either be from scene or from material
             FogMode newFogMode;
             ColourValue newFogColour;
@@ -511,9 +527,9 @@ namespace Ogre {
             mDestRenderSystem->_setFog(
                 newFogMode, newFogColour, newFogDensity, newFogStart, newFogEnd);
 
-            // Dynamic lighting enabled
-            mDestRenderSystem->setLightingEnabled(pass->getLightingEnabled());
         }
+
+        // The rest of the settings are the same no matter whether we use programs or not
 
         // Set scene blending
         mDestRenderSystem->_setSceneBlending(
@@ -527,7 +543,11 @@ namespace Ogre {
         while(texIter.hasMoreElements())
         {
             TextureUnitState* pTex = texIter.getNext();
-            mDestRenderSystem->_setTextureUnitSettings(unit, *pTex);
+            if (pTex->hasViewRelativeTextureCoordinateGeneration())
+            {
+                // Re-issue texture unit details to ensure correct
+                mDestRenderSystem->_setTextureUnitSettings(unit, *pTex);
+            }
             ++unit;
         }
         // Disable remaining texture units
@@ -1071,24 +1091,37 @@ namespace Ogre {
                     pPriorityGrp->sort(mCameraInProgress);
 
 
-                    // Render each non-transparent entity in turn, grouped by material
-                    RenderPriorityGroup::RenderablePassList::iterator ipass, ipassend;
 
                     // ----- SOLIDS LOOP -----
+                    RenderPriorityGroup::SolidRenderablePassMap::iterator ipass, ipassend;
                     ipassend = pPriorityGrp->mSolidPasses.end();
                     for (ipass = pPriorityGrp->mSolidPasses.begin(); ipass != ipassend; ++ipass)
                     {
-                        renderSingleObject(ipass->renderable, ipass->pass);
+                        // For solids, we try to do each pass in turn
+                        setPass(ipass->first);
+                        RenderPriorityGroup::RenderableList* rendList = ipass->second;
+                        RenderPriorityGroup::RenderableList::const_iterator irend, irendend;
+                        irendend = rendList->end();
+                        for (irend = rendList->begin(); irend != irendend; ++irend)
+                        {
+                            // Render a single object, this will set up auto params if required
+                            renderSingleObject(*irend, ipass->first);
+                        }
                     } 
 
                     // ----- TRANSPARENT LOOP -----
-                    // This time we render by Z, not by material
+                    // This time we render by Z, not by pass
                     // The mTransparentObjects set needs to be ordered first
+                    // Render each non-transparent entity in turn, grouped by material
+                    RenderPriorityGroup::TransparentRenderablePassList::iterator itrans, itransend;
 
-                    ipassend = pPriorityGrp->mTransparentPasses.end();
-                    for (ipass = pPriorityGrp->mTransparentPasses.begin(); ipass != ipassend; ++ipass)
+                    itransend = pPriorityGrp->mTransparentPasses.end();
+                    for (itrans = pPriorityGrp->mTransparentPasses.begin(); 
+                        itrans != itransend; ++itrans)
                     {
-                        renderSingleObject(ipass->renderable, ipass->pass);
+                        // For transparents, we have to accept that we can't sort entirely by pass
+                        setPass(itrans->pass);
+                        renderSingleObject(itrans->renderable, itrans->pass);
                     }
                 }// for each priority
             
@@ -1140,10 +1173,17 @@ namespace Ogre {
         // Issue view / projection changes if any
         useRenderableViewProjMode(rend);
 
-        // Set up the pass state
-        // Note that we deliberately do this after setting the world matrix, some GL state 
-        // is dependent on that ordering
-        setPass(pass);
+        //--
+        Pass::TextureUnitStateIterator texIter =  pass->getTextureUnitStateIterator();
+        size_t unit = 0;
+        while(texIter.hasMoreElements())
+        {
+            TextureUnitState* pTex = texIter.getNext();
+            mDestRenderSystem->_setTextureUnitSettings(unit, *pTex);
+            ++unit;
+        }
+        //--
+
 
         // Sort out normalisation
         bool thisNormalise = rend->getNormaliseNormals();

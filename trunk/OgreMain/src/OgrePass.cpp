@@ -34,8 +34,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 	
     //-----------------------------------------------------------------------------
-	Pass::Pass(Technique* parent, unsigned short index, bool programmable)
-        : mParent(parent), mIndex(index), mIsProgrammable(programmable)
+	Pass::Pass(Technique* parent, unsigned short index)
+        : mParent(parent), mIndex(index)
     {
         // Default to white ambient & diffuse, no specular / emissive
 	    mAmbient = mDiffuse = ColourValue::White;
@@ -65,17 +65,8 @@ namespace Ogre {
 		mIsDefFiltering = true;
 		mIsDefAniso = true;
 
-		if (mIsProgrammable)
-		{
-			// Initialise vertex & fragment program usage
-			mVertexProgramUsage = new GpuProgramUsage(GPT_VERTEX_PROGRAM);
-			mFragmentProgramUsage = new GpuProgramUsage(GPT_FRAGMENT_PROGRAM);
-		}
-		else
-		{
-			mVertexProgramUsage = NULL;
-			mFragmentProgramUsage = NULL;
-		}
+		mVertexProgramUsage = NULL;
+		mFragmentProgramUsage = NULL;
    }
 	
     //-----------------------------------------------------------------------------
@@ -121,18 +112,22 @@ namespace Ogre {
 		mIsDefFiltering = oth.mIsDefFiltering;
 		mIsDefAniso = oth.mIsDefAniso;
 
-        mIsProgrammable = oth.mIsProgrammable;
-
-		if (oth.mIsProgrammable)
+		if (oth.mVertexProgramUsage)
 		{
 			mVertexProgramUsage = new GpuProgramUsage(*(oth.mVertexProgramUsage));
-			mFragmentProgramUsage = new GpuProgramUsage(*(oth.mFragmentProgramUsage));
 		}
 		else
 		{
-			mVertexProgramUsage = NULL;
-			mFragmentProgramUsage = NULL;
+		    mVertexProgramUsage = NULL;
 		}
+		if (oth.mFragmentProgramUsage)
+		{
+		    mFragmentProgramUsage = new GpuProgramUsage(*(oth.mFragmentProgramUsage));
+        }
+        else
+        {
+		    mFragmentProgramUsage = NULL;
+        }
 
 		// Copy texture units
 		removeAllTextureUnitStates();
@@ -456,9 +451,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	Pass* Pass::_split(unsigned short numUnits)
 	{
-		if (mIsProgrammable)
+		if (mFragmentProgramUsage)
 		{
-			Except(Exception::ERR_INVALIDPARAMS, "Programmable passes cannot be "
+			Except(Exception::ERR_INVALIDPARAMS, "Passes with fragment programs cannot be "
 				"automatically split, define a fallback technique instead.",
 				"Pass:_split");
 		}
@@ -467,7 +462,7 @@ namespace Ogre {
 		{
 			size_t start = mTextureUnitStates.size() - numUnits;
 			
-			Pass* newPass = mParent->createPass(false);
+			Pass* newPass = mParent->createPass();
 
 			TextureUnitStates::iterator istart, i, iend;
 			iend = mTextureUnitStates.end();
@@ -502,10 +497,13 @@ namespace Ogre {
 		}
 
 		// Load programs
-		if (mIsProgrammable)
+		if (mVertexProgramUsage)
 		{
 			// Load vertex program
             mVertexProgramUsage->_load();
+        }
+        if (mFragmentProgramUsage)
+        {
 			// Load fragment program
             mFragmentProgramUsage->_load();
 		}
@@ -526,44 +524,90 @@ namespace Ogre {
 		}
 
 		// Unload programs
-		if (mIsProgrammable)
+		if (mVertexProgramUsage)
 		{
 			// TODO
-
 		}
+        if (mFragmentProgramUsage)
+        {
+            // TODO
+        }
 	}
     //-----------------------------------------------------------------------
 	void Pass::setVertexProgram(const String& name)
 	{
-		assert (mIsProgrammable && "This pass is not programmable!");
-		mVertexProgramUsage->setProgramName(name);
+        // Turn off vertex program if name blank
+        if (name.empty())
+        {
+            if (mVertexProgramUsage) delete mVertexProgramUsage;
+            mVertexProgramUsage = NULL;
+        }
+        else
+        {
+            if (!mVertexProgramUsage)
+            {
+                mVertexProgramUsage = new GpuProgramUsage(GPT_VERTEX_PROGRAM);
+            }
+		    mVertexProgramUsage->setProgramName(name);
+        }
 	}
     //-----------------------------------------------------------------------
 	void Pass::setVertexProgramParameters(GpuProgramParametersSharedPtr params)
 	{
-		assert (mIsProgrammable && "This pass is not programmable!");
+		if (!mVertexProgramUsage)
+        {
+            Except (Exception::ERR_INVALIDPARAMS, 
+                "This pass does not have a vertex program assigned!", 
+                "Pass::setVertexProgramParameters");
+        }
 		mVertexProgramUsage->setParameters(params);
 	}
     //-----------------------------------------------------------------------
 	void Pass::setFragmentProgram(const String& name)
 	{
-		assert (mIsProgrammable && "This pass is not programmable!");
-		mFragmentProgramUsage->setProgramName(name);
+        // Turn off fragment program if name blank
+        if (name.empty())
+        {
+            if (mFragmentProgramUsage) delete mFragmentProgramUsage;
+            mFragmentProgramUsage = NULL;
+        }
+        else
+        {
+            if (!mFragmentProgramUsage)
+            {
+                mFragmentProgramUsage = new GpuProgramUsage(GPT_FRAGMENT_PROGRAM);
+            }
+		    mFragmentProgramUsage->setProgramName(name);
+        }
 	}
     //-----------------------------------------------------------------------
 	void Pass::setFragmentProgramParameters(GpuProgramParametersSharedPtr params)
 	{
-		assert (mIsProgrammable && "This pass is not programmable!");
+		if (!mFragmentProgramUsage)
+        {
+            Except (Exception::ERR_INVALIDPARAMS, 
+                "This pass does not have a fragment program assigned!", 
+                "Pass::setFragmentProgramParameters");
+        }
 		mFragmentProgramUsage->setParameters(params);
 	}
 	//-----------------------------------------------------------------------
 	const String& Pass::getVertexProgramName(void)
 	{
-		return mVertexProgramUsage->getProgramName();
+        if (!mVertexProgramUsage)
+            return String::BLANK;
+        else
+		    return mVertexProgramUsage->getProgramName();
 	}
 	//-----------------------------------------------------------------------
 	GpuProgramParametersSharedPtr Pass::getVertexProgramParameters(void)
 	{
+		if (!mVertexProgramUsage)
+        {
+            Except (Exception::ERR_INVALIDPARAMS, 
+                "This pass does not have a vertex program assigned!", 
+                "Pass::getVertexProgramParameters");
+        }
 		return mVertexProgramUsage->getParameters();
 	}
 	//-----------------------------------------------------------------------
