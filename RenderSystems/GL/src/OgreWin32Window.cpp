@@ -150,6 +150,8 @@ namespace Ogre {
 			    DevMode.dmFields = DM_BITSPERPEL|DM_PELSWIDTH|DM_PELSHEIGHT|DM_DISPLAYFREQUENCY;
 			    if (ChangeDisplaySettings(&DevMode, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
 				    LogManager::getSingleton().logMessage(LML_CRITICAL, "ChangeDisplaySettingsEx");
+
+				
 		    }
 
 		}
@@ -168,12 +170,7 @@ namespace Ogre {
 		mIsDepthBuffered = depthBuffer;
 		mIsFullScreen = fullScreen;
 
-		/*if (!vsync) {
-			mOldSwapIntervall = wglGetSwapIntervalEXT();
-			wglSwapIntervalEXT(0);
-		}
-		else
-			mOldSwapIntervall = -1;*/
+		
 		HDC hdc = GetDC(mHWnd);
 
 		LogManager::getSingleton().logMessage(
@@ -215,11 +212,18 @@ namespace Ogre {
 		mGlrc = glrc;
 		mHDC = hdc;
 
+		mOldSwapIntervall = wglGetSwapIntervalEXT();
+		if (vsync) 
+			wglSwapIntervalEXT(1);
+		else
+			wglSwapIntervalEXT(0);
+
 		mReady = true;
     }
 
     void Win32Window::destroy(void)
     {
+        wglSwapIntervalEXT(mOldSwapIntervall);
 		if (mGlrc) {
 			wglMakeCurrent(NULL, NULL);
 			wglDeleteContext(mGlrc);
@@ -229,11 +233,11 @@ namespace Ogre {
 			ReleaseDC(mHWnd, mHDC);
 			mHDC = NULL;
 		}
-		/*if (mOldSwapIntervall >= 0)
-			wglSwapIntervalEXT(mOldSwapIntervall);*/
 		if (mIsFullScreen)
+		{
 			ChangeDisplaySettings(NULL, 0);
-		DestroyWindow(mHWnd);
+		}
+	DestroyWindow(mHWnd);
         mActive = false;
     }
 
