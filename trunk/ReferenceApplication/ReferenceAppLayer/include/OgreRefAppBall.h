@@ -22,45 +22,28 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#ifndef __REFAPP_PREREQUISITES_H__
-#define __REFAPP_PREREQUISITES_H__
+#ifndef __REFAPP_BALL_H__
+#define __REFAPP_BALL_H__
 
-// Include ODE standard C header
-#include <ode/ode.h>
-// Include ODE C++ headers
-#include <ode/odecpp.h>
-#include <ode/odecpp_collision.h>
-
-// Include main application-facing Ogre header
-#include <Ogre.h>
-
-
-// To save us some typing
-using namespace Ogre;
+#include "OgreRefAppPrerequisites.h"
+#include "OgreRefAppApplicationObject.h"
 
 namespace OgreRefApp {
 
-    #if OGRE_PLATFORM == PLATFORM_WIN32
-    // Export control
-    #   if defined( REFERENCEAPPLAYER_EXPORTS )
-    #       define _OgreRefAppExport __declspec( dllexport )
-    #   else
-    #       define _OgreRefAppExport __declspec( dllimport )
-    #   endif
-    #else // Linux / Mac OSX etc
-    #   define _OgreRefAppExport
-    #endif
+    class _OgreRefAppExport Ball : public ApplicationObject
+    {
+    protected:
+        Real mRadius;
+        void setUp(const String& name);
+    public:
+        Ball(const String& name, Real radius);
+        ~Ball();
 
-    // Forward definitions of classes to reduce dependencies
-    class ApplicationObject;
-    class OgreHead;
-    class Player;
-    class Plane;
-    class Ball;
+    };
+
 
 }
 
-
-
 #endif
+
 

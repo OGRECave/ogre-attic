@@ -70,8 +70,8 @@ namespace OgreRefApp {
         OgreRefApp::Plane* createPlane(const String& name, Real width, Real height, const Vector3& pos = Vector3::ZERO, 
             const Quaternion& orientation = Quaternion::IDENTITY);
 
-        /** Create a sphere object. */
-        OgreRefApp::Sphere* createSphere(const String& name, Real radius, const Vector3& pos = Vector3::ZERO, 
+        /** Create a ball object. */
+        OgreRefApp::Ball* createBall(const String& name, Real radius, const Vector3& pos = Vector3::ZERO, 
             const Quaternion& orientation = Quaternion::IDENTITY);
 
         void clear(void);

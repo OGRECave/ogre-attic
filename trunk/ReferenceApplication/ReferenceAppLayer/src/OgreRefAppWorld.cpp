@@ -25,7 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRefAppWorld.h"
 #include "OgreRefAppOgreHead.h"
 #include "OgreRefAppPlane.h"
-#include "OgreRefAppSphere.h"
+#include "OgreRefAppBall.h"
 
 //-------------------------------------------------------------------------
 template<> OgreRefApp::World* Ogre::Singleton<OgreRefApp::World>::ms_Singleton = 0;
@@ -82,16 +82,16 @@ namespace OgreRefApp
         return plane;
     }
     //-------------------------------------------------------------------------
-    OgreRefApp::Sphere* World::createSphere(const String& name, Real radius, const Vector3& pos, 
+    OgreRefApp::Ball* World::createBall(const String& name, Real radius, const Vector3& pos, 
         const Quaternion& orientation)
     {
-        OgreRefApp::Sphere* sphere = new OgreRefApp::Sphere(name, radius);
-        sphere->setPosition(pos);
-        sphere->setOrientation(orientation);
+        OgreRefApp::Ball* ball = new OgreRefApp::Ball(name, radius);
+        ball->setPosition(pos);
+        ball->setOrientation(orientation);
 
-        mObjects[name] = sphere;
+        mObjects[name] = ball;
 
-        return sphere;
+        return ball;
     }
     //-------------------------------------------------------------------------
     void World::clear(void)
