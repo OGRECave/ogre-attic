@@ -1154,7 +1154,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_endFrame(void)
     {
-        // XXX Do something?
+        // Deactivate the viewport clipping.
+        glDisable(GL_SCISSOR_TEST);
     }
 
     //-----------------------------------------------------------------------------
@@ -1393,9 +1394,6 @@ namespace Ogre {
         case SDL_SOLID:
             glmode = GL_FILL;
             break;
-
-            // Deactivate the viewport clipping.
-            glDisable(GL_SCISSOR_TEST);
         }
 
         glPolygonMode(GL_FRONT_AND_BACK, glmode);
