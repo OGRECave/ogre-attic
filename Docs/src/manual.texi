@@ -923,7 +923,7 @@ Default: alpha_rejection always_pass@*@*
 
 This is an extended version of the @ref{colour_op} attribute which allows extremely detailed control over the blending applied between this and earlier layers. Multitexturing hardware can apply more complex blending operations that multipass blendind, but you are limited to the number of texture units which are available in hardware.@*@*
 
-Format: colour_op_ex <operation> <source1> <source2> [<manual>]@*@*
+Format: colour_op_ex <operation> <source1> <source2> [<manual_factor>] [<manual_colour1>] [<manual_colour2>]@*@*
 
 Example colour_op_ex add_signed src_manual src_current 0.5@*@*
 
@@ -969,6 +969,8 @@ See the IMPORTANT note below about the issues between mulitpass and multitexturi
 	The interpolated diffuse colour from the vertices (same as 'src_current' for first layer).
 @item src_specular
 	The interpolated specular colour from the vertices.
+@item src_manual
+	The manual colour specified at the end of the command.
 @end table
 @end table
 @*
@@ -996,7 +998,7 @@ The parameters are the same as in the scene_blend attribute; this is because mul
 @anchor{alpha_op_ex}
 @subheading alpha_op_ex
 
-Behaves in exactly the same away as @ref{colour_op_ex} except that it determines how alpha values are combined between texture layers rather than colour values.
+Behaves in exactly the same away as @ref{colour_op_ex} except that it determines how alpha values are combined between texture layers rather than colour values.The only difference is that the 2 manual colours at the end of colour_op_ex are just single floating-point values in alpha_op_ex.
 
 @anchor{env_map}
 @subheading env_map
@@ -1011,8 +1013,11 @@ Environment maps make an object look reflective by using automatic texture coord
 	A spherical environment map. Requires a single texture which is either a fish-eye lens view of the reflected scene, or some other texture which looks good as a spherical map (a texture of glossy highlights is popular especially in car sims). This effect is based on the relationship between the eye direction and the vertex normals of the object, so works best when there are a lot of gradually changing normals, i.e. curved objects.
 @item planar
 	Similar to the spherical environment map, but the effect is based on the position of the vertices in the viewport rather than vertex normals. This effect is therefore useful for planar geometry (where a spherical env_map would not look good because the normals are all the same) or objects without normals.
-@item cubic
-	A more advanced form of reflection mapping which uses a group of 6 textures making up the inside of a cube, each of which is a view if the scene down each axis. Works extremely well in all cases but has a higher technical requirement from the card than spherical mapping.
+@item cubic_reflection
+	A more advanced form of reflection mapping which uses a group of 6 textures making up the inside of a cube, each of which is a view if the scene down each axis. Works extremely well in all cases but has a higher technical requirement from the card than spherical mapping. Requires that you bind a @ref{cubic_texture} to this texture unit and use the 'combinedUVW' option.
+@item cubic_normal
+	Generates 3D texture coordinates containing the camera space normal vector from the normal information held in the vertex data. Again, full use of this feature requires a @ref{cubic_texture} with the 'combinedUVW' option.
+	
 @end table
 @*
 Default: env_map off@*
