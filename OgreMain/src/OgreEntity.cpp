@@ -528,5 +528,11 @@ namespace Ogre {
         }
         return rad;
 	}
+    //-----------------------------------------------------------------------
+    EdgeData* Entity::getEdgeList(void)
+    {
+        // Get from Mesh
+        return mMesh->getEdgeList();
+    }
 
 }

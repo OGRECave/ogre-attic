@@ -1270,6 +1270,10 @@ SOURCE=..\include\OgreSerializer.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreShadowCaster.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreSharedPtr.h
 # End Source File
 # Begin Source File

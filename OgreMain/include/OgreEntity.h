@@ -350,8 +350,11 @@ namespace Ogre {
             method.
         */
         void setCastShadows(bool enabled) { mCastShadows = enabled; }
-        /** Returns whether shadow casting is enabled for this entity. */
+        /** Returns whether shadow casting is enabled for this entity (overridden from ShadowCaster). */
         bool getCastShadows(void) const { return mCastShadows; }
+
+        /** Overridden member from ShadowCaster. */
+        EdgeData* getEdgeList(void);
 
 
     };

@@ -146,6 +146,7 @@ OgreSceneQuery.h \
 OgreScrollEvent.h \
 OgreScrollTarget.h \
 OgreSerializer.h \
+OgreShadowCaster.h \
 OgreSharedPtr.h \
 OgreSimpleRenderable.h \
 OgreSimpleSpline.h \

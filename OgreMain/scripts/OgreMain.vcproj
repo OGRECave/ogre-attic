@@ -1053,6 +1053,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreSerializer.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreShadowCaster.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreSharedPtr.h">
 			</File>
 			<File

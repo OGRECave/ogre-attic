@@ -1081,6 +1081,15 @@ namespace Ogre {
         }
 
     }
+    //---------------------------------------------------------------------
+    EdgeData* Mesh::getEdgeList(void)
+    {
+        if (!mEdgeData)
+        {
+            buildEdgeList();
+        }
+        return mEdgeData;
+    }
 
 }
 

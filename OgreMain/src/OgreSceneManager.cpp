@@ -1942,6 +1942,47 @@ namespace Ogre {
 
     }
 	//---------------------------------------------------------------------
+    bool SceneManager::ShadowCasterSceneQueryListener::queryResult(
+        MovableObject* object)
+    {
+        mCasterList->push_back(object);
+        return true;
+    }
+	//---------------------------------------------------------------------
+    bool SceneManager::ShadowCasterSceneQueryListener::queryResult(
+        SceneQuery::WorldFragment* fragment)
+    {
+        // don't deal with world geometry
+        return true;
+    }
+	//---------------------------------------------------------------------
+    const SceneManager::ShadowCasterList& SceneManager::findShadowCastersForLight(
+        const Light* light, const Camera* camera)
+    {
+        mShadowCasterList.clear();
+
+        if (light->getType() == Light::LT_DIRECTIONAL)
+        {
+            // Hmm, how to efficiently locate shadow casters for an infinite light?
+            // TODO
+        }
+        else
+        {
+            SphereSceneQuery* ssc = createSphereQuery(
+                Sphere(light->getPosition(), light->getAttenuationRange()) );
+
+            // Execute, use callback
+            ShadowCasterSceneQueryListener listener(&mShadowCasterList);
+            ssc->execute(&listener);
+
+            delete ssc;
+
+        }
+
+
+        return mShadowCasterList;
+    }
+	//---------------------------------------------------------------------
     void SceneManager::renderModulativeStencilShadows(const Camera* camera)
     {
         // Can we do a 2-sided stencil?
@@ -1962,50 +2003,23 @@ namespace Ogre {
         for (li = mLightsAffectingFrustum.begin(); li != liend; ++li)
         {
             Light* l = *li;
-            if (l->getType() == Light::LT_DIRECTIONAL)
+            const ShadowCasterList& casters = findShadowCastersForLight(l, camera);
+            ShadowCasterList::const_iterator si, siend;
+            siend = casters.end();
+            for (si = casters.begin(); si != siend; ++si)
             {
-                // Hmm, how to efficiently locate shadow casters for an infinite light?
-                // TODO
+                ShadowCaster* caster = *si;
+
+                if (caster->getCastShadows())
+                {
+                    // Build and render a shadow volume here
+                    // TODO
+                    //  - find out if we need to use zfail algo or is zpass ok (util method)
+                    //  - if we have 2-sided stencil, one render with no culling
+                    //  - otherwise, 2 renders, one with each culling method and invert the ops
+
+                }
             }
-            else
-            {
-                // Use sphere scene query to locate objects which might cast a shadow
-                if (!ssc)
-                {
-                    ssc = createSphereQuery(Sphere(l->getPosition(), l->getAttenuationRange()));
-                }
-                else
-                {
-                    ssc->setSphere(Sphere(l->getPosition(), l->getAttenuationRange()));
-                }
-
-                SceneQueryResult result = ssc->execute();
-
-                // Iterate over results
-                // Movables only for now
-                SceneQueryResultMovableList::const_iterator mi, miend;
-                miend = result.movables.end();
-                for (mi = result.movables.begin(); mi != miend; ++mi)
-                {
-                    const MovableObject* m = *mi;
-                    if (m->getMovableType() == "Entity")
-                    {
-                        // Deal with entity
-                        const Entity* e = static_cast<const Entity*>(m);
-                        if (e->getCastShadows())
-                        {
-                            // Build and render a shadow volume here
-                            // TODO
-                            //  - find out if we need to use zfail algo or is zpass ok (util method)
-                            //  - if we have 2-sided stencil, one render with no culling
-                            //  - otherwise, 2 renders, one with each culling method and invert the ops
-
-                        }
-                    }
-                }
-
-            }
-
 
         }
 
