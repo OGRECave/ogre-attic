@@ -35,7 +35,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreIteratorWrappers.h"
 #include "OgreProgressiveMesh.h"
 #include "OgreHardwareVertexBuffer.h"
-#include "OgreEdgeListBuilder.h"
 
 
 namespace Ogre {

@@ -26,7 +26,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __ShadowCaster_H__
 
 #include "OgrePrerequisites.h"
-#include "OgreEdgeListBuilder.h"
 #include "OgreRenderable.h"
 
 
