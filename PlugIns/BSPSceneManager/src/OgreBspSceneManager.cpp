@@ -345,7 +345,8 @@ namespace Ogre {
             {
                 // It hasn't been seen yet
                 MovableObject *mov = const_cast<MovableObject*>(*oi); // hacky
-                if (cam->isVisible(mov->getWorldBoundingBox()))
+                if (mov->isVisible() && 
+					cam->isVisible(mov->getWorldBoundingBox()))
                 {
                     mov->_notifyCurrentCamera(cam);
                     mov->_updateRenderQueue(&mRenderQueue);
@@ -571,4 +572,10 @@ namespace Ogre {
     {
         mLevel->_notifyObjectMoved(mov, pos);
     }
+    //-----------------------------------------------------------------------
+	void BspSceneManager::_notifyObjectDetached(const MovableObject* mov)
+	{
+		mLevel->_notifyObjectDetached(mov);
+	}
 }
+

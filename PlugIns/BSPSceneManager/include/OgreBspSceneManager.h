@@ -136,7 +136,8 @@ namespace Ogre {
 
         /** Internal method for tagging BspNodes with objects which intersect them. */
         void _notifyObjectMoved(const MovableObject* mov, const Vector3& pos);
-
+		/** Internal method for notifying the level that an object has been detached from a node */
+		void _notifyObjectDetached(const MovableObject* mov);
     };
 
 }

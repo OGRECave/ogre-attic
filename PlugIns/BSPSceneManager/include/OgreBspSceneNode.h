@@ -51,6 +51,19 @@ namespace Ogre {
             : SceneNode(creator, name) {}
         /// Overridden from Node
         void _update(bool updateChildren, bool parentHasChanged);
+        /** Detaches the indexed object from this scene node.
+        @remarks
+            Detaches by index, see the alternate version to detach by name. Object indexes
+            may change as other objects are added / removed.
+        */
+        MovableObject* detachObject(unsigned short index);
+
+        /** Detaches the named object from this node and returns a pointer to it. */
+        MovableObject* detachObject(const String& name);
+
+        /** Detaches all objects attached to this node.
+        */
+        void detachAllObjects(void);
 
 
     };

@@ -557,7 +557,8 @@ namespace Ogre {
                 tagNodesWithMovable(node->getFront(), mov, pos);
             }
             else if (dist < 0)
-            {
+            {    //-----------------------------------------------------------------------
+
                 // Do back
                 tagNodesWithMovable(node->getBack(), mov, pos);
             }
@@ -568,4 +569,22 @@ namespace Ogre {
             }
         }
     }
+    //-----------------------------------------------------------------------
+	void BspLevel::_notifyObjectDetached(const MovableObject* mov)	
+	{
+        // Locate any current nodes the object is supposed to be attached to
+        MovableToNodeMap::iterator i = mMovableToNodeMap.find(mov);
+        if (i != mMovableToNodeMap.end())
+        {
+            std::list<BspNode*>::iterator nodeit, nodeitend;
+            nodeitend = i->second.end();
+            for (nodeit = i->second.begin(); nodeit != nodeitend; ++nodeit)
+            {
+                // Tell each node
+                (*nodeit)->_removeMovable(mov);
+            }
+            // delete the entry for this MovableObject
+            mMovableToNodeMap.erase(i);
+        }
+	}
 }
