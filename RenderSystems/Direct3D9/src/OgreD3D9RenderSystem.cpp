@@ -1719,8 +1719,8 @@ namespace Ogre
 			"D3D9RenderSystem::setStencilCheckEnabled");
 	}
     //---------------------------------------------------------------------
-    void D3D9RenderSystem::setStencilBufferParams(CompareFunction func, ulong refValue, 
-        ulong mask, StencilOperation stencilFailOp, 
+    void D3D9RenderSystem::setStencilBufferParams(CompareFunction func, 
+        uint32 refValue, uint32 mask, StencilOperation stencilFailOp, 
         StencilOperation depthFailOp, StencilOperation passOp, 
         bool twoSidedOperation)
     {

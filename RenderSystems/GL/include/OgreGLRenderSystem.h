@@ -349,7 +349,7 @@ namespace Ogre {
         /** See RenderSystem.
          */
         void setStencilBufferParams(CompareFunction func = CMPF_ALWAYS_PASS, 
-            ulong refValue = 0, ulong mask = 0xFFFFFFFF, 
+            uint32 refValue = 0, uint32 mask = 0xFFFFFFFF, 
             StencilOperation stencilFailOp = SOP_KEEP, 
             StencilOperation depthFailOp = SOP_KEEP,
             StencilOperation passOp = SOP_KEEP, 
