@@ -98,5 +98,12 @@ namespace Ogre
         Except(Exception::ERR_INTERNAL_ERROR, "lockImpl(offset,length) is not valid for PixelBuffers and should never be called",
             "HardwarePixelBuffer::lockImpl");
     }
+    
     //-----------------------------------------------------------------------------    
+    
+    HardwarePixelBufferSharedPtr::HardwarePixelBufferSharedPtr(HardwarePixelBuffer* buf)
+        : SharedPtr<HardwarePixelBuffer>(buf)
+    {
+
+    }    
 };
