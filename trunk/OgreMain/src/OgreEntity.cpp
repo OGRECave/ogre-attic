@@ -43,6 +43,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePass.h"
 #include "OgreSkeletonInstance.h"
 #include "OgreEdgeListBuilder.h"
+#include "OgreStringConverter.h"
 
 namespace Ogre {
     String Entity::msMovableType = "Entity";
