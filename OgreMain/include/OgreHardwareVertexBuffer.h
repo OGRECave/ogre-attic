@@ -201,8 +201,24 @@ namespace Ogre {
     /** This class declares the format of a set of vertex inputs, which
         can be issued to the rendering API through a RenderOperation. 
 	@remarks
-		Like the other classes in this functional area, these declarations should be created and
-		destroyed using the HardwareBufferManager.
+	You should be aware that the ordering and structure of the 
+	VertexDeclaration can be very important on DirectX with older
+	cards,so if you want to maintain maximum compatibility with 
+	all render systems and all cards you should be careful to follow these
+	rules:<ol>
+	<li>VertexElements should be added in the following order, and the order of the
+	elements within a shared buffer should be as follows: 
+	position, blending weights, normals, diffuse colours, specular colours, 
+            texture coordinates (in order, with no gaps)</li>
+	<li>You must not have unused gaps in your buffers which are not referenced
+	by any VertexElement</li>
+	<li>You must not cause the buffer & offset settings of 2 VertexElements to overlap</li>
+	</ol>
+	Whilst GL and more modern graphics cards in D3D will allow you to defy these rules, 
+	sticking to them will ensure that your buffers have the maximum compatibility. 
+	@par
+	Like the other classes in this functional area, these declarations should be created and
+	destroyed using the HardwareBufferManager.
     */
     class _OgreExport VertexDeclaration
     {
@@ -222,12 +238,9 @@ namespace Ogre {
         /** Adds a new VertexElement to this declaration. 
         @remarks
             This method adds a single element (positions, normals etc) to the
-            vertex declaration. <b>Note that on some APIs such as D3D there are 
-            restrictions on the ordering of the vertex elements</b> on older drivers, 
-            so for maximum compatibility you should order your elements like this:
-            position, blending weights, normals, diffuse colours, specular colours, 
-            texture coordinates (in order, with no gaps).
-        @param source The binding index of HardwareVertexBuffer which will provide the source for this element.
+            vertex declaration. <b>Please read the information in VertexDeclaration about
+	    the importance of ordering and structure for compatibility with older D3D drivers</b>.
+	    @param source The binding index of HardwareVertexBuffer which will provide the source for this element.
 			See VertexBufferBindingState for full information.
         @param offset The offset in bytes where this element is located in the buffer
         @param theType The data format of the element (3 floats, a colour etc)
@@ -249,7 +262,11 @@ namespace Ogre {
         */
         virtual void removeElement(VertexElementSemantic semantic, unsigned short index = 0);
 
-        /** Modify an element in-place, params as addElement. */
+        /** Modify an element in-place, params as addElement. 
+	   @remarks
+	   <b>Please read the information in VertexDeclaration about
+	    the importance of ordering and structure for compatibility with older D3D drivers</b>.
+	 */
         virtual void modifyElement(unsigned short elem_index, unsigned short source, size_t offset, VertexElementType theType,
             VertexElementSemantic semantic, unsigned short index = 0);
 
