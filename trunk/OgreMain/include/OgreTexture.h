@@ -69,7 +69,7 @@ namespace Ogre {
 
         /** Gets the type of texture 
         */
-        TextureType getTextureType(void) { return mTextureType; }
+        TextureType getTextureType(void) const { return mTextureType; }
 
         /** Gets the number of mipmaps to be used for this texture.
         */

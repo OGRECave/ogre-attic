@@ -54,6 +54,9 @@ namespace Ogre {
         // XXX 8 max texture units?
         int mTextureCoordIndex[OGRE_MAX_TEXTURE_COORD_SETS];
 
+        /// holds texture type settings for every stage
+        GLenum mTextureTypes[OGRE_MAX_TEXTURE_LAYERS];
+
         void initConfigOptions(void);
         void initInputDevices(void);
         void processInputDevices(void);
@@ -78,7 +81,7 @@ namespace Ogre {
         GLint mStencilFail, mStencilZFail, mStencilPass;
 
 		// internal method for anisotrophy validation
-		GLfloat _getCurrentAnisotropy();
+		GLfloat _getCurrentAnisotropy(int unit);
 		
         /// GL support class, used for creating windows etc
         GLSupport* mGLSupport;

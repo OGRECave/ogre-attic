@@ -775,7 +775,7 @@ namespace Ogre {
                 Controller* mAnimController;
                 bool mCubic;
 
-                int textureCoordSetIndex;
+                int mTextureCoordSetIndex;
                 TextureAddressingMode mAddressMode;                
 
                 LayerBlendModeEx colourBlendMode;
@@ -801,7 +801,7 @@ namespace Ogre {
 				/// Texture layer filtering
 				TextureFilterOptions mTextureLayerFiltering;
 
-				//Texture layer anisotropy
+				///Texture layer anisotropy
 				int mMaxAniso;
 
     //-----------------------------------------------------------------------------
@@ -884,7 +884,7 @@ namespace Ogre {
         /// Texture filtering
         TextureFilterOptions mTextureFiltering;
 
-		// texture anisotropy level
+		/// texture anisotropy level
 		int mMaxAniso;
 
         //-------------------------------------------------------------------------    
