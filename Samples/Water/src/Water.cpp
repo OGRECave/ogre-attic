@@ -35,7 +35,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreParticle.h"
 #include "OgreMaterial.h"
 
-#include "iostream.h"
+#include <iostream>
 
 AnimationState* mAnimState;
 
