@@ -394,6 +394,10 @@ namespace Ogre {
 
         void setClipPlane (ushort index, Real A, Real B, Real C, Real D);
         void enableClipPlane (ushort index, bool enable);
+        /** See
+        RenderSystem
+        */
+        HardwareOcclusionQuery* createHardwareOcclusionQuery(void);
         // ----------------------------------
         // End Overridden members
         // ----------------------------------

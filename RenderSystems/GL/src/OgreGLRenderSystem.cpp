@@ -40,6 +40,7 @@ http://www.gnu.org/copyleft/lesser.txt.s
 #include "OgreGLGpuProgramManager.h"
 #include "OgreException.h"
 #include "OgreGLATIFSInit.h"
+#include "OgreGLHardwareOcclusionQuery.h"
 
 
 #ifdef HAVE_CONFIG_H
@@ -78,6 +79,11 @@ GL_FinalCombinerInputNV_Func glFinalCombinerInputNV_ptr;
 GL_TrackMatrixNV_Func glTrackMatrixNV_ptr;
 PFNGLCOMPRESSEDTEXIMAGE2DARBPROC glCompressedTexImage2DARB_ptr;
 GL_ActiveStencilFaceEXT_Func glActiveStencilFaceEXT_ptr;
+GL_GenOcclusionQueriesNV_Func glGenOcclusionQueriesNV_ptr;	
+GL_DeleteOcclusionQueriesNV_Func glDeleteOcclusionQueriesNV_ptr;
+GL_BeginOcclusionQueryNV_Func glBeginOcclusionQueryNV_ptr;
+GL_EndOcclusionQueryNV_Func glEndOcclusionQueryNV_ptr;
+GL_GetOcclusionQueryuivNV_Func glGetOcclusionQueryuivNV_ptr;
 
 namespace Ogre {
 
@@ -159,6 +165,11 @@ namespace Ogre {
         glFinalCombinerInputNV_ptr = 0;
         glTrackMatrixNV_ptr = 0;
         glActiveStencilFaceEXT_ptr = 0;
+        glGenOcclusionQueriesNV_ptr = 0;
+        glDeleteOcclusionQueriesNV_ptr = 0;
+        glBeginOcclusionQueryNV_ptr = 0;
+        glEndOcclusionQueryNV_ptr = 0;
+        glGetOcclusionQueryuivNV_ptr = 0;
 
         mCurrentLights = 0;
         mMinFilter = FO_LINEAR;
@@ -419,6 +430,12 @@ namespace Ogre {
             mCapabilities->setCapability(RSC_STENCIL_WRAP);
         }
 
+        // Check for hardware occlusion support
+        if(mGLSupport->checkExtension("GL_NV_occlusion_query"))
+        {
+            mCapabilities->setCapability(RSC_HWOCCLUSION);		
+        }
+
 
         // Get extension function pointers
         glActiveTextureARB_ptr = 
@@ -477,6 +494,16 @@ namespace Ogre {
         InitATIFragmentShaderExtensions(*mGLSupport);
         glActiveStencilFaceEXT_ptr = 
             (GL_ActiveStencilFaceEXT_Func)mGLSupport->getProcAddress("glActiveStencilFaceEXT");
+        glGenOcclusionQueriesNV_ptr =
+            (GL_GenOcclusionQueriesNV_Func)mGLSupport->getProcAddress("glGenOcclusionQueriesNV");
+        glDeleteOcclusionQueriesNV_ptr =
+            (GL_DeleteOcclusionQueriesNV_Func)mGLSupport->getProcAddress("glDeleteOcclusionQueriesNV");
+        glBeginOcclusionQueryNV_ptr =
+            (GL_BeginOcclusionQueryNV_Func)mGLSupport->getProcAddress("glBeginOcclusionQueryNV");
+        glEndOcclusionQueryNV_ptr =
+            (GL_EndOcclusionQueryNV_Func)mGLSupport->getProcAddress("glEndOcclusionQueryNV");
+        glGetOcclusionQueryuivNV_ptr =
+            (GL_GetOcclusionQueryuivNV_Func)mGLSupport->getProcAddress("glGetOcclusionQueryuivNV");
 
         mCapabilities->log(LogManager::getSingleton().getDefaultLog());
     }
@@ -1990,6 +2017,11 @@ namespace Ogre {
     void GLRenderSystem::enableClipPlane (ushort index, bool enable)
     {
         glEnable (GL_CLIP_PLANE0 + index);
+    }
+    //---------------------------------------------------------------------
+    HardwareOcclusionQuery* GLRenderSystem::createHardwareOcclusionQuery(void)
+    {
+        return new GLHardwareOcclusionQuery(); 
     }
 
 

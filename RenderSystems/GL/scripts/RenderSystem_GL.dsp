@@ -140,6 +140,10 @@ SOURCE=..\src\OgreGLHardwareIndexBuffer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreGLHardwareOcclusionQuery.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreGLHardwareVertexBuffer.cpp
 # End Source File
 # Begin Source File
@@ -197,6 +201,10 @@ SOURCE=..\include\OgreGLHardwareBufferManager.h
 # Begin Source File
 
 SOURCE=..\include\OgreGLHardwareIndexBuffer.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreGLHardwareOcclusionQuery.h
 # End Source File
 # Begin Source File
 

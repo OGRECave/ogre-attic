@@ -42,6 +42,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreD3D9GpuProgramManager.h"
 #include "OgreD3D9HLSLProgramFactory.h"
 #include "OgreHighLevelGpuProgramManager.h"
+#include "OgreD3D9HardwareOcclusionQuery.h"
+
 
 namespace Ogre 
 {
@@ -620,6 +622,11 @@ namespace Ogre
             (mCaps.StencilCaps & D3DSTENCILCAPS_DECR))
             mCapabilities->setCapability(RSC_STENCIL_WRAP);
 
+        // Check for hardware occlusion support
+        if ( ( mpD3DDevice->CreateQuery(D3DQUERYTYPE_OCCLUSION,  NULL ) ) == D3D_OK )	
+        {
+            mCapabilities->setCapability(RSC_HWOCCLUSION);
+        }
         convertVertexShaderCaps();
         convertPixelShaderCaps();
 
@@ -2197,5 +2204,9 @@ namespace Ogre
         __SetRenderState(D3DRS_CLIPPLANEENABLE, prev | (1 << index));
     }
     //---------------------------------------------------------------------
+    HardwareOcclusionQuery* D3D9RenderSystem::createHardwareOcclusionQuery(void)
+    {
+        return new D3D9HardwareOcclusionQuery(mpD3DDevice); 
+    }
 
 }

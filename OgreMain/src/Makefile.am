@@ -51,6 +51,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
 						 OgreGuiPressable.cpp \
 						 OgreHardwareBufferManager.cpp \
 						 OgreHardwareIndexBuffer.cpp \
+						 OgreHardwareOcclusionQuery.cpp \
 						 OgreHardwareVertexBuffer.cpp \
 						 OgreHighLevelGpuProgram.cpp \
 						 OgreHighLevelGpuProgramManager.cpp \

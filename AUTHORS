@@ -42,6 +42,7 @@ Michael Reimpell                      : Blender exporter
 Sam le Pirate                         : BMP support
 Attila Tajti (attis)                  : Wings3D exporter
 ? (Firestorm)                         : Particle scale and rotate affectors
+Lee Sandberg                          : Hardware occlusion query support
 
 Others
 ------
@@ -60,6 +61,7 @@ Chris Heald (antiarc)
 Michael Casaday
 Evgeni Popov
 Chris McGuirk (leedgitar)
+Te'ja (thiveertm)
 
 If we've forgotten you in the above list, please contact us!
 

@@ -157,6 +157,9 @@
 				RelativePath="..\src\OgreGLHardwareIndexBuffer.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreGLHardwareOcclusionQuery.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreGLHardwareVertexBuffer.cpp">
 			</File>
 			<File
@@ -347,6 +350,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreGLHardwareIndexBuffer.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreGLHardwareOcclusionQuery.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreGLHardwareVertexBuffer.h">

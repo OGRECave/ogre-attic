@@ -59,6 +59,7 @@ OgreGpuProgramUsage.h \
 OgreHardwareBuffer.h \
 OgreHardwareBufferManager.h \
 OgreHardwareIndexBuffer.h \
+OgreHardwareOcclusionQuery.h \
 OgreHardwareVertexBuffer.h \
 OgreHighLevelGpuProgram.h \
 OgreHighLevelGpuProgramManager.h \

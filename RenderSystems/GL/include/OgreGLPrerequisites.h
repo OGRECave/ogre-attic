@@ -165,6 +165,35 @@ extern GL_TrackMatrixNV_Func glTrackMatrixNV_ptr;
 typedef void (APIENTRY *GL_ActiveStencilFaceEXT_Func)(GLenum);
 extern GL_ActiveStencilFaceEXT_Func glActiveStencilFaceEXT_ptr;
 
+// Pointer to glGenOcclusionQueriesNV function
+typedef void (APIENTRY *GL_GenOcclusionQueriesNV_Func) (GLsizei n, GLuint *ids);
+extern GL_GenOcclusionQueriesNV_Func glGenOcclusionQueriesNV_ptr;
+
+// Pointer to glDeleteOcclusionQueriesNV function
+typedef void (APIENTRY *GL_DeleteOcclusionQueriesNV_Func) (GLsizei n, const GLuint *ids);
+extern GL_DeleteOcclusionQueriesNV_Func glDeleteOcclusionQueriesNV_ptr;
+
+// Pointer to glIsOcclusionQueryNV function
+typedef GLboolean (APIENTRY *GL_IsOcclusionQueryNV_Func) (GLuint id);
+extern GL_IsOcclusionQueryNV_Func glIsOcclusionQueryNV_ptr;
+
+// Pointer to glBeginOcclusionQueryNV function
+typedef void (APIENTRY *GL_BeginOcclusionQueryNV_Func) (GLuint id);
+extern GL_BeginOcclusionQueryNV_Func glBeginOcclusionQueryNV_ptr;
+
+// Pointer to glEndOcclusionQueryNV function
+typedef void (APIENTRY *GL_EndOcclusionQueryNV_Func) (void);
+extern GL_EndOcclusionQueryNV_Func glEndOcclusionQueryNV_ptr;
+
+// Pointer to glGetOcclusionQueryivNV function
+typedef void (APIENTRY *GL_GetOcclusionQueryivNV_Func) (GLuint id, GLenum pname, GLint *params);
+extern GL_GetOcclusionQueryivNV_Func glGetOcclusionQueryivNV_ptr;
+
+// Pointer to glGetOcclusionQueryuivNV function
+typedef void (APIENTRY *GL_GetOcclusionQueryuivNV_Func) (GLuint id, GLenum pname, GLuint *params);
+extern GL_GetOcclusionQueryuivNV_Func glGetOcclusionQueryuivNV_ptr;
+
+
 };
 
 extern PFNGLCOMPRESSEDTEXIMAGE2DARBPROC glCompressedTexImage2DARB_ptr;

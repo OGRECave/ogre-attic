@@ -2583,7 +2583,10 @@ namespace Ogre {
         __SetRenderState(D3DRENDERSTATE_CLIPPLANEENABLE, prev | (1 << index));
     }
     //---------------------------------------------------------------------
-
+    HardwareOcclusionQuery* D3DRenderSystem::createHardwareOcclusionQuery(void)
+    {
+        return (HardwareOcclusionQuery*) 0;	// Hardware occlusion is not supported when DirectX7 is used
+    }
 
 
 }
