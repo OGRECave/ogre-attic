@@ -453,6 +453,9 @@
 				RelativePath="..\src\OgreViewport.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreWireBoundingBox.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreZip.cpp">
 			</File>
 			<File
@@ -902,6 +905,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreViewport.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreWireBoundingBox.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreZip.h">

@@ -197,7 +197,8 @@ namespace Ogre {
 	class TargetManager;
 	class TextureFont;
     class Vector3;
-    class Viewport;   
+    class Viewport;  
+    class WireBoundingBox; 
 
     struct GeometryData;
 }

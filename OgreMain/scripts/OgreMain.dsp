@@ -516,6 +516,10 @@ SOURCE=..\src\OgreViewport.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreWireBoundingBox.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreZip.cpp
 # End Source File
 # Begin Source File
@@ -1121,6 +1125,10 @@ SOURCE=..\include\OgreVertexBoneAssignment.h
 # Begin Source File
 
 SOURCE=..\include\OgreViewport.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreWireBoundingBox.h
 # End Source File
 # Begin Source File
 
