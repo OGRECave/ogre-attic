@@ -142,7 +142,7 @@ namespace Ogre {
         11, 5, 0, 0 
         },
 	//-----------------------------------------------------------------------
-        {"PF_B5G6R5", 
+		{"PF_B5G6R5", 
         /* Bytes per element */ 
         2,  
         /* Flags */
@@ -166,16 +166,16 @@ namespace Ogre {
         8, 4, 0, 12 
         },
 	//-----------------------------------------------------------------------
-        {"PF_B4G4R4A4", 
+        {"PF_A1R5G5B5", 
         /* Bytes per element */ 
         2,  
         /* Flags */
         PFF_HASALPHA | PFF_NATIVEENDIAN,  
         /* rbits, gbits, bbits, abits */
-        0, 0, 0, 0,
+        5, 5, 5, 1,
         /* Masks and shifts */
-        0x00F0, 0x0F00, 0xF000, 0x000F, 
-        4, 8, 12, 0,
+        0x7C00, 0x03E0, 0x001F, 0x8000, 
+        10, 5, 0, 15,
         },
 	//-----------------------------------------------------------------------
         {"PF_R8G8B8", 
@@ -417,7 +417,19 @@ namespace Ogre {
         16, 16, 16, 16,
         /* Masks and shifts */
 		0, 0, 0, 0, 0, 0, 0, 0
-        }
+        },
+	//-----------------------------------------------------------------------
+        {"PF_R3G3B2", 
+        /* Bytes per element */ 
+        1,  
+        /* Flags */
+        PFF_NATIVEENDIAN,  
+        /* rbits, gbits, bbits, abits */
+        3, 3, 2, 0,
+        /* Masks and shifts */
+        0xE0, 0x1C, 0x03, 0, 
+        5, 2, 0, 0 
+        },
     };
     //-----------------------------------------------------------------------
 	size_t PixelBox::getConsecutiveSize() const 

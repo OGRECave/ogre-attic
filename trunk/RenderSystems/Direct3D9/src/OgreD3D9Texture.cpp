@@ -1035,7 +1035,11 @@ namespace Ogre
 		case D3DFMT_A4L4:
 			return PF_A4L4;
 		case D3DFMT_A8L8:
-			return PF_BYTE_LA;
+			return PF_BYTE_LA;	// Assume little endian here
+		case D3DFMT_R3G3B2:
+			return PF_R3G3B2;
+		case D3DFMT_A1R5G5B5:
+			return PF_A1R5G5B5:
 		case D3DFMT_A4R4G4B4:
 			return PF_A4R4G4B4;
 		case D3DFMT_R5G6B5:
@@ -1088,7 +1092,11 @@ namespace Ogre
 		case PF_A4L4:
 			return D3DFMT_A4L4;
 		case PF_BYTE_LA:
-			return D3DFMT_A8L8;
+			return D3DFMT_A8L8; // Assume little endian here
+		case PF_R3G3B2:
+			return D3DFMT_R3G3B2;
+		case PF_A1R5G5B5:
+			return D3DFMT_A1R5G5B5:
 		case PF_R5G6B5:
 			return D3DFMT_R5G6B5;
 		case PF_A4R4G4B4:
@@ -1139,8 +1147,6 @@ namespace Ogre
 		{
 		case PF_B5G6R5:
 			return PF_R5G6B5;
-		case PF_B4G4R4A4:
-			return PF_A4R4G4B4;
 		case PF_B8G8R8:
 			return PF_R8G8B8;
 		case PF_B8G8R8A8:

@@ -73,8 +73,6 @@ namespace Ogre {
 		{
 		case PF_B5G6R5:
 			return PF_R5G6B5;
-		case PF_B4G4R4A4:
-			return PF_A4R4G4B4;
 		case PF_B8G8R8:
 			return PF_R8G8B8;
 		case PF_B8G8R8A8:
