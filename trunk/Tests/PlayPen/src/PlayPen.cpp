@@ -106,13 +106,43 @@ public:
 
 };
 
+class UberSimpleFrameListener : public FrameListener
+{
+protected:
+	InputReader* mInputDevice;
+
+public:
+	UberSimpleFrameListener(RenderWindow* win, Camera* cam)
+	{
+		mInputDevice = PlatformManager::getSingleton().createInputReader();
+		mInputDevice->initialise(win,true, true);
+	}
+	~UberSimpleFrameListener()
+	{
+		PlatformManager::getSingleton().destroyInputReader( mInputDevice );
+	}
+
+	bool frameStarted(const FrameEvent& evt)
+	{
+		mInputDevice->capture();
+		if (mInputDevice->isKeyDown(KC_ESCAPE))
+		{
+			return false;
+		}
+		return true;
+
+	}
+};
+
+
+
 class PlayPenListener : public ExampleFrameListener
 {
 protected:
-
+	SceneManager* mSceneMgr;
 public:
-    PlayPenListener(RenderWindow* win, Camera* cam)
-        : ExampleFrameListener(win, cam)
+    PlayPenListener(SceneManager* mgr, RenderWindow* win, Camera* cam)
+        : ExampleFrameListener(win, cam),mSceneMgr(mgr)
     {
     }
 
@@ -635,43 +665,13 @@ protected:
 
     void testBug(void)
     {
-        mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);
+		// Set ambient light
+		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
 
-        // Set ambient light
-        mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
-
-        // Create a point light
-        Light* l = mSceneMgr->createLight("MainLight");
-        l->setType(Light::LT_DIRECTIONAL);
-        l->setDirection(-Vector3::UNIT_Y);
-
-        mTestNode[0] = (SceneNode*)mSceneMgr->getRootSceneNode()->createChild();
-        mTestNode[1] = (SceneNode*)mSceneMgr->getRootSceneNode()->createChild();
-        mTestNode[2] = (SceneNode*)mSceneMgr->getRootSceneNode()->createChild();
-        
-        createTestBugPlaneMesh3Streams("test3streams");
-        MaterialPtr testMat = MaterialManager::getSingleton().create("testvp", 
-            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-        testMat->getTechnique(0)->getPass(0)->setVertexProgram("Ogre/BasicVertexPrograms/AmbientOneTexture");
-        GpuProgramParametersSharedPtr params = testMat->getTechnique(0)->getPass(0)->getVertexProgramParameters();
-        params->setNamedAutoConstant("worldViewProj", GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
-        params->setNamedConstant("ambient", ColourValue(1,1,1,1));
-        testMat->load();
-        MeshManager::getSingleton().createPlane("test1stream", 
-			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-            Plane(Vector3::UNIT_Z, 0), 258, 171, 50, 50);
-        Entity* pEnt = mSceneMgr->createEntity( "1", "test3streams" );
-        mTestNode[0]->attachObject( pEnt );
-        mTestNode[0]->translate(-600,0,0);
-
-        pEnt = mSceneMgr->createEntity( "2", "test1stream" );
-        mTestNode[1]->attachObject( pEnt );
-        mTestNode[1]->translate(-300,0,0);
-
-        pEnt = mSceneMgr->createEntity( "3", "test3streams" );
-        pEnt->setMaterialName("testvp");
-        mTestNode[2]->attachObject( pEnt );
-        mTestNode[2]->translate(0,0,0);
+		// Create a point light
+		Light* l = mSceneMgr->createLight("MainLight");
+		l->setType(Light::LT_DIRECTIONAL);
+		l->setDirection(-Vector3::UNIT_Y);
         
 
     }
@@ -1775,13 +1775,17 @@ protected:
         mTestNode[2] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(-200, 0, -200));
         mTestNode[2]->attachObject( pEnt );
 
-        // Transparent object (can force cast shadows)
+        // Transparent object 
         pEnt = mSceneMgr->createEntity( "3.5", "knot.mesh" );
         pEnt->setMaterialName("Examples/TransparentTest");
         MaterialPtr mat3 = MaterialManager::getSingleton().getByName("Examples/TransparentTest");
-        //mat3->setTransparencyCastsShadows(true);
+		pEnt->setCastShadows(false);
         mTestNode[3] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(350, 0, -200));
         mTestNode[3]->attachObject( pEnt );
+
+		// User test
+		pEnt = mSceneMgr->createEntity( "3.6", "ogre_male_endCaps.mesh" );
+		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(0, 0, 100))->attachObject( pEnt );
 
 
         MeshPtr msh = MeshManager::getSingleton().load("knot.mesh", 
@@ -2047,7 +2051,7 @@ protected:
 		l->setDirection(-Vector3::UNIT_Y);
 
 		// Create a set of random balls
-		Entity* ent = mSceneMgr->createEntity("Ball", "sphere.mesh");
+		Entity* ent = mSceneMgr->createEntity("Ball", "ogrehead.mesh");
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
 		createRandomEntityClones(ent, 400, Vector3(-2000,-2000,-2000), Vector3(2000,2000,2000));
 
@@ -2055,6 +2059,109 @@ protected:
 		//mSceneMgr->setOption("ShowOctree", &val);
 
 	}
+
+	void testSimpleMesh()
+	{
+		// Set ambient light
+		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+
+		// Create a point light
+		Light* l = mSceneMgr->createLight("MainLight");
+		l->setType(Light::LT_DIRECTIONAL);
+		Vector3 dir(1, -1, 0);
+		dir.normalise();
+		l->setDirection(dir);
+
+		// Create a set of random balls
+		Entity* ent = mSceneMgr->createEntity("test", "xsicylinder.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
+
+	}
+
+	void test2Windows(void)
+	{
+		// Set ambient light
+		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+
+		// Create a point light
+		Light* l = mSceneMgr->createLight("MainLight");
+		l->setType(Light::LT_DIRECTIONAL);
+		Vector3 dir(1, -1, 0);
+		dir.normalise();
+		l->setDirection(dir);
+
+		// Create a set of random balls
+		Entity* ent = mSceneMgr->createEntity("test", "ogrehead.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
+
+		NameValuePairList valuePair;
+		valuePair["top"] = StringConverter::toString(0);
+		valuePair["left"] = StringConverter::toString(0);
+
+		RenderWindow* win2 = mRoot->createRenderWindow("window2", 200,200, false, &valuePair);
+		win2->addViewport(mCamera);
+
+	}
+
+	void testStaticGeometry(void)
+	{
+		mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);
+		//mSceneMgr->setShowDebugShadows(true);
+
+		// Set ambient light
+		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+
+		// Create a point light
+		Light* l = mSceneMgr->createLight("MainLight");
+		l->setType(Light::LT_DIRECTIONAL);
+		Vector3 dir(1, -1, -1.5);
+		dir.normalise();
+		l->setDirection(dir);
+
+
+		Plane plane;
+		plane.normal = Vector3::UNIT_Y;
+		plane.d = 100;
+		MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+			4500,4500,10,10,true,1,5,5,Vector3::UNIT_Z);
+		Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
+		pPlaneEnt->setMaterialName("2 - Default");
+		pPlaneEnt->setCastShadows(false);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
+
+		Entity* e = mSceneMgr->createEntity("1", "column.mesh");
+		Vector3 min(-2500,0,-2500);
+		Vector3 max(2500,0,2500);
+
+
+		//createRandomEntityClones(e, 2000, min, max);
+		
+		StaticGeometry* s = mSceneMgr->createStaticGeometry("bing");
+		s->setCastShadows(true);
+		//s->setRegionDimensions(Vector3(2000,2000,2000));
+		for (int i = 0; i < 150; ++i)
+		{
+			Vector3 pos;
+			pos.x = Math::RangeRandom(min.x, max.x);
+			pos.y = Math::RangeRandom(min.y, max.y);
+			pos.z = Math::RangeRandom(min.z, max.z);
+
+			s->addEntity(e, pos);
+
+		}
+
+		s->build();
+		//s->setRenderingDistance(1000);
+		//s->dump("static.txt");
+		//mSceneMgr->showBoundingBoxes(true);
+		mCamera->setLodBias(0.5);
+		
+
+
+
+	}
+
 
     // Just override the mandatory create scene method
     void createScene(void)
@@ -2080,7 +2187,7 @@ protected:
         //testClearScene();
 
         //testProjection();
-        testStencilShadows(SHADOWTYPE_STENCIL_ADDITIVE, true, true);
+        //testStencilShadows(SHADOWTYPE_STENCIL_ADDITIVE, true, true);
         //testStencilShadows(SHADOWTYPE_STENCIL_MODULATIVE, false, true);
         //testTextureShadows();
         //testOverlayZOrder();
@@ -2091,14 +2198,20 @@ protected:
         //test2Spotlights();
 
 		//testManualLOD();
-		testLotsAndLotsOfEntities();
+		//testLotsAndLotsOfEntities();
+		//testSimpleMesh();
+		//test2Windows();
+		testStaticGeometry();
+		//testBug();
     }
     // Create new frame listener
     void createFrameListener(void)
     {
-        mFrameListener= new PlayPenListener(mWindow, mCamera);
+        mFrameListener= new PlayPenListener(mSceneMgr, mWindow, mCamera);
         mFrameListener->showDebugOverlay(true);
-        mRoot->addFrameListener(mFrameListener);
+		mRoot->addFrameListener(mFrameListener);
+		//FrameListener* fl = new UberSimpleFrameListener(mWindow, mCamera);
+        //mRoot->addFrameListener(fl);
 
     }
     
