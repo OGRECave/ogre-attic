@@ -907,6 +907,9 @@ namespace Ogre {
         D3DTexturePtr dt = TextureManager::getSingleton().getByName(texname);
         if (enabled && !dt.isNull())
         {
+            // note used
+            dt->touch();
+
             LPDIRECTDRAWSURFACE7 pTex = dt->getDDSurface();
             if (pTex != mTexStageDesc[stage].pTex)
             {

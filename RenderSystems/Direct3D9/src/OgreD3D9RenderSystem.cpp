@@ -1186,6 +1186,9 @@ namespace Ogre
 		D3D9TexturePtr dt = TextureManager::getSingleton().getByName(texname);
 		if (enabled && !dt.isNull())
 		{
+            // note used
+            dt->touch();
+
 			IDirect3DBaseTexture9 *pTex = dt->getTexture();
 			if (mTexStageDesc[stage].pTex != pTex)
 			{
