@@ -133,6 +133,8 @@ namespace Ogre {
     class Entity;
     class Factory;
     class FrameListener;
+    class GuiElement;
+    class GuiContainer;
     class InputReader;
     class KeyFrame;
     class Light;
@@ -147,6 +149,7 @@ namespace Ogre {
     class MeshManager;
     class MovableObject;
     class Node;
+    class Overlay;
     class Particle;
     class ParticleAffector;
     class ParticleAffectorFactory;

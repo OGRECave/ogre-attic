@@ -612,9 +612,9 @@ namespace Ogre {
             @param camera Pointer to a camera from whose viewpoint the scene is to
                 be rendered.
             @param vp The target viewport
-            @param includeHUD Whether or not HUD objects should be rendered
+            @param includeOverlays Whether or not overlay objects should be rendered
         */
-        virtual void _renderScene(Camera* camera, Viewport* vp, bool includeHUD);
+        virtual void _renderScene(Camera* camera, Viewport* vp, bool includeOverlays);
 
         /** Internal method for rendering the sky plane with the params as previously set through SceneManager::setSkyPlane.
         */
@@ -998,8 +998,8 @@ namespace Ogre {
         virtual void manualRender(RenderOperation* rend, Material* mat, Viewport* vp, 
             const Matrix4& worldMatrix, const Matrix4& viewMatrix, const Matrix4& projMatrix) ;
 
-        /** Internal method, queues any HUD objects for rendering. */
-        void _queueHUDObjects(void);
+        /** Internal method, queues any overlay objects for rendering. */
+        void _queueOverlays(void);
 
 
     };

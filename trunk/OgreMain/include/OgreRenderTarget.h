@@ -201,7 +201,7 @@ namespace Ogre {
             If you want notifications before and after a target is updated by the system, use
             this method to register your own custom RenderTargetListener class. This is useful
             for potentially adding your own manual rendering commands before and after the
-            'normal' system rendering, e.g. for a HUD or other composite effects.
+            'normal' system rendering.
         @par NB this should not be used for frame-based scene updates, use Root::addFrameListener for that.
         */
         virtual void addListener(RenderTargetListener* listener);
