@@ -199,6 +199,8 @@ namespace Ogre {
                 left = _getDerivedLeft() * 2.0 - 1.0;
                 top -= mCharHeight * 2.0;
                 newLine = true;
+                // Also reduce tri count
+                mRenderOp.vertexData->vertexCount -= 6;
                 continue;
             }
 
