@@ -24,6 +24,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreD3D9VertexDeclaration.h"
 #include "OgreD3D9Mappings.h"
+#include "OgreException.h"
+#include "OgreRoot.h"
 
 namespace Ogre {
 
@@ -110,6 +112,14 @@ namespace Ogre {
 		    d3delems[idx].UsageIndex = 0;
             
             HRESULT hr = mlpD3DDevice->CreateVertexDeclaration(d3delems, &mlpD3DDecl);
+
+            if (FAILED(hr))
+            {
+                Except(Exception::ERR_INTERNAL_ERROR, 
+                    "Cannot create D3D9 vertex declaration: " + 
+                    Root::getSingleton().getErrorDescription(hr), 
+                    "Direct3D9VertexDeclaration::getD3DVertexDeclaration");
+            }
 
             delete [] d3delems;
 
