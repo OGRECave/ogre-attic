@@ -224,6 +224,7 @@ namespace Ogre {
 		// Spin forever until we're told to shut down
 		while (!shuttingDown)
 		{
+			Request* req;
 			// Manual scope block just to define scope of lock
 			{
 				// Lock; note that 'mCondition.wait()' will free the lock
@@ -239,35 +240,44 @@ namespace Ogre {
 				// re-acquired.
 
 				// Process one request
-				Request& req = queueInstance.mRequestQueue.front();
-				ResourceManager* rm = 0;
-				switch (req.type)
-				{
-				case RT_INITIALISE_GROUP:
-					ResourceGroupManager::getSingleton().initialiseResourceGroup(
-						req.groupName);
-					break;
-				case RT_INITIALISE_ALL_GROUPS:
-					ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
-					break;
-				case RT_LOAD_GROUP:
-					ResourceGroupManager::getSingleton().loadResourceGroup(
-						req.groupName);
-					break;
-				case RT_LOAD_RESOURCE:
-					rm = ResourceGroupManager::getSingleton()._getResourceManager(
-							req.resourceType);
-					rm->load(req.resourceName, req.groupName, req.isManual, 
-						req.loader, req.loadParams);
-					break;
-				case RT_SHUTDOWN:
-					// That's all folks
-					shuttingDown = true;
-					break;
-				};
+				req = &(queueInstance.mRequestQueue.front());
+			} // release lock so queueing can be done while we process one request
+			// use of std::list means that references guarateed to remain valid
+
+			ResourceManager* rm = 0;
+			switch (req->type)
+			{
+			case RT_INITIALISE_GROUP:
+				ResourceGroupManager::getSingleton().initialiseResourceGroup(
+					req->groupName);
+				break;
+			case RT_INITIALISE_ALL_GROUPS:
+				ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+				break;
+			case RT_LOAD_GROUP:
+				ResourceGroupManager::getSingleton().loadResourceGroup(
+					req->groupName);
+				break;
+			case RT_LOAD_RESOURCE:
+				rm = ResourceGroupManager::getSingleton()._getResourceManager(
+						req->resourceType);
+				rm->load(req->resourceName, req->groupName, req->isManual, 
+					req->loader, req->loadParams);
+				break;
+			case RT_SHUTDOWN:
+				// That's all folks
+				shuttingDown = true;
+				break;
+			};
+
+
+			{
+				// re-lock to consume completed request
+				boost::recursive_mutex::scoped_lock queueLock(
+					queueInstance.OGRE_AUTO_MUTEX_NAME);
 
 				// Consume the ticket
-				queueInstance.mRequestTicketMap.erase(req.ticketID);
+				queueInstance.mRequestTicketMap.erase(req->ticketID);
 				queueInstance.mRequestQueue.pop_front();
 			}
 
