@@ -90,7 +90,27 @@ namespace Ogre
 		}
         return GpuProgramManager::getSingleton().isSyntaxSupported(mSyntaxCode);
     }
-	//-----------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------
+    void GpuProgram::setShadowCasterProgramName(const String& name)
+    {
+        mShadowCasterProgramName = name;
+    }
+    //-----------------------------------------------------------------------------
+    const String& GpuProgram::getShadowCasterProgramName(void)
+    {
+        return mShadowCasterProgramName;
+    }
+    //-----------------------------------------------------------------------------
+    void GpuProgram::setShadowReceiverProgramName(const String& name)
+    {
+        mShadowReceiverProgramName = name;
+    }
+    //-----------------------------------------------------------------------------
+    const String& GpuProgram::getShadowReceiverProgramName(void)
+    {
+        return mShadowReceiverProgramName;
+    }
+    //-----------------------------------------------------------------------------
     GpuProgramParametersSharedPtr GpuProgram::createParameters(void)
     {
         // Default implementation simply returns standard parameters.
@@ -275,6 +295,10 @@ namespace Ogre
 			case ACT_AMBIENT_LIGHT_COLOUR: 
 				setConstant(i->index, source.getAmbientLightColour());
 				break;
+            case ACT_TEXTURE_VIEWPROJ_MATRIX:
+                setConstant(i->index, source.getTextureViewProjMatrix());
+                break;
+
             }
         }
     }

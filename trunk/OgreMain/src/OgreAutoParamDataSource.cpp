@@ -40,8 +40,10 @@ namespace Ogre {
          mInverseWorldViewMatrixDirty(true),
          mInverseViewMatrixDirty(true),
          mCameraPositionObjectSpaceDirty(true),
+         mTextureViewProjMatrixDirty(true),
          mCurrentRenderable(NULL),
-         mCurrentCamera(NULL)
+         mCurrentCamera(NULL), 
+         mCurrentTextureProjector(NULL)
     {
         mBlankLight.setDiffuseColour(ColourValue::Black);
         mBlankLight.setSpecularColour(ColourValue::Black);
@@ -219,5 +221,24 @@ namespace Ogre {
 		return mAmbientLight;
 		
 	}
+    //-----------------------------------------------------------------------------
+    void AutoParamDataSource::setTextureProjector(const Frustum* frust)
+    {
+        mCurrentTextureProjector = frust;
+        mTextureViewProjMatrixDirty = true;
+
+    }
+    //-----------------------------------------------------------------------------
+    const Matrix4& AutoParamDataSource::getTextureViewProjMatrix(void) const
+    {
+        if (mTextureViewProjMatrixDirty)
+        {
+            mTextureViewProjMatrix = 
+                mCurrentTextureProjector->getViewMatrix() * 
+                mCurrentTextureProjector->getProjectionMatrix();
+        }
+        return mTextureViewProjMatrix;
+    }
+
 }
 

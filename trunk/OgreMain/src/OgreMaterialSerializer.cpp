@@ -1306,6 +1306,10 @@ namespace Ogre
         {
             acType = GpuProgramParameters::ACT_CAMERA_POSITION_OBJECT_SPACE;
         }
+        else if (vecparams[1] == "texture_viewproj_matrix")
+        {
+            acType = GpuProgramParameters::ACT_TEXTURE_VIEWPROJ_MATRIX;
+        }
         else if (vecparams[1] == "time")
         {
             // Special case!
@@ -1642,6 +1646,20 @@ namespace Ogre
         return false;
     }
     //-----------------------------------------------------------------------
+    bool parseProgramShadowReceiverProgram(String& params, MaterialScriptContext& context)
+    {
+        context.programDef->shadowReceiverProgramName = params; 
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseProgramShadowCasterProgram(String& params, MaterialScriptContext& context)
+    {
+        context.programDef->shadowCasterProgramName = params; 
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
     bool parseProgramSyntax(String& params, MaterialScriptContext& context)
     {
 		// Syntax code, make lower case
@@ -1802,6 +1820,8 @@ namespace Ogre
         mProgramAttribParsers.insert(AttribParserList::value_type("source", (ATTRIBUTE_PARSER)parseProgramSource));
         mProgramAttribParsers.insert(AttribParserList::value_type("syntax", (ATTRIBUTE_PARSER)parseProgramSyntax));
         mProgramAttribParsers.insert(AttribParserList::value_type("includes_skeletal_animation", (ATTRIBUTE_PARSER)parseProgramSkeletalAnimation));
+        mProgramAttribParsers.insert(AttribParserList::value_type("shadow_caster_program_name", (ATTRIBUTE_PARSER)parseProgramShadowCasterProgram));
+        mProgramAttribParsers.insert(AttribParserList::value_type("shadow_receiver_program_name", (ATTRIBUTE_PARSER)parseProgramShadowReceiverProgram));
 		
 
         mScriptContext.section = MSS_NONE;
@@ -2039,6 +2059,8 @@ namespace Ogre
 			GpuProgram* gp = GpuProgramManager::getSingleton().
 				createProgram(def->name, def->source, def->progType, def->syntax);
 			gp->setSkeletalAnimationIncluded(def->supportsSkeletalAnimation);
+            gp->setShadowCasterProgramName(def->shadowCasterProgramName);
+            gp->setShadowReceiverProgramName(def->shadowReceiverProgramName);
 		}
 		else
 		{
@@ -2058,6 +2080,8 @@ namespace Ogre
                 gp->setSourceFile(def->source);
                 // Skel animation supported
                 gp->setSkeletalAnimationIncluded(def->supportsSkeletalAnimation);
+                gp->setShadowCasterProgramName(def->shadowCasterProgramName);
+                gp->setShadowReceiverProgramName(def->shadowReceiverProgramName);
 
 			    // Set custom parameters
 			    std::map<String, String>::const_iterator i, iend;
