@@ -989,7 +989,7 @@ namespace Ogre {
 	    else
 	    {
 		    // Use parser
-		    iparsers->second(params, vecparams.size(), pMat, pLayer);
+		    iparsers->second(params, (unsigned int)vecparams.size(), pMat, pLayer);
 	    }
 
 

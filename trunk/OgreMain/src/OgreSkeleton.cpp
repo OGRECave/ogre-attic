@@ -412,7 +412,7 @@ namespace Ogre {
 
         of << "-= Debug output of skeleton " << mName << " =-" << std::endl << std::endl;
         of << "== Bones ==" << std::endl;
-        of << "Number of bones: " << mBoneList.size() << std::endl;
+        of << "Number of bones: " << (unsigned int)mBoneList.size() << std::endl;
         
         BoneList::iterator bi;
         for (bi = mBoneList.begin(); bi != mBoneList.end(); ++bi)
@@ -428,7 +428,7 @@ namespace Ogre {
         }
 
         of << "== Animations ==" << std::endl;
-        of << "Number of animations: " << mAnimationsList.size() << std::endl;
+        of << "Number of animations: " << (unsigned int)mAnimationsList.size() << std::endl;
 
         AnimationList::iterator ai;
         for (ai = mAnimationsList.begin(); ai != mAnimationsList.end(); ++ai)
