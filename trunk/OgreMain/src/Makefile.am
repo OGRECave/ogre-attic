@@ -3,8 +3,8 @@ INCLUDES = $(STLPORT_CFLAGS) $(FT2_CFLAGS) -I$(top_srcdir)/OgreMain/include
 lib_LTLIBRARIES=libOgreMain.la
 
 libOgreMain_la_SOURCES = OgreActionEvent.cpp \
-						 OgreActionTarget.cpp \
-						 OgreAnimation.cpp \
+                         OgreActionTarget.cpp \
+                         OgreAnimation.cpp \
                          OgreAnimationState.cpp \
                          OgreAnimationTrack.cpp \
                          OgreArchiveEx.cpp \
@@ -17,6 +17,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreCamera.cpp \
                          OgreCodec.cpp \
                          OgreColourValue.cpp \
+                         OgreCommon.cpp \
                          OgreConfigFile.cpp \
                          OgreConfigOptionMap.cpp \
                          OgreController.cpp \
@@ -73,11 +74,12 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgrePlane.cpp \
                          OgrePlatformManager.cpp \
                          OgrePredefinedControllers.cpp \
-						 OgreProgressiveMesh.cpp \
+                         OgreProgressiveMesh.cpp \
                          OgreQuaternion.cpp \
                          OgreRenderQueue.cpp \
                          OgreRenderSystem.cpp \
                          OgreRenderTarget.cpp \
+                         OgreRenderTexture.cpp \
                          OgreRenderWindow.cpp \
                          OgreResourceManager.cpp \
                          OgreResourceMap.cpp \
@@ -106,7 +108,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreTextureManager.cpp \
                          OgreVector3.cpp \
                          OgreViewport.cpp \
-			 OgreWireBoundingBox.cpp \
+                         OgreWireBoundingBox.cpp \
                          OgreZip.cpp \
                          OgreZipArchiveFactory.cpp \
                          unzip.c
