@@ -38,12 +38,11 @@ namespace Ogre {
     {
     private:
 		static bool _is_initialised;
+        String mType;
+        unsigned int mIlType;
 
     public:
-        ILImageCodec() 
-        { 
-            initialiseIL();
-        }
+        ILImageCodec(const String &type, unsigned int ilType);
         virtual ~ILImageCodec() { }
 
         /// @copydoc Codec::code
@@ -52,10 +51,11 @@ namespace Ogre {
         void codeToFile(MemoryDataStreamPtr& input, const String& outFileName, CodecDataPtr& pData) const;
         /// @copydoc Codec::decode
         DecodeResult decode(DataStreamPtr& input) const;
-        /// Get DevIL-specific type
-        virtual unsigned int getILType(void) const = 0;
+
         /// Initialise DevIL
         void initialiseIL(void);
+        
+        virtual String getType() const;        
     };
 
 } // namespace

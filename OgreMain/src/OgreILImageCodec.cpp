@@ -37,6 +37,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     bool ILImageCodec::_is_initialised = false;    
+    //---------------------------------------------------------------------
+
+    ILImageCodec::ILImageCodec(const String &type, unsigned int ilType):
+        mType(type),
+        mIlType(ilType)
+    { 
+        initialiseIL();
+    }
 
     //---------------------------------------------------------------------
     DataStreamPtr ILImageCodec::code(MemoryDataStreamPtr& input, Codec::CodecDataPtr& pData) const
@@ -61,7 +69,8 @@ namespace Ogre {
         ilBindImage( ImageName );
 
         ImageData* pImgData = static_cast< ImageData * >( pData.getPointer() );
-        std::pair< int, int > fmt_bpp = OgreFormat2ilFormat( pImgData->format );
+        std::pair< int, int > fmt_bpp = ILUtil::OgreFormat2ilFormat( pImgData->format );
+
         ilTexImage( 
             pImgData->width, pImgData->height, 1, fmt_bpp.second, fmt_bpp.first, 
             IL_UNSIGNED_BYTE, input->getPtr());
@@ -81,7 +90,8 @@ namespace Ogre {
 
         // DevIL variables
         ILuint ImageName;
-        ILint ImageFormat, BytesPerPixel;
+
+        ILint ImageFormat, BytesPerPixel, ImageType;
         ImageData* imgData = new ImageData();
         MemoryDataStreamPtr output;
 
@@ -99,7 +109,7 @@ namespace Ogre {
         // Load image from stream, cache into memory
         MemoryDataStream memInput(input);
         ilLoadL( 
-            getILType(), 
+            mIlType, 
             memInput.getPtr(), 
             static_cast< ILuint >(memInput.size()));
 
@@ -111,25 +121,18 @@ namespace Ogre {
                 iluErrorString(PossibleError) ) ;
         }
 
-        // Format conversion to RGB or RGBA
         ImageFormat = ilGetInteger( IL_IMAGE_FORMAT );
-        if(ImageFormat==IL_BGR || ImageFormat==IL_BGRA) {
-            // New image format
-            if(ImageFormat==IL_BGR)
-                ImageFormat = IL_RGB;
-            else
-                ImageFormat = IL_RGBA;
+        ImageType = ilGetInteger( IL_IMAGE_TYPE );
 
-            // Doing this with IL_FORMAT_SET/IL_FORMAT_MODE would have
-            // to be done before loading, and would always
-            // produce images with alpha channel.
-            iluSwapColours();
+        // Convert image if ImageType is != IL_*BYTE and != IL_FLOAT
+        if(ImageType != IL_BYTE && ImageType != IL_UNSIGNED_BYTE && ImageType != IL_FLOAT) {
+            ilConvertImage(ImageFormat, IL_FLOAT);
         }
 
         // Now sets some variables
         BytesPerPixel = ilGetInteger( IL_IMAGE_BYTES_PER_PIXEL ); 
 
-        imgData->format = ilFormat2OgreFormat( ImageFormat, BytesPerPixel );
+        imgData->format = ILUtil::ilFormat2OgreFormat( ImageFormat, ImageType );
         imgData->width = ilGetInteger( IL_IMAGE_WIDTH );
         imgData->height = ilGetInteger( IL_IMAGE_HEIGHT );
         imgData->depth = ilGetInteger( IL_IMAGE_DEPTH );
@@ -150,13 +153,13 @@ namespace Ogre {
             ilGetDXTCData(output->getPtr(), dxtSize, dxtFormat);
 
             imgData->size = dxtSize;
-            imgData->format = ilFormat2OgreFormat( dxtFormat, BytesPerPixel );
+            imgData->format = ILUtil::ilFormat2OgreFormat( dxtFormat, ImageType );
             imgData->flags |= IF_COMPRESSED;
         }
         else
         {
             uint numImagePasses = cubeflags ? 6 : 1;
-            uint imageSize = ilGetInteger(IL_IMAGE_SIZE_OF_DATA);
+            uint imageSize = PixelUtil::getNumElemBytes(imgData->format) * ilGetInteger( IL_IMAGE_WIDTH ) * ilGetInteger( IL_IMAGE_HEIGHT ) * ilGetInteger( IL_IMAGE_DEPTH );
             output.bind(new MemoryDataStream(imageSize * numImagePasses));
 
             unsigned int i = 0, offset = 0;
@@ -168,13 +171,12 @@ namespace Ogre {
                     ilActiveImage(i);
                 }
 
-                // Move the image data to the output buffer
-                memcpy( output->getPtr() + offset, ilGetData(), imageSize );
+                ILUtil::toOgre((unsigned char*)output->getPtr()+offset, imgData->format);
+
                 offset += imageSize;
             }
 
             imgData->size = imageSize * numImagePasses;
-            imgData->format = ilFormat2OgreFormat( ImageFormat, BytesPerPixel );
         }
 
         // Restore IL state
@@ -199,5 +201,10 @@ namespace Ogre {
             ilEnable( IL_FILE_OVERWRITE );
             _is_initialised = true;
         }
+    }
+    //---------------------------------------------------------------------    
+    String ILImageCodec::getType() const 
+    {
+        return mType;
     }
 }
