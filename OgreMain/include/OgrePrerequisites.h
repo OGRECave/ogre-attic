@@ -154,6 +154,7 @@ namespace Ogre {
     class RenderQueue;
     class RenderSystem;
     class RenderTarget;
+    class RenderTargetListener;
     class RenderWindow;
     class Resource;
     class ResourceManager;

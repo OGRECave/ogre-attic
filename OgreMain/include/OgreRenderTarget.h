@@ -190,6 +190,20 @@ namespace Ogre {
         /** Adds debug text to this window. */
         virtual void setDebugText(const String& text);
 
+        /** Add a listener to this RenderTarget which will be called back before & after rendering.
+        @remarks
+            If you want notifications before and after a target is updated by the system, use
+            this method to register your own custom RenderTargetListener class. This is useful
+            for potentially adding your own manual rendering commands before and after the
+            'normal' system rendering, e.g. for a HUD or other composite effects.
+        @par NB this should not be used for frame-based scene updates, use Root::addFrameListener for that.
+        */
+        virtual void addListener(RenderTargetListener* listener);
+        /** Removes a RenderTargetListener previously registered using addListener. */
+        virtual void removeListener(RenderTargetListener* listener);
+        /** Removes all listeners from this instance. */
+        virtual void removeAllListeners(void);
+
     protected:
         /// The name of this target
         String mName;
@@ -213,6 +227,15 @@ namespace Ogre {
         typedef std::map<int, Viewport*, std::less<int> > ViewportList;
         /// List of viewports, map on Z-order
         ViewportList mViewportList;
+
+        typedef std::vector<RenderTargetListener*> RenderTargetListenerList;
+        RenderTargetListenerList mListeners;
+
+        /// internal method for firing events
+        void firePreUpdate(void);
+        /// internal method for firing events
+        void firePostUpdate(void);
+
     };
 
 } // Namespace
