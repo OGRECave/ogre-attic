@@ -91,11 +91,12 @@ namespace Ogre {
 		uchar	*src3 = m_pBuffer, *dst3 = NULL;
 		uint	*src4 = (uint *)m_pBuffer, *dst4 = NULL;
 
+		ushort y;
 		switch (m_ucPixelSize)
 		{
 		case 1:
 			pTempBuffer1 = new uchar[m_uWidth * m_uHeight];
-			for (ushort y = 0; y < m_uHeight; y++)
+			for (y = 0; y < m_uHeight; y++)
 			{
 				dst1 = (pTempBuffer1 + ((y * m_uWidth) + m_uWidth - 1));
 				for (ushort x = 0; x < m_uWidth; x++)
@@ -108,7 +109,7 @@ namespace Ogre {
 
 		case 2:
 			pTempBuffer2 = new ushort[m_uWidth * m_uHeight];
-			for (ushort y = 0; y < m_uHeight; y++)
+			for (y = 0; y < m_uHeight; y++)
 			{
 				dst2 = (pTempBuffer2 + ((y * m_uWidth) + m_uWidth - 1));
 				for (ushort x = 0; x < m_uWidth; x++)
@@ -121,7 +122,7 @@ namespace Ogre {
 
 		case 3:
 			pTempBuffer3 = new uchar[m_uWidth * m_uHeight * 3];
-			for (ushort y = 0; y < m_uHeight; y++)
+			for (y = 0; y < m_uHeight; y++)
 			{
 				uint offset = ((y * m_uWidth) + (m_uWidth - 1)) * 3;
 				dst3 = pTempBuffer3;
@@ -139,7 +140,7 @@ namespace Ogre {
 
 		case 4:
 			pTempBuffer4 = new uint[m_uWidth * m_uHeight];
-			for (ushort y = 0; y < m_uHeight; y++)
+			for (y = 0; y < m_uHeight; y++)
 			{
 				dst4 = (pTempBuffer4 + ((y * m_uWidth) + m_uWidth - 1));
 				for (ushort x = 0; x < m_uWidth; x++)
