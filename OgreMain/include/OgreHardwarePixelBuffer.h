@@ -148,6 +148,16 @@ namespace Ogre {
 			@note Only call this function when the buffer is unlocked. 
 		 */
 		virtual void blitToMemory(const Image::Box &srcBox, const PixelBox &dst) = 0;
+
+		/** Convience function that blits this entire buffer to a pixelbox.
+			The image is scaled as needed.
+			@param src		PixelBox containing the source pixels and format in memory
+			@note Only call this function when the buffer is unlocked. 
+		*/
+		void blitToMemory(const PixelBox &dst)
+		{
+			blitToMemory(Box(0,0,0,mWidth,mHeight,mDepth), dst);
+		}
         
         /// Gets the width of this buffer
         size_t getWidth() const { return mWidth; }

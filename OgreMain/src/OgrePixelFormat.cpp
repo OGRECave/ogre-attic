@@ -1203,7 +1203,7 @@ namespace Ogre {
 			// Native endian format with all bit depths<8 can safely and quickly be 
 			// converted to 24/32 bit
 			if(PixelUtil::isNativeEndian(src.format) && 
-				depths[0]<8 && depths[1]<8 && depths[2]<8 && depths[3]<8) {
+				depths[0]<=8 && depths[1]<=8 && depths[2]<=8 && depths[3]<=8) {
 				if(PixelUtil::hasAlpha(src.format)) {
 					fmt = PF_A8R8G8B8;
 				} else {
