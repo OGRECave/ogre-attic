@@ -99,6 +99,10 @@ SOURCE=..\src\OgreXMLMeshSerializer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreXMLSkeletonSerializer.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\tinystr.cpp
 # End Source File
 # Begin Source File
@@ -124,6 +128,10 @@ SOURCE=..\include\OgreXMLMeshSerializer.h
 # Begin Source File
 
 SOURCE=..\include\OgreXMLPrerequisites.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreXMLSkeletonSerializer.h
 # End Source File
 # Begin Source File
 
