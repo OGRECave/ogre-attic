@@ -484,10 +484,10 @@ namespace Ogre {
         
         IlluminationStage iStage = IS_AMBIENT;
 
+        bool haveAmbient = false;
         while (i != iend)
         {
             IlluminationPass* iPass;
-            bool haveAmbient = false;
             Pass* p = *i;
             switch(iStage)
             {
