@@ -51,6 +51,24 @@ namespace OgreRefApp {
     #   define _OgreRefAppExport
     #endif
 
+    // Quick conversions
+    inline void OgreToOde(const Matrix3& ogre, dMatrix3& ode)
+    {
+        ode[0] = ogre[0][0];
+        ode[1] = ogre[0][1];
+        ode[2] = ogre[0][2];
+        ode[3] = ogre[1][0];
+        ode[4] = ogre[1][1];
+        ode[5] = ogre[1][2];
+        ode[6] = ogre[2][0];
+        ode[7] = ogre[2][1];
+        ode[8] = ogre[2][2];
+        ode[9] = ogre[3][0];
+        ode[10] = ogre[3][1];
+        ode[11] = ogre[3][2];
+    }
+
+
     // Forward definitions of classes to reduce dependencies
     class ApplicationObject;
     class OgreHead;
