@@ -150,11 +150,11 @@ namespace Ogre {
     void PanelGuiElement::updatePositionGeometry(void)
     {
         /*
-            1-----3
-            ^\    ^
-            |  \  |
-            |   _\|
             0-----2
+            |    /|
+            |  /  |
+            |/    |
+            1-----3
         */
         Real left, right, top, bottom;
 
@@ -208,11 +208,11 @@ namespace Ogre {
                 Real upperX = 1.0f / mTileX[i];
                 Real upperY = 1.0f / mTileY[i];
                 /*
-                    1-----3
-                    ^\    ^
-                    |  \  |
-                    |   _\|
                     0-----2
+                    |    /|
+                    |  /  |
+                    |/    |
+                    1-----3
                 */
                 Real* pTex = mRenderOp.pTexCoords[i];
 
