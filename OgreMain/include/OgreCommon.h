@@ -35,7 +35,7 @@ namespace Ogre {
         /// Textures
         RESTYPE_TEXTURES,
         /// Models
-        RESTYPE_MODELS,
+        RESTYPE_MODELS
     };
 
     /** Comparison functions used for the depth/stencil buffer operations and 

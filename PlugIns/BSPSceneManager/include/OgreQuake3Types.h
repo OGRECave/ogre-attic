@@ -126,7 +126,7 @@ enum TexGen
 {
     TEXGEN_BASE = 0,        // Coord set 0
     TEXGEN_LIGHTMAP = 1,    // Coord set 1
-    TEXGEN_ENVIRONMENT = 2, // Neither, generated
+    TEXGEN_ENVIRONMENT = 2  // Neither, generated
 };
 
 enum DeformFunc
@@ -137,7 +137,7 @@ enum DeformFunc
     DEFORM_FUNC_NORMAL = 3,
     DEFORM_FUNC_MOVE = 4,
     DEFORM_FUNC_AUTOSPRITE = 5,
-    DEFORM_FUNC_AUTOSPRITE2 = 6,
+    DEFORM_FUNC_AUTOSPRITE2 = 6
 
 };
 /////////////////////////////////////////////////////////

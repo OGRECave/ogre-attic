@@ -51,8 +51,6 @@ namespace Ogre
 
 	std::pair< int, int > OgreFormat2ilFormat( PixelFormat format )
 	{
-		std::pair< int, int > ret_data;
-
 		switch( format )
 		{
 		case PF_L8:
