@@ -24,8 +24,6 @@ LGPL like the rest of the engine.
 
 #include "ExampleApplication.h"
 
-#include "OgreStringConverter.h"
-
 #define ENTITY_NAME "CubeMappedEntity"
 #define MESH_NAME "CubeMappedMesh"
 

@@ -29,8 +29,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSDLPrerequisites.h"
 #include "OgreRenderWindow.h"
 
-#include <SDL.h>
-
 namespace Ogre {
     class SDLWindow : public RenderWindow
     {

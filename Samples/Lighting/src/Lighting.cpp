@@ -19,7 +19,11 @@ LGPL like the rest of the engine.
         Shows lighting support in OGRE.
 */
 
-#include "Ogre.h"
+#if OGRE_PLATFROM == PLATFORM_APPLE
+#   include <Ogre/Ogre.h>
+#else
+#   include "Ogre.h"
+#endif
 #include "Lighting.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32

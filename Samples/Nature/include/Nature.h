@@ -19,7 +19,6 @@ LGPL like the rest of the engine.
 */
 
 #include "ExampleApplication.h"
-#include "OgreStringConverter.h"
 
 #define FLOW_SPEED 0.2
 #define FLOW_HEIGHT 0.8
