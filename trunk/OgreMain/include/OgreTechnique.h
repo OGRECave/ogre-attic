@@ -327,6 +327,26 @@ namespace Ogre {
         */
         void setTextureAnisotropy(int maxAniso);
 
+        /** Sets the kind of blending every pass has with the existing contents of the scene.
+        @note
+            This property actually exists on the Pass class. For simplicity, this method allows 
+            you to set these properties for every current Pass within this Technique. If 
+            you need more precision, retrieve the Pass instance and set the
+            property there.
+        @see Pass::setSceneBlending
+        */
+        void setSceneBlending( const SceneBlendType sbt );
+
+        /** Allows very fine control of blending every Pass with the existing contents of the scene.
+        @note
+            This property actually exists on the Pass class. For simplicity, this method allows 
+            you to set these properties for every current Pass within this Technique. If 
+            you need more precision, retrieve the Pass instance and set the
+            property there.
+        @see Pass::setSceneBlending
+        */
+        void setSceneBlending( const SceneBlendFactor sourceFactor, const SceneBlendFactor destFactor);
+
 
     };
 

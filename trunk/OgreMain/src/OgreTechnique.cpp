@@ -403,6 +403,28 @@ namespace Ogre {
             (*i)->setTextureAnisotropy(maxAniso);
         }
     }
+    // --------------------------------------------------------------------
+    void Technique::setSceneBlending( const SceneBlendType sbt )
+    {
+        Passes::iterator i, iend;
+        iend = mPasses.end();
+        for (i = mPasses.begin(); i != iend; ++i)
+        {
+            (*i)->setSceneBlending(sbt);
+        }
+    }
+    // --------------------------------------------------------------------
+    void Technique::setSceneBlending( const SceneBlendFactor sourceFactor, 
+        const SceneBlendFactor destFactor)
+    {
+        Passes::iterator i, iend;
+        iend = mPasses.end();
+        for (i = mPasses.begin(); i != iend; ++i)
+        {
+            (*i)->setSceneBlending(sourceFactor, destFactor);
+        }
+    }
+
     //-----------------------------------------------------------------------
     void Technique::_notifyNeedsRecompile(void)
     {
