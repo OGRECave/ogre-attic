@@ -118,18 +118,12 @@ namespace Ogre
 
     unsigned int D3DDeviceList::count(void)
     {
-        return mDeviceList.size();
+        return static_cast< unsigned int >( mDeviceList.size() );
     }
 
     D3DDevice* D3DDeviceList::item(int index)
     {
-        // Get an iterator for the vector
-        std::vector<D3DDevice>::iterator p = mDeviceList.begin();
-
-        // Return the indexed driver
-        return &p[index];
-
-
+		return &mDeviceList[index];
     }
 
     D3DDevice* D3DDeviceList::getBest(int minColourDepth)

@@ -447,7 +447,7 @@ namespace Ogre {
         StringVector vecparams;
         Vector3 origin;
         Real angle;
-        int pos;
+        size_t pos;
         char* lineend;
         bool isPlayerStart;
 
@@ -465,7 +465,7 @@ namespace Ogre {
             {
                 line = line.toLowerCase();
                 // Remove quotes
-                while ((pos = line.find("\"",0)) != -1)
+				while( ( pos = line.find("\"",0) ) != String::npos )
                 {
                     line = line.substr(0,pos) + line.substr(pos+1,line.length()-(pos+1));
                 }

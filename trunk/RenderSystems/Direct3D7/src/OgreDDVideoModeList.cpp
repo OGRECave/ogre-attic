@@ -103,7 +103,7 @@ namespace Ogre {
 
     unsigned int DDVideoModeList::count(void)
     {
-        return mModeList.size();
+        return static_cast< unsigned int >( mModeList.size() );
     }
 
     DDVideoMode* DDVideoModeList::item(int index)

@@ -69,17 +69,8 @@ namespace Ogre {
 
     DDDriverList::~DDDriverList()
     {
-        // Release each driver
-        // Get an interator for the vector
-        std::vector<DDDriver>::iterator p = mDriverList.begin();
-        int sz;
-
-        sz = mDriverList.size();
-
-
-        mDriverList.erase(p, p+sz-1);
-
-
+        // Release drivers
+        mDriverList.erase( mDriverList.begin(), mDriverList.begin() + mDriverList.size() - 1 );
     }
 
     BOOL DDDriverList::enumerate()
@@ -141,7 +132,7 @@ namespace Ogre {
 
     unsigned int DDDriverList::count(void) const throw()
     {
-        return mDriverList.size();
+        return static_cast< unsigned int >( mDriverList.size() );
     }
 
     DDDriver* DDDriverList::item(int index) throw( std::out_of_range )

@@ -153,10 +153,12 @@ namespace Ogre {
         DataChunk chunk;
         TextureManager::getSingleton()._findResourceData(mName, chunk);
 
-        int pos = mName.find_last_of(".");
-        if (pos == -1)
-            throw Exception(999, "Unable to load texture - invalid extension.",
-                "SDLTexture::load");
+        size_t pos = mName.find_last_of(".");
+		if( pos == String::npos )
+            Except( 
+			Exception::ERR_INVALIDPARAMS, 
+			"Unable to load texture - invalid extension.",
+            "SDLTexture::load" );
 
         strcpy(extension, mName.substr(pos + 1, 3).c_str());
 

@@ -718,9 +718,7 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------------
     void SDLRenderSystem::_setTextureBlendMode(int stage, const LayerBlendModeEx& bm)
-    {
-        GLint param;
-        
+    {       
         glActiveTextureARB(GL_TEXTURE0_ARB + stage);
         glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
 

@@ -263,7 +263,7 @@ namespace Ogre {
         else if (params[0] == "animmap")
         {
             pPass->animFps = atof(params[1].c_str());
-            pPass->animNumFrames = vecparams.size() - 2;
+            pPass->animNumFrames = static_cast<unsigned int>( vecparams.size() - 2 );
             for (unsigned int frame = 0; frame < pPass->animNumFrames; ++frame)
             {
                 pPass->frames[frame] = params[frame+2];
