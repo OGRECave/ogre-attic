@@ -425,7 +425,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    RenderWindow* Root::initialise(bool autoCreateWindow)
+    RenderWindow* Root::initialise(bool autoCreateWindow, const String& windowTitle)
     {
         if (!mActiveRenderer)
             Except(Exception::ERR_NO_RENDERSYSTEM_SELECTED,
@@ -434,7 +434,7 @@ namespace Ogre {
 
         mControllerManager = new ControllerManager();
 
-        mAutoWindow =  mActiveRenderer->initialise(autoCreateWindow);
+        mAutoWindow =  mActiveRenderer->initialise(autoCreateWindow, windowTitle);
 
         if (autoCreateWindow)
         {

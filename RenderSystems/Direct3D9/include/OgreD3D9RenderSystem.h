@@ -146,7 +146,7 @@ namespace Ogre
 		// Overridden RenderSystem functions
 		ConfigOptionMap& getConfigOptions(void);
 		String validateConfigOptions(void);
-		RenderWindow* initialise( bool autoCreateWindow );
+		RenderWindow* initialise( bool autoCreateWindow, const String& windowTitle = "OGRE Render Window"  );
 		RenderWindow* createRenderWindow(const String &name, unsigned int width, unsigned int height, unsigned int colourDepth, bool fullScreen, int left = 0, int top = 0, bool depthBuffer = true, RenderWindow* parentWindowHandle = 0);
 		RenderTexture * createRenderTexture( const String & name, unsigned int width, unsigned int height );
 		String getErrorDescription( long errorNumber );

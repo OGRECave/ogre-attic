@@ -170,7 +170,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        RenderWindow* initialise(bool autoCreateWindow);
+        RenderWindow* initialise(bool autoCreateWindow, const String& windowTitle = "OGRE Render Window");
         /** See
           RenderSystem
          */

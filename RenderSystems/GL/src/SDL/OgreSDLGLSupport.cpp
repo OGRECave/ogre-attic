@@ -62,7 +62,7 @@ String SDLGLSupport::validateConfig(void)
     return String("");
 }
 
-RenderWindow* SDLGLSupport::createWindow(bool autoCreateWindow, GLRenderSystem* renderSystem)
+RenderWindow* SDLGLSupport::createWindow(bool autoCreateWindow, GLRenderSystem* renderSystem, const String& windowTitle)
 {
 	if (autoCreateWindow)
     {
@@ -82,7 +82,7 @@ RenderWindow* SDLGLSupport::createWindow(bool autoCreateWindow, GLRenderSystem* 
         unsigned int w = StringConverter::parseUnsignedInt(val.substr(0, pos));
         unsigned int h = StringConverter::parseUnsignedInt(val.substr(pos + 1));
 
-        return renderSystem->createRenderWindow("OGRE Render Window", w, h, 32, fullscreen);
+        return renderSystem->createRenderWindow(windowTitle, w, h, 32, fullscreen);
     }
     else
     {

@@ -191,7 +191,7 @@ namespace Ogre
             @returns
                 A pointer to the automatically created window, if requested, otherwise null.
         */
-        virtual RenderWindow* initialise(bool autoCreateWindow);
+        virtual RenderWindow* initialise(bool autoCreateWindow, const String& windowTitle = "OGRE Render Window");
 
         /** Restart the renderer (normally following a change in settings).
         */

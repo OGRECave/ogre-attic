@@ -244,8 +244,8 @@ namespace Ogre
 
 			// Register the window class
 			// NB allow 4 bytes of window data for D3D9RenderWindow pointer
-			WNDCLASS wndClass = { CS_HREDRAW | CS_VREDRAW, WndProc, 0, 4, hInst,
-				LoadIcon( NULL, "IDI_ICON1" ),
+            WNDCLASS wndClass = { CS_HREDRAW | CS_VREDRAW, WndProc, 0, 4, hInst,
+				LoadIcon( NULL, IDI_APPLICATION ),
 				LoadCursor( NULL, IDC_ARROW ),
 				(HBRUSH)GetStockObject( BLACK_BRUSH ), NULL,
 				TEXT(name.c_str()) };

@@ -153,7 +153,7 @@ namespace Ogre {
 		return String("");
 	}
 
-	RenderWindow* Win32GLSupport::createWindow(bool autoCreateWindow, GLRenderSystem* renderSystem)
+	RenderWindow* Win32GLSupport::createWindow(bool autoCreateWindow, GLRenderSystem* renderSystem, const String& windowTitle)
 	{
 		if (autoCreateWindow)
         {
@@ -184,7 +184,7 @@ namespace Ogre {
 			bool vsync = (opt->second.currentValue == "Yes");
 			renderSystem->setWaitForVerticalBlank(vsync);
 
-            return renderSystem->createRenderWindow("OGRE Render Window", w, h, colourDepth, fullscreen);
+            return renderSystem->createRenderWindow(windowTitle, w, h, colourDepth, fullscreen);
         }
         else
         {

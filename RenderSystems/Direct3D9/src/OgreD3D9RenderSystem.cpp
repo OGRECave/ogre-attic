@@ -412,7 +412,7 @@ namespace Ogre
 		return mOptions;
 	}
 	//---------------------------------------------------------------------
-	RenderWindow* D3D9RenderSystem::initialise( bool autoCreateWindow )
+	RenderWindow* D3D9RenderSystem::initialise( bool autoCreateWindow, const String& windowTitle )
 	{
 		RenderWindow* autoWindow = NULL;
 		LogManager::getSingleton().logMessage( "D3D9 : Subsystem Initialising" );
@@ -465,7 +465,7 @@ namespace Ogre
 			height = videoMode->getHeight();
 			colourDepth = videoMode->getColourDepth();
 
-			autoWindow = this->createRenderWindow( "OGRE Render Window", width, height, colourDepth, fullScreen );
+			autoWindow = this->createRenderWindow( windowTitle, width, height, colourDepth, fullScreen );
 		}
 
         LogManager::getSingleton().logMessage("***************************************");

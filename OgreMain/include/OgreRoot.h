@@ -245,7 +245,7 @@ namespace Ogre
                 A pointer to the automatically created window, if
                 requested, otherwise <b>NULL</b>.
         */
-	    RenderWindow* initialise(bool autoCreateWindow);
+	    RenderWindow* initialise(bool autoCreateWindow, const String& windowTitle = "OGRE Render Window");
 
         /** Gets a reference to a SceneManager object.
             @remarks
