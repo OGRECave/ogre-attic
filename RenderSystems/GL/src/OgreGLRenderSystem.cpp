@@ -322,8 +322,8 @@ namespace Ogre {
             mGpuProgramManager->_pushSyntaxCode("fp20");
             mGpuProgramManager->registerProgram(GPT_FRAGMENT_PROGRAM, createProgram<GLGpuNvparseProgram>);
         }
-
         */
+
         // Get extension function pointers
         glActiveTextureARB_ptr = 
             (GL_ActiveTextureARB_Func)mGLSupport->getProcAddress("glActiveTextureARB");
@@ -1805,7 +1805,7 @@ namespace Ogre {
         GLuint glProgType = (gptype == GPT_VERTEX_PROGRAM) ? 
             GL_VERTEX_PROGRAM_ARB : GL_FRAGMENT_PROGRAM_ARB;
 
-        if(mCapabilities->hasCapability(RSC_FRAGMENT_PROGRAM) && 
+        if(gptype == GPT_FRAGMENT_PROGRAM && 
             mCapabilities->getMaxFragmentProgramVersion() == "fp20")
         {
             glDisable(GL_TEXTURE_SHADER_NV);
