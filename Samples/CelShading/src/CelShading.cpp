@@ -48,7 +48,7 @@ public:
 
     bool frameStarted(const FrameEvent& evt)
     {
-        //rotNode->yaw(evt.timeSinceLastFrame * 30);
+        rotNode->yaw(evt.timeSinceLastFrame * 30);
         // Call superclass
         return ExampleFrameListener::frameStarted(evt);
     }
@@ -85,6 +85,9 @@ protected:
         rotNode->createChildSceneNode(Vector3(20,40,50))->attachObject(l);
 
         Entity *ent = mSceneMgr->createEntity("head", "ogrehead.mesh");
+
+        mCamera->setPosition(20, 0, 100);
+        mCamera->lookAt(0,0,0);
 
 
         // Set materials loaded from Example.material
