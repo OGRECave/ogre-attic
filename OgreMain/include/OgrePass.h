@@ -122,6 +122,10 @@ namespace Ogre {
 		GpuProgramUsage *mVertexProgramUsage;
 		// Fragment program details
 		GpuProgramUsage *mFragmentProgramUsage;
+	public:
+		typedef std::set<Pass*> DirtyHashList;
+		/// List of Passes whose hashes need recalculating
+		static DirtyHashList msDirtyHashList;
     public:
         /// Default constructor
 		Pass(Technique* parent, unsigned short index);
@@ -713,8 +717,14 @@ namespace Ogre {
             by the textures which it's TextureUnitState instances are using.
         */
         unsigned long getHash(void) const;
-
-        /// Internal method for recalculating the hash
+		/// Mark the hash as dirty
+		void _dirtyHash(void);
+        /** Internal method for recalculating the hash.
+		@remarks
+			Do not call this unless you are sure the old hash is not still being
+			used by anything. If in doubt, call _dirtyHash if you want to force
+			recalculation of the has next time.
+		*/
         void _recalculateHash(void);
         /** Tells the pass that it needs recompilation. */
         void _notifyNeedsRecompile(void);
@@ -742,7 +752,19 @@ namespace Ogre {
         @see TextureUnitState::setTextureAnisotropy
         */
         void setTextureAnisotropy(unsigned int maxAniso);
-        // --------------------------------------------------------------------
+		/** Static method to retrieve all the Passes which need their
+		    hash values recalculated. 
+		*/
+		static const DirtyHashList& getDirtyHashList(void) 
+		{ return msDirtyHashList; }
+		/** Static method to reset the list of passes which need their hash 
+		    values recalculated. 
+		@remarks
+			For performance, the dirty list is not updated progressively as 
+			the hashes are recalculated, instead we expect the processor of the
+			dirty hash list to clear the list when they are done.
+		*/
+		static void clearDirtyHashList(void) { msDirtyHashList.clear(); }
     };
 
 
