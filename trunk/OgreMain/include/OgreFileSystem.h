@@ -37,6 +37,8 @@ namespace Ogre {
     */
     class _OgreExport FileSystemArchive : public Archive 
     {
+	public:
+		OGRE_AUTO_MUTEX
     protected:
         /// Base path; actually the same as mName, but for clarity
         String mBasePath;

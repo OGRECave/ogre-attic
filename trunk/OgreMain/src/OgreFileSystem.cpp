@@ -66,6 +66,9 @@ namespace Ogre {
         StringVector* simpleList, FileInfoList* detailList, 
         const String& currentDir)
     {
+		// parsing requires locking due to saved returns
+		OGRE_LOCK_AUTO_MUTEX
+
         long lHandle, res;
         struct _finddata_t tagData;
 
@@ -181,7 +184,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     DataStreamPtr FileSystemArchive::open(const String& filename) const
     {
-        pushDirectory(mBasePath);
+		// directory change requires locking due to saved returns
+		OGRE_LOCK_AUTO_MUTEX
+
+		pushDirectory(mBasePath);
         // Use filesystem to determine size 
         // (quicker than streaming to the end and back)
         struct stat tagStat;
@@ -202,7 +208,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     StringVectorPtr FileSystemArchive::list(bool recursive)
     {
-        pushDirectory(mBasePath);
+		// directory change requires locking due to saved returns
+		OGRE_LOCK_AUTO_MUTEX
+
+		pushDirectory(mBasePath);
         StringVectorPtr ret(new StringVector());
 
         findFiles("*", recursive, ret.getPointer(), 0);
@@ -214,6 +223,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     FileInfoListPtr FileSystemArchive::listFileInfo(bool recursive)
     {
+		// directory change requires locking due to saved returns
+		OGRE_LOCK_AUTO_MUTEX
+
         pushDirectory(mBasePath);
         FileInfoListPtr ret(new FileInfoList());
 
@@ -226,6 +238,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     StringVectorPtr FileSystemArchive::find(const String& pattern, bool recursive)
     {
+		// directory change requires locking due to saved returns
+		OGRE_LOCK_AUTO_MUTEX
+
         pushDirectory(mBasePath);
         StringVectorPtr ret(new StringVector());
 
@@ -240,6 +255,9 @@ namespace Ogre {
     FileInfoListPtr FileSystemArchive::findFileInfo(const String& pattern, 
         bool recursive)
     {
+		// directory change requires locking due to saved returns
+		OGRE_LOCK_AUTO_MUTEX
+
         pushDirectory(mBasePath);
         FileInfoListPtr ret(new FileInfoList());
 
@@ -252,6 +270,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	bool FileSystemArchive::exists(const String& filename)
 	{
+		// directory change requires locking due to saved returns
+		OGRE_LOCK_AUTO_MUTEX
+
 		bool ret;
         pushDirectory(mBasePath);
 
