@@ -2320,5 +2320,17 @@ namespace Ogre {
         matrix[2][3] = c.w; 
     }
 
+    //---------------------------------------------------------------------
+    Real GLRenderSystem::getMinimumDepthInputValue(void)
+    {
+        // Range [-1.0f, 1.0f]
+        return -1.0f;
+    }
+    //---------------------------------------------------------------------
+    Real GLRenderSystem::getMaximumDepthInputValue(void)
+    {
+        // Range [-1.0f, 1.0f]
+        return 1.0f;
+    }
 
 }

@@ -268,11 +268,13 @@ namespace Ogre {
             mRootNode->_update(true, false);
             // Set up the default queue group for the objects about to be added
             RenderQueueGroupID oldgrp = queue->getDefaultQueueGroup();
+            ushort oldPriority = queue-> getDefaultRenderablePriority();
             queue->setDefaultQueueGroup(RENDER_QUEUE_OVERLAY);
+            queue->setDefaultRenderablePriority((mZOrder*100)-1);
             mRootNode->_findVisibleObjects(cam, queue, true, false);
             // Reset the group
             queue->setDefaultQueueGroup(oldgrp);
-
+            queue->setDefaultRenderablePriority(oldPriority);
             // Add 2D elements
             iend = m2DElements.end();
             for (i = m2DElements.begin(); i != iend; ++i)

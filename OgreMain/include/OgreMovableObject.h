@@ -53,6 +53,8 @@ namespace Ogre {
         UserDefinedObject *mUserObject;
         /// The render queue to use when rendering this object
         RenderQueueGroupID mRenderQueueID;
+		/// Flags whether the RenderQueue's default should be used.
+		bool mRenderQueueIDSet;
         /// Flags determining whether this object is included / excluded from scene queries
         unsigned long mQueryFlags;
         /// Cached world AABB of this object
@@ -154,7 +156,7 @@ namespace Ogre {
         @remarks
             Render queues are grouped to allow you to more tightly control the ordering
             of rendered objects. If you do not call this method, all Entity objects default
-            to RENDER_QUEUE_MAIN which is fine for most objects. You may want to alter this
+            to the default queue (RenderQueue::getDefaultQueueGroup), which is fine for most objects. You may want to alter this
             if you want this entity to always appear in front of other objects, e.g. for
             a 3D menu system or such.
         @par

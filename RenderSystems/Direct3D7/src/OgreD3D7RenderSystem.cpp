@@ -2817,6 +2817,19 @@ namespace Ogre {
         matrix[2][3] = c.w;        
 
     }
+    //---------------------------------------------------------------------
+    Real D3DRenderSystem::getMinimumDepthInputValue(void)
+    {
+        // Range [0.0f, 1.0f]
+        return 0.0f;
+    }
+    //---------------------------------------------------------------------
+    Real D3DRenderSystem::getMaximumDepthInputValue(void)
+    {
+        // Range [0.0f, 1.0f]
+        // D3D inverts even identity view matrices, so maximum INPUT is -1.0
+        return -1.0f;
+    }
 
 
 }

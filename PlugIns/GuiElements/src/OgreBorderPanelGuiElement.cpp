@@ -33,6 +33,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreHardwareIndexBuffer.h"
 #include "OgreException.h"
 #include "OgreRenderQueue.h"
+#include "OgreRoot.h"
+#include "OgreRenderSystem.h"
 
 namespace Ogre {
     //---------------------------------------------------------------------
@@ -514,6 +516,9 @@ namespace Ogre {
             mRenderOp2.vertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);
         Real* pPos = static_cast<Real*>(
             vbuf->lock(HardwareBuffer::HBL_DISCARD) );
+        // Use the furthest away depth value, since materials should have depth-check off
+        // This initialised the depth buffer for any 3D objects in front
+        Real zValue = Root::getSingleton().getRenderSystem()->getMaximumDepthInputValue();
         for (ushort cell = 0; cell < 8; ++cell)
         {
             /*
@@ -525,19 +530,19 @@ namespace Ogre {
             */
             *pPos++ = left[cell];
             *pPos++ = top[cell];
-            *pPos++ = -1;
+            *pPos++ = zValue;
 
             *pPos++ = left[cell];
             *pPos++ = bottom[cell];
-            *pPos++ = -1;
+            *pPos++ = zValue;
 
             *pPos++ = right[cell];
             *pPos++ = top[cell];
-            *pPos++ = -1;
+            *pPos++ = zValue;
 
             *pPos++ = right[cell];
             *pPos++ = bottom[cell];
-            *pPos++ = -1;
+            *pPos++ = zValue;
 
         }
         vbuf->unlock();
@@ -550,19 +555,19 @@ namespace Ogre {
         // Use cell 1 and 3 to determine positions
         *pPos++ = left[1];
         *pPos++ = top[3];
-        *pPos++ = -1;
+        *pPos++ = zValue;
 
         *pPos++ = left[1];
         *pPos++ = bottom[3];
-        *pPos++ = -1;
+        *pPos++ = zValue;
 
         *pPos++ = right[1];
         *pPos++ = top[3];
-        *pPos++ = -1;
+        *pPos++ = zValue;
 
         *pPos++ = right[1];
         *pPos++ = bottom[3];
-        *pPos++ = -1;
+        *pPos++ = zValue;
 
         vbuf->unlock();
         

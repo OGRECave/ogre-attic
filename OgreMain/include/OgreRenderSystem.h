@@ -843,6 +843,25 @@ namespace Ogre
         the vertical direction.
         */
         virtual Real getVerticalTexelOffset(void) = 0;
+
+        /** Gets the minimum (closest) depth value to be used when rendering
+            using identity transforms.
+        @remarks
+            When using identity transforms you can manually set the depth
+            of a vertex; however the input values required differ per
+            rendersystem. This method lets you retrieve the correct value.
+        @see Renderable::useIdentityView, Renderable::useIdentityProjection
+        */
+        virtual Real getMinimumDepthInputValue(void) = 0;
+        /** Gets the maximum (farthest) depth value to be used when rendering
+            using identity transforms.
+        @remarks
+            When using identity transforms you can manually set the depth
+            of a vertex; however the input values required differ per
+            rendersystem. This method lets you retrieve the correct value.
+        @see Renderable::useIdentityView, Renderable::useIdentityProjection
+        */
+        virtual Real getMaximumDepthInputValue(void) = 0;
     protected:
 
 

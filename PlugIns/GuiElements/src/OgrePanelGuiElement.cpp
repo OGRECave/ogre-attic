@@ -29,6 +29,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePass.h"
 #include "OgreStringConverter.h"
 #include "OgreHardwareBufferManager.h"
+#include "OgreRoot.h"
+#include "OgreRenderSystem.h"
 
 namespace Ogre {
     //---------------------------------------------------------------------
@@ -190,23 +192,25 @@ namespace Ogre {
             mRenderOp.vertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);
         Real* pPos = static_cast<Real*>(
             vbuf->lock(HardwareBuffer::HBL_DISCARD) );
+        // Use the furthest away depth value, since materials should have depth-check off
+        // This initialised the depth buffer for any 3D objects in front
+        Real zValue = Root::getSingleton().getRenderSystem()->getMaximumDepthInputValue();
         
-        // Use -1 for Z position, furthest forward in homogenous clip space
         *pPos++ = left;
         *pPos++ = top;
-        *pPos++ = -1;
+        *pPos++ = zValue;
 
         *pPos++ = left;
         *pPos++ = bottom;
-        *pPos++ = -1;
+        *pPos++ = zValue;
 
         *pPos++ = right;
         *pPos++ = top;
-        *pPos++ = -1;
+        *pPos++ = zValue;
 
         *pPos++ = right;
         *pPos++ = bottom;
-        *pPos++ = -1;
+        *pPos++ = zValue;
         
         vbuf->unlock();
     }
