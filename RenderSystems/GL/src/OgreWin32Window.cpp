@@ -470,5 +470,15 @@ namespace Ogre {
 
 		return DefWindowProc( hWnd, uMsg, wParam, lParam );
 	}
+	
+	void Win32Window::getCustomAttribute( const String& name, void* pData )
+	{
+		if( name == "HWND" )
+		{
+			HWND *pHwnd = (HWND*)pData;
+			*pHwnd = getWindowHandle();
+			return;
+		}
+	}
 
 }
