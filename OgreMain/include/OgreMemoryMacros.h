@@ -32,7 +32,7 @@ http://www.gnu.org/copyleft/gpl.html.
 // memory (de)allocation functions. The same is done for new/delete
 //
 // Of course, we have the drawback that we can't name a member function of
-// a class *alloc or free and we can't overlod the new/delete operators without
+// a class *alloc or free and we can't overload the new/delete operators without
 // first undefining these macros - ah, a C++ preprocessor with RE replacement,
 // that would be a dream come true :)
 //
@@ -40,7 +40,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #define OGRE_MEMORY_MACROS
 
 #if OGRE_DEBUG_MEMORY_MANAGER
-#   define new    (::Ogre::MemoryManager::sMemManager.setOwner(__FILE__,__LINE__,__FUNCTION__),false) ? NULL                                                   : new
+#   define new    (::Ogre::MemoryManager::sMemManager.setOwner(__FILE__,__LINE__,__FUNCTION__),false) ? NULL                                                 : new
 #   define delete (::Ogre::MemoryManager::sMemManager.setOwner(__FILE__,__LINE__,__FUNCTION__),false) ? ::Ogre::MemoryManager::sMemManager.setOwner("",0,"") : delete
 #   define malloc(sz)      ::Ogre::MemoryManager::sMemManager.allocMem(__FILE__,__LINE__,__FUNCTION__, m_alloc_malloc, sz,      gProcessID)
 #   define calloc(sz)      ::Ogre::MemoryManager::sMemManager.allocMem(__FILE__,__LINE__,__FUNCTION__, m_alloc_calloc, sz,      gProcessID)
