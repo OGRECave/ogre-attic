@@ -267,6 +267,11 @@ protected:
 		overlay->show();
     }
 
+	void destroyScene()
+	{
+		ptex.setNull();
+	}
+
 };
 
 #if OGRE_PLATFORM == PLATFORM_WIN32
