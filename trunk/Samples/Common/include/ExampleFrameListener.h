@@ -38,6 +38,7 @@ Description: Defines an example frame listener which responds to frame events.
              O/P:       Yaw the root scene node (and it's children)
              I/K:       Pitch the root scene node (and it's children)
              F:           Toggle frame rate stats on/off
+			 R:        Render mode
 -----------------------------------------------------------------------------
 */
 
@@ -52,6 +53,8 @@ using namespace Ogre;
 
 class ExampleFrameListener: public FrameListener, public KeyListener
 {
+private:
+	int mSceneDetailIndex ;
 public:
     // Constructor takes a RenderWindow because it uses that to determine input context
     ExampleFrameListener(RenderWindow* win, Camera* cam, bool useBufferedInputKeys = false, bool useBufferedInputMouse = false)
@@ -93,7 +96,7 @@ public:
         }
     }
 
-    bool processUnbufferedKeyInput(const FrameEvent& evt)
+    virtual bool processUnbufferedKeyInput(const FrameEvent& evt)
     {
         if (mInputDevice->isKeyDown(KC_A))
         {
@@ -186,6 +189,17 @@ public:
             mTimeUntilNextToggle = 0.5;
 			mWindow->setDebugText(String("Wrote ") + tmp);
         }
+		
+		if (mInputDevice->isKeyDown(KC_R) && mTimeUntilNextToggle <=0)
+		{
+			mSceneDetailIndex = (mSceneDetailIndex+1)%3 ;
+			switch(mSceneDetailIndex) {
+				case 0 : mCamera->setDetailLevel(SDL_SOLID) ; break ;
+				case 1 : mCamera->setDetailLevel(SDL_WIREFRAME) ; break ;
+				case 2 : mCamera->setDetailLevel(SDL_POINTS) ; break ;
+			}
+			mTimeUntilNextToggle = 0.5;
+		}
 
 
 
