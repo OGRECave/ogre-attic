@@ -190,11 +190,10 @@ namespace Ogre
 		// miscParam[4] = multisample quality
 		// miscParam[5] = vsync
 
-		va_list marker;
-		va_start( marker, depthBuffer );
+		hInst = *(HINSTANCE*)miscParam;
 
-		tempPtr = va_arg( marker, long );
-		hInst = *(HINSTANCE*)tempPtr;
+		va_list marker;
+		va_start( marker, miscParam );
 
 		tempPtr = va_arg( marker, long );
 		driver = (D3D9Driver*)tempPtr;
@@ -349,7 +348,7 @@ namespace Ogre
 				md3dpp.AutoDepthStencilFormat	= D3DFMT_D16;
 
 			md3dpp.MultiSampleType = mFSAAType;
-			md3dpp.MultiSampleQuality = (mFSAAQuality == 0) ? NULL : mFSAAQuality;
+			md3dpp.MultiSampleQuality = (mFSAAQuality == 0) ? 0 : mFSAAQuality;
 
 			hr = pD3D->CreateDevice( mpD3DDriver->getAdapterNumber(), devType, mHWnd,
 				D3DCREATE_HARDWARE_VERTEXPROCESSING, &md3dpp, &mpD3DDevice );
