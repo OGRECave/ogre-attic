@@ -138,9 +138,11 @@ namespace Ogre {
         LogManager::getSingleton().logMessage(
             "The following extensions are available:");
 
-        // Check for hardware mipmapping support
-        if(mGLSupport->checkMinGLVersion("1.4.0") || 
-            mGLSupport->checkExtension("GL_SGIS_generate_mipmap"))
+        // Check for hardware mipmapping support.
+        // Note: This is disabled for ATI cards until they fix their drivers
+        if(mGLSupport->getGLVendor() != "ATI" && 
+            (mGLSupport->checkMinGLVersion("1.4.0") || 
+             mGLSupport->checkExtension("GL_SGIS_generate_mipmap")))
         {
             LogManager::getSingleton().logMessage("- Hardware Mipmapping");
             mCapabilities->setCapability(RSC_AUTOMIPMAP);
@@ -692,7 +694,7 @@ namespace Ogre {
             type = GL_MIRRORED_REPEAT;
             break;
         case Material::TextureLayer::TAM_CLAMP:
-            type = GL_CLAMP;
+            type = GL_CLAMP_TO_EDGE;
             break;
         }
 

@@ -69,11 +69,19 @@ public:
     { }
 
     /**
+    * get vendor information
+    */
+    const String& getGLVendor(void)
+    {
+        return mVendor;
+    }
+
+    /**
     * get version information
     */
     const String& getGLVersion(void)
     {
-      return version;
+        return mVersion;
     }
 
     /**
@@ -101,7 +109,8 @@ protected:
 private:
     // This contains the complete list of supported extensions
     std::set<String> extensionList;
-    String version;
+    String mVersion;
+    String mVendor;
 
 }; // class GLSupport
 
