@@ -29,9 +29,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    typedef unsigned long RGBA;
-    typedef unsigned long ARGB;
-    typedef unsigned long ABGR;
+    typedef uint32 RGBA;
+    typedef uint32 ARGB;
+    typedef uint32 ABGR;
 
     /** Class representing colour.
 	    @remarks
@@ -71,14 +71,14 @@ namespace Ogre {
 
 	    /** Retrieves colour as RGBA.
 	    */
-	    RGBA getAsLongRGBA(void) const;
+	    RGBA getAsRGBA(void) const;
 
 	    /** Retrieves colour as ARGB.
 	    */
-	    ARGB getAsLongARGB(void) const;
+	    ARGB getAsARGB(void) const;
 
 	    /** Retrieves colours as ABGR */
-	    ABGR getAsLongABGR(void) const;
+	    ABGR getAsABGR(void) const;
 
         // arithmetic operations
         inline ColourValue operator + ( const ColourValue& rkVector ) const

@@ -1412,13 +1412,13 @@ namespace Ogre {
         // XXX Hint here?
     }
 
-    void GLRenderSystem::convertColourValue(const ColourValue& colour, unsigned long* pDest)
+    void GLRenderSystem::convertColourValue(const ColourValue& colour, uint32* pDest)
     {
     #if OGRE_ENDIAN == ENDIAN_BIG
-        *pDest = colour.getAsLongRGBA();
+        *pDest = colour.getAsRGBA();
     #else
       // GL accesses by byte, so use ABGR so little-endian format will make it RGBA in byte mode
-        *pDest = colour.getAsLongABGR();
+        *pDest = colour.getAsABGR();
     #endif
     }
     

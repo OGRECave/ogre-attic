@@ -1781,7 +1781,7 @@ namespace Ogre {
 			pMesh->mVertexBufferShadowBuffer);
         pRGBA = static_cast<RGBA*>(
             vbuf->lock(HardwareBuffer::HBL_DISCARD));
-        readLongs(stream, pRGBA, dest->vertexCount);
+        readInts(stream, pRGBA, dest->vertexCount);
         vbuf->unlock();
         dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
     }

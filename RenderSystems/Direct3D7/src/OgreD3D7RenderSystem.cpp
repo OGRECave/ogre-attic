@@ -2267,7 +2267,7 @@ namespace Ogre {
 
             }
 
-            hr = __SetRenderState( D3DRENDERSTATE_FOGCOLOR, colour.getAsLongARGB() );
+            hr = __SetRenderState( D3DRENDERSTATE_FOGCOLOR, colour.getAsARGB() );
             hr = __SetRenderState( D3DRENDERSTATE_FOGSTART, *((LPDWORD)(&start)) );
             hr = __SetRenderState( D3DRENDERSTATE_FOGEND, *((LPDWORD)(&end)) );
             hr = __SetRenderState( D3DRENDERSTATE_FOGDENSITY, *((LPDWORD)(&density)) );
@@ -2277,9 +2277,9 @@ namespace Ogre {
     }
 
     //---------------------------------------------------------------------
-    void D3DRenderSystem::convertColourValue(const ColourValue& colour, unsigned long* pDest)
+    void D3DRenderSystem::convertColourValue(const ColourValue& colour, uint32* pDest)
     {
-        *pDest = colour.getAsLongARGB();
+        *pDest = colour.getAsARGB();
     }
     //---------------------------------------------------------------------
     void D3DRenderSystem::_makeProjectionMatrix(const Radian& fovy, Real aspect, 
@@ -2678,7 +2678,7 @@ namespace Ogre {
             0, 
             NULL, 
             flags,
-            colour.getAsLongARGB(), 
+            colour.getAsARGB(), 
             depth, 
             stencil ) ) )
         {

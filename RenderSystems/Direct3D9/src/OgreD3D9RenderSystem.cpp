@@ -892,9 +892,9 @@ namespace Ogre
 		return errMsg;
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::convertColourValue( const ColourValue& colour, unsigned long* pDest )
+	void D3D9RenderSystem::convertColourValue( const ColourValue& colour, uint32* pDest )
 	{
-		*pDest = colour.getAsLongARGB();
+		*pDest = colour.getAsARGB();
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_makeProjectionMatrix(const Radian& fovy, Real aspect, Real nearPlane, 
@@ -1615,7 +1615,7 @@ namespace Ogre
 			hr = __SetRenderState( fogTypeNot, D3DFOG_NONE );
 			hr = __SetRenderState( fogType, D3D9Mappings::get(mode) );
 
-			hr = __SetRenderState( D3DRS_FOGCOLOR, colour.getAsLongARGB() );
+			hr = __SetRenderState( D3DRS_FOGCOLOR, colour.getAsARGB() );
 			hr = __SetRenderState( D3DRS_FOGSTART, *((LPDWORD)(&start)) );
 			hr = __SetRenderState( D3DRS_FOGEND, *((LPDWORD)(&end)) );
 			hr = __SetRenderState( D3DRS_FOGDENSITY, *((LPDWORD)(&densitiy)) );
@@ -2349,7 +2349,7 @@ namespace Ogre
             0, 
             NULL, 
             flags,
-            colour.getAsLongARGB(), 
+            colour.getAsARGB(), 
             depth, 
             stencil ) ) )
         {

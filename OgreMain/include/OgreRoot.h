@@ -454,7 +454,7 @@ namespace Ogre
         @param colour The colour to convert
         @param pDest Pointer to location to put the result.
         */
-        void convertColourValue(const ColourValue& colour, unsigned long* pDest);
+        void convertColourValue(const ColourValue& colour, uint32* pDest);
 
         /** Retrieves a pointer to the window that was created automatically
             @remarks

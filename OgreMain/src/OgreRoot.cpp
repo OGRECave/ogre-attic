@@ -705,7 +705,7 @@ namespace Ogre {
 			name, groupName);
 	}
     //-----------------------------------------------------------------------
-    void Root::convertColourValue(const ColourValue& colour, unsigned long* pDest)
+    void Root::convertColourValue(const ColourValue& colour, uint32* pDest)
     {
         assert(mActiveRenderer != 0);
         mActiveRenderer->convertColourValue(colour, pDest);
