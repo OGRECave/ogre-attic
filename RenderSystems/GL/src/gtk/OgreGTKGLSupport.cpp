@@ -34,10 +34,16 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 using namespace Ogre;
 
+template<> GTKGLSupport* Singleton<GTKGLSupport>::ms_Singleton = 0;
+
 GTKGLSupport::GTKGLSupport() : 
-    _kit(0, NULL), _context_ref(0)
+    _kit(0, NULL),
+    _context_ref(0)
 {
     Gtk::GL::init(0, NULL);
+    _main_context = 0;
+    _main_window = 0;
+    //_ogre_widget = 0;
 }
 
 void GTKGLSupport::addConfig()
@@ -112,7 +118,16 @@ RenderWindow* GTKGLSupport::newWindow(const String& name, unsigned int width,
     window->create(name, width, height, colourDepth, fullScreen, left, top,
                    depthBuffer, parentWindowHandle);
 
-    _ogre_widget = window->get_ogre_widget();
+    //if(!_ogre_widget)
+    //	_ogre_widget = window->get_ogre_widget();
+
+    // Copy some important information for future reference, for example
+    // for when the context is needed
+    if(!_main_context)
+        _main_context = window->get_ogre_widget()->get_gl_context();
+    if(!_main_window)
+        _main_window = window->get_ogre_widget()->get_gl_window();
+
     return window;
 }
 
@@ -133,22 +148,35 @@ void GTKGLSupport::stop()
         "******************************");
 }
 
-void GTKGLSupport::begin_context()
+void GTKGLSupport::begin_context(RenderTarget *_target)
 {
-    ++_context_ref;
-    if (_context_ref == 1)
-        _ogre_widget->get_gl_window()->gl_begin(_ogre_widget->get_gl_context());
+	// Support nested contexts, in which case.. nothing happens
+    	++_context_ref;
+    	if (_context_ref == 1) {
+		if(_target) {
+			// Begin a specific context
+			OGREWidget *_ogre_widget = static_cast<GTKWindow*>(_target)->get_ogre_widget();
+
+	        	_ogre_widget->get_gl_window()->gl_begin(_ogre_widget->get_gl_context());
+		} else {
+			// Begin a generic main context
+			_main_window->gl_begin(_main_context);
+		}
+    	}
 }
 
 void GTKGLSupport::end_context()
 {
-    --_context_ref;
-    if(_context_ref < 0)
-        Except(999, "Too many contexts destroyed!", "GTKGLSupport::end_context");
-    if (_context_ref == 0)
-    {
-        _ogre_widget->get_gl_window()->gl_end();
-    }
+    	--_context_ref;
+    	if(_context_ref < 0)
+        	Except(999, "Too many contexts destroyed!", "GTKGLSupport::end_context");
+    	if (_context_ref == 0)
+    	{
+		// XX is this enough? (_main_window might not be the current window,
+ 		// but we can never be sure the previous rendering window 
+		// even still exists)
+		_main_window->gl_end();
+    	}
 }
  
 void GTKGLSupport::initialiseExtensions(void)
@@ -170,14 +198,14 @@ bool GTKGLSupport::checkMinGLVersion(const String& v) const
 
 bool GTKGLSupport::checkExtension(const String& ext) const
 {
-	Glib::RefPtr<Gdk::GL::Drawable> gldrawable = _ogre_widget->get_gl_drawable();
-	gldrawable->gl_begin(_ogre_widget->get_gl_context());
+	// query_gl_extension needs an active context, doesn't matter which one
+	if (_context_ref == 0)
+		_main_window->gl_begin(_main_context);
 
 	bool result = Gdk::GL::query_gl_extension(ext.c_str());
 
-	gldrawable->gl_end();
-
-	return result;
+	if (_context_ref == 0)
+		_main_window->gl_end();
 }
 
 void* GTKGLSupport::getProcAddress(const String& procname)
@@ -185,3 +213,10 @@ void* GTKGLSupport::getProcAddress(const String& procname)
     return (void*)Gdk::GL::get_proc_address(procname.c_str());
 }
 
+Glib::RefPtr<const Gdk::GL::Context> GTKGLSupport::getMainContext() const {
+	return _main_context;
+}
+
+GTKGLSupport& GTKGLSupport::getSingleton(void) {
+	return Singleton<GTKGLSupport>::getSingleton();
+}

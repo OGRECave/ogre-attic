@@ -24,6 +24,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 #include "OgreGTKWindow.h"
+#include "OgreGTKGLSupport.h"
 #include "OgreRenderSystem.h"
 #include "OgreRoot.h"
 #include "OgreLogManager.h"
@@ -45,7 +46,8 @@ OGREWidget::OGREWidget(bool useDepthBuffer) :
     	LogManager::getSingleton().logMessage("[gtk] GLCONFIG BLOWUP");
     }
 
-    set_gl_capability(glconfig);
+    // Inherit GL context from Ogre main context
+    set_gl_capability(glconfig, GTKGLSupport::getSingleton().getMainContext());
 
     add_events(Gdk::POINTER_MOTION_MASK | Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK);
 }
@@ -57,7 +59,7 @@ OGREWidget::OGREWidget(bool useDepthBuffer) :
 GTKWindow::GTKWindow():
 	mGtkWindow(0)
 {
-    	kit = Gtk::Main::instance();
+    	//kit = Gtk::Main::instance();
 	
 	// Should  this move to GTKGLSupport?
     	// Gtk::GL::init(0, NULL);
@@ -70,9 +72,9 @@ GTKWindow::GTKWindow():
 GTKWindow::~GTKWindow()
 {
 }
-
 bool GTKWindow::pump_events()
 {
+    Gtk::Main *kit = Gtk::Main::instance();
     if (kit->events_pending())
     {
         kit->iteration(false);
@@ -131,6 +133,7 @@ void GTKWindow::create(const String& name, unsigned int width, unsigned int heig
 		reinterpret_cast<Gtk::Container*>(miscParam)->add(*ogre);
 		ogre->show();
 	}
+	//ogre->realize();
 }
 
 void GTKWindow::destroy()
