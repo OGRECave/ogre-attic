@@ -80,7 +80,7 @@
 				OmitFramePointers="TRUE"
 				EnableFiberSafeOptimizations="TRUE"
 				OptimizeForProcessor="2"
-				AdditionalIncludeDirectories="OgreMain\include;..\OgreMain\include"
+				AdditionalIncludeDirectories="OgreMain\include;..\OgreMain\include;..\Dependencies\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;REFERENCEAPPLAYER_EXPORTS"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -139,6 +139,9 @@
 				RelativePath="OgreMain\src\StringTests.cpp">
 			</File>
 			<File
+				RelativePath="OgreMain\src\ZipArchiveTests.cpp">
+			</File>
+			<File
 				RelativePath="src\main.cpp">
 			</File>
 		</Filter>
@@ -153,6 +156,9 @@
 			</File>
 			<File
 				RelativePath="OgreMain\include\StringTests.h">
+			</File>
+			<File
+				RelativePath="OgreMain\include\ZipArchiveTests.h">
 			</File>
 		</Filter>
 		<Filter
