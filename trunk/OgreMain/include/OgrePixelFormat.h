@@ -111,7 +111,7 @@ namespace Ogre {
     /**
      * Some utility functions for packing and unpacking pixel data
      */
-    class PixelUtil {
+    class _OgreExport PixelUtil {
     public:
         /** Returns the size in bytes of an element of the given pixel format.
          @returns
