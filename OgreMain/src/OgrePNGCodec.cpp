@@ -75,7 +75,7 @@ namespace Ogre {
 		ILenum PossibleError = ilGetError() ;
 		if( PossibleError != IL_NO_ERROR )
 		{
-			Except( Exception::Exception::UNIMPLEMENTED_FEATURE, 
+			Except( Exception::UNIMPLEMENTED_FEATURE, 
 					"IL Error", 
 					iluErrorString(PossibleError) ) ;
 		}
