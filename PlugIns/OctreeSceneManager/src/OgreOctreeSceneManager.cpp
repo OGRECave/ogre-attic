@@ -134,7 +134,7 @@ unsigned long OctreeSceneManager::mColors[ 8 ] = {white, white, white, white, wh
 OctreeSceneManager::OctreeSceneManager( ) : SceneManager()
 {
     AxisAlignedBox b( -500, -500, -500, 500, 500, 500 );
-    int depth = 5; //infinite depth
+    int depth = 5; 
     mOctree = 0;
     init( b, depth );
 }

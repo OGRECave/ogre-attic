@@ -40,6 +40,12 @@ public:
     /** Standard destructor */
     ~OctreeNode();
 
+    /** Overridden from SceneNode to remove any reference to octants */
+    SceneNode * removeChild( unsigned short index );
+    
+    /** Overridden from SceneNode to remove any reference to octants */
+    SceneNode * removeChild( const String & name );
+
     /** Returns the Octree in which this OctreeNode resides
     */
     Octree * getOctant()
@@ -89,6 +95,8 @@ protected:
     current octree, and reinserted into the tree.
     */
     void _updateBounds( void );
+
+    void _removeNodeAndChildren( );
 
     ///local bounding box
     AxisAlignedBox mLocalAABB;

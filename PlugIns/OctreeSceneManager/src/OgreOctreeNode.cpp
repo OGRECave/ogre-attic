@@ -42,6 +42,30 @@ OctreeNode::OctreeNode( SceneManager* creator, const String& name ) : SceneNode(
 
 OctreeNode::~OctreeNode()
 {}
+void OctreeNode::_removeNodeAndChildren( )
+{
+    static_cast< OctreeSceneManager * > ( mCreator ) -> _removeOctreeNode( this ); 
+    //remove all the children nodes as well from the octree.
+    ChildNodeMap::iterator it = mChildren.begin();
+    while( it != mChildren.end() )
+    {
+        static_cast<OctreeNode *>( it->second ) -> _removeNodeAndChildren();
+        ++it;
+    }
+}
+SceneNode * OctreeNode::removeChild( unsigned short index )
+{
+    OctreeNode *on = static_cast<OctreeNode* >( SceneNode::removeChild( index ) );
+    on -> _removeNodeAndChildren(); 
+    return on; 
+}
+    
+SceneNode * OctreeNode::removeChild( const String & name )
+{
+    OctreeNode *on = static_cast< OctreeNode * >( SceneNode::removeChild(  name ) );
+    on -> _removeNodeAndChildren( ); 
+    return on; 
+}
 
 
 //same as SceneNode, only it doesn't care about children...
