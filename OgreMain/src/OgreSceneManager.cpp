@@ -644,6 +644,56 @@ namespace Ogre {
         if (mSkyDomeEnabled && !mSkyDomeDrawFirst)
             _renderSkyDome(camera);
 
+
+        /*
+        // BEGIN TEST HUD HACK
+        // NB works in SDL but in D3D depth buffer is not right (objects show thru)
+        // I think this is because I'm not compensating for D3D's {0,1} Z range
+        // in homogenous clip space, GL and OGRE use {-1, 1} : TODO FIX!
+        //---------------------------------------------------------------------
+        mDestRenderSystem->_setWorldMatrix(Matrix4::IDENTITY);
+        mDestRenderSystem->_setViewMatrix(Matrix4::IDENTITY);
+        mDestRenderSystem->_setProjectionMatrix(Matrix4::IDENTITY);
+        // Place at -1 z (as far forward in homogenous clip space as you can get)
+        // Use {-1, 1} 2D coords, make slightly smaller than total for effect
+        Real testPositions[4*3] = {
+            -1, -1, -1,
+             1, -1, -1,
+             1,  1, -1, 
+            -1,  1, -1};
+        Real testUV[4*2] = {
+            0, 0,
+            1, 0,
+            1, 1, 
+            0, 1};
+        ushort testIndices[6] = {
+            0, 1, 2,
+            0, 2, 3 };
+
+        RenderOperation op;
+        op.numVertices = 4;
+        op.numIndexes = 6;
+        op.vertexOptions = RenderOperation::VO_TEXTURE_COORDS;
+        op.numTextureCoordSets = 1;
+        op.numTextureDimensions[0] = 2;
+        op.vertexStride = 0;
+        op.texCoordStride[0] = 0;
+        op.operationType = RenderOperation::OT_TRIANGLE_LIST;
+        op.pVertices = testPositions;
+        op.pTexCoords[0] = testUV;
+        op.pIndexes = testIndices;
+        
+        Material* mat = getMaterial("Examples/OgreLogo");
+        mat->setSceneBlending(SBT_ADD);
+        mat->load();
+        mat->setLightingEnabled(false);
+        mat->setDepthCheckEnabled(false);
+        setMaterial(mat,1);
+        mDestRenderSystem->_render(op);
+        //---------------------------------------------------------------------
+        // END HUD TEST HACK 
+        */
+
         // End frame
         mDestRenderSystem->_endFrame();
 
