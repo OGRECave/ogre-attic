@@ -94,16 +94,21 @@ OSX </A></DIV></TD><TD CLASS="BorderContent" WIDTH="20%"><DIV ALIGN="CENTER">gcc
 gcc 3.x</DIV></TD></TR></TABLE><p align="left">&nbsp;</p><p align="left" CLASS="MainHeader"><A NAME="VC"></A>Building 
 with Visual C++ 6 or Visual C++.Net</p><p align="left">If you're building with 
 Visual C++, follow these steps:</p><OL><LI>Make sure you have downloaded and installed 
-<A HREF="http://www.stlport.org">STLport </A>the latest 3rd party libraries distribution 
-(you can find this on the <A HREF="http://ogre.sourceforge.net/downloads.php">OGRE 
-downloads page</A>). See the <A HREF="../FAQ.html">FAQ</A> for more details.</LI><LI>Open 
-either Ogre.dsw (VC6) or Ogre.sln (VC7)</LI><LI>Perform a Batch Build for all 
-the projects. The dependencies should ensure everything is built in the right 
-order.</LI></OL><P CLASS="MainHeader"><A NAME="Linux"></A>Building under Linux</P><p align="left">If 
-you're building under Linux with gcc, here's a very quick overview:</p><OL><LI>If 
-you're using gcc version 2.9x, make sure you've installed <A HREF="http://www.stlport.org">STLport</A>. 
-However, if you can we advise using gcc 3.2+.</LI><LI>Confirm that you have SDL 
-1.2.4, Freetype2 and pkg-config available on your system (if not, install them!)</LI><LI>Change 
+<A HREF="http://www.stlport.org">STLport</A>, version 4.5.3. The instructions 
+for building and installing STLport are in the <A HREF="../FAQ.html">FAQ</A></LI><LI>Download 
+and install the <A HREF="http://msdn.microsoft.com/directx">DirectX 8.1 SDK</A>.</LI><LI>Download 
+and extract the latest 3rd party libraries distribution (you can find this in 
+the downloads section of the <A HREF="http://ogre.sourceforge.net/">OGRE hompage</A>). 
+See the <A HREF="../FAQ.html">FAQ</A> for more details.</LI><LI>Open either Ogre.dsw 
+(VC6) or Ogre.sln (VC7)</LI><LI>Check the ordering of your include and library 
+paths (in Tools | Options). The ordering should be STLport, DirectX 8.1, then 
+everything else.</LI><LI>Perform a Batch Build for all the projects. The dependencies 
+should ensure everything is built in the right order.</LI></OL><P CLASS="MainHeader"><A NAME="Linux"></A>Building 
+under Linux</P><p align="left">If you're building under Linux with gcc, here's 
+a very quick overview:</p><OL><LI>If you're using gcc version 2.9x, make sure 
+you've installed <A HREF="http://www.stlport.org">STLport</A>. However, if you 
+can we advise using gcc 3.2+.</LI><LI>Confirm that you have SDL 1.2.4, Freetype2, 
+DevIL and pkg-config available on your system (if not, install them!)</LI><LI>Change 
 to the 'ogrenew' directory, </LI><LI>If you are installing from CVS, run './bootstrap'</LI><LI>type 
 './configure'. If you're using gxx 2.9x, append ' --stlpath=&lt;path_to_your_stlport&gt;'.</LI><LI>Run 
 'make' and 'make install'</LI></OL><P>For more detailed instructions, see the<A HREF="../README.linux"> 
