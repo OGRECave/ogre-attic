@@ -98,6 +98,8 @@ namespace Ogre {
 		// init render queues that do not need shadows
 		mRenderQueue.getQueueGroup(RENDER_QUEUE_BACKGROUND)->setShadowsEnabled(false);
 		mRenderQueue.getQueueGroup(RENDER_QUEUE_OVERLAY)->setShadowsEnabled(false);
+        mRenderQueue.getQueueGroup(RENDER_QUEUE_SKIES_EARLY)->setShadowsEnabled(false);
+        mRenderQueue.getQueueGroup(RENDER_QUEUE_SKIES_LATE)->setShadowsEnabled(false);
     }
 
     SceneManager::~SceneManager()
@@ -847,6 +849,7 @@ namespace Ogre {
             // Create, use the same name for mesh and entity
             mSkyPlaneEntity = createEntity(meshName, meshName);
             mSkyPlaneEntity->setMaterialName(materialName);
+            mSkyPlaneEntity->setCastShadows(false);
 
             // Create node and attach
             if (!mSkyPlaneNode)
@@ -913,6 +916,7 @@ namespace Ogre {
                     removeEntity(entName);
                 }
                 mSkyBoxEntity[i] = createEntity(entName, planeMesh->getName());
+                mSkyBoxEntity[i]->setCastShadows(false);
                 // Have to create 6 materials, one for each frame
                 // Used to use combined material but now we're using queue we can't split to change frame
                 // This doesn't use much memory because textures aren't duplicated
@@ -994,6 +998,7 @@ namespace Ogre {
                 }
                 mSkyDomeEntity[i] = createEntity(entName, planeMesh->getName());
                 mSkyDomeEntity[i]->setMaterialName(m->getName());
+                mSkyDomeEntity[i]->setCastShadows(false);
 
                 // Attach to node
                 mSkyDomeNode->attachObject(mSkyDomeEntity[i]);
@@ -1920,7 +1925,7 @@ namespace Ogre {
         if (mSkyPlaneEnabled)
         {
             qid = mSkyPlaneDrawFirst? 
-                        RENDER_QUEUE_1 : RENDER_QUEUE_9;
+                        RENDER_QUEUE_SKIES_EARLY : RENDER_QUEUE_SKIES_LATE;
             mRenderQueue.addRenderable(mSkyPlaneEntity->getSubEntity(0), qid, RENDERABLE_DEFAULT_PRIORITY);
         }
 
@@ -1928,7 +1933,7 @@ namespace Ogre {
         if (mSkyBoxEnabled)
         {
             qid = mSkyBoxDrawFirst? 
-                        RENDER_QUEUE_1 : RENDER_QUEUE_9;
+                        RENDER_QUEUE_SKIES_EARLY : RENDER_QUEUE_SKIES_LATE;
 
             for (plane = 0; plane < 6; ++plane)
             {
@@ -1940,7 +1945,7 @@ namespace Ogre {
         if (mSkyDomeEnabled)
         {
             qid = mSkyDomeDrawFirst? 
-                        RENDER_QUEUE_1 : RENDER_QUEUE_9;
+                        RENDER_QUEUE_SKIES_EARLY : RENDER_QUEUE_SKIES_LATE;
 
             for (plane = 0; plane < 5; ++plane)
             {
