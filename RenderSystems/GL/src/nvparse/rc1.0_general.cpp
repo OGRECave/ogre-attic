@@ -3,6 +3,8 @@
 #include "nvparse_externs.h"
 #include <stdio.h>
 
+#include <OgreGLPrerequisites.h>
+
 void GeneralCombinersStruct::Validate(int numConsts, ConstColorStruct *pcc)
 {
 	GLint maxGCs;
@@ -26,7 +28,7 @@ void GeneralCombinersStruct::Validate(int numConsts, ConstColorStruct *pcc)
 		localConsts += general[i].numConsts;
 
 	if (localConsts > 0)
-		if (NULL == glCombinerStageParameterfvNV)
+		if (NULL == glCombinerStageParameterfvNV_ptr)
 			errors.set("local constant(s) specified, but not supported -- ignored");
 		else
 			for (i = 0; i < num; i++)
@@ -47,7 +49,7 @@ void GeneralCombinersStruct::Invoke()
 	for (i = 0; i < num; i++)
 		general[i].Invoke(i);
 	
-	if (NULL != glCombinerStageParameterfvNV) {
+	if (NULL != glCombinerStageParameterfvNV_ptr) {
 		if (localConsts > 0)
 			glEnable(GL_PER_STAGE_CONSTANTS_NV);
 		else
@@ -114,9 +116,9 @@ void GeneralCombinerStruct::Invoke(int stage)
 {
 	int i;
 
-	if (NULL != glCombinerStageParameterfvNV)
+	if (NULL != glCombinerStageParameterfvNV_ptr)
 		for (i = 0; i < numConsts; i++)
-			glCombinerStageParameterfvNV(GL_COMBINER0_NV + stage, cc[i].reg.bits.name, &(cc[i].v[0]));
+			glCombinerStageParameterfvNV_ptr(GL_COMBINER0_NV + stage, cc[i].reg.bits.name, &(cc[i].v[0]));
 
 	for (i = 0; i < 2; i++)
 		portion[i].Invoke(stage);
