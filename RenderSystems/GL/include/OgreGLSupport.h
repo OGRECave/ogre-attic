@@ -129,6 +129,17 @@ public:
       return false;
     }
 
+    virtual bool hasTexgenReflection(void)
+    {
+      if(checkMinGLVersion("1.3.0") || 
+          checkExtension("GL_ARB_texture_cube_map") || 
+          checkExtension("GL_EXT_texture_cube_map") || 
+          checkExtension("GL_NV_texgen_reflection"))
+          return true;
+
+      return false;
+    }
+
     /** Override standard Singleton retrieval.
         @remarks
             Why do we do this? Well, it's because the Singleton
