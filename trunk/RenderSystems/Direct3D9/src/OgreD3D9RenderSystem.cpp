@@ -1239,6 +1239,19 @@ namespace Ogre
 	void D3D9RenderSystem::_setAlphaRejectSettings( CompareFunction func, unsigned char value )
 	{
 		HRESULT hr;
+        if (func != CMPF_ALWAYS_PASS)
+        {
+            if( FAILED( hr = __SetRenderState( D3DRS_ALPHATESTENABLE,  TRUE ) ) )
+    			Except( hr, "Failed to enable alpha testing", 
+                "D3D9RenderSystem::_setAlphaRejectSettings" );
+        }
+        else
+        {
+            if( FAILED( hr = __SetRenderState( D3DRS_ALPHATESTENABLE,  FALSE ) ) )
+    			Except( hr, "Failed to disable alpha testing", 
+                "D3D9RenderSystem::_setAlphaRejectSettings" );
+        }
+        // Set always just be sure
 		if( FAILED( hr = __SetRenderState( D3DRS_ALPHAFUNC, D3D9Mappings::get(func) ) ) )
 			Except( hr, "Failed to set alpha reject function", "D3D9RenderSystem::_setAlphaRejectSettings" );
 		if( FAILED( hr = __SetRenderState( D3DRS_ALPHAREF, value ) ) )
@@ -1606,7 +1619,7 @@ namespace Ogre
 		return true;
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_render(LegacyRenderOperation &op)
+	void D3D9RenderSystem::_render(const LegacyRenderOperation &op)
 	{
 		// Guard
 		OgreGuard("D3D9RenderSystem::_render");

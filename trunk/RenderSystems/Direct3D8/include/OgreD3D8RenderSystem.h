@@ -205,7 +205,7 @@ namespace Ogre {
 		void _setAlphaRejectSettings( CompareFunction func, unsigned char value );
 		void _setViewport( Viewport *vp );
 		void _beginFrame(void);
-		void _render( LegacyRenderOperation &op );
+		void _render(const LegacyRenderOperation &op );
 		void _endFrame(void);
 		void _setCullingMode( CullingMode mode );
 		void _setDepthBufferParams( bool depthTest = true, bool depthWrite = true, CompareFunction depthFunction = CMPF_LESS_EQUAL );

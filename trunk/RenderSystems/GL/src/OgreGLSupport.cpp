@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 
 #include "OgreGLSupport.h"
+#include "OgreLogManager.h"
 
 namespace Ogre {
 
@@ -47,16 +48,23 @@ namespace Ogre {
         // Set version string
         const GLubyte* pcVer = glGetString(GL_VERSION);
 
+
         assert(pcVer && "Problems getting GL version string using glGetString");
        
         String tmpStr = (const char*)pcVer;
+        LogManager::getSingleton().logMessage("GL_VERSION = " + tmpStr);
         version = tmpStr.substr(0, tmpStr.find(" "));
+
+        // Get vendor
+        const GLubyte* pcVendor = glGetString(GL_VENDOR);
+        LogManager::getSingleton().logMessage("GL_VENDOR = " + String((const char*)pcVendor));
 
         // Set extension list
 		std::stringstream ext;
         String str;
 
         const GLubyte* pcExt = glGetString(GL_EXTENSIONS);
+        LogManager::getSingleton().logMessage("GL_EXTENSIONS = " + String((const char*)pcExt));
 
         assert(pcExt && "Problems getting GL extension string using glGetString");
 

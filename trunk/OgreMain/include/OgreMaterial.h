@@ -705,7 +705,7 @@ namespace Ogre {
                 @param
                     func The comparison which must pass for the pixel to be written.
                 @param
-                    value 1 byte value against which alpha values will be tested. Recommended 0 or 128 for compatibility.
+                    value 1 byte value against which alpha values will be tested(0-255)
             */
             void setAlphaRejectSettings( const CompareFunction func, unsigned char value );
 
