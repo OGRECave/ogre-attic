@@ -614,16 +614,7 @@ namespace Ogre {
     {
         SceneManagerEnumerator::getSingleton().shutdownAll();
 
-        
-        if (mActiveRenderer)
-        {
-            mActiveRenderer->shutdown();
-            mActiveRenderer = 0;
-        }
-
         mLogManager->logMessage("*-*-* OGRE Shutdown");
-
-
     }
     //-----------------------------------------------------------------------
     void Root::loadPlugins( const String& pluginsfile )

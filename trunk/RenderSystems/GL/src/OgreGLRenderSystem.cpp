@@ -191,6 +191,8 @@ namespace Ogre {
 
     GLRenderSystem::~GLRenderSystem()
     {
+        shutdown();
+
         // Destroy render windows
         RenderTargetMap::iterator i;
         for (i = mRenderTargets.begin(); i != mRenderTargets.end(); ++i)
@@ -201,11 +203,6 @@ namespace Ogre {
 
         if (mTextureManager)
             delete mTextureManager;
-
-        if (mHardwareBufferManager)
-            delete mHardwareBufferManager;
-		if (mGpuProgramManager)
-        	delete mGpuProgramManager;
 
         delete mCapabilities;
         delete mGLSupport;
@@ -551,6 +548,20 @@ namespace Ogre {
     void GLRenderSystem::shutdown(void)
     {
         RenderSystem::shutdown();
+
+        // Deleting the GPU program manager and hardware buffer manager.  Has to be done before the mGLSupport->stop().
+		if (mGpuProgramManager)
+        {
+        	delete mGpuProgramManager;
+        	mGpuProgramManager = 0;
+        }
+
+        if (mHardwareBufferManager)
+        {
+            delete mHardwareBufferManager;
+            mHardwareBufferManager = 0;
+        }
+
 
         mGLSupport->stop();
         mStopRendering = true;
