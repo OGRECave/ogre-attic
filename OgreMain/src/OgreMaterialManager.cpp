@@ -35,60 +35,69 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     // Internal parser methods
     // Material Attributes
+	ColourValue _parseColourValue(StringVector::iterator& params, int numParams)
+	{
+		ColourValue colour(
+			atof(params[1].c_str()) ,
+			atof(params[2].c_str()) ,
+			atof(params[3].c_str()) ,
+			(numParams==5) ? atof(params[4].c_str()) : 1.0f ) ;
+		return colour ;
+	}
     void parseAmbient(StringVector::iterator& params, int numParams, Material* pMat)
     {
-	    // Must be 3 parameters (+ command = 4)
-	    if (numParams != 4)
+	    // Must be 3 or 4parameters (+ command = 4 or 5)
+		if (numParams != 4 && numParams != 5)
 	    {
 		    LogManager::getSingleton().logMessage("Bad ambient attribute line in "
-			    + pMat->getName() + ", wrong number of parameters (expected 3)");
+			    + pMat->getName() + ", wrong number of parameters (expected 3 or 4)");
 	    }
 	    else
 	    {
-		    pMat->setAmbient(atof(params[1].c_str()), atof(params[2].c_str()), atof(params[3].c_str()));
+			pMat->setAmbient( _parseColourValue(params, numParams) );
 	    }
     }
     //-----------------------------------------------------------------------
     void parseDiffuse(StringVector::iterator& params, int numParams, Material* pMat)
     {
-	    // Must be 3 parameters (+ command = 4)
-	    if (numParams != 4)
+	    // Must be 3 or 4 parameters (+ command = 4 or 5)
+	    if (numParams != 4 && numParams != 5)
 	    {
 		    LogManager::getSingleton().logMessage("Bad diffuse attribute line in "
-			    + pMat->getName() + ", wrong number of parameters (expected 3)");
+			    + pMat->getName() + ", wrong number of parameters (expected 3 or 4)");
 	    }
 	    else
 	    {
-		    pMat->setDiffuse(atof(params[1].c_str()), atof(params[2].c_str()), atof(params[3].c_str()));
+			pMat->setDiffuse( _parseColourValue(params, numParams) );
 	    }
     }
     //-----------------------------------------------------------------------
     void parseSpecular(StringVector::iterator& params, int numParams, Material* pMat)
     {
-	    // Must be 4 parameters (+ command = 5)
-	    if (numParams != 5)
+	    // Must be 4 or 5 parameters (+ command = 5 or 6)
+	    if (numParams != 5 && numParams != 6)
 	    {
 		    LogManager::getSingleton().logMessage("Bad specular attribute line in "
-			    + pMat->getName() + ", wrong number of parameters (expected 4)");
+			    + pMat->getName() + ", wrong number of parameters (expected 4 or 5)");
 	    }
 	    else
 	    {
-		    pMat->setSpecular(atof(params[1].c_str()), atof(params[2].c_str()), atof(params[3].c_str()));
-		    pMat->setShininess(atof(params[4].c_str()));
+			pMat->setSpecular( _parseColourValue(params, numParams-1) );
+		    pMat->setShininess(atof(params[numParams-1].c_str()));
 	    }
     }
     //-----------------------------------------------------------------------
     void parseEmissive(StringVector::iterator& params, int numParams, Material* pMat)
     {
-	    // Must be 3 parameters (+ command = 4)
-	    if (numParams != 4)
+	    // Must be 3 or 4 parameters (+ command = 4 or 5)
+	    if (numParams != 4 && numParams != 5)
 	    {
 		    LogManager::getSingleton().logMessage("Bad emissive attribute line in "
-			    + pMat->getName() + ", wrong number of parameters (expected 3)");
+			    + pMat->getName() + ", wrong number of parameters (expected 3 or 4)");
 	    }
 	    else
 	    {
-		    pMat->setSelfIllumination(atof(params[1].c_str()), atof(params[2].c_str()), atof(params[3].c_str()));
+			pMat->setSelfIllumination( _parseColourValue(params, numParams) );
 	    }
     }
     //-----------------------------------------------------------------------
