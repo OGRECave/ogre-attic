@@ -116,6 +116,7 @@ namespace Ogre {
         String mMaterialName;
         Material* mpMaterial;
         String mCaption;
+		ColourValue mColour;
 
         GuiMetricsMode mMetricsMode;
         GuiHorizontalAlignment mHorzAlign;
@@ -238,6 +239,9 @@ namespace Ogre {
         /** See Renderable */
         bool useIdentityView(void);
 
+		/** Tell the object to recalculate */
+		virtual void _positionsOutOfDate(void);
+
         /** Internal method to update the element based on transforms applied. */
         virtual void _update(void);
 
@@ -280,6 +284,17 @@ namespace Ogre {
 
         /** Gets the caption for this element. */
         virtual const String& getCaption(void) const;
+
+        /** Sets the colour on elements that support it. 
+        @remarks
+            This property doesn't do something on all elements, just those that support it.
+            However, being a common requirement it is in the top-level interface to avoid
+            having to set it via the StringInterface all the time.
+        */
+        virtual void setColour(const ColourValue& col);
+
+        /** Gets the colour for this element. */
+        virtual ColourValue getColour(void) const;
 
         /** Tells this element how to interpret the position and dimension values it is given.
         @remarks

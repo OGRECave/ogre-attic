@@ -39,7 +39,9 @@ namespace Ogre {
     GuiElementFactory* pBorderPanelFactory = NULL;
     GuiElementFactory* pTextAreaFactory = NULL;
     GuiElementFactory* pButtonFactory = NULL;
+    GuiElementFactory* pBorderButtonFactory = NULL;
     GuiElementFactory* pListFactory = NULL;
+    GuiElementFactory* pPopupMenuFactory = NULL;
 	CursorGuiElement* pCursorGui = NULL;
     //-----------------------------------------------------------------------
 
@@ -60,8 +62,14 @@ namespace Ogre {
 		pButtonFactory = new ButtonGuiElementFactory();
         GuiManager::getSingleton().addGuiElementFactory(pButtonFactory);
 
+		pBorderButtonFactory = new BorderButtonGuiElementFactory();
+        GuiManager::getSingleton().addGuiElementFactory(pBorderButtonFactory);
+
 		pListFactory = new ListGuiElementFactory();
         GuiManager::getSingleton().addGuiElementFactory(pListFactory);
+
+		pPopupMenuFactory = new PopupMenuGuiElementFactory();
+        GuiManager::getSingleton().addGuiElementFactory(pPopupMenuFactory);
 
 		pCursorGui = new CursorGuiElement("Cursor default");
 		OverlayManager::getSingleton().setCursorGui(pCursorGui, pCursorGui);
@@ -75,6 +83,7 @@ namespace Ogre {
         delete pBorderPanelFactory;
         delete pTextAreaFactory;
 		delete pButtonFactory;
+		delete pBorderButtonFactory;
 		delete pListFactory;
 		delete pCursorGui;
 

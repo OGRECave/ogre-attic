@@ -34,6 +34,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     String TextAreaGuiElement::msTypeName = "TextArea";
     TextAreaGuiElement::CmdCharHeight TextAreaGuiElement::msCmdCharHeight;
+    TextAreaGuiElement::CmdSpaceWidth TextAreaGuiElement::msCmdSpaceWidth;
     TextAreaGuiElement::CmdFontName TextAreaGuiElement::msCmdFontName;
     TextAreaGuiElement::CmdColour TextAreaGuiElement::msCmdColour;
     TextAreaGuiElement::CmdColourBottom TextAreaGuiElement::msCmdColourBottom;
@@ -61,6 +62,9 @@ namespace Ogre {
         checkMemoryAllocation( DEFAULT_INITIAL_CHARS );
 
         mCharHeight = 0.02;
+		mPixelCharHeight = 12;
+		mSpaceWidth = 0;
+		mPixelSpaceWidth = 0;
 
         if (createParamDictionary("TextAreaGuiElement"))
         {
@@ -110,7 +114,10 @@ namespace Ogre {
         float top = -( (_getDerivedTop() * 2.0 ) - 1.0 );
 
         // Derive space with from a capital A
-        Real spaceWidth = mpFont->getGlyphAspectRatio( 'A' ) * mCharHeight * 2.0;
+		if (mSpaceWidth == 0)
+		{
+			mSpaceWidth = mpFont->getGlyphAspectRatio( 'A' ) * mCharHeight * 2.0;
+		}
 
         // Use iterator
         String::iterator i, iend;
@@ -125,7 +132,7 @@ namespace Ogre {
                 {
                     if (*j == ' ')
                     {
-                        len += spaceWidth;
+                        len += mSpaceWidth;
                     }
                     else 
                     {
@@ -152,7 +159,7 @@ namespace Ogre {
             if ( *i == ' ')
             {
                 // Just leave a gap, no tris
-                left += spaceWidth;
+                left += mSpaceWidth;
                 // Also reduce tri count
                 mRenderOp.numVertices -= 6;
                 continue;
@@ -291,6 +298,24 @@ namespace Ogre {
         return mCharHeight;
     }
 
+    void TextAreaGuiElement::setSpaceWidth( Real width )
+    {
+        if (mMetricsMode == GMM_PIXELS)
+        {
+            mPixelSpaceWidth = width;
+        }
+        else
+        {
+            mSpaceWidth = width;
+        }
+
+        mGeomPositionsOutOfDate = true;
+    }
+    Real TextAreaGuiElement::getSpaceWidth() const
+    {
+        return mSpaceWidth;
+    }
+
     //---------------------------------------------------------------------
     TextAreaGuiElement::~TextAreaGuiElement()
     {
@@ -330,6 +355,11 @@ namespace Ogre {
             "Sets the height of the characters in relation to the screen."
             , PT_REAL),
             &msCmdCharHeight);
+
+        dict->addParameter(ParameterDef("space_width", 
+            "Sets the width of a space in relation to the screen."
+            , PT_REAL),
+            &msCmdSpaceWidth);
 
         dict->addParameter(ParameterDef("font_name", 
             "Sets the name of the font to use."
@@ -412,7 +442,12 @@ namespace Ogre {
         GuiElement::setMetricsMode(gmm);
         if (gmm == GMM_PIXELS)
         {
-            mPixelCharHeight = mCharHeight;
+            // Set pixel variables based on viewport multipliers
+            Real vpHeight;
+            vpHeight = (Real) (OverlayManager::getSingleton().getViewportHeight());
+
+            mPixelCharHeight = mCharHeight * vpHeight;
+            mPixelSpaceWidth = mSpaceWidth * vpHeight;
         }
     }
     //-----------------------------------------------------------------------
@@ -425,6 +460,7 @@ namespace Ogre {
             vpHeight = (Real) (OverlayManager::getSingleton().getViewportHeight());
 
             mCharHeight = (Real) mPixelCharHeight / vpHeight;
+            mSpaceWidth = (Real) mPixelSpaceWidth / vpHeight;
         }
         GuiElement::_update();
 
@@ -440,6 +476,19 @@ namespace Ogre {
     void TextAreaGuiElement::CmdCharHeight::doSet( void* target, const String& val )
     {
         static_cast< TextAreaGuiElement* >( target )->setCharHeight( 
+            StringConverter::parseReal( val ) );
+    }
+    //---------------------------------------------------------------------------------------------
+    // Space width command object
+    //
+    String TextAreaGuiElement::CmdSpaceWidth::doGet( void* target )
+    {
+        return StringConverter::toString( 
+            static_cast< TextAreaGuiElement* >( target )->getSpaceWidth() );
+    }
+    void TextAreaGuiElement::CmdSpaceWidth::doSet( void* target, const String& val )
+    {
+        static_cast< TextAreaGuiElement* >( target )->setSpaceWidth( 
             StringConverter::parseReal( val ) );
     }
     //---------------------------------------------------------------------------------------------

@@ -72,6 +72,9 @@ namespace Ogre
         void setCharHeight( Real height );
         Real getCharHeight() const;
 
+        void setSpaceWidth( Real width );
+        Real getSpaceWidth() const;
+
         void setFontName( const String& font );
         const String& getFontName() const;
 
@@ -148,6 +151,16 @@ namespace Ogre
             void doSet( void* target, const String& val );
         };
         //-----------------------------------------------------------------------------------------
+        /** Command object for setting the width of a space.
+                @see ParamCommand
+        */
+        class CmdSpaceWidth : public ParamCommand
+        {
+        public:
+            String doGet( void* target);
+            void doSet( void* target, const String& val );
+        };
+        //-----------------------------------------------------------------------------------------
         /** Command object for setting the caption.
                 @see ParamCommand
         */
@@ -205,6 +218,7 @@ namespace Ogre
 
         // Command objects
         static CmdCharHeight msCmdCharHeight;
+        static CmdSpaceWidth msCmdSpaceWidth;
         static CmdFontName msCmdFontName;
         static CmdColour msCmdColour;
         static CmdColourTop msCmdColourTop;
@@ -214,6 +228,8 @@ namespace Ogre
         Font *mpFont;
         Real mCharHeight;
         ushort mPixelCharHeight;
+        Real mSpaceWidth;
+        ushort mPixelSpaceWidth;
         uint mAllocSize;
 
         /// Colours to use for the vertices

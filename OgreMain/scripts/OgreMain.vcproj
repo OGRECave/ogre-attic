@@ -240,6 +240,9 @@
 				RelativePath="..\src\OgreGuiContainer.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreGuiControl.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreGuiElement.cpp">
 			</File>
 			<File
@@ -629,6 +632,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreGuiContainer.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreGuiControl.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreGuiElement.h">

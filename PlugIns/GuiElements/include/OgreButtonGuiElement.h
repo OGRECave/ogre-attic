@@ -26,8 +26,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __ButtonGuiElement_H__
 
 #include "OgreGuiElementPrerequisites.h"
-#include "OgreActionTarget.h"
-#include "OgreBorderPanelGuiElement.h"
+#include "OgrePanelGuiElement.h"
+#include "OgreGuiControl.h"
 
 namespace Ogre {
 
@@ -51,69 +51,150 @@ namespace Ogre {
 	 * the <code>MouseEvent</code> is passed to it.
 	 *
 	 */
-	class _OgreGuiElementExport ButtonGuiElement : public BorderPanelGuiElement, public ActionTarget
+	class _OgreGuiElementExport ButtonGuiElement : public PanelGuiElement, public GuiControl
     {
     protected:
-		String mActionCommand;
-		bool mPressed;
-		void fireActionPerformed();
-		String mBorderDownMaterialName,mBorderUpMaterialName;
-		void changeChild(GuiElement* e, Real add);
+		bool mButtonDown;
+
+		String mDownMaterialName;
+		String mUpMaterialName;
+		String mHiliteDownMaterialName;
+		String mHiliteUpMaterialName;
+		String mDisabledMaterialName;
+		
+        ColourValue mCaptionColour;
+        ColourValue mCaptionDisabledColour;
+		bool mSetCaptionColor;
+		bool mSetCaptionDisabledColor;
+
         static String msTypeName;
 		GuiElement* mInsideObject;
+		
+		void changeChild(GuiElement* e, Real add);
+
 	public :
 	    void addBaseParameters(void);
 
 		ButtonGuiElement(const String& name);
 		void processEvent(InputEvent* e) ;
 
-		void setPressed(bool b, bool init = false);
-		String getActionCommand();
-		bool isPressed();
+		void updateMaterials(bool init = false);
+
 		GuiElement* findElementAt(Real x, Real y);
 
+		virtual void setPressed(bool b);
+		virtual void setEnabled(bool b);
+		virtual void setMouseWithin(bool b);
 
-        /** Sets the name of the material to use for the borders. */
-        void setBorderDownMaterialName(const String& name);
-        /** Gets the name of the material to use for the borders. */
-        const String& getBorderDownMaterialName(void);
+        /** Sets the name of the material to use for the button. */
+        void setDownMaterialName(const String& name);
+        /** Gets the name of the material to use for the button. */
+        const String& getDownMaterialName(void);
 
-        /** Sets the name of the material to use for the borders. */
-        void setBorderUpMaterialName(const String& name);
-        /** Gets the name of the material to use for the borders. */
-        const String& getBorderUpMaterialName(void);
+        /** Sets the name of the material to use for the button. */
+        void setUpMaterialName(const String& name);
+        /** Gets the name of the material to use for the button. */
+        const String& getUpMaterialName(void);
+
+        /** Sets the name of the material to use for the hilited button. */
+        void setHiliteDownMaterialName(const String& name);
+        /** Gets the name of the material to use for the hilited button. */
+        const String& getHiliteDownMaterialName(void);
+
+        /** Sets the name of the material to use for the hilited button. */
+        void setHiliteUpMaterialName(const String& name);
+        /** Gets the name of the material to use for the hilited button. */
+        const String& getHiliteUpMaterialName(void);
+
+        /** Sets the name of the material to use for the disabled button. */
+        void setDisabledMaterialName(const String& name);
+        /** Gets the name of the material to use for the disabled button. */
+        const String& getDisabledMaterialName(void);
+
+        /** Sets the caption colour to use for the disabled button. */
+        void setCaptionColour(const ColourValue& col);
+        /** Gets the caption colour to use for the disabled button. */
+        ColourValue getCaptionColour(void) const;
+
+        /** Sets the caption colour to use for the disabled button. */
+        void setCaptionDisabledColour(const ColourValue& col);
+        /** Gets the caption colour to use for the disabled button. */
+        ColourValue getCaptionDisabledColour(void) const;
 
 	    void setButtonCaption(const String& templateName, const String& name);
 	    String getButtonCaption();
 
-        /** Command object for specifying the Material for the border (see ParamCommand).*/
-        class CmdBorderDownMaterial : public ParamCommand
+        /** Command object for specifying the Material for the button (see ParamCommand).*/
+        class CmdButtonDownMaterial : public ParamCommand
         {
         public:
             String doGet(void* target);
             void doSet(void* target, const String& val);
         };
 
-        /** Command object for specifying the Material for the border (see ParamCommand).*/
-        class CmdBorderUpMaterial : public ParamCommand
+        /** Command object for specifying the Material for the button (see ParamCommand).*/
+        class CmdButtonUpMaterial : public ParamCommand
         {
         public:
             String doGet(void* target);
             void doSet(void* target, const String& val);
         };
-        /** Command object for specifying the Material for the border (see ParamCommand).*/
+
+        /** Command object for specifying the Material for the button (see ParamCommand).*/
+        class CmdButtonHiliteDownMaterial : public ParamCommand
+        {
+        public:
+            String doGet(void* target);
+            void doSet(void* target, const String& val);
+        };
+
+        /** Command object for specifying the Material for the button (see ParamCommand).*/
+        class CmdButtonHiliteUpMaterial : public ParamCommand
+        {
+        public:
+            String doGet(void* target);
+            void doSet(void* target, const String& val);
+        };
+
+        /** Command object for specifying the Material for the button (see ParamCommand).*/
+        class CmdButtonDisabledMaterial : public ParamCommand
+        {
+        public:
+            String doGet(void* target);
+            void doSet(void* target, const String& val);
+        };
+        /** Command object for specifying the Caption color for the button (see ParamCommand).*/
+        class CmdCaptionColour : public ParamCommand
+        {
+        public:
+            String doGet( void* target );
+            void doSet( void* target, const String& val );
+        };
+        /** Command object for specifying the disabled Caption color for the button (see ParamCommand).*/
+        class CmdCaptionDisabledColour : public ParamCommand
+        {
+        public:
+            String doGet( void* target );
+            void doSet( void* target, const String& val );
+        };
+
+        /** Command object for specifying the Material for the button (see ParamCommand).*/
         class CmdButtonCaption : public ParamCommand
         {
         public:
             String doGet(void* target);
             void doSet(void* target, const String& val);
         };
-        static CmdBorderDownMaterial msCmdBorderDownMaterial;
-        static CmdBorderUpMaterial msCmdBorderUpMaterial;
+
+        static CmdButtonDownMaterial msCmdButtonDownMaterial;
+        static CmdButtonUpMaterial msCmdButtonUpMaterial;
+        static CmdButtonHiliteDownMaterial msCmdButtonHiliteDownMaterial;
+        static CmdButtonHiliteUpMaterial msCmdButtonHiliteUpMaterial;
+        static CmdButtonDisabledMaterial msCmdButtonDisabledMaterial;
+        static CmdCaptionColour msCmdCaptionColour;
+        static CmdCaptionDisabledColour msCmdCaptionDisabledColour;
         static CmdButtonCaption msCmdButtonCaption;
-
     };
-
 }
 
 
