@@ -48,19 +48,6 @@ namespace Ogre {
     enum MeshChunkID {
         M_HEADER                = 0x1000,
             // char*          version           : Version number check
-        M_MATERIAL            = 0x2000,
-            // char* name 
-            // AMBIENT
-            // Real r, g, b
-            // DIFFUSE
-            // Real r, g, b
-            // SPECULAR
-            // Real r, g, b
-            // SHININESS
-            // Real val;
-            M_TEXTURE_LAYER    = 0x2200, // optional, repeat per layer
-                // char* name 
-                // TODO - scale, offset, effects
         M_MESH                = 0x3000,
 			// bool skeletallyAnimated   // important flag which affects h/w buffer policies
             // Optional M_GEOMETRY chunk
@@ -121,10 +108,23 @@ namespace Ogre {
                 // Real radius
                     
                     
-
-
-                
-
+        
+        // --> Phased out definitions
+        // Definitions required for loading 1.0 meshes, but no longer supported 
+        // (see 1.0 format below)
+        , M_MATERIAL            = 0x2000,
+            // char* name 
+            // AMBIENT
+            // Real r, g, b
+            // DIFFUSE
+            // Real r, g, b
+            // SPECULAR
+            // Real r, g, b
+            // SHININESS
+            // Real val;
+            M_TEXTURE_LAYER    = 0x2200 // optional, repeat per layer
+                // char* name 
+                // TODO - scale, offset, effects
 
     };
 

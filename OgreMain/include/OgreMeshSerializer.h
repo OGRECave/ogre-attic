@@ -68,9 +68,8 @@ namespace Ogre {
             and optionally the Materials it uses to a .mesh file.
         @param pMesh Pointer to the Mesh to export
         @param filename The destination filename
-        @param includeMaterials If true, Material data is also exported into the file.
         */
-        void exportMesh(const Mesh* pMesh, const String& filename, bool includeMaterials = false);
+        void exportMesh(const Mesh* pMesh, const String& filename);
 
         /** Imports Mesh and (optionally) Material data from a .mesh file DataChunk.
         @remarks

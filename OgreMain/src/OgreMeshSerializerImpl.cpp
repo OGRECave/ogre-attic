@@ -51,7 +51,7 @@ namespace Ogre {
     {
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::exportMesh(const Mesh* pMesh, const String& filename, bool includeMaterials)
+    void MeshSerializerImpl::exportMesh(const Mesh* pMesh, const String& filename)
     {
         LogManager::getSingleton().logMessage("MeshSerializer writing mesh data to " + filename + "...");
 
@@ -61,22 +61,6 @@ namespace Ogre {
         writeFileHeader();
         LogManager::getSingleton().logMessage("File header written.");
 
-        // Write materials if required
-        if (includeMaterials)
-        {
-            LogManager::getSingleton().logMessage("Writing Materials to file...");
-            for (int i = 0; i < pMesh->getNumSubMeshes(); ++i)
-            {
-                SubMesh* sm = pMesh->getSubMesh(i);
-                Material* pMat = (Material*)matMgr.getByName(sm->getMaterialName());
-                if (pMat)
-                {
-                    LogManager::getSingleton().logMessage("Exporting Material '" + pMat->getName() + "'...");
-                    writeMaterial(pMat);
-                    LogManager::getSingleton().logMessage("Material '" + pMat->getName() + "' exported.");
-                }
-            }
-        }
 
         LogManager::getSingleton().logMessage("Writing mesh data...");
         writeMesh(pMesh);
@@ -99,9 +83,6 @@ namespace Ogre {
             chunkID = readChunk(chunk);
             switch (chunkID)
             {
-            case M_MATERIAL:
-                readMaterial(chunk);
-                break;
             case M_MESH:
                 readMesh(chunk);
                 break;
@@ -111,6 +92,8 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void MeshSerializerImpl::writeMaterial(const Material* m)
     {
+        /* No longer supported in 1.1 mesh format 
+
         // Header
         writeChunkHeader(M_MATERIAL, calcMaterialSize(m));
 
@@ -144,16 +127,19 @@ namespace Ogre {
         {
             writeTextureLayer(m->getTextureLayer(i));
         }
+        */
 
     }
     //---------------------------------------------------------------------
     void MeshSerializerImpl::writeTextureLayer(const Material::TextureLayer* pTex)
     {
+        /* No longer supported in 1.1 mesh format
         // Header
         writeChunkHeader(M_TEXTURE_LAYER, calcTextureLayerSize(pTex));
 
         // Name
         writeString(pTex->getTextureName());
+        */
 
     }
     //---------------------------------------------------------------------
@@ -454,85 +440,8 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void MeshSerializerImpl::readMaterial(DataChunk& chunk)
     {
-        ColourValue col;
-        Real rVal;
 
-        // char* name 
-        String name = readString(chunk);
-
-        // Create a new material
-        Material* pMat;
-        try 
-        {
-            pMat = (Material*)MaterialManager::getSingleton().createDeferred(name);
-        }
-        catch (Exception& e)
-        {
-            if(e.getNumber() == Exception::ERR_DUPLICATE_ITEM)
-            {
-                // Material already exists
-                char msg[256];
-                sprintf(msg, "Material '%s' in model '%s' has been ignored "
-                    "because a material with the same name has already "
-                    "been registered.", name.c_str(),
-                    mpMesh->getName().c_str());
-                LogManager::getSingleton().logMessage(msg);
-                // Skip the rest of this material
-                chunk.skip(mCurrentChunkLen - name.length() - 1 - CHUNK_OVERHEAD_SIZE);
-                return;
-
-            }
-            else
-            {
-                throw;
-            }
-        }
-
-        // AMBIENT
-        // Real r, g, b
-        readReals(chunk, &col.r, 1);
-        readReals(chunk, &col.g, 1);
-        readReals(chunk, &col.b, 1);
-        pMat->setAmbient(col);
-
-        // DIFFUSE
-        // Real r, g, b
-        readReals(chunk, &col.r, 1);
-        readReals(chunk, &col.g, 1);
-        readReals(chunk, &col.b, 1);
-        pMat->setDiffuse(col);
-
-        // SPECULAR
-        // Real r, g, b
-        readReals(chunk, &col.r, 1);
-        readReals(chunk, &col.g, 1);
-        readReals(chunk, &col.b, 1);
-        pMat->setSpecular(col);
-
-        // SHININESS
-        // Real val;
-        readReals(chunk, &rVal, 1);
-        pMat->setShininess(rVal);
-
-        // Read any texture layers
-        if (!chunk.isEOF())
-        {
-            unsigned short chunkID = readChunk(chunk);
-            while(chunkID == M_TEXTURE_LAYER && !chunk.isEOF())
-            {
-                readTextureLayer(chunk, pMat);
-                if (!chunk.isEOF())
-                {
-                    chunkID = readChunk(chunk);
-                }
-            }
-            // Get next chunk
-            if (!chunk.isEOF())
-            {
-                // Backpedal back to start of non-texture layer chunk
-                chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
-            }
-        }
+        // Material definition section phased out of 1.1
 
     }
     //---------------------------------------------------------------------
@@ -1649,6 +1558,103 @@ namespace Ogre {
 		}
     }
     //---------------------------------------------------------------------
+    void MeshSerializerImpl_v1::readMaterial(DataChunk& chunk)
+    {
+        ColourValue col;
+        Real rVal;
+
+        // Material definition section phased out of 1.1
+        LogManager::getSingleton().logMessage(
+            "Warning: Material definitions are no longer supported in .mesh files, "
+            "you should move these definitions to a material script when you "
+            "upgrade this mesh to the latest version. ");
+
+        // char* name 
+        String name = readString(chunk);
+
+        // Create a new material
+        Material* pMat;
+        try 
+        {
+            pMat = (Material*)MaterialManager::getSingleton().createDeferred(name);
+        }
+        catch (Exception& e)
+        {
+            if(e.getNumber() == Exception::ERR_DUPLICATE_ITEM)
+            {
+                // Material already exists
+                char msg[256];
+                sprintf(msg, "Material '%s' in model '%s' has been ignored "
+                    "because a material with the same name has already "
+                    "been registered.", name.c_str(),
+                    mpMesh->getName().c_str());
+                LogManager::getSingleton().logMessage(msg);
+                // Skip the rest of this material
+                chunk.skip(mCurrentChunkLen - name.length() - 1 - CHUNK_OVERHEAD_SIZE);
+                return;
+
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        // AMBIENT
+        // Real r, g, b
+        readReals(chunk, &col.r, 1);
+        readReals(chunk, &col.g, 1);
+        readReals(chunk, &col.b, 1);
+        pMat->setAmbient(col);
+
+        // DIFFUSE
+        // Real r, g, b
+        readReals(chunk, &col.r, 1);
+        readReals(chunk, &col.g, 1);
+        readReals(chunk, &col.b, 1);
+        pMat->setDiffuse(col);
+
+        // SPECULAR
+        // Real r, g, b
+        readReals(chunk, &col.r, 1);
+        readReals(chunk, &col.g, 1);
+        readReals(chunk, &col.b, 1);
+        pMat->setSpecular(col);
+
+        // SHININESS
+        // Real val;
+        readReals(chunk, &rVal, 1);
+        pMat->setShininess(rVal);
+
+        // Read any texture layers
+        if (!chunk.isEOF())
+        {
+            unsigned short chunkID = readChunk(chunk);
+            while(chunkID == M_TEXTURE_LAYER && !chunk.isEOF())
+            {
+                readTextureLayer(chunk, pMat);
+                if (!chunk.isEOF())
+                {
+                    chunkID = readChunk(chunk);
+                }
+            }
+            // Get next chunk
+            if (!chunk.isEOF())
+            {
+                // Backpedal back to start of non-texture layer chunk
+                chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
+            }
+        }
+
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl_v1::readTextureLayer(DataChunk& chunk, Material* pMat)
+    {
+        // Just name for now
+        String name = readString(chunk);
+
+        pMat->addTextureLayer(name);
+    }
 
 
 
