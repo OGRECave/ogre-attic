@@ -95,10 +95,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 #       define GL_TEXTURE0 GL_TEXTURE0_ARB
 #   endif
 // texture_env_dot3
-#   ifdef GL_ARB_texture_env_dot3
-#       define GL_DOT3_RGB GL_DOT3_RGB_ARB
-#   elif GL_EXT_texture_env_dot3
-#       define GL_DOT3_RGB GL_DOT3_RGB_EXT
+#   ifndef GL_DOT3_RGB
+#       define GL_DOT3_RGB                       0x86AE
+#   endif
+#   ifndef GL_DOT3_RGB_EXT
+#       define GL_DOT3_RGB_EXT                   0x8740
 #   endif
 // texture_cube_map
 #   ifdef GL_ARB_texture_cube_map
@@ -124,10 +125,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #ifndef GL_VERSION_1_4
 // texture_mirrored_repeat
-#   ifdef GL_ARB_texture_mirrored_repeat
-#       define GL_MIRRORED_REPEAT GL_MIRRORED_REPEAT_ARB
-#   elif GL_IBM_texture_mirrored_repeat
-#       define GL_MIRRORED_REPEAT GL_MIRRORED_REPEAT_IBM
+#   ifndef GL_MIRRORED_REPEAT
+#       define GL_MIRRORED_REPEAT                0x8370
 #   endif
 // generate_mipmap
 #   ifdef GL_SGIS_generate_mipmap 

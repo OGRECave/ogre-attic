@@ -94,8 +94,15 @@ public:
     virtual bool hasDot3(void)
     {
       if(checkMinGLVersion("1.3.0") || 
-          checkExtension("GL_ARB_texture_env_dot3") || 
-          checkExtension("GL_EXT_texture_env_dot3"))
+          checkExtension("GL_ARB_texture_env_dot3"))
+          return true;
+
+      return false;
+    }
+
+    virtual bool hasDot3EXT(void)
+    {
+      if(checkExtension("GL_EXT_texture_env_dot3"))
           return true;
 
       return false;
