@@ -47,13 +47,15 @@ function exportOgreMaterial material outName =
 
 ---------------------------------------------------------------
 -- Writes a standard material in a material script
+-- prefix will be before material name. (prefix+name)
+-- used for multi material
 ---------------------------------------------------------------
-function writeSubStandardMaterial material matname outFile =
+function writeStandardMaterial material prefix outFile =
 (
 	local t ;
-
+	matname = replaceSpaces material.name ;
 	-- writes header	
-	format "%\n" matname to:outFile ;
+	format "%\n" (prefix+matname) to:outFile ;
 	format "{\n" to:outFile ;
 
 	-- tests if there is (or not) a diffuse map.
@@ -75,31 +77,83 @@ function writeSubStandardMaterial material matname outFile =
 
 )
 
+---------------------------------------------------------------
+-- Exports a standard material
+-- PRE: material is a standard material
+-- Use exportMaterial function.
+---------------------------------------------------------------
+function exportStandardMaterial material outFile =
+(
+	local sub,i,matname ;
+	matname = replaceSpaces material.name ;
+	writeStandardMaterial material "" outFile ;
+)
+
 
 ---------------------------------------------------------------
 -- Exports a multi material
+-- PRE: material is a multi material
+-- Use exportMaterial function.
 ---------------------------------------------------------------
-function exportMultiMaterial material outname =
+function exportMultiMaterial material outFile=
 (
-	local outFile,sub,i,matname ;
-	if (material!=undefined and classof material == MultiMaterial) then
-	(
-		outFile = createfile outName ;
-		matname = replaceSpaces material.name ;
-		
-		i=0 ;
-		for sub in material.materiallist do (
-			i+=1 ;
-			writeSubStandardMaterial sub (matname+"_sub"+(i as string) ) outFile ;
-			format "\n" to:outFile ;
-		)
-		
-		close outFile ;
-		messageBox "Exporting material successful !" ;
+	local sub,i,matname ;
+
+	matname = replaceSpaces material.name ;
+	
+	i=0 ;
+	for sub in material.materiallist do (
+		i+=1 ;
+		writeStandardMaterial sub (material.name+"/") outFile ;
+		format "\n" to:outFile ;
 	)
-	else
-		messageBox "You have to choose a MultiMaterial." ;
-
-
-
 )
+
+
+
+---------------------------------------------------------------
+-- Exports a material
+-- call the fonction linked to the material type
+---------------------------------------------------------------
+function exportMaterial material outname =
+(
+	local outFile ;
+	outFile = createfile outName ;
+		
+	if (material!=undefined and classof material == MultiMaterial) then
+		exportMultiMaterial material outFile ;
+	else (
+		if (material!=undefined and classof material == StandardMaterial) then
+			exportStandardMaterial material outFile ;
+		else
+			messageBox "You have to choose a Standard Material or a MultiMaterial." ;
+	)
+	
+    close outFile ;
+	messageBox "Exporting material successful !" ;
+)
+
+
+---------------------------------------------------------------
+-- Exports all the materials used in the scene
+---------------------------------------------------------------
+function exportAllSceneMaterials outname =
+(
+	local outFile ;
+	outFile = createfile outname ;
+	
+	for material in sceneMaterials do
+	(			
+		if (material!=undefined and classof material == MultiMaterial) then
+			exportMultiMaterial material outFile ;
+		else (
+			if (material!=undefined and classof material == StandardMaterial) then
+				exportStandardMaterial material outFile ;
+		)
+		format "\n" to:outFile ;
+	)		
+    close outFile ;
+	messageBox "Exporting all materials in the scene successful !" ;
+	
+)
+

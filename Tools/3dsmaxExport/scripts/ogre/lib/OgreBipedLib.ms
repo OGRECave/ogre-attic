@@ -1,7 +1,22 @@
+function isPelvis bipObj =
+(
+	--format "isPelvis: % Vs %  --> % \n" bipObj.name (biped.getNode bipObj 12).name  ((biped.getNode bipObj 12) == bipObj);
+	if (bipObj == undefined) then return false ;
+	return ((biped.getNode bipObj 12) == bipObj) ;
+)
+
+function isFootStep bipObj =
+(
+	if (bipObj == undefined) then return false ;
+	return ((biped.getNode bipObj 16) == bipObj) ;
+)
+
+
+
 -----------------------------------------------------------------------------
 -- gets  keyframes from the controllers animation
 -----------------------------------------------------------------------------
-function getTimeList obj firstframe lastframe =
+function getBipedTimeList obj firstframe lastframe =
 (
 	local list,rotContr,posContr,  ;
 	list = #(firstframe) ;
@@ -10,28 +25,10 @@ function getTimeList obj firstframe lastframe =
 	-- Biped_Objects and Bones don't have the same properties
 	
 	-- Biped_Objets
-	if (isKindOf obj Biped_Object) then (
-		for e in obj.controller.keys do (
-			t =e.time ;
-			if (t>firstFrame and t<=lastFrame) then
-				append list t ;
-		)
-	)
-	-- Bones	
-	else (
-		rotContr = obj.rotation.controller ;
-		posContr = obj.pos.controller ;
-		
-		for e in rotContr.keys do (
-			t = e.time ;
-			if (t>firstFrame and t<=lastFrame) then
-				append list t ;
-		)
-		for e in posContr.keys do (
-			t = e.time ;
-			if (t>firstFrame and t<=lastFrame) then
-				append list t ;
-		)	
+	for e in obj.controller.keys do (
+		t =e.time ;
+		if (t>firstFrame and t<=lastFrame) then
+			append list t ;
 	)
 	-- if several keyframes have the same value, we keep just one
 	keepLoneValues list list2 ;
@@ -46,34 +43,42 @@ function getTimeList obj firstframe lastframe =
 --   (e.g. first key has time 0.)
 -----------------------------------------------------------------------------
 
-function writeTrack sk boneId firstframe lastframe length scale flipYZ outFile=
+function writeBipedTrack phy sk boneId firstframe lastframe length scale flipYZ outFile=
 (
 	local angle,timef,i,bname,d,mref,mparent ;
 	
 	-- displays information in the maxscript listener
-	format "retrieving key information for % ...\n" (skinOps.GetBoneName sk boneId 1) ;
+	if (sk != undefined) then
+		format "retrieving key information from skin for % ...\n" (skinOps.GetBoneName sk boneId 1) ;
+	else
+		format "retrieving key information from physique for % ...\n" ( (physiqueOps.GetBones $)[boneId] ) ;
+
 	
 	-- gets bone acording to the parameter boneId
-	bname= skinOps.GetBoneName sk boneId 1 ;
+	if (sk != undefined) then
+		bname= skinOps.GetBoneName sk boneId 1 ;
+	else -- physique
+		bname = (physiqueOps.getBones $)[boneId].name ; 
+	
 	replaceSpaces bname ;
 	d = execute ("$" + bname) ;
 	
 	-- gets keyframe list
-	timelist = getTimeList d firstframe lastframe ;
+	timelist = getBipedTimeList d firstframe lastframe ;
 	
 	-- track header
-	format("\t\t\t\t<track bone = \"%\">\n") (replaceSpaces d.name) to:outFile ;
+	format("\t\t\t\t<track bone = \"%\">\n") d.name to:outFile ;
 	format("\t\t\t\t\t<keyframes>\n") to:outFile ;
 	
 	-- gets initial transform at frame 0f
 	at time 0f (
 		initTform = d.transform ;
-		if (not isRoot d) then (
+		if (not isPelvis d) then (
 			mparent = d.parent.transform ;
 			initTform = initTform*inverse(mparent) ;
 		)
 		else if (flipYZ) then (
-			format " - flipping root bone track..." ;
+			format " - flipping pelvis track..." ;
 			initTform = flipYZTransform initTform ;
 		)
 	)
@@ -87,8 +92,8 @@ function writeTrack sk boneId firstframe lastframe length scale flipYZ outFile=
 			
 		-- First, rotation which depends on initial transformation
 			Tform = d.transform ;
-			-- if this is the root bone
-			if (isRoot d) then (
+			-- if this is the pelvis
+			if (isPelvis d) then (
 				mparent = matrix3 1 ;
 				-- if flipYZ == true
 				if (flipYZ) then
@@ -110,7 +115,7 @@ function writeTrack sk boneId firstframe lastframe length scale flipYZ outFile=
 			Tform=Tform*inverse(mparent) ;
 			
 			-- if this is the root bone and flipYZ == true
-			if (isRoot d and flipYZ) then (
+			if (isPelvis d and flipYZ) then (
 				Tform = flipYZTransform Tform ;
 			)
 			
@@ -122,6 +127,10 @@ function writeTrack sk boneId firstframe lastframe length scale flipYZ outFile=
 
 				
 			-- writes them !
+			if (abs(pos.x)<1e-5) then pos.x = 0 ;
+			if (abs(pos.y)<1e-5) then pos.y = 0 ;
+			if (abs(pos.z)<1e-5) then pos.z = 0 ;
+			
 			format("\t\t\t\t\t\t<keyframe time=\"%\">\n") timef to: outFile ;
 			format("\t\t\t\t\t\t\t<translate x=\"%\" y=\"%\" z=\"%\" />\n") pos.x pos.y pos.z to: outFile ;
 			format("\t\t\t\t\t\t\t<rotate angle=\"%\">\n") angle to:outFile ; 
@@ -149,27 +158,32 @@ function writeTrack sk boneId firstframe lastframe length scale flipYZ outFile=
 -- write <bones />
 ------------------
 
-function writeB sk id scale flipYZ outFile =
+function writeBipedB phy sk id scale flipYZ outFile =
 (
 	-- gets bone acording to the parameter boneId
-	bname= skinOps.GetBoneName sk id 1 ;
+	if (sk != undefined) then
+		bname= skinOps.GetBoneName sk id 1 ;
+	else --physique
+		bname = (physiqueOps.getBones $)[id].name ;
+	
+	
 	replaceSpaces bname ;
 	d = execute ("$" + bname) ;
 	
 	-- gets initial transform at frame 0f
-	format("\t\t<bone id=\"%\" name=\"%\">\n") id (replaceSpaces d.name) to:outFile ;
+	format("\t\t<bone id=\"%\" name=\"%\">\n") id d.name to:outFile ;
 	
 	slidertime = 0f ;
 	Tform = d.transform ;
-	if (not isRoot d) then (
+	if (not isPelvis d) then (
 		mparent = d.parent.transform ;
 		Tform = Tform*inverse(mparent) ;
 	)
 	
 	Tform.pos = Tform.pos * scale ;
 		
-	if ((isRoot d) and flipYZ) then (
-		format "- Flipping root bone... \n" ;
+	if ((isPelvis d) and flipYZ) then (
+		format "- Flipping pelvis... \n" ;
 		Tform = flipYZTransform Tform ;
 	)
 	
@@ -177,6 +191,12 @@ function writeB sk id scale flipYZ outFile =
 	rot = Tform.rotation as angleaxis ;
 	angle = - degToRad (rot.angle) ; -- don't know why there must be this minus :((((((
 	
+	
+			if (abs(pos.x)<1e-5) then pos.x = 0 ;
+			if (abs(pos.y)<1e-5) then pos.y = 0 ;
+			if (abs(pos.z)<1e-5) then pos.z = 0 ;
+			
+			
 	format("\t\t\t<position x=\"%\" y=\"%\" z=\"%\" />\n") pos.x pos.y pos.z to:outFile ;
     format("\t\t\t<rotation angle=\"%\">\n") angle to:outFile ;
     format("\t\t\t\t<axis x=\"%\" y=\"%\" z=\"%\" />\n") rot.axis.x rot.axis.y rot.axis.z to:outFile ;
@@ -187,7 +207,7 @@ function writeB sk id scale flipYZ outFile =
 -- write Bones (using writeB)
 -----------------------------
 
-function writeBones sk scale flipYZ outFile =
+function writeBipedBones phy sk scale flipYZ outFile =
 (
 	local i ;
 	
@@ -201,55 +221,80 @@ function writeBones sk scale flipYZ outFile =
     format("\t\t\t</rotation>\n") to:outFile ;
 	format("\t\t</bone>\n") to:outFile ;
 	i = 0 ;
-	for i=1 to (skinOps.GetNumberBones sk) do
-	(
-		writeB sk i scale flipYZ outFile ;
-	)
-	format("\t</bones>\n") to:outFile;
-)
-
------------------------------------
--- recursive fun to write hierarchy
------------------------------------
-
-function writeH b outFile =
-(
-	if ( b.parent != undefined and (isKindOf b.parent BoneGeometry or iskindOf b.parent Biped_Object)) then
-	(
-		p = b.parent ;
-		format("\t\t<boneparent bone=\"%\" parent=\"%\" />\n") (replaceSpaces b.name) (replaceSpaces p.name) to:outFile ;
-	)
-	childrenArray = b.children ;
-	for i=1 to childrenArray.count do
-	(
-        if (isKindOf b BoneGeometry or iskindOf b Biped_Object) then
-			writeH childrenArray[i] outFile ;
-	)
 	
+	if (sk != undefined) then
+		for i=1 to (skinOps.GetNumberBones sk) do
+		(
+			writeBipedB phy sk i scale flipYZ outFile ;
+		)
+	else -- physique
+		for i=1 to (physiqueOps.GetBoneCount $) do
+		(
+			writeBipedB phy sk i scale flipYZ outFile ;
+		)	
+	
+	
+	format("\t</bones>\n") to:outFile;
 )
 
 --------------------------
 -- write <bonehierarchy />
 --------------------------
 
-function writeHierarchy sk outFile =
+function writeBipedHierarchy phy sk outFile =
 (
+	local bname,pelvis
 	format("\t<bonehierarchy>\n") to:outFile ;
-	roots = getRoots sk ;
+
+	if (sk != undefined) then
+		bname= skinOps.GetBoneName sk 1 1 ;
+	else --physique
+		bname = (physiqueOps.getBones $)[1].name ;
+		
+	replaceSpaces bname ;
+	d = execute ("$" + bname) ;
+	pelvis = biped.getNode d 12 ;
 	
 	-- ecriture de la track pour le bone 0.
-	format("\t\t<boneparent bone=\"zzwxy\" parent=\"%\" />\n") roots[1].name to:outFile ;
-	for b in roots do
-	(
-		writeH b outFile;
-	)
+	format("\t\t<boneparent bone=\"zzwxy\" parent=\"%\" />\n") pelvis.name to:outFile ;
+
+	if (sk != undefined) then
+		for i=1 to (skinOps.GetNumberBones sk) do
+		(
+			-- gets bone:
+			bname= skinOps.GetBoneName sk i 1 ;
+			replaceSpaces bname ;
+			d = execute ("$" + bname) ;
+			if ((not isPelvis d) and (not isFootStep d) ) then
+			(
+				p = d.parent ;
+				format("\t\t<boneparent bone=\"%\" parent=\"%\" />\n") d.name p.name to:outFile ;
+			)
+		)		
+	else -- physique
+		for i=1 to (physiqueOps.GetBoneCount $) do
+		(
+			-- gets bone:
+			bname = (physiqueOps.getBones $)[i].name ;
+			replaceSpaces bname ;
+			d = execute ("$" + bname) ;
+			if ((not isPelvis d) and (not isFootStep d) ) then
+			(
+				p = d.parent ;
+				format("\t\t<boneparent bone=\"%\" parent=\"%\" />\n") d.name p.name to:outFile ;
+			)
+		)
+	
+	
+	
+	
 	format("\t</bonehierarchy>\n") to:outFile ;
 )
 
 -----------------------
 -- write <animations />
 -----------------------
-function writeAnim sk firstFrame lastFrame length scale flipYZ name outFile =
+function writeBipedAnim phy sk firstFrame lastFrame length scale flipYZ name outFile =
 (
 	local i,n ;
 	
@@ -269,10 +314,13 @@ function writeAnim sk firstFrame lastFrame length scale flipYZ name outFile =
 	format("\t\t\t\t\t</keyframes>\n") to:outFile ;
 	format("\t\t\t\t</track>\n") to: outFile ;
 	
-	n = skinOps.GetNumberBones sk ;
-	liste = #(0,20,30,40) ;
+	if (sk != undefined) then
+		n = skinOps.GetNumberBones sk ;
+	else
+		n = physiqueOps.GetBoneCount $ ;
+	
 	for i = 1 to n do
-		writeTrack sk i firstframe lastframe length scale flipYZ outFile ;
+		writeBipedTrack phy sk i firstframe lastframe length scale flipYZ outFile ;
 
 	format("\t\t\t</tracks>\n") to:outFile					
 	format("\t\t</animation>\n") to: outFile ;
@@ -286,20 +334,26 @@ function writeAnim sk firstFrame lastFrame length scale flipYZ name outFile =
 -- and scale time according to length
 -------------------------------------------------------------
 
-function writeSkeleton pmesh exportOptions out_name = 
+function writeBiped pmesh exportOptions out_name = 
 (
-	local sk,n,keys,initialKeys,messages ;
-	sk = getSkin pmesh ;
+	local sk,n,keys,initialKeys,messages,phy ;
 	
-	if (sk == undefined) then
+	sk = getSkin pmesh ;
+	phy = getPhysique pmesh ;
+	
+	if (sk == undefined and phy == undefined) then
 	(
-		MessageBox "There is no skin modifier for this object" ;
+		MessageBox "There is no skin or physique modifier for this object" ;
 	)
 	else
 	(	
 		-- in order to perform, skin should be opened
 		max modify mode ;
-		modPanel.setCurrentObject pmesh.modifiers[#Skin] ;
+		if (sk != undefined) then
+			modPanel.setCurrentObject pmesh.modifiers[#Skin] ;
+		else -- physique
+			modPanel.setCurrentObject pmesh.modifiers[#Physique] ;
+
 		
 			format "------------------------------------------\n"
 			format "------ OGRE skeleton Exporter Log   ------\n"
@@ -314,11 +368,11 @@ function writeSkeleton pmesh exportOptions out_name =
 				format("<skeleton>\n") to:outFile ;	
 	
 				format "Writing bones :\n" ;
-				writeBones sk exportOptions.scale exportOptions.flipYZ outFile ;
+				writeBipedBones phy sk exportOptions.scale exportOptions.flipYZ outFile ;
 				format "Writing bone hierarchy.\n" ;
-				writeHierarchy sk outFile ;
+				writeBipedHierarchy phy sk outFile ;
 				format "Writing bone tracks.\n" ;
-				writeAnim sk exportOptions.firstFrame exportOptions.lastFrame exportOptions.length exportOptions.scale exportOptions.flipYZ exportOptions.animName outFile ;
+				writeBipedAnim phy sk exportOptions.firstFrame exportOptions.lastFrame exportOptions.length exportOptions.scale exportOptions.flipYZ exportOptions.animName outFile ;
 
 				-- ecriture, fin des balises
 				format("</skeleton>\n") to: outFile ;
