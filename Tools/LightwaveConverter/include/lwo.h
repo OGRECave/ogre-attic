@@ -724,7 +724,7 @@ inline bool operator < (const lwTexture &t1, const lwTexture &t2 )
 	return strcmp( t1.ord, t2.ord ) < 0;
 }
 
-#if OGRE_PLATFORM == PLATFORM_LINUX || OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX || OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 void revbytes( void *bp, int elsize, int elcount );
 #else
 #define revbytes( b, s, c )

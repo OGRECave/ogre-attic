@@ -5,7 +5,7 @@
 #include "OgreStringConverter.h"
 #include "OgreDefaultHardwareBufferManager.h"
 
-#if OGRE_PLATFORM == PLATFORM_LINUX
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 #include <math.h>
 #include <float.h>  // FLT_MIN, FLT_MAX
 #include <libgen.h> // dirname(), basename().
@@ -24,7 +24,7 @@ extern char *matPrefix;
 
 extern ostream& nl(ostream& os);
 
-#if OGRE_PLATFORM == PLATFORM_LINUX
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 
 /* We expect the caller to provide an arrays of chars for the output. */
 void _splitpath( const char *_fn, char *_drive, char *_dir, char *_node, char *_ext ) {
