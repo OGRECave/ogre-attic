@@ -639,6 +639,7 @@ void TerrainRenderable::_calculateMinLevelDist2( Real C )
         if (i == mNumMipMaps - 1)
         {
             // Last one is always 0
+            lastIndex = i;
             lastDist = mMinLevelDistSqr[i];
             mNextLevelDown[i] = 0;
         }
