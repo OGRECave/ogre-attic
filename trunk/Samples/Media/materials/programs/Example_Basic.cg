@@ -108,7 +108,8 @@ void hardwareSkinningFourWeights_vp(
 {
 	// transform by indexed matrix
 	float4 blendPos = float4(0,0,0,1);
-	for (int i = 0; i < 4; ++i)
+	int i;
+	for (i = 0; i < 4; ++i)
 	{
 		blendPos += float4(mul(worldMatrix3x4Array[blendIdx[i]], position).xyz, 1.0) * blendWgt[i];
 	}
@@ -118,7 +119,7 @@ void hardwareSkinningFourWeights_vp(
 	float3 norm = float3(0,0,0);
 	for (i = 0; i < 4; ++i)
 	{
-		norm += mul((float3x3)worldMatrix3x4Array[blendIdx[i]], normal) * 
+		norm += mul(worldMatrix3x4Array[blendIdx[i]], normal) * 
 		blendWgt[i];
 	}
 	norm = normalize(norm);
