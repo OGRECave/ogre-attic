@@ -84,6 +84,128 @@ CODE.str {
 <p align="center" class="header">OGRE (Object-Oriented Graphics
 Rendering Engine)</p>
 <p align="center" class="header">Change Log</p>
+<p align="left" class="MainHeader">v0.15.0 [Hastur] (23 October 2004) -
+Major Release<br>
+</p>
+<p align="left">Note: Ogre development branches will now have code
+names; the 0.15 stable branch is known as 'Hastur', the continuing
+development branch (which will be released as 1.0) is called
+'Azathoth'. <br>
+</p>
+<p align="left">Enhancements:<br>
+</p>
+<ul>
+  <li><span style="color: rgb(255, 255, 51);">Binary mesh format
+enhanced</span>. Previously the binary mesh format did not support all
+the flexibility you could attain when you built meshes
+programmatically. This has been addressed, and the mesh can now store
+arbitrary vertex buffer formats, precomputed edge lists (for stencil
+shadows), and tangent-space vectors (for normal mapping). You are
+strongly adviced to use the OgreMeshUpgrade tool on all your meshes to
+uprade them to the latest version, and choose 'y' when asked if you
+want to reorganise your vertex buffers. The 'automatic' option is the
+quickest way to get your meshes up to date, and you may find them
+slightly faster to render as a result. <br>
+Bear in mind that the .mesh size will increase because edge lists are
+precomputed and stored by default - if you don't intend to use stencil
+shadows then you can disable this with the '-e' parameter.<br>
+  </li>
+  <li><span style="color: rgb(255, 255, 51);">OpenGL Shading Language
+(GLSL) support</span>. This means Ogre now supports programmable
+shaders written in Cg, HLSL, GLSL and all variants of assembler
+(DirectX and GL).</li>
+  <li><span style="color: rgb(255, 255, 51);">Explicit Radian, Degree
+and AngleUnit classes</span>. To resolve ambiguity as to which angle
+unit is being used, all methods which take an angle now take a Radian
+class. You can pass Degree instances to this too and get automatic
+degree-to-radian conversion. You can also use the AngleUnit class which
+defaults to the current angle units (see Math). Note that conversions
+are inlined and are thus very cheap; although if you want to avoid them
+entirely, use Radian. This is an <span style="color: rgb(255, 102, 0);">interface
+breaking change</span>, so you will need to update your code to use
+Radian(radianValue) or Degree(degreeValue) where you are using basic
+types to store angles.<br>
+  </li>
+  <li><span style="color: rgb(255, 255, 0);">Reflection enhancements</span>.
+Automatic reflections using dynamic planes are now simple to create
+using MovablePlane, and 'custom near clip planes' (oblique depth
+projection) are available to allow you to clip reflected geometry to an
+arbitrary plane without requiring additional hardware support such as
+user clip planes.</li>
+  <li>Per-Renderable custom parameters can now be mapped into vertex /
+fragment programs (using ACT_CUSTOM) to better customise the look of
+your programmably shaded objects<br>
+  </li>
+  <li>Skeletal animation optimisation: by default it now uses an
+approximation of true rotational interpolation which is slightly
+faster; true spherical interpolation is still an option if more
+accuracy is required.<br>
+  </li>
+  <li>Edge list improvements; Ogre can now deal with even more model
+construction variants while still retaining stencil shadow integrity</li>
+  <li>Billboard / particle system index and vertex buffers are now
+deferred loading</li>
+  <li>Blender and Milkshape exporters updated</li>
+  <li>GL now has a FSAA option like D3D</li>
+  <li>Specialised scene queries for the OctreeSceneManager</li>
+  <li>Mesh bounds padding is now more configurable</li>
+  <li>Skeleton instances can now be shared between multiple entities to
+allow optional add-ons to animated meshes</li>
+  <li>Transparent materials can now cast texture shadows, if an option
+is enabled in their material (useful for alpha rejection textures)</li>
+</ul>
+Bugfixes:<br>
+<ul>
+  <li>Ogre::String is no longer a subclass of std::string, but a
+typedef to it. All extra methods which were on Ogre::String are now on
+the Ogre::StringUtil class. This is to resolve compatibility issues on
+some STLs; this is an <span style="color: rgb(255, 102, 0);">interface
+breaking change</span> so you will need to update your code to use the
+equivalent StringUtil methods.<br>
+  </li>
+  <li>DirectX no longer prefers W buffers over Z buffers unless 16-bit
+colour is being used</li>
+  <li>DirectInput usage now plays nicer with other apps</li>
+  <li>Fixed the number of textures used when a custom number of shadow
+textures were specified</li>
+  <li>Fixed TS_PARENT and TS_WORLD Node transform options</li>
+  <li>Fixed LBX_BLEND_MANUAL in GL</li>
+  <li>Fixed finding of nearby lights so it takes into account bounds of
+node</li>
+  <li>Avoided ATI shutdown issues in GL/Linux by making the shutdown
+sequence more explicit</li>
+  <li>Initialisation of shadow materials now works when more than one
+SceneManager is active</li>
+  <li>Some frustum calculation issues were resolved, especially
+calculation of corners and planes in orthographic mode</li>
+  <li>use32bitindexes was not being read from XML correctly</li>
+  <li>Fixed memory leak when attaching and detaching objects from bones</li>
+  <li>Stencil shadows were not working correctly when 2-sided
+stencilling was not available and there was more than one SubMesh with
+it's own geometry</li>
+  <li>Various other minor issues<br>
+  </li>
+</ul>
+Deprecation warnings:<br>
+<ul>
+  <li><span style="color: rgb(255, 255, 51);">SceneNode::attachCamera
+and SceneNode::attachLight</span>, which have been deprecated for some
+time, have been removed. Use SceneNode::attachObject.<br>
+  </li>
+  <li><span style="color: rgb(255, 255, 51);">Internal GUI classes</span>;
+in the next release, the internal GUI will be removed in favour of <a
+ href="http://crayzedsgui.sourceforge.net">Crazy Eddie's GUI</a>, and
+we advise all users to begin migrating their code now. This covers the
+interactive GUIs (ie buttons, scroll bars etc) and not static overlays,
+which will still be available in Ogre.</li>
+  <li><span style="color: rgb(255, 255, 51);">NatureSceneManager</span>;
+this will be moved to ogreaddons in the next version incase anyone
+wishes to continue to maintain it. The Ogre team have no plans to
+support this scene manager since TerrainSceneManager and
+PagingLandscape (in ogreaddons) provide better terrain rendering
+options.<br>
+  </li>
+</ul>
 <p align="left" class="MainHeader">v0.14.1 (28 July 2004) -
 Maintenance
 Release<br>
