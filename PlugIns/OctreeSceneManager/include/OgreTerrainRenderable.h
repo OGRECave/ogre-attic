@@ -275,7 +275,7 @@ protected:
 
         Real vertex = 0.0;
 
-        vbuf->readData((x * 3 + z * mSize * 3 + n) * sizeof(Real), 1 * sizeof(Real), &vertex);
+        vbuf->readData((x * 3 + z * mSize * 3 + n) * sizeof(Real), sizeof(Real), &vertex);
 
         return vertex;
       /* 

@@ -987,14 +987,24 @@ void TerrainRenderable::_generateVertexLighting( const Vector3 &sun, ColourValue
 
                 if ( v.b < 0 ) v.b = 0;
 
-              /* TODO
+                RGBA colour;
+                Root::getSingleton().convertColourValue( v, &colour );
+                HardwareVertexBufferSharedPtr vbuf = 
+                    mTerrain->vertexBufferBinding->getBuffer(COLOUR_BINDING);
+                vbuf->writeData(_index( i, j ), sizeof(RGBA), &colour);
                 //Root::getSingleton().convertColourValue( v, & ( mTerrain.pColours[ _index( i, j ) ] ) );
-                */
             }
 
             else
             {
-              /* TODO
+                RGBA colour;
+                Root::getSingleton().convertColourValue( ambient, &colour );
+
+                HardwareVertexBufferSharedPtr vbuf = 
+                    mTerrain->vertexBufferBinding->getBuffer(COLOUR_BINDING);
+                vbuf->writeData(_index( i, j ), sizeof(RGBA), &colour);
+
+              /* 
                 Root::getSingleton().convertColourValue( ambient, & ( mTerrain.pColours[ _index( i, j ) ] ) );
                 */
             }
