@@ -156,6 +156,12 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
 {
 
 
+    Ogre::LogManager logMgr;
+
+    
+    logMgr.createLog("msOgreExporter.log");
+    logMgr.logMessage("OGRE Milkshape Exporter Log");
+    logMgr.logMessage("---------------------------");
     //
     // choose filename
     //
@@ -182,7 +188,9 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
     if (!::GetSaveFileName (&ofn))
         return /*0*/;
 
+    logMgr.logMessage("Creating Mesh object...");
     Ogre::Mesh* ogreMesh = new Ogre::Mesh("export");
+    logMgr.logMessage("Mesh object created.");
 
     // No shared geometry
     int i, j;
@@ -191,11 +199,29 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
         msMesh *pMesh = msModel_GetMeshAt (pModel, i);
 
 
+        logMgr.logMessage("Creating SubMesh object...");
         Ogre::SubMesh* ogreSubMesh = ogreMesh->createSubMesh();
+        logMgr.logMessage("SubMesh object created.");
         // Set material
+        logMgr.logMessage("Getting SubMesh Material...");
         int matIdx = msMesh_GetMaterialIndex(pMesh);
-        msMaterial *pMat = msModel_GetMaterialAt(pModel, matIdx);
-        ogreSubMesh->setMaterialName(pMat->szName);
+
+        if (matIdx == -1)
+        {
+            // No material, use blank
+            ogreSubMesh->setMaterialName("BaseWhite");
+            logMgr.logMessage("No Material, using default 'BaseWhite'.");
+        }
+        else
+        {
+
+            msMaterial *pMat = msModel_GetMaterialAt(pModel, matIdx);
+            ogreSubMesh->setMaterialName(pMat->szName);
+            logMgr.logMessage("SubMesh Material Done.");
+        }
+
+        
+        logMgr.logMessage("Setting up geometry...");
         // Set up mesh geometry
         // Always 1 texture layer, 2D coords
         ogreSubMesh->geometry.numTexCoords = 1;
@@ -263,10 +289,13 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
 
 
         } // Faces
+
+        logMgr.logMessage("Geometry done.");
     } // SubMesh
 
     // Create singletons
     Ogre::MaterialManager matMgr;
+
     if (exportMaterials)
     {
         doExportMaterials(pModel);
