@@ -1383,6 +1383,14 @@ namespace Ogre
         {
             acType = GpuProgramParameters::ACT_INVERSE_WORLDVIEW_MATRIX;
         }
+        else if (vecparams[1] == "inverse_transpose_world_matrix")
+        {
+            acType = GpuProgramParameters::ACT_INVERSETRANSPOSE_WORLD_MATRIX;
+        }
+        else if (vecparams[1] == "inverse_transpose_worldview_matrix")
+        {
+            acType = GpuProgramParameters::ACT_INVERSETRANSPOSE_WORLDVIEW_MATRIX;
+        }
         else if (vecparams[1] == "light_diffuse_colour")
         {
             acType = GpuProgramParameters::ACT_LIGHT_DIFFUSE_COLOUR;

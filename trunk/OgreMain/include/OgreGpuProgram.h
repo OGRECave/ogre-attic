@@ -80,6 +80,10 @@ namespace Ogre {
             ACT_INVERSE_WORLD_MATRIX,
             /// The current world & view matrices concatenated, then inverted
             ACT_INVERSE_WORLDVIEW_MATRIX,
+            /// The current world matrix, inverted & transposed
+            ACT_INVERSETRANSPOSE_WORLD_MATRIX,
+            /// The current world & view matrices concatenated, then inverted & tranposed
+            ACT_INVERSETRANSPOSE_WORLDVIEW_MATRIX,
             /// Light diffuse colour (index determined by setAutoConstant call)
             ACT_LIGHT_DIFFUSE_COLOUR,
             /// Light diffuse colour (index determined by setAutoConstant call)

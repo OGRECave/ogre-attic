@@ -1360,7 +1360,7 @@ The value of 'type' can be float4, matrix4x4, float<n>, int4, int<n>. Note that 
 This command tells Ogre to automatically update a given parameter with a derived value. This frees you from writing code to update program parameters every frame when they are always changing.@*@*
 
 format: param_indexed_auto <index> <value_code> <extra_params>@*@*
-example: param_indexed_auto 0 WORLDVIEWPROJ_MATRIX@*@*
+example: param_indexed_auto 0 worldviewproj_matrix@*@*
 
 'index' has the same meaning as @ref{param_indexed}; note this time you do not have to specify the size of the parameter because the engine knows this already. In the example, the world/view/projection matrix is being used so this is implicitly a matrix4x4.@*@*
 
@@ -1384,6 +1384,10 @@ The current world, view and projection matrices concatenated.
 The inverse of the current world matrix.
 @item inverse_worldview_matrix
 The inverse of the current concatenated world and view matrices.
+@item inverse_transpose_world_matrix
+The inverse transpose of the current world matrix.
+@item inverse_transpose_worldview_matrix
+The inverse transpose of the current concatenated world and view matrices.
 @item light_diffuse_colour
 The diffuse colour of a given light; this requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to black.
 @item light_specular_colour

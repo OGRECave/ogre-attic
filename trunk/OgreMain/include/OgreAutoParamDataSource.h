@@ -56,6 +56,8 @@ namespace Ogre {
         mutable Matrix4 mInverseWorldMatrix;
         mutable Matrix4 mInverseWorldViewMatrix;
         mutable Matrix4 mInverseViewMatrix;
+        mutable Matrix4 mInverseTransposeWorldMatrix;
+        mutable Matrix4 mInverseTransposeWorldViewMatrix;
         mutable Vector4 mCameraPositionObjectSpace;
         mutable Matrix4 mTextureViewProjMatrix;
         mutable Matrix4 mProjectionMatrix;
@@ -68,6 +70,8 @@ namespace Ogre {
         mutable bool mInverseWorldMatrixDirty;
         mutable bool mInverseWorldViewMatrixDirty;
         mutable bool mInverseViewMatrixDirty;
+        mutable bool mInverseTransposeWorldMatrixDirty;
+        mutable bool mInverseTransposeWorldViewMatrixDirty;
         mutable bool mCameraPositionObjectSpaceDirty;
         mutable bool mTextureViewProjMatrixDirty;
 		mutable ColourValue mAmbientLight;
@@ -106,6 +110,8 @@ namespace Ogre {
         const Matrix4& getInverseWorldMatrix(void) const;
         const Matrix4& getInverseWorldViewMatrix(void) const;
         const Matrix4& getInverseViewMatrix(void) const;
+        const Matrix4& getInverseTransposeWorldMatrix(void) const;
+        const Matrix4& getInverseTransposeWorldViewMatrix(void) const;
         const Vector4& getCameraPositionObjectSpace(void) const;
         /** Get the light which is 'index'th closest to the current object */
         const Light& getLight(size_t index) const;
