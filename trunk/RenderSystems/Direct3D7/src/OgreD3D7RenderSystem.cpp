@@ -1414,8 +1414,9 @@ namespace Ogre {
         HRESULT hr;
 
         // Exit immediately if there is nothing to render
-        // This caused a problem on FireGL 8800
-        if (op.vertexData->vertexCount == 0)
+		// Passing 0 arguments causes problems for Direct3D
+        if (op.vertexData->vertexCount == 0 ||
+			(op.useIndexes && op.indexData->indexCount == 0))
             return;
 
         // call superclass
