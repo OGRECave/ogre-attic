@@ -2,24 +2,13 @@
 -----------------------------------------------------------------------------
 This source file is part of OGRE
     (Object-oriented Graphics Rendering Engine)
-For the latest info, see http://ogre.sourceforge.net/
+For the latest info, see http://www.ogre3d.org/
 
-Copyright © 2000-2002 The OGRE Team
+Copyright © 2000-2003 The OGRE Team
 Also see acknowledgements in Readme.html
 
-This program is free software; you can redistribute it and/or modify it under
-the terms of the GNU Lesser General Public License as published by the Free Software
-Foundation; either version 2 of the License, or (at your option) any later
-version.
-
-This program is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along with
-this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-Place - Suite 330, Boston, MA 02111-1307, USA, or go to
-http://www.gnu.org/copyleft/lesser.txt.
+You may use this sample code for anything you like, it is not covered by the
+LGPL like the rest of the engine.
 -----------------------------------------------------------------------------
 */
 
@@ -46,10 +35,17 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 // 4 entities we'll use
 Entity *mEnt1, *mEnt2, *mEnt3, *mEnt4;
+
+#define NUM_LIGHTS 5
+
 // the light
-Light *mLight;
+Light *mLights[NUM_LIGHTS];
 // the scene node of the entity
 SceneNode *mMainNode;
+// the light nodes
+SceneNode* mLightNodes[NUM_LIGHTS];
+// the light node pivots
+SceneNode* mLightPivots[NUM_LIGHTS];
 // struct wich hold 2D tex.coords.
 struct sTexCoord
 {
@@ -114,8 +110,8 @@ void calculateTSB(const s4TangentSpace &v0,
 				  const s4TangentSpace &v1, 
 				  const s4TangentSpace &v2,
 				  Vector3 &normal, 
-				  Vector3 &sTangent, 
-				  Vector3 &tTangent)
+				  Vector3 &tangent, 
+				  Vector3 &binormal)
 {
 	//side0 is the vector along one side of the triangle of vertices passed in, 
 	//and side1 is the vector along another side. Taking the cross product of these returns the normal.
@@ -123,55 +119,34 @@ void calculateTSB(const s4TangentSpace &v0,
 	Vector3 side1 = v2.position - v1.position;
 	//Calculate normal
 	normal = side1.crossProduct(side0);
-	normal = normal.normalisedCopy();
+	normal.normalise();
 	//Now we use a formula to calculate the s tangent. 
 	//We then use the same formula for the t tangent.
 	Real deltaT0 = v0.texCoords.t - v1.texCoords.t;
 	Real deltaT1 = v2.texCoords.t - v1.texCoords.t;
-	sTangent = deltaT1 * side0 - deltaT0 * side1;
-	sTangent = sTangent.normalisedCopy();
+	tangent = deltaT1 * side0 - deltaT0 * side1;
+	tangent.normalise();
 	//Calculate t tangent
 	Real deltaS0 = v0.texCoords.s - v1.texCoords.s;
 	Real deltaS1 = v2.texCoords.s - v1.texCoords.s;
-	tTangent = deltaS1 * side0 - deltaS0 * side1;
-	tTangent = tTangent.normalisedCopy();
+	binormal = deltaS1 * side0 - deltaS0 * side1;
+	binormal.normalise();
 	//Now, we take the cross product of the tangents to get a vector which 
 	//should point in the same direction as our normal calculated above. 
 	//If it points in the opposite direction (the dot product between the normals is less than zero), 
 	//then we need to reverse the s and t tangents. 
 	//This is because the triangle has been mirrored when going from tangent space to object space.
 	//reverse tangents if necessary
-	Vector3 tangentCross = sTangent.crossProduct(tTangent);
+	Vector3 tangentCross = tangent.crossProduct(binormal);
 	if (tangentCross.dotProduct(normal) < 0.0f)
 	{
-		sTangent = -sTangent;
-		tTangent = -tTangent;
+		tangent = -tangent;
+		binormal = -binormal;
 	}
 }
-// this method store the tangent space light vector in the 
-// given polygon buffer (buffer with room for 3 vectors)
-void fillPollygonWithTSLVectors(const Vector3 lightVecs[3], 
-								const Vector3 &sTangent, 
-								const Vector3 &tTangent, 
-								const Vector3 &normal, 
-								Vector3 pollyVerts[3])
-{
-	// vertex 1
-	pollyVerts[0].x = sTangent.dotProduct(lightVecs[0]);
-	pollyVerts[0].y = tTangent.dotProduct(lightVecs[0]);
-	pollyVerts[0].z =   normal.dotProduct(lightVecs[0]);
-	// vertex 2
-	pollyVerts[1].x = sTangent.dotProduct(lightVecs[1]);
-	pollyVerts[1].y = tTangent.dotProduct(lightVecs[1]);
-	pollyVerts[1].z =   normal.dotProduct(lightVecs[1]);
-	// vertex 3
-	pollyVerts[2].x = sTangent.dotProduct(lightVecs[2]);
-	pollyVerts[2].y = tTangent.dotProduct(lightVecs[2]);
-	pollyVerts[2].z =   normal.dotProduct(lightVecs[2]);
-}
 // this method creates a new 3D tex coord buffer in the shared/submesh geometry for a given entity
-// and creates a new 3D one at index 1 and fills it with tangent space light vectors
-void create3DTexCoordsFromTSLVector(Entity *pEnt, Vector3 objectLightPositionVec)
+// and creates a new 3D one at index 1 and fills it with tangent space basis vectors
+void createTangentSpaceTextureCoords(Entity *pEnt)
 {
 	assert(pEnt);
 	// our temp. buffers
@@ -179,7 +154,7 @@ void create3DTexCoordsFromTSLVector(Entity *pEnt, Vector3 objectLightPositionVec
 	s4TangentSpace	tvs[3];
 	Vector3			lightVecs[3];
 	Vector3			tslPollyVerts[3];
-	Vector3			normal, sTangent, tTangent;
+	Vector3			normal, tangent, binormal;
 	Vector3			tVec;
 	// get the mesh
 	Mesh *pMesh = pEnt->getMesh();
@@ -232,7 +207,7 @@ void create3DTexCoordsFromTSLVector(Entity *pEnt, Vector3 objectLightPositionVec
 			int i;
 			for (i = 0; i < 3; ++i)
 			{
-				// get indexes of vertices that form a pllygon in the position buffer
+				// get indexes of vertices that form a polygon in the position buffer
 				vertInd[i] = pVIndices[n * 3 + i];
 				// get the vertices positions from the position buffer
 				tvs[i].position.x = pVPos[3 * vertInd[i] + 0];
@@ -243,22 +218,19 @@ void create3DTexCoordsFromTSLVector(Entity *pEnt, Vector3 objectLightPositionVec
 				tvs[i].texCoords.t = p2DTC[2 * vertInd[i] + 1];
 			}
 			// calculate the TSB
-			calculateTSB(tvs[0], tvs[1], tvs[2], normal, sTangent, tTangent);
-			// calculate the light vector for every vertex
-			lightVecs[0] = objectLightPositionVec - tvs[0].position;
-			lightVecs[1] = objectLightPositionVec - tvs[1].position;
-			lightVecs[2] = objectLightPositionVec - tvs[2].position;
-			// store the tangent space light vector in tslPollyVerts
-			fillPollygonWithTSLVectors(lightVecs, sTangent, tTangent, normal, tslPollyVerts);
+			calculateTSB(tvs[0], tvs[1], tvs[2], normal, tangent, binormal);
 			// write new tex.coords 
+            // note we only write the tangent, not the binormal since we can calculate
+            // the binormal in the vertex program
 			for (i = 0; i < 3; ++i)
 			{
 				// get indexes of vertices that form a pllygon in the position buffer
 				vertInd[i] = pVIndices[n * 3 + i];
-				// write values (they must be 0 and we must add them)
-				p3DTC[3 * vertInd[i] + 0] += tslPollyVerts[i].x;
-				p3DTC[3 * vertInd[i] + 1] += tslPollyVerts[i].y;
-				p3DTC[3 * vertInd[i] + 2] += tslPollyVerts[i].z;
+				// write values (they must be 0 and we must add them so we can average
+                // all the contributions from all the faces
+				p3DTC[3 * vertInd[i] + 0] += tangent.x;
+				p3DTC[3 * vertInd[i] + 1] += tangent.y;
+				p3DTC[3 * vertInd[i] + 2] += tangent.z;
 			}
 		}
 		// now loop through all vertices and normalize them
@@ -270,7 +242,7 @@ void create3DTexCoordsFromTSLVector(Entity *pEnt, Vector3 objectLightPositionVec
 			tVec.y = p3DTC[n + 1];
 			tVec.z = p3DTC[n + 2];
 			// normalize the vertex
-			tVec = tVec.normalisedCopy();
+			tVec.normalise();
 			// write it back
 			p3DTC[n + 0] = tVec.x;
 			p3DTC[n + 1] = tVec.y;
@@ -283,49 +255,6 @@ void create3DTexCoordsFromTSLVector(Entity *pEnt, Vector3 objectLightPositionVec
 		buffVPos->unlock();
 	}
 }
-// this method creates a new 3D tex coord buffer in the shared/submesh geometry for a given entity
-// and creates a new 3D one at index 1 and fills it with normals if they are present...
-/*
-void create3DTexCoordsFromNormals(Entity *pEnt)
-{
-	assert(pEnt);
-	Vector3 vec = Vector3::ZERO;
-	Mesh *pMesh = pEnt->getMesh();
-
-	// setup a new 3D texture coord-set buffer 
-	// for the shared geometry if present
-	if (pMesh->sharedGeometry.numVertices)
-	{
-		// must have normals
-		if (!pMesh->sharedGeometry.hasNormals)
-			Except(Exception::ERR_INVALIDPARAMS, "'" + pMesh->getName() + "' should have normals", "create3DTexCoordsFromNormals");
-		// create a new 3D tex.coord.buffer
-		createNew3DTexCoordBuffer(pMesh->sharedGeometry);
-		// copy normals to new tex.coord. buffer
-		memcpy(	pMesh->sharedGeometry.pTexCoords[1], 
-				pMesh->sharedGeometry.pNormals, 
-				pMesh->sharedGeometry.numVertices * 3 * sizeof(Real));
-	}
-
-	// setup a new 3D texture coord-set buffer for every sub mesh
-	for (int sm = 0; sm < pMesh->getNumSubMeshes(); sm++)
-	{
-		SubMesh *pSubMesh = pMesh->getSubMesh(sm);
-		// must have vertices
-		if (!pSubMesh->geometry.numVertices)
-			break;
-		// must have normals
-		if (!pSubMesh->geometry.hasNormals)
-			Except(Exception::ERR_INVALIDPARAMS, "SubMesh from '" + pMesh->getName() + "' should have normals", "create3DTexCoordsFromNormals");
-		// create a new 3D tex.coord.buffer
-		createNew3DTexCoordBuffer(pSubMesh->geometry);
-		// copy normals to new tex.coord. buffer
-		memcpy(	pSubMesh->geometry.pTexCoords[1], 
-				pSubMesh->geometry.pNormals, 
-				pSubMesh->geometry.numVertices * 3 * sizeof(Real));
-	}
-} // create3DTexCoordsFromNormals
-*/
 
 // Event handler to add ability to change material
 class Dp3_Listener : public ExampleFrameListener
@@ -357,10 +286,10 @@ public:
 		mEnt3->setVisible(pEnt == mEnt3 ? true : false);
 		mEnt4->setVisible(pEnt == mEnt4 ? true : false);
 
-		static String matName = "Examples/DP3Mat1";
+		static String matName = "Examples/BumpMapping/1";
 		// switch materials
 		if (mInputDevice->isKeyDown(KC_F1))
-			matName = "Examples/DP3Mat1";
+			matName = "Examples/BumpMapping/1";
         if (mInputDevice->isKeyDown(KC_F2))
 			matName = "Examples/DP3Mat2";
         if (mInputDevice->isKeyDown(KC_F3))
@@ -370,25 +299,12 @@ public:
 		// set material
 		pEnt->setMaterialName(matName);
 
-		// update the light position, the light is 'projected' 
-		// and follows the camera in this demo !!!
-		mLight->setPosition(mCamera->getPosition());
-		// animate the main mesh node
-		mMainNode->rotate(Vector3::UNIT_Y, 0.5f);
-		// calculate the light position in object space
-		mMainNode->getWorldTransforms(&mInvModelMatrix);
-		mInvModelMatrix = mInvModelMatrix.inverse();
-		mObjLightPosVec = mInvModelMatrix * mLight->getPosition();
-		// create a new 3D tex.coord.buffer and fill it with TSLVectors
-		// calculated from the light position in object space
-		create3DTexCoordsFromTSLVector(pEnt, mObjLightPosVec);
+		// animate the lights
+		mLightPivots[0]->rotate(Vector3::UNIT_Y, 30 * evt.timeSinceLastFrame);
 
 		return true;
     }
 
-private:
-	Vector3 mObjLightPosVec;
-	Matrix4 mInvModelMatrix;
 };
 
 class Dp3_Application : public ExampleApplication
@@ -409,16 +325,9 @@ protected:
                 "Dot3Bump::createScene");
         }
 
-		// Set default filtering/anisotropy
-		MaterialManager::getSingleton().setDefaultTextureFiltering(TFO_ANISOTROPIC);
         // Set ambient light and fog
-        mSceneMgr->setAmbientLight(ColourValue(1, 0.2, 0.2));
-        mSceneMgr->setFog(FOG_EXP, ColourValue::White, 0.0002);
-        // Create a skydome
-        mSceneMgr->setSkyDome(true, "Examples/DP3Sky", 5, 8);
-        // Create a light, use default parameters
-        mLight = mSceneMgr->createLight("MainLight");
-		mLight->setDiffuseColour(ColourValue(0, 1, 0));
+        mSceneMgr->setAmbientLight(ColourValue(0.0, 0.0, 0.0));
+        /*
 		// Define a floor plane mesh
         Plane p;
         p.normal = Vector3::UNIT_Y;
@@ -428,6 +337,7 @@ protected:
         Entity *floorEnt = mSceneMgr->createEntity("floor", "FloorPlane");
         floorEnt->setMaterialName("Examples/DP3Terrain");
         mSceneMgr->getRootSceneNode()->attachObject(floorEnt);
+        */
 		// Load the meshes with non-default HBU options
 		const char *meshNames[4]={ "knot.mesh", "cube.mesh", "ogrehead.mesh", "ball.mesh" } ;
 		for(int mn=0;mn<4;mn++) {
@@ -441,13 +351,43 @@ protected:
 		mEnt2 = mSceneMgr->createEntity("cube", "cube.mesh");
 		mEnt3 = mSceneMgr->createEntity("head", "ogrehead.mesh");
 		mEnt4 = mSceneMgr->createEntity("ball", "ball.mesh");
+
+		// create tangent-space texture coords for each of the objects
+		createTangentSpaceTextureCoords(mEnt1);
+		createTangentSpaceTextureCoords(mEnt2);
+		createTangentSpaceTextureCoords(mEnt3);
+		createTangentSpaceTextureCoords(mEnt4);
+
+        // material is assigned in framelistener
+
         // Attach to child of root node
         mMainNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 		mMainNode->attachObject(mEnt1);
 		mMainNode->attachObject(mEnt2);
 		mMainNode->attachObject(mEnt3);
 		mMainNode->attachObject(mEnt4);
-		// move the camera a bit right and make it look at the knot
+        for (unsigned int i = 0; i < NUM_LIGHTS; ++i)
+        {
+            mLightPivots[i] = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+            mLightNodes[i] = mLightPivots[i]->createChildSceneNode();
+            // Create a light, use default parameters
+            mLights[i] = mSceneMgr->createLight("Light" + StringConverter::toString(i));
+            // turn them all off by default
+            mLights[i]->setVisible(false);
+            // Attach light
+            mLightNodes[i]->attachObject(mLights[i]);
+        }
+        // Enable light 0 only for now
+        mLights[0]->setVisible(true);
+		mLights[0]->setDiffuseColour(ColourValue(1, 1, 1));
+        mLightNodes[0]->translate(300,0,0);
+
+        // Enable light 1 now
+        mLights[1]->setVisible(true);
+		mLights[1]->setDiffuseColour(ColourValue(1, 0, 0));
+        mLightNodes[1]->translate(-200, 50,0);
+
+        // move the camera a bit right and make it look at the knot
 		mCamera->moveRelative(Vector3(50, 0, 20));
 		mCamera->lookAt(0, 0, 0);
 		// show overlay

@@ -180,3 +180,90 @@ material Examples/OgreCelShading/Earring
 	}
 }
 
+//------------------------
+// Bump mapping section
+//------------------------
+
+// Bump map vertex program, support for this is required
+vertex_program Examples/BumpMapVP cg
+{
+	source Example_BumpMapping.cg
+	entry_point main_vp
+	profiles vs_1_1 arbvp1
+}
+
+// Bump map fragment program, support for this is optional
+fragment_program Examples/BumpMapFP cg
+{
+	source Example_BumpMapping.cg
+	entry_point main_fp
+	profiles ps_1_1 arbfp1 fp20
+}
+
+material Examples/BumpMapping/1
+{
+	// This is the fallback which cards which don't have fragment program support will use
+	// Note that it still requires vertex program support
+	technique
+	{
+		// Base ambient pass
+		pass
+		{
+			// Should not be affected by ambient or specular
+			diffuse 0 0 0
+			specular 0 0 0
+			ambient 1 1 1
+			
+		}
+		// Now do the lighting pass
+		// NB we don't do decal texture here because this is repeated per light
+		pass
+		{
+			// do this for each light
+			iteration once_per_light
+
+		
+			scene_blend add
+
+			// Vertex program reference
+			vertex_program_ref Examples/BumpMapVP
+			{
+				param_named_auto lightPosition light_position_object_space 0
+				param_named_auto eyePosition camera_position_object_space
+				param_named_auto worldViewProj worldviewproj_matrix
+			}
+			
+			// Base bump map
+			texture_unit
+			{
+				texture NMBumpsOut.png
+				colour_op replace
+			}
+			// Normalisation cube map, with dot product on bump map
+			texture_unit
+			{
+				cubic_texture nm.png combinedUVW
+				tex_coord_set 1
+				tex_address_mode clamp
+				colour_op_ex dotproduct src_texture src_current
+				colour_op_multipass_fallback dest_colour zero
+			}
+		}
+		// Decal pass
+		pass
+		{
+			// NB for this fallback technique, we let this pass get lit
+			// by the standard diffuse and specular effects
+			// This is because without a fragment program we can't pick
+			// up the light colour any other way
+
+			scene_blend dest_colour zero
+			texture_unit
+			{
+				texture RustedMetal.jpg 
+			}
+			
+		}
+
+	}
+}
