@@ -269,7 +269,7 @@ namespace Ogre
     {
 
         Real denom = plane.normal.dotProduct(ray.getDirection());
-        if (denom < std::numeric_limits<Real>::epsilon())
+        if (Math::Abs(denom) < std::numeric_limits<Real>::epsilon())
         {
             // Parallel
             return std::pair<bool, Real>(false, 0);
