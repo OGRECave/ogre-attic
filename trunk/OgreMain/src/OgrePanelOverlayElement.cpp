@@ -195,19 +195,19 @@ namespace Ogre {
         // Use 1 for Z position, furthest backward in homogenous clip space
         *pPos++ = left;
         *pPos++ = top;
-        *pPos++ = 1;
+        *pPos++ = -1;
 
         *pPos++ = left;
         *pPos++ = bottom;
-        *pPos++ = 1;
+        *pPos++ = -1;
 
         *pPos++ = right;
         *pPos++ = top;
-        *pPos++ = 1;
+        *pPos++ = -1;
 
         *pPos++ = right;
         *pPos++ = bottom;
-        *pPos++ = 1;
+        *pPos++ = -1;
         
         vbuf->unlock();
     }

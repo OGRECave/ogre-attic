@@ -526,19 +526,19 @@ namespace Ogre {
             */
             *pPos++ = left[cell];
             *pPos++ = top[cell];
-            *pPos++ = 1;
+            *pPos++ = -1;
 
             *pPos++ = left[cell];
             *pPos++ = bottom[cell];
-            *pPos++ = 1;
+            *pPos++ = -1;
 
             *pPos++ = right[cell];
             *pPos++ = top[cell];
-            *pPos++ = 1;
+            *pPos++ = -1;
 
             *pPos++ = right[cell];
             *pPos++ = bottom[cell];
-            *pPos++ = 1;
+            *pPos++ = -1;
 
         }
         vbuf->unlock();
@@ -551,19 +551,19 @@ namespace Ogre {
         // Use cell 1 and 3 to determine positions
         *pPos++ = left[1];
         *pPos++ = top[3];
-        *pPos++ = 1;
+        *pPos++ = -1;
 
         *pPos++ = left[1];
         *pPos++ = bottom[3];
-        *pPos++ = 1;
+        *pPos++ = -1;
 
         *pPos++ = right[1];
         *pPos++ = top[3];
-        *pPos++ = 1;
+        *pPos++ = -1;
 
         *pPos++ = right[1];
         *pPos++ = bottom[3];
-        *pPos++ = 1;
+        *pPos++ = -1;
 
         vbuf->unlock();
         
