@@ -312,6 +312,9 @@ public:
     // Overridden from basic scene manager
     void _renderScene(Camera *cam, Viewport *vp, bool includeOverlays);
 
+    /// Get the SceneNode under which all terrain nodes are attached.
+    SceneNode* getTerrainRootNode(void) const { return mTerrainRoot; }
+
 
 protected:
 
