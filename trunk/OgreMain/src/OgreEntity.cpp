@@ -66,7 +66,7 @@ namespace Ogre {
         mSharedBlendedVertexData = NULL;
 	
         // Is mesh skeletally animated?
-        if (mMesh->hasSkeleton())
+        if (mMesh->hasSkeleton() && mMesh->getSkeleton() != NULL)
         {
             mSkeletonInstance = new SkeletonInstance(mMesh->getSkeleton());
             mSkeletonInstance->load();
