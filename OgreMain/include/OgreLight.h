@@ -345,6 +345,8 @@ namespace Ogre {
 
         mutable PlaneBoundedVolume mNearClipVolume;
         mutable PlaneBoundedVolumeList mFrustumClipVolumes;
+        /// Is the local transform dirty?
+        mutable bool mLocalTransformDirty;
 
 
 
