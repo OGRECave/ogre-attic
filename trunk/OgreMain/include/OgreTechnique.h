@@ -156,7 +156,7 @@ namespace Ogre {
             property there.
         @see Pass::setDiffuse
         */
-        void setDiffuse(Real red, Real green, Real blue);
+        void setDiffuse(Real red, Real green, Real blue, Real alpha);
 
         /** Sets the diffuse colour reflectance properties of every Pass in every Technique.
         @note
@@ -176,7 +176,7 @@ namespace Ogre {
             property there.
         @see Pass::setSpecular
         */
-        void setSpecular(Real red, Real green, Real blue);
+        void setSpecular(Real red, Real green, Real blue, Real alpha);
 
         /** Sets the specular colour reflectance properties of every Pass in every Technique.
         @note
