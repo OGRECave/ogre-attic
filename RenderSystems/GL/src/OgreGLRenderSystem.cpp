@@ -737,8 +737,6 @@ namespace Ogre {
               // Configure the viewport clipping
               glScissor(x, y, w, h);
   
-              fprintf(stderr, "Reset perspective\n");
-  
               vp->_clearUpdatedFlag();
         }
     }
