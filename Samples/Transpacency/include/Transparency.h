@@ -66,7 +66,7 @@ protected:
         planeEnt->setMaterialName("Examples/BumpyMetal");
 
         // Create an entity from a model (will be loaded automatically)
-        Entity* knotEnt = mSceneMgr->createEntity("Knot", "knot.oof");
+        Entity* knotEnt = mSceneMgr->createEntity("Knot", "knot.mesh");
 
         knotEnt->setMaterialName("Examples/TransparentTest");
 

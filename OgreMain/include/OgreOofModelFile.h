@@ -33,8 +33,10 @@ http://www.gnu.org/copyleft/gpl.html.
 
 namespace Ogre {
 
-    /** Class to load an Ogre Object File.
+    /** Class to load an Ogre Object File (oof).
         @remarks
+            <b>DEPRECATED in favour of MeshSerializer</b>
+        @par
             This class loads the .oof files created by 3ds2oof (see
             readme.txt in the 3ds2oof folder for more info).
             For now these files use only a subset of the vertex formats

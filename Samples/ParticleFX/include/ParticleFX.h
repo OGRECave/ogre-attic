@@ -76,7 +76,7 @@ protected:
 
 
        
-        Entity *ent = mSceneMgr->createEntity("head", "ogrehead.oof");
+        Entity *ent = mSceneMgr->createEntity("head", "ogrehead.mesh");
 
         // Add entity to the root scene node
         mSceneMgr->getRootSceneNode()->createChild()->attachObject(ent);

@@ -54,13 +54,16 @@ protected:
         l->setPosition(20,80,50);
 
 
-        Entity *ent = mSceneMgr->createEntity("head", "ogrehead.oof");
+        Entity *ent = mSceneMgr->createEntity("head", "ogrehead.mesh");
+
 
         // Set material loaded from Example.material
         ent->setMaterialName("Examples/EnvMappedRustySteel");
 
         // Add entity to the root scene node
         mSceneMgr->getRootSceneNode()->createChild()->attachObject(ent);
+
+        
 
     }
 

@@ -141,7 +141,7 @@ protected:
 
         mSceneMgr->getRootSceneNode()->attachObject(ent);
 
-        ent = mSceneMgr->createEntity("head", "ogrehead.oof");
+        ent = mSceneMgr->createEntity("head", "ogrehead.mesh");
         // Attach to child of root node, better for culling (otherwise bounds are the combination of the 2)
         mSceneMgr->getRootSceneNode()->createChild()->attachObject(ent);
 
