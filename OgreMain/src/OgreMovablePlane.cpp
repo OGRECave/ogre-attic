@@ -76,9 +76,8 @@ namespace Ogre {
                 mLastTranlate = mParentNode->_getDerivedPosition();
                 // Rotate normal
                 mDerivedPlane.normal = mLastRotate * normal;
-                // Dot the local normal with the transformed normal to 
-                // adjust d
-                mDerivedPlane.d = normal.dotProduct(mDerivedPlane.normal) * d;
+                // d remains the same in rotation, since rotation happens first
+                mDerivedPlane.d = d;
                 // Add on the effect of the translation (project onto new normal)
                 mDerivedPlane.d -= mDerivedPlane.normal.dotProduct(mLastTranlate);
 

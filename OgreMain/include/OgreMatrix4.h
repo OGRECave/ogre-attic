@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreVector3.h"
 #include "OgreMatrix3.h"
 #include "OgreVector4.h"
+#include "OgrePlane.h"
 namespace Ogre
 {
     /** Class encapsulating a standard 4x4 homogenous matrix.
@@ -180,6 +181,20 @@ namespace Ogre
                 m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z + m[2][3] * v.w,
                 m[3][0] * v.x + m[3][1] * v.y + m[3][2] * v.z + m[3][3] * v.w
                 );
+        }
+        inline Plane operator * (const Plane& p) const
+        {
+            Plane ret;
+            ret.normal.x =
+                m[0][0] * p.normal.x + m[0][1] * p.normal.y + m[0][2] * p.normal.z;
+            ret.normal.y = 
+                m[1][0] * p.normal.x + m[1][1] * p.normal.y + m[1][2] * p.normal.z;
+            ret.normal.z = 
+                m[2][0] * p.normal.x + m[2][1] * p.normal.y + m[2][2] * p.normal.z;
+            Vector3 pt = p.normal * -p.d;
+            pt = *this * pt;
+            ret.d = - pt.dotProduct(ret.normal);
+            return ret;
         }
 
 

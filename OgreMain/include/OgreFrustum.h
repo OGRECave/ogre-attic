@@ -133,11 +133,11 @@ namespace Ogre
         /// Is this frustum using an oblique depth projection?
 		bool mObliqueDepthProjection;
 		/// Fixed oblique projection plane
-		Plane mObliqueProjPlane;
+		mutable Plane mObliqueProjPlane;
 		/// Pointer to oblique projection plane (automatically updated)
 		const MovablePlane* mLinkedObliqueProjPlane;
 		/// Record of the last world-space oblique depth projection plane info used
-		Plane mLastLinkedObliqueProjPlane;
+		mutable Plane mLastLinkedObliqueProjPlane;
 
 		
 		/** Get the derived position of this frustum. */

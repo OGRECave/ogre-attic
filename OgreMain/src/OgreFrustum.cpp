@@ -266,7 +266,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Frustum::updateFrustum(void) const
     {
-        if (mRecalcFrustum)
+        if (isFrustumOutOfDate())
         {
             // Common calcs
             Radian thetaY (mFOVy * 0.5f);
@@ -283,18 +283,28 @@ namespace Ogre {
             Real fBSqr = fTSqr;
             Real fInvLength = 1.0 / Math::Sqrt( fNSqr + fLSqr );
 
+            RenderSystem* renderSystem = Root::getSingleton().getRenderSystem();
             // Recalc if frustum params changed
             if (mProjType == PT_PERSPECTIVE)
             {
 
                 // PERSPECTIVE transform, API specific
-                Root::getSingleton().getRenderSystem()->_makeProjectionMatrix(mFOVy, 
+                renderSystem->_makeProjectionMatrix(mFOVy, 
                     mAspect, mNearDist, mFarDist, mProjMatrix);
 
                 // PERSPECTIVE transform, API specific for Gpu Programs
-                Root::getSingleton().getRenderSystem()->_makeProjectionMatrix(mFOVy, 
+                renderSystem->_makeProjectionMatrix(mFOVy, 
                     mAspect, mNearDist, mFarDist, mStandardProjMatrix, true);
 
+                if (mObliqueDepthProjection)
+                {
+                    // Translate the plane into view space
+                    Plane viewSpaceNear = mViewMatrix * mObliqueProjPlane;
+                    renderSystem->_applyObliqueDepthProjection(
+                        mProjMatrix, viewSpaceNear);
+                    renderSystem->_applyObliqueDepthProjection(
+                        mStandardProjMatrix, viewSpaceNear);
+                }
                 // Calculate co-efficients for the frustum planes
                 // Special-cased for L = -R and B = -T i.e. viewport centered 
                 // on direction vector.
@@ -464,7 +474,22 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool Frustum::isFrustumOutOfDate(void) const
     {
-        return mRecalcFrustum;
+        // Deriving custom near plane from linked plane?
+        bool returnVal = false;
+        if (mObliqueDepthProjection)
+        {
+            // Always out of date since plane needs to be in view space
+            returnVal = true;
+            // Update derived plane
+            if (mLinkedObliqueProjPlane && 
+                !(mLastLinkedObliqueProjPlane == mLinkedObliqueProjPlane->_getDerivedPlane()))
+            {
+                mObliqueProjPlane = mLinkedObliqueProjPlane->_getDerivedPlane();
+                mLastLinkedObliqueProjPlane = mObliqueProjPlane;
+            }
+        }
+
+        return mRecalcFrustum || returnVal;
     }
 
     //-----------------------------------------------------------------------
@@ -823,17 +848,25 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void Frustum::enableCustomNearClipPlane(const MovablePlane* plane)
     {
-        // TODO
+        mObliqueDepthProjection = true;
+        mLinkedObliqueProjPlane = plane;
+        mObliqueProjPlane = plane->_getDerivedPlane();
+        invalidateFrustum();
     }
     //---------------------------------------------------------------------
     void Frustum::enableCustomNearClipPlane(const Plane& plane)
     {
-        // TODO
+        mObliqueDepthProjection = true;
+        mLinkedObliqueProjPlane = 0;
+        mObliqueProjPlane = plane;
+        invalidateFrustum();
     }
     //---------------------------------------------------------------------
     void Frustum::disableCustomNearClipPlane(void)
     {
-        // TODO
+        mObliqueDepthProjection = false;
+        mLinkedObliqueProjPlane = 0;
+        invalidateFrustum();
     }
     //---------------------------------------------------------------------
 
