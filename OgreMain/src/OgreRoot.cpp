@@ -421,12 +421,7 @@ namespace Ogre {
 
         if (autoCreateWindow)
         {
-            // Init particle systems manager
-            mParticleManager->_initialise();
-            // parse all font scripts
-            mFontManager->parseAllSources();
-            // parse all overlay scripts
-            mOverlayManager->parseAllSources();
+            oneTimePostWindowInit();
         }
 
         // Initialise timer
@@ -600,20 +595,7 @@ namespace Ogre {
             depthBuffer, parentWindowHandle);
 
         // Initialisation for classes dependent on first window created
-        static bool firstOne = true;
-        if (firstOne)
-        {
-            // Init particle systems manager
-            mParticleManager->_initialise();
-            // parse all font scripts
-            mFontManager->parseAllSources();
-            // init overlays
-            mOverlayManager->parseAllSources();
-			// Init mesh manager
-			MeshManager::getSingleton()._initialise();
-
-            firstOne = false;
-        }
+        oneTimePostWindowInit();
 
         return ret;
 
@@ -714,5 +696,23 @@ namespace Ogre {
     Timer* Root::getTimer(void)
     {
         return mTimer;
+    }
+    //-----------------------------------------------------------------------
+    void Root::oneTimePostWindowInit(void)
+    {
+        static bool firsttime = true;
+        if (firsttime)
+        {
+            // Init particle systems manager
+            mParticleManager->_initialise();
+            // parse all font scripts
+            mFontManager->parseAllSources();
+            // init overlays
+            mOverlayManager->parseAllSources();
+			// Init mesh manager
+			MeshManager::getSingleton()._initialise();
+        }
+
+        firsttime = false;
     }
 }

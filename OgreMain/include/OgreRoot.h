@@ -104,6 +104,9 @@ namespace Ogre
         */
         void unloadPlugins();
 
+        // Internal method for one-time tasks after first window creation
+        void oneTimePostWindowInit(void);
+
     public:
 
         static void termHandler();
