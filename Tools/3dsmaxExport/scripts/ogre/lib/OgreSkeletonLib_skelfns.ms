@@ -1,33 +1,27 @@
 -----------------------------------------------------------------------------
--- gets from the controllers animation keyframes
+-- gets  keyframes from the controllers animation
 -----------------------------------------------------------------------------
 function getTimeList obj firstframe lastframe =
 (
 	local list,rotContr,posContr,  ;
 	list = #(firstframe) ;
-
+	list2 = #() ; -- this is the list which will be returned.
+	
 	rotContr = obj.rotation.controller ;
 	posContr = obj.pos.controller ;
 	
-	subRotContr = getXYZControllers rotContr ;
-	subPosContr = getXYZControllers posContr ;
-
-	for i=1 to 3 do (
-		for j=1 to (numKeys subRotContr[i]) do (
-			time = (getKey subRotContr[i] j).time ;
-			if (time<=lastframe and time>=firstframe) then
-				appendOrdered list time
-		)
-		
-		for j=1 to (numKeys subPosContr[i]) do (
-			time = (getKey subPosContr[i] j).time ;
-			if (time<=lastframe and time>=firstframe) then
-				appendOrdered list time
-			
-		)
+	for e in rotContr.keys do (
+		t = e.time ;
+		if (t>firstFrame and t<=lastFrame) then
+			append list t ;
 	)
-	
-	list ;
+	for e in posContr.keys do (
+		t = e.time ;
+		if (t>firstFrame and t<=lastFrame) then
+			append list t ;
+	)	
+	keepLoneValues list list2 ;
+	list2 ;
 )
 
 
@@ -38,9 +32,9 @@ function getTimeList obj firstframe lastframe =
 --   (e.g. first key has time 0.)
 -----------------------------------------------------------------------------
 
-function writeTrack sk boneId firstframe lastframe length scale outFile=
+function writeTrack sk boneId firstframe lastframe length scale flipYZ outFile=
 (
-	local angle,timef,i,bname,d ;
+	local angle,timef,i,bname,d,mref,mparent ;
 	
 	-- displays information in the maxscript listener
 	format "retrieving key information for % ...\n" (skinOps.GetBoneName sk boneId 1) ;
@@ -60,9 +54,13 @@ function writeTrack sk boneId firstframe lastframe length scale outFile=
 	-- gets initial transform at frame 0f
 	at time 0f (
 		initTform = d.transform ;
-		if (d.parent != undefined) then (
+		if (not isRoot d) then (
 			mparent = d.parent.transform ;
 			initTform = initTform*inverse(mparent) ;
+		)
+		else if (flipYZ) then (
+			format " - flipping root bone track..." ;
+			initTform = flipYZTransform initTform ;
 		)
 	)
 		
@@ -73,19 +71,41 @@ function writeTrack sk boneId firstframe lastframe length scale outFile=
 		at time i (
 			timef = ((float) (i-firstFrame)*length)/(lastframe - firstframe ) ;
 			
-			-- gets transform		
+		-- First, rotation which depends on initial transformation
 			Tform = d.transform ;
-			if (d.parent == undefined) then
-				mparent = initTform ;
+			-- if this is the root bone
+			if (isRoot d) then (
+				mparent = matrix3 1 ;
+				-- if flipYZ == true
+				if (flipYZ) then
+					Tform = flipYZTransform Tform ;
+			)			
 			else
-				mparent = initTform*d.parent.transform ;
-				
-			Tform = Tform*inverse(mparent) ;
-	
-			-- extracts datas		
-			pos = Tform.translationpart * scale ;
+				mparent = d.parent.transform ; 
+			
+			-- computes rotation
+			mref = initTform*mparent ;	
+			Tform = Tform*inverse(mref) ;
+			
+			-- rotation part is saved.
 			rot = Tform.rotation as angleaxis ;
 			angle = - degToRad (rot.angle) ; -- don't know why there must be this minus :((((((
+			
+		-- Then, position which depends on parent			
+			Tform=d.transform ;
+			Tform=Tform*inverse(mparent) ;
+			
+			-- if this is the root bone and flipYZ == true
+			if (isRoot d and flipYZ) then (
+				Tform = flipYZTransform Tform ;
+			)
+			
+			-- substracts position of the initial transform
+			Tform.pos -= initTform.pos ;
+			Tform.pos = Tform.pos * scale ;
+			
+			pos = Tform.pos ;
+
 				
 			-- writes them !
 			format("\t\t\t\t\t\t<keyframe time=\"%\">\n") timef to: outFile ;
@@ -127,29 +147,19 @@ function writeB sk id scale flipYZ outFile =
 	
 	slidertime = 0f ;
 	Tform = d.transform ;
-	if (d.parent != undefined) then (
+	if (not isRoot d) then (
 		mparent = d.parent.transform ;
 		Tform = Tform*inverse(mparent) ;
 	)
 	
-	pos = Tform.translationpart * scale ;
+	Tform.pos = Tform.pos * scale ;
 		
-	if (d.parent == undefined and flipYZ) then (
+	if ((isRoot d) and flipYZ) then (
 		format "- Flipping root bone... \n" ;
-		-- rotate
-		axis1 = point3 1 0 0 ;
-		axis2 = point3 0 0 1 ;
-		axis3 = point3 0 -1 0 ;
-		t = point3 0 0 0 ;
-		m=matrix3 axis1 axis2 axis3 t ;
-		Tform = Tform*inverse(m) ;
-		-- change pos
-		tmp = pos.z ;
-		pos.z = -pos.y ;
-		pos.y = tmp ;
-		
+		Tform = flipYZTransform Tform ;
 	)
 	
+	pos = Tform.pos ;
 	rot = Tform.rotation as angleaxis ;
 	angle = - degToRad (rot.angle) ; -- don't know why there must be this minus :((((((
 	
@@ -190,7 +200,7 @@ function writeBones sk scale flipYZ outFile =
 
 function writeH b outFile =
 (
-	if (b.parent != undefined) do
+	if (b.parent != undefined and (isKindOf b.parent BoneGeometry) ) do
 	(
 		p = b.parent ;
 		format("\t\t<boneparent bone=\"%\" parent=\"%\" />\n") b.name p.name to:outFile ;
@@ -209,8 +219,6 @@ function writeH b outFile =
 function writeHierarchy sk outFile =
 (
 	format("\t<bonehierarchy>\n") to:outFile ;
-	--3dsmax3 :	roots = #(execute("$" + (skinops.getBoneName sk 2 1))) ;
-	--3dsmax5 : 
 	roots = getRoots sk ;
 	
 	-- ecriture de la track pour le bone 0.
@@ -225,7 +233,7 @@ function writeHierarchy sk outFile =
 -----------------------
 -- write <animations />
 -----------------------
-function writeAnim sk firstFrame lastFrame length scale name outFile =
+function writeAnim sk firstFrame lastFrame length scale flipYZ name outFile =
 (
 	local i,n ;
 	
@@ -248,7 +256,7 @@ function writeAnim sk firstFrame lastFrame length scale name outFile =
 	n = skinOps.GetNumberBones sk ;
 	liste = #(0,20,30,40) ;
 	for i = 1 to n do
-		writeTrack sk i firstframe lastframe length scale outFile ;
+		writeTrack sk i firstframe lastframe length scale flipYZ outFile ;
 
 	format("\t\t\t</tracks>\n") to:outFile					
 	format("\t\t</animation>\n") to: outFile ;
@@ -277,10 +285,6 @@ function writeSkeleton pmesh exportOptions out_name =
 		max modify mode ;
 		modPanel.setCurrentObject pmesh.modifiers[#Skin] ;
 		
-		if (false) then (
-		)
-		else
-		(
 			format "------------------------------------------\n"
 			format "------ OGRE skeleton Exporter Log   ------\n"
 			format "------------------------------------------\n"
@@ -298,7 +302,7 @@ function writeSkeleton pmesh exportOptions out_name =
 				format "Writing bone hierarchy.\n" ;
 				writeHierarchy sk outFile ;
 				format "Writing bone tracks.\n" ;
-				writeAnim sk exportOptions.firstFrame exportOptions.lastFrame exportOptions.length exportOptions.scale exportOptions.animName outFile ;
+				writeAnim sk exportOptions.firstFrame exportOptions.lastFrame exportOptions.length exportOptions.scale exportOptions.flipYZ exportOptions.animName outFile ;
 
 				-- ecriture, fin des balises
 				format("</skeleton>\n") to: outFile ;
@@ -309,7 +313,6 @@ function writeSkeleton pmesh exportOptions out_name =
 		
 				close outFile ;
 				messageBox "Exporting skeleton successful !"
-		)
 	)
 	
 )

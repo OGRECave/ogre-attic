@@ -85,7 +85,7 @@ function exportMultiMaterial material outname =
 	if (material!=undefined and classof material == MultiMaterial) then
 	(
 		outFile = createfile outName ;
-		matname = material.name ;
+		matname = replaceSpaces material.name ;
 		
 		i=0 ;
 		for sub in material.materiallist do (
