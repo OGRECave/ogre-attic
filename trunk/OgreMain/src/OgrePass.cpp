@@ -705,9 +705,9 @@ namespace Ogre {
         mHash = (mIndex << 28);
         size_t c = getNumTextureUnitStates();
 
-        if (c && !mTextureUnitStates[0]->getTextureName().empty())
+        if (c && !mTextureUnitStates[0]->isBlank())
             mHash += (H(mTextureUnitStates[0]->getTextureName()) % (1 << 14)) << 14;
-        if (c > 1 && !mTextureUnitStates[1]->getTextureName().empty())
+        if (c > 1 && !mTextureUnitStates[1]->isBlank())
             mHash += (H(mTextureUnitStates[1]->getTextureName()) % (1 << 14));
     }
 
