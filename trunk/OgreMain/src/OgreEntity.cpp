@@ -93,6 +93,9 @@ namespace Ogre {
 		mMaxMeshLodIndex = 0; 		// Backwards, remember low value = high detail
 		mMinMeshLodIndex = 99;
 
+		mMaterialLodFactorInv = 1.0f;
+		mMaxMaterialLodIndex = 0; 		// Backwards, remember low value = high detail
+		mMinMaterialLodIndex = 99;
 
 
     }

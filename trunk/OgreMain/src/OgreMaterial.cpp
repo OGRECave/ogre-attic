@@ -46,6 +46,7 @@ namespace Ogre {
 	    mName = name;
         mCompilationRequired = true;
         mIsLoaded = false;
+		mLodDistances.push_back(0.0f);
 
     }
     //-----------------------------------------------------------------------
@@ -85,6 +86,15 @@ namespace Ogre {
 					BestTechniqueList::value_type(t->getLodIndex(), t));
             }
         }
+
+		// Also copy LOD information
+		mLodDistances.clear();
+		LodDistanceList::const_iterator lodi, lodiend;
+		lodiend = rhs.mLodDistances.end();
+		for (lodi = rhs.mLodDistances.begin(); lodi != lodiend; ++lodi)
+		{
+			mLodDistances.push_back(*lodi);
+		}
         mCompilationRequired = rhs.mCompilationRequired; 
         mIsLoaded = rhs.mIsLoaded;
 
@@ -529,8 +539,17 @@ namespace Ogre {
     // --------------------------------------------------------------------
     void Material::setLodLevels(const LodDistanceList& lodDistances)
     {
-        // Copy direct
-        mLodDistances = lodDistances;
+        // Square the distances for the internal list
+		LodDistanceList::const_iterator i, iend;
+		iend = lodDistances.end();
+		// First, clear and add single zero entry
+		mLodDistances.clear();
+		mLodDistances.push_back(0.0f);
+		for (i = lodDistances.begin(); i != iend; ++i)
+		{
+			mLodDistances.push_back((*i) * (*i));
+		}
+		
     }
     // --------------------------------------------------------------------
     unsigned short Material::getLodIndex(Real d)
