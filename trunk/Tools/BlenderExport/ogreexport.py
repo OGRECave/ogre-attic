@@ -2,7 +2,7 @@
 
 """
 Name: 'Ogre XML'
-Blender: 233
+Blender: 234
 Group: 'Export'
 Tooltip: 'Exports selected meshs with armature animations to Ogre3D'
 """
@@ -115,6 +115,7 @@ Tooltip: 'Exports selected meshs with armature animations to Ogre3D'
 #          - renamed private methods to begin with an underscore
 #          - switched to javadoc comments
 #          - changed vertex buffer layout to allow software skinning
+#          - settings are now stored inside the .blend file
 #
 # TODO:
 #          - support for nonuniform armature scaling
@@ -2269,7 +2270,7 @@ def write_materials():
 		f.write(tab(1)+"}\n") # technique
 		f.write("}\n\n") # material
 	f.close()
-  
+
 #######################################################################################
 ## main export
 
@@ -2295,33 +2296,30 @@ def export(selectedObjectsList):
     if not os.path.exists(pathString.val):
       exportLog.append("invalid path: "+pathString.val)
       exportStatus = EXPORT_ERROR
-      return
-
-    exportLog.append("exporting selected objects:")    
-    n = 0
-    for obj in selectedObjectsList:
-      if not obj:
-        continue
-      
-      if obj.getType() == "Mesh":
-        export_mesh(obj)
-        n = 1
-
-      elif obj.getType() == "Armature":
-        export_skeleton(obj)
-
-    if n == 0:
-      exportLog.append("no mesh objects selected!")
-      if not exportStatus == EXPORT_ERROR:
-        exportStatus = EXPORT_WARNING
-    elif len(materialsDict) == 0:
-      exportLog.append("no materials or textures defined!")
-      if not exportStatus == EXPORT_ERROR:
-        exportStatus = EXPORT_WARNING
     else:
-      write_materials()
-
-    exportLog.append("finished.")
+      exportLog.append("exporting selected objects:")    
+      n = 0
+      for obj in selectedObjectsList:
+          if not obj:
+              continue
+          
+          if obj.getType() == "Mesh":
+            export_mesh(obj)
+            n = 1
+          elif obj.getType() == "Armature":
+            export_skeleton(obj)
+      if n == 0:
+          exportLog.append("no mesh objects selected!")
+          if not exportStatus == EXPORT_ERROR:
+            exportStatus = EXPORT_WARNING
+      elif len(materialsDict) == 0:
+          exportLog.append("no materials or textures defined!")
+          if not exportStatus == EXPORT_ERROR:
+            exportStatus = EXPORT_WARNING
+      else:
+          write_materials()
+      
+      exportLog.append("finished.")
     return exportStatus
     
 #######################################################################################
@@ -2335,12 +2333,12 @@ def export(selectedObjectsList):
 ######
 # methods
 ######
-def saveSettings(filename):
-	"""Save all exporter settings of selected and unselected objects to a file.
+def saveSettings():
+	"""Save all exporter settings of selected and unselected objects into a blender text object.
 	
-	   Settings belonging to removed objects in the .blend file will not be saved.
+	   Settings are saved to the text 'ogreexport.cfg' inside the current .blend file. Settings
+	   belonging to removed objects in the .blend file will not be saved.
 	   
-	   @param filename where to store the settings
 	   @return <code>true</code> on success, else <code>false</code>
 	"""
 	global uvToggle
@@ -2357,51 +2355,61 @@ def saveSettings(filename):
 	global armatureAnimationDictListDict
 	settingsDict = {}
 	success = 0
-	# to open file
+	# save general settings
+	settingsDict['uvToggle'] = uvToggle.val
+	settingsDict['armatureToggle'] = armatureToggle.val
+	settingsDict['armatureMeshToggle'] = armatureMeshToggle.val
+	settingsDict['pathString'] = pathString.val
+	settingsDict['materialString'] = materialString.val
+	settingsDict['scaleNumber'] = scaleNumber.val
+	settingsDict['rotXNumber'] = rotXNumber.val
+	settingsDict['rotYNumber'] = rotYNumber.val
+	settingsDict['rotZNumber'] = rotZNumber.val
+	if (Blender.Get("version") < 233):
+		settingsDict['fpsNumber'] = fpsNumber.val
+	else:
+		# get blender's "scene->format->frames per second" setting
+		settingsDict['fpsNumber'] = Blender.Scene.GetCurrent().getRenderingContext().framesPerSec()
+	# save object specific settings
+	# check if armature exists (I think this is cleaner than catching NameError exceptions.)
+	# create list of valid armature names
+	armatureNameList = []
+	for object in Blender.Object.Get():
+		if (object.getType() == "Armature"):
+			armatureNameList.append(object.getName())
+	for armatureName in armatureAnimationDictListDict.keys():
+		if not(armatureName in armatureNameList):
+			# remove obsolete settings
+			del armatureAnimationDictListDict[armatureName]
+	# update settings
+	for armatureName in armatureActionActuatorListViewDict.keys():
+		armatureAnimationDictListDict[armatureName] = armatureActionActuatorListViewDict[armatureName].getArmatureAnimationDictList()
+	settingsDict['armatureAnimationDictListDict'] = armatureAnimationDictListDict
+		
+	configTextName = 'ogreexport.cfg'
+	# remove old configuration text
+	if configTextName in [text.getName() for text in Blender.Text.Get()]:
+		oldConfigText = Blender.Text.Get(configTextName)
+		oldConfigText.setName('ogreexport.old')
+		Blender.Text.unlink(oldConfigText)
+	# write new configuration text
+	configText = Blender.Text.New(configTextName)
+	configText.write('Ogreexport configuration file.\n\nThis file is automatically created. Please don\'t edit this file directly.\n\n')
 	try:
-		fileHandle = open(filename,'w')
-		# save general settings
-		settingsDict['uvToggle'] = uvToggle.val
-		settingsDict['armatureToggle'] = armatureToggle.val
-		settingsDict['armatureMeshToggle'] = armatureMeshToggle.val
-		settingsDict['pathString'] = pathString.val
-		settingsDict['materialString'] = materialString.val
-		settingsDict['scaleNumber'] = scaleNumber.val
-		settingsDict['rotXNumber'] = rotXNumber.val
-		settingsDict['rotYNumber'] = rotYNumber.val
-		settingsDict['rotZNumber'] = rotZNumber.val
-		if (Blender.Get("version") < 233):
-			settingsDict['fpsNumber'] = fpsNumber.val
-		else:
-			# get blender's "scene->format->frames per second" setting
-			settingsDict['fpsNumber'] = Blender.Scene.GetCurrent().getRenderingContext().framesPerSec()
-		# save object specific settings
-		# check if armature exists (I think this is cleaner than catching NameError exceptions.)
-		# create list of valid armature names
-		armatureNameList = []
-		for object in Blender.Object.Get():
-			if (object.getType() == "Armature"):
-				armatureNameList.append(object.getName())
-		for armatureName in armatureAnimationDictListDict.keys():
-			if not(armatureName in armatureNameList):
-				# remove obsolete settings
-				del armatureAnimationDictListDict[armatureName]
-		# update settings
-		for armatureName in armatureActionActuatorListViewDict.keys():
-			armatureAnimationDictListDict[armatureName] = armatureActionActuatorListViewDict[armatureName].getArmatureAnimationDictList()
-		settingsDict['armatureAnimationDictListDict'] = armatureAnimationDictListDict
-		pickler = pickle.Pickler(fileHandle)
-		pickler.dump(settingsDict)
-		# close file
-		fileHandle.close()
+		# pickle
+		configText.write(pickle.dumps(settingsDict))
+	except (PickleError):
+		pass
+	else:
 		success = 1
-	except IOError, (errno, strerror):
-		print "I/O Error(%s): %s" % (errno, strerror)
 	return success
 
 def loadSettings(filename):
-	"""Load all exporter settings from a file.
+	"""Load all exporter settings from text or file.
 	
+	   Settings are loaded from a text object called 'ogreexport.cfg'.
+	   If it is not found, settings are loaded from the file with the given filename.
+	   <p>
 	   You have to create armatureActionActuatorListViews with the new
 	   armatuerAnimationDictListDict if you want the animation settings
 	   to take effect.
@@ -2420,8 +2428,22 @@ def loadSettings(filename):
 	global selectedObjectsList
 	global armatureDict
 	global armatureAnimationDictListDict
+	settingsDict = {}
 	success = 0
-	if os.path.isfile(filename) :
+	# try open 'ogreexport.cfg' text
+	configTextName = 'ogreexport.cfg'
+	if configTextName in [text.getName() for text in Blender.Text.Get()]:
+		configText = Blender.Text.Get(configTextName)
+		# compose string from text and unpickle
+		try:
+			# unpickle
+			settingsDict = pickle.loads(string.join(configText.asLines()[4:],'\n'))
+		except (PickleError):
+			pass
+		else:
+			success = 1		
+	# else try open filename
+	if not success and os.path.isfile(filename):
 		# open file
 		try:
 			fileHandle = open(filename,'r')
@@ -2437,48 +2459,48 @@ def loadSettings(filename):
 			except EOFError:
 				print "EOF Error"
 			else:
-				# set general settings
-				if settingsDict.has_key('uvToggle'):
-					uvToggle = Blender.Draw.Create(settingsDict['uvToggle'])
-				if settingsDict.has_key('armatureToggle'):
-					armatureToggle = Blender.Draw.Create(settingsDict['armatureToggle'])
-				if settingsDict.has_key('armatureMeshToggle'):
-					armatureMeshToggle = Blender.Draw.Create(settingsDict['armatureMeshToggle'])
-				if settingsDict.has_key('pathString'):
-					pathString = Blender.Draw.Create(settingsDict['pathString'])
-				if settingsDict.has_key('materialString'):
-					materialString = Blender.Draw.Create(settingsDict['materialString'])
-				if settingsDict.has_key('scaleNumber'):
-					scaleNumber = Blender.Draw.Create(settingsDict['scaleNumber'])
-				if settingsDict.has_key('rotXNumber'):
-					rotXNumber = Blender.Draw.Create(settingsDict['rotXNumber'])
-				if settingsDict.has_key('rotYNumber'):
-					rotYNumber = Blender.Draw.Create(settingsDict['rotYNumber'])
-				if settingsDict.has_key('rotZNumber'):
-					rotZNumber = Blender.Draw.Create(settingsDict['rotZNumber'])
-				if settingsDict.has_key('fpsNumber'):
-					fpsNumber = Blender.Draw.Create(settingsDict['fpsNumber'])
-				# set object specific settings
-				if settingsDict.has_key('armatureAnimationDictListDict'):
-					armatureAnimationDictListDict = settingsDict['armatureAnimationDictListDict']
-				elif settingsDict.has_key('animationDictListDict'):
-					# convert old animationDictListDict
-					## create list of valid armature names
-					armatureNameList = []
-					for object in Blender.Object.Get():
-						if (object.getType() == "Armature"):
-							armatureNameList.append(object.getName())
-					# create armatureAnimationDictListDict
-					armatureAnimationDictListDict = {}
-					animationDictListDict = settingsDict['animationDictListDict']
-					for armatureName in armatureNameList:
-						if animationDictListDict.has_key(armatureName):
-							# convert animationDictList
-							armatureActionDict = ArmatureAction.createArmatureActionDict(Blender.Object.Get(armatureName))
-							armatureActionActuatorListView = ArmatureActionActuatorListView(armatureActionDict, MAXACTUATORS, BUTTON_EVENT_ACTUATOR_RANGESTART,{})
-							armatureActionActuatorListView.setAnimationDictList(animationDictListDict[armatureName])
-							armatureAnimationDictListDict[armatureName] = armatureActionActuatorListView.getArmatureAnimationDictList()
 				success = 1
+	# set general settings
+	if settingsDict.has_key('uvToggle'):
+		uvToggle = Blender.Draw.Create(settingsDict['uvToggle'])
+	if settingsDict.has_key('armatureToggle'):
+		armatureToggle = Blender.Draw.Create(settingsDict['armatureToggle'])
+	if settingsDict.has_key('armatureMeshToggle'):
+		armatureMeshToggle = Blender.Draw.Create(settingsDict['armatureMeshToggle'])
+	if settingsDict.has_key('pathString'):
+		pathString = Blender.Draw.Create(settingsDict['pathString'])
+	if settingsDict.has_key('materialString'):
+		materialString = Blender.Draw.Create(settingsDict['materialString'])
+	if settingsDict.has_key('scaleNumber'):
+		scaleNumber = Blender.Draw.Create(settingsDict['scaleNumber'])
+	if settingsDict.has_key('rotXNumber'):
+		rotXNumber = Blender.Draw.Create(settingsDict['rotXNumber'])
+	if settingsDict.has_key('rotYNumber'):
+		rotYNumber = Blender.Draw.Create(settingsDict['rotYNumber'])
+	if settingsDict.has_key('rotZNumber'):
+		rotZNumber = Blender.Draw.Create(settingsDict['rotZNumber'])
+	if settingsDict.has_key('fpsNumber'):
+		fpsNumber = Blender.Draw.Create(settingsDict['fpsNumber'])
+	# set object specific settings
+	if settingsDict.has_key('armatureAnimationDictListDict'):
+		armatureAnimationDictListDict = settingsDict['armatureAnimationDictListDict']
+	elif settingsDict.has_key('animationDictListDict'):
+		# convert old animationDictListDict
+		## create list of valid armature names
+		armatureNameList = []
+		for object in Blender.Object.Get():
+			if (object.getType() == "Armature"):
+				armatureNameList.append(object.getName())
+		# create armatureAnimationDictListDict
+		armatureAnimationDictListDict = {}
+		animationDictListDict = settingsDict['animationDictListDict']
+		for armatureName in armatureNameList:
+			if animationDictListDict.has_key(armatureName):
+				# convert animationDictList
+				armatureActionDict = ArmatureAction.createArmatureActionDict(Blender.Object.Get(armatureName))
+				armatureActionActuatorListView = ArmatureActionActuatorListView(armatureActionDict, MAXACTUATORS, BUTTON_EVENT_ACTUATOR_RANGESTART,{})
+				armatureActionActuatorListView.setAnimationDictList(animationDictListDict[armatureName])
+				armatureAnimationDictListDict[armatureName] = armatureActionActuatorListView.getArmatureAnimationDictList()
 	return success
 	
 def refreshGUI():
@@ -2539,7 +2561,7 @@ def initGUI():
 def exitGUI():
 	if KEEP_SETTINGS:
 		# save exporter settings
-		saveSettings(Blender.Get('filename')+".ogre")
+		saveSettings()
 	Blender.Draw.Exit()
 	return
 
@@ -2634,6 +2656,29 @@ def buttonCallback(event):
 		Draw.Redraw(1)
 	return
 
+def frameDecorator(x, y, width):
+	"""draws title and logo onto the frame
+	
+		@param x upper left x coordinate
+		@param y upper left y coordinate
+		@param width screen width to use
+		@return used height
+	"""
+	# title
+	glColor3f(0, 0.2, 0)
+	glRectf(x,y-36,x+width,y-16)
+	glColor3f(1.0,1.0,0)
+	glRasterPos2i(x+85, y-30)
+	Draw.Text("OGRE Exporter 0.14.2", "normal")
+
+	# logo
+	glRasterPos2i(x+1, y-48)	
+	glEnable(GL_BLEND)
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+	glDrawPixels(77, 48, GL_RGBA, GL_BYTE, OGRE_LOGO)
+	glColor3f(0,0,0)	
+	return 50
+
 def gui():
 	"""draws the screen
 	"""
@@ -2655,21 +2700,8 @@ def gui():
 	glClearColor(0.6,0.6,0.6,1) # Background: grey
 	glClear(GL_COLOR_BUFFER_BIT)
 	
-	# title	
-	glColor3f(0, 0.2, 0)
-	glRectf(remainRect[0],remainRect[3]-36,remainRect[2],remainRect[3]-16)		
-	# Logo
-	glRasterPos2i(remainRect[0]+1, remainRect[3]-48)	
-	glEnable(GL_BLEND)
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-	glDrawPixels(77, 48, GL_RGBA, GL_BYTE, OGRE_LOGO)
-	remainRect[3] -= 36
-	glColor3f(1.0,1.0,0)
-	glRasterPos2i(remainRect[0]+77+8, remainRect[3]+6)
-	Draw.Text("OGRE Exporter 0.14.2", "normal")
-	glColor3f(0,0,0)	
-	remainRect[3] -= 14
-		
+	remainRect[3] -= frameDecorator(remainRect[0], remainRect[3], remainRect[2]-remainRect[0])
+	
 	# export settings
 	remainRect[3] -= 5
 	# first row
@@ -2770,20 +2802,11 @@ def exportMessageBox():
 	remainRect[2] -= 10
 	remainRect[3] -= 10
 
-	# title	
-	glColor3f(0, 0.2, 0)
-	glRectf(remainRect[0],remainRect[3]-36,remainRect[2],remainRect[3]-16)		
-	# Logo
-	glRasterPos2i(remainRect[0]+1, remainRect[3]-48)	
-	glEnable(GL_BLEND)
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-	glDrawPixels(77, 48, GL_RGBA, GL_BYTE, OGRE_LOGO)
-	remainRect[3] -= 36
-	glColor3f(1.0,1.0,0)
-	glRasterPos2i(remainRect[0]+77+8, remainRect[3]+6)
-	Draw.Text("OGRE Exporter 0.14.2", "normal")
-	glColor3f(0,0,0)	
-	remainRect[3] -= 14
+	# clear background
+	glClearColor(0.6,0.6,0.6,1) # Background: grey
+	glClear(GL_COLOR_BUFFER_BIT)
+	
+	remainRect[3] -= frameDecorator(remainRect[0], remainRect[3], remainRect[2]-remainRect[0])
 	
 	# export information
 	## center view
@@ -2815,21 +2838,8 @@ def doneMessageBox():
 	# clear background
 	glClearColor(0.6,0.6,0.6,1) # Background: grey
 	glClear(GL_COLOR_BUFFER_BIT)
-
-	# title	
-	glColor3f(0, 0.2, 0)
-	glRectf(remainRect[0],remainRect[3]-36,remainRect[2],remainRect[3]-16)		
-	# Logo
-	glRasterPos2i(remainRect[0]+1, remainRect[3]-48)	
-	glEnable(GL_BLEND)
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-	glDrawPixels(77, 48, GL_RGBA, GL_BYTE, OGRE_LOGO)
-	remainRect[3] -= 36
-	glColor3f(1.0,1.0,0)
-	glRasterPos2i(remainRect[0]+77+8, remainRect[3]+6)
-	Draw.Text("OGRE Exporter 0.14.2", "normal")
-	glColor3f(0,0,0)	
-	remainRect[3] -= 14
+	
+	remainRect[3] -= frameDecorator(remainRect[0], remainRect[3], remainRect[2]-remainRect[0])
 	
 	# OK button
 	Draw.Button("OK", BUTTON_EVENT_OK,10,10,100,30,"return to export settings")
