@@ -288,6 +288,14 @@ namespace Ogre {
             HardwareBuffer::Usage ibUsage = HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY,
             bool vbUseShadow = true, bool ibUseShadow = true);
         
+        /** Tells the mesh manager that all future meshes should prepare themselves for
+            shadow volumes on loading.
+        */
+        void setPrepareAllMeshesForShadowVolumes(bool enable);
+        /** Retrieves whether all Meshes should prepare themselves for shadow volumes. */
+        bool getPrepareAllMeshesForShadowVolumes(void);
+
+
         /** Override standard Singleton retrieval.
             @remarks
                 Why do we do this? Well, it's because the Singleton implementation is in a .h file,
@@ -310,6 +318,8 @@ namespace Ogre {
 			bool indexSysMem = false);
 
         void createPrefabPlane(void);
+
+        bool mPrepAllMeshesForShadowVolumes;
     };
 
 

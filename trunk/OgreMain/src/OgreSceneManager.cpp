@@ -1958,10 +1958,17 @@ namespace Ogre {
     {
         mShadowTechnique = technique;
         mDebugShadows = debug;
-        // Create an estimated sized shadow index buffer
-        mShadowIndexBuffer = HardwareBufferManager::getSingleton().
-            createIndexBuffer(HardwareIndexBuffer::IT_16BIT, 50000, 
-            HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, false);
+        if (technique == SHADOWTYPE_STENCIL_ADDITIVE || 
+            technique == SHADOWTYPE_STENCIL_MODULATIVE)
+        {
+            // Create an estimated sized shadow index buffer
+            mShadowIndexBuffer = HardwareBufferManager::getSingleton().
+                createIndexBuffer(HardwareIndexBuffer::IT_16BIT, 50000, 
+                HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, false);
+            // tell all meshes to prepare shadow volumes
+            MeshManager::getSingleton().setPrepareAllMeshesForShadowVolumes(true);
+        }
+
     }
 	//---------------------------------------------------------------------
     void SceneManager::findLightsAffectingFrustum(const Camera* camera)
@@ -2078,6 +2085,7 @@ namespace Ogre {
             Pass* p = matDebug->getTechnique(0)->getPass(0);
             p->setSceneBlending(SBT_ADD); 
             p->setLightingEnabled(false);
+            p->setDepthWriteEnabled(false);
             TextureUnitState* t = p->createTextureUnitState();
             t->setColourOperationEx(LBX_MODULATE, LBS_MANUAL, LBS_CURRENT, 
                 ColourValue(0.7, 0.0, 0.2));

@@ -45,6 +45,7 @@ namespace Ogre
     //-----------------------------------------------------------------------
     MeshManager::MeshManager()
     {
+        mPrepAllMeshesForShadowVolumes = false;
 
 
     }
@@ -765,6 +766,16 @@ namespace Ogre
         ResourceManager::load(pMesh,0);
 
         return pMesh;
+    }
+    //-----------------------------------------------------------------------
+    void MeshManager::setPrepareAllMeshesForShadowVolumes(bool enable)
+    {
+        mPrepAllMeshesForShadowVolumes = enable;
+    }
+    //-----------------------------------------------------------------------
+    bool MeshManager::getPrepareAllMeshesForShadowVolumes(void)
+    {
+        return mPrepAllMeshesForShadowVolumes;
     }
     //-----------------------------------------------------------------------
 

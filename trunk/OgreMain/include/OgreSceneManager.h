@@ -1248,7 +1248,8 @@ namespace Ogre {
             graphics card.
         @par
             Note that because mixing many shadow techniques can cause problems, only one technique
-            is supported at once.
+            is supported at once. Also, you should call this method at the start of the 
+            scene setup. 
         @param technique The shadowing technique to use for the scene.
         @param debug Adds additional debugging information to the scene, such
             as rendering shadow volumes

@@ -159,6 +159,12 @@ namespace Ogre {
             chunk.clear();
         }
 
+        // Prepare for shadow volumes?
+        if (MeshManager::getSingleton().getPrepareAllMeshesForShadowVolumes())
+        {
+            prepareForShadowVolume();
+        }
+
 		mIsLoaded = true;
 
         //_updateBounds();
