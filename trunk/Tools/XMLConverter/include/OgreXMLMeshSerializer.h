@@ -71,9 +71,8 @@ namespace Ogre {
         void writeMesh(const Mesh* pMesh);
         void writeSubMesh(TiXmlElement* mSubmeshesNode, const SubMesh* s);
         void writeGeometry(TiXmlElement* mParentNode, const GeometryData* pGeom);
-        void writeSkeletonLink(TiXmlElement* mMeshNode, const Skeleton* pSkel);
-        void writeMeshBoneAssignment(TiXmlElement* mBoneAssignNode, const VertexBoneAssignment* assign);
-        void writeSubMeshBoneAssignment(TiXmlElement* mBoneAssignNode, const VertexBoneAssignment* assign);
+        void writeSkeletonLink(TiXmlElement* mMeshNode, const String& skelName);
+        void writeBoneAssignment(TiXmlElement* mBoneAssignNode, const VertexBoneAssignment* assign);
 
 
     };
