@@ -48,7 +48,7 @@ namespace Ogre
     class _OgreExport AnimationTrack
     {
     public:
-        /// Constructor, creates KeyFrame at 0.0 for you
+        /// Constructor
         AnimationTrack(Animation* parent);
         /// Constructor, associates with a Node
         AnimationTrack(Animation* parent, Node* targetNode);

@@ -214,3 +214,12 @@ Examples/Droplet
 		texture basic_droplet.png
 	}
 }
+
+
+Examples/Robot
+{
+	diffuse 1.0 1.0 1.0
+	{
+		texture r2skin.jpg
+	}
+}

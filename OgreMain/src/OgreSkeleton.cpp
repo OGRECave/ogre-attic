@@ -435,7 +435,7 @@ namespace Ogre {
         {
             Animation* anim = ai->second;
 
-            of << "-- Animation '" << anim->getName() << "' --" << std::endl;
+            of << "-- Animation '" << anim->getName() << "' (length " << anim->getLength() << ") --" << std::endl;
             of << "Number of tracks: " << anim->getNumTracks() << std::endl;
 
             int ti;

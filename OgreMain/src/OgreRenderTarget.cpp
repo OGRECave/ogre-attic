@@ -267,11 +267,19 @@ namespace Ogre {
             }
         }
 
+        // Output debug text
+        outputText(0, iLine*16, mDebugText);
+
     }
 
     void RenderTarget::getCustomAttribute(String name, void* pData)
     {
         Except(Exception::ERR_INVALIDPARAMS, "Attribute not found.", "RenderTarget::getCustomAttribute");
+    }
+    //-----------------------------------------------------------------------
+    void RenderTarget::setDebugText(const String& text)
+    {
+        mDebugText = text;
     }
 
 }        
