@@ -70,7 +70,7 @@ protected:
     void createScene(void)
     {
         // Setup animation default
-        //Animation::setDefaultInterpolationMode(Animation::IM_SPLINE);
+        Animation::setDefaultInterpolationMode(Animation::IM_SPLINE);
 
         // Set ambient light
         mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
