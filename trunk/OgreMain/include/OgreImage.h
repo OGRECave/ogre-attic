@@ -119,21 +119,76 @@ namespace Ogre {
 				Width of image
             @param
 				Height of image
+			@param
+                Image Depth (in 3d images, numbers of layers, otherwhise 1)
+            @param
+				Pixel Format
+            @param
+                if memory associated with this buffer is to be destroyed
+                with the Image object.
+			@param
+				the number of faces the image data has inside (6 for cubemaps, 1 otherwise)
+            @param
+                the number of mipmaps the image data has inside
+            @note
+                 The memory associated with this buffer is NOT destroyed with the
+                 Image object, unless autoDelete is set to true.
+			@remarks 
+				The size of the buffer must be numFaces*PixelUtil::getMemorySize(width, height, depth, format)
+         */
+		Image& Image::loadDynamicImage( uchar* pData, size_t uWidth, size_t uHeight, 
+							size_t depth,
+							 PixelFormat eFormat, bool autoDelete = false, 
+							 size_t numFaces = 1, size_t numMipMaps = 0);
+		
+		/** Stores a pointer to raw data in memory. The pixel format has to be specified.
+            @remarks
+                This method loads an image into memory held in the object. The 
+                pixel format will be either greyscale or RGB with an optional
+                Alpha component.
+                The type can be determined by calling getFormat().             
+            @param
+                The data pointer
+            @param
+				Width of image
+            @param
+				Height of image
             @param
 				Pixel Format
             @note
-                The memory associated with this buffer is NOT destroyed with the
-                Image object.
-        */
-		Image& loadDynamicImage( uchar* pData, ushort uWidth, 
-								 ushort uHeight, PixelFormat eFormat );
-
-        /** Loads raw data from a stream. The pixel format has to be specified.
+                 The memory associated with this buffer is NOT destroyed with the
+                 Image object.
+			@remarks This function is deprecated; one should really use the
+				Image::loadDynamicImage(pData, width, height, depth, format, ...) to be compatible
+				with future Ogre versions.
+         */
+ 		Image& loadDynamicImage( uchar* pData, size_t uWidth,
+								 size_t uHeight, PixelFormat eFormat)
+		{
+			return loadDynamicImage(pData, uWidth, uHeight, 1, eFormat);
+		}
+		/** Loads raw data from a stream. See the function
+			loadDynamicImage for a description of the parameters.
+			@remarks 
+				The size of the buffer must be numFaces*PixelUtil::getMemorySize(width, height, depth, format)
         */
         Image & loadRawData( 
             DataStreamPtr& stream, 
-            ushort uWidth, ushort uHeight, 
-            PixelFormat eFormat );
+            size_t uWidth, size_t uHeight, size_t uDepth,
+            PixelFormat eFormat,
+			size_t numFaces = 1, size_t numMipMaps = 0);
+        /** Loads raw data from a stream. The pixel format has to be specified. 
+			@remarks This function is deprecated; one should really use the
+				Image::loadRawData(stream, width, height, depth, format, ...) to be compatible
+				with future Ogre versions.
+        */
+        Image & loadRawData( 
+            DataStreamPtr& stream, 
+            size_t uWidth, size_t uHeight, 
+            PixelFormat eFormat )
+		{
+			return loadRawData(stream, uWidth, uHeight, 1, eFormat);
+		}
 
         /** Loads an image file.
             @remarks

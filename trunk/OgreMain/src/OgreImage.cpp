@@ -39,7 +39,9 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------------
     Image::Image()
-        : m_uDepth(0),
+        : m_uWidth(0),
+		  m_uHeight(0),
+		  m_uDepth(0),
           m_uSize(0),
           m_uNumMipmaps(0),
           m_uFlags(0),
@@ -50,6 +52,8 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------------
     Image::Image( const Image &img )
+         : m_pBuffer( NULL ),
+		   m_bAutoDelete( true )
     {
         // call assignment operator
         *this = img;
@@ -69,6 +73,11 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     Image & Image::operator = ( const Image &img )
     {
+        if( m_pBuffer && m_bAutoDelete )
+        {
+            delete[] m_pBuffer;
+            m_pBuffer = NULL;
+        }
         m_uWidth = img.m_uWidth;
         m_uHeight = img.m_uHeight;
         m_uDepth = img.m_uDepth;
@@ -78,7 +87,6 @@ namespace Ogre {
         m_ucPixelSize = img.m_ucPixelSize;
         m_uNumMipmaps = img.m_uNumMipmaps;
         m_bAutoDelete = img.m_bAutoDelete;
-
 		//Only create/copy when previous data was not dynamic data
         if( m_bAutoDelete )
 		{
@@ -219,48 +227,76 @@ namespace Ogre {
     }
 
 	//-----------------------------------------------------------------------------
-	Image& Image::loadDynamicImage( uchar* pData, ushort uWidth, ushort uHeight, 
-							 PixelFormat eFormat )
+	Image& Image::loadDynamicImage( uchar* pData, size_t uWidth, size_t uHeight, 
+							size_t depth,
+							 PixelFormat eFormat, bool autoDelete, 
+							 size_t numFaces, size_t numMipMaps)
 	{
+		if(numMipMaps != 0)
+            Except( Exception::UNIMPLEMENTED_FEATURE,
+                "Custom mipmaps not yet supported in Image class",
+                "Image::loadDynamicImage" ) ;
         OgreGuard( "Image::loadDynamicImage" );
-
+		
+        if( m_pBuffer && m_bAutoDelete )
+        {
+            delete[] m_pBuffer;
+            m_pBuffer = NULL;
+        }
+		// Set image metadata
         m_uWidth = uWidth;
         m_uHeight = uHeight;
-		m_uDepth = 1;
+		m_uDepth = depth;
         m_eFormat = eFormat;
         m_ucPixelSize = PixelUtil::getNumElemBytes( m_eFormat );
-        m_uSize = m_uWidth * m_uHeight * m_ucPixelSize;
+        m_uNumMipmaps = numMipMaps;
+		m_uFlags = 0;
+		// Set flags
+        if (PixelUtil::isCompressed(eFormat))
+            m_uFlags |= IF_COMPRESSED;
+		if (m_uDepth != 1)
+			m_uFlags |= IF_3D_TEXTURE;
+		if(numFaces == 6)
+			m_uFlags |= IF_CUBEMAP;
+		if(numFaces != 6 && numFaces != 1)
+			Except(Exception::ERR_INVALIDPARAMS, 
+                "Number of faces currently must be 6 or 1.", 
+                "Image::loadDynamicImage");
 
+		m_uSize = numFaces * PixelUtil::getMemorySize(m_uWidth, m_uHeight, m_uDepth, m_eFormat);
         m_pBuffer = pData;
-		
-		m_bAutoDelete = false;
+		m_bAutoDelete = autoDelete;
         
 		OgreUnguardRet( *this );
 	}
 
     //-----------------------------------------------------------------------------
     Image & Image::loadRawData(
-        DataStreamPtr& stream,
-        ushort uWidth, ushort uHeight,
-        PixelFormat eFormat )
+			DataStreamPtr& stream, 
+            size_t uWidth, size_t uHeight, size_t uDepth,
+            PixelFormat eFormat,
+			size_t numFaces, size_t numMipMaps)
     {
+		if(numMipMaps != 0)
+            Except( Exception::UNIMPLEMENTED_FEATURE,
+                "Custom mipmaps not yet supported in Image class",
+                "Image::loadRawData" ) ;
         OgreGuard( "Image::loadRawData" );
 
-        m_uWidth = uWidth;
-        m_uHeight = uHeight;
-		m_uDepth = 1;
-        m_eFormat = eFormat;
-        m_ucPixelSize = PixelUtil::getNumElemBytes( m_eFormat );
-        m_uSize = m_uWidth * m_uHeight * m_ucPixelSize;
-
-        if (m_uSize != stream->size())
+        size_t size = numFaces * PixelUtil::getMemorySize(uWidth, uHeight, uDepth, eFormat);
+        if (size != stream->size())
         {
             Except(Exception::ERR_INVALIDPARAMS, 
-                "Stream size does not match calculated image size! ", 
+                "Stream size does not match calculated image size", 
                 "Image::loadRawData");
         }
-        m_pBuffer = new uchar[ m_uSize ];
-        stream->read(m_pBuffer, m_uSize);
+		
+        uchar *buffer = new uchar[ size ];
+        stream->read(buffer, size);
+		
+		loadDynamicImage(buffer,
+			uWidth, uHeight, uDepth,
+			eFormat, true, numFaces, numMipMaps);
 
         OgreUnguardRet( *this );
     }
@@ -270,7 +306,7 @@ namespace Ogre {
     {
         OgreGuard( "Image::load" );
 
-        if( m_pBuffer )
+        if( m_pBuffer && m_bAutoDelete )
         {
             delete[] m_pBuffer;
             m_pBuffer = NULL;
@@ -362,6 +398,11 @@ namespace Ogre {
     Image & Image::load(DataStreamPtr& stream, const String& type )
     {
         OgreGuard( "Image::load" );
+        if( m_pBuffer && m_bAutoDelete )
+        {
+            delete[] m_pBuffer;
+            m_pBuffer = NULL;
+        }
 
         String strType = type;
 
@@ -617,7 +658,7 @@ namespace Ogre {
     {
 		if(mipmap != 0)
             Except( Exception::UNIMPLEMENTED_FEATURE,
-                "Custom mipmaps not yet supported",
+                "Custom mipmaps not yet supported in Image class",
                 "Image::getPixelBox" ) ;
 		if(face >= getNumFaces())
 			Except(Exception::ERR_INVALIDPARAMS, "Face index out of range",
