@@ -59,6 +59,11 @@ http://www.gnu.org/copyleft/gpl.html.
 #   pragma warning( disable: 4661)
 #endif
 
+/* Include all the standard header *after* all the configuration
+   settings have been made.
+*/
+#include "OgreStdHeaders.h"
+
 // define the real number values to be used
 // default to use 'float' unless precompiler option set
 namespace Ogre {

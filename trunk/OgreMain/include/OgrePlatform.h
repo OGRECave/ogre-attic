@@ -124,9 +124,5 @@ http://www.gnu.org/copyleft/gpl.html.
 #    define stricmp strcasecmp
 #endif // OGRE_LINUX
 
-/* Include all the standard header *after* all the configuration
-   settings have been made.
-*/
-#include "OgreStdHeaders.h"
 
 #endif // _PLATFORM_H__
