@@ -76,7 +76,6 @@ namespace Ogre
 		mpD3DDevice = NULL;
 		mDriverList = NULL;
 		mActiveD3DDriver = NULL;
-		mExternalHandle = NULL;
         mTextureManager = NULL;
         mHardwareBufferManager = NULL;
 		mGpuProgramManager = NULL;
