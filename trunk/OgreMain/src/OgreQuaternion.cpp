@@ -203,7 +203,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void Quaternion::ToAxes (Vector3& xAxis, Vector3& yAxis, Vector3& zAxis)
+    void Quaternion::ToAxes (Vector3& xAxis, Vector3& yAxis, Vector3& zAxis) const
     {
         Matrix3 kRot;
 

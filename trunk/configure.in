@@ -151,6 +151,8 @@ AC_CONFIG_FILES([Makefile \
     Samples/Water/Makefile \
     Samples/Water/src/Makefile \
     Samples/Water/include/Makefile \
+    Samples/GTKDemo/Makefile \
+    Samples/GTKDemo/src/Makefile \
     Tools/Makefile \
     Tools/XMLConverter/Makefile \
     Tools/XMLConverter/src/Makefile \
