@@ -108,7 +108,8 @@ namespace Ogre {
         */
         virtual void loadRawRGB(String name, void* buffer, int width, int height,
             int numMipMaps = -1, Real gamma = 1.0f);
-
+		virtual void loadRawRGBA(String name, void* buffer, int width, int height,
+			int numMipMaps = -1, Real gamma = 1.0f);
 
         /** Manually unloads a texture from the loaded set.
         */
