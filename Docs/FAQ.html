@@ -93,46 +93,44 @@ been tested but you could probably get it to work with gcc using the Linux makef
 with a little work. Borland compilers are not yet supported but may be in the 
 future.</p><p align="left" CLASS="MainHeader">Q: When do I need STLport and why?</p><p align="left">You 
 need STLport if you're running Microsoft Visual C++ (version 6 or .NET), because 
-the STL implementation in VC++ 6 is very old (the one in VC++ .NET is very nice and 
-actually works with OGRE, but we're not supporting it yet), pretty slow and has a number 
-of known bugs. The issue which makes it totally unsuitable for OGRE is that STL 
-classes cannot be passed across a DLL boundary using the MS STL; it will instantly 
-cause a crash. OGRE is very DLL oriented so this makes the MS STL unusable. STLport 
-is more stable, and is faster than MS STL in release mode. </p><p align="left">You 
+the STL implementation in VC++ 6 is very old (the one in VC++ .NET is very nice 
+and actually works with OGRE, but we're not supporting it yet), pretty slow and 
+has a number of known bugs. The issue which makes it totally unsuitable for OGRE 
+is that STL classes cannot be passed across a DLL boundary using the MS STL; it 
+will instantly cause a crash. OGRE is very DLL oriented so this makes the MS STL 
+unusable. STLport is more stable, and is faster than MS STL in release mode. </p><p align="left">You 
 also need STLport if you're using gcc 2.9x because the STL included with this 
 version is not ANSI compliant enough for OGRE. You don't need it if you have gcc 
 v3.x because the STL in that version has been updated. </p><p align="left" CLASS="MainHeader">Q: 
 How do I install STLport?</p><OL><LI>Download STLport 4.5.3 from <A HREF="http://www.stlport.org">www.stlport.org</A> 
 and unzip it somewhere</LI><LI>Open a command prompt, and change to the folder 
 STLport-4.5.3\src</LI><LI>If you're using Visual C++ 6:<OL><LI> make sure you've 
-run VCVARS32.BAT from the MSVC6 folder</LI><LI> type 'nmake -f 
-vc6.mak clean all'</LI><LI>type 'nmake -f vc6.mak install'</LI></OL></LI><LI>If 
-you're using Visual C++.Net:<OL><LI> make sure you've 
-run VSVARS32.BAT from the MSVC .NET folder</LI><LI>type 'nmake -f vc7.mak clean all'</LI><LI>type 
-'nmake -f vc7.mak install'</LI></OL></LI><LI>If you're using gcc 2.9x:<OL><LI>type 
-'./configure'</LI><LI>type 'make'</LI><LI>type 'make install'</LI></OL></LI><LI>Open 
-Microsoft Visual C++ and select Tools | Options... from the menu bar to bring 
-up the options dialog</LI><LI>Go to the include folders list: in VC6 this is on 
-the 'Directories' tab, in VC++.Net it is under Projects|VC++ Directories in the 
-tree on the left</LI><LI>Make sure the stlport include directory is at the TOP 
-of your include folders list. Crucially, it MUST be above all Microsoft include 
-folders.</LI><LI>Close VC++ to save the settings</LI></OL><P CLASS="MainHeader">Q: 
-Why do I have problems compiling the DirectX-based source files in Microsoft 
-Visual C++ 6? </P><P CLASS="MainContent">This is usually related to the fact that 
-you haven't installed the DirectX SDK on your computer or you have installed it
-but the headers and libraries folders from the SDK aren't in the compiler's search
-path. Microsoft Visual C++ 6 comes with DixctX SDK version 5 while OGRE needs at 
-least version 7. You can get the latest DirectX SDK distribution from 
-<A HREF="http://msdn.microsoft.com/directx">Microsoft's DirectX page</A>. </P>
-<P CLASS="MainHeader">Q: 
-What is the 'Dependencies' folder for? </P><P CLASS="MainContent">Ogre depends 
-on a number of external libraries such as jpeglib, libpng, zlib, and SDL. Rather 
-than expect people to have these already or download them separately, and to minimise 
-problems with incompatible versions of these libraries, you can download them 
-from the <A HREF="http://ogre.sourceforge.net/downloads.php">Ogre download page</A> 
-(get the '3rd party libraries' download). You only need this if you are using 
-Microsoft Visual C++ because Linux distributions usually come with these libraries 
-built in (just in case yours doesn't, use <A HREF="http://rpmfind.net">RPMfind</A>).</P><P CLASS="MainHeader">Q: 
+run VCVARS32.BAT from the MSVC6 folder</LI><LI> type 'nmake -f vc6.mak clean all'</LI><LI>type 
+'nmake -f vc6.mak install'</LI></OL></LI><LI>If you're using Visual C++.Net:<OL><LI> 
+make sure you've run VSVARS32.BAT from the MSVC .NET folder</LI><LI>type 'nmake 
+-f vc7.mak clean all'</LI><LI>type 'nmake -f vc7.mak install'</LI></OL></LI><LI>If 
+you're using gcc 2.9x:<OL><LI>type './configure'</LI><LI>type 'make'</LI><LI>type 
+'make install'</LI></OL></LI><LI>Open Microsoft Visual C++ and select Tools | 
+Options... from the menu bar to bring up the options dialog</LI><LI>Go to the 
+include folders list: in VC6 this is on the 'Directories' tab, in VC++.Net it 
+is under Projects|VC++ Directories in the tree on the left</LI><LI>Make sure the 
+stlport include directory is at the TOP of your include folders list. Crucially, 
+it MUST be above all Microsoft include folders.</LI><LI>Close VC++ to save the 
+settings</LI></OL><P CLASS="MainHeader">Q: Why do I have problems compiling the 
+DirectX-based source files in Microsoft Visual C++ 6? </P><P CLASS="MainContent">This 
+is usually related to the fact that you haven't installed the DirectX SDK on your 
+computer or you have installed it but the headers and libraries folders from the 
+SDK aren't in the compiler's search path. Microsoft Visual C++ 6 comes with DixctX 
+SDK version 5 while OGRE needs at least version 7. You can get the latest DirectX 
+SDK distribution from <A HREF="http://msdn.microsoft.com/directx">Microsoft's 
+DirectX page</A>. </P><P CLASS="MainHeader">Q: What is the 'Dependencies' folder 
+for? </P><P CLASS="MainContent">Ogre depends on a number of external libraries 
+such as jpeglib, libpng, zlib, and SDL. Rather than expect people to have these 
+already or download them separately, and to minimise problems with incompatible 
+versions of these libraries, you can download them from the <A HREF="http://ogre.sourceforge.net/downloads.php">Ogre 
+download page</A> (get the '3rd party libraries' download). You only need this 
+if you are using Microsoft Visual C++ because Linux distributions usually come 
+with these libraries built in (just in case yours doesn't, use <A HREF="http://rpmfind.net">RPMfind</A>).</P><P CLASS="MainHeader">Q: 
 Why do I get a message like 'unable to open zlib.h' or some other header file?</P><P>If 
 you're using VC++, make sure you've downloaded the 3rd-party libraries distribution 
 from the <A HREF="http://ogre.sourceforge.net/downloads.php">Ogre download page</A>. 
@@ -142,31 +140,39 @@ downloaded the <A HREF="http://www.cygwin.com">Cygwin tools</A> under Windows,
 just type the followiing commands in the same folder as the file:</P><P>bunzip2 
 &lt;file&gt;.tar.bz2</P><P>tar -xvf &lt;file&gt;.tar</P><P>If you're using Windows 
 without the Cygwin tools, just use a decent archive GUI like <A HREF="http://www.powerarchiver.com">PowerArchiver</A> 
-or <A HREF="http://www.rarlab.com">WinRAR</A> which support bzip2 and tar (among other formats).</P>
-<P CLASS="MainHeader">Q: Why have you changed from zip format to .tar.bz2?</P>
-<P>Because the files created by bzip2 are up to half the size of the equivalent 
-zip file. This makes your downloads quicker. </P><P CLASS="MainHeader">Q: When 
-I try to debug a sample or my own application, I get an error saying plugins.cfg 
-is not found, why?</P><P>The relative location of OGRE library files and 
-configuration files are very important for successfully starting an OGRE 
-application, in debug mode or otherwise. The existing samples provided copy their 
-executables into 'Samples\Common\bin\Debug' or 'Samples\Common\bin\Release', 
-where all the other files are placed correctly. It is recommended that you set 
-up your own examples to place their executables in the same location to avoid 
-problems, and debug them from there too. </P><P>If you do want to move the files, 
-bear in mind the following dependencies:</P><UL><LI>The OgreMain and OgrePlatform 
-libraries must be in the same folder as the executable, or on the path</LI><LI>The 
-plugins.cfg file must be in the same folder as the executable</LI><LI>The plugin 
-libraries listed in plugins.cfg must be located in the folder specified in the 
-'PluginFolder' setting in plugins.cfg</LI></UL><P CLASS="MainHeader">Q: I have 
-problems loading some resource files (textures, meshes, material definitions etc)</P><P>Check 
-the following:</P><OL><LI>Make sure the case of the filenames is correct. Some 
-operating systems are case-sensitive in their file operations, and all of OGRE's 
-internal lookups for reusing resources is case-sensitive so assume that case IS 
-important.</LI><LI>Make sure the location of the resource is on the resource path. 
-You can add resource paths by calling Root::addResourceLocation and supplying 
-either a folder or a ZIP compressed archive to search in</LI><LI>If you're trying 
-to use a material or particle system scripted from a .material or .particle file, 
-ensure that the resource locations are added <I>before </I>you call Root::initialise</LI></OL>
+or <A HREF="http://www.rarlab.com">WinRAR</A> which support bzip2 and tar (among 
+other formats).</P><P CLASS="MainHeader">Q: Why have you changed from zip format 
+to .tar.bz2?</P><P>Because the files created by bzip2 are up to half the size 
+of the equivalent zip file. This makes your downloads quicker. </P><P CLASS="MainHeader">Q: 
+When I try to debug a sample or my own application, I get an error saying plugins.cfg 
+is not found, why?</P><P>The relative location of OGRE library files and configuration 
+files are very important for successfully starting an OGRE application, in debug 
+mode or otherwise. The existing samples provided copy their executables into 'Samples\Common\bin\Debug' 
+or 'Samples\Common\bin\Release', where all the other files are placed correctly. 
+It is recommended that you set up your own examples to place their executables 
+in the same location to avoid problems, and debug them from there too. </P><P>If 
+you do want to move the files, bear in mind the following dependencies:</P><UL><LI>The 
+OgreMain and OgrePlatform libraries must be in the same folder as the executable, 
+or on the path</LI><LI>The plugins.cfg file must be in the same folder as the 
+executable</LI><LI>The plugin libraries listed in plugins.cfg must be located 
+in the folder specified in the 'PluginFolder' setting in plugins.cfg</LI></UL><P CLASS="MainHeader">Q: 
+I have problems loading some resource files (textures, meshes, material definitions 
+etc)</P><P>Check the following:</P><OL><LI>Make sure the case of the filenames 
+is correct. Some operating systems are case-sensitive in their file operations, 
+and all of OGRE's internal lookups for reusing resources is case-sensitive so 
+assume that case IS important.</LI><LI>Make sure the location of the resource 
+is on the resource path. You can add resource paths by calling Root::addResourceLocation 
+and supplying either a folder or a ZIP compressed archive to search in</LI><LI>If 
+you're trying to use a material or particle system scripted from a .material or 
+.particle file, ensure that the resource locations are added <I>before </I>you 
+call Root::initialise</LI></OL><P CLASS="MainHeader">Q: What is the minimum set 
+of resource files I need to run my own OGRE application?</P><P>You need at least:</P><UL><LI> 
+Ogre.overlay</LI><LI> Ogre.material </LI><LI>sample.fontdef. </LI></UL><P>These 
+scripts contain the core overlay details used for the frame rate stats panel.</P><P CLASS="MainHeader">Q: 
+Why do I get errors about 'LPDIRECTINPUT7' : missing storage-class or type specifiers?</P><P>This 
+is caused by either not having the DirectX SDK, or having the include folder for 
+it lower down on your include list than an oder version of the Windows platform 
+SDK or the Visual C++ include folders. Make sure your DirectX SDK includes are 
+above VC / Platform SDK but still below STLport.</P>
 </body>
 </html>

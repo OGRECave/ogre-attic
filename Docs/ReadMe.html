@@ -98,7 +98,9 @@ from the (heavily!) commented source.</P><P CLASS="NewsDate"><A HREF="Docs/Readm
 Your Own Plugins</A></P><P CLASS="MainContent">Advice on how to extend the engine 
 by building plugins. </P><P CLASS="NewsDate"><A HREF="FAQ.html">Frequently Asked 
 Questions</A></P><P CLASS="MainContent">If you're having problems, please consult 
-the FAQ before asking the authors or posting in the forums.</P><p align="left" class="MainHeader">Authors</p><P>The 
+the FAQ before asking the authors or posting in the forums.</P><P>If you are running 
+on Linux, please also see the <A HREF="README.linux">Readme.linux</A> which will 
+also assist you in Linux-specific issues.</P><p align="left" class="MainHeader">Authors</p><P>The 
 following people are responsible for the blood, sweat and tears it took to bring 
 you OGRE:</P><P><B>Steve Streeting (<A HREF="mailto:steve@stevestreeting.com">steve@stevestreeting.com</A>)</B></P><P>Steve 
 had been thinking about creating something like OGRE since about February 2000, 
@@ -117,76 +119,70 @@ improving the quality of the project. Cearny is based in Bucharest, Romania.</P>
 joined the project in April 2002 and has been responsible for the Linux port and 
 also generally on ANSI C++ compliance. He comes from a background of open-source 
 development, and is currently a lead contributor to the Jabber open-source server 
-as well as working on OGRE. He's based in Texas, USA.</P>
-The following people have also made significant contributions to OGRE, and the team
-would like to thank them for their work:<UL>
-<li>Scott Chappel, for upgrading the Direct3D RenderSystem to v8.1</li>
-<li>Jon Anderson, for writing the OctreeSceneManager plugin</li>
-<li>John Martin, for creating the 3D Studio Max tools</li>
-</UL></P>
-<p align="left" CLASS="MainHeader">Contributing</p><p align="left">We welcome
-all contributions to OGRE, be that new plugins, bugfixes, extensions, tutorials,
-documentation, example applications, artwork or pretty much anything else! If 
-you would like to contribute to the development of OGRE, please read the
-<a href="ContributorLicenseAgreement.html">Contributor License Agreement</A>, 
-and then contact Steve Streeting at 
-<A HREF="mailto:steve@stevestreeting.com">steve@stevestreeting.com</A> if you
-agree with the terms. 
-</p>
-<p align="left" CLASS="MainHeader">Keeping 
-Up To Date</p><p align="left">The best place to keep up to date with developments 
+as well as working on OGRE. He's based in Texas, USA.</P>The following people 
+have also made significant contributions to OGRE, and the team would like to thank 
+them for their work:<UL> <li>Scott Chappel, for upgrading the Direct3D RenderSystem 
+to v8.1</li><li>Jon Anderson, for writing the OctreeSceneManager plugin</li><li>John 
+Martin, for creating the 3D Studio Max tools</li></UL><P></P><p align="left" CLASS="MainHeader">Contributing</p><p align="left">We 
+welcome all contributions to OGRE, be that new plugins, bugfixes, extensions, 
+tutorials, documentation, example applications, artwork or pretty much anything 
+else! If you would like to contribute to the development of OGRE, please read 
+the <a href="ContributorLicenseAgreement.html">Contributor License Agreement</A>, 
+and then contact Steve Streeting at <A HREF="mailto:steve@stevestreeting.com">steve@stevestreeting.com</A> 
+if you agree with the terms. </p><p align="left" CLASS="MainHeader">Keeping Up 
+To Date</p><p align="left">The best place to keep up to date with developments 
 on OGRE is the <A HREF="http://ogre.sourceforge.net">Official Web Site</A>. From 
 there you can download the latest source code and documentation. You can choose 
 between keeping bang up to date with CVS (Concurrent Versioning System) or by 
 just getting the regularly released snapshots.</p><p align="left">The changes 
 included in this current version can be viewed on the <A HREF="ChangeLog.html"> 
-ChangeLog</A>. </p><p align="left" CLASS="MainHeader">Reporting a bug or requesting a feature</p><p align="left">This 
-can be done through the Sourceforge project site, which you can find at <A HREF="http://sourceforge.net/projects/ogre">http://sourceforge.net/projects/ogre</A>.</p><p align="left" CLASS="MainHeader">Licensing</p><P>OGRE 
-is distributed as free software under the GNU Lesser General Public License (see <A HREF="License.html">License.html</A>). 
-In summary this means that you can use OGRE for any purpose, provided that if you 
-make changes to OGRE itself, you must release the changes back into into the public 
-domain under the LGPL and make it clear where you have made the changes. Your
-own application can be distributed under any license you like. </P><P>This 
-program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-PURPOSE. See the GNU Lesser General Public License for more details.</P><P>You should 
-have received a copy of the GNU Lesser General Public License along with this program; 
-if not, write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, 
-Boston, MA 02111-1307, USA, or go to <A HREF="http://www.gnu.org/copyleft/lesser.txt">http://www.gnu.org/copyleft/lesser.txt</A>.</P><P>In 
-addition, if you use Ogre it would be nice if you displayed the Ogre logo 
-somewhere in your application (start up or shutdown) for a minimum of 2 seconds. 
-This splash-screen is displayed on the standard Ogre configuration dialog anyway, 
-so if you use that you don't need to do anything extra. The logo is included in 
-the download archive as Examples\Resources\ogrelogo.png.</P><P>Some textures distrubuted 
-with Ogre are used with permission of <A HREF="http://www.The3dStudio.com">www.The3dStudio.com</A> 
+ChangeLog</A>. </p><p align="left" CLASS="MainHeader">Reporting a bug or requesting 
+a feature</p><p align="left">This can be done through the Sourceforge project 
+site, which you can find at <A HREF="http://sourceforge.net/projects/ogre">http://sourceforge.net/projects/ogre</A>.</p><p align="left" CLASS="MainHeader">Licensing</p><P>OGRE 
+is distributed as free software under the GNU Lesser General Public License (see 
+<A HREF="License.html">License.html</A>). In summary this means that you can use 
+OGRE for any purpose, provided that if you make changes to OGRE itself, you must 
+release the changes back into into the public domain under the LGPL and make it 
+clear where you have made the changes. Your own application can be distributed 
+under any license you like. </P><P>This program is distributed in the hope that 
+it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
+of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General 
+Public License for more details.</P><P>You should have received a copy of the 
+GNU Lesser General Public License along with this program; if not, write to the 
+Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, 
+USA, or go to <A HREF="http://www.gnu.org/copyleft/lesser.txt">http://www.gnu.org/copyleft/lesser.txt</A>.</P><P>In 
+addition, if you use Ogre it would be nice if you displayed the Ogre logo somewhere 
+in your application (start up or shutdown) for a minimum of 2 seconds. This splash-screen 
+is displayed on the standard Ogre configuration dialog anyway, so if you use that 
+you don't need to do anything extra. The logo is included in the download archive 
+as Examples\Resources\ogrelogo.png.</P><P>Some textures distrubuted with Ogre 
+are used with permission of <A HREF="http://www.The3dStudio.com">www.The3dStudio.com</A> 
 and may not be re-distributed, sold, or given away except in the form of rendered 
-images, animations, or real time 3D applications when credit is given to <A HREF="http://www.The3dStudio.com">www.The3dStudio.com</A>.</P>
-<P>The 'Han Solo' TrueType font is &copy; 2000 by Iconian Fonts - Daniel Zadorozny. This font may be freely 
-distributed and is free for all non-commercial uses. This font is e-mailware; that is, 
-if you like it, please e-mail the author at: <A HREF="mailto:iconian@aol.com">iconian@aol.com</A>.
-</P><P ALIGN="left" CLASS="MainHeader">Acknowledgements</p><p>The 
-authors wish to credit the following for their work which is used in whole or 
-in part in OGRE:</p><p>Artwork:</p><UL><LI>Matt Anderson at <A HREF="http://www.The3dStudio.com">www.The3dStudio.com</A> 
-who kindly gave permission for the use of some textures</LI><LI>Paul Bourke at 
-<A HREF="http://astronomy.swin.edu.au/~pbourke/">http://astronomy.swin.edu.au/~pbourke/</A> 
+images, animations, or real time 3D applications when credit is given to <A HREF="http://www.The3dStudio.com">www.The3dStudio.com</A>.</P><P>The 
+'Han Solo' TrueType font is &copy; 2000 by Iconian Fonts - Daniel Zadorozny. This 
+font may be freely distributed and is free for all non-commercial uses. This font 
+is e-mailware; that is, if you like it, please e-mail the author at: <A HREF="mailto:iconian@aol.com">iconian@aol.com</A>. 
+</P><P ALIGN="left" CLASS="MainHeader">Acknowledgements</p><p>The authors wish 
+to credit the following for their work which is used in whole or in part in OGRE:</p><p>Artwork:</p><UL><LI>Matt 
+Anderson at <A HREF="http://www.The3dStudio.com">www.The3dStudio.com</A> who kindly 
+gave permission for the use of some textures</LI><LI>Paul Bourke at <A HREF="http://astronomy.swin.edu.au/~pbourke/">http://astronomy.swin.edu.au/~pbourke/</A> 
 for the textures used in the landscape demo. These textures "are provided for 
 personal, non-commercial use only".</LI><LI>Jonathan Clark at <A HREF="http://www.jonathanclark.com">http://www.jonathanclark.com</A> 
 for some Golgotha textures thet were released to the public domain.</LI><LI>The 
 'Raptor Assault Gunboat' mesh & texture are &copy; 2002 by Adrian 'cearny' Cearn&#x0103;u.</LI><LI>The 
 robot mesh and animation are by <A HREF="http://www.psionicdesign.com/">Psionic</A>, 
 kindly made available from the <A HREF="http://www.insanesoftware.de">CharacterFX</A> 
-site</LI><LI>The 'Iron Maiden' TrueType font is &copy; 1996 by Timour Jgenti.</UL>
-<p>Included as source (modified as appropriate), and credited appropriately 
-in the source files affected:</p><ul> 
-<li>Many of the maths/spatial routines are 
-inspired by Dr D.H. Eberley, adapted from the 'free' parts of the Wild Magic engine 
-0.2 source provided with his book &quot;3D Engine Design&quot; (<a href="http://www.wild-magic.com/">http://www.wild-magic.com/</a>)</li>
-<li>Quake3 loading routines used a lot of information gleaned from 
-<a href="http://www.planetquake.com/aftershock/">Aftershock</a> and <a href="http://strony.poland.com/bsekura/">Bart 
-Sekura's ROGL</a></li><li>Singleton template class is &copy; Scott Bilas 2000 
-from Game Programming Gems </li></ul><p>Source not modified, but linked in as 
-part of the complete OGRE system:</p><ul> <li>Compression is courtesy of the zlib 
-compression library &copy; 1995-1998 Jean-loup Gailly and Mark Adler (<a href="http://www.gzip.org/zlib">http://www.gzip.org/zlib</a>)</li><li>JPEG 
+site</LI><LI>The 'Iron Maiden' TrueType font is &copy; 1996 by Timour Jgenti.</UL><p>Included 
+as source (modified as appropriate), and credited appropriately in the source 
+files affected:</p><ul> <li>Many of the maths/spatial routines are inspired by 
+Dr D.H. Eberley, adapted from the 'free' parts of the Wild Magic engine 0.2 source 
+provided with his book &quot;3D Engine Design&quot; (<a href="http://www.wild-magic.com/">http://www.wild-magic.com/</a>)</li><li>Quake3 
+loading routines used a lot of information gleaned from <a href="http://www.planetquake.com/aftershock/">Aftershock</a> 
+and <a href="http://strony.poland.com/bsekura/">Bart Sekura's ROGL</a></li><li>Singleton 
+template class is &copy; Scott Bilas 2000 from Game Programming Gems </li></ul><p>Source 
+not modified, but linked in as part of the complete OGRE system:</p><ul> <li>Compression 
+is courtesy of the zlib compression library &copy; 1995-1998 Jean-loup Gailly 
+and Mark Adler (<a href="http://www.gzip.org/zlib">http://www.gzip.org/zlib</a>)</li><li>JPEG 
 image loading is provided by jpeglib &copy; 1991-1998, Thomas G. Lane &amp; the 
 Independent JPEG Group (<a href="http://www.ijg.org">http://www.ijg.org</a>)</li><li>PNG 
 image loading comes from libpng &copy; 1998, 1999 Glenn Randers-Pehrson (<a href="http://libpng.sourceforge.net">http://libpng.sourceforge.net</a>)</li><li>Integration 
