@@ -5,6 +5,8 @@
 /* Win32 directory operations emulation */
 #if OGRE_PLATFORM != PLATFORM_WIN32
 
+#include <OgreNoMemoryMacros.h>
+
 /* If we've initialized yet */
 static int G_searches_initialized = 0;
 
@@ -109,5 +111,7 @@ int _findclose(long id)
 
     return ret;
 }
+
+#include <OgreMemoryMacros.h>
 
 #endif
