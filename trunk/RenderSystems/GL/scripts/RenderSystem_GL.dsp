@@ -144,7 +144,15 @@ SOURCE=..\src\OgreGLHardwareOcclusionQuery.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreGLHardwarePixelBuffer.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreGLHardwareVertexBuffer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreGLPixelFormat.cpp
 # End Source File
 # Begin Source File
 
@@ -212,7 +220,15 @@ SOURCE=..\include\OgreGLHardwareOcclusionQuery.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreGLHardwarePixelBuffer.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreGLHardwareVertexBuffer.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreGLPixelFormat.h
 # End Source File
 # Begin Source File
 
