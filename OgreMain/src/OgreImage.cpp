@@ -238,7 +238,7 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------------
     Image & Image::loadRawData(
-        const DataChunk &pData,
+        DataStreamPtr& stream,
         ushort uWidth, ushort uHeight,
         PixelFormat eFormat )
     {
@@ -250,14 +250,20 @@ namespace Ogre {
         m_ucPixelSize = PF2PS( m_eFormat );
         m_uSize = m_uWidth * m_uHeight * m_ucPixelSize;
 
-        m_pBuffer = new uchar[ uWidth * uHeight * m_ucPixelSize ];
-        memcpy( m_pBuffer, pData.getPtr(), uWidth * uHeight * m_ucPixelSize );
+        if (m_uSize != stream->size())
+        {
+            Except(Exception::ERR_INVALIDPARAMS, 
+                "Stream size does not match calculated image size! ", 
+                "Image::loadRawData");
+        }
+        m_pBuffer = new uchar[ m_uSize ];
+        stream->read(m_pBuffer, m_uSize);
 
         OgreUnguardRet( *this );
     }
 
     //-----------------------------------------------------------------------------
-    Image & Image::load( const String& strFileName )
+    Image & Image::load(const String& strFileName, const String& group)
     {
         OgreGuard( "Image::load" );
 
@@ -286,18 +292,8 @@ namespace Ogre {
             "Unable to load image file '" + strFileName + "' - invalid extension.",
             "Image::load" );
 
-        SDDataChunk encoded;
-        DataChunk decoded;
-
-        if( !ArchiveManager::getSingleton()._findResourceData( 
-            strFileName, 
-            encoded ) )
-        {
-            Except(
-            Exception::ERR_INVALIDPARAMS, 
-            "Unable to find image file '" + strFileName + "'.",
-            "Image::load" );
-        }
+        DataStreamPtr encoded = 
+            ResourceGroupManager::getSingleton()._findResource(strFileName, group);
 
         ImageCodec::ImageData * pData = static_cast< ImageCodec::ImageData * > (
             pCodec->decode( encoded, &decoded ) );

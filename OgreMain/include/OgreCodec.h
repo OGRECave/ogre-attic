@@ -26,6 +26,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define _Codec_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreSharedPtr.h"
+#include "OgreDataStream.h"
 
 namespace Ogre {
 
@@ -56,6 +58,7 @@ namespace Ogre {
             */
             virtual String dataType() const { return "CodecData"; };
         };
+        typedef SharedPtr<CodecData> CodecDataPtr;
 
     public:
     	virtual ~Codec();
@@ -77,12 +80,10 @@ namespace Ogre {
         /** Gets the codec registered for the passed in file extension. */
         static Codec* getCodec(const String& extension);
 
-        /** Codes the data in the input chunk and saves the result in the output
-            chunk.
-            @note
-                Has a variable number of arguments, which depend on the codec type.
+        /** Codes the data in the input stream and saves the result in the output
+            stream.
         */
-        virtual void code( const DataChunk& input, DataChunk* output, ... ) const = 0;
+        virtual DataStreamPtr code(MemoryDataStreamPtr& input, CodecData* pData) const = 0;
         /** Codes the data in the input chunk and saves the result in the output
             filename provided. Provided for efficiency since coding to memory is
             progressive therefore memory required is unknown leading to reallocations.
@@ -90,17 +91,16 @@ namespace Ogre {
         @param outFileName The filename to write to
         @param pData Extra information to be passed to the codec (codec type specific)
         */
-        virtual void codeToFile( const DataChunk& input, const String& outFileName, CodecData* pData) const = 0;
+        virtual void codeToFile(MemoryDataStreamPtr& input, const String& outFileName, CodecDataPtr& pData) const = 0;
 
+        /// Result of a decoding; both a decoded data stream and CodecData metadata
+        typedef std::pair<MemoryDataStreamPtr, CodecDataPtr> DecodeResult;
         /** Codes the data from the input chunk into the output chunk.
-            @remarks
-                The returned CodecData pointer is a pointer to a class that holds
-                information about the decoded buffer. For an image, this would be 
-                the size, the bitdepht, etc.
+            @param input Stream containing the encoded data
             @note
                 Has a variable number of arguments, which depend on the codec type.
         */
-        virtual CodecData * decode( const DataChunk& input, DataChunk* output, ... ) const = 0;
+        virtual DecodeResult decode(DataStreamPtr& input) const = 0;
 
         /** Returns the type of the codec as a String
         */

@@ -29,7 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    /** Codec specialized in images.
+    /** Codec specialized in images loaded using DevIL.
         @remarks
             The users implementing subclasses of ImageCodec are required to return
             a valid pointer to a ImageData class from the decode(...) function.
@@ -46,19 +46,15 @@ namespace Ogre {
         }
         virtual ~ILImageCodec() { }
 
-        void code( const DataChunk& input, DataChunk* output, ... ) const;
-        CodecData * decode( const DataChunk& input, DataChunk* output, ... ) const;
-        /** Encodes data to a file.
-        @param input Chunk containing data to write
-        @param outFileName Filename to output to (extension implies type)
-        @param pData ImageData pointer
-        */
-        void codeToFile( const DataChunk& input, const String& outFileName, CodecData* pData) const;
-
-        virtual String getType() const = 0;
-
+        /// @copydoc Codec::code
+        DataStreamPtr code(MemoryDataStreamPtr& input, CodecData* pData) const;
+        /// @copydoc Codec::codeToFile
+        void codeToFile(MemoryDataStreamPtr& input, const String& outFileName, CodecData* pData) const;
+        /// @copydoc Codec::decode
+        DecodeResult decode(DataStreamPtr& input) const;
+        /// Get DevIL-specific type
         virtual unsigned int getILType(void) const = 0;
-
+        /// Initialise DevIL
         void initialiseIL(void);
     };
 

@@ -26,8 +26,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define _Image_H__
 
 #include "OgrePrerequisites.h"
-
 #include "OgreCommon.h"
+#include "OgreDataStream.h"
 
 namespace Ogre {
 
@@ -422,10 +422,10 @@ namespace Ogre {
 		Image& loadDynamicImage( uchar* pData, ushort uWidth, 
 								 ushort uHeight, PixelFormat eFormat );
 
-        /** Loads raw data from memory. The pixel format has to be specified.
+        /** Loads raw data from a stream. The pixel format has to be specified.
         */
         Image & loadRawData( 
-            const DataChunk &pData, 
+            DataStreamPtr& stream, 
             ushort uWidth, ushort uHeight, 
             PixelFormat eFormat );
 

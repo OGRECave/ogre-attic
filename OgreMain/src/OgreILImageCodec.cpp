@@ -39,7 +39,7 @@ namespace Ogre {
     bool ILImageCodec::_is_initialised = false;    
 
     //---------------------------------------------------------------------
-    void ILImageCodec::code( const DataChunk& input, DataChunk* output, ... ) const
+    DataStreamPtr ILImageCodec::code(MemoryDataStreamPtr& input, Codec::CodecData* pData) const
     {        
         OgreGuard( "ILCodec::code" );
 
@@ -49,10 +49,8 @@ namespace Ogre {
         OgreUnguard();
 
     }
-
-
     //---------------------------------------------------------------------
-    void ILImageCodec::codeToFile( const DataChunk& input, 
+    void ILImageCodec::codeToFile(MemoryDataStreamPtr& input, 
         const String& outFileName, Codec::CodecData* pData) const
     {
         OgreGuard( "ILImageCodec::codeToFile" );
@@ -65,8 +63,8 @@ namespace Ogre {
         ImageData* pImgData = static_cast< ImageData * >( pData );
         std::pair< int, int > fmt_bpp = OgreFormat2ilFormat( pImgData->format );
         ilTexImage( 
-            pImgData->width, pImgData->height, 1, fmt_bpp.second, fmt_bpp.first, IL_UNSIGNED_BYTE, 
-            static_cast< void * >( const_cast< uchar * >( ( input.getPtr() ) ) ) );
+            pImgData->width, pImgData->height, 1, fmt_bpp.second, fmt_bpp.first, 
+            IL_UNSIGNED_BYTE, input->getPtr());
         iluFlipImage();
 
         // Implicitly pick DevIL codec
@@ -77,14 +75,15 @@ namespace Ogre {
         OgreUnguard();
     }
     //---------------------------------------------------------------------
-    Codec::CodecData * ILImageCodec::decode( const DataChunk& input, DataChunk* output, ... ) const
+    Codec::DecodeResult ILImageCodec::decode(DataStreamPtr& input) const
     {
         OgreGuard( "ILImageCodec::decode" );
 
         // DevIL variables
         ILuint ImageName;
         ILint ImageFormat, BytesPerPixel;
-        ImageData * ret_data = new ImageData;
+        ImageData* imgData = new ImageData();
+        MemoryDataStreamPtr output;
 
         // Load the image
         ilGenImages( 1, &ImageName );
@@ -97,11 +96,12 @@ namespace Ogre {
         // Keep DXTC(compressed) data if present
         ilSetInteger(IL_KEEP_DXTC_DATA, IL_TRUE);
 
-        // Load image from disk
+        // Load image from stream, cache into memory
+        MemoryDataStream memInput(input);
         ilLoadL( 
             getILType(), 
-            ( void * )const_cast< uchar * >( input.getPtr() ), 
-            static_cast< ILuint >( input.getSize() ) );
+            memInput.getPtr(), 
+            static_cast< ILuint >(memInput.size()));
 
         // Check if everything was ok
         ILenum PossibleError = ilGetError() ;
@@ -129,35 +129,35 @@ namespace Ogre {
         // Now sets some variables
         BytesPerPixel = ilGetInteger( IL_IMAGE_BYTES_PER_PIXEL ); 
 
-        ret_data->format = ilFormat2OgreFormat( ImageFormat, BytesPerPixel );
-        ret_data->width = ilGetInteger( IL_IMAGE_WIDTH );
-        ret_data->height = ilGetInteger( IL_IMAGE_HEIGHT );
-        ret_data->depth = ilGetInteger( IL_IMAGE_DEPTH );
-        ret_data->num_mipmaps = ilGetInteger ( IL_NUM_MIPMAPS );
-        ret_data->flags = 0;
+        imgData->format = ilFormat2OgreFormat( ImageFormat, BytesPerPixel );
+        imgData->width = ilGetInteger( IL_IMAGE_WIDTH );
+        imgData->height = ilGetInteger( IL_IMAGE_HEIGHT );
+        imgData->depth = ilGetInteger( IL_IMAGE_DEPTH );
+        imgData->num_mipmaps = ilGetInteger ( IL_NUM_MIPMAPS );
+        imgData->flags = 0;
 
         // Check for cubemap
         ILuint cubeflags = ilGetInteger ( IL_IMAGE_CUBEFLAGS );
         if(cubeflags)
-            ret_data->flags |= IF_CUBEMAP;
+            imgData->flags |= IF_CUBEMAP;
 
         // Keep DXT data (if present at all)
         ILuint dxtFormat = ilGetInteger( IL_DXTC_DATA_FORMAT );
         if(dxtFormat != IL_DXT_NO_COMP && Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability( RSC_TEXTURE_COMPRESSION_DXT ))
         {
             ILuint dxtSize = ilGetDXTCData(NULL, 0, dxtFormat);
-            output->allocate( dxtSize );
+            output.bind(new MemoryDataStream(dxtSize));
             ilGetDXTCData(output->getPtr(), dxtSize, dxtFormat);
 
-            ret_data->size = dxtSize;
-            ret_data->format = ilFormat2OgreFormat( dxtFormat, BytesPerPixel );
-            ret_data->flags |= IF_COMPRESSED;
+            imgData->size = dxtSize;
+            imgData->format = ilFormat2OgreFormat( dxtFormat, BytesPerPixel );
+            imgData->flags |= IF_COMPRESSED;
         }
         else
         {
             uint numImagePasses = cubeflags ? 6 : 1;
             uint imageSize = ilGetInteger(IL_IMAGE_SIZE_OF_DATA);
-            output->allocate( imageSize * numImagePasses );
+            output.bind(new MemoryDataStream(imageSize * numImagePasses));
 
             unsigned int i = 0, offset = 0;
             for(i = 0; i < numImagePasses; i++)
@@ -173,8 +173,8 @@ namespace Ogre {
                 offset += imageSize;
             }
 
-            ret_data->size = imageSize * numImagePasses;
-            ret_data->format = ilFormat2OgreFormat( ImageFormat, BytesPerPixel );
+            imgData->size = imageSize * numImagePasses;
+            imgData->format = ilFormat2OgreFormat( ImageFormat, BytesPerPixel );
         }
 
         // Restore IL state
@@ -183,7 +183,12 @@ namespace Ogre {
 
         ilDeleteImages( 1, &ImageName );
 
-        OgreUnguardRet( ret_data );
+        DecodeResult ret;
+        ret.first = output;
+        ret.second = CodecDataPtr(imgData);
+
+
+        OgreUnguardRet( ret );
     }
     //---------------------------------------------------------------------
     void ILImageCodec::initialiseIL(void)
