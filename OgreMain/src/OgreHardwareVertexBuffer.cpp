@@ -85,7 +85,7 @@ namespace Ogre {
 		case VET_COLOUR:
 			return 1;
 		case VET_FLOAT1:
-			return sizeof(float);
+			return 1;
 		case VET_FLOAT2:
 			return 2;
 		case VET_FLOAT3:
