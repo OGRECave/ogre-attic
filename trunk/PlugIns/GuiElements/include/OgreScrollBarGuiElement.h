@@ -130,3 +130,4 @@ namespace Ogre {
 
 
 #endif  // __ScrollBarGuiElement_H__
+
