@@ -134,7 +134,7 @@ namespace Ogre {
 
 		/** Copies (and maybe scales to fit) the contents of this texture to
 			another texture. */
-		virtual void copyToTexture( Texture * target ) {};
+		virtual void copyToTexture( Texture * target ) {}
 
         /** Loads the data from an image.
         */
