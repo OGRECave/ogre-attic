@@ -956,6 +956,7 @@ namespace Ogre
 
 		SAFE_RELEASE(pDstSurface);
 		SAFE_RELEASE(pSrcSurface);
+		SAFE_RELEASE(mpTmpNormTex);
 	}
 	/****************************************************************************************/
 	void D3D9Texture::_blitImagesToCubeTex(const Image srcImages[])
@@ -1065,6 +1066,8 @@ namespace Ogre
 			mpCubeTex->GenerateMipSubLevels();
 
 		}
+
+		SAFE_RELEASE(mpTmpCubeTex);
 
 	}
 	/****************************************************************************************/

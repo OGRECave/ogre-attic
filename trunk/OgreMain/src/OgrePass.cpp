@@ -85,6 +85,17 @@ namespace Ogre {
     Pass::~Pass()
     {
         removeAllTextureUnitStates();
+		if (mVertexProgramUsage)
+		{
+			delete mVertexProgramUsage;
+			mVertexProgramUsage = 0;
+		}
+		if (mFragmentProgramUsage)
+		{
+			delete mFragmentProgramUsage;
+			mFragmentProgramUsage = 0;
+		}
+
     }
     //-----------------------------------------------------------------------------
     Pass& Pass::operator=(const Pass& oth)
