@@ -33,7 +33,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreDataChunk.h"
 #include "OgreLogManager.h"
 #include "OgreStringConverter.h"
+#include "Ogre.h"
 
+#include <map>
 
 namespace Ogre {
 
@@ -46,17 +48,216 @@ namespace Ogre {
     XMLSkeletonSerializer::~XMLSkeletonSerializer()
     {
     }
+
     //---------------------------------------------------------------------
-    Skeleton* XMLSkeletonSerializer::importSkeleton(const String& filename, 
-        Skeleton* pSkeleton)
-    {
-        // TODO
-        return NULL;
+    void XMLSkeletonSerializer::importSkeleton(const String& filename, Skeleton* pSkeleton)
+    {	
+		LogManager::getSingleton().logMessage("XMLSkeletonSerializer: reading XML data from " + filename + "...");
+
+		mXMLDoc = new TiXmlDocument(filename);
+        mXMLDoc->LoadFile();
+
+		TiXmlElement* elem;
+
+        TiXmlElement* rootElem = mXMLDoc->RootElement();
+
+        // Bones
+        elem = rootElem->FirstChildElement("bones");
+        if (elem)
+		{
+            readBones(pSkeleton, elem);			
+			elem = rootElem->FirstChildElement("bonehierarchy");
+
+			if (elem)
+			{
+				createHierarchy(pSkeleton, elem) ;
+				elem = rootElem->FirstChildElement("bones");
+				if (elem)
+				{
+					readBones2(pSkeleton, elem);
+					elem = rootElem->FirstChildElement("animations");
+					if (elem)
+					{
+						readAnimations(pSkeleton, elem);
+					}
+				}
+			}
+		}
+		LogManager::getSingleton().logMessage("XMLSkeletonSerializer: Finished. Running SkeletonSerializer..." );
     }
+	
+
+	//---------------------------------------------------------------------
+	// sets names
+	void XMLSkeletonSerializer::readBones(Skeleton* skel, TiXmlElement* mBonesNode)
+    {
+        LogManager::getSingleton().logMessage("XMLSkeletonSerializer: Reading Bones name...");
+		
+		Bone* btmp ;
+		Quaternion quat ;
+
+        for (TiXmlElement* bonElem = mBonesNode->FirstChildElement();
+            bonElem != 0; bonElem = bonElem->NextSiblingElement())
+        {
+            String name = bonElem->Attribute("name");
+			int id = StringConverter::parseInt(bonElem->Attribute("id"));				
+			btmp = skel->createBone(name,id) ;
+
+        }
+    }
+	// ---------------------------------------------------------
+	// set positions and orientations.
+	void XMLSkeletonSerializer::readBones2(Skeleton* skel, TiXmlElement* mBonesNode)
+    {
+        LogManager::getSingleton().logMessage("XMLSkeletonSerializer: Reading Bones data...");
+		
+		Bone* btmp ;
+		Quaternion quat ;
+
+        for (TiXmlElement* bonElem = mBonesNode->FirstChildElement();
+            bonElem != 0; bonElem = bonElem->NextSiblingElement())
+        {
+            String name = bonElem->Attribute("name");
+			int id = StringConverter::parseInt(bonElem->Attribute("id"));
+
+			TiXmlElement* posElem = bonElem->FirstChildElement("position");
+			TiXmlElement* rotElem = bonElem->FirstChildElement("rotation");
+			TiXmlElement* axisElem = rotElem->FirstChildElement("axis");
+			
+			Vector3 pos;
+			Vector3 axis;
+			Real angle ;
+
+			pos.x = StringConverter::parseReal(posElem->Attribute("x"));
+			pos.y = StringConverter::parseReal(posElem->Attribute("y"));
+			pos.z = StringConverter::parseReal(posElem->Attribute("z"));
+			
+			angle = StringConverter::parseReal(rotElem->Attribute("angle"));
+
+			axis.x = StringConverter::parseReal(axisElem->Attribute("x"));
+			axis.y = StringConverter::parseReal(axisElem->Attribute("y"));
+			axis.z = StringConverter::parseReal(axisElem->Attribute("z"));
+			
+			/*LogManager::getSingleton().logMessage("bone " + name + " : position("
+				+ StringConverter::toString(pos.x) + "," + StringConverter::toString(pos.y) + "," + StringConverter::toString(pos.z) + ")"
+				+ " - angle: " + StringConverter::toString(angle) +" - axe: "
+				+ StringConverter::toString(axis.x) + "," + StringConverter::toString(axis.y) + "," + StringConverter::toString(axis.z) );
+			*/		
+			
+			btmp = skel->getBone(name) ;
+
+			btmp -> setPosition(pos);
+			quat.FromAngleAxis(angle,axis);
+			btmp -> setOrientation(quat) ;
+
+        } // bones
+    }
+	//-------------------------------------------------------------------
+	void XMLSkeletonSerializer::createHierarchy(Skeleton* skel, TiXmlElement* mHierNode) {
+		
+		LogManager::getSingleton().logMessage("XMLSkeletonSerializer: Reading Hierarchy data...");
+		
+		Bone* bone ;
+		Bone* parent ;
+		String boneName ;
+		String parentName ;
+
+		for (TiXmlElement* hierElem = mHierNode->FirstChildElement() ; hierElem != 0; hierElem = hierElem->NextSiblingElement())
+        {
+			boneName = hierElem->Attribute("bone");
+			parentName = hierElem->Attribute("parent");
+			bone = skel->getBone(boneName);
+			parent = skel->getBone(parentName);
+			parent ->addChild(bone) ;
+			//LogManager::getSingleton().logMessage("XMLSkeletonSerialiser: lien: " + parent->getName() + "->" + bone->getName());
+			
+		}
+	}
+	//---------------------------------------------------------------------
+	void XMLSkeletonSerializer::readAnimations(Skeleton* skel, TiXmlElement* mAnimNode) {
+		
+		Animation * anim ;
+		AnimationTrack * track ;
+		LogManager::getSingleton().logMessage("XMLSkeletonSerializer: Reading Animations data...");
+
+		for (TiXmlElement* animElem = mAnimNode->FirstChildElement("animation"); animElem != 0; animElem = animElem->NextSiblingElement())
+        {
+            String name = animElem->Attribute("name");
+			Real length = StringConverter::parseReal(animElem->Attribute("length"));
+			anim = skel->createAnimation(name,length);
+			anim->setInterpolationMode(Animation::IM_LINEAR) ;
+
+			
+			LogManager::getSingleton().logMessage("Animation: nom: " + name + " et longueur: "
+				+ StringConverter::toString(length) );
+			
+			// lecture des tracks
+			int trackIndex = 0;
+			TiXmlElement* tracksNode = animElem->FirstChildElement("tracks");
+			
+			for (TiXmlElement* trackElem = tracksNode->FirstChildElement("track"); trackElem != 0; trackElem = trackElem->NextSiblingElement())
+			{
+				String boneName = trackElem->Attribute("bone");
+
+				//LogManager::getSingleton().logMessage("Track sur le bone: " + boneName );
+
+				track = anim->createTrack(trackIndex++,skel->getBone(boneName));
+				readKeyFrames(track, trackElem->FirstChildElement("keyframes"));
+			}
+			
+		}
+
+
+	}
+	//---------------------------------------------------------------------
+	void XMLSkeletonSerializer::readKeyFrames(AnimationTrack* track, TiXmlElement* mKeyfNode) {
+		
+		KeyFrame* kf ;
+		Quaternion q ;
+
+		for (TiXmlElement* keyfElem = mKeyfNode->FirstChildElement("keyframe"); keyfElem != 0; keyfElem = keyfElem->NextSiblingElement())
+        {
+			TiXmlElement* transElem = keyfElem->FirstChildElement("translate");
+			TiXmlElement* rotElem = keyfElem->FirstChildElement("rotate");
+			TiXmlElement* axisElem = rotElem->FirstChildElement("axis");
+			
+			Vector3 trans;
+			Vector3 axis;
+			Real angle ;
+			Real time ;
+			
+			time = StringConverter::parseReal(keyfElem->Attribute("time"));
+
+			trans.x = StringConverter::parseReal(transElem->Attribute("x"));
+			trans.y = StringConverter::parseReal(transElem->Attribute("y"));
+			trans.z = StringConverter::parseReal(transElem->Attribute("z"));
+			
+			angle = StringConverter::parseReal(rotElem->Attribute("angle"));
+
+			axis.x = StringConverter::parseReal(axisElem->Attribute("x"));
+			axis.y = StringConverter::parseReal(axisElem->Attribute("y"));
+			axis.z = StringConverter::parseReal(axisElem->Attribute("z"));
+			
+			/*
+			LogManager::getSingleton().logMessage("Keyframe: translation("
+				+ StringConverter::toString(trans.x) + "," + StringConverter::toString(trans.y) + "," + StringConverter::toString(trans.z) + ")"
+				+ " - angle: " + StringConverter::toString(angle) +" - axe: "
+				+ StringConverter::toString(axis.x) + "," + StringConverter::toString(axis.y) + "," + StringConverter::toString(axis.z) );
+			*/
+			
+			kf = track->createKeyFrame(time) ;
+			kf->setTranslate(trans) ;
+			q.FromAngleAxis(angle,axis);
+			kf->setRotation(q) ;
+
+		}
+	}
+
     //---------------------------------------------------------------------
     void XMLSkeletonSerializer::exportSkeleton(const Skeleton* pSkeleton, 
         const String& filename)
     {
+		
         LogManager::getSingleton().logMessage("XMLSkeletonSerializer writing "
             " skeleton data to " + filename + "...");
 
@@ -71,7 +272,7 @@ namespace Ogre {
         LogManager::getSingleton().logMessage("Exporting bones..");
         writeSkeleton(pSkeleton);
         LogManager::getSingleton().logMessage("Bones exported.");
-
+		
         // Write all animations
         unsigned short numAnims = pSkeleton->getNumAnimations();
         String msg = "Exporting animations, count=";
@@ -101,7 +302,7 @@ namespace Ogre {
         delete mXMLDoc;
 
         LogManager::getSingleton().logMessage("XMLSkeletonSerializer export successful.");
-
+	
     }
     //---------------------------------------------------------------------
     void XMLSkeletonSerializer::writeSkeleton(const Skeleton* pSkel)
@@ -112,9 +313,11 @@ namespace Ogre {
             rootNode->InsertEndChild(TiXmlElement("bones"))->ToElement();
 
         unsigned short numBones = pSkel->getNumBones();
+		LogManager::getSingleton().logMessage("There are " + StringConverter::toString(numBones) + " bones.");
         unsigned short i;
         for (i = 0; i < numBones; ++i)
         {
+			LogManager::getSingleton().logMessage("   Exporting Bone number " + StringConverter::toString(i));
             Bone* pBone = pSkel->getBone(i);
             writeBone(bonesElem, pBone);
         }
@@ -126,10 +329,18 @@ namespace Ogre {
         {
             Bone* pBone = pSkel->getBone(i);
             unsigned short handle = pBone->getHandle();
-            if (handle != 0) // root bone
+			String name = pBone->getName() ;
+            /* BEFORE
+			if (handle != 0) // root bone
             {
                 Bone* pParent = (Bone*)pBone->getParent();
-                writeBoneParent(hierElem, handle, pParent->getHandle());
+                writeBoneParent(hierElem, name, pParent->getName());
+            }
+			*//* AFTER */
+			if ((pBone->getParent())!=NULL) // root bone
+            {
+                Bone* pParent = (Bone*)pBone->getParent();
+                writeBoneParent(hierElem, name, pParent->getName());
             }
         }
 
@@ -173,14 +384,25 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
+	// 
+	// Modifications effectuées:
+	//
+	// on stoque les noms et pas les Id. c'est plus lisibles.
+
+
     void XMLSkeletonSerializer::writeBoneParent(TiXmlElement* boneHierarchyNode, 
-        unsigned short boneId, unsigned short parentId)
+        String boneName, String parentName)
     {
         TiXmlElement* boneParentNode = 
             boneHierarchyNode->InsertEndChild(TiXmlElement("boneparent"))->ToElement();
-
-        boneParentNode->SetAttribute("boneid", StringConverter::toString(boneId));
+		/*
+	    boneParentNode->SetAttribute("boneid", StringConverter::toString(boneId));
         boneParentNode->SetAttribute("parentid", StringConverter::toString(parentId));
+		*/
+		// Modifications: on stoque les noms./ 
+		boneParentNode->SetAttribute("bone", boneName);
+        boneParentNode->SetAttribute("parent", parentName);
+
     }
     //---------------------------------------------------------------------
     void XMLSkeletonSerializer::writeAnimation(TiXmlElement* animsNode, 
@@ -211,8 +433,9 @@ namespace Ogre {
         
         // unsigned short boneIndex     : Index of bone to apply to
         Bone* bone = (Bone*)track->getAssociatedNode();
-        unsigned short boneid = bone->getHandle();
-        trackNode->SetAttribute("boneid", StringConverter::toString(boneid));
+        //unsigned short boneid = bone->getHandle();
+		String boneName = bone->getName();
+        trackNode->SetAttribute("bone", boneName);
 
         // Write all keyframes
         TiXmlElement* keysNode = 
