@@ -136,6 +136,9 @@
 				RelativePath="..\src\OgreSDLEngineDll.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreSDLExtensionManager.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreSDLRenderSystem.cpp">
 			</File>
 			<File
@@ -154,6 +157,12 @@
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
+			<File
+				RelativePath="..\include\OgreSDLExtensionManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreSDLPrerequisites.h">
+			</File>
 			<File
 				RelativePath="..\include\OgreSDLRenderSystem.h">
 			</File>
