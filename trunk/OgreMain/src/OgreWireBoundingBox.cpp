@@ -49,6 +49,7 @@ namespace Ogre {
 		mRendOp.pDiffuseColour = (unsigned long*)mDiffuses; 
 		mRendOp.pSpecularColour = NULL; 
 		mRendOp.operationType = RenderOperation::OT_LINE_LIST; 
+		mRendOp.numTextureCoordSets = 0;
 
 		// only need diffuse colors, other options not needed
 		mRendOp.vertexOptions = RenderOperation::VO_DIFFUSE_COLOURS; 
