@@ -40,7 +40,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 	class D3D9Texture : public Texture
 	{
-	private:
+	protected:
 		/// D3DDevice pointer
 		IDirect3DDevice9		*mpDev;		
 		/// D3D9 pointer
@@ -67,6 +67,8 @@ namespace Ogre {
         // Auto-generated mipmaps?
         bool                            mAutoGenMipMaps;
 	
+        /// Initialise the device and get formats
+        void _initDevice(void);
 		/// internal method, load a cube texture
 		void _loadCubeTex();
 		/// internal method, load a normal texture
@@ -74,8 +76,6 @@ namespace Ogre {
 		/// internal method, load a volume texture
 		void _loadVolumeTex();
 
-		/// internal method, create a blank texture
-		void _createTex();
 		/// internal method, create a blank normal 1D/2D texture
 		void _createNormTex();
 		/// internal method, create a blank cube texture
@@ -99,10 +99,6 @@ namespace Ogre {
 
 		/// internal method, free D3D9 resources
 		void _freeResources();
-		/// internal method, initialize member vars
-		void _initMembers();
-		/// internal method, set the device and fillIn the device caps
-		void _setDevice(IDirect3DDevice9 *pDev);
 		/// internal method, construct full cube texture face names from a given string
 		void _constructCubeFaceNames(const String& name);
 		/// internal method, set Texture class source image protected attributes
@@ -123,11 +119,15 @@ namespace Ogre {
 		static unsigned short _getPFBpp(PixelFormat ogrePF)
 		{ return Image::getNumElemBits(ogrePF); }
 
+        /// overriden from Resource
+        void loadImpl();
+        /// overriden from Resource
+        void unloadImpl();
 	public:
-		/// constructor 1
-		D3D9Texture( const String& name, TextureType texType, IDirect3DDevice9 *pD3DDevice, TextureUsage usage );
-		/// constructor 2
-		D3D9Texture( const String& name, TextureType texType, IDirect3DDevice9 *pD3DDevice, uint width, uint height, uint numMips, PixelFormat format, TextureUsage usage );
+		/// constructor 
+        D3D9Texture(ResourceManager* creator, const String& name, ResourceHandle handle,
+            const String& group, bool isManual, ManualResourceLoader* loader, 
+            IDirect3DDevice9 *pD3DDevice);
 		/// destructor
 		~D3D9Texture();
 
@@ -136,14 +136,12 @@ namespace Ogre {
 		/// overriden from Texture
         void blitToTexture( const Image &src, unsigned uStartX, unsigned uStartY );
 		/// overriden from Texture
-		void copyToTexture( Texture * target );
+		void copyToTexture( TexturePtr& target );
 		/// overriden from Texture
 		void loadImage( const Image &img );
 
-		/// overriden from Resource
-		void load();
-		/// overriden from Resource
-		void unload();
+        /// @copydoc Texture::createInternalResources
+        void createInternalResources(void);
 
 		/// retrieves a pointer to the actual texture
 		IDirect3DBaseTexture9 *getTexture() 
@@ -159,6 +157,46 @@ namespace Ogre {
 		{ assert(mpZBuff); return mpZBuff; }
     };
 
+    /** Specialisation of SharedPtr to allow SharedPtr to be assigned to D3D9TexturePtr 
+    @note Has to be a subclass since we need operator=.
+    We could templatise this instead of repeating per Resource subclass, 
+    except to do so requires a form VC6 does not support i.e.
+    ResourceSubclassPtr<T> : public SharedPtr<T>
+    */
+    class _OgreExport D3D9TexturePtr : public SharedPtr<D3D9Texture> 
+    {
+    public:
+        D3D9TexturePtr() : SharedPtr<D3D9Texture>() {}
+        D3D9TexturePtr(D3D9Texture* rep) : SharedPtr<D3D9Texture>(rep) {}
+        D3D9TexturePtr(const D3D9TexturePtr& r) : SharedPtr<D3D9Texture>(r) {} 
+        D3D9TexturePtr(const ResourcePtr& r) : SharedPtr<D3D9Texture>()
+        {
+            pRep = static_cast<D3D9Texture*>(r.getPointer());
+            pUseCount = r.useCountPointer();
+            if (pUseCount)
+            {
+                ++(*pUseCount);
+            }
+        }
+
+        /// Operator used to convert a ResourcePtr to a D3D9TexturePtr
+        D3D9TexturePtr& operator=(const ResourcePtr& r)
+        {
+            if (pRep == static_cast<D3D9Texture*>(r.getPointer()))
+                return *this;
+            release();
+            pRep = static_cast<D3D9Texture*>(r.getPointer());
+            pUseCount = r.useCountPointer();
+            if (pUseCount)
+            {
+                ++(*pUseCount);
+            }
+            return *this;
+        }
+    };
+
+
+    /// RenderTexture implementation for D3D9
     class D3D9RenderTexture : public RenderTexture
     {
     public:
@@ -169,7 +207,7 @@ namespace Ogre {
 		
         ~D3D9RenderTexture()
         {
-			SAFE_DELETE(mPrivateTex);
+			mPrivateTex->unload();
         }
 
 		virtual void getCustomAttribute( const String& name, void *pData )
@@ -177,10 +215,10 @@ namespace Ogre {
 			if( name == "DDBACKBUFFER" )
             {
                 IDirect3DSurface9 ** pSurf = (IDirect3DSurface9 **)pData;
-				if (((D3D9Texture*)mPrivateTex)->getTextureType() == TEX_TYPE_2D)
-					((D3D9Texture*)mPrivateTex)->getNormTexture()->GetSurfaceLevel( 0, &(*pSurf) );
-				else if (((D3D9Texture*)mPrivateTex)->getTextureType() == TEX_TYPE_CUBE_MAP)
-					((D3D9Texture*)mPrivateTex)->getCubeTexture()->GetCubeMapSurface( (D3DCUBEMAP_FACES)0, 0, &(*pSurf) );
+				if (mPrivateTex->getTextureType() == TEX_TYPE_2D)
+					mPrivateTex->getNormTexture()->GetSurfaceLevel( 0, &(*pSurf) );
+				else if (mPrivateTex->getTextureType() == TEX_TYPE_CUBE_MAP)
+					mPrivateTex->getCubeTexture()->GetCubeMapSurface( (D3DCUBEMAP_FACES)0, 0, &(*pSurf) );
 				else
 				{
 					Except( Exception::UNIMPLEMENTED_FEATURE, 
@@ -193,16 +231,16 @@ namespace Ogre {
             else if( name == "D3DZBUFFER" )
             {
                 IDirect3DSurface9 ** pSurf = (IDirect3DSurface9 **)pData;
-                *pSurf = ((D3D9Texture*)mPrivateTex)->getDepthStencil();
+                *pSurf = mPrivateTex->getDepthStencil();
                 return;
             }
             else if( name == "DDFRONTBUFFER" )
             {
                 IDirect3DSurface9 ** pSurf = (IDirect3DSurface9 **)pData;
-				if (((D3D9Texture*)mPrivateTex)->getTextureType() == TEX_TYPE_2D)
-					((D3D9Texture*)mPrivateTex)->getNormTexture()->GetSurfaceLevel( 0, &(*pSurf) );
-				else if (((D3D9Texture*)mPrivateTex)->getTextureType() == TEX_TYPE_CUBE_MAP)
-					((D3D9Texture*)mPrivateTex)->getCubeTexture()->GetCubeMapSurface( (D3DCUBEMAP_FACES)0, 0, &(*pSurf) );
+				if (mPrivateTex->getTextureType() == TEX_TYPE_2D)
+					mPrivateTex->getNormTexture()->GetSurfaceLevel( 0, &(*pSurf) );
+				else if (mPrivateTex->getTextureType() == TEX_TYPE_CUBE_MAP)
+					mPrivateTex->getCubeTexture()->GetCubeMapSurface( (D3DCUBEMAP_FACES)0, 0, &(*pSurf) );
 				else
 				{
 					Except( Exception::UNIMPLEMENTED_FEATURE, 
@@ -231,7 +269,7 @@ namespace Ogre {
 
     protected:
         /// The texture to which rendering takes place.
-        Texture * mPrivateTex;
+        D3D9TexturePtr mPrivateTex;
 		
         virtual void _copyToTexture()
         {

@@ -525,8 +525,7 @@ private:
 		for(i=0;i<(int)pass->getTextureUnitState(0)->getNumFrames();i++) {
 			String oldTexName = pass->getTextureUnitState(0)->
 				getFrameTextureName(i);
-			Texture *oldTex = (Texture*) 
-				TextureManager::getSingleton().getByName(oldTexName);
+			TexturePtr oldTex = TextureManager::getSingleton().getByName(oldTexName);
 			TextureManager::getSingleton().unload(oldTexName);
 			//~ oldTex->unload();
 			delete oldTex ;
@@ -539,8 +538,7 @@ private:
 		for(i=0;i<(int)pass2->getTextureUnitState(0)->getNumFrames();i++) {
 			String oldTexName = pass2->getTextureUnitState(0)->
 				getFrameTextureName(i);
-			Texture *oldTex = (Texture*) 
-				TextureManager::getSingleton().getByName(oldTexName);
+			TexturePtr oldTex = TextureManager::getSingleton().getByName(oldTexName);
 			TextureManager::getSingleton().unload(oldTexName);
 			//~ oldTex->unload();
 			delete oldTex ;

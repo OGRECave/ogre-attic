@@ -282,7 +282,12 @@ namespace Ogre {
         void close(void);
 	};
 
-	/** Common subclass of DataStream for handling data from 
+    /** Shared pointer to allow memory data streams to be passed around without
+    worrying about deallocation
+    */
+    typedef SharedPtr<MemoryDataStream> MemoryDataStreamPtr;
+
+    /** Common subclass of DataStream for handling data from 
 		std::basic_istream.
 	*/
 	class _OgreExport BasicIstreamDataStream : public DataStream

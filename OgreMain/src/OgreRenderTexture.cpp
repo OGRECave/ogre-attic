@@ -46,6 +46,7 @@ namespace Ogre
         mInternalFormat = format;
 
 		mTexture = TextureManager::getSingleton().createManual( mName, texType, mWidth, mHeight, 0, mInternalFormat, TU_RENDERTARGET );
+        mTexture->createInternalResources();
 		TextureManager::getSingleton().load( static_cast< Resource * >( mTexture ) );
     }
 

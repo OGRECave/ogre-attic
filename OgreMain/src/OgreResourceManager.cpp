@@ -67,8 +67,12 @@ namespace Ogre {
         const String& group, bool isManual, ManualResourceLoader* loader, 
         const NameValuePairList* loadParams)
     {
-        ResourcePtr ret = create(name, group, isManual, loader, loadParams);
-        ret->load();
+        ResourcePtr ret = getByName(name);
+        if (ret.isNull())
+        {
+            ret = create(name, group, isManual, loader, loadParams);
+            ret->load();
+        }
         return ret;
     }
     //-----------------------------------------------------------------------

@@ -56,6 +56,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGpuProgramManager.h"
 #include "OgreGpuProgram.h"
 #include "OgreShadowVolumeExtrudeProgram.h"
+#include "OgreDataStream.h"
 
 // This class implements the most basic scene manager
 
@@ -2993,14 +2994,14 @@ void SceneManager::initShadowVolumeMaterials(void)
     }
 
     // Set up spot shadow fade texture (loaded from code data block)
-    Texture* spotShadowFadeTex = (Texture*) 
+    TexturePtr spotShadowFadeTex = 
         TextureManager::getSingleton().getByName("spot_shadow_fade.png");
-    if (!spotShadowFadeTex)
+    if (spotShadowFadeTex.isNull())
     {
         // Load the manual buffer into an image
-        DataChunk chunk(SPOT_SHADOW_FADE_PNG, SPOT_SHADOW_FADE_PNG_SIZE);
+        MemoryDataStream stream(SPOT_SHADOW_FADE_PNG, SPOT_SHADOW_FADE_PNG_SIZE);
         Image img;
-        img.load(chunk, "png");
+        img.load(stream, "png");
         spotShadowFadeTex = 
             TextureManager::getSingleton().loadImage("spot_shadow_fade.png", img, TEX_TYPE_2D);
     }

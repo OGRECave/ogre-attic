@@ -33,48 +33,23 @@ namespace Ogre
 		mpD3DDevice = pD3DDevice;
 		if( !mpD3DDevice )
 			Except( Exception::ERR_INVALIDPARAMS, "Invalid Direct3DDevice passed", "D3D9TextureManager::D3D9TextureManager" );
+        // register with group manager
+        ResourceGroupManager::getSingleton()._registerResourceManager(mResourceType, this);
 	}
 
 	D3D9TextureManager::~D3D9TextureManager()
 	{
-		this->unloadAndDestroyAll();
+        // unregister with group manager
+        ResourceGroupManager::getSingleton()._unregisterResourceManager(mResourceType);
+
 	}
 
-	Texture *D3D9TextureManager::create( const String& name, TextureType texType )
-	{
-		D3D9Texture *t = new D3D9Texture( name, texType, mpD3DDevice, TU_DEFAULT );
-		t->enable32Bit( mIs32Bit );
-		return t;
-	}
+    Resource* D3D9TextureManager::createImpl(const String& name, 
+        ResourceHandle handle, const String& group, bool isManual, 
+        ManualResourceLoader* loader, const NameValuePairList* createParams)
+    {
+        return new D3D9Texture(this, name, handle, group, isManual, loader, mpD3DDevice); 
+    }
 
-	Texture *D3D9TextureManager::createAsRenderTarget( const String& name )
-	{
-		D3D9Texture *newTex = new D3D9Texture( name, TEX_TYPE_2D, mpD3DDevice, TU_RENDERTARGET  );
-		newTex->enable32Bit( mIs32Bit );
-		newTex->load();
-		return newTex;
-	}
 
-	Texture *D3D9TextureManager::createManual( 
-		const String & name,
-		TextureType texType,
-		uint width,
-		uint height,
-		uint num_mips,
-		PixelFormat format,
-		TextureUsage usage )
-	{
-		return new D3D9Texture( name, texType, mpD3DDevice, width, height, num_mips, format, usage );
-	}
-
-	void D3D9TextureManager::unloadAndDestroyAll()
-	{
-		// Unload & delete resources in turn
-		for( ResourceMap::iterator i = mResources.begin(); i != mResources.end(); i++ )
-		{
-			i->second->unload();
-			delete i->second;
-		}
-		mResources.clear();
-	}
 }

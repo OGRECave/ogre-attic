@@ -1163,7 +1163,7 @@ namespace Ogre
 	void D3D9RenderSystem::_setTexture( size_t stage, bool enabled, const String &texname )
 	{
 		HRESULT hr;
-		D3D9Texture *dt = (D3D9Texture *)TextureManager::getSingleton().getByName(texname);
+		D3D9TexturePtr dt = TextureManager::getSingleton().getByName(texname);
 		if (enabled && dt)
 		{
 			IDirect3DBaseTexture9 *pTex = dt->getTexture();

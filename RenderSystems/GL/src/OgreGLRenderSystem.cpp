@@ -857,14 +857,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_setTexture(size_t stage, bool enabled, const String &texname)
     {
-        GLTexture* tex = static_cast<GLTexture*>(TextureManager::getSingleton().getByName(texname));
+        GLTexturePtr tex = TextureManager::getSingleton().getByName(texname);
 
         GLenum lastTextureType = mTextureTypes[stage];
 
 		glActiveTextureARB_ptr( GL_TEXTURE0 + stage );
 		if (enabled)
         {
-            if (tex)
+            if (!tex.isNull())
                 mTextureTypes[stage] = tex->getGLTextureTarget();
             else
                 // assume 2D

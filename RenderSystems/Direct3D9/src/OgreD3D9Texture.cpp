@@ -37,52 +37,23 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre 
 {
 	/****************************************************************************************/
-	D3D9Texture::D3D9Texture( const String& name, TextureType texType, IDirect3DDevice9 *pD3DDevice, TextureUsage usage )
+    D3D9Texture::D3D9Texture(ResourceManager* creator, const String& name, 
+        ResourceHandle handle, const String& group, bool isManual, 
+        ManualResourceLoader* loader, IDirect3DDevice9 *pD3DDevice)
+        :Texture(creator, name, handle, group, isManual, loader),
+        mpDev(pD3DDevice), 
+        mpD3D(NULL), 
+        mpNormTex(NULL),
+        mpCubeTex(NULL),
+        mpZBuff(NULL),
+        mpTex(NULL),
+        mAutoGenMipMaps(false)
 	{
-		// normal constructor
-		this->_initMembers();
-		// set the device and caps/formats
-		this->_setDevice(pD3DDevice);
-
-		mName = name;
-		mTextureType = texType;
-		mUsage = usage;
-        mAutoGenMipMaps = false;
-
-		if (this->getTextureType() == TEX_TYPE_CUBE_MAP)
-			_constructCubeFaceNames(mName);
-	}
-	/****************************************************************************************/
-	D3D9Texture::D3D9Texture( const String& name, TextureType texType, IDirect3DDevice9 *pD3DDevice, uint width, uint height, uint numMips, PixelFormat format, TextureUsage usage )
-	{
-		// this constructor is mainly used for RTT
-		this->_initMembers();
-		// set the device and caps/formats
-		this->_setDevice(pD3DDevice);
-
-		mName = name;
-		mTextureType = texType;
-		mUsage = usage;
-		mNumMipMaps = numMips;
-        mAutoGenMipMaps = false;
-
-		if (this->getTextureType() == TEX_TYPE_CUBE_MAP)
-			_constructCubeFaceNames(mName);
-
-		this->_setSrcAttributes(width, height, 1, format);
-		// if it's a render target we must 
-		// create it right now, don't know why ???
-		if (mUsage == TU_RENDERTARGET)
-		{
-			this->_createTex();
-			mIsLoaded = true;
-		}
+        _initDevice();
 	}
 	/****************************************************************************************/
 	D3D9Texture::~D3D9Texture()
 	{
-		if (this->isLoaded())
-			unload();
 		SAFE_RELEASE(mpD3D);
 	}
 	/****************************************************************************************/
@@ -225,7 +196,7 @@ namespace Ogre
 		SAFE_RELEASE(pSrcSurface);
 	}
 	/****************************************************************************************/
-	void D3D9Texture::copyToTexture(Texture *target)
+	void D3D9Texture::copyToTexture(TexturePtr target)
 	{
         // check if this & target are the same format and type
 		// blitting from or to cube textures is not supported yet
@@ -240,7 +211,7 @@ namespace Ogre
         HRESULT hr;
         D3D9Texture *other;
 		// get the target
-		other = reinterpret_cast< D3D9Texture * >( target );
+		other = reinterpret_cast< D3D9Texture * >( target.get() );
 		// target rectangle (whole surface)
 		RECT dstRC = {0, 0, other->getWidth(), other->getHeight()};
 
@@ -334,26 +305,15 @@ namespace Ogre
 		// we need src image info
 		this->_setSrcAttributes(tImage.getWidth(), tImage.getHeight(), 1, tImage.getFormat());
 		// create a blank texture
-		this->_createNormTex();
+		createInternalResources();
 		// set gamma prior to blitting
         Image::applyGamma(tImage.getData(), this->getGamma(), (uint)tImage.getSize(), tImage.getBPP());
 		this->_blitImageToNormTex(tImage);
 		mIsLoaded = true;
 	}
 	/****************************************************************************************/
-	void D3D9Texture::load()
+	void D3D9Texture::loadImpl()
 	{
-		// unload if loaded
-		if (this->isLoaded())
-			unload();
-		
-		if (mUsage == TU_RENDERTARGET)
-		{
-			this->_createTex();
-			mIsLoaded = true;
-			return;
-		}
-
 		// load based on tex.type
 		switch (this->getTextureType())
 		{
@@ -368,20 +328,15 @@ namespace Ogre
 			this->_loadCubeTex();
 			break;
 		default:
-			Except( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::load" );
+			Except( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::loadImpl" );
 			this->_freeResources();
 		}
 
 	}
 	/****************************************************************************************/
-	void D3D9Texture::unload()
+	void D3D9Texture::unloadImpl()
 	{
-		// unload if it's loaded
-		if (this->isLoaded())
-		{
-			this->_freeResources();
-			mIsLoaded = false;
-		}
+		_freeResources();
 	}
 	/****************************************************************************************/
 	void D3D9Texture::_freeResources()
@@ -400,13 +355,13 @@ namespace Ogre
 		if (StringUtil::endsWith(getName(), ".dds"))
         {
             // find & load resource data
-            SDDataChunk chunk;
-            TextureManager::getSingleton()._findResourceData(this->getName(), chunk);
+            MemoryDataStream stream( 
+                ResourceGroupManager::getSingleton()._findResource(mName, mGroup));
 
             HRESULT hr = D3DXCreateCubeTextureFromFileInMemory(
                 mpDev,
-                chunk.getPtr(),
-                chunk.getSize(),
+                stream.getPtr(),
+                stream.size(),
                 &mpCubeTex);
 
             if (FAILED(hr))
@@ -435,21 +390,22 @@ namespace Ogre
         {
 
             // Load from 6 separate files
+            _constructCubeFaceNames(mName);
             // First create the base surface, for that we need to know the size
             Image img;
             img.load(this->_getCubeFaceName(0));
             _setSrcAttributes(img.getWidth(), img.getHeight(), 1, img.getFormat());
             // now create the texture
-            this->_createCubeTex();
+            createInternalResources();
 
 		    HRESULT hr; // D3D9 methods result
 
 		    // load faces
 		    for (size_t face = 0; face < 6; face++)
 		    {
-                SDDataChunk chunk;
-                TextureManager::getSingleton()._findResourceData(
-                    this->_getCubeFaceName(face), chunk);
+                MemoryDataStream stream(
+                    ResourceGroupManager::getSingleton()._findResource(
+                        _getCubeFaceName(face), mGroup));
                 
                 LPDIRECT3DSURFACE9 pDstSurface;
                 hr = mpCubeTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, 0, &pDstSurface);
@@ -464,8 +420,8 @@ namespace Ogre
                     pDstSurface,
                     NULL,                       // no palette
                     NULL,                       // entire surface
-                    chunk.getPtr(),
-                    chunk.getSize(),
+                    stream.getPtr(),
+                    stream.size(),
                     NULL,                       // entire source
                     D3DX_DEFAULT,               // default filtering
                     0,                          // No colour key
@@ -515,13 +471,13 @@ namespace Ogre
 		assert(this->getTextureType() == TEX_TYPE_3D);
 
         // find & load resource data
-        SDDataChunk chunk;
-        TextureManager::getSingleton()._findResourceData(this->getName(), chunk);
+        MemoryDataStream stream(
+            ResourceGroupManager::getSingleton()._findResource(mName, mGroup));
 
         HRESULT hr = D3DXCreateVolumeTextureFromFileInMemory(
             mpDev,
-            chunk.getPtr(),
-            chunk.getSize(),
+            stream.getPtr(),
+            stream.size(),
             &mpVolumeTex);
 
         if (FAILED(hr))
@@ -555,13 +511,13 @@ namespace Ogre
 
 		// Use D3DX
         // find & load resource data
-        SDDataChunk chunk;
-        TextureManager::getSingleton()._findResourceData(this->getName(), chunk);
+        MemoryDataStream stream(
+            ResourceGroupManager::getSingleton()._findResource(mName, mGroup));
 
         HRESULT hr = D3DXCreateTextureFromFileInMemory(
             mpDev,
-            chunk.getPtr(),
-            chunk.getSize(),
+            stream.getPtr(),
+            stream.size(),
             &mpNormTex);
 
         if (FAILED(hr))
@@ -588,7 +544,7 @@ namespace Ogre
 		mIsLoaded = true;
 	}
 	/****************************************************************************************/
-	void D3D9Texture::_createTex()
+    void D3D9Texture::createInternalResources(void)
 	{
 		// if we are there then the source image dim. and format must already be set !!!
 		assert(mSrcWidth > 0 || mSrcHeight > 0);
@@ -604,7 +560,7 @@ namespace Ogre
 			this->_createCubeTex();
 			break;
 		default:
-			Except( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::_createTex" );
+			Except( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::createInternalResources" );
 			this->_freeResources();
 		}
 	}
@@ -754,26 +710,9 @@ namespace Ogre
 
 	}
 	/****************************************************************************************/
-	void D3D9Texture::_initMembers()
-	{
-		mpDev = NULL;
-		mpD3D = NULL;
-		mpNormTex = NULL;
-		mpCubeTex = NULL;
-		mpZBuff = NULL;
-		mpTex = NULL;
-
-		for (size_t i = 0; i < 6; ++i)
-			mCubeFaceNames[i] = "";
-
-		mWidth = mHeight = mSrcWidth = mSrcHeight = 0;
-		mIsLoaded = false;
-	}
-	/****************************************************************************************/
-	void D3D9Texture::_setDevice(IDirect3DDevice9 *pDev)
+	void D3D9Texture::_initDevice(void)
 	{ 
-		assert(pDev);
-		mpDev = pDev;
+		assert(mpDev);
 		HRESULT hr;
 
 		// get device caps
@@ -898,7 +837,7 @@ namespace Ogre
 				LogManager::getSingleton().logMessage("D3D9 : Loading Cube Texture, base image name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipMaps) + " mip map levels");
 			break;
 		default:
-			Except( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::_createTex" );
+			Except( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::_setSrcAttributes" );
 			this->_freeResources();
 		}
 	}

@@ -881,8 +881,8 @@ namespace Ogre {
     void D3DRenderSystem::_setTexture(size_t stage, bool enabled, const String &texname)
     {
         HRESULT hr;
-        D3DTexture* dt = static_cast< D3DTexture* >(TextureManager::getSingleton().getByName(texname));
-        if (enabled && dt)
+        D3DTexturePtr dt = TextureManager::getSingleton().getByName(texname);
+        if (enabled && !dt.isNull())
         {
             LPDIRECTDRAWSURFACE7 pTex = dt->getDDSurface();
             if (pTex != mTexStageDesc[stage].pTex)

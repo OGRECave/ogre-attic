@@ -39,23 +39,12 @@ namespace Ogre {
         D3DTextureManager(LPDIRECT3DDEVICE7 lpD3DDevice);
         virtual ~D3DTextureManager();
 
-        /** Creates a D3DTexture resource. 
-        */
-        virtual Texture* create( const String& name, TextureType texType );
-        /** Creates a render target surface.
-        */
-        virtual Texture * createAsRenderTarget( const String& name );
+    protected:
+        /// @copydoc ResourceManager::createImpl
+        Resource* createImpl(const String& name, ResourceHandle handle, 
+            const String& group, bool isManual, ManualResourceLoader* loader, 
+            const NameValuePairList* createParams);
 
-		virtual Texture * createManual( 
-			const String & name,
-            TextureType texType,
-			uint width,
-			uint height,
-			uint num_mips,
-			PixelFormat format,
-			TextureUsage usage );
-
-    private:
         LPDIRECT3DDEVICE7 mlpD3DDevice;
     };
 }

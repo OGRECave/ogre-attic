@@ -53,28 +53,17 @@ namespace Ogre {
 		return result-1;
 	}
 
-    GLTexture::GLTexture(const String& name, GLSupport& support, TextureType texType) :
-        mGLSupport(support)
-    {
-        mName = name;
-        mTextureType = texType;
-
-        mUsage = TU_DEFAULT;
-        enable32Bit(false);
-    }
-
-    GLTexture::GLTexture(const String& name, GLSupport& support, TextureType texType, 
-        uint width, uint height, uint num_mips, PixelFormat format, 
-        TextureUsage usage) : 
-            Texture(name, texType, width, height, 1, num_mips, format, usage),
-            mGLSupport(support),
-            mTextureID(0)
+    GLTexture::GLTexture(ResourceManager* creator, const String& name, 
+        ResourceHandle handle, const String& group, bool isManual, 
+        ManualResourceLoader* loader, GLSupport& support) 
+        : Texture(creator, name, handle, group, isManual, loader),
+        mGLSupport(support), mTextureID(0)
     {
     }
+
 
     GLTexture::~GLTexture()
     {
-        unload();
     }
 
     GLenum GLTexture::getGLTextureTarget(void) const
@@ -265,6 +254,13 @@ namespace Ogre {
         images.clear();
     }
 
+    void GLTexture::createInternalResources(void)
+    {
+        mGLSupport.begin_context();
+        glGenTextures( 1, &mTextureID );
+        mGLSupport.end_context();
+
+    }
 
     void GLTexture::loadImages( const std::vector<Image>& images )
     {
@@ -277,8 +273,9 @@ namespace Ogre {
         }
 
         // Create the GL texture
+        createInternalResources();
+
         mGLSupport.begin_context();
-        glGenTextures( 1, &mTextureID );
         glBindTexture( getGLTextureTarget(), mTextureID );
 
         if(mNumMipMaps && Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_AUTOMIPMAP))
@@ -338,8 +335,9 @@ namespace Ogre {
             Except( Exception::UNIMPLEMENTED_FEATURE, "**** Create render texture implemented only for 2D textures!!! ****", "GLTexture::createRenderTexture" );
 
         // Create the GL texture
+        createInternalResources();
+
         mGLSupport.begin_context();
-        glGenTextures( 1, &mTextureID );
         glBindTexture( GL_TEXTURE_2D, mTextureID );
 
         glTexImage2D( GL_TEXTURE_2D, 0, getGLTextureInternalFormat(),
@@ -350,7 +348,7 @@ namespace Ogre {
         mGLSupport.end_context();
     }
 
-    void GLTexture::load()
+    void GLTexture::loadImpl()
     {
         if( mUsage == TU_RENDERTARGET )
         {
@@ -421,13 +419,9 @@ namespace Ogre {
         }
     }
     
-    void GLTexture::unload()
+    void GLTexture::unloadImpl()
     {
-        if( mIsLoaded )
-        {
-            glDeleteTextures( 1, &mTextureID );
-            mIsLoaded = false;
-        }
+        glDeleteTextures( 1, &mTextureID );
     }
 
     void GLTexture::generateMipMaps( const uchar *data, bool useSoftware, 
@@ -512,10 +506,9 @@ namespace Ogre {
 
     void GLRenderTexture::_copyToTexture(void)
     {		
-        glBindTexture(GL_TEXTURE_2D,
-            static_cast<GLTexture*>(mTexture)->getGLID());
+        glBindTexture(GL_TEXTURE_2D, mGLTexture->getGLID());
 			
-        glCopyTexSubImage2D(GL_TEXTURE_2D, mTexture->getNumMipMaps(), 0, 0,
+        glCopyTexSubImage2D(GL_TEXTURE_2D, mGLTexture->getNumMipMaps(), 0, 0,
             0, 0, mWidth, mHeight);
 
     }
@@ -524,8 +517,8 @@ namespace Ogre {
     {
         ImageCodec::ImageData imgData;
         
-        imgData.width = mTexture->getWidth();
-        imgData.height = mTexture->getHeight();
+        imgData.width = mGLTexture->getWidth();
+        imgData.height = mGLTexture->getHeight();
         imgData.format = PF_R8G8B8;
 
         // Allocate buffer 
@@ -533,8 +526,7 @@ namespace Ogre {
 
         // Read pixels
         // I love GL: it does all the locking & colour conversion for us
-        glBindTexture(GL_TEXTURE_2D,
-            static_cast<GLTexture*>(mTexture)->getGLID());
+        glBindTexture(GL_TEXTURE_2D, mGLTexture->getGLID());
         glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, pBuffer);
 
         // Wrap buffer in a chunk

@@ -54,6 +54,9 @@ namespace Ogre {
         TEX_TYPE_CUBE_MAP = 4
     };
 
+    // Forward declaration
+    class TexturePtr;
+
     /** Abstract class representing a Texture resource.
         @remarks
             The actual concrete subclass which will exist for a texture
@@ -66,8 +69,12 @@ namespace Ogre {
     class _OgreExport Texture : public Resource
     {
     public:
-        Texture() {}
-        Texture(const String& name, TextureType texType, uint width, uint height, uint depth, uint num_mips, PixelFormat format, TextureUsage usage);
+        Texture(ResourceManager* creator, const String& name, ResourceHandle handle,
+            const String& group, bool isManual = false, ManualResourceLoader* loader = 0);
+
+        /** Sets the type of texture; can only be changed before load() 
+        */
+        void setTextureType(TextureType ttype ) { mTextureType = ttype; }
 
         /** Gets the type of texture 
         */
@@ -105,9 +112,18 @@ namespace Ogre {
         */
         unsigned int getDepth(void) const { return mDepth; }
 
-        /** Returns both the width and height of the texture.
+        /** Set the height of the texture; can only do this before load();
         */
-        std::pair< uint, uint > getDimensions() const { return std::pair< uint, uint >( mWidth, mHeight ); }
+        void setHeight(unsigned int h) { mHeight = h; }
+
+        /** Set the width of the texture; can only do this before load();
+        */
+        void setWidth(unsigned int w) { mWidth = w; }
+
+        /** Set the depth of the texture (only applicable for 3D textures);
+            ; can only do this before load();
+        */
+        void setDepth(unsigned int d)  { mDepth = d; }
 
         /** Returns the TextureUsage indentifier for this Texture
         */
@@ -115,6 +131,23 @@ namespace Ogre {
         {
             return mUsage;
         }
+
+        /** Sets the TextureUsage indentifier for this Texture; only useful before load()
+        */
+        void setUsage(TextureUsage u) { mUsage = u; }
+
+        /** Creates the internal texture resources for this texture. 
+        @remarks
+            This method creates the internal texture resources (pixel buffers, 
+            texture surfaces etc) required to begin using this texture. You do
+            not need to call this method directly unless you are manually creating
+            a texture, in which case something must call it, after having set the
+            size and format of the texture (e.g. the ManualResourceLoader might
+            be the best one to call it). If you are not defining a manual texture,
+            or if you use one of the self-contained load...() methods, then it will be
+            called for you.
+        */
+        virtual void createInternalResources(void) = 0;
 
         /** Blits the contents of src on the texture.
             @deprecated
@@ -140,16 +173,16 @@ namespace Ogre {
 
 		/** Copies (and maybe scales to fit) the contents of this texture to
 			another texture. */
-		virtual void copyToTexture( Texture * target ) {}
+		virtual void copyToTexture( TexturePtr& target ) {}
 
         /** Loads the data from an image.
         */
         virtual void loadImage( const Image &img ) = 0;
 			
-		/** Loads the data from the raw memory area.
+		/** Loads the data from a raw stream.
 		*/
-		virtual void loadRawData( const DataChunk &pData, 
-			ushort uWidth, ushort uHeight, PixelFormat eFormat) ;
+		virtual void loadRawData( DataStreamPtr& stream, 
+			ushort uWidth, ushort uHeight, PixelFormat eFormat);
 
         void enable32Bit( bool setting = true ) 
         {
@@ -161,6 +194,9 @@ namespace Ogre {
 		{
 			return mFormat;
 		}
+
+        /** Sets the pixel format for the texture surface; can only be set before load(). */
+        virtual void setFormat(PixelFormat pf);
 
         /** Returns true if the texture has an alpha layer. */
         virtual bool hasAlpha(void) const
@@ -186,43 +222,43 @@ namespace Ogre {
         bool mHasAlpha;
     };
 
-	/** Specialisation of SharedPtr to allow SharedPtr to be assigned to TexturePtr 
-	@note Has to be a subclass since we need operator=.
-		We could templatise this instead of repeating per Resource subclass, 
-		except to do so requires a form VC6 does not support i.e.
-		ResourceSubclassPtr<T> : public SharedPtr<T>
-	*/
-	class _OgreExport TexturePtr : public SharedPtr<Texture> 
-	{
-	public:
-		TexturePtr() : SharedPtr<Texture>() {}
-		TexturePtr(Texture* rep) : SharedPtr<Texture>(rep) {}
-		TexturePtr(const TexturePtr& r) : SharedPtr<Texture>(r) {} 
-		TexturePtr(const ResourcePtr& r) : SharedPtr<Texture>()
-		{
-			pRep = static_cast<Texture*>(r.getPointer());
-			pUseCount = r.useCountPointer();
-			if (pUseCount)
-			{
-				++(*pUseCount);
-			}
-		}
+    /** Specialisation of SharedPtr to allow SharedPtr to be assigned to TexturePtr 
+    @note Has to be a subclass since we need operator=.
+    We could templatise this instead of repeating per Resource subclass, 
+    except to do so requires a form VC6 does not support i.e.
+    ResourceSubclassPtr<T> : public SharedPtr<T>
+    */
+    class _OgreExport TexturePtr : public SharedPtr<Texture> 
+    {
+    public:
+        TexturePtr() : SharedPtr<Texture>() {}
+        TexturePtr(Texture* rep) : SharedPtr<Texture>(rep) {}
+        TexturePtr(const TexturePtr& r) : SharedPtr<Texture>(r) {} 
+        TexturePtr(const ResourcePtr& r) : SharedPtr<Texture>()
+        {
+            pRep = static_cast<Texture*>(r.getPointer());
+            pUseCount = r.useCountPointer();
+            if (pUseCount)
+            {
+                ++(*pUseCount);
+            }
+        }
 
-		/// Operator used to convert a ResourcePtr to a TexturePtr
-		TexturePtr& operator=(const ResourcePtr& r)
-		{
-			if (pRep == static_cast<Texture*>(r.getPointer()))
-				return *this;
-			release();
-			pRep = static_cast<Texture*>(r.getPointer());
-			pUseCount = r.useCountPointer();
-			if (pUseCount)
-			{
-				++(*pUseCount);
-			}
-			return *this;
-		}
-	};
+        /// Operator used to convert a ResourcePtr to a TexturePtr
+        TexturePtr& operator=(const ResourcePtr& r)
+        {
+            if (pRep == static_cast<Texture*>(r.getPointer()))
+                return *this;
+            release();
+            pRep = static_cast<Texture*>(r.getPointer());
+            pUseCount = r.useCountPointer();
+            if (pUseCount)
+            {
+                ++(*pUseCount);
+            }
+            return *this;
+        }
+    };
 
 }
 

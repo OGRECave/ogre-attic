@@ -44,7 +44,7 @@ namespace Ogre
 
 	protected:
 		/// The texture that gets accesses by the rest of the API.
-        Texture * mTexture;
+        TexturePtr mTexture;
         PixelFormat mInternalFormat;
     };
 }
