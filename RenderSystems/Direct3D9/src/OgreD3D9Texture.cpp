@@ -1211,17 +1211,8 @@ namespace Ogre
 	/****************************************************************************************/
 	D3DFORMAT D3D9Texture::_chooseD3DFormat()
 	{
-		// choose wise wich D3D format we'll use ;)
-		if( mFinalBpp > 16 && mHasAlpha )
-			return D3DFMT_A8R8G8B8;
-		else if( mFinalBpp > 16 && !mHasAlpha )
-			return D3DFMT_X8R8G8B8;
-		else if( mFinalBpp == 16 && mHasAlpha )
-			return D3DFMT_A4R4G4B4;
-		else if( mFinalBpp == 16 && !mHasAlpha )
-			return D3DFMT_R5G6B5;
-		else
-			Except( Exception::ERR_INVALIDPARAMS, "Unknown pixel format", "D3D9Texture::_chooseD3DFormat" );
+		// Choose closest supported D3D format as a D3D format
+		return _getPF(_getClosestSupportedPF(mFormat));
 	}
 	/****************************************************************************************/
 	void D3D9Texture::_createDepthStencil()
