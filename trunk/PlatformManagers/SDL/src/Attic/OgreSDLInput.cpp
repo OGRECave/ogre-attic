@@ -73,6 +73,7 @@ namespace Ogre {
         _key_map.insert(InputKeyMap::value_type(SDLK_k, KC_K));
         _key_map.insert(InputKeyMap::value_type(SDLK_l, KC_L));
         _key_map.insert(InputKeyMap::value_type(SDLK_SEMICOLON, KC_SEMICOLON));
+        _key_map.insert(InputKeyMap::value_type(SDLK_COLON, KC_COLON));
         _key_map.insert(InputKeyMap::value_type(SDLK_QUOTE, KC_APOSTROPHE));
         _key_map.insert(InputKeyMap::value_type(SDLK_BACKQUOTE, KC_GRAVE));
         _key_map.insert(InputKeyMap::value_type(SDLK_LSHIFT, KC_LSHIFT));
@@ -419,6 +420,7 @@ namespace Ogre {
         case KC_PREVTRACK: /* Previous Track (KC_CIRCUMFLEX on Japanese keyboard) */
         case KC_AT: /* (NEC PC98) */
         case KC_COLON: /* (NEC PC98) */
+            return mKeyboardBuffer[SDLK_COLON];
         case KC_UNDERLINE: /* (NEC PC98) */
         case KC_KANJI: /* (Japanese keyboard)            */
         case KC_STOP: /* (NEC PC98) */
