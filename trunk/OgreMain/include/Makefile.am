@@ -35,7 +35,6 @@ OgreEntity.h \
 OgreErrorDialog.h \
 OgreEventDispatcher.h \
 OgreEventListeners.h \
-OgreEventMulticaster.h \
 OgreEventProcessor.h \
 OgreEventQueue.h \
 OgreEventTarget.h \

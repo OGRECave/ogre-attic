@@ -32,7 +32,6 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreEdgeListBuilder.cpp \
                          OgreEntity.cpp \
                          OgreEventDispatcher.cpp \
-                         OgreEventMulticaster.cpp \
                          OgreEventProcessor.cpp \
                          OgreEventQueue.cpp \
                          OgreException.cpp \

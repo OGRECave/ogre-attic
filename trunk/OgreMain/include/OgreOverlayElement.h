@@ -32,9 +32,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringInterface.h"
 #include "OgreOverlayElementCommands.h"
 
-#include "OgreActionTarget.h"
-#include "OgreMouseTarget.h"
-#include "OgreMouseMotionTarget.h"
 #include "OgreColourValue.h"
 #include "OgreRectangle.h"
 
@@ -451,7 +448,7 @@ namespace Ogre {
         /** @copydoc Renderable::getLights */
         const LightList& getLights(void) const
         {
-            // Guielements should not be lit by the scene, this will not get called
+            // Overlayelements should not be lit by the scene, this will not get called
             static LightList ll;
             return ll;
         }

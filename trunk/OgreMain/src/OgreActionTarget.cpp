@@ -26,34 +26,30 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 
 #include "OgreActionTarget.h"
-
-#include "OgreMouseEvent.h"
 #include "OgreEventListeners.h"
-#include "OgreEventMulticaster.h"	
 
 
 
 namespace Ogre {
-
-	ActionTarget::ActionTarget() 
-	{
-		mActionListener = 0;
-	}
-
-
     //-----------------------------------------------------------------------
 
 	void ActionTarget::processActionEvent(ActionEvent* e) 
 	{
-		ActionListener* listener = mActionListener;
-		if (listener != NULL) 
-		{
-			int id = e->getID();
-			switch(id) 
-			{
-			case ActionEvent::AE_ACTION_PERFORMED:
-				listener->actionPerformed(e);
-				break;
+        // Tell all listeners
+        std::set<ActionListener*>::iterator i;
+        for (i= mActionListeners.begin(); i != mActionListeners.end();
+ ++i)
+        {
+		    ActionListener* listener = *i;
+		    if (listener != 0) 
+		    {
+			    int id = e->getID();
+			    switch(id) 
+			    {
+			    case ActionEvent::AE_ACTION_PERFORMED:
+				    listener->actionPerformed(e);
+				    break;
+                }
 			}
 		}
 	}
@@ -61,21 +57,13 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	void ActionTarget::addActionListener(ActionListener* l) 
 	{
-		if (l == NULL) 
-		{
-			return;
-		}
-		mActionListener = EventMulticaster::add(mActionListener,l);
+        mActionListeners.insert(l);
 	}
 
     //-----------------------------------------------------------------------
 	void ActionTarget::removeActionListener(ActionListener* l) 
 	{
-		if (l == NULL) 
-		{
-			return;
-		}
-		mActionListener = EventMulticaster::remove(mActionListener,l);
+        mActionListeners.erase(l);
 	}
     //-----------------------------------------------------------------------
 }

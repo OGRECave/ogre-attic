@@ -48,14 +48,15 @@ namespace Ogre {
     class _OgreExport KeyTarget : public EventTarget
     {
     protected:
-		KeyListener* mKeyListener;
+        std::set<KeyListener*> mKeyListeners;
 
     public:
-		KeyTarget();
+		KeyTarget() { }
+        virtual ~KeyTarget() { }
 
-	void processKeyEvent(KeyEvent* e) ;
-	void addKeyListener(KeyListener* l) ;
-	void removeKeyListener(KeyListener* l) ;
+	    void processKeyEvent(KeyEvent* e) ;
+	    void addKeyListener(KeyListener* l) ;
+	    void removeKeyListener(KeyListener* l) ;
     };
 
 

@@ -26,80 +26,71 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 
 #include "OgreMouseTarget.h"
-
 #include "OgreMouseEvent.h"
 #include "OgreEventListeners.h"
-#include "OgreEventMulticaster.h"	
-
 
 
 namespace Ogre {
-
-
 	MouseTarget::MouseTarget() 
+      : mMouseWithin(false)
 	{
-		mMouseListener = 0;
-		mMouseWithin = false;
-
 	}
     //-----------------------------------------------------------------------
 
 	void MouseTarget::processMouseEvent(MouseEvent* e) 
 	{
-		MouseListener* listener = mMouseListener;
-		if (listener != NULL) 
-		{
-			int id = e->getID();
-			switch(id) 
-			{
-			case MouseEvent::ME_MOUSE_PRESSED:
-				listener->mousePressed(e);
-				break;
-			case MouseEvent::ME_MOUSE_RELEASED:
-				listener->mouseReleased(e);
-				break;
-			case MouseEvent::ME_MOUSE_CLICKED:
-				listener->mouseClicked(e);
-				break;
-			case MouseEvent::ME_MOUSE_EXITED:
-				mMouseWithin = false;
-				listener->mouseExited(e);
-				break;
-			case MouseEvent::ME_MOUSE_ENTERED:
-				mMouseWithin = true;
-				listener->mouseEntered(e);
-				break;
-			case MouseEvent::ME_MOUSE_DRAGENTERED:
-				mMouseWithin = true;
-				listener->mouseDragEntered(e);
-				break;
-			case MouseEvent::ME_MOUSE_DRAGEXITED:
-				mMouseWithin = false;
-				listener->mouseDragExited(e);
-				break;
-			case MouseEvent::ME_MOUSE_DRAGDROPPED:
-				listener->mouseDragDropped(e);
-				break;
-			}
-		}
+        // Tell all listeners
+        std::set<MouseListener*>::iterator i;
+        for (i= mMouseListeners.begin(); i != mMouseListeners.end(); ++i)
+        {
+		    MouseListener* listener = *i;
+
+		    if (listener != 0) 
+		    {
+			    int id = e->getID();
+			    switch(id) 
+			    {
+			    case MouseEvent::ME_MOUSE_PRESSED:
+				    listener->mousePressed(e);
+				    break;
+			    case MouseEvent::ME_MOUSE_RELEASED:
+				    listener->mouseReleased(e);
+				    break;
+			    case MouseEvent::ME_MOUSE_CLICKED:
+				    listener->mouseClicked(e);
+				    break;
+			    case MouseEvent::ME_MOUSE_EXITED:
+				    mMouseWithin = false;
+				    listener->mouseExited(e);
+				    break;
+			    case MouseEvent::ME_MOUSE_ENTERED:
+				    mMouseWithin = true;
+				    listener->mouseEntered(e);
+				    break;
+			    case MouseEvent::ME_MOUSE_DRAGENTERED:
+				    mMouseWithin = true;
+				    listener->mouseDragEntered(e);
+				    break;
+			    case MouseEvent::ME_MOUSE_DRAGEXITED:
+				    mMouseWithin = false;
+				    listener->mouseDragExited(e);
+				    break;
+			    case MouseEvent::ME_MOUSE_DRAGDROPPED:
+				    listener->mouseDragDropped(e);
+				    break;
+			    }
+		    }
+        }
 	}
 
 	void MouseTarget::addMouseListener(MouseListener* l) 
 	{
-		if (l == NULL) 
-		{
-			return;
-		}
-		mMouseListener = EventMulticaster::add(mMouseListener,l);
+        mMouseListeners.insert(l);
 	}
 
 	void MouseTarget::removeMouseListener(MouseListener* l) 
 	{
-		if (l == NULL) 
-		{
-			return;
-		}
-		mMouseListener = EventMulticaster::remove(mMouseListener,l);
+        mMouseListeners.erase(l);
 	}
 
     //-----------------------------------------------------------------------
