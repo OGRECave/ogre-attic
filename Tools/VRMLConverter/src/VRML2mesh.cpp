@@ -63,6 +63,10 @@ inline ColourValue col(const vrmllib::col3 &c) { return ColourValue(c.r, c.g, c.
 inline void copyVec(Real *d, const Vector3 &s) { d[0] = s.x; d[1] = s.y; d[2] = s.z; }
 inline void copyVec(Real *d, const vec2 &s) { d[0] = s.x; d[1] = s.y; }
 
+Matrix4 transMat(vrmllib::vec3, bool inverse = false);
+Matrix4 scaleMat(vrmllib::vec3, bool inverse = false);
+Matrix4 rotMat(vrmllib::rot, bool inverse = false);
+
 int main(int argc, char **argv)
 {
 try
@@ -174,7 +178,9 @@ void parseNode(Mesh *mesh, const vrmllib::node *n, Matrix4 m)
 		Matrix4 rot = Matrix4::IDENTITY;
 		rot = rot3;
 
-		m = m * trans * rot;
+		m = m * transMat(tr->translation) * transMat(tr->center)
+			* rotMat(tr->rotation) * rotMat(tr->scaleOrientation) * scaleMat(tr->scale)
+			* rotMat(tr->scaleOrientation, true) * transMat(tr->center, true);
 	}
 
 	if (const grouping_node *gn = dynamic_cast<const grouping_node *>(n)) {
@@ -320,6 +326,7 @@ void copyToSubMesh(SubMesh *sub, const TriVec &triangles, const VertVec &vertice
 
 	Matrix3 normMat;
 	mat.extract3x3Matrix(normMat);
+	normMat = normMat.Inverse().Transpose();
 
 	// populate face list
 	for (int i=0; i!=nfaces; ++i) {
@@ -503,4 +510,29 @@ Ogre::Material *parseMaterial(const Appearance *app, const String &name)
 	}
 
 	return m;
+}
+
+Matrix4 transMat(vrmllib::vec3 v, bool inverse)
+{
+	if (inverse)
+		return Matrix4::getTrans(-v.x, -v.y, -v.z);
+	else
+		return Matrix4::getTrans(v.x, v.y, v.z);
+}
+
+Matrix4 scaleMat(vrmllib::vec3 v, bool inverse)
+{
+	if (inverse)
+		return Matrix4::getScale(1/v.x, 1/v.y, 1/v.z);
+	else
+		return Matrix4::getScale(v.x, v.y, v.z);
+}
+
+Matrix4 rotMat(vrmllib::rot r, bool inverse)
+{
+	Matrix3 rot3;
+	rot3.FromAxisAngle(vec(r.vector), inverse ? -r.radians : r.radians);
+	Matrix4 rot = Matrix4::IDENTITY;
+	rot = rot3;
+	return rot;
 }

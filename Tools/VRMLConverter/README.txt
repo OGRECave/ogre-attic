@@ -22,6 +22,3 @@ Notes:
 	* If you want the mesh to contain normals (which is usually the case),
 	  then make sure that normals are exported. There is usually an option
 	  for this in the modeler, but the default is 'off' in most programs.
-
-	* Avoid using non-uniform scaling and rotation around a point other
-	  than (0 0 0).
