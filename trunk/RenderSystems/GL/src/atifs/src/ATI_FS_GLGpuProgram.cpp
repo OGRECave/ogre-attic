@@ -67,7 +67,7 @@ void ATI_FS_GLGpuProgram::bindProgramParameters(GpuProgramParametersSharedPtr pa
 		// test
         while (realIt.hasMoreElements())
         {
-            GpuProgramParameters::RealConstantEntry* e = realIt.peekNextPtr();
+            const GpuProgramParameters::RealConstantEntry* e = realIt.peekNextPtr();
             if (e->isSet)
             {
                 glSetFragmentShaderConstantATI_ptr( GL_CON_0_ATI + index, e->val);

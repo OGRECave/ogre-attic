@@ -233,12 +233,12 @@ namespace Ogre {
         /** Deletes the contents of the int constants registers. */
         void resetIntConstants(void) { mIntConstants.clear(); }
 
-        typedef VectorIterator<RealConstantList> RealConstantIterator;
-        typedef VectorIterator<IntConstantList> IntConstantIterator;
+        typedef ConstVectorIterator<RealConstantList> RealConstantIterator;
+        typedef ConstVectorIterator<IntConstantList> IntConstantIterator;
         /// Gets an iterator over the Real constant parameters
-        RealConstantIterator getRealConstantIterator(void);
+        RealConstantIterator getRealConstantIterator(void) const;
         /// Gets an iterator over the integer constant parameters
-        IntConstantIterator getIntConstantIterator(void);
+        IntConstantIterator getIntConstantIterator(void) const;
         
         /// Gets the number of Real constants that have been set
         size_t getRealConstantCount(void) const { return mRealConstants.size(); }
@@ -271,9 +271,9 @@ namespace Ogre {
 
         /** Clears all the existing automatic constants. */
         void clearAutoConstants(void);
-        typedef VectorIterator<AutoConstantList> AutoConstantIterator;
+        typedef ConstVectorIterator<AutoConstantList> AutoConstantIterator;
         /** Gets an iterator over the automatic constant bindings currently in place. */
-        AutoConstantIterator getAutoConstantIterator(void);
+        AutoConstantIterator getAutoConstantIterator(void) const;
         /** Returns true if this instance has any automatic constants. */
         bool hasAutoConstants(void) const { return !(mAutoConstants.empty()); }
         /** Updates the automatic parameters (except lights) based on the details provided. */
@@ -442,6 +442,11 @@ namespace Ogre {
         /// Gets whether or not matrices are to be transposed when set
         bool getTransposeMatrices(void) const { return mTransposeMatrices; } 
 
+		/** Copies the values of all constants (including auto constants) from another
+			GpuProgramParameters object.
+		*/
+		void copyConstantsFrom(const GpuProgramParameters& source);
+		
     };
 
     /// Shared pointer used to hold references to GpuProgramParameters instances
@@ -471,6 +476,8 @@ namespace Ogre {
         String mSyntaxCode;
         /// Does this (vertex) program include skeletal animation?
         bool mSkeletalAnimation;
+		/// The default parameters for use with this object
+		GpuProgramParametersSharedPtr mDefaultParams;
 
 	public:
 
@@ -535,6 +542,18 @@ namespace Ogre {
             skeletal animation, it will expect the vertex program to do it.
         */
         virtual bool isSkeletalAnimationIncluded(void) const { return mSkeletalAnimation; }
+
+		/** Get a reference to the default parameters which are to be used for all
+			uses of this program.
+		@remarks
+			A program can be set up with a list of default parameters, which can save time when 
+			using a program many times in a material with roughly the same settings. By 
+			retrieving the default parameters and populating it with the most used options, 
+			any new parameter objects created from this program afterwards will automatically include
+			the default parameters; thus users of the program need only change the parameters
+			which are unique to their own usage of the program.
+		*/
+		virtual GpuProgramParametersSharedPtr getDefaultParameters(void);
 
 
     protected:

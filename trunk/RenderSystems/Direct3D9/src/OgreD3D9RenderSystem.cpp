@@ -2135,7 +2135,7 @@ namespace Ogre
                 index = 0;
                 while (realIt.hasMoreElements())
                 {
-                    GpuProgramParameters::RealConstantEntry* e = realIt.peekNextPtr();
+                    const GpuProgramParameters::RealConstantEntry* e = realIt.peekNextPtr();
                     if (e->isSet)
                     {
                         if (FAILED(hr = mpD3DDevice->SetVertexShaderConstantF(
@@ -2156,7 +2156,7 @@ namespace Ogre
                 index = 0;
                 while (intIt.hasMoreElements())
                 {
-                    GpuProgramParameters::IntConstantEntry* e = intIt.peekNextPtr();
+                    const GpuProgramParameters::IntConstantEntry* e = intIt.peekNextPtr();
                     if (e->isSet)
                     {
                         if (FAILED(hr = mpD3DDevice->SetVertexShaderConstantI(
@@ -2179,7 +2179,7 @@ namespace Ogre
                 index = 0;
                 while (realIt.hasMoreElements())
                 {
-                    GpuProgramParameters::RealConstantEntry* e = realIt.peekNextPtr();
+                    const GpuProgramParameters::RealConstantEntry* e = realIt.peekNextPtr();
                     if (e->isSet)
                     {
                         /*
@@ -2210,7 +2210,7 @@ namespace Ogre
                 index = 0;
                 while (intIt.hasMoreElements())
                 {
-                    GpuProgramParameters::IntConstantEntry* e = intIt.peekNextPtr();
+                    const GpuProgramParameters::IntConstantEntry* e = intIt.peekNextPtr();
                     if (e->isSet)
                     {
                         if (FAILED(hr = mpD3DDevice->SetPixelShaderConstantI(
