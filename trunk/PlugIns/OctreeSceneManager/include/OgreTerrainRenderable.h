@@ -29,6 +29,10 @@
 namespace Ogre
 {
 
+/**
+  * An index buffer for terrain tiles.  These are cached once created, and reused
+  * for different tiles.
+  */
 class TerrainIndexBuffer
 {
 public:
@@ -39,17 +43,34 @@ public:
 
     ~TerrainIndexBuffer()
     {
-        delete indexes;
+        delete []indexes;
     }
 
     unsigned short * indexes;
     int length;
 };
 
-
-
 typedef std::vector < TerrainIndexBuffer * > IndexArray;
 typedef std::vector < IndexArray > LevelArray;
+
+/**
+ * A cache of TerrainIndexBuffers.  Used to keep track of the buffers, and
+ * delete them when the program finishes.
+ */
+class TerrainBufferCache
+{
+  public:
+  ~TerrainBufferCache()
+    {
+      for( int i=0; i<mCache.size(); i++ )
+	{
+	  printf( "Deleting cached buffer %d\n", i );
+	  delete mCache[i];
+	}
+    }
+  IndexArray mCache;
+};
+
 
 
 inline Real _max( Real x, Real y )

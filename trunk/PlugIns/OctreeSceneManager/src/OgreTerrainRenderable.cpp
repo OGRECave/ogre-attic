@@ -26,6 +26,8 @@ email                : janders@users.sf.net
 namespace Ogre
 {
 
+TerrainBufferCache gIndexCache;
+
 int TerrainRenderable::mRenderedTris = 0;
 
 String TerrainRenderable::mType = "TerrainMipMap";
@@ -401,6 +403,7 @@ void TerrainRenderable::getRenderOperation( RenderOperation& rend )
         int new_length = ( mSize / step ) * ( mSize / step ) * 2 * 2 * 2 ;
         //this is the maximum for a level.  It wastes a little, but shouldn't be a problem.
         buffer = new TerrainIndexBuffer( new_length );
+	gIndexCache.mCache.push_back( buffer );
         numIndexes = 0;
 
         for ( int j = north; j < mSize - 1 - south; j += step )
