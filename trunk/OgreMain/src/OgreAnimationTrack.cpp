@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreAnimation.h"
 #include "OgreKeyFrame.h"
 #include "OgreNode.h"
+#include "OgreLogManager.h"
 
 namespace Ogre {
 
@@ -221,6 +222,7 @@ namespace Ogre {
 
         node->rotate(kf.getRotation() * weight);
         node->translate(kf.getTranslate() * weight);
+
 
     }
 

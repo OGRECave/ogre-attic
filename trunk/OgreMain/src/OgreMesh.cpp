@@ -551,6 +551,15 @@ namespace Ogre {
         // Take the opportunity to update the compiled bone assignments
         if (mBoneAssignmentsOutOfDate)
             compileBoneAssignments();
+
+        SubMeshList::iterator i;
+        for (i = mSubMeshList.begin(); i != mSubMeshList.end(); ++i)
+        {
+            if ((*i)->mBoneAssignmentsOutOfDate)
+            {
+                (*i)->compileBoneAssignments();
+            }
+        }
     }
     //-----------------------------------------------------------------------
     unsigned short Mesh::_getNumBoneMatrices(void)

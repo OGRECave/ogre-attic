@@ -102,6 +102,10 @@ namespace Ogre {
         /** Overridden - see Renderable.
         */
         void getWorldTransforms(Matrix4* xform);
+        
+        /** Overridden - see Renderable.
+        */
+        unsigned short getNumWorldTransforms(void);
     };
 
 }

@@ -217,6 +217,7 @@ namespace Ogre {
         VertexBoneAssignmentList::iterator i, iend;
         i = mBoneAssignments.begin();
         iend = mBoneAssignments.end();
+        currBones = 0;
         for (; i != iend; ++i)
         {
             if (lastVertIdx != i->second.vertexIndex)

@@ -315,7 +315,7 @@ namespace Ogre {
         BoneList::iterator i, boneend;
         boneend = mBoneList.end();
         
-        
+       
         for(i = mBoneList.begin();i != boneend; ++i)
         {
             Bone* pBone = i->second;

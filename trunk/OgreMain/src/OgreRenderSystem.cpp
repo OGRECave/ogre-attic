@@ -412,6 +412,8 @@ namespace Ogre {
         {
             // Software blending required
             softwareVertexBlend(op, mWorldMatrices);
+            // Turn off main world matrix
+            this->_setWorldMatrix(Matrix4::IDENTITY);
         }
     }
     //-----------------------------------------------------------------------
