@@ -34,7 +34,7 @@ namespace Ogre
 	extern "C" void dllStartPlugin(void) throw()
 	{
 		// Create the DirectX 8 rendering api
-		HINSTANCE hInst = GetModuleHandle( "OgreD3D9Engine.dll" );
+		HINSTANCE hInst = GetModuleHandle( "RenderSystem_Direct3D9.dll" );
 		d3dRendPlugin = new D3D9RenderSystem( hInst );
 		// Register the render system
 		Root::getSingleton().addRenderSystem( d3dRendPlugin );
