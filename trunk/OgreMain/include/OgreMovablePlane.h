@@ -49,11 +49,11 @@ namespace Ogre {
     class _OgreExport MovablePlane : public Plane, public MovableObject
     {
     protected:
+        String mName;
         mutable Plane mDerivedPlane;
         mutable Vector3 mLastTranlate;
         mutable Quaternion mLastRotate;
         AxisAlignedBox mNullBB;
-        String mName;
         mutable bool mDirty;
         static String msMovableType;
     public:
