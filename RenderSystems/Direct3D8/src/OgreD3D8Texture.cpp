@@ -79,24 +79,6 @@ namespace Ogre {
 
 		SAFE_DELETE_ARRAY( pTempData );
 
-		// Now that the image has been loaded, check the dimensions that were created
-		D3DSURFACE_DESC desc;
-		mpTexture->GetLevelDesc( 0, &desc );
-		if( desc.Width != mSrcWidth || desc.Height != mSrcHeight )
-		{
-			char msg[255];
-			sprintf( msg, "Surface dimensions for requested texture '%s' have been altered by the renderer.", mName.c_str() );
-			LogManager::getSingleton().logMessage( msg );
-
-			sprintf( msg, "  Requested: %dx%d  Actual: %dx%d", mSrcWidth, mSrcHeight, desc.Width, desc.Height );
-			LogManager::getSingleton().logMessage(msg);
-
-			LogManager::getSingleton().logMessage( "  Likely cause is that requested dimensions are not a power of 2, "
-				"or device requires square textures." );
-
-		}
-		mWidth = desc.Width;
-		mHeight = desc.Height;
 	}
 
 	void D3D8Texture::unload()
@@ -390,4 +372,6 @@ namespace Ogre {
 		SAFE_RELEASE( pDestSurface );
 		SAFE_RELEASE( mpTempTexture );
 	}
+
+
 }
