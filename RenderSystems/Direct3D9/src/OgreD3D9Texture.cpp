@@ -581,17 +581,17 @@ namespace Ogre
 
 		// determine wich D3D9 pixel format we'll use
 		HRESULT hr;
-		D3DFORMAT d3dPF = (mUsage == TU_RENDERTARGET) ? mBBPixelFormat : this->_chooseD3DFormat();
+		D3DFORMAT d3dPF = (mUsage & TU_RENDERTARGET) ? mBBPixelFormat : this->_chooseD3DFormat();
 
 		// Use D3DX to help us create the texture, this way it can adjust any relevant sizes
-		DWORD usage = (mUsage == TU_RENDERTARGET) ? D3DUSAGE_RENDERTARGET : 0;
-		UINT numMips = (mNumMipmaps ? mNumMipmaps : 1);
+		DWORD usage = (mUsage & TU_RENDERTARGET) ? D3DUSAGE_RENDERTARGET : 0;
+		UINT numMips = mNumMipmaps + 1;
 		// check if mip maps are supported on hardware
 		if ((mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPMAP) && mNumMipmaps > 0)
 		{
-			// use auto.gen. if available
+			// use auto.gen. if available, and if desired
             mAutoGenMipmaps = this->_canAutoGenMipmaps(usage, D3DRTYPE_TEXTURE, d3dPF);
-			if (mAutoGenMipmaps)
+			if ((mUsage & TU_AUTOMIPMAP) && mAutoGenMipmaps)
 			{
 				usage |= D3DUSAGE_AUTOGENMIPMAP;
 				numMips = 0;
@@ -612,16 +612,16 @@ namespace Ogre
 				numMips,							// number of mip map levels
 				usage,								// usage
 				d3dPF,								// pixel format
-                (mUsage == TU_RENDERTARGET)?
+                (mUsage & TU_RENDERTARGET)?
                 D3DPOOL_DEFAULT : D3DPOOL_MANAGED,	// memory pool
 				&mpNormTex);						// data pointer
 		// check result and except if failed
 		if (FAILED(hr))
 		{
-			Except( hr, "Error creating texture", "D3D9Texture::_createNormTex" );
 			this->_freeResources();
+			Except( hr, "Error creating texture", "D3D9Texture::_createNormTex" );
 		}
-
+		
 		// set final tex. attributes from tex. description
 		// they may differ from the source image !!!
 		D3DSURFACE_DESC desc;
@@ -642,9 +642,18 @@ namespace Ogre
 		}
 		
 		// create a depth stencil if this is a render target
-		if (mUsage == TU_RENDERTARGET)
+		if (mUsage & TU_RENDERTARGET)
 			this->_createDepthStencil();
 
+		// Set best filter type
+		if(mAutoGenMipmaps)
+		{
+			hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
+			if(FAILED(hr))
+			{
+				Except( hr, "Could not set best autogen filter type", "D3D9Texture::_createNormTex" );
+			}
+		}
 	}
 	/****************************************************************************************/
 	void D3D9Texture::_createCubeTex()
@@ -654,11 +663,11 @@ namespace Ogre
 
 		// determine wich D3D9 pixel format we'll use
 		HRESULT hr;
-		D3DFORMAT d3dPF = (mUsage == TU_RENDERTARGET) ? mBBPixelFormat : this->_chooseD3DFormat();
+		D3DFORMAT d3dPF = (mUsage & TU_RENDERTARGET) ? mBBPixelFormat : this->_chooseD3DFormat();
 
 		// Use D3DX to help us create the texture, this way it can adjust any relevant sizes
-		DWORD usage = (mUsage == TU_RENDERTARGET) ? D3DUSAGE_RENDERTARGET : 0;
-		UINT numMips = (mNumMipmaps ? mNumMipmaps : 1);
+		DWORD usage = (mUsage & TU_RENDERTARGET) ? D3DUSAGE_RENDERTARGET : 0;
+		UINT numMips = mNumMipmaps + 1;
 		// check if mip map cube textures are supported
 		if (mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPCUBEMAP)
 		{
@@ -684,16 +693,16 @@ namespace Ogre
 				numMips,							// number of mip map levels
 				usage,								// usage
 				d3dPF,								// pixel format
-                (mUsage == TU_RENDERTARGET)?
+                (mUsage & TU_RENDERTARGET)?
                 D3DPOOL_DEFAULT : D3DPOOL_MANAGED,	// memory pool
 				&mpCubeTex);						// data pointer
 		// check result and except if failed
 		if (FAILED(hr))
 		{
-			Except( hr, "Error creating texture", "D3D9Texture::_createCubeTex" );
 			this->_freeResources();
+			Except( hr, "Error creating texture", "D3D9Texture::_createCubeTex" );
 		}
-
+		
 		// set final tex. attributes from tex. description
 		// they may differ from the source image !!!
 		D3DSURFACE_DESC desc;
@@ -714,9 +723,18 @@ namespace Ogre
 		}
 		
 		// create a depth stencil if this is a render target
-		if (mUsage == TU_RENDERTARGET)
+		if (mUsage & TU_RENDERTARGET)
 			this->_createDepthStencil();
 
+		// Set best filter type
+		if(mAutoGenMipmaps)
+		{
+			hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
+			if(FAILED(hr))
+			{
+				Except( hr, "Could not set best autogen filter type", "D3D9Texture::_createCubeTex" );
+			}
+		}
 	}
 	/****************************************************************************************/
 	void D3D9Texture::_initDevice(void)
@@ -825,25 +843,25 @@ namespace Ogre
 		switch (this->getTextureType())
 		{
 		case TEX_TYPE_1D:
-			if (mUsage == TU_RENDERTARGET)
+			if (mUsage & TU_RENDERTARGET)
 				LogManager::getSingleton().logMessage("D3D9 : Creating 1D RenderTarget, name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipmaps) + " mip map levels");
 			else
 				LogManager::getSingleton().logMessage("D3D9 : Loading 1D Texture, image name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipmaps) + " mip map levels");
 			break;
 		case TEX_TYPE_2D:
-			if (mUsage == TU_RENDERTARGET)
+			if (mUsage & TU_RENDERTARGET)
 				LogManager::getSingleton().logMessage("D3D9 : Creating 2D RenderTarget, name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipmaps) + " mip map levels");
 			else
 				LogManager::getSingleton().logMessage("D3D9 : Loading 2D Texture, image name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipmaps) + " mip map levels");
 			break;
 		case TEX_TYPE_3D:
-			if (mUsage == TU_RENDERTARGET)
+			if (mUsage & TU_RENDERTARGET)
 				LogManager::getSingleton().logMessage("D3D9 : Creating 3D RenderTarget, name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipmaps) + " mip map levels");
 			else
 				LogManager::getSingleton().logMessage("D3D9 : Loading 3D Texture, image name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipmaps) + " mip map levels");
 			break;
 		case TEX_TYPE_CUBE_MAP:
-			if (mUsage == TU_RENDERTARGET)
+			if (mUsage & TU_RENDERTARGET)
 				LogManager::getSingleton().logMessage("D3D9 : Creating Cube map RenderTarget, name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipmaps) + " mip map levels");
 			else
 				LogManager::getSingleton().logMessage("D3D9 : Loading Cube Texture, base image name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipmaps) + " mip map levels");
@@ -860,8 +878,32 @@ namespace Ogre
 		assert(mpDev);
 		assert(mpD3D);
 		assert(mpTex);
-
-		// TODO : do it really :)
+		
+		DWORD filterCaps = 0;
+		// Minification filter is used for mipmap generation
+		// Pick the best one supported for this tex type
+		switch (this->getTextureType())
+		{
+		case TEX_TYPE_1D:		// Same as 2D
+		case TEX_TYPE_2D:		filterCaps = mDevCaps.TextureFilterCaps;	break;
+		case TEX_TYPE_3D:		filterCaps = mDevCaps.VolumeTextureFilterCaps;	break;
+		case TEX_TYPE_CUBE_MAP:	filterCaps = mDevCaps.CubeTextureFilterCaps;	break;
+		}
+		if(filterCaps & D3DPTFILTERCAPS_MINFGAUSSIANQUAD)
+			return D3DTEXF_GAUSSIANQUAD;
+		
+		if(filterCaps & D3DPTFILTERCAPS_MINFPYRAMIDALQUAD)
+			return D3DTEXF_PYRAMIDALQUAD;
+		
+		if(filterCaps & D3DPTFILTERCAPS_MINFANISOTROPIC)
+			return D3DTEXF_ANISOTROPIC;
+		
+		if(filterCaps & D3DPTFILTERCAPS_MINFLINEAR)
+			return D3DTEXF_LINEAR;
+		
+		if(filterCaps & D3DPTFILTERCAPS_MINFPOINT)
+			return D3DTEXF_POINT;
+		
 		return D3DTEXF_POINT;
 	}
 	/****************************************************************************************/
@@ -1270,11 +1312,12 @@ namespace Ogre
 		mSurfaceList.clear();
 		switch(getTextureType()) {
 		case TEX_TYPE_2D:
+		case TEX_TYPE_1D:
 			assert(mpNormTex);
 			// Make sure number of mips is right
-			mNumMipmaps = mpNormTex->GetLevelCount();
+			mNumMipmaps = mpNormTex->GetLevelCount() - 1;
 			// For all mipmaps, store surfaces as HardwarePixelBufferSharedPtr
-			for(int mip=0; mip<mNumMipmaps; mip++)
+			for(int mip=0; mip<=mNumMipmaps; mip++)
 			{
 				if(mpNormTex->GetSurfaceLevel(mip, &surface) != D3D_OK)
 					Except(Exception::ERR_RENDERINGAPI_ERROR, "Get surface level failed",
@@ -1284,11 +1327,11 @@ namespace Ogre
 			break;
 		case TEX_TYPE_CUBE_MAP:
 			assert(mpCubeTex);
-			mNumMipmaps = mpCubeTex->GetLevelCount();
+			mNumMipmaps = mpCubeTex->GetLevelCount() - 1;
 			// For all faces and mipmaps, store surfaces as HardwarePixelBufferSharedPtr
 			for(int face=0; face<6; face++)
 			{
-				for(int mip=0; mip<mNumMipmaps; mip++)
+				for(int mip=0; mip<=mNumMipmaps; mip++)
 				{
 					if(mpCubeTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, mip, &surface) != D3D_OK)
 						Except(Exception::ERR_RENDERINGAPI_ERROR, "Get cubemap surface failed",
@@ -1299,9 +1342,9 @@ namespace Ogre
 			break;
 		case TEX_TYPE_3D:
 			assert(mpVolumeTex);
-			mNumMipmaps = mpVolumeTex->GetLevelCount();
+			mNumMipmaps = mpVolumeTex->GetLevelCount() - 1;
 			// For all mipmaps, store surfaces as HardwarePixelBufferSharedPtr
-			for(int mip=0; mip<mNumMipmaps; mip++)
+			for(int mip=0; mip<=mNumMipmaps; mip++)
 			{
 				if(mpVolumeTex->GetVolumeLevel(mip, &volume) != D3D_OK)
 					Except(Exception::ERR_RENDERINGAPI_ERROR, "Get volume level failed",
@@ -1321,10 +1364,10 @@ namespace Ogre
 		if(face < 0 || face >= 6)
 			Except(Exception::ERR_INVALIDPARAMS, "A three dimensional cube has six faces",
 					"D3D9Texture::getBuffer");
-		if(mipmap < 0 || mipmap >= mNumMipmaps)
+		if(mipmap < 0 || mipmap > mNumMipmaps)
 			Except(Exception::ERR_INVALIDPARAMS, "Mipmap index out of range",
 					"D3D9Texture::getBuffer");
-		int idx = face*mNumMipmaps + mipmap;
+		int idx = face*(mNumMipmaps+1) + mipmap;
 		assert(idx < mSurfaceList.size());
 		return mSurfaceList[idx];
 	}
