@@ -1555,6 +1555,8 @@ namespace Ogre {
                 pBufferData = static_cast<const GLDefaultHardwareVertexBuffer*>(vertexBuffer.get())->getDataPtr(elem->getOffset());
             }
 
+            int i = 0;
+
             switch(elem->getSemantic())
             {
             case VES_POSITION:
@@ -1582,7 +1584,7 @@ namespace Ogre {
                 glEnableClientState( GL_SECONDARY_COLOR_ARRAY );
                 break;
             case VES_TEXTURE_COORDINATES:
-                for (int i = 0; i < mCapabilities->numTextureUnits(); i++)
+                for (i = 0; i < mCapabilities->numTextureUnits(); i++)
                 {
                     glClientActiveTextureARB_ptr(GL_TEXTURE0 + i);
                     if (glIsEnabled(GL_TEXTURE_2D))
@@ -1638,13 +1640,12 @@ namespace Ogre {
                     static_cast<GLHardwareIndexBuffer*>(
                         op.indexData->indexBuffer.get())->getGLBufferId());
 
-                pBufferData = VBO_BUFFER_OFFSET(op.indexData->indexStart);
+                pBufferData = VBO_BUFFER_OFFSET(0);
             }
             else
             {
                 pBufferData = static_cast<GLDefaultHardwareIndexBuffer*>(
-                    op.indexData->indexBuffer.get())->getDataPtr(
-                        op.indexData->indexStart);
+                    op.indexData->indexBuffer.get())->getDataPtr(0);
             }
 
             GLenum indexType = (op.indexData->indexBuffer->getType() == HardwareIndexBuffer::IT_16BIT) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT;
