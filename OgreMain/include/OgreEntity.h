@@ -140,6 +140,8 @@ namespace Ogre {
         bool mDisplaySkeleton;
         /// Flag indicating whether hardware skinning is supported by this entities materials
         bool mHardwareSkinning;
+        /// Flag indicating whether we have a vertex program in use on any of our subentities
+        bool mVertexProgramInUse;
 
 
 		/// The LOD number of the mesh to use, calculated by _notifyCurrentCamera
@@ -178,8 +180,8 @@ namespace Ogre {
 		/// internal implementation of attaching a 'child' object to this entity and assign the parent node to the child entity
 		void attachObjectImpl(MovableObject *pMovable, TagPoint *pAttachingPoint);
 
-        /// Trigger reevaluation of whether hardware skinning is supported
-        void reevaluateHardwareSkinning(void);
+        /// Trigger reevaluation of the kind of vertex processing in use
+        void reevaluateVertexProcessing(void);
 
     public:
         /// Contains the child objects (attached to bones) indexed by name

@@ -110,7 +110,7 @@ namespace Ogre {
             mNumBoneMatrices = 0;
         }
 
-        reevaluateHardwareSkinning();
+        reevaluateVertexProcessing();
 
         mDisplaySkeleton = false;
 
@@ -716,11 +716,16 @@ namespace Ogre {
         return mMesh->getEdgeList();
     }
     //-----------------------------------------------------------------------
-    void Entity::reevaluateHardwareSkinning(void)
+    void Entity::reevaluateVertexProcessing(void)
     {
+        // init
+        mHardwareSkinning = false; 
+        mVertexProgramInUse = false; // assume false because we just assign this
+        bool firstPass = true;
+
         SubEntityList::iterator i, iend;
         iend = mSubEntityList.end();
-        for (i = mSubEntityList.begin(); i != iend; ++i)
+        for (i = mSubEntityList.begin(); i != iend; ++i, firstPass = false)
         {
             Material* m = (*i)->getMaterial();
             // Make sure it's loaded
@@ -729,28 +734,33 @@ namespace Ogre {
             if (!t)
             {
                 // No supported techniques
-                mHardwareSkinning = false;
-                return;
+                continue;
             }
             Pass* p = t->getPass(0);
             if (!p)
             {
                 // No passes, invalid
-                mHardwareSkinning = false;
-                return;
+                continue;
             }
-            if (!p->hasVertexProgram() ||
-                !p->getVertexProgram()->isSkeletalAnimationIncluded())
+            if (p->hasVertexProgram())
             {
-                // If one material does not support skinning, treat all of them 
-                // the same
-                mHardwareSkinning = false;
-                return;
+                // If one material uses a vertex program, set this flag 
+                // Causes some special processing like forcing a separate light cap
+                mVertexProgramInUse = true;
+                
+                // All materials must support skinning for us to consider using
+                // hardware skinning - if one fails we use software
+                if (firstPass)
+                {
+                    mHardwareSkinning = p->getVertexProgram()->isSkeletalAnimationIncluded();
+                }
+                else
+                {
+                    mHardwareSkinning = mHardwareSkinning &&
+                        p->getVertexProgram()->isSkeletalAnimationIncluded();
+                }
             }
         }
-
-        // If we got this far, all materials must support hardware skinning
-        mHardwareSkinning = true;
 
     }
     //-----------------------------------------------------------------------
@@ -827,10 +837,10 @@ namespace Ogre {
                     pVertData = egi->vertexData;
                 }
                 // Create a new renderable, create a separate light cap if
-                // we're using hardware skinning since otherwise we get
+                // we're using a vertex program since otherwise we get
                 // depth-fighting on the light cap
                 *si = new EntityShadowRenderable(this, indexBuffer, pVertData, 
-                    mHardwareSkinning);
+                    mVertexProgramInUse);
             }
             else if (hasSkeleton())
             {
