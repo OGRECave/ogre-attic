@@ -77,6 +77,12 @@ namespace Ogre {
         // Derived from parent
         ushort mZOrder;
 
+        /** Internal method which is triggered when the positions of the element get updated,
+            meaning the element should be rebuilding it's mesh positions. Abstract since
+            subclasses must implement this.
+        */
+        virtual void updatePositionGeometry(void) = 0;
+
 
     public:
         /// Constructor: do not call direct, use GuiManager::createElement
@@ -185,6 +191,8 @@ namespace Ogre {
         /** Internal method to put the contents onto the render queue. */
         virtual void _updateRenderQueue(RenderQueue* queue);
 
+        /** Gets the type name of the element. All concrete subclasses must implement this. */
+        virtual const String& getTypeName(void) = 0;
 
 
 

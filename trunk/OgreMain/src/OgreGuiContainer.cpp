@@ -136,14 +136,18 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void GuiContainer::_updateRenderQueue(RenderQueue* queue)
     {
-        GuiElement::_updateRenderQueue(queue);
-
-        // Also add children
-        ChildIterator it = getChildIterator();
-        while (it.hasMoreElements())
+        if (mVisible)
         {
-            // Give children ZOrder 1 higher than this
-            it.getNext()->_updateRenderQueue(queue);
+
+            GuiElement::_updateRenderQueue(queue);
+
+            // Also add children
+            ChildIterator it = getChildIterator();
+            while (it.hasMoreElements())
+            {
+                // Give children ZOrder 1 higher than this
+                it.getNext()->_updateRenderQueue(queue);
+            }
         }
 
     }

@@ -196,6 +196,10 @@ SOURCE=..\src\OgreGuiElement.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreGuiManager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreImage.cpp
 # End Source File
 # Begin Source File
@@ -613,6 +617,14 @@ SOURCE=..\include\OgreGuiContainer.h
 # Begin Source File
 
 SOURCE=..\include\OgreGuiElement.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreGuiElementFactory.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreGuiManager.h
 # End Source File
 # Begin Source File
 
