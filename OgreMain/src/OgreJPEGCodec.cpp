@@ -142,7 +142,7 @@ namespace Ogre {
 
         // Allocate memory for buffer
         output->allocate( rowspan * height );
-        byte *buffer = const_cast< byte * >( output->getPtr() );
+        uchar *buffer = const_cast< uchar * >( output->getPtr() );
 
         /* Here we use the library's state variable cinfo.output_scanline as the
         * loop counter, so that we don't have to keep track ourselves.

@@ -64,7 +64,7 @@ namespace Ogre {
         void createAlphaMask(
             const String& strTexName, const String& strString,
             unsigned uTexX, unsigned uTexY,
-            byte cRed, byte cGreen, byte cBlue,
+            uchar cRed, byte cGreen, byte cBlue,
             unsigned uFontX = 600, unsigned uFontY = 0,
             unsigned uFontResX = 72, unsigned uFontResY = 0,
             unsigned uStartX = 1, unsigned uStartY = 1 );
