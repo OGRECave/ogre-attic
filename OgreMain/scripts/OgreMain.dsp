@@ -148,6 +148,10 @@ SOURCE=..\src\OgreCamera.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreCodec.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreColourValue.cpp
 # End Source File
 # Begin Source File
