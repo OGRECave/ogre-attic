@@ -452,7 +452,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------------
 	size_t Image::getNumFaces(void) const
 	{
-		if(m_uFlags&IF_CUBEMAP)
+		if(hasFlag(IF_CUBEMAP))
 			return 6;
 		return 1;
 	}

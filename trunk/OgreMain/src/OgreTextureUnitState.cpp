@@ -709,9 +709,10 @@ namespace Ogre {
 						mParent->getResourceGroup(), mTextureType);
                     mIsBlank = false;
                 }
-                catch (...) {
+                catch (Exception &e) {
                     String msg;
-                    msg = msg + "Error loading texture " + mFrames[i]  + ". Texture layer will be blank.";
+                    msg = msg + "Error loading texture " + mFrames[i]  + 
+					". Texture layer will be blank. Loading the texture failed with the following exception: "+e.getFullDescription();
                     LogManager::getSingleton().logMessage(msg);
                     mIsBlank = true;
                 }

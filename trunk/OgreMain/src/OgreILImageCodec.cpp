@@ -142,32 +142,48 @@ namespace Ogre {
         imgData->flags = 0;
 
         // Check for cubemap
-        ILuint cubeflags = ilGetInteger ( IL_IMAGE_CUBEFLAGS );
-        if(cubeflags)
-            imgData->flags |= IF_CUBEMAP;
+        //ILuint cubeflags = ilGetInteger ( IL_IMAGE_CUBEFLAGS );
+		size_t numFaces = ilGetInteger ( IL_NUM_IMAGES ) + 1;
+        if(numFaces == 6) 
+			imgData->flags |= IF_CUBEMAP;
 
         // Keep DXT data (if present at all)
         ILuint dxtFormat = ilGetInteger( IL_DXTC_DATA_FORMAT );
         if(dxtFormat != IL_DXT_NO_COMP && Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability( RSC_TEXTURE_COMPRESSION_DXT ))
         {
-            ILuint dxtSize = ilGetDXTCData(NULL, 0, dxtFormat);
-            output.bind(new MemoryDataStream(dxtSize));
-            ilGetDXTCData(output->getPtr(), dxtSize, dxtFormat);
-
-            imgData->size = dxtSize;
-            imgData->format = ILUtil::ilFormat2OgreFormat( dxtFormat, ImageType );
+			imgData->format = ILUtil::ilFormat2OgreFormat( dxtFormat, ImageType );
             imgData->flags |= IF_COMPRESSED;
+			// Compare DXT size returned by DevIL with our idea of the compressed size
+            ILuint dxtSize = ilGetDXTCData(NULL, 0, dxtFormat);
+			assert(dxtSize == PixelUtil::getMemorySize(
+				imgData->width, imgData->height, imgData->depth, imgData->format));
+			imgData->size = dxtSize * numFaces;
+			
+			// Bind output buffer and transfer data
+            output.bind(new MemoryDataStream(imgData->size));
+			
+			unsigned  offset = 0;
+            for(unsigned int i = 0; i < numFaces; i++)
+            {
+                if(numFaces > 1)
+                {
+                    ilBindImage(ImageName);
+                    ilActiveImage(i);
+                }
+				ilGetDXTCData((unsigned char*)output->getPtr()+offset, dxtSize, dxtFormat);
+
+                offset += dxtSize;
+            }
         }
         else
         {
-            uint numImagePasses = cubeflags ? 6 : 1;
             uint imageSize = PixelUtil::getNumElemBytes(imgData->format) * ilGetInteger( IL_IMAGE_WIDTH ) * ilGetInteger( IL_IMAGE_HEIGHT ) * ilGetInteger( IL_IMAGE_DEPTH );
-            output.bind(new MemoryDataStream(imageSize * numImagePasses));
+            output.bind(new MemoryDataStream(imageSize * numFaces));
 
-            unsigned int i = 0, offset = 0;
-            for(i = 0; i < numImagePasses; i++)
+            unsigned  offset = 0;
+            for(unsigned int i = 0; i < numFaces; i++)
             {
-                if(cubeflags)
+                if(numFaces > 1)
                 {
                     ilBindImage(ImageName);
                     ilActiveImage(i);
@@ -179,7 +195,7 @@ namespace Ogre {
                 offset += imageSize;
             }
 
-            imgData->size = imageSize * numImagePasses;
+            imgData->size = imageSize * numFaces;
         }
 
         // Restore IL state
