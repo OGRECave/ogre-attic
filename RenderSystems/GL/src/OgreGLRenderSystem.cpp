@@ -31,7 +31,6 @@ http://www.gnu.org/copyleft/lesser.txt.s
 #include "OgreGLTextureManager.h"
 #include "OgreGLHardwareVertexBuffer.h"
 #include "OgreGLHardwareIndexBuffer.h"
-#include "OgreGLHardwareBufferManager.h"
 #include "OgreGLUtil.h"
 
 #ifdef HAVE_CONFIG_H
@@ -90,6 +89,9 @@ namespace Ogre {
 
         if (mTextureManager)
             delete mTextureManager;
+
+        if (mHardwareBufferManager)
+            delete mHardwareBufferManager;
 
         delete mCapabilities;
         delete mGLSupport;
@@ -319,6 +321,7 @@ namespace Ogre {
         if (parentWindowHandle == NULL)
         {
             mTextureManager = new GLTextureManager(*mGLSupport);
+            mHardwareBufferManager = new GLHardwareBufferManager;
         }
 
         // XXX Do more?
@@ -1557,33 +1560,35 @@ namespace Ogre {
             {
             case VES_POSITION:
                 glVertexPointer(VertexElement::getTypeCount(i->getType()), 
-                    type, vertexBuffer->getVertexSize(), BUFFER_OFFSET(i->getOffset()));
+                    type, vertexBuffer->getVertexSize(),
+                    BUFFER_OFFSET(i->getOffset()));
                 glEnableClientState( GL_VERTEX_ARRAY );
                 break;
             case VES_NORMAL:
-                glNormalPointer(type, vertexBuffer->getVertexSize(), BUFFER_OFFSET(i->getOffset()));
+                glNormalPointer(type, vertexBuffer->getVertexSize(), 
+                    BUFFER_OFFSET(i->getOffset()));
                 glEnableClientState( GL_NORMAL_ARRAY );
                 break;
             case VES_DIFFUSE:
-                glColorPointer(4, type, vertexBuffer->getVertexSize(), BUFFER_OFFSET(i->getOffset()));
+                glColorPointer(4, type, vertexBuffer->getVertexSize(), 
+                    BUFFER_OFFSET(i->getOffset()));
                 glEnableClientState( GL_COLOR_ARRAY );
+                break;
+            case VES_SPECULAR:
+                glSecondaryColorPointer(4, type, vertexBuffer->getVertexSize(), 
+                    BUFFER_OFFSET(i->getOffset()));
+                glEnableClientState( GL_SECONDARY_COLOR_ARRAY );
                 break;
             case VES_TEXTURE_COORDINATES:
                 glClientActiveTextureARB_ptr(GL_TEXTURE0 + i->getIndex());
                 glTexCoordPointer(VertexElement::getTypeCount(i->getType()), 
-                    type, vertexBuffer->getVertexSize(), BUFFER_OFFSET(i->getOffset()));
+                    type, vertexBuffer->getVertexSize(),
+                    BUFFER_OFFSET(i->getOffset()));
                 glEnableClientState( GL_TEXTURE_COORD_ARRAY );
                 break;
             default:
                 break;
             };
-        }
-
-        if (op.useIndexes)
-        {
-            GLuint idxBufferId = static_cast<GLHardwareIndexBuffer*>(op.indexData->indexBuffer.get())->getGLBufferId();
-
-            glBindBufferARB_ptr(GL_ELEMENT_ARRAY_BUFFER_ARB, idxBufferId); 
         }
 
         // Find the correct type to render
@@ -1612,6 +1617,10 @@ namespace Ogre {
 
         if (op.useIndexes)
         {
+            GLuint idxBufferId = static_cast<GLHardwareIndexBuffer*>(op.indexData->indexBuffer.get())->getGLBufferId();
+
+            glBindBufferARB_ptr(GL_ELEMENT_ARRAY_BUFFER_ARB, idxBufferId); 
+
             glDrawElements( primType, op.indexData->indexCount, 
                 GL_UNSIGNED_SHORT, BUFFER_OFFSET(0));
         }
@@ -1624,6 +1633,7 @@ namespace Ogre {
         glDisableClientState( GL_TEXTURE_COORD_ARRAY );
         glDisableClientState( GL_NORMAL_ARRAY );
         glDisableClientState( GL_COLOR_ARRAY );
+        glDisableClientState( GL_SECONDARY_COLOR_ARRAY );
         glColor4f(1,1,1,1);
 
         // UnGuard

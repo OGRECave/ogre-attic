@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGLPrerequisites.h"
 #include "OgrePlatform.h"
 #include "OgreRenderSystem.h"
+#include "OgreGLHardwareBufferManager.h"
 
 #include "OgreGLSupport.h"
 
@@ -103,6 +104,8 @@ namespace Ogre {
         // Pointer to glBindBufferARB function
         typedef void (APIENTRY *GL_BindBufferARB_Func)(GLenum, GLuint);
         GL_BindBufferARB_Func glBindBufferARB_ptr;
+
+        GLHardwareBufferManager* mHardwareBufferManager;
 
     public:
         // Default constructor / destructor
