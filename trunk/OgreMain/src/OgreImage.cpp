@@ -316,7 +316,41 @@ namespace Ogre {
         
         OgreUnguardRet( *this );
     }
+    //-----------------------------------------------------------------------------
+    void Image::save(const String& filename)
+    {
+        if( !m_pBuffer )
+        {
+            Except(Exception::ERR_INVALIDPARAMS, "No image data loaded", 
+                "Image::save");
+        }
 
+        String strExt;
+        size_t pos = filename.find_last_of(".");
+        if( pos == String::npos )
+            Except(
+            Exception::ERR_INVALIDPARAMS, 
+            "Unable to save image file '" + filename + "' - invalid extension.",
+            "Image::save" );
+
+        while( pos != filename.length() - 1 )
+            strExt += filename[++pos];
+
+        Codec * pCodec = Codec::getCodec(strExt);
+        if( !pCodec )
+            Except(
+            Exception::ERR_INVALIDPARAMS, 
+            "Unable to save image file '" + filename + "' - invalid extension.",
+            "Image::save" );
+
+        ImageCodec::ImageData imgData;
+        imgData.format = m_eFormat;
+        imgData.height = m_uHeight;
+        imgData.width = m_uWidth;
+        DataChunk wrapper(m_pBuffer, m_uSize);
+
+        pCodec->codeToFile(wrapper, filename, &imgData);
+    }
     //-----------------------------------------------------------------------------
     Image & Image::load( const DataChunk& chunk, const String& type )
     {

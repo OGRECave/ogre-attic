@@ -358,6 +358,9 @@ namespace Ogre {
                 Image::load( const String& strFileName )
         */
         Image & load( const DataChunk& chunk, const String& type );
+        
+        /** Save the image as a file. */
+        void save(const String& filename);
 
         /** Returns a pointer to the internal image buffer.
         */
