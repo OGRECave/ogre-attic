@@ -25,6 +25,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef OGREIMAGERESAMPLER_H
 #define OGREIMAGERESAMPLER_H
 
+#include <algorithm>
+
 // this file is inlined into OgreImage.cpp!
 // do not include anywhere else.
 using namespace Ogre;
@@ -105,7 +107,7 @@ struct LinearResampler {
 			temp = sz_48 >> 36;
 			temp = (temp > 0x800)? temp - 0x800 : 0;
 			unsigned int sz1 = temp >> 12; // slice 1
-			unsigned int sz2 = (unsigned int)std::min(src.back-src.front-1, sz1+1); // slice 2
+			unsigned int sz2 = (unsigned int)std::min(static_cast<unsigned int>(src.back-src.front-1), sz1+1); // slice 2
 			float szf = (temp & 0xFFF) * float_12bit;
 
 			uint64 sy_48 = ((uint64)src.top << 48) + (stepy >> 1) - 1;
@@ -113,7 +115,7 @@ struct LinearResampler {
 				temp = sy_48 >> 36;
 				temp = (temp > 0x800)? temp - 0x800 : 0;
 				unsigned int sy1 = temp >> 12; // row 1
-				unsigned int sy2 = (unsigned int)std::min(src.bottom-src.top-1, sy1+1); // row 2
+				unsigned int sy2 = (unsigned int)std::min(static_cast<unsigned int>(src.bottom-src.top-1), sy1+1); // row 2
 				float syf = (temp & 0xFFF) * float_12bit;
 				
 				uint64 sx_48 = ((uint64)src.left << 48) + (stepx >> 1) - 1;
@@ -121,7 +123,7 @@ struct LinearResampler {
 					temp = sx_48 >> 36;
 					temp = (temp > 0x800)? temp - 0x800 : 0;
 					unsigned int sx1 = temp >> 12; // column 1
-					unsigned int sx2 = (unsigned int)std::min(src.right-src.left-1, sx1+1); // column 2
+					unsigned int sx2 = (unsigned int)std::min(static_cast<unsigned int>(src.right-src.left-1), sx1+1); // column 2
 					float sxf = (temp & 0xFFF) * float_12bit;
 				
 					// 8 bits * 12 bits * 12 bits -> all 32 bits used in accum
@@ -189,7 +191,7 @@ template<unsigned int srcelemsize> struct LinearResampler_Byte {
 			temp = (temp > 0x800)? temp - 0x800: 0;
 			unsigned int syf = temp & 0xFFF;
 			unsigned int sy1 = temp >> 12;
-			unsigned int sy2 = (unsigned int)std::min(src.bottom-src.top-1, sy1+1);
+			unsigned int sy2 = (unsigned int)std::min(static_cast<unsigned int>(src.bottom-src.top-1), sy1+1);
 			unsigned int syoff1 = sy1 * src.rowPitch;
 			unsigned int syoff2 = sy2 * src.rowPitch;
 
@@ -199,7 +201,7 @@ template<unsigned int srcelemsize> struct LinearResampler_Byte {
 				temp = (temp > 0x800)? temp - 0x800 : 0;
 				unsigned int sxf = temp & 0xFFF;
 				unsigned int sx1 = temp >> 12;
-				unsigned int sx2 = (unsigned int)std::min(src.right-src.left-1, sx1+1);
+				unsigned int sx2 = (unsigned int)std::min(static_cast<unsigned int>(src.right-src.left-1), sx1+1);
 				unsigned int sxfsyf = sxf*syf;
 				for (unsigned int k = 0; k < srcelemsize; k++) {
 					unsigned int accum =

@@ -622,9 +622,9 @@ char *yytext;
 # include <windows.h>
 #endif
 
-#ifdef MACOS
+#if defined(__APPLE__) && defined(__GNUC__)
 #include <OpenGL/gl.h>
-#include <OpenGL/glext.h>
+#include "glext.h"
 #else
 #include <GL/gl.h>
 #include <GL/glext.h>

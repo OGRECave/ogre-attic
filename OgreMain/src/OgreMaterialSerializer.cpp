@@ -2078,8 +2078,8 @@ namespace Ogre
             mScriptContext.lineNo++;
             
             // DEBUG LINE
-            //LogManager::getSingleton().logMessage("About to attempt line: " + 
-            //    StringConverter::toString(mScriptContext.lineNo));
+            // LogManager::getSingleton().logMessage("About to attempt line(#" + 
+            //    StringConverter::toString(mScriptContext.lineNo) + "): " + line);
 
             // Ignore comments & blanks
             if (!(line.length() == 0 || line.substr(0,2) == "//"))

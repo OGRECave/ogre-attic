@@ -33,6 +33,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 /* Win32 directory operations emulation */
 #if OGRE_PLATFORM != OGRE_PLATFORM_WIN32
 
+#include "OgreNoMemoryMacros.h"
+
 /* If we've initialized yet */
 static int G_searches_initialized = 0;
 
@@ -140,4 +142,5 @@ int _findclose(long id)
     return ret;
 }
 
+#include "OgreMemoryMacros.h"
 #endif

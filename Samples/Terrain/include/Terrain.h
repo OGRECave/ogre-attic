@@ -117,8 +117,11 @@ protected:
         mSceneMgr->setFog( FOG_LINEAR, fadeColour, .001, 500, 1000);
         mWindow->getViewport(0)->setBackgroundColour(fadeColour);
 
-
-        mSceneMgr -> setWorldGeometry( "terrain.cfg" );
+        std::string terrain_cfg("terrain.cfg");
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+        terrain_cfg = mResourcePath + terrain_cfg;
+#endif
+        mSceneMgr -> setWorldGeometry( terrain_cfg );
         // Infinite far plane?
         if (mRoot->getRenderSystem()->getCapabilities()->hasCapability(RSC_INFINITE_FAR_PLANE))
         {
