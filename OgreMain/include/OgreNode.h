@@ -160,6 +160,8 @@ namespace Ogre {
         Vector3 mTransFromInitial;
         // The total weighted rotation from the initial state so far
         Quaternion mRotFromInitial;
+        // The total weighted scale from the initial state so far
+        Vector3 mScaleFromInitial;
 
 
     public:
@@ -557,7 +559,7 @@ namespace Ogre {
             combination with the unweighted rotate, translate etc methods.
         */
         virtual void _weightedTransform(Real weight, const Vector3& translate, 
-            const Quaternion& rotate);
+            const Quaternion& rotate, const Vector3& scale);
 
 
 
