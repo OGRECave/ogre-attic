@@ -26,6 +26,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef __SHADOWVOLUMEEXTRUDEPROGRAM_H__
 #define __SHADOWVOLUMEEXTRUDEPROGRAM_H__
 
+#include "OgrePrerequisites.h"
+
 namespace Ogre {
     /** Static class containing source for vertex programs for extruding shadow volumes
     @remarks
@@ -108,4 +110,4 @@ namespace Ogre {
 
     };
 }
-#endif 
+#endif

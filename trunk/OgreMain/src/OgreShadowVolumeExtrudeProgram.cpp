@@ -23,8 +23,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 
-#include "OgreStableHeaders.h";
+#include "OgreStableHeaders.h"
 #include "OgreShadowVolumeExtrudeProgram.h"
+#include "OgreString.h"
 
 namespace Ogre {
 
