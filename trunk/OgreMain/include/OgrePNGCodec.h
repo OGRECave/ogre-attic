@@ -28,19 +28,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreImageCodec.h"
 #include "OgreSDDataChunk.h"
 
-#include "png.h"
-
 namespace Ogre {
 
     /** ImageCodec specialized in Portable Network Graphics images.
     */
     class _OgreExport PNGCodec : public ImageCodec
     {
-    protected:    
-        static void
-        pngChunkRead(png_structp png_ptr, png_bytep data, png_size_t length);
-
-
     public:
         void code( const DataChunk& input, DataChunk* output, ... ) const;
         /** Encodes data to a PNG file.

@@ -172,9 +172,9 @@ namespace Ogre {
             pCodec->decode( encoded, &decoded ) );
 
         // Get the format and compute the pixel size
-        m_uWidth = pData->ulWidth;
-        m_uHeight = pData->ulHeight;
-        m_eFormat = pData->eFormat;
+        m_uWidth = pData->width;
+        m_uHeight = pData->height;
+        m_eFormat = pData->format;
         m_ucPixelSize = PF2PS( m_eFormat );
 
         delete pData;
@@ -203,11 +203,11 @@ namespace Ogre {
         ImageCodec::ImageData * pData = static_cast< ImageCodec::ImageData * >(
             pCodec->decode( chunk, &decoded ) );
 
-        m_uWidth = pData->ulWidth;
-        m_uHeight = pData->ulHeight;
+        m_uWidth = pData->width;
+        m_uHeight = pData->height;
         
         // Get the format and compute the pixel size
-        m_eFormat = pData->eFormat;
+        m_eFormat = pData->format;
         m_ucPixelSize = PF2PS( m_eFormat );
 
         delete pData;
@@ -255,7 +255,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------------
-    Image::PixelFormat Image::getFormat() const
+    PixelFormat Image::getFormat() const
     {
         return m_eFormat;
     }
@@ -269,10 +269,28 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     bool Image::getHasAlpha() const
     {
-        if( m_eFormat & FMT_ALPHA )
-            return true;
-        else
-            return false;
+        switch( m_eFormat )
+		{
+		case PF_A8:
+		case PF_A4L4:
+		case PF_L4A4:
+		case PF_A4R4G4B4:
+		case PF_B4G4R4A4:
+		case PF_A8R8G8B8:
+		case PF_B8G8R8A8:
+		case PF_A2R10G10B10:
+		case PF_B10G10R10A2:
+			return true;
+
+		case PF_UNKNOWN:
+		case PF_L8:
+		case PF_R5G6B5:
+		case PF_B5G6R5:
+		case PF_R8G8B8:
+		case PF_B8R8G8:
+		default:
+			return false;
+		}
     }
 
     void Image::applyGamma( unsigned char *buffer, Real gamma, uint size, uchar bpp )
