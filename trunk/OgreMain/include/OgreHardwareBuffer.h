@@ -134,7 +134,18 @@ namespace Ogre {
             HardwareBuffer(Usage usage, bool systemMemory, bool useShadowBuffer) 
 				: mUsage(usage), mIsLocked(false), mSystemMemory(systemMemory), 
                 mUseShadowBuffer(useShadowBuffer), mpShadowBuffer(NULL), mShadowUpdated(false), 
-                mSuppressHardwareUpdate(false) {}
+                mSuppressHardwareUpdate(false) 
+            {
+                // If use shadow buffer, upgrade to WRITE_ONLY on hardware side
+                if (useShadowBuffer && usage == HBU_DYNAMIC)
+                {
+                    mUsage = HBU_DYNAMIC_WRITE_ONLY;
+                }
+                else if (useShadowBuffer && usage == HBU_STATIC)
+                {
+                    mUsage = HBU_STATIC_WRITE_ONLY;
+                }
+            }
             virtual ~HardwareBuffer() {}
 		    /** Lock the buffer for (potentially) reading / writing.
 		    @param offset The byte offset from the start of the buffer to lock
