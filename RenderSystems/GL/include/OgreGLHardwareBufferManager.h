@@ -54,7 +54,8 @@ namespace Ogre {
         /// Destroys a vertex declaration, may be overridden by certain rendering APIs
         void destroyVertexDeclaration(VertexDeclaration* decl);
 
-
+        /// Utility function to get the correct GL usage based on HBU's
+        static GLenum getGLUsage(unsigned int usage);
     };
 
 }

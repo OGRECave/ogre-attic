@@ -23,6 +23,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 #include "OgreGLHardwareIndexBuffer.h"
+#include "OgreGLHardwareBufferManager.h"
 #include "OgreException.h"
 
 namespace Ogre {
@@ -45,9 +46,9 @@ namespace Ogre {
 
         // Initialise buffer and set usage
         glBufferDataARB(GL_ARRAY_BUFFER_ARB, mSizeInBytes, NULL, 
-            (usage & HBU_STATIC) ? GL_STATIC_DRAW_ARB : GL_STREAM_DRAW_ARB);
+            GLHardwareBufferManager::getGLUsage(usage));
 
-        std::cerr << "creating index buffer " << mBufferId << std::endl;
+        //std::cerr << "creating index buffer " << mBufferId << std::endl;
     }
 	//---------------------------------------------------------------------
     GLHardwareIndexBuffer::~GLHardwareIndexBuffer()
@@ -71,19 +72,10 @@ namespace Ogre {
         
         if(options == HBL_DISCARD)
         {
-            /*
-            if(mUsage != HBU_DYNAMIC)
-            {
-                Except(Exception::ERR_INTERNAL_ERROR, 
-                    "HBL_DISCARD is not allowed on a non-dynamic buffer",
-                        "GLHardwareIndexBuffer::lock");
-            }
-            */
-
             glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, mSizeInBytes, NULL, 
-                (mUsage & HBU_STATIC) ? GL_STATIC_DRAW_ARB : GL_STREAM_DRAW_ARB);
+                GLHardwareBufferManager::getGLUsage(mUsage));
 
-            access = (mUsage & HBU_WRITE_ONLY) ? GL_WRITE_ONLY_ARB : GL_READ_WRITE_ARB;
+            access = (mUsage & HBU_DYNAMIC) ? GL_READ_WRITE_ARB : GL_WRITE_ONLY_ARB;
 
         }
         else if(options == HBL_READ_ONLY)
@@ -98,7 +90,7 @@ namespace Ogre {
         }
         else if(options == HBL_NORMAL)
         {
-            access = (mUsage & HBU_WRITE_ONLY) ? GL_WRITE_ONLY_ARB : GL_READ_WRITE_ARB;
+            access = (mUsage & HBU_DYNAMIC) ? GL_READ_WRITE_ARB : GL_WRITE_ONLY_ARB;
         }
         else
         {
@@ -136,38 +128,17 @@ namespace Ogre {
     void GLHardwareIndexBuffer::readData(size_t offset, size_t length, 
         void* pDest)
     {
-        if(mUsage & HBU_STATIC)
-        {
-            glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, mBufferId );
-            glGetBufferSubDataARB(mBufferId, offset, length, pDest);
-        }
-        else
-        {
-            void* pSrc = this->lock(offset, length, 
-                HardwareBuffer::HBL_READ_ONLY);
-            memcpy(pDest, pSrc, length);
-            this->unlock();
-        }
+        glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, mBufferId );
+        glGetBufferSubDataARB(mBufferId, offset, length, pDest);
     }
 	//---------------------------------------------------------------------
     void GLHardwareIndexBuffer::writeData(size_t offset, size_t length, 
-            const void* pSource,
-			bool discardWholeBuffer)
+            const void* pSource, bool discardWholeBuffer)
     {
-        if(mUsage & HBU_STATIC)
-        {
-            glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, mBufferId );
-            glBufferDataARB( GL_ELEMENT_ARRAY_BUFFER_ARB, 
-                mNumIndexes*3*sizeof(GL_FLOAT), pSource, GL_STATIC_DRAW_ARB);
-        }
-        else
-        {
-            void* pDst = this->lock(offset, length, 
-                discardWholeBuffer ? HardwareBuffer::HBL_DISCARD : HardwareBuffer::HBL_NORMAL);
-            memcpy(pDst, pSource, length);
-            this->unlock();
-        }
-        
+        glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, mBufferId );
+        glBufferDataARB( GL_ELEMENT_ARRAY_BUFFER_ARB, 
+            mNumIndexes*3*sizeof(GL_FLOAT), pSource, 
+            GLHardwareBufferManager::getGLUsage(mUsage));
     }
 	//---------------------------------------------------------------------
 

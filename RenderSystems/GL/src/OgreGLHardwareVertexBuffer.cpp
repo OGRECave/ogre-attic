@@ -22,6 +22,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
+#include "OgreGLHardwareBufferManager.h"
 #include "OgreGLHardwareVertexBuffer.h"
 #include "OgreException.h"
 
@@ -44,10 +45,10 @@ namespace Ogre {
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, mBufferId);
 
         // Initialise mapped buffer and set usage
-        glBufferDataARB(GL_ARRAY_BUFFER_ARB, vertexSize * numVertices, NULL, 
-            usage & HBU_STATIC ? GL_STATIC_DRAW_ARB : GL_STREAM_DRAW_ARB);
+        glBufferDataARB(GL_ARRAY_BUFFER_ARB, mSizeInBytes, NULL, 
+            GLHardwareBufferManager::getGLUsage(usage));
 
-        std::cerr << "creating vertex buffer = " << mBufferId << std::endl;
+        //std::cerr << "creating vertex buffer = " << mBufferId << std::endl;
     }
 	//---------------------------------------------------------------------
     GLHardwareVertexBuffer::~GLHardwareVertexBuffer()
@@ -71,19 +72,10 @@ namespace Ogre {
 
         if(options == HBL_DISCARD)
         {
-            /*
-            if(mUsage != HBU_DYNAMIC)
-            {
-                Except(Exception::ERR_INTERNAL_ERROR, 
-                    "HBL_DISCARD is not allowed on a non-dynamic buffer",
-                        "GLHardwareVertexBuffer::lock");
-            }
-            */
+            glBufferDataARB(GL_ARRAY_BUFFER_ARB, mSizeInBytes, NULL, 
+                GLHardwareBufferManager::getGLUsage(mUsage));
 
-            glBufferDataARB(GL_ARRAY_BUFFER_ARB, length, NULL, 
-                mUsage & HBU_STATIC ? GL_STATIC_DRAW_ARB : GL_STREAM_DRAW_ARB);
-
-            access = (mUsage & HBU_WRITE_ONLY) ? GL_WRITE_ONLY_ARB : GL_READ_WRITE_ARB;
+            access = (mUsage & HBU_DYNAMIC) ? GL_READ_WRITE_ARB : GL_WRITE_ONLY_ARB;
 
         }
         else if(options == HBL_READ_ONLY)
@@ -98,7 +90,7 @@ namespace Ogre {
         }
         else if(options == HBL_NORMAL)
         {
-            access = (mUsage & HBU_WRITE_ONLY) ? GL_WRITE_ONLY_ARB : GL_READ_WRITE_ARB;
+            access = mUsage & HBU_DYNAMIC ? GL_READ_WRITE_ARB : GL_WRITE_ONLY_ARB;
         }
         else
         {
@@ -140,23 +132,11 @@ namespace Ogre {
     }
 	//---------------------------------------------------------------------
     void GLHardwareVertexBuffer::writeData(size_t offset, size_t length, 
-            const void* pSource,
-			bool discardWholeBuffer)
+            const void* pSource, bool discardWholeBuffer)
     {
-        if(mUsage & HBU_STATIC)
-        {
-            glBindBufferARB(GL_ARRAY_BUFFER_ARB, mBufferId);
-            glBufferDataARB(GL_ARRAY_BUFFER_ARB, 
-                mNumVertices*3*sizeof(GL_FLOAT), pSource, GL_STATIC_DRAW_ARB);
-        }
-        else
-        {
-            void* pDst = this->lock(offset, length, 
-                discardWholeBuffer ? HardwareBuffer::HBL_DISCARD : HardwareBuffer::HBL_NORMAL);
-            memcpy(pDst, pSource, length);
-            this->unlock();
-        }
-        
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, mBufferId);
+        glBufferDataARB(GL_ARRAY_BUFFER_ARB, mNumVertices*3*sizeof(GL_FLOAT),
+            pSource, GLHardwareBufferManager::getGLUsage(mUsage));
     }
 	//---------------------------------------------------------------------
 
