@@ -35,6 +35,13 @@ BEGIN_OGRE_NAMESPACE
 class _OgreExport TGACodec : public ImageCodec
 {
 protected:
+
+// We're mapping onto raw file data, so ensure members are packed with no gaps
+#if OGRE_COMPILER == COMPILER_MSVC
+#pragma pack(push)
+#pragma pack(1)
+#endif
+
     struct TgaHeader {
         unsigned char  id_len;
         unsigned char  cm_type;
@@ -49,6 +56,10 @@ protected:
         unsigned char  bpp;
         unsigned char  flags;
     };
+#ifdef OGRE_COMPILER == COMPILER_MSVC
+#pragma pack(pop)
+#endif
+
 
 public:
     void code( const DataChunk& input, DataChunk* output, ... ) const;
