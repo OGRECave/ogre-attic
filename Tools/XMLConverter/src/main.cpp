@@ -41,7 +41,7 @@ void help(void)
     // Print help message
     cout << endl << "OgreXMLConvert: Converts data between XML and OGRE binary formats." << endl;
     cout << "Provided for OGRE by Steve Streeting 2002" << endl << endl;
-    cout << "Usage: OgreXMLConvert sourcefile [destfile] " << endl;
+    cout << "Usage: OgreXMLConverter sourcefile [destfile] " << endl;
     cout << "sourcefile = name of file to convert" << endl;
     cout << "destfile   = optional name of file to write to. If you don't" << endl;
     cout << "             specify this OGRE works it out through the extension " << endl;
@@ -241,7 +241,7 @@ int main(int numargs, char** args)
 
     String source(args[1]);
 
-    logMgr->createLog("XMLConverter.log");
+    logMgr->createLog("OgreXMLConverter.log");
 
     std::vector<String> parts = source.split(".");
     String& ext = parts.back();

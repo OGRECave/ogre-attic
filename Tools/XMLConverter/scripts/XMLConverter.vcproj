@@ -33,7 +33,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="OgreMain.lib zlib.lib"
-				OutputFile="$(OutDir)/XMLConverter.exe"
+				OutputFile="$(OutDir)/OgreXMLConverter.exe"
 				Version="0.99"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\..\OgreMain\lib\$(ConfigurationName);..\..\..\Dependencies\lib\$(ConfigurationName)"
@@ -82,7 +82,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="OgreMain.lib zlib.lib"
-				OutputFile="$(OutDir)/XMLConverter.exe"
+				OutputFile="$(OutDir)/OgreXMLConverter.exe"
 				Version="0.99"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\..\OgreMain\lib\$(ConfigurationName);..\..\..\Dependencies\lib\$(ConfigurationName)"
