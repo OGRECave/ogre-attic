@@ -165,7 +165,7 @@ namespace OgreRefApp
                     if (Root::getSingleton().getTimer()->getMilliseconds() > mDisableTimeEnd)
                     {
                         this->setDynamicsEnabled(false, true);
-                        LogManager::getSingleton().logMessage(mEntity->getName() + " disabled");
+                        //LogManager::getSingleton().logMessage(mEntity->getName() + " disabled");
                         mDisableTimeEnd = 0.0f;
                     }
 
@@ -177,7 +177,7 @@ namespace OgreRefApp
                     if (mDisableTime > 0)
                     {
                         mDisableTimeEnd = Root::getSingleton().getTimer()->getMilliseconds() + mDisableTime;
-                        LogManager::getSingleton().logMessage("Starting countdown...");
+                        //LogManager::getSingleton().logMessage("Starting countdown...");
                     }
                 }
             }
