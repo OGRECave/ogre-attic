@@ -77,8 +77,8 @@ namespace Ogre {
             glBufferDataARB_ptr(GL_ARRAY_BUFFER_ARB, mSizeInBytes, NULL, 
                 GLHardwareBufferManager::getGLUsage(mUsage));
                 */
+            access = (mUsage == HBU_DYNAMIC) ? GL_READ_WRITE_ARB : GL_WRITE_ONLY_ARB;
 
-            access = (mUsage & HBU_DYNAMIC) ? GL_READ_WRITE_ARB : GL_WRITE_ONLY_ARB;
         }
         else if(options == HBL_READ_ONLY)
         {
@@ -92,7 +92,7 @@ namespace Ogre {
         }
         else if(options == HBL_NORMAL || options == HBL_NO_OVERWRITE)
         {
-            access = mUsage & HBU_DYNAMIC ? GL_READ_WRITE_ARB : GL_WRITE_ONLY_ARB;
+            access = (mUsage == HBU_DYNAMIC) ? GL_READ_WRITE_ARB : GL_WRITE_ONLY_ARB;
         }
         else
         {
