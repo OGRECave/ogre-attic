@@ -55,7 +55,7 @@ Billboard* mLightFlares[NUM_LIGHTS];
 Vector3 mLightPositions[NUM_LIGHTS] = 
 {
 	Vector3(300,0,0),
-	Vector3(-200,50,0),
+	Vector3(-300,50,0),
 	Vector3(0, -300, -100)
 };
 // Base orientations of the lights 
@@ -89,12 +89,13 @@ bool mLightState[NUM_LIGHTS] =
 	false
 };
 // The materials
-#define NUM_MATERIALS 3
+#define NUM_MATERIALS 4
 String mMaterialNames[NUM_MATERIALS] = 
 {
 	"Examples/BumpMapping/SingleLight",
 	"Examples/BumpMapping/MultiLight",
-	"Examples/BumpMapping/MultiLightSpecular"
+	"Examples/BumpMapping/MultiLightSpecular",
+    "Examples/OffsetMapping/Specular"
 };
 size_t mCurrentMaterial = 1;
 
