@@ -359,7 +359,7 @@ namespace Ogre {
 			return Math::intersects(p, *this);
 		}
         /** Tests whether the vector point is within this box. */
-        bool intersects(const Vector3& v)
+        bool intersects(const Vector3& v) const
         {
 			return(v.x >= mMinimum.x  &&  v.x <= mMaximum.x  && 
 			    v.y >= mMinimum.y  &&  v.y <= mMaximum.y  && 

@@ -133,7 +133,7 @@ namespace Ogre {
         return desc;
     }
 
-    int Exception::getNumber(void) throw()
+    int Exception::getNumber(void) const throw()
     {
         return number;
     }

@@ -519,17 +519,17 @@ namespace Ogre {
         
     }
     //---------------------------------------------------------------------
-    bool OverlayManager::hasViewportChanged(void)
+    bool OverlayManager::hasViewportChanged(void) const
     {
         return mViewportDimensionsChanged;
     }
     //---------------------------------------------------------------------
-    int OverlayManager::getViewportHeight(void)
+    int OverlayManager::getViewportHeight(void) const
     {
         return mLastViewportHeight;
     }
     //---------------------------------------------------------------------
-    int OverlayManager::getViewportWidth(void)
+    int OverlayManager::getViewportWidth(void) const
     {
         return mLastViewportWidth;
     }

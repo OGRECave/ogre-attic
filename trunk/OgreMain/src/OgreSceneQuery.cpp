@@ -43,7 +43,7 @@ namespace Ogre {
         mQueryMask = mask;
     }
     //-----------------------------------------------------------------------
-    unsigned long SceneQuery::getQueryMask(void)
+    unsigned long SceneQuery::getQueryMask(void) const
     {
         return mQueryMask;
     }
@@ -60,7 +60,7 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     SceneQuery::WorldFragmentType 
-    SceneQuery::getWorldFragmentType(void)
+    SceneQuery::getWorldFragmentType(void) const
     {
         return mWorldFragmentType;
     }
@@ -75,7 +75,7 @@ namespace Ogre {
         clearResults();
     }
     //-----------------------------------------------------------------------
-    SceneQueryResult& RegionSceneQuery::getLastResults(void)
+    SceneQueryResult& RegionSceneQuery::getLastResults(void) const
     {
         assert(mLastResult);
         return *mLastResult;
@@ -131,7 +131,7 @@ namespace Ogre {
         mAABB = box;
     }
     //-----------------------------------------------------------------------
-    const AxisAlignedBox& AxisAlignedBoxSceneQuery::getBox(void)
+    const AxisAlignedBox& AxisAlignedBoxSceneQuery::getBox(void) const
     {
         return mAABB;
     }
@@ -150,7 +150,7 @@ namespace Ogre {
         mSphere = sphere;
     }
     //-----------------------------------------------------------------------
-    const Sphere& SphereSceneQuery::getSphere()
+    const Sphere& SphereSceneQuery::getSphere() const
     {
         return mSphere;
     }
@@ -171,7 +171,7 @@ namespace Ogre {
         mRay = ray;
     }
     //-----------------------------------------------------------------------
-    const Ray& RaySceneQuery::getRay(void)
+    const Ray& RaySceneQuery::getRay(void) const
     {
         return mRay;
     }
@@ -182,12 +182,12 @@ namespace Ogre {
         mMaxResults = maxresults;
     }
     //-----------------------------------------------------------------------
-    bool RaySceneQuery::getSortByDistance(void)
+    bool RaySceneQuery::getSortByDistance(void) const
     {
         return mSortByDistance;
     }
     //-----------------------------------------------------------------------
-    ushort RaySceneQuery::getMaxResults(void)
+    ushort RaySceneQuery::getMaxResults(void) const
     {
         return mMaxResults;
     }
@@ -223,7 +223,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    RaySceneQueryResult& RaySceneQuery::getLastResults(void)
+    RaySceneQueryResult& RaySceneQuery::getLastResults(void) const
     {
         assert (mLastResult);
         return *mLastResult;
@@ -282,7 +282,7 @@ namespace Ogre {
         clearResults();
     }
     //-----------------------------------------------------------------------
-    IntersectionSceneQueryResult& IntersectionSceneQuery::getLastResults(void)
+    IntersectionSceneQueryResult& IntersectionSceneQuery::getLastResults(void) const
     {
         assert(mLastResult);
         return *mLastResult;

@@ -67,7 +67,7 @@ namespace Ogre
         mType = ftype;
     }
     //---------------------------------------------------------------------
-    FontType Font::getType(void)
+    FontType Font::getType(void) const
     {
         return mType;
     }
@@ -87,17 +87,17 @@ namespace Ogre
         mTtfResolution = ttfResolution;
     }
     //---------------------------------------------------------------------
-    const String& Font::getSource(void)
+    const String& Font::getSource(void) const
     {
         return mSource;
     }
     //---------------------------------------------------------------------
-    Real Font::getTrueTypeSize(void)
+    Real Font::getTrueTypeSize(void) const
     {
         return mTtfSize;
     }
     //---------------------------------------------------------------------
-    uint Font::getTrueTypeResolution(void)
+    uint Font::getTrueTypeResolution(void) const
     {
         return mTtfResolution;
     }
