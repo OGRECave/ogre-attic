@@ -10494,9 +10494,9 @@
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.c.h;
 			name = OgreGLATIFSInit.h;
-			path = /Users/temas/cvs/ogre/RenderSystems/GL/include/OgreGLATIFSInit.h;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../../RenderSystems/GL/include/OgreGLATIFSInit.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		8296D8C605BB237900DD3526 = {
 			fileRef = 8296D8C505BB237900DD3526;
