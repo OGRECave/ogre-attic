@@ -331,6 +331,12 @@ namespace Ogre {
                 {
                     mov->_notifyCurrentCamera(cam);
                     mov->_updateRenderQueue(&mRenderQueue);
+                    // Check if the bounding box should be shown.
+                    SceneNode* sn = static_cast<SceneNode*>(mov->getParentNode());
+                    if (sn->getShowBoundingBox() || mShowBoundingBoxes)
+                    {
+                        sn->_addBoundingBoxToQueue(&mRenderQueue);
+                    }
                     mMovablesForRendering.insert(*oi);
                 }
 

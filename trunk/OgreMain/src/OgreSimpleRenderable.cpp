@@ -134,8 +134,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     const LightList& SimpleRenderable::getLights(void) const
     {
+        static LightList dummyLightList;
         // Use parent node
-        return mParentNode->getLights();
+        if (mParentNode)
+            return mParentNode->getLights();
+        else
+            return dummyLightList;
     }
 
 }
