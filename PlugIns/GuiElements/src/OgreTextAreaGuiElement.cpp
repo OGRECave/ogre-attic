@@ -315,7 +315,7 @@ namespace Ogre {
     void TextAreaGuiElement::setCaption( const String& caption )
     {
         mCaption = caption;
-        updateGeometry();
+        mGeomPositionsOutOfDate = true;
 
     }
     const String& TextAreaGuiElement::getCaption() const
@@ -333,8 +333,7 @@ namespace Ogre {
         mpMaterial = mpFont->getMaterial();
         mpMaterial->setDepthCheckEnabled(false);
         mpMaterial->setLightingEnabled(false);
-
-        updateGeometry();
+		mGeomPositionsOutOfDate = true;
     }
     const String& TextAreaGuiElement::getFontName() const
     {
@@ -409,7 +408,6 @@ namespace Ogre {
     void TextAreaGuiElement::setMaterialName(const String& matName)
     {
         GuiElement::setMaterialName(matName);
-        updateGeometry();
     }
     //---------------------------------------------------------------------
     void TextAreaGuiElement::addBaseParameters(void)

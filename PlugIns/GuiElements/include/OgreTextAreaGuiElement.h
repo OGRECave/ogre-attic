@@ -118,7 +118,7 @@ namespace Ogre
         inline void setAlignment( Alignment a )
         {
             mAlignment = a;
-            updateGeometry();
+            mGeomPositionsOutOfDate = true;
         }
         inline Alignment getAlignment() const
         {
