@@ -1,4 +1,4 @@
-INCLUDES = INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/PlugIns/GuiElements/include -I$(top_srcdir)/OgreMain/include $(FT2_CFLAGS) 
+INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/PlugIns/GuiElements/include -I$(top_srcdir)/OgreMain/include $(FT2_CFLAGS) 
 
 noinst_PROGRAMS = Plugin_GuiElements.so
 
