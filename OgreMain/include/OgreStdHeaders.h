@@ -63,12 +63,20 @@ extern "C" {
 
 #endif
 
-#if OGRE_PLATFORM == PLATFORM_LINUX || OGRE_PLATFORM == PLATFORM_APPLE
+#if OGRE_PLATFORM == PLATFORM_LINUX
 extern "C" {
 
 #   include <unistd.h>
 #   include <dlfcn.h>
 
+}
+#endif
+
+#if OGRE_PLATFORM == PLATFORM_APPLE
+extern "C" {
+#   include <unistd.h>
+#   include <sys/param.h>
+#   include <CoreFoundation/CoreFoundation.h>
 }
 #endif
 

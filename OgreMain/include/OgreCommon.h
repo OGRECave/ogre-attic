@@ -26,6 +26,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __Common_H__
 // Common stuff
 
+#include <utility>
+
 namespace Ogre {
 
 	enum ResourceType

@@ -343,10 +343,6 @@ AC_SUBST(PYTHON_LIBS)
 
 AC_DEFUN([OGRE_SETUP_FOR_HOST],
 [case $target in
-powerpc-apple-darwin*)
-	AC_SUBST(SHARED_FLAGS, "-bundle -undefined suppress -flat_namespace")
-	AC_SUBST(GL_LIBS,,"-framework OpenGL")
-	;;
 *) dnl default to standard linux
 	AC_SUBST(SHARED_FLAGS, "-shared")
 	AC_SUBST(GL_LIBS, "-lGL -lGLU")

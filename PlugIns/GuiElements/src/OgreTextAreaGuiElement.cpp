@@ -97,7 +97,7 @@ namespace Ogre {
 
     }
 
-    void TextAreaGuiElement::checkMemoryAllocation( uint numChars )
+    void TextAreaGuiElement::checkMemoryAllocation( size_t numChars )
     {
         if( mAllocSize < numChars)
         {

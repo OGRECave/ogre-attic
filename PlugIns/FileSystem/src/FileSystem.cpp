@@ -415,8 +415,8 @@ namespace Ogre {
 
         /* cearny: Simplest solution is always the best. If I can't chdir to the given path, then it musn't
         be a directory */
-        char szCurrPath[260];
-        getcwd( szCurrPath, 259 );
+        char szCurrPath[MAX_PATH];
+        getcwd( szCurrPath, MAX_PATH );
         if( chdir( mName.c_str() ) )
             Except( Exception::ERR_ITEM_NOT_FOUND, "Cannot find folder " + mName, "FileSystem::load" );
         chdir( szCurrPath );

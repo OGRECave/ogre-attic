@@ -1057,8 +1057,12 @@ namespace Ogre {
 
     void GLRenderSystem::convertColourValue(const ColourValue& colour, unsigned long* pDest)
     {
-        // GL accesses by byte, so use ABGR so little-endian format will make it RGBA in byte mode
+    #if OGRE_ENDIAN == ENDIAN_BIG
+        *pDest = colour.getAsLongRGBA();
+    #else
+      // GL accesses by byte, so use ABGR so little-endian format will make it RGBA in byte mode
         *pDest = colour.getAsLongABGR();
+    #endif
     }
     
     void GLRenderSystem::_makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, 
