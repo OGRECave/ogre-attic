@@ -31,7 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreCommon.h"
 #include "OgreColourValue.h"
 #include "OgreBlendMode.h"
-#include "OgreMaterial.h"
+#include "OgreTextureUnitState.h"
 
 namespace Ogre {
 
