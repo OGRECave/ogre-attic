@@ -34,7 +34,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
-				AdditionalDependencies="libpng.lib jpeglib.lib OgreMain.lib d3d8.lib d3dx8.lib dxerr8.lib"
+				AdditionalDependencies="OgreMain.lib d3d8.lib d3dx8.lib dxerr8.lib"
 				OutputFile="$(OutDir)/RenderSystem_Direct3D8.dll"
 				Version="0.99"
 				LinkIncremental="2"
@@ -95,7 +95,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
-				AdditionalDependencies="libpng.lib jpeglib.lib OgreMain.lib d3d8.lib d3dx8.lib dxerr8.lib"
+				AdditionalDependencies="OgreMain.lib d3d8.lib d3dx8.lib dxerr8.lib"
 				OutputFile="$(OutDir)/RenderSystem_Direct3D8.dll"
 				Version="0.99"
 				LinkIncremental="1"

@@ -43,6 +43,8 @@ namespace Ogre {
         */
         void writeContentsToFile(const String& filename);
 
+		bool requiresTextureFlipping() const { return false; }
+
 	protected:
 		HWND	mHWnd;					// Win32 Window handle
 		HWND	mParentHWnd;			// Parent Win32 window handle
@@ -66,6 +68,8 @@ namespace Ogre {
 		// Pointer to the 3D device specific for this window
 		LPDIRECT3DDEVICE8	mpD3DDevice;
 		D3DPRESENT_PARAMETERS md3dpp;
+        LPDIRECT3DSURFACE8 mpRenderSurface;
+        LPDIRECT3DSURFACE8 mpRenderZBuffer;
 
 		// Our debugging font...use the D3DFont class for simplicity
 		CD3DFont* mpDbgFont;

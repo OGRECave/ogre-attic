@@ -120,6 +120,7 @@ namespace Ogre {
         RenderWindow* createRenderWindow(const String &name, int width, int height, int colourDepth,
             bool fullScreen, int left = 0, int top = 0, bool depthBuffer = true,
             RenderWindow* parentWindowHandle = 0);
+        RenderTexture * createRenderTexture( const String & name, int width, int height );
 		void destroyRenderWindow( RenderWindow* pWin );
 		String getErrorDescription( long errorNumber );
 		void convertColourValue( const ColourValue& colour, unsigned long* pDest );

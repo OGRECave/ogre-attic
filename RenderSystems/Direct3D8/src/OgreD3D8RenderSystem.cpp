@@ -440,13 +440,10 @@ namespace Ogre {
                 lastStartTime = fTime;
 
                 // Render a frame during idle time (no messages are waiting)
-                for( RenderTargetMap::iterator i = mRenderTargets.begin(); i != mRenderTargets.end(); i++ )
-                {
-                    if( i->second->isActive() )
-                    {
-                        i->second->update();
-                    }
-                }
+                for( uchar i = 0; i < 10; i++ )
+					for( RenderTargetList::iterator j = mPrioritisedRenderTargets[ i ].begin(); j != mPrioritisedRenderTargets[ i ].end(); j++ )
+						if( (*j)->isActive() )
+							(*j)->update();
 
                 // Do frame ended event
                 fTime = clock(); // Get current time
@@ -558,8 +555,7 @@ namespace Ogre {
 		win->create( name, width, height, colourDepth, fullScreen, 
 			left, top, depthBuffer, &mhInstance, mActiveD3DDriver, parentWindowHandle );
 
-		// Add window to render target list
-        mRenderTargets.insert( RenderTargetMap::value_type( name, win ) );
+		attachRenderTarget( *win );
 
 		// If this is the parent window, get the D3D device and create the texture manager
 		if( NULL == parentWindowHandle )
@@ -575,6 +571,13 @@ namespace Ogre {
 
 		OgreUnguardRet( win );
 	}
+
+    RenderTexture * D3D8RenderSystem::createRenderTexture( const String & name, int width, int height )
+    {
+        RenderTexture * rt = new D3D8RenderTexture( name, width, height );
+        attachRenderTarget( *rt );
+        return rt;
+    }
 
 	void D3D8RenderSystem::destroyRenderWindow( RenderWindow* pWin )
 	{
@@ -1212,12 +1215,15 @@ namespace Ogre {
 			// Set render target
 			// TODO: maybe only set when required?
 			// TODO: deal with rendering to textures
-			//RenderTarget* target;
-			//target = vp->getTarget();
-			// Get DD back buffer
-			//LPDIRECTDRAWSURFACE7 pBack;
-			//target->getCustomAttribute( "DDBACKBUFFER", &pBack );
-			//hr = mpD3DDevice->SetRenderTarget( pBack, 0 );
+			RenderTarget* target;
+			target = vp->getTarget();
+
+            LPDIRECT3DSURFACE8 pBack, pZBuffer;
+			target->getCustomAttribute( "DDBACKBUFFER", &pBack );
+            target->getCustomAttribute( "D3DZBUFFER", &pZBuffer );
+            //mpD3DDevice->GetDepthStencilSurface( &pZBuffer );
+
+			hr = mpD3DDevice->SetRenderTarget( pBack, pZBuffer );
 
 			// set viewport dimensions
 			d3dvp.X = vp->getActualLeft();
@@ -1249,7 +1255,7 @@ namespace Ogre {
 		// Clear the viewport if required
 		if( mActiveViewport->getClearEveryFrame() )
 		{
-			if( FAILED( hr = mpD3DDevice->Clear( 0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 
+			if( FAILED( hr = mpD3DDevice->Clear( 0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
 				mActiveViewport->getBackgroundColour().getAsLongARGB(), 1.0f, 0 ) ) )
 				Except( hr, "Error clearing viewport.", "D3D8RenderSystem::_beginFrame" );
 		}
