@@ -89,19 +89,9 @@ namespace Ogre {
 
 		/// internal method, return a D3D pixel format for texture creation
 		D3DFORMAT _chooseD3DFormat();
-		/// internal method, return the color masks for a given format
-		void _getColorMasks(D3DFORMAT format, DWORD *pdwRed, DWORD *pdwGreen, DWORD *pdwBlue, DWORD *pdwAlpha, DWORD *pdwRGBBitCount);
-		/// internal method, copy a memory block to the given surface
-		void _copyMemoryToSurface( const unsigned char *pBuffer, IDirect3DSurface9 *pSurface );
-		/// internal method, blits a given image to normal textures
-		void _blitImageToNormTex(const Image &srcImage);
-		/// internal method, blits images to cube textures
-		void _blitImagesToCubeTex(const Image srcImages[]);
 
 		/// internal method, free D3D9 resources
 		void _freeResources();
-		/// internal method, construct full cube texture face names from a given string
-		void _constructCubeFaceNames(const String& name);
 		/// internal method, set Texture class source image protected attributes
 		void _setSrcAttributes(unsigned long width, unsigned long height, unsigned long depth, PixelFormat format);
 		/// internal method, set Texture class final texture protected attributes
