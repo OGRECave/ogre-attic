@@ -1200,11 +1200,15 @@ namespace Ogre {
         {
             tss = D3DTSS_COLORARG1;
             manualD3D = D3DRGBA(bm.colourArg1.r,bm.colourArg1.g,bm.colourArg1.b,1.0);
+			mManualBlendColours[stage][0] = bm.colourArg1;
         }
         else if (bm.blendType == LBT_ALPHA)
         {
             tss = D3DTSS_ALPHAARG1;
-            manualD3D = D3DRGBA(0,0,0,bm.alphaArg1);
+			manualD3D = D3DRGBA(mManualBlendColours[stage][0].r, 
+				mManualBlendColours[stage][0].g, 
+				mManualBlendColours[stage][0].b, 
+				bm.alphaArg1);
         }
         LayerBlendSource bs = bm.source1;
         for (int i = 0; i < 2; ++i)
@@ -1239,11 +1243,15 @@ namespace Ogre {
             {
                 tss = D3DTSS_COLORARG2;
                 manualD3D = D3DRGBA(bm.colourArg2.r,bm.colourArg2.g,bm.colourArg2.b,1.0);
+				mManualBlendColours[stage][1] = bm.colourArg2;
             }
             else if (bm.blendType == LBT_ALPHA)
             {
                 tss = D3DTSS_ALPHAARG2;
-                manualD3D = D3DRGBA(0,0,0,bm.alphaArg2);
+				manualD3D = D3DRGBA(mManualBlendColours[stage][1].r, 
+					mManualBlendColours[stage][1].g, 
+					mManualBlendColours[stage][1].b
+					,bm.alphaArg2);
             }
         }
     }

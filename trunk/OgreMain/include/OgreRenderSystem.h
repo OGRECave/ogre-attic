@@ -965,6 +965,9 @@ namespace Ogre
         /// Saved set of world matrices
         Matrix4 mWorldMatrices[256];
 
+		/// Saved manual colour blends
+		ColourValue mManualBlendColours[OGRE_MAX_TEXTURE_LAYERS][2];
+
         bool mInvertVertexWinding;
 
     };

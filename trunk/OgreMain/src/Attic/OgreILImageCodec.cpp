@@ -148,7 +148,11 @@ namespace Ogre {
         imgData->width = ilGetInteger( IL_IMAGE_WIDTH );
         imgData->height = ilGetInteger( IL_IMAGE_HEIGHT );
         imgData->depth = ilGetInteger( IL_IMAGE_DEPTH );
+#if 0   
+        /// XXX reenable this as soon as we support custom mipmaps 
         imgData->num_mipmaps = ilGetInteger ( IL_NUM_MIPMAPS );
+#endif
+        imgData->num_mipmaps = 0;
         imgData->flags = 0;
 		
 		if(imgData->format == PF_UNKNOWN)

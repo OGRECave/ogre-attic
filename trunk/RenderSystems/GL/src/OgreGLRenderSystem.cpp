@@ -1812,23 +1812,26 @@ namespace Ogre {
 		    cv1[1] = bm.colourArg1.g;
 		    cv1[2] = bm.colourArg1.b;
 		    cv1[3] = bm.colourArg1.a;
+			mManualBlendColours[stage][0] = bm.colourArg1;
+
 
 		    cv2[0] = bm.colourArg2.r;
 		    cv2[1] = bm.colourArg2.g;
 		    cv2[2] = bm.colourArg2.b;
 		    cv2[3] = bm.colourArg2.a;
+			mManualBlendColours[stage][1] = bm.colourArg2;
         }
 
 		if (bm.blendType == LBT_ALPHA)
         {
-		    cv1[0] = 0;
-		    cv1[1] = 0;
-		    cv1[2] = 0;
+		    cv1[0] = mManualBlendColours[stage][0].r;
+		    cv1[1] = mManualBlendColours[stage][0].g;
+		    cv1[2] = mManualBlendColours[stage][0].b;
 		    cv1[3] = bm.alphaArg1;
 
-		    cv2[0] = 0;
-		    cv2[1] = 0;
-		    cv2[2] = 0;
+		    cv2[0] = mManualBlendColours[stage][1].r;
+		    cv2[1] = mManualBlendColours[stage][1].g;
+		    cv2[2] = mManualBlendColours[stage][1].b;
 		    cv2[3] = bm.alphaArg2;
         }
 

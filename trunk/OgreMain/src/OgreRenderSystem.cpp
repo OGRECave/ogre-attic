@@ -192,7 +192,14 @@ namespace Ogre {
         // The method _disableTextureUnit is called to turn a unit off
 
         // Texture name
-        _setTexture(texUnit, true, tl.getTextureName());
+		if (tl.isBlank())
+		{
+			_setTexture(texUnit, true, StringUtil::BLANK);
+		}
+		else
+		{
+			_setTexture(texUnit, true, tl.getTextureName());
+		}
 
         // Set texture coordinate set
         _setTextureCoordSet(texUnit, tl.getTextureCoordSet());
@@ -207,6 +214,7 @@ namespace Ogre {
         _setTextureLayerAnisotropy(texUnit, tl.getTextureAnisotropy());
 
 		// Set blend modes
+		// Note, colour before alpha is important
         _setTextureBlendMode(texUnit, tl.getColourBlendMode());
         _setTextureBlendMode(texUnit, tl.getAlphaBlendMode());
 

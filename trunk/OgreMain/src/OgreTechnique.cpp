@@ -252,6 +252,14 @@ namespace Ogre {
 		{
 			(*i)->_load();
 		}
+
+		IlluminationPassList::iterator il, ilend;
+		ilend = mIlluminationPasses.end();
+		for (il = mIlluminationPasses.begin(); il != ilend; ++il)
+		{
+			if((*il)->pass != (*il)->originalPass)
+			(*il)->pass->_load();
+		}
     }
     //-----------------------------------------------------------------------------
     void Technique::_unload(void)
