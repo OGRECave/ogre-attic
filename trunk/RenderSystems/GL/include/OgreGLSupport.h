@@ -58,6 +58,11 @@ public:
     }
 
     /**
+    * compare GL version numbers
+    */
+    bool checkMinGLVersion(const String& v);
+
+    /**
     * Check if an extension is available
     */
     virtual bool checkExtension(const std::string& ext);
@@ -69,6 +74,50 @@ public:
         established.
     */
     virtual void initialiseExtensions(void);
+
+    virtual bool hasMultiTexture(void)
+    {
+      if(checkMinGLVersion("1.3.0") || checkExtension("GL_ARB_multitexture")) 
+        return true;
+
+      return false;
+    }
+
+    virtual bool hasHWMipmap(void)
+    {
+      if(checkMinGLVersion("1.4.0") || checkExtension("GL_SGIS_generate_mipmap")) 
+        return true;
+
+      return false;
+    }
+
+    virtual bool hasDot3(void)
+    {
+      if(checkMinGLVersion("1.3.0") || 
+          checkExtension("GL_ARB_texture_env_dot3") || 
+          checkExtension("GL_EXT_texture_env_dot3"))
+          return true;
+
+      return false;
+    }
+
+    virtual bool hasAnisotropy(void)
+    {
+      if(checkExtension("GL_EXT_texture_filter_anisotropic"))
+          return true;
+
+      return false;
+    }
+
+    virtual bool hasBlending(void)
+    {
+      if(checkMinGLVersion("1.3.0") || 
+          checkExtension("GL_ARB_texture_env_combine") || 
+          checkExtension("GL_EXT_texture_env_combine"))
+          return true;
+
+      return false;
+    }
 
     /** Override standard Singleton retrieval.
         @remarks

@@ -190,8 +190,15 @@ AC_DEFUN([OGRE_BUILD_PYTHON_LINK],
               AC_CONFIG_FILES([Tools/PythonInterface/Makefile \
                                Tools/PythonInterface/src/Makefile \
                                Tools/PythonInterface/misc/Makefile \
-                               Tools/PythonInterface/include/Makefile])],
+                               Tools/PythonInterface/include/Makefile], sh python_debug.sh $ac_file)],
               [build_py=false])
+
+AC_ARG_ENABLE(python-debug,
+              AC_HELP_STRING([--enable-python-debug],
+                             [Enable C++ debug for the python extension, might be compile time consumming]),
+              [ rm -f python_debug.sh ; ln -s Scripts/null.sh python_debug.sh ],
+              [ rm -f python_debug.sh ; ln -s Scripts/remove_debug.sh python_debug.sh ])
+
 AM_CONDITIONAL(BUILD_PYTHON_INTERFACE, test x$build_py = xtrue)
 boost_inc_dir=""
 boost_lib_dir=""
@@ -255,7 +262,7 @@ fi
 
 if test -n "$pylibdir"; then
     AC_MSG_CHECKING(for python library version $pyversion in $pylibdir)
-    if test -e $pylibdir/libpython$pyversion.so; then
+    if test -e $pylibdir/libpython$pyversion.so -o -e $pylibdir/libpython$pyversion.a ; then
         PYTHON_LIBS="-L$pylibdir $PYTHON_LIBS";
     else
         AC_MSG_ERROR("Unable to locate")

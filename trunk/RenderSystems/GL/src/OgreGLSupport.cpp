@@ -66,6 +66,43 @@ namespace Ogre {
         ext.str("");
     }
 
+    bool GLSupport::checkMinGLVersion(const String& v)
+    {
+        unsigned int first, second, third;
+        unsigned int cardFirst, cardSecond, cardThird;
+        if(v == version)
+            return true;
+
+        String::size_type pos = v.find(".");
+        if(pos == String::npos)
+            return false;
+
+        String::size_type pos1 = v.rfind(".");
+        if(pos1 == String::npos)
+            return false;
+
+        first = std::atoi(v.substr(0, pos).c_str());
+        second = std::atoi(v.substr(pos + 1, pos1 - (pos + 1)).c_str());
+        third = std::atoi(v.substr(pos1 + 1, v.length()).c_str());
+
+        pos = version.find(".");
+        if(pos == String::npos)
+            return false;
+
+        pos1 = version.rfind(".");
+        if(pos1 == String::npos)
+            return false;
+
+        cardFirst  = std::atoi(version.substr(0, pos).c_str());
+        cardSecond = std::atoi(version.substr(pos + 1, pos1 - (pos + 1)).c_str());
+        cardThird  = std::atoi(version.substr(pos1 + 1, version.length()).c_str());
+
+        if(first <= cardFirst && second <= cardSecond && third <= cardThird)
+          return true;
+
+        return false;
+    }
+
     bool GLSupport::checkExtension(const std::string& ext)
     {
         if(extensionList.find(ext) == extensionList.end())
