@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreInputEvent.h"
 #include "OgreEventQueue.h"
 #include "OgreCursor.h"
+#include <dxerr8.h>
 
 #define DINPUT_BUFFERSIZE  16
 //#define DIPROP_BUFFERSIZE 256
@@ -73,15 +74,11 @@ namespace Ogre {
 
     }
 
-
     //-----------------------------------------------------------------------
     void Win32Input8::initialiseBufferedKeyboard()
 	{
-
 		// not implemented yet
 		initialiseImmediateKeyboard();	// HACK
-
-
 	}
 
     //-----------------------------------------------------------------------
@@ -147,17 +144,41 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Win32Input8::initialiseImmediateMouse()
 	{
-        RECT rect;
-        GetClientRect(mHWnd, &rect);
-        mMouseCenterX = (rect.right - rect.left) / 2;
-        mMouseCenterY = (rect.bottom - rect.top) / 2;
-        POINT p;
-        p.x = mMouseCenterX;
-        p.y = mMouseCenterY;
-        ClientToScreen(mHWnd, &p);
-        SetCursorPos(p.x, p.y);
-        // hide cursor
-        ShowCursor(FALSE);
+        OgreGuard( "Win32Input8::initialiseImmediateMouse" );
+
+        HRESULT hr;
+        DIPROPDWORD dipdw;
+        LogManager::getSingleton().logMessage( "Win32Input8: Initializing mouse input in buffered mode." );
+
+        dipdw.diph.dwSize       = sizeof(DIPROPDWORD);
+        dipdw.diph.dwHeaderSize = sizeof(DIPROPHEADER);
+        dipdw.diph.dwObj        = 0;
+        dipdw.diph.dwHow        = DIPH_DEVICE;
+        dipdw.dwData            = DIPROPAXISMODE_ABS;
+
+        if( /* Create the DI Device. */
+            FAILED( hr = mlpDI->CreateDevice( GUID_SysMouse, &mlpDIMouse, NULL ) ) ||
+            /* Set the data format so that it knows it's a mouse. */
+            FAILED( hr = mlpDIMouse->SetDataFormat( &c_dfDIMouse2 ) ) ||
+            /* Absolute mouse input. We can derive the relative input from this. */
+            FAILED( hr = mlpDIMouse->SetProperty( DIPROP_AXISMODE, &dipdw.diph ) ) ||
+            /* Exclusive when in foreground, steps back when in background. */
+            FAILED( hr = mlpDIMouse->SetCooperativeLevel( mHWnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE ) ) ||
+            /* Get the device. */
+            FAILED( hr = mlpDIMouse->Acquire() ) )
+        {
+            Except( Exception::ERR_INTERNAL_ERROR, DXGetErrorDescription8( hr ), "Win32Input8::initialiseImmediateMouse" );
+        }
+
+        /* Get initial mouse data. */
+        captureMouse();
+
+        /* Clear any mouse data. */
+        mMouseState.Xrel = mMouseState.Yrel = mMouseState.Zrel = 0;
+
+        LogManager::getSingleton().logMessage( "Win32Input8: Mouse input in buffered mode initialized." );
+
+        OgreUnguard();
 	}
 
     //-----------------------------------------------------------------------
@@ -219,10 +240,6 @@ namespace Ogre {
         LogManager::getSingleton().logMessage("Win32Input8: Mouse input established.");
 
 	}
-
-
-
-
 
     //-----------------------------------------------------------------------
     void Win32Input8::initialise(RenderWindow* pWindow, bool useKeyboard, bool useMouse, bool useGameController)
@@ -343,28 +360,56 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Win32Input8::captureMouse(void)
     {
+        DIMOUSESTATE2 mouseState;
+        HRESULT hr;
 
+        // Get mouse state
+        hr = mlpDIMouse->GetDeviceState( sizeof( DIMOUSESTATE2 ), (LPVOID)&mouseState );
 
-                
-        /*
-            Only update mouse position if the window has the focus
-         */
-
-        if( mHWnd == GetForegroundWindow() )
+        if( SUCCEEDED( hr ) ||
+            ( ( hr == DIERR_INPUTLOST || hr == DIERR_NOTACQUIRED ) &&
+              SUCCEEDED( mlpDIMouse->Acquire() ) && 
+              SUCCEEDED( mlpDIMouse->GetDeviceState( sizeof( DIMOUSESTATE2 ), (LPVOID)&mouseState ) ) ) )
         {
-            POINT p;
-            GetCursorPos(&p);
-            ScreenToClient(mHWnd,&p);
-            mMouseX = (Real)p.x;
-            mMouseY = (Real)p.y;
-            p.x = mMouseCenterX;
-            p.y = mMouseCenterY;
-			mLMBDown = ( (GetKeyState(VK_LBUTTON) & 0x1000) != 0);
-			mRMBDown = ( (GetKeyState(VK_RBUTTON) & 0x1000) != 0);
+            /* Register the new 'origin'. */
+            mMouseCenterX = mMouseState.Xabs;
+            mMouseCenterY = mMouseState.Yabs;
+            mMouseCenterZ = mMouseState.Zabs;
 
-            ClientToScreen(mHWnd, &p);
-            if( IsWindowVisible( mHWnd ) )
-            SetCursorPos(p.x, p.y);
+            /* Get the new absolute position. */
+            mMouseState.Xabs = mouseState.lX;
+            mMouseState.Yabs = mouseState.lY;
+            mMouseState.Zabs = mouseState.lZ;            
+
+            /* Compute the new relative position. */
+            mMouseState.Xrel = mMouseState.Xabs - mMouseCenterX;
+            mMouseState.Yrel = mMouseState.Yabs - mMouseCenterY;
+            mMouseState.Zrel = mMouseState.Zabs - mMouseCenterZ;
+
+            /* Get the mouse buttons. This for loop can be unwrapped for speed. */
+            mMouseState.Buttons = 0;
+            for( int i = 0; i < 8; i++ )
+                if( mouseState.rgbButtons[ i ] & 0x80 )
+                    mMouseState.Buttons |= ( 1 << i );
+        }
+        else if (hr == DIERR_OTHERAPPHASPRIO)
+        {
+            // We've gone into the background - ignore
+            hr = 0;
+        }
+        else if (hr == DIERR_NOTINITIALIZED)
+        {
+            hr = 0;
+        }
+        else if (hr == E_PENDING)
+        {
+            hr = 0;
+        }
+        else if (FAILED(hr))
+        {
+            // Ignore for now
+            // TODO - sort this out
+            hr = 0;
         }
  
    }
@@ -379,11 +424,7 @@ namespace Ogre {
 	{
 		captureKeyboard();		// HACK - buffered not implemented yet - use immediate
 		return true;
-
-
-
 	}
-
 
 	//-----------------------------------------------------------------------------
 	// Name: readBufferedData()
@@ -535,40 +576,59 @@ namespace Ogre {
 		return (Real)((int)dwVal) * mScale;
 	}
 
-
-
     //-----------------------------------------------------------------------
-    bool Win32Input8::isKeyDown(KeyCode kc)
+    bool Win32Input8::isKeyDown(KeyCode kc) const
     {
-        if (mKeyboardBuffer[kc] & 0x80)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return ( mKeyboardBuffer[ kc ] & 0x80 ) != 0;
     }
 
-    //-----------------------------------------------------------------------
-    int Win32Input8::getMouseRelativeX(void)
+    //---------------------------------------------------------------------------------------------
+    long Win32Input8::getMouseRelX() const
     {
-        return mMouseX - mMouseCenterX;
-    }
-    //-----------------------------------------------------------------------
-    int Win32Input8::getMouseRelativeY(void)
-    {
-        return mMouseY - mMouseCenterY;
+        return mMouseState.Xrel;
     }
 
-    //-----------------------------------------------------------------------
-    bool Win32Input8::getMouseButton(bool leftButton)
+    //---------------------------------------------------------------------------------------------
+    long Win32Input8::getMouseRelY() const
     {
-        return leftButton ? mLMBDown : mRMBDown;
+        return mMouseState.Yrel;
     }
 
-    //-----------------------------------------------------------------------
-	int Win32Input8::getKeyModifiers()
+    //---------------------------------------------------------------------------------------------
+    long Win32Input8::getMouseRelZ() const
+    {
+        return mMouseState.Zrel;
+    }
+
+    long Win32Input8::getMouseAbsX() const
+    {
+        return mMouseState.Xabs;
+    }
+
+    long Win32Input8::getMouseAbsY() const
+    {
+        return mMouseState.Yabs;
+    }
+
+    long Win32Input8::getMouseAbsZ() const
+    {
+        return mMouseState.Zabs;
+    }
+
+    //---------------------------------------------------------------------------------------------
+    bool Win32Input8::getMouseButton( uchar button ) const
+    {
+        return mMouseState.isButtonDown( button ) != 0;
+    }
+
+    //---------------------------------------------------------------------------------------------
+    void Win32Input8::getMouseState( MouseState& state ) const
+    {
+        memcpy( &state, &mMouseState, sizeof( MouseState ) );
+    }
+
+    //---------------------------------------------------------------------------------------------
+	long Win32Input8::getKeyModifiers()
 	{
 		int ret = 0;
 

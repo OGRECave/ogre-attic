@@ -40,11 +40,26 @@ namespace Ogre {
         SDLInput();
         virtual ~SDLInput();
 
-        void initialise(RenderWindow* pWindow, bool useKeyboard = true, bool useMouse = true, bool useGameController = false);
-        void capture(void);
-        bool isKeyDown(KeyCode kc);
-        int getMouseRelativeX(void);
-        int getMouseRelativeY(void);
+        void initialise( RenderWindow* pWindow, bool useKeyboard = true, bool useMouse = true, bool useGameController = false );
+        void capture();
+
+        bool isKeyDown( KeyCode kc ) const;
+
+        /*
+         * Mouse getters
+         */
+        virtual long getMouseRelX() const;
+        virtual long getMouseRelY() const;
+        virtual long getMouseRelZ() const;
+
+        virtual long getMouseAbsX() const;
+        virtual long getMouseAbsY() const;
+        virtual long getMouseAbsZ() const;
+
+        virtual void getMouseState( MouseState& state ) const;
+
+        virtual bool getMouseButton( uchar button ) const;
+
     private:
         // State at last 'capture' call
         Uint8* mKeyboardBuffer;

@@ -43,46 +43,41 @@ namespace Ogre {
         Win32Input8();
         ~Win32Input8();
 
-        /** Initialise the input system.
-            @param pWindow The window to capture input for
-            @param useKeyboard If true, keyboard input will be supported.
-            @param useMouse If true, mouse input will be supported.
-            @param useGameController If true, joysticks/gamepads will be supported.
-        */
-	    void initialise(RenderWindow* pWindow, bool useKeyboard = true, bool useMouse = true, bool useGameController = true);
+        /** @copydoc InputReader::initialise */
+	    virtual void initialise(
+            RenderWindow* pWindow, 
+            bool useKeyboard = true, 
+            bool useMouse = true, 
+            bool useGameController = false );
 
-        /** Captures the state of all the input devices.
-            This method captures the state of all input devices and stores it internally for use when
-            the enquiry methods are next called. This is done to ensure that all input is captured at once
-            and therefore combinations of input are not subject to time differences when methods are called.
+        /** @copydoc InputReader::capture */
+        virtual void capture();
 
-        */
-        void capture(void);
+        /** @copydoc InputReader::isKeyDown */
+        virtual bool isKeyDown(KeyCode kc) const;
 
-        /** Determines if the specified key is currently depressed.
-            Note that this enquiry method uses the state of the keyboard at the last 'capture' call.
-        */
-        bool isKeyDown(KeyCode kc);
+        /*
+         *	Mouse getters.
+         */
+        virtual long getMouseRelX() const;
+        virtual long getMouseRelY() const;
+        virtual long getMouseRelZ() const;
 
-        /** Retrieves the relative position of the mouse when capture was called relative to the last time. */
-        int getMouseRelativeX(void);
-        /** Retrieves the relative position of the mouse when capture was called relative to the last time. */
-        int getMouseRelativeY(void);
+        virtual long getMouseAbsX() const;
+        virtual long getMouseAbsY() const;
+        virtual long getMouseAbsZ() const;
 
+        virtual void getMouseState( MouseState& state ) const;
 
-	    bool getMouseButton(bool leftButton);
-
+	    virtual bool getMouseButton( uchar button ) const;
 
     private:
         // Input device details
-        LPDIRECTINPUT8 mlpDI;
-        LPDIRECTINPUTDEVICE8 mlpDIKeyboard;
-        LPDIRECTINPUTDEVICE8 mlpDIMouse;
+        IDirectInput8* mlpDI;
+        IDirectInputDevice8* mlpDIKeyboard;
+        IDirectInputDevice8* mlpDIMouse;
 
         HWND mHWnd;
-
-
-
 
 		/** specialised initialisation routines */		
 	    void initialiseBufferedKeyboard();
@@ -100,20 +95,18 @@ namespace Ogre {
 
         /* State of modifiers at last 'capture' call 
 		   NOTE this doesn't support keyboard buffering yet */
-		int getKeyModifiers();
+		long getKeyModifiers();
 
+    private:
+        /* For mouse immediate mode. Note that the space origin in DX is (0,0,0), here we
+           only hold the 'last' center for relative input. */
+        long mMouseCenterX, mMouseCenterY, mMouseCenterZ;
 
-		/* for mouse immediate mode */
-        Real mMouseX, mMouseY;
-		Real mMouseCenterX, mMouseCenterY;
-		bool mLMBDown, mRMBDown;
-
-		/* for mouse buffered mode */
+		/* For mouse buffered mode. */
 		Real mScale;
 		Real getScaled(DWORD dwVal);
 
-
-		/* for keyboard immediate mode */
+		/* For keyboard immediate mode. */
         char mKeyboardBuffer[256];
     };
 

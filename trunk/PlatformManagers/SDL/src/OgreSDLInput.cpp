@@ -86,11 +86,27 @@ namespace Ogre {
 
         if (!mUseBuffered)
         {
+            mMouseKeys = 0;
+
             // Get mouse info
             if( SDL_GetAppState() & SDL_APPMOUSEFOCUS )
             {
                 mMouseKeys = SDL_GetMouseState( &mMouseX, &mMouseY );
             }
+
+            mMouseState.Xabs = mMouseX;
+            mMouseState.Yabs = mMouseY;
+            mMouseState.Zabs = 0;
+
+            mMouseState.Xrel = mMouseX - mMouseCenterX;
+            mMouseState.Yrel = mMouseY - mMouseCenterY;
+            mMouseState.Zrel = 0;
+
+            mMouseState.Buttons = 0;
+
+            for( i = 0; i < 3; i++ )
+                if( mMouseKeys & SDL_BUTTON( i ) )
+                    mMouseState.Buttons |= ( 1 << i );
 
             // XXX Fix me up
             // Game controller state
@@ -357,14 +373,39 @@ namespace Ogre {
         };
     }
 
-    int SDLInput::getMouseRelativeX()
+    long SDLInput::getMouseRelX() const
     {
         return mMouseX - mMouseCenterX;
     }
 
-    int SDLInput::getMouseRelativeY()
+    long SDLInput::getMouseRelY() const
     {
         return mMouseY - mMouseCenterY;
+    }
+
+    long SDLInput::getMouseRelZ() const
+    {
+        return 0;
+    }
+
+    long SDLInput::getMouseAbsX() const
+    {
+        return mMouseX;
+    }
+
+    long SDLInput::getMouseAbsY() const
+    {
+        return mMouseY;
+    }
+
+    long SDLInput::getMouseAbsZ() const
+    {
+        return 0;
+    }
+
+    virtual bool getMouseButton( uchar button ) const
+    {
+        return mMouseState.isButtonDown( button );
     }
 
     void SDLInput::processBufferedMouse()

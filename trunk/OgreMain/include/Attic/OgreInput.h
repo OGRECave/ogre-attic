@@ -178,7 +178,25 @@ namespace Ogre {
         KC_MYCOMPUTER      =0xEB,    /* My Computer */
         KC_MAIL            =0xEC,    /* Mail */
         KC_MEDIASELECT     =0xED     /* Media Select */
+    };
 
+    /** Structure representing a snapshot of the state of the mouse
+        input controller. */
+    struct _OgreExport MouseState
+    {
+        /** Absolute position of the mouse pointer. */
+        long Xabs, Yabs, Zabs;
+        /** Relative position of the mouse pointer. */
+        long Xrel, Yrel, Zrel;
+        /** The buttons that have been pressed. Each bit maps to a mouse
+        button. */
+        long Buttons;
+
+        /** Retrieves the pressed state of a mouse button. */
+        inline long isButtonDown( uchar button ) const
+        {
+            return Buttons & ( 1 << button );
+        }
     };
 
     /** Abstract class which allows input to be read from various
@@ -195,10 +213,8 @@ namespace Ogre {
     class _OgreExport InputReader
     {
     public:
-
         InputReader();
-	    ~InputReader();
-
+	    virtual ~InputReader();
 
 	    /** Tells the reader to use buffered input and update the passed in queue.
         @remarks
@@ -206,7 +222,7 @@ namespace Ogre {
             current state of the mouse / keyboard on demand. An alternative is to use 
             buffered input where all events are registered on a queue.
         */
-        void useBufferedInput(EventQueue* pEventQueue) ;
+        void useBufferedInput( EventQueue* pEventQueue );
         
 		/** Initialise the input system.
             @note
@@ -220,7 +236,11 @@ namespace Ogre {
             @param
                 useGameController If true, joysticks/gamepads will be supported.
         */
-        virtual void initialise(RenderWindow* pWindow, bool useKeyboard = true, bool useMouse = true, bool useGameController = false) = 0;
+        virtual void initialise( 
+            RenderWindow* pWindow, 
+            bool useKeyboard = true, 
+            bool useMouse = true, 
+            bool useGameController = false ) = 0;
 
         /** Captures the state of all the input devices.
             @remarks
@@ -231,61 +251,93 @@ namespace Ogre {
                 subject to time differences when methods are called.
 
         */
-        virtual void capture(void) = 0;
+        virtual void capture() = 0;
 
         /** Determines if the specified key is currently depressed.
             @note This enquiry method uses the state of the keyboard at the
                 last 'capture' call.
         */
-        virtual bool isKeyDown(KeyCode kc) = 0;
-
-        /** Retrieves the relative position of the mouse when capture was
-            called relative to the last time.
-        */
-        virtual int getMouseRelativeX(void) = 0;
+        virtual bool isKeyDown( KeyCode kc ) const = 0;
 
         /** Retrieves the relative position of the mouse when capture was
             called relative to the last time. */
-        virtual int getMouseRelativeY(void) = 0;
+        virtual long getMouseRelativeX() const { return getMouseRelX(); }
 
-		/**
-		 * Adds a mouse motion listener to the cursor object.
-		 * This keeps the Cursor object hidden.
-		 */
-		void addCursorMoveListener(MouseMotionListener* c);
+        /** Retrieves the relative position of the mouse when capture was
+            called relative to the last time. */
+        virtual long getMouseRelativeY() const { return getMouseRelY(); }
+
+        /** Retrieves the relative position of the mouse when capture was
+            called relative to the last time. */
+        virtual long getMouseRelativeZ() const { return getMouseRelZ(); }
+
+        /** Retrieves the relative (compared to the last input poll) mouse movement
+            on the X (horizontal) axis. */
+        virtual long getMouseRelX() const = 0;
+
+        /** Retrieves the relative (compared to the last input poll) mouse movement
+            on the Y (vertical) axis. */
+        virtual long getMouseRelY() const = 0;
+
+        /** Retrieves the relative (compared to the last input poll) mouse movement
+            on the Z (mouse wheel) axis. */
+        virtual long getMouseRelZ() const = 0;
+
+        /** Retrieves the absolute mouse position on the X (horizontal) axis. */
+        virtual long getMouseAbsX() const = 0;
+        /** Retrieves the absolute mouse position on the Y (vertical) axis. */
+        virtual long getMouseAbsY() const = 0;
+        /** Retrieves the absolute mouse position on the Z (mouse wheel) axis. */
+        virtual long getMouseAbsZ() const = 0;
+
+        /** Retrieves the current state of the mouse. */
+        virtual void getMouseState( MouseState& state ) const = 0;
+
+        /** Retrieves the state of a mouse button. */
+        virtual bool getMouseButton( uchar button ) const = 0;
+
+		/** Adds a mouse motion listener to the cursor object.
+		    This keeps the Cursor object hidden. */
+		void addCursorMoveListener( MouseMotionListener* c );
 	
-		/**
-		 * Remove a mouse motion listener to the cursor object.
-		 * This keeps the Cursor object hidden.
-		 */
-		void removeCursorMoveListener(MouseMotionListener* c);
+		/** Remove a mouse motion listener to the cursor object.
+		    This keeps the Cursor object hidden. */
+		void removeCursorMoveListener( MouseMotionListener* c );
+
 	protected:
 
-		/** the modifiers are a binary flags that represent what buttons are pressed, and what key modifiers are down (e.g. shift/alt) */
-		int mModifiers;
+		/** The modifiers are a binary flags that represent what buttons are pressed, 
+            and what key modifiers are down (e.g. shift/alt). */
+		long mModifiers;
 
-		/** 
-		 * Internal Cursor object. This is a mathematical representation of where the cursor is, it does not draw a cursor
-		 *  see CursorGuiElement 
-		 */
+		/** Internal Cursor object. 
+            @remarks
+                This is a mathematical representation of where the cursor is, it does 
+                not draw a cursor.
+            @see CursorGuiElement. */
 		Cursor* mCursor;
 
-		/** EventQueue is used for buffered input support */
+		/** EventQueue is used for buffered input support. */
 		EventQueue* mEventQueue;
 
-		/** whether to use buffering input support - buffering support relies on using an EventQueue */
+		/** Wether to use buffering input support - buffering support relies on using 
+            an EventQueue. 
+            @see class EventQueue */
 		bool mUseBuffered;
+
+        /** The mouse state in immediate mode. */
+        MouseState mMouseState;
 		
-		/** creates mouse moved or dragged events depending if any button is pressed */
+    protected:
+		/** Creates mouse moved or dragged events depending if any button is pressed. */
 		void mouseMoved();
 
-		/** Creates a MouseEvent. First it gets processed by the cursor, then it gets pushed on the queue */
+		/** Creates a MouseEvent that first gets processed by the cursor, then gets 
+            pushed on the queue. */
 		void createMouseEvent(int id, int button);
 
-		/** creates mouse pressed, released, and clicked events */
+		/** Creates mouse pressed, released, and clicked events. */
 		void triggerMouseButton(int nMouseCode, bool mousePressed);
-
-
     };
 
 
