@@ -158,6 +158,16 @@ namespace Ogre {
         */
         static std::set<String> _getAllCommonNamesLike( const String& startPath, const String& extension );
 
+        /** Returns a collection of files with the given extension in all resource paths, common and specific to this resource type.
+            @param 
+                startPath The path, relative to each common resource start, to search in (use "./" for the root)
+            @param 
+                extension The extension of file to search for.
+            @returns 
+                A set of String filenames (it is a set because duplicates will be ignored)
+        */
+        std::set<String> _getAllNamesLike( const String& startPath, const String& extension );
+
         /** Internal method, used for locating common resource data in the file system / archives.
             @remarks
                 This is a static version of _findResourceData specifically designed to only search in the

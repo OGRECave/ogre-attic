@@ -227,6 +227,26 @@ namespace Ogre {
         return retFiles;
     }
     //-----------------------------------------------------------------------
+    std::set<String> ResourceManager::_getAllNamesLike( const String& startPath, const String& extension )
+    {
+        std::vector<ArchiveEx*>::iterator i;
+        StringVector vecFiles;
+        // Get all common files
+        std::set<String> retFiles = ResourceManager::_getAllCommonNamesLike(startPath, extension);
+
+        // Get all specific files
+        for (i = mVFS.begin(); i != mVFS.end(); ++i)
+        {
+            vecFiles = (*i)->getAllNamesLike( startPath, extension);
+            for (StringVector::iterator si = vecFiles.begin(); si != vecFiles.end(); ++si)
+            {
+                retFiles.insert(*si);
+            }
+        }
+
+        return retFiles;
+    }
+    //-----------------------------------------------------------------------
     bool ResourceManager::_findCommonResourceData( const String& filename, DataChunk& refChunk )
     {
         DataChunk* pChunk = &refChunk;
