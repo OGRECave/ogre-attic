@@ -276,8 +276,36 @@ namespace Ogre {
 
         ShadowTechnique mShadowTechnique;
         LightList mLightsAffectingFrustum;
-        /** Internal method for locating a list of lights which could be affecting the frustum. */
+        /** Internal method for locating a list of lights which could be affecting the frustum. 
+        @remarks
+            Custom scene managers are encouraged to override this method to make use of their
+            scene partitioning scheme to more efficiently locate lights, and to eliminate lights
+            which may be occluded by word geometry.
+        */
         virtual void findLightsAffectingFrustum(const Camera* camera);
+
+        typedef std::vector<ShadowCaster*> ShadowCasterList;
+        ShadowCasterList mShadowCasterList;
+
+        /// Inner class to use as callback for shadow caster scene query
+        class ShadowCasterSceneQueryListener : public SceneQueryListener
+        {
+        protected:
+            ShadowCasterList* mCasterList;
+        public:
+            ShadowCasterSceneQueryListener(ShadowCasterList* casterList) : mCasterList(casterList){}
+            bool queryResult(MovableObject* object);
+            bool queryResult(SceneQuery::WorldFragment* fragment);
+        };
+
+        /** Internal method for locating a list of shadow casters which 
+            could be affecting the frustum for a given light. 
+        @remarks
+            Custom scene managers are encouraged to override this method to add optimisations, 
+            and to add their own custom shadow casters (perhaps for world geometry)
+        */
+        virtual const ShadowCasterList& findShadowCastersForLight(const Light* light, 
+            const Camera* camera);
         /** Internal method for adding post-render modulative stencil shadows. */
         virtual void renderModulativeStencilShadows(const Camera* camera);
 

@@ -563,6 +563,13 @@ namespace Ogre {
         */
         void prepareForShadowVolume(void);
 
+        /** Return the edge list for this mesh, building it if required. 
+        @remarks
+            You must ensure that the Mesh as been prepared for shadow volume 
+            rendering if you intend to use this information for that purpose.
+        */
+        EdgeData* getEdgeList(void);
+
     };
 
 
