@@ -144,7 +144,6 @@ GLXInput::GLXInput()
 	_key_map.insert(InputKeyMap::value_type(XK_Delete, KC_DELETE));
 	_key_map.insert(InputKeyMap::value_type(XK_Super_L, KC_LWIN)); // ?
 	_key_map.insert(InputKeyMap::value_type(XK_Super_R, KC_RWIN)); // ?
-
 }
 
 GLXInput::~GLXInput() {
@@ -216,14 +215,17 @@ void GLXInput::capture() {
 		bool button_down = false;
 		switch(event.type) {
 		case KeyPress:
+			// Ignore shift and capslock state
+			event.xkey.state &= ~ShiftMask;
+			event.xkey.state &= ~LockMask;
+
 			XLookupString(&event.xkey,NULL,0,&key,NULL);
 			// Ctrl-Escape should free mouse ala Q****
 			if(event.xkey.state & ControlMask && key == XK_Escape) {
 				GrabCursor(false);
 				break;
 			}
-
-			ogrekey = _key_map[key];
+			ogrekey = _key_map[key]; // key
 
 			// Unbuffered input
 			_key_pressed_set.insert(ogrekey);
