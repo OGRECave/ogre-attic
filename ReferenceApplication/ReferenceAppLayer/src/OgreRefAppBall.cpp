@@ -68,7 +68,9 @@ namespace OgreRefApp
         this->setFriction(Math::POS_INFINITY);
 
         // Create collision proxy
-        dSphere* odeSphere = new dSphere(0, 25);
+        // Shrink it a little to avoid problems with actual mesh bounds being inside it 
+        //  at certain orientations (not a perfect sphere mesh since tesselated)
+        dSphere* odeSphere = new dSphere(0, mRadius * 0.95);
         mCollisionProxies.push_back(odeSphere);
 
 
