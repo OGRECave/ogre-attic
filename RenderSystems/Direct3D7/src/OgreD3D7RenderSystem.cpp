@@ -895,7 +895,7 @@ namespace Ogre {
             } 
             else 
             {
-                mpD3DDevice->SetRenderState(D3DRENDERSTATE_COLORVERTEX, FALSE);               
+                mlpD3DDevice->SetRenderState(D3DRENDERSTATE_COLORVERTEX, FALSE);               
             }
             lastTracking = tracking;
         }
