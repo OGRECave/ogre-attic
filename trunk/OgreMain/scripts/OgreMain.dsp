@@ -248,6 +248,18 @@ SOURCE=..\src\OgreGuiPressable.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreHardwareBufferManager.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreHardwareIndexBuffer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreHardwareVertexBuffer.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreImage.cpp
 # End Source File
 # Begin Source File
@@ -797,6 +809,22 @@ SOURCE=..\include\OgreGuiManager.h
 # Begin Source File
 
 SOURCE=..\include\OgreGuiPressable.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreHardwareBuffer.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreHardwareBufferManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreHardwareIndexBuffer.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreHardwareVertexBuffer.h
 # End Source File
 # Begin Source File
 

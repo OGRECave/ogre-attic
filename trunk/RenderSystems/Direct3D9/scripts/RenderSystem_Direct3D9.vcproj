@@ -144,6 +144,15 @@
 				RelativePath="..\src\OgreD3D9HWBuffers.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreD3D9HardwareBufferManager.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreD3D9HardwareIndexBuffer.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreD3D9HardwareVertexBuffer.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreD3D9Mappings.cpp">
 			</File>
 			<File
@@ -157,6 +166,9 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreD3D9TextureManager.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreD3D9VertexDeclaration.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreD3D9VideoMode.cpp">
@@ -178,6 +190,15 @@
 				RelativePath="..\include\OgreD3D9HWBuffers.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreD3D9HardwareBufferManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreD3D9HardwareIndexBuffer.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreD3D9HardwareVertexBuffer.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreD3D9Mappings.h">
 			</File>
 			<File
@@ -194,6 +215,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreD3D9TextureManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreD3D9VertexDeclaration.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreD3D9VideoMode.h">

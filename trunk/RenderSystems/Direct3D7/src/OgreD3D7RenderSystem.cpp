@@ -2441,5 +2441,21 @@ namespace Ogre {
 			mlpD3DDevice->SetTextureStageState( unit, D3DTSS_MAXANISOTROPY, maxAnisotropy );
 	}
 
+	void D3DRenderSystem::setVertexDeclaration(VertexDeclaration* decl)
+	{
+		// TODO
+	}
+
+	void D3DRenderSystem::setVertexBufferBinding(VertexBufferBinding* binding)
+	{
+		// TODO
+	}
+
+    void D3DRenderSystem::_render(const RenderOperation& op)
+	{
+		// TODO
+	}
+
+
 
 }

@@ -24,20 +24,100 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreHardwareVertexBuffer.h"
 #include "OgreColourValue.h"
+#include "OgreException.h"
+#include "OgreStringConverter.h"
 
 namespace Ogre {
 
     //-----------------------------------------------------------------------------
-    HardwareVertexBuffer::HardwareVertexBuffer(const VertexFormat& format, 
+    HardwareVertexBuffer::HardwareVertexBuffer(size_t vertexSize,  
         size_t numVertices, HardwareBuffer::Usage usage) 
-        : HardwareBuffer(usage), mFormat(format), mNumVertices(numVertices)
+        : HardwareBuffer(usage), mVertexSize(vertexSize), mNumVertices(numVertices)
     {
         // Calculate the size of the vertices
-        mVertexSize = calcVertexSize(format);
         mSizeInBytes = mVertexSize * numVertices;
 
     }
     //-----------------------------------------------------------------------------
+    VertexElement::VertexElement(unsigned short source, size_t offset, 
+        VertexElementType theType, VertexElementSemantic semantic, unsigned short index)
+        : mSource(source), mOffset(offset), mType(theType), 
+        mSemantic(semantic), mIndex(index)
+    {
+    }
+    //-----------------------------------------------------------------------------
+    VertexDeclaration::VertexDeclaration()
+    {
+    }
+    //-----------------------------------------------------------------------------
+    VertexDeclaration::~VertexDeclaration()
+    {
+    }
+    //-----------------------------------------------------------------------------
+    const VertexDeclaration::VertexElementList& VertexDeclaration::getElements(void) const
+    {
+        return mElementList;
+    }
+    //-----------------------------------------------------------------------------
+    void VertexDeclaration::addElement(unsigned short source, 
+        size_t offset, VertexElementType theType,
+        VertexElementSemantic semantic, unsigned short index)
+    {
+        mElementList.push_back(
+            VertexElement(source, offset, theType, semantic, index)
+            );
+    }
+    //-----------------------------------------------------------------------------
+    void VertexDeclaration::removeElement(unsigned short elem_index)
+    {
+        assert(elem_index >= 0 && elem_index < mElementList.size() && "Index out of bounds");
+        VertexElementList::iterator i = mElementList.begin();
+        i += elem_index;
+        mElementList.erase(i);
+    }
+    //-----------------------------------------------------------------------------
+    void VertexDeclaration::modifyElement(unsigned short elem_index, 
+        unsigned short source, size_t offset, VertexElementType theType,
+        VertexElementSemantic semantic, unsigned short index)
+    {
+        assert(elem_index >= 0 && elem_index < mElementList.size() && "Index out of bounds");
+        VertexElementList::iterator i = mElementList.begin();
+        i += elem_index;
+        (*i) = VertexElement(source, offset, theType, semantic, index);
+    }
+    //-----------------------------------------------------------------------------
+	VertexBufferBinding::VertexBufferBinding()
+	{
+	}
+    //-----------------------------------------------------------------------------
+	VertexBufferBinding::~VertexBufferBinding()
+	{
+	}
+    //-----------------------------------------------------------------------------
+	void VertexBufferBinding::setBinding(unsigned short index, HardwareVertexBuffer* buffer)
+	{
+		mBindingMap[index] = buffer;
+	}
+    //-----------------------------------------------------------------------------
+	void VertexBufferBinding::unsetBinding(unsigned short index)
+	{
+		VertexBufferBindingMap::iterator i = mBindingMap.find(index);
+		if (i == mBindingMap.end())
+		{
+			Except(Exception::ERR_ITEM_NOT_FOUND,
+				"Cannot find buffer binding for index " + StringConverter::toString(index),
+				"VertexBufferBinding::unsetBinding");
+		}
+		mBindingMap.erase(i);
+	}
+    //-----------------------------------------------------------------------------
+	const VertexBufferBinding::VertexBufferBindingMap& 
+	VertexBufferBinding::getBindings(void) const
+	{
+		return mBindingMap;
+	}
+
+	/*
     size_t HardwareVertexBuffer::calcVertexSize(const VertexFormat& format)
     {
         size_t sz = 0;
@@ -71,5 +151,6 @@ namespace Ogre {
         return sz;
 
     }
+    */
 
 }

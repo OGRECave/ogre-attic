@@ -49,6 +49,7 @@ OgreGuiElementFactory.h \
 OgreGuiManager.h \
 OgreGuiPressable.h \
 OgreHardwareBuffer.h \
+OgreHardwareBufferManager.h \
 OgreHardwareIndexBuffer.h \
 OgreHardwareVertexBuffer.h \
 OgreImage.h \
