@@ -447,7 +447,7 @@ namespace Ogre {
         String line;
         StringVector vecparams;
         Vector3 origin;
-        Real angle;
+        Real angle = 0;
         size_t pos;
         char* lineend;
         bool isPlayerStart;
