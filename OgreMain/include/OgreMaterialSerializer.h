@@ -27,6 +27,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 #include "OgreMaterial.h"
+#include "OgreBlendMode.h"
+#include "OgreTextureUnitState.h"
 
 namespace Ogre {
     /** Class for serializing a Material to a material.script.*/

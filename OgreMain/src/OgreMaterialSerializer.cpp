@@ -82,6 +82,7 @@ namespace Ogre
 
 	void MaterialSerializer::writeMaterial(const Material *pMat)
     {
+        /* TODO
 		LogManager::getSingleton().logMessage("MaterialSerializer : parsing material " + pMat->getName() + " to queue.", LML_CRITICAL);
         // Name
         mBuffer += pMat->getName();
@@ -320,10 +321,12 @@ namespace Ogre
 		}
 		endSection();
 		LogManager::getSingleton().logMessage("MaterialSerializer : done.", LML_CRITICAL);
+        */
     }
 
 	void MaterialSerializer::writeTextureLayer(const TextureUnitState *pTex)
     {
+        /* TODO
 		LogManager::getSingleton().logMessage("MaterialSerializer : parsing texture layer.", LML_CRITICAL);
 
 		//texture name
@@ -529,6 +532,7 @@ namespace Ogre
 			writeValue("cubic_reflection");
 			break;
 		}
+        */
 	}
 
 	void MaterialSerializer::writeRotationEffect(const TextureUnitState::TextureEffect effect, const TextureUnitState *pTex)
