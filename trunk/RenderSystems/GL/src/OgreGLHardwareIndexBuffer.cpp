@@ -72,13 +72,16 @@ namespace Ogre {
         
         if(options == HBL_DISCARD)
         {
-/*
-            glBufferDataARB_ptr(GL_ELEMENT_ARRAY_BUFFER_ARB, mSizeInBytes, NULL, 
-                GLHardwareBufferManager::getGLUsage(mUsage));
+            //TODO: really we should use this to indicate our discard of the buffer
+            //However it makes no difference to fps on nVidia, and can crash some ATI
+            //glBufferDataARB_ptr(GL_ELEMENT_ARRAY_BUFFER_ARB, mSizeInBytes, NULL, 
+            //    GLHardwareBufferManager::getGLUsage(mUsage));
 
-*/
-            access = (mUsage == HBU_DYNAMIC) ? GL_READ_WRITE_ARB : GL_WRITE_ONLY_ARB;
-
+            // TODO: we should be using the below implementation, but nVidia cards
+            // choke on it and perform terribly - for investigation with nVidia
+            //access = (mUsage == HBU_DYNAMIC || mUsage == HBU_STATIC) ? 
+            //    GL_READ_WRITE_ARB : GL_WRITE_ONLY_ARB;
+            access = GL_READ_WRITE;
         }
         else if(options == HBL_READ_ONLY)
         {
@@ -92,7 +95,11 @@ namespace Ogre {
         }
         else if(options == HBL_NORMAL || options == HBL_NO_OVERWRITE)
         {
-            access = (mUsage == HBU_DYNAMIC) ? GL_READ_WRITE_ARB : GL_WRITE_ONLY_ARB;
+            // TODO: we should be using the below implementation, but nVidia cards
+            // choke on it and perform terribly - for investigation with nVidia
+            //access = (mUsage == HBU_DYNAMIC || mUsage == HBU_STATIC) ? 
+            //    GL_READ_WRITE_ARB : GL_WRITE_ONLY_ARB;
+            access = GL_READ_WRITE;
         }
         else
         {
