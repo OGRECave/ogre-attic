@@ -35,9 +35,8 @@ namespace Ogre
 
 TerrainBufferCache gIndexCache;
 
-size_t TerrainRenderable::mRenderedTris = 0;
-
 String TerrainRenderable::mType = "TerrainMipMap";
+bool TerrainRenderable::msUseTriStrips = false;
 
 LevelArray TerrainRenderable::mLevelIndex;
 bool TerrainRenderable::mLevelInit = false;
@@ -354,240 +353,13 @@ void TerrainRenderable::getRenderOperation( RenderOperation& op )
 {
     //setup indexes for vertices and uvs...
 
-    if ( !mInit )
-    {
-        printf( "Uninitialized\n" );
-        return ;
-    }
-
-    /*
-    int j=0;
-    for( j=0; j<mSize; j+= (mRenderLevel*2) ) //depth
-    {
-    int i=0;
-    if( j != 0 )
-    {
-    //two degenerate tris to turn the corner...
-    pIndexes[nupIndexes] = _index(i, j+mRenderLevel ); nupIndexes++;
-    pIndexes[numIndexes] = _index(i, j+mRenderLevel ); numIndexes++;
-}
-
-    //forward strip...
-    for( i=0; i<mSize; i+= mRenderLevel ) //accross
-    {
-    pIndexes[numIndexes] = _index(i, j ); numIndexes++;
-    pIndexes[numIndexes] = _index(i, j+mRenderLevel ); numIndexes++;
-}
-    i -= mRenderLevel; //backtrack...
-
-
-    //degenerate tris to turn the corner...
-
-    pIndexes[numIndexes] = _index(i, j+mRenderLevel ); numIndexes++;
-    pIndexes[numIndexes] = _index(i, j+mRenderLevel ); numIndexes++;
-
-    //back strip
-    for( i = mSize-mRenderLevel; i>=0; i-=mRenderLevel )
-    {
-    pIndexes[numIndexes] = _index(i, j+mRenderLevel ); numIndexes++;
-    pIndexes[numIndexes] = _index(i, j ); numIndexes++;
-}
-
-}
-    */
-
-    int east = 0, west = 0, north = 0, south = 0;
-
-    int step = 1 << mRenderLevel;
-
-    int index_array = 0;
-
-    int numIndexes = 0;
-
-    if ( mNeighbors[ EAST ] != 0 && mNeighbors[ EAST ] -> mRenderLevel > mRenderLevel )
-    {
-        east = step; index_array |= TILE_EAST;
-    }
-
-    if ( mNeighbors[ WEST ] != 0 && mNeighbors[ WEST ] -> mRenderLevel > mRenderLevel )
-    {
-        west = step; index_array |= TILE_WEST;
-    }
-
-    if ( mNeighbors[ NORTH ] != 0 && mNeighbors[ NORTH ] -> mRenderLevel > mRenderLevel )
-    {
-        north = step; index_array |= TILE_NORTH;
-    }
-
-    if ( mNeighbors[ SOUTH ] != 0 && mNeighbors[ SOUTH ] -> mRenderLevel > mRenderLevel )
-    {
-        south = step; index_array |= TILE_SOUTH;
-    }
-
-    IndexData* indexData = 0;
-
-    if ( mLevelIndex[ mRenderLevel ][ index_array ] != 0 )
-    {
-        indexData = mLevelIndex[ mRenderLevel ][ index_array ];
-    }
-    else
-    {
-        int new_length = ( mSize / step ) * ( mSize / step ) * 2 * 2 * 2 ;
-        //this is the maximum for a level.  It wastes a little, but shouldn't be a problem.
-        
-        indexData = new IndexData;
-        indexData->indexBuffer = 
-            HardwareBufferManager::getSingleton().createIndexBuffer(
-                HardwareIndexBuffer::IT_16BIT,
-                new_length, HardwareBuffer::HBU_STATIC_WRITE_ONLY);//, false);
-
-	    gIndexCache.mCache.push_back( indexData );
-
-        numIndexes = 0;
-
-        unsigned short* pIdx = static_cast<unsigned short*>(
-            indexData->indexBuffer->lock(0, 
-              indexData->indexBuffer->getSizeInBytes(), 
-              HardwareBuffer::HBL_DISCARD));
-
-        for ( int j = north; j < mSize - 1 - south; j += step )
-        {
-            for ( int i = west; i < mSize - 1 - east; i += step )
-            {
-                //triangles
-                *pIdx++ = _index( i, j ); numIndexes++;
-                *pIdx++ = _index( i, j + step ); numIndexes++;
-                *pIdx++ = _index( i + step, j ); numIndexes++;
-
-                *pIdx++ = _index( i, j + step ); numIndexes++;
-                *pIdx++ = _index( i + step, j + step ); numIndexes++;
-                *pIdx++ = _index( i + step, j ); numIndexes++;
-            }
-        }
-
-        int substep = step << 1;
-
-        if ( west > 0 )
-        {
-
-            for ( int j = 0; j < mSize - 1; j += substep )
-            {
-                //skip the first bit of the corner if the north side is a different level as well.
-                if ( j > 0 || north == 0 )
-                {
-                    *pIdx++ = _index( 0, j ); numIndexes++;
-                    *pIdx++ = _index( step, j + step ); numIndexes++;
-                    *pIdx++ = _index( step, j ); numIndexes++;
-                }
-
-                *pIdx++ = _index( step, j + step ); numIndexes++;
-                *pIdx++ = _index( 0, j ); numIndexes++;
-                *pIdx++ = _index( 0, j + step + step ); numIndexes++;
-
-                if ( j < mSize - 1 - substep || south == 0 )
-                {
-                    *pIdx++ = _index( step, j + step ); numIndexes++;
-                    *pIdx++ = _index( 0, j + step + step ); numIndexes++;
-                    *pIdx++ = _index( step, j + step + step ); numIndexes++;
-                }
-            }
-        }
-
-        if ( east > 0 )
-        {
-            int x = mSize - 1;
-
-            for ( int j = 0; j < mSize - 1; j += substep )
-            {
-                //skip the first bit of the corner if the north side is a different level as well.
-                if ( j > 0 || north == 0 )
-                {
-                    *pIdx++ = _index( x, j ); numIndexes++;
-                    *pIdx++ = _index( x - step, j ); numIndexes++;
-                    *pIdx++ = _index( x - step, j + step ); numIndexes++;
-                }
-
-                *pIdx++ = _index( x, j ); numIndexes++;
-                *pIdx++ = _index( x - step, j + step ); numIndexes++;
-                *pIdx++ = _index( x, j + step + step ); numIndexes++;
-
-                if ( j < mSize - 1 - substep || south == 0 )
-                {
-                    *pIdx++ = _index( x, j + step + step ); numIndexes++;
-                    *pIdx++ = _index( x - step, j + step ); numIndexes++;
-                    *pIdx++ = _index( x - step, j + step + step ); numIndexes++;
-                }
-            }
-        }
-
-        if ( south > 0 )
-        {
-            int x = mSize - 1;
-
-            for ( int j = 0; j < mSize - 1; j += substep )
-            {
-                //skip the first bit of the corner if the north side is a different level as well.
-                if ( j > 0 || west == 0 )
-                {
-                    *pIdx++ = _index( j, x - step ); numIndexes++;
-                    *pIdx++ = _index( j, x ); numIndexes++;
-                    *pIdx++ = _index( j + step, x - step ); numIndexes++;
-                }
-
-                *pIdx++ = _index( j + step, x - step ); numIndexes++;
-                *pIdx++ = _index( j, x ); numIndexes++;
-                *pIdx++ = _index( j + step + step, x ); numIndexes++;
-
-                if ( j < mSize - 1 - substep || east == 0 )
-                {
-                    *pIdx++ = _index( j + step, x - step ); numIndexes++;
-                    *pIdx++ = _index( j + step + step, x ); numIndexes++;
-                    *pIdx++ = _index( j + step + step, x - step ); numIndexes++;
-                }
-            }
-
-        }
-
-        if ( north > 0 )
-        {
-            for ( int j = 0; j < mSize - 1; j += substep )
-            {
-                //skip the first bit of the corner if the north side is a different level as well.
-                if ( j > 0 || west == 0 )
-                {
-                    *pIdx++ = _index( j, 0 ); numIndexes++;
-                    *pIdx++ = _index( j, step ); numIndexes++;
-                    *pIdx++ = _index( j + step, step ); numIndexes++;
-                }
-
-                *pIdx++ = _index( j, 0 ); numIndexes++;
-                *pIdx++ = _index( j + step, step ); numIndexes++;
-                *pIdx++ = _index( j + step + step, 0 ); numIndexes++;
-
-                if ( j < mSize - 1 - substep || east == 0 )
-                {
-                    *pIdx++ = _index( j + step + step, 0 ); numIndexes++;
-                    *pIdx++ = _index( j + step, step ); numIndexes++;
-                    *pIdx++ = _index( j + step + step, step ); numIndexes++;
-                }
-            }
-
-        }
-
-        indexData->indexBuffer->unlock();
-        indexData->indexCount = numIndexes;
-        indexData->indexStart = 0;
-
-        mLevelIndex[ mRenderLevel ][ index_array ] = indexData;
-    }
+    assert( mInit && "Uninitialized" );
 
     op.useIndexes = true;
-    op.operationType = RenderOperation::OT_TRIANGLE_LIST;
+    op.operationType = msUseTriStrips ? 
+        RenderOperation::OT_TRIANGLE_STRIP : RenderOperation::OT_TRIANGLE_LIST;
     op.vertexData = mTerrain;
-    op.indexData = indexData;
-
-    mRenderedTris += ( indexData->indexCount / 3 );
-
+    op.indexData = getIndexData();
 
     mRenderLevelChanged = false;
 
@@ -999,6 +771,405 @@ Real TerrainRenderable::getSquaredViewDepth(const Camera* cam) const
 const LightList& TerrainRenderable::getLights(void) const
 {
     return mParentNode->getLights();
+}
+//-----------------------------------------------------------------------
+IndexData* TerrainRenderable::getIndexData(void)
+{
+    int stitchFlags = 0;
+
+    if ( mNeighbors[ EAST ] != 0 && mNeighbors[ EAST ] -> mRenderLevel > mRenderLevel )
+    {
+        stitchFlags |= STITCH_EAST;
+    }
+
+    if ( mNeighbors[ WEST ] != 0 && mNeighbors[ WEST ] -> mRenderLevel > mRenderLevel )
+    {
+        stitchFlags |= STITCH_WEST;
+    }
+
+    if ( mNeighbors[ NORTH ] != 0 && mNeighbors[ NORTH ] -> mRenderLevel > mRenderLevel )
+    {
+        stitchFlags |= STITCH_NORTH;
+    }
+
+    if ( mNeighbors[ SOUTH ] != 0 && mNeighbors[ SOUTH ] -> mRenderLevel > mRenderLevel )
+    {
+        stitchFlags |= STITCH_SOUTH;
+    }
+
+    // Check preexisting
+    IndexData* indexData = indexData = mLevelIndex[ mRenderLevel ][ stitchFlags ];
+    if ( !indexData )
+    {
+        // Create
+        if (msUseTriStrips)
+        {
+            indexData = generateTriStripIndexes(stitchFlags);
+        }
+        else
+        {
+            indexData = generateTriListIndexes(stitchFlags);
+        }
+        mLevelIndex[ mRenderLevel ][ stitchFlags ] = indexData;
+    }
+
+
+    return indexData;
+
+
+}
+//-----------------------------------------------------------------------
+IndexData* TerrainRenderable::generateTriStripIndexes(int stitchFlags)
+{
+    // The step used for the current level
+    int step = 1 << mRenderLevel;
+    // The step used for the lower level
+    int lowstep = 1 << (mRenderLevel + 1);
+
+    int numIndexes = 0;
+
+    // Calculate the number of indexes required
+    // This is the number of 'cells' at this detail level x 2
+    // plus 3 degenerates to turn corners
+    int numTrisAcross = (((mSize-1) / step) * 2) + 3;
+    // Num indexes is number of tris + 2
+    int new_length = numTrisAcross * ((mSize-1) / step) + 2;
+    //this is the maximum for a level.  It wastes a little, but shouldn't be a problem.
+
+    IndexData* indexData = new IndexData;
+    indexData->indexBuffer = 
+        HardwareBufferManager::getSingleton().createIndexBuffer(
+        HardwareIndexBuffer::IT_16BIT,
+        new_length, HardwareBuffer::HBU_STATIC_WRITE_ONLY);//, false);
+
+    gIndexCache.mCache.push_back( indexData );
+
+    unsigned short* pIdx = static_cast<unsigned short*>(
+        indexData->indexBuffer->lock(0, 
+        indexData->indexBuffer->getSizeInBytes(), 
+        HardwareBuffer::HBL_DISCARD));
+
+    // Stripified mesh
+    for ( int j = 0; j < mSize - 1; j += step )
+    {
+        int i;
+        // Forward strip
+        // We just do the |/ here, final | done after
+        for ( i = 0; i < mSize - 1; i += step )
+        {
+            int x[4], y[4];
+            x[0] = x[1] = i;
+            x[2] = x[3] = i + step;
+            y[0] = y[2] = j;
+            y[1] = y[3] = j + step;
+
+            if (j == 0  && (stitchFlags & STITCH_NORTH))
+            {
+                // North reduction means rounding x[0] and x[2]
+                if (x[0] % lowstep != 0)
+                {
+                    // Since we know we only drop down one level of LOD,
+                    // removing 1 step of higher LOD should return to lower
+                    x[0] -= step;
+                }
+                if (x[2] % lowstep != 0)
+                {
+                    x[2] -= step;
+                }
+            }
+
+            // Never get a south tiling on a forward strip (always finish on 
+            // a backward strip)
+
+            if (i == 0  && (stitchFlags & STITCH_WEST))
+            {
+                // West reduction means rounding y[0] / y[1]
+                if (y[0] % lowstep != 0)
+                {
+                    y[0] -= step;
+                }
+                if (y[1] % lowstep != 0)
+                {
+                    y[1] -= step;
+                }
+            }
+            if (i == (mSize - 1 - step) && (stitchFlags & STITCH_EAST))
+            {
+                // East tiling means rounding y[2] & y[3]
+                if (y[2] % lowstep != 0)
+                {
+                    y[2] -= step;
+                }
+                if (y[3] % lowstep != 0)
+                {
+                    y[3] -= step;
+                }
+            }
+
+            //triangles
+            if (i == 0)
+            {
+                // Starter
+                *pIdx++ = _index( x[0], y[0] ); numIndexes++;
+            }
+            *pIdx++ = _index( x[1], y[1] ); numIndexes++;
+            *pIdx++ = _index( x[2], y[2] ); numIndexes++;
+
+            if (i == mSize - 1 - step)
+            {
+                // Emit extra index to finish row
+                *pIdx++ = _index( x[3], y[3] ); numIndexes++;
+                if (j < mSize - 1 - step)
+                {
+                    // Emit this index twice more (this is to turn around without
+                    // artefacts)
+                    // ** Hmm, looks like we can drop this and it's unnoticeable
+                    //*pIdx++ = _index( x[3], y[3] ); numIndexes++;
+                    //*pIdx++ = _index( x[3], y[3] ); numIndexes++;
+                }
+            }
+
+        }
+        // Increment row
+        j += step;
+        // Backward strip
+        for ( i = mSize - 1; i > 0 ; i -= step )
+        {
+            int x[4], y[4];
+            x[0] = x[1] = i;
+            x[2] = x[3] = i - step;
+            y[0] = y[2] = j;
+            y[1] = y[3] = j + step;
+
+            // Never get a north tiling on a backward strip (always
+            // start on a forward strip)
+            if (j == (mSize - 1 - step) && (stitchFlags & STITCH_SOUTH))
+            {
+                // South reduction means rounding x[1] / x[3]
+                if (x[1] % lowstep != 0)
+                {
+                    x[1] -= step;
+                }
+                if (x[3] % lowstep != 0)
+                {
+                    x[3] -= step;
+                }
+            }
+
+            if (i == step  && (stitchFlags & STITCH_WEST))
+            {
+                // West tiling on backward strip is rounding of y[2] / y[3]
+                if (y[2] % lowstep != 0)
+                {
+                    y[2] -= step;
+                }
+                if (y[3] % lowstep != 0)
+                {
+                    y[3] -= step;
+                }
+            }
+            if (i == mSize - 1 && (stitchFlags & STITCH_EAST))
+            {
+                // East tiling means rounding y[0] and y[1] on backward strip
+                if (y[0] % lowstep != 0)
+                {
+                    y[0] -= step;
+                }
+                if (y[1] % lowstep != 0)
+                {
+                    y[1] -= step;
+                }
+            }
+
+            //triangles
+            if (i == mSize)
+            {
+                // Starter
+                *pIdx++ = _index( x[0], y[0] ); numIndexes++;
+            }
+            *pIdx++ = _index( x[1], y[1] ); numIndexes++;
+            *pIdx++ = _index( x[2], y[2] ); numIndexes++;
+
+            if (i == step)
+            {
+                // Emit extra index to finish row
+                *pIdx++ = _index( x[3], y[3] ); numIndexes++;
+                if (j < mSize - 1 - step)
+                {
+                    // Emit this index once more (this is to turn around)
+                    *pIdx++ = _index( x[3], y[3] ); numIndexes++;
+                }
+            }
+        }
+    }
+
+
+    indexData->indexBuffer->unlock();
+    indexData->indexCount = numIndexes;
+    indexData->indexStart = 0;
+
+    return indexData;
+
+}
+//-----------------------------------------------------------------------
+IndexData* TerrainRenderable::generateTriListIndexes(int stitchFlags)
+{
+
+    int numIndexes = 0;
+    int step = 1 << mRenderLevel;
+
+    IndexData* indexData = 0;
+
+    int north = stitchFlags & STITCH_NORTH ? step : 0;
+    int south = stitchFlags & STITCH_SOUTH ? step : 0;
+    int east = stitchFlags & STITCH_EAST ? step : 0;
+    int west = stitchFlags & STITCH_WEST ? step : 0;
+
+    int new_length = ( mSize / step ) * ( mSize / step ) * 2 * 2 * 2 ;
+    //this is the maximum for a level.  It wastes a little, but shouldn't be a problem.
+
+    indexData = new IndexData;
+    indexData->indexBuffer = 
+        HardwareBufferManager::getSingleton().createIndexBuffer(
+        HardwareIndexBuffer::IT_16BIT,
+        new_length, HardwareBuffer::HBU_STATIC_WRITE_ONLY);//, false);
+
+    gIndexCache.mCache.push_back( indexData );
+
+    unsigned short* pIdx = static_cast<unsigned short*>(
+        indexData->indexBuffer->lock(0, 
+        indexData->indexBuffer->getSizeInBytes(), 
+        HardwareBuffer::HBL_DISCARD));
+
+    for ( int j = north; j < mSize - 1 - south; j += step )
+    {
+        for ( int i = west; i < mSize - 1 - east; i += step )
+        {
+            //triangles
+            *pIdx++ = _index( i, j ); numIndexes++;
+            *pIdx++ = _index( i, j + step ); numIndexes++;
+            *pIdx++ = _index( i + step, j ); numIndexes++;
+
+            *pIdx++ = _index( i, j + step ); numIndexes++;
+            *pIdx++ = _index( i + step, j + step ); numIndexes++;
+            *pIdx++ = _index( i + step, j ); numIndexes++;
+        }
+    }
+
+    int substep = step << 1;
+
+    if ( west > 0 )
+    {
+
+        for ( int j = 0; j < mSize - 1; j += substep )
+        {
+            //skip the first bit of the corner if the north side is a different level as well.
+            if ( j > 0 || north == 0 )
+            {
+                *pIdx++ = _index( 0, j ); numIndexes++;
+                *pIdx++ = _index( step, j + step ); numIndexes++;
+                *pIdx++ = _index( step, j ); numIndexes++;
+            }
+
+            *pIdx++ = _index( step, j + step ); numIndexes++;
+            *pIdx++ = _index( 0, j ); numIndexes++;
+            *pIdx++ = _index( 0, j + step + step ); numIndexes++;
+
+            if ( j < mSize - 1 - substep || south == 0 )
+            {
+                *pIdx++ = _index( step, j + step ); numIndexes++;
+                *pIdx++ = _index( 0, j + step + step ); numIndexes++;
+                *pIdx++ = _index( step, j + step + step ); numIndexes++;
+            }
+        }
+    }
+
+    if ( east > 0 )
+    {
+        int x = mSize - 1;
+
+        for ( int j = 0; j < mSize - 1; j += substep )
+        {
+            //skip the first bit of the corner if the north side is a different level as well.
+            if ( j > 0 || north == 0 )
+            {
+                *pIdx++ = _index( x, j ); numIndexes++;
+                *pIdx++ = _index( x - step, j ); numIndexes++;
+                *pIdx++ = _index( x - step, j + step ); numIndexes++;
+            }
+
+            *pIdx++ = _index( x, j ); numIndexes++;
+            *pIdx++ = _index( x - step, j + step ); numIndexes++;
+            *pIdx++ = _index( x, j + step + step ); numIndexes++;
+
+            if ( j < mSize - 1 - substep || south == 0 )
+            {
+                *pIdx++ = _index( x, j + step + step ); numIndexes++;
+                *pIdx++ = _index( x - step, j + step ); numIndexes++;
+                *pIdx++ = _index( x - step, j + step + step ); numIndexes++;
+            }
+        }
+    }
+
+    if ( south > 0 )
+    {
+        int x = mSize - 1;
+
+        for ( int j = 0; j < mSize - 1; j += substep )
+        {
+            //skip the first bit of the corner if the north side is a different level as well.
+            if ( j > 0 || west == 0 )
+            {
+                *pIdx++ = _index( j, x - step ); numIndexes++;
+                *pIdx++ = _index( j, x ); numIndexes++;
+                *pIdx++ = _index( j + step, x - step ); numIndexes++;
+            }
+
+            *pIdx++ = _index( j + step, x - step ); numIndexes++;
+            *pIdx++ = _index( j, x ); numIndexes++;
+            *pIdx++ = _index( j + step + step, x ); numIndexes++;
+
+            if ( j < mSize - 1 - substep || east == 0 )
+            {
+                *pIdx++ = _index( j + step, x - step ); numIndexes++;
+                *pIdx++ = _index( j + step + step, x ); numIndexes++;
+                *pIdx++ = _index( j + step + step, x - step ); numIndexes++;
+            }
+        }
+
+    }
+
+    if ( north > 0 )
+    {
+        for ( int j = 0; j < mSize - 1; j += substep )
+        {
+            //skip the first bit of the corner if the north side is a different level as well.
+            if ( j > 0 || west == 0 )
+            {
+                *pIdx++ = _index( j, 0 ); numIndexes++;
+                *pIdx++ = _index( j, step ); numIndexes++;
+                *pIdx++ = _index( j + step, step ); numIndexes++;
+            }
+
+            *pIdx++ = _index( j, 0 ); numIndexes++;
+            *pIdx++ = _index( j + step, step ); numIndexes++;
+            *pIdx++ = _index( j + step + step, 0 ); numIndexes++;
+
+            if ( j < mSize - 1 - substep || east == 0 )
+            {
+                *pIdx++ = _index( j + step + step, 0 ); numIndexes++;
+                *pIdx++ = _index( j + step, step ); numIndexes++;
+                *pIdx++ = _index( j + step + step, step ); numIndexes++;
+            }
+        }
+
+    }
+
+    indexData->indexBuffer->unlock();
+    indexData->indexCount = numIndexes;
+    indexData->indexStart = 0;
+
+    return indexData;
 }
 
 } //namespace

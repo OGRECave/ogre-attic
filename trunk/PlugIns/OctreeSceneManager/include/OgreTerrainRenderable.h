@@ -107,10 +107,10 @@ public:
 
 };
 
-#define TILE_NORTH  0x00000001
-#define TILE_SOUTH  0x00000002
-#define TILE_WEST   0x00000004
-#define TILE_EAST   0x00000008
+#define STITCH_NORTH  0x00000001
+#define STITCH_SOUTH  0x00000002
+#define STITCH_WEST   0x00000004
+#define STITCH_EAST   0x00000008
 
 /**
    Represents a terrain tile.
@@ -253,8 +253,6 @@ public:
     void _generateVertexLighting( const Vector3 &sun, ColourValue ambient );
 
 
-    static size_t mRenderedTris;
-
     /** Overridden, see Renderable */
     Real getSquaredViewDepth(const Camera* cam) const;
 
@@ -263,6 +261,8 @@ public:
 
     /** @copydoc Renderable::getLights */
     const LightList& getLights(void) const;
+    /** Sets whether or not terrain tiles should be stripified */
+    static void _setUseTriStrips(bool useStrips) { msUseTriStrips = useStrips; }
 
 
 
@@ -360,6 +360,13 @@ protected:
     bool mLit;
 
     int mForcedRenderLevel;
+    static bool msUseTriStrips;
+    /// Gets the index data for this tile based on current settings
+    IndexData* getIndexData(void);
+    /// Internal method for generating stripified terrain indexes
+    IndexData* generateTriStripIndexes(int stitchFlags);
+    /// Internal method for generating triangle list terrain indexes
+    IndexData* generateTriListIndexes(int stitchFlags);
 
 };
 

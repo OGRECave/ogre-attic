@@ -81,6 +81,9 @@ void TerrainSceneManager::setWorldGeometry( const String& filename )
     if ( config.getSetting( "VertexNormals" ) == "yes" )
         mOptions.lit = true;
 
+    if ( config.getSetting( "UseTriStrips" ) == "yes" )
+        setUseTriStrips(true);
+
     mScale = Vector3( mOptions.scalex, mOptions.scaley, mOptions.scalez );
 
     mTileSize = mOptions.size;
@@ -254,8 +257,6 @@ void TerrainSceneManager::_renderVisibleObjects( void )
 
     OctreeSceneManager::_renderVisibleObjects();
 
-    TerrainRenderable::mRenderedTris = 0;
-
 }
 
 float TerrainSceneManager::getHeightAt( float x, float z )
@@ -320,6 +321,11 @@ bool TerrainSceneManager::intersectSegment( const Vector3 & start, const Vector3
     }
 
     return t -> intersectSegment( start, end, result );
+}
+
+void TerrainSceneManager::setUseTriStrips(bool useStrips)
+{
+    TerrainRenderable::_setUseTriStrips(useStrips);
 }
 
 } //namespace
