@@ -22,58 +22,25 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
+#ifndef __Win32Timer_H__
+#define __Win32Timer_H__
 
-#include "OgreRoot.h"
-#include "OgreSDLConfig.h"
-#include "OgreSDLError.h"
-#include "OgreSDLInput.h"
-#include "OgreSDLTimer.h"
+#include "OgreWin32Prerequisites.h"
+#include "OgreTimer.h"
 
 namespace Ogre {
 
-    extern "C" void createPlatformConfigDialog(ConfigDialog** ppDlg)
+    class Win32Timer : public Timer
     {
-        *ppDlg = new SDLConfig();
-    }
+    private:
+        LARGE_INTEGER mStartTime;
+        LARGE_INTEGER mFrequency;
 
-    extern "C" void createPlatformErrorDialog(ErrorDialog** ppDlg)
-    {
-        *ppDlg = new SDLError();
-    }
+    public:
+        // overrides standard methods
+        virtual void reset();
+        virtual unsigned long getMilliseconds();
+    };
+} 
 
-    extern "C" void createPlatformInputReader(InputReader** ppDlg)
-    {
-        *ppDlg = new SDLInput();
-    }
-	
-	extern "C" void createTimer(Timer** ppTimer)
-	{
-		*ppTimer = new SDLTimer();
-        (*ppTimer)->reset();
-	}
-
-	extern "C" void destroyTimer(Timer* ppTimer)
-	{
-		delete ppTimer;
-	}
-
-    extern "C" void destroyPlatformConfigDialog(ConfigDialog* dlg)
-    {
-        delete dlg;
-    }
-
-    extern "C" void destroyPlatformErrorDialog(ErrorDialog* dlg)
-    {
-        delete dlg;
-    }
-
-    extern "C" void destroyPlatformRenderWindow(RenderWindow* wnd)
-    {
-        delete wnd;
-    }
-
-    extern "C" void destroyPlatformInputReader(InputReader* reader)
-    {
-        delete reader;
-    }
-}
+#endif

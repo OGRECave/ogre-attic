@@ -29,13 +29,20 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre
 {
+    /** Platform-independent Timer class. 
+    @remarks
+        You should never create a Timer instance manually; instead, use PlatformManager::createTimer.
+    */
 	class _OgreExport Timer
 	{
 	protected:	
 		clock_t zeroClock ;
 	
 	public:
-		/** Creates a timer and resets it
+		/** Creates a timer. 
+        @remarks
+            You must call reset() after creating it; the constructor cannot do it because the 
+            call would not be polymorphic.
 		*/
 		Timer() ;
 		
