@@ -331,11 +331,11 @@ Pixmap GLXConfigurator::CreateBackdrop(Window rootWindow, int depth) {
 	try {
 		Image img;
 		/* Load backdrop image using OGRE */
-		img.load(backdrop);
+		img.load(backdrop, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 		if(img.getWidth() != mWidth || img.getHeight() != mHeight ||
-			img.getFormat() != PF_R8G8B8) {
+			img.getFormat() != PF_B8G8R8) {
 			// Invalid image format or size
-			LogManager::getSingleton().logMessage("GLX backdrop: Invalid image "+backdrop+", format must be R8G8B8");
+			LogManager::getSingleton().logMessage("GLX backdrop: Invalid image "+backdrop+", format must be B8G8RB8");
 			return 0;
 		}
 		// Convert and copy image
