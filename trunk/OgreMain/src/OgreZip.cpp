@@ -224,6 +224,7 @@ namespace Ogre {
             mArchive = unzOpen( mName.c_str() );
 
         LogManager::getSingleton().logMessage( "Zip Archive codec for " + mName + " created.");
+        mIsLoaded = true;
     };
 
     //-----------------------------------------------------------------------

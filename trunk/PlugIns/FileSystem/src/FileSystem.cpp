@@ -424,6 +424,7 @@ namespace Ogre {
         mstrBasePath = mName;
 
         LogManager::getSingleton().logMessage( "FileSystem Archive Codec for " + mName + " created.");
+        mIsLoaded = true;
     };
 
     //-----------------------------------------------------------------------
