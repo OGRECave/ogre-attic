@@ -110,6 +110,9 @@ namespace Ogre {
         /// Private method to cache bone matrices from skeleton
         void cacheBoneMatrices(void);
 
+        /// Flag determines whether or not to display skeleton
+        bool mDisplaySkeleton;
+
 
     public:
         /** Default destructor.
@@ -186,6 +189,11 @@ namespace Ogre {
             initialised from the Mesh object.
         */
         AnimationStateSet* getAllAnimationStates(void);
+
+        /** Tells the Entity whether or not it should display it's skeleton, if it has one.
+        */
+        void setDisplaySkeleton(bool display);
+
 
 
     };

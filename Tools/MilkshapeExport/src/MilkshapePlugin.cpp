@@ -452,20 +452,20 @@ Ogre::Skeleton* MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* m
         msBone* bone = msModel_GetBoneAt(pModel, i);
         Ogre::Bone* ogrebone = ogreskel->createBone(bone->szName);
 
-        msVec3 bonePos, boneRot;
-        msBone_GetPosition(pModel, bonePos);
-        msBone_GetRotation(pModel, boneRot);
+        msVec3 msBonePos, msBoneRot;
+        msBone_GetPosition(bone, msBonePos);
+        msBone_GetRotation(bone, msBoneRot);
 
-        Ogre::Vector3 bonePos(bonePos[0], bonePos[1], bonePos[2]);
+        Ogre::Vector3 bonePos(msBonePos[0], msBonePos[1], msBonePos[2]);
         ogrebone->setPosition(bonePos);
         // Hmm, Milkshape has chosen a Euler angle representation of orientation which is not smart
         // Rotation Matrix or Quaternion would have been the smarter choice
         // Might we have Gimbal lock here? What order are these 3 angles supposed to be applied?
         // Grr, we'll try our best anyway...
         Ogre::Quaternion qx, qy, qz, qfinal;
-        qx.FromAngleAxis(boneRot[0], Ogre::Vector3::UNIT_X);
-        qy.FromAngleAxis(boneRot[1], Ogre::Vector3::UNIT_Y);
-        qz.FromAngleAxis(boneRot[2], Ogre::Vector3::UNIT_Z);
+        qx.FromAngleAxis(msBoneRot[0], Ogre::Vector3::UNIT_X);
+        qy.FromAngleAxis(msBoneRot[1], Ogre::Vector3::UNIT_Y);
+        qz.FromAngleAxis(msBoneRot[2], Ogre::Vector3::UNIT_Z);
 
         // Assume rotate by x then y then z
         qfinal = qz * qy * qx;
@@ -475,7 +475,7 @@ Ogre::Skeleton* MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* m
         msg << "Bone #" << i << ": " <<
             "Name='" << bone->szName << "' " <<
             "Position: " << bonePos << " " <<
-            "Ms3d Rotation: {" << boneRot[0] << ", " << boneRot[1] << ", " << boneRot[2] << "} " <<
+            "Ms3d Rotation: {" << msBoneRot[0] << ", " << msBoneRot[1] << ", " << msBoneRot[2] << "} " <<
             "Orientation: " << qfinal;
         logMgr.logMessage(msg);
 

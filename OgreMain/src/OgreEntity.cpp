@@ -30,6 +30,8 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreException.h"
 #include "OgreSceneManager.h"
 #include "OgreLogManager.h"
+#include "OgreSkeleton.h"
+#include "OgreBone.h"
 
 namespace Ogre {
     String Entity::msMovableType = "Entity";
@@ -72,6 +74,8 @@ namespace Ogre {
             mBoneMatrices = 0;
             mNumBoneMatrices = 0;
         }
+
+        mDisplaySkeleton = false;
 
 
 
@@ -168,6 +172,23 @@ namespace Ogre {
             cacheBoneMatrices();
         }
 
+        // HACK to display bones
+        // This won't work if the entity is not centered at the origin
+        // TODO work out a way to allow bones to be rendered when Entity not centered
+        if (mDisplaySkeleton && mMesh->hasSkeleton())
+        {
+            Skeleton* pSkel = mMesh->getSkeleton();
+            int numBones = pSkel->getNumBones();
+            for (int b = 0; b < numBones; ++b)
+            {
+                Bone* bone = pSkel->getBone(b);
+                queue->addRenderable(bone);
+            }
+        }
+
+
+
+
     }
     //-----------------------------------------------------------------------
     AnimationState* Entity::getAnimationState(const String& name)
@@ -212,6 +233,10 @@ namespace Ogre {
         }
 
     }
-
+    //-----------------------------------------------------------------------
+    void Entity::setDisplaySkeleton(bool display)
+    {
+        mDisplaySkeleton = display;
+    }
 
 }
