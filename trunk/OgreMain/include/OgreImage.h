@@ -63,9 +63,12 @@ namespace Ogre {
         */
         struct Rect
         {
-            int left, top, right, bottom;
+            long left, top, right, bottom;
 
-            Rect( int l, int t, int r, int b )
+            Rect()
+            {
+            }
+            Rect( long l, long t, long r, long b )
             {
                 left = l;
                 top = t;   
@@ -75,9 +78,9 @@ namespace Ogre {
             Rect& operator = ( const Rect& other )
             {
                 left = other.left;
-                top = other.top;      
+                top = other.top;
                 right = other.right;
-                bottom = other.bottom;                
+                bottom = other.bottom;       
 
                 return *this;
             }
@@ -93,29 +96,13 @@ namespace Ogre {
 
         /** Standard destructor.
         */
-        ~Image();
+        virtual ~Image();
 
         /** Assignment operator - copies all the data from the target image.
         */
         Image & operator = ( const Image & img );
 
         /** Flips (mirrors) the image around the Y-axis. 
-            @remarks
-                An example of an original and flipped image:
-                <pre>
-                        flip axis
-                            |
-                originalimg|gmilanigiro
-                00000000000|00000000000
-                00000000000|00000000000
-                00000000000|00000000000
-                00000000000|00000000000
-                00000000000|00000000000
-                </pre>
-        */
-        Image & flipAroundY();
-
-        /** Flips (mirrors) the image around the X-axis.
             @remarks
                 An example of an original and flipped image:
                 <pre>                
@@ -132,6 +119,22 @@ namespace Ogre {
                 00000000000
                 00000000000
                 originalimg
+                </pre>
+        */
+        Image & flipAroundY();
+
+        /** Flips (mirrors) the image around the X-axis.
+            @remarks
+                An example of an original and flipped image:
+                <pre>
+                        flip axis
+                            |
+                originalimg|gmilanigiro
+                00000000000|00000000000
+                00000000000|00000000000
+                00000000000|00000000000
+                00000000000|00000000000
+                00000000000|00000000000
                 </pre>
         */                 
         Image & flipAroundX();
@@ -290,6 +293,13 @@ namespace Ogre {
         /** Returns true if the image has an alpha component.
         */
         bool getHasAlpha() const;
+
+        /** Does gamma adjustment.
+            @note
+                Basic algo taken from Titan Engine, copyright (c) 2000 Ignacio 
+                Castano Iguado
+        */
+        static void applyGamma( uchar *byffer, Real gamma, uint size, uchar bpp );
 
     private:
         // The width of the image in pixels
