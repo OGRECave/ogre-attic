@@ -28,6 +28,8 @@ extern "C" {
 #define WINGDIAPI
 #define APIENTRY
 #endif
+#define GLAPI WINGDIAPI
+
 
 typedef unsigned int GLenum;
 typedef unsigned char GLboolean;

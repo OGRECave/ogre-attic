@@ -38,6 +38,7 @@ namespace Ogre {
     class _OgreExport ImageCodec : public Codec
     {
     public:
+        virtual ~ImageCodec();
         /** Codec return class for images. Has imformation about the size and the
             pixel format of the image. */
         class ImageData : public Codec::CodecData

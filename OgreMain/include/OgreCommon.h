@@ -212,7 +212,7 @@ namespace Ogre {
 	};
 
     /** An enumeration of broad shadow techniques */
-    enum _OgreExport ShadowTechnique
+    enum ShadowTechnique
     {
         /** No shadows */
         SHADOWTYPE_NONE,
