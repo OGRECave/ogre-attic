@@ -104,6 +104,10 @@ SOURCE=..\src\glprocs.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreGLDefaultHardwareBufferManager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\misc\OgreGLEngine.def
 # End Source File
 # Begin Source File
@@ -140,10 +144,6 @@ SOURCE=..\src\OgreGLTextureManager.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\OgreGLVertexDeclaration.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\OgreWin32GLSupport.cpp
 # End Source File
 # Begin Source File
@@ -169,6 +169,10 @@ SOURCE=..\include\glprocs.h
 # Begin Source File
 
 SOURCE=..\include\glxext.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreGLDefaultHardwareBufferManager.h
 # End Source File
 # Begin Source File
 
@@ -201,10 +205,6 @@ SOURCE=..\include\OgreGLTexture.h
 # Begin Source File
 
 SOURCE=..\include\OgreGLTextureManager.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreGLVertexDeclaration.h
 # End Source File
 # Begin Source File
 

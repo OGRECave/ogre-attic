@@ -188,6 +188,10 @@ SOURCE=..\src\OgreDataChunk.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreDefaultHardwareBufferManager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreDynLib.cpp
 # End Source File
 # Begin Source File
@@ -348,6 +352,10 @@ SOURCE=..\src\OgreMeshSerializer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreMeshSerializerImpl.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreMouseEvent.cpp
 # End Source File
 # Begin Source File
@@ -365,10 +373,6 @@ SOURCE=..\src\OgreMovableObject.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreNode.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\OgreOofModelFile.cpp
 # End Source File
 # Begin Source File
 
@@ -397,6 +401,10 @@ SOURCE=..\src\OgreParticleSystem.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreParticleSystemManager.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgrePatchMesh.cpp
 # End Source File
 # Begin Source File
 
@@ -577,6 +585,10 @@ SOURCE=..\src\OgreUserDefinedObject.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreVector3.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreVertexIndexData.cpp
 # End Source File
 # Begin Source File
 
@@ -936,6 +948,10 @@ SOURCE=..\include\OgreMeshSerializer.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreMeshSerializerImpl.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreMouseEvent.h
 # End Source File
 # Begin Source File
@@ -961,10 +977,6 @@ SOURCE=..\include\OgreNoMemoryMacros.h
 # Begin Source File
 
 SOURCE=..\include\OgreOofFile.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreOofModelFile.h
 # End Source File
 # Begin Source File
 
@@ -1009,6 +1021,10 @@ SOURCE=..\include\OgreParticleSystem.h
 # Begin Source File
 
 SOURCE=..\include\OgreParticleSystemManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgrePatchMesh.h
 # End Source File
 # Begin Source File
 
