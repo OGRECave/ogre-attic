@@ -225,6 +225,32 @@ namespace Ogre {
     */
 
 
+	/** Summary struct collecting together vertex source information. */
+	struct VertexData
+	{
+		/** Declaration of the vertex to be used in this operation. */
+		VertexDeclaration *vertexDeclaration;
+		/** The vertex buffer bindings to be used. */
+		VertexBufferBinding *vertexBufferBinding;
+		/// The base vertex index to start from, either as a vertex list, or as a base for indexes
+		size_t vertexStart;
+		/// The number of vertices used in this operation
+		size_t vertexCount;
+
+	};
+
+	/** Summary struct collecting together index data source information. */
+	struct IndexData 
+	{
+		/// pointer to the HardwareIndexBuffer to use, must be specified if useIndexes = true
+		HardwareIndexBuffer* indexBuffer;
+
+		/// index in the buffer to start from for this operation
+		size_t indexStart;
+
+		/// The number of indexes to use from the buffer
+		size_t indexCount;
+	};
 
 
 	/** 'New' rendering operation using vertex buffers. */
@@ -246,16 +272,11 @@ namespace Ogre {
             OT_TRIANGLE_FAN
         };
 
+		/// Vertex source data
+		VertexData vertexData;
+
 		/// The type of operation to perform
 		OperationType operationType;
-		/** Declaration of the vertex to be used in this operation. */
-		VertexDeclaration *vertexDeclaration;
-		/** The vertex buffer bindings to be used. */
-		VertexBufferBinding *vertexBufferBinding;
-		/// The base vertex index to start from, either as a vertex list, or as a base for indexes
-		size_t vertexStart;
-		/// The number of vertices used in this operation
-		size_t vertexCount;
 
 		/** Specifies whether to use indexes to determine the vertices to use as input. If false, the vertices are
 		 simply read in sequence to define the primitives. If true, indexes are used instead to identify vertices
@@ -263,6 +284,8 @@ namespace Ogre {
 	   	 If true, then the indexBuffer, indexStart and numIndexes properties must be valid. */
 		bool useIndexes;
 
+		/// Index data - only valid if useIndexes is true
+		IndexData indexData;
 		/// pointer to the HardwareIndexBuffer to use, must be specified if useIndexes = true
 		HardwareIndexBuffer* indexBuffer;
 

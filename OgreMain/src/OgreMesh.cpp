@@ -71,6 +71,9 @@ namespace Ogre {
 		mMeshLodUsageList.push_back(lod);
 		mIsLodManual = false;
 
+		mVertexBuffersDynamic = false;
+		mIndexBuffersDynamic = false;
+
 
     }
 
@@ -921,7 +924,12 @@ namespace Ogre {
     {
         return mBoundRadius;
     }
-	
+    //---------------------------------------------------------------------
+	void Mesh::setBufferPolicy(bool vertexBuffersDynamic, bool indexBuffersDynamic)
+	{
+		mVertexBuffersDynamic = vertexBuffersDynamic;
+		mIndexBuffersDynamic = indexBuffersDynamic;
+	}
 
 }
 

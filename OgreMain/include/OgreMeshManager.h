@@ -58,8 +58,20 @@ namespace Ogre {
                 format is better for runtime performance, and we also have
                 control over pre-processed data (such as
                 collision boxes, LOD reductions etc).
+			@param filename The name of the .mesh file
+			@param vertexBuffersDynamic Forces the vertex buffers created for this
+				mesh to be dynamic, therefore modifiable by the system. If left
+				as default, the system will try to use static buffers which are more
+				efficient
+			@param indexBuffersDynamic Forces the index buffers created for this
+				mesh to be dynamic, therefore modifiable by the system. If left
+				as default, the system will try to use static buffers which are more
+				efficient
+			@param priority The priority of this mesh in the resource system
         */
-        Mesh* load( const String& filename, int priority = 1);
+        Mesh* load( const String& filename, 
+			bool vertexBuffersDynamic = false, 
+			bool indexBuffersDynamic = false, int priority = 1);
 
         /** Creates a Mesh resource.
             @note
