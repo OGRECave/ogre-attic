@@ -167,7 +167,7 @@ namespace Ogre
         }
         if (mRotate)
         {
-            mTextureLayer->setTextureRotate(value * 360);
+            mTextureLayer->setTextureRotate(Radian(value * Math::TWO_PI));
         }
     }
     //-----------------------------------------------------------------------
@@ -265,7 +265,7 @@ namespace Ogre
         switch (mWaveType)
         {
         case WFT_SINE:
-			output = Math::Sin(input * Math::TWO_PI);
+            output = Math::Sin(Radian(input * Math::TWO_PI));
             break;
         case WFT_TRIANGLE:
             if (input < 0.25)

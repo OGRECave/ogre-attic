@@ -75,7 +75,7 @@ namespace Ogre {
         GuiContainerList m2DElements;
 
         // Degrees of rotation around center
-        Real mRotate;
+        Radian mRotate;
         // Scroll values, offsets
         Real mScrollX, mScrollY;
         // Scale values
@@ -198,15 +198,24 @@ namespace Ogre {
         */
         void scroll(Real xoff, Real yoff);
 
-        /** Sets the rotation applied to this overlay, in degrees.*/
-        void setRotate(Real degrees);
+        /** Sets the rotation applied to this overlay.*/
+        void setRotate(const Radian& angle);
+#ifndef OGRE_FORCE_ANGLE_TYPES
+        inline void setRotate(Real degrees) {
+			setRotate ( Angle(degrees) );
+		}
+#endif//OGRE_FORCE_ANGLE_TYPES
 
         /** Gets the rotation applied to this overlay, in degrees.*/
-        Real getRotate(void) const;
+        Radian getRotate(void) const { return mRotate; }
 
         /** Adds the passed in angle to the rotation applied to this overlay. */
-        void rotate(Real degrees);
-
+        void rotate(const Radian& angle);
+#ifndef OGRE_FORCE_ANGLE_TYPES
+		inline void rotate(Real degrees) {
+			rotate ( Angle(degrees) );
+		}
+#endif//OGRE_FORCE_ANGLE_TYPES
 
         /** Sets the scaling factor of this overlay.
         @remarks

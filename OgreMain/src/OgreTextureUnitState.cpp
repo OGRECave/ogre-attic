@@ -564,9 +564,9 @@ namespace Ogre {
         mRecalcTexMatrix = true;
     }
     //-----------------------------------------------------------------------
-    void TextureUnitState::setTextureRotate(Real degrees)
+    void TextureUnitState::setTextureRotate(const Radian& angle)
     {
-        mRotate = degrees;
+        mRotate = angle;
         mRecalcTexMatrix = true;
     }
     //-----------------------------------------------------------------------
@@ -605,10 +605,10 @@ namespace Ogre {
             xform = xlate * xform;
         }
 
-        if (mRotate != 0)
+        if (mRotate != Radian(0))
         {
             rot = Matrix3::IDENTITY;
-            Real theta = Math::AngleUnitsToRadians(mRotate);
+            Radian theta ( mRotate );
             Real cosTheta = Math::Cos(theta);
             Real sinTheta = Math::Sin(theta);
 
@@ -785,7 +785,7 @@ namespace Ogre {
     }
 
 	//-----------------------------------------------------------------------
-	Real TextureUnitState::getTextureRotate(void) const
+	const Radian& TextureUnitState::getTextureRotate(void) const
     {
 		return mRotate;
     }

@@ -199,11 +199,11 @@ namespace Ogre
 		void _setDepthBufferFunction( CompareFunction func = CMPF_LESS_EQUAL );
 		void _setDepthBias(ushort bias);
 		void _setFog( FogMode mode = FOG_NONE, const ColourValue& colour = ColourValue::White, Real expDensity = 1.0, Real linearStart = 0.0, Real linearEnd = 1.0 );
-		void _makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, 
+		void _makeProjectionMatrix(const Radian& fovy, Real aspect, Real nearPlane, Real farPlane, 
             Matrix4& dest, bool forGpuProgram = false);
 		void _makeProjectionMatrix(Real left, Real right, Real bottom, Real top, Real nearPlane, 
             Real farPlane, Matrix4& dest, bool forGpuProgram = false);
-		void _makeOrthoMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, 
+		void _makeOrthoMatrix(const Radian& fovy, Real aspect, Real nearPlane, Real farPlane, 
             Matrix4& dest, bool forGpuProgram = false);
 		void _setRasterisationMode(SceneDetailLevel level);
         void _setTextureUnitFiltering(size_t unit, FilterType ftype, FilterOptions filter);

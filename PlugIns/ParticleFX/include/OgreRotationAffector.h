@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef __RotationAffector_H__
 #define __RotationAffector_H__
 
+#include "OgreMath.h"
 #include "OgreParticleFXPrerequisites.h"
 #include "OgreParticleAffector.h"
 #include "OgreStringInterface.h"
@@ -84,23 +85,43 @@ namespace Ogre {
 
 
 		/** Sets the minimum rotation speed of particles to be emitted. */
-        void setRotationSpeedRangeStart(Real angle);
+        void setRotationSpeedRangeStart(const Radian& angle);
+#ifndef OGRE_FORCE_ANGLE_TYPES
+        inline void setRotationSpeedRangeStart(Real angle) {
+            setRotationSpeedRangeStart(Angle(angle));
+        }
+#endif//OGRE_FORCE_ANGLE_TYPES
         /** Sets the maximum rotation speed of particles to be emitted. */
-        void setRotationSpeedRangeEnd(Real angle);
+        void setRotationSpeedRangeEnd(const Radian& angle);
+#ifndef OGRE_FORCE_ANGLE_TYPES
+        inline void setRotationSpeedRangeEnd(Real angle) {
+            setRotationSpeedRangeEnd(Angle(angle));
+        }
+#endif//OGRE_FORCE_ANGLE_TYPES
         /** Gets the minimum rotation speed of particles to be emitted. */
-        Real getRotationSpeedRangeStart(void) const;
+        const Radian& getRotationSpeedRangeStart(void) const;
         /** Gets the maximum rotation speed of particles to be emitted. */
-        Real getRotationSpeedRangeEnd(void) const;
+        const Radian& getRotationSpeedRangeEnd(void) const;
 
 		
 		/** Sets the minimum rotation angle of particles to be emitted. */
-        void setRotationRangeStart(Real angle);
+        void setRotationRangeStart(const Radian& angle);
+#ifndef OGRE_FORCE_ANGLE_TYPES
+        inline void setRotationRangeStart(Real angle) {
+            setRotationRangeStart(Angle(angle));
+        }
+#endif//OGRE_FORCE_ANGLE_TYPES
         /** Sets the maximum rotation angle of particles to be emitted. */
-        void setRotationRangeEnd(Real angle);
+        void setRotationRangeEnd(const Radian& angle);
+#ifndef OGRE_FORCE_ANGLE_TYPES
+        inline void setRotationRangeEnd(Real angle) {
+            setRotationRangeEnd(Angle(angle));
+        }
+#endif//OGRE_FORCE_ANGLE_TYPES
         /** Gets the minimum rotation of particles to be emitted. */
-        Real getRotationRangeStart(void) const;
+        const Radian& getRotationRangeStart(void) const;
         /** Gets the maximum rotation of particles to be emitted. */
-        Real getRotationRangeEnd(void) const;
+        const Radian& getRotationRangeEnd(void) const;
 
 		static CmdRotationSpeedRangeStart	msRotationSpeedRangeStartCmd;
         static CmdRotationSpeedRangeEnd		msRotationSpeedRangeEndCmd;
@@ -109,13 +130,13 @@ namespace Ogre {
         
     protected:
         /// Initial rotation speed of particles (range start)
-        Real mRotationSpeedRangeStart;
+        Radian mRotationSpeedRangeStart;
         /// Initial rotation speed of particles (range end)
-        Real mRotationSpeedRangeEnd;
+        Radian mRotationSpeedRangeEnd;
         /// Initial rotation angle of particles (range start)
-        Real mRotationRangeStart;
+        Radian mRotationRangeStart;
         /// Initial rotation angle of particles (range end)
-        Real mRotationRangeEnd;
+        Radian mRotationRangeEnd;
 
     };
 

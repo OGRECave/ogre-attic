@@ -100,7 +100,7 @@ namespace Ogre {
 
 		for(std::vector<DEVMODE>::const_iterator i = mDevModes.begin(); i != mDevModes.end(); ++i)
 		{
-			if (i->dmPelsWidth != width)
+			if (int(i->dmPelsWidth) != width)
 				continue;
 			char buf[128];
 			sprintf(buf, "%d", i->dmBitsPerPel);

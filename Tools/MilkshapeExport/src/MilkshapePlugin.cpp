@@ -191,7 +191,7 @@ BOOL MilkshapePlugin::DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam
                 hwndDlgItem = GetDlgItem(hDlg, IDC_EXPORT_SKEL);
                 plugin->exportSkeleton = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
 
-               
+
                 hwndDlgItem = GetDlgItem(hDlg, IDC_SPLIT_ANIMATION);
                 plugin->splitAnimations = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
 
@@ -226,13 +226,13 @@ bool MilkshapePlugin::showOptions(void)
     plugin = this;
     exportMesh = true;
     exportSkeleton = false;
-    
+
 	return (DialogBox(hInst, MAKEINTRESOURCE(IDD_OPTIONS), NULL, DlgProc) == TRUE);
 
 
 
 
-    
+
 
 }
 
@@ -245,7 +245,7 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
     Ogre::LogManager logMgr;
     Ogre::DefaultHardwareBufferManager defHWBufMgr;
 
-    
+
     logMgr.createLog("msOgreExporter.log");
     logMgr.logMessage("OGRE Milkshape Exporter Log");
     logMgr.logMessage("---------------------------");
@@ -254,7 +254,7 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
     //
     OPENFILENAME ofn;
     memset (&ofn, 0, sizeof (OPENFILENAME));
-    
+
     char szFile[MS_MAX_PATH];
     char szFileTitle[MS_MAX_PATH];
     char szDefExt[32] = "mesh";
@@ -313,7 +313,7 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
             logMgr.logMessage("SubMesh Material Done.");
         }
 
-        
+
         logMgr.logMessage("Setting up geometry...");
         // Set up mesh geometry
         ogreSubMesh->vertexData = new Ogre::VertexData();
@@ -330,13 +330,13 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
         decl->addElement(TEXCOORD_BINDING, 0, Ogre::VET_FLOAT2, Ogre::VES_TEXTURE_COORDINATES);
         // Create buffers
         Ogre::HardwareVertexBufferSharedPtr pbuf = Ogre::HardwareBufferManager::getSingleton().
-            createVertexBuffer(decl->getVertexSize(POSITION_BINDING), ogreSubMesh->vertexData->vertexCount, 
+            createVertexBuffer(decl->getVertexSize(POSITION_BINDING), ogreSubMesh->vertexData->vertexCount,
                 Ogre::HardwareBuffer::HBU_DYNAMIC, false);
         Ogre::HardwareVertexBufferSharedPtr nbuf = Ogre::HardwareBufferManager::getSingleton().
-            createVertexBuffer(decl->getVertexSize(NORMAL_BINDING), ogreSubMesh->vertexData->vertexCount, 
+            createVertexBuffer(decl->getVertexSize(NORMAL_BINDING), ogreSubMesh->vertexData->vertexCount,
                 Ogre::HardwareBuffer::HBU_DYNAMIC, false);
         Ogre::HardwareVertexBufferSharedPtr tbuf = Ogre::HardwareBufferManager::getSingleton().
-            createVertexBuffer(decl->getVertexSize(TEXCOORD_BINDING), ogreSubMesh->vertexData->vertexCount, 
+            createVertexBuffer(decl->getVertexSize(TEXCOORD_BINDING), ogreSubMesh->vertexData->vertexCount,
                 Ogre::HardwareBuffer::HBU_DYNAMIC, false);
         bind->setBinding(POSITION_BINDING, pbuf);
         bind->setBinding(NORMAL_BINDING, nbuf);
@@ -407,7 +407,7 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
         ogreSubMesh->indexData->indexCount = msMesh_GetTriangleCount (pMesh) * 3;
         // Always use 16-bit buffers, Milkshape can't handle more anyway
         Ogre::HardwareIndexBufferSharedPtr ibuf = Ogre::HardwareBufferManager::getSingleton().
-            createIndexBuffer(Ogre::HardwareIndexBuffer::IT_16BIT, 
+            createIndexBuffer(Ogre::HardwareIndexBuffer::IT_16BIT,
             ogreSubMesh->indexData->indexCount, Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
         ogreSubMesh->indexData->indexBuffer = ibuf;
         unsigned short *pIdx = static_cast<unsigned short*>(
@@ -415,7 +415,7 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
         for (j = 0; j < ogreSubMesh->indexData->indexCount; j+=3)
         {
             msTriangle *pTriangle = msMesh_GetTriangleAt (pMesh, j/3);
-            
+
             word nIndices[3];
             msTriangle_GetVertexIndices (pTriangle, nIndices);
 
@@ -463,12 +463,12 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
     else if (!exportSkeleton && foundBoneAssignment)
     {
         // We've found bone assignments, but skeleton is not to be exported
-        // Prompt the user to find the skeleton 
+        // Prompt the user to find the skeleton
         if (!locateSkeleton(ogreMesh))
             return;
 
     }
-    
+
     // Export
     logMgr.logMessage("Creating MeshSerializer..");
     Ogre::MeshSerializer serializer;
@@ -518,7 +518,7 @@ Ogre::Skeleton* MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* m
     //
     OPENFILENAME ofn;
     memset (&ofn, 0, sizeof (OPENFILENAME));
-    
+
     char szFile[MS_MAX_PATH];
     char szFileTitle[MS_MAX_PATH];
     char szDefExt[32] = "skeleton";
@@ -550,7 +550,7 @@ Ogre::Skeleton* MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* m
     logMgr.logMessage("Skeleton object created");
 
     // Complete the details
-    
+
     // Do the bones
     int numBones = msModel_GetBoneCount(pModel);
 	msg = "Number of bones: " + Ogre::StringConverter::toString(numBones);
@@ -574,9 +574,9 @@ Ogre::Skeleton* MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* m
         // Might we have Gimbal lock here? What order are these 3 angles supposed to be applied?
         // Grr, we'll try our best anyway...
         Ogre::Quaternion qx, qy, qz, qfinal;
-        qx.FromAngleAxis(msBoneRot[0], Ogre::Vector3::UNIT_X);
-        qy.FromAngleAxis(msBoneRot[1], Ogre::Vector3::UNIT_Y);
-        qz.FromAngleAxis(msBoneRot[2], Ogre::Vector3::UNIT_Z);
+        qx.FromAngleAxis(Ogre::Radian(msBoneRot[0]), Ogre::Vector3::UNIT_X);
+        qy.FromAngleAxis(Ogre::Radian(msBoneRot[1]), Ogre::Vector3::UNIT_Y);
+        qz.FromAngleAxis(Ogre::Radian(msBoneRot[2]), Ogre::Vector3::UNIT_Z);
 
         // Assume rotate by x then y then z
         qfinal = qz * qy * qx;
@@ -590,7 +590,7 @@ Ogre::Skeleton* MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* m
             "Orientation: " << qfinal;
         logMgr.logMessage(msgStream.str());
 
-        
+
     }
     // Now we've created all the bones, link them up
     logMgr.logMessage("Establishing bone hierarchy..");
@@ -647,7 +647,7 @@ Ogre::Skeleton* MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* m
 
     msg = "Linking mesh to skeleton file '" + skelName + "'";
     Ogre::LogManager::getSingleton().logMessage(msg);
-    
+
     mesh->_notifySkeleton(ogreskel);
 
     return ogreskel;
@@ -661,7 +661,7 @@ bool MilkshapePlugin::locateSkeleton(Ogre::Mesh* mesh)
     //
     OPENFILENAME ofn;
     memset (&ofn, 0, sizeof (OPENFILENAME));
-    
+
     char szFile[MS_MAX_PATH];
     char szFileTitle[MS_MAX_PATH];
     char szDefExt[32] = "skeleton";
@@ -689,7 +689,7 @@ bool MilkshapePlugin::locateSkeleton(Ogre::Mesh* mesh)
 
     Ogre::String msg = "Linking mesh to skeleton file '" + skelName + "'";
     Ogre::LogManager::getSingleton().logMessage(msg);
-    
+
     // Create a dummy skeleton for Mesh to link to (saves it trying to load it)
     Ogre::Skeleton* pSkel = (Ogre::Skeleton*)Ogre::SkeletonManager::getSingleton().create(skelName);
     Ogre::LogManager::getSingleton().logMessage("Dummy Skeleton object created for link.");
@@ -928,7 +928,7 @@ void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::Skeleton* ogresk
 			<< frameTime << ", Seconds = " << realTime;
         logMgr.logMessage(msg);
 
-        Ogre::Animation *ogreanim = 
+        Ogre::Animation *ogreanim =
             ogreskel->createAnimation(currSplit.name, realTime);
         logMgr.logMessage("Animation object created.");
 
@@ -948,7 +948,7 @@ void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::Skeleton* ogresk
             logMgr.logMessage("Animation track created.");
 
             // OGRE uses keyframes which are both position and rotation
-            // Milkshape separates them, but never seems to use the ability to 
+            // Milkshape separates them, but never seems to use the ability to
             // have a different # of pos & rot keys
 
             int numKeys = msBone_GetRotationKeyCount(bone);
@@ -982,9 +982,9 @@ void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::Skeleton* ogresk
                     Ogre::Quaternion qx, qy, qz, kfQ;
 
                     ogrekey->setTranslate(kfPos);
-                    qx.FromAngleAxis(currRotKey->Rotation[0], Ogre::Vector3::UNIT_X);
-                    qy.FromAngleAxis(currRotKey->Rotation[1], Ogre::Vector3::UNIT_Y);
-                    qz.FromAngleAxis(currRotKey->Rotation[2], Ogre::Vector3::UNIT_Z);
+                    qx.FromAngleAxis(Ogre::Radian(currRotKey->Rotation[0]), Ogre::Vector3::UNIT_X);
+                    qy.FromAngleAxis(Ogre::Radian(currRotKey->Rotation[1]), Ogre::Vector3::UNIT_Y);
+                    qz.FromAngleAxis(Ogre::Radian(currRotKey->Rotation[2]), Ogre::Vector3::UNIT_Z);
                     kfQ = qz * qy * qx;
                     ogrekey->setRotation(kfQ);
 

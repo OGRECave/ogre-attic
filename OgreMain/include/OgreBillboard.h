@@ -69,7 +69,7 @@ namespace Ogre {
         Vector3 mDirection;
         BillboardSet* mParentSet;
         ColourValue mColour;
-		Real mRotation;
+        Radian mRotation;
 
         /** Default constructor.
         */
@@ -86,16 +86,14 @@ namespace Ogre {
         /** Get the rotation of the billboard.
             @remarks
                 This rotation is relative to the center of the billboard.
-				Internally we use radians, externally degrees
         */
-        Real getRotation(void) const;
+        Radian getRotation(void) const { return mRotation; }
 
         /** Set the rotation of the billboard.
             @remarks
                 This rotation is relative to the center of the billboard.
-				Internally we use radians, externally degrees
         */
-        void setRotation(Real rotation);
+        void setRotation(const Radian& rotation);
 
         /** Set the position of the billboard.
             @remarks

@@ -153,31 +153,119 @@ namespace Ogre
         Real SpectralNorm () const;
 
         // matrix must be orthonormal
-        void ToAxisAngle (Vector3& rkAxis, Real& rfRadians) const;
-        void FromAxisAngle (const Vector3& rkAxis, Real fRadians);
+        void ToAxisAngle (Vector3& rkAxis, Radian& rfAngle) const;
+		inline void ToAxisAngle (Vector3& rkAxis, Degree& rfAngle) const {
+			Radian r;
+			ToAxisAngle ( rkAxis, r );
+			rfAngle = r;
+		}
+        void FromAxisAngle (const Vector3& rkAxis, const Radian& fRadians);
+#ifndef OGRE_FORCE_ANGLE_TYPES
+        inline void ToAxisAngle (Vector3& rkAxis, Real& rfRadians) const {
+			Radian r;
+			ToAxisAngle ( rkAxis, r );
+			rfRadians = r.valueRadians();
+		}
+        inline void FromAxisAngle (const Vector3& rkAxis, Real fRadians) {
+			FromAxisAngle ( rkAxis, Radian(fRadians) );
+		}
+#endif//OGRE_FORCE_ANGLE_TYPES
 
         // The matrix must be orthonormal.  The decomposition is yaw*pitch*roll
         // where yaw is rotation about the Up vector, pitch is rotation about the
         // Right axis, and roll is rotation about the Direction axis.
-        bool ToEulerAnglesXYZ (float& rfYAngle, float& rfPAngle,
-            float& rfRAngle) const;
-        bool ToEulerAnglesXZY (float& rfYAngle, float& rfPAngle,
-            float& rfRAngle) const;
-        bool ToEulerAnglesYXZ (float& rfYAngle, float& rfPAngle,
-            float& rfRAngle) const;
-        bool ToEulerAnglesYZX (float& rfYAngle, float& rfPAngle,
-            float& rfRAngle) const;
-        bool ToEulerAnglesZXY (float& rfYAngle, float& rfPAngle,
-            float& rfRAngle) const;
-        bool ToEulerAnglesZYX (float& rfYAngle, float& rfPAngle,
-            float& rfRAngle) const;
-        void FromEulerAnglesXYZ (float fYAngle, float fPAngle, float fRAngle);
-        void FromEulerAnglesXZY (float fYAngle, float fPAngle, float fRAngle);
-        void FromEulerAnglesYXZ (float fYAngle, float fPAngle, float fRAngle);
-        void FromEulerAnglesYZX (float fYAngle, float fPAngle, float fRAngle);
-        void FromEulerAnglesZXY (float fYAngle, float fPAngle, float fRAngle);
-        void FromEulerAnglesZYX (float fYAngle, float fPAngle, float fRAngle);
-
+        bool ToEulerAnglesXYZ (Radian& rfYAngle, Radian& rfPAngle,
+            Radian& rfRAngle) const;
+        bool ToEulerAnglesXZY (Radian& rfYAngle, Radian& rfPAngle,
+            Radian& rfRAngle) const;
+        bool ToEulerAnglesYXZ (Radian& rfYAngle, Radian& rfPAngle,
+            Radian& rfRAngle) const;
+        bool ToEulerAnglesYZX (Radian& rfYAngle, Radian& rfPAngle,
+            Radian& rfRAngle) const;
+        bool ToEulerAnglesZXY (Radian& rfYAngle, Radian& rfPAngle,
+            Radian& rfRAngle) const;
+        bool ToEulerAnglesZYX (Radian& rfYAngle, Radian& rfPAngle,
+            Radian& rfRAngle) const;
+        void FromEulerAnglesXYZ (const Radian& fYAngle, const Radian& fPAngle, const Radian& fRAngle);
+        void FromEulerAnglesXZY (const Radian& fYAngle, const Radian& fPAngle, const Radian& fRAngle);
+        void FromEulerAnglesYXZ (const Radian& fYAngle, const Radian& fPAngle, const Radian& fRAngle);
+        void FromEulerAnglesYZX (const Radian& fYAngle, const Radian& fPAngle, const Radian& fRAngle);
+        void FromEulerAnglesZXY (const Radian& fYAngle, const Radian& fPAngle, const Radian& fRAngle);
+        void FromEulerAnglesZYX (const Radian& fYAngle, const Radian& fPAngle, const Radian& fRAngle);
+#ifndef OGRE_FORCE_ANGLE_TYPES
+        inline bool ToEulerAnglesXYZ (float& rfYAngle, float& rfPAngle,
+            float& rfRAngle) const {
+			Radian y, p, r;
+			bool b = ToEulerAnglesXYZ(y,p,r);
+			rfYAngle = y.valueRadians();
+			rfPAngle = p.valueRadians();
+			rfRAngle = r.valueRadians();
+			return b;
+		}
+        inline bool ToEulerAnglesXZY (float& rfYAngle, float& rfPAngle,
+            float& rfRAngle) const {
+			Radian y, p, r;
+			bool b = ToEulerAnglesXZY(y,p,r);
+			rfYAngle = y.valueRadians();
+			rfPAngle = p.valueRadians();
+			rfRAngle = r.valueRadians();
+			return b;
+		}
+        inline bool ToEulerAnglesYXZ (float& rfYAngle, float& rfPAngle,
+            float& rfRAngle) const {
+			Radian y, p, r;
+			bool b = ToEulerAnglesYXZ(y,p,r);
+			rfYAngle = y.valueRadians();
+			rfPAngle = p.valueRadians();
+			rfRAngle = r.valueRadians();
+			return b;
+		}
+        inline bool ToEulerAnglesYZX (float& rfYAngle, float& rfPAngle,
+            float& rfRAngle) const {
+			Radian y, p, r;
+			bool b = ToEulerAnglesYZX(y,p,r);
+			rfYAngle = y.valueRadians();
+			rfPAngle = p.valueRadians();
+			rfRAngle = r.valueRadians();
+			return b;
+		}
+        inline bool ToEulerAnglesZXY (float& rfYAngle, float& rfPAngle,
+            float& rfRAngle) const {
+			Radian y, p, r;
+			bool b = ToEulerAnglesZXY(y,p,r);
+			rfYAngle = y.valueRadians();
+			rfPAngle = p.valueRadians();
+			rfRAngle = r.valueRadians();
+			return b;
+		}
+        inline bool ToEulerAnglesZYX (float& rfYAngle, float& rfPAngle,
+            float& rfRAngle) const {
+			Radian y, p, r;
+			bool b = ToEulerAnglesZYX(y,p,r);
+			rfYAngle = y.valueRadians();
+			rfPAngle = p.valueRadians();
+			rfRAngle = r.valueRadians();
+			return b;
+		}
+        inline void FromEulerAnglesXYZ (float fYAngle, float fPAngle, float fRAngle) {
+			FromEulerAnglesXYZ ( Radian(fYAngle), Radian(fPAngle), Radian(fRAngle) );
+		}
+        inline void FromEulerAnglesXZY (float fYAngle, float fPAngle, float fRAngle) {
+			FromEulerAnglesXZY ( Radian(fYAngle), Radian(fPAngle), Radian(fRAngle) );
+		}
+        inline void FromEulerAnglesYXZ (float fYAngle, float fPAngle, float fRAngle) {
+			FromEulerAnglesYXZ ( Radian(fYAngle), Radian(fPAngle), Radian(fRAngle) );
+		}
+        inline void FromEulerAnglesYZX (float fYAngle, float fPAngle, float fRAngle) {
+			FromEulerAnglesYZX ( Radian(fYAngle), Radian(fPAngle), Radian(fRAngle) );
+		}
+        inline void FromEulerAnglesZXY (float fYAngle, float fPAngle, float fRAngle) {
+			FromEulerAnglesZXY ( Radian(fYAngle), Radian(fPAngle), Radian(fRAngle) );
+		}
+        inline void FromEulerAnglesZYX (float fYAngle, float fPAngle, float fRAngle) {
+			FromEulerAnglesZYX ( Radian(fYAngle), Radian(fPAngle), Radian(fRAngle) );
+		}
+#endif//OGRE_FORCE_ANGLE_TYPES
         // eigensolver, matrix must be symmetric
         void EigenSolveSymmetric (Real afEigenvalue[3],
             Vector3 akEigenvector[3]) const;

@@ -471,7 +471,7 @@ namespace Ogre {
             {
                 // Oops, a 180 degree turn (infinite possible rotation axes)
                 // Default to yaw i.e. use current UP
-                rotQuat.FromAngleAxis(Math::PI, axes[1]);
+                rotQuat.FromAngleAxis(Radian(Math::PI), axes[1]);
             }
             else
             {

@@ -439,7 +439,7 @@ namespace Ogre
                 This method assumes that the random number generator has already 
                 been seeded appropriately.
             @param 
-                angle The angle at which to deviate in radians
+                angle The angle at which to deviate
             @param 
                 up Any vector perpendicular to this one (which could generated 
                 by cross-product of this vector and any other non-colinear 
@@ -453,7 +453,7 @@ namespace Ogre
                 afterwards.
         */
         inline Vector3 randomDeviant(
-            Real angle, 
+            const Radian& angle,
             const Vector3& up = Vector3::ZERO ) const
         {
             Vector3 newUp;
@@ -470,13 +470,21 @@ namespace Ogre
 
             // Rotate up vector by random amount around this
             Quaternion q;
-            q.FromAngleAxis( Math::UnitRandom() * Math::TWO_PI, *this );
+            q.FromAngleAxis( Radian(Math::UnitRandom() * Math::TWO_PI), *this );
             newUp = q * newUp;
 
             // Finally rotate this by given angle around randomised up
             q.FromAngleAxis( angle, newUp );
             return q * (*this);
         }
+#ifndef OGRE_FORCE_ANGLE_TYPES
+        inline Vector3 randomDeviant(
+            Real angle,
+            const Vector3& up = Vector3::ZERO ) const
+        {
+            return randomDeviant ( Radian(angle), up );
+        }
+#endif//OGRE_FORCE_ANGLE_TYPES
 
         /** Gets the shortest arc quaternion to rotate this vector to the destination
             vector. 

@@ -512,7 +512,7 @@ namespace Ogre {
                         Vector3 axis(StringConverter::parseReal(params[2]),
                                     StringConverter::parseReal(params[3]),
                                     StringConverter::parseReal(params[4]));
-                        node->rotate(axis, StringConverter::parseReal(params[1]));
+                        node->rotate(axis, StringConverter::parseAngle(params[1]));
                     }
                 }
             }

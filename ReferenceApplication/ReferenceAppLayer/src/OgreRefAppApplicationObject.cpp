@@ -719,25 +719,25 @@ namespace OgreRefApp
         translateWorldSpace(Vector3(x, y, z));
     }
     //-------------------------------------------------------------------------
-    void ApplicationObject::roll(Real angleunits)
+    void ApplicationObject::roll(const Radian& angle)
     {
-        rotate(Vector3::UNIT_Z, angleunits);
+        rotate(Vector3::UNIT_Z, angle);
     }
     //-------------------------------------------------------------------------
-    void ApplicationObject::pitch(Real angleunits)
+    void ApplicationObject::pitch(const Radian& angle)
     {
-        rotate(Vector3::UNIT_X, angleunits);
+        rotate(Vector3::UNIT_X, angle);
     }
     //-------------------------------------------------------------------------
-    void ApplicationObject::yaw(Real angleunits)
+    void ApplicationObject::yaw(const Radian& angle)
     {
-        rotate(Vector3::UNIT_Y, angleunits);
+        rotate(Vector3::UNIT_Y, angle);
     }
     //-------------------------------------------------------------------------
-    void ApplicationObject::rotate(const Vector3& axis, Real angleunits)
+    void ApplicationObject::rotate(const Vector3& axis, const Radian& angle)
     {
         Quaternion q;
-        q.FromAngleAxis(Math::AngleUnitsToRadians(angleunits),axis);
+        q.FromAngleAxis(angle,axis);
         rotate(q);
     }
     //-------------------------------------------------------------------------

@@ -139,7 +139,7 @@ namespace Ogre {
         return mDirection;
     }
     //-----------------------------------------------------------------------
-    void Light::setSpotlightRange(Real innerAngle, Real outerAngle, Real falloff)
+    void Light::setSpotlightRange(const Radian& innerAngle, const Radian& outerAngle, Real falloff)
     {
 
         if (mLightType != LT_SPOTLIGHT)
@@ -152,12 +152,12 @@ namespace Ogre {
         mSpotFalloff = falloff;
     }
     //-----------------------------------------------------------------------
-    Real Light::getSpotlightInnerAngle(void) const
+    const Radian& Light::getSpotlightInnerAngle(void) const
     {
         return mSpotInner;
     }
     //-----------------------------------------------------------------------
-    Real Light::getSpotlightOuterAngle(void) const
+    const Radian& Light::getSpotlightOuterAngle(void) const
     {
         return mSpotOuter;
     }

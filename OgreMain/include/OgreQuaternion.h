@@ -40,6 +40,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __Quaternion_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreMath.h"
 
 namespace Ogre {
 
@@ -70,10 +71,16 @@ namespace Ogre {
             this->FromRotationMatrix(rot);
         }
         /// Construct a quaternion from an angle/axis
-        inline Quaternion(const Real& rfAngle, const Vector3& rkAxis)
+        inline Quaternion(const Radian& rfAngle, const Vector3& rkAxis)
         {
             this->FromAngleAxis(rfAngle, rkAxis);
         }
+#ifndef OGRE_FORCE_ANGLE_TYPES
+        inline Quaternion(const Real& rfAngle, const Vector3& rkAxis)
+		{
+			this->FromAngleAxis(rfAngle, rkAxis);
+		}
+#endif//OGRE_FORCE_ANGLE_TYPES
         /// Construct a quaternion from 3 orthonormal local axes
         inline Quaternion(const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis)
         {
@@ -87,8 +94,23 @@ namespace Ogre {
 
         void FromRotationMatrix (const Matrix3& kRot);
         void ToRotationMatrix (Matrix3& kRot) const;
-        void FromAngleAxis (const Real& rfAngle, const Vector3& rkAxis);
-        void ToAngleAxis (Real& rfAngle, Vector3& rkAxis) const;
+        void FromAngleAxis (const Radian& rfAngle, const Vector3& rkAxis);
+        void ToAngleAxis (Radian& rfAngle, Vector3& rkAxis) const;
+        inline void ToAngleAxis (Degree& dAngle, Vector3& rkAxis) const {
+            Radian rAngle;
+            ToAngleAxis ( rAngle, rkAxis );
+            dAngle = rAngle;
+        }
+#ifndef OGRE_FORCE_ANGLE_TYPES
+        inline void FromAngleAxis (const Real& rfAngle, const Vector3& rkAxis) {
+			FromAngleAxis ( Angle(rfAngle), rkAxis );
+		}
+        inline void ToAngleAxis (Real& rfAngle, Vector3& rkAxis) const {
+			Radian r;
+			ToAngleAxis ( r, rkAxis );
+			rfAngle = r.valueAngleUnits();
+		}
+#endif//OGRE_FORCE_ANGLE_TYPES
         void FromAxes (const Vector3* akAxis);
         void FromAxes (const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis);
         void ToAxes (Vector3* akAxis) const;
@@ -135,11 +157,11 @@ namespace Ogre {
         Vector3 operator* (const Vector3& rkVector) const;
 
    		/// Calculate the local roll element of this quaternion
-		Real getRoll(void) const;
+		Radian getRoll(void) const;
    		/// Calculate the local pitch element of this quaternion
-		Real getPitch(void) const;
+		Radian getPitch(void) const;
    		/// Calculate the local yaw element of this quaternion
-		Real getYaw(void) const;		
+		Radian getYaw(void) const;		
 	    // spherical linear interpolation
         static Quaternion Slerp (Real fT, const Quaternion& rkP,
             const Quaternion& rkQ, bool shortestPath = false);

@@ -34,7 +34,7 @@ class NatureListener : public ExampleFrameListener
     bool frameStarted(const FrameEvent& evt)
     {
         float moveScale;
-        float rotScale;
+        Radian rotScale;
         float waterFlow;
         static float flowAmount = 0.0f;
         static bool flowUp = true;
@@ -51,7 +51,7 @@ class NatureListener : public ExampleFrameListener
         if (evt.timeSinceLastFrame == 0)
         {
             moveScale = 1;
-            rotScale = 0.1;
+            rotScale = Degree(0.1);
             waterFlow = 0.0f;
         }
         // Otherwise scale movement units by time passed since last frame
@@ -60,7 +60,7 @@ class NatureListener : public ExampleFrameListener
             // Move about 2 units per second,
             moveScale = 50 * evt.timeSinceLastFrame;
             // Take about 10 seconds for full rotation
-            rotScale = 36 * evt.timeSinceLastFrame;
+            rotScale = Degree(36 * evt.timeSinceLastFrame);
             
             // set a nice waterflow rate
             waterFlow = FLOW_SPEED * evt.timeSinceLastFrame;            
@@ -141,9 +141,8 @@ class NatureListener : public ExampleFrameListener
         }
 
         // Rotate view by mouse relative position
-        float rotX, rotY;
-        rotX = -mInputDevice->getMouseRelativeX() * 0.13;
-        rotY = -mInputDevice->getMouseRelativeY() * 0.13;
+        Radian rotX = Degree(-mInputDevice->getMouseRelativeX() * 0.13);
+        Radian rotY = Degree(-mInputDevice->getMouseRelativeY() * 0.13);
 
 
         // Make all the changes to the camera

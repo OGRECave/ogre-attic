@@ -379,7 +379,7 @@ namespace Ogre {
     void TTYGuiElement::updateWindowGeometry()
     {
         Real *pVert;
-        Real *pTex;
+        //Real *pTex;
         RGBA *pDest;
         Real len;    // running length of current line
         uint curLine;

@@ -64,7 +64,7 @@ namespace Ogre
         ProjectionType mProjType;
 
         /// y-direction field-of-view (default 45)
-        Real mFOVy;
+        Radian mFOVy;
         /// Far clip distance - default 10000
         Real mFarDist;
         /// Near clip distance - default 100
@@ -134,20 +134,25 @@ namespace Ogre
         /** Sets the Y-dimension Field Of View (FOV) of the frustum.
             @remarks
                 Field Of View (FOV) is the angle made between the frustum's position, and the left & right edges
-                of the 'screen' onto which the scene is projected. High values (90+) result in a wide-angle,
-                fish-eye kind of view, low values (30-) in a stretched, telescopic kind of view. Typical values
-                are between 45 and 60.
+                of the 'screen' onto which the scene is projected. High values (90+ degrees) result in a wide-angle,
+                fish-eye kind of view, low values (30- degrees) in a stretched, telescopic kind of view. Typical values
+                are between 45 and 60 degrees.
             @par
                 This value represents the HORIZONTAL field-of-view. The vertical field of view is calculated from
                 this depending on the dimensions of the viewport (they will only be the same if the viewport is square).
             @note
                 Setting the FOV overrides the value supplied for frustum::setNearClipPlane.
          */
-        virtual void setFOVy(Real fovy);
+        virtual void setFOVy(const Radian& fovy);
+#ifndef OGRE_FORCE_ANGLE_TYPES
+        inline void setFOVy(Real fovy) {
+            setFOVy ( Angle(fovy) );
+        }
+#endif//OGRE_FORCE_ANGLE_TYPES
 
         /** Retrieves the frustums Y-dimension Field Of View (FOV).
         */
-        virtual Real getFOVy(void) const;
+        virtual const Radian& getFOVy(void) const;
 
         /** Sets the position of the near clipping plane.
             @remarks

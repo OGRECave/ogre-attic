@@ -98,7 +98,6 @@ protected:
     // Just override the mandatory create scene method
     void createScene(void)
     {
-        Entity *waterEntity;
         Plane waterPlane;
 
         // Set ambient light

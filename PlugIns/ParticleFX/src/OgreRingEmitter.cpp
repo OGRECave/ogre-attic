@@ -55,12 +55,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void RingEmitter::_initParticle(Particle* pParticle)
     {
-        Real alpha, a, b, x, y, z;
+        Real a, b, x, y, z;
 
         // Call superclass
         AreaEmitter::_initParticle(pParticle);
         // create a random angle from 0 .. PI*2
-        alpha = Math::RangeRandom(0,Math::TWO_PI);
+        Radian alpha ( Math::RangeRandom(0,Math::TWO_PI) );
   
         // create two random radius values that are bigger than the inner size
         a = Math::RangeRandom(mInnerSizex,1.0);

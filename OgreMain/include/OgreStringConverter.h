@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __StringConverter_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreMath.h"
 #include "OgreString.h"
 #include "OgreStringVector.h"
 
@@ -57,6 +58,20 @@ namespace Ogre {
         static String toString(Real val, unsigned short precision = 6, 
             unsigned short width = 0, char fill = ' ', 
             std::ios::fmtflags flags = std::ios::fmtflags(0) );
+        /** Converts a Radian to a String. */
+        static String toString(Radian val, unsigned short precision = 6, 
+            unsigned short width = 0, char fill = ' ', 
+            std::ios::fmtflags flags = std::ios::fmtflags(0) )
+        {
+            return toString(val.valueAngleUnits(), precision, width, fill, flags);
+        }
+        /** Converts a Degree to a String. */
+        static String toString(Degree val, unsigned short precision = 6, 
+            unsigned short width = 0, char fill = ' ', 
+            std::ios::fmtflags flags = std::ios::fmtflags(0) )
+        {
+            return toString(val.valueAngleUnits(), precision, width, fill, flags);
+        }
         /** Converts an int to a String. */
         static String toString(int val, unsigned short width = 0, 
             char fill = ' ', 
@@ -115,6 +130,13 @@ namespace Ogre {
             0.0 if the value could not be parsed, otherwise the Real version of the String.
         */
         static Real parseReal(const String& val);
+        /** Converts a String to a Angle. 
+        @returns
+            0.0 if the value could not be parsed, otherwise the Angle version of the String.
+        */
+        static inline Radian parseAngle(const String& val) {
+			return Angle(parseReal(val));
+		}
         /** Converts a String to a whole number. 
         @returns
             0.0 if the value could not be parsed, otherwise the numeric version of the String.

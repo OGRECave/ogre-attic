@@ -574,7 +574,7 @@ protected:
 		// Create the camera node, set its position & attach camera
         SceneNode* camNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 		camNode->translate(0, 500, PLANE_SIZE);
-		camNode->yaw(-45);
+		camNode->yaw(Degree(-45));
         camNode->attachObject(mCamera);
 		
 		// Create light node

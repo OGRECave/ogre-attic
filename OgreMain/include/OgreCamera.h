@@ -253,21 +253,33 @@ namespace Ogre {
         */
         void lookAt(Real x, Real y, Real z);
 
-        /** Rolls the camera anticlockwise, in degrees, around its local z axis.
+        /** Rolls the camera anticlockwise, around its local z axis.
         */
-        void roll(Real degrees);
+        void roll(const Radian& angle);
+#ifndef OGRE_FORCE_ANGLE_TYPES
+        void roll(Real degrees) { roll ( Angle(degrees) ); }
+#endif//OGRE_FORCE_ANGLE_TYPES
 
         /** Rotates the camera anticlockwise around it's local y axis.
         */
-        void yaw(Real degrees);
+        void yaw(const Radian& angle);
+#ifndef OGRE_FORCE_ANGLE_TYPES
+        void yaw(Real degrees) { yaw ( Angle(degrees) ); }
+#endif//OGRE_FORCE_ANGLE_TYPES
 
         /** Pitches the camera up/down anticlockwise around it's local z axis.
         */
-        void pitch(Real degrees);
+        void pitch(const Radian& angle);
+#ifndef OGRE_FORCE_ANGLE_TYPES
+        void pitch(Real degrees) { pitch ( Angle(degrees) ); }
+#endif//OGRE_FORCE_ANGLE_TYPES
 
         /** Rotate the camera around an arbitrary axis.
         */
-        void rotate(const Vector3& axis, Real degrees);
+        void rotate(const Vector3& axis, const Radian& angle);
+#ifndef OGRE_FORCE_ANGLE_TYPES
+        void rotate(const Vector3& axis, Real degrees) { rotate ( axis, Angle(degrees) ); }
+#endif//OGRE_FORCE_ANGLE_TYPES
 
         /** Rotate the camera around an aritrary axis using a Quarternion.
         */

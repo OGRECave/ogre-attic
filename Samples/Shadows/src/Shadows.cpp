@@ -199,7 +199,7 @@ public:
             mLight->setDiffuseColour(mMinLightColour);
             mLight->setSpecularColour(1, 1, 1);
             mLight->setAttenuation(8000,1,0.0005,0);
-            mLight->setSpotlightRange(80,90);
+            mLight->setSpotlightRange(Degree(80),Degree(90));
             break;
         default:
             break;
@@ -278,6 +278,7 @@ protected:
         mSunLight = mSceneMgr->createLight("SunLight");
         mSunLight->setType(Light::LT_SPOTLIGHT);
         mSunLight->setPosition(1000,1250,500);
+        mSunLight->setSpotlightRange(Degree(30), Degree(50));
         Vector3 dir;
         dir = -mSunLight->getPosition();
         dir.normalise();
@@ -362,7 +363,7 @@ protected:
         mAthene->setMaterialName(mAtheneMaterials[mCurrentAtheneMaterial]);
         node->attachObject( mAthene );
         node->translate(0,-20, 0);
-        node->yaw(90);
+        node->yaw(Degree(90));
 
         Entity* pEnt;
 

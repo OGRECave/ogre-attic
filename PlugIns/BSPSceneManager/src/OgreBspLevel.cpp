@@ -643,7 +643,7 @@ namespace Ogre {
         String line;
         StringVector vecparams;
         Vector3 origin;
-        Real angle = 0;
+        Radian angle ( 0 );
         size_t pos;
         char* lineend;
         bool isPlayerStart;
@@ -677,7 +677,7 @@ namespace Ogre {
                 }
                 if (params[0] == "angle")
                 {
-                    angle = atof(params[1].c_str());
+                    angle = Degree(atof(params[1].c_str()));
                 }
                 if (params[0] == "classname" && params[1] == "info_player_deathmatch")
                 {
@@ -690,7 +690,7 @@ namespace Ogre {
                         // Save player start
                         ViewPoint vp;
                         vp.position = origin;
-                        vp.orientation.FromAngleAxis(Math::DegreesToRadians(angle), Vector3::UNIT_Z);
+                        vp.orientation.FromAngleAxis(angle, Vector3::UNIT_Z);
                         mPlayerStarts.push_back(vp);
                     }
                     isPlayerStart = false;

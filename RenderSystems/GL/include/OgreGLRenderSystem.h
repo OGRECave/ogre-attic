@@ -302,7 +302,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void _makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, 
+        void _makeProjectionMatrix(const Radian& fovy, Real aspect, Real nearPlane, Real farPlane, 
             Matrix4& dest, bool forGpuProgram = false);
         /** See
         RenderSystem
@@ -312,7 +312,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-		void _makeOrthoMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, 
+		void _makeOrthoMatrix(const Radian& fovy, Real aspect, Real nearPlane, Real farPlane, 
             Matrix4& dest, bool forGpuProgram = false);
         /** See
         RenderSystem

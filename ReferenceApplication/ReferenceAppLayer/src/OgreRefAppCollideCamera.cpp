@@ -76,24 +76,24 @@ namespace OgreRefApp {
         return mCamera->getOrientation();
     }
     //-----------------------------------------------------------------------
-    void CollideCamera::roll(Real angleunits) 
+    void CollideCamera::roll(const Radian& angle) 
     {
-        mCamera->roll(angleunits);
+        mCamera->roll(angle);
     }
     //-----------------------------------------------------------------------
-    void CollideCamera::pitch(Real angleunits) 
+    void CollideCamera::pitch(const Radian& angle) 
     {
-        mCamera->pitch(angleunits);
+        mCamera->pitch(angle);
     }
     //-----------------------------------------------------------------------
-    void CollideCamera::yaw(Real angleunits) 
+    void CollideCamera::yaw(const Radian& angle) 
     {
-        mCamera->yaw(angleunits);
+        mCamera->yaw(angle);
     }
     //-----------------------------------------------------------------------
-    void CollideCamera::rotate(const Vector3& axis, Real angleunits) 
+    void CollideCamera::rotate(const Vector3& axis, const Radian& angle) 
     {
-        mCamera->rotate(axis, angleunits);
+        mCamera->rotate(axis, angle);
     }
     //-----------------------------------------------------------------------
     void CollideCamera::rotate(const Quaternion& q)
@@ -160,13 +160,13 @@ namespace OgreRefApp {
         mCamera->setFixedYawAxis(useFixed, fixedAxis);
     }
     //-----------------------------------------------------------------------
-    void CollideCamera::setFOVy(Real fovy) 
+    void CollideCamera::setFOVy(const Radian& fovy)
     {
         mCamera->setFOVy(fovy);
         nearDistChanged();
     }
     //-----------------------------------------------------------------------
-    Real CollideCamera::getFOVy(void) const 
+    const Radian& CollideCamera::getFOVy(void) const
     {
         return mCamera->getFOVy();
     }

@@ -91,7 +91,7 @@ namespace Ogre {
         // Rotation adjustments by time
         ds = timeElapsed;
 
-		Real NewRotation;
+		Radian NewRotation;
 
         while (!pi.end())
         {
@@ -103,42 +103,42 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    Real RotationAffector::getRotationSpeedRangeStart(void) const
+    const Radian& RotationAffector::getRotationSpeedRangeStart(void) const
     {
         return mRotationSpeedRangeStart;
     }
     //-----------------------------------------------------------------------
-    Real RotationAffector::getRotationSpeedRangeEnd(void) const
+    const Radian& RotationAffector::getRotationSpeedRangeEnd(void) const
     {
         return mRotationSpeedRangeEnd;
     }
     //-----------------------------------------------------------------------
-    void RotationAffector::setRotationSpeedRangeStart(Real val)
+    void RotationAffector::setRotationSpeedRangeStart(const Radian& val)
     {
         mRotationSpeedRangeStart = val;
     }
     //-----------------------------------------------------------------------
-    void RotationAffector::setRotationSpeedRangeEnd(Real val )
+    void RotationAffector::setRotationSpeedRangeEnd(const Radian& val )
     {
         mRotationSpeedRangeEnd = val;
     }
     //-----------------------------------------------------------------------
-    Real RotationAffector::getRotationRangeStart(void) const
+    const Radian& RotationAffector::getRotationRangeStart(void) const
     {
         return mRotationRangeStart;
     }
     //-----------------------------------------------------------------------
-    Real RotationAffector::getRotationRangeEnd(void) const
+    const Radian& RotationAffector::getRotationRangeEnd(void) const
     {
         return mRotationRangeEnd;
     }
     //-----------------------------------------------------------------------
-    void RotationAffector::setRotationRangeStart(Real val)
+    void RotationAffector::setRotationRangeStart(const Radian& val)
     {
         mRotationRangeStart = val;
     }
     //-----------------------------------------------------------------------
-    void RotationAffector::setRotationRangeEnd(Real val )
+    void RotationAffector::setRotationRangeEnd(const Radian& val )
     {
         mRotationRangeEnd = val;
     }
@@ -156,7 +156,7 @@ namespace Ogre {
     }
     void RotationAffector::CmdRotationSpeedRangeEnd::doSet(void* target, const String& val)
     {
-        static_cast<RotationAffector*>(target)->setRotationSpeedRangeEnd(StringConverter::parseReal(val));
+        static_cast<RotationAffector*>(target)->setRotationSpeedRangeEnd(StringConverter::parseAngle(val));
     }
     //-----------------------------------------------------------------------
     String RotationAffector::CmdRotationSpeedRangeStart::doGet(const void* target) const
@@ -166,7 +166,7 @@ namespace Ogre {
     }
     void RotationAffector::CmdRotationSpeedRangeStart::doSet(void* target, const String& val)
     {
-        static_cast<RotationAffector*>(target)->setRotationSpeedRangeStart(StringConverter::parseReal(val));
+        static_cast<RotationAffector*>(target)->setRotationSpeedRangeStart(StringConverter::parseAngle(val));
     }
     
 	//-----------------------------------------------------------------------
@@ -177,7 +177,7 @@ namespace Ogre {
     }
     void RotationAffector::CmdRotationRangeEnd::doSet(void* target, const String& val)
     {
-        static_cast<RotationAffector*>(target)->setRotationRangeEnd(StringConverter::parseReal(val));
+        static_cast<RotationAffector*>(target)->setRotationRangeEnd(StringConverter::parseAngle(val));
     }
     //-----------------------------------------------------------------------
     String RotationAffector::CmdRotationRangeStart::doGet(const void* target) const
@@ -187,7 +187,7 @@ namespace Ogre {
     }
     void RotationAffector::CmdRotationRangeStart::doSet(void* target, const String& val)
     {
-        static_cast<RotationAffector*>(target)->setRotationRangeStart(StringConverter::parseReal(val));
+        static_cast<RotationAffector*>(target)->setRotationRangeStart(StringConverter::parseAngle(val));
     }
 }
 

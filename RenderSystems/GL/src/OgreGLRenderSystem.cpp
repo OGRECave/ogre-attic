@@ -681,7 +681,7 @@ namespace Ogre {
             switch (lt->getType())
             {
             case Light::LT_SPOTLIGHT:
-                glLightf( gl_index, GL_SPOT_CUTOFF, lt->getSpotlightOuterAngle() * 0.5 );
+                glLightf( gl_index, GL_SPOT_CUTOFF, 0.5f * lt->getSpotlightOuterAngle().valueDegrees() );
                 break;
             default:
                 glLightf( gl_index, GL_SPOT_CUTOFF, 180.0 );
@@ -1313,10 +1313,10 @@ namespace Ogre {
     #endif
     }
     
-    void GLRenderSystem::_makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, 
+    void GLRenderSystem::_makeProjectionMatrix(const Radian& fovy, Real aspect, Real nearPlane, 
         Real farPlane, Matrix4& dest, bool forGpuProgram)
     {
-        Real thetaY = Math::AngleUnitsToRadians(fovy / 2.0f);
+        Radian thetaY ( fovy / 2.0f );
         Real tanThetaY = Math::Tan(thetaY);
         //Real thetaX = thetaY * aspect;
         //Real tanThetaX = Math::Tan(thetaX);
@@ -1353,12 +1353,12 @@ namespace Ogre {
 
     }
     
-    void GLRenderSystem::_makeOrthoMatrix(Real fovy, Real aspect, Real nearPlane, 
+    void GLRenderSystem::_makeOrthoMatrix(const Radian& fovy, Real aspect, Real nearPlane, 
         Real farPlane, Matrix4& dest, bool forGpuProgram)
     {
-			Real thetaY = Math::AngleUnitsToRadians(fovy / 2.0f);
+            Radian thetaY ( fovy / 2.0f );
             Real sinThetaY = Math::Sin(thetaY);
-            Real thetaX = thetaY * aspect;
+            Radian thetaX ( thetaY * aspect );
             Real sinThetaX = Math::Sin(thetaX);
             Real w = 1.0 / (sinThetaX * nearPlane);
             Real h = 1.0 / (sinThetaY * nearPlane);
@@ -2211,7 +2211,7 @@ namespace Ogre {
     // ------------------------------------------------------------------
     void GLRenderSystem::setClipPlane (ushort index, Real A, Real B, Real C, Real D)
     {
-        if (mClipPlanes.size() < index+1)
+        if (ushort(mClipPlanes.size()) < index+1)
             mClipPlanes.resize(index+1);
         mClipPlanes[index] = Vector4 (A, B, C, D);
         GLdouble plane[4] = { A, B, C, D };

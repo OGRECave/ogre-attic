@@ -666,8 +666,8 @@ namespace Ogre {
             case Light::LT_SPOTLIGHT:
                 d3dLight.dltType = D3DLIGHT_SPOT;
                 d3dLight.dvFalloff = lt->getSpotlightFalloff();
-                d3dLight.dvTheta = Math::AngleUnitsToRadians(lt->getSpotlightInnerAngle());
-                d3dLight.dvPhi = Math::AngleUnitsToRadians(lt->getSpotlightOuterAngle());
+                d3dLight.dvTheta = lt->getSpotlightInnerAngle().valueRadians();
+                d3dLight.dvPhi = lt->getSpotlightOuterAngle().valueRadians();
                 break;
             }
 
@@ -2252,10 +2252,10 @@ namespace Ogre {
         *pDest = colour.getAsLongARGB();
     }
     //---------------------------------------------------------------------
-    void D3DRenderSystem::_makeProjectionMatrix(Real fovy, Real aspect, 
+    void D3DRenderSystem::_makeProjectionMatrix(const Radian& fovy, Real aspect, 
         Real nearPlane, Real farPlane, Matrix4& dest, bool forGpuProgram)
     {
-        Real theta = Math::AngleUnitsToRadians(fovy * 0.5);
+        Radian theta(fovy * 0.5);
         Real h = 1 / Math::Tan(theta);
         Real w = h / aspect;
         Real q, qn;
@@ -2279,12 +2279,12 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void D3DRenderSystem::_makeOrthoMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, 
+    void D3DRenderSystem::_makeOrthoMatrix(const Radian& fovy, Real aspect, Real nearPlane, Real farPlane, 
         Matrix4& dest, bool forGpuProgram )
     {
-        Real thetaY = Math::AngleUnitsToRadians(fovy / 2.0f);
+        Radian thetaY (fovy / 2.0f);
         Real sinThetaY = Math::Sin(thetaY);
-        Real thetaX = thetaY * aspect;
+        Radian thetaX ( thetaY * aspect );
         Real sinThetaX = Math::Sin(thetaX);
         Real w = 1.0 / (sinThetaX * nearPlane);
         Real h = 1.0 / (sinThetaY * nearPlane);

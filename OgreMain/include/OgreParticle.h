@@ -44,7 +44,7 @@ namespace Ogre {
         /// Total Time to live, number of seconds of particles natural life
         Real mTotalTimeToLive;
 		/// Speed of rotation in radians
-		Real mRotationSpeed;
+		Radian mRotationSpeed;
 
 
         Particle()
@@ -52,9 +52,11 @@ namespace Ogre {
         {
         }
 
-		Real getRotationSpeed(void) const { return mRotationSpeed; }
-		void setRotationSpeed(Real rotation) { mRotationSpeed = rotation; } 
-
+		const Radian& getRotationSpeed(void) const { return mRotationSpeed; }
+		void setRotationSpeed(const Radian& rotation) { mRotationSpeed = rotation; } 
+#ifndef OGRE_FORCE_ANGLE_TYPES
+		inline void setRotationSpeed(Real rotation) { mRotationSpeed = Angle(rotation); }
+#endif//OGRE_FORCE_ANGLE_TYPES
 
 
         

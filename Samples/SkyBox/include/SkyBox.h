@@ -115,7 +115,7 @@ protected:
         ParticleEmitter *pEmit2 = pThrusters ->addEmitter( "Point" );
 
         // Thruster 1
-        pEmit1->setAngle( 3 );
+        pEmit1->setAngle( Degree(3) );
         pEmit1->setTimeToLive( 0.2 );
         pEmit1->setEmissionRate( 70 );
 
@@ -125,7 +125,7 @@ protected:
         pEmit1->setColour( ColourValue::White, ColourValue::Red);        
 
         // Thruster 2
-        pEmit2->setAngle( 3 );
+        pEmit2->setAngle( Degree(3) );
         pEmit2->setTimeToLive( 0.2 );
         pEmit2->setEmissionRate( 70 );
 

@@ -116,7 +116,7 @@ namespace Ogre {
         kRot[2][2] = 1.0-(fTxx+fTyy);
     }
     //-----------------------------------------------------------------------
-    void Quaternion::FromAngleAxis (const Real& rfAngle,
+    void Quaternion::FromAngleAxis (const Radian& rfAngle,
         const Vector3& rkAxis)
     {
         // assert:  axis[] is unit length
@@ -124,7 +124,7 @@ namespace Ogre {
         // The quaternion representing the rotation is
         //   q = cos(A/2)+sin(A/2)*(x*i+y*j+z*k)
 
-        Real fHalfAngle = 0.5*rfAngle;
+        Radian fHalfAngle ( 0.5*rfAngle );
         Real fSin = Math::Sin(fHalfAngle);
         w = Math::Cos(fHalfAngle);
         x = fSin*rkAxis.x;
@@ -132,7 +132,7 @@ namespace Ogre {
         z = fSin*rkAxis.z;
     }
     //-----------------------------------------------------------------------
-    void Quaternion::ToAngleAxis (Real& rfAngle, Vector3& rkAxis) const
+    void Quaternion::ToAngleAxis (Radian& rfAngle, Vector3& rkAxis) const
     {
         // The quaternion representing the rotation is
         //   q = cos(A/2)+sin(A/2)*(x*i+y*j+z*k)
@@ -149,7 +149,7 @@ namespace Ogre {
         else
         {
             // angle is 0 (mod 2*pi), so any axis will do
-            rfAngle = 0.0;
+            rfAngle = Radian(0.0);
             rkAxis.x = 1.0;
             rkAxis.y = 0.0;
             rkAxis.z = 0.0;
@@ -346,7 +346,7 @@ namespace Ogre {
         // exp(q) = cos(A)+sin(A)*(x*i+y*j+z*k).  If sin(A) is near zero,
         // use exp(q) = cos(A)+A*(x*i+y*j+z*k) since A/sin(A) has limit 1.
 
-        Real fAngle = Math::Sqrt(x*x+y*y+z*z);
+        Radian fAngle ( Math::Sqrt(x*x+y*y+z*z) );
         Real fSin = Math::Sin(fAngle);
 
         Quaternion kResult;
@@ -354,7 +354,7 @@ namespace Ogre {
 
         if ( Math::Abs(fSin) >= ms_fEpsilon )
         {
-            Real fCoeff = fSin/fAngle;
+            Real fCoeff = fSin/(fAngle.valueRadians());
             kResult.x = fCoeff*x;
             kResult.y = fCoeff*y;
             kResult.z = fCoeff*z;
@@ -380,11 +380,11 @@ namespace Ogre {
 
         if ( Math::Abs(w) < 1.0 )
         {
-            Real fAngle = Math::ACos(w);
+            Radian fAngle ( Math::ACos(w) );
             Real fSin = Math::Sin(fAngle);
             if ( Math::Abs(fSin) >= ms_fEpsilon )
             {
-                Real fCoeff = fAngle/fSin;
+                Real fCoeff = fAngle.valueRadians()/fSin;
                 kResult.x = fCoeff*x;
                 kResult.y = fCoeff*y;
                 kResult.z = fCoeff*z;
@@ -417,9 +417,9 @@ namespace Ogre {
         const Quaternion& rkQ, bool shortestPath)
     {
         Real fCos = rkP.Dot(rkQ);
-        Real fAngle = Math::ACos(fCos);
+        Radian fAngle ( Math::ACos(fCos) );
 
-        if ( Math::Abs(fAngle) < ms_fEpsilon )
+        if ( Math::Abs(fAngle.valueRadians()) < ms_fEpsilon )
             return rkP;
 
         Real fSin = Math::Sin(fAngle);
@@ -445,13 +445,13 @@ namespace Ogre {
         const Quaternion& rkP, const Quaternion& rkQ, int iExtraSpins)
     {
         Real fCos = rkP.Dot(rkQ);
-        Real fAngle = Math::ACos(fCos);
+        Radian fAngle ( Math::ACos(fCos) );
 
-        if ( Math::Abs(fAngle) < ms_fEpsilon )
+        if ( Math::Abs(fAngle.valueRadians()) < ms_fEpsilon )
             return rkP;
 
         Real fSin = Math::Sin(fAngle);
-        Real fPhase = Math::PI*iExtraSpins*fT;
+        Radian fPhase ( Math::PI*iExtraSpins*fT );
         Real fInvSin = 1.0/fSin;
         Real fCoeff0 = Math::Sin((1.0-fT)*fAngle - fPhase)*fInvSin;
         Real fCoeff1 = Math::Sin(fT*fAngle + fPhase)*fInvSin;
@@ -493,19 +493,19 @@ namespace Ogre {
         return len;
     }
     //-----------------------------------------------------------------------
-	Real Quaternion::getRoll(void) const
+	Radian Quaternion::getRoll(void) const
 	{
-		return Math::ATan2(2*(y*z + w*x), w*w - x*x - y*y + z*z);
+		return Radian(Math::ATan2(2*(y*z + w*x), w*w - x*x - y*y + z*z));
 	}
     //-----------------------------------------------------------------------
-	Real Quaternion::getPitch(void) const
+	Radian Quaternion::getPitch(void) const
 	{
-		return Math::ASin(-2*(x*z - w*y));
+		return Radian(Math::ASin(-2*(x*z - w*y)));
 	}
     //-----------------------------------------------------------------------
-	Real Quaternion::getYaw(void) const
+	Radian Quaternion::getYaw(void) const
 	{
-		return Math::ATan2(2*(x*y + w*z), w*w + x*x - y*y - z*z);
+		return Radian(Math::ATan2(2*(x*y + w*z), w*w + x*x - y*y - z*z));
 	}
     //-----------------------------------------------------------------------
 }

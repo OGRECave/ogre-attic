@@ -89,8 +89,8 @@ public:
 
     bool frameStarted(const FrameEvent& evt)
     {
-        mRedYellowLightsNode->yaw(evt.timeSinceLastFrame * 10);
-        mGreenBlueLightsNode->pitch(evt.timeSinceLastFrame * 20);
+        mRedYellowLightsNode->yaw(Degree(evt.timeSinceLastFrame * 10));
+        mGreenBlueLightsNode->pitch(Degree(evt.timeSinceLastFrame * 20));
         // Call superclass
         return ExampleFrameListener::frameStarted(evt);
     }
