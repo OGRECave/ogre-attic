@@ -4,7 +4,7 @@ This source file is part of OGRE
     (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.stevestreeting.com/ogre/
 
-Copyright © 2000-2003 The OGRE Team
+Copyright Â© 2000-2003 The OGRE Teameeting
 Also see acknowledgements in Readme.html
 
 This program is free software; you can redistribute it and/or modify it under
@@ -23,36 +23,48 @@ http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
 
-#include "OgreGLGpuProgramManager.h"
-#include "OgreGLGpuProgram.h"
+#include "OgreGLGpuNvparseProgram.h"
+#include "OgreException.h"
+#include "OgreRoot.h"
+#include "OgreRenderSystem.h"
+#include "OgreRenderSystemCapabilities.h"
 #include "OgreLogManager.h"
+#include "nvparse.h"
 
 using namespace Ogre;
 
-bool GLGpuProgramManager::registerProgram(GpuProgramType gptype, CreateGpuProgramCallback createFn)
+GLGpuNvparseProgram::GLGpuNvparseProgram(const String& name, GpuProgramType gptype, const String& syntaxCode) :
+    GpuProgram(name, gptype, syntaxCode)
 {
-    return mProgramMap.insert(ProgramMap::value_type(gptype, createFn)).second;
+    mProgramID = glGenLists(1);
 }
 
-bool GLGpuProgramManager::unregisterProgram(GpuProgramType gptype)
+void GLGpuNvparseProgram::unload(void)
 {
-    return mProgramMap.erase(gptype);
+    glDeleteLists(mProgramID,1);
 }
 
-GpuProgramParametersSharedPtr GLGpuProgramManager::createParameters(void)
-{ 
-    return GpuProgramParametersSharedPtr(new GpuProgramParameters());
-}
-
-GpuProgram* GLGpuProgramManager::create(const String& name, GpuProgramType gptype, const String& syntaxCode)
+void GLGpuNvparseProgram::loadFromSource(void)
 {
-    ProgramMap::const_iterator iter = mProgramMap.find(gptype);
-    if(iter == mProgramMap.end())
-    {
-        LogManager::getSingleton().logMessage("No such shader program type " + gptype);
-        return 0;
+    glNewList(mProgramID, GL_COMPILE);
+
+    String::size_type pos = mSource.find("!!");
+
+    while (pos != String::npos) {
+        String::size_type newPos = mSource.find("!!", pos + 1);
+
+        String script = mSource.substr(pos, newPos - pos);
+        nvparse(script.c_str(), 0);
+
+        for (char* const * errors= nvparse_get_errors(); *errors; errors++)
+        {
+            LogManager::getSingleton().logMessage("Warning: nvparse reported the following errors:");
+            LogManager::getSingleton().logMessage("\t" + String(*errors));
+        }
+        
+        pos = newPos;
     }
-    
-    return (iter->second)(name, gptype, syntaxCode);
+
+    glEndList();
 }
 

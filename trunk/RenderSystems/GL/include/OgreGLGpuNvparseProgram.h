@@ -23,31 +23,39 @@ http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __GLGpuProgramManager_H__
-#define __GLGpuProgramManager_H__
+#ifndef __GLGpuNvparseProgram_H__
+#define __GLGpuNvparseProgram_H__
 
-#include "OgreGpuProgramManager.h"
+#include "OgreGLPrerequisites.h"
+#include "OgreGpuProgram.h"
 
 namespace Ogre {
 
-class GLGpuProgramManager : public GpuProgramManager
+class GLGpuNvparseProgram : public GpuProgram
 {
 public:
-    typedef GpuProgram* (*CreateGpuProgramCallback)(const String&, GpuProgramType, const String&);
+    GLGpuNvparseProgram(const String& name, GpuProgramType gptype, const String& syntaxCode);
+    virtual ~GLGpuNvparseProgram() { }
+
+    /// @copydoc Resource::unload
+    void unload(void);
+
+    /// Get the assigned GL program id
+    const GLuint getProgramID(void) const
+    { return mProgramID; }
+
+    /// Get the GL type for the program
+    const GLuint getProgramType(void) const
+    { return mProgramType; }
+
+protected:
+    void loadFromSource(void);
 
 private:
-    typedef std::map<GpuProgramType, CreateGpuProgramCallback> ProgramMap;
-    ProgramMap mProgramMap;
-
-public:
-    GLGpuProgramManager() {}
-    ~GLGpuProgramManager() {}
-    GpuProgramParametersSharedPtr createParameters(void);
-    bool registerProgram(GpuProgramType gptype, CreateGpuProgramCallback createFn);
-    bool unregisterProgram(GpuProgramType gptype);
-    GpuProgram* create(const String& name, GpuProgramType gptype, const String& syntaxCode);
+    GLuint mProgramID;
+    GLenum mProgramType;
 };
 
-}; //namespace Ogre
+}; // namespace Ogre
 
-#endif //__GLGpuProgramManager_H__
+#endif // __GLGpuNvparseProgram_H__
