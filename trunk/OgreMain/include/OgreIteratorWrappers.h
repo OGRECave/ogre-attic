@@ -134,7 +134,7 @@ namespace Ogre {
             return mCurrent->first;
         }
         /** Required to overcome intermittent bug */
- 	    MapIterator<typename T> & operator=( MapIterator<typename T> &rhs )
+ 	    MapIterator<T> & operator=( MapIterator<T> &rhs )
  	    {
  		    mCurrent = rhs.mCurrent;
  		    mEnd = rhs.mEnd;
