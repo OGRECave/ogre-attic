@@ -196,6 +196,19 @@ namespace Ogre
             return kDiv;
         }
 
+        inline Vector4 operator / ( const Vector4& rhs) const
+        {
+            Vector4 kDiv;
+
+            kDiv.x = x / rhs.x;
+            kDiv.y = y / rhs.y;
+            kDiv.z = z / rhs.z;
+            kDiv.w = w / rhs.w;
+
+            return kDiv;
+        }
+
+
         inline Vector4 operator - () const
         {
             Vector4 kNeg;
@@ -250,6 +263,16 @@ namespace Ogre
             return *this;
         }
 
+        inline Vector4& operator *= ( const Vector4& rkVector )
+        {
+            x *= rkVector.x;
+            y *= rkVector.y;
+            z *= rkVector.z;
+            w *= rkVector.w;
+
+            return *this;
+        }
+
         inline Vector4& operator /= ( Real fScalar )
         {
             assert( fScalar != 0.0 );
@@ -264,6 +287,15 @@ namespace Ogre
             return *this;
         }
 
+        inline Vector4& operator /= ( const Vector4& rkVector )
+        {
+            x /= rkVector.x;
+            y /= rkVector.y;
+            z /= rkVector.z;
+            w /= rkVector.w;
+
+            return *this;
+        }
 
         /** Calculates the dot (scalar) product of this vector with another.
             @param
