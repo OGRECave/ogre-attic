@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreIteratorWrappers.h"
 #include "OgreCommon.h"
 #include "OgreColourValue.h"
+#include "OgreBlendMode.h"
 
 
 namespace Ogre {
@@ -441,6 +442,29 @@ namespace Ogre {
         @see TextureUnitState::setTextureAnisotropy
         */
         void setTextureAnisotropy(int maxAniso);
+
+        /** Sets the kind of blending every pass has with the existing contents of the scene.
+        @note
+            This property has been moved to the Pass class, which is accessible via the 
+            Technique. For simplicity, this method allows you to set these properties for 
+            every current Technique, and for every current Pass within those Techniques. If 
+            you need more precision, retrieve the Technique and Pass instances and set the
+            property there.
+        @see Pass::setSceneBlending
+        */
+        void setSceneBlending( const SceneBlendType sbt );
+
+        /** Allows very fine control of blending every Pass with the existing contents of the scene.
+        @note
+            This property has been moved to the Pass class, which is accessible via the 
+            Technique. For simplicity, this method allows you to set these properties for 
+            every current Technique, and for every current Pass within those Techniques. If 
+            you need more precision, retrieve the Technique and Pass instances and set the
+            property there.
+        @see Pass::setSceneBlending
+        */
+        void setSceneBlending( const SceneBlendFactor sourceFactor, const SceneBlendFactor destFactor);
+
 
         /** Tells the material that it needs recompilation. */
         void _notifyNeedsRecompile(void) { mCompilationRequired = true; }
