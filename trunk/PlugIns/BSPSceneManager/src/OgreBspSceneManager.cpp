@@ -221,7 +221,7 @@ namespace Ogre {
     BspNode* BspSceneManager::walkTree(Camera* camera)
     {
         // Locate the leaf node where the camera is located
-        BspNode* cameraNode = mLevel->findLeaf(camera->getPosition());
+        BspNode* cameraNode = mLevel->findLeaf(camera->getDerivedPosition());
 
         mMatFaceGroupMap.clear();
         mFaceGroupSet.clear();
