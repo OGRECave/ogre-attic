@@ -60,12 +60,7 @@ namespace Ogre {
 		SharedPtr& operator=(const SharedPtr& r) {
 			if (pRep == r.pRep)
 				return *this;
-			if (pUseCount)
-			{
-				if (--(*pUseCount) == 0) {
-					destroy();
-				}
-			}
+            release();
 			pRep = r.pRep;
 			pUseCount = r.pUseCount;
 			if (pUseCount)
@@ -75,12 +70,7 @@ namespace Ogre {
 			return *this;
 		}
 		virtual ~SharedPtr() {
-			if(pUseCount)
-			{
-				if (--(*pUseCount) == 0) {
-					destroy();
-				}
-			}
+            release();
 		}
 
         virtual void destroy(void)
@@ -107,9 +97,24 @@ namespace Ogre {
 		inline bool unique() const { assert(pUseCount); return *pUseCount == 1; }
 		inline unsigned int useCount() const { assert(pUseCount); return *pUseCount; }
 
-		inline T* getPointer() { assert(pRep); return pRep; }
+		inline T* getPointer() const { assert(pRep); return pRep; }
 
 		inline bool isNull(void) const { return pRep == 0; }
+
+        inline void setNull(void) { 
+            release();
+            pRep = 0;
+            pUseCount = 0;
+        }
+
+        inline void release(void) {
+            if (pUseCount)
+            {
+                if (--(*pUseCount) == 0) {
+                    destroy();
+                }
+            }
+        }
 	};
 
 	template<class T, class U> inline bool operator==(SharedPtr<T> const& a, SharedPtr<U> const& b)

@@ -1546,6 +1546,7 @@ namespace Ogre
 		// Create new program definition-in-progress
 		context.programDef = new MaterialScriptProgramDefinition();
 		context.programDef->progType = GPT_VERTEX_PROGRAM;
+        context.programDef->supportsSkeletalAnimation = false;
 
 		// Get name and language code
 		StringVector vecparams = params.split(" \t");
@@ -1598,6 +1599,15 @@ namespace Ogre
 
 		return false;
 	}
+    //-----------------------------------------------------------------------
+    bool parseProgramSkeletalAnimation(String& params, MaterialScriptContext& context)
+    {
+        // Source filename, preserve case
+        context.programDef->supportsSkeletalAnimation 
+            = StringConverter::parseBool(params);
+
+        return false;
+    }
     //-----------------------------------------------------------------------
     bool parseProgramSyntax(String& params, MaterialScriptContext& context)
     {
@@ -1693,6 +1703,7 @@ namespace Ogre
         // Set up program definition attribute parsers
         mProgramAttribParsers.insert(AttribParserList::value_type("source", (ATTRIBUTE_PARSER)parseProgramSource));
         mProgramAttribParsers.insert(AttribParserList::value_type("syntax", (ATTRIBUTE_PARSER)parseProgramSyntax));
+        mProgramAttribParsers.insert(AttribParserList::value_type("includes_skeletal_animation", (ATTRIBUTE_PARSER)parseProgramSkeletalAnimation));
 		
 
         mScriptContext.section = MSS_NONE;
@@ -1899,7 +1910,7 @@ namespace Ogre
 			// Create
 			GpuProgram* gp = GpuProgramManager::getSingleton().
 				createProgram(def->name, def->source, def->progType, def->syntax);
-			
+			gp->setSkeletalAnimationIncluded(def->supportsSkeletalAnimation);
 		}
 		else
 		{
@@ -1915,6 +1926,9 @@ namespace Ogre
 				createProgram(def->name, def->language, def->progType);
             // Set source file
             gp->setSourceFile(def->source);
+            // Skel animation supported
+            gp->setSkeletalAnimationIncluded(def->supportsSkeletalAnimation);
+
 			// Set custom parameters
 			std::map<String, String>::const_iterator i, iend;
 			iend = def->customParameters.end();

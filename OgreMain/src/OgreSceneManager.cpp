@@ -51,12 +51,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreException.h"
 #include "OgreLogManager.h"
 #include "OgreHardwareBufferManager.h"
+#include "OgreRoot.h"
 
 // This class implements the most basic scene manager
 
 #include <cstdio>
 
 namespace Ogre {
+
 
     SceneManager::SceneManager()
     {
@@ -620,6 +622,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverlays)
     {
+        Root::getSingleton()._setCurrentSceneManager(this);
         mCameraInProgress = camera;
         mCamChanged = true;
 

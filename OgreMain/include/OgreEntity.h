@@ -33,7 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreAnimationState.h"
 #include "OgreQuaternion.h"
 #include "OgreVector3.h"
-
+#include "OgreHardwareBufferManager.h"
 
 namespace Ogre {
     /** Defines an instance of a discrete, movable object based on a Mesh.
@@ -107,15 +107,33 @@ namespace Ogre {
         static String msMovableType;
 
 
+        /// Temp blend buffer details for shared geometry
+        TempBlendedBufferInfo mTempBlendedBuffer;
+        /// Temp blend buffer details for shared geometry
+        VertexData* mSharedBlendedVertexData;
+
+        /** Internal method for extracting metadata out of source vertex data
+            for fast assignment of temporary buffers later. */
+        void extractTempBufferInfo(VertexData* sourceData, TempBlendedBufferInfo* info);
+        /** Internal method to clone vertex data definitions but to remove blend buffers. */
+        VertexData* cloneVertexDataRemoveBlendInfo(const VertexData* source);
+
         /// Cached bone matrices, including any world transform
         Matrix4 *mBoneMatrices;
         unsigned short mNumBoneMatrices;
+        /// Records the last frame in which animation was updated
+        unsigned long mFrameAnimationLastUpdated;
 
+        /// Perform all the updates required for an animated entity
+        void updateAnimation(void);
+        
         /// Private method to cache bone matrices from skeleton
         void cacheBoneMatrices(void);
 
         /// Flag determines whether or not to display skeleton
         bool mDisplaySkeleton;
+        /// Flag indicating whether hardware skinning is supported by this entities materials
+        bool mHardwareSkinning;
 
 
 		/// The LOD number of the mesh to use, calculated by _notifyCurrentCamera
@@ -149,6 +167,9 @@ namespace Ogre {
 
 		/// internal implementation of attaching a 'child' object to this entity and assign the parent node to the child entity
 		void attachObjectImpl(MovableObject *pMovable, TagPoint *pAttachingPoint);
+
+        /// Trigger reevaluation of whether hardware skinning is supported
+        void reevaluateHardwareSkinning(void);
 
     public:
         /// Contains the child objects (attached to bones) indexed by name
@@ -387,11 +408,20 @@ namespace Ogre {
             bool extrudeVertices, unsigned long flags = 0 );
 
 
-
 		/** Internal method for retrieving bone matrix information. */
 		const Matrix4* _getBoneMatrices(void) { return mBoneMatrices;}
 		/** Internal method for retrieving bone matrix information. */
         unsigned short _getNumBoneMatrices(void) { return mNumBoneMatrices; }
+        /** Returns whether or not hardware skinning is enabled.
+        @remarks
+            Because fixed-function indexed vertex blending is rarely supported
+            by existing graphics cards, hardware skinning can only be done if
+            the vertex programs in the materials used to render an entity support
+            it. Therefore, this method will only return true if all the materials
+            assigned to this entity have vertex programs assigned, and all those
+            vertex programs must support 'include_skeletal_animation true'.
+        */
+        bool isHardwareSkinningEnabled(void) { return mHardwareSkinning; }
 
 
     };

@@ -43,7 +43,6 @@ namespace Ogre {
 			createVertexDeclaration();
 		vertexCount = 0;
 		vertexStart = 0;
-        softwareBlendInfo = NULL;
 
 	}
     //-----------------------------------------------------------------------
@@ -52,15 +51,10 @@ namespace Ogre {
 		HardwareBufferManager::getSingleton().
 			destroyVertexBufferBinding(vertexBufferBinding);
 		HardwareBufferManager::getSingleton().destroyVertexDeclaration(vertexDeclaration);
-        if(softwareBlendInfo)
-        {
-            delete softwareBlendInfo;
-            softwareBlendInfo = NULL;
-        }
 
 	}
     //-----------------------------------------------------------------------
-	VertexData* VertexData::clone(void)
+	VertexData* VertexData::clone(bool copyData) const
 	{
 		VertexData* dest = new VertexData();
 
@@ -72,18 +66,27 @@ namespace Ogre {
 		for (vbi = bindings.begin(); vbi != vbend; ++vbi)
 		{
 			HardwareVertexBufferSharedPtr srcbuf = vbi->second;
-			// create new buffer with the same settings
-			HardwareVertexBufferSharedPtr dstBuf = 
-				HardwareBufferManager::getSingleton().createVertexBuffer(
-					srcbuf->getVertexSize(), srcbuf->getNumVertices(), srcbuf->getUsage(),
-					srcbuf->isSystemMemory());
+            HardwareVertexBufferSharedPtr dstBuf;
+            if (copyData)
+            {
+			    // create new buffer with the same settings
+			    dstBuf = 
+				    HardwareBufferManager::getSingleton().createVertexBuffer(
+					    srcbuf->getVertexSize(), srcbuf->getNumVertices(), srcbuf->getUsage(),
+					    srcbuf->isSystemMemory());
 
-			// copy data
-			dstBuf->copyData(*srcbuf, 0, 0, srcbuf->getSizeInBytes(), true);
+			    // copy data
+			    dstBuf->copyData(*srcbuf, 0, 0, srcbuf->getSizeInBytes(), true);
+            }
+            else
+            {
+                // don't copy, point at existing buffer
+                dstBuf = srcbuf;
+            }
 
 			// Copy binding
 			dest->vertexBufferBinding->setBinding(vbi->first, dstBuf);
-		}
+        }
 
         // Basic vertex info
         dest->vertexStart = this->vertexStart;
@@ -103,45 +106,9 @@ namespace Ogre {
                 ei->getIndex() );
         }
 
-        // Copy software blend info
-        if(softwareBlendInfo)
-        {
-            dest->softwareBlendInfo = new SoftwareBlendInfo();
-            dest->softwareBlendInfo->automaticBlend = softwareBlendInfo->automaticBlend;
-            dest->softwareBlendInfo->numWeightsPerVertex = softwareBlendInfo->numWeightsPerVertex;
-            dest->softwareBlendInfo->pBlendIndexes = 
-                new unsigned char[vertexCount * softwareBlendInfo->numWeightsPerVertex];
-            dest->softwareBlendInfo->pBlendWeights = 
-                new Real[vertexCount * softwareBlendInfo->numWeightsPerVertex];
-            // copy data
-            memcpy(dest->softwareBlendInfo->pBlendIndexes, softwareBlendInfo->pBlendIndexes, 
-                sizeof(unsigned char) * vertexCount * softwareBlendInfo->numWeightsPerVertex);
-            memcpy(dest->softwareBlendInfo->pBlendWeights, softwareBlendInfo->pBlendWeights, 
-                sizeof(Real) * vertexCount * softwareBlendInfo->numWeightsPerVertex);
-
-            dest->softwareBlendInfo->pSrcPositions = new Real[vertexCount * 3];
-            dest->softwareBlendInfo->pSrcNormals = new Real[vertexCount * 3];
-            memcpy(dest->softwareBlendInfo->pSrcPositions, 
-                softwareBlendInfo->pSrcPositions, sizeof(Real) * vertexCount * 3);
-            memcpy(dest->softwareBlendInfo->pSrcNormals, 
-                softwareBlendInfo->pSrcNormals, sizeof(Real) * vertexCount * 3);
-
-        }
         
         return dest;
 	}
-    //-----------------------------------------------------------------------
-    VertexData::SoftwareBlendInfo::~SoftwareBlendInfo()
-    {
-        if (pSrcPositions)
-            delete [] pSrcPositions;
-        if (pSrcNormals)
-            delete [] pSrcNormals;
-        if (pBlendIndexes)
-            delete [] pBlendIndexes;
-        if (pBlendWeights)
-            delete [] pBlendWeights;
-    }
     //-----------------------------------------------------------------------
     void VertexData::prepareForShadowVolume(void)
     {
@@ -320,16 +287,23 @@ namespace Ogre {
 	{
 	}
     //-----------------------------------------------------------------------
-	IndexData* IndexData::clone(void)
+	IndexData* IndexData::clone(bool copyData) const
 	{
 		IndexData* dest = new IndexData();
 		if (indexBuffer.get())
 		{
-			dest->indexBuffer = HardwareBufferManager::getSingleton().
-				createIndexBuffer(indexBuffer->getType(), indexBuffer->getNumIndexes(),
-				indexBuffer->getUsage(), indexBuffer->isSystemMemory());
-			dest->indexBuffer->copyData(*indexBuffer, 0, 0, indexBuffer->getSizeInBytes(), true);
-		}
+            if (copyData)
+            {
+			    dest->indexBuffer = HardwareBufferManager::getSingleton().
+				    createIndexBuffer(indexBuffer->getType(), indexBuffer->getNumIndexes(),
+				    indexBuffer->getUsage(), indexBuffer->isSystemMemory());
+			    dest->indexBuffer->copyData(*indexBuffer, 0, 0, indexBuffer->getSizeInBytes(), true);
+            }
+            else
+            {
+                dest->indexBuffer = indexBuffer;
+            }
+        }
 		dest->indexCount = indexCount;
 		dest->indexStart = indexStart;
 		return dest;

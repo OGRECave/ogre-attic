@@ -31,15 +31,37 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSubMesh.h"
 #include "OgreTagPoint.h"
 #include "OgreLogManager.h"
+#include "OgreMesh.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
-    SubEntity::SubEntity ()
+    SubEntity::SubEntity (Entity* parent, SubMesh* subMeshBasis)
+        :mParentEntity(parent), mSubMesh(subMeshBasis)
     {
         mpMaterial = static_cast<Material*>(MaterialManager::getSingleton().getByName("BaseWhite"));
         mMaterialLodIndex = 0;
         mRenderDetail = SDL_SOLID;
         mVisible = true;
+        mBlendedVertexData = 0;
+        mBlendedVertexData = NULL;
+
+
+        // Prepare temp vertex data if needed
+        if (mParentEntity->mMesh->hasSkeleton() && !mSubMesh->useSharedVertices)
+        {
+            // Clone without copying data
+            mBlendedVertexData = 
+                mParentEntity->cloneVertexDataRemoveBlendInfo(mSubMesh->vertexData);
+            mParentEntity->extractTempBufferInfo(mBlendedVertexData, &mTempBlendedBuffer);
+
+        }
+
+    }
+    //-----------------------------------------------------------------------
+    SubEntity::~SubEntity()
+    {
+        if (mBlendedVertexData)
+            delete mBlendedVertexData;
     }
     //-----------------------------------------------------------------------
     SubMesh* SubEntity::getSubMesh(void)
@@ -72,6 +94,11 @@ namespace Ogre {
         // Ensure new material loaded (will not load again if already loaded)
         mpMaterial->load();
 
+        if (mParentEntity->getMesh()->hasSkeleton())
+        {
+            mParentEntity->reevaluateHardwareSkinning();
+        }
+
 
     }
     //-----------------------------------------------------------------------
@@ -89,6 +116,13 @@ namespace Ogre {
     {
 		// Use LOD
         mSubMesh->_getRenderOperation(op, mParentEntity->mMeshLodIndex);
+        // Do we need to use software skinned vertex data?
+        if (!mParentEntity->mHardwareSkinning)
+        {
+            op.vertexData = mSubMesh->useSharedVertices ? 
+                mParentEntity->mSharedBlendedVertexData : mBlendedVertexData;
+
+        }
     }
     //-----------------------------------------------------------------------
     void SubEntity::getWorldTransforms(Matrix4* xform) const

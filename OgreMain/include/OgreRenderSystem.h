@@ -672,13 +672,6 @@ namespace Ogre
             bool twoSidedOperation = false) = 0;
 
 
-        /** Performs a software vertex blend on the passed in operation. 
-        @remarks
-            This function is supplied to update vertex data with blends 
-            done in software, either because no hardware support is available, 
-            or that you need the results of the blend for some other CPU operations.
-        */
-        virtual void softwareVertexBlend(VertexData* vertexData, Matrix4* pMatrices);
 
 		/** Sets the current vertex declaration, ie the source of vertex data. */
 		virtual void setVertexDeclaration(VertexDeclaration* decl) = 0;

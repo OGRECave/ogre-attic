@@ -84,6 +84,57 @@ CODE.str {
 <p align="center" class="header">OGRE (Object-Oriented Graphics
 Rendering Engine)</p>
 <p align="center" class="header">Change Log</p>
+<p align="left" class="MainHeader">v0.13.1 (1 March 2004) - Maintenance
+Release<br>
+</p>
+<p align="left">Enhancements:<br>
+</p>
+<ul>
+  <li>Updated Blender exporter, now includes a GUI and full skeletal
+animation support<br>
+  </li>
+</ul>
+<p align="left">Bugfixes:<br>
+</p>
+<ul>
+  <li>Removed redundant Demo_TechDemo.vcproj link from Ogre.sln <br>
+  </li>
+  <li>Removed the forced normal normalisation code from the D3D
+renderers, it
+is not required so long as the models have unit-length normals, and
+this is now fixable on a per-Entity basis. Including this code in the
+render system caused some state management problems with SceneManager. <br>
+  </li>
+  <li>D3D7 now correctly records all capabilities (inc cubemapping,
+anisotropy)</li>
+  <li>Fixed a bug with multiple attachments of objects to bones.
+Previously
+attached objects were not always properly visible and/or did not move
+correctly.</li>
+  <li>Fixed a crash bug with ConfigFile when an empty value was
+specified</li>
+  <li>Win32Input8::capture() should not capture input types which are
+disabled</li>
+  <li>Fixed Wings exporter 'v' texture coordinates</li>
+  <li>Fixed AxisAlignedBox::scale</li>
+  <li>Particle fix, could result in stuttery particle emission in some
+cases</li>
+  <li>Fixed a couple of problems with the pass map custom sort handler
+which resulted in "Error inserting new pass entry into
+SolidRenderablePassMap" assert. <br>
+  </li>
+  <li>Small refapp fix for segfault when using objects without an ODE
+body</li>
+  <li>Fix for HardwareVertexBufferBinding::getNextIndex not
+incrementing the
+next index properly. <br>
+  </li>
+  <li>Added pthread check to configure.in</li>
+  <li>bootstrap now deals with automake 1.8</li>
+  <li>Relative mouse coordinate fixes on linux</li>
+</ul>
+<p align="left"></p>
+<span style="font-weight: bold; color: rgb(255, 255, 0);"></span>
 <p align="left" class="MainHeader">v0.13.0 (18 January 2004) - Major
 Release<br>
 </p>

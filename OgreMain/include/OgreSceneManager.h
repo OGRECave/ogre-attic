@@ -1247,7 +1247,8 @@ namespace Ogre {
         virtual void setShadowTechnique(ShadowTechnique technique, 
             bool debug = false);
 
-
+        /** Gets the current shadow technique. */
+        virtual ShadowTechnique getShadowTechnique(void) { return mShadowTechnique; }
 
 
     };

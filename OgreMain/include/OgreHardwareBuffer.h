@@ -122,6 +122,7 @@ namespace Ogre {
             bool mUseShadowBuffer;
             HardwareBuffer* mpShadowBuffer;
             bool mShadowUpdated;
+            bool mSuppressHardwareUpdate;
     		
             /// Internal implementation of lock()
 		    virtual void* lockImpl(size_t offset, size_t length, LockOptions options) = 0;
@@ -132,7 +133,8 @@ namespace Ogre {
 		    /// Constructor, to be called by HardwareBufferManager only
             HardwareBuffer(Usage usage, bool systemMemory, bool useShadowBuffer) 
 				: mUsage(usage), mIsLocked(false), mSystemMemory(systemMemory), 
-                mUseShadowBuffer(useShadowBuffer), mpShadowBuffer(NULL), mShadowUpdated(false) {}
+                mUseShadowBuffer(useShadowBuffer), mpShadowBuffer(NULL), mShadowUpdated(false), 
+                mSuppressHardwareUpdate(false) {}
             virtual ~HardwareBuffer() {}
 		    /** Lock the buffer for (potentially) reading / writing.
 		    @param offset The byte offset from the start of the buffer to lock
@@ -246,7 +248,7 @@ namespace Ogre {
             /// Updates the real buffer from the shadow buffer, if required
             virtual void _updateFromShadow(void)
             {
-                if (mUseShadowBuffer && mShadowUpdated)
+                if (mUseShadowBuffer && mShadowUpdated && !mSuppressHardwareUpdate)
                 {
                     // Do this manually to avoid locking problems
                     const void *srcData = mpShadowBuffer->lockImpl(
@@ -279,6 +281,10 @@ namespace Ogre {
             /// Returns whether or not this buffer is currently locked.
             bool isLocked(void) const { 
                 return mIsLocked || (mUseShadowBuffer && mpShadowBuffer->isLocked()); 
+            }
+            /// Pass true to suppress hardware upload of shadow buffer changes
+            void suppressHardwareUpdate(bool suppress) {
+                mSuppressHardwareUpdate = suppress;
             }
 
 

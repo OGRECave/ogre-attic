@@ -45,6 +45,7 @@ namespace Ogre {
     {
         mName = name;
 		sharedVertexData = NULL;
+
         // Default to load from file
         mManuallyDefined = false;
         //mUpdateBounds = true;
@@ -64,8 +65,6 @@ namespace Ogre {
 
         mBoundRadius = 0.0f;
 
-        // Always use software blending for now
-        mUseSoftwareBlending = true;
         mPreparedForShadowVolumes = false;
 
         mEdgeData = 0;
@@ -244,7 +243,6 @@ namespace Ogre {
         newMesh->mBoundRadius = mBoundRadius;
         // copy BoneAssignment information
         newMesh->mBoneAssignmentsOutOfDate = mBoneAssignmentsOutOfDate;
-        newMesh->mUseSoftwareBlending = mUseSoftwareBlending;
 
 		newMesh->mIsLodManual = mIsLodManual;
 		newMesh->mNumLods = mNumLods;
@@ -517,143 +515,95 @@ namespace Ogre {
             return;
         }
 
-        if (mUseSoftwareBlending)
-        {
-            compileBoneAssignmentsSoftware(mBoneAssignments, maxBones, sharedVertexData);
-        }
-        else
-        {
-            compileBoneAssignmentsHardware(mBoneAssignments, maxBones, sharedVertexData);
-        }
-
+        compileBoneAssignments(mBoneAssignments, maxBones, 
+            sharedVertexData);
         mBoneAssignmentsOutOfDate = false;
 
     }
     //---------------------------------------------------------------------
-    void Mesh::compileBoneAssignmentsSoftware(
+    void Mesh::compileBoneAssignments(        
         const VertexBoneAssignmentList& boneAssignments,
-        unsigned short numBlendWeightsPerVertex, VertexData* targetVertexData)
+        unsigned short numBlendWeightsPerVertex, 
+        VertexData* targetVertexData)
     {
-        // Delete old data if it's there
-        if (targetVertexData->softwareBlendInfo->pBlendIndexes)
-            delete[] targetVertexData->softwareBlendInfo->pBlendIndexes;
-        if (targetVertexData->softwareBlendInfo->pBlendWeights)
-            delete[] targetVertexData->softwareBlendInfo->pBlendWeights;
-        // Allocate new data
-        targetVertexData->softwareBlendInfo->pBlendIndexes = 
-            new unsigned char[targetVertexData->vertexCount * numBlendWeightsPerVertex];
-        targetVertexData->softwareBlendInfo->pBlendWeights = 
-            new Real[targetVertexData->vertexCount * numBlendWeightsPerVertex];
-        // Assign data
-        size_t v;
-        VertexBoneAssignmentList::const_iterator i;
-        i = boneAssignments.begin();
-		Real *pWeight = targetVertexData->softwareBlendInfo->pBlendWeights;
-        unsigned char* pIndex = targetVertexData->softwareBlendInfo->pBlendIndexes;
-        // Iterate by vertex
-        for (v = 0; v < targetVertexData->vertexCount; ++v)
-        {
-            for (unsigned short bone = 0; bone < numBlendWeightsPerVertex; ++bone)
-			{
-                // Do we still have data for this vertex?
-                if (i->second.vertexIndex == v)
-                {
-                    // If so, write weight
-					*pWeight++ = i->second.weight;
-                    *pIndex++ = i->second.boneIndex;
-                    ++i;
-                }
-                else
-                {
-                    // Ran out of assignments for this vertex, use weight 0 to indicate empty
-					*pWeight++ = 0.0f;
-                    *pIndex++ = 0;
-                }
-            }
-        }
-
-        // Set blend weight info
-        targetVertexData->softwareBlendInfo->numWeightsPerVertex = numBlendWeightsPerVertex;
-
-    }
-    //---------------------------------------------------------------------
-    void Mesh::compileBoneAssignmentsHardware(
-        const VertexBoneAssignmentList& boneAssignments,
-        unsigned short numBlendWeightsPerVertex, VertexData* targetVertexData)
-
-    {
-		// No deallocation required, shared ptr will deal with that
-        // Update vertex declaration - remove existing if present
-		bool shareBindIndex = false;
+        // Create or reuse blend weight / indexes buffer
+        // Indices are always a UBYTE4 no matter how many weights per vertex
+        // Weights are more specific though since they are Reals
+        VertexDeclaration* decl = targetVertexData->vertexDeclaration;
+        VertexBufferBinding* bind = targetVertexData->vertexBufferBinding;
         unsigned short bindIndex;
-		VertexDeclaration* decl = targetVertexData->vertexDeclaration;
-		if (const VertexElement* elem = decl->findElementBySemantic(VES_BLEND_INDICES))
-		{
-			bindIndex = elem->getIndex(); // reuse
-            shareBindIndex = true;
-			decl->removeElement(VES_BLEND_INDICES);
-		}
-		if (decl->findElementBySemantic(VES_BLEND_WEIGHTS))
-		{
-			decl->removeElement(VES_BLEND_WEIGHTS);
-		}
-		// If binding not found already, get next
-		if (!shareBindIndex) 
-            bindIndex = targetVertexData->vertexBufferBinding->getNextIndex();
-		// Add declarations for weights and indices
-		const VertexElement& pWeightElem = decl->addElement(
-			bindIndex, 
-			0, 
-			VertexElement::multiplyTypeCount(VET_FLOAT1, numBlendWeightsPerVertex),
-			VES_BLEND_WEIGHTS);
-		const VertexElement& pIdxElem = decl->addElement(
-			bindIndex, 
-			sizeof(float) * numBlendWeightsPerVertex, 
-			VertexElement::multiplyTypeCount(VET_SHORT1, numBlendWeightsPerVertex),
-			VES_BLEND_INDICES);
-		// Create buffer (will destroy old one because of reference counting)
-		// NB we create in system memory because we need to read this back later
-		mBlendingVB = HardwareBufferManager::getSingleton().createVertexBuffer(
-			decl->getVertexSize(bindIndex), targetVertexData->vertexCount, 
-			HardwareBuffer::HBU_DYNAMIC, true);
-		// Set binding
-		targetVertexData->vertexBufferBinding->setBinding(bindIndex, mBlendingVB); 
+
+        const VertexElement* testElem = 
+            decl->findElementBySemantic(VES_BLEND_INDICES);
+        if (testElem)
+        {
+            // Already have a buffer, unset it & delete elements
+            bindIndex = testElem->getSource();
+            // unset will cause deletion of buffer
+            bind->unsetBinding(bindIndex);
+            decl->removeElement(VES_BLEND_INDICES);
+            decl->removeElement(VES_BLEND_WEIGHTS);
+        }
+        else
+        {
+            // Get new binding
+            bindIndex = bind->getNextIndex();
+        }
+
+        HardwareVertexBufferSharedPtr vbuf = 
+            HardwareBufferManager::getSingleton().createVertexBuffer(
+                sizeof(unsigned char)*4 + sizeof(Real)*numBlendWeightsPerVertex,
+                targetVertexData->vertexCount, 
+                HardwareBuffer::HBU_STATIC_WRITE_ONLY,
+                true // use shadow buffer
+                );
+        // bind new buffer
+        bind->setBinding(bindIndex, vbuf);
+        
+        // add new vertex elements
+        const VertexElement& pIdxElem = 
+            decl->addElement(bindIndex, 0, VET_UBYTE4, VES_BLEND_INDICES);
+        const VertexElement& pWeightElem = 
+            decl->addElement(bindIndex, sizeof(unsigned char)*4, 
+            VertexElement::multiplyTypeCount(VET_FLOAT1, numBlendWeightsPerVertex),
+            VES_BLEND_WEIGHTS);
 
         // Assign data
         size_t v;
         VertexBoneAssignmentList::const_iterator i;
         i = boneAssignments.begin();
-		unsigned char *pBase = static_cast<unsigned char*>(
-			mBlendingVB->lock(HardwareBuffer::HBL_DISCARD)); 
+        unsigned char *pBase = static_cast<unsigned char*>(
+            vbuf->lock(HardwareBuffer::HBL_DISCARD)); 
         // Iterate by vertex
-		Real *pWeight;
-		unsigned short *pIndex;
+        Real *pWeight;
+        unsigned char *pIndex;
         for (v = 0; v < targetVertexData->vertexCount; ++v)
         {
-			/// Convert to specific pointers
-			pWeightElem.baseVertexPointerToElement(pBase, &pWeight);
-			pIdxElem.baseVertexPointerToElement(pBase, &pIndex);
+            /// Convert to specific pointers
+            pWeightElem.baseVertexPointerToElement(pBase, &pWeight);
+            pIdxElem.baseVertexPointerToElement(pBase, &pIndex);
             for (unsigned short bone = 0; bone < numBlendWeightsPerVertex; ++bone)
-			{
+            {
                 // Do we still have data for this vertex?
                 if (i->second.vertexIndex == v)
                 {
                     // If so, write weight
-					*pWeight++ = i->second.weight;
+                    *pWeight++ = i->second.weight;
                     *pIndex++ = i->second.boneIndex;
                     ++i;
                 }
                 else
                 {
                     // Ran out of assignments for this vertex, use weight 0 to indicate empty
-					*pWeight++ = 0.0f;
+                    *pWeight++ = 0.0f;
                     *pIndex++ = 0;
                 }
             }
-			pBase += mBlendingVB->getVertexSize();
+            pBase += vbuf->getVertexSize();
         }
 
-		mBlendingVB->unlock();
+        vbuf->unlock();
+
     }
     //---------------------------------------------------------------------
     void Mesh::_notifySkeleton(Skeleton* pSkel)
@@ -1091,6 +1041,256 @@ namespace Ogre {
             buildEdgeList();
         }
         return mEdgeData;
+    }
+    //---------------------------------------------------------------------
+    void Mesh::softwareVertexBlend(const VertexData* sourceVertexData, 
+        const VertexData* targetVertexData, const Matrix4* pMatrices, 
+        bool blendNormals)
+    {
+        // Source vectors
+        Vector3 sourceVec, sourceNorm;
+        // Accumulation vectors
+        Vector3 accumVecPos, accumVecNorm;
+        Matrix3 rot3x3;
+
+        Real *pSrcPos, *pSrcNorm, *pDestPos, *pDestNorm, *pBlendWeight;
+        unsigned char* pBlendIdx;
+        bool srcPosNormShareBuffer = false;
+        bool destPosNormShareBuffer = false;
+        bool weightsIndexesShareBuffer = false;
+
+
+        // Get elements for source
+        const VertexElement* srcElemPos = 
+            sourceVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
+        const VertexElement* srcElemNorm = 
+            sourceVertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL);
+        const VertexElement* srcElemBlendIndices = 
+            sourceVertexData->vertexDeclaration->findElementBySemantic(VES_BLEND_INDICES);
+        const VertexElement* srcElemBlendWeights = 
+            sourceVertexData->vertexDeclaration->findElementBySemantic(VES_BLEND_WEIGHTS);
+        assert (srcElemPos && srcElemBlendIndices && srcElemBlendWeights && 
+            "You must supply at least positions, blend indices and blend weights");
+        // Get elements for target
+        const VertexElement* destElemPos = 
+            targetVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
+        const VertexElement* destElemNorm = 
+            targetVertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL);
+        
+        // Do we have normals and want to blend them?
+        bool includeNormals = blendNormals && (srcElemNorm != NULL) && (destElemNorm != NULL);
+
+
+        // Get buffers for source
+        HardwareVertexBufferSharedPtr srcPosBuf, srcNormBuf, srcIdxBuf, srcWeightBuf;
+        srcPosBuf = sourceVertexData->vertexBufferBinding->getBuffer(srcElemPos->getSource());
+        srcIdxBuf = sourceVertexData->vertexBufferBinding->getBuffer(srcElemBlendIndices->getSource());
+        srcWeightBuf = sourceVertexData->vertexBufferBinding->getBuffer(srcElemBlendWeights->getSource());
+        if (includeNormals)
+        {
+            srcNormBuf = sourceVertexData->vertexBufferBinding->getBuffer(srcElemNorm->getSource());
+            srcPosNormShareBuffer = (srcPosBuf.get() == srcNormBuf.get());
+        }
+        weightsIndexesShareBuffer = (srcIdxBuf.get() == srcWeightBuf.get());
+        // Get buffers for target
+        HardwareVertexBufferSharedPtr destPosBuf, destNormBuf;
+        destPosBuf = targetVertexData->vertexBufferBinding->getBuffer(destElemPos->getSource());
+        if (includeNormals)
+        {
+            destNormBuf = targetVertexData->vertexBufferBinding->getBuffer(destElemNorm->getSource());
+            destPosNormShareBuffer = (destPosBuf.get() == destNormBuf.get());
+        }
+
+        // Lock source buffers for reading
+        assert (srcElemPos->getOffset() == 0 && 
+            "Positions must be first element in dedicated buffer!");
+        pSrcPos = static_cast<Real*>(
+            srcPosBuf->lock(HardwareBuffer::HBL_READ_ONLY));
+        if (includeNormals)
+        {
+            if (srcPosNormShareBuffer)
+            {
+                // Same buffer, must be packed directly after position
+                assert (srcElemNorm->getOffset() == sizeof(Real) * 3 && 
+                    "Normals must be packed directly after positions in buffer!");
+                // pSrcNorm will not be used
+            }
+            else
+            {
+                // Different buffer
+                assert (srcElemNorm->getOffset() == 0 && 
+                    "Normals must be first element in dedicated buffer!");
+                pSrcNorm = static_cast<Real*>(
+                    srcNormBuf->lock(HardwareBuffer::HBL_READ_ONLY));
+            }
+        }
+
+        // Indices must be first in a buffer and be 4 bytes
+        assert(srcElemBlendIndices->getOffset() == 0 &&
+               srcElemBlendIndices->getType() == VET_UBYTE4 && 
+               "Blend indices must be first in a buffer and be VET_UBYTE4");
+        pBlendIdx = static_cast<unsigned char*>(
+            srcIdxBuf->lock(HardwareBuffer::HBL_READ_ONLY));
+        if (weightsIndexesShareBuffer)
+        {
+            // Weights must be packed directly after the indices
+            assert(srcElemBlendWeights->getOffset() == sizeof(unsigned char)*4 &&
+                "Blend weights must be directly after indices in the buffer");
+            srcElemBlendWeights->baseVertexPointerToElement(pBlendIdx, &pBlendWeight);
+        }
+        else
+        {
+            // Weights must be at the start of the buffer
+            assert(srcElemBlendWeights->getOffset() == 0 &&
+                "Blend weights must be at the start of a dedicated buffer");
+            // Lock buffer
+            pBlendWeight = static_cast<Real*>(
+                srcWeightBuf->lock(HardwareBuffer::HBL_READ_ONLY));
+        }
+        unsigned short numWeightsPerVertex = 
+            VertexElement::getTypeCount(srcElemBlendWeights->getType());
+
+
+        // Lock destination buffers for writing
+        assert (destElemPos->getOffset() == 0 && 
+            "Positions must be first element in dedicated buffer!");
+        pDestPos = static_cast<Real*>(
+            destPosBuf->lock(HardwareBuffer::HBL_DISCARD));
+        if (includeNormals)
+        {
+            if (destPosNormShareBuffer)
+            {
+                // Same buffer, must be packed directly after position
+                assert (destElemNorm->getOffset() == sizeof(Real) * 3 && 
+                    "Normals must be packed directly after positions in buffer!");
+                // pDestNorm will not be used
+            }
+            else
+            {
+                // Different buffer
+                assert (destElemNorm->getOffset() == 0 && 
+                    "Normals must be first element in dedicated buffer!");
+                pDestNorm = static_cast<Real*>(
+                    destNormBuf->lock(HardwareBuffer::HBL_DISCARD));
+            }
+        }
+
+        // Loop per vertex
+        Vector3 tempVec;
+        for (size_t vertIdx = 0; vertIdx < targetVertexData->vertexCount; ++vertIdx)
+        {
+            // Load source vertex elements
+            sourceVec.x = *pSrcPos++;
+            sourceVec.y = *pSrcPos++;
+            sourceVec.z = *pSrcPos++;
+
+            if (includeNormals) 
+            {
+                if (srcPosNormShareBuffer)
+                {
+                    sourceNorm.x = *pSrcPos++;
+                    sourceNorm.y = *pSrcPos++;
+                    sourceNorm.z = *pSrcPos++;
+                }
+                else
+                {
+                    sourceNorm.x = *pSrcNorm++;
+                    sourceNorm.y = *pSrcNorm++;
+                    sourceNorm.z = *pSrcNorm++;
+                }
+            }
+            // Load accumulators
+            accumVecPos = Vector3::ZERO;
+            accumVecNorm = Vector3::ZERO;
+
+            // Loop per blend weight 
+            for (unsigned short blendIdx = 0; 
+                blendIdx < numWeightsPerVertex; ++blendIdx)
+            {
+                // Blend by multiplying source by blend matrix and scaling by weight
+                // Add to accumulator
+                // NB weights must be normalised!!
+                if (*pBlendWeight != 0.0) 
+                {
+                    // Blend position
+                    tempVec = pMatrices[*pBlendIdx] * sourceVec;
+                    tempVec *= *pBlendWeight;
+                    accumVecPos += tempVec;
+                    if (includeNormals)
+                    {
+                        // Blend normal
+                        // We should blend by inverse transpose here, but because we're assuming the 3x3
+                        // aspect of the matrix is orthogonal (no non-uniform scaling), the inverse transpose
+                        // is equal to the main 3x3 matrix
+                        // Note because it's a normal we just extract the rotational part, saves us renormalising here
+                        pMatrices[*pBlendIdx].extract3x3Matrix(rot3x3);
+                        tempVec = rot3x3 * sourceNorm;
+                        tempVec *= *pBlendWeight;
+                        accumVecNorm += tempVec;
+                    }
+
+                }
+                ++pBlendWeight;
+                ++pBlendIdx;
+            }
+            // Finish off blend info pointers
+            // Make sure we skip over 4 index elements no matter how many we used
+            pBlendIdx += 4 - numWeightsPerVertex;
+            if(weightsIndexesShareBuffer)
+            {
+                // Skip index over weights
+                pBlendIdx += sizeof(Real) * numWeightsPerVertex;
+                // Re-base weights
+                srcElemBlendWeights->baseVertexPointerToElement(pBlendIdx, &pBlendWeight);
+            }
+
+
+            // Stored blended vertex in hardware buffer
+            *pDestPos++ = accumVecPos.x;
+            *pDestPos++ = accumVecPos.y;
+            *pDestPos++ = accumVecPos.z;
+
+            // Stored blended vertex in temp buffer
+            if (includeNormals)
+            {
+                // Normalise
+                accumVecNorm.normalise();
+                if (destPosNormShareBuffer)
+                {
+                    // Pack into same buffer
+                    *pDestPos++ = accumVecNorm.x;
+                    *pDestPos++ = accumVecNorm.y;
+                    *pDestPos++ = accumVecNorm.z;
+                }
+                else
+                {
+                    *pDestNorm++ = accumVecNorm.x;
+                    *pDestNorm++ = accumVecNorm.y;
+                    *pDestNorm++ = accumVecNorm.z;
+                }
+            }
+        }
+        // Unlock source buffers
+        srcPosBuf->unlock();
+        srcIdxBuf->unlock();
+        if (!weightsIndexesShareBuffer)
+        {
+            srcWeightBuf->unlock();
+        }
+        if (includeNormals && !srcPosNormShareBuffer)
+        {
+            srcNormBuf->unlock();
+        }
+        // Unlock destination buffers
+        destPosBuf->unlock();
+        if (includeNormals && !destPosNormShareBuffer)
+        {
+            destNormBuf->unlock();
+
+        }
+
+
+
     }
 
 }
