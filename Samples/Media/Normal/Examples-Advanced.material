@@ -679,29 +679,29 @@ material Examples/GeneralTexProjection
 // Distortion effects
 //----------------------------
 
-vertex_program Examples/DistortVP cg
+vertex_program Examples/FresnelRefractReflectVP cg
 {
-	source Example_Projection.cg
-	entry_point distortion_vp
+	source Example_Fresnel.cg
+	entry_point main_vp
 	profiles vs_1_1 arbvp1
 }
 
-fragment_program Examples/DistortFP cg
+fragment_program Examples/FresnelRefractReflectFP cg
 {
-	source Example_Projection.cg
-	entry_point distortion_fp
+	source Example_Fresnel.cg
+	entry_point main_fp
 	// sorry, ps_1_1 and fp20 can't do this
 	profiles ps_2_0 arbfp1
 }
 
-material Examples/Heatwave
+material Examples/FresnelReflectionRefraction
 {
 	technique
 	{
 		pass 
 		{
 			
-			vertex_program_ref Examples/DistortVP
+			vertex_program_ref Examples/FresnelRefractReflectVP
 			{
 				param_named_auto worldViewProjMatrix worldviewproj_matrix
 				param_named_auto eyePosition camera_position_object_space
@@ -714,7 +714,7 @@ material Examples/Heatwave
 				param_named noise float4 1 0 0 0
 				// scroll and noisePos will need updating per frame
 			}
-			fragment_program_ref Examples/DistortFP
+			fragment_program_ref Examples/FresnelRefractReflectFP
 			{
 				param_named distortionRange float4 0.025 0 0 0
 				param_named tintColour float4 0 0 0.1 1
@@ -730,7 +730,7 @@ material Examples/Heatwave
 			// Reflection
 			texture_unit
 			{
-				// Project the OGRE logo
+				// Will be filled in at runtime
 				texture Reflection
 				tex_address_mode clamp
 			}
