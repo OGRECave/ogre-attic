@@ -264,18 +264,20 @@ namespace Ogre {
 
         /* Internal utility method for creating the planes of a skybox.
         */
-        Mesh* createSkyboxPlane(
+        MeshPtr createSkyboxPlane(
             BoxPlane bp,
             Real distance,
-            const Quaternion& orientation);
+            const Quaternion& orientation,
+            const String& groupName);
 
         /* Internal utility method for creating the planes of a skydome.
         */
-        Mesh* createSkydomePlane(
+        MeshPtr createSkydomePlane(
             BoxPlane bp,
             Real curvature, Real tiling, Real distance,
             const Quaternion& orientation,
-            int xsegments = 16, int ysegments = 16, int ySegmentsToKeep = -1);
+            int xsegments = 16, int ysegments = 16, int ySegmentsToKeep = -1, 
+            const String& groupName);
 
         // Flag indicating whether SceneNodes will be rendered as a set of 3 axes
         bool mDisplayNodes;
@@ -912,12 +914,15 @@ namespace Ogre {
                 Determines the number of segments the plane will have to it. This
                 is most important when you are bowing the plane, but may also be useful
                 if you need tesselation on the plane to perform per-vertex effects.
+            @param groupName
+                The name of the resource group to which to assign the plane mesh.
         */
         virtual void setSkyPlane(
             bool enable,
             const Plane& plane, const String& materialName, Real scale = 1000,
             Real tiling = 10, bool drawFirst = true, Real bow = 0, 
-            int xsegments = 1, int ysegments = 1);
+            int xsegments = 1, int ysegments = 1, 
+            const String& groupName = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
         /** Enables / disables a 'sky box' i.e. a 6-sided box at constant
             distance from the camera representing the sky.
@@ -957,10 +962,13 @@ namespace Ogre {
                 of the box. By default the 'top' of the box is deemed to be
                 in the +y direction, and the 'front' at the -z direction.
                 You can use this parameter to rotate the sky if you want.
+            @param groupName
+                The name of the resource group to which to assign the plane mesh.
         */
         virtual void setSkyBox(
             bool enable, const String& materialName, Real distance = 5000,
-            bool drawFirst = true, const Quaternion& orientation = Quaternion::IDENTITY );
+            bool drawFirst = true, const Quaternion& orientation = Quaternion::IDENTITY,
+            const String& groupName = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
         /** Enables / disables a 'sky dome' i.e. an illusion of a curved sky.
             @remarks
@@ -1014,12 +1022,15 @@ namespace Ogre {
                 of the dome. By default the 'top' of the dome is deemed to
                 be in the +y direction, and the 'front' at the -z direction.
                 You can use this parameter to rotate the sky if you want.
+            @param groupName
+                The name of the resource group to which to assign the plane mesh.
         */
         virtual void setSkyDome(
             bool enable, const String& materialName, Real curvature = 10,
             Real tiling = 8, Real distance = 4000, bool drawFirst = true,
             const Quaternion& orientation = Quaternion::IDENTITY,
-            int xsegments = 16, int ysegments = 16, int ysegments_keep = -1);
+            int xsegments = 16, int ysegments = 16, int ysegments_keep = -1,
+            const String& groupName = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
         /** Sets the fogging mode applied to the scene.
             @remarks

@@ -376,7 +376,10 @@ Entity* SceneManager::createEntity(
     }
 
     // Get mesh (load if required)
-    Mesh* pMesh = MeshManager::getSingleton().load( meshName );
+    MeshPtr pMesh = MeshManager::getSingleton().load( 
+        meshName, 
+        // note that you can change the group by pre-loading the mesh 
+        ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME );
 
     // Create entity
     Entity* e = new Entity( entityName, pMesh, this );
@@ -911,7 +914,8 @@ void SceneManager::setSkyPlane(
                                Real tiling,
                                bool drawFirst,
                                Real bow, 
-                               int xsegments, int ysegments)
+                               int xsegments, int ysegments, 
+                               const String& groupName)
 {
     mSkyPlaneEnabled = enable;
     if (enable)
@@ -934,12 +938,11 @@ void SceneManager::setSkyPlane(
         mSkyPlaneDrawFirst = drawFirst;
 
         // Set up the plane
-        Mesh* planeMesh = (Mesh*)MeshManager::getSingleton().getByName(meshName);
-        if (planeMesh)
+        MeshPtr planeMesh = MeshManager::getSingleton().getByName(meshName);
+        if (!planeMesh.isNull())
         {
             // Destroy the old one
-            MeshManager::getSingleton().unload(planeMesh);
-            delete planeMesh;
+            MeshManager::getSingleton().remove(planeMesh->getHandle());
         }
 
         // Create up vector
@@ -952,7 +955,7 @@ void SceneManager::setSkyPlane(
         {
             // Build a curved skyplane
             planeMesh = MeshManager::getSingleton().createCurvedPlane(
-                meshName, plane, gscale * 100, gscale * 100, gscale * bow * 100, 
+                meshName, groupName, plane, gscale * 100, gscale * 100, gscale * bow * 100, 
                 xsegments, ysegments, false, 1, tiling, tiling, up);
         }
         else
@@ -992,7 +995,8 @@ void SceneManager::setSkyBox(
                              const String& materialName,
                              Real distance,
                              bool drawFirst,
-                             const Quaternion& orientation )
+                             const Quaternion& orientation,
+                             const String& groupName)
 {
     mSkyBoxEnabled = enable;
     if (enable)
@@ -1028,7 +1032,7 @@ void SceneManager::setSkyBox(
         // Set up the box (6 planes)
         for (int i = 0; i < 6; ++i)
         {
-            Mesh* planeMesh = createSkyboxPlane((BoxPlane)i, distance, orientation);
+            MeshPtr planeMesh = createSkyboxPlane((BoxPlane)i, distance, orientation, grpupName);
             String entName = "SkyBoxPlane" + StringConverter::toString(i);
 
             // Create entity 
@@ -1077,7 +1081,8 @@ void SceneManager::setSkyDome(
                               Real distance,
                               bool drawFirst,
                               const Quaternion& orientation,
-                              int xsegments, int ysegments, int ySegmentsToKeep)
+                              int xsegments, int ysegments, int ySegmentsToKeep,
+                              const String& groupName)
 {
     mSkyDomeEnabled = enable;
     if (enable)
@@ -1109,9 +1114,9 @@ void SceneManager::setSkyDome(
         // Set up the dome (5 planes)
         for (int i = 0; i < 5; ++i)
         {
-            Mesh* planeMesh = createSkydomePlane((BoxPlane)i, curvature, 
+            MeshPtr planeMesh = createSkydomePlane((BoxPlane)i, curvature, 
                 tiling, distance, orientation, xsegments, ysegments, 
-                i!=BP_UP ? ySegmentsToKeep : -1);
+                i!=BP_UP ? ySegmentsToKeep : -1, groupName);
 
             String entName = "SkyDomePlane" + StringConverter::toString(i);
 
@@ -1132,10 +1137,11 @@ void SceneManager::setSkyDome(
     }
 }
 //-----------------------------------------------------------------------
-Mesh* SceneManager::createSkyboxPlane(
+MeshPtr SceneManager::createSkyboxPlane(
                                       BoxPlane bp,
                                       Real distance,
-                                      const Quaternion& orientation )
+                                      const Quaternion& orientation,
+                                      const String& groupName)
 {
     Plane plane;
     String meshName;
@@ -1184,17 +1190,17 @@ Mesh* SceneManager::createSkyboxPlane(
 
     // Check to see if existing plane
     MeshManager& mm = MeshManager::getSingleton();
-    Mesh* planeMesh = (Mesh*)mm.getByName(meshName);
-    if(planeMesh)
+    MeshPtr planeMesh = mm.getByName(meshName);
+    if(!planeMesh.isNull())
     {
         // destroy existing
-        mm.unload(planeMesh);
-        delete planeMesh;
+        mm.remove(planeMesh->getHandle());
     }
     // Create new
     Real planeSize = distance * 2;
     const int BOX_SEGMENTS = 1;
-    planeMesh = mm.createPlane(meshName, plane, planeSize, planeSize, BOX_SEGMENTS, BOX_SEGMENTS, false, 1, 1, 1, up);
+    planeMesh = mm.createPlane(meshName, groupName, plane, planeSize, planeSize, 
+        BOX_SEGMENTS, BOX_SEGMENTS, false, 1, 1, 1, up);
 
     //planeMesh->_dumpContents(meshName);
 
@@ -1202,13 +1208,14 @@ Mesh* SceneManager::createSkyboxPlane(
 
 }
 //-----------------------------------------------------------------------
-Mesh* SceneManager::createSkydomePlane(
+MeshPtr SceneManager::createSkydomePlane(
                                        BoxPlane bp,
                                        Real curvature,
                                        Real tiling,
                                        Real distance,
                                        const Quaternion& orientation,
-                                       int xsegments, int ysegments, int ysegments_keep)
+                                       int xsegments, int ysegments, int ysegments_keep, 
+                                       const String& groupName)
 {
 
     Plane plane;
@@ -1255,17 +1262,18 @@ Mesh* SceneManager::createSkydomePlane(
 
     // Check to see if existing plane
     MeshManager& mm = MeshManager::getSingleton();
-    Mesh* planeMesh = (Mesh*)mm.getByName(meshName);
-    if(planeMesh)
+    Mesh* planeMesh = mm.getByName(meshName);
+    if(!planeMesh->isNull())
     {
         // destroy existing
-        mm.unload(planeMesh);
-        delete planeMesh;
+        mm.remove(planeMesh->getHandle());
     }
     // Create new
     Real planeSize = distance * 2;
-    planeMesh = mm.createCurvedIllusionPlane(meshName, plane, planeSize, planeSize, curvature, 
-        xsegments, ysegments, false, 1, tiling, tiling, up, orientation, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
+    planeMesh = mm.createCurvedIllusionPlane(meshName, groupName, plane, 
+        planeSize, planeSize, curvature, 
+        xsegments, ysegments, false, 1, tiling, tiling, up, 
+        orientation, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
         false, false, ysegments_keep);
 
     //planeMesh->_dumpContents(meshName);

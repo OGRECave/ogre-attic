@@ -94,7 +94,7 @@ namespace Ogre {
 			/// Only relevant if mIsLodManual is true, the name of the alternative mesh to use
 			String manualName;
 			/// Hard link to mesh to avoid looking up each time
-			mutable Mesh* manualMesh;
+			mutable MeshPtr manualMesh;
             /// Edge list for this LOD level (may be derived from manual mesh)
             mutable EdgeData* edgeData;
 		};
