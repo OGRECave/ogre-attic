@@ -34,9 +34,9 @@ namespace Ogre {
     class _OgreExport HardwareVertexBuffer : public HardwareBuffer
     {
 	    public:
-		    static const unsigned short MAX_BLEND_WEIGHTS = 4;
-		    static const unsigned short MAX_TEXTURE_COORD_SETS = 7;
-		    static const unsigned short MAX_TEXTURE_COORD_DIMENSIONS = 3;
+			#define MAX_BLEND_WEIGHTS 4
+			#define MAX_TEXTURE_COORD_SETS 7
+			#define MAX_TEXTURE_COORD_DIMENSIONS 3
 		    /// Vertex content options, defintely not mutually exclusive but note that the order of the vertex components is FIXED
 		    enum VertexFlags {
 			    /// Position, 3 reals per vertex
