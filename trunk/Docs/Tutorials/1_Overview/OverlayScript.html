@@ -140,7 +140,7 @@ CODE.str {
 
 <META content="MSHTML 6.00.2600.0" name=GENERATOR></HEAD>
 <BODY text=#000000 bgColor=#ffffff>
-<P class=header align=center>OGRE (Object-Oriented Graphics Rendering Engine)</P><P class=header align=center>Material 
+<P class=header align=center>OGRE (Object-Oriented Graphics Rendering Engine)</P><P class=header align=center>Overlay 
 Scripts</P><P class=MainHeader align=left>&nbsp;</P><P class=SectionHeader align=left>Overlay 
 scripts</P><P align=left>Overlay scripts offer you the ability to define overlays 
 in a script which can be reused easily. Whilst you could set up all overlays for 
@@ -184,54 +184,44 @@ with higher zorder values are displayed on top.</P><P class=SectionHeader align=
 elements to the overlay</P><P align=left>Within an overlay, you can include any 
 number of 2D or 3D elements. You do this by defining a nested block headed by:</P><UL> 
 <LI>'<A 
-  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScript1.html#element">element</A>' 
-if you want to define a 2D element which cannot have children of it's own <LI>'<A 
-  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScript1.html#element">container</A>' 
-if you want to define a 2D container object (which may itself have nested containers 
-or elements) <LI>'<A 
-  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScript1.html#entity">entity</A>' 
-if you want to include a 3D element (can only occur directly under the overlay, 
-not under a 2D element)</LI></UL><P>The element and container blocks are pretty 
-identical apart from their ability to store nested blocks.</P><P class=SectionHeader><A name=element></A>'container' 
-/ 'element' blocks</P><P>These are delimited by curly braces. The format for the 
-header preceding the first brace is:</P><P>[container | element] &lt;type_name&gt; 
-( &lt;instance_name&gt;) [: &lt;template_name&gt;]<BR>{ ...</P><P>type_name: Must 
-resolve to the name of a GuiElement type which has been registered with the GuiManager. 
-Plugins register with the GuiManager to advertise their ability to create elements, 
-and at this time advertise the name of the type. OGRE comes preconfigured with 
-types 'Panel', 'BorderPanel' and 'TextArea'.</P><P>instance_name: Must be a name 
-unique among all other elements / containers by which to identify the element. 
-Note that you can obtain a pointer to any named element by calling GuiManager::getSingleton().getGuiElement(name).</P><P>template_name: 
+  href="#element">element</A>' if you want to define a 2D element which cannot 
+have children of it's own <LI>'<A 
+  href="#element">container</A>' if you want to define a 2D container object (which 
+may itself have nested containers or elements) <LI>'<A 
+  href="#entity">entity</A>' if you want to include a 3D element (can only occur 
+directly under the overlay, not under a 2D element)</LI></UL><P>The element and 
+container blocks are pretty identical apart from their ability to store nested 
+blocks.</P><P class=SectionHeader><A name=element></A>'container' / 'element' 
+blocks</P><P>These are delimited by curly braces. The format for the header preceding 
+the first brace is:</P><P>[container | element] &lt;type_name&gt; ( &lt;instance_name&gt;) 
+[: &lt;template_name&gt;]<BR>{ ...</P><P>type_name: Must resolve to the name of 
+a GuiElement type which has been registered with the GuiManager. Plugins register 
+with the GuiManager to advertise their ability to create elements, and at this 
+time advertise the name of the type. OGRE comes preconfigured with types 'Panel', 
+'BorderPanel' and 'TextArea'.</P><P>instance_name: Must be a name unique among 
+all other elements / containers by which to identify the element. Note that you 
+can obtain a pointer to any named element by calling GuiManager::getSingleton().getGuiElement(name).</P><P>template_name: 
 Optional template on which to base this item. See <A HREF="#templates">templates</A>.</P><P>The 
 properties which can be included within the braces depend on the custom type. 
 However the following are always valid:</P><P class=SectionHeader align=left>Common 
 element attributes </P><UL> <LI><A 
-  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScriptAttributes.html#metrics_mode">metrics_mode</A> 
-<LI><A 
-  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScriptAttributes.html#horz_align">horz_align</A> 
-<LI><A 
-  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScriptAttributes.html#vert_align">vert_align</A> 
-<LI><A 
-  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScriptAttributes.html#left">left</A> 
-<LI><A 
-  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScriptAttributes.html#top">top</A> 
-<LI><A 
-  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScriptAttributes.html#width">width</A> 
-<LI><A 
-  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScriptAttributes.html#height">height</A> 
-<LI><A 
-  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScriptAttributes.html#material">material</A> 
-<LI><A 
-  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScriptAttributes.html#caption">caption</A></LI></UL><P class=SectionHeader><A></A><A name=entity></A>'entity' 
+  href="OverlayScriptAttributes.html#metrics_mode">metrics_mode</A> <LI><A 
+  href="OverlayScriptAttributes.html#horz_align">horz_align</A> <LI><A 
+  href="OverlayScriptAttributes.html#vert_align">vert_align</A> <LI><A 
+  href="OverlayScriptAttributes.html#left">left</A> <LI><A 
+  href="OverlayScriptAttributes.html#top">top</A> <LI><A 
+  href="OverlayScriptAttributes.html#width">width</A> <LI><A 
+  href="OverlayScriptAttributes.html#height">height</A> <LI><A 
+  href="OverlayScriptAttributes.html#material">material</A> <LI><A 
+  href="OverlayScriptAttributes.html#caption">caption</A></LI></UL><P class=SectionHeader><A></A><A name=entity></A>'entity' 
 blocks </P><P>These are delimited by curly braces. The format for the header preceding 
 the first brace is:</P><P>entity &lt;mesh_name&gt; ( &lt;entity_name&gt;)<BR>{ 
 ...</P><P>mesh_name: The name of a .mesh file defining the entity geometry</P><P>entity_name: 
 The name to give the entity created, must be unique to this entity.</P><P>You 
 can also define the following properties:</P><UL> <LI><A 
-  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScriptAttributes.html#position">position</A> 
-<LI><A 
-  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScriptAttributes.html#rotation">rotation</A></LI></UL><P>Note 
-that material names are loaded from the .mesh, although you can override the material 
+  href="OverlayScriptAttributes.html#position">position</A> <LI><A 
+  href="OverlayScriptAttributes.html#rotation">rotation</A></LI></UL><P>Note that 
+material names are loaded from the .mesh, although you can override the material 
 definition in a .material script.</P><P CLASS=SectionHeader ALIGN=left><A NAME="templates"></A>Templates</P><P ALIGN=left>You 
 can use templates to create numerous elements with the same properties. A template 
 is an abstract element and it is not added to an overlay. It acts as a base class 
@@ -287,10 +277,7 @@ the instantiate of a Button needs a template name for the caption attribute. So
 templates can also be used by elements that need dynamic creation of children 
 elements (the button creates a TextAreaElement in this case for its caption).</P><P>&nbsp;</P><TABLE cellSpacing=2 cellPadding=0 width="100%" border=0> 
 <TBODY> <TR> <TD width="14%"><A 
-      href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/index.html">Back 
-to Index</A></TD><TD width="39%">&nbsp;</TD><TD width="22%"><A 
-      href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/Overlays.html">&lt;&lt; 
-Previous section</A></TD><TD width="25%"><A 
-      href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScriptAttributes.html">Next 
-section &gt;&gt;</A></TD></TR></TBODY></TABLE><P>&nbsp;</P><P>&nbsp;</P><P>&nbsp;</P><P class=SectionHeader>&nbsp;</P>
+      href="index.html">Back to Index</A></TD><TD width="39%">&nbsp;</TD><TD width="22%"><A 
+      href="Overlays.html">&lt;&lt; Previous section</A></TD><TD width="25%"><A 
+      href="OverlayScriptAttributes.html">Next section &gt;&gt;</A></TD></TR></TBODY></TABLE><P>&nbsp;</P><P>&nbsp;</P><P>&nbsp;</P><P class=SectionHeader>&nbsp;</P>
 </BODY></HTML>
