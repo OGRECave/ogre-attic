@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreTexture.h"
 #include "OgreSingleton.h"
 #include "OgreException.h"
+#include "OgreImage.h"
 
 
 namespace Ogre {
@@ -110,6 +111,9 @@ namespace Ogre {
             int numMipMaps = -1, Real gamma = 1.0f);
 		virtual void loadRawRGBA(String name, void* buffer, int width, int height,
 			int numMipMaps = -1, Real gamma = 1.0f);
+
+        virtual void loadImage( const String &name, Image &img, 
+            int iNumMipMaps = -1, Real gamma = 1.0f );
 
         /** Manually unloads a texture from the loaded set.
         */
