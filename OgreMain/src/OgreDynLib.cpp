@@ -72,7 +72,8 @@ namespace Ogre {
         if( !m_hInst )
             Except(
                 Exception::ERR_INTERNAL_ERROR, 
-                "Could not load dynamic library " + mName,
+                "Could not load dynamic library " + mName + 
+                ".  System Error: " + DYNLIB_ERROR(),
                 "DynLib::load" );
 
         mIsLoaded = true;
@@ -93,7 +94,8 @@ namespace Ogre {
             if( DYNLIB_UNLOAD( m_hInst ) )
                 Except(
                     Exception::ERR_INTERNAL_ERROR, 
-                    "Could not unload dynamic library " + mName,
+                    "Could not unload dynamic library " + mName +
+                    ".  System Error: " + DYNLIB_ERROR(),
                     "DynLib::unload");
         }
         mIsLoaded = false;
