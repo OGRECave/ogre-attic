@@ -748,11 +748,15 @@ namespace Ogre {
             // get the animated-texture animation duration
             Real getAnimationDuration(void) const;
 
+			/// for internal use by Material/materialManager, set this layer texture filtering if it's not custom
+			void _setDefTextureLayerFiltering(TextureFilterOptions filterType);
 			// set this layer texture filtering
 			void setTextureLayerFiltering(TextureFilterOptions filterType);
 			// get this layer texture filtering
 			TextureFilterOptions getTextureLayerFiltering() const;
 
+			/// for internal use by Material/materialManager, set this layer anisotropy if it's not custom
+			void _setDefTextureAnisotropy(int maxAniso);
 			/** Sets the anisotropy level to be used for this texture level.
 			@par maxAniso The maximal anisotropy level, should be between 2 and the maximum supported by hardware (1 is the default, ie. no anisotrophy).
 			*/
@@ -800,9 +804,12 @@ namespace Ogre {
 
 				/// Texture layer filtering
 				TextureFilterOptions mTextureLayerFiltering;
-
 				///Texture layer anisotropy
 				int mMaxAniso;
+				/// is Anisotropy the default from Material
+				bool mIsDefAniso;
+				/// is Filtering the default from Material
+				bool mIsDefFiltering;
 
     //-----------------------------------------------------------------------------
     // Complex members (those that can't be copied using memcpy) are at the end to 
@@ -883,9 +890,12 @@ namespace Ogre {
 
         /// Texture filtering
         TextureFilterOptions mTextureFiltering;
-
 		/// texture anisotropy level
 		int mMaxAniso;
+		/// is filtering default
+		bool mIsDefFiltering;
+		/// is anisotropy default
+		bool mIsDefAniso;
 
         //-------------------------------------------------------------------------    
         // Fog
@@ -1276,6 +1286,8 @@ namespace Ogre {
                 disguised by resampling.
             */
         void setTextureFiltering( TextureFilterOptions mode );
+        /// for internal use by MaterialManager, set filtering if a custom one is not specified
+		void _setDefTextureFiltering( TextureFilterOptions mode );
 
         /** Returns the type of texture filtering used when rendering.
         */
@@ -1402,7 +1414,10 @@ namespace Ogre {
         */
         void setAnisotropy(int maxAniso);
 
-        /** Retrieves the anisotropy level. */
+        /// for internal use by MaterialManager, set anisotropy if a custom one is not specified
+		void _setDefAnisotropy(int maxAniso);
+
+		/** Retrieves the anisotropy level. */
         int getAnisotropy(void) const;
 };
 

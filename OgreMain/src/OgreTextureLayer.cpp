@@ -47,6 +47,8 @@ namespace Ogre {
 		//default filtering
 		mTextureLayerFiltering = MaterialManager::getSingleton().getDefaultTextureFiltering();
 		mMaxAniso = MaterialManager::getSingleton().getDefaultAnisotropy();
+		mIsDefAniso = true;
+		mIsDefFiltering = true;
 
 		mUMod = mVMod = 0;
         mUScale = mVScale = 1;
@@ -86,6 +88,8 @@ namespace Ogre {
 		//default filtering && anisotropy
 		mTextureLayerFiltering = MaterialManager::getSingleton().getDefaultTextureFiltering();
 		mMaxAniso = MaterialManager::getSingleton().getDefaultAnisotropy();
+		mIsDefAniso = true;
+		mIsDefFiltering = true;
 
 		mUMod = mVMod = 0;
         mUScale = mVScale = 1;
@@ -833,6 +837,7 @@ namespace Ogre {
 	void Material::TextureLayer::setTextureLayerFiltering(TextureFilterOptions filterType)
 	{
 		mTextureLayerFiltering = filterType;
+		mIsDefFiltering = false;
 	}
 
 	//-----------------------------------------------------------------------
@@ -845,6 +850,21 @@ namespace Ogre {
 	void Material::TextureLayer::setTextureAnisotropy(int maxAniso)
 	{
 		mMaxAniso = maxAniso;
+		mIsDefAniso = false;
+	}
+
+	//-----------------------------------------------------------------------
+	void Material::TextureLayer::_setDefTextureAnisotropy(int maxAniso)
+	{
+		if (mIsDefAniso)
+			mMaxAniso = maxAniso;
+	}
+
+	//-----------------------------------------------------------------------
+	void Material::TextureLayer::_setDefTextureLayerFiltering(TextureFilterOptions filterType)
+	{
+		if (mIsDefFiltering)
+			mTextureLayerFiltering = filterType;
 	}
 
 	//-----------------------------------------------------------------------

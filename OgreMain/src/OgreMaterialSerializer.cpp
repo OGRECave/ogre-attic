@@ -513,10 +513,21 @@ namespace Ogre
 	void MaterialSerializer::writeEnvironmentMapEffect(const Material::TextureLayer::TextureEffect effect, const Material::TextureLayer *pTex)
 	{
 		writeSubAttribute("env_map");
-		if (effect.subtype == Material::TextureLayer::ENV_PLANAR)
+		switch (effect.subtype)
+		{
+		case Material::TextureLayer::ENV_PLANAR:
 			writeValue("planar");
-		else
+			break;
+		case Material::TextureLayer::ENV_CURVED:
 			writeValue("spherical");
+			break;
+		case Material::TextureLayer::ENV_NORMAL:
+			writeValue("cubic_normal");
+			break;
+		case Material::TextureLayer::ENV_REFLECTION:
+			writeValue("cubic_reflection");
+			break;
+		}
 	}
 
 	void MaterialSerializer::writeRotationEffect(const Material::TextureLayer::TextureEffect effect, const Material::TextureLayer *pTex)

@@ -617,15 +617,17 @@ namespace Ogre {
         //{
             mDestRenderSystem->setShadingType(mat->getShadingMode());
         //}
-        // Texture filtering
+        
+		// FIX : texture filtering not needed here, it is set by RenderSystem->_setTextureUnitSettings
+		// Texture filtering
         //if (firstTime || lastMat.getTextureFiltering() != mat->getTextureFiltering())
         //{
-            mDestRenderSystem->setTextureFiltering(mat->getTextureFiltering());
+            //mDestRenderSystem->setTextureFiltering(mat->getTextureFiltering());
         //}
         // anisotropy
         //if (firstTime || lastMat.getAnisotropy() != mat->getAnisotropy())
         //{
-            mDestRenderSystem->_setAnisotropy(mat->getAnisotropy());
+            //mDestRenderSystem->_setAnisotropy(mat->getAnisotropy());
         //}
 
 

@@ -1251,22 +1251,28 @@ namespace Ogre {
 
 	    return m;
     }
-	
+    //-----------------------------------------------------------------------
 	void MaterialManager::setDefaultTextureFiltering(TextureFilterOptions fo)
 	{
 		mDefTextureFiltering = fo;
+		MaterialHandleList::iterator i;
+		for (i = mHandles.begin(); i != mHandles.end(); ++i)
+			i->second->_setDefTextureFiltering(mDefTextureFiltering);
 	}
-
+    //-----------------------------------------------------------------------
 	TextureFilterOptions MaterialManager::getDefaultTextureFiltering()
 	{
 		return mDefTextureFiltering;
 	}
-
+    //-----------------------------------------------------------------------
 	void MaterialManager::setDefaultAnisotropy(int maxAniso)
 	{
 		mDefAniso = maxAniso;
+		MaterialHandleList::iterator i;
+		for (i = mHandles.begin(); i != mHandles.end(); ++i)
+			i->second->_setDefAnisotropy(mDefAniso);
 	}
-
+    //-----------------------------------------------------------------------
 	int MaterialManager::getDefaultAnisotropy()
 	{
 		return mDefAniso;
