@@ -280,7 +280,8 @@ namespace Ogre
         
     }
     //-----------------------------------------------------------------------
-    std::pair<bool, Real> Math::intersects(const Ray& ray, const Sphere& sphere)
+    std::pair<bool, Real> Math::intersects(const Ray& ray, const Sphere& sphere, 
+        bool discardInside)
     {
         const Vector3& raydir = ray.getDirection();
         // Adjust ray origin relative to sphere center
@@ -288,7 +289,7 @@ namespace Ogre
         Real radius = sphere.getRadius();
 
         // Check origin inside first
-        if (rayorig.squaredLength() <= radius*radius)
+        if (rayorig.squaredLength() <= radius*radius && discardInside)
         {
             return std::pair<bool, Real>(true, 0);
         }
@@ -313,6 +314,8 @@ namespace Ogre
             // But we only want the closest one, so that's ok, just use the 
             // '-' version of the solver
             Real t = ( -b - Math::Sqrt(d) ) / (2 * a);
+            if (t < 0)
+                t = ( -b + Math::Sqrt(d) ) / (2 * a);
             return std::pair<bool, Real>(true, t);
         }
 
