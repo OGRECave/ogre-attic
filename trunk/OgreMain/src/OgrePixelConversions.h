@@ -46,11 +46,11 @@ template <class U> struct PixelBoxConverter
         typename U::DstType *dstptr = static_cast<typename U::DstType*>(dst.data);
         unsigned int srcSliceSkip = src.getSliceSkip();
         unsigned int dstSliceSkip = dst.getSliceSkip();
-        for(unsigned int z=0; z<src.depth; z++) 
+        for(int z=src.front; z<src.back; z++) 
         {
-            for(unsigned int y=0; y<src.height; y++)
+            for(int y=src.top; y<src.bottom; y++)
             {
-                for(unsigned int x=0; x<src.width; x++)
+                for(int x=src.left; x<src.right; x++)
                 {
                     dstptr[x] = U::pixelConvert(srcptr[x]);
                 }
@@ -68,7 +68,7 @@ template <typename T, typename U, int id> struct PixelConverter {
     typedef T SrcType;
     typedef U DstType;    
     
-    inline static DstType pixelConvert(SrcType inp);
+    //inline static DstType pixelConvert(const SrcType &inp);
 };
 
 
@@ -77,6 +77,18 @@ struct Col3b {
     Col3b(unsigned int a, unsigned int b, unsigned int c): 
         x((uint8)a), y((uint8)b), z((uint8)c) { }
     uint8 x,y,z;
+};
+/** Type for PF_FP_R32G32B32 */
+struct Col3f {
+	Col3f(float r, float g, float b):
+		r(r), g(g), b(b) { }
+	float r,g,b;
+};
+/** Type for PF_FP_R32G32B32A32 */
+struct Col4f {
+	Col4f(float r, float g, float b, float a):
+		r(r), g(g), b(b), a(a) { }
+	float r,g,b,a;
 };
 
 struct A8R8G8B8toA8B8G8R8: public PixelConverter <uint32, uint32, FMTCONVERTERID(PF_A8R8G8B8, PF_A8B8G8R8)>
@@ -177,7 +189,7 @@ struct L16toL8: public PixelConverter <uint16, uint8, FMTCONVERTERID(PF_L16, PF_
 
 struct R8G8B8toB8G8R8: public PixelConverter <Col3b, Col3b, FMTCONVERTERID(PF_R8G8B8, PF_B8G8R8)>
 {
-    inline static DstType pixelConvert(SrcType inp)
+    inline static DstType pixelConvert(const SrcType &inp)
     {
         return Col3b(inp.z, inp.y, inp.x);
     }  
@@ -185,7 +197,7 @@ struct R8G8B8toB8G8R8: public PixelConverter <Col3b, Col3b, FMTCONVERTERID(PF_R8
 
 struct B8G8R8toR8G8B8: public PixelConverter <Col3b, Col3b, FMTCONVERTERID(PF_B8G8R8, PF_R8G8B8)>
 {
-    inline static DstType pixelConvert(SrcType inp)
+    inline static DstType pixelConvert(const SrcType &inp)
     {
         return Col3b(inp.z, inp.y, inp.x);
     }  
@@ -195,7 +207,7 @@ struct B8G8R8toR8G8B8: public PixelConverter <Col3b, Col3b, FMTCONVERTERID(PF_B8
 template <int id, unsigned int xshift, unsigned int yshift, unsigned int zshift, unsigned int ashift> struct Col3btoUint32swizzler:
     public PixelConverter <Col3b, uint32, id>
 {
-    inline static uint32 pixelConvert(Col3b inp)
+    inline static uint32 pixelConvert(const Col3b &inp)
     {
 #if OGRE_ENDIAN == ENDIAN_BIG
         return (0xFF<<ashift) | (((unsigned int)inp.x)<<xshift) | (((unsigned int)inp.y)<<yshift) | (((unsigned int)inp.z)<<zshift);

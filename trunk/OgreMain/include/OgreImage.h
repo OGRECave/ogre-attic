@@ -52,64 +52,8 @@ namespace Ogre {
     class _OgreExport Image
     {
     public:
-        /** Structure used to define a rectangle in a 2-D integer space.
-        */
-        struct Rect
-        {
-            long left, top, right, bottom;
-
-            Rect()
-            {
-            }
-            Rect( long l, long t, long r, long b )
-            {
-                left = l;
-                top = t;   
-                right = r;
-                bottom = b;                
-            }
-            Rect& operator = ( const Rect& other )
-            {
-                left = other.left;
-                top = other.top;
-                right = other.right;
-                bottom = other.bottom;       
-
-                return *this;
-            }
-        };
-
-        /** 
-         * Structure used to define a box in a 3-D integer space.
-         * Note that the left, top, and front edges are included but the right, bottom and top ones are not.
-         */
-        struct Box
-        {
-            long left, top, right, bottom, front, back;
-
-            Box()
-            {
-            }
-            Box( long l, long t, long ff, long r, long b, long bb ):
-                left(l),
-                top(t),   
-                right(r),
-                bottom(b),
-                front(ff),
-                back(bb)
-            {
-            }
-            // auto-convert from rectangle
-            Box( const Rect& other):
-                left(other.left),
-                top(other.top),
-                right(other.right),
-                bottom(other.bottom),
-                front(0),
-                back(1)
-            {
-            }
-        };
+    	typedef Ogre::Box Box;
+    	typedef Ogre::Rect Rect;
     public:
         /** Standard constructor.
         */

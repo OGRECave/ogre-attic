@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define _PixelFormat_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreCommon.h"
 
 namespace Ogre {
     /** The pixel format used for images, textures, and render surfaces */
@@ -107,20 +108,47 @@ namespace Ogre {
         // replaces R,G and B. (but not A)
         PFF_LUMINANCE       = 0x00000020
     };
-    
-    /** A primitive describing a box (3D), rectangle (2D) or line (1D) of pixels in memory.
+	/** A primitive describing a volume (3D), image (2D) or line (1D) of pixels in memory.
      	In case of a rectangle, depth must be 1. 
      	Pixels are stored as a succession of "depth" slices, each containing "height" rows of 
      	"width" pixels.
     */
-    class _OgreExport PixelBox {
+    class _OgreExport PixelBox: public Box {
     public:
+    	/// Parameter constructor for setting the members manually
+    	PixelBox() {}
+		/** Constructor providing extents in the form of a Box object. This constructor
+    		assumes the pixel data is laid out consecutively in memory. (this
+    		means row after row, slice after slice, with no space in between)
+    		@param extents	Extents of the region defined by data
+    		@param format	Format of this buffer
+    		@param data		Pointer to the actual data
+    	*/
+		PixelBox(const Box &extents, PixelFormat format, void *data=0):
+			Box(extents), format(format), data(data)
+		{
+			setConsecutive();
+		}
+    	/** Constructor providing width, height and depth. This constructor
+    		assumes the pixel data is laid out consecutively in memory. (this
+    		means row after row, slice after slice, with no space in between)
+    		@param width	Width of the region
+    		@param height	Height of the region
+    		@param depth	Depth of the region
+    		@param format	Format of this buffer
+    		@param data		Pointer to the actual data
+    	*/
+    	PixelBox(unsigned int width, unsigned int height, unsigned int depth, PixelFormat format, void *data=0):
+    		Box(0, 0, 0, width, height, depth),
+    		format(format), data(data)
+    	{
+    		setConsecutive();
+    	}
+    	
         /// The data pointer 
         void *data;
         /// The pixel format 
         PixelFormat format;
-        /// Dimensions
-        unsigned int width, height, depth;
         /** Number of elements between the leftmost pixel of one row and the left
          	pixel of the next. This can be a negative value.
         */
@@ -136,25 +164,39 @@ namespace Ogre {
         */        
         void setConsecutive()
         {
-            rowPitch = width;
-            slicePitch = width*height;
+            rowPitch = getWidth();
+            slicePitch = getWidth()*getHeight();
         }
         /**	Get the number of elements between one past the rightmost pixel of 
          	one row and the leftmost pixel of the next row. (IE this is zero if rows
          	are consecutive). This can be a negative value.
         */
-        int getRowSkip() const { return rowPitch - width; }
+        int getRowSkip() const { return rowPitch - getWidth(); }
         /** Get the number of elements between one past the right bottom pixel of
          	one slice and the left top pixel of the next slice. (IE this is zero if slices
          	are consecutive). This can be a negative value.
         */
-        int getSliceSkip() const { return slicePitch - (height * rowPitch); }
+        int getSliceSkip() const { return slicePitch - (getHeight() * rowPitch); }
 
         /** Return wether this buffer is laid uit consecutive in memory (ie the pitches
          	are equal to the dimensions)
         */        
-        bool isConsecutive() const { return rowPitch == static_cast<int>(width) && slicePitch == static_cast<int>(width*height); }
+        bool isConsecutive() const { return rowPitch == static_cast<int>(getWidth()) && slicePitch == static_cast<int>(getWidth()*getHeight()); }
+        /** Return the size (in bytes) this image would take if it was
+        	laid out consecutive in memory
+      	*/
+      	size_t getConsecutiveSize() const;
+      	/** Return a subvolume of this PixelBox.
+      		@param def	Defines the bounds of the subregion to return
+      		@returns	A pixel box describing the region and the data in it
+      		@remarks	This function does not copy any data, it just returns
+      			a PixelBox object with a data pointer pointing somewhere inside 
+      			the data of object.
+      		@throws	Exception(ERR_INVALIDPARAMS) if def is not fully contained
+      	*/
+      	PixelBox getSubVolume(const Box &def) const;
     };
+    
 
     /**
      * Some utility functions for packing and unpacking pixel data
@@ -280,17 +322,42 @@ namespace Ogre {
         static void bulkPixelConversion(const PixelBox &src, const PixelBox &dst);
     };
 
+
+
     /* 
      * DevIL specific utility class
      **/    
     class ILUtil {
     public:
+    	/// Structure that encapsulates a devIL image format definition
+		struct ILFormat {
+			/// Construct an invalidated ILFormat structure
+			ILFormat():
+				numberOfChannels(0), format(-1), type(-1) {};
+
+			/// Construct a ILFormat from parameters
+			ILFormat(int channels, int format, int type=-1):
+				numberOfChannels(channels), format(format), type(type) {}
+
+			/// Return wether this structure represents a valid DevIL format
+			bool isValid() { return format!=-1; }
+
+			/// Number of channels, usually 3 or 4
+			int numberOfChannels;
+			/// IL_RGBA,IL_BGRA,IL_DXTx, ...
+  			int format;
+			/// IL_UNSIGNED_BYTE, IL_UNSIGNED_SHORT, ... may be -1 for compressed formats
+  			int type;
+		};
+
         /** Get OGRE format to which a given IL format can be most optimally converted.
          */
         static PixelFormat ilFormat2OgreFormat( int ImageFormat, int ImageType );
-        /**	Get best IL format to convert a given OGRE format to.
+        /**	Get IL format that matches a given OGRE format exactly in memory.
+        	@remarks	Returns an invalid ILFormat (.isValid()==false) when
+        		there is no IL format that matches this.
          */
-        static std::pair< int, int > OgreFormat2ilFormat( PixelFormat format );      
+        static ILFormat OgreFormat2ilFormat( PixelFormat format );      
         /** Convert current IL image to an OGRE format. The size of the target will be
           	PixelUtil::getNumElemBytes(fmt) * ilGetInteger( IL_IMAGE_WIDTH ) * ilGetInteger( IL_IMAGE_HEIGHT ) * ilGetInteger( IL_IMAGE_DEPTH )
           	The IL image type must be IL(_UNSIGNED_)BYTE or IL_FLOAT.
@@ -302,13 +369,10 @@ namespace Ogre {
         static void toOgre(uint8 *tar, PixelFormat ogrefmt);
 
         /** Convert an OGRE format image to current IL image.
-         	@param src       Source pointer
-         	@param ogrefmt   Ogre pixel format to employ
-         	@param width     Image width (x)
-         	@param height    Image height (y)
-         	@param depth     Image depth (z)
+         	@param src       Pixelbox; encapsulates source pointer, width, height, 
+         					 depth and format
         */
-        static void fromOgre(uint8 *src, PixelFormat ogrefmt, int width, int height, int depth);
+        static void fromOgre(const PixelBox &src);
     };
 
 }

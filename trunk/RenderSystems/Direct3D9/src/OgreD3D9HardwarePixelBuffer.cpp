@@ -78,7 +78,8 @@ D3D9HardwarePixelBuffer::~D3D9HardwarePixelBuffer()
 //-----------------------------------------------------------------------------  
 PixelBox D3D9HardwarePixelBuffer::lockImpl(const Image::Box lockBox,  LockOptions options)
 {
-	PixelBox rval;
+	// Set extents and format
+	PixelBox rval(lockBox, mFormat);
 	// Set locking flags according to options
 	DWORD flags = 0;
 	switch(options)
@@ -107,9 +108,6 @@ PixelBox D3D9HardwarePixelBuffer::lockImpl(const Image::Box lockBox,  LockOption
 			Except(Exception::ERR_RENDERINGAPI_ERROR, "Surface locking failed",
 		 		"D3D9HardwarePixelBuffer::lockImpl");
 		
-		rval.width = lockBox.right - lockBox.left;
-		rval.height = lockBox.bottom - lockBox.top;
-		rval.depth = 1;
 		rval.rowPitch = lrect.Pitch / PixelUtil::getNumElemBytes(mFormat);
 		rval.slicePitch = rval.rowPitch * mHeight;
 		rval.data = lrect.pBits;
@@ -130,14 +128,11 @@ PixelBox D3D9HardwarePixelBuffer::lockImpl(const Image::Box lockBox,  LockOption
 			Except(Exception::ERR_RENDERINGAPI_ERROR, "Volume locking failed",
 		 		"D3D9HardwarePixelBuffer::lockImpl");
 		
-		rval.width = lockBox.right - lockBox.left;
-		rval.height = lockBox.bottom - lockBox.top;
-		rval.depth = lockBox.back - lockBox.front;
 		rval.rowPitch = lbox.RowPitch / PixelUtil::getNumElemBytes(mFormat);
 		rval.slicePitch = lbox.SlicePitch / PixelUtil::getNumElemBytes(mFormat);
 		rval.data = lbox.pBits;
 	}
-	rval.format = mFormat;
+
 	return rval;
 }
 //-----------------------------------------------------------------------------  
@@ -170,8 +165,8 @@ void D3D9HardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::B
 		RECT destRect, srcRect;
 		srcRect.left = 0;
 		srcRect.top = 0;
-		srcRect.right = src.width;
-		srcRect.bottom = src.height;
+		srcRect.right = src.getWidth();
+		srcRect.bottom = src.getHeight();
 		
 		destRect.left = dstBox.left;
 		destRect.top = dstBox.top;
@@ -193,9 +188,9 @@ void D3D9HardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::B
 		srcBox.Left = 0;
 		srcBox.Top = 0;
 		srcBox.Front = 0;
-		srcBox.Right = src.width;
-		srcBox.Bottom = src.height;
-		srcBox.Back = src.depth;
+		srcBox.Right = src.getWidth();
+		srcBox.Bottom = src.getHeight();
+		srcBox.Back = src.getDepth();
 		
 		destBox.Left = dstBox.left;
 		destBox.Top = dstBox.top;
