@@ -243,7 +243,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void FileSystem::setPath() const
     {
-        getcwd( mszTempPath, MAX_PATH );
+        getcwd( mszTempPath, OGRE_MAX_PATH );
         chdir( mstrBasePath.c_str() );
     }
 
