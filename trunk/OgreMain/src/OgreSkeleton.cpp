@@ -361,7 +361,7 @@ namespace Ogre {
     {
         BoneListByName::const_iterator i = mBoneListByName.find(name);
 
-        if (i == mBoneList.end())
+        if (i == mBoneListByName.end())
         {
             Except(Exception::ERR_ITEM_NOT_FOUND, "Bone named '" + name + "' not found.", 
                 "Skeleton::getBone");
