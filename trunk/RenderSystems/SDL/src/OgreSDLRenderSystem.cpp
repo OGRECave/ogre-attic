@@ -19,7 +19,7 @@ FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more det
 You should have received a copy of the GNU Lesser General Public License along with
 this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 Place - Suite 330, Boston, MA 02111-1307, USA, or go to
-http://www.gnu.org/copyleft/lesser.txt.
+http://www.gnu.org/copyleft/lesser.txt.s
 -----------------------------------------------------------------------------
 */
 
@@ -1088,9 +1088,10 @@ namespace Ogre {
             
             glClearColor(col.r, col.g, col.b, col.a);
             // Enable depth buffer for writing if it isn't
+         
             if (!mDepthWrite)
             {
-                _setDepthBufferWriteEnabled(true);
+              glDepthMask( GL_TRUE );
             }
             // Clear buffers
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -1098,7 +1099,7 @@ namespace Ogre {
             // Enable depth buffer for writing if it isn't
             if (!mDepthWrite)
             {
-                _setDepthBufferWriteEnabled(false);
+              glDepthMask( GL_FALSE );
             }
 
         }        
@@ -1146,7 +1147,7 @@ namespace Ogre {
         {
             glEnableClientState(GL_COLOR_ARRAY);
             stride = op.diffuseStride ?  
-                op.diffuseStride + (sizeof(GL_UNSIGNED_BYTE) * 4) : 0;
+                            op.diffuseStride + (sizeof(GL_UNSIGNED_BYTE) * 4) : 0;
             glColorPointer( 4, GL_UNSIGNED_BYTE, stride, op.pDiffuseColour );
         }
         else
