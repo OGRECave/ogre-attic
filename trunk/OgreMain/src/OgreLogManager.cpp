@@ -96,7 +96,7 @@ namespace Ogre {
         va_list list;
         va_start( list, szMessage );
 
-        vsnprintf( szBuffer, 4096, szMessage, list );
+        ::vsnprintf( szBuffer, 4096, szMessage, list );
         getDefaultLog()->logMessage( szBuffer, lml );
 
         va_end( list );
