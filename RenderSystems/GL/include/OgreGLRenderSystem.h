@@ -100,6 +100,10 @@ namespace Ogre {
         typedef void (APIENTRY *GL_ClientActiveTextureARB_Func)(GLenum);
         GL_ClientActiveTextureARB_Func glClientActiveTextureARB_ptr;
 
+        // Pointer to glBindBufferARB function
+        typedef void (APIENTRY *GL_BindBufferARB_Func)(GLenum, GLuint);
+        GL_BindBufferARB_Func glBindBufferARB_ptr;
+
     public:
         // Default constructor / destructor
         GLRenderSystem();

@@ -38,6 +38,9 @@ http://www.gnu.org/copyleft/lesser.txt.s
 #   include "config.h"
 #endif
 
+// Convenience macro from ARB_vertex_buffer_object spec
+#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+
 namespace Ogre {
 
     GLRenderSystem::GLRenderSystem()
@@ -218,6 +221,8 @@ namespace Ogre {
             LogManager::getSingleton().logMessage("- Vertex Buffer Object\n");
             mCapabilities->setCapability(RSC_VBO);
         }
+
+         glBindBufferARB_ptr = (GL_BindBufferARB_Func)mGLSupport->getProcAddress("glBindBufferARB");
 
         _setCullingMode( mCullingMode );
         
@@ -1518,12 +1523,12 @@ namespace Ogre {
             op.vertexData->vertexDeclaration->getElements();
         VertexDeclaration::VertexElementList::const_iterator i, iend;
         iend = decl.end();
-        
+
         for (i = decl.begin(); i != iend; ++i)
         {
             GLuint vtxBufferId = static_cast<const GLHardwareVertexBuffer*>(op.vertexData->vertexBufferBinding->getBuffer(i->getSource()).get())->getGLBufferId();
 
-            glBindBufferARB(GL_ARRAY_BUFFER_ARB, vtxBufferId);
+            glBindBufferARB_ptr(GL_ARRAY_BUFFER_ARB, vtxBufferId);
 
             GLenum type = 0;
             switch(i->getType())
@@ -1548,20 +1553,24 @@ namespace Ogre {
             switch(i->getSemantic())
             {
             case VES_POSITION:
-                glEnableClientState( GL_VERTEX_ARRAY );
                 glVertexPointer(VertexElement::getTypeCount(i->getType()), 
-                    type, 0, 0); 
+                    type, 0, BUFFER_OFFSET(i->getOffset()));
+                glEnableClientState( GL_VERTEX_ARRAY );
                 break;
             case VES_NORMAL:
+                glNormalPointer(type, 0, BUFFER_OFFSET(i->getOffset()));
                 glEnableClientState( GL_NORMAL_ARRAY );
-                glNormalPointer(type, 0, 0);
                 break;
-            /*
             case VES_DIFFUSE:
+                glColorPointer(4, type, 0, BUFFER_OFFSET(i->getOffset()));
                 glEnableClientState( GL_COLOR_ARRAY );
-                glColorPointer(4, type, 0, 0);
                 break;
-            */
+            case VES_TEXTURE_COORDINATES:
+                glClientActiveTextureARB_ptr(GL_TEXTURE0 + i->getIndex());
+                glTexCoordPointer(VertexElement::getTypeCount(i->getType()), 
+                    type, 0, BUFFER_OFFSET(i->getOffset()));
+                glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+                break;
             default:
                 break;
             };
@@ -1571,7 +1580,7 @@ namespace Ogre {
         {
             GLuint idxBufferId = static_cast<GLHardwareIndexBuffer*>(op.indexData->indexBuffer.get())->getGLBufferId();
 
-            glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, idxBufferId); 
+            glBindBufferARB_ptr(GL_ELEMENT_ARRAY_BUFFER_ARB, idxBufferId); 
         }
 
         // Find the correct type to render
@@ -1601,16 +1610,18 @@ namespace Ogre {
         if (op.useIndexes)
         {
             glDrawElements( primType, op.indexData->indexCount, 
-                GL_UNSIGNED_SHORT, 0);
+                GL_UNSIGNED_SHORT, BUFFER_OFFSET(0));
         }
         else
         {
             glDrawArrays(primType, 0, op.vertexData->vertexCount);
         }
 
-        glDisableClientState( GL_COLOR_ARRAY );
-        glDisableClientState( GL_NORMAL_ARRAY );
         glDisableClientState( GL_VERTEX_ARRAY );
+        glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+        glDisableClientState( GL_NORMAL_ARRAY );
+        glDisableClientState( GL_COLOR_ARRAY );
+        glColor4f(1,1,1,1);
 
         // UnGuard
         OgreUnguard();

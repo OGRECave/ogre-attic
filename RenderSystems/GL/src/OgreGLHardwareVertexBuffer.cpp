@@ -132,18 +132,8 @@ namespace Ogre {
     void GLHardwareVertexBuffer::readData(size_t offset, size_t length, 
         void* pDest)
     {
-        if(mUsage == HBU_STATIC)
-        {
-            glBindBufferARB(GL_ARRAY_BUFFER_ARB, mBufferId);
-            glGetBufferSubDataARB(mBufferId, offset, length, pDest);
-        }
-        else
-        {
-            void* pSrc = this->lock(offset, length, 
-                HardwareBuffer::HBL_READ_ONLY);
-            memcpy(pDest, pSrc, length);
-            this->unlock();
-        }
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, mBufferId);
+        glGetBufferSubDataARB(mBufferId, offset, length, pDest);
     }
 	//---------------------------------------------------------------------
     void GLHardwareVertexBuffer::writeData(size_t offset, size_t length, 
