@@ -300,6 +300,7 @@ namespace Ogre {
     class TextureManager;
 	class Timer;
     class UserDefinedObject;
+    class Vector2;
     class Vector3;
     class Vector4;
     class Viewport;  

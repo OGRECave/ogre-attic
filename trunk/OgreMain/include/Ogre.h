@@ -98,6 +98,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreHardwareOcclusionQuery.h"
 #include "OgreSkeletonInstance.h"
 #include "OgreConfigFile.h"
+#include "OgreVector2.h"
 // .... more to come
 
 #endif
