@@ -525,7 +525,10 @@ namespace Ogre {
             }
         }
 
-        mAABB.setExtents(min,max);
+        // Pad out the AABB a little, helps with most bounds tests
+        min -= Vector3::UNIT_SCALE;
+        max += Vector3::UNIT_SCALE;
+        mAABB.setExtents(min, max);
 		mBoundRadius = Math::Sqrt(maxSquaredLength);
         mUpdateBounds = false;
 
