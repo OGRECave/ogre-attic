@@ -70,6 +70,16 @@ namespace Ogre {
         const PixelBox &getCurrentLock();
     };
 
+    /** Shared pointer implementation used to share pixel buffers. */
+    class _OgreExport HardwarePixelBufferSharedPtr : public SharedPtr<HardwarePixelBuffer>
+    {
+    public:
+        HardwarePixelBufferSharedPtr() : SharedPtr<HardwarePixelBuffer>() {}
+        explicit HardwarePixelBufferSharedPtr(HardwarePixelBuffer* buf);
+
+
+    };
+
 }
 #endif
 
