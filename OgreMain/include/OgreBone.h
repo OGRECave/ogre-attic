@@ -81,6 +81,19 @@ namespace Ogre
         */
         void reset(void);
 
+        /** Sets whether or not this bone is manually controlled. 
+        @remarks
+            Manually controlled bones can be altered by the application at runtime, 
+            and their positions will not be reset by the animation routines. Note 
+            that you should also make sure that there are no AnimationTrack objects
+            referencing this bone, or if there are, you should delete them using
+            pAnimation->destroyTrack(pBone->getHandle());
+        */
+        void setManuallyControlled(bool manuallyControlled);
+
+        /** Getter for mManuallyControlled Flag */
+        bool isManuallyControlled();
+
         
         /** Gets the inverse transform which takes bone space to origin from the binding pose. 
         @remarks
@@ -91,6 +104,9 @@ namespace Ogre
     protected:
         /// The numeric handle of this bone
         unsigned short mHandle;
+
+        /** Bones set as manuallyControlled are not reseted in Skeleton::reset() */
+        bool mManuallyControlled;
 
         /** See Node. */
         Node* createChildImpl(void);

@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
-This source file is part of the OGRE Reference Application, a layer built
-on top of OGRE(Object-oriented Graphics Rendering Engine)
+This source file is part of OGRE
+    (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://ogre.sourceforge.net/
 
 Copyright © 2000-2002 The OGRE Team
@@ -22,24 +22,32 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#ifndef __REFAPP_PLANE_H__
-#define __REFAPP_PLANE_H__
+#ifndef __ColourFaderAffectorFactory2_H__
+#define __ColourFaderAffectorFactory2_H__
 
-#include "OgreRefAppPrerequisites.h"
-#include "OgreRefAppApplicationObject.h"
+#include "OgreParticleFXPrerequisites.h"
+#include "OgreParticleAffectorFactory.h"
+#include "OgreColourFaderAffector2.h"
 
-namespace OgreRefApp {
+namespace Ogre {
 
-    class _OgreRefAppExport FinitePlane : public ApplicationObject
+    /** Factory class for ColourFaderAffector. */
+    class _OgreParticleFXExport ColourFaderAffectorFactory2 : public ParticleAffectorFactory
     {
-    protected:
-        Real mWidth;
-        Real mHeight;
-        void setUp(const String& name);
-    public:
-        FinitePlane(const String& name, Real width, Real height);
-        ~FinitePlane();
+        /** See ParticleAffectorFactory */
+        String getName() { return "ColourFader2"; }
+
+        /** See ParticleAffectorFactory */
+        ParticleAffector* createAffector(void)
+        {
+            ParticleAffector* p = new ColourFaderAffector2();
+            mAffectors.push_back(p);
+            return p;
+        }
     };
 
+
 }
+
 #endif
+

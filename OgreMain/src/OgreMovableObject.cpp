@@ -45,7 +45,7 @@ namespace Ogre {
         mParentNode = parent;
     }
     //-----------------------------------------------------------------------
-    Node* MovableObject::getParentNode(void)
+    Node* MovableObject::getParentNode(void) const
     {
         return mParentNode;
     }

@@ -218,6 +218,12 @@ namespace Ogre {
 		*mFullBoundingBox = mMesh->getBounds();
 		mFullBoundingBox->merge(getChildObjectsBoundingBox());
 
+        // Scale
+        if (mParentNode)
+        {
+            mFullBoundingBox->scale(mParentNode->_getDerivedScale());
+        }
+
         return *mFullBoundingBox;
     }
     //-----------------------------------------------------------------------
@@ -470,7 +476,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	Real Entity::getBoundingRadius(void) const
 	{
-		return mMesh->getBoundingSphereRadius();
+		Real rad = mMesh->getBoundingSphereRadius();
+        // Scale by largest scale factor
+        if (mParentNode)
+        {
+            const Vector3& s = mParentNode->_getDerivedScale();
+            rad *= std::max(s.x, std::max(s.y, s.z));
+        }
+        return rad;
 	}
 
 }

@@ -25,7 +25,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreBspLevel.h"
 #include "OgreQuake3Level.h"
 #include "OgreBspResourceManager.h"
-#include "OgreBspNode.h"
 #include "OgreException.h"
 #include "OgreMaterial.h"
 #include "OgreMaterialManager.h"
@@ -35,6 +34,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreQuake3Shader.h"
 #include "OgreMath.h"
 #include "OgreStringVector.h"
+#include "OgreStringConverter.h"
+#include "OgreLogManager.h"
 
 
 namespace Ogre {
@@ -367,6 +368,51 @@ namespace Ogre {
 
             node->mVisCluster = q3leaf->cluster;
 
+            // Load Brushes for this leaf
+            int brushIdx, brushCount;
+            brushCount = q3leaf->brush_count;
+            brushIdx = q3leaf->brush_start;
+            while(brushCount--)
+            {
+                bsp_brush_t* q3brush = &q3lvl.mBrushes[q3lvl.mLeafBrushes[brushIdx]];
+                // Only load solid ones, we don't care about any other types
+                if (q3brush->contents == CONTENTS_SOLID)
+                {
+                    // DEBUG
+                    String msg = "Brush " + StringConverter::toString(brushCount);
+                    LogManager::getSingleton().logMessage(msg);
+                    // DEBUG
+
+                    // Create a new brush for this leaf
+                    BspNode::Brush brush;
+                    int brushSideIdx, numBrushSides;
+                    numBrushSides = q3brush->numsides;
+                    brushSideIdx = q3brush->firstside;
+                    // Iterate over the sides and create plane for each
+                    while (numBrushSides--)
+                    {
+                        bsp_brushside_t* q3brushside = &q3lvl.mBrushSides[brushSideIdx];
+                        bsp_plane_t* q3brushplane = &q3lvl.mPlanes[q3brushside->planenum];
+                        Plane brushSide(Vector3(q3brushplane->normal), -q3brushplane->dist);
+                        // DEBUG
+                        msg = "";
+                        msg << brushSide;
+                        LogManager::getSingleton().logMessage(msg);
+                        // DEBUG
+                        brush.planes.push_back(brushSide);
+                        ++brushSideIdx;
+                    }
+                    // Build world fragment
+                    brush.fragment.fragmentType = SceneQuery::WFT_PLANE_BOUNDED_REGION;
+                    node->mSolidBrushes.push_back(brush);
+                    // Pull back the last entry (copied) so we can assign WF pointer
+                    BspNode::Brush& addedBrush = node->mSolidBrushes.back();
+                    addedBrush.fragment.planes = &(addedBrush.planes);
+
+                }
+                ++brushIdx;
+            }
+
         }
 
 
@@ -378,8 +424,7 @@ namespace Ogre {
         memcpy(mVisData.tableData, q3lvl.mVis->data, q3lvl.mVis->row_size * q3lvl.mVis->cluster_count);
 
 
-        // Brushes
-        // Only load solid ones, we don't care about any other types
+
 
 
 

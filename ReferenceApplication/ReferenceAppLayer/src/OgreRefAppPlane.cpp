@@ -28,24 +28,23 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace OgreRefApp
 {
     //-------------------------------------------------------------------------
-    Plane::Plane(const String& name, Real width, Real height) : ApplicationObject(name)
+    FinitePlane::FinitePlane(const String& name, Real width, Real height) : ApplicationObject(name)
     {
         mWidth = width;
         mHeight = height;
         setUp(name);
     }
     //-------------------------------------------------------------------------
-    Plane::~Plane()
+    FinitePlane::~FinitePlane()
     {
 
     }
     //-------------------------------------------------------------------------
-    void Plane::setUp(const String& name)
+    void FinitePlane::setUp(const String& name)
     {
         // Create visual presence
         SceneManager* sm = World::getSingleton().getSceneManager();
         mEntity = sm->createEntity(name, "Prefab_Plane");
-        mEntity->setMaterialName("Examples/BumpyMetal");
         mSceneNode = static_cast<SceneNode*>(sm->getRootSceneNode()->createChild(name));
         mSceneNode->attachObject(mEntity);
         // Add reverse reference

@@ -326,6 +326,14 @@ namespace Ogre {
             return true;
 
         }
+
+        /** Scales the AABB by the vector given. */
+        inline void scale(const Vector3& s)
+        {
+            // NB assumes centered on origin
+            mMinimum = mMinimum * s;
+            mMaximum = mMaximum * s;
+        }
     };
 
 } // namespace Ogre

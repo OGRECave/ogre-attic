@@ -36,6 +36,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreCylinderEmitterFactory.h"
 #include "OgreLinearForceAffectorFactory.h"
 #include "OgreColourFaderAffectorFactory.h"
+#include "OgreColourFaderAffectorFactory2.h"
+#include "OgreScaleAffectorFactory.h"
 
 namespace Ogre {
 
@@ -88,6 +90,16 @@ namespace Ogre {
 
         // ColourFaderAffector
         pAffFact = new ColourFaderAffectorFactory();
+        ParticleSystemManager::getSingleton().addAffectorFactory(pAffFact);
+        affectorFactories.push_back(pAffFact);
+
+        // ColourFaderAffector
+        pAffFact = new ColourFaderAffectorFactory2();
+        ParticleSystemManager::getSingleton().addAffectorFactory(pAffFact);
+        affectorFactories.push_back(pAffFact);
+
+        // ScaleAffector
+        pAffFact = new ScaleAffectorFactory();
         ParticleSystemManager::getSingleton().addAffectorFactory(pAffFact);
         affectorFactories.push_back(pAffFact);
 

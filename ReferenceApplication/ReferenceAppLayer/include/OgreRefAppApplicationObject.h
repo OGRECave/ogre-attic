@@ -70,6 +70,9 @@ namespace OgreRefApp {
         /** Internal method for updating the state of the collision proxies. */
         virtual void updateCollisionProxies(void);
 
+        /** Internal method for testing the plane bounded region WorldFragmetn type. */
+        virtual bool testCollidePlaneBounds(SceneQuery::WorldFragment* wf);
+
     public:
         ApplicationObject(const String& name);
         virtual ~ApplicationObject();
@@ -203,12 +206,21 @@ namespace OgreRefApp {
 
         /** Tests to see if there is a detailed collision between this object and the object passed in.
         @remarks
-            If there is a collision, both objects will bo notified and if dynamics are enabled
+            If there is a collision, both objects will be notified and if dynamics are enabled
             on these objects, physics will be applied automatically.
         @returns true if collision occurred
 
         */
         virtual bool testCollide(ApplicationObject* otherObj);
+
+        /** Tests to see if there is a detailed collision between this object and the 
+            world fragment passed in.
+        @remarks
+            If there is a collision, the object will be notified and if dynamics are enabled
+            on this object, physics will be applied automatically.
+        @returns true if collision occurred
+        */
+        virtual bool testCollide(SceneQuery::WorldFragment* wf);
 
         /** Contains information about a collision; used in the _notifyCollided call. */
         struct CollisionInfo
@@ -223,6 +235,9 @@ namespace OgreRefApp {
         /** This method is called automatically if testCollide indicates a real collision. 
         */
         virtual void _notifyCollided(ApplicationObject* otherObj, const CollisionInfo& info);
+        /** This method is called automatically if testCollide indicates a real collision. 
+        */
+        virtual void _notifyCollided(SceneQuery::WorldFragment* wf, const CollisionInfo& info);
         /** Gets the SceneNode which is being used to represent this object's position in 
             the OGRE world. */
         SceneNode* getSceneNode(void);

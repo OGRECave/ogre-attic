@@ -127,6 +127,8 @@ namespace Ogre {
         /** Specialised to suggest viewpoints. */
         ViewPoint getSuggestedViewpoint(bool random = false);
 
+        BspLevel* getLevel(void) {return mLevel; }
+
         /** Overriden from SceneManager. */
         void _findVisibleObjects(Camera* cam);
 

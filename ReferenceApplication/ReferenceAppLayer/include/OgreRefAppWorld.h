@@ -33,6 +33,12 @@ namespace OgreRefApp {
 
     class _OgreRefAppExport World : public Singleton<World>
     {
+    public:
+        /// World type, you'll want to extend this for your own apps
+        enum WorldType {
+            WT_REFAPP_GENERIC,
+            WT_REFAPP_BSP
+        };
     protected:
         /// Pointer to OGRE's scene manager
         SceneManager* mSceneMgr;
@@ -61,9 +67,15 @@ namespace OgreRefApp {
         /// The step size of the collision / physics simulation
         Real mSimulationStepSize;
 
+        /// The type of world we're dealing with
+        WorldType mWorldType;
+
     public:
-        /** Creates an instance of the world, must have a pointer to SceneManager. */
-        World(SceneManager* sceneMgr);
+        /** Creates an instance of the world. 
+        @param sceneMgr Pointer to the scene manager which will manage the scene
+        @param worldType The type of world being used
+        */
+        World(SceneManager* sceneMgr, WorldType worldType = WT_REFAPP_GENERIC);
         ~World();
 
         /// Get the scene manager for this world
@@ -74,15 +86,15 @@ namespace OgreRefApp {
             const Quaternion& orientation = Quaternion::IDENTITY);
 
         /** Create a plane object. */
-        OgreRefApp::Plane* createPlane(const String& name, Real width, Real height, const Vector3& pos = Vector3::ZERO, 
+        FinitePlane* createPlane(const String& name, Real width, Real height, const Vector3& pos = Vector3::ZERO, 
             const Quaternion& orientation = Quaternion::IDENTITY);
 
         /** Create a ball object. */
-        OgreRefApp::Ball* createBall(const String& name, Real radius, const Vector3& pos = Vector3::ZERO, 
+        Ball* createBall(const String& name, Real radius, const Vector3& pos = Vector3::ZERO, 
             const Quaternion& orientation = Quaternion::IDENTITY);
 
         /** Create a box object. */
-        OgreRefApp::Box* createBox(const String& name, Real width, Real height, Real depth,
+        Box* createBox(const String& name, Real width, Real height, Real depth,
             const Vector3& pos = Vector3::ZERO, 
             const Quaternion& orientation = Quaternion::IDENTITY);
 
