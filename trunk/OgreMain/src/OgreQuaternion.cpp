@@ -378,29 +378,18 @@ namespace Ogre {
         return kResult;
     }
     //-----------------------------------------------------------------------
-    Vector3 Quaternion::operator* (const Vector3& rkVector) const
+    Vector3 Quaternion::operator* (const Vector3& v) const
     {
-        // Given a vector u = (x0,y0,z0) and a unit length quaternion
-        // q = <w,x,y,z>, the vector v = (x1,y1,z1) which represents the
-        // rotation of u by q is v = q*u*q^{-1} where * indicates quaternion
-        // multiplication and where u is treated as the quaternion <0,x0,y0,z0>.
-        // Note that q^{-1} = <w,-x,-y,-z>, so no real work is required to
-        // invert q.  Now
-        //
-        //   q*u*q^{-1} = q*<0,x0,y0,z0>*q^{-1}
-        //     = q*(x0*i+y0*j+z0*k)*q^{-1}
-        //     = x0*(q*i*q^{-1})+y0*(q*j*q^{-1})+z0*(q*k*q^{-1})
-        //
-        // As 3-vectors, q*i*q^{-1}, q*j*q^{-1}, and 2*k*q^{-1} are the columns
-        // of the rotation matrix computed in Quaternion::ToRotationMatrix.
-        // The vector v is obtained as the product of that rotation matrix with
-        // vector u.  As such, the quaternion representation of a rotation
-        // matrix requires less space than the matrix and more time to compute
-        // the rotated vector.  Typical space-time tradeoff...
+		// nVidia SDK implementation
+		Vector3 uv, uuv; 
+		Vector3 qvec(x, y, z);
+		uv = qvec.crossProduct(v); 
+		uuv = qvec.crossProduct(uv); 
+		uv *= (2.0f * w); 
+		uuv *= 2.0f; 
+		
+		return v + uv + uuv;
 
-        Matrix3 kRot;
-        ToRotationMatrix(kRot);
-        return kRot*rkVector;
     }
     //-----------------------------------------------------------------------
     Quaternion Quaternion::Slerp (Real fT, const Quaternion& rkP,

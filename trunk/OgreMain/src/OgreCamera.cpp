@@ -637,13 +637,12 @@ namespace Ogre {
             // This is most efficiently done using 3x3 Matrices
 
             // Get orientation from quaternion
-            Vector3 left = mDerivedOrientation * Vector3::UNIT_X;
-            Vector3 up = mDerivedOrientation * Vector3::UNIT_Y;
-            Vector3 direction = mDerivedOrientation * Vector3::UNIT_Z;
 
-            Matrix3 rot(left.x, up.x, direction.x,
-                        left.y, up.y, direction.y,
-                        left.z, up.z, direction.z);
+			Matrix3 rot;
+			mDerivedOrientation.ToRotationMatrix(rot);
+            Vector3 left = rot.GetColumn(0);
+            Vector3 up = rot.GetColumn(1);
+            Vector3 direction = rot.GetColumn(2);
 
 
             // Make the translation relative to new axes
