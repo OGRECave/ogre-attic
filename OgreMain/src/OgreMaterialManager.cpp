@@ -372,9 +372,10 @@ namespace Ogre {
 
 	    // Get final param
 	    bool useUVW;
-	    if (params[numParams-1] == "combineduvw")
+        String uvOpt = params[numParams-1].toLowerCase();
+	    if (uvOpt == "combineduvw")
 		    useUVW = true;
-	    else if (params[numParams-1] == "separateuv")
+	    else if (uvOpt == "separateuv")
 		    useUVW = false;
 	    else
 	    {
@@ -934,7 +935,7 @@ namespace Ogre {
 			    }
 			    else
 			    {
-				    parseLayerAttrib(line.toLowerCase(), pMat, pLayer);
+				    parseLayerAttrib(line, pMat, pLayer);
 			    }
 		    }
 
@@ -979,6 +980,7 @@ namespace Ogre {
 	    StringVector::iterator params = vecparams.begin();
 
 	    // Look up first param (command setting)
+        params[0] = params[0].toLowerCase();
 	    LayerAttribParserList::iterator iparsers = mLayerAttribParsers.find(params[0]);
 	    if (iparsers == mLayerAttribParsers.end())
 	    {
@@ -989,6 +991,13 @@ namespace Ogre {
 	    else
 	    {
 		    // Use parser
+            if (params[0] != "texture" && params[0] != "cubic_texture" && params[0] != "anim_texture")
+            {
+                // Lower case all params if not texture
+                for (int p = 1; p < vecparams.size(); ++p)
+                    params[p] = params[p].toLowerCase();
+
+            }
 		    iparsers->second(params, (unsigned int)vecparams.size(), pMat, pLayer);
 	    }
 
