@@ -897,7 +897,7 @@ namespace Ogre {
 			    3*sizeof(float), vertexData->vertexCount,
 			    HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, 
 			    true );
-		    int source = vBind->getNextIndex()+1; // find next available source 
+		    int source = vBind->getNextIndex(); // find next available source 
 		    vBind->setBinding(source, tex3DBuf);
 		    vDecl->addElement(source, 0, VET_FLOAT3, VES_TEXTURE_COORDINATES, texCoordSet);
 	    } 
