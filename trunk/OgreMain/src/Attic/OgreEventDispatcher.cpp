@@ -154,6 +154,7 @@ namespace Ogre {
 			break;
 
 		case MouseEvent::ME_MOUSE_MOVED:
+		case MouseEvent::ME_MOUSE_DRAGGED:
 			targetOver = mTargetManager->getPositionTargetAt(e->getX(), e->getY());
 			trackMouseEnterExit(targetOver, e);
 
@@ -163,7 +164,6 @@ namespace Ogre {
 			}
 			break;
 
-		case MouseEvent::ME_MOUSE_DRAGGED:
 			break;
 		
 		case MouseEvent::ME_MOUSE_CLICKED:
