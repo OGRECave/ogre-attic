@@ -43,6 +43,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #   include <wingdi.h>
 #endif
 
+/// New image loading code using pixel buffers
+#define EXPERIMENTAL
+
 namespace Ogre {
 
     unsigned int mostSignificantBitSet(unsigned int value)
@@ -230,10 +233,17 @@ namespace Ogre {
 
 	
 	//* Creation / loading methods ********************************************
+#ifndef EXPERIMENTAL
+	void GLTexture::createInternalResources(void)
+    {	
+		// Generate texture name
+        glGenTextures( 1, &mTextureID );
+	}
+#else
 	void GLTexture::createInternalResources(void)
     {
 		// Adjust requested parameters to capabilities
-#if 0
+
 		// Check power-of-two size if required
         unsigned int newWidth = (1 << mostSignificantBitSet(mWidth));
         if (newWidth != mWidth)
@@ -285,7 +295,7 @@ namespace Ogre {
 		
 		// If we can do automip generation, do so
 		// TODO: make this a choice
-		if(mNumMipmaps &&
+		if(mNumMipmaps>1 &&
 		 Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_AUTOMIPMAP))
         {
             glTexParameteri( getGLTextureTarget(), GL_GENERATE_MIPMAP, GL_TRUE );
@@ -304,7 +314,7 @@ namespace Ogre {
 			// Provide temporary buffer filled with zeroes as glCompressedTexImageXD does not
 			// accept a 0 pointer like normal glTexImageXD
 			// Run through this process for every mipmap to pregenerate mipmap piramid
-			uint8 *tmpdata = new uint8(size);
+			uint8 *tmpdata = new uint8[size];
 			std::fill(tmpdata, tmpdata+size, 0);
 			
 			for(int mip=0; mip<mNumMipmaps; mip++)
@@ -382,11 +392,8 @@ namespace Ogre {
 		_createSurfaceList();
 		// Get final internal format
 		mFormat = getBuffer(0,0)->getFormat();
-#endif
-		// Generate texture name
-        glGenTextures( 1, &mTextureID );
 	}
-	
+#endif	
 	
     void GLTexture::loadImage( const Image& img )
     {
@@ -396,7 +403,7 @@ namespace Ogre {
         loadImages(images);
         images.clear();
     }
-
+#ifndef EXPERIMENTAL
 	void GLTexture::loadImages( const std::vector<Image>& images )
     {
         bool useSoftwareMipmaps = true;
@@ -462,8 +469,8 @@ namespace Ogre {
         mSize = mWidth * mHeight * PixelUtil::getNumElemBytes(mFormat);
 
         mIsLoaded = true;     
-    }    
-#if 0
+    }
+#else
     void GLTexture::loadImages( const std::vector<Image>& images )
     {
 		if(images.size() < 1)
@@ -508,9 +515,9 @@ namespace Ogre {
 
 			// Destination: entire texture. blitFromMemory does the scaling to
 			// a power of two for us when needed
-        	Box destBox(0, 0, 0, mWidth, mHeight, mDepth);
-			PixelBox src = img.getPixelBox(0, 0);
+        	PixelBox src = img.getPixelBox(0, 0);
 			// TODO manual mips
+			
 			if(mGamma != 1.0f) {
 				// Do gamma correction in temporary buffer
 				PixelBox corrected = PixelBox(src.getWidth(), src.getHeight(), src.getDepth(), src.format);
@@ -520,20 +527,20 @@ namespace Ogre {
 				Image::applyGamma(static_cast<uint8*>(corrected.data), mGamma, corrected.getConsecutiveSize(), 
 					PixelUtil::getNumElemBits(src.format));
 				
-				getBuffer(i, 0)->blitFromMemory(corrected, destBox);
+				getBuffer(i, 0)->blitFromMemory(corrected);
 				delete [] static_cast<uint8*>(corrected.data);
 			}
 			else 
 			{
-            	getBuffer(i, 0)->blitFromMemory(src, destBox);
+            	getBuffer(i, 0)->blitFromMemory(src);
 			}
-
+			
         }
 
         // Update size (the final size, not including temp space)
         mSize = mWidth * mHeight * PixelUtil::getNumElemBytes(mFormat);
 
-        mIsLoaded = true;     
+        mIsLoaded = true;
     }
 #endif    
     void GLTexture::createRenderTexture(void)
@@ -654,7 +661,7 @@ namespace Ogre {
 					// TODO provide real usage instead of HBU_STATIC
 					new GLHardwarePixelBuffer(getGLTextureTarget(), mTextureID, face, mip,
 						HardwareBuffer::HBU_STATIC, doSoftware && mip==0)
-						//HardwareBuffer::HBU_DYNAMIC)
+						//HardwareBuffer::HBU_DYNAMIC, doSoftware && mip==0)
 				));
 			}
 		}
@@ -672,7 +679,7 @@ namespace Ogre {
 		if(mipmap < 0 || mipmap >= mNumMipmaps)
 			Except(Exception::ERR_INVALIDPARAMS, "Mipmap index out of range",
 					"GLTexture::getBuffer");
-		int idx = face*mNumMipmaps + mipmap;
+		unsigned int idx = face*mNumMipmaps + mipmap;
 		assert(idx < mSurfaceList.size());
 		return mSurfaceList[idx];
 	}

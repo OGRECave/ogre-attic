@@ -227,7 +227,10 @@ void GLHardwarePixelBuffer::upload(PixelBox &data)
 			glPixelStorei(GL_UNPACK_ROW_LENGTH, data.rowPitch);
 		if(data.getHeight()*data.getWidth() != data.slicePitch)
 			glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, (data.slicePitch/data.getWidth()));
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		if((data.getWidth()*PixelUtil::getNumElemBytes(data.format)) & 3) {
+			// Standard alignment of 4 is not right
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		}
 		switch(mTarget) {
 			case GL_TEXTURE_1D:
 				glTexSubImage1D(GL_TEXTURE_1D, mLevel, 
