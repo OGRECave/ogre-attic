@@ -296,7 +296,8 @@ namespace Ogre {
 			{
 				// found terminator
                 // reposition backwards
-                zzip_seek(mZzipFile, pos - readCount + 1, SEEK_CUR);
+                zzip_seek(mZzipFile, 
+					static_cast<zzip_off_t>(pos - readCount + 1), SEEK_CUR);
 			}
 
 			if (pos > 0)
@@ -336,12 +337,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ZipDataStream::skip(size_t count)
     {
-        zzip_seek(mZzipFile, count, SEEK_CUR);
+        zzip_seek(mZzipFile, static_cast<zzip_off_t>(count), SEEK_CUR);
     }
     //-----------------------------------------------------------------------
     void ZipDataStream::seek( size_t pos )
     {
-		zzip_seek(mZzipFile, pos, SEEK_SET);
+		zzip_seek(mZzipFile, static_cast<zzip_off_t>(pos), SEEK_SET);
     }
     //-----------------------------------------------------------------------
     bool ZipDataStream::eof(void) const
