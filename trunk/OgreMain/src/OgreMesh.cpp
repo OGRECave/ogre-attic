@@ -158,6 +158,8 @@ namespace Ogre {
             chunk.clear();
         }
 
+		mIsLoaded = true;
+
         //_updateBounds();
 
     }
@@ -175,7 +177,8 @@ namespace Ogre {
         {
             delete sharedVertexData;
         }
-		// Clear SubMesh names
+		// Clear SubMesh lists
+		mSubMeshList.clear();
 		mSubMeshNameMap.clear();
     }
 
