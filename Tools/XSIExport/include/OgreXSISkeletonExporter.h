@@ -65,7 +65,8 @@ namespace Ogre {
 		/** Link the current bone with it's parent
 		@returns True if it linked, false otherwise
 		*/
-		bool linkBoneWithParent(Skeleton* pSkeleton, XSI::X3DObject& child, DeformerList& deformers);
+		bool linkBoneWithParent(Skeleton* pSkeleton, XSI::X3DObject& child, DeformerList& deformers, 
+			bool createIfRoot);
 		/*
 		/// Find all the action sources in the scene for the list of deformers
 		void findActionSources(DeformerList& deformers);

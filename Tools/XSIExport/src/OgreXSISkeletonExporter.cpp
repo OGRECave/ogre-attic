@@ -115,7 +115,7 @@ namespace Ogre
 			DeformerEntry* deformer = i->second;
 			if (deformer->parentName.empty())
 			{
-				linkBoneWithParent(pSkeleton, deformer->obj, deformers);
+				linkBoneWithParent(pSkeleton, deformer->obj, deformers, true);
 			}
 			if (deformers.size() != listSize)
 			{
@@ -134,7 +134,9 @@ namespace Ogre
 			if (!deformer->parentName.empty())
 			{
 				DeformerList::iterator p = deformers.find(deformer->parentName);
-				assert (p != deformers.end() && deformer->pBone && p->second->pBone);
+				assert (p != deformers.end() && "Parent not found");
+				assert (deformer->pBone && "Child bone not created");
+				assert(p->second->pBone && "Parent bone not created");
 				DeformerEntry* parent = p->second;
 				parent->pBone->addChild(deformer->pBone);
 
@@ -144,7 +146,7 @@ namespace Ogre
 	}
 	//-----------------------------------------------------------------------------
 	bool XsiSkeletonExporter::linkBoneWithParent(Skeleton* pSkeleton, 
-		X3DObject& child, DeformerList& deformers)
+		X3DObject& child, DeformerList& deformers, bool createIfRoot)
 	{
 		X3DObject parent(child.GetParent());
 		String childName = XSItoOgre(child.GetName());
@@ -155,20 +157,23 @@ namespace Ogre
 			|| child == mXsiSceneRoot /* safety check for start node */)
 		{
 			// clearly we didn't find any matching bones
-			// create bone
-			DeformerList::iterator c = deformers.find(childName);
-			if (c != deformers.end())
+			if (createIfRoot)
 			{
-				DeformerEntry* deformer = c->second;
-				if (!deformer->pBone)
+				// create a root bone
+				DeformerList::iterator c = deformers.find(childName);
+				if (c != deformers.end())
 				{
-					deformer->pBone = pSkeleton->createBone(childName, deformer->boneID);
-					// set transform on bone to global transform since no parents
-					MATH::CTransformation trans = 
-						deformer->obj.GetKinematics().GetGlobal().GetTransform();
-					deformer->pBone->setPosition(XSItoOgre(trans.GetTranslation()));
-					deformer->pBone->setOrientation(XSItoOgre(trans.GetRotation().GetQuaternion()));
-					deformer->pBone->setScale(XSItoOgre(trans.GetScaling()));
+					DeformerEntry* deformer = c->second;
+					if (!deformer->pBone)
+					{
+						deformer->pBone = pSkeleton->createBone(childName, deformer->boneID);
+						// set transform on bone to global transform since no parents
+						MATH::CTransformation trans = 
+							deformer->obj.GetKinematics().GetGlobal().GetTransform();
+						deformer->pBone->setPosition(XSItoOgre(trans.GetTranslation()));
+						deformer->pBone->setOrientation(XSItoOgre(trans.GetRotation().GetQuaternion()));
+						deformer->pBone->setScale(XSItoOgre(trans.GetScaling()));
+					}
 				}
 			}
 
@@ -177,11 +182,21 @@ namespace Ogre
 
 		// Otherwise, check to see if the parent is in the deformer list
 		DeformerList::iterator i = deformers.find(XSItoOgre(parent.GetName()));
-		bool createLink = false;
+		bool createLink = createIfRoot;
 		if (i == deformers.end())
 		{
 			// not found, check higher
-			createLink = linkBoneWithParent(pSkeleton, parent, deformers);
+			bool foundLink = linkBoneWithParent(pSkeleton, parent, deformers, false);
+			if (!foundLink)
+			{
+				// this was a root bone
+				parentName.clear();
+			}
+			else
+			{
+				// transient connection
+				createLink = true;
+			}
 		}
 		else
 		{
@@ -211,8 +226,12 @@ namespace Ogre
 			{
 				deformer->pBone = pSkeleton->createBone(childName, deformer->boneID);
 				// set transform on bone to local transform 
-				MATH::CTransformation trans = 
-					deformer->obj.GetKinematics().GetLocal().GetTransform();
+				MATH::CTransformation trans;
+				if (parentName.empty())
+					trans = deformer->obj.GetKinematics().GetGlobal().GetTransform();
+				else
+					trans = deformer->obj.GetKinematics().GetLocal().GetTransform();
+
 				deformer->pBone->setPosition(XSItoOgre(trans.GetTranslation()));
 				deformer->pBone->setOrientation(XSItoOgre(trans.GetRotation().GetQuaternion()));
 				deformer->pBone->setScale(XSItoOgre(trans.GetScaling()));
@@ -452,6 +471,7 @@ namespace Ogre
 				Quaternion combinedRot = rotQX * rotQY * rotQZ;
 
 				// make relative to bindpos
+				/*
 				Vector3 invScale = deformer->pBone->getScale();
 				invScale.x = 1.0f / invScale.x;
 				invScale.y = 1.0f / invScale.y;
@@ -468,7 +488,7 @@ namespace Ogre
 
 				// Inverse scale
 				scl = invScale * scl;
-
+				*/
 
 				// create keyframe
 				KeyFrame* kf = track->createKeyFrame((float)(*fi - 1) / fps);
