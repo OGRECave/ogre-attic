@@ -50,23 +50,36 @@ namespace Ogre {
 		*/
 		SharedPtr() : pRep(0), pUseCount(0) {}
 		SharedPtr(T* rep) : pRep(rep), pUseCount(new unsigned int(1)) {}
-		SharedPtr(const SharedPtr& r) : pRep(r.pRep), pUseCount(r.pUseCount) { assert(pUseCount); ++(*pUseCount); }
+		SharedPtr(const SharedPtr& r) : pRep(r.pRep), pUseCount(r.pUseCount) { 
+			// Handle zero pointer gracefully to manage STL containers
+			if(pUseCount)
+			{
+				++(*pUseCount); 
+			}
+		}
 		SharedPtr& operator=(const SharedPtr& r) {
-			assert(pRep && pUseCount);
 			if (pRep == r.pRep)
 				return *this;
-			if (--(*pUseCount) == 0) {
-                destroy();
+			if (pUseCount)
+			{
+				if (--(*pUseCount) == 0) {
+					destroy();
+				}
 			}
 			pRep = r.pRep;
 			pUseCount = r.pUseCount;
-			++(*pUseCount);
+			if (pUseCount)
+			{
+				++(*pUseCount);
+			}
 			return *this;
 		}
 		virtual ~SharedPtr() {
-			assert(pRep && pUseCount);
-			if (--(*pUseCount) == 0) {
-                destroy();
+			if(pUseCount)
+			{
+				if (--(*pUseCount) == 0) {
+					destroy();
+				}
 			}
 		}
 
