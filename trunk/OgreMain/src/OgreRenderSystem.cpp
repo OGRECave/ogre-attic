@@ -390,7 +390,8 @@ namespace Ogre {
             }
         }
         // Ensure any previous texcoord calc settings are reset if there are now none
-        if ((!anyCalcs) && (currEnv || currEnvPlanar))
+        if ((!anyCalcs) && 
+            (currEnv || currEnvPlanar || currEnvReflection || currEnvNormal))
         {
             _setTextureCoordCalculation(texUnit, TEXCALC_NONE);
             _setTextureCoordSet(texUnit, tl.getTextureCoordSet());
