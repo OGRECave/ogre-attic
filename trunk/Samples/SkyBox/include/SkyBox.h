@@ -34,6 +34,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "ExampleApplication.h"
 
+ParticleSystem *pThrusters;
+
 class SkyBoxFrameListener : public ExampleFrameListener
 {
 private:
@@ -51,31 +53,27 @@ public:
 
         if( mInputDevice->isKeyDown( KC_N ) )
         {
-            ParticleSystem* pSys = reinterpret_cast<ParticleSystem*>( mCamera->getSceneManager()->getRootSceneNode()->getChild( 0 )->getAttachedObject( 0 ) );
-            pSys->setDefaultDimensions( fDefDim + 0.25, fDefDim + 0.25 );
+            pThrusters->setDefaultDimensions( fDefDim + 0.25, fDefDim + 0.25 );
             fDefDim += 0.25;
         }
 
         if( mInputDevice->isKeyDown( KC_M ) )
         {
-            ParticleSystem* pSys = reinterpret_cast<ParticleSystem*>( mCamera->getSceneManager()->getRootSceneNode()->getChild( 0 )->getAttachedObject( 0 ) );
-            pSys->setDefaultDimensions( fDefDim - 0.25, fDefDim - 0.25 );
+            pThrusters->setDefaultDimensions( fDefDim - 0.25, fDefDim - 0.25 );
             fDefDim -= 0.25;
         }
 
         if( mInputDevice->isKeyDown( KC_H ) )
         {
-            ParticleSystem* pSys = reinterpret_cast<ParticleSystem*>( mCamera->getSceneManager()->getRootSceneNode()->getChild( 0 )->getAttachedObject( 0 ) );
-            pSys->getEmitter( 0 )->setParticleVelocity( fDefVel + 1 );
-            pSys->getEmitter( 1 )->setParticleVelocity( fDefVel + 1 );
+            pThrusters->getEmitter( 0 )->setParticleVelocity( fDefVel + 1 );
+            pThrusters->getEmitter( 1 )->setParticleVelocity( fDefVel + 1 );
             fDefVel += 1;            
         }
 
         if( mInputDevice->isKeyDown( KC_J ) && !( fDefVel < 0.0f ) )
         {
-            ParticleSystem* pSys = reinterpret_cast<ParticleSystem*>( mCamera->getSceneManager()->getRootSceneNode()->getChild( 0 )->getAttachedObject( 0 ) );
-            pSys->getEmitter( 0 )->setParticleVelocity( fDefVel - 1 );
-            pSys->getEmitter( 1 )->setParticleVelocity( fDefVel - 1 );
+            pThrusters->getEmitter( 0 )->setParticleVelocity( fDefVel - 1 );
+            pThrusters->getEmitter( 1 )->setParticleVelocity( fDefVel - 1 );
             fDefVel -= 1;            
         }
 
@@ -119,7 +117,7 @@ protected:
 
         mSceneMgr->getRootSceneNode()->attachObject( ent );
 
-        ParticleSystem *pThrusters = ParticleSystemManager::getSingleton().createSystem( "ParticleSys1", 200 );
+        pThrusters = ParticleSystemManager::getSingleton().createSystem( "ParticleSys1", 200 );
 
         pThrusters ->setMaterialName( "Examples/Flare" );
         pThrusters ->setDefaultDimensions( 25, 25 );
