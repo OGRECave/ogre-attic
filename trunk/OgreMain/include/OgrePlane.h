@@ -83,6 +83,10 @@ namespace Ogre {
         */
         Real getDistance (const Vector3& rkPoint) const;
 
+        /** Redefine this plane based on 3 points. */
+        void redefine(const Vector3& rkPoint0, const Vector3& rkPoint1,
+            const Vector3& rkPoint2);
+
         Vector3 normal;
         Real d;
 

@@ -65,6 +65,7 @@ TerrainRenderable::TerrainRenderable(const String& name)
     : mName(name), mTerrain(0), mPositionBuffer(0), mDeltaBuffers(0)
 {
     mForcedRenderLevel = -1;
+    mLastNextLevel = -1;
 
     mMinLevelDistSqr = 0;
 
@@ -371,24 +372,36 @@ void TerrainRenderable::_notifyCurrentCamera( Camera* cam )
     if ( mRenderLevel < 0 )
         mRenderLevel = mNumMipMaps - 1;
 
-    // Get the next LOD level down
-    int nextLevel = mNextLevelDown[mRenderLevel];
-    if (nextLevel == 0)
+    if (msUseLODMorph)
     {
-        // No next level, so never morph
-        mLODMorphFactor = 0;
-    }
-    else
-    {
-        // Set the morph such that the morph happens in the last 0.25 of
-        // the distance range
-        Real range = mMinLevelDistSqr[nextLevel] - mMinLevelDistSqr[mRenderLevel];
-        Real percent = (L - mMinLevelDistSqr[mRenderLevel]) / range;
-        // scale result so that 0.75 == 0, 1 == 1, clamp to 0 below that
-        mLODMorphFactor = std::max((percent - 0.75f) * 4.0f, 0.0f);
-    }
+        // Get the next LOD level down
+        int nextLevel = mNextLevelDown[mRenderLevel];
+        if (nextLevel == 0)
+        {
+            // No next level, so never morph
+            mLODMorphFactor = 0;
+        }
+        else
+        {
+            // Set the morph such that the morph happens in the last 0.25 of
+            // the distance range
+            Real range = mMinLevelDistSqr[nextLevel] - mMinLevelDistSqr[mRenderLevel];
+            Real percent = (L - mMinLevelDistSqr[mRenderLevel]) / range;
+            // scale result so that 0.75 == 0, 1 == 1, clamp to 0 below that
+            mLODMorphFactor = std::max((percent - 0.75f) * 4.0f, 0.0f);
+            assert(mLODMorphFactor >= 0 && mLODMorphFactor <= 1);
+        }
 
-    // mRenderLevel = 4;
+        // Bind the correct delta buffer if it has changed
+        // nextLevel - 1 since the first entry is for LOD 1 (since LOD 0 never needs it)
+        if (mLastNextLevel != nextLevel && nextLevel > 0)
+        {
+            mTerrain->vertexBufferBinding->setBinding(DELTA_BINDING, 
+                mDeltaBuffers[nextLevel - 1]);
+            mLastNextLevel = nextLevel;
+        }
+
+    }
 
 }
 
@@ -457,7 +470,7 @@ void TerrainRenderable::_calculateMinLevelDist2( Real C )
         Real* pDeltas = 0;
         if (msUseLODMorph)
         {
-            // Create a set of delta values for the LOD level above
+            // Create a set of delta values (store at index - 1 since 0 has none)
             mDeltaBuffers[level - 1]  = createDeltaBuffer();
             // Lock, but don't discard (we want the pre-initialised zeros)
             pDeltas = static_cast<Real*>(
@@ -468,11 +481,35 @@ void TerrainRenderable::_calculateMinLevelDist2( Real C )
         {
             for ( i = 0; i < mSize - step; i += step )
             {
-                //check each height inbetween the steps.
-                Real h1 = _vertex( i, j, 1 );
-                Real h2 = _vertex( i + step, j, 1 );
-                Real h3 = _vertex( i + step, j + step, 1 );
-                Real h4 = _vertex( i, j + step, 1 );
+                /* Form planes relating to the lower detail tris to be produced
+                For tri lists and even tri strip rows, they are this shape:
+                x---x
+                | / |
+                x---x
+                For odd tri strip rows, they are this shape:
+                x---x
+                | \ |
+                x---x
+                */
+
+                Vector3 v1(_vertex( i, j, 0 ), _vertex( i, j, 1 ), _vertex( i, j, 2 ));
+                Vector3 v2(_vertex( i + step, j, 0 ), _vertex( i + step, j, 1 ), _vertex( i + step, j, 2 ));
+                Vector3 v3(_vertex( i, j + step, 0 ), _vertex( i, j + step, 1 ), _vertex( i, j + step, 2 ));
+                Vector3 v4(_vertex( i + step, j + step, 0 ), _vertex( i + step, j + step, 1 ), _vertex( i + step, j + step, 2 ));
+
+                Plane t1, t2;
+                bool backwardTri = false;
+                if (!msUseTriStrips || j % 2 == 0)
+                {
+                    t1.redefine(v1, v3, v2);
+                    t2.redefine(v2, v3, v4);
+                }
+                else
+                {
+                    t1.redefine(v1, v3, v4);
+                    t2.redefine(v1, v4, v2);
+                    backwardTri = true;
+                }
 
                 // include the bottommost row of vertices if this is the last row
                 int zubound = (j == (mSize - step)? step : step - 1);
@@ -495,22 +532,48 @@ void TerrainRenderable::_calculateMinLevelDist2( Real C )
                         Real xpct = x / step;
 
                         //interpolated height
-                        float top = h3 * ( 1.0f - xpct ) + xpct * h4;
-                        float bottom = h1 * ( 1.0f - xpct ) + xpct * h2;
+                        Vector3 actualPos(
+                            _vertex( fulldetailx, fulldetailz, 0 ), 
+                            _vertex( fulldetailx, fulldetailz, 1 ), 
+                            _vertex( fulldetailx, fulldetailz, 2 ));
+                        Real interp_h;
+                        // Determine which tri we're on 
+                        if ((xpct + zpct <= 1.0f && !backwardTri) ||
+                            (xpct + (1-zpct) <= 1.0f && backwardTri))
+                        {
+                            // Solve for x/z
+                            interp_h = 
+                                (-(t1.normal.x * actualPos.x)
+                                - t1.normal.z * actualPos.z
+                                - t1.d) / t1.normal.y;
+                        }
+                        else
+                        {
+                            // Second tri
+                            interp_h = 
+                                (-(t2.normal.x * actualPos.x)
+                                - t2.normal.z * actualPos.z
+                                - t2.d) / t2.normal.y;
+                        }
 
-                        Real interp_h = top * ( 1.0f - zpct ) + zpct * bottom;
-
-                        Real actual_h = _vertex( i + x, j + z, 1 );
+                        Real actual_h = _vertex( fulldetailx, fulldetailz, 1 );
                         Real delta = fabs( interp_h - actual_h );
 
                         Real D2 = delta * delta * C * C;
 
                         if ( mMinLevelDistSqr[ level ] < D2 )
                             mMinLevelDistSqr[ level ] = D2;
-
-                        // Save height difference 
-                        pDeltas[fulldetailx + fulldetailz * mSize] = 
-                            interp_h - actual_h;
+                        
+                        // Should be save height difference?
+                        // Don't morph along edges
+                        if (msUseLODMorph && 
+                            fulldetailx != 0  && fulldetailx != (mSize - 1) && 
+                            fulldetailz != 0  && fulldetailz != (mSize - 1) )
+                        {
+                            // Save height difference 
+                            pDeltas[fulldetailx + (fulldetailz * mSize)] = 
+                                interp_h - actual_h;
+                        }
 
                     }
 
@@ -1296,7 +1359,7 @@ void TerrainRenderable::updateCustomGpuParameter(
     const GpuProgramParameters::AutoConstantEntry& constantEntry, 
     GpuProgramParameters* params) const
 {
-    if (constantEntry.data == 0)
+    if (constantEntry.data == MORPH_CUSTOM_PARAM_ID)
     {
         // Update morph LOD factor
         params->setConstant(constantEntry.index, mLODMorphFactor);

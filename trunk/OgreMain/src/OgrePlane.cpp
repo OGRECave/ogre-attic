@@ -54,11 +54,7 @@ namespace Ogre {
     Plane::Plane (const Vector3& rkPoint0, const Vector3& rkPoint1,
         const Vector3& rkPoint2)
     {
-        Vector3 kEdge1 = rkPoint1 - rkPoint0;
-        Vector3 kEdge2 = rkPoint2 - rkPoint0;
-        normal = kEdge1.crossProduct(kEdge2);
-        normal.normalise();
-        d = -normal.dotProduct(rkPoint0);
+        redefine(rkPoint0, rkPoint1, rkPoint2);
     }
     //-----------------------------------------------------------------------
     Real Plane::getDistance (const Vector3& rkPoint) const
@@ -79,10 +75,19 @@ namespace Ogre {
         return Plane::NO_SIDE;
     }
     //-----------------------------------------------------------------------
+    void Plane::redefine(const Vector3& rkPoint0, const Vector3& rkPoint1,
+        const Vector3& rkPoint2)
+    {
+        Vector3 kEdge1 = rkPoint1 - rkPoint0;
+        Vector3 kEdge2 = rkPoint2 - rkPoint0;
+        normal = kEdge1.crossProduct(kEdge2);
+        normal.normalise();
+        d = -normal.dotProduct(rkPoint0);
+    }
+    //-----------------------------------------------------------------------
     std::ostream& operator<< (std::ostream& o, Plane& p)
     {
         o << "Plane(normal=" << p.normal << ", d=" << p.d << ")";
         return o;
     }
-
 } // namespace Ogre
