@@ -842,6 +842,12 @@ namespace Ogre {
 	{
 		OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME)
 
+		bool groupSet = false;
+		if (!mCurrentGroup)
+		{
+			// Set current group to indicate ignoring of notifications
+			mCurrentGroup = grp;
+		}
 		// delete all the load list entries
 		ResourceGroup::LoadResourceOrderMap::iterator j, jend;
 		jend = grp->loadResourceOrderMap.end();
@@ -856,6 +862,11 @@ namespace Ogre {
 			delete j->second;
 		}
         grp->loadResourceOrderMap.clear();
+
+		if (groupSet)
+		{
+			mCurrentGroup = 0;
+		}
 	}
 	//-----------------------------------------------------------------------
 	void ResourceGroupManager::deleteGroup(ResourceGroup* grp)
