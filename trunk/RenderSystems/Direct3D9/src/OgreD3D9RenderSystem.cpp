@@ -885,6 +885,25 @@ namespace Ogre
         */
 	}
 	//---------------------------------------------------------------------
+	void D3D9RenderSystem::_makeOrthoMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, 
+		Matrix4& dest, bool forGpuProgram )
+	{
+			Real thetaY = Math::AngleUnitsToRadians(fovy / 2.0f);
+            Real sinThetaY = Math::Sin(thetaY);
+            Real thetaX = thetaY * aspect;
+            Real sinThetaX = Math::Sin(thetaX);
+            Real w = 1.0 / (sinThetaX * nearPlane);
+            Real h = 1.0 / (sinThetaY * nearPlane);
+            Real q = 1.0 / (farPlane - nearPlane);
+
+		
+            dest = Matrix4::ZERO;
+            dest[0][0] = w;
+            dest[1][1] = h;
+            dest[2][2] = q;
+            dest[3][3] = 1;	
+	}
+	//---------------------------------------------------------------------
 	D3D9RenderSystem::ResizeRepositionWindow(HWND wich)
 	{
 		for (RenderTargetMap::iterator it = mRenderTargets.begin(); it != mRenderTargets.end(); ++it)

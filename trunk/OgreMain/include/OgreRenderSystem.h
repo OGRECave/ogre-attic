@@ -603,6 +603,14 @@ namespace Ogre
         */
         virtual void _makeProjectionMatrix(Real left, Real right, Real bottom, Real top, 
             Real nearPlane, Real farPlane, Matrix4& dest, bool forGpuProgram = false) = 0;
+        /** Builds an orthographic projection matrix suitable for this render system.
+        @remarks
+            Because different APIs have different requirements (some incompatible) for the
+            projection matrix, this method allows each to implement their own correctly and pass
+            back a generic OGRE matrix for storage in the engine.
+        */
+        virtual void _makeOrthoMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, 
+            Matrix4& dest, bool forGpuProgram = false) = 0;
         /** Sets how to rasterise triangles, as points, wireframe or solid polys. */
         virtual void _setRasterisationMode(SceneDetailLevel level) = 0;
 

@@ -337,6 +337,11 @@ namespace Ogre {
         /** See
           RenderSystem
          */
+        void _makeOrthoMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, 
+            Matrix4& dest, bool forGpuProgram = false);
+        /** See
+        RenderSystem
+        */
         void _setRasterisationMode(SceneDetailLevel level);
         /** See
           RenderSystem
