@@ -50,6 +50,17 @@ macroScript showOgreExportTools
 		(
 			shellLaunch ((getDir #scripts) + "\\ogre\\ogreScript.ini") "" ;
 		)
+		on CBconvertXML changed state do
+		(
+			if (state and (editXMLconverter.text!="")) then
+			(
+				if (not (doesFileExist editXMLconverter.text)) then
+				(
+					editXMLconverter.text = "The file/directory specified in the .ini for the XML converter does not exist !";
+					CBconvertXML.checked = false;
+				)
+			)
+		)
 		on browseXMLconverter pressed  do
 		(
 			filename = getOpenFileName types:"Executables(*.exe)|*.exe|" ;			
@@ -57,6 +68,18 @@ macroScript showOgreExportTools
 			(
 				editXMLconverter.text = filename ;
 				CBconvertXML.checked = true;
+				if (not (doesFileExist editXMLconverter.text)) then
+				(
+					editXMLconverter.text = "The file/directory specified in the .ini for the XML converter does not exist !";
+					CBconvertXML.checked = false;
+				)
+				else
+				(
+					xmlConvPath = getFilenamePath editXMLconverter.text;
+					xmlexe = getFilenameFile editXMLconverter.text;
+					setINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Directories" "XMLConverterPath" xmlConvPath;
+					setINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Exe" "XMLConverterExe" xmlexe;
+				)
 			)
 		)
 		on OgreExportOptions open  do
@@ -75,10 +98,15 @@ macroScript showOgreExportTools
 			xmlConvPath = getINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Directories" "XMLConverterPath"
 			xmlexe = getINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Exe" "XMLConverterExe"
 			
-			editXMLconverter.text = xmlConvPath + "\\" + xmlexe;
+			ext = substring xmlexe (xmlexe.count-4) 4;
+			if ( (ext[2]!="e" and ext[2]!="E") or (ext[3]!="x" and ext[3]!="X") or (ext[4]!="e" and ext[4]!="E") ) then
+				editXMLconverter.text = xmlConvPath + "\\" + xmlexe + ".exe";
+			else
+				editXMLconverter.text = xmlConvPath + "\\" + xmlexe;
+
+			print editXMLconverter.text;
 			if (not (doesFileExist editXMLconverter.text)) then
 			(
-				--messageBox "The file specified in the .ini for the XML converter does not exist !";
 				editXMLconverter.text = "The file/directory specified in the .ini for the XML converter does not exist !";
 				CBconvertXML.checked = false;
 			)
