@@ -54,7 +54,7 @@ namespace Ogre {
     {
     public:
 
-        TextureManager(bool enable32Bit = false) : mIs32Bit(enable32Bit), mDefaultNumMipMaps(0) {}
+        TextureManager(bool enable32Bit = true) : mIs32Bit(enable32Bit), mDefaultNumMipMaps(0) {}
         virtual ~TextureManager();
 
         /** Loads a texture from a file.
