@@ -90,6 +90,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSkeletonInstance.h"
 #include "OgreSkeletonManager.h"
 #include "OgreSkeletonSerializer.h"
+#include "OgreStaticGeometry.h"
 #include "OgreString.h"
 #include "OgreStringConverter.h"
 #include "OgreStringVector.h"
