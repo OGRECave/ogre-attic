@@ -57,7 +57,7 @@ namespace Ogre {
         // Create billboard set
         mBillboardSet = new BillboardSet("", 0, true);
         // World-relative axes
-        mBillboardSet->setAxesIgnoreLocalTransform(true);
+        mBillboardSet->setBillboardsInWorldSpace(true);
     }
     //-----------------------------------------------------------------------
     BillboardParticleRenderer::~BillboardParticleRenderer()

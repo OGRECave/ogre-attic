@@ -112,7 +112,7 @@ namespace Ogre {
         bool mAutoExtendPool;
 
         bool mFixedTextureCoords;
-        bool mAxesIgnoreLocal;
+        bool mWorldSpace;
 
         typedef std::list<Billboard*> ActiveBillboardList;
         typedef std::deque<Billboard*> FreeBillboardQueue;
@@ -561,8 +561,12 @@ namespace Ogre {
         /** @copydoc Renderable::getLights */
         const LightList& getLights(void) const;
 
-        /** Sets whether billboard axes should ignore local node transforms. */
-        virtual void setAxesIgnoreLocalTransform(bool ign) { mAxesIgnoreLocal = ign; }
+        /** Sets whether billboards should be treated as being in world space. 
+        @remarks
+            This is most useful when you are driving the billboard set from 
+            an external data source.
+        */
+        virtual void setBillboardsInWorldSpace(bool ws) { mWorldSpace = ws; }
 
     };
 
