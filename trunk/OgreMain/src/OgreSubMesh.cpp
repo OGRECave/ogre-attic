@@ -95,6 +95,11 @@ namespace Ogre {
             delete[] faceVertexIndices;
             faceVertexIndices = 0;
         }
+        if (geometry.pBlendingWeights)
+        {
+            delete [] geometry.pBlendingWeights;
+            geometry.pBlendingWeights = 0;
+        }
     }
 
     //-----------------------------------------------------------------------
