@@ -34,6 +34,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreQuaternion.h"
 #include "OgreVector3.h"
 #include "OgreHardwareBufferManager.h"
+#include "OgreMesh.h"
 
 namespace Ogre {
     /** Defines an instance of a discrete, movable object based on a Mesh.

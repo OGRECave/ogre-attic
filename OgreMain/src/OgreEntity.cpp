@@ -25,7 +25,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 #include "OgreEntity.h"
 
-#include "OgreMesh.h"
 #include "OgreSubMesh.h"
 #include "OgreSubEntity.h"
 #include "OgreException.h"
