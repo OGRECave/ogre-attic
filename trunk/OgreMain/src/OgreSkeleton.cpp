@@ -151,6 +151,19 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
+    Bone* Skeleton::createBone(const String& name, unsigned short handle)
+    {
+        if (mBoneList.size() == OGRE_MAX_NUM_BONES)
+        {
+            Except(Exception::ERR_INVALIDPARAMS, "Exceeded the maximum number of bones per skeleton.",
+                "Skeleton::createBone");
+        }
+        Bone* ret = new Bone(name, handle, this);
+        mBoneList[handle] = ret;
+        mBoneListByName[name] = ret;
+        return ret;
+    }
+    //---------------------------------------------------------------------
     Bone* Skeleton::getRootBone(void) const
     {
         if (mRootBone == 0)

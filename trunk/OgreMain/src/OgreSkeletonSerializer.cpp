@@ -43,6 +43,9 @@ namespace Ogre {
     //---------------------------------------------------------------------
     SkeletonSerializer::SkeletonSerializer()
     {
+        // Version number
+        // NB changed to include bone names in 1.1
+        mVersion = "[Serializer_v1.10]";
     }
     //---------------------------------------------------------------------
     SkeletonSerializer::~SkeletonSerializer()
@@ -138,6 +141,8 @@ namespace Ogre {
         writeChunkHeader(SKELETON_BONE, calcBoneSize(pBone));
 
         unsigned short handle = pBone->getHandle();
+        // char* name
+        writeString(pBone->getName());
         // unsigned short handle            : handle of the bone, should be contiguous & start at 0
         writeShorts(&handle, 1);
         // Vector3 position                 : position of this bone relative to parent 
@@ -290,12 +295,14 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void SkeletonSerializer::readBone(DataChunk &chunk)
     {
+        // char* name
+        String name = readString(chunk);
         // unsigned short handle            : handle of the bone, should be contiguous & start at 0
         unsigned short handle;
         readShorts(chunk, &handle, 1);
 
         // Create new bone
-        Bone* pBone = mpSkeleton->createBone(handle);
+        Bone* pBone = mpSkeleton->createBone(name, handle);
 
         // Vector3 position                 : position of this bone relative to parent 
         Vector3 pos;
