@@ -7,7 +7,8 @@ Plugin_NatureSceneManager_so_SOURCES = NaturePatch.cpp \
 				       NatureTerrainPatch.cpp \
 				       NaturePatchManager.cpp \
 				       NatureSceneManager.cpp \
-				       NatureSceneManagerDll.cpp
+				       NatureSceneManagerDll.cpp \
+				       HeightmapLoader.cpp
 
 Plugin_NatureSceneManager_so_LDFLAGS = $(SHARED_FLAGS) -L$(top_srcdir)/OgreMain/src
 Plugin_NatureSceneManager_so_LDADD = -lOgreMain
