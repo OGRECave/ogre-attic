@@ -1406,7 +1406,7 @@ namespace Ogre
 		if( bm.blendType == LBT_COLOUR )
 		{
 			tss = D3DTSS_COLORARG1;
-			manualD3D = D3DXCOLOR( bm.colourArg1.r, bm.colourArg1.g, bm.colourArg1.b, 1.0 );
+			manualD3D = D3DXCOLOR( bm.colourArg1.r, bm.colourArg1.g, bm.colourArg1.b, bm.colourArg1.a );
 		}
 		else if( bm.blendType == LBT_ALPHA )
 		{
@@ -1429,7 +1429,7 @@ namespace Ogre
 		if( bm.blendType == LBT_COLOUR )
 		{
 			tss = D3DTSS_COLORARG2;
-			manualD3D = D3DXCOLOR( bm.colourArg2.r, bm.colourArg2.g, bm.colourArg2.b, 1.0 );
+			manualD3D = D3DXCOLOR( bm.colourArg2.r, bm.colourArg2.g, bm.colourArg2.b, bm.colourArg2.a );
 		}
 		else if( bm.blendType == LBT_ALPHA )
 		{
