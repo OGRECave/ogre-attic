@@ -43,7 +43,8 @@ namespace Ogre {
             NULL);
         if (FAILED(hr))
         {
-            Except(hr, "Cannot create D3D9 vertex buffer", 
+			String msg = DXGetErrorDescription9(hr);
+            Except(hr, "Cannot create D3D9 vertex buffer: " + msg, 
                 "D3D9HardwareVertexBuffer::D3D9HardwareVertexBuffer");
         }
 

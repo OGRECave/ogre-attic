@@ -45,7 +45,8 @@ namespace Ogre {
             
         if (FAILED(hr))
         {
-            Except(hr, "Cannot create D3D9 Index buffer", 
+			String msg = DXGetErrorDescription9(hr);
+            Except(hr, "Cannot create D3D9 Index buffer: " + msg, 
                 "D3D9HardwareIndexBuffer::D3D9HardwareIndexBuffer");
         }
 
