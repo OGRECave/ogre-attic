@@ -114,13 +114,6 @@ namespace Ogre {
 
                 t = mat->getTechnique(0)->getPass(0)->createTextureUnitState("");
                 t->setAnimatedTextureName(pass[p].frames, pass[p].animNumFrames, sequenceTime);
-                if (t->isBlank())
-                {
-                    String altNames[32];
-                    for (unsigned int alt = 0; alt < pass[p].animNumFrames; ++alt)
-                        pass[p].frames[alt] = getAlternateName(pass[p].frames[alt]);
-                    t->setAnimatedTextureName(pass[p].frames, pass[p].animNumFrames, sequenceTime);
-                }
 
             }
             else
