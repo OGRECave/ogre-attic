@@ -204,6 +204,9 @@ namespace Ogre {
             return mHasAlpha;
         }
 
+		/** Return hardware pixel buffer for a surface */
+		virtual HardwarePixelBufferSharedPtr getBuffer(int face, int mipmap) = 0;
+
     protected:
         unsigned long mHeight;
         unsigned long mWidth;

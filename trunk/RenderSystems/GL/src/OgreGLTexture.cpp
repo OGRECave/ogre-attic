@@ -33,6 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRoot.h"
 #include "OgreCodec.h"
 #include "OgreImageCodec.h"
+#include "OgreHardwarePixelBuffer.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32
 #   include <windows.h>
@@ -528,7 +529,17 @@ namespace Ogre {
         }
 
     }
-
+	
+	//---------------------------------------------------------------------------------------------
+	HardwarePixelBufferSharedPtr GLTexture::getBuffer(int face, int mipmap)
+	{
+		// TODO
+		Except(Exception::UNIMPLEMENTED_FEATURE,
+				"Function not yet implemented",
+				"GLTexture::getBuffer");
+	}
+	
+	//---------------------------------------------------------------------------------------------
     void GLRenderTexture::_copyToTexture(void)
     {		
         glBindTexture(GL_TEXTURE_2D, mGLTexture->getGLID());
@@ -587,5 +598,6 @@ namespace Ogre {
 
         delete [] pBuffer;
     }
+
 }
 

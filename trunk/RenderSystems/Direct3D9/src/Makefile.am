@@ -24,7 +24,8 @@ OgreD3D9Texture.cpp \
 OgreD3D9TextureManager.cpp \
 OgreD3D9VertexDeclaration.cpp \
 OgreD3D9VideoMode.cpp \
-OgreD3D9VideoModeList.cpp
+OgreD3D9VideoModeList.cpp \
+OgreD3D9HardwarePixelBuffer.cpp
 
 RenderSystem_Direct3D9_la_LDFLAGS = -module $(PLUGIN_FLAGS) -L$(top_builddir)/OgreMain/src
 RenderSystem_Direct3D9_la_LIBADD =  -lOgreMain -ld3d9 -ld3dx9d -lDxErr9 -lgdi32 -ldxguid

@@ -59,6 +59,8 @@ namespace Ogre {
         /// @copydoc Texture::createInternalResources
         void createInternalResources(void);
 
+		/// @copydoc Texture::getBuffer
+		HardwarePixelBufferSharedPtr getBuffer(int face, int mipmap);
     protected:
         IDirect3DDevice7 * mD3DDevice;       ///< A pointer to the Direct3D device.
         IDirectDrawSurface7 * mSurface;      ///< Surface of the (first) device-specific texture.

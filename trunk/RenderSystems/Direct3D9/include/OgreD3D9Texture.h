@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderTexture.h"
 #include "OgreImage.h"
 #include "OgreException.h"
+#include "OgreD3D9HardwarePixelBuffer.h"
 
 #include "OgreNoMemoryMacros.h"
 #include <d3d9.h>
@@ -66,6 +67,9 @@ namespace Ogre {
 		D3DCAPS9						mDevCaps;
         // Auto-generated mipmaps?
         bool                            mAutoGenMipMaps;
+		/// Vector of pointers to subsurfaces
+		typedef std::vector<HardwarePixelBufferSharedPtr> SurfaceList;
+		SurfaceList						mSurfaceList;
 	
         /// Initialise the device and get formats
         void _initDevice(void);
@@ -92,11 +96,6 @@ namespace Ogre {
 		/// internal method, blits images to cube textures
 		void _blitImagesToCubeTex(const Image srcImages[]);
 
-		/// internal method, convert D3D9 pixel format to Ogre pixel format
-		static PixelFormat _getPF(D3DFORMAT d3dPF);
-		/// internal method, convert Ogre pixel format to D3D9 pixel format
-		static D3DFORMAT _getPF(PixelFormat ogrePF);
-
 		/// internal method, free D3D9 resources
 		void _freeResources();
 		/// internal method, construct full cube texture face names from a given string
@@ -115,6 +114,10 @@ namespace Ogre {
 		/// internal method, the cube map face name for the spec. face index
 		String _getCubeFaceName(unsigned char face) const
 		{ assert(face < 6); return mCubeFaceNames[face]; }
+		
+		/// internal method, create D3D9HardwarePixelBuffers for every face and
+		/// mipmap level. This method must be called after the D3D texture object was created
+		void _createSurfaceList();
 
         /// overriden from Resource
         void loadImpl();
@@ -140,6 +143,9 @@ namespace Ogre {
         /// @copydoc Texture::createInternalResources
         void createInternalResources(void);
 
+		/// @copydoc Texture::getBuffer
+		HardwarePixelBufferSharedPtr getBuffer(int face, int mipmap);
+		
 		/// retrieves a pointer to the actual texture
 		IDirect3DBaseTexture9 *getTexture() 
 		{ assert(mpTex); return mpTex; }
@@ -152,6 +158,11 @@ namespace Ogre {
 		/// retrieves a pointer to the Depth stencil
 		IDirect3DSurface9 *getDepthStencil() 
 		{ assert(mpZBuff); return mpZBuff; }
+		
+		/// utility method, convert D3D9 pixel format to Ogre pixel format
+		static PixelFormat _getPF(D3DFORMAT d3dPF);
+		/// utility method, convert Ogre pixel format to D3D9 pixel format
+		static D3DFORMAT _getPF(PixelFormat ogrePF);
     };
 
     /** Specialisation of SharedPtr to allow SharedPtr to be assigned to D3D9TexturePtr 

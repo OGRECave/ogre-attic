@@ -41,6 +41,7 @@ namespace Ogre
         // Default
         mRowPitch = mWidth;
         mSlicePitch = mHeight*mWidth;
+		mSizeInBytes = mHeight*mWidth*PixelUtil::getNumElemBytes(mFormat);
     }
     
     //-----------------------------------------------------------------------------    
@@ -52,7 +53,7 @@ namespace Ogre
     void* HardwarePixelBuffer::lock(size_t offset, size_t length, LockOptions options)
     {
         assert(!isLocked() && "Cannot lock this buffer, it is already locked!");
-        assert(offset == 0 && length == mSize && "Cannot lock memory region, most lock box or entire buffer");
+        assert(offset == 0 && length == mSizeInBytes && "Cannot lock memory region, most lock box or entire buffer");
         
         Image::Box myBox(0, 0, 0, mWidth, mHeight, mDepth);
         const PixelBox &rv = lock(myBox, options);
@@ -126,7 +127,26 @@ namespace Ogre
 		unlock();
 		dst->unlock();
 	}
-    
+
+
+	void HardwarePixelBuffer::readData(size_t offset, size_t length, void* pDest)
+	{
+		// TODO
+		Except(Exception::UNIMPLEMENTED_FEATURE,
+				"Reading a byte range is not implemented. Use blitToMemory.",
+				"HardwarePixelBuffer::readData");
+	}
+	//-----------------------------------------------------------------------------    
+
+	void HardwarePixelBuffer::writeData(size_t offset, size_t length, const void* pSource,
+			bool discardWholeBuffer)
+	{
+		// TODO
+		Except(Exception::UNIMPLEMENTED_FEATURE,
+				"Writing a byte range is not implemented. Use blitFromMemory.",
+				"HardwarePixelBuffer::writeData");
+	}
+
     //-----------------------------------------------------------------------------    
     
     HardwarePixelBufferSharedPtr::HardwarePixelBufferSharedPtr(HardwarePixelBuffer* buf)
