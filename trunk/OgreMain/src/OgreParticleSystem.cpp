@@ -215,8 +215,8 @@ namespace Ogre {
     {
         _expire(timeElapsed);
         _triggerEmitters(timeElapsed);
-        _applyMotion(timeElapsed);
         _triggerAffectors(timeElapsed);
+        _applyMotion(timeElapsed);
     }
     //-----------------------------------------------------------------------
     void ParticleSystem::_expire(Real timeElapsed)
