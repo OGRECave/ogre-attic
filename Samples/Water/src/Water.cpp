@@ -341,7 +341,7 @@ protected:
         mAnimState->setEnabled(true);
 
         // Put in a bit of fog for the hell of it
-        mSceneMgr->setFog(FOG_EXP, ColourValue::White, 0.0002);
+        //mSceneMgr->setFog(FOG_EXP, ColourValue::White, 0.0002);
 
 		// show overlay
 		waterOverlay = (Overlay*)OverlayManager::getSingleton().getByName("Example/WaterOverlay");    

@@ -28,7 +28,7 @@ http://www.gnu.org/copyleft/gpl.html.
 
 WaterMesh::WaterMesh(const String& meshName, Real planeSize, int complexity)
 {
-	int x,y,b; // I prefer to initialize for() variables inside it, but VC doesn't like it ;(
+	int x,b; // I prefer to initialize for() variables inside it, but VC doesn't like it ;(
 	
 	this->meshName = meshName ;
 	this->complexity =  complexity ;
@@ -199,7 +199,7 @@ void WaterMesh::calculateNormals()
 /* ========================================================================= */
 void WaterMesh::updateMesh(Real timeSinceLastFrame)
 {
-	int i,x,y,h ;
+	int x, y ;
 	
 	// switch buffers
 	currentBuffNumber = (currentBuffNumber + 1) % 3 ;
