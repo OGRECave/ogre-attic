@@ -280,11 +280,14 @@ class Mesh:
 			uv, color = None, None
 		#glvert.uv, glvert.color = uv, color
 		# Sinbad: flip v texcoord for 0.13
-		newu, newv = uv
-		newv = 1 - newv
-		glvert.uv = newu, newv
+		if uv:
+			newu, newv = uv
+			newv = 1 - newv
+			glvert.uv = newu, newv
+		else:
+			glvert.uv = uv
 		glvert.color = color
-		# End Sinbad
+        # End Sinbad
 		glvert.material = self.face_materials[face]
 
 		return glvert
