@@ -55,11 +55,6 @@ namespace Ogre {
 	    mName = name;
         mCompilationRequired = true;
 		
-		/** TODO: MOVE TO TEXTUREUNITSTATE
-        // Apply default texture filtering & anisotropy level
-		mTextureFiltering = MaterialManager::getSingleton().getDefaultTextureFiltering();
-		mMaxAniso = MaterialManager::getSingleton().getDefaultAnisotropy();
-        */
     }
     //-----------------------------------------------------------------------
     Material& Material::operator=(const Material& rhs)
@@ -434,45 +429,6 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 
 
-    /** TODO: MOVE TO TEXTUREUNITSTATE
-    //-----------------------------------------------------------------------
-	void Material::setAnisotropy(int maxAniso)
-	{
-		mMaxAniso = maxAniso;
-		for (int n = 0; n < mNumTextureLayers; n++)
-			mTextureLayers[n]._setDefTextureAnisotropy(mMaxAniso);
-		mIsDefAniso = false;
-	}
-    //-----------------------------------------------------------------------
-	int Material::getAnisotropy() const
-	{
-		return mMaxAniso;
-	}
-    //-----------------------------------------------------------------------
-    void Material::_setDefTextureFiltering(TextureFilterOptions mode)
-    {
-		if (mIsDefFiltering)
-		{
-			mTextureFiltering = mode;
-			for (int n = 0; n < mNumTextureLayers; n++)
-				mTextureLayers[n]._setDefTextureLayerFiltering(mTextureFiltering);
-		}
-    }
-    //-----------------------------------------------------------------------
-    void Material::setTextureFiltering(TextureFilterOptions mode)
-    {
-	    mTextureFiltering = mode;
-		for (int n = 0; n < mNumTextureLayers; n++)
-			mTextureLayers[n]._setDefTextureLayerFiltering(mTextureFiltering);
-		mIsDefFiltering = false;
-    }
-    //-----------------------------------------------------------------------
-    TextureFilterOptions Material::getTextureFiltering(void) const
-    {
-	    return mTextureFiltering;
-    }
-    //-----------------------------------------------------------------------
-    */
 
 
 }
