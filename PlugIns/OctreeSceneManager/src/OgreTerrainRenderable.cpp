@@ -244,6 +244,7 @@ void TerrainRenderable::init( TerrainOptions &options )
     Real C = _calculateCFactor();
 
     _calculateMinLevelDist2( C );
+    _calculateNormals();
 
 }
 
