@@ -239,7 +239,7 @@ namespace Ogre {
 
         itEnd = mActiveBillboards.end();
 
-        for (i = mActiveBillboards.begin(); i != itEnd; ++i)
+        for (i = mActiveBillboards.begin(); i != itEnd; )
         {
             pParticle = static_cast<Particle*>(*i);
             if (pParticle->mTimeToLive < timeElapsed)
@@ -252,6 +252,7 @@ namespace Ogre {
             {
                 // Decrement TTL
                 pParticle->mTimeToLive -= timeElapsed;
+				++i;
             }
 
         }
