@@ -294,7 +294,8 @@ int numVertices = (srcGeom).numVertices; \
 dstBuf = new Real[numVertices*3] ;\
 memcpy(dstBuf,(srcGeom).pVertices,numVertices*3*sizeof(Real)); 
 
-		for(int m=0;m<numSubMeshes;m++) {
+		int m;
+		for(m=0;m<numSubMeshes;m++) {
 			SubMesh *subMesh = objectMesh->getSubMesh(m);
 			if (subMesh->useSharedVertices) { // need to store shared geometry 
 				if (!parentVertexBuffer) { // only once
@@ -310,7 +311,7 @@ memcpy(dstBuf,(srcGeom).pVertices,numVertices*3*sizeof(Real));
         objectEntity->setMaterialName( material->getName() );
 		
 		// go through subentities and set materials as required
-		for(int m=0;m<numSubMeshes;m++) {
+		for(m=0;m<numSubMeshes;m++) {
 			SubMesh *subMesh = objectMesh->getSubMesh(m);
 			SubEntity *subEntity = objectEntity->getSubEntity(m);
 			// check if this submesh has material set

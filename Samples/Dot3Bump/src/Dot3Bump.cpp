@@ -199,9 +199,11 @@ void create3DTexCoordsFromTSLVector(Entity *pEnt, Vector3 objectLightPositionVec
 			pVPos = pSubMesh->geometry.pVertices;		// vertex position buffer
 		}
 		// loop through all faces to calculate the tangents and normals
-		for (int n = 0; n < pSubMesh->numFaces; ++n)
+		int n;
+		for (n = 0; n < pSubMesh->numFaces; ++n)
 		{
-			for (int i = 0; i < 3; ++i)
+			int i;
+			for (i = 0; i < 3; ++i)
 			{
 				// get indexes of vertices that form a pllygon in the position buffer
 				vertInd[i] = pVIndices[n * 3 + i];
@@ -222,7 +224,7 @@ void create3DTexCoordsFromTSLVector(Entity *pEnt, Vector3 objectLightPositionVec
 			// store the tangent space light vector in tslPollyVerts
 			fillPollygonWithTSLVectors(lightVecs, sTangent, tTangent, normal, tslPollyVerts);
 			// write new tex.coords 
-			for (int i = 0; i < 3; ++i)
+			for (i = 0; i < 3; ++i)
 			{
 				// get indexes of vertices that form a pllygon in the position buffer
 				vertInd[i] = pVIndices[n * 3 + i];
@@ -238,7 +240,7 @@ void create3DTexCoordsFromTSLVector(Entity *pEnt, Vector3 objectLightPositionVec
 			numVerts = pMesh->sharedGeometry.numVertices;
 		else
 			numVerts = pSubMesh->geometry.numVertices;
-		for (int n = 0; n < numVerts * 3; n += 3)
+		for (n = 0; n < numVerts * 3; n += 3)
 		{
 			// read the vertex
 			tVec.x = p3DTC[n + 0];

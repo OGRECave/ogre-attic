@@ -112,6 +112,18 @@ SOURCE=..\src\OgreGLEngineDll.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreGLHardwareBufferManager.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreGLHardwareIndexBuffer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreGLHardwareVertexBuffer.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreGLRenderSystem.cpp
 # End Source File
 # Begin Source File
@@ -128,6 +140,10 @@ SOURCE=..\src\OgreGLTextureManager.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreGLVertexDeclaration.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreWin32GLSupport.cpp
 # End Source File
 # Begin Source File
@@ -138,6 +154,34 @@ SOURCE=..\src\OgreWin32Window.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=..\include\gl.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\glext.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\glprocs.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\glxext.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreGLHardwareBufferManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreGLHardwareIndexBuffer.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreGLHardwareVertexBuffer.h
+# End Source File
 # Begin Source File
 
 SOURCE=..\include\OgreGLPrerequisites.h
@@ -160,15 +204,7 @@ SOURCE=..\include\OgreGLTextureManager.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\OgreSDLGLSupport.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreSDLPrerequisites.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreSDLWindow.h
+SOURCE=..\include\OgreGLVertexDeclaration.h
 # End Source File
 # Begin Source File
 

@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib zlib.lib OgreMain.lib d3d9.lib d3dx9.lib dxerr9.lib /nologo /dll /machine:I386 /nodefaultlib:"LIBC" /libpath:"../../../OgreMain/Lib/Release" /libpath:"..\..\..\Dependencies\lib\Debug"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib zlib.lib OgreMain.lib d3d9.lib d3dx9.lib dxerr9.lib /nologo /dll /machine:I386 /nodefaultlib:"LIBC" /libpath:"..\..\..\OgreMain\lib\Release" /libpath:"..\..\..\Dependencies\lib\Release"
 # SUBTRACT LINK32 /profile /debug
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
@@ -120,10 +120,6 @@ SOURCE=..\include\OgreD3D9DriverList.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\OgreD3D9HWBuffers.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\OgreD3D9HardwareBufferManager.cpp
 # End Source File
 # Begin Source File
@@ -133,6 +129,10 @@ SOURCE=..\src\OgreD3D9HardwareIndexBuffer.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreD3D9HardwareVertexBuffer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreD3D9HWBuffers.cpp
 # End Source File
 # Begin Source File
 
@@ -224,11 +224,11 @@ SOURCE=..\include\OgreD3D9HardwareVertexBuffer.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\OgreD3D9VertexDeclaration.h
+SOURCE=..\misc\OgreD3D9RenderSystem.def
 # End Source File
 # Begin Source File
 
-SOURCE=..\misc\OgreD3D9RenderSystem.def
+SOURCE=..\include\OgreD3D9VertexDeclaration.h
 # End Source File
 # End Group
 # End Target
