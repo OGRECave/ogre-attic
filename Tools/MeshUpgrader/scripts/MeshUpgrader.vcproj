@@ -82,7 +82,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="OgreMain.lib zlib.lib"
-				OutputFile="$(OutDir)/OgreMeshUpgrad.exe"
+				OutputFile="$(OutDir)/OgreMeshUpgrade.exe"
 				Version="0.99"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\..\OgreMain\lib\$(ConfigurationName);..\..\..\Dependencies\lib\$(ConfigurationName)"
