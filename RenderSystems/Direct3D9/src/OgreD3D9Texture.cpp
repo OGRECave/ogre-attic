@@ -365,7 +365,8 @@ namespace Ogre
 		}
 
         D3DVOLUME_DESC texDesc;
-        mpVolumeTex->GetLevelDesc(0, &texDesc);
+        hr = mpVolumeTex->GetLevelDesc(0, &texDesc);
+
         // set src and dest attributes to the same, we can't know
         _setSrcAttributes(texDesc.Width, texDesc.Height, texDesc.Depth, _getPF(texDesc.Format));
         _setFinalAttributes(texDesc.Width, texDesc.Height, texDesc.Depth, _getPF(texDesc.Format));
@@ -765,6 +766,12 @@ namespace Ogre
 				LogManager::getSingleton().logMessage("D3D9 : Creating 2D RenderTarget, name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipMaps) + " mip map levels");
 			else
 				LogManager::getSingleton().logMessage("D3D9 : Loading 2D Texture, image name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipMaps) + " mip map levels");
+			break;
+		case TEX_TYPE_3D:
+			if (mUsage == TU_RENDERTARGET)
+				LogManager::getSingleton().logMessage("D3D9 : Creating 3D RenderTarget, name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipMaps) + " mip map levels");
+			else
+				LogManager::getSingleton().logMessage("D3D9 : Loading 3D Texture, image name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipMaps) + " mip map levels");
 			break;
 		case TEX_TYPE_CUBE_MAP:
 			if (mUsage == TU_RENDERTARGET)
