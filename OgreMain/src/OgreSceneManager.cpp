@@ -904,7 +904,8 @@ namespace Ogre {
         Real gscale,
         Real tiling,
         bool drawFirst,
-		Real bow)
+		Real bow, 
+        int xsegments, int ysegments)
     {
         mSkyPlaneEnabled = enable;
         if (enable)
@@ -944,11 +945,15 @@ namespace Ogre {
 			if( bow > 0 )
 			{
 				// Build a curved skyplane
-				planeMesh = MeshManager::getSingleton().createCurvedPlane(meshName, plane, gscale * 100, gscale * 100, gscale * bow * 100, 6, 6, false, 1, tiling, tiling, up);
+				planeMesh = MeshManager::getSingleton().createCurvedPlane(
+                    meshName, plane, gscale * 100, gscale * 100, gscale * bow * 100, 
+                    xsegments, ysegments, false, 1, tiling, tiling, up);
 			}
 			else
 			{
-				planeMesh = MeshManager::getSingleton().createPlane(meshName, plane, gscale * 100, gscale * 100, 1, 1, false, 1, tiling, tiling, up);
+				planeMesh = MeshManager::getSingleton().createPlane(
+                    meshName, plane, gscale * 100, gscale * 100, xsegments, ysegments, false, 
+                    1, tiling, tiling, up);
 			}
 
             // Create entity 

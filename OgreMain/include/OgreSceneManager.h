@@ -947,11 +947,16 @@ namespace Ogre {
 				versions.  If above zero, the plane will be curved, allowing
 				the sky to appear below camera level.  Curved sky planes are 
 				simular to skydomes, but are more compatable with fog.
+            @param xsegments, ysegments
+                Determines the number of segments the plane will have to it. This
+                is most important when you are bowing the plane, but may also be useful
+                if you need tesselation on the plane to perform per-vertex effects.
         */
         virtual void setSkyPlane(
             bool enable,
             const Plane& plane, const String& materialName, Real scale = 1000,
-            Real tiling = 10, bool drawFirst = true, Real bow = 0 );
+            Real tiling = 10, bool drawFirst = true, Real bow = 0, 
+            int xsegments = 1, int ysegments = 1);
 
         /** Enables / disables a 'sky box' i.e. a 6-sided box at constant
             distance from the camera representing the sky.
