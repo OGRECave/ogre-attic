@@ -245,7 +245,7 @@ namespace Ogre {
         mPos = mData + pos;
     }
     //-----------------------------------------------------------------------
-    size_t MemoryDataStream::tell()
+    size_t MemoryDataStream::tell(void) const
 	{
 		//mData is start, mPos is current location
 		return mPos - mData;
@@ -387,7 +387,7 @@ namespace Ogre {
         mpStream->seekg(static_cast<std::ifstream::pos_type>(pos), std::ios::beg);
     }
 	//-----------------------------------------------------------------------
-    size_t FileStreamDataStream::tell()
+    size_t FileStreamDataStream::tell(void) const
 	{
 		return mpStream->tellg();
 	}
@@ -516,7 +516,7 @@ namespace Ogre {
         fseek(mFileHandle, pos, SEEK_SET);
     }
     //-----------------------------------------------------------------------
-    size_t FileHandleDataStream::tell()
+    size_t FileHandleDataStream::tell(void) const
 	{
 		return ftell( mFileHandle );
 	}

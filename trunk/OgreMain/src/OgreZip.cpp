@@ -346,7 +346,7 @@ namespace Ogre {
 		zzip_seek(mZzipFile, static_cast<zzip_off_t>(pos), SEEK_SET);
     }
     //-----------------------------------------------------------------------
-    size_t ZipDataStream::tell()
+    size_t ZipDataStream::tell(void) const
     {
 		return zzip_tell(mZzipFile);
     }

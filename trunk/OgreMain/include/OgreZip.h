@@ -115,7 +115,7 @@ namespace Ogre {
         /// @copydoc DataStream::seek
         void seek( size_t pos );
         /// @copydoc DataStream::seek
-        size_t tell();
+        size_t tell(void) const;
         /// @copydoc DataStream::eof
         bool eof(void) const;
         /// @copydoc DataStream::close
