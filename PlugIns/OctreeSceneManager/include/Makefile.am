@@ -3,4 +3,5 @@ noinst_HEADERS = OgreOctreeCamera.h \
                  OgreOctree.h \
                  OgreOctreeSceneManager.h \
 		 OgreTerrainRenderable.h \
-		 OgreTerrainSceneManager.h
+		 OgreTerrainSceneManager.h \
+		 OgreTerrainVertexProgram.h 

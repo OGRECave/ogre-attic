@@ -6,7 +6,10 @@ Plugin_OctreeSceneManager_so_SOURCES = OgreOctreeSceneManagerDll.cpp \
                              OgreOctreeSceneManager.cpp \
                              OgreOctreeNode.cpp \
                              OgreOctreeCamera.cpp \
-                             OgreOctree.cpp OgreTerrainRenderable.cpp OgreTerrainSceneManager.cpp 
+                             OgreOctree.cpp \
+							 OgreTerrainRenderable.cpp \
+							 OgreTerrainSceneManager.cpp \
+							 OgreTerrainVertexProgram.cpp 
 
 
 Plugin_OctreeSceneManager_so_LDFLAGS = $(SHARED_FLAGS) -L$(top_srcdir)/OgreMain/src

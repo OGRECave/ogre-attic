@@ -43,6 +43,9 @@ Enhancements 2003 - 2004 (C) The OGRE Team
 #include "OgreStringConverter.h"
 #include "OgreRenderSystem.h"
 #include "OgreRenderSystemCapabilities.h"
+#include "OgreGpuProgram.h"
+#include "OgreGpuProgramManager.h"
+#include "OgreTerrainVertexProgram.h"
 #include <fstream>
 
 #define TERRAIN_MATERIAL_NAME "TerrainSceneManager/Terrain"
@@ -223,23 +226,59 @@ void TerrainSceneManager::setupTerrainMaterial(void)
             mTerrainMaterial->getTechnique(0)->getPass(0)->removeAllTextureUnitStates();
         }
 
+        Pass* pass = mTerrainMaterial->getTechnique(0)->getPass(0);
+
         if ( mWorldTextureName != "" )
         {
-            mTerrainMaterial->getTechnique(0)->getPass(0)->
-                createTextureUnitState( mWorldTextureName, 0 );
+            pass->createTextureUnitState( mWorldTextureName, 0 );
         }
         if ( mDetailTextureName != "" )
         {
-            mTerrainMaterial->getTechnique(0)->getPass(0)->
-                createTextureUnitState( mDetailTextureName, 1 );
+            pass->createTextureUnitState( mDetailTextureName, 1 );
         }
 
         mTerrainMaterial -> setLightingEnabled( mOptions.lit );
 
-        if (mOptions.lodMorph)
+        if (mOptions.lodMorph && 
+            mDestRenderSystem->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM))
         {
             // Create & assign LOD morphing vertex program
+            String syntax;
+            if (GpuProgramManager::getSingleton().isSyntaxSupported("arbvp1"))
+            {
+                syntax = "arbvp1";
+            }
+            else
+            {
+                syntax = "vs_1_1";
+            }
+
+            // Get source, and take into account current fog mode
+            FogMode fm = getFogMode();
+            const String& source = TerrainVertexProgram::getProgramSource(
+                fm, syntax);
+
+            GpuProgram* prog = GpuProgramManager::getSingleton().createProgramFromString(
+                "Terrain/VertexMorph", source, GPT_VERTEX_PROGRAM, syntax);
             
+            // Attach
+            pass->setVertexProgram("Terrain/VertexMorph");
+
+            // Get params
+            GpuProgramParametersSharedPtr params = pass->getVertexProgramParameters();
+
+            // worldviewproj
+            params->setAutoConstant(0, GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
+            // morph factor
+            params->setAutoConstant(4, GpuProgramParameters::ACT_CUSTOM, MORPH_CUSTOM_PARAM_ID);
+            // fog exp density(if relevant)
+            if (fm == FOG_EXP || fm == FOG_EXP2)
+            {
+                params->setConstant(5, Vector3(getFogDensity(), 0, 0));
+                // Override scene fog since otherwise it's applied twice
+                // Set to linear and we derive [0,1] fog value in the shader
+                pass->setFog(true, FOG_LINEAR, getFogColour(), 0, 1, 0);
+            }
 
             // Set param index
             mLodMorphParamName = "";
@@ -413,14 +452,6 @@ void TerrainSceneManager::setWorldGeometry( const String& filename )
 
 void TerrainSceneManager::_renderVisibleObjects( void )
 {
-
-    for ( int i = 0; i < ( int ) mTiles.size(); i++ )
-    {
-        for ( int j = 0; j < ( int ) mTiles.size(); j++ )
-        {
-            mTiles[ i ][ j ] ->_alignNeighbors();
-        }
-    }
 
     mDestRenderSystem -> setLightingEnabled( false );
 

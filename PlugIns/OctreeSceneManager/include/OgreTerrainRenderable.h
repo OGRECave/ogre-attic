@@ -49,8 +49,9 @@ terrainrenderable.h  -  description
 namespace Ogre
 {
 
+typedef std::map <unsigned int, IndexData* > IndexMap;
 typedef std::vector < IndexData* > IndexArray;
-typedef std::vector < IndexArray > LevelArray;
+typedef std::vector < IndexMap* > LevelArray;
 
 /**
  * A cache of TerrainIndexBuffers.  Used to keep track of the buffers, and
@@ -129,10 +130,15 @@ public:
 
 };
 
-#define STITCH_NORTH  0x00000001
-#define STITCH_SOUTH  0x00000002
-#define STITCH_WEST   0x00000004
-#define STITCH_EAST   0x00000008
+#define STITCH_NORTH_SHIFT 0
+#define STITCH_SOUTH_SHIFT 8
+#define STITCH_WEST_SHIFT  16
+#define STITCH_EAST_SHIFT  24
+
+#define STITCH_NORTH  128 << STITCH_NORTH_SHIFT
+#define STITCH_SOUTH  128 << STITCH_SOUTH_SHIFT
+#define STITCH_WEST   128 << STITCH_WEST_SHIFT
+#define STITCH_EAST   128 << STITCH_EAST_SHIFT
 
 /**
    Represents a terrain tile.
@@ -262,8 +268,6 @@ public:
         mMaterial = m;
     };
 
-    /** Aligns mipmap levels between neighbors so that only 1 LOD level separates neighbors. */
-    void _alignNeighbors();
     /** Calculates static normals for lighting the terrain. */
     void _calculateNormals();
 
@@ -339,6 +343,7 @@ protected:
     void _adjustRenderLevel( int i );
 
     void _initLevelIndexes();
+    void _destroyLevelIndexes();
 
     bool _checkSize( int n );
 
@@ -401,9 +406,26 @@ protected:
     /// Gets the index data for this tile based on current settings
     IndexData* getIndexData(void);
     /// Internal method for generating stripified terrain indexes
-    IndexData* generateTriStripIndexes(int stitchFlags);
+    IndexData* generateTriStripIndexes(unsigned int stitchFlags);
     /// Internal method for generating triangle list terrain indexes
-    IndexData* generateTriListIndexes(int stitchFlags);
+    IndexData* generateTriListIndexes(unsigned int stitchFlags);
+    /** Utility method to generate stitching indexes on the edge of a tile
+    @param neighbor The neighbor direction to stitch
+    @param hiLOD The LOD of this tile
+    @param loLOD The LOD of the neighbor
+    @param omitFirstTri Whether the first tri of the stitch (always clockwise
+        relative to the centre of this tile) is to be omitted because an 
+        adjoining edge is also being stitched
+    @param omitLastTri Whether the last tri of the stitch (always clockwise
+        relative to the centre of this tile) is to be omitted because an 
+        adjoining edge is also being stitched
+    @param pIdx Pointer to a pointer to the index buffer to push the results 
+        into (this pointer will be updated)
+    @returns The number of indexes added
+    */
+    int stitchEdge(Neighbor neighbor, int hiLOD, int loLOD, 
+        bool omitFirstTri, bool omitLastTri, unsigned short** ppIdx);
+
     /// Create a blank delta buffer for usein morphing
     HardwareVertexBufferSharedPtr createDeltaBuffer(void);
 
