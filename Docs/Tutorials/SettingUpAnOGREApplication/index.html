@@ -1,4 +1,4 @@
-<html>
+<html><head>
 <STYLE TYPE="text/css">
 <!--
 .MainHeader {  font-weight: bold; color: #FFFF33; background-color: #006600; font-size: 10pt}
@@ -74,65 +74,30 @@ CODE.str {
 .header {  font-size: 16px; font-weight: bold; color: #FFFFCC}
 -->
 </STYLE> 
-	<head>
+	
 		<title> Setting up an OGRE Application </title>
 	</head>
 <body bgcolor="#FFFFFF" text="#000000">
-<p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p>
-<p align="center" class="header"> Setting up an OGRE Application</p>
-
-<p align="left" class="MainHeader">&nbsp;</p>
-This is a quick reference for setting up an application which uses OGRE. First off, lets
-talk about directories. 
-<p align="left" class="MainHeader">Directory Structure</p>
-<p>
-Building and running an application based on OGRE involves ensuring that both the compiler
-and the runtime files can find all the dependent files they need. <BR>
-During the build, we need to find:
-<UL>
-  <LI>header files (*.h)</LI>
-  <LI>library files (*.lib / *.a)</LI>
-</UL>
-At runtime, we need to find:
-<UL>
-  <LI>OGRE core dlls (OgreMain, OgrePlatform)</LI>
-  <LI>The plugins.cfg file</LI>
-  <LI>Any plugin dlls mentioned in plugins.cfg</LI>
-  <LI>Resources (*.zip, *.png, *.particle, *.mesh etc etc)</LI>
-</UL>
-The simplest way of ensuring that all the directory dependencies are satisfied is to build 
-your application in the same place as the existing OGRE samples, (i.e. each in 
-it's own subdirectory of 'Samples'), using the same settings.
-</p>
-<p>
-For the more adventurous, you can build and run OGRE applications in any directory you like, 
-you just have to make sure that the directories are set up properly. As I describe all the 
-project settings you need, I will describe the 'easy' way and the 'advanced' way. Please try
-the easy way first if you are unsure.
-</p>
-
-<P CLASS="MainHeader">The steps to follow</P>
-
-<OL>
-  <LI>
-    <A href="createfolder.html">Create an application folder</A>
-  </LI>
-  <LI>
-    <A href="copysources.html">Copy template source files</A>
-  </LI>
-  <LI>
-    <A href="createproject.html">Create a project file</A>
-  </LI>
-  <LI>
-    <A href="compilersettings.html">Compiler settings</A>
-  </LI>
-  <LI>
-    <A href="linkersettings.html">Linker settings</A>
-  </LI>
-  <LI>
-    <A href="outputlocation.html">Setting up the output location</A>
-  </LI>
-
-<P CLASS="MainHeader">&nbsp;</P>
-	</body>
+<p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p><p align="center" class="header"> 
+Setting up an OGRE Application</p><p align="left" class="MainHeader">&nbsp;</p>This 
+is a quick reference for setting up an application which uses OGRE. First off, 
+lets talk about directories. <p align="left" class="MainHeader">Directory Structure</p><p> 
+Building and running an application based on OGRE involves ensuring that both 
+the compiler and the runtime files can find all the dependent files they need. 
+<BR> During the build, we need to find: <UL> <LI>header files (*.h)</LI><LI>library 
+files (*.lib / *.a)</LI></UL>At runtime, we need to find: <UL> <LI>OGRE core dlls 
+(OgreMain, OgrePlatform)</LI><LI>The plugins.cfg file</LI><LI>Any plugin dlls 
+mentioned in plugins.cfg</LI><LI>Resources (*.zip, *.png, *.particle, *.mesh etc 
+etc)</LI></UL>The simplest way of ensuring that all the directory dependencies 
+are satisfied is to build your application in the same place as the existing OGRE 
+samples, (i.e. each in it's own subdirectory of 'Samples'), using the same settings. 
+<P></p><p> For the more adventurous, you can build and run OGRE applications in 
+any directory you like, you just have to make sure that the directories are set 
+up properly. As I describe all the project settings you need, I will describe 
+the 'easy' way and the 'advanced' way. Please try the easy way first if you are 
+unsure. </p><P CLASS="MainHeader">The steps to follow</P><OL> <LI> <A href="createfolder.html">Create 
+an application folder</A> </LI><LI> <A href="copysources.html">Copy template source 
+files</A> </LI><LI> <A href="createproject.html">Create a project file</A> </LI><LI> 
+<A href="buildsettings.html">Build settings</A> </LI></OL><P>&nbsp;</P>
+</body>
 </html>
