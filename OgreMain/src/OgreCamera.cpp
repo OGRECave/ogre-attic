@@ -844,5 +844,14 @@ namespace Ogre {
         setWindowImpl();
         return mWindowClipPlanes;
     }
+    // -------------------------------------------------------------------
+    Real Camera::getBoundingRadius(void) const
+    {
+        // return a little bigger than the near distance
+        // just to keep things just outside
+        return mNearDist * 1.5;
+
+    }
+
 
 } // namespace Ogre

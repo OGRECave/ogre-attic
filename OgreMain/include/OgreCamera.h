@@ -433,6 +433,8 @@ namespace Ogre {
         /// Gets the window clip planes, only applicable if isWindowSet == true
         const std::vector<Plane>& getWindowPlanes(void);
 
+        /** Overridden from MovableObject */
+        Real getBoundingRadius(void) const;
 
     };
 
