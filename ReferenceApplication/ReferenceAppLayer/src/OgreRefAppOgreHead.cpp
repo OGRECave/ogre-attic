@@ -58,9 +58,12 @@ namespace OgreRefApp
         dMassSetSphere(&mass, 5, 1); // TODO change to more realistic values
         mOdeBody->setMass(&mass);
 
+        this->setBounceParameters(0.3, 0.1);
+        this->setSoftness(0.00);
+
 
         // Create collision proxy
-        dSphere* odeSphere = new dSphere(0, 30);
+        dSphere* odeSphere = new dSphere(0, 25);
         mCollisionProxies.push_back(odeSphere);
 
 
