@@ -120,16 +120,16 @@ protected:
 
 
 	// Light flashers
-	LightFlasher* mRedLightFlasher;
-	LightFlasher* mBlueLightFlasher;
-	LightFlasher* mYellowLightFlasher;
-	LightFlasher* mGreenLightFlasher;
+	ControllerValueRealPtr mRedLightFlasher;
+	ControllerValueRealPtr mBlueLightFlasher;
+	ControllerValueRealPtr mYellowLightFlasher;
+	ControllerValueRealPtr mGreenLightFlasher;
 
 	// Light controller functions
-	LightFlasherControllerFunction* mRedLightControllerFunc;
-	LightFlasherControllerFunction* mBlueLightControllerFunc;
-	LightFlasherControllerFunction* mYellowLightControllerFunc;
-	LightFlasherControllerFunction* mGreenLightControllerFunc;
+	ControllerFunctionRealPtr mRedLightControllerFunc;
+	ControllerFunctionRealPtr mBlueLightControllerFunc;
+	ControllerFunctionRealPtr mYellowLightControllerFunc;
+	ControllerFunctionRealPtr mGreenLightControllerFunc;
 
 	// Light controllers
 	Controller<Real>* mRedLightController;
@@ -217,16 +217,24 @@ protected:
 		mGreenBlueLightsNode->attachObject(mGreenLight);
 
 		// Light flashers
-		mRedLightFlasher = new LightFlasher(mRedLight, mRedLightBoard, ColourValue::Red);
-		mBlueLightFlasher = new LightFlasher(mBlueLight, mBlueLightBoard, ColourValue::Blue);
-		mYellowLightFlasher = new LightFlasher(mYellowLight, mYellowLightBoard, ColourValue(1.0, 1.0, 0.0));
-		mGreenLightFlasher = new LightFlasher(mGreenLight, mGreenLightBoard, ColourValue::Green);
+		mRedLightFlasher = ControllerValueRealPtr(
+            new LightFlasher(mRedLight, mRedLightBoard, ColourValue::Red));
+		mBlueLightFlasher = ControllerValueRealPtr(
+            new LightFlasher(mBlueLight, mBlueLightBoard, ColourValue::Blue));
+		mYellowLightFlasher = ControllerValueRealPtr(
+            new LightFlasher(mYellowLight, mYellowLightBoard, ColourValue(1.0, 1.0, 0.0)));
+		mGreenLightFlasher = ControllerValueRealPtr(
+            new LightFlasher(mGreenLight, mGreenLightBoard, ColourValue::Green));
 
 		// Light controller functions
-		mRedLightControllerFunc = new LightFlasherControllerFunction(Ogre::WFT_SINE, 0.5, 0.0);
-		mBlueLightControllerFunc = new LightFlasherControllerFunction(Ogre::WFT_SINE, 0.75, 0.5);
-		mYellowLightControllerFunc = new LightFlasherControllerFunction(Ogre::WFT_TRIANGLE, 0.25, 0.0);
-		mGreenLightControllerFunc = new LightFlasherControllerFunction(Ogre::WFT_SINE, 0.25, 0.5);
+		mRedLightControllerFunc = ControllerFunctionRealPtr(
+            new LightFlasherControllerFunction(Ogre::WFT_SINE, 0.5, 0.0));
+		mBlueLightControllerFunc = ControllerFunctionRealPtr(
+            new LightFlasherControllerFunction(Ogre::WFT_SINE, 0.75, 0.5));
+		mYellowLightControllerFunc = ControllerFunctionRealPtr(
+            new LightFlasherControllerFunction(Ogre::WFT_TRIANGLE, 0.25, 0.0));
+		mGreenLightControllerFunc = ControllerFunctionRealPtr(
+            new LightFlasherControllerFunction(Ogre::WFT_SINE, 0.25, 0.5));
 
 		// Light controllers
 		ControllerManager* mControllerManager = &ControllerManager::getSingleton();

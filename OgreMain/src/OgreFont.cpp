@@ -223,7 +223,7 @@ namespace Ogre
 
 	}
 	//---------------------------------------------------------------------
-	void Font::loadResource(ResourcePtr res)
+	void Font::loadResource(Resource* res)
 	{
 		// ManualResourceLoader implementation - load the texture
 		FT_Library ftLibrary;
@@ -388,8 +388,8 @@ namespace Ogre
         Image img; 
 		img.loadRawData( memStream, tex_side, tex_side, PF_A8R8G8B8 );
 
-		TexturePtr texPtr = res;
-		texPtr->loadImage(img);
+		Texture* tex = static_cast<Texture*>(res);
+		tex->loadImage(img);
 
 		
 		FT_Done_FreeType(ftLibrary);

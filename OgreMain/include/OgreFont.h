@@ -303,7 +303,7 @@ namespace Ogre
 		/** Implementation of ManualResourceLoader::loadResource, called
 			when the Texture that this font creates needs to (re)load.
 		*/
-		void loadResource(ResourcePtr resource);
+		void loadResource(Resource* resource);
     };
 	/** Specialisation of SharedPtr to allow SharedPtr to be assigned to FontPtr 
 	@note Has to be a subclass since we need operator=.

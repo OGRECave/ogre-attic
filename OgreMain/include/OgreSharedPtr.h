@@ -49,7 +49,7 @@ namespace Ogre {
 				<b>Dangerous!</b> You have to call bind() before using the SharedPtr.
 		*/
 		SharedPtr() : pRep(0), pUseCount(0) {}
-		SharedPtr(T* rep) : pRep(rep), pUseCount(new unsigned int(1)) {}
+		explicit SharedPtr(T* rep) : pRep(rep), pUseCount(new unsigned int(1)) {}
 		SharedPtr(const SharedPtr& r) : pRep(r.pRep), pUseCount(r.pUseCount) { 
 			// Handle zero pointer gracefully to manage STL containers
 			if(pUseCount)

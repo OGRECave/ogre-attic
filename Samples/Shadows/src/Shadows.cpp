@@ -300,10 +300,12 @@ protected:
         mLightNode->attachObject(bbs);
 
         // create controller, after this is will get updated on its own
-        WaveformControllerFunction* func = new WaveformControllerFunction(Ogre::WFT_SINE, 0.75, 0.5);
+        ControllerFunctionRealPtr func = ControllerFunctionRealPtr(
+            new WaveformControllerFunction(Ogre::WFT_SINE, 0.75, 0.5));
         ControllerManager& contMgr = ControllerManager::getSingleton();
-        LightWibbler* val = new LightWibbler(mLight, bb, mMinLightColour, mMaxLightColour, 
-            mMinFlareSize, mMaxFlareSize);
+        ControllerValueRealPtr val = ControllerValueRealPtr(
+            new LightWibbler(mLight, bb, mMinLightColour, mMaxLightColour, 
+            mMinFlareSize, mMaxFlareSize));
         Controller<Real>* controller = contMgr.createController(
             contMgr.getFrameTimeSource(), val, func);
 

@@ -253,7 +253,7 @@ namespace Ogre {
 		/** Called when a resource wishes to load.
 		@param resource The resource which wishes to load
 		*/
-		virtual void loadResource(ResourcePtr resource) = 0;
+		virtual void loadResource(Resource* resource) = 0;
 	};
 }
 
