@@ -58,6 +58,8 @@ namespace Ogre {
 		bool isReady() const { return mReady; }
 		void setReady(bool set) { mReady = set; }
 		void setActive(bool set) { mActive = set; }
+		
+		void getCustomAttribute( const String& name, void* pData );
 
 	protected:
 		Win32GLSupport &mGLSupport;
