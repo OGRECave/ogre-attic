@@ -27,6 +27,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreKeyFrame.h"
 #include "OgreAnimationTrack.h"
 #include "OgreException.h"
+#include "OgreSkeleton.h"
+#include "OgreBone.h"
 
 namespace Ogre {
 
@@ -116,6 +118,19 @@ namespace Ogre {
         for (i = mTrackList.begin(); i != mTrackList.end(); ++i)
         {
             i->second->apply(timePos, weight, accumulate);
+        }
+
+
+    }
+    //---------------------------------------------------------------------
+    void Animation::apply(Skeleton* skel, Real timePos, Real weight, bool accumulate)
+    {
+        TrackList::iterator i;
+        for (i = mTrackList.begin(); i != mTrackList.end(); ++i)
+        {
+            // get bone to apply to 
+            Bone* b = skel->getBone(i->first);
+            i->second->applyToNode(b, timePos, weight, accumulate);
         }
 
 

@@ -81,11 +81,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void TagPoint::_update(bool updateChildren, bool parentHasChanged)
     {
-        //It's the parent entity that is currently updating the skeleton and his bones
-        if(mParentEntity == mCreator->getCurrentEntity())
-        {
-            Node::_update(updateChildren, parentHasChanged);
-        }
+        Node::_update(updateChildren, parentHasChanged);
     }
     //-----------------------------------------------------------------------------
     void TagPoint::needUpdate()

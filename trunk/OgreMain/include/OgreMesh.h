@@ -328,20 +328,6 @@ namespace Ogre {
         */
         void clearBoneAssignments(void);
 
-        /** Returns the number of bone matrices this mesh uses.
-        @remarks
-            Only applicable if hasSkeleton() is true, for internal use only.
-        */
-        unsigned short _getNumBoneMatrices(void) const;
-
-        /** Applies the animation set passed in, and populates the passed in array of bone matrices. 
-        @remarks
-            Internal use only.
-            The array pointed to by the passed in Matrix4 pointer must have enough 'slots' for the number
-            of bone matrices required (see _getNumBoneMatrices).
-        */
-        void _getBoneMatrices(const AnimationStateSet& animSet, Matrix4* pMatrices);
-
         /** Internal notification, used to tell the Mesh which Skeleton to use without loading it. 
         @remarks
             This is only here for unusual situation where you want to manually set up a

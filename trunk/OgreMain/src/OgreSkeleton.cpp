@@ -34,7 +34,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 // Just for logging
 #include "OgreAnimationTrack.h"
 #include "OgreKeyFrame.h"
-#include "OgreTagPoint.h"
 
 
 namespace Ogre {
@@ -46,7 +45,6 @@ namespace Ogre {
 
         // Start next handle
         mNextAutoHandle = 0;
-		mNextTagPointAutoHandle = 0;
 
         // Indicate root has not been derived yet
         mRootBone = 0;
@@ -107,17 +105,10 @@ namespace Ogre {
         BoneList::iterator i;
         for (i = mBoneList.begin(); i != mBoneList.end(); ++i)
         {
-            delete i->second;
+            delete *i;
         }
         mBoneList.clear();
 
-        // destroy TagPoints
-        TagPointList::iterator itp;
-        for (itp = mTagPointList.begin(); itp != mTagPointList.end(); ++itp)
-        {
-            delete itp->second;
-        }
-        mTagPointList.clear();
 
         // Destroy animations
         AnimationList::iterator ai;
@@ -139,15 +130,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     Bone* Skeleton::createBone(const String& name)
     {
-        if (mBoneList.size() == OGRE_MAX_NUM_BONES)
-        {
-            Except(Exception::ERR_INVALIDPARAMS, "Exceeded the maximum number of bones per skeleton.",
-                "Skeleton::createBone");
-        }
-        Bone* ret = new Bone(name, mNextAutoHandle++, this);
-        mBoneList[ret->getHandle()] = ret;
-        mBoneListByName[name] = ret;
-        return ret;
+        return createBone(name, mNextAutoHandle++);
     }
     //---------------------------------------------------------------------
     Bone* Skeleton::createBone(unsigned short handle)
@@ -158,6 +141,10 @@ namespace Ogre {
                 "Skeleton::createBone");
         }
         Bone* ret = new Bone(handle, this);
+        if (mBoneList.size() <= handle)
+        {
+            mBoneList.resize(handle+1);
+        }
         mBoneList[handle] = ret;
         mBoneListByName[ret->getName()] = ret;
         return ret;
@@ -172,32 +159,15 @@ namespace Ogre {
                 "Skeleton::createBone");
         }
         Bone* ret = new Bone(name, handle, this);
+        if (mBoneList.size() <= handle)
+        {
+            mBoneList.resize(handle+1);
+        }
         mBoneList[handle] = ret;
         mBoneListByName[name] = ret;
         return ret;
     }
 
-	TagPoint* Skeleton::createTagPoint(const Quaternion &offsetOrientation, const Vector3 &offsetPosition)
-	{
-        TagPoint* ret = new TagPoint(mNextTagPointAutoHandle++, this);
-        mTagPointList[mNextTagPointAutoHandle] = ret;
-		
-		ret->translate(offsetPosition);
-		ret->rotate(offsetOrientation);
-		ret->setBindingPose();
-
-        return ret;
-	}
-
-	void Skeleton::setCurrentEntity(Entity *pCurrentEntity)
-	{
-		mCurrentEntity = pCurrentEntity;
-	}
-
-	Entity *Skeleton::getCurrentEntity(void)
-	{
-		return mCurrentEntity;
-	}
 
 
     //---------------------------------------------------------------------
@@ -258,7 +228,7 @@ namespace Ogre {
             if (animState.getEnabled())
             {
                 Animation* anim = getAnimation(animState.getAnimationName());
-				anim->apply(animState.getTimePosition(), animState.getWeight(), mBlendState == ANIMBLEND_CUMULATIVE);
+				anim->apply(this, animState.getTimePosition(), animState.getWeight(), mBlendState == ANIMBLEND_CUMULATIVE);
             }
         }
 
@@ -276,7 +246,7 @@ namespace Ogre {
         BoneList::iterator i;
         for (i = mBoneList.begin(); i != mBoneList.end(); ++i)
         {            
-            i->second->setBindingPose();
+            (*i)->setBindingPose();
         }
     }
     //---------------------------------------------------------------------
@@ -285,8 +255,8 @@ namespace Ogre {
         BoneList::iterator i;
         for (i = mBoneList.begin(); i != mBoneList.end(); ++i)
         {
-            if(!i->second->isManuallyControlled())
-                i->second->reset();
+            if(!(*i)->isManuallyControlled())
+                (*i)->reset();
         }
     }
     //---------------------------------------------------------------------
@@ -378,7 +348,7 @@ namespace Ogre {
        
         for(i = mBoneList.begin();i != boneend; ++i)
         {
-            Bone* pBone = i->second;
+            Bone* pBone = *i;
             *pMatrices = pBone->_getFullTransform() *  pBone->_getBindingPoseInverseTransform();
             pMatrices++;
         }
@@ -405,16 +375,8 @@ namespace Ogre {
     //---------------------------------------------------------------------
     Bone* Skeleton::getBone(unsigned short handle) const
     {
-        BoneList::const_iterator i = mBoneList.find(handle);
-
-        if (i == mBoneList.end())
-        {
-            Except(Exception::ERR_ITEM_NOT_FOUND, "Bone with specified handle not found.", 
-                "Skeleton::getBone");
-        }
-
-        return i->second;
-
+        assert(handle < mBoneList.size() && "Index out of bounds");
+        return mBoneList[handle];
     }
     //---------------------------------------------------------------------
     Bone* Skeleton::getBone(const String& name) const
@@ -443,7 +405,7 @@ namespace Ogre {
         Bone* currentBone;
         BoneList::const_iterator i = mBoneList.begin();
 
-        currentBone = i->second;
+        currentBone = *i;
         while (currentBone->getParent() != 0)
         {
             // Keep going up the tree
@@ -470,7 +432,7 @@ namespace Ogre {
         BoneList::iterator bi;
         for (bi = mBoneList.begin(); bi != mBoneList.end(); ++bi)
         {
-            Bone* bone = bi->second;
+            Bone* bone = *bi;
 
             of << "-- Bone " << bone->getHandle() << " --" << std::endl;
             of << "Position: " << bone->getPosition();

@@ -400,24 +400,6 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    unsigned short Mesh::_getNumBoneMatrices(void) const
-    {
-        // Delegate to Skeleton
-        assert(mSkeleton && "Skeleton not present");
-
-        return mSkeleton->getNumBones();
-    }
-    //-----------------------------------------------------------------------
-    void Mesh::_getBoneMatrices(const AnimationStateSet& animSet, Matrix4* pMatrices)
-    {
-        // Delegate to Skeleton
-        assert(mSkeleton && "Skeleton not present");
-
-        mSkeleton->setAnimationState(animSet);
-        mSkeleton->_getBoneMatrices(pMatrices);
-
-    }
-    //-----------------------------------------------------------------------
     typedef std::multimap<Real, Mesh::VertexBoneAssignmentList::iterator> WeightIteratorMap;
     unsigned short Mesh::_rationaliseBoneAssignments(size_t vertexCount, Mesh::VertexBoneAssignmentList& assignments)
     {

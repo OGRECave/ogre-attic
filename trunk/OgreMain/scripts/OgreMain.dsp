@@ -581,6 +581,10 @@ SOURCE=..\src\OgreSkeleton.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreSkeletonInstance.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreSkeletonManager.cpp
 # End Source File
 # Begin Source File
@@ -1307,6 +1311,10 @@ SOURCE=..\include\OgreSkeleton.h
 # Begin Source File
 
 SOURCE=..\include\OgreSkeletonFileFormat.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreSkeletonInstance.h
 # End Source File
 # Begin Source File
 

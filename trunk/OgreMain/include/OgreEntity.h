@@ -162,6 +162,10 @@ namespace Ogre {
 		typedef std::vector<SubEntityList*> LODSubEntityList;
 		LODSubEntityList mLodSubEntityList;
 
+        /** This Entity's personal copy of the skeleton, if skeletally animated
+        */
+        SkeletonInstance* mSkeletonInstance;
+
 		/** Builds a list of SubEntities based on the SubMeshes contained in the Mesh. */
 		void buildSubEntityList(Mesh* mesh, SubEntityList* sublist);
 
@@ -412,6 +416,10 @@ namespace Ogre {
 		const Matrix4* _getBoneMatrices(void) { return mBoneMatrices;}
 		/** Internal method for retrieving bone matrix information. */
         unsigned short _getNumBoneMatrices(void) { return mNumBoneMatrices; }
+        /** Returns whether or not this entity is skeletally animated. */
+        bool hasSkeleton(void) { return mSkeletonInstance != 0; }
+        /** Get this Entity's personal skeleton instance. */
+        SkeletonInstance* getSkeleton(void) { return mSkeletonInstance; }
         /** Returns whether or not hardware skinning is enabled.
         @remarks
             Because fixed-function indexed vertex blending is rarely supported
