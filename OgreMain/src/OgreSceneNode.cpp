@@ -412,6 +412,19 @@ namespace Ogre {
         mYawFixedAxis = fixedAxis;
     }
 
+	//-----------------------------------------------------------------------
+	void SceneNode::yaw(const Radian& angle, TransformSpace relativeTo)
+	{
+		if (mYawFixed)
+		{
+			rotate(mYawFixedAxis, angle, relativeTo);
+		}
+		else
+		{
+			rotate(Vector3::UNIT_Y, angle, relativeTo);
+		}
+
+	}
     //-----------------------------------------------------------------------
     void SceneNode::setDirection(Real x, Real y, Real z, TransformSpace relativeTo, 
         const Vector3& localDirectionVector)
