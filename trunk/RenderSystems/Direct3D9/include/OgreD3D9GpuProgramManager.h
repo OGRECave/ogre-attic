@@ -34,13 +34,19 @@ namespace Ogre {
     {
     protected:
         LPDIRECT3DDEVICE9 mpDevice;
+        /// @copydoc ResourceManager::createImpl
+        Resource* createImpl(const String& name, ResourceHandle handle, 
+            const String& group, bool isManual, ManualResourceLoader* loader,
+            const NameValuePairList* params);
+        /// Specialised create method with specific parameters
+        Resource* createImpl(const String& name, ResourceHandle handle, 
+            const String& group, bool isManual, ManualResourceLoader* loader,
+            GpuProgramType gptype, const String& syntaxCode);
     public:
         D3D9GpuProgramManager(LPDIRECT3DDEVICE9 device);
-		~D3D9GpuProgramManager() {}
+		~D3D9GpuProgramManager();
         /// @copydoc GpuProgramManager::createParameters
         GpuProgramParametersSharedPtr createParameters(void);
-        /// @copydoc GpuProgramManager::create
-        GpuProgram* create(const String& name, GpuProgramType gptype, const String& syntaxCode);
     };
 
 }

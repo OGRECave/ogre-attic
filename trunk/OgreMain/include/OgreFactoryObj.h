@@ -41,15 +41,19 @@ namespace Ogre {
             @return
                 The factory type.
         */
-        virtual String getType() const = 0;
+        virtual const String& getType() const = 0;
 
-        /** 'Produces' a new object.
-            @param name Name of the object to create
-            @return
-                An object created by the factory. The type of the object depends on
-                the factory.
+        /** Creates a new object.
+        @param name Name of the object to create
+        @return
+            An object created by the factory. The type of the object depends on
+            the factory.
         */
-        virtual T* createObj( const String& name ) = 0;    
+        virtual T* createInstance( const String& name ) = 0;    
+        /** Destroys an object which was created by this factory.
+        @param ptr Pointer to the object to destroy
+        */
+        virtual void destroyInstance( T* ) = 0;    
     };
 
 } // namespace

@@ -106,18 +106,19 @@ EXRCodec::~EXRCodec()
     LogManager::getSingleton().logMessage("EXRCodec deinitialised");
 }
 
-void EXRCodec::code( const DataChunk& input, DataChunk* output, ... ) const 
+DataStreamPtr EXRCodec::code(MemoryDataStreamPtr& input, Codec::CodecData* pData) const
 {
 
 }
-    
-EXRCodec::CodecData * EXRCodec::decode( const DataChunk& input, DataChunk* output, ... ) const 
+
+Codec::DecodeResult decode(DataStreamPtr& input) const
 {
-    ImageData * ret_data = new ImageData;
+    ImageData * imgData = new ImageData;
+    MemoryDataStreamPtr output;
 
     try {
         // Make a mutable clone of input to be able to change file pointer
-        DataChunk myIn(const_cast<uchar*>(input.getPtr()), input.getSize());
+        MemoryDataStream myIn(input);
     
         // Now we can simulate an OpenEXR file with that
         O_IStream str(myIn, "SomeChunk.exr");
@@ -134,7 +135,7 @@ EXRCodec::CodecData * EXRCodec::decode( const DataChunk& input, DataChunk* outpu
             components = 4;
         
         // Allocate memory
-        output->allocate(width*height*components*4);
+        output.bind(new MemoryDataStream(width*height*components*4));
     
         // Construct frame buffer
         uchar *pixels = output->getPtr();
@@ -165,24 +166,27 @@ EXRCodec::CodecData * EXRCodec::decode( const DataChunk& input, DataChunk* outpu
         file.setFrameBuffer (frameBuffer);
         file.readPixels (dw.min.y, dw.max.y);
     
-        ret_data->format = components==3 ? PF_FP_R32G32B32 : PF_FP_R32G32B32A32;
-        ret_data->width = width;
-        ret_data->height = height;
-        ret_data->depth = 1;
-        ret_data->size = width*height*components*4;
-        ret_data->num_mipmaps = 0;
-        ret_data->flags = 0;
+        imgData->format = components==3 ? PF_FP_R32G32B32 : PF_FP_R32G32B32A32;
+        imgData->width = width;
+        imgData->height = height;
+        imgData->depth = 1;
+        imgData->size = width*height*components*4;
+        imgData->num_mipmaps = 0;
+        imgData->flags = 0;
     } catch (const std::exception &exc) {
-        delete ret_data;
+        delete imgData;
         throw(Exception(Exception::ERR_INTERNAL_ERROR,
             "OpenEXR Error",
             exc.what()));
     }
     
-    return ret_data;
+    DecodeResult ret;
+    ret.first = output; 
+    ret.second = CodecDataPtr(imgData);
+    return ret;
 }
 
-void EXRCodec::codeToFile( const DataChunk& input, const String& outFileName, CodecData* pData) const 
+void EXRCodec::codeToFile(MemoryDataStreamPtr& input, const String& outFileName, CodecData* pData) const;
 {
 
 }

@@ -4,7 +4,7 @@ This source file is part of OGRE
 (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://ogre.sourceforge.net/
 
-Copyright © 2000-2002 The OGRE Team
+Copyright © 2000-2004 The OGRE Team
 Also see acknowledgements in Readme.html
 
 This program is free software; you can redistribute it and/or modify it under
@@ -36,7 +36,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreDynLib.h"
 #include "OgreConfigFile.h"
 #include "OgreMaterialManager.h"
-#include "OgreResourceManager.h"
 #include "OgreMeshManager.h"
 #include "OgreTextureManager.h"
 #include "OgreParticleSystemManager.h"
@@ -44,11 +43,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGuiManager.h"
 #include "OgreOverlayElementFactory.h"
 #include "OgreOverlayManager.h"
-#include "OgreZipArchiveFactory.h"
 #include "OgreProfiler.h"
 #include "OgreErrorDialog.h"
 #include "OgreConfigDialog.h"
 #include "OgreStringConverter.h"
+#include "OgrePlatformManager.h"
+#include "OgreArchiveManager.h"
+#include "OgreZip.h"
+#include "OgreFileSystem.h"
 
 #include "OgreILCodecs.h"
 
@@ -89,7 +91,7 @@ namespace Ogre {
     // Termination handler
     extern "C" _OgreExport void handleTerminate(void)
     {
-        LogManager::getSingleton().logMessage(LML_CRITICAL, "Termination handler: uncaught exception!");
+        LogManager::getSingleton().logMessage("Termination handler: uncaught exception!", LML_CRITICAL);
 
         Root::getSingleton().shutdown();
 
@@ -142,7 +144,10 @@ namespace Ogre {
 
         mArchiveManager = new ArchiveManager();
 
-        // Create SceneManager enumerator (note - will be managed by singleton)
+		// ResourceGroupManager
+		mResourceGroupManager = new ResourceGroupManager();
+
+		// Create SceneManager enumerator (note - will be managed by singleton)
         mSceneManagerEnum = new SceneManagerEnumerator();
         mCurrentSceneManager = NULL;
 
@@ -185,6 +190,8 @@ namespace Ogre {
         mProfiler = new Profiler();
 		Profiler::getSingleton().setTimer(mTimer);
 #endif
+        mFileSystemArchiveFactory = new FileSystemArchiveFactory();
+        ArchiveManager::getSingleton().addArchiveFactory( mFileSystemArchiveFactory );
         mZipArchiveFactory = new ZipArchiveFactory();
         ArchiveManager::getSingleton().addArchiveFactory( mZipArchiveFactory );
 
@@ -226,7 +233,6 @@ namespace Ogre {
 		delete mExternalTextureSourceManager;
 
         ILCodecs::deleteCodecs();
-        delete mZipArchiveFactory;
 #if OGRE_PROFILING
         delete mProfiler;
 #endif
@@ -234,10 +240,10 @@ namespace Ogre {
         delete mOverlayManager;
         delete mFontManager;
         delete mArchiveManager;
+        delete mZipArchiveFactory;
+        delete mFileSystemArchiveFactory;
         delete mSkeletonManager;
         delete mMeshManager;
-        delete mMaterialManager;        
-        Pass::processPendingPassUpdates(); // make sure passes are cleaned
         delete mParticleManager;
 
         if( mControllerManager )
@@ -250,6 +256,9 @@ namespace Ogre {
         delete mPanelFactory;
 
         unloadPlugins();
+        delete mMaterialManager;        
+        Pass::processPendingPassUpdates(); // make sure passes are cleaned
+        delete mResourceGroupManager;
 
 
 
@@ -258,7 +267,6 @@ namespace Ogre {
         delete mDynLibManager;
         delete mLogManager;
 
-        ResourceManager::cleanupCommonArchive () ;
 
         StringInterface::cleanupDictionary ();
     }
@@ -266,34 +274,28 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Root::saveConfig(void)
     {
-        ::FILE *fp;
-        char rec[100];
+		std::ofstream of(mConfigFileName.c_str());
 
-        fp = fopen(mConfigFileName.c_str(), "w");
-        if (!fp)
+        if (!of)
             Except(Exception::ERR_CANNOT_WRITE_TO_FILE, "Cannot create settings file.",
             "Root::saveConfig");
 
         if (mActiveRenderer)
         {
-            sprintf(rec, "Render System\t%s\n", mActiveRenderer->getName().c_str());
-            fputs(rec, fp);
+            of << "Render System\t" << mActiveRenderer->getName() << std::endl;;
 
             ConfigOptionMap& opts = mActiveRenderer->getConfigOptions();
             for(  ConfigOptionMap::iterator pOpt = opts.begin(); pOpt != opts.end(); ++pOpt )
             {
-                sprintf(rec, "%s\t%s\n", pOpt->first.c_str(),
-                    pOpt->second.currentValue.c_str());
-                fputs(rec, fp);
+				of << pOpt->first << "\t" << pOpt->second.currentValue << std::endl;;
             }
         }
         else
         {
-            strcpy(rec, "Render System\t ");
-            fputs(rec, fp);
+            of << "Render System\t ";
         }
 
-        fclose(fp);
+        of.close();
 
     }
     //-----------------------------------------------------------------------
@@ -629,6 +631,7 @@ namespace Ogre {
     void Root::shutdown(void)
     {
         SceneManagerEnumerator::getSingleton().shutdownAll();
+        ResourceGroupManager::getSingleton().shutdownAll();
 
         mLogManager->logMessage("*-*-* OGRE Shutdown");
     }
@@ -679,8 +682,7 @@ namespace Ogre {
             DLL_STOP_PLUGIN pFunc = (DLL_STOP_PLUGIN)(*i)->getSymbol("dllStopPlugin");
             pFunc();
             // Unload library & destroy
-            DynLibManager::getSingleton().unload((Resource*)*i);
-            delete *i;
+            DynLibManager::getSingleton().unload(*i);
 
         }
 
@@ -688,22 +690,18 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void Root::addResourceLocation(const String& name, const String& locType, ResourceType resType)
+    void Root::addResourceLocation(const String& name, const String& locType, 
+		const String& groupName, bool recursive)
     {
-        switch(resType)
-        {
-        case RESTYPE_ALL:
-            ResourceManager::addCommonArchiveEx(name, locType);
-            break;
-        case RESTYPE_TEXTURES:
-            TextureManager::getSingleton().addArchiveEx(name, locType);
-            break;
-        case RESTYPE_MODELS:
-            MeshManager::getSingleton().addArchiveEx(name, locType);
-            break;
-
-        }
+		ResourceGroupManager::getSingleton().addResourceLocation(
+			name, locType, groupName, recursive);
     }
+	//-----------------------------------------------------------------------
+	void Root::removeResourceLocation(const String& name, const String& groupName)
+	{
+		ResourceGroupManager::getSingleton().removeResourceLocation(
+			name, groupName);
+	}
     //-----------------------------------------------------------------------
     void Root::convertColourValue(const ColourValue& colour, unsigned long* pDest)
     {
@@ -772,25 +770,6 @@ namespace Ogre {
         return mActiveRenderer->getRenderTarget(name);
     }
     //-----------------------------------------------------------------------
-    /*
-    void Root::showDebugOverlay(bool show)
-    {
-        Overlay* o = (Overlay*)OverlayManager::getSingleton().getByName("Core/DebugOverlay");
-		if (!o)
-			Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find overlay Core/DebugOverlay",
-				"Root::showDebugOverlay" );
-        if (show)
-        {
-            o->show();
-        }
-        else
-        {
-            o->hide();
-        }
-        
-    }
-    */
-    //-----------------------------------------------------------------------
 	void Root::loadPlugin(const String& pluginName)
 	{
 		// Load plugin library
@@ -819,7 +798,7 @@ namespace Ogre {
 				DLL_STOP_PLUGIN pFunc = (DLL_STOP_PLUGIN)(*i)->getSymbol("dllStopPlugin");
 				pFunc();
 				// Unload library & destroy
-				DynLibManager::getSingleton().unload((Resource*)*i);
+				DynLibManager::getSingleton().unload(*i);
 				delete *i;
 				mPluginLibs.erase(i);
 				return;
@@ -841,10 +820,8 @@ namespace Ogre {
 			mMaterialManager->initialise();
             // Init particle systems manager
             mParticleManager->_initialise();
-            // parse all font scripts
-            mFontManager->parseAllSources();
-            // init overlays
-            mOverlayManager->parseAllSources();
+            // initialise resource groups, includes parsing scripts
+			mResourceGroupManager->_initialise();
 			// Init mesh manager
 			MeshManager::getSingleton()._initialise();
             mFirstTimePostWindowInit = true;

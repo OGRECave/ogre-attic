@@ -39,12 +39,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    /// Chunk overhead = ID + size
-    const unsigned long CHUNK_OVERHEAD_SIZE = sizeof(unsigned short) + sizeof(unsigned long);
+    /// stream overhead = ID + size
+    const unsigned long stream_OVERHEAD_SIZE = sizeof(unsigned short) + sizeof(unsigned long);
     //---------------------------------------------------------------------
     MeshSerializerImpl::MeshSerializerImpl()
     {
-        mpMesh = 0;
 
         // Version number
         mVersion = "[MeshSerializer_v1.30]";
@@ -79,21 +78,20 @@ namespace Ogre {
         LogManager::getSingleton().logMessage("MeshSerializer export successful.");
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::importMesh(DataChunk& chunk, Mesh* pDest)
+    void MeshSerializerImpl::importMesh(DataStreamPtr& stream, Mesh* pMesh)
     {
-        mpMesh = pDest;
 
         // Check header
-        readFileHeader(chunk);
+        readFileHeader(stream);
 
-        unsigned short chunkID;
-        while(!chunk.isEOF())
+        unsigned short streamID;
+        while(!stream->eof())
         {
-            chunkID = readChunk(chunk);
-            switch (chunkID)
+            streamID = readChunk(stream);
+            switch (streamID)
             {
             case M_MESH:
-                readMesh(chunk);
+                readMesh(stream, pMesh);
                 break;
 			}
 
@@ -185,7 +183,7 @@ namespace Ogre {
 		while(it != pMesh->mSubMeshNameMap.end())
 		{
 			// Header
-			writeChunkHeader(M_SUBMESH_NAME_TABLE_ELEMENT, CHUNK_OVERHEAD_SIZE + 
+			writeChunkHeader(M_SUBMESH_NAME_TABLE_ELEMENT, stream_OVERHEAD_SIZE + 
 				sizeof(unsigned short) + (unsigned long)it->first.length() + 1);
 
 			// write the index
@@ -230,7 +228,7 @@ namespace Ogre {
         }
         ibuf->unlock();
 
-        // M_GEOMETRY chunk (Optional: present only if useSharedVertices = false)
+        // M_GEOMETRY stream (Optional: present only if useSharedVertices = false)
         if (!s->useSharedVertices)
         {
             writeGeometry(s->vertexData);
@@ -276,13 +274,13 @@ namespace Ogre {
             vertexData->vertexBufferBinding->getBindings();
         VertexBufferBinding::VertexBufferBindingMap::const_iterator vbi, vbiend;
 
-		size_t size = CHUNK_OVERHEAD_SIZE + sizeof(unsigned int) + // base
-			(CHUNK_OVERHEAD_SIZE + elemList.size() * (CHUNK_OVERHEAD_SIZE + sizeof(unsigned short) * 5)); // elements
+		size_t size = stream_OVERHEAD_SIZE + sizeof(unsigned int) + // base
+			(stream_OVERHEAD_SIZE + elemList.size() * (stream_OVERHEAD_SIZE + sizeof(unsigned short) * 5)); // elements
         vbiend = bindings.end();
 		for (vbi = bindings.begin(); vbi != vbiend; ++vbi)
 		{
 			const HardwareVertexBufferSharedPtr& vbuf = vbi->second;
-			size += (CHUNK_OVERHEAD_SIZE * 2) + (sizeof(unsigned short) * 2) + vbuf->getSizeInBytes();
+			size += (stream_OVERHEAD_SIZE * 2) + (sizeof(unsigned short) * 2) + vbuf->getSizeInBytes();
 		}
 
 		// Header
@@ -292,13 +290,13 @@ namespace Ogre {
         writeInts(&vertexData->vertexCount, 1);
 
 		// Vertex declaration
-		size = CHUNK_OVERHEAD_SIZE + elemList.size() * (CHUNK_OVERHEAD_SIZE + sizeof(unsigned short) * 5);
+		size = stream_OVERHEAD_SIZE + elemList.size() * (stream_OVERHEAD_SIZE + sizeof(unsigned short) * 5);
 		writeChunkHeader(M_GEOMETRY_VERTEX_DECLARATION, size);
 		
         VertexDeclaration::VertexElementList::const_iterator vei, veiend;
 		veiend = elemList.end();
 		unsigned short tmp;
-		size = CHUNK_OVERHEAD_SIZE + sizeof(unsigned short) * 5;
+		size = stream_OVERHEAD_SIZE + sizeof(unsigned short) * 5;
 		for (vei = elemList.begin(); vei != veiend; ++vei)
 		{
 			const VertexElement& elem = *vei;
@@ -326,7 +324,7 @@ namespace Ogre {
 		for (vbi = bindings.begin(); vbi != vbiend; ++vbi)
 		{
 			const HardwareVertexBufferSharedPtr& vbuf = vbi->second;
-			size = (CHUNK_OVERHEAD_SIZE * 2) + (sizeof(unsigned short) * 2) + vbuf->getSizeInBytes();
+			size = (stream_OVERHEAD_SIZE * 2) + (sizeof(unsigned short) * 2) + vbuf->getSizeInBytes();
 			writeChunkHeader(M_GEOMETRY_VERTEX_BUFFER,  size);
 			// unsigned short bindIndex;	// Index to bind this buffer to
 			tmp = vbi->first;
@@ -336,7 +334,7 @@ namespace Ogre {
 			writeShorts(&tmp, 1);
 			
 			// Data
-			size = CHUNK_OVERHEAD_SIZE + vbuf->getSizeInBytes();
+			size = stream_OVERHEAD_SIZE + vbuf->getSizeInBytes();
 			writeChunkHeader(M_GEOMETRY_VERTEX_BUFFER_DATA, size);
 			void* pBuf = vbuf->lock(HardwareBuffer::HBL_READ_ONLY);
 #		if OGRE_ENDIAN == ENDIAN_BIG
@@ -359,9 +357,9 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-	unsigned long MeshSerializerImpl::calcSubMeshNameTableSize(const Mesh *pMesh)
+	unsigned long MeshSerializerImpl::calcSubMeshNameTableSize(const Mesh* pMesh)
 	{
-		size_t size = CHUNK_OVERHEAD_SIZE;
+		size_t size = stream_OVERHEAD_SIZE;
 		// Figure out the size of the Name table.
 		// Iterate through the subMeshList & add up the size of the indexes and names.
 		Mesh::SubMeshNameMap::const_iterator it = pMesh->mSubMeshNameMap.begin();		
@@ -381,7 +379,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     unsigned long MeshSerializerImpl::calcMeshSize(const Mesh* pMesh)
     {
-        unsigned long size = CHUNK_OVERHEAD_SIZE;
+        unsigned long size = stream_OVERHEAD_SIZE;
 
         // Num shared vertices
         size += sizeof(unsigned int);
@@ -419,7 +417,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     unsigned long MeshSerializerImpl::calcSubMeshSize(const SubMesh* pSub)
     {
-        size_t size = CHUNK_OVERHEAD_SIZE;
+        size_t size = stream_OVERHEAD_SIZE;
 
         // Material name
         size += (unsigned long)pSub->getMaterialName().length() + 1;
@@ -444,12 +442,12 @@ namespace Ogre {
     //---------------------------------------------------------------------
     unsigned long MeshSerializerImpl::calcSubMeshOperationSize(const SubMesh* pSub)
     {
-        return CHUNK_OVERHEAD_SIZE + sizeof(unsigned short);
+        return stream_OVERHEAD_SIZE + sizeof(unsigned short);
     }
     //---------------------------------------------------------------------
     unsigned long MeshSerializerImpl::calcGeometrySize(const VertexData* vertexData)
     {
-        size_t size = CHUNK_OVERHEAD_SIZE;
+        size_t size = stream_OVERHEAD_SIZE;
 
         // Num vertices
         size += sizeof(unsigned int);
@@ -468,108 +466,112 @@ namespace Ogre {
         return static_cast<unsigned long>(size);
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readGeometry(DataChunk& chunk, VertexData* dest)
+    void MeshSerializerImpl::readGeometry(DataStreamPtr& stream, Mesh* pMesh, 
+        VertexData* dest)
     {
 
         dest->vertexStart = 0;
 
         // unsigned int numVertices
-        readInts(chunk, &dest->vertexCount, 1);
+        readInts(stream, &dest->vertexCount, 1);
 
-        // Find optional geometry chunks
-        if (!chunk.isEOF())
+        // Find optional geometry streams
+        if (!stream->eof())
         {
-            unsigned short chunkID = readChunk(chunk);
-            while(!chunk.isEOF() && 
-                (chunkID == M_GEOMETRY_VERTEX_DECLARATION || 
-                 chunkID == M_GEOMETRY_VERTEX_BUFFER ))
+            unsigned short streamID = readChunk(stream);
+            while(!stream->eof() && 
+                (streamID == M_GEOMETRY_VERTEX_DECLARATION || 
+                 streamID == M_GEOMETRY_VERTEX_BUFFER ))
             {
-                switch (chunkID)
+                switch (streamID)
                 {
                 case M_GEOMETRY_VERTEX_DECLARATION:
-                    readGeometryVertexDeclaration(chunk, dest);
+                    readGeometryVertexDeclaration(stream, pMesh, dest);
                     break;
                 case M_GEOMETRY_VERTEX_BUFFER:
-                    readGeometryVertexBuffer(chunk, dest);
+                    readGeometryVertexBuffer(stream, pMesh, dest);
                     break;
                 }
-                // Get next chunk
-                if (!chunk.isEOF())
+                // Get next stream
+                if (!stream->eof())
                 {
-                    chunkID = readChunk(chunk);
+                    streamID = readChunk(stream);
                 }
             }
-            if (!chunk.isEOF())
+            if (!stream->eof())
             {
-                // Backpedal back to start of non-submesh chunk
-                chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
+                // Backpedal back to start of non-submesh stream
+                stream->skip(-(long)stream_OVERHEAD_SIZE);
             }
         }
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readGeometryVertexDeclaration(DataChunk& chunk, VertexData* dest)
+    void MeshSerializerImpl::readGeometryVertexDeclaration(DataStreamPtr& stream, 
+        Mesh* pMesh, VertexData* dest)
     {
-        // Find optional geometry chunks
-        if (!chunk.isEOF())
+        // Find optional geometry streams
+        if (!stream->eof())
         {
-            unsigned short chunkID = readChunk(chunk);
-            while(!chunk.isEOF() && 
-                (chunkID == M_GEOMETRY_VERTEX_ELEMENT ))
+            unsigned short streamID = readChunk(stream);
+            while(!stream->eof() && 
+                (streamID == M_GEOMETRY_VERTEX_ELEMENT ))
             {
-                switch (chunkID)
+                switch (streamID)
                 {
                 case M_GEOMETRY_VERTEX_ELEMENT:
-                    readGeometryVertexElement(chunk, dest);
+                    readGeometryVertexElement(stream, pMesh, dest);
                     break;
                 }
-                // Get next chunk
-                if (!chunk.isEOF())
+                // Get next stream
+                if (!stream->eof())
                 {
-                    chunkID = readChunk(chunk);
+                    streamID = readChunk(stream);
                 }
             }
-            if (!chunk.isEOF())
+            if (!stream->eof())
             {
-                // Backpedal back to start of non-submesh chunk
-                chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
+                // Backpedal back to start of non-submesh stream
+                stream->skip(-(long)stream_OVERHEAD_SIZE);
             }
         }
 		
 	}
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readGeometryVertexElement(DataChunk& chunk, VertexData* dest)
+    void MeshSerializerImpl::readGeometryVertexElement(DataStreamPtr& stream, 
+        Mesh* pMesh, VertexData* dest)
     {
 		unsigned short source, offset, index, tmp;
 		VertexElementType vType;
 		VertexElementSemantic vSemantic;
 		// unsigned short source;  	// buffer bind source
-		readShorts(chunk, &source, 1);
+		readShorts(stream, &source, 1);
 		// unsigned short type;    	// VertexElementType
-		readShorts(chunk, &tmp, 1);
+		readShorts(stream, &tmp, 1);
 		vType = static_cast<VertexElementType>(tmp);
 		// unsigned short semantic; // VertexElementSemantic
-		readShorts(chunk, &tmp, 1);
+		readShorts(stream, &tmp, 1);
 		vSemantic = static_cast<VertexElementSemantic>(tmp);
 		// unsigned short offset;	// start offset in buffer in bytes
-		readShorts(chunk, &offset, 1);
+		readShorts(stream, &offset, 1);
 		// unsigned short index;	// index of the semantic
-		readShorts(chunk, &index, 1);
+		readShorts(stream, &index, 1);
 
 		dest->vertexDeclaration->addElement(source, offset, vType, vSemantic, index);
 
 	}
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readGeometryVertexBuffer(DataChunk& chunk, VertexData* dest)
+    void MeshSerializerImpl::readGeometryVertexBuffer(DataStreamPtr& stream, 
+        Mesh* pMesh, VertexData* dest)
     {
 		unsigned short bindIndex, vertexSize;
 		// unsigned short bindIndex;	// Index to bind this buffer to
-		readShorts(chunk, &bindIndex, 1);
+		readShorts(stream, &bindIndex, 1);
 		// unsigned short vertexSize;	// Per-vertex size, must agree with declaration at this index
-		readShorts(chunk, &vertexSize, 1);
+		readShorts(stream, &vertexSize, 1);
 
 		// Check for vertex data header
 		unsigned short headerID;
-		headerID = readChunk(chunk);
+		headerID = readChunk(stream);
 		if (headerID != M_GEOMETRY_VERTEX_BUFFER_DATA)
 		{
 			Except(Exception::ERR_ITEM_NOT_FOUND, "Can't find vertex buffer data area",
@@ -587,10 +589,10 @@ namespace Ogre {
         vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
             vertexSize,
             dest->vertexCount,
-            mpMesh->mVertexBufferUsage, 
-			mpMesh->mVertexBufferShadowBuffer);
+            pMesh->mVertexBufferUsage, 
+			pMesh->mVertexBufferShadowBuffer);
         void* pBuf = vbuf->lock(HardwareBuffer::HBL_DISCARD);
-        chunk.read(pBuf, dest->vertexCount * vertexSize);
+        stream->read(pBuf, dest->vertexCount * vertexSize);
 
 		// endian conversion for OSX
 		flipFromLittleEndian(
@@ -605,37 +607,37 @@ namespace Ogre {
 
 	}
     //---------------------------------------------------------------------
-	void MeshSerializerImpl::readSubMeshNameTable(DataChunk& chunk)
+	void MeshSerializerImpl::readSubMeshNameTable(DataStreamPtr& stream, Mesh* pMesh)
 	{
 		// The map for
 		std::map<unsigned short, String> subMeshNames;
-		unsigned short chunkID, subMeshIndex;
+		unsigned short streamID, subMeshIndex;
 
 		// Need something to store the index, and the objects name
 		// This table is a method that imported meshes can retain their naming
 		// so that the names established in the modelling software can be used
 		// to get the sub-meshes by name. The exporter must support exporting
-		// the optional chunk M_SUBMESH_NAME_TABLE.
+		// the optional stream M_SUBMESH_NAME_TABLE.
 
-        // Read in all the sub-chunks. Each sub-chunk should contain an index and Ogre::String for the name.
-		if (!chunk.isEOF())
+        // Read in all the sub-streams. Each sub-stream should contain an index and Ogre::String for the name.
+		if (!stream->eof())
 		{
-			chunkID = readChunk(chunk);
-			while(!chunk.isEOF() && (chunkID == M_SUBMESH_NAME_TABLE_ELEMENT ))
+			streamID = readChunk(stream);
+			while(!stream->eof() && (streamID == M_SUBMESH_NAME_TABLE_ELEMENT ))
 			{
 				// Read in the index of the submesh.
-				readShorts(chunk, &subMeshIndex, 1);
+				readShorts(stream, &subMeshIndex, 1);
 				// Read in the String and map it to its index.
-				subMeshNames[subMeshIndex] = readString(chunk);					
+				subMeshNames[subMeshIndex] = readString(stream);					
 
-				// If we're not end of file get the next chunk ID
-				if (!chunk.isEOF())
-					chunkID = readChunk(chunk);
+				// If we're not end of file get the next stream ID
+				if (!stream->eof())
+					streamID = readChunk(stream);
 			}
-			if (!chunk.isEOF())
+			if (!stream->eof())
 			{
-				// Backpedal back to start of chunk
-				chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
+				// Backpedal back to start of stream
+				stream->skip(-(long)stream_OVERHEAD_SIZE);
 			}
 		}
 
@@ -648,7 +650,7 @@ namespace Ogre {
 		while(it != subMeshNames.end())
 		{			
 			// Name this submesh to the stored name.
-			mpMesh->nameSubMesh(it->second, it->first);
+			pMesh->nameSubMesh(it->second, it->first);
 			++it;
 		}
 
@@ -656,47 +658,47 @@ namespace Ogre {
 
 	}
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readMesh(DataChunk& chunk)
+    void MeshSerializerImpl::readMesh(DataStreamPtr& stream, Mesh* pMesh)
     {
-        unsigned short chunkID;
+        unsigned short streamID;
 
         // Never automatically build edge lists for this version
         // expect them in the file or not at all
-        mpMesh->mAutoBuildEdgeLists = false;
+        pMesh->mAutoBuildEdgeLists = false;
 
 		// bool skeletallyAnimated
-		readBools(chunk, &mIsSkeletallyAnimated, 1);
+		readBools(stream, &mIsSkeletallyAnimated, 1);
 
-        // Find all subchunks 
-        if (!chunk.isEOF())
+        // Find all substreams 
+        if (!stream->eof())
         {
-            chunkID = readChunk(chunk);
-            while(!chunk.isEOF() &&
-                (chunkID == M_GEOMETRY ||
-				 chunkID == M_SUBMESH ||
-                 chunkID == M_MESH_SKELETON_LINK ||
-                 chunkID == M_MESH_BONE_ASSIGNMENT ||
-				 chunkID == M_MESH_LOD ||
-                 chunkID == M_MESH_BOUNDS ||
-				 chunkID == M_SUBMESH_NAME_TABLE ||
-				 chunkID == M_EDGE_LISTS))
+            streamID = readChunk(stream);
+            while(!stream->eof() &&
+                (streamID == M_GEOMETRY ||
+				 streamID == M_SUBMESH ||
+                 streamID == M_MESH_SKELETON_LINK ||
+                 streamID == M_MESH_BONE_ASSIGNMENT ||
+				 streamID == M_MESH_LOD ||
+                 streamID == M_MESH_BOUNDS ||
+				 streamID == M_SUBMESH_NAME_TABLE ||
+				 streamID == M_EDGE_LISTS))
             {
-                switch(chunkID)
+                switch(streamID)
                 {
 				case M_GEOMETRY:
-					mpMesh->sharedVertexData = new VertexData();
+					pMesh->sharedVertexData = new VertexData();
 					try {
-						readGeometry(chunk, mpMesh->sharedVertexData);
+						readGeometry(stream, pMesh, pMesh->sharedVertexData);
 					}
 					catch (Exception& e)
 					{
 						if (e.getNumber() == Exception::ERR_ITEM_NOT_FOUND)
 						{
 							// duff geometry data entry with 0 vertices
-							delete mpMesh->sharedVertexData;
-							mpMesh->sharedVertexData = 0;
-							// Skip this chunk (pointer will have been returned to just after header)
-							chunk.skip(mCurrentChunkLen - CHUNK_OVERHEAD_SIZE);
+							delete pMesh->sharedVertexData;
+							pMesh->sharedVertexData = 0;
+							// Skip this stream (pointer will have been returned to just after header)
+							stream->skip(mCurrentstreamLen - stream_OVERHEAD_SIZE);
 						}
 						else
 						{
@@ -705,77 +707,77 @@ namespace Ogre {
 					}
 					break;
                 case M_SUBMESH:
-                    readSubMesh(chunk);
+                    readSubMesh(stream, pMesh);
                     break;
                 case M_MESH_SKELETON_LINK:
-                    readSkeletonLink(chunk);
+                    readSkeletonLink(stream, pMesh);
                     break;
                 case M_MESH_BONE_ASSIGNMENT:
-                    readMeshBoneAssignment(chunk);
+                    readMeshBoneAssignment(stream, pMesh);
                     break;
                 case M_MESH_LOD:
-					readMeshLodInfo(chunk);
+					readMeshLodInfo(stream, pMesh);
 					break;
                 case M_MESH_BOUNDS:
-                    readBoundsInfo(chunk);
+                    readBoundsInfo(stream, pMesh);
                     break;
 				case M_SUBMESH_NAME_TABLE:
-    	            readSubMeshNameTable(chunk);
+    	            readSubMeshNameTable(stream, pMesh);
 					break;
                 case M_EDGE_LISTS:
-                    readEdgeList(chunk);
+                    readEdgeList(stream, pMesh);
                     break;
 					
                 }
 
-                if (!chunk.isEOF())
+                if (!stream->eof())
                 {
-                    chunkID = readChunk(chunk);
+                    streamID = readChunk(stream);
                 }
 
             }
-            if (!chunk.isEOF())
+            if (!stream->eof())
             {
-                // Backpedal back to start of chunk
-                chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
+                // Backpedal back to start of stream
+                stream->skip(-(long)stream_OVERHEAD_SIZE);
             }
         }
 
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readSubMesh(DataChunk& chunk)
+    void MeshSerializerImpl::readSubMesh(DataStreamPtr& stream, Mesh* pMesh)
     {
-        unsigned short chunkID;
+        unsigned short streamID;
 
-        SubMesh* sm = mpMesh->createSubMesh();
+        SubMesh* sm = pMesh->createSubMesh();
         // char* materialName
-        String materialName = readString(chunk);
+        String materialName = readString(stream);
         sm->setMaterialName(materialName);
 
         // bool useSharedVertices
-        readBools(chunk,&sm->useSharedVertices, 1);
+        readBools(stream,&sm->useSharedVertices, 1);
 
         // unsigned int indexCount
         sm->indexData->indexStart = 0;
-        readInts(chunk, &sm->indexData->indexCount, 1);
+        readInts(stream, &sm->indexData->indexCount, 1);
 
         HardwareIndexBufferSharedPtr ibuf;
         // bool indexes32Bit
         bool idx32bit;
-        readBools(chunk, &idx32bit, 1);
+        readBools(stream, &idx32bit, 1);
         if (idx32bit)
         {
             ibuf = HardwareBufferManager::getSingleton().
                 createIndexBuffer(
                     HardwareIndexBuffer::IT_32BIT, 
                     sm->indexData->indexCount, 
-                    mpMesh->mIndexBufferUsage,
-					mpMesh->mIndexBufferShadowBuffer);
+                    pMesh->mIndexBufferUsage,
+					pMesh->mIndexBufferShadowBuffer);
             // unsigned int* faceVertexIndices 
             unsigned int* pIdx = static_cast<unsigned int*>(
                 ibuf->lock(HardwareBuffer::HBL_DISCARD)
                 );
-            readInts(chunk, pIdx, sm->indexData->indexCount);
+            readInts(stream, pIdx, sm->indexData->indexCount);
             ibuf->unlock();
 
         }
@@ -785,70 +787,71 @@ namespace Ogre {
                 createIndexBuffer(
                     HardwareIndexBuffer::IT_16BIT, 
                     sm->indexData->indexCount, 
-                    mpMesh->mIndexBufferUsage,
-					mpMesh->mIndexBufferShadowBuffer);
+                    pMesh->mIndexBufferUsage,
+					pMesh->mIndexBufferShadowBuffer);
             // unsigned short* faceVertexIndices 
             unsigned short* pIdx = static_cast<unsigned short*>(
                 ibuf->lock(HardwareBuffer::HBL_DISCARD)
                 );
-            readShorts(chunk, pIdx, sm->indexData->indexCount);
+            readShorts(stream, pIdx, sm->indexData->indexCount);
             ibuf->unlock();
         }
         sm->indexData->indexBuffer = ibuf;
 
-        // M_GEOMETRY chunk (Optional: present only if useSharedVertices = false)
+        // M_GEOMETRY stream (Optional: present only if useSharedVertices = false)
         if (!sm->useSharedVertices)
         {
-            chunkID = readChunk(chunk);
-            if (chunkID != M_GEOMETRY)
+            streamID = readChunk(stream);
+            if (streamID != M_GEOMETRY)
             {
                 Except(Exception::ERR_INTERNAL_ERROR, "Missing geometry data in mesh file", 
                     "MeshSerializerImpl::readSubMesh");
             }
             sm->vertexData = new VertexData();
-            readGeometry(chunk, sm->vertexData);
+            readGeometry(stream, pMesh, sm->vertexData);
         }
 
 
         // Find all bone assignments (if present) 
-        if (!chunk.isEOF())
+        if (!stream->eof())
         {
-            chunkID = readChunk(chunk);
-            while(!chunk.isEOF() &&
-                (chunkID == M_SUBMESH_BONE_ASSIGNMENT ||
-                 chunkID == M_SUBMESH_OPERATION))
+            streamID = readChunk(stream);
+            while(!stream->eof() &&
+                (streamID == M_SUBMESH_BONE_ASSIGNMENT ||
+                 streamID == M_SUBMESH_OPERATION))
             {
-                switch(chunkID)
+                switch(streamID)
                 {
                 case M_SUBMESH_OPERATION:
-                    readSubMeshOperation(chunk, sm);
+                    readSubMeshOperation(stream, pMesh, sm);
                     break;
                 case M_SUBMESH_BONE_ASSIGNMENT:
-                    readSubMeshBoneAssignment(chunk, sm);
+                    readSubMeshBoneAssignment(stream, pMesh, sm);
                     break;
                 }
 
-                if (!chunk.isEOF())
+                if (!stream->eof())
                 {
-                    chunkID = readChunk(chunk);
+                    streamID = readChunk(stream);
                 }
 
             }
-            if (!chunk.isEOF())
+            if (!stream->eof())
             {
-                // Backpedal back to start of chunk
-                chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
+                // Backpedal back to start of stream
+                stream->skip(-(long)stream_OVERHEAD_SIZE);
             }
         }
 	
 
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readSubMeshOperation(DataChunk& chunk, SubMesh* sm)
+    void MeshSerializerImpl::readSubMeshOperation(DataStreamPtr& stream, 
+        Mesh* pMesh, SubMesh* sm)
     {
         // unsigned short operationType
         unsigned short opType;
-        readShorts(chunk, &opType, 1);
+        readShorts(stream, &opType, 1);
         sm->operationType = static_cast<RenderOperation::OperationType>(opType);
     }
     //---------------------------------------------------------------------
@@ -860,20 +863,21 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readSkeletonLink(DataChunk &chunk)
+    void MeshSerializerImpl::readSkeletonLink(DataStreamPtr& stream, Mesh* pMesh)
     {
-        String skelName = readString(chunk);
-        mpMesh->setSkeletonName(skelName);
+        String skelName = readString(stream);
+        pMesh->setSkeletonName(skelName);
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readTextureLayer(DataChunk& chunk, Material* pMat)
+    void MeshSerializerImpl::readTextureLayer(DataStreamPtr& stream, Mesh* pMesh,
+        MaterialPtr& pMat)
     {
         // Material definition section phased out of 1.1
     }
     //---------------------------------------------------------------------
     unsigned long MeshSerializerImpl::calcSkeletonLinkSize(const String& skelName)
     {
-        unsigned long size = CHUNK_OVERHEAD_SIZE;
+        unsigned long size = stream_OVERHEAD_SIZE;
 
         size += (unsigned long)skelName.length() + 1;
 
@@ -905,31 +909,32 @@ namespace Ogre {
         writeReals(&(assign->weight), 1);
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readMeshBoneAssignment(DataChunk& chunk)
+    void MeshSerializerImpl::readMeshBoneAssignment(DataStreamPtr& stream, Mesh* pMesh)
     {
         VertexBoneAssignment assign;
 
         // unsigned int vertexIndex;
-        readInts(chunk, &(assign.vertexIndex),1);
+        readInts(stream, &(assign.vertexIndex),1);
         // unsigned short boneIndex;
-        readShorts(chunk, &(assign.boneIndex),1);
+        readShorts(stream, &(assign.boneIndex),1);
         // Real weight;
-        readReals(chunk, &(assign.weight), 1);
+        readReals(stream, &(assign.weight), 1);
 
-        mpMesh->addBoneAssignment(assign);
+        pMesh->addBoneAssignment(assign);
 
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readSubMeshBoneAssignment(DataChunk& chunk, SubMesh* sub)
+    void MeshSerializerImpl::readSubMeshBoneAssignment(DataStreamPtr& stream, 
+        Mesh* pMesh, SubMesh* sub)
     {
         VertexBoneAssignment assign;
 
         // unsigned int vertexIndex;
-        readInts(chunk, &(assign.vertexIndex),1);
+        readInts(stream, &(assign.vertexIndex),1);
         // unsigned short boneIndex;
-        readShorts(chunk, &(assign.boneIndex),1);
+        readShorts(stream, &(assign.boneIndex),1);
         // Real weight;
-        readReals(chunk, &(assign.weight), 1);
+        readReals(stream, &(assign.weight), 1);
 
         sub->addBoneAssignment(assign);
 
@@ -939,7 +944,7 @@ namespace Ogre {
     {
         unsigned long size;
 
-        size = CHUNK_OVERHEAD_SIZE;
+        size = stream_OVERHEAD_SIZE;
 
         // Vert index
         size += sizeof(unsigned int);
@@ -978,7 +983,7 @@ namespace Ogre {
     void MeshSerializerImpl::writeLodSummary(unsigned short numLevels, bool manual)
     {
         // Header
-        unsigned long size = CHUNK_OVERHEAD_SIZE;
+        unsigned long size = stream_OVERHEAD_SIZE;
         // unsigned short numLevels;
         size += sizeof(unsigned short);
         // bool manual;  (true for manual alternate meshes, false for generated)
@@ -997,8 +1002,8 @@ namespace Ogre {
     void MeshSerializerImpl::writeLodUsageManual(const Mesh::MeshLodUsage& usage)
     {
         // Header
-        unsigned long size = CHUNK_OVERHEAD_SIZE;
-        unsigned long manualSize = CHUNK_OVERHEAD_SIZE;
+        unsigned long size = stream_OVERHEAD_SIZE;
+        unsigned long manualSize = stream_OVERHEAD_SIZE;
         // Real fromDepthSquared;
         size += sizeof(Real);
         // Manual part size
@@ -1021,7 +1026,7 @@ namespace Ogre {
 		unsigned short lodNum)
     {
 		// Usage Header
-        unsigned long size = CHUNK_OVERHEAD_SIZE;
+        unsigned long size = stream_OVERHEAD_SIZE;
 		unsigned short subidx;
 
         // Real fromDepthSquared;
@@ -1031,7 +1036,7 @@ namespace Ogre {
 		for(subidx = 0; subidx < pMesh->getNumSubMeshes(); ++subidx)
 		{
 			// header
-			size += CHUNK_OVERHEAD_SIZE;
+			size += stream_OVERHEAD_SIZE;
 			// unsigned int numFaces;
 			size += sizeof(unsigned int);
 			SubMesh* sm = pMesh->getSubMesh(subidx);
@@ -1060,7 +1065,7 @@ namespace Ogre {
         // Calc generated SubMesh sections size
 		for(subidx = 0; subidx < pMesh->getNumSubMeshes(); ++subidx)
 		{
-			size = CHUNK_OVERHEAD_SIZE;
+			size = stream_OVERHEAD_SIZE;
 			// unsigned int numFaces;
 			size += sizeof(unsigned int);
 			SubMesh* sm = pMesh->getSubMesh(subidx);
@@ -1109,7 +1114,7 @@ namespace Ogre {
     void MeshSerializerImpl::writeBoundsInfo(const Mesh* pMesh)
     {
 		// Usage Header
-        unsigned long size = CHUNK_OVERHEAD_SIZE;
+        unsigned long size = stream_OVERHEAD_SIZE;
 
         size += sizeof(Real) * 7;
         writeChunkHeader(M_MESH_BOUNDS, size);
@@ -1129,140 +1134,140 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readBoundsInfo(DataChunk& chunk)
+    void MeshSerializerImpl::readBoundsInfo(DataStreamPtr& stream, Mesh* pMesh)
     {
         Vector3 min, max;
         // Real minx, miny, minz
-        readReals(chunk, &min.x, 1);
-        readReals(chunk, &min.y, 1);
-        readReals(chunk, &min.z, 1);
+        readReals(stream, &min.x, 1);
+        readReals(stream, &min.y, 1);
+        readReals(stream, &min.z, 1);
         // Real maxx, maxy, maxz
-        readReals(chunk, &max.x, 1);
-        readReals(chunk, &max.y, 1);
-        readReals(chunk, &max.z, 1);
+        readReals(stream, &max.x, 1);
+        readReals(stream, &max.y, 1);
+        readReals(stream, &max.z, 1);
         AxisAlignedBox box(min, max);
-        mpMesh->_setBounds(box, true);
+        pMesh->_setBounds(box, true);
         // Real radius
         Real radius;
-        readReals(chunk, &radius, 1);
-        mpMesh->_setBoundingSphereRadius(radius);
+        readReals(stream, &radius, 1);
+        pMesh->_setBoundingSphereRadius(radius);
 
 
 
     }
     //---------------------------------------------------------------------
-	void MeshSerializerImpl::readMeshLodInfo(DataChunk& chunk)
+	void MeshSerializerImpl::readMeshLodInfo(DataStreamPtr& stream, Mesh* pMesh)
 	{
-		unsigned short chunkID, i;
+		unsigned short streamID, i;
 
         // unsigned short numLevels;
-		readShorts(chunk, &(mpMesh->mNumLods), 1);
+		readShorts(stream, &(pMesh->mNumLods), 1);
         // bool manual;  (true for manual alternate meshes, false for generated)
-		readBools(chunk, &(mpMesh->mIsLodManual), 1);
+		readBools(stream, &(pMesh->mIsLodManual), 1);
 
 		// Preallocate submesh lod face data if not manual
-		if (!mpMesh->mIsLodManual)
+		if (!pMesh->mIsLodManual)
 		{
-			unsigned short numsubs = mpMesh->getNumSubMeshes();
+			unsigned short numsubs = pMesh->getNumSubMeshes();
 			for (i = 0; i < numsubs; ++i)
 			{
-				SubMesh* sm = mpMesh->getSubMesh(i);
-				sm->mLodFaceList.resize(mpMesh->mNumLods-1);
+				SubMesh* sm = pMesh->getSubMesh(i);
+				sm->mLodFaceList.resize(pMesh->mNumLods-1);
 			}
 		}
 
 		// Loop from 1 rather than 0 (full detail index is not in file)
-		for (i = 1; i < mpMesh->mNumLods; ++i)
+		for (i = 1; i < pMesh->mNumLods; ++i)
 		{
-			chunkID = readChunk(chunk);
-			if (chunkID != M_MESH_LOD_USAGE)
+			streamID = readChunk(stream);
+			if (streamID != M_MESH_LOD_USAGE)
 			{
 				Except(Exception::ERR_ITEM_NOT_FOUND, 
-					"Missing M_MESH_LOD_USAGE chunk in " + mpMesh->getName(), 
+					"Missing M_MESH_LOD_USAGE stream in " + pMesh->getName(), 
 					"MeshSerializerImpl::readMeshLodInfo");
 			}
 			// Read depth
 			Mesh::MeshLodUsage usage;
-			readReals(chunk, &(usage.fromDepthSquared), 1);
+			readReals(stream, &(usage.fromDepthSquared), 1);
 
-			if (mpMesh->isLodManual())
+			if (pMesh->isLodManual())
 			{
-				readMeshLodUsageManual(chunk, i, usage);
+				readMeshLodUsageManual(stream, pMesh, i, usage);
 			}
-			else //(!mpMesh->isLodManual)
+			else //(!pMesh->isLodManual)
 			{
-				readMeshLodUsageGenerated(chunk, i, usage);
+				readMeshLodUsageGenerated(stream, pMesh, i, usage);
 			}
             usage.edgeData = NULL;
 
 			// Save usage
-			mpMesh->mMeshLodUsageList.push_back(usage);
+			pMesh->mMeshLodUsageList.push_back(usage);
 		}
 
 
 	}
     //---------------------------------------------------------------------
-	void MeshSerializerImpl::readMeshLodUsageManual(DataChunk& chunk, 
-		unsigned short lodNum, Mesh::MeshLodUsage& usage)
+	void MeshSerializerImpl::readMeshLodUsageManual(DataStreamPtr& stream, 
+        Mesh* pMesh, unsigned short lodNum, Mesh::MeshLodUsage& usage)
 	{
-		unsigned long chunkID;
-		// Read detail chunk
-		chunkID = readChunk(chunk);
-		if (chunkID != M_MESH_LOD_MANUAL)
+		unsigned long streamID;
+		// Read detail stream
+		streamID = readChunk(stream);
+		if (streamID != M_MESH_LOD_MANUAL)
 		{
 			Except(Exception::ERR_ITEM_NOT_FOUND, 
-				"Missing M_MESH_LOD_MANUAL chunk in " + mpMesh->getName(),
+				"Missing M_MESH_LOD_MANUAL stream in " + pMesh->getName(),
 				"MeshSerializerImpl::readMeshLodUsageManual");
 		}
 
-		usage.manualName = readString(chunk);
-		usage.manualMesh = NULL; // will trigger load later
+		usage.manualName = readString(stream);
+		usage.manualMesh.setNull(); // will trigger load later
 	}
     //---------------------------------------------------------------------
-	void MeshSerializerImpl::readMeshLodUsageGenerated(DataChunk& chunk, 
-		unsigned short lodNum, Mesh::MeshLodUsage& usage)
+	void MeshSerializerImpl::readMeshLodUsageGenerated(DataStreamPtr& stream, 
+        Mesh* pMesh, unsigned short lodNum, Mesh::MeshLodUsage& usage)
 	{
 		usage.manualName = "";
-		usage.manualMesh = 0;
+		usage.manualMesh.setNull();
 
 		// Get one set of detail per SubMesh
 		unsigned short numSubs, i;
-		unsigned long chunkID;
-		numSubs = mpMesh->getNumSubMeshes();
+		unsigned long streamID;
+		numSubs = pMesh->getNumSubMeshes();
 		for (i = 0; i < numSubs; ++i)
 		{
-			chunkID = readChunk(chunk);
-			if (chunkID != M_MESH_LOD_GENERATED)
+			streamID = readChunk(stream);
+			if (streamID != M_MESH_LOD_GENERATED)
 			{
 				Except(Exception::ERR_ITEM_NOT_FOUND, 
-					"Missing M_MESH_LOD_GENERATED chunk in " + mpMesh->getName(),
+					"Missing M_MESH_LOD_GENERATED stream in " + pMesh->getName(),
 					"MeshSerializerImpl::readMeshLodUsageGenerated");
 			}
 
-			SubMesh* sm = mpMesh->getSubMesh(i);
+			SubMesh* sm = pMesh->getSubMesh(i);
 			// lodNum - 1 because SubMesh doesn't store full detail LOD
             sm->mLodFaceList[lodNum - 1] = new IndexData();
 			IndexData* indexData = sm->mLodFaceList[lodNum - 1];
             // unsigned int numIndexes
             unsigned int numIndexes;
-			readInts(chunk, &numIndexes, 1);
+			readInts(stream, &numIndexes, 1);
             indexData->indexCount = static_cast<size_t>(numIndexes);
             // bool indexes32Bit
             bool idx32Bit;
-            readBools(chunk, &idx32Bit, 1);
+            readBools(stream, &idx32Bit, 1);
             // unsigned short*/int* faceIndexes;  ((v1, v2, v3) * numFaces)
             if (idx32Bit)
             {
                 indexData->indexBuffer = HardwareBufferManager::getSingleton().
                     createIndexBuffer(HardwareIndexBuffer::IT_32BIT, indexData->indexCount,
-                    mpMesh->mIndexBufferUsage, mpMesh->mIndexBufferShadowBuffer);
+                    pMesh->mIndexBufferUsage, pMesh->mIndexBufferShadowBuffer);
                 unsigned int* pIdx = static_cast<unsigned int*>(
                     indexData->indexBuffer->lock(
                         0, 
                         indexData->indexBuffer->getSizeInBytes(), 
                         HardwareBuffer::HBL_DISCARD) );
 
-			    readInts(chunk, pIdx, indexData->indexCount);
+			    readInts(stream, pIdx, indexData->indexCount);
                 indexData->indexBuffer->unlock();
 
             }
@@ -1270,13 +1275,13 @@ namespace Ogre {
             {
                 indexData->indexBuffer = HardwareBufferManager::getSingleton().
                     createIndexBuffer(HardwareIndexBuffer::IT_16BIT, indexData->indexCount,
-                    mpMesh->mIndexBufferUsage, mpMesh->mIndexBufferShadowBuffer);
+                    pMesh->mIndexBufferUsage, pMesh->mIndexBufferShadowBuffer);
                 unsigned short* pIdx = static_cast<unsigned short*>(
                     indexData->indexBuffer->lock(
                         0, 
                         indexData->indexBuffer->getSizeInBytes(), 
                         HardwareBuffer::HBL_DISCARD) );
-			    readShorts(chunk, pIdx, indexData->indexCount);
+			    readShorts(stream, pIdx, indexData->indexCount);
                 indexData->indexBuffer->unlock();
 
             }
@@ -1341,9 +1346,9 @@ namespace Ogre {
 		}
 	}
     //---------------------------------------------------------------------
-	unsigned long MeshSerializerImpl::calcEdgeListSize(const Mesh *pMesh)
+	unsigned long MeshSerializerImpl::calcEdgeListSize(const Mesh* pMesh)
 	{
-        size_t size = CHUNK_OVERHEAD_SIZE;
+        size_t size = stream_OVERHEAD_SIZE;
 
         for (ushort i = 0; i < pMesh->getNumLodLevels(); ++i)
         {
@@ -1360,7 +1365,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     unsigned long MeshSerializerImpl::calcEdgeListLodSize(const EdgeData* edgeData, bool isManual)
     {
-        size_t size = CHUNK_OVERHEAD_SIZE;
+        size_t size = stream_OVERHEAD_SIZE;
 
         // unsigned short lodIndex
         size += sizeof(unsigned short);
@@ -1399,7 +1404,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     unsigned long MeshSerializerImpl::calcEdgeGroupSize(const EdgeData::EdgeGroup& group)
     {
-        size_t size = CHUNK_OVERHEAD_SIZE;
+        size_t size = stream_OVERHEAD_SIZE;
 
         // unsigned long vertexSet
         size += sizeof(unsigned long);
@@ -1509,39 +1514,39 @@ namespace Ogre {
         }
 	}
     //---------------------------------------------------------------------
-	void MeshSerializerImpl::readEdgeList(DataChunk& chunk)
+	void MeshSerializerImpl::readEdgeList(DataStreamPtr& stream, Mesh* pMesh)
 	{
-        unsigned short chunkID;
+        unsigned short streamID;
 
-        if (!chunk.isEOF())
+        if (!stream->eof())
         {
-            chunkID = readChunk(chunk);
-            while(!chunk.isEOF() &&
-                chunkID == M_EDGE_LIST_LOD)
+            streamID = readChunk(stream);
+            while(!stream->eof() &&
+                streamID == M_EDGE_LIST_LOD)
             {
                 // Process single LOD
 
                 // unsigned short lodIndex
                 unsigned short lodIndex;
-                readShorts(chunk, &lodIndex, 1);
+                readShorts(stream, &lodIndex, 1);
 
                 // bool isManual			// If manual, no edge data here, loaded from manual mesh
                 bool isManual;
-                readBools(chunk, &isManual, 1);
+                readBools(stream, &isManual, 1);
                 // Only load in non-manual levels; others will be connected up by Mesh on demand
                 if (!isManual)
                 {
-                    Mesh::MeshLodUsage& usage = const_cast<Mesh::MeshLodUsage&>(mpMesh->getLodLevel(lodIndex));
+                    Mesh::MeshLodUsage& usage = const_cast<Mesh::MeshLodUsage&>(pMesh->getLodLevel(lodIndex));
 
                     usage.edgeData = new EdgeData();
                     // unsigned long numTriangles
                     unsigned long numTriangles;
-                    readLongs(chunk, &numTriangles, 1);
+                    readLongs(stream, &numTriangles, 1);
                     // Allocate correct amount of memory
                     usage.edgeData->triangles.resize(numTriangles);
                     // unsigned long numEdgeGroups
                     unsigned long numEdgeGroups;
-                    readLongs(chunk, &numEdgeGroups, 1);
+                    readLongs(stream, &numEdgeGroups, 1);
                     // Allocate correct amount of memory
                     usage.edgeData->edgeGroups.resize(numEdgeGroups);
                     // Triangle* triangleList
@@ -1550,103 +1555,103 @@ namespace Ogre {
                     {
                         EdgeData::Triangle& tri = usage.edgeData->triangles[t];
                         // unsigned long indexSet
-                        readLongs(chunk, tmp, 1);
+                        readLongs(stream, tmp, 1);
                         tri.indexSet = tmp[0];
                         // unsigned long vertexSet
-                        readLongs(chunk, tmp, 1);
+                        readLongs(stream, tmp, 1);
                         tri.vertexSet = tmp[0];
                         // unsigned long vertIndex[3]
-                        readLongs(chunk, tmp, 3);
+                        readLongs(stream, tmp, 3);
                         tri.vertIndex[0] = tmp[0];
                         tri.vertIndex[1] = tmp[1];
                         tri.vertIndex[2] = tmp[2];
                         // unsigned long sharedVertIndex[3] 
-                        readLongs(chunk, tmp, 3);
+                        readLongs(stream, tmp, 3);
                         tri.sharedVertIndex[0] = tmp[0];
                         tri.sharedVertIndex[1] = tmp[1];
                         tri.sharedVertIndex[2] = tmp[2];
                         // Real normal[4] 
-                        readReals(chunk, &(tri.normal.x), 4);
+                        readReals(stream, &(tri.normal.x), 4);
 
                     }
 
                     for (unsigned long eg = 0; eg < numEdgeGroups; ++eg)
                     {
-                        chunkID = readChunk(chunk);
-                        if (chunkID != M_EDGE_GROUP)
+                        streamID = readChunk(stream);
+                        if (streamID != M_EDGE_GROUP)
                         {
                             Except(Exception::ERR_INTERNAL_ERROR, 
-                                "Missing M_EDGE_GROUP chunk", 
+                                "Missing M_EDGE_GROUP stream", 
                                 "MeshSerializerImpl::readEdgeList");
                         }
                         EdgeData::EdgeGroup& edgeGroup = usage.edgeData->edgeGroups[eg];
 
                         // unsigned long vertexSet
-                        readLongs(chunk, tmp, 1);
+                        readLongs(stream, tmp, 1);
                         edgeGroup.vertexSet = tmp[0];
                         // unsigned long numEdges
                         unsigned long numEdges;
-                        readLongs(chunk, &numEdges, 1);
+                        readLongs(stream, &numEdges, 1);
                         edgeGroup.edges.resize(numEdges);
                         // Edge* edgeList
                         for (unsigned long e = 0; e < numEdges; ++e)
                         {
                             EdgeData::Edge& edge = edgeGroup.edges[e];
                             // unsigned long  triIndex[2]
-                            readLongs(chunk, tmp, 2);
+                            readLongs(stream, tmp, 2);
                             edge.triIndex[0] = tmp[0];
                             edge.triIndex[1] = tmp[1];
                             // unsigned long  vertIndex[2]
-                            readLongs(chunk, tmp, 2);
+                            readLongs(stream, tmp, 2);
                             edge.vertIndex[0] = tmp[0];
                             edge.vertIndex[1] = tmp[1];
                             // unsigned long  sharedVertIndex[2]
-                            readLongs(chunk, tmp, 2);
+                            readLongs(stream, tmp, 2);
                             edge.sharedVertIndex[0] = tmp[0];
                             edge.sharedVertIndex[1] = tmp[1];
                             // bool degenerate
-                            readBools(chunk, &(edge.degenerate), 1);
+                            readBools(stream, &(edge.degenerate), 1);
                         }
                         // Populate edgeGroup.vertexData pointers
                         // If there is shared vertex data, vertexSet 0 is that, 
                         // otherwise 0 is first dedicated
-                        if (mpMesh->sharedVertexData)
+                        if (pMesh->sharedVertexData)
                         {
                             if (edgeGroup.vertexSet == 0)
                             {
-                                edgeGroup.vertexData = mpMesh->sharedVertexData;
+                                edgeGroup.vertexData = pMesh->sharedVertexData;
                             }
                             else
                             {
-                                edgeGroup.vertexData = mpMesh->getSubMesh(
+                                edgeGroup.vertexData = pMesh->getSubMesh(
                                     edgeGroup.vertexSet-1)->vertexData;
                             }
                         }
                         else
                         {
-                            edgeGroup.vertexData = mpMesh->getSubMesh(
+                            edgeGroup.vertexData = pMesh->getSubMesh(
                                 edgeGroup.vertexSet)->vertexData;
                         }
                     }
                     
                 }
 
-                if (!chunk.isEOF())
+                if (!stream->eof())
                 {
-                    chunkID = readChunk(chunk);
+                    streamID = readChunk(stream);
                 }
 
             }
-            if (!chunk.isEOF())
+            if (!stream->eof())
             {
-                // Backpedal back to start of chunk
-                chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
+                // Backpedal back to start of stream
+                stream->skip(-(long)stream_OVERHEAD_SIZE);
             }
         }
 
 
 
-        mpMesh->mEdgeListsBuilt = true;
+        pMesh->mEdgeListsBuilt = true;
 	}
     //---------------------------------------------------------------------
     //---------------------------------------------------------------------
@@ -1661,15 +1666,16 @@ namespace Ogre {
     {
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl_v1_2::readMesh(DataChunk& chunk)
+    void MeshSerializerImpl_v1_2::readMesh(DataStreamPtr& stream, Mesh* pMesh)
     {
-        MeshSerializerImpl::readMesh(chunk);
+        MeshSerializerImpl::readMesh(stream, pMesh);
         // Always automatically build edge lists for this version
-        mpMesh->mAutoBuildEdgeLists = true;
+        pMesh->mAutoBuildEdgeLists = true;
         
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl_v1_2::readGeometry(DataChunk& chunk, VertexData* dest)
+    void MeshSerializerImpl_v1_2::readGeometry(DataStreamPtr& stream, Mesh* pMesh, 
+        VertexData* dest)
     {
         unsigned short texCoordSet = 0;
         
@@ -1678,50 +1684,50 @@ namespace Ogre {
         dest->vertexStart = 0;
 
         // unsigned int numVertices
-        readInts(chunk, &dest->vertexCount, 1);
+        readInts(stream, &dest->vertexCount, 1);
 
         // Vertex buffers
 
-        readGeometryPositions(bindIdx, chunk, dest);
+        readGeometryPositions(bindIdx, stream, pMesh, dest);
         ++bindIdx;
 
-        // Find optional geometry chunks
-        if (!chunk.isEOF())
+        // Find optional geometry streams
+        if (!stream->eof())
         {
-            unsigned short chunkID = readChunk(chunk);
-            while(!chunk.isEOF() && 
-                (chunkID == M_GEOMETRY_NORMALS || 
-                 chunkID == M_GEOMETRY_COLOURS ||
-                 chunkID == M_GEOMETRY_TEXCOORDS ))
+            unsigned short streamID = readChunk(stream);
+            while(!stream->eof() && 
+                (streamID == M_GEOMETRY_NORMALS || 
+                 streamID == M_GEOMETRY_COLOURS ||
+                 streamID == M_GEOMETRY_TEXCOORDS ))
             {
-                switch (chunkID)
+                switch (streamID)
                 {
                 case M_GEOMETRY_NORMALS:
-                    readGeometryNormals(bindIdx++, chunk, dest);
+                    readGeometryNormals(bindIdx++, stream, pMesh, dest);
                     break;
                 case M_GEOMETRY_COLOURS:
-                    readGeometryColours(bindIdx++, chunk, dest);
+                    readGeometryColours(bindIdx++, stream, pMesh, dest);
                     break;
                 case M_GEOMETRY_TEXCOORDS:
-                    readGeometryTexCoords(bindIdx++, chunk, dest, texCoordSet++);
+                    readGeometryTexCoords(bindIdx++, stream, pMesh, dest, texCoordSet++);
                     break;
                 }
-                // Get next chunk
-                if (!chunk.isEOF())
+                // Get next stream
+                if (!stream->eof())
                 {
-                    chunkID = readChunk(chunk);
+                    streamID = readChunk(stream);
                 }
             }
-            if (!chunk.isEOF())
+            if (!stream->eof())
             {
-                // Backpedal back to start of non-submesh chunk
-                chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
+                // Backpedal back to start of non-submesh stream
+                stream->skip(-(long)stream_OVERHEAD_SIZE);
             }
         }
     }
     //---------------------------------------------------------------------
     void MeshSerializerImpl_v1_2::readGeometryPositions(unsigned short bindIdx, 
-        DataChunk& chunk, VertexData* dest)
+        DataStreamPtr& stream, Mesh* pMesh, VertexData* dest)
     {
         Real *pReal = 0;
         HardwareVertexBufferSharedPtr vbuf;
@@ -1730,17 +1736,17 @@ namespace Ogre {
         vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
             dest->vertexDeclaration->getVertexSize(bindIdx),
             dest->vertexCount,
-            mpMesh->mVertexBufferUsage, 
-			mpMesh->mIndexBufferShadowBuffer);
+            pMesh->mVertexBufferUsage, 
+			pMesh->mIndexBufferShadowBuffer);
         pReal = static_cast<Real*>(
             vbuf->lock(HardwareBuffer::HBL_DISCARD));
-        readReals(chunk, pReal, dest->vertexCount * 3);
+        readReals(stream, pReal, dest->vertexCount * 3);
         vbuf->unlock();
         dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
     }
     //---------------------------------------------------------------------
     void MeshSerializerImpl_v1_2::readGeometryNormals(unsigned short bindIdx, 
-        DataChunk& chunk, VertexData* dest)
+        DataStreamPtr& stream, Mesh* pMesh, VertexData* dest)
     {
         Real *pReal = 0;
         HardwareVertexBufferSharedPtr vbuf;
@@ -1749,17 +1755,17 @@ namespace Ogre {
         vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
             dest->vertexDeclaration->getVertexSize(bindIdx),
             dest->vertexCount,
-            mpMesh->mVertexBufferUsage,
-			mpMesh->mVertexBufferShadowBuffer);
+            pMesh->mVertexBufferUsage,
+			pMesh->mVertexBufferShadowBuffer);
         pReal = static_cast<Real*>(
             vbuf->lock(HardwareBuffer::HBL_DISCARD));
-        readReals(chunk, pReal, dest->vertexCount * 3);
+        readReals(stream, pReal, dest->vertexCount * 3);
         vbuf->unlock();
         dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
     }
     //---------------------------------------------------------------------
     void MeshSerializerImpl_v1_2::readGeometryColours(unsigned short bindIdx, 
-        DataChunk& chunk, VertexData* dest)
+        DataStreamPtr& stream, Mesh* pMesh, VertexData* dest)
     {
         RGBA* pRGBA = 0;
         HardwareVertexBufferSharedPtr vbuf;
@@ -1768,23 +1774,23 @@ namespace Ogre {
         vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
             dest->vertexDeclaration->getVertexSize(bindIdx),
             dest->vertexCount,
-            mpMesh->mVertexBufferUsage,
-			mpMesh->mVertexBufferShadowBuffer);
+            pMesh->mVertexBufferUsage,
+			pMesh->mVertexBufferShadowBuffer);
         pRGBA = static_cast<RGBA*>(
             vbuf->lock(HardwareBuffer::HBL_DISCARD));
-        readLongs(chunk, pRGBA, dest->vertexCount);
+        readLongs(stream, pRGBA, dest->vertexCount);
         vbuf->unlock();
         dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
     }
     //---------------------------------------------------------------------
     void MeshSerializerImpl_v1_2::readGeometryTexCoords(unsigned short bindIdx, 
-        DataChunk& chunk, VertexData* dest, unsigned short texCoordSet)
+        DataStreamPtr& stream, Mesh* pMesh, VertexData* dest, unsigned short texCoordSet)
     {
         Real *pReal = 0;
         HardwareVertexBufferSharedPtr vbuf;
         // unsigned short dimensions    (1 for 1D, 2 for 2D, 3 for 3D)
         unsigned short dim;
-        readShorts(chunk, &dim, 1);
+        readShorts(stream, &dim, 1);
         // Real* pTexCoords  (u [v] [w] order, dimensions x numVertices)
         dest->vertexDeclaration->addElement(
             bindIdx, 
@@ -1795,11 +1801,11 @@ namespace Ogre {
         vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
             dest->vertexDeclaration->getVertexSize(bindIdx),
             dest->vertexCount,
-            mpMesh->mVertexBufferUsage,
-			mpMesh->mVertexBufferShadowBuffer);
+            pMesh->mVertexBufferUsage,
+			pMesh->mVertexBufferShadowBuffer);
         pReal = static_cast<Real*>(
             vbuf->lock(HardwareBuffer::HBL_DISCARD));
-        readReals(chunk, pReal, dest->vertexCount * dim);
+        readReals(stream, pReal, dest->vertexCount * dim);
         vbuf->unlock();
         dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
     }
@@ -1817,13 +1823,13 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------
     void MeshSerializerImpl_v1_1::readGeometryTexCoords(unsigned short bindIdx, 
-        DataChunk& chunk, VertexData* dest, unsigned short texCoordSet)
+        DataStreamPtr& stream, Mesh* pMesh, VertexData* dest, unsigned short texCoordSet)
     {
         Real *pReal = 0;
         HardwareVertexBufferSharedPtr vbuf;
         // unsigned short dimensions    (1 for 1D, 2 for 2D, 3 for 3D)
         unsigned short dim;
-        readShorts(chunk, &dim, 1);
+        readShorts(stream, &dim, 1);
         // Real* pTexCoords  (u [v] [w] order, dimensions x numVertices)
         dest->vertexDeclaration->addElement(
             bindIdx, 
@@ -1834,11 +1840,11 @@ namespace Ogre {
         vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
             dest->vertexDeclaration->getVertexSize(bindIdx),
             dest->vertexCount,
-            mpMesh->getVertexBufferUsage(),
-			mpMesh->isVertexBufferShadowed());
+            pMesh->getVertexBufferUsage(),
+			pMesh->isVertexBufferShadowed());
         pReal = static_cast<Real*>(
             vbuf->lock(HardwareBuffer::HBL_DISCARD));
-        readReals(chunk, pReal, dest->vertexCount * dim);
+        readReals(stream, pReal, dest->vertexCount * dim);
 
         // Adjust individual v values to (1 - v)
         if (dim == 2)

@@ -35,26 +35,46 @@ namespace Ogre {
     class D3D7GpuProgram : public GpuProgram
     {
     public:
-        D3D7GpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode)
-            : GpuProgram(name, gptype, syntaxCode) {}
+        D3D7GpuProgram(ResourceManager* creator, const String& name, ResourceHandle handle,
+            const String& group, bool isManual = false, ManualResourceLoader* loader = 0)
+            : GpuProgram(creator, name, handle, group, isManual, loader) {}
 
     protected:
         /** Overridden from GpuProgram, do nothing */
         void loadFromSource(void) {}
+        /** Overridden from GpuProgram, do nothing */
+        void unloadImpl(void) {}
     };
     /** Dummy implementation of GpuProgramManager - cannot do anything
         since D3D7 did not support vertex or fragment programs. */
     class D3D7GpuProgramManager : public GpuProgramManager
     {
+    protected:
+        Resource* createImpl(const String& name, ResourceHandle handle, 
+            const String& group, bool isManual, ManualResourceLoader* loader,
+            GpuProgramType gptype, const String& syntaxCode)
+        {
+            return new D3D7GpuProgram(this, name, handle, group, isManual, loader);
+        }
+        Resource* createImpl(const String& name, ResourceHandle handle, 
+            const String& group, bool isManual, ManualResourceLoader* loader, 
+            const NameValuePairList* createParams)
+        {
+            return new D3D7GpuProgram(this, name, handle, group, isManual, loader);
+        }
     public:
-        D3D7GpuProgramManager() {}
-		~D3D7GpuProgramManager() {}
+        D3D7GpuProgramManager() 
+        {
+            // Register with resource group manager
+            ResourceGroupManager::getSingleton()._registerResourceManager(mResourceType, this);
+        }
+		~D3D7GpuProgramManager() 
+        {
+            ResourceGroupManager::getSingleton()._unregisterResourceManager(mResourceType);
+        }
         /// @copydoc GpuProgramManager::createParameters
         GpuProgramParametersSharedPtr createParameters(void) 
         { return GpuProgramParametersSharedPtr(new GpuProgramParameters()); }
-        /// @copydoc GpuProgramManager::create
-        GpuProgram* create(const String& name, GpuProgramType gptype, const String& syntaxCode)
-        { return new D3D7GpuProgram(name, gptype, syntaxCode); }
     };
 
 }

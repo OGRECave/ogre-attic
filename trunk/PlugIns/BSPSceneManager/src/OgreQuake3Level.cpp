@@ -23,7 +23,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 #include "OgreQuake3Level.h"
-#include "OgreDataChunk.h"
 #include "OgreLogManager.h"
 #include "OgreTextureManager.h"
 
@@ -35,9 +34,9 @@ namespace Ogre {
 
     }
 
-    void Quake3Level::loadFromChunk(DataChunk& inChunk)
+    void Quake3Level::loadFromStream(DataStreamPtr& stream)
     {
-        mChunk = inChunk;
+        mChunk = MemoryDataStreamPtr(new MemoryDataStream(stream));
         initialise();
 
 #ifdef _DEBUG
@@ -71,7 +70,7 @@ namespace Ogre {
     {
         int i=0;
        
-        mHeader = (bsp_header_t*)mChunk.getPtr();
+        mHeader = (bsp_header_t*)mChunk->getPtr();
         mLumpStart = ((unsigned char*)mHeader) + sizeof(mHeader);
        
         mEntities = (unsigned char*)getLump(BSP_ENTITIES_LUMP);
@@ -212,12 +211,15 @@ namespace Ogre {
         unsigned char* pLightmap = mLightmaps;
         for (int i = 0; i < mNumLightmaps; ++i)
         {
-            char name[32];
-            sprintf(name, "@lightmap%d", i);
+			StringUtil::StrStreamType name;
+            name << "@lightmap" << i;
 
             // Load, no mipmaps, brighten by factor 2.5
-            Image img; img.loadRawData( DataChunk( pLightmap, 128 * 128 * 3 ), 128, 128, PF_R8G8B8 );
-            TextureManager::getSingleton().loadImage( name, img, TEX_TYPE_2D, 0, 4.0f );
+			DataStreamPtr stream(new MemoryDataStream(pLightmap, 128 * 128 * 3, false));
+            Image img; 
+			img.loadRawData( stream, 128, 128, PF_R8G8B8 );
+            TextureManager::getSingleton().loadImage( name.str(), 
+				ResourceGroupManager::getSingleton().getWorldResourceGroupName(), img, TEX_TYPE_2D, 0, 4.0f );
             pLightmap += BSP_LIGHTMAP_BANKSIZE;
         }
 

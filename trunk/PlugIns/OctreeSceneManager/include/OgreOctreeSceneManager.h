@@ -188,8 +188,8 @@ public:
     */
     virtual bool getOption( const String &, void * );
 
-    bool getOptionValues( const String & key, std::list < SDDataChunk > &refValueList );
-    bool getOptionKeys( std::list < String > & refKeys );
+    bool getOptionValues( const String & key, StringVector &refValueList );
+    bool getOptionKeys( StringVector &refKeys );
     /** Overridden from SceneManager */
     void clearScene(void);
 

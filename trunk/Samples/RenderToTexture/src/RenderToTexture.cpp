@@ -100,7 +100,9 @@ protected:
         mPlane = new MovablePlane("ReflectPlane");
         mPlane->d = 0;
         mPlane->normal = Vector3::UNIT_Y;
-        MeshManager::getSingleton().createPlane("ReflectionPlane", *mPlane, 2000, 2000, 
+        MeshManager::getSingleton().createPlane("ReflectionPlane", 
+            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
+            *mPlane, 2000, 2000, 
             1, 1, true, 1, 1, 1, Vector3::UNIT_Z);
         mPlaneEnt = mSceneMgr->createEntity( "Plane", "ReflectionPlane" );
 
@@ -138,7 +140,8 @@ protected:
             v->setClearEveryFrame( true );
             v->setBackgroundColour( ColourValue::Black );
 
-            Material* mat = mSceneMgr->createMaterial("RttMat");
+            MaterialPtr mat = MaterialManager::getSingleton().create("RttMat",
+                ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
             TextureUnitState* t = mat->getTechnique(0)->getPass(0)->createTextureUnitState("RustedMetal.jpg");
             t = mat->getTechnique(0)->getPass(0)->createTextureUnitState("RttTex");
             // Blend with base texture

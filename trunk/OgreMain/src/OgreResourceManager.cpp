@@ -26,54 +26,60 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreResourceManager.h"
 
 #include "OgreException.h"
-#include "OgreArchiveEx.h"
+#include "OgreArchive.h"
 #include "OgreArchiveManager.h"
 #include "OgreStringVector.h"
 #include "OgreStringConverter.h"
+#include "OgreResourceGroupManager.h"
 
 namespace Ogre {
 
-    std::vector<ArchiveEx*> ResourceManager::mCommonVFS;
-    ResourceManager::FileMap ResourceManager::mCommonArchiveFiles;
-
-    /** Internal method for standardising paths - use forward slashes only, end with slash. 
-    */
-    static String convertPath( const String &init)
-    {
-        String path = init;
-
-        std::replace( path.begin(), path.end(), '\\', '/' );
-        if( path[path.length() - 1] != '/' )
-            path += '/';
-
-        return path;
-    }
-
     //-----------------------------------------------------------------------
     ResourceManager::ResourceManager()
+		:mMemoryUsage(0), mNextHandle(1), mLoadOrder(0)
     {
         // Init memory limit & usage
         mMemoryBudget = std::numeric_limits<unsigned long>::max();
-        mMemoryUsage = 0;
-        mNextHandle = 1;
     }
     //-----------------------------------------------------------------------
     ResourceManager::~ResourceManager()
     {
-        this->unloadAndDestroyAll();
+        removeAll();
     }
+	//-----------------------------------------------------------------------
+    ResourcePtr ResourceManager::create(const String& name, const String& group, 
+		bool isManual, ManualResourceLoader* loader, const NameValuePairList* params)
+	{
+		// Call creation implementation
+		ResourcePtr ret = ResourcePtr(
+            createImpl(name, getNextHandle(), group, isManual, loader, params));
+        if (params)
+            ret->setParameterList(*params);
 
+		addImpl(ret);
+		// Tell resource group manager
+		ResourceGroupManager::getSingleton()._notifyResourceCreated(ret);
+		return ret;
+
+	}
     //-----------------------------------------------------------------------
-    void ResourceManager::load(Resource *res, int priority)
+    ResourcePtr ResourceManager::load(const String& name, 
+        const String& group, bool isManual, ManualResourceLoader* loader, 
+        const NameValuePairList* loadParams)
     {
-        res->load();
-        res->touch();
-        this->add(res);
+        ResourcePtr ret = getByName(name);
+        if (ret.isNull())
+        {
+            ret = create(name, group, isManual, loader, loadParams);
+            ret->load();
+        }
+        return ret;
     }
-
     //-----------------------------------------------------------------------
-    void ResourceManager::add( Resource *res )
+    void ResourceManager::addImpl( ResourcePtr& res )
     {
+		OGRE_LOCK_AUTO_MUTEX
+
         std::pair<ResourceMap::iterator, bool> result = 
             mResources.insert( ResourceMap::value_type( res->getName(), res ) );
         if (!result.second)
@@ -81,18 +87,35 @@ namespace Ogre {
             Except(Exception::ERR_DUPLICATE_ITEM, "Resource with the name " + res->getName() + 
                 " already exists.", "ResourceManager::add");
         }
-        // Assign a new handle
-        res->mHandle = getNextHandle();
         std::pair<ResourceHandleMap::iterator, bool> resultHandle = 
-            mResourcesByHandle.insert( ResourceHandleMap::value_type( res->mHandle, res ) );
+            mResourcesByHandle.insert( ResourceHandleMap::value_type( res->getHandle(), res ) );
         if (!result.second)
         {
             Except(Exception::ERR_DUPLICATE_ITEM, "Resource with the handle " + 
-                StringConverter::toString(res->mHandle) + 
+                StringConverter::toString(res->getHandle()) + 
                 " already exists.", "ResourceManager::add");
         }
 
     }
+	//-----------------------------------------------------------------------
+	void ResourceManager::removeImpl( ResourcePtr& res )
+	{
+		OGRE_LOCK_AUTO_MUTEX
+
+		ResourceMap::iterator nameIt = mResources.find(res->getName());
+		if (nameIt != mResources.end())
+		{
+			mResources.erase(nameIt);
+		}
+
+		ResourceHandleMap::iterator handleIt = mResourcesByHandle.find(res->getHandle());
+		if (handleIt != mResourcesByHandle.end())
+		{
+			mResourcesByHandle.erase(handleIt);
+		}
+		// Tell resource group manager
+		ResourceGroupManager::getSingleton()._notifyResourceRemoved(res);
+	}
     //-----------------------------------------------------------------------
     void ResourceManager::setMemoryBudget( size_t bytes)
     {
@@ -100,233 +123,160 @@ namespace Ogre {
         mMemoryBudget = bytes;
         checkUsage();
     }
-
     //-----------------------------------------------------------------------
-    void ResourceManager::unload(Resource* res)
+    size_t ResourceManager::getMemoryBudget(void) const
     {
-		if (!res)
-			return;
-
-        // Unload resource
-        res->unload();
-
-        // Erase entry in map
-        mResources.erase( res->getName() );
-        mResourcesByHandle.erase( res->getHandle() );
-
-        // Update memory usage
-        mMemoryUsage -= res->getSize();
+        return mMemoryBudget;
     }
+	//-----------------------------------------------------------------------
+	void ResourceManager::unload(const String& name)
+	{
+		ResourcePtr res = getByName(name);
 
+		if (!res.isNull())
+		{
+			// Unload resource
+			res->unload();
+
+		}
+	}
+	//-----------------------------------------------------------------------
+	void ResourceManager::unload(ResourceHandle handle)
+	{
+		ResourcePtr res = getByHandle(handle);
+
+		if (!res.isNull())
+		{
+			// Unload resource
+			res->unload();
+
+		}
+	}
+	//-----------------------------------------------------------------------
+	void ResourceManager::unloadAll(void)
+	{
+		OGRE_LOCK_AUTO_MUTEX
+
+		ResourceMap::iterator i, iend;
+		iend = mResources.end();
+		for (i = mResources.begin(); i != iend; ++i)
+		{
+			i->second->unload();
+		}
+
+	}
+	//-----------------------------------------------------------------------
+	void ResourceManager::reloadAll(void)
+	{
+		OGRE_LOCK_AUTO_MUTEX
+
+		ResourceMap::iterator i, iend;
+		iend = mResources.end();
+		for (i = mResources.begin(); i != iend; ++i)
+		{
+			i->second->reload();
+		}
+
+	}
     //-----------------------------------------------------------------------
-    void ResourceManager::unloadAndDestroyAll()
+    void ResourceManager::remove(ResourcePtr& res)
     {
-        // Unload & delete resources in turn
-        for(
-            ResourceMap::iterator it = mResources.begin();
-            it != mResources.end();
-            ++it)
-        {
-            it->second->unload();
-            it->second->destroy();
-        }
-
-        // Empty the list
-        mResources.clear();
-        mResourcesByHandle.clear();
+        removeImpl(res);
     }
+	//-----------------------------------------------------------------------
+	void ResourceManager::remove(const String& name)
+	{
+		ResourcePtr res = getByName(name);
+
+		if (!res.isNull())
+		{
+			removeImpl(res);
+		}
+	}
+	//-----------------------------------------------------------------------
+	void ResourceManager::remove(ResourceHandle handle)
+	{
+		ResourcePtr res = getByHandle(handle);
+
+		if (!res.isNull())
+		{
+			removeImpl(res);
+		}
+	}
+	//-----------------------------------------------------------------------
+	void ResourceManager::removeAll(void)
+	{
+		OGRE_LOCK_AUTO_MUTEX
+
+		mResources.clear();
+		mResourcesByHandle.clear();
+		// Notify resource group manager
+		ResourceGroupManager::getSingleton()._notifyAllResourcesRemoved(this);
+	}
     //-----------------------------------------------------------------------
-    Resource* ResourceManager::getByName(const String& name)
+    ResourcePtr ResourceManager::getByName(const String& name)
     {
+		OGRE_LOCK_AUTO_MUTEX
+
         ResourceMap::iterator it = mResources.find(name);
 
-        if( it == mResources.end() )
-            return 0;
+        if( it == mResources.end())
+		{
+            return ResourcePtr();
+		}
         else
         {
             return it->second;
         }
     }
     //-----------------------------------------------------------------------
-    Resource* ResourceManager::getByHandle(ResourceHandle handle)
+    ResourcePtr ResourceManager::getByHandle(ResourceHandle handle)
     {
+		OGRE_LOCK_AUTO_MUTEX
+
         ResourceHandleMap::iterator it = mResourcesByHandle.find(handle);
         if (it == mResourcesByHandle.end())
         {
-            return NULL;
+            return ResourcePtr();
         }
         else
         {
-            it->second->touch();
             return it->second;
         }
     }
     //-----------------------------------------------------------------------
     ResourceHandle ResourceManager::getNextHandle(void)
     {
+		OGRE_LOCK_AUTO_MUTEX
+
         return mNextHandle++;
     }
     //-----------------------------------------------------------------------
     void ResourceManager::checkUsage(void)
     {
-        // Page out here?
+        // TODO Page out here?
     }
+	//-----------------------------------------------------------------------
+	void ResourceManager::_notifyResourceTouched(Resource* res)
+	{
+		// TODO
+	}
+	//-----------------------------------------------------------------------
+	void ResourceManager::_notifyResourceLoaded(Resource* res)
+	{
+		OGRE_LOCK_AUTO_MUTEX
 
-    //-----------------------------------------------------------------------
-    void ResourceManager::addSearchPath( const String& path)
-    {
-        addArchiveEx( convertPath(path), "FileSystem" );
-    }
+		mMemoryUsage += res->getSize();
+	}
+	//-----------------------------------------------------------------------
+	void ResourceManager::_notifyResourceUnloaded(Resource* res)
+	{
+		OGRE_LOCK_AUTO_MUTEX
 
-    //-----------------------------------------------------------------------
-    void ResourceManager::addCommonSearchPath( const String& path)
-    {
-        addCommonArchiveEx( convertPath(path), "FileSystem" );
-    }
+		mMemoryUsage -= res->getSize();
+	}
+	//-----------------------------------------------------------------------
 
-    //-----------------------------------------------------------------------
-    void ResourceManager::addArchiveEx( const String& strName, const String& strDriverName )
-    {
-        ArchiveEx* pArch = ArchiveManager::getSingleton().load( strName, strDriverName );
-
-        StringVector vec = pArch->getAllNamesLike( "", "" );
-        for( StringVector::iterator it = vec.begin(); it != vec.end(); ++it )
-            mArchiveFiles[(*it)] = pArch;
-
-        mVFS.push_back(pArch);
-    }
-
-    //-----------------------------------------------------------------------
-    void ResourceManager::addCommonArchiveEx( const String& strName, const String& strDriverName )
-    {
-        ArchiveEx* pArch = ArchiveManager::getSingleton().load( strName, strDriverName );
-
-        StringVector vec = pArch->getAllNamesLike( "", "" );
-        for( StringVector::iterator it = vec.begin(); it != vec.end(); ++it )
-            mCommonArchiveFiles[(*it)] = pArch;
-
-        mCommonVFS.push_back(pArch);
-    }
-
-    //-----------------------------------------------------------------------
-    bool ResourceManager::_findResourceData(
-        const String& filename,
-        DataChunk& refChunk )
-    {
-        DataChunk* pChunk = &refChunk;
-        // Search file cache first
-        // NB don't treat this as definitive, incase ArchiveEx can't list all existing files
-        FileMap::const_iterator it;
-        if( ( it = mArchiveFiles.find( filename ) ) != mArchiveFiles.end() )
-            return it->second->fileRead( filename, &pChunk );
-        if( ( it = mCommonArchiveFiles.find( filename ) ) != mCommonArchiveFiles.end() )
-            return it->second->fileRead( filename, &pChunk );
-
-        // Not found in cache
-        // Look for it the hard way
-        std::vector<ArchiveEx*>::iterator j; 
-        // Search archives specific to this resource type
-        for(j = mVFS.begin(); j != mVFS.end(); ++j )
-        {
-            if( *j && (*j)->fileTest(filename) )
-            {
-                return (*j)->fileRead( filename, &pChunk );
-            }
-        }
-        // Search common archives
-        for(j = mCommonVFS.begin(); j != mCommonVFS.end(); ++j )                 
-        {
-            if( *j && (*j)->fileTest(filename) )
-            {
-                return (*j)->fileRead( filename, &pChunk );
-            }
-        }
-        
-        // Not found
-        Except(
-            Exception::ERR_ITEM_NOT_FOUND,
-            "Resource " + filename + " not found.",
-            "ResourceManager::_findResourceData" );
-
-        // To keep compiler happy
-        return false;
-    }
-    //-----------------------------------------------------------------------
-    std::set<String> ResourceManager::_getAllCommonNamesLike( const String& startPath, const String& extension )
-    {
-        std::vector<ArchiveEx*>::iterator i;
-        StringVector vecFiles;
-        std::set<String> retFiles;
-
-        // search common archives
-        for (i = mCommonVFS.begin(); i != mCommonVFS.end(); ++i)
-        {
-            vecFiles = (*i)->getAllNamesLike( startPath, extension);
-            for (StringVector::iterator si = vecFiles.begin(); si != vecFiles.end(); ++si)
-            {
-                retFiles.insert(*si);
-            }
-        }
-
-        return retFiles;
-    }
-    //-----------------------------------------------------------------------
-    std::set<String> ResourceManager::_getAllNamesLike( const String& startPath, const String& extension )
-    {
-        std::vector<ArchiveEx*>::iterator i;
-        StringVector vecFiles;
-        // Get all common files
-        std::set<String> retFiles = ResourceManager::_getAllCommonNamesLike(startPath, extension);
-
-        // Get all specific files
-        for (i = mVFS.begin(); i != mVFS.end(); ++i)
-        {
-            vecFiles = (*i)->getAllNamesLike( startPath, extension);
-            for (StringVector::iterator si = vecFiles.begin(); si != vecFiles.end(); ++si)
-            {
-                retFiles.insert(*si);
-            }
-        }
-
-        return retFiles;
-    }
-    //-----------------------------------------------------------------------
-    bool ResourceManager::_findCommonResourceData( const String& filename, DataChunk& refChunk )
-    {
-        DataChunk* pChunk = &refChunk;
-        // Search file cache first
-        // NB don't treat this as definitive, incase ArchiveEx can't list all existing files
-        FileMap::const_iterator it;
-        if( ( it = mCommonArchiveFiles.find( filename ) ) != mCommonArchiveFiles.end() )
-            return it->second->fileRead( filename, &pChunk );
-
-        // Not found in cache
-        // Look for it the hard way
-        std::vector<ArchiveEx*>::iterator j; 
-        // Search common archives
-        for(j = mCommonVFS.begin(); j != mCommonVFS.end(); ++j )                 
-        {
-            if( *j && (*j)->fileTest(filename) )
-            {
-                return (*j)->fileRead( filename, &pChunk );
-            }
-        }
-        
-        // Not found
-        Except(
-            Exception::ERR_ITEM_NOT_FOUND,
-            "Resource " + filename + " not found.",
-            "ResourceManager::_findCommonResourceData" );
-
-        // To keep compiler happy
-        return false;
-    }
-
-    //-----------------------------------------------------------------------
-    void ResourceManager::cleanupCommonArchive () {
-      mCommonVFS.clear();
-      mCommonArchiveFiles.clear();
-    }
 }
 
 

@@ -70,12 +70,14 @@ NaturePatchManager::~NaturePatchManager()
 
 //----------------------------------------------------------------------------
 
-Material *NaturePatchManager::createTerrainMaterial()
+MaterialPtr NaturePatchManager::createTerrainMaterial()
 {
 #if 0
     static int count = 0;
     // START TEST!!!
-    Material *mMaterial = mSceneRoot->getCreator()->createMaterial("NatureQuadMaterial" + toString(count++));
+    MaterialPtr mMaterial = MaterialManager::getSingleton().create(
+        "NatureQuadMaterial" + toString(count++),
+        ResourceGroupManager::getSingleton().getWorldResourceGroupName());
 #if USE_TEXTURES
     TextureUnitState *layer;
 

@@ -55,7 +55,7 @@ namespace Ogre {
 
 	public:
         GLSLGpuProgram(GLSLProgram* parent);
-		~GLSLGpuProgram() {}
+		~GLSLGpuProgram();
 
 		/// @copydoc Resource::unload
 		void unload(void);

@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define _Archive_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreString.h"
 #include "OgreDataStream.h"
 #include "OgreSharedPtr.h"
 #include "OgreStringVector.h"
@@ -51,6 +52,11 @@ namespace Ogre {
     */
     class _OgreExport Archive  
     {
+    protected:
+        /// Archive name
+        String mName; 
+        /// Archive type code
+        String mType;
     public:
         /** Information about a file/directory within the archive will be
         returned using a FileInfo struct.
@@ -68,47 +74,25 @@ namespace Ogre {
             size_t compressedSize;
             /// Uncompressed size
             size_t uncompressedSize;
-            /// Last time it was modified
-            time_t lastModified;
         };
 
         typedef std::vector<FileInfo> FileInfoList;
         typedef SharedPtr<FileInfoList> FileInfoListPtr;
 
-        /// File access modes
-        enum AccessMode
-        {
-            /// Read-only access
-            READ, 
-            /// Write access, overwrite any exsiting file
-            WRITE,
-            /// Append to the end of an existing file
-            APPEND
-        };
-        /// File format flags
-        enum FileFormat
-        {
-            /// Text format, includes carriage-return and character conversions
-            TEXT,
-            /// Binary format, no conversions
-            BINARY
-        };
-    public:
-        /** Default constructor.
-        @note
-        Should never get called.
+        /** Constructor - don't call direct, used by ArchiveFactory.
         */
-        Archive() {}
-
-        /** Usual constructor - used by ArchiveManager.
-        @warning
-            Never call directly.
-        */
-        Archive( const String& name ) { mName = name; }
+        Archive( const String& name, const String& archType )
+            : mName(name), mType(archType) {}
 
         /** Default destructor.
         */
-        virtual ~Archive();
+        virtual ~Archive() {}
+
+		/// Get the name of this archive
+		const String& getName(void) const { return mName; }
+
+        /// Returns whether this archive is case sensitive in the way it matches files
+        virtual bool isCaseSensitive(void) const = 0;
 
         /** Loads the archive.
         @remarks
@@ -130,19 +114,12 @@ namespace Ogre {
         @note
             There is no equivalent 'close' method; the returned stream
             controls the lifecycle of this file operation.
-        @param filename The name of the fully-qualified filename
-        @param format Whether this file is to be opened as text or binary
-        @param mode Access mode (read / write / append)
+        @param filename The fully qualified name of the file
         @returns A shared pointer to a DataStream which can be used to 
-            read / write the file
+            read / write the file. If the file is not present, returns a null
+			shared pointer.
         */
-        virtual DataStreamPtr open(const String& filename, FileFormat format,
-            AccessMode mode = IN) const = 0;
-
-        /** Remove a specific file from the Archive. 
-        @param filename The filename to remove.
-        */
-        virtual void kill(const String& filename) = 0;
+        virtual DataStreamPtr open(const String& filename) const = 0;
 
         /** List all file names in the archive.
         @note
@@ -171,7 +148,14 @@ namespace Ogre {
             archive has a concept of that)
         @returns A list of filenames matching the criteria, all are fully qualified
         */
-        virtual StringVectorPtr find(const String& pattern, bool recursive = true ) = 0;
+        virtual StringVectorPtr find(const String& pattern, bool recursive = true) = 0;
+
+        /** Find out if the named file exists (note: fully qualified filename required) */
+        virtual bool exists(const String& filename) 
+        {
+            StringVectorPtr vec = find(filename, false);
+            return !(vec->empty());
+        }
 
         /** Find all files matching a given pattern in this archive and get 
             some detailed information about them.
@@ -181,7 +165,11 @@ namespace Ogre {
         @returns A list of file information structures for all files matching 
             the criteria.
         */
-        virtual FileInfoListPtr findFileInfo(const String& pattern, bool recursive = true ) = 0;
+        virtual FileInfoListPtr findFileInfo(const String& pattern, 
+            bool recursive = true) = 0;
+
+        /// Return the type code of this Archive
+        const String& getType(void) const { return mType; }
         
     };
 }

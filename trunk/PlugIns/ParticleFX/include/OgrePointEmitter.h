@@ -41,7 +41,7 @@ namespace Ogre {
     class _OgreParticleFXExport PointEmitter : public ParticleEmitter
     {
     public:
-        PointEmitter();
+        PointEmitter(ParticleSystem* psys);
 
         /** See ParticleEmitter. */
         void _initParticle(Particle* pParticle);

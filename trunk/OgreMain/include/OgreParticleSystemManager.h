@@ -31,6 +31,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreFrameListener.h"
 #include "OgreSingleton.h"
 #include "OgreIteratorWrappers.h"
+#include "OgreScriptLoader.h"
+#include "OgreResourceGroupManager.h"
 
 namespace Ogre {
 
@@ -52,10 +54,13 @@ namespace Ogre {
         describing named particle system templates. Instances of particle systems using these templates can
         then be created easily through the createParticleSystem method.
     */
-    class _OgreExport ParticleSystemManager: public Singleton<ParticleSystemManager>, public FrameListener
+    class _OgreExport ParticleSystemManager: public Singleton<ParticleSystemManager>, 
+        public FrameListener, public ScriptLoader
     {
+	public:
+        typedef std::map<String, ParticleSystem*> ParticleTemplateMap;
+		typedef std::map<String, ParticleSystemRendererFactory*> ParticleSystemRendererFactoryMap;
     protected:
-        typedef std::map<String, ParticleSystem> ParticleTemplateMap;
         /// Templates based on scripts
         ParticleTemplateMap mSystemTemplates;
         
@@ -71,13 +76,18 @@ namespace Ogre {
         /// Factories for named affector types (can be extended using plugins)
         ParticleAffectorFactoryMap mAffectorFactories;
 
+		/// Map of renderer types to factories
+		ParticleSystemRendererFactoryMap mRendererFactories;
+
+        StringVector mScriptPatterns;
+
 		/// Controls time
 		Real mTimeFactor;
 
         /** Internal script parsing method. */
-        void parseNewEmitter(const String& type, DataChunk& chunk, ParticleSystem* sys);
+        void parseNewEmitter(const String& type, DataStreamPtr& chunk, ParticleSystem* sys);
         /** Internal script parsing method. */
-        void parseNewAffector(const String& type, DataChunk& chunk, ParticleSystem* sys);
+        void parseNewAffector(const String& type, DataStreamPtr& chunk, ParticleSystem* sys);
         /** Internal script parsing method. */
         void parseAttrib(const String& line, ParticleSystem* sys);
         /** Internal script parsing method. */
@@ -85,9 +95,9 @@ namespace Ogre {
         /** Internal script parsing method. */
         void parseAffectorAttrib(const String& line, ParticleAffector* sys);
         /** Internal script parsing method. */
-        void skipToNextCloseBrace(DataChunk& chunk);
+        void skipToNextCloseBrace(DataStreamPtr& chunk);
         /** Internal script parsing method. */
-        void skipToNextOpenBrace(DataChunk& chunk);
+        void skipToNextOpenBrace(DataStreamPtr& chunk);
     public:
 
         ParticleSystemManager();
@@ -131,6 +141,16 @@ namespace Ogre {
         */
         void addAffectorFactory(ParticleAffectorFactory* factory);
 
+		/** Registers a factory class for creating ParticleSystemRenderer instances. 
+        @par
+            Note that the object passed to this function will not be destroyed by the ParticleSystemManager,
+            since it may have been allocted on a different heap in the case of plugins. The caller must
+            destroy the object later on, probably on plugin shutdown.
+        @param
+            factory Pointer to a ParticleSystemRendererFactory subclass created by the plugin or application code.
+		*/
+		void addRendererFactory(ParticleSystemRendererFactory* factory);
+
         /** Adds a new particle system template to the list of available templates. 
         @remarks
             Instances of particle systems in a scene are not normally unique - often you want to place the
@@ -143,12 +163,11 @@ namespace Ogre {
         @param
             name The name of the template. Must be unique across all templates.
         @param
-            sysTemplate A reference to a particle system to be used as a template. This instance will 
-                be copied to a template held in this class so the object passed in here may be destroyed
-                independently.
+            sysTemplate A pointer to a particle system to be used as a template. The manager
+                will take over ownership of this pointer.
             
         */
-        void addTemplate(const String& name, const ParticleSystem& sysTemplate);
+        void addTemplate(const String& name, ParticleSystem* sysTemplate);
 
         /** Create a new particle system template. 
         @remarks
@@ -157,9 +176,12 @@ namespace Ogre {
             to add as a template and just want to create a new template which you will build up in-place.
         @param
             name The name of the template. Must be unique across all templates.
+        @param
+            resourceGroup The name of the resource group which will be used to 
+                load any dependent resources.
             
         */
-        ParticleSystem* createTemplate(const String& name);
+        ParticleSystem* createTemplate(const String& name, const String& resourceGroup);
 
         /** Retrieves a particle system template for possible modification. 
         @remarks
@@ -184,8 +206,11 @@ namespace Ogre {
             name The name to give the ParticleSystem.
         @param 
             quota The maximum number of particles to allow in this system. 
+        @param
+            resourceGroup The resource group which will be used to load dependent resources
         */
-        ParticleSystem* createSystem(const String& name, unsigned int quota = 500);
+        ParticleSystem* createSystem(const String& name, size_t quota = 500, 
+            const String& resourceGroup = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
         /** Creates a particle system based on a template.
         @remarks
@@ -237,8 +262,10 @@ namespace Ogre {
             which calls this method to create an instance.
         @param
             emitterType String name of the emitter type to be created. A factory of this type must have been registered.
+        @param 
+            psys The particle system this is being created for
         */
-        ParticleEmitter* _createEmitter(const String& emitterType);
+        ParticleEmitter* _createEmitter(const String& emitterType, ParticleSystem* psys);
 
         /** Internal method for destroying an emitter.
         @remarks
@@ -257,8 +284,10 @@ namespace Ogre {
             which calls this method to create an instance.
         @param
             effectorType String name of the affector type to be created. A factory of this type must have been registered.
+        @param
+            psys The particle system it is being created for
         */
-        ParticleAffector* _createAffector(const String& affectorType);
+        ParticleAffector* _createAffector(const String& affectorType, ParticleSystem* psys);
 
         /** Internal method for destroying an affector.
         @remarks
@@ -269,6 +298,26 @@ namespace Ogre {
             affector Pointer to affector to be destroyed. On return this pointer will point to invalid (freed) memory.
         */
         void _destroyAffector(ParticleAffector* affector);
+
+        /** Internal method for creating a new renderer from a factory.
+        @remarks
+            Used internally by the engine to create new ParticleSystemRenderer instances from named
+            factories. Applications should use the ParticleSystem::setRenderer method instead, 
+            which calls this method to create an instance.
+        @param
+            rendererType String name of the renderer type to be created. A factory of this type must have been registered.
+        */
+        ParticleSystemRenderer* _createRenderer(const String& rendererType);
+
+        /** Internal method for destroying a renderer.
+        @remarks
+            Because renderer are created by factories which may allocate memory from separate heaps,
+            the memory allocated must be freed from the same place. This method is used to ask the factory
+            to destroy the instance passed in as a pointer.
+        @param
+            renderer Pointer to renderer to be destroyed. On return this pointer will point to invalid (freed) memory.
+        */
+        void _destroyRenderer(ParticleSystemRenderer* renderer);
 
         /** Frame event */
         bool frameStarted(const FrameEvent &evt);
@@ -283,13 +332,12 @@ namespace Ogre {
         */
         void _initialise(void);
 
-        /** Parses a particle system script file passed as a chunk.
-        */
-        void parseScript(DataChunk& chunk);
-
-        /** Parses all particle system script files in resource folders & archives.
-        */
-        void parseAllSources(const String& extension = ".particle");
+        /// @copydoc ScriptLoader::getScriptPatterns
+        const StringVector& getScriptPatterns(void) const;
+        /// @copydoc ScriptLoader::parseScript
+        void parseScript(DataStreamPtr& stream, const String& groupName);
+        /// @copydoc ScriptLoader::getLoadingOrder
+        Real getLoadingOrder(void) const;
 
 		/** Return relative speed of time as perceived by particle systems.
         @remarks

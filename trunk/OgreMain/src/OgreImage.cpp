@@ -28,7 +28,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreArchiveManager.h"
 #include "OgreException.h"
 #include "OgreImageCodec.h"
-#include "OgreSDDataChunk.h"
 // Dependency on IL/ILU for resize
 #include <IL/il.h>
 #include <IL/ilu.h>
@@ -238,7 +237,7 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------------
     Image & Image::loadRawData(
-        const DataChunk &pData,
+        DataStreamPtr& stream,
         ushort uWidth, ushort uHeight,
         PixelFormat eFormat )
     {
@@ -250,14 +249,20 @@ namespace Ogre {
         m_ucPixelSize = PF2PS( m_eFormat );
         m_uSize = m_uWidth * m_uHeight * m_ucPixelSize;
 
-        m_pBuffer = new uchar[ uWidth * uHeight * m_ucPixelSize ];
-        memcpy( m_pBuffer, pData.getPtr(), uWidth * uHeight * m_ucPixelSize );
+        if (m_uSize != stream->size())
+        {
+            Except(Exception::ERR_INVALIDPARAMS, 
+                "Stream size does not match calculated image size! ", 
+                "Image::loadRawData");
+        }
+        m_pBuffer = new uchar[ m_uSize ];
+        stream->read(m_pBuffer, m_uSize);
 
         OgreUnguardRet( *this );
     }
 
     //-----------------------------------------------------------------------------
-    Image & Image::load( const String& strFileName )
+    Image & Image::load(const String& strFileName, const String& group)
     {
         OgreGuard( "Image::load" );
 
@@ -286,21 +291,13 @@ namespace Ogre {
             "Unable to load image file '" + strFileName + "' - invalid extension.",
             "Image::load" );
 
-        SDDataChunk encoded;
-        DataChunk decoded;
+        DataStreamPtr encoded = 
+            ResourceGroupManager::getSingleton()._findResource(strFileName, group);
 
-        if( !ArchiveManager::getSingleton()._findResourceData( 
-            strFileName, 
-            encoded ) )
-        {
-            Except(
-            Exception::ERR_INVALIDPARAMS, 
-            "Unable to find image file '" + strFileName + "'.",
-            "Image::load" );
-        }
+		Codec::DecodeResult res = pCodec->decode(encoded);
 
-        ImageCodec::ImageData * pData = static_cast< ImageCodec::ImageData * > (
-            pCodec->decode( encoded, &decoded ) );
+		ImageCodec::ImageData* pData = 
+			static_cast<ImageCodec::ImageData*>(res.second.getPointer());
 
         // Get the format and compute the pixel size
         m_uWidth = pData->width;
@@ -312,9 +309,10 @@ namespace Ogre {
         m_ucPixelSize = PF2PS( m_eFormat );
         m_uFlags = pData->flags;
 
-        delete pData;
-
-        m_pBuffer = decoded.getPtr();
+		// re-use the decoded buffer
+        m_pBuffer = res.first->getPtr();
+		// ensure we don't delete when stream is closed
+		res.first->setFreeOnClose(false);
         
         OgreUnguardRet( *this );
     }
@@ -345,16 +343,19 @@ namespace Ogre {
             "Unable to save image file '" + filename + "' - invalid extension.",
             "Image::save" );
 
-        ImageCodec::ImageData imgData;
-        imgData.format = m_eFormat;
-        imgData.height = m_uHeight;
-        imgData.width = m_uWidth;
-        DataChunk wrapper(m_pBuffer, m_uSize);
-
-        pCodec->codeToFile(wrapper, filename, &imgData);
+        ImageCodec::ImageData* imgData = new ImageCodec::ImageData();
+        imgData->format = m_eFormat;
+        imgData->height = m_uHeight;
+        imgData->width = m_uWidth;
+		// Wrap in CodecDataPtr, this will delete
+		Codec::CodecDataPtr codeDataPtr(imgData);
+		// Wrap memory, be sure not to delete when stream destroyed
+        MemoryDataStreamPtr wrapper(new MemoryDataStream(m_pBuffer, m_uSize, false));
+		
+        pCodec->codeToFile(wrapper, filename, codeDataPtr);
     }
     //-----------------------------------------------------------------------------
-    Image & Image::load( const DataChunk& chunk, const String& type )
+    Image & Image::load(DataStreamPtr& stream, const String& type )
     {
         OgreGuard( "Image::load" );
 
@@ -367,10 +368,10 @@ namespace Ogre {
             "Unable to load image - invalid extension.",
             "Image::load" );
 
-        DataChunk decoded;
+		Codec::DecodeResult res = pCodec->decode(stream);
 
-        ImageCodec::ImageData * pData = static_cast< ImageCodec::ImageData * >(
-            pCodec->decode( chunk, &decoded ) );
+		ImageCodec::ImageData* pData = 
+			static_cast<ImageCodec::ImageData*>(res.second.getPointer());
 
         m_uWidth = pData->width;
         m_uHeight = pData->height;
@@ -382,10 +383,10 @@ namespace Ogre {
         // Get the format and compute the pixel size
         m_eFormat = pData->format;
         m_ucPixelSize = PF2PS( m_eFormat );
-
-        delete pData;
-
-        m_pBuffer = decoded.getPtr();
+		// Just use internal buffer of returned memory stream
+        m_pBuffer = res.first->getPtr();
+		// Make sure stream does not delete
+		res.first->setFreeOnClose(false);
 
         OgreUnguardRet( *this );
     }

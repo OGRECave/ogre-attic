@@ -40,56 +40,62 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreTechnique.h"
 #include "OgrePass.h"
 #include "OgreTextureUnitState.h"
-
+#include "OgreResourceGroupManager.h"
 
 namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    BspLevel::BspLevel(const String& name)
+    BspLevel::BspLevel(ResourceManager* creator, const String& name, 
+        ResourceHandle handle, const String& group, bool isManual, 
+        ManualResourceLoader* loader)
+      : Resource(creator, name, handle, group, isManual, loader), 
+        mRootNode(0), 
+        mVertexData(0), 
+        mLeafFaceGroups(0),
+        mFaceGroups(0), 
+        mIndexes(0),
+        mBrushes(0)
     {
-        mName = name;
-        mRootNode = 0;
-        mBrushes = 0;
-        mVertexData = 0;
-        mFaceGroups = 0;
-        mLeafFaceGroups = 0;
         mVisData.tableData = 0;
+
+        if (createParamDictionary("BspLevel"))
+        {
+            // nothing
+        }
     }
 
     //-----------------------------------------------------------------------
     BspLevel::~BspLevel()
     {
-        if (mIsLoaded)
-        {
-            unload();
-            mIsLoaded = false;
-        }
+        // have to call this here reather than in Resource destructor
+        // since calling virtual methods in base destructors causes crash
+        unload(); 
 
     }
 
     //-----------------------------------------------------------------------
-    void BspLevel::load()
+    void BspLevel::loadImpl()
     {
         // Use Quake3 file loader
         Quake3Level q3;
-        DataChunk chunk;
-        BspResourceManager::getSingleton()._findResourceData(mName, chunk);
+        DataStreamPtr stream = 
+			ResourceGroupManager::getSingleton()._findResource(mName, 
+				ResourceGroupManager::getSingleton().getWorldResourceGroupName());
 
-        q3.loadFromChunk(chunk);
+        q3.loadFromStream(stream);
 
         loadQuake3Level(q3);
-
-        chunk.clear();
-        mIsLoaded = true;
 
     }
 
     //-----------------------------------------------------------------------
-    void BspLevel::unload()
+    void BspLevel::unloadImpl()
     {
         if (mVertexData)
             delete mVertexData;
+        if (mIndexes)
+            delete mIndexes;
         if (mFaceGroups)
             delete [] mFaceGroups;
         if (mLeafFaceGroups)
@@ -112,12 +118,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BspLevel::loadQuake3Level(const Quake3Level& q3lvl)
     {
-        SceneManager* sm = SceneManagerEnumerator::getSingleton().getSceneManager(ST_INTERIOR);
+        MaterialManager& mm = MaterialManager::getSingleton();
 
         loadEntities(q3lvl);
 
-        // Parse shaders
-        Quake3ShaderManager::getSingleton().parseAllSources(".shader");
         // Extract lightmaps into textures
         q3lvl.extractLightmaps();
 
@@ -208,7 +212,7 @@ namespace Ogre {
         // To do this I actually need to parse the faces since they have the
         //  shader/lightmap combo (lightmap number is not in the shader since
         //  it can be used with multiple lightmaps)
-        char shaderName[256];
+        String shaderName;
         int face;
         face = q3lvl.mNumFaces;
         int matHandle;
@@ -220,12 +224,12 @@ namespace Ogre {
             // Check to see if existing material
             // Format shader#lightmap
             int shadIdx = q3lvl.mFaces[face].shader;
-            sprintf(shaderName, "%s#%d",
-                q3lvl.mShaders[shadIdx].name,
-                q3lvl.mFaces[face].lm_texture);
+			StringUtil::StrStreamType tmp;
+			tmp << q3lvl.mShaders[shadIdx].name << "#" << q3lvl.mFaces[face].lm_texture;
+			shaderName = tmp.str();
 
-            Material *shadMat = sm->getMaterial(shaderName);
-            if (shadMat == 0)
+            MaterialPtr shadMat = MaterialManager::getSingleton().getByName(shaderName);
+            if (shadMat.isNull())
             {
                 // Build new material
 
@@ -233,15 +237,15 @@ namespace Ogre {
                 // NB no extension in Q3A(doh), have to try shader, .jpg, .tga
                 String tryName = q3lvl.mShaders[shadIdx].name;
                 // Try shader first
-                Quake3Shader* pShad = (Quake3Shader*)Quake3ShaderManager::getSingleton().getByName(tryName);
+                Quake3Shader* pShad = Quake3ShaderManager::getSingleton().getByName(tryName);
                 if (pShad)
                 {
-                    shadMat = pShad->createAsMaterial(sm, q3lvl.mFaces[face].lm_texture);
+                    shadMat = pShad->createAsMaterial(q3lvl.mFaces[face].lm_texture);
                 }
                 else
                 {
                     // No shader script, try default type texture
-                    shadMat = sm->createMaterial(shaderName);
+                    shadMat = mm.create(shaderName, ResourceGroupManager::getSingleton().getWorldResourceGroupName());
                     Pass *shadPass = shadMat->getTechnique(0)->getPass(0);
                     // Try jpg
                     TextureUnitState* tex = shadPass->createTextureUnitState(tryName + ".jpg");
@@ -258,9 +262,9 @@ namespace Ogre {
                     if (q3lvl.mFaces[face].lm_texture != -1)
                     {
                         // Add lightmap, additive blending
-                        char lightmapName[16];
-                        sprintf(lightmapName, "@lightmap%d",q3lvl.mFaces[face].lm_texture);
-                        tex = shadPass->createTextureUnitState(lightmapName);
+						StringUtil::StrStreamType lightmapName;
+                        lightmapName << "@lightmap" << q3lvl.mFaces[face].lm_texture;
+                        tex = shadPass->createTextureUnitState(lightmapName.str());
                         // Blend
                         tex->setColourOperation(LBO_MODULATE);
                         // Use 2nd texture co-ordinate set
@@ -793,5 +797,10 @@ namespace Ogre {
         dest->texcoords[1]  = src->texture[1];
         dest->lightmap[0]  = src->lightmap[0];
         dest->lightmap[1]  = src->lightmap[1];
+    }
+    //-----------------------------------------------------------------------
+    size_t BspLevel::calculateSize(void) const
+    {
+        return 0; // TODO
     }
 }

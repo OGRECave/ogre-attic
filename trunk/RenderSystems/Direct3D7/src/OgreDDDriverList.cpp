@@ -131,7 +131,8 @@ namespace Ogre {
     {
         mDriverList.push_back( DDDriver(lpGuid, lpDriverDesc, lpDriverName) );
 
-        LogManager::getSingleton().logMessage( LML_NORMAL, "Detected DirectDraw driver %s.\n", lpDriverDesc );
+        LogManager::getSingleton().logMessage( LML_NORMAL, 
+            String("Detected DirectDraw driver ") + lpDriverDesc );
     }
 
     size_t DDDriverList::count(void) const

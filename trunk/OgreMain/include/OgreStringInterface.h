@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 #include "OgreString.h"
+#include "OgreCommon.h"
 
 namespace Ogre {
 
@@ -248,6 +249,16 @@ namespace Ogre {
             true if set was successful, false otherwise (NB no exceptions thrown - tolerant method)
         */
         virtual bool setParameter(const String& name, const String& value);
+        /** Generic multiple parameter setting method.
+        @remarks
+            Call this method with a list of name / value pairs
+            to set. The implementor will convert the string to a native type internally.
+            If in doubt, check the parameter definition in the list returned from 
+            StringInterface::getParameters.
+        @param
+            paramList Name/value pair list
+        */
+        virtual void setParameterList(const NameValuePairList& paramList);
         /** Generic parameter retrieval method.
         @remarks
             Call this method with the name of a parameter to retrieve a string-format value of

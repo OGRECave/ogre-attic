@@ -69,7 +69,7 @@ Vector3 ballVector;
 // Hacky globals
 GpuProgramParametersSharedPtr fragParams;
 GpuProgramParametersSharedPtr vertParams;
-Material* skin;
+MaterialPtr skin;
 Frustum* frustum = 0;
 Camera* theCam;
 
@@ -184,7 +184,7 @@ public:
 
 		}
 
-        Material* mat = (Material*)MaterialManager::getSingleton().getByName("Core/StatsBlockBorder/Up");
+        MaterialPtr mat = MaterialManager::getSingleton().getByName("Core/StatsBlockBorder/Up");
         mat->setDepthCheckEnabled(true);
         mat->setDepthWriteEnabled(true);
 
@@ -644,7 +644,8 @@ protected:
         mTestNode[2] = (SceneNode*)mSceneMgr->getRootSceneNode()->createChild();
         
         createTestBugPlaneMesh3Streams("test3streams");
-        Material* testMat = (Material*)MaterialManager::getSingleton().create("testvp");
+        MaterialPtr testMat = MaterialManager::getSingleton().create("testvp", 
+            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         testMat->getTechnique(0)->getPass(0)->setVertexProgram("Ogre/BasicVertexPrograms/AmbientOneTexture");
         GpuProgramParametersSharedPtr params = testMat->getTechnique(0)->getPass(0)->getVertexProgramParameters();
         params->setNamedAutoConstant("worldViewProj", GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
@@ -943,7 +944,7 @@ protected:
         mTestNode[0]->attachObject(frustum);
 
         // Hook the frustum up to the material
-        Material *mat = (Material*)MaterialManager::getSingleton().getByName("Examples/OgreLogo");
+        MaterialPtr mat = MaterialManager::getSingleton().getByName("Examples/OgreLogo");
         TextureUnitState *t = mat->getTechnique(0)->getPass(0)->getTextureUnitState(0);
         t->setProjectiveTexturing(true, frustum);
         //t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
@@ -1086,7 +1087,7 @@ protected:
         RenderTexture* rttTex = mRoot->getRenderSystem()->createRenderTexture( "Refraction", 512, 512 );
         {
             Viewport *v = rttTex->addViewport( mCamera );
-            Material* mat = (Material*)MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefraction");
+            MaterialPtr mat = MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefraction");
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(2)->setTextureName("Refraction");
             v->setOverlaysEnabled(false);
             rttTex->addListener(&mRefractionListener);
@@ -1095,7 +1096,7 @@ protected:
         rttTex = mRoot->getRenderSystem()->createRenderTexture( "Reflection", 512, 512 );
         {
             Viewport *v = rttTex->addViewport( mCamera );
-            Material* mat = (Material*)MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefraction");
+            MaterialPtr mat = MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefraction");
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(1)->setTextureName("Reflection");
             v->setOverlaysEnabled(false);
             rttTex->addListener(&mReflectionListener);
@@ -1740,7 +1741,7 @@ protected:
         // Does not receive shadows
         pEnt = mSceneMgr->createEntity( "3", "knot.mesh" );
         pEnt->setMaterialName("Examples/EnvMappedRustySteel");
-        Material* mat2 = (Material*)MaterialManager::getSingleton().getByName("Examples/EnvMappedRustySteel");
+        MaterialPtr mat2 = MaterialManager::getSingleton().getByName("Examples/EnvMappedRustySteel");
         mat2->setReceiveShadows(false);
         mTestNode[2] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(-200, 0, -200));
         mTestNode[2]->attachObject( pEnt );
@@ -1748,7 +1749,7 @@ protected:
         // Transparent object (can force cast shadows)
         pEnt = mSceneMgr->createEntity( "3.5", "knot.mesh" );
         pEnt->setMaterialName("Examples/TransparentTest");
-        Material* mat3 = (Material*)MaterialManager::getSingleton().getByName("Examples/TransparentTest");
+        MaterialPtr mat3 = MaterialManager::getSingleton().getByName("Examples/TransparentTest");
         //mat3->setTransparencyCastsShadows(true);
         mTestNode[3] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(350, 0, -200));
         mTestNode[3]->attachObject( pEnt );
@@ -1873,7 +1874,7 @@ protected:
         // Transparent object (can force cast shadows)
         pEnt = mSceneMgr->createEntity( "3.5", "knot.mesh" );
         pEnt->setMaterialName("Examples/TransparentTest");
-        Material* mat3 = (Material*)MaterialManager::getSingleton().getByName("Examples/TransparentTest");
+        MaterialPtr mat3 = MaterialManager::getSingleton().getByName("Examples/TransparentTest");
         mat3->setTransparencyCastsShadows(true);
         mTestNode[3] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(350, 0, -200));
         mTestNode[3]->attachObject( pEnt );
@@ -1900,7 +1901,8 @@ protected:
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
 
         // Set up a debug panel to display the shadow
-        Material* debugMat = (Material*)MaterialManager::getSingleton().create("Ogre/DebugShadowMap");
+        MaterialPtr debugMat = MaterialManager::getSingleton().create(
+            "Ogre/DebugShadowMap", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         debugMat->getTechnique(0)->getPass(0)->setLightingEnabled(false);
         TextureUnitState *t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState("Ogre/ShadowTexture0");
         t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
@@ -1913,7 +1915,7 @@ protected:
         debugPanel->_setPosition(0.8, 0);
         debugPanel->_setDimensions(0.2, 0.3);
         debugPanel->setMaterialName("Ogre/DebugShadowMap");
-        Overlay* debugOverlay = (Overlay*)OverlayManager::getSingleton().getByName("Core/DebugOverlay");
+        Overlay* debugOverlay = OverlayManager::getSingleton().getByName("Core/DebugOverlay");
         debugOverlay->add2D(debugPanel);
 
 
@@ -1928,11 +1930,11 @@ protected:
 
     void testOverlayZOrder(void)
     {
-        Overlay* o = (Overlay*)(OverlayManager::getSingleton().getByName("Test/Overlay3"));
+        Overlay* o = OverlayManager::getSingleton().getByName("Test/Overlay3");
         o->show();
-        o = (Overlay*)(OverlayManager::getSingleton().getByName("Test/Overlay2"));
+        o = OverlayManager::getSingleton().getByName("Test/Overlay2");
         o->show();
-        o = (Overlay*)(OverlayManager::getSingleton().getByName("Test/Overlay1"));
+        o = OverlayManager::getSingleton().getByName("Test/Overlay1");
         o->show();
     }
 
@@ -2080,8 +2082,7 @@ int main(int argc, char **argv)
 #if OGRE_PLATFORM == PLATFORM_WIN32
         MessageBox( NULL, e.getFullDescription().c_str(), "An exception has occured!", MB_OK | MB_ICONERROR | MB_TASKMODAL);
 #else
-        fprintf(stderr, "An exception has occured: %s\n",
-                e.getFullDescription().c_str());
+        std::cerr << "An exception has occured: " << e.getFullDescription();
 #endif
     }
 

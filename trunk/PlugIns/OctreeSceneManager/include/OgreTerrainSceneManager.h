@@ -309,7 +309,7 @@ public:
     */
     virtual void attachPage(ushort pageX, ushort pageZ, TerrainPage* page);
     /// Get a pointer to the material being used for the terrain
-    Material* getTerrainMaterial(void);
+    MaterialPtr& getTerrainMaterial(void);
     // Overridden from basic scene manager
     void _renderScene(Camera *cam, Viewport *vp, bool includeOverlays);
 

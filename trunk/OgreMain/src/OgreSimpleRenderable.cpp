@@ -38,7 +38,7 @@ namespace Ogre {
         m_matWorldTransform = Matrix4::IDENTITY;
 
         m_strMatName = "BaseWhite"; 
-        m_pMaterial = reinterpret_cast< Material* >( MaterialManager::getSingleton().getByName( "BaseWhite" ) );
+        m_pMaterial = MaterialManager::getSingleton().getByName("BaseWhite");
 
         m_pParentSceneManager = NULL;
 
@@ -54,9 +54,8 @@ namespace Ogre {
     void SimpleRenderable::setMaterial( const String& matName )
     {
         m_strMatName = matName;
-        m_pMaterial = reinterpret_cast<Material*>(
-            MaterialManager::getSingleton().getByName( m_strMatName ) );
-		if (!m_pMaterial)
+        m_pMaterial = MaterialManager::getSingleton().getByName(m_strMatName);
+		if (m_pMaterial.isNull())
 			Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find material " + m_strMatName,
 				"SimpleRenderable::setMaterial" );
     
@@ -64,7 +63,7 @@ namespace Ogre {
         m_pMaterial->load();
     }
 
-    Material* SimpleRenderable::getMaterial(void) const
+    const MaterialPtr& SimpleRenderable::getMaterial(void) const
     {
         return m_pMaterial;
     }

@@ -67,7 +67,7 @@ namespace Ogre {
         high-level program, must be implemented by subclasses. */
         void createLowLevelImpl(void);
         /// Internal unload implementation, must be implemented by subclasses
-        void unloadImpl(void);
+        void unloadHighLevelImpl(void);
         /// Populate the passed parameters with name->index map, must be overridden
         void populateParameterNames(GpuProgramParametersSharedPtr params);
 
@@ -81,7 +81,8 @@ namespace Ogre {
         LPD3DXCONSTANTTABLE mpConstTable;
 
     public:
-        D3D9HLSLProgram(const String& name, GpuProgramType gpType, const String& language);
+        D3D9HLSLProgram(ResourceManager* creator, const String& name, ResourceHandle handle,
+            const String& group, bool isManual, ManualResourceLoader* loader);
         ~D3D9HLSLProgram();
 
         /** Sets the entry point for this program ie the first method called. */

@@ -34,14 +34,15 @@ namespace Ogre {
     //---------------------------------------------------------------------
     Viewport::Viewport(Camera* cam, RenderTarget* target, Real left, Real top, Real width, Real height, int ZOrder)
     {
-        char msg[200];
 
+		StringUtil::StrStreamType msg;
 
-        sprintf(msg, "Creating viewport on target '%s', rendering from camera "
-            "'%s', relative dimensions L:%.2f,T:%.2f,W:%.2f,H:%.2f, Z-Order:%d",
-            target->getName().c_str(), cam->getName().c_str(),
-            left, top, width, height, ZOrder);
-        LogManager::getSingleton().logMessage(msg);
+        msg << "Creating viewport on target '" << target->getName() << "'"
+			<< ", rendering from camera '" << cam->getName() << "'"
+			<< ", relative dimensions "	<< std::ios::fixed << std::setprecision(2) 
+			<< "L: " << left << " T: " << top << " W: " << width << " H: " << height
+			<< " ZOrder: " << ZOrder;
+        LogManager::getSingleton().logMessage(msg.str());
         mCamera = cam;
         mTarget = target;
 
@@ -101,11 +102,13 @@ namespace Ogre {
             mCamera->setAspectRatio((Real) (mActWidth / mActHeight));
         }
 
-        char msg[256];
+		StringUtil::StrStreamType msg;
 
-        sprintf(msg, "Viewport for camera '%s' - actual dimensions L:%d,T:%d,W:%d,H:%d",
-            mCamera->getName().c_str(), mActLeft, mActTop, mActWidth, mActHeight);
-        LogManager::getSingleton().logMessage(msg);
+        msg << "Viewport for camera '" << mCamera->getName() << "'"
+			<< ", actual dimensions "	<< std::ios::fixed << std::setprecision(2) 
+			<< "L: " << mActLeft << " T: " << mActTop << " W: " << mActWidth << " H: " << mActHeight;
+
+        LogManager::getSingleton().logMessage(msg.str());
 
         mUpdated = true;
     }

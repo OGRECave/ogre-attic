@@ -61,16 +61,6 @@ namespace Ogre {
         };
 
     public:
-        virtual void code( const DataChunk& input, DataChunk* output, ... ) const = 0;
-        virtual CodecData * decode( const DataChunk& input, DataChunk* output, ... ) const = 0;
-        /** Encodes data to a file.
-        @param input Chunk containing data to write
-        @param outFileName Filename to output to (extension implies type)
-        @param pData ImageData pointer
-        */
-        virtual void codeToFile( const DataChunk& input, const String& outFileName, CodecData* pData) const = 0;
-
-        virtual String getType() const = 0;
     };
 
 } // namespace

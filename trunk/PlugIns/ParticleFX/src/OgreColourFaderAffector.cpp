@@ -37,7 +37,7 @@ namespace Ogre {
     ColourFaderAffector::CmdAlphaAdjust ColourFaderAffector::msAlphaCmd;
 
     //-----------------------------------------------------------------------
-    ColourFaderAffector::ColourFaderAffector()
+    ColourFaderAffector::ColourFaderAffector(ParticleSystem* psys) : ParticleAffector(psys)
     {
         mRedAdj = mGreenAdj = mBlueAdj = mAlphaAdj = 0;
         mType = "ColourFader";

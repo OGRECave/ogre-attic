@@ -26,7 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreSerializer.h"
 #include "OgreLogManager.h"
-#include "OgreDataChunk.h"
+#include "OgreDataStream.h"
 #include "OgreException.h"
 #include "OgreVector3.h"
 #include "OgreQuaternion.h"
@@ -34,9 +34,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    /// Chunk overhead = ID + size
-    const unsigned long CHUNK_OVERHEAD_SIZE = sizeof(unsigned short) + sizeof(unsigned long);
-    const unsigned short HEADER_CHUNK_ID = 0x1000;
+    /// stream overhead = ID + size
+    const unsigned long stream_OVERHEAD_SIZE = sizeof(unsigned short) + sizeof(unsigned long);
+    const unsigned short HEADER_stream_ID = 0x1000;
     //---------------------------------------------------------------------
     Serializer::Serializer()
     {
@@ -51,7 +51,7 @@ namespace Ogre {
     void Serializer::writeFileHeader(void)
     {
         
-        unsigned short val = HEADER_CHUNK_ID;
+        unsigned short val = HEADER_stream_ID;
         writeShorts(&val, 1);
 
         writeString(mVersion);
@@ -157,17 +157,17 @@ namespace Ogre {
         fputc('\n', mpfFile);
     }
     //---------------------------------------------------------------------
-    void Serializer::readFileHeader(DataChunk& chunk)
+    void Serializer::readFileHeader(DataStreamPtr& stream)
     {
         unsigned short headerID;
         
         // Read header ID
-        readShorts(chunk, &headerID, 1);
+        readShorts(stream, &headerID, 1);
         
-        if (headerID == HEADER_CHUNK_ID)
+        if (headerID == HEADER_stream_ID)
         {
             // Read version
-            String ver = readString(chunk);
+            String ver = readString(stream);
             if (ver != mVersion)
             {
                 Except(Exception::ERR_INTERNAL_ERROR, 
@@ -184,72 +184,67 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    unsigned short Serializer::readChunk(DataChunk& chunk)
+    unsigned short Serializer::readChunk(DataStreamPtr& stream)
     {
         unsigned short id;
-        readShorts(chunk, &id, 1);
+        readShorts(stream, &id, 1);
         
-        readLongs(chunk, &mCurrentChunkLen, 1);
+        readLongs(stream, &mCurrentstreamLen, 1);
         return id;
     }
     //---------------------------------------------------------------------
-    void Serializer::readBools(DataChunk& chunk, bool* pDest, size_t count)
+    void Serializer::readBools(DataStreamPtr& stream, bool* pDest, size_t count)
     {
         //XXX Nasty Hack to convert 1 byte bools to 4 byte bools
 #	if OGRE_PLATFORM == PLATFORM_APPLE
         char * pTemp = (char *)malloc(1*count); // to hold 1-byte bools
-        chunk.read(pTemp, 1 * count);
+        stream->read(pTemp, 1 * count);
         for(int i = 0; i < count; i++)
             *(bool *)(pDest + i) = *(char *)(pTemp + i);
             
         free (pTemp);
 #	else
-        chunk.read(pDest, sizeof(bool) * count);
+        stream->read(pDest, sizeof(bool) * count);
 #	endif
         //no flipping on 1-byte datatypes
     }
     //---------------------------------------------------------------------
-    void Serializer::readReals(DataChunk& chunk, Real* pDest, size_t count)
+    void Serializer::readReals(DataStreamPtr& stream, Real* pDest, size_t count)
     {
-        chunk.read(pDest, sizeof(Real) * count);
+        stream->read(pDest, sizeof(Real) * count);
         flipFromLittleEndian(pDest, sizeof(Real), count);
     }
     //---------------------------------------------------------------------
-    void Serializer::readShorts(DataChunk& chunk, unsigned short* pDest, size_t count)
+    void Serializer::readShorts(DataStreamPtr& stream, unsigned short* pDest, size_t count)
     {
-        chunk.read(pDest, sizeof(unsigned short) * count);
+        stream->read(pDest, sizeof(unsigned short) * count);
         flipFromLittleEndian(pDest, sizeof(unsigned short), count);
     }
     //---------------------------------------------------------------------
-    void Serializer::readInts(DataChunk& chunk, unsigned int* pDest, size_t count)
+    void Serializer::readInts(DataStreamPtr& stream, unsigned int* pDest, size_t count)
     {
-        chunk.read(pDest, sizeof(unsigned int) * count);
+        stream->read(pDest, sizeof(unsigned int) * count);
         flipFromLittleEndian(pDest, sizeof(unsigned int), count);
     }
     //---------------------------------------------------------------------
-    void Serializer::readLongs(DataChunk& chunk, unsigned long* pDest, size_t count) 
+    void Serializer::readLongs(DataStreamPtr& stream, unsigned long* pDest, size_t count) 
     {
-        chunk.read(pDest, sizeof(unsigned long) * count);
+        stream->read(pDest, sizeof(unsigned long) * count);
         flipFromLittleEndian(pDest, sizeof(unsigned long), count);
     }
     //---------------------------------------------------------------------
-    String Serializer::readString(DataChunk& chunk, size_t numChars)
+    String Serializer::readString(DataStreamPtr& stream, size_t numChars)
     {
         assert (numChars <= 255);
         char str[255];
-        chunk.read(str, numChars);
+        stream->read(str, numChars);
         str[numChars] = '\0';
         return str;
     }
     //---------------------------------------------------------------------
-    String Serializer::readString(DataChunk& chunk)
+    String Serializer::readString(DataStreamPtr& stream)
     {
-        char str[255];
-        size_t readcount;
-        readcount = chunk.readUpTo(str, 255);
-        str[readcount] = '\0';
-        return str;
-
+        return stream->getLine(false);
     }
     //---------------------------------------------------------------------
     void Serializer::writeObject(const Vector3& vec)
@@ -268,19 +263,19 @@ namespace Ogre {
         writeReals(&q.w, 1);
     }
     //---------------------------------------------------------------------
-    void Serializer::readObject(DataChunk& chunk, Vector3* pDest)
+    void Serializer::readObject(DataStreamPtr& stream, Vector3* pDest)
     {
-        readReals(chunk, &pDest->x, 1);
-        readReals(chunk, &pDest->y, 1);
-        readReals(chunk, &pDest->z, 1);
+        readReals(stream, &pDest->x, 1);
+        readReals(stream, &pDest->y, 1);
+        readReals(stream, &pDest->z, 1);
     }
     //---------------------------------------------------------------------
-    void Serializer::readObject(DataChunk& chunk, Quaternion* pDest)
+    void Serializer::readObject(DataStreamPtr& stream, Quaternion* pDest)
     {
-        readReals(chunk, &pDest->x, 1);
-        readReals(chunk, &pDest->y, 1);
-        readReals(chunk, &pDest->z, 1);
-        readReals(chunk, &pDest->w, 1);
+        readReals(stream, &pDest->x, 1);
+        readReals(stream, &pDest->y, 1);
+        readReals(stream, &pDest->z, 1);
+        readReals(stream, &pDest->w, 1);
     }
     //---------------------------------------------------------------------
 

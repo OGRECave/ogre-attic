@@ -663,6 +663,9 @@ namespace Ogre {
 		/// Gets the parent Technique
         Technique* getParent(void) { return mParent; }
 
+		/// Gets the resource group of the ultimate parent Material
+		const String& getResourceGroup(void) const;
+
 		/** Sets the details of the vertex program to use.
 		@remarks
 			Only applicable to programmable passes, this sets the details of
@@ -692,7 +695,7 @@ namespace Ogre {
         /** Gets the vertex program parameters used by this pass. */
         GpuProgramParametersSharedPtr getVertexProgramParameters(void);
 		/** Gets the vertex program used by this pass, only available after _load(). */
-		GpuProgram* getVertexProgram(void);
+		const GpuProgramPtr& getVertexProgram(void);
 
 
         /** Sets the details of the vertex program to use when rendering as a 
@@ -738,7 +741,7 @@ namespace Ogre {
         GpuProgramParametersSharedPtr getShadowCasterVertexProgramParameters(void);
         /** Gets the vertex program used by this pass when rendering shadow casters, 
             only available after _load(). */
-        GpuProgram* getShadowCasterVertexProgram(void);
+        const GpuProgramPtr& getShadowCasterVertexProgram(void);
 
         /** Sets the details of the vertex program to use when rendering as a 
             shadow receiver.
@@ -779,7 +782,7 @@ namespace Ogre {
         GpuProgramParametersSharedPtr getShadowReceiverVertexProgramParameters(void);
         /** Gets the vertex program used by this pass when rendering shadow receivers, 
         only available after _load(). */
-        GpuProgram* getShadowReceiverVertexProgram(void);
+        const GpuProgramPtr& getShadowReceiverVertexProgram(void);
 
 
 		/** Sets the details of the fragment program to use.
@@ -809,7 +812,7 @@ namespace Ogre {
 		/** Gets the vertex program parameters used by this pass. */
 		GpuProgramParametersSharedPtr getFragmentProgramParameters(void);
 		/** Gets the vertex program used by this pass, only available after _load(). */
-		GpuProgram* getFragmentProgram(void);
+		const GpuProgramPtr& getFragmentProgram(void);
 
 		/** Splits this Pass to one which can be handled in the number of
 			texture units specified.

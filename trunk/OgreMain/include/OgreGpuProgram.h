@@ -487,6 +487,9 @@ namespace Ogre {
     /// Shared pointer used to hold references to GpuProgramParameters instances
     typedef SharedPtr<GpuProgramParameters> GpuProgramParametersSharedPtr;
 
+    // Forward declaration 
+    class GpuProgramPtr;
+
 	/** Defines a program which runs on the GPU such as a vertex or fragment program. 
 	@remarks
 		This class defines the low-level program in assembler code, the sort used to
@@ -499,6 +502,30 @@ namespace Ogre {
 	class _OgreExport GpuProgram : public Resource
 	{
 	protected:
+		/// Command object - see ParamCommand 
+		class _OgreExport CmdType : public ParamCommand
+		{
+		public:
+			String doGet(const void* target) const;
+			void doSet(void* target, const String& val);
+		};
+		class _OgreExport CmdSyntax : public ParamCommand
+		{
+		public:
+			String doGet(const void* target) const;
+			void doSet(void* target, const String& val);
+		};
+		class _OgreExport CmdSkeletal : public ParamCommand
+		{
+		public:
+			String doGet(const void* target) const;
+			void doSet(void* target, const String& val);
+		};
+		// Command object for setting / getting parameters
+		static CmdType msTypeCmd;
+		static CmdSyntax msSyntaxCmd;
+		static CmdSkeletal msSkeletalCmd;
+	
 		/// The type of the program
 		GpuProgramType mType;
 		/// The name of the file to load source from (may be blank)
@@ -516,9 +543,26 @@ namespace Ogre {
 		/// Does this program want light states passed through fixed pipeline
 		bool mPassSurfaceAndLightStates;
 
+		/** Internal method for setting up the basic parameter definitions for a subclass. 
+		@remarks
+		Because StringInterface holds a dictionary of parameters per class, subclasses need to
+		call this to ask the base class to add it's parameters to their dictionary as well.
+		Can't do this in the constructor because that runs in a non-virtual context.
+		@par
+		The subclass must have called it's own createParamDictionary before calling this method.
+		*/
+		void setupBaseParamDictionary(void);
+
+		/// @copydoc Resource::calculateSize
+		size_t calculateSize(void) const { return 0; } // TODO 
+
+		/// @copydoc Resource::loadImpl
+		void loadImpl(void);
 	public:
 
-		GpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode);
+		GpuProgram(ResourceManager* creator, const String& name, ResourceHandle handle,
+			const String& group, bool isManual = false, ManualResourceLoader* loader = 0);
+
 		virtual ~GpuProgram() {}
 
         /** Sets the filename of the source assembly for this program.
@@ -536,15 +580,18 @@ namespace Ogre {
         /** Gets the syntax code for this program e.g. arbvp1, fp20, vs_1_1 etc */
         virtual const String& getSyntaxCode(void) const { return mSyntaxCode; }
 
+		/** Sets the syntax code for this program e.g. arbvp1, fp20, vs_1_1 etc */
+		virtual void setSyntaxCode(const String& syntax);
+
 		/** Gets the name of the file used as source for this program. */
 		virtual const String& getSourceFile(void) const { return mFilename; }
         /** Gets the assembler source for this program. */
         virtual const String& getSource(void) const { return mSource; }
+		/// Set the program type (only valid before load)
+		virtual void setType(GpuProgramType t);
         /// Get the program type
         virtual GpuProgramType getType(void) const { return mType; }
 
-        /// @copydoc Resource::load
-        void load(void);
         /** Returns the GpuProgram which should be bound to the pipeline.
         @remarks
             This method is simply to allow some subclasses of GpuProgram to delegate
@@ -615,6 +662,51 @@ namespace Ogre {
 	};
 
 
+	/** Specialisation of SharedPtr to allow SharedPtr to be assigned to GpuProgramPtr 
+	@note Has to be a subclass since we need operator=.
+	We could templatise this instead of repeating per Resource subclass, 
+	except to do so requires a form VC6 does not support i.e.
+	ResourceSubclassPtr<T> : public SharedPtr<T>
+	*/
+	class _OgreExport GpuProgramPtr : public SharedPtr<GpuProgram> 
+	{
+	public:
+		GpuProgramPtr() : SharedPtr<GpuProgram>() {}
+		GpuProgramPtr(GpuProgram* rep) : SharedPtr<GpuProgram>(rep) {}
+		GpuProgramPtr(const GpuProgramPtr& r) : SharedPtr<GpuProgram>(r) {} 
+		GpuProgramPtr(const ResourcePtr& r) : SharedPtr<GpuProgram>()
+		{
+			// lock & copy other mutex pointer
+			OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
+			pRep = static_cast<GpuProgram*>(r.getPointer());
+			pUseCount = r.useCountPointer();
+			if (pUseCount)
+			{
+				++(*pUseCount);
+			}
+		}
+
+		/// Operator used to convert a ResourcePtr to a GpuProgramPtr
+		GpuProgramPtr& operator=(const ResourcePtr& r)
+		{
+			if (pRep == static_cast<GpuProgram*>(r.getPointer()))
+				return *this;
+			release();
+			// lock & copy other mutex pointer
+			OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
+			pRep = static_cast<GpuProgram*>(r.getPointer());
+			pUseCount = r.useCountPointer();
+			if (pUseCount)
+			{
+				++(*pUseCount);
+			}
+			return *this;
+		}
+        /// Operator used to convert a HighLevelGpuProgramPtr to a GpuProgramPtr
+        GpuProgramPtr& operator=(const HighLevelGpuProgramPtr& r);
+	};
 }
 
 #endif

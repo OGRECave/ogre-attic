@@ -27,12 +27,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreArchiveManager.h"
 
 #include "OgreArchiveFactory.h"
-#include "OgreArchiveEx.h"
+#include "OgreArchive.h"
 #include "OgreException.h"
 #include "OgreLogManager.h"
 
 namespace Ogre {
-    typedef void (*createFunc)( ArchiveEx**, const String& );
+    typedef void (*createFunc)( Archive**, const String& );
 
     //-----------------------------------------------------------------------
     template<> ArchiveManager* Singleton<ArchiveManager>::ms_Singleton = 0;
@@ -47,10 +47,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 
     //-----------------------------------------------------------------------
-    ArchiveEx* ArchiveManager::load( const String& filename, const String& archiveType, int priority /* =1 */ )
+    Archive* ArchiveManager::load( const String& filename, const String& archiveType)
     {
-        ArchiveEx* pArch = (ArchiveEx*)(getByName(filename));
-        if (!pArch)
+        ArchiveMap::iterator i = mArchives.find(filename);
+        Archive* pArch = 0;
+
+        if (i == mArchives.end())
         {
             // Search factories
             ArchiveFactoryMap::iterator it = mArchFactories.find(archiveType);
@@ -59,29 +61,39 @@ namespace Ogre {
                 Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot find an archive factory "
                     "to deal with archive of type " + archiveType, "ArchiveManager::load");
 
-            pArch = it->second->createObj( filename );
+            pArch = it->second->createInstance(filename);
+            pArch->load();
+            mArchives[filename] = pArch;
 
-            ResourceManager::load(pArch, priority);
+        }
+        else
+        {
+            pArch = i->second;
         }
         return pArch;
     }
-
-    //-----------------------------------------------------------------------
-    Resource* ArchiveManager::create( const String& name ) {
-        return NULL;
-    }
-
     //-----------------------------------------------------------------------
     ArchiveManager::~ArchiveManager()
     {
         // Unload & delete resources in turn
-        for( ResourceMap::iterator it = mResources.begin(); it != mResources.end(); ++it )
+        for( ArchiveMap::iterator it = mArchives.begin(); it != mArchives.end(); ++it )
         {
-            it->second->unload();
+            Archive* arch = it->second;
+            // Unload
+            arch->unload();
+            // Find factory to destroy
+            ArchiveFactoryMap::iterator fit = mArchFactories.find(arch->getType());
+            if (fit == mArchFactories.end())
+            {
+                // Factory not found
+                Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot find an archive factory "
+                "to deal with archive of type " + arch->getType(), "ArchiveManager::~ArchiveManager");
+            }
+            fit->second->destroyInstance(arch);
+            
         }
-
         // Empty the list
-        mResources.clear();
+        mArchives.clear();
     }
     //-----------------------------------------------------------------------
     void ArchiveManager::addArchiveFactory(ArchiveFactory* factory)

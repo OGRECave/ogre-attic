@@ -44,13 +44,48 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Quake3ShaderManager::Quake3ShaderManager()
     {
+        mScriptPatterns.push_back("*.shader");
+        ResourceGroupManager::getSingleton()._registerScriptLoader(this);
     }
     //-----------------------------------------------------------------------
     Quake3ShaderManager::~Quake3ShaderManager()
     {
+        // delete all shaders
+        clear();
+        ResourceGroupManager::getSingleton()._unregisterScriptLoader(this);
     }
     //-----------------------------------------------------------------------
-    void Quake3ShaderManager::parseShaderFile(DataChunk& chunk)
+    const StringVector& Quake3ShaderManager::getScriptPatterns(void) const
+    {
+        return mScriptPatterns;
+    }
+    //-----------------------------------------------------------------------
+    Real Quake3ShaderManager::getLoadingOrder(void) const
+    {
+        return 110.0f;
+    }
+    //-----------------------------------------------------------------------
+    void Quake3ShaderManager::clear(void)
+    {
+        for (Quake3ShaderMap::iterator i = mShaderMap.begin();
+            i != mShaderMap.end(); ++i)
+        {
+            delete i->second;
+        }
+        mShaderMap.clear();
+    }
+    //-----------------------------------------------------------------------
+    Quake3Shader* Quake3ShaderManager::getByName(const String& name)
+    {
+        Quake3ShaderMap::iterator i = mShaderMap.find(name);
+        if (i == mShaderMap.end())
+        {
+            return 0;
+        }
+        return i->second;
+    }
+    //-----------------------------------------------------------------------
+    void Quake3ShaderManager::parseScript(DataStreamPtr& stream, const String& group)
     {
         String line;
         Quake3Shader* pShader;
@@ -58,9 +93,9 @@ namespace Ogre {
 
         pShader = 0;
 
-        while(!chunk.isEOF())
+        while(!stream->eof())
         {
-            line = chunk.getLine();
+            line = stream->getLine();
             // Ignore comments & blanks
             if (!(line.length() == 0 || line.substr(0,2) == "//"))
             {
@@ -68,9 +103,9 @@ namespace Ogre {
                 {
                     // No current shader
                     // So first valid data should be a shader name
-                    pShader = (Quake3Shader*)create(line);
+                    pShader = create(line);
                     // Skip to and over next {
-                    chunk.readUpTo(tempBuf, 511, "{");
+                    stream->readLine(tempBuf, 511, "{");
                 }
                 else
                 {
@@ -83,7 +118,7 @@ namespace Ogre {
                     else if (line == "{")
                     {
                         // new pass
-                        parseNewShaderPass(chunk, pShader);
+                        parseNewShaderPass(stream, pShader);
 
                     }
                     else
@@ -102,62 +137,22 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void Quake3ShaderManager::parseAllSources(const String& extension)
+    Quake3Shader* Quake3ShaderManager::create( const String& name)
     {
-        StringVector shaderFiles;
-        DataChunk* pChunk;
-
-        std::vector<ArchiveEx*>::iterator i = mVFS.begin();
-
-        // Specific archives
-        for (; i != mVFS.end(); ++i)
-        {
-            shaderFiles = (*i)->getAllNamesLike( "./", extension);
-            for (StringVector::iterator si = shaderFiles.begin(); si!=shaderFiles.end(); ++si)
-            {
-                DataChunk dat; pChunk = &dat;
-                (*i)->fileRead(si[0], &pChunk );
-                parseShaderFile(dat);
-            }
-
-        }
-        // search common archives
-        for (i = mCommonVFS.begin(); i != mCommonVFS.end(); ++i)
-        {
-            shaderFiles = (*i)->getAllNamesLike( "./", extension);
-            for (StringVector::iterator si = shaderFiles.begin(); si!=shaderFiles.end(); ++si)
-            {
-                DataChunk dat; pChunk = &dat;
-                (*i)->fileRead(si[0], &pChunk );
-                parseShaderFile(dat);
-            }
-        }
-
-
-    }
-    //-----------------------------------------------------------------------
-    Resource* Quake3ShaderManager::create( const String& name)
-    {
+        // Gah, Q3A shader scripts include some duplicates - grr
         Quake3Shader* s = new Quake3Shader(name);
-        try {
-            // Gah, Q3A shader scripts include some duplicates - grr
-            this->add(s);
-        }
-        catch (Exception& e)
+        if (mShaderMap.find(name) != mShaderMap.end())
         {
-            if (e.getNumber() == Exception::ERR_DUPLICATE_ITEM)
-            {
-                // deliberately ignore, will get parsed again but will not be used
-            }
-            else
-            {
-                throw;
-            }
+            mShaderMap[name] = s;
+        }
+        else
+        {
+            // deliberately ignore, will get parsed again but will not be used
         }
         return s;
     }
     //-----------------------------------------------------------------------
-    void Quake3ShaderManager::parseNewShaderPass(DataChunk& chunk, Quake3Shader* pShader)
+    void Quake3ShaderManager::parseNewShaderPass(DataStreamPtr& stream, Quake3Shader* pShader)
     {
         String line;
         int passIdx;
@@ -188,9 +183,9 @@ namespace Ogre {
         pShader->pass[passIdx].alphaVal = 0;
         pShader->pass[passIdx].alphaFunc = CMPF_ALWAYS_PASS;
 
-        while (!chunk.isEOF())
+        while (!stream->eof())
         {
-            line = chunk.getLine();
+            line = stream->getLine();
             // Ignore comments & blanks
             if (line.length() != 0 && line.substr(0,2) != "//")
             {

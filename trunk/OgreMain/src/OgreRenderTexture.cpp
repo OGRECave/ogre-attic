@@ -45,14 +45,16 @@ namespace Ogre
         mPriority = OGRE_REND_TO_TEX_RT_GROUP;
         mInternalFormat = format;
 
-		mTexture = TextureManager::getSingleton().createManual( mName, texType, mWidth, mHeight, 0, mInternalFormat, TU_RENDERTARGET );
-		TextureManager::getSingleton().load( static_cast< Resource * >( mTexture ) );
+		mTexture = TextureManager::getSingleton().createManual( mName, 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, texType, 
+			mWidth, mHeight, 0, mInternalFormat, TU_RENDERTARGET );
+        mTexture->createInternalResources();
+		mTexture->load();
     }
 
     RenderTexture::~RenderTexture()
     {
         TextureManager::getSingleton().unload(mName);
-        delete mTexture;
     }
 
 	void RenderTexture::firePostUpdate()

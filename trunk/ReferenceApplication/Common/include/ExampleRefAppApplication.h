@@ -160,15 +160,22 @@ protected:
         ConfigFile cf;
         cf.load("resources.cfg");
 
-        // Go through all settings in the file
-        ConfigFile::SettingsIterator i = cf.getSettingsIterator();
+        // Go through all sections & settings in the file
+        ConfigFile::SectionIterator seci = cf.getSectionIterator();
 
-        String typeName, archName;
-        while (i.hasMoreElements())
+        String secName, typeName, archName;
+        while (seci.hasMoreElements())
         {
-            typeName = i.peekNextKey();
-            archName = i.getNext();
-            ResourceManager::addCommonArchiveEx( archName, typeName );
+            secName = seci.peekNextKey();
+            ConfigFile::SettingsMultiMap *settings = seci.getNext();
+            ConfigFile::SettingsMultiMap::iterator i;
+            for (i = settings->begin(); i != settings->end(); ++i)
+            {
+                typeName = i->first;
+                archName = i->second;
+                ResourceGroupManager::getSingleton().addResourceLocation(
+                    archName, typeName, secName);
+            }
         }
     }
     virtual void createWorld(void)

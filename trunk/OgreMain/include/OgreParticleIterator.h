@@ -36,12 +36,12 @@ namespace Ogre {
     {
         friend class ParticleSystem;
     protected:
-        std::list<Billboard*>::iterator mPos;
-        std::list<Billboard*>::iterator mStart;
-        std::list<Billboard*>::iterator mEnd;
+        std::list<Particle*>::iterator mPos;
+        std::list<Particle*>::iterator mStart;
+        std::list<Particle*>::iterator mEnd;
 
         /// Protected constructor, only available from ParticleSystem::getIterator
-        ParticleIterator(std::list<Billboard*>::iterator start, std::list<Billboard*>::iterator end);
+        ParticleIterator(std::list<Particle*>::iterator start, std::list<Particle*>::iterator end);
 
     public:
         // Returns true when at the end of the particle list

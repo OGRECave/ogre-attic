@@ -40,7 +40,8 @@ WaterMesh::WaterMesh(const String& meshName, Real planeSize, int complexity)
 	vNormals = new Vector3[numVertices];
 	
 	// create mesh and submesh
-	mesh= (Mesh*) MeshManager::getSingleton().createManual(meshName) ;
+	mesh = MeshManager::getSingleton().createManual(meshName, 
+        ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	subMesh = mesh->createSubMesh();
 	subMesh->useSharedVertices=false;
 	

@@ -56,6 +56,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGpuProgramManager.h"
 #include "OgreGpuProgram.h"
 #include "OgreShadowVolumeExtrudeProgram.h"
+#include "OgreDataStream.h"
 
 // This class implements the most basic scene manager
 
@@ -375,7 +376,10 @@ Entity* SceneManager::createEntity(
     }
 
     // Get mesh (load if required)
-    Mesh* pMesh = MeshManager::getSingleton().load( meshName );
+    MeshPtr pMesh = MeshManager::getSingleton().load( 
+        meshName, 
+        // note that you can change the group by pre-loading the mesh 
+        ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME );
 
     // Create entity
     Entity* e = new Entity( entityName, pMesh, this );
@@ -480,33 +484,6 @@ void SceneManager::clearScene(void)
     mSkyBoxNode = mSkyPlaneNode = mSkyDomeNode = 0;
     mSkyBoxEnabled = mSkyPlaneEnabled = mSkyDomeEnabled = false; 
 
-}
-
-//-----------------------------------------------------------------------
-Material* SceneManager::createMaterial(const String& name)
-{
-    // Create using MaterialManager
-    Material* m = (Material*)MaterialManager::getSingleton().create(name);
-
-
-    return m;
-}
-//-----------------------------------------------------------------------
-Material* SceneManager::getDefaultMaterialSettings(void)
-{
-    return Material::mDefaultSettings;
-}
-//-----------------------------------------------------------------------
-Material* SceneManager::getMaterial(const String& name)
-{
-    return (Material*)MaterialManager::getSingleton().getByName(name);
-}
-
-//-----------------------------------------------------------------------
-Material* SceneManager::getMaterial(int handle)
-{
-    return static_cast<Material*>(
-        MaterialManager::getSingleton().getByHandle(handle));
 }
 //-----------------------------------------------------------------------
 SceneNode* SceneManager::createSceneNode(void)
@@ -938,7 +915,8 @@ void SceneManager::setSkyPlane(
                                Real tiling,
                                bool drawFirst,
                                Real bow, 
-                               int xsegments, int ysegments)
+                               int xsegments, int ysegments, 
+                               const String& groupName)
 {
     mSkyPlaneEnabled = enable;
     if (enable)
@@ -946,8 +924,8 @@ void SceneManager::setSkyPlane(
         String meshName = "SkyPlane";
         mSkyPlane = plane;
 
-        Material* m = getMaterial(materialName);
-        if (!m)
+        MaterialPtr m = MaterialManager::getSingleton().getByName(materialName);
+        if (m.isNull())
         {
             Except(Exception::ERR_INVALIDPARAMS, 
                 "Sky plane material '" + materialName + "' not found.",
@@ -961,12 +939,11 @@ void SceneManager::setSkyPlane(
         mSkyPlaneDrawFirst = drawFirst;
 
         // Set up the plane
-        Mesh* planeMesh = (Mesh*)MeshManager::getSingleton().getByName(meshName);
-        if (planeMesh)
+        MeshPtr planeMesh = MeshManager::getSingleton().getByName(meshName);
+        if (!planeMesh.isNull())
         {
             // Destroy the old one
-            MeshManager::getSingleton().unload(planeMesh);
-            delete planeMesh;
+            MeshManager::getSingleton().remove(planeMesh->getHandle());
         }
 
         // Create up vector
@@ -979,13 +956,13 @@ void SceneManager::setSkyPlane(
         {
             // Build a curved skyplane
             planeMesh = MeshManager::getSingleton().createCurvedPlane(
-                meshName, plane, gscale * 100, gscale * 100, gscale * bow * 100, 
+                meshName, groupName, plane, gscale * 100, gscale * 100, gscale * bow * 100, 
                 xsegments, ysegments, false, 1, tiling, tiling, up);
         }
         else
         {
             planeMesh = MeshManager::getSingleton().createPlane(
-                meshName, plane, gscale * 100, gscale * 100, xsegments, ysegments, false, 
+                meshName, groupName, plane, gscale * 100, gscale * 100, xsegments, ysegments, false, 
                 1, tiling, tiling, up);
         }
 
@@ -1019,13 +996,14 @@ void SceneManager::setSkyBox(
                              const String& materialName,
                              Real distance,
                              bool drawFirst,
-                             const Quaternion& orientation )
+                             const Quaternion& orientation,
+                             const String& groupName)
 {
     mSkyBoxEnabled = enable;
     if (enable)
     {
-        Material* m = getMaterial(materialName);
-        if (!m)
+        MaterialPtr m = MaterialManager::getSingleton().getByName(materialName);
+        if (m.isNull())
         {
             Except(Exception::ERR_INVALIDPARAMS, 
                 "Sky box material '" + materialName + " not found.",
@@ -1055,7 +1033,7 @@ void SceneManager::setSkyBox(
         // Set up the box (6 planes)
         for (int i = 0; i < 6; ++i)
         {
-            Mesh* planeMesh = createSkyboxPlane((BoxPlane)i, distance, orientation);
+            MeshPtr planeMesh = createSkyboxPlane((BoxPlane)i, distance, orientation, groupName);
             String entName = "SkyBoxPlane" + StringConverter::toString(i);
 
             // Create entity 
@@ -1069,8 +1047,8 @@ void SceneManager::setSkyBox(
             // Have to create 6 materials, one for each frame
             // Used to use combined material but now we're using queue we can't split to change frame
             // This doesn't use much memory because textures aren't duplicated
-            Material* boxMat = (Material*)matMgr.getByName(entName);
-            if (!boxMat)
+            MaterialPtr boxMat = matMgr.getByName(entName);
+            if (boxMat.isNull())
             {
                 // Create new by clone
                 boxMat = m->clone(entName);
@@ -1104,13 +1082,14 @@ void SceneManager::setSkyDome(
                               Real distance,
                               bool drawFirst,
                               const Quaternion& orientation,
-                              int xsegments, int ysegments, int ySegmentsToKeep)
+                              int xsegments, int ysegments, int ySegmentsToKeep,
+                              const String& groupName)
 {
     mSkyDomeEnabled = enable;
     if (enable)
     {
-        Material* m = getMaterial(materialName);
-        if (!m)
+        MaterialPtr m = MaterialManager::getSingleton().getByName(materialName);
+        if (m.isNull())
         {
             Except(Exception::ERR_INVALIDPARAMS, 
                 "Sky dome material '" + materialName + " not found.",
@@ -1136,9 +1115,9 @@ void SceneManager::setSkyDome(
         // Set up the dome (5 planes)
         for (int i = 0; i < 5; ++i)
         {
-            Mesh* planeMesh = createSkydomePlane((BoxPlane)i, curvature, 
+            MeshPtr planeMesh = createSkydomePlane((BoxPlane)i, curvature, 
                 tiling, distance, orientation, xsegments, ysegments, 
-                i!=BP_UP ? ySegmentsToKeep : -1);
+                i!=BP_UP ? ySegmentsToKeep : -1, groupName);
 
             String entName = "SkyDomePlane" + StringConverter::toString(i);
 
@@ -1159,10 +1138,11 @@ void SceneManager::setSkyDome(
     }
 }
 //-----------------------------------------------------------------------
-Mesh* SceneManager::createSkyboxPlane(
+MeshPtr SceneManager::createSkyboxPlane(
                                       BoxPlane bp,
                                       Real distance,
-                                      const Quaternion& orientation )
+                                      const Quaternion& orientation,
+                                      const String& groupName)
 {
     Plane plane;
     String meshName;
@@ -1211,17 +1191,17 @@ Mesh* SceneManager::createSkyboxPlane(
 
     // Check to see if existing plane
     MeshManager& mm = MeshManager::getSingleton();
-    Mesh* planeMesh = (Mesh*)mm.getByName(meshName);
-    if(planeMesh)
+    MeshPtr planeMesh = mm.getByName(meshName);
+    if(!planeMesh.isNull())
     {
         // destroy existing
-        mm.unload(planeMesh);
-        delete planeMesh;
+        mm.remove(planeMesh->getHandle());
     }
     // Create new
     Real planeSize = distance * 2;
     const int BOX_SEGMENTS = 1;
-    planeMesh = mm.createPlane(meshName, plane, planeSize, planeSize, BOX_SEGMENTS, BOX_SEGMENTS, false, 1, 1, 1, up);
+    planeMesh = mm.createPlane(meshName, groupName, plane, planeSize, planeSize, 
+        BOX_SEGMENTS, BOX_SEGMENTS, false, 1, 1, 1, up);
 
     //planeMesh->_dumpContents(meshName);
 
@@ -1229,13 +1209,14 @@ Mesh* SceneManager::createSkyboxPlane(
 
 }
 //-----------------------------------------------------------------------
-Mesh* SceneManager::createSkydomePlane(
+MeshPtr SceneManager::createSkydomePlane(
                                        BoxPlane bp,
                                        Real curvature,
                                        Real tiling,
                                        Real distance,
                                        const Quaternion& orientation,
-                                       int xsegments, int ysegments, int ysegments_keep)
+                                       int xsegments, int ysegments, int ysegments_keep, 
+                                       const String& groupName)
 {
 
     Plane plane;
@@ -1282,17 +1263,18 @@ Mesh* SceneManager::createSkydomePlane(
 
     // Check to see if existing plane
     MeshManager& mm = MeshManager::getSingleton();
-    Mesh* planeMesh = (Mesh*)mm.getByName(meshName);
-    if(planeMesh)
+    MeshPtr planeMesh = mm.getByName(meshName);
+    if(!planeMesh.isNull())
     {
         // destroy existing
-        mm.unload(planeMesh);
-        delete planeMesh;
+        mm.remove(planeMesh->getHandle());
     }
     // Create new
     Real planeSize = distance * 2;
-    planeMesh = mm.createCurvedIllusionPlane(meshName, plane, planeSize, planeSize, curvature, 
-        xsegments, ysegments, false, 1, tiling, tiling, up, orientation, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
+    planeMesh = mm.createCurvedIllusionPlane(meshName, groupName, plane, 
+        planeSize, planeSize, curvature, 
+        xsegments, ysegments, false, 1, tiling, tiling, up, 
+        orientation, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
         false, false, ysegments_keep);
 
     //planeMesh->_dumpContents(meshName);
@@ -2364,98 +2346,6 @@ void SceneManager::manualRender(RenderOperation* rend,
 
 }
 //---------------------------------------------------------------------
-Overlay* SceneManager::createOverlay(const String& name, ushort zorder)
-{
-    /*
-    // check not existing
-    OverlayList::iterator i = mOverlays.find(name);
-    if (i != mOverlays.end())
-    {
-    Except(Exception::ERR_DUPLICATE_ITEM, 
-    "An overlay named " + name + " already exists.",
-    "SceneManager::createOverlay");
-    }
-    Overlay *newOverlay = new Overlay(name, zorder);
-
-    mOverlays.insert(OverlayList::value_type(name, newOverlay));
-    return newOverlay;
-    */
-
-    Overlay* newOverlay = (Overlay*)OverlayManager::getSingleton().create(name);
-    newOverlay->setZOrder(zorder);
-    return newOverlay;
-
-
-
-}
-//---------------------------------------------------------------------
-Overlay* SceneManager::getOverlay(const String& name)
-{
-    /*
-    OverlayList::iterator i = mOverlays.find(name);
-    if (i == mOverlays.end())
-    {
-    Except(Exception::ERR_ITEM_NOT_FOUND, 
-    "An overlay named " + name + " cannot be found.",
-    "SceneManager::getOverlay");
-    }
-
-    return i->second;
-    */
-    Overlay* ret = (Overlay*)OverlayManager::getSingleton().getByName(name);
-    if (!ret)
-    {
-        Except(Exception::ERR_ITEM_NOT_FOUND, 
-            "An overlay named " + name + " cannot be found.",
-            "SceneManager::getOverlay");
-    }
-
-    return ret;
-
-}
-//---------------------------------------------------------------------
-void SceneManager::destroyOverlay(const String& name)
-{
-    /*
-    OverlayList::iterator i = mOverlays.find(name);
-    if (i == mOverlays.end())
-    {
-    Except(Exception::ERR_ITEM_NOT_FOUND, 
-    "An overlay named " + name + " cannot be found.",
-    "SceneManager::destroyOverlay");
-    }
-
-    delete i->second;
-    mOverlays.erase(i);
-    */
-    Overlay* pOver = (Overlay*)OverlayManager::getSingleton().getByName(name);
-    if (!pOver)
-    {
-        Except(Exception::ERR_ITEM_NOT_FOUND, 
-            "An overlay named " + name + " cannot be found.",
-            "SceneManager::destroyOverlay");
-    }
-    OverlayManager::getSingleton().unload(pOver);
-    delete pOver;
-
-}
-//---------------------------------------------------------------------
-void SceneManager::destroyAllOverlays(void)
-{
-    /*
-    OverlayList::iterator i, iend;
-    iend = mOverlays.end();
-    for (i = mOverlays.begin(); i != iend; ++i)
-    {
-    delete i->second;
-    }
-    mOverlays.clear();
-    */
-    OverlayManager::getSingleton().unloadAndDestroyAll();
-
-
-}
-//---------------------------------------------------------------------
 void SceneManager::useRenderableViewProjMode(Renderable* pRend)
 {
     // Check view matrix
@@ -2848,14 +2738,14 @@ void SceneManager::initShadowVolumeMaterials(void)
 
     if (!mShadowDebugPass)
     {
-        Material* matDebug = static_cast<Material*>(
-            MaterialManager::getSingleton().getByName(
-            "Ogre/Debug/ShadowVolumes"));
-        if (!matDebug)
+        MaterialPtr matDebug = 
+            MaterialManager::getSingleton().getByName("Ogre/Debug/ShadowVolumes");
+        if (matDebug.isNull())
         {
             // Create
-            matDebug = static_cast<Material*>(
-                MaterialManager::getSingleton().create("Ogre/Debug/ShadowVolumes"));
+            matDebug = MaterialManager::getSingleton().create(
+                "Ogre/Debug/ShadowVolumes", 
+                ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
             mShadowDebugPass = matDebug->getTechnique(0)->getPass(0);
             mShadowDebugPass->setSceneBlending(SBT_ADD); 
             mShadowDebugPass->setLightingEnabled(false);
@@ -2892,15 +2782,14 @@ void SceneManager::initShadowVolumeMaterials(void)
     if (!mShadowStencilPass)
     {
 
-        Material* matStencil = static_cast<Material*>(
-            MaterialManager::getSingleton().getByName(
-            "Ogre/StencilShadowVolumes"));
-        if (!matStencil)
+        MaterialPtr matStencil = MaterialManager::getSingleton().getByName(
+            "Ogre/StencilShadowVolumes");
+        if (matStencil.isNull())
         {
             // Init
-            matStencil = static_cast<Material*>(
-                MaterialManager::getSingleton().create(
-                "Ogre/StencilShadowVolumes"));
+            matStencil = MaterialManager::getSingleton().create(
+                "Ogre/StencilShadowVolumes",
+                ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
             mShadowStencilPass = matStencil->getTechnique(0)->getPass(0);
 
             if (mDestRenderSystem->getCapabilities()->hasCapability(
@@ -2936,15 +2825,14 @@ void SceneManager::initShadowVolumeMaterials(void)
     if (!mShadowModulativePass)
     {
 
-        Material* matModStencil = static_cast<Material*>(
-            MaterialManager::getSingleton().getByName(
-            "Ogre/StencilShadowModulationPass"));
-        if (!matModStencil)
+        MaterialPtr matModStencil = MaterialManager::getSingleton().getByName(
+            "Ogre/StencilShadowModulationPass");
+        if (matModStencil.isNull())
         {
             // Init
-            matModStencil = static_cast<Material*>(
-                MaterialManager::getSingleton().create(
-                "Ogre/StencilShadowModulationPass"));
+            matModStencil = MaterialManager::getSingleton().create(
+                "Ogre/StencilShadowModulationPass",
+                ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
             mShadowModulativePass = matModStencil->getTechnique(0)->getPass(0);
             mShadowModulativePass->setSceneBlending(SBF_DEST_COLOUR, SBF_ZERO); 
             mShadowModulativePass->setLightingEnabled(false);
@@ -2969,16 +2857,15 @@ void SceneManager::initShadowVolumeMaterials(void)
     }
 
     // Also init shadow caster material for texture shadows
-    if (!mShadowCasterPlainBlackPass)
+    if (mShadowCasterPlainBlackPass)
     {
-        Material* matPlainBlack = static_cast<Material*>(
-            MaterialManager::getSingleton().getByName(
-            "Ogre/TextureShadowCaster"));
-        if (!matPlainBlack)
+        MaterialPtr matPlainBlack = MaterialManager::getSingleton().getByName(
+            "Ogre/TextureShadowCaster");
+        if (matPlainBlack.isNull())
         {
-            matPlainBlack = static_cast<Material*>(
-                MaterialManager::getSingleton().create(
-                "Ogre/TextureShadowCaster"));
+            matPlainBlack = MaterialManager::getSingleton().create(
+                "Ogre/TextureShadowCaster",
+                ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
             mShadowCasterPlainBlackPass = matPlainBlack->getTechnique(0)->getPass(0);
             // Lighting has to be on, because we need shadow coloured objects
             // Note that because we can't predict vertex programs, we'll have to
@@ -2999,13 +2886,13 @@ void SceneManager::initShadowVolumeMaterials(void)
 
     if (!mShadowReceiverPass)
     {
-        Material* matShadRec = static_cast<Material*>(
-            MaterialManager::getSingleton().getByName(
-            "Ogre/TextureShadowReceiver"));
-        if (!matShadRec)			
+        MaterialPtr matShadRec = MaterialManager::getSingleton().getByName(
+            "Ogre/TextureShadowReceiver");
+        if (matShadRec.isNull())			
         {
-            matShadRec = static_cast<Material*>(
-                MaterialManager::getSingleton().create("Ogre/TextureShadowReceiver"));
+            matShadRec = MaterialManager::getSingleton().create(
+                "Ogre/TextureShadowReceiver",
+                ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
             mShadowReceiverPass = matShadRec->getTechnique(0)->getPass(0);
             mShadowReceiverPass->setSceneBlending(SBF_DEST_COLOUR, SBF_ZERO);
             // No lighting, one texture unit 
@@ -3021,16 +2908,19 @@ void SceneManager::initShadowVolumeMaterials(void)
     }
 
     // Set up spot shadow fade texture (loaded from code data block)
-    Texture* spotShadowFadeTex = (Texture*) 
+    TexturePtr spotShadowFadeTex = 
         TextureManager::getSingleton().getByName("spot_shadow_fade.png");
-    if (!spotShadowFadeTex)
+    if (spotShadowFadeTex.isNull())
     {
-        // Load the manual buffer into an image
-        DataChunk chunk(SPOT_SHADOW_FADE_PNG, SPOT_SHADOW_FADE_PNG_SIZE);
+        // Load the manual buffer into an image (don't destroy memory!
+        DataStreamPtr stream(
+			new MemoryDataStream(SPOT_SHADOW_FADE_PNG, SPOT_SHADOW_FADE_PNG_SIZE, false));
         Image img;
-        img.load(chunk, "png");
+        img.load(stream, "png");
         spotShadowFadeTex = 
-            TextureManager::getSingleton().loadImage("spot_shadow_fade.png", img, TEX_TYPE_2D);
+            TextureManager::getSingleton().loadImage(
+			"spot_shadow_fade.png", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
+			img, TEX_TYPE_2D);
     }
 
     mShadowMaterialInitDone = true;
@@ -3051,7 +2941,7 @@ Pass* SceneManager::deriveShadowCasterPass(Pass* pass)
             // Did this result in a new vertex program?
             if (mShadowCasterPlainBlackPass->hasVertexProgram())
             {
-                GpuProgram* prg = mShadowCasterPlainBlackPass->getVertexProgram();
+                const GpuProgramPtr& prg = mShadowCasterPlainBlackPass->getVertexProgram();
                 // Load this program if not done already
                 if (!prg->isLoaded())
                     prg->load();
@@ -3093,7 +2983,7 @@ Pass* SceneManager::deriveShadowReceiverPass(Pass* pass)
             // Did this result in a new vertex program?
             if (mShadowReceiverPass->hasVertexProgram())
             {
-                GpuProgram* prg = mShadowReceiverPass->getVertexProgram();
+                const GpuProgramPtr& prg = mShadowReceiverPass->getVertexProgram();
                 // Load this program if required
                 if (!prg->isLoaded())
                     prg->load();
@@ -3539,10 +3429,11 @@ void SceneManager::createShadowTextures(unsigned short size, unsigned short coun
         mShadowTextures.push_back(shadowTex);
 
         // Also create corresponding Material used for rendering this shadow
-        Material* mat = (Material*)MaterialManager::getSingleton().getByName(matName);
-        if (!mat)
+        MaterialPtr mat = MaterialManager::getSingleton().getByName(matName);
+        if (mat.isNull())
         {
-            mat = (Material*)MaterialManager::getSingleton().create(matName);
+            mat = MaterialManager::getSingleton().create(
+                matName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         }
         else
         {

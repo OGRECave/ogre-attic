@@ -36,7 +36,8 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    CylinderEmitter::CylinderEmitter()
+    CylinderEmitter::CylinderEmitter(ParticleSystem* psys)
+        : AreaEmitter(psys)
     {
         initDefaults("Cylinder");
     }
@@ -85,7 +86,7 @@ namespace Ogre {
         genEmissionVelocity(pParticle->mDirection);
 
         // Generate simpler data
-        pParticle->mTimeToLive = pParticle->mTotalTimeToLive = genEmissionTTL();
+        pParticle->timeToLive = pParticle->totalTimeToLive = genEmissionTTL();
         
     }
 

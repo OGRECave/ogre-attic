@@ -202,11 +202,11 @@ public:
 
         if (mInputDevice->isKeyDown(KC_SYSRQ) && mTimeUntilNextToggle <= 0)
         {
-			char tmp[20];
-			sprintf(tmp, "screenshot_%d.png", ++mNumScreenShots);
-            mWindow->writeContentsToFile(tmp);
+			StringUtil::StrStreamType tmp;
+			tmp << "screenshot_" << ++mNumScreenShots << ".png";
+            mWindow->writeContentsToFile(tmp.str());
             mTimeUntilNextToggle = 0.5;
-			mWindow->setDebugText(String("Wrote ") + tmp);
+			mWindow->setDebugText(String("Wrote ") + tmp.str());
         }
 
 
@@ -250,7 +250,7 @@ public:
 
     void showDebugOverlay(bool show)
     {   
-        Overlay* o = (Overlay*)OverlayManager::getSingleton().getByName("Core/DebugOverlay");
+        Overlay* o = OverlayManager::getSingleton().getByName("Core/DebugOverlay");
         if (!o)
             Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find overlay Core/DebugOverlay",
                 "showDebugOverlay" );

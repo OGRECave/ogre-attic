@@ -210,52 +210,21 @@ namespace Ogre {
     }
 
     //---------------------------------------------------------------------------------------------
-    D3DTexture::D3DTexture(const String& name, TextureType texType, LPDIRECT3DDEVICE7 lpDirect3dDevice, TextureUsage usage )
+    D3DTexture::D3DTexture(ResourceManager* creator, const String& name, 
+        ResourceHandle handle, const String& group, bool isManual, 
+        ManualResourceLoader* loader, IDirect3DDevice7 * lpDirect3dDevice)
+        :Texture(creator, name, handle, group, isManual, loader),
+        mD3DDevice(lpDirect3dDevice)
     {
-        mD3DDevice = lpDirect3dDevice; mD3DDevice->AddRef();
-
-		mName = name;
-		mTextureType = texType;
-		mUsage = usage;
-        mDepth = 1; // D3D7 does not support volume textures
-
-        // Default to 16-bit texture
-        enable32Bit( false );
-    }
-    //---------------------------------------------------------------------------------------------
-    D3DTexture::D3DTexture( 
-        const String& name, 
-		TextureType texType, 
-        IDirect3DDevice7 * lpDirect3dDevice, 
-        uint width, 
-        uint height, 
-        uint num_mips,
-        PixelFormat format,
-        TextureUsage usage )
-    {
-        mD3DDevice = lpDirect3dDevice; mD3DDevice->AddRef();
-
-		mName = name;
-		mTextureType = texType;
-		mSrcWidth = width;
-        mSrcHeight = height;
-        mNumMipMaps = num_mips;
-
-        mUsage = usage;
-        mFormat = format;
-        mSrcBpp = mFinalBpp = Image::getNumElemBits( mFormat );
-        mHasAlpha = Image::formatHasAlpha(mFormat);
-
-        createSurface();
-        mIsLoaded = true;
+        mD3DDevice->AddRef();
     }
     //---------------------------------------------------------------------------------------------
     D3DTexture::~D3DTexture()
     {
-        if( mIsLoaded )
-            unload();
-
         __safeRelease( &mD3DDevice );
+        // have to call this here reather than in Resource destructor
+        // since calling virtual methods in base destructors causes crash
+        unload(); 
     }
 	/****************************************************************************************/
     void D3DTexture::blitToTexture( 
@@ -681,18 +650,14 @@ HRESULT WINAPI testEnumAtt(
     }
 
     //---------------------------------------------------------------------------------------------
-    void D3DTexture::copyToTexture( Texture * target )
+    void D3DTexture::copyToTexture( TexturePtr& target )
     {
         HRESULT hr;
-        D3DTexture * other;
 
         if( target->getUsage() != mUsage )
             return;
 
-        other = reinterpret_cast< D3DTexture * >( target );
-
-        //if( FAILED( hr = other->getDDSurface()->BltFast( 0, 0, mSurface, NULL, DDBLTFAST_WAIT ) ) )
-        if( FAILED( hr = other->getDDSurface()->Blt( NULL, mSurface, NULL, DDBLT_WAIT, NULL ) ) )
+        if( FAILED( hr = ((D3DTexture*)(target.get()))->getDDSurface()->Blt( NULL, mSurface, NULL, DDBLT_WAIT, NULL ) ) )
         {
             Except( Exception::ERR_RENDERINGAPI_ERROR, "Couldn't blit!", "" );
         }
@@ -706,10 +671,11 @@ HRESULT WINAPI testEnumAtt(
         if( mIsLoaded )
             unload();
 
+        StringUtil::StrStreamType str;
+        str << "D3DTexture: Loading " << mName << " with " 
+            << mNumMipMaps << " mipmaps from Image.";
         LogManager::getSingleton().logMessage( 
-            LML_TRIVIAL,
-            "D3DTexture: Loading %s with %d mipmaps from Image.", 
-            Texture::mName.c_str(), mNumMipMaps );
+            LML_TRIVIAL, str.str());
 
         /* Get parameters from the Image */
         mHasAlpha = img.getHasAlpha();
@@ -719,7 +685,7 @@ HRESULT WINAPI testEnumAtt(
         mFormat = img.getFormat();
 
         /* Now that we have the image's parameters, create the D3D surface based on them. */
-        createSurface();
+        createInternalResources();
 
         /* Blit to the image. This also creates the mip-maps and applies gamma. */
         blitImage( 
@@ -746,10 +712,11 @@ HRESULT WINAPI testEnumAtt(
         if( mIsLoaded )
             unload();
 
+        StringUtil::StrStreamType str;
+        str << "D3DTexture: Loading cubemap " << mName 
+            << " with " << mNumMipMaps << " mipmaps from Image.";
         LogManager::getSingleton().logMessage( 
-            LML_TRIVIAL,
-            "D3DTexture: Loading cubemap %s with %d mipmaps from Image.", 
-            Texture::mName.c_str(), mNumMipMaps );
+            LML_TRIVIAL, str.str());
 
         /* Get parameters from Image[0] (they are all the same) */
         mHasAlpha = imgs[0].getHasAlpha();
@@ -759,7 +726,7 @@ HRESULT WINAPI testEnumAtt(
         mFormat = imgs[0].getFormat();
 
         /* Now that we have the image's parameters, create the D3D surface based on them. */
-        createSurface();
+        createInternalResources();
 
         /* Blit to the image. This also creates the mip-maps and applies gamma. */
         blitImage3D( 
@@ -779,50 +746,45 @@ HRESULT WINAPI testEnumAtt(
         OgreUnguard();
 	}
     //---------------------------------------------------------------------------------------------
-    void D3DTexture::load(void)
+    void D3DTexture::createInternalResources(void)
     {
-        if( mIsLoaded )
-            return;
-
-        if( mUsage == TU_DEFAULT )
+        if (mTextureType == TEX_TYPE_CUBE_MAP)
         {
-			if (mTextureType == TEX_TYPE_CUBE_MAP)
-			{
-				_constructCubeFaceNames(mName);
-				Image imgs[6];
-				for (int face = 0; face < 6; ++face)
-				{
-					imgs[face].load(mCubeFaceNames[face]);
-				}
-				loadImage3D(imgs);
-
-			}
-			else
-			{
-				Image img;
-				img.load( Texture::mName );
-				
-				loadImage( img );
-			}
+            createSurface3D();
         }
-        else if( mUsage == TU_RENDERTARGET )
+        else
         {
-            mSrcWidth = mSrcHeight = 512;
-            mSrcBpp = mFinalBpp;
-            createSurface();
+            createSurface2D();
         }
+    }
+    //---------------------------------------------------------------------------------------------
+    void D3DTexture::loadImpl(void)
+    {
+		if (mTextureType == TEX_TYPE_CUBE_MAP)
+		{
+			_constructCubeFaceNames(mName);
+			Image imgs[6];
+			for (int face = 0; face < 6; ++face)
+			{
+				imgs[face].load(mCubeFaceNames[face], mGroup);
+			}
+			loadImage3D(imgs);
 
-        mIsLoaded = true;
+		}
+		else
+		{
+			Image img;
+			img.load(mName, mGroup);
+			
+			loadImage( img );
+		}
+
     }
 
     //---------------------------------------------------------------------------------------------
-    void D3DTexture::unload()
+    void D3DTexture::unloadImpl()
     {
-        if( mIsLoaded )
-        {
-            __safeRelease( &mSurface );
-            mIsLoaded = false;
-        }
+        __safeRelease( &mSurface );
     }
 	//---------------------------------------------------------------------------------------------
 	void D3DTexture::_chooseD3DFormat(DDPIXELFORMAT &ddpf)
@@ -873,19 +835,6 @@ HRESULT WINAPI testEnumAtt(
                 ddpf.dwBBitMask        = 0x0000ff;
             }
         }
-	}
-	//---------------------------------------------------------------------------------------------
-    void D3DTexture::createSurface(void)
-    {
-
-		if (mTextureType == TEX_TYPE_CUBE_MAP)
-		{
-			createSurface3D();
-		}
-		else
-		{
-			createSurface2D();
-		}
 	}
 	//---------------------------------------------------------------------------------------------
 	void D3DTexture::createSurface2D(void)

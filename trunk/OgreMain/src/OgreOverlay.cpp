@@ -37,18 +37,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     //---------------------------------------------------------------------
-    Overlay::Overlay(const String& name)
+    Overlay::Overlay(const String& name) :
+        mName(name),
+        mRotate(0.0f), 
+        mScrollX(0.0f), mScrollY(0.0f),
+        mScaleX(1.0f), mScaleY(1.0f), 
+        mTransformOutOfDate(true), mTransformUpdated(true), 
+        mZOrder(100), mVisible(false)
+
     {
-        mName = name;
-        mRotate = 0.0f;
-        mScaleX = 1.0f;
-        mScaleY = 1.0f;
-        mScrollX = 0.0f;
-        mScrollY = 0.0f;
-        mVisible = false;
-        mTransformOutOfDate = true;
-        mTransformUpdated = true;
-        mZOrder = 100; // Default
         mRootNode = new SceneNode(NULL);
 
     }
@@ -311,16 +308,6 @@ namespace Ogre {
         mTransformOutOfDate = false;
     }
     //---------------------------------------------------------------------
-    void Overlay::load(void)
-    {
-        // Do nothing
-    }
-    //---------------------------------------------------------------------
-    void Overlay::unload(void)
-    {
-        // Do nothing
-    }
-
 	OverlayElement* Overlay::findElementAt(Real x, Real y)
 	{
 		OverlayElement* ret = NULL;

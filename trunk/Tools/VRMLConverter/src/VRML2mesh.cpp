@@ -39,7 +39,7 @@ void parseNode(Mesh *, const vrmllib::node *, Matrix4 = Matrix4::IDENTITY);
 void parseShape(Mesh *, const Shape *, Matrix4);
 
 	// helpers:
-	Ogre::Material *parseMaterial(const Appearance *, const String &name);
+	Ogre::MaterialPtr parseMaterial(const Appearance *, const String &name);
 	void parseFaces(FaceVec &, const IndexedFaceSet *);
 	void triangulateAndExpand(TriVec &, VertVec &, const FaceVec &, const Shape *);
 	void copyToSubMesh(SubMesh *, const TriVec &, const VertVec &, const Shape *, const Matrix4 &);
@@ -100,6 +100,7 @@ try
 	log.createLog(path + "VRML2mesh.log");
 
 	Math math;
+    ResourceGroupManager resGrpMgr;
 	MaterialManager materialMgr;
 	MeshSerializer meshSer;
 
@@ -244,10 +245,10 @@ try
 	}
 
 	// process material
-	static std::map<Appearance *, Ogre::Material *> matMap;
+	static std::map<Appearance *, Ogre::MaterialPtr> matMap;
 
-	Ogre::Material *&material = matMap[app];
-	if (material && app) {
+	Ogre::MaterialPtr material = matMap[app];
+	if (!material->isNull() && app) {
 		log.logMessage("Using material " + material->getName());
 		sub->setMaterialName(material->getName());
 	} else {
@@ -471,12 +472,13 @@ void parseFaces(FaceVec &faces, const IndexedFaceSet *ifs)
 	}
 }
 
-Ogre::Material *parseMaterial(const Appearance *app, const String &name)
+Ogre::MaterialPtr parseMaterial(const Appearance *app, const String &name)
 {
 	vrmllib::Material *vm = app ? dynamic_cast<vrmllib::Material *>(app->material) : 0;
 	vrmllib::ImageTexture *texture = app ? dynamic_cast<vrmllib::ImageTexture *>(app->texture) : 0;
 
-	Ogre::Material *m = MaterialManager::getSingleton().createDeferred(name);
+	Ogre::MaterialPtr m = MaterialManager::getSingleton().create(name, 
+        ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
 	ColourValue diffuse = texture ? ColourValue::White : col(vm->diffuseColor);
 		// diffuse colour is unused by VRML when a texture is avaliable,

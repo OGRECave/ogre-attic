@@ -233,8 +233,9 @@ protected:
 
         // Load the meshes with non-default HBU options
 		for(int mn = 0; mn < NUM_ENTITIES; mn++) {
-			Mesh* pMesh = MeshManager::getSingleton().load(mEntityMeshes[mn],
-				HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, 
+			MeshPtr pMesh = MeshManager::getSingleton().load(mEntityMeshes[mn],
+                ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,    
+                HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, 
 				HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
 				true, true); //so we can still read it
             // Build tangent vectors, all our meshes use only 1 texture coordset 
@@ -279,7 +280,7 @@ protected:
 		mCamera->moveRelative(Vector3(50, 0, 20));
 		mCamera->lookAt(0, 0, 0);
 		// show overlay
-		Overlay *pOver = (Overlay *)OverlayManager::getSingleton().getByName("Example/DP3Overlay");    
+		Overlay* pOver = OverlayManager::getSingleton().getByName("Example/DP3Overlay");    
         mObjectInfo = GuiManager::getSingleton().getOverlayElement("Example/DP3/ObjectInfo");
         mMaterialInfo = GuiManager::getSingleton().getOverlayElement("Example/DP3/MaterialInfo");
         mInfo = GuiManager::getSingleton().getOverlayElement("Example/DP3/Info");
@@ -316,8 +317,7 @@ int main(int argc, char **argv)
 #if OGRE_PLATFORM == PLATFORM_WIN32
         MessageBox( NULL, e.getFullDescription().c_str(), "An exception has occured!", MB_OK | MB_ICONERROR | MB_TASKMODAL);
 #else
-        fprintf(stderr, "An exception has occured: %s\n",
-                e.getFullDescription().c_str());
+        std::cerr << "An exception has occured: " << e.getFullDescription();
 #endif
     }
 

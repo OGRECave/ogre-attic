@@ -27,7 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringConverter.h"
 #include "OgreParticle.h"
 #include "OgreException.h"
-
+#include "OgreResourceGroupManager.h"
 
 namespace Ogre {
     
@@ -35,7 +35,8 @@ namespace Ogre {
 	ColourImageAffector::CmdImageAdjust		ColourImageAffector::msImageCmd;
 
     //-----------------------------------------------------------------------
-    ColourImageAffector::ColourImageAffector()
+    ColourImageAffector::ColourImageAffector(ParticleSystem* psys)
+        :ParticleAffector(psys)
     {
         mType = "ColourImage";
 
@@ -72,8 +73,8 @@ namespace Ogre {
 		while (!pi.end())
 		{
 			p = pi.getNext();
-			const Real		life_time		= p->mTotalTimeToLive;
-			Real			particle_time	= 1.0f - (p->mTimeToLive / life_time); 
+			const Real		life_time		= p->totalTimeToLive;
+			Real			particle_time	= 1.0f - (p->timeToLive / life_time); 
 
 			if (particle_time > 1.0f)
 				particle_time = 1.0f;
@@ -109,7 +110,7 @@ namespace Ogre {
     void ColourImageAffector::setImageAdjust(String name)
     {
 		mColourImageName = name;
-		mColourImage.load(name);
+        mColourImage.load(name, mParent->getResourceGroupName());
 
 		PixelFormat	format = mColourImage.getFormat();
 

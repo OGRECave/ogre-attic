@@ -37,40 +37,75 @@ namespace Ogre {
     {  
         assert( ms_Singleton );  return ( *ms_Singleton );  
     }
-    //---------------------------------------------------------------------------
-    GpuProgram* GpuProgramManager::load(const String& name, const String& filename, 
-		GpuProgramType gptype, const String& syntaxCode, int priority)
+	//---------------------------------------------------------------------------
+	GpuProgramManager::GpuProgramManager()
+	{
+		// Loading order
+		mLoadOrder = 50.0f;
+		// Resource type
+		mResourceType = "GpuProgram";
+
+		// subclasses should register with resource group manager
+	}
+	//---------------------------------------------------------------------------
+	GpuProgramManager::~GpuProgramManager()
+	{
+		// subclasses should unregister with resource group manager
+	}
+	//---------------------------------------------------------------------------
+    GpuProgramPtr GpuProgramManager::load(const String& name,
+		const String& groupName, const String& filename, 
+		GpuProgramType gptype, const String& syntaxCode)
     {
-        GpuProgram* prg = create(name, gptype, syntaxCode);
+        GpuProgramPtr prg = createProgram(name, groupName, filename, gptype, syntaxCode);
+        prg->load();
+        return prg;
+    }
+    //---------------------------------------------------------------------------
+	GpuProgramPtr GpuProgramManager::loadFromString(const String& name, 
+		const String& groupName, const String& code, 
+        GpuProgramType gptype, const String& syntaxCode)
+    {
+        GpuProgramPtr prg = createProgramFromString(name, groupName, code, gptype, syntaxCode);
+        prg->load();
+        return prg;
+    }
+    //---------------------------------------------------------------------------
+    ResourcePtr GpuProgramManager::create(const String& name, const String& group, 
+        GpuProgramType gptype, const String& syntaxCode, bool isManual, 
+        ManualResourceLoader* loader)
+    {
+        // Call creation implementation
+        ResourcePtr ret = ResourcePtr(
+            createImpl(name, getNextHandle(), group, isManual, loader, gptype, syntaxCode));
+
+        addImpl(ret);
+        // Tell resource group manager
+        ResourceGroupManager::getSingleton()._notifyResourceCreated(ret);
+        return ret;
+    }
+    //---------------------------------------------------------------------------
+	GpuProgramPtr GpuProgramManager::createProgram(const String& name, 
+		const String& groupName, const String& filename, 
+		GpuProgramType gptype, const String& syntaxCode)
+    {
+		GpuProgramPtr prg = create(name, groupName, gptype, syntaxCode);
+        // Set all prarmeters (create does not set, just determines factory)
+		prg->setType(gptype);
+		prg->setSyntaxCode(syntaxCode);
 		prg->setSourceFile(filename);
-        ResourceManager::load(prg, priority);
         return prg;
     }
     //---------------------------------------------------------------------------
-	GpuProgram* GpuProgramManager::loadFromString(const String& name, const String& code, 
-        GpuProgramType gptype, const String& syntaxCode, int priority)
+	GpuProgramPtr GpuProgramManager::createProgramFromString(const String& name, 
+		const String& groupName, const String& code, GpuProgramType gptype, 
+		const String& syntaxCode)
     {
-        GpuProgram* prg = create(name, gptype, syntaxCode);
-        prg->setSource(code);
-        ResourceManager::load(prg, priority);
-        return prg;
-    }
-    //---------------------------------------------------------------------------
-	GpuProgram* GpuProgramManager::createProgram(const String& name, const String& filename, 
-		GpuProgramType gptype, const String& syntaxCode, int priority)
-    {
-        GpuProgram* prg = create(name, gptype, syntaxCode);
-		prg->setSourceFile(filename);
-        ResourceManager::add(prg);
-        return prg;
-    }
-    //---------------------------------------------------------------------------
-	GpuProgram* GpuProgramManager::createProgramFromString(const String& name, 
-		const String& code, GpuProgramType gptype, const String& syntaxCode, int priority)
-    {
-        GpuProgram* prg = create(name, gptype, syntaxCode);
-        prg->setSource(code);
-        ResourceManager::add(prg);
+		GpuProgramPtr prg = create(name, groupName, gptype, syntaxCode);
+        // Set all prarmeters (create does not set, just determines factory)
+		prg->setType(gptype);
+		prg->setSyntaxCode(syntaxCode);
+		prg->setSource(code);
         return prg;
     }
     //---------------------------------------------------------------------------
@@ -86,13 +121,13 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------------
-    Resource* GpuProgramManager::getByName(const String& name, bool preferHighLevelPrograms)
+    ResourcePtr GpuProgramManager::getByName(const String& name, bool preferHighLevelPrograms)
     {
-        Resource* ret;
+        ResourcePtr ret;
         if (preferHighLevelPrograms)
         {
             ret = HighLevelGpuProgramManager::getSingleton().getByName(name);
-            if (ret)
+            if (!ret.isNull())
                 return ret;
         }
         return ResourceManager::getByName(name);

@@ -43,7 +43,7 @@ namespace Ogre {
     class _OgreExport ShadowRenderable : public Renderable
     {
     protected:
-        Material* mMaterial;
+        MaterialPtr mMaterial;
         RenderOperation mRenderOp;
         ShadowRenderable* mLightCap; // used only if isLightCapSeparate == true
     public:
@@ -52,9 +52,9 @@ namespace Ogre {
         /** Set the material to be used by the shadow, should be set by the caller 
           before adding to a render queue
         */
-        void setMaterial(Material* mat) { mMaterial = mat; }
+        void setMaterial(MaterialPtr& mat) { mMaterial = mat; }
         /// Overridden from Renderable
-        Material* getMaterial(void) const { return mMaterial; }
+        const MaterialPtr& getMaterial(void) const { return mMaterial; }
         /// Overridden from Renderable
         void getRenderOperation(RenderOperation& op) { op = mRenderOp; }
         /// Get the internal render operation for set up

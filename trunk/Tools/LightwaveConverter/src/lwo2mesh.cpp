@@ -137,11 +137,12 @@ void Lwo2MeshWriter::doExportMaterials()
 		lwSurface *surface = object->surfaces[i];
 
 		// Create deferred material so no load
-		Material* ogreMat = (Material*)MaterialManager::getSingleton().getByName(surface->name);
+		MaterialPtr ogreMat = MaterialManager::getSingleton().getByName(surface->name);
 		
 		if (!ogreMat)
 		{
-			ogreMat = (Material*)MaterialManager::getSingleton().create(surface->name);
+			ogreMat = MaterialManager::getSingleton().create(surface->name, 
+                ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 			
 			ogreMat->setAmbient
 			(

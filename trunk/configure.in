@@ -57,6 +57,12 @@ AC_CHECK_FUNC(vsnprintf, AC_DEFINE(HAVE_VSNPRINTF,,vsnprintf))
 #AC_SUBST(CEGUI_CFLAGS)
 #AC_SUBST(CEGUI_LIBS)
 
+OGRE_CHECK_CPPUNIT
+
+PKG_CHECK_MODULES(ZZIPLIB, zziplib)
+AC_SUBST(ZZIPLIB_CFLAGS)
+AC_SUBST(ZZIPLIB_LIBS)
+
 OGRE_GET_CONFIG_TOOLKIT
 OGRE_GET_PLATFORM
 OGRE_GET_GLSUPPORT
@@ -108,9 +114,6 @@ AC_CONFIG_FILES([Makefile \
     PlugIns/CgProgramManager/Makefile \
     PlugIns/CgProgramManager/src/Makefile \
     PlugIns/CgProgramManager/include/Makefile \
-    PlugIns/FileSystem/Makefile \
-    PlugIns/FileSystem/src/Makefile \
-    PlugIns/FileSystem/include/Makefile \
     PlugIns/NatureSceneManager/Makefile \
     PlugIns/NatureSceneManager/src/Makefile \
     PlugIns/NatureSceneManager/include/Makefile \
@@ -200,6 +203,8 @@ AC_CONFIG_FILES([Makefile \
     Samples/Water/Makefile \
     Samples/Water/src/Makefile \
     Samples/Water/include/Makefile \
+    Tests/Makefile \
+    Tests/src/Makefile \
     Tools/Makefile \
     Tools/MaterialUpgrader/Makefile \
     Tools/MaterialUpgrader/src/Makefile \

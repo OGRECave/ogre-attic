@@ -35,7 +35,6 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreColourValue.h"
 #include "OgreCommon.h"
 #include "OgreRenderQueue.h"
-#include "OgreDataChunk.h"
 #include "OgreAnimationState.h"
 #include "OgreSceneQuery.h"
 #include "OgreAutoParamDataSource.h"
@@ -264,18 +263,20 @@ namespace Ogre {
 
         /* Internal utility method for creating the planes of a skybox.
         */
-        Mesh* createSkyboxPlane(
+        MeshPtr createSkyboxPlane(
             BoxPlane bp,
             Real distance,
-            const Quaternion& orientation);
+            const Quaternion& orientation,
+            const String& groupName);
 
         /* Internal utility method for creating the planes of a skydome.
         */
-        Mesh* createSkydomePlane(
+        MeshPtr createSkydomePlane(
             BoxPlane bp,
             Real curvature, Real tiling, Real distance,
             const Quaternion& orientation,
-            int xsegments = 16, int ysegments = 16, int ySegmentsToKeep = -1);
+            int xsegments, int ysegments, int ySegmentsToKeep, 
+            const String& groupName);
 
         // Flag indicating whether SceneNodes will be rendered as a set of 3 axes
         bool mDisplayNodes;
@@ -548,54 +549,6 @@ namespace Ogre {
         */
         virtual void _populateLightList(const Vector3& position, Real radius, LightList& destList);
 
-        /** Creates a new material with default settings with the specified name.
-        @see SceneManager::getDefaultMaterialSettings
-        */
-        virtual Material* createMaterial(const String& name);
-
-        /** Returns a pointer to the default Material settings.
-            @remarks
-                Ogre comes configured with a set of defaults for newly created
-                materials. If you wish to have a different set of defaults,
-                simply call this method and change the returned Material's
-                settings. All materials created from then on will be configured
-                with the new defaults you have specified.
-            @par
-                The default settings begin as a single Technique with a single, non-programmable Pass:
-                <ul>
-                <li>ambient = ColourValue::White</li>
-                <li>diffuse = ColourValue::White</li>
-                <li>specular = ColourValue::Black</li>
-                <li>emmissive = ColourValue::Black</li>
-                <li>shininess = 0</li>
-                <li>No texture unit settings (& hence no textures)</li>
-                <li>SourceBlendFactor = SBF_ONE</li>
-                <li>DestBlendFactor = SBF_ZERO (no blend, replace with new
-                  colour)</li>
-                <li>Depth buffer checking on</li>
-                <li>Depth buffer writing on</li>
-                <li>Depth buffer comparison function = CMPF_LESS_EQUAL</li>
-                <li>Colour buffer writing on for all channels</li>
-                <li>Culling mode = CULL_CLOCKWISE</li>
-                <li>Ambient lighting = ColourValue(0.5, 0.5, 0.5) (mid-grey)</li>
-                <li>Dynamic lighting enabled</li>
-                <li>Gourad shading mode</li>
-                <li>Bilinear texture filtering</li>
-                </ul>
-        */
-        virtual Material* getDefaultMaterialSettings(void);
-
-        /** Gets a reference to a named Material.
-        */
-        virtual Material* getMaterial(const String& name);
-
-        /** Gets a reference to a material by it's numerical handle.
-            @remarks
-                Numerical handles are assigned on creation of a material, or
-                when a copy is registered with the SceneManager using the
-                addMaterial method.
-        */
-        virtual Material* getMaterial(int handle);
 
         /** Creates an instance of a SceneNode.
             @remarks
@@ -834,9 +787,9 @@ namespace Ogre {
             @return
                 On success (the option exists), true is returned.
             @par
-                On failiure, false is returned.
+                On failure, false is returned.
         */
-        virtual bool getOptionValues( const String& strKey, std::list<SDDataChunk>& refValueList ) { return false; }
+        virtual bool getOptionValues( const String& strKey, StringVector& refValueList ) { return false; }
 
         /** Method for getting all the implementation-specific options of the scene manager.
             @param
@@ -844,7 +797,7 @@ namespace Ogre {
             @return
                 On success, true is returned. On failiure, false is returned.
         */
-        virtual bool getOptionKeys( std::list<String>& refKeys ) { return false; }
+        virtual bool getOptionKeys( StringVector& refKeys ) { return false; }
 
         /** Internal method for updating the scene graph ie the tree of SceneNode instances managed by this class.
             @remarks
@@ -960,12 +913,15 @@ namespace Ogre {
                 Determines the number of segments the plane will have to it. This
                 is most important when you are bowing the plane, but may also be useful
                 if you need tesselation on the plane to perform per-vertex effects.
+            @param groupName
+                The name of the resource group to which to assign the plane mesh.
         */
         virtual void setSkyPlane(
             bool enable,
             const Plane& plane, const String& materialName, Real scale = 1000,
             Real tiling = 10, bool drawFirst = true, Real bow = 0, 
-            int xsegments = 1, int ysegments = 1);
+            int xsegments = 1, int ysegments = 1, 
+            const String& groupName = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
         /** Enables / disables a 'sky box' i.e. a 6-sided box at constant
             distance from the camera representing the sky.
@@ -1005,10 +961,13 @@ namespace Ogre {
                 of the box. By default the 'top' of the box is deemed to be
                 in the +y direction, and the 'front' at the -z direction.
                 You can use this parameter to rotate the sky if you want.
+            @param groupName
+                The name of the resource group to which to assign the plane mesh.
         */
         virtual void setSkyBox(
             bool enable, const String& materialName, Real distance = 5000,
-            bool drawFirst = true, const Quaternion& orientation = Quaternion::IDENTITY );
+            bool drawFirst = true, const Quaternion& orientation = Quaternion::IDENTITY,
+            const String& groupName = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
         /** Enables / disables a 'sky dome' i.e. an illusion of a curved sky.
             @remarks
@@ -1062,12 +1021,15 @@ namespace Ogre {
                 of the dome. By default the 'top' of the dome is deemed to
                 be in the +y direction, and the 'front' at the -z direction.
                 You can use this parameter to rotate the sky if you want.
+            @param groupName
+                The name of the resource group to which to assign the plane mesh.
         */
         virtual void setSkyDome(
             bool enable, const String& materialName, Real curvature = 10,
             Real tiling = 8, Real distance = 4000, bool drawFirst = true,
             const Quaternion& orientation = Quaternion::IDENTITY,
-            int xsegments = 16, int ysegments = 16, int ysegments_keep = -1);
+            int xsegments = 16, int ysegments = 16, int ysegments_keep = -1,
+            const String& groupName = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
         /** Sets the fogging mode applied to the scene.
             @remarks
@@ -1276,30 +1238,6 @@ namespace Ogre {
         virtual void manualRender(RenderOperation* rend, Pass* pass, Viewport* vp, 
             const Matrix4& worldMatrix, const Matrix4& viewMatrix, const Matrix4& projMatrix, 
             bool doBeginEndFrame = false) ;
-
-        /** Creates a new Overlay.
-        @remarks
-            Overlays can be used to render heads-up-displays (HUDs), menu systems,
-            cockpits and any other 2D or 3D object you need to appear above the
-            rest of the scene. See the Overlay class for more information.
-        @par
-            NOTE: after creation, the Overlay is initially hidden. You can create
-            as many overlays as you like ready to be displayed whenever. Just call
-            Overlay::show to display the overlay.
-        @param name The name to give the overlay, must be unique.
-        @param zorder The zorder of the overlay relative to it's peers, higher zorders
-            appear on top of lower ones.
-        */
-        virtual Overlay* createOverlay(const String& name, ushort zorder = 100); 
-
-        /** Gets a pointer to the named Overlay, previously created using createOverlay. */
-        virtual Overlay* getOverlay(const String& name);
-
-        /** Destroys the named Overlay. */
-        virtual void destroyOverlay(const String& name);
-        
-        /** Destroys all the overlays. */
-        virtual void destroyAllOverlays(void);
 
         /** Registers a new RenderQueueListener which will be notified when render queues
             are processed.

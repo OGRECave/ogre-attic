@@ -35,7 +35,8 @@ namespace Ogre {
     ColourInterpolatorAffector::CmdTimeAdjust		ColourInterpolatorAffector::msTimeCmd[MAX_STAGES];
 
     //-----------------------------------------------------------------------
-    ColourInterpolatorAffector::ColourInterpolatorAffector()
+    ColourInterpolatorAffector::ColourInterpolatorAffector(ParticleSystem* psys)
+        : ParticleAffector(psys)
     {
 		for (int i=0;i<MAX_STAGES;i++)
 		{
@@ -79,8 +80,8 @@ namespace Ogre {
 		while (!pi.end())
         {
             p = pi.getNext();
-			const Real		life_time		= p->mTotalTimeToLive;
-			Real			particle_time	= 1.0f - (p->mTimeToLive / life_time); 
+			const Real		life_time		= p->totalTimeToLive;
+			Real			particle_time	= 1.0f - (p->timeToLive / life_time); 
 
 			if (particle_time <= mTimeAdj[0])
 			{

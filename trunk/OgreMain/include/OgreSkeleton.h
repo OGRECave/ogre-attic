@@ -71,7 +71,11 @@ namespace Ogre {
     */
     class _OgreExport Skeleton : public Resource
     {
-        friend class SkeletonInstance;
+		friend class SkeletonInstance;
+	protected:
+		/// Internal constructor for use by SkeletonInstance only
+		Skeleton();
+
     public:
         /** Constructor, don't call directly, use SkeletonManager.
         @remarks
@@ -79,16 +83,10 @@ namespace Ogre {
             them together appropriately. Unless you state otherwise by attaching it to 
             a higher bone, the first bone you create is deemed to be the root bone.
         */
-        Skeleton(const String& name);
+        Skeleton(ResourceManager* creator, const String& name, ResourceHandle handle,
+            const String& group, bool isManual = false, ManualResourceLoader* loader = 0);
         virtual ~Skeleton();
 
-        /** Generic load - called by SkeletonManager.
-        */
-        virtual void load(void);
-
-        /** Generic unload - called by SkeletonManager.
-        */
-        virtual void unload(void);
 
         /** Creates a brand new Bone owned by this Skeleton. 
         @remarks
@@ -287,7 +285,60 @@ namespace Ogre {
         /// Debugging method
         void _dumpContents(const String& filename);
 
+        /** @copydoc Resource::loadImpl
+        */
+        void loadImpl(void);
 
+        /** @copydoc Resource::unloadImpl
+        */
+        void unloadImpl(void);
+		/// @copydoc Resource::calculateSize
+		size_t calculateSize(void) const { return 0; } // TODO 
+
+    };
+
+    /** Specialisation of SharedPtr to allow SharedPtr to be assigned to SkeletonPtr 
+    @note Has to be a subclass since we need operator=.
+    We could templatise this instead of repeating per Resource subclass, 
+    except to do so requires a form VC6 does not support i.e.
+    ResourceSubclassPtr<T> : public SharedPtr<T>
+    */
+    class _OgreExport SkeletonPtr : public SharedPtr<Skeleton> 
+    {
+    public:
+        SkeletonPtr() : SharedPtr<Skeleton>() {}
+        SkeletonPtr(Skeleton* rep) : SharedPtr<Skeleton>(rep) {}
+        SkeletonPtr(const SkeletonPtr& r) : SharedPtr<Skeleton>(r) {} 
+        SkeletonPtr(const ResourcePtr& r) : SharedPtr<Skeleton>()
+        {
+			// lock & copy other mutex pointer
+			OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
+            pRep = static_cast<Skeleton*>(r.getPointer());
+            pUseCount = r.useCountPointer();
+            if (pUseCount)
+            {
+                ++(*pUseCount);
+            }
+        }
+
+        /// Operator used to convert a ResourcePtr to a SkeletonPtr
+        SkeletonPtr& operator=(const ResourcePtr& r)
+        {
+            if (pRep == static_cast<Skeleton*>(r.getPointer()))
+                return *this;
+            release();
+			// lock & copy other mutex pointer
+			OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
+            pRep = static_cast<Skeleton*>(r.getPointer());
+            pUseCount = r.useCountPointer();
+            if (pUseCount)
+            {
+                ++(*pUseCount);
+            }
+            return *this;
+        }
     };
 
 }

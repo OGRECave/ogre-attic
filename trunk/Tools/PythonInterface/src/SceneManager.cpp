@@ -31,10 +31,6 @@ void exportSceneManager()
                 &SceneManager::getDefaultMaterialSettings, rir())
         .def("getEntity", &SceneManager::getEntity, rir())
         .def("getLight", &SceneManager::getLight, rir())
-        .def("getMaterial", (Material* (SceneManager::*)(const
-                        String&))&SceneManager::getMaterial, rir())
-        .def("getMaterial", (Material*
-                    (SceneManager::*)(int))&SceneManager::getMaterial, rir())
         .def("getRootSceneNode", &SceneManager::getRootSceneNode, rir())
         .def("getSuggestedViewpoint", &SceneManager::getSuggestedViewpoint)
         .def("removeAllCameras", &SceneManager::removeAllCameras)

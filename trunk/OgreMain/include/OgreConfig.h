@@ -82,6 +82,16 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #define OGRE_DEBUG_MEMORY_MANAGER 1
 
+/** Indicate general support for multithreading.
+	This will enable threading support in certain parts of the
+	engine, mainly resource loading and SharedPtr handling. 
+	The places where threading is available are clearly 
+	marked, you should assume state is NOT thread safe unless otherwise
+	stated in relation to this flag.
+    WARNING: highly experimental, use with caution
+*/
+#define OGRE_THREAD_SUPPORT 0
+
 // configure options
 #ifdef HAVE_CONFIG_H
 #include "config.h"

@@ -48,9 +48,9 @@ namespace Ogre {
         }
 
         /** See ParticleEmitterFactory */
-        ParticleEmitter* createEmitter(void) 
+        ParticleEmitter* createEmitter(ParticleSystem* psys) 
         {
-            ParticleEmitter* emit = new CylinderEmitter();
+            ParticleEmitter* emit = new CylinderEmitter(psys);
             mEmitters.push_back(emit);
             return emit;
         }

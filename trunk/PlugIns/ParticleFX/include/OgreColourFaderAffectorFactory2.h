@@ -38,9 +38,9 @@ namespace Ogre {
         String getName() const { return "ColourFader2"; }
 
         /** See ParticleAffectorFactory */
-        ParticleAffector* createAffector(void)
+        ParticleAffector* createAffector(ParticleSystem* psys)
         {
-            ParticleAffector* p = new ColourFaderAffector2();
+            ParticleAffector* p = new ColourFaderAffector2(psys);
             mAffectors.push_back(p);
             return p;
         }

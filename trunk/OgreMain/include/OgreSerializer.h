@@ -28,13 +28,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 #include "OgreString.h"
+#include "OgreDataStream.h"
 
 namespace Ogre {
 
-    /** Generic class for serialising data to / from binary chunk-based files.
+    /** Generic class for serialising data to / from binary stream-based files.
     @remarks
         This class provides a number of useful methods for exporting / importing data
-        from chunk-oriented binary files (e.g. .mesh and .skeleton).
+        from stream-oriented binary files (e.g. .mesh and .skeleton).
     */
     class _OgreExport Serializer
     {
@@ -45,7 +46,7 @@ namespace Ogre {
 
     protected:
 
-        unsigned long mCurrentChunkLen;
+        unsigned long mCurrentstreamLen;
         FILE* mpfFile;
         String mVersion;
 
@@ -64,19 +65,19 @@ namespace Ogre {
         void writeString(const String& string);
         void writeData(const void* buf, size_t size, size_t count);
         
-        virtual void readFileHeader(DataChunk& chunk);
-        virtual unsigned short readChunk(DataChunk& chunk);
+        virtual void readFileHeader(DataStreamPtr& stream);
+        virtual unsigned short readChunk(DataStreamPtr& stream);
         
-        void readBools(DataChunk& chunk, bool* pDest, size_t count);
-        void readReals(DataChunk& chunk, Real* pDest, size_t count);
-        void readShorts(DataChunk& chunk, unsigned short* pDest, size_t count);
-        void readInts(DataChunk& chunk, unsigned int* pDest, size_t count);
-        void readLongs(DataChunk& chunk, unsigned long* pDest, size_t count); 
-        void readObject(DataChunk& chunk, Vector3* pDest);
-        void readObject(DataChunk& chunk, Quaternion* pDest);
+        void readBools(DataStreamPtr& stream, bool* pDest, size_t count);
+        void readReals(DataStreamPtr& stream, Real* pDest, size_t count);
+        void readShorts(DataStreamPtr& stream, unsigned short* pDest, size_t count);
+        void readInts(DataStreamPtr& stream, unsigned int* pDest, size_t count);
+        void readLongs(DataStreamPtr& stream, unsigned long* pDest, size_t count); 
+        void readObject(DataStreamPtr& stream, Vector3* pDest);
+        void readObject(DataStreamPtr& stream, Quaternion* pDest);
 
-        String readString(DataChunk& chunk);
-        String readString(DataChunk& chunk, size_t numChars);
+        String readString(DataStreamPtr& stream);
+        String readString(DataStreamPtr& stream, size_t numChars);
         
         virtual void flipToLittleEndian(void* pData, size_t size, size_t count = 1);
         virtual void flipFromLittleEndian(void* pData, size_t size, size_t count = 1);

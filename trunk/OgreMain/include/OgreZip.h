@@ -25,54 +25,101 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef __Zip_H__
 #define __Zip_H__
 
+#include <zzip/zzip.h>
 #include "OgrePrerequisites.h"
 
-#include "OgreArchiveEx.h"
+#include "OgreArchive.h"
+#include "OgreArchiveFactory.h"
 
 namespace Ogre {
 
-    class Zip : public ArchiveEx {
+    /** Specialisation of the Archive class to allow reading of files from a zip
+        format source archive.
+    @remarks
+        This archive format supports all archives compressed in the standard
+        zip format, including iD pk3 files.
+    */
+    class _OgreExport ZipArchive : public Archive 
+    {
+    protected:
+        /// Handle to root zip file
+        ZZIP_DIR* mZzipDir;
+        /// Handle any errors from zzip
+        void checkZzipError(const zzip_error_t& zzipError, const String& operation) const;
+        /// File list (since zziplib seems to only allow scanning of dir tree once)
+        FileInfoList mFileList;
     public:
-        Zip();
-        Zip(const String& name );
-        ~Zip();
+        ZipArchive(const String& name, const String& archType );
+        ~ZipArchive();
+        /// @copydoc Archive::isCaseSensitive
+        bool isCaseSensitive(void) const { return false; }
 
+        /// @copydoc Archive::load
         void load();
+        /// @copydoc Archive::unload
         void unload();
 
-        bool fileOpen( const String& strFile, FILE** ppFile ) const;
-        bool fileRead( const String& strFile, DataChunk** ppChunk ) const;
+        /// @copydoc Archive::open
+        DataStreamPtr open(const String& filename) const;
 
-        bool fileSave( FILE* pFile, const String& strPath, bool bOverwrite = false );
-        bool fileWrite( const DataChunk& refChunk, const String& strPath, bool bOverwrite = false );
+        /// @copydoc Archive::list
+        StringVectorPtr list(bool recursive = true );
 
-        bool fileDele( const String& strFile );
-        bool fileMove( const String& strSrc, const String& strDest, bool bOverwrite );
+        /// @copydoc Archive::listFileInfo
+        FileInfoListPtr listFileInfo(bool recursive = true );
 
-        bool fileInfo( const String& strFile, FileInfo** ppInfo ) const;
-        bool fileCopy( const String& strSrc, const String& strDest, bool bOverwrite );
+        /// @copydoc Archive::find
+        StringVectorPtr find(const String& pattern, bool recursive = true);
 
-        bool fileTest( const String& strFile ) const;
-
-        std::vector<String> dirGetFiles( const String& strDir ) const;
-        std::vector<String> dirGetSubs( const String& strDir ) const;
-
-        bool dirDele( const String& strDir, bool bRecursive );
-        bool dirMove( const String& strSrc, const String& strDest, bool bOverwrite );
-
-        bool dirInfo( const String& strDir, FileInfo** ppInfo ) const;
-        bool dirCopy( const String& strSrc, const String& strDest, bool bOverwrite );
-
-        bool dirTest( const String& strDir ) const;
-
-        std::vector<String> getAllNamesLike( const String& strStartPath, const String& strPattern, bool bRecursive=true );
-
-        bool _allowFileCaching() const { return true; }
-
-    private:
-        void* mArchive;
+        /// @copydoc Archive::findFileInfo
+        FileInfoListPtr findFileInfo(const String& pattern, bool recursive = true);
 
     };
+
+    /** Specialisation of ArchiveFactory for Zip files. */
+    class ZipArchiveFactory : public ArchiveFactory
+    {
+    public:
+        virtual ~ZipArchiveFactory() {}
+        /// @copydoc FactoryObj::getType
+        const String& getType(void) const;
+        /// @copydoc FactoryObj::createInstance
+        Archive *createInstance( const String& name ) 
+        {
+            return new ZipArchive(name, "Zip");
+        }
+        /// @copydoc FactoryObj::destroyInstance
+        void destroyInstance( Archive* arch) { delete arch; }
+    };
+
+    /** Specialisation of DataStream to handle streaming data from zip archives. */
+    class ZipDataStream : public DataStream
+    {
+    protected:
+        ZZIP_FILE* mZzipFile;
+    public:
+        /// Unnamed constructor
+        ZipDataStream(ZZIP_FILE* zzipFile, size_t uncompressedSize);
+        /// Constructor for creating named streams
+        ZipDataStream(const String& name, ZZIP_FILE* zzipFile, size_t uncompressedSize);
+        /// @copydoc DataStream::read
+        size_t read(void* buf, size_t count);
+        /// @copydoc DataStream::read
+        size_t readLine(char* buf, size_t maxCount, const String& delim = "\n");
+        /// @copydoc DataStream::skipLine
+        size_t skipLine(const String& delim = "\n");
+        /// @copydoc DataStream::skip
+        void skip(size_t count);
+        /// @copydoc DataStream::seek
+        void seek( size_t pos );
+        /// @copydoc DataStream::eof
+        bool eof(void) const;
+        /// @copydoc DataStream::close
+        void close(void);
+
+
+    };
+
 
 }
 

@@ -46,7 +46,7 @@ namespace Ogre {
     //-------------------------------------------------------------------------
     void HeightmapTerrainPageSource::shutdown(void)
     {
-        // Image / datachunk will destroy itself
+        // Image will destroy itself
         delete mPage;
         mPage = 0;
     }
@@ -61,23 +61,26 @@ namespace Ogre {
             imgSize = mRawSize;
             
             // Load data
-            mRawData.clear();
-            ResourceManager::_findCommonResourceData(mSource, mRawData);
+            mRawData.setNull();
+            DataStreamPtr stream = 
+                ResourceGroupManager::getSingleton()._findResource(
+                    mSource, ResourceGroupManager::getSingleton().getWorldResourceGroupName());
+            mRawData = MemoryDataStreamPtr(new MemoryDataStream(mSource, stream));
 
             // Validate size
             size_t numBytes = imgSize * imgSize * mRawBpp;
-            if (mRawData.getSize() != numBytes)
+            if (mRawData->size() != numBytes)
             {
                 shutdown();
                 Except(Exception::ERR_INVALIDPARAMS, 
-                    "RAW size (" + StringConverter::toString(mRawData.getSize()) + 
+                    "RAW size (" + StringConverter::toString(mRawData->size()) + 
                     ") does not agree with configuration settings.", 
                     "HeightmapTerrainPageSource::loadHeightmap");
             }
         }
         else
         {
-            mImage.load( mSource );
+            mImage.load(mSource, ResourceGroupManager::getSingleton().getWorldResourceGroupName());
             // Must be square (dimensions checked later)
             if ( mImage.getWidth() != mImage.getHeight())
             {
@@ -190,7 +193,7 @@ namespace Ogre {
             
             if (mIsRaw)
             {
-                pOrigSrc = mRawData.getPtr();
+                pOrigSrc = mRawData->getPtr();
                 is16bit = (mRawBpp == 2);
             }
             else

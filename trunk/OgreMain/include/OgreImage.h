@@ -26,8 +26,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define _Image_H__
 
 #include "OgrePrerequisites.h"
-
 #include "OgreCommon.h"
+#include "OgreDataStream.h"
 
 namespace Ogre {
 
@@ -422,10 +422,10 @@ namespace Ogre {
 		Image& loadDynamicImage( uchar* pData, ushort uWidth, 
 								 ushort uHeight, PixelFormat eFormat );
 
-        /** Loads raw data from memory. The pixel format has to be specified.
+        /** Loads raw data from a stream. The pixel format has to be specified.
         */
         Image & loadRawData( 
-            const DataChunk &pData, 
+            DataStreamPtr& stream, 
             ushort uWidth, ushort uHeight, 
             PixelFormat eFormat );
 
@@ -437,32 +437,29 @@ namespace Ogre {
                 The type can be determined by calling getFormat().             
             @param
                 strFileName Name of a file file to load.
+            @param
+                groupName Name of the resource group to search for the image
             @note
                 The memory associated with this buffer is destroyed with the
                 Image object.
         */
-        Image & load( const String& strFileName );
+        Image & load( const String& strFileName, const String& groupName );
 
-        /** Loads an image file from a chunk of memory.
+        /** Loads an image file from a stream.
             @remarks
                 This method works in the same way as the filename-based load 
-                method except it loads the image from a DataChunk object, ie 
-                a chunk of memory. This DataChunk is expected to contain the 
+                method except it loads the image from a DataStream object. 
+				This DataStream is expected to contain the 
                 encoded data as it would be held in a file. 
-            @par
-                This method is here to support loading from compressed archives
-                where you decompress the data from the archive into memory 
-                first. This method will then decode the data and return a raw 
-                image data stream.
             @param
-                chunk The source data.
+                stream The source data.
             @param
                 type The type of the image. Used to decide what decompression
                 codec to use.
             @see
                 Image::load( const String& strFileName )
         */
-        Image & load( const DataChunk& chunk, const String& type );
+        Image & load(DataStreamPtr& stream, const String& type );
         
         /** Save the image as a file. */
         void save(const String& filename);

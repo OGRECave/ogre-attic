@@ -26,48 +26,64 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __OverlayManager_H__
 
 #include "OgrePrerequisites.h"
-#include "OgreResourceManager.h"
 #include "OgreSingleton.h"
 #include "OgreStringVector.h"
+#include "OgreOverlay.h"
+#include "OgreScriptLoader.h"
 
 namespace Ogre {
 
     /** Manages Overlay objects, parsing them from .overlay files and
         storing a lookup library of them.
     */
-    class _OgreExport OverlayManager : public ResourceManager, public Singleton<OverlayManager>
+    class _OgreExport OverlayManager : public Singleton<OverlayManager>, public ScriptLoader
     {
+    public:
+        typedef std::map<String, Overlay*> OverlayMap;
     protected:
-        void parseNewElement( DataChunk& chunk, String& elemType, String& elemName, 
+        OverlayMap mOverlayMap;
+        StringVector mScriptPatterns;
+
+        void parseNewElement( DataStreamPtr& chunk, String& elemType, String& elemName, 
             bool isContainer, Overlay* pOverlay, bool isTemplate, String templateName = String(""), OverlayContainer* container = 0);
         void parseAttrib( const String& line, Overlay* pOverlay);
         void parseElementAttrib( const String& line, Overlay* pOverlay, OverlayElement* pElement );
-        void parseNewMesh(DataChunk& chunk, String& meshName, String& entityName, Overlay* pOverlay);
-        void skipToNextCloseBrace(DataChunk& chunk);
-        void skipToNextOpenBrace(DataChunk& chunk);
+        void parseNewMesh(DataStreamPtr& chunk, String& meshName, String& entityName, Overlay* pOverlay);
+        void skipToNextCloseBrace(DataStreamPtr& chunk);
+        void skipToNextOpenBrace(DataStreamPtr& chunk);
         
         int mLastViewportWidth, mLastViewportHeight;
         bool mViewportDimensionsChanged;
 
-		StringVector mLoadedOverlays;
-
-	    bool parseChildren( DataChunk& chunk, const String& line,
+	    bool parseChildren( DataStreamPtr& chunk, const String& line,
             Overlay* pOverlay, bool isTemplate, OverlayContainer* parent = NULL);
+
 
     public:
         OverlayManager();
         virtual ~OverlayManager();
 
-        /** Parses an overlay file passed as a chunk. */
-        void parseOverlayFile(DataChunk& chunk);
-        /** Parses all overlay files in resource folders & archives. */
-        void parseAllSources(const String& extension = ".overlay");
-	    void parseOverlayFile(ArchiveEx* pArchiveEx, const String& name);
+        /// @copydoc ScriptLoader::getScriptPatterns
+        const StringVector& getScriptPatterns(void) const;
+        /// @copydoc ScriptLoader::parseScript
+        void parseScript(DataStreamPtr& stream, const String& groupName);
+        /// @copydoc ScriptLoader::getLoadingOrder
+        Real getLoadingOrder(void) const;
 
-	    void loadAndParseOverlayFile(const String& filename);
-
-        /** Create implementation required by ResourceManager. */
-        virtual Resource* create( const String& name);
+        /** Create a new Overlay. */
+        Overlay* create(const String& name);
+        /** Retrieve an Overlay by name 
+        @returns A pointer to the Overlay, or 0 if not found
+        */
+        Overlay* getByName(const String& name);
+        /** Destroys an existing overlay by name */
+        void destroy(const String& name);
+        /** Destroys an existing overlay */
+        void destroy(Overlay* overlay);
+        /** Destroys all existing overlays */
+        void destroyAll(void);
+        typedef MapIterator<OverlayMap> OverlayMapIterator;
+        OverlayMapIterator getOverlayIterator(void);
 
         /** Internal method for queueing the visible overlays for rendering. */
         void _queueOverlaysForRendering(Camera* cam, RenderQueue* pQueue, Viewport *vp);

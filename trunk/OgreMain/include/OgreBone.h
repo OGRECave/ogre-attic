@@ -111,7 +111,7 @@ namespace Ogre
         /** See Node. */
         Node* createChildImpl(const String& name);
 
-        /// Pointer back to creator, for child creation (central memory allocation)
+        /// Pointer back to creator, for child creation (not smart ptr so child does not preserve parent)
         Skeleton* mCreator;
 
         /// The inversed derived transform of the bone in the binding pose

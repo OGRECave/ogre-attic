@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.00"
-	Name="Plugin_FileSystem"
-	ProjectGUID="{3AD3E5EF-0CC8-4A69-9827-7D42C270007F}"
+	Name="TestOgreMain"
+	ProjectGUID="{0DC410D4-73C1-46F5-9A23-F4026B0B08F7}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -12,17 +12,15 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\bin\$(ConfigurationName)"
+			OutputDirectory="..\lib\$(ConfigurationName)"
 			IntermediateDirectory="..\obj\$(ConfigurationName)"
-			ConfigurationType="2"
-			CharacterSet="0">
+			ConfigurationType="1"
+			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				ImproveFloatingPointConsistency="FALSE"
-				OptimizeForProcessor="0"
-				AdditionalIncludeDirectories="..\include;..\..\..\OgreMain\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;PLUGIN_FILESYSTEM_EXPORTS"
+				AdditionalIncludeDirectories="OgreMain\include;..\OgreMain\include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;REFERENCEAPPLAYER_EXPORTS"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -36,24 +34,23 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
-				AdditionalDependencies="OgreMain_d.lib"
-				OutputFile="$(OutDir)/Plugin_FileSystem.dll"
-				Version="0.99"
+				AdditionalDependencies="OgreMain_d.lib cppunitd.lib"
+				OutputFile="$(OutDir)/TestOgreMain.exe"
+				Version=""
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;"
-				ModuleDefinitionFile="..\misc\FileSystem.def"
+				AdditionalLibraryDirectories="&quot;..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;"
+				ModuleDefinitionFile=""
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/Plugin_FileSystem.pdb"
-				SubSystem="2"
-				OptimizeForWindows98="1"
-				ImportLibrary=""
+				ProgramDatabaseFile="$(OutDir)/TestOgreMain.pdb"
+				SubSystem="1"
+				ImportLibrary="$(OutDir)/TestOgreMain.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\..\Samples\Common\bin\$(ConfigurationName)"/>
+				CommandLine="copy $(OutDir)\$(TargetFileName) ..\Samples\Common\bin\$(ConfigurationName)"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -67,14 +64,14 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\bin\$(ConfigurationName)"
+			OutputDirectory="..\lib\$(ConfigurationName)"
 			IntermediateDirectory="..\obj\$(ConfigurationName)"
-			ConfigurationType="2"
-			CharacterSet="0"
+			ConfigurationType="1"
+			CharacterSet="2"
 			WholeProgramOptimization="TRUE">
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="3"
 				GlobalOptimizations="TRUE"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="TRUE"
@@ -83,8 +80,8 @@
 				OmitFramePointers="TRUE"
 				EnableFiberSafeOptimizations="TRUE"
 				OptimizeForProcessor="2"
-				AdditionalIncludeDirectories="..\include;..\..\..\OgreMain\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;PLUGIN_FILESYSTEM_EXPORTS"
+				AdditionalIncludeDirectories="OgreMain\include;..\OgreMain\include;..\Dependencies\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;REFERENCEAPPLAYER_EXPORTS"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="FALSE"
@@ -98,25 +95,24 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
-				AdditionalDependencies="OgreMain.lib"
-				OutputFile="$(OutDir)/Plugin_FileSystem.dll"
-				Version="0.99"
+				AdditionalDependencies="OgreMain.lib cppunit.lib"
+				OutputFile="$(OutDir)/TestOgreMain.exe"
+				Version=""
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;"
-				ModuleDefinitionFile="..\misc\FileSystem.def"
-				GenerateDebugInformation="FALSE"
-				SubSystem="2"
+				AdditionalLibraryDirectories="&quot;..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;"
+				ModuleDefinitionFile=""
+				GenerateDebugInformation="TRUE"
+				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				ImportLibrary=""
+				ImportLibrary="$(OutDir)/TestOgreMain.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\..\Samples\Common\bin\$(ConfigurationName)"/>
+				CommandLine="copy $(OutDir)\$(TargetFileName) ..\Samples\Common\bin\$(ConfigurationName)"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -134,23 +130,35 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
-				RelativePath="..\src\FileSystem.cpp">
+				RelativePath="OgreMain\src\EdgeBuilderTests.cpp">
 			</File>
 			<File
-				RelativePath="..\misc\FileSystem.def">
+				RelativePath="OgreMain\src\FileSystemArchiveTests.cpp">
 			</File>
 			<File
-				RelativePath="..\src\FileSystemFactory.cpp">
+				RelativePath="OgreMain\src\StringTests.cpp">
+			</File>
+			<File
+				RelativePath="OgreMain\src\ZipArchiveTests.cpp">
+			</File>
+			<File
+				RelativePath="src\main.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
-				RelativePath="..\include\FileSystem.h">
+				RelativePath="OgreMain\include\EdgeBuilderTests.h">
 			</File>
 			<File
-				RelativePath="..\include\FileSystemFactory.h">
+				RelativePath="OgreMain\include\FileSystemArchiveTests.h">
+			</File>
+			<File
+				RelativePath="OgreMain\include\StringTests.h">
+			</File>
+			<File
+				RelativePath="OgreMain\include\ZipArchiveTests.h">
 			</File>
 		</Filter>
 		<Filter

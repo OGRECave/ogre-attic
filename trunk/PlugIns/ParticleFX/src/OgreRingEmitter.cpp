@@ -37,7 +37,8 @@ namespace Ogre {
     RingEmitter::CmdInnerY RingEmitter::msCmdInnerY;
 
     //-----------------------------------------------------------------------
-    RingEmitter::RingEmitter()
+    RingEmitter::RingEmitter(ParticleSystem* psys)
+        : AreaEmitter(psys)
     {
         if (initDefaults("Ring"))
         {
@@ -87,7 +88,7 @@ namespace Ogre {
         genEmissionVelocity(pParticle->mDirection);
 
         // Generate simpler data
-        pParticle->mTimeToLive = pParticle->mTotalTimeToLive = genEmissionTTL();
+        pParticle->timeToLive = pParticle->totalTimeToLive = genEmissionTTL();
         
     }
     //-----------------------------------------------------------------------

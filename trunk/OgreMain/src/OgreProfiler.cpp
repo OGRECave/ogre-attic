@@ -41,7 +41,6 @@ Ogre-dependent is in the visualization/logging routines and the use of the Timer
 #include "OgreLogManager.h"
 #include "OgreStringConverter.h"
 #include "OgreOverlayManager.h"
-#include "OgreOverlay.h"
 #include "OgreGuiManager.h"
 #include "OgreOverlayElement.h"
 #include "OgreOverlayContainer.h"
@@ -124,7 +123,7 @@ namespace Ogre {
         mBarLineWidth = 2;
 
         // create a new overlay to hold our Profiler display
-        mOverlay = (Overlay*)OverlayManager::getSingleton().create("Profiler");
+        mOverlay = OverlayManager::getSingleton().create("Profiler");
         mOverlay->setZOrder(500);
 
         // this panel will be the main container for our profile bars

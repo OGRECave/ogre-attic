@@ -31,10 +31,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRoot.h"
 #include "OgreLogManager.h"
 #include "OgreString.h"
-#include "OgreSDDataChunk.h"
-
+#include "OgreParticleSystemRenderer.h"
+#include "OgreBillboardParticleRenderer.h"
 
 namespace Ogre {
+    //-----------------------------------------------------------------------
+    // Shortcut to set up billboard particle renderer
+    BillboardParticleRendererFactory* mBillboardRendererFactory = 0;
+    //-----------------------------------------------------------------------
     template<> ParticleSystemManager* Singleton<ParticleSystemManager>::ms_Singleton = 0;
     ParticleSystemManager* ParticleSystemManager::getSingletonPtr(void)
     {
@@ -48,11 +52,18 @@ namespace Ogre {
     ParticleSystemManager::ParticleSystemManager()
     {
 		mTimeFactor = 1;
+        mScriptPatterns.push_back("*.particle");
+        ResourceGroupManager::getSingleton()._registerScriptLoader(this);
     }
     //-----------------------------------------------------------------------
     ParticleSystemManager::~ParticleSystemManager()
     {
-        // Templates will be destroyed by by-value STL container
+        // Destroy all templates
+        ParticleTemplateMap::iterator t;
+        for (t = mSystemTemplates.begin(); t != mSystemTemplates.end(); ++t)
+        {
+            delete t->second;
+        }
         mSystemTemplates.clear();
         // Destroy all systems 
         ParticleSystemMap::iterator i;
@@ -61,9 +72,25 @@ namespace Ogre {
             delete i->second;
         }
         mSystems.clear();
+        ResourceGroupManager::getSingleton()._unregisterScriptLoader(this);
+        // delete billboard factory
+        if (mBillboardRendererFactory)
+            delete mBillboardRendererFactory;
+
     }
     //-----------------------------------------------------------------------
-    void ParticleSystemManager::parseScript(DataChunk& chunk)
+    const StringVector& ParticleSystemManager::getScriptPatterns(void) const
+    {
+        return mScriptPatterns;
+    }
+    //-----------------------------------------------------------------------
+    Real ParticleSystemManager::getLoadingOrder(void) const
+    {
+        /// Load late
+        return 1000.0f;
+    }
+    //-----------------------------------------------------------------------
+    void ParticleSystemManager::parseScript(DataStreamPtr& stream, const String& groupName)
     {
         String line;
         ParticleSystem* pSys;
@@ -71,9 +98,9 @@ namespace Ogre {
 
         pSys = 0;
 
-        while(!chunk.isEOF())
+        while(!stream->eof())
         {
-            line = chunk.getLine();
+            line = stream->getLine();
             // Ignore comments & blanks
             if (!(line.length() == 0 || line.substr(0,2) == "//"))
             {
@@ -81,9 +108,9 @@ namespace Ogre {
                 {
                     // No current system
                     // So first valid data should be a system name
-                    pSys = createTemplate(line);
+                    pSys = createTemplate(line, groupName);
                     // Skip to and over next {
-                    skipToNextOpenBrace(chunk);
+                    skipToNextOpenBrace(stream);
                 }
                 else
                 {
@@ -103,11 +130,11 @@ namespace Ogre {
                             // Oops, bad emitter
                             LogManager::getSingleton().logMessage("Bad particle system emitter line: '"
                                 + line + "' in " + pSys->getName());
-                            skipToNextCloseBrace(chunk);
+                            skipToNextCloseBrace(stream);
 
                         }
-                        skipToNextOpenBrace(chunk);
-                        parseNewEmitter(vecparams[1], chunk, pSys);
+                        skipToNextOpenBrace(stream);
+                        parseNewEmitter(vecparams[1], stream, pSys);
 
                     }
                     else if (line.substr(0,8) == "affector")
@@ -120,11 +147,11 @@ namespace Ogre {
                             // Oops, bad emitter
                             LogManager::getSingleton().logMessage("Bad particle system affector line: '"
                                 + line + "' in " + pSys->getName());
-                            skipToNextCloseBrace(chunk);
+                            skipToNextCloseBrace(stream);
 
                         }
-                        skipToNextOpenBrace(chunk);
-                        parseNewAffector(vecparams[1],chunk, pSys);
+                        skipToNextOpenBrace(stream);
+                        parseNewAffector(vecparams[1],stream, pSys);
                     }
                     else
                     {
@@ -142,23 +169,6 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void ParticleSystemManager::parseAllSources(const String& extension)
-    {
-        std::set<String> particleFiles;
-
-        particleFiles = ResourceManager::_getAllCommonNamesLike("./", extension);
-
-        // Iterate through returned files
-        std::set<String>::iterator i;
-        for (i = particleFiles.begin(); i != particleFiles.end(); ++i)
-        {
-            SDDataChunk chunk;
-            LogManager::getSingleton().logMessage("Parsing particle script " + *i);
-            ResourceManager::_findCommonResourceData(*i, chunk);
-            parseScript(chunk);
-        }
-    }
-    //-----------------------------------------------------------------------
     void ParticleSystemManager::addEmitterFactory(ParticleEmitterFactory* factory)
     {
         String name = factory->getName();
@@ -172,16 +182,25 @@ namespace Ogre {
         mAffectorFactories[name] = factory;
         LogManager::getSingleton().logMessage("Particle Affector Type '" + name + "' registered");
     }
-    //-----------------------------------------------------------------------
-    void ParticleSystemManager::addTemplate(const String& name, const ParticleSystem& sysTemplate)
+	//-----------------------------------------------------------------------
+	void ParticleSystemManager::addRendererFactory(ParticleSystemRendererFactory* factory)
+	{
+        String name = factory->getType();
+        mRendererFactories[name] = factory;
+        LogManager::getSingleton().logMessage("Particle Renderer Type '" + name + "' registered");
+	}
+	//-----------------------------------------------------------------------
+    void ParticleSystemManager::addTemplate(const String& name, ParticleSystem* sysTemplate)
     {
         mSystemTemplates[name] = sysTemplate;
     }
     //-----------------------------------------------------------------------
-    ParticleSystem* ParticleSystemManager::createTemplate(const String& name)
+    ParticleSystem* ParticleSystemManager::createTemplate(const String& name, 
+        const String& resourceGroup)
     {
-        addTemplate(name, ParticleSystem(name));
-        return getTemplate(name);
+        ParticleSystem* tpl = new ParticleSystem(name, resourceGroup);
+        addTemplate(name, tpl);
+        return tpl;
 
     }
     //-----------------------------------------------------------------------
@@ -190,7 +209,7 @@ namespace Ogre {
         ParticleTemplateMap::iterator i = mSystemTemplates.find(name);
         if (i != mSystemTemplates.end())
         {
-            return &(i->second);
+            return i->second;
         }
         else
         {
@@ -198,9 +217,10 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    ParticleSystem* ParticleSystemManager::createSystem(const String& name, unsigned int quota)
+    ParticleSystem* ParticleSystemManager::createSystem(const String& name, size_t quota, 
+        const String& resourceGroup)
     {
-        ParticleSystem* sys = new ParticleSystem(name);
+        ParticleSystem* sys = new ParticleSystem(name, resourceGroup);
         sys->setParticleQuota(quota);
         mSystems.insert( ParticleSystemMap::value_type( name, sys ) );
         return sys;
@@ -215,7 +235,8 @@ namespace Ogre {
             Except(Exception::ERR_INVALIDPARAMS, "Cannot find required template '" + templateName + "'", "ParticleSystemManager::createSystem");
         }
 
-        ParticleSystem* sys = createSystem(name, pTemplate->getParticleQuota());
+        ParticleSystem* sys = createSystem(name, pTemplate->getParticleQuota(), 
+            pTemplate->getResourceGroupName());
         // Copy template settings
         *sys = *pTemplate;
         return sys;
@@ -262,7 +283,8 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    ParticleEmitter* ParticleSystemManager::_createEmitter(const String& emitterType)
+    ParticleEmitter* ParticleSystemManager::_createEmitter(
+        const String& emitterType, ParticleSystem* psys)
     {
         // Locate emitter type
         ParticleEmitterFactoryMap::iterator pFact = mEmitterFactories.find(emitterType);
@@ -273,7 +295,7 @@ namespace Ogre {
                 "ParticleSystemManager::_createEmitter");
         }
 
-        return pFact->second->createEmitter();
+        return pFact->second->createEmitter(psys);
     }
     //-----------------------------------------------------------------------
     void ParticleSystemManager::_destroyEmitter(ParticleEmitter* emitter)
@@ -290,7 +312,8 @@ namespace Ogre {
         pFact->second->destroyEmitter(emitter);
     }
     //-----------------------------------------------------------------------
-    ParticleAffector* ParticleSystemManager::_createAffector(const String& affectorType)
+    ParticleAffector* ParticleSystemManager::_createAffector(
+        const String& affectorType, ParticleSystem* psys)
     {
         // Locate affector type
         ParticleAffectorFactoryMap::iterator pFact = mAffectorFactories.find(affectorType);
@@ -301,7 +324,7 @@ namespace Ogre {
                 "ParticleSystemManager::_createAffector");
         }
 
-        return pFact->second->createAffector();
+        return pFact->second->createAffector(psys);
 
     }
     //-----------------------------------------------------------------------
@@ -318,6 +341,34 @@ namespace Ogre {
 
         pFact->second->destroyAffector(affector);
     }
+    //-----------------------------------------------------------------------
+    ParticleSystemRenderer* ParticleSystemManager::_createRenderer(const String& rendererType)
+	{
+        // Locate affector type
+        ParticleSystemRendererFactoryMap::iterator pFact = mRendererFactories.find(rendererType);
+
+        if (pFact == mRendererFactories.end())
+        {
+            Except(Exception::ERR_INVALIDPARAMS, "Cannot find requested renderer type.", 
+                "ParticleSystemManager::_createRenderer");
+        }
+
+        return pFact->second->createInstance(rendererType);
+	}
+	//-----------------------------------------------------------------------
+    void ParticleSystemManager::_destroyRenderer(ParticleSystemRenderer* renderer)
+	{
+        // Destroy using the factory which created it
+        ParticleSystemRendererFactoryMap::iterator pFact = mRendererFactories.find(renderer->getType());
+
+        if (pFact == mRendererFactories.end())
+        {
+            Except(Exception::ERR_INVALIDPARAMS, "Cannot find renderer factory to destroy renderer.", 
+                "ParticleSystemManager::_destroyRenderer");
+        }
+
+        pFact->second->destroyInstance(renderer);
+	}
     //-----------------------------------------------------------------------
     bool ParticleSystemManager::frameStarted(const FrameEvent &evt)
     {
@@ -345,20 +396,22 @@ namespace Ogre {
         // Register self as a frame listener
         Root::getSingleton().addFrameListener(this);
 
-        // Parse all scripts
-        parseAllSources();
+        // Create Billboard renderer factory
+        mBillboardRendererFactory = new BillboardParticleRendererFactory();
+        addRendererFactory(mBillboardRendererFactory);
+
     }
     //-----------------------------------------------------------------------
-    void ParticleSystemManager::parseNewEmitter(const String& type, DataChunk& chunk, ParticleSystem* sys)
+    void ParticleSystemManager::parseNewEmitter(const String& type, DataStreamPtr& stream, ParticleSystem* sys)
     {
         // Create new emitter
         ParticleEmitter* pEmit = sys->addEmitter(type);
         // Parse emitter details
         String line;
 
-        while(!chunk.isEOF())
+        while(!stream->eof())
         {
-            line = chunk.getLine();
+            line = stream->getLine();
             // Ignore comments & blanks
             if (!(line.length() == 0 || line.substr(0,2) == "//"))
             {
@@ -380,16 +433,16 @@ namespace Ogre {
         
     }
     //-----------------------------------------------------------------------
-    void ParticleSystemManager::parseNewAffector(const String& type, DataChunk& chunk, ParticleSystem* sys)
+    void ParticleSystemManager::parseNewAffector(const String& type, DataStreamPtr& stream, ParticleSystem* sys)
     {
         // Create new affector
         ParticleAffector* pAff = sys->addAffector(type);
         // Parse affector details
         String line;
 
-        while(!chunk.isEOF())
+        while(!stream->eof())
         {
-            line = chunk.getLine();
+            line = stream->getLine();
             // Ignore comments & blanks
             if (!(line.length() == 0 || line.substr(0,2) == "//"))
             {
@@ -418,6 +471,16 @@ namespace Ogre {
         // Look up first param (command setting)
         if (!sys->setParameter(vecparams[0], vecparams[1]))
         {
+            // Attribute not supported by particle system, try the renderer
+            ParticleSystemRenderer* renderer = sys->getRenderer();
+            if (renderer)
+            {
+                if (!renderer->setParameter(vecparams[0], vecparams[1]))
+                {
+                    LogManager::getSingleton().logMessage("Bad particle system attribute line: '"
+                        + line + "' in " + sys->getName());
+                }
+            }
             // BAD command. BAD!
             LogManager::getSingleton().logMessage("Bad particle system attribute line: '"
                 + line + "' in " + sys->getName());
@@ -456,22 +519,22 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void ParticleSystemManager::skipToNextCloseBrace(DataChunk& chunk)
+    void ParticleSystemManager::skipToNextCloseBrace(DataStreamPtr& stream)
     {
         String line = "";
-        while (!chunk.isEOF() && line != "}")
+        while (!stream->eof() && line != "}")
         {
-            line = chunk.getLine();
+            line = stream->getLine();
         }
 
     }
     //-----------------------------------------------------------------------
-    void ParticleSystemManager::skipToNextOpenBrace(DataChunk& chunk)
+    void ParticleSystemManager::skipToNextOpenBrace(DataStreamPtr& stream)
     {
         String line = "";
-        while (!chunk.isEOF() && line != "{")
+        while (!stream->eof() && line != "{")
         {
-            line = chunk.getLine();
+            line = stream->getLine();
         }
 
     }
