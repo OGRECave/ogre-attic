@@ -73,8 +73,6 @@ namespace Ogre {
         bool mIsSkeletallyAnimated;
 
         // Internal methods
-        virtual void writeMaterial(const Material* m);
-        virtual void writeTextureLayer(const TextureUnitState* pTex);
         virtual void writeMesh(const Mesh* pMesh);
         virtual void writeSubMesh(const SubMesh* s);
         virtual void writeSubMeshOperation(const SubMesh* s);
@@ -90,8 +88,6 @@ namespace Ogre {
         virtual void writeCondensedVertexBuffer(HardwareVertexBufferSharedPtr vbuf, 
             const VertexElement* elem, size_t vertexCount);
 
-        virtual unsigned long calcMaterialSize(const Material* pMat);
-        virtual unsigned long calcTextureLayerSize(const TextureUnitState* pTex);
         virtual unsigned long calcMeshSize(const Mesh* pMesh);
         virtual unsigned long calcSubMeshSize(const SubMesh* pSub);
         virtual unsigned long calcGeometrySize(const VertexData* pGeom);
