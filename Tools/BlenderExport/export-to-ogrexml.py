@@ -16,8 +16,8 @@
 #
 # HOW TO USE:
 #   This script is fairly easy to use.  You open it up in a blender text
-#   window (alt-f11).  Then you select all of the objects you want exported.
-#   This is often easier in the relations view (alt-f9).  Once you have those
+#   window (shift-f11).  Then you select all of the objects you want exported.
+#   This is often easier in the relations view (shift-f9).  Once you have those
 #   selected run the python script with alt-p over the text window.  If you get
 #   errors about not being able to find the libxml2 library then you probably
 #   need to export a PYTHONPATH environment variable before running the script.
