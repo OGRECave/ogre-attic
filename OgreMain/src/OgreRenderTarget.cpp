@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreLogManager.h"
 #include "OgreRenderTargetListener.h"
 #include "OgrePlatformManager.h"
+#include "OgreRoot.h"
 
 namespace Ogre {
 
@@ -41,7 +42,7 @@ namespace Ogre {
         mStatFlags = SF_NONE;
         mActive = true;
         mPriority = OGRE_DEFAULT_RT_GROUP;
-        mTimer = Timer::getSingletonPtr();
+        mTimer = Root::getSingleton().getTimer();
         resetStatistics();
     }
 

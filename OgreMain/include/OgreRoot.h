@@ -490,6 +490,9 @@ namespace Ogre
 		*/
 		void unloadPlugin(String pluginName);
 
+        /** Gets a pointer to the central timer used for all OGRE timings */
+        Timer* getTimer(void);
+
     };
 } // Namespace Ogre
 #endif

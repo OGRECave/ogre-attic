@@ -59,7 +59,7 @@ namespace Ogre {
         mTempNormalBlendBuffer.resize(5000 * 3);
 
 		// get a Timer
-        mTimer = Timer::getSingletonPtr();
+        mTimer = Root::getSingleton().getTimer();
     }
 
     //-----------------------------------------------------------------------
