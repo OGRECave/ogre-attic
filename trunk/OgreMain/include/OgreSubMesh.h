@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMaterial.h"
 #include "OgreRenderOperation.h"
 #include "OgreVertexBoneAssignment.h"
+#include "OgreProgressiveMesh.h"
 
 namespace Ogre {
 
@@ -84,6 +85,8 @@ namespace Ogre {
 
         /// List of indices into geometry to describe faces.
         unsigned short* faceVertexIndices;
+
+		ProgressiveMesh::LODFaceList mLodFaceList;
 
         /// Reference to parent Mesh.
         Mesh* parent;

@@ -31,7 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMeshSerializer.h"
 #include "OgreSkeletonManager.h"
 #include "OgreSkeleton.h"
-
+#include <algorithm>
 
 
 namespace Ogre {
@@ -64,6 +64,7 @@ namespace Ogre {
         mUpdateBounds = true;
         setSkeletonName("");
         mBoneAssignmentsOutOfDate = false;
+		mNumLods = 0;
 
     }
 
@@ -683,6 +684,77 @@ namespace Ogre {
     {
         return mSkeletonName;
     }
+    //---------------------------------------------------------------------
+	void Mesh::generateLodLevels(const LodDistanceList& lodDistances, 
+		ProgressiveMesh::VertexReductionQuota reductionMethod, Real reductionValue)
+	{
+		mMeshLodUsageList.clear();
+
+		SubMeshList::iterator isub, isubend;
+		isubend = mSubMeshList.end();
+		for (isub = mSubMeshList.begin(); isub != isubend; ++isub)
+		{
+			// Set up data for reduction
+			GeometryData* pGeom = (*isub)->useSharedVertices ? &sharedGeometry : &((*isub)->geometry);
+
+			ProgressiveMesh pm(pGeom, (*isub)->faceVertexIndices, (*isub)->numFaces * 3);
+			pm.build(
+				static_cast<ushort>(lodDistances.size()), 
+				&((*isub)->mLodFaceList), 
+				reductionMethod, reductionValue);
+
+			// Iterate over the lods and record usage
+			LodDistanceList::const_iterator idist, idistend;
+			idistend = lodDistances.end();
+			// Record first LOD (full detail)
+			MeshLodUsage lod;
+			lod.fromDepth = 0.0f;
+			lod.useManual = false;
+			mMeshLodUsageList.push_back(lod);
+
+			for (idist = lodDistances.begin(); idist != idistend; ++idist)
+			{
+				// Record usage
+				lod.fromDepth = *idist;
+				lod.useManual = false;
+				mMeshLodUsageList.push_back(lod);
+
+			}
+		}
+
+		mNumLods = static_cast<ushort>(lodDistances.size());
+	}
+    //---------------------------------------------------------------------
+	ushort Mesh::getNumLodLevels(void)
+	{
+		return mNumLods;
+	}
+    //---------------------------------------------------------------------
+	const Mesh::MeshLodUsage& Mesh::getLodLevel(ushort index)
+	{
+		assert(index < mMeshLodUsageList.size());
+		return mMeshLodUsageList[index];
+	}
+    //---------------------------------------------------------------------
+	struct ManualLodSortLess : 
+	public std::binary_function<const Mesh::MeshLodUsage&, const Mesh::MeshLodUsage&, bool>
+	{
+		bool operator() (const Mesh::MeshLodUsage& mesh1, const Mesh::MeshLodUsage& mesh2)
+		{
+			// sort ascending by depth
+			return mesh1.fromDepth < mesh2.fromDepth;
+		}
+	};
+	void Mesh::createManualLodLevel(Real fromDepth, const String& meshName)
+	{
+		MeshLodUsage lod;
+		lod.fromDepth = fromDepth;
+		lod.useManual = true;
+		lod.manualName = meshName;
+		mMeshLodUsageList.push_back(lod);
+
+		std::sort(mMeshLodUsageList.begin(), mMeshLodUsageList.end(), ManualLodSortLess());
+	}
 
 }
 

@@ -62,13 +62,13 @@ namespace Ogre {
 			VRQ_PROPORTIONAL
 		};
 		/// Struct for holding the returned LOD geometry information
-        struct LODGeometryData
+        struct LODFaceData
         {
             ushort numIndexes;
             ushort* pIndexes;
         };
 
-        typedef std::vector<LODGeometryData> LODGeometryList;
+        typedef std::vector<LODFaceData> LODFaceList;
 
         /** Constructor, takes the geometry data and index buffer. */
         ProgressiveMesh(GeometryData* data, ushort* indexBuffer, ushort numIndexes);
@@ -95,7 +95,7 @@ namespace Ogre {
 		@param reductionValue Either the proportion of vertices to remove at each level, or a fixed
 			number of vertices to remove at each level, depending on the value of quota
         */
-        virtual void build(ushort numLevels, LODGeometryList* outList, 
+        virtual void build(ushort numLevels, LODFaceList* outList, 
 			VertexReductionQuota quota = VRQ_PROPORTIONAL, Real reductionValue = 0.5f );
 
     protected:
@@ -202,7 +202,7 @@ namespace Ogre {
         /// Internal method for getting the index of next best vertex to collapse
         ushort getNextCollapser(void);
         /// Internal method builds an new LOD based on the current state
-        void bakeNewLOD(LODGeometryData* pData);
+        void bakeNewLOD(LODFaceData* pData);
 
         /** Internal method, collapses vertex onto it's saved collapse target. 
         @remarks
