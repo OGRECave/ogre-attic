@@ -75,7 +75,8 @@ namespace Ogre {
         SubMesh* mSubMesh;
 
         SceneDetailLevel mRenderDetail;
-
+		/// The LOD number of the material to use, calculated by Entity::_notifyCurrentCamera
+		unsigned short mMaterialLodIndex;
     public:
         /** Gets the name of the Material in use by this instance.
         */
@@ -96,6 +97,10 @@ namespace Ogre {
         /** Overridden - see Renderable.
         */
         Material* getMaterial(void) const;
+
+        /** Overridden - see Renderable.
+        */
+        Technique* getTechnique(void) const;
 
         /** Overridden - see Renderable.
         */

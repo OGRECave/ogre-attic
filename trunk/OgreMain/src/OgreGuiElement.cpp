@@ -410,7 +410,6 @@ namespace Ogre {
     {
         if (mVisible)
         {
-            mpMaterial->touch();
             queue->addRenderable(this, RENDER_QUEUE_OVERLAY, mZOrder);
         }
       
