@@ -3153,7 +3153,7 @@ namespace Ogre {
             }
             // Dark cap (no dark cap for directional lights using 
             // hardware extrusion to infinity)
-            if(!(!(flags & SRF_EXTRUDE_TO_INFINITY) && 
+            if(!((flags & SRF_EXTRUDE_TO_INFINITY) && 
                 light->getType() == Light::LT_DIRECTIONAL) &&
                 camera->isVisible(caster->getDarkCapBounds(*light, extrudeDist)))
             {

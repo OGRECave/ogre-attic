@@ -91,7 +91,7 @@ namespace Ogre {
             // extrusion in object space
             // vertex unmodified if w==1, extruded if w==0
 			float3 extrusionDir = position.xyz - lightPos.xyz;
-			normalize(extrusionDir);
+			extrusionDir = normalize(extrusionDir);
 			
             float4 newpos = float4(position.xyz +  
                 ((1 - wcoord.x) * extrusionDistance * extrusionDir), 1);
