@@ -47,12 +47,12 @@ namespace Ogre {
         /** Sets the origin of the ray. */
         void setOrigin(const Vector3& origin) {mOrigin = origin;} 
         /** Gets the origin of the ray. */
-        const Vector3& getOrigin(void) {return mOrigin;} 
+        const Vector3& getOrigin(void) const {return mOrigin;} 
 
         /** Sets the direction of the ray. */
         void setDirection(const Vector3& dir) {mDirection = dir;} 
         /** Gets the direction of the ray. */
-        const Vector3& getDirection(void) {return mDirection;} 
+        const Vector3& getDirection(void) const {return mDirection;} 
 
     };
 
