@@ -38,6 +38,7 @@ namespace Ogre {
     //-------------------------------------------------------------------------
     SkeletonInstance::~SkeletonInstance()
     {
+        unload();
     }
     //-------------------------------------------------------------------------
     unsigned short SkeletonInstance::getNumAnimations(void) const
@@ -98,6 +99,8 @@ namespace Ogre {
     //-------------------------------------------------------------------------
     void SkeletonInstance::load(void)
     {
+        assert(!mIsLoaded && "skeleton instance can not load more than once!");
+
         mNextAutoHandle = mSkeleton->mNextAutoHandle;
         mNextTagPointAutoHandle = 0;
         // construct self from master
@@ -119,12 +122,22 @@ namespace Ogre {
         Skeleton::unload();
 
         // destroy TagPoints
-        TagPointList::iterator itp;
-        for (itp = mTagPointList.begin(); itp != mTagPointList.end(); ++itp)
+        for (ActiveTagPointList::const_iterator it = mActiveTagPoints.begin(); it != mActiveTagPoints.end(); ++it)
         {
-            delete itp->second;
+            TagPoint* tagPoint = *it;
+            // Woohoo! The child object all the same attaching this skeleton instance, but is ok we can just
+            // ignore it:
+            //   1. The parent node of the tagPoint already deleted by Skeleton::unload(), nothing need to do now
+            //   2. And the child object relationship already detached by Entity::~Entity()
+            delete tagPoint;
         }
-        mTagPointList.clear();
+        mActiveTagPoints.clear();
+        for (FreeTagPointQueue::const_iterator it = mFreeTagPoints.begin(); it != mFreeTagPoints.end(); ++it)
+        {
+            TagPoint* tagPoint = *it;
+            delete tagPoint;
+        }
+        mFreeTagPoints.clear();
     }
 
     //-------------------------------------------------------------------------
@@ -132,15 +145,33 @@ namespace Ogre {
         const Quaternion &offsetOrientation, 
         const Vector3 &offsetPosition)
     {
-        TagPoint* ret = new TagPoint(mNextTagPointAutoHandle++, this);
-        mTagPointList[mNextTagPointAutoHandle] = ret;
+        TagPoint* ret;
+        if (mFreeTagPoints.empty()) {
+            ret = new TagPoint(mNextTagPointAutoHandle++, this);
+        } else {
+            ret = mFreeTagPoints.front();
+            mFreeTagPoints.pop_front();
+        }
+        mActiveTagPoints.push_back(ret);
 
-        ret->translate(offsetPosition);
-        ret->rotate(offsetOrientation);
+        ret->setPosition(offsetPosition);
+        ret->setOrientation(offsetOrientation);
+        ret->setScale(Vector3::UNIT_SCALE);
         ret->setBindingPose();
         bone->addChild(ret);
 
         return ret;
+    }
+    //-------------------------------------------------------------------------
+    void SkeletonInstance::freeTagPoint(TagPoint* tagPoint)
+    {
+        assert(std::find(mActiveTagPoints.begin(), mActiveTagPoints.end(), tagPoint) != mActiveTagPoints.end());
+
+        if (tagPoint->getParent())
+            tagPoint->getParent()->removeChild(tagPoint);
+
+        mActiveTagPoints.remove(tagPoint);
+        mFreeTagPoints.push_back(tagPoint);
     }
 
 }

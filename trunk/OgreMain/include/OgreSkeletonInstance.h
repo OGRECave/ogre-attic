@@ -84,13 +84,35 @@ namespace Ogre {
             const Quaternion &offsetOrientation = Quaternion::IDENTITY, 
             const Vector3	  &offsetPosition    = Vector3::UNIT_SCALE);
 
+        /** Frees a TagPoint that already attached to a bone */
+        void freeTagPoint(TagPoint* tagPoint);
 
     protected:
         /// Pointer back to master Skeleton
         Skeleton* mSkeleton;
-        /// Storage of tagPoints, lookup by handle
-        typedef std::map<unsigned short, TagPoint*> TagPointList;
-        TagPointList mTagPointList;
+
+        typedef std::list<TagPoint*> ActiveTagPointList;
+        typedef std::deque<TagPoint*> FreeTagPointQueue;
+
+        /** Active tag point list.
+        @remarks
+            This is a linked list of pointers to actived tag point
+        @par
+            This allows very fast instertions and deletions from anywhere in the list to activate / deactivate
+            tag points (required for weapon / equip systems etc)    as well as resuse of TagPoint instances
+            without construction & destruction which avoids memory thrashing.
+        */
+        ActiveTagPointList mActiveTagPoints;
+
+        /** Free tag point queue.
+        @remarks
+            This contains a list of the tag points free for use as new instances
+            as required by the set. When a TagPoint instances are deactived, there will are referenced on this
+            deque. As they get used this deque reduces, as they get released back to to the set they get added
+            back to the deque.
+        */
+        FreeTagPointQueue mFreeTagPoints;
+
         /// TagPoint automatic handles
         unsigned short mNextTagPointAutoHandle;
 

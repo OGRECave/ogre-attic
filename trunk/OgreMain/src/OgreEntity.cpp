@@ -174,6 +174,10 @@ namespace Ogre {
             delete *si;
         }
 
+        // Detach all child objects, do this manually to avoid needUpdate() call 
+        // which can fail because of deleted items
+        detachAllObjectsImpl();
+
         if (mSkeletonInstance) {
             if (mSharedSkeletonEntities) {
                 mSharedSkeletonEntities->erase(this);
@@ -645,10 +649,65 @@ namespace Ogre {
                 "Entity::detachObjectFromBone");
         }
         MovableObject *obj = i->second;
-        obj->_notifyAttached((TagPoint*)0);
+        detachObjectImpl(obj);
         mChildObjectList.erase(i);
+
+        // Trigger update of bounding box if necessary
+        if (mParentNode)
+            mParentNode->needUpdate();
+
         return obj;
     }
+    //-----------------------------------------------------------------------
+    void Entity::detachObjectFromBone(MovableObject* obj)
+    {
+        ChildObjectList::iterator i, iend;
+        iend = mChildObjectList.end();
+        for (i = mChildObjectList.begin(); i != iend; ++i)
+        {
+            if (i->second == obj)
+            {
+                detachObjectImpl(obj);
+                mChildObjectList.erase(i);
+
+                // Trigger update of bounding box if necessary
+                if (mParentNode)
+                    mParentNode->needUpdate();
+                break;
+            }
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Entity::detachAllObjectsFromBone(void)
+    {
+        detachAllObjectsImpl();
+
+        // Trigger update of bounding box if necessary
+        if (mParentNode)
+            mParentNode->needUpdate();
+    }
+    //-----------------------------------------------------------------------
+    void Entity::detachObjectImpl(MovableObject* pObject)
+    {
+        TagPoint* tp = static_cast<TagPoint*>(pObject->getParentNode());
+
+        // free the TagPoint so we can reuse it later
+        mSkeletonInstance->freeTagPoint(tp);
+
+        pObject->_notifyAttached((TagPoint*)0);
+    }
+    //-----------------------------------------------------------------------
+    void Entity::detachAllObjectsImpl(void)
+    {
+        ChildObjectList::const_iterator i, iend;
+        iend = mChildObjectList.end();
+        for (i = mChildObjectList.begin(); i != iend; ++i)
+        {
+            detachObjectImpl(i->second);
+        }
+        mChildObjectList.clear();
+    }
+
     //-----------------------------------------------------------------------
     Entity::ChildObjectListIterator Entity::getAttachedObjectIterator()
     {
