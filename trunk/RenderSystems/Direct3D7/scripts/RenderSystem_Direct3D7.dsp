@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "OGRED3DENGINEDLL_EXPORTS" /YX /FD /c
-# ADD CPP /nologo /G5 /MD /W3 /GX /O2 /Ob0 /I "..\include" /I "..\..\..\OgreMain\include" /I "..\..\..\Dependencies\libpng\include" /I "..\..\..\Dependencies\jpeglib\include" /I "..\..\..\Dependencies\zlib\include" /D "_USRDLL" /D "OGRED3DENGINEDLL_EXPORTS" /D "NDEBUG" /D "_MBCS" /D "OGRE_WIN32" /D "_WINDOWS" /D "WIN32" /D "_STLP_USE_DYNAMIC_LIB" /D "OGRE_LIBRARY_IMPORTS" /YX /FD /c
+# ADD CPP /nologo /G5 /MD /W3 /GX /O2 /Ob0 /I "..\include" /I "..\..\..\OgreMain\include" /I "..\..\..\Dependencies\libpng\include" /I "..\..\..\Dependencies\jpeglib\include" /I "..\..\..\Dependencies\zlib\include" /D "_USRDLL" /D "OGRED3DENGINEDLL_EXPORTS" /D "NDEBUG" /D "_MBCS" /D "OGRE_WIN32" /D "_WINDOWS" /D "WIN32" /YX /FD /c
 # SUBTRACT CPP /Fr
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
@@ -75,7 +75,7 @@ PostBuild_Cmds=copy ..\bin\Release\*.dll ..\..\..\Samples\Common\bin\Release
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "OGRED3DENGINEDLL_EXPORTS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include" /I "..\..\..\OgreMain\include" /I "..\..\..\Dependencies\libpng\include" /I "..\..\..\Dependencies\jpeglib\include" /I "..\..\..\Dependencies\zlib\include" /D "_USRDLL" /D "OGRED3DENGINEDLL_EXPORTS" /D "_MBCS" /D "OGRE_LIBRARY_IMPORTS" /D "_WINDOWS" /D "_STLP_USE_DYNAMIC_LIB" /D "_DEBUG" /D "WIN32" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include" /I "..\..\..\OgreMain\include" /I "..\..\..\Dependencies\libpng\include" /I "..\..\..\Dependencies\jpeglib\include" /I "..\..\..\Dependencies\zlib\include" /D "_USRDLL" /D "OGRED3DENGINEDLL_EXPORTS" /D "_MBCS" /D "_WINDOWS" /D "_DEBUG" /D "WIN32" /FD /GZ /c
 # SUBTRACT CPP /Fr /YX /Yc /Yu
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
