@@ -138,7 +138,9 @@ namespace Ogre {
         if (posElem)
         {
             size_t v;
-            HardwareVertexBufferSharedPtr vbuf = vertexBufferBinding->getBuffer(posElem->getSource());
+            unsigned posOldSource = posElem->getSource();
+
+            HardwareVertexBufferSharedPtr vbuf = vertexBufferBinding->getBuffer(posOldSource);
             bool wasSharedBuffer = false;
             // Are there other elements in the buffer except for the position?
             if (vbuf->getVertexSize() > posElem->getSize())
@@ -246,34 +248,57 @@ namespace Ogre {
                 // Get the a new buffer binding index
                 newPosBufferSource= vertexBufferBinding->getNextIndex();
                 // Re-bind the old index to the remainder buffer
-                vertexBufferBinding->setBinding(posElem->getSource(), newRemainderBuffer);
+                vertexBufferBinding->setBinding(posOldSource, newRemainderBuffer);
             }
             else
             {
                 // We can just re-use the same source idex for the new position buffer
-                newPosBufferSource = posElem->getSource();
+                newPosBufferSource = posOldSource;
             }
             // Bind the new position buffer
             vertexBufferBinding->setBinding(newPosBufferSource, newPosBuffer);
 
             // Now, alter the vertex declaration to change the position source
-            // and the type
-            // Find index of position element first
+            // and the offsets of elements using the same buffer
             VertexDeclaration::VertexElementList::const_iterator elemi = 
                 vertexDeclaration->getElements().begin();
+            VertexDeclaration::VertexElementList::const_iterator elemiend = 
+                vertexDeclaration->getElements().end();
             unsigned short idx;
-            for(idx = 0; &(*elemi) != posElem; ++elemi) 
-                ++idx;
+            for(idx = 0; elemi != elemiend; ++elemi, ++idx) 
+            {
+                if (&(*elemi) == posElem)
+                {
+                    // Modify position to point at new position buffer
+                    vertexDeclaration->modifyElement(
+                        idx, 
+                        newPosBufferSource, // new source buffer
+                        0, // no offset now
+                        VET_FLOAT3, 
+                        VES_POSITION);
+                }
+                else if (wasSharedBuffer &&
+                    elemi->getSource() == posOldSource &&
+                    elemi->getOffset() > prePosVertexSize )
+                {
+                    // This element came after position, remove the position's
+                    // size
+                    vertexDeclaration->modifyElement(
+                        idx, 
+                        posOldSource, // same old source
+                        elemi->getOffset() - posElem->getSize(), // less offset now
+                        elemi->getType(), 
+                        elemi->getSemantic(),
+                        elemi->getIndex());
 
-            vertexDeclaration->modifyElement(
-                idx, 
-                newPosBufferSource, // new source buffer
-                0, // no offset now
-                VET_FLOAT3, 
-                VES_POSITION);
+                }
+
+            }
+
 
             // Note that we don't change vertexCount, because the other buffer(s) are still the same
             // size after all
+
 
         }
     }

@@ -149,6 +149,9 @@ WaterMesh::WaterMesh(const String& meshName, Real planeSize, int complexity)
 		posVertexBuffer->getSizeInBytes(), // size 
 		vertexBuffers[currentBuffNumber], // source
 		true); // discard?
+
+    mesh->load();
+    mesh->touch();
 }
 /* ========================================================================= */
 WaterMesh::~WaterMesh ()

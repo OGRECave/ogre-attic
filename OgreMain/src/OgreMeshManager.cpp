@@ -89,7 +89,7 @@ namespace Ogre
         {
             pMesh = (Mesh*)create(name);
             pMesh->setManuallyDefined(true);
-            ResourceManager::load(pMesh,0);
+            this->add(pMesh);
         }
 
         return pMesh;
@@ -244,6 +244,9 @@ namespace Ogre
         //pMesh->_updateBounds();
         pMesh->_setBounds(AxisAlignedBox(min, max));
         pMesh->_setBoundingSphereRadius(Math::Sqrt(maxSquaredLength));
+        // load
+        pMesh->load();
+        pMesh->touch();
         return pMesh;
     }
 	
@@ -403,6 +406,8 @@ namespace Ogre
         pMesh->_setBounds(AxisAlignedBox(min, max));
 		pMesh->_setBoundingSphereRadius(Math::Sqrt(maxSqLen));
 
+        pMesh->load();
+        pMesh->touch();
         return pMesh;
     }
     //-----------------------------------------------------------------------
@@ -591,6 +596,9 @@ namespace Ogre
         //pMesh->_updateBounds();
         pMesh->_setBounds(AxisAlignedBox(min, max));
         pMesh->_setBoundingSphereRadius(Math::Sqrt(maxSquaredLength));
+        pMesh->load();
+        pMesh->touch();
+
         return pMesh;
 	}
 
