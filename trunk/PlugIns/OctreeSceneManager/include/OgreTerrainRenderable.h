@@ -9,7 +9,7 @@
 /***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
+ *   it under the terms of the GNU Lesser General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
@@ -29,16 +29,25 @@
 namespace Ogre
 {
 
-typedef struct
+class TerrainIndexBuffer
 {
+public:
+    TerrainIndexBuffer(int s)
+    {
+        indexes = new unsigned short[s];
+    }   
+    ~TerrainIndexBuffer()
+    {
+      delete indexes;
+    }
+
     unsigned short * indexes;
     int length;
-}
-
-IndexBuffer;
+};
 
 
-typedef std::vector < IndexBuffer * > IndexArray;
+
+typedef std::vector < TerrainIndexBuffer * > IndexArray;
 typedef std::vector < IndexArray > LevelArray;
 
 
@@ -73,6 +82,9 @@ public:
         lit = false;
         colored = false;
     };
+
+
+    int _worldheight( int x, int z ) { return data[ ((z * world_size ) + x ) ]; };
 
     const uchar * data;     //pointer to the world 2D data.
     int size;         //size of this square block
@@ -112,6 +124,8 @@ public:
 
     TerrainRenderable();
     ~TerrainRenderable();
+
+    void deleteGeometry();
 
     enum Neighbor
     {

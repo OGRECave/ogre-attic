@@ -9,7 +9,7 @@ email                : janders@users.sf.net
 /***************************************************************************
 *                                                                         *
 *   This program is free software; you can redistribute it and/or modify  *
-*   it under the terms of the GNU General Public License as published by  *
+*   it under the terms of the GNU Lesser General Public License as published by  *
 *   the Free Software Foundation; either version 2 of the License, or     *
 *   (at your option) any later version.                                   *
 *                                                                         *
@@ -22,8 +22,6 @@ email                : janders@users.sf.net
 #include <OgreCamera.h>
 
 
-#define WORLDHEIGHT( x, z ) ( options.data[ ((z * options.world_size ) + x ) ] )
-#define MAX( x , y ) ( (x) > (y) ) ? (x) : (y)
 
 namespace Ogre
 {
@@ -37,6 +35,13 @@ bool TerrainRenderable::mLevelInit = false;
 
 TerrainRenderable::TerrainRenderable()
 {
+    mTerrain.pVertices = 0;
+    mTerrain.pNormals = 0;
+    mTerrain.pColours = 0;
+    mTerrain.pTexCoords[0] = 0;
+    mTerrain.pTexCoords[1] = 0;
+    mMinLevelDistSqr = 0;
+
     mInit = false;
     mRenderLevelChanged = true;
 
@@ -53,10 +58,28 @@ TerrainRenderable::TerrainRenderable()
 }
 
 TerrainRenderable::~TerrainRenderable()
-{}
+{
+    deleteGeometry();
+}
+void TerrainRenderable::deleteGeometry()
+{
+    if(mTerrain.pVertices != 0)
+        delete mTerrain.pVertices;
+    if(mTerrain.pNormals != 0 )
+        delete mTerrain.pNormals;
+    if(mTerrain.pColours != 0 )
+        delete mTerrain.pColours;
+    if(mTerrain.pTexCoords[0] != 0 )
+        delete mTerrain.pTexCoords[0];
+    if(mTerrain.pTexCoords[1] != 0 )
+        delete mTerrain.pTexCoords[1];
+    if(mMinLevelDistSqr != 0 )
+        delete mMinLevelDistSqr;
+}
 
 void TerrainRenderable::init( TerrainOptions &options )
 {
+
 
     //ensure that the size works
     if ( ! _checkSize( options.size ) )
@@ -75,6 +98,8 @@ void TerrainRenderable::init( TerrainOptions &options )
             return ;
         }
     }
+
+    deleteGeometry();
 
     //calculate min and max heights;
     Real min = 256000, max = 0;
@@ -139,7 +164,7 @@ void TerrainRenderable::init( TerrainOptions &options )
     {
         for ( int i = options.startx; i < endx; i++ )
         {
-            Real height = WORLDHEIGHT( i, j ) * options.scaley;
+            Real height = options._worldheight( i, j ) * options.scaley;
             mTerrain.pVertices[ m ] = ( Real ) i * options.scalex; //x
             mTerrain.pVertices[ m + 1 ] = height; //y
             mTerrain.pVertices[ m + 2 ] = ( Real ) j * options.scalez; //z
@@ -351,9 +376,9 @@ void TerrainRenderable::getRenderOperation( RenderOperation& rend )
 
     int index_array = 0;
 
-    unsigned short * pIndexes = 0;
-
     int numIndexes = 0;
+
+    TerrainIndexBuffer *buffer = 0;
 
     if ( mNeighbors[ EAST ] != 0 && mNeighbors[ EAST ] -> mRenderLevel > mRenderLevel )
     {
@@ -377,15 +402,14 @@ void TerrainRenderable::getRenderOperation( RenderOperation& rend )
 
     if ( mLevelIndex[ mRenderLevel ][ index_array ] != 0 )
     {
-        pIndexes = mLevelIndex[ mRenderLevel ][ index_array ] -> indexes;
-        numIndexes = mLevelIndex[ mRenderLevel ][ index_array ] -> length;
+        buffer = mLevelIndex[ mRenderLevel ][ index_array ];
     }
 
     else
     {
         int new_length = ( mSize / step ) * ( mSize / step ) * 2 * 2 * 2 ;
         //this is the maximum for a level.  It wastes a little, but shouldn't be a problem.
-        pIndexes = new unsigned short[ new_length ];
+        buffer = new TerrainIndexBuffer( new_length );
         numIndexes = 0;
 
         for ( int j = north; j < mSize - 1 - south; j += step )
@@ -394,13 +418,13 @@ void TerrainRenderable::getRenderOperation( RenderOperation& rend )
             {
 
                 //triangles
-                pIndexes[ numIndexes ] = _index( i, j ); numIndexes++;
-                pIndexes[ numIndexes ] = _index( i, j + step ); numIndexes++;
-                pIndexes[ numIndexes ] = _index( i + step, j ); numIndexes++;
+                buffer -> indexes[ numIndexes ] = _index( i, j ); numIndexes++;
+                buffer -> indexes[ numIndexes ] = _index( i, j + step ); numIndexes++;
+                buffer -> indexes[ numIndexes ] = _index( i + step, j ); numIndexes++;
 
-                pIndexes[ numIndexes ] = _index( i, j + step ); numIndexes++;
-                pIndexes[ numIndexes ] = _index( i + step, j + step ); numIndexes++;
-                pIndexes[ numIndexes ] = _index( i + step, j ); numIndexes++;
+                buffer -> indexes[ numIndexes ] = _index( i, j + step ); numIndexes++;
+                buffer -> indexes[ numIndexes ] = _index( i + step, j + step ); numIndexes++;
+                buffer -> indexes[ numIndexes ] = _index( i + step, j ); numIndexes++;
 
             }
         }
@@ -416,20 +440,20 @@ void TerrainRenderable::getRenderOperation( RenderOperation& rend )
                 //skip the first bit of the corner if the north side is a different level as well.
                 if ( j > 0 || north == 0 )
                 {
-                    pIndexes[ numIndexes ] = _index( 0, j ); numIndexes++;
-                    pIndexes[ numIndexes ] = _index( step, j + step ); numIndexes++;
-                    pIndexes[ numIndexes ] = _index( step, j ); numIndexes++;
+                    buffer -> indexes[ numIndexes ] = _index( 0, j ); numIndexes++;
+                    buffer -> indexes[ numIndexes ] = _index( step, j + step ); numIndexes++;
+                    buffer -> indexes[ numIndexes ] = _index( step, j ); numIndexes++;
                 }
 
-                pIndexes[ numIndexes ] = _index( step, j + step ); numIndexes++;
-                pIndexes[ numIndexes ] = _index( 0, j ); numIndexes++;
-                pIndexes[ numIndexes ] = _index( 0, j + step + step ); numIndexes++;
+                buffer -> indexes[ numIndexes ] = _index( step, j + step ); numIndexes++;
+                buffer -> indexes[ numIndexes ] = _index( 0, j ); numIndexes++;
+                buffer -> indexes[ numIndexes ] = _index( 0, j + step + step ); numIndexes++;
 
                 if ( j < mSize - 1 - substep || south == 0 )
                 {
-                    pIndexes[ numIndexes ] = _index( step, j + step ); numIndexes++;
-                    pIndexes[ numIndexes ] = _index( 0, j + step + step ); numIndexes++;
-                    pIndexes[ numIndexes ] = _index( step, j + step + step ); numIndexes++;
+                    buffer -> indexes[ numIndexes ] = _index( step, j + step ); numIndexes++;
+                    buffer -> indexes[ numIndexes ] = _index( 0, j + step + step ); numIndexes++;
+                    buffer -> indexes[ numIndexes ] = _index( step, j + step + step ); numIndexes++;
 
                 }
             }
@@ -447,20 +471,20 @@ void TerrainRenderable::getRenderOperation( RenderOperation& rend )
                 //skip the first bit of the corner if the north side is a different level as well.
                 if ( j > 0 || north == 0 )
                 {
-                    pIndexes[ numIndexes ] = _index( x, j ); numIndexes++;
-                    pIndexes[ numIndexes ] = _index( x - step, j ); numIndexes++;
-                    pIndexes[ numIndexes ] = _index( x - step, j + step ); numIndexes++;
+                    buffer -> indexes[ numIndexes ] = _index( x, j ); numIndexes++;
+                    buffer -> indexes[ numIndexes ] = _index( x - step, j ); numIndexes++;
+                    buffer -> indexes[ numIndexes ] = _index( x - step, j + step ); numIndexes++;
                 }
 
-                pIndexes[ numIndexes ] = _index( x, j ); numIndexes++;
-                pIndexes[ numIndexes ] = _index( x - step, j + step ); numIndexes++;
-                pIndexes[ numIndexes ] = _index( x, j + step + step ); numIndexes++;
+                buffer -> indexes[ numIndexes ] = _index( x, j ); numIndexes++;
+                buffer -> indexes[ numIndexes ] = _index( x - step, j + step ); numIndexes++;
+                buffer -> indexes[ numIndexes ] = _index( x, j + step + step ); numIndexes++;
 
                 if ( j < mSize - 1 - substep || south == 0 )
                 {
-                    pIndexes[ numIndexes ] = _index( x, j + step + step ); numIndexes++;
-                    pIndexes[ numIndexes ] = _index( x - step, j + step ); numIndexes++;
-                    pIndexes[ numIndexes ] = _index( x - step, j + step + step ); numIndexes++;
+                    buffer -> indexes[ numIndexes ] = _index( x, j + step + step ); numIndexes++;
+                    buffer -> indexes[ numIndexes ] = _index( x - step, j + step ); numIndexes++;
+                    buffer -> indexes[ numIndexes ] = _index( x - step, j + step + step ); numIndexes++;
                 }
             }
 
@@ -477,20 +501,20 @@ void TerrainRenderable::getRenderOperation( RenderOperation& rend )
                 //skip the first bit of the corner if the north side is a different level as well.
                 if ( j > 0 || west == 0 )
                 {
-                    pIndexes[ numIndexes ] = _index( j, x - step ); numIndexes++;
-                    pIndexes[ numIndexes ] = _index( j, x ); numIndexes++;
-                    pIndexes[ numIndexes ] = _index( j + step, x - step ); numIndexes++;
+                    buffer -> indexes[ numIndexes ] = _index( j, x - step ); numIndexes++;
+                    buffer -> indexes[ numIndexes ] = _index( j, x ); numIndexes++;
+                    buffer -> indexes[ numIndexes ] = _index( j + step, x - step ); numIndexes++;
                 }
 
-                pIndexes[ numIndexes ] = _index( j + step, x - step ); numIndexes++;
-                pIndexes[ numIndexes ] = _index( j, x ); numIndexes++;
-                pIndexes[ numIndexes ] = _index( j + step + step, x ); numIndexes++;
+                buffer -> indexes[ numIndexes ] = _index( j + step, x - step ); numIndexes++;
+                buffer -> indexes[ numIndexes ] = _index( j, x ); numIndexes++;
+                buffer -> indexes[ numIndexes ] = _index( j + step + step, x ); numIndexes++;
 
                 if ( j < mSize - 1 - substep || east == 0 )
                 {
-                    pIndexes[ numIndexes ] = _index( j + step, x - step ); numIndexes++;
-                    pIndexes[ numIndexes ] = _index( j + step + step, x ); numIndexes++;
-                    pIndexes[ numIndexes ] = _index( j + step + step, x - step ); numIndexes++;
+                    buffer -> indexes[ numIndexes ] = _index( j + step, x - step ); numIndexes++;
+                    buffer -> indexes[ numIndexes ] = _index( j + step + step, x ); numIndexes++;
+                    buffer -> indexes[ numIndexes ] = _index( j + step + step, x - step ); numIndexes++;
                 }
             }
 
@@ -505,28 +529,26 @@ void TerrainRenderable::getRenderOperation( RenderOperation& rend )
                 //skip the first bit of the corner if the north side is a different level as well.
                 if ( j > 0 || west == 0 )
                 {
-                    pIndexes[ numIndexes ] = _index( j, 0 ); numIndexes++;
-                    pIndexes[ numIndexes ] = _index( j, step ); numIndexes++;
-                    pIndexes[ numIndexes ] = _index( j + step, step ); numIndexes++;
+                    buffer -> indexes[ numIndexes ] = _index( j, 0 ); numIndexes++;
+                    buffer -> indexes[ numIndexes ] = _index( j, step ); numIndexes++;
+                    buffer -> indexes[ numIndexes ] = _index( j + step, step ); numIndexes++;
                 }
 
-                pIndexes[ numIndexes ] = _index( j, 0 ); numIndexes++;
-                pIndexes[ numIndexes ] = _index( j + step, step ); numIndexes++;
-                pIndexes[ numIndexes ] = _index( j + step + step, 0 ); numIndexes++;
+                buffer -> indexes[ numIndexes ] = _index( j, 0 ); numIndexes++;
+                buffer -> indexes[ numIndexes ] = _index( j + step, step ); numIndexes++;
+                buffer -> indexes[ numIndexes ] = _index( j + step + step, 0 ); numIndexes++;
 
                 if ( j < mSize - 1 - substep || east == 0 )
                 {
-                    pIndexes[ numIndexes ] = _index( j + step + step, 0 ); numIndexes++;
-                    pIndexes[ numIndexes ] = _index( j + step, step ); numIndexes++;
-                    pIndexes[ numIndexes ] = _index( j + step + step, step ); numIndexes++;
+                    buffer -> indexes[ numIndexes ] = _index( j + step + step, 0 ); numIndexes++;
+                    buffer -> indexes[ numIndexes ] = _index( j + step, step ); numIndexes++;
+                    buffer -> indexes[ numIndexes ] = _index( j + step + step, step ); numIndexes++;
                 }
             }
 
         }
-
-        mLevelIndex[ mRenderLevel ][ index_array ] = new IndexBuffer();
-        mLevelIndex[ mRenderLevel ][ index_array ] -> indexes = pIndexes;
-        mLevelIndex[ mRenderLevel ][ index_array ] -> length = numIndexes;
+        buffer -> length = numIndexes;
+        mLevelIndex[ mRenderLevel ][ index_array ] = buffer;
     }
 
 
@@ -573,9 +595,9 @@ void TerrainRenderable::getRenderOperation( RenderOperation& rend )
 
     rend.vertexStride = 0;
 
-    rend.pIndexes = pIndexes;
+    rend.pIndexes = buffer -> indexes;
 
-    rend.numIndexes = numIndexes;
+    rend.numIndexes = buffer -> length;
 
     mRenderedTris += ( rend.numIndexes / 3 );
 
