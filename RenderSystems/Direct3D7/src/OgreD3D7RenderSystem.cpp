@@ -2277,8 +2277,18 @@ namespace Ogre {
         dest = Matrix4::ZERO;
         dest[0][0] = w;
         dest[1][1] = h;
-        dest[2][2] = q;
-        dest[3][2] = 1.0f;
+
+        if (forGpuProgram)
+        {
+            dest[2][2] = -q;
+            dest[3][2] = -1.0f;
+        }
+        else
+        {
+            dest[2][2] = q;
+            dest[3][2] = 1.0f;
+        }
+
         dest[2][3] = qn;
 
     }
@@ -2312,6 +2322,10 @@ namespace Ogre {
         dest[2][3] = -nearPlane / (farPlane - nearPlane);
         dest[3][3] = 1;
 
+        if (forGpuProgram)
+        {
+            dest[2][2] = -dest[2][2];
+        }
     }
     //---------------------------------------------------------------------
     void D3DRenderSystem::_setRasterisationMode(SceneDetailLevel level)
@@ -2670,8 +2684,16 @@ namespace Ogre {
         dest[0][2] = (right+left) / width;
         dest[1][1] = 2 * nearPlane / height;
         dest[1][2] = (top+bottom) / height;
-        dest[2][2] = q;
-        dest[3][2] = 1.0f;
+        if (forGpuProgram)
+        {
+            dest[2][2] = -q;
+            dest[3][2] = -1.0f;
+        }
+        else
+        {
+            dest[2][2] = q;
+            dest[3][2] = 1.0f;
+        }
         dest[2][3] = qn;
     }
 
