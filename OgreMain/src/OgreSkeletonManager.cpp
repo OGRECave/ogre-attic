@@ -46,7 +46,7 @@ namespace Ogre
 
     }
     //-----------------------------------------------------------------------
-    Resource* SkeletonManager::create( const String& name)
+    ResourcePtr SkeletonManager::create( const String& name)
     {
         return new Skeleton(name);
     }

@@ -1521,8 +1521,8 @@ namespace Ogre
     bool parseMaterial(String& params, MaterialScriptContext& context)
     {
         // Create a brand new material
-        context.material = static_cast<Material*>(
-            MaterialManager::getSingleton().create(params));
+        context.material = 
+			MaterialManager::getSingleton().create(params, context.groupName);
         // Remove pre-created technique from defaults
         context.material->removeAllTechniques();
 
@@ -1984,13 +1984,13 @@ namespace Ogre
     }
 
     //-----------------------------------------------------------------------
-    void MaterialSerializer::parseScript(DataChunk& chunk, const String& filename)
+    void MaterialSerializer::parseScript(DataStreamPtr& stream, const String& groupName)
     {
         String line;
         bool nextIsOpenBrace = false;
 
         mScriptContext.section = MSS_NONE;
-        mScriptContext.material = 0;
+        mScriptContext.material.setNull();
         mScriptContext.technique = 0;
         mScriptContext.pass = 0;
         mScriptContext.textureUnit = 0;
@@ -1999,10 +1999,11 @@ namespace Ogre
 		mScriptContext.techLev = -1;
 		mScriptContext.passLev = -1;
 		mScriptContext.stateLev = -1;
-        mScriptContext.filename = filename;
-        while(!chunk.isEOF())
+        mScriptContext.filename = stream->getName();
+		mScriptContext.groupName = groupName;
+        while(!stream->eof())
         {
-            line = chunk.getLine();
+            line = stream->getLine();
             mScriptContext.lineNo++;
             
             // DEBUG LINE
@@ -2035,6 +2036,9 @@ namespace Ogre
         {
             logParseError("Unexpected end of file.", mScriptContext);
         }
+
+		// Make sure we invalidate our context shared pointer (don't wanna hold on)
+		mScriptContext.material.setNull();
 
     }
     //-----------------------------------------------------------------------

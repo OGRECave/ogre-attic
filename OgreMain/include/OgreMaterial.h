@@ -36,7 +36,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    /** Class encapsulates rendering properties of an object.
+	// Forward declaration
+	class MaterialPtr;
+
+	/** Class encapsulates rendering properties of an object.
     @remarks
     Ogre's material class encapsulates ALL aspects of the visual appearance,
     of an object. It also includes other flags which 
@@ -84,8 +87,6 @@ namespace Ogre {
         typedef ConstVectorIterator<LodDistanceList> LodDistanceIterator;
     protected:
 
-        /// Default material settings - set up by SceneManager
-        static Material* mDefaultSettings;
 
         /** Internal method which sets the material up from the default settings.
         */
@@ -103,29 +104,26 @@ namespace Ogre {
         bool mReceiveShadows;
 		bool mTransparencyCastsShadows;
 
+		/** Overridden from Resource.
+		*/
+		void loadImpl(void);
+
+		/** Unloads the material, frees resources etc.
+		@see
+		Resource
+		*/
+		void unloadImpl(void);
     public:
 
-        /** Mandatory constructor - you must supply a name for the material.
-        @note
-        Normally you create materials by calling the relevant SceneManager since that is responsible for
-        managing all scene state including materials.
-        @param
-        name A unique mateiral name
+        /** Constructor - use resource manager's create method rather than this.
         */
-        Material( const String& name);
-
-        /** Default constructor - uses a generated material name.
-        */
-        Material();
+		Material(ResourceManager* creator, const String& name, ResourceHandle handle,
+			const String& group, bool isManual = false, ManualResourceLoader* loader = 0);
 
         ~Material();
         /** Assignment operator to allow easy copying between materials.
         */
         Material& operator=( const Material& rhs );
-
-        /** Gets the material's name (note - not a texture name).
-        */
-        const String& getName(void) const;
 
         /** Determines if the material has any transparency with the rest of the scene (derived from 
             whether any Techniques say they involve transparency).
@@ -221,30 +219,20 @@ namespace Ogre {
         */
         Technique* getBestTechnique(unsigned short lodIndex = 0);
 
-        /** Overridden from Resource.
-        @remarks
-        By default, Materials are not loaded, and adding additional textures etc do not cause those
-        textures to be loaded. When the 'load' method is called, all textures are loaded (if they
-        are not already), GPU programs are created if applicable, and Controllers are instantiated.
-        Once a material has been loaded, all changes made to it are immediately loaded too.
-        */
-        void load(void);
-
-        /** Unloads the material, frees resources etc.
-        @see
-        Resource
-        */
-        void unload(void);
 
         /** Creates a new copy of this material with the same settings but a new name.
+		@param newName The name for the cloned material
+		@param changeGroup If true, the resource group of the clone is changed
+		@param newGroup Only required if changeGroup is true; the new group to assign
         */
-        Material* clone(const String& newName) const;
+        MaterialPtr clone(const String& newName, bool changeGroup = false, 
+			const String& newGroup = StringUtil::BLANK) const;
 
         /** Copies the details of this material into another, preserving the target's handle and name
         (unlike operator=) but copying everything else.
-        @param mat Pointer to material which will receive this material's settings.
+        @param mat Weak reference to material which will receive this material's settings.
         */
-        void copyDetailsTo(Material* mat) const;
+        void copyDetailsTo(MaterialPtr& mat) const;
 
         /** 'Compiles' this Material.
         @remarks
@@ -565,6 +553,44 @@ namespace Ogre {
 
 
     };
+
+	/** Specialisation of SharedPtr to allow SharedPtr to be assigned to MaterialPtr 
+	@note Has to be a subclass since we need operator=.
+	We could templatise this instead of repeating per Resource subclass, 
+	except to do so requires a form VC6 does not support i.e.
+	ResourceSubclassPtr<T> : public SharedPtr<T>
+	*/
+	class _OgreExport MaterialPtr : public SharedPtr<Material> 
+	{
+	public:
+		MaterialPtr() : SharedPtr<Material>() {}
+		MaterialPtr(Material* rep) : SharedPtr<Material>(rep) {}
+		MaterialPtr(const MaterialPtr& r) : SharedPtr<Material>(r) {} 
+		MaterialPtr(const ResourcePtr& r) : SharedPtr<Material>()
+		{
+			pRep = static_cast<Material*>(r.getPointer());
+			pUseCount = r.useCountPointer();
+			if (pUseCount)
+			{
+				++(*pUseCount);
+			}
+		}
+
+		/// Operator used to convert a ResourcePtr to a MaterialPtr
+		MaterialPtr& operator=(const ResourcePtr& r)
+		{
+			if (pRep == static_cast<Material*>(r.getPointer()))
+				return *this;
+			release();
+			pRep = static_cast<Material*>(r.getPointer());
+			pUseCount = r.useCountPointer();
+			if (pUseCount)
+			{
+				++(*pUseCount);
+			}
+			return *this;
+		}
+	};
 
 } //namespace 
 

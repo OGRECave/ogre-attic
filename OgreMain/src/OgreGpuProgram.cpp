@@ -38,11 +38,31 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre
 {
 	//-----------------------------------------------------------------------------
-	GpuProgram::GpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode) 
-		: mType(gptype), mLoadFromFile(true), mSyntaxCode(syntaxCode), mSkeletalAnimation(false),
+	GpuProgram::CmdType GpuProgram::msTypeCmd;
+	GpuProgram::CmdSyntax GpuProgram::msSyntaxCmd;
+	GpuProgram::CmdSkeletal GpuProgram::msSkeletalCmd;
+
+	//-----------------------------------------------------------------------------
+	GpuProgram::GpuProgram(ResourceManager* creator, const String& name, ResourceHandle handle,
+		const String& group, bool isManual, ManualResourceLoader* loader) 
+		:Resource(creator, name, handle, group, isManual, loader),
+		mType(GPT_VERTEX_PROGRAM), mLoadFromFile(true), mSkeletalAnimation(false),
 		mPassSurfaceAndLightStates(false)
 	{
-		mName = name;
+		if (createParamDictionary("GpuProgram"))
+		{
+			setupBaseParamDictionary();
+		}
+	}
+	//-----------------------------------------------------------------------------
+	void GpuProgram::setType(GpuProgramType t)
+	{
+		mType = t;
+	}
+	//-----------------------------------------------------------------------------
+	void GpuProgram::setSyntaxCode(const String& syntax)
+	{
+		mSyntaxCode = syntax;
 	}
 	//-----------------------------------------------------------------------------
 	void GpuProgram::setSourceFile(const String& filename)
@@ -60,24 +80,19 @@ namespace Ogre
 	}
 
 	//-----------------------------------------------------------------------------
-	void GpuProgram::load(void)
+	void GpuProgram::loadImpl(void)
 	{
-        if (mIsLoaded)
-        {
-            unload();
-        }
         if (mLoadFromFile)
         {
             // find & load source code
-            SDDataChunk chunk;
-            GpuProgramManager::getSingleton()._findResourceData(mFilename, chunk);
-            mSource = chunk.getAsString();
+            DataStreamPtr stream = 
+				ResourceGroupManager::getSingleton()._findResource(mFilename, mGroup);
+            mSource = stream->getAsString();
         }
 
         // Call polymorphic load
         loadFromSource();
 
-        mIsLoaded = true;
     }
 	//-----------------------------------------------------------------------------
     bool GpuProgram::isSupported(void) const
@@ -112,7 +127,25 @@ namespace Ogre
 		}
 		return mDefaultParams;
 	}
+	//-----------------------------------------------------------------------------
+	void GpuProgram::setupBaseParamDictionary(void)
+	{
+		ParamDictionary* dict = getParamDictionary();
+
+		dict->addParameter(
+			ParameterDef("type", "'vertex_program' or 'fragment_program'",
+				PT_STRING), &msTypeCmd);
+		dict->addParameter(
+			ParameterDef("syntax", "Syntax code, e.g. vs_1_1", PT_STRING), &msSyntaxCmd);
+		dict->addParameter(
+			ParameterDef("includes_skeletal_animation", 
+			"Whether this vertex program includes skeletal animation", PT_BOOL), 
+			&msSkeletalCmd);
+	}
+
     //-----------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------
 	GpuProgramParameters::GpuProgramParameters()
         : mTransposeMatrices(false), mAutoAddParamName(false)
     {
@@ -574,6 +607,54 @@ namespace Ogre
 		// need to copy Parameter names from the source
 		mParamNameMap = source.mParamNameMap;
 		
+	}
+	//-----------------------------------------------------------------------
+	//-----------------------------------------------------------------------
+	String GpuProgram::CmdType::doGet(const void* target) const
+	{
+		const GpuProgram* t = static_cast<const GpuProgram*>(target);
+		if (t->getType() == GPT_VERTEX_PROGRAM)
+		{
+			return "vertex_program";
+		}
+		else
+		{
+			return "fragment_program";
+		}
+	}
+	void GpuProgram::CmdType::doSet(void* target, const String& val)
+	{
+		GpuProgram* t = static_cast<GpuProgram*>(target);
+		if (val == "vertex_program")
+		{
+			t->setType(GPT_VERTEX_PROGRAM);
+		}
+		else
+		{
+			t->setType(GPT_FRAGMENT_PROGRAM);
+		}
+	}
+	//-----------------------------------------------------------------------
+	String GpuProgram::CmdSyntax::doGet(const void* target) const
+	{
+		const GpuProgram* t = static_cast<const GpuProgram*>(target);
+		return t->getSyntaxCode();
+	}
+	void GpuProgram::CmdSyntax::doSet(void* target, const String& val)
+	{
+		GpuProgram* t = static_cast<GpuProgram*>(target);
+		t->setSyntaxCode(val);
+	}
+	//-----------------------------------------------------------------------
+	String GpuProgram::CmdSkeletal::doGet(const void* target) const
+	{
+		const GpuProgram* t = static_cast<const GpuProgram*>(target);
+		return StringConverter::toString(t->isSkeletalAnimationIncluded());
+	}
+	void GpuProgram::CmdSkeletal::doSet(void* target, const String& val)
+	{
+		GpuProgram* t = static_cast<GpuProgram*>(target);
+		t->setSkeletalAnimationIncluded(StringConverter::parseBool(val));
 	}
 
 }

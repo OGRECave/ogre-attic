@@ -481,33 +481,6 @@ void SceneManager::clearScene(void)
     mSkyBoxEnabled = mSkyPlaneEnabled = mSkyDomeEnabled = false; 
 
 }
-
-//-----------------------------------------------------------------------
-Material* SceneManager::createMaterial(const String& name)
-{
-    // Create using MaterialManager
-    Material* m = (Material*)MaterialManager::getSingleton().create(name);
-
-
-    return m;
-}
-//-----------------------------------------------------------------------
-Material* SceneManager::getDefaultMaterialSettings(void)
-{
-    return Material::mDefaultSettings;
-}
-//-----------------------------------------------------------------------
-Material* SceneManager::getMaterial(const String& name)
-{
-    return (Material*)MaterialManager::getSingleton().getByName(name);
-}
-
-//-----------------------------------------------------------------------
-Material* SceneManager::getMaterial(int handle)
-{
-    return static_cast<Material*>(
-        MaterialManager::getSingleton().getByHandle(handle));
-}
 //-----------------------------------------------------------------------
 SceneNode* SceneManager::createSceneNode(void)
 {

@@ -146,7 +146,7 @@ namespace Ogre {
     class Animation;
     class AnimationState;
     class AnimationTrack;
-    class ArchiveEx;
+    class Archive;
     class ArchiveFactory;
     class ArchiveManager;
     class AutoParamDataSource;
@@ -265,6 +265,7 @@ namespace Ogre {
     class RenderWindow;
     class RenderOperation;
     class Resource;
+	class ResourceGroupManager;
     class ResourceManager;
 	class Root;
     class SceneManager;

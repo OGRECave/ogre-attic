@@ -4,7 +4,7 @@ This source file is part of OGRE
 (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://ogre.sourceforge.net/
 
-Copyright © 2000-2002 The OGRE Team
+Copyright © 2000-2004 The OGRE Team
 Also see acknowledgements in Readme.html
 
 This program is free software; you can redistribute it and/or modify it under
@@ -36,7 +36,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreDynLib.h"
 #include "OgreConfigFile.h"
 #include "OgreMaterialManager.h"
-#include "OgreResourceManager.h"
 #include "OgreMeshManager.h"
 #include "OgreTextureManager.h"
 #include "OgreParticleSystemManager.h"
@@ -139,7 +138,10 @@ namespace Ogre {
 
         mArchiveManager = new ArchiveManager();
 
-        // Create SceneManager enumerator (note - will be managed by singleton)
+		// ResourceGroupManager
+		mResourceGroupManager = new ResourceGroupManager();
+
+		// Create SceneManager enumerator (note - will be managed by singleton)
         mSceneManagerEnum = new SceneManagerEnumerator();
         mCurrentSceneManager = NULL;
 
@@ -221,6 +223,7 @@ namespace Ogre {
         delete mGuiManager;
         delete mOverlayManager;
         delete mFontManager;
+		delete mResourceGroupManager;
         delete mArchiveManager;
         delete mSkeletonManager;
         delete mMeshManager;
@@ -664,7 +667,7 @@ namespace Ogre {
             DLL_STOP_PLUGIN pFunc = (DLL_STOP_PLUGIN)(*i)->getSymbol("dllStopPlugin");
             pFunc();
             // Unload library & destroy
-            DynLibManager::getSingleton().unload((Resource*)*i);
+            DynLibManager::getSingleton().unload((ResourcePtr)*i);
             delete *i;
 
         }
@@ -673,22 +676,18 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void Root::addResourceLocation(const String& name, const String& locType, ResourceType resType)
+    void Root::addResourceLocation(const String& name, const String& locType, 
+		const String& groupName, bool recursive)
     {
-        switch(resType)
-        {
-        case RESTYPE_ALL:
-            ResourceManager::addCommonArchiveEx(name, locType);
-            break;
-        case RESTYPE_TEXTURES:
-            TextureManager::getSingleton().addArchiveEx(name, locType);
-            break;
-        case RESTYPE_MODELS:
-            MeshManager::getSingleton().addArchiveEx(name, locType);
-            break;
-
-        }
+		ResourceGroupManager::getSingleton().addResourceLocation(
+			name, locType, groupName, recursive);
     }
+	//-----------------------------------------------------------------------
+	void Root::removeResourceLocation(const String& name, const String& groupName)
+	{
+		ResourceGroupManager::getSingleton().removeResourceLocation(
+			name, groupName);
+	}
     //-----------------------------------------------------------------------
     void Root::convertColourValue(const ColourValue& colour, unsigned long* pDest)
     {
@@ -804,7 +803,7 @@ namespace Ogre {
 				DLL_STOP_PLUGIN pFunc = (DLL_STOP_PLUGIN)(*i)->getSymbol("dllStopPlugin");
 				pFunc();
 				// Unload library & destroy
-				DynLibManager::getSingleton().unload((Resource*)*i);
+				DynLibManager::getSingleton().unload((ResourcePtr)*i);
 				delete *i;
 				mPluginLibs.erase(i);
 				return;

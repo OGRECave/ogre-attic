@@ -160,9 +160,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreAnimationTrack.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreArchiveEx.cpp">
-			</File>
-			<File
 				RelativePath="..\src\OgreArchiveManager.cpp">
 			</File>
 			<File
@@ -486,6 +483,12 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreRenderWindow.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreResource.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreResourceGroupManager.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreResourceManager.cpp">
 			</File>
 			<File
@@ -606,9 +609,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreZip.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreZipArchiveFactory.cpp">
-			</File>
-			<File
 				RelativePath="..\src\unzip.c">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -648,7 +648,7 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreAnimationTrack.h">
 			</File>
 			<File
-				RelativePath="..\include\OgreArchiveEx.h">
+				RelativePath="..\include\OgreArchive.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreArchiveFactory.h">
@@ -718,6 +718,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreDataChunk.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreDataStream.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreDefaultHardwareBufferManager.h">
@@ -1059,6 +1062,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreResource.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreResourceGroupManager.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreResourceManager.h">
 			</File>
 			<File
@@ -1210,9 +1216,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreZip.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreZipArchiveFactory.h">
 			</File>
 			<File
 				RelativePath="..\include\asm_math.h">

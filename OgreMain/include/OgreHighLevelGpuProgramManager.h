@@ -82,7 +82,7 @@ namespace Ogre {
                 that it is the CALLERS responsibility to destroy this object when it is no longer required
                 (after calling ResourceManager::unload if it had been loaded).
         */
-		virtual Resource* create( const String& name ) 
+		virtual ResourcePtr create( const String& name ) 
 		{
 			// N/A, we need to know the type
 			Except(Exception::ERR_INTERNAL_ERROR, "You should call load "

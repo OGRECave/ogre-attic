@@ -43,24 +43,8 @@ namespace Ogre {
 		/// Supported program syntax codes
 		SyntaxCodes mSyntaxCodes;
 	public:
-		GpuProgramManager() {}
-		virtual ~GpuProgramManager() {}
-
-        /** Creates a new blank resource, compatible with this manager.
-            @remarks
-                Resource managers handle disparate types of resources. This method returns a pointer to a
-                valid new instance of the kind of resource managed here. The caller should  complete the
-                details of the returned resource and call ResourceManager::load to load the resource. Note
-                that it is the CALLERS responsibility to destroy this object when it is no longer required
-                (after calling ResourceManager::unload if it had been loaded).
-        */
-		virtual Resource* create( const String& name ) 
-		{
-			// N/A, we need to know the type
-			Except(Exception::ERR_INTERNAL_ERROR, "You should call load "
-				"with a specific type", "GpuProgramManager::create");
-		}
-
+		GpuProgramManager();
+		virtual ~GpuProgramManager();
 
         /** Loads a GPU program from a file of assembly. 
 		@remarks
@@ -68,12 +52,14 @@ namespace Ogre {
 			As with all types of ResourceManager, this class will search for the file in
 			all resource locations it has been configured to look in.
 		@param name The name of the GpuProgram
+		@param groupName The name of the resource group
 		@param filename The file to load
 		@param gptype The type of program to create
         @param syntaxCode The name of the syntax to be used for this program e.g. arbvp1, vs_1_1
 		*/
-		virtual GpuProgram* load(const String& name, const String& filename, GpuProgramType gptype, 
-            const String& syntaxCode, int priority = 1);
+		virtual GpuProgramPtr load(const String& name, const String& groupName, 
+			const String& filename, GpuProgramType gptype, 
+            const String& syntaxCode);
 
 		/** Loads a GPU program from a string of assembly code.
 		@remarks
@@ -81,12 +67,14 @@ namespace Ogre {
 			getSupportedSyntax method for details of the supported syntaxes 
 		@param name The identifying name to give this program, which can be used to
 			retrieve this program later with getByName.
+		@param groupName The name of the resource group
 		@param code A string of assembly code which will form the program to run
 		@param gptype The type of prgram to create.
         @param syntaxCode The name of the syntax to be used for this program e.g. arbvp1, vs_1_1
 		*/
-		virtual GpuProgram* loadFromString(const String& name, const String& code, GpuProgramType gptype,
-            const String& syntaxCode, int priority = 1);
+		virtual GpuProgramPtr loadFromString(const String& name, const String& groupName,
+			const String& code, GpuProgramType gptype,
+            const String& syntaxCode);
 
 		/** Returns the syntaxes that this manager supports. */
 		virtual const SyntaxCodes& getSupportedSyntax(void) const { return mSyntaxCodes; };
@@ -110,12 +98,14 @@ namespace Ogre {
 			As with all types of ResourceManager, this class will search for the file in
 			all resource locations it has been configured to look in. 
 		@param name The name of the program
+		@param groupName The name of the resource group
 		@param filename The file to load
         @param syntaxCode The name of the syntax to be used for this program e.g. arbvp1, vs_1_1
 		@param gptype The type of program to create
 		*/
-		virtual GpuProgram* createProgram(const String& name, const String& filename, 
-			GpuProgramType gptype, const String& syntaxCode, int priority = 1);
+		virtual GpuProgramPtr createProgram(const String& name, 
+			const String& groupName, const String& filename, 
+			GpuProgramType gptype, const String& syntaxCode);
 
 		/** Create a GPU program from a string of assembly code.
         @remarks    
@@ -126,12 +116,14 @@ namespace Ogre {
 			getSupportedSyntax method for details of the supported syntaxes 
 		@param name The identifying name to give this program, which can be used to
 			retrieve this program later with getByName.
+		@param groupName The name of the resource group
 		@param code A string of assembly code which will form the program to run
 		@param gptype The type of prgram to create.
         @param syntaxCode The name of the syntax to be used for this program e.g. arbvp1, vs_1_1
 		*/
-		virtual GpuProgram* createProgramFromString(const String& name, const String& code, 
-            GpuProgramType gptype, const String& syntaxCode, int priority = 1);
+		virtual GpuProgramPtr createProgramFromString(const String& name, 
+			const String& groupName, const String& code, 
+            GpuProgramType gptype, const String& syntaxCode);
 
         /** Internal method for populating the supported syntax codes, called by RenderSystem. */
         virtual void _pushSyntaxCode(const String& syntaxCode) { mSyntaxCodes.insert(syntaxCode); }
@@ -140,7 +132,7 @@ namespace Ogre {
         @param preferHighLevelPrograms If set to true (the default), high level programs will be
             returned in preference to low-level programs.
         */
-        Resource* getByName(const String& name, bool preferHighLevelPrograms = true);
+        ResourcePtr getByName(const String& name, bool preferHighLevelPrograms = true);
         /** Override standard Singleton retrieval.
         @remarks
         Why do we do this? Well, it's because the Singleton
@@ -174,9 +166,6 @@ namespace Ogre {
         */
         static GpuProgramManager* getSingletonPtr(void);
     
-    protected:
-		/** Create a new GpuProgram. */
-        virtual GpuProgram* create(const String& name, GpuProgramType gptype, const String& syntaxCode) = 0;
 
 
 	};

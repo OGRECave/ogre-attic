@@ -67,7 +67,7 @@ namespace Ogre
 
     }
     //-----------------------------------------------------------------------
-    Resource* MeshManager::create( const String& name)
+    ResourcePtr MeshManager::create( const String& name)
     {
         return new Mesh(name);
     }

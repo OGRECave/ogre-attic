@@ -81,7 +81,7 @@ namespace Ogre {
             @note
                 Mainly used internally.
         */
-        Resource* create( const String& name);
+        ResourcePtr create( const String& name);
 
         /** Creates a new Mesh specifically for manual definition rather
             than loading from an object file. 

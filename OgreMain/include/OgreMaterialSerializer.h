@@ -62,7 +62,8 @@ namespace Ogre {
     struct MaterialScriptContext 
     {
         MaterialScriptSection section;
-        Material* material;
+		String groupName;
+        MaterialPtr material;
         Technique* technique;
         Pass* pass;
         TextureUnitState* textureUnit;
@@ -157,12 +158,9 @@ namespace Ogre {
 		/** Clears the internal buffer */
 		void clearQueue();
 
-        /** Parses a Material script file passed as a chunk.
-        @remarks
-            The filename is optional, if specified it will appear in the log
-            of any errors which are reported.
+        /** Parses a Material script file passed as a stream.
         */
-        void parseScript(DataChunk& chunk, const String& filename = "");
+        void parseScript(DataStreamPtr& stream, const String& groupName);
 
 
 

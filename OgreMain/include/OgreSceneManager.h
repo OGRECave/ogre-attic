@@ -548,54 +548,6 @@ namespace Ogre {
         */
         virtual void _populateLightList(const Vector3& position, Real radius, LightList& destList);
 
-        /** Creates a new material with default settings with the specified name.
-        @see SceneManager::getDefaultMaterialSettings
-        */
-        virtual Material* createMaterial(const String& name);
-
-        /** Returns a pointer to the default Material settings.
-            @remarks
-                Ogre comes configured with a set of defaults for newly created
-                materials. If you wish to have a different set of defaults,
-                simply call this method and change the returned Material's
-                settings. All materials created from then on will be configured
-                with the new defaults you have specified.
-            @par
-                The default settings begin as a single Technique with a single, non-programmable Pass:
-                <ul>
-                <li>ambient = ColourValue::White</li>
-                <li>diffuse = ColourValue::White</li>
-                <li>specular = ColourValue::Black</li>
-                <li>emmissive = ColourValue::Black</li>
-                <li>shininess = 0</li>
-                <li>No texture unit settings (& hence no textures)</li>
-                <li>SourceBlendFactor = SBF_ONE</li>
-                <li>DestBlendFactor = SBF_ZERO (no blend, replace with new
-                  colour)</li>
-                <li>Depth buffer checking on</li>
-                <li>Depth buffer writing on</li>
-                <li>Depth buffer comparison function = CMPF_LESS_EQUAL</li>
-                <li>Colour buffer writing on for all channels</li>
-                <li>Culling mode = CULL_CLOCKWISE</li>
-                <li>Ambient lighting = ColourValue(0.5, 0.5, 0.5) (mid-grey)</li>
-                <li>Dynamic lighting enabled</li>
-                <li>Gourad shading mode</li>
-                <li>Bilinear texture filtering</li>
-                </ul>
-        */
-        virtual Material* getDefaultMaterialSettings(void);
-
-        /** Gets a reference to a named Material.
-        */
-        virtual Material* getMaterial(const String& name);
-
-        /** Gets a reference to a material by it's numerical handle.
-            @remarks
-                Numerical handles are assigned on creation of a material, or
-                when a copy is registered with the SceneManager using the
-                addMaterial method.
-        */
-        virtual Material* getMaterial(int handle);
 
         /** Creates an instance of a SceneNode.
             @remarks

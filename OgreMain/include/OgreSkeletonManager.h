@@ -61,7 +61,7 @@ namespace Ogre {
             @note
                 Mainly used internally.
         */
-        Resource* create( const String& name);
+        ResourcePtr create( const String& name);
 
         /** Override standard Singleton retrieval.
         @remarks

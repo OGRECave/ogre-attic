@@ -185,6 +185,45 @@ namespace Ogre {
         unsigned short mFinalBpp;
         bool mHasAlpha;
     };
+
+	/** Specialisation of SharedPtr to allow SharedPtr to be assigned to TexturePtr 
+	@note Has to be a subclass since we need operator=.
+		We could templatise this instead of repeating per Resource subclass, 
+		except to do so requires a form VC6 does not support i.e.
+		ResourceSubclassPtr<T> : public SharedPtr<T>
+	*/
+	class _OgreExport TexturePtr : public SharedPtr<Texture> 
+	{
+	public:
+		TexturePtr() : SharedPtr<Texture>() {}
+		TexturePtr(Texture* rep) : SharedPtr<Texture>(rep) {}
+		TexturePtr(const TexturePtr& r) : SharedPtr<Texture>(r) {} 
+		TexturePtr(const ResourcePtr& r) : SharedPtr<Texture>()
+		{
+			pRep = static_cast<Texture*>(r.getPointer());
+			pUseCount = r.useCountPointer();
+			if (pUseCount)
+			{
+				++(*pUseCount);
+			}
+		}
+
+		/// Operator used to convert a ResourcePtr to a TexturePtr
+		TexturePtr& operator=(const ResourcePtr& r)
+		{
+			if (pRep == static_cast<Texture*>(r.getPointer()))
+				return *this;
+			release();
+			pRep = static_cast<Texture*>(r.getPointer());
+			pUseCount = r.useCountPointer();
+			if (pUseCount)
+			{
+				++(*pUseCount);
+			}
+			return *this;
+		}
+	};
+
 }
 
 #endif

@@ -35,7 +35,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePlatform.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32
-#include "OgreArchiveEx.h"
+#include "OgreArchive.h"
 #include "OgreAxisAlignedBox.h"
 #include "OgreBitwise.h"
 #include "OgreCamera.h"

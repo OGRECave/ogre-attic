@@ -325,8 +325,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     std::pair< uint, uint > TextureUnitState::getTextureDimensions( unsigned int frame ) const
     {
-        Texture *tex = (Texture *)TextureManager::getSingleton().getByName( mFrames[ frame ] );
-		if (!tex)
+        TexturePtr tex = TextureManager::getSingleton().getByName( mFrames[ frame ] );
+
+		if (tex.isNull())
 			Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find texture " + mFrames[ frame ],
 				"TextureUnitState::getTextureDimensions" );
         return std::pair< uint, uint >( tex->getWidth(), tex->getHeight() );

@@ -167,7 +167,7 @@ namespace Ogre {
     {
         StringVector overlayFiles;
 
-        std::vector<ArchiveEx*>::iterator i = mVFS.begin();
+        std::vector<Archive*>::iterator i = mVFS.begin();
 
         // Specific archives
         for (; i != mVFS.end(); ++i)
@@ -208,7 +208,7 @@ namespace Ogre {
 		if (!isLoaded)
 		{
 
-			std::vector<ArchiveEx*>::iterator i = mVFS.begin();
+			std::vector<Archive*>::iterator i = mVFS.begin();
 
 			// Specific archives
 			for (; i != mVFS.end(); ++i)
@@ -230,19 +230,19 @@ namespace Ogre {
 		}
     }
     //---------------------------------------------------------------------
-    void OverlayManager::parseOverlayFile(ArchiveEx* pArchiveEx, const String& name)
+    void OverlayManager::parseOverlayFile(Archive* pArchive, const String& name)
 	{
         DataChunk* pChunk;
         SDDataChunk dat; 
 		pChunk = &dat;
-        pArchiveEx->fileRead(name, &pChunk );
+        pArchive->fileRead(name, &pChunk );
         parseOverlayFile(dat);
 		mLoadedOverlays.push_back(name);
 	}
 
 
     //---------------------------------------------------------------------
-    Resource* OverlayManager::create( const String& name)
+    ResourcePtr OverlayManager::create( const String& name)
     {
         Overlay* s = new Overlay(name);
         load(s,1);

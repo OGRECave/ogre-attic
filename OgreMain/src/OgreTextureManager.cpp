@@ -120,7 +120,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void TextureManager::unload( const String& filename )
     {
-        Resource* res = getByName( filename );
+        ResourcePtr res = getByName( filename );
         ResourceManager::unload( res );
     }
     //-----------------------------------------------------------------------

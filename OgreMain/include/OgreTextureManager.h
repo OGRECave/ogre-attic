@@ -97,11 +97,6 @@ namespace Ogre {
             TextureType texType = TEX_TYPE_2D,
             int iNumMipMaps = -1, Real gamma = 1.0f, int priority = 1 );
 
-        /** @copydoc ResourceManager::load */
-        virtual void load( Resource *res, int priority = 1 )
-        {
-            ResourceManager::load( res, priority );
-        }
 
         virtual Resource * create( const String& name )
         {

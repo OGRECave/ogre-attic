@@ -36,35 +36,22 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    Material* Material::mDefaultSettings = 0;
-
     //-----------------------------------------------------------------------
-    Material::Material()
+	Material::Material(ResourceManager* creator, const String& name, ResourceHandle handle,
+		const String& group, bool isManual, ManualResourceLoader* loader)
+		:Resource(creator, name, handle, group, isManual, loader),
+		mCompilationRequired(true), mReceiveShadows(true), mTransparencyCastsShadows(false)
     {
-	    static unsigned short num = 1;
-	    char name[14];
-
-	    sprintf(name, "Undefined%d", num++);
-	    mName = name;
-        mCompilationRequired = true;
-        mIsLoaded = false;
 		mLodDistances.push_back(0.0f);
-        mReceiveShadows = true;
-		mTransparencyCastsShadows = false;
-    }
-    //-----------------------------------------------------------------------
-    Material::Material( const String& name )
-    {
-	    applyDefaults();
 
-		// This gets set true unless it's cleared here - applyDefaults appears to do nowt??
-		mTransparencyCastsShadows = false;
+		applyDefaults();
 
-	    // Assign name
-	    mName = name;
-        mCompilationRequired = true;
-        mIsLoaded = false;
-		
+		/* For consistency with StringInterface, but we don't add any parameters here
+		That's because the Resource implementation of StringInterface is to
+		list all the options that need to be set before loading, of which 
+		we have none as such. Full details can be set through scripts.
+		*/ 
+		createParamDictionary("Material");
     }
     //-----------------------------------------------------------------------
     Material::~Material()
@@ -76,9 +63,12 @@ namespace Ogre {
     Material& Material::operator=(const Material& rhs)
     {
 	    mName = rhs.mName;
+		mGroup = rhs.mGroup;
+		mCreator = rhs.mCreator;
+		mIsManual = rhs.mIsManual;
+		mLoader = rhs.mLoader;
 	    mHandle = rhs.mHandle;
         mSize = rhs.mSize;
-        mLastAccess = rhs.mLastAccess;
         mReceiveShadows = rhs.mReceiveShadows;
 
 
@@ -116,50 +106,46 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    const String& Material::getName(void) const
+    void Material::loadImpl(void)
     {
-	    return mName;
-    }
-    //-----------------------------------------------------------------------
-    void Material::load(void)
-    {
-	    if (!mIsLoaded)
-	    {
-			// compile if required
-            if (mCompilationRequired)
-                compile();
+		// compile if required
+        if (mCompilationRequired)
+            compile();
 
-            // Load all supported techniques
-            Techniques::iterator i, iend;
-            iend = mSupportedTechniques.end();
-            for (i = mSupportedTechniques.begin(); i != iend; ++i)
-            {
-                (*i)->_load();
-            }
-
-            mIsLoaded = true;
-
-	    }
-    }
-    //-----------------------------------------------------------------------
-    void Material::unload(void)
-    {
-        if (mIsLoaded)
+        // Load all supported techniques
+        Techniques::iterator i, iend;
+        iend = mSupportedTechniques.end();
+        for (i = mSupportedTechniques.begin(); i != iend; ++i)
         {
-            // Unload all supported techniques
-            Techniques::iterator i, iend;
-            iend = mSupportedTechniques.end();
-            for (i = mSupportedTechniques.begin(); i != iend; ++i)
-            {
-                (*i)->_unload();
-            }
-            mIsLoaded = false;
+            (*i)->_load();
+        }
+
+    }
+    //-----------------------------------------------------------------------
+    void Material::unloadImpl(void)
+    {
+        // Unload all supported techniques
+        Techniques::iterator i, iend;
+        iend = mSupportedTechniques.end();
+        for (i = mSupportedTechniques.begin(); i != iend; ++i)
+        {
+            (*i)->_unload();
         }
     }
     //-----------------------------------------------------------------------
-    Material* Material::clone(const String& newName) const
+    MaterialPtr Material::clone(const String& newName, bool changeGroup, 
+		const String& newGroup) const
     {
-        Material* newMat = (Material*)MaterialManager::getSingleton().create(newName);
+		MaterialPtr newMat;
+		if (changeGroup)
+		{
+			newMat = MaterialManager::getSingleton().create(newName, newGroup);
+		}
+		else
+		{
+			newMat = MaterialManager::getSingleton().create(newName, mGroup);
+		}
+        
 
         // Keep handle (see below, copy overrides everything)
         ResourceHandle newHandle = newMat->getHandle();
@@ -176,7 +162,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void Material::copyDetailsTo(Material* mat) const
+    void Material::copyDetailsTo(MaterialPtr& mat) const
     {
         // Keep handle (see below, copy overrides everything)
         ResourceHandle savedHandle = mat->mHandle;
@@ -191,7 +177,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Material::applyDefaults(void)
     {
-		*this = *mDefaultSettings;
+		MaterialPtr defaults = MaterialManager::getSingleton().getDefaultSettings();
+
+		if (!defaults.isNull())
+		{
+			*this = *defaults;
+		}
         mCompilationRequired = true;
 
     }

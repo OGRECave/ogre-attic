@@ -27,7 +27,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 #include "OgreGpuProgram.h"
-#include "OgreStringInterface.h"
 
 namespace Ogre {
 
@@ -52,7 +51,7 @@ namespace Ogre {
         can query on the available custom parameters and get/set them without having to 
         link specifically with it.
     */
-    class _OgreExport HighLevelGpuProgram : public StringInterface, public GpuProgram
+    class _OgreExport HighLevelGpuProgram : public GpuProgram
     {
     protected:
         /// Whether the high-level program (and it's parameter defs) is loaded

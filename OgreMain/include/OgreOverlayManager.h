@@ -76,12 +76,12 @@ namespace Ogre {
         void parseOverlayFile(DataChunk& chunk);
         /** Parses all overlay files in resource folders & archives. */
         void parseAllSources(const String& extension = ".overlay");
-	    void parseOverlayFile(ArchiveEx* pArchiveEx, const String& name);
+	    void parseOverlayFile(Archive* pArchive, const String& name);
 
 	    void loadAndParseOverlayFile(const String& filename);
 
         /** Create implementation required by ResourceManager. */
-        virtual Resource* create( const String& name);
+        virtual ResourcePtr create( const String& name);
 
         /** Internal method for queueing the visible overlays for rendering. */
         void _queueOverlaysForRendering(Camera* cam, RenderQueue* pQueue, Viewport *vp);

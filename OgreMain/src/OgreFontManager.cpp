@@ -25,16 +25,15 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreStableHeaders.h"
 
 #include "OgreFontManager.h"
-#include "OgreFont.h"
-#include "OgreSDDataChunk.h"
 #include "OgreLogManager.h"
 #include "OgreStringConverter.h"
 #include "OgreStringVector.h"
 #include "OgreException.h"
+#include "OgreResourceGroupManager.h"
 
 namespace Ogre
 {
-    //---------------------------------------------------------------------------------------------
+    //---------------------------------------------------------------------
     template<> FontManager * Singleton< FontManager >::ms_Singleton = 0;
     FontManager* FontManager::getSingletonPtr(void)
     {
@@ -44,31 +43,43 @@ namespace Ogre
     {  
         assert( ms_Singleton );  return ( *ms_Singleton );  
     }
-    //---------------------------------------------------------------------------------------------
-
     //---------------------------------------------------------------------
-    Resource* FontManager::create(const String& name)
-    {
-	    // Check name not already used
-	    if (getByName(name) != 0)
-		    Except(Exception::ERR_DUPLICATE_ITEM, "Font " + name + " already exists.",
-			    "FontManager::create");
+	FontManager::FontManager() : ResourceManager()
+	{
+		// Scripting is supported by this manager
+		mScriptingSupported = true;
+		mScriptPatterns.push_back("*.fontdef");
+		// Loading order
+		mLoadOrder = 200.0f;
+		// Resource type
+		mResourceType = "Font";
 
-	    Font* f = new Font(name);
-        // Don't load yet, defer until used
+		// Register with resource group manager
+		ResourceGroupManager::getSingleton()._registerResourceManager(mResourceType, this);
 
-        mResources.insert(ResourceMap::value_type(name, f));
-        return f;
-    }
-    //---------------------------------------------------------------------
-    void FontManager::parseScript( DataChunk& chunk )
+
+	}
+	//---------------------------------------------------------------------
+	FontManager::~FontManager()
+	{
+		// Unregister with resource group manager
+		ResourceGroupManager::getSingleton()._unregisterResourceManager(mResourceType);
+	}
+	//---------------------------------------------------------------------
+	Resource* FontManager::createImpl(const String& name, ResourceHandle handle, 
+		const String& group, bool isManual, ManualResourceLoader* loader)
+	{
+		return new Font(this, name, handle, group, isManual, loader);
+	}
+	//---------------------------------------------------------------------
+    void FontManager::parseScript(DataStream& stream, const String& groupName)
     {
         String line;
-        Font *pFont = 0;
+        FontPtr pFont;
 
-        while( !chunk.isEOF() )
+        while( !stream.eof() )
         {
-            line = chunk.getLine();
+            line = stream.getLine();
             // Ignore blanks & comments
             if( !line.length() || line.substr( 0, 2 ) == "//" )
             {
@@ -76,13 +87,13 @@ namespace Ogre
             }
             else
             {
-			    if (pFont == 0)
+			    if (pFont.isNull())
 			    {
 				    // No current font
 				    // So first valid data should be font name
-				    pFont = (Font*)create(line);
+				    pFont = create(line, groupName);
 				    // Skip to and over next {
-                    chunk.skipUpTo("{");
+                    stream.skipLine("{");
 			    }
 			    else
 			    {
@@ -90,7 +101,7 @@ namespace Ogre
 				    if (line == "}")
 				    {
 					    // Finished 
-					    pFont = 0;
+					    pFont.setNull();
                         // NB font isn't loaded until required
 				    }
                     else
@@ -102,36 +113,7 @@ namespace Ogre
         }
     }
     //---------------------------------------------------------------------
-    void FontManager::parseAllSources( const String& extension )
-    {
-        StringVector fontfiles;
-        SDDataChunk chunk;
-
-        std::vector< ArchiveEx * >::iterator i = mVFS.begin();
-
-        for( ; i < mVFS.end(); i++ )
-        {
-            fontfiles = (*i)->getAllNamesLike( "./", extension );
-            for( StringVector::iterator j = fontfiles.begin(); j != fontfiles.end(); j++ )
-            {
-                DataChunk *p = &chunk;
-                (*i)->fileRead( *j, &p );
-                parseScript( chunk );
-            }
-        }
-        for( i = mCommonVFS.begin(); i < mCommonVFS.end(); i++ )
-        {
-            fontfiles = (*i)->getAllNamesLike( "./", extension );
-            for( StringVector::iterator j = fontfiles.begin(); j != fontfiles.end(); j++ )
-            {
-                DataChunk *p = &chunk;
-                (*i)->fileRead( *j, &p );
-                parseScript( chunk );
-            }
-        }
-    }
-    //---------------------------------------------------------------------
-    void FontManager::parseAttribute(const String& line, Font* pFont)
+    void FontManager::parseAttribute(const String& line, FontPtr& pFont)
     {
         std::vector<String> params = StringUtil::split(line);
         String& attrib = params[0];
@@ -223,7 +205,7 @@ namespace Ogre
 
     }
     //---------------------------------------------------------------------
-    void FontManager::logBadAttrib(const String& line, Font* pFont)
+    void FontManager::logBadAttrib(const String& line, FontPtr& pFont)
     {
         LogManager::getSingleton().logMessage("Bad attribute line: " + line +
             " in font " + pFont->getName());

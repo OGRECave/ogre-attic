@@ -90,6 +90,7 @@ namespace Ogre {
 
 		inline bool unique() const { assert(pUseCount); return *pUseCount == 1; }
 		inline unsigned int useCount() const { assert(pUseCount); return *pUseCount; }
+		inline unsigned int* useCountPointer() const { return pUseCount; }
 
 		inline T* getPointer() const { assert(pRep); return pRep; }
 
