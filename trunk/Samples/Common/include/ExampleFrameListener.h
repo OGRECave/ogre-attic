@@ -41,6 +41,9 @@ Description: Defines an example frame listener which responds to frame events.
 -----------------------------------------------------------------------------
 */
 
+#ifndef __ExampleFrameListener_H__
+#define __ExampleFrameListener_H__
+
 #include "Ogre.h"
 
 using namespace Ogre;
@@ -230,3 +233,4 @@ protected:
 
 };
 
+#endif
