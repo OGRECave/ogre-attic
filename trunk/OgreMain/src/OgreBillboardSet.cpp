@@ -226,7 +226,7 @@ namespace Ogre {
         mDefaultWidth = width;
     }
     //-----------------------------------------------------------------------
-    Real BillboardSet::getDefaultWidth(void)
+    Real BillboardSet::getDefaultWidth(void) const
     {
         return mDefaultWidth;
     }
@@ -236,7 +236,7 @@ namespace Ogre {
         mDefaultHeight = height;
     }
     //-----------------------------------------------------------------------
-    Real BillboardSet::getDefaultHeight(void)
+    Real BillboardSet::getDefaultHeight(void) const
     {
         return mDefaultHeight;
     }
@@ -787,7 +787,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    bool BillboardSet::getCullIndividually(void)
+    bool BillboardSet::getCullIndividually(void) const
     {
         return mCullIndividual;
     }
@@ -881,7 +881,7 @@ namespace Ogre {
         mBillboardType = bbt;
     }
     //-----------------------------------------------------------------------
-    BillboardType BillboardSet::getBillboardType(void)
+    BillboardType BillboardSet::getBillboardType(void) const
     {
         return mBillboardType;
     }
@@ -891,7 +891,7 @@ namespace Ogre {
         mCommonDirection = vec;
     }
     //-----------------------------------------------------------------------
-    Vector3 BillboardSet::getCommonDirection(void)
+    const Vector3& BillboardSet::getCommonDirection(void) const
     {
         return mCommonDirection;
     }

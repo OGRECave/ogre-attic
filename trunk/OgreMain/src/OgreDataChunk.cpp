@@ -156,7 +156,7 @@ namespace Ogre {
         return pos;
     }
     //-----------------------------------------------------------------------
-    bool DataChunk::isEOF(void)
+    bool DataChunk::isEOF(void) const
     {
         if (mPos >= mEnd)
             return true;

@@ -366,7 +366,7 @@ namespace Ogre {
     			v.z >= mMinimum.z  &&  v.z <= mMaximum.z);
         }
 		/// Gets the centre of the box
-		Vector3 getCenter(void)
+		Vector3 getCenter(void) const
 		{
 			return Vector3((mMaximum + mMinimum) * 0.5);
 		}

@@ -1,4 +1,3 @@
-
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
@@ -214,7 +213,7 @@ namespace Ogre {
 		}
 	}
 
-	bool EventMulticaster::isMulticaster()
+	bool EventMulticaster::isMulticaster() const
 	{
 		return true; 
 	}
