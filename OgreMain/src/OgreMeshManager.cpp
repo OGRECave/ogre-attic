@@ -42,6 +42,14 @@ namespace Ogre
 
     //-----------------------------------------------------------------------
     template<> MeshManager* Singleton<MeshManager>::ms_Singleton = 0;
+    template<> MeshManager* Singleton<MeshManager>::getSingletonPtr(void)
+    {
+        return ms_Singleton;
+    }
+    template<> MeshManager& Singleton<MeshManager>::getSingleton(void)
+    {  
+        assert( ms_Singleton );  return ( *ms_Singleton );  
+    }
     //-----------------------------------------------------------------------
     MeshManager::MeshManager()
     {
@@ -745,11 +753,6 @@ namespace Ogre
         msh->_setBoundingSphereRadius(Math::Sqrt(100*100+100*100));
 
         mResources[msh->getName()] = msh;
-    }
-    //-----------------------------------------------------------------------
-    MeshManager& MeshManager::getSingleton(void)
-    {
-        return Singleton<MeshManager>::getSingleton();
     }
     //-----------------------------------------------------------------------
     PatchMesh* MeshManager::createBezierPatch(const String& name, 

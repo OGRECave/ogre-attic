@@ -29,6 +29,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
     //-----------------------------------------------------------------------
     template<> GpuProgramManager* Singleton<GpuProgramManager>::ms_Singleton = 0;
+    template<> GpuProgramManager* Singleton<GpuProgramManager>::getSingletonPtr(void)
+    {
+        return ms_Singleton;
+    }
+    template<> GpuProgramManager& Singleton<GpuProgramManager>::getSingleton(void)
+    {  
+        assert( ms_Singleton );  return ( *ms_Singleton );  
+    }
     //---------------------------------------------------------------------------
     GpuProgram* GpuProgramManager::load(const String& name, const String& filename, 
 		GpuProgramType gptype, const String& syntaxCode, int priority)
@@ -46,11 +54,6 @@ namespace Ogre {
         prg->setSource(code);
         ResourceManager::load(prg, priority);
         return prg;
-    }
-    //---------------------------------------------------------------------------
-    GpuProgramManager& GpuProgramManager::getSingleton(void)
-    {
-        return Singleton<GpuProgramManager>::getSingleton();
     }
     //---------------------------------------------------------------------------
 	GpuProgram* GpuProgramManager::createProgram(const String& name, const String& filename, 

@@ -37,6 +37,14 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     template<> SceneManagerEnumerator* Singleton<SceneManagerEnumerator>::ms_Singleton = 0;
+    template<> SceneManagerEnumerator* Singleton<SceneManagerEnumerator>::getSingletonPtr(void)
+    {
+        return ms_Singleton;
+    }
+    template<> SceneManagerEnumerator& Singleton<SceneManagerEnumerator>::getSingleton(void)
+    {  
+        assert( ms_Singleton );  return ( *ms_Singleton );  
+    }
 
     //-----------------------------------------------------------------------
     SceneManagerEnumerator::SceneManagerEnumerator()
@@ -123,11 +131,6 @@ namespace Ogre {
             (*i)->clearScene();
         }
 
-    }
-    //-----------------------------------------------------------------------
-    SceneManagerEnumerator& SceneManagerEnumerator::getSingleton(void)
-    {
-        return Singleton<SceneManagerEnumerator>::getSingleton();
     }
 
 

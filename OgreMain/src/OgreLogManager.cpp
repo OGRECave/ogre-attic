@@ -36,6 +36,14 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     template<> LogManager* Singleton<LogManager>::ms_Singleton = 0;
+    template<> LogManager* Singleton<LogManager>::getSingletonPtr(void)
+    {
+        return ms_Singleton;
+    }
+    template<> LogManager& Singleton<LogManager>::getSingleton(void)
+    {  
+        assert( ms_Singleton );  return ( *ms_Singleton );  
+    }
     //-----------------------------------------------------------------------
     LogManager::LogManager()
     {
@@ -112,10 +120,5 @@ namespace Ogre {
     void LogManager::setLogDetail(LoggingLevel ll)
     {
         getDefaultLog()->setLogDetail(ll);
-    }
-    //-----------------------------------------------------------------------
-    LogManager& LogManager::getSingleton(void)
-    {
-        return Singleton<LogManager>::getSingleton();
     }
 }

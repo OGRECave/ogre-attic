@@ -785,7 +785,9 @@ namespace Ogre {
             to remains in existence for as long as this TextureUnitState does.
         @par
             This effect cannot be combined with other texture generation effects, 
-            such as environment mapping.
+            such as environment mapping. It also has no effect on passes which 
+            have a vertex program enabled - projective texturing has to be done
+            in the vertex program instead.
         @param enabled Whether to enable / disable
         @param projectionSettings The Frustum which will be used to derive the 
             projection parameters.

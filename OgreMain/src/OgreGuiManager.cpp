@@ -37,6 +37,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
     //-----------------------------------------------------------------------
     template<> GuiManager* Singleton<GuiManager>::ms_Singleton = 0;
+    template<> GuiManager* Singleton<GuiManager>::getSingletonPtr(void)
+    {
+        return ms_Singleton;
+    }
+    template<> GuiManager& Singleton<GuiManager>::getSingleton(void)
+    {  
+        assert( ms_Singleton );  return ( *ms_Singleton );  
+    }
     //---------------------------------------------------------------------
     GuiManager::GuiManager()
     {
@@ -233,11 +241,6 @@ namespace Ogre {
 
         LogManager::getSingleton().logMessage("GuiElementFactory for type " + elemFactory->getTypeName()
             + " registered.");
-    }
-    //---------------------------------------------------------------------
-    GuiManager& GuiManager::getSingleton(void)
-    {
-        return Singleton<GuiManager>::getSingleton();
     }
 
 

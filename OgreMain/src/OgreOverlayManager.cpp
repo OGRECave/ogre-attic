@@ -45,6 +45,14 @@ namespace Ogre {
 
     //---------------------------------------------------------------------
     template<> OverlayManager *Singleton<OverlayManager>::ms_Singleton = 0;
+    template<> OverlayManager* Singleton<OverlayManager>::getSingletonPtr(void)
+    {
+        return ms_Singleton;
+    }
+    template<> OverlayManager& Singleton<OverlayManager>::getSingleton(void)
+    {  
+        assert( ms_Singleton );  return ( *ms_Singleton );  
+    }
     //---------------------------------------------------------------------
     OverlayManager::OverlayManager() :
         mCursorGuiInitialised(false), mLastViewportWidth(0), 
@@ -265,11 +273,6 @@ namespace Ogre {
             Overlay* o = (Overlay*)i->second;
             o->_findVisibleObjects(cam, pQueue);
         }
-    }
-    //---------------------------------------------------------------------
-    OverlayManager& OverlayManager::getSingleton(void)
-    {
-        return Singleton<OverlayManager>::getSingleton();
     }
     //---------------------------------------------------------------------
     void OverlayManager::parseNewElement( DataChunk& chunk, String& elemType, String& elemName, 

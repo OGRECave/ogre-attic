@@ -32,6 +32,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 //-------------------------------------------------------------------------
 template<> OgreRefApp::World* Ogre::Singleton<OgreRefApp::World>::ms_Singleton = 0;
+template<> OgreRefApp::World* Singleton<OgreRefApp::World>::getSingletonPtr(void)
+{
+    return ms_Singleton;
+}
+template<> OgreRefApp::World& Singleton<OgreRefApp::World>::getSingleton(void)
+{  
+    assert( ms_Singleton );  return ( *ms_Singleton );  
+}
 //-------------------------------------------------------------------------
 namespace OgreRefApp
 {
@@ -126,11 +134,6 @@ namespace OgreRefApp
             delete ji->second;
         }
         mJoints.clear();
-    }
-    //-------------------------------------------------------------------------
-    World& World::getSingleton(void)
-    {
-        return Singleton<World>::getSingleton();
     }
     //-------------------------------------------------------------------------
     dWorld* World::getOdeWorld(void)

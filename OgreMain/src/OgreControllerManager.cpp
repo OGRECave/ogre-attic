@@ -32,6 +32,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
     //-----------------------------------------------------------------------
     template<> ControllerManager* Singleton<ControllerManager>::ms_Singleton = 0;
+    template<> ControllerManager* Singleton<ControllerManager>::getSingletonPtr(void)
+    {
+        return ms_Singleton;
+    }
+    template<> ControllerManager& Singleton<ControllerManager>::getSingleton(void)
+    {  
+        assert( ms_Singleton );  return ( *ms_Singleton );  
+    }
     //-----------------------------------------------------------------------
     ControllerManager::ControllerManager()
 		: mFrameTimeController(new FrameTimeControllerValue())
@@ -187,11 +195,6 @@ namespace Ogre {
 
         return createController(mFrameTimeController, val, func);
 
-    }
-    //-----------------------------------------------------------------------
-    ControllerManager& ControllerManager::getSingleton(void)
-    {
-        return Singleton<ControllerManager>::getSingleton();
     }
     //-----------------------------------------------------------------------
     void ControllerManager::destroyController(Controller<Real>* controller)

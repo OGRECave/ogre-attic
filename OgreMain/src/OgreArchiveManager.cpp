@@ -36,6 +36,14 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     template<> ArchiveManager* Singleton<ArchiveManager>::ms_Singleton = 0;
+    template<> ArchiveManager* Singleton<ArchiveManager>::getSingletonPtr(void)
+    {
+        return ms_Singleton;
+    }
+    template<> ArchiveManager& Singleton<ArchiveManager>::getSingleton(void)
+    {  
+        assert( ms_Singleton );  return ( *ms_Singleton );  
+    }
     //-----------------------------------------------------------------------
 
     //-----------------------------------------------------------------------
@@ -61,12 +69,6 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Resource* ArchiveManager::create( const String& name ) {
         return NULL;
-    }
-
-    //-----------------------------------------------------------------------
-    ArchiveManager& ArchiveManager::getSingleton(void)
-    {
-        return Singleton<ArchiveManager>::getSingleton();
     }
 
     //-----------------------------------------------------------------------

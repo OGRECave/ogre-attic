@@ -31,6 +31,14 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     template<> Quake3ShaderManager *Singleton<Quake3ShaderManager>::ms_Singleton = 0;
+    template<> Quake3ShaderManager* Singleton<Quake3ShaderManager>::getSingletonPtr(void)
+    {
+        return ms_Singleton;
+    }
+    template<> Quake3ShaderManager& Singleton<Quake3ShaderManager>::getSingleton(void)
+    {  
+        assert( ms_Singleton );  return ( *ms_Singleton );  
+    }
     //-----------------------------------------------------------------------
 
     //-----------------------------------------------------------------------
@@ -477,11 +485,6 @@ namespace Ogre {
         // Default if unrecognised
         return SBF_ONE;
 
-    }
-    //-----------------------------------------------------------------------
-    Quake3ShaderManager& Quake3ShaderManager::getSingleton(void)
-    {
-        return Singleton<Quake3ShaderManager>::getSingleton();
     }
 
 }

@@ -30,6 +30,14 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	template<> HighLevelGpuProgramManager* 
 	Singleton<HighLevelGpuProgramManager>::ms_Singleton = 0;
+    template<> HighLevelGpuProgramManager* Singleton<HighLevelGpuProgramManager>::getSingletonPtr(void)
+    {
+        return ms_Singleton;
+    }
+    template<> HighLevelGpuProgramManager& Singleton<HighLevelGpuProgramManager>::getSingleton(void)
+    {  
+        assert( ms_Singleton );  return ( *ms_Singleton );  
+    }
 	//-----------------------------------------------------------------------
 	HighLevelGpuProgramManager::HighLevelGpuProgramManager()
 	{
@@ -65,10 +73,5 @@ namespace Ogre {
         HighLevelGpuProgram* ret = getFactory(language)->create(name, gptype);
         add(ret);
         return ret;
-    }
-    //---------------------------------------------------------------------------
-    HighLevelGpuProgramManager& HighLevelGpuProgramManager::getSingleton(void)
-    {
-        return Singleton<HighLevelGpuProgramManager>::getSingleton();
     }
 }
