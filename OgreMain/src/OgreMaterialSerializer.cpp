@@ -1341,6 +1341,10 @@ namespace Ogre
         {
             acType = GpuProgramParameters::ACT_VIEW_MATRIX;
         }
+		else if (vecparams[1] == "projection_matrix")
+		{
+			acType = GpuProgramParameters::ACT_PROJECTION_MATRIX;
+		}
         else if (vecparams[1] == "viewproj_matrix")
         {
             acType = GpuProgramParameters::ACT_VIEWPROJ_MATRIX;

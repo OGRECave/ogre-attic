@@ -457,9 +457,6 @@ namespace Ogre {
             ShadowTechnique shadowTechnique, const Light* light, 
             HardwareIndexBufferSharedPtr* indexBuffer, 
             bool extrudeVertices, Real extrusionDistance, unsigned long flags = 0 );
-		
-		/** Overridden member from ShadowCaster. */
-		ShadowRenderableListIterator getLastShadowVolumeRenderableIterator (void);
 
 		/** Internal method for retrieving bone matrix information. */
 		const Matrix4* _getBoneMatrices(void) { return mBoneMatrices;}

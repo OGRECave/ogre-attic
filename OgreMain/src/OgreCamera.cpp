@@ -512,17 +512,34 @@ namespace Ogre {
         Real centeredScreenX = (screenX - 0.5f);
         Real centeredScreenY = (0.5f - screenY);
 
-        Real normalizedSlope = Math::Tan(mFOVy / 2);
+		Real normalizedSlope = Math::Tan(mFOVy / 2);
         Real viewportYToWorldY = normalizedSlope * mNearDist * 2;
         Real viewportXToWorldX = viewportYToWorldY * mAspect;
 
-        Vector3 rayDirection(centeredScreenX * viewportXToWorldX,
-            centeredScreenY * viewportYToWorldY,
-            -mNearDist);
-        rayDirection = getDerivedOrientation() * rayDirection;
-        rayDirection.normalise();
+		Vector3 rayDirection, rayOrigin;
+		if (mProjType == PT_PERSPECTIVE)
+		{
+			// From camera centre
+			rayOrigin = getDerivedPosition();
+			// Point to perspective projected position
+			rayDirection.x = centeredScreenX * viewportXToWorldX;
+			rayDirection.y = centeredScreenY * viewportYToWorldY;
+			rayDirection.z = -mNearDist;
+			rayDirection = getDerivedOrientation() * rayDirection;
+			rayDirection.normalise();
+		}
+		else
+		{
+			// Ortho always parallel to point on screen
+			rayOrigin.x = centeredScreenX * viewportXToWorldX;
+			rayOrigin.y = centeredScreenY * viewportYToWorldY;
+			rayOrigin.z = 0.0f;
+			rayOrigin = getDerivedOrientation() * rayOrigin;
+			rayOrigin = getDerivedPosition() + rayOrigin;
+			rayDirection = getDerivedDirection();
+		}
 
-        return Ray(getDerivedPosition(), rayDirection);
+        return Ray(rayOrigin, rayDirection);
     } 
 
     // -------------------------------------------------------------------

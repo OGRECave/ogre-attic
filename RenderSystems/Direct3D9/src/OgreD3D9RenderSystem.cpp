@@ -1647,6 +1647,7 @@ namespace Ogre
         bool twoSidedOperation)
     {
         HRESULT hr;
+        bool flip;
 
         // 2-sided operation
         if (twoSidedOperation)
@@ -1658,26 +1659,29 @@ namespace Ogre
 		    if (FAILED(hr))
 			    Except(hr, "Error setting 2-sided stencil mode.",
 			    "D3D9RenderSystem::setStencilBufferParams");
+            // NB: We should always treat CCW as front face for consistent with default
+            // culling mode. Therefore, we must take care with two-sided stencil settings.
+            flip = (mInvertVertexWinding && mActiveRenderTarget->requiresTextureFlipping()) ||
+                   (!mInvertVertexWinding && !mActiveRenderTarget->requiresTextureFlipping());
 
             // Set alternative versions of ops
             // fail op
-            hr = __SetRenderState(D3DRS_CCW_STENCILFAIL, D3D9Mappings::get(stencilFailOp, true));
+            hr = __SetRenderState(D3DRS_CCW_STENCILFAIL, D3D9Mappings::get(stencilFailOp, !flip));
             if (FAILED(hr))
                 Except(hr, "Error setting stencil fail operation (2-sided).",
                 "D3D9RenderSystem::setStencilBufferParams");
 
             // depth fail op
-            hr = __SetRenderState(D3DRS_CCW_STENCILZFAIL, D3D9Mappings::get(depthFailOp, true));
+            hr = __SetRenderState(D3DRS_CCW_STENCILZFAIL, D3D9Mappings::get(depthFailOp, !flip));
             if (FAILED(hr))
                 Except(hr, "Error setting stencil depth fail operation (2-sided).",
                 "D3D9RenderSystem::setStencilBufferParams");
 
             // pass op
-            hr = __SetRenderState(D3DRS_CCW_STENCILPASS, D3D9Mappings::get(passOp, true));
+            hr = __SetRenderState(D3DRS_CCW_STENCILPASS, D3D9Mappings::get(passOp, !flip));
             if (FAILED(hr))
                 Except(hr, "Error setting stencil pass operation (2-sided).",
                 "D3D9RenderSystem::setStencilBufferParams");
-
         }
         else
         {
@@ -1685,6 +1689,7 @@ namespace Ogre
 		    if (FAILED(hr))
 			    Except(hr, "Error setting 1-sided stencil mode.",
 			    "D3D9RenderSystem::setStencilBufferParams");
+            flip = false;
         }
 
         // func
@@ -1706,19 +1711,19 @@ namespace Ogre
 			"D3D9RenderSystem::setStencilBufferParams");
 
 		// fail op
-        hr = __SetRenderState(D3DRS_STENCILFAIL, D3D9Mappings::get(stencilFailOp));
+        hr = __SetRenderState(D3DRS_STENCILFAIL, D3D9Mappings::get(stencilFailOp, flip));
 		if (FAILED(hr))
 			Except(hr, "Error setting stencil fail operation.",
 			"D3D9RenderSystem::setStencilBufferParams");
 
         // depth fail op
-        hr = __SetRenderState(D3DRS_STENCILZFAIL, D3D9Mappings::get(depthFailOp));
+        hr = __SetRenderState(D3DRS_STENCILZFAIL, D3D9Mappings::get(depthFailOp, flip));
 		if (FAILED(hr))
 			Except(hr, "Error setting stencil depth fail operation.",
 			"D3D9RenderSystem::setStencilBufferParams");
 
         // pass op
-        hr = __SetRenderState(D3DRS_STENCILPASS, D3D9Mappings::get(passOp));
+        hr = __SetRenderState(D3DRS_STENCILPASS, D3D9Mappings::get(passOp, flip));
 		if (FAILED(hr))
 			Except(hr, "Error setting stencil pass operation.",
 			"D3D9RenderSystem::setStencilBufferParams");

@@ -144,9 +144,6 @@ namespace Ogre {
             ShadowTechnique shadowTechnique, const Light* light, 
             HardwareIndexBufferSharedPtr* indexBuffer, 
             bool extrudeVertices, Real extrusionDistance, unsigned long flags = 0 ) = 0;
-			
-		/** Return the last calculated shadow renderables. */
-		virtual ShadowRenderableListIterator getLastShadowVolumeRenderableIterator (void) = 0;
 
         /** Utility method for extruding vertices based on a light. 
         @remarks
