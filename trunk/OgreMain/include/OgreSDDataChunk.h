@@ -45,10 +45,11 @@ namespace Ogre {
     {
     public:
         SDDataChunk();
+        SDDataChunk( void *pData, size_t size );
         /** Overloaded destructor.
             @note
                 Deletes the allocated chunk
-        */
+        */        
         ~SDDataChunk();
     };
 

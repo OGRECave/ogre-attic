@@ -64,6 +64,10 @@ namespace Ogre {
         */
         DataChunk();
 
+        /** Copies the pointed data in the new object
+        */
+        DataChunk( void *pData, size_t size );
+
         /** Default destructor.
             @note
                 The destructor <b>DOES NOT FREE</b> memory.
@@ -76,7 +80,7 @@ namespace Ogre {
 
         /** Frees all internally allocated memory.
         */
-        void free(void);
+        void clear(void);
 
         /** Returns the size of the allocated chunk in bytes.
         */
