@@ -541,12 +541,25 @@ namespace Ogre {
     void BspSceneManager::_notifyObjectMoved(const MovableObject* mov, 
         const Vector3& pos)
     {
-        mLevel->_notifyObjectMoved(mov, pos);
+		if (!mLevel.isNull())
+		{
+			mLevel->_notifyObjectMoved(mov, pos);
+		}
     }
     //-----------------------------------------------------------------------
 	void BspSceneManager::_notifyObjectDetached(const MovableObject* mov)
 	{
-		mLevel->_notifyObjectDetached(mov);
+		if (!mLevel.isNull())
+		{
+			mLevel->_notifyObjectDetached(mov);
+		}
+	}
+	//-----------------------------------------------------------------------
+	void BspSceneManager::clearScene(void)
+	{
+		SceneManager::clearScene();
+		// Clear level
+		mLevel.setNull();
 	}
     //-----------------------------------------------------------------------
     /*
@@ -598,6 +611,8 @@ namespace Ogre {
         overlap 2 leaves?
         */
         const BspLevelPtr& lvl = ((BspSceneManager*)mParentSceneMgr)->getLevel();
+		if (lvl.isNull()) return;
+
         BspNode* leaf = lvl->getLeafStart();
         int numLeaves = lvl->getNumLeaves();
         
@@ -699,9 +714,13 @@ namespace Ogre {
     void BspRaySceneQuery::execute(RaySceneQueryListener* listener)
     {
         clearTemporaries();
-        processNode(
-            static_cast<BspSceneManager*>(mParentSceneMgr)->getLevel()->getRootNode(), 
-            mRay, listener);
+		BspLevelPtr lvl = static_cast<BspSceneManager*>(mParentSceneMgr)->getLevel();
+		if (!lvl.isNull())
+		{
+			processNode(
+				lvl->getRootNode(), 
+				mRay, listener);
+		}
     }
     //-----------------------------------------------------------------------
     BspRaySceneQuery::~BspRaySceneQuery()
