@@ -3195,25 +3195,12 @@ void SceneManager::renderShadowVolumesToStencil(const Light* light, const Camera
     ShadowCasterList::const_iterator si, siend;
     siend = casters.end();
 
-	// Determine whether zfail is required
-	// We need to use zfail for ALL objects if we find a single object which
-	// requires it
-	bool zfailAlgo = false;
-    for (si = casters.begin(); si != siend; ++si)
-    {
-		ShadowCaster* caster = *si;
-		if (nearClipVol.intersects(caster->getWorldBoundingBox()))
-		{
-			// We have a zfail case, we must use zfail for all objects
-			zfailAlgo = true;
-			break;
-		}
-	}
 
 	// Now iterate over the casters and render
 	for (si = casters.begin(); si != siend; ++si)
 	{
         ShadowCaster* caster = *si;
+		bool zfailAlgo = false;
 		unsigned long flags = 0;
 
         if (light->getType() != Light::LT_DIRECTIONAL)
@@ -3227,23 +3214,50 @@ void SceneManager::renderShadowVolumesToStencil(const Light* light, const Camera
             flags |= SRF_EXTRUDE_TO_INFINITY;
         }
 
-        if (zfailAlgo)
+		// Determine whether zfail is required
+        if (nearClipVol.intersects(caster->getWorldBoundingBox()))
         {
+            // We use zfail for this object only because zfail
+	        // compatible with zpass algorithm
+			zfailAlgo = true;
             // We need to include the light and / or dark cap
             // But only if they will be visible
             if(camera->isVisible(caster->getLightCapBounds()))
             {
                 flags |= SRF_INCLUDE_LIGHT_CAP;
             }
+			// zfail needs dark cap 
+			// UNLESS directional lights using hardware extrusion to infinity
+			// since that extrudes to a single point
+			if(!((flags & SRF_EXTRUDE_TO_INFINITY) && 
+				light->getType() == Light::LT_DIRECTIONAL) &&
+				camera->isVisible(caster->getDarkCapBounds(*light, extrudeDist)))
+			{
+				flags |= SRF_INCLUDE_DARK_CAP;
+			}
         }
-        // Dark cap (no dark cap for directional lights using 
-        // hardware extrusion to infinity)
-        if(!((flags & SRF_EXTRUDE_TO_INFINITY) && 
-            light->getType() == Light::LT_DIRECTIONAL) &&
-            camera->isVisible(caster->getDarkCapBounds(*light, extrudeDist)))
-        {
-            flags |= SRF_INCLUDE_DARK_CAP;
-        }
+		else
+		{
+			// In zpass we need a dark cap if
+			// 1: infinite extrusion on point/spotlight sources in modulative shadows
+			//    mode, since otherwise in areas where there is no depth (skybox)
+			//    the infinitely projected volume will leave a dark band
+			// 2: finite extrusion on any light source since glancing angles
+			//    can peek through the end and shadow objects behind incorrectly
+			if ((flags & SRF_EXTRUDE_TO_INFINITY) && 
+				light->getType() != Light::LT_DIRECTIONAL && 
+				mShadowTechnique == SHADOWTYPE_STENCIL_MODULATIVE && 
+				camera->isVisible(caster->getDarkCapBounds(*light, extrudeDist)))
+			{
+				flags |= SRF_INCLUDE_DARK_CAP;
+			}
+			else if (!(flags & SRF_EXTRUDE_TO_INFINITY) && 
+				camera->isVisible(caster->getDarkCapBounds(*light, extrudeDist)))
+			{
+				flags |= SRF_INCLUDE_DARK_CAP;
+			}
+
+		}
 
         // Get shadow renderables			
         ShadowCaster::ShadowRenderableListIterator iShadowRenderables =
