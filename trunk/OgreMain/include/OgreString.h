@@ -133,10 +133,12 @@ namespace Ogre {
         */
         Real toReal(void) const;
 
-        operator _StringBase()
+	/*        
+	operator _StringBase()
         {
             return *this;
         }
+	*/
 
         /** Template operator for appending another type into the string. 
             @remarks
