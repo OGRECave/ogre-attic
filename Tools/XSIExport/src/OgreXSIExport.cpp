@@ -219,6 +219,8 @@ XSI::CStatus OgreMeshExportMenu_Init( XSI::CRef& in_ref )
 	return CStatus::OK;	
 }
 
+CString exportPropertyDialogName = L"OgreMeshExportOptions";
+
 #ifdef unix
 extern "C" 
 #endif
@@ -230,14 +232,18 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 {	
 	Application app;
 	CStatus st(CStatus::OK);
-	Property prop = app.GetActiveSceneRoot().AddProperty( L"OgreMeshExportOptions" ) ;
+	Property prop = app.GetActiveSceneRoot().GetProperties().GetItem(exportPropertyDialogName);
+	if (!prop.IsValid())
+	{
+		prop = app.GetActiveSceneRoot().AddProperty(exportPropertyDialogName);
+	}
 	Ogre::LogManager logMgr;
 	logMgr.createLog("OgreXSIExporter.log", true);
 	
 	try
 	{
 		// Popup Returns true if the command was cancelled otherwise it returns false. 
-		CStatus ret = Popup(L"OgreMeshExportOptions",CValue(),L"OGRE Mesh / Skeleton Export",(long)siModal,true);
+		CStatus ret = Popup(exportPropertyDialogName,CValue(),L"OGRE Mesh / Skeleton Export",(long)siModal,true);
 		if (ret == CStatus::OK)
 		{
 			Ogre::XsiMeshExporter meshExporter;
@@ -411,7 +417,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 		app.LogMessage(OgretoXSI(e.getFullDescription()), XSI::siInfoMsg);
 	}
 
-	DeleteObj( L"OgreMeshExportOptions" );
+	//DeleteObj( L"OgreMeshExportOptions" );
 	return st;	
 }
 
