@@ -133,6 +133,14 @@ namespace Ogre {
         {
             return mCurrent->first;
         }
+        /** Required to overcome intermittent bug */
+ 	    MapIterator<typename T> & operator=( MapIterator<typename T> &rhs )
+ 	    {
+ 		    mCurrent = rhs.mCurrent;
+ 		    mEnd = rhs.mEnd;
+ 		    return *this;
+ 	    }
+
 
 
     };
