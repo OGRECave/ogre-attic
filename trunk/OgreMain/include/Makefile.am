@@ -143,6 +143,7 @@ OgreSkeletonFileFormat.h \
 OgreSkeletonManager.h \
 OgreSkeletonSerializer.h \
 OgreSphere.h \
+OgreStableHeaders.h \
 OgreStaticFaceGroup.h \
 OgreStdHeaders.h \
 OgreString.h \

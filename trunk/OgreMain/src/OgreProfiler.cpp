@@ -22,6 +22,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
+#include "OgreStableHeaders.h"
 /*
 
     Although the code is original, many of the ideas for the profiler were borrowed from 

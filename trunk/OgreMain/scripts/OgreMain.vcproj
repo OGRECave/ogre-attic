@@ -30,8 +30,8 @@
 				BufferSecurityCheck="TRUE"
 				EnableFunctionLevelLinking="TRUE"
 				DisableLanguageExtensions="FALSE"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="OgrePrerequisites.h"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough="OgreStableHeaders.h"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="4"/>
@@ -95,8 +95,8 @@
 				BufferSecurityCheck="FALSE"
 				EnableFunctionLevelLinking="TRUE"
 				DisableLanguageExtensions="FALSE"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="OgrePrerequisites.h"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough="OgreStableHeaders.h"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="3"/>
@@ -160,6 +160,20 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreArchiveManager.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+						PrecompiledHeaderThrough=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+						PrecompiledHeaderThrough=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\OgreAxisAlignedBox.cpp">
@@ -214,6 +228,20 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreDynLibManager.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+						PrecompiledHeaderThrough=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+						PrecompiledHeaderThrough=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\OgreEntity.cpp">
@@ -313,6 +341,20 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreMath.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+						PrecompiledHeaderThrough=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+						PrecompiledHeaderThrough=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\OgreMatrix3.cpp">
@@ -328,6 +370,20 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreMeshManager.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+						PrecompiledHeaderThrough=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+						PrecompiledHeaderThrough=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\OgreMeshSerializer.cpp">
@@ -385,6 +441,37 @@
 			</File>
 			<File
 				RelativePath="..\src\OgrePlatformManager.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+						PrecompiledHeaderThrough=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+						PrecompiledHeaderThrough=""/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\src\OgrePrecompiledHeaders.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+						PrecompiledHeaderThrough="OgreStableHeaders.h"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+						PrecompiledHeaderThrough="OgreStableHeaders.h"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\OgrePredefinedControllers.cpp">
@@ -424,6 +511,20 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreRoot.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+						PrecompiledHeaderThrough=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+						PrecompiledHeaderThrough=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\OgreRotationSpline.cpp">
@@ -436,6 +537,20 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreSceneManagerEnumerator.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+						PrecompiledHeaderThrough=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+						PrecompiledHeaderThrough=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\OgreSceneNode.cpp">
@@ -502,6 +617,20 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreTextureManager.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+						PrecompiledHeaderThrough=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+						PrecompiledHeaderThrough=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\OgreTimer.cpp">
@@ -529,6 +658,20 @@
 			</File>
 			<File
 				RelativePath="..\src\unzip.c">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+						PrecompiledHeaderThrough=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+						PrecompiledHeaderThrough=""/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter
@@ -980,6 +1123,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreSphere.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreStableHeaders.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreStaticFaceGroup.h">

@@ -32,6 +32,10 @@ namespace Ogre
     template<> DynLibManager* Singleton<DynLibManager>::ms_Singleton = 0;
     //-----------------------------------------------------------------------
 
+	DynLibManager::DynLibManager()
+	{
+	}
+
     DynLib* DynLibManager::load( const String& filename, int priority /* = 1 */ )
     {        
         DynLib* pLib = static_cast<DynLib *>( getByName( filename ) );

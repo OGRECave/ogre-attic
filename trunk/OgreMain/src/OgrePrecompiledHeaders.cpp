@@ -22,22 +22,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
+
+// This source file generates the precompiled headers
+
 #include "OgreStableHeaders.h"
-
-#include "OgreRenderSystemCapabilities.h"
-
-#include "OgreException.h"
-
-namespace Ogre {
-
-    //-----------------------------------------------------------------------
-    RenderSystemCapabilities::RenderSystemCapabilities() 
-      : mNumWorldMatrices(0), mNumTextureUnits(0), mStencilBufferBitDepth(0),
-        mNumVertexBlendMatrices(0), mCapabilities(0)
-    {
-    }
-    //-----------------------------------------------------------------------
-    RenderSystemCapabilities::~RenderSystemCapabilities()
-    {
-    }
-};
