@@ -66,6 +66,17 @@ namespace Ogre {
             SF_ALL            = 0xFFFF
         };
 
+        struct FrameStats
+        {
+            float lastFPS;
+            float avgFPS;
+            float bestFPS;
+            float worstFPS;
+            unsigned long bestFrameTime;
+            unsigned long worstFrameTime;
+            size_t triangleCount;
+        };
+
         RenderTarget();
         virtual ~RenderTarget();
 
@@ -166,7 +177,9 @@ namespace Ogre {
                     worstFPS Pointer to a float to receive the worst FPS rating seen so far.
         */
         virtual void getStatistics(float& lastFPS, float& avgFPS,
-            float& bestFPS, float& worstFPS);  // Access to stats
+            float& bestFPS, float& worstFPS) const;  // Access to stats
+
+        virtual const FrameStats& getStatistics(void) const;
 
         /** Individual stats access - gets the number of frames per second (FPS) based on the last frame rendered.
         */
@@ -184,11 +197,11 @@ namespace Ogre {
         */
         virtual float getWorstFPS() const;
 
-        /** Individual stats access - gets the best frame time.
+        /** Individual stats access - gets the best frame time
         */
         virtual float getBestFrameTime() const;
 
-        /** Individual stats access - gets the worst frame time.
+        /** Individual stats access - gets the worst frame time
         */
         virtual float getWorstFrameTime() const;
 
@@ -260,7 +273,7 @@ namespace Ogre {
 		virtual bool requiresTextureFlipping() const = 0;
 
 		/** Gets the number of triangles rendered in the last update() call. */
-		virtual unsigned int getTriangleCount(void) const { return mTris; }
+		virtual size_t getTriangleCount(void) const;
 
     protected:
         /// The name of this target.
@@ -275,15 +288,13 @@ namespace Ogre {
 
         // Stats
         StatFlags mStatFlags;
-		Timer* mTimer ;
-        float mLastFPS;
-        float mAvgFPS;
-        float mBestFPS;
-        float mWorstFPS;
-		float mBestFrameTime ;
-		float mWorstFrameTime ;
-        unsigned int mTris;
+		FrameStats mStats;
+        
+        Timer* mTimer ;
         String mDebugText;
+        unsigned long mLastSecond;
+        unsigned long mLastTime;
+        size_t mFrameCount;
 
         bool mActive;
 

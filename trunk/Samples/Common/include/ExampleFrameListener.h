@@ -72,15 +72,17 @@ private:
         GuiElement* guiBest = GuiManager::getSingleton().getGuiElement("Core/BestFps");
         GuiElement* guiWorst = GuiManager::getSingleton().getGuiElement("Core/WorstFps");
 
-        guiAvg->setCaption(avgFps + StringConverter::toString(mWindow->getAverageFPS()));
-        guiCurr->setCaption(currFps + StringConverter::toString(mWindow->getLastFPS()));
-        guiBest->setCaption(bestFps + StringConverter::toString(mWindow->getBestFPS())
-            +" "+StringConverter::toString(mWindow->getBestFrameTime())+" ms");
-        guiWorst->setCaption(worstFps + StringConverter::toString(mWindow->getWorstFPS())
-            +" "+StringConverter::toString(mWindow->getWorstFrameTime())+" ms");
+        const RenderTarget::FrameStats& stats = mWindow->getStatistics();
+
+        guiAvg->setCaption(avgFps + StringConverter::toString(stats.avgFPS));
+        guiCurr->setCaption(currFps + StringConverter::toString(stats.lastFPS));
+        guiBest->setCaption(bestFps + StringConverter::toString(stats.bestFPS)
+            +" "+StringConverter::toString(stats.bestFrameTime)+" ms");
+        guiWorst->setCaption(worstFps + StringConverter::toString(stats.worstFPS)
+            +" "+StringConverter::toString(stats.worstFrameTime)+" ms");
 
         GuiElement* guiTris = GuiManager::getSingleton().getGuiElement("Core/NumTris");
-        guiTris->setCaption(tris + StringConverter::toString(mWindow->getTriangleCount()));
+        guiTris->setCaption(tris + StringConverter::toString(stats.triangleCount));
 
         GuiElement* guiDbg = GuiManager::getSingleton().getGuiElement("Core/DebugText");
         guiDbg->setCaption(mWindow->getDebugText());
