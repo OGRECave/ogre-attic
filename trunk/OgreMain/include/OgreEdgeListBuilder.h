@@ -64,6 +64,8 @@ namespace Ogre {
             size_t vertIndex[2];
             /** Vertex indices as used in the shared vertex list, not exposed. */
             size_t sharedVertIndex[2];
+            /** Indicates if this is a degenerate edge, ie it does not have 2 triangles */
+            bool degenerate;
         };
 
         typedef std::vector<Triangle> TriangleList;

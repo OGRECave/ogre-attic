@@ -69,11 +69,13 @@ namespace Ogre {
             for (i = eg.edges.begin(); i != iend; ++i)
             {
                 EdgeData::Edge& edge = *i;
+
                 EdgeData::Triangle &t1 = edgeData->triangles[edge.triIndex[0]];
                 EdgeData::Triangle &t2 = edgeData->triangles[edge.triIndex[1]];
-                if (t1.lightFacing && !t2.lightFacing)
+                if (t1.lightFacing && (edge.degenerate || !t2.lightFacing))
                 {
                     /* Silhouette edge, first tri facing the light
+                    Also covers degenerate tris where only tri 1 is valid
                     Remember verts run anticlockwise along the edge from 
                     tri 0 so to point shadow volume tris outward, light cap 
                     indexes have to be backwards
@@ -103,7 +105,7 @@ namespace Ogre {
                         shadOp->indexData->indexCount += 3;
                     }
                 }
-                else if (!t1.lightFacing && t2.lightFacing)
+                else if (!t1.lightFacing && (!edge.degenerate && t2.lightFacing))
                 {
                     // Silhouette edge, second tri facing the light
                     // Note edge indexes inverse of when t1 is light facing 
