@@ -87,9 +87,6 @@ AC_CONFIG_FILES([Makefile \
     PlugIns/ParticleFX/Makefile \
     PlugIns/ParticleFX/src/Makefile \
     PlugIns/ParticleFX/include/Makefile \
-    PlugIns/NatureSceneManager/Makefile \
-    PlugIns/NatureSceneManager/include/Makefile \
-    PlugIns/NatureSceneManager/src/Makefile \
     RenderSystems/Makefile \
     RenderSystems/SDL/Makefile \
     RenderSystems/SDL/src/Makefile \
@@ -138,9 +135,6 @@ AC_CONFIG_FILES([Makefile \
     Samples/Gui/Makefile \
     Samples/Gui/src/Makefile \
     Samples/Gui/include/Makefile \
-    Samples/Nature/Makefile \
-    Samples/Nature/src/Makefile \
-    Samples/Nature/include/Makefile \
     OGRE.pc
     ])
 
