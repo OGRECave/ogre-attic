@@ -31,7 +31,7 @@ namespace Ogre
 {
     //---------------------------------------------------------------------
     KeyFrame::KeyFrame(const AnimationTrack* parent, Real time) 
-        : mParentTrack(parent), mTime(time)
+        : mTime(time), mParentTrack(parent)
     {
         mTranslate = Vector3::ZERO;
         mScale.x = mScale.y = mScale.z = 1.0;

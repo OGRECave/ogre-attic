@@ -183,6 +183,8 @@ namespace Ogre {
         case RenderOperation::OT_TRIANGLE_STRIP:
             iterations = indexData->indexCount - 2;
             break;
+        default:
+            break;
         };
 
 

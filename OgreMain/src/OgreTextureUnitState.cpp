@@ -754,8 +754,10 @@ namespace Ogre {
             effect.controller = cMgr.createTextureWaveTransformer(this, (TextureUnitState::TextureTransformType)effect.subtype, effect.waveType, effect.base,
                 effect.frequency, effect.phase, effect.amplitude);
             break;
-	case ET_ENVIRONMENT_MAP:
-	    break;
+        case ET_ENVIRONMENT_MAP:
+            break;
+        default:
+            break;
         }
     }
     //-----------------------------------------------------------------------

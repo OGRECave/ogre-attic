@@ -294,7 +294,6 @@ namespace Ogre
             for( j = 0; j < face->glyph->bitmap.rows; j++ )
             {
                 int row = j + m + y_bearnig;
-                int col = l;
                 uchar* pDest = &imageData[(row * data_width) + l * 4];   
                 for( k = 0; k < face->glyph->bitmap.width; k++ )
                 {

@@ -228,7 +228,8 @@ namespace Ogre {
                     case SHADER_FUNC_INVERSESAWTOOTH:
                         wft = WFT_INVERSE_SAWTOOTH;
                         break;
-
+                    default:
+                        break;
                     }
                     // Create wave-based stretcher
                     t->setTransformAnimation(TextureUnitState::TT_SCALE_U, wft, pass[p].tcModStretchParams[3],

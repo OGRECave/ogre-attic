@@ -55,9 +55,9 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------
     OverlayManager::OverlayManager() :
-        mCursorGuiInitialised(false), mLastViewportWidth(0), 
-        mLastViewportHeight(0), mViewportDimensionsChanged(false),
-        mEventDispatcher(this)
+        mEventDispatcher(this), mCursorGuiInitialised(false), 
+        mLastViewportWidth(0), mLastViewportHeight(0), 
+        mViewportDimensionsChanged(false)
     {
 		mCursorGuiRegistered = 0;
 		mCursorLevelOverlay = 0;
