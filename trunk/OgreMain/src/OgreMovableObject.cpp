@@ -100,6 +100,16 @@ namespace Ogre {
         return mWorldAABB;
 
     }
+    //-----------------------------------------------------------------------
+	const Sphere& MovableObject::getWorldBoundingSphere(bool derive) const
+	{
+		if (derive)
+		{
+			mWorldBoundingSphere.setRadius(getBoundingRadius());
+			mWorldBoundingSphere.setCenter(mParentNode->_getDerivedPosition());
+		}
+		return mWorldBoundingSphere;
+	}
 
 }
 

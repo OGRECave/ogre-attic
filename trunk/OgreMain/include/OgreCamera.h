@@ -471,6 +471,9 @@ namespace Ogre {
         const AxisAlignedBox& getBoundingBox(void) const;
 
         /** Overridden from MovableObject */
+		Real getBoundingRadius(void) const;
+
+		/** Overridden from MovableObject */
         void _updateRenderQueue(RenderQueue* queue);
 
         /** Overridden from MovableObject */

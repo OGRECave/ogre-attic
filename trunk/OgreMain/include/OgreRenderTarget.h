@@ -247,6 +247,9 @@ namespace Ogre {
 
 		virtual bool requiresTextureFlipping() const = 0;
 
+		/** Gets the number of triangles rendered in the last update() call. */
+		virtual unsigned int getTriangleCount(void) { return mTris; }
+
     protected:
         /// The name of this target.
         String mName;

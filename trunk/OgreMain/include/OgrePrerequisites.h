@@ -89,7 +89,11 @@ namespace Ogre {
     #ifdef GCC_3_1
     #   define HashMap ::__gnu_cxx::hash_map
     #else
-    #   define HashMap ::std::hash_map
+    #   if OGRE_COMP_VER > 1300
+    #       define HashMap ::stdext::hash_map
+    #   else
+    #       define HashMap ::std::hash_map
+    #   endif
     #endif
 
     /** In order to avoid finger-aches :)

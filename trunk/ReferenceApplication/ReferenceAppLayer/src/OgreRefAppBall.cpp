@@ -63,7 +63,7 @@ namespace OgreRefApp
         dMassSetSphere(&mass, 5, 1); // TODO change to more realistic values
         mOdeBody->setMass(&mass);
 
-        this->setBounceParameters(0.3, 0.1);
+        this->setBounceParameters(0.7, 0.1);
         this->setSoftness(0.0f);
         this->setFriction(Math::POS_INFINITY);
 

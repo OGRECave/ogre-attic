@@ -168,6 +168,9 @@ namespace Ogre {
         */
         const AxisAlignedBox& getBounds(void);
 
+		/** Gets the radius of the bounding sphere surrounding this mesh. */
+		Real getBoundingSphereRadius(void);
+
         /** Debugging method - dump contents to a readable text file.
         */
         void _dumpContents(String filename);
@@ -384,6 +387,8 @@ namespace Ogre {
 
         /// Local bounding box volume
         AxisAlignedBox mAABB;
+		/// Local bounding sphere radius (centered on object)
+		Real mBoundRadius;
 
         bool mManuallyDefined;
 

@@ -94,6 +94,8 @@ namespace Ogre {
 
         /// Bounds of all billboards in this set
         AxisAlignedBox mAABB;
+		/// Bounding radius
+		Real mBoundingRadius;
 
         /// Origin of each billboard
         BillboardOrigin mOriginType;
@@ -416,6 +418,11 @@ namespace Ogre {
         */
         virtual const AxisAlignedBox& getBoundingBox(void) const;
 
+        /** Overridden from MovableObject
+            @see
+                MovableObject
+        */
+        virtual Real getBoundingRadius(void) const;
         /** Overridden from MovableObject
             @see
                 MovableObject

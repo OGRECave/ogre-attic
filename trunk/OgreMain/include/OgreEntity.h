@@ -287,7 +287,8 @@ namespace Ogre {
         typedef MapIterator<ChildObjectList> ChildObjectListIterator;
         /** Gets an iterator to the list of objects attached to bones on this entity. */
         ChildObjectListIterator getAttachedObjectIterator(void);
-        
+        /** @see MovableObject::getBoundingRadius */
+		Real getBoundingRadius(void) const;
 
 
     };

@@ -118,6 +118,8 @@ public:
     {
 	return mQuadTree[mManager->mEastEdgeQuad[vertexPos]].isEnabled();
     }
+    /** Overridden from MovableObject */
+    Real getBoundingRadius(void) const { return 0; /* not needed */ }
 
 private:
     /// Renders a quad

@@ -70,6 +70,9 @@ namespace Ogre {
 
 		Vector3 vmax = aab.getMaximum();
 		Vector3 vmin = aab.getMinimum();
+
+        Real sqLen = std::max(vmax.squaredLength(), vmin.squaredLength());
+        mRadius = Math::Sqrt(sqLen);
 		
 		// inflate the wire bounding box just a bit so that it will set apart from
 		//      a solid object
