@@ -3052,7 +3052,7 @@ namespace Ogre {
             if (mDebugShadows)
             {
                 mShadowDebugPass->setVertexProgram(
-                    ShadowVolumeExtrudeProgram::getProgramName(light->getType(), finiteExtrude, false)
+                    ShadowVolumeExtrudeProgram::getProgramName(light->getType(), finiteExtrude, true)
                     , false);
             }
 
