@@ -72,7 +72,6 @@ namespace Ogre
 		if (mUsage == TU_RENDERTARGET)
 		{
 			this->_createTex();
-			this->_generateMipMaps();
 			mIsLoaded = true;
 		}
 	}
@@ -208,13 +207,9 @@ namespace Ogre
 		this->_createNormTex();
 		// set gamma prior to blitting
         Image::applyGamma(tImage.getData(), this->getGamma(), (uint)tImage.getSize(), tImage.getBPP());
-		// blit :)
 		this->_blitImageToNormTex(tImage);
 		// get topLevel surface description
 		mpNormTex->GetLevelDesc(0, &mTexDesc);
-		// generate mip maps
-		this->_generateMipMaps();
-		// say IT'S loaded loud ;) 
 		mIsLoaded = true;
 	}
 	/****************************************************************************************/
@@ -227,8 +222,6 @@ namespace Ogre
 		if (mUsage == TU_RENDERTARGET)
 		{
 			this->_createTex();
-			this->_generateMipMaps();
-			// say IT'S loaded loud ;) 
 			mIsLoaded = true;
 			return;
 		}
@@ -248,9 +241,6 @@ namespace Ogre
 			this->_freeResources();
 		}
 
-		// generate mip maps if loaded
-		if (this->isLoaded())
-			this->_generateMipMaps();
 	}
 	/****************************************************************************************/
 	void D3D9Texture::unload()
@@ -681,132 +671,6 @@ namespace Ogre
 		}
 	}
 	/****************************************************************************************/
-	void D3D9Texture::_generateMipMaps()
-	{
-		// we must have mpTex at this point
-		assert(mpTex);
-
-		HRESULT hr;
-		// use auto.gen. if available
-		if (mTexDesc.Usage & D3DUSAGE_AUTOGENMIPMAP)
-		{
-			// use best filtering method supported by hardware
-			hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
-			if (FAILED(hr))
-			{
-				Except( hr, "Error generating mip maps", "D3D9Texture::_generateMipMaps" );
-				this->_freeResources();
-			}
-			else
-				mpTex->GenerateMipSubLevels();
-		}
-		else
-		{
-			// no HW mip map gen. available
-			// doing it UGLY!!!!
-			switch (this->getTextureType())
-			{
-			case TEX_TYPE_1D:
-			case TEX_TYPE_2D:
-				this->_generate2DMipMaps();
-				break;
-			case TEX_TYPE_CUBE_MAP:
-				this->_generate3DMipMaps();
-				break;
-			default:
-				Except( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::_generateMipMaps" );
-				this->_freeResources();
-			}
-		}
-	}
-	/****************************************************************************************/
-	void D3D9Texture::_generate2DMipMaps()
-	{
-		assert(mpNormTex);
-
-		HRESULT hr;
-		// if this is a render target no problem...
-		if (mUsage == TU_RENDERTARGET)
-		{
-			hr = D3DXFilterTexture(mpNormTex, NULL, D3DX_DEFAULT, D3DX_DEFAULT);
-			// check result and except if failed
-			if (FAILED(hr))
-			{
-				Except( hr, "Error filtering texture (generating mip maps)", "D3D9Texture::_generate2DMipMaps" );
-				this->_freeResources();
-			}
-			return;
-		}
-
-		// no render target, we must have the tmp. texture here!!!
-		assert(mpTmpNormTex);
-
-		// filter the temporary texture
-		hr = D3DXFilterTexture(mpTmpNormTex, NULL, D3DX_DEFAULT, D3DX_DEFAULT);
-		// check result and except if failed
-		if (FAILED(hr))
-		{
-			Except( hr, "Error filtering texture (generating mip maps)", "D3D9Texture::_generate2DMipMaps" );
-			this->_freeResources();
-		}
-
-		// blit the tmp. texture to the real texture
-		hr = mpDev->UpdateTexture(mpTmpNormTex, mpNormTex);
-		// check result and except if failed
-		if (FAILED(hr))
-		{
-			Except( hr, "Error filtering texture (generating mip maps)", "D3D9Texture::_generate2DMipMaps" );
-			this->_freeResources();
-		}
-
-		// release temp tex.
-		SAFE_RELEASE(mpTmpNormTex);
-	}
-	/****************************************************************************************/
-	void D3D9Texture::_generate3DMipMaps()
-	{
-		assert(mpCubeTex);
-		// if this is a render target no problem...
-		if (mUsage == TU_RENDERTARGET)
-		{
-			HRESULT hr;
-			// filter the texture
-			hr = D3DXFilterTexture(mpCubeTex, NULL, D3DX_DEFAULT, D3DX_DEFAULT);
-			// check result and except if failed
-			if (FAILED(hr))
-			{
-				Except( hr, "Error filtering texture (generating mip maps)", "D3D9Texture::_generate3DMipMaps" );
-				this->_freeResources();
-			}
-			return;
-		}
-
-		// no render target, we must have the tmp. texture here!!!
-		assert(mpTmpCubeTex);
-
-		HRESULT hr;
-		// filter the temporary texture
-		hr = D3DXFilterTexture(mpTmpCubeTex, NULL, D3DX_DEFAULT, D3DX_DEFAULT);
-		// check result and except if failed
-		if (FAILED(hr))
-		{
-			Except( hr, "Error filtering texture (generating mip maps)", "D3D9Texture::_generate3DMipMaps" );
-			this->_freeResources();
-		}
-
-		// blit the tmp. texture to the real texture
-		hr = mpDev->UpdateTexture(mpTmpCubeTex, mpCubeTex);
-		// check result and except if failed
-		if (FAILED(hr))
-		{
-			Except( hr, "Error filtering texture (generating mip maps)", "D3D9Texture::_generate3DMipMaps" );
-			this->_freeResources();
-		}
-
-		// release temp tex.
-		SAFE_RELEASE(mpTmpCubeTex);
-	}
-	/****************************************************************************************/
 	D3DTEXTUREFILTERTYPE D3D9Texture::_getBestFilterMethod()
 	{
 		// those MUST be initialized !!!
@@ -880,7 +744,7 @@ namespace Ogre
 		}
 	}
 	/****************************************************************************************/
-	void D3D9Texture::_copyMemoryToSurface(unsigned char *pBuffer, IDirect3DSurface9 *pSurface)
+	void D3D9Texture::_copyMemoryToSurface(const unsigned char *pBuffer, IDirect3DSurface9 *pSurface)
 	{
 		assert(pBuffer);
 		assert(pSurface);
@@ -995,82 +859,103 @@ namespace Ogre
 		D3DFORMAT dstFormat = _chooseD3DFormat();
 		RECT tmpDataRect = {0, 0, srcImage.getWidth(), srcImage.getHeight()}; // the rectangle representing the src. image dim.
 
-		// this surface will hold our image
+		// this surface will hold our temp conversion image
+		// We need this in all cases because we can't lock 
+		// the main texture surfaces in all cards
+		// Also , this cannot be the temp texture because we'd like D3DX to resize it for us
+		// with the D3DxLoadSurfaceFromSurface
 		IDirect3DSurface9 *pSrcSurface = NULL;
-		// if we have a temp. tex. created this means that no auto gen. mip map is supported
-		// so we must make BAD HACKS to make mip maps on our own...
-		// we must use a temp. texture created in system memory 
-		// because it can be filtered/stretched allways, where textures
-		// created in video memory sometimes fails
-		if (mpTmpNormTex)
-		{
-			hr = mpDev->CreateOffscreenPlainSurface( 
-							srcImage.getWidth(),
-							srcImage.getHeight(),
-							dstFormat, 
-							D3DPOOL_SCRATCH, 
-							&pSrcSurface, 
-							NULL);
-			// check result and except if failed
-			if (FAILED(hr))
-			{
-				Except( hr, "Error loading surface from memory", "D3D9Texture::_blitImageToTexture" );
-				this->_freeResources();
-			}
-		}
-		else
-		{
-			hr = mpNormTex->GetSurfaceLevel(0, &pSrcSurface);
-			// check result and except if failed
-			if (FAILED(hr))
-			{
-				Except( hr, "Error loading surface from memory", "D3D9Texture::_blitImageToTexture" );
-				this->_freeResources();
-			}
-		}
-		
-		// create a temp. buffer that will hold the src. image data
-		uchar *pTmpData = new uchar[srcImage.getSize()];
-		memcpy(pTmpData, srcImage.getData(), srcImage.getSize());
-		// copy the buffer to our surface, 
-		// _copyMemoryToSurface will do color conversion and flipping
-		this->_copyMemoryToSurface(pTmpData, pSrcSurface);
-		// free the temp. data buffer
-		SAFE_DELETE_ARRAY(pTmpData);
-
-		// if auto gen. mip map is present we are done with this texture
-		if (!mpTmpNormTex)
-		{
-			SAFE_RELEASE(pSrcSurface);
-			return;
-		}
-
-		// no auto gen. mip map...:(
-		// Now we need to copy the source surface (where our image is) to the temp. texture level 0 surface
-		IDirect3DSurface9 *pDstSurface; // this will hold our tmp.tex.level 0 surface
-		hr = mpTmpNormTex->GetSurfaceLevel(0, &pDstSurface);
+		hr = mpDev->CreateOffscreenPlainSurface( 
+						srcImage.getWidth(),
+						srcImage.getHeight(),
+						dstFormat, 
+						D3DPOOL_SCRATCH, 
+						&pSrcSurface, 
+						NULL);
 		// check result and except if failed
 		if (FAILED(hr))
 		{
-			Except( hr, "Error getting level 0 surface from temp. texture", "D3D9Texture::_blitImageToTexture" );
-			SAFE_RELEASE(pSrcSurface);
 			this->_freeResources();
+			Except( hr, "Error loading surface from memory", "D3D9Texture::_blitImageToTexture" );
+		}
+		
+		// copy the buffer to our surface, 
+		// _copyMemoryToSurface will do color conversion and flipping
+		this->_copyMemoryToSurface(srcImage.getData(), pSrcSurface);
+
+		// Now we need to copy the source surface (where our image is) to the texture
+		// This will be a temp texture for s/w filtering and the final one for h/w filtering
+		// This will perform any size conversion (inc stretching)
+		IDirect3DSurface9 *pDstSurface; 
+		if (mpTmpNormTex)
+		{
+			// s/w mipmaps, use temp texture
+			hr = mpTmpNormTex->GetSurfaceLevel(0, &pDstSurface);
+		}
+		else
+		{
+			// h/w mipmaps, use the final texture
+			hr = mpNormTex->GetSurfaceLevel(0, &pDstSurface);
 		}
 
-		// load the surface with an in memory buffer
+		// check result and except if failed
+		if (FAILED(hr))
+		{
+			SAFE_RELEASE(pSrcSurface);
+			this->_freeResources();
+			Except( hr, "Error getting level 0 surface from dest. texture", "D3D9Texture::_blitImageToTexture" );
+		}
+
+		// copy surfaces
 		hr = D3DXLoadSurfaceFromSurface(pDstSurface, NULL, NULL, pSrcSurface, NULL, NULL, D3DX_DEFAULT, 0);
 		// check result and except if failed
 		if (FAILED(hr))
 		{
-			Except( hr, "Error loading in temporary surface", "D3D9Texture::_blitImageToTexture" );
 			SAFE_RELEASE(pSrcSurface);
 			SAFE_RELEASE(pDstSurface);
 			this->_freeResources();
+			Except( hr, "Error copying original surface to texture", "D3D9Texture::_blitImageToTexture" );
 		}
 
-		// that's it for now, generate mipmaps will do the rest...
-		SAFE_RELEASE(pSrcSurface);
+		if (mpTmpNormTex)
+		{
+			// Software filtering
+			// Now update the texture & filter the results
+			// we will use D3DX to create the mip map levels
+			if( FAILED( hr = D3DXFilterTexture( mpTmpNormTex, NULL, D3DX_DEFAULT, D3DX_DEFAULT ) ) )
+			{
+				SAFE_RELEASE(pSrcSurface);
+				SAFE_RELEASE(pDstSurface);
+				this->_freeResources();
+				Except( hr, "Failed to filter texture (generate mip maps)", "D3D9Texture::_blitImageToTexture" );
+			}
+			if( FAILED( hr = mpDev->UpdateTexture( mpTmpNormTex, mpNormTex ) ) )
+			{
+				SAFE_RELEASE(pSrcSurface);
+				SAFE_RELEASE(pDstSurface);
+				this->_freeResources();
+				Except( hr, "Failed to update texture", "D3D9Texture::_blitImageToTexture" );
+			}
+		}
+		else
+		{
+			// Hardware mipmapping
+			// use best filtering method supported by hardware
+			hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
+			if (FAILED(hr))
+			{
+				SAFE_RELEASE(pSrcSurface);
+				SAFE_RELEASE(pDstSurface);
+				this->_freeResources();
+				Except( hr, "Error generating mip maps", "D3D9Texture::_blitImageToNormTex" );
+			}
+			mpNormTex->GenerateMipSubLevels();
+
+			
+		}
+
 		SAFE_RELEASE(pDstSurface);
+		SAFE_RELEASE(pSrcSurface);
 	}
 	/****************************************************************************************/
 	void D3D9Texture::_blitImagesToCubeTex(const Image srcImages[])
@@ -1084,38 +969,24 @@ namespace Ogre
 			D3DFORMAT srcFormat = this->_getPF(srcImages[face].getFormat());
 			RECT tmpDataRect = {0, 0, srcImages[face].getWidth(), srcImages[face].getHeight()}; // the rectangle representing the src. image dim.
 
-			// this surface will hold our image
+			// this surface will hold our temp conversion image
 			IDirect3DSurface9 *pSrcSurface = NULL;
-			// if we have a temp. tex. created this means that no auto gen. mip map is supported
-			// so we must make BAD HACKS to make mip maps on our own...
-			// we must use a temp. texture created in system memory 
-			// because it can be filtered/stretched allways, where textures
-			// created in video memory sometimes fails
-			if (mpTmpCubeTex)
+			// We need this in all cases because we can't lock 
+			// the main texture surfaces in all cards
+			// Also , this cannot be the temp texture because we'd like D3DX to resize it for us
+			// with the D3DxLoadSurfaceFromSurface
+			hr = mpDev->CreateOffscreenPlainSurface( 
+							srcImages[face].getWidth(), 
+							srcImages[face].getHeight(), 
+							dstFormat, 
+							D3DPOOL_SCRATCH, 
+							&pSrcSurface, 
+							NULL);
+			// check result and except if failed
+			if (FAILED(hr))
 			{
-				hr = mpDev->CreateOffscreenPlainSurface( 
-								srcImages[face].getWidth(), 
-								srcImages[face].getHeight(), 
-								dstFormat, 
-								D3DPOOL_SCRATCH, 
-								&pSrcSurface, 
-								NULL);
-				// check result and except if failed
-				if (FAILED(hr))
-				{
-					Except( hr, "Error loading surface from memory", "D3D9Texture::_blitImagesToCubeTex" );
-					this->_freeResources();
-				}
-			}
-			else
-			{
-				hr = mpCubeTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, 0, &pSrcSurface);
-				// check result and except if failed
-				if (FAILED(hr))
-				{
-					Except( hr, "Error loading surface from memory", "D3D9Texture::_blitImagesToCubeTex" );
-					this->_freeResources();
-				}
+				Except( hr, "Error loading surface from memory", "D3D9Texture::_blitImagesToCubeTex" );
+				this->_freeResources();
 			}
 
 			// don't know why but cube textures don't require fliping
@@ -1123,46 +994,78 @@ namespace Ogre
 			// src.image first, then 'reflip' it :(, and we need a temp. image for this :(
 			Image tmpImg(srcImages[face]);
 			tmpImg.flipAroundX();
-			// create a temp. buffer that will hold the src. image data
-			uchar *pTmpData = new uchar[tmpImg.getSize()];
-			memcpy(pTmpData, tmpImg.getData(), tmpImg.getSize());
 			// copy the buffer to our surface, 
 			// _copyMemoryToSurface will do color conversion and flipping
-			this->_copyMemoryToSurface(pTmpData, pSrcSurface);
-			// free the temp. data buffer
-			SAFE_DELETE_ARRAY(pTmpData);
+			this->_copyMemoryToSurface(tmpImg.getData(), pSrcSurface);
 
-			// if auto gen. mip map is present we are done with this texture
+			// Now we need to copy the source surface (where our image is) to 
+			// either the the temp. texture level 0 surface (for s/w mipmaps)
+			// or the final texture (for h/w mipmaps)
+			IDirect3DSurface9 *pDstSurface; 
 			if (mpTmpCubeTex)
 			{
-				// no auto gen. mip map...:(
-				// Now we need to copy the source surface (where our image is) to the temp. texture level 0 surface
-				IDirect3DSurface9 *pDstSurface; // this will hold our tmp.tex.level 0 surface
-				hr = mpTmpCubeTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, 0, &pDstSurface);
-				// check result and except if failed
-				if (FAILED(hr))
-				{
-					Except( hr, "Error getting level 0 surface from temp. texture", "D3D9Texture::_blitImagesToCubeTex" );
-					SAFE_RELEASE(pSrcSurface);
-					this->_freeResources();
-				}
-
-				// load the surface with an in memory buffer
-				hr = D3DXLoadSurfaceFromSurface(pDstSurface, NULL, NULL, pSrcSurface, NULL, NULL, D3DX_DEFAULT, 0);
-				// check result and except if failed
-				if (FAILED(hr))
-				{
-					Except( hr, "Error loading in temporary surface", "D3D9Texture::_blitImagesToCubeTex" );
-					SAFE_RELEASE(pSrcSurface);
-					SAFE_RELEASE(pDstSurface);
-					this->_freeResources();
-				}
-
-				SAFE_RELEASE(pDstSurface);
+				// copy into temp
+                hr = mpTmpCubeTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, 0, &pDstSurface);
 			}
+			else
+			{
+				// copy into temp
+                hr = mpCubeTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, 0, &pDstSurface);
+			}
+			// check result and except if failed
+			if (FAILED(hr))
+			{
+				Except( hr, "Error getting level dest cube map surface", "D3D9Texture::_blitImagesToCubeTex" );
+				SAFE_RELEASE(pSrcSurface);
+				this->_freeResources();
+			}
+
+			// load the surface with an in memory buffer
+			hr = D3DXLoadSurfaceFromSurface(pDstSurface, NULL, NULL, pSrcSurface, NULL, NULL, D3DX_DEFAULT, 0);
+			// check result and except if failed
+			if (FAILED(hr))
+			{
+				Except( hr, "Error loading in temporary surface", "D3D9Texture::_blitImagesToCubeTex" );
+				SAFE_RELEASE(pSrcSurface);
+				SAFE_RELEASE(pDstSurface);
+				this->_freeResources();
+			}
+
+			SAFE_RELEASE(pDstSurface);
 			SAFE_RELEASE(pSrcSurface);
 		}
-		// that's it for now, generate mipmaps will do the rest...
+
+		// After doing all the faces, we generate mipmaps
+		// For s/w mipmaps this involves an extra copying step
+		if (mpTmpCubeTex)
+		{
+			// Filter
+			if( FAILED( hr = D3DXFilterTexture( mpTmpCubeTex, NULL, D3DX_DEFAULT, D3DX_DEFAULT ) ) )
+			{
+				this->_freeResources();
+				Except( hr, "Failed to filter texture (generate mip maps)", "D3D9Texture::_blitImageToCubeTex" );
+			}
+			// Update main texture
+			if( FAILED( hr = mpDev->UpdateTexture( mpTmpCubeTex, mpCubeTex ) ) )
+			{
+				this->_freeResources();
+				Except( hr, "Failed to update texture", "D3D9Texture::_blitImageToCubeTex" );
+			}
+		}
+		else
+		{
+			// Hardware filter
+			// use best filtering method supported by hardware
+			hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
+			if (FAILED(hr))
+			{
+				this->_freeResources();
+				Except( hr, "Error generating mip maps", "D3D9Texture::_blitImageToCubeTex" );
+			}
+			mpCubeTex->GenerateMipSubLevels();
+
+		}
+
 	}
 	/****************************************************************************************/
 	D3DFORMAT D3D9Texture::_chooseD3DFormat()

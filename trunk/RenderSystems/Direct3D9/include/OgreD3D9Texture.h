@@ -85,7 +85,7 @@ namespace Ogre {
 		/// internal method, return the color masks for a given format
 		void _getColorMasks(D3DFORMAT format, DWORD *pdwRed, DWORD *pdwGreen, DWORD *pdwBlue, DWORD *pdwAlpha, DWORD *pdwRGBBitCount);
 		/// internal method, copy a memory block to the given surface
-		void _copyMemoryToSurface( unsigned char *pBuffer, IDirect3DSurface9 *pSurface );
+		void _copyMemoryToSurface( const unsigned char *pBuffer, IDirect3DSurface9 *pSurface );
 		/// internal method, blits a given image to normal textures
 		void _blitImageToNormTex(const Image &srcImage);
 		/// internal method, blits images to cube textures
@@ -110,12 +110,6 @@ namespace Ogre {
 		void _setSrcAttributes(unsigned long width, unsigned long height, PixelFormat format);
 		/// internal method, set Texture class final texture protected attributes
 		void _setFinalAttributes(unsigned long width, unsigned long height, PixelFormat format);
-		/// internal method, generate mip map chain
-		void _generateMipMaps();
-		/// internal method, generate mip map chain for normal textures
-		void _generate2DMipMaps();
-		/// internal method, generate mip map chain for cube textures
-		void _generate3DMipMaps();
 		/// internal method, return the best by hardware supported filter method
 		D3DTEXTUREFILTERTYPE _getBestFilterMethod();
 		/// internal method, return true if the device/texture combination can auto gen. mip maps
