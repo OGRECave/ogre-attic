@@ -175,6 +175,8 @@ namespace Ogre {
 			/// Whether this location was added recursively
 			bool recursive;
 		};
+        /// Should we add default locations to world locations?
+        bool mAddDefaultLocationsToWorld;
 		/// List of possible file locations
 		typedef std::list<ResourceLocation*> LocationList;
 		/// List of resources which can be loaded / unloaded
@@ -236,7 +238,6 @@ namespace Ogre {
 
 		/// Stored current group - optimisation for when bulk loading a group
 		ResourceGroup* mCurrentGroup;
-
     public:
         ResourceGroupManager();
         virtual ~ResourceGroupManager();
@@ -380,6 +381,15 @@ namespace Ogre {
         void removeResourceLocation(const String& name, 
 			const String& resGroup = DEFAULT_RESOURCE_GROUP_NAME);
 
+        /** Sets whether to add all resource locations added to 
+            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME to 
+            ResourceGroupManager::WORLD_RESOURCE_GROUP_NAME as well. 
+        @remarks
+            The default is 'true' to simulate the behaviour of prior
+            versions of Ogre. If you want more specific behaviour for the 
+            world resource group, set this to false.
+        */
+        void addDefaultLocationsToWorldLocations(bool enable) { mAddDefaultLocationsToWorld = enable; }
         /** Declares a resource to be a part of a resource group, allowing you 
             to load and unload it as part of the group.
         @remarks

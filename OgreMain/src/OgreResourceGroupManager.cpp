@@ -47,7 +47,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     ResourceGroupManager::ResourceGroupManager()
-        : mCurrentGroup(0)
+        : mCurrentGroup(0), mAddDefaultLocationsToWorld(true)
     {
         // Create the 'General' group
         ResourceGroup* grp = new ResourceGroup();
@@ -252,6 +252,13 @@ namespace Ogre {
 		if (recursive)
 			msg << " with recursive option";
 		LogManager::getSingleton().logMessage(msg.str());
+
+        // Add defaults to world?
+        if (mAddDefaultLocationsToWorld && 
+            resGroup == DEFAULT_RESOURCE_GROUP_NAME)
+        {
+            addResourceLocation(name, locType, WORLD_RESOURCE_GROUP_NAME, recursive);
+        }
     }
     //-----------------------------------------------------------------------
     void ResourceGroupManager::removeResourceLocation(const String& name, 
