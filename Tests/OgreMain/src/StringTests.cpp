@@ -45,7 +45,7 @@ void StringTests::testSplitFileNameNoPath()
 	String basename, path;
 	StringUtil::splitFilename(testFileNoPath, basename, path);
 
-    CPPUNIT_ASSERT_EQUAL(basename, testFileNoPath);
+    CPPUNIT_ASSERT_EQUAL(testFileNoPath, basename);
     CPPUNIT_ASSERT(path.empty());
 }
 void StringTests::testSplitFileNameRelativePath()
@@ -53,12 +53,12 @@ void StringTests::testSplitFileNameRelativePath()
 	String basename, path;
 	// Unix
 	StringUtil::splitFilename(testFileRelativePathUnix, basename, path);
-    CPPUNIT_ASSERT_EQUAL(basename, "testfile.txt");
-    CPPUNIT_ASSERT_EQUAL(path, "this/is/relative/");
+    CPPUNIT_ASSERT_EQUAL(String("testfile.txt"), basename);
+    CPPUNIT_ASSERT_EQUAL(String("this/is/relative/"), path);
 	// Windows
 	StringUtil::splitFilename(testFileRelativePathWindows, basename, path);
-    CPPUNIT_ASSERT_EQUAL(basename, "testfile.txt");
-    CPPUNIT_ASSERT_EQUAL(path, "this\\is\\relative\\");
+    CPPUNIT_ASSERT_EQUAL(String("testfile.txt"), basename);
+    CPPUNIT_ASSERT_EQUAL(String("this/is/relative/"), path);
 
 }
 void StringTests::testSplitFileNameAbsolutePath()
@@ -66,12 +66,12 @@ void StringTests::testSplitFileNameAbsolutePath()
 	String basename, path;
 	// Unix
 	StringUtil::splitFilename(testFileAbsolutePathUnix, basename, path);
-    CPPUNIT_ASSERT_EQUAL(basename, "testfile.txt");
-    CPPUNIT_ASSERT_EQUAL(path, "/this/is/absolute/");
+    CPPUNIT_ASSERT_EQUAL(String("testfile.txt"), basename);
+    CPPUNIT_ASSERT_EQUAL(String("/this/is/absolute/"), path);
 	// Windows
 	StringUtil::splitFilename(testFileAbsolutePathWindows, basename, path);
-    CPPUNIT_ASSERT(basename == "testfile.txt");
-	CPPUNIT_ASSERT(path == "c:\\this\\is\\absolute\\");
+    CPPUNIT_ASSERT_EQUAL(String("testfile.txt"), basename);
+	CPPUNIT_ASSERT_EQUAL(String("c:/this/is/absolute/"), path);
 }
 
 void StringTests::testMatchCaseSensitive()
@@ -80,8 +80,8 @@ void StringTests::testMatchCaseSensitive()
 	CPPUNIT_ASSERT(StringUtil::match(testFileNoPath, testFileNoPath, true));
 	// Test negative
 	String upperCase = testFileNoPath;
-	StringUtil::toUpper(upperCase);
-	CPPUNIT_ASSERT_ASSERTION_FAIL(StringUtil::match(testFileNoPath, upperCase, true));
+    StringUtil::toUpperCase(upperCase);
+	CPPUNIT_ASSERT(!StringUtil::match(testFileNoPath, upperCase, true));
 }
 void StringTests::testMatchCaseInSensitive()
 {
@@ -89,7 +89,7 @@ void StringTests::testMatchCaseInSensitive()
 	CPPUNIT_ASSERT(StringUtil::match(testFileNoPath, testFileNoPath, false));
 	// Test positive
 	String upperCase = testFileNoPath;
-	StringUtil::toUpper(upperCase);
+	StringUtil::toUpperCase(upperCase);
 	CPPUNIT_ASSERT(StringUtil::match(testFileNoPath, upperCase, false));
 }
 void StringTests::testMatchGlobAll()
@@ -99,24 +99,24 @@ void StringTests::testMatchGlobAll()
 void StringTests::testMatchGlobStart()
 {
 	CPPUNIT_ASSERT(StringUtil::match(testFileNoPath, "*stfile.txt", true));
-	CPPUNIT_ASSERT_ASSERTION_FAIL(StringUtil::match(testFileNoPath, "*astfile.txt", true));
+	CPPUNIT_ASSERT(!StringUtil::match(testFileNoPath, "*astfile.txt", true));
 }
 void StringTests::testMatchGlobEnd()
 {
 	CPPUNIT_ASSERT(StringUtil::match(testFileNoPath, "testfile.*", true));
-	CPPUNIT_ASSERT_ASSERTION_FAIL(StringUtil::match(testFileNoPath, "testfile.d*", true));
+	CPPUNIT_ASSERT(!StringUtil::match(testFileNoPath, "testfile.d*", true));
 }
 void StringTests::testMatchGlobStartAndEnd()
 {
 	CPPUNIT_ASSERT(StringUtil::match(testFileNoPath, "*stfile.*", true));
-	CPPUNIT_ASSERT_ASSERTION_FAIL(StringUtil::match(testFileNoPath, "*astfile.d*", true));
+	CPPUNIT_ASSERT(!StringUtil::match(testFileNoPath, "*astfile.d*", true));
 }
 void StringTests::testMatchGlobMiddle()
 {
 	CPPUNIT_ASSERT(StringUtil::match(testFileNoPath, "test*.txt", true));
-	CPPUNIT_ASSERT_ASSERTION_FAIL(StringUtil::match(testFileNoPath, "last*.txt*", true));
+	CPPUNIT_ASSERT(!StringUtil::match(testFileNoPath, "last*.txt*", true));
 }
 void StringTests::testMatchSuperGlobtastic()
 {
-	CPPUNIT_ASSERT(StringUtil::match(testFileNoPath, "*t*f*e.t*t*", true));
+	CPPUNIT_ASSERT(StringUtil::match(testFileNoPath, "*e*tf*e.t*t", true));
 }
