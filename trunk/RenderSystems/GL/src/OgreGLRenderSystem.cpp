@@ -1347,9 +1347,12 @@ namespace Ogre {
 	//-----------------------------------------------------------------------------
     void GLRenderSystem::_setTextureBlendMode(int stage, const LayerBlendModeEx& bm)
     {       
-		if (mGLCaps.arbCombine)
-			_setTextureBlendMode_ARB(stage, bm);
-		else if (mGLCaps.extCombine)
+        // SJS- temporary fix since ARB version of blends do not appear to be working
+        // correctly at this stage
+
+		//if (mGLCaps.arbCombine)
+		//	_setTextureBlendMode_ARB(stage, bm);
+		//else if (mGLCaps.extCombine)
 			_setTextureBlendMode_EXT(stage, bm);
     }
 	//-----------------------------------------------------------------------------
