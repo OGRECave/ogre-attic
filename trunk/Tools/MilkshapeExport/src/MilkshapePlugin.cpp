@@ -75,7 +75,6 @@ int MilkshapePlugin::Execute (msModel* pModel)
         doExportMesh(pModel);
     }
 
-
     return 0;
 
 }
@@ -196,7 +195,10 @@ BOOL MilkshapePlugin::DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam
                 hwndDlgItem = GetDlgItem(hDlg, IDC_SPLIT_ANIMATION);
                 plugin->splitAnimations = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
 
-                hwndDlgItem = GetDlgItem(hDlg, IDC_FPS);
+				hwndDlgItem = GetDlgItem(hDlg, IDC_EXPORT_MATERIAL);
+				plugin->exportMaterials = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
+
+				hwndDlgItem = GetDlgItem(hDlg, IDC_FPS);
                 GetWindowText(hwndDlgItem, val, 20);
                 plugin->fps = atof(val);
                 if (!plugin->fps)
@@ -498,6 +500,11 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
     delete ogreMesh;
     if (pSkel)
         delete pSkel;
+
+	if (exportMaterials && msModel_GetMaterialCount(pModel) > 0)
+	{
+		doExportMaterials(pModel);
+	}
 }
 
 
@@ -702,6 +709,100 @@ struct SplitAnimationStruct
     int end;
     Ogre::String name;
 };
+
+void MilkshapePlugin::doExportMaterials(msModel* pModel)
+{
+	Ogre::LogManager& logMgr = Ogre::LogManager::getSingleton();
+	Ogre::MaterialManager matMgrSgl;
+	Ogre::String msg;
+
+    matMgrSgl.initialise();
+
+	int numMaterials = msModel_GetMaterialCount(pModel);
+	msg = "Number of materials: ";
+	msg << numMaterials;
+	logMgr.logMessage(msg);
+
+	OPENFILENAME ofn;
+	memset (&ofn, 0, sizeof (OPENFILENAME));
+
+	char szFile[MS_MAX_PATH];
+	char szFileTitle[MS_MAX_PATH];
+	char szDefExt[32] = "material";
+	char szFilter[128] = "OGRE .material Files (*.material)\0*.material\0All Files (*.*)\0*.*\0\0";
+	szFile[0] = '\0';
+	szFileTitle[0] = '\0';
+
+	ofn.lStructSize = sizeof (OPENFILENAME);
+	ofn.lpstrDefExt = szDefExt;
+	ofn.lpstrFilter = szFilter;
+	ofn.lpstrFile = szFile;
+	ofn.nMaxFile = MS_MAX_PATH;
+	ofn.lpstrFileTitle = szFileTitle;
+	ofn.nMaxFileTitle = MS_MAX_PATH;
+	ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST;
+	ofn.lpstrTitle = "Export to OGRE Material";
+
+	if (!::GetSaveFileName (&ofn))
+		return;
+
+	// Strip off the path
+	Ogre::String matName = szFile;
+	size_t lastSlash = matName.find_last_of("\\");
+	matName = matName.substr(lastSlash+1);
+
+	// Set up
+	logMgr.logMessage("Trying to create Material object");
+	Ogre::MaterialManager *matMgr = Ogre::MaterialManager::getSingletonPtr();
+	if (!matMgr)
+	{
+		logMgr.logMessage("Error: MaterialManager not found.");
+		return;
+	}
+
+	Ogre::MaterialSerializer matSer;
+
+	for (int i = 0; i < numMaterials; ++i)
+	{
+		msMaterial *mat = msModel_GetMaterialAt(pModel, i);
+
+		msg = "Creating material ";
+		msg << mat->szName;
+		logMgr.logMessage(msg);
+        Ogre::Material *ogremat = (Ogre::Material*)matMgr->create(mat->szName);
+		logMgr.logMessage("Created.");
+
+		ogremat->setAmbient(msVec4ToColourValue(mat->Ambient));
+		ogremat->setDiffuse(msVec4ToColourValue(mat->Diffuse));
+		ogremat->setSpecular(msVec4ToColourValue(mat->Specular));
+		ogremat->setShininess(mat->fShininess);
+
+		if (0 < strlen(mat->szDiffuseTexture))
+			ogremat->getTechnique(0)->getPass(0)->createTextureUnitState(mat->szDiffuseTexture);
+
+        if (0 < strlen(mat->szAlphaTexture))
+			ogremat->getTechnique(0)->getPass(0)->createTextureUnitState(mat->szAlphaTexture);
+
+
+		matSer.queueForExport(ogremat);
+	}
+
+	msg = "Exporting materials to ";
+	msg << matName;
+	logMgr.logMessage(msg);
+	matSer.exportQueued(matName);
+}
+
+Ogre::ColourValue const & MilkshapePlugin::msVec4ToColourValue(float prop[4])
+{
+	Ogre::ColourValue colour;
+	colour.r = prop[0];
+	colour.g = prop[1];
+	colour.b = prop[2];
+	colour.a = prop[3];
+
+	return colour;
+}
 
 void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::Skeleton* ogreskel)
 {

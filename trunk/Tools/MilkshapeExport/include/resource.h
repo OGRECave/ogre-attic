@@ -17,7 +17,10 @@
 #define IDC_LOD_VRQ                     1010
 #define IDC_CBO_LOD_STYLE               1011
 #define IDC_GRP_SKELETON                1012
+#define IDC_GRP_MATERIAL                1013
 #define IDC_NUM_LODS                    1014
+#define IDC_EXPORT_SKEL3                1015
+#define IDC_EXPORT_MATERIAL             1015
 
 // Next default values for new objects
 // 
