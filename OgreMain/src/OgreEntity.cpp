@@ -962,6 +962,13 @@ namespace Ogre {
         // We need to search the edge list for silhouette edges
         EdgeData* edgeList = getEdgeList();
 
+		if (!edgeList)
+		{
+			// we can't get an edge list for some reason, return blank
+			// really we shouldn't be able to get here, but this is a safeguard
+			return getLastShadowVolumeRenderableIterator();
+		}
+
         // Init shadow renderable list if required
         bool init = mShadowRenderables.empty();
 
