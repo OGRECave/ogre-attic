@@ -24,11 +24,13 @@ http://www.gnu.org/copyleft/gpl.html.
 */
 
 #include "OgreGTKGLSupport.h"
+#include "OgreGTKWindow.h"
+
 #include "OgreLogManager.h"
 #include "OgreException.h"
 #include "OgreStringConverter.h"
 
-#include "GTKWindow.h"
+
 
 using namespace Ogre;
 
@@ -54,7 +56,11 @@ void GTKGLSupport::addConfig()
     // XXX Actually do this
     optVideoMode.name = "Video Mode";
     optVideoMode.immutable = false;
+    optVideoMode.possibleValues.push_back("640 x 480");
     optVideoMode.possibleValues.push_back("800 x 600");
+    optVideoMode.possibleValues.push_back("1024 x 768");
+    optVideoMode.possibleValues.push_back("1280 x 1024");
+
     optVideoMode.currentValue = "800 x 600";
 
     mOptions[optFullScreen.name] = optFullScreen;
@@ -163,11 +169,18 @@ bool GTKGLSupport::checkMinGLVersion(const String& v) const
 
 bool GTKGLSupport::checkExtension(const String& ext) const
 {
-    return Gdk::GL::query_gl_extension(ext.c_str());
+	Glib::RefPtr<Gdk::GL::Drawable> gldrawable = _ogre_widget->get_gl_drawable();
+	gldrawable->gl_begin(_ogre_widget->get_gl_context());
+
+	bool result = Gdk::GL::query_gl_extension(ext.c_str());
+
+	gldrawable->gl_end();
+
+	return result;
 }
 
 void* GTKGLSupport::getProcAddress(const String& procname)
 {
-    return Gdk::GL::get_proc_address(procname.c_str());
+    return (void*)Gdk::GL::get_proc_address(procname.c_str());
 }
 

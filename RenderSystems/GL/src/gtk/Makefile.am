@@ -6,4 +6,4 @@ INCLUDES = $(STLPORT_CFLAGS) -I$(top_builddir)/RenderSystems/GL/include \
 
 noinst_LIBRARIES = libsupport.a
 
-libsupport_a_SOURCES = OgreGTKGLSupport.cpp
+libsupport_a_SOURCES = OgreGTKGLSupport.cpp OgreGTKWindow.cpp
