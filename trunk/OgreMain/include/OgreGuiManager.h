@@ -39,6 +39,8 @@ namespace Ogre {
     class _OgreExport GuiManager : public Singleton<GuiManager>
     {
     public:
+        GuiManager();
+        virtual ~GuiManager();
         /** Creates a new GuiElement of the type requested.
         @remarks
             The type of element to create is passed in as a string because this

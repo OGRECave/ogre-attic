@@ -34,6 +34,15 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     template<> GuiManager* Singleton<GuiManager>::ms_Singleton = 0;
     //---------------------------------------------------------------------
+    GuiManager::GuiManager()
+    {
+    }
+    //---------------------------------------------------------------------
+    GuiManager::~GuiManager()
+    {
+        destroyAllGuiElements();
+    }
+    //---------------------------------------------------------------------
     GuiElement* GuiManager::createGuiElement(const String& typeName, const String& instanceName)
     {
         // Check not duplicated
@@ -104,9 +113,9 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void GuiManager::destroyAllGuiElements(void)
     {
-        InstanceMap::iterator i = mInstances.begin();
-        InstanceMap::iterator iend = mInstances.end();
-        while (i++ != iend)
+        InstanceMap::iterator i, iend;
+        iend = mInstances.end();
+        for (i = mInstances.begin(); i != iend; ++i)
         {
             // Get factory to delete
             FactoryMap::iterator fi = mFactories.find(i->second->getTypeName());
