@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreQuaternion.h"
 #include "OgreAxisAlignedBox.h"
 #include "OgreString.h"
+#include "OgreRenderable.h"
 
 namespace Ogre {
 
@@ -45,7 +46,7 @@ namespace Ogre {
             This is an abstract class - concrete classes are based on this for specific purposes,
             e.g. SceneNode, Bone
     */
-    class _OgreExport Node
+    class _OgreExport Node : public Renderable
     {
 
     protected:
@@ -141,6 +142,8 @@ namespace Ogre {
             const Vector3& scale, 
             const Quaternion& orientation, 
             Matrix4& destMatrix );
+
+
     public:
         /** Constructor, should only be called by parent, not directly.
         @remarks
@@ -439,6 +442,28 @@ namespace Ogre {
                 update children separately, e.g. because of a more selective SceneManager implementation.
         */
         virtual void _update(bool updateChildren = true);
+
+        /** Overridden from Renderable.
+        @remarks
+            This is only used if the SceneManager chooses to render the node. This option can be set
+            for SceneNodes at SceneManager::setDisplaySceneNodes, and for entities based on skeletal 
+            models using Entity::setDisplayBones()
+        */
+        Material* getMaterial(void) const;
+        /** Overridden from Renderable.
+        @remarks
+            This is only used if the SceneManager chooses to render the node. This option can be set
+            for SceneNodes at SceneManager::setDisplaySceneNodes, and for entities based on skeletal 
+            models using Entity::setDisplaySkeleton()
+        */
+        void getRenderOperation(RenderOperation& rend);
+        /** Overridden from Renderable.
+        @remarks
+            This is only used if the SceneManager chooses to render the node. This option can be set
+            for SceneNodes at SceneManager::setDisplaySceneNodes, and for entities based on skeletal 
+            models using Entity::setDisplayBones()
+        */
+        void getWorldTransforms(Matrix4* xform);
 
     };
 

@@ -31,6 +31,12 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreSceneManager.h"
 #include "OgreMovableObject.h"
 
+// Dependencies on render-related types due to ability to render node
+#include "OgreMaterialManager.h"
+#include "OgreMeshManager.h"
+#include "OgreMesh.h"
+#include "OgreSubMesh.h"
+
 namespace Ogre {
     
     unsigned long Node::msNextGeneratedNameExt = 1;
@@ -48,6 +54,7 @@ namespace Ogre {
         static char temp[64];
         sprintf(temp, "Unnamed_%lu", msNextGeneratedNameExt++);
         mName = temp;
+
 
     }
     //-----------------------------------------------------------------------
@@ -410,17 +417,21 @@ namespace Ogre {
         Matrix4& destMatrix)
     {
         destMatrix = Matrix4::IDENTITY;
-        // Note that translation is always after rotation.
-        // Parent scaling is already applied to derived position
-        // Own scale is applied after rotation
-        Matrix3 rot_scale;
-        orientation.ToRotationMatrix(rot_scale);
-        // Apply scale
-        rot_scale[0][0] *= scale.x;
-        rot_scale[1][1] *= scale.y;
-        rot_scale[2][2] *= scale.z;
+        // Ordering:
+        //    1. Scale
+        //    2. Rotate
+        //    3. Translate
 
-        destMatrix = rot_scale;
+        // Parent scaling is already applied to derived position
+        // Own scale is applied before rotation
+        Matrix3 rot3x3, scale3x3;
+        orientation.ToRotationMatrix(rot3x3);
+        scale3x3 = Matrix3::ZERO;
+        scale3x3[0][0] = scale.x;
+        scale3x3[1][1] = scale.y;
+        scale3x3[2][2] = scale.z;
+
+        destMatrix = rot3x3 * scale3x3;
         destMatrix.setTrans(position);
     }
     //-----------------------------------------------------------------------
@@ -436,26 +447,25 @@ namespace Ogre {
         invScale.y = 1 / scale.x;
         invScale.z = 1 / scale.x;
 
-        Quaternion invRot = -orientation;
+        Quaternion invRot = orientation.Inverse();
         
-        // Because we're inverting, order is translation, scale, rotation
+        // Because we're inverting, order is translation, rotation, scale
         // So make translation relative to scale & rotation
         invTranslate.x *= invScale.x; // scale
         invTranslate.y *= invScale.y; // scale
         invTranslate.z *= invScale.z; // scale
         invTranslate = invRot * invTranslate; // rotate
 
-        // Next, make a 3x3 scale matrix and apply inverse rotation
-        Matrix3 scale3x3, rot3x3;
-        scale3x3 = Matrix3::IDENTITY;
-        scale3x3[0][0] *= invScale.x;
-        scale3x3[1][1] *= invScale.y;
-        scale3x3[2][2] *= invScale.z;
-
+        // Next, make a 3x3 rotation matrix and apply inverse scale
+        Matrix3 rot3x3, scale3x3;
         invRot.ToRotationMatrix(rot3x3);
+        scale3x3 = Matrix3::ZERO;
+        scale3x3[0][0] = invScale.x;
+        scale3x3[1][1] = invScale.y;
+        scale3x3[2][2] = invScale.z;
 
         // Set up final matrix with scale & rotation
-        destMatrix = (rot3x3 * scale3x3);
+        destMatrix = scale3x3 * rot3x3;
 
         destMatrix.setTrans(invTranslate);
     }
@@ -463,6 +473,35 @@ namespace Ogre {
     const String& Node::getName(void)
     {
         return mName;
+    }
+    //-----------------------------------------------------------------------
+    Material* Node::getMaterial(void) const
+    {
+        static Material* pMaterial = 0;
+
+        if (!pMaterial)
+        {
+            pMaterial = (Material*)MaterialManager::getSingleton().getByName("Core/NodeMaterial");
+        }
+        return pMaterial;
+
+    }
+    //-----------------------------------------------------------------------
+    void Node::getRenderOperation(RenderOperation& rend)
+    {
+        static SubMesh* pSubMesh = 0;
+        if (!pSubMesh)
+        {
+            Mesh *pMesh = MeshManager::getSingleton().load("axes.mesh");
+            pSubMesh = pMesh->getSubMesh(0);
+        }
+        pSubMesh->_getRenderOperation(rend);
+    }
+    //-----------------------------------------------------------------------
+    void Node::getWorldTransforms(Matrix4* xform)
+    {
+        // Assumes up to date
+        *xform = this->_getFullTransform();
     }
 }
 
