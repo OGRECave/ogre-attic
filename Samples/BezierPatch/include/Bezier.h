@@ -81,7 +81,7 @@ protected:
         patchCtlPoints.normalStride = sizeof(Real) * 5;
         patchCtlPoints.texCoordStride[0] = sizeof(Real) * 6;
         // Make a 3x3 patch for test
-        patchCtlPoints.pVertices = (Real*)new PatchVertex[9];
+        patchCtlPoints.pVertices = (Real*)( new PatchVertex[9] );
         patchCtlPoints.numVertices = 9;
         patchCtlPoints.pNormals = patchCtlPoints.pVertices + 3;
         patchCtlPoints.pTexCoords[0] = patchCtlPoints.pVertices + 6;
@@ -136,11 +136,13 @@ protected:
 
         // This is hard-coded and should really get changed
         try {        
-		    pFont = new TextureFont( "c:\\WINDOWS\\fonts\\trebucbd.ttf" );
-        }
-        catch( Exception e )
-        {
-            pFont = new TextureFont( "c:\\WINNT\\fonts\\trebucbd.ttf" );
+		    pFont = new TextureFont( "../../../Media/starjedi.ttf" );
+        } catch( Exception e ) {
+            try {
+                pFont = new TextureFont( "c:\\WINDOWS\\fonts\\trebucbd.ttf" );
+            } catch( Exception e ) {
+                pFont = new TextureFont( "c:\\WINNT\\fonts\\trebucbd.ttf" );
+            }
         }
 
 		pFont->createAlphaMask( 

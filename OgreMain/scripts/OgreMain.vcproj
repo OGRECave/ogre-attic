@@ -173,6 +173,9 @@ makeall_vc7.bat
 				RelativePath="..\src\OgreCamera.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreCodec.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreColourValue.cpp">
 			</File>
 			<File
@@ -209,6 +212,9 @@ makeall_vc7.bat
 				RelativePath="..\src\OgreInput.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreJPEGCodec.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreKeyFrame.cpp">
 			</File>
 			<File
@@ -236,6 +242,9 @@ makeall_vc7.bat
 				RelativePath="..\src\OgreMatrix4.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreMemoryManager.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreMesh.cpp">
 			</File>
 			<File
@@ -252,6 +261,9 @@ makeall_vc7.bat
 			</File>
 			<File
 				RelativePath="..\src\OgreOofModelFile.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgrePNGCodec.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreParticleEmitter.cpp">
@@ -350,6 +362,9 @@ makeall_vc7.bat
 				RelativePath="..\src\OgreSubMesh.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreTGACodec.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreTexture.cpp">
 			</File>
 			<File
@@ -423,6 +438,12 @@ makeall_vc7.bat
 				RelativePath="..\include\OgreCamera.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreCodec.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreCodecFactory.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreColourValue.h">
 			</File>
 			<File
@@ -468,6 +489,9 @@ makeall_vc7.bat
 				RelativePath="..\include\OgreException.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreFactoryObj.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreFrameListener.h">
 			</File>
 			<File
@@ -478,6 +502,9 @@ makeall_vc7.bat
 			</File>
 			<File
 				RelativePath="..\include\OgreInput.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreJPEGCodec.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreKeyFrame.h">
@@ -507,6 +534,9 @@ makeall_vc7.bat
 				RelativePath="..\include\OgreMatrix4.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreMemoryManager.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreMesh.h">
 			</File>
 			<File
@@ -529,6 +559,9 @@ makeall_vc7.bat
 			</File>
 			<File
 				RelativePath="..\include\OgreOofModelFile.h">
+			</File>
+			<File
+				RelativePath="..\include\OgrePNGCodec.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreParticle.h">
@@ -661,6 +694,9 @@ makeall_vc7.bat
 			</File>
 			<File
 				RelativePath="..\include\OgreSubMesh.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreTGACodec.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreTexture.h">
