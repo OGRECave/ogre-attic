@@ -48,13 +48,16 @@ extern "C" {
 
 namespace Ogre {
 
-    void JPEGCodec::init_source( j_decompress_ptr cinfo )
-    {
-    }
-
-	uchar JPEGCodec::fill_input_buffer( j_decompress_ptr cinfo )
+    // Non-member method because I want to use 'boolean' as defined by jpeglib
+    // but I don't want to make the .h dependent on this type (which I'd have to do if I used
+    // a static method). Hence the non-member hack.
+    boolean dummy_fill_input_buffer( j_decompress_ptr cinfo )
     {
         return TRUE;
+    }
+
+    void JPEGCodec::init_source( j_decompress_ptr cinfo )
+    {
     }
 
     void JPEGCodec::skip_input_data( j_decompress_ptr cinfo, long count )
@@ -103,7 +106,7 @@ namespace Ogre {
         cinfo.src = &jsrc;
 
         jsrc.init_source = init_source;
-        jsrc.fill_input_buffer = fill_input_buffer;
+        jsrc.fill_input_buffer = dummy_fill_input_buffer;
         jsrc.skip_input_data = skip_input_data;
         jsrc.resync_to_restart = jpeg_resync_to_restart;    // use default method
         jsrc.term_source = term_source;
