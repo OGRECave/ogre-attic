@@ -27,7 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 /** If set to 1, profiling code will be included in the application. When you
 	are deploying your application you will probably want to set this to 0 */
-#define OGRE_PROFILING 1
+#define OGRE_PROFILING 0
 
 /** If set to 1, stack unwinding code is compiled into the library and called
     in case an exception is thrown in order to show the call stack.
