@@ -530,7 +530,7 @@ namespace Ogre {
             else
             {
                 // get new index
-                size_t newindex = mUniqueVertices.size() - 1;
+                size_t newindex = mUniqueVertices.size();
                 orig.nextIndex = newindex;
                 // create new (NB invalidates 'orig' reference)
                 mUniqueVertices.push_back(vertex);
