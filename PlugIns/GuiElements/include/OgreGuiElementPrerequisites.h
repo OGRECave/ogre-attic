@@ -32,8 +32,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 // Windows Settings
 //-----------------------------------------------------------------------
 
-#define _OgreGuiElementExport
-
+#if OGRE_PLATFORM == PLATFORM_WIN32 
+#   ifdef PLUGIN_GUIELEMENTS_EXPORTS 
+#       define _OgreGuiElementExport __declspec(dllexport) 
+#   else 
+#       define _OgreGuiElementExport __declspec(dllimport) 
+#   endif 
+#else 
+#   define _OgreGuiElementExport 
+#endif 
 
 #endif
 
