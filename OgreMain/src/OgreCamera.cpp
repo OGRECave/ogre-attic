@@ -584,7 +584,7 @@ namespace Ogre {
         // Attached to node?
         if (mParentNode != 0)
         {
-            if (mParentNode->_getDerivedOrientation() == mLastParentOrientation &&
+            if (!mRecalcView && mParentNode->_getDerivedOrientation() == mLastParentOrientation &&
                 mParentNode->_getDerivedPosition() == mLastParentPosition)
             {
                 return false;
