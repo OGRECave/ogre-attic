@@ -408,6 +408,8 @@ namespace Ogre {
 		// Convenience
 		VertexData* newvd = targetGeomLink->vertexData;
 		IndexData* newid = targetGeomLink->indexData;
+		// Update the vertex count
+		newvd->vertexCount = indexRemap.size();
 			
 		size_t numvbufs = vd->vertexBufferBinding->getBufferCount();
 		// Copy buffers from old to new
@@ -435,9 +437,15 @@ namespace Ogre {
 			uchar* pDstBase = static_cast<uchar*>(
 				newBuf->lock(HardwareBuffer::HBL_DISCARD));
 			size_t vertexSize = oldBuf->getVertexSize();
+			// Buffers should be the same size
+			assert (vertexSize == newBuf->getVertexSize());
+
 			for (IndexRemap::iterator r = indexRemap.begin(); 
 				r != indexRemap.end(); ++r)
 			{
+				assert (r->first < oldBuf->getNumVertices());
+				assert (r->second < newBuf->getNumVertices());
+
 				uchar* pSrc = pSrcBase + r->first * vertexSize; 
 				uchar* pDst = pDstBase + r->second * vertexSize; 
 				memcpy(pDst, pSrc, vertexSize);
