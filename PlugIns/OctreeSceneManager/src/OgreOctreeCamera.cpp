@@ -23,161 +23,161 @@ email                : janders@users.sf.net
 
 namespace Ogre
 {
-    unsigned long red = 0xFF0000FF;
+unsigned long red = 0xFF0000FF;
 
-    unsigned short OctreeCamera::mIndexes[ 24 ] = {0, 1, 1, 2, 2, 3, 3, 0,    //back
-        0, 6, 6, 5, 5, 1,          //left
-        3, 7, 7, 4, 4, 2,          //right
+unsigned short OctreeCamera::mIndexes[ 24 ] = {0, 1, 1, 2, 2, 3, 3, 0,     //back
+        0, 6, 6, 5, 5, 1,           //left
+        3, 7, 7, 4, 4, 2,           //right
         6, 7, 5, 4 };          //front
 
-    unsigned long OctreeCamera::mColors[ 8 ] = {red, red, red, red, red, red, red, red};
+unsigned long OctreeCamera::mColors[ 8 ] = {red, red, red, red, red, red, red, red};
 
-    OctreeCamera::OctreeCamera( String name, SceneManager* sm ) : Camera( name, sm )
-    {}
+OctreeCamera::OctreeCamera( String name, SceneManager* sm ) : Camera( name, sm )
+{}
 
-    OctreeCamera::~OctreeCamera()
-    {}
+OctreeCamera::~OctreeCamera()
+{}
 
-    OctreeCamera::Visibility OctreeCamera::getVisibility( const AxisAlignedBox &bound )
+OctreeCamera::Visibility OctreeCamera::getVisibility( const AxisAlignedBox &bound )
+{
+
+    // Null boxes always invisible
+    if ( bound.isNull() )
+        return NONE;
+
+    // Make any pending updates to the calculated frustum
+    updateView();
+
+    // Get corners of the box
+    const Vector3* pCorners = bound.getAllCorners();
+
+    // For each plane, see if all points are on the negative side
+    // If so, object is not visible.
+    // If one or more are, it's partial.
+    // If all aren't, full
+
+    int corners[ 8 ] = {0, 4, 3, 5, 2, 6, 1, 7};
+
+    int planes[ 6 ] = {FRUSTUM_PLANE_TOP, FRUSTUM_PLANE_BOTTOM,
+                       FRUSTUM_PLANE_LEFT, FRUSTUM_PLANE_RIGHT,
+                       FRUSTUM_PLANE_FAR, FRUSTUM_PLANE_NEAR };
+
+    bool all_inside = true;
+
+    for ( int plane = 0; plane < 6; ++plane )
     {
 
-        // Null boxes always invisible
-        if ( bound.isNull() )
-            return NONE;
+        bool all_outside = true;
 
-        // Make any pending updates to the calculated frustum
-        updateView();
+        float distance = 0;
 
-        // Get corners of the box
-        const Vector3* pCorners = bound.getAllCorners();
-
-        // For each plane, see if all points are on the negative side
-        // If so, object is not visible.
-        // If one or more are, it's partial.
-        // If all aren't, full
-
-        int corners[ 8 ] = {0, 4, 3, 5, 2, 6, 1, 7};
-
-        int planes[ 6 ] = {FRUSTUM_PLANE_TOP, FRUSTUM_PLANE_BOTTOM,
-            FRUSTUM_PLANE_LEFT, FRUSTUM_PLANE_RIGHT,
-            FRUSTUM_PLANE_FAR, FRUSTUM_PLANE_NEAR };
-
-        bool all_inside = true;
-
-        for ( int plane = 0; plane < 6; ++plane )
+        for ( int corner = 0; corner < 8; ++corner )
         {
+            distance = mFrustumPlanes[ planes[ plane ] ].getDistance( pCorners[ corners[ corner ] ] );
+            all_outside = all_outside && ( distance < 0 );
+            all_inside = all_inside && ( distance >= 0 );
 
-            bool all_outside = true;
-
-            float distance = 0;
-
-            for ( int corner = 0; corner < 8; ++corner )
-            {
-                distance = mFrustumPlanes[ planes[ plane ] ].getDistance( pCorners[ corners[ corner ] ] );
-                all_outside = all_outside && ( distance < 0 );
-                all_inside = all_inside && ( distance >= 0 );
-
-                if ( !all_outside && !all_inside )
-                    break;
-            }
-
-            if ( all_outside )
-                return NONE;
+            if ( !all_outside && !all_inside )
+                break;
         }
 
-        if ( all_inside )
-            return FULL;
-        else
-            return PARTIAL;
-
+        if ( all_outside )
+            return NONE;
     }
 
-    void OctreeCamera::getRenderOperation( RenderOperation& rend )
-    {
+    if ( all_inside )
+        return FULL;
+    else
+        return PARTIAL;
 
-        Real * r = mCorners;
-        //could also project pts using inverse of 4x4 Projection matrix, but no inverse function on that.
-        /*
-        Matrix4 invP =getProjectionMatrix().Inverse();
+}
 
-        Vector3 f1(-1,-1,-1); f1 = f1*invP;
-        Vector3 f2(-1, 1,-1); f2 = f2*invP;
-        Vector3 f3( 1, 1,-1); f3 = f3*invP;
-        Vector3 f4( 1,-1,-1); f4 = f4*invP;
+void OctreeCamera::getRenderOperation( RenderOperation& rend )
+{
 
-        Vector3 b1(-1,-1,1); b1 = b1*invP;
-        Vector3 b2(-1, 1,1); b2 = b2*invP;
-        Vector3 b3( 1, 1,1); b3 = b3*invP;
-        Vector3 b4( 1,-1,1); b4 = b4*invP;
-        */
-        _getCorner( r, FRUSTUM_PLANE_FAR, FRUSTUM_PLANE_LEFT, FRUSTUM_PLANE_BOTTOM ); r += 3;
-        _getCorner( r, FRUSTUM_PLANE_FAR, FRUSTUM_PLANE_LEFT, FRUSTUM_PLANE_TOP ); r += 3;
-        _getCorner( r, FRUSTUM_PLANE_FAR, FRUSTUM_PLANE_RIGHT, FRUSTUM_PLANE_TOP ); r += 3;
-        _getCorner( r, FRUSTUM_PLANE_FAR, FRUSTUM_PLANE_RIGHT, FRUSTUM_PLANE_BOTTOM ); r += 3;
+    Real * r = mCorners;
+    //could also project pts using inverse of 4x4 Projection matrix, but no inverse function on that.
+    /*
+    Matrix4 invP =getProjectionMatrix().Inverse();
 
-        _getCorner( r, FRUSTUM_PLANE_NEAR, FRUSTUM_PLANE_RIGHT, FRUSTUM_PLANE_TOP ); r += 3;
-        _getCorner( r, FRUSTUM_PLANE_NEAR, FRUSTUM_PLANE_LEFT, FRUSTUM_PLANE_TOP ); r += 3;
-        _getCorner( r, FRUSTUM_PLANE_NEAR, FRUSTUM_PLANE_LEFT, FRUSTUM_PLANE_BOTTOM ); r += 3;
-        _getCorner( r, FRUSTUM_PLANE_NEAR, FRUSTUM_PLANE_RIGHT, FRUSTUM_PLANE_BOTTOM );
+    Vector3 f1(-1,-1,-1); f1 = f1*invP;
+    Vector3 f2(-1, 1,-1); f2 = f2*invP;
+    Vector3 f3( 1, 1,-1); f3 = f3*invP;
+    Vector3 f4( 1,-1,-1); f4 = f4*invP;
 
-        updateView();
+    Vector3 b1(-1,-1,1); b1 = b1*invP;
+    Vector3 b2(-1, 1,1); b2 = b2*invP;
+    Vector3 b3( 1, 1,1); b3 = b3*invP;
+    Vector3 b4( 1,-1,1); b4 = b4*invP;
+    */
+    _getCorner( r, FRUSTUM_PLANE_FAR, FRUSTUM_PLANE_LEFT, FRUSTUM_PLANE_BOTTOM ); r += 3;
+    _getCorner( r, FRUSTUM_PLANE_FAR, FRUSTUM_PLANE_LEFT, FRUSTUM_PLANE_TOP ); r += 3;
+    _getCorner( r, FRUSTUM_PLANE_FAR, FRUSTUM_PLANE_RIGHT, FRUSTUM_PLANE_TOP ); r += 3;
+    _getCorner( r, FRUSTUM_PLANE_FAR, FRUSTUM_PLANE_RIGHT, FRUSTUM_PLANE_BOTTOM ); r += 3;
 
-        rend.useIndexes = true;
-        rend.numTextureCoordSets = 0; // no textures
-        rend.vertexOptions = RenderOperation::VO_DIFFUSE_COLOURS;
-        rend.operationType = RenderOperation::OT_LINE_LIST;
-        rend.numVertices = 8;
-        rend.numIndexes = 24;
+    _getCorner( r, FRUSTUM_PLANE_NEAR, FRUSTUM_PLANE_RIGHT, FRUSTUM_PLANE_TOP ); r += 3;
+    _getCorner( r, FRUSTUM_PLANE_NEAR, FRUSTUM_PLANE_LEFT, FRUSTUM_PLANE_TOP ); r += 3;
+    _getCorner( r, FRUSTUM_PLANE_NEAR, FRUSTUM_PLANE_LEFT, FRUSTUM_PLANE_BOTTOM ); r += 3;
+    _getCorner( r, FRUSTUM_PLANE_NEAR, FRUSTUM_PLANE_RIGHT, FRUSTUM_PLANE_BOTTOM );
 
-        rend.pVertices = mCorners;
-        rend.pIndexes = mIndexes;
-        rend.pDiffuseColour = mColors;
+    updateView();
 
-    }
+    rend.useIndexes = true;
+    rend.numTextureCoordSets = 0; // no textures
+    rend.vertexOptions = RenderOperation::VO_DIFFUSE_COLOURS;
+    rend.operationType = RenderOperation::OT_LINE_LIST;
+    rend.numVertices = 8;
+    rend.numIndexes = 24;
 
-    void OctreeCamera::_getCorner( Real *r, FrustumPlane pp1, FrustumPlane pp2, FrustumPlane pp3 )
-    {
-        //intersect the three planes to get a point.
-        //this could be faster since we know what Z is, but showing the camera is only a debug tool...
+    rend.pVertices = mCorners;
+    rend.pIndexes = mIndexes;
+    rend.pDiffuseColour = mColors;
+
+}
+
+void OctreeCamera::_getCorner( Real *r, FrustumPlane pp1, FrustumPlane pp2, FrustumPlane pp3 )
+{
+    //intersect the three planes to get a point.
+    //this could be faster since we know what Z is, but showing the camera is only a debug tool...
 
 
-        Plane p1 = mFrustumPlanes[ pp1 ];
-        Plane p2 = mFrustumPlanes[ pp2 ];
-        Plane p3 = mFrustumPlanes[ pp3 ];
+    Plane p1 = mFrustumPlanes[ pp1 ];
+    Plane p2 = mFrustumPlanes[ pp2 ];
+    Plane p3 = mFrustumPlanes[ pp3 ];
 
-        Matrix3 mdet ( p1.normal.x , p1.normal.y , p1.normal.z ,
-            p2.normal.x , p2.normal.y , p2.normal.z ,
-            p3.normal.x , p3.normal.y , p3.normal.z );
+    Matrix3 mdet ( p1.normal.x , p1.normal.y , p1.normal.z ,
+                   p2.normal.x , p2.normal.y , p2.normal.z ,
+                   p3.normal.x , p3.normal.y , p3.normal.z );
 
-        float det = mdet.Determinant ();
+    float det = mdet.Determinant ();
 
-        if ( det == 0 ) return ; //some planes are parallel.
+    if ( det == 0 ) return ; //some planes are parallel.
 
-        Matrix3 mx ( -p1.d , p1.normal.y , p1.normal.z,
-            -p2.d, p2.normal.y , p2.normal.z,
-            -p3.d, p3.normal.y , p3.normal.z );
+    Matrix3 mx ( -p1.d , p1.normal.y , p1.normal.z,
+                 -p2.d, p2.normal.y , p2.normal.z,
+                 -p3.d, p3.normal.y , p3.normal.z );
 
-        float xdet = mx.Determinant();
+    float xdet = mx.Determinant();
 
-        Matrix3 my ( p1.normal.x, -p1.d, p1.normal.z,
-            p2.normal.x, -p2.d, p2.normal.z,
-            p3.normal.x, -p3.d, p3.normal.z );
+    Matrix3 my ( p1.normal.x, -p1.d, p1.normal.z,
+                 p2.normal.x, -p2.d, p2.normal.z,
+                 p3.normal.x, -p3.d, p3.normal.z );
 
-        float ydet = my.Determinant ();
+    float ydet = my.Determinant ();
 
-        Matrix3 mz ( p1.normal.x, p1.normal.y, -p1.d,
-            p2.normal.x, p2.normal.y, -p2.d,
-            p3.normal.x, p3.normal.y, -p3.d );
+    Matrix3 mz ( p1.normal.x, p1.normal.y, -p1.d,
+                 p2.normal.x, p2.normal.y, -p2.d,
+                 p3.normal.x, p3.normal.y, -p3.d );
 
-        float zdet = mz.Determinant ();
+    float zdet = mz.Determinant ();
 
-        r[ 0 ] = xdet / det;
+    r[ 0 ] = xdet / det;
 
-        r[ 1 ] = ydet / det;
+    r[ 1 ] = ydet / det;
 
-        r[ 2 ] = zdet / det;
+    r[ 2 ] = zdet / det;
 
-    }
+}
 }
 
 

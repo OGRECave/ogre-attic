@@ -1,10 +1,10 @@
 /***************************************************************************
-                          terrainscenemanager.h  -  description
-                             -------------------
-    begin                : Mon Sep 23 2002
-    copyright            : (C) 2002 by Jon Anderson
-    email                : janders@users.sf.net
- ***************************************************************************/
+                         terrainscenemanager.h  -  description
+                            -------------------
+   begin                : Mon Sep 23 2002
+   copyright            : (C) 2002 by Jon Anderson
+   email                : janders@users.sf.net
+***************************************************************************/
 
 /***************************************************************************
  *                                                                         *
@@ -22,74 +22,84 @@
 #include <OgreTerrainRenderable.h>
 
 
-namespace Ogre {
+namespace Ogre
+{
 
-  class Image;
+class Image;
 
-  typedef std::vector< TerrainRenderable *> TerrainRow;
-  typedef std::vector< TerrainRow > Terrain2D;
+typedef std::vector < TerrainRenderable * > TerrainRow;
+typedef std::vector < TerrainRow > Terrain2D;
 
 
 /** This is a basic SceneManager for organizing TerrainRenderables into a total landscape.
   * It loads a terrain from a .cfg file that specifices what textures/scale/mipmaps/etc to use.
   *@author Jon Anderson
   */
-  class TerrainSceneManager : public OctreeSceneManager  {
-  public:
-  TerrainSceneManager( );
-  virtual ~TerrainSceneManager( );
 
-  /** Loads the terrain using parameters int he given config file. */
-  void setWorldGeometry(const String& filename);
-  
-  /** Updates all the TerrainRenderables LOD. */
-  virtual void _updateSceneGraph( Camera * cam );
+class TerrainSceneManager : public OctreeSceneManager
+{
+public:
+    TerrainSceneManager( );
+    virtual ~TerrainSceneManager( );
 
-  /** Aligns TerrainRenderable neighbors, and renders them. */
-  virtual void _renderVisibleObjects( void );
+    /** Loads the terrain using parameters int he given config file. */
 
-  /** Just the default. */
-  virtual void _findVisibleObjects ( Camera * cam );
+    void setWorldGeometry( const String& filename );
 
-  /** Returns the height at the given terrain coordinates. */
-  float getHeightAt( float x, float y );
+    /** Updates all the TerrainRenderables LOD. */
+    virtual void _updateSceneGraph( Camera * cam );
 
-  /** Returns the normal at the given terrain coordinates. */
-  Vector3 & getNormalAt( float x, float y ){ return mTempNormal;};
+    /** Aligns TerrainRenderable neighbors, and renders them. */
+    virtual void _renderVisibleObjects( void );
 
+    /** Just the default. */
+    virtual void _findVisibleObjects ( Camera * cam );
 
-  protected:
+    /** Returns the height at the given terrain coordinates. */
+    float getHeightAt( float x, float y );
 
-  bool _checkSize(int s )
+    /** Returns the normal at the given terrain coordinates. */
+    Vector3 & getNormalAt( float x, float y )
     {
-      for(int i=0; i<16; i++ )
-	{
-	  printf( "Checking...%d\n", (1<<i)+1 );
-	  if( s == (1 << i) + 1 )
-	    return true;
-	}
-      return false;
+        return mTempNormal;
+    };
+
+
+protected:
+
+    bool _checkSize( int s )
+    {
+        for ( int i = 0; i < 16; i++ )
+        {
+            printf( "Checking...%d\n", ( 1 << i ) + 1 );
+
+            if ( s == ( 1 << i ) + 1 )
+                return true;
+        }
+
+        return false;
 
     }
 
 
-  int mNumTiles;
+    int mNumTiles;
 
-  int mTileSize;
+    int mTileSize;
 
-  Vector3 mTempNormal;
+    Vector3 mTempNormal;
 
-  Vector3 mScale;
+    Vector3 mScale;
 
-  Material *mTerrainMaterial;
+    Material *mTerrainMaterial;
 
-  SceneNode * mTerrainRoot;
+    SceneNode * mTerrainRoot;
 
-  Terrain2D mTiles;
+    Terrain2D mTiles;
 
-  Image * mImage;
+    Image * mImage;
 
-  };
+};
 
 }
+
 #endif
