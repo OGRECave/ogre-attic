@@ -9,7 +9,6 @@ AC_CANONICAL_TARGET
 dnl Check for programs
 AC_PROG_CC
 AC_PROG_CXX
-AC_PROG_RANLIB
 AC_PROG_INSTALL
 
 AM_PROG_LIBTOOL
@@ -86,9 +85,15 @@ AC_OUTPUT(Makefile \
     Samples/TextureFX/Makefile \
     Samples/TextureFX/src/Makefile \
     Samples/TextureFX/include/Makefile \
+    Samples/SkyBox/Makefile \
+    Samples/SkyBox/src/Makefile \
+    Samples/SkyBox/include/Makefile \
     Samples/SkyDome/Makefile \
     Samples/SkyDome/src/Makefile \
     Samples/SkyDome/include/Makefile \
+    Samples/SkyPlane/Makefile \
+    Samples/SkyPlane/src/Makefile \
+    Samples/SkyPlane/include/Makefile \
     Samples/BSP/Makefile \
     Samples/BSP/src/Makefile \
     Samples/BSP/include/Makefile \
