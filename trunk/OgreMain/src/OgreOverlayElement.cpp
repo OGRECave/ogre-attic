@@ -69,6 +69,7 @@ namespace Ogre {
         mHorzAlign = GHA_LEFT;
         mVertAlign = GVA_TOP;
         mGeomPositionsOutOfDate = true;  
+		mGeomUVsOutOfDate = true;  
 		mEnabled = true;
         mPixelLeft = 0.0;
         mPixelTop = 0.0;
@@ -77,6 +78,7 @@ namespace Ogre {
         mPixelScaleX = 1.0;
         mPixelScaleY = 1.0;
         mSourceTemplate = NULL;
+		mInitialised = false;
     }
     //---------------------------------------------------------------------
     OverlayElement::~OverlayElement()
@@ -404,11 +406,17 @@ namespace Ogre {
         // NB container subclasses will update children too
 
         // Tell self to update own position geometry
-        if (mGeomPositionsOutOfDate)
+        if (mGeomPositionsOutOfDate && mInitialised)
         {
             updatePositionGeometry();
             mGeomPositionsOutOfDate = false;
         }
+		// Tell self to update own texture geometry
+		if (mGeomUVsOutOfDate && mInitialised)
+		{
+			updateTextureGeometry();
+			mGeomPositionsOutOfDate = false;
+		}
     }
     //---------------------------------------------------------------------
     void OverlayElement::_updateFromParent(void)

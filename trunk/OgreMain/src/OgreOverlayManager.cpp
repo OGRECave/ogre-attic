@@ -623,7 +623,6 @@ namespace Ogre {
 				" already exists.", "OverlayManager::createOverlayElement" );
 		}
 		OverlayElement* newElem = createOverlayElementFromFactory(typeName, instanceName);
-		newElem->initialise();
 
 		// Register
 		elementMap.insert(ElementMap::value_type(instanceName, newElem));

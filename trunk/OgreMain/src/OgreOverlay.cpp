@@ -43,7 +43,7 @@ namespace Ogre {
         mScrollX(0.0f), mScrollY(0.0f),
         mScaleX(1.0f), mScaleY(1.0f), 
         mTransformOutOfDate(true), mTransformUpdated(true), 
-        mZOrder(100), mVisible(false)
+        mZOrder(100), mVisible(false), mInitialised(false)
 
     {
         mRootNode = new SceneNode(NULL);
@@ -90,6 +90,10 @@ namespace Ogre {
     void Overlay::show(void)
     {
         mVisible = true;
+		if (!mInitialised)
+		{
+			initialise();
+		}
     }
     //---------------------------------------------------------------------
     void Overlay::hide(void)
@@ -97,6 +101,17 @@ namespace Ogre {
         mVisible = false;
     }
     //---------------------------------------------------------------------
+	void Overlay::initialise(void)
+	{
+		OverlayContainerList::iterator i, iend;
+		iend = m2DElements.end();
+		for (i = m2DElements.begin(); i != m2DElements.end(); ++i)
+		{
+			(*i)->initialise();
+		}
+		mInitialised = true;
+	}
+	//---------------------------------------------------------------------
     void Overlay::add2D(OverlayContainer* cont)
     {
         m2DElements.push_back(cont);

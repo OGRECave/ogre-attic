@@ -183,7 +183,20 @@ namespace Ogre {
     {
         return ChildContainerIterator(mChildContainers.begin(), mChildContainers.end());
     }
-
+	//---------------------------------------------------------------------
+	void OverlayContainer::initialise(void)
+	{
+		ChildContainerMap::iterator coni;
+		for (coni =  mChildContainers.begin(); coni != mChildContainers.end(); ++coni)
+		{
+			coni->second->initialise();
+		}
+		ChildMap::iterator ci;
+		for (ci =  mChildren.begin(); ci != mChildren.end(); ++ci)
+		{
+			ci->second->initialise();
+		}
+	}
     //---------------------------------------------------------------------
 	void OverlayContainer::_positionsOutOfDate(void)
 	{

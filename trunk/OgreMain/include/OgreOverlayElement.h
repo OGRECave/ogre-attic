@@ -143,8 +143,10 @@ namespace Ogre {
         Real mDerivedTop;
         bool mDerivedOutOfDate;
 
-        /// Falg indicating if the vertex positons need recalculating
+        /// Flag indicating if the vertex positons need recalculating
         bool mGeomPositionsOutOfDate;
+		/// Flag indicating if the vertex uvs need recalculating
+		bool mGeomUVsOutOfDate;
 
         // Zorder for when sending to render queue
         // Derived from parent
@@ -156,6 +158,9 @@ namespace Ogre {
         // is element enabled
         bool mEnabled;
 
+		// is element initialised
+		bool mInitialised;
+
         // Used to see if this element is created from a Template
         OverlayElement* mSourceTemplate ;
 
@@ -164,6 +169,11 @@ namespace Ogre {
         subclasses must implement this.
         */
         virtual void updatePositionGeometry(void) = 0;
+		/** Internal method which is triggered when the UVs of the element get updated,
+		meaning the element should be rebuilding it's mesh UVs. Abstract since
+		subclasses must implement this.
+		*/
+		virtual void updateTextureGeometry(void) = 0;
 
         /** Internal method for setting up the basic parameter definitions for a subclass. 
         @remarks

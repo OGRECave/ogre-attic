@@ -248,6 +248,10 @@ namespace Ogre {
         Real mRightBorderSize;
         Real mTopBorderSize;
         Real mBottomBorderSize;
+		struct CellUV {
+			Real u1, v1, u2, v2;
+		};
+		CellUV mBorderUV[8];
 
         ushort mPixelLeftBorderSize;
         ushort mPixelRightBorderSize;
@@ -264,7 +268,8 @@ namespace Ogre {
 
         /// internal method for setting up geometry, called by OverlayElement::update
         void updatePositionGeometry(void);
-
+		/// internal method for setting up geometry, called by OverlayElement::update
+		void updateTextureGeometry(void);
         /// Internal method for setting up parameters
         void addBaseParameters(void);
 
@@ -278,8 +283,6 @@ namespace Ogre {
             BCELL_BOTTOM = 6,
             BCELL_BOTTOM_RIGHT = 7
         };
-        /// Internal method for updating UV
-        void setCellUV(BorderCellIndex idx, Real& u1, Real& v1, Real& u2, Real& v2);
 	    String getCellUVString(BorderCellIndex idx) const;
 
         // Command objects
