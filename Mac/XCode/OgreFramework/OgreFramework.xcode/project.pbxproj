@@ -9699,36 +9699,36 @@
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = OgreGLDefaultHardwareBufferManager.h;
-			path = /Users/temas/cvs/ogre/RenderSystems/GL/include/OgreGLDefaultHardwareBufferManager.h;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../../RenderSystems/GL/include/OgreGLDefaultHardwareBufferManager.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		820AF5F70531D8D5006AB97A = {
 			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = OgreGLHardwareBufferManager.h;
-			path = /Users/temas/cvs/ogre/RenderSystems/GL/include/OgreGLHardwareBufferManager.h;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../../RenderSystems/GL/include/OgreGLHardwareBufferManager.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		820AF5F80531D8D5006AB97A = {
 			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = OgreGLHardwareIndexBuffer.h;
-			path = /Users/temas/cvs/ogre/RenderSystems/GL/include/OgreGLHardwareIndexBuffer.h;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../../RenderSystems/GL/include/OgreGLHardwareIndexBuffer.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		820AF5F90531D8D5006AB97A = {
 			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = OgreGLHardwareVertexBuffer.h;
-			path = /Users/temas/cvs/ogre/RenderSystems/GL/include/OgreGLHardwareVertexBuffer.h;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../../RenderSystems/GL/include/OgreGLHardwareVertexBuffer.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		820AF5FA0531D8D5006AB97A = {
 			fileRef = 820AF5F60531D8D5006AB97A;
@@ -9759,36 +9759,36 @@
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = OgreGLDefaultHardwareBufferManager.cpp;
-			path = /Users/temas/cvs/ogre/RenderSystems/GL/src/OgreGLDefaultHardwareBufferManager.cpp;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../../RenderSystems/GL/src/OgreGLDefaultHardwareBufferManager.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		820AF5FF0531D957006AB97A = {
 			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = OgreGLHardwareBufferManager.cpp;
-			path = /Users/temas/cvs/ogre/RenderSystems/GL/src/OgreGLHardwareBufferManager.cpp;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../../RenderSystems/GL/src/OgreGLHardwareBufferManager.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		820AF6000531D957006AB97A = {
 			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = OgreGLHardwareIndexBuffer.cpp;
-			path = /Users/temas/cvs/ogre/RenderSystems/GL/src/OgreGLHardwareIndexBuffer.cpp;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../../RenderSystems/GL/src/OgreGLHardwareIndexBuffer.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		820AF6010531D957006AB97A = {
 			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = OgreGLHardwareVertexBuffer.cpp;
-			path = /Users/temas/cvs/ogre/RenderSystems/GL/src/OgreGLHardwareVertexBuffer.cpp;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../../RenderSystems/GL/src/OgreGLHardwareVertexBuffer.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		820AF6020531D957006AB97A = {
 			fileRef = 820AF5FE0531D957006AB97A;
@@ -9819,54 +9819,54 @@
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = OgreColourImageAffector.h;
-			path = /Users/temas/cvs/ogre/PlugIns/ParticleFX/include/OgreColourImageAffector.h;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../../PlugIns/ParticleFX/include/OgreColourImageAffector.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		820AF60C0531DA8B006AB97A = {
 			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = OgreColourImageAffectorFactory.h;
-			path = /Users/temas/cvs/ogre/PlugIns/ParticleFX/include/OgreColourImageAffectorFactory.h;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../../PlugIns/ParticleFX/include/OgreColourImageAffectorFactory.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		820AF60D0531DA8B006AB97A = {
 			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = OgreColourInterpolatorAffector.h;
-			path = /Users/temas/cvs/ogre/PlugIns/ParticleFX/include/OgreColourInterpolatorAffector.h;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../../PlugIns/ParticleFX/include/OgreColourInterpolatorAffector.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		820AF60E0531DA8B006AB97A = {
 			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = OgreColourInterpolatorAffectorFactory.h;
-			path = /Users/temas/cvs/ogre/PlugIns/ParticleFX/include/OgreColourInterpolatorAffectorFactory.h;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../../PlugIns/ParticleFX/include/OgreColourInterpolatorAffectorFactory.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		820AF60F0531DA8B006AB97A = {
 			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = OgreRotationAffector.h;
-			path = /Users/temas/cvs/ogre/PlugIns/ParticleFX/include/OgreRotationAffector.h;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../../PlugIns/ParticleFX/include/OgreRotationAffector.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		820AF6100531DA8B006AB97A = {
 			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = OgreRotationAffectorFactory.h;
-			path = /Users/temas/cvs/ogre/PlugIns/ParticleFX/include/OgreRotationAffectorFactory.h;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../../PlugIns/ParticleFX/include/OgreRotationAffectorFactory.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		820AF6110531DA8B006AB97A = {
 			fileRef = 820AF60B0531DA8B006AB97A;
@@ -9909,27 +9909,27 @@
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = OgreColourImageAffector.cpp;
-			path = /Users/temas/cvs/ogre/PlugIns/ParticleFX/src/OgreColourImageAffector.cpp;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../../PlugIns/ParticleFX/src/OgreColourImageAffector.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		820AF6180531DAAF006AB97A = {
 			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = OgreColourInterpolatorAffector.cpp;
-			path = /Users/temas/cvs/ogre/PlugIns/ParticleFX/src/OgreColourInterpolatorAffector.cpp;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../../PlugIns/ParticleFX/src/OgreColourInterpolatorAffector.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		820AF6190531DAAF006AB97A = {
 			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = OgreRotationAffector.cpp;
-			path = /Users/temas/cvs/ogre/PlugIns/ParticleFX/src/OgreRotationAffector.cpp;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../../PlugIns/ParticleFX/src/OgreRotationAffector.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		820AF61A0531DAAF006AB97A = {
 			fileRef = 820AF6170531DAAF006AB97A;
