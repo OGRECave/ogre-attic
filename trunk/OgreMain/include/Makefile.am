@@ -12,6 +12,7 @@ OgreBillboard.h \
 OgreBillboardSet.h \
 OgreBitwise.h \
 OgreBlendMode.h \
+OgreBMPCodec.h \
 OgreBone.h \
 OgreCamera.h \
 OgreCodec.h \
