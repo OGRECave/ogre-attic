@@ -617,6 +617,7 @@ typedef struct {
     void (APIENTRY *DeleteProgramsARB) (GLsizei, const GLuint *);
     void (APIENTRY *GenProgramsARB) (GLsizei, GLuint *);
     void (APIENTRY *ProgramLocalParameter4fvARB) (GLenum, GLuint, const GLfloat *);
+    void (APIENTRY *GetProgramivARB) (GLenum, GLenum, GLint *);
 	// END OGRE CHANGES
 } _GLextensionProcs;
 
@@ -1178,6 +1179,7 @@ typedef struct {
 #define glGenProgramsARB                (_GET_TLS_PROCTABLE()->GenProgramsARB)
 #define glDeleteProgramsARB             (_GET_TLS_PROCTABLE()->DeleteProgramsARB)
 #define glProgramStringARB              (_GET_TLS_PROCTABLE()->ProgramStringARB)
+#define glGetProgramivARB               (_GET_TLS_PROCTABLE()->GetProgramivARB)
 // END OGRE CHANGES
 
 #ifndef _APP_PROCTABLE

@@ -8909,6 +8909,21 @@ void APIENTRY InitProgramLocalParameter4fvARB (GLenum a, GLuint b, const GLfloat
 	glProgramLocalParameter4fvARB(a, b, c);
 }
 
+void APIENTRY InitGetProgramivARB (GLenum a, GLenum b, GLint *c)
+{
+	void *extproc;
+
+	extproc = (void *) wglGetProcAddress("glGetProgramivARB");
+
+	if (extproc == NULL) {
+		_ASSERT(0);
+		return;
+	}
+
+	glGetProgramivARB = extproc;
+
+	glGetProgramivARB(a, b, c);
+}
 // END OGRE CHANGES
 
 _GLextensionProcs _extensionProcs = {
@@ -9468,6 +9483,7 @@ _GLextensionProcs _extensionProcs = {
     InitBindProgramARB, 
     InitDeleteProgramsARB, 
     InitGenProgramsARB, 
-    InitProgramLocalParameter4fvARB
+    InitProgramLocalParameter4fvARB,
+    InitGetProgramivARB
 	// END OGRE CHANGES
 };
