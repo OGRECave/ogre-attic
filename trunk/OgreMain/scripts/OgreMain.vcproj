@@ -384,6 +384,9 @@ makeall_vc7.bat
 				RelativePath="..\include\OgreAnimation.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreAnimationState.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreAnimationTrack.h">
 			</File>
 			<File
