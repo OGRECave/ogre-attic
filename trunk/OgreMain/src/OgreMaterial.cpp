@@ -519,7 +519,34 @@ namespace Ogre {
         // Also need to flag as unloaded to ensure we loaded any new items
         mIsLoaded = false;
     }
+    // --------------------------------------------------------------------
+    void Material::setLodLevels(const LodDistanceList& lodDistances)
+    {
+        // Copy direct
+        mLodDistances = lodDistances;
+    }
+    // --------------------------------------------------------------------
+    unsigned short Material::getLodIndex(Real d)
+    {
+        return getLodIndexSquaredDistance(d * d);
+    }
+    // --------------------------------------------------------------------
+    unsigned short Material::getLodIndexSquaredDistance(Real squaredDistance)
+    {
+		LodDistanceList::const_iterator i, iend;
+		iend = mLodDistances.end();
+		unsigned short index = 0;
+		for (i = mLodDistances.begin(); i != iend; ++i, ++index)
+		{
+			if (*i > squaredDistance)
+			{
+				return index - 1;
+			}
+		}
 
+		// If we fall all the way through, use the highest value
+		return static_cast<ushort>(mLodDistances.size() - 1);
+    }
 
 
 }

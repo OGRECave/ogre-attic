@@ -23,11 +23,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC163"></A>
+<A NAME="SEC164"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_48.html#SEC162"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_48.html#SEC162"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_50.html#SEC165"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_48.html#SEC163"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_48.html#SEC163"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_50.html#SEC166"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -35,7 +35,7 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 </TR></TABLE>
 <HR SIZE=1>
 <H3> 5.7.1 The IndexData class </H3>
-<!--docid::SEC163::-->
+<!--docid::SEC164::-->
 This class summarises the information required to use a set of indexes to render geometry. It's members are as follows:
 <DL COMPACT>
 <DT>indexStart
@@ -46,10 +46,10 @@ This class summarises the information required to use a set of indexes to render
 <DD>The index buffer which is used to source the indexes. 
 </DL>
 
-<A NAME="SEC164"></A>
+<A NAME="SEC165"></A>
 <H3> Creating an Index Buffer </H3>
-<!--docid::SEC164::-->
-Index buffers are created using See section <A HREF="manual_38.html#SEC148">5.1 The Hardware Buffer Manager</A> just like vertex buffers, here's how:
+<!--docid::SEC165::-->
+Index buffers are created using See section <A HREF="manual_38.html#SEC149">5.1 The Hardware Buffer Manager</A> just like vertex buffers, here's how:
 <TABLE><tr><td>&nbsp;</td><td class=example><pre>HardwareIndexBufferSharedPtr ibuf = HardwareBufferManager::getSingleton().
 	createIndexBuffer(
 		HardwareIndexBuffer::IT_16BIT, // type of index
@@ -63,17 +63,17 @@ Index buffers are created using See section <A HREF="manual_38.html#SEC148">5.1 
 <DT>numIndexes
 <DD>The number of indexes in the buffer. As with vertex buffers, you should consider whether you can use a shared index buffer which is used by multiple pieces of geometry, since there can be performance advantages to switching index buffers less often. 
 <DT>usage
-<DD>This tells the system how you intend to use the buffer. See section <A HREF="manual_39.html#SEC149">5.2 Buffer Usage</A>
+<DD>This tells the system how you intend to use the buffer. See section <A HREF="manual_39.html#SEC150">5.2 Buffer Usage</A>
 <DT>useShadowBuffer
-<DD>Tells the system whether you want this buffer backed by a system-memory copy. See section <A HREF="manual_40.html#SEC150">5.3 Shadow Buffers</A>
+<DD>Tells the system whether you want this buffer backed by a system-memory copy. See section <A HREF="manual_40.html#SEC151">5.3 Shadow Buffers</A>
 </DL>
 
 <A NAME="Updating Index Buffers"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_48.html#SEC162"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_48.html#SEC162"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_50.html#SEC165"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_48.html#SEC163"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_48.html#SEC163"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_50.html#SEC166"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>

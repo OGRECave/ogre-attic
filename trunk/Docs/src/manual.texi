@@ -404,8 +404,9 @@ Note that if the number of texture_unit entries exceeds the number of texture un
 @*
 In a material script, techniques must be listed in order of preference, i.e. the earlier techniques are preferred over the later techniques. This normally means you will list your most advanced, most demanding techniques first in the script, and list fallbacks afterwards.@*@*
 
-Techniques have only one attribute of their own, which indicates which LOD index they belong to.
+Techniques have only one attribute of their own, which indicates which LOD index they belong to (@xref{lod_index}). We also mention an extra Material attribute called @ref{lod_distances} which isn't a Technique attribute but is directly related to the lod_index attribute, so it's listed here for convenience.@*@*
 
+@anchor{lod_index}
 @subheading lod_index
 
 Sets the level-of-detail (LOD) index this Technique belongs to. @*@*
@@ -415,11 +416,26 @@ NB Valid values are 0 (highest level of detail) to 65535, although this is unlik
 
 Example: lod_index 1@*@*
 
-All techniques must belong to a LOD index, by default they all belong to index 0, ie the highest LOD. Increasing indexes denote lower levels of detail. You can (and often will) assign more than one technique to the same LOD index, what this means is that OGRE will pick the best technique of the ones listed at the same LOD index. Fo readability, it is advised that you list your techniques in order of LOD, then in order of preference, although the latter is the only prerequisite (OGRE determines which one is 'best' by which one is listed first).@*@*
+All techniques must belong to a LOD index, by default they all belong to index 0, ie the highest LOD. Increasing indexes denote lower levels of detail. You can (and often will) assign more than one technique to the same LOD index, what this means is that OGRE will pick the best technique of the ones listed at the same LOD index. Fo readability, it is advised that you list your techniques in order of LOD, then in order of preference, although the latter is the only prerequisite (OGRE determines which one is 'best' by which one is listed first). You must always have at least one Technique at lod_index 0.@*@*
+The distance at which a LOD level is applied is determined by the lod_distances attribute of the containing material, @xref{lod_distances} for details.@*@*
 
 Default: lod_index 0@*@*
 
+@anchor{lod_distances}
+@subheading lod_distances
+@strong{Note: this attribute must be specified in the outer material section (ie the parent of all the techniques), but it's specified here since it is most relevant to this section.}@*@*
+
+By setting this attribute, you indicate that you want this material to alter the Technique that it uses based on distance from the camera. You must give it a list of distances, in ascending order, each one indicating the distance at which the material will switch to the next LOD. Implicitly, all materials activate LOD index 0 for distances less than the smallest of these. You must ensure that there is at least one Technique with a @ref{lod_index} value for each distance in the list (so if you specify 3 distances, you must have techniques for indexes 1, 2 and 3). Note you must always have at least one Technique at lod_index 0.@*@*
+
+Format: lod_distances <distance_1> [<distance_2> ... <distance_n>]@*
+
+Example: lod_distance 300 600 1200@*@*
+
+The above example would cause the material to use the best Technique at lod_index 0 up to a distance of 300 world units, the best from lod_index 1 from 300 up to 600, lod_index 2 from 600 to 1200, and lod_index 3 from 1200 upwards.@*@*
+
 Techniques also contain one or more passes (and there must be at least one), @xref{Passes}.
+
+
 
 @node Passes
 @subsection Passes

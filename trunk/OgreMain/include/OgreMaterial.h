@@ -78,6 +78,9 @@ namespace Ogre {
         friend class SceneManager;
         friend class MaterialManager;
 
+    public:
+        /// distance list used to specify LOD
+        typedef std::vector<Real> LodDistanceList;
     protected:
 
         /// Default material settings - set up by SceneManager
@@ -95,6 +98,7 @@ namespace Ogre {
 
         /// Does this material require compilation?
         bool mCompilationRequired;
+        LodDistanceList mLodDistances;
 
     public:
 
@@ -482,7 +486,24 @@ namespace Ogre {
         /** Tells the material that it needs recompilation. */
         void _notifyNeedsRecompile(void);
 
+        /** Sets the distance at which level-of-detail (LOD) levels come into effect.
+        @remarks
+            You should only use this if you have assigned LOD indexes to the Technique
+            instances attached to this Material. If you have done so, you should call this
+            method to determine the distance at which the lowe levels of detail kick in.
+            The decision about what distance is actually used is a combination of this
+            and the LOD bias applied to both the current Camera and the current Entity.
+        @param lodDistances A vector of Reals which indicate the distance at which to 
+            switch to lower details. They are listed in LOD index order, starting at index
+            1 (ie the first level down from the highest level 0, which automatically applies
+            from a distance of 0).
+        */
+        void setLodLevels(const LodDistanceList& lodDistances);
 
+        /** Gets the LOD index to use at the given distance. */
+        unsigned short getLodIndex(Real d);
+        /** Gets the LOD index to use at the given squared distance. */
+        unsigned short getLodIndexSquaredDistance(Real squaredDistance);
 
 
     };

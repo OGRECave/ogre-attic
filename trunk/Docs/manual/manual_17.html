@@ -27,7 +27,7 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC25"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC25"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_18.html#SEC30"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_18.html#SEC31"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -42,15 +42,16 @@ A "technique" section in your material script encapsulates a single method of re
 When a material is used for the first time, it is 'compiled'. That involves scanning the techniques which have been defined, and marking which of them are supportable using the current rendering API and graphics card. If no techniques are supportable, your material will render as blank white. The compilation examines a number of things, such as:
 <UL>
 <LI>The number of texture_unit entries in each pass<BR>
-Note that if the number of texture_unit entries exceeds the number of texture units in the current graphics card, the technique may still be supportable so long as a fragment program is not being used. In this case, Ogre will split the pass which has too many entries into multiple passes for the less capable card, and the multitexture blend will be turned into a multipass blend (See section <A HREF="manual_19.html#SEC60">colour_op_multipass_fallback</A>).
+Note that if the number of texture_unit entries exceeds the number of texture units in the current graphics card, the technique may still be supportable so long as a fragment program is not being used. In this case, Ogre will split the pass which has too many entries into multiple passes for the less capable card, and the multitexture blend will be turned into a multipass blend (See section <A HREF="manual_19.html#SEC61">colour_op_multipass_fallback</A>).
 <LI>Whether vertex or fragment programs are used, and if so which syntax they use (e.g. vs_1_1, ps_2_x, arbfp1 etc)
 <LI>Other effects like cube mapping and dot3 blending
 </UL>
 <BR>
 In a material script, techniques must be listed in order of preference, i.e. the earlier techniques are preferred over the later techniques. This normally means you will list your most advanced, most demanding techniques first in the script, and list fallbacks afterwards.<BR><BR>
 
-Techniques have only one attribute of their own, which indicates which LOD index they belong to.
+Techniques have only one attribute of their own, which indicates which LOD index they belong to (See section <A HREF="manual_17.html#SEC29">lod_index</A>). We also mention an extra Material attribute called <A HREF="manual_17.html#SEC30">lod_distances</A> which isn't a Technique attribute but is directly related to the lod_index attribute, so it's listed here for convenience.<BR><BR>
 
+<A NAME="lod_index"></A>
 <A NAME="SEC29"></A>
 <H3> lod_index </H3>
 <!--docid::SEC29::-->
@@ -62,18 +63,35 @@ NB Valid values are 0 (highest level of detail) to 65535, although this is unlik
 
 Example: lod_index 1<BR><BR>
 
-All techniques must belong to a LOD index, by default they all belong to index 0, ie the highest LOD. Increasing indexes denote lower levels of detail. You can (and often will) assign more than one technique to the same LOD index, what this means is that OGRE will pick the best technique of the ones listed at the same LOD index. Fo readability, it is advised that you list your techniques in order of LOD, then in order of preference, although the latter is the only prerequisite (OGRE determines which one is 'best' by which one is listed first).<BR><BR>
+All techniques must belong to a LOD index, by default they all belong to index 0, ie the highest LOD. Increasing indexes denote lower levels of detail. You can (and often will) assign more than one technique to the same LOD index, what this means is that OGRE will pick the best technique of the ones listed at the same LOD index. Fo readability, it is advised that you list your techniques in order of LOD, then in order of preference, although the latter is the only prerequisite (OGRE determines which one is 'best' by which one is listed first). You must always have at least one Technique at lod_index 0.<BR><BR>
+The distance at which a LOD level is applied is determined by the lod_distances attribute of the containing material, See section <A HREF="manual_17.html#SEC30">lod_distances</A> for details.<BR><BR>
 
 Default: lod_index 0<BR><BR>
 
-Techniques also containone or more passes (and there must be at least one), See section <A HREF="manual_18.html#SEC30">3.1.2 Passes</A>.
+<A NAME="lod_distances"></A>
+<A NAME="SEC30"></A>
+<H3> lod_distances </H3>
+<!--docid::SEC30::-->
+<STRONG>Note: this attribute must be specified in the outer material section (ie the parent of all the techniques), but it's specified here since it is most relevant to this section.</STRONG><BR><BR>
+
+By setting this attribute, you indicate that you want this material to alter the Technique that it uses based on distance from the camera. You must give it a list of distances, in ascending order, each one indicating the distance at which the material will switch to the next LOD. Implicitly, all materials activate LOD index 0 for distances less than the smallest of these. You must ensure that there is at least one Technique with a <A HREF="manual_17.html#SEC29">lod_index</A> value for each distance in the list (so if you specify 3 distances, you must have techniques for indexes 1, 2 and 3). Note you must always have at least one Technique at lod_index 0.<BR><BR>
+
+Format: lod_distances &#60;distance_1&#62; [&#60;distance_2&#62; ... &#60;distance_n&#62;]<BR>
+
+Example: lod_distance 300 600 1200<BR><BR>
+
+The above example would cause the material to use the best Technique at lod_index 0 up to a distance of 300 world units, the best from lod_index 1 from 300 up to 600, lod_index 2 from 600 to 1200, and lod_index 3 from 1200 upwards.<BR><BR>
+
+Techniques also contain one or more passes (and there must be at least one), See section <A HREF="manual_18.html#SEC31">3.1.2 Passes</A>.
+
+
 
 <A NAME="Passes"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC25"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC25"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_18.html#SEC30"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_18.html#SEC31"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
