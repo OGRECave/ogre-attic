@@ -43,6 +43,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 #   include <OpenGL/glext.h>
 #   include <OpenGL/glu.h>
 #endif
+// Deal with missing GL_DOT3_RGB_EXT
+// Extensions will be checked for anyway, this is just for compiler
+#   ifndef GL_DOT3_RGB_EXT
+#	   define GL_DOT3_RGB_EXT GL_DOT3_RGB_ARB
+#   endif
+
 
 namespace Ogre {
     // Forward declarations
