@@ -1005,8 +1005,8 @@ PS_1_4::PS_1_4()
 
 bool PS_1_4::bindMachineInstInPassToFragmentShader(const MachineInstContainer & PassMachineInstructions)
 {
-  int instIDX = 0;
-  int instCount = PassMachineInstructions.size();
+  size_t instIDX = 0;
+  size_t instCount = PassMachineInstructions.size();
   bool error = false;
 
   while ((instIDX < instCount) && !error) {
@@ -1137,7 +1137,7 @@ bool PS_1_4::bindMachineInstInPassToFragmentShader(const MachineInstContainer & 
 }
 
 
-uint PS_1_4::getMachineInst( uint Idx)
+size_t PS_1_4::getMachineInst( size_t Idx)
 {
 	if (Idx < mPhase1TEX_mi.size()) {
 		return mPhase1TEX_mi[Idx];
@@ -1195,7 +1195,7 @@ void PS_1_4::addMachineInst(const PhaseType phase, const uint inst)
 
 }
 
-uint PS_1_4::getMachineInstCount()
+size_t PS_1_4::getMachineInstCount()
 {
 
 	return (mPhase1TEX_mi.size() + mPhase1ALU_mi.size() + mPhase2TEX_mi.size() + mPhase2ALU_mi.size());
@@ -1523,6 +1523,7 @@ bool PS_1_4::isRegisterReadValid(const PhaseType phase, const int param)
 			// if register was not written to in phase 2 but was in phase 1
 			if((Phase_RegisterUsage[reg_offset].Phase2Write == false) && Phase_RegisterUsage[reg_offset].Phase1Write) {
 				// only perform register pass if there are ALU instructions in phase 1
+				
 				if(mPhase1ALU_mi.size() > 0) {
 					// build machine instructions for passing a register from phase 1 to phase 2
 					// NB: only rgb components of register will get passed
@@ -1631,7 +1632,7 @@ bool PS_1_4::doPass2()
 }
 
 
-bool PS_1_4::Pass2scan(const TokenInst * Tokens, const uint size)
+bool PS_1_4::Pass2scan(const TokenInst * Tokens, const size_t size)
 {
 
 	// execute TokenInstructions to build MachineInstructions
@@ -1806,7 +1807,7 @@ void PS_1_4::test()
   mSource = TestStr1;
   mCharPos = 0;
   mCurrentLine = 1;
-  mEndOfSource = strlen(mSource);
+  mEndOfSource = (int)strlen(mSource);
   while (positionToNextSymbol()) {
     fprintf(fp,"  character found: [%c]   Line:%d  : " , mSource[mCharPos], mCurrentLine);
     if( (mSource[mCharPos] == test1results[resultID].character) && (mCurrentLine==test1results[resultID].line)) fprintf(fp, passed);
@@ -2058,7 +2059,7 @@ void PS_1_4::testCompile(char* testname, char* teststr, SymbolID* testresult, ui
 		fprintf(fp, "  Pass 2 Machine Instructions generated: %d out of %d: %s", getMachineInstCount(),
 			MachinInstResultsSize, (getMachineInstCount() == MachinInstResultsSize) ? passed : failed);
 
-		uint MIcount = getMachineInstCount();
+		size_t MIcount = getMachineInstCount();
 
 		fprintf(fp, "\n  Validating Pass 2:\n");
 		for(i = 0; i<MIcount; i++) {
