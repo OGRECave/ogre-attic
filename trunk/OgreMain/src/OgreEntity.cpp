@@ -174,6 +174,9 @@ namespace Ogre {
         {
             delete *si;
         }
+        // Delete skeleton instance
+        if (mSkeletonInstance)
+            delete mSkeletonInstance; 
     }
     //-----------------------------------------------------------------------
     Mesh* Entity::getMesh(void)
@@ -692,7 +695,22 @@ namespace Ogre {
         for (i = mSubEntityList.begin(); i != iend; ++i)
         {
             Material* m = (*i)->getMaterial();
-            Pass* p = m->getBestTechnique()->getPass(0);
+            // Make sure it's loaded
+            m->load();
+            Technique* t = m->getBestTechnique();
+            if (!t)
+            {
+                // No supported techniques
+                mHardwareSkinning = false;
+                return;
+            }
+            Pass* p = t->getPass(0);
+            if (!p)
+            {
+                // No passes, invalid
+                mHardwareSkinning = false;
+                return;
+            }
             if (!p->hasVertexProgram() ||
                 !p->getVertexProgram()->isSkeletalAnimationIncluded())
             {
