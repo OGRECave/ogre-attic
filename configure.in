@@ -76,6 +76,9 @@ OGRE_CHECK_DX9
 dnl Detect endianness
 OGRE_DETECT_ENDIAN
 
+dnl Check to see if -fPIC is required.
+OGRE_CHECK_PIC
+
 CFLAGS="$CFLAGS $SDL_CFLAGS"
 CXXFLAGS="$CXXFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
