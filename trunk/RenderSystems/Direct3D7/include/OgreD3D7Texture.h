@@ -172,6 +172,7 @@ namespace Ogre {
 		virtual ~D3D7RenderTexture()
 		{
 			mPrivateTex->unload();
+			TextureManager::getSingleton().remove(mPrivateTex->getName());
 		}
 
 		bool requiresTextureFlipping() const { return false; }

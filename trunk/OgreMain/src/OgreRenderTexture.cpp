@@ -52,7 +52,7 @@ namespace Ogre
 
     RenderTexture::~RenderTexture()
     {
-        TextureManager::getSingleton().unload(mName);
+		TextureManager::getSingleton().remove(mName);
     }
 
 	void RenderTexture::firePostUpdate()
