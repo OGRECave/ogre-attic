@@ -116,6 +116,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 // A quick define to overcome different names for the same function
 #	define snprintf _snprintf
+#   define vsnprintf _vsnprintf
 
 #endif
 //----------------------------------------------------------------------------
