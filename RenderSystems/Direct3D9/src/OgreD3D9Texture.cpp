@@ -907,7 +907,10 @@ namespace Ogre
 	}
 	
 	/****************************************************************************************/
-	void D3D9Texture::_createSurfaceList()
+	// Macro to hide ugly cast
+	#define GETLEVEL(face,mip) \
+	 	static_cast<D3D9HardwarePixelBuffer*>(mSurfaceList[face*(mNumMipmaps+1)+mip].get())
+	void D3D9Texture::_createSurfaceList(bool updateOldList)
 	{
 		IDirect3DSurface9 *surface;
 		IDirect3DVolume9 *volume;
@@ -925,8 +928,23 @@ namespace Ogre
 		{
 			bufusage = HardwareBuffer::HBU_STATIC;
 		}
-			
-		mSurfaceList.clear();
+
+		if(!updateOldList)
+		{
+			// Create new list of surfaces
+			mSurfaceList.clear();
+			for(int face=0; face<getNumFaces(); face++)
+			{
+				for(int mip=0; mip<=mNumMipmaps; mip++)
+				{
+					buffer = new D3D9HardwarePixelBuffer(bufusage);
+					mSurfaceList.push_back(
+						HardwarePixelBufferSharedPtr(buffer)
+					);
+				}
+			}
+		}
+
 		switch(getTextureType()) {
 		case TEX_TYPE_2D:
 		case TEX_TYPE_1D:
@@ -937,14 +955,11 @@ namespace Ogre
 				if(mpNormTex->GetSurfaceLevel(mip, &surface) != D3D_OK)
 					Except(Exception::ERR_RENDERINGAPI_ERROR, "Get surface level failed",
 		 				"D3D9Texture::_createSurfaceList");
-				// decrement reference count
+				// decrement reference count, the GetSurfaceLevel call increments this
+				// this is safe because the texture keeps a reference as well
 				surface->Release();
 
-				buffer = new D3D9HardwarePixelBuffer(surface, bufusage);
-				if(mNumMipmaps>0 && mip == 0 && (mUsage & TU_AUTOMIPMAP)) 
-					buffer->_setMipmapping(true, mAutoGenMipmaps, mpTex);
-					
-				mSurfaceList.push_back(HardwarePixelBufferSharedPtr(buffer));
+				GETLEVEL(0, mip)->bind(surface);
 			}
 			break;
 		case TEX_TYPE_CUBE_MAP:
@@ -957,12 +972,11 @@ namespace Ogre
 					if(mpCubeTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, mip, &surface) != D3D_OK)
 						Except(Exception::ERR_RENDERINGAPI_ERROR, "Get cubemap surface failed",
 		 				"D3D9Texture::getBuffer");
-						
-					buffer = new D3D9HardwarePixelBuffer(surface, bufusage);
-					if(mNumMipmaps>0 && mip == 0 && (mUsage & TU_AUTOMIPMAP)) 
-						buffer->_setMipmapping(true, mAutoGenMipmaps, mpTex);
-						
-					mSurfaceList.push_back(HardwarePixelBufferSharedPtr(buffer));
+					// decrement reference count, the GetSurfaceLevel call increments this
+					// this is safe because the texture keeps a reference as well
+					surface->Release();
+					
+					GETLEVEL(face, mip)->bind(surface);
 				}
 			}
 			break;
@@ -974,17 +988,25 @@ namespace Ogre
 				if(mpVolumeTex->GetVolumeLevel(mip, &volume) != D3D_OK)
 					Except(Exception::ERR_RENDERINGAPI_ERROR, "Get volume level failed",
 		 				"D3D9Texture::getBuffer");	
+				// decrement reference count, the GetSurfaceLevel call increments this
+				// this is safe because the texture keeps a reference as well
 				volume->Release();
 						
-				buffer = new D3D9HardwarePixelBuffer(volume, bufusage);
-				if(mNumMipmaps>0 && mip == 0 && (mUsage & TU_AUTOMIPMAP)) 
-					buffer->_setMipmapping(true, mAutoGenMipmaps, mpTex);
-					
-				mSurfaceList.push_back(HardwarePixelBufferSharedPtr(buffer));
+				GETLEVEL(0, mip)->bind(volume);
 			}
 			break;
 		};
+		
+		// Set autogeneration of mipmaps for each face of the texture, if it is enabled
+		if(mNumMipmaps>0 && (mUsage & TU_AUTOMIPMAP)) 
+		{
+			for(int face=0; face<getNumFaces(); face++)
+			{
+				GETLEVEL(face, 0)->_setMipmapping(true, mAutoGenMipmaps, mpTex);
+			}
+		}
 	}
+	#undef GETLEVEL
 	/****************************************************************************************/
 	HardwarePixelBufferSharedPtr D3D9Texture::getBuffer(int face, int mipmap) 
 	{
@@ -1161,7 +1183,7 @@ namespace Ogre
 			}
 		}
 		// re-query the surface list anyway
-		_createSurfaceList();
+		_createSurfaceList(true);
 
 	}
 

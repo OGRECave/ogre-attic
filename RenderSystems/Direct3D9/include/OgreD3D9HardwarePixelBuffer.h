@@ -55,8 +55,11 @@ namespace Ogre {
 		bool mHWMipmaps;
 		IDirect3DBaseTexture9 *mMipTex;
 	public:
-		D3D9HardwarePixelBuffer(IDirect3DSurface9 *pSurface, HardwareBuffer::Usage usage);
-		D3D9HardwarePixelBuffer(IDirect3DVolume9 *pVolume, HardwareBuffer::Usage usage);
+		D3D9HardwarePixelBuffer(HardwareBuffer::Usage usage);
+		
+		/// Call this to associate a D3D surface or volume with this pixel buffer
+		void bind(IDirect3DSurface9 *mSurface);
+		void bind(IDirect3DVolume9 *mVolume);
 		
 		/// @copydoc HardwarePixelBuffer::blit
 		void blit(HardwarePixelBuffer *src, const Image::Box &srcBox, const Image::Box &dstBox);
@@ -75,7 +78,5 @@ namespace Ogre {
 		
 		~D3D9HardwarePixelBuffer();
 	};
-
 };
-
 #endif
