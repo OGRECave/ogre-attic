@@ -7,7 +7,7 @@ Group: 'Export'
 Tooltip: 'Export Mesh and Armature to Ogre'
 """
 
-# Blender to Ogre Mesh and Skeleton Exporter v0.13.1
+# Blender to Ogre Mesh and Skeleton Exporter v0.13.3
 # url: http://www.ogre3d.org
 
 # Ogre exporter written by Jens Hoffmann and Michael Reimpell
@@ -73,11 +73,25 @@ Tooltip: 'Export Mesh and Armature to Ogre'
 #          - added support for vertices with different uv coordinates but same normal
 #          - improved button handling
 #          - added support for sticky uv coordinates
+#   0.13.2: * Thu Jun 03 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
+#          - added warning if no materials or textures are defined
+#          - added warning if mesh has no visible faces
+#          - displays a message while exporting
+#          - added material script support for
+#            Material.mode
+#              SHADOW -> receive_shadows
+#   0.13.3: * Sun Jun 06 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
+#          - changed GUI positions to ints to avoid DeprecationWarnings (Blender 2.33)
+#          - get frames per second setting from the render buttons (Blender 2.33)
+#          - respect new Armature.getBones() behaviour (Blender 2.33)
+#          - added missing argument in SkeletonMaterial creation
+#          - added option to rotate the coordinate system on export
 #
 # TODO:
+#          - vertex colours
 #          - TWOSIDE face mode, TWOSIDED mesh mode
 #          - SUBSURF mesh mode
-#          - load/save animation export settings
+#          - assign unskinned vertices to a static bone
 #          - help button
 #          - code cleanup
 #
@@ -137,7 +151,8 @@ from Blender.BGL import *
 class ReplacementScrollbar:
 	def __init__(self, initialValue, minValue, maxValue, buttonUpEvent, buttonDownEvent):
 		"""Scrollbar replacement for Draw.Scrollbar
-		   
+		   author: Michael Reimpell
+		
 		   - import Blender
 		   - call eventFilter and buttonFilter in registered callbacks
 		      
@@ -198,7 +213,8 @@ class ReplacementScrollbar:
 		# get size of the GUI window to translate MOUSEX and MOUSEY events
 		guiRectBuffer = Blender.BGL.Buffer(GL_FLOAT, 4)
 		Blender.BGL.glGetFloatv(Blender.BGL.GL_SCISSOR_BOX, guiRectBuffer)
-		self.guiRect =  guiRectBuffer.list
+		self.guiRect = [int(guiRectBuffer.list[0]), int(guiRectBuffer.list[1]), \
+		                int(guiRectBuffer.list[2]), int(guiRectBuffer.list[3])]
 		# relative position
 		self.positionRect = [ x, y, x + width, y + height]
 		# check minimal size:
@@ -253,7 +269,7 @@ class ReplacementScrollbar:
 				Blender.BGL.glColor3f(0.60,0.60,0.60) # marker grey
 			Blender.BGL.glRectf(remainRect[0], remainRect[1], remainRect[2], remainRect[3])
 		else:
-			print "scrollbar draw size to small!"
+			print "scrollbar draw size too small!"
 		return
 		
 	def eventFilter(self, event, value):
@@ -330,6 +346,7 @@ class ReplacementScrollbar:
 class Action:
 	def __init__(self, ipoPrefix="", ipoPostfix= "", boneList=None, firstKeyFrame=None, lastKeyFrame=None):
 		"""Resemble Blender's actions.
+		   author: Michael Reimpell   
 		   
 		   - import Blender, string
 		   
@@ -391,7 +408,8 @@ class Action:
 		while (len(boneQueue) > 0):
 			# get all bones of the armature
 			currentBone = boneQueue.pop(0)
-			boneNameList.append(currentBone.getName())
+			if (boneNameList.count(currentBone.getName()) == 0):
+				boneNameList.append(currentBone.getName())
 			children = currentBone.getChildren()
 			if (len(children) > 0):
 				for child in children:
@@ -449,7 +467,8 @@ class Action:
 class ActionActuator:
 	def __init__(self, name, startFrame, endFrame, action):
 		"""Resemble Blender's action actuators.
-		   
+		   author: Michael Reimpell
+		      
 		   Parameters:
 		   	name - Animation name
 		   	startFrame - first frame of the animation
@@ -465,6 +484,7 @@ class ActionActuator:
 class ActionActuatorListView:
 	def __init__(self, actionDict, maxActuators, buttonEventRangeStart, animationDictList=None):
 		"""Mangages a list of ActionActuators.
+		   author: Michael Reimpell
 		   
 		   - import Blender
 		   - call eventFilter and buttonFilter in registered callbacks
@@ -763,6 +783,12 @@ pathString = Draw.Create(os.path.dirname(Blender.Get('filename')))
 materialString = Draw.Create("export.material")
 scaleNumber = Draw.Create(1.0)
 fpsNumber = Draw.Create(25)
+# first rotation, around X-axis
+rotXNumber = Draw.Create(-90.0)
+# second rotation, around Y-axis
+rotYNumber = Draw.Create(0.0)
+# third rotation, around Z-axis
+rotZNumber = Draw.Create(0.0)
 selectedObjectsList = Blender.Object.GetSelected()
 selectedObjectsMenu = Draw.Create(0)
 scrollbar = ReplacementScrollbar(0,0,0,0,0)
@@ -787,13 +813,16 @@ BUTTON_EVENT_PATHSTRING = 107
 BUTTON_EVENT_PATHBUTTON = 108
 BUTTON_EVENT_MATERIALSTRING = 109
 BUTTON_EVENT_SCALENUMBER = 1010
-BUTTON_EVENT_FPSNUMBER = 1011
-BUTTON_EVENT_SCROLLBAR = 1012
-BUTTON_EVENT_SCROLLBARUP = 1013
-BUTTON_EVENT_SRCROLLBARDOWN = 1014
-BUTTON_EVENT_UPDATEBUTTON = 1015
-BUTTON_EVENT_SELECTEDOBJECTSMENU = 1016
-BUTTON_EVENT_ACTUATOR_RANGESTART = 1017
+BUTTON_EVENT_ROTXNUMBER = 1011
+BUTTON_EVENT_ROTYNUMBER = 1012
+BUTTON_EVENT_ROTZNUMBER = 1013
+BUTTON_EVENT_FPSNUMBER = 1014
+BUTTON_EVENT_SCROLLBAR = 1015
+BUTTON_EVENT_SCROLLBARUP = 1016
+BUTTON_EVENT_SRCROLLBARDOWN = 1017
+BUTTON_EVENT_UPDATEBUTTON = 1018
+BUTTON_EVENT_SELECTEDOBJECTSMENU = 1019
+BUTTON_EVENT_ACTUATOR_RANGESTART = 1020
 
 # error indication:
 EXPORT_SUCCESS = 0
@@ -865,6 +894,8 @@ def matrix_translate(m, v):
   return m
 
 def matrix_multiply(b, a):
+  """ matrix_multiply(b, a) = a*b
+  """
   return [ [
     a[0][0] * b[0][0] + a[0][1] * b[1][0] + a[0][2] * b[2][0],
     a[0][0] * b[0][1] + a[0][1] * b[1][1] + a[0][2] * b[2][1],
@@ -1046,7 +1077,7 @@ def vector_angle(v1, v2):
 ## data structures
 
 class Material:
-  def __init__(self, name, mat, texname, mode):
+  def __init__(self, name, mat, texname, mode=Blender.NMesh.FaceTranspModes["SOLID"]):
     self.name = name
     self.mat = mat
     self.texture = texname
@@ -1364,7 +1395,7 @@ def export_skeleton(object):
 					animation = Animation(actionActuator.name)
 					# map bones to tracks
 					for boneName in actionActuator.action.boneList:
-						if (not animation.tracksDict.has_key(boneName)):
+						if (not(animation.tracksDict.has_key(boneName))):
 							# get bone object
 							if boneDict.has_key(boneName):
 								# create track
@@ -1493,25 +1524,25 @@ def export_skeleton(object):
 									animation.tracksDict[boneName] = track
 								except NameError:
 									# there is no ipo called ipoName
-									exportLog.append("error: Unknown Ipo \"%s\" ." % ipoName)
+									exportLog.append("error: Unknown Ipo \"%s\"." % ipoName)
 									exportStatus = EXPORT_ERROR
 							else:
 								# ipo name contains bone but armature doesn't
-								exportLog.append("error: ambiguous bone name \"%s\" ." % boneName)
+								exportLog.append("error: ambiguous bone name \"%s\"." % boneName)
 								exportStatus = EXPORT_ERROR
 						else:
 							# track for that bone already exists
-							exportLog.append("error: ambiguous bone name \"%s\" ." % boneName)
+							exportLog.append("error: ambiguous bone name \"%s\", track already exists." % boneName)
 							exportStatus = EXPORT_ERROR
 					# append animation
 					skeleton.animationsDict[actionActuator.name] = animation
 				else:
 					# animation export name already exists
-					exportLog.append("error: ambiguous animation name \"%s\" ." % actionActuator.name)
+					exportLog.append("error: ambiguous animation name \"%s\"." % actionActuator.name)
 					exportStatus = EXPORT_ERROR
 		else:
 			# armature has no actionActuatorListView
-			exportLog.append("error: No animation settings for armature \"%s\" ." % object.getName())
+			exportLog.append("error: No animation settings for armature \"%s\"." % object.getName())
 			exportStatus = EXPORT_ERROR
 
 		write_skeleton(skeleton)
@@ -1538,7 +1569,7 @@ def export_testskel(testskel):
   matName = "SkeletonMaterial"
   material = materialsDict.get(matName)
   if not material:
-    material = Material(matName, 0, "")
+    material = Material(matName, None, None)
     materialsDict[matName] = material
 
   submesh = SubMesh(material)
@@ -1836,7 +1867,13 @@ def export_mesh(object):
 				if not material:
 					materialsDict[materialKey] = objectMaterialDict[materialKey]
 		# write mesh
-		write_mesh(object.getName(), submeshes, skeleton)
+		if len(submeshes) == 0:
+			# no submeshes
+			exportLog.append("%s has no visible faces!" % data.name)
+			exportStatus = EXPORT_WARNING
+		else:
+			# write mesh
+			write_mesh(object.getName(), submeshes, skeleton)
 	return
 
 #######################################################################################
@@ -2007,6 +2044,12 @@ def write_materials():
 		# material
 		f.write("material %s\n" % name)
 		f.write("{\n")
+		# receive_shadows <- SHADOW
+		if material.mat:
+			if (material.mat.mode & Blender.Material.Modes["SHADOW"]):
+				f.write(tab(1)+"receive_shadows on\n")
+			else:
+				f.write(tab(1)+"receive_shadows off\n")
 		# technique
 		f.write(tab(1)+"technique\n")
 		f.write(tab(1)+"{\n")
@@ -2037,7 +2080,7 @@ def write_materials():
 				emR = clamp(mat.emit * mat.rgbCol[0])
 				emG = clamp(mat.emit * mat.rgbCol[1])
 				emB = clamp(mat.emit * mat.rgbCol[2])
-				f.write(tab(3)+"emissive %f %f %f\n" % (emR, emG, emB))	
+				f.write(tab(3)+"emissive %f %f %f\n" % (emR, emG, emB))
 			# depth_func  <- ZINVERT; ENV
 			if (mat.mode & Blender.Material.Modes["ENV"]):
 				f.write(tab(3)+"depth_func always_fail\n")
@@ -2049,6 +2092,12 @@ def write_materials():
 			# fog_override <- NOMIST
 			if (mat.mode & Blender.Material.Modes["NOMIST"]):
 				f.write(tab(3)+"fog_override true\n")
+                elif not(material.texture):
+			# default material
+			f.write(tab(3)+"ambient 0.5 0.22 0.5\n")
+			f.write(tab(3)+"diffuse 1.0 0.44 0.1\n")
+			f.write(tab(3)+"specular 0.5 0.22 0.5 50.0\n")
+			f.write(tab(3)+"emissive 0.0 0.0 0.0\n")
 		# scene_blend <- transp
 		if (material.mode == Blender.NMesh.FaceTranspModes["ALPHA"]):
 			f.write(tab(3)+"scene_blend alpha_blend \n")
@@ -2068,7 +2117,7 @@ def write_materials():
 ## main export
 
 def export(selectedObjectsList):
-    global pathString, scaleNumber
+    global pathString, scaleNumber, rotXNumber, rotYNumber, rotZNumber
     global materialsDict
     global skeletonsDict
     global BASE_MATRIX
@@ -2077,8 +2126,12 @@ def export(selectedObjectsList):
     materialsDict = {}
     skeletonsDict = {}
 
-    # set matrix to 90 degree rotation around x-axis and scale
-    rot_mat = matrix_rotate_x(-math.pi / 2.0)
+    # default: set matrix to 90 degree rotation around x-axis and scale
+    # multiply rotations Z*Y*X
+    rot_mat = matrix_multiply(matrix_multiply( \
+              matrix_rotate_x(2.0*math.pi/360.0*rotXNumber.val), \
+              matrix_rotate_y(2.0*math.pi/360.0*rotYNumber.val)), \
+              matrix_rotate_z(2.0*math.pi/360.0*rotZNumber.val))
     scale_mat = matrix_scale(scaleNumber.val, scaleNumber.val, scaleNumber.val)
     BASE_MATRIX = matrix_multiply(scale_mat, rot_mat)
     
@@ -2101,10 +2154,12 @@ def export(selectedObjectsList):
         export_skeleton(obj)
 
     if n == 0:
-        exportLog.append("no mesh objects selected!")
-        exportStatus = EXPORT_WARNING
-
-    if len(materialsDict):
+      exportLog.append("no mesh objects selected!")
+      exportStatus = EXPORT_WARNING
+    elif len(materialsDict) == 0:
+      exportLog.append("no materials or textures defined!")
+      exportStatus = EXPORT_WARNING
+    else:
       write_materials()
 
     exportLog.append("finished.")
@@ -2137,6 +2192,7 @@ def saveSettings(filename):
 	global pathString
 	global materialString
 	global scaleNumber
+	global rotXNumber, rotYNumber, rotZNumber
 	global fpsNumber
 	global selectedObjectsList
 	global armatureDict
@@ -2154,7 +2210,14 @@ def saveSettings(filename):
 		settingsDict['pathString'] = pathString.val
 		settingsDict['materialString'] = materialString.val
 		settingsDict['scaleNumber'] = scaleNumber.val
-		settingsDict['fpsNumber'] = fpsNumber.val
+		settingsDict['rotXNumber'] = rotXNumber.val
+		settingsDict['rotYNumber'] = rotYNumber.val
+		settingsDict['rotZNumber'] = rotZNumber.val
+		if (Blender.Get("version") < 233):
+			settingsDict['fpsNumber'] = fpsNumber.val
+		else:
+			# get blender's "scene->format->frames per second" setting
+			settingsDict['fpsNumber'] = Blender.Scene.GetCurrent().getRenderingContext().framesPerSec()
 		# save object specific settings
 		# check if armature exists (I think this is cleaner than catching NameError exceptions.)
 		# create list of valid armature names
@@ -2197,6 +2260,7 @@ def loadSettings(filename):
 	global pathString
 	global materialString
 	global scaleNumber
+	global rotXNumber, rotYNumber, rotZNumber
 	global fpsNumber
 	global selectedObjectsList
 	global armatureDict
@@ -2232,6 +2296,12 @@ def loadSettings(filename):
 					materialString = Blender.Draw.Create(settingsDict['materialString'])
 				if settingsDict.has_key('scaleNumber'):
 					scaleNumber = Blender.Draw.Create(settingsDict['scaleNumber'])
+				if settingsDict.has_key('rotXNumber'):
+					rotXNumber = Blender.Draw.Create(settingsDict['rotXNumber'])
+				if settingsDict.has_key('rotYNumber'):
+					rotYNumber = Blender.Draw.Create(settingsDict['rotYNumber'])
+				if settingsDict.has_key('rotZNumber'):
+					rotZNumber = Blender.Draw.Create(settingsDict['rotZNumber'])
 				if settingsDict.has_key('fpsNumber'):
 					fpsNumber = Blender.Draw.Create(settingsDict['fpsNumber'])
 				# set object specific settings
@@ -2335,6 +2405,7 @@ def buttonCallback(event):
 	"""
 	global materialString, doneMessage, doneMessageBox, eventCallback, buttonCallback, scrollbar
 	global selectedObjectsList, selectedObjectsMenu, actionActuatorListViewDict, armatureDict
+	global fpsNumber
 	# buttonFilter for current ActionActuatorListView
 	if (len(selectedObjectsList) > 0):
 		selectedObjectsListIndex = selectedObjectsMenu.val
@@ -2369,7 +2440,12 @@ def buttonCallback(event):
 	elif (event == BUTTON_EVENT_SCROLLBAR): # scrollbar
 		Draw.Redraw(1)
 	elif (event == BUTTON_EVENT_EXPORT): # export
+		Draw.Register(exportMessageBox, None, None)
+		Draw.Draw()
 		# export
+		if (Blender.Get("version") >= 233):
+			# get blender's current "scene->format->frames per second" setting
+			fpsNumber = Draw.Create(Blender.Scene.GetCurrent().getRenderingContext().framesPerSec())
 		status = export(selectedObjectsList)
 		if (status == EXPORT_SUCCESS):
 			doneMessage = EXPORT_SUCCESS_MESSAGE
@@ -2380,20 +2456,19 @@ def buttonCallback(event):
 		# set donemessage
 		scrollbar = ReplacementScrollbar(0,0,len(exportLog)-1,BUTTON_EVENT_SCROLLBARUP,BUTTON_EVENT_SRCROLLBARDOWN)
 		Draw.Register(doneMessageBox, eventCallback, buttonCallback)
+		Draw.Redraw(1)
 	return
 
 def gui():
 	"""draws the screen
 	"""
 	global uvToggle, armatureToggle, armatureMeshToggle, pathString, materialString, \
-		scaleNumber, fpsNumber, scrollbar
+		scaleNumber, fpsNumber, scrollbar, rotXNumber, rotYNumber, rotZNumber
 	global selectedObjectsList, selectedObjectsMenu, actionActuatorListViewDict, armatureDict
 	# get size of the window
 	guiRectBuffer = Buffer(GL_FLOAT, 4)
 	glGetFloatv(GL_SCISSOR_BOX, guiRectBuffer)
-	guiRect =  guiRectBuffer.list
-	guiRect[0] = 0;
-	guiRect[1] = 0;
+	guiRect = [0, 0, int(guiRectBuffer.list[2]), int(guiRectBuffer.list[3])]
 	
 	remainRect = guiRect[:]
 	remainRect[0] += 10
@@ -2411,7 +2486,7 @@ def gui():
 	remainRect[3] -= 20
 	glColor3f(0,0,0) # Defaul color: black
 	glRasterPos2i(remainRect[0]+4,remainRect[3]+7)
-	Draw.Text("Ogre Exporter 0.13.1","normal")
+	Draw.Text("Ogre Exporter 0.13.3","normal")
 	
 	# export settings
 	remainRect[3] -= 5
@@ -2429,17 +2504,32 @@ def gui():
 	armatureToggle = Draw.Toggle("Export Armature", BUTTON_EVENT_ARMATURETOGGLE, \
 				remainRect[0], remainRect[3]-25, 220, 20, \
 				armatureToggle.val, "export skeletons and bone weights in meshes")
-	# Scale and FPS settings
+	# scale settings
 	scaleNumber = Draw.Number("Mesh Scale Factor: ", BUTTON_EVENT_SCALENUMBER, \
 			remainRect[0]+230, remainRect[3]-25, 220, 20, \
 			scaleNumber.val, 0.0, 1000.0, "scale factor")
 	remainRect[3] -= 25
-	# third row
+	# third row	
 	if (armatureToggle.val == 1):
 		armatureMeshToggle = Draw.Toggle("Export Armature as Mesh", BUTTON_EVENT_ARMATUREMESHTOGGLE, \
 				remainRect[0], remainRect[3]-25, 220, 20, \
 				armatureMeshToggle.val, "create an extra mesh with the form of the skeleton")
-	if (armatureToggle.val == 1):
+	rotXNumber = Draw.Number("RotX: ", BUTTON_EVENT_ROTXNUMBER, \
+			remainRect[0]+230, remainRect[3]-25, 220, 20, \
+			rotXNumber.val, -360.0, 360.0, "angle of the first rotation, around the x-axis")
+	remainRect[3] -= 25
+	# fourth row
+	rotYNumber = Draw.Number("RotY: ", BUTTON_EVENT_ROTYNUMBER, \
+			remainRect[0]+230, remainRect[3]-25, 220, 20, \
+			rotYNumber.val, -360.0, 360.0, "angle of the second rotation, around the y-axis")
+	remainRect[3] -= 25
+	# fifth row
+	rotZNumber = Draw.Number("RotZ: ", BUTTON_EVENT_ROTZNUMBER, \
+			remainRect[0]+230, remainRect[3]-25, 220, 20, \
+			rotZNumber.val, -360.0, 360.0, "angle of the third rotation, around the z-axis")
+	# sixth row
+	if ((armatureToggle.val == 1) and (Blender.Get("version") < 233)):
+		remainRect[3] -= 25
 		fpsNumber = Draw.Number("Frs/Sec: ", BUTTON_EVENT_FPSNUMBER, \
 				remainRect[0]+230, remainRect[3]-25, 220, 20, \
 				fpsNumber.val, 1, 120, "animation speed in frames per second")
@@ -2487,6 +2577,40 @@ def gui():
 				actionActuatorListViewDict[armatureName].draw(remainRect[0], remainRect[1], remainRect[2]-remainRect[0], remainRect[3]-remainRect[1])
 	return
 
+def exportMessageBox():
+	"""informs on the export progress
+	"""
+	# get size of the window
+	guiRectBuffer = Buffer(GL_FLOAT, 4)
+	glGetFloatv(GL_SCISSOR_BOX, guiRectBuffer)
+	guiRect = [0, 0, int(guiRectBuffer.list[2]), int(guiRectBuffer.list[3])]
+	
+	remainRect = guiRect[:]
+	remainRect[0] += 10
+	remainRect[1] += 10
+	remainRect[2] -= 10
+	remainRect[3] -= 10
+	
+	# title
+	glColor3f(52.0/255,154.0/255,52.0/255)
+	glRectf(remainRect[0],remainRect[3]-20,remainRect[2],remainRect[3])
+	remainRect[3] -= 20
+	glColor3f(0,0,0) # Defaul color: black
+	glRasterPos2i(remainRect[0]+4,remainRect[3]+7)
+	Draw.Text("Ogre Exporter","normal")
+	
+	# export information
+	## center view
+	exportMessage = "Exporting, please wait!"
+	exportMessageWidth = Draw.GetStringWidth(exportMessage, 'normal')
+	textPosition = [0, 0]
+	textPosition[0] = (remainRect[0] + remainRect[2] - exportMessageWidth)/2
+	textPosition[1] = (remainRect[1] + remainRect[3])/2
+	glRasterPos2i(textPosition[0], textPosition[1]) 
+	glColor3f(0,0,0) # Defaul color: black
+	Draw.Text(exportMessage, "normal")
+	return
+	
 def doneMessageBox():
 	"""displays export message and log
 	"""
@@ -2494,10 +2618,8 @@ def doneMessageBox():
 	# get size of the window
 	guiRectBuffer = Buffer(GL_FLOAT, 4)
 	glGetFloatv(GL_SCISSOR_BOX, guiRectBuffer)
-	guiRect =  guiRectBuffer.list
-	guiRect[0] = 0;
-	guiRect[1] = 0;
-	
+	guiRect = [0, 0, int(guiRectBuffer.list[2]), int(guiRectBuffer.list[3])]
+		
 	remainRect = guiRect[:]
 	remainRect[0] += 10
 	remainRect[1] += 10
