@@ -44,7 +44,7 @@ namespace Ogre {
         temporarily since their instantiations as Materials would use precious resources
         because of the automatic loading of textures etc.
     */
-    class Quake3Shader : public Resource
+    class Quake3Shader 
     {
     protected:
         String getAlternateName(const String& texName);

@@ -59,31 +59,118 @@ namespace Ogre {
     {
 		mCursorGuiRegistered = 0;
 
-        // Loading order
-        mLoadOrder = 200.0f;
         // Scripting is supported by this manager
         mScriptPatterns.push_back("*.overlay");
 		ResourceGroupManager::getSingleton()._registerScriptLoader(this);
-        // Resource type
-        mResourceType = "Overlay";
 
-        // Register with resource group manager
-        ResourceGroupManager::getSingleton()._registerResourceManager(mResourceType, this);
-        
 
     }
     //---------------------------------------------------------------------
     OverlayManager::~OverlayManager()
     {
+        destroyAll();
+
         // Unregister with resource group manager
-        ResourceGroupManager::getSingleton()._unregisterResourceManager(mResourceType);
 		ResourceGroupManager::getSingleton()._unregisterScriptLoader(this);
+    }
+    //---------------------------------------------------------------------
+    const StringVector& OverlayManager::getScriptPatterns(void) const
+    {
+        return mScriptPatterns;
+    }
+    //---------------------------------------------------------------------
+    Real OverlayManager::getLoadingOrder(void) const
+    {
+        // Load late
+        return 1100.0f;
+    }
+    //---------------------------------------------------------------------
+    Overlay* OverlayManager::create(const String& name)
+    {
+        Overlay* ret = new Overlay(name);
+        OverlayMap::iterator i = mOverlayMap.find(name);
+        if (i == mOverlayMap.end())
+        {
+            mOverlayMap[name] = ret;
+        }
+        else
+        {
+            Except(Exception::ERR_DUPLICATE_ITEM, 
+                "Overlay with name '" + name + "' a;ready exists!",
+                "OverlayManager::create");
+        }
+
+        return ret;
+
+    }
+    //---------------------------------------------------------------------
+    Overlay* OverlayManager::getByName(const String& name)
+    {
+        OverlayMap::iterator i = mOverlayMap.find(name);
+        if (i == mOverlayMap.end())
+        {
+            return 0;
+        }
+        else
+        {
+            return i->second;
+        }
+
+    }
+    //---------------------------------------------------------------------
+    void OverlayManager::destroy(const String& name)
+    {
+        OverlayMap::iterator i = mOverlayMap.find(name);
+        if (i == mOverlayMap.end())
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, 
+                "Overlay with name '" + name + "' not found.",
+                "OverlayManager::destroy");
+        }
+        else
+        {
+            delete i->second;
+            mOverlayMap.erase(i);
+        }
+    }
+    //---------------------------------------------------------------------
+    void OverlayManager::destroy(Overlay* overlay)
+    {
+        for (OverlayMap::iterator i = mOverlayMap.begin();
+            i != mOverlayMap.end(); ++i)
+        {
+            if (i->second == overlay)
+            {
+                delete i->second;
+                mOverlayMap.erase(i);
+                return;
+            }
+        }
+
+        Except(Exception::ERR_ITEM_NOT_FOUND, 
+            "Overlay not found.",
+            "OverlayManager::destroy");
+    }
+    //---------------------------------------------------------------------
+    void OverlayManager::destroyAll(void)
+    {
+        for (OverlayMap::iterator i = mOverlayMap.begin();
+            i != mOverlayMap.end(); ++i)
+        {
+            delete i->second;
+        }
+        mOverlayMap.clear();
+    }
+    //---------------------------------------------------------------------
+    OverlayManager::OverlayMapIterator OverlayManager::getOverlayIterator(void)
+    {
+        return OverlayMapIterator(mOverlayMap.begin(), mOverlayMap.end());
     }
     //---------------------------------------------------------------------
     void OverlayManager::parseScript(DataStreamPtr& stream, const String& groupName)
     {
 	    String line;
-	    OverlayPtr pOverlay;
+	    Overlay* pOverlay;
 		bool skipLine;
 
 	    while(!stream->eof())
@@ -103,7 +190,7 @@ namespace Ogre {
 					parseScript(includeStream, groupName);
 					continue;
 				}
-			    if (pOverlay.isNull())
+			    if (!pOverlay)
 			    {
 				    // No current overlay
 
@@ -117,13 +204,13 @@ namespace Ogre {
 					{
 			
 						// So first valid data should be overlay name
-						pOverlay = create(line, groupName);
+						pOverlay = create(line);
 						// Skip to and over next {
 						skipToNextOpenBrace(stream);
 						skipLine = true;
 					}
 			    }
-			    if ((!pOverlay.isNull() && !skipLine) || isTemplate)
+			    if ((!!pOverlay && !skipLine) || isTemplate)
 			    {
 				    // Already in overlay
                     std::vector<String> params = StringUtil::split(line, "\t\n ()");
@@ -133,7 +220,7 @@ namespace Ogre {
 				    if (line == "}")
 				    {
 					    // Finished overlay
-					    pOverlay.setNull();
+					    pOverlay = 0;
 						isTemplate = false;
 				    }
 				    else if (parseChildren(stream,line, pOverlay, isTemplate, NULL))
@@ -177,14 +264,6 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    Resource* OverlayManager::createImpl(const String& name, ResourceHandle handle, 
-        const String& group, bool isManual, ManualResourceLoader* loader, 
-        const NameValuePairList* createParams)
-    {
-        // no create params
-        return new Overlay(this, name, handle, group, isManual, loader);
-    }
-    //---------------------------------------------------------------------
     void OverlayManager::_queueOverlaysForRendering(Camera* cam, 
         RenderQueue* pQueue, Viewport* vp)
     {
@@ -202,17 +281,17 @@ namespace Ogre {
             mViewportDimensionsChanged = false;
         }
 
-        ResourceMap::iterator i, iend;
-        iend = mResources.end();
-        for (i = mResources.begin(); i != iend; ++i)
+        OverlayMap::iterator i, iend;
+        iend = mOverlayMap.end();
+        for (i = mOverlayMap.begin(); i != iend; ++i)
         {
-            OverlayPtr o = i->second;
+            Overlay* o = i->second;
             o->_findVisibleObjects(cam, pQueue);
         }
     }
     //---------------------------------------------------------------------
     void OverlayManager::parseNewElement( DataStreamPtr& stream, String& elemType, String& elemName, 
-            bool isContainer, OverlayPtr& pOverlay, bool isTemplate, String templateName, GuiContainer* container)
+            bool isContainer, Overlay* pOverlay, bool isTemplate, String templateName, GuiContainer* container)
     {
         String line;
 
@@ -229,7 +308,7 @@ namespace Ogre {
 			container->addChild(newElement);
 		}
 		// do not add a template to the overlay. For templates overlay = 0
-		else if (!pOverlay.isNull())	
+		else if (!!pOverlay)	
 		{
 			pOverlay->add2D((GuiContainer*)newElement);
 		}
@@ -263,7 +342,7 @@ namespace Ogre {
 
     //---------------------------------------------------------------------
     bool OverlayManager::parseChildren( DataStreamPtr& stream, const String& line,
-            OverlayPtr& pOverlay, bool isTemplate, GuiContainer* parent)
+            Overlay* pOverlay, bool isTemplate, GuiContainer* parent)
 	{
 		bool ret = false;
 		std::vector<String> params;
@@ -331,7 +410,7 @@ namespace Ogre {
 	}
 
     //---------------------------------------------------------------------
-    void OverlayManager::parseAttrib( const String& line, OverlayPtr& pOverlay)
+    void OverlayManager::parseAttrib( const String& line, Overlay* pOverlay)
     {
         std::vector<String> vecparams;
 
@@ -351,7 +430,7 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
-    void OverlayManager::parseElementAttrib( const String& line, OverlayPtr& pOverlay, OverlayElement* pElement )
+    void OverlayManager::parseElementAttrib( const String& line, Overlay* pOverlay, OverlayElement* pElement )
     {
         std::vector<String> vecparams;
 
@@ -365,7 +444,7 @@ namespace Ogre {
             // BAD command. BAD!
             LogManager::getSingleton().logMessage("Bad element attribute line: '"
                 + line + "' for element " + pElement->getName() + " in overlay " + 
-                (pOverlay.isNull() ? "" : pOverlay->getName().c_str() ));
+                (!pOverlay ? "" : pOverlay->getName().c_str() ));
         }
     }
     //-----------------------------------------------------------------------
@@ -390,7 +469,7 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     void OverlayManager::parseNewMesh(DataStreamPtr& stream, String& meshName, String& entityName, 
-        OverlayPtr& pOverlay)
+        Overlay* pOverlay)
     {
         String line;
         StringVector params;
@@ -488,11 +567,11 @@ namespace Ogre {
 	{
 		PositionTarget* ret = NULL;
 		int currZ = -1;
-        ResourceMap::iterator i, iend;
-        iend = mResources.end();
-        for (i = mResources.begin(); i != iend; ++i)
+        OverlayMap::iterator i, iend;
+        iend = mOverlayMap.end();
+        for (i = mOverlayMap.begin(); i != iend; ++i)
         {
-            OverlayPtr o = i->second;
+            Overlay* o = i->second;
 			int z = o->getZOrder();
 			if (z > currZ && o->isVisible())
 			{
@@ -598,7 +677,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------------
 	void OverlayManager::createCursorOverlay()
 	{
-        mCursorLevelOverlay = create("CursorLevelOverlay", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+        mCursorLevelOverlay = create("CursorLevelOverlay");
 		mCursorLevelOverlay->setZOrder(600);
 		mCursorLevelOverlay->show();
 		EventProcessor::getSingleton().addEventTarget(this);

@@ -123,8 +123,7 @@ namespace Ogre {
         mBarLineWidth = 2;
 
         // create a new overlay to hold our Profiler display
-        mOverlay = OverlayManager::getSingleton().create("Profiler", 
-            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+        mOverlay = OverlayManager::getSingleton().create("Profiler");
         mOverlay->setZOrder(500);
 
         // this panel will be the main container for our profile bars

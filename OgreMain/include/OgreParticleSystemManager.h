@@ -327,7 +327,7 @@ namespace Ogre {
         /// @copydoc ScriptLoader::parseScript
         void parseScript(DataStreamPtr& stream, const String& groupName);
         /// @copydoc ScriptLoader::getLoadingOrder
-        virtual Real getLoadingOrder(void) const;
+        Real getLoadingOrder(void) const;
 
 		/** Return relative speed of time as perceived by particle systems.
         @remarks

@@ -32,7 +32,7 @@ AnimationState* mAnimState;
 
 /* Some global variables */
 SceneNode *headNode ;
-OverlayPtr waterOverlay ;
+Overlay* waterOverlay ;
 ParticleSystem *particleSystem ;
 ParticleEmitter *particleEmitter ;
 SceneManager *sceneMgr ;

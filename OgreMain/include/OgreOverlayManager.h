@@ -30,12 +30,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreEventDispatcher.h"
 #include "OgreEventListeners.h"
 #include "OgreEventTarget.h"
-#include "OgreResourceManager.h"
 #include "OgreSingleton.h"
 #include "OgreStringVector.h"
 #include "OgreEventDispatcher.h"
 #include "OgreTargetManager.h"
 #include "OgreOverlay.h"
+#include "OgreScriptLoader.h"
 
 
 namespace Ogre {
@@ -43,22 +43,27 @@ namespace Ogre {
     /** Manages Overlay objects, parsing them from .overlay files and
         storing a lookup library of them.
     */
-    class _OgreExport OverlayManager : public ResourceManager, public Singleton<OverlayManager>, public TargetManager, public EventTarget
+    class _OgreExport OverlayManager : public Singleton<OverlayManager>, 
+        public ScriptLoader, public TargetManager, public EventTarget
     {
+    public:
+        typedef std::map<String, Overlay*> OverlayMap;
     protected:
+        OverlayMap mOverlayMap;
         typedef std::list<MouseMotionListener*> MouseMotionListenerList;
         EventDispatcher mEventDispatcher;
-		OverlayPtr mCursorLevelOverlay;
+		Overlay* mCursorLevelOverlay;
         bool mCursorGuiInitialised;
 		GuiContainer* mCursorGuiRegistered;
 		MouseMotionListener* mCursorListener;
         MouseMotionListenerList mMouseMotionListenerList;
+        StringVector mScriptPatterns;
 
         void parseNewElement( DataStreamPtr& chunk, String& elemType, String& elemName, 
-            bool isContainer, OverlayPtr& pOverlay, bool isTemplate, String templateName = String(""), GuiContainer* container = 0);
-        void parseAttrib( const String& line, OverlayPtr& pOverlay);
-        void parseElementAttrib( const String& line, OverlayPtr& pOverlay, OverlayElement* pElement );
-        void parseNewMesh(DataStreamPtr& chunk, String& meshName, String& entityName, OverlayPtr& pOverlay);
+            bool isContainer, Overlay* pOverlay, bool isTemplate, String templateName = String(""), GuiContainer* container = 0);
+        void parseAttrib( const String& line, Overlay* pOverlay);
+        void parseElementAttrib( const String& line, Overlay* pOverlay, OverlayElement* pElement );
+        void parseNewMesh(DataStreamPtr& chunk, String& meshName, String& entityName, Overlay* pOverlay);
         void skipToNextCloseBrace(DataStreamPtr& chunk);
         void skipToNextOpenBrace(DataStreamPtr& chunk);
         
@@ -66,18 +71,34 @@ namespace Ogre {
         bool mViewportDimensionsChanged;
 
 	    bool parseChildren( DataStreamPtr& chunk, const String& line,
-            OverlayPtr& pOverlay, bool isTemplate, GuiContainer* parent = NULL);
+            Overlay* pOverlay, bool isTemplate, GuiContainer* parent = NULL);
 
-        // @copydoc ResourceManager::createImpl
-        Resource* createImpl(const String& name, ResourceHandle handle, 
-            const String& group, bool isManual, ManualResourceLoader* loader, 
-            const NameValuePairList* createParams);
+
     public:
         OverlayManager();
         virtual ~OverlayManager();
 
-        /// @copydoc ResourceManager::parseScript
+        /// @copydoc ScriptLoader::getScriptPatterns
+        const StringVector& getScriptPatterns(void) const;
+        /// @copydoc ScriptLoader::parseScript
         void parseScript(DataStreamPtr& stream, const String& groupName);
+        /// @copydoc ScriptLoader::getLoadingOrder
+        Real getLoadingOrder(void) const;
+
+        /** Create a new Overlay. */
+        Overlay* create(const String& name);
+        /** Retrieve an Overlay by name 
+        @returns A pointer to the Overlay, or 0 if not found
+        */
+        Overlay* getByName(const String& name);
+        /** Destroys an existing overlay by name */
+        void destroy(const String& name);
+        /** Destroys an existing overlay */
+        void destroy(Overlay* overlay);
+        /** Destroys all existing overlays */
+        void destroyAll(void);
+        typedef MapIterator<OverlayMap> OverlayMapIterator;
+        OverlayMapIterator getOverlayIterator(void);
 
         /** Internal method for queueing the visible overlays for rendering. */
         void _queueOverlaysForRendering(Camera* cam, RenderQueue* pQueue, Viewport *vp);

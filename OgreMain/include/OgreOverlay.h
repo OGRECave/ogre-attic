@@ -30,7 +30,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSceneNode.h"
 #include "OgreIteratorWrappers.h"
 #include "OgreMatrix4.h"
-#include "OgreResource.h"
 
 namespace Ogre {
 
@@ -59,12 +58,13 @@ namespace Ogre {
         don't want the overlay displayed in the smaller viewports. You turn this off for 
         a specific viewport by calling the Viewport::setDisplayOverlays method.
     */
-    class _OgreExport Overlay : public Resource
+    class _OgreExport Overlay 
     {
 
     public:
               typedef std::list<GuiContainer*> GuiContainerList;
     protected:
+        String mName;
         /// Internal root node, used as parent for 3D objects
         SceneNode* mRootNode;
         // 2D elements
@@ -87,14 +87,9 @@ namespace Ogre {
         /** Internal lazy update method. */
         void updateTransform(void) const;
 
-        /// @copydoc Resource::loadImpl
-        void loadImpl(void);
-        /// @copydoc Resource::unloadImpl
-        void unloadImpl(void);
     public:
-        /// Constructor: do not call direct, use SceneManager::createOverlay
-        Overlay(ResourceManager* creator, const String& name, ResourceHandle handle,
-            const String& group, bool isManual = false, ManualResourceLoader* loader = 0);
+        /// Constructor: do not call direct, use OverlayManager::create
+        Overlay(const String& name);
         virtual ~Overlay();
 
 
@@ -258,44 +253,6 @@ namespace Ogre {
 
     };
 
-
-    /** Specialisation of SharedPtr to allow SharedPtr to be assigned to OverlayPtr 
-    @note Has to be a subclass since we need operator=.
-    We could templatise this instead of repeating per Resource subclass, 
-    except to do so requires a form VC6 does not support i.e.
-    ResourceSubclassPtr<T> : public SharedPtr<T>
-    */
-    class _OgreExport OverlayPtr : public SharedPtr<Overlay> 
-    {
-    public:
-        OverlayPtr() : SharedPtr<Overlay>() {}
-        OverlayPtr(Overlay* rep) : SharedPtr<Overlay>(rep) {}
-        OverlayPtr(const OverlayPtr& r) : SharedPtr<Overlay>(r) {} 
-        OverlayPtr(const ResourcePtr& r) : SharedPtr<Overlay>()
-        {
-            pRep = static_cast<Overlay*>(r.getPointer());
-            pUseCount = r.useCountPointer();
-            if (pUseCount)
-            {
-                ++(*pUseCount);
-            }
-        }
-
-        /// Operator used to convert a ResourcePtr to a OverlayPtr
-        OverlayPtr& operator=(const ResourcePtr& r)
-        {
-            if (pRep == static_cast<Overlay*>(r.getPointer()))
-                return *this;
-            release();
-            pRep = static_cast<Overlay*>(r.getPointer());
-            pUseCount = r.useCountPointer();
-            if (pUseCount)
-            {
-                ++(*pUseCount);
-            }
-            return *this;
-        }
-    };
 }
 
 

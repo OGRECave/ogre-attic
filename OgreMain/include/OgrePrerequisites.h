@@ -232,7 +232,6 @@ namespace Ogre {
 	class MouseTarget;
     class Node;
     class Overlay;
-    class OverlayPtr;
     class OverlayElement;
     class OverlayElementFactory;
     class OverlayManager;

@@ -251,7 +251,7 @@ public:
 
     void showDebugOverlay(bool show)
     {   
-        OverlayPtr o = OverlayManager::getSingleton().getByName("Core/DebugOverlay");
+        Overlay* o = OverlayManager::getSingleton().getByName("Core/DebugOverlay");
         if (o.isNull())
             Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find overlay Core/DebugOverlay",
                 "showDebugOverlay" );

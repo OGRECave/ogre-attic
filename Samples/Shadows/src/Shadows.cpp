@@ -409,7 +409,7 @@ protected:
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
 
         // show overlay
-        OverlayPtr pOver = OverlayManager::getSingleton().getByName("Example/ShadowsOverlay");    
+        Overlay* pOver = OverlayManager::getSingleton().getByName("Example/ShadowsOverlay");    
         mShadowTechniqueInfo = GuiManager::getSingleton().getOverlayElement("Example/Shadows/ShadowTechniqueInfo");
         mMaterialInfo = GuiManager::getSingleton().getOverlayElement("Example/Shadows/MaterialInfo");
         mInfo = GuiManager::getSingleton().getOverlayElement("Example/Shadows/Info");

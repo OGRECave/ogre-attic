@@ -49,7 +49,7 @@ protected:
 	int mSceneDetailIndex ;
     Real mMoveSpeed;
     Degree mRotateSpeed;
-    OverlayPtr mDebugOverlay;
+    Overlay* mDebugOverlay;
 
     void updateStats(void)
     {

@@ -37,9 +37,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     //---------------------------------------------------------------------
-    Overlay::Overlay(ResourceManager* creator, const String& name, ResourceHandle handle,
-        const String& group, bool isManual, ManualResourceLoader* loader)
-        : Resource(creator, name, handle, group, isManual, loader),
+    Overlay::Overlay(const String& name) :
+        mName(name),
         mRotate(0.0f), 
         mScrollX(0.0f), mScrollY(0.0f),
         mScaleX(1.0f), mScaleY(1.0f), 
@@ -48,11 +47,6 @@ namespace Ogre {
 
     {
         mRootNode = new SceneNode(NULL);
-
-        if (createParamDictionary("Overlay"))
-        {
-            // no params
-        }
 
     }
     //---------------------------------------------------------------------
@@ -310,16 +304,6 @@ namespace Ogre {
         mTransform.setTrans(Vector3(mScrollX, mScrollY, 0));
 
         mTransformOutOfDate = false;
-    }
-    //---------------------------------------------------------------------
-    void Overlay::loadImpl(void)
-    {
-        // Do nothing
-    }
-    //---------------------------------------------------------------------
-    void Overlay::unloadImpl(void)
-    {
-        // Do nothing
     }
     //---------------------------------------------------------------------
 	OverlayElement* Overlay::findElementAt(Real x, Real y)
