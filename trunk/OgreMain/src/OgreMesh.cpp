@@ -380,7 +380,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    unsigned short Mesh::_getNumBoneMatrices(void)
+    unsigned short Mesh::_getNumBoneMatrices(void) const
     {
         // Delegate to Skeleton
         assert(mSkeleton && "Skeleton not present");

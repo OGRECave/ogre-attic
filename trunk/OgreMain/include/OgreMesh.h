@@ -245,7 +245,7 @@ namespace Ogre {
         @remarks
             Only applicable if hasSkeleton() is true, for internal use only.
         */
-        unsigned short _getNumBoneMatrices(void);
+        unsigned short _getNumBoneMatrices(void) const;
 
         /** Applies the animation set passed in, and populates the passed in array of bone matrices. 
         @remarks

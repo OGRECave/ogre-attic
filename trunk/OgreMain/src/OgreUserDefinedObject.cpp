@@ -32,7 +32,8 @@ namespace Ogre
     UserDefinedObject::UserDefinedObject()
     {
     }
-    long UserDefinedObject::getTypeID(void)
+
+    long UserDefinedObject::getTypeID(void) const
     {
         return 0;
     }

@@ -350,7 +350,7 @@ namespace Ogre {
 		mColourWrite = enabled;
 	}
     //-----------------------------------------------------------------------
-	bool Pass::getColourWriteEnabled(void)
+	bool Pass::getColourWriteEnabled(void) const
 	{
 		return mColourWrite;
 	}

@@ -64,7 +64,7 @@ namespace Ogre {
             that version is a litle more friendly and easier to scope, but obviously 
             slightly less efficient. You choose which you prefer.
         */
-        virtual long getTypeID(void);
+        virtual long getTypeID(void) const;
 
         /** Return a string identifying the type of user defined object.
         @remarks

@@ -116,8 +116,8 @@ namespace Ogre {
 		void setCursorGui(GuiContainer* cursor, MouseMotionListener* cursorListener);
 		void mouseMoved(MouseEvent* e);
 		void mouseDragged(MouseEvent* e);
-        Real getMouseX() { return mMouseX; }
-        Real getMouseY() { return mMouseY; }
+        Real getMouseX() const { return mMouseX; }
+        Real getMouseY() const { return mMouseY; }
 
 		/** returns the registered cursor GUI */
 		GuiContainer* getCursorGui();
