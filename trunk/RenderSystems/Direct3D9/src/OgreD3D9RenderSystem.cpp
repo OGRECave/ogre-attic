@@ -2419,16 +2419,16 @@ namespace Ogre
         q.x = Math::Sign(plane.normal.x) / matrix[0][0];
         q.y = Math::Sign(plane.normal.y) / matrix[1][1];
         q.z = 1.0F;
-        q.w = (1.0F - matrix[2][2]) / matrix[3][2];
+        q.w = (1.0F - matrix[2][2]) / matrix[2][3];
 
         // Calculate the scaled plane vector
         Vector4 clipPlane4d(plane.normal.x, plane.normal.y, plane.normal.z, plane.d);
         Vector4 c = clipPlane4d * (1.0F / (clipPlane4d.dotProduct(q)));
 
-        // Replace the third column of the projection matrix
-        matrix[0][2] = c.x;
-        matrix[1][2] = c.y;
+        // Replace the third row of the projection matrix
+        matrix[2][0] = c.x;
+        matrix[2][1] = c.y;
         matrix[2][2] = c.z;
-        matrix[3][2] = c.w;        
+        matrix[2][3] = c.w;        
     }
 }
