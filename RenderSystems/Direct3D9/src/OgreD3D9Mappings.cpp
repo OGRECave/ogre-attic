@@ -141,7 +141,7 @@ namespace Ogre
 		return 0;
 	}
 	//---------------------------------------------------------------------
-	DWORD D3D9Mappings::get(LayerBlendOperationEx lbo, D3DCAPS9 devCaps)
+	DWORD D3D9Mappings::get(LayerBlendOperationEx lbo, const D3DCAPS9& devCaps)
 	{
 		switch( lbo )
 		{
@@ -323,7 +323,7 @@ namespace Ogre
         return D3DSAMP_MINFILTER;
     }
 	//---------------------------------------------------------------------
-	DWORD D3D9Mappings::get(FilterType ft, FilterOptions fo, D3DCAPS9 devCaps, 
+	DWORD D3D9Mappings::get(FilterType ft, FilterOptions fo, const D3DCAPS9& devCaps, 
         eD3DTexType texType)
 	{
 		DWORD capsType;
@@ -436,7 +436,10 @@ namespace Ogre
         if (usage & HardwareBuffer::HBU_DYNAMIC)
         {
 #if OGRE_D3D_MANAGE_BUFFERS
-            // Don't add the dynamic flag since not supported in managed mode
+            // Only add the dynamic flag for default pool, and
+            // we use default pool when buffer is discardable
+            if (usage & HardwareBuffer::HBU_DISCARDABLE)
+                ret |= D3DUSAGE_DYNAMIC;
 #else
             ret |= D3DUSAGE_DYNAMIC;
 #endif
@@ -448,15 +451,20 @@ namespace Ogre
         return ret;
     }
 	//---------------------------------------------------------------------
-    DWORD D3D9Mappings::get(HardwareBuffer::LockOptions options)
+    DWORD D3D9Mappings::get(HardwareBuffer::LockOptions options, HardwareBuffer::Usage usage)
     {
         DWORD ret = 0;
         if (options == HardwareBuffer::HBL_DISCARD)
         {
 #if OGRE_D3D_MANAGE_BUFFERS
-            // Don't add the discard flag since not supported in managed mode
+            // Only add the discard flag for dynamic usgae and default pool
+            if ((usage & HardwareBuffer::HBU_DYNAMIC) &&
+                (usage & HardwareBuffer::HBU_DISCARDABLE))
+                ret |= D3DLOCK_DISCARD;
 #else
-            ret |= D3DLOCK_DISCARD;
+            // D3D doesn't like discard or no_overwrite on non-dynamic buffers
+            if (usage & HardwareBuffer::HBU_DYNAMIC)
+                ret |= D3DLOCK_DISCARD;
 #endif
         }
         if (options == HardwareBuffer::HBL_READ_ONLY)
@@ -466,9 +474,14 @@ namespace Ogre
         if (options == HardwareBuffer::HBL_NO_OVERWRITE)
         {
 #if OGRE_D3D_MANAGE_BUFFERS
-            // Don't add the nooverwrite flag since not supported in managed mode
+            // Only add the nooverwrite flag for dynamic usgae and default pool
+            if ((usage & HardwareBuffer::HBU_DYNAMIC) &&
+                (usage & HardwareBuffer::HBU_DISCARDABLE))
+                ret |= D3DLOCK_NOOVERWRITE;
 #else
-            ret |= D3DLOCK_NOOVERWRITE;
+            // D3D doesn't like discard or no_overwrite on non-dynamic buffers
+            if (usage & HardwareBuffer::HBU_DYNAMIC)
+                ret |= D3DLOCK_NOOVERWRITE;
 #endif 
         }
 
