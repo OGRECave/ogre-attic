@@ -770,6 +770,41 @@ protected:
 
 	}
 
+	void testTransparencyMipMaps()
+	{
+		MaterialPtr mat = MaterialManager::getSingleton().create("test", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		// known png with alpha
+		Pass* pass = mat->getTechnique(0)->getPass(0);
+		pass->createTextureUnitState("New_Ogre_Logo.png");
+		pass->setSceneBlending(SBT_TRANSPARENT_ALPHA);
+		// alpha blend
+		pass->setDepthWriteEnabled(false);
+
+		// alpha reject
+		//pass->setDepthWriteEnabled(true);
+		//pass->setAlphaRejectSettings(CMPF_LESS, 128);
+
+		// Define a floor plane mesh
+		Plane p;
+		p.normal = Vector3::UNIT_Y;
+		p.d = 200;
+		MeshManager::getSingleton().createPlane("FloorPlane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+			p,2000,2000,1,1,true,1,5,5,Vector3::UNIT_Z);
+
+		// Create an entity (the floor)
+		Entity* ent = mSceneMgr->createEntity("floor", "FloorPlane");
+		ent->setMaterialName("test");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
+
+		mSceneMgr->setSkyDome(true, "Examples/CloudySky", 5, 8);
+		mSceneMgr->setAmbientLight(ColourValue::White);
+
+
+		
+	}
+
     void testCthNewBlending(void)
     {
         // Set ambient light
@@ -2317,8 +2352,9 @@ protected:
 		//testSimpleMesh();
 		//test2Windows();
 		//testStaticGeometry();
-		testBug();
+		//testBug();
 		//testReloadResources();
+		testTransparencyMipMaps();
     }
     // Create new frame listener
     void createFrameListener(void)

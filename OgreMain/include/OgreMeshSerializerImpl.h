@@ -81,8 +81,8 @@ namespace Ogre {
         virtual void writeSubMeshBoneAssignment(const VertexBoneAssignment& assign);
         virtual void writeLodInfo(const Mesh* pMesh);
         virtual void writeLodSummary(unsigned short numLevels, bool manual);
-        virtual void writeLodUsageManual(const Mesh::MeshLodUsage& usage);
-        virtual void writeLodUsageGenerated(const Mesh* pMesh, const Mesh::MeshLodUsage& usage, unsigned short lodNum);
+        virtual void writeLodUsageManual(const MeshLodUsage& usage);
+        virtual void writeLodUsageGenerated(const Mesh* pMesh, const MeshLodUsage& usage, unsigned short lodNum);
         virtual void writeBoundsInfo(const Mesh* pMesh);
         virtual void writeEdgeList(const Mesh* pMesh);
 
@@ -113,9 +113,9 @@ namespace Ogre {
             SubMesh* sub);
         virtual void readMeshLodInfo(DataStreamPtr& stream, Mesh* pMesh);
         virtual void readMeshLodUsageManual(DataStreamPtr& stream, Mesh* pMesh, 
-            unsigned short lodNum, Mesh::MeshLodUsage& usage);
+            unsigned short lodNum, MeshLodUsage& usage);
         virtual void readMeshLodUsageGenerated(DataStreamPtr& stream, Mesh* pMesh, 
-            unsigned short lodNum, Mesh::MeshLodUsage& usage);
+            unsigned short lodNum, MeshLodUsage& usage);
         virtual void readBoundsInfo(DataStreamPtr& stream, Mesh* pMesh);
         virtual void readEdgeList(DataStreamPtr& stream, Mesh* pMesh);
 
