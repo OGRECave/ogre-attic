@@ -612,6 +612,11 @@ typedef struct {
 	GLboolean (APIENTRY *UnmapBufferARB) (GLenum);
 	void (APIENTRY *GetBufferParameterivARB) (GLenum, GLenum, GLint *);
 	void (APIENTRY *GetBufferPointervARB) (GLenum, GLenum, GLvoid* *);
+    void (APIENTRY *ProgramStringARB) (GLenum, GLenum, GLsizei, const GLvoid *);
+    void (APIENTRY *BindProgramARB) (GLenum, GLuint);
+    void (APIENTRY *DeleteProgramsARB) (GLsizei, const GLuint *);
+    void (APIENTRY *GenProgramsARB) (GLsizei, GLuint *);
+    void (APIENTRY *ProgramLocalParameter4fvARB) (GLenum, GLuint, const GLfloat *);
 	// END OGRE CHANGES
 } _GLextensionProcs;
 
@@ -1168,6 +1173,11 @@ typedef struct {
 #define glUnmapBufferARB				(_GET_TLS_PROCTABLE()->UnmapBufferARB)
 #define glGetBufferParameterivARB		(_GET_TLS_PROCTABLE()->GetBufferParameterivARB)
 #define glGetBufferPointervARB			(_GET_TLS_PROCTABLE()->GetBufferPointervARB)
+#define glBindProgramARB			    (_GET_TLS_PROCTABLE()->BindProgramARB)
+#define glProgramLocalParameter4fvARB   (_GET_TLS_PROCTABLE()->ProgramLocalParameter4fvARB)
+#define glGenProgramsARB                (_GET_TLS_PROCTABLE()->GenProgramsARB)
+#define glDeleteProgramsARB             (_GET_TLS_PROCTABLE()->DeleteProgramsARB)
+#define glProgramStringARB              (_GET_TLS_PROCTABLE()->ProgramStringARB)
 // END OGRE CHANGES
 
 #ifndef _APP_PROCTABLE
