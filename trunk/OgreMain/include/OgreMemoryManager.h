@@ -28,27 +28,62 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgrePlatform.h"
 #include "OgreStdHeaders.h"
 
-namespace Ogre
-{    
-    class _OgreExport MemoryManager
-    {
-    public:        
-        static MemoryManager sMemManager;
+BEGIN_OGRE_NAMESPACE
 
-    public:
-        MemoryManager();
-        ~MemoryManager();
+/** Class that handles memory (de)allocation requests.
+    @remarks
+        This class works like a wrapper between the actual C memory allocation 
+        functions (*alloc, free) and the memory (de)allocation requests of the
+        application.
+    @par
+        Why would such a class be needed? First of all, because we had some 
+        major issues with memory getting misued (read: deleted) over DLL 
+        boundaries. One thing this memory manager does is solve the problem by
+        allocating all the memory in the OgreMain.dll/so process.
+    @par
+        Another use would be leak detection and memory misuse detection. With
+        a custom memory manager, calls to new/delete and *alloc/free could be
+        overseed and logged.
+    @par
+        Yet another use is the optimization of memory allocation for certain
+        object types. One of the most common examples is a small object 
+        allocator.
+    @note
+        The class contains a static member of type MemoryManager. That is 
+        because we want the memory manager to be created even before we 
+        override the new([])/delete([]) operators.
+*/
+class _OgreExport MemoryManager
+{
+public:        
+    static MemoryManager sMemManager;
 
-        static void setAllocNewInfo( const char *szFile, size_t uLine );
-        static void setDeallocNewInfo( const char *szFile, size_t uLine );
+public:
+    MemoryManager();
+    ~MemoryManager();
 
-        void *allocMem( const char *szFile, size_t uLine, size_t count ) throw ( );
-        void *rllocMem( const char *szFile, size_t uLine, void *ptr , size_t count ) throw ( );
-        void *cllocMem( const char *szFile, size_t uLine, size_t num, size_t size ) throw ( );
-        void dllocMem( const char *szFile, size_t uLine, void *ptr ) throw ( );
-    };
-}
+    /** Memory allocator - uses plain old malloc.
+    */
+    void *allocMem( const char *szFile, size_t uLine, size_t count ) throw ( );
 
+    /** Memory re-allocator - uses plain old realloc.
+    */
+    void *rllocMem( const char *szFile, size_t uLine, void *ptr , size_t count ) throw ( );
+
+    /** Memory allocator - uses plain old calloc.
+    */
+    void *cllocMem( const char *szFile, size_t uLine, size_t num, size_t size ) throw ( );
+
+    /** Memory de-allocator - uses plain old free.
+    */
+    void dllocMem( const char *szFile, size_t uLine, void *ptr ) throw ( );
+};
+
+END_OGRE_NAMESPACE
+
+//-----------------------------------------------------------------------------
+// Overridden global new([])/delete([]) functions
+//
 inline void *operator new( size_t count ) throw( )
 {
     return ::Ogre::MemoryManager::sMemManager.allocMem( "", 0, count );
@@ -68,12 +103,11 @@ inline void operator delete[]( void* ptr ) throw( )
 {
     ::Ogre::MemoryManager::sMemManager.dllocMem( "", 0, ptr );
 }
+//-----------------------------------------------------------------------------
 
-#define new new
-#define delete delete
-#define malloc( sz ) ::Ogre::MemoryManager::sMemManager.allocMem( __FILE__, __LINE__, sz )
-#define free( ptr ) ::Ogre::MemoryManager::sMemManager.dllocMem( __FILE__, __LINE__, ptr )
-#define realloc( ptr, sz ) ::Ogre::MemoryManager::sMemManager.rllocMem( __FILE__, __LINE__, ptr, sz )
-#define calloc( cnt, sz ) ::Ogre::MemoryManager::sMemManager.cllocMem( __FILE__, __LINE__, cnt, sz )
+//-----------------------------------------------------------------------------
+// This header adds the *alloc/free macros, wrapping the C functions
+#include "OgreMemoryMacros.h"
+//-----------------------------------------------------------------------------
 
 #endif
