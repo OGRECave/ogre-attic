@@ -793,6 +793,10 @@ namespace Ogre
 
     }
     //-------------------------------------------------------------------------
+    Material* TerrainSceneManager::getTerrainMaterial(void)
+    {
+        return mOptions.terrainMaterial;
+    }
 
 
 } //namespace

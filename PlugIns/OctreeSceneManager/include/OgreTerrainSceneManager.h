@@ -282,6 +282,8 @@ public:
     @param page The page to attach
     */
     virtual void attachPage(ushort pageX, ushort pageZ, TerrainPage* page);
+    /// Get a pointer to the material being used for the terrain
+    Material* getTerrainMaterial(void);
 
 protected:
 
