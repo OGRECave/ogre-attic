@@ -111,6 +111,22 @@ namespace OgreMaya {
 
         if(!_querySkeletonAnim())
             return false;
+
+        
+        MGlobal::executeCommand("ikSystem -e -sol 0;");
+        MGlobal::selectByName(root->name.c_str());
+        MGlobal::executeCommand("dagPose -r -g -bp");
+        MGlobal::executeCommand("dagPose -r -g -bp");
+        
+        
+/*        
+        MGlobal::executeCommand("ikSystem -e -sol 0;");
+	    MGlobal::executeCommand((string("select ")+root->name).c_str());
+	    MGlobal::executeCommand("dagPose -r -g -bp");
+*/
+        
+        /////////////////////////////////////////////
+
         
         {
             ofstream out(OPTIONS.outSkelFile.c_str());
@@ -317,6 +333,9 @@ namespace OgreMaya {
 			    pkJoint->hasParent  = true;			    
 		    }
 		    else {
+                // we've found root here -> mark
+                root = pkJoint;
+
                 pkJoint->parentName = "";
 				pkJoint->hasParent  = false;                
 		    }
