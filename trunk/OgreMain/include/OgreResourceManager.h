@@ -35,9 +35,6 @@ http://www.gnu.org/copyleft/gpl.html.
 
 namespace Ogre {
 
-    class ArchiveManager;
-    class ArchiveEx;
-
     /** Defines a generic resource handler.
         @remarks
             A resource manager is responsible for managing a pool of
@@ -49,12 +46,15 @@ namespace Ogre {
             Resource managers use a priority system to determine what can
             be unloaded, and a Least Recently Used (LRU) policy within
             resources of the same priority.
+        @todo 
+            Implement priorities.
     */
     class _OgreExport ResourceManager
     {
     public:
         ResourceManager();
         virtual ~ResourceManager();
+
         /** Set a limit on the amount of memory this resource handler may use.
             @remarks
                 If, when asked to load a new resource, the manager believes it will exceed this memory
@@ -62,7 +62,7 @@ namespace Ogre {
                 is not permanent and the Resource is not destroyed; it simply needs to be reloaded when
                 next used.
         */
-        virtual void setMemoryBudget(unsigned long bytes);
+        virtual void setMemoryBudget( size_t bytes);
 
         /** Creates a new blank resource, compatible with this manager.
             @remarks
@@ -76,16 +76,18 @@ namespace Ogre {
 
         /** Load a resource. Resources will be subclasses.
         */
-        virtual void load(Resource *res, int priority);
+        virtual void load( Resource *res, int priority );
 
-        /** Unloads a Resource from memory
+        /** Unloads a Resource from the managed resources list, calling it's unload() method.
             @remarks
                 This method removes a resource from the list maintained by this manager, and unloads it from
                 memory. It does NOT destroy the resource itself, although the memory used by it will be largely
-                freed up. This would allow you to reload the resource again if you wished. Permanently destroying
-                the resource is, as mentioned in ResourceManager::create entirely the CALLERS responsibility.
+                freed up. This would allow you to reload the resource again if you wished. 
+            @par
+                Permanently destroying the resource is, as mentioned in ResourceManager::create, <b>the library 
+                user's responsibility</b>.
         */
-        virtual void unload(Resource *res);
+        virtual void unload( Resource *res );
 
         /** Unloads all Resources from memory.
             @remarks
@@ -117,10 +119,11 @@ namespace Ogre {
 
         /** Adds an archive to the search path for this type of resource.
             @remarks
-                Ogre can load resources from ZIP-compressed archives. This method adds the named archive to the
-                search path for the type of resource managed by the specific resource manager. Archives are not
-                searched for themselves so a complete path must be specified here (or relative to the current
-                path). Archives take precedence over files in the filesystem.
+                Ogre can load resources from archives. This method adds the named archive to the
+                search path for the type of resource managed by the specific resource manager. 
+                Archives are not searched for themselves so a complete path must be specified 
+                here (or relative to the current path). Archives take precedence over files 
+                in the filesystem.
         */
         void addArchiveEx( const String& strName, const String& strDriverName );
 
@@ -144,17 +147,21 @@ namespace Ogre {
         bool _findResourceData( const String& filename, DataChunk& refChunk );
 
         /** Returns a collection of files with the given extension in the common resource paths.
-        @remarks
-            This is a convenience method to allow non-subclasses to search for files in the common paths.
-        @param startPath The path, relative to each common resource start, to search in (use "./" for the root)
-        @param extension The extension of file to search for.
-        @returns A set of String filenames (it is a set because duplicates will be ignored)
+            @remarks
+                This is a convenience method to allow non-subclasses to search for files in the common paths.
+            @param 
+                startPath The path, relative to each common resource start, to search in (use "./" for the root)
+            @param 
+                extension The extension of file to search for.
+            @returns 
+                A set of String filenames (it is a set because duplicates will be ignored)
         */
         static std::set<String> _getAllCommonNamesLike( const String& startPath, const String& extension );
+
         /** Internal method, used for locating common resource data in the file system / archives.
-        @remarks
-            This is a static version of _findResourceData specifically designed to only search in the
-            common resource archives, and is therefore usable from non-ResourceManager subclasses.
+            @remarks
+                This is a static version of _findResourceData specifically designed to only search in the
+                common resource archives, and is therefore usable from non-ResourceManager subclasses.
             @param
                 filename File to find
             @param
@@ -162,9 +169,10 @@ namespace Ogre {
             @returns
                 On success, true is returned
             @par
-                On failiure, false is returnec
+                On failiure, false is returned
         */
         static bool _findCommonResourceData( const String& filename, DataChunk& refChunk );
+
     protected:
 
 #ifdef GCC_3_1
@@ -175,11 +183,10 @@ namespace Ogre {
         static FileMap mCommonArchiveFiles;
         FileMap mArchiveFiles;
 
-        /// @todo Implement priorities
         ResourceMap mResources;
 
-        unsigned long mMemoryBudget; // In bytes
-        unsigned long mMemoryUsage; // In bytes, at last checkUsage() call
+        size_t mMemoryBudget; // In bytes
+        size_t mMemoryUsage; // In bytes, at last checkUsage() call
 
         /** Checks memory usage and pages out if required.
         */
