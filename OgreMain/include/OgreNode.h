@@ -166,6 +166,10 @@ namespace Ogre {
         // The total weighted scale from the initial state so far
         Vector3 mScaleFromInitial;
 
+        /// Cached derived transform as a 4x4 matrix
+        mutable Matrix4 mCachedTransform;
+        mutable bool mCachedTransformOutOfDate;
+
 
     public:
         /** Constructor, should only be called by parent, not directly.

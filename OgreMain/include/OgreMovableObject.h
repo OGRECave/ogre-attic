@@ -51,6 +51,8 @@ namespace Ogre {
         UserDefinedObject *mUserObject;
         /// The render queue to use when rendering this object
         RenderQueueGroupID mRenderQueueID;
+        /// Flags determining whether this object is included / excluded from scene queries
+        unsigned long mQueryFlags;
     public:
         /// Constructor
         MovableObject();
@@ -137,6 +139,26 @@ namespace Ogre {
 
 		/// return the full transformation of the parent sceneNode or the attachingPoint node
 		virtual Matrix4 _getParentNodeFullTransform(void);
+
+        /** Sets the query flags for this object.
+        @remarks
+            When performing a scene query, this object will be included or excluded according
+            to flags on the object and flags on the query. This is a bitwise value, so only when
+            a bit on these flags is set, will it be included in a query asking for that flag. The
+            meaning of the bits is application-specific.
+        */
+        virtual void setQueryFlags(unsigned long flags) { mQueryFlags = flags; }
+
+        /** As setQueryFlags, except the flags passed as parameters are appended to the
+        existing flags on this object. */
+        virtual void addQueryFlags(unsigned long flags) { mQueryFlags |= flags; }
+            
+        /** As setQueryFlags, except the flags passed as parameters are removed from the
+        existing flags on this object. */
+        virtual void removeQueryFlags(unsigned long flags) { mQueryFlags ^= flags; }
+        
+        /// Returns the query flags relevant for this object
+        virtual unsigned long getQueryFlags(void) { return mQueryFlags; }
 
 
 
