@@ -361,6 +361,7 @@ namespace Ogre {
         IlluminationRenderStage mIlluminationStage;
         unsigned short mShadowTextureSize;
         unsigned short mShadowTextureCount;
+		PixelFormat mShadowTextureFormat;
         typedef std::vector<RenderTexture*> ShadowTextureList;
         ShadowTextureList mShadowTextures;
         RenderTexture* mCurrentShadowTexture;
@@ -375,7 +376,8 @@ namespace Ogre {
         /// Internal method for setting up materials for shadows
         virtual void initShadowVolumeMaterials(void);
         /// Internal method for creating shadow textures (texture-based shadows)
-        virtual void createShadowTextures(unsigned short size, unsigned short count);
+        virtual void createShadowTextures(unsigned short size, unsigned short count, 
+			PixelFormat fmt);
         /// Internal method for preparing shadow textures ready for use in a regular render
         virtual void prepareShadowTextures(Camera* cam, Viewport* vp);
 
@@ -404,6 +406,17 @@ namespace Ogre {
         Real mShadowTextureOffset; // proportion of texture offset in view direction e.g. 0.4
         Real mShadowTextureFadeStart; // as a proportion e.g. 0.6
         Real mShadowTextureFadeEnd; // as a proportion e.g. 0.9
+		bool mShadowTextureSelfShadow;
+		Pass* mShadowTextureCustomCasterPass;
+		Pass* mShadowTextureCustomReceiverPass;
+		String mShadowTextureCustomCasterVertexProgram;
+		String mShadowTextureCustomReceiverVertexProgram;
+		GpuProgramParametersSharedPtr mShadowTextureCustomCasterVPParams;
+		GpuProgramParametersSharedPtr mShadowTextureCustomReceiverVPParams;
+		bool mShadowTextureCasterVPDirty;
+		bool mShadowTextureReceiverVPDirty;
+
+
         GpuProgramParametersSharedPtr mInfiniteExtrusionParams;
         GpuProgramParametersSharedPtr mFiniteExtrusionParams;
 
@@ -1600,6 +1613,18 @@ namespace Ogre {
         virtual void setShadowTextureSize(unsigned short size);
         /// Get the size of the texture used for texture based shadows
         unsigned short getShadowTextureSize(void) const {return mShadowTextureSize; }
+        /** Set the pixel format of the textures used for texture-based shadows.
+        @remarks
+			By default, a colour texture is used (PF_X8R8G8B8) for texture shadows,
+			but if you want to use more advanced texture shadow types you can 
+			alter this. If you do, you will have to also call
+			setShadowTextureCasterMaterial and setShadowTextureReceiverMaterial
+			to provide shader-based materials to use these customised shadow
+			texture formats.
+        */
+        virtual void setShadowTexturePixelFormat(PixelFormat fmt);
+        /// Get the format of the textures used for texture based shadows
+        PixelFormat getShadowTexturePixelFormat(void) const {return mShadowTextureFormat; }
         /** Set the number of textures allocated for texture-based shadows.
         @remarks
             The default number of textures assigned to deal with texture based
@@ -1616,7 +1641,8 @@ namespace Ogre {
             method just allows you to change both at once, which can save on 
             reallocation if the textures have already been created.
         */
-        virtual void setShadowTextureSettings(unsigned short size, unsigned short count);
+        virtual void setShadowTextureSettings(unsigned short size, unsigned short count, 
+			PixelFormat fmt = PF_X8R8G8B8);
         /** Sets the proportional distance which a texture shadow which is generated from a
             directional light will be offset into the camera view to make best use of texture space.
         @remarks
@@ -1650,6 +1676,67 @@ namespace Ogre {
         */
         virtual void setShadowTextureFadeEnd(Real fadeEnd) 
         { mShadowTextureFadeEnd = fadeEnd; }
+
+		/** Sets whether or not texture shadows should attempt to self-shadow.
+		@remarks
+			The default implementation of texture shadows uses a fixed-function 
+			colour texture projection approach for maximum compatibility, and 
+			as such cannot support self-shadowing. However, if you decide to 
+			implement a more complex shadowing technique using the 
+			setShadowTextureCasterMaterial and setShadowTextureReceiverMaterial 
+			there is a possibility you may be able to support 
+			self-shadowing (e.g by implementing a shader-based shadow map). In 
+			this case you might want to enable this option.
+		@param selfShadow Whether to attempt self-shadowing with texture shadows
+		*/
+		virtual void setShadowTextureSelfShadow(bool selfShadow) 
+		{ mShadowTextureSelfShadow = selfShadow; }
+		/// Gets whether or not texture shadows attempt to self-shadow.
+		virtual bool getShadowTextureSelfShadow(void) const 
+		{ return mShadowTextureSelfShadow; }
+		/** Sets the default material to use for rendering shadow casters.
+		@remarks
+			By default shadow casters are rendered into the shadow texture using
+			an automatically generated fixed-function pass. This allows basic
+			projective texture shadows, but it's possible to use more advanced
+			shadow techniques by overriding the caster and receiver materials, for
+			example providing vertex and fragment programs to implement shadow
+			maps.
+		@par
+			You can rely on the ambient light in the scene being set to the 
+			requested texture shadow colour, if that's useful. 
+		@note
+			Individual objects may also override the vertex program in
+			your default material if their materials include 
+			shadow_caster_vertex_program_ref shadow_receiver_vertex_program_ref
+			entries, so if you use both make sure they are compatible.
+		@note
+			Only a single pass is allowed in your material, although multiple
+			techniques may be used for hardware fallback.
+		*/
+		virtual void setShadowTextureCasterMaterial(const String& name);
+		/** Sets the default material to use for rendering shadow receivers.
+		@remarks
+			By default shadow receivers are rendered as a post-pass using basic
+			modulation. This allows basic projective texture shadows, but it's 
+			possible to use more advanced shadow techniques by overriding the 
+			caster and receiver materials, for example providing vertex and 
+			fragment programs to implement shadow maps.
+		@par
+			You can rely on texture unit 0 containing the shadow texture, and 
+			for the unit to be set to use projective texturing from the light 
+			(only useful if you're using fixed-function, which is unlikely; 
+			otherwise you should rely on the texture_viewproj_matrix auto binding)
+		@note
+			Individual objects may also override the vertex program in
+			your default material if their materials include 
+			shadow_caster_vertex_program_ref shadow_receiver_vertex_program_ref
+			entries, so if you use both make sure they are compatible.
+		@note
+			Only a single pass is allowed in your material, although multiple
+			techniques may be used for hardware fallback.
+		*/
+		virtual void setShadowTextureReceiverMaterial(const String& name);
 
 		/** Sets whether we should use an inifinite camera far plane
 			when rendering stencil shadows.
