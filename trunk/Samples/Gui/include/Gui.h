@@ -43,11 +43,31 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 class GuiFrameListener : public ExampleFrameListener
 {
+protected:
+    bool mShutdownRequested;
 public:
     // NB using buffered input, this is the only change
     GuiFrameListener(RenderWindow* win, Camera* cam)
-        : ExampleFrameListener(win, cam, true, true)
+        : ExampleFrameListener(win, cam, true, true), mShutdownRequested(false)
     {
+    }
+
+    /// Tell the frame listener to exit at the end of the next frame
+    void requestShutdown(void)
+    {
+        mShutdownRequested = true;
+    }
+
+    bool frameEnded(const FrameEvent& evt)
+    {
+        if (mShutdownRequested)
+        {
+            return false;
+        }
+        else
+        {
+            return ExampleFrameListener::frameEnded(evt);
+        }
     }
 
 };
@@ -111,7 +131,10 @@ protected:
         LogManager::getSingleton().logMessage("Got event: " + action);
 
         if (action == "SS/Setup/HostScreen/Exit")
-            Root::getSingleton().getRenderSystem()->shutdown();
+        {
+            // Queue a shutdown
+            static_cast<GuiFrameListener*>(mFrameListener)->requestShutdown();
+        }
 	}
 
 
