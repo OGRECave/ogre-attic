@@ -145,6 +145,12 @@ namespace Ogre {
         return mSubEntityList[index];
     }
     //-----------------------------------------------------------------------
+    SubEntity* Entity::getSubEntity(const String& name)
+    {
+		ushort index = mMesh->_getSubMeshIndex(name);
+		return getSubEntity(index);
+    }
+    //-----------------------------------------------------------------------
     unsigned int Entity::getNumSubEntities(void)
     {
         return static_cast< unsigned int >( mSubEntityList.size() );

@@ -94,18 +94,36 @@ namespace Ogre {
         return sub;
     }
     //-----------------------------------------------------------------------
+    SubMesh* Mesh::createSubMesh(const String& name)
+	{
+		SubMesh *sub = createSubMesh();
+		nameSubMesh(name, (ushort)mSubMeshList.size()-1);
+		return sub ;
+	}
+    //-----------------------------------------------------------------------
     unsigned short Mesh::getNumSubMeshes() const
     {
         return static_cast< unsigned short >( mSubMeshList.size() );
     }
 
+    //---------------------------------------------------------------------
+	void Mesh::nameSubMesh(const String& name, ushort index) 
+	{
+		mSubMeshNameMap[name] = index ;
+	}
+	
+    //-----------------------------------------------------------------------
+    SubMesh* Mesh::getSubMesh(const String& name) const
+	{
+		ushort index = _getSubMeshIndex(name);
+		return getSubMesh(index);
+	}
     //-----------------------------------------------------------------------
     SubMesh* Mesh::getSubMesh(unsigned short index) const
     {
         SubMeshList::const_iterator i = mSubMeshList.begin();
         return const_cast<SubMesh*>(i[index]);
     }
-
     //-----------------------------------------------------------------------
     void Mesh::load()
     {
@@ -194,7 +212,8 @@ namespace Ogre {
                 }
             }
         }
-
+		// Clear SubMesh names
+		mSubMeshNameMap.clear();
     }
 
     //-----------------------------------------------------------------------
@@ -367,6 +386,9 @@ namespace Ogre {
         {
             cloneGeometry(sharedGeometry, newMesh->sharedGeometry);
         }
+
+		// Copy submesh names
+		newMesh->mSubMeshNameMap = mSubMeshNameMap ;
 
         return newMesh;
 
@@ -835,6 +857,17 @@ namespace Ogre {
 		sm->mLodFaceList[level - 1] = facedata;
 
 	}
+    //---------------------------------------------------------------------
+	ushort Mesh::_getSubMeshIndex(const String& name) const
+	{
+		SubMeshNameMap::const_iterator i = mSubMeshNameMap.find(name) ;
+		if (i == mSubMeshNameMap.end())
+            Except(Exception::ERR_ITEM_NOT_FOUND, "No SubMesh named " + name + " found.", 
+                "Mesh::_getSubMeshIndex");
+
+		return i->second;
+	}
+	
 
 }
 

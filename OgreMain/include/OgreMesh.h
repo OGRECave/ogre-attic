@@ -105,6 +105,21 @@ namespace Ogre {
         */
         SubMesh* createSubMesh(void);
 
+		/** Creates a new SubMesh and gives it a name
+		*/
+		SubMesh* createSubMesh(const String& name);
+		
+		/** Gives a name to a SubMesh
+		*/
+		void nameSubMesh(const String& name, ushort index);
+		
+		/** Gets the index of a submesh with a given name.
+        @remarks
+            Useful if you identify the SubMeshes by name (using nameSubMesh)
+            but wish to have faster repeat access.
+        */
+		ushort _getSubMeshIndex(const String& name) const;
+
         /** Gets the number of sub meshes which comprise this mesh.
         */
         unsigned short getNumSubMeshes(void) const;
@@ -112,6 +127,10 @@ namespace Ogre {
         /** Gets a pointer to the submesh indicated by the index.
         */
         SubMesh* getSubMesh(unsigned short index) const;
+
+		/** Gets a SubMesh by name
+		*/
+		SubMesh* getSubMesh(const String& name) const ;
 
         /** Shared geometry data.
             @remarks
@@ -352,6 +371,12 @@ namespace Ogre {
             from the Mesh, depending on preference).
         */
         SubMeshList mSubMeshList;
+	
+		/** A hashmap used to store optional SubMesh names.
+			Translates a name into SubMesh index
+		*/
+		typedef HashMap<String, ushort, _StringHash> SubMeshNameMap ;
+		SubMeshNameMap mSubMeshNameMap ;
 
         /// Local bounding box volume
         AxisAlignedBox mAABB;
