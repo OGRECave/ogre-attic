@@ -340,30 +340,12 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void setStencilBufferFunction(CompareFunction func);
-        /** See
-          RenderSystem
-         */
-        void setStencilBufferReferenceValue(ulong refValue);
-        /** See
-          RenderSystem
-         */
-        void setStencilBufferMask(ulong mask);
-        /** See
-          RenderSystem
-         */
-        void setStencilBufferFailOperation(StencilOperation op);
-        /** See
-          RenderSystem
-         */
-        void setStencilBufferDepthFailOperation(StencilOperation op);
-        /** See
-          RenderSystem
-         */
-        void setStencilBufferPassOperation(StencilOperation op);
-        /** See
-          RenderSystem
-         */
+        void setStencilBufferParams(CompareFunction func = CMPF_ALWAYS_PASS, 
+            ulong refValue = 0, ulong mask = 0xFFFFFFFF, 
+            StencilOperation stencilFailOp = SOP_KEEP, 
+            StencilOperation depthFailOp = SOP_KEEP,
+            StencilOperation passOp = SOP_KEEP, 
+            bool twoSidedOperation = false);
         void _setTextureUnitFiltering(size_t unit, FilterType ftype, FilterOptions filter);
         /** See
           RenderSystem

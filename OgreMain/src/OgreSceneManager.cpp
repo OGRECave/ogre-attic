@@ -88,7 +88,8 @@ namespace Ogre {
 
         mDisplayNodes = false;
 
-	  mShowBoundingBoxes = false;
+	    mShowBoundingBoxes = false;
+        mShadowTechnique = SHADOWTYPE_NONE;
     }
 
     SceneManager::~SceneManager()
@@ -650,6 +651,19 @@ namespace Ogre {
         // Clear the render queue
         mRenderQueue.clear();
 
+        // Are we using any shadows at all?
+        if (mShadowTechnique != SHADOWTYPE_NONE)
+        {
+            // Locate any lights which could be affecting the frustum
+            findLightsAffectingFrustum(camera);
+        }
+        // Deal with shadow setup
+        if (mShadowTechnique == SHADOWTYPE_STENCIL_ADDITIVE)
+        {
+            // Additive stencil, we need to split everything by light
+            // TODO - add a different queue handler to do this
+        }
+
         // Parse the scene and tag visibles
         _findVisibleObjects(camera);
         // Add overlays, if viewport deems it
@@ -677,8 +691,30 @@ namespace Ogre {
         // Update controllers (after begineFrame since some are frameTime dependent)
         ControllerManager::getSingleton().updateAllControllers();
 
-        // Render scene content (only entities in this SceneManager, no world geometry)
-        _renderVisibleObjects();
+        if (mShadowTechnique == SHADOWTYPE_STENCIL_ADDITIVE)
+        {
+            // Need to do a ambient or depth-only pass here
+            //_renderVisibleObjectsSolidAmbientOnly();
+
+            // Need to render per light
+            //_renderVisibleObjectsSolidPerLight();
+
+            // Now render transparents
+            //_renderVisibleObjectsTransparent();
+
+        }
+        else 
+        {
+            // Render scene content 
+            _renderVisibleObjects();
+
+            if (mShadowTechnique == SHADOWTYPE_STENCIL_MODULATIVE)
+            {
+                // Do a post-pass with stencils
+                renderModulativeStencilShadows(camera);
+            }
+        }
+
 
 
         
@@ -1869,6 +1905,120 @@ namespace Ogre {
 	{
 		return mShowBoundingBoxes;
 	}
+	//---------------------------------------------------------------------
+    void SceneManager::setShadowTechnique(ShadowTechnique technique)
+    {
+        mShadowTechnique = technique;
+    }
+	//---------------------------------------------------------------------
+    void SceneManager::findLightsAffectingFrustum(const Camera* camera)
+    {
+        // Basic iteration for this SM
+        mLightsAffectingFrustum.clear();
+        SceneLightList::iterator i, iend;
+        iend = mLights.end();
+        Sphere sphere;
+        for (i = mLights.begin(); i != iend; ++i)
+        {
+            Light* l = i->second;
+            if (l->getType() == Light::LT_DIRECTIONAL)
+            {
+                // Always visible
+                mLightsAffectingFrustum.push_back(l);
+            }
+            else
+            {
+                // NB treating spotlight as point for simplicity
+                // Just see if the lights attenuation range is within the frustum
+                sphere.setCenter(l->getPosition());
+                sphere.setRadius(l->getAttenuationRange());
+                if (camera->isVisible(sphere))
+                {
+                    mLightsAffectingFrustum.push_back();
+                }
+                
+            }
+        }
+
+    }
+	//---------------------------------------------------------------------
+    void SceneManager::renderModulativeStencilShadows(const Camera* camera)
+    {
+        // Can we do a 2-sided stencil?
+        bool stencil2sided = false;
+        if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_TWO_SIDED_STENCIL))
+        {
+            stencil2sided = true;
+        }
+
+        // Iterate over lights
+        LightList::const_iterator li, liend;
+        liend = mLightsAffectingFrustum.end();
+        SphereSceneQuery* ssc = 0;
+
+        mDestRenderSystem->_setColourBufferWriteEnabled(false, false, false, false);
+        mDestRenderSystem->_setDepthBufferWriteEnabled(false);
+
+        for (li = mLightsAffectingFrustum.begin(); li != liend; ++li)
+        {
+            Light* l = *li;
+            if (l->getType() == Light::LT_DIRECTIONAL)
+            {
+                // Hmm, how to efficiently locate shadow casters for an infinite light?
+                // TODO
+            }
+            else
+            {
+                // Use sphere scene query to locate objects which might cast a shadow
+                if (!ssc)
+                {
+                    ssc = createSphereQuery(Sphere(l->getPosition(), l->getAttenuationRange()));
+                }
+                else
+                {
+                    ssc->setSphere(Sphere(l->getPosition(), l->getAttenuationRange()));
+                }
+
+                SceneQueryResult result = ssc->execute();
+
+                // Iterate over results
+                // Movables only for now
+                SceneQueryResultMovableList::const_iterator mi, miend;
+                miend = result.movables.end();
+                for (mi = result.movables.begin(); mi != miend; ++mi)
+                {
+                    const MovableObject* m = *mi;
+                    if (m->getMovableType() == "Entity")
+                    {
+                        // Deal with entity
+                        const Entity* e = static_cast<const Entity*>(m);
+                        if (e->getCastShadows())
+                        {
+                            // Build and render a shadow volume here
+                            // TODO
+                            //  - find out if we need to use zfail algo or is zpass ok (util method)
+                            //  - if we have 2-sided stencil, one render with no culling
+                            //  - otherwise, 2 renders, one with each culling method and invert the ops
+
+                        }
+                    }
+                }
+
+            }
+
+
+        }
+
+
+        // render full-screen shadow modulator, use .material for this so user can change effect
+        // TODO
+
+        // revert colour write state
+        mDestRenderSystem->_setColourBufferWriteEnabled(true, true, true, true);
+        // revert depth write state
+        mDestRenderSystem->_setDepthBufferWriteEnabled(true);
+
+    }
 	//---------------------------------------------------------------------
     AxisAlignedBoxSceneQuery* 
     SceneManager::createAABBQuery(const AxisAlignedBox& box, unsigned long mask)

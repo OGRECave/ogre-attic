@@ -80,13 +80,7 @@ namespace Ogre {
 		bool mColourWrite[4];
 
         GLint convertCompareFunction(CompareFunction func);
-        GLint convertStencilOp(StencilOperation op);
-
-        // Save stencil settings since GL insists on having them in groups
-        // Means we have to call functions more than once, but what the hey
-        GLint mStencilFunc, mStencilRef;
-        GLuint mStencilMask;
-        GLint mStencilFail, mStencilZFail, mStencilPass;
+        GLint convertStencilOp(StencilOperation op, bool invert = false);
 
 		// internal method for anisotrophy validation
 		GLfloat _getCurrentAnisotropy(size_t unit);
@@ -303,40 +297,14 @@ namespace Ogre {
           RenderSystem
          */
         void setStencilCheckEnabled(bool enabled);
-        /** See
-          RenderSystem
-         */
-        void setStencilBufferFunction(CompareFunction func);
-        /** See
-          RenderSystem
-         */
-        void setStencilBufferReferenceValue(ulong refValue);
-        /** See
-          RenderSystem
-         */
-        void setStencilBufferMask(ulong mask);
-        /** See
-          RenderSystem
-         */
-        void setStencilBufferFailOperation(StencilOperation op);
-        /** See
-          RenderSystem
-         */
-        void setStencilBufferDepthFailOperation(StencilOperation op);
-        /** See
-          RenderSystem
-         */
-        void setStencilBufferPassOperation(StencilOperation op);
         /** See RenderSystem.
-        @remarks
-            This is overridden because GL likes to set stencil options together, so we can
-            provide a better custom implementation of this than using the superclass.
          */
         void setStencilBufferParams(CompareFunction func = CMPF_ALWAYS_PASS, 
             ulong refValue = 0, ulong mask = 0xFFFFFFFF, 
             StencilOperation stencilFailOp = SOP_KEEP, 
             StencilOperation depthFailOp = SOP_KEEP,
-            StencilOperation passOp = SOP_KEEP);
+            StencilOperation passOp = SOP_KEEP, 
+            bool twoSidedOperation = false);
         /** See
           RenderSystem
          */

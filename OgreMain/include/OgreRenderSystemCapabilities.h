@@ -35,20 +35,37 @@ namespace Ogre {
     enum Capabilities
     {
         //RSC_MULTITEXTURE          = 0x00000001,
+        /// Supporta generating mipmaps in hardware
         RSC_AUTOMIPMAP              = 0x00000002,
         RSC_BLENDING                = 0x00000004,
+        /// Supports anisotropic texture filtering
         RSC_ANISOTROPY              = 0x00000008,
+        /// Supports fixed-function DOT3 texture blend
         RSC_DOT3                    = 0x00000010,
+        /// Supports cube mapping
         RSC_CUBEMAPPING             = 0x00000020,
+        /// Supports hardware stencil buffer
         RSC_HWSTENCIL               = 0x00000040,
+        /// Supports hardware vertex and index buffers
         RSC_VBO                     = 0x00000080,
+        /// Supports fixed function hardware vertex blending
         RSC_VERTEXBLENDING          = 0x00000100,
+        /// Supports vertex programs (vertex shaders)
 		RSC_VERTEX_PROGRAM          = 0x00000200,
+        /// Supports fragment programs (pixel shaders)
 		RSC_FRAGMENT_PROGRAM        = 0x00000400,
+        /// Supports compressed textures
 		RSC_TEXTURE_COMPRESSION     = 0x00000800,
+        /// Supports compressed textures in the DXT/ST3C formats
 		RSC_TEXTURE_COMPRESSION_DXT = 0x00001000,
+        /// Supports compressed textures in the VTC format
 		RSC_TEXTURE_COMPRESSION_VTC = 0x00002000,
-        RSC_SCISSOR_TEST            = 0x00004000
+        /// Supports performing a scissor test to exclude areas of the screen
+        RSC_SCISSOR_TEST            = 0x00004000,
+        /// Supports separate stencil updates for both front and back faces
+        RSC_TWO_SIDED_STENCIL       = 0x00008000,
+        /// Supports wrapping the stencil value at the range extremeties
+        RSC_STENCIL_WRAP            = 0x00010000
     };
 
     /** singleton class for storing the capabilities of the graphics card. 

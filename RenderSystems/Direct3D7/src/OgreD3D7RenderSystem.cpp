@@ -555,6 +555,9 @@ namespace Ogre {
             {
                 mCapabilities->setCapability(RSC_HWSTENCIL);
                 mCapabilities->setStencilBufferBitDepth(stencil);
+                if ((mD3DDeviceDesc.dwStencilCaps & D3DSTENCILCAPS_INCR) && 
+                    (mD3DDeviceDesc.dwStencilCaps & D3DSTENCILCAPS_DECR))
+                    mCapabilities->setCapability(RSC_STENCIL_WRAP);
             }
 
             // Anisotropy?
@@ -2251,57 +2254,58 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void D3DRenderSystem::setStencilBufferFunction(CompareFunction func)
+    void D3DRenderSystem::setStencilBufferParams(CompareFunction func, ulong refValue, 
+        ulong mask, StencilOperation stencilFailOp, 
+        StencilOperation depthFailOp, StencilOperation passOp, 
+        bool twoSidedOperation)
     {
-        HRESULT hr = __SetRenderState(D3DRENDERSTATE_STENCILFUNC, 
+        HRESULT hr;
+
+        // D3D7 does not support 2-sided stencil operations
+        if (twoSidedOperation)
+            Except(Exception::ERR_INVALIDPARAMS, "Direct3D7 does not support 2-sided stencil ops",
+               "D3DRenderSystem::setStencilBufferParams");
+
+        // Function
+        hr = __SetRenderState(D3DRENDERSTATE_STENCILFUNC, 
             convertCompareFunction(func));
+
         if (FAILED(hr))
             Except(hr, "Error setting stencil buffer test function.",
-            "D3DRenderSystem::_setStencilBufferFunction");
+            "D3DRenderSystem::setStencilBufferParams");
 
-    }
-    //---------------------------------------------------------------------
-    void D3DRenderSystem::setStencilBufferReferenceValue(ulong refValue)
-    {
-        HRESULT hr = __SetRenderState(D3DRENDERSTATE_STENCILREF, refValue);
+        // reference value
+        hr = __SetRenderState(D3DRENDERSTATE_STENCILREF, refValue);
         if (FAILED(hr))
             Except(hr, "Error setting stencil buffer reference value.",
-            "D3DRenderSystem::setStencilBufferReferenceValue");
-    }
-    //---------------------------------------------------------------------
-    void D3DRenderSystem::setStencilBufferMask(ulong mask)
-    {
-        HRESULT hr = __SetRenderState(D3DRENDERSTATE_STENCILMASK, mask);
+            "D3DRenderSystem::setStencilBufferParams");
+
+        // mask
+        hr = __SetRenderState(D3DRENDERSTATE_STENCILMASK, mask);
         if (FAILED(hr))
             Except(hr, "Error setting stencil buffer mask.",
-            "D3DRenderSystem::setStencilBufferMask");
-    }
-    //---------------------------------------------------------------------
-    void D3DRenderSystem::setStencilBufferFailOperation(StencilOperation op)
-    {
-        HRESULT hr = __SetRenderState(D3DRENDERSTATE_STENCILFAIL, 
-            convertStencilOp(op));
+            "D3DRenderSystem::setStencilBufferParams");
+
+        // fail op
+        hr = __SetRenderState(D3DRENDERSTATE_STENCILFAIL, 
+            convertStencilOp(stencilFailOp));
         if (FAILED(hr))
             Except(hr, "Error setting stencil fail operation.",
-            "D3DRenderSystem::setStencilBufferFailOperation");
-    }
-    //---------------------------------------------------------------------
-    void D3DRenderSystem::setStencilBufferDepthFailOperation(StencilOperation op)
-    {
-        HRESULT hr = __SetRenderState(D3DRENDERSTATE_STENCILZFAIL, 
-            convertStencilOp(op));
+            "D3DRenderSystem::setStencilBufferParams");
+
+        // depth fail op
+        hr = __SetRenderState(D3DRENDERSTATE_STENCILZFAIL, 
+            convertStencilOp(depthFailOp));
         if (FAILED(hr))
             Except(hr, "Error setting stencil depth fail operation.",
-            "D3DRenderSystem::setStencilBufferDepthFailOperation");
-    }
-    //---------------------------------------------------------------------
-    void D3DRenderSystem::setStencilBufferPassOperation(StencilOperation op)
-    {
-        HRESULT hr = __SetRenderState(D3DRENDERSTATE_STENCILPASS, 
-            convertStencilOp(op));
+            "D3DRenderSystem::setStencilBufferParams");
+
+        // pass op
+        hr = __SetRenderState(D3DRENDERSTATE_STENCILPASS, 
+            convertStencilOp(passOp));
         if (FAILED(hr))
             Except(hr, "Error setting stencil pass operation.",
-            "D3DRenderSystem::setStencilBufferPassOperation");
+            "D3DRenderSystem::setStencilBufferParams");
     }
     //---------------------------------------------------------------------
     D3DCMPFUNC D3DRenderSystem::convertCompareFunction(CompareFunction func)
@@ -2343,6 +2347,10 @@ namespace Ogre {
             return D3DSTENCILOP_INCRSAT;
         case SOP_DECREMENT:
             return D3DSTENCILOP_DECRSAT;
+        case SOP_INCREMENT_WRAP:
+            return D3DSTENCILOP_INCR;
+        case SOP_DECREMENT_WRAP:
+            return D3DSTENCILOP_DECR;
         case SOP_INVERT:
             return D3DSTENCILOP_INVERT;
         };

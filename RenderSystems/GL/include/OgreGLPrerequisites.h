@@ -160,6 +160,11 @@ extern GL_LoadProgramNV_Func glLoadProgramNV_ptr;
 // Pointer to glTrackMatrixNV function
 typedef void (APIENTRY *GL_TrackMatrixNV_Func)(GLenum, GLuint, GLenum, GLenum);
 extern GL_TrackMatrixNV_Func glTrackMatrixNV_ptr;
+
+// Pointer to glActiveStencilFaceEXT function
+typedef void (APIENTRY *GL_ActiveStencilFaceEXT_Func)(GLenum);
+extern GL_ActiveStencilFaceEXT_Func glActiveStencilFaceEXT_ptr;
+
 };
 
 extern PFNGLCOMPRESSEDTEXIMAGE2DARBPROC glCompressedTexImage2DARB_ptr;
