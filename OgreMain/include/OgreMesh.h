@@ -200,10 +200,17 @@ namespace Ogre {
             to modify bone assignments during rendering (only the positions of bones) and OGRE
             reserves the right to do some internal data reformatting of this information, depending
             on render system requirements.
+        @par
+            This method is for assigning weights to the shared geometry of the Mesh. To assign
+            weights to the per-SubMesh geometry, see the equivalent methods on SubMesh.
         */
         void addBoneAssignment(const VertexBoneAssignment& vertBoneAssign);
 
-        /** Removes all bone assignments for this mesh. */
+        /** Removes all bone assignments for this mesh. 
+        @remarks
+            This method is for modifying weights to the shared geometry of the Mesh. To assign
+            weights to the per-SubMesh geometry, see the equivalent methods on SubMesh.
+        */
         void clearBoneAssignments(void);
 
         /** Returns the number of bone matrices this mesh uses.

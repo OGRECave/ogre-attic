@@ -539,6 +539,7 @@ namespace Ogre {
     void Mesh::clearBoneAssignments(void)
     {
         mBoneAssignments.clear();
+        mBoneAssignmentsOutOfDate = true;
     }
     //-----------------------------------------------------------------------
     void Mesh::_initAnimationState(AnimationStateSet* animSet)
@@ -574,7 +575,10 @@ namespace Ogre {
     {
         // Deallocate
         if (sharedGeometry.pBlendingWeights)
+        {
             delete [] sharedGeometry.pBlendingWeights;
+            sharedGeometry.pBlendingWeights = 0;
+        }
 
         // Iterate through, finding the largest # bones per vertex
         unsigned short maxBones = 0;
@@ -598,6 +602,12 @@ namespace Ogre {
 
         }
 
+        if (maxBones == 0)
+        {
+            // No bone assignments
+            sharedGeometry.numBlendWeightsPerVertex = 0;
+            return;
+        }
         // Allocate a buffer for bone weights
         sharedGeometry.numBlendWeightsPerVertex = maxBones;
         sharedGeometry.pBlendingWeights = 
@@ -631,7 +641,6 @@ namespace Ogre {
         }
 
         mBoneAssignmentsOutOfDate = false;
-
 
     }
 

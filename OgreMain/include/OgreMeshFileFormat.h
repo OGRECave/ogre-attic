@@ -69,7 +69,11 @@ namespace Ogre {
                 // unsigned short numFaces
                 // unsigned short* faceVertexIndices ((v1, v2, v3) * numFaces)
                 // M_GEOMETRY chunk (Optional: present only if useSharedVertices = false)
-
+                M_SUBMESH_BONE_ASSIGNMENT = 0x4100,
+                    // Optional bone weights (repeating section)
+                    // unsigned short vertexIndex;
+                    // unsigned short boneIndex;
+                    // Real weight;
             M_GEOMETRY          = 0x5000, // NB this chunk is embedded within M_MESH and M_SUBMESH
                 // unsigned short numVertices
                 // Real* pVertices (x, y, z order x numVertices)
@@ -84,7 +88,7 @@ namespace Ogre {
                 // Optional link to skeleton
                 // char* skeletonName           : name of .skeleton to use
             M_MESH_BONE_ASSIGNMENT = 0x7000
-                // Optional bone weights
+                // Optional bone weights (repeating section)
                 // unsigned short vertexIndex;
                 // unsigned short boneIndex;
                 // Real weight;
