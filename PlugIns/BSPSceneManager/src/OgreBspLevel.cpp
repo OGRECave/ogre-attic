@@ -74,13 +74,14 @@ namespace Ogre {
         // Use Quake3 file loader
         Quake3Level q3;
         DataChunk chunk;
-        BspResourceManager::getSingleton()._findResourceData(mName, chunk);
+        DataStreamPtr stream = 
+			ResourceGroupManager::getSingleton()._findResource(mName, 
+				ResourceGroupManager::WORlD_RESOURCE_GROUP_NAME);
 
-        q3.loadFromChunk(chunk);
+        q3.loadFromStream(stream);
 
         loadQuake3Level(q3);
 
-        chunk.clear();
         mIsLoaded = true;
 
     }

@@ -27,7 +27,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreLogManager.h"
 #include "OgreStringConverter.h"
 #include "OgreBitwise.h"
-#include "OgreSDDataChunk.h"
 
 #include "OgreNoMemoryMacros.h"
 #include <d3dx9.h>

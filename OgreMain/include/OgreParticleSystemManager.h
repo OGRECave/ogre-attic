@@ -75,9 +75,9 @@ namespace Ogre {
 		Real mTimeFactor;
 
         /** Internal script parsing method. */
-        void parseNewEmitter(const String& type, DataChunk& chunk, ParticleSystem* sys);
+        void parseNewEmitter(const String& type, DataStreamPtr& chunk, ParticleSystem* sys);
         /** Internal script parsing method. */
-        void parseNewAffector(const String& type, DataChunk& chunk, ParticleSystem* sys);
+        void parseNewAffector(const String& type, DataStreamPtr& chunk, ParticleSystem* sys);
         /** Internal script parsing method. */
         void parseAttrib(const String& line, ParticleSystem* sys);
         /** Internal script parsing method. */
@@ -85,9 +85,9 @@ namespace Ogre {
         /** Internal script parsing method. */
         void parseAffectorAttrib(const String& line, ParticleAffector* sys);
         /** Internal script parsing method. */
-        void skipToNextCloseBrace(DataChunk& chunk);
+        void skipToNextCloseBrace(DataStreamPtr& chunk);
         /** Internal script parsing method. */
-        void skipToNextOpenBrace(DataChunk& chunk);
+        void skipToNextOpenBrace(DataStreamPtr& chunk);
     public:
 
         ParticleSystemManager();
@@ -285,7 +285,7 @@ namespace Ogre {
 
         /** Parses a particle system script file passed as a chunk.
         */
-        void parseScript(DataChunk& chunk);
+        void parseScript(DataStreamPtr& chunk);
 
         /** Parses all particle system script files in resource folders & archives.
         */

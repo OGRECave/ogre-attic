@@ -58,7 +58,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreLogManager.h"
 #include "OgreArchiveManager.h"
 #include "OgreMaterialManager.h"
-#include "OgreSDDataChunk.h"
 #include "OgreBillboardSet.h"
 #include "OgreSimpleRenderable.h"
 #include "OgreParticleSystemManager.h"

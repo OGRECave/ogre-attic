@@ -50,7 +50,7 @@ namespace Ogre {
     {
     }
     //-----------------------------------------------------------------------
-    void Quake3ShaderManager::parseShaderFile(DataChunk& chunk)
+    void Quake3ShaderManager::parseShaderFile(DataStreamPtr& chunk)
     {
         String line;
         Quake3Shader* pShader;
@@ -104,8 +104,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Quake3ShaderManager::parseAllSources(const String& extension)
     {
+		// TODO - rewrite this
         StringVector shaderFiles;
-        DataChunk* pChunk;
+        DataStreamPtr* pChunk;
 
         std::vector<ArchiveEx*>::iterator i = mVFS.begin();
 
@@ -115,7 +116,7 @@ namespace Ogre {
             shaderFiles = (*i)->getAllNamesLike( "./", extension);
             for (StringVector::iterator si = shaderFiles.begin(); si!=shaderFiles.end(); ++si)
             {
-                DataChunk dat; pChunk = &dat;
+                DataStreamPtr dat; pChunk = &dat;
                 (*i)->fileRead(si[0], &pChunk );
                 parseShaderFile(dat);
             }
@@ -127,7 +128,7 @@ namespace Ogre {
             shaderFiles = (*i)->getAllNamesLike( "./", extension);
             for (StringVector::iterator si = shaderFiles.begin(); si!=shaderFiles.end(); ++si)
             {
-                DataChunk dat; pChunk = &dat;
+                DataStreamPtr dat; pChunk = &dat;
                 (*i)->fileRead(si[0], &pChunk );
                 parseShaderFile(dat);
             }
@@ -157,7 +158,7 @@ namespace Ogre {
         return s;
     }
     //-----------------------------------------------------------------------
-    void Quake3ShaderManager::parseNewShaderPass(DataChunk& chunk, Quake3Shader* pShader)
+    void Quake3ShaderManager::parseNewShaderPass(DataStreamPtr& chunk, Quake3Shader* pShader)
     {
         String line;
         int passIdx;

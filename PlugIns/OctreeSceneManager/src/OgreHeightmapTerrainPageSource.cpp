@@ -46,7 +46,7 @@ namespace Ogre {
     //-------------------------------------------------------------------------
     void HeightmapTerrainPageSource::shutdown(void)
     {
-        // Image / datachunk will destroy itself
+        // Image will destroy itself
         delete mPage;
         mPage = 0;
     }

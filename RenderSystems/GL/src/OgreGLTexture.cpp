@@ -26,7 +26,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGLTexture.h"
 #include "OgreGLSupport.h"
 #include "OgreTextureManager.h"
-#include "OgreDataChunk.h"
 #include "OgreImage.h"
 #include "OgreLogManager.h"
 #include "OgreCamera.h"
@@ -34,7 +33,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRoot.h"
 #include "OgreCodec.h"
 #include "OgreImageCodec.h"
-#include "OgreSDDataChunk.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32
 #   include <windows.h>

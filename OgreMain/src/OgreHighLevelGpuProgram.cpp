@@ -26,7 +26,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreHighLevelGpuProgram.h"
 #include "OgreException.h"
 #include "OgreGpuProgramManager.h"
-#include "OgreSDDataChunk.h"
 
 namespace Ogre
 {

@@ -35,7 +35,6 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreColourValue.h"
 #include "OgreCommon.h"
 #include "OgreRenderQueue.h"
-#include "OgreDataChunk.h"
 #include "OgreAnimationState.h"
 #include "OgreSceneQuery.h"
 #include "OgreAutoParamDataSource.h"
@@ -788,9 +787,9 @@ namespace Ogre {
             @return
                 On success (the option exists), true is returned.
             @par
-                On failiure, false is returned.
+                On failure, false is returned.
         */
-        virtual bool getOptionValues( const String& strKey, std::list<SDDataChunk>& refValueList ) { return false; }
+        virtual bool getOptionValues( const String& strKey, StringVector& refValueList ) { return false; }
 
         /** Method for getting all the implementation-specific options of the scene manager.
             @param
@@ -798,7 +797,7 @@ namespace Ogre {
             @return
                 On success, true is returned. On failiure, false is returned.
         */
-        virtual bool getOptionKeys( std::list<String>& refKeys ) { return false; }
+        virtual bool getOptionKeys( StringVector& refKeys ) { return false; }
 
         /** Internal method for updating the scene graph ie the tree of SceneNode instances managed by this class.
             @remarks

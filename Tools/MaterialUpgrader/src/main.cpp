@@ -25,7 +25,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 
 #include "Ogre.h"
-#include "OgreDataChunk.h"
 #include "OldMaterialReader.h"
 #include "OgreMaterialManager.h"
 #include "OgreMaterialSerializer.h"

@@ -29,7 +29,6 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreTextureManager.h"
 #include "OgreTexture.h"
 #include "OgreResourceGroupManager.h"
-#include "OgreSDDataChunk.h"
 #include "OgreLogManager.h"
 #include "OgreStringConverter.h"
 #include "OgreRenderWindow.h"

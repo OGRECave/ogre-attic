@@ -164,7 +164,6 @@ namespace Ogre {
     class ControllerManager;
     template <typename T> class ControllerValue;
 	class Cursor;
-    class DataChunk;
 	class Degree;
     class DynLib;
     class DynLibManager;
@@ -282,7 +281,6 @@ namespace Ogre {
 	class ScrollEvent;
 	class ScrollListener;
 	class ScrollTarget;
-    class SDDataChunk;
     class Serializer;
     class ShadowCaster;
     class ShadowRenderable;

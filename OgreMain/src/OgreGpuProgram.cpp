@@ -25,7 +25,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 #include "OgreGpuProgram.h"
 #include "OgreGpuProgramManager.h"
-#include "OgreSDDataChunk.h"
 #include "OgreVector3.h"
 #include "OgreVector4.h"
 #include "OgreAutoParamDataSource.h"

@@ -31,7 +31,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRoot.h"
 #include "OgreLogManager.h"
 #include "OgreString.h"
-#include "OgreSDDataChunk.h"
 
 
 namespace Ogre {
@@ -63,7 +62,7 @@ namespace Ogre {
         mSystems.clear();
     }
     //-----------------------------------------------------------------------
-    void ParticleSystemManager::parseScript(DataChunk& chunk)
+    void ParticleSystemManager::parseScript(DataStreamPtr& chunk)
     {
         String line;
         ParticleSystem* pSys;
@@ -349,7 +348,7 @@ namespace Ogre {
         parseAllSources();
     }
     //-----------------------------------------------------------------------
-    void ParticleSystemManager::parseNewEmitter(const String& type, DataChunk& chunk, ParticleSystem* sys)
+    void ParticleSystemManager::parseNewEmitter(const String& type, DataStreamPtr& chunk, ParticleSystem* sys)
     {
         // Create new emitter
         ParticleEmitter* pEmit = sys->addEmitter(type);
@@ -380,7 +379,7 @@ namespace Ogre {
         
     }
     //-----------------------------------------------------------------------
-    void ParticleSystemManager::parseNewAffector(const String& type, DataChunk& chunk, ParticleSystem* sys)
+    void ParticleSystemManager::parseNewAffector(const String& type, DataStreamPtr& chunk, ParticleSystem* sys)
     {
         // Create new affector
         ParticleAffector* pAff = sys->addAffector(type);
@@ -456,7 +455,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void ParticleSystemManager::skipToNextCloseBrace(DataChunk& chunk)
+    void ParticleSystemManager::skipToNextCloseBrace(DataStreamPtr& chunk)
     {
         String line = "";
         while (!chunk.isEOF() && line != "}")
@@ -466,7 +465,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void ParticleSystemManager::skipToNextOpenBrace(DataChunk& chunk)
+    void ParticleSystemManager::skipToNextOpenBrace(DataStreamPtr& chunk)
     {
         String line = "";
         while (!chunk.isEOF() && line != "{")

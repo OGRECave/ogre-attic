@@ -28,7 +28,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreTerrainPrerequisites.h"
 #include "OgreTerrainPageSource.h"
 #include "OgreImage.h"
-#include "OgreSDDataChunk.h"
 
 namespace Ogre {
 

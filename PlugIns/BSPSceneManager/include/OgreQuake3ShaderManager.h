@@ -51,7 +51,7 @@ namespace Ogre {
     class Quake3ShaderManager : public ResourceManager, public Singleton<Quake3ShaderManager>
     {
     protected:
-        void parseNewShaderPass(DataChunk& chunk, Quake3Shader* pShader);
+        void parseNewShaderPass(DataStreamPtr& stream, Quake3Shader* pShader);
         void parseShaderAttrib( const String& line, Quake3Shader* pShader);
         void parseShaderPassAttrib( const String& line, Quake3Shader* pShader, Quake3Shader::Pass* pPass);
         SceneBlendFactor convertBlendFunc( const String& q3func);
@@ -60,8 +60,8 @@ namespace Ogre {
         Quake3ShaderManager();
         virtual ~Quake3ShaderManager();
 
-        /** Parses a shader file passed as a chunk. */
-        void parseShaderFile(DataChunk& chunk);
+        /** Parses a shader file passed as a stream. */
+        void parseShaderFile(DataStreamPtr& stream);
         /** Parses all shader files in resource folders & archives. */
         void parseAllSources(const String& extension = ".shader");
 

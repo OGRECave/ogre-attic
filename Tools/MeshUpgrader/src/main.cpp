@@ -27,7 +27,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "Ogre.h"
 #include "OgreMeshSerializer.h"
 #include "OgreSkeletonSerializer.h"
-#include "OgreDataChunk.h"
 #include "OgreDefaultHardwareBufferManager.h"
 
 #include <iostream>
