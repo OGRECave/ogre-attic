@@ -59,12 +59,12 @@ namespace Ogre
             dlg->mSelectedRenderSystem = Root::getSingleton().getRenderSystem();
             // Get all render systems
             lstRend = Root::getSingleton().getAvailableRenderers();
-            pRend = lstRend->begin();
-            hwndDlgItem = GetDlgItem(hDlg, IDC_CBO_RENDERSYSTEM);
+            pRend = lstRend->begin();            
             i = 0;
             while (pRend != lstRend->end())
             {
-                // Add to list
+                hwndDlgItem = GetDlgItem(hDlg, IDC_CBO_RENDERSYSTEM);
+
                 SendMessage(hwndDlgItem, CB_ADDSTRING, 0,
                     (LPARAM)(char*)(*pRend)->getName().c_str());
 
@@ -77,7 +77,7 @@ namespace Ogre
                     opts = (*pRend)->getConfigOptions();
                     // Reset list box
                     hwndDlgItem = GetDlgItem(hDlg, IDC_LST_OPTIONS);
-                    SendMessage(hwndDlgItem, LB_RESETCONTENT, 0, 0);
+                    //SendMessage(hwndDlgItem, LB_RESETCONTENT, 0, 0);
                     // Iterate through options
                     ConfigOptionMap::iterator pOpt = opts.begin();
                     String strLine;
@@ -106,14 +106,16 @@ namespace Ogre
             MoveWindow(hDlg, x, y, (rcDlg.right - rcDlg.left),
                 (rcDlg.bottom - rcDlg.top), TRUE);
 
-
-
             return TRUE;
+
         case WM_COMMAND:
             switch (LOWORD(wParam))
             {
             case IDC_CBO_RENDERSYSTEM:
-                if (HIWORD(wParam) == CBN_SELCHANGE)
+                hwndDlgItem = GetDlgItem(hDlg, IDC_CBO_RENDERSYSTEM);
+                sel = SendMessage( hwndDlgItem, CB_GETCOUNT, 0, 0 );
+
+                if (HIWORD(wParam) == CBN_SELCHANGE )
                 {
                     // RenderSystem selected
                     // Get selected index
@@ -139,10 +141,11 @@ namespace Ogre
                             SendMessage(hwndDlgItem, LB_ADDSTRING, 0, (LPARAM)strLine.c_str());
                             ++pOpt;
                         }
-
-                    }
+                    }                    
                 }
+
                 return TRUE;
+
             case IDC_LST_OPTIONS:
                 if (HIWORD(wParam) == LBN_SELCHANGE)
                 {
@@ -174,12 +177,11 @@ namespace Ogre
                         }
                         // Enable/disable combo depending on (not)immutable
                         EnableWindow(hwndDlgItem, !(pOpt->second.immutable));
-
-
                     }
-
                 }
+
                 return TRUE;
+
             case IDC_CBO_OPTION:
                 if (HIWORD(wParam) == CBN_SELCHANGE)
                 {
@@ -223,6 +225,7 @@ namespace Ogre
 
                 }
                 return TRUE;
+
             case IDOK:
                 // Set render system
                 if (!dlg->mSelectedRenderSystem)
@@ -242,6 +245,7 @@ namespace Ogre
 
                 EndDialog(hDlg, TRUE);
                 return TRUE;
+
             case IDCANCEL:
                 EndDialog(hDlg, FALSE);
                 return TRUE;
@@ -249,7 +253,6 @@ namespace Ogre
         }
 
         return FALSE;
-
     }
 
 
