@@ -66,6 +66,15 @@ protected:
     // Just override the mandatory create scene method
     void createScene(void)
     {
+        // Check capabilities
+		const RenderSystemCapabilities* caps = Root::getSingleton().getRenderSystem()->getCapabilities();
+        if (!caps->hasCapability(RSC_VERTEX_PROGRAM) || !(caps->hasCapability(RSC_FRAGMENT_PROGRAM)))
+        {
+            Except(1, "Your card does not support vertex and fragment programs, so cannot "
+                "run this demo. Sorry!", 
+                "CelShading::createScene");
+        }
+
         // Create a point light
         Light* l = mSceneMgr->createLight("MainLight");
         // Accept default settings: point light, white diffuse, just set position
