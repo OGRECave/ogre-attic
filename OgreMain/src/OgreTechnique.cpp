@@ -60,6 +60,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void Technique::_compile(bool autoManageTextureUnits)
     {
+		// assume not supported
+		mIsSupported = false;
         // Go through each pass, checking requirements
         Passes::iterator i, iend;
         iend = mPasses.end();
@@ -78,32 +80,42 @@ namespace Ogre {
                 if (numTexUnitsRequested > numTexUnits)
                 {
                     // Can't do this one, and can't split a fragment pass
-                    mIsSupported = false;
                     return;
                 }
                 // Check fragment program version
                 if (!GpuProgramManager::getSingleton().isSyntaxSupported(
                     currPass->getFragmentProgram()->getSyntaxCode() ))
                 {
-                    // Can't do this one, and can't split a programmable pass
-                    mIsSupported = false;
-                    return;
-                }
-            }
-            if (currPass->hasVertexProgram())
-            {
-                // Check vertex program version
-                if (!GpuProgramManager::getSingleton().isSyntaxSupported(
-                    currPass->getVertexProgram()->getSyntaxCode() ))
-                {
                     // Can't do this one
-                    mIsSupported = false;
                     return;
                 }
             }
             else
             {
-                // Keep splitting this pass so long as units requested > gpu units
+				// Check a few fixed-function options in texture layers
+                Pass::TextureUnitStateIterator texi = currPass->getTextureUnitStateIterator();
+				while (texi.hasMoreElements())
+				{
+					TextureUnitState* tex = texi.getNext();
+					// Any Cube textures? NB we make the assumption that any 
+					// card capable of running fragment programs can support
+					// cubic textures, which has to be true, surely?
+					if (tex->is3D() && !caps->hasCapability(RSC_CUBEMAPPING))
+					{
+						// Fail
+						return;
+					}
+					// Any Dot3 blending?
+					if (tex->getColourBlendMode().operation == LBX_DOTPRODUCT &&
+							!caps->hasCapability(RSC_DOT3))
+					{
+						// Fail
+						return;
+					}
+				}
+				
+				// We're ok on operations, now we need to check # texture units
+				// Keep splitting this pass so long as units requested > gpu units
                 while (numTexUnitsRequested > numTexUnits)
                 {
                     // chop this pass into many passes
@@ -111,7 +123,19 @@ namespace Ogre {
                     numTexUnitsRequested = currPass->getNumTextureUnitStates();
                 }
             }
-        }
+
+            if (currPass->hasVertexProgram())
+            {
+                // Check vertex program version
+                if (!GpuProgramManager::getSingleton().isSyntaxSupported(
+                    currPass->getVertexProgram()->getSyntaxCode() ))
+                {
+                    // Can't do this one
+                    return;
+                }
+            }
+		
+		}
         // If we got this far, we're ok
         mIsSupported = true;
 
