@@ -132,9 +132,9 @@ namespace Ogre {
             delete tagPoint;
         }
         mActiveTagPoints.clear();
-        for (FreeTagPointQueue::const_iterator it = mFreeTagPoints.begin(); it != mFreeTagPoints.end(); ++it)
+        for (FreeTagPointQueue::const_iterator it2 = mFreeTagPoints.begin(); it2 != mFreeTagPoints.end(); ++it2)
         {
-            TagPoint* tagPoint = *it;
+            TagPoint* tagPoint = *it2;
             delete tagPoint;
         }
         mFreeTagPoints.clear();
