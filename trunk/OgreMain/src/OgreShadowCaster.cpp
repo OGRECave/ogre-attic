@@ -105,7 +105,7 @@ namespace Ogre {
                         shadOp->indexData->indexCount += 3;
                     }
                 }
-                else if (!t1.lightFacing && (!edge.degenerate && t2.lightFacing))
+                else if (!t1.lightFacing && (edge.degenerate || t2.lightFacing))
                 {
                     // Silhouette edge, second tri facing the light
                     // Note edge indexes inverse of when t1 is light facing 
