@@ -103,9 +103,11 @@ namespace Ogre {
 
         // Initialise the AnimationState, if Mesh has animation
 
-        mAnimationState = new AnimationStateSet();
         if (hasSkeleton())
         {
+            mAnimationState = new AnimationStateSet();
+            mFrameBonesLastUpdated = new unsigned long;
+            *mFrameBonesLastUpdated = 0;
             mesh->_initAnimationState(mAnimationState);
             mNumBoneMatrices = mSkeletonInstance->getNumBones();
             mBoneMatrices = new Matrix4[mNumBoneMatrices];
@@ -115,6 +117,9 @@ namespace Ogre {
         {
             mBoneMatrices = 0;
             mNumBoneMatrices = 0;
+            mAnimationState = 0;
+            mFrameBonesLastUpdated  = 0;
+
         }
 
         reevaluateVertexProcessing();
@@ -131,8 +136,6 @@ namespace Ogre {
         mMinMaterialLodIndex = 99;
 
 
-        mFrameBonesLastUpdated = new unsigned long;
-        *mFrameBonesLastUpdated = 0;
         mFrameAnimationLastUpdated = 0;
 
         // Do we have a mesh where edge lists are not going to be available?
@@ -231,7 +234,10 @@ namespace Ogre {
         {
             newEnt->getSubEntity(n)->setMaterialName((*i)->getMaterialName());
         }
-        newEnt->mAnimationState = new AnimationStateSet(*mAnimationState);
+        if (mAnimationState)
+        {
+            newEnt->mAnimationState = new AnimationStateSet(*mAnimationState);
+        }
         return newEnt;
     }
     //-----------------------------------------------------------------------
@@ -385,6 +391,11 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     AnimationState* Entity::getAnimationState(const String& name)
     {
+        if (!mAnimationState)
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, "Entity is not animated", 
+                "Entity::getAnimationState");
+        }
         AnimationStateSet::iterator i = mAnimationState->find(name);
 
         if (i == mAnimationState->end())
