@@ -307,6 +307,7 @@ namespace Ogre {
     class RenderWindow;
     class RenderOperation;
     class Resource;
+	class ResourceBackgroundQueue;
 	class ResourceGroupManager;
     class ResourceManager;
 	class Root;
