@@ -75,6 +75,30 @@ namespace Ogre {
 		mResources[tex->getName()] = tex;
 	}
     //-----------------------------------------------------------------------
+    void TextureManager::loadImage( const String &name, Image &img, 
+        int iNumMipMaps /* = -1 */, Real gamma /* = 1.0f  */ )
+    {
+        Texture *tex = (Texture*)create( name );
+        if( iNumMipMaps == -1 )
+            tex->setNumMipMaps( mDefaultNumMipMaps );
+        else
+            tex->setNumMipMaps( iNumMipMaps );
+
+        tex->setGamma( gamma );        
+        if( img.hasAlphaChannel() )
+        {
+            tex->enable32Bit( true );
+            tex->loadRawRGBA( img.getData(), img.getWidth(), img.getHeight() );
+        }
+        else
+        {
+            tex->enable32Bit( false );
+            tex->loadRawRGB( img.getData(), img.getWidth(), img.getHeight() );
+        }
+
+        mResources[ tex->getName() ] = tex;
+    }
+    //-----------------------------------------------------------------------
     void TextureManager::unload(String filename)
     {
         Resource* res = getByName(filename);
