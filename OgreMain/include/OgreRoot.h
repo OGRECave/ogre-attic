@@ -49,17 +49,6 @@ namespace Ogre
 {
     typedef std::vector<RenderSystem*> RenderSystemList;
 
-
-    enum ResourceType
-    {
-        /// All resource types
-        RESTYPE_ALL,
-        /// Textures
-        RESTYPE_TEXTURES,
-        /// Models
-        RESTYPE_MODELS,
-
-    };
     /** The root class of the Ogre system.
         @remarks
             The Ogre::Root class represents a starting point for the client
@@ -463,15 +452,15 @@ namespace Ogre
 
         /** Destroys a rendering window.
         */
-        void destroyRenderWindow(RenderWindow* pWin);
+        void detachRenderTarget( RenderTarget* pWin );
 
         /** Destroys a named rendering window.
         */
-        void destroyRenderWindow(const String &name);
+        void detachRenderTarget( const String & name );
 
         /** Retrieves a pointer to the a named render window.
         */
-        RenderWindow* getRenderWindow(const String &name);
+        RenderTarget * getRenderTarget(const String &name);
 
         /** Sets whether or not the debug overlay is shown.
         @remarks
