@@ -19,7 +19,7 @@ Disable shadow casting on objects which should not cast shadows. Call setCastSha
 @item 
 Configure shadow far distance. You can limit the distance at which shadows are considered for performance reasons, by calling SceneManager::setShadowFarDistance.
 @item 
-Turn off the receipt of shadows on materials that should not receive them. You can turn off the receipt of shadows (note, not the casting of shadows - that is done per-object) by calling Material::setReceiveShadows or using the receive_shadows material attribute. This is useful for materials which should be considered self-illuminated for example. Note that transparent materials are always excluded from receiving and casting shadows. 
+Turn off the receipt of shadows on materials that should not receive them. You can turn off the receipt of shadows (note, not the casting of shadows - that is done per-object) by calling Material::setReceiveShadows or using the receive_shadows material attribute. This is useful for materials which should be considered self-illuminated for example. Note that transparent materials are typically excluded from receiving and casting shadows, although see the @ref{transparency_casts_shadows} option for exceptions. 
 @end enumerate
 
 @subheading Opting out of shadows
