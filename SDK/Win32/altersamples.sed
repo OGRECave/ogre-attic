@@ -1,6 +1,8 @@
 s/\.\.\\\.\.\\Common\\include/$(OGRE_HOME)\\include/i
 s/\.\.\\\.\.\\\.\.\\OgreMain\\include/$(OGRE_HOME)\\include/i
 s/\.\.\\\.\.\\\.\.\\OgreMain\\lib\\$(ConfigurationName)/$(OGRE_HOME)\\lib/i
+s/\.\.\\\.\.\\\.\.\\OgreMain\\lib\\release/$(OGRE_HOME)\\lib/i
+s/\.\.\\\.\.\\\.\.\\OgreMain\\lib\\debug/$(OGRE_HOME)\\lib/i
 s/\.\.\\bin/..\\..\\bin/i
 s/\.\.\/\.\.\/Common\/Bin/..\/..\/bin/i
 s/\.\.\\\.\.\\Common\\Bin/..\\..\\bin/i
