@@ -84,6 +84,11 @@ namespace Ogre {
 		*/
 		virtual void _destroyVisualData(ParticleVisualData* vis) { assert (vis == 0); }
 
+		/** Sets which render queue group this renderer should target with it's
+			output.
+		*/
+		virtual void setRenderQueueGroup(RenderQueueGroupID queueID) = 0;
+
 
     };
 

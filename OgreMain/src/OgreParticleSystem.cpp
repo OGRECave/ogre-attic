@@ -773,6 +773,8 @@ namespace Ogre {
             MaterialPtr mat = MaterialManager::getSingleton().load(
                 mMaterialName, mResourceGroupName);
             mRenderer->_setMaterial(mat);
+			if (mRenderQueueIDSet)
+				mRenderer->setRenderQueueGroup(mRenderQueueID);
             mIsRendererConfigured = true;
         }
     }
@@ -844,6 +846,15 @@ namespace Ogre {
         mBoundsAutoUpdate = autoUpdate;
         mBoundsUpdateTime = stopIn;
     }
+	//-----------------------------------------------------------------------
+	void ParticleSystem::setRenderQueueGroup(RenderQueueGroupID queueID)
+	{
+		MovableObject::setRenderQueueGroup(queueID);
+		if (mRenderer)
+		{
+			mRenderer->setRenderQueueGroup(queueID);
+		}
+	}
     //-----------------------------------------------------------------------
     String ParticleSystem::CmdCull::doGet(const void* target) const
     {
