@@ -7,7 +7,6 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreAnimation.cpp \
                          OgreAnimationState.cpp \
                          OgreAnimationTrack.cpp \
-                         OgreArchiveEx.cpp \
                          OgreArchiveManager.cpp \
 						 OgreAutoParamDataSource.cpp \
                          OgreAxisAlignedBox.cpp \
@@ -25,7 +24,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreController.cpp \
                          OgreControllerManager.cpp \
                          OgreCursor.cpp \
-                         OgreDataChunk.cpp \
+                         OgreDataStream.cpp \
                          OgreDefaultHardwareBufferManager.cpp \
                          OgreDynLib.cpp \
                          OgreDynLibManager.cpp \
@@ -38,6 +37,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreException.cpp \
 						 OgreExternalTextureSource.cpp \
 						 OgreExternalTextureSourceManager.cpp \
+                         OgreFileSystem.cpp \
                          OgreFont.cpp \
                          OgreFontManager.cpp \
 						 OgreFrustum.cpp \
@@ -115,7 +115,6 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreRotationSpline.cpp \
 						 OgreScrollEvent.cpp \
 						 OgreScrollTarget.cpp \
-                         OgreSDDataChunk.cpp \
                          OgreSceneManager.cpp \
                          OgreSceneManagerEnumerator.cpp \
                          OgreSceneNode.cpp \
@@ -149,9 +148,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreVertexIndexData.cpp \
                          OgreViewport.cpp \
                          OgreWireBoundingBox.cpp \
-                         OgreZip.cpp \
-                         OgreZipArchiveFactory.cpp \
-                         unzip.c
+                         OgreZip.cpp
 
 libOgreMain_la_LIBADD= $(STLPORT_LIBS) $(FT2_LIBS)
 libOgreMain_la_LDFLAGS = -version-info @OGREMAIN_VERSION_INFO@

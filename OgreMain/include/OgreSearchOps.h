@@ -53,6 +53,7 @@ struct _finddata_t
 {
     char *name;
     int attrib;
+    unsigned long size;
 };
 
 #define _A_NORMAL 0x00  /* Normalfile-Noread/writerestrictions */

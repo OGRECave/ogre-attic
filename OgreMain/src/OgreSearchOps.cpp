@@ -124,6 +124,8 @@ int _findnext(long id, struct _finddata_t *data)
         data->attrib = _A_SUBDIR;
     }
 
+    data->size = stat_buf.st_size;
+
     return 0;
 }
 

@@ -4,7 +4,6 @@ OgreActionTarget.h \
 OgreAnimation.h \
 OgreAnimationState.h \
 OgreAnimationTrack.h \
-OgreArchiveEx.h \
 OgreArchiveFactory.h \
 OgreArchiveManager.h \
 OgreAutoParamDataSource.h \
@@ -26,7 +25,7 @@ OgreConfigOptionMap.h \
 OgreController.h \
 OgreControllerManager.h \
 OgreCursor.h \
-OgreDataChunk.h \
+OgreDataStream.h \
 OgreDefaultHardwareBufferManager.h \
 OgreDynLib.h \
 OgreDynLibManager.h \
@@ -43,6 +42,7 @@ OgreException.h \
 OgreExternalTextureSource.h \
 OgreExternalTextureSourceManager.h \
 OgreFactoryObj.h \
+OgreFileSystem.h \
 OgreFont.h \
 OgreFontManager.h \
 OgreFrameListener.h \
@@ -144,7 +144,6 @@ OgreResource.h \
 OgreResourceManager.h \
 OgreRoot.h \
 OgreRotationalSpline.h \
-OgreSDDataChunk.h \
 OgreSceneManager.h \
 OgreSceneManagerEnumerator.h \
 OgreSceneNode.h \
@@ -171,7 +170,6 @@ OgreStdHeaders.h \
 OgreString.h \
 OgreStringConverter.h \
 OgreStringInterface.h \
-OgreStringResource.h \
 OgreStringVector.h \
 OgreSubEntity.h \
 OgreSubMesh.h \
@@ -192,6 +190,4 @@ OgreVertexIndexData.h \
 OgreViewport.h \
 OgreWireBoundingBox.h \
 OgreZip.h \
-OgreZipArchiveFactory.h \
-asm_math.h \
-unzip.h
+asm_math.h
