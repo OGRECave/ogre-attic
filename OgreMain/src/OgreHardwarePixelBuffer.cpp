@@ -61,7 +61,7 @@ namespace Ogre
     }
     
     //-----------------------------------------------------------------------------    
-    const PixelBox &HardwarePixelBuffer::lock(const Image::Box lockBox, LockOptions options)
+    const PixelBox& HardwarePixelBuffer::lock(const Image::Box& lockBox, LockOptions options)
     {
         void* ret;
         if (mUseShadowBuffer)
@@ -86,7 +86,7 @@ namespace Ogre
     }
     
     //-----------------------------------------------------------------------------    
-    const PixelBox &HardwarePixelBuffer::getCurrentLock() 
+    const PixelBox& HardwarePixelBuffer::getCurrentLock() 
 	{ 
         assert(isLocked() && "Cannot get current lock: buffer not locked");
         
