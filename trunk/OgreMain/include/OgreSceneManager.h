@@ -370,6 +370,14 @@ namespace Ogre {
         */
         virtual SceneNode* createSceneNode(const String& name);
 
+        /** Destroys a SceneNode with a given name.
+        @remarks
+            This allows you to physically delete an individual SceneNode if you want to.
+            Note that this is not normally recommended, it's better to allow SceneManager
+            to delete the nodes when the scene is cleared.
+        */
+        virtual void destroySceneNode(const String& name);
+
         /** Gets the SceneNode at the root of the scene hierarchy.
             @remarks
                 The entire scene is held as a hierarchy of nodes, which
