@@ -205,8 +205,11 @@ namespace Ogre {
         /** Internal method for setting up the renderstate for a rendering pass.
             @param
                 pass The Pass details to set.
+            @returns
+                A Pass object that was used instead of the one passed in, can
+                happen when rendering shadow passes
         */
-        virtual void setPass(Pass* pass);
+        virtual Pass* setPass(Pass* pass);
         /// A pass designed to let us render shadow colour on white for texture shadows
         Pass* mShadowCasterPlainBlackPass;
         /// A pass designed to let us render shadow receivers for texture shadows

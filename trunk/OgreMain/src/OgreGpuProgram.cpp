@@ -91,26 +91,6 @@ namespace Ogre
         return GpuProgramManager::getSingleton().isSyntaxSupported(mSyntaxCode);
     }
     //-----------------------------------------------------------------------------
-    void GpuProgram::setShadowCasterProgramName(const String& name)
-    {
-        mShadowCasterProgramName = name;
-    }
-    //-----------------------------------------------------------------------------
-    const String& GpuProgram::getShadowCasterProgramName(void)
-    {
-        return mShadowCasterProgramName;
-    }
-    //-----------------------------------------------------------------------------
-    void GpuProgram::setShadowReceiverProgramName(const String& name)
-    {
-        mShadowReceiverProgramName = name;
-    }
-    //-----------------------------------------------------------------------------
-    const String& GpuProgram::getShadowReceiverProgramName(void)
-    {
-        return mShadowReceiverProgramName;
-    }
-    //-----------------------------------------------------------------------------
     GpuProgramParametersSharedPtr GpuProgram::createParameters(void)
     {
         // Default implementation simply returns standard parameters.

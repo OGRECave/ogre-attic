@@ -236,6 +236,7 @@ namespace Ogre {
             mTextureViewProjMatrix = 
                 mCurrentTextureProjector->getViewMatrix() * 
                 mCurrentTextureProjector->getProjectionMatrix();
+            mTextureViewProjMatrixDirty = false;
         }
         return mTextureViewProjMatrix;
     }
