@@ -483,6 +483,9 @@
 				RelativePath="..\src\OgreTextureManager.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreTimer.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreUserDefinedObject.cpp">
 			</File>
 			<File
@@ -974,6 +977,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreTextureManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreTimer.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreUserDefinedObject.h">

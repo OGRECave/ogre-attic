@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreString.h"
 #include "OgreTextureManager.h"
 #include "OgreViewport.h"
+#include "OgreTimer.h"
 
 /* Define the number of priority groups for the render system's render targets. */
 #ifndef OGRE_NUM_RENDERTARGET_GROUPS
@@ -259,10 +260,13 @@ namespace Ogre {
 
         // Stats
         StatFlags mStatFlags;
+		Timer* mTimer ;
         float mLastFPS;
         float mAvgFPS;
         float mBestFPS;
         float mWorstFPS;
+		float mBestFrameTime ;
+		float mWorstFrameTime ;
         unsigned int mTris;
         String mDebugText;
 

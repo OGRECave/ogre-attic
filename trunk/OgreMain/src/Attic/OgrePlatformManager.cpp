@@ -47,10 +47,12 @@ namespace Ogre {
         mpfCreateConfigDialog = (DLL_CREATECONFIGDIALOG)lib->getSymbol("createPlatformConfigDialog");
         mpfCreateErrorDialog = (DLL_CREATEERRORDIALOG)lib->getSymbol("createPlatformErrorDialog");
         mpfCreateInputReader = (DLL_CREATEINPUTREADER)lib->getSymbol("createPlatformInputReader");
+		mpfCreateTimer = (DLL_CREATETIMER)lib->getSymbol("createTimer");
 
         mpfDestroyConfigDialog = (DLL_DESTROYCONFIGDIALOG)lib->getSymbol("destroyPlatformConfigDialog");
         mpfDestroyErrorDialog = (DLL_DESTROYERRORDIALOG)lib->getSymbol("destroyPlatformErrorDialog");
         mpfDestroyInputReader = (DLL_DESTROYINPUTREADER)lib->getSymbol("destroyPlatformInputReader");
+        mpfDestroyTimer = (DLL_DESTROYTIMER)lib->getSymbol("destroyTimer");
 
     }
     //-----------------------------------------------------------------------
@@ -96,9 +98,22 @@ namespace Ogre {
         mpfDestroyInputReader(reader);
     }
     //-----------------------------------------------------------------------
+    Timer* PlatformManager::createTimer()
+    {
+        // Delegate
+        Timer* pTimer;
+        mpfCreateTimer(&pTimer);
+        return pTimer;
+    }
+    //-----------------------------------------------------------------------
     PlatformManager& PlatformManager::getSingleton(void)
     {
         return Singleton<PlatformManager>::getSingleton();
+    }
+    //-----------------------------------------------------------------------
+    void PlatformManager::destroyTimer(Timer* timer)
+    {
+        mpfDestroyTimer(timer);
     }
 
 

@@ -4,7 +4,7 @@ This source file is part of OGRE
     (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://ogre.sourceforge.net/
 
-Copyright © 2000-2002 The OGRE Team
+Copyright Š 2000-2002 The OGRE Team
 Also see acknowledgements in Readme.html
 
 This program is free software; you can redistribute it and/or modify it under
@@ -22,57 +22,35 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
+#ifndef __Timer_H__
+#define __Timer_H__
 
-#include "OgreRoot.h"
-#include "OgreSDLConfig.h"
-#include "OgreSDLError.h"
-#include "OgreSDLInput.h"
-#include "OgreSDLTimer.h"
+#include "OgrePrerequisites.h"
 
-namespace Ogre {
-
-    extern "C" void createPlatformConfigDialog(ConfigDialog** ppDlg)
-    {
-        *ppDlg = new SDLConfig();
-    }
-
-    extern "C" void createPlatformErrorDialog(ErrorDialog** ppDlg)
-    {
-        *ppDlg = new SDLError();
-    }
-
-    extern "C" void createPlatformInputReader(InputReader** ppDlg)
-    {
-        *ppDlg = new SDLInput();
-    }
+namespace Ogre
+{
+	class _OgreExport Timer
+	{
+	protected:	
+		clock_t zeroClock ;
 	
-	extern "C" void createTimer(Timer** ppTimer)
-	{
-		*ppTimer = new SDLTimer();
-	}
-
-	extern "C" void destroyTimer(Timer* ppTimer)
-	{
-		delete ppTimer;
-	}
-
-    extern "C" void destroyPlatformConfigDialog(ConfigDialog* dlg)
-    {
-        delete dlg;
-    }
-
-    extern "C" void destroyPlatformErrorDialog(ErrorDialog* dlg)
-    {
-        delete dlg;
-    }
-
-    extern "C" void destroyPlatformRenderWindow(RenderWindow* wnd)
-    {
-        delete wnd;
-    }
-
-    extern "C" void destroyPlatformInputReader(InputReader* reader)
-    {
-        delete reader;
-    }
+	public:
+		/** Creates a timer and resets it
+		*/
+		Timer() ;
+		
+		/** Resets timer 
+		*/
+		virtual void reset();
+		
+		/** Returns milliseconds since initialisation or last reset
+		*/
+		virtual unsigned long getMilliseconds() ;
+		
+		/** Returns milliseconds since initialisation or last reset, only CPU time measured
+		*/	
+		virtual unsigned long getMillisecondsCPU();
+		
+	} ;
 }
+#endif

@@ -116,6 +116,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreTexture.cpp \
                          OgreTextureLayer.cpp \
                          OgreTextureManager.cpp \
+						 OgreTimer.cpp \
                          OgreUserDefinedObject.cpp \
                          OgreVector3.cpp \
                          OgreViewport.cpp \

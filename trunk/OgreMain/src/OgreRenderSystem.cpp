@@ -37,6 +37,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderWindow.h"
 #include "OgreMeshManager.h"
 #include "OgreMaterial.h"
+#include "OgreTimer.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
@@ -57,11 +58,14 @@ namespace Ogre {
         mTempVertexBlendBuffer.resize(5000 * 3);
         mTempNormalBlendBuffer.resize(5000 * 3);
 
+		// create a Timer
+		mTimer = PlatformManager::getSingleton().createTimer();
     }
 
     //-----------------------------------------------------------------------
     RenderSystem::~RenderSystem()
     {
+        PlatformManager::getSingleton().destroyTimer(mTimer);
         shutdown();
     }
     //-----------------------------------------------------------------------
@@ -105,7 +109,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool RenderSystem::fireFrameStarted()
     {
-        clock_t now = clock();
+        unsigned long now = mTimer->getMilliseconds();
         FrameEvent evt;
         evt.timeSinceLastEvent = calculateEventTime(now, FETT_ANY);
         evt.timeSinceLastFrame = calculateEventTime(now, FETT_STARTED);
@@ -115,7 +119,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool RenderSystem::fireFrameEnded()
     {
-        clock_t now = clock();
+        unsigned long now = mTimer->getMilliseconds();
         FrameEvent evt;
         evt.timeSinceLastEvent = calculateEventTime(now, FETT_ANY);
         evt.timeSinceLastFrame = calculateEventTime(now, FETT_ENDED);
@@ -123,22 +127,22 @@ namespace Ogre {
         return fireFrameEnded(evt);
     }
     //-----------------------------------------------------------------------
-    Real RenderSystem::calculateEventTime(clock_t now, FrameEventTimeType type)
+    Real RenderSystem::calculateEventTime(unsigned long now, FrameEventTimeType type)
     {
         // Calculate the average time passed between events of the given type
         // during the last 0.1 seconds.
 
-        std::deque<clock_t>& times = mEventTimes[type];
+        std::deque<unsigned long>& times = mEventTimes[type];
         times.push_back(now);
 
         if(times.size() == 1)
             return 0;
 
         // Times up to 0.1 seconds old should be kept
-        clock_t discardLimit = now - CLOCKS_PER_SEC/10;
+        unsigned long discardLimit = now - 100;
 
         // Find the oldest time to keep
-        std::deque<clock_t>::iterator it = times.begin(),
+        std::deque<unsigned long>::iterator it = times.begin(),
             end = times.end()-2; // We need at least two times
         while(it != end)
         {
@@ -151,7 +155,7 @@ namespace Ogre {
         // Remove old times
         times.erase(times.begin(), it);
 
-        return Real(times.back() - times.front()) / ((times.size()-1) * CLOCKS_PER_SEC);
+        return Real(times.back() - times.front()) / ((times.size()-1) * 1000);
     }
     //-----------------------------------------------------------------------
     void RenderSystem::startRendering(void)
@@ -359,8 +363,7 @@ namespace Ogre {
         // Change tetxure matrix if required
         // NB concatenate with any existing texture matrix created for generate
         const Matrix4& xform = tl.getTextureTransform();
-        // HACK for now - turn off texture calc if any texture generation effects
-        if( !( curr.getTextureTransform() == xform ) && !anyCalcs )
+        if( !(curr.getTextureTransform() == xform ))
         {
             _setTextureMatrix(texUnit, xform);
         }

@@ -217,10 +217,10 @@ namespace Ogre {
         delete mParticleManager;
         if( mControllerManager )
             delete mControllerManager;
-        delete mPlatformManager;
 
         unloadPlugins();
 
+        delete mPlatformManager;
         delete mDynLibManager;
         delete mLogManager;
     }

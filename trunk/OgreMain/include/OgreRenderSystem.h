@@ -798,6 +798,8 @@ namespace Ogre
         /** Internal method for raising frame ended events. */
         bool fireFrameEnded(FrameEvent& evt);
 
+		/** Internal timer */
+		Timer *mTimer ;
         /** Internal method for raising frame started events. */
         bool fireFrameStarted();
         /** Internal method for raising frame ended events. */
@@ -809,10 +811,10 @@ namespace Ogre
         };
 
         /** Internal method for calculating the average time between recently fired events.
-        @param now The current time.
+        @param now The current time in ms.
         @param type The type of event to be considered.
         */
-        Real calculateEventTime(clock_t now, FrameEventTimeType type);
+        Real calculateEventTime(unsigned long now, FrameEventTimeType type);
 
         // Stored options
         ConfigOptionMap mOptions;
@@ -851,7 +853,7 @@ namespace Ogre
         std::vector<Real> mTempNormalBlendBuffer;
 
         /// Contains the times of recently fired events
-        std::deque<clock_t> mEventTimes[3];
+        std::deque<unsigned long> mEventTimes[3];
     };
 }
 

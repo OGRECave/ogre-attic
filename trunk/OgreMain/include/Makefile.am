@@ -150,6 +150,7 @@ OgreTargetManager.h \
 OgreTGACodec.h \
 OgreTexture.h \
 OgreTextureManager.h \
+OgreTimer.h \
 OgreUserDefinedObject.h \
 OgreVector3.h \
 OgreVertexBoneAssignment.h \

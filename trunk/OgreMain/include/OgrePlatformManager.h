@@ -31,16 +31,19 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderWindow.h"
 #include "OgreConfigDialog.h"
 #include "OgreErrorDialog.h"
+#include "OgreTimer.h"
 
 
 namespace Ogre {
     typedef void (*DLL_CREATECONFIGDIALOG)(ConfigDialog** ppDlg);
     typedef void (*DLL_CREATEERRORDIALOG)(ErrorDialog** ppDlg);
     typedef void (*DLL_CREATEINPUTREADER)(InputReader** ppReader);
+	typedef void (*DLL_CREATETIMER)(Timer** ppTimer);
 
     typedef void (*DLL_DESTROYCONFIGDIALOG)(ConfigDialog* ppDlg);
     typedef void (*DLL_DESTROYERRORDIALOG)(ErrorDialog* ppDlg);
     typedef void (*DLL_DESTROYINPUTREADER)(InputReader* ppReader);
+    typedef void (*DLL_DESTROYTIMER)(Timer* ppTimer);
 
     /** Class which manages the platform settings Ogre runs on.
         @remarks
@@ -57,10 +60,13 @@ namespace Ogre {
         DLL_CREATECONFIGDIALOG mpfCreateConfigDialog;
         DLL_CREATEERRORDIALOG mpfCreateErrorDialog;
         DLL_CREATEINPUTREADER mpfCreateInputReader;
+		DLL_CREATETIMER mpfCreateTimer;
 
         DLL_DESTROYCONFIGDIALOG mpfDestroyConfigDialog;
         DLL_DESTROYERRORDIALOG mpfDestroyErrorDialog;
         DLL_DESTROYINPUTREADER mpfDestroyInputReader;
+        DLL_DESTROYTIMER mpfDestroyTimer;
+		
     public:
         /** Default constructor.
         */
@@ -110,6 +116,14 @@ namespace Ogre {
                 correct heap.
         */
         void destroyInputReader(InputReader* reader);
+		
+		/** Creates a new Timer instance
+		*/
+		Timer* createTimer();
+
+        /** Destroys an instance of a timer. */
+        void destroyTimer(Timer* timer);
+
 
         /** Override standard Singleton retrieval.
             @remarks

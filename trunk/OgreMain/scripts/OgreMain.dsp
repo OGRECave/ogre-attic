@@ -552,6 +552,10 @@ SOURCE=..\src\OgreTGACodec.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreTimer.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreUserDefinedObject.cpp
 # End Source File
 # Begin Source File
@@ -1197,6 +1201,10 @@ SOURCE=..\include\OgreTextureManager.h
 # Begin Source File
 
 SOURCE=..\include\OgreTGACodec.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreTimer.h
 # End Source File
 # Begin Source File
 

@@ -4,7 +4,7 @@ This source file is part of OGRE
     (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://ogre.sourceforge.net/
 
-Copyright © 2000-2002 The OGRE Team
+Copyright Š 2000-2002 The OGRE Team
 Also see acknowledgements in Readme.html
 
 This program is free software; you can redistribute it and/or modify it under
@@ -23,56 +23,20 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 
-#include "OgreRoot.h"
-#include "OgreSDLConfig.h"
-#include "OgreSDLError.h"
-#include "OgreSDLInput.h"
 #include "OgreSDLTimer.h"
 
 namespace Ogre {
-
-    extern "C" void createPlatformConfigDialog(ConfigDialog** ppDlg)
-    {
-        *ppDlg = new SDLConfig();
-    }
-
-    extern "C" void createPlatformErrorDialog(ErrorDialog** ppDlg)
-    {
-        *ppDlg = new SDLError();
-    }
-
-    extern "C" void createPlatformInputReader(InputReader** ppDlg)
-    {
-        *ppDlg = new SDLInput();
+    
+	void SDLTimer::reset()
+	{
+		Timer::reset();
+		zeroTicks = SDL_GetTicks();
     }
 	
-	extern "C" void createTimer(Timer** ppTimer)
+	unsigned long SDLTimer::getMilliseconds()
 	{
-		*ppTimer = new SDLTimer();
+		unsigned long newTicks = SDL_GetTicks();
+		return newTicks - zeroTicks ;
 	}
 
-	extern "C" void destroyTimer(Timer* ppTimer)
-	{
-		delete ppTimer;
-	}
-
-    extern "C" void destroyPlatformConfigDialog(ConfigDialog* dlg)
-    {
-        delete dlg;
-    }
-
-    extern "C" void destroyPlatformErrorDialog(ErrorDialog* dlg)
-    {
-        delete dlg;
-    }
-
-    extern "C" void destroyPlatformRenderWindow(RenderWindow* wnd)
-    {
-        delete wnd;
-    }
-
-    extern "C" void destroyPlatformInputReader(InputReader* reader)
-    {
-        delete reader;
-    }
 }

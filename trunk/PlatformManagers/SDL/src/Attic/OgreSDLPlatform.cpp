@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSDLConfig.h"
 #include "OgreSDLError.h"
 #include "OgreSDLInput.h"
+#include "OgreSDLTimer.h"
 
 namespace Ogre {
 
@@ -44,6 +45,16 @@ namespace Ogre {
     {
         *ppDlg = new SDLInput();
     }
+	
+	extern "C" void createTimer(Timer** ppTimer)
+	{
+		*ppTimer = new SDLTimer();
+	}
+
+	extern "C" void destroyTimer(Timer* ppTimer)
+	{
+		delete ppTimer;
+	}
 
     extern "C" void destroyPlatformConfigDialog(ConfigDialog* dlg)
     {
