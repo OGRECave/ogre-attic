@@ -52,7 +52,7 @@ namespace Ogre {
         {
             if (itype == HardwareIndexBuffer::IT_32BIT)
             {
-                Except(Exception::ERR_INVALIDPARAMS, "Direct3D7 only supports 16-bit index buffers, "
+                OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Direct3D7 only supports 16-bit index buffers, "
                     "you should upgrade to a more recent Direct3D RenderSystem if you wish to use "
                     "32-bit indexes.", "D3D7HardwareBufferManager::createIndexBuffer");
             }

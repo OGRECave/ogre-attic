@@ -27,7 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 
-#if OGRE_PLATFORM == PLATFORM_WIN32
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #if !defined( __MINGW32__ )
 #   define NOMINMAX // required to stop windows.h messing up std::min
 #endif
@@ -39,14 +39,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 #   include <GL/glu.h>
 // Windows library does not include glSecondaryColorPointer even though it's standard now
 #   define glSecondaryColorPointer glSecondaryColorPointerEXT
-#elif OGRE_PLATFORM == PLATFORM_LINUX
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 // define GL_GLEXT_LEGACY so that Mesa headers won't try to include their own
 // glext.h file.
 #   define GL_GLEXT_LEGACY
 #   include <GL/gl.h>
 #   include <GL/glu.h>
 #   define GL_GLEXT_PROTOTYPES
-#elif OGRE_PLATFORM == PLATFORM_APPLE
+#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 #   define GL_GLEXT_PROTOTYPES
 #   ifndef APIENTRY
 #       define APIENTRY
@@ -249,7 +249,7 @@ namespace Ogre {
     GLenum errCode = glGetError(); \
     if (errCode != GL_NO_ERROR) {  \
     errString = gluErrorString (errCode);  \
-    Except (Exception::ERR_INTERNAL_ERROR,  \
+    OGRE_EXCEPT (Exception::ERR_INTERNAL_ERROR,  \
     ERROR_MSG +  \
     " : " + Ogre::String( (const char*) errString), String("")); \
         } \

@@ -419,7 +419,7 @@ namespace Ogre {
                     PatchMap::iterator p = mPatches.find(face);
                     if (p == mPatches.end())
                     {
-                        Except(Exception::ERR_INTERNAL_ERROR, "Patch not found from previous built state",
+                        OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "Patch not found from previous built state",
                         "BspLevel::loadQuake3Level");
                     }
 

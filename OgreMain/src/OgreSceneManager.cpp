@@ -205,7 +205,7 @@ Camera* SceneManager::createCamera(const String& name)
     // Check name not used
     if (mCameras.find(name) != mCameras.end())
     {
-        Except(
+        OGRE_EXCEPT(
             Exception::ERR_DUPLICATE_ITEM,
             "A camera with the name " + name + " already exists",
             "SceneManager::createCamera" );
@@ -224,7 +224,7 @@ Camera* SceneManager::getCamera(const String& name)
     CameraList::iterator i = mCameras.find(name);
     if (i == mCameras.end())
     {
-        Except( Exception::ERR_ITEM_NOT_FOUND, 
+        OGRE_EXCEPT( Exception::ERR_ITEM_NOT_FOUND, 
             "Cannot find Camera with name " + name,
             "SceneManager::getCamera");
     }
@@ -288,7 +288,7 @@ Light* SceneManager::createLight(const String& name)
     // Check name not used
     if (mLights.find(name) != mLights.end())
     {
-        Except(
+        OGRE_EXCEPT(
             Exception::ERR_DUPLICATE_ITEM,
             "A light with the name " + name + " already exists",
             "SceneManager::createLight" );
@@ -305,7 +305,7 @@ Light* SceneManager::getLight(const String& name)
     SceneLightList::iterator i = mLights.find(name);
     if (i == mLights.end())
     {
-        Except( Exception::ERR_ITEM_NOT_FOUND, 
+        OGRE_EXCEPT( Exception::ERR_ITEM_NOT_FOUND, 
             "Cannot find Light with name " + name,
             "SceneManager::getLight");
     }
@@ -413,7 +413,7 @@ Entity* SceneManager::createEntity(const String& entityName, PrefabType ptype)
         break;
     }
 
-    Except( Exception::ERR_ITEM_NOT_FOUND, 
+    OGRE_EXCEPT( Exception::ERR_ITEM_NOT_FOUND, 
         "Unknown prefab type for entity " + entityName,
         "SceneManager::createEntity");
 }
@@ -427,7 +427,7 @@ Entity* SceneManager::createEntity(
     EntityList::iterator it = mEntities.find( entityName );
     if( it != mEntities.end() )
     {
-        Except(
+        OGRE_EXCEPT(
             Exception::ERR_DUPLICATE_ITEM,
             "An entity with the name " + entityName + " already exists",
             "SceneManager::createEntity" );
@@ -454,7 +454,7 @@ Entity* SceneManager::getEntity(const String& name)
     EntityList::iterator i = mEntities.find(name);
     if (i == mEntities.end())
     {
-        Except( Exception::ERR_ITEM_NOT_FOUND, 
+        OGRE_EXCEPT( Exception::ERR_ITEM_NOT_FOUND, 
             "Cannot find Entity with name " + name,
             "SceneManager::getEntity");
     }
@@ -560,7 +560,7 @@ SceneNode* SceneManager::createSceneNode(const String& name)
     // Check name not used
     if (mSceneNodes.find(name) != mSceneNodes.end())
     {
-        Except(
+        OGRE_EXCEPT(
             Exception::ERR_DUPLICATE_ITEM,
             "A scene node with the name " + name + " already exists",
             "SceneManager::createSceneNode" );
@@ -577,7 +577,7 @@ void SceneManager::destroySceneNode(const String& name)
 
     if (i == mSceneNodes.end())
     {
-        Except(Exception::ERR_ITEM_NOT_FOUND, "SceneNode '" + name + "' not found.",
+        OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "SceneNode '" + name + "' not found.",
             "SceneManager::destroySceneNode");
     }
 
@@ -616,7 +616,7 @@ SceneNode* SceneManager::getSceneNode(const String& name) const
 
     if (i == mSceneNodes.end())
     {
-        Except(Exception::ERR_ITEM_NOT_FOUND, "SceneNode '" + name + "' not found.",
+        OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "SceneNode '" + name + "' not found.",
             "SceneManager::getSceneNode");
     }
 
@@ -943,7 +943,7 @@ void SceneManager::_setDestinationRenderSystem(RenderSystem* sys)
 void SceneManager::setWorldGeometry(const String& filename)
 {
     // This default implementation cannot handle world geometry
-    Except(Exception::ERR_INVALIDPARAMS,
+    OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
         "World geometry is not supported by the generic SceneManager.",
         "SceneManager::setWorldGeometry");
 }
@@ -991,7 +991,7 @@ void SceneManager::setSkyPlane(
         MaterialPtr m = MaterialManager::getSingleton().getByName(materialName);
         if (m.isNull())
         {
-            Except(Exception::ERR_INVALIDPARAMS, 
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
                 "Sky plane material '" + materialName + "' not found.",
                 "SceneManager::setSkyPlane");
         }
@@ -1069,7 +1069,7 @@ void SceneManager::setSkyBox(
         MaterialPtr m = MaterialManager::getSingleton().getByName(materialName);
         if (m.isNull())
         {
-            Except(Exception::ERR_INVALIDPARAMS, 
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
                 "Sky box material '" + materialName + "' not found.",
                 "SceneManager::setSkyBox");
         }
@@ -1155,7 +1155,7 @@ void SceneManager::setSkyDome(
         MaterialPtr m = MaterialManager::getSingleton().getByName(materialName);
         if (m.isNull())
         {
-            Except(Exception::ERR_INVALIDPARAMS, 
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
                 "Sky dome material '" + materialName + " not found.",
                 "SceneManager::setSkyDome");
         }
@@ -2154,7 +2154,7 @@ BillboardSet* SceneManager::createBillboardSet(const String& name, unsigned int 
     // Check name not used
     if (mBillboardSets.find(name) != mBillboardSets.end())
     {
-        Except(
+        OGRE_EXCEPT(
             Exception::ERR_DUPLICATE_ITEM,
             "A billboard set with the name " + name + " already exists",
             "SceneManager::createBillboardSet" );
@@ -2171,7 +2171,7 @@ BillboardSet* SceneManager::getBillboardSet(const String& name)
     BillboardSetList::iterator i = mBillboardSets.find(name);
     if (i == mBillboardSets.end())
     {
-        Except( Exception::ERR_ITEM_NOT_FOUND, 
+        OGRE_EXCEPT( Exception::ERR_ITEM_NOT_FOUND, 
             "Cannot find BillboardSet with name " + name,
             "SceneManager::getBillboardSet");
     }
@@ -2218,7 +2218,7 @@ Animation* SceneManager::createAnimation(const String& name, Real length)
     // Check name not used
     if (mAnimationsList.find(name) != mAnimationsList.end())
     {
-        Except(
+        OGRE_EXCEPT(
             Exception::ERR_DUPLICATE_ITEM,
             "An animation with the name " + name + " already exists",
             "SceneManager::createAnimation" );
@@ -2234,7 +2234,7 @@ Animation* SceneManager::getAnimation(const String& name) const
     AnimationList::const_iterator i = mAnimationsList.find(name);
     if (i == mAnimationsList.end())
     {
-        Except(Exception::ERR_ITEM_NOT_FOUND, 
+        OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
             "Cannot find animation with name " + name, 
             "SceneManager::getAnimation");
     }
@@ -2262,7 +2262,7 @@ void SceneManager::destroyAnimation(const String& name)
     AnimationList::iterator i = mAnimationsList.find(name);
     if (i == mAnimationsList.end())
     {
-        Except(Exception::ERR_ITEM_NOT_FOUND, 
+        OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
             "Cannot find animation with name " + name, 
             "SceneManager::getAnimation");
     }
@@ -2293,7 +2293,7 @@ AnimationState* SceneManager::createAnimationState(const String& animName)
 {
     if (mAnimationStates.find(animName) != mAnimationStates.end())
     {
-        Except(Exception::ERR_DUPLICATE_ITEM, 
+        OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
             "Cannot create, AnimationState already exists: "+animName, 
             "SceneManager::createAnimationState");
     }
@@ -2319,7 +2319,7 @@ AnimationState* SceneManager::createAnimationState(const String& animName)
     {
         // Problem
         // Not because of duplicate item, that's checked for above
-        Except(Exception::ERR_INTERNAL_ERROR, "Unexpected error creating new animation state.",
+        OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "Unexpected error creating new animation state.",
             "SceneManager::createAnimationState");
     }
 
@@ -2332,7 +2332,7 @@ AnimationState* SceneManager::getAnimationState(const String& animName)
 
     if (i == mAnimationStates.end())
     {
-        Except(Exception::ERR_ITEM_NOT_FOUND, 
+        OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
             "Cannot locate animation state for animation " + animName,
             "SceneManager::getAnimationState");
     }
@@ -2347,7 +2347,7 @@ void SceneManager::destroyAnimationState(const String& name)
 
     if (i == mAnimationStates.end())
     {
-        Except(Exception::ERR_ITEM_NOT_FOUND, 
+        OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
             "Cannot locate animation state for animation " + name,
             "SceneManager::destroyAnimationState");
     }
@@ -2481,7 +2481,7 @@ void SceneManager::_queueSkiesForRendering(Camera* cam)
     {
         qid = mSkyPlaneDrawFirst? 
 RENDER_QUEUE_SKIES_EARLY : RENDER_QUEUE_SKIES_LATE;
-        getRenderQueue()->addRenderable(mSkyPlaneEntity->getSubEntity(0), qid, RENDERABLE_DEFAULT_PRIORITY);
+        getRenderQueue()->addRenderable(mSkyPlaneEntity->getSubEntity(0), qid, OGRE_RENDERABLE_DEFAULT_PRIORITY);
     }
 
     uint plane;
@@ -2493,7 +2493,7 @@ RENDER_QUEUE_SKIES_EARLY : RENDER_QUEUE_SKIES_LATE;
         for (plane = 0; plane < 6; ++plane)
         {
             getRenderQueue()->addRenderable(
-                mSkyBoxEntity[plane]->getSubEntity(0), qid, RENDERABLE_DEFAULT_PRIORITY);
+                mSkyBoxEntity[plane]->getSubEntity(0), qid, OGRE_RENDERABLE_DEFAULT_PRIORITY);
         }
     }
 
@@ -2505,7 +2505,7 @@ RENDER_QUEUE_SKIES_EARLY : RENDER_QUEUE_SKIES_LATE;
         for (plane = 0; plane < 5; ++plane)
         {
             getRenderQueue()->addRenderable(
-                mSkyDomeEntity[plane]->getSubEntity(0), qid, RENDERABLE_DEFAULT_PRIORITY);
+                mSkyDomeEntity[plane]->getSubEntity(0), qid, OGRE_RENDERABLE_DEFAULT_PRIORITY);
         }
     }
 }
@@ -3750,7 +3750,7 @@ StaticGeometry* SceneManager::createStaticGeometry(const String& name)
 	// Check not existing
 	if (mStaticGeometryList.find(name) != mStaticGeometryList.end())
 	{
-		Except(Exception::ERR_DUPLICATE_ITEM, 
+		OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
 			"StaticGeometry with name '" + name + "' already exists!", 
 			"SceneManager::createStaticGeometry");
 	}
@@ -3764,7 +3764,7 @@ StaticGeometry* SceneManager::getStaticGeometry(const String& name) const
 	StaticGeometryList::const_iterator i = mStaticGeometryList.find(name);
 	if (i == mStaticGeometryList.end())
 	{
-		Except(Exception::ERR_ITEM_NOT_FOUND, 
+		OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
 			"StaticGeometry with name '" + name + "' not found", 
 			"SceneManager::createStaticGeometry");
 	}

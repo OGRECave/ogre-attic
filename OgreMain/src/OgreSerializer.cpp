@@ -66,7 +66,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void Serializer::writeFloats(const float* const pFloat, size_t count)
     {
-#	if OGRE_ENDIAN == ENDIAN_BIG
+#	if OGRE_ENDIAN == OGRE_ENDIAN_BIG
             float * pFloatToWrite = (float *)malloc(sizeof(float) * count);
             memcpy(pFloatToWrite, pFloat, sizeof(float) * count);
             
@@ -87,7 +87,7 @@ namespace Ogre {
 		{
 			tmp[i] = static_cast<float>(pDouble[i]);
 		}
-#	if OGRE_ENDIAN == ENDIAN_BIG
+#	if OGRE_ENDIAN == OGRE_ENDIAN_BIG
             flipToLittleEndian(tmp, sizeof(float), count);
             writeData(tmp, sizeof(float), count);
 # 	else
@@ -98,7 +98,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void Serializer::writeShorts(const uint16* const pShort, size_t count = 1)
     {
-#	if OGRE_ENDIAN == ENDIAN_BIG
+#	if OGRE_ENDIAN == OGRE_ENDIAN_BIG
             unsigned short * pShortToWrite = (unsigned short *)malloc(sizeof(unsigned short) * count);
             memcpy(pShortToWrite, pShort, sizeof(unsigned short) * count);
             
@@ -113,7 +113,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void Serializer::writeInts(const uint32* const pInt, size_t count = 1)
     {
-#	if OGRE_ENDIAN == ENDIAN_BIG
+#	if OGRE_ENDIAN == OGRE_ENDIAN_BIG
             unsigned int * pIntToWrite = (unsigned int *)malloc(sizeof(unsigned int) * count);
             memcpy(pIntToWrite, pInt, sizeof(unsigned int) * count);
             
@@ -131,7 +131,7 @@ namespace Ogre {
     {
     //no endian flipping for 1-byte bools
     //XXX Nasty Hack to convert to 1-byte bools
-#	if OGRE_PLATFORM == PLATFORM_APPLE
+#	if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
         char * pCharToWrite = (char *)malloc(sizeof(char) * count);
         for(int i = 0; i < count; i++)
         {
@@ -173,7 +173,7 @@ namespace Ogre {
             String ver = readString(stream);
             if (ver != mVersion)
             {
-                Except(Exception::ERR_INTERNAL_ERROR, 
+                OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
                     "Invalid file: version incompatible, file reports " + String(ver) +
                     " Serializer is version " + mVersion,
                     "Serializer::readFileHeader");
@@ -181,7 +181,7 @@ namespace Ogre {
         }
         else
         {
-            Except(Exception::ERR_INTERNAL_ERROR, "Invalid file: no header", 
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "Invalid file: no header", 
                 "Serializer::readFileHeader");
         }
 
@@ -199,7 +199,7 @@ namespace Ogre {
     void Serializer::readBools(DataStreamPtr& stream, bool* pDest, size_t count)
     {
         //XXX Nasty Hack to convert 1 byte bools to 4 byte bools
-#	if OGRE_PLATFORM == PLATFORM_APPLE
+#	if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
         char * pTemp = (char *)malloc(1*count); // to hold 1-byte bools
         stream->read(pTemp, 1 * count);
         for(int i = 0; i < count; i++)
@@ -294,14 +294,14 @@ namespace Ogre {
 
     void Serializer::flipToLittleEndian(void* pData, size_t size, size_t count)
     {
-#	if OGRE_ENDIAN == ENDIAN_BIG
+#	if OGRE_ENDIAN == OGRE_ENDIAN_BIG
         flipEndian(pData, size, count);
 #	endif
     }
     
     void Serializer::flipFromLittleEndian(void* pData, size_t size, size_t count)
     {
-#	if OGRE_ENDIAN == ENDIAN_BIG
+#	if OGRE_ENDIAN == OGRE_ENDIAN_BIG
         flipEndian(pData, size, count);
 #	endif
     }

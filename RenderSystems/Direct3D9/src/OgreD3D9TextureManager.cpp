@@ -32,7 +32,7 @@ namespace Ogre
 	{
 		mpD3DDevice = pD3DDevice;
 		if( !mpD3DDevice )
-			Except( Exception::ERR_INVALIDPARAMS, "Invalid Direct3DDevice passed", "D3D9TextureManager::D3D9TextureManager" );
+			OGRE_EXCEPT( Exception::ERR_INVALIDPARAMS, "Invalid Direct3DDevice passed", "D3D9TextureManager::D3D9TextureManager" );
         // register with group manager
         ResourceGroupManager::getSingleton()._registerResourceManager(mResourceType, this);
 	}

@@ -195,7 +195,7 @@ namespace Ogre {
 			|| iy < REGION_MIN_INDEX || iy > REGION_MAX_INDEX 
 			|| iz < REGION_MIN_INDEX || iz > REGION_MAX_INDEX)
 		{
-			Except(Exception::ERR_INVALIDPARAMS,
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
 				"Point out of bounds",
 				"StaticGeometry::getRegionIndexes");
 		}
@@ -860,7 +860,7 @@ namespace Ogre {
 		// We need to search the edge list for silhouette edges
 		if (!mEdgeList)
 		{
-			Except(Exception::ERR_INVALIDPARAMS, 
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
 				"You enabled stencil shadows after the buid process!",
 				"StaticGeometry::Region::getShadowVolumeRenderableIterator");
 		}
@@ -1164,7 +1164,7 @@ namespace Ogre {
 			mCurrentGeometryMap[formatString] = gbucket;
 			if (!gbucket->assign(qgeom))
 			{
-				Except(Exception::ERR_INTERNAL_ERROR, 
+				OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
 					"Somehow we couldn't fit the requested geometry even in a "
 					"brand new GeometryBucket!! Must be a bug, please report.",
 					"StaticGeometry::MaterialBucket::assign");
@@ -1177,7 +1177,7 @@ namespace Ogre {
 		mMaterial = MaterialManager::getSingleton().getByName(mMaterialName);
 		if (mMaterial.isNull())
 		{
-			Except(Exception::ERR_ITEM_NOT_FOUND, 
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
 				"Material '" + mMaterialName + "' not found.", 
 				"StaticGeometry::MaterialBucket::build");
 		}

@@ -56,14 +56,14 @@ extern "C" {
 
 }
 
-#if OGRE_PLATFORM == PLATFORM_WIN32
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 
 #undef min
 #undef max
 
 #endif
 
-#if OGRE_PLATFORM == PLATFORM_LINUX
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 extern "C" {
 
 #   include <unistd.h>
@@ -72,7 +72,7 @@ extern "C" {
 }
 #endif
 
-#if OGRE_PLATFORM == PLATFORM_APPLE
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 extern "C" {
 #   include <unistd.h>
 #   include <sys/param.h>

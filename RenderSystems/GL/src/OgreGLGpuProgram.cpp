@@ -121,7 +121,7 @@ void GLArbGpuProgram::loadFromSource(void)
         snprintf(errPosStr, 16, "%d", errPos);
         char* errStr = (char*)glGetString(GL_PROGRAM_ERROR_STRING_ARB);
         // XXX New exception code?
-        Except(Exception::ERR_INTERNAL_ERROR, 
+        OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
             "Cannot load GL vertex program " + mName + 
             ".  Line " + errPosStr + ":\n" + errStr, mName);
     }

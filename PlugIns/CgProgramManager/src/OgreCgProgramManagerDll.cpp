@@ -57,7 +57,7 @@ namespace Ogre {
                 // Get listing with full compile errors
                 msg = msg + "\n" + cgGetLastListing(context);
             }
-            Except(Exception::ERR_INTERNAL_ERROR, msg, ogreMethod);
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, msg, ogreMethod);
         }
     }
 

@@ -282,13 +282,13 @@ namespace Ogre {
             lpDD7->Release();
 
             if( FAILED( hr = lpDD7->CreateSurface( &ddsd, &lpZBuffer, NULL ) ) )
-                Except(
+                OGRE_EXCEPT(
                     hr, 
                     "Error creating depth buffer",
                     "D3DDevice::createDepthBuffer" );
 
             if( FAILED( hr = renderTarget->AddAttachedSurface(lpZBuffer) ) )
-                Except(
+                OGRE_EXCEPT(
                     hr, 
                     "Error attaching depth buffer to render target",
                     "D3DDevice::createDepthBuffer" );

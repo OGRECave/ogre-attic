@@ -145,7 +145,7 @@ void GLHardwarePixelBuffer::upload(const PixelBox &data)
 	if(PixelUtil::isCompressed(data.format))
 	{
 		if(data.format != mFormat || !data.isConsecutive())
-			Except(Exception::ERR_INVALIDPARAMS, 
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
 			"Compressed images must be consecutive, in the source format",
 		 	"GLHardwarePixelBuffer::upload");
 		GLenum format = GLPixelUtil::getClosestGLInternalFormat(mFormat);
@@ -248,7 +248,7 @@ void GLHardwarePixelBuffer::upload(const PixelBox &data)
 					data.data);
 				break;
 			case GL_TEXTURE_3D:
-#if OGRE_PLATFORM == PLATFORM_LINUX
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 				// GLX doesn't define it
 				glTexSubImage3DEXT(
 #else
@@ -273,13 +273,13 @@ void GLHardwarePixelBuffer::download(const PixelBox &data)
 	if(data.getWidth() != getWidth() ||
 		data.getHeight() != getHeight() ||
 		data.getDepth() != getDepth())
-		Except(Exception::ERR_INVALIDPARAMS, "only download of entire buffer is supported by GL",
+		OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "only download of entire buffer is supported by GL",
 		 	"GLHardwarePixelBuffer::download");
 	glBindTexture( mTarget, mTextureID );
 	if(PixelUtil::isCompressed(data.format))
 	{
 		if(data.format != mFormat || !data.isConsecutive())
-			Except(Exception::ERR_INVALIDPARAMS, 
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
 			"Compressed images must be consecutive, in the source format",
 		 	"GLHardwarePixelBuffer::upload");
 		// Data must be consecutive and at beginning of buffer as PixelStorei not allowed
@@ -316,7 +316,7 @@ void GLHardwarePixelBuffer::blit(HardwarePixelBuffer *src, const Image::Box &src
 void GLHardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::Box &dstBox)
 {
 	if(!mBuffer.contains(dstBox))
-		Except(Exception::ERR_INVALIDPARAMS, "destination box out of range",
+		OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "destination box out of range",
 		 "GLHardwarePixelBuffer::blitFromMemory");
 	PixelBox scaled;
 	
@@ -359,7 +359,7 @@ void GLHardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::Box
 void GLHardwarePixelBuffer::blitToMemory(const Image::Box &srcBox, const PixelBox &dst)
 {
 	if(!mBuffer.contains(srcBox))
-		Except(Exception::ERR_INVALIDPARAMS, "source box out of range",
+		OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "source box out of range",
 		 "GLHardwarePixelBuffer::blitToMemory");
 	if(srcBox.left == 0 && srcBox.right == getWidth() &&
 	   srcBox.top == 0 && srcBox.bottom == getHeight() &&

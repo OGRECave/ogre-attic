@@ -179,7 +179,7 @@ namespace Ogre
         for (i = target.begin(); i != iend; ++i) {
             AnimationStateSet::const_iterator iother = source.find(i->first);
             if (iother == source.end()) {
-                Except(Exception::ERR_ITEM_NOT_FOUND, "No animation entry found named " + i->first, 
+                OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "No animation entry found named " + i->first, 
                     "CopyAnimationStateSubset");
             } else {
                 i->second.copyStateFrom(iother->second);

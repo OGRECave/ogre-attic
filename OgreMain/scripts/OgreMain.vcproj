@@ -304,6 +304,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreILImageCodec.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreILUtil.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreImage.cpp">
 			</File>
 			<File
@@ -843,6 +846,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreILImageCodec.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreILUtil.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreImage.h">

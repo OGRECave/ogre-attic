@@ -115,7 +115,7 @@ namespace Ogre {
 
             if (FAILED(hr))
             {
-                Except(Exception::ERR_INTERNAL_ERROR, 
+                OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
                     "Cannot create D3D9 vertex declaration: " + 
                     Root::getSingleton().getErrorDescription(hr), 
                     "Direct3D9VertexDeclaration::getD3DVertexDeclaration");

@@ -208,7 +208,7 @@ namespace Ogre {
         }
 		else
 		{
-			Except( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3DTexture::createInternalResources" );
+			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3DTexture::createInternalResources" );
 		}
 		_createSurfaceList();
     }
@@ -235,7 +235,7 @@ namespace Ogre {
 		}
 		else
 		{
-			Except( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3DTexture::loadImpl" );
+			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3DTexture::loadImpl" );
 		}
 
     }
@@ -245,7 +245,7 @@ namespace Ogre {
 		HRESULT hr;
         if( FAILED( hr = ((D3DTexture*)(target.get()))->getDDSurface()->Blt( NULL, mSurface, NULL, DDBLT_WAIT, NULL ) ) )
         {
-            Except( Exception::ERR_RENDERINGAPI_ERROR, "Couldn't blit!", "D3DTexture::copyToTexture" );
+            OGRE_EXCEPT( Exception::ERR_RENDERINGAPI_ERROR, "Couldn't blit!", "D3DTexture::copyToTexture" );
         }
 	}
 
@@ -317,7 +317,7 @@ namespace Ogre {
         ZeroMemory( &ddDesc, sizeof(D3DDEVICEDESC7) );
 
         if( FAILED( mD3DDevice->GetCaps( &ddDesc ) ) )
-            Except( Exception::ERR_RENDERINGAPI_ERROR, 
+            OGRE_EXCEPT( Exception::ERR_RENDERINGAPI_ERROR, 
                     "Could not retrieve Direct3D Device caps.",
                     "D3DTexture::createSurfaces" );
 
@@ -404,7 +404,7 @@ namespace Ogre {
         if( FAILED( hr = pDD->CreateSurface( &ddsd, &mSurface, NULL ) ) )
         {
             pDD->Release();
-            Except( hr,
+            OGRE_EXCEPT( hr,
                 "Could not create DirectDraw surface.",
                 "D3DTexture::createSurfaces" );
         }
@@ -455,7 +455,7 @@ namespace Ogre {
         ZeroMemory( &ddDesc, sizeof(D3DDEVICEDESC7) );
 
         if( FAILED( mD3DDevice->GetCaps( &ddDesc ) ) )
-            Except( Exception::ERR_RENDERINGAPI_ERROR, 
+            OGRE_EXCEPT( Exception::ERR_RENDERINGAPI_ERROR, 
                     "Could not retrieve Direct3D Device caps.",
                     "D3DTexture::createSurfaces" );
 
@@ -542,7 +542,7 @@ namespace Ogre {
         if( FAILED( hr = pDD->CreateSurface( &ddsd, &mSurface, NULL ) ) )
         {
             pDD->Release();
-            Except( hr,
+            OGRE_EXCEPT( hr,
                 "Could not create DirectDraw surface.",
                 "D3DTexture::createSurfaces" );
         }
@@ -606,7 +606,7 @@ namespace Ogre {
 		pos = fakeName.find_last_of(".");
 		if (pos == -1)
 		{
-			Except( Exception::ERR_INTERNAL_ERROR, "Invalid cube texture base name", "D3D9Texture::_constructCubeFaceNames" );
+			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Invalid cube texture base name", "D3D9Texture::_constructCubeFaceNames" );
 		}
 
 		baseName = fakeName.substr(0, pos);
@@ -620,10 +620,10 @@ namespace Ogre {
 	HardwarePixelBufferSharedPtr D3DTexture::getBuffer(size_t face, size_t mipmap)
 	{
 		if(face >= getNumFaces())
-			Except(Exception::ERR_INVALIDPARAMS, "A three dimensional cube has six faces",
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "A three dimensional cube has six faces",
 					"D3D9Texture::getBuffer");
 		if(mipmap > getNumMipmaps())
-			Except(Exception::ERR_INVALIDPARAMS, "Mipmap index out of range",
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Mipmap index out of range",
 					"D3D9Texture::getBuffer");
 		int idx = face*(mNumMipmaps+1) + mipmap;
 		assert(idx < mSurfaceList.size());
@@ -644,7 +644,7 @@ namespace Ogre {
 		DDSURFACEDESC2 desc;
 		desc.dwSize = sizeof(DDSURFACEDESC2);
 		if(mSurface->GetSurfaceDesc(&desc) != D3D_OK)
-			Except(Exception::ERR_RENDERINGAPI_ERROR, "Could not get surface information",
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Could not get surface information",
 			"D3DTexture::_createSurfaceList()");
 		if(desc.dwFlags & DDSD_MIPMAPCOUNT)
 			mNumMipmaps = desc.dwMipMapCount;
@@ -712,7 +712,7 @@ namespace Ogre {
 
 				if (FAILED(hr = mSurface->GetAttachedSurface( &cubeCaps, &pCubeFace)))
 				{
-					Except( hr, "Error getting cube face surface.", "D3DTexture::_createSurfaceList" );
+					OGRE_EXCEPT( hr, "Error getting cube face surface.", "D3DTexture::_createSurfaceList" );
 				}	
 			}
 			else

@@ -94,7 +94,7 @@ namespace Ogre {
     {
         if (useSharedVertices)
         {
-            Except(Exception::ERR_INVALIDPARAMS, "This SubMesh uses shared geometry,  you "
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "This SubMesh uses shared geometry,  you "
                 "must assign bones to the Mesh, not the SubMesh", "SubMesh.addBoneAssignment");
         }
         mBoneAssignments.insert(

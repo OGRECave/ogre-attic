@@ -386,7 +386,7 @@ namespace Ogre
             MeshBuildParamsMap::iterator ibld = mMeshBuildParams.find(res);
             if (ibld == mMeshBuildParams.end())
             {
-                Except(Exception::ERR_ITEM_NOT_FOUND, 
+                OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                     "Cannot find build parameters for " + res->getName(),
                     "MeshManager::loadResource");
             }
@@ -404,7 +404,7 @@ namespace Ogre
                 loadManualCurvedPlane(msh, params);
                 break;
             default:
-                Except(Exception::ERR_ITEM_NOT_FOUND, 
+                OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                     "Unknown build parameters for " + res->getName(),
                     "MeshManager::loadResource");
             }
@@ -469,7 +469,7 @@ namespace Ogre
         if (xAxis.length() == 0)
         {
             //upVector must be wrong
-            Except(Exception::ERR_INVALIDPARAMS, "The upVector you supplied is parallel to the plane normal, so is not valid.",
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "The upVector you supplied is parallel to the plane normal, so is not valid.",
                 "MeshManager::createPlane");
         }
 
@@ -613,7 +613,7 @@ namespace Ogre
         if (xAxis.length() == 0)
         {
             //upVector must be wrong
-            Except(Exception::ERR_INVALIDPARAMS, "The upVector you supplied is parallel to the plane normal, so is not valid.",
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "The upVector you supplied is parallel to the plane normal, so is not valid.",
                 "MeshManager::createPlane");
         }
 
@@ -771,7 +771,7 @@ namespace Ogre
         if (xAxis.length() == 0)
         {
             //upVector must be wrong
-            Except(Exception::ERR_INVALIDPARAMS, "The upVector you supplied is parallel to the plane normal, so is not valid.",
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "The upVector you supplied is parallel to the plane normal, so is not valid.",
                 "MeshManager::createPlane");
         }
 
@@ -904,7 +904,7 @@ namespace Ogre
         MeshPtr pMesh = getByName(name);
         if (!pMesh.isNull())
         {
-            Except(Exception::ERR_DUPLICATE_ITEM, "A mesh called " + name + 
+            OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, "A mesh called " + name + 
                 " already exists!", "MeshManager::createBezierPatch");
         }
         PatchMesh* pm = new PatchMesh(this, name, getNextHandle(), groupName);

@@ -242,7 +242,7 @@ namespace Ogre
             return SBF_ONE_MINUS_SOURCE_ALPHA;
         else
         {
-            Except(Exception::ERR_INVALIDPARAMS, "Invalid blend factor.", "convertBlendFactor");
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Invalid blend factor.", "convertBlendFactor");
         }
 
 
@@ -319,7 +319,7 @@ namespace Ogre
         else if (param == "greater")
             return CMPF_GREATER;
         else
-            Except(Exception::ERR_INVALIDPARAMS, "Invalid compare function", "convertCompareFunction");
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Invalid compare function", "convertCompareFunction");
 
     }
     //-----------------------------------------------------------------------
@@ -821,7 +821,7 @@ namespace Ogre
         else if (param == "dotproduct")
             return LBX_DOTPRODUCT;
         else
-            Except(Exception::ERR_INVALIDPARAMS, "Invalid blend function", "convertBlendOpEx");
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Invalid blend function", "convertBlendOpEx");
     }
     //-----------------------------------------------------------------------
     LayerBlendSource convertBlendSource(const String& param)
@@ -837,7 +837,7 @@ namespace Ogre
         else if (param == "src_manual")
             return LBS_MANUAL;
         else
-            Except(Exception::ERR_INVALIDPARAMS, "Invalid blend source", "convertBlendSource");
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Invalid blend source", "convertBlendSource");
     }
     //-----------------------------------------------------------------------
     bool parseColourOpEx(String& params, MaterialScriptContext& context)
@@ -2411,13 +2411,13 @@ namespace Ogre
     void MaterialSerializer::exportQueued(const String &fileName)
     {
         if (mBuffer == "")
-            Except(Exception::ERR_INVALIDPARAMS, "Queue is empty !", "MaterialSerializer::exportQueued");
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Queue is empty !", "MaterialSerializer::exportQueued");
 
         LogManager::getSingleton().logMessage("MaterialSerializer : writing material(s) to material script : " + fileName, LML_CRITICAL);
         FILE *fp;
         fp = fopen(fileName.c_str(), "w");
         if (!fp)
-            Except(Exception::ERR_CANNOT_WRITE_TO_FILE, "Cannot create material file.",
+            OGRE_EXCEPT(Exception::ERR_CANNOT_WRITE_TO_FILE, "Cannot create material file.",
             "MaterialSerializer::export");
 
         fputs(mBuffer.c_str(), fp);

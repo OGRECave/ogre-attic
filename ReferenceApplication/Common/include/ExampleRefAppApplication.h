@@ -26,7 +26,7 @@ Description: Base class for all the OGRE ReferenceApplication examples
 #include "OgreConfigFile.h"
 #include "ExampleRefAppFrameListener.h"
 
-#if OGRE_PLATFORM == PLATFORM_APPLE
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 #    include <SDL.h>
 #endif
 

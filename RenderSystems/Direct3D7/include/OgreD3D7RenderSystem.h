@@ -93,7 +93,7 @@ namespace Ogre {
  				ret = D3D_TEX_TYPE_CUBE;
  				break;
  			default :
- 				Except( Exception::ERR_INVALIDPARAMS, "Invalid tex.type", "D3D9RenderSystem::_ogreTexTypeToD3DTexType" );
+ 				OGRE_EXCEPT( Exception::ERR_INVALIDPARAMS, "Invalid tex.type", "D3D9RenderSystem::_ogreTexTypeToD3DTexType" );
  				break;
  			}
  			return ret;

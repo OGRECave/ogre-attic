@@ -139,7 +139,7 @@ namespace Ogre {
         }
         else
         {
-            Except(Exception::ERR_INVALIDPARAMS, "Object index out of bounds.", "SceneNode::getAttachedObject");
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Object index out of bounds.", "SceneNode::getAttachedObject");
         }
         return 0;
     }
@@ -151,7 +151,7 @@ namespace Ogre {
 
         if (i == mObjectsByName.end())
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, "Attached object " + 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Attached object " + 
                 name + " not found.", "SceneNode::getAttachedObject");
         }
 
@@ -181,7 +181,7 @@ namespace Ogre {
         }
         else
         {
-            Except(Exception::ERR_INVALIDPARAMS, "Object index out of bounds.", "SceneNode::getAttchedEntity");
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Object index out of bounds.", "SceneNode::getAttchedEntity");
         }
         return 0;
 
@@ -192,7 +192,7 @@ namespace Ogre {
         ObjectMap::iterator it = mObjectsByName.find(name);
         if (it == mObjectsByName.end())
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, "Object " + name + " is not attached "
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Object " + name + " is not attached "
                 "to this node.", "SceneNode::detachObject");
         }
         MovableObject* ret = it->second;

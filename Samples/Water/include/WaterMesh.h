@@ -18,7 +18,7 @@ LGPL like the rest of the engine.
 
 #include "OgrePlatform.h"
 
-#if OGRE_PLATFORM == PLATFORM_APPLE
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 #   include <Ogre/Ogre.h>
 #else
 #   include "Ogre.h"

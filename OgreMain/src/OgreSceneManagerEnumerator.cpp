@@ -78,7 +78,7 @@ namespace Ogre {
         }
         else
         {
-            Except(Exception::ERR_INTERNAL_ERROR, "Cannot find requested SceneManager.", "SceneManagerEnumerator::getSceneManager");
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "Cannot find requested SceneManager.", "SceneManagerEnumerator::getSceneManager");
         }
     }
 

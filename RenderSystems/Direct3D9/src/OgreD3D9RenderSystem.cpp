@@ -90,7 +90,7 @@ namespace Ogre
 
 		// Create our Direct3D object
 		if( NULL == (mpD3D = Direct3DCreate9(D3D_SDK_VERSION)) )
-			Except( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D9 object", "D3D9RenderSystem::D3D9RenderSystem" );
+			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Failed to create Direct3D9 object", "D3D9RenderSystem::D3D9RenderSystem" );
 
 		// set config options defaults
 		initConfigOptions();
@@ -291,7 +291,7 @@ namespace Ogre
 		{
             str.clear();
             str << "Option named '" << name << "' does not exist.";
-			Except( Exception::ERR_INVALIDPARAMS, str.str(), "D3D9RenderSystem::setConfigOption" );
+			OGRE_EXCEPT( Exception::ERR_INVALIDPARAMS, str.str(), "D3D9RenderSystem::setConfigOption" );
 		}
 
 		// Refresh other options if D3DDriver changed
@@ -455,7 +455,7 @@ namespace Ogre
 		}
 
 		if( !mActiveD3DDriver )
-			Except( Exception::ERR_INVALIDPARAMS, "Problems finding requested Direct3D driver!", "D3D9RenderSystem::initialise" );
+			OGRE_EXCEPT( Exception::ERR_INVALIDPARAMS, "Problems finding requested Direct3D driver!", "D3D9RenderSystem::initialise" );
 
 		if( autoCreateWindow )
 		{
@@ -484,7 +484,7 @@ namespace Ogre
 			}
 
 			if( !videoMode )
-				Except( Exception::ERR_INTERNAL_ERROR, "Can't find requested video mode.", "D3D9RenderSystem::initialise" );
+				OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Can't find requested video mode.", "D3D9RenderSystem::initialise" );
 
 			width = videoMode->getWidth();
 			height = videoMode->getHeight();
@@ -564,13 +564,13 @@ namespace Ogre
 		// was fullscreen
 		if (mPrimaryWindow && mPrimaryWindow->isFullScreen())
 		{
-			Except(Exception::ERR_INVALIDPARAMS, 
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
 				"Cannot create secondary windows when the primary is full screen",
 				"D3D9RenderSystem::createRenderWindow");
 		}
 		if (mPrimaryWindow && fullScreen)
 		{
-			Except(Exception::ERR_INVALIDPARAMS, 
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
 				"Cannot create full screen secondary windows",
 				"D3D9RenderSystem::createRenderWindow");
 		}
@@ -602,7 +602,7 @@ namespace Ogre
 		{
 			msg = "A render target of the same name '" + name + "' already "
 				"exists.  You cannot create a new window with this name.";
-			Except( Exception::ERR_INTERNAL_ERROR, msg, "D3D9RenderSystem::createRenderWindow" );
+			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, msg, "D3D9RenderSystem::createRenderWindow" );
 		}
 
 		RenderWindow* win = new D3D9RenderWindow(mhInstance, mActiveD3DDriver, 
@@ -1066,7 +1066,7 @@ namespace Ogre
 	{
 		HRESULT hr = __SetRenderState( D3DRS_AMBIENT, D3DCOLOR_COLORVALUE( r, g, b, 1.0f ) );
 		if( FAILED( hr ) )
-			Except( hr, "Failed to set render stat D3DRS_AMBIENT", "D3D9RenderSystem::setAmbientLight" );
+			OGRE_EXCEPT( hr, "Failed to set render stat D3DRS_AMBIENT", "D3D9RenderSystem::setAmbientLight" );
 	}
 	//---------------------------------------------------------------------
     void D3D9RenderSystem::_useLights(const LightList& lights, unsigned short limit)
@@ -1091,14 +1091,14 @@ namespace Ogre
 	{
 		HRESULT hr = __SetRenderState( D3DRS_SHADEMODE, D3D9Mappings::get(so) );
 		if( FAILED( hr ) )
-			Except( hr, "Failed to set render stat D3DRS_SHADEMODE", "D3D9RenderSystem::setShadingType" );
+			OGRE_EXCEPT( hr, "Failed to set render stat D3DRS_SHADEMODE", "D3D9RenderSystem::setShadingType" );
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::setLightingEnabled( bool enabled )
 	{
 		HRESULT hr;
 		if( FAILED( hr = __SetRenderState( D3DRS_LIGHTING, enabled ) ) )
-			Except( hr, "Failed to set render state D3DRS_LIGHTING", "D3D9RenderSystem::setLightingEnabled" );
+			OGRE_EXCEPT( hr, "Failed to set render state D3DRS_LIGHTING", "D3D9RenderSystem::setLightingEnabled" );
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::setD3D9Light( size_t index, Light* lt )
@@ -1111,7 +1111,7 @@ namespace Ogre
         if (!lt)
         {
             if( FAILED( hr = mpD3DDevice->LightEnable( index, FALSE) ) )
-			    Except( hr, "Unable to disable light", "D3D9RenderSystem::setD3D9Light" );
+			    OGRE_EXCEPT( hr, "Unable to disable light", "D3D9RenderSystem::setD3D9Light" );
         }
         else
         {
@@ -1158,10 +1158,10 @@ namespace Ogre
 			d3dLight.Attenuation2 = lt->getAttenuationQuadric();
 
 			if( FAILED( hr = mpD3DDevice->SetLight( index, &d3dLight ) ) )
-				Except( hr, "Unable to set light details", "D3D9RenderSystem::setD3D9Light" );
+				OGRE_EXCEPT( hr, "Unable to set light details", "D3D9RenderSystem::setD3D9Light" );
 
             if( FAILED( hr = mpD3DDevice->LightEnable( index, TRUE ) ) )
-			    Except( hr, "Unable to enable light", "D3D9RenderSystem::setD3D9Light" );
+			    OGRE_EXCEPT( hr, "Unable to enable light", "D3D9RenderSystem::setD3D9Light" );
         }
 
 
@@ -1180,7 +1180,7 @@ namespace Ogre
 
 		HRESULT hr;
 		if( FAILED( hr = mpD3DDevice->SetTransform( D3DTS_VIEW, &d3dmat ) ) )
-			Except( hr, "Cannot set D3D9 view matrix", "D3D9RenderSystem::_setViewMatrix" );
+			OGRE_EXCEPT( hr, "Cannot set D3D9 view matrix", "D3D9RenderSystem::_setViewMatrix" );
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setProjectionMatrix( const Matrix4 &m )
@@ -1192,7 +1192,7 @@ namespace Ogre
 
 		HRESULT hr;
 		if( FAILED( hr = mpD3DDevice->SetTransform( D3DTS_PROJECTION, &d3dMat ) ) )
-			Except( hr, "Cannot set D3D9 projection matrix", "D3D9RenderSystem::_setProjectionMatrix" );
+			OGRE_EXCEPT( hr, "Cannot set D3D9 projection matrix", "D3D9RenderSystem::_setProjectionMatrix" );
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setWorldMatrix( const Matrix4 &m )
@@ -1201,7 +1201,7 @@ namespace Ogre
 
 		HRESULT hr;
 		if( FAILED( hr = mpD3DDevice->SetTransform( D3DTS_WORLD, &d3dMat ) ) )
-			Except( hr, "Cannot set D3D9 world matrix", "D3D9RenderSystem::_setWorldMatrix" );
+			OGRE_EXCEPT( hr, "Cannot set D3D9 world matrix", "D3D9RenderSystem::_setWorldMatrix" );
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setSurfaceParams( const ColourValue &ambient, const ColourValue &diffuse,
@@ -1230,7 +1230,7 @@ namespace Ogre
 
 			HRESULT hr = mpD3DDevice->SetMaterial( &material );
 			if( FAILED( hr ) )
-				Except( hr, "Error setting D3D material", "D3D9RenderSystem::_setSurfaceParams" );
+				OGRE_EXCEPT( hr, "Error setting D3D material", "D3D9RenderSystem::_setSurfaceParams" );
 
 			// Remember the details
 			lastAmbient = ambient;
@@ -1274,7 +1274,7 @@ namespace Ogre
 				if( hr != S_OK )
 				{
 					String str = "Unable to set texture '" + texname + "' in D3D9";
-					Except( hr, str, "D3D9RenderSystem::_setTexture" );
+					OGRE_EXCEPT( hr, str, "D3D9RenderSystem::_setTexture" );
 				}
 				
 				// set stage desc.
@@ -1290,7 +1290,7 @@ namespace Ogre
 				if( hr != S_OK )
 				{
 					String str = "Unable to disable texture '" + texname + "' in D3D9";
-					Except( hr, str, "D3D9RenderSystem::_setTexture" );
+					OGRE_EXCEPT( hr, str, "D3D9RenderSystem::_setTexture" );
 				}
 			}
 
@@ -1298,7 +1298,7 @@ namespace Ogre
 			if( hr != S_OK )
 			{
 				String str = "Unable to disable texture '" + texname + "' in D3D9";
-				Except( hr, str, "D3D9RenderSystem::_setTexture" );
+				OGRE_EXCEPT( hr, str, "D3D9RenderSystem::_setTexture" );
 			}
 
 			// set stage desc. to defaults
@@ -1317,7 +1317,7 @@ namespace Ogre
 
 		hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3D9Mappings::get(mTexStageDesc[stage].autoTexCoordType, mCaps) | index );
 		if( FAILED( hr ) )
-			Except( hr, "Unable to set texture coord. set index", "D3D8RenderSystem::_setTextureCoordSet" );
+			OGRE_EXCEPT( hr, "Unable to set texture coord. set index", "D3D8RenderSystem::_setTextureCoordSet" );
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setTextureCoordCalculation( size_t stage, TexCoordCalcMethod m,
@@ -1330,7 +1330,7 @@ namespace Ogre
 
 		hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3D9Mappings::get(m, mCaps) | mTexStageDesc[stage].coordIndex );
 		if(FAILED(hr))
-			Except( hr, "Unable to set texture auto tex.coord. generation mode", "D3D8RenderSystem::_setTextureCoordCalculation" );
+			OGRE_EXCEPT( hr, "Unable to set texture auto tex.coord. generation mode", "D3D8RenderSystem::_setTextureCoordCalculation" );
 	}
     //---------------------------------------------------------------------
 	void D3D9RenderSystem::_setTextureMatrix( size_t stage, const Matrix4& xForm )
@@ -1453,24 +1453,24 @@ namespace Ogre
 
 			hr = __SetTextureStageState( stage, D3DTSS_TEXTURETRANSFORMFLAGS, texCoordDim );
 			if (FAILED(hr))
-				Except( hr, "Unable to set texture coord. dimension", "D3D9RenderSystem::_setTextureMatrix" );
+				OGRE_EXCEPT( hr, "Unable to set texture coord. dimension", "D3D9RenderSystem::_setTextureMatrix" );
 
 			hr = mpD3DDevice->SetTransform( (D3DTRANSFORMSTATETYPE)(D3DTS_TEXTURE0 + stage), &d3dMat );
 			if (FAILED(hr))
-				Except( hr, "Unable to set texture matrix", "D3D9RenderSystem::_setTextureMatrix" );
+				OGRE_EXCEPT( hr, "Unable to set texture matrix", "D3D9RenderSystem::_setTextureMatrix" );
 		}
 		else
 		{
 			// disable all of this
 			hr = __SetTextureStageState( stage, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_DISABLE );
 			if( FAILED( hr ) )
-				Except( hr, "Error setting texture matrix", "D3D9RenderSystem::_setTextureMatrix" );
+				OGRE_EXCEPT( hr, "Error setting texture matrix", "D3D9RenderSystem::_setTextureMatrix" );
 
 			// set the identity matrix
 			D3DXMatrixIdentity( &d3dMat );
 			hr = mpD3DDevice->SetTransform( (D3DTRANSFORMSTATETYPE)(D3DTS_TEXTURE0 + stage), &d3dMat );
 			if( FAILED( hr ) )
-				Except( hr, "Error setting texture matrix", "D3D9RenderSystem::_setTextureMatrix" );
+				OGRE_EXCEPT( hr, "Error setting texture matrix", "D3D9RenderSystem::_setTextureMatrix" );
 		}
 	}
 	//---------------------------------------------------------------------
@@ -1478,11 +1478,11 @@ namespace Ogre
 	{
 		HRESULT hr;
 		if( FAILED( hr = __SetSamplerState( stage, D3DSAMP_ADDRESSU, D3D9Mappings::get(tam) ) ) )
-			Except( hr, "Failed to set texture addressing mode for U", "D3D9RenderSystem::_setTextureAddressingMode" );
+			OGRE_EXCEPT( hr, "Failed to set texture addressing mode for U", "D3D9RenderSystem::_setTextureAddressingMode" );
 		if( FAILED( hr = __SetSamplerState( stage, D3DSAMP_ADDRESSV, D3D9Mappings::get(tam) ) ) )
-			Except( hr, "Failed to set texture addressing mode for V", "D3D9RenderSystem::_setTextureAddressingMode" );
+			OGRE_EXCEPT( hr, "Failed to set texture addressing mode for V", "D3D9RenderSystem::_setTextureAddressingMode" );
 		if( FAILED( hr = __SetSamplerState( stage, D3DSAMP_ADDRESSW, D3D9Mappings::get(tam) ) ) )
-			Except( hr, "Failed to set texture addressing mode for W", "D3D9RenderSystem::_setTextureAddressingMode" );
+			OGRE_EXCEPT( hr, "Failed to set texture addressing mode for W", "D3D9RenderSystem::_setTextureAddressingMode" );
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setTextureBlendMode( size_t stage, const LayerBlendModeEx& bm )
@@ -1501,12 +1501,12 @@ namespace Ogre
 		{
 			hr = __SetRenderState( D3DRS_TEXTUREFACTOR, D3DXCOLOR(0.0, 0.0, 0.0,  bm.factor) );
 			if (FAILED(hr))
-				Except( hr, "Failed to set manual factor", "D3D9RenderSystem::_setTextureBlendMode" );
+				OGRE_EXCEPT( hr, "Failed to set manual factor", "D3D9RenderSystem::_setTextureBlendMode" );
 		}
 		// set operation
 		hr = __SetTextureStageState( stage, tss, D3D9Mappings::get(bm.operation, mCaps) );
 		if (FAILED(hr))
-			Except( hr, "Failed to set operation", "D3D9RenderSystem::_setTextureBlendMode" );
+			OGRE_EXCEPT( hr, "Failed to set operation", "D3D9RenderSystem::_setTextureBlendMode" );
 
 		// choose source 1
 		if( bm.blendType == LBT_COLOUR )
@@ -1524,12 +1524,12 @@ namespace Ogre
 		{
 			hr = __SetRenderState( D3DRS_TEXTUREFACTOR, manualD3D );
 			if (FAILED(hr))
-				Except( hr, "Failed to set manual factor", "D3D9RenderSystem::_setTextureBlendMode" );
+				OGRE_EXCEPT( hr, "Failed to set manual factor", "D3D9RenderSystem::_setTextureBlendMode" );
 		}
 		// set source 1
 		hr = __SetTextureStageState( stage, tss, D3D9Mappings::get(bm.source1) );
 		if (FAILED(hr))
-			Except( hr, "Failed to set source1", "D3D9RenderSystem::_setTextureBlendMode" );
+			OGRE_EXCEPT( hr, "Failed to set source1", "D3D9RenderSystem::_setTextureBlendMode" );
 		
 		// choose source 2
 		if( bm.blendType == LBT_COLOUR )
@@ -1547,21 +1547,21 @@ namespace Ogre
 		{
 			hr = __SetRenderState( D3DRS_TEXTUREFACTOR, manualD3D );
 			if (FAILED(hr))
-				Except( hr, "Failed to set manual factor", "D3D9RenderSystem::_setTextureBlendMode" );
+				OGRE_EXCEPT( hr, "Failed to set manual factor", "D3D9RenderSystem::_setTextureBlendMode" );
 		}
 		// Now set source 2
 		hr = __SetTextureStageState( stage, tss, D3D9Mappings::get(bm.source2) );
 		if (FAILED(hr))
-			Except( hr, "Failed to set source 2", "D3D9RenderSystem::_setTextureBlendMode" );
+			OGRE_EXCEPT( hr, "Failed to set source 2", "D3D9RenderSystem::_setTextureBlendMode" );
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setSceneBlending( SceneBlendFactor sourceFactor, SceneBlendFactor destFactor )
 	{
 		HRESULT hr;
 		if( FAILED( hr = __SetRenderState( D3DRS_SRCBLEND, D3D9Mappings::get(sourceFactor) ) ) )
-			Except( hr, "Failed to set source blend", "D3D9RenderSystem::_setSceneBlending" );
+			OGRE_EXCEPT( hr, "Failed to set source blend", "D3D9RenderSystem::_setSceneBlending" );
 		if( FAILED( hr = __SetRenderState( D3DRS_DESTBLEND, D3D9Mappings::get(destFactor) ) ) )
-			Except( hr, "Failed to set destination blend", "D3D9RenderSystem::_setSceneBlending" );
+			OGRE_EXCEPT( hr, "Failed to set destination blend", "D3D9RenderSystem::_setSceneBlending" );
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setAlphaRejectSettings( CompareFunction func, unsigned char value )
@@ -1570,20 +1570,20 @@ namespace Ogre
         if (func != CMPF_ALWAYS_PASS)
         {
             if( FAILED( hr = __SetRenderState( D3DRS_ALPHATESTENABLE,  TRUE ) ) )
-    			Except( hr, "Failed to enable alpha testing", 
+    			OGRE_EXCEPT( hr, "Failed to enable alpha testing", 
                 "D3D9RenderSystem::_setAlphaRejectSettings" );
         }
         else
         {
             if( FAILED( hr = __SetRenderState( D3DRS_ALPHATESTENABLE,  FALSE ) ) )
-    			Except( hr, "Failed to disable alpha testing", 
+    			OGRE_EXCEPT( hr, "Failed to disable alpha testing", 
                 "D3D9RenderSystem::_setAlphaRejectSettings" );
         }
         // Set always just be sure
 		if( FAILED( hr = __SetRenderState( D3DRS_ALPHAFUNC, D3D9Mappings::get(func) ) ) )
-			Except( hr, "Failed to set alpha reject function", "D3D9RenderSystem::_setAlphaRejectSettings" );
+			OGRE_EXCEPT( hr, "Failed to set alpha reject function", "D3D9RenderSystem::_setAlphaRejectSettings" );
 		if( FAILED( hr = __SetRenderState( D3DRS_ALPHAREF, value ) ) )
-			Except( hr, "Failed to set render state D3DRS_ALPHAREF", "D3D9RenderSystem::_setAlphaRejectSettings" );
+			OGRE_EXCEPT( hr, "Failed to set render state D3DRS_ALPHAREF", "D3D9RenderSystem::_setAlphaRejectSettings" );
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setCullingMode( CullingMode mode )
@@ -1594,7 +1594,7 @@ namespace Ogre
 
 		if( FAILED (hr = __SetRenderState(D3DRS_CULLMODE, 
             D3D9Mappings::get(mode, flip))) )
-			Except( hr, "Failed to set culling mode", "D3D9RenderSystem::_setCullingMode" );
+			OGRE_EXCEPT( hr, "Failed to set culling mode", "D3D9RenderSystem::_setCullingMode" );
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setDepthBufferParams( bool depthTest, bool depthWrite, CompareFunction depthFunction )
@@ -1620,7 +1620,7 @@ namespace Ogre
 			hr = __SetRenderState( D3DRS_ZENABLE, D3DZB_FALSE );
 
 		if( FAILED( hr ) )
-			Except( hr, "Error setting depth buffer test state", "D3D9RenderSystem::_setDepthBufferCheckEnabled" );
+			OGRE_EXCEPT( hr, "Error setting depth buffer test state", "D3D9RenderSystem::_setDepthBufferCheckEnabled" );
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setDepthBufferWriteEnabled( bool enabled )
@@ -1628,21 +1628,21 @@ namespace Ogre
 		HRESULT hr;
 
 		if( FAILED( hr = __SetRenderState( D3DRS_ZWRITEENABLE, enabled ) ) )
-			Except( hr, "Error setting depth buffer write state", "D3D9RenderSystem::_setDepthBufferWriteEnabled" );
+			OGRE_EXCEPT( hr, "Error setting depth buffer write state", "D3D9RenderSystem::_setDepthBufferWriteEnabled" );
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setDepthBufferFunction( CompareFunction func )
 	{
 		HRESULT hr;
 		if( FAILED( hr = __SetRenderState( D3DRS_ZFUNC, D3D9Mappings::get(func) ) ) )
-			Except( hr, "Error setting depth buffer test function", "D3D9RenderSystem::_setDepthBufferFunction" );
+			OGRE_EXCEPT( hr, "Error setting depth buffer test function", "D3D9RenderSystem::_setDepthBufferFunction" );
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setDepthBias(ushort bias)
 	{
 		HRESULT hr = __SetRenderState(D3DRS_DEPTHBIAS, bias);
 		if (FAILED(hr))
-			Except(hr, "Error setting depth bias", "D3D9RenderSystem::_setDepthBias");
+			OGRE_EXCEPT(hr, "Error setting depth bias", "D3D9RenderSystem::_setDepthBias");
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setColourBufferWriteEnabled(bool red, bool green, 
@@ -1659,7 +1659,7 @@ namespace Ogre
 			val |= D3DCOLORWRITEENABLE_ALPHA;
 		HRESULT hr = __SetRenderState(D3DRS_COLORWRITEENABLE, val); 
 		if (FAILED(hr))
-			Except(hr, "Error setting colour write enable flags", 
+			OGRE_EXCEPT(hr, "Error setting colour write enable flags", 
 			"D3D9RenderSystem::_setColourBufferWriteEnabled");
 	}
 	//---------------------------------------------------------------------
@@ -1700,14 +1700,14 @@ namespace Ogre
 		}
 
 		if( FAILED( hr ) )
-			Except( hr, "Error setting render state", "D3D9RenderSystem::_setFog" );
+			OGRE_EXCEPT( hr, "Error setting render state", "D3D9RenderSystem::_setFog" );
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setRasterisationMode(SceneDetailLevel level)
 	{
 		HRESULT hr = __SetRenderState(D3DRS_FILLMODE, D3D9Mappings::get(level));
 		if (FAILED(hr))
-			Except(hr, "Error setting rasterisation mode.", "D3D9RenderSystem::setRasterisationMode");
+			OGRE_EXCEPT(hr, "Error setting rasterisation mode.", "D3D9RenderSystem::setRasterisationMode");
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::setStencilCheckEnabled(bool enabled)
@@ -1715,7 +1715,7 @@ namespace Ogre
 		// Allow stencilling
 		HRESULT hr = __SetRenderState(D3DRS_STENCILENABLE, enabled);
 		if (FAILED(hr))
-			Except(hr, "Error enabling / disabling stencilling.",
+			OGRE_EXCEPT(hr, "Error enabling / disabling stencilling.",
 			"D3D9RenderSystem::setStencilCheckEnabled");
 	}
     //---------------------------------------------------------------------
@@ -1731,11 +1731,11 @@ namespace Ogre
         if (twoSidedOperation)
         {
             if (!mCapabilities->hasCapability(RSC_TWO_SIDED_STENCIL))
-                Except(Exception::ERR_INVALIDPARAMS, "2-sided stencils are not supported",
+                OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "2-sided stencils are not supported",
                     "D3D9RenderSystem::setStencilBufferParams");
             hr = __SetRenderState(D3DRS_TWOSIDEDSTENCILMODE, TRUE);
 		    if (FAILED(hr))
-			    Except(hr, "Error setting 2-sided stencil mode.",
+			    OGRE_EXCEPT(hr, "Error setting 2-sided stencil mode.",
 			    "D3D9RenderSystem::setStencilBufferParams");
             // NB: We should always treat CCW as front face for consistent with default
             // culling mode. Therefore, we must take care with two-sided stencil settings.
@@ -1746,26 +1746,26 @@ namespace Ogre
             // fail op
             hr = __SetRenderState(D3DRS_CCW_STENCILFAIL, D3D9Mappings::get(stencilFailOp, !flip));
             if (FAILED(hr))
-                Except(hr, "Error setting stencil fail operation (2-sided).",
+                OGRE_EXCEPT(hr, "Error setting stencil fail operation (2-sided).",
                 "D3D9RenderSystem::setStencilBufferParams");
 
             // depth fail op
             hr = __SetRenderState(D3DRS_CCW_STENCILZFAIL, D3D9Mappings::get(depthFailOp, !flip));
             if (FAILED(hr))
-                Except(hr, "Error setting stencil depth fail operation (2-sided).",
+                OGRE_EXCEPT(hr, "Error setting stencil depth fail operation (2-sided).",
                 "D3D9RenderSystem::setStencilBufferParams");
 
             // pass op
             hr = __SetRenderState(D3DRS_CCW_STENCILPASS, D3D9Mappings::get(passOp, !flip));
             if (FAILED(hr))
-                Except(hr, "Error setting stencil pass operation (2-sided).",
+                OGRE_EXCEPT(hr, "Error setting stencil pass operation (2-sided).",
                 "D3D9RenderSystem::setStencilBufferParams");
         }
         else
         {
             hr = __SetRenderState(D3DRS_TWOSIDEDSTENCILMODE, FALSE);
 		    if (FAILED(hr))
-			    Except(hr, "Error setting 1-sided stencil mode.",
+			    OGRE_EXCEPT(hr, "Error setting 1-sided stencil mode.",
 			    "D3D9RenderSystem::setStencilBufferParams");
             flip = false;
         }
@@ -1773,37 +1773,37 @@ namespace Ogre
         // func
         hr = __SetRenderState(D3DRS_STENCILFUNC, D3D9Mappings::get(func));
 		if (FAILED(hr))
-			Except(hr, "Error setting stencil buffer test function.",
+			OGRE_EXCEPT(hr, "Error setting stencil buffer test function.",
 			"D3D9RenderSystem::setStencilBufferParams");
 
         // reference value
         hr = __SetRenderState(D3DRS_STENCILREF, refValue);
 		if (FAILED(hr))
-			Except(hr, "Error setting stencil buffer reference value.",
+			OGRE_EXCEPT(hr, "Error setting stencil buffer reference value.",
 			"D3D9RenderSystem::setStencilBufferParams");
 
         // mask
         hr = __SetRenderState(D3DRS_STENCILMASK, mask);
 		if (FAILED(hr))
-			Except(hr, "Error setting stencil buffer mask.",
+			OGRE_EXCEPT(hr, "Error setting stencil buffer mask.",
 			"D3D9RenderSystem::setStencilBufferParams");
 
 		// fail op
         hr = __SetRenderState(D3DRS_STENCILFAIL, D3D9Mappings::get(stencilFailOp, flip));
 		if (FAILED(hr))
-			Except(hr, "Error setting stencil fail operation.",
+			OGRE_EXCEPT(hr, "Error setting stencil fail operation.",
 			"D3D9RenderSystem::setStencilBufferParams");
 
         // depth fail op
         hr = __SetRenderState(D3DRS_STENCILZFAIL, D3D9Mappings::get(depthFailOp, flip));
 		if (FAILED(hr))
-			Except(hr, "Error setting stencil depth fail operation.",
+			OGRE_EXCEPT(hr, "Error setting stencil depth fail operation.",
 			"D3D9RenderSystem::setStencilBufferParams");
 
         // pass op
         hr = __SetRenderState(D3DRS_STENCILPASS, D3D9Mappings::get(passOp, flip));
 		if (FAILED(hr))
-			Except(hr, "Error setting stencil pass operation.",
+			OGRE_EXCEPT(hr, "Error setting stencil pass operation.",
 			"D3D9RenderSystem::setStencilBufferParams");
 	}
 	//---------------------------------------------------------------------
@@ -1815,7 +1815,7 @@ namespace Ogre
         hr = __SetSamplerState( unit, D3D9Mappings::get(ftype), 
             D3D9Mappings::get(ftype, filter, mCaps, texType));
 		if (FAILED(hr))
-			Except(hr, "Failed to set texture filter ", "D3D9RenderSystem::_setTextureUnitFiltering");
+			OGRE_EXCEPT(hr, "Failed to set texture filter ", "D3D9RenderSystem::_setTextureUnitFiltering");
 	}
     //---------------------------------------------------------------------
 	DWORD D3D9RenderSystem::_getCurrentAnisotropy(size_t unit)
@@ -1902,13 +1902,13 @@ namespace Ogre
 			if (FAILED(hr))
 			{
 				String msg = DXGetErrorDescription9(hr);
-				Except( hr, "Failed to setRenderTarget : " + msg, "D3D9RenderSystem::_setViewport" );
+				OGRE_EXCEPT( hr, "Failed to setRenderTarget : " + msg, "D3D9RenderSystem::_setViewport" );
 			}
 			hr = mpD3DDevice->SetDepthStencilSurface(pDepth);
 			if (FAILED(hr))
 			{
 				String msg = DXGetErrorDescription9(hr);
-				Except( hr, "Failed to setDepthStencil : " + msg, "D3D9RenderSystem::_setViewport" );
+				OGRE_EXCEPT( hr, "Failed to setDepthStencil : " + msg, "D3D9RenderSystem::_setViewport" );
 			}
 
 			_setCullingMode( mCullingMode );
@@ -1924,7 +1924,7 @@ namespace Ogre
 			d3dvp.MaxZ = 1.0f;
 
 			if( FAILED( hr = mpD3DDevice->SetViewport( &d3dvp ) ) )
-				Except( hr, "Failed to set viewport.", "D3D9RenderSystem::_setViewport" );
+				OGRE_EXCEPT( hr, "Failed to set viewport.", "D3D9RenderSystem::_setViewport" );
 
 			vp->_clearUpdatedFlag();
 		}
@@ -1937,7 +1937,7 @@ namespace Ogre
 		HRESULT hr;
 
 		if( !mActiveViewport )
-			Except( Exception::ERR_INTERNAL_ERROR, "Cannot begin frame - no viewport selected.", "D3D9RenderSystem::_beginFrame" );
+			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Cannot begin frame - no viewport selected.", "D3D9RenderSystem::_beginFrame" );
 
 		// Clear the viewport if required
 		if( mActiveViewport->getClearEveryFrame() )
@@ -1949,7 +1949,7 @@ namespace Ogre
 		if( FAILED( hr = mpD3DDevice->BeginScene() ) )
 		{
 			String msg = DXGetErrorDescription9(hr);
-			Except( hr, "Error beginning frame :" + msg, "D3D9RenderSystem::_beginFrame" );
+			OGRE_EXCEPT( hr, "Error beginning frame :" + msg, "D3D9RenderSystem::_beginFrame" );
 		}
 
 		static bool firstTime = true;
@@ -1962,14 +1962,14 @@ namespace Ogre
 			if (FAILED(hr))
 			{
 				String msg = DXGetErrorDescription9(hr);
-				Except(hr, "Error enabling alpha blending option : " + msg, "D3D9RenderSystem::_beginFrame");
+				OGRE_EXCEPT(hr, "Error enabling alpha blending option : " + msg, "D3D9RenderSystem::_beginFrame");
 			}
 			// Allow specular
 			hr = __SetRenderState(D3DRS_SPECULARENABLE, TRUE);
 			if (FAILED(hr))
 			{
 				String msg = DXGetErrorDescription9(hr);
-				Except(hr, "Error enabling alpha blending option : " + msg, "D3D9RenderSystem::_beginFrame");
+				OGRE_EXCEPT(hr, "Error enabling alpha blending option : " + msg, "D3D9RenderSystem::_beginFrame");
 			}
 			firstTime = false;
 		}
@@ -1983,7 +1983,7 @@ namespace Ogre
 
 		HRESULT hr;
 		if( FAILED( hr = mpD3DDevice->EndScene() ) )
-			Except( hr, "Error ending frame", "D3D9RenderSystem::_endFrame" );
+			OGRE_EXCEPT( hr, "Error ending frame", "D3D9RenderSystem::_endFrame" );
 
 		OgreUnguard();
 	}
@@ -2017,7 +2017,7 @@ namespace Ogre
 
         if (FAILED(hr = mpD3DDevice->SetVertexDeclaration(d3ddecl->getD3DVertexDeclaration())))
         {
-            Except(hr, "Unable to set D3D9 vertex declaration", 
+            OGRE_EXCEPT(hr, "Unable to set D3D9 vertex declaration", 
                 "D3D9RenderSystem::setVertexDeclaration");
         }
 
@@ -2048,7 +2048,7 @@ namespace Ogre
                 );
             if (FAILED(hr))
             {
-                Except(hr, "Unable to set D3D9 stream source for buffer binding", 
+                OGRE_EXCEPT(hr, "Unable to set D3D9 stream source for buffer binding", 
                     "D3D9RenderSystem::setVertexBufferBinding");
             }
 
@@ -2062,7 +2062,7 @@ namespace Ogre
             hr = mpD3DDevice->SetStreamSource(static_cast<UINT>(unused), NULL, 0, 0);
             if (FAILED(hr))
             {
-                Except(hr, "Unable to reset unused D3D9 stream source", 
+                OGRE_EXCEPT(hr, "Unable to reset unused D3D9 stream source", 
                     "D3D9RenderSystem::setVertexBufferBinding");
             }
 			
@@ -2142,7 +2142,7 @@ namespace Ogre
 			hr = mpD3DDevice->SetIndices( d3dIdxBuf->getD3DIndexBuffer() );
 			if (FAILED(hr))
             {
-				Except( hr, "Failed to set index buffer", "D3D9RenderSystem::_render" );
+				OGRE_EXCEPT( hr, "Failed to set index buffer", "D3D9RenderSystem::_render" );
             }
 
 			// do indexed draw operation
@@ -2168,7 +2168,7 @@ namespace Ogre
 		if( FAILED( hr ) )
 		{
 			String msg = DXGetErrorDescription9(hr);
-			Except( hr, "Failed to DrawPrimitive : " + msg, "D3D9RenderSystem::_render" );
+			OGRE_EXCEPT( hr, "Failed to DrawPrimitive : " + msg, "D3D9RenderSystem::_render" );
 		}
         
         // UnGuard
@@ -2192,7 +2192,7 @@ namespace Ogre
                 static_cast<D3D9GpuVertexProgram*>(prg)->getVertexShader());
             if (FAILED(hr))
             {
-                Except(hr, "Error calling SetVertexShader", "D3D9RenderSystem::bindGpuProgram");
+                OGRE_EXCEPT(hr, "Error calling SetVertexShader", "D3D9RenderSystem::bindGpuProgram");
             }
             break;
         case GPT_FRAGMENT_PROGRAM:
@@ -2200,7 +2200,7 @@ namespace Ogre
                 static_cast<D3D9GpuFragmentProgram*>(prg)->getPixelShader());
             if (FAILED(hr))
             {
-                Except(hr, "Error calling SetPixelShader", "D3D9RenderSystem::bindGpuProgram");
+                OGRE_EXCEPT(hr, "Error calling SetPixelShader", "D3D9RenderSystem::bindGpuProgram");
             }
             break;
         };
@@ -2216,7 +2216,7 @@ namespace Ogre
             hr = mpD3DDevice->SetVertexShader(NULL);
             if (FAILED(hr))
             {
-                Except(hr, "Error resetting SetVertexShader to NULL", 
+                OGRE_EXCEPT(hr, "Error resetting SetVertexShader to NULL", 
                     "D3D9RenderSystem::unbindGpuProgram");
             }
             break;
@@ -2224,7 +2224,7 @@ namespace Ogre
             hr = mpD3DDevice->SetPixelShader(NULL);
             if (FAILED(hr))
             {
-                Except(hr, "Error resetting SetPixelShader to NULL", 
+                OGRE_EXCEPT(hr, "Error resetting SetPixelShader to NULL", 
                     "D3D9RenderSystem::unbindGpuProgram");
             }
             break;
@@ -2255,7 +2255,7 @@ namespace Ogre
                         if (FAILED(hr = mpD3DDevice->SetVertexShaderConstantF(
                             index, e->val, 1)))
                         {
-                            Except(hr, "Unable to upload shader float parameters", 
+                            OGRE_EXCEPT(hr, "Unable to upload shader float parameters", 
                                 "D3D9RenderSystem::bindGpuProgramParameters");
                         }
                     }
@@ -2276,7 +2276,7 @@ namespace Ogre
                         if (FAILED(hr = mpD3DDevice->SetVertexShaderConstantI(
                             index, e->val, 1)))
                         {
-                            Except(hr, "Unable to upload shader float parameters", 
+                            OGRE_EXCEPT(hr, "Unable to upload shader float parameters", 
                                 "D3D9RenderSystem::bindGpuProgramParameters");
                         }
                     }
@@ -2309,7 +2309,7 @@ namespace Ogre
                         if (FAILED(hr = mpD3DDevice->SetPixelShaderConstantF(
                             index, e->val, 1)))
                         {
-                            Except(hr, "Unable to upload shader float parameters", 
+                            OGRE_EXCEPT(hr, "Unable to upload shader float parameters", 
                                 "D3D9RenderSystem::bindGpuProgramParameters");
                         }
                     }
@@ -2330,7 +2330,7 @@ namespace Ogre
                         if (FAILED(hr = mpD3DDevice->SetPixelShaderConstantI(
                             index, e->val, 1)))
                         {
-                            Except(hr, "Unable to upload shader float parameters", 
+                            OGRE_EXCEPT(hr, "Unable to upload shader float parameters", 
                                 "D3D9RenderSystem::bindGpuProgramParameters");
                         }
                     }
@@ -2363,7 +2363,7 @@ namespace Ogre
             hr = mpD3DDevice->SetClipPlane(i, dx9ClipPlane);
             if (FAILED(hr))
             {
-                Except(hr, "Unable to set clip plane", 
+                OGRE_EXCEPT(hr, "Unable to set clip plane", 
                     "D3D9RenderSystem::setClipPlanes");
             }
 
@@ -2373,7 +2373,7 @@ namespace Ogre
         hr = __SetRenderState(D3DRS_CLIPPLANEENABLE, mask);
         if (FAILED(hr))
         {
-            Except(hr, "Unable to set render state for clip planes", 
+            OGRE_EXCEPT(hr, "Unable to set render state for clip planes", 
                 "D3D9RenderSystem::setClipPlanes");
         }
     }
@@ -2386,7 +2386,7 @@ namespace Ogre
         {
             if (FAILED(hr = __SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE)))
             {
-                Except(hr, "Unable to enable scissor rendering state; " + getErrorDescription(hr), 
+                OGRE_EXCEPT(hr, "Unable to enable scissor rendering state; " + getErrorDescription(hr), 
                     "D3D9RenderSystem::setScissorTest");
             }
             RECT rect;
@@ -2396,7 +2396,7 @@ namespace Ogre
             rect.right = right;
             if (FAILED(hr = mpD3DDevice->SetScissorRect(&rect)))
             {
-                Except(hr, "Unable to set scissor rectangle; " + getErrorDescription(hr), 
+                OGRE_EXCEPT(hr, "Unable to set scissor rectangle; " + getErrorDescription(hr), 
                     "D3D9RenderSystem::setScissorTest");
             }
         }
@@ -2404,7 +2404,7 @@ namespace Ogre
         {
             if (FAILED(hr = __SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE)))
             {
-                Except(hr, "Unable to disable scissor rendering state; " + getErrorDescription(hr), 
+                OGRE_EXCEPT(hr, "Unable to disable scissor rendering state; " + getErrorDescription(hr), 
                     "D3D9RenderSystem::setScissorTest");
             }
         }
@@ -2437,7 +2437,7 @@ namespace Ogre
             stencil ) ) )
         {
             String msg = DXGetErrorDescription9(hr);
-            Except( hr, "Error clearing frame buffer : " 
+            OGRE_EXCEPT( hr, "Error clearing frame buffer : " 
                 + msg, "D3D9RenderSystem::clearFrameBuffer" );
         }
     }
@@ -2597,7 +2597,7 @@ namespace Ogre
 		}
 		else if (FAILED(hr))
 		{
-			Except(Exception::ERR_RENDERINGAPI_ERROR, 
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
 				"Cannot reset device! " + getErrorDescription(hr), 
 				"D3D9RenderWindow::restoreLostDevice" );
 		}

@@ -267,7 +267,7 @@ namespace Ogre {
         {
             str.clear();
             str << "Option named " << name << " does not exist.";
-            Except(Exception::ERR_INVALIDPARAMS,
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
                 str.str(), "D3DRenderSystem::setConfigOption");
         }
 
@@ -360,7 +360,7 @@ namespace Ogre {
         }
 
         if (!mActiveDDDriver)
-            Except(Exception::ERR_INVALIDPARAMS, "Problems finding requested DirectDraw driver!",
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Problems finding requested DirectDraw driver!",
             "D3DRenderSystem::initialise");
 
 
@@ -371,7 +371,7 @@ namespace Ogre {
             bool fullScreen;
             opt = mOptions.find("Full Screen");
             if( opt == mOptions.end() )
-                Except(999, "Can't find full screen option!",
+                OGRE_EXCEPT(999, "Can't find full screen option!",
                 "D3DRenderSystem::initialise");
             if (opt->second.currentValue == "Yes")
                 fullScreen = true;
@@ -399,7 +399,7 @@ namespace Ogre {
                 }
 
                 if (!vid)
-                    Except(9999, "Can't find requested video mode.",
+                    OGRE_EXCEPT(9999, "Can't find requested video mode.",
                     "D3DRenderSystem::initilise");
                 width = vid->mWidth;
                 height = vid->mHeight;
@@ -505,7 +505,7 @@ namespace Ogre {
 
         HRESULT hr = __SetRenderState(D3DRENDERSTATE_AMBIENT, col);
         if (FAILED(hr))
-            Except(hr, "Error setting ambient light.", "D3DRenderSystem::setAmbientLight");
+            OGRE_EXCEPT(hr, "Error setting ambient light.", "D3DRenderSystem::setAmbientLight");
     }
 
     //-----------------------------------------------------------------------
@@ -528,7 +528,7 @@ namespace Ogre {
 
         HRESULT hr = __SetRenderState(D3DRENDERSTATE_SHADEMODE, d3dMode);
         if (FAILED(hr))
-            Except(hr, "Error setting shading mode.", "D3DRenderSystem::setShadingType");
+            OGRE_EXCEPT(hr, "Error setting shading mode.", "D3DRenderSystem::setShadingType");
 
     }
 
@@ -549,7 +549,7 @@ namespace Ogre {
         {
             msg = msg + "A render target of the same name (" + name + ") already "
                 "exists. You cannot create a new window with this name.";
-            Except(999,msg,"D3DRenderSystem::createRenderWindow");
+            OGRE_EXCEPT(999,msg,"D3DRenderSystem::createRenderWindow");
         }
 
         RenderWindow* win = new D3D7RenderWindow(mhInstance, mActiveDDDriver);
@@ -655,7 +655,7 @@ namespace Ogre {
         {
             hr = mlpD3DDevice->LightEnable(index, FALSE);
             if (FAILED(hr))
-                Except(hr, "Unable to disable light.", "D3DRenderSystem::setD3DLight");
+                OGRE_EXCEPT(hr, "Unable to disable light.", "D3DRenderSystem::setD3DLight");
         }
         else
         {
@@ -725,11 +725,11 @@ namespace Ogre {
             hr = mlpD3DDevice->SetLight(index, &d3dLight);
 
             if (FAILED(hr))
-                Except(hr, "Unable to set light details", "D3DRenderSystem::setD3DLight");
+                OGRE_EXCEPT(hr, "Unable to set light details", "D3DRenderSystem::setD3DLight");
 
             hr = mlpD3DDevice->LightEnable(index, TRUE);
             if (FAILED(hr))
-                Except(hr, "Unable to enable light.", "D3DRenderSystem::setD3DLight");
+                OGRE_EXCEPT(hr, "Unable to enable light.", "D3DRenderSystem::setD3DLight");
         }
 
 
@@ -790,7 +790,7 @@ namespace Ogre {
         HRESULT hr = mlpD3DDevice->SetTransform(D3DTRANSFORMSTATE_WORLD, &d3dmat);
 
         if (FAILED(hr))
-            Except(hr, "Cannot set D3D world matrix",
+            OGRE_EXCEPT(hr, "Cannot set D3D world matrix",
             "D3DRenderSystem::_setWorldMatrix");
     }
 
@@ -809,7 +809,7 @@ namespace Ogre {
         HRESULT hr = mlpD3DDevice->SetTransform(D3DTRANSFORMSTATE_VIEW, &d3dmat);
 
         if (FAILED(hr))
-            Except(hr, "Cannot set D3D view matrix",
+            OGRE_EXCEPT(hr, "Cannot set D3D view matrix",
             "D3DRenderSystem::_setViewMatrix");
 
     }
@@ -826,7 +826,7 @@ namespace Ogre {
         HRESULT hr = mlpD3DDevice->SetTransform(D3DTRANSFORMSTATE_PROJECTION, &d3dmat);
 
         if (FAILED(hr))
-            Except(hr, "Cannot set D3D projection matrix",
+            OGRE_EXCEPT(hr, "Cannot set D3D projection matrix",
             "D3DRenderSystem::_setProjectionMatrix");
     }
 
@@ -877,7 +877,7 @@ namespace Ogre {
 
             HRESULT hr = mlpD3DDevice->SetMaterial(&d3dMat);
             if (FAILED(hr))
-                Except(hr, "Error setting D3D material.", "D3DRenderSystem::_setSurfaceParams");
+                OGRE_EXCEPT(hr, "Error setting D3D material.", "D3DRenderSystem::_setSurfaceParams");
 
             // Remember the details
             lastAmbient = ambient;
@@ -918,7 +918,7 @@ namespace Ogre {
             {
                 hr = mlpD3DDevice->SetTexture(stage, pTex );
                 if (FAILED(hr))
-                    Except(hr, "Unable to set texture in D3D.", "D3DRenderSystem::_setTexture");
+                    OGRE_EXCEPT(hr, "Unable to set texture in D3D.", "D3DRenderSystem::_setTexture");
 
                 // set stage desc.
                 mTexStageDesc[stage].texType = _ogreTexTypeToD3DTexType(dt->getTextureType());
@@ -929,10 +929,10 @@ namespace Ogre {
         {
             hr = mlpD3DDevice->SetTexture(stage, 0);
             if (FAILED(hr))
-                Except(hr, "Unable to disable texture in D3D.", "D3DRenderSystem::_setTexture");
+                OGRE_EXCEPT(hr, "Unable to disable texture in D3D.", "D3DRenderSystem::_setTexture");
             hr = __SetTextureStageState( stage, D3DTSS_COLOROP, D3DTOP_DISABLE );
             if (FAILED(hr))
-                Except(hr, "Unable to disable texture in D3D.", "D3DRenderSystem::_setTexture");
+                OGRE_EXCEPT(hr, "Unable to disable texture in D3D.", "D3DRenderSystem::_setTexture");
 
             // set stage desc. to defaults
             mTexStageDesc[stage].autoTexCoordType = TEXCALC_NONE;
@@ -972,7 +972,7 @@ namespace Ogre {
         hr = __SetTextureStageState(stage, D3DTSS_TEXCOORDINDEX, 
             getD3DTexCalc(m) | mTexStageDesc[stage].coordIndex);
         if( FAILED( hr ) )
-            Except( hr, "Error setting texture coord calculation", "D3DRenderSystem::_setTextureCoordCalculation" );
+            OGRE_EXCEPT( hr, "Error setting texture coord calculation", "D3DRenderSystem::_setTextureCoordCalculation" );
 
     }
     //-----------------------------------------------------------------------
@@ -1082,26 +1082,26 @@ namespace Ogre {
 
 			hr = __SetTextureStageState( stage, D3DTSS_TEXTURETRANSFORMFLAGS, texCoordDim );
 			if (FAILED(hr))
-				Except( hr, "Unable to set texture coord. dimension", "D3D9RenderSystem::_setTextureMatrix" );
+				OGRE_EXCEPT( hr, "Unable to set texture coord. dimension", "D3D9RenderSystem::_setTextureMatrix" );
 
 			hr = mlpD3DDevice->SetTransform( 
                 (D3DTRANSFORMSTATETYPE)(D3DTRANSFORMSTATE_TEXTURE0 + stage), &d3dMat );
 			if (FAILED(hr))
-				Except( hr, "Unable to set texture matrix", "D3D9RenderSystem::_setTextureMatrix" );
+				OGRE_EXCEPT( hr, "Unable to set texture matrix", "D3D9RenderSystem::_setTextureMatrix" );
 		}
 		else
 		{
 			// disable all of this
 			hr = __SetTextureStageState( stage, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_DISABLE );
 			if( FAILED( hr ) )
-				Except( hr, "Error setting texture matrix", "D3D9RenderSystem::_setTextureMatrix" );
+				OGRE_EXCEPT( hr, "Error setting texture matrix", "D3D9RenderSystem::_setTextureMatrix" );
 
 			// set the identity matrix
 			D3DUtil_SetIdentityMatrix( d3dMat );
 			hr = mlpD3DDevice->SetTransform( 
                 (D3DTRANSFORMSTATETYPE)(D3DTRANSFORMSTATE_TEXTURE0 + stage), &d3dMat );
 			if( FAILED( hr ) )
-				Except( hr, "Error setting texture matrix", "D3D9RenderSystem::_setTextureMatrix" );
+				OGRE_EXCEPT( hr, "Error setting texture matrix", "D3D9RenderSystem::_setTextureMatrix" );
 		}
     }
 	//---------------------------------------------------------------------
@@ -1111,7 +1111,7 @@ namespace Ogre {
 		hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, 
             getD3DTexCalc(mTexStageDesc[stage].autoTexCoordType) | index );
 		if( FAILED( hr ) )
-			Except( hr, "Unable to set texture coord. set index", "D3DRenderSystem::_setTextureCoordSet" );
+			OGRE_EXCEPT( hr, "Unable to set texture coord. set index", "D3DRenderSystem::_setTextureCoordSet" );
         // Record settings
         mTexStageDesc[stage].coordIndex = index;
 	}
@@ -1328,13 +1328,13 @@ namespace Ogre {
         if (func != CMPF_ALWAYS_PASS)
         {
             if( FAILED( hr = __SetRenderState( D3DRENDERSTATE_ALPHATESTENABLE,  TRUE ) ) )
-                Except( hr, "Failed to enable alpha testing", 
+                OGRE_EXCEPT( hr, "Failed to enable alpha testing", 
                 "D3DRenderSystem::_setAlphaRejectSettings" );
         }
         else
         {
             if( FAILED( hr = __SetRenderState( D3DRENDERSTATE_ALPHATESTENABLE,  FALSE ) ) )
-                Except( hr, "Failed to disable alpha testing", 
+                OGRE_EXCEPT( hr, "Failed to disable alpha testing", 
                 "D3DRenderSystem::_setAlphaRejectSettings" );
         }
 
@@ -1382,7 +1382,7 @@ namespace Ogre {
             hr = mlpD3DDevice->SetViewport(&d3dvp);
 
             if (FAILED(hr))
-                Except(hr, "Error setting D3D viewport.",
+                OGRE_EXCEPT(hr, "Error setting D3D viewport.",
                 "D3DRenderSystem::_setViewport");
 
             vp->_clearUpdatedFlag();
@@ -1398,7 +1398,7 @@ namespace Ogre {
         HRESULT hr;
 
         if (!mActiveViewport)
-            Except(999, "Cannot begin frame - no viewport selected.",
+            OGRE_EXCEPT(999, "Cannot begin frame - no viewport selected.",
             "D3DRenderSystem::_beginFrame");
 
         // Clear the viewport if required
@@ -1410,7 +1410,7 @@ namespace Ogre {
 
         hr = mlpD3DDevice->BeginScene();
         if (FAILED(hr))
-            Except(hr, "Error beginning frame.",
+            OGRE_EXCEPT(hr, "Error beginning frame.",
             "D3DRenderSystem::_beginFrame");
 
         // Moved here from _render, no point checking every rendering call
@@ -1423,13 +1423,13 @@ namespace Ogre {
             // Allow alpha blending
             hr = __SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
             if (FAILED(hr))
-                Except(hr, "Error enabling alpha blending option.",
+                OGRE_EXCEPT(hr, "Error enabling alpha blending option.",
                 "D3DRenderSystem::_beginFrame");
 
             // Allow specular effects
             hr = __SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
             if (FAILED(hr))
-                Except(hr, "Error enabling specular option.",
+                OGRE_EXCEPT(hr, "Error enabling specular option.",
                 "D3DRenderSystem::_beginFrame");
 
             firstTime = false;
@@ -1522,7 +1522,7 @@ namespace Ogre {
                 // texcoords must go in order
                 if (elem.getIndex() != numTexCoords)
                 {
-                    Except(Exception::ERR_INVALIDPARAMS, "Invalid vertex format, texture coordinates"
+                    OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Invalid vertex format, texture coordinates"
                         " must be in order wih no gaps.", "D3DRenderSystem::_render");
                 }
                 // Don't add D3DFVF_TEXn flag here, wait until we know how many total
@@ -1645,7 +1645,7 @@ namespace Ogre {
         {
             char szBuffer[512];
             D3DXGetErrorString( hr, 512, szBuffer );
-            Except( hr, szBuffer, "D3DRenderSystem::_render");
+            OGRE_EXCEPT( hr, szBuffer, "D3DRenderSystem::_render");
         }
 
 
@@ -1663,7 +1663,7 @@ namespace Ogre {
         hr = mlpD3DDevice->EndScene();
 
         if (FAILED(hr))
-            Except(hr, "Error ending frame.",
+            OGRE_EXCEPT(hr, "Error ending frame.",
             "D3DRenderSystem::_endFrame");
 
         OgreUnguard();
@@ -1700,7 +1700,7 @@ namespace Ogre {
 
         hr = __SetRenderState(D3DRENDERSTATE_CULLMODE, d3dMode);
         if (FAILED(hr))
-            Except(hr, "Unable to set D3D culling mode.",
+            OGRE_EXCEPT(hr, "Unable to set D3D culling mode.",
             "D3DRenderSystem::_setCullingMode");
 
     }
@@ -1726,14 +1726,14 @@ namespace Ogre {
             else
                 hr = __SetRenderState(D3DRENDERSTATE_ZENABLE, D3DZB_TRUE);
             if (FAILED(hr))
-                Except(hr, "Error setting depth buffer test state.",
+                OGRE_EXCEPT(hr, "Error setting depth buffer test state.",
                 "D3DRenderSystem::_setDepthBufferCheckEnabled");
         }
         else
         {
             hr = __SetRenderState(D3DRENDERSTATE_ZENABLE, D3DZB_FALSE);
             if (FAILED(hr))
-                Except(hr, "Error setting depth buffer test state.",
+                OGRE_EXCEPT(hr, "Error setting depth buffer test state.",
                 "D3DRenderSystem::_setDepthBufferCheckEnabled");
         }
     }
@@ -1744,7 +1744,7 @@ namespace Ogre {
 
         hr = __SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, enabled);
         if (FAILED(hr))
-            Except(hr, "Error setting depth buffer write state.",
+            OGRE_EXCEPT(hr, "Error setting depth buffer write state.",
             "D3DRenderSystem::_setDepthBufferWriteEnabled");
     }
     //-----------------------------------------------------------------------
@@ -1753,7 +1753,7 @@ namespace Ogre {
         HRESULT hr = __SetRenderState(D3DRENDERSTATE_ZFUNC, 
             convertCompareFunction(func));
         if (FAILED(hr))
-            Except(hr, "Error setting depth buffer test function.",
+            OGRE_EXCEPT(hr, "Error setting depth buffer test function.",
             "D3DRenderSystem::_setDepthBufferFunction");
     }
     //-----------------------------------------------------------------------
@@ -1762,7 +1762,7 @@ namespace Ogre {
         HRESULT hr = __SetRenderState(D3DRENDERSTATE_ZBIAS, 
             bias);
         if (FAILED(hr))
-            Except(hr, "Error setting depth bias.",
+            OGRE_EXCEPT(hr, "Error setting depth bias.",
             "D3DRenderSystem::_setDepthBias");
     }
     //-----------------------------------------------------------------------
@@ -2225,7 +2225,7 @@ namespace Ogre {
         // Call D3D
         HRESULT hr = __SetRenderState(D3DRENDERSTATE_LIGHTING, enabled);
         if (FAILED(hr))
-            Except(hr, "Error lighting status.", "D3DRenderSystem::setLightingEnabled");
+            OGRE_EXCEPT(hr, "Error lighting status.", "D3DRenderSystem::setLightingEnabled");
     }
     //-----------------------------------------------------------------------
     void D3DRenderSystem::_setFog(FogMode mode, const ColourValue& colour, Real density, Real start, Real end)
@@ -2378,7 +2378,7 @@ namespace Ogre {
         HRESULT hr = __SetRenderState(D3DRENDERSTATE_FILLMODE, d3dmode);
         if (FAILED(hr))
         {
-            Except(hr, "Error setting rasterisation mode.", 
+            OGRE_EXCEPT(hr, "Error setting rasterisation mode.", 
                 "D3DRenderSystem::setRasterisationMode");
         }
 
@@ -2390,7 +2390,7 @@ namespace Ogre {
         // Allow stencilling
         HRESULT hr = __SetRenderState(D3DRENDERSTATE_STENCILENABLE, enabled);
         if (FAILED(hr))
-            Except(hr, "Error enabling / disabling stencilling.",
+            OGRE_EXCEPT(hr, "Error enabling / disabling stencilling.",
             "D3DRenderSystem::setStencilCheckEnabled");
 
     }
@@ -2404,7 +2404,7 @@ namespace Ogre {
 
         // D3D7 does not support 2-sided stencil operations
         if (twoSidedOperation)
-            Except(Exception::ERR_INVALIDPARAMS, "Direct3D7 does not support 2-sided stencil ops",
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Direct3D7 does not support 2-sided stencil ops",
                "D3DRenderSystem::setStencilBufferParams");
 
         // Function
@@ -2412,40 +2412,40 @@ namespace Ogre {
             convertCompareFunction(func));
 
         if (FAILED(hr))
-            Except(hr, "Error setting stencil buffer test function.",
+            OGRE_EXCEPT(hr, "Error setting stencil buffer test function.",
             "D3DRenderSystem::setStencilBufferParams");
 
         // reference value
         hr = __SetRenderState(D3DRENDERSTATE_STENCILREF, refValue);
         if (FAILED(hr))
-            Except(hr, "Error setting stencil buffer reference value.",
+            OGRE_EXCEPT(hr, "Error setting stencil buffer reference value.",
             "D3DRenderSystem::setStencilBufferParams");
 
         // mask
         hr = __SetRenderState(D3DRENDERSTATE_STENCILMASK, mask);
         if (FAILED(hr))
-            Except(hr, "Error setting stencil buffer mask.",
+            OGRE_EXCEPT(hr, "Error setting stencil buffer mask.",
             "D3DRenderSystem::setStencilBufferParams");
 
         // fail op
         hr = __SetRenderState(D3DRENDERSTATE_STENCILFAIL, 
             convertStencilOp(stencilFailOp));
         if (FAILED(hr))
-            Except(hr, "Error setting stencil fail operation.",
+            OGRE_EXCEPT(hr, "Error setting stencil fail operation.",
             "D3DRenderSystem::setStencilBufferParams");
 
         // depth fail op
         hr = __SetRenderState(D3DRENDERSTATE_STENCILZFAIL, 
             convertStencilOp(depthFailOp));
         if (FAILED(hr))
-            Except(hr, "Error setting stencil depth fail operation.",
+            OGRE_EXCEPT(hr, "Error setting stencil depth fail operation.",
             "D3DRenderSystem::setStencilBufferParams");
 
         // pass op
         hr = __SetRenderState(D3DRENDERSTATE_STENCILPASS, 
             convertStencilOp(passOp));
         if (FAILED(hr))
-            Except(hr, "Error setting stencil pass operation.",
+            OGRE_EXCEPT(hr, "Error setting stencil pass operation.",
             "D3DRenderSystem::setStencilBufferParams");
     }
     //---------------------------------------------------------------------
@@ -2686,7 +2686,7 @@ namespace Ogre {
             stencil ) ) )
         {
             String msg = getErrorDescription(hr);
-            Except( hr, "Error clearing frame buffer : " 
+            OGRE_EXCEPT( hr, "Error clearing frame buffer : " 
                 + msg, "D3DRenderSystem::clearFrameBuffer" );
         }
     }
@@ -2748,7 +2748,7 @@ namespace Ogre {
             hr = mlpD3DDevice->SetClipPlane(i, dx7ClipPlane);
             if (FAILED(hr))
             {
-                Except(hr, "Unable to set clip plane", 
+                OGRE_EXCEPT(hr, "Unable to set clip plane", 
                     "D3D7RenderSystem::setClipPlanes");
             }
 
@@ -2758,7 +2758,7 @@ namespace Ogre {
         hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_CLIPPLANEENABLE, mask);
         if (FAILED(hr))
         {
-            Except(hr, "Unable to set render state for clip planes", 
+            OGRE_EXCEPT(hr, "Unable to set render state for clip planes", 
                 "D3D7RenderSystem::setClipPlanes");
         }
     }

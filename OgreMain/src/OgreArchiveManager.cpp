@@ -58,7 +58,7 @@ namespace Ogre {
             ArchiveFactoryMap::iterator it = mArchFactories.find(archiveType);
             if (it == mArchFactories.end())
                 // Factory not found
-                Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot find an archive factory "
+                OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Cannot find an archive factory "
                     "to deal with archive of type " + archiveType, "ArchiveManager::load");
 
             pArch = it->second->createInstance(filename);
@@ -86,7 +86,7 @@ namespace Ogre {
             if (fit == mArchFactories.end())
             {
                 // Factory not found
-                Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot find an archive factory "
+                OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Cannot find an archive factory "
                 "to deal with archive of type " + arch->getType(), "ArchiveManager::~ArchiveManager");
             }
             fit->second->destroyInstance(arch);

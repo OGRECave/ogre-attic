@@ -30,7 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 using namespace Ogre;
 
 // define uint64 type
-#if OGRE_COMPILER == COMPILER_MSVC
+#if OGRE_COMPILER == OGRE_COMPILER_MSVC
 typedef unsigned __int64 uint64;
 #else
 typedef unsigned long long uint64;

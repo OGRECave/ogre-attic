@@ -654,7 +654,7 @@ namespace Ogre {
     {
         if (mRenderTargets.find(name) != mRenderTargets.end())
         {
-            Except(
+            OGRE_EXCEPT(
                 Exception::ERR_INVALIDPARAMS, 
                 "Window with name '" + name + "' already exists",
                 "GLRenderSystem::createRenderWindow" );
@@ -1299,7 +1299,7 @@ namespace Ogre {
         OgreGuard( "GLRenderSystem::_beginFrame" );
         
         if (!mActiveViewport)
-            Except(999, "Cannot begin frame - no viewport selected.",
+            OGRE_EXCEPT(999, "Cannot begin frame - no viewport selected.",
                 "GLRenderSystem::_beginFrame");
 
         // Clear the viewport if required
@@ -1480,7 +1480,7 @@ namespace Ogre {
 
     void GLRenderSystem::convertColourValue(const ColourValue& colour, uint32* pDest)
     {
-    #if OGRE_ENDIAN == ENDIAN_BIG
+    #if OGRE_ENDIAN == OGRE_ENDIAN_BIG
         *pDest = colour.getAsRGBA();
     #else
       // GL accesses by byte, so use ABGR so little-endian format will make it RGBA in byte mode
@@ -1597,7 +1597,7 @@ namespace Ogre {
         if (twoSidedOperation)
         {
             if (!mCapabilities->hasCapability(RSC_TWO_SIDED_STENCIL))
-                Except(Exception::ERR_INVALIDPARAMS, "2-sided stencils are not supported",
+                OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "2-sided stencils are not supported",
                     "GLRenderSystem::setStencilBufferParams");
             glEnable(GL_STENCIL_TEST_TWO_SIDE_EXT);
             // NB: We should always treat CCW as front face for consistent with default
@@ -2272,7 +2272,7 @@ namespace Ogre {
 
             if (i >= GL_MAX_CLIP_PLANES)
             {
-                Except(0, "Unable to set clip plane", 
+                OGRE_EXCEPT(0, "Unable to set clip plane", 
                     "GLRenderSystem::setClipPlanes");
             }
 

@@ -95,7 +95,7 @@ namespace Ogre {
     void Texture::_loadImages( const std::vector<const Image*>& images )
     {
 		if(images.size() < 1)
-			Except(Exception::ERR_INVALIDPARAMS, "Cannot load empty vector of images",
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Cannot load empty vector of images",
 			 "Texture::loadImages");
         
         if( mIsLoaded )

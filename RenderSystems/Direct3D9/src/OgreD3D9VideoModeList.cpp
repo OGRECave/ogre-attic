@@ -30,7 +30,7 @@ namespace Ogre
 	D3D9VideoModeList::D3D9VideoModeList( D3D9Driver* pDriver )
 	{
 		if( NULL == pDriver )
-			Except( Exception::ERR_INVALIDPARAMS, "pDriver parameter is NULL", "D3D9VideoModeList::D3D9VideoModeList" );
+			OGRE_EXCEPT( Exception::ERR_INVALIDPARAMS, "pDriver parameter is NULL", "D3D9VideoModeList::D3D9VideoModeList" );
 
 		mpDriver = pDriver;
 		enumerate();

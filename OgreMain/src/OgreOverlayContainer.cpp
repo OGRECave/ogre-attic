@@ -68,7 +68,7 @@ namespace Ogre {
         ChildMap::iterator i = mChildren.find(name);
         if (i != mChildren.end())
         {
-            Except(Exception::ERR_DUPLICATE_ITEM, "Child with name " + name + 
+            OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, "Child with name " + name + 
                 " already defined.", "OverlayContainer::addChild");
         }
 
@@ -115,7 +115,7 @@ namespace Ogre {
         ChildMap::iterator i = mChildren.find(name);
         if (i == mChildren.end())
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, "Child with name " + name + 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Child with name " + name + 
                 " not found.", "OverlayContainer::removeChild");
         }
 
@@ -147,7 +147,7 @@ namespace Ogre {
         ChildMap::iterator i = mChildren.find(name);
         if (i == mChildren.end())
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, "Child with name " + name + 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Child with name " + name + 
                 " not found.", "OverlayContainer::removeChild");
         }
 
@@ -167,7 +167,7 @@ namespace Ogre {
         ChildMap::iterator i = mChildren.find(name);
         if (i == mChildren.end())
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, "Child with name " + name + 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Child with name " + name + 
                 " not found.", "OverlayContainer::getChild");
         }
 

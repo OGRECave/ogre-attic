@@ -53,7 +53,7 @@ namespace Ogre {
         // Check supported
         if (mSupportedWorldFragments.find(wft) == mSupportedWorldFragments.end())
         {
-            Except(Exception::ERR_INVALIDPARAMS, "This world fragment type is not supported.",
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "This world fragment type is not supported.",
                 "SceneQuery::setWorldFragmentType");
         }
         mWorldFragmentType = wft;

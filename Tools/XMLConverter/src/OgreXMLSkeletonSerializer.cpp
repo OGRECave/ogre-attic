@@ -240,7 +240,7 @@ namespace Ogre {
                 TiXmlElement* axisElem = rotElem->FirstChildElement("axis");
                 if (!axisElem)
                 {
-                    Except(Exception::ERR_INTERNAL_ERROR, "Missing 'axis' element "
+                    OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "Missing 'axis' element "
                     "expected under parent 'rotate'", "MXLSkeletonSerializer::readKeyFrames");
                 }
 			    angle = Radian(StringConverter::parseReal(rotElem->Attribute("angle")));

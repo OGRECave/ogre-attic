@@ -44,7 +44,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Log::logMessage( const String& message, LogMessageLevel lml, bool maskDebug )
     {
-        if ((mLogLevel + lml) >= LOG_THRESHOLD)
+        if ((mLogLevel + lml) >= OGRE_LOG_THRESHOLD)
         {
             if (mDebugOut && !maskDebug)
                 std::cerr << message << std::endl;

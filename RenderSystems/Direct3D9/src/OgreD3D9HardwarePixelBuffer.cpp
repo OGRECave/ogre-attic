@@ -56,7 +56,7 @@ void D3D9HardwarePixelBuffer::bind(IDirect3DDevice9 *dev, IDirect3DSurface9 *sur
 	
 	D3DSURFACE_DESC desc;
 	if(mSurface->GetDesc(&desc) != D3D_OK)
-		Except(Exception::ERR_RENDERINGAPI_ERROR, "Could not get surface information",
+		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Could not get surface information",
 		 "D3D9HardwarePixelBuffer::D3D9HardwarePixelBuffer");
 	mWidth = desc.Width;
 	mHeight = desc.Height;
@@ -75,7 +75,7 @@ void D3D9HardwarePixelBuffer::bind(IDirect3DDevice9 *dev, IDirect3DVolume9 *volu
 	
 	D3DVOLUME_DESC desc;
 	if(mVolume->GetDesc(&desc) != D3D_OK)
-		Except(Exception::ERR_RENDERINGAPI_ERROR, "Could not get volume information",
+		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Could not get volume information",
 		 "D3D9HardwarePixelBuffer::D3D9HardwarePixelBuffer");
 	mWidth = desc.Width;
 	mHeight = desc.Height;
@@ -189,7 +189,7 @@ PixelBox D3D9HardwarePixelBuffer::lockImpl(const Image::Box lockBox,  LockOption
 			hr = mSurface->LockRect(&lrect, &prect, flags);
 		}
 		if (FAILED(hr))		
-			Except(Exception::ERR_RENDERINGAPI_ERROR, "Surface locking failed",
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Surface locking failed",
 		 		"D3D9HardwarePixelBuffer::lockImpl");
 		fromD3DLock(rval, lrect);
 	} 
@@ -200,7 +200,7 @@ PixelBox D3D9HardwarePixelBuffer::lockImpl(const Image::Box lockBox,  LockOption
 		D3DLOCKED_BOX lbox; // Filled in by D3D
 		
 		if(mVolume->LockBox(&lbox, &pbox, flags) != D3D_OK)
-			Except(Exception::ERR_RENDERINGAPI_ERROR, "Volume locking failed",
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Volume locking failed",
 		 		"D3D9HardwarePixelBuffer::lockImpl");
 		fromD3DLock(rval, lbox);
 	}
@@ -236,7 +236,7 @@ void D3D9HardwarePixelBuffer::blit(HardwarePixelBuffer *rsrc, const Image::Box &
 			src->mSurface, NULL, &dsrcRect,
 			 D3DX_DEFAULT, 0) != D3D_OK)
 		{
-			Except(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadSurfaceFromSurface failed",
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadSurfaceFromSurface failed",
 		 		"D3D9HardwarePixelBuffer::blit");
 		}
 	}
@@ -252,7 +252,7 @@ void D3D9HardwarePixelBuffer::blit(HardwarePixelBuffer *rsrc, const Image::Box &
 			src->mVolume, NULL, &dsrcBox,
 			 D3DX_DEFAULT, 0) != D3D_OK)
 		{
-			Except(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadVolumeFromVolume failed",
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadVolumeFromVolume failed",
 		 		"D3D9HardwarePixelBuffer::blit");
 		}
 	}
@@ -289,7 +289,7 @@ void D3D9HardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::B
 			converted.rowPitch * PixelUtil::getNumElemBytes(converted.format),
 			NULL, &srcRect, D3DX_DEFAULT, 0) != D3D_OK)
 		{
-			Except(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadSurfaceFromMemory failed",
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadSurfaceFromMemory failed",
 		 		"D3D9HardwarePixelBuffer::blitFromMemory");
 		}
 	}
@@ -305,7 +305,7 @@ void D3D9HardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::B
 			converted.slicePitch * PixelUtil::getNumElemBytes(converted.format),
 			NULL, &srcBox, D3DX_DEFAULT, 0) != D3D_OK)
 		{
-			Except(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadSurfaceFromMemory failed",
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadSurfaceFromMemory failed",
 		 		"D3D9HardwarePixelBuffer::blitFromMemory");
 		}
 	}
@@ -335,13 +335,13 @@ void D3D9HardwarePixelBuffer::blitToMemory(const Image::Box &srcBox, const Pixel
 			&tmp
 			) != D3D_OK)
 		{
-			Except(Exception::ERR_RENDERINGAPI_ERROR, "Create temporary texture failed",
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Create temporary texture failed",
 		 		"D3D9HardwarePixelBuffer::blitToMemory");
 		}
 		if(tmp->GetSurfaceLevel(0, &surface) != D3D_OK)
 		{
 			tmp->Release();
-			Except(Exception::ERR_RENDERINGAPI_ERROR, "Get surface level failed",
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Get surface level failed",
 				"D3D9HardwarePixelBuffer::blitToMemory");
 		}
 		// Copy texture to this temp surface
@@ -356,7 +356,7 @@ void D3D9HardwarePixelBuffer::blitToMemory(const Image::Box &srcBox, const Pixel
 		{
 			surface->Release();
 			tmp->Release();
-			Except(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadSurfaceFromSurface failed",
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadSurfaceFromSurface failed",
 		 		"D3D9HardwarePixelBuffer::blitToMemory");
 		}
 		// Lock temp surface and copy it to memory
@@ -365,7 +365,7 @@ void D3D9HardwarePixelBuffer::blitToMemory(const Image::Box &srcBox, const Pixel
 		{
 			surface->Release();
 			tmp->Release();
-			Except(Exception::ERR_RENDERINGAPI_ERROR, "surface->LockRect",
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "surface->LockRect",
 		 		"D3D9HardwarePixelBuffer::blitToMemory");
 		}
 		// Copy it
@@ -390,13 +390,13 @@ void D3D9HardwarePixelBuffer::blitToMemory(const Image::Box &srcBox, const Pixel
 			&tmp
 			) != D3D_OK)
 		{
-			Except(Exception::ERR_RENDERINGAPI_ERROR, "Create temporary texture failed",
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Create temporary texture failed",
 		 		"D3D9HardwarePixelBuffer::blitToMemory");
 		}
 		if(tmp->GetVolumeLevel(0, &surface) != D3D_OK)
 		{
 			tmp->Release();
-			Except(Exception::ERR_RENDERINGAPI_ERROR, "Get volume level failed",
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Get volume level failed",
 				"D3D9HardwarePixelBuffer::blitToMemory");
 		}
 		// Volume
@@ -411,7 +411,7 @@ void D3D9HardwarePixelBuffer::blitToMemory(const Image::Box &srcBox, const Pixel
 		{
 			surface->Release();
 			tmp->Release();
-			Except(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadVolumeFromVolume failed",
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadVolumeFromVolume failed",
 		 		"D3D9HardwarePixelBuffer::blitToMemory");
 		}
 		// Lock temp surface and copy it to memory
@@ -420,7 +420,7 @@ void D3D9HardwarePixelBuffer::blitToMemory(const Image::Box &srcBox, const Pixel
 		{
 			surface->Release();
 			tmp->Release();
-			Except(Exception::ERR_RENDERINGAPI_ERROR, "surface->LockBox",
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "surface->LockBox",
 		 		"D3D9HardwarePixelBuffer::blitToMemory");
 		}
 		// Copy it
@@ -448,7 +448,7 @@ void D3D9HardwarePixelBuffer::_genMipmaps()
 		// Software mipmaps
 		if( D3DXFilterTexture( mMipTex, NULL, D3DX_DEFAULT, D3DX_DEFAULT ) != D3D_OK )
 		{
-			Except( Exception::ERR_RENDERINGAPI_ERROR, 
+			OGRE_EXCEPT( Exception::ERR_RENDERINGAPI_ERROR, 
 			"Failed to filter texture (generate mipmaps)",
 			 "D3D9HardwarePixelBuffer::_genMipmaps" );
 		}

@@ -121,7 +121,7 @@ namespace Ogre {
 
 		if ( !PixelUtil::isAccessible(format) )
 		{
-			Except( Exception::ERR_INVALIDPARAMS, "Error: Image is not accessible (rgba) image.",
+			OGRE_EXCEPT( Exception::ERR_INVALIDPARAMS, "Error: Image is not accessible (rgba) image.",
 					"ColourImageAffector::setImageAdjust" );
 		}
 

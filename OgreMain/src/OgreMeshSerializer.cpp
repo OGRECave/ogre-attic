@@ -71,7 +71,7 @@ namespace Ogre {
         MeshSerializerImplMap::iterator impl = mImplementations.find(msCurrentVersion);
         if (impl == mImplementations.end())
         {
-            Except(Exception::ERR_INTERNAL_ERROR, "Cannot find serializer implementation for "
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "Cannot find serializer implementation for "
                 "current version " + msCurrentVersion, "MeshSerializer::exportMesh");
         }
 
@@ -88,7 +88,7 @@ namespace Ogre {
         
         if (headerID != HEADER_CHUNK_ID)
         {
-            Except(Exception::ERR_INTERNAL_ERROR, "File header not found",
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "File header not found",
                 "MeshSerializer::importMesh");
         }
         // Read version
@@ -100,7 +100,7 @@ namespace Ogre {
         MeshSerializerImplMap::iterator impl = mImplementations.find(ver);
         if (impl == mImplementations.end())
         {
-            Except(Exception::ERR_INTERNAL_ERROR, "Cannot find serializer implementation for "
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "Cannot find serializer implementation for "
                 "current version " + ver, "MeshSerializer::importMesh");
         }
 

@@ -131,7 +131,7 @@ namespace Ogre {
 			str << "Can't create another viewport for "
 				<< mName << " with Z-Order " << ZOrder
 				<< " because a viewport exists with this Z-Order already.";
-            Except(9999, str.str(), "RenderTarget::addViewport");
+            OGRE_EXCEPT(9999, str.str(), "RenderTarget::addViewport");
         }
         // Add viewport to list
         // Order based on Z-Order
@@ -266,7 +266,7 @@ namespace Ogre {
 
     void RenderTarget::getCustomAttribute(const String& name, void* pData)
     {
-        Except(Exception::ERR_INVALIDPARAMS, "Attribute not found.", "RenderTarget::getCustomAttribute");
+        OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Attribute not found.", "RenderTarget::getCustomAttribute");
     }
     //-----------------------------------------------------------------------
     void RenderTarget::setDebugText(const String& text)

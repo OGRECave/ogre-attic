@@ -677,7 +677,7 @@ namespace Ogre
         const TerrainOptions& opts = TerrainSceneManager::getOptions();
         if (!opts.primaryCamera)
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                 "You have not created a camera yet!", 
                 "TerrainRenderable::_calculateCFactor");
         }

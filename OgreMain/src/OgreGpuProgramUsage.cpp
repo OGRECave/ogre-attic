@@ -50,7 +50,7 @@ namespace Ogre
         if (mProgram.isNull())
         {
             String progType = (mType == GPT_VERTEX_PROGRAM ? "vertex" : "fragment");
-            Except(Exception::ERR_ITEM_NOT_FOUND, 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                 "Unable to locate " + progType + " program called " + name + ".",
                 "GpuProgramUsage::setProgramName");
         }
@@ -69,7 +69,7 @@ namespace Ogre
     {
         if (mParameters.isNull())
         {
-            Except(Exception::ERR_INVALIDPARAMS, "You must specify a program before "
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "You must specify a program before "
                 "you can retrieve parameters.", "GpuProgramUsage::getParameters");
         }
 

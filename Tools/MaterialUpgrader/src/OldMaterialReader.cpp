@@ -118,7 +118,7 @@ SceneBlendFactor convertBlendFactor(const String& param)
 		return SBF_ONE_MINUS_SOURCE_ALPHA;
 	else
 	{
-		Except(Exception::ERR_INVALIDPARAMS, "Invalid blend factor.", "convertBlendFactor");
+		OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Invalid blend factor.", "convertBlendFactor");
 	}
 
 
@@ -191,7 +191,7 @@ CompareFunction convertCompareFunction(const String& param)
 	else if (param == "greater")
 		return CMPF_GREATER;
 	else
-		Except(Exception::ERR_INVALIDPARAMS, "Invalid compare function", "convertCompareFunction");
+		OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Invalid compare function", "convertCompareFunction");
 
 }
 //-----------------------------------------------------------------------
@@ -560,7 +560,7 @@ LayerBlendOperationEx convertBlendOpEx(const String& param)
 	else if (param == "dotproduct")
 		return LBX_DOTPRODUCT;
 	else
-		Except(Exception::ERR_INVALIDPARAMS, "Invalid blend function", "convertBlendOpEx");
+		OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Invalid blend function", "convertBlendOpEx");
 }
 //-----------------------------------------------------------------------
 LayerBlendSource convertBlendSource(const String& param)
@@ -576,7 +576,7 @@ LayerBlendSource convertBlendSource(const String& param)
 	else if (param == "src_manual")
 		return LBS_MANUAL;
 	else
-		Except(Exception::ERR_INVALIDPARAMS, "Invalid blend source", "convertBlendSource");
+		OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Invalid blend source", "convertBlendSource");
 }
 //-----------------------------------------------------------------------
 void parseLayerFiltering(StringVector::iterator& params, int numParams, MaterialPtr& pMat, TextureUnitState* pTex)

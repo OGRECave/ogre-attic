@@ -30,12 +30,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreString.h"
 
-#define Except( num, desc, src ) throw( Ogre::Exception( num, desc, src, __FILE__, __LINE__ ) )
+#define OGRE_EXCEPT( num, desc, src ) throw( Ogre::Exception( num, desc, src, __FILE__, __LINE__ ) )
 
 // Stack unwinding options
 // OgreUnguard and OgreUnguardRet are deprecated
 #if OGRE_STACK_UNWINDING == 1
-#   if OGRE_COMPILER != COMPILER_BORL
+#   if OGRE_COMPILER != OGRE_COMPILER_BORL
 #       define OgreGuard( a ) Ogre::AutomaticGuardUnguard _auto_guard_object( (a) )
 #   else
 #       define OgreGuard( a ) Ogre::AutomaticGuardUnguard _auto_guard_object( __FUNC__ )
@@ -64,20 +64,20 @@ http://www.gnu.org/copyleft/lesser.txt.
 #       define OgreAssert( a, b ) assert( (a) && (b) )
 
 #   else
-#       if OGRE_COMP != COMPILER_BORL
-#           define OgreAssert( a, b ) if( !(a) ) Except( Ogre::Exception::ERR_RT_ASSERTION_FAILED, (b), "no function info")
+#       if OGRE_COMP != OGRE_COMPILER_BORL
+#           define OgreAssert( a, b ) if( !(a) ) OGRE_EXCEPT( Ogre::Exception::ERR_RT_ASSERTION_FAILED, (b), "no function info")
 #       else
-#           define OgreAssert( a, b ) if( !(a) ) Except( Ogre::Exception::ERR_RT_ASSERTION_FAILED, (b), __FUNC__ )
+#           define OgreAssert( a, b ) if( !(a) ) OGRE_EXCEPT( Ogre::Exception::ERR_RT_ASSERTION_FAILED, (b), __FUNC__ )
 #       endif
 
 #   endif
 
 // EXCEPTIONS mode
 #elif OGRE_ASSERT_MODE == 2
-#   if OGRE_COMP != COMPILER_BORL
-#       define OgreAssert( a, b ) if( !(a) ) Except( Ogre::Exception::ERR_RT_ASSERTION_FAILED, (b), "no function info")
+#   if OGRE_COMP != OGRE_COMPILER_BORL
+#       define OgreAssert( a, b ) if( !(a) ) OGRE_EXCEPT( Ogre::Exception::ERR_RT_ASSERTION_FAILED, (b), "no function info")
 #   else
-#       define OgreAssert( a, b ) if( !(a) ) Except( Ogre::Exception::ERR_RT_ASSERTION_FAILED, (b), __FUNC__ )
+#       define OgreAssert( a, b ) if( !(a) ) OGRE_EXCEPT( Ogre::Exception::ERR_RT_ASSERTION_FAILED, (b), __FUNC__ )
 #   endif
 
 // STANDARD mode

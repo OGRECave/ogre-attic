@@ -69,7 +69,7 @@ namespace Ogre {
 //-----------------------------------------------------------------------
 // Windows Settings
 //-----------------------------------------------------------------------
-#if OGRE_PLATFORM == PLATFORM_WIN32
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #   if OGRE_DYNAMIC_LINKAGE == 0
 #       pragma warn( "No dynamic linkage" )
 #       define _OgreD3DExport

@@ -65,7 +65,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreExternalTextureSourceManager.h"
 
-#if OGRE_PLATFORM == PLATFORM_WIN32
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 
 #   define WIN32_LEAN_AND_MEAN
 #   include <direct.h>
@@ -283,7 +283,7 @@ namespace Ogre {
 		std::ofstream of(mConfigFileName.c_str());
 
         if (!of)
-            Except(Exception::ERR_CANNOT_WRITE_TO_FILE, "Cannot create settings file.",
+            OGRE_EXCEPT(Exception::ERR_CANNOT_WRITE_TO_FILE, "Cannot create settings file.",
             "Root::saveConfig");
 
         if (mActiveRenderer)
@@ -442,7 +442,7 @@ namespace Ogre {
     RenderWindow* Root::initialise(bool autoCreateWindow, const String& windowTitle)
     {
         if (!mActiveRenderer)
-            Except(Exception::ERR_NO_RENDERSYSTEM_SELECTED,
+            OGRE_EXCEPT(Exception::ERR_NO_RENDERSYSTEM_SELECTED,
             "Cannot initialise - no render "
             "system has been selected.", "Root::initialise");
 
@@ -609,7 +609,7 @@ namespace Ogre {
 		mQueuedEnd = false;
 		while( !mQueuedEnd )
 		{
-#if OGRE_PLATFORM == PLATFORM_WIN32
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
             // Pump events on Win32
     		MSG  msg;
 			while( PeekMessage( &msg, NULL, 0U, 0U, PM_REMOVE ) )
@@ -667,9 +667,9 @@ namespace Ogre {
         char last_char = pluginDir[pluginDir.length()-1];
         if (last_char != '/' && last_char != '\\')
         {
-#if OGRE_PLATFORM == PLATFORM_WIN32
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
             pluginDir += "\\";
-#elif OGRE_PLATFORM == PLATFORM_LINUX
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
             pluginDir += "/";
 #endif
         }
@@ -729,7 +729,7 @@ namespace Ogre {
 	{
         if (!mActiveRenderer)
         {
-            Except(Exception::ERR_NO_RENDERSYSTEM_SELECTED,
+            OGRE_EXCEPT(Exception::ERR_NO_RENDERSYSTEM_SELECTED,
             "Cannot create window - no render "
             "system has been selected.", "Root::createRenderWindow");
         }
@@ -747,7 +747,7 @@ namespace Ogre {
     {
         if (!mActiveRenderer)
         {
-            Except(Exception::ERR_NO_RENDERSYSTEM_SELECTED,
+            OGRE_EXCEPT(Exception::ERR_NO_RENDERSYSTEM_SELECTED,
             "Cannot create window - no render "
             "system has been selected.", "Root::destroyRenderWindow");
         }
@@ -759,7 +759,7 @@ namespace Ogre {
     {
         if (!mActiveRenderer)
         {
-            Except(Exception::ERR_NO_RENDERSYSTEM_SELECTED,
+            OGRE_EXCEPT(Exception::ERR_NO_RENDERSYSTEM_SELECTED,
             "Cannot create window - no render "
             "system has been selected.", "Root::destroyRenderWindow");
         }
@@ -771,7 +771,7 @@ namespace Ogre {
     {
         if (!mActiveRenderer)
         {
-            Except(Exception::ERR_NO_RENDERSYSTEM_SELECTED,
+            OGRE_EXCEPT(Exception::ERR_NO_RENDERSYSTEM_SELECTED,
             "Cannot create window - no render "
             "system has been selected.", "Root::getRenderWindow");
         }
@@ -790,7 +790,7 @@ namespace Ogre {
 		DLL_START_PLUGIN pFunc = (DLL_START_PLUGIN)lib->getSymbol("dllStartPlugin");
 
 		if (!pFunc)
-			Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot find symbol dllStartPlugin in library " + pluginName,
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Cannot find symbol dllStartPlugin in library " + pluginName,
 				"Root::loadPlugins");
 		pFunc();
 	}

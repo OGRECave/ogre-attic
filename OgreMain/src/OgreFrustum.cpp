@@ -119,7 +119,7 @@ namespace Ogre {
     void Frustum::setNearClipDistance(Real nearPlane)
     {
         if (nearPlane <= 0)
-            Except(Exception::ERR_INVALIDPARAMS, "Near clip distance must be greater than zero.",
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Near clip distance must be greater than zero.",
                 "Frustum::setNearClipDistance");
         mNearDist = nearPlane;
         invalidateFrustum();

@@ -82,7 +82,7 @@ namespace Ogre {
 
         if (i == mTrackList.end())
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                 "Cannot find track with the specified handle", 
                 "Animation::getTrackByHandle");
         }

@@ -32,13 +32,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#if OGRE_PLATFORM == PLATFORM_LINUX || OGRE_PLATFORM == PLATFORM_APPLE
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX || OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 #   include "OgreSearchOps.h"
 #   include <sys/param.h>
 #   define MAX_PATH MAXPATHLEN
 #endif
 
-#if OGRE_PLATFORM == PLATFORM_WIN32
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #   include <windows.h>
 #   include <direct.h>
 #   include <io.h>
@@ -54,7 +54,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool FileSystemArchive::isCaseSensitive(void) const
     {
-        #if OGRE_PLATFORM == PLATFORM_WIN32
+        #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
             return false;
         #else
             return true;
@@ -136,7 +136,7 @@ namespace Ogre {
     {
         if(chdir(dir.c_str()) == -1)
         {
-            Except(Exception::ERR_FILE_NOT_FOUND, 
+            OGRE_EXCEPT(Exception::ERR_FILE_NOT_FOUND, 
                 "Cannot open requested directory " + dir, 
                 "FileSystemArchive::changeDirectory");
         }
@@ -155,7 +155,7 @@ namespace Ogre {
     {
         if (mDirectoryStack.empty())
         {
-            Except(Exception::ERR_INVALIDPARAMS, 
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
                 "No directories left in the stack.", 
                 "FileSystemArchive::popDirectory");
         }

@@ -569,7 +569,7 @@ namespace Ogre {
 	{
 		if (mFragmentProgramUsage)
 		{
-			Except(Exception::ERR_INVALIDPARAMS, "Passes with fragment programs cannot be "
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Passes with fragment programs cannot be "
 				"automatically split, define a fallback technique instead.",
 				"Pass:_split");
 		}
@@ -685,7 +685,7 @@ namespace Ogre {
 	{
 		if (!mVertexProgramUsage)
         {
-            Except (Exception::ERR_INVALIDPARAMS, 
+            OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS, 
                 "This pass does not have a vertex program assigned!", 
                 "Pass::setVertexProgramParameters");
         }
@@ -716,7 +716,7 @@ namespace Ogre {
 	{
 		if (!mFragmentProgramUsage)
         {
-            Except (Exception::ERR_INVALIDPARAMS, 
+            OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS, 
                 "This pass does not have a fragment program assigned!", 
                 "Pass::setFragmentProgramParameters");
         }
@@ -735,7 +735,7 @@ namespace Ogre {
 	{
 		if (!mVertexProgramUsage)
         {
-            Except (Exception::ERR_INVALIDPARAMS, 
+            OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS, 
                 "This pass does not have a vertex program assigned!", 
                 "Pass::getVertexProgramParameters");
         }
@@ -945,7 +945,7 @@ namespace Ogre {
     {
         if (!mShadowCasterVertexProgramUsage)
         {
-            Except (Exception::ERR_INVALIDPARAMS, 
+            OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS, 
                 "This pass does not have a shadow caster vertex program assigned!", 
                 "Pass::setShadowCasterVertexProgramParameters");
         }
@@ -964,7 +964,7 @@ namespace Ogre {
     {
         if (!mShadowCasterVertexProgramUsage)
         {
-            Except (Exception::ERR_INVALIDPARAMS, 
+            OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS, 
                 "This pass does not have a shadow caster vertex program assigned!", 
                 "Pass::getShadowCasterVertexProgramParameters");
         }
@@ -1000,7 +1000,7 @@ namespace Ogre {
     {
         if (!mShadowReceiverVertexProgramUsage)
         {
-            Except (Exception::ERR_INVALIDPARAMS, 
+            OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS, 
                 "This pass does not have a shadow receiver vertex program assigned!", 
                 "Pass::setShadowReceiverVertexProgramParameters");
         }
@@ -1019,7 +1019,7 @@ namespace Ogre {
     {
         if (!mShadowReceiverVertexProgramUsage)
         {
-            Except (Exception::ERR_INVALIDPARAMS, 
+            OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS, 
                 "This pass does not have a shadow receiver vertex program assigned!", 
                 "Pass::getShadowReceiverVertexProgramParameters");
         }

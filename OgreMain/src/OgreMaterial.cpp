@@ -247,7 +247,7 @@ namespace Ogre {
 
 			if (i == mBestTechniqueList.end())
 			{
-				Except(Exception::ERR_ITEM_NOT_FOUND, 
+				OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
 					"Lod index " + StringConverter::toString(lodIndex) + 
 					" not found for material " + mName,
 					"Material::getBestTechnique");

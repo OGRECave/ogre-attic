@@ -56,7 +56,7 @@ namespace Ogre {
 
         if (FAILED(hr))
         {
-            Except(hr, "Cannot assemble D3D9 high-level shader " + mName + 
+            OGRE_EXCEPT(hr, "Cannot assemble D3D9 high-level shader " + mName + 
                 static_cast<const char*>(errors->GetBufferPointer()),
                 "D3D9HLSLProgram::loadFromSource");
         }
@@ -96,7 +96,7 @@ namespace Ogre {
 
         if (FAILED(hr))
         {
-            Except(Exception::ERR_INTERNAL_ERROR, 
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
                 "Cannot retrieve constant descriptions from HLSL program.", 
                 "D3D9HLSLProgram::populateParameterNames");
         }
@@ -124,7 +124,7 @@ namespace Ogre {
         HRESULT hr = mpConstTable->GetConstantDesc(hConstant, &desc, &numParams);
         if (FAILED(hr))
         {
-            Except(Exception::ERR_INTERNAL_ERROR, 
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
                 "Cannot retrieve constant description from HLSL program.", 
                 "D3D9HLSLProgram::processParamElement");
         }

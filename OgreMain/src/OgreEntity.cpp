@@ -209,7 +209,7 @@ namespace Ogre {
     SubEntity* Entity::getSubEntity(unsigned int index)
     {
         if (index >= mSubEntityList.size())
-            Except(Exception::ERR_INVALIDPARAMS,
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
             "Index out of bounds.",
             "Entity::getSubEntity");
         return mSubEntityList[index];
@@ -416,14 +416,14 @@ namespace Ogre {
     {
         if (!mAnimationState)
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, "Entity is not animated", 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Entity is not animated", 
                 "Entity::getAnimationState");
         }
         AnimationStateSet::iterator i = mAnimationState->find(name);
 
         if (i == mAnimationState->end())
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, "No animation entry found named " + name, 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "No animation entry found named " + name, 
                 "Entity::getAnimationState");
         }
 
@@ -627,24 +627,24 @@ namespace Ogre {
     {
         if (mChildObjectList.find(pMovable->getName()) != mChildObjectList.end())
         {
-            Except(Exception::ERR_DUPLICATE_ITEM,
+            OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM,
                 "An object with the name " + pMovable->getName() + " already attached",
                 "Entity::attachObjectToBone");
         }
         if(pMovable->isAttached())
         {
-            Except(Exception::ERR_INVALIDPARAMS, "Object already attached to a sceneNode or a Bone", 
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Object already attached to a sceneNode or a Bone", 
                 "Entity::attachObjectToBone");
         }
         if (!hasSkeleton())
         {
-            Except(Exception::ERR_INVALIDPARAMS, "This entity's mesh has no skeleton to attach object to.", 
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "This entity's mesh has no skeleton to attach object to.", 
                 "Entity::attachObjectToBone");
         }
         Bone* bone = mSkeletonInstance->getBone(boneName);
         if (!bone)
         {
-            Except(Exception::ERR_INVALIDPARAMS, "Cannot locate bone named " + boneName, 
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Cannot locate bone named " + boneName, 
                 "Entity::attachObjectToBone");
         }
 
@@ -675,7 +675,7 @@ namespace Ogre {
 
         if (i == mChildObjectList.end())
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, "No child object entry found named " + name, 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "No child object entry found named " + name, 
                 "Entity::detachObjectFromBone");
         }
         MovableObject *obj = i->second;
@@ -1098,7 +1098,7 @@ namespace Ogre {
             }
         }
         // None found
-        Except(Exception::ERR_ITEM_NOT_FOUND, 
+        OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
             "Cannot find blended version of the vertex data specified.",
             "Entity::findBlendedVertexData");
     }
@@ -1271,19 +1271,19 @@ namespace Ogre {
     {
         if (entity->getMesh()->getSkeleton() != getMesh()->getSkeleton()) 
         {
-            Except(Exception::ERR_RT_ASSERTION_FAILED, 
+            OGRE_EXCEPT(Exception::ERR_RT_ASSERTION_FAILED, 
                 "The supplied entity has a different skeleton.",
                 "Entity::shareSkeletonWith");	
         }
         if (!mSkeletonInstance)
         {
-            Except(Exception::ERR_RT_ASSERTION_FAILED, 
+            OGRE_EXCEPT(Exception::ERR_RT_ASSERTION_FAILED, 
                 "This entity has no skeleton.",
                 "Entity::shareSkeletonWith");	
         }	
         if (mSharedSkeletonEntities != NULL && entity->mSharedSkeletonEntities != NULL) 
         {
-            Except(Exception::ERR_RT_ASSERTION_FAILED, 
+            OGRE_EXCEPT(Exception::ERR_RT_ASSERTION_FAILED, 
                 "Both entities already shares their SkeletonInstances! At least "
                 "one of the instances must not share it's instance.",
                 "Entity::shareSkeletonWith");	
@@ -1319,7 +1319,7 @@ namespace Ogre {
     {
         if (mSharedSkeletonEntities == NULL) 
         {
-            Except(Exception::ERR_RT_ASSERTION_FAILED, 
+            OGRE_EXCEPT(Exception::ERR_RT_ASSERTION_FAILED, 
                 "This entity is not sharing it's skeletoninstance.",
                 "Entity::shareSkeletonWith");	
         }	

@@ -249,7 +249,7 @@ namespace Ogre {
         {
             String errorMsg = getZzipErrorDescription(zzipError);
 
-            Except(Exception::ERR_INTERNAL_ERROR, 
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
                 mName + " - error whilst " + operation + ": " + errorMsg,
                 "ZipArchive::checkZzipError");
         }

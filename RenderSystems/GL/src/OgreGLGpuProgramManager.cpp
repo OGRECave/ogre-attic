@@ -69,7 +69,7 @@ Resource* GLGpuProgramManager::createImpl(const String& name, ResourceHandle han
     if (!params || (paramSyntax = params->find("syntax")) == params->end() ||
         (paramType = params->find("type")) == params->end())
     {
-        Except(Exception::ERR_INVALIDPARAMS, 
+        OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
             "You must supply 'syntax' and 'type' parameters",
             "GLGpuProgramManager::createImpl");
     }

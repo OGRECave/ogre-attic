@@ -212,7 +212,7 @@ namespace Ogre {
         }
         else
         {
-            Except(Exception::ERR_INVALIDPARAMS, 
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
                 "Invalid billboard_type '" + val + "'", 
                 "ParticleSystem::CmdBillboardType::doSet");
         }

@@ -84,7 +84,7 @@ namespace Ogre {
             mpMaterial = MaterialManager::getSingleton().getByName("BaseWhite");
             if (mpMaterial.isNull())
             {
-                Except(Exception::ERR_INTERNAL_ERROR, "Can't assign default material "
+                OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "Can't assign default material "
                     "to SubEntity of " + mParentEntity->getName() + ". Did "
                     "you forget to call MaterialManager::initialise()?",
                     "SubEntity.setMaterialName");

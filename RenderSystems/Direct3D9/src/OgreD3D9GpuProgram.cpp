@@ -83,7 +83,7 @@ namespace Ogre {
 
         if (FAILED(hr))
         {
-            Except(hr, "Cannot assemble D3D9 shader " + mName,
+            OGRE_EXCEPT(hr, "Cannot assemble D3D9 shader " + mName,
                 "D3D9GpuProgram::loadFromSource");
             
         }
@@ -112,7 +112,7 @@ namespace Ogre {
 
         if (FAILED(hr))
         {
-            Except(hr, "Cannot create D3D9 vertex shader " + mName + " from microcode.",
+            OGRE_EXCEPT(hr, "Cannot create D3D9 vertex shader " + mName + " from microcode.",
                 "D3D9GpuVertexProgram::loadFromMicrocode");
             
         }
@@ -142,7 +142,7 @@ namespace Ogre {
 
         if (FAILED(hr))
         {
-            Except(hr, "Cannot create D3D9 pixel shader " + mName + " from microcode.",
+            OGRE_EXCEPT(hr, "Cannot create D3D9 pixel shader " + mName + " from microcode.",
                 "D3D9GpuFragmentProgram::loadFromMicrocode");
             
         }

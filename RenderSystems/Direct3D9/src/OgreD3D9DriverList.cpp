@@ -31,7 +31,7 @@ namespace Ogre
 	D3D9DriverList::D3D9DriverList( LPDIRECT3D9 pD3D ) : mpD3D(pD3D)
 	{
 		if( !mpD3D )
-			Except( Exception::ERR_INVALIDPARAMS, "Direct3D9 interface pointer is NULL", "D3D9DriverList::D3D9DriverList" );
+			OGRE_EXCEPT( Exception::ERR_INVALIDPARAMS, "Direct3D9 interface pointer is NULL", "D3D9DriverList::D3D9DriverList" );
 		enumerate();
 	}
 

@@ -268,11 +268,11 @@ namespace Ogre {
         baseName = name.substr(0, pos);
         ext = name.substr(pos);
 
-        if (numFrames > MAX_FRAMES)
+        if (numFrames > OGRE_MAX_TEXTURE_FRAMES)
         {
 			StringUtil::StrStreamType str;
-            str << "Maximum number of frames is " << MAX_FRAMES << ".";
-            Except(Exception::ERR_INVALIDPARAMS, str.str(), "TextureUnitState::setAnimatedTextureName");
+            str << "Maximum number of frames is " << OGRE_MAX_TEXTURE_FRAMES << ".";
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, str.str(), "TextureUnitState::setAnimatedTextureName");
         }
         mNumFrames = numFrames;
         mAnimDuration = duration;
@@ -298,11 +298,11 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void TextureUnitState::setAnimatedTextureName(const String* const names, unsigned int numFrames, Real duration)
     {
-        if (numFrames > MAX_FRAMES)
+        if (numFrames > OGRE_MAX_TEXTURE_FRAMES)
         {
 			StringUtil::StrStreamType str;
-			str << "Maximum number of frames is " << MAX_FRAMES << ".";
-            Except(Exception::ERR_INVALIDPARAMS, str.str(), "TextureUnitState::setAnimatedTextureName");
+			str << "Maximum number of frames is " << OGRE_MAX_TEXTURE_FRAMES << ".";
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, str.str(), "TextureUnitState::setAnimatedTextureName");
         }
         mNumFrames = numFrames;
         mAnimDuration = duration;
@@ -328,7 +328,7 @@ namespace Ogre {
         TexturePtr tex = TextureManager::getSingleton().getByName( mFrames[ frame ] );
 
 		if (tex.isNull())
-			Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find texture " + mFrames[ frame ],
+			OGRE_EXCEPT( Exception::ERR_ITEM_NOT_FOUND, "Could not find texture " + mFrames[ frame ],
 				"TextureUnitState::getTextureDimensions" );
         return std::pair< uint, uint >( tex->getWidth(), tex->getHeight() );
     }

@@ -72,7 +72,7 @@ namespace Ogre {
     Log* LogManager::getDefaultLog()
     {
         if (!mDefaultLog)
-            Except(Exception::ERR_INVALIDPARAMS, "No logs created yet. ", "LogManager::getDefaultLog");
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "No logs created yet. ", "LogManager::getDefaultLog");
 
         return mDefaultLog;
     }
@@ -90,7 +90,7 @@ namespace Ogre {
         if (i != mLogs.end())
             return i->second;
         else
-            Except(Exception::ERR_INVALIDPARAMS, "Log not found. ", "LogManager::getLog");
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Log not found. ", "LogManager::getLog");
 
 
     }

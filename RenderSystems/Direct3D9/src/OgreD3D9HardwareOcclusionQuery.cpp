@@ -51,7 +51,7 @@ D3D9HardwareOcclusionQuery::D3D9HardwareOcclusionQuery( IDirect3DDevice9* pD3DDe
 	HRESULT hr = m_pD3DDevice->CreateQuery(D3DQUERYTYPE_OCCLUSION, &m_pD3DQuery);
 	if ( hr != D3D_OK ) 
 	{
-		//Except(hr, "D3D9HardwareOcclusionQuery couldn't create hardware occlusion query object.", 
+		//OGRE_EXCEPT(hr, "D3D9HardwareOcclusionQuery couldn't create hardware occlusion query object.", 
         //        "D3D9HardwareOcclusionQuery::D3D9HardwareOcclusionQuery");
 		m_bHWOcclusionSupport = false;
 	}

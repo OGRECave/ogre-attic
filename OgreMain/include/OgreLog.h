@@ -30,8 +30,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    // LogMessageLevel + LoggingLevel > LOG_THRESHOLD = message logged
-    #define LOG_THRESHOLD 4
+    // LogMessageLevel + LoggingLevel > OGRE_LOG_THRESHOLD = message logged
+    #define OGRE_LOG_THRESHOLD 4
 
     /** The level of detail to which the log will go into.
     */
