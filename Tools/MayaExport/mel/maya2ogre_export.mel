@@ -106,6 +106,7 @@ global proc ExportToOgre()
 		$commands += "rem Export to Ogre XML" + "\n";
 		$commands += "rem ==================" + "\n";
 		
+		$commands += "set path=" + toNativePath(`internalVar -userScriptDir`) + ";%path%" + "\n";
 		$commands += "pushd " + $sceneDir + "\n";
 		$commands += "maya2ogre.exe " + $options + "\n";
 		if ($exportMesh && $convertMesh) 
@@ -185,13 +186,21 @@ global proc loadFileInfo()
 	string $valStrings[] = `fileInfo -query "maya2ogre_exportMeshUVs"`;
 	checkBox -edit -value `gmatch $valStrings[0] "1"` ExportMeshUVs;
 
-	textField -edit -text `fileInfo -query "maya2ogre_exportMeshFile"` ExportMeshFilename;
+	string $valStrings[] = `fileInfo -query "maya2ogre_exportMeshFile"`;
+	if ($valStrings[0] != "") 
+	{
+		textField -edit -text `fileInfo -query "maya2ogre_exportMeshFile"` ExportMeshFilename;
+	}
 	
 	// Material
 	string $valStrings[] = `fileInfo -query "maya2ogre_exportMat"`;
 	checkBox -edit -value `gmatch $valStrings[0] "1"` ExportMaterial;
 
-	textField -edit -text `fileInfo -query "maya2ogre_exportMatFile"` ExportMaterialFilename;
+	string $valStrings[] = `fileInfo -query "maya2ogre_exportMatFile"`;
+	if ($valStrings[0] != "") 
+	{
+		textField -edit -text `fileInfo -query "maya2ogre_exportMatFile"` ExportMaterialFilename;
+	}
 
 	// Skeleton	
 	string $valStrings[] = `fileInfo -query "maya2ogre_exportSkel"`;
@@ -200,7 +209,11 @@ global proc loadFileInfo()
 	string $valStrings[] = `fileInfo -query "maya2ogre_convertSkel"`;
 	checkBox -edit -value `gmatch $valStrings[0] "1"` ExportSkeletonBinary;
 
-	textField -edit -text `fileInfo -query "maya2ogre_exportSkelFile"` ExportSkeletonFilename;
+	string $valStrings[] = `fileInfo -query "maya2ogre_exportSkelFile"`;
+	if ($valStrings[0] != "") 
+	{
+		textField -edit -text `fileInfo -query "maya2ogre_exportSkelFile"` ExportSkeletonFilename;
+	}
 	
 	// Animation
 	string $valStrings[] = `fileInfo -query "maya2ogre_exportAnim"`;

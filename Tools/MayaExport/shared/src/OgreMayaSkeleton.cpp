@@ -295,9 +295,7 @@ namespace OgreMaya {
 
             pkJoint->dagPath = kDagPath;
 		    pkJoint->name    = kJointFn.partialPathName().asChar();
-		    pkJoint->index   = uiNumJoints;
-
-		    cout << "  joint " << uiNumJoints << ": " << pkJoint->name << '\n';
+		    pkJoint->index   = uiNumJoints;		    
 
 		    unsigned int uiNumParents = kJointFn.parentCount();
 
@@ -313,9 +311,7 @@ namespace OgreMaya {
 			    MFnIkJoint kParentJointFn(kParentObj); 
 
 			    pkJoint->parentName = kParentJointFn.partialPathName().asChar();
-			    pkJoint->hasParent  = true;
-
-			    cout << "    parent: " << pkJoint->parentName << "\n";
+			    pkJoint->hasParent  = true;			    
 		    }
 		    else {
                 pkJoint->parentName = "";
@@ -325,10 +321,10 @@ namespace OgreMaya {
 
 		    //Get bindpose world matrix for joint
 
-		    MPlug   kBindMatrixPlug = kJointFn.findPlug( "bindPose" );
+		    MPlug   kBindMatrixPlug = kJointFn.findPlug("bindPose");
 		    MObject kBindMatrixObject;
 	    
-		    kStatus = kBindMatrixPlug.getValue( kBindMatrixObject );
+		    kStatus = kBindMatrixPlug.getValue(kBindMatrixObject);
 
 		    if( kStatus != MStatus::kSuccess ) {
 			    cout << "ERROR: Unable to get bind matrix plug object\n";
