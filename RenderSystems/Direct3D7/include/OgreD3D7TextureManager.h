@@ -38,12 +38,16 @@ namespace Ogre {
     {
     public:
         D3DTextureManager(LPDIRECT3DDEVICE7 lpD3DDevice);
-        ~D3DTextureManager();
-        /* Creates a D3DTexture resource. */
-        Resource* create( const String& name);
+        virtual ~D3DTextureManager();
 
-        /** Unloads & destroys textures. */
-        void unloadAndDestroyAll();
+        /** Creates a D3DTexture resource. 
+        */
+        virtual Resource* create( const String& name);
+        /** Note that this function is not yet implemented.
+            @todo
+                Implement correct surface creation in the texture source file.
+        */
+        virtual Texture * createAsRenderTarget( const String& name );
 
     private:
         LPDIRECT3DDEVICE7 mlpD3DDevice;

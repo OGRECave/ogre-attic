@@ -32,32 +32,39 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    /** Direct3D-specific Texture resource implementation. */
+    /** Direct3D7-specific texture resource implementation. 
+    */
     class D3DTexture : public Texture
     {
     public:
         // Constructor, called from D3DTextureManager
         D3DTexture(String name, LPDIRECT3DDEVICE7 lpDirect3dDevice);
         virtual ~D3DTexture();
-        void load(void);
-        void loadImage( const Image &img );
-        void blitToTexture( const Image &src, unsigned uStartX, unsigned uStartY );        
-        void unload(void);
 
-        // D3D-specific
+        virtual void load(void);
+        virtual void loadImage( const Image &img );
+        virtual void blitToTexture( const Image &src, unsigned uStartX, unsigned uStartY );        
+        virtual void blitImage( const Image& src, 
+            const Image::Rect imgRect, const Image::Rect texRect );
+        virtual void unload(void);
+
+        /// D3D-specific member that returns the underlying surface.
         LPDIRECTDRAWSURFACE7 getDDSurface(void);
+
     protected:
+        /// A pointer to the Direct3D device.
         LPDIRECT3DDEVICE7 mD3DDevice;
-        LPDIRECTDRAWSURFACE7 mSurface;    // Surface of the (first) device-specific texture
+        /// Surface of the (first) device-specific texture.
+        LPDIRECTDRAWSURFACE7 mSurface;
 
-        void loadFromBMP(void);
-        void createSurfaces(void);
-        void releaseSurfaces(void);
-        void copyBitmapToSurface(HBITMAP hBitmap);
-        void copyMemoryToSurface(unsigned char* pBuffer);
+    protected:
+        void createSurface();
+    };
 
-        void generateMipMaps(void);
-
+    class D3D7RenderTargetTexture : public D3DTexture
+    {
+    public:
+        D3D7RenderTargetTexture( String name, LPDIRECT3DDEVICE7 lpDirect3dDevice );
     };
 }
 
