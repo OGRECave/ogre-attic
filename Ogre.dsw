@@ -3,6 +3,348 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
+Project: "3ds2oof"=.\Tools\3ds2oof\scripts\3ds2oof.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "Demo_BSP"=.\Samples\BSP\scripts\Demo_BSP.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name OgreMain
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name PlatformManager_Win32
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_BSPSceneManager
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_FileSystem
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_ParticleFX
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_Direct3D7
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_SDL
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "Demo_BezierPatch"=.\Samples\BezierPatch\scripts\Demo_BezierPatch.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name OgreMain
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name PlatformManager_Win32
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_BSPSceneManager
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_FileSystem
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_ParticleFX
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_Direct3D7
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_SDL
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "Demo_EnvMapping"=.\Samples\EnvMapping\scripts\Demo_EnvMapping.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name OgreMain
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name PlatformManager_Win32
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_BSPSceneManager
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_FileSystem
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_ParticleFX
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_Direct3D7
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_SDL
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "Demo_Lighting"=.\Samples\Lighting\scripts\Demo_Lighting.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name OgreMain
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name PlatformManager_Win32
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_BSPSceneManager
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_FileSystem
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_ParticleFX
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_Direct3D7
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_SDL
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "Demo_ParticleFX"=.\Samples\ParticleFX\scripts\Demo_ParticleFX.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name OgreMain
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name PlatformManager_Win32
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_BSPSceneManager
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_FileSystem
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_ParticleFX
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_Direct3D7
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_SDL
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "Demo_SkyBox"=.\Samples\SkyBox\scripts\Demo_SkyBox.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name OgreMain
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name PlatformManager_Win32
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_BSPSceneManager
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_FileSystem
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_ParticleFX
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_Direct3D7
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_SDL
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "Demo_SkyDome"=.\Samples\SkyDome\scripts\Demo_SkyDome.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name OgreMain
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name PlatformManager_Win32
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_BSPSceneManager
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_FileSystem
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_ParticleFX
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_Direct3D7
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_SDL
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "Demo_SkyPlane"=.\Samples\SkyPlane\scripts\Demo_SkyPlane.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name OgreMain
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name PlatformManager_Win32
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_BSPSceneManager
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_FileSystem
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_ParticleFX
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_Direct3D7
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_SDL
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "Demo_TextureFX"=.\Samples\TextureFX\scripts\Demo_TextureFX.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name OgreMain
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name PlatformManager_Win32
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_BSPSceneManager
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_FileSystem
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_ParticleFX
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_Direct3D7
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_SDL
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "Demo_Transparency"=.\Samples\Transpacency\scripts\Demo_Transparency.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name OgreMain
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name PlatformManager_Win32
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_BSPSceneManager
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_FileSystem
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_ParticleFX
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_Direct3D7
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_SDL
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "OgreMain"=.\OgreMain\scripts\OgreMain.dsp - Package Owner=<4>
 
 Package=<5>
@@ -11,6 +353,36 @@ Package=<5>
 
 Package=<4>
 {{{
+}}}
+
+###############################################################################
+
+Project: "PlatformManager_Win32"=.\PlatformManagers\Win32\scripts\PlatformManager_Win32.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name OgreMain
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "Plugin_BSPSceneManager"=.\PlugIns\BSPSceneManager\scripts\Plugin_BSPSceneManager.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name OgreMain
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -30,7 +402,37 @@ Package=<4>
 
 ###############################################################################
 
+Project: "Plugin_ParticleFX"=.\PlugIns\ParticleFX\scripts\Plugin_ParticleFX.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name OgreMain
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "RenderSystem_Direct3D7"=.\RenderSystems\Direct3D7\scripts\RenderSystem_Direct3D7.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name OgreMain
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "RenderSystem_SDL"=.\RenderSystems\SDL\scripts\RenderSystem_SDL.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
