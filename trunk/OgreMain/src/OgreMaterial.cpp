@@ -181,7 +181,7 @@ namespace Ogre {
         return mTechniques[index];
     }
     //-----------------------------------------------------------------------
-    Technique* Material::getBestTechnique(void)
+    Technique* Material::getBestTechnique(unsigned short lodIndex)
     {
         if (mSupportedTechniques.empty())
         {
@@ -189,7 +189,16 @@ namespace Ogre {
         }
         else
         {
-            return mSupportedTechniques[0];
+			BestTechniqueList::iterator i = mBestTechniqueList.find(lodIndex);
+
+			if (i == mBestTechniqueList.end())
+			{
+				Except(Exception::ERR_ITEM_NOT_FOUND, 
+					"Lod index " + StringConverter::toString(lodIndex) + 
+					"not found for material " + mName,
+					"Material::getBestTechnique");
+			}
+            return i->second;
         }
     }
     //-----------------------------------------------------------------------
@@ -242,9 +251,11 @@ namespace Ogre {
     void Material::compile(bool autoManageTextureUnits)
     {
         if (!mCompilationRequired) return;
+        Techniques temp;
 
         // Compile each technique, then add it to the list of supported techniques
         mSupportedTechniques.clear();
+		mBestTechniqueList.clear();
 
         Techniques::iterator i, iend;
         iend = mTechniques.end();
@@ -254,8 +265,30 @@ namespace Ogre {
             if ( (*i)->isSupported() )
             {
                 mSupportedTechniques.push_back(*i);
+				// NB this won't insert if the index is already there, which is what we want
+				mBestTechniqueList.insert(
+					BestTechniqueList::value_type((*i)->getLodIndex(), *i));
             }
         }
+		// Now iterate over the best technique list, looking for gaps and filling them in
+		// guarantees we've got a sequential list with entries in all indexes
+		BestTechniqueList::iterator bi, biend;
+		biend = mBestTechniqueList.end();
+		unsigned short lastIndex = 0;
+		Technique* lastTechnique = NULL;
+		for (bi = mBestTechniqueList.begin(); bi != biend; ++bi)
+		{
+			while (bi->first > lastIndex + 1)
+			{
+				if (!lastTechnique) // hmm, index 0 is missing, use the first one we have
+					lastTechnique = bi->second;
+				mBestTechniqueList[++lastIndex] = lastTechnique;
+			}
+
+			lastIndex = bi->first;
+			lastTechnique = bi->second;
+
+		}
         mCompilationRequired = false;
 
         // Did we find any?
