@@ -13,7 +13,7 @@ AC_PROG_INSTALL
 
 AM_PROG_LIBTOOL
 
-dnl GCC ersion check
+dnl GCC version check
 if test x$GCC = xyes; then
     AC_MSG_CHECKING([version 3.x of gcc])
     if test -n "`$CC --version 2>&1|grep '3.'`"; then
@@ -59,6 +59,14 @@ OGRE_DETECT_ENDIAN
 CFLAGS="$CFLAGS $SDL_CFLAGS"
 CXXFLAGS="$CXXFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
+
+dnl versioning info for libtool
+dnl Note this is the ABI version which is not the same as our actual library version
+OGREMAIN_CURRENT=1
+OGREMAIN_REVISION=0
+OGREMAIN_AGE=0
+OGREMAIN_VERSION_INFO=$OGREMAIN_CURRENT:$OGREMAIN_REVISION:$OGREMAIN_AGE
+AC_SUBST(OGREMAIN_VERSION_INFO)
 
 dnl Create the makefiles
 AC_CONFIG_FILES([Makefile \

@@ -133,3 +133,4 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          unzip.c
 
 libOgreMain_la_LIBADD= $(STLPORT_LIBS) $(FT2_LIBS)
+libOgreMain_la_LDFLAGS = -version-info @OGREMAIN_VERSION_INFO@
