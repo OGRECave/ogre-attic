@@ -171,12 +171,12 @@ namespace Ogre
             // Set up blending
             if (blendByAlpha)
             {
-                mpMaterial->getTechnique(0)->getPass(0)->setSceneBlending( SBT_TRANSPARENT_ALPHA );
+                mpMaterial->setSceneBlending( SBT_TRANSPARENT_ALPHA );
             }
             else
             {
                 // Use add if no alpha (assume black background)
-                mpMaterial->getTechnique(0)->getPass(0)->setSceneBlending(SBT_ADD);
+                mpMaterial->setSceneBlending(SBT_ADD);
             }
         }
         mIsLoaded = true;

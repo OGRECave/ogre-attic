@@ -34,6 +34,8 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "OgreParticle.h"
 #include "OgreMaterial.h"
+#include "OgreTechnique.h"
+#include "OgrePass.h"
 
 #include <iostream>
 
@@ -89,10 +91,11 @@ void prepareCircleMaterial()
 		imgchunk, 256, 256, PF_A8R8G8B8);
 	Material *material = (Material*) 
 		MaterialManager::getSingleton().create( CIRCLES_MATERIAL );
-	TextureUnitState *texLayer = material->addTextureLayer( CIRCLES_MATERIAL );
+	TextureUnitState *texLayer = material->getTechnique(0)->getPass(0)->createTextureUnitState( CIRCLES_MATERIAL );
 	texLayer->setTextureAddressingMode( TextureUnitState::TAM_CLAMP );	
 	material->setSceneBlending( SBT_ADD );
 	material->setDepthWriteEnabled( false ) ;
+    material->load();
 }
 
 

@@ -157,7 +157,7 @@ namespace Ogre {
 				    + pMat->getName() + ", unrecognised parameter '" + params[1] + "'");
 				return ;
 		    }
-		    pMat->getTechnique(0)->getPass(0)->setSceneBlending(stype);
+		    pMat->setSceneBlending(stype);
 
 	    }
 	    else if (numParams == 3)
@@ -168,7 +168,7 @@ namespace Ogre {
 		    try {
 			    src = convertBlendFactor(params[1]);
 			    dest = convertBlendFactor(params[2]);
-			    pMat->getTechnique(0)->getPass(0)->setSceneBlending(src,dest);
+			    pMat->setSceneBlending(src,dest);
 		    }
 		    catch (Exception& e)
 		    {
