@@ -58,14 +58,14 @@ using namespace Ogre;
 // Crappy globals
 // NB some of these are not directly used, but are required to
 //   instantiate the singletons used in the dlls
-LogManager logMgr;
-Math mth;
-MaterialManager matMgr;
-SkeletonManager skelMgr;
-MeshSerializer meshSerializer;
-XMLMeshSerializer xmlMeshSerializer;
-SkeletonSerializer skeletonSerializer;
-XMLSkeletonSerializer xmlSkeletonSerializer;
+LogManager* logMgr;
+Math* mth;
+MaterialManager* matMgr;
+SkeletonManager* skelMgr;
+MeshSerializer* meshSerializer;
+XMLMeshSerializer* xmlMeshSerializer;
+SkeletonSerializer* skeletonSerializer;
+XMLSkeletonSerializer* xmlSkeletonSerializer;
 
 
 void meshToXML(String source, String dest)
@@ -81,9 +81,9 @@ void meshToXML(String source, String dest)
 
     Mesh mesh("conversion");
 
-    meshSerializer.importMesh(chunk, &mesh);
+    meshSerializer->importMesh(chunk, &mesh);
    
-    xmlMeshSerializer.exportMesh(&mesh, dest, true);
+    xmlMeshSerializer->exportMesh(&mesh, dest, true);
 
 }
 
@@ -96,20 +96,20 @@ void XMLToBinary(String source)
     doc->LoadFile();
     TiXmlElement* root = doc->RootElement();
     // Chop off the '.xml'
-    String dest = source.substr(source.size() - 4);
+    String dest = source.substr(0, source.size() - 4);
     if (!stricmp(root->Value(), "mesh"))
     {
         delete doc;
         Mesh newMesh("conversion");
-        xmlMeshSerializer.importMesh(source, &newMesh);
-        meshSerializer.exportMesh(&newMesh, dest, true);
+        xmlMeshSerializer->importMesh(source, &newMesh);
+        meshSerializer->exportMesh(&newMesh, dest, true);
     }
     else if (!stricmp(root->Value(), "skeleton"))
     {
         delete doc;
         Skeleton newSkel("conversion");
-        xmlSkeletonSerializer.importSkeleton(source, &newSkel);
-        skeletonSerializer.exportSkeleton(&newSkel, dest);
+        xmlSkeletonSerializer->importSkeleton(source, &newSkel);
+        skeletonSerializer->exportSkeleton(&newSkel, dest);
     }
 
 
@@ -128,9 +128,9 @@ void skeletonToXML(String source, String dest)
 
     Skeleton skel("conversion");
 
-    skeletonSerializer.importSkeleton(chunk, &skel);
+    skeletonSerializer->importSkeleton(chunk, &skel);
    
-    xmlSkeletonSerializer.exportSkeleton(&skel, dest);
+    xmlSkeletonSerializer->exportSkeleton(&skel, dest);
 
 }
 
@@ -142,9 +142,20 @@ int main(int numargs, char** args)
         return -1;
     }
 
+    logMgr = new LogManager();
+    mth = new Math();
+    matMgr = new MaterialManager();;
+    skelMgr = new SkeletonManager();
+    meshSerializer = new MeshSerializer();
+    xmlMeshSerializer = new XMLMeshSerializer();
+    skeletonSerializer = new SkeletonSerializer();
+    xmlSkeletonSerializer = new XMLSkeletonSerializer();
+
+
+
     String source(args[1]);
 
-    logMgr.createLog("XMLConverter.log");
+    logMgr->createLog("XMLConverter.log");
 
     std::vector<String> parts = source.split(".");
     String& ext = parts.back();
@@ -165,6 +176,14 @@ int main(int numargs, char** args)
 
     
 
+    delete xmlSkeletonSerializer;
+    delete skeletonSerializer;
+    delete xmlMeshSerializer;
+    delete meshSerializer;
+    delete skelMgr;
+    delete matMgr;
+    delete mth;
+    delete logMgr;
 
     return 0;
 

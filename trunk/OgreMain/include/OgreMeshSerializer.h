@@ -101,7 +101,7 @@ namespace Ogre {
         void writeMesh(const Mesh* pMesh);
         void writeSubMesh(const SubMesh* s);
         void writeGeometry(const GeometryData* pGeom);
-        void writeSkeletonLink(const Skeleton* pSkel);
+        void writeSkeletonLink(const String& skelName);
         void writeMeshBoneAssignment(const VertexBoneAssignment* assign);
         void writeSubMeshBoneAssignment(const VertexBoneAssignment* assign);
 
@@ -110,7 +110,7 @@ namespace Ogre {
         unsigned long calcMeshSize(const Mesh* pMesh);
         unsigned long calcSubMeshSize(const SubMesh* pSub);
         unsigned long calcGeometrySize(const GeometryData* pGeom);
-        unsigned long calcSkeletonLinkSize(const Skeleton* pSkel);
+        unsigned long calcSkeletonLinkSize(const String& skelName);
         unsigned long calcBoneAssignmentSize(void);
 
         void readMaterial(DataChunk& chunk);

@@ -239,7 +239,7 @@ namespace Ogre {
         {
             LogManager::getSingleton().logMessage("Exporting skeleton link...");
             // Write skeleton link
-            writeSkeletonLink(pMesh->getSkeleton());
+            writeSkeletonLink(pMesh->getSkeletonName());
             LogManager::getSingleton().logMessage("Skeleton link exported.");
 
             // Write bone assignments
@@ -398,7 +398,7 @@ namespace Ogre {
         // Skeleton link
         if (pMesh->hasSkeleton())
         {
-            size += calcSkeletonLinkSize(pMesh->getSkeleton());
+            size += calcSkeletonLinkSize(pMesh->getSkeletonName());
         }
 
         return size;
@@ -727,11 +727,11 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
-    void MeshSerializer::writeSkeletonLink(const Skeleton* pSkel)
+    void MeshSerializer::writeSkeletonLink(const String& skelName)
     {
-        writeChunkHeader(M_MESH_SKELETON_LINK, calcSkeletonLinkSize(pSkel));
+        writeChunkHeader(M_MESH_SKELETON_LINK, calcSkeletonLinkSize(skelName));
 
-        writeString(pSkel->getName());
+        writeString(skelName);
 
     }
     //---------------------------------------------------------------------
@@ -741,11 +741,11 @@ namespace Ogre {
         mpMesh->setSkeletonName(skelName);
     }
     //---------------------------------------------------------------------
-    unsigned long MeshSerializer::calcSkeletonLinkSize(const Skeleton* pSkel)
+    unsigned long MeshSerializer::calcSkeletonLinkSize(const String& skelName)
     {
         unsigned long size = CHUNK_OVERHEAD_SIZE;
 
-        size += (unsigned long)pSkel->getName().length() + 1;
+        size += (unsigned long)skelName.length() + 1;
 
         return size;
 
