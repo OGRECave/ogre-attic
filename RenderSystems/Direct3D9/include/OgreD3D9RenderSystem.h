@@ -139,9 +139,9 @@ namespace Ogre
 		// destructor
 		~D3D9RenderSystem();
 
-		virtual initConfigOptions(void);
+		virtual void initConfigOptions(void);
 		// method for resizing/repositing the render window
- 		virtual ResizeRepositionWindow(HWND wich);
+ 		virtual void ResizeRepositionWindow(HWND wich);
 		// method for setting external window hwnd
 		void SetExternalWindowHandle(HWND externalHandle){mExternalHandle = externalHandle;};
 
