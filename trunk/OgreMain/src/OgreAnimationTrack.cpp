@@ -138,7 +138,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     KeyFrame* AnimationTrack::createKeyFrame(Real timePos)
     {
-        KeyFrame* kf = new KeyFrame(timePos);
+        KeyFrame* kf = new KeyFrame(this, timePos);
 
         // Insert at correct location
         if (timePos > mMaxKeyFrameTime || (timePos == 0 && mKeyFrames.empty()))
@@ -158,7 +158,7 @@ namespace Ogre {
             mKeyFrames.insert(i, kf);
         }
 
-        mSplineBuildNeeded = true;
+        _keyFrameDataChanged();
 
         return kf;
 
@@ -177,7 +177,7 @@ namespace Ogre {
 
         mKeyFrames.erase(i);
 
-        mSplineBuildNeeded = true;
+        _keyFrameDataChanged();
 
 
     }
@@ -191,7 +191,7 @@ namespace Ogre {
             delete *i;
         }
 
-        mSplineBuildNeeded = true;
+        _keyFrameDataChanged();
 
         mKeyFrames.clear();
 
@@ -199,8 +199,8 @@ namespace Ogre {
     //---------------------------------------------------------------------
     KeyFrame AnimationTrack::getInterpolatedKeyFrame(Real timeIndex) const
     {
-        // Return value
-        KeyFrame kret(timeIndex);
+        // Return value (note unattached)
+        KeyFrame kret(0, timeIndex);
         
         // Keyframe pointers
         KeyFrame *k1, *k2;
@@ -365,6 +365,11 @@ namespace Ogre {
 	{
 		return mUseShortestRotationPath ;
 	}
+    //---------------------------------------------------------------------
+    void AnimationTrack::_keyFrameDataChanged(void) const
+    {
+        mSplineBuildNeeded = true;
+    }
 	
 }
 
