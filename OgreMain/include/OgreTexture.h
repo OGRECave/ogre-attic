@@ -38,6 +38,20 @@ namespace Ogre {
         TU_RENDERTARGET = 0x1
     };
 
+    /** Enum identifying the texture type
+    */
+    enum TextureType
+    {
+        /// 1D texture, used in combination with 1D texture coordinates
+        TEX_TYPE_1D = 1,
+        /// 2D texture, used in combination with 2D texture coordinates (default)
+        TEX_TYPE_2D = 2,
+        /// 3D texture, used in combination with 3D texture coordinates
+        TEX_TYPE_3D = 3,
+        /// 3D cube map, used in combination with 3D texture coordinates
+        TEX_TYPE_CUBE_MAP = 4,
+    };
+
     /** Abstract class representing a Texture resource.
         @remarks
             The actual concrete subclass which will exist for a texture
@@ -50,6 +64,10 @@ namespace Ogre {
     class _OgreExport Texture : public Resource
     {
     public:
+
+        /** Gets the type of texture 
+        */
+        TextureType getTextureType(void) { return mTextureType; }
 
         /** Gets the number of mipmaps to be used for this texture.
         */
@@ -142,6 +160,7 @@ namespace Ogre {
         unsigned short mNumMipMaps;
         float mGamma;
 
+        TextureType mTextureType;
 		PixelFormat mFormat;
         TextureUsage mUsage;
 
