@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 10 2003 by texi2html 1.64 -->
+<!-- Created on , 17 2003 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -23,11 +23,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC73"></A>
+<A NAME="SEC74"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_20.html#SEC71"> &lt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_20.html#SEC72"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC25"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC79"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC80"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -35,9 +35,9 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 </TR></TABLE>
 <HR SIZE=1>
 <H3> 3.1.5 Using Vertex and Fragment Programs in a Pass </H3>
-<!--docid::SEC73::-->
+<!--docid::SEC74::-->
 
-Within a pass section of a material script, you can reference a vertex and / or a fragment program which is been defined in a .program script (See section <A HREF="manual_20.html#SEC71">3.1.4 Declaring Vertex and Fragment Programs</A>). The programs are defined separately from the usage of them in the pass, since the programs are very likely to be reused between many separate materials, probably across many different .material scripts, so this approach lets you define the program only once and use it many times.<BR><BR>
+Within a pass section of a material script, you can reference a vertex and / or a fragment program which is been defined in a .program script (See section <A HREF="manual_20.html#SEC72">3.1.4 Declaring Vertex and Fragment Programs</A>). The programs are defined separately from the usage of them in the pass, since the programs are very likely to be reused between many separate materials, probably across many different .material scripts, so this approach lets you define the program only once and use it many times.<BR><BR>
 
 As well as naming the program in question, you can also provide parameters to it. Here's a simple example:
 <TABLE><tr><td>&nbsp;</td><td class=example><pre>vertex_program_ref myVertexProgram
@@ -49,21 +49,21 @@ As well as naming the program in question, you can also provide parameters to it
 
 The syntax of the link to a vertex program and a fragment program are identical, the only difference is that 'fragment_program_ref' is used instead of 'vertex_program_ref'.
 
-<A NAME="SEC74"></A>
+<A NAME="SEC75"></A>
 <H3> Parameter specification </H3>
-<!--docid::SEC74::-->
+<!--docid::SEC75::-->
 Parameters can be specified using one of 4 commands:
 <UL>
-<LI><A HREF="manual_21.html#SEC75">param_indexed</A>
-<LI><A HREF="manual_21.html#SEC76">param_indexed_auto</A>
-<LI><A HREF="manual_21.html#SEC77">param_named</A>
-<LI><A HREF="manual_21.html#SEC78">param_named_auto</A>
+<LI><A HREF="manual_21.html#SEC76">param_indexed</A>
+<LI><A HREF="manual_21.html#SEC77">param_indexed_auto</A>
+<LI><A HREF="manual_21.html#SEC78">param_named</A>
+<LI><A HREF="manual_21.html#SEC79">param_named_auto</A>
 </UL>
 
 <A NAME="param_indexed"></A>
-<A NAME="SEC75"></A>
+<A NAME="SEC76"></A>
 <H3> param_indexed </H3>
-<!--docid::SEC75::-->
+<!--docid::SEC76::-->
 This command sets the value of an indexed parameter. <BR><BR>
 
 format: param_indexed &#60;index&#62; &#60;type&#62; &#60;value&#62;<BR><BR>
@@ -76,16 +76,16 @@ The value of 'type' can be float4, matrix4x4, float&#60;n&#62; (where &#60;n&#62
 'value' is simply a space or tab-delimited list of values which can be converted into the type you have specified.
 
 <A NAME="param_indexed_auto"></A>
-<A NAME="SEC76"></A>
+<A NAME="SEC77"></A>
 <H3> param_indexed_auto </H3>
-<!--docid::SEC76::-->
+<!--docid::SEC77::-->
 
 This command tells Ogre to automatically update a given parameter with a derived value. This frees you from writing code to update program parameters every frame when they are always changing.<BR><BR>
 
 format: param_indexed_auto &#60;index&#62; &#60;value_code&#62; &#60;extra_params&#62;<BR><BR>
 example: param_indexed_auto 0 WORLDVIEWPROJ_MATRIX<BR><BR>
 
-'index' has the same meaning as <A HREF="manual_21.html#SEC75">param_indexed</A>; note this time you do not have to specify the size of the parameter because the engine knows this already. In the example, the world/view/projection matrix is being used so this is implicitly a matrix4x4.<BR><BR>
+'index' has the same meaning as <A HREF="manual_21.html#SEC76">param_indexed</A>; note this time you do not have to specify the size of the parameter because the engine knows this already. In the example, the world/view/projection matrix is being used so this is implicitly a matrix4x4.<BR><BR>
 
 'value_code' is one of a list of recognised values:<BR>
 <DL COMPACT>
@@ -120,31 +120,31 @@ example: param_indexed_auto 0 WORLDVIEWPROJ_MATRIX<BR><BR>
 </DL>
 
 <A NAME="param_named"></A>
-<A NAME="SEC77"></A>
+<A NAME="SEC78"></A>
 <H3> param_named </H3>
-<!--docid::SEC77::-->
+<!--docid::SEC78::-->
 This is the same as param_indexed, but uses a named parameter instead of an index. This can only be used with high-level programs which include parameter names; if you're using an assembler program then you have no choice but to use indexes. Note that you can use indexed parameters for high-level programs too, but it is less portable since if you reorder your parameters in the high-level program the indexes will change.<BR><BR>
 format: param_named &#60;name&#62; &#60;type&#62; &#60;value&#62;<BR><BR>
 example: param_named shininess float4 10.0 0 0 0<BR><BR>
 The type is required because the program is not compiled and loaded when the material script is parsed, so at this stage we have no idea what types the parameters are. Programs are only loaded and compiled when they are used, to save memory.
 
 <A NAME="param_named_auto"></A>
-<A NAME="SEC78"></A>
+<A NAME="SEC79"></A>
 <H3> param_named_auto </H3>
-<!--docid::SEC78::-->
+<!--docid::SEC79::-->
 
 This is the named equivalent of param_indexed_auto, for use with high-level programs.<BR><BR>
 Format: param_named_auto &#60;name&#62; &#60;value_code&#62; &#60;extra_params&#62;<BR><BR>
 Example: param_named_auto worldViewProj WORLDVIEWPROJ_MATRIX<BR><BR>
 
-The allowed value codes and the meaning of extra_params are detailed in <A HREF="manual_21.html#SEC76">param_indexed_auto</A>.
+The allowed value codes and the meaning of extra_params are detailed in <A HREF="manual_21.html#SEC77">param_indexed_auto</A>.
 
 <A NAME="Particle Scripts"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_20.html#SEC71"> &lt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_20.html#SEC72"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC25"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC79"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC80"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -153,7 +153,7 @@ The allowed value codes and the meaning of extra_params are detailed in <A HREF=
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 10 2003</I>
+by <I>Steve Streeting</I> on <I>, 17 2003</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 10 2003 by texi2html 1.64 -->
+<!-- Created on , 17 2003 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -23,11 +23,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC104"></A>
+<A NAME="SEC105"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_25.html#SEC92"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC79"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_27.html#SEC111"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_25.html#SEC93"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC80"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_27.html#SEC112"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -35,28 +35,28 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 </TR></TABLE>
 <HR SIZE=1>
 <H3> 3.2.4 Standard Particle Emitters </H3>
-<!--docid::SEC104::-->
+<!--docid::SEC105::-->
 Ogre comes preconfigured with a few particle emitters. New ones can be added by creating plugins: see the Plugin_ParticleFX project as an example of how you would do this (this is where these emitters are implemented).
 
 <UL>
 <LI>
-<A HREF="manual_26.html#SEC105">Point Emitter</A>
+<A HREF="manual_26.html#SEC106">Point Emitter</A>
 <LI>
-<A HREF="manual_26.html#SEC106">Box Emitter</A>
+<A HREF="manual_26.html#SEC107">Box Emitter</A>
 <LI>
-<A HREF="manual_26.html#SEC107">Cylinder Emitter</A>
+<A HREF="manual_26.html#SEC108">Cylinder Emitter</A>
 <LI>
-<A HREF="manual_26.html#SEC108">Ellipsoid Emitter</A>
+<A HREF="manual_26.html#SEC109">Ellipsoid Emitter</A>
 <LI>
-<A HREF="manual_26.html#SEC109">Hollow Ellipsoid Emitter</A>
+<A HREF="manual_26.html#SEC110">Hollow Ellipsoid Emitter</A>
 <LI>
-<A HREF="manual_26.html#SEC110">Ring Emitter</A>
+<A HREF="manual_26.html#SEC111">Ring Emitter</A>
 </UL>
 <BR><BR>
 <A NAME="Point Emitter"></A>
-<A NAME="SEC105"></A>
+<A NAME="SEC106"></A>
 <H3> Point Emitter </H3>
-<!--docid::SEC105::-->
+<!--docid::SEC106::-->
 
 This emitter emits particles from a single point, which is it's position. This emitter has no additional attributes over an above the standard emitter attributes.<BR><BR>
 
@@ -70,9 +70,9 @@ emitter Point
 Please note that the name of the emitter ('Point') is case-sensitive.
 
 <A NAME="Box Emitter"></A>
-<A NAME="SEC106"></A>
+<A NAME="SEC107"></A>
 <H3> Box Emitter </H3>
-<!--docid::SEC106::-->
+<!--docid::SEC107::-->
 
 This emitter emits particles from a random location within a 3-dimensional box. It's extra attributes are:<BR><BR>
 <DL COMPACT>
@@ -100,23 +100,23 @@ To create a box emitter, include a section like this within your particle system
 }
 </pre></td></tr></table>
 <A NAME="Cylinder Emitter"></A>
-<A NAME="SEC107"></A>
+<A NAME="SEC108"></A>
 <H3> Cylinder Emitter </H3>
-<!--docid::SEC107::-->
+<!--docid::SEC108::-->
 
-This emitter emits particles in a random direction from within a cylinder area, where the cylinder is oriented along the Z-axis. This emitter has exactly the same parameters as the <A HREF="manual_26.html#SEC106">Box Emitter</A> so there are no additional parameters to consider here - the width and height determine the shape of the cylinder along it's axis (if they are different it is an ellipsoid cylinder), the depth determines the length of the cylinder. 
+This emitter emits particles in a random direction from within a cylinder area, where the cylinder is oriented along the Z-axis. This emitter has exactly the same parameters as the <A HREF="manual_26.html#SEC107">Box Emitter</A> so there are no additional parameters to consider here - the width and height determine the shape of the cylinder along it's axis (if they are different it is an ellipsoid cylinder), the depth determines the length of the cylinder. 
 
 <A NAME="Ellipsoid Emitter"></A>
-<A NAME="SEC108"></A>
+<A NAME="SEC109"></A>
 <H3> Ellipsoid Emitter </H3>
-<!--docid::SEC108::-->
-This emitter emits particles from within an ellipsoid shaped area, ie a sphere or squashed-sphere area. The parameters are again identical to the <A HREF="manual_26.html#SEC106">Box Emitter</A>, except that the dimensions describe the widest points along each of the axes.
+<!--docid::SEC109::-->
+This emitter emits particles from within an ellipsoid shaped area, ie a sphere or squashed-sphere area. The parameters are again identical to the <A HREF="manual_26.html#SEC107">Box Emitter</A>, except that the dimensions describe the widest points along each of the axes.
 
 <A NAME="Hollow Ellipsoid Emitter"></A>
-<A NAME="SEC109"></A>
+<A NAME="SEC110"></A>
 <H3> Hollow Ellipsoid Emitter </H3>
-<!--docid::SEC109::-->
-This emitter is just like <A HREF="manual_26.html#SEC108">Ellipsoid Emitter</A> except that there is a hollow area in the centre of the ellipsoid from which no particles are emitted. Therefore it has 3 extra parameters in order to define this area:
+<!--docid::SEC110::-->
+This emitter is just like <A HREF="manual_26.html#SEC109">Ellipsoid Emitter</A> except that there is a hollow area in the centre of the ellipsoid from which no particles are emitted. Therefore it has 3 extra parameters in order to define this area:
 
 <DL COMPACT>
 <DT>inner_width
@@ -128,10 +128,10 @@ This emitter is just like <A HREF="manual_26.html#SEC108">Ellipsoid Emitter</A> 
 </DL>
 
 <A NAME="Ring Emitter"></A>
-<A NAME="SEC110"></A>
+<A NAME="SEC111"></A>
 <H3> Ring Emitter </H3>
-<!--docid::SEC110::-->
-This emitter emits particles from a ring-shaped area, ie a little like <A HREF="manual_26.html#SEC109">Hollow Ellipsoid Emitter</A> except only in 2 dimensions.
+<!--docid::SEC111::-->
+This emitter emits particles from a ring-shaped area, ie a little like <A HREF="manual_26.html#SEC110">Hollow Ellipsoid Emitter</A> except only in 2 dimensions.
 
 <DL COMPACT>
 <DT>inner_width
@@ -141,14 +141,14 @@ This emitter emits particles from a ring-shaped area, ie a little like <A HREF="
 </DL>
 <BR><BR>
 
-See also: <A HREF="manual_22.html#SEC79">3.2 Particle Scripts</A>, <A HREF="manual_24.html#SEC90">3.2.2 Particle Emitters</A>
+See also: <A HREF="manual_22.html#SEC80">3.2 Particle Scripts</A>, <A HREF="manual_24.html#SEC91">3.2.2 Particle Emitters</A>
 
 <A NAME="Particle Affectors"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_25.html#SEC92"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC79"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_27.html#SEC111"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_25.html#SEC93"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC80"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_27.html#SEC112"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -157,7 +157,7 @@ See also: <A HREF="manual_22.html#SEC79">3.2 Particle Scripts</A>, <A HREF="manu
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 10 2003</I>
+by <I>Steve Streeting</I> on <I>, 17 2003</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

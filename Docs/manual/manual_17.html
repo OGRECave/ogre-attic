@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 10 2003 by texi2html 1.64 -->
+<!-- Created on , 17 2003 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -42,7 +42,7 @@ A "technique" section in your material script encapsulates a single method of re
 When a material is used for the first time, it is 'compiled'. That involves scanning the techniques which have been defined, and marking which of them are supportable using the current rendering API and graphics card. If no techniques are supportable, your material will render as blank white. The compilation examines a number of things, such as:
 <UL>
 <LI>The number of texture_unit entries in each pass<BR>
-Note that if the number of texture_unit entries exceeds the number of texture units in the current graphics card, the technique may still be supportable so long as a fragment program is not being used. In this case, Ogre will split the pass which has too many entries into multiple passes for the less capable card, and the multitexture blend will be turned into a multipass blend (See section <A HREF="manual_19.html#SEC62">colour_op_multipass_fallback</A>).
+Note that if the number of texture_unit entries exceeds the number of texture units in the current graphics card, the technique may still be supportable so long as a fragment program is not being used. In this case, Ogre will split the pass which has too many entries into multiple passes for the less capable card, and the multitexture blend will be turned into a multipass blend (See section <A HREF="manual_19.html#SEC63">colour_op_multipass_fallback</A>).
 <LI>Whether vertex or fragment programs are used, and if so which syntax they use (e.g. vs_1_1, ps_2_x, arbfp1 etc)
 <LI>Other effects like cube mapping and dot3 blending
 </UL>
@@ -100,7 +100,7 @@ Techniques also contain one or more passes (and there must be at least one), See
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 10 2003</I>
+by <I>Steve Streeting</I> on <I>, 17 2003</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

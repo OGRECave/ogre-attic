@@ -441,9 +441,6 @@ namespace Ogre {
 
         mAutoWindow =  mActiveRenderer->initialise(autoCreateWindow);
 
-        // Initialise material manager
-		mMaterialManager->initialise();
-
         if (autoCreateWindow)
         {
             oneTimePostWindowInit();
@@ -728,6 +725,8 @@ namespace Ogre {
         static bool firsttime = true;
         if (firsttime)
         {
+			// Initialise material manager
+			mMaterialManager->initialise();
             // Init particle systems manager
             mParticleManager->_initialise();
             // parse all font scripts

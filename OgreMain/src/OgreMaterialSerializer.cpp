@@ -378,6 +378,59 @@ namespace Ogre
         return false;
     }
     //-----------------------------------------------------------------------
+    bool parseMaxLights(String& params, MaterialScriptContext& context)
+    {
+		context.pass->setMaxSimultaneousLights(StringConverter::parseInt(params));
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseIteration(String& params, MaterialScriptContext& context)
+    {
+        params.toLowerCase();
+        StringVector vecparams = params.split(" \t");
+        if (vecparams.size() != 1 && vecparams.size() != 2)
+        {
+            logParseError("Bad iteration attribute, expected 1 or 2 parameters.", context);
+            return false;
+        }
+
+        if (vecparams[0]=="once")
+            context.pass->setRunOncePerLight(false);
+        else if (vecparams[0]=="once_per_light")
+        {
+            if (vecparams.size() == 2)
+            {
+                // Parse light type
+                if (vecparams[1] == "directional")
+                {
+                    context.pass->setRunOncePerLight(true, true, Light::LT_DIRECTIONAL);
+                }
+                else if (vecparams[1] == "point")
+                {
+                    context.pass->setRunOncePerLight(true, true, Light::LT_POINT);
+                }
+                else if (vecparams[1] == "spot")
+                {
+                    context.pass->setRunOncePerLight(true, true, Light::LT_SPOTLIGHT);
+                }
+                else
+                {
+                    logParseError("Bad iteration attribute, valid values for second parameter "
+                        "are 'point' or 'directional' or 'spot'.", context);
+                }
+            }
+            else
+            {
+                context.pass->setRunOncePerLight(true, false);
+            }
+
+        }
+        else
+            logParseError(
+                "Bad iteration attribute, valid parameters are 'once' or 'once_per_light'.", context);
+        return false;
+    }
+    //-----------------------------------------------------------------------
     bool parseFogging(String& params, MaterialScriptContext& context)
     {
         params.toLowerCase();
@@ -618,7 +671,7 @@ namespace Ogre
     {
         params.toLowerCase();
         StringVector vecparams = params.split(" \t");
-        if (vecparams.size() != 3)
+        if (vecparams.size() != 2)
         {
             logParseError(
                 "Bad alpha_rejection attribute, wrong number of parameters (expected 2)", 
@@ -1567,6 +1620,8 @@ namespace Ogre
         mPassAttribParsers.insert(AttribParserList::value_type("texture_unit", (ATTRIBUTE_PARSER)parseTextureUnit));
         mPassAttribParsers.insert(AttribParserList::value_type("vertex_program_ref", (ATTRIBUTE_PARSER)parseVertexProgramRef));
         mPassAttribParsers.insert(AttribParserList::value_type("fragment_program_ref", (ATTRIBUTE_PARSER)parseFragmentProgramRef));
+        mPassAttribParsers.insert(AttribParserList::value_type("max_lights", (ATTRIBUTE_PARSER)parseMaxLights));
+        mPassAttribParsers.insert(AttribParserList::value_type("iteration", (ATTRIBUTE_PARSER)parseIteration));
 
         // Set up texture unit attribute parsers
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("texture", (ATTRIBUTE_PARSER)parseTexture));
@@ -1945,6 +2000,36 @@ namespace Ogre
                 writeAttribute(3, "lighting");
                 writeValue(pPass->getLightingEnabled() ? "on" : "off");
             }
+			// max_lights
+            if (mDefaults || 
+                pPass->getMaxSimultaneousLights() != OGRE_MAX_SIMULTANEOUS_LIGHTS)
+            {
+                writeAttribute(3, "max_lights");
+                writeValue(StringConverter::toString(pPass->getMaxSimultaneousLights));
+            }
+			// iteration
+            if (mDefaults || 
+                pPass->getRunOncePerLight())
+            {
+                writeAttribute(3, "iteration");
+                writeValue(pPass->getRunOncePerLight() ? "once_per_light" : "once");
+                if (pPass->getRunOncePerLight() && pPass->getRunOnlyForOneLightType())
+                {
+                    switch (pPass->getOnlyLightType())
+                    {
+                    case Light::LT_DIRECTIONAL:
+                        writeValue("directional");
+                        break;
+                    case Light::LT_POINT:
+                        writeValue("point");
+                        break;
+                    case Light::LT_SPOTLIGHT:
+                        writeValue("spot");
+                        break;
+                    };
+                }
+            }
+			
 
             if (pPass->getLightingEnabled())
             {
