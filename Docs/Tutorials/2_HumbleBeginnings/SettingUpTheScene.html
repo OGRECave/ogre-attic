@@ -1,0 +1,181 @@
+<html>
+	<style type="text/css">
+	<!--
+	.MainHeader {  font-weight: bold; color: #FFFFFF; background-color: #003300; font-size: 10pt}
+	body {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #003300; background-color: #FFFFFF}
+	.BorderHeader {  background-color: #999900; font-size: 8pt; font-weight: bold; color: #333300; text-align: center}
+	.MainContent { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #003300}
+	.BorderContent {  font-size: 8pt; color: #000000; border-color: black #666600 #666600; padding-top: 2px; padding-right: 2px; padding-bottom: 10px; padding-left: 2px; margin-bottom: 2px; border-style: solid; border-top-width: 0px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px}
+	a:link {  color: #000066; text-decoration: underline}
+	a:hover {  color: #0000FF; text-decoration: underline}
+	a:visited {  color: #660066; text-decoration: underline}
+	li {  color: #000000; list-style-type: circle; position: relative; left: -15px; clip:    rect(   )}
+	.NewsDate {  color: #000000; font-weight: bold}
+	td {  font-size: 10pt}
+	th {  font-size: 10pt}
+	.Annotation {  font-size: 10px}
+	.header {  font-size: 16pt; color: #000000}
+	.SectionHeader {  font-size: 14px; color: #000000; font-weight: bold}
+	pre {  color: #000066; font-size: 12px}
+
+	-->
+	</style> 
+	<head>
+		<title> Creating OGRE Project Files </title>
+		<meta name="generator"      content="Deppo's HTML Editor v2.1 BETA 2">
+		<meta name="keywords"       content="">
+		<meta name="description"    content="">
+		<meta name="author"         content="Nicholas">
+		<meta http-equiv="reply-to" content="vastrim@hotmail.com">
+		<meta name="creation_date"  content="Sat, 13 Jul, 2002 12:32:59 p GMT">
+	</head>
+<body bgcolor="#FFFFFF" text="#000000">
+<p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p>
+<p align="center" class="header"> Setting Up the Scene </p>
+
+<p align="left" class="MainHeader">&nbsp;</p>
+<p align="left" class="SectionHeader">
+	A scene in outer space</p>
+<p align="left">
+
+When we derive our own application class from the ExampleApplication class we overrride the protected method 
+createScene whose prototype is: </p>
+
+<p>
+	</pre
+		virtual void createScene(void) = 0;
+	</pre>
+</p>
+
+<p align ="left">
+As you can see this is a purely virtual function, so if we do not override it then we will get a nasty error. 
+This method is responsible for setting up the scene within the application. This involves creating entities, lights,
+particle systems, etc.
+</p>
+
+<p align ="left">
+It's time to get into the code, so if you have not done so already create an application following the previous steps
+and call it Space. To begin with we are going to create a scene from outer space, with planets visible in the distance
+based on the Skybox example. 
+</p>
+
+<p align ="left">
+Create a new header file called SpaceApplication.h. This is the file that we included in Space.cpp and
+is where we are going to define our own class SpaceApplication. The first thing we need to do is 
+
+<pre>
+#include "ExampleApplication.h"
+</pre>
+
+</p>
+
+
+<p align ="left">
+This gives us access to the ExampleApplication class that our application class is derived from. Now to create our
+class definition
+
+<pre>
+
+class SpaceApplication : public ExampleApplication
+{
+protected:
+    void createScene(void);
+};
+
+</pre>
+</p>
+
+
+
+<p align ="left">
+
+Now to override that createScene method with our own. There is only one thing we are interested in doing right now,
+create a skybox that shows us a scene in outer space. We do this by using the Scene Manager (mSceneMgr).
+
+<pre>
+
+    void createScene(void)
+    {
+       // Create a skybox
+        mSceneMgr->setSkyBox(true, "Examples/SpaceSkyBox");
+
+    }
+
+</pre>
+
+</p>
+
+
+
+
+
+<p align ="left">
+
+Compile and run the program. After the Ogre configuration box is gone you should be thrust into our space scene. 
+The mouse will let you look left, right, up, and down. Time for a quick look at "Examples/SpaceSkyBox".
+</p>
+
+<p align="left" class="SectionHeader">
+	Resources</p>
+<p align="left">
+When we set the sky box we told the Scene Manager to use the material "Examples/SpaceSkyBox". But where does this come from? 
+When an ExampleApplication class is created it tells the Resource Manager to add the following places to search for
+resources
+
+<pre>
+        ../../../Media/dragon.zip
+        ../../../Media/knot.zip
+        ../../../Media/skybox.zip
+        ../../../Media/
+</pre>
+
+</p>
+
+<p align="left">
+The Resource Manager searches those paths for a files ending in ".material" for definitions of materials. This material,
+Examples/SpaceSkyBox, happens to be defined in Example.material
+
+<pre>
+// Skybox
+Examples/SpaceSkyBox
+{
+	// No dynamic lighting, fully lit
+	lighting off
+	// Depth writing off (always display stuff in front of it)
+	depth_write off
+
+	// Texture layer 0
+	{
+		// 6-sided texture, stevecube_fr.jpg, stevecube_up.jpg etc
+		cubic_texture stevecube.jpg separateUV
+		// clamp to avoid fuzziness at edges due to filtering
+		tex_address_mode clamp
+	}
+}
+
+</pre>
+</p>
+
+<p align="left">
+So this material is composed of 6 jpeg files, as listed in the definition. Those particular files can be located in
+the skybox.zip file.
+</p>
+
+
+<TABLE WIDTH="100%" BORDER="0" CELLSPACING="2" CELLPADDING="0">
+	<TR>
+		<TD WIDTH="14%"><A HREF="Index.html">Back to Index</A></TD>
+		<TD WIDTH="39%">&nbsp;</TD>
+		<TD WIDTH="22%"><A HREF="CreatingTheProject.html">&lt;&lt; Previous section</A></TD>
+		<TD WIDTH="25%"><A HREF="FirstSceneNodeAndEntity.html">Next section &gt;&gt;</A></TD>
+	</TR>
+</TABLE>
+
+<P>&nbsp;</P>
+<P>&nbsp;</P>
+<P>&nbsp;</P>
+
+<P CLASS="SectionHeader">&nbsp;</P>
+
+	</body>
+</html>
