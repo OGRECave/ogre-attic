@@ -1286,51 +1286,6 @@ namespace Ogre {
 
         } // for each queue group
 
-        // For texture-based shadows, we need to perform additional rendering
-        // to render the shadow receivers
-        if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE ||
-            mShadowTechnique == SHADOWTYPE_TEXTURE_SHADOWMAP)
-        {
-            renderTextureShadows();
-        }
-    }
-    //-----------------------------------------------------------------------
-    void SceneManager::renderTextureShadows(void)
-    {
-        // only perform this if we're in the 'normal' render stage
-        if (mIlluminationStage != IRS_NONE)
-            return;
-
-        IlluminationRenderStage savedIlluminationStage = mIlluminationStage;
-        mIlluminationStage = IRS_RENDER_MODULATIVE_PASS;
-
-        // Iterate per shadow texture used
-        LightList::iterator i, iend;
-        ShadowTextureList::iterator si, siend;
-        iend = mLightsAffectingFrustum.end();
-        siend = mShadowTextures.end();
-        for (i = mLightsAffectingFrustum.begin(), si = mShadowTextures.begin();
-            i != iend && si != siend; ++i, ++si)
-        {
-            Light* light = *i;
-            mCurrentShadowTexture = *si;
-
-            // Render all the receivers which have shadows enabled
-            RenderQueue::QueueGroupIterator queueIt = getRenderQueue()->_getQueueGroupIterator();
-
-            while (queueIt.hasMoreElements())
-            {
-                // Get queue group id
-                RenderQueueGroupID qId = queueIt.peekNextKey();
-                RenderQueueGroup* pGroup = queueIt.getNext();
-
-                if (pGroup->getShadowsEnabled())
-                    renderTextureShadowReceiverQueueGroupObjects(pGroup);
-
-            } // for each queue group
-        }
-        mIlluminationStage = savedIlluminationStage;
-
     }
     //-----------------------------------------------------------------------
 	void SceneManager::renderAdditiveStencilShadowedQueueGroupObjects(RenderQueueGroup* pGroup)
@@ -1528,6 +1483,73 @@ namespace Ogre {
         mDestRenderSystem->setAmbientLight(mAmbientLight.r, mAmbientLight.g, mAmbientLight.b);
     }
     //-----------------------------------------------------------------------
+    void SceneManager::renderModulativeTextureShadowedQueueGroupObjects(RenderQueueGroup* pGroup)
+    {
+        /* For each light, we need to render all the solids from each group, 
+        then do the modulative shadows, then render the transparents from
+        each group.
+        Now, this means we are going to reorder things more, but that it required
+        if the shadows are to look correct. The overall order is preserved anyway,
+        it's just that all the transparents are at the end instead of them being
+        interleaved as in the normal rendering loop. 
+        */
+        // Iterate through priorities
+        RenderQueueGroup::PriorityMapIterator groupIt = pGroup->getIterator();
+
+        while (groupIt.hasMoreElements())
+        {
+            RenderPriorityGroup* pPriorityGrp = groupIt.getNext();
+
+            // Sort the queue first
+            pPriorityGrp->sort(mCameraInProgress);
+
+            // Do solids
+            renderObjects(pPriorityGrp->_getSolidPasses(), true);
+            renderObjects(pPriorityGrp->_getSolidPassesNoShadow(), true);
+        }
+
+
+        // Iterate over lights, render received shadows
+        // only perform this if we're in the 'normal' render stage, to avoid
+        // doing it during the render to texture
+        if (mIlluminationStage == IRS_NONE)
+        {
+            mIlluminationStage = IRS_RENDER_MODULATIVE_PASS;
+
+            LightList::iterator i, iend;
+            ShadowTextureList::iterator si, siend;
+            iend = mLightsAffectingFrustum.end();
+            siend = mShadowTextures.end();
+            for (i = mLightsAffectingFrustum.begin(), si = mShadowTextures.begin();
+                i != iend && si != siend; ++i)
+            {
+                Light* l = *i;
+                mCurrentShadowTexture = *si;
+
+                if (l->getCastShadows() && pGroup->getShadowsEnabled())
+                {
+                    renderTextureShadowReceiverQueueGroupObjects(pGroup);
+                }
+
+            }// for each light
+
+            mIlluminationStage = IRS_NONE;
+
+        }
+
+        // Iterate again - variable name changed to appease gcc.
+        RenderQueueGroup::PriorityMapIterator groupIt3 = pGroup->getIterator();
+        while (groupIt3.hasMoreElements())
+        {
+            RenderPriorityGroup* pPriorityGrp = groupIt3.getNext();
+
+            // Do transparents
+            renderObjects(pPriorityGrp->_getTransparentPasses(), true);
+
+        }// for each priority
+
+    }
+    //-----------------------------------------------------------------------
     void SceneManager::renderTextureShadowReceiverQueueGroupObjects(RenderQueueGroup* pGroup)
     {
         static LightList nullLightList;
@@ -1566,7 +1588,9 @@ namespace Ogre {
         if ((mIlluminationStage == IRS_RENDER_TO_TEXTURE ||
             mIlluminationStage == IRS_RENDER_MODULATIVE_PASS) && 
             pass->getIndex() > 0)
+        {
             return false;
+        }
 
         return true;
     }
@@ -1578,7 +1602,9 @@ namespace Ogre {
         if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE && 
             mIlluminationStage == IRS_RENDER_MODULATIVE_PASS && 
             rend->getCastsShadows())
+        {
             return false;
+        }
 
         return true;
 
@@ -1661,16 +1687,10 @@ namespace Ogre {
                 if (pGroup->getShadowsEnabled())
                     renderTextureShadowCasterQueueGroupObjects(pGroup);
             }
-            else if (mIlluminationStage == IRS_RENDER_MODULATIVE_PASS)
-            {
-                // Shadow receiver pass
-                if (pGroup->getShadowsEnabled())
-                    renderTextureShadowReceiverQueueGroupObjects(pGroup);
-            }
             else
             {
                 // Ordinary pass
-                renderBasicQueueGroupObjects(pGroup);
+                renderModulativeTextureShadowedQueueGroupObjects(pGroup);
             }
         }
 		else
@@ -2745,11 +2765,12 @@ namespace Ogre {
             matShadRec = static_cast<Material*>(
                 MaterialManager::getSingleton().create("Ogre/TextureShadowReceiver"));
             mShadowReceiverPass = matShadRec->getTechnique(0)->getPass(0);
-            mShadowReceiverPass->setSceneBlending(SBF_ONE_MINUS_DEST_COLOUR, SBF_ZERO);
+            mShadowReceiverPass->setSceneBlending(SBF_DEST_COLOUR, SBF_ZERO);
             // No lighting, one texture unit 
             // everything else will be bound as needed during the receiver pass
             mShadowReceiverPass->setLightingEnabled(false);
-            mShadowReceiverPass->createTextureUnitState();
+            TextureUnitState* t = mShadowReceiverPass->createTextureUnitState();
+            t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
         }
 
 
@@ -3175,6 +3196,10 @@ namespace Ogre {
         {
             Light* light = *i;
             RenderTexture* shadowTex = *si;
+            // Skip non-shadowing lights
+            if (!light->getCastShadows())
+                continue;
+
             // Directional lights only for now
             if (light->getType() == Light::LT_DIRECTIONAL)
             {

@@ -364,8 +364,6 @@ namespace Ogre {
         virtual void setShadowVolumeStencilState(bool secondpass, bool zfail, bool twosided);
         /** Render a single shadow volume to the stencil buffer. */
         void renderSingleShadowVolumeToStencil(ShadowRenderable* sr, bool zfail, bool stencil2sided);
-        /** Internal method - render texture shadows. */
-        virtual void renderTextureShadows(void);
         typedef std::vector<ShadowCaster*> ShadowCasterList;
         ShadowCasterList mShadowCasterList;
         SphereSceneQuery* mShadowCasterSphereQuery;
@@ -427,6 +425,8 @@ namespace Ogre {
         virtual void renderTextureShadowCasterQueueGroupObjects(RenderQueueGroup* group);
         /** Render a group rendering only shadow receivers. */
         virtual void renderTextureShadowReceiverQueueGroupObjects(RenderQueueGroup* group);
+        /** Render a group with the added complexity of additive stencil shadows. */
+        virtual void renderModulativeTextureShadowedQueueGroupObjects(RenderQueueGroup* group);
 		/** Render a set of objects, see renderSingleObject for param definitions */
 		virtual void renderObjects(const RenderPriorityGroup::SolidRenderablePassMap& objs, 
             bool doLightIteration, const LightList* manualLightList = 0);
