@@ -27,6 +27,8 @@ http://www.gnu.org/copyleft/gpl.html.
 #define __MilkshapePlugin_H__
 
 #include "msPlugIn.h"
+#include "windows.h"
+
 
 /** A plugin class for Milkshape3D to export to OGRE model formats. 
 @remarks
@@ -51,6 +53,18 @@ public:
     const char *    GetTitle ();
     /// As required by Milkshape
     int             Execute (msModel* pModel);
+
+    /** Callback to process window events */
+    static BOOL CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam);
+
+    bool exportMaterials;
+    bool exportMesh;
+    bool exportSkeleton;
+
+protected:
+    void showOptions(void);
+    void doExportMesh(msModel* pModel);
+    void doExportMaterials(msModel* pModel);
 
 };
 
