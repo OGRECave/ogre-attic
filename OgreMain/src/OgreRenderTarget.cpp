@@ -235,11 +235,11 @@ namespace Ogre {
         }
 
 
-        static String currFps = "CURRENT FPS: ";
-        static String avgFps = "AVERAGE FPS: ";
-        static String bestFps = "BEST FPS: ";
-        static String worstFps = "WORST FPS: ";
-        static String tris = "#TRIS: ";
+        static String currFps = "Current FPS: ";
+        static String avgFps = "Average FPS: ";
+        static String bestFps = "Best FPS: ";
+        static String worstFps = "Worst FPS: ";
+        static String tris = "Triangle Count: ";
 
         GuiElement* guiAvg = GuiManager::getSingleton().getGuiElement("Core/AverageFps");
         GuiElement* guiCurr = GuiManager::getSingleton().getGuiElement("Core/CurrFps");
