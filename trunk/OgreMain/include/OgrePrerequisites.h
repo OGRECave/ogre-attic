@@ -64,10 +64,6 @@ http://www.gnu.org/copyleft/gpl.html.
 */
 #include "OgreStdHeaders.h"
 
-#if defined( _STLP_USE_DYNAMIC_LIB )
-#pragma warn( "STLport still active?" )
-#undef _STLP_USE_DYNAMIC_LIB
-#endif
 
 #include "OgreMemoryManager.h"
 
@@ -179,4 +175,7 @@ namespace Ogre {
 // (for more info, see http://www.cvshome.org/docs/manual/cvs_12.html#SEC103 )
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/08/22 14:51:37  cearny
+// Linux changes.
+//
 //-----------------------------------------------------------------------------
