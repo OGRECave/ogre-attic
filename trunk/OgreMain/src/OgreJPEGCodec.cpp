@@ -56,7 +56,12 @@ namespace Ogre {
     {
     }
 
-    int JPEGCodec::fill_input_buffer( j_decompress_ptr cinfo )
+#if OGRE_PLATFORM == PLATFORM_LINUX
+    int 
+#else
+	uchar
+#endif
+		JPEGCodec::fill_input_buffer( j_decompress_ptr cinfo )
     {
         return TRUE;
     }
@@ -193,4 +198,7 @@ namespace Ogre {
 // (for more info, see http://www.cvshome.org/docs/manual/cvs_12.html#SEC103 )
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/08/22 14:52:12  cearny
+// Linux changes.
+//
 //-----------------------------------------------------------------------------

@@ -43,7 +43,13 @@ namespace Ogre {
         /* Crappy  callbacks required by jpeglib */
         static void init_source(j_decompress_ptr cinfo);
 		/* boolean is actually int from libJPEG's point of view */
-        static int fill_input_buffer(j_decompress_ptr cinfo);    
+        static 
+#if OGRE_PLATFORM == PLATFORM_LINUX
+			int 
+#else
+			uchar
+#endif
+			fill_input_buffer(j_decompress_ptr cinfo);    
         static void skip_input_data(j_decompress_ptr cinfo, long count);
         static void term_source(j_decompress_ptr cinfo);
 
@@ -70,4 +76,7 @@ namespace Ogre {
 // (for more info, see http://www.cvshome.org/docs/manual/cvs_12.html#SEC103 )
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/08/22 14:51:37  cearny
+// Linux changes.
+//
 //-----------------------------------------------------------------------------
