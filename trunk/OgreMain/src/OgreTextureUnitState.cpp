@@ -67,6 +67,7 @@ namespace Ogre {
         mAnimController = 0;
         mCubic = false;
         mTextureType = TEX_TYPE_2D;
+		mTextureSrcMipmaps = -1;
         mTextureCoordSetIndex = 0;
 
         mFrames[0] = StringUtil::BLANK;
@@ -167,7 +168,7 @@ namespace Ogre {
         return mFrames[mCurrentFrame];
     }
     //-----------------------------------------------------------------------
-    void TextureUnitState::setTextureName( const String& name, TextureType texType)
+    void TextureUnitState::setTextureName( const String& name, TextureType texType, int mipmaps)
     {
         if (texType == TEX_TYPE_CUBE_MAP)
         {
@@ -181,6 +182,7 @@ namespace Ogre {
             mCurrentFrame = 0;
             mCubic = false;
             mTextureType = texType;
+			mTextureSrcMipmaps = mipmaps;
 
             if (name == "")
             {
@@ -702,11 +704,11 @@ namespace Ogre {
         {
             if (mFrames[i] != "")
             {
-                // Ensure texture is loaded, default Mipmaps and priority
+                // Ensure texture is loaded, specified number of mipmaps and priority
                 try {
 
                     TextureManager::getSingleton().load(mFrames[i], 
-						mParent->getResourceGroup(), mTextureType);
+						mParent->getResourceGroup(), mTextureType, mTextureSrcMipmaps);
                     mIsBlank = false;
                 }
                 catch (Exception &e) {
