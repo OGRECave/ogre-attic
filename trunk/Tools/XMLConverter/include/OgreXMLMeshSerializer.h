@@ -85,6 +85,10 @@ namespace Ogre {
         void readSkeletonLink(TiXmlElement* mSkelNode);
         void readBoneAssignments(TiXmlElement* mBoneAssignmentsNode);
         void readBoneAssignments(TiXmlElement* mBoneAssignmentsNode, SubMesh* sm);
+		void readLodInfo(TiXmlElement*  lodNode);
+		void readLodUsageManual(TiXmlElement* manualNode, unsigned short index);
+		void readLodUsageGenerated(TiXmlElement* genNode, unsigned short index);
+
 
     };
 

@@ -805,6 +805,31 @@ namespace Ogre {
 
 
 	}
+    //---------------------------------------------------------------------
+	void Mesh::_setLodInfo(unsigned short numLevels, bool isManual)
+	{
+		mNumLods = numLevels;
+		mMeshLodUsageList.resize(numLevels);
+		// Resize submesh face data lists too
+		for (SubMeshList::iterator i = mSubMeshList.begin(); i != mSubMeshList.end(); ++i)
+		{
+			(*i)->mLodFaceList.resize(numLevels - 1);
+		}
+		mIsLodManual = isManual;
+	}
+    //---------------------------------------------------------------------
+	void Mesh::_setLodUsage(unsigned short level, Mesh::MeshLodUsage& usage)
+	{
+		mMeshLodUsageList[level] = usage;
+	}
+    //---------------------------------------------------------------------
+	void Mesh::_setSubMeshLodFaceList(unsigned short subIdx, unsigned short level, 
+		ProgressiveMesh::LODFaceData& facedata)
+	{
+		SubMesh* sm = mSubMeshList[subIdx];
+		sm->mLodFaceList[level - 1] = facedata;
+
+	}
 
 }
 

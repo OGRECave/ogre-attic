@@ -337,6 +337,12 @@ namespace Ogre {
 		*/
 		bool isLodManual(void) const { return mIsLodManual; }
 
+		/** Internal methods for loading LOD, do not use. */
+		void _setLodInfo(unsigned short numLevels, bool isManual);
+		/** Internal methods for loading LOD, do not use. */
+		void _setLodUsage(unsigned short level, Mesh::MeshLodUsage& usage);
+		/** Internal methods for loading LOD, do not use. */
+		void _setSubMeshLodFaceList(unsigned short subIdx, unsigned short level, ProgressiveMesh::LODFaceData& facedata);
     private:
         typedef std::vector<SubMesh*> SubMeshList;
         /** A list of submeshes which make up this mesh.
