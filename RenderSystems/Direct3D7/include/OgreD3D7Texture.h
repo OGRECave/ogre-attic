@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderTarget.h"
 #include "OgreRenderTexture.h"
 #include "OgreRenderTargetListener.h"
+#include "OgreD3D7HardwarePixelBuffer.h"
 
 namespace Ogre {
 
@@ -46,12 +47,7 @@ namespace Ogre {
 
         virtual void loadImage( const Image &img );
 		virtual void loadImage3D( const Image imgs[]);
-        virtual void blitToTexture( const Image &src, unsigned uStartX, unsigned uStartY );        
-        virtual void blitImage( const Image& src, 
-            const Image::Rect imgRect, const Image::Rect texRect );
-		virtual void blitImage3D(const Image src[],
-            const Image::Rect imgRect, const Image::Rect texRect );
-		virtual void copyToTexture(TexturePtr& target );
+        virtual void copyToTexture(TexturePtr& target );
 
         /// D3D-specific member that returns the underlying surface.
         LPDIRECTDRAWSURFACE7 getDDSurface(void);
@@ -60,12 +56,21 @@ namespace Ogre {
         void createInternalResources(void);
 
 		/// @copydoc Texture::getBuffer
-		HardwarePixelBufferSharedPtr getBuffer(int face, int mipmap);
+		HardwarePixelBufferSharedPtr getBuffer(size_t face, size_t mipmap);
+
+		/// Static pixelformat functions
+		static D3DX_SURFACEFORMAT OgreFormat_to_D3DXFormat( PixelFormat format );
+		static PixelFormat closestD3DXFormat( PixelFormat format );
+		static bool OgreFormat_to_DDPixelFormat( PixelFormat format, DDPIXELFORMAT & out );
     protected:
         IDirect3DDevice7 * mD3DDevice;       ///< A pointer to the Direct3D device.
         IDirectDrawSurface7 * mSurface;      ///< Surface of the (first) device-specific texture.
 		/// cube texture individual face names
 		String mCubeFaceNames[6];
+		/// Vector of pointers to subsurfaces
+		typedef std::vector<HardwarePixelBufferSharedPtr> SurfaceList;
+		SurfaceList						mSurfaceList;
+	
 
         /// @copydoc Resource::loadImpl
         void loadImpl(void);
@@ -84,9 +89,9 @@ namespace Ogre {
 		/// internal method, the cube map face name for the spec. face index
 		String _getCubeFaceName(unsigned char face) const
 		{ assert(face < 6); return mCubeFaceNames[face]; }
-		/// internal method, return the BPP for the specified format
-		static unsigned short _getPFBpp(PixelFormat ogrePF)
-        { return PixelUtil::getNumElemBits(ogrePF); }
+
+		// Create the list of surfaces
+		void _createSurfaceList();
     };
 
     /** Specialisation of SharedPtr to allow SharedPtr to be assigned to D3DTexturePtr 

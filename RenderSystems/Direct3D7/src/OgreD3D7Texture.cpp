@@ -31,147 +31,132 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    static D3DX_SURFACEFORMAT OgreFormat_to_D3DXFormat( PixelFormat format )
+    D3DX_SURFACEFORMAT D3DTexture::OgreFormat_to_D3DXFormat( PixelFormat format )
     {
-        switch( format )
-        {
-        case PF_L8:
-            return D3DX_SF_L8;
-        case PF_A8:
-            return D3DX_SF_A8;
-        case PF_R5G6B5:
-        case PF_B5G6R5:
-            return D3DX_SF_R5G6B5;
-        case PF_A4R4G4B4:
-        case PF_B4G4R4A4:
-            return D3DX_SF_A4R4G4B4;
-        case PF_R8G8B8:
-        case PF_B8G8R8:
-            return D3DX_SF_R8G8B8;
-        case PF_A8R8G8B8:
-        case PF_B8G8R8A8:
-            return D3DX_SF_A8R8G8B8;
-        case PF_UNKNOWN:
-        case PF_A4L4:
-        case PF_A2R10G10B10:
-        case PF_A2B10G10R10:
-        default:
-            return D3DX_SF_UNKNOWN;
-        }
+		switch( format )
+		{
+		case PF_R8G8B8:
+			return D3DX_SF_R8G8B8;
+		case PF_A8R8G8B8:
+			return D3DX_SF_A8R8G8B8;
+		case PF_X8R8G8B8:
+    		return D3DX_SF_X8R8G8B8;
+		case PF_R5G6B5:
+    		return D3DX_SF_R5G6B5;
+		case PF_A4R4G4B4:
+    		return D3DX_SF_A4R4G4B4;
+		case PF_L8:
+    		return D3DX_SF_L8;
+		case PF_BYTE_LA: // Assume little endian
+    		return D3DX_SF_A8L8;
+		case PF_DXT1:
+    		return D3DX_SF_DXT1;
+		case PF_DXT3:
+    		return D3DX_SF_DXT3;
+		case PF_DXT5:
+    		return D3DX_SF_DXT5;
+		case PF_A8:
+    		return D3DX_SF_A8;
+		default:
+			return D3DX_SF_UNKNOWN;
+		}
     }
 
-    static void OgreFormat_to_DDPixelFormat( PixelFormat format, DDPIXELFORMAT & out )
+	PixelFormat D3DTexture::closestD3DXFormat( PixelFormat format )
+	{
+		if(OgreFormat_to_D3DXFormat(format) != D3DX_SF_UNKNOWN)
+		{
+			// Format is directly supported -- great!
+			return format;
+		}
+		switch(format)
+		{
+		case PF_B5G6R5:
+			return PF_R5G6B5;
+		case PF_B4G4R4A4:
+			return PF_A4R4G4B4;
+		case PF_B8G8R8:
+			return PF_R8G8B8;
+		case PF_B8G8R8A8:
+			return PF_A8R8G8B8;
+		default:
+			return PF_A8R8G8B8;
+		}
+	}
+
+    bool D3DTexture::OgreFormat_to_DDPixelFormat( PixelFormat format, DDPIXELFORMAT & out )
     {
+		D3DX_SURFACEFORMAT fmt = OgreFormat_to_D3DXFormat(format);
+		if(fmt != D3DX_SF_UNKNOWN)
+		{
+			D3DXMakeDDPixelFormat(fmt, &out);
+			return true;
+		}
+		return false;
+#if 0
         memset( &out, 0, sizeof( DDPIXELFORMAT ) );
         out.dwSize = sizeof( DDPIXELFORMAT );
+		if(PixelUtil::isNativeEndian(format))
+		{
+			int depths[4];
+			uint32 masks[4];
+			size_t elemBits = PixelUtil::getNumElemBits(format);
+			PixelUtil::getBitDepths(format, depths);
+			PixelUtil::getBitMasks(format, masks);
 
-        switch( format )
-        {
-        case PF_A8:
-            out.dwFlags = DDPF_ALPHA;
-            out.dwAlphaBitDepth = 8;
-            
-            break;
+			if(PixelUtil::isLuminance(format))
+			{
+				out.dwFlags = DDPF_LUMINANCE;
+				out.dwLuminanceBitCount = elemBits;
+				out.dwLuminanceBitMask = masks[0];
+				if(PixelUtil::hasAlpha(format))
+				{
+					out.dwFlags |= DDPF_ALPHAPIXELS;
+					out.dwLuminanceAlphaBitMask = masks[3];
+				}
+			}
+			else if(depths[0]==0 && depths[1]==0 && depths[2] == 0 && depths[3] != 0)
+			{
+				// Alpha only format
+				out.dwFlags = DDPF_ALPHA;
+				out.dwAlphaBitDepth = elemBits;
+			}
+			else
+			{
+				// RGB[A] format
+				out.dwFlags = DDPF_RGB;
+				out.dwRGBBitCount = elemBits;
+				out.dwRBitMask = masks[0];
+				out.dwGBitMask = masks[1];
+				out.dwBBitMask = masks[2];
+				
+				if(PixelUtil::hasAlpha(format))
+				{
+					out.dwFlags |= DDPF_ALPHAPIXELS;
+					out.dwRGBAlphaBitMask = masks[3];
+				}
+			}
+		}
+		else
+		{
+			switch( format )
+			{
+			case PF_BYTE_LA:
+				// Assume little endian
+				out.dwFlags = DDPF_LUMINANCE | DDPF_ALPHAPIXELS;
+				out.dwLuminanceBitCount = 16;
 
-        case PF_L8:
-            out.dwFlags = DDPF_LUMINANCE ;
-            out.dwLuminanceBitCount = 8;
-
-            break;
-
-        case PF_A4L4:
-            out.dwFlags = DDPF_LUMINANCE | DDPF_ALPHAPIXELS;
-            out.dwLuminanceBitCount = 4;
-
-            out.dwLuminanceAlphaBitMask = 0xf0;
-            out.dwLuminanceBitMask = 0x0f;
-            break;
-
-        case PF_R5G6B5:
-        case PF_B5G6R5:
-            out.dwFlags = DDPF_RGB;
-            out.dwRGBBitCount = 16;
-
-            if( format == PF_R5G6B5 )
-            {
-                out.dwRBitMask = 0xf800;
-                out.dwGBitMask = 0x07e0;
-                out.dwBBitMask = 0x001f;
-            }
-            else
-            {
-                out.dwRBitMask = 0x001f;
-                out.dwGBitMask = 0x07e0;
-                out.dwBBitMask = 0xf800;
-            }
-
-            break;
-
-        case PF_A4R4G4B4:
-        case PF_B4G4R4A4:
-            out.dwFlags = DDPF_RGB | DDPF_ALPHAPIXELS;
-            out.dwRGBBitCount = 12;
-
-            if( format == PF_A4R4G4B4 )
-            {
-                out.dwRGBAlphaBitMask = 0xf000;
-                out.dwRBitMask        = 0x0f00;
-                out.dwGBitMask        = 0x00f0;
-                out.dwBBitMask        = 0x000f;
-            }
-            else
-            {
-                out.dwRGBAlphaBitMask = 0x000f;
-                out.dwRBitMask          = 0x00f0;
-                out.dwGBitMask          = 0x0f00;
-                out.dwBBitMask          = 0xf000;
-            }
-
-            break;
-
-        case PF_R8G8B8:
-        case PF_B8G8R8:
-            out.dwFlags = DDPF_RGB;
-            out.dwRGBBitCount = 24;
-
-            if( format == PF_R8G8B8 )
-            {
-                out.dwRBitMask = 0xff0000;
-                out.dwGBitMask = 0x00ff00;
-                out.dwBBitMask = 0x0000ff;
-            }
-            else
-            {
-                out.dwRBitMask = 0x0000ff;
-                out.dwGBitMask = 0x00ff00;
-                out.dwBBitMask = 0xff0000;
-            }
-
-            break;
-
-        case PF_A8R8G8B8:
-        case PF_B8G8R8A8:
-            out.dwFlags = DDPF_RGB | DDPF_ALPHAPIXELS;
-            out.dwRGBBitCount = 24;
-
-            if( format == PF_A8R8G8B8 )
-            {
-                out.dwRGBAlphaBitMask = 0xff000000;
-                out.dwRBitMask        = 0x00ff0000;
-                out.dwGBitMask        = 0x0000ff00;
-                out.dwBBitMask        = 0x000000ff;
-            }
-            else
-            {
-                out.dwRGBAlphaBitMask = 0x000000ff;
-                out.dwRBitMask        = 0x0000ff00;
-                out.dwGBitMask        = 0x00ff0000;
-                out.dwBBitMask        = 0xff000000;
-            }
-
-            break;
-        }
-    }
+				out.dwLuminanceAlphaBitMask = 0xff00;
+				out.dwLuminanceBitMask = 0x00ff;
+				break;
+			default:
+				// Error unknown format
+				return false;
+			}
+		}
+		return true;
+#endif
+	}
 
     //---------------------------------------------------------------------------------------------
     D3DTexture::D3DTexture(ResourceManager* creator, const String& name, 
@@ -190,524 +175,27 @@ namespace Ogre {
         // since calling virtual methods in base destructors causes crash
         unload(); 
     }
-	/****************************************************************************************/
-    void D3DTexture::blitToTexture( 
-        const Image &src, unsigned uStartX, unsigned uStartY )
-    {
-        blitImage( src, Image::Rect( uStartX, uStartY, src.getWidth(), src.getHeight() ),
-            Image::Rect( 0, 0, Texture::getWidth(), Texture::getHeight() ) );
-    }
-
-    //---------------------------------------------------------------------------------------------
-    void D3DTexture::blitImage( const Image& src, 
-            const Image::Rect imgRect, const Image::Rect texRect )
-    {
-        OgreGuard( "D3DTexture::blitImage" );
-
-        /* We need a temporary surface in which to load the image data. */
-        LPDIRECTDRAWSURFACE7 pddsTempSurface;
-        HRESULT hr;
-        D3DX_SURFACEFORMAT surfFmt, texFmt;
-
-        /* Compute the pixel format for the image. */
-        if( src.getBPP() == 16 )
-        {
-            if( src.getHasAlpha() )
-                surfFmt = D3DX_SF_A4R4G4B4;
-            else
-                surfFmt = D3DX_SF_R5G6B5;
-        }
-        else
-        {
-            if( src.getHasAlpha() )
-                surfFmt = D3DX_SF_A8R8G8B8;
-            else
-                surfFmt = D3DX_SF_R8G8B8;
-        }
-
-        /* Compute the current pixel format of the texture. */
-        if( mFinalBpp == 16 )
-        {
-            if( mHasAlpha )
-                texFmt = D3DX_SF_A4R4G4B4;
-            else
-                texFmt = D3DX_SF_R5G6B5;
-        }
-        else
-        {
-            if( mHasAlpha )
-                texFmt = D3DX_SF_A8R8G8B8;
-            else
-                texFmt = D3DX_SF_R8G8B8;
-        }
-
-        /* Oh, you, endianness! How thy beauty never ceases to amaze me. NOT! 
-           In other words we need to create a temporary image in which we can
-           convert the data (and also apply gamma transformation). */
-        Image tempImg( src );
-        Image::applyGamma( tempImg.getData(), mGamma, static_cast< uint >( tempImg.getSize() ), tempImg.getBPP() );
-        {
-            /* Scoping in order to get rid of the local vars. */
-            uchar *c = tempImg.getData();
-            for( uint i = 0; i < src.getSize(); i+= src.getBPP() >> 3, c += src.getBPP() >> 3 )
-            {
-                uchar tmp;
-
-                if( src.getBPP() == 16 )
-                {
-                    tmp = c[0]; c[0] = c[1]; c[1] = tmp;
-                }
-                else
-                {
-                    tmp = c[0]; c[0] = c[2]; c[2] = tmp;
-                }
-            }
-        }
-
-        /* We generate the mip-maps by hand. */
-        DWORD mipFlag, numMips;
-        mipFlag = D3DX_TEXTURE_NOMIPMAP;
-
-        /* Set the width and height. */
-        DWORD dwWidth = src.getWidth(), dwHeight = src.getHeight();
-
-        /* Create the temporary surface. */
-        if( FAILED( hr = D3DXCreateTexture(
-            mD3DDevice,
-            NULL,
-            &dwWidth,
-            &dwHeight,
-            &texFmt,
-            NULL,
-            &pddsTempSurface,
-            &numMips ) ) )
-        {
-            Except( hr, "Error during blit operation.", "D3DTexture::blitImage" );
-        }
-
-        /* Load the image into the temporary surface. */
-        if( FAILED( hr = D3DXLoadTextureFromMemory(
-            mD3DDevice,
-            pddsTempSurface,
-            D3DX_DEFAULT,
-            tempImg.getData(),
-            NULL,
-            surfFmt,
-            D3DX_DEFAULT,
-            NULL,
-            D3DX_FT_LINEAR ) ) )
-        {
-            pddsTempSurface->Release();
-            Except( hr, "Error during blit operation.", "D3DTexture::blitImage" );
-        }
-
-        /* We have to make sure that the source image wasn't stretched during the loading. */
-        Image::Rect finalRect;
-
-        Real fHeightFactor = Real( dwHeight ) / Real( src.getHeight() );
-        Real fWidthFactor = Real( dwWidth ) / Real( src.getWidth() );
-
-        finalRect.bottom = Real( imgRect.bottom ) * fHeightFactor;
-        finalRect.top    = Real( imgRect.top )    * fHeightFactor;
-        finalRect.left   = Real( imgRect.left )   * fWidthFactor;
-        finalRect.right  = Real( imgRect.right )  * fWidthFactor;
-
-        if( FAILED( hr = mSurface->Blt(
-            (RECT*)&texRect,
-            pddsTempSurface, 
-            (RECT*)&finalRect,
-            DDBLT_WAIT,
-            NULL ) ) )
-        {
-            pddsTempSurface->Release();
-            Except( hr, "Error during blit operation.", "D3DTexture::blitImage" );
-        }
-
-        /* Load the image in all the mip-maps (if there are any, that is). */
-        LPDIRECTDRAWSURFACE7 ddsMipLevel, ddsNextLevel;
-        DDSCAPS2 ddsCaps;
-        HRESULT mipRes = DD_OK;
-        uint mipLevel = 1;
-
-        ZeroMemory(&ddsCaps, sizeof(DDSCAPS2));
-        ddsCaps.dwCaps = DDSCAPS_TEXTURE | DDSCAPS_MIPMAP;
-
-        /* Get the base level and increae the reference count. */
-        ddsMipLevel = mSurface;
-        ddsMipLevel->AddRef();
-
-        /* While we can get a next level in the mip-map chain. */
-        while( ddsMipLevel->GetAttachedSurface( &ddsCaps, &ddsNextLevel ) == DD_OK )
-        {
-            /* Calculate the destination rect. */
-            RECT mipRect = { 
-                texRect.left >> mipLevel,
-                texRect.top  >> mipLevel,
-                texRect.right >> mipLevel,
-                texRect.bottom >> mipLevel
-            };
-
-            /* Blit using D3DX in order to use bilinear filtering. */
-            D3DXLoadTextureFromSurface(
-                mD3DDevice,
-                ddsNextLevel,
-                0,
-                mSurface,
-                (RECT*)&texRect,
-                (RECT*)&mipRect,
-                D3DX_FT_LINEAR );
-
-            /* Release the current level and get the next one, incrementing the mip depth. */
-            ddsMipLevel->Release();
-            ddsMipLevel = ddsNextLevel;
-            mipLevel++;
-        }
-
-        /* Release the last mip-map level surface. */
-        ddsMipLevel->Release();
-
-        /* Release the temporary surface. */
-        pddsTempSurface->Release();
-
-		OgreUnguard();
-    }
-    //---------------------------------------------------------------------------------------------
-HRESULT WINAPI testEnumAtt( 
-  LPDIRECTDRAWSURFACE7 lpDDSurface,  
-  LPDDSURFACEDESC2 desc,  
-  LPVOID lpContext                  
-)
-{
-    if (desc->dwWidth == 512)
-    {
-        int i = 0;
-        i = 1;
-    }
-    return DDENUMRET_OK;
-
-}
-
-    void D3DTexture::blitImage3D( const Image src[], 
-            const Image::Rect imgRect, const Image::Rect texRect )
-    {
-        OgreGuard( "D3DTexture::blitImage3D" );
-
-        HRESULT hr;
-
-        //mSurface->EnumAttachedSurfaces(NULL, testEnumAtt);
-
-
-        for (size_t face = 0; face < 6; ++face)
-		{
-			/* We need a temporary surface in which to load the image data. */
-			LPDIRECTDRAWSURFACE7 pddsTempSurface;
-			D3DX_SURFACEFORMAT surfFmt, texFmt;
-			/* Compute the pixel format for the image. */
-			if( src[face].getBPP() == 16 )
-			{
-				if( src[face].getHasAlpha() )
-					surfFmt = D3DX_SF_A4R4G4B4;
-				else
-					surfFmt = D3DX_SF_R5G6B5;
-			}
-			else
-			{
-				if( src[face].getHasAlpha() )
-					surfFmt = D3DX_SF_A8R8G8B8;
-				else
-					surfFmt = D3DX_SF_R8G8B8;
-			}
-
-			/* Compute the current pixel format of the texture. */
-			if( mFinalBpp == 16 )
-			{
-				if( mHasAlpha )
-					texFmt = D3DX_SF_A4R4G4B4;
-				else
-					texFmt = D3DX_SF_R5G6B5;
-			}
-			else
-			{
-				if( mHasAlpha )
-					texFmt = D3DX_SF_A8R8G8B8;
-				else
-					texFmt = D3DX_SF_R8G8B8;
-			}
-
-			/* Oh, you, endianness! How thy beauty never ceases to amaze me. NOT! 
-			In other words we need to create a temporary image in which we can
-			convert the data (and also apply gamma transformation). */
-			Image tempImg( src[face] );
-			Image::applyGamma( tempImg.getData(), mGamma, static_cast< uint >( tempImg.getSize() ), tempImg.getBPP() );
-			{
-				/* Scoping in order to get rid of the local vars. */
-				uchar *c = tempImg.getData();
-				for( uint i = 0; i < src[face].getSize(); i+= src[face].getBPP() >> 3, c += src[face].getBPP() >> 3 )
-				{
-					uchar tmp;
-
-					if( src[face].getBPP() == 16 )
-					{
-						tmp = c[0]; c[0] = c[1]; c[1] = tmp;
-					}
-					else
-					{
-						tmp = c[0]; c[0] = c[2]; c[2] = tmp;
-					}
-				}
-			}
-
-			/* We generate the mip-maps by hand. */
-			DWORD mipFlag, numMips;
-			mipFlag = D3DX_TEXTURE_NOMIPMAP;
-
-			/* Set the width and height. */
-			DWORD dwWidth = src[face].getWidth(), dwHeight = src[face].getHeight();
-
-			/* Create the temporary surface. */
-			if( FAILED( hr = D3DXCreateTexture(
-				mD3DDevice,
-				NULL,
-				&dwWidth,
-				&dwHeight,
-				&texFmt,
-				NULL,
-				&pddsTempSurface,
-				&numMips ) ) )
-			{
-				Except( hr, "Error during blit operation.", "D3DTexture::blitImage" );
-			}
-
-			/* Load the image into the temporary surface. */
-			if( FAILED( hr = D3DXLoadTextureFromMemory(
-				mD3DDevice,
-				pddsTempSurface,
-				D3DX_DEFAULT,
-				tempImg.getData(),
-				NULL,
-				surfFmt,
-				D3DX_DEFAULT,
-				NULL,
-				D3DX_FT_LINEAR ) ) )
-			{
-				pddsTempSurface->Release();
-				Except( hr, "Error during blit operation.", "D3DTexture::blitImage" );
-			}
-
-			/* We have to make sure that the source image wasn't stretched during the loading. */
-			Image::Rect finalRect;
-
-			Real fHeightFactor = Real( dwHeight ) / Real( src[face].getHeight() );
-			Real fWidthFactor = Real( dwWidth ) / Real( src[face].getWidth() );
-
-			finalRect.bottom = Real( imgRect.bottom ) * fHeightFactor;
-			finalRect.top    = Real( imgRect.top )    * fHeightFactor;
-			finalRect.left   = Real( imgRect.left )   * fWidthFactor;
-			finalRect.right  = Real( imgRect.right )  * fWidthFactor;
-
-			// Get cube map face to blit to
-			LPDIRECTDRAWSURFACE7 pCubeFace;
-			DDSCAPS2 cubeCaps;
-			ZeroMemory(&cubeCaps, sizeof(DDSCAPS2));
-			switch (face)
-			{
-			case 0:
-				// left
-
-                // WTF???
-                // If we try to retrieve DDSCAPS2_CUBEMAP_POSITIVEX we actually get
-                // the FIRST MIPMAP of the +X cubemap surface and we fail on exit
-                // the size is wrong
-                // IS THIS A D3D7 BUG??
-                // The below hack to get around it for now but leaves surface blank
-                //continue;
-                //
-				cubeCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_POSITIVEX;
-				break;
-			case 1:
-				// right
-				cubeCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_NEGATIVEX;
-				break;
-			case 2:
-				// up
-				cubeCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_POSITIVEY;
-				break;
-			case 3:
-				// down
-				cubeCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_NEGATIVEY;
-				break;
-			case 4:
-				// front - NB DirectX is backwards
-				cubeCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_POSITIVEZ;
-				break;
-			case 5:
-				// back - NB DirectX is backwards
-				cubeCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_NEGATIVEZ;
-				break;
-			}
-
-            if (FAILED(hr = mSurface->GetAttachedSurface( &cubeCaps, &pCubeFace)))
-			{
-				pddsTempSurface->Release();
-				Except( hr, "Error getting cube face surface.", "D3DTexture::blitImage" );
-			}
-
-            if( FAILED( hr = pCubeFace->Blt(
-				NULL,
-				pddsTempSurface, 
-				NULL,
-				DDBLT_WAIT,
-				NULL ) ) )
-			{
-				pddsTempSurface->Release();
-                char msg[256];
-                D3DXGetErrorString(hr, 256, msg);
-                Except( hr, String("Error during blit operation: ") + msg, "D3DTexture::blitImage" );
-			}
-
-			/// Load the image in all the mip-maps (if there are any, that is). 
-            
-			LPDIRECTDRAWSURFACE7 ddsMipLevel, ddsNextLevel;
-			DDSCAPS2 ddsCaps;
-			HRESULT mipRes = DD_OK;
-			uint mipLevel = 1;
-
-			ZeroMemory(&ddsCaps, sizeof(DDSCAPS2));
-			ddsCaps.dwCaps = DDSCAPS_TEXTURE | DDSCAPS_MIPMAP;
-
-			// Get the base level and increae the reference count. 
-			ddsMipLevel = pCubeFace;
-			ddsMipLevel->AddRef();
-
-			/// While we can get a next level in the mip-map chain. 
-			while( ddsMipLevel->GetAttachedSurface( &ddsCaps, &ddsNextLevel ) == DD_OK )
-			{
-				// Calculate the destination rect. 
-				RECT mipRect = { 
-					texRect.left >> mipLevel,
-					texRect.top  >> mipLevel,
-					texRect.right >> mipLevel,
-					texRect.bottom >> mipLevel
-				};
-
-				// Blit using D3DX in order to use bilinear filtering. 
-				D3DXLoadTextureFromSurface(
-					mD3DDevice,
-					ddsNextLevel,
-					0,
-					pCubeFace,
-					(RECT*)&texRect,
-					(RECT*)&mipRect,
-					D3DX_FT_LINEAR );
-
-				// Release the current level and get the next one, incrementing the mip depth. 
-				ddsMipLevel->Release();
-				ddsMipLevel = ddsNextLevel;
-				mipLevel++;
-			}
-
-			// Release the last mip-map level surface. 
-			ddsMipLevel->Release();
-            
-		}
-        OgreUnguard();
-    }
-
-    //---------------------------------------------------------------------------------------------
-    void D3DTexture::copyToTexture( TexturePtr& target )
-    {
-        HRESULT hr;
-
-        if( target->getUsage() != mUsage )
-            return;
-
-        if( FAILED( hr = ((D3DTexture*)(target.get()))->getDDSurface()->Blt( NULL, mSurface, NULL, DDBLT_WAIT, NULL ) ) )
-        {
-            Except( Exception::ERR_RENDERINGAPI_ERROR, "Couldn't blit!", "" );
-        }
-    }
-
+	
     //---------------------------------------------------------------------------------------------
     void D3DTexture::loadImage( const Image & img )
     {
-        OgreGuard( "D3DTexture::loadImage" );
-
-        if( mIsLoaded )
-            unload();
-
-        StringUtil::StrStreamType str;
-        str << "D3DTexture: Loading " << mName << " with " 
-            << mNumMipmaps << " mipmaps from Image.";
-        LogManager::getSingleton().logMessage( 
-            LML_TRIVIAL, str.str());
-
-        /* Get parameters from the Image */
-        mHasAlpha = img.getHasAlpha();
-        mSrcWidth = img.getWidth();
-        mSrcHeight = img.getHeight();
-        mSrcBpp = img.getBPP();
-        mFormat = img.getFormat();
-
-        /* Now that we have the image's parameters, create the D3D surface based on them. */
-        createInternalResources();
-
-        /* Blit to the image. This also creates the mip-maps and applies gamma. */
-        blitImage( 
-            img, 
-            Image::Rect( 0, 0, mSrcWidth, mSrcHeight ),
-            Image::Rect( 0, 0, Texture::mWidth, Texture::mHeight ) );
-        
-        unsigned short bytesPerPixel = mFinalBpp >> 3;
-        if( !mHasAlpha && mFinalBpp == 32 )
-        {
-            bytesPerPixel--;
-        }
-        mSize = Texture::mWidth * Texture::mHeight * bytesPerPixel;
-
-        mIsLoaded = true;
-
-        OgreUnguard();
-    }
+        // Use OGRE its own codecs
+		std::vector<const Image*> imagePtrs;
+		imagePtrs.push_back(&img);
+		_loadImages( imagePtrs );
+	}
     //---------------------------------------------------------------------------------------------
     void D3DTexture::loadImage3D( const Image imgs[] )
     {
-        OgreGuard( "D3DTexture::loadImage" );
-
-        if( mIsLoaded )
-            unload();
-
-        StringUtil::StrStreamType str;
-        str << "D3DTexture: Loading cubemap " << mName 
-            << " with " << mNumMipmaps << " mipmaps from Image.";
-        LogManager::getSingleton().logMessage( 
-            LML_TRIVIAL, str.str());
-
-        /* Get parameters from Image[0] (they are all the same) */
-        mHasAlpha = imgs[0].getHasAlpha();
-        mSrcWidth = imgs[0].getWidth();
-        mSrcHeight = imgs[0].getHeight();
-        mSrcBpp = imgs[0].getBPP();
-        mFormat = imgs[0].getFormat();
-
-        /* Now that we have the image's parameters, create the D3D surface based on them. */
-        createInternalResources();
-
-        /* Blit to the image. This also creates the mip-maps and applies gamma. */
-        blitImage3D( 
-            imgs, 
-            Image::Rect( 0, 0, mSrcWidth, mSrcHeight ),
-            Image::Rect( 0, 0, Texture::mWidth, Texture::mHeight ) );
-        
-        unsigned short bytesPerPixel = mFinalBpp >> 3;
-        if( !mHasAlpha && mFinalBpp == 32 )
-        {
-            bytesPerPixel--;
-        }
-        mSize = Texture::mWidth * Texture::mHeight * bytesPerPixel;
-
-        mIsLoaded = true;
-
-        OgreUnguard();
+        // Use OGRE its own codecs
+		std::vector<const Image*> imagePtrs;
+		imagePtrs.push_back(&imgs[0]);
+		imagePtrs.push_back(&imgs[1]);
+		imagePtrs.push_back(&imgs[2]);
+		imagePtrs.push_back(&imgs[3]);
+		imagePtrs.push_back(&imgs[4]);
+		imagePtrs.push_back(&imgs[5]);
+		_loadImages( imagePtrs );
 	}
     //---------------------------------------------------------------------------------------------
     void D3DTexture::createInternalResources(void)
@@ -716,10 +204,15 @@ HRESULT WINAPI testEnumAtt(
         {
             createSurface3D();
         }
-        else
+        else if(mTextureType == TEX_TYPE_2D)
         {
             createSurface2D();
         }
+		else
+		{
+			Except( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3DTexture::createInternalResources" );
+		}
+		_createSurfaceList();
     }
     //---------------------------------------------------------------------------------------------
     void D3DTexture::loadImpl(void)
@@ -735,15 +228,28 @@ HRESULT WINAPI testEnumAtt(
 			loadImage3D(imgs);
 
 		}
-		else
+		else if(mTextureType == TEX_TYPE_2D)
 		{
 			Image img;
 			img.load(mName, mGroup);
 			
 			loadImage( img );
 		}
+		else
+		{
+			Except( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3DTexture::loadImpl" );
+		}
 
     }
+	//---------------------------------------------------------------------------------------------
+	void D3DTexture::copyToTexture(TexturePtr& target )
+	{
+		HRESULT hr;
+        if( FAILED( hr = ((D3DTexture*)(target.get()))->getDDSurface()->Blt( NULL, mSurface, NULL, DDBLT_WAIT, NULL ) ) )
+        {
+            Except( Exception::ERR_RENDERINGAPI_ERROR, "Couldn't blit!", "D3DTexture::copyToTexture" );
+        }
+	}
 
     //---------------------------------------------------------------------------------------------
     void D3DTexture::unloadImpl()
@@ -753,6 +259,8 @@ HRESULT WINAPI testEnumAtt(
 	//---------------------------------------------------------------------------------------------
 	void D3DTexture::_chooseD3DFormat(DDPIXELFORMAT &ddpf)
 	{
+		//mFormat = closestD3DXFormat(mFormat);
+		//OgreFormat_to_DDPixelFormat(mFormat, ddpf);
 		/* The pixel format is always RGB */
         ddpf.dwFlags = DDPF_RGB;
         ddpf.dwRGBBitCount = mFinalBpp;
@@ -772,6 +280,7 @@ HRESULT WINAPI testEnumAtt(
                 ddpf.dwRBitMask        = 0x0f00;
                 ddpf.dwGBitMask        = 0x00f0;
                 ddpf.dwBBitMask        = 0x000f;
+				mFormat = PF_A4R4G4B4;
             }
             else
             {
@@ -779,6 +288,7 @@ HRESULT WINAPI testEnumAtt(
                 ddpf.dwRBitMask = 0xf800;
                 ddpf.dwGBitMask = 0x07e0;
                 ddpf.dwBBitMask = 0x001f;
+				mFormat = PF_R5G6B5;
             }
         }
         else
@@ -790,6 +300,7 @@ HRESULT WINAPI testEnumAtt(
                 ddpf.dwRBitMask        = 0x00ff0000;
                 ddpf.dwGBitMask        = 0x0000ff00;
                 ddpf.dwBBitMask        = 0x000000ff;
+				mFormat = PF_A8R8G8B8;
             }
             else
             {
@@ -797,6 +308,7 @@ HRESULT WINAPI testEnumAtt(
                 ddpf.dwRBitMask        = 0xff0000;
                 ddpf.dwGBitMask        = 0x00ff00;
                 ddpf.dwBBitMask        = 0x0000ff;
+				mFormat = PF_X8R8G8B8;
             }
         }
 	}
@@ -890,7 +402,7 @@ HRESULT WINAPI testEnumAtt(
 
         HRESULT hr;
 
-        /* Now create the surface. */
+		/* Now create the surface. */
         if( FAILED( hr = pDD->CreateSurface( &ddsd, &mSurface, NULL ) ) )
         {
             pDD->Release();
@@ -1107,13 +619,148 @@ HRESULT WINAPI testEnumAtt(
 			mCubeFaceNames[i] = baseName + suffixes[i] + ext;
 	}
 	//---------------------------------------------------------------------------------------------
-	HardwarePixelBufferSharedPtr D3DTexture::getBuffer(int face, int mipmap)
+	HardwarePixelBufferSharedPtr D3DTexture::getBuffer(size_t face, size_t mipmap)
 	{
-		// TODO
-		Except(Exception::UNIMPLEMENTED_FEATURE,
-				"Function not yet implemented",
-				"D3DTexture::getBuffer");
+		if(face >= getNumFaces())
+			Except(Exception::ERR_INVALIDPARAMS, "A three dimensional cube has six faces",
+					"D3D9Texture::getBuffer");
+		if(mipmap > getNumMipmaps())
+			Except(Exception::ERR_INVALIDPARAMS, "Mipmap index out of range",
+					"D3D9Texture::getBuffer");
+		int idx = face*(mNumMipmaps+1) + mipmap;
+		assert(idx < mSurfaceList.size());
+		return mSurfaceList[idx];
 	}
 
-}
+    //---------------------------------------------------------------------------------------------
+	// Macro to hide ugly cast
+	#define GETLEVEL(face,mip) \
+	 	static_cast<D3D7HardwarePixelBuffer*>(mSurfaceList[face*(mNumMipmaps+1)+mip].get())
+	void D3DTexture::_createSurfaceList()
+	{
+		HRESULT hr;
+		size_t face;
+		mSurfaceList.clear();
 
+		// Get real number of mipmaps
+		DDSURFACEDESC2 desc;
+		desc.dwSize = sizeof(DDSURFACEDESC2);
+		if(mSurface->GetSurfaceDesc(&desc) != D3D_OK)
+			Except(Exception::ERR_RENDERINGAPI_ERROR, "Could not get surface information",
+			"D3DTexture::_createSurfaceList()");
+		if(desc.dwFlags & DDSD_MIPMAPCOUNT)
+			mNumMipmaps = desc.dwMipMapCount;
+		else
+			mNumMipmaps = 0;
+
+		// Create the list
+		HardwareBuffer::Usage bufusage;
+		if ((mUsage & TU_DYNAMIC))
+		{
+			bufusage = HardwareBuffer::HBU_DYNAMIC;
+		}
+		else
+		{
+			bufusage = HardwareBuffer::HBU_STATIC;
+		}
+		for(face=0; face < getNumFaces(); ++face)
+		{
+			for(size_t mip=0; mip<=mNumMipmaps; ++mip)
+			{
+				mSurfaceList.push_back(
+					HardwarePixelBufferSharedPtr(
+						new D3D7HardwarePixelBuffer(bufusage, mD3DDevice)
+					)
+				);
+			}
+		}
+
+		// Enumerate all surfaces
+        for (face = 0; face < getNumFaces(); ++face)
+		{
+			LPDIRECTDRAWSURFACE7 pCubeFace;
+			if(mTextureType == TEX_TYPE_CUBE_MAP)
+			{
+				// Get cube map face to blit to
+				DDSCAPS2 cubeCaps;
+				ZeroMemory(&cubeCaps, sizeof(DDSCAPS2));
+				switch (face)
+				{
+				case 0:
+					// left
+					cubeCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_POSITIVEX;
+					break;
+				case 1:
+					// right
+					cubeCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_NEGATIVEX;
+					break;
+				case 2:
+					// up
+					cubeCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_POSITIVEY;
+					break;
+				case 3:
+					// down
+					cubeCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_NEGATIVEY;
+					break;
+				case 4:
+					// front - NB DirectX is backwards
+					cubeCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_POSITIVEZ;
+					break;
+				case 5:
+					// back - NB DirectX is backwards
+					cubeCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_NEGATIVEZ;
+					break;
+				}
+
+				if (FAILED(hr = mSurface->GetAttachedSurface( &cubeCaps, &pCubeFace)))
+				{
+					Except( hr, "Error getting cube face surface.", "D3DTexture::_createSurfaceList" );
+				}	
+			}
+			else
+			{
+				pCubeFace = mSurface;
+				pCubeFace->AddRef();
+			}
+
+			GETLEVEL(face, 0)->bind(pCubeFace, mFormat);
+
+			LPDIRECTDRAWSURFACE7 ddsMipLevel, ddsNextLevel;
+			DDSCAPS2 ddsCaps;
+			HRESULT mipRes = DD_OK;
+			size_t mipLevel = 1;
+
+			ZeroMemory(&ddsCaps, sizeof(DDSCAPS2));
+			ddsCaps.dwCaps = DDSCAPS_TEXTURE | DDSCAPS_MIPMAP;
+
+			// Get the base level and increae the reference count. 
+			ddsMipLevel = pCubeFace;
+			ddsMipLevel->AddRef();
+
+			/// While we can get a next level in the mip-map chain. 
+			while( ddsMipLevel->GetAttachedSurface( &ddsCaps, &ddsNextLevel ) == DD_OK )
+			{
+				GETLEVEL(face, mipLevel)->bind(ddsNextLevel, mFormat);
+				// Release the current level and get the next one, incrementing the mip depth. 
+				ddsMipLevel->Release();
+				ddsMipLevel = ddsNextLevel;
+				mipLevel++;
+			}
+
+			// Release the last mip-map level surface. 
+			ddsMipLevel->Release();
+			// Release face reference
+			pCubeFace->Release();
+		}
+
+		// Set autogeneration of mipmaps for each face of the texture, if it is enabled
+		if(mNumMipmaps>0 && (mUsage & TU_AUTOMIPMAP)) 
+		{
+			for(size_t face=0; face<getNumFaces(); ++face)
+			{
+				GETLEVEL(face, 0)->_setMipmapping(true);
+			}
+		}
+	}
+	#undef GETLEVEL
+}

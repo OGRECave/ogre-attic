@@ -248,7 +248,7 @@ void GLHardwarePixelBuffer::upload(PixelBox &data)
 					data.data);
 				break;
 			case GL_TEXTURE_3D:
-				glTexSubImage3DEXT(GL_TEXTURE_3D, mLevel, 
+				glTexSubImage3D(GL_TEXTURE_3D, mLevel, 
 					data.left, data.top, data.front,
 					data.getWidth(), data.getHeight(), data.getDepth(),
 					GLPixelUtil::getGLOriginFormat(data.format), GLPixelUtil::getGLOriginDataType(data.format),

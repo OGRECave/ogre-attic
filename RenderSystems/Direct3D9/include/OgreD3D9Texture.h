@@ -138,7 +138,7 @@ namespace Ogre {
         void createInternalResources(void);
 
 		/// @copydoc Texture::getBuffer
-		HardwarePixelBufferSharedPtr getBuffer(int face, int mipmap);
+		HardwarePixelBufferSharedPtr getBuffer(size_t face, size_t mipmap);
 		
 		/// retrieves a pointer to the actual texture
 		IDirect3DBaseTexture9 *getTexture() 

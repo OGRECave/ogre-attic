@@ -933,9 +933,9 @@ namespace Ogre
 		{
 			// Create new list of surfaces
 			mSurfaceList.clear();
-			for(int face=0; face<getNumFaces(); face++)
+			for(size_t face=0; face<getNumFaces(); ++face)
 			{
-				for(int mip=0; mip<=mNumMipmaps; mip++)
+				for(size_t mip=0; mip<=mNumMipmaps; ++mip)
 				{
 					buffer = new D3D9HardwarePixelBuffer(bufusage);
 					mSurfaceList.push_back(
@@ -950,7 +950,7 @@ namespace Ogre
 		case TEX_TYPE_1D:
 			assert(mpNormTex);
 			// For all mipmaps, store surfaces as HardwarePixelBufferSharedPtr
-			for(int mip=0; mip<=mNumMipmaps; mip++)
+			for(size_t mip=0; mip<=mNumMipmaps; ++mip)
 			{
 				if(mpNormTex->GetSurfaceLevel(mip, &surface) != D3D_OK)
 					Except(Exception::ERR_RENDERINGAPI_ERROR, "Get surface level failed",
@@ -965,9 +965,9 @@ namespace Ogre
 		case TEX_TYPE_CUBE_MAP:
 			assert(mpCubeTex);
 			// For all faces and mipmaps, store surfaces as HardwarePixelBufferSharedPtr
-			for(int face=0; face<6; face++)
+			for(size_t face=0; face<6; ++face)
 			{
-				for(int mip=0; mip<=mNumMipmaps; mip++)
+				for(size_t mip=0; mip<=mNumMipmaps; ++mip)
 				{
 					if(mpCubeTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, mip, &surface) != D3D_OK)
 						Except(Exception::ERR_RENDERINGAPI_ERROR, "Get cubemap surface failed",
@@ -983,7 +983,7 @@ namespace Ogre
 		case TEX_TYPE_3D:
 			assert(mpVolumeTex);
 			// For all mipmaps, store surfaces as HardwarePixelBufferSharedPtr
-			for(int mip=0; mip<=mNumMipmaps; mip++)
+			for(size_t mip=0; mip<=mNumMipmaps; ++mip)
 			{
 				if(mpVolumeTex->GetVolumeLevel(mip, &volume) != D3D_OK)
 					Except(Exception::ERR_RENDERINGAPI_ERROR, "Get volume level failed",
@@ -1000,7 +1000,7 @@ namespace Ogre
 		// Set autogeneration of mipmaps for each face of the texture, if it is enabled
 		if(mNumMipmaps>0 && (mUsage & TU_AUTOMIPMAP)) 
 		{
-			for(int face=0; face<getNumFaces(); face++)
+			for(size_t face=0; face<getNumFaces(); ++face)
 			{
 				GETLEVEL(face, 0)->_setMipmapping(true, mAutoGenMipmaps, mpTex);
 			}
@@ -1008,15 +1008,12 @@ namespace Ogre
 	}
 	#undef GETLEVEL
 	/****************************************************************************************/
-	HardwarePixelBufferSharedPtr D3D9Texture::getBuffer(int face, int mipmap) 
+	HardwarePixelBufferSharedPtr D3D9Texture::getBuffer(size_t face, size_t mipmap) 
 	{
-		if(getTextureType() != TEX_TYPE_CUBE_MAP && face != 0)
-			Except(Exception::ERR_INVALIDPARAMS, "Normal textures have only face 0",
-					"D3D9Texture::getBuffer");
-		if(face < 0 || face >= 6)
+		if(face >= getNumFaces())
 			Except(Exception::ERR_INVALIDPARAMS, "A three dimensional cube has six faces",
 					"D3D9Texture::getBuffer");
-		if(mipmap < 0 || mipmap > mNumMipmaps)
+		if(mipmap > mNumMipmaps)
 			Except(Exception::ERR_INVALIDPARAMS, "Mipmap index out of range",
 					"D3D9Texture::getBuffer");
 		int idx = face*(mNumMipmaps+1) + mipmap;

@@ -316,6 +316,11 @@ namespace Ogre {
         */
         static void getBitDepths(PixelFormat format, int rgba[4]);
 
+		/** Gives the masks for the R, G, B and A component
+		  @note			Only valid for native endian formats
+        */
+        static void getBitMasks(PixelFormat format, uint32 rgba[4]);
+
         /** Gets the name of an image format
         */
         static String getFormatName(PixelFormat srcformat);

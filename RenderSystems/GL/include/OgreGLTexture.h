@@ -51,7 +51,7 @@ namespace Ogre {
         void createRenderTexture();
 			
 		/// @copydoc Texture::getBuffer
-		HardwarePixelBufferSharedPtr getBuffer(int face, int mipmap);
+		HardwarePixelBufferSharedPtr getBuffer(size_t face, size_t mipmap);
 
         // Takes the OGRE texture type (1d/2d/3d/cube) and returns the appropriate GL one
         GLenum getGLTextureTarget(void) const;
