@@ -295,11 +295,11 @@ namespace Ogre
         // While we've still got some digits in value, add them.
         while( value )
         {
-            *p++ = '0' + (char)( value % 10 ); value /= 10;
+            *p-- = '0' + (char)( value % 10 ); value /= 10;
 
             // If the digit which was inserted was at the end of a group, add a comma.
             if( !( c_digit % 3 ) )
-                *p++ = ',';
+                *p-- = ',';
 
             c_digit++;
         }
@@ -769,7 +769,7 @@ namespace Ogre
 
             if( allocationType == m_alloc_unknown )
             {
-                log( "[!] Allocation made from outside memory tracker in %s(%s)::%s:", au->sourceFile, au->sourceLine, au->sourceFunc );
+                log( "[!] Allocation made from outside memory tracker in %s(%d)::%s:", au->sourceFile, au->sourceLine, au->sourceFunc );
                 dumpAllocUnit( au, "  " );
             }
 
