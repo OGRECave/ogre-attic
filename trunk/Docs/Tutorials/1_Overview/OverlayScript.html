@@ -1,102 +1,164 @@
-<html>
-<head>
-<title>Tutorial: Overlay Scripts</title> <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"><STYLE TYPE="text/css">
-<!--
-.MainHeader {  font-weight: bold; color: #FFFF33; background-color: #006600; font-size: 10pt}
-body {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC; background-color: #003300}
-.BorderHeader {  background-color: #999900; font-size: 8pt; font-weight: bold; color: #333300; text-align: center}
-.MainContent { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC }
-.BorderContent {  font-size: 8pt; color: #66CC33; border-color: black #666600 #666600; padding-top: 2px; padding-right: 2px; padding-bottom: 10px; padding-left: 2px; margin-bottom: 2px; border-style: solid; border-top-width: 0px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px}
-a:link {  color: #FFFF00; text-decoration: underline}
-a:hover {  color: #FFFFFF; text-decoration: underline}
-a:visited {  color: #FFCC66; text-decoration: underline}
-li {  color: #66CC33; list-style-type: circle; position: relative; left: -15px; clip:    rect(   )}
-.NewsDate {  color: #CCFFCC; font-weight: bold}
-td {  font-size: 10pt}
-th {  font-size: 10pt}
-.Annotation {  font-size: 10px}
-
-H1 { text-align: center; }
-A.qindex {}
-A.qindexRef {}
-A.el { text-decoration: none; font-weight: bold }
-A.elRef { font-weight: bold }
-A.code { text-decoration: none; font-weight: normal; color: #4444ee }
-A.codeRef { font-weight: normal; color: #4444ee }
-DL.el { margin-left: -1cm }
-DIV.fragment { width: 100%; border: none; background-color: #003300 }
-DIV.ah { background-color: black; margin-bottom: 3; margin-top: 3 }
-TD.md { background-color: #006600 }
-DIV.groupHeader { margin-left: 16; margin-top: 12; margin-bottom: 6; font-weight: bold }
-DIV.groupText { margin-left: 16; font-style: italic; font-size: smaller }
-FONT.keyword       { color: #008000 }
-FONT.keywordtype   { color: #999920 }
-FONT.keywordflow   { color: #e0FF00 }
-FONT.comment       { color: #009900 }
-FONT.preprocessor  { color: #809020 }
-FONT.stringliteral { color: #002080 }
-FONT.charliteral   { color: #008080 }
-
-H3 {
-    FONT-FAMILY: trebuchet ms,helvetica,arial
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE>Tutorial: Overlay Scripts</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+<STYLE type=text/css>.MainHeader {
+	FONT-WEIGHT: bold; FONT-SIZE: 10pt; COLOR: #ffff33; BACKGROUND-COLOR: #006600
 }
-
+BODY {
+	FONT-SIZE: 10pt; COLOR: #ccffcc; FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif; BACKGROUND-COLOR: #003300
+}
+.BorderHeader {
+	FONT-WEIGHT: bold; FONT-SIZE: 8pt; COLOR: #333300; BACKGROUND-COLOR: #999900; TEXT-ALIGN: center
+}
+.MainContent {
+	FONT-SIZE: 10pt; COLOR: #ccffcc; FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif
+}
+.BorderContent {
+	BORDER-RIGHT: #666600 1px solid; PADDING-RIGHT: 2px; BORDER-TOP: black 0px solid; PADDING-LEFT: 2px; FONT-SIZE: 8pt; MARGIN-BOTTOM: 2px; PADDING-BOTTOM: 10px; BORDER-LEFT: #666600 1px solid; COLOR: #66cc33; PADDING-TOP: 2px; BORDER-BOTTOM: #666600 1px solid
+}
+A:link {
+	COLOR: #ffff00; TEXT-DECORATION: underline
+}
+A:hover {
+	COLOR: #ffffff; TEXT-DECORATION: underline
+}
+A:visited {
+	COLOR: #ffcc66; TEXT-DECORATION: underline
+}
+LI {
+	LEFT: -15px; COLOR: #66cc33; LIST-STYLE-TYPE: circle; POSITION: relative
+}
+.NewsDate {
+	FONT-WEIGHT: bold; COLOR: #ccffcc
+}
+TD {
+	FONT-SIZE: 10pt
+}
+TH {
+	FONT-SIZE: 10pt
+}
+.Annotation {
+	FONT-SIZE: 10px
+}
+H1 {
+	TEXT-ALIGN: center
+}
+A.qindex {
+	
+}
+A.qindexRef {
+	
+}
+A.el {
+	FONT-WEIGHT: bold; TEXT-DECORATION: none
+}
+A.elRef {
+	FONT-WEIGHT: bold
+}
+A.code {
+	FONT-WEIGHT: normal; COLOR: #4444ee; TEXT-DECORATION: none
+}
+A.codeRef {
+	FONT-WEIGHT: normal; COLOR: #4444ee
+}
+DL.el {
+	MARGIN-LEFT: -1cm
+}
+DIV.fragment {
+	BORDER-RIGHT: medium none; BORDER-TOP: medium none; BORDER-LEFT: medium none; WIDTH: 100%; BORDER-BOTTOM: medium none; BACKGROUND-COLOR: #003300
+}
+DIV.ah {
+	MARGIN-TOP: 3px; MARGIN-BOTTOM: 3px; BACKGROUND-COLOR: black
+}
+TD.md {
+	BACKGROUND-COLOR: #006600
+}
+DIV.groupHeader {
+	MARGIN-TOP: 12px; FONT-WEIGHT: bold; MARGIN-BOTTOM: 6px; MARGIN-LEFT: 16px
+}
+DIV.groupText {
+	FONT-SIZE: smaller; MARGIN-LEFT: 16px; FONT-STYLE: italic
+}
+FONT.keyword {
+	COLOR: #008000
+}
+FONT.keywordtype {
+	COLOR: #999920
+}
+FONT.keywordflow {
+	COLOR: #e0ff00
+}
+FONT.comment {
+	COLOR: #009900
+}
+FONT.preprocessor {
+	COLOR: #809020
+}
+FONT.stringliteral {
+	COLOR: #002080
+}
+FONT.charliteral {
+	COLOR: #008080
+}
+H3 {
+	FONT-FAMILY: trebuchet ms,helvetica,arial
+}
 .ex {
-    FONT-SIZE: 8pt; FONT-FAMILY: tahoma
+	FONT-SIZE: 8pt; FONT-FAMILY: tahoma
 }
 CODE.keywordtype {
-    COLOR: #00ccff
+	COLOR: #00ccff
 }
 CODE.keyword {
-    FONT-WEIGHT: bold; COLOR: #00ccff
+	FONT-WEIGHT: bold; COLOR: #00ccff
 }
 CODE.fn {
-    COLOR: white;
-    FONT-WEIGHT: bold;
+	FONT-WEIGHT: bold; COLOR: white
 }
 CODE.var {
-    COLOR: #dcdcdc;
+	COLOR: #dcdcdc
 }
 CODE.macro {
-    COLOR: #809020;
-    FONT-WEIGHT: bold;
+	FONT-WEIGHT: bold; COLOR: #809020
 }
 CODE.comm {
-    COLOR: lime
+	COLOR: lime
 }
 CODE.num {
-    COLOR: purple
+	COLOR: purple
 }
 CODE.str {
-    COLOR: #ffcc33;
-    font-style: italic
+	COLOR: #ffcc33; FONT-STYLE: italic
 }
-.SectionHeader {  font-size: 14px; color: #FFFFCC; font-weight: bold}
-.header {  font-size: 16px; font-weight: bold; color: #FFFFCC}
--->
-</STYLE> 
-</head>
+.SectionHeader {
+	FONT-WEIGHT: bold; FONT-SIZE: 14px; COLOR: #ffffcc
+}
+.header {
+	FONT-WEIGHT: bold; FONT-SIZE: 16px; COLOR: #ffffcc
+}
+</STYLE>
 
-<body bgcolor="#FFFFFF" text="#000000">
-<p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p><p align="center" class="header">Material 
-Scripts</p><p align="left" class="MainHeader">&nbsp;</p><P ALIGN="LEFT" CLASS="SectionHeader">Overlay 
-scripts</P><P ALIGN="LEFT">Overlay scripts offer you the ability to define overlays 
+<META content="MSHTML 6.00.2600.0" name=GENERATOR></HEAD>
+<BODY text=#000000 bgColor=#ffffff>
+<P class=header align=center>OGRE (Object-Oriented Graphics Rendering Engine)</P><P class=header align=center>Material 
+Scripts</P><P class=MainHeader align=left>&nbsp;</P><P class=SectionHeader align=left>Overlay 
+scripts</P><P align=left>Overlay scripts offer you the ability to define overlays 
 in a script which can be reused easily. Whilst you could set up all overlays for 
 a scene in code using the methods of the SceneManager, Overlay and GuiElement 
 classes, in practice it's a bit unwieldy. Instead you can store overlay definitions 
-in text files which can then be loaded whenever required.</P><P ALIGN="LEFT" CLASS="SectionHeader">Loading 
-scripts</P><P ALIGN="LEFT">Overlay scripts are loaded at initialisation time by 
+in text files which can then be loaded whenever required.</P><P class=SectionHeader align=left>Loading 
+scripts</P><P align=left>Overlay scripts are loaded at initialisation time by 
 the system: by default it looks in all common resource locations (see Root::addResourceLocation) 
 for files with the '.overlay' extension and parses them. If you want to parse 
 files with a different extension, use the OverlayManager::getSingleton().parseAllSources 
 method with your own extension, or if you want to parse an individual file, use 
-OverlayManager::getSingleton().parseScript.</P><P ALIGN="LEFT" CLASS="SectionHeader">Format</P><P ALIGN="LEFT">Several 
+OverlayManager::getSingleton().parseScript.</P><P class=SectionHeader align=left>Format</P><P align=left>Several 
 overlays may be defined in a single script. The script format is pseudo-C++, with 
-sections delimited by curly braces ({}), and comments indicated by starting a 
-line with '//' (note, no nested form comments allowed). The general format is 
-shown below in a typical example:</P><HR><P>// The name of the overlay comes first<BR>MyOverlays/ANewOverlay<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;zorder 
-200<BR><BR> &nbsp;&nbsp;&nbsp;&nbsp;container Panel(MyGuiElements/TestPanel)<BR> 
-&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 
+sections delimited by curly braces ({}), comments indicated by starting a line 
+with '//' (note, no nested form comments allowed), and inheritance through the 
+use of templates. The general format is shown below in a typical example:</P><HR> 
+<P>// The name of the overlay comes first<BR>MyOverlays/ANewOverlay<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;zorder 
+200<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;container Panel(MyGuiElements/TestPanel)<BR>&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 
 Center it horzontally, put it at the top<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;left 
 0.25<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;top 0<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width 
 0.5<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height 0.1<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;material 
@@ -108,46 +170,127 @@ Panel(MyGuiElements/AnotherPanel)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
 0.1<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height 
 0.1 <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;material 
 MyMaterials/NestedPanel<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} <BR>&nbsp;&nbsp;&nbsp;&nbsp;}<BR><BR>} 
-</P><HR><P ALIGN="LEFT">The above example defines a single overlay called 'MyOverlays/ANewOverlay', 
+</P><HR> <P align=left>The above example defines a single overlay called 'MyOverlays/ANewOverlay', 
 with 2 panels in it, one nested under the other. It uses relative metrics (the 
-default if no metrics_mode option is found).</P><P ALIGN="LEFT">Every overlay 
-in the script must be given a name, which is the line before the first opening 
-'{'. This name must be globally unique. It can include path characters (as in 
-the example) to logically divide up your overlays, and also to avoid duplicate 
-names, but the engine does not treat the name a hierarchical, just as a string.</P><P ALIGN="LEFT">Within 
+default if no metrics_mode option is found).</P><P align=left>Every overlay in 
+the script must be given a name, which is the line before the first opening '{'. 
+This name must be globally unique. It can include path characters (as in the example) 
+to logically divide up your overlays, and also to avoid duplicate names, but the 
+engine does not treat the name a hierarchical, just as a string.</P><P align=left>Within 
 the braces are the properties of the overlay, and any nested elements. The overlay 
 itself only has a single property 'zorder' which determines how'high' it is in 
 the stack of overlays if more than one is displayed at the same time. Overlays 
-with higher zorder values are displayed on top.</P><P ALIGN="LEFT">Within an overlay, 
-you can include any number of 2D or 3D elements. You do this by defining a nested 
-block headed by:</P><UL><LI>'<A HREF="#element">element</A>' if you want to define 
-a 2D element which cannot have children of it's own</LI><LI>'<A HREF="#element">container</A>' 
+with higher zorder values are displayed on top.</P><P class=SectionHeader align=left>Adding 
+elements to the overlay</P><P align=left>Within an overlay, you can include any 
+number of 2D or 3D elements. You do this by defining a nested block headed by:</P><UL> 
+<LI>'<A 
+  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScript1.html#element">element</A>' 
+if you want to define a 2D element which cannot have children of it's own <LI>'<A 
+  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScript1.html#element">container</A>' 
 if you want to define a 2D container object (which may itself have nested containers 
-or elements)</LI><LI>'<A HREF="#entity">entity</A>' if you want to include a 3D 
-element (can only occur directly under the overlay, not under a 2D element)</LI></UL><P>The 
-element and container blocks are pretty identical apart from their ability to 
-store nested blocks.</P><P CLASS="SectionHeader"><A NAME="element"></A>'container' 
+or elements) <LI>'<A 
+  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScript1.html#entity">entity</A>' 
+if you want to include a 3D element (can only occur directly under the overlay, 
+not under a 2D element)</LI></UL><P>The element and container blocks are pretty 
+identical apart from their ability to store nested blocks.</P><P class=SectionHeader><A name=element></A>'container' 
 / 'element' blocks</P><P>These are delimited by curly braces. The format for the 
 header preceding the first brace is:</P><P>[container | element] &lt;type_name&gt; 
-( &lt;instance_name&gt;)<BR>{ ...</P><P>type_name: Must resolve to the name of 
-a GuiElement type which has been registered with the GuiManager. Plugins register 
-with the GuiManager to advertise their ability to create elements, and at this 
-time advertise the name of the type. OGRE comes preconfigured with types 'Panel', 
-'BorderPanel' and 'TextArea'.</P><P>instance_name: Must be a name unique among 
-all other elements / containers by which to identify the element. Note that you 
-can obtain a pointer to any named element by calling GuiManager::getSingleton().getGuiElement(name).</P><P>The 
+( &lt;instance_name&gt;) [: &lt;template_name&gt;]<BR>{ ...</P><P>type_name: Must 
+resolve to the name of a GuiElement type which has been registered with the GuiManager. 
+Plugins register with the GuiManager to advertise their ability to create elements, 
+and at this time advertise the name of the type. OGRE comes preconfigured with 
+types 'Panel', 'BorderPanel' and 'TextArea'.</P><P>instance_name: Must be a name 
+unique among all other elements / containers by which to identify the element. 
+Note that you can obtain a pointer to any named element by calling GuiManager::getSingleton().getGuiElement(name).</P><P>template_name: 
+Optional template on which to base this item. See <A HREF="#templates">templates</A>.</P><P>The 
 properties which can be included within the braces depend on the custom type. 
-However the following are always valid:</P><P ALIGN="LEFT" CLASS="SectionHeader">Common 
-element attributes </P><UL><LI><A HREF="OverlayScriptAttributes.html#metrics_mode">metrics_mode</A></LI><LI><A HREF="OverlayScriptAttributes.html#horz_align">horz_align</A></LI><LI><A HREF="OverlayScriptAttributes.html#vert_align">vert_align</A></LI><LI><A HREF="OverlayScriptAttributes.html#left">left</A></LI><LI><A HREF="OverlayScriptAttributes.html#top">top</A></LI><LI><A HREF="OverlayScriptAttributes.html#width">width</A></LI><LI><A HREF="OverlayScriptAttributes.html#height">height</A></LI><LI><A HREF="OverlayScriptAttributes.html#material">material</A></LI><LI><A HREF="OverlayScriptAttributes.html#caption">caption</A></LI></UL><P CLASS="SectionHeader"><A></A><A NAME="entity"></A>'entity' 
+However the following are always valid:</P><P class=SectionHeader align=left>Common 
+element attributes </P><UL> <LI><A 
+  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScriptAttributes.html#metrics_mode">metrics_mode</A> 
+<LI><A 
+  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScriptAttributes.html#horz_align">horz_align</A> 
+<LI><A 
+  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScriptAttributes.html#vert_align">vert_align</A> 
+<LI><A 
+  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScriptAttributes.html#left">left</A> 
+<LI><A 
+  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScriptAttributes.html#top">top</A> 
+<LI><A 
+  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScriptAttributes.html#width">width</A> 
+<LI><A 
+  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScriptAttributes.html#height">height</A> 
+<LI><A 
+  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScriptAttributes.html#material">material</A> 
+<LI><A 
+  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScriptAttributes.html#caption">caption</A></LI></UL><P class=SectionHeader><A></A><A name=entity></A>'entity' 
 blocks </P><P>These are delimited by curly braces. The format for the header preceding 
 the first brace is:</P><P>entity &lt;mesh_name&gt; ( &lt;entity_name&gt;)<BR>{ 
 ...</P><P>mesh_name: The name of a .mesh file defining the entity geometry</P><P>entity_name: 
 The name to give the entity created, must be unique to this entity.</P><P>You 
-can also define the following properties:</P><UL><LI><A HREF="OverlayScriptAttributes.html#position">position</A></LI><LI><A HREF="OverlayScriptAttributes.html#rotation">rotation</A></LI></UL><P>Note 
+can also define the following properties:</P><UL> <LI><A 
+  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScriptAttributes.html#position">position</A> 
+<LI><A 
+  href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScriptAttributes.html#rotation">rotation</A></LI></UL><P>Note 
 that material names are loaded from the .mesh, although you can override the material 
-definition in a .material script.</P><TABLE WIDTH="100%" BORDER="0" CELLSPACING="2" CELLPADDING="0"><TR><TD WIDTH="14%"><A HREF="index.html">Back 
-to Index</A></TD><TD WIDTH="39%">&nbsp;</TD><TD WIDTH="22%"><A HREF="Overlays.html">&lt;&lt; 
-Previous section</A></TD><TD WIDTH="25%"><A HREF="OverlayScriptAttributes.html">Next 
-section &gt;&gt;</A></TD></TR></TABLE><P>&nbsp;</P><P>&nbsp;</P><P>&nbsp;</P><P CLASS="SectionHeader">&nbsp;</P>
-</body>
-</html>
+definition in a .material script.</P><P CLASS=SectionHeader ALIGN=left><A NAME="templates"></A>Templates</P><P ALIGN=left>You 
+can use templates to create numerous elements with the same properties. A template 
+is an abstract element and it is not added to an overlay. It acts as a base class 
+that elements can inherit and get its default properties. To create a template, 
+the keyword 'template' must be the first word in the element definition (before 
+container, element, or entity). The template element is created in the topmost 
+scope - it is NOT specified in an Overlay. It is recommended that you define templates 
+in a separate overlay though this is not essential. Having templates defined in 
+a separate file will allow different look &amp; feels to be easily substituted.</P><P ALIGN=left>Elements 
+can inherit a template in a similar way to C++ inheritance - by using the : operator 
+on the element definition. The : operator is placed after the closing bracket 
+of the name (separated by a space). The name of the template to inherit is then 
+placed after the : operator (also separated by a space).</P><P ALIGN=left>A template 
+can contain template children which are created when the template is subclassed 
+and instantiated. Using the template keyword for the children of a template is 
+optional but recommended for clarity, as the children of a template are always 
+going to be templates themselves.</P><HR> <P ALIGN=left>template container BorderPanel(MyTemplates/BasicBorderPanel)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;left 
+0 <BR>&nbsp;&nbsp;&nbsp;&nbsp;top 0<BR>&nbsp;&nbsp;&nbsp;&nbsp;width 1<BR>&nbsp;&nbsp;&nbsp;&nbsp;height 
+1</P><P ALIGN=left>// setup the texture UVs for a borderpanel</P><P ALIGN=left>// 
+do this in a template so it doesn't need to be redone everywhere<BR>&nbsp;&nbsp;&nbsp;&nbsp;material 
+Core/StatsBlockCenter<BR>&nbsp;&nbsp;&nbsp;&nbsp;border_size 0.05 0.05 0.06665 
+0.06665<BR>&nbsp;&nbsp;&nbsp;&nbsp;border_material Core/StatsBlockBorder<BR>&nbsp;&nbsp;&nbsp;&nbsp;border_topleft_uv 
+0.0000 1.0000 0.1914 0.7969<BR>&nbsp;&nbsp;&nbsp;&nbsp;border_top_uv 0.1914 1.0000 
+0.8086 0.7969<BR>&nbsp;&nbsp;&nbsp;&nbsp;border_topright_uv 0.8086 1.0000 1.0000 
+0.7969<BR>&nbsp;&nbsp;&nbsp;&nbsp;border_left_uv 0.0000 0.7969 0.1914 0.2148<BR>&nbsp;&nbsp;&nbsp;&nbsp;border_right_uv 
+0.8086 0.7969 1.0000 0.2148<BR>&nbsp;&nbsp;&nbsp;&nbsp;border_bottomleft_uv 0.0000 
+0.2148 0.1914 0.0000<BR>&nbsp;&nbsp;&nbsp;&nbsp;border_bottom_uv 0.1914 0.2148 
+0.8086 0.0000<BR>&nbsp;&nbsp;&nbsp;&nbsp;border_bottomright_uv 0.8086 0.2148 1.0000 
+0.0000<BR>}<BR>template container Button(MyTemplates/BasicButton) : MyTemplates/BasicBorderPanel<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;left 
+0.82<BR>&nbsp;&nbsp;&nbsp;&nbsp;top 0.45<BR>&nbsp;&nbsp;&nbsp;&nbsp;width 0.16<BR>&nbsp;&nbsp;&nbsp;&nbsp;height 
+0.13<BR>&nbsp;&nbsp;&nbsp;&nbsp;material Core/StatsBlockCenter<BR>&nbsp;&nbsp;&nbsp;&nbsp;border_up_material 
+Core/StatsBlockBorder/Up<BR>&nbsp;&nbsp;&nbsp;&nbsp;border_down_material Core/StatsBlockBorder/Down<BR>}<BR>template 
+element TextArea(MyTemplates/BasicText)<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;font_name 
+Ogre<BR>&nbsp;&nbsp;&nbsp;&nbsp;char_height 0.08<BR>&nbsp;&nbsp;&nbsp;&nbsp;colour_top 
+1 1 0<BR>&nbsp;&nbsp;&nbsp;&nbsp;colour_bottom 1 0.2 0.2<BR>&nbsp;&nbsp;&nbsp;&nbsp;left 
+0.03<BR>&nbsp;&nbsp;&nbsp;&nbsp;top 0.02<BR>&nbsp;&nbsp;&nbsp;&nbsp;width 0.12<BR>&nbsp;&nbsp;&nbsp;&nbsp;height 
+0.09<BR>}<BR></P><P ALIGN=left>MyOverlays/AnotherOverlay<BR>{<BR>&nbsp;&nbsp;&nbsp;&nbsp;zorder 
+490<BR>&nbsp;&nbsp;&nbsp;&nbsp;container BorderPanel(MyElements/BackPanel) : MyTemplates/BasicBorderPanel<BR>&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;left 
+0 <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;top 0<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width 
+1<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height 1<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;container 
+Button(MyElements/HostButton) : MyTemplates/BasicButton<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;left 
+0.82<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;top 
+0.45<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;caption 
+MyTemplates/BasicText HOST<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR><BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;container 
+Button(MyElements/JoinButton) : MyTemplates/BasicButton<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;left 
+0.82<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;top 
+0.60<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;caption 
+MyTemplates/BasicText JOIN<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;&nbsp;}<BR>}<BR></P><HR> 
+<P ALIGN=left>The above example uses templates to define a button. Note that the 
+button template inherits from the borderPanel template. This reduces the number 
+of attributes needed to instantiate a button.</P><P ALIGN=left>Also note that 
+the instantiate of a Button needs a template name for the caption attribute. So 
+templates can also be used by elements that need dynamic creation of children 
+elements (the button creates a TextAreaElement in this case for its caption).</P><P>&nbsp;</P><TABLE cellSpacing=2 cellPadding=0 width="100%" border=0> 
+<TBODY> <TR> <TD width="14%"><A 
+      href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/index.html">Back 
+to Index</A></TD><TD width="39%">&nbsp;</TD><TD width="22%"><A 
+      href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/Overlays.html">&lt;&lt; 
+Previous section</A></TD><TD width="25%"><A 
+      href="file:///C:/Documents%20and%20Settings/Steve/Local%20Settings/Temp/OverlayScriptAttributes.html">Next 
+section &gt;&gt;</A></TD></TR></TBODY></TABLE><P>&nbsp;</P><P>&nbsp;</P><P>&nbsp;</P><P class=SectionHeader>&nbsp;</P>
+</BODY></HTML>
