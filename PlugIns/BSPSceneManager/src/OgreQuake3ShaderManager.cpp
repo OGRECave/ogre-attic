@@ -155,6 +155,7 @@ namespace Ogre {
 
         passIdx = pShader->numPasses;
         pShader->numPasses++;
+        pShader->pass.resize(pShader->numPasses);
 
         // Default pass details
         pShader->pass[passIdx].animNumFrames = 0;
