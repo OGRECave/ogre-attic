@@ -134,13 +134,13 @@ namespace Ogre {
                     break;
                 case 3:
 #if OGRE_ENDIAN == ENDIAN_BIG      
-                    ((uint8*)dest)[0] = (uint8)(value >> 16);
-                    ((uint8*)dest)[1] = (uint8)(value >> 8);
-                    ((uint8*)dest)[2] = (uint8)(value);
+                    ((uint8*)dest)[0] = (uint8)((value >> 16) & 0xFF);
+                    ((uint8*)dest)[1] = (uint8)((value >> 8) & 0xFF);
+                    ((uint8*)dest)[2] = (uint8)(value & 0xFF);
 #else
-                    ((uint8*)dest)[2] = (uint8)(value >> 16);
-                    ((uint8*)dest)[1] = (uint8)(value >> 8);
-                    ((uint8*)dest)[0] = (uint8)(value);
+                    ((uint8*)dest)[2] = (uint8)((value >> 16) & 0xFF);
+                    ((uint8*)dest)[1] = (uint8)((value >> 8) & 0xFF);
+                    ((uint8*)dest)[0] = (uint8)(value & 0xFF);
 #endif
                     break;
                 case 4:
