@@ -43,6 +43,7 @@ namespace Ogre {
     {
     protected:
         Real mFrameTime;
+		Real mTimeFactor;
 
     public:
         FrameTimeControllerValue();
@@ -50,6 +51,8 @@ namespace Ogre {
         bool frameStarted(const FrameEvent &evt);
         Real getValue(void);
         void setValue(Real value);
+		Real getTimeFactor(void);
+		void setTimeFactor(Real tf);
     };
 
     //-----------------------------------------------------------------------

@@ -154,7 +154,21 @@ namespace Ogre {
         */
         void destroyController(Controller* controller);
 
+		/** Return relative speed of time as perceived by time based controllers.
+        @remarks
+            See setTimeFactor for full information on the meaning of this value.
+		*/
+		Real getTimeFactor(void);
 
+		/** Set the relative speed to update frame time based controllers.
+        @remarks
+            Normally any controllers which use time as an input (FrameTimeController) are updated
+            automatically in line with the real passage of time. This method allows you to change
+            that, so that controllers are told that the time is passing slower or faster than it
+            actually is. Use this to globally speed up / slow down the effect of time-based controllers.
+        @param tf The virtual speed of time (1.0 is real time).
+		*/
+		void setTimeFactor(Real tf);
     };
 
 
