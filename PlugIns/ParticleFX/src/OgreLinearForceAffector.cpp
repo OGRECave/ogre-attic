@@ -56,7 +56,7 @@ namespace Ogre {
                 PT_VECTOR3),&msForceVectorCmd);
             dict->addParameter(ParameterDef("force_application", 
                 "How to apply the force vector to partices.",
-                PT_UNSIGNED_INT),&msForceAppCmd);
+                PT_STRING),&msForceAppCmd);
 
         }
 
