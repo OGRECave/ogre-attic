@@ -45,6 +45,9 @@ namespace Ogre {
         public:
             uint height;
             uint width;
+            uint size;
+            ushort num_mipmaps;
+            bool compressed;
 
             PixelFormat format;
 

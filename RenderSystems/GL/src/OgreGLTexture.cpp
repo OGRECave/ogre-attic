@@ -32,7 +32,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreCamera.h"
 #include "OgreException.h"
 #include "OgreRoot.h"
-#include <limits>
+#include "OgreCodec.h"
+#include "OgreSDDataChunk.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32
 #   include <windows.h>
@@ -123,6 +124,12 @@ namespace Ogre {
                 return GL_BGRA;
             case PF_A8R8G8B8:
                 return GL_RGBA;
+            case PF_DXT1:
+                return GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+            case PF_DXT3:
+                 return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+            case PF_DXT5:
+                 return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
             default:
                 return 0;
         }
@@ -211,15 +218,11 @@ namespace Ogre {
         glGenTextures( 1, &mTextureID );
         glBindTexture( getGLTextureType(), mTextureID );
 
-        if(mNumMipMaps && 
-			Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_AUTOMIPMAP))
+        if(mNumMipMaps && Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_AUTOMIPMAP))
         {
             glTexParameteri( getGLTextureType(), GL_GENERATE_MIPMAP, GL_TRUE );
             useSoftwareMipmaps = false;
         }
-
-        glTexParameteri(getGLTextureType(), GL_TEXTURE_MAX_LEVEL, mNumMipMaps);
-        mGLSupport.end_context();
 
         for(unsigned int i = 0; i < images.size(); i++)
         {
@@ -241,12 +244,18 @@ namespace Ogre {
             mWidth = mSrcWidth;
             mHeight = mSrcHeight;
 
+            unsigned short imageMipmaps = img.getNumMipmaps();
+            if(imageMipmaps)
+                mNumMipMaps = imageMipmaps;
+
+            glTexParameteri(getGLTextureType(), GL_TEXTURE_MAX_LEVEL, mNumMipMaps);
+
             uchar *pTempData = rescaleNPower2(img);
 
-            generateMipMaps( pTempData, useSoftwareMipmaps, i );
-
+            generateMipMaps( pTempData, useSoftwareMipmaps, img.hasFlag(IF_COMPRESSED), i );
             delete [] pTempData;
         }
+        mGLSupport.end_context();
 
         // Update size (the final size, not including temp space)
         short bytesPerPixel = mFinalBpp >> 3;
@@ -295,24 +304,30 @@ namespace Ogre {
             }
             else if (mTextureType == TEX_TYPE_CUBE_MAP)
             {
-                Image img;
-                String baseName, ext;
-                std::vector<Image> images;
-                String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_fr", "_bk"};
-
-                for(unsigned int i = 0; i < 6; i++)
+                if (getName().endsWith(".dds"))
                 {
-                    size_t pos = mName.find_last_of(".");
-                    baseName = mName.substr(0, pos);
-                    ext = mName.substr(pos);
-                    String fullName = baseName + suffixes[i] + ext;
-
-                    img.load( fullName );
-                    images.push_back(img);
                 }
+                else
+                {
+                    Image img;
+                    String baseName, ext;
+                    std::vector<Image> images;
+                    String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_fr", "_bk"};
 
-                loadImages( images );
-                images.clear();
+                    for(unsigned int i = 0; i < 6; i++)
+                    {
+                        size_t pos = mName.find_last_of(".");
+                        baseName = mName.substr(0, pos);
+                        ext = mName.substr(pos);
+                        String fullName = baseName + suffixes[i] + ext;
+
+                        img.load( fullName );
+                        images.push_back(img);
+                    }
+    
+                    loadImages( images );
+                    images.clear();
+                }
             }
             else
                 Except( Exception::UNIMPLEMENTED_FEATURE, "**** Unknown texture type ****", "GLTexture::load" );
@@ -329,7 +344,7 @@ namespace Ogre {
     }
 
     void GLTexture::generateMipMaps( uchar *data, bool useSoftware, 
-        unsigned int faceNumber )
+        bool isCompressed, unsigned int faceNumber )
     {
         mGLSupport.begin_context();
         if(useSoftware && mNumMipMaps)
@@ -361,13 +376,27 @@ namespace Ogre {
             }
             else
             {
-                glTexImage2D(
-                    mTextureType == TEX_TYPE_CUBE_MAP ? 
-                        GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceNumber : 
-                        getGLTextureType(), 0, 
-                    mHasAlpha ? GL_RGBA8 : GL_RGB8, mSrcWidth, mSrcHeight, 0, 
-                    getGLTextureFormat(), GL_UNSIGNED_BYTE, data );
+			    if(isCompressed && Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability( RSC_TEXTURE_COMPRESSION_DXT ))
+                {    
+                    unsigned short blockSize = (mFormat == PF_DXT1) ? 8 : 16;
+                    int size = ((mWidth+3)/4)*((mHeight+3)/4)*blockSize; 
 
+                    glCompressedTexImage2DARB(
+                        mTextureType == TEX_TYPE_CUBE_MAP ?
+                            GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceNumber :
+                            getGLTextureType(), 0,
+                         getGLTextureFormat(), mSrcWidth, 
+                         mSrcHeight, 0, size, data);
+                }
+                else
+                {
+                    glTexImage2D(
+                        mTextureType == TEX_TYPE_CUBE_MAP ? 
+                            GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceNumber : 
+                            getGLTextureType(), 0, 
+                        mHasAlpha ? GL_RGBA8 : GL_RGB8, mSrcWidth, mSrcHeight, 
+                        0, getGLTextureFormat(), GL_UNSIGNED_BYTE, data );
+                }
             }
         }
 

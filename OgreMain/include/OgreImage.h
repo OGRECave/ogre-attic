@@ -31,6 +31,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+    enum ImageFlags
+    {
+        IF_COMPRESSED = 0x00000001,
+        IF_CUBEMAP    = 0x00000002,
+        IF_3D_TEXTURE = 0x00000004
+    };
     /** Class representing an image file.
         @remarks
             The Image class usually holds uncompressed image data and is the
@@ -210,11 +216,16 @@ namespace Ogre {
 			case PF_A8:
 			case PF_A4L4:
 			case PF_L4A4:
+            case PF_DXT1:
 				return 8;
 			case PF_R5G6B5:
 			case PF_B5G6R5:
 			case PF_A4R4G4B4:
 			case PF_B4G4R4A4:
+            case PF_DXT2:
+            case PF_DXT3:
+            case PF_DXT4:
+            case PF_DXT5:
 				return 16;
 			case PF_R8G8B8:
 			case PF_B8G8R8:
@@ -339,6 +350,14 @@ namespace Ogre {
         */
         size_t getSize() const;
 
+        /** Returns the number of mipmaps contained in the image.
+        */
+        unsigned short getNumMipmaps() const;
+
+        /** Returns true if the image has the appropriate flag set.
+        */
+        bool hasFlag(const ImageFlags imgFlag);
+
         /** Gets the width of the image in pixels.
         */
         ushort getWidth(void) const;
@@ -377,6 +396,12 @@ namespace Ogre {
         ushort m_uWidth;
         // The height of the image in pixels
         ushort m_uHeight;
+        // The size of the image buffer
+        uint m_uSize;
+        // The number of mipmaps the image contains
+        ushort m_uNumMipmaps;
+        // Image specific flags.
+        int m_uFlags;
 
         // The pixel format of the image
         PixelFormat m_eFormat;

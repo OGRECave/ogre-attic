@@ -67,7 +67,7 @@ namespace Ogre {
         { return mTextureID; }
 
     protected:
-        void generateMipMaps( uchar *data, bool useSoftware, 
+        void generateMipMaps( uchar *data, bool useSoftware, bool isCompressed,
             unsigned int faceNumber );
         uchar* rescaleNPower2( const Image& src );
     private:
