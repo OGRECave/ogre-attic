@@ -198,6 +198,9 @@ namespace Ogre
         uint char_spacer = 5;
 
         uchar* imageData = new uchar[tex_side * tex_side * 4];
+		// Reset content
+		memset(imageData, 0, tex_side * tex_side * 4);
+
 
 
         // Locate ttf file
