@@ -32,6 +32,7 @@ namespace Ogre {
     void EdgeData::log(void)
     {
         LogManager& l = LogManager::getSingleton();
+        EdgeGroupList::iterator i, iend;
         EdgeList::iterator ei, eiend;
         TriangleList::iterator ti, tiend;
         tiend = triangles.end();
@@ -48,18 +49,22 @@ namespace Ogre {
                 "v1=" + StringConverter::toString(t.vertIndex[1]) + ", " + 
                 "v2=" + StringConverter::toString(t.vertIndex[2]) + "}"); 
         }
-        num = 0;
-        eiend = edges.end();
-        for (ei = edges.begin(); ei != eiend; ++ei, ++num)
+        iend = edgeGroups.end();
+        for (i = edgeGroups.begin(); i != iend; ++i)
         {
-            Edge& e = *ei;
-            l.logMessage(
-                "Edge " + StringConverter::toString(num) + " = {" + 
-                "tri0=" + StringConverter::toString(e.triIndex[0]) + ", " + 
-                "tri1=" + StringConverter::toString(e.triIndex[1]) + ", " + 
-                "vertexSet=" + StringConverter::toString(e.vertexSet) + ", " + 
-                "v0=" + StringConverter::toString(e.vertIndex[0]) + ", " + 
-                "v1=" + StringConverter::toString(e.vertIndex[1]) + "}"); 
+            num = 0;
+            eiend = i->edges.end();
+            l.logMessage("Edge Group vertexSet=" + StringConverter::toString(i->vertexSet));
+            for (ei = i->edges.begin(); ei != eiend; ++ei, ++num)
+            {
+                Edge& e = *ei;
+                l.logMessage(
+                    "Edge " + StringConverter::toString(num) + " = {" + 
+                    "tri0=" + StringConverter::toString(e.triIndex[0]) + ", " + 
+                    "tri1=" + StringConverter::toString(e.triIndex[1]) + ", " + 
+                    "v0=" + StringConverter::toString(e.vertIndex[0]) + ", " + 
+                    "v1=" + StringConverter::toString(e.vertIndex[1]) + "}"); 
+            }
         }
     }
     //---------------------------------------------------------------------
@@ -128,6 +133,14 @@ namespace Ogre {
 
         mVertexLookup.clear();
         mEdgeData = new EdgeData();
+        // resize the edge group list to equal the number of vertex sets
+        mEdgeData->edgeGroups.resize(mVertexDataList.size());
+        // Initialise edge group data
+        for (unsigned short vSet = 0; vSet < mVertexDataList.size(); ++vSet)
+        {
+            mEdgeData->edgeGroups[vSet].vertexSet = vSet;
+            mEdgeData->edgeGroups[vSet].vertexData = mVertexDataList[vSet];
+        }
 
         IndexDataList::iterator i, iend;
         std::vector<size_t>::iterator mapi, mapiend;
@@ -243,8 +256,7 @@ namespace Ogre {
                 e.sharedVertIndex[1] = tri.sharedVertIndex[1];
                 e.vertIndex[0] = tri.vertIndex[0];
                 e.vertIndex[1] = tri.vertIndex[1];
-                e.vertexSet = vertexSet;
-                mEdgeData->edges.push_back(e);
+                mEdgeData->edgeGroups[vertexSet].edges.push_back(e);
             }
             if (tri.sharedVertIndex[1] < tri.sharedVertIndex[2])
             {
@@ -254,8 +266,7 @@ namespace Ogre {
                 e.sharedVertIndex[1] = tri.sharedVertIndex[2];
                 e.vertIndex[0] = tri.vertIndex[1];
                 e.vertIndex[1] = tri.vertIndex[2];
-                e.vertexSet = vertexSet;
-                mEdgeData->edges.push_back(e);
+                mEdgeData->edgeGroups[vertexSet].edges.push_back(e);
             }
             if (tri.sharedVertIndex[2] < tri.sharedVertIndex[0])
             {
@@ -265,8 +276,7 @@ namespace Ogre {
                 e.sharedVertIndex[1] = tri.sharedVertIndex[0];
                 e.vertIndex[0] = tri.vertIndex[2];
                 e.vertIndex[1] = tri.vertIndex[0];
-                e.vertexSet = vertexSet;
-                mEdgeData->edges.push_back(e);
+                mEdgeData->edgeGroups[vertexSet].edges.push_back(e);
             }
 
         }
@@ -322,14 +332,20 @@ namespace Ogre {
     EdgeData::Edge* EdgeListBuilder::findEdge(size_t sharedIndex1, size_t sharedIndex2)
     {
         // Iterate over the existing edges
-        EdgeData::EdgeList::iterator i, iend;
-        iend = mEdgeData->edges.end();
-        for (i = mEdgeData->edges.begin(); i != iend; ++i)
+        EdgeData::EdgeGroupList::iterator i, iend;
+        EdgeData::EdgeList::iterator ei, eiend;
+
+        iend = mEdgeData->edgeGroups.end();
+        for (i = mEdgeData->edgeGroups.begin(); i != iend; ++i)
         {
-            EdgeData::Edge& e = *i;
-            if (e.sharedVertIndex[0] == sharedIndex1 && e.sharedVertIndex[1] == sharedIndex2)
+            eiend = i->edges.end();
+            for (ei = i->edges.begin(); ei != eiend; ++ei)
             {
-                return &(*i);
+                EdgeData::Edge& e = *ei;
+                if (e.sharedVertIndex[0] == sharedIndex1 && e.sharedVertIndex[1] == sharedIndex2)
+                {
+                    return &(*ei);
+                }
             }
         }
         

@@ -131,6 +131,14 @@ namespace Ogre {
             delete [] mBoneMatrices;
 
 		delete mFullBoundingBox;
+
+        // Delete shadow renderables
+        ShadowRenderableList::iterator si, siend;
+        siend = mShadowRenderables.end();
+        for (si = mShadowRenderables.begin(); si != siend; ++si)
+        {
+            delete *si;
+        }
     }
     //-----------------------------------------------------------------------
     Mesh* Entity::getMesh(void)
@@ -534,11 +542,90 @@ namespace Ogre {
     ShadowCaster::ShadowRenderableListIterator 
     Entity::getShadowVolumeRenderableIterator(
         ShadowTechnique shadowTechnique, const Light* light, 
-        unsigned long flags, HardwareIndexBufferSharedPtr* useThisIndexBuffer)
+        unsigned long flags, HardwareIndexBufferSharedPtr* indexBuffer)
     {
+        assert(indexBuffer && "Only external index buffers are supported right now");
+
+
+        // TODO: for skeletal animation, use an intermediate buffer or some such
+
+        // We need to search the edge list for silhouette edges
+        EdgeData* edgeList = getEdgeList();
+
+        // Init shadow renderable list if required
+        if (mShadowRenderables.empty())
+        {
+            mShadowRenderables.resize(edgeList->edgeGroups.size());
+            ShadowRenderableList::iterator si, siend;
+            siend = mShadowRenderables.end();
+            EdgeData::EdgeGroupList::iterator egi, egiend;
+            egiend = edgeList->edgeGroups.end();
+            for (si = mShadowRenderables.begin(); si != siend; ++si, ++egi)
+            {
+                // Determine which vertex data to use for this renderable
+                *si = new EntityShadowRenderable(this, indexBuffer, egi->vertexData);
+            }
+        }
+
+        // Iterate over the groups and form renderables for each based on the light
         // TODO
-        return ShadowRenderableListIterator(NULL, NULL);
+
+
+        return ShadowRenderableListIterator(mShadowRenderables.begin(), mShadowRenderables.end());
     }
+    //-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
+    Entity::EntityShadowRenderable::EntityShadowRenderable(Entity* parent, 
+                HardwareIndexBufferSharedPtr* indexBuffer, const VertexData* vertexData)
+                : mParent(parent)
+    {
+        // Initialise render op
+        mRenderOp.indexData = new IndexData();
+        mRenderOp.indexData->indexBuffer = *indexBuffer;
+        // index start and count are sorted out later
+
+        // Use shared vertex data
+        // Nasty const cast, can't really be avoided here 
+        // but we promises not to not hurt the VertexData, we promises....
+        mRenderOp.vertexData = const_cast<VertexData*>(vertexData);
+
+
+    }
+    //-----------------------------------------------------------------------
+    Entity::EntityShadowRenderable::~EntityShadowRenderable()
+    {
+        delete mRenderOp.indexData;
+    }
+    //-----------------------------------------------------------------------
+    void Entity::EntityShadowRenderable::getWorldTransforms(Matrix4* xform) const
+    {
+        if (!mParent->mNumBoneMatrices)
+        {
+            *xform = mParent->_getParentNodeFullTransform();
+        }
+        else
+        {
+            // Bones, use cached matrices built when Entity::_updateRenderQueue was called
+            int i;
+            for (i = 0; i < mParent->mNumBoneMatrices; ++i)
+            {
+                *xform = mParent->mBoneMatrices[i];
+                ++xform;
+            }
+        }
+    }
+    //-----------------------------------------------------------------------
+    const Quaternion& Entity::EntityShadowRenderable::getWorldOrientation(void) const
+    {
+        return mParent->getParentNode()->_getDerivedOrientation();
+    }
+    //-----------------------------------------------------------------------
+    const Vector3& Entity::EntityShadowRenderable::getWorldPosition(void) const
+    {
+        return mParent->getParentNode()->_getDerivedPosition();
+    }
+    //-----------------------------------------------------------------------
+
 
 
 }

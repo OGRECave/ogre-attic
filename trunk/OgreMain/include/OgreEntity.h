@@ -163,7 +163,24 @@ namespace Ogre {
         bool mNormaliseNormals;
 
         bool mCastShadows;
+        ShadowRenderableList mShadowRenderables;
 
+        /** Nested class to allow entity shadows. */
+        class _OgreExport EntityShadowRenderable : public ShadowRenderable
+        {
+        protected:
+            Entity* mParent;
+        public:
+            EntityShadowRenderable(Entity* parent, 
+                HardwareIndexBufferSharedPtr* indexBuffer, const VertexData* vertexData);
+            ~EntityShadowRenderable();
+            /// Overridden from ShadowRenderable
+            void getWorldTransforms(Matrix4* xform) const;
+            /// Overridden from ShadowRenderable
+            const Quaternion& getWorldOrientation(void) const;
+            /// Overridden from ShadowRenderable
+            const Vector3& getWorldPosition(void) const;
+        };
     public:
         /** Default destructor.
         */
@@ -359,6 +376,8 @@ namespace Ogre {
         ShadowRenderableListIterator getShadowVolumeRenderableIterator(
             ShadowTechnique shadowTechnique, const Light* light, 
             unsigned long flags, HardwareIndexBufferSharedPtr* useThisIndexBuffer = 0);
+
+
 
 
     };

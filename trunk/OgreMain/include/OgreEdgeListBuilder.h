@@ -60,16 +60,28 @@ namespace Ogre {
             /** The vertex indices for this edge. Note that both vertices will be in the vertex
                 set as specified in 'vertexSet', which will also be the same as tri 0 */
             size_t vertIndex[2];
-            /** The vertex set that contains the vertices for this edge. */
-            size_t vertexSet;
             /** Vertex indices as used in the shared vertex list, not exposed. */
             size_t sharedVertIndex[2];
         };
 
         typedef std::vector<Triangle> TriangleList;
         typedef std::vector<Edge> EdgeList;
+
+        /** A group of edges sharing the same vertex data. */
+        struct EdgeGroup
+        {
+            /** The vertex set index that contains the vertices for this edge group. */
+            size_t vertexSet;
+            /** Pointer to vertex data used by this edge group. */
+            const VertexData* vertexData;
+            /** The edges themselves. */
+            EdgeList edges;
+
+        };
+
+        typedef std::vector<EdgeGroup> EdgeGroupList;
         TriangleList triangles;
-        EdgeList edges;
+        EdgeGroupList edgeGroups;
 
         // Debugging method
         void log(void);
