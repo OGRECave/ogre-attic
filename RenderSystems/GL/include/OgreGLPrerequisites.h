@@ -207,15 +207,17 @@ extern GL_GetOcclusionQueryivNV_Func glGetOcclusionQueryivNV_ptr;
 typedef void (APIENTRY *GL_GetOcclusionQueryuivNV_Func) (GLuint id, GLenum pname, GLuint *params);
 extern GL_GetOcclusionQueryuivNV_Func glGetOcclusionQueryuivNV_ptr;
 
-
-};
-
 extern PFNGLCOMPRESSEDTEXIMAGE1DARBPROC glCompressedTexImage1DARB_ptr;
 extern PFNGLCOMPRESSEDTEXIMAGE2DARBPROC glCompressedTexImage2DARB_ptr;
 extern PFNGLCOMPRESSEDTEXIMAGE3DARBPROC glCompressedTexImage3DARB_ptr;
 extern PFNGLCOMPRESSEDTEXSUBIMAGE1DARBPROC glCompressedTexSubImage1DARB_ptr;
 extern PFNGLCOMPRESSEDTEXSUBIMAGE2DARBPROC glCompressedTexSubImage2DARB_ptr;
 extern PFNGLCOMPRESSEDTEXSUBIMAGE3DARBPROC glCompressedTexSubImage3DARB_ptr;
+extern PFNGLGETCOMPRESSEDTEXIMAGEARBPROC glGetCompressedTexImageARB_ptr;
+
+};
+
+
 
 namespace Ogre {
     // Forward declarations

@@ -89,6 +89,7 @@ PFNGLCOMPRESSEDTEXIMAGE3DARBPROC glCompressedTexImage3DARB_ptr;
 PFNGLCOMPRESSEDTEXSUBIMAGE1DARBPROC glCompressedTexSubImage1DARB_ptr;
 PFNGLCOMPRESSEDTEXSUBIMAGE2DARBPROC glCompressedTexSubImage2DARB_ptr;
 PFNGLCOMPRESSEDTEXSUBIMAGE3DARBPROC glCompressedTexSubImage3DARB_ptr;
+PFNGLGETCOMPRESSEDTEXIMAGEARBPROC glGetCompressedTexImageARB_ptr;
 GL_ActiveStencilFaceEXT_Func glActiveStencilFaceEXT_ptr;
 GL_GenOcclusionQueriesNV_Func glGenOcclusionQueriesNV_ptr;	
 GL_DeleteOcclusionQueriesNV_Func glDeleteOcclusionQueriesNV_ptr;
@@ -579,6 +580,8 @@ namespace Ogre {
             (PFNGLCOMPRESSEDTEXSUBIMAGE2DARBPROC)mGLSupport->getProcAddress("glCompressedTexSubImage2DARB");
         glCompressedTexSubImage3DARB_ptr =
             (PFNGLCOMPRESSEDTEXSUBIMAGE3DARBPROC)mGLSupport->getProcAddress("glCompressedTexSubImage3DARB");
+		glGetCompressedTexImageARB_ptr =
+			(PFNGLGETCOMPRESSEDTEXIMAGEARBPROC)mGLSupport->getProcAddress("glGetCompressedTexImageARB");
         InitATIFragmentShaderExtensions(*mGLSupport);
 		InitGLShaderLanguageExtensions(*mGLSupport);
         glActiveStencilFaceEXT_ptr = 

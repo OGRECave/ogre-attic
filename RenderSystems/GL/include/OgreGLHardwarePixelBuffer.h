@@ -48,6 +48,7 @@ namespace Ogre {
 		
 		// In case this is a texture level, define the texture type and ID
 		GLenum mTarget;
+		GLenum mFaceTarget; // same as mTarget in case of GL_TEXTURE_xD, but cubemap face for cubemaps
 		GLuint mTextureID;
 		GLint mFace;
 		GLint mLevel;
@@ -60,9 +61,9 @@ namespace Ogre {
 		void allocateBuffer();
 		void freeBuffer();
 		// Upload a box of pixels to this buffer on the card
-		void upload(PixelBox &data);
+		void upload(const PixelBox &data);
 		// Download a box of pixels from the card
-		void download(PixelBox &data);
+		void download(const PixelBox &data);
 	public:
 		GLHardwarePixelBuffer(GLenum target, GLuint id, GLint face, GLint level, Usage usage, 
 			bool softwareMipmap);
