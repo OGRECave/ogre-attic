@@ -40,65 +40,37 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     //---------------------------------------------------------------------
-    Skeleton::Skeleton(const String& name) 
+    Skeleton::Skeleton(ResourceManager* creator, const String& name, ResourceHandle handle,
+        const String& group, bool isManual, ManualResourceLoader* loader) 
+        : Resource(creator, name, handle, group, isManual, loader), 
+        mNextAutoHandle(0), mBlendState(ANIMBLEND_AVERAGE)
+        // set animation blending to weighted, not cumulative
     {
-        mName = name;
-
-        // Start next handle
-        mNextAutoHandle = 0;
-
-		// set animation blending to weighted, not cumulative
-		mBlendState = ANIMBLEND_AVERAGE;
-
+        if (createParamDictionary("Skeleton"))
+        {
+            // no custom params
+        }
     }
     //---------------------------------------------------------------------
     Skeleton::~Skeleton()
     {
-        unload();
     }
     //---------------------------------------------------------------------
-    void Skeleton::load(void)
+    void Skeleton::loadImpl(void)
     {
-        // Load from specified 'name'
-        if (mIsLoaded)
-        {
-            unload();
-        }
-
         SkeletonSerializer serializer;
         char msg[100];
         sprintf(msg, "Skeleton: Loading %s .", mName.c_str());
         LogManager::getSingleton().logMessage(msg);
 
-        DataChunk chunk;
-        SkeletonManager::getSingleton()._findResourceData(mName, chunk);
+        DataStreamPtr stream = 
+            ResourceGroupManager::getSingleton()._findResource(mName, mGroup);
 
-        // Determine file type
-        std::vector<String> extVec = StringUtil::split(mName, ".");
-
-        String& ext = extVec[extVec.size() - 1];
-        StringUtil::toLowerCase(ext);
-
-        if (ext == "skeleton")
-        {
-            serializer.importSkeleton(chunk, this);
-        }
-        else
-        {
-            // Unsupported format
-            chunk.clear();
-            Except(999, "Unsupported skeleton file format.",
-                "Skeleton::load");
-        }
-
-        chunk.clear();
-
-        // Mark resource as loaded
-        mIsLoaded = true;
+        serializer.importSkeleton(stream, this);
 
     }
     //---------------------------------------------------------------------
-    void Skeleton::unload(void)
+    void Skeleton::unloadImpl(void)
     {
         // destroy bones
         BoneList::iterator i;
@@ -118,8 +90,6 @@ namespace Ogre {
         }
         mAnimationsList.clear();
 
-        // Mark resource as not loaded
-        mIsLoaded = false;
     }
     //---------------------------------------------------------------------
     Bone* Skeleton::createBone(void)

@@ -132,7 +132,7 @@ namespace Ogre {
 
         /// Optional linked skeleton
         String mSkeletonName;
-        Skeleton* mSkeleton;
+        SkeletonPtr mSkeleton;
 
        
         VertexBoneAssignmentList mBoneAssignments;
@@ -290,8 +290,10 @@ namespace Ogre {
         /** Returns true if this Mesh has a linked Skeleton. */
         bool hasSkeleton(void) const;
 
-        /** Gets a pointer to any linked Skeleton. */
-        Skeleton* getSkeleton(void) const;
+        /** Gets a pointer to any linked Skeleton. 
+        @returns Weak reference to the skeleton - copy this if you want to hold a strong pointer.
+        */
+        SkeletonPtr& getSkeleton(void) const;
 
         /** Gets the name of any linked Skeleton */
         const String& getSkeletonName(void) const;
@@ -328,7 +330,7 @@ namespace Ogre {
             Skeleton. Best to let OGRE deal with this, don't call it yourself unless you
             really know what you're doing.
         */
-        void _notifySkeleton(Skeleton* pSkel);
+        void _notifySkeleton(SkeletonPtr& pSkel);
 
 
         /** Gets an iterator for access all bone assignments. 

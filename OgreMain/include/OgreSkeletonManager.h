@@ -44,24 +44,7 @@ namespace Ogre {
     public:
         /// Constructor
         SkeletonManager();
-
-        /** Loads a skeleton from a file, making it available for use.
-            @note
-                If the skeleton has already been loaded, the existing instance
-                will be returned.
-            @remarks
-                Ogre loads skeleton files from it's own proprietary
-                format called .skeleton. This is because having a single file
-                format is better for runtime performance, and we also have
-                control over pre-processed data.
-        */
-        Skeleton* load( const String& filename, int priority = 1);
-
-        /** Creates a Skeleton resource.
-            @note
-                Mainly used internally.
-        */
-        ResourcePtr create( const String& name);
+        ~SkeletonManager();
 
         /** Override standard Singleton retrieval.
         @remarks
@@ -95,6 +78,12 @@ namespace Ogre {
         preventing link errors.
         */
         static SkeletonManager* getSingletonPtr(void);
+    protected:
+
+        /// @copydoc ResourceManager::createImpl
+        Resource* createImpl(const String& name, ResourceHandle handle, 
+            const String& group, bool isManual, ManualResourceLoader* loader, 
+            const NameValuePairList* createParams)
 
     };
 

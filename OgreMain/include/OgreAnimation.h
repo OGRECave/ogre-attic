@@ -127,7 +127,7 @@ namespace Ogre {
         @param weight The influence to give to this track, 1.0 for full influence, less to blend with
         other animations.
         */
-        void apply(Skeleton* skeleton, Real timePos, Real weight = 1.0, bool accumulate = false);
+        void apply(SkeletonPtr& skeleton, Real timePos, Real weight = 1.0, bool accumulate = false);
 
         /** Tells the animation how to interpolate between keyframes.
         @remarks

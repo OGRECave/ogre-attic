@@ -369,7 +369,7 @@ namespace Ogre {
         return !(mSkeletonName.empty());
     }
     //-----------------------------------------------------------------------
-    Skeleton* Mesh::getSkeleton(void) const
+    SkeletonPtr& Mesh::getSkeleton(void) const
     {
         return mSkeleton;
     }
@@ -624,7 +624,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void Mesh::_notifySkeleton(Skeleton* pSkel)
+    void Mesh::_notifySkeleton(SkeletonPtr& pSkel)
     {
         mSkeleton = pSkel;
         mSkeletonName = pSkel->getName();

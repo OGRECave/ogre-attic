@@ -42,9 +42,9 @@ namespace Ogre
     {
     public:
         /** Constructor, not to be used directly (use Bone::createChild or Skeleton::createBone) */
-        Bone(unsigned short handle, Skeleton* creator);
+        Bone(unsigned short handle, SkeletonPtr& creator);
         /** Constructor, not to be used directly (use Bone::createChild or Skeleton::createBone) */
-        Bone(const String& name, unsigned short handle, Skeleton* creator);
+        Bone(const String& name, unsigned short handle, SkeletonPtr& creator);
         ~Bone();
 
         /** Creates a new Bone as a child of this bone.
@@ -111,8 +111,8 @@ namespace Ogre
         /** See Node. */
         Node* createChildImpl(const String& name);
 
-        /// Pointer back to creator, for child creation (central memory allocation)
-        Skeleton* mCreator;
+        /// Weak reference back to creator, for child creation (central memory allocation)
+        SkeletonPtr& mCreator;
 
         /// The inversed derived transform of the bone in the binding pose
         Matrix4 mBindDerivedInverseTransform;
