@@ -105,6 +105,9 @@ namespace Ogre {
         void renderStaticGeometry(void);
 
 
+        typedef std::set<const MovableObject*> MovablesForRendering;
+        MovablesForRendering mMovablesForRendering;
+
     public:
         BspSceneManager();
         ~BspSceneManager();
@@ -125,6 +128,15 @@ namespace Ogre {
 
         /** Overriden from SceneManager. */
         void _renderVisibleObjects(void);
+
+        /** Creates a specialized BspSceneNode */
+        SceneNode * createSceneNode ( void );
+        /** Creates a specialized BspSceneNode */
+        SceneNode * createSceneNode ( const String &name );
+
+        /** Internal method for tagging BspNodes with objects which intersect them. */
+        void _notifyObjectMoved(const MovableObject* mov, const Vector3& pos);
+
     };
 
 }

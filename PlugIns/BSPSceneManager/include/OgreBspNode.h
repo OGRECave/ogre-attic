@@ -129,7 +129,16 @@ namespace Ogre {
 
         friend std::ostream& operator<< (std::ostream& o, BspNode& n);
 
+        /// Internal method for telling the node that a movable intersects it
+        void _addMovable(const MovableObject* mov);
 
+        /// Internal method for telling the node that a movable no longer intersects it
+        void _removeMovable(const MovableObject* mov);
+
+        /// Gets the signed distance to the dividing plane
+        Real getDistance(const Vector3& pos);
+
+        typedef std::set<const MovableObject*> IntersectingObjectSet;
 
     protected:
         BspLevel* mOwner; // Back-reference to containing level
@@ -172,6 +181,11 @@ namespace Ogre {
             work on. This saves lots of small memory allocations / deallocations which limits memory fragmentation.
         */
         int mFaceGroupStart;
+
+        IntersectingObjectSet mMovables;
+    public:
+        const IntersectingObjectSet& getObjects(void) { return mMovables; }
+
 
     };
 

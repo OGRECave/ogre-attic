@@ -506,5 +506,66 @@ namespace Ogre {
 
 
     }
+    //-----------------------------------------------------------------------
+    void BspLevel::_notifyObjectMoved(const MovableObject* mov, 
+            const Vector3& pos)
+    {
 
+        // Locate any current nodes the object is supposed to be attached to
+        MovableToNodeMap::iterator i = mMovableToNodeMap.find(mov);
+        if (i != mMovableToNodeMap.end())
+        {
+            std::list<BspNode*>::iterator nodeit, nodeitend;
+            nodeitend = i->second.end();
+            for (nodeit = i->second.begin(); nodeit != nodeitend; ++nodeit)
+            {
+                // Tell each node
+                (*nodeit)->_removeMovable(mov);
+            }
+            // Clear the existing list of nodes because we'll reevaluate it
+            i->second.clear();
+        }
+
+        tagNodesWithMovable(mRootNode, mov, pos);
+    }
+    //-----------------------------------------------------------------------
+    void BspLevel::tagNodesWithMovable(BspNode* node, const MovableObject* mov,
+        const Vector3& pos)
+    {
+        if (node->isLeaf())
+        {
+            // Add to movable->node map
+            // Insert all the time, will get current if already there
+            std::pair<MovableToNodeMap::iterator, bool> p = 
+                mMovableToNodeMap.insert(
+                MovableToNodeMap::value_type(mov, std::list<BspNode*>()));
+
+            p.first->second.push_back(node);
+
+            // Add movable to node
+            node->_addMovable(mov);
+
+        }
+        else
+        {
+            // Find distance to dividing plane
+            Real dist = node->getDistance(pos);
+            if (Math::Abs(dist) < mov->getBoundingRadius())
+            {
+                // Bounding sphere crosses the plane, do both
+                tagNodesWithMovable(node->getBack(), mov, pos);
+                tagNodesWithMovable(node->getFront(), mov, pos);
+            }
+            else if (dist < 0)
+            {
+                // Do back
+                tagNodesWithMovable(node->getBack(), mov, pos);
+            }
+            else
+            {
+                // Do front
+                tagNodesWithMovable(node->getFront(), mov, pos);
+            }
+        }
+    }
 }

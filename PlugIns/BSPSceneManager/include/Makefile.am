@@ -3,6 +3,7 @@ noinst_HEADERS = OgreBspLevel.h \
                  OgreBspPrerequisites.h \
                  OgreBspResourceManager.h \
                  OgreBspSceneManager.h \
+				 OgreBspSceneNode.h \
                  OgreQuake3Level.h \
                  OgreQuake3Shader.h \
                  OgreQuake3ShaderManager.h \

@@ -124,6 +124,10 @@ SOURCE=..\src\OgreBspSceneManagerDll.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreBspSceneNode.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreQuake3Level.cpp
 # End Source File
 # Begin Source File
@@ -157,6 +161,10 @@ SOURCE=..\include\OgreBspResourceManager.h
 # Begin Source File
 
 SOURCE=..\include\OgreBspSceneManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreBspSceneNode.h
 # End Source File
 # Begin Source File
 

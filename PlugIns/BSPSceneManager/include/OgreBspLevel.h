@@ -70,7 +70,11 @@ namespace Ogre {
         */
         BspNode* findLeaf(const Vector3& point) const;
 
-
+        /** Ensures that the MovableObject is attached to the right leaves of the 
+            BSP tree.
+        */
+        void _notifyObjectMoved(const MovableObject* mov, 
+            const Vector3& pos);
     protected:
         /** Pointer to the root node of the BSP tree;
             This pointer actually has a dual purpose; to avoid allocating lots of small chunks of
@@ -149,6 +153,12 @@ namespace Ogre {
 
         /** Internal method for parsing chosen entities. */
         void loadEntities(const Quake3Level& q3lvl);
+
+        typedef std::map<const MovableObject*, std::list<BspNode*> > MovableToNodeMap;
+        /// Map for locating the nodes a movable is currently a member of
+        MovableToNodeMap mMovableToNodeMap;
+
+        void tagNodesWithMovable(BspNode* node, const MovableObject* mov, const Vector3& pos);
 
 
     };
