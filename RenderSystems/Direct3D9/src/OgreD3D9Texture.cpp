@@ -1341,6 +1341,10 @@ namespace Ogre
 		case D3DFMT_X8R8G8B8:
 		case D3DFMT_R8G8B8:
 			return PF_R8G8B8;
+		case D3DFMT_A16B16G16R16F:
+			return PF_FP_R16G16B16A16;
+		case D3DFMT_A32B32G32R32F:
+			return PF_FP_R32G32B32A32;
 		default:
 			return PF_UNKNOWN;
 		}
@@ -1372,6 +1376,10 @@ namespace Ogre
 		case PF_B10G10R10A2:
 		case PF_A2R10G10B10:
 			return D3DFMT_A2R10G10B10;
+		case PF_FP_R16G16B16A16:
+			return D3DFMT_A16B16G16R16F;
+		case PF_FP_R32G32B32A32:
+			return D3DFMT_A32B32G32R32F;
 		case PF_UNKNOWN:
 		default:
 			return D3DFMT_UNKNOWN;
