@@ -31,7 +31,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
     
     SDLInput::SDLInput() 
-        : InputReader(), mMouseX(0), mMouseY(0), mScale(0.002), _visible(true)
+        : InputReader(), mMouseX(0), mMouseY(0), mMouseRelativeX(0),
+          mMouseRelativeY(0), mMouseRelativeZ(0), mScale(0.002), _visible(true)
     {
         mEventQueue = 0;
 
@@ -200,27 +201,57 @@ namespace Ogre {
         if (!mUseBufferedMouse)
         {
             mMouseKeys = 0;
-            int relMouseX  = 0, relMouseY = 0;
+            mMouseRelativeX = 0, mMouseRelativeY = 0;
 
             // Get mouse info
             if( SDL_GetAppState() & SDL_APPMOUSEFOCUS )
             {
                 mMouseKeys = SDL_GetMouseState( &mMouseX, &mMouseY );
-                SDL_GetRelativeMouseState( &relMouseX, &relMouseY );
+                SDL_GetRelativeMouseState( &mMouseRelativeX, &mMouseRelativeY );
+
+                // the value that is added to mMouseRelativeZ when the wheel
+                // is moved one step (this value is actually added
+                // twice per movement since a wheel movement triggers a
+                // MOUSEBUTTONUP and a MOUSEBUTTONDOWN event)
+                
+                // get mouse wheel movement
+                SDL_Event event[16];
+                // fetch all mouse related events
+                int count = SDL_PeepEvents( event, 16 , SDL_GETEVENT , (SDL_EVENTMASK(SDL_MOUSEMOTION) | SDL_EVENTMASK(SDL_MOUSEBUTTONDOWN) | SDL_EVENTMASK(SDL_MOUSEBUTTONUP)));
+                if ( count )
+                {
+                    for (int i = 0; i < count; i++)
+                    {
+                        switch (event[i].type)
+                        {
+                        case SDL_MOUSEBUTTONDOWN:
+                        case SDL_MOUSEBUTTONUP:
+                            switch(event[i].button.button)
+                            {
+                            case SDL_BUTTON_WHEELUP:
+                                mMouseRelativeZ += mWheelStep;
+                                break;
+                            case SDL_BUTTON_WHEELDOWN:
+                                mMouseRelativeZ -= mWheelStep;
+                                break;
+                            }
+                            break;
+                        }
+                    }
+                }
             }
 
             mMouseState.Xabs = mMouseX;
             mMouseState.Yabs = mMouseY;
             mMouseState.Zabs = 0;
 
-            mMouseState.Xrel = relMouseX;
-            mMouseState.Yrel = relMouseY;
-            mMouseState.Zrel = 0;
+            mMouseState.Xrel = mMouseRelativeX;
+            mMouseState.Yrel = mMouseRelativeY;
+            mMouseState.Zrel = mMouseRelativeZ;
 
-
-            mMouseState.Buttons =  (mMouseKeys & SDL_BUTTON(1)) ? 1 : 0; // left
-            mMouseState.Buttons |= (mMouseKeys & SDL_BUTTON(3)) ? 2 : 0; // right
-            mMouseState.Buttons |= (mMouseKeys & SDL_BUTTON(2)) ? 4 : 0; // middle 
+            mMouseState.Buttons =  (mMouseKeys & SDL_BUTTON_LMASK) ? 1 : 0; // left
+            mMouseState.Buttons |= (mMouseKeys & SDL_BUTTON_RMASK) ? 2 : 0; // right
+            mMouseState.Buttons |= (mMouseKeys & SDL_BUTTON_MMASK) ? 4 : 0; // middle 
 
             // XXX Fix me up
             // Game controller state
@@ -552,6 +583,11 @@ namespace Ogre {
         // XXX Arbitrarily picked 16 
         SDL_Event events[16];
 
+        // the value that is added to mMouseRelativeZ when the wheel
+        // is moved one step (this value is actually added
+        // twice per movement since a wheel movement triggers a
+        // MOUSEBUTTONUP and a MOUSEBUTTONDOWN event)
+
         int count = SDL_PeepEvents(events, 16, SDL_GETEVENT,
                 (SDL_MOUSEMOTIONMASK | SDL_MOUSEBUTTONDOWNMASK |
                  SDL_MOUSEBUTTONUPMASK | SDL_ACTIVEEVENTMASK));
@@ -605,6 +641,12 @@ namespace Ogre {
                 case SDL_BUTTON_MIDDLE:
                     button_mask = InputEvent::BUTTON2_MASK;
                     break;
+                case SDL_BUTTON_WHEELUP:
+                    mMouseRelativeZ += mWheelStep;
+                    break;
+                case SDL_BUTTON_WHEELDOWN:
+                    mMouseRelativeZ -= mWheelStep;
+                    break; 
                 };
                 triggerMouseButton(button_mask, button_down);
                 break;
