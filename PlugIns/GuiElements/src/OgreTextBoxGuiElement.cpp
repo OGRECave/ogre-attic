@@ -198,6 +198,22 @@ namespace Ogre {
 
 		}
     }
+
+  void TextBoxGuiElement::setCaption(const String& text)
+  {
+    mCaption = text;
+    if (mTextArea != NULL)
+    		mTextArea->setCaption(text);
+  }
+
+  const String& TextBoxGuiElement::getCaption(void) const
+  {
+    if (mTextArea != NULL)
+      return mTextArea->getCaption();
+    return mCaption;
+  }
+
+
     //---------------------------------------------------------------------------------------------
 	void TextBoxGuiElement::setCaptionToTextArea() 
 	{

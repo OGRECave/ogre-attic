@@ -58,6 +58,10 @@ namespace Ogre
         /** See GuiElement. */
         const String& getTypeName(void);
 
+        // inherited
+        void setCaption(const String& text);
+        const String& getCaption(void) const;
+
 	    void addBaseParameters(void);
 
 		inline bool isKeyEnabled()

@@ -192,6 +192,8 @@ namespace Ogre {
 		Real buttonHeight = (buttonWidth * 4.0F) / 3.0F;	// adjust for screen ratio
 		Real horzSpacing = mSpacing;
 		Real vertSpacing = (mSpacing * 4.0F) / 3.0F;
+    Real bitTop    = buttonHeight + vertSpacing;
+    Real bitHeight = getHeight() - (2 * bitTop);
 
 		mUpButton->setLeft(horzSpacing);
 		mUpButton->setTop(vertSpacing);
@@ -199,25 +201,41 @@ namespace Ogre {
 		mUpButton->setHeight(buttonHeight);	// buttons are square
 
 		mDownButton->setLeft(horzSpacing);
-		mDownButton->setTop(getHeight() - buttonHeight + vertSpacing);
+		mDownButton->setTop(getHeight() - (buttonHeight + vertSpacing));
 		mDownButton->setWidth(buttonWidth);
 		mDownButton->setHeight(buttonHeight);	// buttons are square
 
 		mScrollBit->setLeft(horzSpacing);
 		mScrollBit->setTop(buttonHeight + vertSpacing);
 		mScrollBit->setWidth(buttonWidth);
-		mScrollBit->setHeight(getHeight() - 2*buttonHeight - vertSpacing*2);
-		if (mTotalItems == 0 )
+
+		if (mTotalItems == 0)
 		{
-
-			mScrollBit->setTop(buttonHeight + vertSpacing );
-			mScrollBit->setHeight((getHeight() - 2*buttonHeight - vertSpacing*2));			
-
+			mScrollBit->setTop(bitTop);
+			mScrollBit->setHeight(bitHeight);			
 		}
 		else
 		{
-			mScrollBit->setTop(buttonHeight + vertSpacing + (getHeight() - 2*buttonHeight - vertSpacing*2) * mStartingItem / mTotalItems);
-			mScrollBit->setHeight((getHeight() - 2*buttonHeight - vertSpacing*2) * mVisibilityRange / mTotalItems);			
+			mScrollBit->setTop(bitTop + (bitHeight * ((Real)mStartingItem / (Real)mTotalItems)));
+			mScrollBit->setHeight(bitHeight * ((Real)mVisibilityRange / (Real)mTotalItems));
+		}
+	}
+
+	void ScrollBarGuiElement::updateScrollBit()
+	{
+		Real buttonWidth = getWidth() - (mSpacing * 2);
+		Real buttonHeight = buttonWidth * (4.0F / 3.0F);	// adjust for screen ratio
+		Real vertSpacing = mSpacing * (4.0F / 3.0F);
+    Real bitTop    = buttonHeight + vertSpacing;
+    Real bitHeight = getHeight() - (2 * bitTop);
+
+		if (mTotalItems == 0)
+		{
+			mScrollBit->setTop(bitTop);
+		}
+		else
+		{
+			mScrollBit->setTop(bitTop + (bitHeight * ((Real)mStartingItem / (Real)mTotalItems)));
 		}
 	}
 
@@ -234,8 +252,8 @@ namespace Ogre {
 			if (mStartingItem >0)
 			{
 				mStartingItem--;
+        updateScrollBit();
 				fireScrollPerformed();
-
 			}
 		}
 		else if (e->getActionCommand() == mDownButton->getName())
@@ -243,8 +261,8 @@ namespace Ogre {
 			if (mStartingItem < mTotalItems-mVisibilityRange)
 			{
 				mStartingItem++;
+        updateScrollBit();
 				fireScrollPerformed();
-
 			}
 		}
 
