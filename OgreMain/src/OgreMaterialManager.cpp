@@ -994,7 +994,7 @@ namespace Ogre {
             if (params[0] != "texture" && params[0] != "cubic_texture" && params[0] != "anim_texture")
             {
                 // Lower case all params if not texture
-                for (int p = 1; p < vecparams.size(); ++p)
+                for( size_t p = 1; p < vecparams.size(); ++p )
                     params[p] = params[p].toLowerCase();
 
             }
