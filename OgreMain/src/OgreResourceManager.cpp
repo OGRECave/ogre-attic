@@ -143,7 +143,10 @@ namespace Ogre {
         if( it == mResources.end() )
             return 0;
         else
+        {
+            it->second->touch();
             return it->second;
+        }
     }
     //-----------------------------------------------------------------------
     Resource* ResourceManager::getByHandle(ResourceHandle handle)
@@ -155,6 +158,7 @@ namespace Ogre {
         }
         else
         {
+            it->second->touch();
             return it->second;
         }
     }

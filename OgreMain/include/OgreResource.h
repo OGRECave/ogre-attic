@@ -100,6 +100,7 @@ namespace Ogre {
         void touch(void) 
         { 
             mLastAccess = time(NULL); 
+            if (!mIsLoaded) load();
         }
 
         /** Gets the last time the resource was 'touched'.
