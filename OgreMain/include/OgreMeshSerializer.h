@@ -69,16 +69,16 @@ namespace Ogre {
         @param pMesh Pointer to the Mesh to export
         @param filename The destination filename
         */
-        void exportMesh(const Mesh* pMesh, const String& filename);
+        void exportMesh(const MeshPtr& pMesh, const String& filename);
 
         /** Imports Mesh and (optionally) Material data from a .mesh file DataChunk.
         @remarks
             This method imports data from a DataChunk opened from a .mesh file and places it's
             contents into the Mesh object which is passed in. 
-        @param chunk The DataChunk holding the .mesh data. Must be initialised (pos at the start of the buffer).
+        @param stream The DataStream holding the .mesh data. Must be initialised (pos at the start of the buffer).
         @param pDest Pointer to the Mesh object which will receive the data. Should be blank already.
         */
-        void importMesh(DataChunk& chunk, Mesh* pDest);
+        void importMesh(DataStream& stream, MeshPtr& pDest);
     protected:
         static String msCurrentVersion;
 
