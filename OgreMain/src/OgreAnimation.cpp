@@ -33,10 +33,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     Animation::InterpolationMode Animation::msDefaultInterpolationMode = Animation::IM_LINEAR;
+    Animation::RotationInterpolationMode 
+        Animation::msDefaultRotationInterpolationMode = Animation::RIM_LINEAR;
     //---------------------------------------------------------------------
     Animation::Animation(const String& name, Real length) : mName(name), mLength(length)
     {
         mInterpolationMode = Animation::msDefaultInterpolationMode;
+        mRotationInterpolationMode = Animation::msDefaultRotationInterpolationMode;
     }
     //---------------------------------------------------------------------
     Animation::~Animation()
@@ -160,6 +163,26 @@ namespace Ogre {
     {
         return mTrackList;
 
+    }
+    //---------------------------------------------------------------------
+    void Animation::setRotationInterpolationMode(RotationInterpolationMode im)
+    {
+        mRotationInterpolationMode = im;
+    }
+    //---------------------------------------------------------------------
+    Animation::RotationInterpolationMode Animation::getRotationInterpolationMode(void) const
+    {
+        return mRotationInterpolationMode;
+    }
+    //---------------------------------------------------------------------
+    void Animation::setDefaultRotationInterpolationMode(RotationInterpolationMode im)
+    {
+        msDefaultRotationInterpolationMode = im;
+    }
+    //---------------------------------------------------------------------
+    Animation::RotationInterpolationMode Animation::getDefaultRotationInterpolationMode(void)
+    {
+        return msDefaultRotationInterpolationMode;
     }
 
 }

@@ -54,6 +54,18 @@ namespace Ogre {
             IM_SPLINE
         };
 
+        /** The types of rotational interpolation available. */
+        enum RotationInterpolationMode
+        {
+            /** Values are interpolated linearly. This is faster but does not 
+                necessarily give a completely accurate result.
+            */
+            RIM_LINEAR,
+            /** Values are interpolated spherically. This is more accurate but
+                has a higher cost.
+            */
+            RIM_SPHERICAL
+        };
         /** You should not use this constructor directly, use the parent object such as Skeleton instead.
         @param name The name of the animation, should be unique within it's parent (e.g. Skeleton)
         @param length The length of the animation in seconds.
@@ -135,6 +147,23 @@ namespace Ogre {
             See setInterpolationMode for more info.
         */
         InterpolationMode getInterpolationMode(void) const;
+        /** Tells the animation how to interpolate rotations.
+        @remarks
+            By default, animations interpolate lieanrly between rotations. This
+            is fast but not necessarily completely accurate. If you want more 
+            accurate interpolation, use spherical interpolation, but be aware 
+            that it will incur a higher cost.
+        @par
+            You can also change the default rotation behaviour by calling 
+            Animation::setDefaultRotationInterpolationMode.
+        */
+        void setRotationInterpolationMode(RotationInterpolationMode im);
+
+        /** Gets the current rotation interpolation mode of this animation. 
+        @remarks
+            See setRotationInterpolationMode for more info.
+        */
+        RotationInterpolationMode getRotationInterpolationMode(void) const;
 
         // Methods for setting the defaults
         /** Sets the default animation interpolation mode. 
@@ -148,6 +177,16 @@ namespace Ogre {
         /** Gets the default interpolation mode for all animations. */
         static InterpolationMode getDefaultInterpolationMode(void);
 
+        /** Sets the default rotation interpolation mode. 
+        @remarks
+            Every animation created after this option is set will have the new interpolation
+            mode specified. You can also change the mode per animation by calling the 
+            setInterpolationMode method on the instance in question.
+        */
+        static void setDefaultRotationInterpolationMode(RotationInterpolationMode im);
+
+        /** Gets the default rotation interpolation mode for all animations. */
+        static RotationInterpolationMode getDefaultRotationInterpolationMode(void);
 
         typedef std::map<unsigned short, AnimationTrack*> TrackList;
 
@@ -164,8 +203,10 @@ namespace Ogre {
         Real mLength;
 
         InterpolationMode mInterpolationMode;
+        RotationInterpolationMode mRotationInterpolationMode;
 
         static InterpolationMode msDefaultInterpolationMode;
+        static RotationInterpolationMode msDefaultRotationInterpolationMode;
 
         
     };

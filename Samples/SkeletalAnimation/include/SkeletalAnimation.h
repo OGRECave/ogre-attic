@@ -23,6 +23,7 @@ Description: Specialisation of OGRE's framework application to show the
 #include "ExampleApplication.h"
 
 #define NUM_ROBOTS 10
+#define ROW_COUNT 10
 AnimationState* mAnimState[NUM_ROBOTS];
 Real mAnimationSpeed[NUM_ROBOTS];
 
@@ -62,7 +63,8 @@ protected:
     void createScene(void)
     {
         // Setup animation default
-        Animation::setDefaultInterpolationMode(Animation::IM_SPLINE);
+        Animation::setDefaultInterpolationMode(Animation::IM_LINEAR);
+        Animation::setDefaultRotationInterpolationMode(Animation::RIM_LINEAR);
 
         // Set ambient light
         mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
@@ -70,12 +72,20 @@ protected:
 
         
         Entity *ent;
-        for (int i = 0; i < NUM_ROBOTS; ++i)
+        int row = 0;
+        int column = 0;
+        for (int i = 0; i < NUM_ROBOTS; ++i, ++column)
         {
+            if (column > ROW_COUNT)
+            {
+                ++row;
+                column = 0;
+            }
+
             ent = mSceneMgr->createEntity("robot" + StringConverter::toString(i), "robot.mesh");
             // Add entity to the scene node
             mSceneMgr->getRootSceneNode()->createChildSceneNode(
-                Vector3(0,0,(i*50)-(NUM_ROBOTS*50/2)))->attachObject(ent);
+                Vector3(-(row*100), 0,(column*50)))->attachObject(ent);
             mAnimState[i] = ent->getAnimationState("Walk");
             mAnimState[i]->setEnabled(true);
             mAnimationSpeed[i] = Math::RangeRandom(0.5, 1.5);

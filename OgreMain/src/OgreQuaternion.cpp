@@ -508,4 +508,11 @@ namespace Ogre {
 		return Radian(Math::ATan2(2*(x*y + w*z), w*w + x*x - y*y - z*z));
 	}
     //-----------------------------------------------------------------------
+    Quaternion Quaternion::nlerp(Real fT, const Quaternion& rkP, 
+        const Quaternion& rkQ, bool shortestPath)
+    {
+        Quaternion result = rkP + fT * (rkQ - rkP);
+        result.normalise();
+        return result;
+    }
 }

@@ -219,6 +219,8 @@ namespace Ogre {
         {
             // Interpolate by t
             Animation::InterpolationMode im = mParent->getInterpolationMode();
+            Animation::RotationInterpolationMode rim = 
+                mParent->getRotationInterpolationMode();
             Vector3 base;
             switch(im)
             {
@@ -226,8 +228,16 @@ namespace Ogre {
                 // Interpolate linearly
                 // Rotation
                 // Interpolate to nearest rotation if mUseShortestRotationPath set
-                kret.setRotation( Quaternion::Slerp(t, k1->getRotation(), 
-					k2->getRotation(), mUseShortestRotationPath) );
+                if (rim == Animation::RIM_LINEAR)
+                {
+                    kret.setRotation( Quaternion::nlerp(t, k1->getRotation(), 
+                        k2->getRotation(), mUseShortestRotationPath) );
+                }
+                else //if (rim == Animation::RIM_SPHERICAL)
+                {
+                    kret.setRotation( Quaternion::Slerp(t, k1->getRotation(), 
+					    k2->getRotation(), mUseShortestRotationPath) );
+                }
 
                 // Translation
                 base = k1->getTranslate();
@@ -292,7 +302,17 @@ namespace Ogre {
 			node->translate(translate);
 
 			// interpolate between no-rotation and full rotation, to point 'weight', so 0 = no rotate, 1 = full
-			Quaternion rotate = Quaternion::Slerp(weight, Quaternion::IDENTITY, kf.getRotation());
+            Quaternion rotate;
+            Animation::RotationInterpolationMode rim =
+                mParent->getRotationInterpolationMode();
+            if (rim == Animation::RIM_LINEAR)
+            {
+                rotate = Quaternion::nlerp(weight, Quaternion::IDENTITY, kf.getRotation());
+            }
+            else //if (rim == Animation::RIM_SPHERICAL)
+            {
+                rotate = Quaternion::Slerp(weight, Quaternion::IDENTITY, kf.getRotation());
+            }
 			node->rotate(rotate);
 
 			Vector3 scale = kf.getScale();
