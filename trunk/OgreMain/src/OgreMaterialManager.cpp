@@ -1187,29 +1187,6 @@ namespace Ogre {
 	    return Singleton<MaterialManager>::getSingleton();
     }
     //-----------------------------------------------------------------------
-    void MaterialManager::add(Resource* res)
-    {
-        // Call superclass
-        ResourceManager::add(res);
-        // Also add handle to list
-        Material* mat = static_cast<Material*>(res);
-	    mHandles.insert(MaterialHandleList::value_type(mat->mHandle, mat));
-    }
-    //-----------------------------------------------------------------------
-    Material* MaterialManager::getByHandle(int handle)
-    {
-	    MaterialHandleList::iterator i = mHandles.find(handle);
-
-	    if (i == mHandles.end())
-	    {
-		    return 0;
-	    }
-	    else
-	    {
-		    return i->second;
-	    }
-    }
-    //-----------------------------------------------------------------------
     Resource* MaterialManager::create( const String& name)
     {
 	    // Check name not already used
