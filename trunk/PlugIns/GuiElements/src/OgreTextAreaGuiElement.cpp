@@ -75,6 +75,8 @@ namespace Ogre {
                 delete [] mRenderOp.pVertices;
             if (mRenderOp.pTexCoords[0])
                 delete [] mRenderOp.pTexCoords[0];
+            if (mRenderOp.pDiffuseColour)
+                delete [] mRenderOp.pDiffuseColour;
             
             // 6 verts per char since we're doing tri lists without indexes
             mRenderOp.pVertices = new Real[ numChars * 6 * 3 ];
