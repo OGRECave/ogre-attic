@@ -48,7 +48,7 @@ namespace Ogre {
         TEX_TYPE_1D = 1,
         /// 2D texture, used in combination with 2D texture coordinates (default)
         TEX_TYPE_2D = 2,
-        /// 3D texture, used in combination with 3D texture coordinates
+        /// 3D volume texture, used in combination with 3D texture coordinates
         TEX_TYPE_3D = 3,
         /// 3D cube map, used in combination with 3D texture coordinates
         TEX_TYPE_CUBE_MAP = 4
@@ -98,6 +98,10 @@ namespace Ogre {
         /** Returns the width of the texture.
         */
         unsigned int getWidth(void) const { return mWidth; }
+
+        /** Returns the depth of the texture (only applicable for 3D textures).
+        */
+        unsigned int getDepth(void) const { return mDepth; }
 
         /** Returns both the width and height of the texture.
         */
@@ -165,6 +169,7 @@ namespace Ogre {
     protected:
         unsigned long mHeight;
         unsigned long mWidth;
+        unsigned long mDepth;
 
         unsigned short mNumMipMaps;
         float mGamma;

@@ -282,19 +282,19 @@ namespace Ogre {
                 Real* pTex = pVBStart + (i * uvSize);
 
                 pTex[0] = 0.0f;
-                pTex[1] = upperY;
+                pTex[1] = 0.0f;
 
                 pTex += vertexSize; // jump by 1 vertex stride
                 pTex[0] = 0.0f;
-                pTex[1] = 0.0f;
-
-                pTex += vertexSize;
-                pTex[0] = upperX;
                 pTex[1] = upperY;
 
                 pTex += vertexSize;
                 pTex[0] = upperX;
                 pTex[1] = 0.0f;
+
+                pTex += vertexSize;
+                pTex[0] = upperX;
+                pTex[1] = upperY;
             }
 			vbuf->unlock();
         }

@@ -101,6 +101,11 @@ namespace Ogre {
         virtual void readSubMesh(DataChunk& chunk);
         virtual void readSubMeshOperation(DataChunk& chunk, SubMesh* sub);
         virtual void readGeometry(DataChunk& chunk, VertexData* dest);
+        virtual void readGeometryPositions(unsigned short bindIdx, DataChunk& chunk, VertexData* dest);
+        virtual void readGeometryNormals(unsigned short bindIdx, DataChunk& chunk, VertexData* dest);
+        virtual void readGeometryColours(unsigned short bindIdx, DataChunk& chunk, VertexData* dest);
+        virtual void readGeometryTexCoords(unsigned short bindIdx, DataChunk& chunk, VertexData* dest, unsigned short set);
+
         virtual void readSkeletonLink(DataChunk &chunk);
         virtual void readMeshBoneAssignment(DataChunk& chunk);
         virtual void readSubMeshBoneAssignment(DataChunk& chunk, SubMesh* sub);
@@ -112,8 +117,17 @@ namespace Ogre {
 
     };
 
+    /** Class for providing backwards-compatibility for loading version 1.1 of the .mesh format. */
+    class MeshSerializerImpl_v1_1 : public MeshSerializerImpl
+    {
+    public:
+        MeshSerializerImpl_v1_1();
+        ~MeshSerializerImpl_v1_1();
+        void readGeometryTexCoords(unsigned short bindIdx, DataChunk& chunk, VertexData* dest, unsigned short set);
+    };
+
     /** Class for providing backwards-compatibility for loading version 1.0 of the .mesh format. */
-    class MeshSerializerImpl_v1 : public MeshSerializerImpl
+    class MeshSerializerImpl_v1 : public MeshSerializerImpl_v1_1
     {
     protected:
         bool mFirstGeometry;

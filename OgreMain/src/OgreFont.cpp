@@ -327,9 +327,9 @@ namespace Ogre
 
             this->setGlyphTexCoords( i, 
                 (Real)l / (Real)tex_side,  // u1
-                1.0 - (Real)m / (Real)tex_side,  // v1
+                (Real)m / (Real)tex_side,  // v1
                 (Real)( l + ( face->glyph->advance.x >> 6 ) ) / (Real)tex_side, // u2
-                1.0 - ( ( m + ( max_height >> 6 ) ) / (Real)tex_side ) // v2
+                ( m + ( max_height >> 6 ) ) / (Real)tex_side // v2
                 );
 
             // Advance a column

@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreLogManager.h"
 #include "OgreStringConverter.h"
 #include "OgreBitwise.h"
+#include "OgreSDDataChunk.h"
 
 #include "OgreNoMemoryMacros.h"
 #include <d3dx9.h>
@@ -66,7 +67,7 @@ namespace Ogre
 		if (this->getTextureType() == TEX_TYPE_CUBE_MAP)
 			_constructCubeFaceNames(mName);
 
-		this->_setSrcAttributes(width, height, format);
+		this->_setSrcAttributes(width, height, 1, format);
 		// if it's a render target we must 
 		// create it right now, don't know why ???
 		if (mUsage == TU_RENDERTARGET)
@@ -133,8 +134,6 @@ namespace Ogre
 				SAFE_RELEASE(pSrcSurface);
 			}
 
-			// target rectangle (whole surface)
-			RECT dstRC = {0, 0, other->getWidth(), other->getHeight()};
 			// do the blit, it's called StretchRect in D3D9 :)
 			if( FAILED( hr = mpDev->StretchRect( pSrcSurface, NULL, pDstSurface, &dstRC, D3DTEXF_NONE) ) )
 			{
@@ -202,14 +201,12 @@ namespace Ogre
 		HRESULT hr = S_OK; // D3D9 methods result
 
 		// we need src image info
-		this->_setSrcAttributes(tImage.getWidth(), tImage.getHeight(), tImage.getFormat());
+		this->_setSrcAttributes(tImage.getWidth(), tImage.getHeight(), 1, tImage.getFormat());
 		// create a blank texture
 		this->_createNormTex();
 		// set gamma prior to blitting
         Image::applyGamma(tImage.getData(), this->getGamma(), (uint)tImage.getSize(), tImage.getBPP());
 		this->_blitImageToNormTex(tImage);
-		// get topLevel surface description
-		mpNormTex->GetLevelDesc(0, &mTexDesc);
 		mIsLoaded = true;
 	}
 	/****************************************************************************************/
@@ -233,6 +230,9 @@ namespace Ogre
 		case TEX_TYPE_2D:
 			this->_loadNormTex();
 			break;
+		case TEX_TYPE_3D:
+            this->_loadVolumeTex();
+            break;
 		case TEX_TYPE_CUBE_MAP:
 			this->_loadCubeTex();
 			break;
@@ -265,44 +265,152 @@ namespace Ogre
 	{
 		assert(this->getTextureType() == TEX_TYPE_CUBE_MAP);
 
-		HRESULT hr = S_OK; // D3D9 methods result
-		Image tImages[6]; // temp. images we'll use
+        // DDS load?
+        if (getName().endsWith(".dds"))
+        {
+            // find & load resource data
+            SDDataChunk chunk;
+            TextureManager::getSingleton()._findResourceData(this->getName(), chunk);
 
-		// we need src. image info so load first face
-		// we assume that all faces are of the same dimensions
-		// if they are not, they will be automatically 
-		// resized when blitting
-		tImages[0].load(this->_getCubeFaceName(0));
-		this->_setSrcAttributes(tImages[0].getWidth(), tImages[0].getHeight(), tImages[0].getFormat());
-		// now create the texture
-		this->_createCubeTex();
+            HRESULT hr = D3DXCreateCubeTextureFromFileInMemory(
+                mpDev,
+                chunk.getPtr(),
+                chunk.getSize(),
+                &mpCubeTex);
 
-		// prepare faces
-		for (int face = 0; face < 6; face++)
-		{
-			// first face is already loaded
-			if (face > 0)
-				tImages[face].load(this->_getCubeFaceName(face)); // load the cube face
-			// set gamma prior to blitting
-			Image::applyGamma(
-					tImages[face].getData(), 
-					this->getGamma(), 
-					(uint)tImages[face].getSize(), 
-					tImages[face].getBPP());
-		}
-		// blit them all :(
-		this->_blitImagesToCubeTex(tImages);
-		// get topLevel surface description
-		mpCubeTex->GetLevelDesc(0, &mTexDesc);
+            if (FAILED(hr))
+		    {
+			    Except( hr, "Can't create cube texture", "D3D9Texture::_loadCubeTex" );
+			    this->_freeResources();
+		    }
+
+            hr = mpCubeTex->QueryInterface(IID_IDirect3DBaseTexture9, (void **)&mpTex);
+
+            if (FAILED(hr))
+		    {
+			    Except( hr, "Can't get base texture", "D3D9Texture::_loadCubeTex" );
+			    this->_freeResources();
+		    }
+
+            D3DSURFACE_DESC texDesc;
+            mpCubeTex->GetLevelDesc(0, &texDesc);
+            // set src and dest attributes to the same, we can't know
+            _setSrcAttributes(texDesc.Width, texDesc.Height, 1, _getPF(texDesc.Format));
+            _setFinalAttributes(texDesc.Width, texDesc.Height, 1,  _getPF(texDesc.Format));
+
+        	
+        }
+        else
+        {
+
+		    HRESULT hr = S_OK; // D3D9 methods result
+		    Image tImages[6]; // temp. images we'll use
+
+		    // we need src. image info so load first face
+		    // we assume that all faces are of the same dimensions
+		    // if they are not, they will be automatically 
+		    // resized when blitting
+		    tImages[0].load(this->_getCubeFaceName(0));
+		    this->_setSrcAttributes(tImages[0].getWidth(), tImages[0].getHeight(), 1, tImages[0].getFormat());
+		    // now create the texture
+		    this->_createCubeTex();
+
+		    // prepare faces
+		    for (int face = 0; face < 6; face++)
+		    {
+			    // first face is already loaded
+			    if (face > 0)
+				    tImages[face].load(this->_getCubeFaceName(face)); // load the cube face
+			    // set gamma prior to blitting
+			    Image::applyGamma(
+					    tImages[face].getData(), 
+					    this->getGamma(), 
+					    (uint)tImages[face].getSize(), 
+					    tImages[face].getBPP());
+		    }
+		    // blit them all :(
+		    this->_blitImagesToCubeTex(tImages);
+        }
 		// say IT'S loaded loud ;) 
 		mIsLoaded = true;
 	}
+	/****************************************************************************************/
+	void D3D9Texture::_loadVolumeTex()
+	{
+		assert(this->getTextureType() == TEX_TYPE_3D);
+
+        // find & load resource data
+        SDDataChunk chunk;
+        TextureManager::getSingleton()._findResourceData(this->getName(), chunk);
+
+        HRESULT hr = D3DXCreateVolumeTextureFromFileInMemory(
+            mpDev,
+            chunk.getPtr(),
+            chunk.getSize(),
+            &mpVolumeTex);
+
+        if (FAILED(hr))
+        {
+            Except(Exception::ERR_INTERNAL_ERROR, 
+                "Unable to load volume texture from " + this->getName(),
+                "D3D9Texture::_loadVolumeTex");
+        }
+
+        hr = mpVolumeTex->QueryInterface(IID_IDirect3DBaseTexture9, (void **)&mpTex);
+
+        if (FAILED(hr))
+		{
+			Except( hr, "Can't get base texture", "D3D9Texture::_loadVolumeTex" );
+			this->_freeResources();
+		}
+
+        D3DVOLUME_DESC texDesc;
+        mpVolumeTex->GetLevelDesc(0, &texDesc);
+        // set src and dest attributes to the same, we can't know
+        _setSrcAttributes(texDesc.Width, texDesc.Height, texDesc.Depth, _getPF(texDesc.Format));
+        _setFinalAttributes(texDesc.Width, texDesc.Height, texDesc.Depth, _getPF(texDesc.Format));
+        
+		mIsLoaded = true;
+    }
 	/****************************************************************************************/
 	void D3D9Texture::_loadNormTex()
 	{
 		assert(this->getTextureType() == TEX_TYPE_1D || this->getTextureType() == TEX_TYPE_2D);
 
-		Image tImage; // temp. image we'll use
+		// Use D3DX
+        // find & load resource data
+        SDDataChunk chunk;
+        TextureManager::getSingleton()._findResourceData(this->getName(), chunk);
+
+        HRESULT hr = D3DXCreateTextureFromFileInMemory(
+            mpDev,
+            chunk.getPtr(),
+            chunk.getSize(),
+            &mpNormTex);
+
+        if (FAILED(hr))
+        {
+            Except(Exception::ERR_INTERNAL_ERROR, 
+                "Unable to load texture from " + this->getName(),
+                "D3D9Texture::_loadNormTex");
+        }
+
+        hr = mpNormTex->QueryInterface(IID_IDirect3DBaseTexture9, (void **)&mpTex);
+
+        if (FAILED(hr))
+		{
+			Except( hr, "Can't get base texture", "D3D9Texture::_loadNormTex" );
+			this->_freeResources();
+		}
+
+        D3DSURFACE_DESC texDesc;
+        mpNormTex->GetLevelDesc(0, &texDesc);
+        // set src and dest attributes to the same, we can't know
+        _setSrcAttributes(texDesc.Width, texDesc.Height, 1, _getPF(texDesc.Format));
+        _setFinalAttributes(texDesc.Width, texDesc.Height, 1, _getPF(texDesc.Format));
+        
+        /*        
+        Image tImage; // temp. image we'll use
 		HRESULT hr = S_OK; // D3D9 methods result
 
 		// we need src image info
@@ -314,9 +422,8 @@ namespace Ogre
         Image::applyGamma(tImage.getData(), this->getGamma(), (uint)tImage.getSize(), tImage.getBPP());
 		// make the BLT !!!
 		this->_blitImageToNormTex(tImage);
-		// get topLevel surface description
-		mpNormTex->GetLevelDesc(0, &mTexDesc);
 		// say IT'S loaded loud ;) 
+        */
 		mIsLoaded = true;
 	}
 	/****************************************************************************************/
@@ -418,7 +525,7 @@ namespace Ogre
 			Except( hr, "Can't get texture description", "D3D9Texture::_createNormTex" );
 			this->_freeResources();
 		}
-		this->_setFinalAttributes(desc.Width, desc.Height, this->_getPF(desc.Format));
+		this->_setFinalAttributes(desc.Width, desc.Height, 1, this->_getPF(desc.Format));
 		
 		// set the base texture we'll use in the render system
 		hr = mpNormTex->QueryInterface(IID_IDirect3DBaseTexture9, (void **)&mpTex);
@@ -432,8 +539,6 @@ namespace Ogre
 		if (mUsage == TU_RENDERTARGET)
 			this->_createDepthStencil();
 
-		// get topLevel surface description
-		mpNormTex->GetLevelDesc(0, &mTexDesc);
 	}
 	/****************************************************************************************/
 	void D3D9Texture::_createCubeTex()
@@ -511,7 +616,7 @@ namespace Ogre
 			Except( hr, "Can't get texture description", "D3D9Texture::_createCubeTex" );
 			this->_freeResources();
 		}
-		this->_setFinalAttributes(desc.Width, desc.Height, this->_getPF(desc.Format));
+		this->_setFinalAttributes(desc.Width, desc.Height, 1, this->_getPF(desc.Format));
 
 		// set the base texture we'll use in the render system
 		hr = mpCubeTex->QueryInterface(IID_IDirect3DBaseTexture9, (void **)&mpTex);
@@ -525,8 +630,6 @@ namespace Ogre
 		if (mUsage == TU_RENDERTARGET)
 			this->_createDepthStencil();
 
-		// get topLevel surface description
-		mpCubeTex->GetLevelDesc(0, &mTexDesc);
 	}
 	/****************************************************************************************/
 	void D3D9Texture::_initMembers()
@@ -613,11 +716,13 @@ namespace Ogre
 			mCubeFaceNames[i] = baseName + suffixes[i] + ext;
 	}
 	/****************************************************************************************/
-	void D3D9Texture::_setFinalAttributes(unsigned long width, unsigned long height, PixelFormat format)
+	void D3D9Texture::_setFinalAttributes(unsigned long width, unsigned long height, 
+        unsigned long depth, PixelFormat format)
 	{ 
 		// set target texture attributes
 		mHeight = height; 
 		mWidth = width; 
+        mDepth = depth;
 		mFormat = format; 
 
 		// Update size (the final size, not including temp space)
@@ -625,7 +730,8 @@ namespace Ogre
 		short bytesPerPixel = mFinalBpp >> 3;
 		if( !mHasAlpha && mFinalBpp == 32 )
 			bytesPerPixel--;
-		mSize = mWidth * mHeight * bytesPerPixel;
+		mSize = mWidth * mHeight * mDepth * bytesPerPixel 
+            * (mTextureType == TEX_TYPE_CUBE_MAP)? 6 : 1;
 
 		// say to the world what we are doing
 		if (mWidth != mSrcWidth ||
@@ -637,7 +743,8 @@ namespace Ogre
 		}
 	}
 	/****************************************************************************************/
-	void D3D9Texture::_setSrcAttributes(unsigned long width, unsigned long height, PixelFormat format)
+	void D3D9Texture::_setSrcAttributes(unsigned long width, unsigned long height, 
+        unsigned long depth, PixelFormat format)
 	{ 
 		// set source image attributes
 		mSrcWidth = width; 
@@ -780,10 +887,7 @@ namespace Ogre
 		// loop through data and do conv.
 		for( iRow = 0; iRow < mSrcHeight; iRow++ )
 		{
-			// NOTE: Direct3D used texture coordinates where (0,0) is the TOP LEFT corner of texture
-			// Everybody else (OpenGL, 3D Studio, etc) uses (0,0) as BOTTOM LEFT corner
-			// So whilst we load, flip the texture in the Y-axis to compensate
-			pSurf8 = (BYTE*)rect.pBits + ((mSrcHeight - iRow - 1) * rect.Pitch);
+			pSurf8 = (BYTE*)rect.pBits + (iRow * rect.Pitch);
 			for( iCol = 0; iCol < mSrcWidth; iCol++ )
 			{
 				// Read RGBA values from buffer
@@ -994,7 +1098,7 @@ namespace Ogre
 			// _copyMemoryToSurface flips all around x, so we'll flip the
 			// src.image first, then 'reflip' it :(, and we need a temp. image for this :(
 			Image tmpImg(srcImages[face]);
-			tmpImg.flipAroundX();
+			//tmpImg.flipAroundX();
 			// copy the buffer to our surface, 
 			// _copyMemoryToSurface will do color conversion and flipping
 			this->_copyMemoryToSurface(tmpImg.getData(), pSrcSurface);

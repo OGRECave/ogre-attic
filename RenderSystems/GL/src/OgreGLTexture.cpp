@@ -77,6 +77,7 @@ namespace Ogre {
         // Same dest dimensions for GL
         mWidth = mSrcWidth;
         mHeight = mSrcHeight;
+        mDepth = 1;
 
         mNumMipMaps = num_mips;
 
@@ -134,18 +135,14 @@ namespace Ogre {
 		if (this->getTextureType() != TEX_TYPE_2D)
           Except( Exception::UNIMPLEMENTED_FEATURE, "**** Blit to texture implemented only for 2D textures!!! ****", "GLTexture::blitToTexture" );
 
-        Image img = src;
-        img.flipAroundX();
-
         mGLSupport.begin_context();
         glBindTexture( GL_TEXTURE_2D, mTextureID );
-        Image::applyGamma( img.getData(), mGamma, img.getSize(), img.getBPP() );
         glTexSubImage2D( 
             GL_TEXTURE_2D, 0, 
             uStartX, uStartY,
-            img.getWidth(), img.getHeight(),
+            src.getWidth(), src.getHeight(),
             getGLTextureFormat(),
-            GL_UNSIGNED_BYTE, img.getData() );
+            GL_UNSIGNED_BYTE, src.getData() );
         mGLSupport.end_context();
     }
 
@@ -227,8 +224,6 @@ namespace Ogre {
         for(unsigned int i = 0; i < images.size(); i++)
         {
             Image img = images[i];
-            if(mTextureType != TEX_TYPE_CUBE_MAP)
-                img.flipAroundX();
 
             LogManager::getSingleton().logMessage( 
                 LML_NORMAL,

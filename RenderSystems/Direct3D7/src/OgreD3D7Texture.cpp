@@ -218,6 +218,7 @@ namespace Ogre {
 		mName = name;
 		mTextureType = texType;
 		mUsage = usage;
+        mDepth = 1; // D3D7 does not support volume textures
 
         // Default to 16-bit texture
         enable32Bit( false );

@@ -778,12 +778,9 @@ namespace Ogre {
         memcpy(dest->position, src->point, sizeof(Real) * 3);
         memcpy(dest->normal, src->normal,  sizeof(Real) * 3);
         dest->colour = src->color;
-        // Correct texture coords
-        // Coords are flipped in Y axis!
-        // ---WHY???---
         dest->texcoords[0]  = src->texture[0];
-        dest->texcoords[1]  = 1 - src->texture[1];
+        dest->texcoords[1]  = src->texture[1];
         dest->lightmap[0]  = src->lightmap[0];
-        dest->lightmap[1]  = 1 - src->lightmap[1];
+        dest->lightmap[1]  = src->lightmap[1];
     }
 }
