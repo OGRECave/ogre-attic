@@ -415,9 +415,13 @@ namespace Ogre
     //-------------------------------------------------------------------------
     void TerrainSceneManager::setWorldGeometry( const String& filename )
     {
-        // Clear out any existing world resources
-        ResourceGroupManager::getSingleton().clearResourceGroup(
-            ResourceGroupManager::getSingleton().getWorldResourceGroupName());
+        // Clear out any existing world resources (if not default)
+        if (ResourceGroupManager::getSingleton().getWorldResourceGroupName() != 
+            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME)
+        {
+            ResourceGroupManager::getSingleton().clearResourceGroup(
+                ResourceGroupManager::getSingleton().getWorldResourceGroupName());
+        }
         mTerrainPages.clear();
         // Load the configuration
         loadConfig(filename);
