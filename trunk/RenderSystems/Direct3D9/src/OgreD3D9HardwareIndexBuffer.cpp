@@ -90,6 +90,11 @@ namespace Ogre {
     void D3D9HardwareIndexBuffer::readData(size_t offset, size_t length, 
         unsigned char* pDest)
     {
+       // There is no functional interface in D3D, just do via manual 
+        // lock, copy & unlock
+        unsigned char* pSrc = this->lock(offset, length, HardwareBuffer::HBL_READ_ONLY);
+        memcpy(pDest, pSrc, length);
+        this->unlock();
 
     }
 	//---------------------------------------------------------------------
@@ -97,7 +102,12 @@ namespace Ogre {
             const unsigned char* pSource,
 			bool discardWholeBuffer)
     {
-    }
+       // There is no functional interface in D3D, just do via manual 
+        // lock, copy & unlock
+        unsigned char* pDst = this->lock(offset, length, 
+            discardWholeBuffer ? HardwareBuffer::HBL_DISCARD : HardwareBuffer::HBL_NORMAL);
+        memcpy(pDst, pSource, length);
+        this->unlock();    }
 	//---------------------------------------------------------------------
 
 }
