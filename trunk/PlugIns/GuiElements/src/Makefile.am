@@ -4,7 +4,8 @@ noinst_PROGRAMS = Plugin_GuiElements.so
 
 Plugin_GuiElements_so_SOURCES = OgreBorderPanelGuiElement.cpp \
 				OgreGuiElements.cpp \
-				OgrePanelGuiElement.cpp
+				OgrePanelGuiElement.cpp \
+				OgreTextAreaGuiElement.cpp
 
 Plugin_GuiElements_so_LDFLAGS = -shared
 

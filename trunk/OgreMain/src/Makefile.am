@@ -24,6 +24,8 @@ libOgreMain_la_SOURCES = OgreAnimation.cpp \
                          OgreDynLibManager.cpp \
                          OgreEntity.cpp \
                          OgreException.cpp \
+			 OgreFont.cpp \
+			 OgreFontManager.cpp \
 			 OgreGuiContainer.cpp \
 			 OgreGuiElement.cpp \
 			 OgreGuiElementCommands.cpp \
@@ -88,7 +90,6 @@ libOgreMain_la_SOURCES = OgreAnimation.cpp \
                          OgreSubMesh.cpp \
                          OgreTGACodec.cpp \
                          OgreTexture.cpp \
-                         OgreTextureFont.cpp \
                          OgreTextureLayer.cpp \
                          OgreTextureManager.cpp \
                          OgreVector3.cpp \

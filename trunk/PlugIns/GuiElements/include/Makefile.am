@@ -1,4 +1,5 @@
 noinst_HEADERS = OgreBorderPanelGuiElement.h \
 		 OgreGuiElementFactories.h \
 		 OgreGuiElementPrerequisites.h \
-		 OgrePanelGuiElement.h
+		 OgrePanelGuiElement.h \
+		 OgreTextAreaGuiElement.h 
