@@ -46,7 +46,7 @@ namespace OgreRefApp
         SceneManager* sm = World::getSingleton().getSceneManager();
         mEntity = sm->createEntity(name, "Prefab_Plane");
         mEntity->setMaterialName("Examples/BumpyMetal");
-        mSceneNode = sm->getRootSceneNode()->createChild(name);
+        mSceneNode = static_cast<SceneNode*>(sm->getRootSceneNode()->createChild(name));
         mSceneNode->attachObject(mEntity);
         // Add reverse reference
         mEntity->setUserObject(this);
