@@ -52,7 +52,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     ParticleSystem::ParticleSystem() :
 		mSpeedFactor(1.0f),
-        mBoundsUpdateTime(5.0f),
+        mBoundsAutoUpdate(true),
+        mBoundsUpdateTime(10.0f),
         mResourceGroupName(ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME),
         mIsRendererConfigured(false),
         mPoolSize(0),
@@ -74,7 +75,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     ParticleSystem::ParticleSystem(const String& name, const String& resourceGroup):
 		mSpeedFactor(1.0f),
-        mBoundsUpdateTime(5.0f),
+        mBoundsAutoUpdate(true),
+        mBoundsUpdateTime(10.0f),
         mResourceGroupName(resourceGroup),
         mIsRendererConfigured(false),
         mPoolSize(0),
@@ -288,11 +290,9 @@ namespace Ogre {
 			// Emit new particles
         	_triggerEmitters(timeElapsed);
 
-            if (mBoundsUpdateTime > 0.0f)
-            {
-                mBoundsUpdateTime -= timeElapsed;
-                _updateBounds();
-            }
+            if (!mBoundsAutoUpdate && mBoundsUpdateTime > 0.0f)
+                mBoundsUpdateTime -= timeElapsed; // count down 
+            _updateBounds();
 		}
 
 
@@ -375,11 +375,11 @@ namespace Ogre {
 
 				// Translate position & direction into world space
                 // Maybe make emitter do this?
-                p->mPosition  = (mParentNode->_getDerivedOrientation() * p->mPosition) + mParentNode->_getDerivedPosition();
-                p->mDirection = (mParentNode->_getDerivedOrientation() * p->mDirection);
+                p->position  = (mParentNode->_getDerivedOrientation() * p->position) + mParentNode->_getDerivedPosition();
+                p->direction = (mParentNode->_getDerivedOrientation() * p->direction);
 
 				// apply partial frame motion to this particle
-            	p->mPosition += (p->mDirection * timePoint);
+            	p->position += (p->direction * timePoint);
 
 				// apply particle initialization by the affectors
 				itAffEnd = mAffectors.end();
@@ -403,7 +403,7 @@ namespace Ogre {
         for (i = mActiveParticles.begin(); i != itEnd; ++i)
         {
             pParticle = static_cast<Particle*>(*i);
-            pParticle->mPosition += (pParticle->mDirection * timeElapsed);
+            pParticle->position += (pParticle->direction * timeElapsed);
         }
 
     }
@@ -569,8 +569,9 @@ namespace Ogre {
     void ParticleSystem::_updateBounds()
     {
 
-        if (mParentNode)
+        if (mParentNode && (mBoundsAutoUpdate || mBoundsUpdateTime > 0.0f))
         {
+
             // Iterate over the particles in world space and grow the box as required
             Vector3 min = mWorldAABB.getMinimum();
             Vector3 max = mWorldAABB.getMaximum();
@@ -578,7 +579,7 @@ namespace Ogre {
             for (p = mActiveParticles.begin(); p != mActiveParticles.end(); ++p)
             {
                 min.makeFloor((*p)->position);
-                min.makeCeil((*p)->position);
+                max.makeCeil((*p)->position);
             }
             mWorldAABB.setExtents(min, max);
 
@@ -728,6 +729,7 @@ namespace Ogre {
     {
         if (mRenderer && !mIsRendererConfigured)
         {
+            mRenderer->_notifyParticleQuota(mParticlePool.size());
             createVisualParticles(0, mParticlePool.size());
             MaterialPtr mat = MaterialManager::getSingleton().load(
                 mMaterialName, mResourceGroupName);
@@ -796,6 +798,12 @@ namespace Ogre {
             mAABB.getMaximum().squaredLength());
         mBoundingRadius = Math::Sqrt(sqDist);
 
+    }
+    //-----------------------------------------------------------------------
+    void ParticleSystem::setBoundsAutoUpdated(bool autoUpdate, Real stopIn)
+    {
+        mBoundsAutoUpdate = autoUpdate;
+        mBoundsUpdateTime = stopIn;
     }
     //-----------------------------------------------------------------------
     String ParticleSystem::CmdCull::doGet(const void* target) const

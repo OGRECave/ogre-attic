@@ -50,12 +50,12 @@ namespace Ogre {
         ParticleEmitter::_initParticle(pParticle);
 
         // Point emitter emits from own position
-        pParticle->mPosition = mPosition;
+        pParticle->position = mPosition;
 
         // Generate complex data by reference
-        genEmissionColour(pParticle->mColour);
-        genEmissionDirection(pParticle->mDirection);
-        genEmissionVelocity(pParticle->mDirection);
+        genEmissionColour(pParticle->colour);
+        genEmissionDirection(pParticle->direction);
+        genEmissionVelocity(pParticle->direction);
 
         // Generate simpler data
         pParticle->timeToLive = pParticle->totalTimeToLive = genEmissionTTL();

@@ -85,11 +85,11 @@ namespace Ogre {
 
 			if (particle_time <= mTimeAdj[0])
 			{
-				p->mColour = mColourAdj[0];
+				p->colour = mColourAdj[0];
 			} else
 			if (particle_time >= mTimeAdj[MAX_STAGES - 1])
 			{
-				p->mColour = mColourAdj[MAX_STAGES-1];
+				p->colour = mColourAdj[MAX_STAGES-1];
 			} else
 			{
 				for (int i=0;i<MAX_STAGES-1;i++)
@@ -98,10 +98,10 @@ namespace Ogre {
 					{
 						particle_time -= mTimeAdj[i];
 						particle_time /= (mTimeAdj[i+1]-mTimeAdj[i]);
-						p->mColour.r = ((mColourAdj[i+1].r * particle_time) + (mColourAdj[i].r * (1.0f - particle_time)));
-						p->mColour.g = ((mColourAdj[i+1].g * particle_time) + (mColourAdj[i].g * (1.0f - particle_time)));
-						p->mColour.b = ((mColourAdj[i+1].b * particle_time) + (mColourAdj[i].b * (1.0f - particle_time)));
-						p->mColour.a = ((mColourAdj[i+1].a * particle_time) + (mColourAdj[i].a * (1.0f - particle_time)));
+						p->colour.r = ((mColourAdj[i+1].r * particle_time) + (mColourAdj[i].r * (1.0f - particle_time)));
+						p->colour.g = ((mColourAdj[i+1].g * particle_time) + (mColourAdj[i].g * (1.0f - particle_time)));
+						p->colour.b = ((mColourAdj[i+1].b * particle_time) + (mColourAdj[i].b * (1.0f - particle_time)));
+						p->colour.a = ((mColourAdj[i+1].a * particle_time) + (mColourAdj[i].a * (1.0f - particle_time)));
 						break;
 					}
 				}

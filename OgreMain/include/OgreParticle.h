@@ -48,7 +48,7 @@ namespace Ogre {
 	};
 
 	/** Class representing a single particle instance. */
-    class _OgreExport Particle : public Billboard
+    class _OgreExport Particle 
     {
     protected:
         /// Parent ParticleSystem
@@ -113,7 +113,7 @@ namespace Ogre {
         /** Sets the current rotation */
         void setRotation(const Radian& rad);
 
-        const Radian& getRotation(void) const { return mRotation; }
+        const Radian& getRotation(void) const { return rotation; }
 
         /** Internal method for notifying the particle of it's owner.
         */
@@ -125,6 +125,9 @@ namespace Ogre {
 
 		/// Get the optional visual data associated with the class
 		ParticleVisualData* getVisualData(void) const { return mVisual; }
+
+        /// Utility method to reset this particle
+        void resetDimensions(void);
 
        
     };

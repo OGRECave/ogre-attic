@@ -85,7 +85,7 @@ namespace Ogre {
             bb.mPosition = p->position;
             bb.mDirection = p->direction;
             bb.mColour = p->colour;
-            bb.mRotation = p->mRotation;
+            bb.mRotation = p->rotation;
             // Assign and compare at the same time
             if (bb.mOwnDimensions = p->mOwnDimensions)
             {

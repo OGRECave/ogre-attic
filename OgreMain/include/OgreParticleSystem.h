@@ -419,6 +419,7 @@ namespace Ogre {
 
         AxisAlignedBox mAABB;
         Real mBoundingRadius;
+        bool mBoundsAutoUpdate;
         Real mBoundsUpdateTime;
 
         /// World AABB, only used to compare world-space positions to calc bounds
@@ -526,15 +527,27 @@ namespace Ogre {
             organise it. Otherwise, set an initial bounds and let the bounds increase
             for a little while (the default is 5 seconds), after which time the 
             AABB is fixed to save time.
+        @param aabb Bounds in local space.
         */
         void setBounds(const AxisAlignedBox& aabb);
 
-        /** Sets the period of time for which the bounds of the particle system 
-            are measured and updated (increased only), after which time they
-            are assumed to have reached their maximum and will not be 
-            updated any more. 
+        /** Sets whether the bounds will be automatically updated
+            for the life of the particle system
+        @remarks
+            If you have a stationary particle system, it would be a good idea to
+            call this method and set the value to 'false', since the maximum
+            bounds of the particle system will eventually be static. If you do
+            this, you can either set the bounds manually using the setBounds()
+            method, or set the second parameter of this method to a positive
+            number of seconds, so that the bounds are calculated for a few
+            seconds and then frozen.
+        @param autoUpdate If true (the default), the particle system will
+            update it's bounds every frame. If false, the bounds update will 
+            cease after the 'stopIn' number of seconds have passed.
+        @param stopIn Only applicable if the first parameter is true, this is the
+            number of seconds after which the automatic update will cease.
         */
-        void setBoundsUpdatePeriod(Real time) { mBoundsUpdateTime = time; }
+        void setBoundsAutoUpdated(bool autoUpdate, Real stopIn = 0.0f);
 
         /** Internal method for updating the bounds of the particle system.
         @remarks
