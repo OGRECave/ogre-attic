@@ -391,6 +391,7 @@ namespace Ogre {
             delete i->second;
         }
         mSceneNodes.clear();
+        mAutoTrackingSceneNodes.clear();
 
         // Clear root node of all children
         mSceneRoot->removeAllChildren();
@@ -480,6 +481,21 @@ namespace Ogre {
         {
             Except(Exception::ERR_ITEM_NOT_FOUND, "SceneNode '" + name + "' not found.",
                 "SceneManager::destroySceneNode");
+        }
+
+        // Find any scene nodes which are tracking this node, and turn them off
+        AutoTrackingSceneNodes::iterator ai, aiend;
+        aiend = mAutoTrackingSceneNodes.end();
+        for (ai = mAutoTrackingSceneNodes.begin(); ai != aiend; ++ai)
+        {
+            SceneNode* n = *ai;
+            if (n->getAutoTrackTarget() == i->second)
+            {
+                // turn off, this will notify SceneManager to remove
+                n->setAutoTracking(false);
+                // reset iterator since set may have been changed
+                ai = mAutoTrackingSceneNodes.begin();
+            }
         }
 
         delete i->second;
