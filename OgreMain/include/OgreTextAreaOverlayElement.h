@@ -27,11 +27,6 @@ http://www.gnu.org/copyleft/lesser.txt
 #define _TextAreaOverlayElement_H__
 
 #include "OgreGuiContainer.h"
-#include "OgreMaterial.h"
-#include "OgreStringConverter.h"
-#include "OgreOverlayElementFactory.h"
-#include "OgreFont.h"
-#include "OgreFontManager.h"
 
 namespace Ogre
 {

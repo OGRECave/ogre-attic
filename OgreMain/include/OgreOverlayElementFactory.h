@@ -27,6 +27,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 #include "OgreOverlayElement.h"
+#include "OgrePanelOverlayElement.h"
+#include "OgreBorderPanelOverlayElement.h"
+#include "OgreTextAreaOverlayElement.h"
 
 namespace Ogre {
 
@@ -51,6 +54,58 @@ namespace Ogre {
         virtual void destroyOverlayElement(OverlayElement* pElement) { delete pElement; };
         /** Gets the string uniquely identifying the type of element this factory creates. */
         virtual const String& getTypeName(void) const = 0;
+    };
+
+
+    /** Factory for creating PanelOverlayElement instances. */
+    class _OgreExport PanelOverlayElementFactory: public OverlayElementFactory
+    {
+    public:
+        /** See OverlayElementFactory */
+        OverlayElement* createOverlayElement(const String& instanceName)
+        {
+            return new PanelOverlayElement(instanceName);
+        }
+        /** See OverlayElementFactory */
+        const String& getTypeName(void) const
+        {
+            static String name = "Panel";
+            return name;
+        }
+    };
+
+    /** Factory for creating BorderPanelOverlayElement instances. */
+    class _OgreExport BorderPanelOverlayElementFactory: public OverlayElementFactory
+    {
+    public:
+        /** See OverlayElementFactory */
+        OverlayElement* createOverlayElement(const String& instanceName)
+        {
+            return new BorderPanelOverlayElement(instanceName);
+        }
+        /** See OverlayElementFactory */
+        const String& getTypeName(void) const
+        {
+            static String name = "BorderPanel";
+            return name;
+        }
+    };
+
+    /** Factory for creating TextAreaOverlayElement instances. */
+    class _OgreExport TextAreaOverlayElementFactory: public OverlayElementFactory
+    {
+    public:
+        /** See OverlayElementFactory */
+        OverlayElement* createOverlayElement(const String& instanceName)
+        {
+            return new TextAreaOverlayElement(instanceName);
+        }
+        /** See OverlayElementFactory */
+        const String& getTypeName(void) const
+        {
+            static String name = "TextArea";
+            return name;
+        }
     };
 
 }

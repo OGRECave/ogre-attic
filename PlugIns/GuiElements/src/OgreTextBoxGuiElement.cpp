@@ -29,6 +29,10 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreInput.h"
 #include "OgreGuiManager.h"
 #include "OgreException.h"
+#include "OgreException.h"
+#include "OgreFont.h"
+#include "OgreFontManager.h"
+#include "OgreStringConverter.h"
 
 namespace Ogre {
 
