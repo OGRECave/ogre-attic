@@ -88,19 +88,6 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     Pass::~Pass()
     {
-        removeAllTextureUnitStates();
-		if (mVertexProgramUsage)
-		{
-			delete mVertexProgramUsage;
-			mVertexProgramUsage = 0;
-		}
-		if (mFragmentProgramUsage)
-		{
-			delete mFragmentProgramUsage;
-			mFragmentProgramUsage = 0;
-		}
-        // remove from dirty list, if there
-        msDirtyHashList.erase(this);
 
     }
     //-----------------------------------------------------------------------------
@@ -820,6 +807,21 @@ namespace Ogre {
     void Pass::queueForDeletion(void)
     {
         mQueuedForDeletion = true;
+
+        removeAllTextureUnitStates();
+        if (mVertexProgramUsage)
+        {
+            delete mVertexProgramUsage;
+            mVertexProgramUsage = 0;
+        }
+        if (mFragmentProgramUsage)
+        {
+            delete mFragmentProgramUsage;
+            mFragmentProgramUsage = 0;
+        }
+        // remove from dirty list, if there
+        msDirtyHashList.erase(this);
+
         msPassGraveyard.insert(this);
     }
 
