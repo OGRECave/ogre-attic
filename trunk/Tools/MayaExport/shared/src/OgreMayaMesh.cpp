@@ -679,7 +679,7 @@ namespace OgreMaya {
 					
 						MeshVertexUV VertexUV;
 						VertexUV.u = iterUVSet->uArray[iUV];
-						VertexUV.v = iterUVSet->vArray[iUV];
+						VertexUV.v = 1.0f - iterUVSet->vArray[iUV];	// CJV 2004-01-05: Required for Ogre 0.13
 					
 						FaceVertex.listUV.push_back(VertexUV);
 		
