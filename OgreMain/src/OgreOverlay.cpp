@@ -249,22 +249,7 @@ namespace Ogre {
             }
         }
 
-        if (!mVisible)
-            return;
-
-        // Add 3D elements
-        mRootNode->setPosition(cam->getDerivedPosition());
-        mRootNode->setOrientation(cam->getDerivedOrientation());
-        mRootNode->_update(true, false);
-        // Set up the default queue group for the objects about to be added
-        RenderQueueGroupID oldgrp = queue->getDefaultQueueGroup();
-        queue->setDefaultQueueGroup(RENDER_QUEUE_OVERLAY);
-        mRootNode->_findVisibleObjects(cam, queue, true, false);
-        // Reset the group
-        queue->setDefaultQueueGroup(oldgrp);
-
-
-            // update elements
+        // update elements
         if (mTransformUpdated)
         {
             GuiContainerList::iterator i, iend;
@@ -280,14 +265,31 @@ namespace Ogre {
             mTransformUpdated = false;
         }
 
-        // Add 2D elements
-        iend = m2DElements.end();
-        for (i = m2DElements.begin(); i != iend; ++i)
+        if (mVisible)
         {
-            (*i)->_update();
+            // Add 3D elements
+            mRootNode->setPosition(cam->getDerivedPosition());
+            mRootNode->setOrientation(cam->getDerivedOrientation());
+            mRootNode->_update(true, false);
+            // Set up the default queue group for the objects about to be added
+            RenderQueueGroupID oldgrp = queue->getDefaultQueueGroup();
+            queue->setDefaultQueueGroup(RENDER_QUEUE_OVERLAY);
+            mRootNode->_findVisibleObjects(cam, queue, true, false);
+            // Reset the group
+            queue->setDefaultQueueGroup(oldgrp);
 
-            (*i)->_updateRenderQueue(queue);
+            // Add 2D elements
+            iend = m2DElements.end();
+            for (i = m2DElements.begin(); i != iend; ++i)
+            {
+                (*i)->_update();
+
+                (*i)->_updateRenderQueue(queue);
+            }
         }
+
+
+
        
     }
     //---------------------------------------------------------------------
