@@ -158,6 +158,9 @@ namespace Ogre {
         mJPGCodec = new JPGCodec;
         Codec::registerCodec( mJPGCodec );
 
+        // Auto window
+        mAutoWindow = 0;
+
         // Load plugins
         loadPlugins(pluginFileName);        
 
@@ -414,7 +417,7 @@ namespace Ogre {
 
 
 
-        RenderWindow *retWin =  mActiveRenderer->initialise(autoCreateWindow);
+        mAutoWindow =  mActiveRenderer->initialise(autoCreateWindow);
 
         if (autoCreateWindow)
         {
@@ -428,7 +431,7 @@ namespace Ogre {
 
         // Initialise timer
         mTimer->reset();
-        return retWin;
+        return mAutoWindow;
 
     }
     //-----------------------------------------------------------------------
@@ -572,6 +575,11 @@ namespace Ogre {
     {
         assert(mActiveRenderer != 0);
         mActiveRenderer->convertColourValue(colour, pDest);
+    }
+    //-----------------------------------------------------------------------
+    RenderWindow* Root::getAutoCreatedWindow(void)
+    {
+        return mAutoWindow;
     }
     //-----------------------------------------------------------------------
     RenderWindow* Root::createRenderWindow(const String &name, int width, int height, int colourDepth,
