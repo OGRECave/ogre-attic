@@ -58,10 +58,13 @@ namespace Ogre {
         void resize(int width, int height);
         /** Overridden - see RenderWindow */
         void swapBuffers(bool waitForVSync);
+
         void outputText(int x, int y, const String& text);
         /** Overridden - see RenderTarget.
         */
         void writeContentsToFile(const String& filename);
+
+		bool requiresTextureFlipping() const { return false; }
     };
 }
 

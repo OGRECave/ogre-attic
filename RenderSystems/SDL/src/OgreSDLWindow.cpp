@@ -139,9 +139,9 @@ namespace Ogre {
 	void SDLWindow::writeContentsToFile(const String& filename)
 	{
 		ImageCodec::ImageData imgData;
-		imgData.ulWidth = mWidth;
-		imgData.ulHeight = mHeight;
-		imgData.eFormat = Image::FMT_RGB;
+		imgData.width = mWidth;
+		imgData.height = mHeight;
+		imgData.format = PF_R8G8B8;
 
 		// Allocate buffer 
 		uchar* pBuffer = new uchar[mWidth * mHeight * 3];
@@ -155,7 +155,7 @@ namespace Ogre {
 
 		// Need to flip the read data over in Y though
 		Image img;
-		img.loadRawData(chunk, mWidth, mHeight, Image::FMT_RGB);
+		img.loadRawData(chunk, mWidth, mHeight, PF_R8G8B8 );
 		img.flipAroundX();
 
 		DataChunk chunkFlipped(img.getData(), chunk.getSize());
@@ -183,4 +183,3 @@ namespace Ogre {
 
 	}
 }
-
