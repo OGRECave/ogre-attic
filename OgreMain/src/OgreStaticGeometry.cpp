@@ -34,6 +34,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSceneManager.h"
 #include "OgreCamera.h"
 #include "OgreMaterialManager.h"
+#include "OgreRoot.h"
 
 namespace Ogre {
 
@@ -586,7 +587,8 @@ namespace Ogre {
 	StaticGeometry::Region::Region(const String& name, SceneManager* mgr, 
 		uint32 regionID, const Vector3& centre) 
 		: mName(name), mSceneMgr(mgr), mNode(0), mRegionID(regionID), 
-		mCentre(centre), mBoundingRadius(0.0f), mCurrentLod(0)
+		mCentre(centre), mBoundingRadius(0.0f), mCurrentLod(0), 
+		mLightListUpdated(0)
 	{
 		// First LOD mandatory, and always from 0
 		mLodSquaredDistances.push_back(0.0f);
@@ -723,6 +725,20 @@ namespace Ogre {
 	StaticGeometry::Region::getLODIterator(void)
 	{
 		return LODIterator(mLodBucketList.begin(), mLodBucketList.end());
+	}
+	//--------------------------------------------------------------------------
+	const LightList& StaticGeometry::Region::getLights(void) const
+	{
+		// Make sure we only update this once per frame no matter how many
+		// times we're asked
+		ulong frame = Root::getSingleton().getCurrentFrameNumber();
+		if (frame > mLightListUpdated)
+		{
+			mLightList = mNode->findLights(mBoundingRadius);
+			mLightListUpdated = frame;
+		}
+		return mLightList;
+
 	}
 	//--------------------------------------------------------------------------
 	void StaticGeometry::Region::dump(std::ofstream& of) const
@@ -1054,7 +1070,7 @@ namespace Ogre {
 	//--------------------------------------------------------------------------
 	const LightList& StaticGeometry::GeometryBucket::getLights(void) const
 	{
-		return mParent->getParent()->getParent()->getParentSceneNode()->getLights();
+		return mParent->getParent()->getParent()->getLights();
 	}
 	//--------------------------------------------------------------------------
 	bool StaticGeometry::GeometryBucket::getCastsShadows(void) const

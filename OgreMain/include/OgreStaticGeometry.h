@@ -361,6 +361,10 @@ namespace Ogre {
 			Real mCamDistanceSquared;
 			/// List of LOD buckets			
 			LODBucketList mLodBucketList;
+			/// List of lights for this region
+			mutable LightList mLightList;
+			/// The last frame that this light list was updated in
+			mutable ulong mLightListUpdated;
 
 
 		public:
@@ -387,6 +391,8 @@ namespace Ogre {
 			typedef VectorIterator<LODBucketList> LODIterator;
 			/// Get an iterator over the LODs in this region
 			LODIterator getLODIterator(void);
+			/// Shared set of lights for all GeometryBuckets
+			const LightList& getLights(void) const;
 
 			/// Dump contents for diagnostics
 			void dump(std::ofstream& of) const;
