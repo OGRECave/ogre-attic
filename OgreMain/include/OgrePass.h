@@ -425,7 +425,7 @@ namespace Ogre {
 		*/
 		void setColourWriteEnabled(bool enabled);
 		/** Determines if colour buffer writing is enabled for this pass. */
-		bool getColourWriteEnabled(void);
+		bool getColourWriteEnabled(void) const;
 
         /** Sets the culling mode for this pass  based on the 'vertex winding'.
         @remarks
