@@ -468,6 +468,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "RenderSystem_Direct3D8"=.\RenderSystems\Direct3D8\scripts\RenderSystem_Direct3D8.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "RenderSystem_SDL"=.\RenderSystems\SDL\scripts\RenderSystem_SDL.dsp - Package Owner=<4>
 
 Package=<5>
