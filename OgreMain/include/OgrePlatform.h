@@ -102,6 +102,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #   else
 #       define _OgreExport __declspec(dllimport)
 #   endif
+#	define snprintf _snprintf
 #endif // OGRE_WIN32
 
 //-----------------------------------------------------------------------
