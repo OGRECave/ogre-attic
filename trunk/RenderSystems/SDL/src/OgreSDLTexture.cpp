@@ -96,6 +96,9 @@ namespace Ogre {
 
         mSrcWidth = img.getWidth();
         mSrcHeight = img.getHeight();
+        // Same dest dimensions for GL
+        mWidth = mSrcWidth;
+        mHeight = mSrcHeight;
 
         uchar *pTempData = new uchar[ img.getSize() ];
         memcpy( pTempData, img.getConstData(), img.getSize() );

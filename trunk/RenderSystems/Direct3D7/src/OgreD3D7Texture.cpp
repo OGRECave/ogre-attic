@@ -88,7 +88,7 @@ namespace Ogre {
         memcpy( pTempData, img.getConstData(), img.getSize() );
 
         createSurfaces();
-        applyGamma( pTempData, img.getSize(), mSrcBpp );
+        applyGamma( pTempData, mWidth*mHeight, mSrcBpp );
         copyMemoryToSurface( pTempData );
         generateMipMaps();
 
