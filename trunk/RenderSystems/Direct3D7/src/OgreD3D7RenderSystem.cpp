@@ -319,7 +319,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    RenderWindow* D3DRenderSystem::initialise(bool autoCreateWindow)
+    RenderWindow* D3DRenderSystem::initialise(bool autoCreateWindow, const String& windowTitle)
     {
         RenderWindow* autoWindow = 0;
 
@@ -401,7 +401,7 @@ namespace Ogre {
             }
 
             // Create myself a window
-            autoWindow = this->createRenderWindow("OGRE Render Window", width, height, colourDepth, fullScreen);
+            autoWindow = this->createRenderWindow(windowTitle, width, height, colourDepth, fullScreen);
 
 
 

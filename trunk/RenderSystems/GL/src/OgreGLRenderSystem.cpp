@@ -219,11 +219,11 @@ namespace Ogre {
         return mGLSupport->validateConfig();
     }
 
-    RenderWindow* GLRenderSystem::initialise(bool autoCreateWindow)
+    RenderWindow* GLRenderSystem::initialise(bool autoCreateWindow, const String& windowTitle)
     {
 
         mGLSupport->start();
-		RenderWindow* autoWindow = mGLSupport->createWindow(autoCreateWindow, this);
+		RenderWindow* autoWindow = mGLSupport->createWindow(autoCreateWindow, this, windowTitle);
 
         _setCullingMode( mCullingMode );
         

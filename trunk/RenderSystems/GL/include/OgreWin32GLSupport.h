@@ -27,7 +27,7 @@ namespace Ogre
 		*/
 		String validateConfig();
 
-		virtual RenderWindow* createWindow(bool autoCreateWindow, GLRenderSystem* renderSystem);
+		virtual RenderWindow* createWindow(bool autoCreateWindow, GLRenderSystem* renderSystem, const String& windowTitle = "OGRE Render Window");
 
 		/**
 		* Create a new specific render window

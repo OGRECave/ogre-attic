@@ -34,7 +34,7 @@ public:
 	virtual ConfigOptionMap& getConfigOptions(void);
 
     
-	virtual RenderWindow* createWindow(bool autoCreateWindow, GLRenderSystem* renderSystem) = 0;
+	virtual RenderWindow* createWindow(bool autoCreateWindow, GLRenderSystem* renderSystem, const String& windowTitle) = 0;
 
 	/**
     * Create a specific instance of a render window

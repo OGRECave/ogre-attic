@@ -43,7 +43,7 @@ public:
     void setConfigOptions(const String& name, const String& value);
     String validateConfig();
     RenderWindow* createWindow(bool autoCreateWindow, 
-                               GLRenderSystem* renderSystem);
+                               GLRenderSystem* renderSystem, const String& windowTitle);
     RenderWindow* newWindow(const String& name, unsigned int width, unsigned int height, 
                             unsigned int colourDepth, bool fullScreen, int left, int top,
                             bool depthBuffer, RenderWindow* parentWindowHandle,
