@@ -52,6 +52,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreLogManager.h"
 #include "OgreHardwareBufferManager.h"
 #include "OgreRoot.h"
+#include "OgreSpotShadowFadePng.h"
 
 // This class implements the most basic scene manager
 
@@ -2806,6 +2807,19 @@ namespace Ogre {
             mShadowReceiverPass->setLightingEnabled(false);
             TextureUnitState* t = mShadowReceiverPass->createTextureUnitState();
             t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+        }
+
+        // Set up spot shadow fade texture (loaded from code data block)
+        Texture* spotShadowFadeTex = (Texture*) 
+            TextureManager::getSingleton().getByName("spot_shadow_fade.png");
+        if (!spotShadowFadeTex)
+        {
+            // Load the manual buffer into an image
+            DataChunk chunk(SPOT_SHADOW_FADE_PNG, SPOT_SHADOW_FADE_PNG_SIZE);
+            Image img;
+            img.load(chunk, "png");
+            spotShadowFadeTex = 
+                TextureManager::getSingleton().loadImage("spot_shadow_fade.png", img, TEX_TYPE_2D);
         }
 
 

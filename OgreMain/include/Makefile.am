@@ -163,6 +163,7 @@ OgreSkeletonFileFormat.h \
 OgreSkeletonManager.h \
 OgreSkeletonSerializer.h \
 OgreSphere.h \
+OgreSpotShadowFadePng.h \
 OgreStableHeaders.h \
 OgreStaticFaceGroup.h \
 OgreStdHeaders.h \
