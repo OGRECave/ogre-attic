@@ -274,6 +274,8 @@ namespace Ogre {
             Usage getUsage(void) const { return mUsage; }
 			/// Returns whether this buffer is held in system memory
 			bool isSystemMemory(void) const { return mSystemMemory; }
+			/// Returns whether this buffer has a system memory shadow for quicker reading
+			bool hasShadowBuffer(void) const { return mUseShadowBuffer; }
             /// Returns whether or not this buffer is currently locked.
             bool isLocked(void) const { 
                 return mIsLocked || (mUseShadowBuffer && mpShadowBuffer->isLocked()); 
