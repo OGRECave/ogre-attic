@@ -1067,7 +1067,7 @@ void SceneManager::setSkyBox(
         if (m.isNull())
         {
             Except(Exception::ERR_INVALIDPARAMS, 
-                "Sky box material '" + materialName + " not found.",
+                "Sky box material '" + materialName + "' not found.",
                 "SceneManager::setSkyBox");
         }
         // Make sure the material doesn't update the depth buffer
