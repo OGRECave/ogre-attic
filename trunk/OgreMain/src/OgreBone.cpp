@@ -31,12 +31,12 @@ namespace Ogre {
 
     //---------------------------------------------------------------------
     Bone::Bone(unsigned short handle, Skeleton* creator) 
-        : Node(), mManuallyControlled(false), mHandle(handle), mCreator(creator)
+        : Node(), mHandle(handle), mManuallyControlled(false), mCreator(creator)
     {
     }
     //---------------------------------------------------------------------
     Bone::Bone(const String& name, unsigned short handle, Skeleton* creator) 
-        : Node(name), mManuallyControlled(false), mHandle(handle), mCreator(creator)
+        : Node(name), mHandle(handle), mManuallyControlled(false), mCreator(creator)
     {
     }
     //---------------------------------------------------------------------
