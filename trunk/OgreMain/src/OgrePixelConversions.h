@@ -224,6 +224,67 @@ struct B8G8R8toA8B8G8R8: public Col3btoUint32swizzler<FMTCONVERTERID(PF_B8G8R8, 
 struct R8G8B8toB8G8R8A8: public Col3btoUint32swizzler<FMTCONVERTERID(PF_R8G8B8, PF_B8G8R8A8), 8, 16, 24, 0> { };
 struct B8G8R8toB8G8R8A8: public Col3btoUint32swizzler<FMTCONVERTERID(PF_B8G8R8, PF_B8G8R8A8), 24, 16, 8, 0> { };
 
+struct A8R8G8B8toR8G8B8: public PixelConverter <uint32, Col3b, FMTCONVERTERID(PF_A8R8G8B8, PF_BYTE_RGB)>
+{
+    inline static DstType pixelConvert(uint32 inp)
+    {
+        return Col3b((uint8)(inp>>16)&0xFF, (uint8)(inp>>8)&0xFF, (uint8)(inp>>0)&0xFF);
+    }
+};
+struct A8R8G8B8toB8G8R8: public PixelConverter <uint32, Col3b, FMTCONVERTERID(PF_A8R8G8B8, PF_BYTE_BGR)>
+{
+    inline static DstType pixelConvert(uint32 inp)
+    {
+        return Col3b((uint8)(inp>>0)&0xFF, (uint8)(inp>>8)&0xFF, (uint8)(inp>>16)&0xFF);
+    }
+};
+
+// Only conversions from X8R8G8B8 to formats with alpha need to be defined, the rest is implicitly the same
+// as A8R8G8B8
+struct X8R8G8B8toA8R8G8B8: public PixelConverter <uint32, uint32, FMTCONVERTERID(PF_X8R8G8B8, PF_A8R8G8B8)>
+{
+    inline static DstType pixelConvert(SrcType inp)
+    {
+        return inp | 0xFF000000;
+    }
+};
+struct X8R8G8B8toA8B8G8R8: public PixelConverter <uint32, uint32, FMTCONVERTERID(PF_X8R8G8B8, PF_A8B8G8R8)>
+{
+    inline static DstType pixelConvert(SrcType inp)
+    {
+        return ((inp&0x0000FF)<<16)|((inp&0xFF0000)>>16)|(inp&0x00FF00)|0xFF000000;
+    }
+};
+struct X8R8G8B8toB8G8R8A8: public PixelConverter <uint32, uint32, FMTCONVERTERID(PF_X8R8G8B8, PF_B8G8R8A8)>
+{
+    inline static DstType pixelConvert(SrcType inp)
+    {
+        return ((inp&0x0000FF)<<24)|((inp&0xFF0000)>>8)|((inp&0x00FF00)<<8)|0x000000FF;
+    }
+};
+// X8B8G8R8
+struct X8B8G8R8toA8R8G8B8: public PixelConverter <uint32, uint32, FMTCONVERTERID(PF_X8B8G8R8, PF_A8R8G8B8)>
+{
+    inline static DstType pixelConvert(SrcType inp)
+    {
+        return ((inp&0x0000FF)<<16)|((inp&0xFF0000)>>16)|(inp&0x00FF00)|0xFF000000;
+    }
+};
+struct X8B8G8R8toA8B8G8R8: public PixelConverter <uint32, uint32, FMTCONVERTERID(PF_X8B8G8R8, PF_A8B8G8R8)>
+{
+	inline static DstType pixelConvert(SrcType inp)
+    {
+        return inp | 0xFF000000;
+    }
+};
+struct X8B8G8R8toB8G8R8A8: public PixelConverter <uint32, uint32, FMTCONVERTERID(PF_X8B8G8R8, PF_B8G8R8A8)>
+{
+    inline static DstType pixelConvert(SrcType inp)
+    {
+        return ((inp&0xFFFFFF)<<8)|0x000000FF;
+    }
+};
+
 #define CASECONVERTER(type) case type::ID : PixelBoxConverter<type>::conversion(src, dst); return 1;
 
 inline int doOptimizedConversion(const PixelBox &src, const PixelBox &dst)
@@ -251,6 +312,14 @@ inline int doOptimizedConversion(const PixelBox &src, const PixelBox &dst)
         CASECONVERTER(B8G8R8toA8B8G8R8);
         CASECONVERTER(R8G8B8toB8G8R8A8);
         CASECONVERTER(B8G8R8toB8G8R8A8);
+		CASECONVERTER(A8R8G8B8toR8G8B8);
+		CASECONVERTER(A8R8G8B8toB8G8R8);
+		CASECONVERTER(X8R8G8B8toA8R8G8B8);
+		CASECONVERTER(X8R8G8B8toA8B8G8R8);
+		CASECONVERTER(X8R8G8B8toB8G8R8A8);
+		CASECONVERTER(X8B8G8R8toA8R8G8B8);
+		CASECONVERTER(X8B8G8R8toA8B8G8R8);
+		CASECONVERTER(X8B8G8R8toB8G8R8A8);
 
         default:
             return 0;
