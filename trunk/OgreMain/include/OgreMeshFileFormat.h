@@ -87,11 +87,30 @@ namespace Ogre {
             M_MESH_SKELETON_LINK = 0x6000,
                 // Optional link to skeleton
                 // char* skeletonName           : name of .skeleton to use
-            M_MESH_BONE_ASSIGNMENT = 0x7000
+            M_MESH_BONE_ASSIGNMENT = 0x7000,
                 // Optional bone weights (repeating section)
                 // unsigned short vertexIndex;
                 // unsigned short boneIndex;
                 // Real weight;
+            M_MESH_LOD = 0x8000,
+                // Optional LOD information
+                // unsigned short numLevels;
+                // bool manual;  (true for manual alternate meshes, false for generated)
+                M_MESH_LOD_USAGE = 0x8100,
+                // Repeating section, ordered in increasing depth
+				// NB LOD 0 (full detail from 0 depth) is omitted
+                // Real fromSquaredDepth;
+                    M_MESH_LOD_MANUAL = 0x8110,
+                    // Required if M_MESH_LOD section manual = true
+                    // String manualMeshName;
+                    M_MESH_LOD_GENERATED = 0x8120
+                    // Required if M_MESH_LOD section manual = false
+					// Repeating section (1 per submesh)
+                    // unsigned short numFaces;
+                    // unsigned short* faceIndexes;  ((v1, v2, v3) * numFaces)
+                    
+                    
+
 
                 
 

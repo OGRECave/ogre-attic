@@ -256,7 +256,7 @@ namespace Ogre {
 			/// Only relevant if mIsLodManual is true, the name of the alternative mesh to use
 			String manualName;
 			/// Hard link to mesh to avoid looking up each time
-			Mesh* manualMesh;
+			mutable Mesh* manualMesh;
 		};
 
 		typedef std::vector<Real> LodDistanceList;
@@ -290,9 +290,9 @@ namespace Ogre {
 		@remarks
 			This number includes the original model.
 		*/
-		ushort getNumLodLevels(void);
+		ushort getNumLodLevels(void) const;
 		/** Gets details of the numbered level of detail entry. */
-		const MeshLodUsage& getLodLevel(ushort index);
+		const MeshLodUsage& getLodLevel(ushort index) const;
 		/** Adds a new manual level-of-detail entry to this Mesh.
 		@remarks
 			As an alternative to generating lower level of detail versions of a mesh, you can
@@ -319,7 +319,7 @@ namespace Ogre {
 
 		/** Retrieves the level of detail index for the given depth value. 
 		*/
-		ushort getLodIndex(Real depth);
+		ushort getLodIndex(Real depth) const;
 
 		/** Retrieves the level of detail index for the given squared depth value. 
 		@remarks
@@ -327,7 +327,7 @@ namespace Ogre {
 			square roots when determining the lod. This method allows you to provide a
 			squared length depth value to avoid having to do your own square roots.
 		*/
-		ushort getLodIndexSquaredDepth(Real squaredDepth);
+		ushort getLodIndexSquaredDepth(Real squaredDepth) const;
 
 		/** Returns true if this mesh is using manual LOD.
 		@remarks
@@ -335,7 +335,7 @@ namespace Ogre {
 			meshes as provided by an artist. A mesh can only use either all manual LODs 
 			or all generated LODs, not a mixture of both.
 		*/
-		bool isLodManual(void) { return mIsLodManual; }
+		bool isLodManual(void) const { return mIsLodManual; }
 
     private:
         typedef std::vector<SubMesh*> SubMeshList;

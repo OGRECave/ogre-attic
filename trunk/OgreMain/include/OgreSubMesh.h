@@ -86,7 +86,7 @@ namespace Ogre {
         /// List of indices into geometry to describe faces.
         unsigned short* faceVertexIndices;
 
-		ProgressiveMesh::LODFaceList mLodFaceList;
+        ProgressiveMesh::LODFaceList mLodFaceList;
 
         /// Reference to parent Mesh.
         Mesh* parent;
@@ -102,8 +102,8 @@ namespace Ogre {
         /** Returns a RenderOperation structure required to render this mesh.
             @param 
                 rend Reference to a RenderOperation structure to populate.
-			@param
-				lodIndex The index of the LOD to use. 
+            @param
+                lodIndex The index of the LOD to use. 
         */
         void _getRenderOperation(RenderOperation& rend, ushort lodIndex = 0);
 
