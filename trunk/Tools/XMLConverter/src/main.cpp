@@ -23,6 +23,14 @@ http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
 
+
+#include "Ogre.h"
+#include "OgreXMLMeshSerializer.h"
+#include "OgreMeshSerializer.h"
+#include "OgreDataChunk.h"
+#include <iostream.h>
+#include <sys/stat.h>
+
 void help(void)
 {
     // Print help message
@@ -40,6 +48,11 @@ void help(void)
 }
 
 
+using namespace Ogre;
+
+// Dummy chunk
+
+
 int main(int numargs, char** args)
 {
     if (numargs < 2)
@@ -50,5 +63,35 @@ int main(int numargs, char** args)
 
     char* source = args[1];
 
+
+
+    LogManager logMgr;
+    MaterialManager matMgr;
+    MeshSerializer meshSerializer;
+    XMLMeshSerializer xmlMeshSerializer;
+    ArchiveManager archMgr;
+
+
+    logMgr.createLog("XMLConverter.log");
+
+    struct stat tagStat;
+
+    DataChunk chunk;
+    stat( source, &tagStat );
+    chunk.allocate( tagStat.st_size );
+    FILE* pFile = fopen( source, "rb" );
+    fread( (void*)chunk.getPtr(), tagStat.st_size, 1, pFile );
+    fclose( pFile );
+
+    Mesh mesh("test");
+
+    meshSerializer.importMesh(chunk, &mesh);
+
+   
+    xmlMeshSerializer.exportMesh(&mesh, "ogrehead.xml", true);
+
+    
+
+    return 0;
 
 }

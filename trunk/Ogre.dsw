@@ -495,6 +495,21 @@ Package=<4>
 
 ###############################################################################
 
+Project: "XMLConverter"=.\Tools\XMLConverter\scripts\XMLConverter.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name OgreMain
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Global:
 
 Package=<5>

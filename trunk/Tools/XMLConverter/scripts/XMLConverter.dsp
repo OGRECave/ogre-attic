@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "../include" /I "../../../OgreMain/include" /I "..\..\..\Dependencies\include" /D "_CONSOLE" /D "NDEBUG" /D "_MBCS" /D "WIN32" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "../include" /I "../../../OgreMain/include" /I "..\..\..\Dependencies\include" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /D "WIN32" /D "TIXML_USE_STL" /YX /FD /c
 # SUBTRACT CPP /Fr
 # ADD BASE RSC /l 0x809 /d "NDEBUG"
 # ADD RSC /l 0x809 /d "NDEBUG"
@@ -51,7 +51,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib zlib.lib OgreMain.lib xerces-c_2.lib /nologo /subsystem:console /profile /machine:I386 /nodefaultlib:"LIBCMT.lib" /libpath:"..\..\..\OgreMain\lib\release" /libpath:"..\..\..\Dependencies\zlib\lib\Release"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib OgreMain.lib xerces-c_2.lib /nologo /subsystem:console /profile /machine:I386 /nodefaultlib:"LIBCMT.lib" /libpath:"..\..\..\OgreMain\lib\release" /libpath:"..\..\..\Dependencies\zlib\lib\Release"
 # SUBTRACT LINK32 /debug
 
 !ELSEIF  "$(CFG)" == "XMLConverter - Win32 Debug"
@@ -68,7 +68,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../include" /I "../../../OgreMain/include" /I "..\..\..\Dependencies\include" /D "_CONSOLE" /D "_MBCS" /D "_DEBUG" /D "WIN32" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../include" /I "../../../OgreMain/include" /I "..\..\..\Dependencies\include" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /D "WIN32" /D "TIXML_USE_STL" /FD /GZ /c
 # SUBTRACT CPP /Fr
 # ADD BASE RSC /l 0x809 /d "_DEBUG"
 # ADD RSC /l 0x809 /d "_DEBUG"
@@ -77,7 +77,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib zlib.lib OgreMain.lib xerces-c_2D.lib /nologo /subsystem:console /debug /machine:I386 /nodefaultlib:"LIBCD.LIB" /nodefaultlib:"LIBCMT" /pdbtype:sept /libpath:"..\..\..\OgreMain\lib\debug" /libpath:"..\..\..\Dependencies\zlib\lib\Debug"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib OgreMain.lib xerces-c_2D.lib /nologo /subsystem:console /debug /machine:I386 /nodefaultlib:"LIBCD.LIB" /nodefaultlib:"LIBCMT" /pdbtype:sept /libpath:"..\..\..\OgreMain\lib\debug" /libpath:"..\..\..\Dependencies\zlib\lib\Debug"
 # SUBTRACT LINK32 /verbose
 
 !ENDIF 
@@ -97,6 +97,22 @@ SOURCE=..\src\main.cpp
 
 SOURCE=..\src\OgreXMLMeshSerializer.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=..\src\tinystr.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\tinyxml.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\tinyxmlerror.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\tinyxmlparser.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -108,6 +124,14 @@ SOURCE=..\include\OgreXMLMeshSerializer.h
 # Begin Source File
 
 SOURCE=..\include\OgreXMLPrerequisites.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\tinystr.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\tinyxml.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
