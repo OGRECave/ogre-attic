@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/gpl.html.
 namespace Ogre {
 
 
+    
     /** A specialisation of the PanelGuiElement to provide a panel with a border.
     @remarks
         Whilst the standard panel can use a single tiled material, this class allows
@@ -147,6 +148,8 @@ namespace Ogre {
         /** Gets the name of the material to use for the borders. */
         const String& getBorderMaterialName(void);
 
+        /** Overridden from GuiContainer */
+        void _updateRenderQueue(RenderQueue* queue);
 
         /** Command object for specifying border sizes (see ParamCommand).*/
         class CmdBorderSize : public ParamCommand
@@ -263,6 +266,29 @@ namespace Ogre {
         static CmdBorderTopRightUV msCmdBorderTopRightUV;
         static CmdBorderBottomRightUV msCmdBorderBottomRightUV;
 
+    public:
+
+        /** Nested class for rendering the border.
+        @remarks
+            We need this because we have to render twice, once with the inner panel's repeating
+            material (handled by superclass) and once for the border's separate meterial. 
+        */
+        class _OgreGuiElementExport BorderRenderable : public Renderable
+        {
+        protected:
+            BorderPanelGuiElement* mParent;
+        public:
+            /** Constructed with pointers to parent. */
+            BorderRenderable(BorderPanelGuiElement* parent) : mParent(parent) {}
+            Material* getMaterial(void) const { return mParent->mpBorderMaterial; }
+            void getRenderOperation(RenderOperation& rend) { rend = mParent->mRenderOp2; }
+            void getWorldTransforms(Matrix4* xform) { mParent->getWorldTransforms(xform); }
+            unsigned short getNumWorldTransforms(void) { return 1; }
+            bool useIdentityProjection(void) { return true; }
+            bool useIdentityView(void) { return true; }
+        };
+    protected:
+        BorderRenderable* mBorderRenderable;
 
     };
 

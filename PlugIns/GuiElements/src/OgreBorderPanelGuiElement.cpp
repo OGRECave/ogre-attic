@@ -42,7 +42,7 @@ namespace Ogre {
     BorderPanelGuiElement::CmdBorderTopRightUV BorderPanelGuiElement::msCmdBorderTopRightUV;
     BorderPanelGuiElement::CmdBorderBottomRightUV BorderPanelGuiElement::msCmdBorderBottomRightUV;
 
-    #define BCELL_UV(x) mRenderOp2.pTexCoords[0] + (x * 2)
+    #define BCELL_UV(x) mRenderOp2.pTexCoords[0] + (x * 4 * 2)
     //---------------------------------------------------------------------
     BorderPanelGuiElement::BorderPanelGuiElement(const String& name)
         : PanelGuiElement(name)
@@ -63,6 +63,7 @@ namespace Ogre {
 
         mRenderOp2.pVertices = new Real[4 * 8 * 3];
         mRenderOp2.useIndexes = true;
+        mRenderOp2.numIndexes = 8 * 6;
         // No normals or colours
         mRenderOp2.vertexOptions = RenderOperation::VO_TEXTURE_COORDS;
         mRenderOp2.vertexStride = 0;
@@ -78,7 +79,7 @@ namespace Ogre {
         ushort* pIdx = mRenderOp2.pIndexes;
         for (int cell = 0; cell < 8; ++cell)
         {
-            ushort base = cell * 6;
+            ushort base = cell * 4;
             *pIdx++ = base;
             *pIdx++ = base + 1;
             *pIdx++ = base + 2;
@@ -92,6 +93,9 @@ namespace Ogre {
         {
             addBaseParameters();
         }
+
+        // Create sub-object for rendering border
+        mBorderRenderable = new BorderRenderable(this);
     }
     //---------------------------------------------------------------------
     BorderPanelGuiElement::~BorderPanelGuiElement()
@@ -99,6 +103,7 @@ namespace Ogre {
         delete mRenderOp2.pTexCoords[0];
         delete mRenderOp2.pVertices;
         delete mRenderOp2.pIndexes;
+        delete mBorderRenderable;
     }
     //---------------------------------------------------------------------
     void BorderPanelGuiElement::addBaseParameters(void)
@@ -334,7 +339,41 @@ namespace Ogre {
 
         }
 
+        // Also update center geometry
+        // NB don't use superclass because we need to make it smaller because of border
+        pPos = mRenderOp.pVertices;
+        // Use cell 1 and 3 to determine positions
+        *pPos++ = left[1];
+        *pPos++ = top[3];
+        *pPos++ = -1;
+
+        *pPos++ = left[1];
+        *pPos++ = bottom[3];
+        *pPos++ = -1;
+
+        *pPos++ = right[1];
+        *pPos++ = top[3];
+        *pPos++ = -1;
+
+        *pPos++ = right[1];
+        *pPos++ = bottom[3];
+        *pPos++ = -1;
+
         
+    }
+    //---------------------------------------------------------------------
+    void BorderPanelGuiElement::_updateRenderQueue(RenderQueue* queue)
+    {
+        // Add self twice to the queue
+        // Have to do this to allow 2 materials
+        if (mVisible)
+        {
+            // Add inner
+            PanelGuiElement::_updateRenderQueue(queue);
+
+            // Add outer
+            queue->addRenderable(mBorderRenderable, RENDER_QUEUE_OVERLAY, mZOrder);
+        }
     }
     //---------------------------------------------------------------------
     //---------------------------------------------------------------------
