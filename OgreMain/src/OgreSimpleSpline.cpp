@@ -41,8 +41,8 @@ namespace Ogre {
         mCoeffs[0][3] = 1;
         mCoeffs[1][0] = -3;
         mCoeffs[1][1] = 3;
-        mCoeffs[1][2] = 2;
-        mCoeffs[1][3] = 1;
+        mCoeffs[1][2] = -2;
+        mCoeffs[1][3] = -1;
         mCoeffs[2][0] = 0;
         mCoeffs[2][1] = 0;
         mCoeffs[2][2] = 1;
@@ -152,26 +152,56 @@ namespace Ogre {
         // Assume endpoint tangents are parallel with line with neighbour
 
         unsigned int i, numPoints;
-
-        mTangents.resize(mPoints.size());
+        bool isClosed;
 
         numPoints = (unsigned int)mPoints.size();
-
         if (numPoints < 2)
         {
             // Can't do anything yet
             return;
         }
 
+        // Closed or open?
+        if (mPoints[0] == mPoints[numPoints-1])
+        {
+            isClosed = true;
+        }
+        else
+        {
+            isClosed = false;
+        }
+
+        mTangents.resize(numPoints);
+
+
+
         for(i = 0; i < numPoints; ++i)
         {
             if (i ==0)
             {
-                mTangents[i] = 0.5 * (mPoints[1] - mPoints[0]);
+                // Special case start
+                if (isClosed)
+                {
+                    // Use numPoints-2 since numPoints-1 is the last point and == [0]
+                    mTangents[i] = 0.5 * (mPoints[1] - mPoints[numPoints-2]);
+                }
+                else
+                {
+                    mTangents[i] = 0.5 * (mPoints[1] - mPoints[0]);
+                }
             }
             else if (i == numPoints-1)
             {
-                mTangents[i] = 0.5 * (mPoints[i] - mPoints[i-1]);
+                // Special case end
+                if (isClosed)
+                {
+                    // Use same tangent as already calculated for [0]
+                    mTangents[i] = mTangents[0];
+                }
+                else
+                {
+                    mTangents[i] = 0.5 * (mPoints[i] - mPoints[i-1]);
+                }
             }
             else
             {
