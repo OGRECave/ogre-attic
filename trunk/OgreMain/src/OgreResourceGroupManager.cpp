@@ -149,9 +149,9 @@ namespace Ogre {
 			for (LoadUnloadResourceList::iterator l = oi->second->begin();
 				l != oi->second->end(); ++oi)
 			{
+                fireResourceStarted(*l);
 				(*l)->load();
-				// fire event
-				fireResourceLoaded(*l);
+				fireResourceEnded();
 			}
 		}
         // Load World Geometry
@@ -632,8 +632,9 @@ namespace Ogre {
 			    {
                     LogManager::getSingleton().logMessage(
                         "Parsing script " + (*si)->getName());
+                    fireScriptStarted((*si)->getName());
 				    su->parseScript(*si, name);
-				    fireScriptParsed((*si)->getName());
+				    fireScriptEnded();
 			    }
             }
 		}
@@ -878,15 +879,25 @@ namespace Ogre {
 		}
 	}
 	//-----------------------------------------------------------------------
-	void ResourceGroupManager::fireScriptParsed(const String& scriptName)
+	void ResourceGroupManager::fireScriptStarted(const String& scriptName)
 	{
 		OGRE_LOCK_AUTO_MUTEX
 		for (ResourceGroupListenerList::iterator l = mResourceGroupListenerList.begin();
 			l != mResourceGroupListenerList.end(); ++l)
 		{
-			(*l)->scriptParsed(scriptName);
+			(*l)->scriptParseStarted(scriptName);
 		}
 	}
+    //-----------------------------------------------------------------------
+    void ResourceGroupManager::fireScriptEnded(void)
+    {
+        OGRE_LOCK_AUTO_MUTEX
+            for (ResourceGroupListenerList::iterator l = mResourceGroupListenerList.begin();
+                l != mResourceGroupListenerList.end(); ++l)
+            {
+                (*l)->scriptParseEnded();
+            }
+    }
 	//-----------------------------------------------------------------------
 	void ResourceGroupManager::fireResourceGroupScriptingEnded(const String& groupName)
 	{
@@ -908,24 +919,44 @@ namespace Ogre {
 		}
 	}
 	//-----------------------------------------------------------------------
-	void ResourceGroupManager::fireResourceLoaded(const ResourcePtr& resource)
+	void ResourceGroupManager::fireResourceStarted(const ResourcePtr& resource)
 	{
 		OGRE_LOCK_AUTO_MUTEX
 		for (ResourceGroupListenerList::iterator l = mResourceGroupListenerList.begin();
 			l != mResourceGroupListenerList.end(); ++l)
 		{
-			(*l)->resourceLoaded(resource);
+			(*l)->resourceLoadStarted(resource);
 		}
 	}
     //-----------------------------------------------------------------------
-    void ResourceGroupManager::_notifyWorldGeometryProgress(void)
+    void ResourceGroupManager::fireResourceEnded(void)
+    {
+        OGRE_LOCK_AUTO_MUTEX
+            for (ResourceGroupListenerList::iterator l = mResourceGroupListenerList.begin();
+                l != mResourceGroupListenerList.end(); ++l)
+            {
+                (*l)->resourceLoadEnded();
+            }
+    }
+    //-----------------------------------------------------------------------
+    void ResourceGroupManager::_notifyWorldGeometryStageStarted(const String& desc)
     {
 		OGRE_LOCK_AUTO_MUTEX
 		for (ResourceGroupListenerList::iterator l = mResourceGroupListenerList.begin();
 			l != mResourceGroupListenerList.end(); ++l)
 		{
-			(*l)->worldGeometryStageCompleted();
+			(*l)->worldGeometryStageStarted(desc);
 		}
+    }
+    //-----------------------------------------------------------------------
+    void ResourceGroupManager::_notifyWorldGeometryStageEnded(void)
+    {
+        OGRE_LOCK_AUTO_MUTEX
+            for (ResourceGroupListenerList::iterator l = mResourceGroupListenerList.begin();
+                l != mResourceGroupListenerList.end(); ++l)
+            {
+                (*l)->worldGeometryStageEnded();
+            }
     }
 	//-----------------------------------------------------------------------
 	void ResourceGroupManager::fireResourceGroupLoadEnded(const String& groupName)

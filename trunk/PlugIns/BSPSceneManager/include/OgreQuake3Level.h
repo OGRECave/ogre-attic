@@ -61,6 +61,13 @@ namespace Ogre {
     public:
         Quake3Level();
 
+        /** Load just the header information from a Quake3 file. 
+        @remarks
+            This method loads just the header information from the 
+            Quake3 file, in order to estimate the loading time.
+        */
+        void loadHeaderFromStream(DataStreamPtr& inStream);
+
         /** Reads Quake3 bsp data from a stream as read from the file.
             Since ResourceManagers generally locate data in a variety of
             places they typically manipulate them as a chunk of data, rather than
@@ -83,12 +90,15 @@ namespace Ogre {
         void extractLightmaps(void) const;
 
         /** Utility function read the header and set up pointers. */
-        void initialise(void);
+        void initialise(bool headerOnly = false);
+        /** Utility function read the header and set up counters. */
+        void initialiseCounts(void);
+        /** Utility function read the header and set up pointers. */
+        void initialisePointers(void);
 
         /** Utility function to return a pointer to a lump. */
         void* getLump(int lumpType);
         int getLumpSize(int lumpType);
-
 
         /** Debug method. */
         void dumpContents(void);

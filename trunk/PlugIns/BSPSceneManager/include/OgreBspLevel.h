@@ -82,6 +82,9 @@ namespace Ogre {
         /** Gets the number of leaf nodes */
         int getNumLeaves(void) const { return mNumLeaves; }
 
+        /** Calculate the number of loading stages required for a given level */
+        static size_t calculateLoadingStages(const String& levelName);
+
         /** Utility class just to enable queueing of patches */
     protected:
         /** @copydoc Resource::loadImpl. */

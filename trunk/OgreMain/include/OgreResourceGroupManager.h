@@ -46,10 +46,14 @@ namespace Ogre {
 		The sequence of events is (* signifies a repeating item):
 		<ul>
 		<li>resourceGroupScriptingStarted</li>
-		<li>resourceScript (*)</li>
+		<li>scriptParseStarted (*)</li>
+        <li>scriptParseEnded (*)</li>
 		<li>resourceGroupScriptingEnded</li>
 		<li>resourceGroupLoadStarted</li>
-		<li>resourceLoad (*)</li>
+		<li>resourceLoadStarted (*)</li>
+        <li>resourceLoadEnded (*)</li>
+        <li>worldGeometryStageStarted (*)</li>
+        <li>worldGeometryStageEnded (*)</li>
 		<li>resourceGroupLoadEnded</li>
 		</ul>
     @note
@@ -64,10 +68,13 @@ namespace Ogre {
 		@param scriptCount The number of scripts which will be parsed
 		*/
 		virtual void resourceGroupScriptingStarted(const String& groupName, size_t scriptCount) = 0;
-		/** This event is fired when a script has been fully parsed.
-		@param scriptName Name of the script being parsed
+		/** This event is fired when a script is about to be parsed.
+		@param scriptName Name of the to be parsed
 		*/
-		virtual void scriptParsed(const String& scriptName) = 0;
+		virtual void scriptParseStarted(const String& scriptName) = 0;
+		/** This event is fired when the script has been fully parsed.
+		*/
+		virtual void scriptParseEnded(void) = 0;
 		/** This event is fired when a resource group finished parsing scripts. */
 		virtual void resourceGroupScriptingEnded(const String& groupName) = 0;
 
@@ -77,16 +84,25 @@ namespace Ogre {
             a number of stages required to load any linked world geometry
 		*/
 		virtual void resourceGroupLoadStarted(const String& groupName, size_t resourceCount) = 0;
-		/** This event is fired when a resource is finished loading. 
+		/** This event is fired when a declared resource is about to be loaded. 
 		@param resource Weak reference to the resource loaded.
 		*/
-		virtual void resourceLoaded(const ResourcePtr& resource) = 0;
+		virtual void resourceLoadStarted(const ResourcePtr& resource) = 0;
+        /** This event is fired when the resource has been loaded. 
+        */
+        virtual void resourceLoadEnded(void) = 0;
+        /** This event is fired when a stage of loading linked world geometry 
+            is about to start. The number of stages required will have been 
+            included in the resourceCount passed in resourceGroupLoadStarted.
+        @param description Text description of what was just loaded
+        */
+        virtual void worldGeometryStageStarted(const String& description) = 0;
         /** This event is fired when a stage of loading linked world geometry 
             has been completed. The number of stages required will have been 
             included in the resourceCount passed in resourceGroupLoadStarted.
-        @param resource Weak reference to the resource loaded.
+        @param description Text description of what was just loaded
         */
-        virtual void worldGeometryStageCompleted(void) = 0;
+        virtual void worldGeometryStageEnded(void) = 0;
 
 		/** This event is fired when a resource group finished loading. */
 		virtual void resourceGroupLoadEnded(const String& groupName) = 0;
@@ -235,13 +251,17 @@ namespace Ogre {
 		/// Internal event firing method
 		void fireResourceGroupScriptingStarted(const String& groupName, size_t scriptCount);
 		/// Internal event firing method
-		void fireScriptParsed(const String& scriptName);
+		void fireScriptStarted(const String& scriptName);
+        /// Internal event firing method
+        void fireScriptEnded(void);
 		/// Internal event firing method
 		void fireResourceGroupScriptingEnded(const String& groupName);
 		/// Internal event firing method
 		void fireResourceGroupLoadStarted(const String& groupName, size_t resourceCount);
+        /// Internal event firing method
+        void fireResourceStarted(const ResourcePtr& resource);
 		/// Internal event firing method
-		void fireResourceLoaded(const ResourcePtr& resource);
+		void fireResourceEnded(void);
 		/// Internal event firing method
 		void fireResourceGroupLoadEnded(const String& groupName);
 
@@ -610,13 +630,21 @@ namespace Ogre {
 		void _notifyAllResourcesRemoved(ResourceManager* manager);
 
         /** Notify this manager that one stage of world geometry loading has been 
+            started.
+        @remarks
+            Custom SceneManagers which load custom world geometry should call this 
+            method the number of times equal to the value they return from 
+            SceneManager::estimateWorldGeometry while loading their geometry.
+        */
+        void _notifyWorldGeometryStageStarted(const String& description);
+        /** Notify this manager that one stage of world geometry loading has been 
             completed.
         @remarks
             Custom SceneManagers which load custom world geometry should call this 
             method the number of times equal to the value they return from 
             SceneManager::estimateWorldGeometry while loading their geometry.
         */
-        void _notifyWorldGeometryProgress(void);
+        void _notifyWorldGeometryStageEnded(void);
 
 		/** Internal method called by Root::initialise, it calls initialiseResourceGroup
 			for all the existing resource groups.

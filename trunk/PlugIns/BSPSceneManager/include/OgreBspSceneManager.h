@@ -115,6 +115,9 @@ namespace Ogre {
         /** Specialised from SceneManager to support Quake3 bsp files. */
         void setWorldGeometry(const String& filename);
 
+        /** Specialised from SceneManager to support Quake3 bsp files. */
+        size_t estimateWorldGeometry(const String& filename);
+        
         /** Tells the manager whether to draw the axis-aligned boxes that surround
             nodes in the Bsp tree. For debugging purposes.
         */
