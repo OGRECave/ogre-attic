@@ -166,6 +166,9 @@ public:
     @param paramName The name of the parameter which will receive the morph factor
     */
     void setCustomMaterialMorphFactorParam(size_t paramIndex);
+    /** Sets the distance at which the LOD will start to morph downwards, as
+    a proportion of the distance between the LODs. */
+    void setLODMorphStart(Real morphStart);
 
     /** Returns the TerrainRenderable that contains the given pt.
         If no tile exists at the point, it returns 0;

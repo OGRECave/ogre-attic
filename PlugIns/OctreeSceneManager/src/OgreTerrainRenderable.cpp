@@ -57,6 +57,7 @@ TerrainBufferCache gIndexCache;
 String TerrainRenderable::mType = "TerrainMipMap";
 bool TerrainRenderable::msUseTriStrips = false;
 bool TerrainRenderable::msUseLODMorph = false;
+Real TerrainRenderable::msLODMorphStart = 0.5f;
 
 LevelArray TerrainRenderable::mLevelIndex;
 bool TerrainRenderable::mLevelInit = false;
@@ -387,8 +388,9 @@ void TerrainRenderable::_notifyCurrentCamera( Camera* cam )
             // the distance range
             Real range = mMinLevelDistSqr[nextLevel] - mMinLevelDistSqr[mRenderLevel];
             Real percent = (L - mMinLevelDistSqr[mRenderLevel]) / range;
-            // scale result so that 0.75 == 0, 1 == 1, clamp to 0 below that
-            mLODMorphFactor = std::max((percent - 0.75f) * 4.0f, 0.0f);
+            // scale result so that msLODMorphStart == 0, 1 == 1, clamp to 0 below that
+            Real rescale = 1.0f / (1.0f - msLODMorphStart);
+            mLODMorphFactor = std::max((percent - msLODMorphStart) * rescale, 0.0f);
             assert(mLODMorphFactor >= 0 && mLODMorphFactor <= 1);
         }
 

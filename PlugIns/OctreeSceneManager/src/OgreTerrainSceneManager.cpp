@@ -131,6 +131,10 @@ void TerrainSceneManager::loadConfig(const String& filename)
     if ( config.getSetting( "VertexProgramMorph" ) == "yes" )
         setUseLODMorph(true);
 
+    val = config.getSetting( "LODMorphStart");
+    if ( val != "" )
+        setLODMorphStart(atof(val));
+
     val = config.getSetting( "CustomMaterialName" );
     if ( val != "" )
         setCustomMaterial(val);
@@ -556,5 +560,8 @@ void TerrainSceneManager::setCustomMaterialMorphFactorParam(size_t paramIndex)
     mUseNamedParameterLodMorph = false;
     mLodMorphParamIndex = paramIndex;
 }
-
+void TerrainSceneManager::setLODMorphStart(Real morphStart)
+{
+    TerrainRenderable::_setLODMorphStart(morphStart);
+}
 } //namespace

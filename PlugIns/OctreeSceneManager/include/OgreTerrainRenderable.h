@@ -288,6 +288,9 @@ public:
     /** Sets whether or not terrain tiles should be morphed between LODs
         (NB requires vertex program support). */
     static void _setUseLODMorph(bool useMorph) { msUseLODMorph = useMorph; }
+    /** Sets the distance at which the LOD will start to morph downwards, as
+        a proportion of the distance between the LODs. */
+    static void _setLODMorphStart(Real morphStart) { msLODMorphStart = morphStart; }
 
     /// Overridden from Renderable to allow the morph LOD entry to be set
     void updateCustomGpuParameter(
@@ -391,6 +394,7 @@ protected:
     int mForcedRenderLevel;
     static bool msUseTriStrips;
     static bool msUseLODMorph;
+    static Real msLODMorphStart;
 
     int mNextLevelDown[10];
 
