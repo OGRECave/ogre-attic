@@ -7,6 +7,8 @@
 #define IDC_EXPORT_MESH                 1003
 #define IDC_CHECK2                      1004
 #define IDC_EXPORT_SKEL                 1004
+#define IDC_EXPORT_SKEL2                1005
+#define IDC_SPLIT_ANIMATION             1005
 
 // Next default values for new objects
 // 

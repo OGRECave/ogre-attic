@@ -344,7 +344,7 @@ namespace Ogre {
 
         AnimationList::const_iterator i = mAnimationsList.begin();
 
-        while (index)
+        while (index--)
             ++i;
 
         return i->second;

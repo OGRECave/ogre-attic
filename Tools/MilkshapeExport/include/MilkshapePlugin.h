@@ -61,11 +61,13 @@ public:
     bool exportMaterials;
     bool exportMesh;
     bool exportSkeleton;
+    bool splitAnimations;
 
 protected:
     void showOptions(void);
     void doExportMesh(msModel* pModel);
     void doExportMaterials(msModel* pModel);
+    void doExportAnimations(msModel* pModel, Ogre::Skeleton* skel);
     Ogre::Skeleton* doExportSkeleton(msModel* pModel, Ogre::Mesh* mesh); // Skeleton returned for deletion later
     bool locateSkeleton(Ogre::Mesh* mesh);
 };
