@@ -36,13 +36,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
     //-----------------------------------------------------------------------------
     Technique::Technique(Material* parent)
-        : mParent(parent), mIsSupported(false)
+        : mParent(parent), mIsSupported(false), mLodIndex(0)
     {
         // See above, defaults to unsupported until examined
     }
     //-----------------------------------------------------------------------------
     Technique::Technique(Material* parent, const Technique& oth)
-        : mParent(parent)
+        : mParent(parent), mLodIndex(0)
     {
         // Copy using operator=
         *this = oth;
