@@ -534,7 +534,6 @@ namespace Ogre {
     {
         GLfloat M[16];
         GLfloat T[16];
-        Ogre::Matrix3 U, UInverse;
 
         glActiveTextureARB( GL_TEXTURE0 + stage );
 
@@ -585,15 +584,10 @@ namespace Ogre {
             glMatrixMode( GL_MODELVIEW );
             glGetFloatv( GL_MODELVIEW_MATRIX, M );
 
-            U[0][0] = M[0]; U[1][0] = M[1]; U[2][0] = M[2];
-            U[0][1] = M[4]; U[1][1] = M[5]; U[2][1] = M[6];
-            U[0][2] = M[8]; U[1][2] = M[9]; U[2][2] = M[10];
-
-            U.Inverse(UInverse);
-
-            T[0] = UInverse[0][0]; T[1] = UInverse[1][0]; T[2] = UInverse[2][0];
-            T[4] = UInverse[0][1]; T[5] = UInverse[1][1]; T[6] = UInverse[2][1];
-            T[8] = UInverse[0][2]; T[9] = UInverse[1][2]; T[10] = UInverse[2][2];
+            // Transpose 3x3 in order to invert matrix (rotation)
+            T[0] = M[0]; T[1] = M[4]; T[2] = M[8];
+            T[4] = M[1]; T[5] = M[5]; T[6] = M[9];
+            T[8] = M[2]; T[9] = M[6]; T[10] = M[10];
 
             glTexGeni( GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP );
             glTexGeni( GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP );
