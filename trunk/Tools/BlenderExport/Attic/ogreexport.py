@@ -131,7 +131,7 @@ Exports selected meshs with armature animations to Ogre3D.
 #   0.15.1: * Michael Reimpell <M.Reimpell@tu-bs.de>
 #          - use Blender.World.GetCurrent() for Blender > 2.34
 #          - fixed calculation of initial bone rotation
-#          - preliminary bump map support
+#          - preliminary normal map support
 #          - option to export in objects local coordinates
 #          - changed material file default name to the current scene name
 #          - files are now named after their datablock name
@@ -139,6 +139,8 @@ Exports selected meshs with armature animations to Ogre3D.
 #          - material ambient colour is scaled white
 #          - option to use scaled diffuse colour as ambient
 #          - BPy documentation added
+#          - coloured log
+#          - crossplatform path handling
 #   0.15.1: * Sun Nov 27 2004 John Bartholomew <johnb213@users.sourceforge.net>
 #          - option to run OgreXMLConverter automatically on the exported files
 #
@@ -170,8 +172,8 @@ Exports selected meshs with armature animations to Ogre3D.
 # select the meshes you want to export and run this script (alt-p)
 
 # KEEP_SETTINGS (enable = 1, disable = 0)
-#  transparently load and save settings to a file named after the current
-#  .blend file with suffix ".ogre".
+#  transparently load and save settings to the text 'ogreexport.cfg'
+#  inside the current .blend file.
 KEEP_SETTINGS = 1
 
 # OGRE_XML_CONVERTER
@@ -899,7 +901,7 @@ class Logger:
 		
 		   @param message message string
 		"""
-		self.messageList.append(message)
+		self.messageList.append((Logger.INFO, message))
 		return		
 	def logWarning(self, message):
 		"""Logs a warning message.
@@ -908,7 +910,7 @@ class Logger:
 		   
 		   @param message message string
 		"""
-		self.messageList.append("Warning: "+message)
+		self.messageList.append((Logger.WARNING, "Warning: "+message))
 		if not self.status == Logger.ERROR:
 			self.status = Logger.WARNING
 		return
@@ -919,7 +921,7 @@ class Logger:
 		   
 		   @param message message string
 		"""
-		self.messageList.append("Error: "+message)
+		self.messageList.append((Logger.ERROR, "Error: "+message))
 		self.status = Logger.ERROR
 		return
 	def getStatus(self):
@@ -938,9 +940,59 @@ class Logger:
 	def getMessageList(self):
 		"""Returns the list of log messages.
 		
-		   @return list of strings
+		   @return list of tuples (status, message)
 		"""
 		return self.messageList
+
+class LogInterface:
+	def __init__(self):
+		self.loggerList = []
+	def addLogger(self, logger):
+		self.loggerList.append(logger)
+		return
+	def removeLogger(self, logger):
+		self.loggerList.remove(logger)
+		return
+	# protected
+	def _logInfo(self, message):
+		for logger in self.loggerList:
+			logger.logInfo(message)
+		return
+	def _logWarning(self, message):
+		for logger in self.loggerList:
+			logger.logWarning(message)
+		return
+	def _logError(self, message):
+		for logger in self.loggerList:
+			logger.logWarning(message)
+		return
+
+class PathName(LogInterface):
+	"""Splits a pathname independent of the underlying os.
+	
+	   Blender saves pathnames in the os specific manner. Using os.path may result in problems
+	   when the export is done on a different os than the creation of the .blend file.	   
+	"""
+	def __init__(self, pathName):
+		self.pathName = pathName
+		LogInterface.__init__(self)
+		return
+	def dirname(self):
+		return os.path.dirname(self.pathName) 
+	def basename(self):
+		baseName = os.path.basename(self.pathName)
+		# split from non-os directories
+		# \\
+		baseName = baseName.split('\\').pop()
+		# /
+		baseName = baseName.split('/').pop()
+		if (baseName != baseName.replace(' ','_')):
+			# replace whitespace with underscore
+			self._logWarning("Whitespaces in filename \"%s\" replaced with underscores." % baseName)
+			baseName = baseName.replace(' ','_')
+		return baseName
+	def path(self):
+		return self.pathName
 
 class ExportOptions:
 	"""Encapsulates export options common to all objects.
@@ -2318,10 +2370,15 @@ def export_mesh(object, exportOptions):
 					else:
 						materialName += "SOLID/"
 					if hasTexture:
-						materialName += os.path.basename(textureFile)
+						materialName += PathName(textureFile).basename()
 					# insert into Dicts
 					material = objectMaterialDict.get(materialName)
 					if not material:
+						if hasTexture:
+							# log texture filename problems
+							pathName = PathName(textureFile)
+							pathName.addLogger(exportLogger)
+							pathName.basename()
 						material = Material(materialName, faceMaterial, textureFile, blendMode)
 						objectMaterialDict[materialName] = material
 						# faces
@@ -2412,13 +2469,14 @@ def write_mesh(name, submeshes, skeleton):
 
     f.write(tab(3)+"<geometry vertexcount=\"%d\">\n" % len(submesh.vertices))
 
-    if (armatureToggle.val) :
+    if (armatureToggle.val):
       # use seperate vertexbuffer for position and normals when animated
       f.write(tab(4)+"<vertexbuffer positions=\"true\" normals=\"true\">\n")
       for v in submesh.vertices:
         f.write(XMLVertexStringView(v.xmlVertex).toString(5, ['normal','position']))
       f.write(tab(4)+"</vertexbuffer>\n")
       if submesh.material.mat:
+        # Blender material
         if submesh.material.texture or (submesh.material.mat.mode & Blender.Material.Modes["VCOL_PAINT"]):
           f.write(tab(4)+"<vertexbuffer")
           if submesh.material.texture:
@@ -2429,6 +2487,12 @@ def write_mesh(name, submeshes, skeleton):
           for v in submesh.vertices:
             f.write(XMLVertexStringView(v.xmlVertex).toString(5, ['texcoordList','colourDiffuse']))
           f.write(tab(4)+"</vertexbuffer>\n")
+      elif submesh.material.texture:
+        # texture only
+        f.write(tab(4)+"<vertexbuffer texture_coord_dimensions_0=\"2\" texture_coords=\"1\">\n")
+        for v in submesh.vertices:
+          f.write(XMLVertexStringView(v.xmlVertex).toString(5, ['texcoordList','colourDiffuse']))
+        f.write(tab(4)+"</vertexbuffer>\n")
     else:
       # use only one vertex buffer if mesh is not animated
       f.write(tab(4)+"<vertexbuffer ")
@@ -2466,7 +2530,7 @@ def write_mesh(name, submeshes, skeleton):
   convertXMLFile(os.path.join(pathString.val, file))
   return
 
-def writeBumpMapMaterial(file, colorImage, bumpImage):
+def writeNormalMapMaterial(file, colorImage, norImage):
 	file.write("""	technique
 	{
 		pass
@@ -2583,7 +2647,7 @@ def writeBumpMapMaterial(file, colorImage, bumpImage):
 		}
 	}
 }
-""" % (colorImage, bumpImage, colorImage, bumpImage))	
+""" % (colorImage, norImage, colorImage, norImage))	
 	return
 
 def write_materials():
@@ -2604,10 +2668,10 @@ def write_materials():
 			else:
 				f.write(tab(1)+"receive_shadows off\n")
 		# check material texture maps
-		hasBumpMap = 0
+		hasNorMap = 0
 		iMaterialTexture = 0
 		if material.mat and material.texture:
-			while ((not hasBumpMap) and (iMaterialTexture < 8)):
+			while ((not hasNorMap) and (iMaterialTexture < 8)):
 				materialTexture = material.mat.getTextures()[iMaterialTexture]
 				iMaterialTexture += 1
 				if ((materialTexture is not None) \
@@ -2615,9 +2679,9 @@ def write_materials():
 					and (materialTexture.texco & Blender.Texture.TexCo['UV']) \
 					and (materialTexture.tex.type == Blender.Texture.Types.IMAGE)):
 						# face has uv texture and material has enabled image texture, map input uv, map to nor
-						writeBumpMapMaterial(f, os.path.basename(materialTexture.tex.image.filename), os.path.basename(material.texture))
-						hasBumpMap = 1
-		if not hasBumpMap:
+						writeNormalMapMaterial(f, PathName(materialTexture.tex.image.filename).basename(), PathName(material.texture).basename())
+						hasNorMap = 1
+		if not hasNorMap:
 			# without material texture maps
 			# technique
 			f.write(tab(1)+"technique\n")
@@ -2628,34 +2692,41 @@ def write_materials():
 			if material.mat:
 				# pass attributes
 				mat = material.mat
-				if (not(mat.mode & Blender.Material.Modes["TEXFACE"])):
-					if ambientToggle.val:
-						ambientRGBList = mat.rgbCol
-					else:
-						ambientRGBList = [1.0, 1.0, 1.0]
-					# ambient <- amb * ambient RGB
-					ambR = clamp(mat.amb * ambientRGBList[0])
-					ambG = clamp(mat.amb * ambientRGBList[1])
-					ambB = clamp(mat.amb * ambientRGBList[2])
-					f.write(tab(3)+"ambient %f %f %f\n" % (ambR, ambG, ambB))
-					if (not(mat.mode & Blender.Material.Modes["VCOL_PAINT"])):
-						# diffuse <- rgbCol
-						diffR = clamp(mat.rgbCol[0])
-						diffG = clamp(mat.rgbCol[1])
-						diffB = clamp(mat.rgbCol[2])
-						f.write(tab(3)+"diffuse %f %f %f\n" % (diffR, diffG, diffB))
-					# specular <- spec * specCol, hard
-					specR = clamp(mat.spec * mat.specCol[0])
-					specG = clamp(mat.spec * mat.specCol[1])
-					specB = clamp(mat.spec * mat.specCol[2])
-					specShine = mat.hard
-					f.write(tab(3)+"specular %f %f %f %f\n" % (specR, specG, specB, specShine))
-					if(not(mat.mode & Blender.Material.Modes["VCOL_PAINT"])):
-						# emissive <-emit * rgbCol
-						emR = clamp(mat.emit * mat.rgbCol[0])
-						emG = clamp(mat.emit * mat.rgbCol[1])
-						emB = clamp(mat.emit * mat.rgbCol[2])
-						f.write(tab(3)+"emissive %f %f %f\n" % (emR, emG, emB))
+				## ambient
+				if (not(mat.mode & Blender.Material.Modes["TEXFACE"])
+					and not(mat.mode & Blender.Material.Modes["VCOL_PAINT"])
+					and (ambientToggle.val)):
+					ambientRGBList = mat.rgbCol
+				else:
+					ambientRGBList = [1.0, 1.0, 1.0]
+				# ambient <- amb * ambient RGB
+				ambR = clamp(mat.amb * ambientRGBList[0])
+				ambG = clamp(mat.amb * ambientRGBList[1])
+				ambB = clamp(mat.amb * ambientRGBList[2])
+				f.write(tab(3)+"ambient %f %f %f\n" % (ambR, ambG, ambB))
+				## diffuse
+				if (not(mat.mode & Blender.Material.Modes["TEXFACE"])
+					and not(mat.mode & Blender.Material.Modes["VCOL_PAINT"])):
+					# diffuse <- rgbCol
+					diffR = clamp(mat.rgbCol[0])
+					diffG = clamp(mat.rgbCol[1])
+					diffB = clamp(mat.rgbCol[2])
+					f.write(tab(3)+"diffuse %f %f %f\n" % (diffR, diffG, diffB))
+				## specular
+				# specular <- spec * specCol, hard
+				specR = clamp(mat.spec * mat.specCol[0])
+				specG = clamp(mat.spec * mat.specCol[1])
+				specB = clamp(mat.spec * mat.specCol[2])
+				specShine = mat.hard
+				f.write(tab(3)+"specular %f %f %f %f\n" % (specR, specG, specB, specShine))
+				## emissive
+				if(not(mat.mode & Blender.Material.Modes["TEXFACE"])
+					and not(mat.mode & Blender.Material.Modes["VCOL_PAINT"])):
+					# emissive <-emit * rgbCol
+					emR = clamp(mat.emit * mat.rgbCol[0])
+					emG = clamp(mat.emit * mat.rgbCol[1])
+					emB = clamp(mat.emit * mat.rgbCol[2])
+					f.write(tab(3)+"emissive %f %f %f\n" % (emR, emG, emB))
 				# depth_func  <- ZINVERT; ENV
 				if (mat.mode & Blender.Material.Modes["ENV"]):
 					f.write(tab(3)+"depth_func always_fail\n")
@@ -2681,7 +2752,7 @@ def write_materials():
 			if material.texture:
 				f.write(tab(3)+"texture_unit\n")
 				f.write(tab(3)+"{\n")
-				f.write(tab(4)+"texture %s\n" % os.path.basename(material.texture))
+				f.write(tab(4)+"texture %s\n" % PathName(material.texture).basename())
 				f.write(tab(3)+"}\n") # texture_unit
 			f.write(tab(2)+"}\n") # pass
 			f.write(tab(1)+"}\n") # technique
@@ -3053,7 +3124,7 @@ def buttonCallback(event):
 		Blender.Window.FileSelector(pathSelectCallback, "Export Directory", pathString.val)
 		Draw.Redraw(1)
 	elif (event == BUTTON_EVENT_MATERIALSTRING): # materialString
-		materialString = Blender.Draw.Create(os.path.basename(materialString.val))
+		materialString = Blender.Draw.Create(PathName(materialString.val).basename())
 		if (len(materialString.val) == 0):
 			materialString = Blender.Draw.Create(Blender.Scene.GetCurrent().getName() + ".material")
 		Draw.Redraw(1)
@@ -3311,11 +3382,18 @@ def doneMessageBox():
 	scrollPanelRect = remainRect[:]
 	loglineiMax = len(exportLog)
 	loglinei = scrollbar.getCurrentValue()
-	glColor3f(0,0,0)
 	while (((logRect[3]-logRect[1]) >= 20) and ( loglinei < loglineiMax )):
 		logRect[3] -= 16
+		(status, message) = exportLog[loglinei]
+		if (status == Logger.WARNING):
+			glColor3f(1.0,1.0,0.0)
+			glRecti(logRect[0],logRect[3]-4,logRect[2],logRect[3]+13)
+		elif (status == Logger.ERROR):
+			glColor3f(1.0,0.0,0.0)
+			glRecti(logRect[0],logRect[3]-4,logRect[2],logRect[3]+13)
+		glColor3f(0,0,0)
 		glRasterPos2i(logRect[0]+4,logRect[3])
-		Draw.Text(exportLog[loglinei])
+		Draw.Text(message)
 		loglinei += 1
 	# clip log text
 	glColor3f(0.6,0.6,0.6) # Background: grey
