@@ -24,6 +24,8 @@ http://www.gnu.org/copyleft/gpl.html.
 */
 
 #include "GTKInput.h"
+#include "OgreInputEvent.h"
+#include "OgreRenderWindow.h"
 
 #include <sigc++/slot.h>
 
@@ -33,7 +35,11 @@ http://www.gnu.org/copyleft/gpl.html.
 
 using namespace Ogre;
 
-GTKInput::GTKInput() : InputReader()
+GTKInput::GTKInput() : InputReader(),
+	_win(0),
+	_widget(0),
+	_kit(0)
+
 {
     mEventQueue = 0;
     mScale = 0.002;
@@ -153,8 +159,13 @@ GTKInput::~GTKInput()
 void GTKInput::initialise(RenderWindow* pWindow, bool useKeyboard,
                           bool useMouse, bool useGameController)
 {
-    _win = static_cast<GTKWindow*>(pWindow);
-    int w, h, d, l, t;
+    _kit = Gtk::Main::instance();
+    // Extract Window and DrawingArea from pWindow in magic way
+    pWindow->getCustomAttribute("GTKMMWINDOW", &_win);
+    pWindow->getCustomAttribute("GTKGLMMWIDGET", &_widget);
+
+    unsigned int w, h, d;
+	int l, t;
     pWindow->getMetrics(w, h, d, l, t);
 
     mMouseCenterX = w / 2;
@@ -168,16 +179,15 @@ void GTKInput::initialise(RenderWindow* pWindow, bool useKeyboard,
 
     win->set_cursor(Gdk::Cursor(nada, nada, col, col, 0, 0));
 
-    OGREWidget* widget(_win->get_ogre_widget());
     _win->signal_key_press_event().connect(
         SigC::slot(*this, &GTKInput::on_key_press));
     _win->signal_key_release_event().connect(
         SigC::slot(*this, &GTKInput::on_key_release));
-    widget->signal_motion_notify_event().connect(
+    _widget->signal_motion_notify_event().connect(
         SigC::slot(*this, &GTKInput::on_mouse_motion));
-    widget->signal_button_press_event().connect(
+    _widget->signal_button_press_event().connect(
         SigC::slot(*this, &GTKInput::on_button_press));
-    widget->signal_button_release_event().connect(
+    _widget->signal_button_release_event().connect(
         SigC::slot(*this, &GTKInput::on_button_release));
 }
 
@@ -187,8 +197,10 @@ void GTKInput::capture()
     // We pump it a few times to make sure we get smooth operation
     for (int x = 0; x < 10; ++x)
     {
-        if (!_win->pump_events())
-            break;
+    	if (_kit->events_pending())
+    	{
+        	_kit->iteration(false);
+	} else break;
     }
     _captured_keys = _cur_keys;
 

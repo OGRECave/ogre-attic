@@ -27,9 +27,11 @@ http://www.gnu.org/copyleft/gpl.html.
 #define INCL_GTKINPUT_H
 
 #include "OgreInput.h"
-#include "GTKWindow.h"
 
 #include <gdk/gdkevents.h>
+#include <gtkmm/window.h>
+#include <gtkmm/main.h>
+#include <gtkmm/gl/drawingarea.h>
 
 #include <sigc++/object.h>
 
@@ -81,8 +83,10 @@ private:
     typedef std::set<guint> CurKeySet;
     CurKeySet _cur_keys;
     CurKeySet _captured_keys;
-    GTKWindow* _win;
-
+    //GTKWindow* _win;
+    Gtk::Window *_win;
+    Gtk::GL::DrawingArea * _widget;
+    Gtk::Main *_kit;
 }; // class GTKInput
 
 }; // namespace Ogre
