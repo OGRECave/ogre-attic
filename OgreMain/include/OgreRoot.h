@@ -40,9 +40,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <exception>
 
 #if OGRE_PLATFORM == PLATFORM_LINUX || OGRE_PLATFORM == PLATFORM_APPLE
-#   define SET_TERM_HANDLER { std::set_terminate( &Root::termHandler ); }
+#   define SET_TERM_HANDLER { std::set_terminate( &Ogre::Root::termHandler ); }
 #else
-#define SET_TERM_HANDLER { set_terminate( &Root::termHandler ); }
+#define SET_TERM_HANDLER { set_terminate( &Ogre::Root::termHandler ); }
 #endif
 
 namespace Ogre
