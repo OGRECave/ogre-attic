@@ -617,7 +617,7 @@ namespace Ogre {
                 vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD) );
 
             for(
-                unsigned short idx, idxOff, texOff, bboard = 0;
+                size_t idx, idxOff, texOff, bboard = 0;
                 bboard < size;
                 ++bboard )
             {
