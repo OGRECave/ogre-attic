@@ -326,7 +326,7 @@ namespace Ogre
 		LogManager::getSingleton().logMessage("MaterialSerializer : parsing texture layer.", LML_CRITICAL);
 
 		//texture name
-		if (pTex->getNumFrames() == 1 && pTex->getTextureName() != "")
+		if (pTex->getNumFrames() == 1 && pTex->getTextureName() != "" && !pTex->isCubic())
 		{
 			writeSubAttribute("texture");
 			writeValue(pTex->getTextureName());
