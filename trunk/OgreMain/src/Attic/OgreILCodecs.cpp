@@ -33,28 +33,38 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include <IL/il.h>
 #include <IL/ilu.h>
+#include <IL/devil_internal_exports.h>
 
 namespace Ogre {
     std::list<ILImageCodec*> ILCodecs::codeclist;
 
     void ILCodecs::registerCodecs(void) {
-        const char *il_extensions = ilGetString ( IL_LOAD_EXT );
-        LogManager::getSingleton().logMessage(
+		const char *il_version = ilGetString ( IL_VERSION_NUM );
+		LogManager::getSingleton().logMessage(
          LML_NORMAL,
-            "DevIL image formats: " + String(il_extensions));
+            "DevIL version: " + String(il_version));
+        const char *il_extensions = ilGetString ( IL_LOAD_EXT );
+        
         std::stringstream ext;
-        String str;
+        String str, all;
         ext << il_extensions;
         while(ext >> str)
         {
-            ILImageCodec *codec = new ILImageCodec(str, IL_TYPE_UNKNOWN);
+			String fileName = "dummy." + str;
+			int ilType = ilTypeFromExt(const_cast<char*>(fileName.c_str()));
+            ILImageCodec *codec = new ILImageCodec(str, ilType);
             Codec::registerCodec(codec);
             codeclist.push_back(codec);
+			all += str+String("(")+StringConverter::toString(ilType)+String(") ");
         }
 		// Raw format, missing in image formats string
 		ILImageCodec *cod = new ILImageCodec("raw", IL_RAW);
 		Codec::registerCodec(cod);
 		codeclist.push_back(cod);
+		all += String("raw")+"("+StringConverter::toString(IL_RAW)+String(") ");
+		LogManager::getSingleton().logMessage(
+         LML_NORMAL,
+            "DevIL image formats: " + all);
     }
 
     void ILCodecs::deleteCodecs(void) {
@@ -65,15 +75,6 @@ namespace Ogre {
         }
         codeclist.clear();
     }
-
-    //---------------------------------------------------------------------
-    /*
-        return IL_BMP;
-        return IL_TGA;
-        return IL_JPG;
-        return IL_DDS;
-        return IL_PNG;
-    */
 
 }
 
