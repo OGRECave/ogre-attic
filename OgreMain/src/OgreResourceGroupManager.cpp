@@ -1195,7 +1195,9 @@ namespace Ogre {
         grp->worldGeometrySceneManager = 0;
     }
     //-----------------------------------------------------------------------
-
+	ScriptLoader::~ScriptLoader()
+	{
+	}
 
 
 }
