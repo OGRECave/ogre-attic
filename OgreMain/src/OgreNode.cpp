@@ -33,12 +33,11 @@ http://www.gnu.org/copyleft/gpl.html.
 
 namespace Ogre {
     //-----------------------------------------------------------------------
-    Node::Node(SceneManager* creator)
+    Node::Node()
     {
         mParent = 0;
         mOrientation = mDerivedOrientation = Quaternion::IDENTITY;
         mPosition = mDerivedPosition = Vector3::ZERO;
-        mCreator = creator;
         mScale = Vector3(1.0, 1.0, 1.0);
         mInheritScale = true;
         mDerivedOutOfDate = true;

@@ -38,17 +38,21 @@ namespace Ogre {
         type of animation in one. An animation is made up of many 'tracks', which are
         the more specific types of animation.
     @par
-        You should not create these animations directly, but instead use the
-        AnimationManager to load animation files or create manual animations.
+        You should not create these animations directly. They will be created via a parent
+        object which owns the animation, e.g. Skeleton.
     */
     class _OgreExport Animation
     {
     public:
-        /** You should not use this constructor directly, use AnimationManager instead.
+        /** You should not use this constructor directly, use the parent object such as Skeleton instead.
+        @param name The name of the animation, should be unique within it's parent (e.g. Skeleton)
         @param length The length of the animation in seconds.
         */
-        Animation(Real length);
+        Animation(const String& name, Real length);
         virtual ~Animation();
+
+        /** Gets the name of this animation. */
+        String getName(void);
 
         /** Gets the total length of the animation. */
         Real getLength(void);
@@ -58,24 +62,31 @@ namespace Ogre {
             An animation track is the vehicle for actually applying a sequence of keyframes 
             to something. The type of the track depends on the kind of animation you
             want to do, e.g. "Bone" creates a BoneTrack object.
+        @param typeName The type of track to create
+        @param handle Numeric handle to give the track, used for accessing the track later. 
+            Must be unique within this Animation.
         */
-        AnimationTrack* createTrack(const String& typeName);
+        AnimationTrack* createTrack(const String& typeName, unsigned short handle);
 
         /** Gets the number of AnimationTrack objects which make up this animation. */
         unsigned short getNumTracks(void);
 
-        /** Gets a track at the index specified. */
-        AnimationTrack* getTrack(unsigned short index);
+        /** Gets a track by it's handle. */
+        AnimationTrack* getTrack(unsigned short handle);
 
-        /** Destroys the track at the given index. */
-        void destroyTrack(unsigned short index);
+
+        /** Destroys the track with the given handle. */
+        void destroyTrack(unsigned short handle);
 
         /** Removes and destroys all tracks making up this animation. */
         void destroyAllTracks(void);
 
+
     protected:
-        typedef std::vector<AnimationTrack*> TrackList;
+        /// Tracks, indexed by handle
+        typedef std::map<unsigned short, AnimationTrack*> TrackList;
         TrackList mTrackList;
+        String mName;
 
         Real mLength;
 

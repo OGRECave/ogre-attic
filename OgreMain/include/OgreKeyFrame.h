@@ -43,6 +43,9 @@ namespace Ogre
     class _OgreExport KeyFrame
     {
     public:
+        /// Simple constructor, only used for creating temp objects
+        KeyFrame();
+
         /** Default constructor, you should not call this but use AnimationTrack::createKeyFrame instead. */
         KeyFrame(Real time);
 

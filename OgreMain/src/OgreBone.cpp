@@ -22,86 +22,58 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
-#include "OgreAnimation.h"
-#include "OgreKeyFrame.h"
-#include "OgreAnimationTrack.h"
-#include "OgreBoneTrack.h"
-#include "OgreException.h"
+
+#include "OgreBone.h"
+#include "ogreSkeleton.h"
+
 
 namespace Ogre {
 
     //---------------------------------------------------------------------
-    Animation::Animation(const String& name, Real length) : mName(name), mLength(length)
+    Bone::Bone(unsigned short handle, Skeleton* creator) 
+        : mCreator(creator), mHandle(handle)
     {
     }
     //---------------------------------------------------------------------
-    Animation::~Animation()
+    Bone::~Bone()
     {
-        destroyAllTracks();
     }
     //---------------------------------------------------------------------
-    Real Animation::getLength(void)
+    Bone* Bone::createChild(const Vector3& translate, const Quaternion& rotate)
     {
-        return mLength;
+        // Provided as a passthrough to superclass just for ease
+        return static_cast<Bone*>(Node::createChild(translate, rotate));
     }
     //---------------------------------------------------------------------
-    AnimationTrack* Animation::createTrack(const String& typeName, unsigned short handle)
+    Bone* Bone::createChild(unsigned short handle, const Vector3& translate, 
+        const Quaternion& rotate)
     {
-        AnimationTrack* ret;
-        // TODO: do the selection of track type through plugin factory objects?
-        if (typeName == "Bone")
-        {
-            ret = new BoneTrack(this);
-        }
+        Bone* retBone = mCreator->createBone(handle);
+        retBone->translate(translate);
+        retBone->rotate(rotate);
+        this->addChild(retBone);
+        return retBone;
+    }
+    //---------------------------------------------------------------------
+    Bone* Bone::getChild(unsigned short index)
+    {
+        // Provided as a passthrough to superclass just for ease
+        return static_cast<Bone*>(Node::getChild(index));
+    }
+    //---------------------------------------------------------------------
+    Bone* Bone::removeChild(unsigned short index)
+    {
+        // Provided as a passthrough to superclass just for ease
+        return static_cast<Bone*>(Node::removeChild(index));
+    }
+    //---------------------------------------------------------------------
+    Node* Bone::createChildImpl(void)
+    {
+        return mCreator->createBone();
+    }
+    //---------------------------------------------------------------------
 
-        mTrackList[handle] = ret;
-        return ret;
-    }
-    //---------------------------------------------------------------------
-    unsigned short Animation::getNumTracks(void)
-    {
-        return (unsigned short)mTrackList.size();
-    }
-    //---------------------------------------------------------------------
-    AnimationTrack* Animation::getTrack(unsigned short handle)
-    {
-        TrackList::iterator i = mTrackList.find(handle);
 
-        if (i == mTrackList.end())
-        {
-            Except(Exception::ERR_ITEM_NOT_FOUND, 
-                "Cannot find track with the specified handle", 
-                "Animation::getTrackByHandle");
-        }
-
-        return i->second;
-
-    }
-    //---------------------------------------------------------------------
-    void Animation::destroyTrack(unsigned short handle)
-    {
-        TrackList::iterator i = mTrackList.find(handle);
-
-        delete i->second;
-
-        mTrackList.erase(i);
-    }
-    //---------------------------------------------------------------------
-    void Animation::destroyAllTracks(void)
-    {
-        TrackList::iterator i;
-        for (i = mTrackList.begin(); i != mTrackList.end(); ++i)
-        {
-            delete i->second;
-        }
-        mTrackList.clear();
-    }
-    //---------------------------------------------------------------------
-    String Animation::getName(void)
-    {
-        return mName;
-    }
 
 }
-
 

@@ -22,86 +22,70 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
-#include "OgreAnimation.h"
-#include "OgreKeyFrame.h"
-#include "OgreAnimationTrack.h"
-#include "OgreBoneTrack.h"
-#include "OgreException.h"
+#include "OgreSkeleton.h"
+#include "OgreBone.h"
+
 
 namespace Ogre {
 
     //---------------------------------------------------------------------
-    Animation::Animation(const String& name, Real length) : mName(name), mLength(length)
+    Skeleton::Skeleton(String name) 
     {
-    }
-    //---------------------------------------------------------------------
-    Animation::~Animation()
-    {
-        destroyAllTracks();
-    }
-    //---------------------------------------------------------------------
-    Real Animation::getLength(void)
-    {
-        return mLength;
-    }
-    //---------------------------------------------------------------------
-    AnimationTrack* Animation::createTrack(const String& typeName, unsigned short handle)
-    {
-        AnimationTrack* ret;
-        // TODO: do the selection of track type through plugin factory objects?
-        if (typeName == "Bone")
-        {
-            ret = new BoneTrack(this);
-        }
+        mName = name;
+        // Start auto handles high to avoid problems with combinations
+        mNextAutoHandle = 32768;
 
-        mTrackList[handle] = ret;
+        // Create root bone, handle 0
+        mRootBone = createBone(0);
+
+    }
+    //---------------------------------------------------------------------
+    Skeleton::~Skeleton()
+    {
+        unload();
+        // delete root bone
+        delete mRootBone;
+    }
+    //---------------------------------------------------------------------
+    void Skeleton::load(void)
+    {
+        //TODO
+    }
+    //---------------------------------------------------------------------
+    void Skeleton::unload(void)
+    {
+        //TODO
+
+        // destroy bones, except root
+        BoneList::iterator i;
+        for (i = mBoneList.begin(); i != mBoneList.end(); ++i)
+        {
+            if (i->second != mRootBone) // If not root
+                delete i->second;
+        }
+        mBoneList.clear();
+    }
+    //---------------------------------------------------------------------
+    Bone* Skeleton::createBone(void)
+    {
+        // use autohandle
+        return createBone(mNextAutoHandle++);
+    }
+    //---------------------------------------------------------------------
+    Bone* Skeleton::createBone(unsigned short handle)
+    {
+        Bone* ret = new Bone(handle, this);
+        mBoneList[handle] = ret;
         return ret;
-    }
-    //---------------------------------------------------------------------
-    unsigned short Animation::getNumTracks(void)
-    {
-        return (unsigned short)mTrackList.size();
-    }
-    //---------------------------------------------------------------------
-    AnimationTrack* Animation::getTrack(unsigned short handle)
-    {
-        TrackList::iterator i = mTrackList.find(handle);
-
-        if (i == mTrackList.end())
-        {
-            Except(Exception::ERR_ITEM_NOT_FOUND, 
-                "Cannot find track with the specified handle", 
-                "Animation::getTrackByHandle");
-        }
-
-        return i->second;
 
     }
     //---------------------------------------------------------------------
-    void Animation::destroyTrack(unsigned short handle)
+    Bone* Skeleton::getRootBone(void)
     {
-        TrackList::iterator i = mTrackList.find(handle);
+        return mRootBone;
 
-        delete i->second;
+    }
 
-        mTrackList.erase(i);
-    }
-    //---------------------------------------------------------------------
-    void Animation::destroyAllTracks(void)
-    {
-        TrackList::iterator i;
-        for (i = mTrackList.begin(); i != mTrackList.end(); ++i)
-        {
-            delete i->second;
-        }
-        mTrackList.clear();
-    }
-    //---------------------------------------------------------------------
-    String Animation::getName(void)
-    {
-        return mName;
-    }
+
 
 }
-
-

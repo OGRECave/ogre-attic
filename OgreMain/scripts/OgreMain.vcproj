@@ -164,6 +164,9 @@ makeall_vc7.bat
 				RelativePath="..\src\OgreBitwise.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreBone.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreBoneTrack.cpp">
 			</File>
 			<File
@@ -323,6 +326,9 @@ makeall_vc7.bat
 				RelativePath="..\src\OgreSingleton.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreSkeleton.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreString.cpp">
 			</File>
 			<File
@@ -397,6 +403,9 @@ makeall_vc7.bat
 			</File>
 			<File
 				RelativePath="..\include\OgreBlendMode.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreBone.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreBoneTrack.h">
@@ -610,6 +619,9 @@ makeall_vc7.bat
 			</File>
 			<File
 				RelativePath="..\include\OgreSingleton.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreSkeleton.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreSphere.h">

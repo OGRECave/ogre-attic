@@ -34,7 +34,7 @@ http://www.gnu.org/copyleft/gpl.html.
 namespace Ogre {
     //-----------------------------------------------------------------------
     SceneNode::SceneNode(SceneManager* creator) 
-    : Node(creator)
+    : mCreator(creator)
     {
     }
     //-----------------------------------------------------------------------

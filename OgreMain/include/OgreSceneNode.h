@@ -48,6 +48,9 @@ namespace Ogre {
         std::vector<Camera*> mCameras;
         std::vector<Light*> mLights;
 
+        /// SceneManager which created this node
+        SceneManager* mCreator;
+
         /// World-Axis aligned bounding box, updated only through _update
         AxisAlignedBox mWorldAABB;
 

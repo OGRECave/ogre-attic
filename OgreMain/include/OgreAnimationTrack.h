@@ -91,6 +91,21 @@ namespace Ogre
 
         /** Removes all the KeyFrames from this track. */
         void removeAllKeyFrames(void);
+
+
+        /** Gets a KeyFrame object which contains the interpolated transforms at the time index specified.
+        @remarks
+            The KeyFrame objects held by this class are transformation snapshots at 
+            discrete points in time. Normally however, you want to interpolate between these
+            keyframes to produce smooth movement, and this method allows you to do this easily.
+            In animation terminology this is called 'tweening'. 
+        @param timeIndex The time (in relation to the whole animation sequence)
+        @returns A new keyframe object containing the interpolated transforms. Note that the
+            position and scaling transforms are linearly interpolated (lerp), whilst the rotation is
+            spherically linearly interpolated (slerp) for the most natural result.
+        */
+        KeyFrame getInterpolatedKeyFrame(Real timeIndex);
+
     protected:
         typedef std::vector<KeyFrame*> KeyFrameList;
         KeyFrameList mKeyFrames;
