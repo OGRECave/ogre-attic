@@ -1,6 +1,7 @@
 INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/PlatformManagers/SDL/include -I$(top_srcdir)/OgreMain/include $(SDL_CFLAGS) $(CFGTK_DEPS_CFLAGS) -DSHAREDIR=\"$(pkgdatadir)\" 
 
-noinst_PROGRAMS = OgrePlatform.so
+platformdir = $(libdir)
+platform_PROGRAMS = OgrePlatform.so
 
 OgrePlatform_so_SOURCES = OgreSDLConfig.cpp\
                           OgreSDLInput.cpp \
@@ -21,6 +22,3 @@ OgreSDLConfig.cpp:
 
 clean-local:
 	-rm -f $(BUILT_SOURCES)
-
-install-exec-local:
-	$(INSTALL) .libs/OgrePlatform.so $(libdir)/OgrePlatform.so
