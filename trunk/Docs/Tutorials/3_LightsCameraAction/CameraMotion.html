@@ -1,8 +1,11 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
 <!-- saved from url=(0088)http://homepages.ihug.co.nz/~evilnic/Tutorials/Ogre/LightsCameraAction/CameraMotion.html -->
-<HTML><HEAD><TITLE>Creating OGRE Project Files</TITLE>
-<META http-equiv=Content-Type content="text/html; charset=windows-1252">
-<STYLE type=text/css>.MainHeader {
+  <title>Creating OGRE Project Files</title>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=windows-1252">
+  <style type="text/css">.MainHeader {
 	FONT-WEIGHT: bold; FONT-SIZE: 10pt; COLOR: #ffffff; BACKGROUND-COLOR: #003300
 }
 BODY {
@@ -50,98 +53,76 @@ TH {
 PRE {
 	FONT-SIZE: 12px; COLOR: #000066
 }
-</STYLE>
-
-<META content="MSHTML 6.00.2600.0" name=GENERATOR>
-<META content="" name=keywords>
-<META content="" name=description>
-<META content=Nicholas name=author>
-<META http-equiv=reply-to content=vastrim@hotmail.com>
-<META content="Sat, 13 Jul, 2002 12:32:59 p GMT" name=creation_date></HEAD>
-<BODY text=#000000 bgColor=#ffffff>
-<P class=header align=center>OGRE (Object-Oriented Graphics Rendering 
-Engine)</P>
-<P class=header align=center>Spining the Camera </P>
-<P class=MainHeader align=left>&nbsp;</P>
-<P class=SectionHeader align=left>Camera Spins</P>
-<P align=left>Lets do some camera motion. The first thing we are going to do it 
-spin the camera. Not around itself but around the ship and keep it facing the 
-ship. Ogre gives us a very easy way to do this using SceneNodes. </P>
-<P><PRE>class SpaceCameraRotator : public ExampleFrameListener
-</PRE>Yep thats right, another class derived from ExampleFrameListener. One of 
-the good things about Ogre is that we can have more than one piece of code 
-monitoring the keyboard, and that is exactly what we are going to do here. Our 
-first FrameListener, SpaceFrameListener will remain and move the ship based on 
-the arrow keys and this new class will move the camera based on some other keys. 
-<PRE>{
-protected:
-	Camera* mCamera;
-	SceneNode* mCentralNode;
-	SceneNode* mRotatingNode;
-	Vector3 mRotationAxis;
-	Real mRotationSpeed;
-</PRE>Nothing special there, just some member variables. <PRE>public:
-	SpaceCameraRotator(RenderWindow* win, Camera* cam, SceneNode* centralNode, Vector3 initialPosition) : ExampleFrameListener(win, cam)
-	{
-		mCamera = cam;
-		mCentralNode = centralNode;
-		mRotationAxis = Vector3::UNIT_Y;
-		mRotationSpeed = 60.0;
-
-		// Create a node to act as the central rotation point
-		mRotatingNode = mCentralNode-&gt;createChild();
-
-		mRotatingNode-&gt;attachCamera(mCamera);
-		mCamera-&gt;moveRelative(initialPosition);
-		mCamera-&gt;lookAt(0, 0, 0);
-	}
-</PRE>As you can see what we have done is created a new SceneNode called 
-mRotatingNode that is attached to SceneNode supplied to the constructor, which 
-by the way will be the node that ship is attached to. This node will be the 
-anchor for our rotations. Then we attach the camera to the new node, set its 
-position to be off centre, and tell it to look at the 0,0,0 which just so 
-happens to be the ship. <PRE>	~SpaceCameraRotator()
-	{
-		delete mRotatingNode;
-	}
-</PRE>Since we created a SceneNode in the constructor we really should destroy 
-it in the destructor. <PRE>    bool frameStarted(const FrameEvent&amp; evt)
-    {
-		// Copy the current state of the input devices
-		mInputDevice-&gt;capture();
-
-		if(mInputDevice-&gt;isKeyDown(Ogre::KC_SPACE))
-		  mRotatingNode-&gt;rotate(mRotationAxis, mRotationSpeed * evt.timeSinceLastFrame);		
-
-		return true;
-	}
-
-};
-</PRE>This is pretty simple, rotate the new SceneNode around the axis if the 
-space bar is pressed. All that is left now is creating an instance of 
-SpaceCameraRotator. Insert the following code into createFrameListener <PRE>	SpaceCameraRotator* cameraRotator = new SpaceCameraRotator(mWindow, mCamera, mShipNode, Vector3(0, 0, 100));
-	mRoot-&gt;addFrameListener(cameraRotator);
-</PRE>Compile and run the program. When you hold down the space bar you should 
-see the camera is rotating around the ship. You can tell that the camera is 
-spinning and not the ship because the background is moving. If you press the 
-arrow keys the ship will still move as it did before BUT the camera will move 
-with it. The net effect is that the background will look like it is moving and 
-the ship isn't. 
-<P></P>
-<P>I had planned to do some more camera work (like bumping) but another scene 
-would demonstrate them better. So that will have to wait until another day. </P>
-<TABLE cellSpacing=2 cellPadding=0 width="100%" border=0>
-  <TBODY>
-  <TR>
-    <TD width="14%"><A 
-      href="http://homepages.ihug.co.nz/~evilnic/Tutorials/Ogre/LightsCameraAction/Index.html">Back 
-      to Index</A></TD>
-    <TD width="39%">&nbsp;</TD>
-    <TD width="22%"><A 
-      href="http://homepages.ihug.co.nz/~evilnic/Tutorials/Ogre/LightsCameraAction/WaveformController.html">&lt;&lt; 
-      Previous section</A></TD>
-    <TD width="25%">Next section &gt;&gt;</TD></TR></TBODY></TABLE>
-<P>&nbsp;</P>
-<P>&nbsp;</P>
-<P>&nbsp;</P>
-<P class=SectionHeader>&nbsp;</P></BODY></HTML>
+  </style>
+  <meta content="MSHTML 6.00.2600.0" name="GENERATOR">
+  <meta content="" name="keywords">
+  <meta content="" name="description">
+  <meta content="Nicholas" name="author">
+  <meta http-equiv="reply-to" content="vastrim@hotmail.com">
+  <meta content="Sat, 13 Jul, 2002 12:32:59 p GMT" name="creation_date">
+</head>
+<body text="#000000" bgcolor="#ffffff">
+<p class="header" align="center">OGRE (Object-Oriented Graphics
+Rendering Engine)</p>
+<p class="header" align="center">Spining the Camera </p>
+<p class="MainHeader" align="left">&nbsp;</p>
+<p class="SectionHeader" align="left">Camera Spins</p>
+<p align="left">Lets do some camera motion. The first thing we are
+going to do it spin the camera. Not around itself but around the ship
+and keep it facing the ship. Ogre gives us a very easy way to do this
+using SceneNodes. </p>
+<p></p>
+<pre>class SpaceCameraRotator : public ExampleFrameListener<br></pre>
+Yep thats right, another class derived from ExampleFrameListener. One
+of the good things about Ogre is that we can have more than one piece
+of code monitoring the keyboard, and that is exactly what we are going
+to do here. Our first FrameListener, SpaceFrameListener will remain
+and move the ship based on the arrow keys and this new class will move
+the camera based on some other keys.
+<pre>{<br>protected:<br>	Camera* mCamera;<br>	SceneNode* mCentralNode;<br>	SceneNode* mRotatingNode;<br>	Vector3 mRotationAxis;<br>	Real mRotationSpeed;<br></pre>
+Nothing special there, just some member variables.
+<pre>public:<br>	SpaceCameraRotator(RenderWindow* win, Camera* cam, SceneNode* centralNode, Vector3 initialPosition) : ExampleFrameListener(win, cam)<br>	{<br>		mCamera = cam;<br>		mCentralNode = centralNode;<br>		mRotationAxis = Vector3::UNIT_Y;<br>		mRotationSpeed = 60.0;<br><br>		// Create a node to act as the central rotation point<br>		mRotatingNode = static_cast&lt;SceneNode*&gt;(mCentralNode-&gt;createChild());<br><br>		mRotatingNode-&gt;attachCamera(mCamera);<br>		mCamera-&gt;moveRelative(initialPosition);<br>		mCamera-&gt;lookAt(0, 0, 0);<br>	}<br></pre>
+As you can see what we have done is created a new SceneNode called
+mRotatingNode that is attached to SceneNode supplied to the constructor,
+which by the way will be the node that ship is attached to. This node
+will be the anchor for our rotations. Then we attach the camera to the
+new node, set its position to be off centre, and tell it to look at
+the 0,0,0 which just so happens to be the ship.
+<pre>	~SpaceCameraRotator()<br>	{<br>		delete mRotatingNode;<br>	}<br></pre>
+Since we created a SceneNode in the constructor we really should
+destroy it in the destructor.
+<pre>    bool frameStarted(const FrameEvent&amp; evt)<br>    {<br>		// Copy the current state of the input devices<br>		mInputDevice-&gt;capture();<br><br>		if(mInputDevice-&gt;isKeyDown(Ogre::KC_SPACE))<br>		  mRotatingNode-&gt;rotate(mRotationAxis, mRotationSpeed * evt.timeSinceLastFrame);		<br><br>		return true;<br>	}<br><br>};<br></pre>
+This is pretty simple, rotate the new SceneNode around the axis if the
+space bar is pressed. All that is left now is creating an instance of
+SpaceCameraRotator. Insert the following code into createFrameListener
+<pre>	SpaceCameraRotator* cameraRotator = new SpaceCameraRotator(mWindow, mCamera, mShipNode, Vector3(0, 0, 100));<br>	mRoot-&gt;addFrameListener(cameraRotator);<br></pre>
+Compile and run the program. When you hold down the space bar you
+should see the camera is rotating around the ship. You can tell that
+the camera is spinning and not the ship because the background is
+moving. If you press the arrow keys the ship will still move as it did
+before BUT the camera will move with it. The net effect is that the
+background will look like it is moving and the ship isn't.
+<p></p>
+<p>I had planned to do some more camera work (like bumping) but another
+scene would demonstrate them better. So that will have to wait until
+another day. </p>
+<table cellspacing="2" cellpadding="0" width="100%" border="0">
+  <tbody>
+    <tr>
+      <td width="14%"><a
+ href="http://homepages.ihug.co.nz/%7Eevilnic/Tutorials/Ogre/LightsCameraAction/Index.html">Back
+to Index</a></td>
+      <td width="39%">&nbsp;</td>
+      <td width="22%"><a
+ href="http://homepages.ihug.co.nz/%7Eevilnic/Tutorials/Ogre/LightsCameraAction/WaveformController.html">&lt;&lt;
+Previous section</a></td>
+      <td width="25%">Next section &gt;&gt;</td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p class="SectionHeader">&nbsp;</p>
+</body>
+</html>
