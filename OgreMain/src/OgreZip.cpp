@@ -233,12 +233,12 @@ namespace Ogre {
     {
     }
     //-----------------------------------------------------------------------
-    size_t ZipDataStream::read(unsigned char*& buf, size_t count)
+    size_t ZipDataStream::read(void* buf, size_t count)
     {
         return zzip_file_read(mZzipFile, (char*)buf, count);
     }
     //-----------------------------------------------------------------------
-    size_t ZipDataStream::readLine(unsigned char*&buf, size_t maxCount, const String& delim)
+    size_t ZipDataStream::readLine(unsigned char* buf, size_t maxCount, const String& delim)
     {
         // read in chunks
 		static char tmpChunk[DECOMPRESS_CHUNK_SIZE+1];
@@ -278,7 +278,7 @@ namespace Ogre {
     {
 		// Re-use readLine, but don't copy data
 		unsigned char* nullBuf = 0;
-        readLine(nullBuf, 1024, delim);
+        return readLine(nullBuf, 1024, delim);
     }
     //-----------------------------------------------------------------------
     void ZipDataStream::skip(size_t count)

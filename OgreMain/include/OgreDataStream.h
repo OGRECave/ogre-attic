@@ -79,14 +79,14 @@ namespace Ogre {
 		virtual DataStream& operator>>(float& val);
 		virtual DataStream& operator>>(double& val);
 		virtual DataStream& operator>>(long double& val);
-		virtual DataStream& operator>>(void*& val);
+		virtual DataStream& operator>>(void* val);
 		/** Read the requisite number of bytes from the stream, 
 			stopping at the end of the file.
 		@param buf Reference to a buffer pointer
 		@param count Number of bytes to read
 		@returns The number of bytes read
 		*/
-		virtual size_t read(unsigned char*& buf, size_t count) = 0;
+		virtual size_t read(void* buf, size_t count) = 0;
 		/** Get a single line from the stream.
 		@remarks
 			The delimiter character is not included in the data
@@ -100,7 +100,7 @@ namespace Ogre {
 		@param delim The delimiter to stop at
 		@returns The number of bytes read
 		*/
-		virtual size_t readLine(unsigned char*&buf, size_t maxCount, const String& delim = "\n") = 0;
+		virtual size_t readLine(unsigned char* buf, size_t maxCount, const String& delim = "\n") = 0;
 		
 	    /** Returns a String containing the next line of data, optionally 
 		    trimmed for whitespace. 
@@ -256,10 +256,10 @@ namespace Ogre {
 		
 		/** @copydoc DataStream::read
 		*/
-		size_t read(unsigned char*& buf, size_t count);
+		size_t read(void* buf, size_t count);
 		/** @copydoc DataStream::readLine
 		*/
-		size_t readLine(unsigned char*&buf, size_t maxCount, const String& delim = "\n");
+		size_t readLine(unsigned char* buf, size_t maxCount, const String& delim = "\n");
 		
 		/** @copydoc DataStream::skipLine
 		*/
@@ -300,10 +300,10 @@ namespace Ogre {
 
 		/** @copydoc DataStream::read
 		*/
-		size_t read(unsigned char*& buf, size_t count);
+		size_t read(void* buf, size_t count);
 		/** @copydoc DataStream::readLine
 		*/
-	  size_t readLine(unsigned char*&buf, size_t maxCount, const String& delim = "\n");
+	  size_t readLine(unsigned char* buf, size_t maxCount, const String& delim = "\n");
 		
 		/** @copydoc DataStream::skipLine
 		*/
@@ -337,16 +337,16 @@ namespace Ogre {
 		FILE* mFileHandle;
 	public:
 		/// Create stream from a C file handle
-		FileHandleDataStream(FILE*& handle);
+		FileHandleDataStream(FILE* handle);
 		/// Create named stream from a C file handle
-		FileHandleDataStream(const String& name, FILE*& handle);
+		FileHandleDataStream(const String& name, FILE* handle);
 	
 		/** @copydoc DataStream::read
 		*/
-		size_t read(unsigned char*& buf, size_t count);
+		size_t read(void* buf, size_t count);
 		/** @copydoc DataStream::readLine
 		*/
-		size_t readLine(unsigned char*&buf, size_t maxCount, const String& delim = "\n");
+		size_t readLine(unsigned char* buf, size_t maxCount, const String& delim = "\n");
 		
 		/** @copydoc DataStream::skipLine
 		*/
