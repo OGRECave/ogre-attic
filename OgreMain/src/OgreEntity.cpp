@@ -46,22 +46,25 @@ namespace Ogre {
         mMesh(mesh),
         mCreatorSceneManager(creator)
     {
-        // Create SubEntities
-        int i, numSubMeshes;
-        SubMesh* subMesh;
-        SubEntity* subEnt;
+		// Build main subentity list
+		buildSubEntityList(mesh, &mSubEntityList);
 
-        numSubMeshes = mesh->getNumSubMeshes();
-        for (i = 0; i < numSubMeshes; ++i)
-        {
-            subMesh = mesh->getSubMesh(i);
-            subEnt = new SubEntity();
-            subEnt->mParentEntity = this;
-            subEnt->mSubMesh = subMesh;
-            if (subMesh->isMatInitialised())
-                subEnt->setMaterialName(subMesh->getMaterialName());
-            mSubEntityList.push_back(subEnt);
-        }
+		// Check if mesh is using manual LOD
+		if (mesh->isLodManual())
+		{
+			ushort i, numLod;
+			numLod = mesh->getNumLodLevels();
+			// NB skip LOD 0 which is the original
+			for (i = 1; i < numLod; ++i)
+			{
+				SubEntityList* sublist = new SubEntityList();
+				const Mesh::MeshLodUsage& usage = mesh->getLodLevel(i);
+				buildSubEntityList(usage.manualMesh, sublist);
+				mLodSubEntityList.push_back(sublist);
+			}
+
+		}
+
 
         // Initialise the AnimationState, if Mesh has animation
         if (mesh->hasSkeleton())
@@ -91,11 +94,28 @@ namespace Ogre {
     Entity::~Entity()
     {
         // Delete submeshes
-        for (SubEntityList::iterator i = mSubEntityList.begin();
-            i != mSubEntityList.end(); ++i)
+		SubEntityList::iterator i, iend;
+		iend = mSubEntityList.end();
+        for (i = mSubEntityList.begin(); i != iend; ++i)
         {
+			// Delete SubEntity
             delete *i;
         }
+		// Delete LOD submeshes
+		LODSubEntityList::iterator li, liend;
+		liend = mLodSubEntityList.end();
+		for (li = mLodSubEntityList.begin(); li != liend; ++li)
+		{
+			iend = (*li)->end();
+			for (i = (*li)->begin(); i != iend; ++i)
+			{
+				// Delete SubEntity
+				delete *i;
+			}
+			// Delete SubMeshList itself
+			delete (*li);
+
+		}
         if (mBoneMatrices)
             delete [] mBoneMatrices;
 
@@ -180,16 +200,32 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Entity::_updateRenderQueue(RenderQueue* queue)
     {
-        // Add each SubEntity to the queue
+		SubEntityList* subEntList;
+        // Check we're not using a manual LOD
+		if (mMeshLodIndex > 0 && mMesh->isLodManual())
+		{
+			// Use alternate subentities
+			assert((mMeshLodIndex-1) < mLodSubEntityList.size() && 
+				"No LOD SubEntityList - did you build the manual LODs after creating the entity?");
+			// index - 1 as we skip index 0 (original lod)
+			subEntList = mLodSubEntityList[mMeshLodIndex - 1];
+		}
+		else
+		{
+			subEntList = &mSubEntityList;
+		}
+
+		// Add each SubEntity to the queue
         SubEntityList::iterator i, iend;
-        iend = mSubEntityList.end();
-        for (i = mSubEntityList.begin(); i != iend; ++i)
+        iend = subEntList->end();
+        for (i = subEntList->begin(); i != iend; ++i)
         {
             queue->addRenderable(*i, mRenderQueueID, RENDERABLE_DEFAULT_PRIORITY);
         }
 
         // Since we know we're going to be rendered, take this opportunity to 
         // cache bone matrices & apply world matrix to them
+		// TODO: deal with LOD skeleton
         if (mMesh->hasSkeleton())
         {
             cacheBoneMatrices();
@@ -275,5 +311,24 @@ namespace Ogre {
 		mMinMeshLodIndex = minDetailIndex;
 
 	}
+    //-----------------------------------------------------------------------
+	void Entity::buildSubEntityList(Mesh* mesh, SubEntityList* sublist)
+	{
+        // Create SubEntities
+        int i, numSubMeshes;
+        SubMesh* subMesh;
+        SubEntity* subEnt;
 
+        numSubMeshes = mesh->getNumSubMeshes();
+        for (i = 0; i < numSubMeshes; ++i)
+        {
+            subMesh = mesh->getSubMesh(i);
+            subEnt = new SubEntity();
+            subEnt->mParentEntity = this;
+            subEnt->mSubMesh = subMesh;
+            if (subMesh->isMatInitialised())
+                subEnt->setMaterialName(subMesh->getMaterialName());
+            sublist->push_back(subEnt);
+        }
+	}
 }

@@ -68,8 +68,8 @@ namespace Ogre {
 		// Init first (manual) lod
 		MeshLodUsage lod;
 		lod.fromDepthSquared = 0.0f;
-		lod.useManual = true; // not stricly true, but it's a complete mesh!
 		mMeshLodUsageList.push_back(lod);
+		mIsLodManual = false;
 
 
     }
@@ -695,6 +695,7 @@ namespace Ogre {
 		ProgressiveMesh::VertexReductionQuota reductionMethod, Real reductionValue)
 	{
 		mMeshLodUsageList.clear();
+		mIsLodManual = false;
 
 		SubMeshList::iterator isub, isubend;
 		isubend = mSubMeshList.end();
@@ -717,14 +718,12 @@ namespace Ogre {
 		// Record first LOD (full detail)
 		MeshLodUsage lod;
 		lod.fromDepthSquared = 0.0f;
-		lod.useManual = false;
 		mMeshLodUsageList.push_back(lod);
 
 		for (idist = lodDistances.begin(); idist != idistend; ++idist)
 		{
 			// Record usage
 			lod.fromDepthSquared = (*idist) * (*idist);
-			lod.useManual = false;
 			mMeshLodUsageList.push_back(lod);
 
 		}
@@ -739,6 +738,12 @@ namespace Ogre {
 	const Mesh::MeshLodUsage& Mesh::getLodLevel(ushort index)
 	{
 		assert(index < mMeshLodUsageList.size());
+		if (mIsLodManual && mMeshLodUsageList[index].manualMesh == NULL)
+		{
+			// Load the mesh now
+			mMeshLodUsageList[index].manualMesh = 
+				MeshManager::getSingleton().load(mMeshLodUsageList[index].manualName);
+		}
 		return mMeshLodUsageList[index];
 	}
     //---------------------------------------------------------------------
@@ -753,12 +758,13 @@ namespace Ogre {
 	};
 	void Mesh::createManualLodLevel(Real fromDepth, const String& meshName)
 	{
+		mIsLodManual = true;
 		MeshLodUsage lod;
 		lod.fromDepthSquared = fromDepth * fromDepth;
-		lod.useManual = true;
 		lod.manualName = meshName;
 		lod.manualMesh = NULL;
 		mMeshLodUsageList.push_back(lod);
+		++mNumLods;
 
 		std::sort(mMeshLodUsageList.begin(), mMeshLodUsageList.end(), ManualLodSortLess());
 	}
@@ -766,12 +772,12 @@ namespace Ogre {
 	void Mesh::updateManualLodLevel(ushort index, const String& meshName)
 	{
 		// Basic prerequisites
+		assert(mIsLodManual && "Not using manual LODs!");
 		assert(index != 0 && "Can't modify first lod level (full detail)");
 		assert(index < mMeshLodUsageList.size() && "Index out of bounds");
 		// get lod
 		MeshLodUsage* lod = &(mMeshLodUsageList[index]);
 
-		assert(lod->useManual && "Not using manual LODs!");
 		lod->manualName = meshName;
 		lod->manualMesh = NULL;
 	}
@@ -795,7 +801,7 @@ namespace Ogre {
 		}
 
 		// If we fall all the way through, use the highest value
-		return mMeshLodUsageList.size() - 1;
+		return static_cast<ushort>(mMeshLodUsageList.size() - 1);
 
 
 	}

@@ -127,6 +127,18 @@ namespace Ogre {
 		/// Index of maximum detail LOD (NB lower index is higher detail)
 		ushort mMaxMeshLodIndex;
 
+		/// Flag indicating that mesh uses manual LOD and so might have multiple SubEntity versions
+		bool mUsingManualLOD;
+		/** List of SubEntity lists (for manual LODs).
+			We don't know when the mesh is using manual LODs whether one LOD to the next will have the
+			same number of SubMeshes, therefore we have to allow a SubEntity list with each alternate one.
+		*/
+		typedef std::vector<SubEntityList*> LODSubEntityList;
+		LODSubEntityList mLodSubEntityList;
+
+		/** Builds a list of SubEntities based on the SubMeshes contained in the Mesh. */
+		void buildSubEntityList(Mesh* mesh, SubEntityList* sublist);
+
 
     public:
         /** Default destructor.
