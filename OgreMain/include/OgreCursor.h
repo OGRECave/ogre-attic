@@ -127,6 +127,12 @@ namespace Ogre {
 		inline virtual bool isKeyEnabled() 
 		{ return false; }
 
+		/** Gets the current cursor movement scaling factor. */
+		Real getScale(void) { return mScale; }
+		/** Sets the current cursor movement scaling factor. */
+		void setScale(Real scale) { mScale = scale; }
+		
+
     };
 
 }
