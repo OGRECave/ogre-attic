@@ -40,7 +40,11 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreParticleSystemManager.h"
 #include "OgreZipArchiveFactory.h"
 
-namespace Ogre {
+#include "OgrePNGCodec.h"
+#include "OgreJPEGCodec.h"
+#include "OgreTGACodec.h"
+
+namespace Ogre {    
 
     typedef void (*DLL_START_PLUGIN)(void);
     typedef void (*DLL_STOP_PLUGIN)(void);
@@ -112,6 +116,16 @@ namespace Ogre {
         mPlatformManager = new PlatformManager();
 
         ArchiveManager::getSingleton().addArchiveFactory( new ZipArchiveFactory );
+
+        Codec *pCodec;
+        pCodec = new PNGCodec;
+        Codec::registerCodec( pCodec );
+        pCodec = new JPEGCodec;
+        Codec::registerCodec( pCodec );
+        pCodec = new TGACodec;
+        Codec::registerCodec( pCodec );
+        pCodec = new JPGCodec;
+        Codec::registerCodec( pCodec );
 
         // Load plugins
         loadPlugins();        
