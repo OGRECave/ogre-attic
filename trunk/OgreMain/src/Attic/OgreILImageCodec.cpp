@@ -97,6 +97,7 @@ namespace Ogre {
 		ret_data->format = ilFormat2OgreFormat( Imagformat, BytesPerPixel );
 		ret_data->width = ilGetInteger( IL_IMAGE_WIDTH );
 		ret_data->height = ilGetInteger( IL_IMAGE_HEIGHT );
+        ret_data->depth = ilGetInteger( IL_IMAGE_DEPTH );
         ret_data->num_mipmaps = ilGetInteger ( IL_NUM_MIPMAPS );
         ret_data->flags = 0;
         ret_data->size = ImageSize;

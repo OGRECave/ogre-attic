@@ -103,6 +103,8 @@ namespace Ogre {
                 return GL_TEXTURE_1D;
             case TEX_TYPE_2D:
                 return GL_TEXTURE_2D;
+            case TEX_TYPE_3D:
+                return GL_TEXTURE_3D;
             case TEX_TYPE_CUBE_MAP:
                 return GL_TEXTURE_CUBE_MAP;
             default:
@@ -244,6 +246,8 @@ namespace Ogre {
             mWidth = mSrcWidth;
             mHeight = mSrcHeight;
 
+            mDepth = img.getDepth();
+
             unsigned short imageMipmaps = img.getNumMipmaps();
             if(imageMipmaps)
                 mNumMipMaps = imageMipmaps;
@@ -295,7 +299,8 @@ namespace Ogre {
         }
         else
         {
-            if(mTextureType == TEX_TYPE_1D || mTextureType == TEX_TYPE_2D)
+            if(mTextureType == TEX_TYPE_1D || mTextureType == TEX_TYPE_2D || 
+                mTextureType == TEX_TYPE_3D)
             {
                 Image img;
                 img.load( mName );
@@ -323,6 +328,10 @@ namespace Ogre {
                 }
                 else
                 {
+                    // If this is a dds volumetric texture set the texture type flag accordingly.
+                    if(getName().endsWith(".dds") && img.getDepth() > 1)
+                        mTextureType = TEX_TYPE_3D;
+
                     loadImage( img );
                 }
             }
@@ -369,9 +378,16 @@ namespace Ogre {
         {
             if(mTextureType == TEX_TYPE_1D)
             {
-                gluBuild1DMipmaps(getGLTextureType(), 
-                    mHasAlpha ? GL_RGBA8 : GL_RGB8, mSrcWidth,  
-                    getGLTextureFormat(), GL_UNSIGNED_BYTE, data);
+                gluBuild1DMipmaps(
+                    getGLTextureType(), mHasAlpha ? GL_RGBA8 : GL_RGB8, 
+                    mSrcWidth, getGLTextureFormat(), GL_UNSIGNED_BYTE, data);
+            }
+            else if (mTextureType == TEX_TYPE_3D)
+            {
+                gluBuild3DMipmaps(
+                    getGLTextureType(), mHasAlpha ? GL_RGBA8 : GL_RGB8, 
+                    mSrcWidth, mSrcHeight, mDepth, getGLTextureFormat(), 
+                    GL_UNSIGNED_BYTE, data);
             }
             else
             {
@@ -388,9 +404,15 @@ namespace Ogre {
             if(mTextureType == TEX_TYPE_1D)
             {
                 glTexImage1D(
-                        getGLTextureType(), 0, 
-                    mHasAlpha ? GL_RGBA8 : GL_RGB8, mSrcWidth, 0, 
-                    getGLTextureFormat(), GL_UNSIGNED_BYTE, data );
+                    getGLTextureType(), 0, mHasAlpha ? GL_RGBA8 : GL_RGB8, 
+                    mSrcWidth, 0, getGLTextureFormat(), GL_UNSIGNED_BYTE, data);
+            }
+            else if (mTextureType == TEX_TYPE_3D)
+            {
+                glTexImage3DEXT(
+                    getGLTextureType(), 0, mHasAlpha ? GL_RGBA8 : GL_RGB8, 
+                    mSrcWidth, mSrcHeight, mDepth, 0, getGLTextureFormat(), 
+                    GL_UNSIGNED_BYTE, data );
             }
             else
             {
@@ -403,8 +425,8 @@ namespace Ogre {
                         mTextureType == TEX_TYPE_CUBE_MAP ?
                             GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceNumber :
                             getGLTextureType(), 0,
-                         getGLTextureFormat(), mSrcWidth, 
-                         mSrcHeight, 0, size, data);
+                         getGLTextureFormat(), mSrcWidth, mSrcHeight, 0, 
+                         size, data);
                 }
                 else
                 {
