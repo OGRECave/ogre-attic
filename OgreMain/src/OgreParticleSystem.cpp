@@ -702,6 +702,9 @@ namespace Ogre {
     {
         if (mRenderer)
         {
+			if (!mIsRendererConfigured)
+				configureRenderer();
+
             mRenderer->_notifyCurrentCamera(cam);
         }
     }
