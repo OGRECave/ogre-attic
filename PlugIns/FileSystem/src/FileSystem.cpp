@@ -56,7 +56,7 @@ namespace Ogre {
 
         FILE *pFile;
         pFile = fopen( strFile.c_str(), "r+b" );
-        ppFile = &pFile;
+        *ppFile = pFile;
 
         retunset(true);
     }
