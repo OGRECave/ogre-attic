@@ -180,6 +180,10 @@ namespace Ogre {
             const Quaternion& rkA, const Quaternion& rkB,
             const Quaternion& rkQ, bool shortestPath = false);
 
+        // normalised linear interpolation - faster but less accurate (non-constant rotation velocity)
+        static Quaternion nlerp(Real fT, const Quaternion& rkP, 
+            const Quaternion& rkQ, bool shortestPath = false);
+
         // cutoff for sine near zero
         static const Real ms_fEpsilon;
 
