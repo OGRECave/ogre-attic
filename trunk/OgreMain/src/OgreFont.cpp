@@ -105,6 +105,33 @@ namespace Ogre
         return mTtfResolution;
     }
     //---------------------------------------------------------------------
+    std::pair< uint, uint > Font::StrBBox( const String & text, Real char_height, RenderWindow & window )
+    {
+        std::pair< uint, uint > ret( 0, 0 );
+        Real vsX, vsY, veX, veY;
+        int w, h; 
+        
+        // These are not used, but are required byt the function calls.
+        int cdepth, left, top;
+
+        window.getMetrics( w, h, cdepth, left, top );
+
+        for( uint i = 0; i < text.length(); i++ )
+        {
+            getGlyphTexCoords( text[ i ], vsX, vsY, veX, veY );
+
+            // Calculate view-space width and height of char
+            vsY = char_height;
+            vsX = getGlyphAspectRatio( text[ i ] ) * char_height;
+
+            ret.second += vsX * w;
+            if( vsY * h > ret.first || ( i && text[ i - 1 ] == '\n' ) )
+                ret.first += vsY * h;
+        }
+
+        return ret;
+    }
+    //---------------------------------------------------------------------
     void Font::load()
     {
         if (!mIsLoaded)
