@@ -401,6 +401,8 @@ void TerrainRenderable::_calculateMinLevelDist2( Real C )
         mMinLevelDistSqr[ level ] = 0;
 
         int step = 1 << level;
+        // The step of the next higher LOD
+        int higherstep = step >> 1;
 
         for ( int j = 0; j < mSize - step; j += step )
         {
@@ -412,10 +414,20 @@ void TerrainRenderable::_calculateMinLevelDist2( Real C )
                 Real h3 = _vertex( i + step, j + step, 1 );
                 Real h4 = _vertex( i, j + step, 1 );
 
-                for ( int z = 1; z < step; z++ )
+                // include the bottommost row of vertices if this is the last row
+                int zubound = (j == (mSize - step)? step : step - 1);
+                for ( int z = 0; z <= zubound; z++ )
                 {
-                    for ( int x = 1; x < step; x++ )
+                    // include the rightmost col of vertices if this is the last col
+                    int xubound = (i == (mSize - step)? step : step - 1);
+                    for ( int x = 0; x <= xubound; x++ )
                     {
+                        if ( (i+x) % step == 0 && 
+                             (j+z) % step == 0 )
+                        {
+                            // Skip, this one is a vertex at this level
+                            continue;
+                        }
 
                         Real zpct = z / step;
                         Real xpct = x / step;
@@ -433,6 +445,10 @@ void TerrainRenderable::_calculateMinLevelDist2( Real C )
 
                         if ( mMinLevelDistSqr[ level ] < D2 )
                             mMinLevelDistSqr[ level ] = D2;
+
+                        // Save height difference, if this is a vertex from the 
+                        // higher LOD which will be eliminated at this LOD
+
                     }
 
                 }
