@@ -1241,8 +1241,8 @@ vertex_program myHLSLVertexProgram hlsl
 @end example
 As you can see, the syntax is almost identical, except that instead of 'profiles' with a list of assembler formats, you have a 'target' parameter which allows a single assembler target to be specified - obviously this has to be a DirectX assembler format syntax code.
 
-@subheading Skeletal Animatin in Vertex Programs
-You can implement skeletal animation in hardware by writing a vertex program which uses the per-vertex blending indices and blending weights, together with an array of world matrices (which will be provided for you by Ogre if you bind the automatic parameter 'world_matrix'). However, you need to communicate this support to Ogre so it does not perform skeletal animation in software for you. You do this by adding the following attribute to your vertex_program definition:
+@subheading Skeletal Animation in Vertex Programs
+You can implement skeletal animation in hardware by writing a vertex program which uses the per-vertex blending indices and blending weights, together with an array of world matrices (which will be provided for you by Ogre if you bind the automatic parameter 'world_matrix_array_3x4'). However, you need to communicate this support to Ogre so it does not perform skeletal animation in software for you. You do this by adding the following attribute to your vertex_program definition:
 @example
 	includes_skeletal_animation true
 @end example
@@ -1301,12 +1301,16 @@ example: param_indexed_auto 0 WORLDVIEWPROJ_MATRIX@*@*
 @table @asis
 @item world_matrix
 The current world matrix.
+@item world_matrix_array_3x4
+An array of world matrices, each represented as only a 3x4 matrix (3 rows of 4columns) usually for doing hardware skinning. You should make enough entries available in your vertex program for the number of bones in use, ie an array of numBones*3 float4's.
 @item view_matrix
 The current view matrix.
 @item projection_matrix
 The current projection matrix.
 @item worldview_matrix
 The current world and view matrices concatenated.
+@item viewproj_matrix
+The current view and projection matrices concatenated.
 @item worldviewproj_matrix
 The current world, view and projection matrices concatenated.
 @item inverse_world_matrix

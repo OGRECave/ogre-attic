@@ -34,6 +34,7 @@ namespace Ogre {
     AutoParamDataSource::AutoParamDataSource()
         : mWorldMatrixDirty(true),
          mWorldViewMatrixDirty(true),
+         mViewProjMatrixDirty(true),
          mWorldViewProjMatrixDirty(true),
          mInverseWorldMatrixDirty(true),
          mInverseWorldViewMatrixDirty(true),
@@ -56,6 +57,7 @@ namespace Ogre {
 		mCurrentRenderable = rend;
 		mWorldMatrixDirty = true;
 		mWorldViewMatrixDirty = true;
+        mViewProjMatrixDirty = true;
 		mWorldViewProjMatrixDirty = true;
 		mInverseWorldMatrixDirty = true;
 		mInverseWorldViewMatrixDirty = true;
@@ -66,6 +68,7 @@ namespace Ogre {
     {
         mCurrentCamera = cam;
         mWorldViewMatrixDirty = true;
+        mViewProjMatrixDirty = true;
         mWorldViewProjMatrixDirty = true;
         mInverseViewMatrixDirty = true;
         mInverseWorldViewMatrixDirty = true;
@@ -82,14 +85,47 @@ namespace Ogre {
         if (mWorldMatrixDirty)
         {
             mCurrentRenderable->getWorldTransforms(mWorldMatrix);
+            mWorldMatrixCount = mCurrentRenderable->getNumWorldTransforms();
             mWorldMatrixDirty = false;
         }
         return mWorldMatrix[0];
     }
     //-----------------------------------------------------------------------------
+    size_t AutoParamDataSource::getWorldMatrixCount(void) const
+    {
+        if (mWorldMatrixDirty)
+        {
+            mCurrentRenderable->getWorldTransforms(mWorldMatrix);
+            mWorldMatrixCount = mCurrentRenderable->getNumWorldTransforms();
+            mWorldMatrixDirty = false;
+        }
+        return mWorldMatrixCount;
+    }
+    //-----------------------------------------------------------------------------
+    const Matrix4* AutoParamDataSource::getWorldMatrixArray(void) const
+    {
+        if (mWorldMatrixDirty)
+        {
+            mCurrentRenderable->getWorldTransforms(mWorldMatrix);
+            mWorldMatrixCount = mCurrentRenderable->getNumWorldTransforms();
+            mWorldMatrixDirty = false;
+        }
+        return mWorldMatrix;
+    }
+    //-----------------------------------------------------------------------------
     const Matrix4& AutoParamDataSource::getViewMatrix(void) const
     {
         return mCurrentCamera->getViewMatrix();
+    }
+    //-----------------------------------------------------------------------------
+    const Matrix4& AutoParamDataSource::getViewProjectionMatrix(void) const
+    {
+        if (mViewProjMatrixDirty)
+        {
+            mViewProjMatrix = getProjectionMatrix() * getViewMatrix();
+            mViewProjMatrixDirty = false;
+        }
+        return mViewProjMatrix;
     }
     //-----------------------------------------------------------------------------
     const Matrix4& AutoParamDataSource::getProjectionMatrix(void) const

@@ -121,6 +121,31 @@ namespace Ogre
             GpuProgramParameters::setConstant(index, m[3], 1);
         }
     }
+    //-----------------------------------------------------------------------------
+    void GpuProgramParameters::setConstant(size_t index, const Matrix4* pMatrix, 
+        size_t numEntries)
+    {
+        for (size_t i = 0; i < numEntries; ++i)
+        {
+            const Matrix4& m = pMatrix[i];
+
+            if (mTransposeMatrices)
+            {
+                Matrix4 t = m.transpose();
+                GpuProgramParameters::setConstant(index++, t[0], 1);
+                GpuProgramParameters::setConstant(index++, t[1], 1);
+                GpuProgramParameters::setConstant(index++, t[2], 1);
+                GpuProgramParameters::setConstant(index++, t[3], 1);
+            }
+            else
+            {
+                GpuProgramParameters::setConstant(index++, m[0], 1);
+                GpuProgramParameters::setConstant(index++, m[1], 1);
+                GpuProgramParameters::setConstant(index++, m[2], 1);
+                GpuProgramParameters::setConstant(index++, m[3], 1);
+            }
+        }
+    }
 	//-----------------------------------------------------------------------------
     void GpuProgramParameters::setConstant(size_t index, const ColourValue& colour)
     {
@@ -180,6 +205,9 @@ namespace Ogre
         if (!hasAutoConstants()) return; // abort early if no autos
         Vector3 vec3;
         Vector4 vec4;
+        size_t index;
+        size_t numMatrices;
+        const Matrix4* pMatrix;
 
         AutoConstantList::const_iterator i, iend;
         iend = mAutoConstants.end();
@@ -190,6 +218,24 @@ namespace Ogre
             case ACT_WORLD_MATRIX:
                 setConstant(i->index, source.getWorldMatrix());
                 break;
+            case ACT_WORLD_MATRIX_ARRAY:
+                setConstant(i->index, source.getWorldMatrixArray(), 
+                    source.getWorldMatrixCount());
+                break;
+            case ACT_WORLD_MATRIX_ARRAY_3x4:
+                // Loop over matrices
+                pMatrix = source.getWorldMatrixArray();
+                numMatrices = source.getWorldMatrixCount();
+                index = i->index;
+                for (size_t m = 0; m < numMatrices; ++m)
+                {
+                    GpuProgramParameters::setConstant(index++, (*pMatrix)[0], 1);
+                    GpuProgramParameters::setConstant(index++, (*pMatrix)[1], 1);
+                    GpuProgramParameters::setConstant(index++, (*pMatrix)[2], 1);
+                    ++pMatrix;
+                }
+                
+                break;
             case ACT_VIEW_MATRIX:
                 setConstant(i->index, source.getViewMatrix());
                 break;
@@ -198,6 +244,9 @@ namespace Ogre
                 break;
             case ACT_WORLDVIEW_MATRIX:
                 setConstant(i->index, source.getWorldViewMatrix());
+                break;
+            case ACT_VIEWPROJ_MATRIX:
+                setConstant(i->index, source.getViewProjectionMatrix());
                 break;
             case ACT_WORLDVIEWPROJ_MATRIX:
                 setConstant(i->index, source.getWorldViewProjMatrix());
@@ -301,6 +350,12 @@ namespace Ogre
 	void GpuProgramParameters::setNamedConstant(const String& name, const Matrix4& m)
     {
         setConstant(getParamIndex(name), m);
+    }
+    //---------------------------------------------------------------------------
+    void GpuProgramParameters::setNamedConstant(const String& name, const Matrix4* m, 
+        size_t numEntries)
+    {
+        setConstant(getParamIndex(name), m, numEntries);
     }
     //---------------------------------------------------------------------------
 	void GpuProgramParameters::setNamedConstant(const String& name, const Real *val, size_t count)

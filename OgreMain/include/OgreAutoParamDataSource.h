@@ -49,7 +49,9 @@ namespace Ogre {
     {
     protected:
         mutable Matrix4 mWorldMatrix[256];
+        mutable size_t mWorldMatrixCount;
         mutable Matrix4 mWorldViewMatrix;
+        mutable Matrix4 mViewProjMatrix;
         mutable Matrix4 mWorldViewProjMatrix;
         mutable Matrix4 mInverseWorldMatrix;
         mutable Matrix4 mInverseWorldViewMatrix;
@@ -58,6 +60,7 @@ namespace Ogre {
 
         mutable bool mWorldMatrixDirty;
         mutable bool mWorldViewMatrixDirty;
+        mutable bool mViewProjMatrixDirty;
         mutable bool mWorldViewProjMatrixDirty;
         mutable bool mInverseWorldMatrixDirty;
         mutable bool mInverseWorldViewMatrixDirty;
@@ -81,7 +84,10 @@ namespace Ogre {
         void setCurrentLightList(const LightList* ll);
 
         const Matrix4& getWorldMatrix(void) const;
+        const Matrix4* getWorldMatrixArray(void) const;
+        size_t getWorldMatrixCount(void) const;
         const Matrix4& getViewMatrix(void) const;
+        const Matrix4& getViewProjectionMatrix(void) const;
         const Matrix4& getProjectionMatrix(void) const;
         const Matrix4& getWorldViewProjMatrix(void) const;
         const Matrix4& getWorldViewMatrix(void) const;

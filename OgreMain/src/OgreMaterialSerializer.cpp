@@ -1230,9 +1230,21 @@ namespace Ogre
         {
             acType = GpuProgramParameters::ACT_WORLD_MATRIX;
         }
+        else if (vecparams[1] == "world_matrix_array")
+        {
+            acType = GpuProgramParameters::ACT_WORLD_MATRIX_ARRAY;
+        }
+        else if (vecparams[1] == "world_matrix_array_3x4")
+        {
+            acType = GpuProgramParameters::ACT_WORLD_MATRIX_ARRAY_3x4;
+        }
         else if (vecparams[1] == "view_matrix")
         {
             acType = GpuProgramParameters::ACT_VIEW_MATRIX;
+        }
+        else if (vecparams[1] == "viewproj_matrix")
+        {
+            acType = GpuProgramParameters::ACT_VIEWPROJ_MATRIX;
         }
         else if (vecparams[1] == "worldview_matrix")
         {
