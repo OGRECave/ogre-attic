@@ -2,7 +2,7 @@
 .PHONY: dist
 
 DIST_NAME = wings-ogre
-VERSION = 0.91
+VERSION = 0.93
 FULL_NAME = $(DIST_NAME)-$(VERSION)
 
 dist:

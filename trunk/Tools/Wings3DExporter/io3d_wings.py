@@ -11,7 +11,10 @@ import pprint
 
 import mesh
 
-import Image
+try:
+	import Image
+except:
+	pass
 
 def safe_append(ctr, key, value):
 	if ctr.has_key(key):
@@ -23,9 +26,10 @@ class wings_reader:
 
 	dump = __name__ == '__main__'
 
-	def __init__(self, raw_data):
+	def __init__(self, raw_data, writeImages, keepRotation):
 		self.data = raw_data
-
+		self.writeImages = writeImages
+		self.keepRotation = keepRotation
 		# read and check
 		a, self.ver, wingsdata = self.data
 		if a != erlang_atom("wings") or self.ver != 2:
@@ -98,6 +102,8 @@ class wings_reader:
 		return im
 
 	def parse_2_images(self):
+		if not self.writeImages:
+			return
 		images = []
 		if self.raw_props:
 			for elem in self.raw_props:
@@ -110,11 +116,12 @@ class wings_reader:
 
 	def parse_2_material(self, raw_mat):
 
-		#pp = pprint.PrettyPrinter(indent=4,width=78)
-		#pp.pprint(raw_mat)
-
 		atom, data = raw_mat
-		raw_maps, raw_gl = data
+
+		#pp = pprint.PrettyPrinter(indent=4,width=78)
+		#pp.pprint(data)
+
+		#raw_maps, raw_gl = data[:2]
 
 		mat = mesh.Material(str(atom)) 
 
@@ -242,7 +249,10 @@ class wings_reader:
 
 		for vertdata in raw_verts:
 			x, y, z = struct.unpack(">ddd", vertdata[0])  # double precision
-			wobj.verts.append((x, -z, y))
+			if self.keepRotation:
+				wobj.verts.append((x, -z, y))
+			else:
+				wobj.verts.append((x, y, z))
 
 	def parse_2_object(self, obj):
 		a, name, winged, mode = obj
@@ -283,11 +293,11 @@ class wings_reader:
 		if self.dump:
 			wobj.dump()
 
-def read_wings(filename):
+def read_wings(filename, writeImages, keepRotation):
 	e = erlang_ext_reader(filename)
 	raw_data = e.read()
 
-	ob = wings_reader(raw_data)
+	ob = wings_reader(raw_data, writeImages, keepRotation)
 	scene = ob.parse()
 
 	return scene
