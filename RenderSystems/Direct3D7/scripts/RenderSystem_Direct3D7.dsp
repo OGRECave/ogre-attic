@@ -143,6 +143,14 @@ SOURCE=..\include\OgreD3D7HardwareBufferManager.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreD3D7HardwarePixelBuffer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreD3D7HardwarePixelBuffer.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreD3D7Prerequisites.h
 # End Source File
 # Begin Source File
