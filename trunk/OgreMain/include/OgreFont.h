@@ -101,6 +101,9 @@ namespace Ogre
         /// The material which is generated for this font
         Material *mpMaterial;
 
+        /// for TRUE_TYPE font only
+        bool mAntialiasColour;
+
         /// Freetype link 
         static FT_Library mLibrary;
         static bool mFreetypeInitDone;
@@ -231,6 +234,26 @@ namespace Ogre
         inline Material * getMaterial()
         {
             return mpMaterial;
+        }
+        /** Sets whether or not the colour of this font is antialiased as it is generated
+            from a true type font.
+        @remarks
+        	This is valid only for a FT_TRUETYPE font. If you are planning on using 
+            alpha blending to draw your font, then it is a good idea to set this to
+            false (which is the default), otherwise the darkening of the font will combine
+            with the fading out of the alpha around the edges and make your font look thinner
+            than it should. However, if you intend to blend your font using a colour blending
+            mode (add or modulate for example) then it's a good idea to set this to true, in
+            order to soften your font edges.
+        */
+        inline void setAntialiasColour(bool enabled)
+        {
+        	mAntialiasColour = enabled;
+        }
+
+        inline bool getAntialiasColour(void)
+        {
+            return mAntialiasColour;
         }
     };
 }
