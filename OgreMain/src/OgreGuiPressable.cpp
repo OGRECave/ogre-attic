@@ -46,7 +46,7 @@ namespace Ogre {
 	}
 
     //-----------------------------------------------------------------------
-	String GuiPressable::getActionCommand()
+	const String& GuiPressable::getActionCommand() const
 	{ 
 		return mActionCommand;
 	}

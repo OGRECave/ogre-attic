@@ -79,7 +79,7 @@ namespace Ogre {
 	}
 
     //-----------------------------------------------------------------------
-	String GuiControl::getActionCommand()
+	const String& GuiControl::getActionCommand() const
 	{ 
 		return mActionCommand;
 	}

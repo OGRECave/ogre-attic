@@ -384,7 +384,7 @@
     		inline virtual bool isContainer() const
     		{ return false; }
     
-  		inline virtual bool isKeyEnabled()
+  		inline virtual bool isKeyEnabled() const
   		{ return false; }
   
     		inline virtual bool isCloneable() const

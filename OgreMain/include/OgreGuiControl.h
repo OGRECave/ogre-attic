@@ -68,7 +68,7 @@ namespace Ogre {
 
 		void processEvent(InputEvent* e) ;
 
-		String getActionCommand();
+		const String& getActionCommand() const;
 		void setActionCommand(const String& action);
 
 		bool isPressed() const;
