@@ -72,6 +72,7 @@ namespace Ogre
         mMinLevelDistSqr = 0;
 
         mInit = false;
+		MovableObject::mCastShadows = false;
 
         for ( int i = 0; i < 4; i++ )
         {
