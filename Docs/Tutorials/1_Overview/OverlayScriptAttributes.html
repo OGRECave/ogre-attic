@@ -79,10 +79,10 @@ CODE.str {
 </head>
 
 <body bgcolor="#FFFFFF" text="#000000">
-<p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p><p align="center" class="header">Material 
+<p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p><p align="center" class="header">Overlay 
 Scripts</p><p align="left" class="MainHeader">&nbsp;</p><P ALIGN="LEFT" CLASS="header">GuiElement 
 Attributes </P><P ALIGN="LEFT">These attributes are valid within the braces of 
-a 'conatiner' or 'element' block in an overlay script. They must each be on their 
+a 'container' or 'element' block in an overlay script. They must each be on their 
 own line. Ordering is unimportant.</P><P><A NAME="left"></A><SPAN CLASS="SectionHeader">left</SPAN></P><P>Sets 
 the horizontal position of the element relative to it's parent.</P><P>Format: 
 left &lt;value&gt;<BR>Example: left 0.5</P><P>Positions are relative to the parent 
@@ -115,9 +115,16 @@ a text caption for the element.</P><P>Format: caption &lt;string&gt;<BR>Example:
 caption This is a caption</P><P>Not all elements support captions, so each element 
 is free to disregard this if it wants. However, a general text caption is so common 
 to many elements that it is included in the generic interface to make it simpler 
-to use. This is a common feature in GUI systems.</P><P>Default: blank</P><P></P><P>&nbsp;</P><P CLASS="SectionHeader">&nbsp;</P><TABLE WIDTH="100%" BORDER="0" CELLSPACING="2" CELLPADDING="0"><TR><TD WIDTH="14%"><A HREF="../index.html">Back 
-to Index</A></TD><TD WIDTH="39%">&nbsp;</TD><TD WIDTH="22%"><A HREF="MaterialScript.html">&lt;&lt; 
-Previous section</A></TD><TD WIDTH="25%"><A HREF="ParticleScript.html">Next section 
+to use. This is a common feature in GUI systems.</P><P>Default: blank</P><P></P><P CLASS="SectionHeader">3D 
+Entity Attributes</P><P CLASS="SectionHeader"><A></A><A NAME="position"></A>position</P><P>The 
+position of the entity relative to the camera.</P><P>Format: position &lt;x&gt; 
+&lt;y&gt; &lt;z&gt;<BR>Example: position 10 20 -100</P><P>Default: position 0 
+0 0</P><P></P><P CLASS="SectionHeader"><A NAME="rotation"></A>rotation</P><P>The 
+rotation to apply to the entity, in terms of an angle and axis.</P><P>Format: 
+rotation &lt;angle_in_degrees&gt; &lt;axis_x&gt; &lt;axis_y&gt; &lt;axis_z&gt;<BR>Example: 
+rotation 30 0 0 1</P><P>Default: none </P><P></P><P>&nbsp;</P><P CLASS="SectionHeader">&nbsp;</P><TABLE WIDTH="100%" BORDER="0" CELLSPACING="2" CELLPADDING="0"><TR><TD WIDTH="14%"><A HREF="index.html">Back 
+to Index</A></TD><TD WIDTH="39%">&nbsp;</TD><TD WIDTH="22%"><A HREF="OverlayScript.html">&lt;&lt; 
+Previous section</A></TD><TD WIDTH="25%"><A HREF="StdGuiElements.html">Next section 
 &gt;&gt;</A></TD></TR></TABLE><P>&nbsp;</P><P>&nbsp;</P><P>&nbsp;</P><P CLASS="SectionHeader">&nbsp;</P>
 </body>
 </html>
