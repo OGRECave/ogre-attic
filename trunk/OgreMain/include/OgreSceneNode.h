@@ -47,6 +47,7 @@ namespace Ogre {
     public:
         typedef HashMap<String, MovableObject*> ObjectMap;
         typedef MapIterator<ObjectMap> ObjectIterator;
+		typedef ConstMapIterator<ObjectMap> ConstObjectIterator;
 
     protected:
         ObjectMap mObjectsByName;
@@ -209,7 +210,17 @@ namespace Ogre {
             the object returned through the iterator is OK though.
         */
         virtual ObjectIterator getAttachedObjectIterator(void);
-
+        /** Retrieves an iterator which can be used to efficiently step through the objects 
+            attached to this node.
+        @remarks
+            This is a much faster way to go through <B>all</B> the objects attached to the node
+            than using getAttachedObject. But the iterator returned is only valid until a change
+            is made to the collection (ie an addition or removal) so treat the returned iterator
+            as transient, and don't add / remove items as you go through the iterator, save changes
+            until the end, or retrieve a new iterator after making the change. Making changes to
+            the object returned through the iterator is OK though.
+        */
+		virtual ConstObjectIterator getAttachedObjectIterator(void) const;
 
         /** Gets the creator of this scene node. 
         @remarks
