@@ -126,7 +126,7 @@ namespace Ogre {
 	    virtual void seek( size_t pos ) = 0;
 		
 		/** Returns the current byte offset from beginning */
-	    virtual size_t tell( ) = 0;
+	    virtual size_t tell(void) const = 0;
 
 		/** Returns true if the stream has reached the end.
 	    */
@@ -286,7 +286,7 @@ namespace Ogre {
 		
 		/** @copydoc DataStream::tell
 		*/
-	    size_t tell( );
+	    size_t tell(void) const;
 
 		/** @copydoc DataStream::eof
 		*/
@@ -372,7 +372,7 @@ namespace Ogre {
 
 		/** @copydoc DataStream::tell
 		*/
-		size_t tell();
+		size_t tell(void) const;
 
 		/** @copydoc DataStream::eof
 		*/
@@ -426,7 +426,7 @@ namespace Ogre {
 
 		/** @copydoc DataStream::tell
 		*/
-		size_t tell();
+		size_t tell(void) const;
 
 		/** @copydoc DataStream::eof
 		*/
