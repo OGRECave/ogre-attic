@@ -1971,7 +1971,12 @@ namespace Ogre {
         }
 
         glDisableClientState( GL_VERTEX_ARRAY );
-        glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+        for (int i = 0; i < mCapabilities->getNumTextureUnits(); i++)
+        {
+            glClientActiveTextureARB_ptr(GL_TEXTURE0 + i);
+            glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+        }
+        glClientActiveTextureARB_ptr(GL_TEXTURE0);
         glDisableClientState( GL_NORMAL_ARRAY );
         glDisableClientState( GL_COLOR_ARRAY );
         glDisableClientState( GL_SECONDARY_COLOR_ARRAY );
