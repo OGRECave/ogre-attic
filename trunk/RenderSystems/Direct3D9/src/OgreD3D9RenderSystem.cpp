@@ -1955,8 +1955,8 @@ namespace Ogre
         // To think about: possibly remove setVertexDeclaration and 
         // setVertexBufferBinding from RenderSystem since the sequence is
         // a bit too D3D9-specific?
-		setVertexDeclaration(op.vertexDeclaration);
-        setVertexBufferBinding(op.vertexBufferBinding);
+		setVertexDeclaration(op.vertexData.vertexDeclaration);
+        setVertexBufferBinding(op.vertexData.vertexBufferBinding);
 
 		// Determine rendering operation
 		D3DPRIMITIVETYPE primType;
@@ -1965,32 +1965,32 @@ namespace Ogre
 		{
         case RenderOperation::OT_POINT_LIST:
 			primType = D3DPT_POINTLIST;
-			primCount = (DWORD)(op.useIndexes ? op.indexCount : op.vertexCount);
+			primCount = (DWORD)(op.useIndexes ? op.indexData.indexCount : op.vertexData.vertexCount);
 			break;
 
 		case RenderOperation::OT_LINE_LIST:
 			primType = D3DPT_LINELIST;
-			primCount = (DWORD)(op.useIndexes ? op.indexCount : op.vertexCount) / 2;
+			primCount = (DWORD)(op.useIndexes ? op.indexData.indexCount : op.vertexData.vertexCount) / 2;
 			break;
 
 		case RenderOperation::OT_LINE_STRIP:
 			primType = D3DPT_LINESTRIP;
-			primCount = (DWORD)(op.useIndexes ? op.indexCount : op.vertexCount) - 1;
+			primCount = (DWORD)(op.useIndexes ? op.indexData.indexCount : op.vertexData.vertexCount) - 1;
 			break;
 
 		case RenderOperation::OT_TRIANGLE_LIST:
 			primType = D3DPT_TRIANGLELIST;
-			primCount = (DWORD)(op.useIndexes ? op.indexCount : op.vertexCount) / 3;
+			primCount = (DWORD)(op.useIndexes ? op.indexData.indexCount : op.vertexData.vertexCount) / 3;
 			break;
 
 		case RenderOperation::OT_TRIANGLE_STRIP:
 			primType = D3DPT_TRIANGLESTRIP;
-			primCount = (DWORD)(op.useIndexes ? op.indexCount : op.vertexCount) - 2;
+			primCount = (DWORD)(op.useIndexes ? op.indexData.indexCount : op.vertexData.vertexCount) - 2;
 			break;
 
 		case RenderOperation::OT_TRIANGLE_FAN:
 			primType = D3DPT_TRIANGLEFAN;
-			primCount = (DWORD)(op.useIndexes ? op.indexCount : op.vertexCount) - 2;
+			primCount = (DWORD)(op.useIndexes ? op.indexData.indexCount : op.vertexData.vertexCount) - 2;
 			break;
 		}
 
@@ -2000,7 +2000,7 @@ namespace Ogre
 		if( op.useIndexes )
 		{
             D3D9HardwareIndexBuffer* d3dIdxBuf = 
-                static_cast<D3D9HardwareIndexBuffer*>(op.indexBuffer);
+                static_cast<D3D9HardwareIndexBuffer*>(op.indexData.indexBuffer);
 			hr = mpD3DDevice->SetIndices( d3dIdxBuf->getD3DIndexBuffer() );
 			if (FAILED(hr))
             {
@@ -2010,10 +2010,10 @@ namespace Ogre
 			// do indexed draw operation
 			hr = mpD3DDevice->DrawIndexedPrimitive(
                 primType, 
-                op.vertexStart, 
+                op.vertexData.vertexStart, 
                 0, // Min vertex index - assume we can go right down to 0 
-                op.vertexCount, 
-                op.indexStart, 
+                op.vertexData.vertexCount, 
+                op.indexData.indexStart, 
                 primCount );
 		}
 		else
@@ -2021,7 +2021,7 @@ namespace Ogre
             // Unindexed, a little simpler!
 			hr = mpD3DDevice->DrawPrimitive(
                 primType, 
-                op.vertexStart, 
+                op.vertexData.vertexStart, 
                 primCount ); 
         }
 

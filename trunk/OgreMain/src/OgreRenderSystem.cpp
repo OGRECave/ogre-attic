@@ -601,9 +601,9 @@ namespace Ogre {
         size_t val;
 
         if (op.useIndexes)
-            val = op.indexCount;
+            val = op.indexData.indexCount;
         else
-            val = op.vertexCount;
+            val = op.vertexData.vertexCount;
 
         switch(op.operationType)
         {
@@ -620,12 +620,12 @@ namespace Ogre {
 	        break;
 	    }
 
-        mVertexCount += op.vertexCount;
+        mVertexCount += op.vertexData.vertexCount;
 
         // Vertex blending: do software if required
 		bool vertexBlend = false;
 		const VertexDeclaration::VertexElementList& elemList = 
-			op.vertexDeclaration->getElements();
+			op.vertexData.vertexDeclaration->getElements();
 		VertexDeclaration::VertexElementList::const_iterator i, iend;
 		iend = elemList.end();
 		for (i = elemList.begin(); i != iend; ++i)

@@ -57,12 +57,15 @@ namespace Ogre
         return new Mesh(name);
     }
     //-----------------------------------------------------------------------
-    Mesh* MeshManager::load( const String& filename, int priority)
+    Mesh* MeshManager::load( const String& filename, 
+		bool vertexBuffersDynamic, bool indexBuffersDynamic, 
+		int priority)
     {
         Mesh* pMesh = (Mesh*)(getByName(filename));
         if (!pMesh)
         {
             pMesh = (Mesh*)create(filename);
+			pMesh->setBufferPolicy(vertexBuffersDynamic, indexBuffersDynamic);
             ResourceManager::load(pMesh, priority);
             //pMesh->_registerMaterials();
         }

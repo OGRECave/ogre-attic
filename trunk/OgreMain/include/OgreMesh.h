@@ -372,6 +372,24 @@ namespace Ogre {
         */
         static void cloneGeometry(GeometryData& source, GeometryData& dest);
 
+		/** Sets the policy for the vertex and index buffers to be used when loading
+			this Mesh.
+		@remarks
+			By default, when loading the Mesh, static vertex and index buffers will be used
+			where possible in order to improve rendering performance. However, such buffers
+			cannot be manipulated on the fly by CPU code (although shader code can). If you
+			wish to use the CPU to modify these buffers, you should call this method. Note,
+			however, that it only takes effect after the Mesh has been reloaded. Note that you
+			still have the option of manually repacing the buffers in this mesh with your
+			own if you see fit too, in which case you don't need to call this method since it
+			only affects buffers created by the mesh itself.
+		@par
+			You can define the approach to a Mesh by changing the default parameters to 
+			MeshManager::load if you wish; this means the Mesh is loaded with those options
+			the first time instead of you having to reload the mesh after changing these options.
+		*/
+		void setBufferPolicy(bool vertexBuffersDynamic, bool indexBuffersDynamic);
+
     private:
         typedef std::vector<SubMesh*> SubMeshList;
         /** A list of submeshes which make up this mesh.
@@ -415,6 +433,9 @@ namespace Ogre {
 		ushort mNumLods;
 		typedef std::vector<MeshLodUsage> MeshLodUsageList;
 		MeshLodUsageList mMeshLodUsageList;
+
+		bool mVertexBuffersDynamic;
+		bool mIndexBuffersDynamic;
 
 
     };
