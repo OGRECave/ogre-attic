@@ -29,9 +29,17 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSkeletonSerializer.h"
 #include "OgreDataChunk.h"
 #include "OgreDefaultHardwareBufferManager.h"
+#include "OgreDynLibManager.h"
+#include "OgreDynLib.h"
 
 #include <iostream>
 #include <sys/stat.h>
+
+#if OGRE_PLATFORM == PLATFORM_WIN32
+Ogre::String pluginDir = "?????";
+#else
+Ogre::String pluginDir = "/usr/local/lib/OGRE/";
+#endif
 
 using namespace std;
 
@@ -48,7 +56,6 @@ void help(void)
     cout << endl;
 }
 
-
 using namespace Ogre;
 
 // Crappy globals
@@ -56,12 +63,16 @@ using namespace Ogre;
 //   instantiate the singletons used in the dlls
 LogManager* logMgr;
 Math* mth;
+DynLibManager* dynLibMgr;
+ArchiveManager* arcMgr;
 MaterialManager* matMgr;
 SkeletonManager* skelMgr;
 MeshSerializer* meshSerializer;
 SkeletonSerializer* skeletonSerializer;
-DefaultHardwareBufferManager *bufferManager;
+DefaultHardwareBufferManager* bufferManager;
+DynLib* dynLib;
 
+typedef void (*DLL_PLUGIN)(void);
 
 int main(int numargs, char** args)
 {
@@ -71,19 +82,31 @@ int main(int numargs, char** args)
         return -1;
     }
 
+    // First create new exception handler
+    SET_TERM_HANDLER;
+
     logMgr = new LogManager();
     mth = new Math();
+    dynLibMgr = new DynLibManager();
+    arcMgr = new ArchiveManager();
     matMgr = new MaterialManager();;
     skelMgr = new SkeletonManager();
     meshSerializer = new MeshSerializer();
     skeletonSerializer = new SkeletonSerializer();
     bufferManager = new DefaultHardwareBufferManager(); // needed because we don't have a rendersystem
 
-
     String source(args[1]);
 
     logMgr->createLog("OgreMeshUpgrader.log");
 
+    dynLib = DynLibManager::getSingleton().load(pluginDir + "Plugin_FileSystem.so");
+    DLL_PLUGIN pFunc = (DLL_PLUGIN)dynLib->getSymbol("dllStartPlugin");
+
+    pFunc();
+
+    ResourceManager::addCommonArchiveEx("./", "FileSystem");
+
+    matMgr->parseAllSources();
 
     // Load the mesh
     struct stat tagStat;
@@ -112,17 +135,21 @@ int main(int numargs, char** args)
 
     meshSerializer->exportMesh(&mesh, dest, true);
     
+    pFunc = (DLL_PLUGIN)dynLib->getSymbol("dllStopPlugin");
+    pFunc();
+    DynLibManager::getSingleton().unload((Resource*)dynLib);
 
-
-
+    delete dynLib;
+    delete bufferManager;
     delete skeletonSerializer;
     delete meshSerializer;
     delete skelMgr;
     delete matMgr;
+    delete arcMgr;
+    delete dynLibMgr;
     delete mth;
     delete logMgr;
 
     return 0;
 
 }
-
