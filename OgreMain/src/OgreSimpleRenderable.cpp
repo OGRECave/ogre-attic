@@ -66,12 +66,12 @@ namespace Ogre {
 
     void SimpleRenderable::getRenderOperation(RenderOperation& op)
     {
-        op = mRendOp;
+        op = mRenderOp;
     }
 
     void SimpleRenderable::setRenderOperation( const RenderOperation& rend )
     {
-        mRendOp = rend;
+        mRenderOp = rend;
     }
 
     void SimpleRenderable::setWorldTransform( const Matrix4& xform )

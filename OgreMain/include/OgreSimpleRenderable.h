@@ -37,7 +37,7 @@ namespace Ogre {
     class _OgreExport SimpleRenderable : public MovableObject, public Renderable
     {
     protected:
-        RenderOperation mRendOp;
+        RenderOperation mRenderOp;
 
         Matrix4 m_matWorldTransform;
         AxisAlignedBox mBox;

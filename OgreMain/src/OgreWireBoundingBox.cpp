@@ -25,40 +25,68 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreWireBoundingBox.h"
 
 #include "OgreSimpleRenderable.h"
+#include "OgreHardwareBufferManager.h"
 #include "OgreCamera.h"
 
 namespace Ogre {
+    #define POSITION_BINDING 0
+    #define COLOUR_BINDING 1
 
-	WireBoundingBox::WireBoundingBox() {	
+	WireBoundingBox::WireBoundingBox() 
+    {
+        mRenderOp.vertexData = new VertexData();
+
+        mRenderOp.indexData = 0;
+		mRenderOp.vertexData->vertexCount = 24; 
+		mRenderOp.vertexData->vertexStart = 0; 
+		mRenderOp.operationType = RenderOperation::OT_LINE_LIST; 
+		mRenderOp.useIndexes = false; 
+
+        VertexDeclaration* decl = mRenderOp.vertexData->vertexDeclaration;
+        VertexBufferBinding* bind = mRenderOp.vertexData->vertexBufferBinding;
+
+        decl->addElement(POSITION_BINDING, 0, VET_FLOAT3, VES_POSITION);
+
+
+        HardwareVertexBufferSharedPtr vbuf = 
+            HardwareBufferManager::getSingleton().createVertexBuffer(
+                decl->getVertexSize(POSITION_BINDING),
+                mRenderOp.vertexData->vertexCount,
+                HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+
+        // Bind buffer
+        bind->setBinding(POSITION_BINDING, vbuf);
+
+        vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
+            decl->getVertexSize(COLOUR_BINDING),
+            mRenderOp.vertexData->vertexCount,
+            HardwareBuffer::HBU_DYNAMIC);
+
+        bind->setBinding(COLOUR_BINDING, vbuf);
 	}
 	
-	WireBoundingBox::~WireBoundingBox() {
+	WireBoundingBox::~WireBoundingBox() 
+    {
+        delete mRenderOp.vertexData;
 	}
 
-	void WireBoundingBox::setupBoundingBox(AxisAlignedBox aabb) {
-
-        /* TODO
+	void WireBoundingBox::setupBoundingBox(AxisAlignedBox aabb) 
+    {
 		// init the vertices to the aabb
 		setupBoundingBoxVertices(aabb);
 
+        /* TODO
 		memset(mDiffuses,0xFF,sizeof(mDiffuses));
 
-		mLegacyRendOp.numVertices = 24; 
-		mLegacyRendOp.useIndexes = false; 
-		mLegacyRendOp.pNormals = NULL; 
-		mLegacyRendOp.pVertices = mVertexData; 
 		mLegacyRendOp.pDiffuseColour = (unsigned long*)mDiffuses; 
-		mLegacyRendOp.pSpecularColour = NULL; 
-		mLegacyRendOp.operationType = RenderOperation::OT_LINE_LIST; 
-		mLegacyRendOp.numTextureCoordSets = 0;
 
 		// only need diffuse colors, other options not needed
 		mLegacyRendOp.vertexOptions = LegacyRenderOperation::VO_DIFFUSE_COLOURS; 
+        */
+
 
 		// setup the bounding box of this SimpleRenderable
 		setBoundingBox(aabb);
-
-        */
 
 	}
 
@@ -87,93 +115,98 @@ namespace Ogre {
 		Real miny = vmin.y - 1.0;
 		Real minz = vmin.z - 1.0;
 		
-		int i = 0;
+		// fill in the Vertex buffer: 12 lines with 2 endpoints each make up a box
+        HardwareVertexBufferSharedPtr vbuf =
+            mRenderOp.vertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);     
 
-		// fill in the Vertex array: 12 lines with 2 endpoints each make up a box
+        Real* pPos = static_cast<Real*>(
+            vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+
 		// line 0
-		mVertexData[i++] = minx;
-		mVertexData[i++] = miny;
-		mVertexData[i++] = minz;
-		mVertexData[i++] = maxx;
-		mVertexData[i++] = miny;
-		mVertexData[i++] = minz;
+        *pPos++ = minx;
+        *pPos++ = miny;
+        *pPos++ = minz;
+        *pPos++ = maxx;
+        *pPos++ = miny;
+        *pPos++ = minz;
 		// line 1
-		mVertexData[i++] = minx;
-		mVertexData[i++] = miny;
-		mVertexData[i++] = minz;
-		mVertexData[i++] = minx;
-		mVertexData[i++] = miny;
-		mVertexData[i++] = maxz;
+        *pPos++ = minx;
+        *pPos++ = miny;
+        *pPos++ = minz;
+        *pPos++ = minx;
+        *pPos++ = miny;
+        *pPos++ = maxz;
 		// line 2
-		mVertexData[i++] = minx;
-		mVertexData[i++] = miny;
-		mVertexData[i++] = minz;
-		mVertexData[i++] = minx;
-		mVertexData[i++] = maxy;
-		mVertexData[i++] = minz;
+        *pPos++ = minx;
+        *pPos++ = miny;
+        *pPos++ = minz;
+        *pPos++ = minx;
+        *pPos++ = maxy;
+        *pPos++ = minz;
 		// line 3
-		mVertexData[i++] = minx;
-		mVertexData[i++] = maxy;
-		mVertexData[i++] = minz;
-		mVertexData[i++] = minx;
-		mVertexData[i++] = maxy;
-		mVertexData[i++] = maxz;
+        *pPos++ = minx;
+        *pPos++ = maxy;
+        *pPos++ = minz;
+        *pPos++ = minx;
+        *pPos++ = maxy;
+        *pPos++ = maxz;
 		// line 4
-		mVertexData[i++] = minx;
-		mVertexData[i++] = maxy;
-		mVertexData[i++] = minz;
-		mVertexData[i++] = maxx;
-		mVertexData[i++] = maxy;
-		mVertexData[i++] = minz;
+        *pPos++ = minx;
+        *pPos++ = maxy;
+        *pPos++ = minz;
+        *pPos++ = maxx;
+        *pPos++ = maxy;
+        *pPos++ = minz;
 		// line 5
-		mVertexData[i++] = maxx;
-		mVertexData[i++] = miny;
-		mVertexData[i++] = minz;
-		mVertexData[i++] = maxx;
-		mVertexData[i++] = miny;
-		mVertexData[i++] = maxz;
+        *pPos++ = maxx;
+        *pPos++ = miny;
+        *pPos++ = minz;
+        *pPos++ = maxx;
+        *pPos++ = miny;
+        *pPos++ = maxz;
 		// line 6
-		mVertexData[i++] = maxx;
-		mVertexData[i++] = miny;
-		mVertexData[i++] = minz;
-		mVertexData[i++] = maxx;
-		mVertexData[i++] = maxy;
-		mVertexData[i++] = minz;
+        *pPos++ = maxx;
+        *pPos++ = miny;
+        *pPos++ = minz;
+        *pPos++ = maxx;
+        *pPos++ = maxy;
+        *pPos++ = minz;
 		// line 7
-		mVertexData[i++] = minx;
-		mVertexData[i++] = maxy;
-		mVertexData[i++] = maxz;
-		mVertexData[i++] = maxx;
-		mVertexData[i++] = maxy;
-		mVertexData[i++] = maxz;
+        *pPos++ = minx;
+        *pPos++ = maxy;
+        *pPos++ = maxz;
+        *pPos++ = maxx;
+        *pPos++ = maxy;
+        *pPos++ = maxz;
 		// line 8
-		mVertexData[i++] = minx;
-		mVertexData[i++] = maxy;
-		mVertexData[i++] = maxz;
-		mVertexData[i++] = minx;
-		mVertexData[i++] = miny;
-		mVertexData[i++] = maxz;
+        *pPos++ = minx;
+        *pPos++ = maxy;
+        *pPos++ = maxz;
+        *pPos++ = minx;
+        *pPos++ = miny;
+        *pPos++ = maxz;
 		// line 9
-		mVertexData[i++] = maxx;
-		mVertexData[i++] = maxy;
-		mVertexData[i++] = minz;
-		mVertexData[i++] = maxx;
-		mVertexData[i++] = maxy;
-		mVertexData[i++] = maxz;
+        *pPos++ = maxx;
+        *pPos++ = maxy;
+        *pPos++ = minz;
+        *pPos++ = maxx;
+        *pPos++ = maxy;
+        *pPos++ = maxz;
 		// line 10
-		mVertexData[i++] = maxx;
-		mVertexData[i++] = miny;
-		mVertexData[i++] = maxz;
-		mVertexData[i++] = maxx;
-		mVertexData[i++] = maxy;
-		mVertexData[i++] = maxz;
+        *pPos++ = maxx;
+        *pPos++ = miny;
+        *pPos++ = maxz;
+        *pPos++ = maxx;
+        *pPos++ = maxy;
+        *pPos++ = maxz;
 		// line 11
-		mVertexData[i++] = minx;
-		mVertexData[i++] = miny;
-		mVertexData[i++] = maxz;
-		mVertexData[i++] = maxx;
-		mVertexData[i++] = miny;
-		mVertexData[i++] = maxz;
+        *pPos++ = minx;
+        *pPos++ = miny;
+        *pPos++ = maxz;
+        *pPos++ = maxx;
+        *pPos++ = miny;
+        *pPos++ = maxz;
+        vbuf->unlock();
 	}
 
 
