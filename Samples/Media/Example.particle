@@ -87,7 +87,7 @@ Examples/PurpleFountain
 Examples/Rain
 {
     material        Examples/Droplet
-    particle_width  50
+    particle_width  20
     particle_height 100
     cull_each       true
     quota           10000
