@@ -38,11 +38,12 @@ RSC=rc.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "Release"
-# PROP Intermediate_Dir "Release"
+# PROP Output_Dir "..\lib\Release"
+# PROP Intermediate_Dir "..\obj\Release"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "OGREMAIN_EXPORTS" /YX /FD /c
-# ADD CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "OGREMAIN_EXPORTS" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\include" /I "..\..\Dependencies\zlib\include" /I "..\..\Dependencies\libpng\include" /I "..\..\Dependencies\jpeglib\include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "OGREMAIN_EXPORTS" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x418 /d "NDEBUG"
@@ -52,7 +53,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib  zlib.lib libpng.lib jpeglib.lib /nologo /dll /machine:I386 /libpath:"..\..\Dependencies\zlib\lib\Release" /libpath:"..\..\Dependencies\libpng\lib\Release" /libpath:"..\..\Dependencies\jpeglib\lib\Release"
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PreLink_Desc=Building dependencies
+PreLink_Cmds=cd ..\..\Dependencies 	makeall_vc6.bat
+# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "OgreMain - Win32 Debug"
 
@@ -67,8 +73,8 @@ LINK32=link.exe
 # PROP Intermediate_Dir "..\obj\Debug"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "OGREMAIN_EXPORTS" /YX /FD /GZ  /c
-# ADD CPP /nologo /G6 /MDd /W3 /Gm /Gi /GX /ZI /Od /I "..\include" /I "..\..\Dependencies\zlib\include" /I "..\..\Dependencies\libpng\include" /I "..\..\Dependencies\jpeglib\include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "OGREMAIN_EXPORTS" /D "_STLP_USE_DYNAMIC_LIB" /YX /FD /GZ  /c
+# ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "OGREMAIN_EXPORTS" /YX /FD /GZ /c
+# ADD CPP /nologo /G6 /MDd /W3 /Gm /Gi /GX /ZI /Od /I "..\include" /I "..\..\Dependencies\zlib\include" /I "..\..\Dependencies\libpng\include" /I "..\..\Dependencies\jpeglib\include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "OGREMAIN_EXPORTS" /D "_STLP_USE_DYNAMIC_LIB" /YX /FD /GZ /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x418 /d "_DEBUG"
@@ -79,34 +85,10 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib zlib.lib libpng.lib jpeglib.lib /nologo /dll /debug /machine:I386 /pdbtype:sept /libpath:"..\..\Dependencies\zlib\lib\Debug" /libpath:"..\..\Dependencies\libpng\lib\Debug" /libpath:"..\..\Dependencies\jpeglib\lib\Debug"
-# Begin Custom Build
-InputPath=\projects\Ogre\OgreMain\lib\Debug\OgreMain.dll
-SOURCE="$(InputPath)"
-
-BuildCmds= \
-	cd ..\..\Dependencies \
-	cd zlib \
-	nmake -f scripts\makefile.vc6 CONFIG=Debug \
-	cd .. \
-	cd libpng \
-	nmake -f scripts\makefile.vc6 CONFIG=Debug \
-	cd .. \
-	cd jpeglib \
-	nmake -f scripts\makefile.vc6 CONFIG=Debug \
-	cd .. \
-	
-
-"..\..\Dependencies\zlib\lib\Debug\zlib.lib" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"..\..\Dependencies\libpng\lib\Debug\libpng.lib" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"..\..\Dependencies\jpeglib\lib\Debug\jpeglib.lib" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
+PreLink_Desc=Building dependencies
+PreLink_Cmds=cd ..\..\Dependencies 	makeall_vc6.bat
 PostBuild_Cmds=copy ..\lib\Debug\OgreMain.dll ..\..\Samples\Common\bin\Debug
 # End Special Build Tool
 
@@ -373,10 +355,6 @@ SOURCE=..\src\OgreTextureManager.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\OgreUnzip.c
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\OgreVector3.cpp
 # End Source File
 # Begin Source File
@@ -390,6 +368,10 @@ SOURCE=..\src\OgreZip.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreZipArchiveFactory.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\unzip.c
 # End Source File
 # End Group
 # Begin Group "Header Files"
