@@ -2092,8 +2092,10 @@ namespace Ogre
         }
         else
         {
-            // Use parser
-            return iparser->second(splitCmd[1], mScriptContext );
+            // Use parser, make sure we have 2 params before using splitCmd[1]
+            return iparser->second(
+                splitCmd.size() >= 2 ? splitCmd[1] : "", 
+                mScriptContext );
         }
     }
     //-----------------------------------------------------------------------
