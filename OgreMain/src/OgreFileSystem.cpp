@@ -63,27 +63,24 @@ namespace Ogre {
         res = 0;
         while (lHandle != -1 && res != -1)
         {
-            if (recursive)
+            if(!(tagData.attrib & _A_SUBDIR))
             {
-                if(!(tagData.attrib & _A_SUBDIR))
+                if (simpleList)
                 {
-                    if (simpleList)
-                    {
-                        simpleList->push_back(currentDir + tagData.name);
-                    }
-                    else if (detailList)
-                    {
-                        FileInfo fi;
-                        fi.filename = currentDir + tagData.name;
-                        fi.basename = tagData.name;
-                        fi.path = currentDir;
-                        fi.compressedSize = tagData.size;
-                        fi.uncompressedSize = tagData.size;
-                        detailList->push_back(fi);
-                    }
-                    res = _findnext( lHandle, &tagData );
+                    simpleList->push_back(currentDir + tagData.name);
+                }
+                else if (detailList)
+                {
+                    FileInfo fi;
+                    fi.filename = currentDir + tagData.name;
+                    fi.basename = tagData.name;
+                    fi.path = currentDir;
+                    fi.compressedSize = tagData.size;
+                    fi.uncompressedSize = tagData.size;
+                    detailList->push_back(fi);
                 }
             }
+            res = _findnext( lHandle, &tagData );
         }
         // Close if we found any files
         if(lHandle != -1)
