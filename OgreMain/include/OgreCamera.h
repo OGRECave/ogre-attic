@@ -127,6 +127,8 @@ namespace Ogre {
         mutable std::vector<Plane> mWindowClipPlanes;
         // Was viewing window changed.
         mutable bool mRecalcWindow;
+        /// The last viewport to be added using this camera
+        Viewport* mLastViewport;
 
         // Internal functions for calcs
         void updateFrustum(void) const;
@@ -409,6 +411,14 @@ namespace Ogre {
 		/** Get the auto tracking offset for this camera, if it is auto tracking. */
 		const Vector3& getAutoTrackOffset(void) const { return mAutoTrackOffset; }
 		
+        /** Get the last viewport which was attached to this camera. 
+        @note This is not guaranteed to be the only viewport which is
+        using this camera, just the last once which was created referring
+        to it.
+        */
+        Viewport* getViewport(void) const {return mLastViewport;}
+        /** Notifies this camera that a viewport is using it.*/
+        void _notifyViewport(Viewport* viewport) {mLastViewport = viewport;}
 
     };
 
