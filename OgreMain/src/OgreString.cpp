@@ -58,8 +58,10 @@ namespace Ogre {
         *this = substr(lspaces, len-lspaces-rspaces);
         */
         static const String delims = " \t\r";
-        str.erase(str.find_last_not_of(delims)+1); // trim right
-        str.erase(0, str.find_first_not_of(delims)); // trim left
+        if(right)
+            str.erase(str.find_last_not_of(delims)+1); // trim right
+        if(left)
+            str.erase(0, str.find_first_not_of(delims)); // trim left
     }
 
     //-----------------------------------------------------------------------
