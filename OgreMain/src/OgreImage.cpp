@@ -578,11 +578,16 @@ namespace Ogre {
 
 		// Convert image from OGRE to current IL image
 		ILUtil::fromOgre(src);
-
+		
 		// set filter
 		iluImageParameter(ILU_FILTER, getILFilter(filter));
-		iluScale(scaled.getWidth(), scaled.getHeight(), scaled.getDepth());
 		
+		// do the scaling
+		if(!iluScale(scaled.getWidth(), scaled.getHeight(), scaled.getDepth())) {
+            Except( Exception::ERR_INTERNAL_ERROR,
+                iluErrorString(ilGetError()),
+                "Image::scale" ) ;
+        }
 		ILUtil::toOgre(scaled);
 
         ilDeleteImages(1, &ImageName);
