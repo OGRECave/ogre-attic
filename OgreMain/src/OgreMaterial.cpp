@@ -493,6 +493,19 @@ namespace Ogre {
 
 
     }
+    //-----------------------------------------------------------------------
+    void Material::copyDetailsTo(Material* mat)
+    {
+        // Keep handle (see below, copy overrides everything)
+        int savedHandle = mat->mHandle;
+        String savedName = mat->mName;
+        // Assign values from this
+        *mat = *this;
+        // Correct the name & handle, they get copied too
+        mat->mName = savedName;
+        mat->mHandle = savedHandle;
+
+    }
 
 }
 

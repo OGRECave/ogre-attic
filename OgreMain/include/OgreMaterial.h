@@ -1327,6 +1327,12 @@ namespace Ogre {
         /** Creates a new copy of this material with the same settings but a new name.
         */
         Material* clone(const String& newName);
+
+        /** Copies the details of this material into another, preserving the target's handle and name
+            (unlike operator=) but copying everything else.
+            @param mat Pointer to material which will receive this material's settings.
+        */
+        void copyDetailsTo(Material* mat);
     };
 
 } //namespace 

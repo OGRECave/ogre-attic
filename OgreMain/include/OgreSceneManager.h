@@ -130,21 +130,24 @@ namespace Ogre {
 
         // Sky params
         // Sky plane
+        Entity* mSkyPlaneEntity;
+        Entity* mSkyDomeEntity[5];
+        Entity* mSkyBoxEntity[6];
+
+        SceneNode* mSkyPlaneNode;
+        SceneNode* mSkyDomeNode;
+        SceneNode* mSkyBoxNode;
+
         bool mSkyPlaneEnabled;
         bool mSkyPlaneDrawFirst;
         Plane mSkyPlane;
-        int mSkyPlaneMatHdl;
         // Sky box
         bool mSkyBoxEnabled;
         bool mSkyBoxDrawFirst;
-        int mSkyBoxMatHdl;
-        Real mSkyBoxDist;
         Quaternion mSkyBoxOrientation;
         // Sky dome
         bool mSkyDomeEnabled;
         bool mSkyDomeDrawFirst;
-        int mSkyDomeMatHdl;
-        Real mSkyDomeDist;
         Quaternion mSkyDomeOrientation;
         // Fog
         FogMode mFogMode;
@@ -176,8 +179,8 @@ namespace Ogre {
         enum BoxPlane
         {
             BP_FRONT = 0,
-            BP_LEFT = 1,
-            BP_BACK = 2,
+            BP_BACK = 1,
+            BP_LEFT = 2,
             BP_RIGHT = 3,
             BP_UP = 4,
             BP_DOWN = 5
@@ -185,14 +188,14 @@ namespace Ogre {
 
         /* Internal utility method for creating the planes of a skybox.
         */
-        void createSkyboxPlane(
+        Mesh* createSkyboxPlane(
             BoxPlane bp,
             Real distance,
             const Quaternion& orientation);
 
         /* Internal utility method for creating the planes of a skydome.
         */
-        void createSkydomePlane(
+        Mesh* createSkydomePlane(
             BoxPlane bp,
             Real curvature, Real tiling, Real distance,
             const Quaternion& orientation);
@@ -635,17 +638,11 @@ namespace Ogre {
         */
         virtual void _renderScene(Camera* camera, Viewport* vp, bool includeOverlays);
 
-        /** Internal method for rendering the sky plane with the params as previously set through SceneManager::setSkyPlane.
+        /** Internal method for queueing the sky objects with the params as 
+            previously set through setSkyBox, setSkyPlane and setSkyDome.
         */
-        virtual void _renderSkyPlane(Camera* cam);
+        virtual void _queueSkiesForRendering(Camera* cam);
 
-        /** Internal method for rendering the skybox with the params as previously set through SceneManager::setSkyBox.
-        */
-        virtual void _renderSkyBox(Camera* cam);
-
-        /** Internal method for rendering the skydome with the params as previously set through SceneManager::setSkyDome.
-        */
-        virtual void _renderSkyDome(Camera* cam);
 
         /** Internal method for issuing geometry for a mesh to the RenderSystem pipeline.
             @note
