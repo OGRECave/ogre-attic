@@ -28,12 +28,24 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 
+#include "Unknwn.h"
+
 // Define versions for if DirectX is in use (Win32 only)
 #define DIRECT3D_VERSION  0x0700
 #define DIRECTINPUT_VERSION 0x0700
 #define DIRECTDRAW_VERSION 0x0700
 
 namespace Ogre {
+
+    template< typename _Interf >
+    inline void __safeRelease( _Interf **interf )
+    {
+        if( *interf )
+        {
+            (*interf)->Release();
+            (*interf) = NULL;
+        }
+    }
 
     // Predefine classes
     class D3DDevice;
