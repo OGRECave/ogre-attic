@@ -72,7 +72,12 @@ namespace Ogre {
         mLevel.setNull();
         delete mBspResMgr;
     }
-
+    //-----------------------------------------------------------------------
+    size_t BspSceneManager::estimateWorldGeometry(const String& filename)
+    {
+        return BspLevel::calculateLoadingStages(filename);
+        
+    }
     //-----------------------------------------------------------------------
     void BspSceneManager::setWorldGeometry(const String& filename)
     {

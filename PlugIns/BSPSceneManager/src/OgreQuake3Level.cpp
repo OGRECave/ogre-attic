@@ -28,12 +28,24 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-
+    //-----------------------------------------------------------------------
     Quake3Level::Quake3Level()
     {
 
     }
+    //-----------------------------------------------------------------------
+    void Quake3Level::loadHeaderFromStream(DataStreamPtr& inStream)
+    {
+        // Load just the header
+        bsp_header_t* pHeader = new bsp_header_t();
+        inStream->read(pHeader, sizeof(bsp_header_t));
+        mChunk = MemoryDataStreamPtr(
+            new MemoryDataStream(pHeader, sizeof(bsp_header_t), true));
+        // Grab all the counts, header only
+        initialise(true);
 
+    }
+    //-----------------------------------------------------------------------
     void Quake3Level::loadFromStream(DataStreamPtr& stream)
     {
         mChunk = MemoryDataStreamPtr(new MemoryDataStream(stream));
@@ -45,7 +57,7 @@ namespace Ogre {
 
 
     }
-   
+    //-----------------------------------------------------------------------
    // byte swapping functions
    void SwapFourBytes(unsigned long *dw)
    {
@@ -56,7 +68,7 @@ namespace Ogre {
       tmp = ((*dw & 0xFF000000) >> 0x18) | (tmp << 0x08);
       memcpy (dw, &tmp, sizeof(unsigned long));
    }
-
+   //-----------------------------------------------------------------------
    void SwapFourBytesGrup (unsigned long *src, int size)
    {
       unsigned long *ptr = (unsigned long *)src;
@@ -65,61 +77,67 @@ namespace Ogre {
          SwapFourBytes (&ptr[i]);
       }
    }
-
-    void Quake3Level::initialise(void)
+   //-----------------------------------------------------------------------
+    void Quake3Level::initialise(bool headerOnly)
     {
-        int i=0;
-       
         mHeader = (bsp_header_t*)mChunk->getPtr();
-        mLumpStart = ((unsigned char*)mHeader) + sizeof(mHeader);
-       
-        mEntities = (unsigned char*)getLump(BSP_ENTITIES_LUMP);
-        mNumEntities = getLumpSize(BSP_ENTITIES_LUMP);
 
-        mElements = (int*)getLump(BSP_ELEMENTS_LUMP);
-        mNumElements = getLumpSize(BSP_ELEMENTS_LUMP) / sizeof(int);
+        // Header counts
+        initialiseCounts();
+        // Data pointers
+        if (headerOnly)
+        {
+            mLumpStart = 0;
+        }
+        else
+        {
+            mLumpStart = ((unsigned char*)mHeader) + sizeof(mHeader);
+        }
+        initialisePointers();
 
-        mFaces = (bsp_face_t*)getLump(BSP_FACES_LUMP);
-        mNumFaces = getLumpSize(BSP_FACES_LUMP) / sizeof(bsp_face_t);
-
-        mLeafFaces = (int*)getLump(BSP_LFACES_LUMP);
-        mNumLeafFaces = getLumpSize(BSP_LFACES_LUMP) / sizeof(int);
-
-        mLeaves = (bsp_leaf_t*)getLump(BSP_LEAVES_LUMP);
-        mNumLeaves = getLumpSize(BSP_LEAVES_LUMP) / sizeof(bsp_leaf_t);
-
-        mLightmaps = (unsigned char*)getLump(BSP_LIGHTMAPS_LUMP);
-        mNumLightmaps = getLumpSize(BSP_LIGHTMAPS_LUMP)/BSP_LIGHTMAP_BANKSIZE;
-
-        mModels = (bsp_model_t*)getLump(BSP_MODELS_LUMP);
-        mNumModels = getLumpSize(BSP_MODELS_LUMP) / sizeof(bsp_model_t);
-
-        mNodes = (bsp_node_t*)getLump(BSP_NODES_LUMP);
-        mNumNodes = getLumpSize(BSP_NODES_LUMP) / sizeof(bsp_node_t);
-
-        mPlanes = (bsp_plane_t*) getLump(BSP_PLANES_LUMP);
-        mNumPlanes = getLumpSize(BSP_PLANES_LUMP)/sizeof(bsp_plane_t);
-
-        mShaders = (bsp_shader_t*) getLump(BSP_SHADERS_LUMP);
-        mNumShaders = getLumpSize(BSP_SHADERS_LUMP)/sizeof(bsp_shader_t);
-
-        mVis = (bsp_vis_t*)getLump(BSP_VISIBILITY_LUMP);
-
-        mVertices = (bsp_vertex_t*) getLump(BSP_VERTICES_LUMP);
-        mNumVertices = getLumpSize(BSP_VERTICES_LUMP)/sizeof(bsp_vertex_t);
-
-        mLeafBrushes = (int*)getLump(BSP_LBRUSHES_LUMP);
-        mNumLeafBrushes = getLumpSize(BSP_LBRUSHES_LUMP)/sizeof(int);
-
-        mBrushes = (bsp_brush_t*) getLump(BSP_BRUSH_LUMP);
-        mNumBrushes = getLumpSize(BSP_BRUSH_LUMP)/sizeof(bsp_brush_t);
-
-        mBrushSides = (bsp_brushside_t*) getLump(BSP_BRUSHSIDES_LUMP);
-        mNumBrushSides = getLumpSize(BSP_BRUSHSIDES_LUMP)/sizeof(bsp_brushside_t);
 
 #if OGRE_PLATFORM == PLATFORM_APPLE
       // swap header
         SwapFourBytes (&mHeader->version);
+#endif
+    }
+    //-----------------------------------------------------------------------
+    void Quake3Level::initialiseCounts(void)
+    {
+        mNumEntities = getLumpSize(BSP_ENTITIES_LUMP);
+        mNumElements = getLumpSize(BSP_ELEMENTS_LUMP) / sizeof(int);
+        mNumFaces = getLumpSize(BSP_FACES_LUMP) / sizeof(bsp_face_t);
+        mNumLeafFaces = getLumpSize(BSP_LFACES_LUMP) / sizeof(int);
+        mNumLeaves = getLumpSize(BSP_LEAVES_LUMP) / sizeof(bsp_leaf_t);
+        mNumLightmaps = getLumpSize(BSP_LIGHTMAPS_LUMP)/BSP_LIGHTMAP_BANKSIZE;
+        mNumModels = getLumpSize(BSP_MODELS_LUMP) / sizeof(bsp_model_t);
+        mNumNodes = getLumpSize(BSP_NODES_LUMP) / sizeof(bsp_node_t);
+        mNumPlanes = getLumpSize(BSP_PLANES_LUMP)/sizeof(bsp_plane_t);
+        mNumShaders = getLumpSize(BSP_SHADERS_LUMP)/sizeof(bsp_shader_t);
+        mNumVertices = getLumpSize(BSP_VERTICES_LUMP)/sizeof(bsp_vertex_t);
+        mNumLeafBrushes = getLumpSize(BSP_LBRUSHES_LUMP)/sizeof(int);
+        mNumBrushes = getLumpSize(BSP_BRUSH_LUMP)/sizeof(bsp_brush_t);
+        mNumBrushSides = getLumpSize(BSP_BRUSHSIDES_LUMP)/sizeof(bsp_brushside_t);
+    }
+    //-----------------------------------------------------------------------
+    void Quake3Level::initialisePointers(void)
+    {
+        mEntities = (unsigned char*)getLump(BSP_ENTITIES_LUMP);
+        mElements = (int*)getLump(BSP_ELEMENTS_LUMP);
+        mFaces = (bsp_face_t*)getLump(BSP_FACES_LUMP);
+        mLeafFaces = (int*)getLump(BSP_LFACES_LUMP);
+        mLeaves = (bsp_leaf_t*)getLump(BSP_LEAVES_LUMP);
+        mLightmaps = (unsigned char*)getLump(BSP_LIGHTMAPS_LUMP);
+        mModels = (bsp_model_t*)getLump(BSP_MODELS_LUMP);
+        mNodes = (bsp_node_t*)getLump(BSP_NODES_LUMP);
+        mPlanes = (bsp_plane_t*) getLump(BSP_PLANES_LUMP);
+        mShaders = (bsp_shader_t*) getLump(BSP_SHADERS_LUMP);
+        mVis = (bsp_vis_t*)getLump(BSP_VISIBILITY_LUMP);
+        mVertices = (bsp_vertex_t*) getLump(BSP_VERTICES_LUMP);
+        mLeafBrushes = (int*)getLump(BSP_LBRUSHES_LUMP);
+        mBrushes = (bsp_brush_t*) getLump(BSP_BRUSH_LUMP);
+        mBrushSides = (bsp_brushside_t*) getLump(BSP_BRUSHSIDES_LUMP);
+#if OGRE_PLATFORM == PLATFORM_APPLE
         SwapFourBytesGrup ((unsigned long*)mElements, mNumElements*sizeof(int));
         SwapFourBytesGrup ((unsigned long*)mFaces, mNumFaces*sizeof(bsp_face_t));
         SwapFourBytesGrup ((unsigned long*)mLeafFaces, mNumLeafFaces*sizeof(int));
@@ -127,7 +145,7 @@ namespace Ogre {
         SwapFourBytesGrup ((unsigned long*)mModels, mNumModels*sizeof(bsp_model_t));
         SwapFourBytesGrup ((unsigned long*)mNodes, mNumNodes*sizeof(bsp_node_t));
         SwapFourBytesGrup ((unsigned long*)mPlanes, mNumPlanes*sizeof(bsp_plane_t));
-        for (i=0; i < mNumShaders; ++i) {
+        for (int i=0; i < mNumShaders; ++i) {
             SwapFourBytes(&mShaders[i].surface_flags);
             SwapFourBytes(&mShaders[i].content_flags);
         }   
@@ -139,17 +157,24 @@ namespace Ogre {
         SwapFourBytesGrup ((unsigned long*)mBrushSides, mNumBrushSides*sizeof(bsp_brushside_t));
 #endif
     }
-
+    //-----------------------------------------------------------------------
     void* Quake3Level::getLump(int lumpType)
     {
+        if (mLumpStart)
+        {
        
 #if OGRE_PLATFORM == PLATFORM_APPLE
-        // swap lump offset
-        SwapFourBytes (&mHeader->lumps[lumpType].offset);
+            // swap lump offset
+            SwapFourBytes (&mHeader->lumps[lumpType].offset);
 #endif
-        return (unsigned char*)mHeader + mHeader->lumps[lumpType].offset;
+            return (unsigned char*)mHeader + mHeader->lumps[lumpType].offset;
+        }
+        else
+        {
+            return 0;
+        }
     }
-
+    //-----------------------------------------------------------------------
     int Quake3Level::getLumpSize(int lumpType)
     {
 
@@ -159,7 +184,7 @@ namespace Ogre {
 #endif
         return mHeader->lumps[lumpType].size;
     }
-
+    //-----------------------------------------------------------------------
     void Quake3Level::dumpContents(void)
     {
         std::ofstream of;
@@ -204,7 +229,7 @@ namespace Ogre {
 
         of.close();
     }
-
+    //-----------------------------------------------------------------------
     void Quake3Level::extractLightmaps(void) const
     {
         // Lightmaps are always 128x128x24 (RGB)
@@ -225,6 +250,7 @@ namespace Ogre {
 
 
     }
+    //-----------------------------------------------------------------------
 
 
 }
