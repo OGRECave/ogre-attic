@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "OgreRenderable.h"
 #include "OgreMaterial.h"
+#include "OgreRenderQueueSortingGrouping.h"
 
 namespace Ogre {
 
@@ -34,92 +35,59 @@ namespace Ogre {
     RenderQueue::RenderQueue()
     {
         // Create the 'main' queue up-front since we'll always need that
-        mQueues.insert(RenderQueueGroup::value_type(RENDER_QUEUE_MAIN, new RenderQueueMap()));
+        mGroups.insert(RenderQueueGroupMap::value_type(RENDER_QUEUE_MAIN, new RenderQueueGroup()));
 
     }
     //---------------------------------------------------------------------
     RenderQueue::~RenderQueue()
     {
         // Destroy the queues for good
-        RenderQueueGroup::iterator i, iend;
-        i = mQueues.begin();
-        iend = mQueues.end();
+        RenderQueueGroupMap::iterator i, iend;
+        i = mGroups.begin();
+        iend = mGroups.end();
         for (; i != iend; ++i)
         {
             delete i->second;
         }
-        mQueues.clear();
+        mGroups.clear();
 
-
-    }
-    //---------------------------------------------------------------------
-    bool RenderQueue::queueItemLess::operator() (const Material* x, const Material* y) const
-    {
-        // If x transparent and y not, x > y (since x has to overlap y)
-        if (x->isTransparent() && !y->isTransparent())
-        {
-            return false;
-        }
-        // If y is transparent and x not, x < y
-        else if (!x->isTransparent() && y->isTransparent())
-        {
-            return true;
-        }
-        else
-        {
-            // Otherwise don't care (both transparent or both solid)
-            // Just arbitrarily use pointer
-            return x < y;
-        }
 
     }
     //-----------------------------------------------------------------------
-    void RenderQueue::addRenderable(Renderable* pRend, RenderQueueGroupID groupID)
+    void RenderQueue::addRenderable(Renderable* pRend, RenderQueueGroupID groupID, ushort priority)
     {
-        // Find group first 
-        RenderQueueGroup::iterator groupIt;
-        RenderQueueMap* pQueue;
+        // Find group
+        RenderQueueGroupMap::iterator groupIt;
+        RenderQueueGroup* pGroup;
 
-        groupIt = mQueues.find(groupID);
-        if (groupIt == mQueues.end())
+        groupIt = mGroups.find(groupID);
+        if (groupIt == mGroups.end())
         {
             // Insert new
-            pQueue = new RenderQueueMap();
-            mQueues.insert(RenderQueueGroup::value_type(groupID, pQueue));
+            pGroup = new RenderQueueGroup();
+            mGroups.insert(RenderQueueGroupMap::value_type(groupID, pGroup));
         }
         else
         {
-            pQueue = groupIt->second;
+            pGroup = groupIt->second;
         }
 
-        // Try to insert vector of renderables by map
-        // This will just return an iterator to the existing vector
-        // if already there which is OK
-        Material* m = pRend->getMaterial();
-        // Find material (if exists in map)
-        std::pair<RenderQueueMap::iterator, bool> queuePair;
-        std::vector<Renderable*> newVec;
+        pGroup->addRenderable(pRend, priority);
 
-        queuePair = pQueue->insert(RenderQueueMap::value_type(m, newVec));
-        // Insert new Renderable
-        // queuePair.first is iterator on map (Material*, std::vector)
-        // queuePair.first->second is the vector of renderables
-        queuePair.first->second.push_back(pRend);
     }
     //-----------------------------------------------------------------------
     void RenderQueue::clear(void)
     {
         // Clear the queues
-        RenderQueueGroup::iterator i, iend;
-        i = mQueues.begin();
-        iend = mQueues.end();
+        RenderQueueGroupMap::iterator i, iend;
+        i = mGroups.begin();
+        iend = mGroups.end();
         for (; i != iend; ++i)
         {
             i->second->clear();
         }
 
-        // NB this leaves the RenderQueueMap items present (but empty)
-        //  and also leaves the entries in the groupID
+        // NB this leaves the items present (but empty)
         // We're assuming that frame-by-frame, the same groups are likely to 
         //  be used, so no point destroying the vectors and incurring the overhead
         //  that would cause, let them be destroyed in the destructor.
@@ -127,7 +95,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     RenderQueue::QueueGroupIterator RenderQueue::_getQueueGroupIterator(void)
     {
-        return QueueGroupIterator(mQueues.begin(), mQueues.end());
+        return QueueGroupIterator(mGroups.begin(), mGroups.end());
     }
 }
 
