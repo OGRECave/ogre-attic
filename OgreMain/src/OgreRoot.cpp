@@ -96,7 +96,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     template<> Root* Singleton<Root>::ms_Singleton = 0;
     //-----------------------------------------------------------------------
-    Root::Root(const String& pluginFileName)
+    Root::Root(const String& pluginFileName, const String& configFileName, const String& logFileName)
     {
         // First create new exception handler
         SET_TERM_HANDLER;
@@ -107,10 +107,11 @@ namespace Ogre {
         // Init
         mActiveRenderer = 0;
         mVersion = "0.12.0";
+				mConfigFileName = configFileName;
 
         // Create log manager and default log file
         mLogManager = new LogManager();
-        mLogManager->createLog("Ogre.log", true, true);
+        mLogManager->createLog(logFileName, true, true);
 
         // Dynamic library manager
         mDynLibManager = new DynLibManager();
@@ -249,7 +250,7 @@ namespace Ogre {
         ::FILE *fp;
         char rec[100];
 
-        fp = fopen("ogre.cfg", "w");
+        fp = fopen(mConfigFileName, "w");
         if (!fp)
             Except(Exception::ERR_CANNOT_WRITE_TO_FILE, "Cannot create settings file.",
             "Root::saveConfig");
@@ -288,7 +289,7 @@ namespace Ogre {
         RenderSystemList::iterator pRend;
 
         try {
-            cfg.load("ogre.cfg");
+            cfg.load(mConfigFileName);
         }
         catch (Exception& e)
         {
