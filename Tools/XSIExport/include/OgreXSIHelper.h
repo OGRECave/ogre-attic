@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <xsi_x3dobject.h>
 #include <xsi_vertexcolor.h>
 #include <xsi_math.h>
+#include <xsi_ref.h>
 #include <stdlib.h>
 #include "OgrePrerequisites.h"
 #include "OgreString.h"
@@ -100,6 +101,20 @@ inline Ogre::RGBA XSItoOgre(const XSI::CVertexColor& xsiColour)
 }
 
 namespace Ogre {
+
+	enum XSITrackType
+	{
+		XTT_POS_X = 0,
+		XTT_POS_Y = 1,
+		XTT_POS_Z = 2,
+		XTT_ROT_X = 3,
+		XTT_ROT_Y = 4,
+		XTT_ROT_Z = 5,
+		XTT_SCL_X = 6,
+		XTT_SCL_Y = 7,
+		XTT_SCL_Z = 8,
+		XTT_COUNT = 9
+	};
 	/** An entry for a Deformer - need original index because this will be boneID */
 	class DeformerEntry
 	{
@@ -108,6 +123,8 @@ namespace Ogre {
 		XSI::X3DObject obj;
 		String parentName;
 		Bone* pBone;
+		// lists of action source items (probably only one per param?)
+		XSI::CRefArray xsiTrack[XTT_COUNT];
 
 		DeformerEntry(unsigned short theboneID, XSI::X3DObject& theobj)
 			:boneID(theboneID), obj(theobj), pBone(0)
