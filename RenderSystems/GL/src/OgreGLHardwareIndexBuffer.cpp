@@ -131,7 +131,7 @@ namespace Ogre {
         void* pDest)
     {
         glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, mBufferId );
-        glGetBufferSubDataARB(mBufferId, offset, length, pDest);
+        glGetBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, offset, length, pDest);
     }
 	//---------------------------------------------------------------------
     void GLHardwareIndexBuffer::writeData(size_t offset, size_t length, 
