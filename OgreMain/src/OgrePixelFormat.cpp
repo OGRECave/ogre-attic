@@ -63,6 +63,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     /** Pixel format database */
     PixelFormatDescription _pixelFormats[PF_COUNT] = {
+	//-----------------------------------------------------------------------
         {"PF_UNKNOWN", 
             /* Bytes per element */ 
             0,  
@@ -73,6 +74,7 @@ namespace Ogre {
             /* Masks and shifts */
             0, 0, 0, 0, 0, 0, 0, 0 
         },
+	//-----------------------------------------------------------------------
         {"PF_L8", 
         /* Bytes per element */ 
         1,  
@@ -83,6 +85,7 @@ namespace Ogre {
         /* Masks and shifts */
         0xFF, 0, 0, 0, 0, 0, 0, 0 
         },
+	//-----------------------------------------------------------------------
         {"PF_L16", 
         /* Bytes per element */ 
         2,  
@@ -93,6 +96,7 @@ namespace Ogre {
         /* Masks and shifts */
         0xFFFF, 0, 0, 0, 0, 0, 0, 0 
         },
+	//-----------------------------------------------------------------------
         {"PF_A8", 
         /* Bytes per element */ 
         1,  
@@ -103,6 +107,7 @@ namespace Ogre {
         /* Masks and shifts */
         0, 0, 0, 0xFF, 0, 0, 0, 0 
         },
+	//-----------------------------------------------------------------------
         {"PF_A4L4", 
         /* Bytes per element */ 
         1,  
@@ -113,6 +118,7 @@ namespace Ogre {
         /* Masks and shifts */
         0x0F, 0, 0, 0xF0, 0, 0, 0, 4
         },
+	//-----------------------------------------------------------------------
         {"PF_L4A4", 
         /* Bytes per element */ 
         1,  
@@ -123,6 +129,7 @@ namespace Ogre {
         /* Masks and shifts */
         0xF0, 0, 0, 0x0F, 4, 0, 0, 0 
         },
+	//-----------------------------------------------------------------------
         {"PF_R5G6B5", 
         /* Bytes per element */ 
         2,  
@@ -134,6 +141,7 @@ namespace Ogre {
         0xF800, 0x07E0, 0x001F, 0, 
         11, 5, 0, 0 
         },
+	//-----------------------------------------------------------------------
         {"PF_B5G6R5", 
         /* Bytes per element */ 
         2,  
@@ -145,6 +153,7 @@ namespace Ogre {
         0x001F, 0x07E0, 0xF800, 0, 
         0, 5, 11, 0 
         },
+	//-----------------------------------------------------------------------
         {"PF_A4R4G4B4", 
         /* Bytes per element */ 
         2,  
@@ -156,6 +165,7 @@ namespace Ogre {
         0x0F00, 0x00F0, 0x000F, 0xF000, 
         8, 4, 0, 12 
         },
+	//-----------------------------------------------------------------------
         {"PF_B4G4R4A4", 
         /* Bytes per element */ 
         2,  
@@ -167,6 +177,7 @@ namespace Ogre {
         0x00F0, 0x0F00, 0xF000, 0x000F, 
         4, 8, 12, 0,
         },
+	//-----------------------------------------------------------------------
         {"PF_R8G8B8", 
         /* Bytes per element */ 
         3,  // 24 bit integer -- special
@@ -178,6 +189,7 @@ namespace Ogre {
         0xFF0000, 0x00FF00, 0x0000FF, 0, 
         16, 8, 0, 0 
         },
+	//-----------------------------------------------------------------------
         {"PF_B8G8R8", 
         /* Bytes per element */ 
         3,  // 24 bit integer -- special
@@ -189,6 +201,7 @@ namespace Ogre {
         0x0000FF, 0x00FF00, 0xFF0000, 0, 
         0, 8, 16, 0 
         },
+	//-----------------------------------------------------------------------
         {"PF_A8R8G8B8", 
         /* Bytes per element */ 
         4,  
@@ -200,6 +213,7 @@ namespace Ogre {
         0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000,
         16, 8, 0, 24
         },
+	//-----------------------------------------------------------------------
         {"PF_A8B8G8R8", 
         /* Bytes per element */ 
         4,  
@@ -211,6 +225,7 @@ namespace Ogre {
         0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000,
         0, 8, 16, 24,
         },
+	//-----------------------------------------------------------------------
         {"PF_B8G8R8A8", 
         /* Bytes per element */ 
         4,  
@@ -222,6 +237,7 @@ namespace Ogre {
         0x0000FF00, 0x00FF0000, 0xFF000000, 0x000000FF,
         8, 16, 24, 0
         },
+	//-----------------------------------------------------------------------
         {"PF_A2R10G10B10", 
         /* Bytes per element */ 
         4,  
@@ -233,6 +249,7 @@ namespace Ogre {
         0x3FF00000, 0x000FFC00, 0x000003FF, 0xC0000000,
         20, 10, 0, 30
         },
+	//-----------------------------------------------------------------------
         {"PF_A2B10G10R10", 
         /* Bytes per element */ 
         4,  
@@ -244,6 +261,7 @@ namespace Ogre {
         0x000003FF, 0x000FFC00, 0x3FF00000, 0xC0000000,
         0, 10, 20, 30
         },
+	//-----------------------------------------------------------------------
         {"PF_DXT1", 
         /* Bytes per element */ 
         0,  
@@ -254,6 +272,7 @@ namespace Ogre {
         /* Masks and shifts */
         0, 0, 0, 0, 0, 0, 0, 0 
         },
+	//-----------------------------------------------------------------------
         {"PF_DXT2", 
         /* Bytes per element */ 
         0,  
@@ -264,6 +283,7 @@ namespace Ogre {
         /* Masks and shifts */
         0, 0, 0, 0, 0, 0, 0, 0 
         },
+	//-----------------------------------------------------------------------
         {"PF_DXT3", 
         /* Bytes per element */ 
         0,  
@@ -274,6 +294,7 @@ namespace Ogre {
         /* Masks and shifts */
         0, 0, 0, 0, 0, 0, 0, 0 
         },
+	//-----------------------------------------------------------------------
         {"PF_DXT4", 
         /* Bytes per element */ 
         0,  
@@ -284,6 +305,7 @@ namespace Ogre {
         /* Masks and shifts */
         0, 0, 0, 0, 0, 0, 0, 0 
         },
+	//-----------------------------------------------------------------------
         {"PF_DXT5", 
         /* Bytes per element */ 
         0,  
@@ -294,6 +316,7 @@ namespace Ogre {
         /* Masks and shifts */
         0, 0, 0, 0, 0, 0, 0, 0 
         },
+	//-----------------------------------------------------------------------
         {"PF_FP_R16G16B16", 
         /* Bytes per element */ 
         6,  
@@ -304,6 +327,7 @@ namespace Ogre {
         /* Masks and shifts */
         0, 0, 0, 0, 0, 0, 0, 0 
         },
+	//-----------------------------------------------------------------------
         {"PF_FP_R16G16B16A16", 
         /* Bytes per element */ 
         8,  
@@ -314,6 +338,7 @@ namespace Ogre {
         /* Masks and shifts */
         0, 0, 0, 0, 0, 0, 0, 0 
         },
+	//-----------------------------------------------------------------------
         {"PF_FP_R32G32B32", 
         /* Bytes per element */ 
         12,  
@@ -324,6 +349,7 @@ namespace Ogre {
         /* Masks and shifts */
         0, 0, 0, 0, 0, 0, 0, 0 
         },
+	//-----------------------------------------------------------------------
         {"PF_FP_R32G32B32A32", 
         /* Bytes per element */ 
         16,  
@@ -333,6 +359,30 @@ namespace Ogre {
         32, 32, 32, 32,
         /* Masks and shifts */
         0, 0, 0, 0, 0, 0, 0, 0 
+        },
+	//-----------------------------------------------------------------------
+        {"PF_X8R8G8B8", 
+        /* Bytes per element */ 
+        4,  
+        /* Flags */
+        PFF_NATIVEENDIAN,  
+        /* rbits, gbits, bbits, abits */
+        8, 8, 8, 0,
+        /* Masks and shifts */
+        0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000,
+        16, 8, 0, 24
+        },
+	//-----------------------------------------------------------------------
+        {"PF_X8B8G8R8", 
+        /* Bytes per element */ 
+        4,  
+        /* Flags */
+        PFF_NATIVEENDIAN,  
+        /* rbits, gbits, bbits, abits */
+        8, 8, 8, 0,
+        /* Masks and shifts */
+        0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000,
+        0, 8, 16, 24
         }
     };
     //-----------------------------------------------------------------------
@@ -410,6 +460,8 @@ namespace Ogre {
 		{
 			return width*height*depth*getNumElemBytes(format); 
 		}
+		Except(Exception::ERR_INVALIDPARAMS, "Invalid compressed pixel format", 
+			"PixelUtil::getMemorySize");
 	}
     //-----------------------------------------------------------------------
     size_t PixelUtil::getNumElemBits( PixelFormat format )
@@ -688,7 +740,6 @@ namespace Ogre {
         assert(src.getWidth() == dst.getWidth() && 
 			   src.getHeight() == dst.getHeight() && 
 			   src.getDepth() == dst.getDepth());
-
         uint8 *srcptr = static_cast<uint8*>(src.data);
         uint8 *dstptr = static_cast<uint8*>(dst.data);
         unsigned int srcPixelSize = PixelUtil::getNumElemBytes(src.format);
@@ -727,7 +778,28 @@ namespace Ogre {
             }
             return;
         }
-
+		// Converting to PF_X8R8G8B8 is exactly the same as converting to
+		// PF_A8R8G8B8. (same with PF_X8B8G8R8 and PF_A8B8G8R8)
+		if(dst.format == PF_X8R8G8B8 || dst.format == PF_X8B8G8R8)
+		{
+			// Do the same conversion, with PF_A8R8G8B8, which has a lot of 
+			// optimized conversions
+			PixelBox tempdst = dst;
+			tempdst.format = dst.format==PF_X8R8G8B8?PF_A8R8G8B8:PF_A8B8G8R8;
+			bulkPixelConversion(src, tempdst);
+			return;
+		}
+		// Converting from PF_X8R8G8B8 is exactly the same as converting from
+		// PF_A8R8G8B8, given that the destination format does not have alpha.
+		if((src.format == PF_X8R8G8B8||src.format == PF_X8B8G8R8) && !hasAlpha(dst.format))
+		{
+			// Do the same conversion, with PF_A8R8G8B8, which has a lot of 
+			// optimized conversions
+			PixelBox tempsrc = src;
+			tempsrc.format = src.format==PF_X8R8G8B8?PF_A8R8G8B8:PF_A8B8G8R8;
+			bulkPixelConversion(tempsrc, dst);
+			return;
+		}
         // Is there a specialized, inlined, conversion?
         if(doOptimizedConversion(src, dst))
         {
