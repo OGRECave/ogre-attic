@@ -454,7 +454,7 @@ namespace Ogre {
 		
         glBindTexture(GL_TEXTURE_2D,
             static_cast<GLTexture*>(mTexture)->getGLID());
-
+			
         glCopyTexSubImage2D(GL_TEXTURE_2D, mTexture->getNumMipMaps(), 0, 0,
             0, 0, mWidth, mHeight);
 

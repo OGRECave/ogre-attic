@@ -33,8 +33,6 @@ http://www.gnu.org/copyleft/gpl.html.
 #include <windows.h>
 #endif
 
-#include <GL/gl.h>
-
 // FIX ME - should not be hard coded
 #define BAD_TOKEN 999
 #define MAX_CONSTANTS 50

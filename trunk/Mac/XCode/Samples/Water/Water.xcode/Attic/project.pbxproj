@@ -134,9 +134,11 @@
 		};
 		29B97315FDCFA39411CA2CEA = {
 			children = (
+				8296D8D305BB27D400DD3526,
+				8296D8CF05BB27B800DD3526,
+				8296D8D005BB27B800DD3526,
 				66F4B2F704A0A193000001C9,
 				66F4B2F804A0A193000001C9,
-				66BC4C51058CB4590015FFB6,
 			);
 			isa = PBXGroup;
 			name = "Other Sources";
@@ -232,15 +234,6 @@
 //662
 //663
 //664
-		66BC4C51058CB4590015FFB6 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.cpp.cpp;
-			name = CelShading.cpp;
-			path = ../../../../Samples/CelShading/src/CelShading.cpp;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
 		66CD7CA004A11BFA000001C9 = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
@@ -352,7 +345,7 @@
 				LIBRARY_SEARCH_PATHS = "";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = CelShading;
+				PRODUCT_NAME = Water;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
 				WRAPPER_EXTENSION = app;
@@ -360,7 +353,7 @@
 			dependencies = (
 			);
 			isa = PBXNativeTarget;
-			name = CelShading;
+			name = Water;
 			productInstallPath = "$(HOME)/Applications";
 			productName = Water;
 			productReference = 825AEA5805AF4F3A000691CE;
@@ -372,6 +365,7 @@
 				825AEA4305AF4F3A000691CE,
 				825AEA4405AF4F3A000691CE,
 				825AEA4505AF4F3A000691CE,
+				8296D8D405BB27D400DD3526,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -426,19 +420,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				825AEA4B05AF4F3A000691CE,
-				825AEA4C05AF4F3A000691CE,
+				8296D8D105BB27B800DD3526,
+				8296D8D205BB27B800DD3526,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		825AEA4B05AF4F3A000691CE = {
 			fileRef = 66F4B0D904A0A04E000001C9;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		825AEA4C05AF4F3A000691CE = {
-			fileRef = 66BC4C51058CB4590015FFB6;
 			isa = PBXBuildFile;
 			settings = {
 			};
@@ -512,9 +501,54 @@
 			explicitFileType = wrapper.application;
 			includeInIndex = 0;
 			isa = PBXFileReference;
-			path = CelShading.app;
+			path = Water.app;
 			refType = 3;
 			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		8296D8CF05BB27B800DD3526 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = Water.cpp;
+			path = /Users/temas/cvs/ogre/Samples/Water/src/Water.cpp;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		8296D8D005BB27B800DD3526 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = WaterMesh.cpp;
+			path = /Users/temas/cvs/ogre/Samples/Water/src/WaterMesh.cpp;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		8296D8D105BB27B800DD3526 = {
+			fileRef = 8296D8CF05BB27B800DD3526;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8296D8D205BB27B800DD3526 = {
+			fileRef = 8296D8D005BB27B800DD3526;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8296D8D305BB27D400DD3526 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = WaterMesh.h;
+			path = /Users/temas/cvs/ogre/Samples/Water/include/WaterMesh.h;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		8296D8D405BB27D400DD3526 = {
+			fileRef = 8296D8D305BB27D400DD3526;
+			isa = PBXBuildFile;
+			settings = {
+			};
 		};
 	};
 	rootObject = 29B97313FDCFA39411CA2CEA;

@@ -83,6 +83,7 @@
 		};
 		0867D69AFE84028FC02AAC07 = {
 			children = (
+				8296D96E05BB329000DD3526,
 				08FB77AAFE841565C02AAC07,
 				66F0D749045B068C000001C9,
 				66F0D75D045B16EE000001C9,
@@ -350,6 +351,12 @@
 				82457B85057D689A003BAF7F,
 				82457BAA057D7B3F003BAF7F,
 				8295DF9405B1FF4200127B2D,
+				8296D96905BB2F7D00DD3526,
+				8296D96A05BB2F7D00DD3526,
+				8296D96B05BB2F7D00DD3526,
+				8296D96C05BB2F7D00DD3526,
+				8296D96D05BB2F7D00DD3526,
+				8296D9A005BB331B00DD3526,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -479,10 +486,6 @@
 				66CAE515045A3D4F000001C9,
 				66CAE516045A3D4F000001C9,
 				66F0D751045B0747000001C9,
-				66F0D755045B079A000001C9,
-				66F0D759045B0A37000001C9,
-				66F0D75B045B15BE000001C9,
-				662158C3045F5CF0000001C9,
 				664E9965046D4A56000001C9,
 				66E155B105039B3B000001C9,
 				66E155B205039B3B000001C9,
@@ -500,10 +503,16 @@
 				82EC48440569C9F0003A8A6D,
 				82EC48450569C9F0003A8A6D,
 				82EC48460569C9F0003A8A6D,
-				82EC48BF0569D3F1003A8A6D,
 				82457B7A057D6841003BAF7F,
 				82457B7B057D6841003BAF7F,
 				8295DF9205B1FF1A00127B2D,
+				8296D95F05BB2F3800DD3526,
+				8296D96005BB2F3800DD3526,
+				8296D96105BB2F3800DD3526,
+				8296D96205BB2F3800DD3526,
+				8296D96305BB2F3800DD3526,
+				8296D99E05BB32FA00DD3526,
+				8296D9A205BB337E00DD3526,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -514,6 +523,7 @@
 				66F0D738045AEFC5000001C9,
 				66F0D74A045B068C000001C9,
 				669E89B1045B283D000001C9,
+				8296D96F05BB329000DD3526,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -770,20 +780,6 @@
 		};
 		661D106404AA66F6000001C9 = {
 			fileRef = 661D106304AA66F6000001C9;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		662158C2045F5CF0000001C9 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.cpp.cpp;
-			path = macOgreImageCodec.cpp;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		662158C3045F5CF0000001C9 = {
-			fileRef = 662158C2045F5CF0000001C9;
 			isa = PBXBuildFile;
 			settings = {
 			};
@@ -7063,6 +7059,12 @@
 		};
 		66CAE66E045A3DE2000001C9 = {
 			children = (
+				8296D99F05BB331B00DD3526,
+				8296D96405BB2F7D00DD3526,
+				8296D96505BB2F7D00DD3526,
+				8296D96605BB2F7D00DD3526,
+				8296D96705BB2F7D00DD3526,
+				8296D96805BB2F7D00DD3526,
 				8295DF9305B1FF4200127B2D,
 				66F0D756045B0A37000001C9,
 				66F0D743045AF86B000001C9,
@@ -7259,13 +7261,15 @@
 		};
 		66CAE66F045A3DF3000001C9 = {
 			children = (
+				8296D9A105BB337E00DD3526,
+				8296D99D05BB32FA00DD3526,
+				8296D95A05BB2F3800DD3526,
+				8296D95B05BB2F3800DD3526,
+				8296D95C05BB2F3800DD3526,
+				8296D95D05BB2F3800DD3526,
+				8296D95E05BB2F3800DD3526,
 				8295DF9105B1FF1A00127B2D,
 				664E9964046D4A56000001C9,
-				66F0D757045B0A37000001C9,
-				662158C2045F5CF0000001C9,
-				82EC48BE0569D3F1003A8A6D,
-				66F0D753045B079A000001C9,
-				66F0D75A045B15BE000001C9,
 				66F0D750045B0747000001C9,
 				66CAE424045A3D4F000001C9,
 				66CAE49C045A3D4F000001C9,
@@ -7444,6 +7448,7 @@
 		};
 		66CAE673045A3E3F000001C9 = {
 			children = (
+				8296D8C505BB237900DD3526,
 				66F4D6DA059DD15A00AD7366,
 				820AF5F60531D8D5006AB97A,
 				66F4D6D0059DD09D00AD7366,
@@ -7470,6 +7475,8 @@
 		};
 		66CAE674045A3E46000001C9 = {
 			children = (
+				8296D8B205BB230C00DD3526,
+				8296D8BC05BB230C00DD3526,
 				820AF5FE0531D957006AB97A,
 				664E9C3E046D5BAD000001C9,
 				66F4D6D6059DD0EA00AD7366,
@@ -7611,6 +7618,10 @@
 				66F4D6D2059DD09D00AD7366,
 				66F4D6D3059DD09D00AD7366,
 				66F4D6DB059DD15A00AD7366,
+				8296D8BD05BB230C00DD3526,
+				8296D8BE05BB230C00DD3526,
+				8296D8BF05BB230C00DD3526,
+				8296D8C605BB237900DD3526,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -7639,6 +7650,10 @@
 				82EC48980569CC7B003A8A6D,
 				82EC48990569CC7B003A8A6D,
 				66F4D6D7059DD0EA00AD7366,
+				8296D8C105BB230C00DD3526,
+				8296D8C205BB230C00DD3526,
+				8296D8C305BB230C00DD3526,
+				8296D8C405BB230C00DD3526,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -9610,33 +9625,11 @@
 			settings = {
 			};
 		};
-		66F0D753045B079A000001C9 = {
-			fileEncoding = 4;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.cpp.cpp;
-			path = macOgreJPEGCodec.cpp;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		66F0D755045B079A000001C9 = {
-			fileRef = 66F0D753045B079A000001C9;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		66F0D756045B0A37000001C9 = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.c.h;
 			path = macDataProvider.h;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		66F0D757045B0A37000001C9 = {
-			fileEncoding = 4;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.cpp.cpp;
-			path = macDataProvider.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
@@ -9646,26 +9639,6 @@
 			settings = {
 				ATTRIBUTES = (
 				);
-			};
-		};
-		66F0D759045B0A37000001C9 = {
-			fileRef = 66F0D757045B0A37000001C9;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		66F0D75A045B15BE000001C9 = {
-			fileEncoding = 4;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.cpp.cpp;
-			path = macOgrePNGCodec.cpp;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		66F0D75B045B15BE000001C9 = {
-			fileRef = 66F0D75A045B15BE000001C9;
-			isa = PBXBuildFile;
-			settings = {
 			};
 		};
 		66F0D75D045B16EE000001C9 = {
@@ -10378,6 +10351,368 @@
 				);
 			};
 		};
+		8296D8B205BB230C00DD3526 = {
+			children = (
+				8296D8B305BB230C00DD3526,
+				8296D8B805BB230C00DD3526,
+			);
+			isa = PBXGroup;
+			name = atifs;
+			path = /Users/temas/cvs/ogre/RenderSystems/GL/src/atifs;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		8296D8B305BB230C00DD3526 = {
+			children = (
+				8296D8B405BB230C00DD3526,
+				8296D8B505BB230C00DD3526,
+				8296D8B605BB230C00DD3526,
+			);
+			isa = PBXGroup;
+			path = include;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		8296D8B405BB230C00DD3526 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = ATI_FS_GLGpuProgram.h;
+			path = ../../../RenderSystems/GL/src/atifs/include/ATI_FS_GLGpuProgram.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8296D8B505BB230C00DD3526 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = Compiler2Pass.h;
+			path = ../../../RenderSystems/GL/src/atifs/include/Compiler2Pass.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8296D8B605BB230C00DD3526 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = ps_1_4.h;
+			path = ../../../RenderSystems/GL/src/atifs/include/ps_1_4.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8296D8B805BB230C00DD3526 = {
+			children = (
+				8296D8B905BB230C00DD3526,
+				8296D8BA05BB230C00DD3526,
+				8296D8BB05BB230C00DD3526,
+			);
+			isa = PBXGroup;
+			path = src;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		8296D8B905BB230C00DD3526 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = ATI_FS_GLGpuProgram.cpp;
+			path = ../../../RenderSystems/GL/src/atifs/src/ATI_FS_GLGpuProgram.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8296D8BA05BB230C00DD3526 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = Compiler2Pass.cpp;
+			path = ../../../RenderSystems/GL/src/atifs/src/Compiler2Pass.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8296D8BB05BB230C00DD3526 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = ps_1_4.cpp;
+			path = ../../../RenderSystems/GL/src/atifs/src/ps_1_4.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8296D8BC05BB230C00DD3526 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = OgreGLATIFSInit.cpp;
+			path = ../../../RenderSystems/GL/src/OgreGLATIFSInit.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8296D8BD05BB230C00DD3526 = {
+			fileRef = 8296D8B405BB230C00DD3526;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8296D8BE05BB230C00DD3526 = {
+			fileRef = 8296D8B505BB230C00DD3526;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8296D8BF05BB230C00DD3526 = {
+			fileRef = 8296D8B605BB230C00DD3526;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8296D8C105BB230C00DD3526 = {
+			fileRef = 8296D8B905BB230C00DD3526;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8296D8C205BB230C00DD3526 = {
+			fileRef = 8296D8BA05BB230C00DD3526;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8296D8C305BB230C00DD3526 = {
+			fileRef = 8296D8BB05BB230C00DD3526;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8296D8C405BB230C00DD3526 = {
+			fileRef = 8296D8BC05BB230C00DD3526;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8296D8C505BB237900DD3526 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = OgreGLATIFSInit.h;
+			path = /Users/temas/cvs/ogre/RenderSystems/GL/include/OgreGLATIFSInit.h;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		8296D8C605BB237900DD3526 = {
+			fileRef = 8296D8C505BB237900DD3526;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8296D95A05BB2F3800DD3526 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = OgreBMPCodec.cpp;
+			path = ../../../OgreMain/src/OgreBMPCodec.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8296D95B05BB2F3800DD3526 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = OgreDDSCodec.cpp;
+			path = ../../../OgreMain/src/OgreDDSCodec.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8296D95C05BB2F3800DD3526 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = OgreJPEGCodec.cpp;
+			path = ../../../OgreMain/src/OgreJPEGCodec.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8296D95D05BB2F3800DD3526 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = OgrePNGCodec.cpp;
+			path = ../../../OgreMain/src/OgrePNGCodec.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8296D95E05BB2F3800DD3526 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = OgreTGACodec.cpp;
+			path = ../../../OgreMain/src/OgreTGACodec.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8296D95F05BB2F3800DD3526 = {
+			fileRef = 8296D95A05BB2F3800DD3526;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8296D96005BB2F3800DD3526 = {
+			fileRef = 8296D95B05BB2F3800DD3526;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8296D96105BB2F3800DD3526 = {
+			fileRef = 8296D95C05BB2F3800DD3526;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8296D96205BB2F3800DD3526 = {
+			fileRef = 8296D95D05BB2F3800DD3526;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8296D96305BB2F3800DD3526 = {
+			fileRef = 8296D95E05BB2F3800DD3526;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8296D96405BB2F7D00DD3526 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = OgreBMPCodec.h;
+			path = ../../../OgreMain/include/OgreBMPCodec.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8296D96505BB2F7D00DD3526 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = OgreDDSCodec.h;
+			path = ../../../OgreMain/include/OgreDDSCodec.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8296D96605BB2F7D00DD3526 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = OgreJPEGCodec.h;
+			path = ../../../OgreMain/include/OgreJPEGCodec.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8296D96705BB2F7D00DD3526 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = OgrePNGCodec.h;
+			path = ../../../OgreMain/include/OgrePNGCodec.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8296D96805BB2F7D00DD3526 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = OgreTGACodec.h;
+			path = ../../../OgreMain/include/OgreTGACodec.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8296D96905BB2F7D00DD3526 = {
+			fileRef = 8296D96405BB2F7D00DD3526;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8296D96A05BB2F7D00DD3526 = {
+			fileRef = 8296D96505BB2F7D00DD3526;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8296D96B05BB2F7D00DD3526 = {
+			fileRef = 8296D96605BB2F7D00DD3526;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8296D96C05BB2F7D00DD3526 = {
+			fileRef = 8296D96705BB2F7D00DD3526;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8296D96D05BB2F7D00DD3526 = {
+			fileRef = 8296D96805BB2F7D00DD3526;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8296D96E05BB329000DD3526 = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.framework;
+			name = IL.framework;
+			path = /Library/Frameworks/IL.framework;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		8296D96F05BB329000DD3526 = {
+			fileRef = 8296D96E05BB329000DD3526;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8296D99D05BB32FA00DD3526 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = OgreILImageCodec.cpp;
+			path = ../../../OgreMain/src/OgreILImageCodec.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8296D99E05BB32FA00DD3526 = {
+			fileRef = 8296D99D05BB32FA00DD3526;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8296D99F05BB331B00DD3526 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = OgreILImageCodec.h;
+			path = ../../../OgreMain/include/OgreILImageCodec.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8296D9A005BB331B00DD3526 = {
+			fileRef = 8296D99F05BB331B00DD3526;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8296D9A105BB337E00DD3526 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = OgreCommon.cpp;
+			path = ../../../OgreMain/src/OgreCommon.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8296D9A205BB337E00DD3526 = {
+			fileRef = 8296D9A105BB337E00DD3526;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		82E200A0054F19D00017F420 = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
@@ -10685,20 +11020,6 @@
 				ATTRIBUTES = (
 					Public,
 				);
-			};
-		};
-		82EC48BE0569D3F1003A8A6D = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.cpp.cpp;
-			path = macOgreBMPCodec.cpp;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		82EC48BF0569D3F1003A8A6D = {
-			fileRef = 82EC48BE0569D3F1003A8A6D;
-			isa = PBXBuildFile;
-			settings = {
 			};
 		};
 		82F09C0B052E2DD20041B8B8 = {
