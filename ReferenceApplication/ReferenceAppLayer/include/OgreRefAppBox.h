@@ -4,7 +4,7 @@ This source file is part of the OGRE Reference Application, a layer built
 on top of OGRE(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://ogre.sourceforge.net/
 
-Copyright © 2000-2002 The OGRE Team
+Copyright © 2000-2003 The OGRE Team
 Also see acknowledgements in Readme.html
 
 This program is free software; you can redistribute it and/or modify it under
@@ -22,20 +22,39 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
+#ifndef __REFAPP_BOX_H__
+#define __REFAPP_BOX_H__
 
-#ifndef __REFERENCE_APP_LAYER_H__
-#define __REFERENCE_APP_LAYER_H__
-
-// This is a utility header for client applications to use
 #include "OgreRefAppPrerequisites.h"
-#include "OgreRefAppWorld.h"
 #include "OgreRefAppApplicationObject.h"
-#include "OgreRefAppOgreHead.h"
-#include "OgreRefAppPlane.h"
-#include "OgreRefAppBall.h"
-#include "OgreRefAppJoint.h"
-#include "OgreRefAppBox.h"
 
+#include "OgreLogManager.h"
+#include "OgreStringConverter.h"
+
+namespace OgreRefApp {
+
+    class _OgreRefAppExport Box : public ApplicationObject
+    {
+    protected:
+        Vector3 mDimensions;
+
+        void setUp(const String& name);
+    public:
+        Box(const String& name, Real width, Real height, Real depth);
+        ~Box();
+
+        void _notifyCollided(ApplicationObject* otherObj, const CollisionInfo& info)
+        {
+            LogManager::getSingleton().logMessage(String("Box collided ") + 
+                "normal: " + StringConverter::toString(info.normal) + " " +
+                "depth: " + StringConverter::toString(info.penetrationDepth) +
+                "position: " + StringConverter::toString(info.position));
+        }
+    };
+
+
+}
 
 #endif
+
 

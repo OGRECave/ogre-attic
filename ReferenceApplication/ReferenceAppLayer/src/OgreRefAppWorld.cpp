@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRefAppPlane.h"
 #include "OgreRefAppBall.h"
 #include "OgreRefAppJointSubtypes.h"
+#include "OgreRefAppBox.h"
 
 //-------------------------------------------------------------------------
 template<> OgreRefApp::World* Ogre::Singleton<OgreRefApp::World>::ms_Singleton = 0;
@@ -249,7 +250,7 @@ namespace OgreRefApp
     //-------------------------------------------------------------------------
     void World::simulationStep(Real timeElapsed)
     {
-        /* Hmm, gives somewhat jerky results
+        /* Hmm, gives somewhat jerky results*/
         static Real leftOverTime = 0.0f;
 
 		Real time = timeElapsed + leftOverTime;	
@@ -260,14 +261,26 @@ namespace OgreRefApp
             _applyDynamics(mSimulationStepSize);
         }
 		leftOverTime = time - (steps * mSimulationStepSize);
-        */
+        /*
 		_applyCollision();
         _applyDynamics(timeElapsed);
-
+        */
 
 
     }
     //-------------------------------------------------------------------------
+    OgreRefApp::Box* World::createBox(const String& name, 
+        Real width, Real height, Real depth,
+        const Vector3& pos, const Quaternion& orientation)
+    {
+        OgreRefApp::Box* box = new OgreRefApp::Box(name, width, height, depth);
+        box->setPosition(pos);
+        box->setOrientation(orientation);
+
+        mObjects[name] = box;
+
+        return box;
+    }
 
 }
 

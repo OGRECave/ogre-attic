@@ -226,7 +226,15 @@ namespace OgreRefApp
     //-------------------------------------------------------------------------
     dBody* ApplicationObject::getOdeBody(void)
     {
-        return mOdeBody;
+        if (mDynamicsEnabled)
+        {
+            return mOdeBody;
+        }
+        else
+        {
+            // dynamics are disabled
+            return 0;
+        }
     }
     //-------------------------------------------------------------------------
     void ApplicationObject::updateCollisionProxies(void)

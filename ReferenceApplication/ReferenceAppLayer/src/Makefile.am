@@ -3,6 +3,7 @@ INCLUDES = -I../../../OgreMain/include
 lib_LTLIBRARIES=libOgreReferenceAppLayer.la
 
 libOgreReferenceAppLayer_la_SOURCES = OgreRefAppApplicationObject.cpp \
+			OgreRefAppBox.cpp \
 			OgreRefAppOgreHead.cpp \
 			OgreRefAppJoint.cpp \
 			OgreRefAppJointSubtypes.cpp \

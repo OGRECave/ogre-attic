@@ -136,6 +136,9 @@
 				RelativePath="..\src\OgreRefAppBall.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreRefAppBox.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreRefAppJoint.cpp">
 			</File>
 			<File
@@ -159,6 +162,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreRefAppBall.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreRefAppBox.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreRefAppJoint.h">
