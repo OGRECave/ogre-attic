@@ -169,7 +169,8 @@ namespace Ogre {
         mAutoWindow = 0;
 
         // Load plugins
-        loadPlugins(pluginFileName);        
+        if (!pluginFileName.empty())
+            loadPlugins(pluginFileName);        
 
         mLogManager->logMessage("*-*-* OGRE Initialising");
         msg = "*-*-* Version " + mVersion;
@@ -181,9 +182,6 @@ namespace Ogre {
 
         // Can't create controller manager until initialised
         mControllerManager = 0;
-
-        // Always add the local folder as first resource search path for all resources
-        addResourceLocation("./", "FileSystem");
 
         // Seed random number generator for future use
         srand((unsigned)time(0));
