@@ -402,35 +402,6 @@ inline void operator delete[](void *reportedAddress)
 
 }
 
-//-----------------------------------------------------------------------------
-// Overridden global new([])/delete([]) functions
-//
-inline void *operator new( size_t count )
-{
-    return Ogre::MemoryManager::sMemManager.allocMem( "", 0, count );
-}
-
-inline void *operator new[]( size_t count )
-{    
-    return Ogre::MemoryManager::sMemManager.allocMem( "", 0, count );
-}
-
-inline void operator delete( void* ptr )
-{
-    Ogre::MemoryManager::sMemManager.dllocMem( "", 0, ptr );
-}
-
-inline void operator delete[]( void* ptr )
-{
-    Ogre::MemoryManager::sMemManager.dllocMem( "", 0, ptr );
-}
-//-----------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------
-// This header adds the *alloc/free macros, wrapping the C functions
-#include "OgreMemoryMacros.h"
-//-----------------------------------------------------------------------------
-
 #endif
 
 #endif
