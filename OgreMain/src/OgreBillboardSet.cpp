@@ -483,7 +483,7 @@ namespace Ogre {
 
         op.vertexData = mVertexData;
         op.vertexData->vertexCount = mNumVisibleBillboards * 4;
-        op.vertexData->vertexCount = 0;
+        op.vertexData->vertexStart = 0;
 
         op.indexData = mIndexData;
         op.indexData->indexCount = mNumVisibleBillboards * 6;
