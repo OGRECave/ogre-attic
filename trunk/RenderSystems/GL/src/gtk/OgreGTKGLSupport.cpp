@@ -104,8 +104,7 @@ RenderWindow* GTKGLSupport::newWindow(const String& name, int width,
     window->create(name, width, height, colourDepth, fullScreen, left, top,
                    depthBuffer, parentWindowHandle);
 
-    _window = window->get_ogre_widget().get_gl_window();
-    _context = window->get_ogre_widget().get_gl_context();
+    _ogre_widget = window->get_ogre_widget();
     return window;
 }
 
@@ -129,7 +128,7 @@ void GTKGLSupport::begin_context()
 {
     ++_context_ref;
     if (_context_ref == 1)
-        _window->gl_begin(_context);
+        _ogre_widget->get_gl_window()->gl_begin(_ogre_widget->get_gl_context());
 }
 
 void GTKGLSupport::end_context()
@@ -139,7 +138,7 @@ void GTKGLSupport::end_context()
         Except(999, "Too many contexts destroyed!", "GTKGLSupport::end_context");
     if (_context_ref == 0)
     {
-        _window->gl_end();
+        _ogre_widget->get_gl_window()->gl_end();
     }
 }
  
