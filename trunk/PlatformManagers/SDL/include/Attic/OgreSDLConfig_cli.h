@@ -23,24 +23,18 @@ http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __GTKCONFIGDIALOG_H__
-#define __GTKCONFIGDIALOG_H__
+#ifndef __CLICONFIGDIALOG_H__
+#define __CLICONFIGDIALOG_H__
 
 #include "OgreConfigDialog.h"
 #include "OgreRoot.h"
 #include "OgreRenderSystem.h"
 
-#include <gtkmm/menu.h>
-#include <gtkmm/treeview.h>
-#include <gtkmm/liststore.h>
-#include <gtkmm/label.h>
-#include <gtkmm/optionmenu.h>
-
 #include <iostream>
 
 namespace Ogre {
-    /** GTK+ config */
-    class SDLConfig : public ConfigDialog, public SigC::Object
+    /** Simple CLI config */
+    class SDLConfig : public ConfigDialog
     {
     public:
         SDLConfig()
@@ -51,41 +45,6 @@ namespace Ogre {
          * read it from a config file
          */
         bool display(void);
-
-    protected:
-        class ModelColumns : public Gtk::TreeModel::ColumnRecord
-        {
-        public:
-          ModelColumns()
-            { add(col_name); add(col_value); }
-
-          Gtk::TreeModelColumn<Glib::ustring> col_name;
-          Gtk::TreeModelColumn<Glib::ustring> col_value;
-        };
-
-        bool on_window_delete(GdkEventAny* event);
-        void on_option_changed();
-        void on_renderer_changed();
-        void on_value_changed();
-        void on_btn_ok();
-        void on_btn_cancel();
-    private:
-        Gtk::Window* _winConfig;
-        ModelColumns _columns;
-        Glib::RefPtr<Gtk::ListStore> _list_store;
-        Gtk::TreeView* _lstOptions;
-        Glib::RefPtr<Gtk::TreeSelection> _option_selection;
-        int _cur_index;
-        Glib::ustring _cur_name;
-        Gtk::OptionMenu* _optRenderer;
-        Gtk::Label* _lblOptName;
-        Gtk::OptionMenu* _optOptValues;
-        Gtk::Menu* _opt_menu;
-        ConfigOptionMap _options;
-        RenderSystemList* _renderers;
-        RenderSystem* _selected_renderer;
-
-        void update_option_list();
     };
 }
 

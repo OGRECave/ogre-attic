@@ -159,14 +159,12 @@ AC_DEFUN([AC_USE_STLPORT],
 ])
 
 AC_DEFUN([AC_GET_CONFIG_TOOLKIT],
-[OGRE_CFGTK=gtk
+[OGRE_CFGTK=cli
  AC_ARG_WITH(cfgtk, 
-             AC_HELP_STRING([--with-cfgtk=TOOLKIT NAME],
-                            [the toolkit for the config gui]),
-             ac_cv_ogre_cfgtk=$withval,
-             ac_cv_ogre_cfgtk=gtk)
- AC_CACHE_CHECK([what config gui toolkit to use], ac_cv_ogre_cfgtk,
-                ac_cv_ogre_cfgtk=gtk)
+             AC_HELP_STRING([--with-cfgtk=TOOLKIT],
+                            [the toolkit for the config gui, currently cli or gtk]),
+             OGRE_CFGTK=$withval,
+             OGRE_CFGTK=cli)
 
  
   CFGTK_DEPS_CFLAGS=""

@@ -23,8 +23,8 @@ http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __CLICONFIGDIALOG_H__
-#define __CLICONFIGDIALOG_H__
+#ifndef __GTKCONFIGDIALOG_H__
+#define __GTKCONFIGDIALOG_H__
 
 #include "OgreConfigDialog.h"
 #include "OgreRoot.h"
@@ -39,7 +39,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include <iostream>
 
 namespace Ogre {
-    /** Simple CLI config */
+    /** GTK+ config */
     class SDLConfig : public ConfigDialog, public SigC::Object
     {
     public:
