@@ -198,7 +198,11 @@ namespace Ogre {
         {
             delete i->second;
         }
-        mDestRenderSystem->_removeAllLights();
+        // BUG
+        // When shutting down plugins, this gets called by destructor
+        // But if this is a plugin, then sometimes rendersystem has already been destroyed
+        // TODO: plugins should all shutdown before destroying?
+        //mDestRenderSystem->_removeAllLights();
         mLights.clear();
     }
     //-----------------------------------------------------------------------
@@ -336,7 +340,7 @@ namespace Ogre {
         }
         mBillboardSets.clear();
         // Clear lights
-        //removeAllLights();
+        removeAllLights();
 
         // Clear animations
         destroyAllAnimations();
