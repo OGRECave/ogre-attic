@@ -45,6 +45,13 @@ email                : kenny@sparksuit.com
 
 namespace Ogre {
 
+	/** Handles the adding and removing of ActionListeners.
+	@remarks
+		This is implemented through the use of a binary multicaster.
+		See EventMulticaster. 
+		GuiElements (or other components) that process the Action should subclass this class 
+		and call processActionEvent when that event is identified.
+	*/
     class _OgreExport ActionTarget : public EventTarget
     {
     protected:

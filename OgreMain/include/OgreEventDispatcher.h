@@ -47,6 +47,14 @@ email                : kenny@sparksuit.com
 
 namespace Ogre {
 
+	/**
+		Handles the Dispatching of events to a EventTarget (mainly a PositionTarget for 
+		mouse moving). 
+	@remarks
+		A EventDispatcher is needed for each TargetManager. ie 1 dispatcher for the OverlayManager,
+		for managing the 2D GUI components, and another EventDispatcher for a SceneManager 
+		managing the 3D objects.(NOTE currently the SceneManager isn't a TargetManager.. this is a TODO).
+	*/
     class _OgreExport EventDispatcher
     {
     protected:

@@ -66,6 +66,11 @@ namespace Ogre {
 
 	};
     
+	/** Specialised EventListener for discrete mouse events.
+	@remarks
+		This excludes mouse motion (this is not a discrete event), see
+		MouseMotionListener for that.
+	*/
 	class _OgreExport MouseListener : public EventListener
     {
     protected:
@@ -95,6 +100,7 @@ namespace Ogre {
 
     };
 
+	/** Specialised EventListener for mouse motion. */
 	class _OgreExport MouseMotionListener : public EventListener
     {
     protected:
@@ -110,6 +116,7 @@ namespace Ogre {
 		virtual void mouseDragged(MouseEvent* e) = 0;
     };
 
+	/** Specialised EventListener for receiving component-specific ActionEvent events.*/
 	class _OgreExport ActionListener : public EventListener
     {
     protected:
@@ -122,6 +129,7 @@ namespace Ogre {
 		virtual void actionPerformed(ActionEvent* e) = 0;
 	};
 
+	/** Specialised EventListener for list-style component events. */
 	class _OgreExport ListSelectionListener : public EventListener
     {
     protected:

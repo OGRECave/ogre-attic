@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+	/** Wraps a String as a Resource for generic handling. */
     class StringResource : public Resource
     {
     protected:

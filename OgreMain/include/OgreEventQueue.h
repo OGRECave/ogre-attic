@@ -45,6 +45,7 @@ email                : kenny@sparksuit.com
 
 namespace Ogre {
 
+	/** This class holds InputEvents given to it by the EventProcessor in a FIFO queue. */
     class _OgreExport EventQueue
     {
     protected:

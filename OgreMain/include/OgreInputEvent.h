@@ -47,7 +47,17 @@ email                : kenny@sparksuit.com
 
 namespace Ogre {
 
-    class _OgreExport InputEvent
+    /** The root event class for all GuiElement-level input events.
+	 @remarks
+	  Input events are delivered to listeners before they are
+	  processed normally by the source where they originated.
+	  This allows listeners and GuiElement subclasses to "consume"
+	  the event so that the source will not process them in their
+	  default manner.  For example, consuming mousePressed events
+	  on a Button GuiElement will prevent the Button from being
+	  activated.
+	*/
+	class _OgreExport InputEvent
     {
     protected:
 

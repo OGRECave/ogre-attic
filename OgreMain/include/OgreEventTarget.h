@@ -42,6 +42,10 @@ email                : kenny@sparksuit.com
 
 namespace Ogre {
 
+	/**	This is an abstract class that is the base class of all consumers of InputEvent instances.
+	@remarks
+		This class is part of the set of classes handling buffered input. 
+	*/
     class _OgreExport EventTarget
     {
 	public:
