@@ -369,8 +369,9 @@ namespace Ogre {
             to apply. ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME is the 
 			default group which always exists, and can
             be used for resources which are unlikely to be unloaded until application
-            shutdown. Otherwise it must be the name of a group which has already 
-            been created with createResourceGroup.
+            shutdown. Otherwise it must be the name of a group; if it
+            has not already been created with createResourceGroup then it is created
+            automatically.
         @param recursive Whether subdirectories will be searched for files which 
             are loaded with no specific path. Note that this can slow down file 
             location speeds if enabled.

@@ -216,9 +216,8 @@ namespace Ogre {
         ResourceGroup* grp = getResourceGroup(resGroup);
         if (!grp)
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, 
-                "Cannot locate a resource group called '" + resGroup + "'", 
-                "ResourceGroupManager::addResourceLocation");
+            createResourceGroup(resGroup);
+            grp = getResourceGroup(resGroup);
         }
 
         // Get archive
