@@ -56,7 +56,7 @@ public:
     /**
     * Get the actual widget that is housing OGRE's GL view.
     */
-    OGREWidget& get_ogre_widget();
+    OGREWidget* get_ogre_widget();
 
     void create(String name, int width, int height, int colourDepth,
                 bool fullScreen, int left, int top, bool depthBuffer, 

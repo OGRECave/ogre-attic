@@ -168,16 +168,16 @@ void GTKInput::initialise(RenderWindow* pWindow, bool useKeyboard,
 
     win->set_cursor(Gdk::Cursor(nada, nada, col, col, 0, 0));
 
-    OGREWidget& widget(_win->get_ogre_widget());
+    OGREWidget* widget(_win->get_ogre_widget());
     _win->signal_key_press_event().connect(
         SigC::slot(*this, &GTKInput::on_key_press));
     _win->signal_key_release_event().connect(
         SigC::slot(*this, &GTKInput::on_key_release));
-    widget.signal_motion_notify_event().connect(
+    widget->signal_motion_notify_event().connect(
         SigC::slot(*this, &GTKInput::on_mouse_motion));
-    widget.signal_button_press_event().connect(
+    widget->signal_button_press_event().connect(
         SigC::slot(*this, &GTKInput::on_button_press));
-    widget.signal_button_release_event().connect(
+    widget->signal_button_release_event().connect(
         SigC::slot(*this, &GTKInput::on_button_release));
 }
 
