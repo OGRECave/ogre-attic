@@ -608,6 +608,10 @@ SOURCE=..\include\OgreInput.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreIteratorWrappers.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreJPEGCodec.h
 # End Source File
 # Begin Source File
