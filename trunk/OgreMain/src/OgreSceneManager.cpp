@@ -2282,20 +2282,38 @@ namespace Ogre {
         const PlaneBoundedVolume& nearClipVol = 
             light->_getNearClipVolume(camera);
 
+        // Get the shadow caster list
         const ShadowCasterList& casters = findShadowCastersForLight(light, camera);
         ShadowCasterList::const_iterator si, siend;
         siend = casters.end();
+
+        // Determine whether zfail is required
+        // We need to use zfail for ALL objects if we find a single object which
+        // requires it
+        bool zfailAlgo = false;
+        unsigned long flags = 0;
+
         for (si = casters.begin(); si != siend; ++si)
         {
             ShadowCaster* caster = *si;
 
+            if (caster->getCastShadows() && 
+                nearClipVol.intersects(caster->getWorldBoundingBox()))
+            {
+                // We have a zfail case, we must use zfail for all objects
+                zfailAlgo = true;
+                break;
+            }
+        }
+
+        // Now iterate over the casters and render
+        for (si = casters.begin(); si != siend; ++si)
+        {
+            ShadowCaster* caster = *si;
+            flags = 0;
+
             if (caster->getCastShadows())
             {
-                bool zfailAlgo = false;
-                unsigned long flags = 0;
-
-                // Determine if zfail is required
-                zfailAlgo = nearClipVol.intersects(caster->getWorldBoundingBox());
 
                 if (zfailAlgo)
                 {
