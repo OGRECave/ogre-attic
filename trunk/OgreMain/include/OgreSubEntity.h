@@ -120,8 +120,8 @@ namespace Ogre {
         void setRenderDetail(SceneDetailLevel renderDetail) { mRenderDetail = renderDetail; } 
         /** Overridden, see Renderable */
         SceneDetailLevel getRenderDetail() const {return mRenderDetail;}
-        /** @copydoc Renderable::getLightList */
-        const LightList& getLights(void);
+        /** @copydoc Renderable::getLights */
+        const LightList& getLights(void) const;
     };
 
 }

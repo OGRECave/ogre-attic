@@ -319,7 +319,7 @@ namespace Ogre {
         bool useIdentityProjection(void) const { return true; }
         bool useIdentityView(void) const { return true; }
         Real getSquaredViewDepth(const Camera* cam) const { return mParent->getSquaredViewDepth(cam); }
-        const LightList& getLights(void)
+        const LightList& getLights(void) const
         {
             // N/A, panels are not lit
             static LightList ll;

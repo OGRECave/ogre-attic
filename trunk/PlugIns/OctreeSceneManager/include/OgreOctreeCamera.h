@@ -71,8 +71,8 @@ public:
     virtual const Quaternion& getWorldOrientation(void) const;
     virtual const Vector3& getWorldPosition(void) const;
 
-    /** @copydoc Renderable::getLightList */
-    const LightList& getLights(void);
+    /** @copydoc Renderable::getLights */
+    const LightList& getLights(void) const;
 
     Real getSquaredViewDepth(const Camera* cam) const;
 

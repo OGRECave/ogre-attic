@@ -1012,7 +1012,7 @@ namespace Ogre {
 		return mBoundingRadius;
 	}
     //-----------------------------------------------------------------------
-    const LightList& BillboardSet::getLights(void)
+    const LightList& BillboardSet::getLights(void) const
     {
         // It's actually quite unlikely that this will be called, 
         // because most billboards are unlit, but here we go anyway

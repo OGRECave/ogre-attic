@@ -257,7 +257,7 @@ const Vector3& OctreeCamera::getWorldPosition(void) const
 {
     return Vector3::ZERO;
 }
-const LightList& OctreeCamera::getLights(void)
+const LightList& OctreeCamera::getLights(void) const
 {
     // N/A
     static LightList ll;

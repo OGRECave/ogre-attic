@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreVector3.h"
 #include "OgreVector4.h"
 #include "OgreAutoParamDataSource.h"
+#include "OgreLight.h"
 
 namespace Ogre
 {
@@ -139,6 +140,8 @@ namespace Ogre
     void GpuProgramParameters::_updateAutoParams(const AutoParamDataSource& source)
     {
         if (!hasAutoConstants()) return; // abort early if no autos
+        Vector3 vec3;
+        Vector4 vec4;
 
         AutoConstantList::const_iterator i, iend;
         iend = mAutoConstants.end();
@@ -158,14 +161,34 @@ namespace Ogre
             case ACT_INVERSE_WORLDVIEW_MATRIX:
                 setConstant(i->index, source.getInverseWorldViewMatrix());
                 break;
+            case ACT_LIGHT_DIFFUSE_COLOUR:
+                setConstant(i->index, source.getLight(i->data).getDiffuseColour());
+                break;
+            case ACT_LIGHT_SPECULAR_COLOUR:
+                setConstant(i->index, source.getLight(i->data).getSpecularColour());
+                break;
             case ACT_LIGHT_POSITION_OBJECT_SPACE:
-                // TODO
+                setConstant(i->index, 
+                    source.getInverseWorldMatrix() * source.getLight(i->data).getDerivedPosition());
                 break;
             case ACT_LIGHT_DIRECTION_OBJECT_SPACE:
-                // TODO
+                vec3 = source.getInverseWorldMatrix() * 
+                    source.getLight(i->data).getDerivedDirection();
+                vec3.normalise();
+                // Set as 4D vector for compatibility
+                setConstant(i->index, Vector4(vec3.x, vec3.y, vec3.z, 1.0f));
                 break;
             case ACT_CAMERA_POSITION_OBJECT_SPACE:
                 setConstant(i->index, source.getCameraPositionObjectSpace());
+                break;
+            case ACT_LIGHT_ATTENUATION:
+                // range, const, linear, quad
+                const Light& l = source.getLight(i->data);
+                vec4.x = l.getAttenuationRange();
+                vec4.y = l.getAttenuationConstant();
+                vec4.z = l.getAttenuationLinear();
+                vec4.w = l.getAttenuationQuadric();
+                setConstant(i->index, vec4);
                 break;
             }
         }

@@ -133,7 +133,7 @@ namespace Ogre {
         return movType;
     }
     //-----------------------------------------------------------------------
-    const LightList& SimpleRenderable::getLights(void)
+    const LightList& SimpleRenderable::getLights(void) const
     {
         // Use parent node
         return mParentNode->getLights();

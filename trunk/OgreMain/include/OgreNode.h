@@ -568,8 +568,8 @@ namespace Ogre {
         /** Called by children to notify their parent that they no longer need an update. */
         virtual void cancelUpdate(Node* child);
 
-        /** @copydoc Renderable::getLightList */
-        const LightList& getLights(void)
+        /** @copydoc Renderable::getLights */
+        const LightList& getLights(void) const
         {
             // Nodes should not be lit by the scene, this will not get called
             static LightList ll;

@@ -68,6 +68,12 @@ namespace Ogre {
             ACT_INVERSE_WORLD_MATRIX,
             /// The current world & view matrices concatenated, then inverted
             ACT_INVERSE_WORLDVIEW_MATRIX,
+            /// Light diffuse colour (index determined by setAutoConstant call)
+            ACT_LIGHT_DIFFUSE_COLOUR,
+            /// Light diffuse colour (index determined by setAutoConstant call)
+            ACT_LIGHT_SPECULAR_COLOUR,
+            /// Light attenuation parameters, Vector4(range, constant, linear, quadric)
+            ACT_LIGHT_ATTENUATION,
             /// A light position in object space (index determined by setAutoConstant call)
             ACT_LIGHT_POSITION_OBJECT_SPACE,
             /// A light direction in object space (index determined by setAutoConstant call)

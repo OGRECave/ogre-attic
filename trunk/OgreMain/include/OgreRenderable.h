@@ -135,7 +135,7 @@ namespace Ogre {
         @remarks
             Directional lights, which have no position, will always be first on this list.
         */
-        virtual const LightList& getLights(void) = 0;
+        virtual const LightList& getLights(void) const = 0;
 
 
     };

@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 #include "OgreMatrix4.h"
 #include "OgreVector4.h"
+#include "OgreLight.h"
 
 namespace Ogre {
 
@@ -51,6 +52,7 @@ namespace Ogre {
         mutable Matrix4 mInverseWorldViewMatrix;
         mutable Matrix4 mInverseViewMatrix;
         mutable Vector4 mCameraPositionObjectSpace;
+        mutable const LightList* mpLightList;
 
         mutable bool mWorldMatrixDirty;
         mutable bool mWorldViewMatrixDirty;
@@ -58,12 +60,12 @@ namespace Ogre {
         mutable bool mInverseWorldViewMatrixDirty;
         mutable bool mInverseViewMatrixDirty;
         mutable bool mCameraPositionObjectSpaceDirty;
+        mutable bool mLightListDirty;
 
         const Renderable* mCurrentRenderable;
         const Camera* mCurrentCamera;
 
-        // TODO: lights
-
+        Light mBlankLight;
     public:
         AutoParamDataSource();
         ~AutoParamDataSource();
@@ -79,6 +81,8 @@ namespace Ogre {
         const Matrix4& getInverseWorldViewMatrix(void) const;
         const Matrix4& getInverseViewMatrix(void) const;
         const Vector4& getCameraPositionObjectSpace(void) const;
+        /** Get the light which is 'index'th closest to the current object */
+        const Light& getLight(size_t index) const;
 
 
     };
