@@ -1831,17 +1831,21 @@ namespace Ogre {
         }
 
         if (mSkyBoxNode)
+        {
             mSkyBoxNode->setPosition(cam->getDerivedPosition());
+        }
 
         if (mSkyDomeNode)
+        {
             mSkyDomeNode->setPosition(cam->getDerivedPosition());
+        }
 
         RenderQueueGroupID qid;
         if (mSkyPlaneEnabled)
         {
             qid = mSkyPlaneDrawFirst? 
                         RENDER_QUEUE_1 : RENDER_QUEUE_9;
-            mRenderQueue.addRenderable(mSkyPlaneEntity->getSubEntity(0), qid);
+            mRenderQueue.addRenderable(mSkyPlaneEntity->getSubEntity(0), qid, RENDERABLE_DEFAULT_PRIORITY);
         }
 
         uint plane;
@@ -1853,7 +1857,7 @@ namespace Ogre {
             for (plane = 0; plane < 6; ++plane)
             {
                 mRenderQueue.addRenderable(
-                    mSkyBoxEntity[plane]->getSubEntity(0), qid);
+                    mSkyBoxEntity[plane]->getSubEntity(0), qid, RENDERABLE_DEFAULT_PRIORITY);
             }
         }
 
@@ -1865,7 +1869,7 @@ namespace Ogre {
             for (plane = 0; plane < 5; ++plane)
             {
                 mRenderQueue.addRenderable(
-                    mSkyDomeEntity[plane]->getSubEntity(0), qid);
+                    mSkyDomeEntity[plane]->getSubEntity(0), qid, RENDERABLE_DEFAULT_PRIORITY);
             }
         }
     }

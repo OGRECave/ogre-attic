@@ -25,17 +25,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreNode.h"
 
 #include "OgreException.h"
-#include "OgreEntity.h"
-#include "OgreCamera.h"
 #include "OgreMath.h"
-#include "OgreSceneManager.h"
-#include "OgreMovableObject.h"
 
 // Dependencies on render-related types due to ability to render node
 #include "OgreMaterialManager.h"
 #include "OgreMeshManager.h"
 #include "OgreMesh.h"
 #include "OgreSubMesh.h"
+#include "OgreCamera.h"
 
 namespace Ogre {
     
@@ -54,7 +51,6 @@ namespace Ogre {
         sprintf(temp, "Unnamed_%lu", msNextGeneratedNameExt++);
         mName = temp;
         mAccumAnimWeight = 0.0f;
-        mCachedTransformOutOfDate = true;
 
         needUpdate();
 
@@ -69,7 +65,6 @@ namespace Ogre {
         mScale = mInitialScale = mDerivedScale = Vector3::UNIT_SCALE;
         mInheritScale = true;
         mAccumAnimWeight = 0.0f;
-        mCachedTransformOutOfDate = true;
 
         needUpdate();
 
@@ -140,8 +135,8 @@ namespace Ogre {
 			itend = mChildrenToUpdate.end();
             for(it = mChildrenToUpdate.begin(); it != itend; ++it)
             {
-                SceneNode* sceneChild = static_cast<SceneNode*>(*it);
-                sceneChild->_update(true, false);
+                Node* child = *it;
+                child->_update(true, false);
             }
 
             mChildrenToUpdate.clear();
@@ -191,7 +186,6 @@ namespace Ogre {
             mDerivedScale = mScale;
         }
         
-        mCachedTransformOutOfDate = true;
 
     }
     //-----------------------------------------------------------------------
@@ -683,6 +677,7 @@ namespace Ogre {
         */
 
         mNeedUpdate = true;
+        mCachedTransformOutOfDate = true;
 
         // Make sure we're not root
         if (mParent)
