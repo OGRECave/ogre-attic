@@ -284,6 +284,25 @@ namespace Ogre {
                 return "A video mode must be selected for running in full-screen mode.";
             }
         }
+        
+        o = mOptions.find( "Rendering Device" );
+        bool foundDriver = false;
+        DDDriverList* driverList = getDirectDrawDrivers();
+		for( ushort j=0; j < driverList->count(); j++ )
+		{
+			if( driverList->item(j)->DriverDescription() == o->second.currentValue )
+			{
+				foundDriver = true;
+				break;
+			}
+		}
+        if (!foundDriver)
+        {
+            // Just pick the first driver
+            setConfigOption("Rendering Device", driverList->item(0)->DriverDescription());
+            return "Your DirectX driver name has changed since the last time you ran OGRE; "
+                "the 'Rendering Device' has been changed.";
+        }
         return "";
 
     }
