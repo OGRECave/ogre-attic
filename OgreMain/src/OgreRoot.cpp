@@ -650,6 +650,9 @@ namespace Ogre {
     void Root::showDebugOverlay(bool show)
     {
         Overlay* o = (Overlay*)OverlayManager::getSingleton().getByName("Core/DebugOverlay");
+		if (!o)
+			Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find overlay Core/DebugOverlay",
+				"Root::showDebugOverlay" );
         if (show)
         {
             o->show();

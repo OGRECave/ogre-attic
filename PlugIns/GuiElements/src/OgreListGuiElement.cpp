@@ -216,6 +216,7 @@ namespace Ogre {
 
 	String ListGuiElement::getScrollBarName()
 	{
+		assert(mScrollBar);
 		return  mScrollBar->getName();
 
 	}
@@ -394,7 +395,8 @@ namespace Ogre {
 			}
 			currentItemNo++;
         }
-		mScrollBar->setLimits(mFirstVisibleItem, mVisibleRange, mChildren.size()-1); // don't count the scroll bar child as a list item
+        if (mScrollBar)
+			mScrollBar->setLimits(mFirstVisibleItem, mVisibleRange, mChildren.size()-1); // don't count the scroll bar child as a list item
 
         }
 	void ListGuiElement::scrollPerformed(ScrollEvent* se)

@@ -92,6 +92,9 @@ namespace Ogre {
         m_strMatName = matName;
         m_pMaterial = reinterpret_cast<Material*>(
             MaterialManager::getSingleton().getByName( m_strMatName ) );
+		if (!m_pMaterial)
+			Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find material " + m_strMatName,
+				"SimpleRenderable::setMaterial" );
     
         // Won't load twice anyway
         m_pMaterial->load();

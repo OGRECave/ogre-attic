@@ -152,6 +152,9 @@ namespace Ogre
             {
                 texLayer = mpMaterial->addTextureLayer(mSource);
                 Texture* tex = (Texture*)TextureManager::getSingleton().getByName(mSource);
+				if (!tex)
+				    Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find texture " + mSource,
+					    "Font::load" );
                 blendByAlpha = tex->hasAlpha();
             }
             // Clamp to avoid fuzzy edges

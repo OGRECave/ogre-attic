@@ -227,6 +227,9 @@ namespace Ogre {
 					{
 						OgreChar newKey = ke->getKeyChar();
 						Font* font = static_cast<Font*> (FontManager::getSingleton().getByName(mTextArea->getFontName()));
+						if (!font)
+							Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find font " + mTextArea->getFontName(),
+								"TextBoxGuiElement::processEvent" );
 						
 						if (font->getGlyphAspectRatio(newKey)*mTextArea->getCharHeight() + mTextArea->getWidth() < getWidth() - mTextArea->getSpaceWidth())
 						{

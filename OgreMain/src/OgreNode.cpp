@@ -523,6 +523,9 @@ namespace Ogre {
         if (!pMaterial)
         {
             pMaterial = (Material*)MaterialManager::getSingleton().getByName("Core/NodeMaterial");
+			if (!pMaterial)
+				Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find material Core/NodeMaterial",
+					"Node::getMaterial" );
             pMaterial->load();
         }
         return pMaterial;
