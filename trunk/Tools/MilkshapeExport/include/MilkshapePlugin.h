@@ -35,7 +35,7 @@ http://www.gnu.org/copyleft/gpl.html.
     Note that this plugin delegates most of the detail of exporting the model to the
     generic model export framework.
 */
-class MilkshapePlugin : public msPlugin
+class MilkshapePlugin : public cMsPlugIn
 {
     
     char mTitle[64];
