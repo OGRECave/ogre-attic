@@ -459,6 +459,17 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void TextureUnitState::removeAllEffects(void)
     {
+        // Iterate over effects to remove controllers
+        EffectMap::iterator i, iend;
+        iend = mEffects.end();
+        for (i = mEffects.begin(); i != iend; ++i)
+        {
+            if (i->second.controller)
+            {
+                ControllerManager::getSingleton().destroyController(i->second.controller);
+            }
+        }
+
         mEffects.clear();
     }
 
@@ -517,26 +528,19 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void TextureUnitState::removeEffect(TextureEffectType type)
     {
-      // EffectMap::iterator i = mEffects.find(type);
-        std::pair< EffectMap::iterator, EffectMap::iterator > remPair = mEffects.equal_range( type );
-        mEffects.erase( remPair.first, remPair.second );
-        //EffectMap::iterator i = mEffects.find(type);
-/*        for (; i != mEffects.end() && i->first == type; ++i)
+        // Get range of items matching this effect
+        std::pair< EffectMap::iterator, EffectMap::iterator > remPair = 
+            mEffects.equal_range( type );
+        // Remove controllers
+        for (EffectMap::iterator i = remPair.first; i != remPair.second; ++i)
         {
-            // Remove all instances of this type
-#ifdef __GNUC__
-            assert(0);
-            // Why do I get an error here???
-            //i = mEffects.erase(i);
-#else
-            i++;
-            EffectMap::iterator j = i;
-            i--;
-            mEffects.erase( i );
-            i = j;
-#endif
+            if (i->second.controller)
+            {
+                ControllerManager::getSingleton().destroyController(i->second.controller);
+            }
         }
-*/
+        // Erase         
+        mEffects.erase( remPair.first, remPair.second );
     }
     //-----------------------------------------------------------------------
     void TextureUnitState::setBlank(void)
@@ -670,6 +674,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void TextureUnitState::setScrollAnimation(Real uSpeed, Real vSpeed)
     {
+        // Remove existing effect
+        removeEffect(ET_SCROLL);
+        // Create new effect
         TextureEffect eff;
         eff.type = ET_SCROLL;
         eff.arg1 = uSpeed;
@@ -679,6 +686,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void TextureUnitState::setRotateAnimation(Real speed)
     {
+        // Remove existing effect
+        removeEffect(ET_ROTATE);
+        // Create new effect
         TextureEffect eff;
         eff.type = ET_ROTATE;
         eff.arg1 = speed;
@@ -688,6 +698,9 @@ namespace Ogre {
     void TextureUnitState::setTransformAnimation(TextureTransformType ttype,
         WaveformType waveType, Real base, Real frequency, Real phase, Real amplitude)
     {
+        // Remove existing effect
+        removeEffect(ET_TRANSFORM);
+        // Create new effect
         TextureEffect eff;
         eff.type = ET_TRANSFORM;
         eff.subtype = ttype;
@@ -741,6 +754,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void TextureUnitState::createEffectController(TextureEffect& effect)
     {
+        effect.controller = 0;
         ControllerManager& cMgr = ControllerManager::getSingleton();
         switch (effect.type)
         {

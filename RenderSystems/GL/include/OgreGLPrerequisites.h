@@ -28,7 +28,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32
+#if !defined( __MINGW32__ )
 #   define NOMINMAX // required to stop windows.h messing up std::min
+#endif
 #   include <windows.h>
 #   include <wingdi.h>
 #   include <GL/gl.h>
