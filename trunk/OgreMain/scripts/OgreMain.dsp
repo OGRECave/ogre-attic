@@ -424,6 +424,10 @@ SOURCE=..\src\OgreRenderSystem.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreRenderSystemCapabilities.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreRenderTarget.cpp
 # End Source File
 # Begin Source File
@@ -1045,6 +1049,10 @@ SOURCE=..\include\OgreRenderQueueSortingGrouping.h
 # Begin Source File
 
 SOURCE=..\include\OgreRenderSystem.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreRenderSystemCapabilities.h
 # End Source File
 # Begin Source File
 
