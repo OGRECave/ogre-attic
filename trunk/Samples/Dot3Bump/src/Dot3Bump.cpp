@@ -33,14 +33,25 @@ LGPL like the rest of the engine.
 #include "windows.h"
 #endif
 
-// 4 entities we'll use
-Entity *mEnt1, *mEnt2, *mEnt3, *mEnt4;
+// entities we'll use
+#define NUM_ENTITIES 4
+Entity* mEntities[NUM_ENTITIES];
+String mEntityMeshes[NUM_ENTITIES] = 
+{
+    "knot.mesh",
+    "ogrehead.mesh",
+    "razor.mesh",
+    "robot.mesh"
+};
+size_t mCurrentEntity = 0;
 
+// Lights
 #define NUM_LIGHTS 3
 
 // the light
 Light *mLights[NUM_LIGHTS];
 // billboards for lights
+BillboardSet* mLightFlareSets[NUM_LIGHTS];
 Billboard* mLightFlares[NUM_LIGHTS];
 // Positions for lights
 Vector3 mLightPositions[NUM_LIGHTS] = 
@@ -49,6 +60,16 @@ Vector3 mLightPositions[NUM_LIGHTS] =
 	Vector3(-200,50,0),
 	Vector3(0, -300, -100)
 };
+// Base orientations of the lights 
+Real mLightRotationAngles[NUM_LIGHTS] = { 0,  30, 75 };
+Vector3 mLightRotationAxes[NUM_LIGHTS] = {
+    Vector3::UNIT_X, 
+    Vector3::UNIT_Z,
+    Vector3::UNIT_Y
+};
+// Rotation speed for lights, degrees per second
+Real mLightSpeeds[NUM_LIGHTS] = { 30, 10, 50};
+
 // Colours for the lights
 ColourValue mDiffuseLightColours[NUM_LIGHTS] =
 {
@@ -70,7 +91,8 @@ bool mLightState[NUM_LIGHTS] =
 	false
 };
 // The materials
-String mMaterialNames[3] = 
+#define NUM_MATERIALS 3
+String mMaterialNames[NUM_MATERIALS] = 
 {
 	"Examples/BumpMapping/SingleLight",
 	"Examples/BumpMapping/MultiLight",
@@ -84,6 +106,19 @@ SceneNode *mMainNode;
 SceneNode* mLightNodes[NUM_LIGHTS];
 // the light node pivots
 SceneNode* mLightPivots[NUM_LIGHTS];
+
+GuiElement* mObjectInfo;
+GuiElement* mMaterialInfo;
+GuiElement* mInfo;
+
+#define KEY_PRESSED(_key,_timeDelay, _macro) \
+{ \
+    if (mInputDevice->isKeyDown(_key) && timeDelay <= 0) \
+    { \
+		timeDelay = _timeDelay; \
+        _macro ; \
+    } \
+}
 
 
 // struct wich hold 2D tex.coords.
@@ -305,40 +340,47 @@ public:
     {
     }
 
+    void flipLightState(size_t i)
+    {
+        mLightState[i] = !mLightState[i];
+        mLights[i]->setVisible(mLightState[i]);
+        mLightFlareSets[i]->setVisible(mLightState[i]);
+    }
     bool frameStarted(const FrameEvent& evt)
     {
         if(!ExampleFrameListener::frameStarted(evt))
             return false;
         
-		static Entity *pEnt = mEnt1;
+        static Real timeDelay = 0;
+
+        timeDelay -= evt.timeSinceLastFrame;
+
 		// switch meshes
-		if (mInputDevice->isKeyDown(KC_F5))
-			pEnt = mEnt1;
-        if (mInputDevice->isKeyDown(KC_F6))
-			pEnt = mEnt2;
-        if (mInputDevice->isKeyDown(KC_F7))
-			pEnt = mEnt3;
-        if (mInputDevice->isKeyDown(KC_F8))
-			pEnt = mEnt4;
-		// set visible entity
-		mEnt1->setVisible(pEnt == mEnt1 ? true : false);
-		mEnt2->setVisible(pEnt == mEnt2 ? true : false);
-		mEnt3->setVisible(pEnt == mEnt3 ? true : false);
-		mEnt4->setVisible(pEnt == mEnt4 ? true : false);
+        KEY_PRESSED(KC_O, 1, 
+            mEntities[mCurrentEntity]->setVisible(false); 
+            mCurrentEntity = (++mCurrentEntity) % NUM_ENTITIES; 
+            mEntities[mCurrentEntity]->setVisible(true);
+            mEntities[mCurrentEntity]->setMaterialName(mMaterialNames[mCurrentMaterial]);
+            mObjectInfo->setCaption("Current: " + mEntityMeshes[mCurrentEntity]);
+        );
 
-		static String matName = "Examples/BumpMapping/1";
 		// switch materials
-		if (mInputDevice->isKeyDown(KC_F1))
-			mCurrentMaterial = 0;
-        if (mInputDevice->isKeyDown(KC_F2))
-			mCurrentMaterial = 1;
-        if (mInputDevice->isKeyDown(KC_F3))
-			mCurrentMaterial = 2;
-		// set material
-		pEnt->setMaterialName(mMaterialNames[mCurrentMaterial]);
+		KEY_PRESSED(KC_M, 1, 
+            mCurrentMaterial = (++mCurrentMaterial) % NUM_MATERIALS; 
+            mEntities[mCurrentEntity]->setMaterialName(mMaterialNames[mCurrentMaterial]);
+            mMaterialInfo->setCaption("Current: " + mMaterialNames[mCurrentMaterial]);
+        );
 
-		// animate the lights
-		mLightPivots[0]->rotate(Vector3::UNIT_Y, 30 * evt.timeSinceLastFrame);
+		// enable / disable lights
+		KEY_PRESSED(KC_1, 1, flipLightState(0));
+		// switch materials
+		KEY_PRESSED(KC_2, 1, flipLightState(1));
+		// switch materials
+		KEY_PRESSED(KC_3, 1, flipLightState(2));
+
+        // animate the lights
+        for (size_t i = 0; i < NUM_LIGHTS; ++i)
+            mLightPivots[i]->rotate(Vector3::UNIT_Z, mLightSpeeds[i] * evt.timeSinceLastFrame);
 
 		return true;
     }
@@ -384,37 +426,33 @@ protected:
         floorEnt->setMaterialName("Examples/DP3Terrain");
         mSceneMgr->getRootSceneNode()->attachObject(floorEnt);
         */
-		// Load the meshes with non-default HBU options
-		const char *meshNames[4]={ "knot.mesh", "cube.mesh", "ogrehead.mesh", "ball.mesh" } ;
-		for(int mn=0;mn<4;mn++) {
-			MeshManager::getSingleton().load(meshNames[mn],
+
+        mMainNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+
+        // Load the meshes with non-default HBU options
+		for(int mn = 0; mn < NUM_ENTITIES; mn++) {
+			MeshManager::getSingleton().load(mEntityMeshes[mn],
 				HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, 
 				HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
 				true, true); //so we can still read it
+            // Create entity
+            mEntities[mn] = mSceneMgr->createEntity("Ent" + StringConverter::toString(mn), 
+                mEntityMeshes[mn]);
+            // Calc tangents
+    		createTangentSpaceTextureCoords(mEntities[mn]);
+            // Attach to child of root node
+    		mMainNode->attachObject(mEntities[mn]);
+            // Make invisible, except for index 0
+            if (mn == 0)
+                mEntities[mn]->setMaterialName(mMaterialNames[mCurrentMaterial]);
+            else
+                mEntities[mn]->setVisible(false);
 		}
-        // Create the mesh(es) wich will be bump mapped
-		mEnt1 = mSceneMgr->createEntity("knot", "knot.mesh");
-		mEnt2 = mSceneMgr->createEntity("cube", "cube.mesh");
-		mEnt3 = mSceneMgr->createEntity("head", "ogrehead.mesh");
-		mEnt4 = mSceneMgr->createEntity("ball", "ball.mesh");
 
-		// create tangent-space texture coords for each of the objects
-		createTangentSpaceTextureCoords(mEnt1);
-		createTangentSpaceTextureCoords(mEnt2);
-		createTangentSpaceTextureCoords(mEnt3);
-		createTangentSpaceTextureCoords(mEnt4);
-
-        // material is assigned in framelistener
-
-        // Attach to child of root node
-        mMainNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-		mMainNode->attachObject(mEnt1);
-		mMainNode->attachObject(mEnt2);
-		mMainNode->attachObject(mEnt3);
-		mMainNode->attachObject(mEnt4);
         for (unsigned int i = 0; i < NUM_LIGHTS; ++i)
         {
             mLightPivots[i] = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+            mLightPivots[i]->rotate(mLightRotationAxes[i], mLightRotationAngles[i]);
             // Create a light, use default parameters
             mLights[i] = mSceneMgr->createLight("Light" + StringConverter::toString(i));
 			mLights[i]->setPosition(mLightPositions[i]);
@@ -424,18 +462,28 @@ protected:
             // Attach light
             mLightPivots[i]->attachObject(mLights[i]);
 			// Create billboard for light
-			BillboardSet* bbset = mSceneMgr->createBillboardSet("Flare" + StringConverter::toString(i));
-			bbset->setMaterialName("Examples/Flare");
-			mLightPivots[i]->attachObject(bbset);
-			mLightFlares[i] = bbset->createBillboard(mLightPositions[i]);
+			mLightFlareSets[i] = mSceneMgr->createBillboardSet("Flare" + StringConverter::toString(i));
+			mLightFlareSets[i]->setMaterialName("Examples/Flare");
+			mLightPivots[i]->attachObject(mLightFlareSets[i]);
+			mLightFlares[i] = mLightFlareSets[i]->createBillboard(mLightPositions[i]);
 			mLightFlares[i]->setColour(mDiffuseLightColours[i]);
-			bbset->setVisible(mLightState[i]);
+			mLightFlareSets[i]->setVisible(mLightState[i]);
         }
         // move the camera a bit right and make it look at the knot
 		mCamera->moveRelative(Vector3(50, 0, 20));
 		mCamera->lookAt(0, 0, 0);
 		// show overlay
 		Overlay *pOver = (Overlay *)OverlayManager::getSingleton().getByName("Example/DP3Overlay");    
+        mObjectInfo = GuiManager::getSingleton().getGuiElement("Example/DP3/ObjectInfo");
+        mMaterialInfo = GuiManager::getSingleton().getGuiElement("Example/DP3/MaterialInfo");
+        mInfo = GuiManager::getSingleton().getGuiElement("Example/DP3/Info");
+
+        mObjectInfo->setCaption("Current: " + mEntityMeshes[mCurrentEntity]);
+        mMaterialInfo->setCaption("Current: " + mMaterialNames[mCurrentMaterial]);
+        if (!caps->hasCapability(RSC_FRAGMENT_PROGRAM))
+        {
+            mInfo->setCaption("NOTE: Light colours and specular highlights are not supported by your card.");
+        }
 		pOver->show();
 	}
 
