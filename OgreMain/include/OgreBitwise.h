@@ -174,6 +174,104 @@ namespace Ogre {
             return 0; // ?
         }
 
+        /**
+         * Convert a float32 to a float16 (NV_half_float)
+         * Courtesy of OpenEXR
+         */
+        static inline uint16 floatToHalf(float i)
+        {
+            return floatToHalfI(*reinterpret_cast<uint32*>(&i));
+        }
+        static inline uint16 floatToHalfI(uint32 i)
+        {
+            register int s =  (i >> 16) & 0x00008000;
+            register int e = ((i >> 23) & 0x000000ff) - (127 - 15);
+            register int m =   i        & 0x007fffff;
+        
+            if (e <= 0)
+            {
+                if (e < -10)
+                {
+                    return 0;
+                }
+                m = (m | 0x00800000) >> (1 - e);
+        
+                return s | (m >> 13);
+            }
+            else if (e == 0xff - (127 - 15))
+            {
+                if (m == 0) // Inf
+                {
+                    return s | 0x7c00;
+                } 
+                else    // NAN
+                {
+                    m >>= 13;
+                    return s | 0x7c00 | m | (m == 0);
+                }
+            }
+            else
+            {
+                if (e > 30) // Overflow
+                {
+                    return s | 0x7c00;
+                }
+        
+                return s | (e << 10) | (m >> 13);
+            }
+        }
+        
+        /**
+         * Convert a float16 (NV_half_float) to a float32
+         * Courtesy of OpenEXR
+         */
+        static inline float halfToFloat(uint16 y)
+        {
+            uint32 r = halfToFloatI(y);
+            return *reinterpret_cast<float*>(&r);
+        }
+        static inline uint32 halfToFloatI(uint16 y)
+        {
+            register int s = (y >> 15) & 0x00000001;
+            register int e = (y >> 10) & 0x0000001f;
+            register int m =  y        & 0x000003ff;
+        
+            if (e == 0)
+            {
+                if (m == 0) // Plus or minus zero
+                {
+                    return s << 31;
+                }
+                else // Denormalized number -- renormalize it
+                {
+                    while (!(m & 0x00000400))
+                    {
+                        m <<= 1;
+                        e -=  1;
+                    }
+        
+                    e += 1;
+                    m &= ~0x00000400;
+                }
+            }
+            else if (e == 31)
+            {
+                if (m == 0) // Inf
+                {
+                    return (s << 31) | 0x7f800000;
+                }
+                else // NaN
+                {
+                    return (s << 31) | 0x7f800000 | (m << 13);
+                }
+            }
+        
+            e = e + (127 - 15);
+            m = m << 13;
+        
+            return (s << 31) | (e << 23) | m;
+        }
+         
 
     };
 }

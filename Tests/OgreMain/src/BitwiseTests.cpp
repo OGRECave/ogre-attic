@@ -102,3 +102,19 @@ void BitwiseTests::testIntReadWrite()
     Bitwise::intWrite(&testje3, 1, 0x12);
     assert(testje3 == 0x12);    
 }
+
+void BitwiseTests::testHalf()
+{
+    /*
+    for(int x=0; x<0x100; x++)
+    {
+        float f = (float)x/255.0f;
+        uint32 fi = *reinterpret_cast<uint32*>(&f);
+        uint16 g = Bitwise::floatToHalf(f);
+        float h = Bitwise::halfToFloat(g);
+        uint32 hi = *reinterpret_cast<uint32*>(&h);
+        int i = h*256.0f;
+        std::cerr << x << " " << fi << " " << std::hex << std::setw(4) << g << " " << hi << " " << i << std::endl;
+    }
+    */    
+}
