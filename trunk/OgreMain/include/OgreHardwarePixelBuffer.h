@@ -67,13 +67,18 @@ namespace Ogre {
                 HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer);
         ~HardwarePixelBuffer();
 
-		/** Lock the buffer for (potentially) reading / writing.
+        /** make every lock method from HardwareBuffer available.
+        See http://www.research.att.com/~bs/bs_faq2.html#overloadderived
+        */
+        using HardwareBuffer::lock;	
+
+        /** Lock the buffer for (potentially) reading / writing.
 		    @param lockBox Region of the buffer to lock
 		    @param options Locking options
 		    @returns PixelBox containing the locked region, the pitches and
 		    	the pixel format
 		*/
-		virtual const PixelBox &lock(const Image::Box lockBox, LockOptions options);
+		virtual const PixelBox& lock(const Image::Box& lockBox, LockOptions options);
 		/// @copydoc HardwareBuffer::lock
         virtual void* lock(size_t offset, size_t length, LockOptions options);
 
@@ -81,7 +86,7 @@ namespace Ogre {
 		    by lock(const Image::Box, LockOptions)
 		    @returns PixelBox containing the locked region
 		*/        
-        const PixelBox &getCurrentLock();
+        const PixelBox& getCurrentLock();
 		
 		/// @copydoc HardwareBuffer::readData
 		virtual void readData(size_t offset, size_t length, void* pDest);
