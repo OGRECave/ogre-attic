@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreString.h"
 #include "OgreStringVector.h"
+#include "OgreIteratorWrappers.h"
 
 namespace Ogre {
 
@@ -51,8 +52,14 @@ namespace Ogre {
         ConfigFile();
         void load(const String& filename, const String& separators = "\t:=");
 
+        /** Gets the first setting from the file with the named key. */
         String getSetting(const String& key);
+        /** Gets all settings from the file with the named key. */
         StringVector getMultiSetting(const String& key);
+
+        typedef MapIterator< std::multimap<String, String> > SettingsIterator;
+        /** Gets an iterator for stepping through all the keys / values in the file. */
+        SettingsIterator getSettingsIterator(void);
 
     protected:
         std::multimap<String, String> mSettings;

@@ -106,5 +106,10 @@ namespace Ogre {
 
 
     }
+    //-----------------------------------------------------------------------
+    ConfigFile::SettingsIterator ConfigFile::getSettingsIterator(void)
+    {
+        return SettingsIterator(mSettings.begin(), mSettings.end());
+    }
 
 }
