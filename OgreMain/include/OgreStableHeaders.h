@@ -64,7 +64,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreString.h"
 #include "OgreStringConverter.h"
 #include "OgreStringInterface.h"
-#include "OgreStringResource.h"
 #include "OgreStringVector.h"
 #include "OgreUserDefinedObject.h"
 #include "OgreVector2.h"
