@@ -71,6 +71,7 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------
     EdgeListBuilder::EdgeListBuilder()
+        : mWeldVerticesAcrossSets(true)
     {
     }
     //---------------------------------------------------------------------
@@ -135,6 +136,9 @@ namespace Ogre {
         vertex buffer which this index set uses.
         */
 
+        // Default to try to form a combined hull from multiple non-manifold parts
+        mWeldVerticesAcrossSets = true;
+
         mEdgeData = new EdgeData();
         // resize the edge group list to equal the number of vertex sets
         mEdgeData->edgeGroups.resize(mVertexDataList.size());
@@ -154,7 +158,54 @@ namespace Ogre {
         size_t indexSet = 0;
         for (i = mIndexDataList.begin(); i != iend; ++i, ++mapi, ++indexSet)
         {
-            buildTrianglesEdges(indexSet, *mapi);
+            try 
+            {
+                buildTrianglesEdges(indexSet, *mapi);
+            }
+            catch (Exception& e)
+            {
+                if (e.getNumber() == Exception::ERR_DUPLICATE_ITEM)
+                {
+                    // Ok, we found a case where there are too many triangles
+                    // attached to a single edge. This can happen in valid cases
+                    // where a mesh has multiple submeshes which 'but up' against
+                    // each other perfectly, but are individually closed
+                    // In this case, we try disabling the 'welding across vertex sets'
+                    // option, which means we ignore it when 2 vertices from different
+                    // sets are in the same position (thus we stop trying to form
+                    // a complete hull from multiple non-manifold submeshes). 
+                    // This is on the assumption that all submeshes have their own
+                    // geometry and are manifold in their own right. If this results
+                    // in degenerates, then it's the modellers fault (and unavoidable 
+                    // since the 'too many tris on an edge' case would have resulted in 
+                    // artefacts anyway)
+
+                    if (mWeldVerticesAcrossSets)
+                    {
+                        mWeldVerticesAcrossSets = false;
+                        // reset
+                        mUniqueEdges.clear();
+                        mEdgeData->triangles.clear();
+                        EdgeData::EdgeGroupList::iterator egi, egiend;
+                        egiend = mEdgeData->edgeGroups.end();
+                        for(egi = mEdgeData->edgeGroups.begin(); egi != egiend; ++egi)
+                        {
+                            egi->edges.clear();
+                        }
+                        // try again (reset and issue 1st)
+                        // Any exceptions this time will be thrown to parent
+                        i = mIndexDataList.begin();
+                        mapi = mIndexDataVertexDataSetList.begin();
+                        indexSet = 0;
+                        buildTrianglesEdges(indexSet, *mapi);
+                    }
+                }
+                else
+                {
+                    throw;
+                }
+
+            }
         }
         // Stage 2, link edges
         connectEdges();
@@ -289,37 +340,32 @@ namespace Ogre {
             // Add triangle to list
             mEdgeData->triangles.push_back(tri);
             // Create edges from common list
-            EdgeData::Edge e;
-            e.degenerate = true; // initialise as degenerate
-            if (tri.sharedVertIndex[0] < tri.sharedVertIndex[1])
-            {
-                // Set only first tri, the other will be completed in connectEdges
-                e.triIndex[0] = triStart + t;
-                e.sharedVertIndex[0] = tri.sharedVertIndex[0];
-                e.sharedVertIndex[1] = tri.sharedVertIndex[1];
-                e.vertIndex[0] = tri.vertIndex[0];
-                e.vertIndex[1] = tri.vertIndex[1];
-                mEdgeData->edgeGroups[vertexSet].edges.push_back(e);
+            try {
+                if (tri.sharedVertIndex[0] < tri.sharedVertIndex[1])
+                {
+                    createEdge(vertexSet, triStart + t, 
+                        tri.vertIndex[0], tri.vertIndex[1], 
+                        tri.sharedVertIndex[0], tri.sharedVertIndex[1]);
+                }
+                if (tri.sharedVertIndex[1] < tri.sharedVertIndex[2])
+                {
+                    createEdge(vertexSet, triStart + t, 
+                        tri.vertIndex[1], tri.vertIndex[2], 
+                        tri.sharedVertIndex[1], tri.sharedVertIndex[2]);
+                }
+                if (tri.sharedVertIndex[2] < tri.sharedVertIndex[0])
+                {
+                    createEdge(vertexSet, triStart + t, 
+                        tri.vertIndex[2], tri.vertIndex[0], 
+                        tri.sharedVertIndex[2], tri.sharedVertIndex[0]);
+                }
             }
-            if (tri.sharedVertIndex[1] < tri.sharedVertIndex[2])
+            catch (Exception& e)
             {
-                // Set only first tri, the other will be completed in connectEdges
-                e.triIndex[0] = triStart + t;
-                e.sharedVertIndex[0] = tri.sharedVertIndex[1];
-                e.sharedVertIndex[1] = tri.sharedVertIndex[2];
-                e.vertIndex[0] = tri.vertIndex[1];
-                e.vertIndex[1] = tri.vertIndex[2];
-                mEdgeData->edgeGroups[vertexSet].edges.push_back(e);
-            }
-            if (tri.sharedVertIndex[2] < tri.sharedVertIndex[0])
-            {
-                // Set only first tri, the other will be completed in connectEdges
-                e.triIndex[0] = triStart + t;
-                e.sharedVertIndex[0] = tri.sharedVertIndex[2];
-                e.sharedVertIndex[1] = tri.sharedVertIndex[0];
-                e.vertIndex[0] = tri.vertIndex[2];
-                e.vertIndex[1] = tri.vertIndex[0];
-                mEdgeData->edgeGroups[vertexSet].edges.push_back(e);
+                // unlock buffers so this is repeatable if required
+                indexData->indexBuffer->unlock();
+                vbuf->unlock();
+                throw;
             }
 
         }
@@ -328,6 +374,36 @@ namespace Ogre {
 
 
 
+
+    }
+    //---------------------------------------------------------------------
+    void EdgeListBuilder::createEdge(size_t vertexSet, size_t triangleIndex, 
+        size_t vertIndex0, size_t vertIndex1, size_t sharedVertIndex0, 
+        size_t sharedVertIndex1)
+    {
+        // Check unique on shared vertices
+        std::pair<size_t, size_t> vertPair;
+        vertPair.first = sharedVertIndex0;
+        vertPair.second = sharedVertIndex1;
+        UniqueEdgeSet::iterator ui = mUniqueEdges.find(vertPair);
+        if (ui != mUniqueEdges.end())
+        {
+            Except(Exception::ERR_DUPLICATE_ITEM, 
+                "Edge is shared by too many triangles", 
+                "EdgeListBuilder::createEdge");
+        }
+        mUniqueEdges.insert(vertPair);
+
+        EdgeData::Edge e;
+        e.degenerate = true; // initialise as degenerate
+
+        // Set only first tri, the other will be completed in connectEdges
+        e.triIndex[0] = triangleIndex;
+        e.sharedVertIndex[0] = sharedVertIndex0;
+        e.sharedVertIndex[1] = sharedVertIndex1;
+        e.vertIndex[0] = vertIndex0;
+        e.vertIndex[1] = vertIndex1;
+        mEdgeData->edgeGroups[vertexSet].edges.push_back(e);
 
     }
     //---------------------------------------------------------------------
@@ -343,7 +419,8 @@ namespace Ogre {
 
             if (Math::RealEqual(vec.x, commonVec.position.x, 1e-04) && 
                 Math::RealEqual(vec.y, commonVec.position.y, 1e-04) && 
-                Math::RealEqual(vec.z, commonVec.position.z, 1e-04))
+                Math::RealEqual(vec.z, commonVec.position.z, 1e-04) && 
+                (commonVec.vertexSet == vertexSet || mWeldVerticesAcrossSets))
             {
                 return index;
             }
