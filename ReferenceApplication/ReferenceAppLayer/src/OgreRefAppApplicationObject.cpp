@@ -41,6 +41,7 @@ namespace OgreRefApp
 		mBounceCoeffRestitution = 0;
 		mBounceVelocityThreshold = 0.1;
         mFriction = Math::POS_INFINITY;
+        dMassSetZero(&mMass);
 
     }
     //-------------------------------------------------------------------------
@@ -355,6 +356,60 @@ namespace OgreRefApp
     Real ApplicationObject::getFriction(void)
     {
         return mFriction;
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::setMassSphere(Real density, Real radius)
+    {
+        dMassSetSphere(&mMass, density, radius);
+        mOdeBody->setMass(&mMass);
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::setMassBox(Real density, const Vector3& dimensions, 
+        const Quaternion& orientation)
+    {
+        dMassSetBox(&mMass, density, dimensions.x, dimensions.y, dimensions.z);
+
+        Matrix3 m3;
+        orientation.ToRotationMatrix(m3);
+        dMatrix3 dm3;
+        OgreToOde(m3, dm3);
+        dMassRotate(&mMass, dm3);
+
+        mOdeBody->setMass(&mMass);
+
+
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::setMassCappedCylinder(Real density, Real length, Real width, 
+        const Quaternion& orientation)
+    {
+        dMassSetCappedCylinder(&mMass, density, 3, width, length);
+
+        Matrix3 m3;
+        orientation.ToRotationMatrix(m3);
+        dMatrix3 dm3;
+        OgreToOde(m3, dm3);
+        dMassRotate(&mMass, dm3);
+
+        mOdeBody->setMass(&mMass);
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::setMassExpert(Real mass, const Vector3 center, const Matrix3 inertia)
+    {
+
+        mMass.mass = mass;
+        mMass.c[0] = center.x;
+        mMass.c[1] = center.y;
+        mMass.c[2] = center.z;
+        OgreToOde(inertia, mMass.I);
+        
+        mOdeBody->setMass(&mMass);
+
+    }
+    //-------------------------------------------------------------------------
+    const dMass* ApplicationObject::getOdeMass(void)
+    {
+        return &mMass;
     }
 
 
