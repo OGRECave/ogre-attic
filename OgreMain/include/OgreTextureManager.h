@@ -125,8 +125,6 @@ namespace Ogre {
             @param
                 group The name of the resource group to assign the texture to
             @param
-                img The Image object which contains the data to load
-            @param
                 texType The type of texture to load/create, defaults to normal 2D textures
             @param
                 width, height, depth The dimensions of the texture
@@ -162,8 +160,6 @@ namespace Ogre {
                 name The name to give the resulting texture
             @param
                 group The name of the resource group to assign the texture to
-            @param
-                img The Image object which contains the data to load
             @param
                 texType The type of texture to load/create, defaults to normal 2D textures
             @param
