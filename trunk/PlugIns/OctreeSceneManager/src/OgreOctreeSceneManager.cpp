@@ -20,17 +20,36 @@ email                : janders@users.sf.net
 #include <OgreOctreeCamera.h>
 #include <OgreRenderSystem.h>
 
+
+extern "C" 
+{
+  void findNodesInBox( Ogre::SceneManager *sm, 
+		       const Ogre::AxisAlignedBox &box, 
+		       std::list < Ogre::SceneNode * > &list, 
+		       Ogre::SceneNode *exclude )
+  {
+    dynamic_cast<Ogre::OctreeSceneManager*>( sm ) -> findNodesIn( box, list, exclude );
+  }
+  void findNodesInSphere( Ogre::SceneManager *sm, 
+			  const Ogre::Sphere &sphere, 
+			  std::list < Ogre::SceneNode * > &list, 
+			  Ogre::SceneNode *exclude )
+  {
+    dynamic_cast<Ogre::OctreeSceneManager*>( sm ) -> findNodesIn( sphere, list, exclude );
+  }
+}
+
 namespace Ogre
 {
-
-int OctreeSceneManager::intersect_call = 0;
-
 enum Intersection
 {
-    OUTSIDE,
-    INSIDE,
-    INTERSECT
+    OUTSIDE=0,
+    INSIDE=1,
+    INTERSECT=2
 };
+int OctreeSceneManager::intersect_call = 0;
+
+
 
 /** Checks how the second box intersects with the first.
 */
@@ -120,7 +139,6 @@ Intersection intersect( const Sphere &one, const AxisAlignedBox &two )
 
 
 }
-
 
 unsigned long white = 0xFFFFFFFF;
 
@@ -274,18 +292,23 @@ void OctreeSceneManager::_updateOctreeNode( OctreeNode * onode )
 
     if ( onode -> getOctant() == 0 )
     {
-        _addOctreeNode( onode, mOctree );
-        return ;
+      //if outside the octree, force into the root node.
+      if ( ! onode -> _isIn( mOctree -> mBox ) ) 
+	mOctree->_addNode( onode );
+      else
+	_addOctreeNode( onode, mOctree );
+      return ;
     }
 
     if ( ! onode -> _isIn( onode -> getOctant() -> mBox ) )
     {
         _removeOctreeNode( onode );
 
-        if ( ! onode -> _isIn( mOctree -> mBox ) )
-            mOctree->_addNode( onode );
-        else
-            _addOctreeNode( onode, mOctree );
+	//if outside the octree, force into the root node.
+	if ( ! onode -> _isIn( mOctree -> mBox ) ) 
+	  mOctree->_addNode( onode );
+	else
+	  _addOctreeNode( onode, mOctree );
     }
 }
 
