@@ -24,7 +24,8 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreControllerManager.cpp \
                          OgreCursor.cpp \
                          OgreDataChunk.cpp \
-			 OgreDefaultHardwareBufferManager.cpp \
+                         OgreDefaultHardwareBufferManager.cpp \
+                         OgreDDSCodec.cpp \
                          OgreDynLib.cpp \
                          OgreDynLibManager.cpp \
                          OgreEntity.cpp \
@@ -126,7 +127,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
 						 OgreTimer.cpp \
                          OgreUserDefinedObject.cpp \
                          OgreVector3.cpp \
-			 OgreVertexIndexData.cpp \
+                         OgreVertexIndexData.cpp \
                          OgreViewport.cpp \
                          OgreWireBoundingBox.cpp \
                          OgreZip.cpp \
