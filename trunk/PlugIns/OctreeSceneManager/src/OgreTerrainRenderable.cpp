@@ -598,7 +598,7 @@ void TerrainRenderable::_calculateMinLevelDist2( Real C )
     
         // Make sure no LOD transition within the tile
         // This is especially a problem when using large tiles with flat areas
-        Vector3 delta(_vertex(0,0,0), mCenter.y, _vertex(0,0,3));
+        Vector3 delta(_vertex(0,0,0), mCenter.y, _vertex(0,0,2));
         delta = delta - mCenter;
         Real minDist = delta.squaredLength();
         mMinLevelDistSqr[ i ] = std::max(mMinLevelDistSqr[ i ], minDist);
