@@ -243,6 +243,7 @@ namespace Ogre
         Real mSpaceWidth;
         ushort mPixelSpaceWidth;
         size_t mAllocSize;
+		Real mViewportAspectCoef;
 
         /// Colours to use for the vertices
         ColourValue mColourBottom;

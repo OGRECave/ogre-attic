@@ -64,6 +64,7 @@ namespace Ogre {
 		mPixelCharHeight = 12;
 		mSpaceWidth = 0;
 		mPixelSpaceWidth = 0;
+		mViewportAspectCoef = 1;
 
         if (createParamDictionary("TextAreaGuiElement"))
         {
@@ -162,7 +163,7 @@ namespace Ogre {
         // Derive space with from a capital A
 		if (mSpaceWidth == 0)
 		{
-			mSpaceWidth = mpFont->getGlyphAspectRatio( 'A' ) * mCharHeight * 2.0;
+			mSpaceWidth = mpFont->getGlyphAspectRatio( 'A' ) * mCharHeight * 2.0 * mViewportAspectCoef;
 		}
 
         // Use iterator
@@ -182,7 +183,7 @@ namespace Ogre {
                     }
                     else 
                     {
-                        len += mpFont->getGlyphAspectRatio( *j ) * mCharHeight * 2.0;
+                        len += mpFont->getGlyphAspectRatio( *j ) * mCharHeight * 2.0 * mViewportAspectCoef;
                     }
                 }
 
@@ -213,7 +214,7 @@ namespace Ogre {
                 continue;
             }
 
-            Real horiz_height = mpFont->getGlyphAspectRatio( *i );
+            Real horiz_height = mpFont->getGlyphAspectRatio( *i ) * mViewportAspectCoef ;
             Real u1, u2, v1, v2; 
             mpFont->getGlyphTexCoords( *i, u1, v1, u2, v2 );
 
@@ -527,11 +528,13 @@ namespace Ogre {
         if (gmm != GMM_RELATIVE)
         {
             // Set pixel variables based on viewport multipliers
-            Real vpHeight;
+            Real vpWidth, vpHeight;
+            vpWidth = (Real) (OverlayManager::getSingleton().getViewportWidth());
             vpHeight = (Real) (OverlayManager::getSingleton().getViewportHeight());
 
             mPixelCharHeight = mCharHeight * vpHeight;
             mPixelSpaceWidth = mSpaceWidth * vpHeight;
+			mViewportAspectCoef = vpHeight/vpWidth;
         }
     }
 
@@ -542,11 +545,13 @@ namespace Ogre {
             (OverlayManager::getSingleton().hasViewportChanged() || mGeomPositionsOutOfDate))
         {
             // Recalc character size
-            Real vpHeight;
+            Real vpWidth, vpHeight;
+            vpWidth = (Real) (OverlayManager::getSingleton().getViewportWidth());
             vpHeight = (Real) (OverlayManager::getSingleton().getViewportHeight());
 
             mCharHeight = (Real) mPixelCharHeight / vpHeight;
             mSpaceWidth = (Real) mPixelSpaceWidth / vpHeight;
+			mViewportAspectCoef = vpHeight/vpWidth;
 			mGeomPositionsOutOfDate = true;
         }
         GuiElement::_update();
