@@ -42,11 +42,12 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreGuiManager.h"
 #include "OgreOverlayManager.h"
 #include "OgreZipArchiveFactory.h"
-#include "OgreFontManager.h"
 
 #include "OgrePNGCodec.h"
 #include "OgreJPEGCodec.h"
 #include "OgreTGACodec.h"
+
+#include "OgreFontManager.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32
 
