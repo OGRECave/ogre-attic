@@ -27,8 +27,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreAutoParamDataSource.h"
 #include "OgreRenderable.h"
 #include "OgreCamera.h"
+#include "OgreRenderTarget.h"
 
 namespace Ogre {
+    const Matrix4 PROJECTIONCLIPSPACE2DTOIMAGESPACE_PERSPECTIVE(
+        0.5,    0,  0, -0.5, 
+        0, -0.5,  0, -0.5, 
+        0,    0,  0,   1,
+        0,    0,  0,   1);
 
     //-----------------------------------------------------------------------------
     AutoParamDataSource::AutoParamDataSource()
@@ -43,7 +49,8 @@ namespace Ogre {
          mTextureViewProjMatrixDirty(true),
          mCurrentRenderable(NULL),
          mCurrentCamera(NULL), 
-         mCurrentTextureProjector(NULL)
+         mCurrentTextureProjector(NULL), 
+         mCurrentRenderTarget(NULL)
     {
         mBlankLight.setDiffuseColour(ColourValue::Black);
         mBlankLight.setSpecularColour(ColourValue::Black);
@@ -134,7 +141,13 @@ namespace Ogre {
     {
         // NB use API-independent projection matrix since GPU programs
         // bypass the API-specific handedness and use right-handed coords
-        return mCurrentCamera->getStandardProjectionMatrix();
+        mProjectionMatrix = mCurrentCamera->getStandardProjectionMatrix();
+        if (mCurrentRenderTarget && mCurrentRenderTarget->requiresTextureFlipping())
+        {
+            // Because we're not using setProjectionMatrix, this needs to be done here
+            mProjectionMatrix[1][1] = -mProjectionMatrix[1][1];
+        }
+        return mProjectionMatrix;
     }
     //-----------------------------------------------------------------------------
     const Matrix4& AutoParamDataSource::getWorldViewMatrix(void) const
@@ -234,11 +247,22 @@ namespace Ogre {
         if (mTextureViewProjMatrixDirty)
         {
             mTextureViewProjMatrix = 
+                PROJECTIONCLIPSPACE2DTOIMAGESPACE_PERSPECTIVE * 
                 mCurrentTextureProjector->getViewMatrix() * 
-                mCurrentTextureProjector->getProjectionMatrix();
+                mCurrentTextureProjector->getStandardProjectionMatrix();
             mTextureViewProjMatrixDirty = false;
         }
         return mTextureViewProjMatrix;
+    }
+    //-----------------------------------------------------------------------------
+    void AutoParamDataSource::setCurrentRenderTarget(const RenderTarget* target)
+    {
+        mCurrentRenderTarget = target;
+    }
+    //-----------------------------------------------------------------------------
+    const RenderTarget* AutoParamDataSource::getCurrentRenderTarget(void) const
+    {
+        return mCurrentRenderTarget;
     }
 
 }

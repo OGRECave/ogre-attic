@@ -761,6 +761,9 @@ namespace Ogre {
         // Tell params about current ambient light
         mAutoParamDataSource.setAmbientLightColour(mAmbientLight);
 
+        // Tell params about render target
+        mAutoParamDataSource.setCurrentRenderTarget(vp->getTarget());
+
 
         // Set camera window clipping planes (if any)
 		if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_USER_CLIP_PLANES))
