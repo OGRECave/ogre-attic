@@ -48,6 +48,9 @@ namespace Ogre {
         void writeData(size_t offset, size_t length, const unsigned char* pSource,
 				bool discardWholeBuffer = false);
 
+        /// Get the D3D-specific index buffer
+        LPDIRECT3DINDEXBUFFER9 getD3DIndexBuffer(void) { return mlpD3DBuffer; }
+
 
 
     };

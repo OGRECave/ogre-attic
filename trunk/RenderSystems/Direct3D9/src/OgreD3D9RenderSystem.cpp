@@ -34,6 +34,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreLogManager.h"
 #include "OgreLight.h"
 #include "OgreMath.h"
+#include "OgreD3D9HardwareIndexBuffer.h"
+#include "OgreD3D9HardwareVertexBuffer.h"
+#include "OgreD3D9VertexDeclaration.h"
 
 
 namespace Ogre 
@@ -1889,17 +1892,148 @@ namespace Ogre
     //---------------------------------------------------------------------
 	void D3D9RenderSystem::setVertexDeclaration(VertexDeclaration* decl)
 	{
-		// TODO
+		// Guard
+		OgreGuard ("D3D9RenderSystem::setVertexDeclaration");
+        HRESULT hr;
+
+        D3D9VertexDeclaration* d3ddecl = 
+            static_cast<D3D9VertexDeclaration*>(decl);
+
+        // TODO: attempt to detect duplicates
+        if (FAILED(hr = mpD3DDevice->SetVertexDeclaration(d3ddecl->getD3DVertexDeclaration())))
+        {
+            Except(hr, "Unable to set D3D9 vertex declaration", 
+                "D3D9RenderSystem::setVertexDeclaration");
+        }
+
+        // UnGuard
+		OgreUnguard();
 	}
     //---------------------------------------------------------------------
 	void D3D9RenderSystem::setVertexBufferBinding(VertexBufferBinding* binding)
 	{
-		// TODO
+		// Guard
+		OgreGuard ("D3D9RenderSystem::setVertexBufferBinding");
+
+        HRESULT hr;
+
+        // TODO: attempt to detect duplicates
+        const VertexBufferBinding::VertexBufferBindingMap& binds = binding->getBindings();
+        VertexBufferBinding::VertexBufferBindingMap::const_iterator i, iend;
+        iend = binds.end();
+        for (i = binds.begin(); i != iend; ++i)
+        {
+            const D3D9HardwareVertexBuffer* d3d9buf = 
+                static_cast<const D3D9HardwareVertexBuffer*>(i->second);
+            hr = mpD3DDevice->SetStreamSource(
+                i->first,
+                d3d9buf->getD3D9VertexBuffer(),
+                0, // no stream offset, this is handled in _render instead
+                d3d9buf->getVertexSize() // stride
+                );
+            if (FAILED(hr))
+            {
+                Except(hr, "Unable to set D3D9 stream source for buffer binding", 
+                    "D3D9RenderSystem::setVertexBufferBinding");
+            }
+
+
+        }
+
+		
+        // UnGuard
+		OgreUnguard();
 	}
     //---------------------------------------------------------------------
     void D3D9RenderSystem::_render(const RenderOperation& op)
 	{
-		// TODO
+		// Guard
+		OgreGuard ("D3D9RenderSystem::_render");
+		// Call super class
+		RenderSystem::_render(op);
+
+        // To think about: possibly remove setVertexDeclaration and 
+        // setVertexBufferBinding from RenderSystem since the sequence is
+        // a bit too D3D9-specific?
+		setVertexDeclaration(op.vertexDeclaration);
+        setVertexBufferBinding(op.vertexBufferBinding);
+
+		// Determine rendering operation
+		D3DPRIMITIVETYPE primType;
+		DWORD primCount = 0;
+        switch( op.operationType )
+		{
+        case RenderOperation::OT_POINT_LIST:
+			primType = D3DPT_POINTLIST;
+			primCount = (DWORD)(op.useIndexes ? op.indexCount : op.vertexCount);
+			break;
+
+		case RenderOperation::OT_LINE_LIST:
+			primType = D3DPT_LINELIST;
+			primCount = (DWORD)(op.useIndexes ? op.indexCount : op.vertexCount) / 2;
+			break;
+
+		case RenderOperation::OT_LINE_STRIP:
+			primType = D3DPT_LINESTRIP;
+			primCount = (DWORD)(op.useIndexes ? op.indexCount : op.vertexCount) - 1;
+			break;
+
+		case RenderOperation::OT_TRIANGLE_LIST:
+			primType = D3DPT_TRIANGLELIST;
+			primCount = (DWORD)(op.useIndexes ? op.indexCount : op.vertexCount) / 3;
+			break;
+
+		case RenderOperation::OT_TRIANGLE_STRIP:
+			primType = D3DPT_TRIANGLESTRIP;
+			primCount = (DWORD)(op.useIndexes ? op.indexCount : op.vertexCount) - 2;
+			break;
+
+		case RenderOperation::OT_TRIANGLE_FAN:
+			primType = D3DPT_TRIANGLEFAN;
+			primCount = (DWORD)(op.useIndexes ? op.indexCount : op.vertexCount) - 2;
+			break;
+		}
+
+        
+		// Issue the op
+        HRESULT hr;
+		if( op.useIndexes )
+		{
+            D3D9HardwareIndexBuffer* d3dIdxBuf = 
+                static_cast<D3D9HardwareIndexBuffer*>(op.indexBuffer);
+			hr = mpD3DDevice->SetIndices( d3dIdxBuf->getD3DIndexBuffer() );
+			if (FAILED(hr))
+            {
+				Except( hr, "Failed to set index buffer", "D3D9RenderSystem::_render" );
+            }
+
+			// do indexed draw operation
+			hr = mpD3DDevice->DrawIndexedPrimitive(
+                primType, 
+                op.vertexStart, 
+                0, // Min vertex index - assume we can go right down to 0 
+                op.vertexCount, 
+                op.indexStart, 
+                primCount );
+		}
+		else
+        {
+            // Unindexed, a little simpler!
+			hr = mpD3DDevice->DrawPrimitive(
+                primType, 
+                op.vertexStart, 
+                primCount ); 
+        }
+
+		if( FAILED( hr ) )
+		{
+			String msg = DXGetErrorDescription9(hr);
+			Except( hr, "Failed to DrawPrimitive : " + msg, "D3D9RenderSystem::_render" );
+		}
+        
+        // UnGuard
+		OgreUnguard();
+
 	}
 	//---------------------------------------------------------------------
 }
