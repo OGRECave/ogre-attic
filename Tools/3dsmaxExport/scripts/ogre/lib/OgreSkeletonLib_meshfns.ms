@@ -1,16 +1,9 @@
+include "ogre/lib/ogreSkeletonLib_usefulfns.ms"
+include "ogre/lib/ogrebipedlib.ms"
 
 ----------------------------------------------------------------------------------------
 -- ----------------------------------- WRITE MESH ----------------------------------- --
 ----------------------------------------------------------------------------------------
--- NOTA
--- 3dsmax starts ID from 1 although OGRE starts from 0.
--- -> a vertex 0 and a bone 0 will be added
-
--- flipNormal, scale, flipYZ, exportColours,exportUV : mesh parameters
--- firstFrmae, lastFrame,length,animName : animation parameters.
-struct exportOptions (firstFrame, lastFrame, length, animName, scale, flipyz, flipNormal, exportColours, exportUV) ;
-
-
 
 -----------------------------------------------------------------
 -- Global 'variables'
@@ -22,49 +15,28 @@ verticesArrays=#() ;
 facesArrays=#() ;
 boneAssignments=#() ;
 submeshesId=#() ;
-ogreVertIndex=#() ;
 materialName = "" ;
 
--- verticesArrays[i] will describe the submesh number i and its elements will be ogreVertices where
---	ogreVert = #(x,y,z,nx,ny,nz,u,v,r,g,b,a) 
---   		     ----- -------- --- -------
---          	 Pos     Nmal   U,V   RGBA
+-- verticesArrays[i] will describe the subMesh number i and its elements will be ogreVertices where
+--	ogreVert = #(x,y,z,nx,ny,nz,r,g,b,a,u1,v1,u2,v2....) 
+--   		     ----- -------- ------- ---------------
+--          	 Pos     Nmal    RGBA       UVs sets
+-- RGBA being the  vertex color when relevant 	(Optional)
+-- A vertex can contain multiple UVs sets		(Optional)
 
--- facesArrays[i] consists in arrays like #(v1,v2,v3) which discribe submesh number i.
+-- facesArrays[i] is an array of Point3 describing the subMesh i. Each Point3 contains vertices indices for a face that is gonna be exported
 
--- boneAssignments is made up of arrays like #(vertex,bone,weight)
+-- boneAssignments[i] describes the bones assignements for subMesh i. It is an array of triplets like #(vertexIndex,boneIndex,weight)
 
--- In submeshesId, there are material Ids
-
--- in ogreVertIndex, there are the current index for submeshes
+-- submeshesId is the list of material Ids 
 
 -- materialName is the name that Ogre will use
 
 
------------------------------------------------------------------
--- There is no function to have the number of a bone with the 
--- Physique modifier, so before trying to export, the user
--- properties "number" is added to bones.
------------------------------------------------------------------
-
-function setBonesNumber phy =
-(
-	local i ;
-
-	for i=1 to (physiqueOps.GetBoneCount $) do
-	(
-		b = (physiqueOps.getBones $)[i] ;
-		setUserProp b "number" i ;
-	)
-)
-
-
-	
------------------------------------------------------------------
+----------------------------------------------------------------
 -- exploreMesh returns a string which is "OK" or an error message
 -- if there are warnings, it displays message boxes.
 -----------------------------------------------------------------
-
 function exploreMesh pmesh exportUV exportColours=
 (
 	local material, answer, m ;
@@ -78,7 +50,7 @@ function exploreMesh pmesh exportUV exportColours=
 		answer = "This mesh doesn't have any material, please apply one\n" ;
 	else
 		-- then, are UVW coords set up ?
-		if (exportUV and getnumtverts m == 0) then
+		if (exportUV and getNumTVerts m == 0) then
 			answer = "This mesh must have UVW coords in order to be exported" ;
 		
 	if (answer == "") then 
@@ -89,135 +61,263 @@ function exploreMesh pmesh exportUV exportColours=
 )
 
 
+----------------------------------------------------------------
+-- returns the correct normal for the vertex
+-- according to smoothing groups
+-----------------------------------------------------------------
+function getVertexNormalAccordingToSmoothingGroups selectedMesh faceIndex vertexIndex =
+(
+	local normal;
+       	local faceSmoothingGroup = getFaceSmoothGroup selectedMesh faceIndex
+
+        if faceSmoothingGroup == 0 then
+        (
+                -- if not smooth use face normal
+                normal = getFaceNormal selectedMesh faceIndex
+        )       
+        else
+        (
+				local vertexIndexes = getFace selectedMesh faceIndex;
+                local vI = vertexIndexes[vertexIndex] 
+                local n = [0, 0, 0] -- point3
+                for adjoiningFaceIndex in (meshop.getFacesUsingVert selectedMesh vI) do
+                (
+					sg = getFaceSmoothGroup selectedMesh adjoiningFaceIndex;
+					and_sg = bit.and sg faceSmoothingGroup ;
+					if (and_sg != 0) then
+						n += getFaceNormal selectedMesh adjoiningFaceIndex ;
+                )
+                normal = normalize n;
+        ) 	
+
+	normal;
+)
+
+function tabEquals tab1 tab2 =
+(
+	if (tab1.count != tab2.count) then
+		return false;
+
+	for i=1 to tab1.count do
+		if (tab1[i] != tab2[i]) then
+			return false;
+		
+	return true;
+)
+
+function doesVertexExistAlready searchTable vertexIndex vertexNormal vertexColorIndex UVs exportUV exportColor =
+(
+	local start_uvs;
+	local index = 0;
+	vertex = #();
+	--format "vertex a tester % % \n" vertexIndex vertexNormal;
+	for vertex in searchTable do
+	(
+		--format "vertex % % \n" vertex[1] vertex[2];
+		index = index + 1;
+		if (vertex[1]!=vertexIndex) then
+			continue;
+			
+		if (vertex[2]!=vertexNormal) then
+			continue;
+			
+		if (exportColor) then
+		(
+			if (vertex[3]!=vertexColorIndex) then
+				continue;
+				
+			start_uvs = 3;
+		)
+		else
+		(
+			start_uvs = 2;
+		)
+		
+		if (exportUV) then
+		(
+			for i=1 to UVs.count do
+				if (vertex[start_uvs+i]!=UVs[i]) then
+				continue;
+		)
+		
+		return index ;
+	)
+	return 0;
+)
+
 ----------------------------------------------------------------------------
 -- Retrieves al the datas which wil be used
+-- tmesh is the mesh object
 -- flipyz = true if you want coords to fit in OGRE.
 -- flipNormal = true if you want to flip normals
 -- scale : the scale factor
 -- exportUV = true if you want to export texture
+-- numUVsets : number of texture coordinates to export (if exportUV is true, the minimum is 1. if exportUV is false, this parameter is irrelevant)
 -- exportColor = true if you want to export vertices colors
 -- sk : the skin modifier (may be undefined)
---
+-- phy : the physique modifier (may be undefined)
 -- stores datas in verticesArrays and facesArrays.
 ----------------------------------------------------------------------------
-
-function getDatas tmesh flipyz scale flipNormal exportUV exportColours sk phy =
+function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours sk phy =
 (
-    local num_tverts, num_faces,v,f,cf,face,nmal,vert,vertTmp,tvertTmp,faceTmp ;
-	local couple,searchTable,ogreface ;
-	local i,j,k,vwcount,bid,w,matId
+	local face;						--index of the current face
+	local localVertexIndex; 		--index of the current vertex (relative to the current face) ie : 1, 2 or 3
+	local vertexNormal;				--normal of the current vertex (Point3)
+	local vertexPosition;			--position of the current vertex (Point3)
+	local faceVerticesIndices;		--indices of the vertex for the current face (Point3)
+	local vertexIndex;				--index of the current vertex (in the mesh)
+	local matId;					--material Id of the current face
+	local numFaces;					--number of faces in the mesh
+	
+	local faceVertexColorIndices;	--indices of the vertex for the current face in the vertex color table of the mesh (Point3)
+	local vertexColorIndex;			--index of the current vertex in the vertex color table of the mesh
+	local vertexColor;				--vertex color for the current vertex (color)
+	
+	local ogreFace;					--indices of the vertices for the current face (references the list of vertices that is gonna be exported, not the vertices of the original mesh)
+	
+	local vertexWeightCount;		--number of bones influencing the current vertex
+	local vertexWeight;				--current weight
+	
+	local searchTable ;
+	local k ;
 	local rootId ;
 	
-	searchTable=#() ;
-	-- In order to know if a #(vertex,tvertex) has already be found,
-	-- just read in the searchtable[vertex] in order to find (or not) an element such as #(tvertex,cvertex,ogreVertNum)
-	-- This algorithm was used because I think there is not lots of (tvertex,cvertex) linked to one vertex...
-	-- Maybe I'm wrong, but I don't find anything else to perform a quick search and to save memory...
-	searchTables=#() ;
-	-- It is a searchTable array. (one searchTable for each submesh)
+	local UVcoords;					-- will contain the texture coordinates for the current vertex. its size will be numUVsets*2 if exportUV is true.
 	
-	num_tverts = tmesh.numtverts ;
-	num_faces = tmesh.numfaces ;
-
+	-- searchTables will contain a searchTable for every subMesh.
+	-- searchTable will be the current table for the current subMesh.
+	-- Every vertex will be stored here to check for duplicates.
+	searchTable=#() ;
+	searchTables=#() ;
+	
+	-- initialisation of the current ogre face as a vector
 	ogreFace=Point3 12 12 12 ;
-	cmpt = 1 ; -- vertex index.
-
+	
 	-- Data arrays init.	
 	verticesArrays=#() ;
 	facesArrays=#() ;
 	boneAssignments = #() ;
 	submeshesId = #() ;
-	ogreVertIndex=#() ;
-	
+	UVcoords=#() ;
+
+	-- compute bones list for the model.
+	BonesList=#()
+	computeBonesList phy sk;
+
+	numFaces = (getNumFaces tmesh);
 
 	-- For each face
-	for i = 1 to (getnumfaces tmesh) do -- For each face
+	for face = 1 to numFaces do 		-- LOOP on FACES --
 	(		
+		--progressUpdate (100.0*face/numFaces) ;
+	
+		faceVerticesIndices = getFace tmesh face ;
+		matId = getFaceMatId tmesh face ;		
 		
-		f = getface tmesh i ;
-		matId = getFaceMatId tmesh i ;		
 		
-		-- we retrieve datas. it depends on options.
-		-- UV face
-		if (exportUV) then
-			tvf = gettvface tmesh i ;
-		else
-			tvf = point3 1 1 1 ;
-		
-		-- Color Face
+		-- Vertex Color Face
 		if (exportColours) then
-			cf = getVCFace tmesh i ;
+		(
+			faceVertexColorIndices = getVCFace tmesh face ;
+		)
 		else
-			cf = point3 1 1 1 ;
+		(
+			faceVertexColorIndices = Point3 1 1 1 ;
+		)
 		
 		-- For each vertex whose face is made up of.
-		for j=1 to 3 do (			
-		    a = (int) (f[j]) ;
-			b = (int) (tvf[j]) ;
-			c = (int) (cf[j]) ;
-
+		for localVertexIndex=1 to 3 do 				-- LOOP on VERTICES --
+		(			
+		    vertexIndex = (int) (faceVerticesIndices[localVertexIndex]) ;
+			vertexColorIndex = (int) (faceVertexColorIndices[localVertexIndex]) ;
+			vertexNormal = getVertexNormalAccordingToSmoothingGroups tmesh face localVertexIndex;
+			
+			-- we retrieve datas. it depends on options.
+			-- UV face
+			if (exportUV) then
+			(
+				UVcoords=#();
+				local vertInds = getTVFace tmesh face ;
+				for ch=1 to numUVsets do
+				(
+				
+					UVW = meshOp.getMapVert tmesh ch vertInds[localVertexIndex] ;	-- retrieve the UV for the corresponding channel.
+					append UVcoords UVW[1];
+					append UVcoords UVW[2];							-- don't care about the W coordinate
+				)
+			)
+			else
+			(
+				UVcoords=#();
+			)
+		
 			-- we try to find the corresponding searchtable.											
 			if (searchTables[matId] == undefined ) then
-				searchTables[matId]=#() ;	
+				searchTables[matId]=#() ;			-- we found a new subMesh, create the searchTable for it
 			
-			searchTable = searchTables[matId] ;
+			searchTable = searchTables[matId] ;		-- set the searchTable to the current subMesh
 			
-			-- Maybe this triplet (vertex,tvertex,cvertex) has already been found.
+			newVertex = 1 ;
+			ogreVertNum = 1;
+			-- Maybe this vertex has already been found.
 			-- So we use searchTable.
-			ogreVertNum = -1 ;
-			
-		    if (searchTable[a] == undefined ) then
-				searchTable[a]=#() ;
-			
-			tab = searchTable[a] ;
-			
-			-- Now we can search in the array searchTable[a]
-			for triplet in tab do
+			res = doesVertexExistAlready searchTable vertexIndex vertexNormal vertexColorIndex UVcoords exportUV exportColours;
+			if (res==0) then
 			(
-				if (triplet[1] == b) then
-					if (triplet[2] == c) then
-						ogreVertNum = triplet[3] ;					
+				newVertex = 1 ;
+				--format "nouveau vertex % %\n" (getVert tmesh vertexIndex) vertexNormal;
+			)
+			else
+			(
+				newVertex = 0;
+				ogreVertNum = res;
 			)
 
-			if (ogreVertNum == -1) then -- That is to say it has not been found. 
+			if (newVertex == 1) then -- That is to say it has not been found. 
 			(
 				-- the vertex number for the current submesh must be updated
-				
-				-- if undefined, the array is created
-				if (ogreVertIndex[matId] == undefined ) then
-					ogreVertIndex[matId]=1 ;
-				
 				-- vertex number is increased.								
-				ogreVertNum = ogreVertIndex[matId] ;
-				ogreVertIndex[matId] = ogreVertIndex[matId] + 1 ;
+				ogreVertNum = searchTable.count + 1 ;
 				
 				-- it is added to the search table.
-				append searchTable[a] #(b,c,ogreVertNum) ;      
-				
-				-- we retrieve data
-				vert = getVert tmesh f[j] ;
-				nmal = getNormal tmesh f[j] ;
-				
-				tvert = point3 0 0 0 ;
-				if (exportUV) then
-					tvert = getTvert tmesh tvf[j] ;   
-				cvert = color 0 0 0 1;
+				searchTable[ogreVertNum] = #() ;
+				append searchTable[ogreVertNum] vertexIndex ;
+				n = copy vertexNormal;
+				append searchTable[ogreVertNum] n ;
 				if (exportColours) then
-					cvert = getVertColor tmesh cf[j] ;
+				(
+					append searchTable[ogreVertNum] VertexColorIndex ;
+				)
+				if (exportUV) then
+				(
+					if (UVcoords.count > 0) then
+					(
+						for uv=1 to UVcoords.count do
+							append searchTable[ogreVertNum] UVcoords[uv];
+					)
+				)
+				--print searchTable[ogreVertNum];
+					
+				-- we retrieve data
+				vertexPosition = getVert tmesh faceVerticesIndices[localVertexIndex] ;
+				
+				vertexColor = color 0 0 0 1;
+				if (exportColours) then
+					vertexColor = getVertColor tmesh faceVertexColorIndices[localVertexIndex] ;
 				
 				-- change scale
-				vert = vert * scale ;
+				vertexPosition = vertexPosition * scale ;
 		
 				-- flip axes		
 				if (flipyz) then
 				(
-					vertTmp = copy vert ;
-					vert[2] = vertTmp[3] ;
-					vert[3] = -vertTmp[2] ;
+					vertTmp = copy vertexPosition ;
+					vertexPosition[2] = vertTmp[3] ;
+					vertexPosition[3] = -vertTmp[2] ;
 					
-					nmalTmp = copy nmal ;
-					nmal[2] = nmalTmp[3] ;
-					nmal[3] = -nmalTmp[2] ;
+					nmalTmp = copy vertexNormal ;
+					vertexNormal[2] = nmalTmp[3] ;
+					vertexNormal[3] = -nmalTmp[2] ;
 				)
 				
 				-- Maybe the material found defines a new submesh...
@@ -227,62 +327,74 @@ function getDatas tmesh flipyz scale flipNormal exportUV exportColours sk phy =
 					verticesArrays[matId] = #() ;
 					boneAssignments[matId] = #() ;
 					append submeshesId matId ;
-					-- A new vertex is created because OGRE starts with 0 although 3dsmax starts with 1
-					append verticesArrays[matId] #(vert[1],vert[2],vert[3],nmal[1],nmal[2],nmal[3],tvert[1],tvert[2],cvert.r,cvert.g,cvert.b,cvert.a) ;   -- Vertex is added to datas
 				)
-				append verticesArrays[matId] #(vert[1],vert[2],vert[3],nmal[1],nmal[2],nmal[3],tvert[1],tvert[2],cvert.r,cvert.g,cvert.b,cvert.a) ;   -- Vertex is added to datas
-
+				vertexData = #(vertexPosition[1],vertexPosition[2],vertexPosition[3],vertexNormal[1],vertexNormal[2],vertexNormal[3],vertexColor.r,vertexColor.g,vertexColor.b,vertexColor.a) ;
+				if (exportUV) then
+				(
+					for ch=1 to numUVsets do
+					(
+						append vertexData UVcoords[1+(ch-1)*2];
+						append vertexData UVcoords[2+(ch-1)*2];
+					)
+				)
+				append verticesArrays[matId] vertexData ;   -- Vertex is added to datas
 				
 				-- And now, bone assignments. (if a skin modifier is present)
 				-- It seems that there are issues when just few vertices have bone assignments.
 				-- So there is at least the root assignment.
-				if (sk != undefined) then (
-					vwcount = skinOps.getVertexWeightCount sk a ; -- a is the vertex number: "a = (int) (f[j]) ;"
+				if (sk != undefined) then 
+				(
+					vertexWeightCount = skinOps.getVertexWeightCount sk vertexIndex ; 
 
-					for k=1 to vwcount do
+					for k=1 to vertexWeightCount do
 					(
-						bid = skinOps.getVertexWeightBoneID sk a k ;
-						w = skinOps.getVertexWeight sk a k ;
+						bid = skinOps.getVertexWeightBoneID sk vertexIndex k ;
+						bname = skinOps.getBoneName sk bid 1 ;
+						bname = replaceSpaces bname;
+						vertexWeight = skinOps.getVertexWeight sk vertexIndex k ;
 						
-						append boneAssignments[matId] #(ogreVertNum,bid,w) ;
+						id_bone = findItem BonesList bname;
+						if (id_bone != 0) then
+							append boneAssignments[matId] #(ogreVertNum-1,id_bone-1,vertexWeight) ;
 					)
 					-- assignment to the root bone.
-					if (vwcount==0) then (
+					if (vertexWeightCount==0) then 
+					(
 						-- gets the root Id:
 						rootId=getRootsId sk
-						append boneAssignments[matId] #(ogreVertNum,rootId[1],1) ;
+						rootname = skinOps.getBoneName sk rootId[1] 1 ;
+						id_bone = findItem BonesList rootname ;
+						if (id_bone != 0) then
+							append boneAssignments[matId] #(ogreVertNum-1,id_bone-1,1) ;
 					)
 				)
 				-- same thing with physique modifier if defined
-				if (phy != undefined) then (
-					-- TODO: here the selection ($) is used because tmesh can't be used...
-					-- it should be changed ti use pmesh (in the main function) for example.
+				if (phy != undefined) then 
+				(
+					vertexWeightCount = physiqueOps.getVertexBoneCount $ vertexIndex ;
 					
-					vwcount = physiqueOps.getVertexBoneCount $ a ; -- a is the vertex number: "a = (int) (f[j]) ;"
-
-					for k=1 to vwcount do
+					for k=1 to vertexWeightCount do
 					(
-						bone = physiqueOps.getVertexBone $ a k
-						w = physiqueOps.getVertexWeight $ a k
+						bone = physiqueOps.getVertexBone $ vertexIndex k
+						vertexWeight = physiqueOps.getVertexWeight $ vertexIndex k
 						
 						-- search the bone number
-						bid = getUserProp bone "number" ;
-						
-						--format "%,%\n%(%)\n" v weight bid.Name k ;
-						append boneAssignments[matId] #(ogreVertNum,bid,w) ;
+						bname = replaceSpaces bone.name;
+						id_bone = findItem BonesList bname ;
+						if (id_bone!=0)	then				
+							append boneAssignments[matId] #(ogreVertNum-1,id_bone-1,vertexWeight) ;
 					)
-					-- assignment to the root bone.
-					if (vwcount==0) then (
+					-- assignment to the first bone if the vertex was not assigned.
+					if (vertexWeightCount==0) then 
+					(
 						-- gets the root Id:
-						--rootId=getRootsId sk
-						--append boneAssignments[matId] #(ogreVertNum,rootId[1],1) ;
-						print "No assignment" ;
+						append boneAssignments[matId] #(ogreVertNum,0,1) ;
 					)
 				)				
 
 			)
 		
-			ogreFace[j] = ogreVertNum ;		
+			ogreFace[localVertexIndex] = ogreVertNum - 1;		
 		)
 		
 		-- flip normal capability
@@ -303,26 +415,42 @@ function getDatas tmesh flipyz scale flipNormal exportUV exportColours sk phy =
 -- writes in the mesh.xml file
 -- outName : filename
 -- exportUV = true if you want to export texture
+-- numUVsets : number of UVs sets per vertex to be exported (only relevant if exportUV = true)
 -- exportColor = true if you want to export vertices colors
---
+-- material : material used by the mesh
 -- Uses the arrays verticesArrays and facesArrays
 -------------------------------------------------
-
-function writeM exportUV exportColours material outName =
+function writeM exportUV numUVsets exportColours material outName =
 (
-	local a,v,f,matname,hasSkeleton,outFile,numTexCoord,hasColours,matId ;
+	local a,v,f,submatname,hasSkeleton,outFile,hasColours,matId ;
 	
 	hasSkeleton = false ;
 	texCoordString = "" ;
 	if (exportUV) then 
-		texCoordString = "texture_coords=\"1\" texture_coord_dimensions_0=\"2\" "
-	hasColours = false ;	
+	(
+		texCoordString = "texture_coords=\"" + (numUVsets as string) + "\" " ;
+		for num=1 to numUVsets do
+		(
+			texCoordString =  texCoordString + "texture_coords_dimensions_" + ((num-1) as string) + "=\"2\" "; -- I really don't care about the W coordinates
+		)
+	)
+	hasColours = "false" ;	
 	if (exportColours) then
-		hasColours = true ;		
+		hasColours = "true" ;		
 	
 
 	-- the final file is created
-	outFile = createfile (outName + ".mesh.xml") ;
+	if (g_MAX) then
+	(
+		ClearListener();
+		if (g_MAX_use_listener) then
+			format("<ogrestartfile>%</ogrestartfile><ogrestartdata>\n") (outName + ".mesh.xml");
+		outFile = listener;
+	)
+	else
+	(
+		outFile = createfile (outName + ".mesh.xml") ;
+	)
 
 	-- writes the header
 	format("<mesh>\n") to:outFile ;
@@ -331,7 +459,8 @@ function writeM exportUV exportColours material outName =
 	format("\t<submeshes>\n") to:outFile ;
 	
 	-- for each submesh
-	for matId in submeshesId do (
+	for matId in submeshesId do 
+	(
 		-- Do we need 32-bit indexes?
 		use32bitindexes = "false";
 		if arrayLength verticesArrays[matId] > 65535 then
@@ -341,7 +470,18 @@ function writeM exportUV exportColours material outName =
 		submatname = replacespaces material.name ;
 		
 		if (classof material == MultiMaterial) then
-		    submatname  += "/" + replacespaces material.materiallist[matId].name ;
+		(
+			if (material.materialList[matId]==undefined) then
+			(
+				msg = "";
+				format "You are using in your mesh a material Id (%) that does not exist in your MultiMaterial (%)\nMaterial information won't be properly exported." matId submatname to:msg ;
+				messageBox msg;	
+			)
+			else
+			(
+		    	submatname  += "/" + replacespaces material.materiallist[matId].name ;
+			)
+		)
 			
 									-- HELLO ! --
 			---------------------------------------------------------------------------------
@@ -351,17 +491,20 @@ function writeM exportUV exportColours material outName =
 		
 		format("\t\t<submesh material = \"%\" usesharedvertices=\"false\" use32bitindexes=\"%\">\n") submatname use32bitindexes to:outFile ;
 	
-		format "- writing faces...\n"		
+		if (not g_MAX) then
+			format "- writing faces...\n"		
 		format("\t\t\t<faces count=\"%\">\n") (arraylength facesArrays[matId]) to:outFile;
 		
 		-- for each face
-		for f in facesArrays[matId] do (
+		for f in facesArrays[matId] do 
+		(
 			format("\t\t\t\t<face ") to:outFile ;
 			format("v1=\"%\" v2=\"%\" v3=\"%\" />\n") ((int)f[1]) ((int)f[2]) ((int)f[3]) to:outFile ;
 		)
 		format("\t\t\t</faces>\n") to:outFile ;
 
-		format "- writing vertices...\n"	
+		if (not g_MAX) then
+			format "- writing vertices...\n"	
 		format("\t\t\t<geometry vertexcount=\"%\">\n") (arrayLength verticesArrays[matId] ) to:outFile;
 		format("\t\t\t\t<vertexbuffer positions=\"true\" normals=\"true\" colours_diffuse=\"%\" %>\n") hasColours TexCoordString to:outFile ;		
 		
@@ -372,15 +515,14 @@ function writeM exportUV exportColours material outName =
 			format("\t\t\t\t\t\t<position x=\"%\" y=\"%\" z=\"%\" />\n") v[1] v[2] v[3] to:outFile ;
 			format("\t\t\t\t\t\t<normal x=\"%\" y=\"%\" z=\"%\" />\n") v[4] v[5] v[6] to:outFile ;
 			if (exportUV) then
-				format("\t\t\t\t\t\t<texcoord u=\"%\" v=\"%\" />\n") v[7] (1 - v[8]) to:outFile ;		
-			if (exportColours) then (
-				cv = (float) 255*(int)v[12] ;   -- a
-				cv = 255*(cv + (int)v[11]) ; -- b
-				cv = 255*(cv + (int)v[10]) ; -- g
-				cv = cv+ (int)v[12] ;        -- r
-				cv_part2 = (int) (mod cv 1000000) ;
-				cv_part1 = (int) (cv/1000000);
-				format("\t\t\t\t\t\t<colour_diffuse value=\"%\" />\n") cv_part1 cv_part2 to:outFile ;
+			(
+				for ch=1 to numUVsets do
+					format("\t\t\t\t\t\t<texcoord u=\"%\" v=\"%\" />\n") v[11+(ch-1)*2] (1 - v[12+(ch-1)*2]) to:outFile ;		
+			)
+			if (exportColours) then 
+			(
+				color_string = (v[7] as string) + " " + (v[8] as string) + " " + (v[9] as string) + " " +(v[10] as string);
+				format("\t\t\t\t\t\t<colour_diffuse value=\"%\" />\n") color_string to:outFile ;
 			)
 			format("\t\t\t\t\t</vertex>\n") to:outFile ;
 		)	
@@ -392,10 +534,12 @@ function writeM exportUV exportColours material outName =
 		if ((arrayLength boneAssignments[matId]) != 0) then 
 		(
 			hasSkeleton = true ;
-			format "- writing bone assignments...\n"	
+			if (not g_MAX) then
+				format "- writing bone assignments...\n"	
 			format("\t\t\t<boneassignments>\n") to:outFile ;
 				
-			for a in boneAssignments[matId] do (
+			for a in boneAssignments[matId] do 
+			(
 				format("\t\t\t\t<vertexboneassignment vertexindex=\"%\" boneindex=\"%\" weight=\"%\" />\n") a[1] a[2] a[3] to:outFile ;
 			)
 			format("\t\t\t</boneassignments>\n") to:outFile ;
@@ -416,7 +560,16 @@ function writeM exportUV exportColours material outName =
 	)
 				
 	format("</mesh>\n") to: outFile ;
-	close outFile ;
+	
+	if (not g_MAX) then
+	(
+		close outFile ;
+	)
+	else
+	(
+		if (g_MAX_use_listener) then
+			format("</ogrestartdata>\n") to: outFile;
+	)
 )
 
 
@@ -450,6 +603,7 @@ function writeMesh pmesh exportOptions out_name =
 		phy = getPhysique pmesh ;
 		sk = getSkin pmesh;
 		
+		
 		if (sk != undefined) then
 			format "Skin modifier detected.\n"
 			
@@ -470,7 +624,7 @@ function writeMesh pmesh exportOptions out_name =
 			-- in order to perform, skin should be opened
 			max modify mode ;
 			modPanel.setCurrentObject pmesh.modifiers[#Physique] ;
-			setBonesNumber phy ;
+			--setBonesNumber phy ;
 			--physiqueOps.setInitialPose pmesh true ;
 		)
 		
@@ -485,19 +639,24 @@ function writeMesh pmesh exportOptions out_name =
 		
 		-- retrieving all datas
 		format "Retrieving vertices and faces data : \n" ;
-		getDatas m exportOptions.flipyz exportOptions.scale exportOptions.flipNormal exportOptions.exportUV exportOptions.exportColours sk phy;
+	
+		getDatas m exportOptions.flipyz exportOptions.scale exportOptions.flipNormal exportOptions.exportUV exportOptions.UVchannels exportOptions.exportColours sk phy;
 		
 		-- writing in the file
 		format "Writing in file %.mesh.xml : \n" out_name ;
-		WriteM exportOptions.exportUV exportOptions.exportColours pmesh.material out_name ;
+		WriteM exportOptions.exportUV exportOptions.UVchannels exportOptions.exportColours pmesh.material out_name ;
 		
-		format "Export successful.\n"		
+		if (not g_MAX) then
+			format "Export successful.\n"		
 		
 		delete m ;		
-		
-		format "-----                                -----\n"
-		format "----------          END          ---------\n"
-		format "------------------------------------------\n"
+	
+		if (not g_MAX) then	
+		(
+			format "-----                                -----\n"
+			format "----------          END          ---------\n"
+			format "------------------------------------------\n"
+		)
 		
 		MessageBox ("Exporting mesh successful !") ;
 		

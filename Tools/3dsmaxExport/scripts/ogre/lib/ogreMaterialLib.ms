@@ -127,18 +127,45 @@ function exportMultiMaterial material outFile=
 function exportMaterial material outname =
 (
 	local outFile ;
-	outFile = createfile outName ;
+	if (not g_MAX) then
+	(
+		outFile = createfile outName ;
+	)
+	else
+	(
+		ClearListener();
+		if (g_MAX_use_listener) then
+			format("<ogrestartfile>%</ogrestartfile><ogrestartdata>\n") (outName);
+		outFile = listener;
+	)
 		
 	if (material!=undefined and classof material == MultiMaterial) then
+	(
 		exportMultiMaterial material outFile ;
-	else (
+	)
+	else 
+	(
 		if (material!=undefined and classof material == StandardMaterial) then
+		(
 			exportStandardMaterial material outFile ;
+		)
 		else
+		(
 			messageBox "You have to choose a Standard Material or a MultiMaterial." ;
+			return 0;
+		)
 	)
 	
-    close outFile ;
+	if (not g_MAX) then
+	(
+	    close outFile ;
+	)
+	else
+	(
+		if (g_MAX_use_listener) then
+			format("</ogrestartdata>\n") to: outFile;
+	)
+	
 	messageBox "Exporting material successful !" ;
 )
 
@@ -149,7 +176,17 @@ function exportMaterial material outname =
 function exportAllSceneMaterials outname =
 (
 	local outFile ;
-	outFile = createfile outname ;
+	if (not g_MAX) then
+	(
+		outFile = createfile outName ;
+	)
+	else
+	(
+		ClearListener();
+		if (g_MAX_use_listener) then
+			format("<ogrestartfile>%</ogrestartfile><ogrestartdata>\n") (outName);
+		outFile = listener;
+	)
 	
 	for material in sceneMaterials do
 	(			
@@ -161,8 +198,17 @@ function exportAllSceneMaterials outname =
 		)
 		format "\n" to:outFile ;
 	)		
-    close outFile ;
+
+	if (not g_MAX) then
+	(
+	    close outFile ;
+	)
+	else
+	(
+		if (g_MAX_use_listener) then
+			format("</ogrestartdata>\n") to: outFile;
+	)
+
 	messageBox "Exporting all materials in the scene successful !" ;
-	
 )
 
