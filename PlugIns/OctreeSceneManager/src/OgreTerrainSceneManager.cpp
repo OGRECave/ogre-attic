@@ -808,7 +808,7 @@ namespace Ogre
         {
             Real height = static_cast<TerrainSceneManager*>(mParentSceneMgr)->getHeightAt(
                 origin.x, origin.z);
-            if ((height <= origin.y && dir.y < 0) || (height >= origin.y && dir.y > 0))
+            if (height != -1 && (height <= origin.y && dir.y < 0) || (height >= origin.y && dir.y > 0))
             {
                 worldFrag.singleIntersection.x = origin.x;
                 worldFrag.singleIntersection.z = origin.z;
