@@ -28,7 +28,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreException.h"
 #include "OgreSceneManager.h"
 #include "OgreRoot.h"
-#include "OgreDataChunk.h"
+#include "OgreSDDataChunk.h"
 
 #include "zlib.h"
 
@@ -63,17 +63,18 @@ namespace Ogre {
         fseek(fp, 0, SEEK_END);
         size_t filesize = ftell(fp);
         fseek(fp, 0 , SEEK_SET);
-        DataChunk tempChunk;
-        tempChunk.allocate(filesize);
 
-        fread((void*)tempChunk.getPtr(), filesize, 1, fp);
+        SDDataChunk tempChunk;
+        tempChunk.allocate( static_cast< unsigned long >( filesize ) );
+
+        fread( 
+			reinterpret_cast< void * >( const_cast< unsigned char * >( tempChunk.getPtr() ) ), 
+			filesize, 1, fp);
 
         // Use memory loader
         load(tempChunk);
 
         tempChunk.free();
-
-
     }
 
     void OofModelFile::load(DataChunk& chunk)
