@@ -175,9 +175,10 @@ namespace Ogre {
         writeReals(&len, 1);
 
         // Write all tracks
-        for (unsigned short i = 0; i < anim->getNumTracks(); ++i)
+        Animation::TrackIterator trackIt = anim->getTrackIterator();
+        while(trackIt.hasMoreElements())
         {
-            writeAnimationTrack(anim->getTrack(i));
+            writeAnimationTrack(trackIt.getNext());
         }
 
     }

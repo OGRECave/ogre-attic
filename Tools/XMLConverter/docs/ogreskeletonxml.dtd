@@ -45,6 +45,9 @@
 <!ATTLIST rotate
 	angle	CDATA	#REQUIRED>
 <!ELEMENT scale EMPTY>
-<!-- Only UNIFORM scaling is supported -->
+<!-- UNIFORM SCALE is 'factor', or you can use per-axis (not both) -->
 <!ATTLIST scale 
-	factor	CDATA	#REQUIRED>
+	factor	CDATA	#IMPLIED
+	x		CDATA	#IMPLIED
+	y		CDATA	#IMPLIED
+	z		CDATA	#IMPLIED>
