@@ -3,14 +3,21 @@ QuickStart
 1)  Check your OS X and XCode install
     - OS X 10.2, minimum
     - Latest XCode (1.5) suggested
-    - X11 Install Required (for freetype2 dylib)
-2)  Retrieve the necessary external frameworks
+    - X11 SDK Install Required (for freetype2 dylib)
+2)  Retrieve the necessary external frameworks from SourceForge:
+        http://sourceforge.net/project/showfiles.php?group_id=2997&package_id=101495&release_id=307256)
+
+    OR
+
+    Install all the frameworks yourself:
     - SDL 1.2 (http://www.libsdl.org/download-1.2.php)
     - DevIL 1.6.7 (http://openil.sourceforge.net/download.php)
     - Cg 1.2 (http://developer.nvidia.com/object/cg_toolkit_1_2.html)
-3)  Open and build Ogre.xcode
+    - zzip (Get the source from http://zziplib.sf.net and see the OGRE forums
+        for an Xcode build file.)
+3)  Open and build Mac/XCode/Ogre/Ogre.xcode
 4)  Install the built Ogre.framework
-5)  Open and build Samples.xcode
+5)  Open and build Mac/XCode/Samples/Samples.xcode
 6)  Run samples and be happy.
 
 FAQ
@@ -47,8 +54,11 @@ Using the Ogre.framework in Your Applications
     style (the default), you will have to edit the Development build 
     style of your Application to use the Ogre debug headers. To do this,
     set your 'OTHER_CFLAGS' and 'OTHER_CXXFLAGS' to '-DDEBUG'.
-10) You are now ready to add your own resources and source files.
+8)  You are now ready to add your own resources and source files.
     Take a look at the Samples and the documentation on the ogre
     website for guidance. You should be able to replicate the Samples
     by adding all of the source files from the Sample to your application,
     and adding the files from Media that it uses to your Resources.
+9)  When shipping your newly built .app You should be able to put the OGRE and
+    other frameworks in .app/Contents/Frameworks and they will be found and
+    used at runtime.

@@ -159,6 +159,7 @@ namespace Ogre {
             delete i->second;
         }
         mOverlayMap.clear();
+		mLoadedScripts.clear();
     }
     //---------------------------------------------------------------------
     OverlayManager::OverlayMapIterator OverlayManager::getOverlayIterator(void)
@@ -168,6 +169,16 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void OverlayManager::parseScript(DataStreamPtr& stream, const String& groupName)
     {
+		// check if we've seen this script before (can happen if included 
+		// multiple times)
+		if (!stream->getName().empty() && 
+			mLoadedScripts.find(stream->getName()) != mLoadedScripts.end())
+		{
+			LogManager::getSingleton().logMessage( 
+				"Skipping loading overlay include: '"
+				+ stream->getName() + " as it is already loaded.");
+			return;
+		}
 	    String line;
 	    Overlay* pOverlay = 0;
 		bool skipLine;
@@ -261,6 +272,9 @@ namespace Ogre {
 
 
 	    }
+
+		// record as parsed
+		mLoadedScripts.insert(stream->getName());
 
     }
     //---------------------------------------------------------------------

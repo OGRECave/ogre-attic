@@ -691,7 +691,7 @@ namespace Ogre {
 		// Make sure LOD levels are max of all at the requested level
 		for (ushort lod = 1; lod < lodLevels; ++lod)
 		{
-			const Mesh::MeshLodUsage& meshLod = 
+			const MeshLodUsage& meshLod = 
 				qmesh->submesh->parent->getLodLevel(lod);
 			mLodSquaredDistances[lod] = std::max(mLodSquaredDistances[lod], 
 				meshLod.fromDepthSquared);

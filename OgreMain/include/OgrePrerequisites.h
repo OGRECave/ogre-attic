@@ -139,7 +139,7 @@ namespace Ogre {
     typedef unsigned char uchar;
     typedef unsigned short ushort;
     typedef unsigned int uint;  
-	typedef unsigned int ulong;  
+	typedef unsigned long ulong;  
 
     /// Useful macros
     #define OGRE_DELETE(p)       { if(p) { delete (p);     (p)=NULL; } }

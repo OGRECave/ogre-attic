@@ -9,10 +9,10 @@ Section -Samples
   File ".\Samples\scripts\*.vcproj"
   SetOutPath "$INSTDIR\samples\src"
   SetOverwrite try
-  File /r /x CVS /x CEGUIRenderer "..\..\Samples\*.cpp"
+  File ".\Samples\src\*.cpp"
   SetOutPath "$INSTDIR\samples\include"
   SetOverwrite try
-  File /r /x CVS /x CEGUIRenderer "..\..\Samples\*.h"
+  File ".\Samples\include\*.h"
 
   ; Refapp
   SetOutPath "$INSTDIR\samples\refapp\scripts"

@@ -67,6 +67,10 @@ namespace Ogre {
 		ElementMap mInstances;
 		ElementMap mTemplates;
 
+		typedef std::set<String> LoadedScripts;
+		LoadedScripts mLoadedScripts;
+
+
 
 
 		ElementMap& getElementMap(bool isTemplate);

@@ -78,6 +78,8 @@ namespace Ogre {
             ACT_WORLDVIEWPROJ_MATRIX,
             /// The current world matrix, inverted
             ACT_INVERSE_WORLD_MATRIX,
+			/// The current view matrix, inverted
+			ACT_INVERSE_VIEW_MATRIX,
             /// The current world & view matrices concatenated, then inverted
             ACT_INVERSE_WORLDVIEW_MATRIX,
             /// The current world matrix, inverted & transposed

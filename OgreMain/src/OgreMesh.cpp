@@ -706,7 +706,7 @@ namespace Ogre {
         return mNumLods;
     }
     //---------------------------------------------------------------------
-    const Mesh::MeshLodUsage& Mesh::getLodLevel(ushort index) const
+    const MeshLodUsage& Mesh::getLodLevel(ushort index) const
     {
         assert(index < mMeshLodUsageList.size());
         if (mIsLodManual && index > 0 && mMeshLodUsageList[index].manualMesh.isNull())
@@ -728,9 +728,9 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------
 	struct ManualLodSortLess : 
-	public std::binary_function<const Mesh::MeshLodUsage&, const Mesh::MeshLodUsage&, bool>
+	public std::binary_function<const MeshLodUsage&, const MeshLodUsage&, bool>
 	{
-		bool operator() (const Mesh::MeshLodUsage& mesh1, const Mesh::MeshLodUsage& mesh2)
+		bool operator() (const MeshLodUsage& mesh1, const MeshLodUsage& mesh2)
 		{
 			// sort ascending by depth
 			return mesh1.fromDepthSquared < mesh2.fromDepthSquared;
@@ -812,7 +812,7 @@ namespace Ogre {
 		mIsLodManual = isManual;
 	}
     //---------------------------------------------------------------------
-	void Mesh::_setLodUsage(unsigned short level, Mesh::MeshLodUsage& usage)
+	void Mesh::_setLodUsage(unsigned short level, MeshLodUsage& usage)
 	{
         assert(!mEdgeListsBuilt && "Can't modify LOD after edge lists built");
 

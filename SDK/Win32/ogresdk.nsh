@@ -66,6 +66,7 @@ Section -Headers
   SetOverwrite try
   File "..\..\OgreMain\include\*.h"
   File "..\..\Samples\Common\include\*.h"
+  File "..\..\ReferenceApplication\Common\include\*.h"
   File "..\..\Samples\Common\CEGUIRenderer\include\*.h"
   ; Dependencies - only ODE and CEGui
   SetOutPath "$INSTDIR\include\CEGUI"
@@ -78,8 +79,8 @@ Section -Headers
   ; Optional headers (for linking direct to plugins)
   SetOutPath "$INSTDIR\include\opt"
   SetOverwrite try
-  File /r /x CVS "..\..\Plugins\OctreeSceneManager\include\*.h"
-  File /r /x CVS "..\..\Plugins\BspSceneManager\include\*.h"
+  File "..\..\Plugins\OctreeSceneManager\include\*.h"
+  File "..\..\Plugins\BspSceneManager\include\*.h"
 
 SectionEnd
 
@@ -139,7 +140,7 @@ Section -Binaries
   File "..\..\Samples\Common\bin\Debug\RenderSystem_GL.dll"
   File "..\..\Samples\Common\bin\Debug\OgreGUIRenderer_d.dll"
 
-  File "..\..\Samples\Common\bin\Debug\resources.cfg"
+  File ".\samples\resources.cfg"
   File "..\..\Samples\Common\bin\Debug\plugins.cfg"
   File "..\..\Samples\Common\bin\Debug\terrain.cfg"
   File "..\..\Samples\Common\bin\Debug\media.cfg"
@@ -167,7 +168,7 @@ Section -Binaries
   File "..\..\Samples\Common\bin\Release\RenderSystem_GL.dll"
   File "..\..\Samples\Common\bin\Release\OgreGUIRenderer.dll"
 
-  File "..\..\Samples\Common\bin\Release\resources.cfg"
+  File ".\samples\resources.cfg"
   File "..\..\Samples\Common\bin\Release\plugins.cfg"
   File "..\..\Samples\Common\bin\Release\terrain.cfg"
   File "..\..\Samples\Common\bin\Release\media.cfg"
@@ -184,6 +185,14 @@ SectionEnd
 
 Section -Docs
   ; Documentation
+  SetOutPath "$INSTDIR\docs"
+  SetOverwrite try
+  File ".\docs\ReadMe.html"
+  File "..\..\Docs\License.html"
+  File "..\..\Docs\ChangeLog.html"
+  File "..\..\Docs\style.css"
+
+
   SetOutPath "$INSTDIR\docs\manual\images"
   SetOverwrite try
   File "..\..\Docs\manual\images\*.*"
@@ -195,8 +204,6 @@ Section -Docs
   File "..\..\Docs\api\html\OgreAPIReference.*"
 
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
-  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\OGRE Manual.lnk" "$INSTDIR\docs\manual\index.html"
-  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\OGRE API Reference.lnk" "$INSTDIR\docs\api\OgreAPIReference.chm"
   !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
@@ -206,6 +213,9 @@ Section -AdditionalIcons
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
   WriteIniStr "$INSTDIR\OgreWebSite.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
   CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
+  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\README.lnk" "$INSTDIR\docs\ReadMe.html"
+  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\OGRE Manual.lnk" "$INSTDIR\docs\manual\index.html"
+  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\OGRE API Reference.lnk" "$INSTDIR\docs\api\OgreAPIReference.chm"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\OGRE Website.lnk" "$INSTDIR\OgreWebSite.url"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Uninstall.lnk" "$INSTDIR\uninst.exe"
   !insertmacro MUI_STARTMENU_WRITE_END
@@ -240,13 +250,10 @@ FunctionEnd
 Section Uninstall
   !insertmacro MUI_STARTMENU_GETFOLDER "Application" $ICONS_GROUP
   RMDir /r "$INSTDIR"
-
-  Delete "$SMPROGRAMS\$ICONS_GROUP\Uninstall.lnk"
-  Delete "$SMPROGRAMS\$ICONS_GROUP\Website.lnk"
-  Delete "$SMPROGRAMS\$ICONS_GROUP\OGRE API Reference.lnk"
-  Delete "$SMPROGRAMS\$ICONS_GROUP\OGRE Manual.lnk"
-
-  RMDir "$SMPROGRAMS\$ICONS_GROUP"
+  RMDir /r "$SMPROGRAMS\$ICONS_GROUP"
+  
+  Push "OGRE_HOME"
+  Call un.DeleteEnvStr
 
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
   SetAutoClose true

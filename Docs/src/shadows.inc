@@ -19,7 +19,7 @@ Disable shadow casting on objects which should not cast shadows. Call setCastSha
 @item 
 Configure shadow far distance. You can limit the distance at which shadows are considered for performance reasons, by calling SceneManager::setShadowFarDistance.
 @item 
-Turn off the receipt of shadows on materials that should not receive them. You can turn off the receipt of shadows (note, not the casting of shadows - that is done per-object) by calling Material::setReceiveShadows or using the receive_shadows material attribute. This is useful for materials which should be considered self-illuminated for example. Note that transparent materials are always excluded from receiving and casting shadows. 
+Turn off the receipt of shadows on materials that should not receive them. You can turn off the receipt of shadows (note, not the casting of shadows - that is done per-object) by calling Material::setReceiveShadows or using the receive_shadows material attribute. This is useful for materials which should be considered self-illuminated for example. Note that transparent materials are typically excluded from receiving and casting shadows, although see the @ref{transparency_casts_shadows} option for exceptions. 
 @end enumerate
 
 @subheading Opting out of shadows
@@ -45,7 +45,6 @@ In order to generate the stencil, 'shadow volumes' are rendered by extruding the
 There are a number of issues to consider which are specific to stencil shadows:
 @itemize @bullet
 @item @ref{CPU Overhead}
-@item @ref{Make sure your meshes are manifold}
 @item @ref{Extrusion distance}
 @item @ref{Camera far plane positioning}
 @item @ref{The Silhouette Edge}
@@ -56,10 +55,6 @@ There are a number of issues to consider which are specific to stencil shadows:
 @anchor{CPU Overhead}
 @subheading CPU Overhead
 Calculating the shadow volume for a mesh can be expensive, and it has to be done on the CPU, it is not a hardware accelerated feature. Therefore, you can find that if you overuse this feature, you can create a CPU bottleneck for your application. Ogre quite aggressively eliminates objects which cannot be casting shadows on the frustum, but there are limits to how much it can do, and large, elgongated shadows (e.g. representing a very low sun position) are very difficult to cull efficiently. Try to avoid having too many shadow casters around at once, and avoid long shadows if you can. Also, make use of the 'shadow far distance' parameter on the SceneManager, this can eliminate distant shadow casters from the shadow volume construction and save you some time, at the expense of only having shadows for closer objects. Lastly, make use of Ogre's Level-Of-Detail (LOD) features; you can generate automatically calculated LODs for your meshes in code (see the Mesh API docs) or when using the mesh tools such as OgreXmlConverter and OgreMeshUpgrader. Alternatively, you can assign your own manual LODs by providing alternative mesh files at lower detail levels. Both methods will cause the shadow volume complexity to decrease as the object gets further away, which saves you valuable volume calculation time. 
-
-@anchor{Make sure your meshes are manifold}
-@subheading Make sure your meshes are manifold
-Generating a valid silhouette requires that the model being used to generate the shadow is manifold; that means the model must be a completely closed surface, with no holes or gaps which would allow you to 'see' the inside surface of the mesh. If the mesh is made up of multiple parts (SubMeshes), either each must be manifold in its own right (and these can intersect, although you should not have any shared vertices between them), or when taken as a group the combination of them must be manifold. In the latter case, it is important that any vertex data matches exactly in order for the surface to be continuous. If you don't obey these rules, you will get artefacts such as 'streaks' between your object and its shadow. Note that if you want to include non-manifold geometry in your shadowed scene you can do, but you must turn shadows off for that object calling @code{object->setCastShadows(false);}. Planes are a prime example of this, since they are not manifold (unless you generate additional triangles on the reverse side of the plane, which is not common).@*@*
 
 @anchor{Extrusion distance}
 @subheading Extrusion distance
@@ -80,7 +75,6 @@ Don't expect to be able to throw any scene using any hardware at the stencil sha
 @itemize @bullet 
 @item Try to avoid letting objects pass very close (or even through) lights - it might look nice but it's one of the cases where artefacts can occur on machines not cabable of running vertex programs.
 @item Be aware that shadow volumes do not respect the 'solidity' of the objects they pass through, and if those objects do not themselves cast shadows (which would hide the effect) then the result will be that you can see shadows on the other side of what should be an occluding object. 
-@item Turn off shadows for non-manifold objects. They can still receive shadows, they just can't cast them.
 @item Make use of SceneManager::setShadowFarDistance to limit the number of shadow volumes constructed
 @item Make use of LOD to reduce shadow volume complexity at distance
 @item Avoid very long (dusk and dawn) shadows - they exacerbate other issues such as volume clipping, fillrate, and cause many more objects at a greater distance to require volume construction.  

@@ -33,7 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     RenderWindow::RenderWindow()
-        : RenderTarget()
+        : RenderTarget(), mIsPrimary(false)
     {
     }
 
@@ -51,6 +51,11 @@ namespace Ogre {
     bool RenderWindow::isFullScreen(void) const
     {
         return mIsFullScreen;
+    }
+	//-----------------------------------------------------------------------
+    bool RenderWindow::isPrimary(void) const
+    {
+        return mIsPrimary;
     }
     //-----------------------------------------------------------------------
     void RenderWindow::update(void)
