@@ -327,7 +327,8 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 				-- we retrieve data
 				vertexPosition = getVert tmesh faceVerticesIndices[localVertexIndex] ;
 				
-				vertexColor = Point4 0 0 0 1;	-- not using the color type because I need in the [0..1] range, not [O..255]
+				vertexColor = Point3 0 0 0;
+				vertexAlpha = 255;
 				if (exportColours) then
 				(
 					vertexColor = (meshOp.getMapVert tmesh 0 vertexColorIndex);
