@@ -30,6 +30,24 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+	/** Abstract class containing any additional data required to be associated
+		with a particle to perform the required rendering. 
+	@remarks
+		Because you can specialise the way that particles are renderered by supplying
+		custom ParticleSystemRenderer classes, you might well need some additional 
+		data for your custom rendering routine which is not held on the default particle
+		class. If that's the case, then you should define a subclass of this class, 
+		and construct it when asked in your custom ParticleSystemRenderer class.
+	*/
+	class _OgreExport ParticleVisualData
+	{
+	public:
+		ParticleVisualData() {}
+		virtual ~ParticleVisualData() {}
+
+	};
+
+	/** Class representing a single particle instance. */
     class _OgreExport Particle : public Billboard
     {
     protected:
@@ -43,6 +61,8 @@ namespace Ogre {
         Real mHeight;
         /// Current rotation value
         Radian mRotation;
+		/// Additional visual data you might want to associate with the Particle
+		ParticleVisualData* mVisual;
     public:
         // Note the intentional public access to internal variables
         // Accessing via get/set would be too costly for 000's of particles
@@ -98,6 +118,13 @@ namespace Ogre {
         /** Internal method for notifying the particle of it's owner.
         */
         void _notifyOwner(ParticleSystem* owner);
+
+        /** Internal method for notifying the particle of it's optional visual data.
+        */
+		void _notifyVisualData(ParticleVisualData* vis) { mVisual = vis; }
+
+		/// Get the optional visual data associated with the class
+		ParticleVisualData* getVisualData(void) const { return mVisual; }
 
        
     };

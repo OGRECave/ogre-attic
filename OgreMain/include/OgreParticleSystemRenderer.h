@@ -78,6 +78,22 @@ namespace Ogre {
         virtual void _notifyParticleRotated(void) {}
         /** Tells the renderer that the particle quota has changed */
         virtual void _notifyParticleQuota(size_t quota) = 0;
+		/** Create a new ParticleVisualData instance for attachment to a particle.
+		@remarks
+			If this renderer needs additional data in each particle, then this should
+			be held in an instance of a subclass of ParticleVisualData, and this method
+			should be overridden to return a new instance of it. The default
+			behaviour is to return null.
+		*/
+		virtual ParticleVisualData* _createVisualData(void) { return 0; }
+		/** Destroy a ParticleVisualData instance.
+		@remarks
+			If this renderer needs additional data in each particle, then this should
+			be held in an instance of a subclass of ParticleVisualData, and this method
+			should be overridden to destroy an instance of it. The default
+			behaviour is to do nothing.
+		*/
+		virtual void _destroyVisualData(ParticleVisualData* vis) { assert (vis == 0); }
 
 
     };

@@ -369,7 +369,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void ParticleSystem::increasePool(unsigned int size)
+    void ParticleSystem::increasePool(size_t size)
     {
         size_t oldSize = mParticlePool.size();
 
@@ -379,7 +379,15 @@ namespace Ogre {
 
         // Create new particles
         for( size_t i = oldSize; i < size; i++ )
+		{
             mParticlePool[i] = new Particle();
+		}
+
+		if (mRenderer)
+		{
+			createVisualParticles(oldSize, size);
+		}
+
 
     }
     //-----------------------------------------------------------------------
@@ -667,6 +675,7 @@ namespace Ogre {
 		if (mRenderer)
 		{
 			// Destroy existing
+			destroyVisualParticles(0, mParticlePool.size());
 			ParticleSystemManager::getSingleton()._destroyRenderer(mRenderer);
 			mRenderer = 0;
 		}
@@ -679,7 +688,7 @@ namespace Ogre {
 				MaterialPtr mat = MaterialManager::getSingleton().getByName(mMaterialName);
 				mRenderer->_setMaterial(mat);
 			}
-
+			createVisualParticles(0, mParticlePool.size());
         }
     }
     //-----------------------------------------------------------------------
@@ -697,6 +706,32 @@ namespace Ogre {
     {
         mCullIndividual = cullIndividual;
     }
+    //-----------------------------------------------------------------------
+	void ParticleSystem::createVisualParticles(size_t poolstart, size_t poolend)
+	{
+		ParticlePool::iterator i = mParticlePool.begin();
+		ParticlePool::iterator iend = mParticlePool.begin();
+		std::advance(i, poolstart);
+		std::advance(iend, poolend);
+		for (; i != iend; ++i)
+		{
+			(*i)->_notifyVisualData(
+				mRenderer->_createVisualData());
+		}
+	}
+    //-----------------------------------------------------------------------
+	void ParticleSystem::destroyVisualParticles(size_t poolstart, size_t poolend)
+	{
+		ParticlePool::iterator i = mParticlePool.begin();
+		ParticlePool::iterator iend = mParticlePool.begin();
+		std::advance(i, poolstart);
+		std::advance(iend, poolend);
+		for (; i != iend; ++i)
+		{
+			mRenderer->_destroyVisualData((*i)->getVisualData());
+			(*i)->_notifyVisualData(0);
+		}
+	}
     //-----------------------------------------------------------------------
     /*
     bool ParticleSystem::particleVisible(Camera* cam, ActiveParticleList::iterator p)

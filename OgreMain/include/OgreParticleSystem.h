@@ -494,10 +494,15 @@ namespace Ogre {
         void _triggerAffectors(Real timeElapsed);
 
         /** Resize the internal pool of particles. */
-        void increasePool(unsigned int size);
+        void increasePool(size_t size);
 
         /** Internal method for initialising string interface. */
         void initParameters(void);
+
+		/// Internal method for creating ParticleVisualData instances for the pool
+		void createVisualParticles(size_t poolstart, size_t poolend);
+		/// Internal method for destroying ParticleVisualData instances for the pool
+		void destroyVisualParticles(size_t poolstart, size_t poolend);
 
     };
 
