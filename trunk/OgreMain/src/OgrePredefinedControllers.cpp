@@ -206,6 +206,20 @@ namespace Ogre
 
     }
     //-----------------------------------------------------------------------
+    Real WaveformControllerFunction::getAdjustedInput(Real input)
+    {
+        Real adjusted = ControllerFunction::getAdjustedInput(input);
+
+        // If not delta, adjust by phase here
+        // (delta inputs have it adjusted at initialisation)
+        if (!mDeltaInput)
+        {
+            adjusted += mPhase;
+        }
+
+        return adjusted;
+    }
+    //-----------------------------------------------------------------------
     Real WaveformControllerFunction::calculate(Real source)
     {
         Math& math = Math::getSingleton();
