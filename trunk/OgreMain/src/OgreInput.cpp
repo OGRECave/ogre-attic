@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreEventQueue.h"
 #include "OgreKeyEvent.h"
 #include "OgreEventListeners.h"
+#include "OgreLogManager.h"
 
 
 namespace Ogre {
@@ -139,19 +140,9 @@ namespace Ogre {
                 0
             );	// hack fix click count
 
-		mCursor->processEvent(me);
+        
+        mCursor->processEvent(me);
 		mEventQueue->push(me);
-
-        // Now update immediate-mode emulation state
-        /* Set the new absolute position. */
-        mMouseState.Xabs = mCursor->getX();
-        mMouseState.Yabs = mCursor->getY();
-        mMouseState.Zabs = mCursor->getZ();            
-
-        /* Compute the new relative position. */
-        mMouseState.Xrel = mCursor->getRelX();
-        mMouseState.Yrel = mCursor->getRelY();
-        mMouseState.Zrel = mCursor->getRelZ();
 
 	}
 
