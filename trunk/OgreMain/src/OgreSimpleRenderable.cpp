@@ -116,7 +116,7 @@ namespace Ogre {
 
     void SimpleRenderable::_updateRenderQueue(RenderQueue* queue)
     {
-        queue->addRenderable( this );
+        queue->addRenderable( this, mRenderQueueID, RENDERABLE_DEFAULT_PRIORITY); 
     }
 
     SimpleRenderable::~SimpleRenderable()
