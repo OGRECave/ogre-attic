@@ -28,7 +28,7 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     SceneQuery::SceneQuery(SceneManager* mgr)
-    : mLastResult(NULL), mParentSceneMgr(mgr)
+    : mLastResult(NULL), mParentSceneMgr(mgr), mQueryMask(0xFFFFFFFF)
     {
     }
     //-----------------------------------------------------------------------
@@ -40,7 +40,7 @@ namespace Ogre {
     SceneQueryResult& SceneQuery::getLastResults(void)
     {
         assert(mLastResult);
-        return mLastResult;
+        return *mLastResult;
     }
     //-----------------------------------------------------------------------
     void SceneQuery::clearResults(void)
@@ -50,6 +50,16 @@ namespace Ogre {
             delete mLastResult;
         }
         mLastResult = NULL;
+    }
+    //-----------------------------------------------------------------------
+    void SceneQuery::setQueryMask(unsigned long mask)
+    {
+        mQueryMask = mask;
+    }
+    //-----------------------------------------------------------------------
+    unsigned long SceneQuery::getQueryMask(void)
+    {
+        return mQueryMask;
     }
 
 }

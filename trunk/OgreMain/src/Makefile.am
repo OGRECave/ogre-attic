@@ -39,7 +39,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreGuiElementCommands.cpp \
                          OgreGuiManager.cpp \
                          OgreImage.cpp \
-			 OgreImageCodec.cpp \
+                         OgreImageCodec.cpp \
                          OgreInput.cpp \
                          OgreInputEvent.cpp \
                          OgreJPEGCodec.cpp \
@@ -50,7 +50,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreLogManager.cpp \
                          OgreMaterial.cpp \
                          OgreMaterialManager.cpp \
-			 OgreMaterialSerializer.cpp \
+                         OgreMaterialSerializer.cpp \
                          OgreMath.cpp \
                          OgreMatrix3.cpp \
                          OgreMatrix4.cpp \
@@ -91,6 +91,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreSceneManager.cpp \
                          OgreSceneManagerEnumerator.cpp \
                          OgreSceneNode.cpp \
+                         OgreSceneQuery.cpp \
                          OgreSerializer.cpp \
                          OgreSimpleRenderable.cpp \
                          OgreSimpleSpline.cpp \
@@ -104,12 +105,12 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreStringVector.cpp \
                          OgreSubEntity.cpp \
                          OgreSubMesh.cpp \
-			 OgreTagPoint.cpp \
+                         OgreTagPoint.cpp \
                          OgreTGACodec.cpp \
                          OgreTexture.cpp \
                          OgreTextureLayer.cpp \
                          OgreTextureManager.cpp \
-						 OgreUserDefinedObject.cpp \
+                         OgreUserDefinedObject.cpp \
                          OgreVector3.cpp \
                          OgreViewport.cpp \
                          OgreWireBoundingBox.cpp \
