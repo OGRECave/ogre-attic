@@ -240,8 +240,17 @@ namespace Ogre {
         /** Internal utility method for rendering a single object. 
         @remarks
             Assumes that the pass has already been set up.
+        @param rend The renderable to issue to the pipeline
+        @param pass The pass which is being used
+        @param doLightIteration If true, this method will issue the renderable to
+            the pipeline possibly multiple times, if the pass indicates it should be
+            done once per light
+        @param manualLightList Only applicable if doLightIteration is false, this
+            method allows you to pass in a previously determined set of lights
+            which will be used for a single render of this object.
         */
-        virtual void renderSingleObject(Renderable* rend, Pass* pass, bool doLightIteration);
+        virtual void renderSingleObject(Renderable* rend, Pass* pass, bool doLightIteration, 
+            const LightList* manualLightList = 0);
 
         /// Utility class for calculating automatic parameters for gpu programs
         AutoParamDataSource mAutoParamDataSource;
@@ -255,6 +264,7 @@ namespace Ogre {
         HardwareIndexBufferSharedPtr mShadowIndexBuffer;
         Rectangle2D* mFullScreenQuad;
         Real mShadowDirLightExtrudeDist;
+        IlluminationStage mIlluminationStage;
 
         /** Internal method for locating a list of lights which could be affecting the frustum. 
         @remarks
@@ -330,12 +340,12 @@ namespace Ogre {
 		virtual void renderAdditiveStencilShadowedQueueGroupObjects(RenderQueueGroup* group);
 		/** Render a group with the added complexity of additive stencil shadows. */
 		virtual void renderModulativeStencilShadowedQueueGroupObjects(RenderQueueGroup* group);
-		/** Render a set of objects */
+		/** Render a set of objects, see renderSingleObject for param definitions */
 		virtual void renderObjects(const RenderPriorityGroup::SolidRenderablePassMap& objs, 
-            bool doLightIteration);
-		/** Render a set of objects */
+            bool doLightIteration, const LightList* manualLightList = 0);
+        /** Render a set of objects, see renderSingleObject for param definitions */
 		virtual void renderObjects(const RenderPriorityGroup::TransparentRenderablePassList& objs, 
-            bool doLightIteration);
+            bool doLightIteration, const LightList* manualLightList = 0);
 
     public:
         /** Default constructor.

@@ -145,6 +145,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void RenderQueue::setSplitPassesByLightingType(bool split)
     {
+        mSplitPassesByLightingType = split;
+
         RenderQueueGroupMap::iterator i, iend;
         i = mGroups.begin();
         iend = mGroups.end();

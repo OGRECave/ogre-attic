@@ -521,6 +521,13 @@ namespace Ogre {
                         newPass->setDiffuse(ColourValue::Black);
                         newPass->setSpecular(ColourValue::Black);
 
+                        // If ambient & emissive are zero, then no colour write
+                        if (newPass->getAmbient() == ColourValue::Black && 
+                            newPass->getSelfIllumination() == ColourValue::Black)
+                        {
+                            newPass->setColourWriteEnabled(false);
+                        }
+
                         iPass = new IlluminationPass();
                         iPass->destroyOnShutdown = true;
                         iPass->originalPass = p;
@@ -564,6 +571,8 @@ namespace Ogre {
                         // it will process diffuse lights, ambient will be turned off
                         newPass->setAmbient(ColourValue::Black);
                         newPass->setSelfIllumination(ColourValue::Black);
+                        // must be additive
+                        newPass->setSceneBlending(SBF_ONE, SBF_ONE);
 
                         iPass = new IlluminationPass();
                         iPass->destroyOnShutdown = true;
@@ -585,6 +594,7 @@ namespace Ogre {
                 {
                     if (!p->getLightingEnabled())
                     {
+                        // we assume this pass already combines as required with the scene
                         iPass = new IlluminationPass();
                         iPass->destroyOnShutdown = false;
                         iPass->originalPass = iPass->pass = p;
@@ -601,6 +611,8 @@ namespace Ogre {
                         newPass->setSpecular(ColourValue::Black);
                         newPass->setSelfIllumination(ColourValue::Black);
                         newPass->setLightingEnabled(false);
+                        // modulate
+                        newPass->setSceneBlending(SBF_DEST_COLOUR, SBF_ZERO);
 
                         // NB there is nothing we can do about vertex & fragment
                         // programs here, so people will just have to make their
