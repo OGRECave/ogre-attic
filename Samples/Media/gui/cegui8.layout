@@ -21,7 +21,7 @@
 			<Property Name="Position" Value="x:0.05 y:0.1" />
 			<Property Name="RelativeMaxSize" Value="w:0.5 h:1" />
 			<Property Name="AbsoluteMinSize" Value="w:128 h:128" />
-			<Property Name="Size" Value="w:0.4 h:0.3" />
+			<Property Name="Size" Value="w:0.4 h:0.35" />
 			<Property Name="Text" Value="Demo 8 - Listbox Demo" />
 
 			<Window Type="TaharezLook/Listbox" Name="Demo8/Window1/Listbox">
@@ -69,7 +69,7 @@
 					<Property Name="Position" Value="x:0.05 y:0.26" />
 					<Property Name="RelativeMaxSize" Value="w:1 h:1" />
 					<Property Name="Size" Value="w:0.9 h:0.1" />
-					<Property Name="Image" Value="set:TaharezImagery image:ListboxSelectionBrush" />
+					<Property Name="Image" Value="set:TaharezLook image:ListboxSelectionBrush" />
 					<Property Name="ImageColours" Value="tl:0 tr:0 bl:0 br:0" />
 				</Window>
 

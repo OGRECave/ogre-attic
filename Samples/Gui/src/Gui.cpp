@@ -26,6 +26,7 @@ LGPL like the rest of the engine.
 #include <CEGUI/CEGUIWindowManager.h>
 #include <CEGUI/CEGUIWindow.h>
 #include <CEGUI/elements/CEGUICombobox.h>
+#include <CEGUI/elements/CEGUIListbox.h>
 #include <CEGUI/elements/CEGUIListboxTextItem.h>
 #include <CEGUI/elements/CEGUIPushButton.h>
 #include <CEGUI/elements/CEGUIScrollbar.h>
@@ -68,6 +69,7 @@ public:
     {
         mEventProcessor->addMouseMotionListener(this);
         mEventProcessor->addMouseListener(this);
+		mEventProcessor->addKeyListener(this);
     }
 
     /// Tell the frame listener to exit at the end of the next frame
@@ -125,7 +127,7 @@ public:
         }
 
         CEGUI::System::getSingleton().injectKeyDown(e->getKey());
-
+		CEGUI::System::getSingleton().injectChar(e->getKeyChar());
         e->consume();
     }
 };
@@ -136,6 +138,15 @@ private:
     CEGUI::OgreRenderer* mGUIRenderer;
     CEGUI::System* mGUISystem;
     CEGUI::Window* mEditorGuiSheet;
+	CEGUI::Scrollbar* mRed;
+	CEGUI::Scrollbar* mGreen;
+	CEGUI::Scrollbar* mBlue;
+	CEGUI::StaticImage* mPreview;
+	CEGUI::Window* mTip;
+	CEGUI::Listbox* mList;
+	CEGUI::Window* mEditBox;
+	typedef std::map<CEGUI::String, CEGUI::String> DescriptionMap;
+	DescriptionMap mDescriptionMap;
 
 public:
     GuiApplication()
@@ -143,7 +154,29 @@ public:
         mGUISystem(0),
         mEditorGuiSheet(0)
     {
-    }
+		mDescriptionMap[(CEGUI::utf8*)"Demo8"] = 
+			(CEGUI::utf8*)"The main containing panel";
+		mDescriptionMap[(CEGUI::utf8*)"Demo8/Window1"] = 
+			(CEGUI::utf8*)"A test window";
+		mDescriptionMap[(CEGUI::utf8*)"Demo8/Window1/Listbox"] = 
+			(CEGUI::utf8*)"A list box";
+		mDescriptionMap[(CEGUI::utf8*)"Demo8/Window1/Controls/Red"] = 
+			(CEGUI::utf8*)"A colour slider";
+		mDescriptionMap[(CEGUI::utf8*)"Demo8/Window1/Controls/Green"] = 
+			(CEGUI::utf8*)"A colour slider";
+		mDescriptionMap[(CEGUI::utf8*)"Demo8/Window1/Controls/Blue"] = 
+			(CEGUI::utf8*)"A colour slider";
+		mDescriptionMap[(CEGUI::utf8*)"Demo8/Window1/Controls/ColourSample"] = 
+			(CEGUI::utf8*)"The colour that will be used for the selection when added to the list";
+		mDescriptionMap[(CEGUI::utf8*)"Demo8/Window1/Controls/Editbox"] = 
+			(CEGUI::utf8*)"An edit box; this text will be added to the list";
+		mDescriptionMap[(CEGUI::utf8*)"Demo8/Window1/Controls/Add"] = 
+			(CEGUI::utf8*)"Adds the text to the list";
+		mDescriptionMap[(CEGUI::utf8*)"Demo8/Window1/Controls/ins1"] = 
+			(CEGUI::utf8*)"Some static text";
+
+
+	}
 
     ~GuiApplication()
     {
@@ -269,11 +302,81 @@ protected:
 
     void setupEventHandlers(void)
     {
-        CEGUI::WindowManager::getSingleton().getWindow((CEGUI::utf8*)"OgreGuiDemo/TabCtrl/Page1/QuitButton")->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&GuiApplication::handleQuit, this));
-        CEGUI::WindowManager::getSingleton().getWindow((CEGUI::utf8*)"OgreGuiDemo/TabCtrl/Page1/NewButton")->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&GuiApplication::handleNew, this));
-        CEGUI::WindowManager::getSingleton().getWindow((CEGUI::utf8*)"OgreGuiDemo/TabCtrl/Page1/LoadButton")->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&GuiApplication::handleLoad, this));
-        CEGUI::WindowManager::getSingleton().getWindow((CEGUI::utf8*)"OgreGuiDemo/TabCtrl/Page2/ObjectTypeList")->subscribeEvent(CEGUI::Combobox::EventListSelectionAccepted, CEGUI::Event::Subscriber(&GuiApplication::handleObjectSelection, this));
+		CEGUI::WindowManager& wmgr = CEGUI::WindowManager::getSingleton();
+        wmgr.getWindow((CEGUI::utf8*)"OgreGuiDemo/TabCtrl/Page1/QuitButton")
+			->subscribeEvent(
+				CEGUI::PushButton::EventClicked, 
+				CEGUI::Event::Subscriber(&GuiApplication::handleQuit, this));
+        wmgr.getWindow((CEGUI::utf8*)"OgreGuiDemo/TabCtrl/Page1/NewButton")
+			->subscribeEvent(
+				CEGUI::PushButton::EventClicked, 
+				CEGUI::Event::Subscriber(&GuiApplication::handleNew, this));
+        wmgr.getWindow((CEGUI::utf8*)"OgreGuiDemo/TabCtrl/Page1/LoadButton")
+			->subscribeEvent(
+				CEGUI::PushButton::EventClicked, 
+				CEGUI::Event::Subscriber(&GuiApplication::handleLoad, this));
+        wmgr.getWindow((CEGUI::utf8*)"OgreGuiDemo/TabCtrl/Page2/ObjectTypeList")
+			->subscribeEvent(
+				CEGUI::Combobox::EventListSelectionAccepted, 
+				CEGUI::Event::Subscriber(&GuiApplication::handleObjectSelection, this));
+
     }
+
+	void setupEnterExitEvents(CEGUI::Window* win)
+	{
+		win->subscribeEvent(
+			CEGUI::Window::EventMouseEnters, 
+			CEGUI::Event::Subscriber(&GuiApplication::handleMouseEnters, this));
+		win->subscribeEvent(
+			CEGUI::Window::EventMouseLeaves, 
+			CEGUI::Event::Subscriber(&GuiApplication::handleMouseLeaves, this));
+		for (unsigned int i = 0; i < win->getChildCount(); ++i)
+		{
+			CEGUI::Window* child = win->getChildAtIdx(i);
+			setupEnterExitEvents(child);
+		}
+
+	}
+
+	void setupLoadedLayoutHandlers(void)
+	{
+		CEGUI::WindowManager& wmgr = CEGUI::WindowManager::getSingleton();
+		mRed = static_cast<CEGUI::Scrollbar*>(
+			wmgr.getWindow((CEGUI::utf8*)"Demo8/Window1/Controls/Red"));
+		mGreen = static_cast<CEGUI::Scrollbar*>(
+			wmgr.getWindow((CEGUI::utf8*)"Demo8/Window1/Controls/Green"));
+		mBlue = static_cast<CEGUI::Scrollbar*>(
+			wmgr.getWindow((CEGUI::utf8*)"Demo8/Window1/Controls/Blue"));
+		mPreview = static_cast<CEGUI::StaticImage*>(
+			wmgr.getWindow((CEGUI::utf8*)"Demo8/Window1/Controls/ColourSample"));
+		mList = static_cast<CEGUI::Listbox*>(
+			wmgr.getWindow((CEGUI::utf8*)"Demo8/Window1/Listbox"));
+		mEditBox = 
+			wmgr.getWindow((CEGUI::utf8*)"Demo8/Window1/Controls/Editbox");
+		mTip = 
+			wmgr.getWindow((CEGUI::utf8*)"Demo8/Window2/Tips");
+	
+		mRed->subscribeEvent(
+				CEGUI::Scrollbar::EventScrollPositionChanged, 
+				CEGUI::Event::Subscriber(&GuiApplication::handleColourChanged, this));
+		mGreen->subscribeEvent(
+			CEGUI::Scrollbar::EventScrollPositionChanged, 
+			CEGUI::Event::Subscriber(&GuiApplication::handleColourChanged, this));
+		mBlue->subscribeEvent(
+			CEGUI::Scrollbar::EventScrollPositionChanged, 
+			CEGUI::Event::Subscriber(&GuiApplication::handleColourChanged, this));
+
+		wmgr.getWindow((CEGUI::utf8*)"Demo8/Window1/Controls/Add")
+			->subscribeEvent(
+			CEGUI::PushButton::EventClicked, 
+			CEGUI::Event::Subscriber(&GuiApplication::handleAdd, this));
+
+		CEGUI::Window* root = wmgr.getWindow("Demo8");
+		setupEnterExitEvents(root);
+
+
+
+	}
 
     CEGUI::Window* createRttGuiObject(void)
     {
@@ -337,6 +440,7 @@ protected:
         mEditorGuiSheet = 
             CEGUI::WindowManager::getSingleton().loadWindowLayout(
                 (CEGUI::utf8*)"cegui8.layout"); 
+		setupLoadedLayoutHandlers();
 
         CEGUI::Window* editorWindow = CEGUI::WindowManager::getSingleton().getWindow((CEGUI::utf8*)"OgreGuiDemo2/MainWindow");
         editorWindow->addChildWindow(mEditorGuiSheet);
@@ -355,8 +459,8 @@ protected:
         CEGUI::Window* window = 0;
 
         // Set a random position to place this object.
-        Real posX = Math::UnitRandom(); 
-        Real posY = Math::UnitRandom(); 
+        Real posX = Math::RangeRandom(0.0, 0.7); 
+        Real posY = Math::RangeRandom(0.1, 0.7); 
 
         const CEGUI::WindowEventArgs& windowEventArgs = static_cast<const CEGUI::WindowEventArgs&>(e);
         CEGUI::ListboxItem* item = static_cast<CEGUI::Combobox*>(windowEventArgs.window)->getSelectedItem();
@@ -404,6 +508,50 @@ protected:
 
         return true;
     }
+
+	bool handleColourChanged(const CEGUI::EventArgs& e)
+	{
+		mPreview->setImageColours(CEGUI::colour(
+			mRed->getScrollPosition() / 255.0f,
+			mGreen->getScrollPosition() / 255.0f,
+			mBlue->getScrollPosition() / 255.0f));
+
+		return true;
+
+	}
+
+	bool handleAdd(const CEGUI::EventArgs& e)
+	{
+		CEGUI::ListboxTextItem *listboxitem = 
+			new CEGUI::ListboxTextItem (mEditBox->getText());
+		listboxitem->setSelectionBrushImage("TaharezLook", "ListboxSelectionBrush");
+		listboxitem->setSelected(mList->getItemCount() == 0);
+		listboxitem->setSelectionColours(mPreview->getImageColours());
+		mList->addItem(listboxitem);
+		return true;
+	}
+
+	bool handleMouseEnters(const CEGUI::EventArgs& e)
+	{
+		CEGUI::WindowEventArgs& we = ((CEGUI::WindowEventArgs&)e);
+		DescriptionMap::iterator i = 
+			mDescriptionMap.find(we.window->getName());
+		if (i != mDescriptionMap.end())
+		{
+			mTip->setText(i->second);
+		}
+		else
+		{
+			mTip->setText((CEGUI::utf8*)"");
+		}
+		
+		return true;
+	}
+	bool handleMouseLeaves(const CEGUI::EventArgs& e)
+	{
+		mTip->setText((CEGUI::utf8*)"");
+		return true;
+	}
 
 };
 
