@@ -418,7 +418,8 @@ namespace Ogre {
 
 		mSelectedElement = item;
 		setSelectedItem(mSelectedElement,true);
-		mScrollBar->scrollToIndex(getSelectedIndex());
+		if (mScrollBar)
+            mScrollBar->scrollToIndex(getSelectedIndex());
 	}
 
 	void ListGuiElement::setSelectedIndex(int index)
@@ -456,7 +457,8 @@ namespace Ogre {
 
 
 		setSelectedItem(mSelectedElement,true);
-		mScrollBar->scrollToIndex(index);
+		if (mScrollBar)
+            mScrollBar->scrollToIndex(index);
 	}
 
 
