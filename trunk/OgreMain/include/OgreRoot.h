@@ -643,6 +643,16 @@ namespace Ogre
         */
         static Root* getSingletonPtr(void);
 
+		/** Clears the history of all event times. 
+		@remarks
+			OGRE stores a history of the last few event times in order to smooth
+			out any inaccuracies and temporary fluctuations. However, if you 
+			pause or don't render for a little while this can cause a lurch, so
+			if you're resuming rendering after a break, call this method to reset
+			the stored times
+		*/
+		void clearEventTimes(void);
+
     };
 } // Namespace Ogre
 #endif

@@ -511,7 +511,7 @@ namespace Ogre {
         mParent = parent;
         mOverlay = overlay;
 
-		if (mOverlay->isInitialised() && !mInitialised)
+		if (mOverlay && mOverlay->isInitialised() && !mInitialised)
 		{
 			initialise();
 		}

@@ -41,26 +41,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
 
-    /** Specialisation of SharedPtr to allow SharedPtr to be assigned to MeshPtr 
-    @note Has to be a subclass since we need operator=.
-    We could templatise this instead of repeating per Resource subclass, 
-    except to do so requires a form VC6 does not support i.e.
-    ResourceSubclassPtr<T> : public SharedPtr<T>
-    */
-    class _OgreExport MeshPtr : public SharedPtr<Mesh> 
-    {
-    public:
-        MeshPtr() : SharedPtr<Mesh>() {}
-        explicit MeshPtr(Mesh* rep) : SharedPtr<Mesh>(rep) {}
-        MeshPtr(const MeshPtr& r) : SharedPtr<Mesh>(r) {} 
-        MeshPtr(const ResourcePtr& r);
-        /// Operator used to convert a ResourcePtr to a MeshPtr
-        MeshPtr& operator=(const ResourcePtr& r);
-    protected:
-        /// Override destroy since we need to delete Mesh after fully defined
-        void destroy(void);
-    };
-
     /** Resource holding data about 3D mesh.
         @remarks
             This class holds the data used to represent a discrete
@@ -95,6 +75,7 @@ namespace Ogre {
     */
 
 
+    struct MeshLodUsage;
 
     class _OgreExport Mesh: public Resource
     {
@@ -104,19 +85,6 @@ namespace Ogre {
         friend class MeshSerializerImpl_v1_1;
 
     public:
-		/** A way of recording the way each LODs is recorded this Mesh. */
-		struct MeshLodUsage
-		{
-			/// squared Z value from which this LOD will apply
-			Real fromDepthSquared;
-			/// Only relevant if mIsLodManual is true, the name of the alternative mesh to use
-			String manualName;
-			/// Hard link to mesh to avoid looking up each time
-			mutable MeshPtr manualMesh;
-            /// Edge list for this LOD level (may be derived from manual mesh)
-            mutable EdgeData* edgeData;
-		};
-
 		typedef std::vector<Real> LodDistanceList;
         /// Multimap of vertex bone assignments (orders by vertex index)
         typedef std::multimap<size_t, VertexBoneAssignment> VertexBoneAssignmentList;
@@ -434,7 +402,7 @@ namespace Ogre {
 		/** Internal methods for loading LOD, do not use. */
 		void _setLodInfo(unsigned short numLevels, bool isManual);
 		/** Internal methods for loading LOD, do not use. */
-		void _setLodUsage(unsigned short level, Mesh::MeshLodUsage& usage);
+		void _setLodUsage(unsigned short level, MeshLodUsage& usage);
 		/** Internal methods for loading LOD, do not use. */
 		void _setSubMeshLodFaceList(unsigned short subIdx, unsigned short level, IndexData* facedata);
 
@@ -645,6 +613,39 @@ namespace Ogre {
 
 
     };
+
+    /** Specialisation of SharedPtr to allow SharedPtr to be assigned to MeshPtr 
+    @note Has to be a subclass since we need operator=.
+    We could templatise this instead of repeating per Resource subclass, 
+    except to do so requires a form VC6 does not support i.e.
+    ResourceSubclassPtr<T> : public SharedPtr<T>
+    */
+    class _OgreExport MeshPtr : public SharedPtr<Mesh> 
+    {
+    public:
+        MeshPtr() : SharedPtr<Mesh>() {}
+        explicit MeshPtr(Mesh* rep) : SharedPtr<Mesh>(rep) {}
+        MeshPtr(const MeshPtr& r) : SharedPtr<Mesh>(r) {} 
+        MeshPtr(const ResourcePtr& r);
+        /// Operator used to convert a ResourcePtr to a MeshPtr
+        MeshPtr& operator=(const ResourcePtr& r);
+    protected:
+        /// Override destroy since we need to delete Mesh after fully defined
+        void destroy(void);
+    };
+
+	/** A way of recording the way each LODs is recorded this Mesh. */
+	struct MeshLodUsage
+	{
+		/// squared Z value from which this LOD will apply
+		Real fromDepthSquared;
+		/// Only relevant if mIsLodManual is true, the name of the alternative mesh to use
+		String manualName;
+		/// Hard link to mesh to avoid looking up each time
+		mutable MeshPtr manualMesh;
+        /// Edge list for this LOD level (may be derived from manual mesh)
+        mutable EdgeData* edgeData;
+	};
 
 
 

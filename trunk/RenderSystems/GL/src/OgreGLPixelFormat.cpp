@@ -76,10 +76,14 @@ namespace Ogre  {
                 return GL_BGRA;
             case PF_A2B10G10R10:
                 return GL_RGBA;
+			case PF_FLOAT16_R:
+                return GL_LUMINANCE;
             case PF_FLOAT16_RGB:
                 return GL_RGB;
             case PF_FLOAT16_RGBA:
                 return GL_RGBA;
+			case PF_FLOAT32_R:
+                return GL_LUMINANCE;
             case PF_FLOAT32_RGB:
                 return GL_RGB;
             case PF_FLOAT32_RGBA:
@@ -145,9 +149,11 @@ namespace Ogre  {
                 return GL_UNSIGNED_INT_2_10_10_10_REV;
             case PF_A2B10G10R10:
                 return GL_UNSIGNED_INT_2_10_10_10_REV;
+			case PF_FLOAT16_R:
             case PF_FLOAT16_RGB:
             case PF_FLOAT16_RGBA:
                 return 0; // GL_HALF_FLOAT_ARB -- nyi
+			case PF_FLOAT32_R:
             case PF_FLOAT32_RGB:
             case PF_FLOAT32_RGBA:
                 return GL_FLOAT;
@@ -191,12 +197,16 @@ namespace Ogre  {
             case PF_A2R10G10B10:
             case PF_A2B10G10R10:
                 return GL_RGB10_A2;
+			case PF_FLOAT16_R:
+				return GL_LUMINANCE_FLOAT16_ATI;
             case PF_FLOAT16_RGB:
                 return GL_RGB_FLOAT16_ATI;
                 //    return GL_RGB16F_ARB;
             case PF_FLOAT16_RGBA:
                 return GL_RGBA_FLOAT16_ATI;
                 //    return GL_RGBA16F_ARB;
+			case PF_FLOAT32_R:
+				return GL_LUMINANCE_FLOAT32_ATI;
             case PF_FLOAT32_RGB:
                 return GL_RGB_FLOAT32_ATI;
                 //    return GL_RGB32F_ARB;
@@ -248,6 +258,10 @@ namespace Ogre  {
 			return PF_A2R10G10B10;
 		case GL_RGBA16:
 			return PF_SHORT_RGBA;
+		case GL_LUMINANCE_FLOAT16_ATI:
+			return PF_FLOAT16_R;
+		case GL_LUMINANCE_FLOAT32_ATI:
+			return PF_FLOAT32_R;
 		case GL_RGB_FLOAT16_ATI: // GL_RGB16F_ARB
 		case GL_RGBA_FLOAT16_ATI:
 		case GL_RGB_FLOAT32_ATI:
@@ -272,10 +286,15 @@ namespace Ogre  {
 			if(width>1)		width = width/2;
 			if(height>1)	height = height/2;
 			if(depth>1)		depth = depth/2;
+			/*
+			NOT needed, compressed formats will have mipmaps up to 1x1
 			if(PixelUtil::isValidExtent(width, height, depth, format))
 				count ++;
 			else
 				break;
+			*/
+				
+			count ++;
 		} while(!(width == 1 && height == 1 && depth == 1));
 		
 		return count;

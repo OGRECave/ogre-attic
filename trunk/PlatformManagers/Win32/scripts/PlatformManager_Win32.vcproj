@@ -176,6 +176,9 @@
 				RelativePath="..\include\OgreWin32Timer.h">
 			</File>
 			<File
+				RelativePath="..\misc\resource.h">
+			</File>
+			<File
 				RelativePath="..\include\resource.h">
 			</File>
 		</Filter>
@@ -184,6 +187,12 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
 			<File
 				RelativePath="..\misc\OgreWin32Resources.rc">
+			</File>
+			<File
+				RelativePath="..\misc\ogre.ico">
+			</File>
+			<File
+				RelativePath="..\misc\ogrelogo.bmp">
 			</File>
 		</Filter>
 	</Files>

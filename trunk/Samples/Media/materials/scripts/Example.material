@@ -31,7 +31,7 @@ material Examples/OgreLogo
 
 			texture_unit
 			{
-				texture ogrelogo.jpg
+				texture ogrelogo.png
 			}
 		}
 	}

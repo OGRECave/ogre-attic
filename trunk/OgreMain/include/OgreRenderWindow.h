@@ -101,6 +101,14 @@ namespace Ogre
         /** Indicates whether the window has been closed by the user.
         */
         virtual bool isClosed(void) const = 0;
+		
+		/** Indicates wether the window is the primary window. The
+			primary window is special in that it is destroyed when 
+			ogre is shut down, and cannot be destroyed directly.
+			This is the case because it holds the context for vertex,
+			index buffers and textures.
+        */
+        virtual bool isPrimary(void) const;
 
         /** Swaps the frame buffers to display the next frame.
             @remarks
@@ -142,11 +150,18 @@ namespace Ogre
         virtual void getMetrics(unsigned int& width, unsigned int& height, unsigned int& colourDepth, 
 			int& left, int& top);
 
-
     protected:
         bool mIsFullScreen;
+        bool mIsPrimary;
         int mLeft;
         int mTop;
+        
+        /** Indicates that this is the primary window. Only to be called by
+            Ogre::Root
+        */
+        void _setPrimary() { mIsPrimary = true; }
+        
+        friend class Root;
     };
 
     /** Defines the interface a DLL implemeting a platform-specific version must implement.

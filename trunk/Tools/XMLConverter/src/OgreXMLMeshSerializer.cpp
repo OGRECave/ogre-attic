@@ -945,7 +945,7 @@ namespace Ogre {
 		// Iterate from level 1, not 0 (full detail)
 		for (unsigned short i = 1; i < numLvls; ++i)
 		{
-			const Mesh::MeshLodUsage& usage = pMesh->getLodLevel(i);
+			const MeshLodUsage& usage = pMesh->getLodLevel(i);
 			if (manual)
 			{
 				writeLodUsageManual(lodNode, i, usage);
@@ -981,7 +981,7 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------
 	void XMLMeshSerializer::writeLodUsageManual(TiXmlElement* usageNode, 
-		unsigned short levelNum, const Mesh::MeshLodUsage& usage)
+		unsigned short levelNum, const MeshLodUsage& usage)
 	{
 		TiXmlElement* manualNode = 
 			usageNode->InsertEndChild(TiXmlElement("lodmanual"))->ToElement();
@@ -993,7 +993,7 @@ namespace Ogre {
 	}
     //---------------------------------------------------------------------
 	void XMLMeshSerializer::writeLodUsageGenerated(TiXmlElement* usageNode, 
-		unsigned short levelNum,  const Mesh::MeshLodUsage& usage, 
+		unsigned short levelNum,  const MeshLodUsage& usage, 
 		const Mesh* pMesh)
 	{
 		TiXmlElement* generatedNode = 
@@ -1104,7 +1104,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
 	void XMLMeshSerializer::readLodUsageManual(TiXmlElement* manualNode, unsigned short index)
 	{
-		Mesh::MeshLodUsage usage;
+		MeshLodUsage usage;
 		const char* val = manualNode->Attribute("fromdepthsquared");
 		usage.fromDepthSquared = StringConverter::parseReal(val);
 		usage.manualName = manualNode->Attribute("meshname");
@@ -1115,7 +1115,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
 	void XMLMeshSerializer::readLodUsageGenerated(TiXmlElement* genNode, unsigned short index)
 	{
-		Mesh::MeshLodUsage usage;
+		MeshLodUsage usage;
 		const char* val = genNode->Attribute("fromdepthsquared");
 		usage.fromDepthSquared = StringConverter::parseReal(val);
 		usage.manualMesh.setNull();

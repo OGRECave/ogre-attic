@@ -970,7 +970,7 @@ namespace Ogre {
 		// Loop from LOD 1 (not 0, this is full detail)
         for (unsigned short i = 1; i < numLods; ++i)
         {
-			const Mesh::MeshLodUsage& usage = pMesh->getLodLevel(i);
+			const MeshLodUsage& usage = pMesh->getLodLevel(i);
 			if (manual)
 			{
 				writeLodUsageManual(usage);
@@ -1004,7 +1004,7 @@ namespace Ogre {
         
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::writeLodUsageManual(const Mesh::MeshLodUsage& usage)
+    void MeshSerializerImpl::writeLodUsageManual(const MeshLodUsage& usage)
     {
         // Header
         size_t size = STREAM_OVERHEAD_SIZE;
@@ -1027,7 +1027,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::writeLodUsageGenerated(const Mesh* pMesh, const Mesh::MeshLodUsage& usage,
+    void MeshSerializerImpl::writeLodUsageGenerated(const Mesh* pMesh, const MeshLodUsage& usage,
 		unsigned short lodNum)
     {
 		// Usage Header
@@ -1192,7 +1192,7 @@ namespace Ogre {
 					"MeshSerializerImpl::readMeshLodInfo");
 			}
 			// Read depth
-			Mesh::MeshLodUsage usage;
+			MeshLodUsage usage;
 			readFloats(stream, &(usage.fromDepthSquared), 1);
 
 			if (pMesh->isLodManual())
@@ -1213,7 +1213,7 @@ namespace Ogre {
 	}
     //---------------------------------------------------------------------
 	void MeshSerializerImpl::readMeshLodUsageManual(DataStreamPtr& stream, 
-        Mesh* pMesh, unsigned short lodNum, Mesh::MeshLodUsage& usage)
+        Mesh* pMesh, unsigned short lodNum, MeshLodUsage& usage)
 	{
 		unsigned long streamID;
 		// Read detail stream
@@ -1230,7 +1230,7 @@ namespace Ogre {
 	}
     //---------------------------------------------------------------------
 	void MeshSerializerImpl::readMeshLodUsageGenerated(DataStreamPtr& stream, 
-        Mesh* pMesh, unsigned short lodNum, Mesh::MeshLodUsage& usage)
+        Mesh* pMesh, unsigned short lodNum, MeshLodUsage& usage)
 	{
 		usage.manualName = "";
 		usage.manualMesh.setNull();
@@ -1541,7 +1541,7 @@ namespace Ogre {
                 // Only load in non-manual levels; others will be connected up by Mesh on demand
                 if (!isManual)
                 {
-                    Mesh::MeshLodUsage& usage = const_cast<Mesh::MeshLodUsage&>(pMesh->getLodLevel(lodIndex));
+                    MeshLodUsage& usage = const_cast<MeshLodUsage&>(pMesh->getLodLevel(lodIndex));
 
                     usage.edgeData = new EdgeData();
                     // unsigned long numTriangles

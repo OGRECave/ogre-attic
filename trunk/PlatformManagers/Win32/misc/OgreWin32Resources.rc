@@ -1,4 +1,4 @@
-//Microsoft Developer Studio generated resource script.
+// Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
 
@@ -18,7 +18,7 @@
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
 #ifdef _WIN32
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-#pragma code_page(1250)
+#pragma code_page(1252)
 #endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 // Bitmap
 //
 
-IDB_SPLASH              BITMAP  DISCARDABLE     "ogrelogo.bmp"
+IDB_SPLASH              BITMAP                  "ogrelogo.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -35,7 +35,7 @@ IDB_SPLASH              BITMAP  DISCARDABLE     "ogrelogo.bmp"
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_OGREICON            ICON    DISCARDABLE     "ogre.ico"
+IDI_OGREICON            ICON                    "ogre.ico"
 #endif    // Neutral resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -55,18 +55,18 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE DISCARDABLE 
+1 TEXTINCLUDE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE DISCARDABLE 
+2 TEXTINCLUDE 
 BEGIN
     "#include ""winres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE DISCARDABLE 
+3 TEXTINCLUDE 
 BEGIN
     "\r\n"
     "\0"
@@ -80,27 +80,27 @@ END
 // Dialog
 //
 
-IDD_DLG_CONFIG DIALOG DISCARDABLE  0, 0, 300, 271
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
+IDD_DLG_CONFIG DIALOGEX 0, 0, 329, 270
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 CAPTION "OGRE Engine Rendering Setup"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    DEFPUSHBUTTON   "&OK",IDOK,175,254,60,14
-    PUSHBUTTON      "&Cancel",IDCANCEL,237,254,60,14
-    LTEXT           "Rendering Subsystem:",IDC_STATIC,3,144,73,12
-    COMBOBOX        IDC_CBO_RENDERSYSTEM,77,142,219,57,CBS_DROPDOWNLIST | 
+    DEFPUSHBUTTON   "&OK",IDOK,205,253,60,14
+    PUSHBUTTON      "&Cancel",IDCANCEL,267,253,60,14
+    LTEXT           "Rendering Subsystem:",IDC_STATIC,21,136,73,12
+    COMBOBOX        IDC_CBO_RENDERSYSTEM,95,134,219,57,CBS_DROPDOWNLIST | 
                     WS_VSCROLL | WS_TABSTOP
-    GROUPBOX        "Rendering System Options",IDC_OPTFRAME,2,159,295,94
-    LISTBOX         IDC_LST_OPTIONS,7,168,286,63,LBS_NOINTEGRALHEIGHT | 
+    GROUPBOX        "Rendering System Options",IDC_OPTFRAME,5,152,322,101
+    LISTBOX         IDC_LST_OPTIONS,13,163,310,68,LBS_NOINTEGRALHEIGHT | 
                     WS_VSCROLL | WS_TABSTOP
-    RTEXT           "[Click On An Option]:",IDC_LBL_OPTION,8,237,123,11
-    COMBOBOX        IDC_CBO_OPTION,133,235,160,94,CBS_DROPDOWNLIST | 
+    RTEXT           "[Click On An Option]:",IDC_LBL_OPTION,14,237,125,11
+    COMBOBOX        IDC_CBO_OPTION,143,235,180,94,CBS_DROPDOWNLIST | 
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
-    CONTROL         106,IDC_STATIC,"Static",SS_BITMAP,0,0,300,140
+    CONTROL         106,IDC_STATIC,"Static",SS_BITMAP,0,0,327,140
 END
 
-IDD_DLG_ERROR DIALOG DISCARDABLE  0, 0, 243, 178
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
+IDD_DLG_ERROR DIALOG  0, 0, 243, 178
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 CAPTION "Error"
 FONT 8, "MS Sans Serif"
 BEGIN
@@ -121,11 +121,12 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
+GUIDELINES DESIGNINFO 
 BEGIN
     IDD_DLG_CONFIG, DIALOG
     BEGIN
-        BOTTOMMARGIN, 268
+        RIGHTMARGIN, 300
+        BOTTOMMARGIN, 267
     END
 
     IDD_DLG_ERROR, DIALOG
