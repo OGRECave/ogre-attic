@@ -7,4 +7,4 @@ ParticleFX_LDFLAGS = -L$(top_srcdir)/OgreMain/src
 ParticleFX_LDADD = -lOgreMain
 
 install-exec-local:
-	$(INSTALL_PROGRAM) ParticleFX $(top_builddir)/Samples/Common/bin/ParticleFX
+	$(INSTALL_PROGRAM) .libs/ParticleFX $(top_builddir)/Samples/Common/bin/ParticleFX

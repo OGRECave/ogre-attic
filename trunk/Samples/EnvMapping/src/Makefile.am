@@ -7,4 +7,4 @@ EnvMapping_LDFLAGS = -L$(top_srcdir)/OgreMain/src
 EnvMapping_LDADD = -lOgreMain
 
 install-exec-local:
-	$(INSTALL_PROGRAM) EnvMapping $(top_builddir)/Samples/Common/bin/EnvMapping
+	$(INSTALL_PROGRAM) .libs/EnvMapping $(top_builddir)/Samples/Common/bin/EnvMapping
