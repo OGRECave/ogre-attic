@@ -44,7 +44,7 @@ namespace Ogre
         assert( ms_Singleton );  return ( *ms_Singleton );  
     }
     //---------------------------------------------------------------------
-	FontManager::FontManager() : ResourceManager(),
+	FontManager::FontManager() : ResourceManager()
 	{
         // Loading order
         mLoadOrder = 200.0f;
