@@ -504,9 +504,14 @@ namespace Ogre {
 		// Load programs
 		if (mIsProgrammable)
 		{
-			// TODO
-
+			// Load vertex program
+            mVertexProgramUsage->_load();
+			// Load fragment program
+            mFragmentProgramUsage->_load();
 		}
+
+        // Recalculate hash
+        _recalculateHash();
 		
 	}
     //-----------------------------------------------------------------------
@@ -615,6 +620,10 @@ namespace Ogre {
     {
         mParent->_notifyNeedsRecompile();
     }
-
+    //-----------------------------------------------------------------------
+    void Pass::_updateAutoParams(Renderable* rend, Camera* cam)
+    {
+        // TODO
+    }
 
 }

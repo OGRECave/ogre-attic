@@ -657,6 +657,9 @@ namespace Ogre {
         /** Tells the pass that it needs recompilation. */
         void _notifyNeedsRecompile(void);
 
+        /** Update any automatic parameters on this pass */
+        void _updateAutoParams(Renderable* rend, Camera* cam);
+
         // --------------------------------------------------------------------
     };
 
