@@ -24,15 +24,26 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreStableHeaders.h"
 #include "OgreImage.h"
-
 #include "OgreArchiveManager.h"
 #include "OgreException.h"
 #include "OgreImageCodec.h"
 #include "OgreColourValue.h"
 
+/* Use new scaling code when possible */
+#define NEWSCALING
+/* This should really be defined as ./configure parameter later on*/
+#define USE_DEVIL 
+
+#ifdef NEWSCALING
+#include "OgreImageResampler.h"
+#endif
+
+#ifdef USE_DEVIL
 // Dependency on IL/ILU for resize
 #include <IL/il.h>
 #include <IL/ilu.h>
+#endif
+
 namespace Ogre {
     ImageCodec::~ImageCodec() {
     }
@@ -561,6 +572,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------------
+#ifdef USE_DEVIL
 	// Local declaration of DevIL functions to prevent DevIL dependencies on header users
 	ILenum getILFilter(Image::Filter filter)
 	{
@@ -582,66 +594,144 @@ namespace Ogre {
         // keep compiler happy
         return ILU_NEAREST;
 	}
+#endif
     //-----------------------------------------------------------------------------
 	void Image::resize(ushort width, ushort height, Filter filter)
 	{
-        ILuint ImageName;
+		// resizing dynamic images is not supported
+		assert(m_bAutoDelete);
+		assert(m_uDepth == 1);
 
-        ilGenImages( 1, &ImageName );
-        ilBindImage( ImageName );
-
-		PixelBox src = getPixelBox(0, 0);
-
-		// Convert image from OGRE to current IL image
-		ILUtil::fromOgre(src);
-
-		// set filter
-		iluImageParameter(ILU_FILTER, getILFilter(filter));
-		
-		iluScale(width, height, 1);
-		
-		// delete existing buffer and recreate with new settings
-		delete [] m_pBuffer;
+		// reassign buffer to temp image, make sure auto-delete is true
+		Image temp;
+		temp.loadDynamicImage(m_pBuffer, m_uWidth, m_uHeight, 1, m_eFormat, true);
+		// do not delete[] m_pBuffer!  temp will destroy it
+        
+		// set new dimensions, allocate new buffer
 		m_uWidth = width;
 		m_uHeight = height;
-		m_uDepth = 1;
-		size_t dataSize = PixelUtil::getMemorySize(m_uWidth, m_uHeight, m_uDepth, m_eFormat);
-		m_pBuffer = new uchar[dataSize];
+		m_uSize = PixelUtil::getMemorySize(m_uWidth, m_uHeight, 1, m_eFormat);
+		m_pBuffer = new uchar[m_uSize];
 		
-		PixelBox dest(m_uWidth, m_uHeight, m_uDepth, m_eFormat, m_pBuffer);
-		ILUtil::toOgre(dest);
-
-        ilDeleteImages(1, &ImageName);
-
-		// return to default filter
-		iluImageParameter(ILU_FILTER, ILU_NEAREST);
+		// scale the image from temp into our resized buffer
+		Image::scale(temp.getPixelBox(), getPixelBox(), filter);
 	}
     //-----------------------------------------------------------------------
 	void Image::scale(const PixelBox &src, const PixelBox &scaled, Filter filter) 
 	{
-		ILuint ImageName;
+		assert(PixelUtil::isAccessible(src.format));
+		assert(PixelUtil::isAccessible(scaled.format));
+#ifdef NEWSCALING		
+		MemoryDataStreamPtr buf; // For auto-delete
+		PixelBox temp;
+		switch (filter) {
+		case FILTER_NEAREST:
+			if(src.format == scaled.format) {
+				// No intermediate buffer needed
+				temp = scaled;
+			}
+			else
+			{
+				// Allocate temporary buffer of destination size in source format 
+				temp = PixelBox(scaled.getWidth(), scaled.getHeight(), scaled.getDepth(), src.format);
+				buf.bind(new MemoryDataStream(temp.getConsecutiveSize()));
+				temp.data = buf->getPtr();
+			}
+			// super-optimized: no conversion
+			switch (PixelUtil::getNumElemBytes(src.format)) {
+			case 1: NearestResampler<1>::scale(src, temp); break;
+			case 2: NearestResampler<2>::scale(src, temp); break;
+			case 3: NearestResampler<3>::scale(src, temp); break;
+			case 4: NearestResampler<4>::scale(src, temp); break;
+			case 6: NearestResampler<6>::scale(src, temp); break;
+			case 8: NearestResampler<8>::scale(src, temp); break;
+			case 12: NearestResampler<12>::scale(src, temp); break;
+			case 16: NearestResampler<16>::scale(src, temp); break;
+			default:
+				// never reached
+				assert(false);
+			}
+			if(temp.data != scaled.data)
+			{
+				// Blit temp buffer
+				PixelUtil::bulkPixelConversion(temp, scaled);
+			}
+			break;
 
-        ilGenImages( 1, &ImageName );
-        ilBindImage( ImageName );
+		case FILTER_LINEAR:
+		case FILTER_BILINEAR:
+			switch (src.format) {
+			case PF_L8: case PF_A8: case PF_BYTE_LA:
+			case PF_R8G8B8: case PF_B8G8R8:
+			case PF_R8G8B8A8: case PF_B8G8R8A8:
+			case PF_A8B8G8R8: case PF_A8R8G8B8:
+			case PF_X8B8G8R8: case PF_X8R8G8B8:
+				if(src.format == scaled.format) {
+					// No intermediate buffer needed
+					temp = scaled;
+				}
+				else
+				{
+					// Allocate temp buffer of destination size in source format 
+					temp = PixelBox(scaled.getWidth(), scaled.getHeight(), scaled.getDepth(), src.format);
+					buf.bind(new MemoryDataStream(temp.getConsecutiveSize()));
+					temp.data = buf->getPtr();
+				}
+				// super-optimized: byte-oriented math, no conversion
+				switch (PixelUtil::getNumElemBytes(src.format)) {
+				case 1: LinearResampler_Byte<1>::scale(src, temp); break;
+				case 2: LinearResampler_Byte<2>::scale(src, temp); break;
+				case 3: LinearResampler_Byte<3>::scale(src, temp); break;
+				case 4: LinearResampler_Byte<4>::scale(src, temp); break;
+				default:
+					// never reached
+					assert(false);
+				}
+				if(temp.data != scaled.data)
+				{
+					// Blit temp buffer
+					PixelUtil::bulkPixelConversion(temp, scaled);
+				}
+				break;
+			default:
+				// non-optimized: floating-point math, performs conversion but always works
+				LinearResampler::scale(src, scaled);
+			}
+			break;
+		default:
+			// fall back to old, slow, wildly incorrect DevIL code
+#endif
+#ifdef USE_DEVIL
+			ILuint ImageName;
+			ilGenImages( 1, &ImageName );
+			ilBindImage( ImageName );
 
-		// Convert image from OGRE to current IL image
-		ILUtil::fromOgre(src);
-		
-		// set filter
-		iluImageParameter(ILU_FILTER, getILFilter(filter));
-		
-		// do the scaling
-		if(!iluScale(scaled.getWidth(), scaled.getHeight(), scaled.getDepth())) {
-            Except( Exception::ERR_INTERNAL_ERROR,
-                iluErrorString(ilGetError()),
-                "Image::scale" ) ;
-        }
-		ILUtil::toOgre(scaled);
+			// Convert image from OGRE to current IL image
+			ILUtil::fromOgre(src);
+			
+			// set filter
+			iluImageParameter(ILU_FILTER, getILFilter(filter));
+			
+			// do the scaling
+			if(!iluScale(scaled.getWidth(), scaled.getHeight(), scaled.getDepth())) {
+				Except( Exception::ERR_INTERNAL_ERROR,
+					iluErrorString(ilGetError()),
+					"Image::scale" ) ;
+			}
+			ILUtil::toOgre(scaled);
 
-        ilDeleteImages(1, &ImageName);
+			ilDeleteImages(1, &ImageName);
 
-		// return to default filter
-		iluImageParameter(ILU_FILTER, ILU_NEAREST);
+			// return to default filter
+			iluImageParameter(ILU_FILTER, ILU_NEAREST);
+#else
+		Except( Exception::UNIMPLEMENTED_FEATURE,
+                "Scaling algorithm not implemented without DevIL",
+                "Image::scale" ) ;	
+#endif
+#ifdef NEWSCALING
+		}
+#endif
 	}
 
 	//-----------------------------------------------------------------------------    
