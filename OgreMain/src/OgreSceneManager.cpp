@@ -1935,6 +1935,40 @@ namespace Ogre {
 	{
 		return mShowBoundingBoxes;
 	}
+	//---------------------------------------------------------------------
+    AxisAlignedBoxSceneQuery* 
+    SceneManager::createAABBQuery(const AxisAlignedBox& box, unsigned long mask)
+    {
+        // TODO
+        return NULL;
+    }
+	//---------------------------------------------------------------------
+    SphereSceneQuery* 
+    SceneManager::createSphereQuery(const Sphere& sphere, unsigned long mask)
+    {
+        // TODO
+        return NULL;
+    }
+	//---------------------------------------------------------------------
+    RaySceneQuery* 
+    SceneManager::createRayQuery(const Ray& ray, unsigned long mask)
+    {
+        // TODO
+        return NULL;
+    }
+	//---------------------------------------------------------------------
+    IntersectionSceneQuery* 
+    SceneManager::createIntersectionQuery(unsigned long mask)
+    {
+        // TODO
+        return NULL;
+    }
+	//---------------------------------------------------------------------
+    void SceneManager::destroyQuery(SceneQuery* query)
+    {
+        delete query;
+    }
+	//---------------------------------------------------------------------
 
 
 }

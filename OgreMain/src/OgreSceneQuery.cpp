@@ -28,28 +28,12 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     SceneQuery::SceneQuery(SceneManager* mgr)
-    : mLastResult(NULL), mParentSceneMgr(mgr), mQueryMask(0xFFFFFFFF)
+    : mParentSceneMgr(mgr), mQueryMask(0xFFFFFFFF)
     {
     }
     //-----------------------------------------------------------------------
     SceneQuery::~SceneQuery()
     {
-        clearResults();
-    }
-    //-----------------------------------------------------------------------
-    SceneQueryResult& SceneQuery::getLastResults(void)
-    {
-        assert(mLastResult);
-        return *mLastResult;
-    }
-    //-----------------------------------------------------------------------
-    void SceneQuery::clearResults(void)
-    {
-        if (mLastResult)
-        {
-            delete mLastResult;
-        }
-        mLastResult = NULL;
     }
     //-----------------------------------------------------------------------
     void SceneQuery::setQueryMask(unsigned long mask)
@@ -62,8 +46,33 @@ namespace Ogre {
         return mQueryMask;
     }
     //-----------------------------------------------------------------------
+    RegionSceneQuery::RegionSceneQuery(SceneManager* mgr)
+        :SceneQuery(mgr), mLastResult(NULL)
+    {
+    }
+    //-----------------------------------------------------------------------
+    RegionSceneQuery::~RegionSceneQuery()
+    {
+        clearResults();
+    }
+    //-----------------------------------------------------------------------
+    SceneQueryResult& RegionSceneQuery::getLastResults(void)
+    {
+        assert(mLastResult);
+        return *mLastResult;
+    }
+    //-----------------------------------------------------------------------
+    void RegionSceneQuery::clearResults(void)
+    {
+        if (mLastResult)
+        {
+            delete mLastResult;
+        }
+        mLastResult = NULL;
+    }
+    //-----------------------------------------------------------------------
     AxisAlignedBoxSceneQuery::AxisAlignedBoxSceneQuery(SceneManager* mgr)
-        : SceneQuery(mgr)
+        : RegionSceneQuery(mgr)
     {
     }
     //-----------------------------------------------------------------------
@@ -82,7 +91,7 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     SphereSceneQuery::SphereSceneQuery(SceneManager* mgr)
-        : SceneQuery(mgr)
+        : RegionSceneQuery(mgr)
     {
     }
     //-----------------------------------------------------------------------
@@ -100,8 +109,10 @@ namespace Ogre {
         return mSphere;
     }
     //-----------------------------------------------------------------------
-    RaySceneQuery::RaySceneQuery(SceneManager* mgr) : SceneQuery(mgr)
+    RaySceneQuery::RaySceneQuery(SceneManager* mgr) : RegionSceneQuery(mgr)
     {
+        mSortByDistance = false;
+        mMaxResults = 0;
     }
     //-----------------------------------------------------------------------
     RaySceneQuery::~RaySceneQuery()
@@ -118,7 +129,23 @@ namespace Ogre {
         return mRay;
     }
     //-----------------------------------------------------------------------
-    PyramidSceneQuery::PyramidSceneQuery(SceneManager* mgr) : SceneQuery(mgr)
+    void RaySceneQuery::setSortByDistance(bool sort, ushort maxresults)
+    {
+        mSortByDistance = sort;
+        mMaxResults = maxresults;
+    }
+    //-----------------------------------------------------------------------
+    bool RaySceneQuery::getSortByDistance(void)
+    {
+        return mSortByDistance;
+    }
+    //-----------------------------------------------------------------------
+    ushort RaySceneQuery::getMaxResults(void)
+    {
+        return mMaxResults;
+    }
+    //-----------------------------------------------------------------------
+    PyramidSceneQuery::PyramidSceneQuery(SceneManager* mgr) : RegionSceneQuery(mgr)
     {
     }
     //-----------------------------------------------------------------------
@@ -127,7 +154,7 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     IntersectionSceneQuery::IntersectionSceneQuery(SceneManager* mgr)
-    : mLastResult(NULL), mParentSceneMgr(mgr), mQueryMask(0xFFFFFFFF)
+    : SceneQuery(mgr), mLastResult(NULL)
     {
     }
     //-----------------------------------------------------------------------
@@ -150,17 +177,6 @@ namespace Ogre {
         }
         mLastResult = NULL;
     }
-    //-----------------------------------------------------------------------
-    void IntersectionSceneQuery::setQueryMask(unsigned long mask)
-    {
-        mQueryMask = mask;
-    }
-    //-----------------------------------------------------------------------
-    unsigned long IntersectionSceneQuery::getQueryMask(void)
-    {
-        return mQueryMask;
-    }
-
 
 
 
