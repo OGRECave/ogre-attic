@@ -31,21 +31,29 @@ global proc ExportToOgre()
 	saveFileInfo;
 	
 	// ===== Files and directories
-	string $sceneFile = `file -query -sceneName`;
-	string $mayaFile = basename(`file -query -sceneName`, "");
-	string $sceneDir = toNativePath(dirname($sceneFile));
-	string $baseFile = basename($sceneFile, ".mb");
-	string $outputDir = toNativePath(`textField -query -text OutputDirectory`);
-	string $meshFile = toNativePath(`textField -query -text ExportMeshFilename`);
+	string $sceneFile    = `file -query -sceneName`;
+	string $mayaFile     = basename($sceneFile, "");
+	string $sceneDir     = toNativePath(dirname($sceneFile));
+	string $baseFile     = basename($sceneFile, ".mb");
+	string $outputDir    = toNativePath(`textField -query -text OutputDirectory`);
+	string $meshFile     = toNativePath(`textField -query -text ExportMeshFilename`);
 	string $materialFile = toNativePath(`textField -query -text ExportMaterialFilename`);
 	string $skeletonFile = toNativePath(`textField -query -text ExportSkeletonFilename`);
 	
 
+	// ===== Make working copy of Maya file
+	// (Removes need to save before exporting)
+	string $mayaWorkingFile = `internalVar -userScriptDir` + "maya2ogre.mb";
+	file -rename $mayaWorkingFile;
+	file -save -force;
+	file -rename $mayaFile;
+
+	
 	// ===== Options
 	string $options = "";
 	
 	// --- Common params
-	$options += " -in " + $mayaFile;
+	$options += " -in \"" + $mayaWorkingFile + "\"";
 	string $materialPrefix = `textField -query -text MaterialPrefix`;
 	if ($materialPrefix != "") 
 	{
@@ -57,7 +65,7 @@ global proc ExportToOgre()
 	int $convertMesh = `checkBox -query -value ExportMeshBinary`;
 	if ($exportMesh)
 	{
-		$options += " -mesh " + $outputDir + $meshFile;
+		$options += " -mesh \"" + $outputDir + $meshFile + "\"";
 
 		if (`checkBox -query -value ExportMeshVBA`)
 		{
@@ -81,7 +89,7 @@ global proc ExportToOgre()
 	int $exportMaterial = `checkBox -query -value ExportMaterial`;
 	if ($exportMaterial)
 	{
-		$options += " -mat " + $outputDir + $materialFile;
+		$options += " -mat \"" + $outputDir + $materialFile + "\"";
 	}
 
 	// --- Skeleton/Animation export
@@ -89,7 +97,7 @@ global proc ExportToOgre()
 	int $convertSkeleton = `checkBox -query -value ExportSkeletonBinary`;
 	if ($exportSkeleton)
 	{
-		$options += " -skel " + $outputDir + $skeletonFile;
+		$options += " -skel \"" + $outputDir + $skeletonFile + "\"";
 		
 		if (`checkBox -query -value ExportAnim`)
 		{
