@@ -207,10 +207,8 @@ namespace OgreMaya {
 			if (mat) {
 				vector<Material*>::iterator iterMat;
 				iterMat = materials.begin();
-				while (iterMat != materials.end())
-				{
-					if ((*iterMat)->name == mat->name)
-					{
+				for(;iterMat != materials.end(); ++iterMat) {
+					if ((*iterMat)->name == mat->name) {
 						delete mat;
 						mat = NULL;
 					}
