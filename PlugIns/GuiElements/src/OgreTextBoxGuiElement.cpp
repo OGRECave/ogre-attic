@@ -29,10 +29,6 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreInput.h"
 #include "OgreGuiManager.h"
 #include "OgreException.h"
-#include "OgreException.h"
-#include "OgreFont.h"
-#include "OgreFontManager.h"
-#include "OgreStringConverter.h"
 
 namespace Ogre {
 
@@ -260,8 +256,8 @@ namespace Ogre {
 			            OgreChar newKey = ke->getKeyChar();
                         if (newKey != '\0')
                         {
-			                Font* font = static_cast<Font*> (FontManager::getSingleton().getByName(mTextArea->getFontName()));
-			                if (!font)
+			                FontPtr font = FontManager::getSingleton().getByName(mTextArea->getFontName());
+			                if (font.isNull())
 			                    Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find font " + mTextArea->getFontName(),
 				                    "TextBoxGuiElement::processEvent" );
                   						

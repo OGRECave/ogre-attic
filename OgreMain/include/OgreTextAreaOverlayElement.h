@@ -27,6 +27,11 @@ http://www.gnu.org/copyleft/lesser.txt
 #define _TextAreaOverlayElement_H__
 
 #include "OgreGuiContainer.h"
+#include "OgreMaterial.h"
+#include "OgreStringConverter.h"
+#include "OgreOverlayElementFactory.h"
+#include "OgreFont.h"
+#include "OgreFontManager.h"
 
 namespace Ogre
 {
@@ -231,7 +236,7 @@ namespace Ogre
         static CmdAlignment msCmdAlignment;
 
 
-        Font *mpFont;
+        FontPtr mpFont;
         Real mCharHeight;
         ushort mPixelCharHeight;
         Real mSpaceWidth;

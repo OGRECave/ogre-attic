@@ -278,7 +278,7 @@ namespace Ogre
         static CmdScrollBar msCmdScrollBar;
 
 
-        Font *mpFont;
+        FontPtr mpFont;
         Real mCharHeight;
         ushort mPixelCharHeight;
         Real mSpaceWidth;

@@ -31,9 +31,6 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreHardwareBufferManager.h"
 #include "OgreHardwareVertexBuffer.h"
 #include "OgreException.h"
-#include "OgreStringConverter.h"
-#include "OgreFont.h"
-#include "OgreFontManager.h"
 
 namespace Ogre {
 
@@ -329,8 +326,8 @@ namespace Ogre {
 
     void TextAreaOverlayElement::setFontName( const String& font )
     {
-        mpFont = (Font*)FontManager::getSingleton().getByName( font );
-        if (!mpFont)
+        mpFont = FontManager::getSingleton().getByName( font );
+        if (mpFont.isNull())
 			Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find font " + font,
 				"TextAreaOverlayElement::setFontName" );
         mpFont->load();

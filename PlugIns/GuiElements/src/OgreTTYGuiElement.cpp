@@ -576,7 +576,10 @@ namespace Ogre {
 
     void TTYGuiElement::setFontName( const String& font )
     {
-        mpFont = (Font*)FontManager::getSingleton().getByName( font );
+        mpFont = FontManager::getSingleton().getByName( font );
+        if (mpFont.isNull())
+            Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find font " + font,
+            "TTYGuiElement::processEvent" );
         mpFont->load();
         mpMaterial = mpFont->getMaterial();
         mpMaterial->setDepthCheckEnabled(false);
