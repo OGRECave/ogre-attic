@@ -253,9 +253,7 @@ namespace Ogre {
 		{
 			/// squared Z value from which this LOD will apply
 			Real fromDepthSquared;
-			/// If true, this LOD is a link to another Mesh object; otherwise alternative index buffer assumed 
-			bool useManual;
-			/// Only relevant if useManual is true, the name of the alternative mesh to use
+			/// Only relevant if mIsLodManual is true, the name of the alternative mesh to use
 			String manualName;
 			/// Hard link to mesh to avoid looking up each time
 			Mesh* manualMesh;
@@ -331,6 +329,14 @@ namespace Ogre {
 		*/
 		ushort getLodIndexSquaredDepth(Real squaredDepth);
 
+		/** Returns true if this mesh is using manual LOD.
+		@remarks
+			A mesh can either use automatically generated LOD, or it can use alternative
+			meshes as provided by an artist. A mesh can only use either all manual LODs 
+			or all generated LODs, not a mixture of both.
+		*/
+		bool isLodManual(void) { return mIsLodManual; }
+
     private:
         typedef std::vector<SubMesh*> SubMeshList;
         /** A list of submeshes which make up this mesh.
@@ -365,6 +371,7 @@ namespace Ogre {
         /** Must be called once to compile bone assignments into geometry buffer. */
         void compileBoneAssignments(void);
 
+		bool mIsLodManual;
 		ushort mNumLods;
 		typedef std::vector<MeshLodUsage> MeshLodUsageList;
 		MeshLodUsageList mMeshLodUsageList;
