@@ -101,6 +101,7 @@ OgrePredefinedControllers.h \
 OgrePrerequisites.h \
 OgreProgressiveMesh.h \
 OgreQuaternion.h \
+OgreRay.h \
 OgreRenderOperation.h \
 OgreRenderQueue.h \
 OgreRenderQueueListener.h \
