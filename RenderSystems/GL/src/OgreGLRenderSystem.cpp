@@ -418,6 +418,8 @@ namespace Ogre {
 
         // Scissor test is standard in GL 1.2 (is it emulated on some cards though?)
         mCapabilities->setCapability(RSC_SCISSOR_TEST);
+		// As are user clipping planes
+		mCapabilities->setCapability(RSC_USER_CLIP_PLANES);
 
         // 2-sided stencil?
         if (mGLSupport->checkExtension("GL_EXT_stencil_two_side"))

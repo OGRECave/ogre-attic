@@ -630,6 +630,12 @@ namespace Ogre
         convertVertexShaderCaps();
         convertPixelShaderCaps();
 
+		// User clip planes
+        if (mCaps.MaxUserClipPlanes > 0)
+		{
+			mCapabilities->setCapability(RSC_USER_CLIP_PLANES);
+		}
+
         mCapabilities->log(LogManager::getSingleton().getDefaultLog());
     }
     //---------------------------------------------------------------------
