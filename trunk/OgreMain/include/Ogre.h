@@ -92,6 +92,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreProfiler.h"
 #include "OgreGpuProgramManager.h"
 #include "OgreGpuProgram.h"
+#include "OgreHighLevelGpuProgramManager.h"
+#include "OgreHighLevelGpuProgram.h"
 
 // .... more to come
 

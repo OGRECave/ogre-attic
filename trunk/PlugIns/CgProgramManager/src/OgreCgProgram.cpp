@@ -24,8 +24,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreCgProgram.h"
 #include "OgreGpuProgramManager.h"
+#include "OgreStringConverter.h"
 
 namespace Ogre {
+    //-----------------------------------------------------------------------
+    CgProgram::CmdEntryPoint CgProgram::msCmdEntryPoint;
+    CgProgram::CmdProfiles CgProgram::msCmdProfiles;
+
     //-----------------------------------------------------------------------
     void CgProgram::selectProfile()
     {
@@ -63,23 +68,67 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void CgProgram::createLowLevelImpl(void)
     {
-        // TODO
+        // Create a low-level program, give it the same name as us
+        mAssemblerProgram = 
+            GpuProgramManager::getSingleton().create(mName, mType, mSelectedProfile);
+
     }
     //-----------------------------------------------------------------------
     void CgProgram::unloadImpl(void)
     {
-        // TODO
+        // Unload Cg Program
+        // Lowlevel program will get unloaded elsewhere
+        if (mCgProgram)
+        {
+            cgDestroyProgram(mCgProgram);
+            checkForCgError("CgProgram::unloadImpl", 
+                "Error while unloading Cg program " + mName + ": ", 
+                mCgContext);
+            mCgProgram = 0;
+        }
     }
     //-----------------------------------------------------------------------
     void CgProgram::populateParameterNames(GpuProgramParametersSharedPtr params)
     {
-        // TODO
+        // Derive parameter names from Cg
+        assert(mCgProgram && "Cg program not loaded!");
+        // Note use of 'leaf' format so we only get bottom-level params, not structs
+        CGparameter parameter = cgGetFirstLeafParameter(mCgProgram, CG_PROGRAM);
+        while (parameter != 0) 
+        {
+            // Look for uniform parameters only
+            // Don't bother enumerating unused parameters, especially since they will
+            // be optimised out and therefore not in the indexed versions
+            if (cgGetParameterVariability(parameter) == CG_UNIFORM &&
+                cgIsParameterReferenced(parameter))
+            {
+                String paramName = cgGetParameterName(parameter);
+                size_t index = cgGetParameterResourceIndex(parameter);
+                params->_mapParameterNameToIndex(paramName, index);
+            }
+            // Get next
+            parameter = cgGetNextLeafParameter(parameter);
+        }
+
+        
     }
     //-----------------------------------------------------------------------
     CgProgram::CgProgram(const String& name, GpuProgramType gpType, 
         const String& language, CGcontext context)
-        : HighLevelGpuProgram(name, gpType, language), mCgContext(context)
+        : HighLevelGpuProgram(name, gpType, language), mCgContext(context), 
+        mCgProgram(0)
     {
+        if (createParamDictionary("CgProgram"))
+        {
+            ParamDictionary* dict = getParamDictionary();
+
+            dict->addParameter(ParameterDef("entry_point", 
+                "The entry point for the Cg program.",
+                PT_STRING),&msCmdEntryPoint);
+            dict->addParameter(ParameterDef("profiles", 
+                "Space-separated list of Cg profiles supported by this profile.",
+                PT_STRING),&msCmdProfiles);
+        }
         
     }
     //-----------------------------------------------------------------------
@@ -87,5 +136,53 @@ namespace Ogre {
     {
     }
     //-----------------------------------------------------------------------
+    bool CgProgram::isSupported(void)
+    {
+        StringVector::iterator i, iend;
+        iend = mProfiles.end();
+        // Check to see if any of the profiles are supported
+        for (i = mProfiles.begin(); i != iend; ++i)
+        {
+            if (GpuProgramManager::getSingleton().isSyntaxSupported(*i))
+            {
+                return true;
+            }
+        }
+        return false;
+
+    }
+    //-----------------------------------------------------------------------
+    void CgProgram::setProfiles(const StringVector& profiles)
+    {
+        mProfiles.clear();
+        StringVector::const_iterator i, iend;
+        iend = profiles.end();
+        for (i = profiles.begin(); i != iend; ++i)
+        {
+            mProfiles.push_back(*i);
+        }
+    }
+    //-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
+    String CgProgram::CmdEntryPoint::doGet(void *target)
+    {
+        return StringConverter::toString(
+            static_cast<CgProgram*>(target)->getEntryPoint() );
+    }
+    void CgProgram::CmdEntryPoint::doSet(void *target, const String& val)
+    {
+        static_cast<CgProgram*>(target)->setEntryPoint(val);
+    }
+    //-----------------------------------------------------------------------
+    String CgProgram::CmdProfiles::doGet(void *target)
+    {
+        return StringConverter::toString(
+            static_cast<CgProgram*>(target)->getProfiles() );
+    }
+    void CgProgram::CmdProfiles::doSet(void *target, const String& val)
+    {
+        static_cast<CgProgram*>(target)->setProfiles(
+            StringConverter::parseStringVector(val) );
+    }
 
 }
