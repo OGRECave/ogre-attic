@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.00"
 	Name="Demo_CelShading"
-	ProjectGUID="{EDD4B978-5ABA-448B-8DA7-A02F99714D66}"
+	ProjectGUID="{A0C80324-EF9A-41AE-A833-1CC909C38ABB}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

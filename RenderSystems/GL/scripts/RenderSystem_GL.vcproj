@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.00"
 	Name="RenderSystem_GL"
-	ProjectGUID="{4FCE5A80-E8AC-448E-AAA0-B1A35AB9551B}"
+	ProjectGUID="{7D0A20FE-40A6-4E64-AD26-5E34AE391DF4}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.00"
 	Name="Demo_EnvMapping"
-	ProjectGUID="{EDD4B978-5ABA-448B-8DA7-A02F99714D66}"
+	ProjectGUID="{40308138-609B-4162-AA55-E8E02BF207F0}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

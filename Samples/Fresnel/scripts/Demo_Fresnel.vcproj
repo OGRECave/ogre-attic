@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.00"
 	Name="Demo_Fresnel"
-	ProjectGUID="{EDD4B978-5ABA-448B-8DA7-A02F99714D66}"
+	ProjectGUID="{B5E6BAD4-960F-418B-8904-FE93EC51947B}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.00"
 	Name="Demo_Terrain"
-	ProjectGUID="{EDD4B978-5ABA-448B-8DA7-A02F99714D66}"
+	ProjectGUID="{1BB416AA-358A-4B4B-B565-14CE1BF9D4FD}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.00"
 	Name="MaterialUpgrader"
-	ProjectGUID="{B4FB6BCF-FA5A-42C2-9FA5-F1653B95ADE3}"
+	ProjectGUID="{2BA1BBEE-CE27-48D6-A89D-EBAA81D40B6D}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.00"
 	Name="MeshUpgrader"
-	ProjectGUID="{B4FB6BCF-FA5A-42C2-9FA5-F1653B95ADE3}"
+	ProjectGUID="{6B3CABED-0D07-4AF0-8931-929B9B28BA8B}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

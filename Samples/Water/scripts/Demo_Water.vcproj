@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.00"
 	Name="Demo_Water"
-	ProjectGUID="{EDD4B978-5ABA-448B-8DA7-A02F99714D66}"
+	ProjectGUID="{C7167FBD-F166-4DEA-B50B-9F25E28B75F6}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

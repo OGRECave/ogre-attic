@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.00"
 	Name="Demo_Dot3Bump"
-	ProjectGUID="{EDD4B978-5ABA-448B-8DA7-A02F99714D66}"
+	ProjectGUID="{279EA6C7-59CF-48E4-BAC7-3C356A8114F6}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

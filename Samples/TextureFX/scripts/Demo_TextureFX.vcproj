@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.00"
 	Name="Demo_TextureFX"
-	ProjectGUID="{EDD4B978-5ABA-448B-8DA7-A02F99714D66}"
+	ProjectGUID="{4C359709-9A70-4ED8-9071-8BCF1BCD83E7}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.00"
 	Name="Demo_SkeletalAnimation"
-	ProjectGUID="{EDD4B978-5ABA-448B-8DA7-A02F99714D66}"
+	ProjectGUID="{43E76713-7E47-4AB0-A2FE-F4296B5C3EF8}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

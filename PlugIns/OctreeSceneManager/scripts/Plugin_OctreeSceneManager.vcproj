@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.00"
 	Name="Plugin_OctreeSceneManager"
-	ProjectGUID="{80DECC17-BDDD-4412-8CF8-F7C1C17A7436}"
+	ProjectGUID="{A6830BB5-9993-4F6D-8D4E-930F36A1B88F}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

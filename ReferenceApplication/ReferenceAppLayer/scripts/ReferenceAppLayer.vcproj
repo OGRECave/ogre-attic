@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.00"
 	Name="ReferenceAppLayer"
-	ProjectGUID="{80DECC17-BDDD-4412-8CF8-F7C1C17A7436}"
+	ProjectGUID="{6FDA6A78-A473-4FEB-86A5-96D1CC65D5B9}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

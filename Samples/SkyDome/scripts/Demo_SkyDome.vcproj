@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.00"
 	Name="Demo_SkyDome"
-	ProjectGUID="{EDD4B978-5ABA-448B-8DA7-A02F99714D66}"
+	ProjectGUID="{C9AF3D1F-44A3-413A-B137-264C6D559CED}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
