@@ -383,7 +383,7 @@ namespace Ogre {
              // Y-axis is common direction
             // X-axis is cross with camera direction 
             *pY = mCommonDirection;
-            *pX = camQ * cam.getDerivedDirection().crossProduct(*pY);
+            *pX = cam.getDerivedDirection().crossProduct(*pY);
            
             break;
         case BBT_ORIENTED_SELF:
@@ -392,7 +392,7 @@ namespace Ogre {
 
             // Scale direction first
             *pY = (pBill->mDirection * 0.01);
-            *pX = camQ * cam.getDerivedDirection().crossProduct(*pY);
+            *pX = cam.getDerivedDirection().crossProduct(*pY);
 
             break;
         }

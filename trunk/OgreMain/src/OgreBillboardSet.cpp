@@ -725,8 +725,7 @@ namespace Ogre {
             // X-axis is cross with camera direction 
             *pY = mCommonDirection;
             // Convert into billboard local space
-            camQ = invTransform * camQ;
-            *pX = camQ * cam.getDerivedDirection().crossProduct(*pY);
+            *pX = invTransform * cam.getDerivedDirection().crossProduct(*pY);
             
             break;
         case BBT_ORIENTED_SELF:
@@ -734,8 +733,7 @@ namespace Ogre {
             // X-axis is cross with camera direction 
             *pY = pBill->mDirection;
             // Convert into billboard local space
-            camQ = invTransform * camQ;
-            *pX = camQ * cam.getDerivedDirection().crossProduct(*pY);
+            *pX = invTransform * cam.getDerivedDirection().crossProduct(*pY);
 
             break;
         }
