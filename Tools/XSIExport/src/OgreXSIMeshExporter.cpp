@@ -87,7 +87,7 @@ namespace Ogre {
 		cleanupDeformerList();
     }
     //-----------------------------------------------------------------------
-	DeformerList& XsiMeshExporter::exportMesh(const XSI::CString& fileName, 
+	DeformerList& XsiMeshExporter::exportMesh(const String& fileName, 
 		bool mergeSubMeshes, bool exportChildren, 
 		bool edgeLists, bool tangents, LodData* lod, const String& skeletonName)
     {
@@ -141,7 +141,7 @@ namespace Ogre {
 		}
 
         MeshSerializer serializer;
-        serializer.exportMesh(pMesh.getPointer(), XSItoOgre(fileName));
+        serializer.exportMesh(pMesh.getPointer(), fileName);
 
 		cleanupPolygonMeshList();
 

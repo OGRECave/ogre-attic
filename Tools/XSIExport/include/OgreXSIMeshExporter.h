@@ -76,7 +76,7 @@ namespace Ogre {
 		@returns List of deformers (bones) which were found whilst exporting (if
 			skeletonName was provided) which can be used to determine the skeleton.
         */
-        DeformerList& exportMesh(const XSI::CString& fileName, 
+        DeformerList& exportMesh(const String& fileName, 
             bool mergeSubMeshes, bool exportChildren, bool edgeLists, 
 			bool tangents, LodData* lod = 0, const String& skeletonName = "");
 

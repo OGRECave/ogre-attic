@@ -118,6 +118,19 @@ namespace Ogre {
 	/// Map from deformer name to deformer entry
 	typedef std::map<String,DeformerEntry*> DeformerList;
 
+
+	/** An entry for an animation; allows the userto split the timeline into 
+		multiple separate animations. 
+	*/
+	struct AnimationEntry
+	{
+		String animationName;
+		long startFrame;
+		long endFrame; // -1 if 'to end'
+	};
+	/// Map from deformer name to deformer entry
+	typedef std::vector<AnimationEntry> AnimationList;
+
 }
 #endif
 
