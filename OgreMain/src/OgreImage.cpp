@@ -415,7 +415,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------------
-    unsigned short Image::getNumMipmaps() const
+    size_t Image::getNumMipmaps() const
     {
        return m_uNumMipmaps;
     }
@@ -434,18 +434,18 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------------
-    ushort Image::getDepth() const
+    size_t Image::getDepth() const
     {
         return m_uDepth;
     }
     //-----------------------------------------------------------------------------
-    ushort Image::getWidth() const
+    size_t Image::getWidth() const
     {
         return m_uWidth;
     }
 
     //-----------------------------------------------------------------------------
-    ushort Image::getHeight() const
+    size_t Image::getHeight() const
     {
         return m_uHeight;
     }

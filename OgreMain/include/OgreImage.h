@@ -184,7 +184,7 @@ namespace Ogre {
 
         /** Returns the number of mipmaps contained in the image.
         */
-        unsigned short getNumMipmaps() const;
+        size_t getNumMipmaps() const;
 
         /** Returns true if the image has the appropriate flag set.
         */
@@ -192,15 +192,15 @@ namespace Ogre {
 
         /** Gets the width of the image in pixels.
         */
-        ushort getWidth(void) const;
+        size_t getWidth(void) const;
 
         /** Gets the height of the image in pixels.
         */
-        ushort getHeight(void) const;
+        size_t getHeight(void) const;
 
         /** Gets the depth of the image.
         */
-        ushort getDepth(void) const;
+        size_t getDepth(void) const;
 		
 		/** Get the numer of faces of the image. This is usually 6 for a cubemap, and
 		    1 for a normal image.
@@ -266,15 +266,15 @@ namespace Ogre {
 
     private:
         // The width of the image in pixels
-        ushort m_uWidth;
+        size_t m_uWidth;
         // The height of the image in pixels
-        ushort m_uHeight;
+        size_t m_uHeight;
         // The depth of the image
-        ushort m_uDepth;
+        size_t m_uDepth;
         // The size of the image buffer
-        uint m_uSize;
+        size_t m_uSize;
         // The number of mipmaps the image contains
-        ushort m_uNumMipmaps;
+        size_t m_uNumMipmaps;
         // Image specific flags.
         int m_uFlags;
 
