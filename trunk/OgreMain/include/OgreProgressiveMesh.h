@@ -52,6 +52,16 @@ namespace Ogre {
     class _OgreExport ProgressiveMesh
     {
     public:
+
+        /// Struct for holding the returned LOD geometry information
+        struct LODGeometryData
+        {
+            ushort numIndexes;
+            ushort* pIndexes;
+        };
+
+        typedef std::vector<LODGeometryData> LODGeometryList;
+
         /** Constructor, takes the geometry data and index buffer. */
         ProgressiveMesh(GeometryData* data, ushort* indexBuffer, ushort numIndexes);
         virtual ~ProgressiveMesh();
@@ -71,17 +81,15 @@ namespace Ogre {
         /** Builds the progressive mesh with the specified number of levels.
         @param numLevels The number of levels to include in the mesh including the full detail version.
             Each level will have half as many vertices as the previous one.
-        @param ppIdxBuffers Pointer to an list of index buffer pointers, there must be 
-            space for numLevels - 1 pointers here. This method will allocate the memory for
-            these buffers, but the caller has responsibility for freeing them.
+        @param outList Pointer to a list of LOD geometry data which will be completed by the application
         */
-        virtual void build(ushort numLevels, ushort** ppIdxBuffers);
+        virtual void build(ushort numLevels, LODGeometryList* outList);
 
     protected:
         GeometryData* mpGeomData;
         ushort* mpIndexBuffer;
         ushort mNumIndexes;
-        ushort mCurrentWorkData;
+        ushort mCurrNumIndexes;
 
         // Internal classes
         class PMTriangle;
@@ -124,23 +132,21 @@ namespace Ogre {
 
         typedef std::vector<PMTriangle> TriangleList;
         typedef std::vector<PMVertex> VertexList;
+        typedef std::vector<Real> WorstCostList;
 
+        /// Data used to calculate the collapse costs
         struct PMWorkingData
         {
-            TriangleList mTriList;
-            VertexList mVertList;
+            TriangleList mTriList; /// List of faces
+            VertexList mVertList; // The vertex details referenced by the triangles
         };
 
         typedef std::vector<PMWorkingData> WorkingDataList;
         /// Multiple copies, 1 per vertex buffer
         WorkingDataList mWorkingData;
 
-        /* Map ordered by max cost of each vertex in each buffer.
-            By finding the least max cost we find the best collapse
-            option for all buffers.
-        */
-        typedef std::map<Real, ushort> LeastMaxCostMap;
-        LeastMaxCostMap mLeastMaxCostMap;
+        /// The worst collapse cost from all vertex buffers for each vertex
+        WorstCostList mWorstCosts;
 
         /// Internal method for building PMWorkingData from geometry data
         void addWorkingData(Real* pPositions, GeometryData* data, ushort* indexBuffer, ushort numIndexes);
@@ -149,23 +155,24 @@ namespace Ogre {
         void initialiseEdgeCollapseCosts(void);
         /// Internal calculation method for deriving a collapse cost  from u to v
         Real computeEdgeCollapseCost(PMVertex *src, PMVertex *dest);
-        /// Internal method evaluates all collapse costs from this vertex and picks the lowest
-        void computeEdgeCostAtVertex(WorkingDataList::iterator idata, ushort vertIndex);
-        /// Internal method for calculating all edge collapse costs for a buffer
-        void computeAllEdgeCollapseCostsForBuffer(WorkingDataList::iterator idata);
-        /** Internal method to compute edge collapse costs for all buffers and build the
-            initial 'least max cost' map. */
-        void computeEdgeCollapseCostsForAllBuffers(void);
+        /// Internal method evaluates all collapse costs from this vertex and picks the lowest for a single buffer
+        Real computeEdgeCostAtVertexForBuffer(WorkingDataList::iterator idata, ushort vertIndex);
+        /// Internal method evaluates all collapse costs from this vertex for every buffer and returns the worst
+        void computeEdgeCostAtVertex(ushort vertIndex);
+        /// Internal method to compute edge collapse costs for all buffers /
+        void computeAllCosts(void);
+        /// Internal method for getting the index of next best vertex to collapse
+        ushort getNextCollapser(void);
+        /// Internal method builds an new LOD based on the current state
+        void bakeNewLOD(LODGeometryData* pData);
 
-        /** Internal method, collapses vertex at index srcIdx onto destIdx. 
+        /** Internal method, collapses vertex onto it's saved collapse target. 
         @remarks
             This updates the working triangle list to drop a triangle and recalculates
-            the edge collapse costs around destIdx. This also updates all the working 
-            vertex lists. Note that the vertex srcIdx and a face are deleted but their
-            pointer position in the vertlist and trilist are still maintained to enable
-            the indices to stay the same.
+            the edge collapse costs around the collapse target. 
+            This also updates all the working vertex lists for the relevant buffer. 
         */
-        void collapse(ushort srcIdx, ushort destIdx);
+        void collapse(PMVertex *collapser);
 
 
 
