@@ -153,6 +153,7 @@ OgreScrollEvent.h \
 OgreScrollTarget.h \
 OgreSerializer.h \
 OgreShadowCaster.h \
+OgreShadowVolumeExtrudeProgram.h \
 OgreSharedPtr.h \
 OgreSimpleRenderable.h \
 OgreSimpleSpline.h \

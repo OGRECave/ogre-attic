@@ -864,39 +864,37 @@ namespace Ogre
         Real farPlane, Matrix4& dest, bool forGpuProgram)
 	{
 
-        D3DXMATRIX d3dMatrix;
-        if (forGpuProgram)
-        {
-            D3DXMatrixPerspectiveFovRH(&d3dMatrix,
-                Math::AngleUnitsToRadians(fovy),
-                aspect,
-                nearPlane,
-                farPlane);
-        }
-        else
-        {
-            D3DXMatrixPerspectiveFovLH(&d3dMatrix,
-                Math::AngleUnitsToRadians(fovy),
-                aspect,
-                nearPlane,
-                farPlane);
-        }
-        dest = D3D9Mappings::convertD3DXMatrix(d3dMatrix);
-
-
-        /*
         Real theta = Math::AngleUnitsToRadians(fovy * 0.5);
 		Real h = 1 / Math::Tan(theta);
 		Real w = h / aspect;
-		Real Q = farPlane / ( farPlane - nearPlane );
+		Real q, qn;
+        if (farPlane == 0)
+        {
+            q = 1 - Frustum::INFINITE_FAR_PLANE_ADJUST;
+            qn = nearPlane * (Frustum::INFINITE_FAR_PLANE_ADJUST - 1);
+        }
+        else
+        {
+            q = farPlane / ( farPlane - nearPlane );
+            qn = -q * nearPlane;
+        }
 
 		dest = Matrix4::ZERO;
 		dest[0][0] = w;
 		dest[1][1] = h;
-		dest[2][2] = Q;
-		dest[3][2] = 1.0f;
-		dest[2][3] = -Q * nearPlane;
-        */
+
+        if (forGpuProgram)
+        {
+            dest[2][2] = -q;
+		    dest[3][2] = -1.0f;
+        }
+        else
+        {
+            dest[2][2] = q;
+            dest[3][2] = 1.0f;
+        }
+
+        dest[2][3] = qn;
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_makeOrthoMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, 
@@ -908,7 +906,15 @@ namespace Ogre
             Real sinThetaX = Math::Sin(thetaX);
             Real w = 1.0 / (sinThetaX * nearPlane);
             Real h = 1.0 / (sinThetaY * nearPlane);
-            Real q = 1.0 / (farPlane - nearPlane);
+            Real q;
+            if (farPlane == 0)
+            {
+                q = 0;
+            }
+            else
+            {
+                q = 1.0 / (farPlane - nearPlane);
+            }
 
 		
             dest = Matrix4::ZERO;
@@ -2307,18 +2313,35 @@ namespace Ogre
         Real bottom, Real top, Real nearPlane, Real farPlane, Matrix4& dest,
         bool forGpuProgram)
     {
-        D3DXMATRIX d3dMatrix;
-        if (forGpuProgram)
+        Real width = right - left;
+        Real height = top - bottom;
+        Real q, qn;
+        if (farPlane == 0)
         {
-            D3DXMatrixPerspectiveOffCenterRH(&d3dMatrix, 
-                left, right, bottom, top, nearPlane, farPlane);
+            q = 1 - Frustum::INFINITE_FAR_PLANE_ADJUST;
+            qn = nearPlane * (Frustum::INFINITE_FAR_PLANE_ADJUST - 1);
         }
         else
         {
-            D3DXMatrixPerspectiveOffCenterRH(&d3dMatrix, 
-                left, right, bottom, top, nearPlane, farPlane);
+            q = farPlane / ( farPlane - nearPlane );
+            qn = -q * nearPlane;
         }
-        dest = D3D9Mappings::convertD3DXMatrix(d3dMatrix);
+        dest = Matrix4::ZERO;
+        dest[0][0] = 2 * nearPlane / width;
+        dest[0][2] = (right+left) / width;
+        dest[1][1] = 2 * nearPlane / height;
+        dest[1][2] = (top+bottom) / height;
+        if (forGpuProgram)
+        {
+            dest[2][2] = -q;
+            dest[3][2] = -1.0f;
+        }
+        else
+        {
+            dest[2][2] = q;
+            dest[3][2] = 1.0f;
+        }
+        dest[2][3] = qn;
     }
 
     // ------------------------------------------------------------------

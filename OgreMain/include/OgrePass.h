@@ -662,8 +662,15 @@ namespace Ogre {
 		@param name The name of the program - this must have been 
 			created using GpuProgramManager by the time that this Pass 
 			is loaded. If this parameter is blank, any vertex program in this pass is disabled.
+        @param resetParams
+            If true, this will create a fresh set of parameters from the
+            new program being linked, so if you had previously set parameters
+            you will have to set them again. If you set this to false, you must
+            be absolutely sure that the parameters match perfectly, and in the
+            case of named parameters refers to the indexes underlying them, 
+            not just the names.
 		*/
-		void setVertexProgram(const String& name);
+		void setVertexProgram(const String& name, bool resetParams = true);
 		/** Sets the vertex program parameters.
 		@remarks
 			Only applicable to programmable passes, and this particular call is
@@ -774,8 +781,15 @@ namespace Ogre {
 		@param name The name of the program - this must have been 
 			created using GpuProgramManager by the time that this Pass 
 			is loaded. If this parameter is blank, any fragment program in this pass is disabled.
+        @param resetParams
+            If true, this will create a fresh set of parameters from the
+            new program being linked, so if you had previously set parameters
+            you will have to set them again. If you set this to false, you must
+            be absolutely sure that the parameters match perfectly, and in the
+            case of named parameters refers to the indexes underlying them, 
+            not just the names.
 		*/
-		void setFragmentProgram(const String& name);
+		void setFragmentProgram(const String& name, bool resetParams = true);
 		/** Sets the vertex program parameters.
 		@remarks
 			Only applicable to programmable passes.

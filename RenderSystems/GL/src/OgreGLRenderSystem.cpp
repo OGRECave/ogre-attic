@@ -1296,9 +1296,18 @@ namespace Ogre {
         // Calc matrix elements
         Real w = (1.0f / tanThetaY) / aspect;
         Real h = 1.0f / tanThetaY;
-        Real q = -(farPlane + nearPlane) / (farPlane - nearPlane);
-        //Real qn= q * mNearDist;
-        Real qn = -2 * (farPlane * nearPlane) / (farPlane - nearPlane);
+        Real q, qn;
+        if (farPlane == 0)
+        {
+            // Infinite far plane
+            q = Frustum::INFINITE_FAR_PLANE_ADJUST - 1;
+            qn = nearPlane * (Frustum::INFINITE_FAR_PLANE_ADJUST - 2);
+        }
+        else
+        {
+            q = -(farPlane + nearPlane) / (farPlane - nearPlane);
+            qn = -2 * (farPlane * nearPlane) / (farPlane - nearPlane);
+        }
 
         // NB This creates Z in range [-1,1]
         //
@@ -1325,7 +1334,15 @@ namespace Ogre {
             Real sinThetaX = Math::Sin(thetaX);
             Real w = 1.0 / (sinThetaX * nearPlane);
             Real h = 1.0 / (sinThetaY * nearPlane);
-            Real q = 1.0 / (farPlane - nearPlane);
+            Real q;
+            if (farPlane == 0)
+            {
+                q = 0;
+            }
+            else
+            {
+                q = 1.0 / (farPlane - nearPlane);
+            }
 		
             dest = Matrix4::ZERO;
             dest[0][0] = w;
@@ -2123,8 +2140,18 @@ namespace Ogre {
     {
         Real width = right - left;
         Real height = top - bottom;
-        Real q = -(farPlane + nearPlane) / (farPlane - nearPlane);
-        Real qn = -2 * (farPlane * nearPlane) / (farPlane - nearPlane);
+        Real q, qn;
+        if (farPlane == 0)
+        {
+            // Infinite far plane
+            q = Frustum::INFINITE_FAR_PLANE_ADJUST - 1;
+            qn = nearPlane * (Frustum::INFINITE_FAR_PLANE_ADJUST - 2);
+        }
+        else
+        {
+            q = -(farPlane + nearPlane) / (farPlane - nearPlane);
+            qn = -2 * (farPlane * nearPlane) / (farPlane - nearPlane);
+        }
         dest = Matrix4::ZERO;
         dest[0][0] = 2 * nearPlane / width;
         dest[0][2] = (right+left) / width;

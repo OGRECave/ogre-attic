@@ -707,6 +707,11 @@ namespace Ogre {
         // remove elements from declaration
         ret->vertexDeclaration->removeElement(VES_BLEND_INDICES);
         ret->vertexDeclaration->removeElement(VES_BLEND_WEIGHTS);
+
+        // Copy reference to wcoord buffer
+        if (!source->hardwareShadowVolWBuffer.isNull())
+            ret->hardwareShadowVolWBuffer = source->hardwareShadowVolWBuffer;
+
         return ret;
     }
     //-----------------------------------------------------------------------
@@ -774,6 +779,7 @@ namespace Ogre {
         assert((*indexBuffer)->getType() == HardwareIndexBuffer::IT_16BIT && 
             "Only 16-bit indexes supported for now");
 
+        bool hasSkeleton = this->hasSkeleton();
 
 
         // Prep mesh if required
@@ -791,7 +797,7 @@ namespace Ogre {
 
 
         // Update any animation 
-        if (hasSkeleton())
+        if (hasSkeleton)
         {
             updateAnimation();
         }
@@ -801,7 +807,7 @@ namespace Ogre {
         // Only use object-space light if we're not doing transforms
         // Since when animating the positions are already transformed into 
         // world space so we need world space light position
-        if (!hasSkeleton())
+        if (!hasSkeleton)
         {
             Matrix4 world2Obj = mParentNode->_getFullTransform().inverse();
             lightPos =  world2Obj * lightPos; 
@@ -827,7 +833,7 @@ namespace Ogre {
             if (init)
             {
                 const VertexData *pVertData = 0;
-                if (hasSkeleton())
+                if (hasSkeleton)
                 {
                     // Use temp buffers
                     pVertData = findBlendedVertexData(egi->vertexData);
@@ -843,7 +849,7 @@ namespace Ogre {
                 *si = new EntityShadowRenderable(this, indexBuffer, pVertData, 
                     mVertexProgramInUse || !extrude);
             }
-            else if (hasSkeleton())
+            else if (hasSkeleton)
             {
                 // If we have a skeleton, we have no guarantee that the position
                 // buffer we used last frame is the same one we used last frame
@@ -855,13 +861,26 @@ namespace Ogre {
             }
             // Get shadow renderable
             esr = static_cast<EntityShadowRenderable*>(*si);
+            HardwareVertexBufferSharedPtr esrPositionBuffer = esr->getPositionBuffer();
             // For animated entities we need to recalculate the face normals
-            if (hasSkeleton())
+            if (hasSkeleton)
             {
                 if (egi->vertexData != mMesh->sharedVertexData || !updatedSharedGeomNormals)
                 {
                     // recalculate face normals
-                    edgeList->updateFaceNormals(egi->vertexSet, esr->getPositionBuffer());
+                    edgeList->updateFaceNormals(egi->vertexSet, esrPositionBuffer);
+                    // If we're not extruding in software we still need to update 
+                    // the latter part of the buffer (the hardware extruded part)
+                    // with the latest animated positions
+                    if (!extrude)
+                    {
+                        // Lock, we'll be locking the (suppressed hardware update) shadow buffer
+                        Real* pSrc = static_cast<Real*>(
+                            esrPositionBuffer->lock(HardwareBuffer::HBL_NORMAL));
+                        Real* pDest = pSrc + (egi->vertexData->vertexCount * 3);
+                        memcpy(pDest, pSrc, sizeof(Real) * 3 * egi->vertexData->vertexCount);
+                        esrPositionBuffer->unlock();
+                    }
                     if (egi->vertexData == mMesh->sharedVertexData)
                     {
                         updatedSharedGeomNormals = true;
@@ -871,13 +890,13 @@ namespace Ogre {
             // Extrude vertices in software if required
             if (extrude)
             {
-                extrudeVertices(esr->getPositionBuffer(), 
+                extrudeVertices(esrPositionBuffer, 
                     egi->vertexData->vertexCount, 
                     lightPos, extrusionDistance);
 
             }
             // Stop suppressing hardware update now, if we were
-            esr->getPositionBuffer()->suppressHardwareUpdate(false);
+            esrPositionBuffer->suppressHardwareUpdate(false);
 
         }
         // Calc triangle light facing

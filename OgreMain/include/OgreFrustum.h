@@ -169,18 +169,22 @@ namespace Ogre
         /** Sets the distance to the far clipping plane.
             @remarks
                 The view frustrum is a pyramid created from the frustum position and the edges of the viewport.
-                This frustrum does not extend to infinity - it is cropped near to the frustum and there is a far
-                plane beyond which nothing is displayed. This method sets the distance for the far plane. Different
-                applications need different values: e.g. a flight sim needs a much further far clipping plane than
-                a first-person shooter. An important point here is that the larger the gap between near and far
-                clipping planes, the lower the accuracy of the Z-buffer used to depth-cue pixels. This is because the
-                Z-range is limited to the size of the Z buffer (16 or 32-bit) and the max values must be spread over
-                the gap between near and far clip planes. The bigger the range, the more the Z values will
-                be approximated which can cause artifacts when lots of objects are close together in the Z-plane. So
-                make sure you clip as close to the frustum as you can - don't set a huge value for the sake of
-                it.
+                This method sets the distance for the far end of that pyramid. 
+                Different applications need different values: e.g. a flight sim
+                needs a much further far clipping plane than a first-person 
+                shooter. An important point here is that the larger the ratio 
+                between near and far clipping planes, the lower the accuracy of
+                the Z-buffer used to depth-cue pixels. This is because the
+                Z-range is limited to the size of the Z buffer (16 or 32-bit) 
+                and the max values must be spread over the gap between near and
+                far clip planes. As it happens, you can affect the accuracy far 
+                more by altering the near distance rather than the far distance, 
+                but keep this in mind.
             @param
-                far The distance to the far clipping plane from the frustum in world coordinates.
+                far The distance to the far clipping plane from the frustum in 
+                world coordinates.If you specify 0, this means an infinite view
+                distance which is useful especially when projecting shadows; but
+                be careful not to use a near distance too close.
         */
         virtual void setFarClipDistance(Real farDist);
 
@@ -345,8 +349,8 @@ namespace Ogre
         /// Returns the reflection plane of the frustum if appropriate
         virtual const Plane& getReflectionPlane(void) { return mReflectPlane; }
 
-
-
+        /// Small constant used to reduce far plane projection to avoid inaccuracies
+        static const Real INFINITE_FAR_PLANE_ADJUST;
     };
 
 

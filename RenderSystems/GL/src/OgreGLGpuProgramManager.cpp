@@ -51,7 +51,7 @@ GpuProgram* GLGpuProgramManager::create(const String& name, GpuProgramType gptyp
     {
         // No factory, this is an unsupported syntax code, probably for another rendersystem
         // Create a basic one, it doesn't matter what it is since it won't be used
-        return new GLArbGpuProgram(name, gptype, syntaxCode);
+        return new GLGpuProgram(name, gptype, syntaxCode);
     }
     
     return (iter->second)(name, gptype, syntaxCode);

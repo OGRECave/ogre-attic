@@ -53,6 +53,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreHardwareBufferManager.h"
 #include "OgreRoot.h"
 #include "OgreSpotShadowFadePng.h"
+#include "OgreGpuProgramManager.h"
+#include "OgreGpuProgram.h"
+#include "OgreShadowVolumeExtrudeProgram.h"
 
 // This class implements the most basic scene manager
 
@@ -700,6 +703,17 @@ namespace Ogre {
         Root::getSingleton()._setCurrentSceneManager(this);
 		// Prep Pass for use in debug shadows
 		initShadowVolumeMaterials();
+        // Perform a quick pre-check to see whether we should override far distance
+        // When using vertex programs to extrude stencil volumes we have to use
+        // infinite far distance
+        if ((mShadowTechnique == SHADOWTYPE_STENCIL_ADDITIVE ||
+            mShadowTechnique == SHADOWTYPE_STENCIL_MODULATIVE) && 
+            mDestRenderSystem->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM) &&
+            camera->getFarClipDistance() != 0)
+        {
+            // infinite far distance
+            camera->setFarClipDistance(0);
+        }
 
         mCameraInProgress = camera;
         mCamChanged = true;
@@ -2067,12 +2081,16 @@ namespace Ogre {
         // Also destroy any animation states referencing this animation
         AnimationStateSet::iterator si, siend;
         siend = mAnimationStates.end();
-        for (si = mAnimationStates.begin(); si != siend; ++si)
+        for (si = mAnimationStates.begin(); si != siend; )
         {
             if (si->second.getAnimationName() == name)
             {
-                // erase, does not invalidate iterator
-                mAnimationStates.erase(si);
+                // erase, post increment to avoid the invalidated iterator
+                mAnimationStates.erase(si++);
+            }
+            else
+            {
+                ++si;
             }
         }
 
@@ -2728,7 +2746,70 @@ namespace Ogre {
             mShadowDebugPass->setCullingMode(CULL_NONE);
             if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM))
             {
-                // TODO, add hardware extrusion program
+                // load hardware extrusion programs for point & dir lights
+                if (GpuProgramManager::getSingleton().isSyntaxSupported("arbvp1"))
+                {
+                    // ARBvp1
+                    if (!GpuProgramManager::getSingleton().getByName("Ogre/ShadowExtrudePointLightDebug"))
+                    {
+                        GpuProgram* vp = 
+                            GpuProgramManager::getSingleton().createProgramFromString(
+                            "Ogre/ShadowExtrudePointLightDebug",
+                            ShadowVolumeExtrudeProgram::getPointLightExtruderArbvp1Debug(), 
+                            GPT_VERTEX_PROGRAM, "arbvp1");
+                        vp->load();
+                    }
+                    if (!GpuProgramManager::getSingleton().getByName("Ogre/ShadowExtrudeDirLightDebug"))
+                    {
+                        GpuProgram* vp = 
+                            GpuProgramManager::getSingleton().createProgramFromString(
+                            "Ogre/ShadowExtrudeDirLightDebug",
+                            ShadowVolumeExtrudeProgram::getDirectionalLightExtruderArbvp1Debug(), 
+                            GPT_VERTEX_PROGRAM, "arbvp1");
+                        vp->load();
+                    }
+                }
+                else if (GpuProgramManager::getSingleton().isSyntaxSupported("vs_1_1"))
+                {
+                    // vs_1_1
+                    if (!GpuProgramManager::getSingleton().getByName("Ogre/ShadowExtrudePointLightDebug"))
+                    {
+                        GpuProgram* vp = 
+                            GpuProgramManager::getSingleton().createProgramFromString(
+                            "Ogre/ShadowExtrudePointLightDebug",
+                            ShadowVolumeExtrudeProgram::getPointLightExtruderVs_1_1Debug(), 
+                            GPT_VERTEX_PROGRAM, "vs_1_1");
+                        vp->load();
+                    }
+                    if (!GpuProgramManager::getSingleton().getByName("Ogre/ShadowExtrudeDirLightDebug"))
+                    {
+                        GpuProgram* vp = 
+                            GpuProgramManager::getSingleton().createProgramFromString(
+                            "Ogre/ShadowExtrudeDirLightDebug",
+                            ShadowVolumeExtrudeProgram::getDirectionalLightExtruderVs_1_1Debug(), 
+                            GPT_VERTEX_PROGRAM, "vs_1_1");
+                        vp->load();
+                    }
+
+                }
+                else
+                {
+                    Except(Exception::ERR_INTERNAL_ERROR, 
+                        "Vertex programs are supposedly supported, but neither "
+                        "arbvp1 nor vs_1_1 syntaxes are present.", 
+                        "SceneManager::initShadowVolumeMaterials");
+                }
+
+                // Enable the point light extruder for now, just to get some params
+                mShadowDebugPass->setVertexProgram("Ogre/ShadowExtrudePointLightDebug");
+                GpuProgramParametersSharedPtr extrusionParams = 
+                    mShadowDebugPass->getVertexProgramParameters();
+                extrusionParams->setAutoConstant(0, 
+                    GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
+                extrusionParams->setAutoConstant(4, 
+                    GpuProgramParameters::ACT_LIGHT_POSITION_OBJECT_SPACE);
+
+
             }
             matDebug->compile();
         }
@@ -2743,7 +2824,70 @@ namespace Ogre {
             mShadowStencilPass = matStencil->getTechnique(0)->getPass(0);
             if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM))
             {
-                // TODO, add hardware extrusion program
+                // load hardware extrusion programs for point & dir lights
+                if (GpuProgramManager::getSingleton().isSyntaxSupported("arbvp1"))
+                {
+                    // ARBvp1
+                    if (!GpuProgramManager::getSingleton().getByName("Ogre/ShadowExtrudePointLight"))
+                    {
+                        GpuProgram* vp = 
+                            GpuProgramManager::getSingleton().createProgramFromString(
+                            "Ogre/ShadowExtrudePointLight",
+                            ShadowVolumeExtrudeProgram::getPointLightExtruderArbvp1(), 
+                            GPT_VERTEX_PROGRAM, "arbvp1");
+                        vp->load();
+                    }
+                    if (!GpuProgramManager::getSingleton().getByName("Ogre/ShadowExtrudeDirLight"))
+                    {
+                        GpuProgram* vp = 
+                            GpuProgramManager::getSingleton().createProgramFromString(
+                            "Ogre/ShadowExtrudeDirLight",
+                            ShadowVolumeExtrudeProgram::getDirectionalLightExtruderArbvp1(), 
+                            GPT_VERTEX_PROGRAM, "arbvp1");
+                        vp->load();
+                    }
+                }
+                else if (GpuProgramManager::getSingleton().isSyntaxSupported("vs_1_1"))
+                {
+                    // vs_1_1
+                    if (!GpuProgramManager::getSingleton().getByName("Ogre/ShadowExtrudePointLight"))
+                    {
+                        GpuProgram* vp = 
+                            GpuProgramManager::getSingleton().createProgramFromString(
+                            "Ogre/ShadowExtrudePointLight",
+                            ShadowVolumeExtrudeProgram::getPointLightExtruderVs_1_1(), 
+                            GPT_VERTEX_PROGRAM, "vs_1_1");
+                        vp->load();
+                    }
+                    if (!GpuProgramManager::getSingleton().getByName("Ogre/ShadowExtrudeDirLight"))
+                    {
+                        GpuProgram* vp = 
+                            GpuProgramManager::getSingleton().createProgramFromString(
+                            "Ogre/ShadowExtrudeDirLight",
+                            ShadowVolumeExtrudeProgram::getDirectionalLightExtruderVs_1_1(), 
+                            GPT_VERTEX_PROGRAM, "vs_1_1");
+                        vp->load();
+                    }
+
+                }
+                else
+                {
+                    Except(Exception::ERR_INTERNAL_ERROR, 
+                        "Vertex programs are supposedly supported, but neither "
+                        "arbvp1 nor vs_1_1 syntaxes are present.", 
+                        "SceneManager::initShadowVolumeMaterials");
+                }
+                // Enable hardware extrusion
+                // Enable the point light extruder for now, just to get some params
+                mShadowStencilPass->setVertexProgram("Ogre/ShadowExtrudePointLight");
+                GpuProgramParametersSharedPtr extrusionParams = 
+                    mShadowStencilPass->getVertexProgramParameters();
+                extrusionParams->setAutoConstant(0, 
+                    GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
+                extrusionParams->setAutoConstant(4, 
+                    GpuProgramParameters::ACT_LIGHT_POSITION_OBJECT_SPACE);
+
+
             }
             // Nothing else, we don't use this like a 'real' pass anyway,
             // it's more of a placeholder
@@ -2911,8 +3055,6 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void SceneManager::renderShadowVolumesToStencil(const Light* light, const Camera* camera)
     {
-
-        mDestRenderSystem->unbindGpuProgram(GPT_VERTEX_PROGRAM);
         mDestRenderSystem->unbindGpuProgram(GPT_FRAGMENT_PROGRAM);
 
         // Can we do a 2-sided stencil?
@@ -2928,9 +3070,38 @@ namespace Ogre {
         bool extrudeInSoftware = true;
         if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM))
         {
-            // TODO
-            //extrudeInSoftware = false;
+            extrudeInSoftware = false;
+            // attach the appropriate extrusion vertex program
+            // Note we never unset it because support for vertex programs is constant
+            if (light->getType() == Light::LT_DIRECTIONAL)
+            {
+                mShadowStencilPass->setVertexProgram("Ogre/ShadowExtrudeDirLight", false);
+                if (mDebugShadows)
+                {
+                    mShadowDebugPass->setVertexProgram("Ogre/ShadowExtrudeDirLightDebug", false);
+                }
+            }
+            else
+            {
+                mShadowStencilPass->setVertexProgram("Ogre/ShadowExtrudePointLight", false);
+                if (mDebugShadows)
+                {
+                    mShadowDebugPass->setVertexProgram("Ogre/ShadowExtrudePointLightDebug", false);
+                }
+            }
+
+            mDestRenderSystem->bindGpuProgram(mShadowStencilPass->getVertexProgram()->_getBindingDelegate());
+
         }
+        else
+        {
+            mDestRenderSystem->unbindGpuProgram(GPT_VERTEX_PROGRAM);
+        }
+
+        // Add light to internal list for use in render call
+        LightList lightList;
+        // const_cast is forgiveable here since we pass this const
+        lightList.push_back(const_cast<Light*>(light));
 
         // Turn off colour writing and depth writing
         mDestRenderSystem->_setColourBufferWriteEnabled(false, false, false, false);
@@ -3007,7 +3178,7 @@ namespace Ogre {
             {
                 ShadowRenderable* sr = iShadowRenderables.getNext();
                 // render volume, including dark and (maybe) light caps
-                renderSingleShadowVolumeToStencil(sr, zfailAlgo, stencil2sided);
+                renderSingleShadowVolumeToStencil(sr, zfailAlgo, stencil2sided, &lightList);
 
                 // optionally render separate light cap
                 if (sr->isLightCapSeparate() &&
@@ -3018,7 +3189,7 @@ namespace Ogre {
                     assert(sr->getLightCapRenderable() && "Shadow renderable is "
                         "missing a separate light cap renderable!");
                     renderSingleShadowVolumeToStencil(sr->getLightCapRenderable(),
-                        zfailAlgo, stencil2sided);
+                        zfailAlgo, stencil2sided, &lightList);
                     // reset depth function
                     mDestRenderSystem->_setDepthBufferFunction(CMPF_LESS);
                 }
@@ -3032,16 +3203,18 @@ namespace Ogre {
 
         mDestRenderSystem->setStencilCheckEnabled(false);
 
+        mDestRenderSystem->unbindGpuProgram(GPT_VERTEX_PROGRAM);
+
     }
     //---------------------------------------------------------------------
     void SceneManager::renderSingleShadowVolumeToStencil(ShadowRenderable* sr,
-        bool zfailAlgo, bool stencil2sided)
+        bool zfailAlgo, bool stencil2sided, const LightList *manualLightList)
     {
         // Render a shadow volume here
         //  - if we have 2-sided stencil, one render with no culling
         //  - otherwise, 2 renders, one with each culling method and invert the ops
         setShadowVolumeStencilState(false, zfailAlgo, stencil2sided);
-        renderSingleObject(sr, mShadowStencilPass, false);
+        renderSingleObject(sr, mShadowStencilPass, false, manualLightList);
 
         if (!stencil2sided)
         {
@@ -3056,7 +3229,7 @@ namespace Ogre {
             // reset stencil & colour ops
             mDestRenderSystem->setStencilBufferParams();
             setPass(mShadowDebugPass);
-            renderSingleObject(sr, mShadowDebugPass, false);
+            renderSingleObject(sr, mShadowDebugPass, false, manualLightList);
             mDestRenderSystem->_setColourBufferWriteEnabled(false, false, false, false);
         }
     }
