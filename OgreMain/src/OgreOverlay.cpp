@@ -50,7 +50,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     Overlay::~Overlay()
     {
-        mRootNode->getCreator()->destroySceneNode(mRootNode->getName());
+        //mRootNode->getCreator()->destroySceneNode(mRootNode->getName());
     }
     //---------------------------------------------------------------------
     const String& Overlay::getName(void) const
