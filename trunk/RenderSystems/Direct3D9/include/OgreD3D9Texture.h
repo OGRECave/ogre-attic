@@ -228,7 +228,6 @@ namespace Ogre {
         }
     };
 
-
     /// RenderTexture implementation for D3D9
     class D3D9RenderTexture : public RenderTexture
     {
@@ -238,32 +237,27 @@ namespace Ogre {
 			TextureType texType, PixelFormat internalFormat, 
 			const NameValuePairList *miscParams ) 
 			: RenderTexture( name, width, height, texType, internalFormat )
-        {
-            mPrivateTex = TextureManager::getSingleton().createManual
-                (mName + "_PRIVATE##", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
-                texType, mWidth, mHeight, 0, internalFormat, TU_RENDERTARGET );
+        {    
         }
 		
         ~D3D9RenderTexture()
         {
-			mPrivateTex->unload();
-			TextureManager::getSingleton().remove(mPrivateTex->getName());
-			
         }
 
 		virtual void getCustomAttribute( const String& name, void *pData )
         {
+			D3D9Texture *tex = static_cast<D3D9Texture *>(mTexture.getPointer());
 			if( name == "DDBACKBUFFER" )
             {
                 IDirect3DSurface9 ** pSurf = (IDirect3DSurface9 **)pData;
-				if (mPrivateTex->getTextureType() == TEX_TYPE_2D)
-					mPrivateTex->getNormTexture()->GetSurfaceLevel( 0, &(*pSurf) );
-				else if (mPrivateTex->getTextureType() == TEX_TYPE_CUBE_MAP)
-					mPrivateTex->getCubeTexture()->GetCubeMapSurface( (D3DCUBEMAP_FACES)0, 0, &(*pSurf) );
+				if (tex->getTextureType() == TEX_TYPE_2D)
+					tex->getNormTexture()->GetSurfaceLevel( 0, &(*pSurf) );
+				else if (tex->getTextureType() == TEX_TYPE_CUBE_MAP)
+					tex->getCubeTexture()->GetCubeMapSurface( (D3DCUBEMAP_FACES)0, 0, &(*pSurf) );
 				else
 				{
 					OGRE_EXCEPT( Exception::UNIMPLEMENTED_FEATURE, 
-							"getCustomAttribute is implemented only for 2D and cube textures !!!", 
+							"getCustomAttribute is implemented only for 2D and cube textures at the moment", 
 							"D3D9RenderTexture::getCustomAttribute" );
 				}
 				// decrement reference count
@@ -273,20 +267,20 @@ namespace Ogre {
             else if( name == "D3DZBUFFER" )
             {
                 IDirect3DSurface9 ** pSurf = (IDirect3DSurface9 **)pData;
-                *pSurf = mPrivateTex->getDepthStencil();
+                *pSurf = tex->getDepthStencil();
                 return;
             }
             else if( name == "DDFRONTBUFFER" )
             {
                 IDirect3DSurface9 ** pSurf = (IDirect3DSurface9 **)pData;
-				if (mPrivateTex->getTextureType() == TEX_TYPE_2D)
-					mPrivateTex->getNormTexture()->GetSurfaceLevel( 0, &(*pSurf) );
-				else if (mPrivateTex->getTextureType() == TEX_TYPE_CUBE_MAP)
-					mPrivateTex->getCubeTexture()->GetCubeMapSurface( (D3DCUBEMAP_FACES)0, 0, &(*pSurf) );
+				if (tex->getTextureType() == TEX_TYPE_2D)
+					tex->getNormTexture()->GetSurfaceLevel( 0, &(*pSurf) );
+				else if (tex->getTextureType() == TEX_TYPE_CUBE_MAP)
+					tex->getCubeTexture()->GetCubeMapSurface( (D3DCUBEMAP_FACES)0, 0, &(*pSurf) );
 				else
 				{
 					OGRE_EXCEPT( Exception::UNIMPLEMENTED_FEATURE, 
-							"getCustomAttribute is implemented only for 2D and cube textures !!!", 
+							"getCustomAttribute is implemented only for 2D and cube textures at the moment", 
 							"D3D9RenderTexture::getCustomAttribute" );
 				}
                 (*pSurf)->Release();
@@ -310,13 +304,9 @@ namespace Ogre {
         virtual void writeContentsToFile( const String & filename ) {}
 
     protected:
-        /// The texture to which rendering takes place.
-        D3D9TexturePtr mPrivateTex;
-		
         virtual void _copyToTexture()
         {
-            // Copy the newly-rendered data to the public texture surface.
-            mPrivateTex->copyToTexture( mTexture );
+            // No copy needed with DirectX 9
         }
     };
 }
