@@ -62,6 +62,7 @@ namespace Ogre {
 //	    void addBaseParameters(void);
 
 		PopupMenuGuiElement(const String& name);
+		virtual ~PopupMenuGuiElement();
 
         /** Command object for specifying texture coordinates for the border (see ParamCommand).*/
         class CmdItemTemplate : public ParamCommand

@@ -60,6 +60,12 @@ namespace Ogre {
 		mItemPanelMaterialSelected = "";
 
 	}
+	//---------------------------------------------------------------------
+	ListGuiElement::~ListGuiElement()
+	{
+        for (ResourceList::iterator i = mResourceList.begin(); i != mResourceList.end(); ++i)
+			delete *i;
+	}
 
     //---------------------------------------------------------------------
     void ListGuiElement::addBaseParameters(void)
@@ -327,13 +333,13 @@ namespace Ogre {
 		GuiManager::getSingleton().destroyGuiElement(getListItemName(r));
 		GuiManager::getSingleton().destroyGuiElement(getListItemPanelName(r));
 
-        ;
 		bool bFound = false;
         ResourceList::iterator i;
         for (i = mResourceList.begin(); i != mResourceList.end(); ++i)
         {
             if (*i == r)
 			{
+				delete *i;
 				mResourceList.erase(i);
 				bFound = true;
 				break;
