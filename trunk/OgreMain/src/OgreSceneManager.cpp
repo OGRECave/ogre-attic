@@ -738,8 +738,8 @@ namespace Ogre {
         {
             // Locate any lights which could be affecting the frustum
             findLightsAffectingFrustum(camera);
-            if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE ||
-                mShadowTechnique == SHADOWTYPE_TEXTURE_SHADOWMAP)
+            if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE 
+                /* || mShadowTechnique == SHADOWTYPE_TEXTURE_SHADOWMAP */)
             {
                 // *******
                 // WARNING
@@ -2559,8 +2559,8 @@ namespace Ogre {
             getRenderQueue()->setSplitNoShadowPasses(false);
         }
 
-        if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE ||
-            mShadowTechnique == SHADOWTYPE_TEXTURE_SHADOWMAP)
+        if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE 
+            /* || mShadowTechnique == SHADOWTYPE_TEXTURE_SHADOWMAP */)
         {
             createShadowTextures(mShadowTextureSize, mShadowTextureCount);
         }
@@ -3002,9 +3002,11 @@ namespace Ogre {
                 mShadowCasterPlainBlackPass->setVertexProgram("");
             }
             return mShadowCasterPlainBlackPass;
+        /*
         case SHADOWTYPE_TEXTURE_SHADOWMAP:
             // todo
             return pass;
+        */
         default:
             return pass;
         };
@@ -3044,9 +3046,11 @@ namespace Ogre {
             }
 
             return mShadowReceiverPass;
+        /*
         case SHADOWTYPE_TEXTURE_SHADOWMAP:
             // todo
             return pass;
+        */
         default:
             return pass;
         };
@@ -3425,10 +3429,13 @@ namespace Ogre {
                 shadowTex = mDestRenderSystem->createRenderTexture( 
                     targName, size, size );
             }
+            /*
             else if (mShadowTechnique == SHADOWTYPE_TEXTURE_SHADOWMAP)
             {
                 // todo
             }
+            */
+
             // Create a camera to go with this texture
             Camera* cam = createCamera(camName);
             cam->setAspectRatio(1.0f);
