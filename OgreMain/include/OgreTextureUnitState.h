@@ -182,7 +182,7 @@ namespace Ogre {
         @note
         Applies to both fixed-function and programmable pipeline.
         */
-        void setTextureName( const String& name, TextureType ttype = TEX_TYPE_2D );
+        void setTextureName( const String& name, TextureType ttype = TEX_TYPE_2D, int mipmaps = -1 );
 
         /** Sets this texture layer to use a combination of 6 texture maps, each one relating to a face of a cube.
         @remarks
@@ -876,7 +876,9 @@ protected:
         Real mAnimDuration;            
         Controller<Real>* mAnimController;
         bool mCubic; // is this a series of 6 2D textures to make up a cube?
+		
         TextureType mTextureType; 
+		int mTextureSrcMipmaps; // Request number of mipmaps
 
         unsigned int mTextureCoordSetIndex;
         TextureAddressingMode mAddressMode;                

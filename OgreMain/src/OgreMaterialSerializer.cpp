@@ -598,13 +598,14 @@ namespace Ogre
     bool parseTexture(String& params, MaterialScriptContext& context)
     {
         StringVector vecparams = StringUtil::split(params, " \t");
-        if (vecparams.size() > 2)
+        if (vecparams.size() > 3)
         {
-            logParseError("Invalid texture attribute - expected only 1 or 2 parameters.", 
+            logParseError("Invalid texture attribute - expected only 1, 2 or 3 parameters.", 
                 context);
         }
         TextureType tt = TEX_TYPE_2D;
-        if (vecparams.size() == 2)
+		int mips = -1; // When passed to TextureManager::load, this means default to default number of mipmaps
+        if (vecparams.size() >= 2)
         {
             StringUtil::toLowerCase(vecparams[1]);
             if (vecparams[1] == "1d")
@@ -622,9 +623,26 @@ namespace Ogre
             else if (vecparams[1] == "cubic")
             {
                 tt = TEX_TYPE_CUBE_MAP;
-            } 
+            }  
+			else
+			{
+				logParseError("Invalid texture type - "+vecparams[1]+".", 
+                context);
+			}
         }
-        context.textureUnit->setTextureName(vecparams[0], tt);
+		if (vecparams.size() >= 3)
+		{
+			StringUtil::toLowerCase(vecparams[2]);
+			if (vecparams[2] == "unlimited")
+            {
+				mips = MIP_UNLIMITED;
+            }
+			else
+			{
+				mips = StringConverter::parseInt(vecparams[2]);
+			}
+		}
+        context.textureUnit->setTextureName(vecparams[0], tt, mips);
         return false;
     }
     //-----------------------------------------------------------------------
