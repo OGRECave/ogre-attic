@@ -55,6 +55,7 @@ namespace Ogre {
     {
         setDefaultDimensions( 100, 100 );
         setMaterialName( "BaseWhite" );
+        mCastShadows = false;
     }
 
     //-----------------------------------------------------------------------
@@ -74,6 +75,7 @@ namespace Ogre {
         setDefaultDimensions( 100, 100 );
         setMaterialName( "BaseWhite" );
         setPoolSize( poolSize );
+        mCastShadows = false;
     }
     //-----------------------------------------------------------------------
     BillboardSet::~BillboardSet()
@@ -874,6 +876,7 @@ namespace Ogre {
             *pY = mCommonDirection;
             // Convert into billboard local space
             *pX = invTransform * cam.getDerivedDirection().crossProduct(*pY);
+            pX->normalise();
             
             break;
         case BBT_ORIENTED_SELF:
@@ -882,6 +885,7 @@ namespace Ogre {
             *pY = pBill->mDirection;
             // Convert into billboard local space
             *pX = invTransform * cam.getDerivedDirection().crossProduct(*pY);
+            pX->normalise();
 
             break;
         }
