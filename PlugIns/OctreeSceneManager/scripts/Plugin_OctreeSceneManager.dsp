@@ -100,6 +100,10 @@ PostBuild_Cmds=copy ..\bin\Debug\*.dll ..\..\..\Samples\Common\bin\Debug
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=..\src\OgreHeightmapTerrainPageSource.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreOctree.cpp
 # End Source File
 # Begin Source File
@@ -124,6 +128,14 @@ SOURCE=..\src\OgreOctreeSceneManagerDll.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreTerrainPage.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreTerrainPageSource.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreTerrainRenderable.cpp
 # End Source File
 # Begin Source File
@@ -140,6 +152,10 @@ SOURCE=..\src\OgreTerrainVertexProgram.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=..\include\OgreHeightmapTerrainPageSource.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreOctree.h
 # End Source File
 # Begin Source File
@@ -153,6 +169,14 @@ SOURCE=..\include\OgreOctreeNode.h
 # Begin Source File
 
 SOURCE=..\include\OgreOctreeSceneManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreTerrainPage.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreTerrainPageSource.h
 # End Source File
 # Begin Source File
 

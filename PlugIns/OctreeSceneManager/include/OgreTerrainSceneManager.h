@@ -39,6 +39,7 @@ terrainscenemanager.h  -  description
 #include "OgreTerrainPrerequisites.h"
 #include "OgreOctreeSceneManager.h"
 #include "OgreTerrainRenderable.h"
+#include "OgreTerrainPageSource.h"
 
 
 namespace Ogre
@@ -46,8 +47,8 @@ namespace Ogre
 
 class Image;
 
-typedef std::vector < TerrainRenderable * > TerrainRow;
-typedef std::vector < TerrainRow > Terrain2D;
+typedef std::vector < TerrainPage * > TerrainPageRow;
+typedef std::vector < TerrainPageRow > TerrainPage2D;
 
 /** Default implementation of RaySceneQuery. */
 class _OgreTerrainExport TerrainRaySceneQuery : public DefaultRaySceneQuery
@@ -85,11 +86,6 @@ public:
 
     bool intersectSegment( const Vector3 & start, const Vector3 & end, Vector3 * result );
 
-    /** Sets the name of the image to use as the heightmap input. 
-    @remarks
-        Heightmaps must be of size power of 2 + 1
-    */
-    void setHeightmap(const String& heightmapName);
     /** Sets the texture to use for the main world texture. */
     void setWorldTexture(const String& textureName);
     /** Sets the texture to use for the detail texture. */
@@ -98,6 +94,8 @@ public:
     void setDetailTextureRepeat(int repeat);
     /** Sets the dimensions of each tile (must be power of 2 + 1) */
     void setTileSize(int size); 
+    /** Sets the dimensions of each page (must be power of 2 + 1) */
+    void setPageSize(int size); 
     /** Sets the maximum screen space pixel error.  */
     void setMaxPixelError(int pixelError); 
     /** Sets how to scale the terrain data. */
@@ -115,6 +113,11 @@ public:
     /** Sets whether or not terrain tiles should be morphed between LODs
     (NB requires vertex program support). */
     void setUseLODMorph(bool useMorph);
+    /** Sets whether vertex normals will be generated for the terrain. */
+    void setUseVertexNormals(bool useNormals);
+    /** Sets whether vertex colours will be used. */
+    void setUseVertexColours(bool useColours);
+
     /** Sets the name of a custom material to use to shade the landcape.
     @remarks
         This method allows you to provide a custom material which will be
@@ -188,6 +191,11 @@ public:
     */
     TerrainRenderable * getTerrainTile( const Vector3 & pt );
 
+    /** Returns the TerrainPage that contains the given pt.
+    If no page exists at the point, it returns 0;
+    */
+    TerrainPage* getTerrainPage( const Vector3 & pt );
+
     /** Creates a RaySceneQuery for this scene manager. 
     @remarks
         This method creates a new instance of a query object for this scene manager, 
@@ -203,6 +211,77 @@ public:
     RaySceneQuery* 
         createRayQuery(const Ray& ray, unsigned long mask = 0xFFFFFFFF);
 
+    /** Overridden in order to store the first camera created as the primary
+        one, for determining error metrics and the 'home' terrain page.
+    */
+    Camera* createCamera( const String &name );
+    /// Gets the terrain options 
+    static const TerrainOptions& getOptions(void) { return mOptions; }
+
+    /** Sets the given option for the SceneManager.
+    @remarks
+        Options are (in addition to those supported by superclasses):
+        "PageSize", int*;
+        "TileSize", int*; 
+        "PrimaryCamera, Camera*;
+        "MaxMipMapLevel", int*;
+        "Scale", Vector3 *;
+        "MaxPixelError", int*;
+        "UseTriStrips", bool*;
+        "VertexProgramMorph", bool*;
+        "DetailTile", int*;
+        "LodMorphStart", Real*;
+        "VertexNormals", bool*;
+        "VertexColours", bool*;
+        "MorphLODFactorParamName", String*;
+        "MorphLODFactorParamIndex", size_t*;
+        "CustomMaterialName", String*;
+        "WorldTexture", String*;
+        "DetailTexture", String*;
+    */
+    virtual bool setOption( const String &, const void * );
+
+    /** Sets the 'primary' camera, i.e. the one which will be used to determine
+        the 'home' terrain page, and to calculate the error metrics. 
+    */
+    virtual void setPrimaryCamera(const Camera* cam);
+    /** Registers a TerrainPageSource class and associates it with a named type 
+        of source.
+    @remarks
+        This function allows external classes to register themselves as providers
+        of terrain pages of a particular type. Only one page source can be
+        active at once, and the active one is selected by calling 
+        selectPageSource(typeName), which is part of plugin configuration.
+    @note The terrain engine comes with a default page source which loads
+        greyscale heightmap images, registered under the type name "Heightmap".
+    @param typeName A unique String to associate with this type of source
+    @param source Pointer to the class which will implement this source.
+    */
+    virtual void registerPageSource(const String& typeName, TerrainPageSource* source);
+    /** Selects a given page source based on its type name.
+    @remarks
+        This method activates a single page source based on its typename, 
+        e.g. "Heightmap". It also passes to it a number of custom options
+        which the source is able to interpret however it likes.
+    @param typeName The type name of the page source to activate
+    @param optionList A list of string parameters, which are expected to begin
+        with 'typeName.' (e.g. "Heightmap.image"), with their appropriate
+        values.
+    */
+    virtual void selectPageSource(const String& typeName, 
+        TerrainPageSourceOptionList& optionList);
+
+    /** Attaches a previously built page to the list of available pages.
+    @remarks
+        TerrainPageSource subclasses will call this method once they have
+        pages available to be added to the working set. Note that whilst you
+        can build TerrainPage instances in another thread if you like, this
+        method must be called in the same thread as the main rendering loop 
+        in order to avoid concurrency issues. 
+    @param pageX, pageZ The page index at which to attach the page
+    @param page The page to attach
+    */
+    virtual void attachPage(ushort pageX, ushort pageZ, TerrainPage* page);
 
 protected:
 
@@ -221,26 +300,14 @@ protected:
 
     }
 
-    /// The number of terrain tiles making up the terrain
-    int mNumTiles;
-    /// The size (in vertices) of one edge of a terrain tile
-    int mTileSize;
-    /// The scale factor of the terrain
-    Vector3 mScale;
-    /// Pointer to the material to use to render the terrain
-    Material *mTerrainMaterial;
     /// The node to which all terrain tiles are attached
     SceneNode * mTerrainRoot;
-    /// Array of terrain tiles
-    Terrain2D mTiles;
     /// Terrain size, detail etc
-    TerrainOptions mOptions;
+    static TerrainOptions mOptions;
     /// Should we use an externally-defined custom material?
     bool mUseCustomMaterial;
     /// The name of the custom material to use
     String mCustomMaterialName;
-    /// The name of the source heightmap
-    String mHeightmapName;
     /// The name of the world texture
     String mWorldTextureName;
     /// The name of the detail texture
@@ -251,16 +318,29 @@ protected:
     String mLodMorphParamName;
     /// The index of the parameter to send the LOD morph to
     size_t mLodMorphParamIndex;
+    /// Whether paging is enabled, or whether a single page will be used
+    bool mPagingEnabled;
+    /// The number of pages to render outside the 'home' page
+    unsigned short mLivePageMargin;
+    /// The number of pages to keep loaded outside the 'home' page
+    unsigned short mBufferedPageMargin;
+    /// Grid of buffered pages
+    TerrainPage2D mTerrainPages;
     
     /// Internal method for loading configurations settings
     void loadConfig(const String& filename);
 
-    /// Loads configured heightmap data into the position buffer
-    void loadHeightmap(void);
     /// Sets up the terrain material
     void setupTerrainMaterial(void);
-    /// Creates a bunch of terrain tiles and populates them
-    void setupTerrainTiles(void);
+    /// Sets up the terrain page slots
+    void setupTerrainPages(void);
+
+
+    typedef std::map<String, TerrainPageSource*> PageSourceMap;
+    /// Map of source type -> TerrainPageSource
+    PageSourceMap mPageSources;
+    /// The currently active page source
+    TerrainPageSource* mActivePageSource;
 
 };
 

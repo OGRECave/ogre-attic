@@ -26,26 +26,32 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <OgreOctreeSceneManager.h>
 #include <OgreTerrainSceneManager.h>
 #include <OgreRoot.h>
+#include "OgreHeightmapTerrainPageSource.h"
 
 namespace Ogre
 {
 OctreeSceneManager* octreePlugin;
 TerrainSceneManager* terrainPlugin;
+HeightmapTerrainPageSource* heightmapTerrainPageSource;
 
 extern "C" void dllStartPlugin( void )
 {
     // Create new scene manager
     octreePlugin = new OctreeSceneManager();
     terrainPlugin = new TerrainSceneManager();
+    heightmapTerrainPageSource = new HeightmapTerrainPageSource();
 
     // Register
     Root::getSingleton().setSceneManager( ST_GENERIC, octreePlugin );
     Root::getSingleton().setSceneManager( ST_EXTERIOR_CLOSE, terrainPlugin );
     //Root::getSingleton().setSceneManager( ST_EXTERIOR_FAR, terrainPlugin );
+
+    terrainPlugin->registerPageSource("Heightmap", heightmapTerrainPageSource);
 }
 
 extern "C" void dllStopPlugin( void )
 {
+    delete heightmapTerrainPageSource;
     delete octreePlugin;
     delete terrainPlugin;
 }
