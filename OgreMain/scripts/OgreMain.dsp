@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "OGREMAIN_EXPORTS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\include" /I "..\..\Dependencies\include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "OGRE_NONCLIENT_BUILD" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\include" /I "..\..\Dependencies\include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "OGRE_NONCLIENT_BUILD" /Yu"OgreStableHeaders.h" /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x418 /d "NDEBUG"
@@ -73,7 +73,7 @@ PostBuild_Cmds=copy ..\lib\Release\OgreMain.dll ..\..\Samples\Common\bin\Release
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "OGREMAIN_EXPORTS" /YX /FD /GZ /c
-# ADD CPP /nologo /G6 /MDd /W3 /Gm /Gi /GX /ZI /Od /I "..\include" /I "..\..\Dependencies\include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "OGRE_NONCLIENT_BUILD" /YX /FD /GZ /c
+# ADD CPP /nologo /G6 /MDd /W3 /Gm /Gi /GX /ZI /Od /I "..\include" /I "..\..\Dependencies\include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "OGRE_NONCLIENT_BUILD" /Yu"OgreStableHeaders.h" /FD /GZ /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x418 /d "_DEBUG"
@@ -125,6 +125,7 @@ SOURCE=..\src\OgreArchiveEx.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreArchiveManager.cpp
+# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
@@ -197,6 +198,7 @@ SOURCE=..\src\OgreDynLib.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreDynLibManager.cpp
+# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
@@ -325,6 +327,7 @@ SOURCE=..\src\OgreMaterialSerializer.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreMath.cpp
+# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
@@ -345,6 +348,7 @@ SOURCE=..\src\OgreMesh.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreMeshManager.cpp
+# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
@@ -417,10 +421,16 @@ SOURCE=..\src\OgrePlane.cpp
 # Begin Source File
 
 SOURCE=..\src\OgrePlatformManager.cpp
+# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=..\src\OgrePNGCodec.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgrePrecompiledHeaders.cpp
+# ADD CPP /Yc"OgreStableHeaders.h"
 # End Source File
 # Begin Source File
 
@@ -473,6 +483,7 @@ SOURCE=..\src\OgreResourceMap.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreRoot.cpp
+# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
@@ -485,6 +496,7 @@ SOURCE=..\src\OgreSceneManager.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreSceneManagerEnumerator.cpp
+# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
@@ -573,6 +585,7 @@ SOURCE=..\src\OgreTextureLayer.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreTextureManager.cpp
+# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
@@ -613,6 +626,7 @@ SOURCE=..\src\OgreZipArchiveFactory.cpp
 # Begin Source File
 
 SOURCE=..\src\unzip.c
+# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -1209,6 +1223,10 @@ SOURCE=..\include\OgreSkeletonSerializer.h
 # Begin Source File
 
 SOURCE=..\include\OgreSphere.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreStableHeaders.h
 # End Source File
 # Begin Source File
 
