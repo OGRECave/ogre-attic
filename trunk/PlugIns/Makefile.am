@@ -1,4 +1,4 @@
-SUBDIRS = BSPSceneManager ParticleFX OctreeSceneManager NatureSceneManager
+SUBDIRS = BSPSceneManager ParticleFX OctreeSceneManager 
 
 if BUILD_CGPLUGIN
 SUBDIRS += CgProgramManager
