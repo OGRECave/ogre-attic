@@ -184,7 +184,7 @@ namespace Ogre {
 		{
 			// Header
 			writeChunkHeader(M_SUBMESH_NAME_TABLE_ELEMENT, STREAM_OVERHEAD_SIZE + 
-				sizeof(unsigned short) + (unsigned long)it->first.length() + 1);
+				sizeof(uint16) + it->first.length() + 1);
 
 			// write the index
 			writeShorts(&it->second, 1);
@@ -501,7 +501,7 @@ namespace Ogre {
             if (!stream->eof())
             {
                 // Backpedal back to start of non-submesh stream
-                stream->skip(-(long)STREAM_OVERHEAD_SIZE);
+                stream->skip(-STREAM_OVERHEAD_SIZE);
             }
         }
     }
@@ -531,7 +531,7 @@ namespace Ogre {
             if (!stream->eof())
             {
                 // Backpedal back to start of non-submesh stream
-                stream->skip(-(long)STREAM_OVERHEAD_SIZE);
+                stream->skip(-STREAM_OVERHEAD_SIZE);
             }
         }
 		
@@ -637,7 +637,7 @@ namespace Ogre {
 			if (!stream->eof())
 			{
 				// Backpedal back to start of stream
-				stream->skip(-(long)STREAM_OVERHEAD_SIZE);
+				stream->skip(-STREAM_OVERHEAD_SIZE);
 			}
 		}
 
@@ -739,7 +739,7 @@ namespace Ogre {
             if (!stream->eof())
             {
                 // Backpedal back to start of stream
-                stream->skip(-(long)STREAM_OVERHEAD_SIZE);
+                stream->skip(-STREAM_OVERHEAD_SIZE);
             }
         }
 
@@ -840,7 +840,7 @@ namespace Ogre {
             if (!stream->eof())
             {
                 // Backpedal back to start of stream
-                stream->skip(-(long)STREAM_OVERHEAD_SIZE);
+                stream->skip(-STREAM_OVERHEAD_SIZE);
             }
         }
 	
@@ -1046,13 +1046,11 @@ namespace Ogre {
 			// unsigned short*/int* faceIndexes;  
             if (indexData->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT)
             {
-			    size += static_cast<unsigned long>(
-                    sizeof(unsigned int) * indexData->indexCount);
+			    size += sizeof(unsigned int) * indexData->indexCount;
             }
             else
             {
-			    size += static_cast<unsigned long>(
-                    sizeof(unsigned short) * indexData->indexCount);
+			    size += sizeof(unsigned short) * indexData->indexCount;
             }
 
 		}
@@ -1074,13 +1072,11 @@ namespace Ogre {
 			// unsigned short*/int* faceIndexes;  
             if (indexData->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT)
             {
-			    size += static_cast<unsigned long>(
-                    sizeof(unsigned int) * indexData->indexCount);
+			    size += sizeof(unsigned int) * indexData->indexCount;
             }
             else
             {
-			    size += static_cast<unsigned long>(
-                    sizeof(unsigned short) * indexData->indexCount);
+			    size += sizeof(unsigned short) * indexData->indexCount;
             }
 
 			writeChunkHeader(M_MESH_LOD_GENERATED, size);
@@ -1113,7 +1109,7 @@ namespace Ogre {
     void MeshSerializerImpl::writeBoundsInfo(const Mesh* pMesh)
     {
 		// Usage Header
-        unsigned long size = STREAM_OVERHEAD_SIZE;
+        size_t size = STREAM_OVERHEAD_SIZE;
 
         size += sizeof(Real) * 7;
         writeChunkHeader(M_MESH_BOUNDS, size);
@@ -1209,7 +1205,7 @@ namespace Ogre {
 	void MeshSerializerImpl::readMeshLodUsageManual(DataStreamPtr& stream, 
         Mesh* pMesh, unsigned short lodNum, Mesh::MeshLodUsage& usage)
 	{
-		unsigned long streamID;
+		uint16 streamID;
 		// Read detail stream
 		streamID = readChunk(stream);
 		if (streamID != M_MESH_LOD_MANUAL)
@@ -1231,7 +1227,7 @@ namespace Ogre {
 
 		// Get one set of detail per SubMesh
 		unsigned short numSubs, i;
-		unsigned long streamID;
+		uint16 streamID;
 		numSubs = pMesh->getNumSubMeshes();
 		for (i = 0; i < numSubs; ++i)
 		{
@@ -1644,7 +1640,7 @@ namespace Ogre {
             if (!stream->eof())
             {
                 // Backpedal back to start of stream
-                stream->skip(-(long)STREAM_OVERHEAD_SIZE);
+                stream->skip(-STREAM_OVERHEAD_SIZE);
             }
         }
 
@@ -1721,7 +1717,7 @@ namespace Ogre {
             if (!stream->eof())
             {
                 // Backpedal back to start of non-submesh stream
-                stream->skip(-(long)STREAM_OVERHEAD_SIZE);
+                stream->skip(-STREAM_OVERHEAD_SIZE);
             }
         }
     }
