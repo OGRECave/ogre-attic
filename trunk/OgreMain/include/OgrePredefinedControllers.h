@@ -1,4 +1,3 @@
-
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
@@ -31,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreController.h"
 #include "OgreFrameListener.h"
 #include "OgreMaterial.h"
+#include "OgreGpuProgram.h"
 
 namespace Ogre {
 
@@ -39,7 +39,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     /** Predefined controller value for getting the latest frame time.
     */
-    class _OgreExport FrameTimeControllerValue : public ControllerValue, public FrameListener
+    class _OgreExport FrameTimeControllerValue : public ControllerValue<Real>, public FrameListener
     {
     protected:
         Real mFrameTime;
@@ -58,7 +58,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     /** Predefined controller value for getting / setting the frame number of a texture layer
     */
-    class _OgreExport TextureFrameControllerValue : public ControllerValue
+    class _OgreExport TextureFrameControllerValue : public ControllerValue<Real>
     {
     protected:
         TextureUnitState* mTextureLayer;
@@ -76,13 +76,13 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     /** Predefined controller value for getting / setting a texture coordinate modifications (scales and translates).
         @remarks
-            Affects can be applied to the scale or the offset of the u or v coordinates, or both. If separate
+            Effects can be applied to the scale or the offset of the u or v coordinates, or both. If separate
             modifications are required to u and v then 2 instances are required to control both independently, or 4
             if you ant separate u and v scales as well as separate u and v offsets.
         @par
             Because of the nature of this value, it can accept values outside the 0..1 parametric range.
     */
-    class _OgreExport TexCoordModifierControllerValue : public ControllerValue
+    class _OgreExport TexCoordModifierControllerValue : public ControllerValue<Real>
     {
     protected:
         bool mTransU, mTransV;
@@ -113,12 +113,46 @@ namespace Ogre {
     };
 
     //-----------------------------------------------------------------------
+    /** Predefined controller value for setting a single floating-
+	    point value in a constant paramter of a vertex or fragment program.
+    @remarks
+		Any value is accepted, it is propagated into the 'x'
+		component of the constant register identified by the index. If you
+		need to use named parameters, retrieve the index from the param
+		object before setting this controller up.
+	@note
+		Retrieving a value from the program parameters is not currently 
+		supported, therefore do not use this controller value as a source,
+		only as a target.
+    */
+    class _OgreExport FloatGpuParameterControllerValue : public ControllerValue<Real>
+    {
+    protected:
+		/// The parameters to access
+		GpuProgramParametersSharedPtr mParams;
+		/// The index of the parameter to e read or set
+		size_t mParamIndex;
+    public:
+        /** Constructor.
+		    @param
+				params The parameters object to access
+            @param
+                index The index of the parameter to be set
+        */
+        FloatGpuParameterControllerValue(GpuProgramParametersSharedPtr params,
+				size_t index );
+
+        Real getValue(void) const;
+        void setValue(Real value);
+
+    };
+    //-----------------------------------------------------------------------
     // Controller functions
     //-----------------------------------------------------------------------
 
     /** Predefined controller function for dealing with animation.
     */
-    class _OgreExport AnimationControllerFunction : public ControllerFunction
+    class _OgreExport AnimationControllerFunction : public ControllerFunction<Real>
     {
     protected:
         Real mSeqTime;
@@ -140,7 +174,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     /** Predefined controller function which simply scales an input to an output value.
     */
-    class _OgreExport ScaleControllerFunction : public ControllerFunction
+    class _OgreExport ScaleControllerFunction : public ControllerFunction<Real>
     {
     protected:
         Real mScale;
@@ -179,7 +213,7 @@ namespace Ogre {
         @par
             Hence a wave output of -1 becomes 0, a wave ouput of 1 becomes 1, and a wave output of 0 becomes 0.5.
     */
-    class _OgreExport WaveformControllerFunction : public ControllerFunction
+    class _OgreExport WaveformControllerFunction : public ControllerFunction<Real>
     {
     protected:
         WaveformType mWaveType;

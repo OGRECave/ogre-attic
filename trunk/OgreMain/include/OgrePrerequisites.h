@@ -138,10 +138,10 @@ namespace Ogre {
     class Codec;
     class ColourValue;
     class ConfigDialog;
-    class Controller;
-    class ControllerFunction;
+    template <typename T> class Controller;
+	template <typename T> class ControllerFunction;
     class ControllerManager;
-    class ControllerValue;
+    template <typename T> class ControllerValue;
 	class Cursor;
     class DataChunk;
     class DynLib;

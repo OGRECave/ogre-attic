@@ -44,9 +44,11 @@ namespace Ogre {
         clearControllers();
     }
     //-----------------------------------------------------------------------
-    Controller* ControllerManager::createController(SharedPtr<ControllerValue> src, SharedPtr<ControllerValue> dest, SharedPtr<ControllerFunction> func)
+    Controller<Real>* ControllerManager::createController(
+		SharedPtr< ControllerValue<Real> > src, SharedPtr< ControllerValue<Real> > dest, 
+		SharedPtr< ControllerFunction<Real> > func)
     {
-        Controller* c = new Controller(src, dest, func);
+        Controller<Real>* c = new Controller<Real>(src, dest, func);
 
         mControllers.insert(c);
         return c;
@@ -71,28 +73,28 @@ namespace Ogre {
         mControllers.clear();
     }
     //-----------------------------------------------------------------------
-    SharedPtr<ControllerValue> ControllerManager::getFrameTimeSource(void) const
+    SharedPtr< ControllerValue<Real> > ControllerManager::getFrameTimeSource(void) const
     {
         return mFrameTimeController;
     }
     //-----------------------------------------------------------------------
-    Controller* ControllerManager::createTextureAnimator(TextureUnitState* layer, Real sequenceTime)
+    Controller<Real>* ControllerManager::createTextureAnimator(TextureUnitState* layer, Real sequenceTime)
     {
-        SharedPtr<ControllerValue> texVal(new TextureFrameControllerValue(layer));
-        SharedPtr<ControllerFunction> animFunc(new AnimationControllerFunction(sequenceTime));
+        SharedPtr< ControllerValue<Real> > texVal(new TextureFrameControllerValue(layer));
+        SharedPtr< ControllerFunction<Real> > animFunc(new AnimationControllerFunction(sequenceTime));
 
         return createController(mFrameTimeController, texVal, animFunc);
     }
     //-----------------------------------------------------------------------
-    Controller* ControllerManager::createTextureScroller(TextureUnitState* layer, Real uSpeed, Real vSpeed)
+    Controller<Real>* ControllerManager::createTextureScroller(TextureUnitState* layer, Real uSpeed, Real vSpeed)
     {
-        Controller* ret = 0;
+        Controller<Real>* ret = 0;
 
         // Set up 1 or 2 controllers to manage the scrolling texture
         if (uSpeed != 0)
         {
-			SharedPtr<ControllerValue> uVal;
-			SharedPtr<ControllerFunction> uFunc;
+			SharedPtr< ControllerValue<Real> > uVal;
+			SharedPtr< ControllerFunction<Real> > uFunc;
 
             if (uSpeed == vSpeed)
             {
@@ -111,8 +113,8 @@ namespace Ogre {
 
         if (vSpeed != 0 && (uSpeed == 0 || vSpeed != uSpeed))
         {
-			SharedPtr<ControllerValue> vVal;
-			SharedPtr<ControllerFunction> vFunc;
+			SharedPtr< ControllerValue<Real> > vVal;
+			SharedPtr< ControllerFunction<Real> > vFunc;
 
             // Set up a second controller for v scroll
             vVal.bind(new TexCoordModifierControllerValue(layer, false, true));
@@ -124,10 +126,10 @@ namespace Ogre {
         return ret;
     }
     //-----------------------------------------------------------------------
-    Controller* ControllerManager::createTextureRotater(TextureUnitState* layer, Real speed)
+    Controller<Real>* ControllerManager::createTextureRotater(TextureUnitState* layer, Real speed)
     {
-        SharedPtr<ControllerValue> val;
-        SharedPtr<ControllerFunction> func;
+        SharedPtr< ControllerValue<Real> > val;
+        SharedPtr< ControllerFunction<Real> > func;
 
         // Target value is texture coord rotation
         val.bind(new TexCoordModifierControllerValue(layer, false, false, false, false, true));
@@ -139,11 +141,11 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    Controller* ControllerManager::createTextureWaveTransformer(TextureUnitState* layer,
+    Controller<Real>* ControllerManager::createTextureWaveTransformer(TextureUnitState* layer,
         TextureUnitState::TextureTransformType ttype, WaveformType waveType, Real base, Real frequency, Real phase, Real amplitude)
     {
-        SharedPtr<ControllerValue> val;
-        SharedPtr<ControllerFunction> func;
+        SharedPtr< ControllerValue<Real> > val;
+        SharedPtr< ControllerFunction<Real> > func;
 
         switch (ttype)
         {
@@ -179,7 +181,7 @@ namespace Ogre {
         return Singleton<ControllerManager>::getSingleton();
     }
     //-----------------------------------------------------------------------
-    void ControllerManager::destroyController(Controller* controller)
+    void ControllerManager::destroyController(Controller<Real>* controller)
     {
         ControllerList::iterator i = mControllers.find(controller);
         if (i != mControllers.end())
