@@ -627,9 +627,9 @@ namespace Ogre {
         if (mRotate != 0)
         {
             rot = Matrix3::IDENTITY;
-            Real theta = Math::getSingleton().AngleUnitsToRadians(mRotate);
-            Real cosTheta = Math::getSingleton().Cos(theta);
-            Real sinTheta = Math::getSingleton().Sin(theta);
+            Real theta = Math::AngleUnitsToRadians(mRotate);
+            Real cosTheta = Math::Cos(theta);
+            Real sinTheta = Math::Sin(theta);
 
             rot[0][0] = cosTheta;
             rot[0][1] = -sinTheta;

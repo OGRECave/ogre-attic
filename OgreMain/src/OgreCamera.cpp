@@ -358,7 +358,7 @@ namespace Ogre {
     void Camera::rotate(const Vector3& axis, Real degrees)
     {
         Quaternion q;
-        q.FromAngleAxis(Math::getSingleton().AngleUnitsToRadians(degrees),axis);
+        q.FromAngleAxis(Math::AngleUnitsToRadians(degrees),axis);
         rotate(q);
 
     }
@@ -505,7 +505,7 @@ namespace Ogre {
                 mCoeffR[0] = -mNearDist * fInvLength;
                 mCoeffR[1] = vpRight * fInvLength;
 
-                fInvLength = 1.0 / Math::getSingleton().Sqrt( fNSqr + fBSqr );
+                fInvLength = 1.0 / Math::Sqrt( fNSqr + fBSqr );
                 mCoeffB[0] = mNearDist * fInvLength;
                 mCoeffB[1] = -vpBottom * fInvLength;
 
@@ -570,7 +570,7 @@ namespace Ogre {
                 mCoeffR[0] = -mNearDist * fInvLength;
                 mCoeffR[1] = vpRight * fInvLength;
 
-                fInvLength = 1.0 / Math::getSingleton().Sqrt( fNSqr + fBSqr );
+                fInvLength = 1.0 / Math::Sqrt( fNSqr + fBSqr );
                 mCoeffB[0] = mNearDist * fInvLength;
                 mCoeffB[1] = -vpBottom * fInvLength;
 

@@ -217,8 +217,8 @@ namespace Ogre {
 		static unsigned long lastTime = 0; 
         static long numFrames  = 0;
 		static bool firstRun = true ;
-		static long bestFrameTime = 999999;
-		static long worstFrameTime = 0;
+		static unsigned long bestFrameTime = 999999;
+		static unsigned long worstFrameTime = 0;
 		bool needUpdate ;
 
 		if (firstRun) { 

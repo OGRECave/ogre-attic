@@ -253,7 +253,7 @@ namespace Ogre {
         {
             Except(
                 Exception::ERR_DUPLICATE_ITEM,
-                "An entity with the name " + entityName + "already exists",
+                "An entity with the name " + entityName + " already exists",
                 "SceneManager::createEntity" );
         }
 
@@ -1142,7 +1142,7 @@ namespace Ogre {
                 // Normalise
                 vertPos.normalise();
                 // Find distance to sphere
-                sphDist = Math::getSingleton().Sqrt(camPos*camPos * (vertPos.y*vertPos.y-1.0) + sphereRadius*sphereRadius) - camPos*vertPos.y;
+                sphDist = Math::Sqrt(camPos*camPos * (vertPos.y*vertPos.y-1.0) + sphereRadius*sphereRadius) - camPos*vertPos.y;
 
                 vertPos.x *= sphDist;
                 vertPos.z *= sphDist;

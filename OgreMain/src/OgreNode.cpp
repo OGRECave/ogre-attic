@@ -368,7 +368,7 @@ namespace Ogre {
     void Node::rotate(const Vector3& axis, Real angleunits)
     {
         Quaternion q;
-        q.FromAngleAxis(Math::getSingleton().AngleUnitsToRadians(angleunits),axis);
+        q.FromAngleAxis(Math::AngleUnitsToRadians(angleunits),axis);
         rotate(q);
     }
 

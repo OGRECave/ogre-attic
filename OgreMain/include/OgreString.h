@@ -58,7 +58,11 @@ namespace __gnu_cxx
 // If we're using plain vanilla VC7 Std lib
 #elif !defined( _STLP_HASH_FUN_H )
 
+#	if _DEFINE_DEPRECATED_HASH_CLASSES
 namespace std 
+#	else
+namespace stdext
+#	endif
 {
     template<> size_t hash_compare< Ogre::_StringBase, std::less< Ogre::_StringBase > >::operator ()( const Ogre::_StringBase& _stringBase ) const
     {
@@ -169,7 +173,11 @@ namespace Ogre {
 #ifdef GCC_3_1
     typedef ::__gnu_cxx::hash< _StringBase > _StringHash;    
 #elif !defined( _STLP_HASH_FUN_H )
-    typedef std::hash_compare< _StringBase, std::less< _StringBase > > _StringHash;
+#	if _DEFINE_DEPRECATED_HASH_CLASSES
+		typedef std::hash_compare< _StringBase, std::less< _StringBase > > _StringHash;
+#	else
+		typedef stdext::hash_compare< _StringBase, std::less< _StringBase > > _StringHash;
+#	endif
 #else
     typedef std::hash< _StringBase > _StringHash;
 #endif
