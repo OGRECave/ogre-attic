@@ -38,6 +38,7 @@ terrainscenemanager.h  -  description
 
 #include "OgreTerrainPrerequisites.h"
 #include "OgreOctreeSceneManager.h"
+#include "OgreOctreeSceneQuery.h"
 #include "OgreTerrainRenderable.h"
 #include "OgreTerrainPageSource.h"
 #include "OgreIteratorWrappers.h"
@@ -52,7 +53,7 @@ typedef std::vector < TerrainPage * > TerrainPageRow;
 typedef std::vector < TerrainPageRow > TerrainPage2D;
 
 /** Default implementation of RaySceneQuery. */
-class _OgreTerrainExport TerrainRaySceneQuery : public DefaultRaySceneQuery
+class _OgreTerrainExport TerrainRaySceneQuery : public OctreeRaySceneQuery
 {
 public:
     TerrainRaySceneQuery(SceneManager* creator);

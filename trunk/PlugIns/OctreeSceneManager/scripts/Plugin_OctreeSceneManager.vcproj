@@ -148,6 +148,9 @@
 				RelativePath="..\src\OgreOctreeSceneManagerDll.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreOctreeSceneQuery.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreTerrainPage.cpp">
 			</File>
 			<File
@@ -180,6 +183,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreOctreeSceneManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreOctreeSceneQuery.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreTerrainPage.h">
