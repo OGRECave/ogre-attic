@@ -175,11 +175,13 @@ namespace Ogre {
         // Keep handle (see below, copy overrides everything)
         ResourceHandle savedHandle = mat->mHandle;
         String savedName = mat->mName;
+        String savedGroup = mat->mName;
         // Assign values from this
         *mat = *this;
         // Correct the name & handle, they get copied too
         mat->mName = savedName;
         mat->mHandle = savedHandle;
+        mat->mGroup = savedGroup;
 
     }
     //-----------------------------------------------------------------------
@@ -191,11 +193,13 @@ namespace Ogre {
 		{
             // save name & handle
             String savedName = mName;
+            String savedGroup = mGroup;
             ResourceHandle savedHandle = mHandle;
 			*this = *defaults;
             // restore name & handle
             mName = savedName;
             mHandle = savedHandle;
+            mGroup = savedGroup;
 		}
         mCompilationRequired = true;
 
