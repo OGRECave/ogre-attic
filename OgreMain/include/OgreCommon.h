@@ -239,7 +239,7 @@ namespace Ogre {
          */
         struct Box
         {
-            long left, top, right, bottom, front, back;
+            size_t left, top, right, bottom, front, back;
 			/// Parameterless constructor for setting the members manually
             Box()
             {
@@ -253,7 +253,7 @@ namespace Ogre {
             	@note Note that the left, top, and front edges are included 
  		           	but the right, bottom and top ones are not.
             */
-            Box( long l, long t, long r, long b ):
+            Box( size_t l, size_t t, size_t r, size_t b ):
                 left(l),
                 top(t),   
                 right(r),
@@ -274,7 +274,7 @@ namespace Ogre {
             	@note Note that the left, top, and front edges are included 
  		           	but the right, bottom and top ones are not.
             */
-            Box( long l, long t, long ff, long r, long b, long bb ):
+            Box( size_t l, size_t t, size_t ff, size_t r, size_t b, size_t bb ):
                 left(l),
                 top(t),   
                 right(r),

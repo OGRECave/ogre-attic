@@ -636,13 +636,13 @@ namespace Ogre {
         unsigned int dstPixelSize = PixelUtil::getNumElemBytes(dst.format);
 
         // Calculate pitches+skips in bytes
-        int srcRowPitchBytes = src.rowPitch*srcPixelSize;
-        int srcRowSkipBytes = src.getRowSkip()*srcPixelSize;
-        int srcSliceSkipBytes = src.getSliceSkip()*srcPixelSize;
+        size_t srcRowPitchBytes = src.rowPitch*srcPixelSize;
+        size_t srcRowSkipBytes = src.getRowSkip()*srcPixelSize;
+        size_t srcSliceSkipBytes = src.getSliceSkip()*srcPixelSize;
 
-        int dstRowPitchBytes = dst.rowPitch*dstPixelSize;
-        int dstRowSkipBytes = dst.getRowSkip()*dstPixelSize;
-        int dstSliceSkipBytes = dst.getSliceSkip()*dstPixelSize;
+        size_t dstRowPitchBytes = dst.rowPitch*dstPixelSize;
+        size_t dstRowSkipBytes = dst.getRowSkip()*dstPixelSize;
+        size_t dstSliceSkipBytes = dst.getSliceSkip()*dstPixelSize;
 
         // The easy case
         if(src.format == dst.format) {
@@ -654,10 +654,10 @@ namespace Ogre {
             }
 
             // Otherwise, copy per row
-            unsigned int rowSize = src.getWidth()*srcPixelSize;
-            for(int z=src.front; z<src.back; z++) 
+            size_t rowSize = src.getWidth()*srcPixelSize;
+            for(size_t z=src.front; z<src.back; z++) 
             {
-                for(int y=src.top; y<src.bottom; y++)
+                for(size_t y=src.top; y<src.bottom; y++)
                 {
                     std::copy(srcptr, srcptr+rowSize, dstptr);
                     srcptr += srcRowPitchBytes;
@@ -678,11 +678,11 @@ namespace Ogre {
 
         // The brute force fallback
         float r,g,b,a;
-        for(int z=src.front; z<src.back; z++) 
+        for(size_t z=src.front; z<src.back; z++) 
         {
-            for(int y=src.top; y<src.bottom; y++)
+            for(size_t y=src.top; y<src.bottom; y++)
             {
-                for(int x=src.left; x<src.right; x++)
+                for(size_t x=src.left; x<src.right; x++)
                 {
                     unpackColour(&r, &g, &b, &a, src.format, srcptr);
                     packColour(r, g, b, a, dst.format, dstptr);
@@ -879,7 +879,9 @@ namespace Ogre {
 			// The easy case, the buffer is laid out in memory just like 
 			// we want it to be and is in a format DevIL can understand directly
 			// We could even save the copy if DevIL would let us
-			ilTexImage(src.getWidth(), src.getHeight(), src.getDepth(), ifmt.numberOfChannels,
+			ilTexImage(static_cast<ILuint>(src.getWidth()), 
+				static_cast<ILuint>(src.getHeight()), 
+				static_cast<ILuint>(src.getDepth()), ifmt.numberOfChannels,
 				ifmt.format, ifmt.type, src.data);
 		} 
 		else if(ifmt.isValid()) 
@@ -887,12 +889,17 @@ namespace Ogre {
 			// The format can be understood directly by DevIL. The only 
 			// problem is that ilTexImage expects our image data consecutively 
 			// so we cannot use that directly.
-			ilTexImage(src.getWidth(), src.getHeight(), src.getDepth(), ifmt.numberOfChannels,
+			ilTexImage(static_cast<ILuint>(src.getWidth()), 
+				static_cast<ILuint>(src.getHeight()), 
+				static_cast<ILuint>(src.getDepth()), 
+				ifmt.numberOfChannels,
 				ifmt.format, ifmt.type, 0);
 
 			// Let DevIL allocate the memory for us, and copy the data consecutively
 			// to its memory
-			ilTexImage(src.getWidth(), src.getHeight(), src.getDepth(), ifmt.numberOfChannels,
+			ilTexImage(static_cast<ILuint>(src.getWidth()), 
+				static_cast<ILuint>(src.getHeight()), 
+				static_cast<ILuint>(src.getDepth()), ifmt.numberOfChannels,
 				ifmt.format, ifmt.type, 0);
 			PixelBox dst(src.getWidth(), src.getHeight(), src.getDepth(), src.format, ilGetData());
 			PixelUtil::bulkPixelConversion(src, dst);
@@ -926,7 +933,9 @@ namespace Ogre {
 			
 			// Let DevIL allocate the memory for us, then do the conversion ourselves
 			ifmt = OgreFormat2ilFormat( fmt );
-			ilTexImage(src.getWidth(), src.getHeight(), src.getDepth(), ifmt.numberOfChannels,
+			ilTexImage(static_cast<ILuint>(src.getWidth()), 
+				static_cast<ILuint>(src.getHeight()), 
+				static_cast<ILuint>(src.getDepth()), ifmt.numberOfChannels,
 				ifmt.format, ifmt.type, 0);
 			PixelBox dst(src.getWidth(), src.getHeight(), src.getDepth(), fmt, ilGetData());
 			PixelUtil::bulkPixelConversion(src, dst);
