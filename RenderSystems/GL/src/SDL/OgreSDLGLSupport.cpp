@@ -30,6 +30,7 @@ void SDLGLSupport::addConfig(void)
 
     ConfigOption optFullScreen;
     ConfigOption optVideoMode;
+    ConfigOption optFSAA;
 
     // FS setting possiblities
     optFullScreen.name = "Full Screen";
@@ -53,8 +54,18 @@ void SDLGLSupport::addConfig(void)
         }
     }
     
+    //FSAA possibilities
+    optFSAA.name = "FSAA";
+    optFSAA.possibleValues.push_back("0");
+    optFSAA.possibleValues.push_back("2");
+    optFSAA.possibleValues.push_back("4");
+    optFSAA.possibleValues.push_back("6");
+    optFSAA.currentValue = "0";
+    optFSAA.immutable = false;
+    
     mOptions[optFullScreen.name] = optFullScreen;
     mOptions[optVideoMode.name] = optVideoMode;
+    mOptions[optFSAA.name] = optFSAA;
 }
 
 String SDLGLSupport::validateConfig(void)
@@ -78,6 +89,19 @@ RenderWindow* SDLGLSupport::createWindow(bool autoCreateWindow, GLRenderSystem* 
         String::size_type pos = val.find('x');
         if (pos == String::npos)
             Except(999, "Invalid Video Mode provided", "SDLGLSupport::createWindow");
+
+        int fsaa_x_samples = 0;
+        opt = mOptions.find("FSAA");
+        if(opt != mOptions.end()) //check for FSAA parameter, if not ignore it...
+        {
+            fsaa_x_samples = StringConverter::parseInt(opt->second.currentValue);
+            if(fsaa_x_samples>1) {
+                // If FSAA is enabled in the parameters, enable the MULTISAMPLEBUFFERS
+                // and set the number of samples before the render window is created.
+                SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS,1);
+                SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES,fsaa_x_samples);
+            }
+        }
 
         unsigned int w = StringConverter::parseUnsignedInt(val.substr(0, pos));
         unsigned int h = StringConverter::parseUnsignedInt(val.substr(pos + 1));
