@@ -174,72 +174,75 @@ per OS platform, rendering API, or per scene type. Everything which usees Ogre
 uses this library by linking to OgreMain.lib. This library must be on the path 
 or in the current folder to be loaded at startup.</td></tr> <tr> <td width="200"> 
 <p>OgrePlatform.dll</p></td><td><P>This library implements concrete versions of 
-the classes required to be implemented for each platform, such as RenderWindows, 
-InputReaders etc. The implementation included with Ogre at the moment is for Win32, 
-but this dll should be replaced (e.g. by OgrePlatform.so) on other platforms, 
-exposing an identical interface but implementing the features for that platform.</P><P>This 
-library is loaded dynamically by the PlatformManager class (in OgreMain.dll) and 
-must either be on the path or in the current folder.</P></td></tr> <tr> <td width="200">OgreD3DEngine.dll</td><td>Plugin 
+the classes required to be implemented for each platform. The implementation included 
+with Ogre at the moment is for Win32, but this dll should be replaced (e.g. by 
+OgrePlatform.so) on other platforms, exposing an identical interface but implementing 
+the features for that platform.</P><P>This library is loaded dynamically by the 
+PlatformManager class (in OgreMain.dll) and must either be on the path or in the 
+current folder.</P></td></tr> <tr> <td width="200">Plugin_Direct3D7.dll</td><td>Plugin 
 library which adds a RenderSystem implementation for Direct3D. This library is 
 loaded dynamically by the plugin architecture described above, and must be located 
-in the folder specified in plugins.cfg.</td></tr> <tr> <td width="200">OgreBspSceneManager.dll</td><td>Plugin 
+in the folder specified in plugins.cfg. At the moment this uses Direct3D 7 interfaces, 
+because the effort of migrating to v8 was not justified (the only major addition 
+was pixel shaders, and they were a hack in this version because of the nVidia 
+/ ATI scrapping over standards and therefore unsuited to OGRE's middleware approach). 
+OGRE will migrate to Direct3D 9 when released since this appears to be worth the 
+effort, particularly the High-level shader language (HLSL).</td></tr> <tr> <td width="200">Plugin_BspSceneManager.dll</td><td>Plugin 
 specialisation of the general-purpose SceneManager for rendering indoor levels 
 based on a BSP tree. Allows Quake3 maps to be loaded and rendered very efficiently 
 whilst exposing none of the complexity to the core Ogre system. This library is 
 loaded dynamically by the plugin architecture described above, and must be located 
-in the folder specified in plugins.cfg.</td></tr><tr><td width="200">OgreSfxPlugin.dll</td><td>Plugin 
-to provide additional special effects. At present this plugin adds a set of standard 
-particle emitters and particle affectors.</td></tr><tr><td width="200">FileSystem.dll</td><td>Archive 
-plugin that allows OGRE to manipulate file folders.</td></tr><tr><td width="200">Zip.dll</td><td>Archive 
-plugin that allows OGRE t manipulate ZIP archives.</td></tr> </table><p align="left">Each 
-of the .lib files has 2 build configurations, Debug and Release. </p><P><B>Building 
-Under DirectX 7 SDK</B></P><P>OGRE is configured to build under DirectX8 but is 
-still using the DirectX 7 interfaces so can be built under this version if need 
-be. I haven't upgraded the interfaces to v8 because I wanted to concentrate on 
-engine design and features rather than porting the API calls to the new version 
-(I have already ported OGRE and it's predecessors twice and to be honest I'm fed 
-up with doing it!). I may wait until the imminent release of version 9 before 
-I do another port.</P><P>So you can still build OGRE under the DirectX 7 SDK, 
-you just need to make a small change to the linker settings of the examples and 
-anything you create. In VC++, on the Project menu, click 'Settings'. In the 'General' 
-section, in the 'Object/Library Modules' text box, change the 'd3d8.lib' entry 
-to 'd3dim.lib'</P><p align="left">&nbsp;</p><p align="left" CLASS="MainHeader">Building 
-the Examples</p><p align="left">In the Examples folder, there are a number of 
-subfolders each containing an example program (with the exception of the Framework 
-folder which contains the base code for all the examples). To build these you 
-can either:</p><OL><LI>Load the individual .dsp or .vcproj project file from the 
-example folder and build it individually (requires that you have already built 
-the libraries as described above)</LI><LI>Load the Ogre.dsw or Ogre.sln workspace 
-from the base Ogre folder, which contains <I>all</I> the examples and all the 
-library projects, set the example you want to be the active one (right-click on 
-the project explorer and click 'Set As Active Project') and perform a standard 
-build. </LI></OL><P>The latter method has the advantage that you can flip between 
-examples and the original OGRE code quickly, plus the fact that dependecies are 
-in place such that if you make changes to the OGRE code or download new versions 
-from CVS, the updated OGRE library will automatically be built when you build 
-an example.</P><P>Here's a summary of the examples:</P><TABLE WIDTH="100%" BORDER="1" CLASS="MainContent" CELLSPACING="0"> 
-<TR> <TD WIDTH="114">Bezier</TD><TD WIDTH="994">Demonstrates the use of bezier 
+in the folder specified in plugins.cfg.</td></tr><tr><td width="200">Plugin_FileSystem.dll</td><td>Archive 
+plugin that allows OGRE to read the filesystem of the target operating system.</td></tr> 
+</table><p align="left">Each of the .lib files has 2 build configurations, Debug 
+and Release. </p><P><B>Building Under DirectX 7 SDK</B></P><P>OGRE is configured 
+to build under DirectX8 but is still using the DirectX 7 interfaces so can be 
+built under this version if need be. I haven't upgraded the interfaces to v8 because 
+I wanted to concentrate on engine design and features rather than porting the 
+API calls to the new version (I have already ported OGRE and it's predecessors 
+twice and to be honest I'm fed up with doing it!). I may wait until the imminent 
+release of version 9 before I do another port.</P><P>So you can still build OGRE 
+under the DirectX 7 SDK, you just need to make a small change to the linker settings 
+of the examples and anything you create. In VC++, on the Project menu, click 'Settings'. 
+In the 'General' section, in the 'Object/Library Modules' text box, change the 
+'d3d8.lib' entry to 'd3dim.lib'</P><p align="left">&nbsp;</p><p align="left" CLASS="MainHeader">Building 
+the Examples</p><p align="left">In the Samples folder, there are a number of subfolders 
+each containing an example program (with the exception of the Common folder which 
+contains the base code for all the examples, and the Media folder which contains 
+all the textures, models etc). To build these you can either:</p><OL><LI>Load 
+the individual .dsp or .vcproj project file from the example folder and build 
+it individually (requires that you have already built the libraries as described 
+above)</LI><LI>Load the Ogre.dsw or Ogre.sln workspace from the base Ogre folder, 
+which contains <I>all</I> the examples and all the library projects, set the example 
+you want to be the active one (right-click on the project explorer and click 'Set 
+As Active Project') and perform a standard build. </LI></OL><P>The latter method 
+has the advantage that you can flip between examples and the original OGRE code 
+quickly, plus the fact that dependecies are in place such that if you make changes 
+to the OGRE code or download new versions from CVS, the updated OGRE library will 
+automatically be built when you build an example.</P><P>Here's a summary of the 
+examples:</P><TABLE WIDTH="100%" BORDER="1" CLASS="MainContent" CELLSPACING="0"> 
+<TR> <TD WIDTH="114">BezierPatch</TD><TD WIDTH="994">Demonstrates the use of bezier 
 patches for approximating curved surfaces. Displays a single curved surface at 
-a predefined subdivision level.</TD></TR> <TR> <TD WIDTH="114"> <P>Bsp</P></TD><TD WIDTH="994"><P>Demonstrates 
+a predefined subdivision level.</TD></TR> <TR> <TD WIDTH="114"> <P>BSP</P></TD><TD WIDTH="994"><P>Demonstrates 
 a specialisation of the SceneManager class for a very specific kind of scene - 
 the indoor level as used by countless first-person shooter games. Loads Quake3Arena 
 levels.<BR><B>IMPORTANT NOTE:</B> For copyright reasons no Quake3 data can be 
 distributed with OGRE. You are expected to provide your own level data to use 
 this example - edit the quake3settings.cfg file to specify the location of your 
-pak0.pk3 file and the map you wish to load.</P></TD></TR><TR><TD WIDTH="114">EnvMap</TD><TD WIDTH="994">Demonstrates 
+pak0.pk3 file and the map you wish to load.</P></TD></TR><TR><TD WIDTH="114">EnvMapping</TD><TD WIDTH="994">Demonstrates 
 the environment mapping effect which can be applied to texture layers, together 
 with the blending that can be used to combine multiple texture layers. Also now 
-includes a few billboards as flare effects</TD></TR><TR><TD WIDTH="114">Lights</TD><TD WIDTH="994">Demonstrates 
-the use of dynamic coloured lights. </TD></TR><TR><TD WIDTH="114">Particles</TD><TD WIDTH="994">Demonstrates 
+includes a few billboards as flare effects</TD></TR><TR><TD WIDTH="114">Lighting</TD><TD WIDTH="994">Demonstrates 
+the use of dynamic coloured lights. </TD></TR><TR><TD WIDTH="114">ParticleFX</TD><TD WIDTH="994">Demonstrates 
 particle system effects, using predefined particle scripts.</TD></TR><TR><TD WIDTH="114">SkyPlane</TD><TD WIDTH="994">Shows 
 how a skyplane can be used, i.e. a fixed camera-relative plane which can be used 
 to create a flat sky.</TD></TR><TR><TD WIDTH="114">SkyBox</TD><TD WIDTH="994">Shows 
 how a skybox is used, creating a complete wrap-around sky</TD></TR><TR><TD WIDTH="114">SkyDome</TD><TD WIDTH="994">Demonstrates 
 the skydome feature, an illusion of a curved dome above the camera displaying 
-the sky.</TD></TR><TR><TD WIDTH="114">Trans</TD><TD WIDTH="994">Shows what happens 
-when you apply scene-level transparency to an object, i.e. not just blending between 
-texture layers onthe same object by blending new objects with those already in 
-the scene.</TD></TR><TR><TD WIDTH="114">TextureEffects</TD><TD WIDTH="994">A demo 
+the sky.</TD></TR><TR><TD WIDTH="114">Transparency</TD><TD WIDTH="994">Shows what 
+happens when you apply scene-level transparency to an object, i.e. not just blending 
+between texture layers onthe same object by blending new objects with those already 
+in the scene.</TD></TR><TR><TD WIDTH="114">TextureFX</TD><TD WIDTH="994">A demo 
 of a few texture effects (scrolling, scaling, rotating) that can be done with 
 Ogre's 'Controller' architecture, a way of using input values from one object 
 (in this case time) to affect another (in this case texture coordinates) by translating 
@@ -256,7 +259,7 @@ objects in the scene)</TD></TR><TR><TD WIDTH="139">I &amp; K</TD><TD WIDTH="969"
 the root scene node (and thus all the movable objects in the scene)</TD></TR><TR><TD WIDTH="139">F</TD><TD WIDTH="969">Toggle 
 frame rate stats on/off</TD></TR> </TABLE><P CLASS="MainHeader">Building Your 
 Own Applications</P><P>The easiest way to get started with your own application 
-is to start with the <A HREF="examples/" TARGET="_blank">examples</A>. Feel free 
+is to start with the <A HREF="Samples/" TARGET="_blank">examples</A>. Feel free 
 to reuse the framework there, which consists mainly of a base object called ExampleApplication. 
 This handles all the engine initialisation and all you need to do is subclass 
 it and override the createScene method to provide your own scene. You can optionally 
@@ -266,9 +269,9 @@ but you can change this by replacing or subclassing the ExampleFrameListener cla
 do you find out what all the terms and classes mean? The best place to start is 
 with the documentation. From this release onward, the full documentation will 
 always be included as part of the source code release, rather than as a separate 
-download. You can find the documentation <A HREF="Docs/index.html" TARGET="_blank">here</A>.</P><P>Also 
-available is a <A HREF="Tutorials/index.html">short tutorial</A> which will give 
-you a quick overview of the engine and how to use it. </P><p align="left" CLASS="MainHeader">Keeping 
+download. You can find the documentation <A HREF="Docs/html/index.html" TARGET="_blank">here</A>.</P><P>Also 
+available are some <A HREF="Tutorials/index.html">short tutorials</A> which will 
+give you a quick overview of the engine and how to use it. </P><p align="left" CLASS="MainHeader">Keeping 
 Up To Date</p><p align="left">The best place to keep up to date with developments 
 on OGRE is the <A HREF="http://ogre.sourceforge.net">Official Web Site</A>. From 
 there you can download the latest source code and documentation. You can choose 

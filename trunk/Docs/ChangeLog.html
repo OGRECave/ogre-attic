@@ -77,15 +77,29 @@ CODE.str {
 
 <body bgcolor="#FFFFFF" text="#000000">
 <p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p><p align="center" class="header">Change 
-Log</p><p align="left" class="MainHeader">v0.99b (9 June 2002)</p><P ALIGN="left">Changes 
-since 0.98b:</P><BLOCKQUOTE><P>Enhancements:</P><UL><LI>Particle systems implemented, 
-including customisable emitters / affectors through the use of plugins, defining 
-particle system templates through text scripts for easy modification, flexible 
-culling options, flat and oriented billboards for point or directional particles, 
-fast-forwarding of systems to avoid obvious particle system startup, force application, 
-randomised colours &amp; emission angles, randomised velocities and lifetimes 
-and much more.</LI><LI>Billboarding support (used by particle systems, but can 
-also be used on their own to create backgrounds, static light flares etc)</LI><LI>Now 
+Log</p><p align="left" class="MainHeader">v0.99c (14 July 2002)</p><P ALIGN="left">Changes 
+since 0.99b:</P><BLOCKQUOTE><P>Enhancements:</P><UL><LI>New MeshSerializer class 
+for importing / exporting mesh data, to be used as the framework for all future 
+modelling tool exporters </LI><LI>Milkshape3D exporter provided, which uses MeshSerializer 
+to export to the new .mesh file format. This replaces the 3ds2oof utility which 
+along with the .oof is now deprecated, although .oof models can still be loaded. 
+In this version the Milkshape exporter only exports static mesh data without bones 
+or animation.</LI><LI>SceneNode now supports scaling (uniform and non-uniform), 
+including the option to inherit parent scale or just use own</LI><LI>Completely 
+new source code folder layout; should be more obvious than the old one. All dependencies 
+are now included in the code structure to avoid having to distribute binary libraries</LI><LI>Boost 
+added to the Dependencies area</LI><LI>New tutorial added, kindly written by Nicholas 
+Green</LI><LI>SDL / OpenGL render system implementation provided, not totally 
+complete yet but almost there</LI></UL><P>Bugfixes:</P><UL><LI>Math::NEG_INFINITY 
+now correctly defined</LI><LI>ColourValue getAsLongARGB alpha bug fixed</LI></UL></BLOCKQUOTE><p align="left" class="MainHeader">v0.99b 
+(9 June 2002)</p><P ALIGN="left">Changes since 0.98b:</P><BLOCKQUOTE><P>Enhancements:</P><UL><LI>Particle 
+systems implemented, including customisable emitters / affectors through the use 
+of plugins, defining particle system templates through text scripts for easy modification, 
+flexible culling options, flat and oriented billboards for point or directional 
+particles, fast-forwarding of systems to avoid obvious particle system startup, 
+force application, randomised colours &amp; emission angles, randomised velocities 
+and lifetimes and much more.</LI><LI>Billboarding support (used by particle systems, 
+but can also be used on their own to create backgrounds, static light flares etc)</LI><LI>Now 
 builds under VC.Net (VC7), .sln and .vcproj files are now included in the distribution</LI><LI>Zip 
 archives now cache a file index for more efficient retrieval</LI><LI>StringInterface 
 base class and helper classes like ParamCommand and StringConverter now available 
