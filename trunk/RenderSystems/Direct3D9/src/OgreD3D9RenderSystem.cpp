@@ -174,7 +174,7 @@ namespace Ogre
 			return false;
 	}
 	//---------------------------------------------------------------------
-	D3D9RenderSystem::initConfigOptions()
+	void D3D9RenderSystem::initConfigOptions()
 	{
 		OgreGuard( "D3D9RenderSystem::initConfigOptions" );
 
@@ -964,7 +964,7 @@ namespace Ogre
         }
 	}
 	//---------------------------------------------------------------------
-	D3D9RenderSystem::ResizeRepositionWindow(HWND wich)
+	void D3D9RenderSystem::ResizeRepositionWindow(HWND wich)
 	{
 		for (RenderTargetMap::iterator it = mRenderTargets.begin(); it != mRenderTargets.end(); ++it)
 		{
