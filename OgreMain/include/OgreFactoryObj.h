@@ -29,12 +29,29 @@ http://www.gnu.org/copyleft/gpl.html.
 
 BEGIN_OGRE_NAMESPACE
 
+/** Abstract factory class. Does nothing by itself, but derived classes can add
+    functionality.
+*/
 template< typename T > class FactoryObj
 {
 public:
     virtual ~FactoryObj() {};
 
+    /** Returns the factory type.
+        @return
+            The factory type.
+    */
     virtual String getType() = 0;
+
+    /** 'Produces' a new object.
+        @param
+            nA First required parameter. It exists because the implementations
+            of createObj may need to get a pointer to the optional parameters
+            list.
+        @return
+            An object created by the factory. The type of the object depends on
+            the factory.
+    */
     virtual T* createObj( int nA, ... ) = 0;    
 };
 
