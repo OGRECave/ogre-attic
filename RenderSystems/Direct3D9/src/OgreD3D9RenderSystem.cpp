@@ -1027,6 +1027,8 @@ namespace Ogre
 
 		// check if env_map is applyed
         // Note, only applicable to sphere maps
+        /*
+        It appears D3D9 doesn't need this anymore!
 		if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_ENVIRONMENT_MAP)
 		{
 			// if so we must concatenate the current with the env_map matrix
@@ -1043,6 +1045,7 @@ namespace Ogre
 			// concatenate with the xForm
 			newMat = newMat.concatenate(ogreMatEnvMap);
 		}
+        */
 
         // If this is a cubic reflection, we need to modify using the view matrix
         if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_ENVIRONMENT_MAP_REFLECTION)
