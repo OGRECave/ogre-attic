@@ -84,7 +84,7 @@ namespace Ogre {
             : mParentSystem(0), mOwnDimensions(false), rotation(0), 
             position(Vector3::ZERO), direction(Vector3::ZERO), 
             colour(ColourValue::White), timeToLive(10), 
-            totalTimeToLive(10), rotationSpeed(0)
+            totalTimeToLive(10), rotationSpeed(0), mVisual(0)
         {
         }
 
