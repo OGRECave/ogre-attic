@@ -822,8 +822,6 @@ namespace Ogre {
 			mMaterialManager->initialise();
             // Init particle systems manager
             mParticleManager->_initialise();
-            // initialise resource groups, includes parsing scripts
-			mResourceGroupManager->_initialise();
 			// Init mesh manager
 			MeshManager::getSingleton()._initialise();
             mFirstTimePostWindowInit = true;

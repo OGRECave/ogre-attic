@@ -204,6 +204,8 @@ namespace Ogre {
 			OGRE_AUTO_MUTEX
 			/// Group name
 			String name;
+			/// Whether group has been initialised
+			bool initialised;
 			/// List of possible locations to search
 			LocationList locationList;
 			/// Index of resource names to locations, built for speedy access (case sensitive archives)
@@ -234,12 +236,12 @@ namespace Ogre {
 		@remarks
 			Called as part of initialiseResourceGroup
 		*/
-		void parseResourceGroupScripts(const String& groupName);
+		void parseResourceGroupScripts(ResourceGroup* grp);
 		/** Create all the pre-declared resources.
 		@remarks
 			Called as part of initialiseResourceGroup
 		*/
-		void createDeclaredResources(const String& name);
+		void createDeclaredResources(ResourceGroup* grp);
 		/** Adds a created resource to a group. */
 		void addCreatedResource(ResourcePtr& res, ResourceGroup& group);
 		/** Get resource group */
@@ -343,6 +345,11 @@ namespace Ogre {
 		@param name The name of the resource group to initialise
 		*/
 		void initialiseResourceGroup(const String& name);
+
+		/** Initialise all resource groups which are yet to be initialised.
+		@see ResourceGroupManager::intialiseResourceGroup
+		*/
+		void initialiseAllResourceGroups(void);
 
 		/** Loads a resource group.
         @remarks
@@ -645,11 +652,6 @@ namespace Ogre {
             SceneManager::estimateWorldGeometry while loading their geometry.
         */
         void _notifyWorldGeometryStageEnded(void);
-
-		/** Internal method called by Root::initialise, it calls initialiseResourceGroup
-			for all the existing resource groups.
-		*/
-		void _initialise(void);
 
 		/** Override standard Singleton retrieval.
         @remarks

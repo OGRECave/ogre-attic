@@ -50,10 +50,7 @@ namespace Ogre {
         : mCurrentGroup(0)
     {
         // Create the 'General' group
-        ResourceGroup* grp = new ResourceGroup();
-        grp->name = DEFAULT_RESOURCE_GROUP_NAME;
-        mResourceGroupMap.insert(
-            ResourceGroupMap::value_type(grp->name, grp));
+        createResourceGroup(DEFAULT_RESOURCE_GROUP_NAME);
         // default world group to the default group
         mWorldGroupName = DEFAULT_RESOURCE_GROUP_NAME;
     }
@@ -82,6 +79,7 @@ namespace Ogre {
                 "ResourceGroupManager::createResourceGroup");
         }
         ResourceGroup* grp = new ResourceGroup();
+		grp->initialised = false;
         grp->name = name;
         grp->worldGeometrySceneManager = 0;
         mResourceGroupMap.insert(
@@ -90,12 +88,26 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void ResourceGroupManager::initialiseResourceGroup(const String& name)
 	{
+		OGRE_LOCK_AUTO_MUTEX
 		LogManager::getSingleton().logMessage("Initialising resource group " + name);
-		parseResourceGroupScripts(name);
-		createDeclaredResources(name);
+		ResourceGroup* grp = getResourceGroup(name);
+		if (!grp)
+		{
+			Except(Exception::ERR_ITEM_NOT_FOUND, 
+				"Cannot find a group named " + name, 
+				"ResourceGroupManager::parseResourceGroupScripts");
+		}
+		OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME) // lock group mutex
+
+		// Set current group
+		mCurrentGroup = grp;
+		parseResourceGroupScripts(grp);
+		createDeclaredResources(grp);
+		// Reset current group
+		mCurrentGroup = 0;
 	}
 	//-----------------------------------------------------------------------
-	void ResourceGroupManager::_initialise(void)
+	void ResourceGroupManager::initialiseAllResourceGroups(void)
 	{
 		OGRE_LOCK_AUTO_MUTEX
 
@@ -104,7 +116,18 @@ namespace Ogre {
 		iend = mResourceGroupMap.end();
 		for (i = mResourceGroupMap.begin(); i != iend; ++i)
 		{
-			initialiseResourceGroup(i->first);
+			ResourceGroup* grp = i->second;
+			OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME) // lock group mutex
+			if (!grp->initialised)
+			{
+				// Set current group
+				mCurrentGroup = grp;
+				parseResourceGroupScripts(grp);
+				createDeclaredResources(grp);
+				grp->initialised = true;
+				// Reset current group
+				mCurrentGroup = 0;
+			}
 		}
 	}
     //-----------------------------------------------------------------------
@@ -571,24 +594,11 @@ namespace Ogre {
 		}
 	}
 	//-----------------------------------------------------------------------
-	void ResourceGroupManager::parseResourceGroupScripts(const String& name)
+	void ResourceGroupManager::parseResourceGroupScripts(ResourceGroup* grp)
 	{
-		OGRE_LOCK_AUTO_MUTEX
 
 		LogManager::getSingleton().logMessage(
-			"Parsing scripts for resource group " + name);
-
-		ResourceGroup* grp = getResourceGroup(name);
-		if (!grp)
-		{
-			Except(Exception::ERR_ITEM_NOT_FOUND, 
-				"Cannot find a group named " + name, 
-				"ResourceGroupManager::parseResourceGroupScripts");
-		}
-		OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME) // lock group mutex
-
-		// Set current group
-		mCurrentGroup = grp;
+			"Parsing scripts for resource group " + grp->name);
 
 		// Count up the number of scripts we have to parse
         typedef std::list<DataStreamListPtr> StreamListList;
@@ -608,7 +618,7 @@ namespace Ogre {
 			const StringVector& patterns = su->getScriptPatterns();
 			for (StringVector::const_iterator p = patterns.begin(); p != patterns.end(); ++p)
 			{
-				DataStreamListPtr streamList = openResources(*p, name);
+				DataStreamListPtr streamList = openResources(*p, grp->name);
 				scriptCount += streamList->size();
 				streamListList.push_back(streamList);
 			}
@@ -616,7 +626,7 @@ namespace Ogre {
                 LoaderStreamListPair(su, streamListList));
 		}
 		// Fire scripting event
-		fireResourceGroupScriptingStarted(name, scriptCount);
+		fireResourceGroupScriptingStarted(grp->name, scriptCount);
 
 		// Iterate over scripts and parse
 		// Note we respect original ordering
@@ -633,34 +643,19 @@ namespace Ogre {
                     LogManager::getSingleton().logMessage(
                         "Parsing script " + (*si)->getName());
                     fireScriptStarted((*si)->getName());
-				    su->parseScript(*si, name);
+				    su->parseScript(*si, grp->name);
 				    fireScriptEnded();
 			    }
             }
 		}
 
-		// Reset current group
-		mCurrentGroup = 0;
-		fireResourceGroupScriptingEnded(name);
+		fireResourceGroupScriptingEnded(grp->name);
 		LogManager::getSingleton().logMessage(
-			"Finished parsing scripts for resource group " + name);
+			"Finished parsing scripts for resource group " + grp->name);
 	}
 	//-----------------------------------------------------------------------
-	void ResourceGroupManager::createDeclaredResources(const String& name)
+	void ResourceGroupManager::createDeclaredResources(ResourceGroup* grp)
 	{
-		OGRE_LOCK_AUTO_MUTEX
-
-		ResourceGroup* grp = getResourceGroup(name);
-		if (!grp)
-		{
-			Except(Exception::ERR_ITEM_NOT_FOUND, 
-				"Cannot find a group named " + name, 
-				"ResourceGroupManager::createDeclaredResources");
-		}
-		// Set current group
-		mCurrentGroup = grp;
-
-		OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME) // lock group mutex
 
 		for (ResourceDeclarationList::iterator i = grp->resourceDeclarations.begin();
 			i != grp->resourceDeclarations.end(); ++i)
@@ -669,7 +664,7 @@ namespace Ogre {
 			// Retrieve the appropriate manager
 			ResourceManager* mgr = _getResourceManager(dcl.resourceType);
 			// Create the resource
-			ResourcePtr res = mgr->create(dcl.resourceName, name);
+			ResourcePtr res = mgr->create(dcl.resourceName, grp->name);
 			// Set custom parameters
 			res->setParameterList(dcl.parameters);
 			// Add resource to load list
@@ -689,8 +684,6 @@ namespace Ogre {
 
 		}
 
-		// Reset current group
-		mCurrentGroup = 0;
 	}
     //-----------------------------------------------------------------------
 	void ResourceGroupManager::_notifyResourceCreated(ResourcePtr& res)
