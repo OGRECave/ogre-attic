@@ -217,6 +217,8 @@ namespace Ogre {
 			newSub->indexData = (*subi)->indexData->clone();
             // Copy any bone assignments
             newSub->mBoneAssignments = (*subi)->mBoneAssignments;
+            newSub->mBoneAssignmentsOutOfDate = (*subi)->mBoneAssignmentsOutOfDate;
+            newSub->mMatInitialised = (*subi)->mMatInitialised;
 
         }
 
@@ -233,6 +235,21 @@ namespace Ogre {
         // Copy bounds
         newMesh->mAABB = mAABB;
         newMesh->mBoundRadius = mBoundRadius;
+        // copy BoneAssignment information
+        newMesh->mBoneAssignmentsOutOfDate = mBoneAssignmentsOutOfDate;
+        newMesh->mUseSoftwareBlending = mUseSoftwareBlending;
+
+		newMesh->mIsLodManual = mIsLodManual;
+		newMesh->mNumLods = mNumLods;
+		newMesh->mMeshLodUsageList = mMeshLodUsageList;
+
+		newMesh->mVertexBufferUsage = mVertexBufferUsage;
+		newMesh->mIndexBufferUsage = mIndexBufferUsage;
+		newMesh->mVertexBufferShadowBuffer = mVertexBufferShadowBuffer;
+		newMesh->mIndexBufferShadowBuffer = mIndexBufferShadowBuffer;
+
+        newMesh->mSkeletonName = mSkeletonName;
+        newMesh->mSkeleton = mSkeleton;
 
         return newMesh;
 

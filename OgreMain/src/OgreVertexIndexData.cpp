@@ -99,7 +99,33 @@ namespace Ogre {
                 ei->getSemantic(),
                 ei->getIndex() );
         }
-		return dest;
+
+        // Copy software blend info
+        if(softwareBlendInfo)
+        {
+            dest->softwareBlendInfo = new SoftwareBlendInfo();
+            dest->softwareBlendInfo->automaticBlend = softwareBlendInfo->automaticBlend;
+            dest->softwareBlendInfo->numWeightsPerVertex = softwareBlendInfo->numWeightsPerVertex;
+            dest->softwareBlendInfo->pBlendIndexes = 
+                new unsigned char[vertexCount * softwareBlendInfo->numWeightsPerVertex];
+            dest->softwareBlendInfo->pBlendWeights = 
+                new Real[vertexCount * softwareBlendInfo->numWeightsPerVertex];
+            // copy data
+            memcpy(dest->softwareBlendInfo->pBlendIndexes, softwareBlendInfo->pBlendIndexes, 
+                sizeof(unsigned char) * vertexCount * softwareBlendInfo->numWeightsPerVertex);
+            memcpy(dest->softwareBlendInfo->pBlendWeights, softwareBlendInfo->pBlendWeights, 
+                sizeof(Real) * vertexCount * softwareBlendInfo->numWeightsPerVertex);
+
+            dest->softwareBlendInfo->pSrcPositions = new Real[vertexCount * 3];
+            dest->softwareBlendInfo->pSrcNormals = new Real[vertexCount * 3];
+            memcpy(dest->softwareBlendInfo->pSrcPositions, 
+                softwareBlendInfo->pSrcPositions, sizeof(Real) * vertexCount * 3);
+            memcpy(dest->softwareBlendInfo->pSrcNormals, 
+                softwareBlendInfo->pSrcNormals, sizeof(Real) * vertexCount * 3);
+
+        }
+        
+        return dest;
 	}
     //-----------------------------------------------------------------------
     VertexData::SoftwareBlendInfo::~SoftwareBlendInfo()
