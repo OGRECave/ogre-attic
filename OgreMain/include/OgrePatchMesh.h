@@ -44,7 +44,8 @@ namespace Ogre {
         VertexDeclaration* mDeclaration;
     public:
         /// Constructor, as defined in MeshManager::createBezierPatch
-        PatchMesh(const String& name, void* controlPointBuffer, 
+        PatchMesh(const String& name, 
+            void* controlPointBuffer, 
             VertexDeclaration *declaration, size_t width, size_t height,
             size_t uMaxSubdivisionLevel = PatchSurface::AUTO_LEVEL, 
             size_t vMaxSubdivisionLevel = PatchSurface::AUTO_LEVEL,
@@ -61,6 +62,43 @@ namespace Ogre {
         /// Overridden from Resource
         void load(void);
 
+    };
+    /** Specialisation of SharedPtr to allow SharedPtr to be assigned to PatchMeshPtr 
+    @note Has to be a subclass since we need operator=.
+    We could templatise this instead of repeating per Resource subclass, 
+    except to do so requires a form VC6 does not support i.e.
+    ResourceSubclassPtr<T> : public SharedPtr<T>
+    */
+    class _OgreExport PatchMeshPtr : public SharedPtr<PatchMesh> 
+    {
+    public:
+        PatchMeshPtr() : SharedPtr<PatchMesh>() {}
+        PatchMeshPtr(PatchMesh* rep) : SharedPtr<PatchMesh>(rep) {}
+        PatchMeshPtr(const PatchMeshPtr& r) : SharedPtr<PatchMesh>(r) {} 
+        PatchMeshPtr(const ResourcePtr& r) : SharedPtr<PatchMesh>()
+        {
+            pRep = static_cast<PatchMesh*>(r.getPointer());
+            pUseCount = r.useCountPointer();
+            if (pUseCount)
+            {
+                ++(*pUseCount);
+            }
+        }
+
+        /// Operator used to convert a ResourcePtr to a PatchMeshPtr
+        PatchMeshPtr& operator=(const ResourcePtr& r)
+        {
+            if (pRep == static_cast<PatchMesh*>(r.getPointer()))
+                return *this;
+            release();
+            pRep = static_cast<PatchMesh*>(r.getPointer());
+            pUseCount = r.useCountPointer();
+            if (pUseCount)
+            {
+                ++(*pUseCount);
+            }
+            return *this;
+        }
     };
 
 }
