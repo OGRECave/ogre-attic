@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "ode/collision.h"
 #include "OgreControllerManager.h"
 #include "OgreStringConverter.h"
+#include "OgreRoot.h"
 
 namespace OgreRefApp
 {
@@ -161,7 +162,7 @@ namespace OgreRefApp
                 if (mDisableTimeEnd > 0.0f)
                 {
                     // We're counting, check disable time
-                    if (Root::getSingleton().getTimer->getMilliseconds() > mDisableTimeEnd)
+                    if (Root::getSingleton().getTimer()->getMilliseconds() > mDisableTimeEnd)
                     {
                         this->setDynamicsEnabled(false, true);
                         LogManager::getSingleton().logMessage(mEntity->getName() + " disabled");
@@ -175,7 +176,7 @@ namespace OgreRefApp
                     // NB is mDisableTime = 0 we never disable
                     if (mDisableTime > 0)
                     {
-                        mDisableTimeEnd = Root::getSingleton().getTimer->getMilliseconds() + mDisableTime;
+                        mDisableTimeEnd = Root::getSingleton().getTimer()->getMilliseconds() + mDisableTime;
                         LogManager::getSingleton().logMessage("Starting countdown...");
                     }
                 }
