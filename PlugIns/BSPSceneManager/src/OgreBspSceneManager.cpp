@@ -613,7 +613,8 @@ namespace Ogre {
             {
                 const MovableObject* aObj = *a;
                 // Skip this object if collision not enabled
-                if (!(aObj->getQueryFlags() & mQueryMask))
+                if (!(aObj->getQueryFlags() & mQueryMask) ||
+					!aObj->isInScene())
                     continue;
 
                 if (oi < (numObjects-1))
@@ -624,7 +625,8 @@ namespace Ogre {
                     {
                         const MovableObject* bObj = *b;
                         // Apply mask to b (both must pass)
-                        if ( bObj->getQueryFlags() & mQueryMask)
+                        if ((bObj->getQueryFlags() & mQueryMask) && 
+							bObj->isInScene())
                         {
                             const AxisAlignedBox& box1 = aObj->getWorldBoundingBox();
                             const AxisAlignedBox& box2 = bObj->getWorldBoundingBox();

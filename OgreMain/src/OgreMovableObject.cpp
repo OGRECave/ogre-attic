@@ -96,6 +96,27 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
+	bool MovableObject::isInScene(void) const
+	{
+		if (mParentNode != 0)
+		{
+			if (mParentIsTagPoint)
+			{
+				TagPoint* tp = static_cast<TagPoint*>(mParentNode);
+				return tp->getParentEntity()->isInScene();
+			}
+			else
+			{
+				SceneNode* sn = static_cast<SceneNode*>(mParentNode);
+				return sn->isInSceneGraph();
+			}
+		}
+		else
+		{
+			return false;
+		}
+	}
+    //-----------------------------------------------------------------------
     void MovableObject::setVisible(bool visible)
     {
         mVisible = visible;

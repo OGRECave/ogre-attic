@@ -427,6 +427,10 @@ namespace Ogre
         static Vector4 calculateFaceNormal(const Vector3& v1, const Vector3& v2, const Vector3& v3);
         /** Calculate a face normal, no w-information. */
         static Vector3 calculateBasicFaceNormal(const Vector3& v1, const Vector3& v2, const Vector3& v3);
+        /** Calculate a face normal without normalize, including the w component which is the offset from the origin. */
+        static Vector4 calculateFaceNormalWithoutNormalize(const Vector3& v1, const Vector3& v2, const Vector3& v3);
+        /** Calculate a face normal without normalize, no w-information. */
+        static Vector3 calculateBasicFaceNormalWithoutNormalize(const Vector3& v1, const Vector3& v2, const Vector3& v3);
 
         static const Real POS_INFINITY;
         static const Real NEG_INFINITY;

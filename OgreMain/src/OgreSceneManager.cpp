@@ -108,6 +108,7 @@ mShadowTextureFadeEnd(0.9)
 {
     // Root scene node
     mSceneRoot = new SceneNode(this, "root node");
+	mSceneRoot->_notifyRootNode();
 
     // init sky
     size_t i;
@@ -3805,7 +3806,6 @@ DefaultIntersectionSceneQuery::~DefaultIntersectionSceneQuery()
 //---------------------------------------------------------------------
 void DefaultIntersectionSceneQuery::execute(IntersectionSceneQueryListener* listener)
 {
-    // TODO: BillboardSets? Will need per-billboard collision most likely
     // Entities only for now
     SceneManager::EntityList::const_iterator a, b, theEnd;
     theEnd = mParentSceneMgr->mEntities.end();
@@ -3816,7 +3816,8 @@ void DefaultIntersectionSceneQuery::execute(IntersectionSceneQueryListener* list
     for (int i = 0; i < (numEntities - 1); ++i, ++a)
     {
         // Skip if a does not pass the mask
-        if (! (a->second->getQueryFlags() & mQueryMask))
+        if (!(a->second->getQueryFlags() & mQueryMask) ||
+			!a->second->isInScene())
             continue;
 
         // Loop b from a+1 to last
@@ -3824,7 +3825,7 @@ void DefaultIntersectionSceneQuery::execute(IntersectionSceneQueryListener* list
         for (++b; b != theEnd; ++b)
         {
             // Apply mask to b (both must pass)
-            if (b->second->getQueryFlags() & mQueryMask)
+            if ((b->second->getQueryFlags() & mQueryMask) && b->second->isInScene())
             {
                 const AxisAlignedBox& box1 = a->second->getWorldBoundingBox();
                 const AxisAlignedBox& box2 = b->second->getWorldBoundingBox();
@@ -3853,13 +3854,14 @@ DefaultAxisAlignedBoxSceneQuery::~DefaultAxisAlignedBoxSceneQuery()
 //---------------------------------------------------------------------
 void DefaultAxisAlignedBoxSceneQuery::execute(SceneQueryListener* listener)
 {
-    // TODO: BillboardSets? Will need per-billboard collision most likely
     // Entities only for now
     SceneManager::EntityList::const_iterator i, iEnd;
     iEnd = mParentSceneMgr->mEntities.end();
     for (i = mParentSceneMgr->mEntities.begin(); i != iEnd; ++i)
     {
-        if ((i->second->getQueryFlags() & mQueryMask) && mAABB.intersects(i->second->getWorldBoundingBox()))
+        if ((i->second->getQueryFlags() & mQueryMask) && 
+			i->second->isInScene() &&
+			mAABB.intersects(i->second->getWorldBoundingBox()))
         {
             if (!listener->queryResult(i->second)) return;
         }
@@ -3891,7 +3893,8 @@ void DefaultRaySceneQuery::execute(RaySceneQueryListener* listener)
     iEnd = mParentSceneMgr->mEntities.end();
     for (i = mParentSceneMgr->mEntities.begin(); i != iEnd; ++i)
     {
-        if( (i->second->getQueryFlags() & mQueryMask)  )
+        if( (i->second->getQueryFlags() & mQueryMask) &&
+			i->second->isInScene())
         {
             // Do ray / box test
             std::pair<bool, Real> result =
@@ -3927,7 +3930,8 @@ void DefaultSphereSceneQuery::execute(SceneQueryListener* listener)
     for (i = mParentSceneMgr->mEntities.begin(); i != iEnd; ++i)
     {
         // Skip unattached
-        if (!i->second->getParentNode() || !(i->second->getQueryFlags() & mQueryMask))
+        if (!i->second->isInScene() || 
+			!(i->second->getQueryFlags() & mQueryMask))
             continue;
 
         // Do sphere / sphere test
@@ -3966,7 +3970,9 @@ void DefaultPlaneBoundedVolumeListSceneQuery::execute(SceneQueryListener* listen
         {
             PlaneBoundedVolume& vol = *pi;
             // Do AABB / plane volume test
-            if ((i->second->getQueryFlags() & mQueryMask) && vol.intersects(i->second->getWorldBoundingBox()))
+            if ((i->second->getQueryFlags() & mQueryMask) && 
+				i->second->isInScene() && 
+				vol.intersects(i->second->getWorldBoundingBox()))
             {
                 if (!listener->queryResult(i->second)) return;
                 break;

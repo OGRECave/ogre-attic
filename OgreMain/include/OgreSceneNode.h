@@ -74,6 +74,14 @@ namespace Ogre {
         /** See Node. */
         Node* createChildImpl(const String& name);
 
+		/** See Node */
+		void setParent(Node* parent);
+
+		/** Internal method for setting whether the node is in the scene 
+			graph.
+		*/
+		void setInSceneGraph(bool inGraph);
+
         /// Whether to yaw around a fixed axis.
         bool mYawFixed;
         /// Fixed axis to yaw around
@@ -85,6 +93,8 @@ namespace Ogre {
         Vector3 mAutoTrackOffset;
         /// Local 'normal' direction vector
         Vector3 mAutoTrackLocalDirection;
+		/// Is this node a current part of the scene graph?
+		bool mIsInSceneGraph;
     public:
         /** Constructor, only to be called by the creator SceneManager.
         @remarks
@@ -135,6 +145,18 @@ namespace Ogre {
         /** Detaches all objects attached to this node.
         */
         virtual void detachAllObjects(void);
+
+		/** Determines whether this node is in the scene graph, ie
+			whether it's ulitimate ancestor is the root scene node.
+		*/
+		virtual bool isInSceneGraph(void) const { return mIsInSceneGraph; }
+
+		/** Notifies this SceneNode that it is the root scene node. 
+		@remarks
+			Only SceneManager should call this!
+		*/
+		virtual void _notifyRootNode(void) { mIsInSceneGraph = true; }
+			
 
         /** Internal method to update the Node.
             @note

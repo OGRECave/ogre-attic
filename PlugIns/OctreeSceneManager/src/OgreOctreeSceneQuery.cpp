@@ -80,7 +80,8 @@ void OctreeIntersectionSceneQuery::execute(IntersectionSceneQueryListener* liste
                         set.find( MovablePair(e,m)) == set.end() &&
                         set.find( MovablePair(m,e)) == set.end() &&
                         (m->getQueryFlags() & mQueryMask) &&
-                        e->getWorldBoundingBox().intersects( m->getWorldBoundingBox() ) )
+						m->isInScene() && 
+						e->getWorldBoundingBox().intersects( m->getWorldBoundingBox() ) )
                 {
                     listener -> queryResult( e, m );
                 }
@@ -116,7 +117,9 @@ void OctreeAxisAlignedBoxSceneQuery::execute(SceneQueryListener* listener)
         while( oit.hasMoreElements() )
         {
             MovableObject * m = oit.getNext();
-            if( (m->getQueryFlags() & mQueryMask) && mAABB.intersects( m->getWorldBoundingBox() ) )
+            if( (m->getQueryFlags() & mQueryMask) && 
+				m->isInScene() &&
+				mAABB.intersects( m->getWorldBoundingBox() ) )
             {
                 listener -> queryResult( m );
             }
@@ -149,7 +152,7 @@ void OctreeRaySceneQuery::execute(RaySceneQueryListener* listener)
         while( oit.hasMoreElements() )
         {
             MovableObject * m = oit.getNext();
-            if( (m->getQueryFlags() & mQueryMask) )
+            if( (m->getQueryFlags() & mQueryMask) && m->isInScene() )
             {
                 std::pair<bool, Real> result = mRay.intersects(m->getWorldBoundingBox());
 
@@ -189,7 +192,9 @@ void OctreeSphereSceneQuery::execute(SceneQueryListener* listener)
         while( oit.hasMoreElements() )
         {
             MovableObject * m = oit.getNext();
-            if( (m->getQueryFlags() & mQueryMask) && mSphere.intersects( m->getWorldBoundingBox() ) )
+            if( (m->getQueryFlags() & mQueryMask) && 
+				m->isInScene() && 
+				mSphere.intersects( m->getWorldBoundingBox() ) )
             {
                 listener -> queryResult( m );
             }
@@ -227,7 +232,9 @@ void OctreePlaneBoundedVolumeListSceneQuery::execute(SceneQueryListener* listene
             while( oit.hasMoreElements() )
             {
                 MovableObject * m = oit.getNext();
-                if( (m->getQueryFlags() & mQueryMask) && (*pi).intersects( m->getWorldBoundingBox() ) )
+                if( (m->getQueryFlags() & mQueryMask) && 
+					m->isInScene() &&
+					(*pi).intersects( m->getWorldBoundingBox() ) )
                 {
                     listener -> queryResult( m );
                 }

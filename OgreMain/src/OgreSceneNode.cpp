@@ -37,15 +37,17 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
     //-----------------------------------------------------------------------
     SceneNode::SceneNode(SceneManager* creator) 
-    : Node(), mLightListDirty(true), mWireBoundingBox(0), mShowBoundingBox(false), 
-    mCreator(creator), mYawFixed(false), mAutoTrackTarget(0)
+    : Node(), mLightListDirty(true), mWireBoundingBox(0), 
+	mShowBoundingBox(false), mCreator(creator), 
+	mYawFixed(false), mAutoTrackTarget(0), mIsInSceneGraph(false)
     {
         needUpdate();
     }
     //-----------------------------------------------------------------------
     SceneNode::SceneNode(SceneManager* creator, const String& name) 
-    : Node(name), mLightListDirty(true), mWireBoundingBox(0), mShowBoundingBox(false), 
-    mCreator(creator), mYawFixed(false), mAutoTrackTarget(0)
+    : Node(name), mLightListDirty(true), mWireBoundingBox(0), 
+	mShowBoundingBox(false), mCreator(creator), mYawFixed(false), 
+	mAutoTrackTarget(0), mIsInSceneGraph(false)
     {
         needUpdate();
     }
@@ -75,7 +77,36 @@ namespace Ogre {
         mLightListDirty = true;
 
     }
+    //-----------------------------------------------------------------------
+	void SceneNode::setParent(Node* parent)
+	{
+		Node::setParent(parent);
 
+		if (parent)
+		{
+			SceneNode* sceneParent = static_cast<SceneNode*>(parent);
+			setInSceneGraph(sceneParent->isInSceneGraph());
+		}
+		else
+		{
+			setInSceneGraph(false);
+		}
+	}
+    //-----------------------------------------------------------------------
+	void SceneNode::setInSceneGraph(bool inGraph)
+	{
+		if (inGraph != mIsInSceneGraph)
+		{
+			mIsInSceneGraph = inGraph;
+			// Tell children
+	        ChildNodeMap::iterator child;
+    	    for (child = mChildren.begin(); child != mChildren.end(); ++child)
+        	{
+            	SceneNode* sceneChild = static_cast<SceneNode*>(child->second);
+				sceneChild->setInSceneGraph(inGraph);
+			}
+		}
+	}
     //-----------------------------------------------------------------------
     void SceneNode::attachObject(MovableObject* obj)
     {

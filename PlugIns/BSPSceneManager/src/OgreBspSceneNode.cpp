@@ -84,6 +84,30 @@ namespace Ogre {
 		}
 		SceneNode::detachAllObjects();
 	}
+	//-------------------------------------------------------------------------
+	void BspSceneNode::setInSceneGraph(bool inGraph)
+	{
+		if (mIsInSceneGraph != inGraph)
+		{
+			ObjectMap::const_iterator i, iend;
+			iend = mObjectsByName.end();
+			for (i = mObjectsByName.begin(); i != iend; ++i)
+			{
+				if (!inGraph)
+				{
+					// Equivalent to detaching
+					static_cast<BspSceneManager*>(mCreator)
+						->_notifyObjectDetached(i->second);
+				}
+				else
+				{
+					// move deals with re-adding
+	                static_cast<BspSceneManager*>(mCreator)->_notifyObjectMoved(
+    	                i->second, this->_getDerivedPosition());
+				}
+			}
+		}
+	}
 
 }
 
