@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRoot.h"
 #include "OgreRenderSystem.h"
 #include "OgreImageCodec.h"
+#include "OgreException.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32
 #   include <windows.h>
