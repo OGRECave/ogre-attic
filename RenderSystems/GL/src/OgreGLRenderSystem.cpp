@@ -1584,20 +1584,26 @@ namespace Ogre {
                 glEnableClientState( GL_SECONDARY_COLOR_ARRAY );
                 break;
             case VES_TEXTURE_COORDINATES:
+
                 for (i = 0; i < mCapabilities->numTextureUnits(); i++)
                 {
-                    glClientActiveTextureARB_ptr(GL_TEXTURE0 + i);
-                    if (glIsEnabled(GL_TEXTURE_2D))
-                    {
-                        //int texCoordIndex =
-                        //    (mTextureCoordIndex[i] < op.numTextureCoordSets) ?
-                        //    mTextureCoordIndex[i] : 0;
-                        glTexCoordPointer(
-                            VertexElement::getTypeCount(elem->getType()), 
-                            GLHardwareBufferManager::getGLType(elem->getType()),
-                            vertexBuffer->getVertexSize(), pBufferData);
-                    }
-                    glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+					// Only set this texture unit's texcoord pointer if it
+					// is supposed to be using this element's index
+					if (mTextureCoordIndex[i] == elem->getIndex())
+					{
+						glClientActiveTextureARB_ptr(GL_TEXTURE0 + i);
+						if (glIsEnabled(GL_TEXTURE_2D))
+						{
+							//int texCoordIndex =
+							//    (mTextureCoordIndex[i] < op.numTextureCoordSets) ?
+							//    mTextureCoordIndex[i] : 0;
+							glTexCoordPointer(
+								VertexElement::getTypeCount(elem->getType()), 
+								GLHardwareBufferManager::getGLType(elem->getType()),
+								vertexBuffer->getVertexSize(), pBufferData);
+						}
+						glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+					}
                 }
                 break;
             default:
