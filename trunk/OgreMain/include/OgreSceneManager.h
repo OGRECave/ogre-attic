@@ -210,6 +210,9 @@ namespace Ogre {
             which override the camera's own view / projection materices. */
         void useRenderableViewProjMode(Renderable* pRend);
 
+        /// Controller flag for determining if we need to set view/proj matrices
+        bool mCamChanged;
+
     public:
         /** Default constructor.
         */
