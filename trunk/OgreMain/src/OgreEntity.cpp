@@ -88,7 +88,6 @@ namespace Ogre {
 			// NB skip LOD 0 which is the original
 			for (i = 1; i < numLod; ++i)
 			{
-				SubEntityList* sublist = new SubEntityList();
 				const Mesh::MeshLodUsage& usage = mesh->getLodLevel(i);
                 // Manually create entity
                 Entity* lodEnt = new Entity(name + "Lod" + StringConverter::toString(i), 
@@ -1087,6 +1086,21 @@ namespace Ogre {
             return ShadowRenderable::isVisible();
         }
     }
+    //-----------------------------------------------------------------------
+    void Entity::setRenderQueueGroup(RenderQueueGroupID queueID)
+    {
+        MovableObject::setRenderQueueGroup(queueID);
 
+        // Set render queue for all manual LOD entities
+        if (mMesh->isLodManual())
+        {
+            LODEntityList::iterator li, liend;
+            liend = mLodEntityList.end();
+            for (li = mLodEntityList.begin(); li != liend; ++li)
+            {
+                (*li)->setRenderQueueGroup(queueID);
+            }
+        }
+    }
 
 }
