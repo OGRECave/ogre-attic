@@ -1586,6 +1586,14 @@ namespace Ogre {
                         t->setColourOperation(LBO_ADD);
                         t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
                     }
+                    else
+                    {
+                        // Just set projector
+                        TextureUnitState* t = 
+                            mShadowReceiverPass->getTextureUnitState(1);
+                        t->setProjectiveTexturing(
+                            true, mCurrentShadowTexture->getViewport(0)->getCamera());
+                    }
                 }
                 else if (mShadowReceiverPass->getNumTextureUnitStates() > 1)
                 {
