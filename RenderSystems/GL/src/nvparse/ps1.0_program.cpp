@@ -3,6 +3,7 @@
 #include "nvparse_errors.h"
 #include "nvparse_externs.h"
 
+#include <OgreGLPrerequisites.h>
 
 #include <string>
 #include <map>
@@ -204,7 +205,7 @@ namespace
 		{
 			for(stage = 0; stage < 4; stage++)
 			{
-				glActiveTextureARB(GL_TEXTURE0_ARB + stage);
+				glActiveTextureARB_ptr(GL_TEXTURE0_ARB + stage);
 				glTexEnvi(GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, GL_NONE);
 			}
 			stage = 0;
@@ -215,7 +216,7 @@ namespace
 		{
 			if(stage > 3)
 				return;
-			glActiveTextureARB(GL_TEXTURE0_ARB + stage);
+			glActiveTextureARB_ptr(GL_TEXTURE0_ARB + stage);
 
 			string op = instr[0];
 			if(op == "tex")
@@ -912,7 +913,7 @@ void ps10::invoke(vector<constdef> * c,
 		for_each(c->begin(), c->end(), set_constants());
 	if(a)
 		for_each(a->begin(), a->end(), set_texture_shaders(c));
-	glActiveTextureARB( GL_TEXTURE0_ARB );
+	glActiveTextureARB_ptr( GL_TEXTURE0_ARB );
     int numCombiners = 0;
     list<vector<string> >::iterator it = b->begin();
     for(; it!=b->end(); ++it) {

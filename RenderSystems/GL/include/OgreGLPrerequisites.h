@@ -123,6 +123,9 @@ extern GL_ProgramLocalParameter4fvARB_Func glProgramLocalParameter4fvARB_ptr;
 typedef void (APIENTRY *GL_CombinerStageParameterfvNV_Func)(GLenum, GLenum, const GLfloat *);
 extern GL_CombinerStageParameterfvNV_Func glCombinerStageParameterfvNV_ptr;
 
+// Pointer to glGetProgramivARB function
+typedef void (APIENTRY *GL_GetProgramivARB_Func)(GLenum, GLenum, GLint *);
+extern GL_GetProgramivARB_Func glGetProgramivARB_ptr;
 };
 
 namespace Ogre {
