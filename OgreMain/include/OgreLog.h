@@ -58,9 +58,10 @@ namespace Ogre {
     class _OgreExport Log
     {
     protected:
-        std::ofstream mfpLog;
-        LoggingLevel mLogLevel;
-        bool mDebugOut;
+        std::ofstream	mfpLog;
+        LoggingLevel	mLogLevel;
+        bool			mDebugOut;
+		String			mName;
 
     public:
         /** Usual constructor - called by LogManager.

@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 
 #include "OgreLog.h"
+#include "OgreLogManager.h"
 #include "OgreString.h"
 
 namespace Ogre {
@@ -35,6 +36,7 @@ namespace Ogre {
         mfpLog.open(name.c_str());
         mDebugOut = debuggerOuput;
         mLogLevel = LL_NORMAL;
+		mName = name;
     }
     //-----------------------------------------------------------------------
     Log::~Log()
@@ -46,7 +48,13 @@ namespace Ogre {
     {
         if ((mLogLevel + lml) >= OGRE_LOG_THRESHOLD)
         {
-            if (mDebugOut && !maskDebug)
+			// Reroute to log manager for custom listeners.
+			if ( LogManager::getSingletonPtr() ) 
+			{
+				LogManager::getSingleton()._routeMessage( mName,message,lml,maskDebug );
+			}
+
+			if (mDebugOut && !maskDebug)
                 std::cerr << message << std::endl;
 
             // Write time into log
@@ -60,7 +68,6 @@ namespace Ogre {
             // Flush stcmdream to ensure it is written (incase of a crash, we need log to be up to date)
             mfpLog.flush();
         }
-
     }
     //-----------------------------------------------------------------------
     void Log::setLogDetail(LoggingLevel ll)
