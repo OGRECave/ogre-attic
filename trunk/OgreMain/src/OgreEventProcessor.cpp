@@ -25,7 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 
 #include "OgreEventProcessor.h"
-#include "OgreOverlayManager.h"
+#include "OgreEventDispatcher.h"
 #include "OgreEventQueue.h"
 #include "OgreRoot.h"
 #include "OgreMouseEvent.h"
