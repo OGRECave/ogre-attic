@@ -734,6 +734,7 @@ namespace Ogre {
          pCodec->codeToFile(chunk, filename, &imgData);
  
          delete [] pBuffer;
+		 pTempSurf->Release();
  
      }
 
