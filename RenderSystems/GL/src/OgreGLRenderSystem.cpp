@@ -34,6 +34,7 @@ http://www.gnu.org/copyleft/lesser.txt.s
 #include "OgreGLDefaultHardwareBufferManager.h"
 #include "OgreGLUtil.h"
 #include "OgreGLGpuProgram.h"
+#include "OgreGLGpuNvparseProgram.h"
 #include "OgreGLGpuProgramManager.h"
 #include "OgreException.h"
 
@@ -63,6 +64,13 @@ GL_ProgramStringARB_Func glProgramStringARB_ptr;
 GL_ProgramLocalParameter4fvARB_Func glProgramLocalParameter4fvARB_ptr;
 
 namespace Ogre {
+
+    // Callback function used when registering GLGpuPrograms
+    template <class T>
+    GpuProgram* createProgram(const String& name, GpuProgramType gptype, const String& syntaxCode)
+    {
+        return new T(name, gptype, syntaxCode);
+    }
 
     GLRenderSystem::GLRenderSystem()
       : mDepthWrite(true), mHardwareBufferManager(0), mGpuProgramManager(0)
@@ -288,6 +296,7 @@ namespace Ogre {
                 GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB);
 
             mGpuProgramManager->_pushSyntaxCode("arbvp1");
+            mGpuProgramManager->registerProgram(GPT_VERTEX_PROGRAM, createProgram<GLGpuProgram>);
         }
 
         if (mGLSupport->checkExtension("GL_ARB_fragment_program"))
@@ -301,6 +310,7 @@ namespace Ogre {
                 GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB);
 
             mGpuProgramManager->_pushSyntaxCode("arbfp1");
+            mGpuProgramManager->registerProgram(GPT_FRAGMENT_PROGRAM, createProgram<GLGpuProgram>);
         }
         
 
