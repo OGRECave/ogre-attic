@@ -373,11 +373,11 @@ public:
 				"CubeMapListener::CubeMapListener");
 		}
 
-		availableMeshes.push_back("robot.mesh");
-		availableMeshes.push_back("ogrehead.mesh");
 		availableMeshes.push_back("geosphere4500.mesh");
+		availableMeshes.push_back("ogrehead.mesh");
 		availableMeshes.push_back("geosphere1000.mesh");
 		availableMeshes.push_back("geosphere8000.mesh");
+		availableMeshes.push_back("robot.mesh");
 		availableMeshes.push_back("geosphere12500.mesh");
 		availableMeshes.push_back("geosphere19220.mesh");
 		availableMeshes.push_back("sphere.mesh");
