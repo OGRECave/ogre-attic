@@ -28,7 +28,6 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "OgreGuiElementPrerequisites.h"
 #include "OgreGuiContainer.h"
-#include "ogreGeometryData.h"
 
 namespace Ogre {
 
