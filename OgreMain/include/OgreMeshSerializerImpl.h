@@ -77,8 +77,8 @@ namespace Ogre {
         virtual void writeSubMeshOperation(const SubMesh* s);
         virtual void writeGeometry(const VertexData* pGeom);
         virtual void writeSkeletonLink(const String& skelName);
-        virtual void writeMeshBoneAssignment(const VertexBoneAssignment* assign);
-        virtual void writeSubMeshBoneAssignment(const VertexBoneAssignment* assign);
+        virtual void writeMeshBoneAssignment(const VertexBoneAssignment& assign);
+        virtual void writeSubMeshBoneAssignment(const VertexBoneAssignment& assign);
         virtual void writeLodInfo(const Mesh* pMesh);
         virtual void writeLodSummary(unsigned short numLevels, bool manual);
         virtual void writeLodUsageManual(const Mesh::MeshLodUsage& usage);
@@ -86,16 +86,16 @@ namespace Ogre {
         virtual void writeBoundsInfo(const Mesh* pMesh);
         virtual void writeEdgeList(const Mesh* pMesh);
 
-        virtual uint32 calcMeshSize(const Mesh* pMesh);
-        virtual uint32 calcSubMeshSize(const SubMesh* pSub);
-        virtual uint32 calcGeometrySize(const VertexData* pGeom);
-        virtual uint32 calcSkeletonLinkSize(const String& skelName);
-        virtual uint32 calcBoneAssignmentSize(void);
-        virtual uint32 calcSubMeshOperationSize(const SubMesh* pSub);
-        virtual uint32 calcSubMeshNameTableSize(const Mesh* pMesh);
-        virtual uint32 calcEdgeListSize(const Mesh* pMesh);
-        virtual uint32 calcEdgeListLodSize(const EdgeData* data, bool isManual);
-        virtual uint32 calcEdgeGroupSize(const EdgeData::EdgeGroup& group);
+        virtual size_t calcMeshSize(const Mesh* pMesh);
+        virtual size_t calcSubMeshSize(const SubMesh* pSub);
+        virtual size_t calcGeometrySize(const VertexData* pGeom);
+        virtual size_t calcSkeletonLinkSize(const String& skelName);
+        virtual size_t calcBoneAssignmentSize(void);
+        virtual size_t calcSubMeshOperationSize(const SubMesh* pSub);
+        virtual size_t calcSubMeshNameTableSize(const Mesh* pMesh);
+        virtual size_t calcEdgeListSize(const Mesh* pMesh);
+        virtual size_t calcEdgeListLodSize(const EdgeData* data, bool isManual);
+        virtual size_t calcEdgeGroupSize(const EdgeData::EdgeGroup& group);
 
         virtual void readTextureLayer(DataStreamPtr& stream, Mesh* pMesh, MaterialPtr& pMat);
         virtual void readSubMeshNameTable(DataStreamPtr& stream, Mesh* pMesh);
