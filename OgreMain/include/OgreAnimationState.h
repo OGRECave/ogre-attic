@@ -28,12 +28,19 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "OgrePrerequisites.h"
 #include "OgreString.h"
+#include "OgreController.h"
 
 
 namespace Ogre {
 
-    /** Represents the state of an animation and the weight of it's influence. */
-    class _OgreExport AnimationState
+    /** Represents the state of an animation and the weight of it's influence. 
+    @remarks
+        Other classes can hold instances of this class to store the state of any animations
+        they are using.
+        This class implements the ControllerValue interface to enable automatic update of
+        animation state through controllers.
+    */
+    class _OgreExport AnimationState : public ControllerValue
     {
     public:
         /// Default constructor for STL only
@@ -70,11 +77,18 @@ namespace Ogre {
         // Inequality operator
         bool operator!=(const AnimationState& rhs) const;
 
+        /** ControllerValue implementation. */
+        Real getValue(void);
+
+        /** ControllerValue implementation. */
+        void setValue(Real value);
+
      
     protected:
         String mAnimationName;
         Real mTimePos;
         Real mLength;
+        Real mInvLength;
         Real mWeight;
         bool mEnabled;
 

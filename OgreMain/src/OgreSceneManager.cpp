@@ -1231,7 +1231,7 @@ namespace Ogre {
                 for (irend = imat->second.begin(); irend != irendend; ++irend)
                 {
                     // Set world transformation
-                    (*irend)->getWorldTransform(xform);
+                    (*irend)->getWorldTransforms(&xform);
                     mDestRenderSystem->_setWorldMatrix(xform);
 
                     // Set up rendering operation

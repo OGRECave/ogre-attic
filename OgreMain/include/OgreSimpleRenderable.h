@@ -20,12 +20,12 @@ namespace Ogre {
         String m_strMatName;
         Material *m_pMaterial;
 
-        void *m_pVertexCache;
-        void *m_pIndexCache;
-        void *m_pNormalCache;
-        void *m_pDiffuseCache;
-        void *m_pSpecularCache;
-        void *m_pTexCache[OGRE_MAX_TEXTURE_COORD_SETS];
+        Real *m_pVertexCache;
+        unsigned short *m_pIndexCache;
+        Real *m_pNormalCache;
+        RGBA *m_pDiffuseCache;
+        RGBA *m_pSpecularCache;
+        Real *m_pTexCache[OGRE_MAX_TEXTURE_COORD_SETS];
 
         SceneManager *m_pParentSceneManager;
 
@@ -47,7 +47,9 @@ namespace Ogre {
 
             m_strMatName = ""; m_pMaterial = NULL;
 
-            m_pVertexCache = m_pIndexCache = m_pNormalCache = NULL;
+            m_pVertexCache = 0;
+            m_pIndexCache = 0;
+            m_pNormalCache = 0;
             m_pDiffuseCache = m_pSpecularCache = NULL;        
 
             for( int i=0; i<OGRE_MAX_TEXTURE_COORD_SETS; i++ )
@@ -72,12 +74,12 @@ namespace Ogre {
 
         const RenderOperation& getRO() const;
 
-        void **getVertexCache();
-        void **getIndexCache();
-        void **getNormalCache();
-        void **getDiffuseCache();
-        void **getSpecularCache();
-        void **getTexCoordCcache( unsigned short cn );
+        Real **getVertexCache();
+        unsigned short **getIndexCache();
+        Real **getNormalCache();
+        RGBA **getDiffuseCache();
+        RGBA **getSpecularCache();
+        Real **getTexCoordCcache( unsigned short cn );
 
         void setMaterial( const String& matName );
         virtual Material* getMaterial(void) const;
@@ -86,7 +88,7 @@ namespace Ogre {
         virtual void getRenderOperation( RenderOperation& rend );
 
         void setWorldTransform( const Matrix4& xform );
-        virtual void getWorldTransform( Matrix4& xform );
+        virtual void getWorldTransforms( Matrix4* xform );
 
         virtual SceneNode* getParentNode(void);
 

@@ -33,13 +33,15 @@ namespace Ogre
     {
         mTimePos = 0;
         mLength = 0;
+        mInvLength = 0;
         mWeight = 1.0;
 
     }
     //---------------------------------------------------------------------
     AnimationState::AnimationState(const String& animName, Real timePos, Real length, Real weight, bool enabled)
-        : mAnimationName(animName), mTimePos(timePos), mLength(length), mWeight(weight), mEnabled(enabled)
+        : mAnimationName(animName), mTimePos(timePos), mWeight(weight), mEnabled(enabled)
     {
+        setLength(length);
     }
     //---------------------------------------------------------------------
     String AnimationState::getAnimationName() const
@@ -70,6 +72,14 @@ namespace Ogre
     void AnimationState::setLength(Real len)
     {
         mLength = len;
+        if (len != 0)
+        {
+            mInvLength = 1/len;
+        }
+        else
+        {
+            mInvLength = 0;
+        }
     }
     //---------------------------------------------------------------------
     Real AnimationState::getWeight(void) const
@@ -129,6 +139,17 @@ namespace Ogre
     {
         return !(*this == rhs);
     }
+    //---------------------------------------------------------------------
+    Real AnimationState::getValue(void)
+    {
+        return mTimePos * mInvLength;
+    }
+    //---------------------------------------------------------------------
+    void AnimationState::setValue(Real value)
+    {
+        mTimePos = value * mLength;
+    }
+
 
 
 }

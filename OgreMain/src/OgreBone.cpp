@@ -75,15 +75,19 @@ namespace Ogre {
     void Bone::setBindingPose(void)
     {
         // Bake the current status into the binding pose
-        mOriginalOrientation = mOrientation;
-        mOriginalPosition = mPosition;
+        mBindOrientation = mOrientation;
+        mBindPosition = mPosition;
+
+        // Save derived, used for mesh transform later (assumes _update() has been called by Skeleton)
+        mBindDerivedOrientation = mDerivedOrientation;
+        mBindDerivedPosition = mDerivedPosition;
     }
     //---------------------------------------------------------------------
     void Bone::reset(void)
     {
         // Restore from binding pose
-        mOrientation = mOriginalOrientation;
-        mPosition = mOriginalPosition;
+        mOrientation = mBindOrientation;
+        mPosition = mBindPosition;
     }
 
 

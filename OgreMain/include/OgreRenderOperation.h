@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #define _RenderOperation_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreColourValue.h"
 
 namespace Ogre {
     /** Class describing a rendering operation like how to draw a triangle.
@@ -88,7 +89,9 @@ namespace Ogre {
             /// Vertex colours - diffuse
             VO_DIFFUSE_COLOURS = 4,
             /// Vertex colours - specular
-            VO_SPECULAR_COLOURS = 8
+            VO_SPECULAR_COLOURS = 8,
+            /// Vertex blend weights
+            VO_BLEND_WEIGHTS = 16
         };
 
         // true to use pIndexes to reference individual lines/triangles rather than embed. Allows vertex reuse.
@@ -96,6 +99,9 @@ namespace Ogre {
 
         /// Number of vertices (applies to all components)
         unsigned int numVertices;
+
+        /// The number of vertex blending weights per vertex, only applicable if VO_BLEND_WEIGHTS supplied
+        unsigned short numBlendWeightsPerVertex;
 
         // No memory allocation here,
         // assumed that all pointers are pointing
@@ -106,13 +112,13 @@ namespace Ogre {
                 If useIndexes is false each group of 3 vertices describes a face (anticlockwise winding) in
                 trianglelist mode.
         */
-        void* pVertices;
+        Real* pVertices;
 
         /// The 'Stride' between sets of vertex data. 0 indicates data is packed with no gaps.
         unsigned short vertexStride;
 
         /// Optional vertex normals for vertices (float {x, y, z} * numVertices).
-        void* pNormals;
+        Real* pNormals;
 
         /// The 'Stride' between sets of normal data. 0 indicates data is packed with no gaps.
         unsigned short normalStride;
@@ -122,7 +128,7 @@ namespace Ogre {
                 There can be up to 8 sets of texture coordinates, and the number of components per
                 vertex depends on the number of texture dimensions (2 is most common).
         */
-        void* pTexCoords[OGRE_MAX_TEXTURE_COORD_SETS];
+        Real* pTexCoords[OGRE_MAX_TEXTURE_COORD_SETS];
 
         /// The 'Stride' between each set of texture data. 0 indicates data is packed with no gaps.
         unsigned short texCoordStride[OGRE_MAX_TEXTURE_COORD_SETS];
@@ -137,16 +143,25 @@ namespace Ogre {
         int numTextureDimensions[OGRE_MAX_TEXTURE_COORD_SETS];
 
         /// Optional pointer to a list of diffuse vertex colours (32-bit RGBA * numVertices).
-        void* pDiffuseColour;
+        RGBA* pDiffuseColour;
 
         /// The 'Stride' between sets of diffuse colour data. 0 indicates data is packed with no gaps.
         unsigned short diffuseStride;
 
         /// Optional pointer to a list of specular vertex colours (32-bit RGBA * numVertices)
-        void* pSpecularColour;
+        RGBA* pSpecularColour;
 
         /// The 'Stride' between sets of specular colour data. 0 indicates data is packed with no gaps.
         unsigned short specularStride;
+
+        /** Optional pointer to a list of vertex blending weights, organised in vertex order, then
+            by blend matrix order, with one Real between 0.0 and 1.0 per weight (the number of 
+            weights per vertex is recorded in numBlendWeightsPerVertex)
+        */
+        Real* pBlendingWeights;
+
+        /// The 'Stride' between sets of vertex blend data (between clusters of weights for each vertex). 0 indicates data is packed with no gaps.
+        unsigned short blendingWeightStride;
 
         /** Pointer to a list of vertex indexes describing faces (only used if useIndexes is true).
             @note
@@ -164,9 +179,20 @@ namespace Ogre {
 
         RenderOperation()
         {
+            // Initialise all things
             vertexStride = normalStride = diffuseStride = specularStride = 0;
+            numBlendWeightsPerVertex = blendingWeightStride = 0;
             for (int i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; ++i)
+            {
                 texCoordStride[i] = 0;
+                pTexCoords[0] = 0;
+            }
+
+            pVertices = 0;
+            pNormals = 0;
+            pDiffuseColour = 0;
+            pSpecularColour = 0;
+            pBlendingWeights = 0;
         }
     };
 

@@ -63,6 +63,7 @@ protected:
         // Add entity to the root scene node
         mSceneMgr->getRootSceneNode()->createChild()->attachObject(ent);
 
+
         
 
     }

@@ -127,17 +127,17 @@ namespace Ogre {
         // Pre-allocate buffers for pending geometry
         // Make them as big as they could ever need to be
         // Vertex, texture coords and normals use same buffer
-        mPendingGeometry.pVertices = (void*)new BspLevel::BspVertex[mLevel->mNumVertices];
-        mPendingGeometry.pTexCoords[0] = (void*)((float*)mPendingGeometry.pVertices + 3);
-        mPendingGeometry.pTexCoords[1] = (void*)((float*)mPendingGeometry.pVertices + 5);
-        mPendingGeometry.pNormals = (void*)((float*)mPendingGeometry.pVertices + 7);
+        mPendingGeometry.pVertices = (Real*)new BspLevel::BspVertex[mLevel->mNumVertices];
+        mPendingGeometry.pTexCoords[0] = ((float*)mPendingGeometry.pVertices + 3);
+        mPendingGeometry.pTexCoords[1] = ((float*)mPendingGeometry.pVertices + 5);
+        mPendingGeometry.pNormals = ((float*)mPendingGeometry.pVertices + 7);
         // Indexes use separate buffer
         mPendingGeometry.pIndexes = new unsigned short[mLevel->mNumElements];
 
         // Also allocate memory for drawing bounding boxes
-        mAABGeometry.pVertices = (void*)new Real[8*3*mLevel->mNumLeaves];
+        mAABGeometry.pVertices = new Real[8*3*mLevel->mNumLeaves];
         mAABGeometry.pIndexes = new unsigned short[24*mLevel->mNumLeaves];
-        mAABGeometry.pDiffuseColour = (void*)new unsigned long[8*mLevel->mNumLeaves];
+        mAABGeometry.pDiffuseColour = new RGBA[8*mLevel->mNumLeaves];
 
 
     }
