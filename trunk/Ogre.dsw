@@ -144,6 +144,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "Demo_CubeMapping"=.\Samples\CubeMapping\scripts\Demo_CubeMapping.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "Demo_EnvMapping"=.\Samples\EnvMapping\scripts\Demo_EnvMapping.dsp - Package Owner=<4>
 
 Package=<5>
