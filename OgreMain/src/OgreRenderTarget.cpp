@@ -1,8 +1,8 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
-For the latest info, see http://ogre.sourceforge.net/
+(Object-oriented Graphics Rendering Engine)
+For the latest info, see http://www.ogre3d.org/
 
 Copyright © 2000-2002 The OGRE Team
 Also see acknowledgements in Readme.html
@@ -60,7 +60,7 @@ namespace Ogre {
         LogManager::getSingleton().logMessage(
             LML_NORMAL,
             "Render Target '%s' Average FPS: %f Best FPS: %f Worst FPS: %f", 
-            mName.c_str(), mAvgFPS, mBestFPS, mWorstFPS );
+            mName.c_str(), mStats.avgFPS, mStats.bestFPS, mStats.worstFPS );
 
     }
 
@@ -96,7 +96,7 @@ namespace Ogre {
         // notify listeners (pre)
         firePreUpdate();
 
-        mTris = 0;
+        mStats.triangleCount = 0;
         // Go through viewports in Z-order
         // Tell each to refresh
         ViewportList::iterator it = mViewportList.begin();
@@ -104,9 +104,9 @@ namespace Ogre {
         {
             fireViewportPreUpdate((*it).second);
             (*it).second->update();
-            mTris += (*it).second->_getNumRenderedFaces();
+            mStats.triangleCount += (*it).second->_getNumRenderedFaces();
             fireViewportPostUpdate((*it).second);
-			++it;
+            ++it;
         }
 
         // notify listeners (post)
@@ -170,138 +170,99 @@ namespace Ogre {
     }
 
     void RenderTarget::getStatistics(float& lastFPS, float& avgFPS,
-            float& bestFPS, float& worstFPS)
+        float& bestFPS, float& worstFPS) const
     {
 
         // Note - the will have been updated by the last render
-        lastFPS = mLastFPS;
-        avgFPS = mAvgFPS;
-        bestFPS = mBestFPS;
-        worstFPS = mWorstFPS;
+        lastFPS = mStats.lastFPS;
+        avgFPS = mStats.avgFPS;
+        bestFPS = mStats.bestFPS;
+        worstFPS = mStats.worstFPS;
 
 
     }
 
-    float RenderTarget::getLastFPS()
+    const RenderTarget::FrameStats& RenderTarget::getStatistics(void) const
     {
-        return mLastFPS;
-    }
-    float RenderTarget::getAverageFPS()
-    {
-        return mAvgFPS;
-    }
-    float RenderTarget::getBestFPS()
-    {
-        return mBestFPS;
-    }
-    float RenderTarget::getWorstFPS()
-    {
-        return mWorstFPS;
-    }
-    float RenderTarget::getBestFrameTime()
-    {
-        return mBestFrameTime;
-    }
-    float RenderTarget::getWorstFrameTime()
-    {
-        return mWorstFrameTime;
+        return mStats;
     }
 
+    float RenderTarget::getLastFPS() const
+    {
+        return mStats.lastFPS;
+    }
+    float RenderTarget::getAverageFPS() const
+    {
+        return mStats.avgFPS;
+    }
+    float RenderTarget::getBestFPS() const
+    {
+        return mStats.bestFPS;
+    }
+    float RenderTarget::getWorstFPS() const
+    {
+        return mStats.worstFPS;
+    }
+    size_t RenderTarget::getTriangleCount(void) const
+    {
+        return mStats.triangleCount;
+    }
+
+    float RenderTarget::getBestFrameTime() const
+    {
+        return mStats.bestFrameTime;
+    }
+
+    float RenderTarget::getWorstFrameTime() const
+    {
+        return mStats.worstFrameTime;
+    }
 
     void RenderTarget::resetStatistics(void)
     {
-        mAvgFPS = 0.0;
-        mBestFPS = 0.0;
-        mLastFPS = 0.0;
-        mWorstFPS = 999.0;
-		mBestFrameTime = 999.0;
-		mWorstFrameTime = 0.0;
+        mStats.avgFPS = 0.0;
+        mStats.bestFPS = 0.0;
+        mStats.lastFPS = 0.0;
+        mStats.worstFPS = 999.0;
+        mStats.triangleCount = 0;
+        mStats.bestFrameTime = 999999;
+        mStats.worstFrameTime = 0;
+
+        mLastTime = mTimer->getMilliseconds();
+        mLastSecond = mLastTime;
+        mFrameCount = 0;
     }
 
     void RenderTarget::updateStats(void)
     {
-        static unsigned long lastSecond = 0; // in ms
-		static unsigned long lastTime = 0; 
-        static long numFrames  = 0;
-		static bool firstRun = true ;
-		static unsigned long bestFrameTime = 999999;
-		static unsigned long worstFrameTime = 0;
-		bool needUpdate ;
+        ++mFrameCount;
+        unsigned long thisTime = mTimer->getMilliseconds();
 
-		if (firstRun) { 
-			firstRun = false ;
-			needUpdate = true ;
-		} else { 
-			// measure statistics
-			needUpdate = false ;
-        ++numFrames;
-			unsigned long thisTime = mTimer->getMilliseconds();
+        // check frame time
+        unsigned long frameTime = thisTime - mLastTime ;
+        mLastTime = thisTime ;
 
-			// check frame time
-			unsigned long frameTime = thisTime - lastTime ;
-			if (frameTime > worstFrameTime)
-				worstFrameTime = frameTime ;
-			if (frameTime < bestFrameTime)
-				bestFrameTime = frameTime ;
-			lastTime = thisTime ;
-			
-			// check if new second
-			if (thisTime - lastSecond > 1000) { 
-				// new second - not 100% precise
-				needUpdate = true ;
-				mLastFPS = (float)numFrames / (float)(thisTime - lastSecond) * 1000.0;
+        mStats.bestFrameTime = std::min(mStats.bestFrameTime, frameTime);
+        mStats.worstFrameTime = std::max(mStats.worstFrameTime, frameTime);
 
-                if (mAvgFPS == 0)
-                    mAvgFPS = mLastFPS;
-                else
-                    mAvgFPS = (mAvgFPS + mLastFPS) / 2;
+        // check if new second (update only once per second)
+        if (thisTime - mLastSecond > 1000) 
+        { 
+            // new second - not 100% precise
+            mStats.lastFPS = (float)mFrameCount / (float)(thisTime - mLastSecond) * 1000.0;
 
-                if (mBestFPS < mLastFPS)
-                    mBestFPS = mLastFPS;
+            if (mStats.avgFPS == 0)
+                mStats.avgFPS = mStats.lastFPS;
+            else
+                mStats.avgFPS = (mStats.avgFPS + mStats.lastFPS) / 2; // not strictly correct, but good enough
 
-                if (mWorstFPS > mLastFPS)
-                    mWorstFPS = mLastFPS;
+            mStats.bestFPS = std::max(mStats.bestFPS, mStats.lastFPS);
+            mStats.worstFPS = std::min(mStats.worstFPS, mStats.lastFPS);
 
-				lastSecond = thisTime ;
-            numFrames  = 0;
+            mLastSecond = thisTime ;
+            mFrameCount  = 0;
 
-				mBestFrameTime = bestFrameTime ;
-				mWorstFrameTime = worstFrameTime ;
-				
-				bestFrameTime = 999999;
-				worstFrameTime = 0 ;
-			}
-		}
-      /*
-
-        static String currFps = "Current FPS: ";
-        static String avgFps = "Average FPS: ";
-        static String bestFps = "Best FPS: ";
-        static String worstFps = "Worst FPS: ";
-        static String tris = "Triangle Count: ";
-
-		if (needUpdate) {
-			// update stats when necessary
-        GuiElement* guiAvg = GuiManager::getSingleton().getGuiElement("Core/AverageFps");
-        GuiElement* guiCurr = GuiManager::getSingleton().getGuiElement("Core/CurrFps");
-        GuiElement* guiBest = GuiManager::getSingleton().getGuiElement("Core/BestFps");
-        GuiElement* guiWorst = GuiManager::getSingleton().getGuiElement("Core/WorstFps");
-
-        guiAvg->setCaption(avgFps + StringConverter::toString(mAvgFPS));
-        guiCurr->setCaption(currFps + StringConverter::toString(mLastFPS));
-	        guiBest->setCaption(bestFps + StringConverter::toString(mBestFPS)
-				+" "+StringConverter::toString(mBestFrameTime)+" ms");
-	        guiWorst->setCaption(worstFps + StringConverter::toString(mWorstFPS)
-				+" "+StringConverter::toString(mWorstFrameTime)+" ms");
-		}
-
-        GuiElement* guiTris = GuiManager::getSingleton().getGuiElement("Core/NumTris");
-
-        guiTris->setCaption(tris + StringConverter::toString(mTris));
-
-        GuiElement* guiDbg = GuiManager::getSingleton().getGuiElement("Core/DebugText");
-        guiDbg->setCaption(mDebugText);
-        */
+        }
 
     }
 
@@ -314,11 +275,11 @@ namespace Ogre {
     {
         mDebugText = text;
     }
-	//-----------------------------------------------------------------------
-	const String & RenderTarget::getDebugText() const
-	{ 
-		return mDebugText; 
-	}
+    //-----------------------------------------------------------------------
+    const String & RenderTarget::getDebugText() const
+    { 
+        return mDebugText; 
+    }
     //-----------------------------------------------------------------------
     void RenderTarget::addListener(RenderTargetListener* listener)
     {
@@ -430,20 +391,20 @@ namespace Ogre {
 
     String RenderTarget::writeContentsToTimestampedFile(const String& filenamePrefix, const String& filenameSuffix)
     {
-		struct tm *pTime;
+        struct tm *pTime;
         time_t ctTime; time(&ctTime);
         pTime = localtime( &ctTime );
         std::ostringstream oss;
-		oss	<< std::setw(2) << std::setfill('0') << pTime->tm_mon
-			<< std::setw(2) << std::setfill('0') << pTime->tm_mday
-			<< std::setw(2) << std::setfill('0') << pTime->tm_year
-			<< "_" << std::setw(2) << std::setfill('0') << pTime->tm_hour
-        	<< std::setw(2) << std::setfill('0') << pTime->tm_min
-        	<< std::setw(2) << std::setfill('0') << pTime->tm_sec
-			<< std::setw(3) << std::setfill('0') << (mTimer->getMilliseconds() % 1000);
-		String filename = filenamePrefix + String(oss.str()) + filenameSuffix;
-	    writeContentsToFile(filename);
-		return filename;
-	    
+        oss	<< std::setw(2) << std::setfill('0') << pTime->tm_mon
+            << std::setw(2) << std::setfill('0') << pTime->tm_mday
+            << std::setw(2) << std::setfill('0') << pTime->tm_year
+            << "_" << std::setw(2) << std::setfill('0') << pTime->tm_hour
+            << std::setw(2) << std::setfill('0') << pTime->tm_min
+            << std::setw(2) << std::setfill('0') << pTime->tm_sec
+            << std::setw(3) << std::setfill('0') << (mTimer->getMilliseconds() % 1000);
+        String filename = filenamePrefix + String(oss.str()) + filenameSuffix;
+        writeContentsToFile(filename);
+        return filename;
+
     }
 }        
