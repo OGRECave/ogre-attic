@@ -1967,8 +1967,10 @@ namespace Ogre {
     IntersectionSceneQuery* 
     SceneManager::createIntersectionQuery(unsigned long mask)
     {
-        // TODO
-        return new DefaultIntersectionSceneQuery(this);
+        
+        DefaultIntersectionSceneQuery* q = new DefaultIntersectionSceneQuery(this);
+        q->setQueryMask(mask);
+        return q;
     }
 	//---------------------------------------------------------------------
     void SceneManager::destroyQuery(SceneQuery* query)
@@ -1979,6 +1981,8 @@ namespace Ogre {
     DefaultIntersectionSceneQuery::DefaultIntersectionSceneQuery(SceneManager* creator)
         : IntersectionSceneQuery(creator)
     {
+        // No world geometry results supported
+        mSupportedWorldFragments.insert(SceneQuery::WFT_NONE);
     }
 	//---------------------------------------------------------------------
     DefaultIntersectionSceneQuery::~DefaultIntersectionSceneQuery()
@@ -2034,6 +2038,17 @@ namespace Ogre {
         // Add to internal list
         mLastResult->movables2movables.push_back(
             SceneQueryMovableObjectPair(first, second)
+            );
+        // Continue
+        return true;
+    }
+	//---------------------------------------------------------------------
+    bool DefaultIntersectionSceneQuery::
+        queryResult(MovableObject* movable, SceneQuery::WorldFragment* fragment)
+    {
+        // Add to internal list
+        mLastResult->movables2world.push_back(
+            SceneQueryMovableObjectWorldFragmentPair(movable, fragment)
             );
         // Continue
         return true;
