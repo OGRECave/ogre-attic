@@ -145,6 +145,10 @@ namespace Ogre
 		/** Gets the method of rotation calculation */
 		bool getUseShortestRotationPath() const;
 
+        /** Internal method used to tell the track that keyframe data has been 
+            changed, which may cause it to rebuild some internal data. */
+        void _keyFrameDataChanged(void) const;
+
     protected:
         typedef std::vector<KeyFrame*> KeyFrameList;
         KeyFrameList mKeyFrames;
