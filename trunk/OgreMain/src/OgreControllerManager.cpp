@@ -183,5 +183,12 @@ namespace Ogre {
             delete controller;
         }
     }
-
+	//-----------------------------------------------------------------------
+	Real ControllerManager::getTimeFactor(void) {
+		return mFrameTimeController.getTimeFactor();
+	}
+	//-----------------------------------------------------------------------
+	void ControllerManager::setTimeFactor(Real tf) {
+		mFrameTimeController.setTimeFactor(tf);
+	}
 }

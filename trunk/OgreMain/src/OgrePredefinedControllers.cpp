@@ -38,13 +38,14 @@ namespace Ogre
         // Register self
         Root::getSingleton().addFrameListener(this);
         mFrameTime = 0;
+		mTimeFactor = 1;
 
     }
     //-----------------------------------------------------------------------
     bool FrameTimeControllerValue::frameStarted(const FrameEvent &evt)
     {
-        // Save the time value
-        mFrameTime = evt.timeSinceLastFrame;
+        // Save the time value after applying time factor
+        mFrameTime = mTimeFactor * evt.timeSinceLastFrame;
         return true;
     }
     //-----------------------------------------------------------------------
@@ -62,6 +63,14 @@ namespace Ogre
     {
         // Do nothing - value is set from frame listener
     }
+	//-----------------------------------------------------------------------
+	Real FrameTimeControllerValue::getTimeFactor(void) {
+		return mTimeFactor;
+	}
+	//-----------------------------------------------------------------------
+	void FrameTimeControllerValue::setTimeFactor(Real tf) {
+		if(tf >= 0) mTimeFactor = tf;
+	}
     //-----------------------------------------------------------------------
     // TextureFrameControllerValue
     //-----------------------------------------------------------------------

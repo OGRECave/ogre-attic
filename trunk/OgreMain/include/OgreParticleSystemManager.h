@@ -69,6 +69,9 @@ namespace Ogre {
         /// Factories for named affector types (can be extended using plugins)
         ParticleAffectorFactoryMap mAffectorFactories;
 
+		/// Controls time
+		Real mTimeFactor;
+
         /** Internal script parsing method. */
         void parseNewEmitter(const String& type, DataChunk& chunk, ParticleSystem* sys);
         /** Internal script parsing method. */
@@ -300,7 +303,21 @@ namespace Ogre {
         */
         void parseAllSources(const String& extension = ".particle");
 
+		/** Return relative speed of time as perceived by particle systems.
+        @remarks
+            See setTimeFactor for full information on the meaning of this value.
+		*/
+		Real getTimeFactor(void);
 
+		/** Set the relative speed of time as perceived by particle systems.
+        @remarks
+            Normally particle systems are updated automatically in line with the real 
+            passage of time. This method allows you to change that, so that 
+            particle systems are told that the time is passing slower or faster than it
+            actually is. Use this to globally speed up / slow down particle systems.
+        @param tf The virtual speed of time (1.0 is real time).
+		*/
+		void setTimeFactor(Real tf);
     
     };
 

@@ -38,6 +38,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     ParticleSystemManager::ParticleSystemManager()
     {
+		mTimeFactor = 1;
     }
     //-----------------------------------------------------------------------
     ParticleSystemManager::~ParticleSystemManager()
@@ -311,12 +312,15 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool ParticleSystemManager::frameStarted(const FrameEvent &evt)
     {
+		// Apply time factor
+		Real timeSinceLastFrame = mTimeFactor * evt.timeSinceLastFrame;
+
         // update systems
         // TODO: only do this for visible systems
         ParticleSystemMap::iterator i;
         for (i = mSystems.begin(); i != mSystems.end(); ++i)
         {
-            i->second->_update(evt.timeSinceLastFrame);
+            i->second->_update(timeSinceLastFrame);
         }
 
         return true;
@@ -465,6 +469,12 @@ namespace Ogre {
         }
 
     }
-
-
+	//-----------------------------------------------------------------------
+	Real ParticleSystemManager::getTimeFactor(void) {
+		return mTimeFactor;
+	}
+	//-----------------------------------------------------------------------
+	void ParticleSystemManager::setTimeFactor(Real tf) {
+		if(tf >= 0) mTimeFactor = tf;
+	}
 }
