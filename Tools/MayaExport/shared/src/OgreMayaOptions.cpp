@@ -38,8 +38,6 @@ namespace OgreMaya {
         builderMap["-mat"    ] = &Options::parseMatOut;
         builderMap["-mprefix"] = &Options::parseMatPrefix;
         builderMap["-anim"   ] = &Options::parseAnimation;
-        builderMap["-m"      ] = &Options::parseM;
-        builderMap["-s"      ] = &Options::parseS;
         builderMap["-n"      ] = &Options::parseN;
         builderMap["-c"      ] = &Options::parseC;
         builderMap["-t"      ] = &Options::parseT;
@@ -102,6 +100,15 @@ namespace OgreMaya {
         cout << "============================================\n";
     }
 
+    bool Options::isNextTokenOption() {
+        bool res = false;
+        if(currentArg+1 < argc) {
+            res = argv[currentArg+1][0] == '-';
+        }
+
+        return res;
+    }
+
     void Options::parseIn() {
         if(++currentArg < argc) {            
             inFile = argv[currentArg];
@@ -123,29 +130,31 @@ namespace OgreMaya {
     }
 
     void Options::parseMeshOut() {
-        if(++currentArg < argc) {
-			exportMesh = true;
-            outMeshFile = argv[currentArg];
+        exportMesh = true;
+        if(!isNextTokenOption() && currentArg+1<argc) {
+            outMeshFile = argv[currentArg+1];
+            currentArg++;
         }
     }
 
     void Options::parseSkelOut() {
-        if(++currentArg < argc) {
-            exportSkeleton = true;
-            outSkelFile = argv[currentArg];
+        exportSkeleton = true;
+        if(!isNextTokenOption() && currentArg+1<argc) {
+            outSkelFile = argv[currentArg+1];
+            currentArg++;
         }
     }
 
     void Options::parseMatOut() {
-        if(++currentArg < argc) {
-            exportMaterial = true;
-            outMatFile = argv[currentArg];
+        exportMaterial = true;
+        if(!isNextTokenOption() && currentArg+1<argc) {
+            outMatFile = argv[currentArg+1];
+            currentArg++;
         }
     }
 
     void Options::parseMatPrefix() {
         if(++currentArg < argc) {
-//            exportMaterial = true;
             matPrefix = argv[currentArg];
         }
     }
@@ -165,14 +174,6 @@ namespace OgreMaya {
         }
     }
     
-    void Options::parseM() {
-        exportMaterial = true;
-    }
-
-    void Options::parseS() {
-        exportSkeleton = true;
-    }
-
     void Options::parseVBA() {
         exportVBA = true;
     }

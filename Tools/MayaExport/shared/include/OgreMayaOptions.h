@@ -91,6 +91,10 @@ namespace OgreMaya {
         BuilderMap builderMap;
 
     private:
+        /** returns true if next token starts with '-' */
+        bool isNextTokenOption();
+
+    private:        
         void parseIn();
         void parseMeshOut();
         void parseSkelOut();
@@ -98,8 +102,6 @@ namespace OgreMaya {
         void parseMatPrefix();
         void parseAnimation();
         void parseVBA();
-        void parseM();
-        void parseS();
         void parseN();
         void parseC();
         void parseT();

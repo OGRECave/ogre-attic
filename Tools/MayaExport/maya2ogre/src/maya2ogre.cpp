@@ -131,24 +131,30 @@ int main(int argc, char *argv[]) {
 
 void showHelp()
 {
-	cout << "Usage: maya2ogre -in FILE [-mesh FILE] [-skel FILE] [-s]\n";
+	cout << "Usage: maya2ogre -in FILE [-mesh [FILE]] [-vba] [-skel [FILE]]\n";
     cout << "                 [-anim NAME START END STEP]\n";
-    cout << "                 [-mat FILE] [-mprefix PREFIX] [-m]\n";
-    cout << "                 [-n] [-c] [-t] [-vba]\n\n";
+    cout << "                 [-mat [FILE]] [-mprefix PREFIX]\n";
+    cout << "                 [-n] [-c] [-t]\n\n";
 	cout << " -in      FILE   input mb File\n";
-    cout << " -mesh    FILE   export mesh using user defined file name\n";
-    cout << " -skel    FILE   export skeleton using user defined file name\n";
-    cout << " -s              export skeleton using default file name\n";
+    cout << " -mesh    FILE   export mesh (FILE is optional)\n";
+    cout << " -vba            export vertex bone assignments\n";    
+    cout << " -skel    FILE   export skeleton (FILE is optional)\n";
     cout << " -anim    NAME   export Animation beginning at START and ending\n";
     cout << "          START  at END with fixed STEP\n";
     cout << "          END\n";
     cout << "          STEP\n";
-    cout << " -mat     FILE   export material using user defined file name\n";
+    cout << " -mat     FILE   export material (FILE is optional)\n";
     cout << " -mprefix PREFIX material prefix\n";
-    cout << " -m              export material using default file name\n";    
     cout << " -n              export normals\n";
     cout << " -c              export diffuse colours\n";
-    cout << " -t              export texture coords\n";    
-    cout << " -vba            export vertex bone assignments\n";    
+    cout << " -t              export texture coords\n\n";    
+    cout << "Examples:\n";
+    cout << " maya2ogre -in foo.mb -mesh -skel -mat\n";
+    cout << "     => exports skeleton, mesh and material using default file names,\n";
+    cout << "        in this case foo.mesh.xml, foo.skeleton.xml and foo.material\n\n";
+    cout << " maya2ogre -in foo.mb -mesh custom_name.mesh.xml -skel custom_name.skel.xml\n";
+    cout << "     => exports skeleton and mesh using user defined file names\n\n";
+    cout << " maya2ogre -in foo.mb -skel -anim Walk 1 30 2 -anim Die 50 60 2\n";
+    cout << "     => exports skeleton with animation tracks Walk and Die\n";
 
 }
