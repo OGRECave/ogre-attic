@@ -167,9 +167,11 @@ namespace OgreRefApp
         itend = results.movables2movables.end();
         for (it = results.movables2movables.begin(); it != itend; ++it)
         {
+            /* debugging
             MovableObject *mo1, *mo2;
             mo1 = it->first;
             mo2 = it->second;
+            */
 
             // Get user defined objects (generic in OGRE)
             UserDefinedObject *uo1, *uo2;
