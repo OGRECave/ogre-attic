@@ -57,9 +57,9 @@ namespace Ogre {
     }
 
 #if OGRE_PLATFORM == PLATFORM_LINUX
-    int 
+	int 
 #else
-	uchar
+	boolean
 #endif
 		JPEGCodec::fill_input_buffer( j_decompress_ptr cinfo )
     {
