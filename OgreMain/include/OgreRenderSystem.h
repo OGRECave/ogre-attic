@@ -749,6 +749,17 @@ namespace Ogre
             test passes. */
         virtual void setStencilBufferPassOperation(StencilOperation op) = 0;
 
+        /** Performs a software vertex blend on the passed in operation. 
+        @remarks
+            This function is supplied to calculate a vertex blend when no hardware
+            support is available, or when the results are required by another
+            software component. The vertices contained in the passed in operation
+            will be modified by the matrices supplied according to the blending weights
+            also in the operation. To avoid accidentally modifying core vertex data, a
+            temporary vertex buffer is used for the result, which is then used in the
+            RenderOperation instead of the original passed in vertex data.
+        */
+        void softwareVertexBlend(RenderOperation& op, Matrix4* pMatrices);
 
 
 
@@ -793,16 +804,6 @@ namespace Ogre
         /// Temporary buffer for vertex blending in software
         std::vector<Real> mTempVertexBlendBuffer;
         std::vector<Real> mTempNormalBlendBuffer;
-        /** Performs a software vertex blend on the passed in operation. 
-        @remarks
-            This function is supplied to calculate a vertex blend when no hardware
-            support is available. The vertices contained in the passed in operation
-            will be modified by the matrices supplied according to the blending weights
-            also in the operation. To avoid accidentally modifying core vertex data, a
-            temporary vertex buffer is used for the result, which is then used in the
-            RenderOperation instead of the original passed in vertex data.
-        */
-        void softwareVertexBlend(RenderOperation& op, Matrix4* pMatrices);
 
 
 
