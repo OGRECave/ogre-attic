@@ -829,7 +829,15 @@ namespace Ogre
 
                 colSrc1.r = StringConverter::parseReal(vecparams[parIndex++]);
                 colSrc1.g = StringConverter::parseReal(vecparams[parIndex++]);
-                colSrc1.b = StringConverter::parseReal(vecparams[parIndex]);
+                colSrc1.b = StringConverter::parseReal(vecparams[parIndex++]);
+                if (numParams > parIndex)
+                {
+                    colSrc1.a = StringConverter::parseReal(vecparams[parIndex]);
+                }
+                else
+                {
+                    colSrc1.a = 1.0f;
+                }
             }
 
             if (src2 == LBS_MANUAL)
@@ -849,7 +857,15 @@ namespace Ogre
 
                 colSrc2.r = StringConverter::parseReal(vecparams[parIndex++]);
                 colSrc2.g = StringConverter::parseReal(vecparams[parIndex++]);
-                colSrc2.b = StringConverter::parseReal(vecparams[parIndex]);
+                colSrc2.b = StringConverter::parseReal(vecparams[parIndex++]);
+                if (numParams > parIndex)
+                {
+                    colSrc2.a = StringConverter::parseReal(vecparams[parIndex]);
+                }
+                else
+                {
+                    colSrc2.a = 1.0f;
+                }
             }
         }
         catch (Exception& e)
