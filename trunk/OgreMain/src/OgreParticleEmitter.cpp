@@ -238,6 +238,15 @@ namespace Ogre {
                     setEnabled(true);
                 }
             }
+            if(mStartTime)
+            {
+                mStartTime -= timeElapsed;
+                if(mStartTime <= 0)
+                {
+                    setEnabled(true);
+                    mStartTime = 0;
+                }
+            }
             return 0;
         }
 
@@ -454,6 +463,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ParticleEmitter::setStartTime(Real startTime)
     {
+        setEnabled(false);
         mStartTime = startTime;
     }
     //-----------------------------------------------------------------------
