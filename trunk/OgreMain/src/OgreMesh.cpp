@@ -67,6 +67,8 @@ namespace Ogre {
         // Always use software blending for now
         mUseSoftwareBlending = true;
 
+        mEdgeData = 0;
+
     }
 
     //-----------------------------------------------------------------------
@@ -177,6 +179,8 @@ namespace Ogre {
             delete sharedVertexData;
             sharedVertexData = NULL;
         }
+
+        OGRE_DELETE(mEdgeData);
 		// Clear SubMesh lists
 		mSubMeshList.clear();
 		mSubMeshNameMap.clear();
@@ -1017,6 +1021,65 @@ namespace Ogre {
 		    buffVPos->unlock();
 	    }
         
+    }
+
+    //---------------------------------------------------------------------
+    void Mesh::buildEdgeList(void)
+    {
+        // Delete any existing edge information
+        OGRE_DELETE(mEdgeData);
+
+        EdgeListBuilder eb;
+        size_t vertexSetCount = 0;
+
+        if (sharedVertexData)
+        {
+            eb.addVertexData(sharedVertexData);
+            vertexSetCount++;
+        }
+
+        // Prepare the builder using the submesh information
+        SubMeshList::iterator i, iend;
+        iend = mSubMeshList.end();
+        for (i = mSubMeshList.begin(); i != iend; ++i)
+        {
+            SubMesh* s = *i;
+            size_t vertexSet;
+            if (s->useSharedVertices)
+            {
+                // Use shared vertex data, index as set 0
+                eb.addIndexData(s->indexData, 0);
+            }
+            else
+            {
+                // own vertex data, add it and reference it directly
+                eb.addVertexData(s->vertexData);
+                eb.addIndexData(s->indexData, vertexSetCount++);
+            }
+        }
+
+        mEdgeData = eb.build();
+
+    }
+    //---------------------------------------------------------------------
+    void Mesh::prepareForShadowVolume(void)
+    {
+        if (sharedVertexData)
+        {
+            sharedVertexData->prepareForShadowVolume();
+        }
+
+        SubMeshList::iterator i, iend;
+        iend = mSubMeshList.end();
+        for (i = mSubMeshList.begin(); i != iend; ++i)
+        {
+            SubMesh* s = *i;
+            if (!s->useSharedVertices)
+            {
+                s->vertexData->prepareForShadowVolume();
+            }
+        }
+
     }
 
 }

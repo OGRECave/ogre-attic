@@ -65,14 +65,16 @@ namespace Ogre {
 				will be created
 			@param indexBufferUsage The usage flags with which the index buffer(s) created for 
 				this mesh will be created with.
-			@param vertexBufferSysMem If true, the vertex buffers will be created in system memory
-			@param indexBufferSysMem If true, the index buffers will be created in system memory
+			@param vertexBufferShadowed If true, the vertex buffers will be shadowed by system memory 
+                copies for faster read access
+			@param indexBufferShadowed If true, the index buffers will be shadowed by system memory 
+                copies for faster read access
 			@param priority The priority of this mesh in the resource system
         */
         Mesh* load( const String& filename, 
 			HardwareBuffer::Usage vertexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
 			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
-			bool vertexBufferSysMem = false, bool indexBufferSysMem = false,
+			bool vertexBufferShadowed = false, bool indexBufferShadowed = false,
 			int priority = 1);
 
         /** Creates a Mesh resource.

@@ -141,6 +141,136 @@ namespace Ogre {
             delete [] pBlendWeights;
     }
     //-----------------------------------------------------------------------
+    void VertexData::prepareForShadowVolume(void)
+    {
+
+        // Look for a position element
+        const VertexElement* posElem = vertexDeclaration->findElementBySemantic(VES_POSITION);
+        if (posElem)
+        {
+            HardwareVertexBufferSharedPtr vbuf = vertexBufferBinding->getBuffer(posElem->getSource());
+            bool wasSharedBuffer = false;
+            // Are there other elements in the buffer except for the position?
+            if (vbuf->getVertexSize() > posElem->getSize())
+            {
+                // We need to create another buffer to contain the remaining elements
+                // Most drivers don't like gaps in the declaration, and in any case it's waste
+                wasSharedBuffer = true;
+            }
+            HardwareVertexBufferSharedPtr newPosBuffer, newRemainderBuffer;
+            if (wasSharedBuffer)
+            {
+                newRemainderBuffer = HardwareBufferManager::getSingleton().createVertexBuffer(
+                    vbuf->getVertexSize() - posElem->getSize(), vbuf->getNumVertices(), vbuf->getUsage(),
+                    vbuf->hasShadowBuffer());
+            }
+            // Allocate new position buffer, will be FLOAT4 and 2x the size
+            size_t oldVertexCount = vbuf->getNumVertices();
+            size_t newVertexCount = oldVertexCount * 2;
+            newPosBuffer = HardwareBufferManager::getSingleton().createVertexBuffer(
+                VertexElement::getTypeSize(VET_FLOAT4), newVertexCount, vbuf->getUsage(), 
+                vbuf->hasShadowBuffer());
+
+            // Iterate over the old buffer, copying the appropriate elements and initialising the rest
+            Real* pSrc;
+            unsigned char *pBaseSrc = static_cast<unsigned char*>(
+                vbuf->lock(HardwareBuffer::HBL_READ_ONLY));
+            // Point first destination pointer at the start of the new position buffer,
+            // the other one half way along
+            Real *pDest = static_cast<Real*>(newPosBuffer->lock(HardwareBuffer::HBL_DISCARD));
+            Real* pDest2 = pDest + oldVertexCount * 4; // *4 because this is VET_FLOAT4
+
+            // Figure out the previous dimensions (probably 3, but no need to assume)
+            unsigned short oldPosDimensions = VertexElement::getTypeCount(posElem->getType());
+            // Also, if it had 4, override the 4th
+            if (oldPosDimensions > 3) oldPosDimensions = 3;
+
+            // Precalculate any dimensions of vertex areas outside the position
+            size_t prePosVertexSize, postPosVertexSize, postPosVertexOffset;
+            unsigned char *pBaseDestRem = 0;
+            if (wasSharedBuffer)
+            {
+                pBaseDestRem = static_cast<unsigned char*>(
+                    newRemainderBuffer->lock(HardwareBuffer::HBL_DISCARD));
+                prePosVertexSize = posElem->getOffset();
+                postPosVertexOffset = prePosVertexSize + posElem->getSize();
+                postPosVertexSize = vbuf->getVertexSize() - postPosVertexOffset;
+                // the 2 separate bits together should be the same size as the remainder buffer vertex
+                assert (newRemainderBuffer->getVertexSize() == prePosVertexSize + postPosVertexSize);
+            }
+            // Iterate over the vertices
+            for (size_t v = 0; v < oldVertexCount; ++v)
+            {
+                // Copy position, twice
+                posElem->baseVertexPointerToElement(pBaseSrc, &pSrc);
+                for (unsigned short e = 0; e < oldPosDimensions; ++e)
+                    *pDest++ = *pDest2++ = *pSrc++;
+                // Fill in any missing y or z (e < 3)
+                for (; e < 3; ++e)
+                    *pDest++ = *pDest2++ = 0;
+                // Complete w, 1.0 for the first half, 0.0 for the second (ie at infinity)
+                *pDest++  = 1.0f;
+                *pDest2++ = 0.0f;
+
+                // now deal with any other elements 
+                // Basically we just memcpy the vertex excluding the position
+                if (wasSharedBuffer)
+                {
+                    if (prePosVertexSize > 0)
+                        memcpy(pBaseDestRem, pBaseSrc, prePosVertexSize);
+                    if (postPosVertexSize > 0)
+                        memcpy(pBaseDestRem + prePosVertexSize, 
+                            pBaseSrc + postPosVertexOffset, postPosVertexSize);
+                    pBaseDestRem += newRemainderBuffer->getVertexSize();
+                }
+
+
+                pBaseSrc += vbuf->getVertexSize();
+
+            } // next vertex
+
+            vbuf->unlock();
+            newPosBuffer->unlock();
+            if (wasSharedBuffer)
+                newRemainderBuffer->unlock();
+
+            unsigned short newPosBufferSource; 
+            if (wasSharedBuffer)
+            {
+                // Get the a new buffer binding index
+                newPosBufferSource= vertexBufferBinding->getNextIndex();
+                // Re-bind the old index to the remainder buffer
+                vertexBufferBinding->setBinding(posElem->getSource(), newRemainderBuffer);
+            }
+            else
+            {
+                // We can just re-use the same source idex for the new position buffer
+                newPosBufferSource = posElem->getSource();
+            }
+            // Bind the new position buffer
+            vertexBufferBinding->setBinding(newPosBufferSource, newPosBuffer);
+
+            // Now, alter the vertex declaration to change the position source
+            // and the type
+            // Find index of position element first
+            VertexDeclaration::VertexElementList::const_iterator elemi = 
+                vertexDeclaration->getElements().begin();
+            for(unsigned short idx = 0; &(*elemi) != posElem; ++elemi) 
+                ++idx;
+
+            vertexDeclaration->modifyElement(
+                idx, 
+                newPosBufferSource, // new source buffer
+                0, // no offset now
+                VET_FLOAT4, // now homogenous
+                VES_POSITION);
+
+            // Note that we don't change vertexCount, because the other buffer(s) are still the same
+            // size after all
+
+        }
+    }
+    //-----------------------------------------------------------------------
 	IndexData::IndexData()
 	{
 		indexCount = 0;
