@@ -25,8 +25,11 @@ LGPL like the rest of the engine.
 #include <CEGUI/CEGUISchemeManager.h>
 #include <CEGUI/CEGUIWindowManager.h>
 #include <CEGUI/CEGUIWindow.h>
+#include <CEGUI/elements/CEGUICombobox.h>
+#include <CEGUI/elements/CEGUIListboxTextItem.h>
 #include <CEGUI/elements/CEGUIPushButton.h>
 #include <CEGUI/elements/CEGUIScrollbar.h>
+#include <CEGUI/elements/CEGUIStaticImage.h>
 #include <CEGUI/renderers/OgreGUIRenderer/ogrerenderer.h>
 #include <CEGUI/renderers/OgreGUIRenderer/OgreResourceProvider.h>
 #include <CEGUI/CEGUIDefaultResourceProvider.h>
@@ -132,20 +135,32 @@ class GuiApplication : public ExampleApplication
 private:
     CEGUI::OgreRenderer* mGUIRenderer;
     CEGUI::System* mGUISystem;
+    CEGUI::Window* mEditorGuiSheet;
 
 public:
     GuiApplication()
       : mGUIRenderer(0),
-        mGUISystem(0)
+        mGUISystem(0),
+        mEditorGuiSheet(0)
     {
     }
 
     ~GuiApplication()
     {
+        if(mEditorGuiSheet)
+        {
+            CEGUI::WindowManager::getSingleton().destroyWindow(mEditorGuiSheet);
+        }
         if(mGUISystem)
+        {
             delete mGUISystem;
+            mGUISystem = 0;
+        }
         if(mGUIRenderer)
+        {
             delete mGUIRenderer;
+            mGUIRenderer = 0;
+        }
     }
 
 protected:
@@ -204,7 +219,7 @@ protected:
 
         rttImageSet->defineImage((CEGUI::utf8*)"RttImage", 
                 CEGUI::Point(0.0f, 0.0f),
-                CEGUI::Size(512,512),
+                CEGUI::Size(rttTexture->getWidth(), rttTexture->getHeight()),
                 CEGUI::Point(0.0f,0.0f));
 
         // load scheme and set up defaults
@@ -218,6 +233,21 @@ protected:
             CEGUI::WindowManager::getSingleton().loadWindowLayout(
                 (CEGUI::utf8*)"ogregui.layout"); 
         mGUISystem->setGUISheet(sheet);
+
+        CEGUI::Combobox* objectComboBox = (CEGUI::Combobox*)CEGUI::WindowManager::getSingleton().getWindow("OgreGuiDemo/TabCtrl/Page2/ObjectTypeList");
+
+        CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem((CEGUI::utf8*)"FrameWindow", 0);
+        objectComboBox->addItem(item);
+        item = new CEGUI::ListboxTextItem((CEGUI::utf8*)"Horizontal Scrollbar", 1);
+        objectComboBox->addItem(item);
+        item = new CEGUI::ListboxTextItem((CEGUI::utf8*)"Vertical Scrollbar", 2);
+        objectComboBox->addItem(item);
+        item = new CEGUI::ListboxTextItem((CEGUI::utf8*)"StaticText", 3);
+        objectComboBox->addItem(item);
+        item = new CEGUI::ListboxTextItem((CEGUI::utf8*)"StaticImage", 4);
+        objectComboBox->addItem(item);
+        item = new CEGUI::ListboxTextItem((CEGUI::utf8*)"Render to Texture", 5);
+        objectComboBox->addItem(item);
 
         setupEventHandlers();
     }
@@ -239,11 +269,45 @@ protected:
 
     void setupEventHandlers(void)
     {
-        CEGUI::WindowManager::getSingleton().getWindow((CEGUI::utf8*)"OgreGuiDemo/Button")->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&GuiApplication::handleQuit, this));
+        CEGUI::WindowManager::getSingleton().getWindow((CEGUI::utf8*)"OgreGuiDemo/TabCtrl/Page1/QuitButton")->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&GuiApplication::handleQuit, this));
+        CEGUI::WindowManager::getSingleton().getWindow((CEGUI::utf8*)"OgreGuiDemo/TabCtrl/Page1/NewButton")->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&GuiApplication::handleNew, this));
+        CEGUI::WindowManager::getSingleton().getWindow((CEGUI::utf8*)"OgreGuiDemo/TabCtrl/Page1/LoadButton")->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&GuiApplication::handleLoad, this));
+        CEGUI::WindowManager::getSingleton().getWindow((CEGUI::utf8*)"OgreGuiDemo/TabCtrl/Page2/ObjectTypeList")->subscribeEvent(CEGUI::Combobox::EventListSelectionAccepted, CEGUI::Event::Subscriber(&GuiApplication::handleObjectSelection, this));
+    }
 
-        /*
-        CEGUI::WindowManager::getSingleton().getWindow((CEGUI::utf8*)"OgreGuiDemo/Window/Controls/Zoom")->subscribeEvent(CEGUI::Scrollbar::EventScrollPositionChanged, CEGUI::Event::Subscriber(&GuiApplication::handleScrollbar, this));
-        */
+    CEGUI::Window* createRttGuiObject(void)
+    {
+        static unsigned int rttCounter = 0;
+        String guiObjectName = "NewRttImage" + rttCounter;
+
+        CEGUI::Imageset* rttImageSet = 
+            CEGUI::ImagesetManager::getSingleton().getImageset(
+                (CEGUI::utf8*)"RttImageset");
+        CEGUI::StaticImage* si = (CEGUI::StaticImage*)CEGUI::WindowManager::getSingleton().createWindow((CEGUI::utf8*)"TaharezLook/StaticImage", (CEGUI::utf8*)guiObjectName.c_str());
+        si->setSize(CEGUI::Size(0.5f, 0.4f));
+        si->setImage(&rttImageSet->getImage((CEGUI::utf8*)"RttImage"));
+
+        rttCounter++;
+
+        return si;
+    }
+
+    CEGUI::Window* createStaticImageObject(void)
+    {
+        static unsigned int siCounter = 0;
+        String guiObjectName = "NewStaticImage" + siCounter;
+
+        CEGUI::Imageset* imageSet = 
+            CEGUI::ImagesetManager::getSingleton().getImageset(
+                (CEGUI::utf8*)"TaharezLook");
+
+        CEGUI::StaticImage* si = (CEGUI::StaticImage*)CEGUI::WindowManager::getSingleton().createWindow((CEGUI::utf8*)"TaharezLook/StaticImage", (CEGUI::utf8*)guiObjectName.c_str());
+        si->setSize(CEGUI::Size(0.2f, 0.2f));
+        si->setImage(&imageSet->getImage((CEGUI::utf8*)"ClientBrush"));
+
+        siCounter++;
+
+        return si;
     }
 
     bool handleQuit(const CEGUI::EventArgs& e)
@@ -252,13 +316,92 @@ protected:
         return true;
     }
 
-    bool handleScrollbar(const CEGUI::EventArgs& e)
+    bool handleNew(const CEGUI::EventArgs& e)
     {
-        Node* rttCamNode =  mSceneMgr->getRootSceneNode()->getChild("rttCamNode");
-        const CEGUI::WindowEventArgs& windowEventArgs = static_cast<const CEGUI::WindowEventArgs&>(e);
-        float position = static_cast<CEGUI::Scrollbar*>(windowEventArgs.window)->getScrollPosition();
+        if(mEditorGuiSheet)
+            CEGUI::WindowManager::getSingleton().destroyWindow(mEditorGuiSheet);
 
-        rttCamNode->translate(0, 0, position);
+        mEditorGuiSheet = CEGUI::WindowManager::getSingleton().createWindow("DefaultGUISheet", "NewLayout");
+
+        CEGUI::Window* editorWindow = CEGUI::WindowManager::getSingleton().getWindow((CEGUI::utf8*)"OgreGuiDemo2/MainWindow");
+        editorWindow->addChildWindow(mEditorGuiSheet);
+
+        return true;
+    }
+
+    bool handleLoad(const CEGUI::EventArgs& e)
+    {
+        if(mEditorGuiSheet)
+            CEGUI::WindowManager::getSingleton().destroyWindow(mEditorGuiSheet);
+
+        mEditorGuiSheet = 
+            CEGUI::WindowManager::getSingleton().loadWindowLayout(
+                (CEGUI::utf8*)"cegui8.layout"); 
+
+        CEGUI::Window* editorWindow = CEGUI::WindowManager::getSingleton().getWindow((CEGUI::utf8*)"OgreGuiDemo2/MainWindow");
+        editorWindow->addChildWindow(mEditorGuiSheet);
+
+        return true;
+    }
+
+
+    bool handleObjectSelection(const CEGUI::EventArgs& e)
+    {
+        static unsigned int windowNumber = 0;
+        static unsigned int vertScrollNumber = 0;
+        static unsigned int horizScrollNumber = 0;
+        static unsigned int textScrollNumber = 0;
+        String guiObjectName;
+        CEGUI::Window* window = 0;
+
+        // Set a random position to place this object.
+        Real posX = Math::UnitRandom(); 
+        Real posY = Math::UnitRandom(); 
+
+        const CEGUI::WindowEventArgs& windowEventArgs = static_cast<const CEGUI::WindowEventArgs&>(e);
+        CEGUI::ListboxItem* item = static_cast<CEGUI::Combobox*>(windowEventArgs.window)->getSelectedItem();
+
+        CEGUI::Window* editorWindow = CEGUI::WindowManager::getSingleton().getWindow((CEGUI::utf8*)"OgreGuiDemo2/MainWindow");
+
+        switch(item->getID())
+        {
+        case 0:
+            guiObjectName = "NewWindow" + windowNumber;
+            window = CEGUI::WindowManager::getSingleton().createWindow((CEGUI::utf8*)"TaharezLook/FrameWindow", (CEGUI::utf8*)guiObjectName.c_str());
+            window->setSize(CEGUI::Size(0.3f, 0.3f));
+            window->setText((CEGUI::utf8*)"New Window");
+            windowNumber++;
+            break;
+        case 1:
+            guiObjectName = "NewHorizScroll" + horizScrollNumber;
+            window = CEGUI::WindowManager::getSingleton().createWindow((CEGUI::utf8*)"TaharezLook/HorizontalScrollbar", (CEGUI::utf8*)guiObjectName.c_str());
+            window->setSize(CEGUI::Size(0.75f, 0.03f));
+            horizScrollNumber++;
+            break;
+        case 2:
+            guiObjectName = "NewVertScroll" + vertScrollNumber;
+            window = CEGUI::WindowManager::getSingleton().createWindow((CEGUI::utf8*)"TaharezLook/VerticalScrollbar", (CEGUI::utf8*)guiObjectName.c_str());
+            window->setSize(CEGUI::Size(0.03f, 0.75f));
+            vertScrollNumber++;
+            break;
+        case 3:
+            guiObjectName = "NewStaticText" + textScrollNumber;
+            window = CEGUI::WindowManager::getSingleton().createWindow((CEGUI::utf8*)"TaharezLook/StaticText", (CEGUI::utf8*)guiObjectName.c_str());
+            window->setSize(CEGUI::Size(0.25f, 0.1f));
+            window->setText((CEGUI::utf8*)"Example static text");
+            textScrollNumber++;
+            break;
+        case 4:
+            window = createStaticImageObject();
+            break;
+        case 5:
+            window = createRttGuiObject();
+            break;
+        };
+
+        editorWindow->addChildWindow(window);
+        window->setPosition(CEGUI::Point(posX, posY));
+
         return true;
     }
 
