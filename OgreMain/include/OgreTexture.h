@@ -74,8 +74,6 @@ namespace Ogre {
         /** Load a texture from a raw 32-bit RGBA stream */
         virtual void loadRawRGBA( void *buffer, int width, int height ) = 0;
 
-
-
     protected:
         // NB: No indexed colour support - deliberately
         unsigned long mHeight;
