@@ -7,7 +7,7 @@ Group: 'Export'
 Tooltip: 'Exports selected meshs with armature animations to Ogre3D'
 """
 
-# Blender to Ogre Mesh and Skeleton Exporter v0.14.2
+# Blender to Ogre Mesh and Skeleton Exporter v0.15.0
 # url: http://www.ogre3d.org
 
 # Ogre exporter written by Jens Hoffmann and Michael Reimpell
@@ -109,7 +109,7 @@ Tooltip: 'Exports selected meshs with armature animations to Ogre3D'
 #   0.14.2: * Fri Aug 13 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
 #          - location key frame values fixed
 #          - fixed redraw if action is changed
-#   0.14.3: * Michael Reimpell <M.Reimpell@tu-bs.de>
+#   0.15.0: * Michael Reimpell <M.Reimpell@tu-bs.de>
 #          - scalar product range correction in calc_rootaxis
 #          - made ArmatureAction.createArmatureActionDict a static method
 #          - renamed private methods to begin with an underscore
@@ -2849,7 +2849,7 @@ def frameDecorator(x, y, width):
 	glRectf(x,y-36,x+width,y-16)
 	glColor3f(1.0,1.0,0)
 	glRasterPos2i(x+85, y-30)
-	Draw.Text("OGRE Exporter 0.14.2", "normal")
+	Draw.Text("OGRE Exporter 0.15.0", "normal")
 
 	# logo
 	glRasterPos2i(x+1, y-48)	
