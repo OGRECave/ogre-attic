@@ -185,6 +185,9 @@
 				RelativePath="..\include\OgreD3D7DeviceList.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreD3D7HardwareBufferManager.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreD3D7Prerequisites.h">
 			</File>
 			<File

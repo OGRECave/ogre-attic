@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://ogre.sourceforge.net/
 
 Copyright © 2000-2002 The OGRE Team
@@ -47,102 +47,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
     //-----------------------------------------------------------------------
-	DWORD D3DRenderSystem::_getMagFilter(const TextureFilterOptions fo)
-	{
-		DWORD ret;
-		switch( fo )
-		{
-		// NOTE: Fall through if device doesn't support requested type
-		case TFO_ANISOTROPIC:
-			if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_MAGFANISOTROPIC )
-			{
-				ret = D3DTFG_ANISOTROPIC;
-				break;
-			}
-		case TFO_TRILINEAR:
-			if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_MAGFLINEAR )
-			{
-				ret = D3DTFG_LINEAR;
-				break;
-			}
-		case TFO_BILINEAR:
-			if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_MAGFLINEAR )
-			{
-				ret = D3DTFG_LINEAR;
-				break;
-			}
-		case TFO_NONE:
-			ret = D3DTFG_POINT;
-			break;
-		}
-		
-		return ret;
-	}
-    //-----------------------------------------------------------------------
-	DWORD D3DRenderSystem::_getMinFilter(const TextureFilterOptions fo)
-	{
-		DWORD ret;
-		switch( fo )
-		{
-		// NOTE: Fall through if device doesn't support requested type
-		case TFO_ANISOTROPIC:
-			if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_MINFANISOTROPIC )
-			{
-				ret = D3DTFN_ANISOTROPIC;
-				break;
-			}
-		case TFO_TRILINEAR:
-			if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_MINFLINEAR )
-			{
-				ret = D3DTFN_LINEAR;
-				break;
-			}
-		case TFO_BILINEAR:
-			if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_MINFLINEAR )
-			{
-				ret = D3DTFN_LINEAR;
-				break;
-			}
-		case TFO_NONE:
-			ret = D3DTFN_POINT;
-			break;
-		}
-		
-		return ret;
-	}
-    //-----------------------------------------------------------------------
-	DWORD D3DRenderSystem::_getMipFilter(const TextureFilterOptions fo)
-	{
-		DWORD ret;
-		switch( fo )
-		{
-		// NOTE: Fall through if device doesn't support requested type
-		case TFO_ANISOTROPIC:
-			if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_LINEARMIPLINEAR )
-			{
-				ret = D3DTFP_LINEAR;
-				break;
-			}
-		case TFO_TRILINEAR:
-			if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_LINEARMIPLINEAR )
-			{
-				ret = D3DTFP_LINEAR;
-				break;
-			}
-		case TFO_BILINEAR:
-			if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_LINEAR )
-			{
-				ret = D3DTFP_POINT;
-				break;
-			}
-		case TFO_NONE:
-			ret = D3DTFP_NONE;
-			break;
-		}
-		
-		return ret;
-	}
-    //-----------------------------------------------------------------------
     D3DRenderSystem::D3DRenderSystem(HINSTANCE hInstance)
     {
         OgreGuard( "D3DRenderSystem::D3DRenderSystem" );
@@ -154,16 +58,25 @@ namespace Ogre {
         mDriverList = NULL;
         mActiveDDDriver = NULL;
         mhInstance = hInstance;
+        mHardwareBufferManager = NULL;
 
         // Init light array
         for (int i = 0; i < MAX_LIGHTS; ++i)
             mLights[i] = 0;
 
-
         initConfigOptions();
 
         // Initialise D3DX library
         D3DXInitialize();
+
+        // set stages desc. to defaults
+        for (int n = 0; n < OGRE_MAX_TEXTURE_LAYERS; n++)
+        {
+            mTexStageDesc[n].autoTexCoordType = TEXCALC_NONE;
+            mTexStageDesc[n].coordIndex = 0;
+            mTexStageDesc[n].texType = D3D_TEX_TYPE_NORMAL;
+            mTexStageDesc[n].pTex = NULL;
+        }
 
         OgreUnguard();
     }
@@ -173,23 +86,10 @@ namespace Ogre {
     {
         OgreGuard( "D3DRenderSystem::~D3DRenderSystem" );
 
-        if (mTextureManager)
-		{
-            delete mTextureManager;
-			mTextureManager = NULL;
-		}
-
-        if (mDriverList)
-		{
-            delete mDriverList;
-			mDriverList = NULL;
-		}
-
-        if (mCapabilities)
-        {
-            delete mCapabilities;
-            mCapabilities = NULL;
-        }
+        SAFE_DELETE(mTextureManager);
+        SAFE_DELETE(mDriverList);
+        SAFE_DELETE(mCapabilities);
+        SAFE_DELETE(mHardwareBufferManager);
 
         D3DXUninitialize();
         LogManager::getSingleton().logMessage(getName() + " destroyed.");
@@ -397,18 +297,18 @@ namespace Ogre {
                 return "A video mode must be selected for running in full-screen mode.";
             }
         }
-        
+
         o = mOptions.find( "Rendering Device" );
         bool foundDriver = false;
         DDDriverList* driverList = getDirectDrawDrivers();
-		for( ushort j=0; j < driverList->count(); j++ )
-		{
-			if( driverList->item(j)->DriverDescription() == o->second.currentValue )
-			{
-				foundDriver = true;
-				break;
-			}
-		}
+        for( ushort j=0; j < driverList->count(); j++ )
+        {
+            if( driverList->item(j)->DriverDescription() == o->second.currentValue )
+            {
+                foundDriver = true;
+                break;
+            }
+        }
         if (!foundDriver)
         {
             // Just pick the first driver
@@ -448,7 +348,7 @@ namespace Ogre {
 
         if (!mActiveDDDriver)
             Except(Exception::ERR_INVALIDPARAMS, "Problems finding requested DirectDraw driver!",
-                "D3DRenderSystem::initialise");
+            "D3DRenderSystem::initialise");
 
 
         // Sort out the creation of a new window if required
@@ -459,7 +359,7 @@ namespace Ogre {
             opt = mOptions.find("Full Screen");
             if( opt == mOptions.end() )
                 Except(999, "Can't find full screen option!",
-                    "D3DRenderSystem::initialise");
+                "D3DRenderSystem::initialise");
             if (opt->second.currentValue == "Yes")
                 fullScreen = true;
             else
@@ -487,7 +387,7 @@ namespace Ogre {
 
                 if (!vid)
                     Except(9999, "Can't find requested video mode.",
-                        "D3DRenderSystem::initilise");
+                    "D3DRenderSystem::initilise");
                 width = vid->mWidth;
                 height = vid->mHeight;
                 colourDepth = vid->mColourDepth;
@@ -496,8 +396,8 @@ namespace Ogre {
             else
             {
                 // Notional height / width
-                width = 640;
-                height = 480;
+                width = 800;
+                height = 600;
                 colourDepth = 0; // colour depth based on desktop
             }
 
@@ -529,23 +429,11 @@ namespace Ogre {
         // call superclass method
         RenderSystem::initialise(autoCreateWindow);
 
-		LogManager::getSingleton().logMessage(
-            "The following capabilities are available:");
-
-        // Check for hardware stencil support
-        ushort stencil =  mActiveDDDriver->get3DDevice()->StencilBufferBitDepth();
-        if(stencil > 0)
-        {
-            LogManager::getSingleton().logMessage("- Hardware Stencil Buffer");
-            mCapabilities->setCapability(RSC_HWSTENCIL);
-            mCapabilities->setStencilBufferBitDepth(stencil);
-        }
-
-        // Set the number of texture units based on details from current device
-        mCapabilities->setNumTextureUnits(mD3DDeviceDesc.wMaxSimultaneousTextures);
+        // Create buffer manager
+        mHardwareBufferManager = new D3D7HardwareBufferManager();
 
 
-		return autoWindow;
+        return autoWindow;
 
     }
 
@@ -571,12 +459,7 @@ namespace Ogre {
         }
 
         // Delete system objects
-        if (mDriverList)
-        {
-            delete mDriverList;
-            mDriverList = NULL;
-        }
-
+        SAFE_DELETE(mDriverList);
 
         mActiveDDDriver = NULL;
 
@@ -608,7 +491,7 @@ namespace Ogre {
                 TranslateMessage( &msg );
                 DispatchMessage( &msg );
             }
-            
+
             {
                 if(!fireFrameStarted())
                     return;
@@ -616,12 +499,12 @@ namespace Ogre {
                 // Render a frame during idle time (no messages are waiting)
                 RenderTargetPriorityMap::iterator itarg, itargend;
                 itargend = mPrioritisedRenderTargets.end();
-				for( itarg = mPrioritisedRenderTargets.begin(); itarg != itargend; ++itarg )
+                for( itarg = mPrioritisedRenderTargets.begin(); itarg != itargend; ++itarg )
                 {
-					if( itarg->second->isActive() )
-					{
-						itarg->second->update();
-					}
+                    if( itarg->second->isActive() )
+                    {
+                        itarg->second->update();
+                    }
                 }
 
                 if(!fireFrameEnded())
@@ -638,7 +521,7 @@ namespace Ogre {
         // Call D3D
         D3DCOLOR col = D3DRGB(r,g,b);
 
-        HRESULT hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_AMBIENT, col);
+        HRESULT hr = __SetRenderState(D3DRENDERSTATE_AMBIENT, col);
         if (FAILED(hr))
             Except(hr, "Error setting ambient light.", "D3DRenderSystem::setAmbientLight");
     }
@@ -661,7 +544,7 @@ namespace Ogre {
 
         }
 
-        HRESULT hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_SHADEMODE, d3dMode);
+        HRESULT hr = __SetRenderState(D3DRENDERSTATE_SHADEMODE, d3dMode);
         if (FAILED(hr))
             Except(hr, "Error setting shading mode.", "D3DRenderSystem::setShadingType");
 
@@ -672,6 +555,7 @@ namespace Ogre {
     RenderWindow* D3DRenderSystem::createRenderWindow(const String &name, int width, int height, int colourDepth,
         bool fullScreen, int left, int top, bool depthBuffer, RenderWindow* parentWindowHandle)
     {
+        static bool firstWindow = true;
         OgreGuard( "D3DRenderSystem::createRenderWindow" );
 
         String msg;
@@ -692,9 +576,9 @@ namespace Ogre {
 
         attachRenderTarget( *win );
 
-        // If this is the parent window, get the D3D device
-        //  and create the texture manager
-        if (parentWindowHandle == 0)
+        // If this is the first window, get the D3D device
+        //  and create the texture manager, setup caps
+        if (firstWindow)
         {
             win->getCustomAttribute("D3DDEVICE", &mlpD3DDevice);
             // Get caps
@@ -702,6 +586,27 @@ namespace Ogre {
             // Create my texture manager for use by others
             // Note this is a Singleton; pointer is held static by superclass
             mTextureManager = new D3DTextureManager(mlpD3DDevice);
+            LogManager::getSingleton().logMessage(
+                "The following capabilities are available:");
+
+            // Check for hardware stencil support
+            LPDIRECTDRAWSURFACE7 lpTarget;
+            mlpD3DDevice->GetRenderTarget(&lpTarget);
+            lpTarget->Release(); // decrement ref count
+            DDPIXELFORMAT pf;
+            lpTarget->GetPixelFormat(&pf);
+            ushort stencil =  pf.dwStencilBitDepth;
+            if(stencil > 0)
+            {
+                LogManager::getSingleton().logMessage("- Hardware Stencil Buffer");
+                mCapabilities->setCapability(RSC_HWSTENCIL);
+                mCapabilities->setStencilBufferBitDepth(stencil);
+            }
+
+            // Set the number of texture units based on details from current device
+            mCapabilities->setNumTextureUnits(mD3DDeviceDesc.wMaxSimultaneousTextures);
+
+            firstWindow = false;
         }
 
         OgreUnguardRet( win );
@@ -755,7 +660,7 @@ namespace Ogre {
 
         if (i == MAX_LIGHTS)
             Except(Exception::ERR_INVALIDPARAMS, "Cannot locate light to modify.",
-                "D3DRenderSystem::_modifyLight");
+            "D3DRenderSystem::_modifyLight");
 
         setD3DLight(lightIndex, lt);
 
@@ -942,15 +847,15 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void D3DRenderSystem::_setWorldMatrix(const Matrix4 &m)
     {
-		D3DMATRIX d3dmat;
+        D3DMATRIX d3dmat;
 
-		d3dmat = makeD3DMatrix(m);
+        d3dmat = makeD3DMatrix(m);
 
         HRESULT hr = mlpD3DDevice->SetTransform(D3DTRANSFORMSTATE_WORLD, &d3dmat);
 
         if (FAILED(hr))
             Except(hr, "Cannot set D3D world matrix",
-                "D3DRenderSystem::_setWorldMatrix");
+            "D3DRenderSystem::_setWorldMatrix");
     }
 
     //-----------------------------------------------------------------------
@@ -968,7 +873,7 @@ namespace Ogre {
 
         if (FAILED(hr))
             Except(hr, "Cannot set D3D view matrix",
-                "D3DRenderSystem::_setViewMatrix");
+            "D3DRenderSystem::_setViewMatrix");
 
     }
     //-----------------------------------------------------------------------
@@ -976,16 +881,16 @@ namespace Ogre {
     {
         D3DMATRIX d3dmat = makeD3DMatrix(m);
 
-		if( mActiveRenderTarget->requiresTextureFlipping() )
-		{
-			d3dmat._22 = - d3dmat._22;
-		}
-        
+        if( mActiveRenderTarget->requiresTextureFlipping() )
+        {
+            d3dmat._22 = - d3dmat._22;
+        }
+
         HRESULT hr = mlpD3DDevice->SetTransform(D3DTRANSFORMSTATE_PROJECTION, &d3dmat);
 
         if (FAILED(hr))
             Except(hr, "Cannot set D3D projection matrix",
-                "D3DRenderSystem::_setProjectionMatrix");
+            "D3DRenderSystem::_setProjectionMatrix");
     }
 
 
@@ -1038,82 +943,200 @@ namespace Ogre {
 
         }
     }
-
     //-----------------------------------------------------------------------
     void D3DRenderSystem::_setTexture(int stage, bool enabled, const String &texname)
     {
         HRESULT hr;
-
         D3DTexture* dt = static_cast< D3DTexture* >(TextureManager::getSingleton().getByName(texname));
         if (enabled && dt)
         {
-            hr = mlpD3DDevice->SetTexture(stage, dt->getDDSurface() );
-			if (FAILED(hr))
-				Except(hr, "Unable to set texture in D3D.", "D3DRenderSystem::_setTexture");
+            LPDIRECTDRAWSURFACE7 pTex = dt->getDDSurface();
+            if (pTex != mTexStageDesc[stage].pTex)
+            {
+                hr = mlpD3DDevice->SetTexture(stage, pTex );
+                if (FAILED(hr))
+                    Except(hr, "Unable to set texture in D3D.", "D3DRenderSystem::_setTexture");
+
+                // set stage desc.
+                mTexStageDesc[stage].texType = _ogreTexTypeToD3DTexType(dt->getTextureType());
+                mTexStageDesc[stage].pTex = pTex;
+            }
         }
         else
         {
             hr = mlpD3DDevice->SetTexture(stage, 0);
-			if (FAILED(hr))
-				Except(hr, "Unable to disable texture in D3D.", "D3DRenderSystem::_setTexture");
-			hr = mlpD3DDevice->SetTextureStageState( stage, D3DTSS_COLOROP, D3DTOP_DISABLE );
-			if (FAILED(hr))
-				Except(hr, "Unable to disable texture in D3D.", "D3DRenderSystem::_setTexture");
-        }
-    }
+            if (FAILED(hr))
+                Except(hr, "Unable to disable texture in D3D.", "D3DRenderSystem::_setTexture");
+            hr = __SetTextureStageState( stage, D3DTSS_COLOROP, D3DTOP_DISABLE );
+            if (FAILED(hr))
+                Except(hr, "Unable to disable texture in D3D.", "D3DRenderSystem::_setTexture");
 
-    //-----------------------------------------------------------------------
-    void D3DRenderSystem::_setTextureCoordSet(int stage, int index)
-    {
-        HRESULT hr;
-        hr = mlpD3DDevice->SetTextureStageState(stage, D3DTSS_TEXCOORDINDEX, index);
+            // set stage desc. to defaults
+            mTexStageDesc[stage].autoTexCoordType = TEXCALC_NONE;
+            mTexStageDesc[stage].coordIndex = 0;
+            mTexStageDesc[stage].texType = D3D_TEX_TYPE_NORMAL;
+            mTexStageDesc[stage].pTex = NULL;
+        }
     }
     //-----------------------------------------------------------------------
     void D3DRenderSystem::_setTextureCoordCalculation(int stage, TexCoordCalcMethod m)
     {
-        HRESULT hr;
-        // Turn stage number into D3D constant (WHY Microsoft??!)
-        D3DTRANSFORMSTATETYPE tst = (D3DTRANSFORMSTATETYPE)( D3DTRANSFORMSTATE_TEXTURE0 + stage );
+        HRESULT hr = S_OK;
+        // record the stage state
+        mTexStageDesc[stage].autoTexCoordType = m;
 
-        D3DMATRIX matTrans;
-        switch(m)
+        switch( m )
         {
         case TEXCALC_NONE:
-			hr = mlpD3DDevice->SetTextureStageState(stage, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_DISABLE );
-            // Also set identity incase texture mods come later
-            D3DUtil_SetIdentityMatrix(matTrans);
-            hr = mlpD3DDevice->SetTransform(tst, &matTrans);
+		    // if no calc we've already set index through D3D9RenderSystem::_setTextureCoordSet
+            hr = __SetRenderState( D3DRENDERSTATE_NORMALIZENORMALS, FALSE );
             break;
-        case TEXCALC_ENVIRONMENT_MAP:
-            // Sets the flags required for an environment map effect
-            hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_NORMALIZENORMALS,TRUE);
-            hr = mlpD3DDevice->SetTextureStageState(stage, D3DTSS_TEXCOORDINDEX , D3DTSS_TCI_CAMERASPACENORMAL );
-            hr = mlpD3DDevice->SetTextureStageState(stage, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
-            D3DUtil_SetIdentityMatrix(matTrans);
-            
-            matTrans(0,0) = 0.5f;
-            matTrans(3,0) = 0.5f;
-            matTrans(1,1) = -0.5f;
-            matTrans(3,1) = 0.5f;
-            
-
-            hr = mlpD3DDevice->SetTransform(tst, &matTrans);
+        case TEXCALC_ENVIRONMENT_MAP: 
+            // D3D7 does not support spherical reflection
+            hr = __SetRenderState( D3DRENDERSTATE_NORMALIZENORMALS, TRUE );
+            hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3DTSS_TCI_CAMERASPACENORMAL );
+            break;
+        case TEXCALC_ENVIRONMENT_MAP_REFLECTION:
+            hr = __SetRenderState( D3DRENDERSTATE_NORMALIZENORMALS, FALSE );
+            hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3DTSS_TCI_CAMERASPACEREFLECTIONVECTOR );
             break;
         case TEXCALC_ENVIRONMENT_MAP_PLANAR:
-            // Sets the flags required for an environment map effect
-            hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_NORMALIZENORMALS,FALSE);
-            hr = mlpD3DDevice->SetTextureStageState(stage, D3DTSS_TEXCOORDINDEX , D3DTSS_TCI_CAMERASPACEREFLECTIONVECTOR );
-            hr = mlpD3DDevice->SetTextureStageState(stage, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
-            D3DUtil_SetIdentityMatrix(matTrans);
-            matTrans(0,0) = 0.5f;
-            matTrans(3,0) = 0.5f;
-            matTrans(1,1) = -0.5f;
-            matTrans(3,1) = 0.5f;
-
-            hr = mlpD3DDevice->SetTransform(tst, &matTrans);
+            hr = __SetRenderState( D3DRENDERSTATE_NORMALIZENORMALS, FALSE );
+            hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3DTSS_TCI_CAMERASPACEPOSITION );
+            break;
+        case TEXCALC_ENVIRONMENT_MAP_NORMAL:
+            hr = __SetRenderState( D3DRENDERSTATE_NORMALIZENORMALS, TRUE );
+            hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3DTSS_TCI_CAMERASPACENORMAL );
             break;
         }
+        if( FAILED( hr ) )
+            Except( hr, "Error setting texture coord calculation", "D3DRenderSystem::_setTextureCoordCalculation" );
+
     }
+    //-----------------------------------------------------------------------
+    void D3DRenderSystem::_setTextureMatrix(int stage, const Matrix4& xForm)
+    {
+		HRESULT hr;
+		D3DMATRIX d3dMat; // the matrix we'll maybe apply
+		Matrix4 newMat = xForm; // the matrix we'll apply after conv. to D3D format
+        
+
+		/* If envmap is applied, since D3D7 doesn't support spheremap,
+		then we have to use texture transform to make the camera space normal
+		reference the envmap properly. This isn't exactly the same as spheremap
+		(it looks nasty on flat areas because the camera space normals are the same)
+		but it's the best approximation we have in the absence of a proper spheremap */
+		if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_ENVIRONMENT_MAP)
+		{
+			// if so we must concatenate the current with the env_map matrix
+			D3DXMATRIX d3dMatEnvMap; // the env_map matrix
+			// ident. it 
+			D3DXMatrixIdentity(&d3dMatEnvMap);
+			// set env_map values
+			d3dMatEnvMap(0,0) = 0.5f;
+			d3dMatEnvMap(3,0) = 0.5f;
+			d3dMatEnvMap(1,1) = -0.5f;
+			d3dMatEnvMap(3,1) = 0.5f;
+			// convert it to ogre format
+			Matrix4 ogreMatEnvMap = convertD3DMatrix(d3dMatEnvMap);
+			// concatenate with the xForm
+			newMat = newMat.concatenate(ogreMatEnvMap);
+		}
+
+        // If this is a cubic reflection, we need to modify using the view matrix
+        if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_ENVIRONMENT_MAP_REFLECTION)
+        {
+            D3DMATRIX viewMatrix; 
+
+            // Get view matrix
+            mlpD3DDevice->GetTransform(D3DTRANSFORMSTATE_VIEW, &viewMatrix);
+            // Get transposed 3x3, ie since D3D is transposed just copy
+            // We want to transpose since that will invert an orthonormal matrix ie rotation
+            Matrix4 ogreViewTransposed;
+            ogreViewTransposed[0][0] = viewMatrix.m[0][0];
+            ogreViewTransposed[0][1] = viewMatrix.m[0][1];
+            ogreViewTransposed[0][2] = viewMatrix.m[0][2];
+            ogreViewTransposed[0][3] = 0.0f;
+
+            ogreViewTransposed[1][0] = viewMatrix.m[1][0];
+            ogreViewTransposed[1][1] = viewMatrix.m[1][1];
+            ogreViewTransposed[1][2] = viewMatrix.m[1][2];
+            ogreViewTransposed[1][3] = 0.0f;
+
+            ogreViewTransposed[2][0] = viewMatrix.m[2][0];
+            ogreViewTransposed[2][1] = viewMatrix.m[2][1];
+            ogreViewTransposed[2][2] = viewMatrix.m[2][2];
+            ogreViewTransposed[2][3] = 0.0f;
+
+            ogreViewTransposed[3][0] = 0.0f;
+            ogreViewTransposed[3][1] = 0.0f;
+            ogreViewTransposed[3][2] = 0.0f;
+            ogreViewTransposed[3][3] = 1.0f;
+            
+            newMat = newMat.concatenate(ogreViewTransposed);
+        }
+
+		// convert our matrix to D3D format
+		d3dMat = makeD3DMatrix(newMat);
+
+		// need this if texture is a cube map, to invert D3D's z coord
+		if (mTexStageDesc[stage].autoTexCoordType != TEXCALC_NONE)
+		{
+			d3dMat._13 = -d3dMat._13;
+			d3dMat._23 = -d3dMat._23;
+			d3dMat._33 = -d3dMat._33;
+			d3dMat._43 = -d3dMat._43;
+		}
+
+		// set the matrix if it's not the identity
+        if (!(newMat == Matrix4::IDENTITY))
+		{
+			// tell D3D the dimension of tex. coord.
+			int texCoordDim;
+			switch (mTexStageDesc[stage].texType)
+			{
+			case D3D_TEX_TYPE_NORMAL:
+				texCoordDim = 2;
+				break;
+			case D3D_TEX_TYPE_CUBE:
+			case D3D_TEX_TYPE_VOLUME:
+				texCoordDim = 3;
+			}
+
+			hr = __SetTextureStageState( stage, D3DTSS_TEXTURETRANSFORMFLAGS, texCoordDim );
+			if (FAILED(hr))
+				Except( hr, "Unable to set texture coord. dimension", "D3D9RenderSystem::_setTextureMatrix" );
+
+			hr = mlpD3DDevice->SetTransform( 
+                (D3DTRANSFORMSTATETYPE)(D3DTRANSFORMSTATE_TEXTURE0 + stage), &d3dMat );
+			if (FAILED(hr))
+				Except( hr, "Unable to set texture matrix", "D3D9RenderSystem::_setTextureMatrix" );
+		}
+		else
+		{
+			// disable all of this
+			hr = __SetTextureStageState( stage, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_DISABLE );
+			if( FAILED( hr ) )
+				Except( hr, "Error setting texture matrix", "D3D9RenderSystem::_setTextureMatrix" );
+
+			// set the identity matrix
+			D3DUtil_SetIdentityMatrix( d3dMat );
+			hr = mlpD3DDevice->SetTransform( 
+                (D3DTRANSFORMSTATETYPE)(D3DTRANSFORMSTATE_TEXTURE0 + stage), &d3dMat );
+			if( FAILED( hr ) )
+				Except( hr, "Error setting texture matrix", "D3D9RenderSystem::_setTextureMatrix" );
+		}
+    }
+	//---------------------------------------------------------------------
+	void D3DRenderSystem::_setTextureCoordSet( int stage, int index )
+	{
+		HRESULT hr;
+		hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, index );
+		if( FAILED( hr ) )
+			Except( hr, "Unable to set texture coord. set index", "D3DRenderSystem::_setTextureCoordSet" );
+        // Record settings
+        mTexStageDesc[stage].coordIndex = index;
+	}
     //-----------------------------------------------------------------------
     void D3DRenderSystem::_setTextureBlendMode(int stage, const LayerBlendModeEx& bm)
     {
@@ -1171,19 +1194,19 @@ namespace Ogre {
         case LBX_BLEND_MANUAL:
             value = D3DTOP_BLENDFACTORALPHA;
             // Set factor in render state
-            hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREFACTOR,
+            hr = __SetRenderState(D3DRENDERSTATE_TEXTUREFACTOR,
                 D3DRGBA(0,0,0,bm.factor));
             break;
         case LBX_DOTPRODUCT:
-			if (mD3DDeviceDesc.dwTextureOpCaps & D3DTEXOPCAPS_DOTPRODUCT3)
-				value = D3DTOP_DOTPRODUCT3;
-			else
-				value = D3DTOP_MODULATE;
+            if (mD3DDeviceDesc.dwTextureOpCaps & D3DTEXOPCAPS_DOTPRODUCT3)
+                value = D3DTOP_DOTPRODUCT3;
+            else
+                value = D3DTOP_MODULATE;
             break;
         }
 
         // Make call to set operation
-        hr = mlpD3DDevice->SetTextureStageState(stage, tss, value);
+        hr = __SetTextureStageState(stage, tss, value);
 
         // Now set up sources
         D3DCOLOR manualD3D;
@@ -1217,13 +1240,12 @@ namespace Ogre {
             case LBS_MANUAL:
                 value = D3DTA_TFACTOR;
                 // Set factor in render state
-                hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREFACTOR,    manualD3D);
+                hr = __SetRenderState(D3DRENDERSTATE_TEXTUREFACTOR,    manualD3D);
                 break;
-
             }
 
             // Set source
-            hr = mlpD3DDevice->SetTextureStageState(stage, tss, value);
+            hr = __SetTextureStageState(stage, tss, value);
 
             // Source2
             bs = bm.source2;
@@ -1238,10 +1260,6 @@ namespace Ogre {
                 manualD3D = D3DRGBA(0,0,0,bm.alphaArg2);
             }
         }
-
-
-
-
     }
     //-----------------------------------------------------------------------
     void D3DRenderSystem::_setTextureAddressingMode(int stage, Material::TextureLayer::TextureAddressingMode tam)
@@ -1263,41 +1281,7 @@ namespace Ogre {
         }
 
 
-        hr = mlpD3DDevice->SetTextureStageState(stage, D3DTSS_ADDRESS, d3dType);
-    }
-    //-----------------------------------------------------------------------
-    void D3DRenderSystem::_setTextureMatrix(int stage, const Matrix4& xform)
-    {
-        HRESULT hr;
-        D3DTRANSFORMSTATETYPE d3dType;
-        D3DMATRIX d3dMat, d3dMatCur;
-
-        if (xform == Matrix4::IDENTITY)
-        {
-            hr = mlpD3DDevice->SetTextureStageState(stage, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_DISABLE);
-        }
-        else
-        {
-            // Set 2D input
-            // TODO: deal with 3D coordinates when cubic environment mapping supported
-            hr = mlpD3DDevice->SetTextureStageState(stage, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
-
-			if (FAILED(hr))
-                Except(Exception::ERR_RENDERINGAPI_ERROR, "Unable to set texture transform.",
-                    "D3DRenderSystem::_setTextureMatrix");
-
-            // Set texture stage xform
-            d3dType = (D3DTRANSFORMSTATETYPE)(D3DTRANSFORMSTATE_TEXTURE0 + stage);
-            d3dMat = makeD3DMatrix(xform);
-
-
-            hr = mlpD3DDevice->SetTransform(d3dType, &d3dMat);
-
-            if (FAILED(hr))
-                Except(Exception::ERR_RENDERINGAPI_ERROR, "Unable to set texture transform.",
-                    "D3DRenderSystem::_setTextureMatrix");
-        }
-
+        hr = __SetTextureStageState(stage, D3DTSS_ADDRESS, d3dType);
     }
     //-----------------------------------------------------------------------
     void D3DRenderSystem::_setSceneBlending(SceneBlendFactor sourceFactor, SceneBlendFactor destFactor)
@@ -1348,9 +1332,9 @@ namespace Ogre {
 
         }
 
-        hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, d3dSrcBlend);
+        hr = __SetRenderState(D3DRENDERSTATE_SRCBLEND, d3dSrcBlend);
 
-        hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, d3dDestBlend);
+        hr = __SetRenderState(D3DRENDERSTATE_DESTBLEND, d3dDestBlend);
 
 
     }
@@ -1360,21 +1344,22 @@ namespace Ogre {
         HRESULT hr;
         if (func != CMPF_ALWAYS_PASS)
         {
-            if( FAILED( hr = mlpD3DDevice->SetRenderState( D3DRENDERSTATE_ALPHATESTENABLE,  TRUE ) ) )
-    			Except( hr, "Failed to enable alpha testing", 
+            if( FAILED( hr = __SetRenderState( D3DRENDERSTATE_ALPHATESTENABLE,  TRUE ) ) )
+                Except( hr, "Failed to enable alpha testing", 
                 "D3DRenderSystem::_setAlphaRejectSettings" );
         }
         else
         {
-            if( FAILED( hr = mlpD3DDevice->SetRenderState( D3DRENDERSTATE_ALPHATESTENABLE,  FALSE ) ) )
-    			Except( hr, "Failed to disable alpha testing", 
+            if( FAILED( hr = __SetRenderState( D3DRENDERSTATE_ALPHATESTENABLE,  FALSE ) ) )
+                Except( hr, "Failed to disable alpha testing", 
                 "D3DRenderSystem::_setAlphaRejectSettings" );
         }
+
         // Set always just be sure
-        hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHAFUNC, 
+        hr = __SetRenderState(D3DRENDERSTATE_ALPHAFUNC, 
             convertCompareFunction(func));
 
-        hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHAREF, value);
+        hr = __SetRenderState(D3DRENDERSTATE_ALPHAREF, value);    
     }
     //-----------------------------------------------------------------------
     void D3DRenderSystem::_setViewport(Viewport *vp)
@@ -1383,7 +1368,7 @@ namespace Ogre {
         if (vp != mActiveViewport || vp->_isUpdated())
         {
             mActiveViewport = vp;
-			mActiveRenderTarget = vp->getTarget();
+            mActiveRenderTarget = vp->getTarget();
             // Ok, it's different. Time to set render target (maybe)
             //  and viewport params.
             D3DVIEWPORT7 d3dvp;
@@ -1399,7 +1384,7 @@ namespace Ogre {
 
             hr = mlpD3DDevice->SetRenderTarget( pBack, 0 );
 
-			_setCullingMode( mCullingMode );
+            _setCullingMode( mCullingMode );
 
             // Set viewport dimensions
             d3dvp.dwX = vp->getActualLeft();
@@ -1415,7 +1400,7 @@ namespace Ogre {
 
             if (FAILED(hr))
                 Except(hr, "Error setting D3D viewport.",
-                    "D3DRenderSystem::_setViewport");
+                "D3DRenderSystem::_setViewport");
 
             vp->_clearUpdatedFlag();
 
@@ -1431,7 +1416,7 @@ namespace Ogre {
 
         if (!mActiveViewport)
             Except(999, "Cannot begin frame - no viewport selected.",
-                "D3DRenderSystem::_beginFrame");
+            "D3DRenderSystem::_beginFrame");
 
         // Clear the viewport if required
         if (mActiveViewport->getClearEveryFrame())
@@ -1441,13 +1426,13 @@ namespace Ogre {
                 1.0f, 0);
             if (FAILED(hr))
                 Except(hr, "Error clearing viewport.",
-                    "D3DRenderSystem::_beginFrame");
+                "D3DRenderSystem::_beginFrame");
         }
 
         hr = mlpD3DDevice->BeginScene();
         if (FAILED(hr))
             Except(hr, "Error beginning frame.",
-                "D3DRenderSystem::_beginFrame");
+            "D3DRenderSystem::_beginFrame");
 
         // Moved here from _render, no point checking every rendering call
         static bool firstTime = true;
@@ -1457,16 +1442,16 @@ namespace Ogre {
             // Set up some defaults
 
             // Allow alpha blending
-            hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
+            hr = __SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
             if (FAILED(hr))
                 Except(hr, "Error enabling alpha blending option.",
-                    "D3DRenderSystem::_beginFrame");
+                "D3DRenderSystem::_beginFrame");
 
             // Allow specular effects
-            hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
+            hr = __SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
             if (FAILED(hr))
                 Except(hr, "Error enabling specular option.",
-                    "D3DRenderSystem::_beginFrame");
+                "D3DRenderSystem::_beginFrame");
 
             firstTime = false;
         }
@@ -1477,40 +1462,116 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void D3DRenderSystem::_render(const RenderOperation& op)
     {
-        /* TODO
         OgreGuard( "D3DRenderSystem::_render" );
-
         HRESULT hr;
 
         // call superclass
         RenderSystem::_render(op);
-
-
         // Set up vertex flags
         DWORD d3dVertexFormat = 0;
-        int i;
+        int numTexCoords = 0;
 
-        if (op.vertexOptions == 0)
+        // Assume no more than 10 buffers!
+        static unsigned char* pBufPtrs[10];
+
+        // Lock all the buffers first
+        // They're system memory buffers anyway
+        const VertexBufferBinding::VertexBufferBindingMap binds = 
+            op.vertexData->vertexBufferBinding->getBindings();
+        VertexBufferBinding::VertexBufferBindingMap::const_iterator bindi, bindend;
+        bindend = binds.end();
+        for (bindi = binds.begin(); bindi != bindend; ++bindi)
         {
-            // Must include at least vertex normal, colour or tex coords
-            Except(999, "You must specify at least vertex normals, "
-                "vertex colours or texture co-ordinates to render.", "D3DRenderSystem::_renderIndexedTriangleList");
+            // lock from vertex start only
+            pBufPtrs[bindi->first] = static_cast<unsigned char*>(
+                bindi->second->lock(
+                    op.vertexData->vertexStart * bindi->second->getVertexSize(),
+                    op.vertexData->vertexCount * bindi->second->getVertexSize(),
+                    HardwareBuffer::HBL_READ_ONLY)
+                    );
+
         }
-        d3dVertexFormat |= D3DFVF_XYZ; // Untransformed  TODO - support transformed?
 
-        // Normal
-        if (op.vertexOptions & LegacyRenderOperation::VO_NORMALS)
-            d3dVertexFormat |= D3DFVF_NORMAL;
+        // Determine vertex format
 
-        // Do texture co-ords
-        // Because D3D defines as separately named macros/constants, and refuses to make them
-        // derivable via numerical means, I have to use
-        // lots of ifs/switches - yuck! Why can't D3D be more elegant?
-        if (op.vertexOptions & LegacyRenderOperation::VO_TEXTURE_COORDS)
+        // Struct for data pointers
+        D3DDRAWPRIMITIVESTRIDEDDATA strideData;
+
+        // Iterate over elements
+        VertexDeclaration::VertexElementList::const_iterator elemi, elemend;
+        const VertexDeclaration::VertexElementList elems = 
+            op.vertexData->vertexDeclaration->getElements();
+        elemend = elems.end();
+        for (elemi = elems.begin(); elemi != elemend; ++elemi)
         {
-            // Specify number of co-ords
-            switch(op.numTextureCoordSets)
+            // Get a few basic details
+            const VertexElement& elem = *elemi;
+            unsigned short source = elem.getSource();
+            size_t vertexSize = op.vertexData->vertexDeclaration->getVertexSize(source);
+            size_t offset = elem.getOffset();
+            // semantic-specific stuff
+            switch (elem.getSemantic())
             {
+            case VES_POSITION:
+                d3dVertexFormat |= D3DFVF_XYZ; // Untransformed  
+                strideData.position.lpvData = pBufPtrs[source] + offset;
+                strideData.position.dwStride = vertexSize;
+                // Set up pointer
+                break;
+            case VES_NORMAL:
+                d3dVertexFormat |= D3DFVF_NORMAL; 
+                strideData.normal.lpvData = pBufPtrs[source] + offset;
+                strideData.normal.dwStride = vertexSize;
+                break;
+            case VES_DIFFUSE:
+                d3dVertexFormat |= D3DFVF_DIFFUSE; 
+                strideData.diffuse.lpvData = pBufPtrs[source] + offset;
+                strideData.diffuse.dwStride = vertexSize;
+                break;
+            case VES_SPECULAR:
+                d3dVertexFormat |= D3DFVF_SPECULAR; 
+                strideData.specular.lpvData = pBufPtrs[source] + offset;
+                strideData.specular.dwStride = vertexSize;
+                break;
+            case VES_TEXTURE_COORDINATES:
+                // texcoords must go in order
+                if (elem.getIndex() != numTexCoords)
+                {
+                    Except(Exception::ERR_INVALIDPARAMS, "Invalid vertex format, texture coordinates"
+                        " must be in order wih no gaps.", "D3DRenderSystem::_render");
+                }
+                // Don't add D3DFVF_TEXn flag here, wait until we know how many total
+                // However, specify size
+                switch (elem.getType())
+                {
+                case VET_FLOAT1:
+                    d3dVertexFormat |= D3DFVF_TEXCOORDSIZE1(numTexCoords);
+                    break;
+                case VET_FLOAT2:
+                    d3dVertexFormat |= D3DFVF_TEXCOORDSIZE2(numTexCoords);
+                    break;
+                case VET_FLOAT3:
+                    d3dVertexFormat |= D3DFVF_TEXCOORDSIZE3(numTexCoords);
+                    break;
+                case VET_FLOAT4:
+                    d3dVertexFormat |= D3DFVF_TEXCOORDSIZE4(numTexCoords);
+                    break;
+                }
+
+                strideData.textureCoords[numTexCoords].lpvData = pBufPtrs[source] + offset;
+                strideData.textureCoords[numTexCoords].dwStride = vertexSize;
+
+                // Increment number of coords
+                ++numTexCoords;
+            }
+
+        }
+        // Add combined texture flag
+        switch(numTexCoords)
+        {
+            case 0: 
+                // do nothing
+                break;
             case 1:
                 d3dVertexFormat |= D3DFVF_TEX1;
                 break;
@@ -1535,93 +1596,57 @@ namespace Ogre {
             case 8:
                 d3dVertexFormat |= D3DFVF_TEX8;
                 break;
-            }
-
-            // Do formats (dimensions per texture co-ord set)
-            for (i = 0; i < op.numTextureCoordSets; ++i)
-            {
-                switch (op.numTextureDimensions[i])
-                {
-                case 1:
-                    d3dVertexFormat |= D3DFVF_TEXCOORDSIZE1(i);
-                    break;
-                case 2:
-                    d3dVertexFormat |= D3DFVF_TEXCOORDSIZE2(i);
-                    break;
-                case 3:
-                    d3dVertexFormat |= D3DFVF_TEXCOORDSIZE3(i);
-                    break;
-                case 4:
-                    d3dVertexFormat |= D3DFVF_TEXCOORDSIZE4(i);
-                    break;
-                }
-            }
         }
-        else
-        {
-            // No textures
-            d3dVertexFormat |= D3DFVF_TEX0;
-        }
-
-        // Vertex colours
-        if (op.vertexOptions & LegacyRenderOperation::VO_DIFFUSE_COLOURS)
-            d3dVertexFormat |= D3DFVF_DIFFUSE;
-        if (op.vertexOptions & LegacyRenderOperation::VO_SPECULAR_COLOURS)
-            d3dVertexFormat |= D3DFVF_SPECULAR;
 
         // Determine rendering operation
         D3DPRIMITIVETYPE primType;
         switch (op.operationType)
         {
-        case LegacyRenderOperation::OT_POINT_LIST:
+        case RenderOperation::OT_POINT_LIST:
             primType = D3DPT_POINTLIST;
             break;
-        case LegacyRenderOperation::OT_LINE_LIST:
+        case RenderOperation::OT_LINE_LIST:
             primType = D3DPT_LINELIST;
             break;
-        case LegacyRenderOperation::OT_LINE_STRIP:
+        case RenderOperation::OT_LINE_STRIP:
             primType = D3DPT_LINESTRIP;
             break;
-        case LegacyRenderOperation::OT_TRIANGLE_LIST:
+        case RenderOperation::OT_TRIANGLE_LIST:
             primType = D3DPT_TRIANGLELIST;
             break;
-        case LegacyRenderOperation::OT_TRIANGLE_STRIP:
+        case RenderOperation::OT_TRIANGLE_STRIP:
             primType = D3DPT_TRIANGLESTRIP;
             break;
-        case LegacyRenderOperation::OT_TRIANGLE_FAN:
+        case RenderOperation::OT_TRIANGLE_FAN:
             primType = D3DPT_TRIANGLEFAN;
             break;
         }
 
-        // Set up separate buffer info if required
-        D3DDRAWPRIMITIVESTRIDEDDATA strideData;
-        // Set all pointers - FVF will indicate which is valid
-        // NB Strides in D3D are not gaps, but include size of data
-        // So add data size and Ogre's gap stride
-        strideData.position.lpvData = op.pVertices;
-        strideData.position.dwStride = op.vertexStride + (sizeof(float)*3);
-        strideData.normal.lpvData = op.pNormals;
-        strideData.normal.dwStride = op.normalStride + (sizeof(float)*3);
-        strideData.diffuse.lpvData = op.pDiffuseColour;
-        strideData.diffuse.dwStride = op.diffuseStride + sizeof(long);
-        strideData.specular.lpvData = op.pSpecularColour;
-        strideData.specular.dwStride = op.specularStride + sizeof(long);
-        for (i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; ++i)
-        {
-            strideData.textureCoords[i].lpvData = op.pTexCoords[i];
-            strideData.textureCoords[i].dwStride = op.texCoordStride[i] + (sizeof(float) * op.numTextureDimensions[i]);
-        }
 
         if (op.useIndexes)
         {
+            // Get pointer to index buffer
+            // D3D7 only allows 16-bit indexes, this is enforced in buffer manager
+            unsigned short* pIdx = static_cast<unsigned short*>(
+                op.indexData->indexBuffer->lock(
+                    op.indexData->indexStart,
+                    op.indexData->indexCount * sizeof(unsigned short),
+                    HardwareBuffer::HBL_READ_ONLY) );
+
             hr = mlpD3DDevice->DrawIndexedPrimitiveStrided(primType,
-                d3dVertexFormat, &strideData, op.numVertices,
-                op.pIndexes, op.numIndexes, 0);
+                d3dVertexFormat, &strideData, op.vertexData->vertexCount,
+                pIdx, op.indexData->indexCount, 0);
         }
         else
         {
             hr = mlpD3DDevice->DrawPrimitiveStrided(primType,
-                d3dVertexFormat, &strideData, op.numVertices, 0);
+                d3dVertexFormat, &strideData, op.vertexData->vertexCount, 0);
+        }
+
+        // unlock buffers
+        for (bindi = binds.begin(); bindi != bindend; ++bindi)
+        {
+            bindi->second->unlock();
         }
 
         if (FAILED(hr))
@@ -1631,8 +1656,10 @@ namespace Ogre {
             Except( hr, szBuffer, "D3DRenderSystem::_render");
         }
 
+
+
+
         OgreUnguard();
-        */
     }
 
     //-----------------------------------------------------------------------
@@ -1645,7 +1672,7 @@ namespace Ogre {
 
         if (FAILED(hr))
             Except(hr, "Error ending frame.",
-                "D3DRenderSystem::_endFrame");
+            "D3DRenderSystem::_endFrame");
 
         OgreUnguard();
     }
@@ -1656,7 +1683,7 @@ namespace Ogre {
         HRESULT hr;
         DWORD d3dMode;
 
-		mCullingMode = mode;
+        mCullingMode = mode;
 
         if (mode == CULL_NONE)
         {
@@ -1664,23 +1691,23 @@ namespace Ogre {
         }
         else if( mode == CULL_CLOCKWISE )
         {
-			if( mActiveRenderTarget->requiresTextureFlipping() )
-				d3dMode = D3DCULL_CCW;
-			else
-				d3dMode = D3DCULL_CW;
+            if( mActiveRenderTarget->requiresTextureFlipping() )
+                d3dMode = D3DCULL_CCW;
+            else
+                d3dMode = D3DCULL_CW;
         }
         else if (mode == CULL_ANTICLOCKWISE)
         {
             if( mActiveRenderTarget->requiresTextureFlipping() )
-				d3dMode = D3DCULL_CW;
-			else
-				d3dMode = D3DCULL_CCW;
+                d3dMode = D3DCULL_CW;
+            else
+                d3dMode = D3DCULL_CCW;
         }
 
-        hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE, d3dMode);
+        hr = __SetRenderState(D3DRENDERSTATE_CULLMODE, d3dMode);
         if (FAILED(hr))
             Except(hr, "Unable to set D3D culling mode.",
-                "D3DRenderSystem::_setCullingMode");
+            "D3DRenderSystem::_setCullingMode");
 
     }
 
@@ -1701,19 +1728,19 @@ namespace Ogre {
         {
             // Use w-buffer if available
             if (mD3DDeviceDesc.dpcTriCaps.dwRasterCaps & D3DPRASTERCAPS_WBUFFER)
-                hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, D3DZB_USEW);
+                hr = __SetRenderState(D3DRENDERSTATE_ZENABLE, D3DZB_USEW);
             else
-                hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, D3DZB_TRUE);
+                hr = __SetRenderState(D3DRENDERSTATE_ZENABLE, D3DZB_TRUE);
             if (FAILED(hr))
                 Except(hr, "Error setting depth buffer test state.",
-                    "D3DRenderSystem::_setDepthBufferCheckEnabled");
+                "D3DRenderSystem::_setDepthBufferCheckEnabled");
         }
         else
         {
-            hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, D3DZB_FALSE);
+            hr = __SetRenderState(D3DRENDERSTATE_ZENABLE, D3DZB_FALSE);
             if (FAILED(hr))
                 Except(hr, "Error setting depth buffer test state.",
-                    "D3DRenderSystem::_setDepthBufferCheckEnabled");
+                "D3DRenderSystem::_setDepthBufferCheckEnabled");
         }
     }
     //-----------------------------------------------------------------------
@@ -1721,28 +1748,28 @@ namespace Ogre {
     {
         HRESULT hr;
 
-        hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, enabled);
+        hr = __SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, enabled);
         if (FAILED(hr))
             Except(hr, "Error setting depth buffer write state.",
-                "D3DRenderSystem::_setDepthBufferWriteEnabled");
+            "D3DRenderSystem::_setDepthBufferWriteEnabled");
     }
     //-----------------------------------------------------------------------
     void D3DRenderSystem::_setDepthBufferFunction(CompareFunction func)
     {
-        HRESULT hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_ZFUNC, 
+        HRESULT hr = __SetRenderState(D3DRENDERSTATE_ZFUNC, 
             convertCompareFunction(func));
         if (FAILED(hr))
             Except(hr, "Error setting depth buffer test function.",
-                "D3DRenderSystem::_setDepthBufferFunction");
+            "D3DRenderSystem::_setDepthBufferFunction");
     }
     //-----------------------------------------------------------------------
     void D3DRenderSystem::_setDepthBias(ushort bias)
     {
-        HRESULT hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_ZBIAS, 
+        HRESULT hr = __SetRenderState(D3DRENDERSTATE_ZBIAS, 
             bias);
         if (FAILED(hr))
             Except(hr, "Error setting depth bias.",
-                "D3DRenderSystem::_setDepthBias");
+            "D3DRenderSystem::_setDepthBias");
     }
     //-----------------------------------------------------------------------
     String D3DRenderSystem::getErrorDescription(long errCode)
@@ -1762,7 +1789,7 @@ namespace Ogre {
             (LPTSTR) errDesc,
             255,
             NULL
-        );
+            );
 
 
         if (i == 0)
@@ -2202,7 +2229,7 @@ namespace Ogre {
     void D3DRenderSystem::setLightingEnabled(bool enabled)
     {
         // Call D3D
-        HRESULT hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_LIGHTING, enabled);
+        HRESULT hr = __SetRenderState(D3DRENDERSTATE_LIGHTING, enabled);
         if (FAILED(hr))
             Except(hr, "Error lighting status.", "D3DRenderSystem::setLightingEnabled");
     }
@@ -2211,49 +2238,49 @@ namespace Ogre {
     {
         HRESULT hr;
 
-		D3DRENDERSTATETYPE fogType, fogTypeNot;
+        D3DRENDERSTATETYPE fogType, fogTypeNot;
 
-		if (mD3DDeviceDesc.dpcTriCaps.dwRasterCaps & D3DPRASTERCAPS_FOGTABLE)
-		{
-			fogType = D3DRENDERSTATE_FOGTABLEMODE;
-			fogTypeNot = D3DRENDERSTATE_FOGVERTEXMODE;
-		}
-		else
-		{
-			fogType = D3DRENDERSTATE_FOGVERTEXMODE;
-			fogTypeNot = D3DRENDERSTATE_FOGTABLEMODE;
-		}
+        if (mD3DDeviceDesc.dpcTriCaps.dwRasterCaps & D3DPRASTERCAPS_FOGTABLE)
+        {
+            fogType = D3DRENDERSTATE_FOGTABLEMODE;
+            fogTypeNot = D3DRENDERSTATE_FOGVERTEXMODE;
+        }
+        else
+        {
+            fogType = D3DRENDERSTATE_FOGVERTEXMODE;
+            fogTypeNot = D3DRENDERSTATE_FOGTABLEMODE;
+        }
 
-		if( mode == FOG_NONE)
-		{
-			// just disable
-			hr = mlpD3DDevice->SetRenderState(fogType, D3DFOG_NONE );
-			hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE, FALSE);
-		}
-		else
-		{
-			// Allow fog
-			hr = mlpD3DDevice->SetRenderState( D3DRENDERSTATE_FOGENABLE, TRUE );
-			hr = mlpD3DDevice->SetRenderState( fogTypeNot, D3DFOG_NONE );
-			switch(mode)
-			{
-			case FOG_EXP:
-				hr = mlpD3DDevice->SetRenderState( fogType, D3DFOG_EXP);
-				break;
-			case FOG_EXP2:
-				hr = mlpD3DDevice->SetRenderState( fogType, D3DFOG_EXP2);
-				break;
-			case FOG_LINEAR:
-				hr = mlpD3DDevice->SetRenderState( fogType, D3DFOG_LINEAR);
-				break;
+        if( mode == FOG_NONE)
+        {
+            // just disable
+            hr = __SetRenderState(fogType, D3DFOG_NONE );
+            hr = __SetRenderState(D3DRENDERSTATE_FOGENABLE, FALSE);
+        }
+        else
+        {
+            // Allow fog
+            hr = __SetRenderState( D3DRENDERSTATE_FOGENABLE, TRUE );
+            hr = __SetRenderState( fogTypeNot, D3DFOG_NONE );
+            switch(mode)
+            {
+            case FOG_EXP:
+                hr = __SetRenderState( fogType, D3DFOG_EXP);
+                break;
+            case FOG_EXP2:
+                hr = __SetRenderState( fogType, D3DFOG_EXP2);
+                break;
+            case FOG_LINEAR:
+                hr = __SetRenderState( fogType, D3DFOG_LINEAR);
+                break;
 
-			}
+            }
 
-			hr = mlpD3DDevice->SetRenderState( D3DRENDERSTATE_FOGCOLOR, colour.getAsLongARGB() );
-			hr = mlpD3DDevice->SetRenderState( D3DRENDERSTATE_FOGSTART, *((LPDWORD)(&start)) );
-			hr = mlpD3DDevice->SetRenderState( D3DRENDERSTATE_FOGEND, *((LPDWORD)(&end)) );
-			hr = mlpD3DDevice->SetRenderState( D3DRENDERSTATE_FOGDENSITY, *((LPDWORD)(&density)) );
-		}
+            hr = __SetRenderState( D3DRENDERSTATE_FOGCOLOR, colour.getAsLongARGB() );
+            hr = __SetRenderState( D3DRENDERSTATE_FOGSTART, *((LPDWORD)(&start)) );
+            hr = __SetRenderState( D3DRENDERSTATE_FOGEND, *((LPDWORD)(&end)) );
+            hr = __SetRenderState( D3DRENDERSTATE_FOGDENSITY, *((LPDWORD)(&density)) );
+        }
 
 
     }
@@ -2297,8 +2324,8 @@ namespace Ogre {
             break;
 
         }
-        
-        HRESULT hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_FILLMODE, d3dmode);
+
+        HRESULT hr = __SetRenderState(D3DRENDERSTATE_FILLMODE, d3dmode);
         if (FAILED(hr))
         {
             Except(hr, "Error setting rasterisation mode.", 
@@ -2311,64 +2338,64 @@ namespace Ogre {
     void D3DRenderSystem::setStencilCheckEnabled(bool enabled)
     {
         // Allow stencilling
-        HRESULT hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_STENCILENABLE, enabled);
+        HRESULT hr = __SetRenderState(D3DRENDERSTATE_STENCILENABLE, enabled);
         if (FAILED(hr))
             Except(hr, "Error enabling / disabling stencilling.",
-                "D3DRenderSystem::setStencilCheckEnabled");
-        
+            "D3DRenderSystem::setStencilCheckEnabled");
+
     }
     //---------------------------------------------------------------------
     void D3DRenderSystem::setStencilBufferFunction(CompareFunction func)
     {
-        HRESULT hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_STENCILFUNC, 
+        HRESULT hr = __SetRenderState(D3DRENDERSTATE_STENCILFUNC, 
             convertCompareFunction(func));
         if (FAILED(hr))
             Except(hr, "Error setting stencil buffer test function.",
-                "D3DRenderSystem::_setStencilBufferFunction");
+            "D3DRenderSystem::_setStencilBufferFunction");
 
     }
     //---------------------------------------------------------------------
     void D3DRenderSystem::setStencilBufferReferenceValue(ulong refValue)
     {
-        HRESULT hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_STENCILREF, refValue);
+        HRESULT hr = __SetRenderState(D3DRENDERSTATE_STENCILREF, refValue);
         if (FAILED(hr))
             Except(hr, "Error setting stencil buffer reference value.",
-                "D3DRenderSystem::setStencilBufferReferenceValue");
+            "D3DRenderSystem::setStencilBufferReferenceValue");
     }
     //---------------------------------------------------------------------
     void D3DRenderSystem::setStencilBufferMask(ulong mask)
     {
-        HRESULT hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_STENCILMASK, mask);
+        HRESULT hr = __SetRenderState(D3DRENDERSTATE_STENCILMASK, mask);
         if (FAILED(hr))
             Except(hr, "Error setting stencil buffer mask.",
-                "D3DRenderSystem::setStencilBufferMask");
+            "D3DRenderSystem::setStencilBufferMask");
     }
     //---------------------------------------------------------------------
     void D3DRenderSystem::setStencilBufferFailOperation(StencilOperation op)
     {
-        HRESULT hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_STENCILFAIL, 
+        HRESULT hr = __SetRenderState(D3DRENDERSTATE_STENCILFAIL, 
             convertStencilOp(op));
         if (FAILED(hr))
             Except(hr, "Error setting stencil fail operation.",
-                "D3DRenderSystem::setStencilBufferFailOperation");
+            "D3DRenderSystem::setStencilBufferFailOperation");
     }
     //---------------------------------------------------------------------
     void D3DRenderSystem::setStencilBufferDepthFailOperation(StencilOperation op)
     {
-        HRESULT hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_STENCILZFAIL, 
+        HRESULT hr = __SetRenderState(D3DRENDERSTATE_STENCILZFAIL, 
             convertStencilOp(op));
         if (FAILED(hr))
             Except(hr, "Error setting stencil depth fail operation.",
-                "D3DRenderSystem::setStencilBufferDepthFailOperation");
+            "D3DRenderSystem::setStencilBufferDepthFailOperation");
     }
     //---------------------------------------------------------------------
     void D3DRenderSystem::setStencilBufferPassOperation(StencilOperation op)
     {
-        HRESULT hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_STENCILPASS, 
+        HRESULT hr = __SetRenderState(D3DRENDERSTATE_STENCILPASS, 
             convertStencilOp(op));
         if (FAILED(hr))
             Except(hr, "Error setting stencil pass operation.",
-                "D3DRenderSystem::setStencilBufferPassOperation");
+            "D3DRenderSystem::setStencilBufferPassOperation");
     }
     //---------------------------------------------------------------------
     D3DCMPFUNC D3DRenderSystem::convertCompareFunction(CompareFunction func)
@@ -2417,39 +2444,160 @@ namespace Ogre {
         return D3DSTENCILOP_KEEP;
     }
 
-	DWORD D3DRenderSystem::_getCurrentAnisotropy(int unit)
-	{
-		DWORD oldVal;
-		mlpD3DDevice->GetTextureStageState(unit, D3DTSS_MAXANISOTROPY, &oldVal);
-			return oldVal;
-	}
+    DWORD D3DRenderSystem::_getCurrentAnisotropy(int unit)
+    {
+        DWORD oldVal;
+        mlpD3DDevice->GetTextureStageState(unit, D3DTSS_MAXANISOTROPY, &oldVal);
+        return oldVal;
+    }
 
-	void D3DRenderSystem::_setTextureLayerFiltering(int unit, const TextureFilterOptions texLayerFilterOps)
-	{
-		mlpD3DDevice->SetTextureStageState(unit,D3DTSS_MAGFILTER, _getMagFilter(texLayerFilterOps));
-		mlpD3DDevice->SetTextureStageState(unit,D3DTSS_MINFILTER, _getMinFilter(texLayerFilterOps));
-		mlpD3DDevice->SetTextureStageState(unit,D3DTSS_MIPFILTER, _getMipFilter(texLayerFilterOps));
-	}
-	
-	void D3DRenderSystem::_setTextureLayerAnisotropy(int unit, int maxAnisotropy)
-	{
-		if ((DWORD)maxAnisotropy > mD3DDeviceDesc.dwMaxAnisotropy)
-			maxAnisotropy = mD3DDeviceDesc.dwMaxAnisotropy;
+    void D3DRenderSystem::_setTextureLayerFiltering(int unit, const TextureFilterOptions texLayerFilterOps)
+    {
+        __SetTextureStageState(unit,D3DTSS_MAGFILTER, _getMagFilter(texLayerFilterOps));
+        __SetTextureStageState(unit,D3DTSS_MINFILTER, _getMinFilter(texLayerFilterOps));
+        __SetTextureStageState(unit,D3DTSS_MIPFILTER, _getMipFilter(texLayerFilterOps));
+    }
 
-		if (_getCurrentAnisotropy(unit) != maxAnisotropy)
-			mlpD3DDevice->SetTextureStageState( unit, D3DTSS_MAXANISOTROPY, maxAnisotropy );
-	}
+    void D3DRenderSystem::_setTextureLayerAnisotropy(int unit, int maxAnisotropy)
+    {
+        if ((DWORD)maxAnisotropy > mD3DDeviceDesc.dwMaxAnisotropy)
+            maxAnisotropy = mD3DDeviceDesc.dwMaxAnisotropy;
 
-	void D3DRenderSystem::setVertexDeclaration(VertexDeclaration* decl)
-	{
-		// TODO
-	}
+        if (_getCurrentAnisotropy(unit) != maxAnisotropy)
+            __SetTextureStageState( unit, D3DTSS_MAXANISOTROPY, maxAnisotropy );
+    }
 
-	void D3DRenderSystem::setVertexBufferBinding(VertexBufferBinding* binding)
-	{
-		// TODO
-	}
+    void D3DRenderSystem::setVertexDeclaration(VertexDeclaration* decl)
+    {
+        // TODO
+    }
 
+    void D3DRenderSystem::setVertexBufferBinding(VertexBufferBinding* binding)
+    {
+        // TODO
+    }
+    //-----------------------------------------------------------------------
+    DWORD D3DRenderSystem::_getMagFilter(const TextureFilterOptions fo)
+    {
+        DWORD ret;
+        switch( fo )
+        {
+            // NOTE: Fall through if device doesn't support requested type
+        case TFO_ANISOTROPIC:
+            if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_MAGFANISOTROPIC )
+            {
+                ret = D3DTFG_ANISOTROPIC;
+                break;
+            }
+        case TFO_TRILINEAR:
+            if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_MAGFLINEAR )
+            {
+                ret = D3DTFG_LINEAR;
+                break;
+            }
+        case TFO_BILINEAR:
+            if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_MAGFLINEAR )
+            {
+                ret = D3DTFG_LINEAR;
+                break;
+            }
+        case TFO_NONE:
+            ret = D3DTFG_POINT;
+            break;
+        }
+
+        return ret;
+    }
+    //-----------------------------------------------------------------------
+    DWORD D3DRenderSystem::_getMinFilter(const TextureFilterOptions fo)
+    {
+        DWORD ret;
+        switch( fo )
+        {
+            // NOTE: Fall through if device doesn't support requested type
+        case TFO_ANISOTROPIC:
+            if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_MINFANISOTROPIC )
+            {
+                ret = D3DTFN_ANISOTROPIC;
+                break;
+            }
+        case TFO_TRILINEAR:
+            if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_MINFLINEAR )
+            {
+                ret = D3DTFN_LINEAR;
+                break;
+            }
+        case TFO_BILINEAR:
+            if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_MINFLINEAR )
+            {
+                ret = D3DTFN_LINEAR;
+                break;
+            }
+        case TFO_NONE:
+            ret = D3DTFN_POINT;
+            break;
+        }
+
+        return ret;
+    }
+    //-----------------------------------------------------------------------
+    DWORD D3DRenderSystem::_getMipFilter(const TextureFilterOptions fo)
+    {
+        DWORD ret;
+        switch( fo )
+        {
+            // NOTE: Fall through if device doesn't support requested type
+        case TFO_ANISOTROPIC:
+            if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_LINEARMIPLINEAR )
+            {
+                ret = D3DTFP_LINEAR;
+                break;
+            }
+        case TFO_TRILINEAR:
+            if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_LINEARMIPLINEAR )
+            {
+                ret = D3DTFP_LINEAR;
+                break;
+            }
+        case TFO_BILINEAR:
+            if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_LINEAR )
+            {
+                ret = D3DTFP_POINT;
+                break;
+            }
+        case TFO_NONE:
+            ret = D3DTFP_NONE;
+            break;
+        }
+
+        return ret;
+    }
+    //---------------------------------------------------------------------
+    HRESULT D3DRenderSystem::__SetRenderState(D3DRENDERSTATETYPE state, DWORD value)
+    {
+        HRESULT hr;
+        DWORD oldVal;
+
+        if ( FAILED( hr = mlpD3DDevice->GetRenderState(state, &oldVal) ) )
+            return hr;
+        if ( oldVal == value )
+            return D3D_OK;
+        else
+            return mlpD3DDevice->SetRenderState(state, value);
+    }
+    //---------------------------------------------------------------------
+    HRESULT D3DRenderSystem::__SetTextureStageState(DWORD stage, D3DTEXTURESTAGESTATETYPE type, DWORD value)
+    {
+        HRESULT hr;
+        DWORD oldVal;
+
+        if ( FAILED( hr = mlpD3DDevice->GetTextureStageState(stage, type, &oldVal) ) )
+            return hr;
+        if ( oldVal == value )
+            return D3D_OK;
+        else
+            return mlpD3DDevice->SetTextureStageState(stage, type, value);
+    }
 
 
 
