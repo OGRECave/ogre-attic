@@ -57,7 +57,7 @@ namespace Ogre {
 			across processes. 
 		@par
 			The other is a modified version of the debugging memory manager written 
-			by Paul 'MidNight' Nette (aka. the Fluid Studios Memory Manager). 
+			by Paul 'MidNight' Nettle (aka. the Fluid Studios Memory Manager). 
 			Obviously, the second one should be used only when debugging your 
 			application as it adds some visible overhead.
 		@par
@@ -68,7 +68,7 @@ namespace Ogre {
             because we want the memory manager to be created even before we 
             override the new([])/delete([]) operators.
 		@subsection see See also
-			<a href="http://www.flipcode.com/cgi-bin/msg.cgi?showThread=12September2000-PresentingAMemoryManager&forum=askmid&id=-1">Paul Nette's Memory Manager page at flipCode.</a>
+			<a href="http://www.flipcode.com/cgi-bin/msg.cgi?showThread=12September2000-PresentingAMemoryManager&forum=askmid&id=-1">Paul Nettle's Memory Manager page at flipCode</a> - you can get the original source form here.
     */
 
 #if OGRE_DEBUG_MEMORY_MANAGER
@@ -113,8 +113,8 @@ namespace Ogre {
         unsigned int sourceLine;
         unsigned int allocationType;
 
-        bool breakOnDealloc : 1;
-        bool breakOnRealloc : 1;
+        bool breakOnDealloc;
+        bool breakOnRealloc;
 
         unsigned int allocationNumber;
         unsigned int processID;
