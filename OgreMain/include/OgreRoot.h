@@ -31,11 +31,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSingleton.h"
 #include "OgreString.h"
 #include "OgreSceneManagerEnumerator.h"
-#include "OgreMeshManager.h"
-#include "OgreTextureManager.h"
-#include "OgreDynLibManager.h"
-#include "OgrePlatformManager.h"
-#include "OgreArchiveManager.h"
 #include "OgreResourceGroupManager.h"
 
 #include <exception>
