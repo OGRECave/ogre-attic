@@ -66,6 +66,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreSkeleton.h"
 #include "OgreBone.h"
 #include "OgreSkeletonSerializer.h"
+#include "OgreSkeletonManager.h"
 #include "OgreAnimation.h"
 #include "OgreAnimationTrack.h"
 #include "OgreKeyFrame.h"

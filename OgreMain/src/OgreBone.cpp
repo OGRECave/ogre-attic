@@ -100,10 +100,8 @@ namespace Ogre {
         mBindPosition = mPosition;
 
         // Save inverse derived, used for mesh transform later (assumes _update() has been called by Skeleton)
-        makeTransform(_getDerivedPosition(), Vector3::UNIT_SCALE , 
+        makeInverseTransform(_getDerivedPosition(), Vector3::UNIT_SCALE , 
             _getDerivedOrientation(), mBindDerivedInverseTransform);
-        // Invert, no scale so transpose is inverse
-        mBindDerivedInverseTransform = mBindDerivedInverseTransform.transpose();
     }
     //---------------------------------------------------------------------
     void Bone::reset(void)

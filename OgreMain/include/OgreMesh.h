@@ -227,6 +227,14 @@ namespace Ogre {
         */
         void _getBoneMatrices(const AnimationStateSet& animSet, Matrix4* pMatrices);
 
+        /** Internal notification, used to tell the Mesh which Skeleton to use without loading it. 
+        @remarks
+            This is only here for unusual situation where you want to manually set up a
+            Skeleton. Best to let OGRE deal with this, don't call it yourself unless you
+            really know what you're doing.
+        */
+        void _notifySkeleton(Skeleton* pSkel);
+
     private:
         typedef std::vector<SubMesh*> SubMeshList;
         /** A list of submeshes which make up this mesh.

@@ -327,7 +327,7 @@ namespace Ogre {
         Animation *pAnim = mpSkeleton->createAnimation(name, len);
 
         // Read all tracks
-        while (!chunk.isEOF())
+        if (!chunk.isEOF())
         {
             unsigned short chunkID = readChunk(chunk);
             while(chunkID == SKELETON_ANIMATION_TRACK && !chunk.isEOF())
@@ -365,7 +365,7 @@ namespace Ogre {
         AnimationTrack* pTrack = anim->createTrack(boneHandle, targetBone);
 
         // Keep looking for nested keyframes
-        while (!chunk.isEOF())
+        if (!chunk.isEOF())
         {
             unsigned short chunkID = readChunk(chunk);
             while(chunkID == SKELETON_ANIMATION_TRACK_KEYFRAME && !chunk.isEOF())

@@ -643,6 +643,11 @@ namespace Ogre {
         mBoneAssignmentsOutOfDate = false;
 
     }
+    //---------------------------------------------------------------------
+    void Mesh::_notifySkeleton(Skeleton* pSkel)
+    {
+        mSkeleton = pSkel;
+    }
 
 }
 

@@ -73,15 +73,17 @@ namespace Ogre {
         }
 
         KeyFrameList::const_iterator i = mKeyFrames.begin();
-        while ((*i)->getTime() > timePos)
+        // Find last keyframe before or on current time
+        while (i != mKeyFrames.end() && (*i)->getTime() <= timePos)
         {
-            ++i;
+            *keyFrame1 = *i++;
         }
 
         // Parametric time
+        // t1 = time of previous keyframe
+        // t2 = time of next keyframe (or end of animation)
         Real t1, t2;
-        // Get first and increment to next
-        *keyFrame1 = *i++;
+        // Find first keyframe after the time
         // If no next keyframe, wrap back to first
         if (i == mKeyFrames.end())
         {
