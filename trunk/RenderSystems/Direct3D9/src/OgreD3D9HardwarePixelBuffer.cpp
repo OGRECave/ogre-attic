@@ -35,13 +35,22 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMemoryMacros.h"
 
 namespace Ogre {
+
 //-----------------------------------------------------------------------------  
-D3D9HardwarePixelBuffer::D3D9HardwarePixelBuffer(IDirect3DSurface9 *pSurface, 
-												 HardwareBuffer::Usage usage):
+
+D3D9HardwarePixelBuffer::D3D9HardwarePixelBuffer(HardwareBuffer::Usage usage):
 	HardwarePixelBuffer(0, 0, 0, PF_UNKNOWN, usage, false, false),
-	mSurface(pSurface), mVolume(0), mTempSurface(0), mTempVolume(0),
+	mSurface(0), mVolume(0), mTempSurface(0), mTempVolume(0),
 	mDoMipmapGen(0), mHWMipmaps(0), mMipTex(0)
 {
+}
+D3D9HardwarePixelBuffer::~D3D9HardwarePixelBuffer()
+{
+}
+//-----------------------------------------------------------------------------  
+void D3D9HardwarePixelBuffer::bind(IDirect3DSurface9 *surface)
+{
+	mSurface = surface;
 	D3DSURFACE_DESC desc;
 	if(mSurface->GetDesc(&desc) != D3D_OK)
 		Except(Exception::ERR_RENDERINGAPI_ERROR, "Could not get surface information",
@@ -53,15 +62,12 @@ D3D9HardwarePixelBuffer::D3D9HardwarePixelBuffer(IDirect3DSurface9 *pSurface,
 	// Default
 	mRowPitch = mWidth;
 	mSlicePitch = mHeight*mWidth;
-	mSizeInBytes = mHeight*mWidth*PixelUtil::getNumElemBytes(mFormat);
+	mSizeInBytes = PixelUtil::getMemorySize(mWidth, mHeight, mDepth, mFormat);
 }
-//-----------------------------------------------------------------------------  
-D3D9HardwarePixelBuffer::D3D9HardwarePixelBuffer(IDirect3DVolume9 *pVolume, 
-												 HardwareBuffer::Usage usage):
-	HardwarePixelBuffer(0, 0, 0, PF_UNKNOWN, usage, false, false),
-	mSurface(0), mVolume(pVolume), mTempSurface(0), mTempVolume(0),
-	mDoMipmapGen(0), mHWMipmaps(0), mMipTex(0)
+//-----------------------------------------------------------------------------
+void D3D9HardwarePixelBuffer::bind(IDirect3DVolume9 *volume)
 {
+	mVolume = volume;
 	D3DVOLUME_DESC desc;
 	if(mVolume->GetDesc(&desc) != D3D_OK)
 		Except(Exception::ERR_RENDERINGAPI_ERROR, "Could not get volume information",
@@ -73,11 +79,7 @@ D3D9HardwarePixelBuffer::D3D9HardwarePixelBuffer(IDirect3DVolume9 *pVolume,
 	// Default
 	mRowPitch = mWidth;
 	mSlicePitch = mHeight*mWidth;
-	mSizeInBytes = mHeight*mWidth*PixelUtil::getNumElemBytes(mFormat);
-}
-//-----------------------------------------------------------------------------  
-D3D9HardwarePixelBuffer::~D3D9HardwarePixelBuffer()
-{
+	mSizeInBytes = PixelUtil::getMemorySize(mWidth, mHeight, mDepth, mFormat);
 }
 //-----------------------------------------------------------------------------  
 PixelBox D3D9HardwarePixelBuffer::lockImpl(const Image::Box lockBox,  LockOptions options)

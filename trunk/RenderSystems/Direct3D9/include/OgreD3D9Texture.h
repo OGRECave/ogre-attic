@@ -115,7 +115,7 @@ namespace Ogre {
 		
 		/// internal method, create D3D9HardwarePixelBuffers for every face and
 		/// mipmap level. This method must be called after the D3D texture object was created
-		void _createSurfaceList();
+		void _createSurfaceList(bool updateOldList=false);
 
         /// overriden from Resource
         void loadImpl();
