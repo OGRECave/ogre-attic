@@ -4,7 +4,7 @@ This source file is part of OGRE
     (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://ogre.sourceforge.net/
 
-Copyright © 2000-2002 The OGRE Team
+Copyright ? 2000-2002 The OGRE Team
 Also see acknowledgements in Readme.html
 
 This program is free software; you can redistribute it and/or modify it under
@@ -584,10 +584,10 @@ namespace Ogre {
             Except(Exception::ERR_ITEM_NOT_FOUND, "No child object entry found named " + name, 
             "Entity::detachObjectFromBone");
 		}
-
-        i->second->_notifyAttached((TagPoint*)0);
+        MovableObject *obj = i->second;
+        obj->_notifyAttached((TagPoint*)0);
 		mChildObjectList.erase(i);
-        return i->second;
+        return obj;
 	}
     //-----------------------------------------------------------------------
     Entity::ChildObjectListIterator Entity::getAttachedObjectIterator()
