@@ -429,10 +429,8 @@ protected:
 		s->build();
 		mStaticGeom = s;
 
-		// Put a stone Ogre head in the middle
+		// Put an Ogre head in the middle
 		e = mSceneMgr->createEntity("head", "ogrehead.mesh");
-		// nice offset mapping (will fall back on boring stone texture)
-		e->setMaterialName("Examples/OffsetMapping/Specular");
 		SceneNode* headNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 		headNode->attachObject(e);
 		headNode->setScale(7,7,7);
