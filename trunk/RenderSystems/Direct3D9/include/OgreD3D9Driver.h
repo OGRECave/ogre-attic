@@ -45,6 +45,9 @@ namespace Ogre
 	{
 	private:
 		LPDIRECT3D9 mpD3D;
+		// D3D only allows one device per adapter, so it can safely be stored
+		// here as well.
+		LPDIRECT3DDEVICE9 mpD3DDevice;
 		unsigned int mAdapterNumber;
 		D3DADAPTER_IDENTIFIER9 mAdapterIdentifier;
 		D3DDISPLAYMODE mDesktopDisplayMode;
@@ -63,6 +66,10 @@ namespace Ogre
 		String DriverDescription() const;
 
 		LPDIRECT3D9 getD3D() { return mpD3D; }
+		// return the device
+		LPDIRECT3DDEVICE9 getD3DDevice() { return mpD3DDevice; }
+		// change the device
+		void setD3DDevice(LPDIRECT3DDEVICE9 pD3DDevice) { mpD3DDevice = pD3DDevice; }
 		unsigned int getAdapterNumber() const { return mAdapterNumber; }
 		D3DADAPTER_IDENTIFIER9 getAdapterIdentifier() const { return mAdapterIdentifier; }
 		D3DDISPLAYMODE getDesktopMode() const { return mDesktopDisplayMode; }

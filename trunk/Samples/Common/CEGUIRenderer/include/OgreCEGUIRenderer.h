@@ -351,10 +351,10 @@ private:
 	/************************************************************************
 		Implementation Constants
 	************************************************************************/
-	static const int			VERTEX_PER_QUAD;							//!< number of vertices per quad
-	static const int			VERTEX_PER_TRIANGLE;						//!< number of vertices for a triangle
-	static const int			VERTEXBUFFER_CAPACITY;						//!< capacity of the allocated vertex buffer
-
+	static const size_t    VERTEX_PER_QUAD;						 //!< number of vertices per quad
+	static const size_t    VERTEX_PER_TRIANGLE;					 //!< number of vertices for a triangle
+    static const size_t    VERTEXBUFFER_INITIAL_CAPACITY;		 //!< initial capacity of the allocated vertex buffer
+    static const size_t    UNDERUSED_FRAME_THRESHOLD;            //!< number of frames to wait before shrinking buffer
 
 	/*************************************************************************
 	    Implementation Structs & classes
@@ -400,9 +400,6 @@ private:
 	// setup states etc
 	void	initRenderStates(void);
 
-	// renders whatever is in the vertex buffer
-	void	renderVBuffer(void);
-
 	// sort quads list according to texture
 	void	sortQuads(void);
 
@@ -432,13 +429,16 @@ private:
 	Ogre::TexturePtr			d_currTexture;		//!< currently set texture;
 	Ogre::RenderOperation		d_render_op;		//!< Ogre render operation we use to do our stuff.
 	Ogre::HardwareVertexBufferSharedPtr	d_buffer;	//!< vertex buffer to queue sprite rendering
+    size_t d_underused_framecount;                  //!< Number of frames elapsed since buffer utilization was above half the capacity
+    Ogre::RenderOperation		d_direct_render_op;		//!< Renderop for cursor
+	Ogre::HardwareVertexBufferSharedPtr	d_direct_buffer;	//!< Renderop for cursor
 	Ogre::SceneManager*			d_sceneMngr;		//!< The scene manager we are hooked into.
 	Ogre::LayerBlendModeEx		d_colourBlendMode;	//!< Controls colour blending mode used.
 	Ogre::LayerBlendModeEx		d_alphaBlendMode;	//!< Controls alpha blending mode used.
 
 	CEGUIRQListener*			d_ourlistener;
 	bool						d_post_queue;		//!< true if we render after everything else in our queue.
-	int							d_bufferPos;		//!< index into buffer where next vertex should be put.
+	size_t						d_bufferPos;		//!< index into buffer where next vertex should be put.
 	bool						d_sorted;			//!< true when data in quad list is sorted.
 	Point						d_texelOffset;		//!< Offset required for proper texel mapping.
 

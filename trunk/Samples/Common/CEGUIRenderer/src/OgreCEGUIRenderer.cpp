@@ -45,10 +45,49 @@ namespace CEGUI
 /*************************************************************************
 	Constants definitions
 *************************************************************************/
-const int	OgreCEGUIRenderer::VERTEX_PER_QUAD			= 6;
-const int	OgreCEGUIRenderer::VERTEX_PER_TRIANGLE		= 3;
-const int	OgreCEGUIRenderer::VERTEXBUFFER_CAPACITY	= 4096;
+const size_t	OgreCEGUIRenderer::VERTEX_PER_QUAD			= 6;
+const size_t	OgreCEGUIRenderer::VERTEX_PER_TRIANGLE		= 3;
+const size_t	OgreCEGUIRenderer::VERTEXBUFFER_INITIAL_CAPACITY	= 256;
+const size_t    OgreCEGUIRenderer::UNDERUSED_FRAME_THRESHOLD = 50000; // halfs buffer every 8 minutes on 100fps
 
+/*************************************************************************
+	Utility function to create a render operation and vertex buffer to render quads
+*************************************************************************/
+void createQuadRenderOp(Ogre::RenderOperation &d_render_op, 
+    Ogre::HardwareVertexBufferSharedPtr &d_buffer, size_t nquads)
+{
+    using namespace Ogre;
+    // Create and initialise the Ogre specific parts required for use in rendering later.
+	d_render_op.vertexData = new VertexData;
+	d_render_op.vertexData->vertexStart = 0;
+
+	// setup vertex declaration for the vertex format we use
+	VertexDeclaration* vd = d_render_op.vertexData->vertexDeclaration;
+	size_t vd_offset = 0;
+	vd->addElement(0, vd_offset, VET_FLOAT3, VES_POSITION);
+	vd_offset += VertexElement::getTypeSize(VET_FLOAT3);
+	vd->addElement(0, vd_offset, VET_COLOUR, VES_DIFFUSE);
+	vd_offset += VertexElement::getTypeSize(VET_COLOUR);
+	vd->addElement(0, vd_offset, VET_FLOAT2, VES_TEXTURE_COORDINATES);
+
+	// create hardware vertex buffer
+	d_buffer = HardwareBufferManager::getSingleton().createVertexBuffer(vd->getVertexSize(0), nquads,  
+        HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE, false);
+
+	// bind vertex buffer
+	d_render_op.vertexData->vertexBufferBinding->setBinding(0, d_buffer);
+
+	// complete render operation basic initialisation
+	d_render_op.operationType = RenderOperation::OT_TRIANGLE_LIST;
+	d_render_op.useIndexes = false;
+}
+void destroyQuadRenderOp(Ogre::RenderOperation &d_render_op, 
+    Ogre::HardwareVertexBufferSharedPtr &d_buffer)
+{
+    delete d_render_op.vertexData;
+    d_render_op.vertexData = 0;
+    d_buffer.setNull();
+}
 
 /*************************************************************************
 	Constructor
@@ -87,7 +126,8 @@ OgreCEGUIRenderer::~OgreCEGUIRenderer(void)
 	}
 
 	// cleanup vertex data we allocated in constructor
-	delete d_render_op.vertexData;
+	destroyQuadRenderOp(d_render_op, d_buffer);
+    destroyQuadRenderOp(d_direct_render_op, d_direct_buffer);
 
 	destroyAllTextures();
 }
@@ -98,7 +138,7 @@ OgreCEGUIRenderer::~OgreCEGUIRenderer(void)
 *************************************************************************/
 void OgreCEGUIRenderer::addQuad(const Rect& dest_rect, float z, const Texture* tex, const Rect& texture_rect, const ColourRect& colours, QuadSplitMode quad_split_mode)
 {
-	// if not queueing, render directly (as in, right now!)
+	// if not queueing, render directly (as in, right now!). This is used for the mouse cursor.
 	if (!d_queueing)
 	{
 		renderQuadDirect(dest_rect, z, tex, texture_rect, colours, quad_split_mode);
@@ -146,157 +186,162 @@ perform final rendering for all queued renderable quads.
 *************************************************************************/
 void OgreCEGUIRenderer::doRender(void)
 {
-	if (d_render_sys->_getViewport()->getOverlaysEnabled())
+    // Render if overlays enabled and the quad list is not empty
+	if (d_render_sys->_getViewport()->getOverlaysEnabled() && !d_quadlist.empty())
 	{
-		sortQuads();
+        /// Quad list needs to be sorted and thus the vertex buffer rebuilt. If not, we can
+        /// reuse the vertex buffer resulting in a nice speed gain.
+        if(!d_sorted)
+        {
+            sortQuads();
+            /// Resize vertex buffer if it is too small
+            size_t size = d_buffer->getNumVertices();
+            size_t requestedSize = d_quadlist.size()*VERTEX_PER_QUAD;
+            if(size < requestedSize)
+            {
+                /// Double buffer size until smaller than requested size
+                while(size < requestedSize)
+                    size = size * 2;
+                /// Reallocate the buffer
+                destroyQuadRenderOp(d_render_op, d_buffer);
+                createQuadRenderOp(d_render_op, d_buffer, size);
+            }
+            else if(requestedSize < size/2 && d_underused_framecount >= UNDERUSED_FRAME_THRESHOLD)
+            {
+                /// Resize vertex buffer if it has been to big for too long
+                size = size / 2;
+                destroyQuadRenderOp(d_render_op, d_buffer);
+                createQuadRenderOp(d_render_op, d_buffer, size);
+                /// Reset underused framecount so it takes another UNDERUSED_FRAME_THRESHOLD to half again
+                d_underused_framecount = 0;
+            }
+            /// Fill the buffer
+            QuadVertex*	buffmem;
+            buffmem = (QuadVertex*)d_buffer->lock(Ogre::HardwareVertexBuffer::HBL_DISCARD);
+            // iterate over each quad in the list
+            for (QuadList::iterator i = d_quadlist.begin(); i != d_quadlist.end(); ++i)
+            {
+                const QuadInfo& quad = (*i);
+                // setup Vertex 1...
+                buffmem->x = quad.position.d_left;
+                buffmem->y = quad.position.d_bottom;
+                buffmem->z = quad.z;
+                buffmem->diffuse = quad.topLeftCol;
+                buffmem->tu1 = quad.texPosition.d_left;
+                buffmem->tv1 = quad.texPosition.d_bottom;
+                ++buffmem;
+    
+                // setup Vertex 2...
+                
+                // top-left to bottom-right diagonal
+                if (quad.splitMode == TopLeftToBottomRight)
+                {
+                    buffmem->x = quad.position.d_right;
+                    buffmem->y = quad.position.d_bottom;
+                    buffmem->z = quad.z;
+                    buffmem->diffuse = quad.topRightCol;
+                    buffmem->tu1 = quad.texPosition.d_right;
+                    buffmem->tv1 = quad.texPosition.d_bottom;
+                }
+                // bottom-left to top-right diagonal
+                else
+                {
+                    buffmem->x = quad.position.d_right;
+                    buffmem->y = quad.position.d_top;
+                    buffmem->z = quad.z;
+                    buffmem->diffuse = quad.bottomRightCol;
+                    buffmem->tu1 = quad.texPosition.d_right;
+                    buffmem->tv1 = quad.texPosition.d_top;
+                }
+                ++buffmem;
+    
+                // setup Vertex 3...
+                buffmem->x = quad.position.d_left;
+                buffmem->y = quad.position.d_top;
+                buffmem->z = quad.z;
+                buffmem->diffuse = quad.bottomLeftCol;
+                buffmem->tu1 = quad.texPosition.d_left;
+                buffmem->tv1 = quad.texPosition.d_top;
+                ++buffmem;
+    
+                // setup Vertex 4...
+                buffmem->x = quad.position.d_right;
+                buffmem->y = quad.position.d_bottom;
+                buffmem->z = quad.z;
+                buffmem->diffuse = quad.topRightCol;
+                buffmem->tu1 = quad.texPosition.d_right;
+                buffmem->tv1 = quad.texPosition.d_bottom;
+                ++buffmem;
+    
+                // setup Vertex 5...
+                buffmem->x = quad.position.d_right;
+                buffmem->y = quad.position.d_top;
+                buffmem->z = quad.z;
+                buffmem->diffuse = quad.bottomRightCol;
+                buffmem->tu1 = quad.texPosition.d_right;
+                buffmem->tv1 = quad.texPosition.d_top;
+                ++buffmem;
+    
+                // setup Vertex 6...
+                
+                // top-left to bottom-right diagonal
+                if (quad.splitMode == TopLeftToBottomRight)
+                {
+                    buffmem->x = quad.position.d_left;
+                    buffmem->y = quad.position.d_top;
+                    buffmem->z = quad.z;
+                    buffmem->diffuse = quad.bottomLeftCol;
+                    buffmem->tu1 = quad.texPosition.d_left;
+                    buffmem->tv1 = quad.texPosition.d_top;
+                }
+                // bottom-left to top-right diagonal
+                else
+                {
+                    buffmem->x = quad.position.d_left;
+                    buffmem->y = quad.position.d_bottom;
+                    buffmem->z = quad.z;
+                    buffmem->diffuse = quad.topLeftCol;
+                    buffmem->tu1 = quad.texPosition.d_left;
+                    buffmem->tv1 = quad.texPosition.d_bottom;
+                }
+                ++buffmem;
+            }
+    
+            // ensure we leave the buffer in the unlocked state
+            d_buffer->unlock();
+        }
+        
+        /// Render the buffer
 		initRenderStates();
+        d_bufferPos = 0;
 
-		// clear this in case we think it's untouched from last frame
-		d_currTexture.setNull();
+        // Iterate over each quad in the list and render it
+        QuadList::iterator i = d_quadlist.begin();
+        while(i != d_quadlist.end())
+        {
+            
+            d_currTexture = i->texture;
+            d_render_op.vertexData->vertexStart = d_bufferPos;
+            for (; i != d_quadlist.end(); ++i)
+            {
+                const QuadInfo& quad = (*i);
+                if (d_currTexture != quad.texture)
+                    /// If it has a different texture, render this quad in next operation
+		            break;
+                d_bufferPos += VERTEX_PER_QUAD;
+            }
+            d_render_op.vertexData->vertexCount = d_bufferPos - d_render_op.vertexData->vertexStart;
+            /// Set texture, and do the render
+            d_render_sys->_setTexture(0, true, d_currTexture->getName());
+            d_render_sys->_render(d_render_op);
+        }
 
-		bool locked = false;
-		QuadVertex*	buffmem;
-
-		// iterate over each quad in the list
-		for (QuadList::iterator i = d_quadlist.begin(); i != d_quadlist.end(); ++i)
-		{
-			const QuadInfo& quad = (*i);
-			// flush & set texture if needed
-			if (d_currTexture != quad.texture)
-			{
-				if (locked)
-				{
-					d_buffer->unlock();
-					locked = false;
-				}
-
-				// render any remaining quads for current texture
-				renderVBuffer();
-
-				// set new texture
-				d_render_sys->_setTexture(0, true, quad.texture->getName());
-				d_currTexture = quad.texture;
-			}
-
-			// lock the vertex buffer if it is not already locked
-			if (!locked)
-			{
-				buffmem = (QuadVertex*)d_buffer->lock(Ogre::HardwareVertexBuffer::HBL_DISCARD);
-				locked = true;
-			}
-				
-			// setup Vertex 1...
-			buffmem->x = quad.position.d_left;
-			buffmem->y = quad.position.d_bottom;
-			buffmem->z = quad.z;
-			buffmem->diffuse = quad.topLeftCol;
-			buffmem->tu1 = quad.texPosition.d_left;
-			buffmem->tv1 = quad.texPosition.d_bottom;
-			++buffmem;
-
-			// setup Vertex 2...
-			
-			// top-left to bottom-right diagonal
-			if (quad.splitMode == TopLeftToBottomRight)
-			{
-				buffmem->x = quad.position.d_right;
-				buffmem->y = quad.position.d_bottom;
-				buffmem->z = quad.z;
-				buffmem->diffuse = quad.topRightCol;
-				buffmem->tu1 = quad.texPosition.d_right;
-				buffmem->tv1 = quad.texPosition.d_bottom;
-			}
-			// bottom-left to top-right diagonal
-			else
-			{
-				buffmem->x = quad.position.d_right;
-				buffmem->y = quad.position.d_top;
-				buffmem->z = quad.z;
-				buffmem->diffuse = quad.bottomRightCol;
-				buffmem->tu1 = quad.texPosition.d_right;
-				buffmem->tv1 = quad.texPosition.d_top;
-			}
-            ++buffmem;
-
-			// setup Vertex 3...
-			buffmem->x = quad.position.d_left;
-			buffmem->y = quad.position.d_top;
-			buffmem->z = quad.z;
-			buffmem->diffuse = quad.bottomLeftCol;
-			buffmem->tu1 = quad.texPosition.d_left;
-			buffmem->tv1 = quad.texPosition.d_top;
-			++buffmem;
-
-			// setup Vertex 4...
-			buffmem->x = quad.position.d_right;
-			buffmem->y = quad.position.d_bottom;
-			buffmem->z = quad.z;
-			buffmem->diffuse = quad.topRightCol;
-			buffmem->tu1 = quad.texPosition.d_right;
-			buffmem->tv1 = quad.texPosition.d_bottom;
-			++buffmem;
-
-			// setup Vertex 5...
-			buffmem->x = quad.position.d_right;
-			buffmem->y = quad.position.d_top;
-			buffmem->z = quad.z;
-			buffmem->diffuse = quad.bottomRightCol;
-			buffmem->tu1 = quad.texPosition.d_right;
-			buffmem->tv1 = quad.texPosition.d_top;
-			++buffmem;
-
-			// setup Vertex 6...
-			
-			// top-left to bottom-right diagonal
-			if (quad.splitMode == TopLeftToBottomRight)
-			{
-				buffmem->x = quad.position.d_left;
-				buffmem->y = quad.position.d_top;
-				buffmem->z = quad.z;
-				buffmem->diffuse = quad.bottomLeftCol;
-				buffmem->tu1 = quad.texPosition.d_left;
-				buffmem->tv1 = quad.texPosition.d_top;
-			}
-			// bottom-left to top-right diagonal
-			else
-			{
-				buffmem->x = quad.position.d_left;
-				buffmem->y = quad.position.d_bottom;
-				buffmem->z = quad.z;
-				buffmem->diffuse = quad.topLeftCol;
-				buffmem->tu1 = quad.texPosition.d_left;
-				buffmem->tv1 = quad.texPosition.d_bottom;
-			}
-            ++buffmem;
-
-			// update position within buffer for next time
-			d_bufferPos += VERTEX_PER_QUAD;
-
-			// if there is not enough room in the buffer for another sprite, render what we have
-			if (d_bufferPos >= (VERTEXBUFFER_CAPACITY - VERTEX_PER_QUAD))
-			{
-				if (locked)
-				{
-					d_buffer->unlock();
-					locked = false;
-				}
-
-				renderVBuffer();
-			}
-
-		}
-
-		// ensure we leave the buffer in the unlocked state
-		if (locked)
-		{
-			d_buffer->unlock();
-			locked = false;
-		}
-
-		// send any remaining data to be rendered.
-		renderVBuffer();
 	}
-
+    /// Count frames to check if utilization of vertex buffer was below half the capacity for 500,000 frames
+    if(d_bufferPos < d_buffer->getNumVertices()/2)
+       d_underused_framecount++;
+    else
+       d_underused_framecount = 0;
 }
 
 
@@ -411,24 +456,6 @@ void OgreCEGUIRenderer::initRenderStates(void)
 }
 
 
-/*************************************************************************
-	renders whatever is in the vertex buffer	
-*************************************************************************/
-void OgreCEGUIRenderer::renderVBuffer(void)
-{
-	// we only need to do anything if there is actually quads in the buffer
-	if (d_bufferPos != 0)
-	{
-		// tell render operation how many quads to draw
-		d_render_op.vertexData->vertexCount = d_bufferPos;
-		d_render_sys->_render(d_render_op);
-
-		// reset buffer
-		d_bufferPos = 0;
-	}
-
-}
-
  
 /*************************************************************************
 	sort quads list according to texture	
@@ -441,7 +468,6 @@ void OgreCEGUIRenderer::sortQuads(void)
 	}
 
 }
-
 
 /*************************************************************************
 render a quad directly to the display
@@ -474,12 +500,7 @@ void OgreCEGUIRenderer::renderQuadDirect(const Rect& dest_rect, float z, const T
         uint32 bottomLeftCol	= colourToOgre(colours.d_top_left);
         uint32 bottomRightCol= colourToOgre(colours.d_top_right);
 
-		//
-		// perform rendering...
-		//
-		initRenderStates();
-		d_render_sys->_setTexture(0, true, ((OgreCEGUITexture*)tex)->getOgreTexture()->getName());
-		QuadVertex*	buffmem = (QuadVertex*)d_buffer->lock(Ogre::HardwareVertexBuffer::HBL_DISCARD);
+		QuadVertex*	buffmem = (QuadVertex*)d_direct_buffer->lock(Ogre::HardwareVertexBuffer::HBL_DISCARD);
 
 		// setup Vertex 1...
 		buffmem->x	= final_rect.d_left;
@@ -565,14 +586,18 @@ void OgreCEGUIRenderer::renderQuadDirect(const Rect& dest_rect, float z, const T
 			buffmem->tv1	= texture_rect.d_bottom;
 		}
 
-		d_buffer->unlock();
-		d_bufferPos = VERTEX_PER_QUAD;
+		d_direct_buffer->unlock();
 
-		renderVBuffer();
+        //
+		// perform rendering...
+		//
+        initRenderStates();
+		d_render_sys->_setTexture(0, true, ((OgreCEGUITexture*)tex)->getOgreTexture()->getName());
+		d_direct_render_op.vertexData->vertexCount = VERTEX_PER_QUAD;
+		d_render_sys->_render(d_direct_render_op);
 	}
 
 }
-
 
 /*************************************************************************
 	convert ARGB colour value to whatever the Ogre render system is
@@ -637,7 +662,6 @@ void OgreCEGUIRenderer::setTargetRenderQueue(Ogre::RenderQueueGroupID queue_id, 
 }
 
 
-
 /*************************************************************************
 	perform main work of the constructor
 *************************************************************************/
@@ -657,27 +681,12 @@ void OgreCEGUIRenderer::constructor_impl(Ogre::RenderWindow* window, Ogre::Rende
 	d_render_sys	= d_ogre_root->getRenderSystem();
 
 	// Create and initialise the Ogre specific parts required for use in rendering later.
-	d_render_op.vertexData = new VertexData;
-	d_render_op.vertexData->vertexStart = 0;
+    // Main GUI
+    createQuadRenderOp(d_render_op, d_buffer, VERTEXBUFFER_INITIAL_CAPACITY);
+    d_underused_framecount = 0;
 
-	// setup vertex declaration for the vertex format we use
-	VertexDeclaration* vd = d_render_op.vertexData->vertexDeclaration;
-	size_t vd_offset = 0;
-	vd->addElement(0, vd_offset, VET_FLOAT3, VES_POSITION);
-	vd_offset += VertexElement::getTypeSize(VET_FLOAT3);
-	vd->addElement(0, vd_offset, VET_COLOUR, VES_DIFFUSE);
-	vd_offset += VertexElement::getTypeSize(VET_COLOUR);
-	vd->addElement(0, vd_offset, VET_FLOAT2, VES_TEXTURE_COORDINATES);
-
-	// create hardware vertex buffer
-	d_buffer = HardwareBufferManager::getSingleton().createVertexBuffer(vd->getVertexSize(0), VERTEXBUFFER_CAPACITY, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE, false);
-
-	// bind vertex buffer
-	d_render_op.vertexData->vertexBufferBinding->setBinding(0, d_buffer);
-
-	// complete render operation basic initialisation
-	d_render_op.operationType = RenderOperation::OT_TRIANGLE_LIST;
-	d_render_op.useIndexes = false;
+    // Mouse cursor
+    createQuadRenderOp(d_direct_render_op, d_direct_buffer, VERTEX_PER_QUAD);
 
 	// Discover display settings and setup d_display_area
 	d_display_area.d_left	= 0;

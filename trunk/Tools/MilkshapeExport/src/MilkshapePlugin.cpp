@@ -213,7 +213,7 @@ BOOL MilkshapePlugin::DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam
                 hwndDlgItem = GetDlgItem(hDlg, IDC_SPLIT_ANIMATION);
                 plugin->splitAnimations = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
 
-				hwndDlgItem = GetDlgItem(hDlg, IDC_EXPORT_MATERIAL);
+				hwndDlgItem = GetDlgItem(hDlg, IDC_EXPORT_MATERIALS);
 				plugin->exportMaterials = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
 
 				hwndDlgItem = GetDlgItem(hDlg, IDC_FPS);

@@ -343,6 +343,9 @@ namespace Ogre
             case ACT_INVERSETRANSPOSE_WORLDVIEW_MATRIX:
                 setConstant(i->index, source.getInverseTransposeWorldViewMatrix());
                 break;
+            case ACT_CAMERA_POSITION:
+                setConstant(i->index, source.getCameraPositionObjectSpace());
+                break;
             case ACT_CAMERA_POSITION_OBJECT_SPACE:
                 setConstant(i->index, source.getCameraPositionObjectSpace());
                 break;

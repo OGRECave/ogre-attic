@@ -79,7 +79,7 @@ namespace Ogre
 		/// return a D3D9 equivalent for a Ogre LayerBlendType value
 		static D3DTEXTURESTAGESTATETYPE get(LayerBlendType lbt);
 		/// return a D3D9 equivalent for a Ogre LayerBlendOperationEx value
-		static DWORD get(LayerBlendOperationEx lbo, D3DCAPS9 devCaps);
+		static DWORD get(LayerBlendOperationEx lbo, const D3DCAPS9& devCaps);
 		/// return a D3D9 equivalent for a Ogre LayerBlendSource value
 		static DWORD get(LayerBlendSource lbs);
 		/// return a D3D9 equivalent for a Ogre SceneBlendFactor value
@@ -97,13 +97,13 @@ namespace Ogre
 		/// return a D3D9 state type for Ogre FilterType value
 		static D3DSAMPLERSTATETYPE get(FilterType ft);
 		/// return a D3D9 filter option for Ogre FilterType & FilterOption value
-		static DWORD get(FilterType ft, FilterOptions fo, D3DCAPS9 devCaps, eD3DTexType texType);
+		static DWORD get(FilterType ft, FilterOptions fo, const D3DCAPS9& devCaps, eD3DTexType texType);
 		/// return the D3DtexType equivalent of a Ogre tex. type
 		static eD3DTexType get(TextureType ogreTexType);
         /// return the combination of D3DUSAGE values for Ogre buffer usage
         static DWORD get(HardwareBuffer::Usage usage);
         /// Get lock options
-        static DWORD get(HardwareBuffer::LockOptions);
+        static DWORD get(HardwareBuffer::LockOptions options, HardwareBuffer::Usage usage);
         /// Get index type
         static D3DFORMAT get(HardwareIndexBuffer::IndexType itype);
 		/// Get vertex data type

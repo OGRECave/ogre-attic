@@ -51,6 +51,9 @@ namespace Ogre {
 	*/
 	class _OgreExport MouseMotionTarget : public PositionTarget
     {
+    private:
+        std::set<MouseMotionListener*> mRemovedListeners;
+
     protected:
         std::set<MouseMotionListener*> mMouseMotionListeners;
 

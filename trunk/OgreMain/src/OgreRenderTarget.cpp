@@ -430,6 +430,12 @@ namespace Ogre {
     {
         return mAutoUpdate;
     }
+    //-----------------------------------------------------------------------
+    bool RenderTarget::isPrimary(void) const
+    {
+        // RenderWindow will override and return true for the primary window
+        return false;
+    }
 
 
 }        

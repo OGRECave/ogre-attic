@@ -101,7 +101,7 @@ namespace Ogre {
 		}
 		else
 		{	// button up... trigger MouseReleased, and MouseClicked
-			mModifiers &= !nMouseCode;
+			mModifiers &= ~nMouseCode;
 			createMouseEvent(MouseEvent::ME_MOUSE_RELEASED, nMouseCode);
 			//createMouseEvent(MouseEvent::ME_MOUSE_CLICKED, nMouseCode);	JCA - moved to EventDispatcher
             // Update immediate-mode mouse button state

@@ -352,24 +352,14 @@ void GLXWindow::processEvent(const XEvent &event)
 		if(event.xconfigure.display != mDisplay || event.xconfigure.window != mWindow)
 			// Not for me
 			break;
-		// Check if the window size really changed
-		if(mWidth == event.xconfigure.width && mHeight == event.xconfigure.height)
-			break;
-		mWidth = event.xconfigure.width;
-		mHeight = event.xconfigure.height;
-
-		for (ViewportList::iterator it = mViewportList.begin();
-		                it != mViewportList.end(); ++it) {
-			(*it).second->_updateDimensions();
-		}
-
+        resized(event.xconfigure.width,	event.xconfigure.height);
 		break;
 	case MapNotify:
 		if(event.xconfigure.display != mDisplay || event.xconfigure.window != mWindow)
 			// Not for me
 			break;
 		// Window was mapped to the screen
-		mActive = true;
+		exposed(true);
 		break;
 	case UnmapNotify:
 		if(event.xconfigure.display != mDisplay || event.xconfigure.window != mWindow)
@@ -377,11 +367,32 @@ void GLXWindow::processEvent(const XEvent &event)
 			break;
 		// Window was unmapped from the screen (user switched
 		// to another workspace, for example)
-		mActive = false;
+        exposed(false);
 		break;
 	}
 }
 
+void GLXWindow::exposed(bool active)
+{
+    mActive = active;
+}
+void GLXWindow::resized(size_t width, size_t height)
+{
+    // Check if the window size really changed
+    if(mWidth == width && mHeight == height)
+        return;
+    mWidth = width;
+    mHeight = height;
+
+    for (ViewportList::iterator it = mViewportList.begin();
+                    it != mViewportList.end(); ++it) {
+        (*it).second->_updateDimensions();
+    }
+}
+/// Pure virtual destructor must be defined
+GLXWindowInterface::~GLXWindowInterface()
+{
+}
 
 void GLXWindow::getCustomAttribute( const String& name, void* pData ) 
 {
@@ -390,6 +401,9 @@ void GLXWindow::getCustomAttribute( const String& name, void* pData )
 		return;
 	} else if( name == "GLXDISPLAY" ) {
 		*static_cast<Display**>(pData) = mDisplay;
+		return;
+	} else if( name == "GLXWINDOWINTERFACE" ) {
+		*static_cast<GLXWindowInterface**>(pData) = this;
 		return;
 	}
 	RenderWindow::getCustomAttribute(name, pData);

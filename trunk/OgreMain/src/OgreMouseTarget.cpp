@@ -39,9 +39,16 @@ namespace Ogre {
 
 	void MouseTarget::processMouseEvent(MouseEvent* e) 
 	{
-        // Tell all listeners
+        // Remove all marked listeners
         std::set<MouseListener*>::iterator i;
-        for (i= mMouseListeners.begin(); i != mMouseListeners.end(); ++i)
+        for (i = mRemovedListeners.begin(); i != mRemovedListeners.end(); i++)
+        {
+            mMouseListeners.erase(*i);
+        }
+        mRemovedListeners.clear();
+        
+        // Tell all listeners
+        for (i= mMouseListeners.begin(); i != mMouseListeners.end(); i++)
         {
 		    MouseListener* listener = *i;
 
@@ -90,7 +97,7 @@ namespace Ogre {
 
 	void MouseTarget::removeMouseListener(MouseListener* l) 
 	{
-        mMouseListeners.erase(l);
+        mRemovedListeners.insert(l);
 	}
 
     //-----------------------------------------------------------------------

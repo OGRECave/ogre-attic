@@ -48,6 +48,7 @@ namespace Ogre {
          mInverseTransposeWorldMatrixDirty(true),
          mInverseTransposeWorldViewMatrixDirty(true),
          mCameraPositionObjectSpaceDirty(true),
+         mCameraPositionDirty(true),
          mTextureViewProjMatrixDirty(true),
          mCurrentRenderable(NULL),
          mCurrentCamera(NULL), 
@@ -87,6 +88,7 @@ namespace Ogre {
         mInverseWorldViewMatrixDirty = true;
         mInverseTransposeWorldViewMatrixDirty = true;
         mCameraPositionObjectSpaceDirty = true;
+        mCameraPositionDirty = true;
     }
     //-----------------------------------------------------------------------------
     void AutoParamDataSource::setCurrentLightList(const LightList* ll)
@@ -224,6 +226,20 @@ namespace Ogre {
         }
         return mInverseWorldViewMatrix;
     }
+    //-----------------------------------------------------------------------------
+    const Vector4& AutoParamDataSource::getCameraPosition(void) const
+    {
+        if(mCameraPositionDirty)
+        {
+            Vector3 vec3 = mCurrentCamera->getDerivedPosition();
+            mCameraPosition[0] = vec3[0];
+            mCameraPosition[1] = vec3[1];
+            mCameraPosition[2] = vec3[2];
+            mCameraPosition[3] = 1.0;
+            mCameraPositionDirty = false;
+        }
+        return mCameraPosition;
+    }    
     //-----------------------------------------------------------------------------
     const Vector4& AutoParamDataSource::getCameraPositionObjectSpace(void) const
     {

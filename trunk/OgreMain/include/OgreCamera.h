@@ -285,17 +285,22 @@ namespace Ogre {
         */
         void rotate(const Quaternion& q);
 
-        /** Tells the camera whether to yaw around it's own local Y axis or a fixed axis of choice.
+        /** Tells the camera whether to yaw around it's own local Y axis or a 
+			fixed axis of choice.
             @remarks
-                This method allows you to change the yaw behaviour of the camera - by default, the camera
-                yaws around it's own local Y axis. This is often what you want - for example a flying camera
-                - but sometimes this produces unwanted effects. For example, if you're making a first-person
-                shooter, you really don't want the yaw axis to reflect the local camera Y, because this would
-                mean a different yaw axis if the player is looking upwards rather than when they are looking
-                straight ahead. You can change this behaviour by setting the yaw to a fixed axis (say, the world Y).
+                This method allows you to change the yaw behaviour of the camera
+				- by default, the camera yaws around a fixed Y axis. This is 
+				often what you want - for example if you're making a first-person 
+				shooter, you really don't want the yaw axis to reflect the local 
+				camera Y, because this would mean a different yaw axis if the 
+				player is looking upwards rather than when they are looking
+                straight ahead. You can change this behaviour by calling this 
+				method, which you will want to do if you are making a completely
+				free camera like the kind used in a flight simulator. 
             @param
-                useFixed If true, the axis passed in the second parameter will always be the yaw axis no
-                matter what the camera orientation. If false, the camera returns to it's default behaviour.
+                useFixed If true, the axis passed in the second parameter will 
+				always be the yaw axis no matter what the camera orientation. 
+				If false, the camera yaws around the local Y.
             @param
                 fixedAxis The axis to use if the first parameter is true.
         */

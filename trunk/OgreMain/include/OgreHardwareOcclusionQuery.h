@@ -96,22 +96,10 @@ public:
       * Pulls the hardware occlusion query too see if there is a result.
       * @retval NumOfFragments will get the resulting number of fragments.
       * @return True if success or false if not.
-	  * @Remarks Hardware occlusion is an assyncronius process the result may take a frame or so.
-	  *			one idea is to test pass1 and if not visable skip pass2. Also note that objects
-	  *			not visable must be tested evrey frame. Visable objects don't need testing every frame.
-	  *			Testing non visable objects can be don unlit, no texture with low LOD object.
-	  *        0 will generate all the levels till 1x1. [default: 0]
-      */
-	virtual bool pullOcclusionQuery( unsigned int* NumOfFragments ) = 0;
-
-	/**
-      * Pulls the hardware occlusion query too see if there is a result.
-      * @retval NumOfFragments will get the resulting number of fragments.
-      * @return True if success or false if not.
 	  * @Remarks In DX9 mode specifying OCCLUSIONQUERY_FLUSH as the flag, will case the driver to flush whatever API calls are batched.
 	  * In OpenGL mode it makes no difference if you specify OCCLUSIONQUERY_FLUSH or OCCLUSIONQUERY_NOFLUSH.
       */
-	virtual bool pullOcclusionQuery( unsigned int* NumOfFragments, const HW_OCCLUSIONQUERY flag  ) = 0;
+	virtual bool pullOcclusionQuery(unsigned int* NumOfFragments, const HW_OCCLUSIONQUERY flag = HWOCCLUSIONQUERY_FLUSH) = 0;
 
 	/**
 	  * Let's you get the last pixel count with out doing the hardware occlusion test

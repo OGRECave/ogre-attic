@@ -87,9 +87,8 @@ public:
 
 	void beginOcclusionQuery();
 	void endOcclusionQuery();
-	bool pullOcclusionQuery( unsigned int* NumOfFragments);
 	bool pullOcclusionQuery( unsigned int* NumOfFragments, const HW_OCCLUSIONQUERY flag  ); 
-	unsigned int getLastQuerysPixelcount() { return m_uintPixelCount; }
+	unsigned int getLastQuerysPixelcount() { return mPixelCount; }
 
 	// This functions are optional, it's a simple filter that simply skipps some hardware occlusion tests on visable objects only
 	// It's easy to use if you don't have to keep track on which objects are visable (can be skipped) and what objects arn't visable..
@@ -106,8 +105,8 @@ public:
 	  * Once you you set the SkipRate for any hardware occlusion instance it effects all others.
 	  */
 
-	void setSkipRate( int skip ) { m_Skip = skip; }		// Using 2 only 50 % of the tests are actully made and 3 results in only 33% of the tests. So on.
-	int	 getSkipRate() { return m_Skip; } 
+	void setSkipRate( int skip ) { mSkipInterval = skip; }		// Using 2 only 50 % of the tests are actully made and 3 results in only 33% of the tests. So on.
+	int	 getSkipRate() { return mSkipInterval; } 
 
 
 //----------------------------------------------------------------------
@@ -115,14 +114,13 @@ public:
 //--
 protected:
 
-	unsigned int	m_uintPixelCount;
-	unsigned int	m_uintQuery[1];
+	unsigned int	mPixelCount;
+	GLuint			mQueryID;
 	bool			m_bOcclusionQuery;
-	int				m_SkipCounter;		// m_SkipConter =  m_SkipConter % m_Skip; if ( m_SkipConter == 0 && m_uintPixelCount !=0 ) TestHWOcclusion else just return 
-	static int		m_Skip;				// This is shared by all instancies
-	bool			m_bHWOcclusionSupport;
+	int				mSkipCounter;
+	int				mSkipInterval;
+	bool			mHasOcclusionSupport;
 };
-
 
 }
 

@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 31 2005 by texi2html 1.64 -->
+<!-- Created on , 26 2005 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.0.0: Standard GuiElements</TITLE>
+<TITLE>OGRE Manual v1.0.0: Standard OverlayElements</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.0.0: Standard GuiElements">
-<META NAME="keywords" CONTENT="OGRE Manual v1.0.0: Standard GuiElements">
+<META NAME="description" CONTENT="OGRE Manual v1.0.0: Standard OverlayElements">
+<META NAME="keywords" CONTENT="OGRE Manual v1.0.0: Standard OverlayElements">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,22 +23,21 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC155"></A>
+<A NAME="SEC156"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_30.html#SEC145"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_29.html#SEC138"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_32.html#SEC160"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_32.html#SEC161"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H3> 3.3.2 Standard GuiElements </H3>
-<!--docid::SEC155::-->
-<P>
+<H3> 3.3.2 Standard OverlayElements </H3>
+<!--docid::SEC156::-->
 
-Although OGRE's GuiElement and GuiContainer classes are designed to be extended by applications developers, there are a few elements which come as standard with Ogre. These include:
+Although OGRE's OverlayElement and OverlayContainer classes are designed to be extended by applications developers, there are a few elements which come as standard with Ogre. These include:
 <UL>
 <LI>
  <A HREF="manual_31.html#Panel">Panel</A>
@@ -51,16 +50,13 @@ Although OGRE's GuiElement and GuiContainer classes are designed to be extended 
 </UL>
 <BR>
 This section describes how you define their custom attributes in an .overlay script, but you can also change these custom properties in code if you wish. You do this by calling setParameter(paramname, value). You may wish to use the StringConverter class to convert your types to and from strings.
-<P>
 
 <A NAME="Panel"></A>
-<A NAME="SEC156"></A>
+<A NAME="SEC157"></A>
 <H3> Panel (container) </H3>
-<!--docid::SEC156::-->
-<P>
+<!--docid::SEC157::-->
 
 This is the most bog-standard container you can use. It is a rectangular area which can contain other elements (or containers) and may or may not have a background, which can be tiled however you like. The background material is determined by the material attribute, but is only displayed if transparency is off.<BR><BR>
-</P><P>
 
 Attributes:
 <DL COMPACT>
@@ -69,16 +65,13 @@ Attributes:
 <DT>tiling &#60;layer&#62; &#60;x_tile&#62; &#60;y_tile&#62;
 <DD>Sets the number of times the texture(s) of the material are tiled across the panel in the x and y direction. &#60;layer&#62; is the texture layer, from 0 to the number of texture layers in the material minus one. By setting tiling per layer you can create some nice multitextured backdrops for your panels, this works especially well when you animate one of the layers.
 </DL>
-<P>
 
 <A NAME="BorderPanel"></A>
-<A NAME="SEC157"></A>
+<A NAME="SEC158"></A>
 <H3> BorderPanel (container) </H3>
-<!--docid::SEC157::-->
-<P>
+<!--docid::SEC158::-->
 
 This is a slightly more advanced version of Panel, where instead of just a single flat panel, the panel has a separate border which resizes with the panel. It does this by taking an approach very similar to the use of HTML tables for bordered content: the panel is rendered as 9 square areas, with the center area being rendered with the main material (as with Panel) and the outer 8 areas (the 4 corners and the 4 edges) rendered with a separate border material. The advantage of rendering the corners separately from the edges is that the edge textures can be designed so that they can be stretched without distorting them, meaning the single texture can serve any size panel.<BR><BR>
-</P><P>
 
 Attributes:
 <DL COMPACT>
@@ -93,16 +86,14 @@ The texture coordinates to be used for the corner areas of the border. 4 coordin
 <DD>[also border_right_uv, border_top_uv, border_bottom_uv];
 The texture coordinates to be used for the edge areas of the border. 4 coordinates are required, 2 for the top-left corner, 2 for the bottom-right. Note that you should design the texture so that the left &#38; right edges can be stretched / squashed vertically and the top and bottom edges can be stretched / squashed horizontally without detrimental effects.
 </DL>
-<P>
+
 
 <A NAME="TextArea"></A>
-<A NAME="SEC158"></A>
+<A NAME="SEC159"></A>
 <H3> TextArea (element) </H3>
-<!--docid::SEC158::-->
-<P>
+<!--docid::SEC159::-->
 
 This is a generic element that you can use to render text. It uses fonts which can be defined in code using the FontManager and Font classes, or which have been predefined in .fontdef files. See the font definitions section for more information.<BR><BR>
-</P><P>
 
 Attributes:
 <DL COMPACT>
@@ -115,16 +106,13 @@ Attributes:
 <DT>colour_bottom &#60;red&#62; &#60;green&#62; &#60;blue&#62; / colour_top &#60;red&#62; &#60;green&#62; &#60;blue&#62;
 <DD>As an alternative to a solid colour, you can colour the text differently at the top and bottom to create a gradient colour effect which can be very effective.
 </DL>
-<P>
 
 <A NAME="TextBox"></A>
-<A NAME="SEC159"></A>
+<A NAME="SEC160"></A>
 <H3> TextBox (element) </H3>
-<!--docid::SEC159::-->
-<P>
+<!--docid::SEC160::-->
 
 This element is a box that allows text input. It is composed of 2 elements, a TextArea, which defines the size, colour etc of the text to be used when typed, and a back panel which is the box-element on which the text is written.<BR><BR>
-</P><P>
 
 Attributes:
 <DL COMPACT>
@@ -133,14 +121,14 @@ Attributes:
 <DT>back_panel &#60;template name&#62;
 <DD>The name of the back panel template (e.g. a  <A HREF="manual_31.html#BorderPanel">BorderPanel</A>) to be used as the basis for the back panel on which the text is written. This needs to be a container.
 </DL>
-<P>
+
 
 <A NAME="Font Definition Scripts"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_30.html#SEC145"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_29.html#SEC138"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_32.html#SEC160"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_32.html#SEC161"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -149,7 +137,7 @@ Attributes:
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 31 2005</I>
+by <I>Steve Streeting</I> on <I>, 26 2005</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
