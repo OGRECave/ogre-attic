@@ -172,6 +172,13 @@ namespace Ogre {
     void SceneNode::detachAllObjects(void)
     {
         mObjectsByName.clear();
+		ObjectMap::iterator itr;
+		MovableObject* ret;
+		for ( itr = mObjectsByName.begin(); itr != mObjectsByName.end(); itr++ )
+		{
+		  ret = itr->second;
+		  ret->_notifyAttached((SceneNode*)0);
+		}
         // Make sure bounds get updated (must go right to the top)
         needUpdate();
     }

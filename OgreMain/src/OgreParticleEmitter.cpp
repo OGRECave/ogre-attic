@@ -429,31 +429,8 @@ namespace Ogre {
     void ParticleEmitter::setEnabled(bool enabled)
     {
         mEnabled = enabled;
-        if (enabled)
-        {
-            // Reset duration 
-            if (mDurationMin == mDurationMax)
-            {
-                mDurationRemain = mDurationMin;
-            }
-            else
-            {
-                mDurationRemain = Math::UnitRandom() * (mDurationMax - mDurationMin);
-            }
-        }
-        else
-        {
-            // Reset repeat
-            if (mRepeatDelayMin == mRepeatDelayMax)
-            {
-                mRepeatDelayRemain = mRepeatDelayMin;
-            }
-            else
-            {
-                mRepeatDelayRemain = Math::UnitRandom() * (mRepeatDelayMax - mRepeatDelayMin);
-            }
-
-        }
+        // Reset duration & repeat
+        initDurationRepeat();
     }
     //-----------------------------------------------------------------------
     bool ParticleEmitter::getEnabled(void)
@@ -474,7 +451,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ParticleEmitter::setDuration(Real duration)
     {
-        mDurationMin = mDurationMax = duration;
+        setDuration(duration, duration);
     }
     //-----------------------------------------------------------------------
     Real ParticleEmitter::getDuration(void)
@@ -486,21 +463,52 @@ namespace Ogre {
     {
         mDurationMin = min;
         mDurationMax = max;
+        initDurationRepeat();
     }
     //-----------------------------------------------------------------------
     void ParticleEmitter::setMinDuration(Real min)
     {
         mDurationMin = min;
+        initDurationRepeat();
     }
     //-----------------------------------------------------------------------
     void ParticleEmitter::setMaxDuration(Real max)
     {
         mDurationMax = max;
+        initDurationRepeat();
+    }
+    //-----------------------------------------------------------------------
+    void ParticleEmitter::initDurationRepeat(void)
+    {
+        if (mEnabled)
+        {
+            if (mDurationMin == mDurationMax)
+            {
+                mDurationRemain = mDurationMin;
+            }
+            else
+            {
+                mDurationRemain = Math::RangeRandom(mDurationMin, mDurationMax);
+            }
+        }
+        else
+        {
+            // Reset repeat
+            if (mRepeatDelayMin == mRepeatDelayMax)
+            {
+                mRepeatDelayRemain = mRepeatDelayMin;
+            }
+            else
+            {
+                mRepeatDelayRemain = Math::RangeRandom(mRepeatDelayMax, mRepeatDelayMin);
+            }
+
+        }
     }
     //-----------------------------------------------------------------------
     void ParticleEmitter::setRepeatDelay(Real delay)
     {
-        mRepeatDelayMin = mRepeatDelayMax = delay;
+        setRepeatDelay(delay, delay);
     }
     //-----------------------------------------------------------------------
     Real ParticleEmitter::getRepeatDelay(void)
@@ -512,16 +520,19 @@ namespace Ogre {
     {
         mRepeatDelayMin = min;
         mRepeatDelayMax = max;
+        initDurationRepeat();
     }
     //-----------------------------------------------------------------------
     void ParticleEmitter::setMinRepeatDelay(Real min)
     {
         mRepeatDelayMin = min;
+        initDurationRepeat();
     }
     //-----------------------------------------------------------------------
     void ParticleEmitter::setMaxRepeatDelay(Real max)
     {
         mRepeatDelayMax = max;
+        initDurationRepeat();
     }
     //-----------------------------------------------------------------------
     Real ParticleEmitter::getMinDuration(void)
