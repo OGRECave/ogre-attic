@@ -248,8 +248,6 @@ namespace Ogre {
     {
         OgreGuard("SDLRenderSystem::startRendering");
 
-        bool isActive;
-        bool allWindowsClosed;
         static clock_t lastStartTime;
         static clock_t lastEndTime;
         RenderTargetMap::iterator i;
@@ -720,16 +718,26 @@ namespace Ogre {
             break;
 
         case TEXCALC_ENVIRONMENT_MAP:
+#ifdef GL_VERSION_1_3
             glTexGeni( GL_S, GL_TEXTURE_GEN_MODE, GL_NORMAL_MAP );
             glTexGeni( GL_T, GL_TEXTURE_GEN_MODE, GL_NORMAL_MAP );
+#else
+            glTexGeni( GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );
+            glTexGeni( GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );
+#endif
             glEnable( GL_TEXTURE_GEN_S );
             glEnable( GL_TEXTURE_GEN_T );
             break;
 
         case TEXCALC_ENVIRONMENT_MAP_PLANAR:            
             // XXX This doesn't seem right?!
+#ifdef GL_VERSION_1_3
             glTexGeni( GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP );
             glTexGeni( GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP );
+#else
+            glTexGeni( GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );
+            glTexGeni( GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );
+#endif
             glEnable( GL_TEXTURE_GEN_S );
             glEnable( GL_TEXTURE_GEN_T );
             break;
@@ -740,7 +748,6 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void SDLRenderSystem::_setTextureBlendMode(int stage, const LayerBlendModeEx& bm)
     {       
-        GLenum errcode;
         glActiveTextureARB(GL_TEXTURE0_ARB + stage);
 
         glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
@@ -960,6 +967,8 @@ namespace Ogre {
         case SBF_ONE_MINUS_SOURCE_ALPHA:
             return GL_ONE_MINUS_SRC_ALPHA;
         };
+		// to keep compiler happy
+		return GL_ONE;
     }
 
     void SDLRenderSystem::_setSceneBlending(SceneBlendFactor sourceFactor, SceneBlendFactor destFactor)
