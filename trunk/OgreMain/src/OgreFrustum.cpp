@@ -58,6 +58,7 @@ namespace Ogre {
         // Init matrices
         mViewMatrix = Matrix4::ZERO;
         mProjMatrix = Matrix4::ZERO;
+        mReflectMatrix = Matrix4::ZERO;
 
         // Initialise vertex & index data
         mVertexData.vertexDeclaration->addElement(0, 0, VET_FLOAT3, VES_POSITION);
