@@ -1507,6 +1507,7 @@ namespace Ogre {
 			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_PREVIOUS);
 			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA, GL_PREVIOUS);
             break;
+          case LBX_ADD:
 		  case LBX_MODULATE:
 			glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ? 
                 GL_RGB_SCALE : GL_ALPHA_SCALE, 1);
