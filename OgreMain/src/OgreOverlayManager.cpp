@@ -280,9 +280,9 @@ namespace Ogre {
     {
         String line;
 
-		GuiElement* newElement = NULL;
+		OverlayElement* newElement = NULL;
 		newElement = 
-				GuiManager::getSingleton().createGuiElementFromTemplate(templateName, elemType, elemName, isTemplate);
+				GuiManager::getSingleton().createOverlayElementFromTemplate(templateName, elemType, elemName, isTemplate);
 
 			// do not add a template to an overlay
 
@@ -415,7 +415,7 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
-    void OverlayManager::parseElementAttrib( const String& line, Overlay* pOverlay, GuiElement* pElement )
+    void OverlayManager::parseElementAttrib( const String& line, Overlay* pOverlay, OverlayElement* pElement )
     {
         std::vector<String> vecparams;
 
@@ -560,7 +560,7 @@ namespace Ogre {
 			int z = o->getZOrder();
 			if (z > currZ && o->isVisible())
 			{
-				PositionTarget* elementFound = static_cast<MouseTarget*>(o->findElementAt(x,y));	// GuiElements are MouseTargets and MouseMotionTargets,
+				PositionTarget* elementFound = static_cast<MouseTarget*>(o->findElementAt(x,y));	// OverlayElements are MouseTargets and MouseMotionTargets,
 																									// you need to choose one to static cast
 				if (elementFound)
 				{

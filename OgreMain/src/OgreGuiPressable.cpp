@@ -26,7 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreGuiPressable.h"	
 #include "OgreActionEvent.h"
-#include "OgreGuiElement.h"
+#include "OgreOverlayElement.h"
 #include "OgreMouseEvent.h"
 
 namespace Ogre {
@@ -37,7 +37,7 @@ namespace Ogre {
 		mPressed = false;
 		mActionCommand = name;
 	}
-	void GuiPressable::setSource(GuiElement* source)
+	void GuiPressable::setSource(OverlayElement* source)
 	{
 		mSource = source;
 		mSource->addMouseListener(this);

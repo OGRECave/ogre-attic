@@ -43,7 +43,7 @@ Ogre-dependent is in the visualization/logging routines and the use of the Timer
 #include "OgreOverlayManager.h"
 #include "OgreOverlay.h"
 #include "OgreGuiManager.h"
-#include "OgreGuiElement.h"
+#include "OgreOverlayElement.h"
 #include "OgreGuiContainer.h"
 
 namespace Ogre {
@@ -130,7 +130,7 @@ namespace Ogre {
         // this panel will be the main container for our profile bars
         mProfileGui = createContainer();
 
-        GuiElement* element;
+        OverlayElement* element;
 
         // we create the little "ticks" above the profiles
         for (uint k = 1; k < 10; ++k) { // we don't want a tick at 0% or 100%
@@ -562,7 +562,7 @@ namespace Ogre {
             ProfileHistoryList::iterator iter;
             ProfileBarList::iterator bIter;
 
-            GuiElement* g;
+            OverlayElement* g;
 
             Real newGuiHeight = mGuiHeight;
 
@@ -768,7 +768,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     GuiContainer* Profiler::createContainer() {
 
-        GuiContainer* container = (GuiContainer*) GuiManager::getSingleton().createGuiElement("BorderPanel", "profiler");
+        GuiContainer* container = (GuiContainer*) GuiManager::getSingleton().createOverlayElement("BorderPanel", "profiler");
         container->setMetricsMode(GMM_PIXELS);
         container->setMaterialName("Core/StatsBlockCenter");
         container->setHeight(mGuiHeight);
@@ -790,11 +790,11 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    GuiElement* Profiler::createTextArea(const String& name, Real width, Real height, Real top, Real left, 
+    OverlayElement* Profiler::createTextArea(const String& name, Real width, Real height, Real top, Real left, 
                                          uint fontSize, const String& caption, bool show) {
 
 
-        GuiElement* textArea = GuiManager::getSingleton().createGuiElement("TextArea", name);
+        OverlayElement* textArea = GuiManager::getSingleton().createOverlayElement("TextArea", name);
         textArea->setMetricsMode(GMM_PIXELS);
         textArea->setWidth(width);
         textArea->setHeight(height);
@@ -817,10 +817,10 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    GuiElement* Profiler::createPanel(const String& name, Real width, Real height, Real top, Real left, 
+    OverlayElement* Profiler::createPanel(const String& name, Real width, Real height, Real top, Real left, 
                                       const String& materialName, bool show) {
 
-        GuiElement* panel = GuiManager::getSingleton().createGuiElement("Panel", name);
+        OverlayElement* panel = GuiManager::getSingleton().createOverlayElement("Panel", name);
         panel->setMetricsMode(GMM_PIXELS);
         panel->setWidth(width);
         panel->setHeight(height);

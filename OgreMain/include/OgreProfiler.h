@@ -245,11 +245,11 @@ namespace Ogre {
             GuiContainer* createContainer();
 
             /** An internal function to create a text area */
-            GuiElement* createTextArea(const String& name, Real width, Real height, Real top, Real left, 
+            OverlayElement* createTextArea(const String& name, Real width, Real height, Real top, Real left, 
                                        uint fontSize, const String& caption, bool show = true);
 
             /** An internal function to create a panel */
-            GuiElement* createPanel(const String& name, Real width, Real height, Real top, Real left, 
+            OverlayElement* createPanel(const String& name, Real width, Real height, Real top, Real left, 
                                     const String& materialName, bool show = true);
 
             /// Represents an individual profile call
@@ -328,7 +328,7 @@ namespace Ogre {
             typedef std::map<String, ProfileHistoryList::iterator> ProfileHistoryMap;
             typedef std::map<String, bool> DisabledProfileMap;
 
-            typedef std::list<GuiElement*> ProfileBarList;
+            typedef std::list<OverlayElement*> ProfileBarList;
 
             /// A stack for each individual profile per frame
             ProfileStack mProfiles;

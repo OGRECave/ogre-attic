@@ -72,9 +72,9 @@ ShadowTechnique mShadowTech[NUM_SHADOW_TECH] =
 int mCurrentAtheneMaterial;
 int mCurrentShadowTechnique = 0;
 
-GuiElement* mShadowTechniqueInfo;
-GuiElement* mMaterialInfo;
-GuiElement* mInfo;
+OverlayElement* mShadowTechniqueInfo;
+OverlayElement* mMaterialInfo;
+OverlayElement* mInfo;
 
 
 /** This class 'wibbles' the light and billboard */
@@ -410,9 +410,9 @@ protected:
 
         // show overlay
         Overlay *pOver = (Overlay *)OverlayManager::getSingleton().getByName("Example/ShadowsOverlay");    
-        mShadowTechniqueInfo = GuiManager::getSingleton().getGuiElement("Example/Shadows/ShadowTechniqueInfo");
-        mMaterialInfo = GuiManager::getSingleton().getGuiElement("Example/Shadows/MaterialInfo");
-        mInfo = GuiManager::getSingleton().getGuiElement("Example/Shadows/Info");
+        mShadowTechniqueInfo = GuiManager::getSingleton().getOverlayElement("Example/Shadows/ShadowTechniqueInfo");
+        mMaterialInfo = GuiManager::getSingleton().getOverlayElement("Example/Shadows/MaterialInfo");
+        mInfo = GuiManager::getSingleton().getOverlayElement("Example/Shadows/Info");
 
         mShadowTechniqueInfo->setCaption("Current: " + mShadowTechDescriptions[mCurrentShadowTechnique]);
         mMaterialInfo->setCaption("Current: " + mAtheneMaterials[mCurrentAtheneMaterial]);

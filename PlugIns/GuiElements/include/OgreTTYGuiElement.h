@@ -32,22 +32,22 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreGuiContainer.h"
 #include "OgreMaterial.h"
 #include "OgreStringConverter.h"
-#include "OgreGuiElementFactory.h"
+#include "OgreOverlayElementFactory.h"
 #include "OgreFont.h"
 #include "OgreFontManager.h"
 #include "OgreScrollBarGuiElement.h"
 
 namespace Ogre
 {
-    /** GuiElement representing a TTY style text area.
+    /** OverlayElement representing a TTY style text area.
     @remarks
-    This class subclasses GuiElement and provides a TTY style interface for displaying textual
+    This class subclasses OverlayElement and provides a TTY style interface for displaying textual
     data.  Text will wrap when it exceeds the window width and scroll when the window height is
     exceeded.  In addition, each block of text can have it's own colour associated with it.
     @par
     The setCaption method is depreciated in this class.
     */
-    class _OgreGuiElementExport TTYGuiElement : public GuiElement, private ScrollListener
+    class _OgreGuiElementExport TTYGuiElement : public OverlayElement, private ScrollListener
     {
     public:
         /** Constructor. */
@@ -107,11 +107,11 @@ namespace Ogre
         virtual void setFontName( const String& font );
         virtual const String& getFontName() const;
 
-        /** See GuiElement. */
+        /** See OverlayElement. */
         virtual const String& getTypeName(void) const;
         /** See Renderable. */
         void getRenderOperation(RenderOperation& op);
-        /** Overridden from GuiElement */
+        /** Overridden from OverlayElement */
         void setMaterialName(const String& matName);
 
         /** Sets the colour of the text. 
@@ -143,10 +143,10 @@ namespace Ogre
         /** Gets the colour of the top of the letters. */
         virtual const ColourValue& getColourTop(void) const;
 
-        /** Overridden from GuiElement */
+        /** Overridden from OverlayElement */
         void setMetricsMode(GuiMetricsMode gmm);
 
-        /** Overridden from GuiElement */
+        /** Overridden from OverlayElement */
         void _update(void);
 
         //-----------------------------------------------------------------------------------------

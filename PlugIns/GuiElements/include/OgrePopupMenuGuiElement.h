@@ -124,8 +124,8 @@ namespace Ogre {
 		size_t getListSize() const;
 
     protected:
-		void setSelectedItem(GuiElement* item, bool on);
-		void setSelectedItem(GuiElement* item);
+		void setSelectedItem(OverlayElement* item, bool on);
+		void setSelectedItem(OverlayElement* item);
 
 		void mouseMoved(MouseEvent* e);
 		void mouseDragged(MouseEvent* e);
@@ -162,7 +162,7 @@ namespace Ogre {
 		StringResource *mSelectedMenuItem;
 		StringResource *mSeparatormenuItem;
 
-		GuiElement* mSelectedElement;
+		OverlayElement* mSelectedElement;
 
 		String mSelectedString;
     };

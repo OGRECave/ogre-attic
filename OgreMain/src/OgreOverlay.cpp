@@ -319,9 +319,9 @@ namespace Ogre {
         // Do nothing
     }
 
-	GuiElement* Overlay::findElementAt(Real x, Real y)
+	OverlayElement* Overlay::findElementAt(Real x, Real y)
 	{
-		GuiElement* ret = NULL;
+		OverlayElement* ret = NULL;
 		int currZ = -1;
         GuiContainerList::iterator i, iend;
         iend = m2DElements.end();
@@ -330,7 +330,7 @@ namespace Ogre {
 			int z = (*i)->getZOrder();
 			if (z > currZ)
 			{
-				GuiElement* elementFound = (*i)->findElementAt(x,y);
+				OverlayElement* elementFound = (*i)->findElementAt(x,y);
 				if(elementFound)
 				{
 					currZ = elementFound->getZOrder();

@@ -49,9 +49,7 @@ OgreFrameListener.h \
 OgreFrustum.h \
 OgreGuiContainer.h \
 OgreGuiControl.h \
-OgreGuiElement.h \
 OgreGuiElementCommands.h \
-OgreGuiElementFactory.h \
 OgreGuiManager.h \
 OgreGuiPressable.h \
 OgreGpuProgram.h \
@@ -101,6 +99,8 @@ OgreMovablePlane.h \
 OgreNoMemoryMacros.h \
 OgreNode.h \
 OgreOverlay.h \
+OgreOverlayElement.h \
+OgreOverlayElementFactory.h \
 OgreOverlayManager.h \
 OgrePanelOverlayElement.h \
 OgreParticle.h \

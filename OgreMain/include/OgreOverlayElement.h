@@ -23,8 +23,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __GuiElement_H__
-#define __GuiElement_H__
+#ifndef __OverlayElement_H__
+#define __OverlayElement_H__
 
 #include "OgrePrerequisites.h"
 #include "OgreString.h"
@@ -75,12 +75,12 @@ namespace Ogre {
     /** Abstract definition of a 2D element to be displayed in an Overlay.
     @remarks
     This class abstracts all the details of a 2D element which will appear in
-    an overlay. In fact, not all GuiElement instances can be directly added to an
+    an overlay. In fact, not all OverlayElement instances can be directly added to an
     Overlay, only those which are GuiContainer instances (a subclass of this class).
-    GuiContainer objects can contain any GuiElement however. This is just to 
+    GuiContainer objects can contain any OverlayElement however. This is just to 
     enforce some level of grouping on widgets.
     @par
-    GuiElements should be managed using GuiManager. This class is responsible for
+    OverlayElements should be managed using GuiManager. This class is responsible for
     instantiating / deleting elements, and also for accepting new types of element
     from plugins etc.
     @par
@@ -93,7 +93,7 @@ namespace Ogre {
     Because this class is designed to be extensible, it subclasses from StringInterface
     so its parameters can be set in a generic way.
     */
-    class _OgreExport GuiElement : public StringInterface, public Renderable, public MouseTarget, public MouseMotionTarget, public ActionTarget
+    class _OgreExport OverlayElement : public StringInterface, public Renderable, public MouseTarget, public MouseMotionTarget, public ActionTarget
     {
     public:
 
@@ -160,7 +160,7 @@ namespace Ogre {
         bool mEnabled;
 
         // Used to see if this element is created from a Template
-        GuiElement* mSourceTemplate ;
+        OverlayElement* mSourceTemplate ;
 
         /** Internal method which is triggered when the positions of the element get updated,
         meaning the element should be rebuilding it's mesh positions. Abstract since
@@ -180,8 +180,8 @@ namespace Ogre {
 
     public:
         /// Constructor: do not call direct, use GuiManager::createElement
-        GuiElement(const String& name);
-        virtual ~GuiElement();
+        OverlayElement(const String& name);
+        virtual ~OverlayElement();
 
         /** Initialise gui element */
         virtual void initialise(void) = 0;
@@ -257,10 +257,10 @@ namespace Ogre {
         /** Sets the name of the material this element will use. 
         @remarks
         Different elements will use different materials. One constant about them
-        all though is that a Material used for a GuiElement must have it's depth
+        all though is that a Material used for a OverlayElement must have it's depth
         checking set to 'off', which means it always gets rendered on top. OGRE
         will set this flag for you if necessary. What it does mean though is that 
-        you should not use the same Material for rendering GuiElements as standard 
+        you should not use the same Material for rendering OverlayElements as standard 
         scene objects. It's fine to use the same textures, just not the same
         Material.
         */
@@ -310,7 +310,7 @@ namespace Ogre {
         /** Internal method to notify the element when Zorder of parent overlay
         has changed.
         @remarks
-        Overlays have explicit Z orders. GuiElements do not, they inherit the 
+        Overlays have explicit Z orders. OverlayElements do not, they inherit the 
         ZOrder of the overlay, and the Zorder is incremented for every container
         nested within this to ensure that containers are displayed behind contained
         items. This method is used internally to notify the element of a change in
@@ -358,7 +358,7 @@ namespace Ogre {
 
         /** Tells this element how to interpret the position and dimension values it is given.
         @remarks
-        By default, GuiElements are positioned and sized according to relative dimensions
+        By default, OverlayElements are positioned and sized according to relative dimensions
         of the screen. This is to ensure portability between different resolutions when you
         want things to be positioned and sized the same way across all resolutions. However, 
         sometimes you want things to be sized according to fixed pixels. In order to do this,
@@ -371,7 +371,7 @@ namespace Ogre {
         virtual GuiMetricsMode getMetricsMode(void) const;
         /** Sets the horizontal origin for this element.
         @remarks
-        By default, the horizontal origin for a GuiElement is the left edge of the parent container
+        By default, the horizontal origin for a OverlayElement is the left edge of the parent container
         (or the screen if this is a root element). You can alter this by calling this method, which is
         especially useful when you want to use pixel-based metrics (see setMetricsMode) since in this
         mode you can't use relative positioning.
@@ -389,7 +389,7 @@ namespace Ogre {
         virtual GuiHorizontalAlignment getHorizontalAlignment(void) const;
         /** Sets the vertical origin for this element. 
         @remarks
-        By default, the vertical origin for a GuiElement is the top edge of the parent container
+        By default, the vertical origin for a OverlayElement is the top edge of the parent container
         (or the screen if this is a root element). You can alter this by calling this method, which is
         especially useful when you want to use pixel-based metrics (see setMetricsMode) since in this
         mode you can't use relative positioning.
@@ -413,7 +413,7 @@ namespace Ogre {
         virtual bool contains(Real x, Real y) const;
 
         /** Returns true if xy is within the constraints of the component */
-        virtual GuiElement* findElementAt(Real x, Real y);		// relative to parent
+        virtual OverlayElement* findElementAt(Real x, Real y);		// relative to parent
 
         /**
         * Processes events occurring on this component. By default this
@@ -467,11 +467,11 @@ namespace Ogre {
             return ll;
         }
 
-        void copyFromTemplate(GuiElement* templateGui);
-        virtual GuiElement* clone(const String& instanceName);
+        void copyFromTemplate(OverlayElement* templateGui);
+        virtual OverlayElement* clone(const String& instanceName);
 
         // Returns the SourceTemplate for this element
-        const GuiElement* getSourceTemplate () const {
+        const OverlayElement* getSourceTemplate () const {
           return mSourceTemplate ;
         }
     };

@@ -469,17 +469,17 @@ private:
 	
 	void updateInfoDisplacement()
 	{
-		GuiManager::getSingleton().getGuiElement("Example/CubeMapping/Displacement")
+		GuiManager::getSingleton().getOverlayElement("Example/CubeMapping/Displacement")
 			->setCaption("[1/2] Displacement: "+StringConverter::toString(displacement));		
 	}
 	void updateInfoDensity()
 	{
-		GuiManager::getSingleton().getGuiElement("Example/CubeMapping/Density")
+		GuiManager::getSingleton().getOverlayElement("Example/CubeMapping/Density")
 			->setCaption("[3/4] Noise density: "+StringConverter::toString(density));		
 	}
 	void updateInfoTimeDensity()
 	{
-		GuiManager::getSingleton().getGuiElement("Example/CubeMapping/TimeDensity")
+		GuiManager::getSingleton().getOverlayElement("Example/CubeMapping/TimeDensity")
 			->setCaption("[5/6] Time density: "+StringConverter::toString(timeDensity));
 	}
 	void setObject()
@@ -488,12 +488,12 @@ private:
 		const String& meshName = availableMeshes[currentMeshIndex];
 		printf("Switching to object: %s\n", meshName.c_str());
 		prepareEntity(meshName);
-		GuiManager::getSingleton().getGuiElement("Example/CubeMapping/Object")
+		GuiManager::getSingleton().getOverlayElement("Example/CubeMapping/Object")
 			->setCaption("[O] Object: "+meshName);
 	}
 	void setNoiseOn()
 	{
-		GuiManager::getSingleton().getGuiElement("Example/CubeMapping/Noise")
+		GuiManager::getSingleton().getOverlayElement("Example/CubeMapping/Noise")
 			->setCaption(String("[N] Noise: ")+ ((noiseOn)?"on":"off") );		
 	}
 	void setMaterialBlending()
@@ -513,7 +513,7 @@ private:
 #undef _LAZYERU_		
 		// reset entities, materials and so on
 		prepareEntity(availableMeshes[currentMeshIndex]);
-		GuiManager::getSingleton().getGuiElement("Example/CubeMapping/Material")
+		GuiManager::getSingleton().getOverlayElement("Example/CubeMapping/Material")
 			->setCaption("[M] Material blend:"+lbxName);
 	}
 	void setCubeMap()
@@ -550,7 +550,7 @@ private:
 		mSceneMgr->setSkyBox(true, SKYBOX_MATERIAL );
 
 		prepareEntity(availableMeshes[currentMeshIndex]);
-		GuiManager::getSingleton().getGuiElement("Example/CubeMapping/CubeMap")
+		GuiManager::getSingleton().getOverlayElement("Example/CubeMapping/CubeMap")
 			->setCaption("[C] CubeMap:"+cubeMapName);
 	}
 	

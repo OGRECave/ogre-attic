@@ -223,10 +223,10 @@ namespace Ogre {
 		if (mScrollBar != 0)
 		{
 			removeChild(mScrollBar->getName());
-			GuiManager::getSingleton().destroyGuiElement(mScrollBar->getName());
+			GuiManager::getSingleton().destroyOverlayElement(mScrollBar->getName());
 		}
 		mScrollBar = static_cast<ScrollBarGuiElement*> (
-			GuiManager::getSingleton().createGuiElementFromTemplate(val, "", mName + "/ScrollBar"));
+			GuiManager::getSingleton().createOverlayElementFromTemplate(val, "", mName + "/ScrollBar"));
 
 		mScrollBar->setLeft(getWidth()-mScrollBar->getWidth()-0.001);
 		mScrollBar->setTop(0);
@@ -265,13 +265,13 @@ namespace Ogre {
 
 	void ListGuiElement::addListItem(Resource* r)
 	{
-		GuiElement* mInsideObject = 
-			GuiManager::getSingleton().createGuiElementFromTemplate(mItemTemplateName, "", getListItemName(r));
+		OverlayElement* mInsideObject = 
+			GuiManager::getSingleton().createOverlayElementFromTemplate(mItemTemplateName, "", getListItemName(r));
 
 		// create a back panel for the item
 
 		GuiContainer* pBackPanel = static_cast<GuiContainer*>
-			(GuiManager::getSingleton().createGuiElement("Panel",getListItemPanelName(r)));
+			(GuiManager::getSingleton().createOverlayElement("Panel",getListItemPanelName(r)));
 
 		pBackPanel->setLeft(mHSpacing);
 		Real scrollBarWidth = (mScrollBar) ? mScrollBar->getWidth() : 0;
@@ -320,8 +320,8 @@ namespace Ogre {
 		removeChild(getListItemPanelName(r));
 
 
-		GuiManager::getSingleton().destroyGuiElement(getListItemName(r));
-		GuiManager::getSingleton().destroyGuiElement(getListItemPanelName(r));
+		GuiManager::getSingleton().destroyOverlayElement(getListItemName(r));
+		GuiManager::getSingleton().destroyOverlayElement(getListItemPanelName(r));
 
 		bool bFound = false;
         ResourceList::iterator i;
@@ -368,7 +368,7 @@ namespace Ogre {
         ChildIterator it = getChildIterator();
         while (it.hasMoreElements())
         {
-            GuiElement* currentElement = it.getNext();
+            OverlayElement* currentElement = it.getNext();
 
 			if (currentElement->getName() == mName + "/ScrollBar")
 			{
@@ -407,7 +407,7 @@ namespace Ogre {
 
 
 
-	void ListGuiElement::setSelectedItem(GuiElement* item)
+	void ListGuiElement::setSelectedItem(OverlayElement* item)
 	{
 		if (mSelectedElement)
 		{
@@ -440,7 +440,7 @@ namespace Ogre {
 		unsigned int indexCount = 0;
         while (it.hasMoreElements())
         {
-            GuiElement* currentElement = it.getNext();
+            OverlayElement* currentElement = it.getNext();
 			if (currentElement->getName() == mName + "/ScrollBar")
 			{
 				continue;
@@ -460,7 +460,7 @@ namespace Ogre {
 	}
 
 
-	void ListGuiElement::setSelectedItem(GuiElement* item, bool on)
+	void ListGuiElement::setSelectedItem(OverlayElement* item, bool on)
 	{
 		if (item != NULL)
 		{
@@ -504,7 +504,7 @@ namespace Ogre {
 		}
 		else
 		{
-			GuiElement *dragTarget = findElementAt(e->getX(), e->getY());
+			OverlayElement *dragTarget = findElementAt(e->getX(), e->getY());
 			if (dragTarget != NULL)
 			{
 				if ((dragTarget->getParent() == this) &&  // is the dragTarget a child of ListGui?

@@ -35,17 +35,17 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     //-----------------------------------------------------------------------
-    GuiElementFactory* pCursorFactory = NULL;
-    GuiElementFactory* pPanelFactory = NULL;
-    GuiElementFactory* pBorderPanelFactory = NULL;
-    GuiElementFactory* pTextAreaFactory = NULL;
-    GuiElementFactory* pTextBoxFactory = NULL;
-    GuiElementFactory* pButtonFactory = NULL;
-    GuiElementFactory* pBorderButtonFactory = NULL;
-    GuiElementFactory* pListFactory = NULL;
-    GuiElementFactory* pScrollBarFactory = NULL;
-    GuiElementFactory* pPopupMenuFactory = NULL;
-    GuiElementFactory* pTTYFactory = NULL;
+    OverlayElementFactory* pCursorFactory = NULL;
+    OverlayElementFactory* pPanelFactory = NULL;
+    OverlayElementFactory* pBorderPanelFactory = NULL;
+    OverlayElementFactory* pTextAreaFactory = NULL;
+    OverlayElementFactory* pTextBoxFactory = NULL;
+    OverlayElementFactory* pButtonFactory = NULL;
+    OverlayElementFactory* pBorderButtonFactory = NULL;
+    OverlayElementFactory* pListFactory = NULL;
+    OverlayElementFactory* pScrollBarFactory = NULL;
+    OverlayElementFactory* pPopupMenuFactory = NULL;
+    OverlayElementFactory* pTTYFactory = NULL;
   	CursorGuiElement*  pCursorGui = NULL;
     //-----------------------------------------------------------------------
 
@@ -55,37 +55,37 @@ namespace Ogre {
         SET_TERM_HANDLER;
         
         pCursorFactory = new CursorGuiElementFactory();
-        GuiManager::getSingleton().addGuiElementFactory(pCursorFactory);
+        GuiManager::getSingleton().addOverlayElementFactory(pCursorFactory);
 
         pPanelFactory = new PanelGuiElementFactory();
-        GuiManager::getSingleton().addGuiElementFactory(pPanelFactory);
+        GuiManager::getSingleton().addOverlayElementFactory(pPanelFactory);
 
         pBorderPanelFactory = new BorderPanelGuiElementFactory();
-        GuiManager::getSingleton().addGuiElementFactory(pBorderPanelFactory);
+        GuiManager::getSingleton().addOverlayElementFactory(pBorderPanelFactory);
         
         pTextAreaFactory = new TextAreaGuiElementFactory();
-        GuiManager::getSingleton().addGuiElementFactory(pTextAreaFactory);
+        GuiManager::getSingleton().addOverlayElementFactory(pTextAreaFactory);
 
         pTextBoxFactory = new TextBoxGuiElementFactory();
-        GuiManager::getSingleton().addGuiElementFactory(pTextBoxFactory);
+        GuiManager::getSingleton().addOverlayElementFactory(pTextBoxFactory);
 
 		pButtonFactory = new ButtonGuiElementFactory();
-        GuiManager::getSingleton().addGuiElementFactory(pButtonFactory);
+        GuiManager::getSingleton().addOverlayElementFactory(pButtonFactory);
 
 		pBorderButtonFactory = new BorderButtonGuiElementFactory();
-        GuiManager::getSingleton().addGuiElementFactory(pBorderButtonFactory);
+        GuiManager::getSingleton().addOverlayElementFactory(pBorderButtonFactory);
 
 		pListFactory = new ListGuiElementFactory();
-        GuiManager::getSingleton().addGuiElementFactory(pListFactory);
+        GuiManager::getSingleton().addOverlayElementFactory(pListFactory);
 
 		pScrollBarFactory = new ScrollBarGuiElementFactory();
-        GuiManager::getSingleton().addGuiElementFactory(pScrollBarFactory);
+        GuiManager::getSingleton().addOverlayElementFactory(pScrollBarFactory);
 
 		pPopupMenuFactory = new PopupMenuGuiElementFactory();
-        GuiManager::getSingleton().addGuiElementFactory(pPopupMenuFactory);
+        GuiManager::getSingleton().addOverlayElementFactory(pPopupMenuFactory);
         
         pTTYFactory = new TTYGuiElementFactory();
-        GuiManager::getSingleton().addGuiElementFactory(pTTYFactory);
+        GuiManager::getSingleton().addOverlayElementFactory(pTTYFactory);
 
             // create default cursor
 		pCursorGui = new CursorGuiElement("Cursor default");

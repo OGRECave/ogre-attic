@@ -88,14 +88,14 @@ protected:
 
         // A bit of a hacky test
         Overlay* o = (Overlay*)OverlayManager::getSingleton().getByName("SS/Setup/HostScreen/Overlay");
-		ActionTarget* at = static_cast<BorderButtonGuiElement*>(GuiManager::getSingleton().getGuiElement("SS/Setup/HostScreen/Join"));
+		ActionTarget* at = static_cast<BorderButtonGuiElement*>(GuiManager::getSingleton().getOverlayElement("SS/Setup/HostScreen/Join"));
 		at->addActionListener(this);
-		at = static_cast<BorderButtonGuiElement*>(GuiManager::getSingleton().getGuiElement("SS/Setup/HostScreen/Exit"));
+		at = static_cast<BorderButtonGuiElement*>(GuiManager::getSingleton().getOverlayElement("SS/Setup/HostScreen/Exit"));
 		at->addActionListener(this);
 		o->show();
 		//mRoot->showDebugOverlay(false);
 
-		ListChanger* list = static_cast<ListGuiElement*>(GuiManager::getSingleton().getGuiElement("SS/Setup/HostScreen/AvailableGamesList"));
+		ListChanger* list = static_cast<ListGuiElement*>(GuiManager::getSingleton().getOverlayElement("SS/Setup/HostScreen/AvailableGamesList"));
 
 		list->addListItem(new StringResource("test1"));
 		list->addListItem(new StringResource("test2"));
@@ -106,7 +106,7 @@ protected:
 		list->addListItem(new StringResource("test7"));
 		list->addListItem(new StringResource("test8"));
 
-		(GuiManager::getSingleton().getGuiElement("Core/CurrFps"))->addMouseListener(this);
+		(GuiManager::getSingleton().getOverlayElement("Core/CurrFps"))->addMouseListener(this);
 
 		GuiContainer* pCursorGui = OverlayManager::getSingleton().getCursorGui();
 		pCursorGui->setMaterialName("Cursor/default");

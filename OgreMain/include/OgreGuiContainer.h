@@ -27,16 +27,16 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __GuiContainer_H__
 
 #include "OgrePrerequisites.h"
-#include "OgreGuiElement.h"
+#include "OgreOverlayElement.h"
 #include "OgreIteratorWrappers.h"
 
 
 namespace Ogre {
 
 
-    /** A 2D element which contains other GuiElement instances.
+    /** A 2D element which contains other OverlayElement instances.
     @remarks
-        This is a specialisation of GuiElement for 2D elements that contain other
+        This is a specialisation of OverlayElement for 2D elements that contain other
         elements. These are also the smallest elements that can be attached directly
         to an Overlay.
     @remarks
@@ -44,10 +44,10 @@ namespace Ogre {
         instantiating / deleting elements, and also for accepting new types of element
         from plugins etc.
     */
-    class _OgreExport GuiContainer : public GuiElement
+    class _OgreExport GuiContainer : public OverlayElement
     {
     public:
-        typedef std::map<String, GuiElement*> ChildMap;
+        typedef std::map<String, OverlayElement*> ChildMap;
         typedef MapIterator<ChildMap> ChildIterator;
         typedef std::map<String, GuiContainer*> ChildContainerMap;
         typedef MapIterator<ChildContainerMap> ChildContainerIterator;
@@ -64,19 +64,19 @@ namespace Ogre {
         GuiContainer(const String& name);
         virtual ~GuiContainer();
 
-        /** Adds another GuiElement to this container. */
-        virtual void addChild(GuiElement* elem);
-        /** Adds another GuiElement to this container. */
-        virtual void addChildImpl(GuiElement* elem);
+        /** Adds another OverlayElement to this container. */
+        virtual void addChild(OverlayElement* elem);
+        /** Adds another OverlayElement to this container. */
+        virtual void addChildImpl(OverlayElement* elem);
         /** Add a nested container to this container. */
         virtual void addChildImpl(GuiContainer* cont);
         /** Removes a named element from this container. */
         virtual void removeChild(const String& name);
         /** Gets the named child of this container. */
-        virtual GuiElement* getChild(const String& name);
+        virtual OverlayElement* getChild(const String& name);
 
-        void _addChild(GuiElement* elem);
-        void _removeChild(GuiElement* elem) { _removeChild(elem->getName()); }
+        void _addChild(OverlayElement* elem);
+        void _removeChild(OverlayElement* elem) { _removeChild(elem->getName()); }
         void _removeChild(const String& name);
 
         /** Gets an object for iterating over all the children of this object. */
@@ -91,25 +91,25 @@ namespace Ogre {
 		/** Tell the object and its children to recalculate */
 		virtual void _positionsOutOfDate(void);
 
-        /** Overridden from GuiElement. */
+        /** Overridden from OverlayElement. */
         virtual void _update(void);
 
-        /** Overridden from GuiElement. */
+        /** Overridden from OverlayElement. */
         virtual void _notifyZOrder(ushort newZOrder);
 
-        /** Overridden from GuiElement. */
+        /** Overridden from OverlayElement. */
         virtual void _notifyViewport();
 
-        /** Overridden from GuiElement. */
+        /** Overridden from OverlayElement. */
         virtual void _notifyWorldTransforms(const Matrix4& xform);
 
-        /** Overridden from GuiElement. */
+        /** Overridden from OverlayElement. */
 	    virtual void _notifyParent(GuiContainer* parent, Overlay* overlay);
 
-        /** Overridden from GuiElement. */
+        /** Overridden from OverlayElement. */
         virtual void _updateRenderQueue(RenderQueue* queue);
 
-        /** Overridden from GuiElement. */
+        /** Overridden from OverlayElement. */
 		inline bool isContainer() const
 		{ return true; }
 
@@ -121,11 +121,11 @@ namespace Ogre {
 		virtual inline void setChildrenProcessEvents(bool val)
 		{ mChildrenProcessEvents = val; }
 
-        /** This returns a GuiElement at position x,y. */
-		virtual GuiElement* findElementAt(Real x, Real y);		// relative to parent
+        /** This returns a OverlayElement at position x,y. */
+		virtual OverlayElement* findElementAt(Real x, Real y);		// relative to parent
 
-	    void copyFromTemplate(GuiElement* templateGui);
-        virtual GuiElement* clone(const String& instanceName);
+	    void copyFromTemplate(OverlayElement* templateGui);
+        virtual OverlayElement* clone(const String& instanceName);
 
     };
 
