@@ -105,7 +105,7 @@ function tabEquals tab1 tab2 =
 	return true;
 )
 
-function doesVertexExistAlready searchTable vertexIndex vertexNormal vertexColorIndex UVs exportUV exportColor =
+function doesVertexExistAlready searchTable vertexIndex vertexNormal vertexColorIndex vertexAlphaIndex UVs exportUV exportColor =
 (
 	local start_uvs;
 	vertex = #();
@@ -124,7 +124,10 @@ function doesVertexExistAlready searchTable vertexIndex vertexNormal vertexColor
 			if (vertex[3]!=vertexColorIndex) then
 				continue;
 				
-			start_uvs = 3;
+			if (vertex[4]!=vertexAlphaIndex) then
+				continue;
+				
+			start_uvs = 4;
 		)
 		else
 		(
@@ -175,9 +178,12 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 	local matId;					--material Id of the current face
 	local numFaces;					--number of faces in the mesh
 	
-	local faceVertexColorIndices;	--indices of the vertex for the current face in the vertex color table of the mesh (Point3)
+	local faceVertexColorIndices;	--indices of the vertices for the current face in the vertex color table of the mesh (Point3)
 	local vertexColorIndex;			--index of the current vertex in the vertex color table of the mesh
 	local vertexColor;				--vertex color for the current vertex (color)
+	local faceVertexAlphaIndices;	--indices of the vertices for the current face in the vertex alpha table of the mesh (Point3)
+	local vertexAlpha;				--vertex alpha of the current alpha
+	local vertexAlphaIndex;			--index of the current vertex in the vertex alpha map channel (-2)
 	
 	local ogreFace;					--indices of the vertices for the current face (references the list of vertices that is gonna be exported, not the vertices of the original mesh)
 	
@@ -223,7 +229,8 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 		-- Vertex Color Face
 		if (exportColours) then
 		(
-			faceVertexColorIndices = getVCFace tmesh face ;
+			faceVertexColorIndices = meshOp.getMapFace tmesh 0 face ;	-- 0 is the vertex color channel
+			faceVertexAlphaIndices = meshOp.getMapFace tmesh -2 face ;	-- -2 is the vertex alpha channel
 		)
 		else
 		(
@@ -235,6 +242,7 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 		(			
 		    vertexIndex = (int) (faceVerticesIndices[localVertexIndex]) ;
 			vertexColorIndex = (int) (faceVertexColorIndices[localVertexIndex]) ;
+			vertexAlphaIndex = (int) (faceVertexAlphaIndices[localVertexIndex]);
 			vertexNormal = getVertexNormalAccordingToSmoothingGroups tmesh face localVertexIndex;
 			
 			-- we retrieve datas. it depends on options.
@@ -265,7 +273,7 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 			ogreVertNum = 1;
 			-- Maybe this vertex has already been found.
 			-- So we use searchTable.
-			res = doesVertexExistAlready searchTable vertexIndex vertexNormal vertexColorIndex UVcoords exportUV exportColours;
+			res = doesVertexExistAlready searchTable vertexIndex vertexNormal vertexColorIndex vertexAlphaIndex UVcoords exportUV exportColours;
 			if (res==0) then
 			(
 				newVertex = 1 ;
@@ -304,6 +312,7 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 				if (exportColours) then
 				(
 					append data VertexColorIndex ;
+					append data VertexAlphaIndex ;
 				)
 				if (exportUV) then
 				(
@@ -318,9 +327,12 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 				-- we retrieve data
 				vertexPosition = getVert tmesh faceVerticesIndices[localVertexIndex] ;
 				
-				vertexColor = color 0 0 0 1;
+				vertexColor = Point4 0 0 0 1;	-- not using the color type because I need in the [0..1] range, not [O..255]
 				if (exportColours) then
-					vertexColor = getVertColor tmesh faceVertexColorIndices[localVertexIndex] ;
+				(
+					vertexColor = (meshOp.getMapVert tmesh 0 vertexColorIndex);
+					vertexAlpha = (meshOp.getMapVert tmesh -2 vertexAlphaIndex)[1];
+				)
 				
 				-- change scale
 				vertexPosition = vertexPosition * scale ;
@@ -338,7 +350,7 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 				)
 				
 				-- store the vertex in verticesArrays
-				vertexData = #(vertexPosition[1],vertexPosition[2],vertexPosition[3],vertexNormal[1],vertexNormal[2],vertexNormal[3],vertexColor.r,vertexColor.g,vertexColor.b,vertexColor.a) ;
+				vertexData = #(vertexPosition[1],vertexPosition[2],vertexPosition[3],vertexNormal[1],vertexNormal[2],vertexNormal[3],vertexColor[1],vertexColor[2],vertexColor[3],vertexAlpha) ;
 				if (exportUV) then
 				(
 					for ch=1 to numUVsets do

@@ -169,9 +169,11 @@ function writeTrack bone_name boneId firstframe lastframe samplerate IKsamplerat
 			Tform = Tform*inverse(mref) ;
 			
 			-- rotation part is saved.
-			rot = Tform.rotation as angleaxis ;
-			angle = - degToRad (rot.angle) ; -- don't know why there must be this minus :((((((
-			--rot = Tform.rotation ;
+			--rot = Tform.rotation as angleaxis ;
+			--angle = - degToRad (rot.angle) ; -- don't know why there must be this minus :((((((
+			rot = toAngleAxis Tform.rotation ;
+			axis = rot.axis;
+			angle = - rot.angle;
 			
 			-- Then, position which depends on parent			
 			Tform=d.transform ;
@@ -189,18 +191,15 @@ function writeTrack bone_name boneId firstframe lastframe samplerate IKsamplerat
 			pos = Tform.pos ;
 
 			-- writes them !
-			--if (abs(pos.x)<1e-5) then pos.x = 0 ;
-			--if (abs(pos.y)<1e-5) then pos.y = 0 ;
-			--if (abs(pos.z)<1e-5) then pos.z = 0 ;
+			if (abs(pos.x)<1e-5) then pos.x = 0 ;
+			if (abs(pos.y)<1e-5) then pos.y = 0 ;
+			if (abs(pos.z)<1e-5) then pos.z = 0 ;
 			
 			format("\t\t\t\t\t\t<keyframe time=\"%\">\n") timef to: outFile ;
 			format("\t\t\t\t\t\t\t<translate x=\"%\" y=\"%\" z=\"%\" />\n") pos.x pos.y pos.z to: outFile ;
 			format("\t\t\t\t\t\t\t<rotate angle=\"%\">\n") angle to:outFile ; 
-			format("\t\t\t\t\t\t\t\t<axis x=\"%\" y=\"%\" z=\"%\" />\n") (rot.axis.x) (rot.axis.y) (rot.axis.z) to:outFile ;
+			format("\t\t\t\t\t\t\t\t<axis x=\"%\" y=\"%\" z=\"%\" />\n") (axis.x) (axis.y) (axis.z) to:outFile ;
 			format("\t\t\t\t\t\t\t</rotate>\n") to:outFile ;
-			--format("\t\t\t\t\t\t\t<rotate>\n") angle to:outFile ; 
-			--format("\t\t\t\t\t\t\t\t<quaternion x=\"%\" y=\"%\" z=\"%\" w=\"%\" />\n") (rot.x) (rot.y) (rot.z) (-rot.w) to:outFile ;
-			--format("\t\t\t\t\t\t\t</rotate>\n") to:outFile ;
 			format("\t\t\t\t\t\t</keyframe>\n") to:outFile ;
 		)
 	)
@@ -393,15 +392,15 @@ function writeB bone_name id scale flipYZ outFile =
 	)
 	
 	pos = Tform.pos ;
-	rot = Tform.rotation as angleaxis ;
-	angle = - degToRad (rot.angle) ; -- don't know why there must be this minus :((((((
-	
-	
+	--rot = Tform.rotation as angleaxis ;
+	--angle = - degToRad (rot.angle) ; -- don't know why there must be this minus :((((((
+	rot = toAngleAxis Tform.rotation ;
+	angle = - rot.angle ;
+		
 	--		if (abs(pos.x)<1e-5) then pos.x = 0 ;
 	--		if (abs(pos.y)<1e-5) then pos.y = 0 ;
 	--		if (abs(pos.z)<1e-5) then pos.z = 0 ;
-			
-			
+				
 	format("\t\t\t<position x=\"%\" y=\"%\" z=\"%\" />\n") pos.x pos.y pos.z to:outFile ;
     format("\t\t\t<rotation angle=\"%\">\n") angle to:outFile ;
     format("\t\t\t\t<axis x=\"%\" y=\"%\" z=\"%\" />\n") rot.axis.x rot.axis.y rot.axis.z to:outFile ;

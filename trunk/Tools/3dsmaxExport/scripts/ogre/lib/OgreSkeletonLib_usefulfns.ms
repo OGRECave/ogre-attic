@@ -257,3 +257,30 @@ function getRootsId skin =
 	)
 	rootstab ;
 )
+
+-------------------------------------------------------
+-- return a angleAxis given a Quaternion
+-------------------------------------------------------
+
+function toAngleAxis q =
+(
+	local angle, axis;
+	local result;
+	
+	fSqrLength = q.x*q.x+q.y*q.y+q.z*q.z ;
+	if (fSqrLength > 0.0) then
+	(
+		angle = ((acos q.w) * pi / 90);
+		fInvLength = 1.0 / (sqrt fSqrLength);
+		axis = [q.x*fInvLength, q.y*fInvLength, q.z*fInvLength];
+		result = angleAxis angle axis;
+	)
+	else
+	(
+		angle = 0;
+		axis = [1,0,0];
+		result = angleAxis angle axis;
+	)
+	
+	return result;
+)
