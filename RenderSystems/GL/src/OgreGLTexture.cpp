@@ -150,6 +150,9 @@ namespace Ogre {
           }
 
           Image::applyGamma( pTempData, mGamma, newImageSize, mSrcBpp );
+
+          mSrcWidth = mWidth = newWidth; 
+          mSrcHeight = mHeight = newHeight;
         }
         else
         {
