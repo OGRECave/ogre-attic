@@ -44,13 +44,13 @@ template <class U> struct PixelBoxConverter
     {
         typename U::SrcType *srcptr = static_cast<typename U::SrcType*>(src.data);
         typename U::DstType *dstptr = static_cast<typename U::DstType*>(dst.data);
-        unsigned int srcSliceSkip = src.getSliceSkip();
-        unsigned int dstSliceSkip = dst.getSliceSkip();
-        for(int z=src.front; z<src.back; z++) 
+        size_t srcSliceSkip = src.getSliceSkip();
+        size_t dstSliceSkip = dst.getSliceSkip();
+        for(size_t z=src.front; z<src.back; z++) 
         {
-            for(int y=src.top; y<src.bottom; y++)
+            for(size_t y=src.top; y<src.bottom; y++)
             {
-                for(int x=src.left; x<src.right; x++)
+                for(size_t x=src.left; x<src.right; x++)
                 {
                     dstptr[x] = U::pixelConvert(srcptr[x]);
                 }

@@ -138,7 +138,7 @@ namespace Ogre {
     		@param format	Format of this buffer
     		@param data		Pointer to the actual data
     	*/
-    	PixelBox(unsigned int width, unsigned int height, unsigned int depth, PixelFormat format, void *data=0):
+    	PixelBox(size_t width, size_t height, size_t depth, PixelFormat format, void *data=0):
     		Box(0, 0, 0, width, height, depth),
     		format(format), data(data)
     	{
@@ -152,12 +152,12 @@ namespace Ogre {
         /** Number of elements between the leftmost pixel of one row and the left
          	pixel of the next. This can be a negative value.
         */
-        int rowPitch;
+        size_t rowPitch;
         /** Number of elements between the top left pixel of one (depth) slice and 
          	the top left pixel of the next. This can be a negative value. Must be a multiple of
          	rowPitch.
         */
-        int slicePitch;
+        size_t slicePitch;
         
         /** Set the rowPitch and slicePitch so that the buffer is laid out consecutive 
          	in memory.
@@ -171,17 +171,20 @@ namespace Ogre {
          	one row and the leftmost pixel of the next row. (IE this is zero if rows
          	are consecutive). This can be a negative value.
         */
-        int getRowSkip() const { return rowPitch - getWidth(); }
+        size_t getRowSkip() const { return rowPitch - getWidth(); }
         /** Get the number of elements between one past the right bottom pixel of
          	one slice and the left top pixel of the next slice. (IE this is zero if slices
          	are consecutive). This can be a negative value.
         */
-        int getSliceSkip() const { return slicePitch - (getHeight() * rowPitch); }
+        size_t getSliceSkip() const { return slicePitch - (getHeight() * rowPitch); }
 
-        /** Return wether this buffer is laid uit consecutive in memory (ie the pitches
+        /** Return whether this buffer is laid out consecutive in memory (ie the pitches
          	are equal to the dimensions)
         */        
-        bool isConsecutive() const { return rowPitch == static_cast<int>(getWidth()) && slicePitch == static_cast<int>(getWidth()*getHeight()); }
+        bool isConsecutive() const 
+		{ 
+			return rowPitch == getWidth() && slicePitch == getWidth()*getHeight(); 
+		}
         /** Return the size (in bytes) this image would take if it was
         	laid out consecutive in memory
       	*/
