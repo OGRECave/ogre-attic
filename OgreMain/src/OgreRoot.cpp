@@ -567,6 +567,11 @@ namespace Ogre {
         return Real(times.back() - times.front()) / ((times.size()-1) * 1000);
     }
     //-----------------------------------------------------------------------
+    void Root::queueEndRendering(void)
+    {
+	    mQueuedEnd = true;
+    }	
+    //-----------------------------------------------------------------------
     void Root::startRendering(void)
     {
         assert(mActiveRenderer != 0);
@@ -578,7 +583,9 @@ namespace Ogre {
             mEventTimes[i].clear();
 
         // Infinite loop, until broken out of by frame listeners
-		while( true )
+		// or break out by calling queueEndRendering()
+		mQueuedEnd = false;
+		while( !mQueuedEnd )
 		{
 #if OGRE_PLATFORM == PLATFORM_WIN32
             // Pump events on Win32

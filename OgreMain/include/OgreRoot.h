@@ -71,7 +71,8 @@ namespace Ogre
         RenderSystemList mRenderers;
         RenderSystem* mActiveRenderer;
         String mVersion;
-				String mConfigFileName;
+		String mConfigFileName;
+	    bool mQueuedEnd;
 
         // Singletons
         LogManager* mLogManager;
@@ -327,6 +328,16 @@ namespace Ogre
                 FrameListener, Root::addFrameListener
         */
         void removeFrameListener(FrameListener* oldListener);
+
+        /** Queues the end of rendering.
+            @remarks
+                This method will do nothing unless startRendering() has
+                been called, in which case before the next frame is rendered
+                the rendering loop will bail out.
+            @see
+                Root, Root::startRendering
+        */
+        void queueEndRendering(void);
 
         /** Starts / restarts the automatic rendering cycle.
             @remarks
