@@ -603,8 +603,6 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BorderPanelGuiElement::_update(void)
     {
-        PanelGuiElement::_update();
-
         if (mMetricsMode != GMM_RELATIVE && 
             (OverlayManager::getSingleton().hasViewportChanged() || mGeomPositionsOutOfDate))
         {
@@ -614,6 +612,7 @@ namespace Ogre {
             mBottomBorderSize = mPixelBottomBorderSize * mPixelScaleY;
             mGeomPositionsOutOfDate = true;
         }
+		PanelGuiElement::_update();
     }
     //-----------------------------------------------------------------------
     //---------------------------------------------------------------------
