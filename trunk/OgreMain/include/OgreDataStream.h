@@ -55,6 +55,8 @@ namespace Ogre {
 	protected:
 		/// The name (e.g. resource name) that can be used to identify the source fot his data (optional)
 		String mName;		
+        /// Size of the data in the stream (may be 0 if size cannot be determined)
+        size_t mSize;
 	public:
 		/// Constructor for creating unnamed streams
 		DataStream() {}
@@ -129,7 +131,10 @@ namespace Ogre {
 		/** Returns the total size of the data to be read from the stream, 
 			or 0 if this is indeterminate for this stream. 
 		*/
-		size_t size(void) const;
+        size_t size(void) const { return mSize; }
+
+        /** Close the stream; this makes further operations invalid. */
+        virtual void close(void) = 0;
 		
 
 	};
@@ -242,15 +247,15 @@ namespace Ogre {
 	
 		/** @copydoc DataStream::seek
 		*/
-	    void seek( size_t pos ) = 0;
+	    void seek( size_t pos );
 
 		/** @copydoc DataStream::eof
 		*/
 	    bool eof(void) const;
 
-		/** @copydoc DataStream::eof
-		*/
-		size_t size(void) const;
+        /** @copydoc DataStream::close
+        */
+        void close(void);
 	};
 
 	/** Common subclass of DataStream for handling data from 
@@ -285,15 +290,15 @@ namespace Ogre {
 	
 		/** @copydoc DataStream::seek
 		*/
-	    void seek( size_t pos ) = 0;
+	    void seek( size_t pos );
 
 		/** @copydoc DataStream::eof
 		*/
 	    bool eof(void) const;
 
-		/** @copydoc DataStream::eof
-		*/
-		size_t size(void) const;
+        /** @copydoc DataStream::close
+        */
+        void close(void);
 		
 		
 	};
@@ -328,15 +333,15 @@ namespace Ogre {
 	
 		/** @copydoc DataStream::seek
 		*/
-	    void seek( size_t pos ) = 0;
+	    void seek( size_t pos );
 
 		/** @copydoc DataStream::eof
 		*/
 	    bool eof(void) const;
 
-		/** @copydoc DataStream::eof
-		*/
-		size_t size(void) const;
+        /** @copydoc DataStream::close
+        */
+        void close(void);
 
 	};
 }
