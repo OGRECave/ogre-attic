@@ -33,12 +33,18 @@ namespace Ogre {
     {
     }
 
+    DataChunk::DataChunk( void *pData, size_t size )
+    {
+        mData = new unsigned char[ size ];
+        memcpy( mData, pData, size );
+    }
+
     //-----------------------------------------------------------------------
     unsigned char* DataChunk::allocate(unsigned long size)
     {
         assert (size > 0);
 
-        if (mData) free();
+        if (mData) clear();
         mData = new unsigned char[size];
         mSize = size;
         mPos = mData;
@@ -47,7 +53,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void DataChunk::free(void)
+    void DataChunk::clear(void)
     {
         if (mData)
         {

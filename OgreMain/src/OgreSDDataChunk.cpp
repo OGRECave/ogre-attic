@@ -29,6 +29,10 @@ namespace Ogre {
     {
     }
 
+    SDDataChunk::SDDataChunk( void *pData, size_t size ) : DataChunk( pData, size )
+    {
+    }
+
     SDDataChunk::~SDDataChunk()
     {
         if( mData )
