@@ -43,6 +43,7 @@ namespace Ogre {
         MSS_TEXTUREUNIT,
         MSS_PROGRAM_REF,
 		MSS_PROGRAM,
+        MSS_DEFAULT_PARAMETERS,
 		MSS_TEXTURESOURCE
     };
 	/** Struct for holding a program definition which is in progress. */
@@ -114,6 +115,8 @@ namespace Ogre {
         AttribParserList mProgramRefAttribParsers;
         /// Parsers for the program definition section of a script
         AttribParserList mProgramAttribParsers;
+        /// Parsers for the program definition section of a script
+        AttribParserList mProgramDefaultParamAttribParsers;
 
         void writeMaterial(const Material *pMat);
         void writeTechnique(const Technique* pTech);

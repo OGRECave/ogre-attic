@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 11 2004 by texi2html 1.64 -->
+<!-- Created on , 29 2004 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -27,7 +27,7 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC53"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC25"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC81"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC82"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -37,11 +37,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 <H3> 3.1.4 Declaring Vertex and Fragment Programs </H3>
 <!--docid::SEC75::-->
 
-In order to use a vertex or fragment program in your materials (See section <A HREF="manual_21.html#SEC81">3.1.5 Using Vertex and Fragment Programs in a Pass</A>), you first have to define them. A single program definition can be used by any number of materials, the only prerequisite is that a program must be defined before being referenced in the pass section of a material.<BR><BR>
+In order to use a vertex or fragment program in your materials (See section <A HREF="manual_21.html#SEC82">3.1.5 Using Vertex and Fragment Programs in a Pass</A>), you first have to define them. A single program definition can be used by any number of materials, the only prerequisite is that a program must be defined before being referenced in the pass section of a material.<BR><BR>
 
 The definition of a program can either be embedded in the .material script itself (in which case it must precede any references to it in the script), or if you wish to use the same program across multiple .material files, you can define it in an external .program script. You define the program in exactly the same way whether you use a .program script or a .material script, the only difference is that all .program scripts are guaranteed to have been parsed before <STRONG>all</STRONG> .material scripts, so you can guarantee that your program has been defined before any .material script that might use it. Just like .material scripts, .program scripts will be read from any location which is on your resource path, and you can define many programs in a single script.<BR><BR>
 
-Vertex and fragment programs can be low-level (i.e. assembler code written to the specification of a given low level syntax such as vs_1_1 or arbfp1) or high-level such as nVidia's Cg language (See section <A HREF="manual_20.html#SEC76">High-level Programs</A>). High level languages give you a number of advantages, such as being able to write more intuitive code, and possibly being able to target multiple architectures in a single program (for example, the same Cg program might be able to be used in both D3D and GL, whilst the equivalent low-level programs would require separate techniques, each targetting a different API). High-level programs also allow you to use named parameters instead of simply indexed ones, although parameters are not defined here, they are used in the Pass.<BR><BR>
+Vertex and fragment programs can be low-level (i.e. assembler code written to the specification of a given low level syntax such as vs_1_1 or arbfp1) or high-level such as nVidia's Cg language (See section <A HREF="manual_20.html#SEC77">High-level Programs</A>). High level languages give you a number of advantages, such as being able to write more intuitive code, and possibly being able to target multiple architectures in a single program (for example, the same Cg program might be able to be used in both D3D and GL, whilst the equivalent low-level programs would require separate techniques, each targetting a different API). High-level programs also allow you to use named parameters instead of simply indexed ones, although parameters are not defined here, they are used in the Pass.<BR><BR>
 
 Here is an example of a definition of a low-level vertex program:
 <TABLE><tr><td>&nbsp;</td><td class=example><pre>vertex_program myVertexProgram asm
@@ -67,15 +67,36 @@ The current supported syntaxes are:
 
 You can get a definitive list of the syntaxes supported by the current card by calling GpuProgramManager::getSingleton().getSupportedSyntax().<BR><BR>
 
-
+<A NAME="Default Program Parameters"></A>
 <A NAME="SEC76"></A>
-<H3> High-level Programs </H3>
+<H3> Default Program Parameters </H3>
 <!--docid::SEC76::-->
-Support for high level programs is provided through plugins; this is to make sure that an application using OGRE can use as little or as much of the high-level program functionality as they like. OGRE currently supports 2 high-level program types, Cg (an API- and card-independent, high-level language which lets you write programs for both OpenGL and DirectX for lots of cards), and DirectX 9 High-Level Shader Language (HLSL). HLSL is provided for people who only want to deploy in DirectX, or who don't want to include the Cg plugin for whatever reason. To be honest, Cg is a better bet because it lets you stay API independent - and don't be put off by the fact that it's made by nVidia, it will happily compile programs down to vendor-independent standards like DirectX and OpenGL's assembler formats, so you're not limited to nVidia cards.<BR><BR>
+While defining a vertex or fragment program, you can also specify the default parameters to be used for materials which use it, unless they specifically override them. You do this by including a nested 'default_params' section, like so:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>vertex_program Ogre/CelShadingVP cg
+{
+	source Example_CelShading.cg
+	entry_point main_vp
+	profiles vs_1_1 arbvp1
 
+	default_params
+	{
+		param_named_auto lightPosition light_position_object_space 0
+		param_named_auto eyePosition camera_position_object_space
+		param_named_auto worldViewProj worldviewproj_matrix
+		param_named shininess float 10 
+	}
+}
+</pre></td></tr></table>The syntax of the parameter definition is exactly the same as when you define parameters when using programs, See  <A HREF="manual_21.html#Program Parameter Specification">Program Parameter Specification</A>. Defining default parameters allows you to avoid rebinding common parameters repeatedly (clearly in the above example, all but 'shininess' are unlikely to change between uses of the program) which makes your material declarations shorter.
+
+<A NAME="High-level Programs"></A>
 <A NAME="SEC77"></A>
-<H3> Cg programs </H3>
+<H2> High-level Programs </H2>
 <!--docid::SEC77::-->
+Support for high level vertex and fragment programs is provided through plugins; this is to make sure that an application using OGRE can use as little or as much of the high-level program functionality as they like. OGRE currently supports 2 high-level program types, Cg (an API- and card-independent, high-level language which lets you write programs for both OpenGL and DirectX for lots of cards), and DirectX 9 High-Level Shader Language (HLSL). HLSL is provided for people who only want to deploy in DirectX, or who don't want to include the Cg plugin for whatever reason. To be honest, Cg is a better bet because it lets you stay API independent - and don't be put off by the fact that it's made by nVidia, it will happily compile programs down to vendor-independent standards like DirectX and OpenGL's assembler formats, so you're not limited to nVidia cards.<BR><BR>
+
+<A NAME="SEC78"></A>
+<H3> Cg programs </H3>
+<!--docid::SEC78::-->
 In order to define Cg programs, you have to have to load Plugin_CgProgramManager.so/.dll at startup, either through plugins.cfg or through your own plugin loading code. They are very easy to define:
 <TABLE><tr><td>&nbsp;</td><td class=example><pre>fragment_program myCgFragmentProgram cg
 {
@@ -87,9 +108,9 @@ In order to define Cg programs, you have to have to load Plugin_CgProgramManager
 Here is where things start to change. Firstly, we need to define an 'entry_point', which is the name of a function in the Cg program which will be the first one called as part of the fragment program. Unlike assembler programs, which just run top-to-bottom, Cg programs can include multiple functions and as such you must specify the one which start the ball rolling.<BR><BR>
 Next, instead of a fixed 'syntax' parameter, you specify one or more 'profiles'; profiles are how Cg compiles a program down to the low-level assembler. The profiles have the same names as the assembler syntax codes mentioned above; the main difference is that you can list more than one, thus allowing the program to be compiled down to more low-level syntaxes so you can write a single high-level program which runs on both D3D and GL. You are advised to just enter the simplest profiles under which your programs can be compiled in order to give it the maximum compatibility. The ordering also matters; if a card supports more than one syntax then the one listed first will be used.
 
-<A NAME="SEC78"></A>
+<A NAME="SEC79"></A>
 <H3> DirectX9 HLSL </H3>
-<!--docid::SEC78::-->
+<!--docid::SEC79::-->
 DirectX9 HLSL has a vert similar language syntax to Cg but is tied to the DirectX API. The only benefit over Cg is that it only requires the DirectX 9 render system plugin, not any additional plugins. Declaring a DirectX9 HLSL program is very similar to Cg. Here's an example:
 <TABLE><tr><td>&nbsp;</td><td class=example><pre>vertex_program myHLSLVertexProgram hlsl
 {
@@ -99,21 +120,21 @@ DirectX9 HLSL has a vert similar language syntax to Cg but is tied to the Direct
 }
 </pre></td></tr></table>As you can see, the syntax is almost identical, except that instead of 'profiles' with a list of assembler formats, you have a 'target' parameter which allows a single assembler target to be specified - obviously this has to be a DirectX assembler format syntax code.
 
-<A NAME="SEC79"></A>
+<A NAME="SEC80"></A>
 <H3> Skeletal Animation in Vertex Programs </H3>
-<!--docid::SEC79::-->
+<!--docid::SEC80::-->
 You can implement skeletal animation in hardware by writing a vertex program which uses the per-vertex blending indices and blending weights, together with an array of world matrices (which will be provided for you by Ogre if you bind the automatic parameter 'world_matrix_array_3x4'). However, you need to communicate this support to Ogre so it does not perform skeletal animation in software for you. You do this by adding the following attribute to your vertex_program definition:
 <TABLE><tr><td>&nbsp;</td><td class=example><pre>	includes_skeletal_animation true
 </pre></td></tr></table>When you do this, any skeletally animated entity which uses this material will forgo the usual animation blend and will expect the vertex program to do it, for both vertex positions and normals.
 
-<A NAME="SEC80"></A>
+<A NAME="SEC81"></A>
 <H3> Vertex Programs With Shadows </H3>
-<!--docid::SEC80::-->
-When using shadows (See section <A HREF="manual_52.html#SEC184">7. Shadows</A>), the use of vertex programs can add some additional complexities, because Ogre can only automatically deal with everything when using the fixed-function pipeline. If you use vertex programs, and you are also using shadows, you may need to make some adjustments. <BR><BR>
+<!--docid::SEC81::-->
+When using shadows (See section <A HREF="manual_52.html#SEC185">7. Shadows</A>), the use of vertex programs can add some additional complexities, because Ogre can only automatically deal with everything when using the fixed-function pipeline. If you use vertex programs, and you are also using shadows, you may need to make some adjustments. <BR><BR>
 
 If you use <STRONG>stencil shadows</STRONG>, then any vertex programs which do vertex deformation can be a problem, because stencil shadows are calculated on the CPU, which does not have access to the modified vertices. If the vertex program is doing standard skeletal animation, this is ok (see section above) because Ogre knows how to replicate the effect in software, but any other vertex deformation cannot be replicated, and you will either have to accept that the shadow will not reflect this deformation, or you should turn off shadows for that object. <BR><BR>
 
-If you use <STRONG>texture shadows</STRONG>, then vertex deformation is acceptable; however, when rendering the object into the shadow texture (the shadow caster pass), the shadow has to be rendered in a solid colour (linked to the ambient colour). You must therefore provide an alternative vertex program, so Ogre provides you with a way of specifying one to use when rendering the caster, See section <A HREF="manual_21.html#SEC87">Shadows and Vertex Programs</A>.
+If you use <STRONG>texture shadows</STRONG>, then vertex deformation is acceptable; however, when rendering the object into the shadow texture (the shadow caster pass), the shadow has to be rendered in a solid colour (linked to the ambient colour). You must therefore provide an alternative vertex program, so Ogre provides you with a way of specifying one to use when rendering the caster, See section <A HREF="manual_21.html#SEC88">Shadows and Vertex Programs</A>.
 
 
 <A NAME="Using Vertex and Fragment Programs in a Pass"></A>
@@ -121,7 +142,7 @@ If you use <STRONG>texture shadows</STRONG>, then vertex deformation is acceptab
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC53"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC25"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC81"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC82"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -130,7 +151,7 @@ If you use <STRONG>texture shadows</STRONG>, then vertex deformation is acceptab
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 11 2004</I>
+by <I>Steve Streeting</I> on <I>, 29 2004</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

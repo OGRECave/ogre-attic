@@ -38,6 +38,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre 
 {
+    // HACK - should put this in MaterialScriptContext but getting very odd 
+    // release mode errors
+    StringVector defaultParamLines;
+
     //-----------------------------------------------------------------------
     // Internal parser methods
     //-----------------------------------------------------------------------
@@ -1165,7 +1169,7 @@ namespace Ogre
             // find the dimensionality
             start = vecparams[1].find_first_not_of("float");
             // Assume 1 if not specified
-            if (start == -1)
+            if (start == String::npos)
             {
                 dims = 1;
             }
@@ -1180,7 +1184,7 @@ namespace Ogre
             // find the dimensionality
             start = vecparams[1].find_first_not_of("int");
             // Assume 1 if not specified
-            if (start == -1)
+            if (start == String::npos)
             {
                 dims = 1;
             }
@@ -1835,7 +1839,14 @@ namespace Ogre
         return false;
 
     }
-	
+    //-----------------------------------------------------------------------
+    bool parseDefaultParams(String& params, MaterialScriptContext& context)
+    {
+        context.section = MSS_DEFAULT_PARAMETERS;
+        // Should be a brace next
+        return true;
+    }
+
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     MaterialSerializer::MaterialSerializer()
@@ -1908,7 +1919,14 @@ namespace Ogre
         mProgramAttribParsers.insert(AttribParserList::value_type("source", (ATTRIBUTE_PARSER)parseProgramSource));
         mProgramAttribParsers.insert(AttribParserList::value_type("syntax", (ATTRIBUTE_PARSER)parseProgramSyntax));
         mProgramAttribParsers.insert(AttribParserList::value_type("includes_skeletal_animation", (ATTRIBUTE_PARSER)parseProgramSkeletalAnimation));
+        mProgramAttribParsers.insert(AttribParserList::value_type("default_params", (ATTRIBUTE_PARSER)parseDefaultParams));
 		
+        // Set up program default param attribute parsers
+        mProgramDefaultParamAttribParsers.insert(AttribParserList::value_type("param_indexed", (ATTRIBUTE_PARSER)parseParamIndexed));
+        mProgramDefaultParamAttribParsers.insert(AttribParserList::value_type("param_indexed_auto", (ATTRIBUTE_PARSER)parseParamIndexedAuto));
+        mProgramDefaultParamAttribParsers.insert(AttribParserList::value_type("param_named", (ATTRIBUTE_PARSER)parseParamNamed));
+        mProgramDefaultParamAttribParsers.insert(AttribParserList::value_type("param_named_auto", (ATTRIBUTE_PARSER)parseParamNamedAuto));
+        mProgramDefaultParamAttribParsers.insert(AttribParserList::value_type("param_named", (ATTRIBUTE_PARSER)parseParamNamedAuto));
 
         mScriptContext.section = MSS_NONE;
         mScriptContext.material = 0;
@@ -2093,6 +2111,7 @@ namespace Ogre
 				finishProgramDefinition();
                 mScriptContext.section = MSS_NONE;
                 delete mScriptContext.programDef;
+                defaultParamLines.clear();
                 mScriptContext.programDef = NULL;
             }
             else
@@ -2113,10 +2132,24 @@ namespace Ogre
 				{
                     String cmd = splitCmd.size() >= 2? splitCmd[1]:String::BLANK;
 					// Use parser with remainder
-                    iparser->second(cmd, mScriptContext );
+                    return iparser->second(cmd, mScriptContext );
 				}
 				
             }
+            break;
+        case MSS_DEFAULT_PARAMETERS:
+            if (line == "}")
+            {
+                // End of default parameters
+                mScriptContext.section = MSS_PROGRAM;
+            }
+            else
+            {
+                // Save default parameter lines up until we finalise the program
+                defaultParamLines.push_back(line);
+            }
+
+
             break;
         };
 
@@ -2127,6 +2160,7 @@ namespace Ogre
 	{
 		// Now it is time to create the program and propagate the parameters
 		MaterialScriptProgramDefinition* def = mScriptContext.programDef;
+        GpuProgram* gp = 0;
 		if (def->language == "asm")
 		{
 			// Native assembler
@@ -2142,9 +2176,9 @@ namespace Ogre
 					", you must specify a syntax code.", mScriptContext);
 			}
 			// Create
-			GpuProgram* gp = GpuProgramManager::getSingleton().
+			gp = GpuProgramManager::getSingleton().
 				createProgram(def->name, def->source, def->progType, def->syntax);
-			gp->setSkeletalAnimationIncluded(def->supportsSkeletalAnimation);
+
 		}
 		else
 		{
@@ -2158,19 +2192,18 @@ namespace Ogre
 			// Create
             try 
             {
-			    HighLevelGpuProgram* gp = HighLevelGpuProgramManager::getSingleton().
+			    HighLevelGpuProgram* hgp = HighLevelGpuProgramManager::getSingleton().
 				    createProgram(def->name, def->language, def->progType);
+                gp = hgp;
                 // Set source file
-                gp->setSourceFile(def->source);
-                // Skel animation supported
-                gp->setSkeletalAnimationIncluded(def->supportsSkeletalAnimation);
+                hgp->setSourceFile(def->source);
 
 			    // Set custom parameters
 			    std::map<String, String>::const_iterator i, iend;
 			    iend = def->customParameters.end();
 			    for (i = def->customParameters.begin(); i != iend; ++i)
 			    {
-				    if (!gp->setParameter(i->first, i->second))
+				    if (!hgp->setParameter(i->first, i->second))
 				    {
 					    logParseError("Error in program " + def->name + 
 						    " parameter " + i->first + " is not valid.", mScriptContext);
@@ -2183,6 +2216,41 @@ namespace Ogre
                     + def->name + "', error reported was: " + e.getFullDescription());
             }
         }
+        // Set skeletal animation option
+        gp->setSkeletalAnimationIncluded(def->supportsSkeletalAnimation);
+
+        // Set up to receive default parameters
+        if (gp->isSupported() 
+            && !defaultParamLines.empty())
+        {
+            mScriptContext.programParams = gp->getDefaultParameters();
+            mScriptContext.program = gp;
+            StringVector::iterator i, iend;
+            iend = defaultParamLines.end();
+            for (i = defaultParamLines.begin();
+                i != iend; ++i)
+            {
+                // find & invoke a parser
+                // do this manually because we want to call a custom
+                // routine when the parser is not found
+                // First, split line on first divisor only
+                StringVector splitCmd = i->split(" \t", 1);
+                // Find attribute parser
+                AttribParserList::iterator iparser 
+                    = mProgramDefaultParamAttribParsers.find(splitCmd[0]);
+                if (iparser != mProgramDefaultParamAttribParsers.end())
+                {
+                    String cmd = splitCmd.size() >= 2? splitCmd[1]:String::BLANK;
+                    // Use parser with remainder
+                    iparser->second(cmd, mScriptContext );
+                }
+
+            }
+            // Reset
+            mScriptContext.program = 0;
+            mScriptContext.programParams.setNull();
+        }
+
 	}
     //-----------------------------------------------------------------------
 	bool MaterialSerializer::invokeParser(String& line, AttribParserList& parsers)

@@ -6,6 +6,14 @@ vertex_program Ogre/CelShadingVP cg
 	source Example_CelShading.cg
 	entry_point main_vp
 	profiles vs_1_1 arbvp1
+
+	default_params
+	{
+		param_named_auto lightPosition light_position_object_space 0
+		param_named_auto eyePosition camera_position_object_space
+		param_named_auto worldViewProj worldviewproj_matrix
+		param_named shininess float 10 
+	}
 }
 
 fragment_program Ogre/CelShadingFP cg
@@ -24,10 +32,7 @@ material Examples/OgreCelShading/Eyes
 		{
 			vertex_program_ref Ogre/CelShadingVP
 			{
-				param_named_auto lightPosition light_position_object_space 0
-				param_named_auto eyePosition camera_position_object_space
 				param_named shininess float 35 
-				param_named_auto worldViewProj worldviewproj_matrix
 			}
 			fragment_program_ref Ogre/CelShadingFP
 			{
@@ -65,10 +70,7 @@ material Examples/OgreCelShading/Skin
 		{
 			vertex_program_ref Ogre/CelShadingVP
 			{
-				param_named_auto lightPosition light_position_object_space 0
-				param_named_auto eyePosition camera_position_object_space
 				param_named shininess float 10 
-				param_named_auto worldViewProj worldviewproj_matrix
 			}
 			fragment_program_ref Ogre/CelShadingFP
 			{
@@ -106,10 +108,7 @@ material Examples/OgreCelShading/Teeth
 		{
 			vertex_program_ref Ogre/CelShadingVP
 			{
-				param_named_auto lightPosition light_position_object_space 0
-				param_named_auto eyePosition camera_position_object_space
 				param_named shininess float 20
-				param_named_auto worldViewProj worldviewproj_matrix
 			}
 			fragment_program_ref Ogre/CelShadingFP
 			{
@@ -147,10 +146,7 @@ material Examples/OgreCelShading/Earring
 		{
 			vertex_program_ref Ogre/CelShadingVP
 			{
-				param_named_auto lightPosition light_position_object_space 0
-				param_named_auto eyePosition camera_position_object_space
 				param_named shininess float 25 
-				param_named_auto worldViewProj worldviewproj_matrix
 			}
 			fragment_program_ref Ogre/CelShadingFP
 			{

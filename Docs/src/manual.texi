@@ -1229,9 +1229,30 @@ This is an nVidia-specific OpenGL syntax which allows you to use the 'nvparse' f
 
 You can get a definitive list of the syntaxes supported by the current card by calling GpuProgramManager::getSingleton().getSupportedSyntax().@*@*
 
+@anchor{Default Program Parameters}
+@subheading Default Program Parameters
+While defining a vertex or fragment program, you can also specify the default parameters to be used for materials which use it, unless they specifically override them. You do this by including a nested 'default_params' section, like so:
+@example
+vertex_program Ogre/CelShadingVP cg
+{
+	source Example_CelShading.cg
+	entry_point main_vp
+	profiles vs_1_1 arbvp1
 
-@subheading High-level Programs
-Support for high level programs is provided through plugins; this is to make sure that an application using OGRE can use as little or as much of the high-level program functionality as they like. OGRE currently supports 2 high-level program types, Cg (an API- and card-independent, high-level language which lets you write programs for both OpenGL and DirectX for lots of cards), and DirectX 9 High-Level Shader Language (HLSL). HLSL is provided for people who only want to deploy in DirectX, or who don't want to include the Cg plugin for whatever reason. To be honest, Cg is a better bet because it lets you stay API independent - and don't be put off by the fact that it's made by nVidia, it will happily compile programs down to vendor-independent standards like DirectX and OpenGL's assembler formats, so you're not limited to nVidia cards.@*@*
+	default_params
+	{
+		param_named_auto lightPosition light_position_object_space 0
+		param_named_auto eyePosition camera_position_object_space
+		param_named_auto worldViewProj worldviewproj_matrix
+		param_named shininess float 10 
+	}
+}
+@end example
+The syntax of the parameter definition is exactly the same as when you define parameters when using programs, @xref{Program Parameter Specification}. Defining default parameters allows you to avoid rebinding common parameters repeatedly (clearly in the above example, all but 'shininess' are unlikely to change between uses of the program) which makes your material declarations shorter.
+
+@node High-level Programs
+@heading High-level Programs
+Support for high level vertex and fragment programs is provided through plugins; this is to make sure that an application using OGRE can use as little or as much of the high-level program functionality as they like. OGRE currently supports 2 high-level program types, Cg (an API- and card-independent, high-level language which lets you write programs for both OpenGL and DirectX for lots of cards), and DirectX 9 High-Level Shader Language (HLSL). HLSL is provided for people who only want to deploy in DirectX, or who don't want to include the Cg plugin for whatever reason. To be honest, Cg is a better bet because it lets you stay API independent - and don't be put off by the fact that it's made by nVidia, it will happily compile programs down to vendor-independent standards like DirectX and OpenGL's assembler formats, so you're not limited to nVidia cards.@*@*
 
 @subheading Cg programs
 In order to define Cg programs, you have to have to load Plugin_CgProgramManager.so/.dll at startup, either through plugins.cfg or through your own plugin loading code. They are very easy to define:
@@ -1290,9 +1311,9 @@ vertex_program_ref myVertexProgram
 In this example, we bind a vertex program called 'myVertexProgram' (which will be defined elsewhere) to the pass, and give it 2 parameters, one is an 'auto' parameter, meaning we do not have to supply a value as such, just a recognised code (in this case it's the world/view/projection matrix which is kept up to date automatically by Ogre). The second parameter is a manually specified parameter, a 4-element float. The indexes are described later.@*@*
 
 The syntax of the link to a vertex program and a fragment program are identical, the only difference is that 'fragment_program_ref' is used instead of 'vertex_program_ref'.
-
+@anchor{Program Parameter Specification}
 @subheading Parameter specification
-Parameters can be specified using one of 4 commands:
+Parameters can be specified using one of 4 commands as shown below. The same syntax is used whether you are defining a parameter just for this particular use of the program, or when specifying the @ref{Default Program Parameters}. Parameters set in the specific use of the program override the defaults.
 @itemize @bullet
 @item @ref{param_indexed}
 @item @ref{param_indexed_auto}

@@ -185,7 +185,7 @@ namespace Ogre {
     class ConstVectorIterator
     {
     private:
-        typename T::const_iterator mCurrent;
+        mutable typename T::const_iterator mCurrent;
         typename T::const_iterator mEnd;
         /// Private constructor since only the parameterised constructor should be used
         ConstVectorIterator() {};
@@ -221,7 +221,7 @@ namespace Ogre {
             return &(*mCurrent);
         }
         /** Moves the iterator on one element. */
-        void moveNext(void)
+        void moveNext(void) const
         {
             mCurrent++;
         }
@@ -248,7 +248,7 @@ namespace Ogre {
     class ConstMapIterator
     {
     private:
-        typename T::const_iterator mCurrent;
+        mutable typename T::const_iterator mCurrent;
         typename T::const_iterator mEnd;
         /// Private constructor since only the parameterised constructor should be used
         ConstMapIterator() {};
@@ -297,7 +297,7 @@ namespace Ogre {
             return &(mCurrent->second);
         }
         /** Moves the iterator on one element. */
-        void moveNext(void)
+        void moveNext(void) const
         {
             mCurrent++;
         }
