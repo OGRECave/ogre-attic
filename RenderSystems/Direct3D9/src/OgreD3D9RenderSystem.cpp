@@ -690,6 +690,9 @@ namespace Ogre
         // non-power-of-two texturs always supported
         mCapabilities->setCapability(RSC_NON_POWER_OF_2_TEXTURES);
 
+		// We always support rendertextures bigger than the frame buffer
+        mCapabilities->setCapability(RSC_HWRENDER_TO_TEXTURE);
+
         mCapabilities->log(LogManager::getSingleton().getDefaultLog());
     }
     //---------------------------------------------------------------------
