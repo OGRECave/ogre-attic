@@ -601,6 +601,11 @@ namespace Ogre
         if (mCaps.TextureCaps & D3DPTEXTURECAPS_CUBEMAP)
             mCapabilities->setCapability(RSC_CUBEMAPPING);
 
+        // We always support compression, D3DX will decompress if device does not support
+        mCapabilities->setCapability(RSC_TEXTURE_COMPRESSION);
+        mCapabilities->setCapability(RSC_TEXTURE_COMPRESSION_DXT);
+
+        // We always support VBOs
         mCapabilities->setCapability(RSC_VBO);
 
         convertVertexShaderCaps();
