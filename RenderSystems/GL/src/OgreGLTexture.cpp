@@ -62,7 +62,7 @@ namespace Ogre {
         ResourceHandle handle, const String& group, bool isManual, 
         ManualResourceLoader* loader, GLSupport& support) 
         : Texture(creator, name, handle, group, isManual, loader),
-        mGLSupport(support), mTextureID(0)
+        mTextureID(0), mGLSupport(support)
     {
     }
 
@@ -293,9 +293,9 @@ namespace Ogre {
 		// This needs to be set otherwise the texture doesn't get rendered
         glTexParameteri( getGLTextureTarget(), GL_TEXTURE_MAX_LEVEL, mNumMipmaps );
 		
-		// If we can do automip generation, do so
-		// TODO: make this a choice
-		if(mNumMipmaps &&
+		// If we can do automip generation and the user desires this, do so
+		if((mUsage & TU_AUTOMIPMAP) &&
+		    mNumMipmaps &&
 		 	Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_AUTOMIPMAP))
         {
             glTexParameteri( getGLTextureTarget(), GL_GENERATE_MIPMAP, GL_TRUE );
@@ -497,7 +497,8 @@ namespace Ogre {
 		
 		if(doCustomMipmaps) {
 			mNumMipmaps = images[0].getNumMipmaps();
-			// TODO: disable flag for auto mip generation
+			// Disable flag for auto mip generation
+			mUsage &= ~TU_AUTOMIPMAP;
 		}
 		
         // Create the GL texture
@@ -510,7 +511,11 @@ namespace Ogre {
             StringUtil::StrStreamType str;
             str << "GLTexture: Loading face=" << i << " filename=" << mName 
                 << "(" << PixelUtil::getFormatName(img.getFormat()) << ") with "
-                << mNumMipmaps << " mipmaps from Image.";
+                << mNumMipmaps;
+			if(mUsage & TU_AUTOMIPMAP)
+				str << " generated mipmaps from Image.";
+			else
+				str << " custom mipmaps from Image.";
             LogManager::getSingleton().logMessage( 
                 LML_NORMAL, str.str());
 
@@ -556,7 +561,7 @@ namespace Ogre {
 
     void GLTexture::loadImpl()
     {
-        if( mUsage == TU_RENDERTARGET )
+        if( mUsage & TU_RENDERTARGET )
         {
             createRenderTexture();
             mIsLoaded = true;     
@@ -647,7 +652,7 @@ namespace Ogre {
 		mNumMipmaps = value;
 		
 		// For all faces and mipmaps, store surfaces as HardwarePixelBufferSharedPtr
-		bool wantGeneratedMips = true; // TODO make option on texture
+		bool wantGeneratedMips = (mUsage & TU_AUTOMIPMAP)!=0;
 		bool canMip = Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_AUTOMIPMAP);
 		
 		// Do mipmapping in software? (uses GLU) For some cards, this is still needed. Of course,
@@ -659,10 +664,8 @@ namespace Ogre {
 			for(int mip=0; mip<=getNumMipmaps(); mip++)
 			{
 				mSurfaceList.push_back(HardwarePixelBufferSharedPtr(
-					// TODO provide real usage instead of HBU_STATIC
 					new GLHardwarePixelBuffer(getGLTextureTarget(), mTextureID, face, mip,
-						HardwareBuffer::HBU_STATIC, doSoftware && mip==0)
-						//HardwareBuffer::HBU_DYNAMIC, doSoftware && mip==0)
+						static_cast<HardwareBuffer::Usage>(mUsage), doSoftware && mip==0)
 				));
 			}
 		}
