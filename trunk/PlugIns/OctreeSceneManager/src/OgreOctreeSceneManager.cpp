@@ -285,7 +285,11 @@ void OctreeSceneManager::_updateOctreeNode( OctreeNode * onode )
 */
 void OctreeSceneManager::_removeOctreeNode( OctreeNode * n )
 {
-    n -> getOctant() -> _removeNode( n );
+    Octree* oct = n -> getOctant();
+    if (oct)
+    {
+        oct -> _removeNode( n );
+    }
 }
 
 
