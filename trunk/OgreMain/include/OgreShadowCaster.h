@@ -46,13 +46,16 @@ namespace Ogre {
     protected:
         Material* mMaterial;
         RenderOperation mRenderOp;
+        ShadowRenderable* mLightCap;
     public:
-        ShadowRenderable() {}
-        virtual ~ShadowRenderable() {}
+        ShadowRenderable() : mMaterial(0), mLightCap(0) {}
+        virtual ~ShadowRenderable() { delete mLightCap; }
         /** Set the material to be used by the shadow, should be set by the caller 
           before adding to a render queue
         */
         void setMaterial(Material* mat) { mMaterial = mat; }
+        /// Get the light cap version of this renderable
+        ShadowRenderable* getLightCapRenderable(void) { return mLightCap; }
         /// Overridden from Renderable
         Material* getMaterial(void) const { return mMaterial; }
         /// Overridden from Renderable
@@ -99,6 +102,10 @@ namespace Ogre {
 
         /** Get the world bounding box of the caster. */
         virtual const AxisAlignedBox& getWorldBoundingBox(bool derive = false) const = 0;
+        /** Gets the world space bounding box of the light cap */
+        virtual const AxisAlignedBox& getLightCapBounds(void) = 0;
+        /** Gets the world space bounding box of the dark cap, as extruded using the light provided */
+        virtual const AxisAlignedBox& getDarkCapBounds(const Light& light) = 0;
 
         typedef std::vector<ShadowRenderable*> ShadowRenderableList;
         typedef VectorIterator<ShadowRenderableList> ShadowRenderableListIterator;
@@ -139,9 +146,10 @@ namespace Ogre {
         to provide the extruded area of the buffer.
         @param lightPos 4D light position in object space, when w=0.0f this
         represents a directional light
+        @param extrudeDist The distance to extrude
         */
         static void extrudeVertices(HardwareVertexBufferSharedPtr vertexBuffer, 
-            size_t originalVertexCount, const Vector4& lightPos);
+            size_t originalVertexCount, const Vector4& lightPos, Real extrudeDist);
     protected:
         /** Tells the caster to perform the tasks necessary to update the 
             edge data's light listing. Can be overridden if the subclass needs 
@@ -169,6 +177,14 @@ namespace Ogre {
         virtual void generateShadowVolume(EdgeData* edgeData, 
             HardwareIndexBufferSharedPtr indexBuffer, const Light* light,
             ShadowRenderableList& shadowRenderables, unsigned long flags);
+        /** Utility method for extruding a bounding box. 
+        @param box Original bounding box, will be updated in-place
+        @param lightPos 4D light position in object space, when w=0.0f this
+        represents a directional light
+        @param extrudeDist The distance to extrude
+        */
+        virtual void extrudeBounds(AxisAlignedBox& box, const Vector4& lightPos, 
+            Real extrudeDist);
 
 
     };

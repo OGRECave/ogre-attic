@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMovableObject.h"
 #include "OgreSceneNode.h"
 #include "OgreTagPoint.h"
+#include "OgreLight.h"
 
 namespace Ogre {
 
@@ -122,6 +123,24 @@ namespace Ogre {
 		}
 		return mWorldBoundingSphere;
 	}
+
+    //-----------------------------------------------------------------------
+    const AxisAlignedBox& MovableObject::getLightCapBounds(void) 
+    {
+        // Same as original bounds
+        return getWorldBoundingBox();
+    }
+    //-----------------------------------------------------------------------
+    const AxisAlignedBox& MovableObject::getDarkCapBounds(const Light& light) 
+    {
+        // Extrude own light cap bounds
+        mWorldDarkCapBounds = getLightCapBounds();
+        this->extrudeBounds(mWorldDarkCapBounds, light.getAs4DVector(), 
+            light.getAttenuationRange());
+        return mWorldDarkCapBounds;
+
+    }
+
 
 }
 
