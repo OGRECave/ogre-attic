@@ -85,7 +85,7 @@ namespace Ogre {
         removeAllAffectors();
     }
     //-----------------------------------------------------------------------
-    String ParticleSystem::getName(void)
+    const String& ParticleSystem::getName(void) const
     {
         return mName;
     }

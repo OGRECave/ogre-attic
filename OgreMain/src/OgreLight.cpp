@@ -75,7 +75,7 @@ namespace Ogre {
     {
     }
     //-----------------------------------------------------------------------
-    String Light::getName(void)
+    const String& Light::getName(void) const
     {
         return mName;
 
@@ -279,7 +279,7 @@ namespace Ogre {
         // Do nothing
     }
     //-----------------------------------------------------------------------
-    String Light::getMovableType(void)
+    const String Light::getMovableType(void) const
     {
         return msMovableType;
     }

@@ -186,7 +186,7 @@ namespace Ogre {
 
         /** Gets the camera's name.
         */
-        const String& getName(void) const;
+        virtual const String& getName(void) const;
 
         /** Sets the type of projection to use (orthographic or perspective). Default is perspective.
         */
@@ -472,12 +472,7 @@ namespace Ogre {
         void _updateRenderQueue(RenderQueue* queue);
 
         /** Overridden from MovableObject */
-        String getName(void);
-
-        /** Overridden from MovableObject */
-        String getMovableType(void);
-
-
+        const String getMovableType(void) const;
     };
 
 } // namespace Ogre
