@@ -37,7 +37,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
 	GLSLGpuProgram::GLSLGpuProgram(GLSLProgram* parent) : GLGpuProgram(parent->getName(), parent->getType(), "glsl"), mGLSLProgram(parent)
     {
-		if(parent->getType() == GPT_VERTEX_PROGRAM)
+		if (parent->getType() == GPT_VERTEX_PROGRAM)
 		{
 			mProgramID = ++mVertexShaderCount;
 		}
@@ -73,7 +73,7 @@ namespace Ogre {
 	void GLSLGpuProgram::bindProgram(void)
 	{
 		// tell the Link Program Manager what shader is to become active
-		if(mType == GPT_VERTEX_PROGRAM)
+		if (mType == GPT_VERTEX_PROGRAM)
 		{
 			GLSLLinkProgramManager::getSingleton().setActiveVertexShader( this );
 		}
@@ -87,7 +87,7 @@ namespace Ogre {
 	void GLSLGpuProgram::unbindProgram(void)
 	{
 		// tell the Link Program Manager what shader is to become inactive
-		if(mType == GPT_VERTEX_PROGRAM)
+		if (mType == GPT_VERTEX_PROGRAM)
 		{
 			GLSLLinkProgramManager::getSingleton().setActiveVertexShader( NULL );
 		}

@@ -88,7 +88,7 @@ namespace Ogre
 		static bool init = false;
 
 		// check that this has not been done before -- only need to get proc addresses once
-		if(!init)
+		if (!init)
 		{
 
 			glCreateProgramObjectARB_ptr  = (PFNGLCREATEPROGRAMOBJECTARBPROC) glSupport.getProcAddress( "glCreateProgramObjectARB" );
@@ -142,7 +142,7 @@ namespace Ogre
 	}
 
     //-----------------------------------------------------------------------------
-    void checkForGLSLError(const String& ogreMethod, const String& errorTextPrefix, GLhandleARB obj, bool forceInfoLog, bool forceException)
+    void checkForGLSLError(const String& ogreMethod, const String& errorTextPrefix, const GLhandleARB obj, const bool forceInfoLog, const bool forceException)
     {
 		GLenum glErr;
 		bool errorsFound = false;
@@ -159,12 +159,12 @@ namespace Ogre
 
 
 		// if errors were found then put them in the Log and raise and exception
-		if(errorsFound || forceInfoLog)
+		if (errorsFound || forceInfoLog)
 		{
 			// if shader or program object then get the log message and send to the log manager
 			msg += logObjectInfo( msg, obj );
 
-            if(forceException) 
+            if (forceException) 
 			{
 				Except(Exception::ERR_INTERNAL_ERROR, msg, ogreMethod);
 			}
@@ -172,11 +172,11 @@ namespace Ogre
     }
 
     //-----------------------------------------------------------------------------
-	String logObjectInfo(const String& msg, GLhandleARB obj)
+	String logObjectInfo(const String& msg, const GLhandleARB obj)
 	{
 		String logMessage = msg;
 
-		if( obj > 0 )
+		if (obj > 0)
 		{
 			int infologLength = 0;
 

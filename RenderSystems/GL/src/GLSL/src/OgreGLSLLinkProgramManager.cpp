@@ -56,8 +56,8 @@ namespace Ogre {
 	GLSLLinkProgramManager::~GLSLLinkProgramManager(void)
 	{
 		// iterate through map container and delete link programs
-		for( LinkProgramIterator currentProgram = LinkPrograms.begin();
-			currentProgram != LinkPrograms.end(); ++currentProgram )
+		for (LinkProgramIterator currentProgram = LinkPrograms.begin();
+			currentProgram != LinkPrograms.end(); ++currentProgram)
 		{
 			delete currentProgram->second;
 		}
@@ -68,40 +68,41 @@ namespace Ogre {
 	GLSLLinkProgram* GLSLLinkProgramManager::getActiveLinkProgram(void)
 	{
 		// if there is an active link program then return it
-		if(mActiveLinkProgram) return mActiveLinkProgram;
+		if (mActiveLinkProgram)
+			return mActiveLinkProgram;
 
 		// no active link program so find one or make a new one
 		// is there an active key?
 		GLuint activeKey = 0;
 
-		if(mActiveVertexGpuProgram)
+		if (mActiveVertexGpuProgram)
 		{
 			activeKey = mActiveVertexGpuProgram->getProgramID() << 8;
 		}
 
-		if(mActiveFragmentGpuProgram)
+		if (mActiveFragmentGpuProgram)
 		{
 			activeKey += mActiveFragmentGpuProgram->getProgramID();
 		}
 
 		// only return a link program object if a vertex or fragment program exist
-		if(activeKey > 0)
+		if (activeKey > 0)
 		{
 			// find the key in the hash map
 			LinkProgramIterator programFound = LinkPrograms.find(activeKey);
 			// program object not found for key so need to create it
-			if(programFound == LinkPrograms.end())
+			if (programFound == LinkPrograms.end())
 			{
 				mActiveLinkProgram = new GLSLLinkProgram();
 				LinkPrograms[activeKey] = mActiveLinkProgram;
 				// tell shaders to attach themselves to the LinkProgram
 				// let the shaders do the attaching since they may have several children to attach
-				if(mActiveVertexGpuProgram)
+				if (mActiveVertexGpuProgram)
 				{
 					mActiveVertexGpuProgram->getGLSLProgram()->attachToProgramObject( mActiveLinkProgram->getGLHandle() );
 				}
 
-				if(mActiveFragmentGpuProgram)
+				if (mActiveFragmentGpuProgram)
 				{
 					mActiveFragmentGpuProgram->getGLSLProgram()->attachToProgramObject( mActiveLinkProgram->getGLHandle() );
 				}
@@ -116,7 +117,7 @@ namespace Ogre {
 
 		}
 		// make the program object active
-		if(mActiveLinkProgram) mActiveLinkProgram->activate();
+		if (mActiveLinkProgram) mActiveLinkProgram->activate();
 
 		return mActiveLinkProgram;
 
@@ -125,7 +126,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void GLSLLinkProgramManager::setActiveFragmentShader(GLSLGpuProgram* fragmentGpuProgram)
 	{
-		if(fragmentGpuProgram != mActiveFragmentGpuProgram)
+		if (fragmentGpuProgram != mActiveFragmentGpuProgram)
 		{
 			mActiveFragmentGpuProgram = fragmentGpuProgram;
 			// ActiveLinkProgram is no longer valid
@@ -138,7 +139,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void GLSLLinkProgramManager::setActiveVertexShader(GLSLGpuProgram* vertexGpuProgram)
 	{
-		if(vertexGpuProgram != mActiveVertexGpuProgram)
+		if (vertexGpuProgram != mActiveVertexGpuProgram)
 		{
 			mActiveVertexGpuProgram = vertexGpuProgram;
 			// ActiveLinkProgram is no longer valid
