@@ -152,6 +152,7 @@ namespace Ogre {
         ActiveBillboardList::const_iterator it;
         if( index >= ( mActiveBillboards.size() >> 1 ) )
         {
+			index = static_cast<unsigned int>(mActiveBillboards.size()) - index;
             for( it = mActiveBillboards.end(); index; --index, --it );
         }
         else
@@ -178,6 +179,7 @@ namespace Ogre {
         ActiveBillboardList::iterator it;
         if( index >= ( mActiveBillboards.size() >> 1 ) )
         {
+			index = static_cast<unsigned int>(mActiveBillboards.size()) - index;
             for( it = mActiveBillboards.end(); index; --index, --it );
         }
         else
