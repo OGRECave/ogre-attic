@@ -463,7 +463,7 @@ namespace Ogre {
         return true;
     }
     //-----------------------------------------------------------------------
-    void Camera::updateFrustum(void)
+    void Camera::updateFrustum(void) const
     {
         if (mRecalcFrustum)
         {
@@ -581,7 +581,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    bool Camera::isViewOutOfDate(void)
+    bool Camera::isViewOutOfDate(void) const
     {
         // Attached to node?
         if (mParentNode != 0)
@@ -611,13 +611,13 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    bool Camera::isFrustumOutOfDate(void)
+    bool Camera::isFrustumOutOfDate(void) const
     {
         return mRecalcFrustum;
     }
 
     //-----------------------------------------------------------------------
-    void Camera::updateView(void)
+    void Camera::updateView(void) const
     {
         if (isViewOutOfDate())
         {
@@ -780,19 +780,19 @@ namespace Ogre {
         mRecalcView = true;
     }
     //-----------------------------------------------------------------------
-    Quaternion Camera::getDerivedOrientation(void) 
+    Quaternion Camera::getDerivedOrientation(void) const
     {
         updateView();
         return mDerivedOrientation;
     }
     //-----------------------------------------------------------------------
-    Vector3 Camera::getDerivedPosition(void) 
+    Vector3 Camera::getDerivedPosition(void) const
     {
         updateView();
         return mDerivedPosition;
     }
     //-----------------------------------------------------------------------
-    Vector3 Camera::getDerivedDirection(void) 
+    Vector3 Camera::getDerivedDirection(void) const
     {
         // Direction points down -Z by default
         updateView();

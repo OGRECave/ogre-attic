@@ -315,6 +315,7 @@ namespace Ogre {
         unsigned short getNumWorldTransforms(void) { return 1; }
         bool useIdentityProjection(void) { return true; }
         bool useIdentityView(void) { return true; }
+        Real getViewDepth(const Camera* cam) const { return mParent->getViewDepth(cam); }
     };
 
 }

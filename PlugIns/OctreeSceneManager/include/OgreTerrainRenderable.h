@@ -254,6 +254,10 @@ public:
 
     static int mRenderedTris;
 
+    /** Overridden, see Renderable */
+    Real getViewDepth(const Camera* cam) const;
+
+
 protected:
 
     /** Returns the index into the height array for the given coords. */

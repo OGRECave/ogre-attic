@@ -104,5 +104,12 @@ namespace Ogre {
         else
             return mParentEntity->mNumBoneMatrices;
     }
+    //-----------------------------------------------------------------------
+    Real SubEntity::getViewDepth(const Camera* cam) const
+    {
+        Node* n = mParentEntity->getParentNode();
+        assert(n);
+        return n->getViewDepth(cam);
+    }
 
 }

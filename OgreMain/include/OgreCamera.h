@@ -104,12 +104,12 @@ namespace Ogre {
         Vector3 mPosition;
 
         /// Stored versions of parent orientation / position
-        Quaternion mLastParentOrientation;
-        Vector3 mLastParentPosition;
+        mutable Quaternion mLastParentOrientation;
+        mutable Vector3 mLastParentPosition;
 
         /// Derived positions of parent orientation / position
-        Quaternion mDerivedOrientation;
-        Vector3 mDerivedPosition;
+        mutable Quaternion mDerivedOrientation;
+        mutable Vector3 mDerivedPosition;
 
         /// Camera y-direction field-of-view (default 45)
         Real mFOVy;
@@ -125,7 +125,7 @@ namespace Ogre {
         Vector3 mYawFixedAxis;
 
         /// The 6 main clipping planes
-        Plane mFrustumPlanes[6];
+        mutable Plane mFrustumPlanes[6];
 
         /// Orthographic or perspective?
         ProjectionType mProjType;
@@ -134,25 +134,25 @@ namespace Ogre {
 
 
         /// Pre-calced projection matrix
-        Matrix4 mProjMatrix;
+        mutable Matrix4 mProjMatrix;
         /// Pre-calced view matrix
-        Matrix4 mViewMatrix;
+        mutable Matrix4 mViewMatrix;
         /// Something's changed in the frustrum shape?
-        bool mRecalcFrustum;
+        mutable bool mRecalcFrustum;
         /// Something re the view pos has changed
-        bool mRecalcView;
+        mutable bool mRecalcView;
 
         /** Temp coefficient values calculated from a frustum change,
             used when establishing the frustum planes when the view changes
         */
-        Real mCoeffL[2], mCoeffR[2], mCoeffB[2], mCoeffT[2];
+        mutable Real mCoeffL[2], mCoeffR[2], mCoeffB[2], mCoeffT[2];
 
 
         // Internal functions for calcs
-        void updateFrustum(void);
-        void updateView(void);
-        bool isViewOutOfDate(void);
-        bool isFrustumOutOfDate(void);
+        void updateFrustum(void) const;
+        void updateView(void) const;
+        bool isViewOutOfDate(void) const;
+        bool isFrustumOutOfDate(void) const;
 
         /// Stored number of visible faces in the last render
         unsigned int mVisFacesLastRender;
@@ -451,13 +451,13 @@ namespace Ogre {
 
         /** Gets the derived orientation of the camera, including any 
             rotation inherited from a node attachment. */
-        Quaternion getDerivedOrientation(void);
+        Quaternion getDerivedOrientation(void) const;
         /** Gets the derived position of the camera, including any 
             translation inherited from a node attachment. */
-        Vector3 getDerivedPosition(void);
+        Vector3 getDerivedPosition(void) const;
         /** Gets the derived direction vector of the camera, including any 
             translation inherited from a node attachment. */
-        Vector3 getDerivedDirection(void);
+        Vector3 getDerivedDirection(void) const;
 
         /** Overridden from MovableObject */
         void _notifyCurrentCamera(Camera* cam);

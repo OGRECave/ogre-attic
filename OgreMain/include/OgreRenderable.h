@@ -96,6 +96,12 @@ namespace Ogre {
         */
         virtual bool useIdentityView(void) { return false; }
 
+		/** Returns the camera-relative depth of this renderable.
+		@remarks
+			Used to sort transparent objects.
+		*/
+		virtual Real getViewDepth(const Camera* cam) const = 0;
+
     };
 
 

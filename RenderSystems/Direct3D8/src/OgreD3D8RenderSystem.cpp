@@ -75,7 +75,7 @@ namespace Ogre {
 		OgreGuard( "D3D8RenderSystem::~D3D8RenderSystem" );
 
 		// Make sure no streams are being used anymore
-        int i;
+        UINT i;
 		for( i=0; i < mStreamsInUse; i++ )
 			mpD3DDevice->SetStreamSource( i, NULL, 0 );
 
@@ -382,9 +382,6 @@ namespace Ogre {
 	{
 		OgreGuard( "D3D8RenderSystem::startRendering" );
 
-        BOOL bGotMsg;
-        bool isActive;
-        bool allWindowsClosed;
         MSG  msg;
         static clock_t lastStartTime;
         static clock_t lastEndTime;
@@ -1565,7 +1562,7 @@ namespace Ogre {
 
 			// Copy the data across
 			// This actually shouldn't be that difficult....
-			for( int n=0; n < op.numVertices; n++ )
+			for( ushort n=0; n < op.numVertices; n++ )
 			{
 				memcpy( pXYZ, pSrcXYZ, sizeof(D3DXVECTOR3) );
 				pXYZ += sizeof(D3DXVECTOR3);

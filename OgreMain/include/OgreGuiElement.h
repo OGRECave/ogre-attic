@@ -371,8 +371,15 @@ namespace Ogre {
 		/**
 		 * Returns the zOrder of the element
 		 */
-		inline ushort getZOrder()
+		inline ushort getZOrder() const
 		{ return mZOrder; }
+
+        /** Overridden from Renderable */
+        Real getViewDepth(const Camera* cam) const 
+        { 
+            return 10000 - getZOrder(); 
+        }
+
 
 	    void copyFromTemplate(GuiElement* templateGui);
 

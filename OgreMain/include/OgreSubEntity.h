@@ -106,6 +106,9 @@ namespace Ogre {
         /** Overridden - see Renderable.
         */
         unsigned short getNumWorldTransforms(void);
+        /** Overridden, see Renderable */
+        Real getViewDepth(const Camera* cam) const;
+
     };
 
 }
