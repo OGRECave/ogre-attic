@@ -106,15 +106,14 @@ namespace OgreMaya {
                     << mat.specular.r << ' '
                     << mat.specular.g << ' '
                     << mat.specular.b << ' '
-                    << mat.specular.a << '\n';
+                    << mat.specular.a << ' '
+					<< mat.shininess  << '\n';
 
                 out << "\temissive "
                     << mat.selfIllumination.r << ' '
                     << mat.selfIllumination.g << ' '
                     << mat.selfIllumination.b << ' '
                     << mat.selfIllumination.a << "\n\n";
-
-                out << "\tshininess " << mat.shininess << "\n\n";
 
                 for(;tlIt!=tlEnd; ++tlIt) {
                     TextureLayer& layer = *tlIt;
@@ -204,8 +203,22 @@ namespace OgreMaya {
 				cout << "MatGenerator: Unable to create Ogre material for shader " << FnShader.name().asChar() << '\n';
 			}
 
+			// Check for duplicates
+			if (mat) {
+				vector<Material*>::iterator iterMat;
+				iterMat = materials.begin();
+				while (iterMat != materials.end())
+				{
+					if ((*iterMat)->name == mat->name)
+					{
+						delete mat;
+						mat = NULL;
+					}
+				}
+			}
+
 			// Textures
-			if(mat) {
+			if (mat) {
                 materials.push_back(mat);
 
 				MFnDependencyNode ShaderFn(ShaderPlugArray[iPlug].node());
