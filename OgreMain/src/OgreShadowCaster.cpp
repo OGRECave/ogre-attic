@@ -267,6 +267,7 @@ namespace Ogre {
 
         if (light.w == 0)
         {
+            // Parallel projection guarantees min/max relationship remains the same
             extrusionDir.x = -light.x;
             extrusionDir.y = -light.y;
             extrusionDir.z = -light.z;
@@ -277,21 +278,28 @@ namespace Ogre {
         }
         else
         {
-            Vector3 vmin = box.getMinimum();
-            extrusionDir.x = vmin.x - light.x;
-            extrusionDir.y = vmin.y - light.y;
-            extrusionDir.z = vmin.z - light.z;
-            extrusionDir.normalise();
-            extrusionDir *= extrudeDist;
-            vmin += extrusionDir;
+            const Vector3* corners = box.getAllCorners();
+            Vector3 vmin, vmax;
 
-            Vector3 vmax = box.getMaximum();
-            extrusionDir.x = vmax.x - light.x;
-            extrusionDir.y = vmax.y - light.y;
-            extrusionDir.z = vmax.z - light.z;
-            extrusionDir.normalise();
-            extrusionDir *= extrudeDist;
-            vmax += extrusionDir;
+            for (unsigned short i = 0; i < 8; ++i)
+            {
+                extrusionDir.x = corners[i].x - light.x;
+                extrusionDir.y = corners[i].y - light.y;
+                extrusionDir.z = corners[i].z - light.z;
+                extrusionDir.normalise();
+                extrusionDir *= extrudeDist;
+                Vector3 res = corners[i] + extrusionDir;
+                if (i == 0)
+                {
+                    vmin = res;
+                    vmax = res;
+                }
+                else
+                {
+                    vmin.makeFloor(res);
+                    vmax.makeCeil(res);
+                }
+            }
 
             box.setExtents(vmin, vmax);
 
