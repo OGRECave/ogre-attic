@@ -1993,49 +1993,28 @@ class RenderingMaterial(DefaultMaterial):
 	def __init__(self, blenderMesh, blenderFace):
 		self.mesh = blenderMesh
 		self.face = blenderFace
+		self.key = 0
+		self.mTexUVCol = None
+		self.mTexUVNor = None
+		self.mTexUVCsp = None
 		self.material = self.mesh.getMaterials(1)[self.face.materialIndex]
 		if self.material:
+			self._generateKey()
 			DefaultMaterial.__init__(self, self._createName())
 		else:
 			DefaultMaterial.__init__(self, 'None')
 		return
 	def writeTechniques(self, f):
 		# parse material
-		if self.material:
-			if not(self.material.mode & Blender.Material.Modes['HALO']):
-				# non-Halo
-				key = 0
-				if (self.material.mode & Blender.Material.Modes['VCOL_LIGHT']):
-					key |= self.VCOLLIGHT
-				if (self.material.mode & Blender.Material.Modes['VCOL_PAINT']):
-					key |= self.VCOLPAINT
-				if (self.material.mode & Blender.Material.Modes['TEXFACE']):
-					key |= self.TEXFACE
-				# textures
-				for mtex in self.material.getTextures():
-					if mtex:
-						if (mtex.tex.type == Blender.Texture.Types['IMAGE']):
-							if (mtex.texco & Blender.Texture.TexCo['UV']):
-								if (mtex.mapto & Blender.Texture.MapTo['COL']):
-									key |= self.IMAGEUVCOL
-								if (mtex.mapto & Blender.Texture.MapTo['NOR']):
-									# Check "Normal Map" image option
-									if (mtex.tex.imageFlags & 2048):
-										key |= self.IMAGEUVNOR
-									# else bumpmap
-								if (mtex.mapto & Blender.Texture.MapTo['CSP']):
-									key |= self.IMAGEUVCSP
-				# choose techniques
-				if self.TECHNIQUES.has_key(key):
-					techniques = self.TECHNIQUES[key]
-					techniques(self, f)
-				else:
-					# default
-					self.writeColours(f)
+		if self.key:
+			if self.TECHNIQUES.has_key(self.key):
+				techniques = self.TECHNIQUES[self.key]
+				techniques(self, f)
 			else:
-				# Halo
-				DefaultMaterial('').writeTechniques(f)
+				# default
+				self.writeColours(f)
 		else:
+			# Halo or empty material
 			DefaultMaterial('').writeTechniques(f)
 		return
 	def writeColours(self, f):
@@ -2062,6 +2041,66 @@ class RenderingMaterial(DefaultMaterial):
 		self.writeCommonOptions(f, 3)
 		# texture units
 		self.writeDiffuseTexture(f, 3)
+		f.write(tab(2) + "}\n") # pass
+		f.write(tab(1) + "}\n") # technique
+		return
+	def writeTexFace(self, f):
+		# preconditions: TEXFACE set
+		# 
+		# Note that an additional Col texture replaces the
+		# TEXFACE texture instead of blend over according to alpha.
+		#
+		# (amb+emit)textureCol + diffuseLight*ref*textureCol + specular
+		# 
+		imageFileName = None
+		if self.mTexUVCol:
+			# COL MTex replaces UV/Image Editor texture
+			imageFileName = PathName(self.mTexUVCol.tex.getImage().getFilename()).basename()
+		elif self.face.image:
+			# UV/Image Editor texture 
+			imageFileName = PathName(self.face.image.filename).basename()
+		
+		self.writeReceiveShadows(f, 1)
+		f.write(tab(1) + "technique\n" + tab(1) + "{\n")
+		col = [1.0, 1.0, 1.0]
+		# texture pass
+		f.write(tab(2) + "pass\n" + tab(2) + "{\n")
+		self.writeAmbient(f, col, 3)
+		self.writeDiffuse(f, col, 3)
+		if not(imageFileName):
+			self.writeSpecular(f, 3)
+		self.writeEmissive(f, col, 3)
+		self.writeSceneBlend(f,3)
+		self.writeCommonOptions(f, 3)
+		if imageFileName:
+			f.write(tab(3) + "texture_unit\n")
+			f.write(tab(3) + "{\n")
+			f.write(tab(4) + "texture %s\n" % imageFileName)
+			if self.mTexUVCol:
+				self.writeTextureAddressMode(f, self.mTexUVCol, 4)
+				self.writeTextureFiltering(f, self.mTexUVCol, 4)
+			# multiply with factors
+			f.write(tab(4) + "colour_op modulate\n")
+			f.write(tab(3) + "}\n") # texture_unit
+			f.write(tab(2) + "}\n") # texture pass
+			# specular pass
+			f.write(tab(2) + "pass\n" + tab(2) + "{\n")
+			f.write(tab(3) + "ambient 0.0 0.0 0.0\n")
+			f.write(tab(3) + "diffuse 0.0 0.0 0.0\n")
+			self.writeSpecular(f, 3)
+			f.write(tab(3) + "scene_blend add\n")
+			hasAlpha = 0
+			if (self.material.getAlpha() < 1.0):
+				hasAlpha = 1
+			else:
+				for mtex in self.material.getTextures():
+					if mtex:
+						if ((mtex.tex.type == Blender.Texture.Types['IMAGE'])
+							and (mtex.mapto & Blender.Texture.MapTo['ALPHA'])):
+							hasAlpha = 1
+			if (hasAlpha):
+				f.write(tab(3) + "depth_write off\n")
+			self.writeCommonOptions(f, 3)
 		f.write(tab(2) + "}\n") # pass
 		f.write(tab(1) + "}\n") # technique
 		return
@@ -2117,14 +2156,8 @@ class RenderingMaterial(DefaultMaterial):
 		return
 	def writeNormalMap(self, f):
 		# preconditions COL and NOR textures
-		for mtex in self.material.getTextures():
-			if mtex:
-				if (mtex.tex.type == Blender.Texture.Types['IMAGE']):
-					if (mtex.texco & Blender.Texture.TexCo['UV']):
-						if (mtex.mapto & Blender.Texture.MapTo['COL']):
-							colImage = PathName(mtex.tex.image.filename).basename()
-						if (mtex.mapto & Blender.Texture.MapTo['NOR']):
-							norImage = PathName(mtex.tex.image.filename).basename()
+		colImage = PathName(self.mTexUVCol.tex.image.filename).basename()
+		norImage = PathName(self.mTexUVNor.tex.image.filename).basename()
 		f.write("""	technique
 	{
 		pass
@@ -2323,20 +2356,13 @@ class RenderingMaterial(DefaultMaterial):
 			f.write(tab(indent)+"fog_override true\n")
 		return
 	def writeDiffuseTexture(self, f, indent = 0):
-		diffuseMTex = None
-		for mtex in self.material.getTextures():
-			if mtex:
-				if ((mtex.tex.type == Blender.Texture.Types['IMAGE'])
-				and (mtex.texco & Blender.Texture.TexCo['UV'])
-				and (mtex.mapto & Blender.Texture.MapTo['COL'])):
-					diffuseMTex = mtex
-		if diffuseMTex:
+		if self.mTexUVCol:
 			f.write(tab(indent)+"texture_unit\n")
 			f.write(tab(indent)+"{\n")
-			f.write(tab(indent + 1) + "texture %s\n" % PathName(diffuseMTex.tex.getImage().getFilename()).basename())
-			self.writeTextureAddressMode(f, diffuseMTex, indent + 1)
-			self.writeTextureFiltering(f, diffuseMTex, indent + 1)			
-			self.writeTextureColourOp(f, diffuseMTex, indent + 1)
+			f.write(tab(indent + 1) + "texture %s\n" % PathName(self.mTexUVCol.tex.getImage().getFilename()).basename())
+			self.writeTextureAddressMode(f, self.mTexUVCol, indent + 1)
+			self.writeTextureFiltering(f, self.mTexUVCol, indent + 1)			
+			self.writeTextureColourOp(f, self.mTexUVCol, indent + 1)
 			f.write(tab(indent)+"}\n") # texture_unit
 		return
 	def writeTextureAddressMode(self, f, blenderMTex, indent = 0):
@@ -2381,39 +2407,88 @@ class RenderingMaterial(DefaultMaterial):
 		return
 	# private
 	def _createName(self):
+		# must be called after _generateKey()
 		materialName = self.material.getName()
 		# two sided?
 		if (self.face.mode & Blender.NMesh.FaceModes['TWOSIDE']):
 			materialName += '/TWOSIDE'
+		# use UV/Image Editor texture?
+		if ((self.key & self.TEXFACE) and not(self.key & self.IMAGEUVCOL)):
+			materialName += '/TEXFACE'
+			if self.face.image:
+				materialName += '/' + PathName(self.face.image.filename).basename()
 		return materialName
-	VCOLLIGHT = 1
-	VCOLPAINT = 2
-	TEXFACE = 4
-	IMAGEUVCOL = 8
-	IMAGEUVNOR = 16
-	IMAGEUVCSP = 32
+	def _generateKey(self):
+		# generates key and populates mTex fields
+		if self.material:
+			if not(self.material.mode & Blender.Material.Modes['HALO']):
+				self.key |= self.NONHALO
+				if (self.material.mode & Blender.Material.Modes['VCOL_LIGHT']):
+					self.key |= self.VCOLLIGHT
+				if (self.material.mode & Blender.Material.Modes['VCOL_PAINT']):
+					self.key |= self.VCOLPAINT
+				if (self.material.mode & Blender.Material.Modes['TEXFACE']):
+					self.key |= self.TEXFACE
+				# textures
+				for mtex in self.material.getTextures():
+					if mtex:
+						if (mtex.tex.type == Blender.Texture.Types['IMAGE']):
+							if (mtex.texco & Blender.Texture.TexCo['UV']):
+								if (mtex.mapto & Blender.Texture.MapTo['COL']):
+									self.key |= self.IMAGEUVCOL
+									self.mTexUVCol = mtex
+								if (mtex.mapto & Blender.Texture.MapTo['NOR']):
+									# Check "Normal Map" image option
+									if (mtex.tex.imageFlags & 2048):
+										self.key |= self.IMAGEUVNOR
+										self.mTexUVNor = mtex
+									# else bumpmap
+								if (mtex.mapto & Blender.Texture.MapTo['CSP']):
+									self.key |= self.IMAGEUVCSP
+									self.mTexUVCsp = mtex
+		return
+	NONHALO = 1
+	VCOLLIGHT = 2
+	VCOLPAINT = 4
+	TEXFACE = 8
+	IMAGEUVCOL = 16
+	IMAGEUVNOR = 32
+	IMAGEUVCSP = 64
 	# material techniques export methods
 	TECHNIQUES = {
-	IMAGEUVCOL : writeColours,
-	IMAGEUVCOL|IMAGEUVCSP : writeColours,
-	VCOLPAINT : writeVertexColours,
-	IMAGEUVCOL|IMAGEUVNOR : writeNormalMap,
-	IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT : writeNormalMap,
-	IMAGEUVCOL|IMAGEUVNOR|VCOLPAINT : writeNormalMap,
-	IMAGEUVCOL|IMAGEUVNOR|TEXFACE : writeNormalMap,
-	IMAGEUVCOL|IMAGEUVNOR|IMAGEUVCSP : writeNormalMap,
-	IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT|VCOLPAINT : writeNormalMap,
-	IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT|TEXFACE : writeNormalMap,
-	IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT|IMAGEUVCSP : writeNormalMap,
-	IMAGEUVCOL|IMAGEUVNOR|VCOLPAINT|TEXFACE : writeNormalMap,
-	IMAGEUVCOL|IMAGEUVNOR|VCOLPAINT|IMAGEUVCSP : writeNormalMap,
-	IMAGEUVCOL|IMAGEUVNOR|TEXFACE|IMAGEUVCSP : writeNormalMap,
-	IMAGEUVCOL|IMAGEUVNOR|VCOLPAINT|TEXFACE|IMAGEUVCSP : writeNormalMap,
-	IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT|TEXFACE|IMAGEUVCSP : writeNormalMap,
-	IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT|VCOLPAINT|IMAGEUVCSP : writeNormalMap,
-	IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT|VCOLPAINT|TEXFACE : writeNormalMap,
-	IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT|VCOLPAINT|TEXFACE|IMAGEUVCSP : writeNormalMap
-	}	
+		NONHALO|IMAGEUVCOL : writeColours,
+		NONHALO|IMAGEUVCOL|IMAGEUVCSP : writeColours,
+		NONHALO|TEXFACE : writeTexFace,
+		NONHALO|TEXFACE|VCOLLIGHT : writeTexFace,
+		NONHALO|TEXFACE|IMAGEUVCOL : writeTexFace,
+		NONHALO|TEXFACE|IMAGEUVNOR : writeTexFace,
+		NONHALO|TEXFACE|IMAGEUVCSP : writeTexFace,
+		NONHALO|TEXFACE|VCOLLIGHT|IMAGEUVCOL : writeTexFace,
+		NONHALO|TEXFACE|VCOLLIGHT|IMAGEUVNOR : writeTexFace,
+		NONHALO|TEXFACE|VCOLLIGHT|IMAGEUVCSP : writeTexFace,
+		NONHALO|TEXFACE|IMAGEUVCOL|IMAGEUVCSP : writeTexFace,
+		NONHALO|TEXFACE|IMAGEUVNOR|IMAGEUVCSP : writeTexFace,
+		NONHALO|TEXFACE|VCOLLIGHT|IMAGEUVCOL|IMAGEUVCSP : writeTexFace,
+		NONHALO|TEXFACE|VCOLLIGHT|IMAGEUVNOR|IMAGEUVCSP : writeTexFace,
+		NONHALO|VCOLPAINT : writeVertexColours,
+		NONHALO|VCOLPAINT|VCOLLIGHT : writeVertexColours,
+		NONHALO|IMAGEUVCOL|IMAGEUVNOR : writeNormalMap,
+		NONHALO|IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT : writeNormalMap,
+		NONHALO|IMAGEUVCOL|IMAGEUVNOR|VCOLPAINT : writeNormalMap,
+		NONHALO|IMAGEUVCOL|IMAGEUVNOR|TEXFACE : writeNormalMap,
+		NONHALO|IMAGEUVCOL|IMAGEUVNOR|IMAGEUVCSP : writeNormalMap,
+		NONHALO|IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT|VCOLPAINT : writeNormalMap,
+		NONHALO|IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT|TEXFACE : writeNormalMap,
+		NONHALO|IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT|IMAGEUVCSP : writeNormalMap,
+		NONHALO|IMAGEUVCOL|IMAGEUVNOR|VCOLPAINT|TEXFACE : writeNormalMap,
+		NONHALO|IMAGEUVCOL|IMAGEUVNOR|VCOLPAINT|IMAGEUVCSP : writeNormalMap,
+		NONHALO|IMAGEUVCOL|IMAGEUVNOR|TEXFACE|IMAGEUVCSP : writeNormalMap,
+		NONHALO|IMAGEUVCOL|IMAGEUVNOR|VCOLPAINT|TEXFACE|IMAGEUVCSP : writeNormalMap,
+		NONHALO|IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT|TEXFACE|IMAGEUVCSP : writeNormalMap,
+		NONHALO|IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT|VCOLPAINT|IMAGEUVCSP : writeNormalMap,
+		NONHALO|IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT|VCOLPAINT|TEXFACE : writeNormalMap,
+		NONHALO|IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT|VCOLPAINT|TEXFACE|IMAGEUVCSP : writeNormalMap
+		}
 
 class Mesh:
 	def __init__(self, submeshList, skeleton=None, nmesh=None):
@@ -2910,7 +2985,6 @@ def process_face(face, submesh, mesh, matrix, skeleton=None):
 				normal = faceNormal
 			xmlVertex = XMLVertex(position, normal)
 			# uv coordinates
-			#remove#if submesh.material.texture:
 			if (mesh.hasVertexUV() or mesh.hasFaceUV()):
 				uv = [0,0]
 				if mesh.hasVertexUV():
@@ -2925,8 +2999,6 @@ def process_face(face, submesh, mesh, matrix, skeleton=None):
 					uv[1] = 1 - face.uv[i][1]
 				xmlVertex.appendTextureCoordinates(uv)
 			# vertex colour
-			#remove#if submesh.material.mat:
-			#remove#	if (submesh.material.mat.mode & Blender.Material.Modes["VCOL_PAINT"]):
 			if (mesh.hasVertexColours()):
 				colour = face.col[i]
 				xmlVertex.setColourDiffuse([colour.r/255.0, colour.g/255.0, colour.b/255.0, colour.a/255.0])
@@ -3057,8 +3129,11 @@ def export_mesh(object, exportOptions):
 					faceMaterial = DefaultMaterial('default')
 			else:
 				# game engine materials
-				if (not(face.mode & Blender.NMesh.FaceModes['INVISIBLE'])
-					and not(face.flag & Blender.NMesh.FaceFlags['HIDE'])):
+				if face.image:
+					if (not(face.mode & Blender.NMesh.FaceModes['INVISIBLE'])
+						and not(face.flag & Blender.NMesh.FaceFlags['HIDE'])):
+						faceMaterial = GameEngineMaterial(data, face)
+				else:
 					faceMaterial = GameEngineMaterial(data, face)
 			if faceMaterial:
 				# insert into Dicts
@@ -3135,11 +3210,11 @@ def write_materials():
 	global materialsDict
 	file = materialString.val
 	exportLogger.logInfo("Materials \"%s\"" % file)
-
 	f = open(os.path.join(pathString.val, file), "w")
 	for material in materialsDict.values():
 		material.write(f)
 	f.close()
+	return
 
 #######################################################################################
 ## main export
