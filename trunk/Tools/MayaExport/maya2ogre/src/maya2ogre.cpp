@@ -65,8 +65,10 @@ int main(int argc, char *argv[]) {
 	    }
 	    
 
+        
         // DEBUG
         // ===== Iterate over mesh components of DAG       
+        cout << "=== DAG Nodes ==============================\n";
         MItDag dagIter( MItDag::kBreadthFirst, MFn::kInvalid, 0 );
         for ( ; !dagIter.isDone(); dagIter.next()) {
             MDagPath dagPath;
@@ -76,6 +78,8 @@ int main(int argc, char *argv[]) {
                << dagPath.fullPathName().asChar()
                << "\n";
         }
+        cout << "============================================\n";
+        
 
 
 	    // ===== Export
