@@ -598,7 +598,7 @@ namespace Ogre {
     void RenderSystem::_render(const RenderOperation& op)
     {
         // Update stats
-        int val;
+        size_t val;
 
         if (op.useIndexes)
             val = op.indexCount;
