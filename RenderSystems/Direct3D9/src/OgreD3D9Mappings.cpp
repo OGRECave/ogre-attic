@@ -488,6 +488,12 @@ namespace Ogre
 		case VET_FLOAT4:
 			return D3DDECLTYPE_FLOAT4;
 			break;
+        case VET_SHORT2:
+			return D3DDECLTYPE_SHORT2;
+			break;
+        case VET_SHORT4:
+			return D3DDECLTYPE_SHORT4;
+			break;
 		}
 		// to keep compiler happy
 		return D3DDECLTYPE_FLOAT3;
