@@ -68,7 +68,17 @@ namespace Ogre {
             _OgreExport bool operator()(const Pass* a, const Pass* b) const
             {
                 // Sort by passHash, which is pass, then texture unit changes
-                return a->getHash() < b->getHash();
+                unsigned long hasha = a->getHash();
+                unsigned long hashb = a->getHash();
+                if (hasha == hashb)
+                {
+                    // Must differentiate by pointer incase 2 passes end up with the same hash
+                    return a < b;
+                }
+                else
+                {
+                    return hasha < hashb;
+                }
             }
         };
         /// Comparator to order transparent object passes
