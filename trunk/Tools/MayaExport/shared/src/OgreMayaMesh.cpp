@@ -324,7 +324,8 @@ namespace OgreMaya {
 
                     float u,v;
                     u = uvIt->u;
-                    v = 1.0f - uvIt->v;
+                    //v = 1.0f - uvIt->v;
+                    v = uvIt->v;
 
                     out << "\t\t\t\t\t\t<texcoord ";
                     out << "u=\"" << u << "\" ";
