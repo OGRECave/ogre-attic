@@ -82,12 +82,6 @@ public:
 		// the basic contents in the loading screen
 		ResourceGroupManager::getSingleton().initialiseResourceGroup("Bootstrap");
 
-		// Set up a really basic loading screen
-		// No scripts have been parsed yet, so everything here has to be 
-		// made in code
-		// Note, you could use some scripts by defining a small 'bootstrap'
-		// resource group including the .fontdef, .material scripts you needed
-		// and load that earlier, I'm not doing
 		OverlayManager& omgr = OverlayManager::getSingleton();
 		mLoadOverlay = (Overlay*)omgr.getByName("Core/LoadOverlay");
 		if (!mLoadOverlay)
