@@ -491,4 +491,10 @@ namespace Ogre {
         }
                     
     }
+
+    void SDLInput::getMouseState( MouseState& state ) const
+    {
+        memcpy( &state, &mMouseState, sizeof( MouseState ) );
+    }
+
 }
