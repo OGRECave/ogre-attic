@@ -650,8 +650,10 @@ namespace Ogre
 			been altered by this method. The matrix will be altered in-place.
 		@param plane The plane which is to be used as the clipping plane. This
 			plane must be in CAMERA (view) space.
+        @param forGpuProgram Is this for use with a Gpu program or fixed-function
 		*/
-		virtual void _applyObliqueDepthProjection(Matrix4& matrix, const Plane& plane) = 0;
+		virtual void _applyObliqueDepthProjection(Matrix4& matrix, const Plane& plane, 
+            bool forGpuProgram) = 0;
 		
         /** Sets how to rasterise triangles, as points, wireframe or solid polys. */
         virtual void _setRasterisationMode(SceneDetailLevel level) = 0;

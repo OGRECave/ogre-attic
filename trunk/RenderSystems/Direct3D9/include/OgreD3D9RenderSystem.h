@@ -203,7 +203,8 @@ namespace Ogre
             Real farPlane, Matrix4& dest, bool forGpuProgram = false);
 		void _makeOrthoMatrix(const Radian& fovy, Real aspect, Real nearPlane, Real farPlane, 
             Matrix4& dest, bool forGpuProgram = false);
-		void _applyObliqueDepthProjection(Matrix4& matrix, const Plane& plane);
+        void _applyObliqueDepthProjection(Matrix4& matrix, const Plane& plane, 
+            bool forGpuProgram);
 		void _setRasterisationMode(SceneDetailLevel level);
         void _setTextureUnitFiltering(size_t unit, FilterType ftype, FilterOptions filter);
 		void _setTextureLayerAnisotropy(size_t unit, unsigned int maxAnisotropy);

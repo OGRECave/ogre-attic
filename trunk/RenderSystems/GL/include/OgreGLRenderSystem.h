@@ -317,7 +317,8 @@ namespace Ogre {
         /** See
         RenderSystem
         */
-		void _applyObliqueDepthProjection(Matrix4& matrix, const Plane& plane);
+        void _applyObliqueDepthProjection(Matrix4& matrix, const Plane& plane, 
+            bool forGpuProgram);
         /** See
         RenderSystem
         */
