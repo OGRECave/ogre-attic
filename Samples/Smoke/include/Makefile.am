@@ -1,1 +1,1 @@
-noinst_HEADERS = ParticleFX.h
+noinst_HEADERS = Smoke.h
