@@ -77,12 +77,12 @@ namespace Ogre {
                 GLHardwareBufferManager::getGLUsage(mUsage));
 
 */
-            access = (mUsage & HBU_DYNAMIC) ? GL_READ_WRITE_ARB : GL_WRITE_ONLY_ARB;
+            access = (mUsage == HBU_DYNAMIC) ? GL_READ_WRITE_ARB : GL_WRITE_ONLY_ARB;
 
         }
         else if(options == HBL_READ_ONLY)
         {
-            if(mUsage & HBU_WRITE_ONLY)
+            if(mUsage == HBU_WRITE_ONLY)
             {
                 Except(Exception::ERR_INTERNAL_ERROR, 
                     "Invalid attempt to lock a write-only index buffer as read-only",
@@ -92,7 +92,7 @@ namespace Ogre {
         }
         else if(options == HBL_NORMAL || options == HBL_NO_OVERWRITE)
         {
-            access = (mUsage & HBU_DYNAMIC) ? GL_READ_WRITE_ARB : GL_WRITE_ONLY_ARB;
+            access = (mUsage == HBU_DYNAMIC) ? GL_READ_WRITE_ARB : GL_WRITE_ONLY_ARB;
         }
         else
         {
