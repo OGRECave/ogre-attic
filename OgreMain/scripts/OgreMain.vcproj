@@ -83,7 +83,7 @@
 				OmitFramePointers="TRUE"
 				EnableFiberSafeOptimizations="TRUE"
 				OptimizeForProcessor="2"
-				AdditionalIncludeDirectories="..\include;..\..\Dependencies\zlib\include"
+				AdditionalIncludeDirectories="..\include;..\..\Dependencies\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;OGREMAIN_EXPORTS"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"

@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\..\..\OgreMain\include;..\..\..\Dependencies\libpng\include;..\..\..\Dependencies\jpeglib\include;..\..\..\Dependencies\zlib\include"
+				AdditionalIncludeDirectories="..\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;OGRED3DENGINEDLL_EXPORTS"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -80,7 +80,7 @@
 				OmitFramePointers="TRUE"
 				EnableFiberSafeOptimizations="TRUE"
 				OptimizeForProcessor="2"
-				AdditionalIncludeDirectories="..\include;..\..\..\OgreMain\include;..\..\..\Dependencies\libpng\include;..\..\..\Dependencies\jpeglib\include;..\..\..\Dependencies\zlib\include"
+				AdditionalIncludeDirectories="..\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;RENDERSYSTEM_DIRECT3D7_EXPORTS;OGRED3DENGINEDLL_EXPORTS"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
