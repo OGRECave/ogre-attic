@@ -249,7 +249,7 @@ namespace Ogre {
             @see
                 MovableObject
         */
-        void getWorldTransform(Matrix4& xform);
+        void getWorldTransforms(Matrix4* xform);
 
         /** Overridden from BillboardSet */
         void _notifyCurrentCamera(Camera* cam);
