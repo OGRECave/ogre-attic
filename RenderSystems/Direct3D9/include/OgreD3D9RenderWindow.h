@@ -65,6 +65,8 @@ namespace Ogre
 		/// Get the presentation parameters used with this window
 		D3DPRESENT_PARAMETERS* getPresentationParameters(void) 
 		{ return &md3dpp; }
+		/// @copydoc RenderTarget::update
+		void update(void);
 
 	protected:
 		HINSTANCE mInstance;			// Process instance

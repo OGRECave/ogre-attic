@@ -534,6 +534,8 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::shutdown()
 	{
+		// Set all texture units to nothing to release texture surfaces
+		_disableTextureUnitsFrom(0);
 		RenderSystem::shutdown();
 		SAFE_DELETE( mDriverList );
 		mActiveD3DDriver = NULL;

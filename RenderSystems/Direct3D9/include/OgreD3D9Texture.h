@@ -256,6 +256,7 @@ namespace Ogre {
 							"getCustomAttribute is implemented only for 2D and cube textures !!!", 
 							"D3D9RenderTexture::getCustomAttribute" );
 				}
+				// decrement reference count
                 (*pSurf)->Release();
                 return;
             }

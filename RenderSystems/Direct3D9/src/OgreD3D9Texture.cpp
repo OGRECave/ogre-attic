@@ -54,7 +54,6 @@ namespace Ogre
 	/****************************************************************************************/
 	D3D9Texture::~D3D9Texture()
 	{
-		SAFE_RELEASE(mpD3D);
         // have to call this here reather than in Resource destructor
         // since calling virtual methods in base destructors causes crash
         unload(); 
@@ -84,7 +83,7 @@ namespace Ogre
 		if (this->getTextureType() == TEX_TYPE_2D)
 		{
 			// get our source surface
-			IDirect3DSurface9 *pSrcSurface;
+			IDirect3DSurface9 *pSrcSurface = 0;
 			if( FAILED( hr = mpNormTex->GetSurfaceLevel(0, &pSrcSurface) ) )
 			{
 				String msg = DXGetErrorDescription9(hr);
@@ -92,7 +91,7 @@ namespace Ogre
 			}
 
 			// get our target surface
-			IDirect3DSurface9 *pDstSurface;
+			IDirect3DSurface9 *pDstSurface = 0;
 			IDirect3DTexture9 *pOthTex = other->getNormTexture();
 			if( FAILED( hr = pOthTex->GetSurfaceLevel(0, &pDstSurface) ) )
 			{
@@ -122,7 +121,7 @@ namespace Ogre
 			for (size_t face = 0; face < 6; face++)
 			{
 				// get our source surface
-				IDirect3DSurface9 *pSrcSurface;
+				IDirect3DSurface9 *pSrcSurface = 0;
 				if( FAILED( hr = mpCubeTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, 0, &pSrcSurface) ) )
 				{
 					String msg = DXGetErrorDescription9(hr);
@@ -130,7 +129,7 @@ namespace Ogre
 				}
 
 				// get our target surface
-				IDirect3DSurface9 *pDstSurface;
+				IDirect3DSurface9 *pDstSurface = 0;
 				if( FAILED( hr = pOthTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, 0, &pDstSurface) ) )
 				{
 					String msg = DXGetErrorDescription9(hr);
@@ -199,6 +198,7 @@ namespace Ogre
 		SAFE_RELEASE(mpTex);
 		SAFE_RELEASE(mpNormTex);
 		SAFE_RELEASE(mpCubeTex);
+		SAFE_RELEASE(mpVolumeTex);
 		SAFE_RELEASE(mpZBuff);
 	}
 	/****************************************************************************************/
@@ -647,6 +647,8 @@ namespace Ogre
 
 		// get D3D pointer
 		hr = mpDev->GetDirect3D(&mpD3D);
+		// decrement reference count
+		mpD3D->Release();
 		if (FAILED(hr))
 			Except( hr, "Failed to get D3D9 pointer", "D3D9Texture::_setDevice" );
 
@@ -659,6 +661,8 @@ namespace Ogre
 		IDirect3DSurface9 *pSrf;
 		D3DSURFACE_DESC srfDesc;
 		hr = mpDev->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pSrf);
+		// decrement reference count
+		pSrf->Release();
 		if (FAILED(hr))
 			Except( hr, "Failed to get D3D9 device pixel format", "D3D9Texture::_setDevice" );
 
@@ -880,6 +884,8 @@ namespace Ogre
 				if(mpNormTex->GetSurfaceLevel(mip, &surface) != D3D_OK)
 					Except(Exception::ERR_RENDERINGAPI_ERROR, "Get surface level failed",
 		 				"D3D9Texture::_createSurfaceList");
+				// decrement reference count
+				surface->Release();
 
 				buffer = new D3D9HardwarePixelBuffer(surface);
 				if(mNumMipmaps>0 && mip == 0 && (mUsage & TU_AUTOMIPMAP)) 
@@ -915,6 +921,7 @@ namespace Ogre
 				if(mpVolumeTex->GetVolumeLevel(mip, &volume) != D3D_OK)
 					Except(Exception::ERR_RENDERINGAPI_ERROR, "Get volume level failed",
 		 				"D3D9Texture::getBuffer");	
+				volume->Release();
 						
 				buffer = new D3D9HardwarePixelBuffer(volume);
 				if(mNumMipmaps>0 && mip == 0 && (mUsage & TU_AUTOMIPMAP)) 
@@ -1074,11 +1081,7 @@ namespace Ogre
 	{
 		if(mD3DPool == D3DPOOL_DEFAULT)
 		{
-			SAFE_RELEASE(mpTex);
-			SAFE_RELEASE(mpNormTex);
-			SAFE_RELEASE(mpCubeTex);
-			SAFE_RELEASE(mpVolumeTex);
-			SAFE_RELEASE(mpZBuff);
+			unload();
 		}
 	}
 	/****************************************************************************************/
@@ -1086,8 +1089,16 @@ namespace Ogre
 	{
 		if(mD3DPool == D3DPOOL_DEFAULT)
 		{
-			createInternalResources();
-			// NB this will also create depth / stencil for render targets
+			if (mUsage & TU_RENDERTARGET)
+			{
+				createInternalResources();
+			}
+			else
+			{
+				// This can only happen if someone created a texture 
+				// and used the TU_DISCARDABLE flag
+				load();
+			}
 		}
 	}
 

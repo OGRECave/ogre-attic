@@ -156,8 +156,6 @@ namespace Ogre
 
 	D3D9RenderWindow::~D3D9RenderWindow()
 	{
-		SAFE_RELEASE( mpRenderSurface );
-		SAFE_RELEASE( mpRenderZBuffer );
 		SAFE_RELEASE( mpD3DDevice );
 	}
 
@@ -402,40 +400,32 @@ namespace Ogre
 
 			hr = pD3D->CreateDevice( mpD3DDriver->getAdapterNumber(), devType, mHWnd,
 				D3DCREATE_HARDWARE_VERTEXPROCESSING, &md3dpp, &mpD3DDevice );
-			if( SUCCEEDED( hr ) )
-			{
-				mpD3DDevice->GetRenderTarget( 0, &mpRenderSurface );
-				mpD3DDevice->GetDepthStencilSurface( &mpRenderZBuffer );
-			}
-			else
+			if( FAILED( hr ) )
 			{
 				hr = pD3D->CreateDevice( mpD3DDriver->getAdapterNumber(), devType, mHWnd,
 					D3DCREATE_MIXED_VERTEXPROCESSING, &md3dpp, &mpD3DDevice );
-				if( SUCCEEDED( hr ) )
-				{
-					mpD3DDevice->GetRenderTarget( 0, &mpRenderSurface );
-					mpD3DDevice->GetDepthStencilSurface( &mpRenderZBuffer );
-				}
-				else
+				if( FAILED( hr ) )
 				{
 					hr = pD3D->CreateDevice( mpD3DDriver->getAdapterNumber(), devType, mHWnd,
 						D3DCREATE_SOFTWARE_VERTEXPROCESSING, &md3dpp, &mpD3DDevice );
-					if( SUCCEEDED( hr ) )
-					{
-						mpD3DDevice->GetRenderTarget( 0, &mpRenderSurface );
-						mpD3DDevice->GetDepthStencilSurface( &mpRenderZBuffer );
-					}
 				}
 			}
-
 			// TODO: make this a bit better e.g. go from pure vertex processing to software
 			if( FAILED( hr ) )
-            {
-                destroy();
-                Except( hr, "Failed to create Direct3D9 Device: " + 
-                    Root::getSingleton().getErrorDescription(hr), 
-                    "D3D9RenderWindow::create" );
-            }
+			{
+				destroy();
+				Except( hr, "Failed to create Direct3D9 Device: " + 
+					Root::getSingleton().getErrorDescription(hr), 
+					"D3D9RenderWindow::create" );
+			}
+
+			// Store references to buffers for convenience
+			mpD3DDevice->GetRenderTarget( 0, &mpRenderSurface );
+			mpD3DDevice->GetDepthStencilSurface( &mpRenderZBuffer );
+			// release immediately so we don't hog them
+			mpRenderSurface->Release();
+			mpRenderZBuffer->Release();
+
 		}
 		else
 			mpD3DDevice = NULL;
@@ -448,8 +438,6 @@ namespace Ogre
 		SAFE_RELEASE( mpRenderSurface );
 		SAFE_RELEASE( mpRenderZBuffer );
 		SAFE_RELEASE( mpD3DDevice );
-		SAFE_RELEASE(mpRenderSurface);
-		SAFE_RELEASE(mpRenderZBuffer);
 		DestroyWindow( mHWnd );
 	}
 
@@ -472,9 +460,7 @@ namespace Ogre
 			HRESULT hr = mpD3DDevice->Present( NULL, NULL, 0, NULL );
 			if( D3DERR_DEVICELOST == hr )
 			{
-				D3D9RenderSystem* rs = static_cast<D3D9RenderSystem*>(
-					Root::getSingleton().getRenderSystem());
-				rs->restoreLostDevice();
+				// Ignore, should be restored in update() later
 
 			}
 			else if( FAILED(hr) )
@@ -691,5 +677,30 @@ namespace Ogre
 
 		SAFE_RELEASE(pTempSurf);
 		SAFE_RELEASE(pSurf);
+	}
+	//-----------------------------------------------------------------------------
+	void D3D9RenderWindow::update(void)
+	{
+		// Test the cooperative mode first
+		HRESULT hr = mpD3DDevice->TestCooperativeLevel();
+		switch (hr)
+		{
+		case D3DERR_DEVICELOST:
+			// device lost, and we can't reset
+			/*
+			static_cast<D3D9RenderSystem*>(Root::getSingleton()->getRenderSystem())
+				->notifyDeviceLost();
+			*/
+			return;
+		case D3DERR_DEVICENOTRESET:
+			// device lost, and we can reset
+			static_cast<D3D9RenderSystem*>(Root::getSingleton().getRenderSystem())
+				->restoreLostDevice();
+			// re-qeuery buffers
+
+			// intentionally fall through to default
+		default:
+			RenderWindow::update();
+		}
 	}
 }
