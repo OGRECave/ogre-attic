@@ -248,38 +248,16 @@ namespace Ogre {
     {
         OgreGuard("SDLRenderSystem::startRendering");
 
-        static clock_t lastStartTime;
-        static clock_t lastEndTime;
         RenderTargetMap::iterator i;
 
-        // Init times to avoid large first-frame time
-        lastStartTime = lastEndTime = clock();
-        
         RenderSystem::startRendering();
         
         mStopRendering = false;
         while( mRenderTargets.size() && !mStopRendering )
         {
-            FrameEvent evt;
-
-            // Do frame start event, only if time has advanced
-            // Protects us against over-updating when FPS very high
-            clock_t fTime = clock(); // Get current time
-            if (fTime != lastStartTime || fTime != lastEndTime)
-            {
-                evt.timeSinceLastFrame = (float)(fTime - lastStartTime) / CLOCKS_PER_SEC;
-                evt.timeSinceLastEvent = (float)(fTime - lastEndTime) / CLOCKS_PER_SEC;
-                // Stop rendering if frame callback says so
-                if(!fireFrameStarted(evt) || mStopRendering)
-                    return;
-
-                // We'll also check here if they decided to shut us down
-            }
-          
-
-
-            lastStartTime = fTime;
-
+            if(!fireFrameStarted())
+                return;
+         
             // Render a frame during idle time (no messages are waiting)
             RenderTargetPriorityMap::iterator itarg, itargend;
             itargend = mPrioritisedRenderTargets.end();
@@ -291,18 +269,8 @@ namespace Ogre {
 				}
             }
 
-            // Do frame ended event
-            fTime = clock(); // Get current time
-            if (lastEndTime != fTime || fTime != lastStartTime)
-            {
-                evt.timeSinceLastFrame = (float)(fTime - lastEndTime) / CLOCKS_PER_SEC;
-                evt.timeSinceLastEvent = (float)(fTime - lastStartTime) / CLOCKS_PER_SEC;
-                // Stop rendering if frame callback says so
-                if(!fireFrameEnded(evt) || mStopRendering)
-                    return;
-            }
-
-            lastEndTime = fTime;
+            if(!fireFrameEnded())
+                return;
         }
 
         OgreUnguard();

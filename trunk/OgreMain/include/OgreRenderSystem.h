@@ -797,6 +797,23 @@ namespace Ogre
         bool fireFrameStarted(FrameEvent& evt);
         /** Internal method for raising frame ended events. */
         bool fireFrameEnded(FrameEvent& evt);
+
+        /** Internal method for raising frame started events. */
+        bool fireFrameStarted();
+        /** Internal method for raising frame ended events. */
+        bool fireFrameEnded();
+
+        /** Indicates the type of event to be considered by calculateEventTime(). */
+        enum FrameEventTimeType {
+            FETT_ANY, FETT_STARTED, FETT_ENDED
+        };
+
+        /** Internal method for calculating the average time between recently fired events.
+        @param now The current time.
+        @param type The type of event to be considered.
+        */
+        Real calculateEventTime(clock_t now, FrameEventTimeType type);
+
         // Stored options
         ConfigOptionMap mOptions;
 
@@ -832,6 +849,9 @@ namespace Ogre
         /// Temporary buffer for vertex blending in software
         std::vector<Real> mTempVertexBlendBuffer;
         std::vector<Real> mTempNormalBlendBuffer;
+
+        /// Contains the times of recently fired events
+        std::deque<clock_t> mEventTimes[3];
     };
 }
 

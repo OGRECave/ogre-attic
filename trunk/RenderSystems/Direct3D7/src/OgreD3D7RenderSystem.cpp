@@ -477,11 +477,6 @@ namespace Ogre {
         OgreGuard( "D3DRenderSystem::startRendering" );
 
         MSG  msg;
-        static clock_t lastStartTime;
-        static clock_t lastEndTime;
-
-        // Init times to avoid large first-frame time
-        lastStartTime = lastEndTime = clock();
 
         // Call superclass
         RenderSystem::startRendering();
@@ -498,20 +493,8 @@ namespace Ogre {
             }
             
             {
-                FrameEvent evt;
-
-                // Do frame start event, only if time has advanced
-                // Protects us against over-updating when FPS very high
-                clock_t fTime = clock(); // Get current time
-                if (fTime != lastStartTime || fTime != lastEndTime)
-                {
-                    evt.timeSinceLastFrame = (float)(fTime - lastStartTime) / CLOCKS_PER_SEC;
-                    evt.timeSinceLastEvent = (float)(fTime - lastEndTime) / CLOCKS_PER_SEC;
-                    // Stop rendering if frame callback says so
-                    if(!fireFrameStarted(evt))
-                        return;
-                }
-                lastStartTime = fTime;
+                if(!fireFrameStarted())
+                    return;
 
                 // Render a frame during idle time (no messages are waiting)
                 RenderTargetPriorityMap::iterator itarg, itargend;
@@ -524,17 +507,8 @@ namespace Ogre {
 					}
                 }
 
-                // Do frame ended event
-                fTime = clock(); // Get current time
-                if (lastEndTime != fTime || fTime != lastStartTime)
-                {
-                    evt.timeSinceLastFrame = (float)(fTime - lastEndTime) / CLOCKS_PER_SEC;
-                    evt.timeSinceLastEvent = (float)(fTime - lastStartTime) / CLOCKS_PER_SEC;
-                    // Stop rendering if frame callback says so
-                    if(!fireFrameEnded(evt))
-                        return;
-                }
-                lastEndTime = fTime;
+                if(!fireFrameEnded())
+                    return;
             }
         }
 
