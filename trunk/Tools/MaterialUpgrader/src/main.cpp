@@ -67,14 +67,13 @@ int main(int numargs, char** args)
     }
 
     logMgr = new LogManager();
+	logMgr->createLog("OgreMaterialUpgrade.log", true);
     mth = new Math();
     resGrpMgr = new ResourceGroupManager();
     matMgr = new MaterialManager();
     matMgr->initialise();
 
     String source(args[1]);
-
-    logMgr->createLog("OgreMaterialUpgrader.log");
 
     // Load the material
     struct stat tagStat;
