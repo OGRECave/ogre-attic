@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://ogre.sourceforge.net/
 
 Copyright © 2000-2002 The OGRE Team
@@ -130,6 +130,9 @@ namespace Ogre {
         if (pos > size)
             pos = size;
 
+        // Make sure pos can never go past the end of the data 
+        if(mPos + pos > mEnd) pos = mEnd - mPos; 
+
         if (pos > 0)
         {
             memcpy(buffer, (const void*)mPos, pos);
@@ -141,7 +144,11 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     ulong DataChunk::skipUpTo( const char *delim )
     {
+
         size_t pos = strcspn( (const char*)mPos, delim );
+
+        // Make sure pos can never go past the end of the data 
+        if(mPos + pos > mEnd) pos = mEnd - mPos; 
 
         mPos += pos + 1;
 
