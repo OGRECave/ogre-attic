@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 10 2003 by texi2html 1.64 -->
+<!-- Created on , 17 2003 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -27,7 +27,7 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_17.html#SEC28"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC25"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC49"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC50"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -37,7 +37,7 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 <H3> 3.1.2 Passes </H3>
 <!--docid::SEC31::-->
 A pass is a single render of the geometry in question; a single call to the rendering API with a certain set of rendering properties. A technique can have between one and 16 passes, although clearly the more passes you use, the more expensive the technique will be to render.<BR><BR>
-Passes have a set of global attributes (described below), zero or more nested texture_unit entries (See section <A HREF="manual_19.html#SEC49">3.1.3 Texture Units</A>), and optionally a reference to a vertex and / or a fragment program (See section <A HREF="manual_21.html#SEC73">3.1.5 Using Vertex and Fragment Programs in a Pass</A>).
+Passes have a set of global attributes (described below), zero or more nested texture_unit entries (See section <A HREF="manual_19.html#SEC50">3.1.3 Texture Units</A>), and optionally a reference to a vertex and / or a fragment program (See section <A HREF="manual_21.html#SEC74">3.1.5 Using Vertex and Fragment Programs in a Pass</A>).
 
 <BR><BR>
 Here are the attributes you can use in a 'pass' section of a .material script:
@@ -73,6 +73,10 @@ Here are the attributes you can use in a 'pass' section of a .material script:
 <A HREF="manual_18.html#SEC46">fog_override</A>
 <LI>
 <A HREF="manual_18.html#SEC47">colour_write</A>
+<LI>
+<A HREF="manual_18.html#SEC48">max_lights</A>
+<LI>
+<A HREF="manual_18.html#SEC49">iteration</A>
 </UL>
 
 <A NAME="SEC32"></A>
@@ -364,26 +368,42 @@ If colour writing is off no visible pixels are written to the screen during this
 
 Default: colour_write on<BR>
 
-<A NAME="vertex_program_ref"></A>
+<A NAME="max_lights"></A>
 <A NAME="SEC48"></A>
-<H3> vertex_program_ref </H3>
+<H3> max_lights </H3>
 <!--docid::SEC48::-->
 
-Links a vertex program to this pass, and specifies parameters to supply it with. <BR>
+Sets the maximum number of lights which will be considered for use with this pass.<BR><BR>
+Format: max_lights &#60;number&#62;<BR><BR>
 
-Format: colour_write &#60;on|off&#62;<BR><BR>
+The maximum number of lights which can be used when rendering fixed-function materials is set by the rendering system, and is typically set at 8. When you are using the programmable pipeline (See section <A HREF="manual_21.html#SEC74">3.1.5 Using Vertex and Fragment Programs in a Pass</A>) this limit is dependent on the program you are running, or, if you use 'iteration once_per_light' (See section <A HREF="manual_18.html#SEC49">iteration</A>), it effectively only bounded by the number of passes you are willing to use. Whichever method you use, however, the max_lights limit applies.<BR><BR>
 
-If colour writing is off no visible pixels are written to the screen during this pass. You might think this is useless, but if you render with colour writing off, and with very minimal other settings, you can use this pass to initialise the depth buffer before subsequently rendering other passes which fill in the colour data. This can give you significant performance boosts on some newer cards, especially when using complex fragment programs, because if the depth check fails then the fragment program is never run. <BR><BR>
+Default: max_lights 8<BR>
 
-Default: colour_write on<BR>
+<A NAME="iteration"></A>
+<A NAME="SEC49"></A>
+<H3> iteration </H3>
+<!--docid::SEC49::-->
 
+Sets whether or not this pass is iterated, ie issued more than once.<BR><BR>
+
+Format: iteration &#60;once | once_per_light&#62; [lightType]<BR><BR>
+Example: iteration once_per_light point
+
+By default, passes are only issued once. However, if you use the programmable pipeline, or you wish to exceed the normal limits on the number of lights which are supported, you might want to use the once_per_light option. In this case, only light index 0 is ever used, and the pass is issued multiple times, each time with a different light in light index 0. Clearly this will make the pass more expensive, but it may be the only way to achieve certain effects such as per-pixel lighting effects which take into account 1..n lights.<BR><BR>
+
+If you use once_per_light, you should also add an ambient pass to the technique before this pass, otherwise when no lights are in range of this object it will not get rendered at all; this is important even when you have no ambient light in the scene, because you would still want the objects sihouette to appear.<BR><BR>
+
+The second parameter to the attribute only applies if you use once_per_light, and restricts the pass to being run for lights of a single type (either 'point', 'directional' or 'spot'). In the example, the pass will be run once per point light. This can be useful because when you;re writing a vertex / fragment program it is a lot better if you can assume the kind of lights you'll be dealing with. 
+<BR><BR>
+Default: iteration once
 
 <A NAME="Texture Units"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_17.html#SEC28"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC25"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC49"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC50"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -392,7 +412,7 @@ Default: colour_write on<BR>
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 10 2003</I>
+by <I>Steve Streeting</I> on <I>, 17 2003</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreColourValue.h"
 #include "OgreBlendMode.h"
 #include "OgreCommon.h"
+#include "OgreLight.h"
 
 namespace Ogre {
     /** Class defining a single pass of a Technique (of a Material), ie
@@ -94,6 +95,11 @@ namespace Ogre {
         bool mLightingEnabled;
         /// Max simultaneous lights
         unsigned short mMaxSimultaneousLights;
+		/// Run this pass once per light?
+		bool mRunOncePerLight;
+        // Should it only be run for a certain light type?
+        bool mRunOnlyForOneLightType;
+        Light::LightTypes mOnlyLightType;
 
         /// Shading options
         ShadeOptions mShadeOptions;
@@ -595,7 +601,53 @@ namespace Ogre {
         /** Retrieves the depth bias value as set by setDepthValue. */
         ushort getDepthBias(void) const;
 
-        /// Gets the parent Technique
+        /** Sets whether or not this pass should be run once per light which
+		    can affect the object being rendered.
+		@remarks
+			The default behaviour for a pass (when this option is 'false'), is 
+			for a pass to be rendered only once, with all the lights which could
+			affect this object set at the same time (up to the maximum lights
+			allowed in the render system, which is typically 8). 
+		@par
+			Setting this option to 'true' changes this behaviour, such that 
+			instead of trying to issue render this pass once per object, it
+			is run once <b>per light</b> which can affect this object. In
+			this case, only light index 0 is ever used, and is a different light
+			every time the pass is issued, up to the total number of lights
+			which is affecting this object. This has 2 advantages:
+			<ul><li>There is no limit on the number of lights which can be 
+			supported</li>
+			<li>It's easier to write vertex / fragment programs for this because
+			a single program can be used for any number of lights</li>
+			</ul>
+			However, this technique is a lot more expensive, and typically you
+			will want an additional ambient pass, because if no lights are 
+			affecting the object it will not be rendered at all, which will look
+			odd even if ambient light is zero (imagine if there are lit objects
+			behind it - the objects silhouette would not show up). Therefore,
+			use this option with care, and you would be well advised to provide
+			a less expensive fallback technique for use in the distance.
+		@note
+			The number of times this pass runs is still limited by the maximum
+			number of lights allowed as set in setMaxSimultaneousLights, so
+			you will never get more passes than this.
+        @param enabled Whether this feature is enabled
+        @param onlyForOneLightType If true, the pass will only be run for a single type
+            of light, other light types will be ignored.
+        @param lightType The single light type which will be considered for this pass
+		*/
+        void setRunOncePerLight(bool enabled, 
+            bool onlyForOneLightType = true, Light::LightTypes lightType = Light::LT_POINT);
+
+        /** Does this pass run once for every light in range? */
+		bool getRunOncePerLight(void) const { return mRunOncePerLight; }
+        /** Does this pass run only for a single light type (if getRunOncePerLight is true). */
+        bool getRunOnlyForOneLightType(void) const { return mRunOnlyForOneLightType; }
+        /** Gets the single light type this pass runs for if  getRunOncePerLight and 
+            getRunOnlyForOneLightType are both true. */
+        Light::LightTypes getOnlyLightType() const { return mOnlyLightType; }
+		
+		/// Gets the parent Technique
         Technique* getParent(void) { return mParent; }
 
 		/** Sets the details of the vertex program to use.
@@ -676,8 +728,10 @@ namespace Ogre {
         /** Tells the pass that it needs recompilation. */
         void _notifyNeedsRecompile(void);
 
-        /** Update any automatic parameters on this pass */
-        void _updateAutoParams(const AutoParamDataSource& source);
+        /** Update any automatic parameters (except lights) on this pass */
+        void _updateAutoParamsNoLights(const AutoParamDataSource& source);
+        /** Update any automatic light parameters on this pass */
+        void _updateAutoParamsLightsOnly(const AutoParamDataSource& source);
 
         /** Set texture filtering for every texture unit 
         @note

@@ -59,6 +59,9 @@ namespace Ogre {
 	    mManualCullMode = MANUAL_CULL_BACK;
 	    mLightingEnabled = true;
         mMaxSimultaneousLights = OGRE_MAX_SIMULTANEOUS_LIGHTS;
+		mRunOncePerLight = false;
+        mRunOnlyForOneLightType = true;
+        mOnlyLightType = Light::LT_POINT;
 	    mShadeOptions = SO_GOURAUD;
 
 		mTextureFiltering = MaterialManager::getSingleton().getDefaultTextureFiltering();
@@ -404,6 +407,14 @@ namespace Ogre {
         return mMaxSimultaneousLights;
     }
     //-----------------------------------------------------------------------
+    void Pass::setRunOncePerLight(bool enabled, 
+            bool onlyForOneLightType, Light::LightTypes lightType)
+    {
+        mRunOncePerLight = enabled;
+        mRunOnlyForOneLightType = onlyForOneLightType;
+        mOnlyLightType = lightType;
+    }
+    //-----------------------------------------------------------------------
     void Pass::setShadingMode(ShadeOptions mode)
     {
 	    mShadeOptions = mode;
@@ -722,18 +733,33 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void Pass::_updateAutoParams(const AutoParamDataSource& source)
+    void Pass::_updateAutoParamsNoLights(const AutoParamDataSource& source)
     {
         if (hasVertexProgram())
         {
             // Update vertex program auto params
-            mVertexProgramUsage->getParameters()->_updateAutoParams(source);
+            mVertexProgramUsage->getParameters()->_updateAutoParamsNoLights(source);
         }
 
         if (hasFragmentProgram())
         {
             // Update fragment program auto params
-            mFragmentProgramUsage->getParameters()->_updateAutoParams(source);
+            mFragmentProgramUsage->getParameters()->_updateAutoParamsNoLights(source);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Pass::_updateAutoParamsLightsOnly(const AutoParamDataSource& source)
+    {
+        if (hasVertexProgram())
+        {
+            // Update vertex program auto params
+            mVertexProgramUsage->getParameters()->_updateAutoParamsLightsOnly(source);
+        }
+
+        if (hasFragmentProgram())
+        {
+            // Update fragment program auto params
+            mFragmentProgramUsage->getParameters()->_updateAutoParamsLightsOnly(source);
         }
     }
 

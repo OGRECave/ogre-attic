@@ -237,8 +237,10 @@ namespace Ogre {
         AutoConstantIterator getAutoConstantIterator(void);
         /** Returns true if this instance has any automatic constants. */
         bool hasAutoConstants(void){ return !(mAutoConstants.empty()); }
-        /** Updates the automatic parameters based on the details provided. */
-        void _updateAutoParams(const AutoParamDataSource& source);
+        /** Updates the automatic parameters (except lights) based on the details provided. */
+        void _updateAutoParamsNoLights(const AutoParamDataSource& source);
+        /** Updates the automatic parameters for lights based on the details provided. */
+        void _updateAutoParamsLightsOnly(const AutoParamDataSource& source);
 
 		/** Sets a single value constant floating-point parameter to the program.
         @remarks

@@ -160,7 +160,7 @@ namespace Ogre
         return AutoConstantIterator(mAutoConstants.begin(), mAutoConstants.end());
     }
 	//-----------------------------------------------------------------------------
-    void GpuProgramParameters::_updateAutoParams(const AutoParamDataSource& source)
+    void GpuProgramParameters::_updateAutoParamsNoLights(const AutoParamDataSource& source)
     {
         if (!hasAutoConstants()) return; // abort early if no autos
         Vector3 vec3;
@@ -193,6 +193,29 @@ namespace Ogre
             case ACT_INVERSE_WORLDVIEW_MATRIX:
                 setConstant(i->index, source.getInverseWorldViewMatrix());
                 break;
+            case ACT_CAMERA_POSITION_OBJECT_SPACE:
+                setConstant(i->index, source.getCameraPositionObjectSpace());
+                break;
+            // NB ambient light still here because it's not related to a specific light
+			case ACT_AMBIENT_LIGHT_COLOUR: 
+				setConstant(i->index, source.getAmbientLightColour());
+				break;
+            }
+        }
+    }
+	//-----------------------------------------------------------------------------
+    void GpuProgramParameters::_updateAutoParamsLightsOnly(const AutoParamDataSource& source)
+    {
+        if (!hasAutoConstants()) return; // abort early if no autos
+        Vector3 vec3;
+        Vector4 vec4;
+
+        AutoConstantList::const_iterator i, iend;
+        iend = mAutoConstants.end();
+        for (i = mAutoConstants.begin(); i != iend; ++i)
+        {
+            switch(i->paramType)
+            {
             case ACT_LIGHT_DIFFUSE_COLOUR:
                 setConstant(i->index, source.getLight(i->data).getDiffuseColour());
                 break;
@@ -210,12 +233,6 @@ namespace Ogre
                 // Set as 4D vector for compatibility
                 setConstant(i->index, Vector4(vec3.x, vec3.y, vec3.z, 1.0f));
                 break;
-            case ACT_CAMERA_POSITION_OBJECT_SPACE:
-                setConstant(i->index, source.getCameraPositionObjectSpace());
-                break;
-			case ACT_AMBIENT_LIGHT_COLOUR:
-				setConstant(i->index, source.getAmbientLightColour());
-				break;
             case ACT_LIGHT_ATTENUATION:
                 // range, const, linear, quad
                 const Light& l = source.getLight(i->data);

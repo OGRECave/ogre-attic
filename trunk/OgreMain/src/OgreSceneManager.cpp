@@ -1203,38 +1203,15 @@ namespace Ogre {
         static SceneDetailLevel camDetailLevel = mCameraInProgress->getDetailLevel();
         static SceneDetailLevel lastDetailLevel = camDetailLevel;
         static RenderOperation ro;
+		static LightList localLightList;
 
         if (pass->isProgrammable())
         {
-            // Update any automatic gpu params
-            // Pass renderable and camera
-            // Other bits of information will have to be looked up
-
+            // Tell auto params object about the renderable change
             mAutoParamDataSource.setCurrentRenderable(rend);
-            pass->_updateAutoParams(mAutoParamDataSource);
-            // NOTE: We MUST bind parameters AFTER updating the autos
-
-            // TEST
-            /*
-            LogManager::getSingleton().logMessage("BIND PARAMS FOR " + 
-                pass->getParent()->getParent()->getName());
-            */
-
-            if (pass->hasVertexProgram())
-            {
-                mDestRenderSystem->bindGpuProgramParameters(GPT_VERTEX_PROGRAM, 
-                    pass->getVertexProgramParameters());
-            }
-            if (pass->hasFragmentProgram())
-            {
-                mDestRenderSystem->bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, 
-                    pass->getFragmentProgramParameters());
-            }
+			pass->_updateAutoParamsNoLights(mAutoParamDataSource);
         }
-
-
-
-
+        
         // Set world transformation
         rend->getWorldTransforms(xform);
         numMatrices = rend->getNumWorldTransforms();
@@ -1249,13 +1226,6 @@ namespace Ogre {
 
         // Issue view / projection changes if any
         useRenderableViewProjMode(rend);
-
-        // Do we need to update light states? 
-        // Only do this if fixed-function vertex lighting applies
-        if (pass->getLightingEnabled() && !pass->hasVertexProgram())
-        {
-            mDestRenderSystem->_useLights(rend->getLights(), pass->getMaxSimultaneousLights());
-        }
 
         // Reissue any texture gen settings which are dependent on view matrix
         Pass::TextureUnitStateIterator texIter =  pass->getTextureUnitStateIterator();
@@ -1298,7 +1268,73 @@ namespace Ogre {
 		#if OGRE_DEBUG_MODE
 			ro.srcRenderable = rend;
 		#endif
-        mDestRenderSystem->_render(ro);
+
+		// Here's where we issue the rendering operation to the render system
+		// Note that we may do this once per light, therefore it's in a loop
+		// and the light parameters are updated once per traversal through the
+		// loop
+		const LightList& rendLightList = rend->getLights();
+		bool iteratePerLight = pass->getRunOncePerLight();
+		size_t numIterations = iteratePerLight ? rendLightList.size() : 1;
+		const LightList* pLightListToUse;
+		for (size_t i = 0; i < numIterations; ++i)
+		{
+			// Determine light list to use
+			if (iteratePerLight)
+			{
+				// Change the only element of local light list to be
+				// the light at index i
+				localLightList.clear();
+                // Check whether we need to filter this one out
+                if (pass->getRunOnlyForOneLightType() && 
+                    pass->getOnlyLightType() != rendLightList[i]->getType())
+                {
+                    // Skip
+                    continue;
+                }
+
+				localLightList.push_back(rendLightList[i]);
+				pLightListToUse = &localLightList;
+			}
+			else
+			{
+				// Use complete light list
+				pLightListToUse = &rendLightList;
+			}
+
+			// Do we need to update GPU program parameters?
+			if (pass->isProgrammable())
+			{
+				// Update any automatic gpu params for lights
+				// Other bits of information will have to be looked up
+                mAutoParamDataSource.setCurrentLightList(pLightListToUse);
+				pass->_updateAutoParamsLightsOnly(mAutoParamDataSource);
+				// NOTE: We MUST bind parameters AFTER updating the autos
+				// TEST
+				/*
+				LogManager::getSingleton().logMessage("BIND PARAMS FOR " + 
+					pass->getParent()->getParent()->getName());
+				*/
+				if (pass->hasVertexProgram())
+				{
+					mDestRenderSystem->bindGpuProgramParameters(GPT_VERTEX_PROGRAM, 
+						pass->getVertexProgramParameters());
+				}
+				if (pass->hasFragmentProgram())
+				{
+					mDestRenderSystem->bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, 
+						pass->getFragmentProgramParameters());
+				}
+			}
+			// Do we need to update light states? 
+			// Only do this if fixed-function vertex lighting applies
+			if (pass->getLightingEnabled() && !pass->hasVertexProgram())
+			{
+				mDestRenderSystem->_useLights(*pLightListToUse, pass->getMaxSimultaneousLights());
+			}
+			// issue the render op		
+			mDestRenderSystem->_render(ro);
+		} // possibly iterate per light
     }
     //-----------------------------------------------------------------------
     void SceneManager::setAmbientLight(const ColourValue& colour)

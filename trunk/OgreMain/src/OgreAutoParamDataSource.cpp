@@ -39,7 +39,6 @@ namespace Ogre {
          mInverseWorldViewMatrixDirty(true),
          mInverseViewMatrixDirty(true),
          mCameraPositionObjectSpaceDirty(true),
-         mLightListDirty(true),
          mCurrentRenderable(NULL),
          mCurrentCamera(NULL)
     {
@@ -61,7 +60,6 @@ namespace Ogre {
 		mInverseWorldMatrixDirty = true;
 		mInverseWorldViewMatrixDirty = true;
 		mCameraPositionObjectSpaceDirty = true;
-		mLightListDirty = true;
     }
     //-----------------------------------------------------------------------------
     void AutoParamDataSource::setCurrentCamera(const Camera* cam)
@@ -72,6 +70,11 @@ namespace Ogre {
         mInverseViewMatrixDirty = true;
         mInverseWorldViewMatrixDirty = true;
         mCameraPositionObjectSpaceDirty = true;
+    }
+    //-----------------------------------------------------------------------------
+    void AutoParamDataSource::setCurrentLightList(const LightList* ll)
+    {
+        mCurrentLightList = ll;
     }
     //-----------------------------------------------------------------------------
     const Matrix4& AutoParamDataSource::getWorldMatrix(void) const
@@ -159,19 +162,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     const Light& AutoParamDataSource::getLight(size_t index) const
     {
-        if (mLightListDirty)
-        {
-            mpLightList = &(mCurrentRenderable->getLights());
-            mLightListDirty = false;
-        }
         // If outside light range, return a blank light to ensure zeroised for program
-        if (mpLightList->size() <= index)
+        if (mCurrentLightList->size() <= index)
         {
             return mBlankLight;
         }
         else
         {
-            return *((*mpLightList)[index]);
+            return *((*mCurrentLightList)[index]);
         }
     }
     //-----------------------------------------------------------------------------
