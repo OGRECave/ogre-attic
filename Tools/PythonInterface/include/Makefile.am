@@ -1,1 +1,0 @@
-noinst_HEADERS=OgrePythonLink.h OgrePythonFrameListener.h OgrePythonPrerequisites.h
