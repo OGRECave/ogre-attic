@@ -1873,6 +1873,7 @@ WINGDIAPI void APIENTRY glTexGeni (GLenum coord, GLenum pname, GLint param);
 WINGDIAPI void APIENTRY glTexGeniv (GLenum coord, GLenum pname, const GLint *params);
 WINGDIAPI void APIENTRY glTexImage1D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
 WINGDIAPI void APIENTRY glTexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
+WINGDIAPI void APIENTRY glTexImage3D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
 WINGDIAPI void APIENTRY glTexParameterf (GLenum target, GLenum pname, GLfloat param);
 WINGDIAPI void APIENTRY glTexParameterfv (GLenum target, GLenum pname, const GLfloat *params);
 WINGDIAPI void APIENTRY glTexParameteri (GLenum target, GLenum pname, GLint param);
