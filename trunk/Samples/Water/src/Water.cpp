@@ -200,6 +200,8 @@ private:
 		AxisAlignedBox circleBounds(-CIRCLE_SIZE/2.0f, 0, -CIRCLE_SIZE/2.0f,
 			CIRCLE_SIZE/2.0f, 0, CIRCLE_SIZE/2.0f);
 		mesh->_setBounds(circleBounds);
+        mesh->load();
+        mesh->touch();
 	}
 public:
 	int lvl ;

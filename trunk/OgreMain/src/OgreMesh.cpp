@@ -262,6 +262,9 @@ namespace Ogre {
         newMesh->mSkeletonName = mSkeletonName;
         newMesh->mSkeleton = mSkeleton;
 
+        newMesh->load();
+        newMesh->touch();
+
         return newMesh;
 
     }
