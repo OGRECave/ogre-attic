@@ -117,7 +117,7 @@ namespace Ogre {
 		// Use LOD
         mSubMesh->_getRenderOperation(op, mParentEntity->mMeshLodIndex);
         // Do we need to use software skinned vertex data?
-        if (!mParentEntity->mHardwareSkinning)
+        if (mParentEntity->mMesh->hasSkeleton() && !mParentEntity->mHardwareSkinning)
         {
             op.vertexData = mSubMesh->useSharedVertices ? 
                 mParentEntity->mSharedBlendedVertexData : mBlendedVertexData;
