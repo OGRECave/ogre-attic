@@ -42,12 +42,7 @@ namespace OgreMaya {
 	public:        
         static Options& Options::instance();
 
-        void init(int argc, char** argv);
-
         void reset();
-
-        bool isValid() {return valid;}
-
         void debugOutput();
 
     public:
@@ -58,8 +53,7 @@ namespace OgreMaya {
             int to;
             int step;
         };
-
-        typedef map<string, void (Options::*)(void)> BuilderMap;
+        
         typedef map<string, KeyframeRange>           KeyframeRangeMap;
 
         string
@@ -74,6 +68,8 @@ namespace OgreMaya {
         bool
             verboseMode,
 
+			exportSelected,
+
             exportMesh,
 			exportSkeleton,
             exportVBA,
@@ -85,33 +81,10 @@ namespace OgreMaya {
         KeyframeRangeMap
             animations;
 
-    private:
-        bool valid;
-        
-        char** argv;
-        int argc;
-        int currentArg;
+        bool 
+			valid;
 
-        BuilderMap builderMap;
-
-    private:
-        /** returns true if next token starts with '-' */
-        bool isNextTokenOption();
-
-    private:        
-        void parseIn();
-        void parseMeshOut();
-        void parseSkelOut();
-        void parseMatOut();
-        void parseMatPrefix();
-        void parseAnimation();
-        void parseVBA();
-        void parseN();
-        void parseC();
-        void parseT();
-        void parseV();
-
-    private:
+	private:
         Options();
     };
 

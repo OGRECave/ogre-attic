@@ -117,6 +117,7 @@ namespace OgreMaya {
         MGlobal::selectByName(root->name.c_str());
         MGlobal::executeCommand("dagPose -r -g -bp");
         MGlobal::executeCommand("dagPose -r -g -bp");
+		//MGlobal::executeCommand("currentTime -edit 0");
         
         
 /*        
@@ -446,7 +447,7 @@ namespace OgreMaya {
             int from    = (*it).second.from;
             int to      = (*it).second.to;
             int step    = (*it).second.step;
-            int frameCount = to-from+1;
+            int frameCount = to - from + 1;
             
             if(from < iTimeMin || to > iTimeMax || !(frameCount>0)) {
                 cout << "\t[ERROR] Illegal Animation Range\n";
@@ -461,7 +462,7 @@ namespace OgreMaya {
             SkeletonJointList::iterator ppkJointEnd = jointList.end();		    
                 
 			for( ; ppkJoint != ppkJointEnd; ++ppkJoint ) {				
-                MTime kFrame = kTimeMin + from;
+                MTime kFrame = kTimeMin + (from - 1);
 
 	            for(int iFrame=0; iFrame<frameCount; iFrame+=step, kFrame+=step) {
 		            kAnimControl.setCurrentTime( kFrame );
