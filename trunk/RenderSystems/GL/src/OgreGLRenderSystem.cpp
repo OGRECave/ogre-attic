@@ -57,6 +57,7 @@ GL_GetBufferSubDataARB_Func glGetBufferSubDataARB_ptr;
 namespace Ogre {
 
     GLRenderSystem::GLRenderSystem()
+      : mHardwareBufferManager(0)
     {
         int i;
 
@@ -87,6 +88,15 @@ namespace Ogre {
 
         glActiveTextureARB_ptr = 0;
         glClientActiveTextureARB_ptr = 0;
+        glSecondaryColorPointerEXT_ptr = 0;
+        glGenBuffersARB_ptr = 0;
+        glBindBufferARB_ptr = 0;
+        glDeleteBuffersARB_ptr = 0;
+        glMapBufferARB_ptr = 0;
+        glUnmapBufferARB_ptr = 0;
+        glBufferDataARB_ptr = 0;
+        glBufferSubDataARB_ptr = 0;
+        glGetBufferSubDataARB_ptr = 0;
 
         OgreUnguard();
     }
