@@ -1596,7 +1596,20 @@ namespace Ogre {
                     pReal = static_cast<Real*>(
                         vbuf->lock(HardwareBuffer::HBL_DISCARD));
                     readReals(chunk, pReal, dest->vertexCount * dim);
-                    vbuf->unlock();
+
+					// Adjust individual v values to (1 - v)
+					if (dim == 2)
+					{
+						for (size_t i = 0; i < dest->vertexCount; ++i)
+						{
+							++pReal; // skip u
+							*pReal = 1.0 - *pReal; // v = 1 - v
+							++pReal;
+						}
+			            
+					}
+
+					vbuf->unlock();
                     dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
                     ++texCoordSet;
                     ++bindIdx;
