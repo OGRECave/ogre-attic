@@ -257,7 +257,7 @@ namespace Ogre {
         Material* mpBorderMaterial;
 
         // Render operation for the border area
-        RenderOperation mRenderOp2;
+        LegacyRenderOperation mRenderOp2;
 
         static String msTypeName;
 
@@ -311,7 +311,7 @@ namespace Ogre {
         /** Constructed with pointers to parent. */
         BorderRenderable(BorderPanelGuiElement* parent) : mParent(parent) {}
         Material* getMaterial(void) const { return mParent->mpBorderMaterial; }
-        void getRenderOperation(RenderOperation& rend) { rend = mParent->mRenderOp2; }
+        void getLegacyRenderOperation(LegacyRenderOperation& rend) { rend = mParent->mRenderOp2; }
         void getWorldTransforms(Matrix4* xform) { mParent->getWorldTransforms(xform); }
         unsigned short getNumWorldTransforms(void) { return 1; }
         bool useIdentityProjection(void) { return true; }

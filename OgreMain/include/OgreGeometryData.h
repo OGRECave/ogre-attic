@@ -71,7 +71,7 @@ namespace Ogre {
             be this many for every vertex: set the weight to 0 for those vertices that don't 
             use all the entries (if some vertices have more than others)
         */
-        RenderOperation::VertexBlendData* pBlendingWeights;
+        LegacyRenderOperation::VertexBlendData* pBlendingWeights;
 
 
     };

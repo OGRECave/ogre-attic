@@ -123,7 +123,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void SubMesh::_getRenderOperation(RenderOperation& ro, ushort lodIndex) 
+    void SubMesh::_getLegacyRenderOperation(LegacyRenderOperation& ro, ushort lodIndex) 
     {
         
 		// SubMeshes always use indexes
@@ -132,9 +132,9 @@ namespace Ogre {
         GeometryData* geom;
 
         if (useTriStrips)
-            ro.operationType = RenderOperation::OT_TRIANGLE_STRIP;
+            ro.operationType = LegacyRenderOperation::OT_TRIANGLE_STRIP;
         else
-            ro.operationType = RenderOperation::OT_TRIANGLE_LIST;
+            ro.operationType = LegacyRenderOperation::OT_TRIANGLE_LIST;
 
         if (useSharedVertices)
         {
@@ -148,7 +148,7 @@ namespace Ogre {
 
         if (geom->numTexCoords > 0)
         {
-            ro.vertexOptions |= RenderOperation::VO_TEXTURE_COORDS;
+            ro.vertexOptions |= LegacyRenderOperation::VO_TEXTURE_COORDS;
             ro.numTextureCoordSets = geom->numTexCoords;
             for (int tex = 0; tex < ro.numTextureCoordSets; ++tex)
             {
@@ -161,13 +161,13 @@ namespace Ogre {
 
         if (geom->hasNormals)
         {
-            ro.vertexOptions |= RenderOperation::VO_NORMALS;
+            ro.vertexOptions |= LegacyRenderOperation::VO_NORMALS;
             ro.pNormals = geom->pNormals;
         }
 
         if (geom->hasColours)
         {
-            ro.vertexOptions |= RenderOperation::VO_DIFFUSE_COLOURS;
+            ro.vertexOptions |= LegacyRenderOperation::VO_DIFFUSE_COLOURS;
             ro.pDiffuseColour = geom->pColours;
         }
 
@@ -201,7 +201,7 @@ namespace Ogre {
 
         if (geom->numBlendWeightsPerVertex > 0)
         {
-            ro.vertexOptions |= RenderOperation::VO_BLEND_WEIGHTS;
+            ro.vertexOptions |= LegacyRenderOperation::VO_BLEND_WEIGHTS;
             ro.numBlendWeightsPerVertex = geom->numBlendWeightsPerVertex;
             ro.pBlendingWeights = geom->pBlendingWeights;
         }
@@ -267,12 +267,12 @@ namespace Ogre {
         // Allocate a buffer for bone weights
         geometry.numBlendWeightsPerVertex = maxBones;
         geometry.pBlendingWeights = 
-            new RenderOperation::VertexBlendData[geometry.numVertices * maxBones];
+            new LegacyRenderOperation::VertexBlendData[geometry.numVertices * maxBones];
 
         // Assign data
         unsigned short v;
         i = mBoneAssignments.begin();
-        RenderOperation::VertexBlendData *pBlend = geometry.pBlendingWeights;
+        LegacyRenderOperation::VertexBlendData *pBlend = geometry.pBlendingWeights;
         // Iterate by vertex
         for (v = 0; v < geometry.numVertices; ++v)
         {

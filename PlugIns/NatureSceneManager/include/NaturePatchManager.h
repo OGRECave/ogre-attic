@@ -53,7 +53,7 @@ public:
     /// Updates patches in array based on cameraposition
     void updatePatches(Camera *cam);
     /// Gets all the patches within an AABB in world coords as GeometryData structs
-    virtual void getPatchRenderOpsInBox(const AxisAlignedBox& box, std::list<RenderOperation>& opList);
+    virtual void getPatchRenderOpsInBox(const AxisAlignedBox& box, std::list<LegacyRenderOperation>& opList);
 
 
 private:

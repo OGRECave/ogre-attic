@@ -50,9 +50,9 @@ namespace Ogre {
 		    mpFont = 0;
 
         memset( &mRenderOp, 0, sizeof( mRenderOp ) );
-        mRenderOp.operationType = RenderOperation::OT_TRIANGLE_LIST;
-        mRenderOp.vertexOptions = RenderOperation::VO_TEXTURE_COORDS | 
-            RenderOperation::VO_DIFFUSE_COLOURS;
+        mRenderOp.operationType = LegacyRenderOperation::OT_TRIANGLE_LIST;
+        mRenderOp.vertexOptions = LegacyRenderOperation::VO_TEXTURE_COORDS | 
+            LegacyRenderOperation::VO_DIFFUSE_COLOURS;
         mRenderOp.numTextureCoordSets = 1;
         mRenderOp.numTextureDimensions[0] = 2;
         mRenderOp.numVertices = 0;
@@ -609,7 +609,7 @@ namespace Ogre {
         return msTypeName;
     }
     //---------------------------------------------------------------------
-    void TTYGuiElement::getRenderOperation(RenderOperation& rend)
+    void TTYGuiElement::getLegacyRenderOperation(LegacyRenderOperation& rend)
     {
         rend = mRenderOp;
     }

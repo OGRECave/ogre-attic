@@ -43,7 +43,7 @@ namespace Ogre {
         mRenderOp.numTextureCoordSets = 1;
         mRenderOp.numTextureDimensions[0] = 2;
         mRenderOp.numVertices = 4;
-        mRenderOp.operationType = RenderOperation::OT_TRIANGLE_STRIP;
+        mRenderOp.operationType = LegacyRenderOperation::OT_TRIANGLE_STRIP;
         for (ushort i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; ++i)
         {
             mTileX[i] = 1.0f;
@@ -55,7 +55,7 @@ namespace Ogre {
         mRenderOp.pVertices = new Real[4*3];
         mRenderOp.useIndexes = false;
         // No normals or colours
-        mRenderOp.vertexOptions = RenderOperation::VO_TEXTURE_COORDS;
+        mRenderOp.vertexOptions = LegacyRenderOperation::VO_TEXTURE_COORDS;
         mRenderOp.vertexStride = 0;
 
         if (createParamDictionary("PanelGuiElement"))
@@ -114,7 +114,7 @@ namespace Ogre {
         return msTypeName;
     }
     //---------------------------------------------------------------------
-    void PanelGuiElement::getRenderOperation(RenderOperation& rend)
+    void PanelGuiElement::getLegacyRenderOperation(LegacyRenderOperation& rend)
     {
 
         rend = mRenderOp;

@@ -425,7 +425,7 @@ namespace Ogre {
         return mVertexCount;
     }
     //-----------------------------------------------------------------------
-    void RenderSystem::_render(RenderOperation& op)
+    void RenderSystem::_render(LegacyRenderOperation& op)
     {
         // Update stats
         int val;
@@ -437,23 +437,23 @@ namespace Ogre {
 
         switch(op.operationType)
         {
-        case RenderOperation::OT_TRIANGLE_LIST:
+        case LegacyRenderOperation::OT_TRIANGLE_LIST:
             mFaceCount += val / 3;
             break;
-        case RenderOperation::OT_TRIANGLE_STRIP:
-        case RenderOperation::OT_TRIANGLE_FAN:
+        case LegacyRenderOperation::OT_TRIANGLE_STRIP:
+        case LegacyRenderOperation::OT_TRIANGLE_FAN:
             mFaceCount += val - 2;
             break;
-	    case RenderOperation::OT_POINT_LIST:
-	    case RenderOperation::OT_LINE_LIST:
-	    case RenderOperation::OT_LINE_STRIP:
+	    case LegacyRenderOperation::OT_POINT_LIST:
+	    case LegacyRenderOperation::OT_LINE_LIST:
+	    case LegacyRenderOperation::OT_LINE_STRIP:
 	        break;
 	    }
 
         mVertexCount += op.numVertices;
 
         // Vertex blending: do software if required
-        if ((op.vertexOptions & RenderOperation::VO_BLEND_WEIGHTS) && 
+        if ((op.vertexOptions & LegacyRenderOperation::VO_BLEND_WEIGHTS) && 
             !this->_isVertexBlendSupported())
         {
             // Software blending required
@@ -474,7 +474,7 @@ namespace Ogre {
         return 1;
     }
     //-----------------------------------------------------------------------
-    void RenderSystem::softwareVertexBlend(RenderOperation& op, Matrix4* pMatrices)
+    void RenderSystem::softwareVertexBlend(LegacyRenderOperation& op, Matrix4* pMatrices)
     {
         // Source vector
         Vector3 sourceVec;
@@ -484,7 +484,7 @@ namespace Ogre {
         Matrix3 rot3x3;
 
         Real *pVertElem, *pNormElem;
-        RenderOperation::VertexBlendData* pBlend;
+        LegacyRenderOperation::VertexBlendData* pBlend;
 
         // Check buffer size
         unsigned long numVertReals = op.numVertices * 3;
@@ -492,7 +492,7 @@ namespace Ogre {
         {
             mTempVertexBlendBuffer.resize(numVertReals);
         }
-        if ((op.vertexOptions & RenderOperation::VO_NORMALS) &&
+        if ((op.vertexOptions & LegacyRenderOperation::VO_NORMALS) &&
             mTempNormalBlendBuffer.size() < numVertReals)
         {
             mTempNormalBlendBuffer.resize(numVertReals);
@@ -511,7 +511,7 @@ namespace Ogre {
             sourceVec.y = *pVertElem++;
             sourceVec.z = *pVertElem++;
 
-            if (op.vertexOptions & RenderOperation::VO_NORMALS) 
+            if (op.vertexOptions & LegacyRenderOperation::VO_NORMALS) 
             {
                 accumVecNorm.x = *pNormElem++;
                 accumVecNorm.y = *pNormElem++;
@@ -531,7 +531,7 @@ namespace Ogre {
                     // Blend position
                     accumVecPos += (pMatrices[pBlend->matrixIndex] * sourceVec) 
                         * pBlend->blendWeight;
-                    if (op.vertexOptions & RenderOperation::VO_NORMALS)
+                    if (op.vertexOptions & LegacyRenderOperation::VO_NORMALS)
                     {
                         // Blend normal
                         // We should blend by inverse transform here, but because we're assuming the 3x3
@@ -559,7 +559,7 @@ namespace Ogre {
 
         // Re-point the render operation vertex buffer
         op.pVertices = &( mTempVertexBlendBuffer.front() );
-        if (op.vertexOptions & RenderOperation::VO_NORMALS)
+        if (op.vertexOptions & LegacyRenderOperation::VO_NORMALS)
             op.pNormals = &( mTempNormalBlendBuffer.front() );
 
         

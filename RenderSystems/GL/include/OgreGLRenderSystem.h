@@ -260,7 +260,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void _render(RenderOperation& op);
+        void _render(LegacyRenderOperation& op);
         /** See
           RenderSystem
          */

@@ -558,7 +558,7 @@ namespace Ogre
           @param op A rendering operation instance, which contains
             details of the operation to be performed.
          */
-        virtual void _render(RenderOperation& op);
+        virtual void _render(LegacyRenderOperation& op);
 
 
         /**
@@ -793,9 +793,9 @@ namespace Ogre
             will be modified by the matrices supplied according to the blending weights
             also in the operation. To avoid accidentally modifying core vertex data, a
             temporary vertex buffer is used for the result, which is then used in the
-            RenderOperation instead of the original passed in vertex data.
+            LegacyRenderOperation instead of the original passed in vertex data.
         */
-        void softwareVertexBlend(RenderOperation& op, Matrix4* pMatrices);
+        void softwareVertexBlend(LegacyRenderOperation& op, Matrix4* pMatrices);
 
 
 

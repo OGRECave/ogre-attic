@@ -105,17 +105,17 @@ namespace Ogre {
         return m_pMaterial;
     }
 
-    void SimpleRenderable::setRenderOperation( const RenderOperation& rend )
+    void SimpleRenderable::setLegacyRenderOperation( const LegacyRenderOperation& rend )
     {
         mRendOp = rend;
     }
 
-    RenderOperation& SimpleRenderable::getRenderOperation()
+    LegacyRenderOperation& SimpleRenderable::getLegacyRenderOperation()
     {
         return mRendOp;
     }
 
-    void SimpleRenderable::getRenderOperation( RenderOperation& rend )
+    void SimpleRenderable::getLegacyRenderOperation( LegacyRenderOperation& rend )
     {
         rend = mRendOp;
     }

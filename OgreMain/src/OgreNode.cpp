@@ -545,7 +545,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void Node::getRenderOperation(RenderOperation& rend)
+    void Node::getLegacyRenderOperation(LegacyRenderOperation& rend)
     {
         static SubMesh* pSubMesh = 0;
         if (!pSubMesh)
@@ -553,7 +553,7 @@ namespace Ogre {
             Mesh *pMesh = MeshManager::getSingleton().load("axes.mesh");
             pSubMesh = pMesh->getSubMesh(0);
         }
-        pSubMesh->_getRenderOperation(rend);
+        pSubMesh->_getLegacyRenderOperation(rend);
     }
     //-----------------------------------------------------------------------
     void Node::getWorldTransforms(Matrix4* xform)

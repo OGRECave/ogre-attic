@@ -136,13 +136,13 @@ void OctreeNode::_addToRenderQueue( Camera* cam, RenderQueue *queue )
 }
 
 
-void OctreeNode::getRenderOperation( RenderOperation& rend )
+void OctreeNode::getLegacyRenderOperation( LegacyRenderOperation& rend )
 {
 
     rend.useIndexes = true;
     rend.numTextureCoordSets = 0; // no textures
-    rend.vertexOptions = RenderOperation::VO_DIFFUSE_COLOURS;
-    rend.operationType = RenderOperation::OT_LINE_LIST;
+    rend.vertexOptions = LegacyRenderOperation::VO_DIFFUSE_COLOURS;
+    rend.operationType = LegacyRenderOperation::OT_LINE_LIST;
     rend.numVertices = 8;
     rend.numIndexes = 24;
 

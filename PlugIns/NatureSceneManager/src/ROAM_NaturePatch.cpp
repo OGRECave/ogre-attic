@@ -563,7 +563,7 @@ unsigned int NaturePatch::buildMesh(BinTriNode *binTriBuffer,
 //    mTexCoordCache[1] = new Real[mVertexCount * 2];
 #endif
 
-    // Copy data to the new buffers for the RenderOperation 
+    // Copy data to the new buffers for the LegacyRenderOperation 
     memcpy(mVertexCache, vertexBuffer, mVertexCacheSize * sizeof(Real));
     memcpy(mIndexCache, indexBuffer, mIndexCacheSize * sizeof(ushort));
     memcpy(mTexCoordCache[0], texCoordBuffer[0], mVertexCount*sizeof(Real)*2);
@@ -875,14 +875,14 @@ void NaturePatch::stitch(int direction, NaturePatch *neighborPatch)
 
 //----------------------------------------------------------------------------
 
-void NaturePatch::getRenderOperation(RenderOperation &rend)
+void NaturePatch::getLegacyRenderOperation(LegacyRenderOperation &rend)
 {
-//    printf("getRenderOperation()\n");
+//    printf("getLegacyRenderOperation()\n");
     rend.useIndexes = true;
 
-    rend.vertexOptions = RenderOperation::VO_TEXTURE_COORDS;
-    //rend.vertexOptions |= RenderOperation::VO_DIFFUSE_COLOURS;
-    rend.operationType = RenderOperation::OT_TRIANGLE_LIST;
+    rend.vertexOptions = LegacyRenderOperation::VO_TEXTURE_COORDS;
+    //rend.vertexOptions |= LegacyRenderOperation::VO_DIFFUSE_COLOURS;
+    rend.operationType = LegacyRenderOperation::OT_TRIANGLE_LIST;
 
     // use colors
     rend.pDiffuseColour = 0;

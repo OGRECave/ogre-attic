@@ -467,12 +467,12 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void BillboardSet::getRenderOperation(RenderOperation& rend)
+    void BillboardSet::getLegacyRenderOperation(LegacyRenderOperation& rend)
     {
         rend.useIndexes = true;
 
-        rend.vertexOptions = RenderOperation::VO_DIFFUSE_COLOURS | RenderOperation::VO_TEXTURE_COORDS;
-        rend.operationType = RenderOperation::OT_TRIANGLE_LIST;
+        rend.vertexOptions = LegacyRenderOperation::VO_DIFFUSE_COLOURS | LegacyRenderOperation::VO_TEXTURE_COORDS;
+        rend.operationType = LegacyRenderOperation::OT_TRIANGLE_LIST;
 
         // Texture-related flags
         rend.numTextureCoordSets     = 1;

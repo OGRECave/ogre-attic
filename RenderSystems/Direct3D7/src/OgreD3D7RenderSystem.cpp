@@ -1448,7 +1448,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void D3DRenderSystem::_render(RenderOperation& op)
+    void D3DRenderSystem::_render(LegacyRenderOperation& op)
     {
         OgreGuard( "D3DRenderSystem::_render" );
 
@@ -1471,14 +1471,14 @@ namespace Ogre {
         d3dVertexFormat |= D3DFVF_XYZ; // Untransformed  TODO - support transformed?
 
         // Normal
-        if (op.vertexOptions & RenderOperation::VO_NORMALS)
+        if (op.vertexOptions & LegacyRenderOperation::VO_NORMALS)
             d3dVertexFormat |= D3DFVF_NORMAL;
 
         // Do texture co-ords
         // Because D3D defines as separately named macros/constants, and refuses to make them
         // derivable via numerical means, I have to use
         // lots of ifs/switches - yuck! Why can't D3D be more elegant?
-        if (op.vertexOptions & RenderOperation::VO_TEXTURE_COORDS)
+        if (op.vertexOptions & LegacyRenderOperation::VO_TEXTURE_COORDS)
         {
             // Specify number of co-ords
             switch(op.numTextureCoordSets)
@@ -1536,31 +1536,31 @@ namespace Ogre {
         }
 
         // Vertex colours
-        if (op.vertexOptions & RenderOperation::VO_DIFFUSE_COLOURS)
+        if (op.vertexOptions & LegacyRenderOperation::VO_DIFFUSE_COLOURS)
             d3dVertexFormat |= D3DFVF_DIFFUSE;
-        if (op.vertexOptions & RenderOperation::VO_SPECULAR_COLOURS)
+        if (op.vertexOptions & LegacyRenderOperation::VO_SPECULAR_COLOURS)
             d3dVertexFormat |= D3DFVF_SPECULAR;
 
         // Determine rendering operation
         D3DPRIMITIVETYPE primType;
         switch (op.operationType)
         {
-        case RenderOperation::OT_POINT_LIST:
+        case LegacyRenderOperation::OT_POINT_LIST:
             primType = D3DPT_POINTLIST;
             break;
-        case RenderOperation::OT_LINE_LIST:
+        case LegacyRenderOperation::OT_LINE_LIST:
             primType = D3DPT_LINELIST;
             break;
-        case RenderOperation::OT_LINE_STRIP:
+        case LegacyRenderOperation::OT_LINE_STRIP:
             primType = D3DPT_LINESTRIP;
             break;
-        case RenderOperation::OT_TRIANGLE_LIST:
+        case LegacyRenderOperation::OT_TRIANGLE_LIST:
             primType = D3DPT_TRIANGLELIST;
             break;
-        case RenderOperation::OT_TRIANGLE_STRIP:
+        case LegacyRenderOperation::OT_TRIANGLE_STRIP:
             primType = D3DPT_TRIANGLESTRIP;
             break;
-        case RenderOperation::OT_TRIANGLE_FAN:
+        case LegacyRenderOperation::OT_TRIANGLE_FAN:
             primType = D3DPT_TRIANGLEFAN;
             break;
         }

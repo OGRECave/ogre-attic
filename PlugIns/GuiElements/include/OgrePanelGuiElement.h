@@ -80,7 +80,7 @@ namespace Ogre {
         /** See GuiElement. */
         virtual const String& getTypeName(void);
         /** See Renderable. */
-        void getRenderOperation(RenderOperation& rend);
+        void getLegacyRenderOperation(LegacyRenderOperation& rend);
         /** Overridden from GuiElement */
         void setMaterialName(const String& matName);
         /** Overridden from GuiContainer */
@@ -108,7 +108,7 @@ namespace Ogre {
         Real mTileX[OGRE_MAX_TEXTURE_LAYERS];
         Real mTileY[OGRE_MAX_TEXTURE_LAYERS];
 
-        RenderOperation mRenderOp;
+        LegacyRenderOperation mRenderOp;
 
         /// internal method for setting up geometry, called by GuiElement::update
         virtual void updatePositionGeometry(void);

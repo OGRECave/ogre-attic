@@ -1031,14 +1031,14 @@ namespace Ogre {
         @par
             Don't call this method a lot, it's designed for rare (1 or 2 times per frame) use. 
             Calling it regularly per frame will cause frame rate drops!
-        @param rend A RenderOperation object describing the rendering op
+        @param rend A LegacyRenderOperation object describing the rendering op
         @param mat The material to use
         @param vp Pointer to the viewport to render to
         @param worldMatrix The transform to apply from object to world space
         @param viewMatrix The transform to apply from world to view space
         @param projMatrix The transform to apply from view to screen space
         */
-        virtual void manualRender(RenderOperation* rend, Material* mat, Viewport* vp, 
+        virtual void manualRender(LegacyRenderOperation* rend, Material* mat, Viewport* vp, 
             const Matrix4& worldMatrix, const Matrix4& viewMatrix, const Matrix4& projMatrix) ;
 
         /** Creates a new Overlay.

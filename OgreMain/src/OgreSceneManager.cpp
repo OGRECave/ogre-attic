@@ -1145,9 +1145,9 @@ namespace Ogre {
     void SceneManager::_renderSubMesh(SubMesh* sm)
     {
 
-        static RenderOperation ro; // to avoid creating / destroying every time but must be careful to set all fields
+        static LegacyRenderOperation ro; // to avoid creating / destroying every time but must be careful to set all fields
 
-        sm->_getRenderOperation(ro);
+        sm->_getLegacyRenderOperation(ro);
         mDestRenderSystem->_render(ro);
 
 
@@ -1213,7 +1213,7 @@ namespace Ogre {
                     RenderPriorityGroup::MaterialGroupMap::iterator imat, imatend;
                     imatend = pPriorityGrp->mMaterialGroups.end();
                     static Matrix4 xform[256];
-                    RenderOperation ro;
+                    LegacyRenderOperation ro;
                     int matLayersLeft;
                     Material* thisMaterial;
                     unsigned short numMatrices;
@@ -1269,7 +1269,7 @@ namespace Ogre {
                                 }
 
                                 // Set up rendering operation
-                                (*irend)->getRenderOperation(ro);
+                                (*irend)->getLegacyRenderOperation(ro);
 
                                 if( ro.numVertices )
                                     mDestRenderSystem->_render(ro);
@@ -1328,7 +1328,7 @@ namespace Ogre {
                             }
 
                             // Set up rendering operation
-                            (*iTrans)->getRenderOperation(ro);
+                            (*iTrans)->getLegacyRenderOperation(ro);
 
                             if( ro.numVertices )
                                 mDestRenderSystem->_render(ro);
@@ -1657,7 +1657,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void SceneManager::manualRender(RenderOperation* rend, 
+    void SceneManager::manualRender(LegacyRenderOperation* rend, 
         Material* mat, Viewport* vp, const Matrix4& worldMatrix, 
         const Matrix4& viewMatrix, const Matrix4& projMatrix) 
     {

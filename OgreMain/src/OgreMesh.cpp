@@ -686,12 +686,12 @@ namespace Ogre {
         // Allocate a buffer for bone weights
         sharedGeometry.numBlendWeightsPerVertex = maxBones;
         sharedGeometry.pBlendingWeights = 
-            new RenderOperation::VertexBlendData[sharedGeometry.numVertices * maxBones];
+            new LegacyRenderOperation::VertexBlendData[sharedGeometry.numVertices * maxBones];
 
         // Assign data
         unsigned short v;
         i = mBoneAssignments.begin();
-        RenderOperation::VertexBlendData *pBlend = sharedGeometry.pBlendingWeights;
+        LegacyRenderOperation::VertexBlendData *pBlend = sharedGeometry.pBlendingWeights;
         // Iterate by vertex
         for (v = 0; v < sharedGeometry.numVertices; ++v)
         {

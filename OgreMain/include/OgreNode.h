@@ -503,7 +503,7 @@ namespace Ogre {
             for SceneNodes at SceneManager::setDisplaySceneNodes, and for entities based on skeletal 
             models using Entity::setDisplaySkeleton()
         */
-        void getRenderOperation(RenderOperation& rend);
+        void getLegacyRenderOperation(LegacyRenderOperation& rend);
         /** Overridden from Renderable.
         @remarks
             This is only used if the SceneManager chooses to render the node. This option can be set

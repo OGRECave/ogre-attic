@@ -798,7 +798,7 @@ namespace Ogre {
         OgreUnguard();
     }
     //-----------------------------------------------------------------------------
-    void GLRenderSystem::_render(RenderOperation& op)
+    void GLRenderSystem::_render(LegacyRenderOperation& op)
     {
         OgreGuard("GLRenderSystem::_render");
         
@@ -820,7 +820,7 @@ namespace Ogre {
         glVertexPointer( 3, GL_FLOAT, stride, op.pVertices );
 
         // Normals if available
-        if (op.vertexOptions & RenderOperation::VO_NORMALS)
+        if (op.vertexOptions & LegacyRenderOperation::VO_NORMALS)
         {
             glEnableClientState( GL_NORMAL_ARRAY );
             stride = op.normalStride ?  op.normalStride + (sizeof(GL_FLOAT) * 3) : 0;
@@ -832,7 +832,7 @@ namespace Ogre {
         }
 
         // Color
-        if (op.vertexOptions & RenderOperation::VO_DIFFUSE_COLOURS)
+        if (op.vertexOptions & LegacyRenderOperation::VO_DIFFUSE_COLOURS)
         {
             glEnableClientState(GL_COLOR_ARRAY);
             stride = op.diffuseStride ?  
@@ -850,7 +850,7 @@ namespace Ogre {
 		GLint index = GL_TEXTURE0_ARB;
         for (int i = 0; i < _getNumTextureUnits(); i++)
         {
-            if( (op.vertexOptions & RenderOperation::VO_TEXTURE_COORDS) &&
+            if( (op.vertexOptions & LegacyRenderOperation::VO_TEXTURE_COORDS) &&
                 (i < op.numTextureCoordSets) )
             {                
                 glClientActiveTextureARB(index + i);
@@ -877,7 +877,7 @@ namespace Ogre {
 		GLint index = GL_TEXTURE0;
         for (int i = 0; i < _getNumTextureUnits(); i++)
         {
-            if( (op.vertexOptions & RenderOperation::VO_TEXTURE_COORDS) )
+            if( (op.vertexOptions & LegacyRenderOperation::VO_TEXTURE_COORDS) )
             {                
                 glClientActiveTextureARB(index + i);
 				if (glIsEnabled(GL_TEXTURE_2D))
@@ -913,22 +913,22 @@ namespace Ogre {
         GLint primType;
         switch (op.operationType)
         {
-        case RenderOperation::OT_POINT_LIST:
+        case LegacyRenderOperation::OT_POINT_LIST:
             primType = GL_POINTS;
             break;
-        case RenderOperation::OT_LINE_LIST:
+        case LegacyRenderOperation::OT_LINE_LIST:
             primType = GL_LINES;
             break;
-        case RenderOperation::OT_LINE_STRIP:
+        case LegacyRenderOperation::OT_LINE_STRIP:
             primType = GL_LINE_STRIP;
             break;
-        case RenderOperation::OT_TRIANGLE_LIST:
+        case LegacyRenderOperation::OT_TRIANGLE_LIST:
             primType = GL_TRIANGLES;
             break;
-        case RenderOperation::OT_TRIANGLE_STRIP:
+        case LegacyRenderOperation::OT_TRIANGLE_STRIP:
             primType = GL_TRIANGLE_STRIP;
             break;
-        case RenderOperation::OT_TRIANGLE_FAN:
+        case LegacyRenderOperation::OT_TRIANGLE_FAN:
             primType = GL_TRIANGLE_FAN;
             break;
         }
