@@ -292,6 +292,10 @@ SOURCE=..\src\OgreMaterialManager.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreMaterialSerializer.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreMath.cpp
 # End Source File
 # Begin Source File
@@ -817,6 +821,10 @@ SOURCE=..\include\OgreMaterial.h
 # Begin Source File
 
 SOURCE=..\include\OgreMaterialManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreMaterialSerializer.h
 # End Source File
 # Begin Source File
 

@@ -515,7 +515,7 @@ namespace Ogre {
         mDepthBias = bias;
     }
     //-----------------------------------------------------------------------
-    ushort Material::getDepthBias(void)
+    ushort Material::getDepthBias(void) const
     {
         return mDepthBias;
     }

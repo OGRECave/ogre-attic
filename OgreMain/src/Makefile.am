@@ -50,6 +50,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreLogManager.cpp \
                          OgreMaterial.cpp \
                          OgreMaterialManager.cpp \
+			 OgreMaterialSerializer.cpp \
                          OgreMath.cpp \
                          OgreMatrix3.cpp \
                          OgreMatrix4.cpp \
