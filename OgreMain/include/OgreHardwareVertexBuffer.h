@@ -400,7 +400,7 @@ namespace Ogre {
             rhsi = rhs.mElementList.begin();
             for (i = mElementList.begin(); i != iend && rhsi != rhsiend; ++i, ++rhsi)
             {
-                if ( !(i == rhsi) )
+                if ( !(*i == *rhsi) )
                     return false;
             }
 
