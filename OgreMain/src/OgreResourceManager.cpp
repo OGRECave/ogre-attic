@@ -214,7 +214,7 @@ namespace Ogre {
         // search common archives
         for (i = mCommonVFS.begin(); i != mCommonVFS.end(); ++i)
         {
-            vecFiles = (*i)->getAllNamesLike( "./", extension);
+            vecFiles = (*i)->getAllNamesLike( startPath, extension);
             for (StringVector::iterator si = vecFiles.begin(); si != vecFiles.end(); ++si)
             {
                 retFiles.insert(*si);
