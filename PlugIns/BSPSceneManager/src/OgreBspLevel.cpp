@@ -208,7 +208,7 @@ namespace Ogre {
         // To do this I actually need to parse the faces since they have the
         //  shader/lightmap combo (lightmap number is not in the shader since
         //  it can be used with multiple lightmaps)
-        char shaderName[72];
+        char shaderName[256];
         int face;
         face = q3lvl.mNumFaces;
         int matHandle;
@@ -337,6 +337,17 @@ namespace Ogre {
 
 
             }
+			else if (src->type == BSP_FACETYPE_MESH)
+			{
+				dest->fType = FGT_FACE_LIST;
+				// Assign plane
+				dest->plane.normal = Vector3(src->normal);
+				dest->plane.d = -dest->plane.normal.dotProduct(Vector3(src->org));                
+			}
+			else
+			{
+				LogManager::getSingleton().logMessage("!!! Unknown Face Type !!!", LML_CRITICAL);
+			}
 
 
         }
