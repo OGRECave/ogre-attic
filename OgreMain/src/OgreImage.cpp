@@ -227,7 +227,7 @@ namespace Ogre {
         m_uWidth = uWidth;
         m_uHeight = uHeight;
         m_eFormat = eFormat;
-        m_ucPixelSize = PF2PS( m_eFormat );
+        m_ucPixelSize = PixelUtil::getNumElemBytes( m_eFormat );
         m_uSize = m_uWidth * m_uHeight * m_ucPixelSize;
 
         m_pBuffer = pData;
@@ -248,7 +248,7 @@ namespace Ogre {
         m_uWidth = uWidth;
         m_uHeight = uHeight;
         m_eFormat = eFormat;
-        m_ucPixelSize = PF2PS( m_eFormat );
+        m_ucPixelSize = PixelUtil::getNumElemBytes( m_eFormat );
         m_uSize = m_uWidth * m_uHeight * m_ucPixelSize;
 
         if (m_uSize != stream->size())
@@ -308,7 +308,7 @@ namespace Ogre {
         m_uSize = pData->size;
         m_eFormat = pData->format;
         m_uNumMipmaps = pData->num_mipmaps;
-        m_ucPixelSize = PF2PS( m_eFormat );
+        m_ucPixelSize = PixelUtil::getNumElemBytes( m_eFormat );
         m_uFlags = pData->flags;
 
 		// re-use the decoded buffer
@@ -384,7 +384,7 @@ namespace Ogre {
         
         // Get the format and compute the pixel size
         m_eFormat = pData->format;
-        m_ucPixelSize = PF2PS( m_eFormat );
+        m_ucPixelSize = PixelUtil::getNumElemBytes( m_eFormat );
 		// Just use internal buffer of returned memory stream
         m_pBuffer = res.first->getPtr();
 		// Make sure stream does not delete
@@ -469,7 +469,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     bool Image::getHasAlpha(void) const
     {
-        return Image::formatHasAlpha(m_eFormat);
+        return PixelUtil::getFlags(m_eFormat) & PFF_HASALPHA;
     }
     //-----------------------------------------------------------------------------
     void Image::applyGamma( unsigned char *buffer, Real gamma, size_t size, uchar bpp )
@@ -565,8 +565,21 @@ namespace Ogre {
 	}
     
     //-----------------------------------------------------------------------------    
-    void Image::getColourAt(ColourValue *out, int x, int y, int z) {
+    void Image::getColourAt(ColourValue *out, int x, int y, int z) 
+    {
         PixelUtil::unpackColour(out, m_eFormat, &m_pBuffer[m_ucPixelSize * (z * m_uWidth * m_uHeight + m_uWidth * y + x)]);
+    }
+
+    PixelBox Image::getPixelBox(int mipmap) 
+    {
+        PixelBox src;
+        src.width = getWidth();
+        src.height = getHeight();
+        src.depth = 1;
+        src.format = getFormat();
+        src.data = getData();
+        src.setConsecutive();
+        return src;
     }
 
 }

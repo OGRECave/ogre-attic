@@ -132,91 +132,6 @@ namespace Ogre {
         */                 
         Image & flipAroundX();
 
-        /** @deprecated
-				Use getNumElemBytes instead.
-			@internal
-			@brief
-				Returns the pixel size  for a given PixelFormat
-            @param
-                eFormat the PixelFormat to get the pixel size for
-            @returns
-                the number of bytes per pixel of data
-        */
-        static uchar PF2PS( PixelFormat format )
-        {
-			return PixelUtil::getNumElemBytes( format );
-        }
-
-		/** Returns the size in bytes of an element of the given pixel format.
-			@returns
-				The size in bytes of an element. See Remarks.
-			@remarks
-				Passing PF_UNKNOWN will result in returning a size of 0 bytes while
-				passing an unregistered pixel format will result in returning a size
-				of 256 bytes.
-		*/
-		inline static uchar getNumElemBytes( PixelFormat format )
-		{
-            return PixelUtil::getNumElemBytes( format );
-		}
-
-        /** @deprecated
-				Use getNumElemBits instead.
-			@internal
-			@brief
-				Returns the BPP for a given PixelFormat
-            @param
-                eFormat the PixelFormat to get the BPP for
-            @returns
-                the number of bits per pixel of data
-        */
-        static uchar PF2BPP( PixelFormat format )
-        {
-            return PixelUtil::getNumElemBits( format );
-        }
-
-		/** Returns the size in bits of an element of the given pixel format.
-			@returns
-				The size in bits of an element. See Remarks.
-			@remarks
-				Passing PF_UNKNOWN will result in returning a size of 0 bits while
-				passing an unregistered pixel format will result in returning a size
-				of 256 bits.
-		*/
-		inline static uchar getNumElemBits( PixelFormat format )
-		{
-            return PixelUtil::getNumElemBits( format );
-		}
-
-        /** Returns the existance of an alpha component given a pixel format.
-          @returns
-               True when there is an alpha.
-           @remarks
-               Passing one of the DXT_ formats will return false as it is unknown
-               from the format alone in that case.
-        */
-        inline static bool formatHasAlpha(PixelFormat format) 
-        {
-            return (PixelUtil::getFlags( format ) & PFF_HASALPHA) > 0;
-        }
-
-        /** Returns wether a pixel format is floating point (at least not fixed point).
-          @returns
-               True when the format is floating point.
-        */
-        inline static bool formatIsFloat(PixelFormat format) 
-        {
-            return (PixelUtil::getFlags( format ) & PFF_FLOAT) > 0;
-        }
-
-		/** 
-		 * Returns number of bits (RGBA) for a format. For non-RGBA formats (dxt, depth, luminance)
-		 * this returns [0,0,0,0] in rgba.
-		 */
-		inline static void formatGetDepths(PixelFormat format, int rgba[4]) {
-            PixelUtil::getBitDepths( format, rgba );
-		}
-
         /** Stores a pointer to raw data in memory. The pixel format has to be specified.
             @remarks
                 This method loads an image into memory held in the object. The 
@@ -337,9 +252,15 @@ namespace Ogre {
         
         /**
          * Get colour value from a certain location in the image. The z coordinate
-         * is only valid for cubemaps and volume textures.
+         * is only valid for cubemaps and volume textures. This uses the first (largest)
+         * mipmap.
          */
         void getColourAt(ColourValue *out, int x, int y, int z);
+        
+        /**
+         * Get a PixelBox encapsulating the image data of a mipmap
+         */
+        PixelBox getPixelBox(int mipmap);
 
 		enum Filter
 		{

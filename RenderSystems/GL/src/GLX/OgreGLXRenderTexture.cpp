@@ -75,9 +75,9 @@ namespace Ogre
         // Attribs for glXChooseFBConfig
         // Get R,G,B,A depths
         int depths[4];
-        Image::formatGetDepths(mInternalFormat, depths);
+        PixelUtil::getBitDepths(mInternalFormat, depths);
         int renderType;
-        if(Image::formatIsFloat(mInternalFormat))
+        if(PixelUtil::getFlags(mInternalFormat) & PFF_FLOAT)
             renderType = GLX_RGBA_FLOAT_ATI_BIT; // GLX_RGBA_FLOAT_BIT
         else
             renderType = GLX_RGBA_BIT;
