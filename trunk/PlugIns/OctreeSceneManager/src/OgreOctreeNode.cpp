@@ -86,10 +86,7 @@ void OctreeNode::_updateBounds( void )
 
         mLocalAABB.merge( bx );
 
-        // Transform by aggregated transform
-        bx.transform( _getFullTransform() );
-
-        mWorldAABB.merge( bx );
+        mWorldAABB.merge( i->second ->getWorldBoundingBox(true) );
         ++i;
     }
 
