@@ -283,6 +283,8 @@ namespace Ogre {
 		pBackPanel->setHeight(mInsideObject->getHeight());
 		pBackPanel->setChildrenProcessEvents(false);
 		pBackPanel->addMouseListener(this);
+		pBackPanel->addMouseMotionListener(this);
+
 		addChild(pBackPanel);
 
 		mInsideObject->setCaption(r->getName());
@@ -295,6 +297,7 @@ namespace Ogre {
 		pBackPanel->addChild(mInsideObject);
 
 
+		layoutItems();
 
 
 		if (mSelectedElement == NULL)
@@ -304,9 +307,8 @@ namespace Ogre {
 		}
 		else
 		{
-		setSelectedItem(mInsideObject,false);
+			setSelectedItem(mInsideObject,false);
 		}
-		layoutItems();
 
 	}
 
@@ -407,37 +409,124 @@ namespace Ogre {
 
 
 
+	void ListGuiElement::setSelectedItem(GuiElement* item)
+	{
+		if (mSelectedElement)
+		{
+			setSelectedItem(mSelectedElement,false);
+		}
+
+		mSelectedElement = item;
+		setSelectedItem(mSelectedElement,true);
+		mScrollBar->scrollToIndex(getSelectedIndex());
+	}
+
+	void ListGuiElement::setSelectedIndex(int index)
+	{
+		if (mSelectedElement)
+		{
+			setSelectedItem(mSelectedElement,false);
+		}
+
+		if (index < 0)
+		{
+			index = 0;
+		}
+		else if (index > (int)getListSize())
+		{
+			index = getListSize();
+		}
+
+        ChildIterator it = getChildIterator();
+		int indexCount = 0;
+        while (it.hasMoreElements())
+        {
+            GuiElement* currentElement = it.getNext();
+			if (currentElement->getName() == mName + "/ScrollBar")
+			{
+				continue;
+			}
+			if (indexCount == index)
+			{
+				mSelectedElement = static_cast<GuiContainer*>(currentElement)->getChildIterator().getNext();
+				break;
+			}
+			indexCount++;
+        }
 
 
+		setSelectedItem(mSelectedElement,true);
+		mScrollBar->scrollToIndex(index);
+	}
 
 
 	void ListGuiElement::setSelectedItem(GuiElement* item, bool on)
 	{
-		if (on)
+		if (item != NULL)
 		{
-			item->getParent()->setMaterialName(mItemPanelMaterialSelected);
-		}
-		else
-		{
-			if (mItemPanelMaterial == "")
 
-
+			if (on)
 			{
-				// default to the list material
-				item->getParent()->setMaterialName(mMaterialName);
+				item->getParent()->setMaterialName(mItemPanelMaterialSelected);
 			}
 			else
 			{
-				item->getParent()->setMaterialName(mItemPanelMaterial);
+				if (mItemPanelMaterial == "")
 
+
+				{
+					// default to the list material
+					item->getParent()->setMaterialName(mMaterialName);
+				}
+				else
+				{
+					item->getParent()->setMaterialName(mItemPanelMaterial);
+
+
+				}
 
 			}
-
 		}
+
+	}
+	void ListGuiElement::mouseDragged(MouseEvent* e) 
+	{
+		// test to see if list should scroll up
+		if ((e->getY() < _getDerivedTop() )&& (mFirstVisibleItem > 0))
+		{
+			setSelectedIndex(mFirstVisibleItem-1);
+		}
+
+		// test to see if list should scroll down
+		if ((e->getY() > _getDerivedTop() + getHeight()) && (mFirstVisibleItem + mVisibleRange < getListSize()))
+		{
+			setSelectedIndex(mFirstVisibleItem+mVisibleRange+1);
+		}
+		else
+		{
+			GuiElement *dragTarget = findElementAt(e->getX(), e->getY());
+			if (dragTarget != NULL)
+			{
+				if ((dragTarget->getParent() == this) &&  // is the dragTarget a child of ListGui?
+					(dragTarget != mScrollBar) &&		  // ignore dragging onto the scrollbar
+					(dragTarget != mSelectedElement->getParent())) // is this list item not already selected
+
+				{
+					// drag target is a backpanel for a list item
+					// get the child of the backpanel (backpanel is a container).. there is only 1 child
+					setSelectedItem(static_cast<GuiContainer*>(dragTarget)->getChildIterator().getNext());
+
+
+				}
+			}
+		}
+	}
+	void ListGuiElement::mouseMoved(MouseEvent* e) 
+	{
+
 
 
 	}
-
 	void ListGuiElement::mousePressed(MouseEvent* e) 
 	{
 		if (mSelectedElement)
@@ -452,6 +541,13 @@ namespace Ogre {
 		// get the child of the backpanel.. there is only 1 child
 		mSelectedElement = backPanelSelected->getChildIterator().getNext();
 		setSelectedItem(mSelectedElement,true);
+	}
+
+	void ListGuiElement::setSelectedItem(Resource* r)
+	{
+		GuiContainer* backPanel = static_cast<GuiContainer*> (getChild(getListItemPanelName(r)));
+
+		setSelectedItem(backPanel->getChild(getListItemName(r)));
 	}
 
 	void ListGuiElement::setSelectedItem(Resource* r, bool on)
@@ -473,11 +569,34 @@ namespace Ogre {
 				if ((*i)->getName() == mSelectedElement->getCaption())
 				{
 					selectedResource = *i;
+					break;
 				}
 			}
 		}
         return selectedResource;
 	}
+
+	int ListGuiElement::getSelectedIndex()
+	{
+		int selectedIndex = -1;
+        ResourceList::iterator i;
+		if (mSelectedElement != NULL)
+		{
+
+			int currentIndex = 1;
+			for (i = mResourceList.begin(); i != mResourceList.end(); ++i, currentIndex++)
+			{
+				if ((*i)->getName() == mSelectedElement->getCaption())
+				{
+					selectedIndex = currentIndex;
+					break;
+				}
+			}
+		}
+        return selectedIndex;
+	}
+
+
 
 	ResourceListConstIterator ListGuiElement::getConstIterator()
 	{

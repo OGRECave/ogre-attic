@@ -56,7 +56,7 @@ namespace Ogre {
 	 * the <code>MouseEvent</code> is passed to it.
 	 *
 	 */
-	class _OgreGuiElementExport PopupMenuGuiElement : public PanelGuiElement, public ListSelectionTarget, public ListChanger, public GuiPressable
+	class _OgreGuiElementExport PopupMenuGuiElement : public PanelGuiElement, public ListSelectionTarget, public ListChanger, public GuiPressable, public MouseMotionListener
     {
 	public :
 //	    void addBaseParameters(void);
@@ -116,6 +116,7 @@ namespace Ogre {
 		Resource* getSelectedItem();
 
 		void setSelectedItem(Resource* r, bool on);
+		void setSelectedItem(Resource* r);
 		ResourceListConstIterator getConstIterator();
 		ResourceListConstIterator getConstEndIterator();
 		Resource* popFront() ;
@@ -123,8 +124,10 @@ namespace Ogre {
 
     protected:
 		void setSelectedItem(GuiElement* item, bool on);
+		void setSelectedItem(GuiElement* item);
 
-		void mouseMoved(InputEvent* e);
+		void mouseMoved(MouseEvent* e);
+		void mouseDragged(MouseEvent* e);
 		void mouseExited(void);
 		void mousePressed(void);
 		void mouseReleased(void);

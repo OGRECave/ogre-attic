@@ -56,7 +56,7 @@ namespace Ogre {
 	 *
 	 */
 
-	class _OgreGuiElementExport ListGuiElement : public PanelGuiElement, public ListSelectionTarget, public ListChanger, public ScrollListener, public MouseListener
+	class _OgreGuiElementExport ListGuiElement : public PanelGuiElement, public ListSelectionTarget, public ListChanger, public ScrollListener, public MouseListener, public MouseMotionListener
     {
 	public :
 //	    void addBaseParameters(void);
@@ -124,6 +124,9 @@ namespace Ogre {
 		void mouseExited(MouseEvent* e)  {};
 		void mousePressed(MouseEvent* e) ;
 		void mouseReleased(MouseEvent* e) {};
+		void mouseDragged(MouseEvent* e) ;
+		void mouseMoved(MouseEvent* e) ;
+		void setSelectedIndex(int index);
 
 		String getItemPanelMaterial();
 		String getItemPanelMaterialSelected();
@@ -136,7 +139,11 @@ namespace Ogre {
 		void scrollPerformed(ScrollEvent* se);
 
 		void setSelectedItem(Resource* r, bool on);
+		void setSelectedItem(Resource* r);
+
+
 		Resource* getSelectedItem();
+		int getSelectedIndex();
 
 		ResourceListConstIterator getConstIterator();
 		ResourceListConstIterator getConstEndIterator();
@@ -146,6 +153,7 @@ namespace Ogre {
 
     protected:
 		void setSelectedItem(GuiElement* item, bool on);
+		void setSelectedItem(GuiElement* item);
 
 	    void addBaseParameters(void);
 		String getListItemName(Resource* r);

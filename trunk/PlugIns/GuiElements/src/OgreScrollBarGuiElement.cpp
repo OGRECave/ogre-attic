@@ -192,8 +192,8 @@ namespace Ogre {
 		Real buttonHeight = (buttonWidth * 4.0F) / 3.0F;	// adjust for screen ratio
 		Real horzSpacing = mSpacing;
 		Real vertSpacing = (mSpacing * 4.0F) / 3.0F;
-    Real bitTop    = buttonHeight + vertSpacing;
-    Real bitHeight = getHeight() - (2 * bitTop);
+	    Real bitTop    = buttonHeight + vertSpacing;
+		Real bitHeight = getHeight() - (2 * bitTop);
 
 		mUpButton->setLeft(horzSpacing);
 		mUpButton->setTop(vertSpacing);
@@ -344,6 +344,21 @@ namespace Ogre {
 	{
 		mouseHeldAtY = -1;
 
+	}
+	void ScrollBarGuiElement::scrollToIndex(int index)
+	{
+		if (index >= mStartingItem + mVisibilityRange)
+		{
+			// scroll down
+			mStartingItem = index - mVisibilityRange;
+		}
+		else if (index < mStartingItem)
+		{
+			// scroll up
+			mStartingItem = index;
+		}
+		layoutItems();
+		fireScrollPerformed();
 	}
 
 	void ScrollBarGuiElement::moveScrollBitTo(Real moveY)
