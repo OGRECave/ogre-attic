@@ -5,3 +5,6 @@ noinst_PROGRAMS = EnvMapping
 EnvMapping_SOURCES = EnvMapping.cpp
 EnvMapping_LDFLAGS = -L$(top_srcdir)/OgreMain/src
 EnvMapping_LDADD = -lOgreMain
+
+install-exec-local:
+	$(INSTALL_PROGRAM) EnvMapping $(top_builddir)/Samples/Common/bin/Debug/EnvMapping

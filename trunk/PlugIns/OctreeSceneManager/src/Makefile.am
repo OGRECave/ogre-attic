@@ -10,3 +10,7 @@ OctreeSceneManager_so_SOURCES = OgreOctreeSceneManagerDll.cpp \
 
 
 OctreeSceneManager_so_LDFLAGS = -shared
+
+install-exec-local:
+	mkdir -m 755 -p $(pkglibdir)
+	$(INSTALL_DATA) OctreeSceneManager.so $(pkglibdir)/OctreeSceneManager.so

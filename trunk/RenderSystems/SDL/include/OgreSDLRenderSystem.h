@@ -65,6 +65,7 @@ namespace Ogre {
         // view matrix to set world against
         Matrix4 mViewMatrix;
         Matrix4 mWorldMatrix;
+        Matrix4 mTextureMatrix;
 
         // XXX 8 max texture units?
         int mTextureCoordIndex[OGRE_MAX_TEXTURE_COORD_SETS];

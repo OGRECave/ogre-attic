@@ -157,3 +157,28 @@ AC_DEFUN([AC_USE_STLPORT],
  AC_SUBST(STLPORT_CFLAGS)
  AC_SUBST(STLPORT_LIBS)
 ])
+
+AC_DEFUN([AC_GET_CONFIG_TOOLKIT],
+[OGRE_CFGTK=gtk
+ AC_ARG_WITH(cfgtk, 
+             AC_HELP_STRING([--with-cfgtk=TOOLKIT NAME],
+                            [the toolkit for the config gui]),
+             ac_cv_ogre_cfgtk=$withval,
+             ac_cv_ogre_cfgtk=gtk)
+ AC_CACHE_CHECK([what config gui toolkit to use], ac_cv_ogre_cfgtk,
+                ac_cv_ogre_cfgtk=gtk)
+
+ 
+  CFGTK_DEPS_CFLAGS=""
+  CFGTK_DEPS_LIBS=""
+
+  dnl Do the extra checks per type here
+  case $OGRE_CFGTK in 
+    gtk)
+      PKG_CHECK_MODULES(CFGTK_DEPS, gtkmm-2.0 libglademm-2.0);;
+  esac
+
+  AC_SUBST(CFGTK_DEPS_CFLAGS)
+  AC_SUBST(CFGTK_DEPS_LIBS)
+  AC_SUBST(OGRE_CFGTK)
+])

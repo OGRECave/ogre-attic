@@ -13,3 +13,7 @@ BSPSceneManager_so_SOURCES = OgreBspLevel.cpp \
 
 
 BSPSceneManager_so_LDFLAGS = -shared
+
+install-exec-local:
+	mkdir -m 755 -p $(pkglibdir)
+	$(INSTALL_DATA) BSPSceneManager.so $(pkglibdir)/BSPSceneManager.so
