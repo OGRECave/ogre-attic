@@ -677,6 +677,9 @@ namespace Ogre {
 	//---------------------------------------------------------------------
     void GLRenderSystem::_useLights(const LightList& lights, unsigned short limit)
     {
+		// Set nicer lighting model
+		glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
+		glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
 
         // Save previous modelview
         glMatrixMode(GL_MODELVIEW);
