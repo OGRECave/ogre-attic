@@ -6,9 +6,8 @@
 #include <algorithm>
 
 #include "OgreWin32GLSupport.h"
-
+#include "OgreGLTexture.h"
 #include "OgreWin32Window.h"
-#include "OgreWin32RenderTexture.h"
 
 #define HW_RTT
 
@@ -296,7 +295,8 @@ namespace Ogre {
 			return new GLRenderTexture(name, width, height, texType, format);
 	}
 
-	void Win32GLSupport::pushContext(HDC hdc, HGLRC hglrc) {
+	void Win32GLSupport::pushContext(HDC hdc, HGLRC hglrc) 
+	{
 		W32Context newCtx = W32Context(hdc, hglrc);
 		// We don't care what the outer context is
 		if(mContextStack.empty()) {
@@ -313,13 +313,15 @@ namespace Ogre {
 			mCurrentContext = newCtx;
 		}
 	}
-	void Win32GLSupport::popContext() {
+
+	void Win32GLSupport::popContext() 
+	{
 		// Push current ctx to stack
 		W32Context oldCtx = mContextStack.front();
 		mContextStack.pop_front();
-		// Check if mCurrentContext is not already equal to the old context, and that
-		// we don't change the context when going to the most context (so that it's still
-		// possible to change textures and hardware buffers)
+		// Check if mCurrentContext is not already equal to the old context, in which case
+		// do nothing. Also, see that we don't change the context to (0,0) when going to the most
+		// outer context (so that it's still possible to change textures and hardware buffers)
 		if(mCurrentContext != oldCtx && oldCtx.first!=0) {
 			wglMakeCurrent(oldCtx.first, oldCtx.second);
 			mCurrentContext = oldCtx;
