@@ -54,7 +54,7 @@ namespace Ogre {
         @param filename The name of the file to import, expected to be in XML format.
         @param pSkeleton The pre-created Skeleton object to be populated.
         */
-        Skeleton* importSkeleton(const String& filename, Skeleton* pSkeleton);
+        void importSkeleton(const String& filename, Skeleton* pSkeleton);
 
         /** Exports a skeleton to the named XML file. */
         void exportSkeleton(const Skeleton* pSkeleton, const String& filename);
@@ -67,11 +67,16 @@ namespace Ogre {
 
         void writeSkeleton(const Skeleton* pSkel);
         void writeBone(TiXmlElement* bonesElement, const Bone* pBone);
-        void writeBoneParent(TiXmlElement* boneHierarchyNode, unsigned short boneId, unsigned short parentId);
+        void writeBoneParent(TiXmlElement* boneHierarchyNode, String boneName , String parentName);
         void writeAnimation(TiXmlElement* animsNode, const Animation* anim);
         void writeAnimationTrack(TiXmlElement* tracksNode, const AnimationTrack* track);
         void writeKeyFrame(TiXmlElement* keysNode, const KeyFrame* key);
-
+		
+		void XMLSkeletonSerializer::readBones(Skeleton* skel, TiXmlElement* mBonesNode);
+		void XMLSkeletonSerializer::readBones2(Skeleton* skel, TiXmlElement* mBonesNode);
+		void createHierarchy(Skeleton* skel, TiXmlElement* mHierNode);
+		void XMLSkeletonSerializer::readKeyFrames(AnimationTrack* track, TiXmlElement* mKeyfNode);
+		void XMLSkeletonSerializer::readAnimations(Skeleton* skel, TiXmlElement* mAnimNode) ;
 
     };
 
