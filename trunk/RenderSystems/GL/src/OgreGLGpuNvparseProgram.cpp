@@ -39,6 +39,13 @@ GLGpuNvparseProgram::GLGpuNvparseProgram(const String& name, GpuProgramType gpty
     mProgramID = glGenLists(1);
 }
 
+void GLGpuNvparseProgram::bindProgram(void)
+{
+     glCallList(mProgramID);
+     glEnable(GL_TEXTURE_SHADER_NV);
+     glEnable(GL_REGISTER_COMBINERS_NV);
+}
+
 void GLGpuNvparseProgram::unload(void)
 {
     glDeleteLists(mProgramID,1);
