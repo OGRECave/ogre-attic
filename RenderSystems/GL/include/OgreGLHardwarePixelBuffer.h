@@ -68,7 +68,7 @@ namespace Ogre {
 			bool softwareMipmap);
 		
 		/// @copydoc HardwarePixelBuffer::blit
-		void blit(const Image::Box &srcBox, HardwarePixelBuffer *dst, const Image::Box &dstBox);
+		void blit(HardwarePixelBuffer *src, const Image::Box &srcBox, const Image::Box &dstBox);
 		
 		/// @copydoc HardwarePixelBuffer::blitFromMemory
 		void blitFromMemory(const PixelBox &src, const Image::Box &dstBox);

@@ -273,11 +273,11 @@ void GLHardwarePixelBuffer::download(PixelBox &data)
 	// TODO
 }
 //-----------------------------------------------------------------------------  
-void GLHardwarePixelBuffer::blit(const Image::Box &srcBox, HardwarePixelBuffer *dst, const Image::Box &dstBox)
+void GLHardwarePixelBuffer::blit(HardwarePixelBuffer *src, const Image::Box &srcBox, const Image::Box &dstBox)
 {
 	// TODO
-	// this can be speeded up with some copy pixels primitive
-	HardwarePixelBuffer::blit(srcBox, dst, dstBox);
+	// this can be speeded up with some copy pixels primitive, sometimes
+	HardwarePixelBuffer::blit(src, srcBox, dstBox);
 
 }
 //-----------------------------------------------------------------------------  

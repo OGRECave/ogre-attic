@@ -148,12 +148,13 @@ void D3D9HardwarePixelBuffer::unlockImpl(void)
 	}
 }
 //-----------------------------------------------------------------------------  
-void D3D9HardwarePixelBuffer::blit(const Image::Box &srcBox, HardwarePixelBuffer *dst, const Image::Box &dstBox)
+void D3D9HardwarePixelBuffer::blit(HardwarePixelBuffer *src, const Image::Box &srcBox, const Image::Box &dstBox)
 {
 	// TODO
 	// D3DXLoadSurfaceFromSurface
 	// D3DXLoadVolumeFromVolume
-	HardwarePixelBuffer::blit(srcBox, dst, dstBox);
+	HardwarePixelBuffer::blit(src, srcBox, dstBox);
+
 }
 //-----------------------------------------------------------------------------  
 void D3D9HardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::Box &dstBox)

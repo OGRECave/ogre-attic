@@ -63,7 +63,6 @@ namespace Ogre
     //-----------------------------------------------------------------------------    
     const PixelBox& HardwarePixelBuffer::lock(const Image::Box& lockBox, LockOptions options)
     {
-        void* ret;
         if (mUseShadowBuffer)
         {
             if (options != HBL_READ_ONLY)
@@ -103,29 +102,45 @@ namespace Ogre
 
     //-----------------------------------------------------------------------------    
 
-    void HardwarePixelBuffer::blit(const Image::Box &srcBox, HardwarePixelBuffer *dst, const Image::Box &dstBox)
+    void HardwarePixelBuffer::blit(HardwarePixelBuffer *src, const Image::Box &srcBox, const Image::Box &dstBox)
 	{
-		if(isLocked() || dst->isLocked())
+		if(isLocked() || src->isLocked())
 		{
 			Except(Exception::ERR_INTERNAL_ERROR,
 				"Source and destination buffer may not be locked!",
 				"HardwarePixelBuffer::blit");
 		}
-		const PixelBox &srclock = lock(srcBox, HBL_READ_ONLY);
+		if(src == this)
+		{
+			Except( Exception::ERR_INVALIDPARAMS,
+                "Source must not be the same object",
+                "HardwarePixelBuffer::blit" ) ;
+		}
+		const PixelBox &srclock = src->lock(srcBox, HBL_READ_ONLY);
 
 		LockOptions method = HBL_NORMAL;
 		if(dstBox.left == 0 && dstBox.top == 0 && dstBox.front == 0 &&
-		   dstBox.right == dst->mWidth && dstBox.bottom == dst->mHeight &&
-		   dstBox.back == dst->mDepth)
+		   dstBox.right == mWidth && dstBox.bottom == mHeight &&
+		   dstBox.back == mDepth)
 			// Entire buffer -- we can discard the previous contents
 			method = HBL_DISCARD;
 			
-		const PixelBox &dstlock = dst->lock(dstBox, method);
-
-		PixelUtil::bulkPixelConversion(srclock, dstlock);
+		const PixelBox &dstlock = lock(dstBox, method);
+		if(dstlock.getWidth() != srclock.getWidth() ||
+        	dstlock.getHeight() != srclock.getDepth() ||
+        	dstlock.getDepth() != srclock.getDepth())
+		{
+			// Scaling desired
+			Image::scale(srclock, dstlock);
+		}
+		else
+		{
+			// No scaling needed
+			PixelUtil::bulkPixelConversion(srclock, dstlock);
+		}
 
 		unlock();
-		dst->unlock();
+		src->unlock();
 	}
 
 
