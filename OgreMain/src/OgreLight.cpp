@@ -46,9 +46,11 @@ namespace Ogre {
         mAttenuationQuad = 0.0f;
 
         // Center in world, direction irrelevant but set anyway
-        mPosition = Vector3::ZERO;
-        mDirection = Vector3::UNIT_Z;
+        mPosition = mDerivedPosition = Vector3::ZERO;
+        mDirection = mDerivedPosition = Vector3::UNIT_Z;
         mParentNode = NULL;
+
+        mLocalTransformDirty = false;
 
     }
     //-----------------------------------------------------------------------
@@ -103,12 +105,14 @@ namespace Ogre {
         mPosition.x = x;
         mPosition.y = y;
         mPosition.z = z;
+        mLocalTransformDirty = true;
 
     }
     //-----------------------------------------------------------------------
     void Light::setPosition(const Vector3& vec)
     {
         mPosition = vec;
+        mLocalTransformDirty = true;
     }
     //-----------------------------------------------------------------------
     const Vector3& Light::getPosition(void) const
@@ -121,11 +125,13 @@ namespace Ogre {
         mDirection.x = x;
         mDirection.y = y;
         mDirection.z = z;
+        mLocalTransformDirty = true;
     }
     //-----------------------------------------------------------------------
     void Light::setDirection(const Vector3& vec)
     {
         mDirection = vec;
+        mLocalTransformDirty = true;
     }
     //-----------------------------------------------------------------------
     const Vector3& Light::getDirection(void) const
@@ -229,7 +235,8 @@ namespace Ogre {
         if (mParentNode)
         {
             if (!(mParentNode->_getDerivedOrientation() == mLastParentOrientation &&
-                mParentNode->_getDerivedPosition() == mLastParentPosition))
+                mParentNode->_getDerivedPosition() == mLastParentPosition)
+                || mLocalTransformDirty)
             {
                 // Ok, we're out of date with SceneNode we're attached to
                 mLastParentOrientation = mParentNode->_getDerivedOrientation();
@@ -243,6 +250,8 @@ namespace Ogre {
             mDerivedPosition = mPosition;
             mDerivedDirection = mDirection;
         }
+
+        mLocalTransformDirty = false;
 
     }
     //-----------------------------------------------------------------------
