@@ -16,7 +16,6 @@
 #include "OgreGLATIFSInit.h"
 #include "OgreGLPrerequisites.h"
 
-
 // ATI_fragment_program functions
 PFNGLGENFRAGMENTSHADERSATIPROC        glGenFragmentShadersATI_ptr=NULL;
 PFNGLBINDFRAGMENTSHADERATIPROC        glBindFragmentShaderATI_ptr=NULL;
@@ -32,7 +31,6 @@ PFNGLALPHAFRAGMENTOP1ATIPROC          glAlphaFragmentOp1ATI_ptr=NULL;
 PFNGLALPHAFRAGMENTOP2ATIPROC          glAlphaFragmentOp2ATI_ptr=NULL;
 PFNGLALPHAFRAGMENTOP3ATIPROC          glAlphaFragmentOp3ATI_ptr=NULL;
 PFNGLSETFRAGMENTSHADERCONSTANTATIPROC glSetFragmentShaderConstantATI_ptr=NULL;
-
 
 bool InitATIFragmentShaderExtensions(Ogre::GLSupport& glSupport)
 {

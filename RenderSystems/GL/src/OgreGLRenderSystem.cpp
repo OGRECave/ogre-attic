@@ -76,6 +76,7 @@ GL_CombinerInputNV_Func glCombinerInputNV_ptr;
 GL_CombinerOutputNV_Func glCombinerOutputNV_ptr;
 GL_FinalCombinerInputNV_Func glFinalCombinerInputNV_ptr;
 GL_TrackMatrixNV_Func glTrackMatrixNV_ptr;
+PFNGLCOMPRESSEDTEXIMAGE2DARBPROC glCompressedTexImage2DARB_ptr;
 
 namespace Ogre {
 
@@ -457,6 +458,8 @@ namespace Ogre {
             (GL_FinalCombinerInputNV_Func)mGLSupport->getProcAddress("glFinalCombinerInputNV");
         glTrackMatrixNV_ptr = 
             (GL_TrackMatrixNV_Func)mGLSupport->getProcAddress("glTrackMatrixNV");
+        glCompressedTexImage2DARB_ptr =
+            (PFNGLCOMPRESSEDTEXIMAGE2DARBPROC)mGLSupport->getProcAddress("glCompressedTexImage2DARB");
         InitATIFragmentShaderExtensions(*mGLSupport);
 
         mCapabilities->log(LogManager::getSingleton().getDefaultLog());

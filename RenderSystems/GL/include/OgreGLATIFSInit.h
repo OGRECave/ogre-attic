@@ -19,6 +19,22 @@
 
 #include "OgreGLSupport.h"
 
+// ATI_fragment_program functions
+extern PFNGLGENFRAGMENTSHADERSATIPROC        glGenFragmentShadersATI_ptr;
+extern PFNGLBINDFRAGMENTSHADERATIPROC        glBindFragmentShaderATI_ptr;
+extern PFNGLDELETEFRAGMENTSHADERATIPROC      glDeleteFragmentShaderATI_ptr;
+extern PFNGLBEGINFRAGMENTSHADERATIPROC       glBeginFragmentShaderATI_ptr;
+extern PFNGLENDFRAGMENTSHADERATIPROC         glEndFragmentShaderATI_ptr;
+extern PFNGLPASSTEXCOORDATIPROC              glPassTexCoordATI_ptr;
+extern PFNGLSAMPLEMAPATIPROC                 glSampleMapATI_ptr;
+extern PFNGLCOLORFRAGMENTOP1ATIPROC          glColorFragmentOp1ATI_ptr;
+extern PFNGLCOLORFRAGMENTOP2ATIPROC          glColorFragmentOp2ATI_ptr;
+extern PFNGLCOLORFRAGMENTOP3ATIPROC          glColorFragmentOp3ATI_ptr;
+extern PFNGLALPHAFRAGMENTOP1ATIPROC          glAlphaFragmentOp1ATI_ptr;
+extern PFNGLALPHAFRAGMENTOP2ATIPROC          glAlphaFragmentOp2ATI_ptr;
+extern PFNGLALPHAFRAGMENTOP3ATIPROC          glAlphaFragmentOp3ATI_ptr;
+extern PFNGLSETFRAGMENTSHADERCONSTANTATIPROC glSetFragmentShaderConstantATI_ptr;
+
 bool InitATIFragmentShaderExtensions(Ogre::GLSupport& glSupport);
 
 #endif	//_GL_ATI_FRAGMENT_SHADER_H_
