@@ -36,7 +36,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
-				AdditionalDependencies="OgreMain.lib dxguid.lib ddraw.lib d3dx.lib zlib.lib libpng.lib jpeglib.lib"
+				AdditionalDependencies="OgreMain.lib"
 				OutputFile="$(OutDir)/Plugin_ParticleFX.dll"
 				Version="0.99"
 				LinkIncremental="2"
@@ -100,7 +100,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
-				AdditionalDependencies="OgreMain.lib zlib.lib libpng.lib jpeglib.lib"
+				AdditionalDependencies="OgreMain.lib"
 				OutputFile="$(OutDir)/Plugin_ParticleFX.dll"
 				Version="0.99"
 				LinkIncremental="1"
