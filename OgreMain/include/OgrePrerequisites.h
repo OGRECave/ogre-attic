@@ -129,6 +129,7 @@ namespace Ogre {
     typedef unsigned char uchar;
     typedef unsigned short ushort;
     typedef unsigned int uint;  
+	typedef unsigned int ulong;  
 
     /// Useful macros
     #define OGRE_DELETE(p)       { if(p) { delete (p);     (p)=NULL; } }
