@@ -345,6 +345,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "MilkshapeExport"=.\Tools\MilkshapeExport\scripts\MilkshapeExport.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "OgreMain"=.\OgreMain\scripts\OgreMain.dsp - Package Owner=<4>
 
 Package=<5>
