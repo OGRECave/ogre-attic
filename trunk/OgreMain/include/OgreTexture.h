@@ -49,8 +49,8 @@ namespace Ogre {
 		/// this texture will be a render target, ie. used as a target for render to texture
 		/// setting this flag will ignore all other texture usages except TU_AUTOMIPMAP
 		TU_RENDERTARGET = 0x200,
-		// default to automatic mipmap generation static textures
-		TU_DEFAULT = TU_AUTOMIPMAP | TU_STATIC
+		/// default to automatic mipmap generation static textures
+		TU_DEFAULT = TU_AUTOMIPMAP | TU_STATIC_WRITE_ONLY
         
     };
 
@@ -141,14 +141,19 @@ namespace Ogre {
 
         /** Returns the TextureUsage indentifier for this Texture
         */
-        TextureUsage getUsage() const
+        int getUsage() const
         {
             return mUsage;
         }
 
         /** Sets the TextureUsage indentifier for this Texture; only useful before load()
+			
+			@param u is a combination of TU_STATIC, TU_DYNAMIC, TU_WRITE_ONLY, TU_DISCARDABLE, 
+				TU_AUTOMIPMAP and TU_RENDERTARGET (see TextureUsage enum). You are
+            	strongly advised to use HBU_STATIC_WRITE_ONLY wherever possible, if you need to 
+            	update regularly, consider HBU_DYNAMIC_WRITE_ONLY.
         */
-        void setUsage(TextureUsage u) { mUsage = u; }
+        void setUsage(int u) { mUsage = u; }
 
         /** Creates the internal texture resources for this texture. 
         @remarks
@@ -245,7 +250,7 @@ namespace Ogre {
 
         TextureType mTextureType;
 		PixelFormat mFormat;
-        TextureUsage mUsage;
+        int mUsage; // Bit field, so this can't be TextureUsage
 
         unsigned short mSrcBpp;
         unsigned long mSrcWidth, mSrcHeight;
