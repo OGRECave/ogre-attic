@@ -411,7 +411,7 @@ namespace Ogre {
         // Find it to remove from list
         RenderWindowMap::iterator i = mRenderWindows.begin();
 
-        while (i->second != pWin && i != mRenderWindows.end())
+        while (i != mRenderWindows.end())
         {
             if (i->second == pWin)
             {
