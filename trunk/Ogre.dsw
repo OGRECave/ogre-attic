@@ -534,6 +534,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "Demo_Smoke"=.\Samples\Smoke\scripts\Demo_Smoke.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "Demo_Terrain"=.\Samples\Terrain\scripts\Demo_Terrain.dsp - Package Owner=<4>
 
 Package=<5>

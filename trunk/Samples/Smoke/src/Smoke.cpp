@@ -22,47 +22,41 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#include "OgreBoxEmitter.h"
-#include "OgreParticle.h"
-#include "OgreException.h"
-#include "OgreStringConverter.h"
+/*
+-----------------------------------------------------------------------------
+Filename:    envmap.cpp
+Description: Shows OGRE's environment mapping feature as well as the
+             blending modes available when using multiple texture layers
+-----------------------------------------------------------------------------
+*/
+
+#include "Ogre.h"
+#include "Smoke.h"
+
+#if OGRE_PLATFORM == PLATFORM_WIN32
+#define WIN32_LEAN_AND_MEAN
+#include "windows.h"
 
 
+INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
+#else
+int main(int argc, char **argv)
+#endif
+{
+    // Create application object
+    ParticleApplication app;
 
-namespace Ogre {
-
-
-    //-----------------------------------------------------------------------
-    BoxEmitter::BoxEmitter()
-    {
-        initDefaults("Box");
-    }
-    //-----------------------------------------------------------------------
-    void BoxEmitter::_initParticle(Particle* pParticle)
-    {
-        Vector3 xOff, yOff, zOff;
-
-        // Call superclass
-        ParticleEmitter::_initParticle(pParticle);
-
-        xOff = Math::SymmetricRandom() * mXRange;
-        yOff = Math::SymmetricRandom() * mYRange;
-        zOff = Math::SymmetricRandom() * mZRange;
-
-        pParticle->mPosition = mPosition + xOff + yOff + zOff;
-        
-
-        // Generate complex data by reference
-        genEmissionColour(pParticle->mColour);
-        genEmissionDirection(pParticle->mDirection);
-        genEmissionVelocity(pParticle->mDirection);
-
-        // Generate simpler data
-        pParticle->mTimeToLive = pParticle->mTotalTimeToLive = genEmissionTTL();
-        
+    try {
+        app.go();
+    } catch( Exception& e ) {
+#if OGRE_PLATFORM == PLATFORM_WIN32
+        MessageBox( NULL, e.getFullDescription().c_str(), "An exception has occured!", MB_OK | MB_ICONERROR | MB_TASKMODAL);
+#else
+        fprintf(stderr, "An exception has occured: %s\n",
+                e.getFullDescription().c_str());
+#endif
     }
 
 
+    return 0;
 }
-
-

@@ -36,7 +36,8 @@ namespace Ogre {
 		mPosition(Vector3::ZERO),
         mDirection(Vector3::ZERO),        
         mParentSet(0),
-        mColour(ColourValue::White)
+        mColour(ColourValue::White),
+		mRotation(0)
     {
     }
     //-----------------------------------------------------------------------
@@ -52,6 +53,16 @@ namespace Ogre {
         mColour = colour;
     }
     //-----------------------------------------------------------------------
+	Real Billboard::getRotation(void) const
+	{
+		return mRotation * Math::fRad2Deg;
+    }
+    //-----------------------------------------------------------------------
+    void Billboard::setRotation(Real rotation)
+    {
+		mRotation = rotation * Math::fDeg2Rad;
+    }
+	//-----------------------------------------------------------------------
     void Billboard::setPosition(const Vector3& position)
     {
         mPosition = position;

@@ -202,7 +202,7 @@ namespace Ogre {
         @param pBillboard Pointer to billboard
         @returns new vertex index
         */
-        inline void genVertices(Real **pPos, RGBA** pCol, const Vector3* offsets, const Billboard* pBillboard);
+        inline void genVertices(Real **pPos, RGBA** pCol, Real **pTex, const Vector3* offsets, const Billboard* pBillboard);
 
         /** Internal method generates vertex offsets.
         @remarks

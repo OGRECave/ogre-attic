@@ -5,6 +5,10 @@ noinst_HEADERS =OgreAreaEmitter.h \
                 OgreColourFaderAffector2.h \
                 OgreColourFaderAffectorFactory.h \
                 OgreColourFaderAffectorFactory2.h \
+				OgreColourImageAffector.h \
+				OgreColourImageAffectorFactory.h \
+				OgreColourInterpolatorAffector.h \
+				OgreColourInterpolatorAffectorFactory.h \
                 OgreCylinderEmitter.h \
                 OgreCylinderEmitterFactory.h \
                 OgreEllipsoidEmitter.h \
@@ -18,5 +22,7 @@ noinst_HEADERS =OgreAreaEmitter.h \
                 OgrePointEmitterFactory.h \
                 OgreRingEmitter.h \
                 OgreRingEmitterFactory.h \
+				OgreRotationAffector.h \
+				OgreRotationAffectorFactory.h \
 				OgreScaleAffector.h \
 				OgreScaleAffectorFactory.h 

@@ -22,47 +22,32 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#include "OgreBoxEmitter.h"
-#include "OgreParticle.h"
-#include "OgreException.h"
-#include "OgreStringConverter.h"
+#ifndef __ColourImageAffectorFactory_H__
+#define __ColourImageAffectorFactory_H__
 
-
+#include "OgreParticleFXPrerequisites.h"
+#include "OgreParticleAffectorFactory.h"
+#include "OgreColourImageAffector.h"
 
 namespace Ogre {
 
-
-    //-----------------------------------------------------------------------
-    BoxEmitter::BoxEmitter()
+    /** Factory class for ColourImageAffector. */
+    class _OgreParticleFXExport ColourImageAffectorFactory : public ParticleAffectorFactory
     {
-        initDefaults("Box");
-    }
-    //-----------------------------------------------------------------------
-    void BoxEmitter::_initParticle(Particle* pParticle)
-    {
-        Vector3 xOff, yOff, zOff;
+        /** See ParticleAffectorFactory */
+        String getName() { return "ColourImage"; }
 
-        // Call superclass
-        ParticleEmitter::_initParticle(pParticle);
-
-        xOff = Math::SymmetricRandom() * mXRange;
-        yOff = Math::SymmetricRandom() * mYRange;
-        zOff = Math::SymmetricRandom() * mZRange;
-
-        pParticle->mPosition = mPosition + xOff + yOff + zOff;
-        
-
-        // Generate complex data by reference
-        genEmissionColour(pParticle->mColour);
-        genEmissionDirection(pParticle->mDirection);
-        genEmissionVelocity(pParticle->mDirection);
-
-        // Generate simpler data
-        pParticle->mTimeToLive = pParticle->mTotalTimeToLive = genEmissionTTL();
-        
-    }
+        /** See ParticleAffectorFactory */
+        ParticleAffector* createAffector(void)
+        {
+            ParticleAffector* p = new ColourImageAffector();
+            mAffectors.push_back(p);
+            return p;
+        }
+    };
 
 
 }
 
+#endif
 

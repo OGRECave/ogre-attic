@@ -22,44 +22,56 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#ifndef __Particle_H__
-#define __Particle_H__
+#ifndef __ColourImageAffector_H__
+#define __ColourImageAffector_H__
 
-#include "OgrePrerequisites.h"
-#include "OgreBillboard.h"
+#include "OgreParticleFXPrerequisites.h"
+#include "OgreParticleAffector.h"
+#include "OgreStringInterface.h"
+#include "OgreColourValue.h"
+#include "OgreImage.h"
 
 namespace Ogre {
 
-    class _OgreExport Particle : public Billboard
+
+    class _OgreParticleFXExport ColourImageAffector : public ParticleAffector
     {
-    protected:
-        
     public:
-        // Note the intentional public access to internal variables
-        // Accessing via get/set would be too costly for 000's of particles
-
-        // Current direction: now derived
-        /// Time to live, number of seconds left of particles natural life
-        Real mTimeToLive;
-        /// Total Time to live, number of seconds of particles natural life
-        Real mTotalTimeToLive;
-		/// Speed of rotation in radians
-		Real mRotationSpeed;
-
-
-        Particle()
-        : mTotalTimeToLive(10), mTimeToLive(10), mRotationSpeed(0)
+		/** Command object for red adjust (see ParamCommand).*/
+        class CmdImageAdjust : public ParamCommand
         {
-        }
+		public:
+			int		mIndex;
 
-		Real getRotationSpeed(void) const { return mRotationSpeed; }
-		void setRotationSpeed(Real rotation) { mRotationSpeed = rotation; } 
+		public:
+            String doGet(void* target);
+            void doSet(void* target, const String& val);
+        };
 
+        /** Default constructor. */
+        ColourImageAffector();
 
+        /** See ParticleAffector. */
+		void _initParticle(Particle* pParticle);
 
+        /** See ParticleAffector. */
+        void _affectParticles(ParticleSystem* pSystem, Real timeElapsed);
+
+		void setImageAdjust(String name);
+		String getImageAdjust(void);
         
+        
+        static CmdImageAdjust	msImageCmd;
+
+    protected:
+        Image					mColourImage;
+		String					mColourImageName;
+
     };
+
+
 }
+
 
 #endif
 
