@@ -94,6 +94,23 @@ namespace Ogre {
             _OgreExport bool operator()(const Light* a, const Light* b) const;
         };
 
+        /// Describes the stage of rendering when performing complex illumination
+        enum IlluminationRenderStage
+        {
+            /// No special illumination stage
+            IRS_NONE,
+            /// Ambient stage, when background light is added
+            IRS_AMBIENT,
+            /// Diffuse / specular stage, when individual light contributions are added
+            IRS_PER_LIGHT,
+            /// Decal stage, when texture detail is added to the lit base
+            IRS_DECAL,
+            /// Render to texture stage, used for texture based shadows
+            IRS_RENDER_TO_TEXTURE,
+            /// Modulative render from shadow texture stage
+            IRS_RENDER_MODULATIVE_PASS
+        };
+
     protected:
 
         /// Queue of objects for rendering
@@ -183,8 +200,6 @@ namespace Ogre {
                 pass The Pass details to set.
         */
         void setPass(Pass* pass);
-        /// Shadow render override pass - forces use of simpler pass details
-        bool mForceShadowCasterPass;
         /// A pass designed to let us render black on white for texture shadows
         Pass* mShadowCasterPlainBlackPass;
         /** Internal method for turning a regular pass into a shadow caster pass.
@@ -279,7 +294,7 @@ namespace Ogre {
 		size_t mShadowIndexBufferSize;
         Rectangle2D* mFullScreenQuad;
         Real mShadowDirLightExtrudeDist;
-        IlluminationStage mIlluminationStage;
+        IlluminationRenderStage mIlluminationStage;
 
         /** Internal method for locating a list of lights which could be affecting the frustum. 
         @remarks

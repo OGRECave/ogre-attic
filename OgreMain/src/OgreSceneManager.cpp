@@ -102,11 +102,10 @@ namespace Ogre {
         mShadowCasterSphereQuery = 0;
         mShadowCasterAABBQuery = 0;
         mShadowDirLightExtrudeDist = 10000;
-        mIlluminationStage = IS_NONE;
+        mIlluminationStage = IRS_NONE;
         mShadowFarDist = 0;
         mShadowFarDistSquared = 0;
 		mShadowIndexBufferSize = 51200;
-        mForceShadowCasterPass = false;
 
 
 		// init render queues that do not need shadows
@@ -540,7 +539,7 @@ namespace Ogre {
 		static bool lastUsedVertexProgram = false;
 		static bool lastUsedFragmentProgram = false;
 
-        if (mForceShadowCasterPass)
+        if (mIlluminationStage == IRS_RENDER_TO_TEXTURE)
         {
             // Derive a special shadow caster pass from this one
             pass = deriveShadowCasterPass(pass);
@@ -672,8 +671,6 @@ namespace Ogre {
         Root::getSingleton()._setCurrentSceneManager(this);
 		// Prep Pass for use in debug shadows
 		initShadowVolumeMaterials();
-        // init lighting stage
-        mIlluminationStage = IS_NONE;
 
         mCameraInProgress = camera;
         mCamChanged = true;
@@ -1264,14 +1261,14 @@ namespace Ogre {
             lightList.clear();
 
             // Render all the ambient passes first, no light iteration, no lights
-            mIlluminationStage = IS_AMBIENT;
+            mIlluminationStage = IRS_AMBIENT;
             renderObjects(pPriorityGrp->_getSolidPasses(), false, &lightList);
             // Also render any objects which have receive shadows disabled
             renderObjects(pPriorityGrp->_getSolidPassesNoShadow(), true);
 
 
             // Now iterate per light
-            mIlluminationStage = IS_PER_LIGHT;
+            mIlluminationStage = IRS_PER_LIGHT;
 
             // Iterate over lights, render all volumes to stencil
             LightList::const_iterator li, liend;
@@ -1307,11 +1304,28 @@ namespace Ogre {
 
             }// for each light
 
+
             // Now render decal passes, no need to set lights as lighting will be disabled
+            mIlluminationStage = IRS_DECAL;
             renderObjects(pPriorityGrp->_getSolidPassesDecal(), false);
 
 
         }// for each priority
+
+        // reset lighting stage
+        mIlluminationStage = IRS_NONE;
+
+        // Iterate again - variable name changed to appease gcc.
+        RenderQueueGroup::PriorityMapIterator groupIt2 = pGroup->getIterator();
+        while (groupIt2.hasMoreElements())
+        {
+            RenderPriorityGroup* pPriorityGrp = groupIt2.getNext();
+
+            // Do transparents
+            renderObjects(pPriorityGrp->_getTransparentPasses(), true);
+
+        }// for each priority
+
 
 	}
 	//-----------------------------------------------------------------------
@@ -1381,7 +1395,7 @@ namespace Ogre {
 
 		// Iterate again - variable name changed to appease gcc.
         RenderQueueGroup::PriorityMapIterator groupIt3 = pGroup->getIterator();
-		while (groupIt2.hasMoreElements())
+		while (groupIt3.hasMoreElements())
 		{
 			RenderPriorityGroup* pPriorityGrp = groupIt3.getNext();
 
@@ -1401,9 +1415,9 @@ namespace Ogre {
 		ipassend = objs.end();
 		for (ipass = objs.begin(); ipass != ipassend; ++ipass)
 		{
-            // Fast bypass if we're forcing a texture shadow render and 
+            // Fast bypass if we're doing a texture shadow render and 
             // this pass is after the first (only 1 pass needed for shadow texture)
-            if (mForceShadowCasterPass && ipass->first->getIndex() > 0)
+            if (mIlluminationStage == IRS_RENDER_TO_TEXTURE && ipass->first->getIndex() > 0)
                 continue;
 			// Fast bypass if this group is now empty
 			if (ipass->second->empty()) continue;
@@ -2504,20 +2518,30 @@ namespace Ogre {
     //---------------------------------------------------------------------
     Pass* SceneManager::deriveShadowCasterPass(Pass* pass)
     {
-        if (pass->hasVertexProgram())
+        switch (mShadowTechnique)
         {
-            // Have to merge the vertex program in
-            mShadowCasterPlainBlackPass->setVertexProgram(
-                pass->getVertexProgramName());
-            // Also have to hack the light autoparams, that is done later
-        }
-        else if (mShadowCasterPlainBlackPass->hasVertexProgram())
-        {
-            // reset
-            mShadowCasterPlainBlackPass->setVertexProgram("");
+        case SHADOWTYPE_TEXTURE_MODULATIVE:
+            if (pass->hasVertexProgram())
+            {
+                // Have to merge the vertex program in
+                mShadowCasterPlainBlackPass->setVertexProgram(
+                    pass->getVertexProgramName());
+                // Also have to hack the light autoparams, that is done later
+            }
+            else if (mShadowCasterPlainBlackPass->hasVertexProgram())
+            {
+                // reset
+                mShadowCasterPlainBlackPass->setVertexProgram("");
 
-        }
-        return mShadowCasterPlainBlackPass;
+            }
+            return mShadowCasterPlainBlackPass;
+        case SHADOWTYPE_TEXTURE_SHADOWMAP:
+            // todo
+            return pass;
+        default:
+            return pass;
+        };
+
     }
     //---------------------------------------------------------------------
     void SceneManager::renderShadowVolumesToStencil(const Light* light, const Camera* camera)
