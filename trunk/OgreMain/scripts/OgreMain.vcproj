@@ -843,9 +843,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreImageCodec.h">
 			</File>
 			<File
-				RelativePath="..\include\OgreImageHelpers.h">
-			</File>
-			<File
 				RelativePath="..\include\OgreInput.h">
 			</File>
 			<File
@@ -1120,6 +1117,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreSphere.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreSpotShadowFadePng.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreStableHeaders.h">
