@@ -1639,6 +1639,7 @@ WINGDIAPI void APIENTRY glDrawArrays (GLenum mode, GLint first, GLsizei count);
 WINGDIAPI void APIENTRY glDrawBuffer (GLenum mode);
 WINGDIAPI void APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum type, const GLvoid *indices);
 WINGDIAPI void APIENTRY glDrawPixels (GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels);
+WINGDIAPI void APIENTRY glDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices );
 WINGDIAPI void APIENTRY glEdgeFlag (GLboolean flag);
 WINGDIAPI void APIENTRY glEdgeFlagPointer (GLsizei stride, const GLboolean *pointer);
 WINGDIAPI void APIENTRY glEdgeFlagv (const GLboolean *flag);
