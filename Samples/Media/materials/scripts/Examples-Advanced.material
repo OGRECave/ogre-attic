@@ -50,12 +50,14 @@ material Examples/OgreCelShading/Eyes
 				texture cel_shading_specular.png 1d
 				tex_address_mode clamp
 				filtering none
+				tex_coord_set 1
 			}
 			texture_unit
 			{
 				texture cel_shading_edge.png 1d
 				tex_address_mode clamp
 				filtering none
+				tex_coord_set 2
 			}
 		}
 	}
@@ -88,12 +90,14 @@ material Examples/OgreCelShading/Skin
 				texture cel_shading_specular.png 1d
 				tex_address_mode clamp
 				filtering none
+				tex_coord_set 1
 			}
 			texture_unit
 			{
 				texture cel_shading_edge.png 1d
 				tex_address_mode clamp
 				filtering none
+				tex_coord_set 2
 			}
 			
 		}
@@ -126,12 +130,14 @@ material Examples/OgreCelShading/Teeth
 				texture cel_shading_specular.png 1d
 				tex_address_mode clamp
 				filtering none
+				tex_coord_set 1
 			}
 			texture_unit
 			{
 				texture cel_shading_edge.png 1d
 				tex_address_mode clamp
 				filtering none
+				tex_coord_set 2
 			}
 			
 		}
@@ -165,12 +171,14 @@ material Examples/OgreCelShading/Earring
 				texture cel_shading_specular.png 1d
 				tex_address_mode clamp
 				filtering none
+				tex_coord_set 1
 			}
 			texture_unit
 			{
 				texture cel_shading_edge.png 1d
 				tex_address_mode clamp
 				filtering none
+				tex_coord_set 2
 			}
 		}
 	}
