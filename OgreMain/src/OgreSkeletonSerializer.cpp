@@ -318,11 +318,11 @@ namespace Ogre {
 
         // Vector3 position                 : position of this bone relative to parent 
         Vector3 pos;
-        readObject(stream, &pos);
+        readObject(stream, pos);
         pBone->setPosition(pos);
         // Quaternion orientation           : orientation of this bone relative to parent 
         Quaternion q;
-        readObject(stream, &q);
+        readObject(stream, q);
         pBone->setOrientation(q);
     }
     //---------------------------------------------------------------------
@@ -432,17 +432,17 @@ namespace Ogre {
 
         // Quaternion rotate            : Rotation to apply at this keyframe
         Quaternion rot;
-        readObject(stream, &rot);
+        readObject(stream, rot);
         kf->setRotation(rot);
         // Vector3 translate            : Translation to apply at this keyframe
         Vector3 trans;
-        readObject(stream, &trans);
+        readObject(stream, trans);
         kf->setTranslate(trans);
         // Do we have scale?
         if (mCurrentstreamLen == calcKeyFrameSize(pSkel, kf))
         {
             Vector3 scale;
-            readObject(stream, &scale);
+            readObject(stream, scale);
             kf->setScale(scale);
         }
     }
