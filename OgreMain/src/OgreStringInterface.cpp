@@ -30,6 +30,18 @@ namespace Ogre {
     ParamDictionaryMap StringInterface::msDictionary;
 
 
+    const ParameterList& StringInterface::getParameters(void) const
+    {
+        static ParameterList emptyList;
+
+        const ParamDictionary* dict = getParamDictionary();
+        if (dict)
+            return dict->getParameters();
+        else
+            return emptyList;
+
+    };
+
     bool StringInterface::setParameter(const String& name, const String& value)
     {
         // Get dictionary

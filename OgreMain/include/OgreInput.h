@@ -29,12 +29,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-//    typedef HashMap<int, char> KeyChars;
-    typedef std::map<long, char> KeyChars;
-
-    inline long KEYCODE(long keyCode, long modifiers = 0)
-      { return ((modifiers << 16) & 0xffff0000) | (keyCode & 0xffff); }
-
     /** Keyboard scan codes - copied from DirectInput for now for speed.
     */
     enum KeyCode
@@ -320,8 +314,6 @@ namespace Ogre {
             and what key modifiers are down (e.g. shift/alt). */
 		long mModifiers;
 
-//		static KeyChars sKeyChars;
-		static bool sKeysInitialised;
 		/** Internal Cursor object. 
             @remarks
                 This is a mathematical representation of where the cursor is, it does 
@@ -357,8 +349,8 @@ namespace Ogre {
 
 		void createKeyEvent(int id, int key);
 		void keyChanged(int key, bool down);
-		void setupKeyChars();
-        /** Return whether a key is down in immediate mode. */
+		
+		/** Return whether a key is down in immediate mode. */
         virtual bool isKeyDownImmediate( KeyCode kc ) const = 0;
     };
 

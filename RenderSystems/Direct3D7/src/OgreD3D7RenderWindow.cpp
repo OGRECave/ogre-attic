@@ -215,8 +215,39 @@ namespace Ogre {
         // TODO: deal with child windows
         mParentHWnd = parentHWnd;
 
+		DWORD dwStyle = (fullScreen ? WS_POPUP : WS_OVERLAPPEDWINDOW) | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+		RECT rc;
 
-        // Register the window class
+		mWidth = width;
+		mHeight = height;
+
+		if (!fullScreen)
+		{
+			// Calculate window dimensions required to get the requested client area
+			SetRect(&rc, 0, 0, mWidth, mHeight);
+			AdjustWindowRect(&rc, dwStyle, false);
+			mWidth = rc.right - rc.left;
+			mHeight = rc.bottom - rc.top;
+
+			// Clamp width and height to the desktop dimensions
+			if (mWidth > (unsigned)GetSystemMetrics(SM_CXSCREEN))
+				mWidth = (unsigned)GetSystemMetrics(SM_CXSCREEN);
+			if (mHeight > (unsigned)GetSystemMetrics(SM_CYSCREEN))
+				mHeight = (unsigned)GetSystemMetrics(SM_CYSCREEN);
+
+			if (!left)
+				mLeft = (GetSystemMetrics(SM_CXSCREEN) / 2) - (mWidth / 2);
+			else
+				mLeft = left;
+			if (!top)
+				mTop = (GetSystemMetrics(SM_CYSCREEN) / 2) - (mHeight / 2);
+			else
+				mTop = top;
+		}
+		else
+			mTop = mLeft = 0;
+
+		// Register the window class
         // NB Allow 4 bytes of window data for D3D7RenderWindow pointer
         WNDCLASS wndClass = { CS_HREDRAW | CS_VREDRAW, WndProc, 0, 4, hInst,
                               LoadIcon( NULL, IDI_APPLICATION ),
@@ -229,15 +260,12 @@ namespace Ogre {
         // Pass pointer to self
         HWND hWnd = CreateWindow( TEXT(name.c_str()),
                                   TEXT(name.c_str()),
-                                  WS_OVERLAPPEDWINDOW, left, top,
-                                  width, height, 0L, 0L, hInst, this );
-		if (!fullScreen)
-		{
-			RECT rc;
-			GetClientRect(hWnd,&rc);
-			mWidth = rc.right;
-			mHeight = rc.bottom;
-		}
+                                  dwStyle, mLeft, mTop,
+                                  mWidth, mHeight, 0L, 0L, hInst, this );
+
+		GetClientRect(hWnd,&rc);
+		mWidth = rc.right;
+		mHeight = rc.bottom;
 
 		ShowWindow( hWnd, SW_SHOWNORMAL );
         UpdateWindow( hWnd );

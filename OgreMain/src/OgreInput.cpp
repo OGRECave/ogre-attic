@@ -33,9 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 
 namespace Ogre {
-	static KeyChars sKeyChars;
-	bool InputReader::sKeysInitialised = false;
-    //-----------------------------------------------------------------------
+	//-----------------------------------------------------------------------
     InputReader::InputReader()
     {
 		mCursor = 0;
@@ -43,12 +41,7 @@ namespace Ogre {
 		mEventQueue = 0;
 		mUseBufferedKeys = false;
 		mUseBufferedMouse = false;
-		if (!sKeysInitialised)
-		{
-			setupKeyChars();
-			sKeysInitialised = true;
-		}
-    }
+	}
 
     //-----------------------------------------------------------------------
     void InputReader::useBufferedInput(EventQueue* pEventQueue, bool keys, bool mouse) 
@@ -233,138 +226,138 @@ namespace Ogre {
             mBufferedKeysDown.erase(static_cast<KeyCode>(key));
 		}
 	}
-
-
+	
+	//-----------------------------------------------------------------------
 	char InputReader::getKeyChar(int keyCode, long modifiers)
 	{
-		char c = 0;
-
-        KeyChars::iterator i = sKeyChars.find(KEYCODE(keyCode, modifiers));
-        if (i != sKeyChars.end())
-            c = i->second;
-		return c;
-	}
-
-	void InputReader::setupKeyChars()
-	{
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_1),              '1') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_2),              '2') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_3),              '3') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_4),              '4') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_5),              '5') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_6),              '6') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_7),              '7') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_8),              '8') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_9),              '9') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_0),              '0') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_MINUS),          '-') );/* - on main keyboard */
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_EQUALS),         '=') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_Q),              'q') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_W),              'w') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_E),              'e') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_R),              'r') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_T),              't') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_Y),              'y') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_U),              'u') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_I),              'i') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_O),              'o') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_P),              'p') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_LBRACKET),       '[') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_RBRACKET),       ']') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_A),              'a') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_S),              's') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_D),              'd') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_F),              'f') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_G),              'g') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_H),              'h') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_J),              'j') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_K),              'k') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_L),              'l') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_SEMICOLON),      ';') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_APOSTROPHE),     '\'') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_GRAVE),          '`') );  /* accent grave */
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_BACKSLASH),      '\\') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_Z),              'z') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_X),              'x') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_C),              'c') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_V),              'v') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_B),              'b') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_N),              'n') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_M),              'm') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_COMMA),          ',') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_PERIOD),         '.') );  /* . on main keyboard */
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_SLASH),          '/') );  /* '/' on main keyboard */
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_MULTIPLY),       '*') );  /* * on numeric keypad */
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_SPACE),          ' ') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_NUMPAD7),        '7') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_NUMPAD8),        '8') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_NUMPAD9),        '9') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_SUBTRACT),       '-') );  /* - on numeric keypad */
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_NUMPAD4),        '4') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_NUMPAD5),        '5') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_NUMPAD6),        '6') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_ADD),            '+') );  /* + on numeric keypad */
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_NUMPAD1),        '1') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_NUMPAD2),        '2') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_NUMPAD3),        '3') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_NUMPAD0),        '0') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_DECIMAL),        '.') );  /* . on numeric keypad */
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_NUMPADEQUALS),   '=') );  /* = on numeric keypad (NEC PC98) */
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_AT),             '@') );  /*                     (NEC PC98) */
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_COLON),          ':') );  /*                     (NEC PC98) */
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_UNDERLINE),      '_') );  /*                     (NEC PC98) */
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_NUMPADCOMMA),    ',') );  /* , on numeric keypad (NEC PC98) */
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_DIVIDE),         '/') );  /* / on numeric keypad */
-
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_1,            InputEvent::SHIFT_MASK), '!') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_2,            InputEvent::SHIFT_MASK), '@') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_3,            InputEvent::SHIFT_MASK), '#') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_4,            InputEvent::SHIFT_MASK), '$') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_5,            InputEvent::SHIFT_MASK), '%') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_6,            InputEvent::SHIFT_MASK), '^') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_7,            InputEvent::SHIFT_MASK), '&') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_8,            InputEvent::SHIFT_MASK), '*') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_9,            InputEvent::SHIFT_MASK), '(') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_0,            InputEvent::SHIFT_MASK), ')') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_MINUS,        InputEvent::SHIFT_MASK), '_') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_EQUALS,       InputEvent::SHIFT_MASK), '+') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_Q,            InputEvent::SHIFT_MASK), 'Q') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_W,            InputEvent::SHIFT_MASK), 'W') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_E,            InputEvent::SHIFT_MASK), 'E') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_R,            InputEvent::SHIFT_MASK), 'R') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_T,            InputEvent::SHIFT_MASK), 'T') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_Y,            InputEvent::SHIFT_MASK), 'Y') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_U,            InputEvent::SHIFT_MASK), 'U') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_I,            InputEvent::SHIFT_MASK), 'I') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_O,            InputEvent::SHIFT_MASK), 'O') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_P,            InputEvent::SHIFT_MASK), 'P') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_LBRACKET,     InputEvent::SHIFT_MASK), '{') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_RBRACKET,     InputEvent::SHIFT_MASK), '}') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_A,            InputEvent::SHIFT_MASK), 'A') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_S,            InputEvent::SHIFT_MASK), 'S') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_D,            InputEvent::SHIFT_MASK), 'D') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_F,            InputEvent::SHIFT_MASK), 'F') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_G,            InputEvent::SHIFT_MASK), 'G') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_H,            InputEvent::SHIFT_MASK), 'H') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_J,            InputEvent::SHIFT_MASK), 'J') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_K,            InputEvent::SHIFT_MASK), 'K') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_L,            InputEvent::SHIFT_MASK), 'L') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_SEMICOLON,    InputEvent::SHIFT_MASK), ':') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_APOSTROPHE,   InputEvent::SHIFT_MASK), '"') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_GRAVE,        InputEvent::SHIFT_MASK), '~') );  /* accent grave */
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_BACKSLASH,    InputEvent::SHIFT_MASK), '|') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_Z,            InputEvent::SHIFT_MASK), 'Z') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_X,            InputEvent::SHIFT_MASK), 'X') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_C,            InputEvent::SHIFT_MASK), 'C') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_V,            InputEvent::SHIFT_MASK), 'V') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_B,            InputEvent::SHIFT_MASK), 'B') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_N,            InputEvent::SHIFT_MASK), 'N') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_M,            InputEvent::SHIFT_MASK), 'M') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_COMMA,        InputEvent::SHIFT_MASK), '<') );
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_PERIOD,       InputEvent::SHIFT_MASK), '>') );  /* . on main keyboard */
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_SLASH,        InputEvent::SHIFT_MASK), '?') );  /* '/' on main keyboard */
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_MULTIPLY,     InputEvent::SHIFT_MASK), '*') );  /* * on numeric keypad */
-        sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_SPACE,        InputEvent::SHIFT_MASK), ' ') );
+		if (modifiers == 0)
+		{
+			switch (keyCode) {
+			case KC_1: return '1';
+			case KC_2: return '2';
+			case KC_3: return '3';
+			case KC_4: return '4';
+			case KC_5: return '5';
+			case KC_6: return '6';
+			case KC_7: return '7';
+			case KC_8: return '8';
+			case KC_9: return '9';
+			case KC_0: return '0';
+			case KC_MINUS: return '-';			/* - on main keyboard */
+			case KC_EQUALS: return '=';
+			case KC_Q: return 'q';
+			case KC_W: return 'w';
+			case KC_E: return 'e';
+			case KC_R: return 'r';
+			case KC_T: return 't';
+			case KC_Y: return 'y';
+			case KC_U: return 'u';
+			case KC_I: return 'i';
+			case KC_O: return 'o';
+			case KC_P: return 'p';
+			case KC_LBRACKET: return '[';
+			case KC_RBRACKET: return ']';
+			case KC_A: return 'a';
+			case KC_S: return 's';
+			case KC_D: return 'd';
+			case KC_F: return 'f';
+			case KC_G: return 'g';
+			case KC_H: return 'h';
+			case KC_J: return 'j';
+			case KC_K: return 'k';
+			case KC_L: return 'l';
+			case KC_SEMICOLON: return ';';
+			case KC_APOSTROPHE: return '\'';
+			case KC_GRAVE: return '`';			/* accent grave */
+			case KC_BACKSLASH: return '\\';
+			case KC_Z: return 'z';
+			case KC_X: return 'x';
+			case KC_C: return 'c';
+			case KC_V: return 'v';
+			case KC_B: return 'b';
+			case KC_N: return 'n';
+			case KC_M: return 'm';
+			case KC_COMMA: return ',';
+			case KC_PERIOD: return '.';			/* . on main keyboard */
+			case KC_SLASH: return '/';			/* '/' on main keyboard */
+			case KC_MULTIPLY: return '*';		/* * on numeric keypad */
+			case KC_SPACE: return ' ';
+			case KC_NUMPAD7: return '7';
+			case KC_NUMPAD8: return '8';
+			case KC_NUMPAD9: return '9';
+			case KC_SUBTRACT: return '-';		/* - on numeric keypad */
+			case KC_NUMPAD4: return '4';
+			case KC_NUMPAD5: return '5';
+			case KC_NUMPAD6: return '6';
+			case KC_ADD: return '+';			/* + on numeric keypad */
+			case KC_NUMPAD1: return '1';
+			case KC_NUMPAD2: return '2';
+			case KC_NUMPAD3: return '3';
+			case KC_NUMPAD0: return '0';
+			case KC_DECIMAL: return '.';		/* . on numeric keypad */
+			case KC_NUMPADEQUALS: return '=';	/* = on numeric keypad (NEC PC98) */
+			case KC_AT: return '@';				/*                     (NEC PC98) */
+			case KC_COLON: return ':';			/*                     (NEC PC98) */
+			case KC_UNDERLINE: return '_';		/*                     (NEC PC98) */
+			case KC_NUMPADCOMMA: return ',';	/* , on numeric keypad (NEC PC98) */
+			case KC_DIVIDE: return '/';			/* / on numeric keypad */
+			}
+		}
+		else if (modifiers == InputEvent::SHIFT_MASK)
+		{
+			switch (keyCode) {
+			case KC_1: return '!';
+			case KC_2: return '@';
+			case KC_3: return '#';
+			case KC_4: return '$';
+			case KC_5: return '%';
+			case KC_6: return '^';
+			case KC_7: return '&';
+			case KC_8: return '*';
+			case KC_9: return '(';
+			case KC_0: return ')';
+			case KC_MINUS: return '_';
+			case KC_EQUALS: return '+';
+			case KC_Q: return 'Q';
+			case KC_W: return 'W';
+			case KC_E: return 'E';
+			case KC_R: return 'R';
+			case KC_T: return 'T';
+			case KC_Y: return 'Y';
+			case KC_U: return 'U';
+			case KC_I: return 'I';
+			case KC_O: return 'O';
+			case KC_P: return 'P';
+			case KC_LBRACKET: return '{';
+			case KC_RBRACKET: return '}';
+			case KC_A: return 'A';
+			case KC_S: return 'S';
+			case KC_D: return 'D';
+			case KC_F: return 'F';
+			case KC_G: return 'G';
+			case KC_H: return 'H';
+			case KC_J: return 'J';
+			case KC_K: return 'K';
+			case KC_L: return 'L';
+			case KC_SEMICOLON: return ':';
+			case KC_APOSTROPHE: return '"';
+			case KC_GRAVE: return '~';			/* accent grave */
+			case KC_BACKSLASH: return '|';
+			case KC_Z: return 'Z';
+			case KC_X: return 'X';
+			case KC_C: return 'C';
+			case KC_V: return 'V';
+			case KC_B: return 'B';
+			case KC_N: return 'N';
+			case KC_M: return 'M';
+			case KC_COMMA: return '<';
+			case KC_PERIOD: return '>';			/* . on main keyboard */
+			case KC_SLASH: return '?';			/* '/' on main keyboard */
+			case KC_MULTIPLY: return '*';		/* * on numeric keypad */
+			case KC_SPACE: return ' ';
+			}
+		}
+		return 0;  
     }
     //-----------------------------------------------------------------------
     bool InputReader::isKeyDown( KeyCode kc ) const

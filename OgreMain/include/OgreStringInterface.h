@@ -222,17 +222,7 @@ namespace Ogre {
             A reference to a static list of ParameterDef objects.
 
         */
-        const ParameterList& getParameters(void) const
-        {
-            static ParameterList emptyList;
-
-            const ParamDictionary* dict = getParamDictionary();
-            if (dict)
-                return dict->getParameters();
-            else
-                return emptyList;
-
-        };
+        const ParameterList& getParameters(void) const;
 
         /** Generic parameter setting method.
         @remarks
