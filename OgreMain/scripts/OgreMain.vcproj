@@ -214,6 +214,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreCursor.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreDataStream.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreDefaultHardwareBufferManager.cpp">
 			</File>
 			<File

@@ -212,7 +212,6 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
-#define DECOMPRESS_CHUNK_SIZE 128
     //-----------------------------------------------------------------------
     ZipDataStream::ZipDataStream(ZZIP_FILE* zzipFile, size_t uncompressedSize)
         : mZzipFile(zzipFile), mUncompressedSize(uncompressedSize)
@@ -229,37 +228,38 @@ namespace Ogre {
         return zzip_file_read(mZzipFile, (char*)buf, count);
     }
     //-----------------------------------------------------------------------
-    size_t ZipDataStream::readLine(unsigned char* buf, size_t maxCount, const String& delim)
+    size_t ZipDataStream::readLine(char* buf, size_t maxCount, const String& delim)
     {
         // read in chunks
-		static char tmpChunk[DECOMPRESS_CHUNK_SIZE+1];
-		size_t chunkSize = std::min(maxCount, (size_t)DECOMPRESS_CHUNK_SIZE);
+		size_t chunkSize = std::min(maxCount, (size_t)OGRE_STREAM_TEMP_SIZE-1);
 		size_t totalCount = 0;
 		size_t readCount; 
-		while (chunkSize && (readCount = zzip_file_read(mZzipFile, tmpChunk, chunkSize)))
+		while (chunkSize && (readCount = zzip_file_read(mZzipFile, mTmpArea, chunkSize)))
 		{
 			// Terminate
-			tmpChunk[chunkSize] = '\0';
+			mTmpArea[readCount] = '\0';
 			// Find first delimiter
-			size_t pos = strcspn(tmpChunk, delim.c_str());
+			size_t pos = strcspn(mTmpArea, delim.c_str());
 
 			if (pos > 0)
 			{
 				// Are we genuinely copying?
 				if (buf)
 				{
-					memcpy(buf, (const void*)tmpChunk, pos);
+					memcpy(buf, (const void*)mTmpArea, pos);
 				}
 				totalCount += pos;
 			}
 
-			if (pos < chunkSize)
+			if (pos < readCount)
 			{
-				// found terminator, break out
+				// found terminator
+                // reposition backwards
+                zzip_seek(mZzipFile, pos - readCount + 1, SEEK_CUR);
 				break;
 			}
 			// Adjust chunkSize for next time
-			chunkSize = std::min(maxCount-totalCount, (size_t)DECOMPRESS_CHUNK_SIZE);
+			chunkSize = std::min(maxCount-totalCount, (size_t)OGRE_STREAM_TEMP_SIZE-1);
 			
 		}
 		return totalCount;
@@ -268,7 +268,7 @@ namespace Ogre {
     size_t ZipDataStream::skipLine(const String& delim)
     {
 		// Re-use readLine, but don't copy data
-		unsigned char* nullBuf = 0;
+		char* nullBuf = 0;
         return readLine(nullBuf, 1024, delim);
     }
     //-----------------------------------------------------------------------

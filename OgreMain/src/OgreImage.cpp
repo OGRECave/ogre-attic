@@ -313,8 +313,8 @@ namespace Ogre {
 
 		// re-use the decoded buffer
         m_pBuffer = res.first->getPtr();
-		// ensure we don't delete when stream is destroyed
-		res.first->setFreeOnDestroy(false);
+		// ensure we don't delete when stream is closed
+		res.first->setFreeOnClose(false);
         
         OgreUnguardRet( *this );
     }
@@ -388,7 +388,7 @@ namespace Ogre {
 		// Just use internal buffer of returned memory stream
         m_pBuffer = res.first->getPtr();
 		// Make sure stream does not delete
-		res.first->setFreeOnDestroy(false);
+		res.first->setFreeOnClose(false);
 
         OgreUnguardRet( *this );
     }

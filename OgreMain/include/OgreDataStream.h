@@ -58,28 +58,19 @@ namespace Ogre {
 		String mName;		
         /// Size of the data in the stream (may be 0 if size cannot be determined)
         size_t mSize;
+        #define OGRE_STREAM_TEMP_SIZE 128
+        /// Temporary buffer area used for formatted read
+        char mTmpArea[OGRE_STREAM_TEMP_SIZE];
 	public:
 		/// Constructor for creating unnamed streams
-		DataStream() {}
+        DataStream() {}
 		/// Constructor for creating named streams
 		DataStream(const String& name) : mName(name) {}
 		/// Returns the name of the stream, if it has one.
 		const String& getName(void) { return mName; }
 		virtual ~DataStream() { close(); }
 		// Streaming operators
-		virtual DataStream& operator>>(char& val);
-		virtual DataStream& operator>>(unsigned char& val);
-		virtual DataStream& operator>>(bool& val);
-		virtual DataStream& operator>>(short& val);
-		virtual DataStream& operator>>(unsigned short& val);
-		virtual DataStream& operator>>(int& val);
-		virtual DataStream& operator>>(unsigned int& val);
-		virtual DataStream& operator>>(long& val);
-		virtual DataStream& operator>>(unsigned long& val);
-		virtual DataStream& operator>>(float& val);
-		virtual DataStream& operator>>(double& val);
-		virtual DataStream& operator>>(long double& val);
-		virtual DataStream& operator>>(void* val);
+        template<typename T> DataStream& operator>>(T& val);
 		/** Read the requisite number of bytes from the stream, 
 			stopping at the end of the file.
 		@param buf Reference to a buffer pointer
@@ -91,16 +82,14 @@ namespace Ogre {
 		@remarks
 			The delimiter character is not included in the data
 			returned, and it is skipped over so the next read will occur
-			after it. Similarly, the buffer contents do not include any
-			terminating character, so you must add one if that's what you 
-			need (e.g. turning this into a String, although if that's what
-			you want you'd be best to use the alternative method getLine)
+			after it. The buffer contents will include a
+			terminating character.
 		@param buf Reference to a buffer pointer
-		@param maxCount The maximum length of data to be read
+		@param maxCount The maximum length of data to be read, excluding the terminating character
 		@param delim The delimiter to stop at
-		@returns The number of bytes read
+		@returns The number of bytes read, excluding the terminating character
 		*/
-		virtual size_t readLine(unsigned char* buf, size_t maxCount, const String& delim = "\n") = 0;
+		virtual size_t readLine(char* buf, size_t maxCount, const String& delim = "\n") = 0;
 		
 	    /** Returns a String containing the next line of data, optionally 
 		    trimmed for whitespace. 
@@ -165,30 +154,33 @@ namespace Ogre {
 	class _OgreExport MemoryDataStream : public DataStream
 	{
 	protected:
+        /// Pointer to the start of the data area
 	    uchar* mData;
+        /// Pointer to the current position in the memory
 	    uchar* mPos;
+        /// Pointer to the end of the memory
 	    uchar* mEnd;
-	    size_t mSize;
-		bool mFreeOnDestroy;			
+        /// Do we delete the memory on close
+		bool mFreeOnClose;			
 	public:
 		
 		/** Wrap an existing memory chunk in a stream.
 		@param pMem Pointer to the exising memory
 		@param size The size of the memory chunk in bytes
-		@param freeOnDestroy If true, the memory associated will be destroyed
+		@param freeOnClose If true, the memory associated will be destroyed
 			when the stream is destroyed.
 		*/
-		MemoryDataStream(void* pMem, size_t size, bool freeOnDestroy = false);
+		MemoryDataStream(void* pMem, size_t size, bool freeOnClose = false);
 		
 		/** Wrap an existing memory chunk in a named stream.
 		@param name The name to give the stream
 		@param pMem Pointer to the exising memory
 		@param size The size of the memory chunk in bytes
-		@param freeOnDestroy If true, the memory associated will be destroyed
+		@param freeOnClose If true, the memory associated will be destroyed
 			when the stream is destroyed.
 		*/
 		MemoryDataStream(const String& name, void* pMem, size_t size, 
-				bool freeOnDestroy = false);
+				bool freeOnClose = false);
 
 		/** Create a stream which pre-buffers the contents of another stream.
 		@remarks
@@ -197,11 +189,11 @@ namespace Ogre {
 			and thus making them available in memory as a single unit.
 		@param sourceStream Another DataStream which will provide the source
 			of data
-		@param freeOnDestroy If true, the memory associated will be destroyed
+		@param freeOnClose If true, the memory associated will be destroyed
 			when the stream is destroyed.
 		*/
 		MemoryDataStream(DataStream& sourceStream, 
-				bool freeOnDestroy = true);
+				bool freeOnClose = true);
 		
 		/** Create a stream which pre-buffers the contents of another stream.
 		@remarks
@@ -210,11 +202,11 @@ namespace Ogre {
 			and thus making them available in memory as a single unit.
 		@param sourceStream Weak reference to another DataStream which will provide the source
 			of data
-		@param freeOnDestroy If true, the memory associated will be destroyed
+		@param freeOnClose If true, the memory associated will be destroyed
 			when the stream is destroyed.
 		*/
 		MemoryDataStream(DataStreamPtr& sourceStream, 
-				bool freeOnDestroy = true);
+				bool freeOnClose = true);
 
 		/** Create a named stream which pre-buffers the contents of 
 			another stream.
@@ -225,26 +217,41 @@ namespace Ogre {
 		@param name The name to give the stream
 		@param sourceStream Another DataStream which will provide the source
 			of data
-		@param freeOnDestroy If true, the memory associated will be destroyed
+		@param freeOnClose If true, the memory associated will be destroyed
 			when the stream is destroyed.
 		*/
-		MemoryDataStream(const String& name, const DataStream& sourceStream, 
-				bool freeOnDestroy = true);
+		MemoryDataStream(const String& name, DataStream& sourceStream, 
+				bool freeOnClose = true);
 
-		/** Create a stream with a brand new empty memory chunk.
+        /** Create a named stream which pre-buffers the contents of 
+        another stream.
+        @remarks
+        This constructor can be used to intentionally read in the entire
+        contents of another stream, copying them to the internal buffer
+        and thus making them available in memory as a single unit.
+        @param name The name to give the stream
+        @param sourceStream Another DataStream which will provide the source
+        of data
+        @param freeOnClose If true, the memory associated will be destroyed
+        when the stream is destroyed.
+        */
+        MemoryDataStream(const String& name, const DataStreamPtr& sourceStream, 
+            bool freeOnClose = true);
+
+        /** Create a stream with a brand new empty memory chunk.
 		@param size The size of the memory chunk to create in bytes
-		@param freeOnDestroy If true, the memory associated will be destroyed
+		@param freeOnClose If true, the memory associated will be destroyed
 			when the stream is destroyed.
 		*/
-		MemoryDataStream(size_t size, bool freeOnDestroy = true);
+		MemoryDataStream(size_t size, bool freeOnClose = true);
 		/** Create a named stream with a brand new empty memory chunk.
 		@param name The name to give the stream
 		@param size The size of the memory chunk to create in bytes
-		@param freeOnDestroy If true, the memory associated will be destroyed
+		@param freeOnClose If true, the memory associated will be destroyed
 			when the stream is destroyed.
 		*/
 		MemoryDataStream(const String& name, size_t size, 
-				bool freeOnDestroy = true);
+				bool freeOnClose = true);
 
 		~MemoryDataStream();
 
@@ -259,7 +266,7 @@ namespace Ogre {
 		size_t read(void* buf, size_t count);
 		/** @copydoc DataStream::readLine
 		*/
-		size_t readLine(unsigned char* buf, size_t maxCount, const String& delim = "\n");
+		size_t readLine(char* buf, size_t maxCount, const String& delim = "\n");
 		
 		/** @copydoc DataStream::skipLine
 		*/
@@ -281,8 +288,8 @@ namespace Ogre {
         */
         void close(void);
 
-		/** Sets whether or not to free the encapsulated memory on destroy. */
-		void setFreeOnDestroy(bool free) { mFreeOnDestroy = free; }
+		/** Sets whether or not to free the encapsulated memory on close. */
+		void setFreeOnClose(bool free) { mFreeOnClose = free; }
 	};
 
     /** Shared pointer to allow memory data streams to be passed around without
@@ -297,25 +304,25 @@ namespace Ogre {
 	{
 	protected:
 		/// Reference to source stream
-		const std::ifstream* mpStream;
-        bool mFreeOnDestroy;			
+		std::ifstream* mpStream;
+        bool mFreeOnClose;			
 	public:
 		/** Construct stream from an STL stream
-        @param istream Pointer to source stream
-        @param freeOnDestroy Whether to delete the underlying stream on 
+        @param s Pointer to source stream
+        @param freeOnClose Whether to delete the underlying stream on 
             destruction of this class
         */
-		FileStreamDataStream(std::ifstream* istream, 
-            bool freeOnDestroy = true);
+		FileStreamDataStream(std::ifstream* s, 
+            bool freeOnClose = true);
 		/** Construct named stream from an STL stream
         @param name The name to give this stream
-        @param istream Pointer to source stream
-        @param freeOnDestroy Whether to delete the underlying stream on 
+        @param s Pointer to source stream
+        @param freeOnClose Whether to delete the underlying stream on 
             destruction of this class
         */
 		FileStreamDataStream(const String& name, 
-            const std::ifstream* istream, 
-            bool freeOnDestroy = true);
+            std::ifstream* s, 
+            bool freeOnClose = true);
 
 		/** Construct named stream from an STL stream, and tell it the size
         @remarks
@@ -324,15 +331,15 @@ namespace Ogre {
             to determine the size up-front. This can be beneficial if you have
             metadata about the contents of the stream already.
         @param name The name to give this stream
-        @param istream Pointer to source stream
+        @param s Pointer to source stream
         @param size Size of the stream contents in bytes
-        @param freeOnDestroy Whether to delete the underlying stream on 
+        @param freeOnClose Whether to delete the underlying stream on 
             destruction of this class
         */
 		FileStreamDataStream(const String& name, 
-            std::ifstream* istream, 
+            std::ifstream* s, 
             size_t size, 
-            bool freeOnDestroy = true);
+            bool freeOnClose = true);
 
         ~FileStreamDataStream();
 
@@ -341,7 +348,7 @@ namespace Ogre {
 		size_t read(void* buf, size_t count);
 		/** @copydoc DataStream::readLine
 		*/
-	  size_t readLine(unsigned char* buf, size_t maxCount, const String& delim = "\n");
+        size_t readLine(char* buf, size_t maxCount, const String& delim = "\n");
 		
 		/** @copydoc DataStream::skipLine
 		*/
@@ -368,6 +375,12 @@ namespace Ogre {
 
 	/** Common subclass of DataStream for handling data from C-style file 
 		handles.
+    @remarks
+        Use of this class is generally discouraged; if you want to wrap file
+        access in a DataStream, you should definitely be using the C++ friendly
+        FileStreamDataStream. However, since there are quite a few applications
+        and libraries still wedded to the old FILE handle access, this stream
+        wrapper provides some backwards compatibility.
 	*/
 	class _OgreExport FileHandleDataStream : public DataStream
 	{
@@ -384,7 +397,7 @@ namespace Ogre {
 		size_t read(void* buf, size_t count);
 		/** @copydoc DataStream::readLine
 		*/
-		size_t readLine(unsigned char* buf, size_t maxCount, const String& delim = "\n");
+		size_t readLine(char* buf, size_t maxCount, const String& delim = "\n");
 		
 		/** @copydoc DataStream::skipLine
 		*/
