@@ -2005,11 +2005,11 @@ namespace Ogre {
         // Entities only for now
 		SceneManager::EntityList::const_iterator a, b, theEnd;
         theEnd = mParentSceneMgr->mEntities.end();
-        uint numEntities;
+        int numEntities;
         // Loop a from first to last-1
         a = mParentSceneMgr->mEntities.begin();
         numEntities = (uint)mParentSceneMgr->mEntities.size();
-        for (uint i = 0; i < (numEntities - 1); ++i, ++a)
+        for (int i = 0; i < (numEntities - 1); ++i, ++a)
         {
             // Loop b from a+1 to last
             b = a;
