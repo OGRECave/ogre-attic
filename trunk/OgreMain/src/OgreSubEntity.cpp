@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMaterialManager.h"
 #include "OgreSubMesh.h"
 #include "OgreTagPoint.h"
+#include "OgreLogManager.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
@@ -59,10 +60,11 @@ namespace Ogre {
 
         if (!mpMaterial)
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, "Can't assign material " + name + 
+            LogManager::getSingleton().logMessage("Can't assign material " + name + 
                 " to SubEntity of " + mParentEntity->getName() + " because this "
                 "Material does not exist. Have you forgotten to define it in a "
-                ".material script?", "SubEntity::setMaterialName");
+                ".material script?");
+            mpMaterial = (Material*)MaterialManager::getSingleton().getByName("BaseWhite");
         }
         // Ensure new material loaded (will not load again if already loaded)
         mpMaterial->load();
