@@ -45,11 +45,6 @@ AC_CHECK_FUNC(vsnprintf, AC_DEFINE(HAVE_VSNPRINTF,,vsnprintf))
 
 OGRE_GET_CONFIG_TOOLKIT
 
-AC_ARG_ENABLE(gl-multitexture, AC_HELP_STRING([--disable-gl-multitexture],
-              [Turn off true multitexture support]),,
-              AC_DEFINE(OGRE_GL_DISABLE_MULTITEXTURING,,[Disable Multitexture Support]))
-
-
 dnl Find the optional components we should build
 OGRE_BUILD_PYTHON_LINK
 
@@ -145,6 +140,9 @@ AC_CONFIG_FILES([Makefile \
     Samples/Gui/Makefile \
     Samples/Gui/src/Makefile \
     Samples/Gui/include/Makefile \
+    Samples/Water/Makefile \
+    Samples/Water/src/Makefile \
+    Samples/Water/include/Makefile \
     Tools/Makefile \
     Tools/XMLConverter/Makefile \
     Tools/XMLConverter/src/Makefile \
