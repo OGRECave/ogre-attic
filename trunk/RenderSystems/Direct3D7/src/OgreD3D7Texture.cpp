@@ -31,31 +31,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    static bool OgreFormatRequiresEndianFlipping( PixelFormat format )
-    {
-        switch( format )
-        {
-        case PF_L4A4:
-        case PF_B5G6R5:
-        case PF_B4G4R4A4:
-        case PF_B8G8R8:
-        case PF_B8G8R8A8:
-        case PF_B10G10R10A2:
-            return true;
-
-        case PF_L8:
-        case PF_A8:
-        case PF_R5G6B5:
-        case PF_A4R4G4B4:
-        case PF_R8G8B8:
-        case PF_A8R8G8B8:
-        case PF_A2R10G10B10:
-        case PF_A4L4:
-        case PF_UNKNOWN:
-        default:
-            return false;
-        }
-    }
     static D3DX_SURFACEFORMAT OgreFormat_to_D3DXFormat( PixelFormat format )
     {
         switch( format )
@@ -80,7 +55,7 @@ namespace Ogre {
         case PF_A4L4:
         case PF_L4A4:
         case PF_A2R10G10B10:
-        case PF_B10G10R10A2:
+        case PF_A2B10G10R10:
         default:
             return D3DX_SF_UNKNOWN;
         }
