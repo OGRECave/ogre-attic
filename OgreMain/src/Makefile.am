@@ -9,6 +9,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreAnimationTrack.cpp \
                          OgreArchiveEx.cpp \
                          OgreArchiveManager.cpp \
+						 OgreAutoParamDataSource.cpp \
                          OgreAxisAlignedBox.cpp \
                          OgreBillboard.cpp \
                          OgreBillboardSet.cpp \

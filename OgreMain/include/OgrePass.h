@@ -658,7 +658,7 @@ namespace Ogre {
         void _notifyNeedsRecompile(void);
 
         /** Update any automatic parameters on this pass */
-        void _updateAutoParams(Renderable* rend, Camera* cam);
+        void _updateAutoParams(const AutoParamDataSource& source);
 
         /** Set texture filtering for every texture unit 
         @note

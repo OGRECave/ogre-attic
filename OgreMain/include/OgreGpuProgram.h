@@ -245,6 +245,8 @@ namespace Ogre {
         virtual AutoConstantIterator getAutoConstantIterator(void);
         /** Returns true if this instance has any automatic constants. */
         virtual bool hasAutoConstants(void){ return !(mAutoConstants.empty()); }
+        /** Updates the automatic parameters based on the details provided. */
+        virtual void _updateAutoParams(const AutoParamDataSource& source);
     };
 
     /// Shared pointer used to hold references to GpuProgramParameters instances

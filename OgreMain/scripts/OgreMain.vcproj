@@ -176,6 +176,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\src\OgreAutoParamDataSource.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreAxisAlignedBox.cpp">
 			</File>
 			<File
@@ -721,6 +724,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreArchiveManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreAutoParamDataSource.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreAxisAlignedBox.h">

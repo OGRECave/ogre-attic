@@ -130,6 +130,10 @@ SOURCE=..\src\OgreArchiveManager.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreAutoParamDataSource.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreAxisAlignedBox.cpp
 # End Source File
 # Begin Source File
@@ -696,6 +700,10 @@ SOURCE=..\include\OgreArchiveFactory.h
 # Begin Source File
 
 SOURCE=..\include\OgreArchiveManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreAutoParamDataSource.h
 # End Source File
 # Begin Source File
 

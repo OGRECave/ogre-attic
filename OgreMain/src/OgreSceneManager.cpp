@@ -572,6 +572,9 @@ namespace Ogre {
         // Set the viewport
         setViewport(vp);
 
+        // Tell params about camera
+        mAutoParamDataSource.setCurrentCamera(camera);
+
 
         // Update the scene
         _applySceneAnimations();
@@ -1150,7 +1153,8 @@ namespace Ogre {
             // Update any automatic gpu params
             // Pass renderable and camera
             // Other bits of information will have to be looked up
-            pass->_updateAutoParams(rend, mCameraInProgress);
+            mAutoParamDataSource.setCurrentRenderable(rend);
+            pass->_updateAutoParams(mAutoParamDataSource);
         }
 
 

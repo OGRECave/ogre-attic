@@ -377,11 +377,11 @@ namespace Ogre {
 
         /** Gets the projection matrix for this camera. Mainly for use by OGRE internally.
         */
-        const Matrix4& getProjectionMatrix(void);
+        const Matrix4& getProjectionMatrix(void) const;
 
         /** Gets the view matrix for this camera. Mainly for use by OGRE internally.
         */
-        const Matrix4& getViewMatrix(void);
+        const Matrix4& getViewMatrix(void) const;
 
         /** Retrieves a specified plane of the frustum.
             @remarks
