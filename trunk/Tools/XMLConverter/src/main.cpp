@@ -381,7 +381,7 @@ void XMLToBinary(XmlOptions opts)
                         "\at each LOD (e.g. 50)?";
                 }
                 cin >> reduction;
-                if (quota == ProgressiveMesh::VRQ_CONSTANT)
+                if (quota == ProgressiveMesh::VRQ_PROPORTIONAL)
                 {
                     // Percentage -> parametric
                     reduction = reduction * 0.01f;
