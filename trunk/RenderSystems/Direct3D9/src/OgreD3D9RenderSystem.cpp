@@ -916,6 +916,11 @@ namespace Ogre
             dest[1][1] = h;
             dest[2][2] = q;
             dest[3][3] = 1;	
+
+            if (forGpuProgram)
+            {
+                dest[2][2] = -dest[2][2];
+            }
 	}
 	//---------------------------------------------------------------------
 	D3D9RenderSystem::ResizeRepositionWindow(HWND wich)

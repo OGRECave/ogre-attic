@@ -308,6 +308,11 @@ namespace Ogre {
                 Root::getSingleton().getRenderSystem()->_makeOrthoMatrix(mFOVy, 
                     mAspect, mNearDist, mFarDist, mProjMatrix);
 
+                // ORTHOGRAPHIC projection, non-API specific 
+                Root::getSingleton().getRenderSystem()->_makeOrthoMatrix(mFOVy, 
+                    mAspect, mNearDist, mFarDist, mStandardProjMatrix, true);
+
+
                 // Calculate co-efficients for the frustum planes
                 // Special-cased for L = -R and B = -T i.e. viewport centered 
                 // on direction vector.
