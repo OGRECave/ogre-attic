@@ -88,6 +88,7 @@ namespace Ogre {
             while (zzip_dir_read(mZzipDir, &zzipEntry))
             {
                 FileInfo info;
+				info.archive = this;
                 // Get basename / path
                 StringUtil::splitFilename(zzipEntry.d_name, info.basename, info.path);
                 // ignore folder entries
