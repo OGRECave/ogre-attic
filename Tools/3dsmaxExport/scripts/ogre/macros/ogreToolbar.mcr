@@ -19,10 +19,8 @@ macroScript showOgreExportTools
 	tooltip:"Ogre Exporter"
 	Icon:#("Maintoolbar",49)
 (
-	local OgreExportOptions, OgreExportObject, OgreExportMesh, OgreExportAnimation, OgreExportMaterial, OgreExportAbout;
-	
 	-- create a floater
-	OgreExportFloater = newRolloutFloater "Ogre Exporter" 280 790 ;
+	OgreExportFloater = newRolloutFloater "Ogre Exporter - 1.19" 280 800 ;
 	
 	rollout OgreExportOptions "Options" width:270 height:140 rolledUp:true
 	(
@@ -52,6 +50,17 @@ macroScript showOgreExportTools
 		(
 			shellLaunch ((getDir #scripts) + "\\ogre\\ogreScript.ini") "" ;
 		)
+		on CBconvertXML changed state do
+		(
+			if (state and (editXMLconverter.text!="")) then
+			(
+				if (not (doesFileExist editXMLconverter.text)) then
+				(
+					editXMLconverter.text = "The file/directory specified in the .ini for the XML converter does not exist !";
+					CBconvertXML.checked = false;
+				)
+			)
+		)
 		on browseXMLconverter pressed  do
 		(
 			filename = getOpenFileName types:"Executables(*.exe)|*.exe|" ;			
@@ -59,6 +68,18 @@ macroScript showOgreExportTools
 			(
 				editXMLconverter.text = filename ;
 				CBconvertXML.checked = true;
+				if (not (doesFileExist editXMLconverter.text)) then
+				(
+					editXMLconverter.text = "The file/directory specified in the .ini for the XML converter does not exist !";
+					CBconvertXML.checked = false;
+				)
+				else
+				(
+					xmlConvPath = getFilenamePath editXMLconverter.text;
+					xmlexe = getFilenameFile editXMLconverter.text;
+					setINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Directories" "XMLConverterPath" xmlConvPath;
+					setINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Exe" "XMLConverterExe" xmlexe;
+				)
 			)
 		)
 		on OgreExportOptions open  do
@@ -77,12 +98,16 @@ macroScript showOgreExportTools
 			xmlConvPath = getINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Directories" "XMLConverterPath"
 			xmlexe = getINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Exe" "XMLConverterExe"
 			
-			editXMLconverter.text = xmlConvPath + "\\" + xmlexe;
+			ext = substring xmlexe (xmlexe.count-4) 4;
+			if ( (ext[2]!="e" and ext[2]!="E") or (ext[3]!="x" and ext[3]!="X") or (ext[4]!="e" and ext[4]!="E") ) then
+				editXMLconverter.text = xmlConvPath + "\\" + xmlexe + ".exe";
+			else
+				editXMLconverter.text = xmlConvPath + "\\" + xmlexe;
+
+			print editXMLconverter.text;
 			if (not (doesFileExist editXMLconverter.text)) then
 			(
-				messageBox "The file specified in the .ini for the XML converter does not exist !";
-				
-				editXMLconverter.text = "";
+				editXMLconverter.text = "The file/directory specified in the .ini for the XML converter does not exist !";
 				CBconvertXML.checked = false;
 			)
 			else
@@ -108,6 +133,8 @@ macroScript showOgreExportTools
 		editText editFilename "" pos:[11,140] width:242 height:22
 		button chooseFilename "Browse" pos:[170,164] width:82 height:20 toolTip:"chooose the name of your output files"
 		button export "Export !" pos:[29,191] width:214 height:40 toolTip:"export your mesh, skeleton ......"
+		progressBar exportProgress pos:[9,235] width:250 height:10
+		
 		on OgreExportObject open  do
 		(
 			if (gridPrefs == undefined) then	--gmax special interface : I test this to know if it is gmax or 3dsmax
@@ -126,9 +153,11 @@ macroScript showOgreExportTools
 			OgreExportMesh.CBexportUV.checked = true ;
 			CBFlipYZ.checked = true ;
 			SPscale.value = lastScale as Float;
+			if (SPscale.value == 0.0) then
+				SPscale.value = 1.0;
 
 			select = getCurrentSelection() ;
-			if ((select[1]!=undefined) and (classof select[1]==Editable_mesh)) then
+			if ((select[1]!=undefined) and (iskindof select[1] GeometryClass)) then
 			(
 				editObject.text = select[1].name ;
 				OgreExportMesh.CBexportMesh.enabled = true;
@@ -149,7 +178,7 @@ macroScript showOgreExportTools
 		(
 			max tool hlist ;
 			select = getCurrentSelection() ;
-			if ((select[1]!=undefined) and (classof select[1]==Editable_mesh)) then
+			if ((select[1]!=undefined) and (iskindof select[1] GeometryClass)) then
 			(
 				editObject.text = select[1].name ;
 			
@@ -188,6 +217,9 @@ macroScript showOgreExportTools
 			(
 				clearlistener() ;
 				
+				if (SPscale.value == 0.0) then
+					SPscale.value = 1.0;
+				
 				Options = exportOptions scale:SPscale.value flipYZ:false flipNormal:false exportColours:false exportUV:false ;
 				exportingMeshDone = false ;
 				exportingSkelDone = false ;
@@ -204,6 +236,7 @@ macroScript showOgreExportTools
 					Options.exportUV = true ;	
 					Options.UVchannels = OgreExportMesh.SPchannels.value;	
 				)
+				Options.exportHelpers = (OgreExportAnimation.CBexporthelpers.enabled and OgreExportAnimation.CBexporthelpers.checked);
 				
 				if (not g_MAX) then
 					setINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Settings" "lastScale" (SPscale.value as string)
@@ -225,7 +258,7 @@ macroScript showOgreExportTools
 				(
 					Options.sampleRate = OgreExportAnimation.SPsamplerate.value ;
 					Options.ikSampleRate = OgreExportAnimation.SPiksamplerate.value ;
-
+				
 					exportingSkelDone =	writeSkeleton m Options Anims editFilename.text ;
 				)
 				
@@ -233,7 +266,7 @@ macroScript showOgreExportTools
 				if (OgreExportMaterial.CBexportmaterial.enabled and OgreExportMaterial.CBexportmaterial.checked) then
 				(
 					select = getCurrentSelection() ;
-					if ((select[1]!=undefined) and (classof select[1]==Editable_mesh)) then
+					if ((select[1]!=undefined) and (iskindof select[1] GeometryClass)) then
 					(
 						mat = select[1].material
 						if (exportSomeMaterial!=undefined) then		-- export with Octopus functions
@@ -335,17 +368,24 @@ macroScript showOgreExportTools
 			OgreExportMesh.SPchannels.enabled = false ;
 
 			select = getCurrentSelection() ;
-			if ((select[1]!=undefined) and (classof select[1]==Editable_mesh)) then
+			if ((select[1]!=undefined) and (iskindof select[1] GeometryClass)) then
 			(
 				OgreExportMesh.CBexportMesh.enabled = true;
 				OgreExportMesh.CBexportMesh.checked = true;
 				OgreExportMesh.CBflipnormals.enabled = true ;
 				OgreExportMesh.CBexportColor.enabled = true ;
 				OgreExportMesh.CBexportUV.enabled = true ;
-				if (getNumTVerts select[1] == 0) then
-					OgreExportMesh.CBexportUV.checked = false ;
+				if (classof select[1] == Editable_Mesh) then
+				(
+					if (getNumTVerts select[1] == 0) then
+						OgreExportMesh.CBexportUV.checked = false ;
+					else
+						OgreExportMesh.CBexportUV.checked = true ;
+				)
 				else
-					OgreExportMesh.CBexportUV.checked = true ;
+				(
+					OgreExportMesh.CBexportUV.checked = false ;
+				)
 				OgreExportMesh.SPchannels.enabled = true ;
 			)
 		)
@@ -378,22 +418,23 @@ macroScript showOgreExportTools
 	rollout OgreExportAnimation "Animation" width:270 height:347
 	(
 		checkbox CBexportSkeleton "Export Skeleton" pos:[5,4] width:150 height:19 enabled:false
-		groupBox grp3 "Export settings" pos:[4,26] width:262 height:56
+		groupBox grp3 "Export settings" pos:[4,26] width:262 height:76
 		--checkbox CBbiped "Biped Export" pos:[13,44] width:246 height:19 enabled:false
-		spinner SPsamplerate "Sample Rate" pos:[21,45] width:186 height:16 enabled:false range:[0.0,10000,0.0] type:#float scale:0.5 
-		spinner SPiksamplerate "IK Sample Rate" pos:[27,63] width:180 height:16 enabled:false range:[0.0,10000,5.0] type:#float scale:0.5 
-		groupBox grp4 "Animation settings" pos:[4,86] width:261 height:252
-		button getFromModifier "<-" pos:[14,104] width:61 height:21 enabled:false toolTip:"retrieve information from OctopusExport Modifier"
-		label lbl4 "Get settings from Octopus modifier" pos:[86,108] width:167 height:14 enabled:true
-		groupBox grp5 "Animations" pos:[8,129] width:253 height:203
-		button addAnimation "Add" pos:[16,144] width:80 height:22 enabled:false toolTip:"add an animation to the list"
-		button deleteAnimation "Delete" pos:[172,145] width:80 height:22 enabled:false toolTip:"remove an animation from the list"
-		comboBox ListAnimations "" pos:[17,171] width:235 height:6 enabled:false
-		label lbl5 "Frames" pos:[17,270] width:236 height:16
-		spinner SPframestart "from" pos:[25,287] width:106 height:16 enabled:false range:[0,10000,0] type:#integer scale:1
-		spinner SPframeend "to" pos:[154,287] width:96 height:16 enabled:false range:[0,10000,100] type:#integer scale:1
-		label lbl6 "Length (in seconds)" pos:[18,310] width:115 height:16
-		spinner SPanimlength "" pos:[120,309] width:130 height:16 range:[0,10000,10] type:#float scale:0.1
+		spinner SPsamplerate "Sample Rate" pos:[11,45] width:186 height:16 enabled:false range:[0.0,10000,0.0] type:#float scale:0.5 
+		spinner SPiksamplerate "IK Sample Rate" pos:[17,63] width:180 height:16 enabled:false range:[0.0,10000,5.0] type:#float scale:0.5 
+		checkbox CBexporthelpers "Export non-bones objects (must be in the modifier)" pos:[11,81] width:254 height:16 enabled:false checked:false
+		groupBox grp4 "Animation settings" pos:[4,106] width:261 height:252
+		button getFromModifier "<-" pos:[14,124] width:61 height:21 enabled:false toolTip:"retrieve information from OctopusExport Modifier"
+		label lbl4 "Get settings from Octopus modifier" pos:[86,128] width:167 height:14 enabled:true
+		groupBox grp5 "Animations" pos:[8,149] width:253 height:203
+		button addAnimation "Add" pos:[16,164] width:80 height:22 enabled:false toolTip:"add an animation to the list"
+		button deleteAnimation "Delete" pos:[172,165] width:80 height:22 enabled:false toolTip:"remove an animation from the list"
+		comboBox ListAnimations "" pos:[17,191] width:235 height:6 enabled:false
+		label lbl5 "Frames" pos:[17,290] width:236 height:16
+		spinner SPframestart "from" pos:[25,307] width:106 height:16 enabled:false range:[0,10000,0] type:#integer scale:1
+		spinner SPframeend "to" pos:[154,307] width:96 height:16 enabled:false range:[0,10000,100] type:#integer scale:1
+		label lbl6 "Length (in seconds)" pos:[18,330] width:115 height:16
+		spinner SPanimlength "" pos:[120,329] width:130 height:16 range:[0,10000,10] type:#float scale:0.1
 		on OgreExportAnimation open  do
 		(
 			OgreExportAnimation.CBexportSkeleton.enabled = false;
@@ -402,6 +443,7 @@ macroScript showOgreExportTools
 			OgreExportAnimation.getFromModifier.enabled = false;
 			OgreExportAnimation.SPsamplerate.enabled = false;
 			OgreExportAnimation.SPiksamplerate.enabled = false;
+			OgreExportAnimation.CBexporthelpers.enabled = false;
 			OgreExportAnimation.addAnimation.enabled = false;
 			OgreExportAnimation.deleteAnimation.enabled = false;
 			OgreExportAnimation.ListAnimations.enabled = false;
@@ -410,7 +452,7 @@ macroScript showOgreExportTools
 			OgreExportAnimation.SPanimlength.enabled = false;
 
 			select = getCurrentSelection() ;
-			if ((select[1]!=undefined) and (classof select[1]==Editable_mesh)) then
+			if ((select[1]!=undefined) and (iskindof select[1] GeometryClass)) then
 			(
 				OgreExportAnimation.CBexportSkeleton.enabled = (getSkin(select[1]) != undefined) or (getPhysique(select[1]) != undefined) ;
 				if (OgreExportAnimation.CBexportSkeleton.enabled and OgreExportAnimation.CBexportSkeleton.checked) then
@@ -420,6 +462,7 @@ macroScript showOgreExportTools
 					OgreExportAnimation.getFromModifier.enabled = true;
 					OgreExportAnimation.SPsamplerate.enabled = true;
 					OgreExportAnimation.SPiksamplerate.enabled = true;
+					OgreExportAnimation.CBexporthelpers.enabled = true;
 					OgreExportAnimation.addAnimation.enabled = true;
 					OgreExportAnimation.deleteAnimation.enabled = true;
 					OgreExportAnimation.ListAnimations.enabled = true;
@@ -437,13 +480,14 @@ macroScript showOgreExportTools
 		on CBexportSkeleton changed state do
 		(
 			select = getCurrentSelection() ;
-			if ((select[1]!=undefined) and (classof select[1]==Editable_mesh)) then
+			if ((select[1]!=undefined) and (iskindof select[1] GeometryClass)) then
 			(
 				--OgreExportAnimation.CBbiped.enabled = state;
 				--OgreExportAnimation.CBbiped.checked = (getPhysique(select[1]) != undefined);
 				OgreExportAnimation.getFromModifier.enabled = state;
 				OgreExportAnimation.SPsamplerate.enabled = state;
 				OgreExportAnimation.SPiksamplerate.enabled = state;
+				OgreExportAnimation.CBexporthelpers.enabled = state;
 				OgreExportAnimation.addAnimation.enabled = state;
 				OgreExportAnimation.deleteAnimation.enabled = state;
 				OgreExportAnimation.ListAnimations.enabled = state;
@@ -459,10 +503,11 @@ macroScript showOgreExportTools
 		on getFromModifier pressed  do
 		(
 			select = getCurrentSelection()
-			if ((select[1]!=undefined) and (classof select[1]==Editable_mesh)) then
+			if ((select[1]!=undefined) and (iskindof select[1] GeometryClass)) then
 			(
 				max modify mode ;
-				modPanel.setCurrentObject select[1].modifiers["OctopusExport"] ;
+				--if (select[1].modifiers["OctopusExport"]!=undefined) then
+				--	modPanel.setCurrentObject select[1].modifiers["OctopusExport"] ;
 				octexp = getOctopusExport select[1];
 				
 				if (octexp!=undefined) then
@@ -506,11 +551,11 @@ macroScript showOgreExportTools
 					append array n;
 				append array ListAnimations.text;
 				ListAnimations.items = array;
-				append Anims.names ListAnimations.text
+				append Anims.names ListAnimations.items[ListAnimations.items.count];
 				append Anims.startframes SPframestart.value;
 				append Anims.endframes SPframeend.value;
 				append Anims.lengths SPanimlength.value;
-				ListAnimations.selection = ListAnimations.items.count;
+				ListAnimations.selection = 0;
 			)		
 		)
 		on deleteAnimation pressed  do
@@ -542,21 +587,24 @@ macroScript showOgreExportTools
 		(
 			if ((ListAnimations.items.count > 0) and (ListAnimations.selection > 0)) then
 			(
-				Anims.startframes[ListAnimations.selection] = SPframestart.value;
+				if (ListAnimations.text == Anims.names[ListAnimations.selection]) then
+					Anims.startframes[ListAnimations.selection] = SPframestart.value;
 			)		
 		)
 		on SPframeend changed val do
 		(
 			if ((ListAnimations.items.count > 0) and (ListAnimations.selection > 0)) then
 			(
-				Anims.endframes[ListAnimations.selection] = SPframeend.value;
+				if (ListAnimations.text == Anims.names[ListAnimations.selection]) then
+					Anims.endframes[ListAnimations.selection] = SPframeend.value;
 			)		
 		)
 		on SPanimlength changed val do
 		(
 			if ((ListAnimations.items.count > 0) and (ListAnimations.selection > 0)) then
 			(
-				Anims.lengths[ListAnimations.selection] = SPanimlength.value;
+				if (ListAnimations.text == Anims.names[ListAnimations.selection]) then
+					Anims.lengths[ListAnimations.selection] = SPanimlength.value;
 			)		
 		)
 	)
@@ -569,7 +617,7 @@ macroScript showOgreExportTools
 			CBexportmaterial.enabled = false;
 
 			select = getCurrentSelection() ;
-			if ((select[1]!=undefined) and (classof select[1]==Editable_mesh)) then
+			if ((select[1]!=undefined) and (iskindof select[1] GeometryClass)) then
 			(
 				CBexportmaterial.enabled = true;
 			)		

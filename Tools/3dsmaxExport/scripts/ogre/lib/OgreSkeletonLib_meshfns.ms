@@ -105,19 +105,17 @@ function tabEquals tab1 tab2 =
 	return true;
 )
 
-function doesVertexExistAlready searchTable vertexIndex vertexNormal vertexColorIndex UVs exportUV exportColor =
+function doesVertexExistAlready searchTable vertexIndex vertexNormal vertexColorIndex vertexAlphaIndex UVs exportUV exportColor =
 (
 	local start_uvs;
-	local index = 0;
 	vertex = #();
 	--format "vertex a tester % % \n" vertexIndex vertexNormal;
-	for vertex in searchTable do
+
+	if (searchTable[vertexIndex]==undefined) then
+		return 0;
+	
+	for vertex in searchTable[vertexIndex] do
 	(
-		--format "vertex % % \n" vertex[1] vertex[2];
-		index = index + 1;
-		if (vertex[1]!=vertexIndex) then
-			continue;
-			
 		if (vertex[2]!=vertexNormal) then
 			continue;
 			
@@ -126,7 +124,10 @@ function doesVertexExistAlready searchTable vertexIndex vertexNormal vertexColor
 			if (vertex[3]!=vertexColorIndex) then
 				continue;
 				
-			start_uvs = 3;
+			if (vertex[4]!=vertexAlphaIndex) then
+				continue;
+				
+			start_uvs = 4;
 		)
 		else
 		(
@@ -135,12 +136,20 @@ function doesVertexExistAlready searchTable vertexIndex vertexNormal vertexColor
 		
 		if (exportUV) then
 		(
+			local equal = true;
 			for i=1 to UVs.count do
+			(
 				if (vertex[start_uvs+i]!=UVs[i]) then
+				(
+					equal = false;
+					exit;
+				)
+			)
+			if (not equal) then 
 				continue;
 		)
 		
-		return index ;
+		return vertex[1] ;
 	)
 	return 0;
 )
@@ -158,7 +167,7 @@ function doesVertexExistAlready searchTable vertexIndex vertexNormal vertexColor
 -- phy : the physique modifier (may be undefined)
 -- stores datas in verticesArrays and facesArrays.
 ----------------------------------------------------------------------------
-function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours sk phy =
+function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours exportHelpers sk phy =
 (
 	local face;						--index of the current face
 	local localVertexIndex; 		--index of the current vertex (relative to the current face) ie : 1, 2 or 3
@@ -169,9 +178,12 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 	local matId;					--material Id of the current face
 	local numFaces;					--number of faces in the mesh
 	
-	local faceVertexColorIndices;	--indices of the vertex for the current face in the vertex color table of the mesh (Point3)
+	local faceVertexColorIndices;	--indices of the vertices for the current face in the vertex color table of the mesh (Point3)
 	local vertexColorIndex;			--index of the current vertex in the vertex color table of the mesh
 	local vertexColor;				--vertex color for the current vertex (color)
+	local faceVertexAlphaIndices;	--indices of the vertices for the current face in the vertex alpha table of the mesh (Point3)
+	local vertexAlpha;				--vertex alpha of the current alpha
+	local vertexAlphaIndex;			--index of the current vertex in the vertex alpha map channel (-2)
 	
 	local ogreFace;					--indices of the vertices for the current face (references the list of vertices that is gonna be exported, not the vertices of the original mesh)
 	
@@ -202,27 +214,28 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 
 	-- compute bones list for the model.
 	BonesList=#()
-	computeBonesList phy sk;
+	computeBonesList phy sk exportHelpers ;
 
 	numFaces = (getNumFaces tmesh);
 
 	-- For each face
 	for face = 1 to numFaces do 		-- LOOP on FACES --
 	(		
-		--progressUpdate (100.0*face/numFaces) ;
+		OgreExportObject.exportProgress.value = (100.0*face/numFaces);
 	
 		faceVerticesIndices = getFace tmesh face ;
 		matId = getFaceMatId tmesh face ;		
 		
-		
 		-- Vertex Color Face
 		if (exportColours) then
 		(
-			faceVertexColorIndices = getVCFace tmesh face ;
+			faceVertexColorIndices = meshOp.getMapFace tmesh 0 face ;	-- 0 is the vertex color channel
+			faceVertexAlphaIndices = meshOp.getMapFace tmesh -2 face ;	-- -2 is the vertex alpha channel
 		)
 		else
 		(
 			faceVertexColorIndices = Point3 1 1 1 ;
+			faceVertexAlphaIndices = Point3 1 1 1 ;
 		)
 		
 		-- For each vertex whose face is made up of.
@@ -230,6 +243,7 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 		(			
 		    vertexIndex = (int) (faceVerticesIndices[localVertexIndex]) ;
 			vertexColorIndex = (int) (faceVertexColorIndices[localVertexIndex]) ;
+			vertexAlphaIndex = (int) (faceVertexAlphaIndices[localVertexIndex]);
 			vertexNormal = getVertexNormalAccordingToSmoothingGroups tmesh face localVertexIndex;
 			
 			-- we retrieve datas. it depends on options.
@@ -237,11 +251,10 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 			if (exportUV) then
 			(
 				UVcoords=#();
-				local vertInds = getTVFace tmesh face ;
 				for ch=1 to numUVsets do
 				(
-				
-					UVW = meshOp.getMapVert tmesh ch vertInds[localVertexIndex] ;	-- retrieve the UV for the corresponding channel.
+					local vertInds = meshOp.getMapFace tmesh ch face ;
+					local UVW = meshOp.getMapVert tmesh ch vertInds[localVertexIndex] ;	-- retrieve the UV for the corresponding channel.
 					append UVcoords UVW[1];
 					append UVcoords UVW[2];							-- don't care about the W coordinate
 				)
@@ -261,11 +274,11 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 			ogreVertNum = 1;
 			-- Maybe this vertex has already been found.
 			-- So we use searchTable.
-			res = doesVertexExistAlready searchTable vertexIndex vertexNormal vertexColorIndex UVcoords exportUV exportColours;
+			res = doesVertexExistAlready searchTable vertexIndex vertexNormal vertexColorIndex vertexAlphaIndex UVcoords exportUV exportColours;
 			if (res==0) then
 			(
 				newVertex = 1 ;
-				--format "nouveau vertex % %\n" (getVert tmesh vertexIndex) vertexNormal;
+				--format "nouveau vertex % % %\n" vertexIndex vertexNormal UVcoords;
 			)
 			else
 			(
@@ -275,35 +288,53 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 
 			if (newVertex == 1) then -- That is to say it has not been found. 
 			(
+				-- Maybe the material found defines a new submesh...
+				if (verticesArrays[matId] == undefined) then
+				(
+					format "- Submesh detected: material ID = %\n" matId
+					verticesArrays[matId] = #() ;
+					boneAssignments[matId] = #() ;
+					append submeshesId matId ;
+				)
+
 				-- the vertex number for the current submesh must be updated
-				-- vertex number is increased.								
-				ogreVertNum = searchTable.count + 1 ;
+				-- vertex number is increased
+				ogreVertNum = verticesArrays[matId].count + 1; 
 				
-				-- it is added to the search table.
-				searchTable[ogreVertNum] = #() ;
-				append searchTable[ogreVertNum] vertexIndex ;
-				n = copy vertexNormal;
-				append searchTable[ogreVertNum] n ;
+				-- it is added to the searchTable
+				if (searchTable[vertexIndex]==undefined) then
+				(
+					searchTable[vertexIndex] = #() ;
+				)
+				local data = #();
+				append data ogreVertNum ;
+				n = copy vertexNormal ;
+				append data n ;
 				if (exportColours) then
 				(
-					append searchTable[ogreVertNum] VertexColorIndex ;
+					append data VertexColorIndex ;
+					append data VertexAlphaIndex ;
 				)
 				if (exportUV) then
 				(
 					if (UVcoords.count > 0) then
 					(
 						for uv=1 to UVcoords.count do
-							append searchTable[ogreVertNum] UVcoords[uv];
+							append data UVcoords[uv];
 					)
 				)
-				--print searchTable[ogreVertNum];
+				append searchTable[vertexIndex] data ;
 					
 				-- we retrieve data
 				vertexPosition = getVert tmesh faceVerticesIndices[localVertexIndex] ;
 				
-				vertexColor = color 0 0 0 1;
+				vertexColor = Point3 0 0 0;
+				vertexAlpha = 255;
 				if (exportColours) then
-					vertexColor = getVertColor tmesh faceVertexColorIndices[localVertexIndex] ;
+				(
+					vertexColor = (meshOp.getMapVert tmesh 0 vertexColorIndex);
+					vertexAlpha = (meshOp.getMapVert tmesh -2 vertexAlphaIndex)[1];
+				)
 				
 				-- change scale
 				vertexPosition = vertexPosition * scale ;
@@ -320,15 +351,8 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 					vertexNormal[3] = -nmalTmp[2] ;
 				)
 				
-				-- Maybe the material found defines a new submesh...
-				if (verticesArrays[matId] == undefined) then
-				(
-					format "- Submesh detected: material ID = %\n" matId
-					verticesArrays[matId] = #() ;
-					boneAssignments[matId] = #() ;
-					append submeshesId matId ;
-				)
-				vertexData = #(vertexPosition[1],vertexPosition[2],vertexPosition[3],vertexNormal[1],vertexNormal[2],vertexNormal[3],vertexColor.r,vertexColor.g,vertexColor.b,vertexColor.a) ;
+				-- store the vertex in verticesArrays
+				vertexData = #(vertexPosition[1],vertexPosition[2],vertexPosition[3],vertexNormal[1],vertexNormal[2],vertexNormal[3],vertexColor[1],vertexColor[2],vertexColor[3],vertexAlpha) ;
 				if (exportUV) then
 				(
 					for ch=1 to numUVsets do
@@ -346,6 +370,14 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 				(
 					vertexWeightCount = skinOps.getVertexWeightCount sk vertexIndex ; 
 
+					if (vertexWeightCount > 4) then
+					(
+						if (not g_MAX) then
+						(
+							format "*** vertex % has more than 4 bones assigned...\n" vertexIndex;	
+						)
+					)
+					
 					for k=1 to vertexWeightCount do
 					(
 						bid = skinOps.getVertexWeightBoneID sk vertexIndex k ;
@@ -373,6 +405,14 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 				(
 					vertexWeightCount = physiqueOps.getVertexBoneCount $ vertexIndex ;
 					
+					if (vertexWeightCount > 4) then
+					(
+						if (not g_MAX) then
+						(
+							format "*** vertex % has more than 4 bones assigned...\n" vertexIndex;	
+						)
+					)
+					
 					for k=1 to vertexWeightCount do
 					(
 						bone = physiqueOps.getVertexBone $ vertexIndex k
@@ -388,7 +428,7 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 					if (vertexWeightCount==0) then 
 					(
 						-- gets the root Id:
-						append boneAssignments[matId] #(ogreVertNum,0,1) ;
+						append boneAssignments[matId] #(ogreVertNum-1,0,1) ;
 					)
 				)				
 
@@ -517,7 +557,7 @@ function writeM exportUV numUVsets exportColours material outName =
 			if (exportUV) then
 			(
 				for ch=1 to numUVsets do
-					format("\t\t\t\t\t\t<texcoord u=\"%\" v=\"%\" />\n") v[11+(ch-1)*2] (1 - v[12+(ch-1)*2]) to:outFile ;		
+					format("\t\t\t\t\t\t<texcoord u=\"%\" v=\"%\" />\n") v[11+((ch-1)*2)] (1 - v[12+((ch-1)*2)]) to:outFile ;		
 			)
 			if (exportColours) then 
 			(
@@ -603,7 +643,6 @@ function writeMesh pmesh exportOptions out_name =
 		phy = getPhysique pmesh ;
 		sk = getSkin pmesh;
 		
-		
 		if (sk != undefined) then
 			format "Skin modifier detected.\n"
 			
@@ -624,10 +663,11 @@ function writeMesh pmesh exportOptions out_name =
 			-- in order to perform, skin should be opened
 			max modify mode ;
 			modPanel.setCurrentObject pmesh.modifiers[#Physique] ;
-			--setBonesNumber phy ;
 			--physiqueOps.setInitialPose pmesh true ;
 		)
-		
+
+		OgreExportObject.exportProgress.value = 0;
+	
 		-- retieving material
 		if (pmesh.material != undefined) then (
 			materialName = pmesh.material.name ;
@@ -640,7 +680,7 @@ function writeMesh pmesh exportOptions out_name =
 		-- retrieving all datas
 		format "Retrieving vertices and faces data : \n" ;
 	
-		getDatas m exportOptions.flipyz exportOptions.scale exportOptions.flipNormal exportOptions.exportUV exportOptions.UVchannels exportOptions.exportColours sk phy;
+		getDatas m exportOptions.flipyz exportOptions.scale exportOptions.flipNormal exportOptions.exportUV exportOptions.UVchannels exportOptions.exportColours exportOptions.exportHelpers sk phy;
 		
 		-- writing in the file
 		format "Writing in file %.mesh.xml : \n" out_name ;
@@ -660,6 +700,7 @@ function writeMesh pmesh exportOptions out_name =
 		
 		MessageBox ("Exporting mesh successful !") ;
 		
+		OgreExportObject.exportProgress.value = 100;
 	)
 	return true ;
 )
