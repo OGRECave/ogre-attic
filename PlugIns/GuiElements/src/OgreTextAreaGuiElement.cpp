@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreOverlayManager.h"
 #include "OgreHardwareBufferManager.h"
 #include "OgreHardwareVertexBuffer.h"
+#include "OgreException.h"
 
 namespace Ogre {
 

@@ -31,6 +31,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreHardwareBufferManager.h"
 #include "OgreHardwareVertexBuffer.h"
 #include "OgreHardwareIndexBuffer.h"
+#include "OgreException.h"
+#include "OgreRenderQueue.h"
 
 namespace Ogre {
     //---------------------------------------------------------------------

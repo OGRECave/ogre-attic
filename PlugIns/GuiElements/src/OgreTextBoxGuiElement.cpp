@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreKeyEvent.h"
 #include "OgreInput.h"
 #include "OgreGuiManager.h"
+#include "OgreException.h"
 
 namespace Ogre {
 

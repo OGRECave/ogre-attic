@@ -25,6 +25,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePanelGuiElement.h"
 #include "OgreMaterial.h"
+#include "OgreTechnique.h"
+#include "OgrePass.h"
 #include "OgreStringConverter.h"
 #include "OgreHardwareBufferManager.h"
 
@@ -214,14 +216,15 @@ namespace Ogre {
         // Generate for as many texture layers as there are in material
         if (mpMaterial)
         {
-            ushort numLayers = mpMaterial->getNumTextureLayers();
+            // Assume one technique and pass for the moment
+            size_t numLayers = mpMaterial->getTechnique(0)->getPass(0)->getNumTextureUnitStates();
 
             VertexDeclaration* decl = mRenderOp.vertexData->vertexDeclaration;
             // Check the number of texcoords we have in our buffer now
             if (mNumTexCoordsInBuffer > numLayers)
             {
                 // remove extras
-                for (unsigned short i = mNumTexCoordsInBuffer; i > numLayers; --i)
+                for (size_t i = mNumTexCoordsInBuffer; i > numLayers; --i)
                 {
                     decl->removeElement(VES_TEXTURE_COORDINATES, i);
                 }
@@ -230,7 +233,7 @@ namespace Ogre {
             {
                 // Add extra texcoord elements
                 size_t offset = VertexElement::getTypeSize(VET_FLOAT2) * mNumTexCoordsInBuffer;
-                for (unsigned short i = mNumTexCoordsInBuffer; i < numLayers; ++i)
+                for (size_t i = mNumTexCoordsInBuffer; i < numLayers; ++i)
                 {
                     decl->addElement(TEXCOORD_BINDING,
                         offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, i);
