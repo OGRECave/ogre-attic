@@ -172,7 +172,7 @@ namespace Ogre {
 
 
         ret_data->size = ImageSize;
-        ret_data->compressed = false;
+        ret_data->flags = 0;
 
 		// Move the image data to the output buffer
 

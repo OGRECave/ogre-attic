@@ -67,6 +67,7 @@ namespace Ogre {
         m_uSize = img.m_uSize;
         m_uFlags = img.m_uFlags;
         m_ucPixelSize = img.m_ucPixelSize;
+        m_uNumMipmaps = img.m_uNumMipmaps;
 
         m_pBuffer = new uchar[ m_uSize ];
         memcpy( m_pBuffer, img.m_pBuffer, m_uSize );
@@ -272,9 +273,7 @@ namespace Ogre {
         m_eFormat = pData->format;
         m_uNumMipmaps = pData->num_mipmaps;
         m_ucPixelSize = PF2PS( m_eFormat );
-
-        if(pData->compressed)
-            m_uFlags |= IF_COMPRESSED;
+        m_uFlags = pData->flags;
 
         delete pData;
 
@@ -306,8 +305,7 @@ namespace Ogre {
         m_uHeight = pData->height;
         m_uSize = pData->size;
         m_uNumMipmaps = pData->num_mipmaps;
-        if(pData->compressed)
-            m_uFlags |= IF_COMPRESSED;
+        m_uFlags = pData->flags;
         
         // Get the format and compute the pixel size
         m_eFormat = pData->format;

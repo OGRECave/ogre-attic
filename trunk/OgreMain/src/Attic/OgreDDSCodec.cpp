@@ -84,8 +84,13 @@ namespace Ogre {
 		ret_data->width = ilGetInteger( IL_IMAGE_WIDTH );
 		ret_data->height = ilGetInteger( IL_IMAGE_HEIGHT );
         ret_data->num_mipmaps = ilGetInteger ( IL_NUM_MIPMAPS );
+        ret_data->flags = 0;
 
         ILuint dxtFormat = ilGetInteger( IL_DXTC_DATA_FORMAT );
+
+        ILuint cubeflags = ilGetInteger ( IL_IMAGE_CUBEFLAGS );
+        if(cubeflags)
+            ret_data->flags |= IF_CUBEMAP;
 
         if(dxtFormat != IL_DXT_NO_COMP && Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability( RSC_TEXTURE_COMPRESSION_DXT ))
         {
@@ -95,18 +100,30 @@ namespace Ogre {
 
             ret_data->size = dxtSize;
 		    ret_data->format = ilFormat2OgreFormat( dxtFormat, BytesPerPixel );
-            ret_data->compressed = true;
+            ret_data->flags |= IF_COMPRESSED;
         }
         else
         {
-		    uint ImageSize = ilGetInteger( IL_IMAGE_WIDTH ) * ilGetInteger( IL_IMAGE_HEIGHT ) * ilGetInteger( IL_IMAGE_BYTES_PER_PIXEL );
-		    // Move the image data to the output buffer
-		    output->allocate( ImageSize );
-		    memcpy( output->getPtr(), ilGetData(), ImageSize );
+            uint numImagePasses = cubeflags ? 6 : 1;
+		    uint imageSize = ilGetInteger( IL_IMAGE_WIDTH ) * ilGetInteger( IL_IMAGE_HEIGHT ) * ilGetInteger( IL_IMAGE_BYTES_PER_PIXEL );
+		    output->allocate( imageSize * numImagePasses );
 
-            ret_data->size = ImageSize;
+            unsigned int i = 0, offset = 0;
+            for(i = 0; i < numImagePasses; i++)
+            {
+                if(cubeflags)
+                {
+                    ilBindImage(ImageName);
+                    ilActiveImage(i);
+                }
+
+		        // Move the image data to the output buffer
+		        memcpy( output->getPtr() + offset, ilGetData(), imageSize );
+                offset += imageSize;
+            }
+
+            ret_data->size = imageSize * numImagePasses;
 		    ret_data->format = ilFormat2OgreFormat( ImageFormat, BytesPerPixel );
-            ret_data->compressed = false;
         }
 
 		ilDeleteImages( 1, &ImageName );
