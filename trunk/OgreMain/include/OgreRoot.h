@@ -409,6 +409,60 @@ namespace Ogre
         @param pDest Pointer to location to put the result.
         */
         void convertColourValue(const ColourValue& colour, unsigned long* pDest);
+
+        /** Creates a new rendering window.
+            @remarks
+                This method creates a new rendering window as specified
+                by the paramteters. The rendering system could be
+                responible for only a single window (e.g. in the case
+                of a game), or could be in charge of multiple ones (in the
+                case of a level editor). The option to create the window
+                as a child of another is therefore given.
+                This method will create an appropriate subclass of
+                RenderWindow depending on the API and platform implementation.
+            @param
+                name The name of the window. Used in other methods
+                later like setRenderTarget and getRenderWindow.
+            @param
+                width The width of the new window.
+            @param
+                height The height of the new window.
+            @param
+                colourDepth The colour depth in bits per pixel.
+                Only applicable if fullScreen = true
+            @param
+                fullScreen Specify true to make the window full screen
+                without borders, title bar or menu bar.
+            @param
+                left The x position of the new window. Only applicable
+                if fullScreen is false. Units are relative to the parent window
+                if applicable, otherwise they are in screen coordinates.
+            @param
+                top The y position of the new window.
+            @param
+                depthBuffer If true, a depth buffer will be assigned to this window.
+            @param
+                parentWindowHandle Should be null if this window is to be
+                stand-alone. Otherwise, specify a pointer to a RenderWindow
+                which represents the parent window.
+        */
+        RenderWindow* createRenderWindow(const String &name, int width, int height, int colourDepth,
+            bool fullScreen, int left = 0, int top = 0, bool depthBuffer = true,
+            RenderWindow* parentWindowHandle = 0);
+
+        /** Destroys a rendering window.
+        */
+        void destroyRenderWindow(RenderWindow* pWin);
+
+        /** Destroys a named rendering window.
+        */
+        void destroyRenderWindow(const String &name);
+
+        /** Retrieves a pointer to the a named render window.
+        */
+        RenderWindow* getRenderWindow(const String &name);
+
+
     };
 } // Namespace Ogre
 #endif

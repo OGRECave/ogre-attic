@@ -350,8 +350,6 @@ namespace Ogre {
 
         RenderWindow *retWin =  mActiveRenderer->initialise(autoCreateWindow);
 
-        // Init particle systems manager
-        mParticleManager->_initialise();
 
         return retWin;
 
@@ -505,4 +503,67 @@ namespace Ogre {
         assert(mActiveRenderer != 0);
         mActiveRenderer->convertColourValue(colour, pDest);
     }
+    //-----------------------------------------------------------------------
+    RenderWindow* Root::createRenderWindow(const String &name, int width, int height, int colourDepth,
+                bool fullScreen, int left, int top, bool depthBuffer,RenderWindow* parentWindowHandle)
+    {
+        if (!mActiveRenderer)
+        {
+            Except(Exception::ERR_NO_RENDERSYSTEM_SELECTED,
+            "Cannot create window - no render "
+            "system has been selected.", "Root::createRenderWindow");
+        }
+        RenderWindow* ret;
+        ret = mActiveRenderer->createRenderWindow(name, width, height, colourDepth, fullScreen, left, top,
+            depthBuffer, parentWindowHandle);
+
+        // Initialisation for classes dependent on first window created
+        static bool firstOne = true;
+        if (firstOne)
+        {
+            // Init particle systems manager
+            mParticleManager->_initialise();
+            firstOne = false;
+        }
+
+        return ret;
+
+    }
+    //-----------------------------------------------------------------------
+    void Root::destroyRenderWindow(RenderWindow* pWin)
+    {
+        if (!mActiveRenderer)
+        {
+            Except(Exception::ERR_NO_RENDERSYSTEM_SELECTED,
+            "Cannot create window - no render "
+            "system has been selected.", "Root::destroyRenderWindow");
+        }
+
+        mActiveRenderer->destroyRenderWindow(pWin);
+    }
+    //-----------------------------------------------------------------------
+    void Root::destroyRenderWindow(const String &name)
+    {
+        if (!mActiveRenderer)
+        {
+            Except(Exception::ERR_NO_RENDERSYSTEM_SELECTED,
+            "Cannot create window - no render "
+            "system has been selected.", "Root::destroyRenderWindow");
+        }
+        mActiveRenderer->destroyRenderWindow(name);
+    }
+    //-----------------------------------------------------------------------
+    RenderWindow* Root::getRenderWindow(const String &name)
+    {
+        if (!mActiveRenderer)
+        {
+            Except(Exception::ERR_NO_RENDERSYSTEM_SELECTED,
+            "Cannot create window - no render "
+            "system has been selected.", "Root::getRenderWindow");
+        }
+
+        return mActiveRenderer->getRenderWindow(name);
+    }
+    //-----------------------------------------------------------------------
+
 }
