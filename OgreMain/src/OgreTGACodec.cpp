@@ -81,10 +81,6 @@ namespace Ogre {
 		Imagformat = ilGetInteger( IL_IMAGE_FORMAT );
 		BytesPerPixel = ilGetInteger( IL_IMAGE_BYTES_PER_PIXEL ); 
 
-		ret_data->format = ilFormat2OgreFormat( Imagformat, BytesPerPixel );
-		ret_data->width = ilGetInteger( IL_IMAGE_WIDTH );
-		ret_data->height = ilGetInteger( IL_IMAGE_HEIGHT );
-
 		uint ImageSize = ilGetInteger( IL_IMAGE_WIDTH ) * ilGetInteger( IL_IMAGE_HEIGHT ) * ilGetInteger( IL_IMAGE_BYTES_PER_PIXEL );
 		
 		output->allocate( ImageSize );
@@ -102,11 +98,14 @@ namespace Ogre {
 			//if so (probably) reverse the b and the r, this is slower but at least it works
 			ILint newIF = Imagformat==IL_BGR ? IL_RGB : IL_RGBA;
 			ilCopyPixels(0, 0, 0, ret_data->width , ret_data->height, 1, newIF, IL_UNSIGNED_BYTE, output->getPtr());
+            Imagformat = newIF;
 		}
 		else
         {
 			memcpy( output->getPtr(), ilGetData(), ImageSize );
         }
+
+		ret_data->format = ilFormat2OgreFormat( Imagformat, BytesPerPixel );
 
 		ilDeleteImages( 1, &ImageName );
 
