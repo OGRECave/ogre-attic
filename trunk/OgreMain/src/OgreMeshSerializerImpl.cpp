@@ -206,8 +206,8 @@ namespace Ogre {
         // bool useSharedVertices
         writeBools(&s->useSharedVertices, 1);
 
-		// unsigned int indexCount
-        writeInts(&s->indexData->indexCount, 1);
+		unsigned int indexCount = s->indexData->indexCount;
+        writeInts(&indexCount, 1);
 
         // bool indexes32Bit
         bool idx32bit = (s->indexData->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT);
@@ -286,8 +286,8 @@ namespace Ogre {
 		// Header
         writeChunkHeader(M_GEOMETRY, size);
 
-        // unsigned int numVertices
-        writeInts(&vertexData->vertexCount, 1);
+        unsigned int vertexCount = vertexData->vertexCount;
+        writeInts(&vertexCount, 1);
 
 		// Vertex declaration
 		size = stream_OVERHEAD_SIZE + elemList.size() * (stream_OVERHEAD_SIZE + sizeof(unsigned short) * 5);
@@ -472,8 +472,9 @@ namespace Ogre {
 
         dest->vertexStart = 0;
 
-        // unsigned int numVertices
-        readInts(stream, &dest->vertexCount, 1);
+        unsigned int vertexCount = 0;
+        readInts(stream, &vertexCount, 1);
+        dest->vertexCount = vertexCount;
 
         // Find optional geometry streams
         if (!stream->eof())
@@ -757,9 +758,10 @@ namespace Ogre {
         // bool useSharedVertices
         readBools(stream,&sm->useSharedVertices, 1);
 
-        // unsigned int indexCount
         sm->indexData->indexStart = 0;
-        readInts(stream, &sm->indexData->indexCount, 1);
+        unsigned int indexCount = 0;
+        readInts(stream, &indexCount, 1);
+        sm->indexData->indexCount = indexCount;
 
         HardwareIndexBufferSharedPtr ibuf;
         // bool indexes32Bit
@@ -1683,8 +1685,9 @@ namespace Ogre {
 
         dest->vertexStart = 0;
 
-        // unsigned int numVertices
-        readInts(stream, &dest->vertexCount, 1);
+        unsigned int vertexCount = 0;
+        readInts(stream, &vertexCount, 1);
+        dest->vertexCount = vertexCount;
 
         // Vertex buffers
 

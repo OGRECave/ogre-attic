@@ -54,16 +54,16 @@ namespace Ogre {
         virtual void writeFileHeader(void);
         virtual void writeChunkHeader(unsigned short id, unsigned long size);
         
-        void writeReals(const Real* pReal, size_t count);
-        void writeShorts(const unsigned short* pShort, size_t count);
-        void writeInts(const unsigned int* pInt, size_t count); 
-        void writeLongs(const unsigned long* pLong, size_t count); 
-        void writeBools(const bool* pLong, size_t count);
+        void writeReals(const Real* const pReal, size_t count);
+        void writeShorts(const unsigned short* const pShort, size_t count);
+        void writeInts(const unsigned int* const pInt, size_t count); 
+        void writeLongs(const unsigned long* const pLong, size_t count); 
+        void writeBools(const bool* const pLong, size_t count);
         void writeObject(const Vector3& vec);
         void writeObject(const Quaternion& q);
         
         void writeString(const String& string);
-        void writeData(const void* buf, size_t size, size_t count);
+        void writeData(const void* const buf, size_t size, size_t count);
         
         virtual void readFileHeader(DataStreamPtr& stream);
         virtual unsigned short readChunk(DataStreamPtr& stream);
