@@ -20,7 +20,6 @@ LGPL like the rest of the engine.
         blending modes available when using multiple texture layers
 */
 
-#include "Ogre.h"
 #include "EnvMapping.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32

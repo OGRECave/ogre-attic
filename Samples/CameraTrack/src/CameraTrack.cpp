@@ -20,8 +20,6 @@ Description: An example of using AnimationTracks to smoothly make a node
 -----------------------------------------------------------------------------
 */
 
-#include "Ogre.h"
-
 #include "ExampleApplication.h"
 
 AnimationState* mAnimState;

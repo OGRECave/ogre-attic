@@ -19,7 +19,6 @@ LGPL like the rest of the engine.
         Show's Ogre's skydome feature
 */
 
-#include "Ogre.h"
 #include "SkyDome.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32

@@ -25,7 +25,6 @@ LGPL like the rest of the engine.
         manager so this scene is kept deliberately simple.
 */
 
-#include "Ogre.h"
 #include "RenderToTexture.h"
 
 int main(int argc, char ** argv)

@@ -19,7 +19,6 @@ LGPL like the rest of the engine.
         Shows OGRE's bezier patch feature
 */
 
-#include "Ogre.h"
 #include "Bezier.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32

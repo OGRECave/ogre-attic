@@ -19,7 +19,6 @@ Description: Shows OGRE's environment mapping feature as well as the
 -----------------------------------------------------------------------------
 */
 
-#include "Ogre.h"
 #include "Smoke.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32
