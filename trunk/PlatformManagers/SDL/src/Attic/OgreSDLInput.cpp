@@ -31,8 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
     
     SDLInput::SDLInput() 
-        : InputReader(), mMouseX(0), mMouseY(0), mMouseCenterX(0), 
-          mMouseCenterY(0), mScale(0.002), _visible(true)
+        : InputReader(), mMouseX(0), mMouseY(0), mScale(0.002), _visible(true)
     {
         mEventQueue = 0;
 
@@ -153,18 +152,14 @@ namespace Ogre {
           SDL_ShowCursor(0);
           SDL_WM_GrabInput(SDL_GRAB_ON);
         }
-        warpMouse=useMouse;
 
         // Get the center and put the mouse there
         unsigned int width, height, depth;
         int left, top;
         pWindow->getMetrics(width, height, depth, left, top);
 
-        mMouseX = mMouseCenterX = width / 2;
-        mMouseY = mMouseCenterY = height / 2;
-
-        if(warpMouse)
-          SDL_WarpMouse(mMouseCenterX, mMouseCenterY);
+        mMouseX = width / 2;
+        mMouseY = height / 2;
     }
 
     void SDLInput::capture()
@@ -205,19 +200,21 @@ namespace Ogre {
         if (!mUseBufferedMouse)
         {
             mMouseKeys = 0;
+            int relMouseX  = 0, relMouseY = 0;
 
             // Get mouse info
             if( SDL_GetAppState() & SDL_APPMOUSEFOCUS )
             {
                 mMouseKeys = SDL_GetMouseState( &mMouseX, &mMouseY );
+                SDL_GetRelativeMouseState( &relMouseX, &relMouseY );
             }
 
             mMouseState.Xabs = mMouseX;
             mMouseState.Yabs = mMouseY;
             mMouseState.Zabs = 0;
 
-            mMouseState.Xrel = mMouseX - mMouseCenterX;
-            mMouseState.Yrel = mMouseY - mMouseCenterY;
+            mMouseState.Xrel = relMouseX;
+            mMouseState.Yrel = relMouseY;
             mMouseState.Zrel = 0;
 
             mMouseState.Buttons = 0;
@@ -229,8 +226,6 @@ namespace Ogre {
             // XXX Fix me up
             // Game controller state
         }
-        if(warpMouse)
-          SDL_WarpMouse( mMouseCenterX, mMouseCenterY );
     }
 
     bool SDLInput::isKeyDown(KeyCode kc) const
@@ -499,17 +494,17 @@ namespace Ogre {
 
     long SDLInput::getMouseRelX() const
     {
-        return mMouseX - mMouseCenterX;
+        return mMouseState.Xrel;
     }
 
     long SDLInput::getMouseRelY() const
     {
-        return mMouseY - mMouseCenterY;
+        return mMouseState.Yrel;
     }
 
     long SDLInput::getMouseRelZ() const
     {
-        return 0;
+        return mMouseState.Zrel;
     }
 
     long SDLInput::getMouseAbsX() const
@@ -578,13 +573,6 @@ namespace Ogre {
                 _visible = events[i].active.gain ? true : false;
                 break;
             case SDL_MOUSEMOTION:
-                if (events[i].motion.x == mMouseCenterX && 
-                        events[i].motion.y == mMouseCenterY)
-                {
-                    // it moved to the center, probably a warp, ignore it
-                    continue;
-                }
-
                 if (events[i].motion.xrel)
                 {
                     if (Xset)
