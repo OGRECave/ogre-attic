@@ -184,8 +184,7 @@ namespace Ogre {
 
         // Always open in binary mode
         std::ifstream *origStream = new std::ifstream();
-        origStream->open(filename.c_str(), 
-            std::ios::in | std::ios::binary | std::ios::ate);
+        origStream->open(filename.c_str(), std::ios::in | std::ios::binary);
 
         popDirectory();
         /// Construct return stream, tell it to delete on destroy
