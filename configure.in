@@ -19,6 +19,7 @@ if test x$GCC = xyes; then
     if test -n "`$CC --version 2>&1|grep '3.'`"; then
         AC_DEFINE(EXT_HASH,, Use old STL hash options)
         AC_DEFINE(GCC_3_1,, 3.x GCC version)
+        AC_SUBST(OGRE_CFLAGS, "-DGCC_3_1 -DEXT_HASH")
         AC_MSG_RESULT(yes);
     else
         AC_MSG_RESULT(no)!
@@ -144,6 +145,10 @@ AC_CONFIG_FILES([Makefile \
     Samples/Gui/Makefile \
     Samples/Gui/src/Makefile \
     Samples/Gui/include/Makefile \
+    Tools/Makefile \
+    Tools/XMLConverter/Makefile \
+    Tools/XMLConverter/src/Makefile \
+    Tools/XMLConverter/include/Makefile \
     OGRE.pc
     ])
 
