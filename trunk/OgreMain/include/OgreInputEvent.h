@@ -121,7 +121,7 @@ namespace Ogre {
 			BUTTON1_MASK		= 1 << 5,
 			BUTTON2_MASK		= 1 << 6,
 			BUTTON3_MASK		= 1 << 7,
-			BUTTON_ANY_MASK		= 0x1111 << 4
+			BUTTON_ANY_MASK		= 0xF << 4
 		};
 
 
