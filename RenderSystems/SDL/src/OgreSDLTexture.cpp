@@ -80,14 +80,16 @@ namespace Ogre {
             "SDLTexture: Loading %s with %d mipmaps from Image.", 
             mName.c_str(), mNumMipMaps );        
 
-        if( img.getFormat() & Image::FMT_ALPHA )
+        Image::PixelFormat pf = img.getFormat();
+
+        mSrcBpp = Image::PF2BPP(pf);
+
+        if( pf & Image::FMT_ALPHA )
         {
-            mSrcBpp = 32;
             mHasAlpha = true;
         }
         else
         {
-            mSrcBpp = 24;
             mHasAlpha = false;
         }
 
