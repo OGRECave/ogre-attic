@@ -44,7 +44,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreFrustum.h"
 #include "OgreGpuProgram.h"
 #include "OgreGpuProgramManager.h"
-#include "OgreGuiManager.h"
 #include "OgreHardwareBufferManager.h"
 #include "OgreHardwareIndexBuffer.h"
 #include "OgreHardwareOcclusionQuery.h"
