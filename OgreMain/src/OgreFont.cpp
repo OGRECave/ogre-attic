@@ -161,18 +161,8 @@ namespace Ogre
         uint data_width = tex_side * 4;
         // Add a gap between letters vert and horz
         // prevents nasty artefacts when letters are too close together
+        // TODO this should be parametric, based on height.
         uint char_spacer = 5;
-
-        /*
-        typedef uchar pixel[4];
-        pixel **image;
-
-        image = new pixel * [tex_side];
-        for( i = 0; i < tex_side; i++ )
-        {
-            image[ i ] = new pixel[tex_side];
-        }
-        */
 
         uchar* imageData = new uchar[tex_side * tex_side * 4];
 
@@ -181,7 +171,7 @@ namespace Ogre
         DataChunk ttfchunk;
         FontManager::getSingleton()._findResourceData(mSource, ttfchunk);
         // Load font
-        if( FT_New_Memory_Face( mLibrary, ttfchunk.getPtr(), ttfchunk.getSize() , 0, &face ) )
+        if( FT_New_Memory_Face( mLibrary, ttfchunk.getPtr(), (FT_Long)ttfchunk.getSize() , 0, &face ) )
             Except( Exception::ERR_INTERNAL_ERROR, 
             "Could not open font face!", "Font::createTextureFromFont" );
 
