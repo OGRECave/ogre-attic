@@ -528,7 +528,7 @@ namespace Ogre {
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
 	StaticGeometry::Region::Region(const String& name, uint32 regionID, const Vector3& centre) 
-		: mName(name), mRegionID(regionID), mCentre(centre)
+		: mName(name), mRegionID(regionID), mCentre(centre), mBoundingRadius(0.0f)
 	{
 		// First LOD mandatory, and always from 0
 		mLodSquaredDistances.push_back(0.0f);
@@ -569,7 +569,14 @@ namespace Ogre {
 		}
 
 		// update bounds
-		mWorldAABB.merge(qmesh->worldBounds);
+		// Transform world bounds relative to our centre
+		AxisAlignedBox localBounds(
+			qmesh->worldBounds.getMinimum() - mCentre,
+			qmesh->worldBounds.getMaximum() - mCentre);
+		mAABB.merge(localBounds);
+		mBoundingRadius = std::max(mBoundingRadius, localBounds.getMinimum().length());
+		mBoundingRadius = std::max(mBoundingRadius, localBounds.getMaximum().length());
+
 	}
 	//--------------------------------------------------------------------------
 	void StaticGeometry::Region::build(void)
@@ -590,26 +597,33 @@ namespace Ogre {
 	//--------------------------------------------------------------------------
 	const String& StaticGeometry::Region::getName(void) const
 	{
+		return mName;
 	}
 	//--------------------------------------------------------------------------
 	const String& StaticGeometry::Region::getMovableType(void) const
 	{
+		static String sType = "StaticGeometry";
+		return sType;
 	}
 	//--------------------------------------------------------------------------
 	void StaticGeometry::Region::_notifyCurrentCamera(Camera* cam)
 	{
+		// TODO
 	}
 	//--------------------------------------------------------------------------
 	const AxisAlignedBox& StaticGeometry::Region::getBoundingBox(void) const
 	{
+		return mAABB;
 	}
 	//--------------------------------------------------------------------------
 	Real StaticGeometry::Region::getBoundingRadius(void) const
 	{
+		return mBoundingRadius;
 	}
 	//--------------------------------------------------------------------------
 	void StaticGeometry::Region::_updateRenderQueue(RenderQueue* queue)
 	{
+		// TODO
 	}
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
@@ -639,6 +653,7 @@ namespace Ogre {
 	//--------------------------------------------------------------------------
 	void StaticGeometry::LODBucket::build(void)
 	{
+		// TODO
 	}
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
@@ -668,6 +683,7 @@ namespace Ogre {
 	//--------------------------------------------------------------------------
 	void StaticGeometry::MaterialBucket::build(void)
 	{
+		// TODO
 	}
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
@@ -682,38 +698,55 @@ namespace Ogre {
 	//--------------------------------------------------------------------------
 	const MaterialPtr& StaticGeometry::GeometryBucket::getMaterial(void) const
 	{
+		// TODO
+		return MaterialPtr();
 	}
 	//--------------------------------------------------------------------------
 	Technique* StaticGeometry::GeometryBucket::getTechnique(void) const
 	{
+		// TODO
+		return 0;
 	}
 	//--------------------------------------------------------------------------
 	void StaticGeometry::GeometryBucket::getRenderOperation(RenderOperation& op)
 	{
+		// TODO
 	}
 	//--------------------------------------------------------------------------
 	void StaticGeometry::GeometryBucket::getWorldTransforms(Matrix4* xform) const
 	{
+		// Should be the identity transform, but lets allow transformation of the
+		// nodes the regions are attached to for kicks
+		*xform = mParent->getParent()->getParent()->_getParentNodeFullTransform();
 	}
 	//--------------------------------------------------------------------------
 	const Quaternion& StaticGeometry::GeometryBucket::getWorldOrientation(void) const
 	{
+		return Quaternion::IDENTITY;
 	}
 	//--------------------------------------------------------------------------
 	const Vector3& StaticGeometry::GeometryBucket::getWorldPosition(void) const
 	{
+		return mParent->getParent()->getParent()->getCentre();
 	}
 	//--------------------------------------------------------------------------
 	Real StaticGeometry::GeometryBucket::getSquaredViewDepth(const Camera* cam) const
 	{
+		// TODO
+		return 0;
 	}
 	//--------------------------------------------------------------------------
 	const LightList& StaticGeometry::GeometryBucket::getLights(void) const
 	{
+		// TODO
+		static LightList nullLightList;
+		return nullLightList;
 	}
 	//--------------------------------------------------------------------------
 	bool StaticGeometry::GeometryBucket::getCastsShadows(void) const
 	{
+		// TODO
+		return false;
 	}
 	//--------------------------------------------------------------------------
 	void StaticGeometry::GeometryBucket::assign(QueuedSubMesh* qmesh)
@@ -723,6 +756,7 @@ namespace Ogre {
 	//--------------------------------------------------------------------------
 	void StaticGeometry::GeometryBucket::build(void)
 	{
+		// TODO
 	}
 	//--------------------------------------------------------------------------
 
