@@ -106,7 +106,8 @@ namespace Ogre
 	void Resource::touch(void) 
 	{
 		OGRE_LOCK_AUTO_MUTEX
-		mCreator->_notifyResourceTouched(this);
+		if(mCreator)
+			mCreator->_notifyResourceTouched(this);
 	}
 	//-----------------------------------------------------------------------
 
