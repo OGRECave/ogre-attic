@@ -177,9 +177,10 @@ namespace Ogre {
         return m_strName;
     }
     //-----------------------------------------------------------------------
-    const String SimpleRenderable::getMovableType(void) const
+    const String& SimpleRenderable::getMovableType(void) const
     {
-        return "SimpleRenderable";
+        static String movType = "SimpleRenderable";
+        return movType;
     }
 
 }

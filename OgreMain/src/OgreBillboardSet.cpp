@@ -841,7 +841,7 @@ namespace Ogre {
         return mName;
     }
     //-----------------------------------------------------------------------
-    const String BillboardSet::getMovableType(void) const
+    const String& BillboardSet::getMovableType(void) const
     {
         return msMovableType;
     }

@@ -182,7 +182,7 @@ namespace Ogre
         };
 
         /// Returns the movable type
-        virtual const String getMovableType(void) const
+        virtual const String& getMovableType(void) const
         {
             return "NaturePatch";
         }

@@ -72,7 +72,7 @@ namespace Ogre {
         virtual const String& getName(void) const = 0;
 
         /** Returns the type name of this object. */
-        virtual const String getMovableType(void) const = 0;
+        virtual const String& getMovableType(void) const = 0;
 
         /** Returns the node to which this object is attached.
             @remarks

@@ -173,7 +173,7 @@ public:
     };
 
     /** Returns the type of the movable. */
-    virtual const String getMovableType( void ) const
+    virtual const String& getMovableType( void ) const
     {
         return mType;
     };

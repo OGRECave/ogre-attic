@@ -285,7 +285,7 @@ namespace Ogre {
         // Do nothing
     }
     //-----------------------------------------------------------------------
-    const String Light::getMovableType(void) const
+    const String& Light::getMovableType(void) const
     {
         return msMovableType;
     }

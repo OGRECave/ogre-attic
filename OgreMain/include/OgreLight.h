@@ -268,7 +268,7 @@ namespace Ogre {
         void _updateRenderQueue(RenderQueue* queue);
 
         /** Overridden from MovableObject */
-        const String getMovableType(void) const;
+        const String& getMovableType(void) const;
 
         /** Retrieves the position of the light including any transform from nodes it is attached to. */
         const Vector3& getDerivedPosition(void);

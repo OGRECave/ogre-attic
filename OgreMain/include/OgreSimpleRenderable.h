@@ -97,7 +97,7 @@ namespace Ogre {
         virtual const String& getName(void) const;
 
         /** Overridden from MovableObject */
-        virtual const String getMovableType(void) const;
+        virtual const String& getMovableType(void) const;
 
 
     };

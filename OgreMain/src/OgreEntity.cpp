@@ -324,7 +324,7 @@ namespace Ogre {
         return &mAnimationState;
     }
     //-----------------------------------------------------------------------
-    const String Entity::getMovableType(void) const
+    const String& Entity::getMovableType(void) const
     {
         return msMovableType;
     }

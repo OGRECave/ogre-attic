@@ -818,7 +818,7 @@ namespace Ogre {
         // Do nothing
     }
     //-----------------------------------------------------------------------
-    const String Camera::getMovableType(void) const
+    const String& Camera::getMovableType(void) const
     {
         return msMovableType;
     }
