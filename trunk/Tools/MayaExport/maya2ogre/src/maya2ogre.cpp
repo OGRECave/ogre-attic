@@ -72,6 +72,7 @@ int main(int argc, char *argv[]) {
         
         // DEBUG
         // ===== Iterate over mesh components of DAG       
+        /*
         cout << "=== DAG Nodes ==============================\n";
         MItDag dagIter( MItDag::kBreadthFirst, MFn::kInvalid, 0 );
         for ( ; !dagIter.isDone(); dagIter.next()) {
@@ -83,6 +84,7 @@ int main(int argc, char *argv[]) {
                << "\n";
         }
         cout << "============================================\n";
+        */
         
 
 
@@ -132,7 +134,7 @@ void showHelp()
 	cout << "Usage: maya2ogre -in FILE [-mesh FILE] [-skel FILE] [-s]\n";
     cout << "                 [-anim NAME START END STEP]\n";
     cout << "                 [-mat FILE] [-mprefix PREFIX] [-m]\n";
-    cout << "                 [-n] [-c] [-t]\n\n";
+    cout << "                 [-n] [-c] [-t] [-vba]\n\n";
 	cout << " -in      FILE   input mb File\n";
     cout << " -mesh    FILE   export mesh using user defined file name\n";
     cout << " -skel    FILE   export skeleton using user defined file name\n";
