@@ -913,6 +913,9 @@
 				RelativePath="..\include\OgreSerializer.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreSharedPtr.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreSimpleRenderable.h">
 			</File>
 			<File

@@ -82,7 +82,7 @@ namespace Ogre {
         bool operator!=(const AnimationState& rhs) const;
 
         /** ControllerValue implementation. */
-        Real getValue(void);
+        Real getValue(void) const;
 
         /** ControllerValue implementation. */
         void setValue(Real value);

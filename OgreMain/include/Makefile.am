@@ -128,6 +128,7 @@ OgreSceneQuery.h \
 OgreScrollEvent.h \
 OgreScrollTarget.h \
 OgreSerializer.h \
+OgreSharedPtr.h \
 OgreSimpleRenderable.h \
 OgreSimpleSpline.h \
 OgreSingleton.h \

@@ -144,7 +144,7 @@ namespace Ogre
         return !(*this == rhs);
     }
     //---------------------------------------------------------------------
-    Real AnimationState::getValue(void)
+    Real AnimationState::getValue(void) const
     {
         return mTimePos * mInvLength;
     }

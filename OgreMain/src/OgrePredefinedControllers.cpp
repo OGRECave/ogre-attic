@@ -54,7 +54,7 @@ namespace Ogre
         return true;
     }
     //-----------------------------------------------------------------------
-    Real FrameTimeControllerValue::getValue()
+    Real FrameTimeControllerValue::getValue() const
     {
         return mFrameTime;
     }
@@ -64,7 +64,7 @@ namespace Ogre
         // Do nothing - value is set from frame listener
     }
 	//-----------------------------------------------------------------------
-	Real FrameTimeControllerValue::getTimeFactor(void) {
+	Real FrameTimeControllerValue::getTimeFactor(void) const {
 		return mTimeFactor;
 	}
 	//-----------------------------------------------------------------------
@@ -79,7 +79,7 @@ namespace Ogre
         mTextureLayer = t;
     }
     //-----------------------------------------------------------------------
-    Real TextureFrameControllerValue::getValue(void)
+    Real TextureFrameControllerValue::getValue(void) const
     {
         int numFrames = mTextureLayer->getNumFrames();
         return (mTextureLayer->getCurrentFrame() / numFrames);
@@ -104,7 +104,7 @@ namespace Ogre
         mRotate = rotate;
     }
     //-----------------------------------------------------------------------
-    Real TexCoordModifierControllerValue::getValue()
+    Real TexCoordModifierControllerValue::getValue() const
     {
         const Matrix4& pMat = mTextureLayer->getTextureTransform();
         if (mTransU)
