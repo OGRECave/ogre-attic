@@ -36,8 +36,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 //-----------------------------------------------------------------------------  
-D3D9HardwarePixelBuffer::D3D9HardwarePixelBuffer(IDirect3DSurface9 *pSurface):
-	HardwarePixelBuffer(0, 0, 0, PF_UNKNOWN, HBU_DYNAMIC, false, false),
+D3D9HardwarePixelBuffer::D3D9HardwarePixelBuffer(IDirect3DSurface9 *pSurface, 
+												 HardwareBuffer::Usage usage):
+	HardwarePixelBuffer(0, 0, 0, PF_UNKNOWN, usage, false, false),
 	mSurface(pSurface), mVolume(0), mTempSurface(0), mTempVolume(0),
 	mDoMipmapGen(0), mHWMipmaps(0), mMipTex(0)
 {
@@ -55,8 +56,9 @@ D3D9HardwarePixelBuffer::D3D9HardwarePixelBuffer(IDirect3DSurface9 *pSurface):
 	mSizeInBytes = mHeight*mWidth*PixelUtil::getNumElemBytes(mFormat);
 }
 //-----------------------------------------------------------------------------  
-D3D9HardwarePixelBuffer::D3D9HardwarePixelBuffer(IDirect3DVolume9 *pVolume):
-	HardwarePixelBuffer(0, 0, 0, PF_UNKNOWN, HBU_DYNAMIC, false, false),
+D3D9HardwarePixelBuffer::D3D9HardwarePixelBuffer(IDirect3DVolume9 *pVolume, 
+												 HardwareBuffer::Usage usage):
+	HardwarePixelBuffer(0, 0, 0, PF_UNKNOWN, usage, false, false),
 	mSurface(0), mVolume(pVolume), mTempSurface(0), mTempVolume(0),
 	mDoMipmapGen(0), mHWMipmaps(0), mMipTex(0)
 {
@@ -87,7 +89,10 @@ PixelBox D3D9HardwarePixelBuffer::lockImpl(const Image::Box lockBox,  LockOption
 	switch(options)
 	{
 	case HBL_DISCARD:
-		flags |= D3DLOCK_DISCARD;
+		// D3D only likes D3DLOCK_DISCARD if you created the texture with D3DUSAGE_DYNAMIC
+		// debug runtime flags this up, could cause problems on some drivers
+		if (mUsage & HBU_DYNAMIC)
+			flags |= D3DLOCK_DISCARD;
 		break;
 	case HBL_READ_ONLY:
 		flags |= D3DLOCK_READONLY;
@@ -99,14 +104,25 @@ PixelBox D3D9HardwarePixelBuffer::lockImpl(const Image::Box lockBox,  LockOption
 	if(mSurface) 
 	{
 		// Surface
-		RECT prect; // specify range to lock
 		D3DLOCKED_RECT lrect; // Filled in by D3D
-		prect.left = lockBox.left;
-		prect.right = lockBox.right;
-		prect.top = lockBox.top;
-		prect.bottom = lockBox.bottom;
-		
-		if(mSurface->LockRect(&lrect, &prect, flags) != D3D_OK)
+		HRESULT hr;
+
+		if (lockBox.left == 0 && lockBox.top == 0 
+			&& lockBox.right == mWidth && lockBox.bottom == mHeight)
+		{
+			// Lock whole surface
+			hr = mSurface->LockRect(&lrect, NULL, flags);
+		}
+		else
+		{
+			RECT prect; // specify range to lock
+			prect.left = lockBox.left;
+			prect.right = lockBox.right;
+			prect.top = lockBox.top;
+			prect.bottom = lockBox.bottom;
+			hr = mSurface->LockRect(&lrect, &prect, flags);
+		}
+		if (FAILED(hr))		
 			Except(Exception::ERR_RENDERINGAPI_ERROR, "Surface locking failed",
 		 		"D3D9HardwarePixelBuffer::lockImpl");
 		

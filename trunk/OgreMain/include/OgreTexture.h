@@ -40,7 +40,6 @@ namespace Ogre {
 		TU_STATIC = HardwareBuffer::HBU_STATIC,
 		TU_DYNAMIC = HardwareBuffer::HBU_DYNAMIC,
 		TU_WRITE_ONLY = HardwareBuffer::HBU_WRITE_ONLY,
-		TU_DISCARDABLE = HardwareBuffer::HBU_DISCARDABLE,
 		TU_STATIC_WRITE_ONLY = HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
 		TU_DYNAMIC_WRITE_ONLY = HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY,
 		TU_DYNAMIC_WRITE_ONLY_DISCARDABLE = HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE,
@@ -156,7 +155,7 @@ namespace Ogre {
 
         /** Sets the TextureUsage indentifier for this Texture; only useful before load()
 			
-			@param u is a combination of TU_STATIC, TU_DYNAMIC, TU_WRITE_ONLY, TU_DISCARDABLE, 
+			@param u is a combination of TU_STATIC, TU_DYNAMIC, TU_WRITE_ONLY 
 				TU_AUTOMIPMAP and TU_RENDERTARGET (see TextureUsage enum). You are
             	strongly advised to use HBU_STATIC_WRITE_ONLY wherever possible, if you need to 
             	update regularly, consider HBU_DYNAMIC_WRITE_ONLY.

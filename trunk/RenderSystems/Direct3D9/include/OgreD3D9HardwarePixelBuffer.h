@@ -55,8 +55,8 @@ namespace Ogre {
 		bool mHWMipmaps;
 		IDirect3DBaseTexture9 *mMipTex;
 	public:
-		D3D9HardwarePixelBuffer(IDirect3DSurface9 *pSurface);
-		D3D9HardwarePixelBuffer(IDirect3DVolume9 *pVolume);
+		D3D9HardwarePixelBuffer(IDirect3DSurface9 *pSurface, HardwareBuffer::Usage usage);
+		D3D9HardwarePixelBuffer(IDirect3DVolume9 *pVolume, HardwareBuffer::Usage usage);
 		
 		/// @copydoc HardwarePixelBuffer::blit
 		void blit(HardwarePixelBuffer *src, const Image::Box &srcBox, const Image::Box &dstBox);

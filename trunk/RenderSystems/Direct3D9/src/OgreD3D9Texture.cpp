@@ -48,7 +48,8 @@ namespace Ogre
 		mpVolumeTex(NULL),
         mpZBuff(NULL),
         mpTex(NULL),
-        mAutoGenMipmaps(false)
+        mAutoGenMipmaps(false),
+		mDynamicTextures(false)
 	{
         _initDevice();
 	}
@@ -371,9 +372,16 @@ namespace Ogre
 		
 		// Determine D3D pool to use
 		// Use managed unless we're a render target or user has asked for 
-		// a discardable texture
-		mD3DPool = ((mUsage & TU_RENDERTARGET) | (mUsage & TU_DISCARDABLE)) ?
-			D3DPOOL_DEFAULT : D3DPOOL_MANAGED;
+		// a dynamic texture
+		if ((mUsage & TU_RENDERTARGET) ||
+			(mUsage & TU_DYNAMIC))
+		{
+			mD3DPool = D3DPOOL_DEFAULT;
+		}
+		else
+		{
+			mD3DPool = D3DPOOL_MANAGED;
+		}
 		// load based on tex.type
 		switch (this->getTextureType())
 		{
@@ -405,6 +413,20 @@ namespace Ogre
 		// Use D3DX to help us create the texture, this way it can adjust any relevant sizes
 		DWORD usage = (mUsage & TU_RENDERTARGET) ? D3DUSAGE_RENDERTARGET : 0;
 		UINT numMips = mNumMipmaps + 1;
+		// Check dynamic textures
+		if (mUsage & TU_DYNAMIC)
+		{
+			if (_canUseDynamicTextures(usage, D3DRTYPE_TEXTURE, d3dPF))
+			{
+				usage |= D3DUSAGE_DYNAMIC;
+				mDynamicTextures = true;
+			}
+			else
+			{
+				mDynamicTextures = false;
+			}
+
+		}
 		// check if mip maps are supported on hardware
 		if ((mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPMAP) && mNumMipmaps > 0)
 		{
@@ -784,6 +806,28 @@ namespace Ogre
 		return D3DTEXF_POINT;
 	}
 	/****************************************************************************************/
+	bool D3D9Texture::_canUseDynamicTextures(DWORD srcUsage, D3DRESOURCETYPE srcType, D3DFORMAT srcFormat)
+	{
+		// those MUST be initialized !!!
+		assert(mpDev);
+		assert(mpD3D);
+
+		// Check for dynamic texture support
+		HRESULT hr;
+		// check for auto gen. mip maps support
+		hr = mpD3D->CheckDeviceFormat(
+			mDevCreParams.AdapterOrdinal, 
+			mDevCreParams.DeviceType, 
+			mBBPixelFormat, 
+			srcUsage | D3DUSAGE_DYNAMIC,
+			srcType,
+			srcFormat);
+		if (hr == D3D_OK)
+			return true;
+		else
+			return false;
+	}
+	/****************************************************************************************/
 	bool D3D9Texture::_canAutoGenMipmaps(DWORD srcUsage, D3DRESOURCETYPE srcType, D3DFORMAT srcFormat)
 	{
 		// those MUST be initialized !!!
@@ -873,6 +917,16 @@ namespace Ogre
 		assert(mpTex);
 		// Make sure number of mips is right
 		mNumMipmaps = mpTex->GetLevelCount() - 1;
+		// Need to know static / dynamic
+		HardwareBuffer::Usage bufusage;
+		if ((mUsage & TU_DYNAMIC) && mDynamicTextures)
+		{
+			bufusage = HardwareBuffer::HBU_DYNAMIC;
+		}
+		else
+		{
+			bufusage = HardwareBuffer::HBU_STATIC;
+		}
 			
 		mSurfaceList.clear();
 		switch(getTextureType()) {
@@ -888,7 +942,7 @@ namespace Ogre
 				// decrement reference count
 				surface->Release();
 
-				buffer = new D3D9HardwarePixelBuffer(surface);
+				buffer = new D3D9HardwarePixelBuffer(surface, bufusage);
 				if(mNumMipmaps>0 && mip == 0 && (mUsage & TU_AUTOMIPMAP)) 
 					buffer->_setMipmapping(true, mAutoGenMipmaps, mpTex);
 					
@@ -906,7 +960,7 @@ namespace Ogre
 						Except(Exception::ERR_RENDERINGAPI_ERROR, "Get cubemap surface failed",
 		 				"D3D9Texture::getBuffer");
 						
-					buffer = new D3D9HardwarePixelBuffer(surface);
+					buffer = new D3D9HardwarePixelBuffer(surface, bufusage);
 					if(mNumMipmaps>0 && mip == 0 && (mUsage & TU_AUTOMIPMAP)) 
 						buffer->_setMipmapping(true, mAutoGenMipmaps, mpTex);
 						
@@ -924,7 +978,7 @@ namespace Ogre
 		 				"D3D9Texture::getBuffer");	
 				volume->Release();
 						
-				buffer = new D3D9HardwarePixelBuffer(volume);
+				buffer = new D3D9HardwarePixelBuffer(volume, bufusage);
 				if(mNumMipmaps>0 && mip == 0 && (mUsage & TU_AUTOMIPMAP)) 
 					buffer->_setMipmapping(true, mAutoGenMipmaps, mpTex);
 					
@@ -1097,10 +1151,13 @@ namespace Ogre
 			else
 			{
 				// This can only happen if someone created a texture 
-				// and used the TU_DISCARDABLE flag
+				// and used the TU_DYNAMIC flag
 				load();
 			}
 		}
+		// re-query the surface list anyway
+		_createSurfaceList();
+
 	}
 
 
