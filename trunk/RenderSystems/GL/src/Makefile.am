@@ -5,7 +5,7 @@ INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/RenderSystems/GL/include \
            -I$(top_srcdir)/RenderSystems/GL/src/nvparse \
            -I$(top_srcdir)/RenderSystems/GL/src/atifs/include
 
-DIST_SUBDIRS = gtk SDL win32
+DIST_SUBDIRS = gtk SDL win32 GLX
 SUBDIRS = $(OGRE_GLSUPPORT) nvparse atifs
 
 pkglib_PROGRAMS = RenderSystem_GL.so
