@@ -480,9 +480,10 @@ namespace Ogre {
                     }
                     first = false;
 
-					Real newSqlLen = (*i)->geometry.pVertices[vert] 
-						* (*i)->geometry.pVertices[vert+1]
-						* (*i)->geometry.pVertices[vert+2];
+					Real newSqlLen = 
+                        (*i)->geometry.pVertices[vert]  * (*i)->geometry.pVertices[vert] + 
+						(*i)->geometry.pVertices[vert+1] * (*i)->geometry.pVertices[vert+1] +
+						(*i)->geometry.pVertices[vert+2] * (*i)->geometry.pVertices[vert+2];
 					maxSquaredLength = std::max(newSqlLen, maxSquaredLength);
                 }
             }
@@ -518,9 +519,9 @@ namespace Ogre {
                     max.z = sharedGeometry.pVertices[vert+2];
                 }
                 first = false;
-				Real newSqlLen = sharedGeometry.pVertices[vert] 
-					* sharedGeometry.pVertices[vert+1]
-					* sharedGeometry.pVertices[vert+2];
+				Real newSqlLen = sharedGeometry.pVertices[vert]* sharedGeometry.pVertices[vert] +
+					sharedGeometry.pVertices[vert+1] * sharedGeometry.pVertices[vert+1] +
+					sharedGeometry.pVertices[vert+2] * sharedGeometry.pVertices[vert+2];
 				maxSquaredLength = std::max(newSqlLen, maxSquaredLength);
             }
         }
