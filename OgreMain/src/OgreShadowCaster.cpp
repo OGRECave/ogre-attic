@@ -75,7 +75,8 @@ namespace Ogre {
                 EdgeData::Edge& edge = *i;
 
                 EdgeData::Triangle &t1 = edgeData->triangles[edge.triIndex[0]];
-                EdgeData::Triangle &t2 = edgeData->triangles[edge.triIndex[1]];
+                EdgeData::Triangle &t2 = 
+                    edge.degenerate? edgeData->triangles[edge.triIndex[0]] : edgeData->triangles[edge.triIndex[1]];
                 if (t1.lightFacing && (edge.degenerate || !t2.lightFacing))
                 {
                     /* Silhouette edge, first tri facing the light

@@ -287,7 +287,7 @@ void reorganiseVertexBuffers(const String& desc, Mesh& mesh, VertexData* vertexD
 					
 				}
                 BufferUsageList bufferUsages;
-                for (size_t u = 0; u < vertexData->vertexBufferBinding->getBufferCount(); ++u)
+                for (size_t u = 0; u <= newDecl->getMaxSource(); ++u)
                     bufferUsages.push_back(HardwareBuffer::HBU_STATIC_WRITE_ONLY);
 				vertexData->reorganiseBuffers(newDecl, bufferUsages);
 			}
