@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSceneNode.h"
 #include "OgreCamera.h"
 
+
 namespace Ogre {
     String Light::msMovableType = "Light";
 
@@ -326,14 +327,7 @@ namespace Ogre {
         {
             // light is not too close to the near plane
             // First find the worldspace positions of the corners of the viewport
-            Real y = Math::Tan(cam->getFOVy() * 0.5);
-            Real x = cam->getAspectRatio() * y;
-            Vector3 corner[4] = {
-                eyeToWorld * Vector3( x,  y, -n),
-                eyeToWorld * Vector3(-x,  y, -n),
-                eyeToWorld * Vector3(-x, -y, -n),
-                eyeToWorld * Vector3( x, -y, -n),
-            };
+            const Vector3 *corner = cam->getWorldSpaceCorners();
             // Iterate over world points and form side planes
             Vector3 normal;
             Vector3 lightDir;
@@ -345,6 +339,11 @@ namespace Ogre {
                 normal = (corner[i] - corner[(i-1)%4])
                     .crossProduct(lightDir);
                 normal.normalise();
+                if (d < THRESHOLD)
+                {
+                    // invert normal
+                    normal = -normal;
+                }
                 // NB last param to Plane constructor is negated because it's -d
                 mNearClipVolume.planes.push_back(
                     Plane(normal, normal.dotProduct(corner[i])));
@@ -393,6 +392,117 @@ namespace Ogre {
 
         return mNearClipVolume;
 
+    }
+    //-----------------------------------------------------------------------
+    const PlaneBoundedVolumeList& Light::_getFrustumClipVolumes(const Camera* cam) const
+    {
+
+        // Homogenous light position
+        Vector4 lightPos = getAs4DVector();
+        // 3D version (not the same as _getDerivedPosition, is -direction for
+        // directional lights)
+        Vector3 lightPos3 = Vector3(lightPos.x, lightPos.y, lightPos.z);
+        Vector3 lightDir;
+
+        const Vector3 *clockwiseVerts[4];
+
+        Matrix4 eyeToWorld = cam->getViewMatrix().inverse();
+        // Get worldspace frustum corners
+        const Vector3* corners = cam->getWorldSpaceCorners();
+
+        mFrustumClipVolumes.clear();
+        for (unsigned short n = 0; n < 6; ++n)
+        {
+            const Plane& plane = cam->getFrustumPlane(n);
+            Vector4 planeVec(plane.normal.x, plane.normal.y, plane.normal.z, plane.d);
+            // planes face inwards, we need to know if light is on negative side
+            Real d = planeVec.dotProduct(lightPos);
+            if (d < -1e-06)
+            {
+                // Ok, this is a valid one
+                // clockwise verts mean we can cross-product and always get normals
+                // facing into the volume we create
+
+                mFrustumClipVolumes.push_back(PlaneBoundedVolume());
+                PlaneBoundedVolume& vol = mFrustumClipVolumes[mFrustumClipVolumes.size() - 1];
+                switch(n)
+                {
+                case(FRUSTUM_PLANE_NEAR):
+                    clockwiseVerts[0] = corners + 3;
+                    clockwiseVerts[1] = corners + 2;
+                    clockwiseVerts[2] = corners + 1;
+                    clockwiseVerts[3] = corners + 0;
+                    break;
+                case(FRUSTUM_PLANE_FAR):
+                    clockwiseVerts[0] = corners + 7;
+                    clockwiseVerts[1] = corners + 6;
+                    clockwiseVerts[2] = corners + 5;
+                    clockwiseVerts[3] = corners + 4;
+                    break;
+                case(FRUSTUM_PLANE_LEFT):
+                    clockwiseVerts[0] = corners + 2;
+                    clockwiseVerts[1] = corners + 6;
+                    clockwiseVerts[2] = corners + 5;
+                    clockwiseVerts[3] = corners + 1;
+                    break;
+                case(FRUSTUM_PLANE_RIGHT):
+                    clockwiseVerts[0] = corners + 7;
+                    clockwiseVerts[1] = corners + 3;
+                    clockwiseVerts[2] = corners + 0;
+                    clockwiseVerts[3] = corners + 4;
+                    break;
+                case(FRUSTUM_PLANE_TOP):
+                    clockwiseVerts[0] = corners + 0;
+                    clockwiseVerts[1] = corners + 1;
+                    clockwiseVerts[2] = corners + 5;
+                    clockwiseVerts[3] = corners + 4;
+                    break;
+                case(FRUSTUM_PLANE_BOTTOM):
+                    clockwiseVerts[0] = corners + 7;
+                    clockwiseVerts[1] = corners + 6;
+                    clockwiseVerts[2] = corners + 2;
+                    clockwiseVerts[3] = corners + 3;
+                    break;
+                };
+
+                // Build a volume
+                // Iterate over world points and form side planes
+                Vector3 normal;
+                Vector3 lightDir;
+                for (unsigned int i = 0; i < 4; ++i)
+                {
+                    // Figure out light dir
+                    lightDir = lightPos3 - (*(clockwiseVerts[i]) * lightPos.w);
+                    // Cross with anticlockwise corner, therefore normal points in
+                    normal = (*(clockwiseVerts[i]) - *(clockwiseVerts[(i-1)%4]))
+                        .crossProduct(lightDir);
+                    normal.normalise();
+                    // NB last param to Plane constructor is negated because it's -d
+                    vol.planes.push_back(
+                        Plane(normal, normal.dotProduct(*(clockwiseVerts[i]))));
+
+                }
+
+                // Now do the near plane (this is the plane of the side we're 
+                // talking about, with the normal inverted (d is already interpreted as -ve)
+                vol.planes.push_back( Plane(-plane.normal, plane.d) );
+
+                // Finally, for a point/spot light we can add a sixth plane
+                // This prevents false positives from behind the light
+                if (mLightType != LT_DIRECTIONAL)
+                {
+                    // re-use our own plane normal
+                    // remember the -d negation in plane constructor
+                    vol.planes.push_back(
+                        Plane(plane.normal, 
+                            plane.normal.dotProduct(lightPos3)));
+
+                }
+
+
+            }
+        }
+        return mFrustumClipVolumes;
     }
 
 

@@ -286,8 +286,15 @@ namespace Ogre {
         {
         protected:
             ShadowCasterList* mCasterList;
+            bool mIsLightInFrustum;
+            const PlaneBoundedVolumeList* mLightClipVolumeList;
+            const Camera* mCamera;
         public:
-            ShadowCasterSceneQueryListener(ShadowCasterList* casterList) : mCasterList(casterList){}
+            ShadowCasterSceneQueryListener(bool lightInFrustum, 
+                const PlaneBoundedVolumeList* lightClipVolumes, 
+                const Camera* cam, ShadowCasterList* casterList) 
+                : mCasterList(casterList), mIsLightInFrustum(lightInFrustum), 
+                mLightClipVolumeList(lightClipVolumes), mCamera(cam) {}
             bool queryResult(MovableObject* object);
             bool queryResult(SceneQuery::WorldFragment* fragment);
         };

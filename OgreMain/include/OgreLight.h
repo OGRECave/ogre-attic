@@ -304,6 +304,15 @@ namespace Ogre {
         */
         const PlaneBoundedVolume& _getNearClipVolume(const Camera* cam) const;
 
+        /** Internal method for calculating the clip volumes outside of the 
+            frustum which can be used to determine which objects are casting
+            shadow on the frustum as a whole. 
+        @remarks Each of the volumes is a pyramid for a point/spot light and
+            a cuboid for a directional light. 
+        */
+        const PlaneBoundedVolumeList& _getFrustumClipVolumes(const Camera* cam) const;
+
+
 
     private:
         /// internal method for synchronising with parent node (if any)
@@ -335,6 +344,7 @@ namespace Ogre {
         static String msMovableType;
 
         mutable PlaneBoundedVolume mNearClipVolume;
+        mutable PlaneBoundedVolumeList mFrustumClipVolumes;
 
 
 

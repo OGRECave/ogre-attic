@@ -103,6 +103,7 @@ namespace Ogre
         mutable VertexData mVertexData;
 
         Material* mMaterial;
+        mutable Vector3 mWorldSpaceCorners[8];
 
 
     public:
@@ -209,7 +210,7 @@ namespace Ogre
             @remarks
                 Gets a reference to one of the planes which make up the frustum frustum, e.g. for clipping purposes.
         */
-        virtual const Plane& getFrustumPlane( FrustumPlane plane ) const;
+        virtual const Plane& getFrustumPlane( unsigned short plane ) const;
 
         /** Tests whether the given container is visible in the Frustum.
             @param
@@ -289,6 +290,14 @@ namespace Ogre
 
         /** Overridden from Renderable */
         const LightList& getLights(void) const;
+
+        /** Gets the world space corners of the frustum.
+        @remarks
+            The corners are ordered as follows: top-right near, 
+            top-left near, bottom-left near, bottom-right near, 
+            top-right far, top-left far, bottom-left far, bottom-right far.
+        */
+        const Vector3* getWorldSpaceCorners(void) const;
 
 
     };

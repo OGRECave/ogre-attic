@@ -152,7 +152,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    const Plane& Frustum::getFrustumPlane(FrustumPlane plane) const
+    const Plane& Frustum::getFrustumPlane(unsigned short plane) const
     {
         // Make any pending updates to the calculated frustum
         updateView();
@@ -485,7 +485,21 @@ namespace Ogre {
             mFrustumPlanes[FRUSTUM_PLANE_NEAR].normal = camDirection;
             mFrustumPlanes[FRUSTUM_PLANE_NEAR].d = -(fDdE + mNearDist);
 
-
+            // Update worldspace corners
+            Matrix4 eyeToWorld = mViewMatrix.inverse();
+            // Get worldspace frustum corners
+            Real y = Math::Tan(mFOVy * 0.5);
+            Real x = mAspect * y;
+            // near
+            mWorldSpaceCorners[0] = eyeToWorld * Vector3( x,  y, -mNearDist);
+            mWorldSpaceCorners[1] = eyeToWorld * Vector3(-x,  y, -mNearDist);
+            mWorldSpaceCorners[2] = eyeToWorld * Vector3(-x, -y, -mNearDist);
+            mWorldSpaceCorners[3] = eyeToWorld * Vector3( x, -y, -mNearDist);
+            // far
+            mWorldSpaceCorners[4] = eyeToWorld * Vector3( x,  y, -mFarDist);
+            mWorldSpaceCorners[5] = eyeToWorld * Vector3(-x,  y, -mFarDist);
+            mWorldSpaceCorners[6] = eyeToWorld * Vector3(-x, -y, -mFarDist);
+            mWorldSpaceCorners[7] = eyeToWorld * Vector3( x, -y, -mFarDist);
 
 
             mRecalcView = false;
@@ -602,6 +616,13 @@ namespace Ogre {
     void Frustum::invalidateView()
     {
         mRecalcView = true;
+    }
+    // -------------------------------------------------------------------
+    const Vector3* Frustum::getWorldSpaceCorners(void) const
+    {
+        updateView();
+
+        return mWorldSpaceCorners;
     }
 
 
