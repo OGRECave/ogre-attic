@@ -159,10 +159,16 @@ namespace Ogre {
 			str << " from multiple Images.";
 		else
 			str << " from Image.";
-		str << " Internal format is " << PixelUtil::getFormatName(mFormat) << ".";
+		// Scoped
+		{
+			// Print data about first destination surface
+			HardwarePixelBufferSharedPtr buf = getBuffer(0, 0); 
+			str << " Internal format is " << PixelUtil::getFormatName(buf->getFormat()) << 
+			"," << buf->getWidth() << "x" << buf->getHeight() << "x" << buf->getDepth() << ".";
+		}
 		LogManager::getSingleton().logMessage( 
 				LML_NORMAL, str.str());
-
+		
 		// Main loading loop
         for(size_t i = 0; i < faces; i++)
         {
