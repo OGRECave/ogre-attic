@@ -295,19 +295,18 @@ namespace Ogre
 			roundUpSize = 1 << i;
 		
 		tex_side = roundUpSize;
-		size_t data_width = tex_side * 4;
+		const size_t pixel_bytes = 2;
+		size_t data_width = tex_side * pixel_bytes;
 
 		LogManager::getSingleton().logMessage("Font " + mName + "using texture size " +
 			StringConverter::toString(tex_side) + "x" + StringConverter::toString(tex_side)); 
 
-        uchar* imageData = new uchar[tex_side * tex_side * 4];
+        uchar* imageData = new uchar[tex_side * tex_side * pixel_bytes];
 		// Reset content (White, transparent)
-        for (i = 0; i < tex_side * tex_side * 4; i += 4)
+        for (i = 0; i < tex_side * tex_side * pixel_bytes; i += pixel_bytes)
         {
-            imageData[i + 0] = 0xFF; // red
-            imageData[i + 1] = 0xFF; // green
-            imageData[i + 2] = 0xFF; // blue
-            imageData[i + 3] = 0x00; // alpha
+            imageData[i + 0] = 0xFF; // luminance
+            imageData[i + 1] = 0x00; // alpha
         } 
 
         for( i = startGlyph, l = 0, m = 0, n = 0; i < endGlyph; i++ )
@@ -341,22 +340,18 @@ namespace Ogre
             for( j = 0; j < face->glyph->bitmap.rows; j++ )
             {
                 int row = j + m + y_bearnig;
-                uchar* pDest = &imageData[(row * data_width) + l * 4];   
+                uchar* pDest = &imageData[(row * data_width) + l * pixel_bytes];   
                 for( k = 0; k < face->glyph->bitmap.width; k++ )
                 {
                     if (mAntialiasColour)
                     {
                         // Use the same greyscale pixel for all components RGBA
                         *pDest++= *buffer;
-                        *pDest++= *buffer;
-                        *pDest++= *buffer;
                     }
                     else
                     {
                         // Always white whether 'on' or 'off' pixel, since alpha
                         // will turn off
-                        *pDest++= 0xFF;
-                        *pDest++= 0xFF;
                         *pDest++= 0xFF;
                     }
                     // Always use the greyscale value for alpha
@@ -382,10 +377,10 @@ namespace Ogre
         }
 
         DataStreamPtr memStream(
-			new MemoryDataStream(imageData, tex_side * tex_side * 4, true));
+			new MemoryDataStream(imageData, tex_side * tex_side * pixel_bytes, true));
 
         Image img; 
-		img.loadRawData( memStream, tex_side, tex_side, PF_A8R8G8B8 );
+		img.loadRawData( memStream, tex_side, tex_side, PF_BYTE_LA );
 
 		Texture* tex = static_cast<Texture*>(res);
 		tex->loadImage(img);
