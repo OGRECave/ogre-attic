@@ -46,6 +46,10 @@ namespace Ogre {
     //---------------------------------------------------------------------
     RenderQueue::~RenderQueue()
     {
+        
+        // trigger the pending pass updates, otherwise we could leak
+        Pass::processPendingPassUpdates();
+        
         // Destroy the queues for good
         RenderQueueGroupMap::iterator i, iend;
         i = mGroups.begin();
@@ -55,6 +59,8 @@ namespace Ogre {
             delete i->second;
         }
         mGroups.clear();
+
+
 
 
     }
@@ -94,18 +100,8 @@ namespace Ogre {
             i->second->clear();
         }
 
-        // Now trigger the recalculation of dirty pass hashes
-        // The dirty ones will have been removed from the groups above using the old hash now
-        const Pass::DirtyHashList& dirtyList = Pass::getDirtyHashList();
-		Pass::DirtyHashList::const_iterator di, diend;
-		diend = dirtyList.end();
-		for (di = dirtyList.begin(); di != diend; ++di)
-		{
-			Pass* p = *di;
-			p->_recalculateHash();
-		}
-		// Clear the dirty list
-		Pass::clearDirtyHashList();
+        // Now trigger the pending pass updates
+        Pass::processPendingPassUpdates();
 
         // NB this leaves the items present (but empty)
         // We're assuming that frame-by-frame, the same groups are likely to 

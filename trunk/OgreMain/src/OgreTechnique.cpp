@@ -161,7 +161,7 @@ namespace Ogre {
     {
 		assert(index < mPasses.size() && "Index out of bounds");
 		Passes::iterator i = mPasses.begin() + index;
-		delete *i;
+		(*i)->queueForDeletion();
 		mPasses.erase(i);
     }
     //-----------------------------------------------------------------------------
@@ -171,7 +171,7 @@ namespace Ogre {
         iend = mPasses.end();
         for (i = mPasses.begin(); i != iend; ++i)
         {
-            delete(*i);
+            (*i)->queueForDeletion();
         }
         mPasses.clear();
     }

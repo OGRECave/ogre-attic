@@ -222,11 +222,31 @@ namespace Ogre {
         {
             SolidRenderablePassMap::iterator i, iend;
 
-            // First remove any dirty passes, these will have their hashes recalculated
+            
+            // Delete queue groups which are using passes which are to be
+            // deleted, we won't need these any more and they clutter up 
+            // the list and can cause problems with future clones
+            const Pass::PassSet& graveyardList = Pass::getPassGraveyard();
+            Pass::PassSet::const_iterator gi, giend;
+            giend = graveyardList.end();
+            for (gi = graveyardList.begin(); gi != giend; ++gi)
+            {
+                Pass* p = *gi;
+                i = mSolidPasses.find(p);
+                if (i != mSolidPasses.end())
+                {
+                    // free memory
+                    delete i->second;
+                    // erase from map
+                    mSolidPasses.erase(i);
+                }
+            }
+
+            // Now remove any dirty passes, these will have their hashes recalculated
             // by the parent queue after all groups have been processed
             // If we don't do this, the std::map will become inconsistent for new insterts
-            const Pass::DirtyHashList& dirtyList = Pass::getDirtyHashList();
-		    Pass::DirtyHashList::const_iterator di, diend;
+            const Pass::PassSet& dirtyList = Pass::getDirtyHashList();
+		    Pass::PassSet::const_iterator di, diend;
 		    diend = dirtyList.end();
 		    for (di = dirtyList.begin(); di != diend; ++di)
 		    {
@@ -240,8 +260,9 @@ namespace Ogre {
                     mSolidPasses.erase(i);
                 }
 		    }
-            // NB we do NOT clear the dirty list here, because it needs to be acted on for 
-            // all groups, the parent queue takes care of this afterwards
+            // NB we do NOT clear the graveyard or the dirty list here, because 
+            // it needs to be acted on for all groups, the parent queue takes 
+            // care of this afterwards
 
             // We do not clear the unchanged solid pass maps, only the contents of each list
             // This is because we assume passes are reused a lot and it saves resorting
