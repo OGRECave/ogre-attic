@@ -91,7 +91,7 @@ determines how much ambient light (directionless global light) is reflected. The
 default is full white, meaning objects are completely globally illuminated. Reduce 
 this if you want to see diffuse or specular light effects, or change the blend 
 of colours to make the object have a base colour other than white. This setting 
-has no effect if dynamic <A HREF="lighting">lighting</A> is disabled using the 
+has no effect if dynamic <A HREF="#lighting">lighting</A> is disabled using the 
 'lighting off' attribute, or if any texture layer has a '<A HREF="#colour_op">colour_op</A> 
 replace' attribute.</P><P>Default: ambient 1.0 1.0 1.0<BR></P><P CLASS="SectionHeader"><A NAME="diffuse"></A>diffuse</P><P>Sets 
 the diffuse colour reflectance properties of this material. </P><P>Format: diffuse 
@@ -101,9 +101,9 @@ is determined by how much red, green and blue light is reflects. This property
 determines how much diffuse light (light from instances of the Light class in 
 the scene) is reflected. The default is full white, meaning objects reflect the 
 maximum white light they can from Light objects. This setting has no effect if 
-dynamic <A HREF="lighting">lighting</A> is disabled using the 'lighting off' attribute, 
-or if any texture layer has a '<A HREF="#colour_op">colour_op</A> replace' attribute.</P><P>Default: 
-diffuse 1.0 1.0 1.0<BR></P><P CLASS="SectionHeader"><A NAME="specular"></A>specular</P><P>Sets 
+dynamic <A HREF="#lighting">lighting</A> is disabled using the 'lighting off' 
+attribute, or if any texture layer has a '<A HREF="#colour_op">colour_op</A> replace' 
+attribute.</P><P>Default: diffuse 1.0 1.0 1.0<BR></P><P CLASS="SectionHeader"><A NAME="specular"></A>specular</P><P>Sets 
 the specular colour reflectance properties of this material. </P><P>Format: specular 
 &lt;red&gt; &lt;green&gt; &lt;blue&gt; &lt;shininess&gt;<BR>NB valid colour values 
 are between 0.0 and 1.0. Shininess can be any value greater than 0.</P><P>Example: 
@@ -112,7 +112,7 @@ how much red, green and blue light is reflects. This property determines how muc
 specular light (highlights from instances of the Light class in the scene) is 
 reflected. The default is to reflect no specular light. The colour of the specular 
 highlights is determined by the colour parameters, and the size of the highlights 
-by the separate shininess parameter. This setting has no effect if dynamic <A HREF="lighting">lighting</A> 
+by the separate shininess parameter. This setting has no effect if dynamic <A HREF="#lighting">lighting</A> 
 is disabled using the 'lighting off' attribute, or if any texture layer has a 
 '<A HREF="#colour_op">colour_op</A> replace' attribute.</P><P>Default: specular 
 0.0 0.0 0.0 0.0<BR></P><P CLASS="SectionHeader"><A NAME="emissive"></A>emissive</P><P>Sets 
@@ -123,7 +123,7 @@ it does not need external sources to light it, ambient or otherwise. It's like
 the object has it's own personal ambient light. Unlike the name suggests, this 
 object doesn't act as a light source for other objects in the scene (if you want 
 it to, you have to create a light which is centered on the object). This setting 
-has no effect if dynamic <A HREF="lighting">lighting</A> is disabled using the 
+has no effect if dynamic <A HREF="#lighting">lighting</A> is disabled using the 
 'lighting off' attribute, or if any texture layer has a '<A HREF="#colour_op">colour_op</A> 
 replace' attribute.</P><P>Default: emissive 0.0 0.0 0.0<BR></P><P CLASS="SectionHeader"><A NAME="scene_blend"></A>scene_blend 
 </P><P>Sets the kind of blending this material has with the existing contents 
@@ -316,7 +316,7 @@ based on texture alpha.</TD></TR></TABLE><P>Default: colour_op modulate</P><P></
 the way the layer will have use alpha to totally reject pixels from the pipeline. 
 </P><P>Format: alpha_rejection &lt;function&gt; &lt;value&gt;</P><P>Example: alpha_rejection 
 greater_equal 128</P><P>The function parameter can be any of the options listed 
-in the material <A HREF="#depth_function">depth_function</A> attribute. The value 
+in the material <A HREF="#depth_func">depth_function</A> attribute. The value 
 parameter can theoretically be any value between 0 and 255, but is best limited 
 to 0 or 128 for hardware compatibility.</P><P>Default: alpha_rejection always_pass</P><P></P><P CLASS="SectionHeader"><A NAME="colour_op_ex"></A>colour_op_ex</P><P>This 
 is an extended version of the <A HREF="#colour_op">colour_op</A> attribute which 
@@ -376,7 +376,7 @@ you want if you're doing swanky blending here). If you wish to avoid having to
 do this, use the simpler <A HREF="#colour_op">colour_op</A> attribute which allows 
 less flexible blending options but sets up the multipass fallback automatically, 
 since it only allows operations which have direct multipass equivalents.</P><P>Default: 
-none (colour_op modulate)</P><P CLASS="SectionHeader"><A NAME="#colour_op_multipass_fallback"></A>colour_op_multipass_fallback</P><P>Sets 
+none (colour_op modulate)</P><P CLASS="SectionHeader"><A NAME="colour_op_multipass_fallback"></A>colour_op_multipass_fallback</P><P>Sets 
 the multipass fallback operation for this layer, if you used <A HREF="#colour_op_ex">colour_op_ex</A> 
 and not enough multitexturing hardware is available. </P><P>Format: colour_op_multipass_fallback 
 &lt;src_factor&gt; &lt;dest_factor&gt;</P><P>Example: colour_op_mulitpass_fallback 

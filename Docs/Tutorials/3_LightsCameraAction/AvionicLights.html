@@ -1,0 +1,215 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0089)http://homepages.ihug.co.nz/~evilnic/Tutorials/Ogre/LightsCameraAction/AvionicLights.html -->
+<HTML><HEAD><TITLE>Creating OGRE Project Files</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=windows-1252">
+<STYLE type=text/css>.MainHeader {
+	FONT-WEIGHT: bold; FONT-SIZE: 10pt; COLOR: #ffffff; BACKGROUND-COLOR: #003300
+}
+BODY {
+	FONT-SIZE: 10pt; COLOR: #003300; FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif; BACKGROUND-COLOR: #ffffff
+}
+.BorderHeader {
+	FONT-WEIGHT: bold; FONT-SIZE: 8pt; COLOR: #333300; BACKGROUND-COLOR: #999900; TEXT-ALIGN: center
+}
+.MainContent {
+	FONT-SIZE: 10pt; COLOR: #003300; FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif
+}
+.BorderContent {
+	BORDER-RIGHT: #666600 1px solid; PADDING-RIGHT: 2px; BORDER-TOP: black 0px solid; PADDING-LEFT: 2px; FONT-SIZE: 8pt; MARGIN-BOTTOM: 2px; PADDING-BOTTOM: 10px; BORDER-LEFT: #666600 1px solid; COLOR: #000000; PADDING-TOP: 2px; BORDER-BOTTOM: #666600 1px solid
+}
+A:link {
+	COLOR: #000066; TEXT-DECORATION: underline
+}
+A:hover {
+	COLOR: #0000ff; TEXT-DECORATION: underline
+}
+A:visited {
+	COLOR: #660066; TEXT-DECORATION: underline
+}
+LI {
+	LEFT: -15px; COLOR: #000000; LIST-STYLE-TYPE: circle; POSITION: relative
+}
+.NewsDate {
+	FONT-WEIGHT: bold; COLOR: #000000
+}
+TD {
+	FONT-SIZE: 10pt
+}
+TH {
+	FONT-SIZE: 10pt
+}
+.Annotation {
+	FONT-SIZE: 10px
+}
+.header {
+	FONT-SIZE: 16pt; COLOR: #000000
+}
+.SectionHeader {
+	FONT-WEIGHT: bold; FONT-SIZE: 14px; COLOR: #000000
+}
+PRE {
+	FONT-SIZE: 12px; COLOR: #000066
+}
+</STYLE>
+
+<META content="MSHTML 6.00.2600.0" name=GENERATOR>
+<META content="" name=keywords>
+<META content="" name=description>
+<META content=Nicholas name=author>
+<META http-equiv=reply-to content=vastrim@hotmail.com>
+<META content="Sat, 13 Jul, 2002 12:32:59 p GMT" name=creation_date></HEAD>
+<BODY text=#000000 bgColor=#ffffff>
+<P class=header align=center>OGRE (Object-Oriented Graphics Rendering 
+Engine)</P>
+<P class=header align=center>Avionic Flying Lights </P>
+<P class=MainHeader align=left>&nbsp;</P>
+<P class=SectionHeader align=left>Some new classes to play with</P>
+<P align=left>We are now going to give the ship some lights on it's wings and 
+tail so that pilots of other ships can see it againt the blackness of space. By 
+using different colours and patterns on each of the wings and tail, another 
+pilot will also be able to determine which direction the ship is facing. </P>
+<P>To do this we will be using three object classes: Light, BillboardSet, and 
+Billboard. </P>
+<P class=SectionHeader align=left>Billboards and Materials</P>
+<P align=left>A billboard simply displays a 2D image in the 3D world that we 
+create. Whenever a billboard is rendered it faces the viewer. This is perfect 
+for the lights we are about to make, they can appear as small balls of light. 
+The image displayed on the billboard is a material just like any other so it 
+needs to be defined in our material script file. </P>
+<P>Open ogrenew\Samples\Media\example.material and add the following to the 
+script: <PRE>// Light effects
+Examples/FlyingLightMaterial
+{
+	lighting off
+	scene_blend add
+	{
+		texture flare.png
+	}
+	
+}
+</PRE>It may look familiar to some of you. It is in fact the material used for 
+the flare effects earlier in the script, but its name has been changed to suit 
+our purposes. 
+<P></P>
+<P class=SectionHeader align=left>BillboardSets and Billboards</P>
+<P align=left>A BillboardSet is a grouping of Billboards in 3D space. The 
+relationship between BillboardSet and Billboard is well documented in the Ogre 
+API so there is really no need to describe it here. </P>
+<P class=SectionHeader align=left>Member Variables</P>
+<P align=left>Time to add member variables for the lights and billboards. Add 
+this to the protected section of our SpaceApplication class <PRE>	// The set of all the billboards used for the avionic lights
+	BillboardSet* mLights;
+
+	// Billboards
+	Billboard* mRedLightBoard;
+	Billboard* mBlueLightBoard;
+	Billboard* mWhiteLightBoard;
+
+	// Lights
+	Light* mRedLight;
+	Light* mBlueLight;
+	Light* mWhiteLight;
+</PRE>
+<P></P>
+<P class=SectionHeader align=left>Lighting Instances</P>
+<P align=left>The general flow of this is: 
+<TABLE cellSpacing=0 cellPadding=0 width="100%" border=0>
+  <TBODY>
+  <TR>
+    <TD width=50>
+    <TD>1) Create BillboardSet</TD></TR>
+  <TR>
+    <TD width=50>
+    <TD>2) Set its material and attach it to the scene</TD></TR>
+  <TR>
+    <TD width=50>
+    <TD>3) Using the new BillboardSet create as many billboards as you 
+      require, position each of them</TD></TR>
+  <TR>
+    <TD width=50>
+    <TD>4) Create the lights and attach them to the 
+scene</TD></TR></TBODY></TABLE></P>
+<P align=left>So let's begin by creating the BillboardSet. Type this in at the 
+bottom of the createScene method <PRE>		// First create the BillboardSet. This will define the materials for the billboards
+		// in its set to use
+		mLights = mSceneMgr-&gt;createBillboardSet("FlyingLights");
+		mLights-&gt;setMaterialName("Examples/FlyingLightMaterial");
+		mShipNode-&gt;attachObject(mLights);
+
+</PRE>There should not be too much there that needs explaining. Like other 
+objects in Ogre, BillboardSets all have unique names. This one is called 
+"FlyingLights" and the material that we want it to be using for its Billboards 
+is "Examples/FlyingLightMaterial", which is of course the material we put into 
+the material script earlier. 
+<P></P>
+<P></P>Each of the three coloured lights has two properties of any interest. 
+Position and colour. <PRE>		// Red light billboard, in "off" state
+		Vector3 redLightPosition(78, -8, -70);
+		mRedLightBoard = mLights-&gt;createBillboard(redLightPosition);
+		mRedLightBoard-&gt;setColour(ColourValue::Black);
+
+
+		// Blue light billboard, in "off" state
+		Vector3 blueLightPosition(-90, -8, -70);
+		mBlueLightBoard = mLights-&gt;createBillboard(blueLightPosition);
+		mBlueLightBoard-&gt;setColour(ColourValue::Black);
+
+
+		// White light billboard, in "off" state
+		Vector3 whiteLightPosition(-4.5, 30, -80);
+		mWhiteLightBoard = mLights-&gt;createBillboard(whiteLightPosition);
+		mWhiteLightBoard-&gt;setColour(ColourValue::Black);
+</PRE>You might notice that the positions chosen here are not symmetrical. I 
+originally used symmetrical values but then discovered that the lights just 
+would not line up on the ship. Instead of modifying the model and distributing 
+that I decided to just change these positions. If you find that the lights still 
+do not line up on your model you may want to adjust these values yourself later 
+on. 
+<P></P>
+<P>The light objects are next on the list. Each of them has a distinct name, a 
+type, a colour, and a position. <PRE>		// Red light, in "off" state
+		mRedLight = mSceneMgr-&gt;createLight("RedFlyingLight");
+		mRedLight-&gt;setType(Light::LT_POINT);
+		mRedLight-&gt;setPosition(redLightPosition);
+		mRedLight-&gt;setDiffuseColour(ColourValue::Black);
+		mShipNode-&gt;attachLight(mRedLight);
+
+		// Blue light, in "off" state
+		mBlueLight = mSceneMgr-&gt;createLight("BlueFlyingLight");
+		mBlueLight-&gt;setType(Light::LT_POINT);
+		mBlueLight-&gt;setPosition(blueLightPosition);
+		mBlueLight-&gt;setDiffuseColour(ColourValue::Black);
+		mShipNode-&gt;attachLight(mBlueLight);
+
+		// White light in "off" state
+		mWhiteLight = mSceneMgr-&gt;createLight("WhiteFlyingLight");
+		mWhiteLight-&gt;setType(Light::LT_POINT);
+		mWhiteLight-&gt;setPosition(whiteLightPosition);
+		mWhiteLight-&gt;setDiffuseColour(ColourValue::Black);
+		mShipNode-&gt;attachLight(mWhiteLight);
+
+</PRE>If you run the program as it stands right now you wont notice anything 
+different. Why is that? well that is because we told the lights and billboards 
+to be black. Just to see where the lights and billboards are try changing the 
+colour of all of the billboards to their "on" colour. For instance, set the 
+colour of mRedLightBoard to ColourValue::Red. When you run it you will then see 
+three coloured balls, one on the left wingtip, one on the right wingtip, and one 
+on the tail wingtip. Change them all back to black and save. 
+<P></P>
+<TABLE cellSpacing=2 cellPadding=0 width="100%" border=0>
+  <TBODY>
+  <TR>
+    <TD width="14%"><A 
+      href="http://homepages.ihug.co.nz/~evilnic/Tutorials/Ogre/LightsCameraAction/Index.html">Back 
+      to Index</A></TD>
+    <TD width="39%">&nbsp;</TD>
+    <TD width="22%"><A 
+      href="http://homepages.ihug.co.nz/~evilnic/Tutorials/Ogre/LightsCameraAction/ChangeShipMovement.html">&lt;&lt; 
+      Previous section</A></TD>
+    <TD width="25%"><A 
+      href="http://homepages.ihug.co.nz/~evilnic/Tutorials/Ogre/LightsCameraAction/WaveformController.html">Next 
+      section &gt;&gt;</A></TD></TR></TBODY></TABLE>
+<P>&nbsp;</P>
+<P>&nbsp;</P>
+<P>&nbsp;</P>
+<P class=SectionHeader>&nbsp;</P></BODY></HTML>
