@@ -31,20 +31,46 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreAnimationTrack.h"
 #include "OgreKeyFrame.h"
 #include "OgreSkeletonSerializer.h"
+#include "OgreQuaternion.h"
 #include <xsi_model.h>
 #include <xsi_kinematics.h>
 #include <xsi_kinematicstate.h>
 #include <xsi_math.h>
 #include <xsi_rotation.h>
+#include <xsi_animationsourceitem.h>
+#include <xsi_source.h>
+#include <xsi_fcurve.h>
+#include <xsi_fcurvekey.h>
+#include <xsi_time.h>
 
 using namespace XSI;
 
 namespace Ogre
 {
+	/// Add an item to an array only if it's not already there
+	void addUnique(XSI::CRef& ref, XSI::CRefArray& array)
+	{
+		for(int i = 0; i < array.GetCount(); ++i)
+		{
+			if (array[i] == ref)
+				return;
+		}
+		array.Add(ref);
+	}
+
 	//-----------------------------------------------------------------------------
 	XsiSkeletonExporter::XsiSkeletonExporter()
 	{
 		mXsiSceneRoot = X3DObject(mXsiApp.GetActiveSceneRoot());
+		mXSITrackTypeNames["posx"] = XTT_POS_X;
+		mXSITrackTypeNames["posy"] = XTT_POS_Y;
+		mXSITrackTypeNames["posz"] = XTT_POS_Z;
+		mXSITrackTypeNames["rotx"] = XTT_ROT_X;
+		mXSITrackTypeNames["roty"] = XTT_ROT_Y;
+		mXSITrackTypeNames["rotz"] = XTT_ROT_Z;
+		mXSITrackTypeNames["sclx"] = XTT_SCL_X;
+		mXSITrackTypeNames["scly"] = XTT_SCL_Y;
+		mXSITrackTypeNames["sclz"] = XTT_SCL_Z;
 	}
 	//-----------------------------------------------------------------------------
 	XsiSkeletonExporter::~XsiSkeletonExporter()
@@ -52,7 +78,7 @@ namespace Ogre
 	}
 	//-----------------------------------------------------------------------------
 	void XsiSkeletonExporter::exportSkeleton(const String& skeletonFileName, 
-		DeformerList& deformers, float framesPerSecond, const AnimationList& animList)
+		DeformerList& deformers, float framesPerSecond, AnimationList& animList)
 	{
 		mXsiApp.LogMessage(L"** Begin OGRE Skeleton Export **");
 
@@ -61,8 +87,11 @@ namespace Ogre
 		// construct the hierarchy
 		buildBoneHierarchy(skeleton.get(), deformers);
 
-		// build animations based on splits
-		//buildAnimations(skeleton.get(), deformers, framesPerSecond);
+		// find all the action sources matching deformers
+		findActionSources(deformers);
+
+		// create animations 
+		createAnimations(skeleton.get(), deformers, framesPerSecond, animList);
 
 
 		SkeletonSerializer ser;
@@ -206,5 +235,235 @@ namespace Ogre
 		return createLink;
 
 
+	}
+	//-----------------------------------------------------------------------------
+	void XsiSkeletonExporter::findActionSources(DeformerList& deformers)
+	{
+		/* We're interested in the ActionSourceItem instances which have a
+		 * target string which begins with a deformer name. XSI has ActionSources,
+		 * which have ActionSourceItems, which have target strings of the form
+		 * '[objectname].kine.local.[pos|rot|scl][x|y|z]' - so each ASI points
+		 * at a 'track' which is one element of the transform. 
+		 * We can ignore ASIs with a target which begins with anything other than 
+		 * the name of a valid deformer, but once we find one we'll hook up the 
+		 * ASI into the DeformerEntry so that, by the time we're finished, we should
+		 * have the full complement of transform tracks. 
+		 * Note also that XSI stores action sources against the scene model, and
+		 * potentially child models. It can also sometimes store them directly 
+		 * against the object itself, although this seems more unusual. So we look
+		 * in all places.
+		 */
+
+		// Look in model and all children
+		Model root = mXsiApp.GetActiveSceneRoot();
+		findActionSources(root, deformers);
+
+		// Find all children (recursively)
+		CRefArray children = root.FindChildren(L"", siModelType, CStringArray());
+		for (int c = 0; c < children.GetCount(); ++c)
+		{
+			Model child(children[c]);
+			findActionSources(child, deformers);
+		}
+
+		// TODO - look against deformers themselves
+
+		
+	}
+	//-----------------------------------------------------------------------------
+	void XsiSkeletonExporter::findActionSources(const XSI::Model& obj, 
+		DeformerList& deformers)
+	{
+		CRefArray sources = obj.GetSources();
+		for (int s = 0; s < sources.GetCount(); ++s)
+		{
+			XSI::Source src(sources[s]);
+			if (src.IsA(siActionSourceID))
+			{
+				ActionSource actSource(src);
+				processActionSource(actSource, deformers);
+
+			}
+			
+		}
+		
+	}
+	//-----------------------------------------------------------------------------
+	void XsiSkeletonExporter::processActionSource(const XSI::ActionSource& actSource,
+		DeformerList& deformers)
+	{
+		// Get all the items
+		CRefArray items = actSource.GetItems();
+		for (int i = 0; i < items.GetCount(); ++i)
+		{
+			XSI::AnimationSourceItem item = items[i];
+
+			// Check the target
+			String target = XSItoOgre(item.GetTarget());
+			size_t firstDotPos = target.find_first_of(".");
+			size_t lastDotPos = target.find_last_of(".");
+			if (firstDotPos != String::npos && lastDotPos != String::npos)
+			{
+				String targetName = target.substr(0, firstDotPos);
+				String paramName = target.substr(lastDotPos+1, 
+					target.size() - lastDotPos - 1);
+				// locate deformer
+				DeformerList::iterator di = deformers.find(targetName);
+				if (di != deformers.end())
+				{
+					DeformerEntry* deformer = di->second;
+					// determine parameter
+					addUnique(item, deformer->xsiTrack[mXSITrackTypeNames[paramName]]);
+				}
+			}
+
+		}
+	}
+	//-----------------------------------------------------------------------------
+	void XsiSkeletonExporter::createAnimations(Skeleton* pSkel, 
+		DeformerList& deformers, float fps, AnimationList& animList)
+	{
+		for (AnimationList::iterator ai = animList.begin(); ai != animList.end(); ++ai)
+		{
+			AnimationEntry& animEntry = *ai;
+			float animLength;
+			if (animEntry.endFrame == -1)
+			{
+				// ok, we need to figure out the length of the animation by looking at the 
+				// highest keyframe on any deformer
+				animEntry.endFrame = getMaxKeyFrame(deformers);
+			}
+			animLength = (float)(animEntry.endFrame - animEntry.startFrame) / fps;
+			Animation* anim = pSkel->createAnimation(animEntry.animationName, animLength);
+
+			createAnimationTracks(anim, animEntry, deformers, fps);
+			
+		}
+	}
+	//-----------------------------------------------------------------------------
+	long XsiSkeletonExporter::getMaxKeyFrame(DeformerList& deformers)	
+	{
+		long maxKeyframe = 0;
+		for (DeformerList::iterator di = deformers.begin(); di != deformers.end(); ++di)
+		{
+			DeformerEntry* deformer = di->second;
+			for (int tt = XTT_POS_X; tt < XTT_COUNT; ++tt)
+			{
+				for (int i = 0; i < deformer->xsiTrack[tt].GetCount(); ++i)
+				{
+					AnimationSourceItem item = deformer->xsiTrack[tt].GetItem(i);
+					FCurve fcurve = item.GetSource();
+					CRefArray keys = fcurve.GetKeys();
+					for (int k = 0; k < keys.GetCount(); ++k)
+					{
+						long currFrame = fcurve.GetKeyTime(k).GetTime();
+						maxKeyframe = std::max(maxKeyframe, currFrame);
+					}
+					
+				}
+
+			}
+
+
+		}
+
+		return maxKeyframe;
+	}
+	//-----------------------------------------------------------------------------
+	void XsiSkeletonExporter::createAnimationTracks(Animation* pAnim, 
+		AnimationEntry& animEntry, DeformerList& deformers, float fps)
+	{
+		/* We have to iterate over the list of deformers, and create a track
+		 * for each one. Since XSI stores keys for all 9 components separately,
+		 * we need to bake OGRE keyframes (which include position, rotation and 
+		 * translation) by interpolation. We can merge the list of frames from all
+		 * action source item fcurves, then use the Eval method to get XSI to sample
+		 * the curve properly for us.
+		 * We will also use this to ensure there is a keyframe at the start and end of the
+		 * animation.
+		 */
+		for (DeformerList::iterator di = deformers.begin(); di != deformers.end(); ++di)
+		{
+			DeformerEntry* deformer = di->second;
+
+			// create track
+			AnimationTrack* track = pAnim->createTrack(deformer->boneID);
+
+			// iterate once to determine the set of key frames
+			// since between XSI tracks they might be sparse
+			std::set<long> uniqueFrames;
+			// add start and end frame (always need those)
+			uniqueFrames.insert(animEntry.startFrame);
+			uniqueFrames.insert(animEntry.endFrame);
+		
+			for (int tt = XTT_POS_X; tt < XTT_COUNT; ++tt)
+			{
+				for (int i = 0; i < deformer->xsiTrack[tt].GetCount(); ++i)
+				{
+					AnimationSourceItem item = deformer->xsiTrack[tt].GetItem(i);
+					FCurve fcurve = item.GetSource();
+					CRefArray keys = fcurve.GetKeys();
+					for (int k = 0; k < keys.GetCount(); ++k)
+					{
+						long currFrame = fcurve.GetKeyTime(k).GetTime();
+						if (currFrame > animEntry.startFrame 
+							&& currFrame < animEntry.endFrame)
+						{
+							uniqueFrames.insert(currFrame);
+						}
+					}
+				}
+			}
+
+
+			// Ok, now iterate over the frames and pull out the values we need
+			for (std::set<long>::iterator fi = uniqueFrames.begin(); 
+				fi != uniqueFrames.end(); ++fi)
+			{
+				Vector3 pos, rot, scl;
+				pos.x = deriveKeyFrameValue(deformer->xsiTrack[XTT_POS_X], *fi);
+				pos.y = deriveKeyFrameValue(deformer->xsiTrack[XTT_POS_Y], *fi);
+				pos.z = deriveKeyFrameValue(deformer->xsiTrack[XTT_POS_Z], *fi);
+				rot.x = deriveKeyFrameValue(deformer->xsiTrack[XTT_ROT_X], *fi);
+				rot.y = deriveKeyFrameValue(deformer->xsiTrack[XTT_ROT_Y], *fi);
+				rot.z = deriveKeyFrameValue(deformer->xsiTrack[XTT_ROT_Z], *fi);
+				scl.x = deriveKeyFrameValue(deformer->xsiTrack[XTT_SCL_X], *fi);
+				scl.y = deriveKeyFrameValue(deformer->xsiTrack[XTT_SCL_Y], *fi);
+				scl.z = deriveKeyFrameValue(deformer->xsiTrack[XTT_SCL_Z], *fi);
+
+				// create keyframe
+				// TODO - adjust relative to bindpos, or is that already the case?
+
+				// TODO - is this really degrees? Check ordering
+				Quaternion rotQX(Degree(rot.x), Vector3::UNIT_X);
+				Quaternion rotQY(Degree(rot.y), Vector3::UNIT_Y);
+				Quaternion rotQZ(Degree(rot.z), Vector3::UNIT_Z);
+				Quaternion finalRot = rotQX * rotQY * rotQZ;
+
+				KeyFrame* kf = track->createKeyFrame((float)(*fi) / fps);
+				kf->setTranslate(pos);
+				kf->setRotation(finalRot);
+				kf->setScale(scl);
+
+
+			}
+		}
+
+
+	}
+	//-----------------------------------------------------------------------------
+	float XsiSkeletonExporter::deriveKeyFrameValue(
+		XSI::CRefArray animSourceItemList, long frame)
+	{
+		float accum = 0.0f;
+		for (int i = 0; i < animSourceItemList.GetCount(); ++i)
+		{
+			AnimationSourceItem item(animSourceItemList[i]);
+			FCurve curve(item.GetSource());
+			// let fcurve evaluate
+			accum += static_cast<float>(curve.Eval(CTime(frame)));
+		}
+
+		return accum;
 	}
 }

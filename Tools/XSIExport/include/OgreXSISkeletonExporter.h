@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <xsi_x3dobject.h>
 #include <xsi_string.h>
 #include <xsi_application.h>
+#include <xsi_actionsource.h>
 
 namespace Ogre {
 
@@ -52,11 +53,12 @@ namespace Ogre {
 		*/
 		void exportSkeleton(const String& skeletonFileName, 
 			DeformerList& deformers, float framesPerSecond, 
-			const AnimationList& animList);
+			AnimationList& animList);
 	protected:
 		// XSI Objects
 		XSI::Application mXsiApp;
 		XSI::X3DObject mXsiSceneRoot;
+		std::map<String, int> mXSITrackTypeNames; 
 
 		/// Build the bone hierarchy from a simple list of bones
 		void buildBoneHierarchy(Skeleton* pSkeleton, DeformerList& deformers);
@@ -64,6 +66,23 @@ namespace Ogre {
 		@returns True if it linked, false otherwise
 		*/
 		bool linkBoneWithParent(Skeleton* pSkeleton, XSI::X3DObject& child, DeformerList& deformers);
+		/// Find all the action sources in the scene for the list of deformers
+		void findActionSources(DeformerList& deformers);
+		/// Find all the action sources against the given model for the list of deformers
+		void findActionSources(const XSI::Model& obj, DeformerList& deformers);
+		/// Process an action source
+		void processActionSource(const XSI::ActionSource& source, DeformerList& deformers);
+		/// Bake animations
+		void createAnimations(Skeleton* pSkel, DeformerList& deformers, 
+			float framesPerSecond, AnimationList& animList);
+		/// Bake animation tracks, and return the time length found
+		void createAnimationTracks(Animation* pAnim, AnimationEntry& animEntry, 
+			DeformerList& deformers, float fps);
+		/// Pre-parse the deformers animation to find the highest keyframe number
+		long getMaxKeyFrame(DeformerList& deformerList);
+		/// Derive a keyframe value from XSI's tracks
+		float deriveKeyFrameValue(XSI::CRefArray animSourceItemList, long frame);
+		
 
 	};
 
