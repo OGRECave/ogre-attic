@@ -44,12 +44,8 @@ namespace Ogre {
         static void init_source(j_decompress_ptr cinfo);
 		/* boolean is actually int from libJPEG's point of view */
         static 
-#if OGRE_PLATFORM == PLATFORM_LINUX
-			int 
-#else
-			uchar
-#endif
-			fill_input_buffer(j_decompress_ptr cinfo);    
+
+        int	fill_input_buffer(j_decompress_ptr cinfo);    
         static void skip_input_data(j_decompress_ptr cinfo, long count);
         static void term_source(j_decompress_ptr cinfo);
 
