@@ -477,7 +477,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BillboardSet::getWorldTransforms( Matrix4* xform )
     {
-        *xform = mParentNode->_getFullTransform(); 
+        *xform = _getParentNodeFullTransform(); 
     }
 
     //-----------------------------------------------------------------------
