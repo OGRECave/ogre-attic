@@ -507,7 +507,7 @@ namespace Ogre {
             if (!stream->eof())
             {
                 // Backpedal back to start of non-submesh stream
-                stream->skip(-(long)STREAM_OVERHEAD_SIZE);
+                stream->skip(-STREAM_OVERHEAD_SIZE);
             }
         }
     }
@@ -537,7 +537,7 @@ namespace Ogre {
             if (!stream->eof())
             {
                 // Backpedal back to start of non-submesh stream
-                stream->skip(-(long)STREAM_OVERHEAD_SIZE);
+                stream->skip(-STREAM_OVERHEAD_SIZE);
             }
         }
 		
@@ -643,7 +643,7 @@ namespace Ogre {
 			if (!stream->eof())
 			{
 				// Backpedal back to start of stream
-				stream->skip(-(long)STREAM_OVERHEAD_SIZE);
+				stream->skip(-STREAM_OVERHEAD_SIZE);
 			}
 		}
 
@@ -745,7 +745,7 @@ namespace Ogre {
             if (!stream->eof())
             {
                 // Backpedal back to start of stream
-                stream->skip(-(long)STREAM_OVERHEAD_SIZE);
+                stream->skip(-STREAM_OVERHEAD_SIZE);
             }
         }
 
@@ -846,7 +846,7 @@ namespace Ogre {
             if (!stream->eof())
             {
                 // Backpedal back to start of stream
-                stream->skip(-(long)STREAM_OVERHEAD_SIZE);
+                stream->skip(-STREAM_OVERHEAD_SIZE);
             }
         }
 	
@@ -1650,7 +1650,7 @@ namespace Ogre {
             if (!stream->eof())
             {
                 // Backpedal back to start of stream
-                stream->skip(-(long)STREAM_OVERHEAD_SIZE);
+                stream->skip(-STREAM_OVERHEAD_SIZE);
             }
         }
 
@@ -1727,7 +1727,7 @@ namespace Ogre {
             if (!stream->eof())
             {
                 // Backpedal back to start of non-submesh stream
-                stream->skip(-(long)STREAM_OVERHEAD_SIZE);
+                stream->skip(-STREAM_OVERHEAD_SIZE);
             }
         }
     }

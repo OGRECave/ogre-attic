@@ -111,7 +111,7 @@ namespace Ogre {
         /// @copydoc DataStream::skipLine
         size_t skipLine(const String& delim = "\n");
         /// @copydoc DataStream::skip
-        void skip(size_t count);
+        void skip(ssize_t count);
         /// @copydoc DataStream::seek
         void seek( size_t pos );
         /// @copydoc DataStream::eof
