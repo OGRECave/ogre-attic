@@ -26,27 +26,3 @@ void exportMeshManager()
     ;
 }
 
-void exportMesh()
-{
-    class_<Mesh>("Mesh", init<std::string>())
-        .def("getNumSubMeshes", &Mesh::getNumSubMeshes)
-        .def("getSubMesh", &Mesh::getSubMesh, rir())
-        .def("getName", &Mesh::getName, ccr())
-        .def("load", &Mesh::load)
-        .def("unload", &Mesh::unload)
-    ;
-
-    class_<SubMesh>("SubMesh");
-}
-
-void exportEntity()
-{
-    class_<MovableObject, boost::noncopyable>("MovableObject", no_init);
-
-    class_<Entity, bases<MovableObject> >("Entity", no_init)
-        .def("getMesh", &Entity::getMesh, rir())
-        .def("getName", &Entity::getName, ccr())
-    ;
-}
-
-
