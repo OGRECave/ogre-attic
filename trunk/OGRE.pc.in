@@ -7,4 +7,4 @@ Name: OGRE
 Description: Object-Oriented Graphics Rendering Engine
 Version: @VERSION@
 Libs: -L${libdir} -lOgreMain
-Cflags: -I${includedir}/OGRE
+Cflags: -I${includedir}/OGRE @OGRE_CFLAGS@

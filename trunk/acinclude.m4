@@ -186,11 +186,13 @@ AC_DEFUN([OGRE_BUILD_PYTHON_LINK],
               AC_HELP_STRING([--enable-python-link],
                              [Build the python extension]),
               [
-              AC_CONFIG_FILES([Tools/Makefile \
-                               Tools/PythonInterface/Makefile \
+              build_py=true
+              AC_CONFIG_FILES([Tools/PythonInterface/Makefile \
                                Tools/PythonInterface/src/Makefile \
                                Tools/PythonInterface/misc/Makefile \
-                               Tools/PythonInterface/include/Makefile])])
+                               Tools/PythonInterface/include/Makefile])],
+              [build_py=false])
+AM_CONDITIONAL(BUILD_PYTHON_INTERFACE, test x$build_py = xtrue)
 boost_inc_dir=""
 boost_lib_dir=""
 AC_ARG_WITH(boost-includes, AC_HELP_STRING([--with-boost-includes=PATH],
