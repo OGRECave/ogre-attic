@@ -460,6 +460,11 @@ namespace Ogre {
 
         /// @copydoc Resource::load
         void load(void);
+        /** Returns the GpuProgram which should be bound to the pipeline.
+        @remarks
+            This method is simply to allow some subclasses of GpuProgram to delegate
+            the program which is bound to the pipeline to a delegate, if required. */
+        virtual GpuProgram* _getBindingDelegate(void) { return this; }
 
     protected:
         /// Virtual method which must be implemented by subclasses, load from mSource

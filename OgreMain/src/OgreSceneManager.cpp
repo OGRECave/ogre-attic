@@ -494,7 +494,7 @@ namespace Ogre {
 		static bool lastUsedFragmentProgram = false;
         if (pass->hasVertexProgram())
         {
-            mDestRenderSystem->bindGpuProgram(pass->getVertexProgram());
+            mDestRenderSystem->bindGpuProgram(pass->getVertexProgram()->_getBindingDelegate());
             mDestRenderSystem->bindGpuProgramParameters(GPT_VERTEX_PROGRAM, 
                 pass->getVertexProgramParameters());
             lastUsedVertexProgram = true;
@@ -509,13 +509,16 @@ namespace Ogre {
             }
             // Set fixed-function vertex parameters
 
-            // Set surface reflectance properties        
-            mDestRenderSystem->_setSurfaceParams( 
-                pass->getAmbient(), 
-                pass->getDiffuse(), 
-                pass->getSpecular(), 
-                pass->getSelfIllumination(), 
-                pass->getShininess() );
+            // Set surface reflectance properties, only valid if lighting is enabled
+            if (pass->getLightingEnabled())
+            {
+                mDestRenderSystem->_setSurfaceParams( 
+                    pass->getAmbient(), 
+                    pass->getDiffuse(), 
+                    pass->getSpecular(), 
+                    pass->getSelfIllumination(), 
+                    pass->getShininess() );
+            }
 
             // Dynamic lighting enabled?
             mDestRenderSystem->setLightingEnabled(pass->getLightingEnabled());
@@ -524,7 +527,8 @@ namespace Ogre {
         // Using a fragment program?
         if (pass->hasFragmentProgram())
         {
-            mDestRenderSystem->bindGpuProgram(pass->getFragmentProgram());
+            mDestRenderSystem->bindGpuProgram(
+                pass->getFragmentProgram()->_getBindingDelegate());
             mDestRenderSystem->bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, 
                 pass->getFragmentProgramParameters());
 			lastUsedFragmentProgram = true;

@@ -148,6 +148,12 @@ namespace Ogre {
 
         /** Internal method for populating the supported syntax codes, called by RenderSystem. */
         virtual void _pushSyntaxCode(const String& syntaxCode) { mSyntaxCodes.insert(syntaxCode); }
+        /** Overrides the standard ResourceManager getByName method.
+        @param name The name of the program to retrieve
+        @param preferHighLevelPrograms If set to true (the default), high level programs will be
+            returned in preference to low-level programs.
+        */
+        Resource* getByName(const String& name, bool preferHighLevelPrograms = true);
     protected:
 		/** Create a new GpuProgram. */
         virtual GpuProgram* create(const String& name, GpuProgramType gptype, const String& syntaxCode) = 0;

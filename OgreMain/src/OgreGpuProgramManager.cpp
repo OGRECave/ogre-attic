@@ -24,6 +24,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreStableHeaders.h"
 #include "OgreGpuProgramManager.h"
+#include "OgreHighLevelGpuProgramManager.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
@@ -80,6 +81,18 @@ namespace Ogre {
         {
             return false;
         }
+    }
+    //---------------------------------------------------------------------------
+    Resource* GpuProgramManager::getByName(const String& name, bool preferHighLevelPrograms)
+    {
+        Resource* ret;
+        if (preferHighLevelPrograms)
+        {
+            ret = HighLevelGpuProgramManager::getSingleton().getByName(name);
+            if (ret)
+                return ret;
+        }
+        return ResourceManager::getByName(name);
     }
 
 }

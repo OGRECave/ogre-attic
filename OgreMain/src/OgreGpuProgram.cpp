@@ -65,7 +65,7 @@ namespace Ogre
         {
             // find & load source code
             SDDataChunk chunk;
-            GpuProgramManager::getSingleton()._findResourceData(mName, chunk);
+            GpuProgramManager::getSingleton()._findResourceData(mFilename, chunk);
             mSource = chunk.getAsString();
         }
 

@@ -32,17 +32,22 @@ namespace Ogre
     //---------------------------------------------------------------------------
     HighLevelGpuProgram::HighLevelGpuProgram(const String& name, GpuProgramType gptype, 
         const String& language)
-        : GpuProgram(name, gptype, language), mAssemblerProgram(0)
+        : GpuProgram(name, gptype, language), mHighLevelLoaded(false), mAssemblerProgram(0)
     {
     }
     //---------------------------------------------------------------------------
     void HighLevelGpuProgram::load()
     {
         if (mIsLoaded)
+        {
             unload();
+        }
 
-        // load self (virtual)
-        loadImpl();
+        // load self 
+        loadHighLevelImpl();
+
+        // create low-level implementation
+        createLowLevelImpl();
         // load constructed assembler program
         assert(mAssemblerProgram && "Subclass did not initialise mAssemblerProgram!");
         mAssemblerProgram->load();
@@ -64,9 +69,27 @@ namespace Ogre
     //---------------------------------------------------------------------------
     GpuProgramParametersSharedPtr HighLevelGpuProgram::createParameters(void)
     {
+        // Make sure param defs are loaded
+        loadHighLevelImpl();
         GpuProgramParametersSharedPtr params = GpuProgramManager::getSingleton().createParameters();
         populateParameterNames(params);
         return params;
+    }
+    //---------------------------------------------------------------------------
+    void HighLevelGpuProgram::loadHighLevelImpl(void)
+    {
+        if (!mHighLevelLoaded)
+        {
+            if (mLoadFromFile)
+            {
+                // find & load source code
+                SDDataChunk chunk;
+                GpuProgramManager::getSingleton()._findResourceData(mFilename, chunk);
+                mSource = chunk.getAsString();
+            }
+            loadFromSource();
+            mHighLevelLoaded = true;
+        }
     }
 
 }
