@@ -273,7 +273,7 @@ namespace Ogre {
 	void Win32Window::windowMovedOrResized()
 	{
 		RECT temprect;
-		::GetWindowRect(getWindowHandle(),&temprect);
+		::GetClientRect(getWindowHandle(),&temprect);
 		resize(temprect.right-temprect.left,temprect.bottom-temprect.top);
 		// TODO
 	}
