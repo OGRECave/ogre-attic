@@ -47,6 +47,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreConfigDialog.h"
 
 #include "OgrePNGCodec.h"
+#include "OgreBMPCodec.h"
 #include "OgreJPEGCodec.h"
 #include "OgreTGACodec.h"
 #include "OgreDDSCodec.h"
@@ -167,6 +168,8 @@ namespace Ogre {
         Codec::registerCodec( mJPGCodec );
         mDDSCodec = new DDSCodec;
         Codec::registerCodec( mDDSCodec );
+        mBMPCodec = new BMPCodec;
+        Codec::registerCodec( mBMPCodec );
 
         // Auto window
         mAutoWindow = 0;
@@ -219,6 +222,7 @@ namespace Ogre {
         shutdown();
         delete mSceneManagerEnum;
 
+		delete mBMPCodec;
         delete mDDSCodec;
         delete mTGACodec;
         delete mJPGCodec;
