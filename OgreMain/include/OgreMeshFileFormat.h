@@ -45,7 +45,8 @@ namespace Ogre {
     A .mesh file only contains a single mesh, which can itself have multiple submeshes.
 
 */
-    enum MeshChunkID {
+
+	enum MeshChunkID {
         M_HEADER                = 0x1000,
             // char*          version           : Version number check
         M_MESH                = 0x3000,
@@ -69,6 +70,110 @@ namespace Ogre {
                     // Real weight;
             M_GEOMETRY          = 0x5000, // NB this chunk is embedded within M_MESH and M_SUBMESH
                 // unsigned int vertexCount
+				M_GEOMETRY_VERTEX_DECLARATION = 0x5100,
+					M_GEOMETRY_VERTEX_ELEMENT = 0x5110, // Repeating section
+						// unsigned short source;  	// buffer bind source
+						// unsigned short type;    	// VertexElementType
+						// unsigned short semantic; // VertexElementSemantic
+						// unsigned short offset;	// start offset in buffer in bytes
+						// unsigned short index;	// index of the semantic (for colours and texture coords)
+				M_GEOMETRY_VERTEX_BUFFER = 0x5200, // Repeating section
+					// unsigned short bindIndex;	// Index to bind this buffer to
+					// unsigned short vertexSize;	// Per-vertex size, must agree with declaration at this index
+					M_GEOMETRY_VERTEX_BUFFER_DATA = 0x5210,
+						// raw buffer data
+            M_MESH_SKELETON_LINK = 0x6000,
+                // Optional link to skeleton
+                // char* skeletonName           : name of .skeleton to use
+            M_MESH_BONE_ASSIGNMENT = 0x7000,
+                // Optional bone weights (repeating section)
+                // unsigned int vertexIndex;
+                // unsigned short boneIndex;
+                // Real weight;
+            M_MESH_LOD = 0x8000,
+                // Optional LOD information
+                // unsigned short numLevels;
+                // bool manual;  (true for manual alternate meshes, false for generated)
+                M_MESH_LOD_USAGE = 0x8100,
+                // Repeating section, ordered in increasing depth
+				// NB LOD 0 (full detail from 0 depth) is omitted
+                // Real fromSquaredDepth;
+                    M_MESH_LOD_MANUAL = 0x8110,
+                    // Required if M_MESH_LOD section manual = true
+                    // String manualMeshName;
+                    M_MESH_LOD_GENERATED = 0x8120,
+                    // Required if M_MESH_LOD section manual = false
+					// Repeating section (1 per submesh)
+                    // unsigned int indexCount;
+                    // bool indexes32Bit
+                    // unsigned short* faceIndexes;  (indexCount)
+                    // OR
+                    // unsigned int* faceIndexes;  (indexCount)
+            M_MESH_BOUNDS = 0x9000,
+                // Real minx, miny, minz
+                // Real maxx, maxy, maxz
+                // Real radius
+                    
+			// Added By DrEvil
+			// optional chunk that contains a table of submesh indexes and the names of
+			// the sub-meshes.
+			M_SUBMESH_NAME_TABLE = 0xA000,
+				// Subchunks of the name table. Each chunk contains an index & string
+				M_SUBMESH_NAME_TABLE_ELEMENT = 0xA100,
+	                // short index
+                    // char* name
+			
+			// Optional chunk which stores precomputed edge data					 
+			M_EDGE_LISTS = 0xB000,
+				// Each LOD has a separate edge list
+				M_EDGE_LIST_LOD = 0xB100,
+					// unsigned short lodIndex
+					// bool isManual			// If manual, no edge data here, loaded from manual mesh
+                        // unsigned long numTriangles
+                        // unsigned long numEdgeGroups
+						// Triangle* triangleList
+                            // unsigned long indexSet
+                            // unsigned long vertexSet
+                            // unsigned long vertIndex[3]
+                            // unsigned long sharedVertIndex[3] 
+                            // Real normal[4] 
+
+                        M_EDGE_GROUP = 0xB110,
+                            // unsigned long vertexSet
+                            // unsigned long numEdges
+						    // Edge* edgeList
+                                // unsigned long  triIndex[2]
+                                // unsigned long  vertIndex[2]
+                                // unsigned long  sharedVertIndex[2]
+                                // bool degenerate
+					
+	
+	/* Version 1.2 of the .mesh fornmat (deprecated)
+	enum MeshChunkID {
+        M_HEADER                = 0x1000,
+            // char*          version           : Version number check
+        M_MESH                = 0x3000,
+			// bool skeletallyAnimated   // important flag which affects h/w buffer policies
+            // Optional M_GEOMETRY chunk
+            M_SUBMESH             = 0x4000, 
+                // char* materialName
+                // bool useSharedVertices
+                // unsigned int indexCount
+                // bool indexes32Bit
+                // unsigned int* faceVertexIndices (indexCount)
+                // OR
+                // unsigned short* faceVertexIndices (indexCount)
+                // M_GEOMETRY chunk (Optional: present only if useSharedVertices = false)
+                M_SUBMESH_OPERATION = 0x4010, // optional, trilist assumed if missing
+                    // unsigned short operationType
+                M_SUBMESH_BONE_ASSIGNMENT = 0x4100,
+                    // Optional bone weights (repeating section)
+                    // unsigned int vertexIndex;
+                    // unsigned short boneIndex;
+                    // Real weight;
+            M_GEOMETRY          = 0x5000, // NB this chunk is embedded within M_MESH and M_SUBMESH
+			*/
+                // unsigned int vertexCount
                 // Real* pVertices (x, y, z order x numVertices)
                 M_GEOMETRY_NORMALS = 0x5100,    //(Optional)
                     // Real* pNormals (x, y, z order x numVertices)
@@ -77,6 +182,7 @@ namespace Ogre {
                 M_GEOMETRY_TEXCOORDS = 0x5300,    //(Optional, REPEATABLE, each one adds an extra set)
                     // unsigned short dimensions    (1 for 1D, 2 for 2D, 3 for 3D)
                     // Real* pTexCoords  (u [v] [w] order, dimensions x numVertices)
+			/*
             M_MESH_SKELETON_LINK = 0x6000,
                 // Optional link to skeleton
                 // char* skeletonName           : name of .skeleton to use
@@ -108,110 +214,17 @@ namespace Ogre {
                 // Real minx, miny, minz
                 // Real maxx, maxy, maxz
                 // Real radius
-                    
-                    
-        
-        // --> Phased out definitions
-        // Definitions required for loading 1.0 meshes, but no longer supported 
-        // (see 1.0 format below)
-        , M_MATERIAL            = 0x2000,
-            // char* name 
-            // AMBIENT
-            // Real r, g, b
-            // DIFFUSE
-            // Real r, g, b
-            // SPECULAR
-            // Real r, g, b
-            // SHININESS
-            // Real val;
-            M_TEXTURE_LAYER    = 0x2200, // optional, repeat per layer
-                // char* name 
-                // TODO - scale, offset, effects
 
-				// Added By DrEvil
-				// optional chunk that contains a table of submesh indexes and the names of
-				// the sub-meshes.
-				M_SUBMESH_NAME_TABLE,
-						// Subchunks of the name table. Each chunk contains an index & string
-						M_SUBMESH_NAME_TABLE_ELEMENT,
-                        // short index
-                        // char* name
-
+			// Added By DrEvil
+			// optional chunk that contains a table of submesh indexes and the names of
+			// the sub-meshes.
+			M_SUBMESH_NAME_TABLE,
+				// Subchunks of the name table. Each chunk contains an index & string
+				M_SUBMESH_NAME_TABLE_ELEMENT,
+	                // short index
+                    // char* name
+	*/
     };
-
-	/* Version 1.0 of the .mesh fornmat (deprecated)
-    enum MeshChunkID {
-        M_HEADER                = 0x1000,
-            // char*          version           : Version number check
-        M_MATERIAL            = 0x2000,
-            // char* name 
-            // AMBIENT
-            // Real r, g, b
-            // DIFFUSE
-            // Real r, g, b
-            // SPECULAR
-            // Real r, g, b
-            // SHININESS
-            // Real val;
-            M_TEXTURE_LAYER    = 0x2200, // optional, repeat per layer
-                // char* name 
-                // TODO - scale, offset, effects
-        M_MESH                = 0x3000,
-            // M_GEOMETRY chunk
-            M_SUBMESH             = 0x4000, 
-                // char* materialName
-                // bool useSharedVertices
-                // unsigned short numFaces
-                // unsigned short* faceVertexIndices ((v1, v2, v3) * numFaces)
-                // M_GEOMETRY chunk (Optional: present only if useSharedVertices = false)
-                M_SUBMESH_BONE_ASSIGNMENT = 0x4100,
-                    // Optional bone weights (repeating section)
-                    // unsigned short vertexIndex;
-                    // unsigned short boneIndex;
-                    // Real weight;
-            M_GEOMETRY          = 0x5000, // NB this chunk is embedded within M_MESH and M_SUBMESH
-                // unsigned short numVertices
-                // Real* pVertices (x, y, z order x numVertices)
-                M_GEOMETRY_NORMALS = 0x5100,    //(Optional)
-                    // Real* pNormals (x, y, z order x numVertices)
-                M_GEOMETRY_COLOURS = 0x5200,    //(Optional)
-                    // unsigned long* pColours (RGBA 8888 format x numVertices)
-                M_GEOMETRY_TEXCOORDS = 0x5300,    //(Optional, REPEATABLE, each one adds an extra set)
-                    // unsigned short dimensions    (1 for 1D, 2 for 2D, 3 for 3D)
-                    // Real* pTexCoords  (u [v] [w] order, dimensions x numVertices)
-            M_MESH_SKELETON_LINK = 0x6000,
-                // Optional link to skeleton
-                // char* skeletonName           : name of .skeleton to use
-            M_MESH_BONE_ASSIGNMENT = 0x7000,
-                // Optional bone weights (repeating section)
-                // unsigned short vertexIndex;
-                // unsigned short boneIndex;
-                // Real weight;
-            M_MESH_LOD = 0x8000,
-                // Optional LOD information
-                // unsigned short numLevels;
-                // bool manual;  (true for manual alternate meshes, false for generated)
-                M_MESH_LOD_USAGE = 0x8100,
-                // Repeating section, ordered in increasing depth
-				// NB LOD 0 (full detail from 0 depth) is omitted
-                // Real fromSquaredDepth;
-                    M_MESH_LOD_MANUAL = 0x8110,
-                    // Required if M_MESH_LOD section manual = true
-                    // String manualMeshName;
-                    M_MESH_LOD_GENERATED = 0x8120
-                    // Required if M_MESH_LOD section manual = false
-					// Repeating section (1 per submesh)
-                    // unsigned short numFaces;
-                    // unsigned short* faceIndexes;  ((v1, v2, v3) * numFaces)
-                    
-                    
-
-
-                
-
-
-    };
-*/
 } // namespace
 
 

@@ -171,6 +171,29 @@ namespace Ogre {
 			"VertexElement::multiplyTypeCount");
 	}
 	//-----------------------------------------------------------------------------
+	VertexElementType VertexElement::getBaseType(VertexElementType multiType)
+	{
+		switch (multiType)
+		{
+			case VET_FLOAT1:
+			case VET_FLOAT2:
+			case VET_FLOAT3:
+			case VET_FLOAT4:
+				return VET_FLOAT1;
+			case VET_COLOUR:
+				return VET_COLOUR;
+			case VET_SHORT1:
+			case VET_SHORT2:
+			case VET_SHORT3:
+			case VET_SHORT4:
+				return VET_SHORT1;
+			case VET_UBYTE4:
+				return VET_UBYTE4;
+		};
+        // To keep compiler happy
+        return VET_FLOAT1;
+	}
+	//-----------------------------------------------------------------------------
     VertexDeclaration::VertexDeclaration()
     {
     }
@@ -254,8 +277,7 @@ namespace Ogre {
     {
         assert(elem_index < mElementList.size() && "Index out of bounds");
         VertexElementList::iterator i = mElementList.begin();
-        for (unsigned short n = 0; n < elem_index; ++n)
-            ++i;
+        std::advance(i, elem_index);
         (*i) = VertexElement(source, offset, theType, semantic, index);
     }
     //-----------------------------------------------------------------------------
@@ -323,6 +345,108 @@ namespace Ogre {
             ret->addElement(i->getSource(), i->getOffset(), i->getType(), i->getSemantic(), i->getIndex());
         }
         return ret;
+    }
+    //-----------------------------------------------------------------------------
+    // Sort routine for VertexElement
+    bool VertexDeclaration::vertexElementLess(const VertexElement& e1, const VertexElement& e2)
+    {
+        // Sort by source first
+        if (e1.getSource() < e2.getSource())
+        {
+            return true;
+        }
+        else if (e1.getSource() == e2.getSource())
+        {
+            // Use ordering of semantics to sort
+            if (e1.getSemantic() < e2.getSemantic())
+            {
+                return true;
+            }
+            else if (e1.getSemantic() == e2.getSemantic())
+            {
+                // Use index to sort
+                if (e1.getIndex() < e2.getIndex())
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    void VertexDeclaration::sort(void)
+    {
+        mElementList.sort(VertexDeclaration::vertexElementLess);
+    }
+    //-----------------------------------------------------------------------------
+    void VertexDeclaration::closeGapsInSource(void)
+    {
+        if (mElementList.empty())
+            return;
+
+        // Sort first
+        sort();
+
+        VertexElementList::iterator i, iend;
+        iend = mElementList.end();
+        unsigned short targetIdx = 0;
+        unsigned short lastIdx = getElement(0)->getSource();
+        unsigned short c = 0;
+        for (i = mElementList.begin(); i != iend; ++i, ++c)
+        {
+            VertexElement& elem = *i;
+            if (lastIdx != elem.getSource())
+            {
+                targetIdx++;
+                lastIdx = elem.getSource();
+            }
+            if (targetIdx != elem.getSource())
+            {
+                modifyElement(c, targetIdx, elem.getOffset(), elem.getType(), 
+                    elem.getSemantic(), elem.getIndex());
+            }
+
+        }
+
+    }
+    //-----------------------------------------------------------------------
+    VertexDeclaration* VertexDeclaration::getAutoOrganisedDeclaration(bool animated)
+    {
+        VertexDeclaration* newDecl = this->clone();
+        // Set all sources to the same buffer (for now)
+        const VertexDeclaration::VertexElementList& elems = newDecl->getElements();
+        VertexDeclaration::VertexElementList::const_iterator i;
+        unsigned short c = 0;
+        for (i = elems.begin(); i != elems.end(); ++i, ++c)
+        {
+            const VertexElement& elem = *i;
+            // Set source & offset to 0 for now, before sort
+            newDecl->modifyElement(c, 0, 0, elem.getType(), elem.getSemantic(), elem.getIndex());
+        }
+        newDecl->sort();
+        // Now sort out proper buffer assignments and offsets
+        size_t offset0 = 0;
+        size_t offset1 = 0;
+        c = 0;
+        for (i = elems.begin(); i != elems.end(); ++i, ++c)
+        {
+            const VertexElement& elem = *i;
+            if (animated && 
+                elem.getSemantic() != VES_POSITION && elem.getSemantic() != VES_NORMAL)
+            {
+                // Animated meshes have pos & norm in buffer 0, everything else in 1
+                newDecl->modifyElement(c, 1, offset1, elem.getType(), elem.getSemantic(), elem.getIndex());
+                offset1 += elem.getSize();
+            }
+            else
+            {
+                newDecl->modifyElement(c, 0, offset0, elem.getType(), elem.getSemantic(), elem.getIndex());
+                offset0 += elem.getSize();
+            }
+        }
+
+        return newDecl;
+
+
     }
     //-----------------------------------------------------------------------------
 	VertexBufferBinding::VertexBufferBinding() : mHighIndex(0)

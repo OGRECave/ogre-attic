@@ -30,6 +30,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreHardwareIndexBuffer.h"
 
 namespace Ogre {
+	
+	/// Define a list of usage flags
+	typedef std::vector<HardwareBuffer::Usage> BufferUsageList;
+
 
 	/** Summary class collecting together vertex source information. */
 	class _OgreExport VertexData
@@ -96,6 +100,27 @@ namespace Ogre {
             can be reused in the shadow algorithm.
         */
         HardwareVertexBufferSharedPtr hardwareShadowVolWBuffer;
+
+
+		/** Reorganises the data in the vertex buffers according to the 
+			new vertex declaration passed in. Note that new vertex buffers
+			are created and written to, so if the buffers being referenced 
+			by this vertex data object are also used by others, then the 
+			original buffers will not be damaged by this operation.
+			Once this operation has completed, the new declaration 
+			passed in will overwrite the current one.
+		@param newDeclaration The vertex declaration which will be used
+			for the reorganised buffer state. Note that the new delcaration
+			must not include any elements which do not already exist in the 
+			current declaration; you can drop elements by 
+			excluding them from the declaration if you wish, however.
+		@param bufferUsages Vector of usage flags which indicate the usage options
+			for each new vertex buffer created. The indexes of the entries must correspond
+			to the buffer binding values referenced in the declaration.
+		*/
+		void reorganiseBuffers(VertexDeclaration* newDeclaration, BufferUsageList bufferUsage);
+
+
 
 
 	};

@@ -50,6 +50,8 @@ struct XmlOptions
     Real lodPercent;
     size_t lodFixed;
     bool usePercent;
+    bool omitEdgeLists;
+    bool generateTangents;
 };
 
 void help(void)
@@ -57,7 +59,7 @@ void help(void)
     // Print help message
     cout << endl << "OgreXMLConvert: Converts data between XML and OGRE binary formats." << endl;
     cout << "Provided for OGRE by Steve Streeting 2002" << endl << endl;
-    cout << "Usage: OgreXMLConverter [-i] [-l lodlevels] [-d loddist] " << endl;
+    cout << "Usage: OgreXMLConverter [-i] [-e] [-l lodlevels] [-d loddist] " << endl;
     cout << "                [[-p lodpercent][-f lodnumtris]] sourcefile [destfile] " << endl;
     cout << "-i             = interactive mode - prompt for options" << endl;
     cout << "(The next 4 options are only applicable when converting XML to Mesh)" << endl;
@@ -65,6 +67,8 @@ void help(void)
     cout << "-d loddist     = distance increment to reduce LOD" << endl;
     cout << "-p lodpercent  = Percentage triangle reduction amount per LOD" << endl;
     cout << "-f lodnumtris  = Fixed vertex reduction per LOD" << endl;
+    cout << "-e             = DON'T generate edge lists (for stencil shadows)" << endl;
+    cout << "-t             = Generate tangents (for normal mapping)" << endl;
     cout << "sourcefile     = name of file to convert" << endl;
     cout << "destfile       = optional name of file to write to. If you don't" << endl;
     cout << "                 specify this OGRE works it out through the extension " << endl;
@@ -86,90 +90,80 @@ XmlOptions parseArgs(int numArgs, char **args)
     opts.lodPercent = 20;
     opts.numLods = 0;
     opts.usePercent = true;
+    opts.omitEdgeLists = false;
+    opts.generateTangents = false;
 
     // ignore program name
     char* source = 0;
     char* dest = 0;
-    for (int i = 1; i < numArgs; ++i)
+
+    // Set up options
+    UnaryOptionList unOpt;
+    BinaryOptionList binOpt;
+
+    unOpt["-i"] = false;
+    unOpt["-e"] = false;
+    unOpt["-t"] = false;
+    binOpt["-l"] = "";
+    binOpt["-d"] = "";
+    binOpt["-p"] = "";
+    binOpt["-f"] = "";
+
+    int startIndex = findCommandLineOpts(numArgs, args, unOpt, binOpt);
+    UnaryOptionList::iterator ui;
+    BinaryOptionList::iterator bi;
+
+    ui = unOpt.find("-i");
+    if (ui->second)
     {
-        if (!strncmp(args[i], "-i", 2))
+        opts.interactiveMode = true;
+    }
+    else
+    {
+        ui = unOpt.find("-e");
+        if (ui->second)
         {
-            opts.interactiveMode = true;
-            continue;
+            opts.omitEdgeLists = true;
         }
-        else if (!strncmp(args[i], "-l", 2))
+    
+        ui = unOpt.find("-t");
+        if (ui->second)
         {
-            if (strlen(args[i]) > 2)
-            {
-                // No space
-                opts.numLods = StringConverter::parseInt(String(args[i]+2));
-            }
-            else
-            {
-                // Space
-                ++i;
-                opts.numLods = StringConverter::parseInt(String(args[i]));
-            }
+            opts.generateTangents = true;
         }
-        else if (!strncmp(args[i], "-d", 2))
+
+        bi = binOpt.find("-l");
+        if (!bi->second.empty())
         {
-            if (strlen(args[i]) > 2)
-            {
-                // No space
-                opts.lodDist = StringConverter::parseReal(String(args[i]+2));
-            }
-            else
-            {
-                // Space
-                ++i;
-                opts.lodDist = StringConverter::parseReal(String(args[i]));
-            }
+            opts.numLods = StringConverter::parseInt(bi->second);
         }
-        else if (!strncmp(args[i], "-p", 2))
+
+        bi = binOpt.find("-d");
+        if (!bi->second.empty())
         {
-            if (strlen(args[i]) > 2)
-            {
-                // No space
-                opts.lodPercent = StringConverter::parseReal(String(args[i]+2));
-            }
-            else
-            {
-                // Space
-                ++i;
-                opts.lodPercent = StringConverter::parseReal(String(args[i]));
-            }
+            opts.lodDist = StringConverter::parseReal(bi->second);
+        }
+
+        bi = binOpt.find("-p");
+        if (!bi->second.empty())
+        {
+            opts.lodPercent = StringConverter::parseReal(bi->second);
             opts.usePercent = true;
         }
-        else if (!strncmp(args[i], "-f", 2))
+
+
+        bi = binOpt.find("-f");
+        if (!bi->second.empty())
         {
-            if (strlen(args[i]) > 2)
-            {
-                // No space
-                opts.lodFixed = StringConverter::parseInt(String(args[i]+2));
-            }
-            else
-            {
-                // Space
-                ++i;
-                opts.lodFixed = StringConverter::parseInt(String(args[i]));
-            }
+            opts.lodFixed = StringConverter::parseInt(bi->second);
             opts.usePercent = false;
         }
-        else if (!strncmp(args[i], "-", 1))
-        {
-            cout << "Invalid option " << args[i] << endl;
-            help();
-            exit(1);
-        }
-        else
-        {
-            // Anything else
-            if (!source)
-                source = args[i];
-            else
-                dest = args[i];
-        }
     }
+    // Source / dest
+    if (numArgs > startIndex)
+        source = args[startIndex];
+    if (numArgs > startIndex+1)
+        dest = args[startIndex+1];
 
     if (!source)
     {
@@ -427,6 +421,89 @@ void XMLToBinary(XmlOptions opts)
             newMesh.generateLodLevels(distanceList, quota, reduction);
         }
 
+        if (opts.interactiveMode)
+        {
+            std::cout << "\nWould you like to include edge lists to enable stencil shadows with this mesh? (y/n)";
+            while (response == "")
+            {
+                cin >> response;
+                StringUtil::toLowerCase(response);
+                if (response == "y")
+                {
+                    // Do nothing
+                }
+                else if (response == "n")
+                {
+                    opts.omitEdgeLists = true;
+                }
+                else
+                {
+                    response = "";
+                }
+            }
+
+
+            std::cout << "\nWould you like to generate tangents to enable normal mapping with this mesh? (y/n)";
+            while (response == "")
+            {
+                cin >> response;
+                StringUtil::toLowerCase(response);
+                if (response == "y")
+                {
+                    opts.generateTangents = true;
+                }
+                else if (response == "n")
+                {
+                    // Do nothing
+                }
+                else
+                {
+                    response = "";
+                }
+            }
+        }
+
+        if (!opts.omitEdgeLists)
+        {
+            std::cout << "Generating edge lists...." << std::endl;
+            newMesh.buildEdgeList();
+        }
+
+        if (opts.generateTangents)
+        {
+            unsigned short srcTex, destTex;
+            bool existing = newMesh.suggestTangentVectorBuildParams(srcTex, destTex);
+            if (existing)
+            {
+                std::cout << "\nThis mesh appears to already have a set of 3D texture coordinates, " <<
+                    "which would suggest tangent vectors have already been calculated. Do you really " <<
+                    "want to generate new tangent vectors (may duplicate)? (y/n)";
+                while (response == "")
+                {
+                    cin >> response;
+                    StringUtil::toLowerCase(response);
+                    if (response == "y")
+                    {
+                        // Do nothing
+                    }
+                    else if (response == "n")
+                    {
+                        opts.generateTangents = false;
+                    }
+                    else
+                    {
+                        response = "";
+                    }
+                }
+
+            }
+            if (opts.generateTangents)
+            {
+                std::cout << "Generating tangent vectors...." << std::endl;
+                newMesh.buildTangentVectors(srcTex, destTex);
+            }
+        }
+
 
         meshSerializer->exportMesh(&newMesh, opts.dest);
     }
@@ -501,6 +578,11 @@ int main(int numargs, char** args)
     else if (opts.sourceExt == "xml")
     {
         XMLToBinary(opts);
+    }
+    else
+    {
+        cout << "Unknown input type.\n";
+        exit(1); 
     }
 
     

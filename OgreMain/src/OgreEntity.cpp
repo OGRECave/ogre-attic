@@ -127,6 +127,12 @@ namespace Ogre {
 
 
         mFrameAnimationLastUpdated = 0;
+
+        // Do we have a mesh where edge lists are not going to be available?
+        if (!mesh->isEdgeListBuilt() && !mesh->getAutoBuildEdgeLists())
+        {
+            setCastShadows(false);
+        }
     }
     //-----------------------------------------------------------------------
     Entity::~Entity()

@@ -60,6 +60,8 @@ public:
 
     bool exportMaterials;
     bool generateLods;
+    bool generateEdgeLists;
+    bool generateTangents;
     unsigned short numLods;
     float lodDepthIncrement;
     Ogre::ProgressiveMesh::VertexReductionQuota lodReductionMethod;

@@ -69,23 +69,23 @@ namespace Ogre {
     /// Vertex element semantics, used to identify the meaning of vertex buffer contents
 	enum VertexElementSemantic {
 		/// Position, 3 reals per vertex
-		VES_POSITION,
-		/// Normal, 3 reals per vertex
-		VES_NORMAL,
+		VES_POSITION = 1,
 		/// Blending weights
-		VES_BLEND_WEIGHTS,
+		VES_BLEND_WEIGHTS = 2,
         /// Blending indices
-        VES_BLEND_INDICES,
+        VES_BLEND_INDICES = 3,
+		/// Normal, 3 reals per vertex
+		VES_NORMAL = 4,
 		/// Diffuse colours
-		VES_DIFFUSE,
+		VES_DIFFUSE = 5,
 		/// Specular colours
-		VES_SPECULAR,
+		VES_SPECULAR = 6,
 		/// Texture coordinates
-		VES_TEXTURE_COORDINATES,
+		VES_TEXTURE_COORDINATES = 7,
         /// Binormal (Y axis if normal is Z)
-        VES_BINORMAL,
+        VES_BINORMAL = 8,
         /// Tangent (X axis if normal is Z)
-        VES_TANGENT
+        VES_TANGENT = 9
 
 	};
 
@@ -150,6 +150,10 @@ namespace Ogre {
 			multi-value type based on a parameter. 
 		*/
 		static VertexElementType multiplyTypeCount(VertexElementType baseType, unsigned short count);
+		/** Simple converter function which will a type into it's single-value
+			equivalent - makes switches on type easier. 
+		*/
+		static VertexElementType getBaseType(VertexElementType multiType);
 
         inline bool operator== (const VertexElement& rhs) const
         {
@@ -162,6 +166,20 @@ namespace Ogre {
             else
                 return true;
 
+        }
+        /** Adjusts a pointer to the base of a vertex to point at this element.
+        @remarks
+            This variant is for void pointers, passed as a parameter because we can't
+            rely on covariant return types.
+        @param pBase Pointer to the start of a vertex in this buffer.
+        @param pElem Pointer to a pointer which will be set to the start of this element.
+        */
+        inline void baseVertexPointerToElement(void* pBase, void** pElem) const
+        {
+            // The only way we can do this is to cast to char* in order to use byte offset
+            // then cast back to void*.
+            *pElem = static_cast<void*>(
+            	static_cast<unsigned char*>(pBase) + mOffset);
         }
         /** Adjusts a pointer to the base of a vertex to point at this element.
         @remarks
@@ -246,6 +264,8 @@ namespace Ogre {
     public:
 		/// Defines the list of vertex elements that makes up this declaration
         typedef std::list<VertexElement> VertexElementList;
+        /// Sort routine for vertex elements
+        static bool vertexElementLess(const VertexElement& e1, const VertexElement& e2);
     protected:
         VertexElementList mElementList;
     public:
@@ -253,10 +273,43 @@ namespace Ogre {
         VertexDeclaration();
         virtual ~VertexDeclaration();
         
+        /** Get the number of elements in the declaration. */
+        size_t getElementCount(void) { return mElementList.size(); }
         /** Gets read-only access to the list of vertex elements. */
         const VertexElementList& getElements(void) const;
         /** Get a single element. */
         const VertexElement* getElement(unsigned short index);
+
+        /** Sorts the elements in this list to be compatible with the maximum
+            number of rendering APIs / graphics cards.
+        @remarks
+            Older graphics cards require vertex data to be presented in a more
+            rigid way, as defined in the main documentation for this class. As well
+            as the ordering being important, where shared source buffers are used, the
+            declaration must list all the elements for each source in turn.
+        */
+        void sort(void);
+
+        /** Remove any gaps in the source buffer list used by this declaration.
+        @remarks
+            This is useful if you've modified a declaration and want to remove
+            any gaps in the list of buffers being used. Note, however, that if this
+            declaration is already being used with a VertexBufferBinding, you will
+            need to alter that too. This method is mainly useful when reorganising
+            buffers based on an altered declaration.
+        @note
+            This will cause the vertex declaration to be re-sorted.
+        */
+        void closeGapsInSource(void);
+
+        /** Generates a new VertexDeclaration for optimal usage based on the current
+            vertex declaration, which can be used with VertexData::reorganiseBuffers later 
+            if you wish, or simply used as a template.
+        @param animated Whether this vertex data is going to be animated; this
+            affects the choice of both usage and buffer splits.
+        */
+        VertexDeclaration* getAutoOrganisedDeclaration(bool animated);
+
 
         /** Adds a new VertexElement to this declaration. 
         @remarks
@@ -397,6 +450,8 @@ namespace Ogre {
 
 		/// Gets the buffer bound to the given source index
 		virtual HardwareVertexBufferSharedPtr getBuffer(unsigned short index);
+
+        virtual size_t getBufferCount(void) const { return mBindingMap.size(); }
 
 		/** Gets the highest index which has already been set, plus 1.
 		@remarks

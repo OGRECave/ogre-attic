@@ -302,7 +302,135 @@ namespace Ogre {
 
         }
     }
-    //-----------------------------------------------------------------------
+	//-----------------------------------------------------------------------
+	void VertexData::reorganiseBuffers(VertexDeclaration* newDeclaration, BufferUsageList bufferUsages)
+	{
+        // Firstly, close up any gaps in the buffer sources which might have arisen
+        newDeclaration->closeGapsInSource();
+
+		// Build up a list of both old and new elements in each buffer
+		unsigned short buf = 0;
+		std::vector<void*> oldBufferLocks;
+		std::vector<void*> newBufferLocks;
+		VertexBufferBinding* newBinding = 
+			HardwareBufferManager::getSingleton().createVertexBufferBinding();
+		// Lock all the old buffers for reading
+		try 
+		{
+			while (1)
+			{
+				oldBufferLocks.push_back(
+					vertexBufferBinding->getBuffer(buf++)->lock(
+						HardwareBuffer::HBL_READ_ONLY));
+			}
+		}
+		catch(Exception& e)
+		{
+			// Catch 'no buffer' exception and ignore
+		}
+		
+		// Create new buffers and lock all for writing
+		buf = 0;
+		while (!newDeclaration->findElementsBySource(buf).empty())
+		{
+			HardwareVertexBufferSharedPtr vbuf = 
+				HardwareBufferManager::getSingleton().createVertexBuffer(
+					newDeclaration->getVertexSize(buf),
+					vertexCount, 
+					bufferUsages[buf]);
+			newBinding->setBinding(buf, vbuf);
+
+			newBufferLocks.push_back(
+				vbuf->lock(HardwareBuffer::HBL_DISCARD));
+			buf++;
+		}
+
+		// Map from new to old elements
+        typedef std::map<const VertexElement*, const VertexElement*> NewToOldElementMap;
+		NewToOldElementMap newToOldElementMap;
+		const VertexDeclaration::VertexElementList& newElemList = newDeclaration->getElements();
+		VertexDeclaration::VertexElementList::const_iterator ei, eiend;
+		eiend = newElemList.end();
+		for (ei = newElemList.begin(); ei != eiend; ++ei)
+		{
+			// Find corresponding old element
+			const VertexElement* oldElem = 
+				vertexDeclaration->findElementBySemantic(
+					(*ei).getSemantic(), (*ei).getIndex());
+			if (!oldElem)
+			{
+				// Error, cannot create new elements with this method
+				Except(Exception::ERR_ITEM_NOT_FOUND, 
+					"Element not found in old vertex declaration", 
+					"VertexData::reorganiseBuffers");
+			}
+			newToOldElementMap[&(*ei)] = oldElem;
+		}
+		// Now iterate over the new buffers, pulling data out of the old ones
+		// For each vertex
+		for (size_t v = 0; v < vertexCount; ++v)
+		{
+			// For each (new) element
+			for (ei = newElemList.begin(); ei != eiend; ++ei)
+			{
+				const VertexElement* newElem = &(*ei);
+                NewToOldElementMap::iterator noi = newToOldElementMap.find(newElem);
+				const VertexElement* oldElem = noi->second;
+				unsigned short oldBufferNo = oldElem->getSource();
+				unsigned short newBufferNo = newElem->getSource();
+				void* pSrcBase = static_cast<void*>(
+					static_cast<unsigned char*>(oldBufferLocks[oldBufferNo])
+					+ v * vertexBufferBinding->getBuffer(oldBufferNo)->getVertexSize());
+				void* pDstBase = static_cast<void*>(
+					static_cast<unsigned char*>(newBufferLocks[newBufferNo])
+					+ v * newBinding->getBuffer(newBufferNo)->getVertexSize());
+				void *pSrc, *pDst;
+				oldElem->baseVertexPointerToElement(pSrcBase, &pSrc);
+				newElem->baseVertexPointerToElement(pDstBase, &pDst);
+				
+				memcpy(pDst, pSrc, newElem->getSize());
+				
+			}
+		}
+
+		// Unlock all buffers
+		buf = 0;
+		try 
+		{
+			while (1)
+			{
+				vertexBufferBinding->getBuffer(buf++)->unlock();
+			}
+		}
+		catch(Exception& e)
+		{
+			// Catch 'no buffer' exception and ignore
+		}
+		buf = 0;
+		try 
+		{
+			while (1)
+			{
+				newBinding->getBuffer(buf++)->unlock();
+			}
+		}
+		catch(Exception& e)
+		{
+			// Catch 'no buffer' exception and ignore
+		}
+
+		// Delete old binding & declaration
+		HardwareBufferManager::getSingleton().
+			destroyVertexBufferBinding(vertexBufferBinding);
+		HardwareBufferManager::getSingleton().destroyVertexDeclaration(vertexDeclaration);
+
+		// Assign new binding and declaration
+		vertexDeclaration = newDeclaration;
+		vertexBufferBinding = newBinding;		
+
+	}
+	//-----------------------------------------------------------------------
+	//-----------------------------------------------------------------------
 	IndexData::IndexData()
 	{
 		indexCount = 0;

@@ -79,7 +79,8 @@ namespace Ogre {
     class _OgreExport Mesh: public Resource
     {
         friend class MeshSerializerImpl;
-        friend class MeshSerializerImpl_v1;
+        friend class MeshSerializerImpl_v1_1;
+        friend class MeshSerializerImpl_v1_2;
         friend class SubMesh;
     public:
 		/** A way of recording the way each LODs is recorded this Mesh. */
@@ -92,7 +93,7 @@ namespace Ogre {
 			/// Hard link to mesh to avoid looking up each time
 			mutable Mesh* manualMesh;
             /// Edge list for this LOD level (may be derived from manual mesh)
-            EdgeData* edgeData;
+            mutable EdgeData* edgeData;
 		};
 
 		typedef std::vector<Real> LodDistanceList;
@@ -110,8 +111,8 @@ namespace Ogre {
         */
         SubMeshList mSubMeshList;
 	
-        /** Internal method for getting or creating a 3D texture coord buffer to hold tangents. */
-        HardwareVertexBufferSharedPtr getTangentsBuffer(VertexData *vertexData, unsigned short texCoordSet);
+        /** Internal method for making the space for a 3D texture coord buffer to hold tangents. */
+        void organiseTangentsBuffer(VertexData *vertexData, unsigned short destCoordSet);
 
     public:
 		/** A hashmap used to store optional SubMesh names.
@@ -164,6 +165,7 @@ namespace Ogre {
 
         bool mPreparedForShadowVolumes;
         bool mEdgeListsBuilt;
+        bool mAutoBuildEdgeLists;
 
     public:
         /** Default constructor - used by MeshManager
@@ -256,13 +258,6 @@ namespace Ogre {
 
 		/** Gets the radius of the bounding sphere surrounding this mesh. */
 		Real getBoundingSphereRadius(void) const;
-
-        /** Updates the local bounding box of this mesh.
-        NOW REMOVED BECAUSE WE CANNOT READ HARDWARE BUFFERS
-            @remarks
-                Only needs to be called for manually modified meshes, loaded meshes do this automatically.
-        void _updateBounds(void);
-        */
 
         /** Manually set the bounding box for this Mesh.
             @remarks
@@ -530,6 +525,20 @@ namespace Ogre {
         */
         void buildTangentVectors(unsigned short sourceTexCoordSet = 0, unsigned short destTexCoordSet = 1);
 
+        /** Ask the mesh to suggest parameters to a future buildTangentVectors call. 
+        @remarks
+            This helper method will suggest source and destination texture coordinate sets
+            for a call to buildTangentVectors. It will detect when there are inappropriate
+            conditions (such as multiple geometry sets which don't agree). 
+            Moreover, it will return 'true' if it detects that there are aleady 3D 
+            coordinates in the mesh, and therefore tangents may have been prepared already.
+        @param outSourceCoordSet Reference to a source texture coordinate set which 
+            will be populated
+        @param outDestCoordSet Reference to a destination texture coordinate set which 
+            will be populated
+        */
+        bool suggestTangentVectorBuildParams(unsigned short& outSourceCoordSet, unsigned short& outDestCoordSet);
+
         /** Builds an edge list for this mesh, which can be used for generating a shadow volume
             among other things.
         */
@@ -565,10 +574,20 @@ namespace Ogre {
         */
         EdgeData* getEdgeList(unsigned int lodIndex = 0);
 
+        /** Return the edge list for this mesh, building it if required. 
+        @remarks
+            You must ensure that the Mesh as been prepared for shadow volume 
+            rendering if you intend to use this information for that purpose.
+        @lodIndex The LOD at which to get the edge list, 0 being the highest.
+        */
+        const EdgeData* getEdgeList(unsigned int lodIndex = 0) const;
+
         /** Returns whether this mesh has already had it's geometry prepared for use in 
             rendering shadow volumes. */
-        bool isPreparedForShadowVolumes(void) { return mPreparedForShadowVolumes; }
+        bool isPreparedForShadowVolumes(void) const { return mPreparedForShadowVolumes; }
 
+		/** Returns whether this mesh has an attached edge list. */
+		bool isEdgeListBuilt(void) const { return mEdgeListsBuilt; }
 
         /** Performs a software indexed vertex blend, of the kind used for
             skeletal animation although it can be used for other purposes. 
@@ -591,6 +610,24 @@ namespace Ogre {
 
         /** Gets a reference to the optional name assignments of the SubMeshes. */
         const SubMeshNameMap& getSubMeshNameMap(void) const { return mSubMeshNameMap; }
+
+        /** Sets whether or not this Mesh should automatically build edge lists
+            when asked for them, or whether it should never build them if
+            they are not already provided.
+        @remarks
+            This allows you to create meshes which do not have edge lists calculated, 
+            because you never want to use them. This value defaults to 'true'
+            for mesh formats which did not include edge data, and 'false' for 
+            newer formats, where edge lists are expected to have been generated
+            in advance.
+        */
+        void setAutoBuildEdgeLists(bool autobuild) { mAutoBuildEdgeLists = autobuild; }
+        /** Sets whether or not this Mesh should automatically build edge lists
+            when asked for them, or whether it should never build them if
+            they are not already provided.
+        */
+        bool getAutoBuildEdgeLists(void) const { return mAutoBuildEdgeLists; }
+
 
     };
 

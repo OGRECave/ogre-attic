@@ -158,7 +158,7 @@ namespace Ogre {
             of ACT_CUSTOM, and to allow there to be more than one of these per
             Renderable, the 'data' field on the auto parameter will identify
             which parameter is being updated. The implementation of this method
-            must identify the parameter being updated, and call a 'setContant' 
+            must identify the parameter being updated, and call a 'setConstant' 
             method on the passed in GpuProgramParameters object, using the details
             provided in the incoming auto constant setting to identify the index
             at which to set the parameter.
