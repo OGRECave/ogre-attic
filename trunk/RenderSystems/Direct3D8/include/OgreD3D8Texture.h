@@ -61,6 +61,8 @@ namespace Ogre {
         D3D8RenderTexture( const String & name, uint width, uint height )
             : RenderTexture( name, width, height )
         {
+            mPrivateTex = TextureManager::getSingleton().createManual( mName + 
+                "_PRIVATE##", mWidth, mHeight, 0, PF_R8G8B8, TU_RENDERTARGET );
         }
 
         virtual void getCustomAttribute( String name, void* pData )
