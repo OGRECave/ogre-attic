@@ -22,41 +22,27 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#ifndef __HardwareIndexBuffer__
-#define __HardwareIndexBuffer__
-
-// Precompiler options
-#include "OgrePrerequisites.h"
-#include "OgreHardwareBuffer.h"
+#include "OgreHardwareIndexBuffer.h"
 
 namespace Ogre {
 
-    /** Specialisation of HardwareBuffer for vertex index buffers, still abstract. */
-    class _OgreExport HardwareIndexBuffer : public HardwareBuffer
+    //-----------------------------------------------------------------------------
+    HardwareIndexBuffer::HardwareIndexBuffer(IndexType idxType, 
+        size_t numIndexes, HardwareBuffer::Usage usage) 
+        : HardwareBuffer(usage), mIndexType(idxType), mNumIndexes(numIndexes)
     {
-	    public:
-		    enum IndexType {
-			    IT_16BIT,
-			    IT_32BIT
-		    };
+        // Calculate the size of the indexes
+        switch (mIndexType)
+        {
+        case IT_16BIT:
+            mIndexSize = sizeof(unsigned short);
+            break;
+        case IT_32BIT:
+            mIndexSize = sizeof(unsigned long);
+            break;
+        }
+        mSizeInBytes = mIndexSize * mNumIndexes;
 
-	    protected:
-		    IndexType mIndexType;
-		    size_t mNumIndexes;
-            size_t mIndexSize;
-
-	    public:
-		    /// Should be called by HardwareBufferManager
-		    HardwareIndexBuffer(IndexType idxType, size_t numIndexes, HardwareBuffer::Usage usage);
-    		/// Get the type of indexes used in this buffer
-            IndexType getType(void) { return mIndexType; }
-            /// Get the number of indexes in this buffer
-            size_t getNumIndexes(void) { return mNumIndexes; }
-            /// Get the size in bytes of each index
-            size_t getIndexSize(void) { return mIndexSize; }
-
-		    // NB subclasses should override lock, unlock, readData, writeData
-    };
+    }
 }
-#endif
 
