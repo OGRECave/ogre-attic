@@ -443,26 +443,21 @@ namespace Ogre {
         */
         Image & load( const String& strFileName );
 
-        /** Loads an image file from a chunk of memory.
+        /** Loads an image file from a stream.
             @remarks
                 This method works in the same way as the filename-based load 
-                method except it loads the image from a DataChunk object, ie 
-                a chunk of memory. This DataChunk is expected to contain the 
+                method except it loads the image from a DataStream object. 
+				This DataStream is expected to contain the 
                 encoded data as it would be held in a file. 
-            @par
-                This method is here to support loading from compressed archives
-                where you decompress the data from the archive into memory 
-                first. This method will then decode the data and return a raw 
-                image data stream.
             @param
-                chunk The source data.
+                stream The source data.
             @param
                 type The type of the image. Used to decide what decompression
                 codec to use.
             @see
                 Image::load( const String& strFileName )
         */
-        Image & load( const DataChunk& chunk, const String& type );
+        Image & load(DataStreamPtr& stream, const String& type );
         
         /** Save the image as a file. */
         void save(const String& filename);

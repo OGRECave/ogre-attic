@@ -280,6 +280,9 @@ namespace Ogre {
         /** @copydoc DataStream::close
         */
         void close(void);
+
+		/** Sets whether or not to free the encapsulated memory on destroy. */
+		void setFreeOnDestroy(bool free) { mFreeOnDestroy = free; }
 	};
 
     /** Shared pointer to allow memory data streams to be passed around without
