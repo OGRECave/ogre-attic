@@ -56,6 +56,7 @@ using namespace Ogre;
 //   instantiate the singletons used in the dlls
 LogManager* logMgr;
 Math* mth;
+ResourceGroupManager* resGrpMgr;
 MaterialManager* matMgr;
 
 int main(int numargs, char** args)
@@ -68,6 +69,7 @@ int main(int numargs, char** args)
 
     logMgr = new LogManager();
     mth = new Math();
+    resGrpMgr = new ResourceGroupManager();
     matMgr = new MaterialManager();
     matMgr->initialise();
 
@@ -120,6 +122,7 @@ int main(int numargs, char** args)
     serializer.exportQueued(dest);
     
     delete matMgr;
+    delete resGrpMgr;
     delete mth;
     delete logMgr;
 

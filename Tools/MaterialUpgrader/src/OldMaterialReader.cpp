@@ -979,8 +979,6 @@ void OldMaterialReader::parseScript(DataChunk& chunk)
 	MaterialPtr pMat;
 	char tempBuf[512];
 
-	pMat = 0;
-
 	while(!chunk.isEOF())
 	{
 		line = chunk.getLine();
