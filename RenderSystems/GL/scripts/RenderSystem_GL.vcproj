@@ -148,12 +148,6 @@
 				RelativePath="..\src\OgreGLTextureManager.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreSDLGLSupport.cpp">
-			</File>
-			<File
-				RelativePath="..\src\OgreSDLWindow.cpp">
-			</File>
-			<File
 				RelativePath="..\src\OgreWin32GLSupport.cpp">
 			</File>
 			<File

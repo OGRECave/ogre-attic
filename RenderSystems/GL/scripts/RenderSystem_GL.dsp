@@ -128,14 +128,6 @@ SOURCE=..\src\OgreGLTextureManager.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\OgreSDLGLSupport.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\OgreSDLWindow.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\OgreWin32GLSupport.cpp
 # End Source File
 # Begin Source File
