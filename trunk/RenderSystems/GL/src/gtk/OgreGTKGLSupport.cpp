@@ -74,7 +74,7 @@ String GTKGLSupport::validateConfig()
 
 RenderWindow* GTKGLSupport::createWindow(bool autoCreateWindow, 
                                          GLRenderSystem* renderSystem, 
-										 const String& windowTitle)
+					 const String& windowTitle)
 {
     if (autoCreateWindow)
     {
@@ -122,6 +122,7 @@ void GTKGLSupport::start()
         "******************************\n"
         "*** Starting GTK Subsystem ***\n"
         "******************************");
+
 }
  
 void GTKGLSupport::stop()

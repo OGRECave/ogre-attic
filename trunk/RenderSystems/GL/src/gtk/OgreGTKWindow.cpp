@@ -26,10 +26,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGTKWindow.h"
 #include "OgreRenderSystem.h"
 #include "OgreRoot.h"
+#include "OgreLogManager.h"
 
 using namespace Ogre;
 
-OGREWidget::OGREWidget(bool useDepthBuffer) : Gtk::GL::DrawingArea()
+OGREWidget::OGREWidget(bool useDepthBuffer) : 
+	Gtk::GL::DrawingArea()
 {
     Glib::RefPtr<Gdk::GL::Config> glconfig;
 
@@ -40,7 +42,7 @@ OGREWidget::OGREWidget(bool useDepthBuffer) : Gtk::GL::DrawingArea()
     glconfig = Gdk::GL::Config::create(mode);
     if (glconfig.is_null())
     {
-        printf("GLCONFIG BLOWUP\n");
+    	LogManager::getSingleton().logMessage("[gtk] GLCONFIG BLOWUP");
     }
 
     set_gl_capability(glconfig);
@@ -48,10 +50,21 @@ OGREWidget::OGREWidget(bool useDepthBuffer) : Gtk::GL::DrawingArea()
     add_events(Gdk::POINTER_MOTION_MASK | Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK);
 }
 
-GTKWindow::GTKWindow()
+// OGREWidget TODO: 
+// - resize events et al
+// - Change aspect ratio
+
+GTKWindow::GTKWindow():
+	mGtkWindow(0)
 {
-    kit = Gtk::Main::instance();
-    Gtk::GL::init(0, NULL);
+    	kit = Gtk::Main::instance();
+	
+	// Should  this move to GTKGLSupport?
+    	// Gtk::GL::init(0, NULL);
+	// Already done in GTKGLSupport	
+
+	mWidth = 0;
+	mHeight  = 0;
 }
 
 GTKWindow::~GTKWindow()
@@ -77,76 +90,95 @@ void GTKWindow::create(const String& name, unsigned int width, unsigned int heig
                        bool fullScreen, int left, int top, bool depthBuffer, 
                        void* miscParam, ...)
 {
-    mName = name;
-    set_title(mName);
+   	mName = name;
+	mWidth = width;
+	mHeight = height;
 
-    if (fullScreen)
-    {
-        set_decorated(false);
-        fullscreen();
-    }
-    else
-    {
-        mWidth = width;
-        mHeight = height;
-        set_default_size(mWidth, mHeight);
-        move(left, top); 
-    }
+	if(!miscParam) {
+    		mGtkWindow = new Gtk::Window();
+    		mGtkWindow->set_title(mName);
 
-    ogre = Gtk::manage(new OGREWidget(depthBuffer));
-    ogre->set_size_request(width, height);
-    add(*ogre);
+    		if (fullScreen)
+    		{
+        		mGtkWindow->set_decorated(false);
+        		mGtkWindow->fullscreen();
+    		}
+    		else
+    		{
+        		mGtkWindow->set_default_size(mWidth, mHeight);
+        		mGtkWindow->move(left, top); 
+    		}
+	} else {
+		// If miscParam is not 0, a parent widget has been passed in,
+		// we will handle this later on after the widget has been created.
+	}
 
-    signal_delete_event().connect(SigC::slot(*this, &GTKWindow::on_delete_event));
+    	ogre = Gtk::manage(new OGREWidget(depthBuffer));
+    	ogre->set_size_request(width, height);
 
-    show_all();
+	ogre->signal_delete_event().connect(SigC::slot(*this, &GTKWindow::on_delete_event));
+	ogre->signal_expose_event().connect(SigC::slot(*this, &GTKWindow::on_expose_event));
+
+	if(mGtkWindow) {
+    		mGtkWindow->add(*ogre);
+    		mGtkWindow->show_all();
+	}
+	if(miscParam) {
+		// Attach it!
+		// Note that the parent widget *must* be visible already at this point,
+		// or the widget won't get realized in time for the GLinit that follows
+		// this call. This is usually the case for Glade generated windows, anyway.
+		reinterpret_cast<Gtk::Container*>(miscParam)->add(*ogre);
+		ogre->show();
+	}
 }
 
 void GTKWindow::destroy()
 {
-    Root::getSingleton().getRenderSystem()->detachRenderTarget( this->getName() );
+    	Root::getSingleton().getRenderSystem()->detachRenderTarget( this->getName() );
+	// We could detach the widget from its parent and destroy it here too,
+	// but then again, it is managed so we rely on GTK to destroy it.
+	delete mGtkWindow;
+	mGtkWindow = 0;
+
 }
 
 bool GTKWindow::isActive() const
 {
-    return is_realized();
+    return ogre->is_realized();
 }
 
 bool GTKWindow::isClosed() const
 {
-    return is_visible();
+    return ogre->is_visible();
 }
 
 void GTKWindow::reposition(int left, int top)
 {
-    move(left, top);
+	if(mGtkWindow)
+    		mGtkWindow->move(left, top);
 }
 
 void GTKWindow::resize(unsigned int width, unsigned int height)
 {
-    resize(width, height);
+	if(mGtkWindow)
+    		mGtkWindow->resize(width, height);
 }
 
 void GTKWindow::swapBuffers(bool waitForVSync)
 {
-    Glib::RefPtr<Gdk::GL::Window> glwindow = ogre->get_gl_window();
-    glwindow->swap_buffers();
+    	Glib::RefPtr<Gdk::GL::Window> glwindow = ogre->get_gl_window();
+    	glwindow->swap_buffers();
 }
 
 void GTKWindow::outputText(int x, int y, const String& text)
 {
-    // XXX impl me
+    	// XXX impl me
 }
 
 void GTKWindow::writeContentsToFile(const String& filename)
 {
-    // XXX impl me
-}
-
-bool GTKWindow::on_delete_event(GdkEventAny* event)
-{
-    Root::getSingleton().getRenderSystem()->detachRenderTarget( getName() );
-    return false;
+    	// XXX impl me
 }
 
 void GTKWindow::getCustomAttribute( const String& name, void* pData )
@@ -155,7 +187,7 @@ void GTKWindow::getCustomAttribute( const String& name, void* pData )
 	{
 		Gtk::Window **win = static_cast<Gtk::Window **>(pData);
 		// Oh, the burdens of multiple inheritance
-		*win = this;
+		*win = mGtkWindow;
 		return;
 	}
 	else if( name == "GTKGLMMWIDGET" )
@@ -171,4 +203,20 @@ void GTKWindow::getCustomAttribute( const String& name, void* pData )
 		return;
 	}
 	RenderWindow::getCustomAttribute(name, pData);
+}
+
+
+bool GTKWindow::on_delete_event(GdkEventAny* event)
+{
+    Root::getSingleton().getRenderSystem()->detachRenderTarget( this->getName() );
+    return false;
+}
+
+bool GTKWindow::on_expose_event(GdkEventExpose* event)
+{
+    // Window exposed, update interior
+    //std::cout << "Window exposed, update interior" << std::endl;
+    // TODO: time between events, as expose events can be sent crazily fast
+    update();
+    return false;
 }
