@@ -29,6 +29,17 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 
 //-----------------------------------------------------------------------
+// Forward declarations
+//-----------------------------------------------------------------------
+
+namespace Ogre
+{
+    class TerrainSceneManager;
+    class TerrainPageSource;
+    class TerrainRenderable;
+    class TerrainPage;
+}
+//-----------------------------------------------------------------------
 // Windows Settings
 //-----------------------------------------------------------------------
 
