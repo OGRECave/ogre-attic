@@ -51,6 +51,10 @@ namespace Ogre {
             Codec::registerCodec(codec);
             codeclist.push_back(codec);
         }
+		// Raw format, missing in image formats string
+		ILImageCodec *cod = new ILImageCodec("raw", IL_RAW);
+		Codec::registerCodec(cod);
+		codeclist.push_back(cod);
     }
 
     void ILCodecs::deleteCodecs(void) {
