@@ -786,13 +786,9 @@ namespace Ogre {
         @par
             This effect cannot be combined with other texture generation effects, 
             such as environment mapping.
-        @note
-            Fixed-function projective texturing only generates texture coordinates
-            at vertices, therefore the effect will look better the higher the
-            tesselation of the object being projected onto. If you want to do
-            per-pixel projection, you will need to use a fragment program 
-            instead.
         @param enabled Whether to enable / disable
+        @param projectionSettings The Frustum which will be used to derive the 
+            projection parameters.
         */
         void setProjectiveTexturing(bool enabled, const Frustum* projectionSettings = 0);
 
