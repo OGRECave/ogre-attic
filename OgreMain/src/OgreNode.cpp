@@ -485,8 +485,8 @@ namespace Ogre {
         Vector3 invTranslate = -position;
         Vector3 invScale;
         invScale.x = 1 / scale.x;
-        invScale.y = 1 / scale.x;
-        invScale.z = 1 / scale.x;
+        invScale.y = 1 / scale.y;
+        invScale.z = 1 / scale.z;
 
         Quaternion invRot = orientation.Inverse();
         
