@@ -93,7 +93,7 @@ namespace Ogre {
         /** Tells the target to update it's contents.
             @remarks
                 If OGRE is not running in an automatic rendering loop
-                (started using RenderSystem::startRendering),
+                (started using Root::startRendering),
                 the user of the library is responsible for asking each render
                 target to refresh. This is the method used to do this. It automatically
                 re-renders the contents of the target using whatever cameras have been
@@ -169,7 +169,7 @@ namespace Ogre {
                 @param
                     avgFPS Pointer to a float to receive the FPS rating based on an average of all
                     the frames rendered since rendering began (the call to
-                    RenderSystem::startRendering).
+                    Root::startRendering).
                 @param
                     bestFPS Pointer to a float to receive the best FPS rating that has been achieved
                     since rendering began.
@@ -185,15 +185,15 @@ namespace Ogre {
         */
         virtual float getLastFPS() const;
 
-        /** Individual stats access - gets the average frames per second (FPS) since call to RenderSystem::startRendering.
+        /** Individual stats access - gets the average frames per second (FPS) since call to Root::startRendering.
         */
         virtual float getAverageFPS() const;
 
-        /** Individual stats access - gets the best frames per second (FPS) since call to RenderSystem::startRendering.
+        /** Individual stats access - gets the best frames per second (FPS) since call to Root::startRendering.
         */
         virtual float getBestFPS() const;
 
-        /** Individual stats access - gets the worst frames per second (FPS) since call to RenderSystem::startRendering.
+        /** Individual stats access - gets the worst frames per second (FPS) since call to Root::startRendering.
         */
         virtual float getWorstFPS() const;
 

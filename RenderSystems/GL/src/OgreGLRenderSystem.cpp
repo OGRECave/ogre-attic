@@ -394,51 +394,6 @@ namespace Ogre {
         mStopRendering = true;
     }
 
-    void GLRenderSystem::startRendering(void)
-    {
-        OgreGuard("GLRenderSystem::startRendering");
-
-        RenderTargetMap::iterator i;
-
-        RenderSystem::startRendering();
-        
-        mStopRendering = false;
-        while( mRenderTargets.size() && !mStopRendering )
-        {
-#if OGRE_PLATFORM == PLATFORM_WIN32
-			MSG msg;
-			if( PeekMessage( &msg, NULL, 0U, 0U, PM_REMOVE ) )
-			{
-				TranslateMessage( &msg );
-				DispatchMessage( &msg );
-			}
-			else
-			{
-#endif
-				if(!fireFrameStarted())
-					return;
-			 
-				// Render a frame during idle time (no messages are waiting)
-				RenderTargetPriorityMap::iterator itarg, itargend;
-				itargend = mPrioritisedRenderTargets.end();
-				for( itarg = mPrioritisedRenderTargets.begin(); itarg != itargend; ++itarg )
-				{
-					if( itarg->second->isActive() )
-					{
-						itarg->second->update();
-					}
-				}
-
-				if(!fireFrameEnded())
-					return;
-#if OGRE_PLATFORM == PLATFORM_WIN32
-			}
-#endif
-        }
-
-        OgreUnguard();
-    }
-
     void GLRenderSystem::setAmbientLight(float r, float g, float b)
     {
         GLfloat lmodel_ambient[] = {r, g, b, 1.0};
