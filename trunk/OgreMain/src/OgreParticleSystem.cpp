@@ -199,6 +199,11 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
+    unsigned int ParticleSystem::getNumParticles(void) const
+    {
+        return (unsigned int)mActiveBillboards.size();
+    }
+    //-----------------------------------------------------------------------
     unsigned int ParticleSystem::getParticleQuota(void) const
     {
         // This is basically a renamed property
