@@ -122,14 +122,14 @@ namespace Ogre
         Vector3 operator* (const Vector3& rkVector) const;
 
         // vector * matrix [1x3 * 3x3 = 1x3]
-        friend Vector3 operator* (const Vector3& rkVector,
+        _OgreExport friend Vector3 operator* (const Vector3& rkVector,
             const Matrix3& rkMatrix);
 
         // matrix * scalar
         Matrix3 operator* (Real fScalar) const;
 
         // scalar * matrix
-        friend Matrix3 operator* (Real fScalar, const Matrix3& rkMatrix);
+        _OgreExport friend Matrix3 operator* (Real fScalar, const Matrix3& rkMatrix);
 
         // utilities
         Matrix3 Transpose () const;
