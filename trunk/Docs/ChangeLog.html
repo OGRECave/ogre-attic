@@ -77,496 +77,807 @@ CODE.str {
 -->
 </STYLE> 
 </head>
-
-<body bgcolor="#FFFFFF" text="#000000">
-<p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p><p align="center" class="header">Change 
-Log</p><p align="left" class="MainHeader">v0.12.0 (23 September 2003)</p><p align="left">Changes 
-since 0.11.0:</p><UL><LI>Complete overhaul of core geometry usage resulting in 
-optimised use of hardware vertex and index buffers, providing significant speed 
-boosts on all cards, typically of between 50 and 200% depending on the application. 
-ATI 9500+ cards on DirectX9 will see particularly large increases (often five-fold) 
-due to their particular affinity to this approach.</LI><LI>Geometry structures 
-redesigned to support the above and also to provide the basis for vertex and pixel 
-shaders. This will not affect you unless you manipulated geometry structures such 
-as the old GeometryData directly - those who did <A HREF="vbo-update/index.html">should 
-read about the details of the changes</A>.</LI><LI>Transparent materials no longer 
-assume that depth writing needs to be off, this setting was causing some problems 
-with those using alpha blending. Those of you using transparent materials which 
-do need depth writing to be turned off will need to set it in your material scripts</LI><LI>DirectX 
-8 rendersystem retired, the current DirectX rendersystem is now DirectX9, with 
-legacy cards supported through the DirectX7 rendersystem or OpenGL</LI><LI>Support 
-for cubic textures and cubic reflection mapping added</LI><LI>Support for DOT3 
-bump mapping added</LI><LI>Significant speed improvements on rebuilding bezier 
-patch surfaces, changing detail level is now a lot faster</LI><LI>Binary .mesh 
-format updated - please run 'OgreMeshUpgrade' (from Tools/MeshUpgrader) on your 
-old meshes, they may not work properly unless you do this</LI><LI>OgreXmlConverter 
-now includes parameters to allow you to generate LODs as you convert</LI><LI>Mesh 
-serializer now rationalises bone assignments so that only 4 are included per vertex</LI><LI>DTDs 
-for .mesh.xml and .skeleton.xml added</LI><LI>Added Gtk platform manager with 
-support for ogre as a Gtk/GL widget</LI><LI>3D Studio Exporter now supports IK 
-and Biped</LI><LI>Lightwave converter added</LI><LI>Wings3D converter added</LI><LI>Memory 
-leaks with controllers removed</LI><LI>Visual real-time profiling tool added</LI><LI>Many 
-bugfixes and minor enhancements</LI></UL><p align="left" class="MainHeader">v0.11.0 
-(18 June 2003)</p><P ALIGN="left">Changes since 0.10.0:</P><UL><LI> SceneQuery 
-introduced; a generic way to query the SceneManager database of objects and world 
-geometry in a way which is optimised per scene management technique but transparent 
-for the client application. Currently only IntersectionSceneQuery is implemented 
-but RaySceneQuery, SphereSceneQuery and others will soon be available too</LI><LI> 
-ReferenceApplication introduced; this is a new library which sits on top of the 
-main OGRE library in order to provide a reference implementation of combining 
-OGRE with other libraries for use in a full application. Currently combines OGRE 
-and ODE to provide an easy to use collision and realistic physics system, utilising 
-the new SceneQuery functions for generic collision detection. Object to object 
-collision is currently supported, together this object to world collision for 
-the BspSceneManager (ie collision against Quake3 levels), see the BspCollision 
-demo for an example. Per-object friction, bounciness and mass parameters are all 
-definable, also most of the ODE joint types ie ball, hinge, hinge2, universal. 
-World collision for the terrain managers will be added shortly.</LI><LI> Many 
-structural enhancements to the GLRenderSystem, including an extension manager, 
-separation of window creation etc into a GLSupport class (to enable platform specific 
-window management). Win32GLSupport added so Win32 no longer uses SDL for window 
-management.</LI><LI> Hardware mipmap generation supported in GL 1.3+</LI><LI>New 
-demos: BspCollision and Demo_Water</LI><LI> RenderTargetListener now supports 
-pre and post Viewport update events</LI><LI> RenderSystem now supports anisotropic 
-texture filtering and dot3 texture operations</LI><LI> Significant updates to 
-the 3D Studio Max exporter, now very mature</LI><LI> Added 3 more basic mesh exporters 
-/ converters: Maya, Wings3D and VRML 97</LI><LI> Attaching objects to a skeleton: 
-any MovableObject (entities, particle systems etc) can now be attached to any 
-bone on an entity, and will move correctly with the animation</LI><LI> XMLConverter 
-can now generate / update LOD information for meshes too</LI><LI> Bones can now 
-be manually controlled in combination with animation tracks much more easily, 
-allowing you to do things like tilt a characters head toward a target while playing 
-other animations, make a character bend at the waist etc.</LI><LI> New particle 
-affectors: ScaleAffector (particle resizing) and ColourFaderAffector2 (dual-state 
-colour affector which changes behaviour based on a particle's TTL)</LI><LI> Alternative 
-terrain engine added (NatureSceneManager), supports paging and very large areas</LI><LI> 
-Significant speed enhancements to Node, in particular skeletal animation is now 
-many times faster for large skeletons</LI><LI> Interface breaking change since 
-0.10.0: SceneNode::createChild now returns a Node* rather than a SceneNode*, you 
-will have to cast it. This was to resolve virtualisation problems</LI><LI> Platform-specific 
-Timer classes and general timing improvements mean that accuracy and consistency 
-is much better</LI><LI> Rendering to texture now supported in GL as well as D3D</LI><LI> 
-SDLRenderSystem renamed to GLRenderSystem</LI><LI> Python support resurrected, 
-Linux only for now due to Boost problems with VC</LI><LI> Gui enhancements, including 
-pop up menus and scrollable text areas and being able to #include in .overlay 
-files to reuse definitions (NB: the event and gui classes will shortly be moved 
-into a separate plugin)</LI><LI> Added ability to switch between buffered and 
-unbuffered input on demand</LI><LI> VC++.Net 2003 support added</LI><LI> MaterialSerializer 
-for writing .material scripts from an in-memory version</LI><LI> Many bugfixes, 
-including the removal of all remaining memory leaks</LI></UL><p align="left" class="MainHeader">v0.10.0 
-(28 Feb 2003)</p><p align="left">Changes since 0.9.7:</p><UL><LI>Major speed increases 
-for large scenes. Scenes with more than 1500 objects are now feasible at high 
-frame rates.</LI><LI>3D Studio Max 4 / 5 script for exporting meshes and skeletons 
-to XML (which can then be converted to binary using XMLConverter)</LI><LI>Major 
-updates to the Python bindings</LI><LI>Added UserDefinedObject to allow references 
-back to external app objects from OGRE objects</LI><LI>Experimental Direct3D 9 
-Render System</LI><LI>Skeletal animation now supports additive blending of multiple 
-animations as well as average blending</LI><LI>Bugfixes &amp; small feature enhancements</LI></UL><p align="left" class="MainHeader">v0.9.7 
-(26 January 2003)</p><p align="left">Changes since 0.99f:</p><UL><LI>Mac OSX support 
-added</LI><LI>Mesh LOD support: both automatic algorithmic detail reduction, and 
-manual LOD assignment</LI><LI>Milkshape exporter extended to support generation 
-of LODs</LI><LI>Rendering to a texture (supported in Direct3D only for now, GL 
-support to follow)</LI><LI>Screenshot support</LI><LI>DevIL now used for image 
-loading / saving</LI><LI>Blender export script</LI><LI>Initial GUI support and 
-buffered input support</LI><LI>Updates to the Python exports </LI><LI>A few vector 
-/ quaternion optimisations</LI><LI>Linux / Mac 'install' target paths rationalised</LI><LI>Bugfixes 
-(including GL lighting and texture effect problems, many memory leaks fixed)</LI><LI>Version 
-numbering change (to more standard format)</LI></UL><p align="left" class="MainHeader">v0.99f 
-(1 December 2002)</p><p align="left">Changes since 0.99e:</p><UL><LI>Terrain rendering 
-through the OctreeSceneManager subclass TerrainSceneManager, including detail 
-texturing and vertex colouring options</LI><LI>Overlays can now have pixel metrics 
-as well as relative metrics, and can be flexibly aligned</LI><LI>New debug overlay</LI><LI>Curved 
-sky planes (fog-friendly alternative to sky domes)</LI><LI>Animation tracks can 
-now scale nodes as well as rotate and translate</LI><LI>Depth bias now available 
-as a material option, for doing decals</LI><LI>Stencil buffer operations now supported</LI><LI>RenderQueueListener 
-allows custom filters to be plugged in, compositing operations to be performed</LI><LI>New 
-version of 3DSMax exporter </LI><LI>Many bugfixes (as usual)</LI></UL><p align="left" class="MainHeader">v0.99e 
-(25 October 2002)</p><p align="left">Changes since 0.99d:</p><UL><LI>Overlay support 
-(HUDs, menus)</LI><LI>Font rendering</LI><LI>Octree scene manager added</LI><LI>XMLConverter 
-allows conversion of .mesh and .skeleton files to XML (XML to .mesh and .skeleton 
-is not finished yet)</LI><LI>DirectX 8 render system</LI><LI>Spline interpolation 
-of animation, both for skeletal animation and for animating any SceneNode</LI><LI>Automatic 
-camera tracking, spline animations can be used to script smooth camera sweeps</LI><LI>Many 
-bugfixes </LI></UL><p align="left" class="MainHeader">v0.99d (5 September 2002)</p><p align="left" class="MainContent">Changes 
-since 0.99c:</p><UL><LI>Full Linux support!</LI><LI>Debug memory manager tracing 
-memory leaks</LI><LI>Generic animation support via Animation, AnimationTrack and 
-KeyFrame classes</LI><LI>Skeletal animation on meshes, including multiple bone 
-assignments and animation blending</LI><LI>Updated Milkshape exporter, exports 
-skeleton and animations, can split the combined sequence into many separate animations</LI><LI>Codec 
-structure, used for loading images more generically and can be used for general 
-coding / decoding</LI><LI>Many bugfixes</LI><LI>New tutorials</LI></UL><p align="left" class="MainHeader">v0.99c 
-(19 July 2002)</p><P ALIGN="left">Changes since 0.99b:</P><BLOCKQUOTE><P>Enhancements:</P><UL><LI>New 
-MeshSerializer class for importing / exporting mesh data, to be used as the framework 
-for all future modelling tool exporters </LI><LI>Milkshape3D exporter provided, 
-which uses MeshSerializer to export to the new .mesh file format. This replaces 
-the 3ds2oof utility which along with the .oof is now deprecated, although .oof 
-models can still be loaded. In this version the Milkshape exporter only exports 
-static mesh data without bones or animation.</LI><LI>SceneNode now supports scaling 
-(uniform and non-uniform), including the option to inherit parent scale or just 
-use own</LI><LI>Completely new source code folder layout; should be more obvious 
-than the old one. All dependencies are now included in the code structure to avoid 
-having to distribute binary libraries</LI><LI>Boost added to the Dependencies 
-area</LI><LI>New tutorial added, kindly written by Nicholas Green</LI></UL><P>Work-in-progress:</P><UL><LI>Linux 
-makefiles now present, buildable with gcc 3+</LI><LI>SDL / OpenGL render system 
-implementation provided, not totally complete yet but almost there</LI><LI>Skeletal 
-animation classes (Animation, AnimationTrack, KeyFrame, Skeleton, Bone) </LI></UL><P>Bugfixes:</P><UL><LI>Math::NEG_INFINITY 
-now correctly defined</LI><LI>ColourValue getAsLongARGB alpha bug fixed</LI><LI>Problems 
-with camera positioning &amp; lookat behaviour when attached to a SceneNode fixed</LI></UL></BLOCKQUOTE><p align="left" class="MainHeader">v0.99b 
-(9 June 2002)</p><P ALIGN="left">Changes since 0.98b:</P><BLOCKQUOTE><P>Enhancements:</P><UL><LI>Particle 
-systems implemented, including customisable emitters / affectors through the use 
-of plugins, defining particle system templates through text scripts for easy modification, 
-flexible culling options, flat and oriented billboards for point or directional 
-particles, fast-forwarding of systems to avoid obvious particle system startup, 
-force application, randomised colours &amp; emission angles, randomised velocities 
-and lifetimes and much more.</LI><LI>Billboarding support (used by particle systems, 
-but can also be used on their own to create backgrounds, static light flares etc)</LI><LI>Now 
-builds under VC.Net (VC7), .sln and .vcproj files are now included in the distribution</LI><LI>Zip 
-archives now cache a file index for more efficient retrieval</LI><LI>StringInterface 
-base class and helper classes like ParamCommand and StringConverter now available 
-to make scriptable classes easier to create</LI></UL><P>Bugfixes:</P><UL><LI>Several 
-bugs in 3DS2OOF 3D Studio converter fixed, such as exported files including camera 
-&amp; lights (these are now ignored), objects with missing SmoothGroups, and issue 
-with merging multiple objects</LI><LI>Environment mapping bug which caused incorrect 
-wrapping is now fixed</LI><LI>All container 'wrappers' have now been replaced 
-with the original STL class since we are now using STLport and don't have the 
-dll boundary problems present in theMicrosoft STL implementation</LI><LI>SceneNodes 
-now derive their orientation &amp; position on demand if they are out of date</LI></UL></BLOCKQUOTE><p align="left" class="MainHeader">v0.98b 
-(29 March 2002)</p><p align="left">Changes since 0.97e:</p><UL><LI>Material scripts. 
-All materials can now be specified in .material files, which are loaded at startup 
-and can be altered without recompiling your application. Tweak to your hearts 
-content! See the material scripting section in the Tutorials for more information.</LI><LI>Landscape 
-rendering - a ROAM scene manager example implementation is now included in the 
-distribution, together with an example demo. Whilst the ROAM approach will not 
-be developed further due to it's relatively high CPU overhead, it serves as an 
-example of how vastly different scene managers can be plugged into Ogre. </LI><LI>Billboarding. 
-Billboards can now be used to create special effects. Particle systems using this 
-facility are under development.</LI><LI>Better culling on the standard scene manager. 
-The standard non-scene-specific scene manager now hierarchically culls movables 
-based on their bounding boxes. A triangle counter monitors culling performance.</LI><LI>Refactored 
-the methods called in the main rendering loop in SceneManager to allow subclasses 
-to modify the behaviour more easily without having to duplicate code.</LI><LI>Better 
-compliance with STL standards. Ogre is now built using <A HREF="http://www.stlport.org">STLport</A> 
-on both Windows and Linux, and this has necessitated a closer fit with the STL 
-standard rather than the Microsoft implementation. </LI></UL><P>&nbsp;</P><p align="left" class="MainHeader">v0.97e 
-(16 Feb 2002)</p><p align=left">Changes since 0.97b:</p><UL><LI>Archive driver 
-system is in! Say bye-bye to the Ogre::Archive class and welcome to dynamically-loaded 
-archive codecs!</LI><LI>Two archive codecs are provided: FileSystem codec (works 
-like a normal directory) and Zip Archive codec (works with Zip archives)</LI><LI>Changed 
-all examples and the Indoor Engine to work with the new codecs</LI><LI>Modified 
-the way ResourceManager::_findResourceData returns data: now it takes a pointer 
-to a DataChunk and fills the pointed object with all the data, thus avoiding unnecesary 
-memory copying (and eventually fragmentation)</LI><LI>Some cosmetic changes to 
-the way plug-ins are loaded - no need to specify the extension of the plug-in 
-anymore, and it is registered as given in the Plugins.cfg file. This is because 
-we don't want to load a Dll two times - the first time as [PluginPath]\PluginName.dll 
-and the second time as plain PluginName</LI><LI>Cosmetic changes in projects and 
-workspaces. They should give no error when compiling and you shouldn't need to 
-create the necessary directories yourselves</LI><LI>The Resources folder has changed. 
-The two .oof models and their textures now reside in zip archives to reflect the 
-usage of the new Archive codecs.</LI></UL><p align="left" class="MainHeader">v0.97b 
-(6 Feb 2002)</p><p align="left">Changes since 0.96b:</p><UL><LI>Added some more 
-standard Controller objects to allow easy texture scrolling, rotating and scaling. 
-Added support for these to the Quake3 renderer .</LI><LI>Wave-based controllers 
-allow texture modifications (among other things) to be based on wave types rather 
-than just constant effects</LI><LI>Added more friendly error dialog when an unhandled 
-exception is thrown</LI><LI>Fixed a couple of bugs in the config dialog which 
-causes crashes</LI><LI>Fogging enabled - scene-wide or customised per material</LI></UL><p align="left">&nbsp;</p><p align="left" class="MainHeader">v0.96b 
-(6 January 2002)</p><p align="left">I've changed this log a little to be more 
-concise regarding changes made between snapshot versions. </p><p align="left">Changes 
-since 0.95b:</p><UL><LI>Animated tetxure support. Each texture layer can have 
-multiple frames, with one being active at a time.</LI><LI>Controller architecture. 
-Controller allow object properties to be updated based on other events or values 
-whilst only loosely coupling the source and destination objects together. In this 
-version Controllers are used for animating texture layers by setting the active 
-texture frame based on a frame timer object.</LI><LI>Quake 3 .shader script support. 
-Animated textures, multilayer textures etc now being loaded in. No scrolling, 
-rotating or stretching effects yet though</LI><LI>Skyplanes, skydomes and skyboxes 
-are now supported</LI><LI>Major improvement in rendering speed thanks to a far 
-smarter render state management approach. </LI><LI>Transparent objects now always 
-render correctly when in front of solid objects.</LI></UL><p align="left" class="MainHeader">6 
-January 2002</p><p align="left">Most bugs in shader parsing sorted out. A few 
-shader effects are not supported yet, but most are there and look good. Texture 
-coordinate modifications are missing for the moment, but environment mapping is 
-in (albeit a little different from Q3A's method - I chose to use cameraspace reflection 
-vectors to produce the effect because these are hardware accelerable, whilst Q3A's 
-method of using the vector from camera location to vertex is not), as are all 
-the shafts of light, animated flames etc.</p><p align="left">No MD3 models are 
-being rendered so there are a few blank spots in the level where a gargoyle, wall 
-sconce etc should be. I'm not going to implement this for now, I've proved the 
-point I wanted to prove which is that Ogre can handle this type of scene well. 
-It's just a few Q3-specific details which are missing which is no big deal, I 
-never set out to produce a working copy of Q3A.</p><p align="left">I will be releasing 
-another snapshot based on this codebase, and also will release binary demos of 
-all the examples.</p><p align="left">Next: texture coordinate modifications, extensions 
-to the controller classes. Then particle systems. </p><p align="left" class="MainHeader">5 
-January 2002</p><p align="left">Skydomes and skyboxes are in and working, giving 
-you 3 types of sky to play with. Skyboxes are for static, wrap-around environment 
-textures like space, whilst skydomes are like skyplanes, but curved.</p><p align="left">Quake3 
-shader script conversion is going well, Ogre loads in the .shader files and converts 
-them to Material objects as required, meaning that you can now see flames, shafts 
-of light, TV screens etc inside Ogre. Animated textures are being loaded but not 
-animated yet - I'm going to try and get animation working within a nice generic 
-OO controller framework if I can rather than bash out a single-use approach.</p><p align="left">One 
-thing I've noticed now the sky is being displayed is there are 'sparklies' around 
-the curved surfaces visible mostly when there is a light-coloured sky. Damn. It 
-appears the points generated from the bezier patches don't quite match up with 
-the surrounding static geometry, meaning there are small gaps. This is a TODO.</p><p align="left">I 
-still need to fix the odd crash point and a few shaders aren't being loaded properly. 
-Also environment mapping needs a bit of work since Quake3 bases them on camera 
-position -&gt; vertex rather than camera eye vector -&gt; normal, which means 
-they look wrong. I should alos render the 'models' in the level i.e. geometry 
-that doesn't have lightmaps like gargoyles.</p><p align="left" class="MainHeader">27 
-December 2001</p><p align="left">Skyplanes are now working. You can now create 
-a plane which is at contant distance from the camera at and orientation for use 
-as a sky. I'll be moving on to skyboxes imminently which will allow full wrap-around 
-skies.</p><p align="left">I have also totally revamped the example code that is 
-included with the engine. Instead of the single TestApp project, there is now 
-an Examples folder with multiple projects under this which demo each effect. I 
-have also created an object-oriented framework for the examples too, meaning they 
-are now a lot better structured and hopefully better to understand.</p><p align="left">I 
-also intend to release some binary demos soon so people can quickly see what the 
-engine is capable of without having to build from the source. The good news this 
-week is that I just did a Release build of the Quake3 level renderer, and it runs 
-at a very sweet 170fps in windowed mode on my Athlon 1Ghz and GeForce 2. In fullscreen 
-mode at 1024x768 at 32-bit colour it still manages between 50 and 80 fps. I'm 
-very pleased indeed. I would like to tidy up some of the missing textures before 
-I do a binary release so I'll be sorting out the skybox support and other texture 
-effects first.</p><p align="left" class="MainHeader">24 December 2001</p><p align="left">Refactored 
-the entity rendering routines in the base SceneManager class to make them easier 
-to reuse in subclasses.</p><p align="left">Material class enhanced to contain 
-all the other render settings such as depth buffer parameters, culling modes, 
-texture filtering etc. It is now possible to drive all the rendering settings 
-via the Material class now so that no calls are required to the RenderSystem class. 
-This makes the settings more intuitive to use, and ensures that you can have different 
-settings per object if you want by assigning different materials, and the SceneManager 
-controls the changes to the rendering settings.</p><p align="left">Major rewrite 
-of SceneManager::setMaterial and added RenderSystem::_setTextureUnitSettings (used 
-by the former) so that only <B>changes</B> to the material settings are sent to 
-the RenderSystem. This ensures that rendering state changes are minimised and 
-that custom settings are reset only when required. This has improved the framerate 
-across the board by about 50%. A further optimisation which is still to be made 
-is ordering the materials in the render sequence to minimise the render state 
-changes still further, e.g. scheduling 2 materials that have the same layer 0 
-texture but different layer 1 textures next to each other.</p><p align="left">Started 
-adding sky plane and sky box support to the SceneManager class, but this is not 
-yet functional.</p><p align="left">Merry Xmas!</p><p align="left" class="MainHeader">4 
-December 2001</p><p align="left">General Bezier Patch support through the PatchSurface 
-class.</p><p align="left">Quake3 level loading uses curved surface support to 
-display Q3A's bezier curves. Custom shader scripts still to be done.</p><p align="left">IMPORTANT: 
-To compile &amp; run the TestApp demo application you will need to change line 
-414 of WinMainTest.cpp to point at your Quake3Arena pak0.pk3, since I can't distribute 
-Q3A levels and textures for size and copyright reasons.</p><p align="left" class="MainHeader">11 
-November 2001</p><p>First Quake3 level rendering release. No support for shader 
-scripts or curved surfaces yet. </p><p align="left" class="MainHeader">12 October 
-2001</p><p>Modified the material blending routines to make it more reliable to 
-fall back on multipass rendering whilst preserving all the correct effects. To 
-do this I had to simplify the basic multitexture blending operations which automatically 
-fall back to multipass, and require that the application explicitly specifies 
-a fallback blend multipass operation if it chooses to use the more complex blending 
-modes which are only available under multitexture hardware. I hope by doing this 
-I keep it simple for most cases (people normally use jusy ADD, MODULATE, REPLACE 
-or ALPHABLEND anyway) whilst still allowing complete flexibility for those who 
-like to tinker with the obscure modes.</p><p>Decided to make another point release 
-even without the finished Quake3 stuff because there's so much that's useful.</p><p></p><p align="left" class="MainHeader">9 
-October 2001</p><p>Object/scene blending operations (as opposed to multiple texture 
-layer blending on the same object) support has been added, allowing new effects 
-like transparency.</p><p>I keep getting distracted from my Quake3 level work but 
-I am progressing - the reason why I switched to this subject is that I realised 
-my fallback technique to multipass rendering when not enough multitexturing hardware 
-was available was not correct, and in order to be able to fix it I needed these 
-new blending options. I'm now wondering whether to fix the multipass fallback 
-now I have the tools or to leave it until later. Right now, if you use more texture 
-layers than the hardware supports in a single pass, things won't look right. I'll 
-get to it.</p><p align="left" class="MainHeader">6 October 2001</p><p>Ok, remember 
-the problem from 16 September re texture coordinates and confusion over whether 
-(0,0) was the top or bottom left corner of the texture? Well it turns out that 
-once again Direct3D is the odd one out, and 3DS is actually using the more common 
-convention, i.e. (0,0) is the <i>bottom</i> left corner. I have therefore changed 
-the 3ds2oof routine <i>back</i> to how it was before (using 3DS UV corrdinates 
-directly) and am flipping the texture itself in the Y-axis when loading it in 
-the Direct3D texture implementation to compensate (D3DTexture.cpp). I should have 
-checked more thoroughly before changing things to be in line with D3D, I should 
-have known it would probably be the odd one.</p><p>I've done this because I want 
-Ogre to follow industry standards (e.g. right-handed coordinates, anticlockwise 
-vertex winding) rather than Direct3D's viewpoint which is usually the opposite, 
-even though it's Direct3D I'm working on at the moment. I do this because it's 
-what everybody will be used to when they come from maths texts or modelling tools, 
-and is the same as the OpenGL approach (so the OpenGL port should be easier than 
-Direct3D). I just compensate inside my Direct3D-specific classes (e.g. by flipping 
-the Z axis, changing the culling mode, or flipping the texture as above).</p><p></p><p align="left" class="MainHeader">5 
-October 2001</p><p>Progressive updates are being made to the OgreEngineIndoor 
-module in CVS. Quake3 levels are being loaded and coversion is in progress.</p><p>I 
-have also fixed a couple more bugs: the ColourValue class was implementing colours 
-a little too bright and wrapped around to black when pure white was specified. 
-This has been fixed. In addition, the mipmap generation was not generating enough 
-mipmaps under Direct3D because D3DX ignores requests for the number of mipmaps 
-and generates as many as required to reduce to a 1x1 texture. This caused smaller 
-mipmaps to be black and thus textures would wink out at long distances. This has 
-been fixed.</p><p align="left" class="MainHeader">16 September 2001</p><p>Slow 
-going due to moving house. However, fixed a problem with texture coordinates as 
-converted from 3DS using 3ds2oof - I just realised that 3DS uses UV coordinates 
-where V=0.0 is at the <i>bottom</i> of the texture map, instead of the top as 
-with everything else! That explains the strange textures on some models. Fixed 
-3ds2oof to make V=(1.0 - V) during the conversion. Reconvert your models!</p><p align="left" class="MainHeader">29 
-August 2001</p><p>Ogre now supports loading of resources from more flexible locations, 
-including compressed archives (.zip and Quake3 .pk3 files). You can specify a 
-list of search paths and archives which are either general across the whole of 
-Ogre or specific to a resource type (e.g. textures, meshes).</p><p>I've also added 
-support for loading TGA images as well, since Quake3 maps use them in places. 
-</p><p>I have also dropped support for BMP files. This is because I have had to 
-implement memory-based versions of the image decoders to support loading from 
-archives, and to be frank I couldn't be bothered to implement one for BMP since 
-it's a naff format in my opinion and tied to the Windows platform anyway. Ogre 
-supports JPEG, PNG and TGA which should be plenty of flexibility. Personally I 
-think when you've got PNG (for lossless) and JPEG (for lossy), you don't need 
-anything else.</p><p align="left" class="MainHeader">10 August 2001</p><p>Texture 
-blending is now in and working! The new TestApp demonstrates the functionality 
-by loading a base model with a standard texture, then adding a second texture 
-layer and applying an environment map to it. The keys 0-7 change the texture blending 
-mode to show what effects different parameters have.</p><p>I'm now moving onto 
-other features; I want to look at Quake3 file loading - there are a couple of 
-things nagging me about managing materials and entities that I'd like to look 
-at but I'd really like to get started on Q3A bsp files now. I also wanted to work 
-on animation, both within models (skeletal animation &amp; bones) and for paths 
-of objects (bezier curves &amp; bsplines), but I just don't have time to do everything 
-I want to! Q3A files first.</p><p align="left" class="MainHeader">5 August 2001</p><p>Back 
-from a break for holidays!</p><p>The Camera class now allows a SceneNode to override 
-it's position and orientation when the Camera is attached to a SceneNode. This 
-will allow cameras attached to world objects etc.</p><p>Started implementing the 
-texture blending operations - the interface is complete, I'm now moving onto the 
-Direct3D implementation. For the moment I'm not worrying about minimising the 
-number of times that changes to blending parameters are made during a frame - 
-I'm still concentrating on minimising the texture changes, which is the main overhead 
-anyway. More optimisation will likely come along with new SceneManager subclasses.</p><p align="left" class="MainHeader">21 
-July 2001</p><p>The Camera class now uses quaternions too. Camera rotation is 
-a lot more concise now (instead of storing &amp; trying to update 3 vectors I 
-just have a single quaternion) and is more predictable and hopefully more flexible 
-for the future.&nbsp;</p><p>You can attach a Camera to a SceneNode (this is meant 
-for use in having cameras tracking other objects in the world) but I have yet 
-to implement this - I intend now that they're both on the same basis that if you 
-choose to attach a camera to a scene node then the SceneNode overrides the camera's 
-own position and direction, and maybe even that they update each other (so telling 
-a camera to look somewhere would update the orientation of it's SceneNode too).</p><p align="left" class="MainHeader">19 
-July 2001</p><p>Updated SceneNode class to use quaternions internally for all 
-orientations / rotations. This should both be faster and give me more flexibility 
-for the future. Also added a lot more manipulation routines the SceneNode class 
-which were sorely lacking before if you wanted to move stuff around. The Camera 
-class still uses matrices internally but I intend to change that so that a Camera 
-depends on the SceneNode it is attached to for positioning rather than doing it 
-itself. To this end I will need to add extra features to the SceneNode class to 
-replicate functions like lookAt(), which is ok since this will be handy for pointing 
-other objects at each other too.</p><p align="left" class="MainHeader"></p><p align="left" class="MainHeader">17 
-July 2001</p><p>Fixed an issue with the 3ds2oof utility - it now generates vertex 
-normals based on smooth groups rather than just averaging based on the faces which 
-use the vertex. This removes artefacts along model 'seams' e.g. the point where 
-a texture wraps around on the model.</p><p>Reimplemented environment mapping using 
-the new Material::TextureLayer structure. Started work on adding more manipulation 
-features to the SceneNode class (body code still to do).</p><p align="left" class="MainHeader">4 
-July 2001</p><p>Python now has full access to the engine, and it's working great. 
-I've also enabled callbacks into Python from the engine, so you can register a 
-Python class as a listener for frame update events so C++ calls Python every frame. 
-Nice.</p><p>Future Python developments include an embedded version of Python in 
-Ogre so you can build a compiled application which still used interpreted scripts 
-for some things - this will be useful for level scripting etc where the script 
-can be kept in the level data. For now though I'm going back to developing the 
-core engine features .</p><p align="left" class="MainHeader">20 June 2001</p><p>Spending 
-an awful lot of time exposing all the necessary objects and their interfaces to 
-Python (up till now I have it working but only a few interfaces were exposed). 
-About 90% there now, with a few issues to iron out - I had to extend the compiler 
-heap limit to get it to compile so far since the heavy usage of templates puts 
-a great strain on the compiler memory usage. In a few days I should be in a position 
-to do all my engine testing through Python as well as through a custom C++ application 
-(currently TestApp). </p><p align="left" class="MainHeader">13 June 2001</p><p>Added 
-FrameListener and FrameEvent classes in order to represent the frame update callback 
-functions in a more object-oriented way. User applications now extend FrameListener 
-and register their interest in receiving frame events - this is based on the Java 
-model of event listening. Note that a boon of this method is that Boost Python 
-allows you to extend existing C++ classes so this provides a perfect mechanism 
-to have C++ call Python scripts when events occur. </p><p>I intend to extend this 
-pattern to other events like collisions when I implement them. </p><p align="left" class="MainHeader">10 
-June 2001</p><p align="left">Changed from using SWIG to Boost Python for Python 
-script integration<a href="http://boost.org"></a>. I changed because Boost Python 
-supports C++ features much beter (including catching C++ exceptions and turning 
-them into Python exceptions, support for namespaces and overloaded operators), 
-it integrates better with my build cycle (doesn't require a separate generate 
-from interface files and can be built directly into the library), and is more 
-up-to-date with the latest Python libraries. I was finding that SWIG's emphasis 
-on pure C as opposed to C++ was getting in the way, and Boost has definitely addressed 
-this.</p><p align="left">Introduced PythonLink class to expose classes to Python.</p><p align="left" class="MainHeader">7 
-June 2001</p><p align="left">Implemented Python integration using SWIG (Simplified 
-Wrapper and Interface Generator). You can now start and initialise Ogre from a 
-Python console and drive it interactively. More work required to expose the full 
-interface to Python however.</p><p align="left" class="MainHeader">31 May 2001</p><p align="left">Cut 
-over to CVS - CVS repository is now up and running at SourceForge.</p><p align="left" class="MainHeader">20 
-May 2001</p><p align="left">SceneNode class integrated with Entity / SubEntity 
-classes. Working basic scene graph. Also reimplemented my previous hack using 
-DirectInput as a proper platform-specific user input class - added the OgreUtility 
-module for this purpose.</p><p align="left" class="MainHeader">15 May 2001</p><p align="left">SubEntity 
-implementation complete, together with customisable Materials at the SubEntity 
-level. Material usage by SubEntities is now indexed by the SceneManager so that 
-rendering can be grouped by Material such that as few as possible render state 
-changes take place. Note that this does not currently deal with transparency.</p><p align="left" class="MainHeader">13 
-May 2001</p><p align="left">Bugs with the new Mesh loading routines now ironed 
-out.</p><p align="left" class="MainHeader">24 April 2001</p><p align="left">Implemented 
-Mesh, SubMesh and MeshManager classes for loading Ogre Object Format files (converted 
-from .3ds using the Ogre 3ds2oof tool). Decided to allow the original 3ds mesh 
-to be broken down into chunks specific per material or grouped as a whole depending 
-on requirements. The 3ds2oof utility makes a goos guess as to what is best, based 
-on the percentage of the vertices each SubMesh uses out of the whole model - the 
-lower the percentage the greater chance it will have a dedicated vertex list rather 
-than sharing the whole since that saves sending unnecessary vertices to the pipeline. 
-However this can be customised with parameters since you may want to use vertex 
-buffers where it's more efficient to store 1 buffer even if you only use parts 
-of it.</p><p align="left" class="MainHeader">1 April 2001</p><p align="left">Began 
-overhaul of Mesh loading routines.</p><p align="left" class="MainHeader">30 March 
-2001</p><p align="left">Switched to Doxygen for document generation since ccdoc 
-still doesn't support namespaces. Doxygen is better at cross-referencing anyway 
-and draws nice diagrams.</p><p align="left" class="MainHeader">24 March 2001</p><p align="left">Added 
-JPEG loading support, and moved this and existing image loading code (PNG) into 
-the Image class. BMP loading is still supported but only on Windows platforms 
-so this is still residing in the D3DTexture class as a special case.</p><p align="left">Improved 
-the handling of non-square textures on hardware that supports only square textures. 
-The image is now stretched into the square area so that the relative texture coordinates 
-are still valid and no black bands appear on the model.</p><p align="left" class="MainHeader">23 
-March 2001</p><p align="left">Multiple viewports per window is implemented and 
-working Ok. Z-Order also applies so picture-in-picture views are possible by placing 
-a smaller viewport on top of another larger one.</p><p align="left" class="MainHeader">11 
-March 2001</p><p align="left">Changed the default mechanism for supplying vertex 
-components (position, normals, texture coords, colours) to the RenderOperation 
-class. They were previously assumed to be part of the same buffer with flags indicating 
-which were present. However this was too restrictive and prevented you using entirely 
-separate memory areas for different components, and adding extra components to 
-vertices on the fly. </p><p align="left">Instead the RenderOperation class now 
-takes pointers for each component, and a 'span' value determines the gap between 
-each value. This allows you to use separate buffers if you like, but also use 
-a combined buffer if that suits you (by using the 'span' value to skip over values 
-in between).</p><p align="left" class="MainHeader">6 March 2001</p><p align="left">Implemented 
-a 3DStudio conversion tool that works directly from the .3DS files rather than 
-from ASCII exports (as previously) or from a MAX plugin as some others do, which 
-requires a 3DS license. I based my code on an existing open source routine but 
-I have exteded it since it had a few shortcomings. The tool is called '3ds2oof' 
-because it converts 3DS files to a proprietary format, .OOF (Ogre Object File). 
-This is because it's more efficient for me to do extra processing at conversion 
-time like calculating bounding boxes, splitting vertex buffers, strippifying etc 
-(not that I'm doing all this yet, but I <i>can</i>) rather than at load time as 
-I would have to do if I loaded direct from 3DS inside Ogre.</p><p align="left" class="MainHeader">1 
-March 2001</p><p align="left">Over the last 2 weeks I reimplemented my interface 
-to the DirectX rendering pipeline in the new Ogre structure, under the D3DRenderSystem 
-class. Rendering requests are now packaged up in the RenderOperation class, giving 
-me more flexibility on how rendering requests are submitted and handled. Now all 
-the support classes (mesh loading, scene management) are needed.</p><p align="left" class="MainHeader">11 
-February 2001</p><p align="left">I've been picking apart the platform dependencies 
-in Ogre so it'll be more portable. I'm also making it flexible enough to handle 
-any number of rendering windows and viewports within thse windows, and also giving 
-you the choice of an automatic rendering loop (max frame rate) and a render-on-demand 
-interface much like you would need for an application like a modelling tool where 
-you want to free up cycles when things don't move and frae rate isn't the most 
-important thing.</p><p align="left">I now have a nice hierarchy crossing the OgreEngine 
-and OgreWin32Platform modules, with functionality broken down into RenderTarget, 
-RenderWindow and Win32RenderWindow classes. Other platforms can be implemented 
-later, just replacing the Win32RenderWindow maybe with XRenderWindow or MacRenderWindow.</p><p align="left" class="MainHeader">29 
-December 2000</p><p align="left">Ogre development starts again after almost a 
-year's break while I finished my degree. Lots of research and design work at this 
-stage to work out how I should structure the object model.</p><p align="left">&nbsp;</p>
+<body bgcolor="#ffffff" text="#000000">
+<p align="center" class="header">OGRE (Object-Oriented Graphics
+Rendering Engine)</p>
+<p align="center" class="header">Change Log</p>
+<p align="left" class="MainHeader">v0.12.2 (21 November 2003) -
+Maintenance Release<br>
+</p>
+<p align="left">Changes since 0.12.1:<br>
+</p>
+<ul>
+  <li>Blender exporter updated; now supports the latest version of Blender, and
+also supports animation</li>
+  <li>Wings3D exporter updated, now supports the new uv exporting
+format of 0.98.16b</li>
+  <li>Fixed bug in BspIntersectionQuery which caused intersectins to be
+reported between entities and the world when collision was disabled</li>
+  <li>Meshes exported with more than 4 bone assignments per vertex now
+have their weights rebalanced to just 4 automatically on conversion to
+.mesh<br>
+  </li>
+  <li>Fixed a bug in Quaternion::Slerp which resulted in a non-unit
+Quaternion being returned sometimes when the 'shortestPath' option was
+used. This manifested itself as oddly scaling bones when animating an
+entity<br>
+  </li>
+  <li>Fixed a bug in ray / plane intersection where it was incorrectly
+concluded that the ray was parallel to the plane</li>
+  <li>Fixed some D3D memory leaks</li>
+  <li>Fixed some Mesh automatic loading and unloading issues</li>
+  <li>Colour values in XML files are now parsed as r,g,b,a instead of a
+packed long</li>
+</ul>
+<p align="left" class="MainHeader">v0.12.1 (12 October 2003) -
+Maintenance Release<br>
+</p>
+<p align="left">Changes since 0.12.0:<br>
+</p>
+<ul>
+  <li>Added new, improved Maya exporter from macross and fifty1</li>
+  <li>Fixed bug in the TerrainSceneManager where we were locking a
+write-only buffer for reading</li>
+  <li>Added lines in bootstrap to make sure the correct versions of
+auto* tools are used on Gentoo</li>
+  <li>Fixed screenshot taking bug in Direct3D9 on some older cards</li>
+  <li>Fixed bounding boxes on skeletally animated entities with other
+entities attached to bones</li>
+  <li>Fixed particle display problem in VC6 release mode<br>
+  </li>
+  <li>Fixed links in tutorials index</li>
+  <li>Fixed bug in BillboardSet::removeBillboard and getBillboard when
+indexing a billboard in the latter part of the list</li>
+  <li>XMLConverter now deals with multiple texture coordinate sets
+properly</li>
+  <li>Fixed minor issue in StringConverter's quaternion handling</li>
+  <li>NatureSceneManager now clears down terrain data properly</li>
+  <li>New option in ConfigFile to turn off trimming of values, used in
+loading ogre.cfg since some ATI drivers have a trailing space<br>
+  </li>
+</ul>
+<p align="left" class="MainHeader">v0.12.0 (23 September 2003) - Major
+Release <br>
+</p>
+<p align="left">Changes since 0.11.0:</p>
+<ul>
+  <li>Complete overhaul of core geometry usage resulting in optimised
+use of hardware vertex and index buffers, providing significant speed
+boosts on all cards, typically of between 50 and 200% depending on the
+application. ATI 9500+ cards on DirectX9 will see particularly large
+increases (often five-fold) due to their particular affinity to this
+approach.</li>
+  <li>Geometry structures redesigned to support the above and also to
+provide the basis for vertex and pixel shaders. This will not affect
+you unless you manipulated geometry structures such as the old
+GeometryData directly - those who did <a href="vbo-update/index.html">should
+read about the details of the changes</a>.</li>
+  <li>Transparent materials no longer assume that depth writing needs
+to be off, this setting was causing some problems with those using
+alpha blending. Those of you using transparent materials which do need
+depth writing to be turned off will need to set it in your material
+scripts</li>
+  <li>DirectX 8 rendersystem retired, the current DirectX rendersystem
+is now DirectX9, with legacy cards supported through the DirectX7
+rendersystem or OpenGL</li>
+  <li>Support for cubic textures and cubic reflection mapping added</li>
+  <li>Support for DOT3 bump mapping added</li>
+  <li>Significant speed improvements on rebuilding bezier patch
+surfaces, changing detail level is now a lot faster</li>
+  <li>Binary .mesh format updated - please run 'OgreMeshUpgrade' (from
+Tools/MeshUpgrader) on your old meshes, they may not work properly
+unless you do this</li>
+  <li>OgreXmlConverter now includes parameters to allow you to generate
+LODs as you convert</li>
+  <li>Mesh serializer now rationalises bone assignments so that only 4
+are included per vertex</li>
+  <li>DTDs for .mesh.xml and .skeleton.xml added</li>
+  <li>Added Gtk platform manager with support for ogre as a Gtk/GL
+widget</li>
+  <li>3D Studio Exporter now supports IK and Biped</li>
+  <li>Lightwave converter added</li>
+  <li>Wings3D converter added</li>
+  <li>Memory leaks with controllers removed</li>
+  <li>Visual real-time profiling tool added</li>
+  <li>Many bugfixes and minor enhancements</li>
+</ul>
+<p align="left" class="MainHeader">v0.11.0 (18 June 2003)</p>
+<p align="left">Changes since 0.10.0:</p>
+<ul>
+  <li> SceneQuery introduced; a generic way to query the SceneManager
+database of objects and world geometry in a way which is optimised per
+scene management technique but transparent for the client application.
+Currently only IntersectionSceneQuery is implemented but RaySceneQuery,
+SphereSceneQuery and others will soon be available too</li>
+  <li> ReferenceApplication introduced; this is a new library which
+sits on top of the main OGRE library in order to provide a reference
+implementation of combining OGRE with other libraries for use in a full
+application. Currently combines OGRE and ODE to provide an easy to use
+collision and realistic physics system, utilising the new SceneQuery
+functions for generic collision detection. Object to object collision
+is currently supported, together this object to world collision for the
+BspSceneManager (ie collision against Quake3 levels), see the
+BspCollision demo for an example. Per-object friction, bounciness and
+mass parameters are all definable, also most of the ODE joint types ie
+ball, hinge, hinge2, universal. World collision for the terrain
+managers will be added shortly.</li>
+  <li> Many structural enhancements to the GLRenderSystem, including an
+extension manager, separation of window creation etc into a GLSupport
+class (to enable platform specific window management). Win32GLSupport
+added so Win32 no longer uses SDL for window management.</li>
+  <li> Hardware mipmap generation supported in GL 1.3+</li>
+  <li>New demos: BspCollision and Demo_Water</li>
+  <li> RenderTargetListener now supports pre and post Viewport update
+events</li>
+  <li> RenderSystem now supports anisotropic texture filtering and dot3
+texture operations</li>
+  <li> Significant updates to the 3D Studio Max exporter, now very
+mature</li>
+  <li> Added 3 more basic mesh exporters / converters: Maya, Wings3D
+and VRML 97</li>
+  <li> Attaching objects to a skeleton: any MovableObject (entities,
+particle systems etc) can now be attached to any bone on an entity, and
+will move correctly with the animation</li>
+  <li> XMLConverter can now generate / update LOD information for
+meshes too</li>
+  <li> Bones can now be manually controlled in combination with
+animation tracks much more easily, allowing you to do things like tilt
+a characters head toward a target while playing other animations, make
+a character bend at the waist etc.</li>
+  <li> New particle affectors: ScaleAffector (particle resizing) and
+ColourFaderAffector2 (dual-state colour affector which changes
+behaviour based on a particle's TTL)</li>
+  <li> Alternative terrain engine added (NatureSceneManager), supports
+paging and very large areas</li>
+  <li> Significant speed enhancements to Node, in particular skeletal
+animation is now many times faster for large skeletons</li>
+  <li> Interface breaking change since 0.10.0: SceneNode::createChild
+now returns a Node* rather than a SceneNode*, you will have to cast it.
+This was to resolve virtualisation problems</li>
+  <li> Platform-specific Timer classes and general timing improvements
+mean that accuracy and consistency is much better</li>
+  <li> Rendering to texture now supported in GL as well as D3D</li>
+  <li> SDLRenderSystem renamed to GLRenderSystem</li>
+  <li> Python support resurrected, Linux only for now due to Boost
+problems with VC</li>
+  <li> Gui enhancements, including pop up menus and scrollable text
+areas and being able to #include in .overlay files to reuse definitions
+(NB: the event and gui classes will shortly be moved into a separate
+plugin)</li>
+  <li> Added ability to switch between buffered and unbuffered input on
+demand</li>
+  <li> VC++.Net 2003 support added</li>
+  <li> MaterialSerializer for writing .material scripts from an
+in-memory version</li>
+  <li> Many bugfixes, including the removal of all remaining memory
+leaks</li>
+</ul>
+<p align="left" class="MainHeader">v0.10.0 (28 Feb 2003)</p>
+<p align="left">Changes since 0.9.7:</p>
+<ul>
+  <li>Major speed increases for large scenes. Scenes with more than
+1500 objects are now feasible at high frame rates.</li>
+  <li>3D Studio Max 4 / 5 script for exporting meshes and skeletons to
+XML (which can then be converted to binary using XMLConverter)</li>
+  <li>Major updates to the Python bindings</li>
+  <li>Added UserDefinedObject to allow references back to external app
+objects from OGRE objects</li>
+  <li>Experimental Direct3D 9 Render System</li>
+  <li>Skeletal animation now supports additive blending of multiple
+animations as well as average blending</li>
+  <li>Bugfixes &amp; small feature enhancements</li>
+</ul>
+<p align="left" class="MainHeader">v0.9.7 (26 January 2003)</p>
+<p align="left">Changes since 0.99f:</p>
+<ul>
+  <li>Mac OSX support added</li>
+  <li>Mesh LOD support: both automatic algorithmic detail reduction,
+and manual LOD assignment</li>
+  <li>Milkshape exporter extended to support generation of LODs</li>
+  <li>Rendering to a texture (supported in Direct3D only for now, GL
+support to follow)</li>
+  <li>Screenshot support</li>
+  <li>DevIL now used for image loading / saving</li>
+  <li>Blender export script</li>
+  <li>Initial GUI support and buffered input support</li>
+  <li>Updates to the Python exports </li>
+  <li>A few vector / quaternion optimisations</li>
+  <li>Linux / Mac 'install' target paths rationalised</li>
+  <li>Bugfixes (including GL lighting and texture effect problems, many
+memory leaks fixed)</li>
+  <li>Version numbering change (to more standard format)</li>
+</ul>
+<p align="left" class="MainHeader">v0.99f (1 December 2002)</p>
+<p align="left">Changes since 0.99e:</p>
+<ul>
+  <li>Terrain rendering through the OctreeSceneManager subclass
+TerrainSceneManager, including detail texturing and vertex colouring
+options</li>
+  <li>Overlays can now have pixel metrics as well as relative metrics,
+and can be flexibly aligned</li>
+  <li>New debug overlay</li>
+  <li>Curved sky planes (fog-friendly alternative to sky domes)</li>
+  <li>Animation tracks can now scale nodes as well as rotate and
+translate</li>
+  <li>Depth bias now available as a material option, for doing decals</li>
+  <li>Stencil buffer operations now supported</li>
+  <li>RenderQueueListener allows custom filters to be plugged in,
+compositing operations to be performed</li>
+  <li>New version of 3DSMax exporter </li>
+  <li>Many bugfixes (as usual)</li>
+</ul>
+<p align="left" class="MainHeader">v0.99e (25 October 2002)</p>
+<p align="left">Changes since 0.99d:</p>
+<ul>
+  <li>Overlay support (HUDs, menus)</li>
+  <li>Font rendering</li>
+  <li>Octree scene manager added</li>
+  <li>XMLConverter allows conversion of .mesh and .skeleton files to
+XML (XML to .mesh and .skeleton is not finished yet)</li>
+  <li>DirectX 8 render system</li>
+  <li>Spline interpolation of animation, both for skeletal animation
+and for animating any SceneNode</li>
+  <li>Automatic camera tracking, spline animations can be used to
+script smooth camera sweeps</li>
+  <li>Many bugfixes </li>
+</ul>
+<p align="left" class="MainHeader">v0.99d (5 September 2002)</p>
+<p align="left" class="MainContent">Changes since 0.99c:</p>
+<ul>
+  <li>Full Linux support!</li>
+  <li>Debug memory manager tracing memory leaks</li>
+  <li>Generic animation support via Animation, AnimationTrack and
+KeyFrame classes</li>
+  <li>Skeletal animation on meshes, including multiple bone assignments
+and animation blending</li>
+  <li>Updated Milkshape exporter, exports skeleton and animations, can
+split the combined sequence into many separate animations</li>
+  <li>Codec structure, used for loading images more generically and can
+be used for general coding / decoding</li>
+  <li>Many bugfixes</li>
+  <li>New tutorials</li>
+</ul>
+<p align="left" class="MainHeader">v0.99c (19 July 2002)</p>
+<p align="left">Changes since 0.99b:</p>
+<blockquote>
+  <p>Enhancements:</p>
+  <ul>
+    <li>New MeshSerializer class for importing / exporting mesh data,
+to be used as the framework for all future modelling tool exporters </li>
+    <li>Milkshape3D exporter provided, which uses MeshSerializer to
+export to the new .mesh file format. This replaces the 3ds2oof utility
+which along with the .oof is now deprecated, although .oof models can
+still be loaded. In this version the Milkshape exporter only exports
+static mesh data without bones or animation.</li>
+    <li>SceneNode now supports scaling (uniform and non-uniform),
+including the option to inherit parent scale or just use own</li>
+    <li>Completely new source code folder layout; should be more
+obvious than the old one. All dependencies are now included in the code
+structure to avoid having to distribute binary libraries</li>
+    <li>Boost added to the Dependencies area</li>
+    <li>New tutorial added, kindly written by Nicholas Green</li>
+  </ul>
+  <p>Work-in-progress:</p>
+  <ul>
+    <li>Linux makefiles now present, buildable with gcc 3+</li>
+    <li>SDL / OpenGL render system implementation provided, not totally
+complete yet but almost there</li>
+    <li>Skeletal animation classes (Animation, AnimationTrack,
+KeyFrame, Skeleton, Bone) </li>
+  </ul>
+  <p>Bugfixes:</p>
+  <ul>
+    <li>Math::NEG_INFINITY now correctly defined</li>
+    <li>ColourValue getAsLongARGB alpha bug fixed</li>
+    <li>Problems with camera positioning &amp; lookat behaviour when
+attached to a SceneNode fixed</li>
+  </ul>
+</blockquote>
+<p align="left" class="MainHeader">v0.99b (9 June 2002)</p>
+<p align="left">Changes since 0.98b:</p>
+<blockquote>
+  <p>Enhancements:</p>
+  <ul>
+    <li>Particle systems implemented, including customisable emitters /
+affectors through the use of plugins, defining particle system
+templates through text scripts for easy modification, flexible culling
+options, flat and oriented billboards for point or directional
+particles, fast-forwarding of systems to avoid obvious particle system
+startup, force application, randomised colours &amp; emission angles,
+randomised velocities and lifetimes and much more.</li>
+    <li>Billboarding support (used by particle systems, but can also be
+used on their own to create backgrounds, static light flares etc)</li>
+    <li>Now builds under VC.Net (VC7), .sln and .vcproj files are now
+included in the distribution</li>
+    <li>Zip archives now cache a file index for more efficient retrieval</li>
+    <li>StringInterface base class and helper classes like ParamCommand
+and StringConverter now available to make scriptable classes easier to
+create</li>
+  </ul>
+  <p>Bugfixes:</p>
+  <ul>
+    <li>Several bugs in 3DS2OOF 3D Studio converter fixed, such as
+exported files including camera &amp; lights (these are now ignored),
+objects with missing SmoothGroups, and issue with merging multiple
+objects</li>
+    <li>Environment mapping bug which caused incorrect wrapping is now
+fixed</li>
+    <li>All container 'wrappers' have now been replaced with the
+original STL class since we are now using STLport and don't have the
+dll boundary problems present in theMicrosoft STL implementation</li>
+    <li>SceneNodes now derive their orientation &amp; position on
+demand if they are out of date</li>
+  </ul>
+</blockquote>
+<p align="left" class="MainHeader">v0.98b (29 March 2002)</p>
+<p align="left">Changes since 0.97e:</p>
+<ul>
+  <li>Material scripts. All materials can now be specified in .material
+files, which are loaded at startup and can be altered without
+recompiling your application. Tweak to your hearts content! See the
+material scripting section in the Tutorials for more information.</li>
+  <li>Landscape rendering - a ROAM scene manager example implementation
+is now included in the distribution, together with an example demo.
+Whilst the ROAM approach will not be developed further due to it's
+relatively high CPU overhead, it serves as an example of how vastly
+different scene managers can be plugged into Ogre. </li>
+  <li>Billboarding. Billboards can now be used to create special
+effects. Particle systems using this facility are under development.</li>
+  <li>Better culling on the standard scene manager. The standard
+non-scene-specific scene manager now hierarchically culls movables
+based on their bounding boxes. A triangle counter monitors culling
+performance.</li>
+  <li>Refactored the methods called in the main rendering loop in
+SceneManager to allow subclasses to modify the behaviour more easily
+without having to duplicate code.</li>
+  <li>Better compliance with STL standards. Ogre is now built using <a
+ href="http://www.stlport.org">STLport</a> on both Windows and Linux,
+and this has necessitated a closer fit with the STL standard rather
+than the Microsoft implementation. </li>
+</ul>
+<p>&nbsp;</p>
+<p align="left" class="MainHeader">v0.97e (16 Feb 2002)</p>
+<p align="left&quot;">Changes since 0.97b:</p>
+<ul>
+  <li>Archive driver system is in! Say bye-bye to the Ogre::Archive
+class and welcome to dynamically-loaded archive codecs!</li>
+  <li>Two archive codecs are provided: FileSystem codec (works like a
+normal directory) and Zip Archive codec (works with Zip archives)</li>
+  <li>Changed all examples and the Indoor Engine to work with the new
+codecs</li>
+  <li>Modified the way ResourceManager::_findResourceData returns data:
+now it takes a pointer to a DataChunk and fills the pointed object with
+all the data, thus avoiding unnecesary memory copying (and eventually
+fragmentation)</li>
+  <li>Some cosmetic changes to the way plug-ins are loaded - no need to
+specify the extension of the plug-in anymore, and it is registered as
+given in the Plugins.cfg file. This is because we don't want to load a
+Dll two times - the first time as [PluginPath]\PluginName.dll and the
+second time as plain PluginName</li>
+  <li>Cosmetic changes in projects and workspaces. They should give no
+error when compiling and you shouldn't need to create the necessary
+directories yourselves</li>
+  <li>The Resources folder has changed. The two .oof models and their
+textures now reside in zip archives to reflect the usage of the new
+Archive codecs.</li>
+</ul>
+<p align="left" class="MainHeader">v0.97b (6 Feb 2002)</p>
+<p align="left">Changes since 0.96b:</p>
+<ul>
+  <li>Added some more standard Controller objects to allow easy texture
+scrolling, rotating and scaling. Added support for these to the Quake3
+renderer .</li>
+  <li>Wave-based controllers allow texture modifications (among other
+things) to be based on wave types rather than just constant effects</li>
+  <li>Added more friendly error dialog when an unhandled exception is
+thrown</li>
+  <li>Fixed a couple of bugs in the config dialog which causes crashes</li>
+  <li>Fogging enabled - scene-wide or customised per material</li>
+</ul>
+<p align="left">&nbsp;</p>
+<p align="left" class="MainHeader">v0.96b (6 January 2002)</p>
+<p align="left">I've changed this log a little to be more concise
+regarding changes made between snapshot versions. </p>
+<p align="left">Changes since 0.95b:</p>
+<ul>
+  <li>Animated tetxure support. Each texture layer can have multiple
+frames, with one being active at a time.</li>
+  <li>Controller architecture. Controller allow object properties to be
+updated based on other events or values whilst only loosely coupling
+the source and destination objects together. In this version
+Controllers are used for animating texture layers by setting the active
+texture frame based on a frame timer object.</li>
+  <li>Quake 3 .shader script support. Animated textures, multilayer
+textures etc now being loaded in. No scrolling, rotating or stretching
+effects yet though</li>
+  <li>Skyplanes, skydomes and skyboxes are now supported</li>
+  <li>Major improvement in rendering speed thanks to a far smarter
+render state management approach. </li>
+  <li>Transparent objects now always render correctly when in front of
+solid objects.</li>
+</ul>
+<p align="left" class="MainHeader">6 January 2002</p>
+<p align="left">Most bugs in shader parsing sorted out. A few shader
+effects are not supported yet, but most are there and look good.
+Texture coordinate modifications are missing for the moment, but
+environment mapping is in (albeit a little different from Q3A's method
+- I chose to use cameraspace reflection vectors to produce the effect
+because these are hardware accelerable, whilst Q3A's method of using
+the vector from camera location to vertex is not), as are all the
+shafts of light, animated flames etc.</p>
+<p align="left">No MD3 models are being rendered so there are a few
+blank spots in the level where a gargoyle, wall sconce etc should be.
+I'm not going to implement this for now, I've proved the point I wanted
+to prove which is that Ogre can handle this type of scene well. It's
+just a few Q3-specific details which are missing which is no big deal,
+I never set out to produce a working copy of Q3A.</p>
+<p align="left">I will be releasing another snapshot based on this
+codebase, and also will release binary demos of all the examples.</p>
+<p align="left">Next: texture coordinate modifications, extensions to
+the controller classes. Then particle systems. </p>
+<p align="left" class="MainHeader">5 January 2002</p>
+<p align="left">Skydomes and skyboxes are in and working, giving you 3
+types of sky to play with. Skyboxes are for static, wrap-around
+environment textures like space, whilst skydomes are like skyplanes,
+but curved.</p>
+<p align="left">Quake3 shader script conversion is going well, Ogre
+loads in the .shader files and converts them to Material objects as
+required, meaning that you can now see flames, shafts of light, TV
+screens etc inside Ogre. Animated textures are being loaded but not
+animated yet - I'm going to try and get animation working within a nice
+generic OO controller framework if I can rather than bash out a
+single-use approach.</p>
+<p align="left">One thing I've noticed now the sky is being displayed
+is there are 'sparklies' around the curved surfaces visible mostly when
+there is a light-coloured sky. Damn. It appears the points generated
+from the bezier patches don't quite match up with the surrounding
+static geometry, meaning there are small gaps. This is a TODO.</p>
+<p align="left">I still need to fix the odd crash point and a few
+shaders aren't being loaded properly. Also environment mapping needs a
+bit of work since Quake3 bases them on camera position -&gt; vertex
+rather than camera eye vector -&gt; normal, which means they look
+wrong. I should alos render the 'models' in the level i.e. geometry
+that doesn't have lightmaps like gargoyles.</p>
+<p align="left" class="MainHeader">27 December 2001</p>
+<p align="left">Skyplanes are now working. You can now create a plane
+which is at contant distance from the camera at and orientation for use
+as a sky. I'll be moving on to skyboxes imminently which will allow
+full wrap-around skies.</p>
+<p align="left">I have also totally revamped the example code that is
+included with the engine. Instead of the single TestApp project, there
+is now an Examples folder with multiple projects under this which demo
+each effect. I have also created an object-oriented framework for the
+examples too, meaning they are now a lot better structured and
+hopefully better to understand.</p>
+<p align="left">I also intend to release some binary demos soon so
+people can quickly see what the engine is capable of without having to
+build from the source. The good news this week is that I just did a
+Release build of the Quake3 level renderer, and it runs at a very sweet
+170fps in windowed mode on my Athlon 1Ghz and GeForce 2. In fullscreen
+mode at 1024x768 at 32-bit colour it still manages between 50 and 80
+fps. I'm very pleased indeed. I would like to tidy up some of the
+missing textures before I do a binary release so I'll be sorting out
+the skybox support and other texture effects first.</p>
+<p align="left" class="MainHeader">24 December 2001</p>
+<p align="left">Refactored the entity rendering routines in the base
+SceneManager class to make them easier to reuse in subclasses.</p>
+<p align="left">Material class enhanced to contain all the other render
+settings such as depth buffer parameters, culling modes, texture
+filtering etc. It is now possible to drive all the rendering settings
+via the Material class now so that no calls are required to the
+RenderSystem class. This makes the settings more intuitive to use, and
+ensures that you can have different settings per object if you want by
+assigning different materials, and the SceneManager controls the
+changes to the rendering settings.</p>
+<p align="left">Major rewrite of SceneManager::setMaterial and added
+RenderSystem::_setTextureUnitSettings (used by the former) so that only
+<b>changes</b> to the material settings are sent to the RenderSystem.
+This ensures that rendering state changes are minimised and that custom
+settings are reset only when required. This has improved the framerate
+across the board by about 50%. A further optimisation which is still to
+be made is ordering the materials in the render sequence to minimise
+the render state changes still further, e.g. scheduling 2 materials
+that have the same layer 0 texture but different layer 1 textures next
+to each other.</p>
+<p align="left">Started adding sky plane and sky box support to the
+SceneManager class, but this is not yet functional.</p>
+<p align="left">Merry Xmas!</p>
+<p align="left" class="MainHeader">4 December 2001</p>
+<p align="left">General Bezier Patch support through the PatchSurface
+class.</p>
+<p align="left">Quake3 level loading uses curved surface support to
+display Q3A's bezier curves. Custom shader scripts still to be done.</p>
+<p align="left">IMPORTANT: To compile &amp; run the TestApp demo
+application you will need to change line 414 of WinMainTest.cpp to
+point at your Quake3Arena pak0.pk3, since I can't distribute Q3A levels
+and textures for size and copyright reasons.</p>
+<p align="left" class="MainHeader">11 November 2001</p>
+<p>First Quake3 level rendering release. No support for shader scripts
+or curved surfaces yet. </p>
+<p align="left" class="MainHeader">12 October 2001</p>
+<p>Modified the material blending routines to make it more reliable to
+fall back on multipass rendering whilst preserving all the correct
+effects. To do this I had to simplify the basic multitexture blending
+operations which automatically fall back to multipass, and require that
+the application explicitly specifies a fallback blend multipass
+operation if it chooses to use the more complex blending modes which
+are only available under multitexture hardware. I hope by doing this I
+keep it simple for most cases (people normally use jusy ADD, MODULATE,
+REPLACE or ALPHABLEND anyway) whilst still allowing complete
+flexibility for those who like to tinker with the obscure modes.</p>
+<p>Decided to make another point release even without the finished
+Quake3 stuff because there's so much that's useful.</p>
+<p></p>
+<p align="left" class="MainHeader">9 October 2001</p>
+<p>Object/scene blending operations (as opposed to multiple texture
+layer blending on the same object) support has been added, allowing new
+effects like transparency.</p>
+<p>I keep getting distracted from my Quake3 level work but I am
+progressing - the reason why I switched to this subject is that I
+realised my fallback technique to multipass rendering when not enough
+multitexturing hardware was available was not correct, and in order to
+be able to fix it I needed these new blending options. I'm now
+wondering whether to fix the multipass fallback now I have the tools or
+to leave it until later. Right now, if you use more texture layers than
+the hardware supports in a single pass, things won't look right. I'll
+get to it.</p>
+<p align="left" class="MainHeader">6 October 2001</p>
+<p>Ok, remember the problem from 16 September re texture coordinates
+and confusion over whether (0,0) was the top or bottom left corner of
+the texture? Well it turns out that once again Direct3D is the odd one
+out, and 3DS is actually using the more common convention, i.e. (0,0)
+is the <i>bottom</i> left corner. I have therefore changed the 3ds2oof
+routine <i>back</i> to how it was before (using 3DS UV corrdinates
+directly) and am flipping the texture itself in the Y-axis when loading
+it in the Direct3D texture implementation to compensate
+(D3DTexture.cpp). I should have checked more thoroughly before changing
+things to be in line with D3D, I should have known it would probably be
+the odd one.</p>
+<p>I've done this because I want Ogre to follow industry standards
+(e.g. right-handed coordinates, anticlockwise vertex winding) rather
+than Direct3D's viewpoint which is usually the opposite, even though
+it's Direct3D I'm working on at the moment. I do this because it's what
+everybody will be used to when they come from maths texts or modelling
+tools, and is the same as the OpenGL approach (so the OpenGL port
+should be easier than Direct3D). I just compensate inside my
+Direct3D-specific classes (e.g. by flipping the Z axis, changing the
+culling mode, or flipping the texture as above).</p>
+<p></p>
+<p align="left" class="MainHeader">5 October 2001</p>
+<p>Progressive updates are being made to the OgreEngineIndoor module in
+CVS. Quake3 levels are being loaded and coversion is in progress.</p>
+<p>I have also fixed a couple more bugs: the ColourValue class was
+implementing colours a little too bright and wrapped around to black
+when pure white was specified. This has been fixed. In addition, the
+mipmap generation was not generating enough mipmaps under Direct3D
+because D3DX ignores requests for the number of mipmaps and generates
+as many as required to reduce to a 1x1 texture. This caused smaller
+mipmaps to be black and thus textures would wink out at long distances.
+This has been fixed.</p>
+<p align="left" class="MainHeader">16 September 2001</p>
+<p>Slow going due to moving house. However, fixed a problem with
+texture coordinates as converted from 3DS using 3ds2oof - I just
+realised that 3DS uses UV coordinates where V=0.0 is at the <i>bottom</i>
+of the texture map, instead of the top as with everything else! That
+explains the strange textures on some models. Fixed 3ds2oof to make
+V=(1.0 - V) during the conversion. Reconvert your models!</p>
+<p align="left" class="MainHeader">29 August 2001</p>
+<p>Ogre now supports loading of resources from more flexible locations,
+including compressed archives (.zip and Quake3 .pk3 files). You can
+specify a list of search paths and archives which are either general
+across the whole of Ogre or specific to a resource type (e.g. textures,
+meshes).</p>
+<p>I've also added support for loading TGA images as well, since Quake3
+maps use them in places. </p>
+<p>I have also dropped support for BMP files. This is because I have
+had to implement memory-based versions of the image decoders to support
+loading from archives, and to be frank I couldn't be bothered to
+implement one for BMP since it's a naff format in my opinion and tied
+to the Windows platform anyway. Ogre supports JPEG, PNG and TGA which
+should be plenty of flexibility. Personally I think when you've got PNG
+(for lossless) and JPEG (for lossy), you don't need anything else.</p>
+<p align="left" class="MainHeader">10 August 2001</p>
+<p>Texture blending is now in and working! The new TestApp demonstrates
+the functionality by loading a base model with a standard texture, then
+adding a second texture layer and applying an environment map to it.
+The keys 0-7 change the texture blending mode to show what effects
+different parameters have.</p>
+<p>I'm now moving onto other features; I want to look at Quake3 file
+loading - there are a couple of things nagging me about managing
+materials and entities that I'd like to look at but I'd really like to
+get started on Q3A bsp files now. I also wanted to work on animation,
+both within models (skeletal animation &amp; bones) and for paths of
+objects (bezier curves &amp; bsplines), but I just don't have time to
+do everything I want to! Q3A files first.</p>
+<p align="left" class="MainHeader">5 August 2001</p>
+<p>Back from a break for holidays!</p>
+<p>The Camera class now allows a SceneNode to override it's position
+and orientation when the Camera is attached to a SceneNode. This will
+allow cameras attached to world objects etc.</p>
+<p>Started implementing the texture blending operations - the interface
+is complete, I'm now moving onto the Direct3D implementation. For the
+moment I'm not worrying about minimising the number of times that
+changes to blending parameters are made during a frame - I'm still
+concentrating on minimising the texture changes, which is the main
+overhead anyway. More optimisation will likely come along with new
+SceneManager subclasses.</p>
+<p align="left" class="MainHeader">21 July 2001</p>
+<p>The Camera class now uses quaternions too. Camera rotation is a lot
+more concise now (instead of storing &amp; trying to update 3 vectors I
+just have a single quaternion) and is more predictable and hopefully
+more flexible for the future.&nbsp;</p>
+<p>You can attach a Camera to a SceneNode (this is meant for use in
+having cameras tracking other objects in the world) but I have yet to
+implement this - I intend now that they're both on the same basis that
+if you choose to attach a camera to a scene node then the SceneNode
+overrides the camera's own position and direction, and maybe even that
+they update each other (so telling a camera to look somewhere would
+update the orientation of it's SceneNode too).</p>
+<p align="left" class="MainHeader">19 July 2001</p>
+<p>Updated SceneNode class to use quaternions internally for all
+orientations / rotations. This should both be faster and give me more
+flexibility for the future. Also added a lot more manipulation routines
+the SceneNode class which were sorely lacking before if you wanted to
+move stuff around. The Camera class still uses matrices internally but
+I intend to change that so that a Camera depends on the SceneNode it is
+attached to for positioning rather than doing it itself. To this end I
+will need to add extra features to the SceneNode class to replicate
+functions like lookAt(), which is ok since this will be handy for
+pointing other objects at each other too.</p>
+<p align="left" class="MainHeader"></p>
+<p align="left" class="MainHeader">17 July 2001</p>
+<p>Fixed an issue with the 3ds2oof utility - it now generates vertex
+normals based on smooth groups rather than just averaging based on the
+faces which use the vertex. This removes artefacts along model 'seams'
+e.g. the point where a texture wraps around on the model.</p>
+<p>Reimplemented environment mapping using the new
+Material::TextureLayer structure. Started work on adding more
+manipulation features to the SceneNode class (body code still to do).</p>
+<p align="left" class="MainHeader">4 July 2001</p>
+<p>Python now has full access to the engine, and it's working great.
+I've also enabled callbacks into Python from the engine, so you can
+register a Python class as a listener for frame update events so C++
+calls Python every frame. Nice.</p>
+<p>Future Python developments include an embedded version of Python in
+Ogre so you can build a compiled application which still used
+interpreted scripts for some things - this will be useful for level
+scripting etc where the script can be kept in the level data. For now
+though I'm going back to developing the core engine features .</p>
+<p align="left" class="MainHeader">20 June 2001</p>
+<p>Spending an awful lot of time exposing all the necessary objects and
+their interfaces to Python (up till now I have it working but only a
+few interfaces were exposed). About 90% there now, with a few issues to
+iron out - I had to extend the compiler heap limit to get it to compile
+so far since the heavy usage of templates puts a great strain on the
+compiler memory usage. In a few days I should be in a position to do
+all my engine testing through Python as well as through a custom C++
+application (currently TestApp). </p>
+<p align="left" class="MainHeader">13 June 2001</p>
+<p>Added FrameListener and FrameEvent classes in order to represent the
+frame update callback functions in a more object-oriented way. User
+applications now extend FrameListener and register their interest in
+receiving frame events - this is based on the Java model of event
+listening. Note that a boon of this method is that Boost Python allows
+you to extend existing C++ classes so this provides a perfect mechanism
+to have C++ call Python scripts when events occur. </p>
+<p>I intend to extend this pattern to other events like collisions when
+I implement them. </p>
+<p align="left" class="MainHeader">10 June 2001</p>
+<p align="left">Changed from using SWIG to Boost Python for Python
+script integration<a href="http://boost.org"></a>. I changed because
+Boost Python supports C++ features much beter (including catching C++
+exceptions and turning them into Python exceptions, support for
+namespaces and overloaded operators), it integrates better with my
+build cycle (doesn't require a separate generate from interface files
+and can be built directly into the library), and is more up-to-date
+with the latest Python libraries. I was finding that SWIG's emphasis on
+pure C as opposed to C++ was getting in the way, and Boost has
+definitely addressed this.</p>
+<p align="left">Introduced PythonLink class to expose classes to Python.</p>
+<p align="left" class="MainHeader">7 June 2001</p>
+<p align="left">Implemented Python integration using SWIG (Simplified
+Wrapper and Interface Generator). You can now start and initialise Ogre
+from a Python console and drive it interactively. More work required to
+expose the full interface to Python however.</p>
+<p align="left" class="MainHeader">31 May 2001</p>
+<p align="left">Cut over to CVS - CVS repository is now up and running
+at SourceForge.</p>
+<p align="left" class="MainHeader">20 May 2001</p>
+<p align="left">SceneNode class integrated with Entity / SubEntity
+classes. Working basic scene graph. Also reimplemented my previous hack
+using DirectInput as a proper platform-specific user input class -
+added the OgreUtility module for this purpose.</p>
+<p align="left" class="MainHeader">15 May 2001</p>
+<p align="left">SubEntity implementation complete, together with
+customisable Materials at the SubEntity level. Material usage by
+SubEntities is now indexed by the SceneManager so that rendering can be
+grouped by Material such that as few as possible render state changes
+take place. Note that this does not currently deal with transparency.</p>
+<p align="left" class="MainHeader">13 May 2001</p>
+<p align="left">Bugs with the new Mesh loading routines now ironed out.</p>
+<p align="left" class="MainHeader">24 April 2001</p>
+<p align="left">Implemented Mesh, SubMesh and MeshManager classes for
+loading Ogre Object Format files (converted from .3ds using the Ogre
+3ds2oof tool). Decided to allow the original 3ds mesh to be broken down
+into chunks specific per material or grouped as a whole depending on
+requirements. The 3ds2oof utility makes a goos guess as to what is
+best, based on the percentage of the vertices each SubMesh uses out of
+the whole model - the lower the percentage the greater chance it will
+have a dedicated vertex list rather than sharing the whole since that
+saves sending unnecessary vertices to the pipeline. However this can be
+customised with parameters since you may want to use vertex buffers
+where it's more efficient to store 1 buffer even if you only use parts
+of it.</p>
+<p align="left" class="MainHeader">1 April 2001</p>
+<p align="left">Began overhaul of Mesh loading routines.</p>
+<p align="left" class="MainHeader">30 March 2001</p>
+<p align="left">Switched to Doxygen for document generation since ccdoc
+still doesn't support namespaces. Doxygen is better at
+cross-referencing anyway and draws nice diagrams.</p>
+<p align="left" class="MainHeader">24 March 2001</p>
+<p align="left">Added JPEG loading support, and moved this and existing
+image loading code (PNG) into the Image class. BMP loading is still
+supported but only on Windows platforms so this is still residing in
+the D3DTexture class as a special case.</p>
+<p align="left">Improved the handling of non-square textures on
+hardware that supports only square textures. The image is now stretched
+into the square area so that the relative texture coordinates are still
+valid and no black bands appear on the model.</p>
+<p align="left" class="MainHeader">23 March 2001</p>
+<p align="left">Multiple viewports per window is implemented and
+working Ok. Z-Order also applies so picture-in-picture views are
+possible by placing a smaller viewport on top of another larger one.</p>
+<p align="left" class="MainHeader">11 March 2001</p>
+<p align="left">Changed the default mechanism for supplying vertex
+components (position, normals, texture coords, colours) to the
+RenderOperation class. They were previously assumed to be part of the
+same buffer with flags indicating which were present. However this was
+too restrictive and prevented you using entirely separate memory areas
+for different components, and adding extra components to vertices on
+the fly. </p>
+<p align="left">Instead the RenderOperation class now takes pointers
+for each component, and a 'span' value determines the gap between each
+value. This allows you to use separate buffers if you like, but also
+use a combined buffer if that suits you (by using the 'span' value to
+skip over values in between).</p>
+<p align="left" class="MainHeader">6 March 2001</p>
+<p align="left">Implemented a 3DStudio conversion tool that works
+directly from the .3DS files rather than from ASCII exports (as
+previously) or from a MAX plugin as some others do, which requires a
+3DS license. I based my code on an existing open source routine but I
+have exteded it since it had a few shortcomings. The tool is called
+'3ds2oof' because it converts 3DS files to a proprietary format, .OOF
+(Ogre Object File). This is because it's more efficient for me to do
+extra processing at conversion time like calculating bounding boxes,
+splitting vertex buffers, strippifying etc (not that I'm doing all this
+yet, but I <i>can</i>) rather than at load time as I would have to do
+if I loaded direct from 3DS inside Ogre.</p>
+<p align="left" class="MainHeader">1 March 2001</p>
+<p align="left">Over the last 2 weeks I reimplemented my interface to
+the DirectX rendering pipeline in the new Ogre structure, under the
+D3DRenderSystem class. Rendering requests are now packaged up in the
+RenderOperation class, giving me more flexibility on how rendering
+requests are submitted and handled. Now all the support classes (mesh
+loading, scene management) are needed.</p>
+<p align="left" class="MainHeader">11 February 2001</p>
+<p align="left">I've been picking apart the platform dependencies in
+Ogre so it'll be more portable. I'm also making it flexible enough to
+handle any number of rendering windows and viewports within thse
+windows, and also giving you the choice of an automatic rendering loop
+(max frame rate) and a render-on-demand interface much like you would
+need for an application like a modelling tool where you want to free up
+cycles when things don't move and frae rate isn't the most important
+thing.</p>
+<p align="left">I now have a nice hierarchy crossing the OgreEngine and
+OgreWin32Platform modules, with functionality broken down into
+RenderTarget, RenderWindow and Win32RenderWindow classes. Other
+platforms can be implemented later, just replacing the
+Win32RenderWindow maybe with XRenderWindow or MacRenderWindow.</p>
+<p align="left" class="MainHeader">29 December 2000</p>
+<p align="left">Ogre development starts again after almost a year's
+break while I finished my degree. Lots of research and design work at
+this stage to work out how I should structure the object model.</p>
+<p align="left">&nbsp;</p>
+>>>>>>> 1.10.4.4
 </body>
 </html>
