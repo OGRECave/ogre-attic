@@ -20,7 +20,7 @@ SDLGLSupport::~SDLGLSupport()
     SDL_Quit();
 }
 
-void SDLGLSupport::addConfig(ConfigOptionMap& options)
+void SDLGLSupport::addConfig(void)
 {
     mVideoModes = SDL_ListModes(NULL, SDL_FULLSCREEN | SDL_OPENGL);
     
@@ -55,11 +55,11 @@ void SDLGLSupport::addConfig(ConfigOptionMap& options)
         }
     }
     
-    options[optFullScreen.name] = optFullScreen;
-    options[optVideoMode.name] = optVideoMode;
+    mOptions[optFullScreen.name] = optFullScreen;
+    mOptions[optVideoMode.name] = optVideoMode;
 }
 
-String SDLGLSupport::validateConfig(ConfigOptionMap& options)
+String SDLGLSupport::validateConfig(void)
 {
     return String("");
 }
