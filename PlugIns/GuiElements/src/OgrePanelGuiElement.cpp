@@ -150,17 +150,21 @@ namespace Ogre {
     void PanelGuiElement::updatePositionGeometry(void)
     {
         /*
-            0-----2
-            |    /|
-            |  /  |
-            |/    |
             1-----3
+            ^\    ^
+            |  \  |
+            |   _\|
+            0-----2
         */
         Real left, right, top, bottom;
 
-        // Convert positions into -1, 1 coordinate space (homogenous clip space)
-        // Left / right is simple range conversion
-        // Top / bottom also need inverting since y is upside down
+        /* Convert positions into -1, 1 coordinate space (homogenous clip space).
+            - Left / right is simple range conversion
+            - Top / bottom also need inverting since y is upside down - this means
+              that top will end up greater than bottom and when computing texture
+              coordinates, we have to flip the v-axis (ie. subtract the value from
+              1.0 to get the actual correct value).
+        */
         left = _getDerivedLeft() * 2 - 1;
         right = left + (mWidth * 2);
         top = -((_getDerivedTop() * 2) - 1);
@@ -204,11 +208,11 @@ namespace Ogre {
                 Real upperX = 1.0f / mTileX[i];
                 Real upperY = 1.0f / mTileY[i];
                 /*
-                    0-----2
-                    |    /|
-                    |  /  |
-                    |/    |
                     1-----3
+                    ^\    ^
+                    |  \  |
+                    |   _\|
+                    0-----2
                 */
                 Real* pTex = mRenderOp.pTexCoords[i];
 
