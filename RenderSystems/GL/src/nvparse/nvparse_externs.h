@@ -13,6 +13,9 @@ extern char * myin;
     #include <GL/glext.h>
     #include "glprocs.h"
     #include <stdio.h>
+#else
+    #define GL_GLEXT_PROTOTYPES
+    #include <GL/glext.h>
 #endif
 // END HACK 
 
