@@ -801,15 +801,16 @@ namespace Ogre {
                 glDisable( lastTextureType );
             }
 
-            glEnable( mTextureTypes[stage] );
-            if (tex)
-                glBindTexture( mTextureTypes[stage], tex->getGLID() );
+			glEnable( mTextureTypes[stage] );
+			if(tex)
+				glBindTexture( mTextureTypes[stage], tex->getGLID() );
         }
         else
         {
 			glDisable( mTextureTypes[stage] );
 			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
         }
+
         glActiveTextureARB_ptr( GL_TEXTURE0 );
     }
 
@@ -1892,13 +1893,13 @@ namespace Ogre {
                         op.indexData->indexBuffer.get())->getGLBufferId());
 
                 pBufferData = VBO_BUFFER_OFFSET(
-                    op.vertexData->vertexStart * op.indexData->indexBuffer->getIndexSize());
+                    op.indexData->indexStart * op.indexData->indexBuffer->getIndexSize());
             }
             else
             {
                 pBufferData = static_cast<GLDefaultHardwareIndexBuffer*>(
                     op.indexData->indexBuffer.get())->getDataPtr(
-                        op.vertexData->vertexStart * op.indexData->indexBuffer->getIndexSize());
+                        op.indexData->indexStart * op.indexData->indexBuffer->getIndexSize());
             }
 
             GLenum indexType = (op.indexData->indexBuffer->getType() == HardwareIndexBuffer::IT_16BIT) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT;
