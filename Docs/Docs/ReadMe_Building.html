@@ -83,36 +83,37 @@ OGRE </p><p align="center" class="header"><A HREF="http://ogre.sourceforge.net">
 and Installing OGRE</p><p align="left">This release of OGRE builds under the following 
 configurations:</p><TABLE WIDTH="100%" BORDER="1" CELLSPACING="0" CELLPADDING="0" BORDERCOLOR="#996600"><TR><TD CLASS="BorderHeader" WIDTH="33%"><DIV ALIGN="CENTER">Platform</DIV></TD><TD CLASS="BorderHeader" WIDTH="20%"><DIV ALIGN="CENTER">Compiler</DIV></TD><TD CLASS="BorderHeader"><DIV ALIGN="CENTER">Extra 
 Notes</DIV></TD></TR><TR><TD CLASS="BorderContent" WIDTH="33%" VALIGN="MIDDLE"><DIV ALIGN="CENTER"><P><A HREF="#VC">Windows 
-95/98/Me/2000/XP</A></P></DIV></TD><TD CLASS="BorderContent" WIDTH="20%"><DIV ALIGN="CENTER">Microsoft 
-Visual C++ 6 SP3+<BR>Microsoft Visual C++.Net<BR></DIV></TD><TD CLASS="BorderContent"><DIV ALIGN="CENTER">Requires 
-DirectX 8.1b SDK and <A HREF="http://www.stlport.org">STLport 4.5.3</A><BR>You 
-should also download the 3rd-party libraries if you have not done so already.</DIV></TD></TR><TR><TD CLASS="BorderContent" WIDTH="33%"><DIV ALIGN="CENTER"><A HREF="#Linux">Linux</A></DIV></TD><TD CLASS="BorderContent" WIDTH="20%"><DIV ALIGN="CENTER"><P>gcc 
+95/98/Me/2000/XP</A></P></DIV></TD><TD CLASS="BorderContent" WIDTH="20%"><DIV ALIGN="CENTER"><P>Microsoft 
+Visual C++ 6 SP3+<BR>Microsoft Visual C++.Net<BR>Microsoft Visual C++.Net 2003<BR></P></DIV></TD><TD CLASS="BorderContent"><DIV ALIGN="CENTER">Requires 
+DirectX 8.1b SDK (9 to build the Direct3D9RenderSystem)<BR><A HREF="http://www.stlport.org">STLport 
+4.5.3</A> required for versions prior to .Net 2003<BR>You should also download 
+the latest 3rd-party libraries from the site.</DIV></TD></TR><TR><TD CLASS="BorderContent" WIDTH="33%"><DIV ALIGN="CENTER"><A HREF="#Linux">Linux</A></DIV></TD><TD CLASS="BorderContent" WIDTH="20%"><DIV ALIGN="CENTER"><P>gcc 
 (GNU Compiler Collection)</P></DIV></TD><TD CLASS="BorderContent"><DIV ALIGN="CENTER">Requires 
-gcc 3.x (or gcc 2.9x with <A HREF="http://www.stlport.org">STLport 4.5.3</A>)</DIV></TD></TR><TR><TD CLASS="BorderContent" WIDTH="33%"><DIV ALIGN="CENTER"><A HREF="#Mac">Mac 
+gcc 3.x</DIV></TD></TR><TR><TD CLASS="BorderContent" WIDTH="33%"><DIV ALIGN="CENTER"><A HREF="#Mac">Mac 
 OSX </A></DIV></TD><TD CLASS="BorderContent" WIDTH="20%"><DIV ALIGN="CENTER">gcc 
 (GNU Compiler Collection)</DIV></TD><TD CLASS="BorderContent"><DIV ALIGN="CENTER">Requires 
 gcc 3.x</DIV></TD></TR></TABLE><p align="left">&nbsp;</p><p align="left" CLASS="MainHeader"><A NAME="VC"></A>Building 
 with Visual C++ 6 or Visual C++.Net</p><p align="left">If you're building with 
 Visual C++, follow these steps:</p><OL><LI>Make sure you have downloaded and installed 
-<A HREF="http://www.stlport.org">STLport</A>, version 4.5.3. The instructions 
-for building and installing STLport are in the <A HREF="../FAQ.html">FAQ</A></LI><LI>Download 
-and install the <A HREF="http://msdn.microsoft.com/directx">DirectX 8.1 SDK</A>.</LI><LI>Download 
-and extract the latest 3rd party libraries distribution (you can find this in 
-the downloads section of the <A HREF="http://ogre.sourceforge.net/">OGRE hompage</A>). 
-See the <A HREF="../FAQ.html">FAQ</A> for more details.</LI><LI>Open either Ogre.dsw 
-(VC6) or Ogre.sln (VC7)</LI><LI>Check the ordering of your include and library 
-paths (in Tools | Options). The ordering should be STLport, DirectX 8.1, then 
-everything else.</LI><LI>Perform a Batch Build for all the projects. The dependencies 
-should ensure everything is built in the right order.</LI></OL><P CLASS="MainHeader"><A NAME="Linux"></A>Building 
+<A HREF="http://www.stlport.org">STLport</A>, version 4.5.3 if you are not using 
+.Net 2003. The instructions for building and installing STLport are in the <A HREF="../FAQ.html">FAQ</A></LI><LI>Download 
+and install the <A HREF="http://msdn.microsoft.com/directx">DirectX SDK</A>, you 
+need at least v8.1b, preferably 9.</LI><LI>Download and extract the latest 3rd 
+party libraries distribution (you can find this in the downloads section of the 
+<A HREF="http://ogre.sourceforge.net/">OGRE hompage</A>). See the <A HREF="../FAQ.html">FAQ</A> 
+for more details.</LI><LI>Open either Ogre.dsw (VC6) or Ogre.sln (VC7+)</LI><LI>Check 
+the ordering of your include and library paths (in Tools | Options). The ordering 
+should be STLport (if applicable), DirectX, then everything else.</LI><LI>Perform 
+a Batch Build for <B>all</B> the projects. The dependencies should ensure everything 
+is built in the right order.</LI></OL><P CLASS="MainHeader"><A NAME="Linux"></A>Building 
 under Linux</P><p align="left">If you're building under Linux with gcc, here's 
 a very quick overview:</p><OL><LI>If you're using gcc version 2.9x, make sure 
 you've installed <A HREF="http://www.stlport.org">STLport</A>. However, if you 
 can we advise using gcc 3.2+.</LI><LI>Confirm that you have SDL 1.2.4, Freetype2, 
 DevIL and pkg-config available on your system (if not, install them!)</LI><LI>Change 
 to the 'ogrenew' directory, </LI><LI>If you are installing from CVS, run './bootstrap'</LI><LI>type 
-'./configure'. If you're using gxx 2.9x, append ' --stlpath=&lt;path_to_your_stlport&gt;'.</LI><LI>Run 
-'make' and 'make install'</LI></OL><P>For more detailed instructions, see the<A HREF="../README.linux"> 
-Linux README</A>.</P><p align="left" CLASS="MainHeader"><A></A><A NAME="Mac"></A>Building 
+'./configure'.</LI><LI>Run 'make' and 'make install' (the latter as root)</LI></OL><P>For 
+more detailed instructions, see the<A HREF="../README.linux"> Linux README</A>.</P><p align="left" CLASS="MainHeader"><A></A><A NAME="Mac"></A>Building 
 under Mac OSX</p><P ALIGN="left">Please read the <A HREF="../README_MacOSX.txt">Mac 
 README</A>.</P><p align="left" CLASS="MainHeader">Explanation of the Core libraries</p><p align="left">OGRE 
 compiles into a number of shared dynamically-linked libraries for use by OGRE 
@@ -137,18 +138,13 @@ cross-platform. </TD></TR> <TR> <TD WIDTH="200"> <P>OgrePlatform</P></TD><TD><P>
 library implements concrete versions of the classes required to be implemented 
 for each platform. There are currently implementations for Win32 and Linux platforms.</P><P>This 
 library is loaded dynamically by the PlatformManager class (in OgreMain) and must 
-either be on the path or in the current folder.</P></TD></TR> <TR> <TD WIDTH="200">RenderSystem_Direct3D7</TD><TD>Plugin 
+either be on the path or in the current folder.</P></TD></TR> <TR> <TD WIDTH="200">RenderSystem_Direct3D7/8/9</TD><TD>Plugin 
 library which adds a RenderSystem implementation for Direct3D. This library is 
 loaded dynamically by the plugin architecture described above, and must be located 
-in the folder specified in plugins.cfg. At the moment this uses Direct3D 7 interfaces, 
-because the effort of migrating to v8 was not justified (the major addition, pixel 
-shaders is still in it's infancy in terms of standards so hard to generalise), 
-although more recent use of vertex blending in OGRE may change this stance. OGRE 
-will definitely migrate to Direct3D 9 when released since this appears to be worth 
-the effort, particularly the High-level shader language (HLSL).</TD></TR><TR><TD WIDTH="200">RenderSystem_SDL</TD><TD>Implementation 
-of the RenderSystem which is based on both SDL and OpenGL. Used for the Linux 
-platform primarily but can be used in Windows and because of the nature of SDL 
-could be used on any platform OGRE is ported to.</TD></TR> <TR> <TD WIDTH="200">Plugin_BspSceneManager</TD><TD>Plugin 
+in the folder specified in plugins.cfg. You may use any of these render systems 
+on Windows, but the more recent version support extra features.</TD></TR><TR><TD WIDTH="200">RenderSystem_GL</TD><TD>Implementation 
+of the RenderSystem which is based on OpenGL. Used for the Linux &amp; Mac platforms 
+primarily but can be used in Windows too.</TD></TR> <TR> <TD WIDTH="200">Plugin_BspSceneManager</TD><TD>Plugin 
 specialisation of the general-purpose SceneManager for rendering indoor levels 
 based on a BSP tree. Allows Quake3 maps to be loaded and rendered very efficiently 
 whilst exposing none of the complexity to the core Ogre system. This library is 
@@ -156,7 +152,15 @@ loaded dynamically by the plugin architecture described above, and must be locat
 in the folder specified in plugins.cfg.</TD></TR><TR><TD WIDTH="200">Plugin_FileSystem</TD><TD>Archive 
 plugin that allows OGRE to read the filesystem of the target operating system.</TD></TR><TR><TD WIDTH="200">Plugin_ParticleFX</TD><TD>Plugin 
 which provides a range of particle system tools such as standard emitters and 
-affectors.</TD></TR> </TABLE><P CLASS="MainContent" ALIGN="CENTER"><A HREF="../ReadMe.html">Back 
+affectors.</TD></TR><TR><TD WIDTH="200">Plugin_OctreeSceneManager</TD><TD>Plugin 
+which provides scene management based on an octree system.</TD></TR><TR><TD WIDTH="200">ReferenceAppLayer</TD><TD>This 
+is a utility library which is a client of the OgreMain library, and can be used 
+by your application to add additional non-graphics related features to your application. 
+It is designed to be an example of how you might tie together other libraries 
+with OGRE in order to build a larger system; in this case we implement collision 
+and physics using ODE.</TD></TR> </TABLE><P CLASS="MainContent" ALIGN="LEFT">There 
+are also several other plugins, tools and demos which are built as part of the 
+standard batch build process.</P><P CLASS="MainContent" ALIGN="CENTER"><A HREF="../ReadMe.html">Back 
 to Readme.html</A></P><P CLASS="MainHeader">&nbsp;</P><p> Copyright &copy; 2002 by The 
 OGRE Team<br /> <script type="text/javascript">
 <!--//hide script from old browsers

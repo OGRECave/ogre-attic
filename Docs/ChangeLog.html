@@ -80,25 +80,71 @@ CODE.str {
 
 <body bgcolor="#FFFFFF" text="#000000">
 <p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p><p align="center" class="header">Change 
-Log</p><p align="left" class="MainHeader">v0.10.0 (28 Feb 2003)</p><p align="left">Changes 
-since 0.9.7:</p><UL><LI>Major speed increases for large scenes. Scenes with more 
-than 1500 objects are now feasible at high frame rates.</LI><LI>3D Studio Max 
-4 / 5 script for exporting meshes and skeletons to XML (which can then be converted 
-to binary using XMLConverter)</LI><LI>Major updates to the Python bindings</LI><LI>Added 
-UserDefinedObject to allow references back to external app objects from OGRE objects</LI><LI>Experimental 
-Direct3D 9 Render System</LI><LI>Skeletal animation now supports additive blending 
-of multiple animations as well as average blending</LI><LI>Bugfixes &amp; small 
-feature enhancements</LI></UL><p align="left" class="MainHeader">v0.9.7 (26 January 
-2003)</p><p align="left">Changes since 0.99f:</p><UL><LI>Mac OSX support added</LI><LI>Mesh 
-LOD support: both automatic algorithmic detail reduction, and manual LOD assignment</LI><LI>Milkshape 
-exporter extended to support generation of LODs</LI><LI>Rendering to a texture 
-(supported in Direct3D only for now, GL support to follow)</LI><LI>Screenshot 
-support</LI><LI>DevIL now used for image loading / saving</LI><LI>Blender export 
-script</LI><LI>Initial GUI support and buffered input support</LI><LI>Updates 
-to the Python exports </LI><LI>A few vector / quaternion optimisations</LI><LI>Linux 
-/ Mac 'install' target paths rationalised</LI><LI>Bugfixes (including GL lighting 
-and texture effect problems, many memory leaks fixed)</LI><LI>Version numbering 
-change (to more standard format)</LI></UL><p align="left" class="MainHeader">v0.99f 
+Log</p><p align="left" class="MainHeader">v0.11.0 (18 June 2003)</p><P ALIGN="left">Changes 
+since 0.10.0:</P><UL><LI> SceneQuery introduced; a generic way to query the SceneManager 
+database of objects and world geometry in a way which is optimised per scene management 
+technique but transparent for the client application. Currently only IntersectionSceneQuery 
+is implemented but RaySceneQuery, SphereSceneQuery and others will soon be available 
+too</LI><LI> ReferenceApplication introduced; this is a new library which sits 
+on top of the main OGRE library in order to provide a reference implementation 
+of combining OGRE with other libraries for use in a full application. Currently 
+combines OGRE and ODE to provide an easy to use collision and realistic physics 
+system, utilising the new SceneQuery functions for generic collision detection. 
+Object to object collision is currently supported, together this object to world 
+collision for the BspSceneManager (ie collision against Quake3 levels), see the 
+BspCollision demo for an example. Per-object friction, bounciness and mass parameters 
+are all definable, also most of the ODE joint types ie ball, hinge, hinge2, universal. 
+World collision for the terrain managers will be added shortly.</LI><LI> Many 
+structural enhancements to the GLRenderSystem, including an extension manager, 
+separation of window creation etc into a GLSupport class (to enable platform specific 
+window management). Win32GLSupport added so Win32 no longer uses SDL for window 
+management.</LI><LI> Hardware mipmap generation supported in GL 1.3+</LI><LI>New 
+demos: BspCollision and Demo_Water</LI><LI> RenderTargetListener now supports 
+pre and post Viewport update events</LI><LI> RenderSystem now supports anisotropic 
+texture filtering and dot3 texture operations</LI><LI> Significant updates to 
+the 3D Studio Max exporter, now very mature</LI><LI> Added 3 more basic mesh exporters 
+/ converters: Maya, Wings3D and VRML 97</LI><LI> Attaching objects to a skeleton: 
+any MovableObject (entities, particle systems etc) can now be attached to any 
+bone on an entity, and will move correctly with the animation</LI><LI> XMLConverter 
+can now generate / update LOD information for meshes too</LI><LI> Bones can now 
+be manually controlled in combination with animation tracks much more easily, 
+allowing you to do things like tilt a characters head toward a target while playing 
+other animations, make a character bend at the waist etc.</LI><LI> New particle 
+affectors: ScaleAffector (particle resizing) and ColourFaderAffector2 (dual-state 
+colour affector which changes behaviour based on a particle's TTL)</LI><LI> Alternative 
+terrain engine added (NatureSceneManager), supports paging and very large areas</LI><LI> 
+Significant speed enhancements to Node, in particular skeletal animation is now 
+many times faster for large skeletons</LI><LI> Interface breaking change since 
+0.10.0: SceneNode::createChild now returns a Node* rather than a SceneNode*, you 
+will have to cast it. This was to resolve virtualisation problems</LI><LI> Platform-specific 
+Timer classes and general timing improvements mean that accuracy and consistency 
+is much better</LI><LI> Rendering to texture now supported in GL as well as D3D</LI><LI> 
+SDLRenderSystem renamed to GLRenderSystem</LI><LI> Python support resurrected, 
+Linux only for now due to Boost problems with VC</LI><LI> Gui enhancements, including 
+pop up menus and scrollable text areas and being able to #include in .overlay 
+files to reuse definitions (NB: the event and gui classes will shortly be moved 
+into a separate plugin)</LI><LI> Added ability to switch between buffered and 
+unbuffered input on demand</LI><LI> VC++.Net 2003 support added</LI><LI> MaterialSerializer 
+for writing .material scripts from an in-memory version</LI><LI> Many bugfixes, 
+including the removal of all remaining memory leaks</LI></UL><p align="left" class="MainHeader">v0.10.0 
+(28 Feb 2003)</p><p align="left">Changes since 0.9.7:</p><UL><LI>Major speed increases 
+for large scenes. Scenes with more than 1500 objects are now feasible at high 
+frame rates.</LI><LI>3D Studio Max 4 / 5 script for exporting meshes and skeletons 
+to XML (which can then be converted to binary using XMLConverter)</LI><LI>Major 
+updates to the Python bindings</LI><LI>Added UserDefinedObject to allow references 
+back to external app objects from OGRE objects</LI><LI>Experimental Direct3D 9 
+Render System</LI><LI>Skeletal animation now supports additive blending of multiple 
+animations as well as average blending</LI><LI>Bugfixes &amp; small feature enhancements</LI></UL><p align="left" class="MainHeader">v0.9.7 
+(26 January 2003)</p><p align="left">Changes since 0.99f:</p><UL><LI>Mac OSX support 
+added</LI><LI>Mesh LOD support: both automatic algorithmic detail reduction, and 
+manual LOD assignment</LI><LI>Milkshape exporter extended to support generation 
+of LODs</LI><LI>Rendering to a texture (supported in Direct3D only for now, GL 
+support to follow)</LI><LI>Screenshot support</LI><LI>DevIL now used for image 
+loading / saving</LI><LI>Blender export script</LI><LI>Initial GUI support and 
+buffered input support</LI><LI>Updates to the Python exports </LI><LI>A few vector 
+/ quaternion optimisations</LI><LI>Linux / Mac 'install' target paths rationalised</LI><LI>Bugfixes 
+(including GL lighting and texture effect problems, many memory leaks fixed)</LI><LI>Version 
+numbering change (to more standard format)</LI></UL><p align="left" class="MainHeader">v0.99f 
 (1 December 2002)</p><p align="left">Changes since 0.99e:</p><UL><LI>Terrain rendering 
 through the OctreeSceneManager subclass TerrainSceneManager, including detail 
 texturing and vertex colouring options</LI><LI>Overlays can now have pixel metrics 

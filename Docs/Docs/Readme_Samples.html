@@ -104,7 +104,11 @@ the indoor level as used by countless first-person shooter games. Loads Quake3Ar
 levels.<BR><B>IMPORTANT NOTE:</B> For copyright reasons no Quake3 data can be 
 distributed with OGRE. You are expected to provide your own level data to use 
 this example - edit the quake3settings.cfg file to specify the location of your 
-pak0.pk3 file and the map you wish to load.</P></TD></TR><TR><TD WIDTH="114">EnvMapping</TD><TD WIDTH="994">Demonstrates 
+pak0.pk3 file and the map you wish to load.</P></TD></TR><TR><TD WIDTH="114">BspCollision</TD><TD WIDTH="994">Demonstrates 
+the use of collision and physics with both movable objects and level geometry. 
+This demo uses the ReferenceAppLayer library to provide the linkage between OGRE 
+and ODE, the library which performs the physics. The ReferenceAppLayer is an example 
+of how to tie other libraries into your applications alongside OGRE for the graphics.</TD></TR><TR><TD WIDTH="114">EnvMapping</TD><TD WIDTH="994">Demonstrates 
 the environment mapping effect which can be applied to texture layers, together 
 with the blending that can be used to combine multiple texture layers. Also now 
 includes a few billboards as flare effects</TD></TR><TR><TD WIDTH="114">Lighting</TD><TD WIDTH="994">Demonstrates 
@@ -124,8 +128,9 @@ of a few texture effects (scrolling, scaling, rotating) that can be done with
 Ogre's 'Controller' architecture, a way of using input values from one object 
 (in this case time) to affect another (in this case texture coordinates) by translating 
 them through a function. This could be as simple as a scale factor, or be a little 
-more complex such as a wave function.</TD></TR> </TABLE><P>All the examples are 
-controlled as follows:</P><TABLE WIDTH="100%" BORDER="1" CLASS="MainContent" CELLSPACING="0"> 
+more complex such as a wave function.</TD></TR><TR><TD WIDTH="114">Water</TD><TD WIDTH="994">An 
+example of using a custom Renderable to create a special effect; in this case 
+rippling water.</TD></TR> </TABLE><P>All the examples are controlled as follows:</P><TABLE WIDTH="100%" BORDER="1" CLASS="MainContent" CELLSPACING="0"> 
 <TR> <TD WIDTH="139">Mouse</TD><TD WIDTH="969">Freelook</TD></TR> <TR> <TD WIDTH="139"> 
 <P>W or Up Arrow</P></TD><TD WIDTH="969"><P>Camera forward</P></TD></TR><TR><TD WIDTH="139">S 
 or Down Arrow</TD><TD WIDTH="969">Camera backwards</TD></TR><TR><TD WIDTH="139">A</TD><TD WIDTH="969">Camera 
