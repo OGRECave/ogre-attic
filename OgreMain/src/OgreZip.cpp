@@ -63,6 +63,7 @@ namespace Ogre {
                 // ignore folder entries
                 if (info.basename.empty())
                     continue;
+                info.filename = zzipEntry.d_name;
                 // Get sizes
                 info.compressedSize = static_cast<size_t>(zzipEntry.d_csize);
                 info.uncompressedSize = static_cast<size_t>(zzipEntry.st_size);
@@ -114,10 +115,9 @@ namespace Ogre {
         iend = mFileList.end();
         for (i = mFileList.begin(); i != iend; ++i)
         {
-            String name(i->path + i->basename);
 			if (recursive || i->path.empty())
             {
-                ret->push_back(name);
+                ret->push_back(i->filename);
             }
         }
         return ret;
@@ -127,7 +127,15 @@ namespace Ogre {
     Archive::FileInfoListPtr ZipArchive::listFileInfo(bool recursive)
     {
         FileInfoList* fil = new FileInfoList();
-        *fil = mFileList;
+        FileInfoList::const_iterator i, iend;
+        iend = mFileList.end();
+        for (i = mFileList.begin(); i != iend; ++i)
+        {
+            if (recursive || i->path.empty())
+            {
+                fil->push_back(*i);
+            }
+        }
         return FileInfoListPtr(fil);
     }
     //-----------------------------------------------------------------------
@@ -139,13 +147,12 @@ namespace Ogre {
         iend = mFileList.end();
         for (i = mFileList.begin(); i != iend; ++i)
         {
-            String name(i->path + i->basename);
 			if (recursive || i->path.empty())
             {
                 // Check name matches pattern
                 if (StringUtil::match(i->basename, pattern))
                 {
-                    ret->push_back(name);
+                    ret->push_back(i->filename);
                 }
             }
         }
@@ -161,7 +168,6 @@ namespace Ogre {
         iend = mFileList.end();
         for (i = mFileList.begin(); i != iend; ++i)
         {
-            String name(i->path + i->basename);
             if (recursive || i->path.empty())
             {
                 // Check name matches pattern
