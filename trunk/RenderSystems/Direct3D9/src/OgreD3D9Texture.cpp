@@ -385,17 +385,6 @@ namespace Ogre
 			numMips = 1;
 		}
 
-		// check if format is supported
-		hr = mpD3D->CheckDeviceFormat(
-			mDevCreParams.AdapterOrdinal,
-			mDevCreParams.DeviceType,
-			mBBPixelFormat,
-			usage,
-			D3DRTYPE_TEXTURE,
-			d3dPF);
-		// check result and except if failed
-		if (FAILED(hr))
-			Except( hr, "The image format is not supported", "D3D9Texture::_createNormTex" );
 
 		// create the texture
 		hr = D3DXCreateTexture(	
@@ -478,18 +467,6 @@ namespace Ogre
 			mNumMipMaps = 0;
 			numMips = 1;
 		}
-
-		// check if format is supported
-		hr = mpD3D->CheckDeviceFormat(
-			mDevCreParams.AdapterOrdinal,
-			mDevCreParams.DeviceType,
-			mBBPixelFormat,
-			usage,
-			D3DRTYPE_CUBETEXTURE,
-			d3dPF);
-		// check result and except if failed
-		if (FAILED(hr))
-			Except( hr, "The image format is not supported", "D3D9Texture::_createCubeTex" );
 
 		// create the texture
 		hr = D3DXCreateCubeTexture(	
