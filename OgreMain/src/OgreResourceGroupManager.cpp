@@ -230,7 +230,7 @@ namespace Ogre {
 		for (oi = grp->loadResourceOrderMap.rbegin(); oi != grp->loadResourceOrderMap.rend(); ++oi)
 		{
 			for (LoadUnloadResourceList::iterator l = oi->second->begin();
-				l != oi->second->end(); ++oi)
+				l != oi->second->end(); ++l)
 			{
 				(*l)->unload();
 			}
