@@ -48,7 +48,7 @@ namespace Ogre {
 
 
         Particle()
-        : mTotalTimeToLive(10), mTimeToLive(10), mRotationSpeed(0)
+        : mTimeToLive(10), mTotalTimeToLive(10), mRotationSpeed(0)
         {
         }
 
