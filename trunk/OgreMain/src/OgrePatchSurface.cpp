@@ -139,22 +139,22 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    const AxisAlignedBox& PatchSurface::getBounds(void)
+    const AxisAlignedBox& PatchSurface::getBounds(void) const
     {
         return mAABB;
     }
     //-----------------------------------------------------------------------
-    Real PatchSurface::getBoundingSphereRadius(void)
+    Real PatchSurface::getBoundingSphereRadius(void) const
     {
         return mBoundingSphere;
     }
     //-----------------------------------------------------------------------
-    size_t PatchSurface::getRequiredVertexCount(void)
+    size_t PatchSurface::getRequiredVertexCount(void) const
     {
         return mRequiredVertexCount;
     }
     //-----------------------------------------------------------------------
-    size_t PatchSurface::getRequiredIndexCount(void)
+    size_t PatchSurface::getRequiredIndexCount(void) const
     {
         return mRequiredIndexCount;
     }
@@ -272,7 +272,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    size_t PatchSurface::getCurrentIndexCount(void)
+    size_t PatchSurface::getCurrentIndexCount(void) const
     {
         return mCurrIndexCount;
     }

@@ -253,7 +253,7 @@ namespace Ogre {
         // Check for VBO support
         if(mGLSupport->checkExtension("GL_ARB_vertex_buffer_object"))
         {
-            LogManager::getSingleton().logMessage("- Vertex Buffer Object\n");
+            LogManager::getSingleton().logMessage("- Vertex Buffer Object");
             mCapabilities->setCapability(RSC_VBO);
 
             mHardwareBufferManager = new GLHardwareBufferManager;
@@ -1037,7 +1037,7 @@ namespace Ogre {
             glDisable(GL_LIGHTING);
     }
     //-----------------------------------------------------------------------------
-    void GLRenderSystem::_setFog(FogMode mode, ColourValue colour, Real density, Real start, Real end)
+    void GLRenderSystem::_setFog(FogMode mode, const ColourValue& colour, Real density, Real start, Real end)
     {
 
         GLint fogMode;

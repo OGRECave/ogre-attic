@@ -352,7 +352,7 @@ namespace Ogre
 
         /** Returns true if the system is synchronising frames with the monitor vertical blank.
         */
-        bool getWaitForVerticalBlank(void);
+        bool getWaitForVerticalBlank(void) const;
 
         // ------------------------------------------------------------------------
         //                     Internal Rendering Access
@@ -567,7 +567,7 @@ namespace Ogre
         */
         virtual void _setCullingMode(CullingMode mode) = 0;
 
-        virtual CullingMode _getCullingMode(void);
+        virtual CullingMode _getCullingMode(void) const;
 
         /** Sets the mode of operation for depth buffer tests from this point onwards.
             Sometimes you may wish to alter the behaviour of the depth buffer to achieve
@@ -626,7 +626,7 @@ namespace Ogre
             @param linearEnd Distance at which linear fog becomes completely opaque.The distance must be passed
                 as a parametric value between 0 and 1, with 0 being the near clipping plane, and 1 being the far clipping plane. Only applicable if mode is FOG_LINEAR.
         */
-        virtual void _setFog(FogMode mode = FOG_NONE, ColourValue colour = ColourValue::White, Real expDensity = 1.0, Real linearStart = 0.0, Real linearEnd = 1.0) = 0;
+        virtual void _setFog(FogMode mode = FOG_NONE, const ColourValue& colour = ColourValue::White, Real expDensity = 1.0, Real linearStart = 0.0, Real linearEnd = 1.0) = 0;
 
 
         /** The RenderSystem will keep a count of tris rendered, this resets the count. */

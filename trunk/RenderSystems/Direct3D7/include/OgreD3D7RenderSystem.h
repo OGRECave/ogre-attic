@@ -349,7 +349,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void _setFog(FogMode mode, ColourValue colour, Real density, Real start, Real end);
+        void _setFog(FogMode mode, const ColourValue& colour, Real density, Real start, Real end);
         /** See
           RenderSystem
          */

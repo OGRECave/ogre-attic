@@ -52,7 +52,7 @@ namespace Ogre {
             PixelFormat format;
 
         public:
-            String dataType()
+            String dataType() const
             {
                 return "ImageData";
             }

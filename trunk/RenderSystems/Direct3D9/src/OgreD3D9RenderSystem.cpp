@@ -1341,7 +1341,7 @@ namespace Ogre
 			Except(hr, "Error setting depth bias", "D3D9RenderSystem::_setDepthBias");
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_setFog( FogMode mode, ColourValue colour, Real densitiy, Real start, Real end )
+	void D3D9RenderSystem::_setFog( FogMode mode, const ColourValue& colour, Real densitiy, Real start, Real end )
 	{
 		HRESULT hr;
 
