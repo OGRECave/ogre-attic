@@ -102,6 +102,92 @@ void XMLToBinary(String source)
         delete doc;
         Mesh newMesh("conversion");
         xmlMeshSerializer->importMesh(source, &newMesh);
+
+        // Prompt for LOD generation
+        bool genLod = false;
+        String response;
+        if (newMesh.getNumLodLevels() > 1)
+        {
+            std::cout << "\nXML already contains level-of detail information.\n"
+                "Do you want to: (u)se it, (r)eplace it, or (d)rop it?";
+            while (response == "")
+            {
+                cin >> response;
+                if (response.toLowerCase() == "u")
+                {
+                    // Do nothing
+                }
+                else if (response.toLowerCase() == "d")
+                {
+                    newMesh.removeLodLevels();
+                }
+                else if (response.toLowerCase() == "r")
+                {
+                    genLod = true;
+                }
+                else
+                {
+                    response = "";
+                }
+            }// while response == ""
+        }
+        else // no existing LOD
+        {
+            std::cout << "\nWould you like to generate LOD information? (y/n)";
+            while (response == "")
+            {
+                cin >> response;
+                if (response.toLowerCase() == "n")
+                {
+                    // Do nothing
+                }
+                else if (response.toLowerCase() == "y")
+                {
+                    genLod = true;
+                }
+            }
+        }
+
+        if (genLod)
+        {
+            ushort numLod;
+            ProgressiveMesh::VertexReductionQuota quota;
+            Real reduction;
+
+            cout << "\nHow many extra LOD levels would you like to generate?";
+            cin >> numLod;
+
+            cout << "\nWhat unit of reduction would you like to use:"
+                "\n(f)ixed or (p)roportional?";
+            cin >> response;
+            if (response.toLowerCase() == "f")
+            {
+                quota = ProgressiveMesh::VRQ_CONSTANT;
+                cout << "\nHow many vertices should be removed at each LOD?";
+            }
+            else
+            {
+                quota = ProgressiveMesh::VRQ_PROPORTIONAL;
+                cout << "\nWhat proportion of remaining vertices should be removed "
+                    "\at each LOD (e.g. 0.5)?";
+            }
+            cin >> reduction;
+
+            cout << "\nEnter the distance for each LOD to come into effect.";
+
+            Real distance;
+            Mesh::LodDistanceList distanceList;
+            for (ushort iLod = 0; iLod < numLod; ++iLod)
+            {
+                cout << "\nLOD Level " << (iLod+1) << ":";
+                cin >> distance;
+                distanceList.push_back(distance);
+            }
+
+            newMesh.generateLodLevels(distanceList, quota, reduction);
+        }
+
+
         meshSerializer->exportMesh(&newMesh, dest, true);
     }
     else if (!stricmp(root->Value(), "skeleton"))

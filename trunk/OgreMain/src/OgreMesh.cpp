@@ -867,6 +867,32 @@ namespace Ogre {
 
 		return i->second;
 	}
+    //---------------------------------------------------------------------
+    void Mesh::removeLodLevels(void)
+    {
+        if (!mIsLodManual)
+        {
+            // Remove data from SubMeshes
+            SubMeshList::iterator isub, isubend;
+            isubend = mSubMeshList.end();
+            for (isub = mSubMeshList.begin(); isub != isubend; ++isub)
+            {
+                (*isub)->removeLodLevels();
+            }
+        }
+
+        mMeshLodUsageList.clear();
+
+        // Reinitialise
+        mNumLods = 1;
+		// Init first (manual) lod
+		MeshLodUsage lod;
+		lod.fromDepthSquared = 0.0f;
+		mMeshLodUsageList.push_back(lod);
+		mIsLodManual = false;
+
+
+    }
 	
 
 }

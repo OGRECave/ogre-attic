@@ -362,6 +362,10 @@ namespace Ogre {
 		void _setLodUsage(unsigned short level, Mesh::MeshLodUsage& usage);
 		/** Internal methods for loading LOD, do not use. */
 		void _setSubMeshLodFaceList(unsigned short subIdx, unsigned short level, ProgressiveMesh::LODFaceData& facedata);
+
+        /** Removes all LOD data from this Mesh. */
+        void removeLodLevels(void);
+
     private:
         typedef std::vector<SubMesh*> SubMeshList;
         /** A list of submeshes which make up this mesh.
