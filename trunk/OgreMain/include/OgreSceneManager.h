@@ -253,6 +253,7 @@ namespace Ogre {
         LightList mLightsAffectingFrustum;
         HardwareIndexBufferSharedPtr mShadowIndexBuffer;
         Rectangle2D* mFullScreenQuad;
+        Real mShadowDirLightExtrudeDist;
 
         /** Internal method for locating a list of lights which could be affecting the frustum. 
         @remarks
@@ -1335,7 +1336,21 @@ namespace Ogre {
         areas.
         */
         virtual const ColourValue& getShadowColour(void) const;
-
+        /** Sets the distance a shadow volume is extruded for a directional light.
+        @remarks
+            Although directional lights are essentially infinite, there are many
+            reasons to limit the shadow extrusion distance to a finite number, 
+            not least of which is compatibility with older cards (which do not
+            support infinite positions), and shadow caster elimination.
+        @par
+            The default value is 10,000 world units. This does not apply to
+            point lights or spotlights, since they extrude up to their 
+            attenuation range.
+        */
+        virtual void setShadowDirectionalLightExtrusionDistance(Real dist); 
+        /** Gets the distance a shadow volume is extruded for a directional light.
+        */
+        virtual Real getShadowDirectionalLightExtrusionDistance(void);
 
     };
 
