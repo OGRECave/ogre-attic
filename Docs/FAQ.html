@@ -85,23 +85,26 @@ does OGRE build under?</p><TABLE WIDTH="100%" BORDER="1" CELLSPACING="0" CELLPAD
 Notes</DIV></TD></TR><TR><TD CLASS="BorderContent" WIDTH="33%" VALIGN="MIDDLE"><DIV ALIGN="CENTER"><P>Windows 
 95/98/Me/2000/XP</P></DIV></TD><TD CLASS="BorderContent" WIDTH="20%"><DIV ALIGN="CENTER">Microsoft 
 Visual C++ 6 SP3+<BR>Microsoft Visual C++.Net<BR></DIV></TD><TD CLASS="BorderContent"><DIV ALIGN="CENTER">DirectX 
-8 SDK<BR>Due to STL problems with MS compilers you MUST install <A HREF="http://www.stlport.org">STLport 
+8.1b SDK<BR>Due to STL problems with MS compilers you MUST install <A HREF="http://www.stlport.org">STLport 
 4.5.3</A></DIV></TD></TR><TR><TD CLASS="BorderContent" WIDTH="33%"><DIV ALIGN="CENTER">Linux</DIV></TD><TD CLASS="BorderContent" WIDTH="20%"><DIV ALIGN="CENTER"><P>gcc 
-3.x<BR>gcc 2.9x with <A HREF="http://www.stlport.org">STLport 4.5.3</A></P></DIV></TD><TD CLASS="BorderContent"><DIV ALIGN="CENTER">Run 
-'configure' then 'make' </DIV></TD></TR></TABLE><p align="left">MacOS X has not 
-been tested but you could probably get it to work with gcc using the Linux makefiles 
-with a little work. Borland compilers are not yet supported but may be in the 
-future.</p><p align="left" CLASS="MainHeader">Q: When do I need STLport and why?</p><p align="left">You 
-need STLport if you're running Microsoft Visual C++ (version 6 or .NET), because 
-the STL implementation in VC++ 6 is very old (the one in VC++ .NET is very nice 
-and actually works with OGRE, but we're not supporting it yet), pretty slow and 
-has a number of known bugs. The issue which makes it totally unsuitable for OGRE 
-is that STL classes cannot be passed across a DLL boundary using the MS STL; it 
-will instantly cause a crash. OGRE is very DLL oriented so this makes the MS STL 
-unusable. STLport is more stable, and is faster than MS STL in release mode. </p><p align="left">You 
-also need STLport if you're using gcc 2.9x because the STL included with this 
-version is not ANSI compliant enough for OGRE. You don't need it if you have gcc 
-v3.x because the STL in that version has been updated. </p><p align="left" CLASS="MainHeader">Q: 
+3.x<BR>gcc 2.9x with <A HREF="http://www.stlport.org">STLport 4.5.3</A></P></DIV></TD><TD CLASS="BorderContent"><DIV ALIGN="CENTER">gcc 
+3.2 highly recommended. See <A HREF="README.linux">Linux README</A></DIV></TD></TR><TR><TD CLASS="BorderContent" WIDTH="33%"><DIV ALIGN="CENTER">Mac 
+OSX </DIV></TD><TD CLASS="BorderContent" WIDTH="20%"><DIV ALIGN="CENTER">gcc 3.x</DIV></TD><TD CLASS="BorderContent"><DIV ALIGN="CENTER">See 
+the <A HREF="README_MacOSX.txt">Mac README</A></DIV></TD></TR></TABLE><p align="left">MacOS 
+X has not been tested but you could probably get it to work with gcc using the 
+Linux makefiles with a little work. Borland compilers are not yet supported but 
+may be in the future.</p><p align="left" CLASS="MainHeader">Q: When do I need 
+STLport and why?</p><p align="left">You need STLport if you're running Microsoft 
+Visual C++ (version 6 or .NET), because the STL implementation in VC++ 6 is very 
+old (the one in VC++ .NET is very nice and actually works with OGRE, but we're 
+not supporting it yet), pretty slow and has a number of known bugs. The issue 
+which makes it totally unsuitable for OGRE is that STL classes cannot be passed 
+across a DLL boundary using the MS STL; it will instantly cause a crash. OGRE 
+is very DLL oriented so this makes the MS STL unusable. STLport is more stable, 
+and is faster than MS STL in release mode. </p><p align="left">You also need STLport 
+if you're using gcc 2.9x because the STL included with this version is not ANSI 
+compliant enough for OGRE. You don't need it if you have gcc v3.x because the 
+STL in that version has been updated. </p><p align="left" CLASS="MainHeader">Q: 
 How do I install STLport?</p><OL><LI>Download STLport 4.5.3 from <A HREF="http://www.stlport.org">www.stlport.org</A> 
 and unzip it somewhere</LI><LI>Open a command prompt, and change to the folder 
 STLport-4.5.3\src</LI><LI>If you're using Visual C++ 6:<OL><LI> make sure you've 
@@ -168,16 +171,16 @@ you're trying to use a material or particle system scripted from a .material or
 call Root::initialise</LI></OL><P CLASS="MainHeader">Q: What is the minimum set 
 of resource files I need to run my own OGRE application?</P><P>You need at least:</P><UL><LI> 
 Ogre.overlay</LI><LI> Ogre.material </LI><LI>sample.fontdef. </LI></UL><P>These 
-scripts contain the core overlay details used for the frame rate stats panel.</P><P CLASS="MainHeader">Q: After I 
-did a CVS update, no matter what demo/app I try to run, I get thrown in the debugger 
-because of what appears to be memory over-runs/allocation problems.</P><P>This is because 
-there have been major changes in the core OGRE library, changes that affect all the other linked 
-plug-ins/apps. The solution is simple (though a bit slow): a full rebuild of all the OGRE sources.
-</P><P CLASS="MainHeader">Q: Why do I get errors about 'LPDIRECTINPUT7' : missing 
-storage-class or type specifiers?</P><P>This is caused by either not having the 
-DirectX SDK, or having the include folder for it lower down on your include list 
-than an oder version of the Windows platform SDK or the Visual C++ include folders. 
-Make sure your DirectX SDK includes are above VC / Platform SDK but still below 
-STLport.</P>
+scripts contain the core overlay details used for the frame rate stats panel.</P><P CLASS="MainHeader">Q: 
+After I did a CVS update, no matter what demo/app I try to run, I get thrown in 
+the debugger because of what appears to be memory over-runs/allocation problems.</P><P>This 
+is because there have been major changes in the core OGRE library, changes that 
+affect all the other linked plug-ins/apps. The solution is simple (though a bit 
+slow): a full rebuild of all the OGRE sources. </P><P CLASS="MainHeader">Q: Why 
+do I get errors about 'LPDIRECTINPUT7' : missing storage-class or type specifiers?</P><P>This 
+is caused by either not having the DirectX SDK, or having the include folder for 
+it lower down on your include list than an oder version of the Windows platform 
+SDK or the Visual C++ include folders. Make sure your DirectX SDK includes are 
+above VC / Platform SDK but still below STLport.</P>
 </body>
 </html>
