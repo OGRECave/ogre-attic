@@ -46,7 +46,7 @@ OGRE_GET_CONFIG_TOOLKIT
 
 AC_ARG_ENABLE(gl-multitexture, AC_HELP_STRING([--disable-gl-multitexture],
               [Turn off true multitexture support]),,
-              AC_DEFINE(OGRE_SDL_DISABLE_MULTITEXTURING,,[Disable Multitexture Support]))
+              AC_DEFINE(OGRE_GL_DISABLE_MULTITEXTURING,,[Disable Multitexture Support]))
 
 
 dnl Find the optional components we should build
@@ -91,9 +91,9 @@ AC_CONFIG_FILES([Makefile \
     PlugIns/ParticleFX/src/Makefile \
     PlugIns/ParticleFX/include/Makefile \
     RenderSystems/Makefile \
-    RenderSystems/SDL/Makefile \
-    RenderSystems/SDL/src/Makefile \
-    RenderSystems/SDL/include/Makefile \
+    RenderSystems/GL/Makefile \
+    RenderSystems/GL/src/Makefile \
+    RenderSystems/GL/include/Makefile \
     Samples/Makefile \
     Samples/Common/Makefile \
     Samples/Common/include/Makefile \
