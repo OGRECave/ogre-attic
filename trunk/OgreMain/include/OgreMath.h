@@ -214,7 +214,8 @@ namespace Ogre
         static std::pair<bool, Real> intersects(const Ray& ray, const Plane& plane);
 
         /** Ray / sphere intersection, returns boolean result and distance. */
-        static std::pair<bool, Real> intersects(const Ray& ray, const Sphere& sphere);
+        static std::pair<bool, Real> intersects(const Ray& ray, const Sphere& sphere, 
+            bool discardInside = true);
         
         /** Ray / box intersection, returns boolean result and distance. */
         static std::pair<bool, Real> intersects(const Ray& ray, const AxisAlignedBox& sphere);
