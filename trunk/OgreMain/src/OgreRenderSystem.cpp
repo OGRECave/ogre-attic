@@ -226,10 +226,15 @@ namespace Ogre {
                     anyCalcs = true;
                 }
                 break;
-	    case TextureUnitState::ET_SCROLL:
-	    case TextureUnitState::ET_ROTATE:
-	    case TextureUnitState::ET_TRANSFORM:
-	      break;
+            case TextureUnitState::ET_SCROLL:
+            case TextureUnitState::ET_ROTATE:
+            case TextureUnitState::ET_TRANSFORM:
+                break;
+            case TextureUnitState::ET_PROJECTIVE_TEXTURE:
+                _setTextureCoordCalculation(texUnit, TEXCALC_PROJECTIVE_TEXTURE, 
+                    effi->second.frustum);
+                anyCalcs = true;
+                break;
             }
         }
         // Ensure any previous texcoord calc settings are reset if there are now none

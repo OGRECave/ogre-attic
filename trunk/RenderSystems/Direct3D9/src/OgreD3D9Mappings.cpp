@@ -91,6 +91,8 @@ namespace Ogre
 				// If not, fall back on camera space normal which isn't as good
 				return D3DTSS_TCI_CAMERASPACENORMAL;
 			}
+        case TEXCALC_PROJECTIVE_TEXTURE:
+            return D3DTSS_TCI_CAMERASPACEPOSITION;
 		}
 		return 0;
 	}

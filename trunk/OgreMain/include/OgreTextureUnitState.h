@@ -62,6 +62,8 @@ namespace Ogre {
         {
             /// Generate all texture coords based on angle between camera and vertex
             ET_ENVIRONMENT_MAP,
+            /// Generate texture coords based on a frustum
+            ET_PROJECTIVE_TEXTURE,
             /// Constant u/v scrolling effect
             ET_SCROLL,
             /// Constant rotation
@@ -141,6 +143,7 @@ namespace Ogre {
             Real phase;
             Real amplitude;
             Controller<Real>* controller;
+            const Frustum* frustum;
         };
 
 
@@ -770,6 +773,28 @@ namespace Ogre {
         /** Gets the alpha reject value. See setAlphaRejectSettings for more information.
         */
         unsigned char getAlphaRejectValue(void) const;
+
+        /** Enables or disables projective texturing on this texture unit.
+        @remarks
+            Projective texturing allows you to generate texture coordinates 
+            based on a Frustum, which gives the impression that a texture is
+            being projected onto the surface. Note that once you have called
+            this method, the texture unit continues to monitor the Frustum you 
+            passed in and the projection will change if you can alter it. It also
+            means that you must ensure that the Frustum object you pass a pointer
+            to remains in existence for as long as this TextureUnitState does.
+        @par
+            This effect cannot be combined with other texture generation effects, 
+            such as environment mapping.
+        @note
+            Fixed-function projective texturing only generates texture coordinates
+            at vertices, therefore the effect will look better the higher the
+            tesselation of the object being projected onto. If you want to do
+            per-pixel projection, you will need to use a fragment program 
+            instead.
+        @param enabled Whether to enable / disable
+        */
+        void setProjectiveTexturing(bool enabled, const Frustum* projectionSettings = 0);
 
         /** Removes all effects applied to this texture layer.
         */

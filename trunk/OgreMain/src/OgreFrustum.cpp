@@ -37,6 +37,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreHardwareVertexBuffer.h"
 #include "OgreHardwareIndexBuffer.h"
 #include "OgreMaterialManager.h"
+#include "OgreRenderSystem.h"
 
 namespace Ogre {
 
@@ -261,19 +262,14 @@ namespace Ogre {
             //Real qn= q * mNearDist;
             Real qn = -2 * (mFarDist * mNearDist) / (mFarDist - mNearDist);
 
-            // NB This creates Z in range [-1,1]
-            //
-            // [ w   0   0   0  ]
-            // [ 0   h   0   0  ]
-            // [ 0   0   q   qn ]
-            // [ 0   0   -1  0  ]
+            // PERSPECTIVE transform, API specific
+            Root::getSingleton().getRenderSystem()->_makeProjectionMatrix(mFOVy, 
+                mAspect, mNearDist, mFarDist, mProjMatrix);
 
-            mProjMatrix = Matrix4::ZERO;
-            mProjMatrix[0][0] = w;
-            mProjMatrix[1][1] = h;
-            mProjMatrix[2][2] = q;
-            mProjMatrix[2][3] = qn;
-            mProjMatrix[3][2] = -1;
+            // PERSPECTIVE transform, API specific for Gpu Programs
+            Root::getSingleton().getRenderSystem()->_makeProjectionMatrix(mFOVy, 
+                mAspect, mNearDist, mFarDist, mStandardProjMatrix, true);
+
 
             // Calculate co-efficients for the frustum planes
             // Special-cased for L = -R and B = -T i.e. viewport centered 

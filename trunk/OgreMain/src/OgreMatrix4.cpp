@@ -43,6 +43,11 @@ namespace Ogre
         0, 0, 1, 0,
         0, 0, 0, 1 );
 
+    const Matrix4 Matrix4::CLIPSPACE2DTOIMAGESPACE(
+        0.5,    0,  0, 0.5, 
+          0, -0.5,  0, 0.5, 
+          0,    0,  1,   0,
+          0,    0,  0,   1);
 
     inline Real
         MINOR(const Matrix4& m, const int r0, const int r1, const int r2, const int c0, const int c1, const int c2)

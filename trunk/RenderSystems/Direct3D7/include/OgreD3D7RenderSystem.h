@@ -108,6 +108,8 @@ namespace Ogre {
  			size_t coordIndex;
  			/// type of auto tex. calc. used
  			TexCoordCalcMethod autoTexCoordType;
+            /// Frustum, used with the above in projective texturing
+            const Frustum* frustum;
  			/// texture, if it's 0/NULL the tex layer is disabled
  			LPDIRECTDRAWSURFACE7 pTex;
  		} mTexStageDesc[OGRE_MAX_TEXTURE_LAYERS];
@@ -139,6 +141,7 @@ namespace Ogre {
 
 
         unsigned short mCurrentLights;
+        Matrix4 mViewMatrix;
 
 
 	public:
@@ -264,7 +267,8 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void _setTextureCoordCalculation(size_t unit, TexCoordCalcMethod m);
+        void _setTextureCoordCalculation(size_t unit, TexCoordCalcMethod m, 
+            const Frustum* frustum = 0);
         /** See
           RenderSystem
          */

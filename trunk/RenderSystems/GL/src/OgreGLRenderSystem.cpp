@@ -820,7 +820,8 @@ namespace Ogre {
         mTextureCoordIndex[stage] = index;
     }
     //-----------------------------------------------------------------------------
-    void GLRenderSystem::_setTextureCoordCalculation(size_t stage, TexCoordCalcMethod m)
+    void GLRenderSystem::_setTextureCoordCalculation(size_t stage, TexCoordCalcMethod m, 
+        const Frustum* frustum)
     {
         GLfloat M[16];
         // Default to no extra auto texture matrix

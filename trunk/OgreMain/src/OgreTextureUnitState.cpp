@@ -905,8 +905,29 @@ namespace Ogre {
             if (i->second.subtype == ENV_REFLECTION)
                 return true;
         }
+        for(i = mEffects.find(ET_PROJECTIVE_TEXTURE); i != iend; ++i)
+        {
+            return true;
+        }
 
         return false;
+    }
+    //-----------------------------------------------------------------------
+    void TextureUnitState::setProjectiveTexturing(bool enable, 
+        const Frustum* projectionSettings)
+    {
+        if (enable)
+        {
+            TextureEffect eff;
+            eff.type = ET_PROJECTIVE_TEXTURE;
+            eff.frustum = projectionSettings;
+            addEffect(eff);
+        }
+        else
+        {
+            removeEffect(ET_PROJECTIVE_TEXTURE);
+        }
+
     }
 
 }
