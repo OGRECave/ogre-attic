@@ -53,7 +53,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreShadowVolumeExtrudeProgram.h"
 #include "OgreResourceBackgroundQueue.h"
 
-#ifndef OGRE_NO_DEVIL
+#if OGRE_NO_DEVIL == 0
 #include "OgreILCodecs.h"
 #endif
 
@@ -198,7 +198,7 @@ namespace Ogre {
         ArchiveManager::getSingleton().addArchiveFactory( mFileSystemArchiveFactory );
         mZipArchiveFactory = new ZipArchiveFactory();
         ArchiveManager::getSingleton().addArchiveFactory( mZipArchiveFactory );
-#ifndef OGRE_NO_DEVIL
+#if OGRE_NO_DEVIL == 0
 	    // Register image codecs
 	    ILCodecs::registerCodecs();	
 #endif
@@ -236,7 +236,7 @@ namespace Ogre {
         delete mSceneManagerEnum;
 
 		delete mExternalTextureSourceManager;
-#ifndef OGRE_NO_DEVIL
+#if OGRE_NO_DEVIL == 0
         ILCodecs::deleteCodecs();
 #endif
 #if OGRE_PROFILING

@@ -36,7 +36,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreImageResampler.h"
 #endif
 
-#ifndef OGRE_NO_DEVIL
+#if OGRE_NO_DEVIL == 0
 #include "OgreILUtil.h"
 // Dependency on IL/ILU for resize
 #include <IL/il.h>
@@ -571,7 +571,7 @@ namespace Ogre {
 		}
 	}
 	//-----------------------------------------------------------------------------
-#ifndef OGRE_NO_DEVIL
+#if OGRE_NO_DEVIL == 0
 	// Local declaration of DevIL functions to prevent DevIL dependencies on header users
 	ILenum getILFilter(Image::Filter filter)
 	{
@@ -700,7 +700,7 @@ namespace Ogre {
 		default:
 			// fall back to old, slow, wildly incorrect DevIL code
 #endif
-#ifndef OGRE_NO_DEVIL
+#if OGRE_NO_DEVIL == 0
 			ILuint ImageName;
 			ilGenImages( 1, &ImageName );
 			ilBindImage( ImageName );
