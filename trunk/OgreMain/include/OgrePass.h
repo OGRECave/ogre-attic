@@ -795,9 +795,7 @@ namespace Ogre {
         /// Part of the rendering which occurs per light
         IS_PER_LIGHT,
         /// Post-lighting rendering
-        IS_DECAL, 
-        /// Null value
-        IS_NONE
+        IS_DECAL
     };
     /** Struct recording a pass which can be used for a specific illumination stage.
     @remarks
