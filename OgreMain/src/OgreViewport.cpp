@@ -177,7 +177,7 @@ namespace Ogre {
         mCamera->_renderScene(this, mShowOverlays);
     }
     //---------------------------------------------------------------------
-    void Viewport::setBackgroundColour(ColourValue colour)
+    void Viewport::setBackgroundColour(const ColourValue& colour)
     {
         mBackColour = colour;
     }

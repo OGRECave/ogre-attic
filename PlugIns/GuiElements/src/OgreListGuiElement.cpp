@@ -625,7 +625,7 @@ namespace Ogre {
         return r;
 	}
 	
-	size_t ListGuiElement::getListSize() 
+	size_t ListGuiElement::getListSize() const
 	{
 		return mResourceList.size();
 	}

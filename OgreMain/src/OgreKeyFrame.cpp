@@ -53,7 +53,7 @@ namespace Ogre
         mTranslate = trans;
     }
     //---------------------------------------------------------------------
-    Vector3 KeyFrame::getTranslate(void) const
+    const Vector3& KeyFrame::getTranslate(void) const
     {
         return mTranslate;
     }
@@ -63,7 +63,7 @@ namespace Ogre
         mScale = scale;
     }
     //---------------------------------------------------------------------
-    Vector3 KeyFrame::getScale(void) const
+    const Vector3& KeyFrame::getScale(void) const
     {
         return mScale;
     }
@@ -73,7 +73,7 @@ namespace Ogre
         mRotate = rot;
     }
     //---------------------------------------------------------------------
-    Quaternion KeyFrame::getRotation(void) const
+    const Quaternion& KeyFrame::getRotation(void) const
     {
         return mRotate;
     }

@@ -107,7 +107,7 @@ namespace Ogre {
         addRenderable(pRend, mDefaultQueueGroup, priority);
     }
     //-----------------------------------------------------------------------
-    RenderQueueGroupID RenderQueue::getDefaultQueueGroup(void)
+    RenderQueueGroupID RenderQueue::getDefaultQueueGroup(void) const
     {
         return mDefaultQueueGroup;
     }
