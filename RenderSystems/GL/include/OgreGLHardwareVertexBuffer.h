@@ -35,7 +35,6 @@ namespace Ogre {
     {
     private:
         GLuint mBufferId;
-        bool mInitialised;
 
     protected:
         /** See HardwareBuffer. */

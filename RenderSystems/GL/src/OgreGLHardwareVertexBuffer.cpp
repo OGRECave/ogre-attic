@@ -30,7 +30,7 @@ namespace Ogre {
 	//---------------------------------------------------------------------
     GLHardwareVertexBuffer::GLHardwareVertexBuffer(size_t vertexSize, 
         size_t numVertices, HardwareBuffer::Usage usage, bool useShadowBuffer)
-        : HardwareVertexBuffer(vertexSize, numVertices, usage, false, useShadowBuffer), mInitialised(false)
+        : HardwareVertexBuffer(vertexSize, numVertices, usage, false, useShadowBuffer)
     {
         glGenBuffersARB( 1, &mBufferId );
 
@@ -40,6 +40,12 @@ namespace Ogre {
                 "Cannot create GL vertex buffer", 
                 "GLHardwareVertexBuffer::GLHardwareVertexBuffer");
         }
+
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, mBufferId);
+
+        // Initialise mapped buffer and set usage
+        glBufferDataARB(GL_ARRAY_BUFFER_ARB, vertexSize * numVertices, NULL, 
+            usage & HBU_STATIC ? GL_STATIC_DRAW_ARB : GL_STREAM_DRAW_ARB);
 
         std::cerr << "creating vertex buffer = " << mBufferId << std::endl;
     }
@@ -54,8 +60,6 @@ namespace Ogre {
     {
         GLenum access = 0;
 
-        assert(length >= offset);
-
         if(mIsLocked)
         {
             Except(Exception::ERR_INTERNAL_ERROR,
@@ -65,14 +69,6 @@ namespace Ogre {
 
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, mBufferId);
 
-        // Initialise mapped buffer and set usage
-        if(!mInitialised)
-        {
-            glBufferDataARB(GL_ARRAY_BUFFER_ARB, length, NULL, 
-                mUsage & HBU_STATIC ? GL_STATIC_DRAW_ARB : GL_STREAM_DRAW_ARB);
-            mInitialised = true;
-        }
-        
         if(options == HBL_DISCARD)
         {
             /*
