@@ -51,11 +51,8 @@ namespace Ogre {
 
         assert(pcVer && "Problems getting GL version string using glGetString");
        
-        if(pcVer)
-        {
-          String tmpStr = (const char*)pcVer;
-          version = tmpStr.substr(0, tmpStr.find(" "));
-        }
+        String tmpStr = (const char*)pcVer;
+        version = tmpStr.substr(0, tmpStr.find(" "));
 
         // Set extension list
 		std::stringstream ext;
@@ -65,15 +62,11 @@ namespace Ogre {
 
         assert(pcExt && "Problems getting GL extension string using glGetString");
 
-        if (pcExt)
-        {
-            
-            ext << pcExt;
+        ext << pcExt;
 
-            while(ext >> str)
-            {
-                extensionList.insert(str);
-            }
+        while(ext >> str)
+        {
+            extensionList.insert(str);
         }
 
         ext.str("");

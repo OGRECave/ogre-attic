@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePlatform.h"
 #include "OgreRenderTexture.h"
 #include "OgreTexture.h"
+#include "OgreGLSupport.h"
 
 namespace Ogre {
 
@@ -37,9 +38,11 @@ namespace Ogre {
     {
     public:
         // Constructor, called from SDLTextureManager
-        GLTexture( String name, TextureType texType = TEX_TYPE_2D );
-        GLTexture( String name, TextureType texType, uint width, uint height, 
-            uint num_mips, PixelFormat format, TextureUsage usage );
+        GLTexture( String name, GLSupport& support, 
+                   TextureType texType = TEX_TYPE_2D );
+        GLTexture( String name, GLSupport& support, TextureType texType, 
+                   uint width, uint height, uint num_mips, PixelFormat format,
+                   TextureUsage usage );
 
         virtual ~GLTexture();        
         
@@ -65,6 +68,7 @@ namespace Ogre {
         uchar* rescaleNPower2( const Image& src );
     private:
         GLuint mTextureID;
+        GLSupport& mGLSupport;
     };
 
     class GLRenderTexture : public RenderTexture

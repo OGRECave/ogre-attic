@@ -27,8 +27,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
     //-----------------------------------------------------------------------------
-    GLTextureManager::GLTextureManager()
-        : TextureManager()
+    GLTextureManager::GLTextureManager(GLSupport& support)
+        : TextureManager(), mGLSupport(support)
     {
     }
     //-----------------------------------------------------------------------------
@@ -39,7 +39,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     Texture* GLTextureManager::create( const String& name, TextureType texType)
     {
-        GLTexture* t = new GLTexture(name, texType);
+        GLTexture* t = new GLTexture(name, mGLSupport, texType);
         t->enable32Bit(mIs32Bit);
         return t;
     }
@@ -48,7 +48,7 @@ namespace Ogre {
         TextureType texType, uint width, uint height, uint num_mips, 
         PixelFormat format, TextureUsage usage )
     {
-        GLTexture* t = new GLTexture(name, texType, width, height, num_mips, format, usage);
+        GLTexture* t = new GLTexture(name, mGLSupport, texType, width, height, num_mips, format, usage);
         t->enable32Bit(mIs32Bit);
         return t;
     }

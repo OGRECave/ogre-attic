@@ -29,13 +29,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGLPrerequisites.h"
 #include "OgreTextureManager.h"
 #include "OgreGLTexture.h"
+#include "OgreGLSupport.h"
 
 namespace Ogre {
     /** SDL/GL-specific implementation of a TextureManager */
     class GLTextureManager : public TextureManager
     {
     public:
-        GLTextureManager();
+        GLTextureManager(GLSupport& support);
         virtual ~GLTextureManager();
 
         /** Creates a SDLTexture resource. 
@@ -53,6 +54,8 @@ namespace Ogre {
 
         /** Unloads & destroys textures. */
         void unloadAndDestroyAll();
+    private:
+        GLSupport& mGLSupport;
     };
 }
 #endif

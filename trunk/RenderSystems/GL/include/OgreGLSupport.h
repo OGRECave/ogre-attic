@@ -60,6 +60,17 @@ public:
     */
     virtual void stop() = 0;
 
+    /**
+    * Set the correct context as active
+    */
+    virtual void begin_context()
+    { }
+
+    /**
+    * Stop the currrent context
+    */
+    virtual void end_context()
+    { }
 
     /**
     * get version information
