@@ -93,6 +93,7 @@ namespace Ogre {
     {
 
     public:
+        virtual ~ControllerValue() { }
         virtual T getValue(void) const = 0;
         virtual void setValue(T value) = 0;
 

@@ -240,6 +240,8 @@ public:
                 mFiltering = TFO_BILINEAR;
                 mAniso = 1;
                 break;
+            default:
+                break;
             }
             MaterialManager::getSingleton().setDefaultTextureFiltering(mFiltering);
             MaterialManager::getSingleton().setDefaultAnisotropy(mAniso);

@@ -48,6 +48,7 @@ namespace Ogre {
     class _OgreExport HardwareBufferLicensee
     {
     public:
+        virtual ~HardwareBufferLicensee() { }
         /** This method is called when the buffer license is expired and is about
         to be returned to the shared pool. */
         virtual void licenseExpired(HardwareBuffer* buffer) = 0;
