@@ -294,7 +294,7 @@ namespace Ogre {
         @note
         Applies to both fixed-function and programmable pipeline.
         @param
-        name The base name of the textures to use e.g. wall.jpg for frames wall_1.jpg, wall_2.jpg etc.
+        name The base name of the textures to use e.g. wall.jpg for frames wall_0.jpg, wall_1.jpg etc.
         @param
         numFrames The number of frames in the sequence.
         @param
