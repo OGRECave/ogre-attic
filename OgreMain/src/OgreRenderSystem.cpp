@@ -380,12 +380,12 @@ namespace Ogre {
     }
     */
     //-----------------------------------------------------------------------
-    CullingMode RenderSystem::_getCullingMode(void)
+    CullingMode RenderSystem::_getCullingMode(void) const
     {
         return mCullingMode;
     }
     //-----------------------------------------------------------------------
-    bool RenderSystem::getWaitForVerticalBlank(void)
+    bool RenderSystem::getWaitForVerticalBlank(void) const
     {
         return mVSync;
     }

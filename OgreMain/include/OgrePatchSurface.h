@@ -104,27 +104,27 @@ namespace Ogre {
             @remarks This is useful when you wish to build the patch into external vertex / index buffers.
 
         */
-        size_t getRequiredVertexCount(void);
+        size_t getRequiredVertexCount(void) const;
         /** Based on a previous call to defineSurface, establishes the number of indexes required
             to hold this patch at the maximum detail level. 
             @remarks This is useful when you wish to build the patch into external vertex / index buffers.
 
         */
-        size_t getRequiredIndexCount(void);
+        size_t getRequiredIndexCount(void) const;
 
         /** Gets the current index count based on the current subdivision level. */
-        size_t getCurrentIndexCount(void);
+        size_t getCurrentIndexCount(void) const;
         /// Returns the index offset used by this buffer to write data into the buffer
-        size_t getIndexOffset(void) { return mIndexOffset; }
+        size_t getIndexOffset(void) const { return mIndexOffset; }
         /// Returns the vertex offset used by this buffer to write data into the buffer
-        size_t getVertexOffset(void) { return mVertexOffset; }
+        size_t getVertexOffset(void) const { return mVertexOffset; }
 
 
         /** Gets the bounds of this patch, only valid after calling defineSurface. */
-        const AxisAlignedBox& getBounds(void);
+        const AxisAlignedBox& getBounds(void) const;
         /** Gets the radius of the bounding sphere for this patch, only valid after defineSurface 
         has been called. */
-        Real getBoundingSphereRadius(void);
+        Real getBoundingSphereRadius(void) const;
         /** Tells the system to build the mesh relating to the surface into externally created
             buffers.
             @remarks
@@ -154,9 +154,9 @@ namespace Ogre {
         void setSubdivisionFactor(Real factor);
 
         /** Gets the current level of subdivision. */
-        Real getSubdivisionFactor(void);
+        Real getSubdivisionFactor(void) const;
 
-        void* getControlPointBuffer(void)
+        void* getControlPointBuffer(void) const
         {
             return mControlPointBuffer;
         }

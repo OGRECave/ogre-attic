@@ -54,7 +54,7 @@ namespace Ogre {
 
             /** Returns the type of the data.
             */
-            virtual String dataType() { return "CodecData"; };
+            virtual String dataType() const { return "CodecData"; };
         };
 
     public:

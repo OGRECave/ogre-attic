@@ -2248,7 +2248,7 @@ namespace Ogre {
             Except(hr, "Error lighting status.", "D3DRenderSystem::setLightingEnabled");
     }
     //-----------------------------------------------------------------------
-    void D3DRenderSystem::_setFog(FogMode mode, ColourValue colour, Real density, Real start, Real end)
+    void D3DRenderSystem::_setFog(FogMode mode, const ColourValue& colour, Real density, Real start, Real end)
     {
         HRESULT hr;
 

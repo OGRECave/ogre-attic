@@ -178,7 +178,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    String DataChunk::getAsString(void)
+    String DataChunk::getAsString(void) const
     {
         String s;
 		// Insert n characters since we can't expect mData to be null-terminated
