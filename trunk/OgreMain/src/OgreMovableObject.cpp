@@ -31,6 +31,7 @@ namespace Ogre {
     MovableObject::MovableObject()
     {
         mParentNode = 0;
+        mVisible = true;
     }
     //-----------------------------------------------------------------------
     void MovableObject::_notifyAttached(SceneNode* parent)
@@ -46,6 +47,17 @@ namespace Ogre {
     bool MovableObject::isAttached(void) const
     {
         return (mParentNode != 0);
+
+    }
+    //-----------------------------------------------------------------------
+    void MovableObject::setVisible(bool visible)
+    {
+        mVisible = visible;
+    }
+    //-----------------------------------------------------------------------
+    bool MovableObject::isVisible(void) const
+    {
+        return mVisible;
 
     }
 
