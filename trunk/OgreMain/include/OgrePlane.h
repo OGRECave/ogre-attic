@@ -89,6 +89,11 @@ namespace Ogre {
 
         Vector3 normal;
         Real d;
+        /// Comparison operator
+        bool operator==(const Plane& rhs) const
+        {
+            return (rhs.d == d && rhs.normal == normal);
+        }
 
         _OgreExport friend std::ostream& operator<< (std::ostream& o, Plane& p);
     };

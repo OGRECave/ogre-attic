@@ -2256,6 +2256,32 @@ namespace Ogre {
  			}
  		}
  	}
+    //---------------------------------------------------------------------
+    void GLRenderSystem::_applyObliqueDepthProjection(Matrix4& matrix, const Plane& plane)
+    {
+        // Thanks to Eric Lenyel for posting this calculation at www.terathon.com
+
+        // Calculate the clip-space corner point opposite the clipping plane
+        // as (sgn(clipPlane.x), sgn(clipPlane.y), 1, 1) and
+        // transform it into camera space by multiplying it
+        // by the inverse of the projection matrix
+
+        Vector4 q;
+        q.x = (Math::Sign(plane.normal.x) + matrix[2][0]) / matrix[0][0];
+        q.y = (Math::Sign(plane.normal.y) + matrix[2][1]) / matrix[1][1];
+        q.z = -1.0F;
+        q.w = (1.0F + matrix[2][2]) / matrix[3][2];
+
+        // Calculate the scaled plane vector
+        Vector4 clipPlane4d(plane.normal.x, plane.normal.y, plane.normal.z, plane.d);
+        Vector4 c = clipPlane4d * (2.0F / (clipPlane4d.dotProduct(q)));
+
+        // Replace the third column of the projection matrix
+        matrix[0][2] = c.x;
+        matrix[1][2] = c.y;
+        matrix[2][2] = c.z + 1.0F;
+        matrix[3][2] = c.w; 
+    }
 
 
 }

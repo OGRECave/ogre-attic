@@ -635,6 +635,24 @@ namespace Ogre
         */
         virtual void _makeOrthoMatrix(const Radian& fovy, Real aspect, Real nearPlane, Real farPlane, 
             Matrix4& dest, bool forGpuProgram = false) = 0;
+
+		/** Update a perspective projection matrix to use 'oblique depth projection'.
+		@remarks
+			This method can be used to change the nature of a perspective 
+			transform in order to make the near plane not perpendicular to the 
+			camera view direction, but to be at some different orientation. 
+			This can be useful for performing arbitrary clipping (e.g. to a 
+			reflection plane) which could otherwise only be done using user
+			clip planes, which are more expensive, and not necessarily supported
+			on all cards.
+		@param matrix The existing projection matrix. Note that this must be a
+			perspective transform (not orthographic), and must not have already
+			been altered by this method. The matrix will be altered in-place.
+		@param plane The plane which is to be used as the clipping plane. This
+			plane must be in CAMERA (view) space.
+		*/
+		virtual void _applyObliqueDepthProjection(Matrix4& matrix, const Plane& plane) = 0;
+		
         /** Sets how to rasterise triangles, as points, wireframe or solid polys. */
         virtual void _setRasterisationMode(SceneDetailLevel level) = 0;
 

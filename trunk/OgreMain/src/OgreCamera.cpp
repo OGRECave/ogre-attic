@@ -322,6 +322,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool Camera::isViewOutOfDate(void) const
     {
+        bool returnVal = false;
         // Overridden from Frustum to use local orientation / position offsets
         // Attached to node?
         if (mParentNode != 0)
@@ -329,7 +330,7 @@ namespace Ogre {
             if (!mRecalcView && mParentNode->_getDerivedOrientation() == mLastParentOrientation &&
                 mParentNode->_getDerivedPosition() == mLastParentPosition)
             {
-                return false;
+                returnVal = false;
             }
             else
             {
@@ -338,7 +339,7 @@ namespace Ogre {
                 mLastParentPosition = mParentNode->_getDerivedPosition();
                 mDerivedOrientation = mLastParentOrientation * mOrientation;
                 mDerivedPosition = (mLastParentOrientation * mPosition) + mLastParentPosition;
-                return true;
+                returnVal = true;
             }
         }
         else
@@ -346,8 +347,20 @@ namespace Ogre {
             // Rely on own updates
             mDerivedOrientation = mOrientation;
             mDerivedPosition = mPosition;
-            return mRecalcView;
         }
+
+        // Deriving reflection from linked plane?
+        if (mReflect && mLinkedReflectPlane && 
+            !(mLastLinkedReflectionPlane == mLinkedReflectPlane->_getDerivedPlane()))
+        {
+            mReflectPlane = mLinkedReflectPlane->_getDerivedPlane();
+            mReflectMatrix = Math::buildReflectionMatrix(mReflectPlane);
+            mLastLinkedReflectionPlane = mLinkedReflectPlane->_getDerivedPlane();
+            returnVal = true;
+        }
+
+        return returnVal || mRecalcView;
+
     }
 
 
@@ -359,13 +372,13 @@ namespace Ogre {
 
     }
     // -------------------------------------------------------------------
-    void Camera::invalidateView()
+    void Camera::invalidateView() const
     {
         mRecalcView = true;
         mRecalcWindow = true;
     }
     // -------------------------------------------------------------------
-    void Camera::invalidateFrustum(void)
+    void Camera::invalidateFrustum(void) const
     {
         mRecalcFrustum = true;
         mRecalcWindow = true;

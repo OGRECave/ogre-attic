@@ -132,6 +132,137 @@ namespace Ogre
             return *this;
         }
 
+        // arithmetic operations
+        inline Vector4 operator + ( const Vector4& rkVector ) const
+        {
+            Vector4 kSum;
+
+            kSum.x = x + rkVector.x;
+            kSum.y = y + rkVector.y;
+            kSum.z = z + rkVector.z;
+            kSum.w = w + rkVector.w;
+
+            return kSum;
+        }
+
+        inline Vector4 operator - ( const Vector4& rkVector ) const
+        {
+            Vector4 kDiff;
+
+            kDiff.x = x - rkVector.x;
+            kDiff.y = y - rkVector.y;
+            kDiff.z = z - rkVector.z;
+            kDiff.w = w - rkVector.w;
+
+            return kDiff;
+        }
+
+        inline Vector4 operator * ( Real fScalar ) const
+        {
+            Vector4 kProd;
+
+            kProd.x = fScalar*x;
+            kProd.y = fScalar*y;
+            kProd.z = fScalar*z;
+            kProd.w = fScalar*w;
+
+            return kProd;
+        }
+
+        inline Vector4 operator * ( const Vector4& rhs) const
+        {
+            Vector4 kProd;
+
+            kProd.x = rhs.x * x;
+            kProd.y = rhs.y * y;
+            kProd.z = rhs.z * z;
+            kProd.w = rhs.w * w;
+
+            return kProd;
+        }
+
+        inline Vector4 operator / ( Real fScalar ) const
+        {
+            assert( fScalar != 0.0 );
+
+            Vector4 kDiv;
+
+            Real fInv = 1.0 / fScalar;
+            kDiv.x = x * fInv;
+            kDiv.y = y * fInv;
+            kDiv.z = z * fInv;
+            kDiv.w = w * fInv;
+
+            return kDiv;
+        }
+
+        inline Vector4 operator - () const
+        {
+            Vector4 kNeg;
+
+            kNeg.x = -x;
+            kNeg.y = -y;
+            kNeg.z = -z;
+            kNeg.w = -w;
+
+            return kNeg;
+        }
+
+        inline friend Vector4 operator * ( Real fScalar, const Vector4& rkVector )
+        {
+            Vector4 kProd;
+
+            kProd.x = fScalar * rkVector.x;
+            kProd.y = fScalar * rkVector.y;
+            kProd.z = fScalar * rkVector.z;
+            kProd.w = fScalar * rkVector.w;
+
+            return kProd;
+        }
+
+        // arithmetic updates
+        inline Vector4& operator += ( const Vector4& rkVector )
+        {
+            x += rkVector.x;
+            y += rkVector.y;
+            z += rkVector.z;
+            w += rkVector.w;
+
+            return *this;
+        }
+
+        inline Vector4& operator -= ( const Vector4& rkVector )
+        {
+            x -= rkVector.x;
+            y -= rkVector.y;
+            z -= rkVector.z;
+            w -= rkVector.w;
+
+            return *this;
+        }
+
+        inline Vector4& operator *= ( Real fScalar )
+        {
+            x *= fScalar;
+            y *= fScalar;
+            z *= fScalar;
+            w *= fScalar;
+            return *this;
+        }
+
+        inline Vector4& operator /= ( Real fScalar )
+        {
+            assert( fScalar != 0.0 );
+
+            Real fInv = 1.0 / fScalar;
+
+            x *= fInv;
+            y *= fInv;
+            z *= fInv;
+            w *= fInv;
+
+            return *this;
+        }
 
 
         /** Calculates the dot (scalar) product of this vector with another.

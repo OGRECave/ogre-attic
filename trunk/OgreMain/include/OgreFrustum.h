@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderable.h"
 #include "OgreAxisAlignedBox.h"
 #include "OgreVertexIndexData.h"
+#include "OgreMovablePlane.h"
 
 namespace Ogre
 {
@@ -97,15 +98,17 @@ namespace Ogre
         mutable Real mCoeffL[2], mCoeffR[2], mCoeffB[2], mCoeffT[2];
 
 
+
+		
         // Internal functions for calcs
         virtual void updateFrustum(void) const;
         virtual void updateView(void) const;
         virtual bool isViewOutOfDate(void) const;
         virtual bool isFrustumOutOfDate(void) const;
         /// Signal to update frustum information.
-        virtual void invalidateFrustum(void);
+        virtual void invalidateFrustum(void) const;
         /// Signal to update view information.
-        virtual void invalidateView(void);
+        virtual void invalidateView(void) const;
 
         /// Shared class-level name for Movable type
         static String msMovableType;
@@ -118,10 +121,26 @@ namespace Ogre
 
         /// Is this frustum to act as a reflection of itself?
         bool mReflect;
-        Matrix4 mReflectMatrix;
-        Plane mReflectPlane;
+		/// Derived reflection matrix
+        mutable Matrix4 mReflectMatrix;
+        /// Fixed reflection plane
+		mutable Plane mReflectPlane;
+		/// Pointer to a reflection plane (automatically updated)
+		const MovablePlane* mLinkedReflectPlane;
+		/// Record of the last world-space reflection plane info used
+		mutable Plane mLastLinkedReflectionPlane;
+		
+        /// Is this frustum using an oblique depth projection?
+		bool mObliqueDepthProjection;
+		/// Fixed oblique projection plane
+		Plane mObliqueProjPlane;
+		/// Pointer to oblique projection plane (automatically updated)
+		const MovablePlane* mLinkedObliqueProjPlane;
+		/// Record of the last world-space oblique depth projection plane info used
+		Plane mLastLinkedObliqueProjPlane;
 
-        /** Get the derived position of this frustum. */
+		
+		/** Get the derived position of this frustum. */
         virtual const Vector3& getPositionForViewUpdate(void) const;
         /** Get the derived orientation of this frustum. */
         virtual const Quaternion& getOrientationForViewUpdate(void) const;
@@ -343,6 +362,15 @@ namespace Ogre
         This is obviously useful for performing planar reflections. 
         */
         virtual void enableReflection(const Plane& p);
+        /** Modifies this frustum so it always renders from the reflection of itself through the
+        plane specified. Note that this version of the method links to a plane
+		so that changes to it are picked up automatically. It is important that
+		this plane continues to exist whilst this object does; do not destroy
+		the plane before the frustum.
+        @remarks
+        This is obviously useful for performing planar reflections. 
+        */
+        virtual void enableReflection(const MovablePlane* p);
 
         /** Disables reflection modification previously turned on with enableReflection */
         virtual void disableReflection(void);
@@ -366,6 +394,57 @@ namespace Ogre
         virtual bool projectSphere(const Sphere& sphere, 
             Real* left, Real* top, Real* right, Real* bottom) const;
 
+
+		/** Links the frustum to a custom near clip plane, which can be used
+			to clip geometry in a custom manner without using user clip planes.
+		@remarks
+			There are several applications for clipping a scene arbitrarily by
+			a single plane; the most common is when rendering a reflection to 
+			a texture, and you only want to render geometry that is above the 
+			water plane (to do otherwise results in artefacts). Whilst it is
+			possible to use user clip planes, they are not supported on all
+			cards, and sometimes are not hardware accelerated when they are
+			available. Instead, where a single clip plane is involved, this
+			technique uses a 'fudging' of the near clip plane, which is 
+			available and fast on all hardware, to perform as the arbitrary
+			clip plane. This does change the shape of the frustum, leading 
+			to some depth buffer loss of precision, but for many of the uses of
+			this technique that is not an issue.
+		@par 
+			This version of the method links to a plane, rather than requiring
+			a by-value plane definition, and therefore you can 
+			make changes to the plane (e.g. by moving / rotating the node it is
+			attached to) and they will automatically affect this object.
+		@note This technique only works for perspective projection.
+		@param plane The plane to link to to perform the clipping. This plane
+			must continue to exist while the camera is linked to it; do not
+			destroy it before the frustum. 
+		*/
+		virtual void enableCustomNearClipPlane(const MovablePlane* plane);
+		/** Links the frustum to a custom near clip plane, which can be used
+			to clip geometry in a custom manner without using user clip planes.
+		@remarks
+			There are several applications for clipping a scene arbitrarily by
+			a single plane; the most common is when rendering a reflection to  
+			a texture, and you only want to render geometry that is above the 
+			water plane (to do otherwise results in artefacts). Whilst it is
+			possible to use user clip planes, they are not supported on all
+			cards, and sometimes are not hardware accelerated when they are
+			available. Instead, where a single clip plane is involved, this
+			technique uses a 'fudging' of the near clip plane, which is 
+			available and fast on all hardware, to perform as the arbitrary
+			clip plane. This does change the shape of the frustum, leading 
+			to some depth buffer loss of precision, but for many of the uses of
+			this technique that is not an issue.
+		@note This technique only works for perspective projection.
+		@param plane The plane to link to to perform the clipping. This plane
+			must continue to exist while the camera is linked to it; do not
+			destroy it before the frustum. 
+		*/
+		virtual void enableCustomNearClipPlane(const Plane& plane);
+		/** Disables any custom near clip plane. */
+		virtual void disableCustomNearClipPlane(void);
+		
 
         /// Small constant used to reduce far plane projection to avoid inaccuracies
         static const Real INFINITE_FAR_PLANE_ADJUST;

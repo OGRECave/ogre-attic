@@ -349,6 +349,10 @@ namespace Ogre {
         /** See
         RenderSystem
         */
+		void _applyObliqueDepthProjection(Matrix4& matrix, const Plane& plane);
+        /** See
+        RenderSystem
+        */
         void _setRasterisationMode(SceneDetailLevel level);
         /** See
           RenderSystem
