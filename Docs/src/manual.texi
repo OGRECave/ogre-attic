@@ -1393,7 +1393,7 @@ The inverse transpose of the current world matrix.
 @item inverse_transpose_worldview_matrix
 The inverse transpose of the current concatenated world and view matrices.
 @item light_diffuse_colour
-The diffuse colour of a given light; this requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to black.
+The diffuse colour of a given light; this requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light - note that directional lights are always first in the list and always present). NB if there are no lights this close, then the parameter will be set to black.
 @item light_specular_colour
 The specular colour of a given light; this requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to black.
 @item light_attenuation
