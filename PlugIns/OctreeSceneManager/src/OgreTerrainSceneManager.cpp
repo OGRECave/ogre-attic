@@ -595,4 +595,65 @@ void TerrainSceneManager::setLODMorphStart(Real morphStart)
 {
     TerrainRenderable::_setLODMorphStart(morphStart);
 }
+
+
+RaySceneQuery* 
+TerrainSceneManager::createRayQuery(const Ray& ray, unsigned long mask)
+{
+    TerrainRaySceneQuery *trsq = new TerrainRaySceneQuery(this);
+    trsq->setRay(ray);
+    trsq->setQueryMask(mask);
+    return trsq;
+}
+
+TerrainRaySceneQuery::TerrainRaySceneQuery(SceneManager* creator)
+:DefaultRaySceneQuery(creator)
+{
+}
+
+TerrainRaySceneQuery::~TerrainRaySceneQuery()
+{
+}
+
+
+/** See RayScenQuery. */
+void TerrainRaySceneQuery::execute(RaySceneQueryListener* listener)
+{
+    static WorldFragment worldFrag;
+    worldFrag.fragmentType = SceneQuery::WFT_SINGLE_INTERSECTION;
+
+    const Vector3& dir = mRay.getDirection();
+    const Vector3& origin = mRay.getOrigin();
+    // Straight up / down?
+    if (dir == Vector3::UNIT_Y || dir == Vector3::NEGATIVE_UNIT_Y)
+    {
+        Real height = static_cast<TerrainSceneManager*>(mParentSceneMgr)->getHeightAt(
+            origin.x, origin.z);
+        if ((height <= origin.y && dir.y < 0) || (height >= origin.y && dir.y > 0))
+        {
+            worldFrag.singleIntersection.x = origin.x;
+            worldFrag.singleIntersection.z = origin.z;
+            worldFrag.singleIntersection.y = height;
+            listener->queryResult(&worldFrag, 
+                (worldFrag.singleIntersection - origin).length());
+        }
+    }
+    else
+    {
+        // Perform arbitrary query
+        if (static_cast<TerrainSceneManager*>(mParentSceneMgr)->intersectSegment(
+            origin, origin + (dir * 100000), &worldFrag.singleIntersection))
+        {
+            listener->queryResult(&worldFrag, 
+                (worldFrag.singleIntersection - origin).length());
+        }
+
+
+    }
+    DefaultRaySceneQuery::execute(listener);
+
+}
+
+
+
 } //namespace

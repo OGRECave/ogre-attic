@@ -48,6 +48,18 @@ class Image;
 typedef std::vector < TerrainRenderable * > TerrainRow;
 typedef std::vector < TerrainRow > Terrain2D;
 
+/** Default implementation of RaySceneQuery. */
+class TerrainRaySceneQuery : public DefaultRaySceneQuery
+{
+public:
+    TerrainRaySceneQuery(SceneManager* creator);
+    ~TerrainRaySceneQuery();
+
+    /** See RayScenQuery. */
+    void execute(RaySceneQueryListener* listener);
+};
+
+
 
 /** This is a basic SceneManager for organizing TerrainRenderables into a total landscape.
   * It loads a terrain from a .cfg file that specifices what textures/scale/mipmaps/etc to use.
@@ -174,6 +186,21 @@ public:
         If no tile exists at the point, it returns 0;
     */
     TerrainRenderable * getTerrainTile( const Vector3 & pt );
+
+    /** Creates a RaySceneQuery for this scene manager. 
+    @remarks
+        This method creates a new instance of a query object for this scene manager, 
+        looking for objects which fall along a ray. See SceneQuery and RaySceneQuery 
+        for full details.
+    @par
+        The instance returned from this method must be destroyed by calling
+        SceneManager::destroyQuery when it is no longer required.
+    @param ray Details of the ray which describes the region for this query.
+    @param mask The query mask to apply to this query; can be used to filter out
+        certain objects; see SceneQuery for details.
+    */
+    RaySceneQuery* 
+        createRayQuery(const Ray& ray, unsigned long mask = 0xFFFFFFFF);
 
 
 protected:
