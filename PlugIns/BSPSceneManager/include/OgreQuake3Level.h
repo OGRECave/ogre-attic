@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreBspPrerequisites.h"
 #include "OgreQuake3Types.h"
+#include "OgreDataStream.h"
 
 
 namespace Ogre {
@@ -94,6 +95,7 @@ namespace Ogre {
 
         // Internal storage
         // This is ALL temporary. Don't rely on it being static
+        MemoryDataStreamPtr mChunk;
 
         // NB no brushes, fog or local lightvolumes yet
         bsp_header_t* mHeader;

@@ -69,10 +69,10 @@ namespace Ogre {
         const StringVector& getScriptPatterns(void) const;
 
         /** @copydoc ScriptLoader::parseScript */
-        void parseScript(DataStreamPtr& stream, const String& groupName) = 0;
+        void parseScript(DataStreamPtr& stream, const String& groupName);
 
         /** @copydoc ScriptLoader::parseScript */
-        Real getLoadingOrder(void) const  = 0;
+        Real getLoadingOrder(void) const;
 
         /** Create implementation. */
         Quake3Shader* create(const String& name);

@@ -24,7 +24,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreBspSceneManager.h"
 #include "OgreBspResourceManager.h"
-#include "OgreBspLevel.h"
 #include "OgreBspNode.h"
 #include "OgreException.h"
 #include "OgreRenderSystem.h"
@@ -62,7 +61,7 @@ namespace Ogre {
         mSkyBoxEnabled = false;
         mSkyDomeEnabled = false;
 
-        mLevel = 0;
+        mLevel.setNull();
 
     }
 
@@ -76,6 +75,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BspSceneManager::setWorldGeometry(const String& filename)
     {
+        mLevel.setNull();
         // Check extension is .bsp
         char extension[6];
         size_t pos = filename.find_last_of(".");
@@ -93,7 +93,8 @@ namespace Ogre {
             "BspSceneManager::setWorldGeometry");
 
         // Load using resource manager
-        mLevel = BspResourceManager::getSingleton().load(filename);
+        mLevel = BspResourceManager::getSingleton().load(filename, 
+            ResourceGroupManager::WORLD_RESOURCE_GROUP_NAME);
 
         // Init static render operation
         mRenderOp.vertexData = mLevel->mVertexData;
@@ -489,7 +490,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     ViewPoint BspSceneManager::getSuggestedViewpoint(bool random)
     {
-        if (!mLevel || mLevel->mPlayerStarts.size() == 0)
+        if (mLevel.isNull() || mLevel->mPlayerStarts.size() == 0)
         {
             // No level, use default
             return SceneManager::getSuggestedViewpoint(random);
@@ -582,7 +583,7 @@ namespace Ogre {
         Issue: some movable-movable intersections could be reported twice if 2 movables
         overlap 2 leaves?
         */
-        BspLevel* lvl = ((BspSceneManager*)mParentSceneMgr)->getLevel();
+        const BspLevelPtr& lvl = ((BspSceneManager*)mParentSceneMgr)->getLevel();
         BspNode* leaf = lvl->getLeafStart();
         int numLeaves = lvl->getNumLeaves();
         

@@ -788,4 +788,9 @@ namespace Ogre {
         dest->lightmap[0]  = src->lightmap[0];
         dest->lightmap[1]  = src->lightmap[1];
     }
+    //-----------------------------------------------------------------------
+    size_t BspLevel::calculateSize(void) const
+    {
+        return 0; // TODO
+    }
 }

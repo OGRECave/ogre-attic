@@ -85,9 +85,11 @@ namespace Ogre {
         /** Utility class just to enable queueing of patches */
     protected:
         /** @copydoc Resource::loadImpl. */
-        virtual void loadImpl(void);
+        void loadImpl(void);
         /** @copydoc Resource::unloadImpl. */
-        virtual void unloadImpl(void);
+        void unloadImpl(void);
+        /** @copydoc Resource::calculateSize. */
+        size_t calculateSize(void) const;
         /** Pointer to the root node of the BSP tree;
             This pointer actually has a dual purpose; to avoid allocating lots of small chunks of
             memory, the BspLevel actually allocates all nodes required through this pointer. So this

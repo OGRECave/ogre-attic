@@ -48,11 +48,10 @@ namespace Ogre {
         /** Loads a BSP-based level from the named file.
             Currently only supports loading of Quake3 .bsp files.
         */
-        BspLevel* load( const String& filename, int priority = 1);
+        ResourcePtr load(const String& name, 
+            const String& group, bool isManual = false, 
+            ManualResourceLoader* loader = 0, const NameValuePairList* loadParams = 0);
 
-
-        /** Creates a BspLevel resource - mainly used internally. */
-        Resource* create( const String& name);
 
         /** Override standard Singleton retrieval.
         @remarks
@@ -89,6 +88,11 @@ namespace Ogre {
 
 
     protected:
+        /** @copydoc ResourceManager::createImpl. */
+        Resource* createImpl(const String& name, ResourceHandle handle, 
+            const String& group, bool isManual, ManualResourceLoader* loader, 
+            const NameValuePairList* createParams);
+
         // Singleton managed by this class
         Quake3ShaderManager *mShaderMgr;
 

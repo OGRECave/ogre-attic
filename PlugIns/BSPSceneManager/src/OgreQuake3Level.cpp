@@ -34,9 +34,9 @@ namespace Ogre {
 
     }
 
-    void Quake3Level::loadFromStream(DataStreamPtr& inChunk)
+    void Quake3Level::loadFromStream(DataStreamPtr& stream)
     {
-        mChunk = inChunk;
+        mChunk = MemoryDataStreamPtr(new MemoryDataStream(stream));
         initialise();
 
 #ifdef _DEBUG
@@ -70,7 +70,7 @@ namespace Ogre {
     {
         int i=0;
        
-        mHeader = (bsp_header_t*)mChunk.getPtr();
+        mHeader = (bsp_header_t*)mChunk->getPtr();
         mLumpStart = ((unsigned char*)mHeader) + sizeof(mHeader);
        
         mEntities = (unsigned char*)getLump(BSP_ENTITIES_LUMP);
