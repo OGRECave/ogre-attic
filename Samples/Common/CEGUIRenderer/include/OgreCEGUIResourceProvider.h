@@ -26,8 +26,8 @@
 #ifndef _OgreCEGUIResourceProvider_h_
 #define _OgreCEGUIResourceProvider_h_
 
-#include "OgreCEGUIRenderer.h"
 #include <CEGUI/CEGUIResourceProvider.h>
+#include "OgreCEGUIRenderer.h"
 
 // Start of CEGUI namespace section
 namespace CEGUI

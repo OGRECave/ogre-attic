@@ -43,8 +43,8 @@
 #include <CEGUI/CEGUIRenderer.h>
 #include <CEGUI/CEGUITexture.h>
 
-#include <OGRE/OgreRenderQueueListener.h>
-#include <OGRE/OgreSceneManagerEnumerator.h>
+#include <OgreRenderQueueListener.h>
+#include <OgreSceneManagerEnumerator.h>
 
 // Start of CEGUI namespace section
 namespace CEGUI

@@ -24,20 +24,20 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *************************************************************************/
 
-#include "OgreCEGUIRenderer.h"
-#include "OgreCEGUITexture.h"
-#include "OgreCEGUIResourceProvider.h"
-
 #include <CEGUI/CEGUIImagesetManager.h>
 #include <CEGUI/CEGUIImageset.h>
 #include <CEGUI/CEGUIImage.h>
 #include <CEGUI/CEGUIExceptions.h>
 #include <CEGUI/CEGUISystem.h>
 
-#include <OGRE/OgreRenderSystem.h>
-#include <OGRE/OgreRoot.h>
-#include <OGRE/OgreHardwareBufferManager.h>
-#include <OGRE/OgreRenderWindow.h>
+#include "OgreCEGUIRenderer.h"
+#include "OgreCEGUITexture.h"
+#include "OgreCEGUIResourceProvider.h"
+
+#include <OgreRenderSystem.h>
+#include <OgreRoot.h>
+#include <OgreHardwareBufferManager.h>
+#include <OgreRenderWindow.h>
 
 // Start of CEGUI namespace section
 namespace CEGUI

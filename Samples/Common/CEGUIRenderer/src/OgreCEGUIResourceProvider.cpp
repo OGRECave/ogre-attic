@@ -26,13 +26,13 @@
 #include "OgreCEGUIResourceProvider.h"
 
 #include <CEGUI/CEGUIExceptions.h>
-#include <OGRE/OgreArchiveManager.h>
+#include <OgreArchiveManager.h>
 
-#include <OGRE/OgreNoMemoryMacros.h>
+#include <OgreNoMemoryMacros.h>
 #include <xercesc/framework/MemBufInputSource.hpp>
 #include <xercesc/framework/MemoryManager.hpp>
 #include <memory.h>
-#include <OGRE/OgreMemoryMacros.h>
+#include <OgreMemoryMacros.h>
 
 // Start of CEGUI namespace section
 namespace CEGUI

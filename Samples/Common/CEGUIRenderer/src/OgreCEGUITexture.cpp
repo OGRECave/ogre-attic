@@ -24,13 +24,12 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *************************************************************************/
 
+#include <CEGUI/CEGUISystem.h>
+#include <CEGUI/CEGUIExceptions.h>
 #include "OgreCEGUITexture.h"
 #include "OgreCEGUIRenderer.h"
 
-#include <OGRE/OgreTextureManager.h>
-
-#include <CEGUI/CEGUISystem.h>
-#include <CEGUI/CEGUIExceptions.h>
+#include <OgreTextureManager.h>
 
 // Start of CEGUI namespace section
 namespace CEGUI
