@@ -265,7 +265,15 @@ namespace Ogre {
         mOrientation = q;
         needUpdate();
     }
-
+    //-----------------------------------------------------------------------
+    void Node::setOrientation( Real w, Real x, Real y, Real z)
+    {
+        mOrientation.w = w;
+        mOrientation.x = x;
+        mOrientation.y = y;
+        mOrientation.z = z;
+        needUpdate();
+    }
     //-----------------------------------------------------------------------
     void Node::resetOrientation(void)
     {

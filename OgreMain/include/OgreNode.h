@@ -195,6 +195,10 @@ namespace Ogre {
         */
         virtual void setOrientation( const Quaternion& q );
 
+        /** Sets the orientation of this node via quaternion parameters.
+        */
+        virtual void setOrientation( Real w, Real x, Real y, Real z);
+
         /** Resets the nodes orientation (local axes as world axes, no rotation).
         */
         virtual void resetOrientation(void);
