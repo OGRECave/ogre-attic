@@ -414,6 +414,8 @@ namespace Ogre {
         RenderSystem
         */
         HardwareOcclusionQuery* createHardwareOcclusionQuery(void);
+        Real getHorizontalTexelOffset(void);
+        Real getVerticalTexelOffset(void);
         // ----------------------------------
         // End Overridden members
         // ----------------------------------

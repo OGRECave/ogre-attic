@@ -2212,6 +2212,18 @@ namespace Ogre {
     {
         return new GLHardwareOcclusionQuery(); 
     }
+    //---------------------------------------------------------------------
+    Real GLRenderSystem::getHorizontalTexelOffset(void)
+    {
+        // No offset in GL
+        return 0.0f;
+    }
+    //---------------------------------------------------------------------
+    Real GLRenderSystem::getVerticalTexelOffset(void)
+    {
+        // No offset in GL
+        return 0.0f;
+    }
 
 
 

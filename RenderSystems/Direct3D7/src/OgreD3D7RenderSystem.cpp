@@ -2730,5 +2730,17 @@ namespace Ogre {
             _setSceneBlending(SBF_ZERO, SBF_ONE);
         }
     }
+    //---------------------------------------------------------------------
+    Real D3DRenderSystem::getHorizontalTexelOffset(void)
+    {
+        // D3D considers the origin to be in the center of a pixel
+        return -0.5f;
+    }
+    //---------------------------------------------------------------------
+    Real D3DRenderSystem::getVerticalTexelOffset(void)
+    {
+        // D3D considers the origin to be in the center of a pixel
+        return -0.5f;
+    }
 
 }

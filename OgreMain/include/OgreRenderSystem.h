@@ -790,6 +790,26 @@ namespace Ogre
         virtual void clearFrameBuffer(unsigned int buffers, 
             const ColourValue& colour = ColourValue::Black, 
             Real depth = 1.0f, unsigned short stencil = 0) = 0;
+        /** Returns the horizontal texel offset value required for mapping 
+            texel origins to pixel origins in this rendersystem.
+        @remarks
+            Since rendersystems sometimes disagree on the origin of a texel, 
+            mapping from texels to pixels can sometimes be problematic to 
+            implement generically. This method allows you to retrieve the offset
+            required to map the origin of a texel to the origin of a pixel in
+            the horizontal direction.
+        */
+        virtual Real getHorizontalTexelOffset(void) = 0;
+        /** Returns the vertical texel offset value required for mapping 
+        texel origins to pixel origins in this rendersystem.
+        @remarks
+        Since rendersystems sometimes disagree on the origin of a texel, 
+        mapping from texels to pixels can sometimes be problematic to 
+        implement generically. This method allows you to retrieve the offset
+        required to map the origin of a texel to the origin of a pixel in
+        the vertical direction.
+        */
+        virtual Real getVerticalTexelOffset(void) = 0;
     protected:
 
 
