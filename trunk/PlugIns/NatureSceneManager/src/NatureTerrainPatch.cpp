@@ -825,8 +825,6 @@ void NatureTerrainPatch::getRenderOperation(RenderOperation &rend)
     rend.numIndexes   = mIndexCount;
 }
 
-//----------------------------------------------------------------------------
-
 void NatureTerrainPatch::_notifyCurrentCamera(Camera *cam)
 {
     // TODO: fix this...
@@ -845,6 +843,5 @@ void NatureTerrainPatch::_notifyCurrentCamera(Camera *cam)
     }
 
 }
-
 
 } // namespace Ogre
