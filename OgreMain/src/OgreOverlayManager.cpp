@@ -170,7 +170,7 @@ namespace Ogre {
     void OverlayManager::parseScript(DataStreamPtr& stream, const String& groupName)
     {
 	    String line;
-	    Overlay* pOverlay;
+	    Overlay* pOverlay = 0;
 		bool skipLine;
 
 	    while(!stream->eof())
