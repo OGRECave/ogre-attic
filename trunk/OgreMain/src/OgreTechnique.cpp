@@ -216,6 +216,32 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------------
+    bool Technique::isDepthWriteEnabled(void) const
+    {
+        if (mPasses.empty())
+        {
+            return false;
+        }
+        else
+        {
+            // Base decision on the depth settings of the first pass
+            return mPasses[0]->getDepthWriteEnabled();
+        }
+    }
+    //-----------------------------------------------------------------------------
+    bool Technique::isDepthCheckEnabled(void) const
+    {
+        if (mPasses.empty())
+        {
+            return false;
+        }
+        else
+        {
+            // Base decision on the depth settings of the first pass
+            return mPasses[0]->getDepthCheckEnabled();
+        }
+    }
+    //-----------------------------------------------------------------------------
     void Technique::_load(void)
     {
 		assert (mIsSupported && "This technique is not supported");

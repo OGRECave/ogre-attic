@@ -1870,7 +1870,23 @@ namespace Ogre
         return true;
     }
 
-    //-----------------------------------------------------------------------
+	//-----------------------------------------------------------------------
+	bool parseTransparencyCastsShadows(String& params, MaterialScriptContext& context)
+	{
+        StringUtil::toLowerCase(params);
+		if (params == "on")
+			context.material->setTransparencyCastsShadows(true);
+		else if (params == "off")
+			context.material->setTransparencyCastsShadows(false);
+		else
+			logParseError(
+			"Bad transparency_casts_shadows attribute, valid parameters are 'on' or 'off'.", 
+			context);
+
+		return false;
+
+	}
+	//-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     MaterialSerializer::MaterialSerializer()
     {
@@ -1881,6 +1897,7 @@ namespace Ogre
         // Set up material attribute parsers
         mMaterialAttribParsers.insert(AttribParserList::value_type("lod_distances", (ATTRIBUTE_PARSER)parseLodDistances));
         mMaterialAttribParsers.insert(AttribParserList::value_type("receive_shadows", (ATTRIBUTE_PARSER)parseReceiveShadows));
+		mMaterialAttribParsers.insert(AttribParserList::value_type("transparency_casts_shadows", (ATTRIBUTE_PARSER)parseTransparencyCastsShadows));
         mMaterialAttribParsers.insert(AttribParserList::value_type("technique", (ATTRIBUTE_PARSER)parseTechnique));
         // Set up technique attribute parsers
         mTechniqueAttribParsers.insert(AttribParserList::value_type("lod_index", (ATTRIBUTE_PARSER)parseLodIndex));
@@ -2378,6 +2395,15 @@ namespace Ogre
                 writeAttribute(1, "receive_shadows");
                 writeValue(pMat->getReceiveShadows() ? "on" : "off");
             }
+
+			// When rendering shadows, treat transparent things as opaque?
+			if (mDefaults || 
+				pMat->getTransparencyCastsShadows() == true)
+			{
+				writeAttribute(1, "transparency_casts_shadows");
+				writeValue(pMat->getTransparencyCastsShadows() ? "on" : "off");
+			}
+
             // Iterate over techniques
             Material::TechniqueIterator it = 
                 const_cast<Material*>(pMat)->getTechniqueIterator();

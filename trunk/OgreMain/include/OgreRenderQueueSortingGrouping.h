@@ -186,7 +186,6 @@ namespace Ogre {
         { return mTransparentPasses; }
 
 
-
         /** Add a renderable to this group. */
         void addRenderable(Renderable* pRend);
 

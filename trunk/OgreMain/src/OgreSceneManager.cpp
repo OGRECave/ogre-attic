@@ -1523,6 +1523,10 @@ void SceneManager::renderTextureShadowCasterQueueGroupObjects(RenderQueueGroup* 
         // Do solids, override light list incase any vertex programs use them
         renderObjects(pPriorityGrp->_getSolidPasses(), false, &nullLightList);
         renderObjects(pPriorityGrp->_getSolidPassesNoShadow(), false, &nullLightList);
+		// Do transparents that cast shadows
+		renderTransparentShadowCasterObjects(
+				pPriorityGrp->_getTransparentPasses(), false, &nullLightList);
+
 
     }// for each priority
 
@@ -1810,6 +1814,29 @@ void SceneManager::renderBasicQueueGroupObjects(RenderQueueGroup* pGroup)
 
 
     }// for each priority
+}
+//-----------------------------------------------------------------------
+void SceneManager::renderTransparentShadowCasterObjects(
+	const RenderPriorityGroup::TransparentRenderablePassList& objs, bool doLightIteration,
+	const LightList* manualLightList)
+{
+	// ----- TRANSPARENT LOOP as in renderObjects above, but changed a bit -----
+	RenderPriorityGroup::TransparentRenderablePassList::const_iterator itrans, itransend;
+
+	itransend = objs.end();
+	for (itrans = objs.begin(); 
+		itrans != itransend; ++itrans)
+	{
+		Renderable *r = itrans->renderable;
+		Pass *p = itrans->pass;
+
+		// only render this pass if it's being forced to cast shadows
+		if (p->getParent()->getParent()->getTransparencyCastsShadows())
+		{
+			setPass(p);
+			renderSingleObject(itrans->renderable, p, doLightIteration, manualLightList);
+		}
+	}
 }
 //-----------------------------------------------------------------------
 void SceneManager::renderSingleObject(Renderable* rend, Pass* pass, 
