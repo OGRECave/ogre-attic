@@ -419,10 +419,16 @@ namespace Ogre
 
         setupTerrainPages();
 
-
-        // For now, no paging
-        mActivePageSource->requestPage(0, 0);
-
+    }
+    //-------------------------------------------------------------------------
+    void TerrainSceneManager::_renderScene(Camera* cam, Viewport *vp, bool includeOverlays)
+    {
+        // For now, no paging and expect immediate response
+        if (mTerrainPages[0][0] == 0)
+        {
+            mActivePageSource->requestPage(0, 0);
+        }
+        SceneManager::_renderScene(cam, vp, includeOverlays);
 
     }
     //-------------------------------------------------------------------------
