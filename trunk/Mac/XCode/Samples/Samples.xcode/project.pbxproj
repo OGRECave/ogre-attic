@@ -3185,7 +3185,8 @@
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.c.h;
-			path = SDLMain.h;
+			name = SDLMain.h;
+			path = ../Classes/SDLMain.h;
 			refType = 4;
 			sourceTree = "<group>";
 		};
@@ -3193,7 +3194,8 @@
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.c.objc;
-			path = SDLMain.m;
+			name = SDLMain.m;
+			path = ../Classes/SDLMain.m;
 			refType = 4;
 			sourceTree = "<group>";
 		};
