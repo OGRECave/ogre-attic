@@ -146,7 +146,7 @@ namespace Ogre
                 createTextureFromFont();
                 texLayer = mpMaterial->getTextureLayer(0);
                 // Always blend by alpha
-                bool blendByAlpha = true;
+                blendByAlpha = true;
             }
             else
             {
