@@ -238,7 +238,9 @@ namespace Ogre {
         AutoParamDataSource mAutoParamDataSource;
 
         ShadowTechnique mShadowTechnique;
+        bool mDebugShadows;
         LightList mLightsAffectingFrustum;
+        HardwareIndexBufferSharedPtr mShadowIndexBuffer;
         /** Internal method for locating a list of lights which could be affecting the frustum. 
         @remarks
             Custom scene managers are encouraged to override this method to make use of their
@@ -1222,8 +1224,11 @@ namespace Ogre {
             Note that because mixing many shadow techniques can cause problems, only one technique
             is supported at once.
         @param technique The shadowing technique to use for the scene.
+        @param debug Adds additional debugging information to the scene, such
+            as rendering shadow volumes
         */
-        virtual void setShadowTechnique(ShadowTechnique technique);
+        virtual void setShadowTechnique(ShadowTechnique technique, 
+            bool debug = false);
 
 
 

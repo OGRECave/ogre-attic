@@ -132,4 +132,41 @@ namespace Ogre {
         indexBuffer->unlock();
 
     }
+    // ------------------------------------------------------------------------
+    void ShadowCaster::extrudeVertices(
+        HardwareVertexBufferSharedPtr vertexBuffer, 
+        size_t originalVertexCount, const Vector4& light)
+    {
+        #define EXTRUSION_DISTANCE 10000000;
+        // Extrude the first area of the buffer into the second area
+        // Lock the entire buffer for writing, even though we'll only be
+        // updating the latter because you can't have 2 locks on the same
+        // buffer
+        Real* pSrc = static_cast<Real*>(
+            vertexBuffer->lock(HardwareBuffer::HBL_NORMAL));
+
+        Real* pDest = pSrc + originalVertexCount * 3;
+        // Assume directional light, extrusion is along light direction
+        Vector3 extrusionDir(light.x, light.y, light.z);
+        extrusionDir.normalise();
+        extrusionDir *= EXTRUSION_DISTANCE;
+        for (size_t vert = 0; vert < originalVertexCount; ++vert)
+        {
+            if (light.w != 0.0f)
+            {
+                // Point light, adjust extrusionDir
+                extrusionDir.x = pSrc[0] - light.x;
+                extrusionDir.y = pSrc[0] - light.y;
+                extrusionDir.z = pSrc[0] - light.z;
+                extrusionDir.normalise();
+                extrusionDir *= EXTRUSION_DISTANCE;
+            }
+            *pDest++ = *pSrc++ + extrusionDir.x;
+            *pDest++ = *pSrc++ + extrusionDir.y;
+            *pDest++ = *pSrc++ + extrusionDir.z;
+
+        }
+        vertexBuffer->unlock();
+
+    }
 }

@@ -383,7 +383,8 @@ namespace Ogre {
         /** Overridden member from ShadowCaster. */
         ShadowRenderableListIterator getShadowVolumeRenderableIterator(
             ShadowTechnique shadowTechnique, const Light* light, 
-            unsigned long flags, HardwareIndexBufferSharedPtr* useThisIndexBuffer = 0);
+            HardwareIndexBufferSharedPtr* indexBuffer, 
+            bool extrudeVertices, unsigned long flags = 0 );
 
 
 

@@ -544,7 +544,8 @@ namespace Ogre {
     ShadowCaster::ShadowRenderableListIterator 
     Entity::getShadowVolumeRenderableIterator(
         ShadowTechnique shadowTechnique, const Light* light, 
-        unsigned long flags, HardwareIndexBufferSharedPtr* indexBuffer)
+        HardwareIndexBufferSharedPtr* indexBuffer, 
+        bool extrude, unsigned long flags)
     {
         assert(indexBuffer && "Only external index buffers are supported right now");
         assert((*indexBuffer)->getType() == HardwareIndexBuffer::IT_16BIT && 
@@ -557,26 +558,6 @@ namespace Ogre {
 
 
         // TODO: for skeletal animation, use an intermediate buffer or some such
-
-        // We need to search the edge list for silhouette edges
-        EdgeData* edgeList = getEdgeList();
-
-        // Init shadow renderable list if required
-        if (mShadowRenderables.empty())
-        {
-            EdgeData::EdgeGroupList::iterator egi, egiend;
-            ShadowRenderableList::iterator si, siend;
-            mShadowRenderables.resize(edgeList->edgeGroups.size());
-            siend = mShadowRenderables.end();
-            egi = edgeList->edgeGroups.begin();
-            for (si = mShadowRenderables.begin(); si != siend; ++si, ++egi)
-            {
-                // Determine which vertex data to use for this renderable
-                EntityShadowRenderable* esr = 
-                    new EntityShadowRenderable(this, indexBuffer, egi->vertexData);
-                *si = esr;
-            }
-        }
 
         // Calculate the object space light details
         Vector4 lightPos;
@@ -593,6 +574,34 @@ namespace Ogre {
             Matrix4 world2Obj = mParentNode->_getFullTransform().inverse();
             lightPos =  world2Obj * light->getPosition(); // sets w=1.0f
         }
+
+        // We need to search the edge list for silhouette edges
+        EdgeData* edgeList = getEdgeList();
+
+        // Init shadow renderable list if required
+        if (mShadowRenderables.empty())
+        {
+            EdgeData::EdgeGroupList::iterator egi, egiend;
+            ShadowRenderableList::iterator si, siend;
+            mShadowRenderables.resize(edgeList->edgeGroups.size());
+            siend = mShadowRenderables.end();
+            egi = edgeList->edgeGroups.begin();
+            for (si = mShadowRenderables.begin(); si != siend; ++si, ++egi)
+            {
+                EntityShadowRenderable* esr = 
+                    new EntityShadowRenderable(this, indexBuffer, egi->vertexData);
+                *si = esr;
+                // Extrude vertices in software if required
+                if (extrude)
+                {
+                    extrudeVertices(esr->getPositionBuffer(), 
+                        egi->vertexData->vertexCount, lightPos);
+
+                }
+
+            }
+        }
+
         // Calc triangle light facing
         updateEdgeListLightFacing(edgeList, lightPos);
 
@@ -600,7 +609,8 @@ namespace Ogre {
         generateShadowVolume(edgeList, *indexBuffer, light,
             mShadowRenderables, flags);
 
-        return ShadowRenderableListIterator(mShadowRenderables.begin(), mShadowRenderables.end());
+        return ShadowRenderableListIterator(mShadowRenderables.begin(), 
+            mShadowRenderables.end());
     }
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------

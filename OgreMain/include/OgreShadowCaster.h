@@ -106,15 +106,38 @@ namespace Ogre {
             limitation and it can be exceeded if required.
         @param shadowTechnique The technique being used to generate the shadow
         @param light The light to generate the shadow from
+        @param indexBuffer The index buffer to build the renderables into, 
+            the current contents are assumed to be disposable.
+        @param extrudeVertices If true, this means this class should extrude
+            the vertices of the back of the volume in software. If false, it
+            will not be done (a vertex program is assumed).
         @param flags Technique-specific flags, see ShadowRenderableFlags
-        @param useThisIndexBuffer If non-null, the caster will use this index buffer
-            to build the renderables, using space right from the start to whatever
-            it needs for all renderables.
         */
         virtual ShadowRenderableListIterator getShadowVolumeRenderableIterator(
             ShadowTechnique shadowTechnique, const Light* light, 
-            unsigned long flags = 0, HardwareIndexBufferSharedPtr* useThisIndexBuffer = 0) = 0;
+            HardwareIndexBufferSharedPtr* indexBuffer, 
+            bool extrudeVertices, unsigned long flags = 0 ) = 0;
 
+        /** Utility method for extruding vertices based on a light. 
+        @remarks
+            Unfortunately, because D3D cannot handle homogenous (4D) position
+            coordinates in the fixed-function pipeline (GL can, but we have to
+            be cross-API), when we extrude in software we cannot extrude to 
+            infinity the way we do in the vertex program (by setting w to
+            0.0f). Therefore we extrude by a fixed distance, which may cause 
+            some problems with larger scenes. Luckily better hardware (ie
+            vertex programs) can fix this.
+        @param vertexBuffer The vertex buffer containing ONLY xyz position
+        values, which must be originalVertexCount * 2 * 3 floats long.
+        @param originalVertexCount The count of the original number of
+        vertices, ie the number in the mesh, not counting the doubling
+        which has already been done (by VertexData::prepareForShadowVolume)
+        to provide the extruded area of the buffer.
+        @param lightPos 4D light position in object space, when w=0.0f this
+        represents a directional light
+        */
+        static void extrudeVertices(HardwareVertexBufferSharedPtr vertexBuffer, 
+            size_t originalVertexCount, const Vector4& lightPos);
     protected:
         /** Tells the caster to perform the tasks necessary to update the 
             edge data's light listing. Can be overridden if the subclass needs 
