@@ -29,7 +29,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 #include "OgreGuiElement.h"
 #include "OgreIteratorWrappers.h"
-#include "OgreEventDispatcher.h"
 
 
 namespace Ogre {

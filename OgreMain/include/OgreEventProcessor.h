@@ -64,7 +64,6 @@ email                : kenny@sparksuit.com
 #include "OgreSingleton.h"
 #include "OgreFrameListener.h"
 #include "OgreMouseTarget.h"
-#include "OgreActionTarget.h"
 #include "OgreKeyTarget.h"
 #include "OgreMouseMotionTarget.h"
 

@@ -1,4 +1,3 @@
-
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
@@ -26,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 
 #include "OgreCursor.h"	
+#include "OgreEventListeners.h"
 
 
 namespace Ogre {

@@ -26,7 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define _ImageCodec_H__
 
 #include "OgreCodec.h"
-#include "OgreImage.h"
+#include "OgreCommon.h"
 
 namespace Ogre {
 

@@ -27,8 +27,8 @@ http://www.gnu.org/copyleft/lesser.txt
 #define _FontManager_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreSingleton.h"
 #include "OgreResourceManager.h"
-#include "OgreFont.h"
 
 namespace Ogre
 {

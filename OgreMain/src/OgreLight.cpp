@@ -181,7 +181,7 @@ namespace Ogre {
         mModified = true;
     }
     //-----------------------------------------------------------------------
-    ColourValue Light::getDiffuseColour(void)
+    const ColourValue& Light::getDiffuseColour(void)
     {
         return mDiffuse;
     }
@@ -200,7 +200,7 @@ namespace Ogre {
         mModified = true;
     }
     //-----------------------------------------------------------------------
-    ColourValue Light::getSpecularColour(void)
+    const ColourValue& Light::getSpecularColour(void)
     {
         return mSpecular;
     }

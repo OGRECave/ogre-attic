@@ -65,7 +65,7 @@ namespace Ogre {
 
     }
 
-    String RenderTarget::getName(void)
+    const String& RenderTarget::getName(void) const
     {
         return mName;
     }

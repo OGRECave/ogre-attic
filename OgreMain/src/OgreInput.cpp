@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreCursor.h"
 #include "OgreEventQueue.h"
 #include "OgreKeyEvent.h"
+#include "OgreEventListeners.h"
 
 
 namespace Ogre {
