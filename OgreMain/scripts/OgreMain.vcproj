@@ -218,6 +218,9 @@
 				RelativePath="..\src\OgreCursor.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreDDSCodec.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreDataChunk.cpp">
 			</File>
 			<File
@@ -763,6 +766,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreCursor.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreDDSCodec.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreDataChunk.h">
