@@ -347,7 +347,7 @@ namespace Ogre {
 			flipToLittleEndian(
 				tempData, 
 				vertexData->vertexCount,
-				vbuf->getVertexSize();
+				vbuf->getVertexSize(),
 				vertexData->vertexDeclaration->findElementsBySource(vbi->first));
 			writeData(tempData, vbuf->getVertexSize(), vertexData->vertexCount);
 			delete [] tempData;
