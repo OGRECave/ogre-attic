@@ -8755,7 +8755,7 @@ static void APIENTRY InitBufferSubDataARB (GLenum a, GLintptrARB b, GLsizeiptrAR
 	glBufferSubDataARB(a, b, c, d);
 }
 	
-static void APIENTRY InitGetBufferSubDataARB (GLenum a, GLintptrARB b, GLsizeiptrARB c, const GLvoid *d)
+static void APIENTRY InitGetBufferSubDataARB (GLenum a, GLintptrARB b, GLsizeiptrARB c, GLvoid *d)
 {
 	void *extproc;
 
