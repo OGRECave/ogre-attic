@@ -32,17 +32,66 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 #include "ExampleApplication.h"
+#include "OgreStringConverter.h"
 
+// Hack struct for test
+PatchSurface ps;
+
+// Event handler to add ability to alter subdivision
+class BezierListener : public ExampleFrameListener
+{
+protected:
+public:
+    BezierListener(RenderWindow* win, Camera* cam)
+        : ExampleFrameListener(win, cam)
+    {
+        
+    }
+
+    bool frameStarted(const FrameEvent& evt)
+    {
+        static Real timeLapse = 99.0f;
+        static int level = 0;
+        static bool wireframe = 0;
+
+
+        timeLapse += evt.timeSinceLastFrame;
+
+        if (timeLapse > 3.0f)
+        {
+            level = (level + 1) % 5;
+            ps.setSubdivisionLevel(level);
+            ps.build();
+            mWindow->setDebugText("Bezier subdivisions: " + StringConverter::toString(level));
+            timeLapse = 0.0f;
+            if (level == 0)
+            {
+                wireframe = !wireframe;
+                mCamera->setDetailLevel(wireframe ? SDL_WIREFRAME : SDL_SOLID);
+            }
+
+        }
+
+        // Call default
+        return ExampleFrameListener::frameStarted(evt);
+    }
+};
+
+       
 class BezierApplication : public ExampleApplication
 {
-public:
-    BezierApplication() {}
-
 protected:
 
-    // Hack struct for test
-    PatchSurface ps;
     GeometryData patchCtlPoints;
+public:
+    BezierApplication() { patchCtlPoints.pVertices = 0; }
+    ~BezierApplication()
+    {
+        if (patchCtlPoints.pVertices)
+            delete [] patchCtlPoints.pVertices;
+    }
+
+protected:
 
 #if OGRE_COMPILER == COMPILER_MSVC
     #pragma pack(push)
@@ -61,17 +110,17 @@ protected:
     void createScene(void)
     {
         // Set ambient light
-        mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+        mSceneMgr->setAmbientLight(ColourValue(0.2, 0.2, 0.2));
 
         // Create a point light
         Light* l = mSceneMgr->createLight("MainLight");
         // Accept default settings: point light, white diffuse, just set position
         // NB I could attach the light to a SceneNode if I wanted it to move automatically with
         //  other objects, but I don't
-        l->setPosition(200,80,50);
+        l->setType(Light::LT_DIRECTIONAL);
+        l->setDirection(-0.5, -0.5, 0);
 
         // Create patch
-        // NB really sloppy with memory here - it's just a test
         patchCtlPoints.hasColours = false;
         patchCtlPoints.hasNormals = true;
         patchCtlPoints.numTexCoords = 1;
@@ -93,11 +142,11 @@ protected:
         pVert->nx = -0.5; pVert->ny = 0.5; pVert->nz = 0.0;
         pVert->u = 0.0; pVert->v = 0.0;
         pVert++;
-        pVert->x = 0.0; pVert->y = 500.0; pVert->z = -500.0;
+        pVert->x = 0.0; pVert->y = 500.0; pVert->z = -750.0;
         pVert->nx = 0.0; pVert->ny = 0.5; pVert->nz = 0.0;
         pVert->u = 0.5; pVert->v = 0.0;
         pVert++;
-        pVert->x = 500.0; pVert->y = 0.0; pVert->z = -500.0;
+        pVert->x = 500.0; pVert->y = 1000.0; pVert->z = -500.0;
         pVert->nx = 0.5; pVert->ny = 0.5; pVert->nz = 0.0;
         pVert->u = 1.0; pVert->v = 0.0;
         pVert++;
@@ -123,13 +172,13 @@ protected:
         pVert->nx = 0.0; pVert->ny = 0.5; pVert->nz = 0.0;
         pVert->u = 0.5; pVert->v = 1.0;
         pVert++;
-        pVert->x = 500.0; pVert->y = 200.0; pVert->z = 500.0;
+        pVert->x = 500.0; pVert->y = 200.0; pVert->z = 800.0;
         pVert->nx = 0.5; pVert->ny = 0.5; pVert->nz = 0.0;
         pVert->u = 1.0; pVert->v = 1.0;
         pVert++;
 
 
-        ps.defineSurface("Bezier1", patchCtlPoints, 3, PatchSurface::PST_BEZIER, 4, PatchSurface::VS_BOTH);
+        ps.defineSurface("Bezier1", patchCtlPoints, 3, PatchSurface::PST_BEZIER, 0, PatchSurface::VS_BOTH);
         ps.build();
 
         // Create entity based on patch
@@ -141,6 +190,16 @@ protected:
 
         // Attach the entity to the root of the scene
         mSceneMgr->getRootSceneNode()->attachObject(ent);
+
+        mCamera->setPosition(500,500, 1500);
+        mCamera->lookAt(0,200,-300);
+
+    }
+	void createFrameListener(void)
+    {
+		// This is where we instantiate our own frame listener
+        mFrameListener= new BezierListener(mWindow, mCamera);
+        mRoot->addFrameListener(mFrameListener);
 
     }
 
