@@ -151,7 +151,7 @@ namespace Ogre {
         */
         void unloadResourceGroup(const String& name);
 
-        */
+        
         /** Destroys a resource group, unloading it first, destroying the resources
             which are part of it, and then removing it from
             the list of resource groups. 
@@ -214,7 +214,30 @@ namespace Ogre {
         */
         void undeclareResource(const String& name);
 
-        /** Adds a ResourceGroupListener which will be called back during 
+		/** Find a single resource by name and return a DataStream
+		 	pointing at the source of the data.
+		@param resourceName The name of the resource to locate
+		@param groupName The name of the resource group; this determines which 
+			locations are searched. 
+		@returns Shared pointer to data stream containing the data, will be
+			destroyed automatically when no longer referenced
+		*/
+		DataStreamPtr void _findResource(const String& resourceName, 
+			const String& groupName = "General");
+
+		/** Find all resources matching a given pattern (which can contain
+			the character '*' as a wildcard, and return a collection of 
+			DataStream objects on them.
+		@param pattern The pattern to look for
+		@param groupName The resource group; this determines which locations
+			are searched.
+		@returns Shared pointer to a data stream list , will be
+			destroyed automatically when no longer referenced
+		*/
+		DataStreamListPtr void _findResources(const String& pattern, 
+			const String& groupName = "General");
+		
+		/** Adds a ResourceGroupListener which will be called back during 
             resource loading events. 
         */
         void addResourceGroupListener(ResourceGroupListener* l);
