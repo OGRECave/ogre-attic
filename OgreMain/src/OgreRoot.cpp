@@ -49,6 +49,8 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "OgreFontManager.h"
 
+#include "OgreOverlay.h"
+
 #if OGRE_PLATFORM == PLATFORM_WIN32
 
 #   define WIN32_LEAN_AND_MEAN
@@ -631,5 +633,19 @@ namespace Ogre {
         return mActiveRenderer->getRenderWindow(name);
     }
     //-----------------------------------------------------------------------
+    void Root::showDebugOverlay(bool show)
+    {
+        Overlay* o = (Overlay*)OverlayManager::getSingleton().getByName("Core/DebugOverlay");
+        if (show)
+        {
+            o->show();
+        }
+        else
+        {
+            o->hide();
+        }
+
+        
+    }
 
 }

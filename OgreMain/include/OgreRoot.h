@@ -469,6 +469,15 @@ namespace Ogre
         */
         RenderWindow* getRenderWindow(const String &name);
 
+        /** Sets whether or not the debug overlay is shown.
+        @remarks
+            The debug overlay displays frame rate stats and various other debug
+            information. You can enable it or disable it using this method.
+            Alternatively you could access the overlay directly using mSceneManager::getOverlay
+            but this is simpler.
+        */
+        void showDebugOverlay(bool show);
+
 
     };
 } // Namespace Ogre

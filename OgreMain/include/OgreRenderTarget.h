@@ -125,8 +125,9 @@ namespace Ogre {
         */
         virtual void removeAllViewports(void);
 
-        /** Set what kind of statistics display (if any) should be displayed by the system about this target.
+        /** DEPRECATED Set what kind of statistics display (if any) should be displayed by the system about this target.
             @remarks
+                This method is now DEPRECATED. Use Root::showDebugOverlay instead.
                 OGRE keeps details about the current rendering performance, and can display this on
                 screen if required. This method allows you to specify what should be displayed.
                 Alternatively, the application can retrieve the stats using
@@ -178,7 +179,7 @@ namespace Ogre {
         */
         virtual void resetStatistics(void);
 
-        /** Outputs text to the target at the specified co-ordinates.
+        /** DEPRECATED Outputs text to the target at the specified co-ordinates.
         */
         virtual void outputText(int x, int y, const String& text) = 0;
 
