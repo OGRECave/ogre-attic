@@ -40,6 +40,7 @@ terrainscenemanager.h  -  description
 #include "OgreOctreeSceneManager.h"
 #include "OgreTerrainRenderable.h"
 #include "OgreTerrainPageSource.h"
+#include "OgreIteratorWrappers.h"
 
 
 namespace Ogre
@@ -245,6 +246,13 @@ public:
         the 'home' terrain page, and to calculate the error metrics. 
     */
     virtual void setPrimaryCamera(const Camera* cam);
+    /// Internal map of page source name to page source
+    typedef std::map<String, TerrainPageSource*> PageSourceMap;
+
+    /// Iterator over all page sources
+    typedef ConstMapIterator<PageSourceMap> PageSourceIterator;
+    /// Get an iterator over all page sources
+    PageSourceIterator getPageSourceIterator(void);
     /** Registers a TerrainPageSource class and associates it with a named type 
         of source.
     @remarks
@@ -338,7 +346,6 @@ protected:
     void setupTerrainPages(void);
 
 
-    typedef std::map<String, TerrainPageSource*> PageSourceMap;
     /// Map of source type -> TerrainPageSource
     PageSourceMap mPageSources;
     /// The currently active page source

@@ -31,6 +31,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     //-------------------------------------------------------------------------
+    TerrainPageSource::PageSourceListenerList TerrainPageSource::mPageSourceListeners;
+    //-------------------------------------------------------------------------
     TerrainPage* TerrainPageSource::buildPage(Real* heightData, Material* pMaterial)
     {
         String name;
@@ -79,4 +81,36 @@ namespace Ogre {
 
         return page;
     }
+    //-------------------------------------------------------------------------
+    void TerrainPageSource::firePageConstructed(Real* heightData)
+    {
+        PageSourceListenerList::iterator i, iend;
+        iend = mPageSourceListeners.end();
+        for(i = mPageSourceListeners.begin(); i != iend; ++i)
+        {
+            (*i)->pageConstructed(heightData);
+        }
+    }
+    //-------------------------------------------------------------------------
+    void TerrainPageSource::addListener(TerrainPageSourceListener* pl)
+    {
+        mPageSourceListeners.push_back(pl);
+    }
+    //-------------------------------------------------------------------------
+    void TerrainPageSource::removeListener(TerrainPageSourceListener* pl)
+    {
+        PageSourceListenerList::iterator i, iend;
+        iend = mPageSourceListeners.end();
+        for(i = mPageSourceListeners.begin(); i != iend; ++i)
+        {
+            if (*i == pl)
+            {
+                mPageSourceListeners.erase(i);
+                break;
+            }
+        }
+
+    }
+    //-------------------------------------------------------------------------
+
 }

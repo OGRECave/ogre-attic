@@ -797,6 +797,11 @@ namespace Ogre
     {
         return mOptions.terrainMaterial;
     }
+    //-------------------------------------------------------------------------
+    TerrainSceneManager::PageSourceIterator TerrainSceneManager::getPageSourceIterator(void)
+    {
+        return PageSourceIterator(mPageSources.begin(), mPageSources.end());
+    }
 
 
 } //namespace
