@@ -249,7 +249,7 @@ namespace Ogre {
                 dest->fType = FGT_FACE_LIST;
                 // Assign plane
                 dest->plane.normal = Vector3(src->normal);
-                dest->plane.d = dest->plane.normal.dotProduct(Vector3(src->org));
+                dest->plane.d = -dest->plane.normal.dotProduct(Vector3(src->org));
             }
             else if (src->type == BSP_FACETYPE_PATCH)
             {
@@ -315,7 +315,7 @@ namespace Ogre {
             node->mOwner = this;
             // Set plane
             node->mSplitPlane.normal = Vector3(q3lvl.mPlanes[q3node->plane].normal);
-            node->mSplitPlane.d = q3lvl.mPlanes[q3node->plane].dist;
+            node->mSplitPlane.d = -q3lvl.mPlanes[q3node->plane].dist;
             // Set bounding box
             node->mBounds.setMinimum(Vector3(&q3node->bbox[0]));
             node->mBounds.setMaximum(Vector3(&q3node->bbox[3]));

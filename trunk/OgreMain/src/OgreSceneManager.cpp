@@ -792,7 +792,7 @@ namespace Ogre {
 
         meshName = "SkyBoxPlane_";
         // Set up plane equation
-        plane.d = distance;
+        plane.d = -distance;
         switch(bp)
         {
         case BP_FRONT:
@@ -862,7 +862,7 @@ namespace Ogre {
 
         meshName = "SkyDomePlane_";
         // Set up plane equation
-        plane.d = distance;
+        plane.d = -distance;
         switch(bp)
         {
         case BP_FRONT:
