@@ -233,11 +233,15 @@ namespace Ogre {
     class D3D9RenderTexture : public RenderTexture
     {
     public:
-        D3D9RenderTexture( const String & name, uint width, uint height, TextureType texType = TEX_TYPE_2D ) : RenderTexture( name, width, height, texType )
+        D3D9RenderTexture( const String & name, 
+			unsigned int width, unsigned int height,
+			TextureType texType, PixelFormat internalFormat, 
+			const NameValuePairList *miscParams ) 
+			: RenderTexture( name, width, height, texType, internalFormat )
         {
             mPrivateTex = TextureManager::getSingleton().createManual
                 (mName + "_PRIVATE##", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
-                texType, mWidth, mHeight, 0, PF_R8G8B8, TU_RENDERTARGET );
+                texType, mWidth, mHeight, 0, internalFormat, TU_RENDERTARGET );
         }
 		
         ~D3D9RenderTexture()
