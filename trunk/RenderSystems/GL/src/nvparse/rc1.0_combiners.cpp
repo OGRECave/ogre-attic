@@ -2,6 +2,7 @@
 #include "nvparse_errors.h"
 #include "nvparse_externs.h"
 #include <string.h>
+#include <OgreGLPrerequisites.h>
 
 void CombinersStruct::Validate()
 {
@@ -17,7 +18,7 @@ void CombinersStruct::Validate()
 void CombinersStruct::Invoke()
 {
 	for (int i = 0; i < numConsts; i++)
-		glCombinerParameterfvNV(cc[i].reg.bits.name, &(cc[i].v[0]));
+		glCombinerParameterfvNV_ptr(cc[i].reg.bits.name, &(cc[i].v[0]));
 
 	generals.Invoke();
 

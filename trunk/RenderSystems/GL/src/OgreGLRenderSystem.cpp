@@ -65,7 +65,13 @@ GL_BindProgramARB_Func glBindProgramARB_ptr;
 GL_ProgramStringARB_Func glProgramStringARB_ptr;
 GL_ProgramLocalParameter4fvARB_Func glProgramLocalParameter4fvARB_ptr;
 GL_CombinerStageParameterfvNV_Func glCombinerStageParameterfvNV_ptr;
+GL_CombinerParameterfvNV_Func glCombinerParameterfvNV_ptr;
+GL_CombinerParameteriNV_Func glCombinerParameteriNV_ptr;
 GL_GetProgramivARB_Func glGetProgramivARB_ptr;
+GL_LoadProgramNV_Func glLoadProgramNV_ptr;
+GL_CombinerInputNV_Func glCombinerInputNV_ptr;
+GL_CombinerOutputNV_Func glCombinerOutputNV_ptr;
+GL_FinalCombinerInputNV_Func glFinalCombinerInputNV_ptr;
 
 namespace Ogre {
 
@@ -137,7 +143,13 @@ namespace Ogre {
         glProgramStringARB_ptr = 0;
         glProgramLocalParameter4fvARB_ptr = 0;
         glCombinerStageParameterfvNV_ptr = 0;
+        glCombinerParameterfvNV_ptr = 0;
+        glCombinerParameteriNV_ptr = 0;
         glGetProgramivARB_ptr = 0;
+        glLoadProgramNV_ptr = 0;
+        glCombinerInputNV_ptr = 0;
+        glCombinerOutputNV_ptr = 0;
+        glFinalCombinerInputNV_ptr = 0;
 
         mCurrentLights = 0;
         mMinFilter = FO_LINEAR;
@@ -373,9 +385,19 @@ namespace Ogre {
             (GL_ProgramLocalParameter4fvARB_Func)mGLSupport->getProcAddress("glProgramLocalParameter4fvARB");
         glCombinerStageParameterfvNV_ptr =
             (GL_CombinerStageParameterfvNV_Func)mGLSupport->getProcAddress("glCombinerStageParameterfvNV");
+        glCombinerParameterfvNV_ptr = 
+            (GL_CombinerParameterfvNV_Func)mGLSupport->getProcAddress("glCombinerParameterfvNV");
+         glCombinerParameteriNV_ptr = (GL_CombinerParameteriNV_Func)mGLSupport->getProcAddress("glCombinerParameteriNV");
         glGetProgramivARB_ptr = 
             (GL_GetProgramivARB_Func)mGLSupport->getProcAddress("glGetProgramivARB");
-
+        glLoadProgramNV_ptr = 
+            (GL_LoadProgramNV_Func)mGLSupport->getProcAddress("glLoadProgramNV");
+        glCombinerInputNV_ptr =
+            (GL_CombinerInputNV_Func)mGLSupport->getProcAddress("glCombinerInputNV");
+        glCombinerOutputNV_ptr =
+            (GL_CombinerOutputNV_Func)mGLSupport->getProcAddress("glCombinerOutputNV");
+        glFinalCombinerInputNV_ptr = 
+            (GL_FinalCombinerInputNV_Func)mGLSupport->getProcAddress("glFinalCombinerInputNV");
 
         mCapabilities->log(LogManager::getSingleton().getDefaultLog());
     }
