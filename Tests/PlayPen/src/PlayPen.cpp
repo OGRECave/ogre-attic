@@ -403,7 +403,8 @@ protected:
         Real xTile = 1.0f;
         Real yTile = 1.0f;
         const Vector3& upVector = Vector3::UNIT_Y;
-        Mesh* pMesh = MeshManager::getSingleton().createManual(testMeshName);
+        MeshPtr pMesh = MeshManager::getSingleton().createManual(testMeshName, 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         SubMesh *pSub = pMesh->createSubMesh();
 
         // Set up vertex data
@@ -652,6 +653,7 @@ protected:
         params->setNamedConstant("ambient", ColourValue(1,1,1,1));
         testMat->load();
         MeshManager::getSingleton().createPlane("test1stream", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
             Plane(Vector3::UNIT_Z, 0), 258, 171, 50, 50);
         Entity* pEnt = mSceneMgr->createEntity( "1", "test3streams" );
         mTestNode[0]->attachObject( pEnt );
@@ -706,7 +708,9 @@ protected:
         Plane p;
         p.normal = Vector3::UNIT_Y;
         p.d = 200;
-        MeshManager::getSingleton().createPlane("FloorPlane",p,2000,2000,1,1,true,1,5,5,Vector3::UNIT_Z);
+        MeshManager::getSingleton().createPlane("FloorPlane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+			p,2000,2000,1,1,true,1,5,5,Vector3::UNIT_Z);
 
         // Create an entity (the floor)
         ent = mSceneMgr->createEntity("floor", "FloorPlane");
@@ -758,7 +762,9 @@ protected:
         Plane p;
         p.normal = Vector3::UNIT_Y;
         p.d = 200;
-        MeshManager::getSingleton().createPlane("FloorPlane",p,2000,2000,1,1,true,1,5,5,Vector3::UNIT_Z);
+        MeshManager::getSingleton().createPlane("FloorPlane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+			p,2000,2000,1,1,true,1,5,5,Vector3::UNIT_Z);
 
         // Create an entity (the floor)
         ent = mSceneMgr->createEntity("floor", "FloorPlane");
@@ -796,11 +802,15 @@ protected:
         Plane p;
         p.normal = Vector3::UNIT_Y;
         p.d = 200;
-        MeshManager::getSingleton().createPlane("FloorPlane",p,2000,2000,1,1,true,1,5,5,Vector3::UNIT_Z);
+        MeshManager::getSingleton().createPlane("FloorPlane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+			p,2000,2000,1,1,true,1,5,5,Vector3::UNIT_Z);
 
         p.normal = Vector3::UNIT_Z;
         p.d = 200;
-        MeshManager::getSingleton().createPlane("WallPlane",p,2000,2000,1,1,true,1,5,5,Vector3::UNIT_Y);
+        MeshManager::getSingleton().createPlane("WallPlane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+			p,2000,2000,1,1,true,1,5,5,Vector3::UNIT_Y);
 
         // Create an entity (the floor)
         ent = mSceneMgr->createEntity("floor", "FloorPlane");
@@ -834,7 +844,7 @@ protected:
         String quakePk3 = cf.getSetting("Pak0Location");
         String quakeLevel = cf.getSetting("Map");
 
-        ResourceManager::addCommonArchiveEx(quakePk3, "Zip");
+		ResourceGroupManager::getSingleton().addResourceLocation(quakePk3, "Zip");
 
 
         // Load world geometry
@@ -923,7 +933,9 @@ protected:
         Plane p;
         p.normal = Vector3::UNIT_Z;
         p.d = 200;
-        MeshManager::getSingleton().createPlane("WallPlane",p,1500,1500,1,1,true,1,5,5,Vector3::UNIT_Y);
+        MeshManager::getSingleton().createPlane("WallPlane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+			p,1500,1500,1,1,true,1,5,5,Vector3::UNIT_Y);
         pEnt = mSceneMgr->createEntity( "5", "WallPlane" );
         pEnt->setMaterialName("Examples/OgreLogo");
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pEnt);
@@ -1006,7 +1018,9 @@ protected:
         Plane p;
         p.normal = Vector3::UNIT_Y;
         p.d = 200;
-        MeshManager::getSingleton().createPlane("FloorPlane",p,200000,200000,20,20,true,1,50,50,Vector3::UNIT_Z);
+        MeshManager::getSingleton().createPlane("FloorPlane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+			p,200000,200000,20,20,true,1,50,50,Vector3::UNIT_Z);
 
         // Create an entity (the floor)
         ent = mSceneMgr->createEntity("floor", "FloorPlane");
@@ -1105,7 +1119,9 @@ protected:
         Plane p;
         p.normal = Vector3::UNIT_Y;
         p.d = 100;
-        MeshManager::getSingleton().createPlane("WallPlane",p,1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
+        MeshManager::getSingleton().createPlane("WallPlane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+			p,1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
         pPlaneEnt = mSceneMgr->createEntity( "5", "WallPlane" );
         pPlaneEnt->setMaterialName("Examples/FresnelReflectionRefraction");
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
@@ -1520,7 +1536,8 @@ protected:
         Plane plane;
         plane.normal = Vector3::UNIT_Y;
         plane.d = 100;
-        MeshManager::getSingleton().createPlane("Myplane",plane,
+        MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
             1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
         Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
         pPlaneEnt->setMaterialName("2 - Default");
@@ -1537,7 +1554,8 @@ protected:
 
 	void testManualLOD()
 	{
-		Mesh* msh1 = (Mesh*)MeshManager::getSingleton().load("robot.mesh");
+		MeshPtr msh1 = (MeshPtr)MeshManager::getSingleton().load("robot.mesh", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
 		msh1->createManualLodLevel(200, "razor.mesh");
 		msh1->createManualLodLevel(500, "sphere.mesh");
@@ -1682,7 +1700,9 @@ protected:
         Plane p;
         p.normal = Vector3::UNIT_Y;
         p.d = 200;
-        MeshManager::getSingleton().createPlane("FloorPlane",p,200000,200000,20,20,true,1,50,50,Vector3::UNIT_Z);
+        MeshManager::getSingleton().createPlane("FloorPlane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+			p,200000,200000,20,20,true,1,50,50,Vector3::UNIT_Z);
 
 
         // leak here I know
@@ -1755,7 +1775,8 @@ protected:
         mTestNode[3]->attachObject( pEnt );
 
 
-        Mesh* msh = MeshManager::getSingleton().load("knot.mesh");
+        MeshPtr msh = MeshManager::getSingleton().load("knot.mesh", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         unsigned short src, dest;
         if (!msh->suggestTangentVectorBuildParams(src, dest))
         {
@@ -1779,7 +1800,8 @@ protected:
         Plane plane;
         plane.normal = Vector3::UNIT_Y;
         plane.d = 100;
-        MeshManager::getSingleton().createPlane("Myplane",plane,
+        MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
             1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
         Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
         pPlaneEnt->setMaterialName("2 - Default");
@@ -1820,7 +1842,8 @@ protected:
         Plane plane;
         plane.normal = Vector3::UNIT_Y;
         plane.d = 100;
-        MeshManager::getSingleton().createPlane("Myplane",plane,
+        MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
             3500,3500,100,100,true,1,5,5,Vector3::UNIT_Z);
         Entity* pPlaneEnt;
         pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
@@ -1879,7 +1902,8 @@ protected:
         mTestNode[3] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(350, 0, -200));
         mTestNode[3]->attachObject( pEnt );
 
-        Mesh* msh = MeshManager::getSingleton().load("knot.mesh");
+        MeshPtr msh = MeshManager::getSingleton().load("knot.mesh",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         msh->buildTangentVectors();
         pEnt = mSceneMgr->createEntity( "4", "knot.mesh" );
         //pEnt->setMaterialName("Examples/BumpMapping/MultiLightSpecular");
@@ -1892,7 +1916,8 @@ protected:
         Plane plane;
         plane.normal = Vector3::UNIT_Y;
         plane.d = 100;
-        MeshManager::getSingleton().createPlane("Myplane",plane,
+        MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
             1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
         Entity* pPlaneEnt;
         pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
@@ -1910,8 +1935,8 @@ protected:
         //t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
         //t->setColourOperation(LBO_ADD);
 
-        GuiContainer* debugPanel = (GuiContainer*)
-            (GuiManager::getSingleton().createGuiElement("Panel", "Ogre/DebugShadowPanel"));
+        OverlayContainer* debugPanel = (OverlayContainer*)
+            (GuiManager::getSingleton().createOverlayElement("Panel", "Ogre/DebugShadowPanel"));
         debugPanel->_setPosition(0.8, 0);
         debugPanel->_setDimensions(0.2, 0.3);
         debugPanel->setMaterialName("Ogre/DebugShadowMap");
@@ -2002,6 +2027,25 @@ protected:
 
     }
 
+	void testLotsAndLotsOfEntities()
+	{
+		// Set ambient light
+		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+
+		// Create a point light
+		Light* l = mSceneMgr->createLight("MainLight");
+		l->setType(Light::LT_DIRECTIONAL);
+		l->setDirection(-Vector3::UNIT_Y);
+
+		// Create a set of random balls
+		Entity* ent = mSceneMgr->createEntity("Ball", "sphere.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
+		createRandomEntityClones(ent, 400, Vector3(-2000,-2000,-2000), Vector3(2000,2000,2000));
+
+		//bool val = true;
+		//mSceneMgr->setOption("ShowOctree", &val);
+
+	}
 
     // Just override the mandatory create scene method
     void createScene(void)
@@ -2037,7 +2081,8 @@ protected:
 
         //test2Spotlights();
 
-		testManualLOD();
+		//testManualLOD();
+		testLotsAndLotsOfEntities();
     }
     // Create new frame listener
     void createFrameListener(void)
