@@ -124,7 +124,44 @@ namespace Ogre {
         const RenderTarget* getCurrentRenderTarget(void) const;
         const Renderable* getCurrentRenderable(void) const;
 		Real getShadowExtrusionDistance(void) const;
-
+		Matrix4 getInverseViewProjMatrix(void) const;
+		Matrix4 getInverseTransposeViewProjMatrix() const;
+		Matrix4 getTransposeViewProjMatrix() const;
+		Matrix4 getTransposeViewMatrix() const;
+		Matrix4 getTransposeProjectionMatrix() const;
+		Matrix4 getInverseProjectionMatrix() const;
+		Matrix4 getInverseTransposeProjectionMatrix() const;
+		Matrix4 getTransposeWorldViewProjMatrix() const;
+		Matrix4 getInverseWorldViewProjMatrix() const;
+		Matrix4 getInverseTransposeWorldViewProjMatrix() const;
+		Matrix4 getTransposeWorldViewMatrix() const;
+		Matrix4 getTransposeWorldMatrix() const;
+		Real getTime_0_X(Real x) const;
+		Real getCosTime_0_X(Real x) const;
+		Real getSinTime_0_X(Real x) const;
+		Real getTanTime_0_X(Real x) const;
+		Vector4 getTime_0_X_packed(Real x) const;
+		Real getTime_0_1(Real x) const;
+		Real getCosTime_0_1(Real x) const;
+		Real getSinTime_0_1(Real x) const;
+		Real getTanTime_0_1(Real x) const;
+		Vector4 getTime_0_1_packed(Real x) const;
+		Real getTime_0_2Pi(Real x) const;
+		Real getCosTime_0_2Pi(Real x) const;
+		Real getSinTime_0_2Pi(Real x) const;
+		Real getTanTime_0_2Pi(Real x) const;
+		Vector4 getTime_0_2Pi_packed(Real x) const;
+		Real getFPS() const;
+		Real getViewportWidth() const;
+		Real getViewportHeight() const;
+		Real getInverseViewportWidth() const;
+		Real getInverseViewportHeight() const;
+		Vector3 getViewDirection() const;
+		Vector3 getViewSideVector() const;
+		Vector3 getViewUpVector() const;
+		Real getFOV() const;
+		Real getNearClipDistance() const;
+		Real getFarClipDistance() const;
     };
 }
 

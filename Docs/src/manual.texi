@@ -1392,6 +1392,36 @@ The inverse of the current concatenated world and view matrices.
 The inverse transpose of the current world matrix.
 @item inverse_transpose_worldview_matrix
 The inverse transpose of the current concatenated world and view matrices.
+@item inverse_viewproj_matrix
+The inverse of the view & projection matrices
+@item inverse_transpose_viewproj_matrix
+The inverse transpose of the view & projection matrices
+@item transpose_viewproj_matrix
+The transpose of the view & projection matrices
+@item transpose_view_matrix
+The transpose of the view matrix
+@item inverse_transpose_view_matrix
+The inverse transpose of the view matrix
+@item transpose_projection_matrix
+The transpose of the projection matrix
+@item inverse_projection_matrix
+The inverse of the projection matrix
+@item inverse_transpose_projection_matrix
+The inverse transpose of the projection matrix
+@item transpose_worldviewproj_matrix
+The transpose of the world, view and projection matrices
+@item inverse_worldviewproj_matrix
+The inverse of the world, view and projection matrices
+@item inverse_transpose_worldviewproj_matrix
+The inverse transpose of the world, view and projection matrices
+@item transpose_worldview_matrix
+The transpose of the world and view matrices
+@item inverse_transpose_worldview_matrix
+The inverse transpose of the world and view matrices
+@item transpose_world_matrix
+The transpose of the world matrix
+@item inverse_transpose_world_matrix
+The inverse transpose of the world matrix
 @item light_diffuse_colour
 The diffuse colour of a given light; this requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light - note that directional lights are always first in the list and always present). NB if there are no lights this close, then the parameter will be set to black.
 @item light_specular_colour
@@ -1414,6 +1444,58 @@ The current cameras position in world space.
 The current cameras position in object space (ie when the object is at (0,0,0)).
 @item time
 The current time, factored by the optional parameter (or 1.0f if not supplied).
+@item time_0_x
+Single float time value, which repeats itself based on "cycle time" given as an 'extra_params' field
+@item costime_0_x
+Cosine of time_0_x
+@item sintime_0_x
+Sine of time_0_x
+@item tantime_0_x
+Tangent of time_0_x
+@item time_0_x_packed
+4-element vector of time0_x, sintime0_x, costime0_x, tantime0_x
+@item time_0_1
+As time0_x but scaled to [0..1]
+@item costime_0_1
+As costime0_x but scaled to [0..1]
+@item sintime_0_1
+As sintime0_x but scaled to [0..1]
+@item tantime_0_1
+As tantime0_x but scaled to [0..1]
+@item time_0_1_packed
+As time0_x_packed but all values scaled to [0..1]
+@item time_0_2pi
+As time0_x but scaled to [0..2*Pi]
+@item costime_0_2pi
+As costime0_x but scaled to [0..2*Pi]
+@item sintime_0_2pi
+As sintime0_x but scaled to [0..2*Pi]
+@item tantime_0_2pi
+As tantime0_x but scaled to [0..2*Pi]
+@item time_0_2pi_packed
+As time0_x_packed but scaled to [0..2*Pi]
+@item fps
+The current frames per second
+@item viewport_width
+The current viewport width in pixels
+@item viewport_height
+The current viewport height in pixels
+@item inverse_viewport_width
+1.0/the current viewport width in pixels
+@item inverse_viewport_height
+1.0/the current viewport height in pixels
+@item view_direction
+View direction vector
+@item view_side_vector
+View local X axis
+@item view_up_vector
+View local Y axis
+@item fov
+Vertical field of view, in radians
+@item near_clip_distance
+Near clip distance, in world units
+@item far_clip_distance
+Far clip distance, in world units (may be 0 for infinite view projection)
 @item texture_viewproj_matrix
 Only applicable to vertex programs which have been specified as the 'shadow receiver' vertex program alternative; this provides details of the view/projection matrix for the current shadow projector.
 @item custom
