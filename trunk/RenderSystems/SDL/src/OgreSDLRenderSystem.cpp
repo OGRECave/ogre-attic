@@ -281,13 +281,10 @@ namespace Ogre {
             lastStartTime = fTime;
 
             // Render a frame during idle time (no messages are waiting)
-            for( i = mRenderTargets.begin(); i != mRenderTargets.end(); i++ )
-            {
-                if( i->second->isActive() )
-                {
-                    i->second->update();
-                }
-            }
+            for( uchar i = 0; i < 10; i++ )
+				for( RenderTargetList::iterator j = mPrioritisedRenderTargets[ i ].begin(); j != mPrioritisedRenderTargets[ i ].end(); j++ )
+					if( (*j)->isActive() )
+						(*j)->update();
 
             // Do frame ended event
             fTime = clock(); // Get current time
@@ -395,7 +392,7 @@ namespace Ogre {
         win->create(name, width, height, colourDepth, fullScreen,
             left, top, depthBuffer, parentWindowHandle);
 
-        mRenderTargets.insert( RenderTargetMap::value_type( name, win ) );
+        attachRenderTarget( *win );
 
         if (parentWindowHandle == NULL)
         {
@@ -405,6 +402,11 @@ namespace Ogre {
         // XXX Do more?
 
         return win;
+    }
+
+    RenderTexture * SDLRenderSystem::createRenderTexture( const String & name, int width, int height )
+    {
+        return NULL;
     }
 
     //-----------------------------------------------------------------------
@@ -1147,11 +1149,11 @@ namespace Ogre {
                 {                
                     glClientActiveTextureARB(index + i);
                     glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-                    stride = op.texCoordStride[mTextureCoordIndex[i]] ?  
+                    stride = static_cast< ushort >( op.texCoordStride[mTextureCoordIndex[i]] ?  
                         op.texCoordStride[mTextureCoordIndex[i]] +
                         (sizeof(GL_FLOAT) * 
                          op.numTextureDimensions[mTextureCoordIndex[i]])
-                        : 0;
+                        : 0 );
                     glTexCoordPointer(
                         op.numTextureDimensions[mTextureCoordIndex[i]],
                         GL_FLOAT, stride, 

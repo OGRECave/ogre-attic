@@ -60,7 +60,7 @@ namespace Ogre {
             GL_TEXTURE_2D, 0, 
             uStartX, uStartY,
             img.getWidth(), img.getHeight(),
-            img.getFormat() & Image::FMT_ALPHA ? GL_RGBA : GL_RGB, 
+            img.getHasAlpha() ? GL_RGBA : GL_RGB, 
             GL_UNSIGNED_BYTE, img.getData() );
     }
 
@@ -80,18 +80,10 @@ namespace Ogre {
             "SDLTexture: Loading %s with %d mipmaps from Image.", 
             mName.c_str(), mNumMipMaps );        
 
-        Image::PixelFormat pf = img.getFormat();
+        PixelFormat pf = img.getFormat();
 
         mSrcBpp = Image::PF2BPP(pf);
-
-        if( pf & Image::FMT_ALPHA )
-        {
-            mHasAlpha = true;
-        }
-        else
-        {
-            mHasAlpha = false;
-        }
+        mHasAlpha = img.getHasAlpha();
 
         mSrcWidth = img.getWidth();
         mSrcHeight = img.getHeight();

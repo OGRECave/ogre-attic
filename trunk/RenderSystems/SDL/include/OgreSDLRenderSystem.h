@@ -168,6 +168,8 @@ namespace Ogre {
             bool fullScreen, int left = 0, int top = 0, bool depthBuffer = true,
             RenderWindow* parentWindowHandle = 0);
 
+        RenderTexture * createRenderTexture( const String & name, int width, int height );
+
         /** See
           RenderSystem
          */
