@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __TerrainPageSource_H__
 
 #include "OgreTerrainPrerequisites.h"
+#include "OgreSingleton.h"
 
 namespace Ogre {
 
@@ -47,6 +48,43 @@ namespace Ogre {
         */
         virtual void pageConstructed(size_t pagex, size_t pagez, Real* heightData) = 0;
     };
+
+	/** Simple manager class to hold onto a list of page source listeners 
+	    across all sources.
+	*/
+	class _OgreTerrainExport TerrainPageSourceListenerManager :
+		public Singleton<TerrainPageSourceListenerManager>
+	{
+	protected:
+        typedef std::vector<TerrainPageSourceListener*> PageSourceListenerList;
+        PageSourceListenerList mPageSourceListeners;
+	public:
+        TerrainPageSourceListenerManager() {}
+        ~TerrainPageSourceListenerManager() {}
+
+        /** Register a class which will be called back whenever a new page is
+            available.
+        @remarks
+            Since this method is static, it applies to any page source which 
+            is in active use; there is no need to register one per source.
+        */
+        void addListener(TerrainPageSourceListener* pl);
+        /** Unregister a class which will be called back whenever a new page is
+        available.
+        */
+        void removeListener(TerrainPageSourceListener* pl);
+		
+        /// Fire pageContructed events
+        void firePageConstructed(size_t pagex, size_t pagez, Real* heightData);
+
+       /** Override standard Singleton retrieval.
+        */
+        static TerrainPageSourceListenerManager& getSingleton(void);
+        /** Override standard Singleton retrieval.
+        */
+        static TerrainPageSourceListenerManager* getSingletonPtr(void);	
+	
+	};
 
 
     /** Abstract class which describes the interface which a source of terrain 
@@ -102,8 +140,6 @@ namespace Ogre {
         /// The expected size of a tile in number of vertices
         unsigned short mTileSize;
 
-        typedef std::vector<TerrainPageSourceListener*> PageSourceListenerList;
-        static PageSourceListenerList mPageSourceListeners;
         /// Internal method for firing pageContructed events
         static void firePageConstructed(size_t pagex, size_t pagez, Real* heightData);
 
@@ -118,7 +154,7 @@ namespace Ogre {
 
 
     public:
-        TerrainPageSource() : mSceneManager(0), mAsyncLoading(false) {}
+        TerrainPageSource(); 
         virtual ~TerrainPageSource() { shutdown(); }
 
         /** Initialise this tile source based on a series of options as
