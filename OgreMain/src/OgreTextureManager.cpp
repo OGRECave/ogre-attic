@@ -102,13 +102,14 @@ namespace Ogre {
 	}
     //-----------------------------------------------------------------------
     TexturePtr TextureManager::createManual(const String & name, const String& group,
-        TextureType texType, uint width, uint height, uint numMipmaps,
+        TextureType texType, uint width, uint height, uint depth, uint numMipmaps,
         PixelFormat format, TextureUsage usage, ManualResourceLoader* loader)
     {
         TexturePtr ret = create(name, group, true, loader);
         ret->setTextureType(texType);
         ret->setWidth(width);
         ret->setHeight(height);
+		ret->setDepth(depth);
         ret->setNumMipmaps((numMipmaps == -1)? mDefaultNumMipmaps : numMipmaps);
         ret->setFormat(format);
         ret->setUsage(usage);
