@@ -401,6 +401,42 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name OgreMain
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name PlatformManager_Win32
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_BSPSceneManager
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_CgProgramManager
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_FileSystem
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_GuiElements
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_NatureSceneManager
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_OctreeSceneManager
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_ParticleFX
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_Direct3D7
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_Direct3D9
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_GL
+    End Project Dependency
 }}}
 
 ###############################################################################
