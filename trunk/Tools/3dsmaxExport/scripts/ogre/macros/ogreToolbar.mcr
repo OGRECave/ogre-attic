@@ -3,7 +3,7 @@
 -- 
 -- Copyright © 2002 John Martin
 --
--- $Id: ogreToolbar.mcr,v 1.6 2003-06-29 21:40:38 sinbad Exp $
+-- $Id: ogreToolbar.mcr,v 1.7 2003-08-01 22:33:39 sinbad Exp $
 --
 -- Macroscript for the Ogre Toolbar.
 --
@@ -14,8 +14,8 @@
 
 -- library functions
 
-include "ogre/lib/ogreExportLib.ms"
-include "ogre/lib/ogreToolsLib.ms"
+-- include "ogre/lib/ogreExportLib.ms"
+-- include "ogre/lib/ogreToolsLib.ms"
 include "ogre/lib/ogreSkeletonLib.ms"
 include "ogre/lib/ogreMaterialPlugin.ms"
 include "ogre/lib/ogreMaterialLib.ms"
@@ -112,7 +112,8 @@ macroScript showSkeletonTools
 				clearlistener() ;
 				
 				options = exportOptions scale:scaleSP.value flipYZ:false flipNormal:false exportColours:false exportUV:false ;
-				
+				exportingMeshDone = false ;
+				exportingSkelDone = false ;
 				-- sets options
 				---------------
 				if (flipYZCB.checked) then
@@ -129,7 +130,7 @@ macroScript showSkeletonTools
 				if (exportMeshCB.enabled and exportMeshCB.checked) then
 				(
 					lastFile = setINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Settings" "lastFile" filenameET.text	
-					writeMesh m options (filenameET.text) ;
+					exportingMeshDone = writeMesh m options (filenameET.text) ;
 				)
 			
 				-- exports skeleton
@@ -143,27 +144,31 @@ macroScript showSkeletonTools
 					options.animName = animNameET.text ;
 					
 					writeSkeleton m options filenameET.text ;
+					exportingSkelDone = true ;
 				)
 				
 				-- post traitement
-				------------------				
-				runXMLConverter = getINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Tools" "runXMLConverter"
-				
-				if (runXMLConverter=="yes") then
-				(
-					xmlConvPath = getINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Directories" "XMLConverter"
-					mediaPath = getINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Directories" "Media"
-				
-					if (exportMeshCB.enabled and exportMeshCB.checked) then (
-						DOSCommand (xmlConvPath + "\\XMLConverter.exe \"" + filenameET.text + ".mesh.xml\" \"" + filenameET.text + ".mesh\"") ;
-						DOSCommand ("copy \"" + filenameET.text + ".mesh\" \"" + mediaPath + "\"") ;
-					)
-					if (exportSkeletonCB.enabled and exportSkeletonCB.checked) then (
-						DOSCommand (xmlConvPath + "\\XMLConverter.exe \"" + filenameET.text + ".skeleton.xml\" \"" + filenameET.text + ".skeleton\"") ;
-						DOSCommand ("copy \"" + filenameET.text + ".skeleton\" \"" + mediaPath + "\"") ;						
-					)
-					messageBox "XMLConverter has been run and files copied to the media directory." ;
+				------------------
+				if (exportingMeshDone or exportingSkelDone) then (					
+					runXMLConverter = getINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Tools" "runXMLConverter"
+					if (runXMLConverter=="yes") then
+					(
+						xmlConvPath = getINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Directories" "XMLConverterPath"
+						mediaPath = getINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Directories" "MediaPath"
+						xmlexe= getINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Exe" "XMLConverterExe"
 					
+						if (exportingMeshDone) then (
+							DOSCommand (xmlConvPath + "\\" + xmlexe + " \"" + filenameET.text + ".mesh.xml\" \"" + filenameET.text + ".mesh\"") ;
+							DOSCommand ("copy \"" + filenameET.text + ".mesh\" \"" + mediaPath + "\"") ;
+						)
+						if (exportingSkelDone) then (
+							DOSCommand (xmlConvPath + "\\" + xmlexe + " \"" + filenameET.text + ".skeleton.xml\" \"" + filenameET.text + ".skeleton\"") ;
+							DOSCommand ("copy \"" + filenameET.text + ".skeleton\" \"" + mediaPath + "\"") ;						
+						)
+						messageBox "OgreXMLConverter has been run and files copied to the media directory."
+						print (xmlConvPath + "\\" + xmlexe + " \"" + filenameET.text + ".mesh.xml\" \"" + filenameET.text + ".mesh\"") ;
+						
+					)
 				)
 				
 			)
@@ -250,13 +255,8 @@ macroScript showSkeletonTools
 			shellLaunch ((getDir #scripts) + "\\ogre\\ogreScript.ini") "" ;
 		)
 		
-		on optionRollout open do
-		(
---			xmlConvPath = getINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Paths" "XMLConverterPath"
---			exportPath = getINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Paths" "exportPath"
---			mediaPath = getINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Paths" "Media"
---			runXMLConv = getINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Tools" "runXMLConverter"
-		)
+		--on optionRollout open do ()
+		
 		
 	)
 

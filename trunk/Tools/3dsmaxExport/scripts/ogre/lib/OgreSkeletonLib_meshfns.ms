@@ -87,6 +87,7 @@ function getDatas tmesh flipyz scale flipNormal exportUV exportColours sk=
     local num_tverts, num_faces,v,f,cf,face,nmal,vert,vertTmp,tvertTmp,faceTmp ;
 	local couple,searchTable,ogreface ;
 	local i,j,k,vwcount,bid,w,matId
+	local rootId ;
 	
 	searchTable=#() ;
 	-- In order to know if a #(vertex,tvertex) has already be found,
@@ -99,7 +100,7 @@ function getDatas tmesh flipyz scale flipNormal exportUV exportColours sk=
 	num_tverts = tmesh.numtverts ;
 	num_faces = tmesh.numfaces ;
 
-	ogreFace=#(12,12,12) ;
+	ogreFace=Point3 12 12 12 ;
 	cmpt = 1 ; -- vertex index.
 
 	-- Data arrays init.	
@@ -194,6 +195,10 @@ function getDatas tmesh flipyz scale flipNormal exportUV exportColours sk=
 					vertTmp = copy vert ;
 					vert[2] = vertTmp[3] ;
 					vert[3] = -vertTmp[2] ;
+					
+					nmalTmp = copy nmal ;
+					nmal[2] = nmalTmp[3] ;
+					nmal[3] = -nmalTmp[2] ;
 				)
 				
 				-- Maybe the material found defines a new submesh...
@@ -210,8 +215,11 @@ function getDatas tmesh flipyz scale flipNormal exportUV exportColours sk=
 
 				
 				-- And now, bone assignments. (if a skin modifier is present)
+				-- It seems that there are issues when just few vertices have bone assignments.
+				-- So there is at least the root assignment.
 				if (sk != undefined) then (
-					vwcount = skinOps.getVertexWeightCount sk a ;
+					vwcount = skinOps.getVertexWeightCount sk a ; -- a is the vertex number: "a = (int) (f[j]) ;"
+
 					for k=1 to vwcount do
 					(
 						bid = skinOps.getVertexWeightBoneID sk a k ;
@@ -220,6 +228,12 @@ function getDatas tmesh flipyz scale flipNormal exportUV exportColours sk=
 						if w > 0.01 then (
 							append boneAssignments[matId] #(ogreVertNum,bid,w) ;
 						)
+					)
+					-- assignment to the root bone.
+					if (vwcount==0) then (
+						-- gets the root Id:
+						rootId=getRootsId sk
+						append boneAssignments[matId] #(ogreVertNum,rootId[1],1) ;
 					)
 				)			
 			)
@@ -231,9 +245,9 @@ function getDatas tmesh flipyz scale flipNormal exportUV exportColours sk=
 		-- flip normal capability
 		if (flipNormal) then
 		(
-			faceTmp = copy face ;
-			face[2] = faceTmp[3] ;
-			face[3] = faceTmp[2] ;
+			faceTmp = copy ogreFace ;
+			ogreFace[2] = faceTmp[3] ;
+			ogreFace[3] = faceTmp[2] ;
 		)
 
 		if (facesArrays[matId] == undefined) then
@@ -290,7 +304,7 @@ function writeM exportUV exportColours outName =
 			if (exportUV) then
 				format("\t\t\t\t\t\t<texcoord u=\"%\" v=\"%\" />\n") v[7] v[8] to:outFile ;		
 			if (exportColours) then
-				format("\t\t\t\t\t\t<colour value=\"%\" />\n") (v[12]+255*(v[11]+255*(v[10]+255*v[9]))) to:outFile ;
+				format("\t\t\t\t\t\t<colour value=\"%%%%\" />\n") ((int)v[12]) ((int)v[11]) ((int)v[10]) ((int)v[9]) to:outFile ;
 			format("\t\t\t\t\t</vertex>\n") to:outFile ;
 		)	
 		format("\t\t\t\t</vertexbuffer>\n") to:outFile ;
@@ -302,7 +316,7 @@ function writeM exportUV exportColours outName =
 		-- for each face
 		for f in facesArrays[matId] do (
 			format("\t\t\t\t<face ") to:outFile ;
-			format("v1=\"%\" v2=\"%\" v3=\"%\" />\n") f[1] f[2] f[3] to:outFile ;
+			format("v1=\"%\" v2=\"%\" v3=\"%\" />\n") ((int)f[1]) ((int)f[2]) ((int)f[3]) to:outFile ;
 		)
 		format("\t\t\t</faces>\n") to:outFile ;
 		
@@ -354,6 +368,7 @@ function writeMesh pmesh exportOptions out_name =
 	(
 		MessageBox ("\n There is a problem with your mesh:\n" + message + "\n\nOperation aborted") ;
 		delete m ;
+		return false ;
 	)
 	else
 	(			
@@ -402,6 +417,7 @@ function writeMesh pmesh exportOptions out_name =
 		MessageBox ("Exporting mesh successful !") ;
 		
 	)
+	return true ;
 )
 
 

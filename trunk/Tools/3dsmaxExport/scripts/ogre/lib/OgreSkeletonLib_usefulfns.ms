@@ -2,22 +2,60 @@
 -- ------------------------------ SOME USEFUL FUNCTIONS ----------------------------- --
 ----------------------------------------------------------------------------------------
 
-function appendOrdered a value = (
-	i=1 ;
-	found = false ;
-	while (a[i] != undefined and a[i]<=value) do (		
-		if (a[i]==value) then
-			found = true ;
-		i+=1 ;
+
+--------------------------------------------------------------------
+-- compute the transform, if you want to flip Y and Z axis,
+-- because the axis which 'defines height' in OGRE is the Y axis,
+-- whereas 3dsmax uses the Z one.
+--------------------------------------------------------------------
+function flipYZTransform Tform = (
+	local axis1,axis2,axis3,t,m
+	
+	-- computes the matrix
+	axis1 = point3 1 0 0 ;
+	axis2 = point3 0 0 1 ;
+	axis3 = point3 0 -1 0 ;
+	t = point3 0 0 0 ;
+	m=matrix3 axis1 axis2 axis3 t ;
+	
+	-- multiplies by the inverse
+	Tform = Tform*inverse(m) ;
+
+	return Tform ;
+)
+
+
+--------------------------------------------------------------------
+-- returns if the bone is the root or not,
+-- ia if its parent is undefined or is not a bone.
+--------------------------------------------------------------------
+function isRoot b = (
+	if (b.parent==undefined or not (iskindof b.parent BoneGeometry)) then
+		return true ;
+	else
+		return false ;
+	
+)
+
+--------------------------------------------------------------------
+-- creates a new array (which must be set up as an array before
+-- calling this function) in which there isn't the same element.
+-- Moreover, the array is sorted.
+--------------------------------------------------------------------
+
+function keepLoneValues a b= (
+	local e, last_e ;
+	sort a ;
+	last_e = undefined ;
+	for e in a do (
+		if (e!=last_e) then 
+			append b e ;
+		last_e = e ;
 	)
-	if (not found) then
-		insertItem value a i ;
-		
-	(not found) ;
 )
 
 ---------------------------------------------------------------------
--- replace " " by "_" in a string.
+-- replaces " " by "_" in a string.
 -- when a name is for example Left Biceps max knows it at Left_Biceps
 -- and execute fonction will not work if you don't use this function
 ---------------------------------------------------------------------
@@ -88,7 +126,7 @@ function getRoots skin =
 		c= skinOps.GetBoneName skin i 1 ;
 		replaceSpaces c ;
 		d = execute ("$" + c) ;
-		if (d.parent == undefined) then
+		if (isRoot d) then
 			append rootstab d ;
 	)
 	rootstab ;
@@ -108,7 +146,7 @@ function getRootsId skin =
 		c= skinOps.GetBoneName skin i 1 ;
 		replaceSpaces c ;
 		d = execute ("$" + c) ;
-		if (d.parent == undefined) then
+		if (isRoot d) then
 			append rootstab i ;
 	)
 	rootstab ;
