@@ -455,7 +455,11 @@ namespace Ogre {
 
         // Delete system objects
         if (mDriverList)
+        {
             delete mDriverList;
+            mDriverList = NULL;
+        }
+
 
         mActiveDDDriver = NULL;
 
