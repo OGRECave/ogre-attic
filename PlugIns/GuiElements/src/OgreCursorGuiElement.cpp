@@ -52,7 +52,7 @@ namespace Ogre {
 		setHeight(0.01);
 	}
     //---------------------------------------------------------------------
-    const String& CursorGuiElement::getTypeName(void)
+    const String& CursorGuiElement::getTypeName(void) const
     {
         return msTypeName;
     }

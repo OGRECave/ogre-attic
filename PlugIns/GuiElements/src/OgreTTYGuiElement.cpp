@@ -637,7 +637,7 @@ namespace Ogre {
        delete mRenderOp.vertexData;
     }
     //---------------------------------------------------------------------
-    const String& TTYGuiElement::getTypeName(void)
+    const String& TTYGuiElement::getTypeName(void) const
     {
         return msTypeName;
     }

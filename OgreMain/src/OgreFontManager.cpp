@@ -123,7 +123,7 @@ namespace Ogre
         }
     }
     //---------------------------------------------------------------------
-    void FontManager::parseAttribute(String& line, Font* pFont)
+    void FontManager::parseAttribute(const String& line, Font* pFont)
     {
         std::vector<String> params = line.split();
         String attrib = params[0].toLowerCase();

@@ -98,7 +98,7 @@ namespace Ogre {
 		void scrollToIndex(size_t index);
 
         /** See GuiElement. */
-        virtual const String& getTypeName(void);
+        virtual const String& getTypeName(void) const;
 		void actionPerformed(ActionEvent* e) ;
 		void fireScrollPerformed();
 		void processEvent(InputEvent* e) ;

@@ -351,7 +351,7 @@ namespace Ogre {
 		}
     }
     //---------------------------------------------------------------------
-    const String& BorderButtonGuiElement::getTypeName(void)
+    const String& BorderButtonGuiElement::getTypeName(void) const
     {
         return msTypeName;
     }

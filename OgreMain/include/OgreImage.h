@@ -368,7 +368,7 @@ namespace Ogre {
                 Basic algo taken from Titan Engine, copyright (c) 2000 Ignacio 
                 Castano Iguado
         */
-        static void applyGamma( uchar *byffer, Real gamma, size_t size, uchar bpp );
+        static void applyGamma( uchar *buffer, Real gamma, size_t size, uchar bpp );
 
         static bool formatHasAlpha(PixelFormat format);
 

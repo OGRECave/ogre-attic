@@ -602,9 +602,9 @@ namespace Ogre
         /** The RenderSystem will keep a count of tris rendered, this resets the count. */
         virtual void _beginGeometryCount(void);
         /** Reports the number of tris rendered since the last _beginGeometryCount call. */
-        virtual unsigned int _getFaceCount(void);
+        virtual unsigned int _getFaceCount(void) const;
         /** Reports the number of vertices passed to the renderer since the last _beginGeometryCount call. */
-        virtual unsigned int _getVertexCount(void);
+        virtual unsigned int _getVertexCount(void) const;
 
         /** Generates a packed data version of the passed in ColourValue suitable for
             use as with this RenderSystem.
@@ -758,7 +758,7 @@ namespace Ogre
         virtual void _render(const RenderOperation& op);
 
 		/** Gets the capabilities of the render system. */
-		const RenderSystemCapabilities* getCapabilities(void) { return mCapabilities; }
+		const RenderSystemCapabilities* getCapabilities(void) const { return mCapabilities; }
 
         /** Binds a given GpuProgram (but not the parameters). 
         @remarks Only one GpuProgram of each type can be bound at once, binding another

@@ -53,7 +53,7 @@ namespace Ogre {
         removeAllPasses();
     }
     //-----------------------------------------------------------------------------
-    bool Technique::isSupported(void)
+    bool Technique::isSupported(void) const
     {
         return mIsSupported;
     }
@@ -154,7 +154,7 @@ namespace Ogre {
 		return mPasses[index];
     }
     //-----------------------------------------------------------------------------
-    unsigned short Technique::getNumPasses(void)
+    unsigned short Technique::getNumPasses(void) const
     {
 		return static_cast<unsigned short>(mPasses.size());
     }
@@ -198,7 +198,7 @@ namespace Ogre {
 		return *this;
     }
     //-----------------------------------------------------------------------------
-    bool Technique::isTransparent(void)
+    bool Technique::isTransparent(void) const
     {
         if (mPasses.empty())
         {
@@ -234,7 +234,7 @@ namespace Ogre {
 		}
     }
     //-----------------------------------------------------------------------------
-    bool Technique::isLoaded(void)
+    bool Technique::isLoaded(void) const
     {
         return mParent->isLoaded();
     }

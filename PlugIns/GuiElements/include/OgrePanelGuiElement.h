@@ -81,7 +81,7 @@ namespace Ogre {
         bool isTransparent(void);
 
         /** See GuiElement. */
-        virtual const String& getTypeName(void);
+        virtual const String& getTypeName(void) const;
         /** See Renderable. */
         void getRenderOperation(RenderOperation& op);
         /** Overridden from GuiElement */

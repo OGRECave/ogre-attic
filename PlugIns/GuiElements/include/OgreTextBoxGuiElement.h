@@ -56,7 +56,7 @@ namespace Ogre
 
 
         /** See GuiElement. */
-        const String& getTypeName(void);
+        const String& getTypeName(void) const;
 
         // inherited
         void setCaption(const String& text);

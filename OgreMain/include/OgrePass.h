@@ -493,7 +493,7 @@ namespace Ogre {
         */
         void setMaxSimultaneousLights(unsigned short maxLights);
         /** Gets the maximum number of lights to be used by this pass. */
-        unsigned short getMaxSimultaneousLights(void);
+        unsigned short getMaxSimultaneousLights(void) const;
 
         /** Sets the type of light shading required
         @note

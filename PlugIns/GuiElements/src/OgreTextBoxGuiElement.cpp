@@ -56,7 +56,7 @@ namespace Ogre {
     {
     }
     //---------------------------------------------------------------------
-    const String& TextBoxGuiElement::getTypeName(void)
+    const String& TextBoxGuiElement::getTypeName(void) const
     {
         return msTypeName;
     }

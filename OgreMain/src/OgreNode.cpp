@@ -319,7 +319,7 @@ namespace Ogre {
         return mPosition;
     }
     //-----------------------------------------------------------------------
-    Matrix3 Node::getLocalAxes(void)
+    Matrix3 Node::getLocalAxes(void) const
     {
         Vector3 axisX = Vector3::UNIT_X;
         Vector3 axisY = Vector3::UNIT_Y;

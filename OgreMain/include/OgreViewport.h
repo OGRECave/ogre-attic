@@ -207,7 +207,7 @@ namespace Ogre {
 
         /** Returns whether or not Overlay objects (created in the SceneManager) are displayed in this
             viewport. */
-        bool getOverlaysEnabled(void);
+        bool getOverlaysEnabled(void) const;
 
 
     protected:

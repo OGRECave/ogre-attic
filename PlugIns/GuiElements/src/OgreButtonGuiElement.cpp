@@ -430,7 +430,7 @@ namespace Ogre {
 		}
     }
     //---------------------------------------------------------------------
-    const String& ButtonGuiElement::getTypeName(void)
+    const String& ButtonGuiElement::getTypeName(void) const
     {
         return msTypeName;
     }

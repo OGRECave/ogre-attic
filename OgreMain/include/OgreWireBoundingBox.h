@@ -49,7 +49,7 @@ namespace Ogre {
 		
         /** Builds the wireframe line list.
         */
-		void setupBoundingBoxVertices(AxisAlignedBox &aab);
+		void setupBoundingBoxVertices(const AxisAlignedBox& aab);
 
         Real mRadius;
 
@@ -62,7 +62,7 @@ namespace Ogre {
             @param
                 aabb bounding box to build a wireframe from.
         */
-		void setupBoundingBox(AxisAlignedBox aabb);
+		void setupBoundingBox(const AxisAlignedBox& aabb);
 
 		Real getSquaredViewDepth(const Camera* cam) const;
 

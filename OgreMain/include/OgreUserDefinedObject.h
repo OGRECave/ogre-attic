@@ -76,7 +76,7 @@ namespace Ogre {
             that version is a litle more efficient, but obviously 
             slightly less easy to read. You choose which you prefer.
         */
-        virtual const String& getTypeName(void);
+        virtual const String& getTypeName(void) const;
         
     };
     

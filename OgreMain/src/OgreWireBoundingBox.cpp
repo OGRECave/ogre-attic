@@ -69,7 +69,7 @@ namespace Ogre {
         delete mRenderOp.vertexData;
 	}
 
-	void WireBoundingBox::setupBoundingBox(AxisAlignedBox aabb) 
+	void WireBoundingBox::setupBoundingBox(const AxisAlignedBox& aabb) 
     {
 		// init the vertices to the aabb
 		setupBoundingBoxVertices(aabb);
@@ -97,7 +97,7 @@ namespace Ogre {
     }
 
 
-	void WireBoundingBox::setupBoundingBoxVertices(AxisAlignedBox &aab) {
+	void WireBoundingBox::setupBoundingBoxVertices(const AxisAlignedBox& aab) {
 
 		Vector3 vmax = aab.getMaximum();
 		Vector3 vmin = aab.getMinimum();
