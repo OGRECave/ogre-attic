@@ -87,6 +87,25 @@ namespace Ogre {
         (*i) = VertexElement(source, offset, theType, semantic, index);
     }
     //-----------------------------------------------------------------------------
+	const VertexElement& VertexDeclaration::findElementBySemantic(
+		VertexElementSemantic sem, unsigned short index)
+	{
+		VertexElementList::const_iterator ei, eiend;
+		eiend = mElementList.end();
+		for (ei = mElementList.begin(); ei != eiend; ++ei)
+		{
+			if (ei->getSemantic() == sem && ei->getIndex() == index)
+			{
+				return *ei;
+			}
+		}
+
+		Except(Exception::ERR_ITEM_NOT_FOUND, "Unable to find a vertex element with "
+			" the requested semantic and index.", "VertexDeclaration::findElementBySemantic");
+
+
+	}
+    //-----------------------------------------------------------------------------
 	VertexBufferBinding::VertexBufferBinding()
 	{
 	}
@@ -146,6 +165,7 @@ namespace Ogre {
         HardwareBufferManager::getSingleton().destroyVertexBuffer(pRep);
 		delete pUseCount;
     }
+
 
 
 

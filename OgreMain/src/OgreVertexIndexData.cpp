@@ -84,56 +84,45 @@ namespace Ogre {
 	void VertexData::getBounds(AxisAlignedBox *box, Real *maxSquaredRadius)
 	{
 		// Find the position semantic element(s)
-		const VertexDeclaration::VertexElementList& elems = 
-			vertexDeclaration->getElements();
-		VertexDeclaration::VertexElementList::const_iterator ei, eiend;
-		eiend = elems.end();
-		for (ei = elems.begin(); ei != eiend; ++ei)
+		const VertexElement& elem = 
+			vertexDeclaration->findElementBySemantic(VES_POSITION);
+		// Now find the buffer
+		HardwareVertexBufferSharedPtr pBuf = 
+			vertexBufferBinding->getBuffer(elem.getSource());
+		// Get the data
+		unsigned char* pRaw = (unsigned char*)pBuf->lock(0, pBuf->getSizeInBytes(), 
+			HardwareVertexBuffer::HBL_READ_ONLY);
+		pRaw += elem.getOffset();
+
+		AxisAlignedBox localBox;
+		Vector3 min, max;
+		bool first = true;
+		for (int vert = 0; vert < pBuf->getNumVertices(); ++vert)
 		{
-			if (ei->getSemantic() == VES_POSITION)
+			Real* pVert = (Real*)pRaw;
+
+			Vector3 vec(pVert[0], pVert[1], pVert[2]);
+
+			// Update sphere bounds
+			*maxSquaredRadius = std::max(vec.squaredLength(), *maxSquaredRadius);
+
+			// Update box
+			if (first)
 			{
-				// Ok, found a position element
-				VertexElement elem = *ei;
-				// Now find the buffer
-				HardwareVertexBufferSharedPtr pBuf = 
-					vertexBufferBinding->getBuffer(elem.getSource());
-				// Get the data
-				unsigned char* pRaw = (unsigned char*)pBuf->lock(0, pBuf->getSizeInBytes(), 
-					HardwareVertexBuffer::HBL_READ_ONLY);
-				pRaw += elem.getOffset();
-
-				AxisAlignedBox localBox;
-				Vector3 min, max;
-				bool first = true;
-				for (int vert = 0; vert < pBuf->getNumVertices(); ++vert)
-				{
-					Real* pVert = (Real*)pRaw;
-
-					Vector3 vec(pVert[0], pVert[1], pVert[2]);
-
-					// Update sphere bounds
-					*maxSquaredRadius = std::max(vec.squaredLength(), *maxSquaredRadius);
-
-					// Update box
-					if (first)
-					{
-						min = vec;
-						max = vec;
-						first = false;
-					}
-					else
-					{
-						min.makeFloor(vec);
-						max.makeCeil(vec);
-					}
-
-					pRaw += pBuf->getVertexSize();
-				}
-				localBox.setExtents(min, max);
-				box->merge(localBox);
-				break;
+				min = vec;
+				max = vec;
+				first = false;
 			}
+			else
+			{
+				min.makeFloor(vec);
+				max.makeCeil(vec);
+			}
+
+			pRaw += pBuf->getVertexSize();
 		}
+		localBox.setExtents(min, max);
+		box->merge(localBox);
 	}
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------

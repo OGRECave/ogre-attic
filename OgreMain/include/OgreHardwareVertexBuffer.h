@@ -178,6 +178,11 @@ namespace Ogre {
         virtual void modifyElement(unsigned short elem_index, unsigned short source, size_t offset, VertexElementType theType,
             VertexElementSemantic semantic, unsigned short index = 0);
 
+		/** Finds a VertexElement with the given semantic, and index if there is more than 
+			one element with the same semantic. 
+		*/
+		virtual const VertexElement& findElementBySemantic(VertexElementSemantic sem, unsigned short index = 0);
+
 
     };
 
