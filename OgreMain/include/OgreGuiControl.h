@@ -64,6 +64,7 @@ namespace Ogre {
 
 	public :
 		GuiControl(const String& name);
+        virtual ~GuiControl() { }
 
 		void processEvent(InputEvent* e) ;
 

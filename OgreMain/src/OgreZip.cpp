@@ -195,7 +195,13 @@ namespace Ogre {
 			
                 if( static_cast<int>(filename.find(szPattern)) >= 0 )
                 {
-                    retVec.push_back( filename );
+                    if (strStartPath.length() > 0 && strStartPath != "./")
+					{
+						if (static_cast<int>(filename.find(strStartPath)) >= 0)
+							retVec.push_back( filename );
+					}
+					else
+						retVec.push_back( filename );
                 }
             }
 
