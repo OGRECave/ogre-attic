@@ -108,7 +108,9 @@ namespace Ogre {
         }
 
         mIsLocked = true;
-        return pBuffer;
+        // return offsetted
+        return static_cast<void*>(
+            static_cast<unsigned char*>(pBuffer) + offset);
     }
 	//---------------------------------------------------------------------
 	void GLHardwareIndexBuffer::unlockImpl(void)
