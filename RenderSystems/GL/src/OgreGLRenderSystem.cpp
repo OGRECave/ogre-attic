@@ -1350,9 +1350,9 @@ namespace Ogre {
         // SJS- temporary fix since ARB version of blends do not appear to be working
         // correctly at this stage
 
-		//if (mGLCaps.arbCombine)
-		//	_setTextureBlendMode_ARB(stage, bm);
-		//else if (mGLCaps.extCombine)
+		if (mGLCaps.arbCombine)
+			_setTextureBlendMode_ARB(stage, bm);
+		else if (mGLCaps.extCombine)
 			_setTextureBlendMode_EXT(stage, bm);
     }
 	//-----------------------------------------------------------------------------
@@ -1456,17 +1456,26 @@ namespace Ogre {
 
 		glActiveTextureARB(GL_TEXTURE0_ARB + stage);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
+        /*
 		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
 		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_MODULATE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, cmd);
-		if (cmd != GL_DOT3_RGB_ARB)
-			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, cmd);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, src1op);
-        glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, src2op);
-        glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_ARB, GL_CONSTANT_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, src1op);
-        glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_ARB, src2op);
-        glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_ARB, GL_CONSTANT_ARB);
+        */
+
+        if (bm.blendType == LBT_COLOUR)
+        {
+            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, cmd);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, src1op);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, src2op);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_ARB, GL_CONSTANT_ARB);
+        }
+        else
+        {
+            if (cmd != GL_DOT3_RGB_ARB)
+                glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, cmd);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, src1op);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_ARB, src2op);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_ARB, GL_CONSTANT_ARB);
+        }
 
 		if (bm.operation == LBX_BLEND_TEXTURE_ALPHA)
 		{
@@ -1595,7 +1604,7 @@ namespace Ogre {
             break;
         case LBX_MODULATE:
             cmd = GL_MODULATE;
-			glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ? GL_RGB_SCALE_ARB : GL_ALPHA_SCALE, 1);
+			glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ? GL_RGB_SCALE_EXT : GL_ALPHA_SCALE, 1);
             break;
         case LBX_MODULATE_X2:
             cmd = GL_MODULATE;
