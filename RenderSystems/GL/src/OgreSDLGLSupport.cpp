@@ -17,9 +17,6 @@ SDLGLSupport::SDLGLSupport()
 
 SDLGLSupport::~SDLGLSupport()
 {
-    // XXX Is this really necessary?
-    extensionList.clear();
-
     SDL_Quit();
 }
 
@@ -91,14 +88,6 @@ void SDLGLSupport::stop()
         "******************************");
 
     SDL_Quit();
-}
-
-bool SDLGLSupport::checkExtension(const std::string& ext)
-{
-    if(extensionList.find(ext) == extensionList.end())
-        return false;
-
-    return true;
 }
 
 void* SDLGLSupport::getProcAddress(const std::string& procname)

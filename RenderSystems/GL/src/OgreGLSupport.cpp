@@ -29,9 +29,22 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+    template<> GLSupport* Singleton<GLSupport>::ms_Singleton = 0;
+
     void GLSupport::initialiseExtensions(void)
     {
+        // Set version string
+        const GLubyte* pcVer = glGetString(GL_VERSION);
 
+        assert(pcVer && "Problems getting GL version string using glGetString");
+       
+        if(pcVer)
+        {
+          String tmpStr = (const char*)pcVer;
+          version = tmpStr.substr(0, tmpStr.find(" "));
+        }
+
+        // Set extension list
         std::stringstream ext;
         String str;
 
@@ -51,5 +64,18 @@ namespace Ogre {
         }
 
         ext.str("");
+    }
+
+    bool GLSupport::checkExtension(const std::string& ext)
+    {
+        if(extensionList.find(ext) == extensionList.end())
+            return false; 
+        
+        return true;
+    }
+
+    GLSupport& GLSupport::getSingleton(void)
+    {   
+      return Singleton<GLSupport>::getSingleton();
     }
 }
