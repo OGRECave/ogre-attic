@@ -36,10 +36,27 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include <iostream>
 
-std::ofstream of;
+#if OGRE_DEBUG_MODE 
+std::ofstream ofdebug;
+#endif 
 
 namespace Ogre {
 	#define NEVER_COLLAPSE_COST 99999.9f
+
+
+    /** Comparator for unique vertex list
+    */
+    struct vectorLess
+    {
+		_OgreExport bool operator()(const Vector3& v1, const Vector3& v2) const
+        {
+			if (v1.x < v2.x) return true;
+			if (v1.x == v2.x && v1.y < v2.y) return true;
+			if (v1.x == v2.x && v1.y == v2.y && v1.z < v2.z) return true;
+
+			return false;
+		}
+	};
     //---------------------------------------------------------------------
     ProgressiveMesh::ProgressiveMesh(GeometryData* data, 
         ushort* indexBuffer, ushort numIndexes)
@@ -68,11 +85,12 @@ namespace Ogre {
     {
         LODGeometryData newLod;
 
+        computeAllCosts();
+
 #if OGRE_DEBUG_MODE
 		dumpContents("pm_before.log");
 #endif
 
-        computeAllCosts();
         // Init
         mCurrNumIndexes = mNumIndexes;
         ushort numVerts, numCollapses;
@@ -84,8 +102,9 @@ namespace Ogre {
 
 		PMVertex* test = &(mWorkingData[0].mVertList[347]);
 
-		of.open("progressivemesh.log");
-
+#if OGRE_DEBUG_MODE 
+		ofdebug.open("progressivemesh.log");
+#endif
 		numCollapses = 0;
 		while (numLevels--)
         {
@@ -113,10 +132,11 @@ namespace Ogre {
                 {
                     PMVertex* collapser = &( idata->mVertList.at( nextIndex ) );
                     // This will reduce mCurrNumIndexes and recalc costs as required
-					of << "Collapsing index " << collapser->index << "(border: "<< collapser->isBorder() <<
+#if OGRE_DEBUG_MODE 
+					ofdebug << "Collapsing index " << collapser->index << "(border: "<< collapser->isBorder() <<
 						") to " << collapser->collapseTo->index << "(border: "<< collapser->collapseTo->isBorder() <<
 						std::endl;
-
+#endif
 					assert(collapser->collapseTo->removed == false);
 
                     collapse(collapser);
@@ -149,17 +169,58 @@ namespace Ogre {
 
         uint i;
         // Build vertex list
-        work.mVertList.resize(data->numVertices);
+		// Resize face list (this will always be this big)
+		work.mFaceVertList.resize(data->numVertices);
+		// Also resize common vert list to max, to avoid reallocations
+		work.mVertList.resize(data->numVertices);
+
         Real* pReal = data->pVertices;
         Vector3 pos;
+		// Map for identifying duplicate position vertices
+		typedef std::map<Vector3, ushort, vectorLess> CommonVertexMap;
+		CommonVertexMap commonVertexMap;
+		CommonVertexMap::iterator iCommonVertex;
+		ushort numCommon = 0;
         for (i = 0; i < data->numVertices; ++i)
         {
             pos.x = *pReal++;
             pos.y = *pReal++;
             pos.z = *pReal++;
-            work.mVertList[i].setDetails(pos, i);
-            work.mVertList[i].removed = false;
+
+			// Try to find this position in the existing map 
+			iCommonVertex = commonVertexMap.find(pos);
+			if (iCommonVertex == commonVertexMap.end())
+			{
+				// Doesn't exist, so create it
+				PMVertex* commonVert = &(work.mVertList[numCommon]);
+				commonVert->setDetails(pos, numCommon);
+				commonVert->removed = false;
+				commonVert->toBeRemoved = false;
+				commonVert->seam = false;
+
+				// Enter it in the map
+				commonVertexMap.insert(CommonVertexMap::value_type(pos, numCommon) );
+				// Increment common index
+				++numCommon;
+
+				work.mFaceVertList[i].commonVertex = commonVert;
+				work.mFaceVertList[i].realIndex = i;
+			}
+			else
+			{
+				// Exists already, reference it
+				PMVertex* existingVert = &(work.mVertList[iCommonVertex->second]);
+				work.mFaceVertList[i].commonVertex = existingVert;
+				work.mFaceVertList[i].realIndex = i;
+
+				// Also tag original as a seam since duplicates at this location
+				work.mFaceVertList[i].commonVertex->seam = true;
+
+			}
+			
         }
+
+		mNumCommonVertices = numCommon;
 
         // Build tri list
         ushort numTris = numIndexes / 3;
@@ -167,65 +228,19 @@ namespace Ogre {
         work.mTriList.resize(numTris); // assumed tri list
         for (i = 0; i < numTris; ++i)
         {
-			PMVertex *v0, *v1, *v2;
+			PMFaceVertex *v0, *v1, *v2;
 			ushort vindex = *pIdx++;
-			v0 = &(work.mVertList[vindex]);
+			v0 = &(work.mFaceVertList[vindex]);
 			vindex = *pIdx++;
-			v1 = &(work.mVertList[vindex]);
+			v1 = &(work.mFaceVertList[vindex]);
 			vindex = *pIdx++;
-			v2 = &(work.mVertList[vindex]);
+			v2 = &(work.mFaceVertList[vindex]);
 
 			work.mTriList[i].setDetails(i, v0, v1, v2);
-
-			/*
-            work.mTriList[i].setDetails(
-                &(work.mVertList[*pIdx++]),
-                &(work.mVertList[*pIdx++]),
-                &(work.mVertList[*pIdx++]) );
-			*/
 
             work.mTriList[i].removed = false;
 
         }
-
-
-		// Scan for border vertices which are connected to others
-		// This happens when we need duplicate verts to hold different texture coords etc at seams
-        for (i = 0; i < data->numVertices; ++i)
-        {
-			PMVertex *thisVert = &(work.mVertList[i]);
-			if (thisVert->isBorder())
-			{
-				// Look for other borders in the same place
-				int j;
-				for (j = 0; j < data->numVertices; ++j)
-				{
-					PMVertex* otherVert = &(work.mVertList[j]);
-					if (thisVert != otherVert &&
-						otherVert->isBorder() && 
-						otherVert->position == thisVert->position)
-					{
-						// Link together
-						otherVert->borderJoined.insert(thisVert);
-						thisVert->borderJoined.insert(otherVert);
-
-						// Copy neighbour info both ways
-						otherVert->neighbor.insert(
-							thisVert->neighbor.begin(), thisVert->neighbor.end());
-						thisVert->neighbor.insert(
-							otherVert->neighbor.begin(), otherVert->neighbor.end());
-						// Copy face links both ways
-						otherVert->face.insert(
-							thisVert->face.begin(), thisVert->face.end());
-						thisVert->face.insert(
-							otherVert->face.begin(), otherVert->face.end());
-
-					}
-
-				}
-			}
-		}
-
 
     }
     //---------------------------------------------------------------------
@@ -249,7 +264,7 @@ namespace Ogre {
         for(srcface = src->face.begin(); srcface != srcfaceEnd; ++srcface)
         {
             // Check if this tri also has dest in it (shared edge)
-            if( (*srcface)->hasVertex(dest) )
+            if( (*srcface)->hasCommonVertex(dest) )
             {
                 sides.insert(*srcface);
             }
@@ -264,8 +279,8 @@ namespace Ogre {
 				// src is on a border, but the src-dest edge has more than one tri on it
 				// So it must be collapsing inwards
 				// Mark as very high-value cost
-				//curvature = 1.0f;
-				cost = NEVER_COLLAPSE_COST;
+				// curvature = 1.0f;
+				cost = 1.0f;
 			}
 			else
 			{
@@ -326,6 +341,15 @@ namespace Ogre {
 			cost = curvature;
 		}
 
+        // check for texture seam ripping
+		if (src->seam && !dest->seam)
+		{
+			cost = 1.0f;
+		}
+
+
+
+		/*
 		// Degenerate case check
 		// Are we going to invert a face normal of one of the neighbouring faces?
 		// Can occur when we have a very small remaining edge and collapse crosses it
@@ -333,14 +357,14 @@ namespace Ogre {
 		for(srcface = src->face.begin(); srcface != srcfaceEnd; ++srcface) 
 		{
 			// Ignore the deleted faces (those including src & dest)
-			if( !(*srcface)->hasVertex(dest) )
+			if( !(*srcface)->hasCommonVertex(dest) )
 			{
 				// Test the new face normal
 				PMVertex *v0, *v1, *v2;
 				// Replace src with dest wherever it is
-				v0 = ( (*srcface)->vertex[0] == src) ? dest : (*srcface)->vertex[0];
-				v1 = ( (*srcface)->vertex[1] == src) ? dest : (*srcface)->vertex[1];
-				v2 = ( (*srcface)->vertex[1] == src) ? dest : (*srcface)->vertex[2];
+				v0 = ( (*srcface)->vertex[0]->commonVertex == src) ? dest : (*srcface)->vertex[0]->commonVertex;
+				v1 = ( (*srcface)->vertex[1]->commonVertex == src) ? dest : (*srcface)->vertex[1]->commonVertex;
+				v2 = ( (*srcface)->vertex[2]->commonVertex == src) ? dest : (*srcface)->vertex[2]->commonVertex;
 
 				// Cross-product 2 edges
 				Vector3 e1 = v1->position - v0->position; 
@@ -361,42 +385,10 @@ namespace Ogre {
 
 			}
 		}
-
-
-
-        // check for texture seam ripping
-        /* Not reimplemented (This is Stan's code below so won't compile here!)
-        Because we have to duplicate vertices where texcoords do not agree, then
-        a texture seam actually becomes a geometry border now, which will
-        be dealt with in the section above. 
-        int nomatch=0;
-        for(i=0;i<u->face.num;i++) {
-        for(int j=0;j<sides.num;j++) {
-        // perhaps we should actually compare the positions in uv space
-        if(u->face[i]->texat(u) == sides[j]->texat(u)) break;
-        }
-        if(j==sides.num) 
-        {
-        // we didn't find a triangle with edge uv that shares texture coordinates
-        // with face i at vertex u
-        nomatch++;
-        }
-        }
-        if(nomatch) {
-        curvature=1;
-        }
-        */
-
-
-        // Enable this next part if we want to keep ALL border vertices
-        // Will guarantee shape remains in flat objects but limits reduction
-        /*
-        if(u->isBorder()) 
-        {
-        curvature = 9999.9f;
-        }
-        */
+		*/
 		
+
+		assert (cost >= 0);
 		return cost;
     }
     //---------------------------------------------------------------------
@@ -406,7 +398,7 @@ namespace Ogre {
         iend = mWorkingData.end();
         for (i = mWorkingData.begin(); i != iend; ++i)
         {
-            VertexList::iterator v, vend;
+            CommonVertexList::iterator v, vend;
             vend = i->mVertList.end();
             for (v = i->mVertList.begin(); v != vend; ++v)
             {
@@ -427,18 +419,17 @@ namespace Ogre {
         // (in member variable collapse) as well as the value of the 
         // cost (in member variable objdist).
 
-        VertexList::iterator v = idata->mVertList.begin();
+        CommonVertexList::iterator v = idata->mVertList.begin();
         v += vertIndex;
 
         if(v->neighbor.empty()) {
-            // v doesn't have neighbors so it costs nothing to collapse
-            v->collapseTo = NULL;
-            v->collapseCost = -0.01f;
+            // v doesn't have neighbors so nothing to collapse
+            v->notifyRemoved();
             return v->collapseCost;
         }
 
         // Init metrics
-        v->collapseCost = 1000000;
+        v->collapseCost = NEVER_COLLAPSE_COST;
         v->collapseTo = NULL;
 
         // search all neighboring edges for "least cost" edge
@@ -455,7 +446,7 @@ namespace Ogre {
             }
         }
 
-        return cost;
+        return v->collapseCost;
     }
     //---------------------------------------------------------------------
     void ProgressiveMesh::computeAllCosts(void)
@@ -471,13 +462,14 @@ namespace Ogre {
     void ProgressiveMesh::collapse(PMVertex *src)
     {
         PMVertex *dest = src->collapseTo;
+		std::set<PMVertex*> recomputeSet;
 
 		// Abort if we're never supposed to collapse
 		if (src->collapseCost == NEVER_COLLAPSE_COST) 
 			return;
 
 		// Remove this vertex from the running for the next check
-		src->collapseTo = 0;
+		src->collapseTo = NULL;
 		src->collapseCost = NEVER_COLLAPSE_COST;
 		mWorstCosts[src->index] = NEVER_COLLAPSE_COST;
 
@@ -486,8 +478,30 @@ namespace Ogre {
 	    // have u to have v, and then remove u.
 	    if(!dest) {
 		    // src is a vertex all by itself 
-		    return;
+#if OGRE_DEBUG_MODE 
+			ofdebug << "Aborting collapse, orphan vertex. " << std::endl;
+#endif
+			return;
 	    }
+
+		// Add dest and all the neighbours of source and dest to recompute list
+		recomputeSet.insert(dest);
+		PMVertex::NeighborList::iterator n, nend;
+        nend = src->neighbor.end();
+
+		PMVertex* temp;
+
+	    for(n = src->neighbor.begin(); n != nend; ++n)
+        {
+			temp = *n;
+			recomputeSet.insert( *n );
+		}
+        nend = dest->neighbor.end();
+	    for(n = dest->neighbor.begin(); n != nend; ++n)
+        {
+			temp = *n;
+			recomputeSet.insert( *n );
+		}
 
 	    // delete triangles on edge src-dest
         // Notify others to replace src with dest
@@ -498,7 +512,7 @@ namespace Ogre {
 		PMVertex::FaceList faceRemovalList, faceReplacementList;
 	    for(f = src->face.begin(); f != fend; ++f) 
         {
-		    if((*f)->hasVertex(dest)) 
+		    if((*f)->hasCommonVertex(dest)) 
             {
                 // Tri is on src-dest therefore is gone
 				faceRemovalList.insert(*f);
@@ -512,33 +526,53 @@ namespace Ogre {
             }
 	    }
 
-		// Remove all the faces queued for removal
-	    for(f = faceRemovalList.begin(); f != faceRemovalList.end(); ++f) 
-		{
-			(*f)->notifyRemoved();
-		}
+		src->toBeRemoved = true;
 		// Replace all the faces queued for replacement
 	    for(f = faceReplacementList.begin(); f != faceReplacementList.end(); ++f) 
 		{
-            (*f)->replaceVertex(src, dest);
+			/* Locate the face vertex which corresponds with the common 'dest' vertex
+			To to this, find a removed face which has the FACE vertex corresponding with
+			src, and use it's FACE vertex version of dest.
+			*/
+			PMFaceVertex* srcFaceVert = (*f)->getFaceVertexFromCommon(src);
+			PMFaceVertex* destFaceVert = NULL;
+			PMVertex::FaceList::iterator iremoved;
+			for(iremoved = faceRemovalList.begin(); iremoved != faceRemovalList.end(); ++iremoved) 
+			{
+				//if ( (*iremoved)->hasFaceVertex(srcFaceVert) )
+				//{
+					destFaceVert = (*iremoved)->getFaceVertexFromCommon(dest); 
+				//}
+			}
+			
+			assert(destFaceVert);
+
+#if OGRE_DEBUG_MODE 
+			ofdebug << "Replacing vertex on face " << (*f)->index << std::endl;
+#endif
+            (*f)->replaceVertex(srcFaceVert, destFaceVert);
+		}
+		// Remove all the faces queued for removal
+	    for(f = faceRemovalList.begin(); f != faceRemovalList.end(); ++f) 
+		{
+#if OGRE_DEBUG_MODE 
+			ofdebug << "Removing face " << (*f)->index << std::endl;
+#endif
+			(*f)->notifyRemoved();
 		}
 
         // Notify the vertex that it is gone
         src->notifyRemoved();
 
-        // recompute the edge collapse costs for dest and it's neighboring vertices
-        // Dest
-        computeEdgeCostAtVertex(dest->index);
-        // Neighbors of dest
-        PMVertex::NeighborList::iterator n, nend;
-        nend = dest->neighbor.end();
-	    for(n = dest->neighbor.begin(); n != nend; ++n)
-        {
-		    computeEdgeCostAtVertex((*n)->index);
-	    }
-
-
-
+        // recompute costs
+		std::set<PMVertex*>::iterator irecomp, irecompend;
+		irecompend = recomputeSet.end();
+		for (irecomp = recomputeSet.begin(); irecomp != irecompend; ++irecomp)
+		{
+			temp = (*irecomp);
+			computeEdgeCostAtVertex( (*irecomp)->index );
+		}
+		
     }
     //---------------------------------------------------------------------
     void ProgressiveMesh::computeEdgeCostAtVertex(ushort vertIndex)
@@ -563,7 +597,7 @@ namespace Ogre {
         Real bestVal = NEVER_COLLAPSE_COST;
         ushort i, bestIndex;
 		bestIndex = 0; // NB this is ok since if nothing is better than this, nothing will collapse
-        for (i = 0; i < mpGeomData->numVertices; ++i)
+        for (i = 0; i < mNumCommonVertices; ++i)
         {
             if (mWorstCosts[i] < bestVal)
             {
@@ -589,9 +623,9 @@ namespace Ogre {
         {
             if (!tri->removed)
             {
-                *pIndex++ = tri->vertex[0]->index;
-                *pIndex++ = tri->vertex[1]->index;
-                *pIndex++ = tri->vertex[2]->index;
+                *pIndex++ = tri->vertex[0]->realIndex;
+                *pIndex++ = tri->vertex[1]->realIndex;
+                *pIndex++ = tri->vertex[2]->realIndex;
             }
         }
 
@@ -601,8 +635,8 @@ namespace Ogre {
     {
     }
     //---------------------------------------------------------------------
-    void ProgressiveMesh::PMTriangle::setDetails(ushort newindex, PMVertex *v0, PMVertex *v1, 
-        PMVertex *v2)
+    void ProgressiveMesh::PMTriangle::setDetails(ushort newindex, PMFaceVertex *v0, PMFaceVertex *v1, 
+        PMFaceVertex *v2)
     {
         assert(v0!=v1 && v1!=v2 && v2!=v0);
 
@@ -616,9 +650,9 @@ namespace Ogre {
         // Add tri to vertices
         // Also tell vertices they are neighbours
         for(int i=0;i<3;i++) {
-            vertex[i]->face.insert(this);
+            vertex[i]->commonVertex->face.insert(this);
             for(int j=0;j<3;j++) if(i!=j) {
-                vertex[i]->neighbor.insert(vertex[j]);
+                vertex[i]->commonVertex->neighbor.insert(vertex[j]->commonVertex);
             }
         }
     }
@@ -628,30 +662,50 @@ namespace Ogre {
         int i;
         for(i=0; i<3; i++) {
             // remove this tri from the vertices
-            if(vertex[i]) vertex[i]->face.erase(this);
+            if(vertex[i]) vertex[i]->commonVertex->face.erase(this);
         }
         for(i=0; i<3; i++) {
             int i2 = (i+1)%3;
             if(!vertex[i] || !vertex[i2]) continue;
             // Check remaining vertices and remove if not neighbours anymore
             // NB May remain neighbours if other tris link them
-            vertex[i ]->removeIfNonNeighbor(vertex[i2]);
-            vertex[i2]->removeIfNonNeighbor(vertex[i ]);
+            vertex[i ]->commonVertex->removeIfNonNeighbor(vertex[i2]->commonVertex);
+            vertex[i2]->commonVertex->removeIfNonNeighbor(vertex[i ]->commonVertex);
         }
 
         removed = true;
     }
     //---------------------------------------------------------------------
-    bool ProgressiveMesh::PMTriangle::hasVertex(PMVertex *v) 
+    bool ProgressiveMesh::PMTriangle::hasCommonVertex(PMVertex *v) 
     {
-        return (v==vertex[0] ||v==vertex[1] || v==vertex[2]);
+        return (v == vertex[0]->commonVertex ||
+			v == vertex[1]->commonVertex || 
+			v == vertex[2]->commonVertex);
     }
+    //---------------------------------------------------------------------
+	bool ProgressiveMesh::PMTriangle::hasFaceVertex(PMFaceVertex *v)
+	{
+		return (v == vertex[0] ||
+				v == vertex[1] || 
+				v == vertex[2]);
+	}
+    //---------------------------------------------------------------------
+	ProgressiveMesh::PMFaceVertex* 
+	ProgressiveMesh::PMTriangle::getFaceVertexFromCommon(PMVertex* commonVert)
+	{
+		if (vertex[0]->commonVertex == commonVert) return vertex[0];
+		if (vertex[1]->commonVertex == commonVert) return vertex[1];
+		if (vertex[2]->commonVertex == commonVert) return vertex[2];
+
+		return NULL;
+
+	}
     //---------------------------------------------------------------------
     void ProgressiveMesh::PMTriangle::computeNormal()
     {
-        Vector3 v0=vertex[0]->position;
-        Vector3 v1=vertex[1]->position;
-        Vector3 v2=vertex[2]->position;
+        Vector3 v0=vertex[0]->commonVertex->position;
+        Vector3 v1=vertex[1]->commonVertex->position;
+        Vector3 v2=vertex[2]->commonVertex->position;
         // Cross-product 2 edges
         Vector3 e1 = v1 - v0; 
         Vector3 e2 = v2 - v1;
@@ -660,7 +714,7 @@ namespace Ogre {
         normal.normalise();
     }
     //---------------------------------------------------------------------
-    void ProgressiveMesh::PMTriangle::replaceVertex(PMVertex *vold, PMVertex *vnew) 
+    void ProgressiveMesh::PMTriangle::replaceVertex(PMFaceVertex *vold, PMFaceVertex *vnew) 
     {
         assert(vold && vnew);
         assert(vold==vertex[0] || vold==vertex[1] || vold==vertex[2]);
@@ -676,16 +730,20 @@ namespace Ogre {
             vertex[2]=vnew;
         }
         int i;
-        vold->face.erase(this);
-        vnew->face.insert(this);
+        vold->commonVertex->face.erase(this);
+        vnew->commonVertex->face.insert(this);
         for(i=0;i<3;i++) {
-            vold->removeIfNonNeighbor(vertex[i]);
-            vertex[i]->removeIfNonNeighbor(vold);
+            vold->commonVertex->removeIfNonNeighbor(vertex[i]->commonVertex);
+            vertex[i]->commonVertex->removeIfNonNeighbor(vold->commonVertex);
         }
         for(i=0;i<3;i++) {
-            assert(vertex[i]->face.find(this) != vertex[i]->face.end());
+            assert(vertex[i]->commonVertex->face.find(this) != vertex[i]->commonVertex->face.end());
             for(int j=0;j<3;j++) if(i!=j) {
-                vertex[i]->neighbor.insert(vertex[j]);
+#if OGRE_DEBUG_MODE 
+				ofdebug << "Adding vertex " << vertex[j]->commonVertex->index << " to the neighbor list "
+					"of vertex " << vertex[i]->commonVertex->index << std::endl;
+#endif 
+                vertex[i]->commonVertex->neighbor.insert(vertex[j]->commonVertex);
             }
         }
         computeNormal();
@@ -711,6 +769,8 @@ namespace Ogre {
             (*i)->neighbor.erase(this);
         }
         removed = true;
+		this->collapseTo = NULL;
+        this->collapseCost = NEVER_COLLAPSE_COST;
     }
     //---------------------------------------------------------------------
     bool ProgressiveMesh::PMVertex::isBorder() 
@@ -729,7 +789,7 @@ namespace Ogre {
             jend = face.end();
             for(j = face.begin(); j != jend; ++j) 
             {
-                if((*j)->hasVertex(*i))
+                if((*j)->hasCommonVertex(*i))
                 {
                     // Shared tri
                     count ++;
@@ -754,10 +814,20 @@ namespace Ogre {
         fend = face.end();
         for(f = face.begin(); f != fend; ++f) 
         {
-            if((*f)->hasVertex(n)) return; // Still a neighbor
+            if((*f)->hasCommonVertex(n)) return; // Still a neighbor
         }
 
+#if OGRE_DEBUG_MODE 
+		ofdebug << "Vertex " << n->index << " is no longer a neighbour of vertex " << this->index <<
+			" so has been removed from the latter's neighbor list." << std::endl;
+#endif
         neighbor.erase(n);
+
+		if (neighbor.empty() && !toBeRemoved)
+		{
+			// This vertex has been removed through isolation (collapsing around it)
+			this->notifyRemoved();
+		}
     }
     //---------------------------------------------------------------------
     void ProgressiveMesh::dumpContents(const String& log)
@@ -767,10 +837,11 @@ namespace Ogre {
 		// Just dump 1st working data for now
 		WorkingDataList::iterator worki = mWorkingData.begin();
 
-		VertexList::iterator vi, vend;
+		CommonVertexList::iterator vi, vend;
 		vend = worki->mVertList.end();
 		ofdump << "-------== VERTEX LIST ==-----------------" << std::endl;
-		for (vi = worki->mVertList.begin(); vi != vend; ++vi)
+		ushort i;
+		for (vi = worki->mVertList.begin(), i = 0; i < mNumCommonVertices; ++vi, ++i)
 		{
 			ofdump << "Vertex " << vi->index << " pos: " << vi->position << " removed: " 
 				<< vi->removed << " isborder: " << vi->isBorder() << std::endl;
@@ -797,9 +868,15 @@ namespace Ogre {
 		for(ti = worki->mTriList.begin(); ti != tend; ++ti)
 		{
 			ofdump << "Triangle " << ti->index << " norm: " << ti->normal << " removed: " << ti->removed << std::endl;
-			ofdump << "    Vertex 0: " << ti->vertex[0]->index << std::endl;
-			ofdump << "    Vertex 1: " << ti->vertex[1]->index << std::endl;
-			ofdump << "    Vertex 2: " << ti->vertex[2]->index << std::endl;
+			ofdump << "    Vertex 0: " << ti->vertex[0]->realIndex << std::endl;
+			ofdump << "    Vertex 1: " << ti->vertex[1]->realIndex << std::endl;
+			ofdump << "    Vertex 2: " << ti->vertex[2]->realIndex << std::endl;
+		}
+
+		ofdump << "-------== COLLAPSE COST LIST ==-----------------" << std::endl;
+		for (ushort ci = 0; ci < mNumCommonVertices; ++ci)
+		{
+			ofdump << "Vertex " << ci << ": " << mWorstCosts[ci] << std::endl;
 		}
 
 		ofdump.close();
