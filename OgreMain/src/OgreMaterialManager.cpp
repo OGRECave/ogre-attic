@@ -802,7 +802,7 @@ namespace Ogre {
 			    + pMat->getName() + ", wrong number of parameters (expected 2)");
 		    return;
 	    }
-	    pMat->setDepthBias(atof(params[1].c_str()));
+	    pMat->setDepthBias(atoi(params[1].c_str()));
     }
 
     //-----------------------------------------------------------------------

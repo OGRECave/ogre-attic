@@ -105,7 +105,6 @@ OgreRenderSystem.h \
 OgreRenderTarget.h \
 OgreRenderTargetListener.h \
 OgreRenderWindow.h \
-OgreRenderWindowMap.h \
 OgreRenderable.h \
 OgreResource.h \
 OgreResourceManager.h \
