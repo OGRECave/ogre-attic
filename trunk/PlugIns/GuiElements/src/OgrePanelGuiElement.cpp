@@ -79,7 +79,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void PanelGuiElement::setTiling(Real x, Real y, ushort layer)
     {
-        assert (layer >= 0 && layer < OGRE_MAX_TEXTURE_COORD_SETS);
+        assert (layer < OGRE_MAX_TEXTURE_COORD_SETS);
         assert (x != 0 && y != 0);
 
         mTileX[layer] = x;

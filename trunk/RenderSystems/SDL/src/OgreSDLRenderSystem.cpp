@@ -42,6 +42,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 #   define GL_MIRRORED_REPEAT_IBM 0x8370 
 #endif 
 
+#ifdef HAVE_CONFIG_H
+#   include "config.h"
+#endif
+
 namespace Ogre {
 
     SDLRenderSystem::SDLRenderSystem()
@@ -672,7 +676,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     unsigned short SDLRenderSystem::_getNumTextureUnits(void)
     {
-        #if OGRE_SDL_USE_MULTITEXTURING
+        #ifdef OGRE_SDL_USE_MULTITEXTURING
             GLint units;
             glGetIntegerv( GL_MAX_TEXTURE_UNITS_ARB, &units );
             return (unsigned short)units;
@@ -737,7 +741,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void SDLRenderSystem::_setTextureBlendMode(int stage, const LayerBlendModeEx& bm)
     {       
+        GLenum errcode;
         glActiveTextureARB(GL_TEXTURE0_ARB + stage);
+
         glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
 //
 //        std::cout << "Need to do blend op: " << bm.operation << std::endl;
@@ -745,6 +751,12 @@ namespace Ogre {
 //        std::cout << "Src1: " << bm.source1 << std::endl;
 //        std::cout << "Src2: " << bm.source2 << std::endl;
 
+        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_EXT, GL_SRC_COLOR);
+        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_EXT, GL_SRC_ALPHA);
+        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_EXT, GL_SRC_COLOR);
+        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA_EXT, GL_SRC_ALPHA);
+        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB_EXT, GL_SRC_COLOR); 
+        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_ALPHA_EXT, GL_SRC_ALPHA); 
 
         GLenum type, src1, src2, src1op, src2op, cmd;
         if (bm.blendType == LBT_COLOUR)
@@ -759,13 +771,6 @@ namespace Ogre {
             src1 = GL_SOURCE0_ALPHA_EXT;
             src2 = GL_SOURCE1_ALPHA_EXT;
         }
-
-        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_EXT, GL_SRC_COLOR);
-        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_EXT, GL_SRC_ALPHA);
-        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_EXT, GL_SRC_COLOR);
-        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA_EXT, GL_SRC_ALPHA);
-        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB_EXT, GL_SRC_COLOR); 
-        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_ALPHA_EXT, GL_SRC_ALPHA); 
 
         switch (bm.source1)
         {
@@ -860,11 +865,12 @@ namespace Ogre {
             hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREFACTOR,
                 D3DRGBA(0,0,0,bm.factor));
             break;
+#endif
         default:
             printf("Unhandled type %d\n", bm.operation);
-#endif
         }
 
+        //printf("Blending type(%x), cmd(%x), src1(%x), src1op(%x), src2(%x), src2op(%x)\n)", type, cmd, src1, src1op, src2, src2op);
         glTexEnvi(GL_TEXTURE_ENV, type, cmd);
         glTexEnvi(GL_TEXTURE_ENV, src1, src1op);
         glTexEnvi(GL_TEXTURE_ENV, src2, src2op);
@@ -1148,7 +1154,6 @@ namespace Ogre {
                 if( i < op.numTextureCoordSets )
                 {                
                     glClientActiveTextureARB(index + i);
-                    glEnableClientState( GL_TEXTURE_COORD_ARRAY );
                     stride = op.texCoordStride[mTextureCoordIndex[i]] ?  
                         op.texCoordStride[mTextureCoordIndex[i]] +
                         (sizeof(GL_FLOAT) * 
@@ -1158,6 +1163,7 @@ namespace Ogre {
                         op.numTextureDimensions[mTextureCoordIndex[i]],
                         GL_FLOAT, stride, 
                         op.pTexCoords[mTextureCoordIndex[i]] );
+                    glEnableClientState( GL_TEXTURE_COORD_ARRAY );
                 }
                 else
                 {
