@@ -93,9 +93,16 @@ namespace Ogre {
 
         // Delete shared buffers
         if(mVertexData)
+        {
             delete mVertexData;
+            mVertexData = 0;
+        }
+            
         if(mIndexData)
+        {
             delete mIndexData;
+            mIndexData = 0;
+        }
     }
     //-----------------------------------------------------------------------
     Billboard* BillboardSet::createBillboard(
@@ -563,9 +570,15 @@ namespace Ogre {
             mBuffersCreated = false;
 
             if (mVertexData)
+            {
                 delete mVertexData;
+                mVertexData = 0;
+            }
             if (mIndexData)
+            {
                 delete mIndexData;
+                mIndexData = 0;
+            }
         }
     }
 
