@@ -592,13 +592,15 @@ namespace Ogre {
             break;
 
         case TEXCALC_ENVIRONMENT_MAP:
+/* Removed by SJS - NORMAL_MAP is a different effect entirely
 #ifdef GL_VERSION_1_3
             glTexGeni( GL_S, GL_TEXTURE_GEN_MODE, GL_NORMAL_MAP );
             glTexGeni( GL_T, GL_TEXTURE_GEN_MODE, GL_NORMAL_MAP );
 #else
+*/
             glTexGeni( GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );
             glTexGeni( GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );
-#endif
+//#endif
             glEnable( GL_TEXTURE_GEN_S );
             glEnable( GL_TEXTURE_GEN_T );
             break;
