@@ -68,6 +68,9 @@ namespace Ogre
         /** Private function to build trig tables.
         */
         void buildTrigTables();
+
+		static Real SinTable (Real fValue);
+		static Real TanTable (Real fValue);
     public:
         /** Default constructor.
             @param
@@ -80,17 +83,17 @@ namespace Ogre
         */
         ~Math();
 
-        static int IAbs (int iValue);
-        static int ICeil (float fValue);
-        static int IFloor (float fValue);
+		static inline int IAbs (int iValue) { return ( iValue >= 0 ? iValue : -iValue ); }
+		static inline int ICeil (float fValue) { return int(ceil(fValue)); }
+		static inline int IFloor (float fValue) { return int(floor(fValue)); }
         static int ISign (int iValue);
 
-        static Real Abs (Real fValue);
+		static inline Real Abs (Real fValue) { return Real(fabs(fValue)); }
         static Real ACos (Real fValue);
         static Real ASin (Real fValue);
-        static Real ATan (Real fValue);
-        static Real ATan2 (Real fY, Real fX);
-        static Real Ceil (Real fValue);
+		static inline Real ATan (Real fValue) { return Real(atan(fValue)); }
+		static inline Real ATan2 (Real fY, Real fX) { return Real(atan2(fY,fX)); }
+		static inline Real Ceil (Real fValue) { return Real(ceil(fValue)); }
 
         /** Cosine function.
             @param
@@ -99,15 +102,17 @@ namespace Ogre
                 useTables If true, uses lookup tables rather than
                 calculation - faster but less accurate.
         */
-        static Real Cos (Real fValue, bool useTables = false);
+        static inline Real Cos (Real fValue, bool useTables = false) {
+			return (!useTables) ? Real(cos(fValue)) : SinTable(fValue + HALF_PI);
+		}
 
-        static Real Exp (Real fValue);
+		static inline Real Exp (Real fValue) { return Real(exp(fValue)); }
 
-        static Real Floor (Real fValue);
+		static inline Real Floor (Real fValue) { return Real(floor(fValue)); }
 
-        static Real Log (Real fValue);
+		static inline Real Log (Real fValue) { return Real(log(fValue)); }
 
-        static Real Pow (Real kBase, Real kExponent);
+		static inline Real Pow (Real fBase, Real fExponent) { return Real(pow(fBase,fExponent)); }
 
         static Real Sign (Real fValue);
 
@@ -118,16 +123,18 @@ namespace Ogre
                 useTables If true, uses lookup tables rather than
                 calculation - faster but less accurate.
         */
-        static Real Sin (Real fValue, bool useTables = false);
+        static inline Real Sin (Real fValue, bool useTables = false) {
+			return (!useTables) ? Real(sin(fValue)) : SinTable(fValue);
+		}
 
-        static Real Sqr (Real fValue);
+		static inline Real Sqr (Real fValue) { return fValue*fValue; }
 
-        static Real Sqrt (Real fValue);
+		static inline Real Sqrt (Real fValue) { return Real(sqrt(fValue)); }
 
         /** Inverse square root i.e. 1 / Sqrt(x), good for vector
             normalisation.
         */
-        static Real InvSqrt(Real fValue);
+		static Real InvSqrt(Real fValue);
 
         static Real UnitRandom ();  // in [0,1]
 
@@ -142,10 +149,12 @@ namespace Ogre
                 useTables If true, uses lookup tables rather than
                 calculation - faster but less accurate.
         */
-        static Real Tan (Real fValue, bool useTables = false);
+		static inline Real Tan (Real fValue, bool useTables = false) {
+			return (!useTables) ? Real(tan(fValue)) : TanTable(fValue);
+		}
 
-        static Real DegreesToRadians(Real degrees);
-        static Real RadiansToDegrees(Real radians);
+		static inline Real DegreesToRadians(Real degrees) { return degrees * fDeg2Rad; }
+        static inline Real RadiansToDegrees(Real radians) { return radians * fRad2Deg; }
 
        /** Sets the native angle units (radians or degrees) expected by and returned by the Ogre API
        @remarks
@@ -232,6 +241,8 @@ namespace Ogre
         static const Real PI;
         static const Real TWO_PI;
         static const Real HALF_PI;
+		static const Real fDeg2Rad;
+		static const Real fRad2Deg;
 
         /** Override standard Singleton retrieval.
             @remarks

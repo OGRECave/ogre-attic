@@ -48,10 +48,22 @@ namespace Ogre {
     class _OgreExport Quaternion
     {
     public:
-        Quaternion (
+        inline Quaternion (
             Real fW = 1.0,
-            Real fX = 0.0, Real fY = 0.0, Real fZ = 0.0);
-        Quaternion (const Quaternion& rkQ);
+            Real fX = 0.0, Real fY = 0.0, Real fZ = 0.0)
+		{
+			w = fW;
+			x = fX;
+			y = fY;
+			z = fZ;
+		}
+        inline Quaternion (const Quaternion& rkQ)
+		{
+			w = rkQ.w;
+			x = rkQ.x;
+			y = rkQ.y;
+			z = rkQ.z;
+		}
 
         void FromRotationMatrix (const Matrix3& kRot);
         void ToRotationMatrix (Matrix3& kRot) const;
@@ -62,7 +74,14 @@ namespace Ogre {
         void ToAxes (Vector3* akAxis) const;
         void ToAxes (Vector3& xAxis, Vector3& yAxis, Vector3& zAxis);
 
-        Quaternion& operator= (const Quaternion& rkQ);
+        inline Quaternion& operator= (const Quaternion& rkQ)
+		{
+			w = rkQ.w;
+			x = rkQ.x;
+			y = rkQ.y;
+			z = rkQ.z;
+			return *this;
+		}
         Quaternion operator+ (const Quaternion& rkQ) const;
         Quaternion operator- (const Quaternion& rkQ) const;
         Quaternion operator* (const Quaternion& rkQ) const;

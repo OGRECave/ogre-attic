@@ -49,22 +49,6 @@ namespace Ogre {
     const Quaternion Quaternion::IDENTITY(1.0,0.0,0.0,0.0);
 
     //-----------------------------------------------------------------------
-    Quaternion::Quaternion (Real fW, Real fX, Real fY, Real fZ)
-    {
-        w = fW;
-        x = fX;
-        y = fY;
-        z = fZ;
-    }
-    //-----------------------------------------------------------------------
-    Quaternion::Quaternion (const Quaternion& rkQ)
-    {
-        w = rkQ.w;
-        x = rkQ.x;
-        y = rkQ.y;
-        z = rkQ.z;
-    }
-    //-----------------------------------------------------------------------
     void Quaternion::FromRotationMatrix (const Matrix3& kRot)
     {
         // Algorithm in Ken Shoemake's article in 1987 SIGGRAPH course notes
@@ -156,7 +140,7 @@ namespace Ogre {
         if ( fSqrLength > 0.0 )
         {
             rfAngle = 2.0*Math::ACos(w);
-            Real fInvLength = 1.0/Math::Sqrt(fSqrLength);
+            Real fInvLength = Math::InvSqrt(fSqrLength);
             rkAxis.x = x*fInvLength;
             rkAxis.y = y*fInvLength;
             rkAxis.z = z*fInvLength;
@@ -238,15 +222,6 @@ namespace Ogre {
         zAxis.z = kRot[2][2];
     }
 
-    //-----------------------------------------------------------------------
-    Quaternion& Quaternion::operator= (const Quaternion& rkQ)
-    {
-        w = rkQ.w;
-        x = rkQ.x;
-        y = rkQ.y;
-        z = rkQ.z;
-        return *this;
-    }
     //-----------------------------------------------------------------------
     Quaternion Quaternion::operator+ (const Quaternion& rkQ) const
     {
