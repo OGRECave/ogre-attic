@@ -146,12 +146,12 @@ namespace Ogre {
             std::list<Plane> planes;
             SceneQuery::WorldFragment fragment; // For query reporting
         };
-        typedef std::vector<Brush> BrushList;
+        typedef std::vector<Brush*> NodeBrushList; // Main brush memory held on level
 
         /** Get the list of solid Brushes for this node.
         @remarks Only applicable for leaf nodes. 
         */
-        const BrushList& getSolidBrushes(void);
+        const NodeBrushList& getSolidBrushes(void);
     protected:
         BspLevel* mOwner; // Back-reference to containing level
         bool mIsLeaf;
@@ -196,7 +196,7 @@ namespace Ogre {
 
         IntersectingObjectSet mMovables;
 
-        BrushList mSolidBrushes;
+        NodeBrushList mSolidBrushes;
     public:
         const IntersectingObjectSet& getObjects(void) { return mMovables; }
 

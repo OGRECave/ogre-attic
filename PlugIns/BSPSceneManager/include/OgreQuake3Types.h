@@ -245,6 +245,6 @@ struct bsp_brushside_t {
 struct bsp_brush_t {
 	int firstside;
 	int numsides;
-	int contents;
+	int shaderIndex;
 };
 #endif

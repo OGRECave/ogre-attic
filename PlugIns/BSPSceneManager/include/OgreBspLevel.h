@@ -127,6 +127,9 @@ namespace Ogre {
         int* mElements;
         int mNumElements;
 
+        /// Brushes as used for collision, main memory is here
+        BspNode::Brush *mBrushes;
+
 
         /** Vector of player start points */
         std::vector<ViewPoint> mPlayerStarts;
