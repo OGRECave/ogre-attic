@@ -51,7 +51,7 @@ namespace Ogre {
             Billboards are just the mechanism for rendering a range of effects such as particles. It is other classes
             which use billboards to create their individual effects, so the methods here are quite generic.
         @see
-            BollboardSet
+            BillboardSet
     */
 
     class _OgreExport Billboard
