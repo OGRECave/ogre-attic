@@ -32,6 +32,8 @@ namespace Ogre {
     {
         mParentNode = 0;
         mVisible = true;
+        mUserObject = 0;
+        mRenderQueueID = RENDER_QUEUE_MAIN;
     }
     //-----------------------------------------------------------------------
     void MovableObject::_notifyAttached(SceneNode* parent)
@@ -59,6 +61,16 @@ namespace Ogre {
     {
         return mVisible;
 
+    }
+    //-----------------------------------------------------------------------
+    void MovableObject::setRenderQueueGroup(RenderQueueGroupID queueID)
+    {
+        mRenderQueueID = queueID;
+    }
+    //-----------------------------------------------------------------------
+    RenderQueueGroupID MovableObject::getRenderQueueGroup(void)
+    {
+        return mRenderQueueID;
     }
 
 

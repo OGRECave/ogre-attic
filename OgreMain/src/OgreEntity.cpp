@@ -80,7 +80,6 @@ namespace Ogre {
         }
 
         mDisplaySkeleton = false;
-        mRenderQueueID = RENDER_QUEUE_MAIN;
 
 		mMeshLodFactorInv = 1.0f;
         mMeshLodIndex = 0;
@@ -314,16 +313,6 @@ namespace Ogre {
     void Entity::setDisplaySkeleton(bool display)
     {
         mDisplaySkeleton = display;
-    }
-    //-----------------------------------------------------------------------
-    void Entity::setRenderQueueGroup(RenderQueueGroupID queueID)
-    {
-        mRenderQueueID = queueID;
-    }
-    //-----------------------------------------------------------------------
-    RenderQueueGroupID Entity::getRenderQueueGroup(void)
-    {
-        return mRenderQueueID;
     }
     //-----------------------------------------------------------------------
 	void Entity::setLodBias(Real factor, ushort maxDetailIndex, ushort minDetailIndex)
