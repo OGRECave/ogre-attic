@@ -179,6 +179,18 @@ namespace Ogre
             return kDiv;
         }
 
+        inline Vector3 operator / ( const Vector3& rhs) const
+        {
+            Vector3 kDiv;
+
+            kDiv.x = x / rhs.x;
+            kDiv.y = y / rhs.y;
+            kDiv.z = z / rhs.z;
+
+            return kDiv;
+        }
+
+
         inline Vector3 operator - () const
         {
             Vector3 kNeg;
@@ -228,6 +240,15 @@ namespace Ogre
             return *this;
         }
 
+        inline Vector3& operator *= ( const Vector3& rkVector )
+        {
+            x *= rkVector.x;
+            y *= rkVector.y;
+            z *= rkVector.z;
+
+            return *this;
+        }
+
         inline Vector3& operator /= ( Real fScalar )
         {
             assert( fScalar != 0.0 );
@@ -240,6 +261,16 @@ namespace Ogre
 
             return *this;
         }
+
+        inline Vector3& operator /= ( const Vector3& rkVector )
+        {
+            x /= rkVector.x;
+            y /= rkVector.y;
+            z /= rkVector.z;
+
+            return *this;
+        }
+
 
         /** Returns the length (magnitude) of the vector.
             @warning
