@@ -111,11 +111,11 @@ namespace Ogre {
         {
 			if (quota == VRQ_PROPORTIONAL)
 			{
-				numCollapses = numVerts * reductionValue;
+				numCollapses = static_cast<ushort>(numVerts * reductionValue);
 			}
 			else 
 			{
-				numCollapses = reductionValue;
+				numCollapses = static_cast<ushort>(reductionValue);
 			}
             // Minimum 3 verts!
             if ( (numVerts - numCollapses) < 3) 
