@@ -489,12 +489,17 @@ namespace Ogre {
         for (ai = mAutoTrackingSceneNodes.begin(); ai != aiend; ++ai)
         {
             SceneNode* n = *ai;
+            // Tracking this node
             if (n->getAutoTrackTarget() == i->second)
             {
                 // turn off, this will notify SceneManager to remove
                 n->setAutoTracking(false);
-                // reset iterator since set may have been changed
-                ai = mAutoTrackingSceneNodes.begin();
+                // no need to reset iterator since set erase does not invalidate
+            }
+            // node is itself a tracker
+            else if (n == i->second)
+            {
+                mAutoTrackingSceneNodes.erase(ai);
             }
         }
 
