@@ -53,7 +53,7 @@ namespace Ogre {
         {
             StringUtil::trim(line);
             /* Ignore comments & blanks */
-            if (line.length() > 0 && line.at(0) != '#' && line.at(0) != '@' && line.at(0) != '\n')
+            if (line.length() > 0 && line.at(0) != '#' && line.at(0) != '@')
             {
                 /* Find the first seperator character and split the string there */
                 int separator_pos = line.find_first_of(separators, 0);
