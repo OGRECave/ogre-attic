@@ -89,6 +89,7 @@ namespace Ogre {
         TriangleList triangles;
         EdgeGroupList edgeGroups;
 
+
         /** Calculate the light facing state of the triangles in this edge list
         @remarks
             This is normally the first stage of calculating a silhouette, ie
@@ -106,6 +107,7 @@ namespace Ogre {
         @param positionBuffer The updated position buffer, must contain ONLY xyz
         */
         void updateFaceNormals(size_t vertexSet, HardwareVertexBufferSharedPtr positionBuffer);
+
 
 
         // Debugging method
@@ -179,6 +181,11 @@ namespace Ogre {
         VertexDataList mVertexDataList;
         CommonVertexList mVertices;
         EdgeData* mEdgeData;
+        /// Unique edges, used to detect whether there are too many triangles on an edge
+        typedef std::set< std::pair<size_t, size_t> > UniqueEdgeSet;
+        UniqueEdgeSet mUniqueEdges;
+        // Should we treat coincident vertices from different vertex sets as one?
+        bool mWeldVerticesAcrossSets;
 
         void buildTrianglesEdges(size_t indexSet, size_t vertexSet);
         void connectEdges(void);
@@ -186,6 +193,9 @@ namespace Ogre {
 
         /// Finds an existing common vertex, or inserts a new one
         size_t findOrCreateCommonVertex(const Vector3& vec, size_t vertexSet);
+        /** Create a new edge - utility method during building */
+        void createEdge(size_t vertexSet, size_t triangleIndex, size_t vertIndex0, size_t vertIndex1, 
+            size_t sharedVertIndex0, size_t sharedVertIndex1);
 
     };
 
