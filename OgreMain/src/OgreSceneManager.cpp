@@ -102,8 +102,9 @@ namespace Ogre {
         mShadowCasterAABBQuery = 0;
         mShadowDirLightExtrudeDist = 10000;
         mIlluminationStage = IS_NONE;
-        mShadowFarDist = 10000;
-        mShadowFarDistSquared = 10000 * 10000;
+        mShadowFarDist = 0;
+        mShadowFarDistSquared = 0;
+		mShadowIndexBufferSize = 51200;
 
 
 		// init render queues that do not need shadows
@@ -2195,8 +2196,10 @@ namespace Ogre {
         {
             // Create an estimated sized shadow index buffer
             mShadowIndexBuffer = HardwareBufferManager::getSingleton().
-                createIndexBuffer(HardwareIndexBuffer::IT_16BIT, 50000, 
-                HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, false);
+                createIndexBuffer(HardwareIndexBuffer::IT_16BIT, 
+					mShadowIndexBufferSize, 
+                	HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, 
+					false);
             // tell all meshes to prepare shadow volumes
             MeshManager::getSingleton().setPrepareAllMeshesForShadowVolumes(true);
         }
@@ -2245,15 +2248,18 @@ namespace Ogre {
     {
         if (object->getCastShadows() && object->isVisible())
         {
-            // Check object is within the shadow far distance
-            Vector3 toObj = object->getParentNode()->_getDerivedPosition() 
-                - mCamera->getDerivedPosition();
-            Real radius = object->getWorldBoundingSphere().getRadius();
-            Real dist =  toObj.squaredLength();               
-            if (dist - (radius * radius) > mFarDistSquared)
+            if (mFarDistSquared)
             {
-                // skip, beyond max range
-                return true;
+                // Check object is within the shadow far distance
+                Vector3 toObj = object->getParentNode()->_getDerivedPosition() 
+                    - mCamera->getDerivedPosition();
+                Real radius = object->getWorldBoundingSphere().getRadius();
+                Real dist =  toObj.squaredLength();               
+                if (dist - (radius * radius) > mFarDistSquared)
+                {
+                    // skip, beyond max range
+                    return true;
+                }
             }
 
             // If the object is in the frustum, we can always see the shadow
@@ -2647,6 +2653,20 @@ namespace Ogre {
     {
         return mShadowDirLightExtrudeDist;
     }
+    //---------------------------------------------------------------------
+ 	void SceneManager::setShadowIndexBufferSize(size_t size)
+	{
+		if (!mShadowIndexBuffer.isNull() && size != mShadowIndexBufferSize)
+		{
+            // re-create shadow buffer with new size
+            mShadowIndexBuffer = HardwareBufferManager::getSingleton().
+                createIndexBuffer(HardwareIndexBuffer::IT_16BIT, 
+					mShadowIndexBufferSize, 
+                	HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, 
+					false);
+		}
+		mShadowIndexBufferSize = size;
+	}
     //---------------------------------------------------------------------
     AxisAlignedBoxSceneQuery* 
     SceneManager::createAABBQuery(const AxisAlignedBox& box, unsigned long mask)

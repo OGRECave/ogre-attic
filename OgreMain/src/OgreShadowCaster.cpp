@@ -220,6 +220,11 @@ namespace Ogre {
         // Unlock index buffer
         indexBuffer->unlock();
 
+		// In debug mode, check we didn't overrun the index buffer
+		assert(indexStart <= indexBuffer->getNumIndexes() &&
+            "Index buffer overrun while generating shadow volume!! "
+			"You must increase the size of the shadow index buffer.");
+
     }
     // ------------------------------------------------------------------------
     void ShadowCaster::extrudeVertices(

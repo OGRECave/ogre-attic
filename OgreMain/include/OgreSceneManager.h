@@ -262,6 +262,7 @@ namespace Ogre {
         Pass* mShadowModulativePass;
         LightList mLightsAffectingFrustum;
         HardwareIndexBufferSharedPtr mShadowIndexBuffer;
+		size_t mShadowIndexBufferSize;
         Rectangle2D* mFullScreenQuad;
         Real mShadowDirLightExtrudeDist;
         IlluminationStage mIlluminationStage;
@@ -1410,6 +1411,36 @@ namespace Ogre {
         */
         virtual Real getShadowFarDistance(void) 
         { return mShadowFarDist; }
+
+		/** Sets the maximum size of the index buffer used to render shadow
+		 	primitives.
+		@remarks
+			This method allows you to tweak the size of the index buffer used
+			to render shadow primitives (including stencil shadow volumes). The
+			default size is 51,200 entries, which is 100k of GPU memory, or
+			enough to render approximately 17,000 triangles. You can reduce this
+			as long as you do not have any models / world geometry chunks which 
+			could require more than the amount you set.
+		@par
+			The maximum number of triangles required to render a single shadow 
+			volume (including light and dark caps when needed) will be 3x the 
+			number of edges on the light silhouette, plus the number of 
+			light-facing triangles.	On average, half the 
+			triangles will be facing toward the light, but the number of 
+			triangles in the silhouette entirely depends on the mesh - 
+			angular meshes will have a higher silhouette tris/mesh tris
+			ratio than a smooth mesh. You can estimate the requirements for
+			your particular mesh by rendering it alone in a scene with shadows
+			enabled and a single light - rotate it or the light and make a note
+			of how high the triangle count goes (remembering to subtract the 
+			mesh triangle count)
+		@param size The number of indexes; divide this by 3 to determine the
+			number of triangles.
+		*/
+		virtual void setShadowIndexBufferSize(size_t size);
+
+		virtual size_t getShadowIndexBufferSize(void)
+		{ return mShadowIndexBufferSize; }
     };
 
     /** Default implementation of IntersectionSceneQuery. */
