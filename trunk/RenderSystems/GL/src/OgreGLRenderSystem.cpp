@@ -788,16 +788,22 @@ namespace Ogre {
         GLenum lastTextureType = mTextureTypes[stage];
 
 		glActiveTextureARB_ptr( GL_TEXTURE0 + stage );
-		if (enabled && tex)
+		if (enabled)
         {
-            mTextureTypes[stage] = tex->getGLTextureType();
+            if (tex)
+                mTextureTypes[stage] = tex->getGLTextureType();
+            else
+                // assume 2D
+                mTextureTypes[stage] = GL_TEXTURE_2D;
+
             if(lastTextureType != mTextureTypes[stage] && lastTextureType != 0)
             {
                 glDisable( lastTextureType );
             }
 
             glEnable( mTextureTypes[stage] );
-            glBindTexture( mTextureTypes[stage], tex->getGLID() );
+            if (tex)
+                glBindTexture( mTextureTypes[stage], tex->getGLID() );
         }
         else
         {
