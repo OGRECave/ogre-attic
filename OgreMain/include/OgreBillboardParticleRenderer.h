@@ -77,6 +77,25 @@ namespace Ogre {
         /** Returns the billboard type in use. */
         BillboardType getBillboardType(void) const;
 
+        /** Sets the point which acts as the origin point for all billboards in this set.
+        @remarks
+        This setting controls the fine tuning of where a billboard appears in relation to it's
+        position. It could be that a billboard's position represents it's center (e.g. for fireballs),
+        it could mean the center of the bottom edge (e.g. a tree which is positioned on the ground),
+        the top-left corner (e.g. a cursor).
+        @par
+        The default setting is BBO_CENTER.
+        @param
+        origin A member of the BillboardOrigin enum specifying the origin for all the billboards in this set.
+        */
+        void setBillboardOrigin(BillboardOrigin origin) { mBillboardSet->setBillboardOrigin(origin); }
+
+        /** Gets the point which acts as the origin point for all billboards in this set.
+        @returns
+        A member of the BillboardOrigin enum specifying the origin for all the billboards in this set.
+        */
+        BillboardOrigin getBillboardOrigin(void) const { return mBillboardSet->getBillboardOrigin(); }
+
         /** Use this to specify the common direction given to billboards of type BBT_ORIENTED_COMMON.
         @remarks
             Use BBT_ORIENTED_COMMON when you want oriented billboards but you know they are always going to 
