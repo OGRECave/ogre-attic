@@ -329,6 +329,9 @@ makeall_vc7.bat
 				RelativePath="..\src\OgreSkeleton.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreSkeletonManager.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreString.cpp">
 			</File>
 			<File
@@ -630,6 +633,9 @@ makeall_vc7.bat
 				RelativePath="..\include\OgreSkeleton.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreSkeletonManager.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreSphere.h">
 			</File>
 			<File
@@ -667,6 +673,9 @@ makeall_vc7.bat
 			</File>
 			<File
 				RelativePath="..\include\OgreVector3.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreVertexBoneAssignment.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreViewport.h">
