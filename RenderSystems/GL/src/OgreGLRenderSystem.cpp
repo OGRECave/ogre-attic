@@ -911,7 +911,10 @@ namespace Ogre {
         }
         else
         {
-			glDisable( mTextureTypes[stage] );
+            if (lastTextureType != 0)
+            {
+                glDisable( mTextureTypes[stage] );
+            }
 			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
         }
 
