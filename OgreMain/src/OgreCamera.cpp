@@ -170,11 +170,27 @@ namespace Ogre {
         Vector3 zAdjustVec = -vec;
         zAdjustVec.normalise();
 
-
-
-        // Get axess from current quaternion
+        // Get axes from current quaternion
         Vector3 axes[3];
-        mOrientation.ToAxes(axes);
+        updateView();
+        mDerivedOrientation.ToAxes(axes);
+
+        Quaternion rotQuat;
+        if (-zAdjustVec == axes[2])
+        {
+            // Oops, a 180 degree turn (infinite possible rotation axes)
+            // Default to yaw i.e. use current UP
+            rotQuat.FromAngleAxis(Math::PI, axes[1]);
+        }
+        else
+        {
+            rotQuat = axes[2].getRotationTo(zAdjustVec);
+        }
+
+        mOrientation = rotQuat * mOrientation;
+        mRecalcView = true;
+
+        /*
         // Use Dot Product of direction axis with new direction to get angle diff
         // Use Cross Product of direction axis with new direction to get axis of rotation
         // This can then be used to create a quaternion to offset the existing orientation
@@ -189,10 +205,12 @@ namespace Ogre {
         }
 
         Quaternion rotQuat;
+        rotAxis.normalise();
         rotQuat.FromAngleAxis(rotAngle, rotAxis);
 
         mOrientation = rotQuat * mOrientation;
         mRecalcView = true;
+        */
 
 
     }
