@@ -84,13 +84,13 @@ namespace Ogre {
         @remarks This is used by pixel-based GuiElements to work out if they need to
             reclaculate their sizes.
         */
-        bool hasViewportChanged(void);
+        bool hasViewportChanged(void) const;
 
         /** Gets the height of the destination viewport in pixels. */
-        int getViewportHeight(void);
+        int getViewportHeight(void) const;
         
         /** Gets the width of the destination viewport in pixels. */
-        int getViewportWidth(void);
+        int getViewportWidth(void) const;
 
         /** Override standard Singleton retrieval.
             Why do we do this? Well, it's because the Singleton implementation is in a .h file,

@@ -373,7 +373,7 @@ namespace Ogre {
 			This is to assist in binding the vertex buffers such that there are
 			not gaps in the list.
 		*/
-		virtual unsigned short getNextIndex(void) { return mHighIndex; }
+		virtual unsigned short getNextIndex(void) const { return mHighIndex; }
 
 
 

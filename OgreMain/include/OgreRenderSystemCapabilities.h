@@ -45,6 +45,7 @@ namespace Ogre {
         RSC_VERTEXBLENDING   = 0x00000100,
 		RSC_VERTEX_PROGRAM   = 0x00000200,
 		RSC_FRAGMENT_PROGRAM = 0x00000400,
+		RSC_COMPRESSED_TEX   = 0x00000800,
     };
 
     /** singleton class for storing the capabilities of the graphics card. 
@@ -183,42 +184,42 @@ namespace Ogre {
                 }
             }
             /// Gets the best low-level vertex program version supported
-            const String& getMaxVertexProgramVersion(void)
+            const String& getMaxVertexProgramVersion(void) const
             {
                 return mMaxVertexProgramVersion;
             }
             /// Gets the best fragment program that this card / rendersystem supports
-            const String& getMaxFragmentProgramVersion(void)
+            const String& getMaxFragmentProgramVersion(void) const
             {
                 return mMaxFragmentProgramVersion;
             }
             /// The number of floating-point constants vertex programs support
-            ushort getVertexProgramConstantFloatCount(void)
+            ushort getVertexProgramConstantFloatCount(void) const
             {
                 return mVertexProgramConstantFloatCount;           
             }
             /// The number of integer constants vertex programs support
-            ushort getVertexProgramConstantIntCount(void)
+            ushort getVertexProgramConstantIntCount(void) const
             {
                 return mVertexProgramConstantIntCount;           
             }
             /// The number of boolean constants vertex programs support
-            ushort getVertexProgramConstantBoolCount(void)
+            ushort getVertexProgramConstantBoolCount(void) const
             {
                 return mVertexProgramConstantBoolCount;           
             }
             /// The number of floating-point constants fragment programs support
-            ushort getFragmentProgramConstantFloatCount(void)
+            ushort getFragmentProgramConstantFloatCount(void) const
             {
                 return mFragmentProgramConstantFloatCount;           
             }
             /// The number of integer constants fragment programs support
-            ushort getFragmentProgramConstantIntCount(void)
+            ushort getFragmentProgramConstantIntCount(void) const
             {
                 return mFragmentProgramConstantIntCount;           
             }
             /// The number of boolean constants fragment programs support
-            ushort getFragmentProgramConstantBoolCount(void)
+            ushort getFragmentProgramConstantBoolCount(void) const
             {
                 return mFragmentProgramConstantBoolCount;           
             }
@@ -268,7 +269,7 @@ namespace Ogre {
 
             /** The minimum granularity of float constant parameters, this determines
                 the boundary at which you can set separate params. */
-            ushort getVertexProgramConstantFloatBoundary(void)
+            ushort getVertexProgramConstantFloatBoundary(void) const
             {
                 return mVertexProgramConstantFloatBoundary;
             }
@@ -278,7 +279,7 @@ namespace Ogre {
             }
             /** The minimum granularity of integer constant parameters, this determines
                 the boundary at which you can set separate params. */
-            ushort getVertexProgramConstantIntBoundary(void)
+            ushort getVertexProgramConstantIntBoundary(void) const
             {
                 return mVertexProgramConstantIntBoundary;
             }
@@ -288,7 +289,7 @@ namespace Ogre {
             }
             /** The minimum granularity of float constant parameters, this determines
                 the boundary at which you can set separate params. */
-            ushort getFragmentProgramConstantFloatBoundary(void)
+            ushort getFragmentProgramConstantFloatBoundary(void) const
             {
                 return mFragmentProgramConstantFloatBoundary;
             }
@@ -298,7 +299,7 @@ namespace Ogre {
             }
             /** The minimum granularity of integer constant parameters, this determines
                 the boundary at which you can set separate params. */
-            ushort getFragmentProgramConstantIntBoundary(void)
+            ushort getFragmentProgramConstantIntBoundary(void) const
             {
                 return mFragmentProgramConstantIntBoundary;
             }
@@ -308,7 +309,7 @@ namespace Ogre {
             }
             /** The minimum granularity of boolean constant parameters, this determines
                 the boundary at which you can set separate params. */
-            ushort getVertexProgramConstantBoolBoundary(void)
+            ushort getVertexProgramConstantBoolBoundary(void) const
             {
                 return mVertexProgramConstantBoolBoundary;
             }
@@ -318,7 +319,7 @@ namespace Ogre {
             }
             /** The minimum granularity of boolean constant parameters, this determines
                 the boundary at which you can set separate params. */
-            ushort getFragmentProgramConstantBoolBoundary(void)
+            ushort getFragmentProgramConstantBoolBoundary(void) const
             {
                 return mFragmentProgramConstantBoolBoundary;
             }

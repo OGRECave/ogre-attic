@@ -113,7 +113,7 @@ namespace Ogre
         void setType(FontType ftype);
 
         /** Gets the type of font. */
-        FontType getType(void);
+        FontType getType(void) const;
 
         /** Sets the source of the font.
         @remarks
@@ -132,7 +132,7 @@ namespace Ogre
 
         /** Gets the source this font (either an image or a truetype font).
         */
-        const String& getSource(void);
+        const String& getSource(void) const;
 
         /** Sets the size of a truetype font (only required for FT_TRUETYPE). 
         @param ttfSize The size of the font in points. Note that the
@@ -152,12 +152,12 @@ namespace Ogre
             Note that the size of the font does not affect how big it is on the screen, 
             just how large it is in the texture and thus how detailed it is.            
         */
-        Real getTrueTypeSize(void);
+        Real getTrueTypeSize(void) const;
         /** Gets the resolution (dpi) of the font used to generate the texture.
         @remarks
             Only applicable for FT_TRUETYPE Font objects.
         */
-        uint getTrueTypeResolution(void);
+        uint getTrueTypeResolution(void) const;
 
         /** Returns the size in pixels of a box that could contain the whole string.
         */
@@ -245,7 +245,7 @@ namespace Ogre
         	mAntialiasColour = enabled;
         }
 
-        inline bool getAntialiasColour(void)
+        inline bool getAntialiasColour(void) const
         {
             return mAntialiasColour;
         }

@@ -130,7 +130,7 @@ namespace Ogre {
         */
         virtual void setQueryMask(unsigned long mask);
         /** Returns the current mask for this query. */
-        virtual unsigned long getQueryMask(void);
+        virtual unsigned long getQueryMask(void) const;
 
         /** Tells the query what kind of world geometry to return from queries;
             often the full renderable geometry is not what is needed. 
@@ -145,10 +145,10 @@ namespace Ogre {
         virtual void setWorldFragmentType(enum WorldFragmentType wft);
 
         /** Gets the current world fragment types to be returned from the query. */
-        virtual WorldFragmentType getWorldFragmentType(void);
+        virtual WorldFragmentType getWorldFragmentType(void) const;
 
         /** Returns the types of world fragments this query supports. */
-        virtual const std::set<WorldFragmentType>* getSupportedWorldFragmentTypes(void) 
+        virtual const std::set<WorldFragmentType>* getSupportedWorldFragmentTypes(void) const
             {return &mSupportedWorldFragments;}
 
         
@@ -226,7 +226,7 @@ namespace Ogre {
         /** Gets the results of the last query that was run using this object, provided
             the query was executed using the collection-returning version of execute. 
         */
-        virtual SceneQueryResult& getLastResults(void);
+        virtual SceneQueryResult& getLastResults(void) const;
         /** Clears the results of the last query execution.
         @remarks
             You only need to call this if you specifically want to free up the memory
@@ -254,7 +254,7 @@ namespace Ogre {
         void setBox(const AxisAlignedBox& box);
 
         /** Gets the box which is being used for this query. */
-        const AxisAlignedBox& getBox(void);
+        const AxisAlignedBox& getBox(void) const;
 
     };
 
@@ -270,7 +270,7 @@ namespace Ogre {
         void setSphere(const Sphere& sphere);
 
         /** Gets the sphere which is being used for this query. */
-        const Sphere& getSphere();
+        const Sphere& getSphere() const;
 
     };
 
@@ -343,7 +343,7 @@ namespace Ogre {
         /** Sets the ray which is to be used for this query. */
         void setRay(const Ray& ray);
         /** Gets the ray which is to be used for this query. */
-        const Ray& getRay(void);
+        const Ray& getRay(void) const;
         /** Sets whether the results of this query will be sorted by distance along the ray.
         @remarks
             Often you want to know what was the first object a ray intersected with, and this 
@@ -364,10 +364,10 @@ namespace Ogre {
         */
         void setSortByDistance(bool sort, ushort maxresults = 0);
         /** Gets whether the results are sorted by distance. */
-        bool getSortByDistance(void);
+        bool getSortByDistance(void) const;
         /** Gets the maximum number of results returned from the query (only relevant if 
         results are being sorted) */
-        ushort getMaxResults(void);
+        ushort getMaxResults(void) const;
         /** Executes the query, returning the results back in one list.
         @remarks
             This method executes the scene query as configured, gathers the results
@@ -390,7 +390,7 @@ namespace Ogre {
         /** Gets the results of the last query that was run using this object, provided
             the query was executed using the collection-returning version of execute. 
         */
-        virtual RaySceneQueryResult& getLastResults(void);
+        virtual RaySceneQueryResult& getLastResults(void) const;
         /** Clears the results of the last query execution.
         @remarks
             You only need to call this if you specifically want to free up the memory
@@ -495,7 +495,7 @@ namespace Ogre {
         /** Gets the results of the last query that was run using this object, provided
             the query was executed using the collection-returning version of execute. 
         */
-        virtual IntersectionSceneQueryResult& getLastResults(void);
+        virtual IntersectionSceneQueryResult& getLastResults(void) const;
         /** Clears the results of the last query execution.
         @remarks
             You only need to call this if you specifically want to free up the memory
