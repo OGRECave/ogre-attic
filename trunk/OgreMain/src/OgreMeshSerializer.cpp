@@ -122,6 +122,7 @@ namespace Ogre {
         // Copy root-level geometry, including pointers
         // We've told the OofModel not to deallocate
         pDest->sharedGeometry = oofModel.sharedGeometry;
+        pDest->sharedGeometry.numBlendWeightsPerVertex = 0; // oof does not support skeletons
 
         // Create sub-meshes from the loaded model
         for (unsigned int meshNo = 0; meshNo < oofModel.materials.size(); ++meshNo)
@@ -132,6 +133,7 @@ namespace Ogre {
             if (!sub->useSharedVertices)
             {
                 sub->geometry = oofModel.materials[meshNo].materialGeometry;
+                sub->geometry.numBlendWeightsPerVertex = 0; // oof does not support skeletons
             }
 
             // Always create materials from oof

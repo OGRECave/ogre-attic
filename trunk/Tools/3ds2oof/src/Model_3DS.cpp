@@ -997,13 +997,14 @@ void Model_3DS::MapNameChunkProcessor(long length, long findex, int matindex)
 void Model_3DS::ObjectChunkProcessor(long length, long findex, int objindex)
 {
     ChunkHeader h;
+    int i;
 
 	// move the file pointer to the beginning of the main
 	// chunk's data findex + the size of the header
 	fseek(bin3ds, findex, SEEK_SET);
 
 	// Load the object's name
-	for (int i = 0; i < 80; i++)
+	for (i = 0; i < 80; i++)
 	{
 		Objects[objindex].name[i] = fgetc(bin3ds);
 		if (Objects[objindex].name[i] == 0)
@@ -1028,7 +1029,6 @@ void Model_3DS::ObjectChunkProcessor(long length, long findex, int objindex)
 
 	Objects[objindex].localMatrix[0][0] = Objects[objindex].localMatrix[1][1] = 
 		Objects[objindex].localMatrix[2][2] = 1.0;
-
 
 	//** END OGRE CHANGES
 
@@ -1140,16 +1140,12 @@ void Model_3DS::VertexListChunkProcessor(long length, long findex, int objindex)
     for (int j = 0; j < numVerts * 3; j++)
         Objects[objindex].Normals[j] = 0.0f;
 
-    // Read the vertices, switching the y and z coordinates and changing the sign of the z coordinate
-    // 3DS looks onto x/z plane by default
     for (int i = 0; i < numVerts * 3; i+=3)
     {
         fread(&Objects[objindex].Vertexes[i],sizeof(float),1,bin3ds);
-        fread(&Objects[objindex].Vertexes[i+2],sizeof(float),1,bin3ds);
         fread(&Objects[objindex].Vertexes[i+1],sizeof(float),1,bin3ds);
+        fread(&Objects[objindex].Vertexes[i+2],sizeof(float),1,bin3ds);
 
-        // Change the sign of the z coordinate
-        Objects[objindex].Vertexes[i+2] = -Objects[objindex].Vertexes[i+2];
     }
 
     // move the file pointer back to where we got it so
@@ -1323,6 +1319,12 @@ void Model_3DS::FacesDescriptionChunkProcessor(long length, long findex, int obj
         // Store the number of material faces
         Objects[objindex].numMatFaces = numMatFaces;
 
+        // Init num subfaces
+        for (i = 0; i < numMaterials; ++i)
+        {
+            Objects[objindex].MatFaces[i].numSubFaces = 0;
+        }
+
         fseek(bin3ds, subs, SEEK_SET);
 
         int j = 0;
@@ -1389,20 +1391,42 @@ void Model_3DS::FacesMaterialsListChunkProcessor(long length, long findex, int o
     // Read the number of faces associated with this material
     fread(&numEntries,sizeof(numEntries),1,bin3ds);
 
-    // Allocate an array to hold the list of faces associated with this material
-    Objects[objindex].MatFaces[subfacesindex].subFaces = new unsigned short[numEntries * 3];
-    // Store this number for later use
-    Objects[objindex].MatFaces[subfacesindex].numSubFaces = numEntries * 3;
+    // Check if already some faces for this material
+    int startIdx;
+    if (Objects[objindex].MatFaces[subfacesindex].numSubFaces > 0)
+    {
+        // reallocate memory
+        unsigned short* oldPtr = Objects[objindex].MatFaces[subfacesindex].subFaces;
+        Objects[objindex].MatFaces[subfacesindex].subFaces = new unsigned short[numEntries * 3];
+        memcpy(Objects[objindex].MatFaces[subfacesindex].subFaces, oldPtr, 
+            sizeof(unsigned short) * Objects[objindex].MatFaces[subfacesindex].numSubFaces);
+        // Delete old data
+        delete [] oldPtr;
+
+        startIdx = Objects[objindex].MatFaces[subfacesindex].numSubFaces;
+
+        Objects[objindex].MatFaces[subfacesindex].numSubFaces += numEntries * 3;
+
+    }
+    else
+    {
+        // Allocate an array to hold the list of faces associated with this material
+        Objects[objindex].MatFaces[subfacesindex].subFaces = new unsigned short[numEntries * 3];
+        // Store this number for later use
+        Objects[objindex].MatFaces[subfacesindex].numSubFaces = numEntries * 3;
+        startIdx = 0;
+    }
+    
 
     // Read the faces into the array
-    for (i = 0; i < numEntries * 3; i+=3)
+    for (i = 0; i < numEntries * 3; startIdx+=3, i+=3)
     {
         // read the face
         fread(&Face,sizeof(Face),1,bin3ds);
         // Add the face's vertices to the list
-        Objects[objindex].MatFaces[subfacesindex].subFaces[i] = Objects[objindex].Faces[Face * 3];
-        Objects[objindex].MatFaces[subfacesindex].subFaces[i+1] = Objects[objindex].Faces[Face * 3 + 1];
-        Objects[objindex].MatFaces[subfacesindex].subFaces[i+2] = Objects[objindex].Faces[Face * 3 + 2];
+        Objects[objindex].MatFaces[subfacesindex].subFaces[startIdx] = Objects[objindex].Faces[Face * 3];
+        Objects[objindex].MatFaces[subfacesindex].subFaces[startIdx+1] = Objects[objindex].Faces[Face * 3 + 1];
+        Objects[objindex].MatFaces[subfacesindex].subFaces[startIdx+2] = Objects[objindex].Faces[Face * 3 + 2];
     }
 
     // move the file pointer back to where we got it so
