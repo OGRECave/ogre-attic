@@ -510,7 +510,11 @@ namespace Ogre {
             for SceneNodes at SceneManager::setDisplaySceneNodes, and for entities based on skeletal 
             models using Entity::setDisplaySkeleton()
         */
-        void getWorldTransforms(Matrix4* xform);
+        void getWorldTransforms(Matrix4* xform) const;
+        /** @copydoc Renderable::getWorldOrientation */
+        const Quaternion& getWorldOrientation(void) const;
+        /** @copydoc Renderable::getWorldPosition */
+        const Vector3& getWorldPosition(void) const;
 
         /** Sets the current transform of this node to be the 'initial state' ie that
             position / orientation / scale to be used as a basis for delta values used

@@ -244,10 +244,20 @@ Material* OctreeCamera::getMaterial(void) const
     return mMaterial;
 }
 
-void OctreeCamera::getWorldTransforms(Matrix4* xform)
+void OctreeCamera::getWorldTransforms(Matrix4* xform) const
 {
     xform[0] = Matrix4::IDENTITY;
 }
+
+const Quaternion& OctreeCamera::getWorldOrientation(void) const
+{
+    return Quaternion::IDENTITY;
+}
+const Vector3& OctreeCamera::getWorldPosition(void) const
+{
+    return Vector3::ZERO;
+}
+
 
 }
 

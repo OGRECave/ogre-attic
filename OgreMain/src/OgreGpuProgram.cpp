@@ -25,12 +25,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 #include "OgreGpuProgram.h"
 #include "OgreGpuProgramManager.h"
+#include "OgreSDDataChunk.h"
+#include "OgreVector3.h"
+#include "OgreVector4.h"
 
 namespace Ogre
 {
 	//-----------------------------------------------------------------------------
-	GpuProgram::GpuProgram(const String& name, GpuProgramType gptype) 
-		: mType(gptype), mLoadFromFile(true)
+	GpuProgram::GpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode) 
+		: mType(gptype), mSyntaxCode(syntaxCode), mLoadFromFile(true)
 	{
 		mName = name;
 	}
@@ -108,6 +111,20 @@ namespace Ogre
         memcpy(&mIntConstants[index], val, sizeof(int)*count);
 
     }
-
+	//-----------------------------------------------------------------------------
+    void GpuProgramParameters::setAutoConstant(AutoConstantType acType, size_t index, size_t extraInfo)
+    {
+        mAutoConstants.push_back(AutoConstantEntry(acType, index, extraInfo));
+    }
+	//-----------------------------------------------------------------------------
+    void GpuProgramParameters::clearAutoConstants(void)
+    {
+        mAutoConstants.clear();
+    }
+	//-----------------------------------------------------------------------------
+    GpuProgramParameters::AutoConstantIterator GpuProgramParameters::getAutoConstantIterator(void)
+    {
+        return AutoConstantIterator(mAutoConstants.begin(), mAutoConstants.end());
+    }
 
 }

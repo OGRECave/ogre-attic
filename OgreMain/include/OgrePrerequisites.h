@@ -160,6 +160,7 @@ namespace Ogre {
     class GuiContainer;
     class GpuProgram;
     class GpuProgramManager;
+	class GpuProgramUsage;
     class GuiElement;
     class GuiElementFactory;
     class GuiManager;
@@ -205,6 +206,7 @@ namespace Ogre {
     class ParticleEmitterFactory;
     class ParticleSystem;
     class ParticleSystemManager;
+    class Pass;
     class PatchMesh;
     class PlatformManager;
     class Plane;
@@ -253,6 +255,8 @@ namespace Ogre {
     class SubMesh;
 	class TagPoint;
 	class TargetManager;
+    class Technique;
+    class TextureUnitState;
     class Texture;
 	class TextureFont;
     class TextureManager;

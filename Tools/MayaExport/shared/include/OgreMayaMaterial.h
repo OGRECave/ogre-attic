@@ -40,16 +40,16 @@ namespace OgreMaya {
 	using std::list;
 	using std::vector;
 
-    struct TextureLayer {
+    struct TextureUnitState {
 
-        TextureLayer(string textureName, int uvSet):
+        TextureUnitState(string textureName, int uvSet):
             textureName(textureName), uvSet(uvSet) {}
 
         string textureName;
         int uvSet;
     };
 
-    typedef list<TextureLayer> TextureLayerList;
+    typedef list<TextureUnitState> TextureLayerList;
 
 
     struct Material {        

@@ -40,7 +40,7 @@ namespace Ogre {
         /// @copydoc GpuProgramManager::createParameters
         GpuProgramParametersSharedPtr createParameters(void);
         /// @copydoc GpuProgramManager::create
-        GpuProgram* create(const String& name, GpuProgramType gptype);
+        GpuProgram* create(const String& name, GpuProgramType gptype, const String& syntaxCode);
     };
 
 }

@@ -33,6 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreNoMemoryMacros.h"
 #include <d3d9.h>
 #include "OgreMemoryMacros.h"
+#include "OgreRoot.h"
 
 namespace Ogre
 {

@@ -95,6 +95,7 @@ namespace Ogre {
         // Set bounds
         this->_setBounds(mSurface.getBounds());
         this->_setBoundingSphereRadius(mSurface.getBoundingSphereRadius());
+        mIsLoaded = true;
 
     }
 

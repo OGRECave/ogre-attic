@@ -46,7 +46,7 @@ namespace Ogre {
     protected:
         LPDIRECT3DDEVICE9 mpDevice;
     public:
-        D3D9GpuProgram(const String& name, GpuProgramType gptype, LPDIRECT3DDEVICE9 pDev);
+        D3D9GpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode, LPDIRECT3DDEVICE9 pDev);
 
     };
 
@@ -56,7 +56,7 @@ namespace Ogre {
     protected:
         LPDIRECT3DVERTEXSHADER9 mpVertexShader;
     public:
-        D3D9GpuVertexProgram(const String& name, LPDIRECT3DDEVICE9 pDev);
+        D3D9GpuVertexProgram(const String& name, const String& syntaxCode, LPDIRECT3DDEVICE9 pDev);
         /// @copydoc Resource::unload
         void unload(void);
 
@@ -72,7 +72,7 @@ namespace Ogre {
     protected:
         LPDIRECT3DPIXELSHADER9 mpPixelShader;
     public:
-        D3D9GpuFragmentProgram(const String& name, LPDIRECT3DDEVICE9 pDev);
+        D3D9GpuFragmentProgram(const String& name, const String& syntaxCode, LPDIRECT3DDEVICE9 pDev);
         /// @copydoc Resource::unload
         void unload(void);
         /// Gets the pixel shader

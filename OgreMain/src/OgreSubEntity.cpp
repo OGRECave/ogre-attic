@@ -84,7 +84,7 @@ namespace Ogre {
         mSubMesh->_getRenderOperation(op, mParentEntity->mMeshLodIndex);
     }
     //-----------------------------------------------------------------------
-    void SubEntity::getWorldTransforms(Matrix4* xform)
+    void SubEntity::getWorldTransforms(Matrix4* xform) const
     {
         if (!mParentEntity->mNumBoneMatrices)
         {
@@ -101,6 +101,17 @@ namespace Ogre {
             }
         }
     }
+    //-----------------------------------------------------------------------
+    const Quaternion& SubEntity::getWorldOrientation(void) const
+    {
+        return mParentEntity->mParentNode->_getDerivedOrientation();
+    }
+    //-----------------------------------------------------------------------
+    const Vector3& SubEntity::getWorldPosition(void) const
+    {
+        return mParentEntity->mParentNode->_getDerivedPosition();
+    }
+
     //-----------------------------------------------------------------------
     unsigned short SubEntity::getNumWorldTransforms(void)
     {

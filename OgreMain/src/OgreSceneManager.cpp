@@ -45,6 +45,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringConverter.h"
 #include "OgreRenderQueueListener.h"
 #include "OgreBillboardSet.h"
+#include "OgrePass.h"
+#include "OgreTechnique.h"
+#include "OgreTextureUnitState.h"
+#include "OgreException.h"
 
 // This class implements the most basic scene manager
 
@@ -387,13 +391,6 @@ namespace Ogre {
         return Material::mDefaultSettings;
     }
     //-----------------------------------------------------------------------
-    void SceneManager::addMaterial(const Material& mat)
-    {
-        // Add using MaterialManager
-        /* Material* newMat = */ MaterialManager::getSingleton().add(mat);
-    }
-
-    //-----------------------------------------------------------------------
     Material* SceneManager::getMaterial(const String& name)
     {
         return (Material*)MaterialManager::getSingleton().getByName(name);
@@ -452,194 +449,101 @@ namespace Ogre {
         
     }
     //-----------------------------------------------------------------------
-    int SceneManager::setMaterial(Material* mat, int numLayersLeft)
+    void SceneManager::setPass(Pass* pass)
     {
-        //static bool firstTime = true;
-        static bool lastUsedFallback = false;
-        static int lastNumTexUnitsUsed = 0;
-        //static Material lastMat; // Last material settings, to minimise render state changes
-
-        // Recent changes: eliminated the need to copy all material settings to set with RenderSystem
-        // Now only issues required render state changes to the render system for maximum performance
-
-        // Set surface properties
-        //if (firstTime || mat->_compareSurfaceParams(lastMat) == false)
-        //{
-           ColourValue a, b, c, d;
-           a = mat->getAmbient();
-           b = mat->getDiffuse();
-           c = mat->getSpecular();
-           d = mat->getSelfIllumination();
-            mDestRenderSystem->_setSurfaceParams( a, b, c, d, mat->getShininess() );
-        //}
-
-        // Set global blending, play it safe if last one was fallback
-        //if (firstTime || lastUsedFallback ||
-        //(lastMat.getSourceBlendFactor() != mat->getSourceBlendFactor() ||
-        // lastMat.getDestBlendFactor() != mat->getDestBlendFactor()))
-        //{
-            mDestRenderSystem->_setSceneBlending(mat->getSourceBlendFactor(), mat->getDestBlendFactor());
-        //}
-
-        // Fog
-        // New fog params can either be from scene or from material
-        FogMode newFogMode;
-        ColourValue newFogColour;
-        Real newFogStart, newFogEnd, newFogDensity;
-        //static FogMode oldFogMode;
-        //static ColourValue oldFogColour;
-        //static Real oldFogStart, oldFogEnd, oldFogDensity;
-        if (mat->getFogOverride())
+		static bool lastWasProgrammable = false;
+        if (pass->isProgrammable())
         {
-            // New fog params from material
-            newFogMode = mat->getFogMode();
-            newFogColour = mat->getFogColour();
-            newFogStart = mat->getFogStart();
-            newFogEnd = mat->getFogEnd();
-            newFogDensity = mat->getFogDensity();
+            // Programmable pass, we assume parameters have already been updated
+            mDestRenderSystem->bindGpuProgram(pass->getVertexProgram());
+            mDestRenderSystem->bindGpuProgramParameters(GPT_VERTEX_PROGRAM, 
+                pass->getVertexProgramParameters());
+
+            mDestRenderSystem->bindGpuProgram(pass->getFragmentProgram());
+            mDestRenderSystem->bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, 
+                pass->getFragmentProgramParameters());
+			lastWasProgrammable = true;
         }
         else
         {
-            // New fog params from scene
-            newFogMode = mFogMode;
-            newFogColour = mFogColour;
-            newFogStart = mFogStart;
-            newFogEnd = mFogEnd;
-            newFogDensity = mFogDensity;
-        }
-        //if (firstTime || newFogMode != oldFogMode || newFogColour != oldFogColour ||
-        //    newFogStart != oldFogStart || newFogEnd != oldFogEnd ||
-        //    newFogDensity != oldFogDensity)
-        //{
-            mDestRenderSystem->_setFog(newFogMode, newFogColour, newFogDensity, newFogStart, newFogEnd);
-        //    oldFogMode = newFogMode;
-        //    oldFogColour = newFogColour;
-        //    oldFogStart = newFogStart;
-        //    oldFogEnd = newFogEnd;
-        //    oldFogDensity = newFogDensity;
-        //}
+            // Not programmable, set those things which are only of use in non-programmable mode
+			// Unbind programs first
+			if (lastWasProgrammable)
+			{
+				mDestRenderSystem->unbindGpuProgram(GPT_VERTEX_PROGRAM);
+				mDestRenderSystem->unbindGpuProgram(GPT_FRAGMENT_PROGRAM);
+				lastWasProgrammable = false;
+			}
+			
+
+            // Set surface reflectance properties        
+            mDestRenderSystem->_setSurfaceParams( 
+                pass->getAmbient(), 
+                pass->getDiffuse(), 
+                pass->getSpecular(), 
+                pass->getSelfIllumination(), 
+                pass->getShininess() );
 
 
-
-        // Texture layers
-        int texLayer = mat->getNumTextureLayers() - numLayersLeft;
-        int thisUnitsRequested = numLayersLeft;
-        int texUnits = mDestRenderSystem->getCapabilities()->numTextureUnits();
-
-#if OGRE_TEST_MULTIPASS == 1
-        texUnits = 1;
-#endif
-
-        // Iterate over texture units, set them up to the higher of the last texturing units used and the current to be used
-        //   but no higher than the number of units
-        lastUsedFallback = false;
-       int unit;
-        for (unit = 0;
-            (unit < lastNumTexUnitsUsed || unit < thisUnitsRequested) && unit < texUnits;
-            ++unit, ++texLayer)
-        {
-            if (unit >= thisUnitsRequested)
+            // Fog
+            // New fog params can either be from scene or from material
+            FogMode newFogMode;
+            ColourValue newFogColour;
+            Real newFogStart, newFogEnd, newFogDensity;
+            if (pass->getFogOverride())
             {
-                // We've run out of texture layers before we ran out of units to set
-                // Turn off the texturing for this unit
-                mDestRenderSystem->_disableTextureUnit(unit);
+                // New fog params from material
+                newFogMode = pass->getFogMode();
+                newFogColour = pass->getFogColour();
+                newFogStart = pass->getFogStart();
+                newFogEnd = pass->getFogEnd();
+                newFogDensity = pass->getFogDensity();
             }
             else
             {
-                Material::TextureLayer* pTex = mat->getTextureLayer(texLayer);
-                // We still have texture layers to put in this unit
-                if (unit == 0 && 
-                    thisUnitsRequested > 0 && 
-                    thisUnitsRequested < mat->getNumTextureLayers())
-                {
-                    // We're on the second (or more) leg of a multipass render
-                    // because remaining layers is not the total number
-
-                    // So we need to use the multipass fallback and override first texture layer blend
-                    lastUsedFallback = true;
-
-                    // Copy texture layer info and set custom blending
-                    Material::TextureLayer newTex = *pTex;
-
-                    // Set multitexture blend to NO blend (avoids any modulation with material colour)
-                    newTex.setColourOperation(LBO_REPLACE);
-                    // Set scene blending to colour blending equivalent (fallback)
-                    mDestRenderSystem->_setSceneBlending(pTex->getColourBlendFallbackSrc(), pTex->getColourBlendFallbackDest());
-
-                    // Set texture unit settings
-                    // NB rendersystem will know to only change relevant settings
-                    mDestRenderSystem->_setTextureUnitSettings(unit, newTex);
-                }
-                else
-                {
-                    if (lastUsedFallback)
-                    {
-                        // Ensure that fallback alpha on bottom layer does not mask out alpha on this layer
-                        pTex->setAlphaOperation(LBX_ADD);
-                    }
-
-                    // Standard issue
-                    mDestRenderSystem->_setTextureUnitSettings(unit, *pTex);
-                }
-
-                numLayersLeft--;
+                // New fog params from scene
+                newFogMode = mFogMode;
+                newFogColour = mFogColour;
+                newFogStart = mFogStart;
+                newFogEnd = mFogEnd;
+                newFogDensity = mFogDensity;
             }
+            mDestRenderSystem->_setFog(
+                newFogMode, newFogColour, newFogDensity, newFogStart, newFogEnd);
+
+            // Dynamic lighting enabled
+            mDestRenderSystem->setLightingEnabled(pass->getLightingEnabled());
         }
+
+        // Set scene blending
+        mDestRenderSystem->_setSceneBlending(
+            pass->getSourceBlendFactor(), pass->getDestBlendFactor());
+
+
+        // Texture unit settings
+        
+        Pass::TextureUnitStateIterator texIter =  pass->getTextureUnitStateIterator();
+        size_t unit = 0;
+        while(texIter.hasMoreElements())
+        {
+            TextureUnitState* pTex = texIter.getNext();
+            mDestRenderSystem->_setTextureUnitSettings(unit, *pTex);
+            ++unit;
+        }
+        // Disable remaining texture units
+        mDestRenderSystem->_disableTextureUnitsFrom(pass->getNumTextureUnitStates());
 
         // Set up non-texture related material settings
         // Depth buffer settings
-        //if (firstTime || lastMat.getDepthFunction() != mat->getDepthFunction())
-        //{
-            mDestRenderSystem->_setDepthBufferFunction(mat->getDepthFunction());
-        //}
-        //if (firstTime || lastMat.getDepthCheckEnabled() != mat->getDepthCheckEnabled())
-        //{
-            mDestRenderSystem->_setDepthBufferCheckEnabled(mat->getDepthCheckEnabled());
-        //}
-        //if (firstTime || lastMat.getDepthWriteEnabled() != mat->getDepthWriteEnabled())
-        //{
-            mDestRenderSystem->_setDepthBufferWriteEnabled(mat->getDepthWriteEnabled());
-        //}
-        //if (firstTime || lastMat.getDepthBias() != mat->getDepthBias())
-        //{
-            mDestRenderSystem->_setDepthBias(mat->getDepthBias());
-        //}
-
+        mDestRenderSystem->_setDepthBufferFunction(pass->getDepthFunction());
+        mDestRenderSystem->_setDepthBufferCheckEnabled(pass->getDepthCheckEnabled());
+        mDestRenderSystem->_setDepthBufferWriteEnabled(pass->getDepthWriteEnabled());
+        mDestRenderSystem->_setDepthBias(pass->getDepthBias());
 
         // Culling mode
-        //if (firstTime || lastMat.getCullingMode() != mat->getCullingMode())
-        //{
-            mDestRenderSystem->_setCullingMode(mat->getCullingMode());
-        //}
-        // Dynamic lighting enabled
-        //if (firstTime || lastMat.getLightingEnabled() != mat->getLightingEnabled())
-        //{
-            mDestRenderSystem->setLightingEnabled(mat->getLightingEnabled());
-        //}
+        mDestRenderSystem->_setCullingMode(pass->getCullingMode());
         // Shading
-        //if (firstTime || lastMat.getShadingMode() != mat->getShadingMode())
-        //{
-            mDestRenderSystem->setShadingType(mat->getShadingMode());
-        //}
-        
-		// FIX : texture filtering not needed here, it is set by RenderSystem->_setTextureUnitSettings
-		// Texture filtering
-        //if (firstTime || lastMat.getTextureFiltering() != mat->getTextureFiltering())
-        //{
-            //mDestRenderSystem->setTextureFiltering(mat->getTextureFiltering());
-        //}
-        // anisotropy
-        //if (firstTime || lastMat.getAnisotropy() != mat->getAnisotropy())
-        //{
-            //mDestRenderSystem->_setAnisotropy(mat->getAnisotropy());
-        //}
-
-
-        //firstTime = false;
-        // Copy material settings from last render
-        //lastMat = *mat;
-        lastNumTexUnitsUsed = unit;
-        return numLayersLeft;
+        mDestRenderSystem->setShadingType(pass->getShadingMode());
 
     }
     //-----------------------------------------------------------------------
@@ -846,11 +750,11 @@ namespace Ogre {
             }
             // Make sure the material doesn't update the depth buffer
             m->setDepthWriteEnabled(false);
-            // Also clamp texture, don't wrap (otherwise edges can get filtered)
-            m->getTextureLayer(0)->setTextureAddressingMode(Material::TextureLayer::TAM_CLAMP);
-
             // Ensure loaded
             m->load();
+            // Also clamp texture, don't wrap (otherwise edges can get filtered)
+            m->getBestTechnique()->getPass(0)->getTextureUnitState(0)->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+
 
             mSkyBoxDrawFirst = drawFirst;
 
@@ -886,14 +790,17 @@ namespace Ogre {
                 {
                     // Create new by clone
                     boxMat = m->clone(entName);
+                    boxMat->load();
                 }
                 else
                 {
                     // Copy over existing
                     m->copyDetailsTo(boxMat);
+                    boxMat->load();
                 }
                 // Set active frame
-                boxMat->getTextureLayer(0)->setCurrentFrame(i);
+                boxMat->getBestTechnique()->getPass(0)->getTextureUnitState(0)
+                    ->setCurrentFrame(i);
 
                 mSkyBoxEntity[i]->setMaterialName(boxMat->getName());
 
@@ -1131,13 +1038,9 @@ namespace Ogre {
         int render_count = 0;
         // Render each separate queue
         RenderQueue::QueueGroupIterator queueIt = mRenderQueue._getQueueGroupIterator();
-        RenderOperation ro;
 
         // NB only queues which have been created are rendered, no time is wasted
         //   parsing through non-existent queues (even though there are 10 available)
-        SceneDetailLevel lastDetailLevel, camDetailLevel;
-        camDetailLevel = mCameraInProgress->getDetailLevel();
-        lastDetailLevel = camDetailLevel;
 
         while (queueIt.hasMoreElements())
         {
@@ -1164,158 +1067,29 @@ namespace Ogre {
                     render_count++;
                     RenderPriorityGroup* pPriorityGrp = groupIt.getNext();
 
+                    // Sort the queue first
+                    pPriorityGrp->sort(mCameraInProgress);
+
+
                     // Render each non-transparent entity in turn, grouped by material
-                    RenderPriorityGroup::MaterialGroupMap::iterator imat, imatend;
-                    imatend = pPriorityGrp->mMaterialGroups.end();
-                    static Matrix4 xform[256];
-                    int matLayersLeft;
-                    Material* thisMaterial;
-                    unsigned short numMatrices;
+                    RenderPriorityGroup::RenderablePassList::iterator ipass, ipassend;
 
-                    // ----- NON-TRANSPARENT ENTITY LOOP -----
-                    for (imat = pPriorityGrp->mMaterialGroups.begin(); imat != imatend; ++imat)
+                    // ----- SOLIDS LOOP -----
+                    ipassend = pPriorityGrp->mSolidPasses.end();
+                    for (ipass = pPriorityGrp->mSolidPasses.begin(); ipass != ipassend; ++ipass)
                     {
-                        bool isMaterialSet = false;
+                        renderSingleObject(ipass->renderable, ipass->pass);
+                    } 
 
-                        // Set Material
-                        thisMaterial = imat->first;
-                        matLayersLeft = thisMaterial->getNumTextureLayers();
-
-                        // NB do at least one rendering pass even if no layers! (Untextured materials)
-                        do
-                        {
-                            // Iterate through renderables and render
-                            // Note this may happen multiple times for multipass render
-                            std::vector<Renderable*>::iterator irend, irendend;
-                            irendend = imat->second.end();
-
-                            bool normalisedNormals = false;
-
-                            for (irend = imat->second.begin(); irend != irendend; ++irend)
-                            {
-                                // Set world transformation
-                                (*irend)->getWorldTransforms(xform);
-                                numMatrices = (*irend)->getNumWorldTransforms();
-                                if (numMatrices > 1)
-                                {
-                                    mDestRenderSystem->_setWorldMatrices(xform, numMatrices);
-                                }
-                                else
-                                {
-                                    mDestRenderSystem->_setWorldMatrix(*xform);
-                                }
-
-                                // Issue view / projection changes if any
-                                useRenderableViewProjMode(*irend);
-
-                                // Set material - will return non-zero if multipass required so loop will continue, 0 otherwise
-                                if(!isMaterialSet)
-                                {
-                                    matLayersLeft = setMaterial(thisMaterial, matLayersLeft);
-                                    isMaterialSet = true;
-                                }
-                        
-                                // Sort out normalisation
-                                bool thisNormalise = (*irend)->getNormaliseNormals();
-                                if (thisNormalise != normalisedNormals)
-                                {
-                                    mDestRenderSystem->setNormaliseNormals(thisNormalise);
-                                    normalisedNormals = thisNormalise;
-                                }
-
-                                // Set up the solid / wireframe override
-                                SceneDetailLevel reqDetail = (*irend)->getRenderDetail();
-                                if (reqDetail != lastDetailLevel)
-                                {
-                                    if (reqDetail > camDetailLevel)
-                                    {
-                                        // only downgrade detail; if cam says wireframe we don't go up to solid
-                                        reqDetail = camDetailLevel;
-                                    }
-                                    mDestRenderSystem->_setRasterisationMode(reqDetail);
-                                    lastDetailLevel = reqDetail;
-
-                                }
-
-                                // Set up rendering operation
-                                (*irend)->getRenderOperation(ro);
-								#if OGRE_DEBUG_MODE
-									ro.srcRenderable = *irend;
-								#endif
-                                mDestRenderSystem->_render(ro);
-
-                            }
-                        } while (matLayersLeft > 0);
-
-
-                    } // for each material
-
-                    // ----- TRANSPARENT ENTITY LOOP -----
+                    // ----- TRANSPARENT LOOP -----
                     // This time we render by Z, not by material
                     // The mTransparentObjects set needs to be ordered first
-                    pPriorityGrp->sortTransparentObjects(mCameraInProgress);
 
-                    std::vector<Renderable*>::iterator iTrans, iTransEnd;
-                    iTransEnd = pPriorityGrp->mTransparentObjects.end();
-                    for (iTrans = pPriorityGrp->mTransparentObjects.begin(); 
-                    iTrans != iTransEnd; ++iTrans)
+                    ipassend = pPriorityGrp->mTransparentPasses.end();
+                    for (ipass = pPriorityGrp->mTransparentPasses.begin(); ipass != ipassend; ++ipass)
                     {
-                        thisMaterial = (*iTrans)->getMaterial();
-                        matLayersLeft = thisMaterial->getNumTextureLayers();
-                        // NB do at least one rendering pass even if no layers! (Untextured materials)
-                        do
-                        {
-                            // Set world transformation
-                            (*iTrans)->getWorldTransforms(xform);
-                            numMatrices = (*iTrans)->getNumWorldTransforms();
-                            if (numMatrices > 1)
-                            {
-                                mDestRenderSystem->_setWorldMatrices(xform, numMatrices);
-                            }
-                            else
-                            {
-                                mDestRenderSystem->_setWorldMatrix(*xform);
-                            }
-
-                            // Issue view / projection changes if any
-                            useRenderableViewProjMode(*iTrans);
-
-                            // Set material - will return non-zero if multipass required so loop will continue, 0 otherwise
-                            matLayersLeft = setMaterial(thisMaterial, matLayersLeft);
-
-                            // Sort out normalisation - always do it since material set every time
-                            mDestRenderSystem->setNormaliseNormals(
-                                (*iTrans)->getNormaliseNormals());
-
-                            // Set up the solid / wireframe override
-                            SceneDetailLevel reqDetail = (*iTrans)->getRenderDetail();
-                            if (reqDetail != lastDetailLevel)
-                            {
-                                if (reqDetail > camDetailLevel)
-                                {
-                                    // only downgrade detail; if cam says wireframe we don't go up to solid
-                                    reqDetail = camDetailLevel;
-                                }
-                                mDestRenderSystem->_setRasterisationMode(reqDetail);
-                                lastDetailLevel = reqDetail;
-
-                            }
-
-                            // Set up rendering operation
-                            (*iTrans)->getRenderOperation(ro);
-							#if OGRE_DEBUG_MODE
-								ro.srcRenderable = *iTrans;
-							#endif
-                            mDestRenderSystem->_render(ro);
-
-                        } while (matLayersLeft > 0);
-
-
+                        renderSingleObject(ipass->renderable, ipass->pass);
                     }
-
-
-
-
                 }// for each priority
             
                 // Fire queue ended event
@@ -1331,6 +1105,74 @@ namespace Ogre {
             } while (repeatQueue);
 
         } // for each queue group
+    }
+    //-----------------------------------------------------------------------
+    void SceneManager::renderSingleObject(Renderable* rend, Pass* pass)
+    {
+        static Matrix4 xform[256];
+        unsigned short numMatrices;
+        static bool normalisedNormals = false;
+        static SceneDetailLevel camDetailLevel = mCameraInProgress->getDetailLevel();
+        static SceneDetailLevel lastDetailLevel = camDetailLevel;
+        static RenderOperation ro;
+
+        if (pass->isProgrammable())
+        {
+            // Update any automatic gpu params
+            // Pass renderable and camera
+            // Other bits of information will have to be looked up
+            pass->_updateAutoParams(rend, mCameraInProgress);
+        }
+
+
+        // Set world transformation
+        rend->getWorldTransforms(xform);
+        numMatrices = rend->getNumWorldTransforms();
+        if (numMatrices > 1)
+        {
+            mDestRenderSystem->_setWorldMatrices(xform, numMatrices);
+        }
+        else
+        {
+            mDestRenderSystem->_setWorldMatrix(*xform);
+        }
+
+        // Issue view / projection changes if any
+        useRenderableViewProjMode(rend);
+
+        // Set up the pass state
+        // Note that we deliberately do this after setting the world matrix, some GL state 
+        // is dependent on that ordering
+        setPass(pass);
+
+        // Sort out normalisation
+        bool thisNormalise = rend->getNormaliseNormals();
+        if (thisNormalise != normalisedNormals)
+        {
+            mDestRenderSystem->setNormaliseNormals(thisNormalise);
+            normalisedNormals = thisNormalise;
+        }
+
+        // Set up the solid / wireframe override
+        SceneDetailLevel reqDetail = rend->getRenderDetail();
+        if (reqDetail != lastDetailLevel)
+        {
+            if (reqDetail > camDetailLevel)
+            {
+                // only downgrade detail; if cam says wireframe we don't go up to solid
+                reqDetail = camDetailLevel;
+            }
+            mDestRenderSystem->_setRasterisationMode(reqDetail);
+            lastDetailLevel = reqDetail;
+
+        }
+
+        // Set up rendering operation
+        rend->getRenderOperation(ro);
+		#if OGRE_DEBUG_MODE
+			ro.srcRenderable = rend;
+		#endif
+        mDestRenderSystem->_render(ro);
     }
     //-----------------------------------------------------------------------
     void SceneManager::_updateDynamicLights(void)
@@ -1609,7 +1451,7 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------
     void SceneManager::manualRender(RenderOperation* rend, 
-        Material* mat, Viewport* vp, const Matrix4& worldMatrix, 
+        Pass* pass, Viewport* vp, const Matrix4& worldMatrix, 
         const Matrix4& viewMatrix, const Matrix4& projMatrix) 
     {
         mDestRenderSystem->_setViewport(vp);
@@ -1619,13 +1461,8 @@ namespace Ogre {
 
         mDestRenderSystem->_beginFrame();
 
-        // NB do at least one rendering pass even if no layers! (Untextured materials)
-        unsigned short layersLeft = mat->getNumTextureLayers(); 
-        do
-        {
-            layersLeft = setMaterial(mat, layersLeft);
-            mDestRenderSystem->_render(*rend);
-        } while (layersLeft > 0);
+        setPass(pass);
+        mDestRenderSystem->_render(*rend);
 
         mDestRenderSystem->_endFrame();
         

@@ -29,8 +29,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     //-----------------------------------------------------------------------------
-	D3D9GpuProgram::D3D9GpuProgram(const String& name, GpuProgramType gptype, LPDIRECT3DDEVICE9 pDev) 
-        : GpuProgram(name, gptype), mpDevice(pDev)
+	D3D9GpuProgram::D3D9GpuProgram(const String& name, GpuProgramType gptype, 
+        const String& syntaxCode, LPDIRECT3DDEVICE9 pDev) 
+        : GpuProgram(name, gptype, syntaxCode), mpDevice(pDev)
     {
     }
 	//-----------------------------------------------------------------------------
@@ -39,8 +40,8 @@ namespace Ogre {
         // TODO
     }
 	//-----------------------------------------------------------------------------
-    D3D9GpuVertexProgram::D3D9GpuVertexProgram(const String& name, LPDIRECT3DDEVICE9 pDev) 
-        : D3D9GpuProgram(name, GPT_VERTEX_PROGRAM, pDev), mpVertexShader(NULL)
+    D3D9GpuVertexProgram::D3D9GpuVertexProgram(const String& name, const String& syntaxCode, LPDIRECT3DDEVICE9 pDev) 
+        : D3D9GpuProgram(name, GPT_VERTEX_PROGRAM, syntaxCode, pDev), mpVertexShader(NULL)
     {
         // do nothing here, all is done in load()
     }
@@ -93,8 +94,8 @@ namespace Ogre {
     }
 	//-----------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------
-    D3D9GpuFragmentProgram::D3D9GpuFragmentProgram(const String& name, LPDIRECT3DDEVICE9 pDev) 
-        : D3D9GpuProgram(name, GPT_FRAGMENT_PROGRAM, pDev), mpPixelShader(NULL)
+    D3D9GpuFragmentProgram::D3D9GpuFragmentProgram(const String& name, const String& syntaxCode, LPDIRECT3DDEVICE9 pDev) 
+        : D3D9GpuProgram(name, GPT_FRAGMENT_PROGRAM, syntaxCode, pDev), mpPixelShader(NULL)
     {
         // do nothing here, all is done in load()
     }

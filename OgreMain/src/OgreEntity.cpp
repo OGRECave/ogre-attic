@@ -272,6 +272,7 @@ namespace Ogre {
         iend = subEntList->end();
         for (i = subEntList->begin(); i != iend; ++i)
         {
+            (*i)->mpMaterial->touch();
             queue->addRenderable(*i, mRenderQueueID, RENDERABLE_DEFAULT_PRIORITY);
         }
 

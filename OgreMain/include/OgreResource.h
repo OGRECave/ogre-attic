@@ -31,6 +31,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+    typedef unsigned long ResourceHandle;
+
     /** Abstract class reprensenting a loadable resource (e.g. textures, sounds etc)
         @remarks
             Resources are generally passive constructs, handled through the
@@ -49,8 +51,10 @@ namespace Ogre {
     */
     class _OgreExport Resource 
     {
+        friend class ResourceManager;
     protected:
         String mName;
+        ResourceHandle mHandle;
         bool   mIsLoaded;
         time_t mLastAccess;
         size_t mSize;
@@ -58,7 +62,7 @@ namespace Ogre {
     public:
         /** Basic constructor. 
             @warn
-                Subclasses must init mName and mSize!
+                Subclasses must init mName, mHandle and mSize!
         */
         Resource() 
             : mIsLoaded( false ), mSize( 0 )
@@ -96,6 +100,7 @@ namespace Ogre {
         void touch(void) 
         { 
             mLastAccess = time(NULL); 
+            if (!mIsLoaded) load();
         }
 
         /** Gets the last time the resource was 'touched'.
@@ -110,6 +115,11 @@ namespace Ogre {
         const String& getName(void) const 
         { 
             return mName; 
+        }
+
+        ResourceHandle getHandle(void) const
+        {
+            return mHandle;
         }
 
         /** Returns true if the Resource has been loaded, false otherwise.

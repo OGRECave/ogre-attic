@@ -277,6 +277,9 @@
 				RelativePath="..\src\OgreGpuProgramManager.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreGpuProgramUsage.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreGuiContainer.cpp">
 			</File>
 			<File
@@ -440,6 +443,9 @@
 				RelativePath="..\src\OgreParticleSystemManager.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgrePass.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgrePatchMesh.cpp">
 			</File>
 			<File
@@ -514,9 +520,6 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreResourceManager.cpp">
-			</File>
-			<File
-				RelativePath="..\src\OgreResourceMap.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreRoot.cpp">
@@ -619,10 +622,10 @@
 				RelativePath="..\src\OgreTagPoint.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreTexture.cpp">
+				RelativePath="..\src\OgreTechnique.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreTextureLayer.cpp">
+				RelativePath="..\src\OgreTexture.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreTextureManager.cpp">
@@ -640,6 +643,9 @@
 						UsePrecompiledHeader="0"
 						PrecompiledHeaderThrough=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\src\OgreTextureUnitState.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreTimer.cpp">
@@ -837,6 +843,9 @@
 				RelativePath="..\include\OgreGpuProgramManager.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreGpuProgramUsage.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreGuiContainer.h">
 			</File>
 			<File
@@ -1011,6 +1020,9 @@
 				RelativePath="..\include\OgreParticleSystemManager.h">
 			</File>
 			<File
+				RelativePath="..\include\OgrePass.h">
+			</File>
+			<File
 				RelativePath="..\include\OgrePatchMesh.h">
 			</File>
 			<File
@@ -1081,9 +1093,6 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreResourceManager.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreResourceMap.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreRoot.h">
@@ -1182,10 +1191,16 @@
 				RelativePath="..\include\OgreTargetManager.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreTechnique.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreTexture.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreTextureManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreTextureUnitState.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreTimer.h">

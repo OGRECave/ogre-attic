@@ -418,6 +418,7 @@ private:
         // create an entity based on cloned mesh
 		objectEntity = mSceneMgr->createEntity( ENTITY_NAME, MESH_NAME);
         objectEntity->setMaterialName( material->getName() );
+        Pass* pass = material->getTechnique(0)->getPass(0);
 		
 		// go through subentities and set materials as required
 		for(int m=0;m<clonedMesh->getNumSubMeshes();m++) {
@@ -432,17 +433,18 @@ private:
 					subMat->load();
 					Material *cloned = subMat->clone(
 						"CubeMapTempMaterial#"+StringConverter::toString(m));
+                    Pass* clonedPass = cloned->getTechnique(0)->getPass(0);
 					// can't help it - have to do it :)
 					if (meshName=="knot.mesh") {
-						for(int tl=0;tl<cloned->getNumTextureLayers();tl++) {
-							Material::TextureLayer *tlayer = cloned->getTextureLayer(tl);
+						for(int tl=0;tl<clonedPass->getNumTextureUnitStates();tl++) {
+							TextureUnitState *tlayer = clonedPass->getTextureUnitState(tl);
 							tlayer->setScrollAnimation(1.0 , 0);
 						}
 					}
 					// add layers
-					for(int tl=0;tl<material->getNumTextureLayers();tl++) {
-						Material::TextureLayer *orgTL = material->getTextureLayer(tl);
-						Material::TextureLayer *newTL = cloned->addTextureLayer(
+					for(int tl=0;tl<pass->getNumTextureUnitStates();tl++) {
+						TextureUnitState *orgTL = pass->getTextureUnitState(tl);
+						TextureUnitState *newTL = clonedPass->createTextureUnitState(
 							orgTL->getTextureName());
 						*newTL = *orgTL ;
 						newTL->setColourOperationEx(currentLBX);
@@ -514,9 +516,9 @@ private:
 		currentCubeMapIndex %= availableCubeMaps.size();
 		int i ;
 		String cubeMapName = availableCubeMaps[currentCubeMapIndex];
-		
-		for(i=0;i<material->getTextureLayer(0)->getNumFrames();i++) {
-			String oldTexName = material->getTextureLayer(0)->
+		Pass *pass = material->getTechnique(0)->getPass(0);
+		for(i=0;i<pass->getTextureUnitState(0)->getNumFrames();i++) {
+			String oldTexName = pass->getTextureUnitState(0)->
 				getFrameTextureName(i);
 			Texture *oldTex = (Texture*) 
 				TextureManager::getSingleton().getByName(oldTexName);
@@ -524,12 +526,13 @@ private:
 			//~ oldTex->unload();
 			delete oldTex ;
 		}
-		material->getTextureLayer(0)->setCubicTextureName(cubeMapName, true);
+		pass->getTextureUnitState(0)->setCubicTextureName(cubeMapName, true);
 		
 		Material *mat2 = (Material*) 
 			MaterialManager::getSingleton().getByName(SKYBOX_MATERIAL);
-		for(i=0;i<mat2->getTextureLayer(0)->getNumFrames();i++) {
-			String oldTexName = mat2->getTextureLayer(0)->
+        Pass* pass2 = mat2->getTechnique(0)->getPass(0);
+		for(i=0;i<pass2->getTextureUnitState(0)->getNumFrames();i++) {
+			String oldTexName = pass2->getTextureUnitState(0)->
 				getFrameTextureName(i);
 			Texture *oldTex = (Texture*) 
 				TextureManager::getSingleton().getByName(oldTexName);
@@ -537,7 +540,7 @@ private:
 			//~ oldTex->unload();
 			delete oldTex ;
 		}
-		mat2->getTextureLayer(0)->setCubicTextureName(cubeMapName, false);
+		pass2->getTextureUnitState(0)->setCubicTextureName(cubeMapName, false);
 
 		mSceneMgr->setSkyBox(true, SKYBOX_MATERIAL );
 

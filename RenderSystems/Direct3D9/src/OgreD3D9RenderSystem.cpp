@@ -577,37 +577,18 @@ namespace Ogre
 		if( firstWindow )
 		{
 			win->getCustomAttribute( "D3DDEVICE", &mpD3DDevice );
-			// get caps
-			mpD3D->GetDeviceCaps( mActiveD3DDriver->getAdapterNumber(), D3DDEVTYPE_HAL, &mCaps );
 
 			// Create the texture manager for use by others
 			mTextureManager = new D3D9TextureManager( mpD3DDevice );
             // Also create hardware buffer manager
             mHardwareBufferManager = new D3D9HardwareBufferManager(mpD3DDevice);
 
-			LogManager::getSingleton().logMessage(
-				"The following capabilities are available:");
-
-			// Check for hardware stencil support
-			LPDIRECT3DSURFACE9 pSurf;
-			D3DSURFACE_DESC surfDesc;
-			mpD3DDevice->GetDepthStencilSurface(&pSurf);
-			pSurf->GetDesc(&surfDesc);
-
-			if (surfDesc.Format == D3DFMT_D24S8)
-			{
-				LogManager::getSingleton().logMessage("- Hardware Stencil Buffer");
-				mCapabilities->setCapability(RSC_HWSTENCIL);
-				// Actually, it's always 8-bit
-				mCapabilities->setStencilBufferBitDepth(8);
-
-			}
-
-			// Set number of texture units
-			mCapabilities->setNumTextureUnits(mCaps.MaxSimultaneousTextures);
-
 			// Create the GPU program manager
 			mGpuProgramManager = new D3D9GpuProgramManager(mpD3DDevice);
+
+            // Initialise the capabilities structures
+            initCapabilities();
+
 
 			firstWindow = false;
 			
@@ -615,7 +596,106 @@ namespace Ogre
 
 		OgreUnguardRet( win );
 	}
-	//---------------------------------------------------------------------
+    //---------------------------------------------------------------------
+    void D3D9RenderSystem::initCapabilities(void)
+    {
+		LogManager::getSingleton().logMessage(
+			"The following capabilities are available:");
+
+		// get caps
+		mpD3D->GetDeviceCaps( mActiveD3DDriver->getAdapterNumber(), D3DDEVTYPE_HAL, &mCaps );
+
+        // Check for hardware stencil support
+		LPDIRECT3DSURFACE9 pSurf;
+		D3DSURFACE_DESC surfDesc;
+		mpD3DDevice->GetDepthStencilSurface(&pSurf);
+		pSurf->GetDesc(&surfDesc);
+
+		if (surfDesc.Format == D3DFMT_D24S8)
+		{
+			LogManager::getSingleton().logMessage("- Hardware Stencil Buffer");
+			mCapabilities->setCapability(RSC_HWSTENCIL);
+			// Actually, it's always 8-bit
+			mCapabilities->setStencilBufferBitDepth(8);
+
+		}
+
+		// Set number of texture units
+		mCapabilities->setNumTextureUnits(mCaps.MaxSimultaneousTextures);
+
+        
+        mCapabilities->setMaxVertexProgramVersion(
+            convertVertexShaderCapsToProfileName(mCaps.VertexShaderVersion));
+        mCapabilities->setMaxFragmentProgramVersion(
+            convertVertexShaderCapsToProfileName(mCaps.PixelShaderVersion));
+
+    }
+    //---------------------------------------------------------------------
+    String D3D9RenderSystem::convertVertexShaderCapsToProfileName(DWORD version)
+    {
+        ushort major, minor;
+        major = static_cast<ushort>(version >> 16);
+        minor = static_cast<ushort>(version);
+        switch (major)
+        {
+        case 1:
+            return "vs_1_1";
+        case 2:
+            if (minor > 0)
+            {
+                return "vs_2_x";
+            }
+            else
+            {
+                return "vs_2_0";
+            }
+        case 3:
+            return "vs_3_0";
+        }
+        return "";
+    }
+    //---------------------------------------------------------------------
+    String D3D9RenderSystem::convertPixelShaderCapsToProfileName(DWORD version)
+    {
+        ushort major, minor;
+        major = static_cast<ushort>(version >> 16);
+        minor = static_cast<ushort>(version);
+        switch (major)
+        {
+        case 1:
+            switch(minor)
+            {
+            case 1:
+                return "ps_1_1";
+            case 2:
+                return "ps_1_2";
+            case 3:
+                return "ps_1_3";
+            case 4:
+                return "ps_1_4";
+            }
+        case 2:
+            if (minor > 0)
+            {
+                return "ps_2_x";
+            }
+            else
+            {
+                return "ps_2_0";
+            }
+        case 3:
+            if (minor > 0)
+            {
+                return "ps_3_x";
+            }
+            else
+            {
+                return "ps_3_0";
+            }
+        }
+        return "";
+    }
+    //---------------------------------------------------------------------
 	RenderTexture * D3D9RenderSystem::createRenderTexture( const String & name, int width, int height )
 	{
 		RenderTexture *rt = new D3D9RenderTexture( name, width, height );
@@ -971,7 +1051,7 @@ namespace Ogre
 		}
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_setTexture( int stage, bool enabled, const String &texname )
+	void D3D9RenderSystem::_setTexture( size_t stage, bool enabled, const String &texname )
 	{
 		HRESULT hr;
 		D3D9Texture *dt = (D3D9Texture *)TextureManager::getSingleton().getByName(texname);
@@ -1019,7 +1099,7 @@ namespace Ogre
 		}
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_setTextureCoordSet( int stage, int index )
+	void D3D9RenderSystem::_setTextureCoordSet( size_t stage, size_t index )
 	{
 		HRESULT hr;
 		hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, index );
@@ -1029,7 +1109,7 @@ namespace Ogre
         mTexStageDesc[stage].coordIndex = index;
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_setTextureCoordCalculation( int stage, TexCoordCalcMethod m)
+	void D3D9RenderSystem::_setTextureCoordCalculation( size_t stage, TexCoordCalcMethod m)
 	{
 		HRESULT hr = S_OK;
 		// record the stage state
@@ -1059,7 +1139,7 @@ namespace Ogre
 		}
 	}
     //---------------------------------------------------------------------
-	void D3D9RenderSystem::_setTextureMatrix( int stage, const Matrix4& xForm )
+	void D3D9RenderSystem::_setTextureMatrix( size_t stage, const Matrix4& xForm )
 	{
 		HRESULT hr;
 		D3DXMATRIX d3dMatId; // ident. matrix in D3DX format
@@ -1174,7 +1254,7 @@ namespace Ogre
 		}
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_setTextureAddressingMode( int stage, Material::TextureLayer::TextureAddressingMode tam )
+	void D3D9RenderSystem::_setTextureAddressingMode( size_t stage, TextureUnitState::TextureAddressingMode tam )
 	{
 		HRESULT hr;
 		if( FAILED( hr = __SetSamplerState( stage, D3DSAMP_ADDRESSU, D3D9Mappings::get(tam) ) ) )
@@ -1185,7 +1265,7 @@ namespace Ogre
 			Except( hr, "Failed to set texture addressing mode for W", "D3D9RenderSystem::_setTextureAddressingMode" );
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_setTextureBlendMode( int stage, const LayerBlendModeEx& bm )
+	void D3D9RenderSystem::_setTextureBlendMode( size_t stage, const LayerBlendModeEx& bm )
 	{
 		HRESULT hr = S_OK;
 		D3DTEXTURESTAGESTATETYPE tss;
@@ -1341,6 +1421,24 @@ namespace Ogre
 			Except(hr, "Error setting depth bias", "D3D9RenderSystem::_setDepthBias");
 	}
 	//---------------------------------------------------------------------
+	void D3D9RenderSystem::_setColourBufferWriteEnabled(bool red, bool green, 
+		bool blue, bool alpha)
+	{
+		DWORD val = 0;
+		if (red) 
+			val |= D3DCOLORWRITEENABLE_RED;
+		if (green)
+			val |= D3DCOLORWRITEENABLE_GREEN;
+		if (blue)
+			val |= D3DCOLORWRITEENABLE_BLUE;
+		if (alpha)
+			val |= D3DCOLORWRITEENABLE_ALPHA;
+		HRESULT hr = __SetRenderState(D3DRS_COLORWRITEENABLE, val); 
+		if (FAILED(hr))
+			Except(hr, "Error setting colour write enable flags", 
+			"D3D9RenderSystem::_setColourWriteEnabled");
+	}
+	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setFog( FogMode mode, const ColourValue& colour, Real densitiy, Real start, Real end )
 	{
 		HRESULT hr;
@@ -1445,7 +1543,7 @@ namespace Ogre
 			"D3D9RenderSystem::setStencilBufferPassOperation");
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_setTextureLayerFiltering(int unit, const TextureFilterOptions texLayerFilterOps)
+	void D3D9RenderSystem::_setTextureLayerFiltering(size_t unit, const TextureFilterOptions texLayerFilterOps)
 	{
 		HRESULT hr;
 		D3D9Mappings::eD3DTexType texType = mTexStageDesc[unit].texType;
@@ -1463,14 +1561,14 @@ namespace Ogre
 			Except(hr, "Failed to set MipFilter", "D3D9RenderSystem::_setTextureLayerFiltering");
 	}
     //---------------------------------------------------------------------
-	DWORD D3D9RenderSystem::_getCurrentAnisotropy(int unit)
+	DWORD D3D9RenderSystem::_getCurrentAnisotropy(size_t unit)
 	{
 		DWORD oldVal;
 		mpD3DDevice->GetSamplerState(unit, D3DSAMP_MAXANISOTROPY, &oldVal);
 			return oldVal;
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_setTextureLayerAnisotropy(int unit, int maxAnisotropy)
+	void D3D9RenderSystem::_setTextureLayerAnisotropy(size_t unit, int maxAnisotropy)
 	{
 		if ((DWORD)maxAnisotropy > mCaps.MaxAnisotropy)
 			maxAnisotropy = mCaps.MaxAnisotropy;
@@ -1885,7 +1983,8 @@ namespace Ogre
         };
     }
 	//---------------------------------------------------------------------
-    void D3D9RenderSystem::bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParameters* params)
+    void D3D9RenderSystem::bindGpuProgramParameters(GpuProgramType gptype, 
+        GpuProgramParametersSharedPtr params)
     {
         HRESULT hr;
         // D3D can only accept constant parameters in multiples of 4

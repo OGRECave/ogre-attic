@@ -26,8 +26,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreQuake3Shader.h"
 #include "OgreSceneManager.h"
 #include "OgreMaterial.h"
+#include "OgreTechnique.h"
+#include "OgrePass.h"
+#include "OgreTextureUnitState.h"
 #include "OgreMath.h"
 #include "OgreLogManager.h"
+#include "OgreTextureManager.h"
 
 namespace Ogre {
 
@@ -71,13 +75,13 @@ namespace Ogre {
         LogManager::getSingleton().logMessage(msg, LML_CRITICAL);
         for (int p = 0; p < numPasses; ++p)
         {
-            Material::TextureLayer* t;
+            TextureUnitState* t;
             // Create basic texture
             if (pass[p].textureName == "$lightmap")
             {
                 char lightmapName[16];
                 sprintf(lightmapName, "@lightmap%d", lightmapNumber);
-                t = mat->addTextureLayer(lightmapName);
+                t = mat->getTechnique(0)->getPass(0)->createTextureUnitState(lightmapName);
             }
             // Animated texture support
             else if (pass[p].animNumFrames > 0)
@@ -108,7 +112,7 @@ namespace Ogre {
 
                 }
 
-                t = mat->addTextureLayer("");
+                t = mat->getTechnique(0)->getPass(0)->createTextureUnitState("");
                 t->setAnimatedTextureName(pass[p].frames, pass[p].animNumFrames, sequenceTime);
                 if (t->isBlank())
                 {
@@ -121,7 +125,7 @@ namespace Ogre {
             }
             else
             {
-                t = mat->addTextureLayer(pass[p].textureName);
+                t = mat->getTechnique(0)->getPass(0)->createTextureUnitState(pass[p].textureName);
                 // Quake3 can still include alternate extension filenames e.g. jpg instead of tga
                 // Pain in the arse - have to check for failure
                 if (t->isBlank())
@@ -164,7 +168,7 @@ namespace Ogre {
             }
             else if (pass[p].texGen == TEXGEN_ENVIRONMENT)
             {
-                t->setEnvironmentMap(true, Material::TextureLayer::ENV_PLANAR);
+                t->setEnvironmentMap(true, TextureUnitState::ENV_PLANAR);
             }
             // Tex mod
             // Scale
@@ -186,12 +190,12 @@ namespace Ogre {
                         // Turbulent scroll
                         if (pass[p].tcModScroll[0])
                         {
-                            t->setTransformAnimation(Material::TextureLayer::TT_TRANSLATE_U, WFT_SINE,
+                            t->setTransformAnimation(TextureUnitState::TT_TRANSLATE_U, WFT_SINE,
                                 pass[p].tcModTurb[0], pass[p].tcModTurb[3], pass[p].tcModTurb[2], pass[p].tcModTurb[1]);
                         }
                         if (pass[p].tcModScroll[1])
                         {
-                            t->setTransformAnimation(Material::TextureLayer::TT_TRANSLATE_V, WFT_SINE,
+                            t->setTransformAnimation(TextureUnitState::TT_TRANSLATE_V, WFT_SINE,
                                 pass[p].tcModTurb[0], pass[p].tcModTurb[3], pass[p].tcModTurb[2], pass[p].tcModTurb[1]);
                         }
                     }
@@ -224,9 +228,9 @@ namespace Ogre {
 
                     }
                     // Create wave-based stretcher
-                    t->setTransformAnimation(Material::TextureLayer::TT_SCALE_U, wft, pass[p].tcModStretchParams[3],
+                    t->setTransformAnimation(TextureUnitState::TT_SCALE_U, wft, pass[p].tcModStretchParams[3],
                         pass[p].tcModStretchParams[0], pass[p].tcModStretchParams[2], pass[p].tcModStretchParams[1]);
-                    t->setTransformAnimation(Material::TextureLayer::TT_SCALE_V, wft, pass[p].tcModStretchParams[3],
+                    t->setTransformAnimation(TextureUnitState::TT_SCALE_V, wft, pass[p].tcModStretchParams[3],
                         pass[p].tcModStretchParams[0], pass[p].tcModStretchParams[2], pass[p].tcModStretchParams[1]);
                 }
             }
@@ -235,7 +239,7 @@ namespace Ogre {
             // Alpha mode
             t->setAlphaRejectSettings(pass[p].alphaFunc, pass[p].alphaVal);
 
-            assert(!t->isBlank());
+            //assert(!t->isBlank());
 
 
         }
@@ -256,6 +260,7 @@ namespace Ogre {
         mat->setCullingMode(CULL_NONE);
         mat->setManualCullingMode(cullMode);
         mat->setLightingEnabled(false);
+        mat->load();
         return mat;
     }
     String Quake3Shader::getAlternateName(const String& texName)

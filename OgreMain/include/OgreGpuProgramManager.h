@@ -70,8 +70,10 @@ namespace Ogre {
 		@param filename The file to load, which will also become the 
 			identifying name of the GpuProgram which is returned.
 		@param gptype The type of program to create
+        @param syntaxCode The name of the syntax to be used for this program e.g. arbvp1, vs_1_1
 		*/
-		virtual GpuProgram* load(const String& filename, GpuProgramType gptype, int priority = 1);
+		virtual GpuProgram* load(const String& filename, GpuProgramType gptype, 
+            const String& syntaxCode, int priority = 1);
 
 		/** Loads a GPU program from a string of assembly code.
 		@remarks
@@ -81,11 +83,16 @@ namespace Ogre {
 			retrieve this program later with getByName.
 		@param code A string of assembly code which will form the program to run
 		@param gptype The type of prgram to create.
+        @param syntaxCode The name of the syntax to be used for this program e.g. arbvp1, vs_1_1
 		*/
-		virtual GpuProgram* load(const String& name, const String& code, GpuProgramType gptype, int priority = 1);
+		virtual GpuProgram* load(const String& name, const String& code, GpuProgramType gptype,
+            const String& syntaxCode, int priority = 1);
 
 		/** Returns the syntaxes that this manager supports. */
 		virtual const SyntaxCodes& getSupportedSyntax(void) { return mSyntaxCodes; };
+
+        /** Returns whether a given syntax code (e.g. "ps_1_3", "fp20", "arbvp1") is supported. */
+        virtual bool isSyntaxSupported(const String& syntaxCode);
 		
 		/** Creates a new GpuProgramParameters instance which can be used to bind
             parameters to your programs.
@@ -106,9 +113,41 @@ namespace Ogre {
                 single compilation unit, preventing link errors.
         */
         static GpuProgramManager& getSingleton(void);
+
+        /** Create a new, unloaded GpuProgram from a file of assembly. 
+        @remarks    
+            Use this method in preference to the 'load' methods if you wish to define
+            a GpuProgram, but not load it yet; useful for saving memory.
+		@par
+			This method creates a new program of the type specified as the second parameter.
+			As with all types of ResourceManager, this class will search for the file in
+			all resource locations it has been configured to look in. 
+		@param filename The file to load, which will also become the 
+			identifying name of the GpuProgram which is returned.
+        @param syntaxCode The name of the syntax to be used for this program e.g. arbvp1, vs_1_1
+		@param gptype The type of program to create
+		*/
+		virtual GpuProgram* createProgram(const String& filename, GpuProgramType gptype, 
+            const String& syntaxCode, int priority = 1);
+
+		/** Create a GPU program from a string of assembly code.
+        @remarks    
+            Use this method in preference to the 'load' methods if you wish to define
+            a GpuProgram, but not load it yet; useful for saving memory.
+		@par
+			The assembly code must be compatible with this manager - call the 
+			getSupportedSyntax method for details of the supported syntaxes 
+		@param name The identifying name to give this program, which can be used to
+			retrieve this program later with getByName.
+		@param code A string of assembly code which will form the program to run
+		@param gptype The type of prgram to create.
+        @param syntaxCode The name of the syntax to be used for this program e.g. arbvp1, vs_1_1
+		*/
+		virtual GpuProgram* createProgram(const String& name, const String& code, 
+            GpuProgramType gptype, const String& syntaxCode, int priority = 1);
     protected:
 		/** Create a new GpuProgram. */
-        virtual GpuProgram* create(const String& name, GpuProgramType gptype) = 0;
+        virtual GpuProgram* create(const String& name, GpuProgramType gptype, const String& syntaxCode) = 0;
 
 
 	};

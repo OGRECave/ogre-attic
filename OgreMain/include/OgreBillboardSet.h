@@ -445,8 +445,12 @@ namespace Ogre {
             @see
                 MovableObject
         */
-        virtual void getWorldTransforms(Matrix4* xform);
+        virtual void getWorldTransforms(Matrix4* xform) const;
 
+        /** @copydoc Renderable::getWorldOrientation */
+        const Quaternion& getWorldOrientation(void) const;
+        /** @copydoc Renderable::getWorldPosition */
+        const Vector3& getWorldPosition(void) const;
         /** Internal callback used by Billboards to notify their parent that they have been resized.
         */
         virtual void _notifyBillboardResized(void);

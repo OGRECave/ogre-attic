@@ -67,7 +67,9 @@ public:
 
     virtual Material* getMaterial(void) const;
 
-    virtual void getWorldTransforms(Matrix4* xform);
+    virtual void getWorldTransforms(Matrix4* xform) const;
+    virtual const Quaternion& getWorldOrientation(void) const;
+    virtual const Vector3& getWorldPosition(void) const;
 
     Real getSquaredViewDepth(const Camera* cam) const;
 
