@@ -23,36 +23,31 @@
 	-->
 	</style>
   <title>Creating OGRE Project Files</title>
-		 		
   <meta name="generator" content="Deppo's HTML Editor v2.1 BETA 2">
-		
   <meta name="keywords" content="">
-		
   <meta name="description" content="">
-		
   <meta name="author" content="Nicholas">
-		
   <meta http-equiv="reply-to" content="vastrim@hotmail.com">
-		
   <meta name="creation_date" content="Sat, 13 Jul, 2002 12:32:59 p GMT">
 </head>
-	 	<body bgcolor="#ffffff" text="#000000">
+<body bgcolor="#ffffff" text="#000000">
 <p align="center" class="header">OGRE (Object-Oriented Graphics
 Rendering Engine)</p>
 <p align="center" class="header"> Our First Scene Node and Entity </p>
 <p align="left" class="MainHeader">&nbsp;</p>
-<p align="left" class="SectionHeader"> 	A ship in space</p>
+<p align="left" class="SectionHeader"> A ship in space</p>
 <p align="left"> What use is outer space if there are no space ships in
 it? Its time to make something that we can fly around in. We are going
 to do this by creating instances of two object types. Entities and
 Scene Nodes. </p>
-<p align="left" class="SectionHeader"> 	Member variables</p>
+<p align="left" class="SectionHeader"> Member variables</p>
 <p align="left"> Create some member variables to store pointers to the
 Scene Node and Entity for use later. </p>
 <pre>	Entity* mShip;<br>	SceneNode* mShipNode;<br></pre>
 <p></p>
-<p align="left" class="SectionHeader"> 	Entities</p>
-<p align="left"> An Entity in Ogre is a moveable object based on a mesh.
+<p align="left" class="SectionHeader"> Entities</p>
+<p align="left"> An Entity in Ogre is a moveable object based on a
+mesh.
 These meshes are loaded through the Resource Manager and its position
 is determined by a Scene Node that it is attached to. To create our
 ship, add a line into the createScene method in SpaceApplication.h
@@ -65,10 +60,11 @@ mesh file (razor.mesh) which is found in the Media directory. Another
 important thing to note about we just did, we gave the entity a name.
 This name (razor) has to be unique within the application or the Scene
 Manager will give you an error. </p>
-<p align="left" class="SectionHeader"> 	The Scene Node</p>
+<p align="left" class="SectionHeader"> The Scene Node</p>
 <p align="left"> As mentioned above, Entities attach to Scene Nodes
 which dictate their position in the scene. Scene Nodes can be attached
-to other tree nodes to create a type of positional hierachy, but for the
+to other tree nodes to create a type of positional hierachy, but for
+the
 purposes of this tutorial just one will do. </p>
 <p align="left"> To create this Scene Node we ask the root node of the
 scene to create it for us. The root node is maintained by Ogre and
@@ -78,43 +74,35 @@ are saying that the root node is the node's parent. After creating it
 we set its position orientation relative to the scene node (effectively
 the absolute position in the scene as far as this tutorial goes, but
 not necessarily true in other circumstances). </p>
-<pre>	mShipNode = static_cast&lt;SceneNode*&gt;(mSceneMgr-&gt;getRootSceneNode()-&gt;createChild());<br></pre>
+<pre>	mShipNode = mSceneMgr-&gt;getRootSceneNode()-&gt;createChildSceneNode();<br></pre>
 <p></p>
 <p></p>
-Note that the static_cast&lt;SceneNode*&gt;() part is required because
-the createChild member of SceneNode is actually inherited (and
-overridden) from Node, so this method actually returns a Node*.
-However, we know that the actual instance is a SceneNode so we can cast
-it safely. You might wonder why we can't just return a SceneNode*
-instead; well the reason is that in C++ you cannot have 2 methods with
-the same signature except for their return type: this is not a valid
-overload.<br>
-<br>
 Almost there... attach the ship Entity to the Scene Node.
 <pre>	mShipNode-&gt;attachObject(mShip);<br></pre>
 <p></p>
-<p align="left" class="SectionHeader"> 	Lighting</p>
+<p align="left" class="SectionHeader"> Lighting</p>
 <p align="left"> Lastly, we have to turn on some lights or you won't be
 able to see anything. Lets just use some ambient lighting supplied by
-the Scene Manager for now. Place this line at the start of createScene. </p>
+the Scene Manager for now. Place this line at the start of createScene.
+</p>
 <pre>	mSceneMgr-&gt;setAmbientLight(ColourValue(0.5, 0.5, 0.5));<br></pre>
 <p></p>
 <p align="left"> Compile and run. Have a walk around the ship. </p>
 <table width="100%" border="0" cellspacing="2" cellpadding="0">
-	<tbody>
+  <tbody>
     <tr>
-		<td width="14%"><a href="Index.html">Back to Index</a></td>
-		<td width="39%">&nbsp;</td>
-		<td width="22%"><a href="SettingUpTheScene.html">&lt;&lt; Previous
+      <td width="14%"><a href="Index.html">Back to Index</a></td>
+      <td width="39%">&nbsp;</td>
+      <td width="22%"><a href="SettingUpTheScene.html">&lt;&lt;
+Previous
 section</a></td>
-		<td width="25%"><a href="FrameListener.html">Next section &gt;&gt;</a></td>
-	</tr>
+      <td width="25%"><a href="FrameListener.html">Next section &gt;&gt;</a></td>
+    </tr>
   </tbody>
 </table>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 <p class="SectionHeader">&nbsp;</p>
-	
 </body>
 </html>
