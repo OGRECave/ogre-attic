@@ -86,21 +86,57 @@ namespace Ogre
         mBuffer += pMat->getName();
 		beginSection();
 		{
-			// Ambient
-			writeAttribute("ambient");
-			writeColourValue(pMat->getAmbient());
+			//lighting
+			if (mDefaults || 
+				pMat->getLightingEnabled() != true)
+			{
+				writeAttribute("lighting");
+				writeValue(pMat->getLightingEnabled() ? "on" : "off");
+			}
 
-			// Diffuse
-			writeAttribute("diffuse");
-			writeColourValue(pMat->getDiffuse());
+			if (pMat->getLightingEnabled())
+			{
+				// Ambient
+				if (mDefaults ||
+					pMat->getAmbient().r != 1 ||
+					pMat->getAmbient().g != 1 ||
+					pMat->getAmbient().b != 1)
+				{
+					writeAttribute("ambient");
+					writeColourValue(pMat->getAmbient());
+				}
 
-			// Specular
-			writeAttribute("specular");
-			writeColourValue(pMat->getSpecular(), true);
+				// Diffuse
+				if (mDefaults ||
+					pMat->getDiffuse().r != 1 ||
+					pMat->getDiffuse().g != 1 ||
+					pMat->getDiffuse().b != 1)
+				{
+					writeAttribute("diffuse");
+					writeColourValue(pMat->getDiffuse());
+				}
 
-			// Emissive
-			writeAttribute("emissive");
-			writeColourValue(pMat->getSelfIllumination());
+				// Specular
+				if (mDefaults ||
+					pMat->getSpecular().r != 0 ||
+					pMat->getSpecular().g != 0 ||
+					pMat->getSpecular().b != 0 ||
+					pMat->getSpecular().a != 0)
+				{
+					writeAttribute("specular");
+					writeColourValue(pMat->getSpecular(), true);
+				}
+
+				// Emissive
+				if (mDefaults ||
+					pMat->getSelfIllumination().r != 0 ||
+					pMat->getSelfIllumination().g != 0 ||
+					pMat->getSelfIllumination().b != 0)
+				{
+					writeAttribute("emissive");
+					writeColourValue(pMat->getSelfIllumination());
+				}
+			}
 
 			// scene blend factor
 			if (mDefaults || 
@@ -181,14 +217,6 @@ namespace Ogre
 					writeValue("front");
 					break;
 				}
-			}
-
-			//lighting
-			if (mDefaults || 
-				pMat->getLightingEnabled() != true)
-			{
-				writeAttribute("lighting");
-				writeValue(pMat->getLightingEnabled() ? "on" : "off");
 			}
 
 			//shading
@@ -285,9 +313,13 @@ namespace Ogre
 	void MaterialSerializer::writeTextureLayer(const Material::TextureLayer *pTex)
     {
 		LogManager::getSingleton().logMessage("MaterialSerializer : parsing texture layer.", LML_CRITICAL);
+
 		//texture name
-		writeSubAttribute("texture");
-		writeValue(pTex->getTextureName());
+		if (pTex->getNumFrames() == 1 && pTex->getTextureName() != "")
+		{
+			writeSubAttribute("texture");
+			writeValue(pTex->getTextureName());
+		}
 
 		//anim. texture
 		if (pTex->getNumFrames() > 1 && !pTex->isCubic())
@@ -299,23 +331,17 @@ namespace Ogre
 		}
 
 		//cubic texture
-		EffectMap m_ef = pTex->getEffects();
-		if (pTex->isCubic() && pTex->getNumFrames() > 1)
+		if (pTex->isCubic())
 		{
-			EffectMap::iterator it = m_ef.find(Material::TextureLayer::ET_ENVIRONMENT_MAP);
-			if (it != m_ef.end())
-			{
-				writeSubAttribute("cubic_texture");
-				for (int n = 0; n < pTex->getNumFrames(); n++)
-					writeValue(pTex->getFrameTextureName(n));
+			writeSubAttribute("cubic_texture");
+			for (int n = 0; n < pTex->getNumFrames(); n++)
+				writeValue(pTex->getFrameTextureName(n));
 
-				// combinedUVW/separateUW
-				Material::TextureLayer::TextureEffect te = it->second;
-				if (te.subtype == Material::TextureLayer::ENV_PLANAR)
-					writeValue("combinedUVW");
-				else
-					writeValue("separateUV");
-			}
+			//combinedUVW/separateUW
+			if (pTex->is3D())
+				writeValue("combinedUVW");
+			else
+				writeValue("separateUV");
 		}
 		
 		//texture coordinate set
@@ -367,10 +393,10 @@ namespace Ogre
 			writeLayerBlendSource(pTex->getColourBlendMode().source2);
 			if (pTex->getColourBlendMode().operation == LBX_BLEND_MANUAL)
 				writeValue(StringConverter::toString(pTex->getColourBlendMode().factor));
-			else if (pTex->getColourBlendMode().source1 == LBS_MANUAL)
-				writeValue(StringConverter::toString(pTex->getColourBlendMode().colourArg1));
-			else if (pTex->getColourBlendMode().source2 == LBS_MANUAL)
-				writeValue(StringConverter::toString(pTex->getColourBlendMode().colourArg2));
+			if (pTex->getColourBlendMode().source1 == LBS_MANUAL)
+				writeColourValue(pTex->getColourBlendMode().colourArg1, false);
+			if (pTex->getColourBlendMode().source2 == LBS_MANUAL)
+				writeColourValue(pTex->getColourBlendMode().colourArg2, false);
 
 			//colour_op_multipass_fallback
 			writeSubAttribute("colour_op_multipass_fallback");
@@ -414,6 +440,7 @@ namespace Ogre
 			writeValue(StringConverter::toString(pTex->getTextureVScroll()));
 		}
 
+		EffectMap m_ef = pTex->getEffects();
 		if (!m_ef.empty())
 		{
 			EffectMap::const_iterator it;
@@ -422,10 +449,8 @@ namespace Ogre
 				Material::TextureLayer::TextureEffect ef = it->second;
 				switch (ef.type)
 				{
-				//case Material::TextureLayer::TextureEffectType::ET_BUMP_MAP :
 				case Material::TextureLayer::ET_ENVIRONMENT_MAP :
-					if (!pTex->isCubic())
-						writeEnvironmentMapEffect(ef, pTex);
+					writeEnvironmentMapEffect(ef, pTex);
 					break;
 				case Material::TextureLayer::ET_ROTATE :
 					writeRotationEffect(ef, pTex);
@@ -436,6 +461,7 @@ namespace Ogre
 				case Material::TextureLayer::ET_TRANSFORM :
 					writeTransformEffect(ef, pTex);
 					break;
+				case Material::TextureLayer::ET_BUMP_MAP :
 				default:
 					break;
 				}
