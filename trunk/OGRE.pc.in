@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: OGRE
+Description: Object-Oriented Graphics Rendering Engine
+Version: @VERSION@
+Libs: -L${libdir} -lOgreMain
+Cflags: -I${includedir}/OGRE

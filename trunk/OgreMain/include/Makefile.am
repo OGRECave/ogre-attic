@@ -1,4 +1,4 @@
-noinst_HEADERS = Ogre.h \
+pkginclude_HEADERS = Ogre.h \
 OgreActionEvent.h \
 OgreActionTarget.h \
 OgreAnimation.h \
