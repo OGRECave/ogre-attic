@@ -220,7 +220,6 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 		faceVerticesIndices = getFace tmesh face ;
 		matId = getFaceMatId tmesh face ;		
 		
-		
 		-- Vertex Color Face
 		if (exportColours) then
 		(

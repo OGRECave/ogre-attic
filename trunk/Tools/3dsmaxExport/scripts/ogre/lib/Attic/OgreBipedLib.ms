@@ -47,6 +47,8 @@ function getTimeList obj firstframe lastframe samplerate IKsamplerate =
 	-- Standard Bones
 	else 
 	(
+		--print obj.name;
+		--print (classof obj.controller) ;
 		if (classof obj.controller == prs) then		-- standard controller
 		(
 			rotContr = obj.rotation.controller ;
@@ -65,7 +67,7 @@ function getTimeList obj firstframe lastframe samplerate IKsamplerate =
 					append list t ;
 			)	
 		)
-		else if (classof obj.controller == IK_ControllerMatrix3Controller) then		-- IK controller
+		else if ((classof obj.controller == IK_ControllerMatrix3Controller) or (classof obj.controller == IKControl)) then		-- IK controller
 		(
 			local IKSR = IKsamplerate;
 			
