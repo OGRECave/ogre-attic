@@ -87,6 +87,7 @@ namespace Ogre {
         const CString& objectName, bool edgeLists, bool tangents)
     {
         LogManager logMgr;
+		logMgr.createLog("OgreXSIExporter.log", true);
 		ResourceGroupManager rgm;
         MeshManager *meshMgr = new MeshManager();
         DefaultHardwareBufferManager *hardwareBufMgr = new DefaultHardwareBufferManager();
