@@ -1864,12 +1864,13 @@ namespace Ogre
 					Except( hr, "Failed to lock specular buffer", "D3D9RenderSystem::_render" );
 				pSrcSpecular = (BYTE*)op.pSpecularColour;
 			}
-			for( i=0; i < op.numTextureCoordSets; i++ )
-			{
-				if( FAILED( hr = pTextureBuffers[i]->Lock( 0, 0, (void **)&(pTexture[i]), D3DLOCK_DISCARD ) ) )
-					Except( hr, "Failed to lock texture buffer", "D3D9RenderSystem::_render" );
-				pSrcTexture[i] = (BYTE*)op.pTexCoords[i];
-			}
+			if( op.vertexOptions & RenderOperation::VO_TEXTURE_COORDS )
+				for( i=0; i < op.numTextureCoordSets; i++ )
+				{
+					if( FAILED( hr = pTextureBuffers[i]->Lock( 0, 0, (void **)&(pTexture[i]), D3DLOCK_DISCARD ) ) )
+						Except( hr, "Failed to lock texture buffer", "D3D9RenderSystem::_render" );
+					pSrcTexture[i] = (BYTE*)op.pTexCoords[i];
+				}
 
 			// Copy the data across
 			// This actually shouldn't be that difficult....
@@ -1896,12 +1897,13 @@ namespace Ogre
 					pDiffuse += sizeof(D3DCOLOR);
 					pSrcSpecular += op.specularStride + sizeof(long);
 				}
-				for( i=0; i < op.numTextureCoordSets; i++ )
-				{
-					memcpy( pTexture[i], pSrcTexture[i], pTextureBufferSizes[i] );
-					pTexture[i] += pTextureBufferSizes[i];
-					pSrcTexture[i] += op.texCoordStride[i] + pTextureBufferSizes[i];
-				}
+				if( op.vertexOptions & RenderOperation::VO_TEXTURE_COORDS )
+					for( i=0; i < op.numTextureCoordSets; i++ )
+					{
+						memcpy( pTexture[i], pSrcTexture[i], pTextureBufferSizes[i] );
+						pTexture[i] += pTextureBufferSizes[i];
+						pSrcTexture[i] += op.texCoordStride[i] + pTextureBufferSizes[i];
+					}
 			}
 
 			// Unlock all the buffers that were locked
@@ -1912,8 +1914,9 @@ namespace Ogre
 				mpDiffuseBuffer.buffer->Unlock();
 			if( op.vertexOptions & RenderOperation::VO_SPECULAR_COLOURS )
 				mpSpecularBuffer.buffer->Unlock();
-			for( i=0; i < op.numTextureCoordSets; i++ )
-				pTextureBuffers[i]->Unlock();
+			if( op.vertexOptions & RenderOperation::VO_TEXTURE_COORDS )
+				for( i=0; i < op.numTextureCoordSets; i++ )
+					pTextureBuffers[i]->Unlock();
 		}
 		else
 		{
@@ -1952,13 +1955,14 @@ namespace Ogre
 				mpSpecularBuffer.buffer->Unlock();
 			}
 
-			for( i=0; i < op.numTextureCoordSets; i++ )
-			{
-				if( FAILED( hr = pTextureBuffers[i]->Lock( 0, 0, (void**)&pFloat, D3DLOCK_DISCARD ) ) )
-					Except( hr, "Failed to lock texture buffer", "D3D9RenderSystem::_render" );
-				memcpy( pFloat, op.pTexCoords[i], pTextureBufferSizes[i]*op.numVertices );
-				pTextureBuffers[i]->Unlock();
-			}
+			if( op.vertexOptions & RenderOperation::VO_TEXTURE_COORDS )
+				for( i=0; i < op.numTextureCoordSets; i++ )
+				{
+					if( FAILED( hr = pTextureBuffers[i]->Lock( 0, 0, (void**)&pFloat, D3DLOCK_DISCARD ) ) )
+						Except( hr, "Failed to lock texture buffer", "D3D9RenderSystem::_render" );
+					memcpy( pFloat, op.pTexCoords[i], pTextureBufferSizes[i]*op.numVertices );
+					pTextureBuffers[i]->Unlock();
+				}
 		}
 
 		// Create our vertex shader based on the declaration
