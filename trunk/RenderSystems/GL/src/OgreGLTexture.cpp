@@ -131,10 +131,10 @@ namespace Ogre {
 
         // Scale image to n^2 dimensions
         unsigned int newWidth = 
-          (unsigned int)pow(2,round_up(log((double)mSrcWidth) / log(2.0)));
+          (unsigned int)pow(2.0,round_up(log((double)mSrcWidth) / log(2.0)));
 
         unsigned int newHeight = 
-          (unsigned int)pow(2,round_up(log((double)mSrcHeight) / log(2.0)));
+          (unsigned int)pow(2.0,round_up(log((double)mSrcHeight) / log(2.0)));
 
         uchar *pTempData;
         if(newWidth != mSrcWidth || newHeight != mSrcHeight)

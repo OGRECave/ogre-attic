@@ -44,16 +44,15 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void GuiContainer::addChild(GuiElement* elem)
     {
-		if (elem->isContainer())
+        if (elem->isContainer())
 		{
 			addChildImpl(static_cast<GuiContainer*>(elem));
 		}
 		else
 		{
 			addChildImpl(elem);
-	        elem->_notifyParent(this, mOverlay);
-		    elem->_notifyZOrder(mZOrder + 1);
 		}
+
 	}
     //---------------------------------------------------------------------
     void GuiContainer::addChildImpl(GuiElement* elem)
@@ -67,9 +66,9 @@ namespace Ogre {
         }
 
         mChildren.insert(ChildMap::value_type(name, elem));
-
         // tell child about parent & ZOrder
-
+        elem->_notifyParent(this, mOverlay);
+	    elem->_notifyZOrder(mZOrder + 1);
 
     }
     //---------------------------------------------------------------------
