@@ -1010,13 +1010,13 @@ namespace Ogre {
             if (s->useSharedVertices)
             {
                 // Use shared vertex data, index as set 0
-                eb.addIndexData(s->indexData, 0);
+                eb.addIndexData(s->indexData, 0, s->operationType);
             }
             else
             {
                 // own vertex data, add it and reference it directly
                 eb.addVertexData(s->vertexData);
-                eb.addIndexData(s->indexData, vertexSetCount++);
+                eb.addIndexData(s->indexData, vertexSetCount++, s->operationType);
             }
         }
 

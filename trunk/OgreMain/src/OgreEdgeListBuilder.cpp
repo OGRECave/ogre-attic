@@ -83,10 +83,12 @@ namespace Ogre {
         mVertexDataList.push_back(vertexData);
     }
     //---------------------------------------------------------------------
-    void EdgeListBuilder::addIndexData(const IndexData* indexData, size_t vertexSet)
+    void EdgeListBuilder::addIndexData(const IndexData* indexData, 
+        size_t vertexSet, RenderOperation::OperationType opType)
     {
         mIndexDataList.push_back(indexData);
         mIndexDataVertexDataSetList.push_back(vertexSet);
+        mOperationTypeList.push_back(opType);
     }
     //---------------------------------------------------------------------
     EdgeData* EdgeListBuilder::build(void)
@@ -168,7 +170,20 @@ namespace Ogre {
     void EdgeListBuilder::buildTrianglesEdges(size_t indexSet, size_t vertexSet)
     {
         const IndexData* indexData = mIndexDataList[indexSet];
-        size_t iterations = indexData->indexCount / 3;
+        RenderOperation::OperationType opType = mOperationTypeList[indexSet];
+
+        size_t iterations;
+        
+        switch (opType)
+        {
+        case RenderOperation::OT_TRIANGLE_LIST:
+            iterations = indexData->indexCount / 3;
+            break;
+        case RenderOperation::OT_TRIANGLE_FAN:
+        case RenderOperation::OT_TRIANGLE_STRIP:
+            iterations = indexData->indexCount - 2;
+            break;
+        };
 
 
 
@@ -213,13 +228,45 @@ namespace Ogre {
             Vector3 v[3];
             for (size_t i = 0; i < 3; ++i)
             {
-                if (indexData->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT)
+                // Standard 3-index read for tri list or first tri in strip / fan
+                if (opType == RenderOperation::OT_TRIANGLE_LIST ||
+                    t == 0)
                 {
-                    index[i] = *p32Idx++;
+                    if (indexData->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT)
+                    {
+                        index[i] = *p32Idx++;
+                    }
+                    else
+                    {
+                        index[i] = *p16Idx++;
+                    }
                 }
                 else
                 {
-                    index[i] = *p16Idx++;
+                    // Strips and fans are formed from last 2 indexes plus the 
+                    // current one for triangles after the first
+                    if (indexData->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT)
+                    {
+                        index[i] = p32Idx[i-2];
+                    }
+                    else
+                    {
+                        index[i] = p16Idx[i-2];
+                    }
+                    // Perform single-index increment at the last tri index
+                    if (i == 2)
+                    {
+                        if (indexData->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT)
+                        {
+                            p32Idx++;
+                        }
+                        else
+                        {
+                            p16Idx++;
+                        }
+
+                    }
+
                 }
 
                 // Populate tri original vertex index
@@ -470,14 +517,15 @@ namespace Ogre {
         }
 
         // Log original index data
-        for(i = 0; i < mIndexDataList.size(); i += 3)
+        for(i = 0; i < mIndexDataList.size(); i++)
         {
             const IndexData* iData = mIndexDataList[i];
             l->logMessage(".");
             l->logMessage("Original triangle set " + 
                 StringConverter::toString(i) + " - index count " + 
                 StringConverter::toString(iData->indexCount) + " - " + 
-            "vertex set " + StringConverter::toString(mIndexDataVertexDataSetList[i]));
+            "vertex set " + StringConverter::toString(mIndexDataVertexDataSetList[i]) + " - " + 
+            "operationType " + StringConverter::toString(mOperationTypeList[i]));
             // Get the indexes ready for reading
             unsigned short* p16Idx;
             unsigned int* p32Idx;
@@ -493,21 +541,43 @@ namespace Ogre {
                     iData->indexBuffer->lock(HardwareBuffer::HBL_READ_ONLY));
             }
 
-            for (j = 0; j < iData->indexCount; ++j)
+            for (j = 0; j < iData->indexCount;  )
             {
                 if (iData->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT)
                 {
-                    l->logMessage("Triangle " + StringConverter::toString(j) + 
-                        ": (" + StringConverter::toString(*p32Idx++) + 
-                        ", " + StringConverter::toString(*p32Idx++) + 
-                        ", " + StringConverter::toString(*p32Idx++) + ")");
+                    if (mOperationTypeList[i] == RenderOperation::OT_TRIANGLE_LIST
+                        || j == 0)
+                    {
+                        l->logMessage("Triangle " + StringConverter::toString(j) + 
+                            ": (" + StringConverter::toString(*p32Idx++) + 
+                            ", " + StringConverter::toString(*p32Idx++) + 
+                            ", " + StringConverter::toString(*p32Idx++) + ")");
+                        j += 3;
+                    }
+                    else
+                    {
+                        l->logMessage("Triangle " + StringConverter::toString(j) + 
+                            ": (" + StringConverter::toString(*p32Idx++) + ")");
+                        j++;
+                    }
                 }
                 else
                 {
-                    l->logMessage("Index " + StringConverter::toString(j) + 
-                        ": (" + StringConverter::toString(*p16Idx++) + 
-                        ", " + StringConverter::toString(*p16Idx++) + 
-                        ", " + StringConverter::toString(*p16Idx++) + ")");
+                    if (mOperationTypeList[i] == RenderOperation::OT_TRIANGLE_LIST
+                        || j == 0)
+                    {
+                        l->logMessage("Index " + StringConverter::toString(j) + 
+                            ": (" + StringConverter::toString(*p16Idx++) + 
+                            ", " + StringConverter::toString(*p16Idx++) + 
+                            ", " + StringConverter::toString(*p16Idx++) + ")");
+                        j += 3;
+                    }
+                    else
+                    {
+                        l->logMessage("Triangle " + StringConverter::toString(j) + 
+                            ": (" + StringConverter::toString(*p16Idx++) + ")");
+                        j++;
+                    }
                 }
 
 
