@@ -1003,7 +1003,7 @@ namespace Ogre {
 
         /** Retrieves a pointer to a texture layer so it may be modified.
         */
-        TextureLayer* getTextureLayer(int index);
+        TextureLayer* getTextureLayer(int index) const;
 
         /** Removes the topmost texture layer from the material.
         */

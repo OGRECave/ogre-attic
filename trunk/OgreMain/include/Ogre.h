@@ -60,6 +60,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreParticleSystemManager.h"
 #include "OgreParticleEmitter.h"
 #include "OgreParticleAffector.h"
+#include "OgreMeshSerializer.h"
 // .... more to come
 
 #endif
