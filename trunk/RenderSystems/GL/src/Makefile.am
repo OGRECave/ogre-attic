@@ -9,10 +9,14 @@ SUBDIRS = $(OGRE_GLSUPPORT)
 pkglib_PROGRAMS = RenderSystem_GL.so
 
 RenderSystem_GL_so_SOURCES = OgreGLEngineDll.cpp \
-                           OgreGLRenderSystem.cpp \
-						   OgreGLSupport.cpp \
-                           OgreGLTexture.cpp \
-                           OgreGLTextureManager.cpp
+                             OgreGLHardwareBufferManager.cpp \
+                             OgreGLHardwareIndexBuffer.cpp \
+                             OgreGLHardwareVertexBuffer.cpp \
+                             OgreGLRenderSystem.cpp \
+                             OgreGLSupport.cpp \
+                             OgreGLTexture.cpp \
+                             OgreGLTextureManager.cpp \
+                             OgreGLVertexDeclaration.cpp
 
 RenderSystem_GL_so_LDFLAGS = $(SHARED_FLAGS) -L$(top_builddir)/OgreMain/src
 RenderSystem_GL_so_LDADD = $(GL_LIBS) $(GLSUPPORT_LIBS) -lOgreMain \
