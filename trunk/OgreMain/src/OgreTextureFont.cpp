@@ -301,7 +301,6 @@ namespace Ogre {
 
 		    unsigned char *pChar = slot->bitmap.buffer;
 
-		    FT_Int j, k;
 		    pen_dx = pen_x + slot->bitmap_left;
 		    pen_dy = pen_y - slot->bitmap_top;
 
@@ -342,7 +341,7 @@ namespace Ogre {
         FT_Bool       use_kerning;
         FT_UInt       previous;
         FT_UInt       glyph_index;
-        FT_UInt		  pen_x, pen_y, pen_dx, pen_dy;
+        FT_UInt		  pen_x, pen_y;
         FT_GlyphSlot  slot;
 
         std::list< FT_Glyph > glyphs;
