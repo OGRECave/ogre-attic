@@ -422,7 +422,7 @@ namespace Ogre {
         pBone->getOrientation().ToAngleAxis(angle, axis);
         TiXmlElement* axisNode = 
             subNode->InsertEndChild(TiXmlElement("axis"))->ToElement();
-        subNode->SetAttribute("angle", StringConverter::toString(angle));
+        subNode->SetAttribute("angle", StringConverter::toString(angle.valueRadians()));
         axisNode->SetAttribute("x", StringConverter::toString(axis.x));
         axisNode->SetAttribute("y", StringConverter::toString(axis.y));
         axisNode->SetAttribute("z", StringConverter::toString(axis.z));
