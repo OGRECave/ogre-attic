@@ -88,11 +88,6 @@ namespace Ogre {
         removeAllAffectors();
     }
     //-----------------------------------------------------------------------
-    const String& ParticleSystem::getName(void) const
-    {
-        return mName;
-    }
-    //-----------------------------------------------------------------------
     ParticleEmitter* ParticleSystem::addEmitter(const String& emitterType)
     {
         ParticleEmitter* em = ParticleSystemManager::getSingleton()._createEmitter(emitterType);
