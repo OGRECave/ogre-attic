@@ -128,8 +128,8 @@ namespace Ogre
         /// Internal method for populating the capabilities structure
         void initCapabilities(void);
 
-        String convertVertexShaderCapsToProfileName(DWORD version);
-        String convertPixelShaderCapsToProfileName(DWORD version);
+        void convertVertexShaderCaps(void);
+        void convertPixelShaderCaps(void);
 
 
 	public:

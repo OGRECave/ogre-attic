@@ -599,9 +599,6 @@ namespace Ogre
     //---------------------------------------------------------------------
     void D3D9RenderSystem::initCapabilities(void)
     {
-		LogManager::getSingleton().logMessage(
-			"The following capabilities are available:");
-
 		// get caps
 		mpD3D->GetDeviceCaps( mActiveD3DDriver->getAdapterNumber(), D3DDEVTYPE_HAL, &mCaps );
 
@@ -611,7 +608,7 @@ namespace Ogre
 		mpD3DDevice->GetDepthStencilSurface(&pSurf);
 		pSurf->GetDesc(&surfDesc);
 
-		if (surfDesc.Format == D3DFMT_D24S8)
+		if (surfDesc.Format == D3DFMT_D24S8 || surfDesc.Format == D3DFMT_D24X8)
 		{
 			LogManager::getSingleton().logMessage("- Hardware Stencil Buffer");
 			mCapabilities->setCapability(RSC_HWSTENCIL);
@@ -622,78 +619,214 @@ namespace Ogre
 
 		// Set number of texture units
 		mCapabilities->setNumTextureUnits(mCaps.MaxSimultaneousTextures);
+        // Anisotropy?
+        if (mCaps.MaxAnisotropy > 1)
+            mCapabilities->setCapability(RSC_ANISOTROPY);
+        // Automatic mipmap generation?
+        if (mCaps.Caps2 & D3DCAPS2_CANAUTOGENMIPMAP)
+            mCapabilities->setCapability(RSC_AUTOMIPMAP);
+        // Blending between stages supported
+        mCapabilities->setCapability(RSC_BLENDING);
+        // Dot 3
+        if (mCaps.TextureOpCaps & D3DTEXOPCAPS_DOTPRODUCT3)
+            mCapabilities->setCapability(RSC_DOT3);
+        // Cube map
+        if (mCaps.TextureCaps & D3DPTEXTURECAPS_CUBEMAP)
+            mCapabilities->setCapability(RSC_CUBEMAPPING);
 
-        
-        mCapabilities->setMaxVertexProgramVersion(
-            convertVertexShaderCapsToProfileName(mCaps.VertexShaderVersion));
-        mCapabilities->setMaxFragmentProgramVersion(
-            convertVertexShaderCapsToProfileName(mCaps.PixelShaderVersion));
+        mCapabilities->setCapability(RSC_VBO);
 
+        convertVertexShaderCaps();
+        convertPixelShaderCaps();
+
+        mCapabilities->log(LogManager::getSingleton().getDefaultLog());
     }
     //---------------------------------------------------------------------
-    String D3D9RenderSystem::convertVertexShaderCapsToProfileName(DWORD version)
+    void D3D9RenderSystem::convertVertexShaderCaps(void)
     {
         ushort major, minor;
-        major = static_cast<ushort>(version >> 16);
-        minor = static_cast<ushort>(version);
+        major = static_cast<ushort>((mCaps.VertexShaderVersion & 0x0000FF00) >> 8);
+        minor = static_cast<ushort>(mCaps.VertexShaderVersion & 0x000000FF);
+
+        // Populate max version & params
         switch (major)
         {
         case 1:
-            return "vs_1_1";
+            mCapabilities->setMaxVertexProgramVersion("vs_1_1");
+            // No boolean params allowed
+            mCapabilities->setVertexProgramConstantBoolBoundary(0);
+            mCapabilities->setVertexProgramConstantBoolCount(0);
+            // No integer params allowed
+            mCapabilities->setVertexProgramConstantIntBoundary(0);
+            mCapabilities->setVertexProgramConstantIntCount(0);
+            // float params, always 4D
+            mCapabilities->setVertexProgramConstantFloatBoundary(4);
+            mCapabilities->setVertexProgramConstantFloatCount(mCaps.MaxVertexShaderConst * 4);
+           
+            break;
         case 2:
             if (minor > 0)
             {
-                return "vs_2_x";
+                mCapabilities->setMaxVertexProgramVersion("vs_2_x");
             }
             else
             {
-                return "vs_2_0";
+                mCapabilities->setMaxVertexProgramVersion("vs_2_0");
             }
+            // 16 boolean params allowed
+            mCapabilities->setVertexProgramConstantBoolBoundary(1);
+            mCapabilities->setVertexProgramConstantBoolCount(16);
+            // 16 integer params allowed, 4D
+            mCapabilities->setVertexProgramConstantIntBoundary(4);
+            mCapabilities->setVertexProgramConstantIntCount(16 * 4);
+            // float params, always 4D
+            mCapabilities->setVertexProgramConstantFloatBoundary(4);
+            mCapabilities->setVertexProgramConstantFloatCount(mCaps.MaxVertexShaderConst * 4);
+            break;
         case 3:
-            return "vs_3_0";
+            mCapabilities->setMaxVertexProgramVersion("vs_3_0");
+            // 16 boolean params allowed
+            mCapabilities->setVertexProgramConstantBoolBoundary(1);
+            mCapabilities->setVertexProgramConstantBoolCount(16);
+            // 16 integer params allowed, 4D
+            mCapabilities->setVertexProgramConstantIntBoundary(4);
+            mCapabilities->setVertexProgramConstantIntCount(16 * 4);
+            // float params, always 4D
+            mCapabilities->setVertexProgramConstantFloatBoundary(4);
+            mCapabilities->setVertexProgramConstantFloatCount(mCaps.MaxVertexShaderConst * 4);
+            break;
+        default:
+            mCapabilities->setMaxVertexProgramVersion("");
+            break;
         }
-        return "";
+
+        // populate syntax codes in program manager (no breaks in this one so it falls through)
+        switch(major)
+        {
+        case 3:
+            mGpuProgramManager->_pushSyntaxCode("vs_3_0");
+        case 2:
+            if (major > 2 || minor > 0)
+                mGpuProgramManager->_pushSyntaxCode("vs_2_x");
+
+            mGpuProgramManager->_pushSyntaxCode("vs_2_0");
+        case 1:
+            mGpuProgramManager->_pushSyntaxCode("vs_1_1");
+            mCapabilities->setCapability(RSC_VERTEX_PROGRAM);
+        }
     }
     //---------------------------------------------------------------------
-    String D3D9RenderSystem::convertPixelShaderCapsToProfileName(DWORD version)
+    void D3D9RenderSystem::convertPixelShaderCaps(void)
     {
         ushort major, minor;
-        major = static_cast<ushort>(version >> 16);
-        minor = static_cast<ushort>(version);
+        major = static_cast<ushort>((mCaps.PixelShaderVersion & 0x0000FF00) >> 8);
+        minor = static_cast<ushort>(mCaps.PixelShaderVersion & 0x000000FF);
         switch (major)
         {
         case 1:
             switch(minor)
             {
             case 1:
-                return "ps_1_1";
+                mCapabilities->setMaxFragmentProgramVersion("ps_1_1");
+                break;
             case 2:
-                return "ps_1_2";
+                mCapabilities->setMaxFragmentProgramVersion("ps_1_2");
+                break;
             case 3:
-                return "ps_1_3";
+                mCapabilities->setMaxFragmentProgramVersion("ps_1_3");
+                break;
             case 4:
-                return "ps_1_4";
+                mCapabilities->setMaxFragmentProgramVersion("ps_1_4");
+                break;
             }
+            break;
+            // no boolean params allowed
+            mCapabilities->setFragmentProgramConstantBoolBoundary(0);
+            mCapabilities->setFragmentProgramConstantBoolCount(0);
+            // no integer params allowed
+            mCapabilities->setFragmentProgramConstantIntBoundary(0);
+            mCapabilities->setFragmentProgramConstantIntCount(0);
+            // float params, always 4D
+            // NB in ps_1_x these are actually stored as fixed point values,
+            // but they are entered as floats
+            mCapabilities->setFragmentProgramConstantFloatBoundary(4);
+            mCapabilities->setFragmentProgramConstantFloatCount(8 * 4);
         case 2:
             if (minor > 0)
             {
-                return "ps_2_x";
+                mCapabilities->setMaxFragmentProgramVersion("ps_2_x");
+                // 16 boolean params allowed
+                mCapabilities->setFragmentProgramConstantBoolBoundary(1);
+                mCapabilities->setFragmentProgramConstantBoolCount(16);
+                // 16 integer params allowed, 4D
+                mCapabilities->setFragmentProgramConstantIntBoundary(4);
+                mCapabilities->setFragmentProgramConstantIntCount(16 * 4);
+                // float params, always 4D
+                mCapabilities->setFragmentProgramConstantFloatBoundary(4);
+                mCapabilities->setFragmentProgramConstantFloatCount(224 * 4);
             }
             else
             {
-                return "ps_2_0";
+                mCapabilities->setMaxFragmentProgramVersion("ps_2_0");
+                // no boolean params allowed
+                mCapabilities->setFragmentProgramConstantBoolBoundary(0);
+                mCapabilities->setFragmentProgramConstantBoolCount(0);
+                // no integer params allowed
+                mCapabilities->setFragmentProgramConstantIntBoundary(0);
+                mCapabilities->setFragmentProgramConstantIntCount(0);
+                // float params, always 4D
+                mCapabilities->setFragmentProgramConstantFloatBoundary(4);
+                mCapabilities->setFragmentProgramConstantFloatCount(32 * 4);
             }
+            break;
         case 3:
             if (minor > 0)
             {
-                return "ps_3_x";
+                mCapabilities->setMaxFragmentProgramVersion("ps_3_x");
             }
             else
             {
-                return "ps_3_0";
+                mCapabilities->setMaxFragmentProgramVersion("ps_3_0");
             }
+            // 16 boolean params allowed
+            mCapabilities->setFragmentProgramConstantBoolBoundary(1);
+            mCapabilities->setFragmentProgramConstantBoolCount(16);
+            // 16 integer params allowed, 4D
+            mCapabilities->setFragmentProgramConstantIntBoundary(4);
+            mCapabilities->setFragmentProgramConstantIntCount(16 * 4);
+            // float params, always 4D
+            mCapabilities->setFragmentProgramConstantFloatBoundary(4);
+            mCapabilities->setFragmentProgramConstantFloatCount(224 * 4);
+            break;
+        default:
+            mCapabilities->setMaxFragmentProgramVersion("");
+            break;
         }
-        return "";
+
+        // populate syntax codes in program manager (no breaks in this one so it falls through)
+        switch(major)
+        {
+        case 3:
+            if (minor > 0)
+                mGpuProgramManager->_pushSyntaxCode("ps_3_x");
+
+            mGpuProgramManager->_pushSyntaxCode("ps_3_0");
+        case 2:
+            if (major > 2 || minor > 0)
+                mGpuProgramManager->_pushSyntaxCode("ps_2_x");
+
+            mGpuProgramManager->_pushSyntaxCode("ps_2_0");
+        case 1:
+            if (major > 1 || minor >= 4)
+                mGpuProgramManager->_pushSyntaxCode("ps_1_4");
+            if (major > 1 || minor >= 3)
+                mGpuProgramManager->_pushSyntaxCode("ps_1_3");
+            if (major > 1 || minor >= 2)
+                mGpuProgramManager->_pushSyntaxCode("ps_1_2");
+            
+            mGpuProgramManager->_pushSyntaxCode("ps_1_1");
+            mCapabilities->setCapability(RSC_FRAGMENT_PROGRAM);
+        }
     }
     //---------------------------------------------------------------------
 	RenderTexture * D3D9RenderSystem::createRenderTexture( const String & name, int width, int height )

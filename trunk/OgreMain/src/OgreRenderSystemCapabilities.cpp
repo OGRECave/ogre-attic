@@ -25,7 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 
 #include "OgreRenderSystemCapabilities.h"
-
+#include "OgreLogManager.h"
 #include "OgreException.h"
 
 namespace Ogre {
@@ -39,5 +39,57 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     RenderSystemCapabilities::~RenderSystemCapabilities()
     {
+    }
+    //-----------------------------------------------------------------------
+    void RenderSystemCapabilities::log(Log* pLog)
+    {
+        pLog->logMessage("RenderSystem capabilities");
+        pLog->logMessage("-------------------------");
+        pLog->logMessage(
+            " * Hardware generation of mipmaps: " 
+            + StringConverter::toString(hasCapability(RSC_AUTOMIPMAP), true));
+        pLog->logMessage(
+            " * Texture blending: " 
+            + StringConverter::toString(hasCapability(RSC_BLENDING), true));
+        pLog->logMessage(
+            " * Anisotropic texture filtering: " 
+            + StringConverter::toString(hasCapability(RSC_ANISOTROPY), true));
+        pLog->logMessage(
+            " * Dot product texture operation: " 
+            + StringConverter::toString(hasCapability(RSC_DOT3), true));
+        pLog->logMessage(
+            " * Cube mapping: " 
+            + StringConverter::toString(hasCapability(RSC_CUBEMAPPING), true));
+        pLog->logMessage(
+            " * Hardware stencil buffer: " 
+            + StringConverter::toString(hasCapability(RSC_HWSTENCIL), true));
+        if (hasCapability(RSC_HWSTENCIL))
+        {
+            pLog->logMessage(
+                "   - Stencil depth: " 
+                + StringConverter::toString(getStencilBufferBitDepth()));
+        }
+        pLog->logMessage(
+            " * Hardware vertex / index buffers: " 
+            + StringConverter::toString(hasCapability(RSC_VBO), true));
+        pLog->logMessage(
+            " * Vertex programs: " 
+            + StringConverter::toString(hasCapability(RSC_VERTEX_PROGRAM), true));
+        if (hasCapability(RSC_VERTEX_PROGRAM))
+        {
+            pLog->logMessage(
+                "   - Max vertex program version: " 
+                + getMaxVertexProgramVersion());
+        }
+        pLog->logMessage(
+            " * Fragment programs: " 
+            + StringConverter::toString(hasCapability(RSC_FRAGMENT_PROGRAM), true));
+        if (hasCapability(RSC_FRAGMENT_PROGRAM))
+        {
+            pLog->logMessage(
+                "   - Max fragment program version: " 
+                + getMaxFragmentProgramVersion());
+        }
+
     }
 };

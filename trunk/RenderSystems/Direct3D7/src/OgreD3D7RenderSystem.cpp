@@ -588,8 +588,6 @@ namespace Ogre {
             // Create my texture manager for use by others
             // Note this is a Singleton; pointer is held static by superclass
             mTextureManager = new D3DTextureManager(mlpD3DDevice);
-            LogManager::getSingleton().logMessage(
-                "The following capabilities are available:");
 
             // Check for hardware stencil support
             LPDIRECTDRAWSURFACE7 lpTarget;
@@ -600,13 +598,14 @@ namespace Ogre {
             ushort stencil =  pf.dwStencilBitDepth;
             if(stencil > 0)
             {
-                LogManager::getSingleton().logMessage("- Hardware Stencil Buffer");
                 mCapabilities->setCapability(RSC_HWSTENCIL);
                 mCapabilities->setStencilBufferBitDepth(stencil);
             }
 
             // Set the number of texture units based on details from current device
             mCapabilities->setNumTextureUnits(mD3DDeviceDesc.wMaxSimultaneousTextures);
+
+            mCapabilities->log(LogManager::getSingleton().getDefaultLog());
 
             firstWindow = false;
         }
