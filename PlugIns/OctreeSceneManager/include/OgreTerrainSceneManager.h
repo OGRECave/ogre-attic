@@ -314,6 +314,8 @@ public:
 
     /// Get the SceneNode under which all terrain nodes are attached.
     SceneNode* getTerrainRootNode(void) const { return mTerrainRoot; }
+    /** Overridden from SceneManager */
+    void clearScene(void);
 
 
 protected:
