@@ -60,6 +60,9 @@ namespace Ogre {
 
         mUpdated = true;
         mShowOverlays = true;
+
+        // notify camera
+        cam->_notifyViewport(this);
     }
     //---------------------------------------------------------------------
     Viewport::~Viewport()
