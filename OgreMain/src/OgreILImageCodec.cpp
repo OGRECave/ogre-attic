@@ -23,6 +23,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 
+#include "OgreStableHeaders.h"
+
 #include "OgreILImageCodec.h"
 #include "OgreImage.h"
 #include "OgreException.h"
