@@ -57,8 +57,33 @@ namespace Ogre {
             FMT_RGB = 4,
             FMT_RGB_ALPHA = 5
         };
-    public:
 
+    public:
+        /** Structure used to define a rectangle in a 2-D integer space.
+        */
+        struct Rect
+        {
+            int left, top, right, bottom;
+
+            Rect( int l, int t, int r, int b )
+            {
+                left = l;
+                top = t;   
+                right = r;
+                bottom = b;                
+            }
+            Rect& operator = ( const Rect& other )
+            {
+                left = other.left;
+                top = other.top;      
+                right = other.right;
+                bottom = other.bottom;                
+
+                return *this;
+            }
+        };
+
+    public:
         /** Standard constructor.
         */
         Image();
@@ -236,9 +261,9 @@ namespace Ogre {
 
         /** Returns a const pointer to the internal image buffer.
         */
-        const uchar * getConstData() const;       
+        const uchar * getData() const;       
 
-        /** REturns the size of the data buffer.
+        /** Returns the size of the data buffer.
         */
         size_t getSize() const;
 
@@ -257,6 +282,14 @@ namespace Ogre {
         /** Returns the image format.
         */
         PixelFormat getFormat() const;
+
+        /** Returns the number of bits per pixel.
+        */
+        uchar getBPP() const;
+
+        /** Returns true if the image has an alpha component.
+        */
+        bool getHasAlpha() const;
 
     private:
         // The width of the image in pixels

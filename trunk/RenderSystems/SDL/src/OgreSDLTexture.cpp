@@ -101,7 +101,7 @@ namespace Ogre {
         mHeight = mSrcHeight;
 
         uchar *pTempData = new uchar[ img.getSize() ];
-        memcpy( pTempData, img.getConstData(), img.getSize() );
+        memcpy( pTempData, img.getData(), img.getSize() );
 
         // Create the GL texture
         glGenTextures( 1, &mTextureID );

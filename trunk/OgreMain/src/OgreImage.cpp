@@ -222,7 +222,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------------
-    const uchar* Image::getConstData() const
+    const uchar* Image::getData() const
     {
         assert( m_pBuffer );
         return m_pBuffer;
@@ -256,6 +256,21 @@ namespace Ogre {
     Image::PixelFormat Image::getFormat() const
     {
         return m_eFormat;
+    }
+
+    //-----------------------------------------------------------------------------
+    uchar Image::getBPP() const
+    {
+        return m_ucPixelSize * 8;
+    }
+
+    //-----------------------------------------------------------------------------
+    bool Image::getHasAlpha() const
+    {
+        if( m_eFormat & FMT_ALPHA )
+            return true;
+        else
+            return false;
     }
 
 }

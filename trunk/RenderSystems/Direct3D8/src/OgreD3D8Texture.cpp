@@ -78,7 +78,7 @@ namespace Ogre {
 		mSrcHeight = img.getHeight();
 
 		uchar *pTempData = new uchar[ img.getSize() ];
-		memcpy( pTempData, img.getConstData(), img.getSize() );
+		memcpy( pTempData, img.getData(), img.getSize() );
 
 		createTexture();
 		applyGamma( pTempData, img.getSize(), mSrcBpp );
