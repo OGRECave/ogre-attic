@@ -30,7 +30,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
     #define POSITION_BINDING 0
-    #define COLOUR_BINDING 1
 
 	WireBoundingBox::WireBoundingBox() 
     {
@@ -57,12 +56,11 @@ namespace Ogre {
         // Bind buffer
         bind->setBinding(POSITION_BINDING, vbuf);
 
-        vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
-            decl->getVertexSize(COLOUR_BINDING),
-            mRenderOp.vertexData->vertexCount,
-            HardwareBuffer::HBU_DYNAMIC);
+        // set basic white material
+        this->setMaterial("BaseWhiteNoLighting");
 
-        bind->setBinding(COLOUR_BINDING, vbuf);
+
+        
 	}
 	
 	WireBoundingBox::~WireBoundingBox() 
@@ -75,17 +73,7 @@ namespace Ogre {
 		// init the vertices to the aabb
 		setupBoundingBoxVertices(aabb);
 
-        /* TODO
-		memset(mDiffuses,0xFF,sizeof(mDiffuses));
-
-		mLegacyRendOp.pDiffuseColour = (unsigned long*)mDiffuses; 
-
-		// only need diffuse colors, other options not needed
-		mLegacyRendOp.vertexOptions = LegacyRenderOperation::VO_DIFFUSE_COLOURS; 
-        */
-
-
-		// setup the bounding box of this SimpleRenderable
+    	// setup the bounding box of this SimpleRenderable
 		setBoundingBox(aabb);
 
 	}
