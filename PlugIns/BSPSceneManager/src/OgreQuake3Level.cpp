@@ -152,8 +152,10 @@ namespace Ogre {
         {
             char name[32];
             sprintf(name, "@lightmap%d", i);
+
             // Load, no mipmaps, brighten by factor 2.5
-            TextureManager::getSingleton().loadRawRGB(name, pLightmap, 128, 128, 0, 3.0f);
+            Image img; img.loadRawData( DataChunk( pLightmap, 128 * 128 * 3 ), 128, 128, Image::FMT_RGB );
+            TextureManager::getSingleton().loadImage( name, img, 0, 3.0f );
             pLightmap += BSP_LIGHTMAP_BANKSIZE;
         }
 
