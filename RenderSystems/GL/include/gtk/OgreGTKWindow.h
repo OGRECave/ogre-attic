@@ -42,7 +42,7 @@ public:
     OGREWidget(bool useDepthBuffer);
 };
     
-class GTKWindow : public RenderWindow, public Gtk::Window
+class GTKWindow : public RenderWindow, public SigC::Object
 {
 public:
     GTKWindow();
@@ -81,9 +81,13 @@ public:
 	 */
     void getCustomAttribute( const String& name, void* pData );
 protected:
+    // Signal handlers
     bool on_delete_event(GdkEventAny* event);
+    bool on_expose_event(GdkEventExpose* event);
+    // bool SimpleGLScene::on_configure_event(GdkEventConfigure* event) 
 private:
     Gtk::Main* kit;
+    Gtk::Window *mGtkWindow;
     OGREWidget* ogre;
 }; // class GTKWindow
 
