@@ -94,7 +94,6 @@ namespace Ogre {
     {
     protected:
         ZZIP_FILE* mZzipFile;
-		size_t mUncompressedSize;
     public:
         /// Unnamed constructor
         ZipDataStream(ZZIP_FILE* zzipFile, size_t uncompressedSize);

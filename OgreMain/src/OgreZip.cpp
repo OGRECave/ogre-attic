@@ -207,13 +207,15 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     ZipDataStream::ZipDataStream(ZZIP_FILE* zzipFile, size_t uncompressedSize)
-        : mZzipFile(zzipFile), mUncompressedSize(uncompressedSize)
+        : mZzipFile(zzipFile)
     {
+		mSize = uncompressedSize;
     }
     //-----------------------------------------------------------------------
     ZipDataStream::ZipDataStream(const String& name, ZZIP_FILE* zzipFile, size_t uncompressedSize)
-        :DataStream(name), mZzipFile(zzipFile), mUncompressedSize(uncompressedSize)
+        :DataStream(name), mZzipFile(zzipFile)
     {
+		mSize = uncompressedSize;
     }
     //-----------------------------------------------------------------------
     size_t ZipDataStream::read(void* buf, size_t count)
@@ -278,7 +280,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool ZipDataStream::eof(void) const
     {
-        return (zzip_tell(mZzipFile) >= mUncompressedSize);
+        return (zzip_tell(mZzipFile) >= mSize);
     }
     //-----------------------------------------------------------------------
     void ZipDataStream::close(void)

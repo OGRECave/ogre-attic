@@ -345,11 +345,19 @@ namespace Ogre {
     FileHandleDataStream::FileHandleDataStream(FILE* handle)
         : DataStream(), mFileHandle(handle)
     {
+		// Determine size
+		fseek(mFileHandle, 0, SEEK_END);
+		mSize = ftell(mFileHandle);
+		fseek(mFileHandle, 0, SEEK_SET);
     }
     //-----------------------------------------------------------------------
     FileHandleDataStream::FileHandleDataStream(const String& name, FILE* handle)
         : DataStream(name), mFileHandle(handle)
     {
+		// Determine size
+		fseek(mFileHandle, 0, SEEK_END);
+		mSize = ftell(mFileHandle);
+		fseek(mFileHandle, 0, SEEK_SET);
     }
     //-----------------------------------------------------------------------
     FileHandleDataStream::~FileHandleDataStream()
