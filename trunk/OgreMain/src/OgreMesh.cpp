@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreLogManager.h"
 #include "OgreDataChunk.h"
 #include "OgreMeshSerializer.h"
+#include "OgreSkeletonManager.h"
 
 
 
@@ -57,6 +58,7 @@ namespace Ogre {
         // Default to load from file
         mManuallyDefined = false;
         mUpdateBounds = true;
+        mSkeleton = 0;
 
     }
 
@@ -495,5 +497,44 @@ namespace Ogre {
         mAABB = bounds;
         mUpdateBounds = false;
     }
+    //-----------------------------------------------------------------------
+    void Mesh::setSkeletonName(const String& skelName)
+    {
+        if (skelName == "")
+        {
+            // No skeleton
+            mSkeleton = 0;
+        }
+        else
+        {
+            // Load skeleton
+            mSkeleton = SkeletonManager::getSingleton().load(skelName);
+
+
+        }
+    }
+    //-----------------------------------------------------------------------
+    bool Mesh::hasSkeleton(void)
+    {
+        return mSkeleton != 0;
+    }
+    //-----------------------------------------------------------------------
+    Skeleton* Mesh::getSkeleton(void)
+    {
+        return mSkeleton;
+    }
+    //-----------------------------------------------------------------------
+    void Mesh::addBoneAssignment(const VertexBoneAssignment& vertBoneAssign)
+    {
+        mBoneAssignments.push_back(vertBoneAssign);
+        // TODO - build a rendersystem-specific format buffer for hardware vertex blending?
+    }
+    //-----------------------------------------------------------------------
+    void Mesh::clearBoneAssignments(void)
+    {
+        mBoneAssignments.clear();
+    }
+    //-----------------------------------------------------------------------
+
 }
 

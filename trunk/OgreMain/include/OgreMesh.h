@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreResource.h"
 #include "OgreGeometryData.h"
 #include "OgreAxisAlignedBox.h"
+#include "OgreVertexBoneAssignment.h"
 
 namespace Ogre {
 
@@ -163,6 +164,38 @@ namespace Ogre {
         */
         void _setBounds(const AxisAlignedBox& bounds);
 
+        /** Sets the name of the skeleton this Mesh uses for animation.
+        @remarks
+            Meshes can optionally be assigned a skeleton which can be used to animate
+            the mesh through bone assignments. The default is for the Mesh to use no
+            skeleton. Calling this method with a valid skeleton filename will cause the
+            skeleton to be loaded if it is not already (a single skeleton can be shared
+            by many Mesh objects).
+        @param skelName The name of the .skeleton file to use, or an empty string to use
+            no skeleton
+        */
+        void setSkeletonName(const String& skelName);
+
+        /** Returns true if this Mesh has a linked Skeleton. */
+        bool hasSkeleton(void);
+
+        /** Gets a pointer to any linked Skeleton. */
+        Skeleton* getSkeleton(void);
+
+        /** Assigns a vertex to a bone with a given weight, for skeletal animation. 
+        @remarks    
+            This method is only valid after calling setSkeletonName.
+            Since this is a one-off process there exists only 'addBoneAssignment' and
+            'clearBoneAssignments' methods, no 'editBoneAssignment'. You should not need
+            to modify bone assignments during rendering (only the positions of bones) and OGRE
+            reserves the right to do some internal data reformatting of this information, depending
+            on render system requirements.
+        */
+        void addBoneAssignment(const VertexBoneAssignment& vertBoneAssign);
+
+        /** Removes all bone assignments for this mesh. */
+        void clearBoneAssignments(void);
+
     private:
         typedef std::vector<SubMesh*> SubMeshList;
         /** A list of submeshes which make up this mesh.
@@ -185,6 +218,12 @@ namespace Ogre {
         /// Flag to indicate that bounds need updating
         bool mUpdateBounds;
 
+        /// Optional linked skeleton
+        Skeleton* mSkeleton;
+
+        typedef std::vector<VertexBoneAssignment> VertexBoneAssignmentList;
+
+        VertexBoneAssignmentList mBoneAssignments;
 
     };
 
