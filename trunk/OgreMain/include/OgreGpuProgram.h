@@ -168,8 +168,8 @@ namespace Ogre {
 		/** Sets a multiple value constant floating-point parameter to the program.
 		@param index The constant index at which to start placing parameters (each constant is
             a 4D float)
-		@param val Pointer to the values to write
-		@param count The number of floats to write, must be a multiple of 4.
+		@param val Pointer to the values to write, must contain 4*count floats
+		@param count The number of groups of 4 floats to write
 		*/
 		void setConstant(size_t index, const Real *val, size_t count);
 		/** Sets a ColourValue parameter to the program.
@@ -190,8 +190,8 @@ namespace Ogre {
             provided on RenderSystemCapabilities to determine the options.
 		@param index The constant index at which to place the parameter (each constant is
             a 4D integer)
-		@param val Pointer to the values to write
-		@param count The number of integers to write, must be a multiple of 4
+		@param val Pointer to the values to write, must contain 4*count ints
+		@param count The number of groups of 4 ints to write
 		*/
 		void setConstant(size_t index, const int *val, size_t count);
 

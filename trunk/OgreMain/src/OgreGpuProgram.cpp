@@ -88,7 +88,7 @@ namespace Ogre
 	//-----------------------------------------------------------------------------
 	void GpuProgramParameters::setConstant(size_t index, const Vector4& vec)
 	{
-		setConstant(index, vec.val, 4);
+		setConstant(index, vec.val, 1);
 	}
 	//-----------------------------------------------------------------------------
 	void GpuProgramParameters::setConstant(size_t index, const Vector3& vec)
@@ -101,20 +101,19 @@ namespace Ogre
         // set as 4x 4-element floats
         // Turns out in vertex programs, D3D uses the 'right' matrix layout
         // so no need to convert matrix, we can use the same for both
-        GpuProgramParameters::setConstant(index++, m[0], 4);
-        GpuProgramParameters::setConstant(index++, m[1], 4);
-        GpuProgramParameters::setConstant(index++, m[2], 4);
-        GpuProgramParameters::setConstant(index, m[3], 4);
+        GpuProgramParameters::setConstant(index++, m[0], 1);
+        GpuProgramParameters::setConstant(index++, m[1], 1);
+        GpuProgramParameters::setConstant(index++, m[2], 1);
+        GpuProgramParameters::setConstant(index, m[3], 1);
     }
 	//-----------------------------------------------------------------------------
     void GpuProgramParameters::setConstant(size_t index, const ColourValue& colour)
     {
-        setConstant(index, colour.val, 4);
+        setConstant(index, colour.val, 1);
     }
     //-----------------------------------------------------------------------------
     void GpuProgramParameters::setConstant(size_t index, const Real *val, size_t count)
     {
-        assert(count % 4 == 0 && "count must be a multiple of 4!");
         // Expand if required
         if (mRealConstants.size() < index + count)
         	mRealConstants.resize(index + count);
@@ -132,7 +131,6 @@ namespace Ogre
 	//-----------------------------------------------------------------------------
     void GpuProgramParameters::setConstant(size_t index, const int *val, size_t count)
     {
-        assert(count % 4 == 0 && "count must be a multiple of 4!");
         // Expand if required
         if (mIntConstants.size() < index + count)
         	mIntConstants.resize(index + count);
