@@ -286,25 +286,39 @@ void GLHardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::Box
 	if(!mBuffer.contains(dstBox))
 		Except(Exception::ERR_INVALIDPARAMS, "destination box out of range",
 		 "GLHardwarePixelBuffer::blitFromMemory");
-
-	// TODO: bulkPixelConversion if src.format is not directly supported by GL
 	PixelBox scaled;
-	uint8 *temp = 0;
+	// for scoped deletion of conversion buffer
+	MemoryDataStreamPtr buf;
+	
 	if(src.getWidth() != dstBox.getWidth() ||
 		src.getHeight() != dstBox.getHeight() ||
 		src.getDepth() != dstBox.getDepth())
 	{
 		// Scale to destination size. Use DevIL and not iluScale because ILU screws up for 
 		// floating point textures and cannot cope with 3D images.
-		unsigned int newImageSize = PixelUtil::getMemorySize(
-			dstBox.getWidth(), dstBox.getHeight(), dstBox.getDepth(), mFormat);
-        temp = new uint8[newImageSize];
-		scaled = PixelBox(dstBox, mFormat, temp);
+		// This also does pixel format conversion if needed
+		buf.bind(new MemoryDataStream(
+			PixelUtil::getMemorySize(dstBox.getWidth(), 
+				dstBox.getHeight(), dstBox.getDepth(),
+				mFormat)));
+		scaled = PixelBox(dstBox, mFormat, buf->getPtr());
 		Image::scale(src, scaled, Image::FILTER_BOX);
+	}
+	else if(GLPixelUtil::getGLOriginFormat(src.format) == 0 ||
+			GLPixelUtil::getGLOriginDataType(src.format) == 0)
+	{
+		// Extents match, but format is not accepted as valid source format for GL
+		// do conversion in temporary buffer
+		buf.bind(new MemoryDataStream(
+			PixelUtil::getMemorySize(dstBox.getWidth(), 
+				dstBox.getHeight(), dstBox.getDepth(),
+				mFormat)));
+		scaled = PixelBox(dstBox, mFormat, buf->getPtr());
+		PixelUtil::bulkPixelConversion(src, scaled);
 	}
 	else
 	{
-		// No scaling needed
+		// No scaling or conversion needed
 		scaled = src;
 		// Set extents for upload
 		scaled.left = dstBox.left;
@@ -316,7 +330,6 @@ void GLHardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::Box
 	}
 	
 	upload(scaled);
-	delete [] temp;
 }
 //-----------------------------------------------------------------------------  
 void GLHardwarePixelBuffer::blitToMemory(const Image::Box &srcBox, const PixelBox &dst)
