@@ -2851,6 +2851,10 @@ namespace Ogre {
         Sphere testSphere;
         for (i = mParentSceneMgr->mEntities.begin(); i != iEnd; ++i)
         {
+            // Skip unattached
+            if (!i->second->getParentNode())
+                continue;
+
             // Do sphere / sphere test
             testSphere.setCenter(i->second->getParentNode()->_getDerivedPosition());
             testSphere.setRadius(i->second->getBoundingRadius());
