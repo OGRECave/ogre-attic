@@ -102,6 +102,11 @@ http://www.gnu.org/copyleft/gpl.html.
 #   else
 #       define _OgreExport __declspec(dllimport)
 #   endif
+#   ifdef _DEBUG
+#       define OGRE_DEBUG_MODE 1
+#   else
+#       define OGRE_DEBUG_MODE 0
+#   endif 
 #	define snprintf _snprintf
 #endif // OGRE_WIN32
 
@@ -109,8 +114,13 @@ http://www.gnu.org/copyleft/gpl.html.
 // Linux Settings
 //-----------------------------------------------------------------------
 #if OGRE_PLATFORM == PLATFORM_LINUX
-#    define _OgreExport
-#    define stricmp strcasecmp
+#   define _OgreExport
+#   define stricmp strcasecmp
+#   ifdef DEBUG
+#       define OGRE_DEBUG_MODE 1
+#   else
+#       define OGRE_DEBUG_MODE 0
+#   endif
 #endif // OGRE_LINUX
 
 

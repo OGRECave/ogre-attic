@@ -70,13 +70,3 @@ namespace Ogre {
 
 #endif
 
-//-----------------------------------------------------------------------------
-// This is the CVS log of the file. Do NOT modify beyond this point as this
-// may cause inconsistencies between the actual log and what's written here.
-// (for more info, see http://www.cvshome.org/docs/manual/cvs_12.html#SEC103 )
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.5  2002/08/22 14:51:37  cearny
-// Linux changes.
-//
-//-----------------------------------------------------------------------------

@@ -71,7 +71,7 @@ namespace Ogre {
 			<a href="http://www.flipcode.com/cgi-bin/msg.cgi?showThread=12September2000-PresentingAMemoryManager&forum=askmid&id=-1">Paul Nettle's Memory Manager page at flipCode</a> - you can get the original source form here.
     */
 
-#if OGRE_DEBUG_MEMORY_MANAGER
+#if OGRE_DEBUG_MEMORY_MANAGER && OGRE_DEBUG_MODE
 
 #ifndef __FUNCTION__
 #define __FUNCTION__ "???"
@@ -419,19 +419,3 @@ inline void operator delete[]( void* ptr )
 
 #endif
 
-//-----------------------------------------------------------------------------
-// This is the CVS log of the file. Do NOT modify beyond this point as this
-// may cause inconsistencies between the actual log and what's written here.
-// (for more info, see http://www.cvshome.org/docs/manual/cvs_12.html#SEC103 )
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.9  2002/08/22 12:48:59  cearny
-// Added ending newline.
-//
-// Revision 1.8  2002/08/20 11:45:00  cearny
-// Another test for the Log macro
-//
-// Revision 1.7  2002/08/20 11:43:59  cearny
-// Test the Log macro.
-//
-//-----------------------------------------------------------------------------
