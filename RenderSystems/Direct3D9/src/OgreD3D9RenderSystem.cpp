@@ -1544,7 +1544,7 @@ namespace Ogre
 		HRESULT hr = __SetRenderState(D3DRS_COLORWRITEENABLE, val); 
 		if (FAILED(hr))
 			Except(hr, "Error setting colour write enable flags", 
-			"D3D9RenderSystem::_setColourWriteEnabled");
+			"D3D9RenderSystem::_setColourBufferWriteEnabled");
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setFog( FogMode mode, const ColourValue& colour, Real densitiy, Real start, Real end )
