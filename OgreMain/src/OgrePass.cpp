@@ -621,6 +621,26 @@ namespace Ogre {
         mParent->_notifyNeedsRecompile();
     }
     //-----------------------------------------------------------------------
+    void Pass::setTextureFiltering(TextureFilterOptions filterType)
+    {
+        TextureUnitStates::iterator i, iend;
+        iend = mTextureUnitStates.end();
+        for (i = mTextureUnitStates.begin(); i != iend; ++i)
+        {
+            (*i)->setTextureFiltering(filterType);
+        }
+    }
+    // --------------------------------------------------------------------
+    void Pass::setTextureAnisotropy(int maxAniso)
+    {
+        TextureUnitStates::iterator i, iend;
+        iend = mTextureUnitStates.end();
+        for (i = mTextureUnitStates.begin(); i != iend; ++i)
+        {
+            (*i)->setTextureAnisotropy(maxAniso);
+        }
+    }
+    //-----------------------------------------------------------------------
     void Pass::_updateAutoParams(Renderable* rend, Camera* cam)
     {
         // TODO

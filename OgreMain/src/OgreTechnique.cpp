@@ -384,6 +384,26 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
+    void Technique::setTextureFiltering(TextureFilterOptions filterType)
+    {
+        Passes::iterator i, iend;
+        iend = mPasses.end();
+        for (i = mPasses.begin(); i != iend; ++i)
+        {
+            (*i)->setTextureFiltering(filterType);
+        }
+    }
+    // --------------------------------------------------------------------
+    void Technique::setTextureAnisotropy(int maxAniso)
+    {
+        Passes::iterator i, iend;
+        iend = mPasses.end();
+        for (i = mPasses.begin(); i != iend; ++i)
+        {
+            (*i)->setTextureAnisotropy(maxAniso);
+        }
+    }
+    //-----------------------------------------------------------------------
     void Technique::_notifyNeedsRecompile(void)
     {
         mParent->_notifyNeedsRecompile();
