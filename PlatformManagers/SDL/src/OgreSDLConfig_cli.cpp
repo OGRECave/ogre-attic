@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 
 #include "OgreSDLConfig.h"
+#include "OgreException.h"
 
 using namespace Ogre;
 
