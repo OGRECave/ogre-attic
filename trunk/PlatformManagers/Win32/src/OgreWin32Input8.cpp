@@ -148,7 +148,7 @@ namespace Ogre {
 
         HRESULT hr;
         DIPROPDWORD dipdw;
-        LogManager::getSingleton().logMessage( "Win32Input8: Initializing mouse input in buffered mode." );
+        LogManager::getSingleton().logMessage( "Win32Input8: Initializing mouse input in immediate mode." );
 
         dipdw.diph.dwSize       = sizeof(DIPROPDWORD);
         dipdw.diph.dwHeaderSize = sizeof(DIPROPHEADER);
@@ -163,20 +163,20 @@ namespace Ogre {
             /* Absolute mouse input. We can derive the relative input from this. */
             FAILED( hr = mlpDIMouse->SetProperty( DIPROP_AXISMODE, &dipdw.diph ) ) ||
             /* Exclusive when in foreground, steps back when in background. */
-            FAILED( hr = mlpDIMouse->SetCooperativeLevel( mHWnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE ) ) ||
-            /* Get the device. */
-            FAILED( hr = mlpDIMouse->Acquire() ) )
+            FAILED( hr = mlpDIMouse->SetCooperativeLevel( mHWnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE ) ) )
         {
             Except( hr, "Unable to initialise mouse", "Win32Input8::initialiseImmediateMouse" );
         }
+        /* Note that we did not acquire the mouse in the code above, since the call may fail (ie you're in the
+           debugger) and an exception would be thrown. Acquisition happens in the captureMouse() function. */
 
-        /* Get initial mouse data. */
+        /* Get initial mouse data. We might as well fail this initial attempt, so no biggie. */
         captureMouse();
 
-        /* Clear any mouse data. */
+        /* Clear any relative mouse data. */
         mMouseState.Xrel = mMouseState.Yrel = mMouseState.Zrel = 0;
 
-        LogManager::getSingleton().logMessage( "Win32Input8: Mouse input in buffered mode initialized." );
+        LogManager::getSingleton().logMessage( "Win32Input8: Mouse input in immediate mode initialized." );
 
         OgreUnguard();
 	}
