@@ -1474,21 +1474,20 @@ namespace Ogre {
 		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_MODULATE);
         */
 
-        if (bm.blendType == LBT_COLOUR)
-        {
-            if (cmd != GL_DOT3_RGB)
-                glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, cmd);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, src1op);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, src2op);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_CONSTANT);
-        }
-        else
-        {
-            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, cmd);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, src1op);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA, src2op);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA, GL_CONSTANT);
-        }
+	    if (bm.blendType == LBT_COLOUR)
+	    {
+		    glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, cmd);
+		    glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, src1op);
+		    glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, src2op);
+		    glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_CONSTANT);
+	    }
+	    else
+	    {
+		    glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, cmd);
+		    glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, src1op);
+		    glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA, src2op);
+		    glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA, GL_CONSTANT);
+	    }
 
         switch (bm.operation)
         {
