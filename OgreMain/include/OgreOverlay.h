@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreString.h"
 #include "OgreSceneNode.h"
 #include "OgreIteratorWrappers.h"
+#include "OgreMatrix4.h"
 
 namespace Ogre {
 
@@ -45,8 +46,8 @@ namespace Ogre {
         in itself, it it merely a container for visual elements.
     @par
         Overlays are created by calling SceneManager::createOverlay. As many overlays
-        as you like can be defined; after creation an overlay is 'disabled' i.e. not
-        visible until you specifically enable it. This allows you to have multiple
+        as you like can be defined; after creation an overlay is hidden i.e. not
+        visible until you specifically enable it by calling 'show'. This allows you to have multiple
         overlays predefined (menus etc) which you make visible only when you want.
         It is possible to have multiple overlays enabled at once; in this case the
         relative 'zorder' parameter of the overlays determine which one is displayed
@@ -59,26 +60,30 @@ namespace Ogre {
     */
     class _OgreExport Overlay
     {
-    public:
-        /// GuiContainers, mapped on zorder
-        typedef std::map<ushort, GuiContainer*, std::less<ushort> > GuiContainerMap;
-        typedef MapIterator<GuiContainerMap> GuiContainerIterator;
 
     protected:
         String mName;
         ushort mZOrder;
-        bool mEnabled;
+        bool mVisible;
         /// Internal root node, used as parent for 3D objects
-        SceneNode mRootNode;
+        SceneNode* mRootNode;
         // 2D elements
-        GuiContainerMap m2DElements;
+        // GuiContainers, linked list for easy sorting by zorder later
+        // Not a map because sort can be saved since changes infrequent (unlike render queue)
+        typedef std::list<GuiContainer*> GuiContainerList;
+        GuiContainerList m2DElements;
 
         // Degrees of rotation around center
         Real mRotate;
         // Scroll values, offsets
-        Real mScrollX, Real mScrollY;
+        Real mScrollX, mScrollY;
         // Scale values
         Real mScaleX, mScaleY;
+
+        Matrix4 mTransform;
+        bool mTransformOutOfDate;
+        /** Internal lazy update method. */
+        void updateTransform(void);
 
     public:
         /// Constructor: do not call direct, use SceneManager::createOverlay
@@ -93,10 +98,13 @@ namespace Ogre {
         ushort getZOrder(void) const;
 
         /** Gets whether the overlay is displayed or not. */
-        bool getEnabled(void);
+        bool isVisible(void);
 
-        /** Sets whether the overlay is displayed or not. */
-        void setEnabled(bool enabled);
+        /** Shows the overlay if it was hidden. */
+        void show(void);
+
+        /** Hides the overlay if it was visible. */
+        void hide(void);
 
         /** Adds a 2D 'container' to the overlay.
         @remarks
@@ -107,17 +115,14 @@ namespace Ogre {
             If you want to attach a gui widget to an overlay, you have to do it via
             a container.
         @param cont Pointer to a container to add, created using GuiManager.
-        @param left The location of the left edge of the container, in parametric coordinates
-            i.e. 0 = left egde of the screen, 1 = right edge
-        @param top The location of the top edge of the container, in parametric coordinates
-            i.e. 0 = top edge of the screen, 1 = bottom edge
-        @param zorder The zorder of this container relative to its peers in the overlay;
-            higher numbers appear on top of lower ones
         */
-        void add2D(GuiContainer* cont, Real left, Real top, ushort zorder = 100);
+        void add2D(GuiContainer* cont);
 
 
-        /** Removes a 2D container from the overlay. */
+        /** Removes a 2D container from the overlay. 
+        @remarks
+            NOT FAST. Consider GuiElement::hide.
+        */
         void remove2D(GuiContainer* cont);
 
         /** Adds a node capable of holding 3D objects to the overlay.
@@ -152,6 +157,9 @@ namespace Ogre {
 
         /** Removes a 3D element from the overlay. */
         void remove3D(SceneNode* node);
+
+        /** Clears the overlay of all attached items. */
+        void clear();
 
         /** Sets the scrolling factor of this overlay.
         @remarks
@@ -203,6 +211,8 @@ namespace Ogre {
         /** Gets the current Y scale value */
         Real getScaleY(void);
 
+        /** Used to transform the overlay when scrolling, scaling etc. */
+        void _getWorldTransforms(Matrix4* xform);
 
         /** Internal method to put the overlay contents onto the render queue. */
         void _updateRenderQueue(RenderQueue* queue);
