@@ -142,7 +142,7 @@ namespace Ogre {
 #if OGRE_DEBUG_MODE 
 					ofdebug << "Collapsing index " << collapser->index << "(border: "<< collapser->isBorder() <<
 						") to " << collapser->collapseTo->index << "(border: "<< collapser->collapseTo->isBorder() <<
-						std::endl;
+						")" << std::endl;
 #endif
 					assert(collapser->collapseTo->removed == false);
 
@@ -298,26 +298,28 @@ namespace Ogre {
 				// So measure the 'kinkiness' (for want of a better term)
 				// Normally there can be at most 1 other border edge attached to this
 				// However in weird cases there may be more, so find the worst
-				Vector3 otherBorderEdge;
+				Vector3 collapseEdge, otherBorderEdge;
 				Real kinkiness, maxKinkiness;
 				PMVertex::NeighborList::iterator n, nend;
 				nend = src->neighbor.end();
 				maxKinkiness = 0.0f;
+				collapseEdge = edgeVector.normalise();
 				for (n = src->neighbor.begin(); n != nend; ++n)
 				{
-					if (*n != dest && (*n)->isBorder())
+					if (*n != dest && (*n)->isManifoldEdgeWith(src))
 					{
 						otherBorderEdge = src->position - (*n)->position;
+						otherBorderEdge.normalise();
 						// This time, the nearer the dot is to -1, the better, because that means
 						// the edges are opposite each other, therefore less kinkiness
 						// Scale into [0..1]
-						kinkiness = (otherBorderEdge.dotProduct(edgeVector) + 1.002f) * 0.5f;
+						kinkiness = (otherBorderEdge.dotProduct(collapseEdge) + 1.002f) * 0.5f;
 						maxKinkiness = std::max(kinkiness, maxKinkiness);
 
 					}
 				}
 
-				cost = maxKinkiness + 0.1; // bias a little to prefer inner verts
+				cost = maxKinkiness; 
 
 			}
         } 
@@ -466,7 +468,7 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
-    void ProgressiveMesh::collapse(PMVertex *src)
+    void ProgressiveMesh::collapse(ProgressiveMesh::PMVertex *src)
     {
         PMVertex *dest = src->collapseTo;
 		std::set<PMVertex*> recomputeSet;
@@ -615,7 +617,7 @@ namespace Ogre {
         return bestIndex;
     }
     //---------------------------------------------------------------------
-    void ProgressiveMesh::bakeNewLOD(LODGeometryData* pData)
+    void ProgressiveMesh::bakeNewLOD(ProgressiveMesh::LODGeometryData* pData)
     {
         // Zip through the tri list of any working data copy and bake
         pData->numIndexes = mCurrNumIndexes;
@@ -642,8 +644,9 @@ namespace Ogre {
     {
     }
     //---------------------------------------------------------------------
-    void ProgressiveMesh::PMTriangle::setDetails(ushort newindex, PMFaceVertex *v0, PMFaceVertex *v1, 
-        PMFaceVertex *v2)
+    void ProgressiveMesh::PMTriangle::setDetails(ushort newindex, 
+		ProgressiveMesh::PMFaceVertex *v0, ProgressiveMesh::PMFaceVertex *v1, 
+        ProgressiveMesh::PMFaceVertex *v2)
     {
         assert(v0!=v1 && v1!=v2 && v2!=v0);
 
@@ -683,14 +686,14 @@ namespace Ogre {
         removed = true;
     }
     //---------------------------------------------------------------------
-    bool ProgressiveMesh::PMTriangle::hasCommonVertex(PMVertex *v) 
+    bool ProgressiveMesh::PMTriangle::hasCommonVertex(ProgressiveMesh::PMVertex *v) 
     {
         return (v == vertex[0]->commonVertex ||
 			v == vertex[1]->commonVertex || 
 			v == vertex[2]->commonVertex);
     }
     //---------------------------------------------------------------------
-	bool ProgressiveMesh::PMTriangle::hasFaceVertex(PMFaceVertex *v)
+	bool ProgressiveMesh::PMTriangle::hasFaceVertex(ProgressiveMesh::PMFaceVertex *v)
 	{
 		return (v == vertex[0] ||
 				v == vertex[1] || 
@@ -698,7 +701,7 @@ namespace Ogre {
 	}
     //---------------------------------------------------------------------
 	ProgressiveMesh::PMFaceVertex* 
-	ProgressiveMesh::PMTriangle::getFaceVertexFromCommon(PMVertex* commonVert)
+	ProgressiveMesh::PMTriangle::getFaceVertexFromCommon(ProgressiveMesh::PMVertex* commonVert)
 	{
 		if (vertex[0]->commonVertex == commonVert) return vertex[0];
 		if (vertex[1]->commonVertex == commonVert) return vertex[1];
@@ -721,7 +724,8 @@ namespace Ogre {
         normal.normalise();
     }
     //---------------------------------------------------------------------
-    void ProgressiveMesh::PMTriangle::replaceVertex(PMFaceVertex *vold, PMFaceVertex *vnew) 
+    void ProgressiveMesh::PMTriangle::replaceVertex(
+		ProgressiveMesh::PMFaceVertex *vold, ProgressiveMesh::PMFaceVertex *vnew) 
     {
         assert(vold && vnew);
         assert(vold==vertex[0] || vold==vertex[1] || vold==vertex[2]);
@@ -809,8 +813,26 @@ namespace Ogre {
         }
         return false;
     } 
-    //---------------------------------------------------------------------
-    void ProgressiveMesh::PMVertex::removeIfNonNeighbor(PMVertex *n) 
+	//---------------------------------------------------------------------
+	bool ProgressiveMesh::PMVertex::isManifoldEdgeWith(ProgressiveMesh::PMVertex* v)
+	{
+		// Check the sides involving both these verts
+		// If there is only 1 this is a manifold edge
+		ushort sidesCount = 0;
+		FaceList::iterator i, iend;
+		iend = face.end();
+		for (i = face.begin(); i != iend; ++i)
+		{
+			if ((*i)->hasCommonVertex(v))
+			{
+				sidesCount++;
+			}
+		}
+
+		return (sidesCount == 1);
+	}
+	//---------------------------------------------------------------------
+    void ProgressiveMesh::PMVertex::removeIfNonNeighbor(ProgressiveMesh::PMVertex *n) 
     {
         // removes n from neighbor list if n isn't a neighbor.
         NeighborList::iterator i = neighbor.find(n);
