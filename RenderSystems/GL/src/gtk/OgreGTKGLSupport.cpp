@@ -166,7 +166,6 @@ bool GTKGLSupport::checkExtension(const String& ext)
 
 void* GTKGLSupport::getProcAddress(const String& procname)
 {
-    // XXX IMPL
-    return NULL;
+    return Gdk::GL::get_proc_address(procname.c_str());
 }
 
