@@ -215,7 +215,7 @@ namespace Ogre
 
         // Convert our point size to freetype 26.6 fixed point format
         FT_F26Dot6 ftSize = (FT_F26Dot6)(mTtfSize * (1 << 6));
-        if( FT_Set_Char_Size( face, ftSize, 0, mTtfResolution, 0 ) )
+        if( FT_Set_Char_Size( face, ftSize, 0, mTtfResolution, mTtfResolution ) )
             Except( Exception::ERR_INTERNAL_ERROR, 
             "Could not set char size!", "Font::createTextureFromFont" );
 
