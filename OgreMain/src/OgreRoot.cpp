@@ -305,11 +305,9 @@ namespace Ogre {
 
         // Is there already an active renderer?
         // If so, disable it and init the new one
-        if (mActiveRenderer != system && mActiveRenderer != 0)
+        if( mActiveRenderer && mActiveRenderer != system )
         {
-            // A DIFFERENT render system has been registered
             mActiveRenderer->shutdown();
-            delete mActiveRenderer;
         }
 
         mActiveRenderer = system;
