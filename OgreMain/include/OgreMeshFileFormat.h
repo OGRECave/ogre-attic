@@ -80,6 +80,17 @@ namespace Ogre {
                 M_GEOMETRY_TEXCOORDS = 0x5300,    //(Optional, REPEATABLE, each one adds an extra set)
                     // unsigned short dimensions    (1 for 1D, 2 for 2D, 3 for 3D)
                     // Real* pTexCoords  (u [v] [w] order, dimensions x numVertices)
+            M_MESH_SKELETON_LINK = 0x6000,
+                // Optional link to skeleton
+                // char* skeletonName           : name of .skeleton to use
+            M_MESH_BONE_ASSIGNMENT = 0x7000
+                // Optional bone weights
+                // unsigned short vertexIndex;
+                // unsigned short boneIndex;
+                // Real weight;
+
+                
+
 
     };
 
