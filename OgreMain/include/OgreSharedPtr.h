@@ -76,7 +76,7 @@ namespace Ogre {
 
 		inline T& operator*() const { assert(pRep); return *pRep; }
 		inline T* operator->() const { assert(pRep); return pRep; }
-		inline T* get() const { assert(pRep); return pRep; }
+		inline T* get() const { return pRep; }
 
 		/** Binds rep to the SharedPtr.
 			@remarks
@@ -92,7 +92,7 @@ namespace Ogre {
 		inline unsigned int useCount() const { assert(pUseCount); return *pUseCount; }
 		inline unsigned int* useCountPointer() const { return pUseCount; }
 
-		inline T* getPointer() const { assert(pRep); return pRep; }
+		inline T* getPointer() const { return pRep; }
 
 		inline bool isNull(void) const { return pRep == 0; }
 
