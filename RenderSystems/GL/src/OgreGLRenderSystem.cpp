@@ -1514,9 +1514,6 @@ namespace Ogre {
         // Call super class
         RenderSystem::_render(op);
         
-        const VertexBufferBinding::VertexBufferBindingMap& binds = 
-            op.vertexData->vertexBufferBinding->getBindings();
-
         const VertexDeclaration::VertexElementList& decl = 
             op.vertexData->vertexDeclaration->getElements();
         VertexDeclaration::VertexElementList::const_iterator i, iend;
@@ -1524,50 +1521,47 @@ namespace Ogre {
         
         for (i = decl.begin(); i != iend; ++i)
         {
-            VertexBufferBinding::VertexBufferBindingMap::const_iterator binding
-                = binds.find(i->getSource());
-
-            if(binding == binds.end())
-            {
-                 Except(Exception::ERR_INTERNAL_ERROR, 
-                     "Can't find binding associated with vertex element",
-                     "GLRenderSystem::_render");
-            }
-
-            GLuint vtxBufferId = static_cast<const GLHardwareVertexBuffer*>(binding->second.get())->getGLBufferId();
+            GLuint vtxBufferId = static_cast<const GLHardwareVertexBuffer*>(op.vertexData->vertexBufferBinding->getBuffer(i->getSource()).get())->getGLBufferId();
 
             glBindBufferARB(GL_ARRAY_BUFFER_ARB, vtxBufferId);
 
-            GLint sz = 0;
             GLenum type = 0;
             switch(i->getType())
             {
             case VET_FLOAT1:
-                sz = 1;
-                type = GL_FLOAT;
-                break;
             case VET_FLOAT2:
-                sz = 2;
-                type = GL_FLOAT;
-                break;
             case VET_FLOAT3:
-                sz = 3;
+            case VET_FLOAT4:
                 type = GL_FLOAT;
                 break;
-            case VET_FLOAT4:
-                sz = 4;
-                type = GL_FLOAT;
+            case VET_SHORT1:
+            case VET_SHORT2:
+            case VET_SHORT3:
+            case VET_SHORT4:
+                type = GL_SHORT;
                 break;
             case VET_COLOUR:
-                sz = 4;
+                type = GL_UNSIGNED_BYTE;
                 break;
             };
 
             switch(i->getSemantic())
             {
             case VES_POSITION:
-                glVertexPointer(sz, type, 0, 0); 
+                glEnableClientState( GL_VERTEX_ARRAY );
+                glVertexPointer(VertexElement::getTypeCount(i->getType()), 
+                    type, 0, 0); 
                 break;
+            case VES_NORMAL:
+                glEnableClientState( GL_NORMAL_ARRAY );
+                glNormalPointer(type, 0, 0);
+                break;
+            /*
+            case VES_DIFFUSE:
+                glEnableClientState( GL_COLOR_ARRAY );
+                glColorPointer(4, type, 0, 0);
+                break;
+            */
             default:
                 break;
             };
@@ -1604,8 +1598,6 @@ namespace Ogre {
             break;
         }
 
-        glEnableClientState(GL_VERTEX_ARRAY);
-
         if (op.useIndexes)
         {
             glDrawElements( primType, op.indexData->indexCount, 
@@ -1616,7 +1608,9 @@ namespace Ogre {
             glDrawArrays(primType, 0, op.vertexData->vertexCount);
         }
 
-        glDisableClientState(GL_VERTEX_ARRAY);
+        glDisableClientState( GL_COLOR_ARRAY );
+        glDisableClientState( GL_NORMAL_ARRAY );
+        glDisableClientState( GL_VERTEX_ARRAY );
 
         // UnGuard
         OgreUnguard();
