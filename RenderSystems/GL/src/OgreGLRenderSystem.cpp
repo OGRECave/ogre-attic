@@ -262,12 +262,11 @@ namespace Ogre {
 
         // XXX Need to check for nv2 support and make a program manager for it
         // XXX Probably nv1 as well for older cards
-        if(mGLSupport->checkMinGLVersion("1.3.0") ||
-            (mGLSupport->checkExtension("GL_ARB_vertex_program") &&
-            mGLSupport->checkExtension("GL_ARB_fragment_program")) )
+        // GPU Program Manager setup
+        mGpuProgramManager = new GLGpuProgramManager();
+        if(mGLSupport->checkExtension("GL_ARB_vertex_program"))
         {
             mCapabilities->setCapability(RSC_VERTEX_PROGRAM);
-            mCapabilities->setCapability(RSC_FRAGMENT_PROGRAM);
 
             // Vertex Program Properties
             mCapabilities->setMaxVertexProgramVersion("arbvp1");
@@ -279,6 +278,12 @@ namespace Ogre {
             mCapabilities->setVertexProgramConstantFloatCount(
                 GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB);
 
+            mGpuProgramManager->_pushSyntaxCode("arbvp1");
+        }
+
+        if (mGLSupport->checkExtension("GL_ARB_fragment_program"))
+        {
+            mCapabilities->setCapability(RSC_FRAGMENT_PROGRAM);
             // Fragment Program Properties
             mCapabilities->setMaxFragmentProgramVersion("arbfp1");
             mCapabilities->setFragmentProgramConstantBoolBoundary(0);
@@ -289,14 +294,7 @@ namespace Ogre {
             mCapabilities->setFragmentProgramConstantFloatCount(
                 GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB);
 
-            // GPU Program Manager setup
-            mGpuProgramManager = new GLGpuProgramManager();
-            mGpuProgramManager->_pushSyntaxCode("arbvp1");
             mGpuProgramManager->_pushSyntaxCode("arbfp1");
-        }
-        else
-        {
-            // XXX What do we do?
         }
         
 
