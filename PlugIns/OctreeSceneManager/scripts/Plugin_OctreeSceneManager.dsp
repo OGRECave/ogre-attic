@@ -128,6 +128,10 @@ SOURCE=..\src\OgreOctreeSceneManagerDll.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreOctreeSceneQuery.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreTerrainPage.cpp
 # End Source File
 # Begin Source File
@@ -169,6 +173,10 @@ SOURCE=..\include\OgreOctreeNode.h
 # Begin Source File
 
 SOURCE=..\include\OgreOctreeSceneManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreOctreeSceneQuery.h
 # End Source File
 # Begin Source File
 

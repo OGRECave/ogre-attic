@@ -50,6 +50,11 @@ namespace Ogre
 class OctreeNode;
 
 class OctreeCamera;
+class OctreeIntersectionSceneQuery;
+class OctreeRaySceneQuery;
+class OctreeSphereSceneQuery;
+class OctreeAxisAlignedBoxSceneQuery;
+class OctreePlaneBoundedVolumeListSceneQuery;
 
 
 typedef std::list < WireBoundingBox * > BoxList;
@@ -66,6 +71,12 @@ camera, allowing you to fly around and examine culling.
 
 class OctreeSceneManager : public SceneManager
 {
+    friend class OctreeIntersectionSceneQuery;
+    friend class OctreeRaySceneQuery;
+    friend class OctreeSphereSceneQuery;
+    friend class OctreeAxisAlignedBoxSceneQuery;
+    friend class OctreePlaneBoundedVolumeListSceneQuery;
+
 public:
     static int intersect_call;
     /** Standard Constructor.  Initializes the octree to -500,-500,-500 to 500,500,500 with unlimited depth. */
@@ -107,8 +118,8 @@ public:
     If any octant in the octree if completely within the the view frustum,
     all subchildren are automatically added with no visibility tests.
     */
-    void walkOctree( OctreeCamera *, RenderQueue *, Octree *, bool foundvisible, 
-        bool onlyShadowCasters);
+    void walkOctree( OctreeCamera *, RenderQueue *, Octree *, bool foundvisible,
+                     bool onlyShadowCasters);
 
     /** Checks the given OctreeNode, and determines if it needs to be moved
     * to a different octant.
@@ -130,17 +141,15 @@ public:
     */
     void findNodesIn( const Sphere &sphere, std::list < SceneNode * > &list, SceneNode *exclude = 0 );
 
+    /** Recurses the octree, adding any nodes intersecting with the volume into the given list.
+      It ignores the exclude scene node.
+      */
+    void findNodesIn( const PlaneBoundedVolume &volume, std::list < SceneNode * > &list, SceneNode *exclude=0 );
 
-    /** Recurses the octree, adding any nodes intersecting with the box into the given list.
-    It ignores the exclude scene node.
-    */
-    void _findNodes( const AxisAlignedBox &box, std::list < SceneNode * > &list, SceneNode *exclude = 0, bool full = false, Octree *octant = 0 );
-
-    /** Recurses the octree, adding any nodes intersecting with the sphere into the given list.
-    It ignores the exclude scene node.
-    */
-    void _findNodes( const Sphere &sphere, std::list < SceneNode * > &list, SceneNode *exclude = 0, bool full = false, Octree *octant = 0 );
-
+    /** Recurses the octree, adding any nodes intersecting with the ray into the given list.
+      It ignores the exclude scene node.
+      */
+    void findNodesIn( const Ray &ray, std::list < SceneNode * > &list, SceneNode *exclude=0 );
 
     /** Sets the box visibility flag */
     void setShowBoxes( bool b )
@@ -184,7 +193,11 @@ public:
     /** Overridden from SceneManager */
     void clearScene(void);
 
-
+    AxisAlignedBoxSceneQuery* OctreeSceneManager::createAABBQuery(const AxisAlignedBox& box, unsigned long mask);
+    SphereSceneQuery* OctreeSceneManager::createSphereQuery(const Sphere& sphere, unsigned long mask);
+    PlaneBoundedVolumeListSceneQuery* createPlaneBoundedVolumeQuery(const PlaneBoundedVolumeList& volumes, unsigned long mask);
+    RaySceneQuery* createRayQuery(const Ray& ray, unsigned long mask);
+    IntersectionSceneQuery* createIntersectionQuery(unsigned long mask);
 
 
 protected:
@@ -222,6 +235,9 @@ protected:
     Matrix4 mScaleFactor;
 
 };
+template< class T>
+void _findNodes( const T &r, std::list < SceneNode * > &list, SceneNode *exclude, bool full, Octree *octant );
+
 
 }
 

@@ -801,8 +801,9 @@ namespace Ogre
     }
     //-------------------------------------------------------------------------
     TerrainRaySceneQuery::TerrainRaySceneQuery(SceneManager* creator)
-        :DefaultRaySceneQuery(creator)
+        :OctreeRaySceneQuery(creator)
     {
+      mSupportedWorldFragments.insert(SceneQuery::WFT_SINGLE_INTERSECTION);
     }
     //-------------------------------------------------------------------------
     TerrainRaySceneQuery::~TerrainRaySceneQuery()
@@ -842,7 +843,7 @@ namespace Ogre
 
 
         }
-        DefaultRaySceneQuery::execute(listener);
+        OctreeRaySceneQuery::execute(listener);
 
     }
     //-------------------------------------------------------------------------

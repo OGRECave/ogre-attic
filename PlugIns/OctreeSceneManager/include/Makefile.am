@@ -4,6 +4,7 @@ noinst_HEADERS = \
         OgreOctreeNode.h \
         OgreOctree.h \
 		OgreOctreeSceneManager.h \
+		OgreOctreeSceneQuery.h \
 		OgreTerrainPage.h \
 		OgreTerrainPageSource.h \
 		OgreTerrainPrerequisites.h \

@@ -6,6 +6,7 @@ Plugin_OctreeSceneManager_so_SOURCES = \
 							OgreHeightmapTerrainPageSource.cpp \
 							OgreOctreeSceneManagerDll.cpp \
                             OgreOctreeSceneManager.cpp \
+														OgreOctreeSceneQuery.cpp \
                             OgreOctreeNode.cpp \
                             OgreOctreeCamera.cpp \
 							OgreOctree.cpp \
