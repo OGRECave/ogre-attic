@@ -37,12 +37,15 @@ namespace Ogre {
     void Quake3Level::loadHeaderFromStream(DataStreamPtr& inStream)
     {
         // Load just the header
-        bsp_header_t* pHeader = new bsp_header_t();
+        bsp_header_t* pHeader =  new bsp_header_t();
         inStream->read(pHeader, sizeof(bsp_header_t));
         mChunk = MemoryDataStreamPtr(
-            new MemoryDataStream(pHeader, sizeof(bsp_header_t), true));
+            new MemoryDataStream(pHeader, sizeof(bsp_header_t), false));
         // Grab all the counts, header only
         initialise(true);
+		// Delete manually since delete and delete[] (as used by MemoryDataStream)
+		// are not compatible
+		delete pHeader;
 
     }
     //-----------------------------------------------------------------------
