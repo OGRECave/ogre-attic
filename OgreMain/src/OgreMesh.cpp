@@ -691,61 +691,61 @@ namespace Ogre {
         return mSkeletonName;
     }
     //---------------------------------------------------------------------
-	void Mesh::generateLodLevels(const LodDistanceList& lodDistances, 
-		ProgressiveMesh::VertexReductionQuota reductionMethod, Real reductionValue)
-	{
-		mMeshLodUsageList.clear();
-		mIsLodManual = false;
+    void Mesh::generateLodLevels(const LodDistanceList& lodDistances, 
+        ProgressiveMesh::VertexReductionQuota reductionMethod, Real reductionValue)
+    {
+        mMeshLodUsageList.clear();
+        mIsLodManual = false;
 
-		SubMeshList::iterator isub, isubend;
-		isubend = mSubMeshList.end();
-		for (isub = mSubMeshList.begin(); isub != isubend; ++isub)
-		{
-			// Set up data for reduction
-			GeometryData* pGeom = (*isub)->useSharedVertices ? &sharedGeometry : &((*isub)->geometry);
+        SubMeshList::iterator isub, isubend;
+        isubend = mSubMeshList.end();
+        for (isub = mSubMeshList.begin(); isub != isubend; ++isub)
+        {
+            // Set up data for reduction
+            GeometryData* pGeom = (*isub)->useSharedVertices ? &sharedGeometry : &((*isub)->geometry);
 
-			ProgressiveMesh pm(pGeom, (*isub)->faceVertexIndices, (*isub)->numFaces * 3);
-			pm.build(
-				static_cast<ushort>(lodDistances.size()), 
-				&((*isub)->mLodFaceList), 
-				reductionMethod, reductionValue);
+            ProgressiveMesh pm(pGeom, (*isub)->faceVertexIndices, (*isub)->numFaces * 3);
+            pm.build(
+            static_cast<ushort>(lodDistances.size()), 
+                &((*isub)->mLodFaceList), 
+                reductionMethod, reductionValue);
 
-		}
+        }
 
-		// Iterate over the lods and record usage
-		LodDistanceList::const_iterator idist, idistend;
-		idistend = lodDistances.end();
-		// Record first LOD (full detail)
-		MeshLodUsage lod;
-		lod.fromDepthSquared = 0.0f;
-		mMeshLodUsageList.push_back(lod);
+        // Iterate over the lods and record usage
+        LodDistanceList::const_iterator idist, idistend;
+        idistend = lodDistances.end();
+        // Record first LOD (full detail)
+        MeshLodUsage lod;
+        lod.fromDepthSquared = 0.0f;
+        mMeshLodUsageList.push_back(lod);
 
-		for (idist = lodDistances.begin(); idist != idistend; ++idist)
-		{
-			// Record usage
-			lod.fromDepthSquared = (*idist) * (*idist);
-			mMeshLodUsageList.push_back(lod);
+        for (idist = lodDistances.begin(); idist != idistend; ++idist)
+        {
+            // Record usage
+            lod.fromDepthSquared = (*idist) * (*idist);
+            mMeshLodUsageList.push_back(lod);
 
-		}
-		mNumLods = static_cast<ushort>(lodDistances.size() + 1);
-	}
+        }
+        mNumLods = static_cast<ushort>(lodDistances.size() + 1);
+    }
     //---------------------------------------------------------------------
-	ushort Mesh::getNumLodLevels(void)
-	{
-		return mNumLods;
-	}
+    ushort Mesh::getNumLodLevels(void) const
+    {
+        return mNumLods;
+    }
     //---------------------------------------------------------------------
-	const Mesh::MeshLodUsage& Mesh::getLodLevel(ushort index)
-	{
-		assert(index < mMeshLodUsageList.size());
-		if (mIsLodManual && mMeshLodUsageList[index].manualMesh == NULL)
-		{
-			// Load the mesh now
-			mMeshLodUsageList[index].manualMesh = 
-				MeshManager::getSingleton().load(mMeshLodUsageList[index].manualName);
-		}
-		return mMeshLodUsageList[index];
-	}
+    const Mesh::MeshLodUsage& Mesh::getLodLevel(ushort index) const
+    {
+        assert(index < mMeshLodUsageList.size());
+        if (mIsLodManual && mMeshLodUsageList[index].manualMesh == NULL)
+        {
+            // Load the mesh now
+            mMeshLodUsageList[index].manualMesh = 
+                MeshManager::getSingleton().load(mMeshLodUsageList[index].manualName);
+        }
+        return mMeshLodUsageList[index];
+    }
     //---------------------------------------------------------------------
 	struct ManualLodSortLess : 
 	public std::binary_function<const Mesh::MeshLodUsage&, const Mesh::MeshLodUsage&, bool>
@@ -782,14 +782,14 @@ namespace Ogre {
 		lod->manualMesh = NULL;
 	}
     //---------------------------------------------------------------------
-	ushort Mesh::getLodIndex(Real depth)
+	ushort Mesh::getLodIndex(Real depth) const
 	{
 		return getLodIndexSquaredDepth(depth * depth);
 	}
     //---------------------------------------------------------------------
-	ushort Mesh::getLodIndexSquaredDepth(Real squaredDepth)
+	ushort Mesh::getLodIndexSquaredDepth(Real squaredDepth) const
 	{
-		MeshLodUsageList::iterator i, iend;
+		MeshLodUsageList::const_iterator i, iend;
 		iend = mMeshLodUsageList.end();
 		ushort index = 0;
 		for (i = mMeshLodUsageList.begin(); i != iend; ++i, ++index)

@@ -258,6 +258,15 @@ namespace Ogre {
             }
         }
 
+        // Write LOD data if any
+        if (pMesh->getNumLodLevels() > 1)
+        {
+            LogManager::getSingleton().logMessage("Exporting LOD information....");
+            writeLodInfo(pMesh);
+            LogManager::getSingleton().logMessage("LOD information exported.");
+            
+        }
+
 
     }
     //---------------------------------------------------------------------
@@ -571,7 +580,8 @@ namespace Ogre {
             while(!chunk.isEOF() &&
                 (chunkID == M_SUBMESH ||
                  chunkID == M_MESH_SKELETON_LINK ||
-                 chunkID == M_MESH_BONE_ASSIGNMENT))
+                 chunkID == M_MESH_BONE_ASSIGNMENT ||
+				 chunkID == M_MESH_LOD))
             {
                 switch(chunkID)
                 {
@@ -584,6 +594,9 @@ namespace Ogre {
                 case M_MESH_BONE_ASSIGNMENT:
                     readMeshBoneAssignment(chunk);
                     break;
+                case M_MESH_LOD:
+					readMeshLodInfo(chunk);
+					break;
                 }
 
                 if (!chunk.isEOF())
@@ -820,6 +833,222 @@ namespace Ogre {
 
         return size;
     }
+    //---------------------------------------------------------------------
+    void MeshSerializer::writeLodInfo(const Mesh* pMesh)
+    {
+        unsigned short numLods = pMesh->getNumLodLevels();
+        bool manual = pMesh->isLodManual();
+        writeLodSummary(numLods, manual);
+
+		// Loop from LOD 1 (not 0, this is full detail)
+        for (unsigned short i = 1; i < numLods; ++i)
+        {
+			const Mesh::MeshLodUsage& usage = pMesh->getLodLevel(i);
+			if (manual)
+			{
+				writeLodUsageManual(usage);
+			}
+			else
+			{
+				writeLodUsageGenerated(pMesh, usage, i);
+			}
+            
+        }
+        
+
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializer::writeLodSummary(unsigned short numLevels, bool manual)
+    {
+        // Header
+        unsigned long size = CHUNK_OVERHEAD_SIZE;
+        // unsigned short numLevels;
+        size += sizeof(unsigned short);
+        // bool manual;  (true for manual alternate meshes, false for generated)
+        size += sizeof(bool);
+        writeChunkHeader(M_MESH_LOD, size);
+
+        // Details
+        // unsigned short numLevels;
+        writeShorts(&numLevels, 1);
+        // bool manual;  (true for manual alternate meshes, false for generated)
+        writeBools(&manual, 1);
+
+        
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializer::writeLodUsageManual(const Mesh::MeshLodUsage& usage)
+    {
+        // Header
+        unsigned long size = CHUNK_OVERHEAD_SIZE;
+        unsigned long manualSize = CHUNK_OVERHEAD_SIZE;
+        // Real fromDepthSquared;
+        size += sizeof(Real);
+        // Manual part size
+
+        // String manualMeshName;
+        manualSize += static_cast<unsigned long>(usage.manualName.length() + 1);
+
+        size += manualSize;
+
+        writeChunkHeader(M_MESH_LOD_USAGE, size);
+        writeReals(&(usage.fromDepthSquared), 1);
+
+        writeChunkHeader(M_MESH_LOD_MANUAL, manualSize);
+        writeString(usage.manualName);
+        
+
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializer::writeLodUsageGenerated(const Mesh* pMesh, const Mesh::MeshLodUsage& usage,
+		unsigned short lodNum)
+    {
+		// Usage Header
+        unsigned long size = CHUNK_OVERHEAD_SIZE;
+		unsigned short subidx;
+
+        // Real fromDepthSquared;
+        size += sizeof(Real);
+
+        // Calc generated SubMesh sections size
+		for(subidx = 0; subidx < pMesh->getNumSubMeshes(); ++subidx)
+		{
+			// header
+			size += CHUNK_OVERHEAD_SIZE;
+			// unsigned short numFaces;
+			size += sizeof(unsigned short);
+			SubMesh* sm = pMesh->getSubMesh(subidx);
+			// unsigned short* faceIndexes;  ((v1, v2, v3) * numFaces)
+			size += sizeof(unsigned short) * 
+				sm->mLodFaceList[lodNum - 1].numIndexes;
+
+		}
+
+        writeChunkHeader(M_MESH_LOD_USAGE, size);
+        writeReals(&(usage.fromDepthSquared), 1);
+
+		// Now write sections
+        // Calc generated SubMesh sections size
+		for(subidx = 0; subidx < pMesh->getNumSubMeshes(); ++subidx)
+		{
+			size = CHUNK_OVERHEAD_SIZE;
+			// unsigned short numFaces;
+			size += sizeof(unsigned short);
+			SubMesh* sm = pMesh->getSubMesh(subidx);
+			// unsigned short* faceIndexes;  ((v1, v2, v3) * numFaces)
+			size = sizeof(unsigned short) * 
+				sm->mLodFaceList[lodNum - 1].numIndexes;
+
+			writeChunkHeader(M_MESH_LOD_GENERATED, size);
+			unsigned short numFaces = sm->mLodFaceList[lodNum - 1].numIndexes / 3;
+			writeShorts(&numFaces, 1);
+			writeShorts(sm->mLodFaceList[lodNum - 1].pIndexes, 
+				sm->mLodFaceList[lodNum - 1].numIndexes);
+		}
+
+    }
+    //---------------------------------------------------------------------
+	void MeshSerializer::readMeshLodInfo(DataChunk& chunk)
+	{
+		unsigned short chunkID, i;
+
+        // unsigned short numLevels;
+		readShorts(chunk, &(mpMesh->mNumLods), 1);
+        // bool manual;  (true for manual alternate meshes, false for generated)
+		readBools(chunk, &(mpMesh->mIsLodManual), 1);
+
+		// Preallocate submesh lod face data if not manual
+		if (!mpMesh->mIsLodManual)
+		{
+			unsigned short numsubs = mpMesh->getNumSubMeshes();
+			for (i = 0; i < numsubs; ++i)
+			{
+				SubMesh* sm = mpMesh->getSubMesh(i);
+				sm->mLodFaceList.resize(mpMesh->mNumLods-1);
+			}
+		}
+
+		// Loop from 1 rather than 0 (full detail index is not in file)
+		for (i = 1; i < mpMesh->mNumLods; ++i)
+		{
+			chunkID = readChunk(chunk);
+			if (chunkID != M_MESH_LOD_USAGE)
+			{
+				Except(Exception::ERR_ITEM_NOT_FOUND, 
+					"Missing M_MESH_LOD_USAGE chunk in " + mpMesh->getName(), 
+					"MeshSerializer::readMeshLodInfo");
+			}
+			// Read depth
+			Mesh::MeshLodUsage usage;
+			readReals(chunk, &(usage.fromDepthSquared), 1);
+
+			if (mpMesh->isLodManual())
+			{
+				readMeshLodUsageManual(chunk, i, usage);
+			}
+			else //(!mpMesh->isLodManual)
+			{
+				readMeshLodUsageGenerated(chunk, i, usage);
+			}
+
+			// Save usage
+			mpMesh->mMeshLodUsageList.push_back(usage);
+		}
+
+
+	}
+    //---------------------------------------------------------------------
+	void MeshSerializer::readMeshLodUsageManual(DataChunk& chunk, 
+		unsigned short lodNum, Mesh::MeshLodUsage& usage)
+	{
+		unsigned long chunkID;
+		// Read detail chunk
+		chunkID = readChunk(chunk);
+		if (chunkID != M_MESH_LOD_MANUAL)
+		{
+			Except(Exception::ERR_ITEM_NOT_FOUND, 
+				"Missing M_MESH_LOD_MANUAL chunk in " + mpMesh->getName(),
+				"MeshSerializer::readMeshLodUsageManual");
+		}
+
+		usage.manualName = readString(chunk);
+		usage.manualMesh = NULL; // will trigger load later
+	}
+    //---------------------------------------------------------------------
+	void MeshSerializer::readMeshLodUsageGenerated(DataChunk& chunk, 
+		unsigned short lodNum, Mesh::MeshLodUsage& usage)
+	{
+		usage.manualName = "";
+		usage.manualMesh = 0;
+
+		// Get one set of detail per SubMesh
+		unsigned short numSubs, i;
+		unsigned long chunkID;
+		numSubs = mpMesh->getNumSubMeshes();
+		for (i = 0; i < numSubs; ++i)
+		{
+			chunkID = readChunk(chunk);
+			if (chunkID != M_MESH_LOD_GENERATED)
+			{
+				Except(Exception::ERR_ITEM_NOT_FOUND, 
+					"Missing M_MESH_LOD_GENERATED chunk in " + mpMesh->getName(),
+					"MeshSerializer::readMeshLodUsageGenerated");
+			}
+
+			SubMesh* sm = mpMesh->getSubMesh(i);
+			// lodNum - 1 because SubMesh doesn't store full detail LOD
+			ProgressiveMesh::LODFaceData& data = sm->mLodFaceList[lodNum - 1];
+            unsigned short numFaces;
+			readShorts(chunk, &numFaces, 1);
+			data.numIndexes = numFaces * 3;
+            // unsigned short* faceIndexes;  ((v1, v2, v3) * numFaces)
+			data.pIndexes = new unsigned short[data.numIndexes];
+			readShorts(chunk, data.pIndexes, data.numIndexes);
+
+		}
+
+	}
+    
 
 
 
