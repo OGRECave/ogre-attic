@@ -25,30 +25,18 @@ or go to http://www.gnu.org/licenses/gpl.txt
 
 namespace OgreMaya {
 
-    using namespace std;
+	using namespace std;    
 
     Options::Options() {
-
         reset();
-
-        // init parameter map
-        builderMap["-in"     ] = &Options::parseIn;
-        builderMap["-mesh"   ] = &Options::parseMeshOut;
-        builderMap["-vba"    ] = &Options::parseVBA;
-        builderMap["-skel"   ] = &Options::parseSkelOut;
-        builderMap["-mat"    ] = &Options::parseMatOut;
-        builderMap["-mprefix"] = &Options::parseMatPrefix;
-        builderMap["-anim"   ] = &Options::parseAnimation;
-        builderMap["-n"      ] = &Options::parseN;
-        builderMap["-c"      ] = &Options::parseC;
-        builderMap["-t"      ] = &Options::parseT;
-        builderMap["-v"      ] = &Options::parseV;
     }
 
     void Options::reset() {
         valid          = false;
 
         verboseMode    = false;
+
+		exportSelected = false;
 
         exportMesh     = false;
 		exportSkeleton = false;
@@ -65,30 +53,13 @@ namespace OgreMaya {
 
         matPrefix      = "";
 
-        animations.clear();        
-
-        argv           = 0;
-        argc           = 0;
-        currentArg     = 0;
+        animations.clear();
     }
 
 
     Options& Options::instance() {
         static Options options;
         return options;
-    }
-
-    void Options::init(int argc, char** argv) {
-        this->argv = argv;
-        this->argc = argc;
-        for(currentArg=1; currentArg<argc; currentArg++) {
-            string arg = argv[currentArg];
-            void (Options::*p)(void) = builderMap[arg];
-
-            if(p) {
-                (this->*p)();
-            }
-        }
     }
 
     void Options::debugOutput() {
@@ -102,100 +73,6 @@ namespace OgreMaya {
         cout << "exportUVs      :" << exportUVs << '\n';        
         cout << "exportMaterial :" << exportMaterial << '\n';   
         cout << "============================================\n";
-    }
-
-    bool Options::isNextTokenOption() {
-        bool res = false;
-        if(currentArg+1 < argc) {
-            res = argv[currentArg+1][0] == '-';
-        }
-
-        return res;
-    }
-
-    void Options::parseIn() {
-        if(++currentArg < argc) {            
-            inFile = argv[currentArg];
-            int i = inFile.find_first_of('.');
-
-            if(i>=0) {
-                outMeshFile = inFile.substr(0, i) + ".mesh.xml";
-                outSkelFile = inFile.substr(0, i) + ".skeleton.xml";
-                outMatFile  = inFile.substr(0, i) + ".material";
-            }
-            else {
-                outMeshFile = inFile + ".mesh.xml";
-                outSkelFile = inFile + ".skeleton.xml";
-                outMatFile  = inFile + ".material";
-            }
-
-            valid = true;
-        }
-    }
-
-    void Options::parseMeshOut() {
-        exportMesh = true;
-        if(!isNextTokenOption() && currentArg+1<argc) {
-            outMeshFile = argv[currentArg+1];
-            currentArg++;
-        }
-    }
-
-    void Options::parseSkelOut() {
-        exportSkeleton = true;
-        if(!isNextTokenOption() && currentArg+1<argc) {
-            outSkelFile = argv[currentArg+1];
-            currentArg++;
-        }
-    }
-
-    void Options::parseMatOut() {
-        exportMaterial = true;
-        if(!isNextTokenOption() && currentArg+1<argc) {
-            outMatFile = argv[currentArg+1];
-            currentArg++;
-        }
-    }
-
-    void Options::parseMatPrefix() {
-        if(++currentArg < argc) {
-            matPrefix = argv[currentArg];
-        }
-    }
-
-    void Options::parseAnimation() {
-        if(currentArg+4 < argc) {
-            string name = argv[currentArg+1];
-            int from    = atoi(argv[currentArg+2]);
-            int to      = atoi(argv[currentArg+3]);
-            int step    = atoi(argv[currentArg+4]);
-
-            animations[name].from = from;
-            animations[name].to   = to;
-            animations[name].step = step;
-
-            currentArg += 5;
-        }
-    }
-    
-    void Options::parseVBA() {
-        exportVBA = true;
-    }
-
-    void Options::parseN() {
-        exportNormals = true;
-    }
-
-    void Options::parseC() {
-        exportColours = true;
-    }
-
-    void Options::parseT() {
-        exportUVs = true;
-    }
-    
-    void Options::parseV() {
-        verboseMode = true;
     }
     
 } // namespace OgreMaya
