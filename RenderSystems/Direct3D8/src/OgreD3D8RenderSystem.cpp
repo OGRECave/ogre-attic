@@ -1906,7 +1906,7 @@ namespace Ogre {
 
 			hr = mpD3DDevice->SetRenderState( D3DRS_FOGCOLOR, colour.getAsLongARGB() );
 			hr = mpD3DDevice->SetRenderState( D3DRS_FOGSTART, *((LPDWORD)(&start)) );
-			hr = mpD3DDevice->SetRenderState( D3DRS_FOGENABLE, *((LPDWORD)(&end)) );
+			hr = mpD3DDevice->SetRenderState( D3DRS_FOGEND, *((LPDWORD)(&end)) );
 			hr = mpD3DDevice->SetRenderState( D3DRS_FOGDENSITY, *((LPDWORD)(&densitiy)) );
 		}
 
