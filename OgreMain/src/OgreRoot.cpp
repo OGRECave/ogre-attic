@@ -131,9 +131,11 @@ namespace Ogre {
             "(" + OGRE_VERSION_NAME + ")";
 		mConfigFileName = configFileName;
 
-        // Create log manager and default log file
-        mLogManager = new LogManager();
-        mLogManager->createLog(logFileName, true, true);
+        // Create log manager and default log file if there is no log manager yet
+        if(LogManager::getSingletonPtr() == 0) {
+            mLogManager = new LogManager();
+            mLogManager->createLog(logFileName, true, true);
+        }
 
         // Dynamic library manager
         mDynLibManager = new DynLibManager();
