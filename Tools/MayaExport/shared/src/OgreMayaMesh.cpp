@@ -43,6 +43,8 @@ or go to http://www.gnu.org/licenses/gpl.txt
 #include <iostream>
 #include <string>
 
+#include <math.h>
+
 namespace OgreMaya {
 
     using namespace std;
@@ -319,9 +321,14 @@ namespace OgreMaya {
                 MeshVertexUVList::iterator uvIt, uvEnd;
 			    uvEnd = vertexIt->listUV.end();
 			    for (uvIt = vertexIt->listUV.begin(); uvIt!=uvEnd; ++uvIt) {                    
+
+                    float u,v;
+                    u = uvIt->u;
+                    v = 1.0f - uvIt->v;
+
                     out << "\t\t\t\t\t\t<texcoord ";
-                    out << "u=\"" << uvIt->u << "\" ";
-			        out << "v=\"" << uvIt->v << "\"/>\n";
+                    out << "u=\"" << u << "\" ";
+			        out << "v=\"" << v << "\"/>\n";
 			    }
             }
 		    
