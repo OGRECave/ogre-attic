@@ -2,7 +2,6 @@
 <html>
 <head>
   <title>Setting up the compiler settings</title>
-		 		
   <style type="text/css"> <!-- .MainHeader { font-weight: bold; color: #FFFF33; background-color: #006600; font-size: 10pt}
 	body { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC; background-color: #003300}
 	.BorderHeader { background-color: #999900; font-size: 8pt; font-weight: bold; color: #333300; text-align: center}
@@ -51,163 +50,146 @@
 	--></style>
 </head>
 <body bgcolor="#ffffff" text="#000000">
-		
 <p align="center" class="header">OGRE (Object-Oriented Graphics
 Rendering Engine)</p>
-		
-<p align="center" class="header"> 			Setting up the compiler settings</p>
-		
+<p align="center" class="header"> Setting up the compiler settings</p>
 <p align="left" class="MainHeader">&nbsp;</p>
-		
-<p> 			You only need to perform this step for the Visual C++ build,
-using gcc the 			values are derived for you from the makefile listed
-previously. 			</p>
+<p> You only need to perform this step for the Visual C++ build,
+using gcc the values are derived for you from the makefile listed
+previously. </p>
 <ul>
-				<li> 					<a href="#vc6">Visual C++ 6</a> 				</li>
-  <li> 					<a href="#vc7">Visual C++.Net</a> 					
+  <li> <a href="#vc6">Visual C++ 6</a> </li>
+  <li> <a href="#vc7">Visual C++.Net</a>
     <p></p>
-					
     <p align="left" class="MainHeader"><a name="vc6">Microsoft Visual
 C++ 6 (SP3+)</a></p>
-					
-    <p> 						If you are setting up you application the EASY WAY (i.e.
-in a subdirectory of 						Samples), then here's how you set up the
-compiler / linker settings from the 						Project | Settings menu
-item. All of these are for the Debug configuration, to 						set up
+    <p> If you are setting up you application the EASY WAY (i.e.
+in a subdirectory of Samples), then here's how you set up the
+compiler / linker settings from the Project | Settings menu
+item. All of these are for the Debug configuration, to set up
 the Release configuration just change the directories from '\Debug\' to
-						'\Release\'. 						
+'\Release\'.
     <table border="0" cellspacing="2" cellpadding="1">
-							<tbody>
+      <tbody>
         <tr>
-								<td>Debug : General : Executable</td>
-								<td>=</td>
-								<td>..\..\Common\Bin\Debug\[appname].exe</td>
-							</tr>
-							<tr>
-								<td>Debug : General : Working Directory</td>
-								<td>=</td>
-								<td>..\Common\Bin\Debug</td>
-							</tr>
-							<tr>
-								<td>C++ : Preprocessor : Additional Include Directories</td>
-								<td>=</td>
-								<td>..\Common\Include</td>
-							</tr>
-							<tr>
-								<td>C++ : Code Generation : Use runtime library</td>
-								<td>=</td>
-								<td>Debug Multithreaded DLL</td>
-							</tr>
-							<tr>
-								<td>Link : General : Output File</td>
-								<td>=</td>
-								<td>..\Common\Bin\Debug\[appname].exe</td>
-							</tr>
-							<tr>
-								<td>Link : Input: Additional Library Path</td>
-								<td>=</td>
-								<td>..\..\OgreMain\Lib\Debug</td>
-							</tr>
-							<tr>
-								<td>Link : Input : Object/library Modules</td>
-								<td>+=</td>
-								<td>OgreMain.lib</td>
-							</tr>
-						
+          <td>Debug : General : Executable</td>
+          <td>=</td>
+          <td>..\..\Common\Bin\Debug\[appname].exe</td>
+        </tr>
+        <tr>
+          <td>Debug : General : Working Directory</td>
+          <td>=</td>
+          <td>..\Common\Bin\Debug</td>
+        </tr>
+        <tr>
+          <td>C++ : Preprocessor : Additional Include Directories</td>
+          <td>=</td>
+          <td>..\Common\Include&nbsp; ..\..\OgreMain\include<br>
+          </td>
+        </tr>
+        <tr>
+          <td>C++ : Code Generation : Use runtime library</td>
+          <td>=</td>
+          <td>Debug Multithreaded DLL</td>
+        </tr>
+        <tr>
+          <td>Link : General : Output File</td>
+          <td>=</td>
+          <td>..\Common\Bin\Debug\[appname].exe</td>
+        </tr>
+        <tr>
+          <td>Link : Input: Additional Library Path</td>
+          <td>=</td>
+          <td>..\..\OgreMain\Lib\Debug</td>
+        </tr>
+        <tr>
+          <td>Link : Input : Object/library Modules</td>
+          <td>+=</td>
+          <td>OgreMain.lib</td>
+        </tr>
       </tbody>
     </table>
-						If you want to do it the ADVANCED way, you'll have to replace the
-relative 						paths here with the actual path to the root OGRE
-folder. 					</p>
-					
+If you want to do it the ADVANCED way, you'll have to replace the
+relative paths here with the actual path to the root OGRE
+folder. </p>
     <p align="left" class="MainHeader"><a name="vc7">Microsoft Visual
 C++.Net</a></p>
-					If you are setting up you application the EASY WAY (i.e. in a
-subdirectory of 					Samples), then here's how you set up the compiler
-/ linker settings after 					right-clicking on the project and
-selecting 'Properties'. All of these are for 					the Debug
+If you are setting up you application the EASY WAY (i.e. in a
+subdirectory of Samples), then here's how you set up the compiler
+/ linker settings after right-clicking on the project and
+selecting 'Properties'. All of these are for the Debug
 configuration, to set up the Release configuration just change the
-					directories from '\Debug\' to '\Release\'. 					
-    <p> 						
+directories from '\Debug\' to '\Release\'.
+    <p>
     <table border="0" cellspacing="2" cellpadding="1">
-							<tbody>
+      <tbody>
         <tr>
-								<td>Debug : Working Directory</td>
-								<td>=</td>
-								<td>..\Common\Bin\Debug</td>
-							</tr>
-							<tr>
-								<td>C/C++ : Additional Include Directories</td>
-								<td>=</td>
-								<td>..\Common\Include</td>
-							</tr>
-							<tr>
-								<td>C/C++ : Code Generation : Use runtime library</td>
-								<td>=</td>
-								<td>Debug Multithreaded DLL</td>
-							</tr>
-							<tr>
-								<td>Linker : Output File</td>
-								<td>=</td>
-								<td>..\Common\Bin\Debug\APPNAME.EXE</td>
-							</tr>
-							<tr>
-								<td>Linker : Additional Library Directories</td>
-								<td>=</td>
-								<td>..\..\OgreMain\Lib\Debug</td>
-							</tr>
-							<tr>
-								<td>Linker : Additional Dependencies</td>
-								<td>+=</td>
-								<td>OgreMain.lib</td>
-							</tr>
-						
+          <td>Debug : Working Directory</td>
+          <td>=</td>
+          <td>..\Common\Bin\Debug</td>
+        </tr>
+        <tr>
+          <td>C/C++ : Additional Include Directories</td>
+          <td>=</td>
+          <td>..\Common\Include</td>
+        </tr>
+        <tr>
+          <td>C/C++ : Code Generation : Use runtime library</td>
+          <td>=</td>
+          <td>Debug Multithreaded DLL</td>
+        </tr>
+        <tr>
+          <td>Linker : Output File</td>
+          <td>=</td>
+          <td>..\Common\Bin\Debug\APPNAME.EXE</td>
+        </tr>
+        <tr>
+          <td>Linker : Additional Library Directories</td>
+          <td>=</td>
+          <td>..\..\OgreMain\Lib\Debug</td>
+        </tr>
+        <tr>
+          <td>Linker : Additional Dependencies</td>
+          <td>+=</td>
+          <td>OgreMain.lib</td>
+        </tr>
       </tbody>
     </table>
-					</p>
-					If you want to do it the ADVANCED way, you'll have to replace the
-relative 					paths here with the actual path to the root OGRE folder.
-					
+    </p>
+If you want to do it the ADVANCED way, you'll have to replace the
+relative paths here with the actual path to the root OGRE folder.
     <p align="left" class="MainHeader"><a name="gcc">Gnu Compiler
 Collection (gcc) v3.x</a></p>
-					
-    <p> 						Before you start, make sure you are using gcc 3.x. Many
-Linux distributions 						still come with gcc 2.95.x which does not
-have as good support for the ISO C++ 						standard and will probably
-cause you problems. Please install the latest stable 						version of
-gcc 3.x. 					</p>
-					Create a file called 'Makefile' in your application folder, with
-the contents: 					
+    <p> Before you start, make sure you are using gcc 3.x. Many
+Linux distributions still come with gcc 2.95.x which does not
+have as good support for the ISO C++ standard and will probably
+cause you problems. Please install the latest stable version of
+gcc 3.x. </p>
+Create a file called 'Makefile' in your application folder, with
+the contents:
     <pre>  include [ogre_location]/platform-settings<br><br>  all:<br>	  $(CXX) $(DEFINES) $(CFLAGS) -o [appname] [yourSampleApp].cpp $(INCDIRS) -I$(TOPDIR)/Samples/Common/include -L$(TOPDIR)/OgreMain/lib -lOgreMain<br><br>  clean:<br>	  rm -f [appname]<br></pre>
-					
     <p></p>
-					
-    <p> 					Obviously you need to replace [ogre_location], [appname]
-and [yourSampleApp] 					with the appropriate values. 					</p>
+    <p> Obviously you need to replace [ogre_location], [appname]
+and [yourSampleApp] with the appropriate values. </p>
     <p class="MainHeader">&nbsp;</p>
-					
     <table width="100%" border="0" cellspacing="2" cellpadding="0">
-						<tbody>
+      <tbody>
         <tr>
-							<td width="14%"><a
+          <td width="14%"><a
  href="http://ogre.sourceforge.net/Tutorials/SettingUpAnOGREApplication/index.html">Back
 to Index</a></td>
-							<td width="39%">&nbsp;</td>
-							<td width="22%"><a
+          <td width="39%">&nbsp;</td>
+          <td width="22%"><a
  href="http://ogre.sourceforge.net/Tutorials/SettingUpAnOGREApplication/copysources.html">&lt;&lt;
 Previous section</a></td>
-							<td width="25%"><a
+          <td width="25%"><a
  href="http://ogre.sourceforge.net/Tutorials/SettingUpAnOGREApplication/compilersettings.html">Next
 section &gt;&gt;</a></td>
-						</tr>
-					
+        </tr>
       </tbody>
     </table>
-					
     <p class="MainHeader">&nbsp;</p>
-				</li>
-			
+  </li>
 </ul>
-	
 </body>
 </html>
