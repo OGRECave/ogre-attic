@@ -385,7 +385,6 @@ namespace Ogre
 			numMips = 1;
 		}
 
-
 		// create the texture
 		hr = D3DXCreateTexture(	
 				mpDev,								// device
@@ -544,7 +543,7 @@ namespace Ogre
 		// get our back buffer pixel format
 		IDirect3DSurface9 *pSrf;
 		D3DSURFACE_DESC srfDesc;
-		hr = mpDev->GetRenderTarget(0, &pSrf);
+		hr = mpDev->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pSrf);
 		if (FAILED(hr))
 			Except( hr, "Failed to get D3D9 device pixel format", "D3D9Texture::_setDevice" );
 
@@ -783,6 +782,10 @@ namespace Ogre
 		// we choose the format of the D3D texture so check only for our pf types...
 		switch (format)
 		{
+		case D3DFMT_X8R8G8B8:
+			*pdwRed = 0x00FF0000; *pdwGreen = 0x0000FF00; *pdwBlue = 0x000000FF; *pdwAlpha = 0x00000000;
+			*pdwRGBBitCount = 32;
+			break;
 		case D3DFMT_R8G8B8:
 			*pdwRed = 0x00FF0000; *pdwGreen = 0x0000FF00; *pdwBlue = 0x000000FF; *pdwAlpha = 0x00000000;
 			*pdwRGBBitCount = 24;
@@ -790,6 +793,10 @@ namespace Ogre
 		case D3DFMT_A8R8G8B8:
 			*pdwRed = 0x00FF0000; *pdwGreen = 0x0000FF00; *pdwBlue = 0x000000FF; *pdwAlpha = 0xFF000000;
 			*pdwRGBBitCount = 32;
+			break;
+		case D3DFMT_X1R5G5B5:
+			*pdwRed = 0x00007C00; *pdwGreen = 0x000003E0; *pdwBlue = 0x0000001F; *pdwAlpha = 0x00000000;
+			*pdwRGBBitCount = 16;
 			break;
 		case D3DFMT_R5G6B5:
 			*pdwRed = 0x0000F800; *pdwGreen = 0x000007E0; *pdwBlue = 0x0000001F; *pdwAlpha = 0x00000000;
@@ -925,8 +932,8 @@ namespace Ogre
 		if (mpTmpNormTex)
 		{
 			hr = mpDev->CreateOffscreenPlainSurface( 
-							this->getWidth(), 
-							this->getHeight(), 
+							srcImage.getWidth(),
+							srcImage.getHeight(),
 							dstFormat, 
 							D3DPOOL_SCRATCH, 
 							&pSrcSurface, 
@@ -996,8 +1003,8 @@ namespace Ogre
 			if (mpTmpCubeTex)
 			{
 				hr = mpDev->CreateOffscreenPlainSurface( 
-								this->getWidth(), 
-								this->getHeight(), 
+								srcImages[face].getWidth(), 
+								srcImages[face].getHeight(), 
 								dstFormat, 
 								D3DPOOL_SCRATCH, 
 								&pSrcSurface, 
@@ -1125,8 +1132,10 @@ namespace Ogre
 			return PF_A2R10G10B10;
 		case D3DFMT_L8:
 			return PF_L8;
+		case D3DFMT_X1R5G5B5:
 		case D3DFMT_R5G6B5:
 			return PF_R5G6B5;
+		case D3DFMT_X8R8G8B8:
 		case D3DFMT_R8G8B8:
 			return PF_R8G8B8;
 		default:

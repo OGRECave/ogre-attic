@@ -265,7 +265,7 @@ namespace Ogre
 			// Video mode is applicable
 			it = mOptions.find( "Video Mode" );
 			if (it->second.currentValue == "")
-				it->second.currentValue = "640 x 480 @ 16-bit colour";
+				it->second.currentValue = "800 x 600 @ 32-bit colour";
 		}
 
 		if( name == "Anti aliasing" )
@@ -982,6 +982,16 @@ namespace Ogre
 		}
 	}
 	//---------------------------------------------------------------------
+	void D3D9RenderSystem::_setTextureCoordSet( int stage, int index )
+	{
+		HRESULT hr;
+		hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, index );
+		if( FAILED( hr ) )
+			Except( hr, "Unable to set texture coord. set index", "D3D8RenderSystem::_setTextureCoordSet" );
+        // Record settings
+        mTexStageDesc[stage].coordIndex = index;
+	}
+	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setTextureCoordCalculation( int stage, TexCoordCalcMethod m)
 	{
 		HRESULT hr = S_OK;
@@ -996,33 +1006,15 @@ namespace Ogre
 		if (FAILED(hr))
 			Except( hr, "Unable to set auto-normalisation", "D3D9RenderSystem::_setTextureCoordCalculation" );
 
-		// tell D3D the dimension of tex. coord.
-        int texCoordDim;
-        switch (mTexStageDesc[stage].texType)
-        {
-        case D3D9Mappings::D3D_TEX_TYPE_NORMAL:
-            texCoordDim = 2;
-            break;
-        case D3D9Mappings::D3D_TEX_TYPE_CUBE:
-        case D3D9Mappings::D3D_TEX_TYPE_VOLUME:
-            texCoordDim = 3;
-
-        }
-
-		if (m == TEXCALC_ENVIRONMENT_MAP_PLANAR)
-			hr = __SetTextureStageState( stage, D3DTSS_TEXTURETRANSFORMFLAGS, 
-                D3DTTFF_PROJECTED | texCoordDim );
-		else
-			hr = __SetTextureStageState( stage, D3DTSS_TEXTURETRANSFORMFLAGS, texCoordDim );
-		if (FAILED(hr))
-			Except( hr, "Unable to set texture coord. dimension", "D3D9RenderSystem::_setTextureCoordCalculation" );
+		// set aut.tex.coord.gen.mode if present
+		// if not present we'v already set it through D3D9RenderSystem::_setTextureCoordSet
+		if (m != TEXCALC_NONE)
+		{
+			hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3D9Mappings::get(m));
+			if(FAILED(hr))
+				Except( hr, "Unable to set texture auto tex.coord. generation mode", "D3D8RenderSystem::_setTextureCoordCalculation" );
+		}
 	}
-    //---------------------------------------------------------------------
- 	void D3D9RenderSystem::_setAnisotropy(int maxAnisotropy)
- 	{
- 		for (int n = 0; n < _getNumTextureUnits(); n++)
- 			_setTextureLayerAnisotropy(n, maxAnisotropy);
- 	}
     //---------------------------------------------------------------------
 	void D3D9RenderSystem::_setTextureMatrix( int stage, const Matrix4& xForm )
 	{
@@ -1034,8 +1026,7 @@ namespace Ogre
 		D3DXMatrixIdentity(&d3dMatId);
 
 		// check if env_map is applyed
-		if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_ENVIRONMENT_MAP ||
-            mTexStageDesc[stage].autoTexCoordType == TEXCALC_ENVIRONMENT_MAP_PLANAR)
+		if (mTexStageDesc[stage].autoTexCoordType != TEXCALC_NONE)
 		{
 			// if so we must concatenate the current with the env_map matrix
 			D3DXMATRIX d3dMatEnvMap; // the env_map matrix
@@ -1054,6 +1045,7 @@ namespace Ogre
 
 		// convert our matrix to D3D format
 		d3dMat = makeD3DXMatrix(newMat);
+
 		// need this if texture is a cube map, to invert D3D's z coord
 		if (mTexStageDesc[stage].autoTexCoordType != TEXCALC_NONE)
 		{
@@ -1063,13 +1055,45 @@ namespace Ogre
 			d3dMat._43 = -d3dMat._43;
 		}
 
+		// set the matrix if it's not the identity
 		if (d3dMat != d3dMatId)
-			hr = mpD3DDevice->SetTransform( (D3DTRANSFORMSTATETYPE)(D3DTS_TEXTURE0 + stage), &d3dMat );
-		else
-			hr = __SetTextureStageState( stage, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_DISABLE );
+		{
+			// tell D3D the dimension of tex. coord.
+			int texCoordDim;
+			switch (mTexStageDesc[stage].texType)
+			{
+			case D3D9Mappings::D3D_TEX_TYPE_NORMAL:
+				texCoordDim = 2;
+				break;
+			case D3D9Mappings::D3D_TEX_TYPE_CUBE:
+			case D3D9Mappings::D3D_TEX_TYPE_VOLUME:
+				texCoordDim = 3;
+			}
 
-		if( FAILED( hr ) )
-			Except( hr, "Unable to set texture transform", "D3D9RenderSystem::_setTextureMatrix" );
+			if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_ENVIRONMENT_MAP_PLANAR)
+				hr = __SetTextureStageState( stage, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_PROJECTED | texCoordDim );
+			else
+				hr = __SetTextureStageState( stage, D3DTSS_TEXTURETRANSFORMFLAGS, texCoordDim );
+			if (FAILED(hr))
+				Except( hr, "Unable to set texture coord. dimension", "D3D9RenderSystem::_setTextureMatrix" );
+
+			hr = mpD3DDevice->SetTransform( (D3DTRANSFORMSTATETYPE)(D3DTS_TEXTURE0 + stage), &d3dMat );
+			if (FAILED(hr))
+				Except( hr, "Unable to set texture matrix", "D3D9RenderSystem::_setTextureMatrix" );
+		}
+		else
+		{
+			// disable all of this
+			hr = __SetTextureStageState( stage, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_DISABLE );
+			if( FAILED( hr ) )
+				Except( hr, "Error setting texture matrix", "D3D9RenderSystem::_setTextureMatrix" );
+
+			// set the identity matrix
+			D3DXMatrixIdentity( &d3dMat );
+			hr = mpD3DDevice->SetTransform( (D3DTRANSFORMSTATETYPE)(D3DTS_TEXTURE0 + stage), &d3dMat );
+			if( FAILED( hr ) )
+				Except( hr, "Error setting texture matrix", "D3D9RenderSystem::_setTextureMatrix" );
+		}
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setTextureAddressingMode( int stage, Material::TextureLayer::TextureAddressingMode tam )
@@ -1318,29 +1342,11 @@ namespace Ogre
 			"D3D9RenderSystem::setStencilBufferPassOperation");
 	}
 	//---------------------------------------------------------------------
-	DWORD D3D9RenderSystem::_getCurrentAnisotropy(int unit)
-	{
-		DWORD oldVal;
-		mpD3DDevice->GetSamplerState(unit, D3DSAMP_MAXANISOTROPY, &oldVal);
-			return oldVal;
-	}
-	//---------------------------------------------------------------------
 	void D3D9RenderSystem::setTextureFiltering( TextureFilterOptions fo )
 	{
 		int units = _getNumTextureUnits();
 		for( int i=0; i < units; i++ )
 			_setTextureLayerFiltering(i, fo);
-	}
-	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_setTextureCoordSet( int stage, int index )
-	{
-		HRESULT hr;
-		hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, index );
-		if( FAILED( hr ) )
-			Except( hr, "Unable to set texture stage state D3DTSS_TEXCOORDINDEX", "D3D8RenderSystem::_setTextureCoordSet" );
-        // Record settings
-        mTexStageDesc[stage].coordIndex = index;
-
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setTextureLayerFiltering(int unit, const TextureFilterOptions texLayerFilterOps)
@@ -1360,6 +1366,19 @@ namespace Ogre
 		if (FAILED(hr))
 			Except(hr, "Failed to set MipFilter", "D3D9RenderSystem::_setTextureLayerFiltering");
 	}
+    //---------------------------------------------------------------------
+	DWORD D3D9RenderSystem::_getCurrentAnisotropy(int unit)
+	{
+		DWORD oldVal;
+		mpD3DDevice->GetSamplerState(unit, D3DSAMP_MAXANISOTROPY, &oldVal);
+			return oldVal;
+	}
+	//---------------------------------------------------------------------
+ 	void D3D9RenderSystem::_setAnisotropy(int maxAnisotropy)
+ 	{
+ 		for (int n = 0; n < _getNumTextureUnits(); n++)
+ 			_setTextureLayerAnisotropy(n, maxAnisotropy);
+ 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setTextureLayerAnisotropy(int unit, int maxAnisotropy)
 	{
