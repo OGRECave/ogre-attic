@@ -1398,6 +1398,11 @@ namespace Ogre {
         OgreGuard( "D3DRenderSystem::_render" );
         HRESULT hr;
 
+        // Exit immediately if there is nothing to render
+        // This caused a problem on FireGL 8800
+        if (op.vertexData->vertexCount == 0)
+            return;
+
         // call superclass
         RenderSystem::_render(op);
         // Set up vertex flags
