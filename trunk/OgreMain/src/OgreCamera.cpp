@@ -854,12 +854,12 @@ namespace Ogre {
 		mSceneLodFactorInv = 1.0f / factor;
 	}
     //-----------------------------------------------------------------------
-	Real Camera::getLodBias(void)
+	Real Camera::getLodBias(void) const
 	{
 		return mSceneLodFactor;
 	}
     //-----------------------------------------------------------------------
-	Real Camera::_getLodBiasInverse(void)
+	Real Camera::_getLodBiasInverse(void) const
 	{
 		return mSceneLodFactorInv;
 	}

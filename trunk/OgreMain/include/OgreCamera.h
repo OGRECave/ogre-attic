@@ -523,10 +523,10 @@ namespace Ogre {
 		@remarks
 			See Camera::setLodBias for more details.
 		*/
-		Real getLodBias(void);
+		Real getLodBias(void) const;
 
 		/** Internal method for OGRE to use for LOD calculations. */
-		Real _getLodBiasInverse(void);
+		Real _getLodBiasInverse(void) const;
 
 
         /** Internal method used by OGRE to update auto-tracking cameras. */

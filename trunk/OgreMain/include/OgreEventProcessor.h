@@ -187,7 +187,7 @@ namespace Ogre {
         */
         static EventProcessor& getSingleton(void);
 
-		bool isKeyEnabled() 
+		bool isKeyEnabled() const
 		{ return true; }
 
 		inline InputReader* getInputReader()

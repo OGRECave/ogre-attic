@@ -66,7 +66,7 @@ namespace Ogre {
         virtual ~GuiPressable() { }
 
 		void setSource(GuiElement* source);
-		String getActionCommand();
+		const String& getActionCommand() const;
 		void setActionCommand(const String& action);
 
 		bool isPressed() const;
