@@ -34,6 +34,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSceneManager.h"
 #include "OgreSceneNode.h"
 #include "OgreEntity.h"
+#include "OgrePositionTarget.h"
+#include "OgreEventProcessor.h"
+#include "OgreException.h"
 #include "OgreViewport.h"
 
 namespace Ogre {
@@ -45,6 +48,8 @@ namespace Ogre {
         mLastViewportWidth(0), mLastViewportHeight(0), 
         mViewportDimensionsChanged(false)
     {
+		mCursorGuiRegistered = 0;
+		mCursorLevelOverlay = 0;
     }
     //---------------------------------------------------------------------
     OverlayManager::~OverlayManager()
@@ -60,6 +65,7 @@ namespace Ogre {
 
 	    while(!chunk.isEOF())
 	    {
+			bool isTemplate = false;
 		    line = chunk.getLine();
 		    // Ignore comments & blanks
 		    if (!(line.length() == 0 || line.substr(0,2) == "//"))
@@ -67,43 +73,44 @@ namespace Ogre {
 			    if (pOverlay == 0)
 			    {
 				    // No current overlay
-				    // So first valid data should be overlay name
-				    pOverlay = (Overlay*)create(line);
-				    // Skip to and over next {
-				    skipToNextOpenBrace(chunk);
+
+					// check to see if there is a template
+					if (line.substr(0,8) == "template")
+					{
+						isTemplate = true;
+
+					}
+					else
+					{
+			
+						// So first valid data should be overlay name
+						pOverlay = (Overlay*)create(line);
+						// Skip to and over next {
+						skipToNextOpenBrace(chunk);
+					}
 			    }
-			    else
+			    if (pOverlay || isTemplate)
 			    {
 				    // Already in overlay
+                    std::vector<String> params = line.split("\t\n ()");
+
+
+					uint skipParam = 0;
 				    if (line == "}")
 				    {
 					    // Finished overlay
 					    pOverlay = 0;
+						isTemplate = false;
 				    }
-				    else if (line.substr(0,9) == "container")
+				    else if (parseChildren(chunk,line, pOverlay, isTemplate, NULL))
+						
 				    {
-					    // new 2D element
-                        std::vector<String> params = line.split("\t\n ()");
-                        if (params.size() != 3)
-                        {
-		                    LogManager::getSingleton().logMessage( 
-			                    "Bad container line: '"
-			                    + line + "' in " + pOverlay->getName() + 
-			                    ", expecting 'container type(name)'");
-                                skipToNextCloseBrace(chunk);
-                        }
-                        else
-                        {
-                            skipToNextOpenBrace(chunk);
-					        parseNewElement(chunk, params[1], params[2], true, pOverlay);
-                        }
 
 				    }
-				    else if (line.substr(0,6) == "entity")
+				    else if (params[0+skipParam] == "entity")
 				    {
 					    // new 3D element
-                        std::vector<String> params = line.split("\t\n ()");
-                        if (params.size() != 3)
+                        if (params.size() != (3+skipParam))
                         {
 		                    LogManager::getSingleton().logMessage( 
 			                    "Bad entity line: '"
@@ -114,14 +121,17 @@ namespace Ogre {
                         else
                         {
                             skipToNextOpenBrace(chunk);
-					        parseNewMesh(chunk, params[1], params[2], pOverlay);
+					        parseNewMesh(chunk, params[1+skipParam], params[2+skipParam], pOverlay);
                         }
 
 				    }
 				    else
 				    {
 					    // Attribute
-					    parseAttrib(line, pOverlay);
+						if (!isTemplate)
+						{
+							parseAttrib(line, pOverlay);
+						}
 				    }
 
 			    }
@@ -204,32 +214,27 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------
     void OverlayManager::parseNewElement( DataChunk& chunk, String& elemType, String& elemName, 
-            bool isContainer, Overlay* pOverlay, GuiContainer* container)
+            bool isContainer, Overlay* pOverlay, bool isTemplate, String templateName, GuiContainer* container)
     {
         String line;
-        std::vector<String> params;
-        GuiElement* newElement = 
-            GuiManager::getSingleton().createGuiElement(elemType, elemName);
 
-        // add new element to parent
-        if (container)
-        {
-            // Attach to container
-            if (isContainer)
-            {
-                container->addChild((GuiContainer*)newElement);
-            }
-            else
-            {
-                container->addChild((GuiContainer*)newElement);
-            }
-        }
-        else
-        {
-            pOverlay->add2D((GuiContainer*)newElement);
-        }
+		GuiElement* newElement = NULL;
+		newElement = 
+				GuiManager::getSingleton().createGuiElementFromTemplate(templateName, elemType, elemName, isTemplate);
 
+			// do not add a template to an overlay
 
+		// add new element to parent
+		if (container)
+		{
+			// Attach to container
+			container->addChild((GuiContainer*)newElement);
+		}
+		// do not add a template to the overlay. For templates overlay = 0
+		else if (pOverlay)	
+		{
+			pOverlay->add2D((GuiContainer*)newElement);
+		}
 
         while(!chunk.isEOF())
         {
@@ -244,40 +249,9 @@ namespace Ogre {
                 }
                 else
                 {
-                    if (line.substr(0,9) == "container" && isContainer)
+                    if (isContainer && parseChildren(chunk,line, pOverlay, isTemplate, static_cast<GuiContainer*>(newElement)))
                     {
-					    // nested container
-                        params = line.split("\t\n ()");
-                        if (params.size() != 3)
-                        {
-		                    LogManager::getSingleton().logMessage( 
-			                    "Bad container line: '"
-			                    + line + "' in " + elemType + " " + elemName +
-                                ", expecting 'container type(name)'");
-                            skipToNextCloseBrace(chunk);
-                            return;
-                        }
-                       
-                        skipToNextOpenBrace(chunk);
-					    parseNewElement(chunk, params[1], params[2], true, pOverlay, (GuiContainer*)newElement);
-
-                    }
-                    else if (line.substr(0,7) == "element" && isContainer)
-                    {
-					    // nested element
-                        params = line.split("\t\n ()");
-                        if (params.size() != 3)
-                        {
-		                    LogManager::getSingleton().logMessage( 
-			                    "Bad element line: '"
-			                    + line + "' in " + elemType + " " + elemName +
-                                ", expecting 'container type(name)'");
-                            skipToNextCloseBrace(chunk);
-                            return;
-                        }
-                       
-                        skipToNextOpenBrace(chunk);
-					    parseNewElement(chunk, params[1], params[2], false, pOverlay, (GuiContainer*)newElement);
+					    // nested children... don't reparse it
                     }
                     else
                     {
@@ -287,15 +261,85 @@ namespace Ogre {
                 }
             }
         }
-
-
-
-
-
-
-
-
     }
+
+    //---------------------------------------------------------------------
+    bool OverlayManager::parseChildren( DataChunk& chunk, const String& line,
+            Overlay* pOverlay, bool isTemplate, GuiContainer* parent)
+	{
+		bool ret = false;
+		std::vector<String> params;
+		uint skipParam =0;
+		params = line.split("\t\n ()");
+
+		if (isTemplate)
+		{
+			if (params[0] != "template")
+			{
+				LogManager::getSingleton().logMessage( 
+					"Bad GuiElement line: '"
+					+ line + "' in " + (pOverlay?pOverlay->getName():"template") + 
+					", template children should be explicitly defined as templates");
+					// not deadly serious error, so don't barf 
+			}
+			else
+			{
+				skipParam++;		// = 1 when the first param = 'template'
+			}
+		}
+						
+		// top level component cannot be an element, it must be a container unless it is a template
+		if (params[0+skipParam] == "container" || (params[0+skipParam] == "element" && (isTemplate || parent != NULL)) )
+		{
+			String templateName = "";
+			ret = true;
+			// nested container/element
+			if (params.size() > 3+skipParam)
+			{
+				if (params.size() != 5+skipParam)
+				{
+					LogManager::getSingleton().logMessage( 
+						"Bad element/container line: '"
+						+ line + "' in " + parent->getTypeName()+ " " + parent->getName() +
+						", expecting ':' templateName");
+					skipToNextCloseBrace(chunk);
+					// barf 
+					return ret;
+				}
+				if (params[3+skipParam] != ":")
+				{
+					LogManager::getSingleton().logMessage( 
+						"Bad element/container line: '"
+						+ line + "' in " + parent->getTypeName()+ " " + parent->getName() +
+						", expecting ':' for element inheritance");
+					skipToNextCloseBrace(chunk);
+					// barf 
+					return ret;
+				}
+
+				templateName = params[4+skipParam];
+			}
+
+			else if (params.size() != 3+skipParam)
+			{
+				LogManager::getSingleton().logMessage( 
+					"Bad element/container line: '"
+						+ line + "' in " + parent->getTypeName()+ " " + parent->getName() +
+					", expecting 'element type(name)'");
+				skipToNextCloseBrace(chunk);
+				// barf 
+				return ret;
+			}
+       
+			skipToNextOpenBrace(chunk);
+			parseNewElement(chunk, params[1+skipParam], params[2+skipParam], true, pOverlay, isTemplate, templateName, (GuiContainer*)parent);
+
+		}
+
+
+		return ret;
+	}
+
     //---------------------------------------------------------------------
     void OverlayManager::parseAttrib( const String& line, Overlay* pOverlay)
     {
@@ -329,7 +373,7 @@ namespace Ogre {
             // BAD command. BAD!
             LogManager::getSingleton().logMessage("Bad element attribute line: '"
                 + line + "' for element " + pElement->getName() + " in overlay " + 
-                pOverlay->getName());
+                (pOverlay?pOverlay->getName():""));
         }
     }
     //-----------------------------------------------------------------------
@@ -441,10 +485,60 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------
 
+	//-----------------------------------------------------------------------------
 
+	PositionTarget* OverlayManager::getPositionTargetAt(Real x, Real y)
+	{
+		PositionTarget* ret = NULL;
+		int currZ = -1;
+        ResourceMap::iterator i, iend;
+        iend = mResources.end();
+        for (i = mResources.begin(); i != iend; ++i)
+        {
+            Overlay* o = (Overlay*)i->second;
+			int z = o->getZOrder();
+			if (z > currZ)
+			{
+				PositionTarget* elementFound = static_cast<MouseTarget*>(o->findElementAt(x,y));	// GuiElements are MouseTargets and MouseMotionTargets,
+																									// you need to choose one to static cast
+				if (elementFound)
+				{
+					currZ = z;
+					ret = elementFound;
+				}
+			}
+        }
 
+		return ret;
+	}
+	//-----------------------------------------------------------------------------
+	void OverlayManager::setCursorGui(GuiContainer* cursor, MouseMotionListener* cursorListener)
+	{
+		mCursorGuiRegistered = cursor;
+		mCursorListener = cursorListener;
+	}
 
+	//-----------------------------------------------------------------------------
+	GuiContainer* OverlayManager::getCursorGui()
+	{
+		return mCursorGuiRegistered;
+	}
 
+	//-----------------------------------------------------------------------------
+	void OverlayManager::createCursorOverlay()
+	{
+		mCursorLevelOverlay = static_cast<Overlay* > (create("CursorLevelOverlay"));
+		mCursorLevelOverlay->setZOrder(600);
+		mCursorLevelOverlay->show();
+		EventProcessor::getSingleton().addTargetManager(this);
+
+		// register the new cursor and display it
+		if (mCursorGuiRegistered && mCursorListener)	
+		{
+			mCursorLevelOverlay->add2D(mCursorGuiRegistered);
+			EventProcessor::getSingleton().addCursorMoveListener(mCursorListener);
+		}
+	}
 
 }
 

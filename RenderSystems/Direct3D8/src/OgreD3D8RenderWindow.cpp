@@ -261,7 +261,13 @@ namespace Ogre
                 else
                 {
                     // Woohoo!
-                    md3dpp.AutoDepthStencilFormat = D3DFMT_D24S8;
+
+					if( SUCCEEDED( pD3D->CheckDepthStencilMatch( mpD3DDriver->getAdapterNumber(), D3DDEVTYPE_HAL,
+						md3dpp.BackBufferFormat, md3dpp.BackBufferFormat, D3DFMT_D24X8 ) ) )
+					{
+	                    md3dpp.AutoDepthStencilFormat = D3DFMT_D24S8;
+					}
+
                 }
 
 

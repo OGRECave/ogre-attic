@@ -29,6 +29,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreException.h"
 #include "OgreStringVector.h"
 #include "OgreRoot.h"
+#include "OgreCursorGuiElement.h"
+#include "OgreOverlayManager.h"
 
 namespace Ogre {
 
@@ -36,6 +38,9 @@ namespace Ogre {
     GuiElementFactory* pPanelFactory = NULL;
     GuiElementFactory* pBorderPanelFactory = NULL;
     GuiElementFactory* pTextAreaFactory = NULL;
+    GuiElementFactory* pButtonFactory = NULL;
+    GuiElementFactory* pListFactory = NULL;
+	CursorGuiElement* pCursorGui = NULL;
     //-----------------------------------------------------------------------
 
     //-----------------------------------------------------------------------
@@ -48,11 +53,18 @@ namespace Ogre {
 
         pBorderPanelFactory = new BorderPanelGuiElementFactory();
         GuiManager::getSingleton().addGuiElementFactory(pBorderPanelFactory);
-
         
         pTextAreaFactory = new TextAreaGuiElementFactory();
         GuiManager::getSingleton().addGuiElementFactory(pTextAreaFactory);
-        
+
+		pButtonFactory = new ButtonGuiElementFactory();
+        GuiManager::getSingleton().addGuiElementFactory(pButtonFactory);
+
+		pListFactory = new ListGuiElementFactory();
+        GuiManager::getSingleton().addGuiElementFactory(pListFactory);
+
+		pCursorGui = new CursorGuiElement("Cursor default");
+		OverlayManager::getSingleton().setCursorGui(pCursorGui, pCursorGui);
 
     }
 
@@ -62,6 +74,9 @@ namespace Ogre {
         delete pPanelFactory;
         delete pBorderPanelFactory;
         delete pTextAreaFactory;
+		delete pButtonFactory;
+		delete pCursorGui;
+
     }
 
 }

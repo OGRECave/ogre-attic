@@ -28,8 +28,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMaterialManager.h"
 #include "OgreOverlay.h"
 #include "OgreGuiContainer.h"
+#include "OgreMouseEvent.h"
+#include "OgreEventMulticaster.h"
+#include "OgreEventListeners.h"
 #include "OgreOverlayManager.h"
-
 
 namespace Ogre {
 
@@ -47,22 +49,25 @@ namespace Ogre {
     GuiElementCommands::CmdVerticalAlign GuiElement::msVerticalAlignCmd;
     //---------------------------------------------------------------------
     GuiElement::GuiElement(const String& name)
-        : mName(name)
+        : mName(name),
+		MouseTarget(),
+		MouseMotionTarget()
     {
         mParent = 0;
         mLeft = 0.0f;
         mTop = 0.0f;
         mWidth = 1.0f;
         mHeight = 1.0f;
+		mMouseListener = 0;
         mVisible = true;
         mpMaterial = 0;
         mDerivedOutOfDate = true;
         mZOrder = 0;
+		mCloneable = true;
         mMetricsMode = GMM_RELATIVE;
         mHorzAlign = GHA_LEFT;
         mVertAlign = GVA_TOP;
-        mGeomPositionsOutOfDate = true;
-       
+        mGeomPositionsOutOfDate = true;       
     }
     //---------------------------------------------------------------------
     GuiElement::~GuiElement()
@@ -455,8 +460,60 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 
 
+    //-----------------------------------------------------------------------
+	bool GuiElement::contains(Real x, Real y) const
+	{
+	return (x >= 0) && (x < mWidth ) && (y >= 0) && (y < mHeight );
+	}
+
+    //-----------------------------------------------------------------------
+	GuiElement* GuiElement::findElementAt(Real x, Real y) 		// relative to parent
+	{
+		GuiElement* ret = NULL;
+		if (contains(x - mLeft, y - mTop))
+		{
+			ret = this;
+		}
+		return ret;
+	}
+
+    //-----------------------------------------------------------------------
+	void GuiElement::processEvent(InputEvent* e) 
+	{
+
+		switch(e->getID()) 
+		{
+		case MouseEvent::ME_MOUSE_PRESSED:
+		case MouseEvent::ME_MOUSE_RELEASED:
+		case MouseEvent::ME_MOUSE_CLICKED:
+		case MouseEvent::ME_MOUSE_ENTERED:
+		case MouseEvent::ME_MOUSE_EXITED:
+			processMouseEvent(static_cast<MouseEvent*>(e));
+			break;
+		case MouseEvent::ME_MOUSE_MOVED:
+		case MouseEvent::ME_MOUSE_DRAGGED:
+			processMouseMotionEvent(static_cast<MouseEvent*>(e));
+			break;
+		}
+	}
 
 
+    //-----------------------------------------------------------------------
+	PositionTarget* GuiElement::getPositionTargetParent() 
+	{ 
+		return static_cast<MouseTarget*> (mParent);		// need to choose 1 parent of the EventTarget
+	}
+    //-----------------------------------------------------------------------
+	GuiContainer* GuiElement::getParent() 
+	{ 
+		return mParent;		
+	}
+
+    void GuiElement::copyFromTemplate(GuiElement* templateGui)
+	{
+		templateGui->copyParametersTo(this);
+		return;
+	}
 
 }
 

@@ -137,7 +137,16 @@
 				RelativePath="..\src\OgreBorderPanelGuiElement.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreButtonGuiElement.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreCursorGuiElement.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreGuiElements.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreListGuiElement.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgrePanelGuiElement.cpp">
@@ -153,10 +162,19 @@
 				RelativePath="..\include\OgreBorderPanelGuiElement.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreButtonGuiElement.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreCursorGuiElement.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreGuiElementFactories.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreGuiElementPrerequisites.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreListGuiElement.h">
 			</File>
 			<File
 				RelativePath="..\include\OgrePanelGuiElement.h">

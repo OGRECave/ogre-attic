@@ -78,7 +78,10 @@ namespace Ogre {
         }
         void CmdMaterial::doSet(void* target, const String& val)
         {
-            static_cast<GuiElement*>(target)->setMaterialName(val);
+			if (val != "")
+			{
+				static_cast<GuiElement*>(target)->setMaterialName(val);
+			}
         }
         //-----------------------------------------------------------------------
         //-----------------------------------------------------------------------

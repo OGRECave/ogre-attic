@@ -144,6 +144,18 @@ namespace Ogre {
         */
         void setBottomRightBorderUV(Real u1, Real v1, Real u2, Real v2);
 
+		String getLeftBorderUVString();
+		String getRightBorderUVString();
+		String getTopBorderUVString();
+		String getBottomBorderUVString();
+		String getTopLeftBorderUVString();
+		String getTopRightBorderUVString();
+		String getBottomLeftBorderUVString();
+		String getBottomRightBorderUVString();
+
+
+
+
         /** Sets the name of the material to use for the borders. */
         void setBorderMaterialName(const String& name);
         /** Gets the name of the material to use for the borders. */
@@ -266,6 +278,7 @@ namespace Ogre {
         };
         /// Internal method for updating UV
         void setCellUV(BorderCellIndex idx, Real& u1, Real& v1, Real& u2, Real& v2);
+	    String getCellUVString(BorderCellIndex idx);
 
         // Command objects
         static CmdBorderSize msCmdBorderSize;

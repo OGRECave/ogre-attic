@@ -131,7 +131,6 @@ namespace Ogre {
 		void _removeLight( Light* lt );
 		void _modifyLight( Light* lt );
 		void _removeAllLights(void);
-
 		void _pushRenderState(void);
 		void _popRenderState(void);
 		void _setWorldMatrix( const Matrix4 &m );

@@ -33,11 +33,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 /**
     This has to be done in order to make sure the file compiles correctly under DirectX 8
 */
-#define DIRECTINPUT_VERSION 0x0700
+#define DIRECTINPUT_VERSION 0x0800
 
 namespace Ogre {
 
-    // Predeclare classes
+    // Predeclare classes 
     class Win32ConfigDialog;
     class Win32ErrorDialog;
     class Win32Window;

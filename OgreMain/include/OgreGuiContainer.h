@@ -29,6 +29,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 #include "OgreGuiElement.h"
 #include "OgreIteratorWrappers.h"
+#include "OgreEventDispatcher.h"
+
 
 namespace Ogre {
 
@@ -55,7 +57,7 @@ namespace Ogre {
         ChildMap mChildren;
         // Map of container children (subset of mChildren)
         ChildContainerMap mChildContainers;
-        
+ 
     public:
         /// Constructor: do not call direct, use GuiManager::createElement
         GuiContainer(const String& name);
@@ -88,8 +90,14 @@ namespace Ogre {
         /** Overridden from GuiElement. */
         virtual void _updateRenderQueue(RenderQueue* queue);
 
+        /** Overridden from GuiElement. */
+		inline bool isContainer()
+		{ return true; }
 
+        /** This returns a GuiElement at position x,y. */
+		virtual GuiElement* findElementAt(Real x, Real y);		// relative to parent
 
+	    void copyFromTemplate(GuiElement* templateGui);
 
     };
 

@@ -32,6 +32,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringInterface.h"
 #include "OgreGuiElementCommands.h"
 
+#include "OgreMouseTarget.h"
+#include "OgreMouseMotionTarget.h"
 
 namespace Ogre {
 
@@ -87,7 +89,7 @@ namespace Ogre {
         Because this class is designed to be extensible, it subclasses from StringInterface
         so its parameters can be set in a generic way.
     */
-    class _OgreExport GuiElement : public StringInterface, public Renderable
+    class _OgreExport GuiElement : public StringInterface, public Renderable, public MouseTarget, public MouseMotionTarget
     {
     public:
 
@@ -106,6 +108,7 @@ namespace Ogre {
 
         String mName;
         bool mVisible;
+		bool mCloneable;
         Real mLeft;
         Real mTop;
         Real mWidth;
@@ -331,9 +334,49 @@ namespace Ogre {
 
 
 
+		/** Returns true if xy is within the constraints of the component */
+		virtual bool contains(Real x, Real y) const;
 
+		/** Returns true if xy is within the constraints of the component */
+		virtual GuiElement* findElementAt(Real x, Real y);		// relative to parent
 
-    };
+		/**
+		 * Processes events occurring on this component. By default this
+		 * method calls the appropriate process event method
+		 */
+		virtual void processEvent(InputEvent* e);
+
+		/**
+		 * returns false as this class is not a container type 
+		 */
+		inline virtual bool isContainer()
+		{ return false; }
+
+		inline virtual bool isCloneable()
+		{ return mCloneable; }
+
+		inline virtual void setCloneable(bool c)
+		{ mCloneable = c; }
+	
+		/**
+		 * Returns the parent container.
+		 */
+		PositionTarget* getPositionTargetParent() ;
+
+		/**
+		 * Returns the parent container.
+		 */
+		GuiContainer* getParent() ;
+
+		/**
+		 * Returns the zOrder of the element
+		 */
+		inline ushort getZOrder()
+		{ return mZOrder; }
+
+	    void copyFromTemplate(GuiElement* templateGui);
+
+	};
 
 
 

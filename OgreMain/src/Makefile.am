@@ -2,7 +2,9 @@ INCLUDES = $(STLPORT_CFLAGS) $(FT2_CFLAGS) -I$(top_srcdir)/OgreMain/include
 
 lib_LTLIBRARIES=libOgreMain.la
 
-libOgreMain_la_SOURCES = OgreAnimation.cpp \
+libOgreMain_la_SOURCES = OgreActionEvent.cpp \
+						 OgreActionTarget.cpp \
+						 OgreAnimation.cpp \
                          OgreAnimationState.cpp \
                          OgreAnimationTrack.cpp \
                          OgreArchiveEx.cpp \
@@ -19,22 +21,29 @@ libOgreMain_la_SOURCES = OgreAnimation.cpp \
                          OgreConfigOptionMap.cpp \
                          OgreController.cpp \
                          OgreControllerManager.cpp \
+                         OgreCursor.cpp \
                          OgreDataChunk.cpp \
                          OgreDynLib.cpp \
                          OgreDynLibManager.cpp \
                          OgreEntity.cpp \
+                         OgreEventDispatcher.cpp \
+                         OgreEventMulticaster.cpp \
+                         OgreEventProcessor.cpp \
+                         OgreEventQueue.cpp \
                          OgreException.cpp \
-			 OgreFont.cpp \
-			 OgreFontManager.cpp \
-			 OgreGuiContainer.cpp \
-			 OgreGuiElement.cpp \
-			 OgreGuiElementCommands.cpp \
-			 OgreGuiManager.cpp \
+                         OgreFont.cpp \
+                         OgreFontManager.cpp \
+                         OgreGuiContainer.cpp \
+                         OgreGuiElement.cpp \
+                         OgreGuiElementCommands.cpp \
+                         OgreGuiManager.cpp \
                          OgreImage.cpp \
                          OgreInput.cpp \
+                         OgreInputEvent.cpp \
                          OgreJPEGCodec.cpp \
                          OgreKeyFrame.cpp \
                          OgreLight.cpp \
+                         OgreListSelectionTarget.cpp \
                          OgreLog.cpp \
                          OgreLogManager.cpp \
                          OgreMaterial.cpp \
@@ -46,6 +55,9 @@ libOgreMain_la_SOURCES = OgreAnimation.cpp \
                          OgreMesh.cpp \
                          OgreMeshManager.cpp \
                          OgreMeshSerializer.cpp \
+                         OgreMouseEvent.cpp \
+                         OgreMouseMotionTarget.cpp \
+                         OgreMouseTarget.cpp \
                          OgreMovableObject.cpp \
                          OgreNode.cpp \
                          OgreOofModelFile.cpp \
@@ -70,14 +82,14 @@ libOgreMain_la_SOURCES = OgreAnimation.cpp \
                          OgreResourceManager.cpp \
                          OgreResourceMap.cpp \
                          OgreRoot.cpp \
-			 OgreRotationSpline.cpp \
+                         OgreRotationSpline.cpp \
                          OgreSDDataChunk.cpp \
                          OgreSceneManager.cpp \
                          OgreSceneManagerEnumerator.cpp \
                          OgreSceneNode.cpp \
                          OgreSerializer.cpp \
                          OgreSimpleRenderable.cpp \
-			 OgreSimpleSpline.cpp \
+                         OgreSimpleSpline.cpp \
                          OgreSingleton.cpp \
                          OgreSkeleton.cpp \
                          OgreSkeletonManager.cpp \

@@ -128,11 +128,14 @@ Examples/TextureEffect2
 		scroll_anim 0.5 0
 	}
 }
+//	ambient 0.2 0.2 0.2
+
+
 
 //Watery effect
 Examples/TextureEffect3
 {
-	ambient 0.2 0.2 0.2
+	ambient 0.7 0.7 0.7
 	// double-sided
 	cull_hardware none
 	cull_software none

@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __Input_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreInputEvent.h"
 
 namespace Ogre {
 
@@ -196,8 +197,18 @@ namespace Ogre {
     public:
 
         InputReader();
+	    ~InputReader();
 
-        /** Initialise the input system.
+
+	    /** Tells the reader to use buffered input and update the passed in queue.
+        @remarks
+            The default behaviour of the input reader is simply to capture the
+            current state of the mouse / keyboard on demand. An alternative is to use 
+            buffered input where all events are registered on a queue.
+        */
+        void useBufferedInput(EventQueue* pEventQueue) ;
+        
+		/** Initialise the input system.
             @note
                 Only keyboard and mouse currently implemented.
             @param
@@ -236,6 +247,44 @@ namespace Ogre {
         /** Retrieves the relative position of the mouse when capture was
             called relative to the last time. */
         virtual int getMouseRelativeY(void) = 0;
+
+		/**
+		 * Adds a mouse motion listener to the cursor object.
+		 * This keeps the Cursor object hidden.
+		 */
+		void addCursorMoveListener(MouseMotionListener* c);
+	
+		/**
+		 * Remove a mouse motion listener to the cursor object.
+		 * This keeps the Cursor object hidden.
+		 */
+		void removeCursorMoveListener(MouseMotionListener* c);
+	protected:
+
+		/** the modifiers are a binary flags that represent what buttons are pressed, and what key modifiers are down (e.g. shift/alt) */
+		int mModifiers;
+
+		/** 
+		 * Internal Cursor object. This is a mathematical representation of where the cursor is, it does not draw a cursor
+		 *  see CursorGuiElement 
+		 */
+		Cursor* mCursor;
+
+		/** EventQueue is used for buffered input support */
+		EventQueue* mEventQueue;
+
+		/** whether to use buffering input support - buffering support relies on using an EventQueue */
+		bool mUseBuffered;
+		
+		/** creates mouse moved or dragged events depending if any button is pressed */
+		void mouseMoved();
+
+		/** Creates a MouseEvent. First it gets processed by the cursor, then it gets pushed on the queue */
+		void createMouseEvent(int id, int button);
+
+		/** creates mouse pressed, released, and clicked events */
+		void triggerMouseButton(int nMouseCode, bool mousePressed);
+
 
     };
 

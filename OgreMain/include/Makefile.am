@@ -1,4 +1,6 @@
 noinst_HEADERS = Ogre.h \
+OgreActionEvent.h \
+OgreActionTarget.h \
 OgreAnimation.h \
 OgreAnimationState.h \
 OgreAnimationTrack.h \
@@ -21,11 +23,18 @@ OgreConfigFile.h \
 OgreConfigOptionMap.h \
 OgreController.h \
 OgreControllerManager.h \
+OgreCursor.h \
 OgreDataChunk.h \
 OgreDynLib.h \
 OgreDynLibManager.h \
 OgreEntity.h \
 OgreErrorDialog.h \
+OgreEventDispatcher.h \
+OgreEventListeners.h \
+OgreEventMulticaster.h \
+OgreEventProcessor.h \
+OgreEventQueue.h \
+OgreEventTarget.h \
 OgreException.h \
 OgreFactoryObj.h \
 OgreFont.h \
@@ -40,10 +49,14 @@ OgreGuiManager.h \
 OgreImage.h \
 OgreImageCodec.h \
 OgreInput.h \
+OgreInputEvent.h \
 OgreIteratorWrappers.h \
 OgreJPEGCodec.h \
 OgreKeyFrame.h \
 OgreLight.h \
+OgreListChanger.h \
+OgreListSelectionEvent.h \
+OgreListSelectionTarget.h \
 OgreLog.h \
 OgreLogManager.h \
 OgreMaterial.h \
@@ -57,6 +70,9 @@ OgreMesh.h \
 OgreMeshFileFormat.h \
 OgreMeshManager.h \
 OgreMeshSerializer.h \
+OgreMouseEvent.h \
+OgreMouseMotionTarget.h \
+OgreMouseTarget.h \
 OgreMovableObject.h \
 OgreNoMemoryMacros.h \
 OgreNode.h \
@@ -78,6 +94,7 @@ OgrePatchSurface.h \
 OgrePlane.h \
 OgrePlatform.h \
 OgrePlatformManager.h \
+OgrePositionTarget.h \
 OgrePredefinedControllers.h \
 OgrePrerequisites.h \
 OgreQuaternion.h \
@@ -113,9 +130,11 @@ OgreStdHeaders.h \
 OgreString.h \
 OgreStringConverter.h \
 OgreStringInterface.h \
+OgreStringResource.h \
 OgreStringVector.h \
 OgreSubEntity.h \
 OgreSubMesh.h \
+OgreTargetManager.h \
 OgreTGACodec.h \
 OgreTexture.h \
 OgreTextureManager.h \

@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreString.h"
 #include "OgreGuiManager.h"
 #include "OgreGuiElement.h"
+#include "OgreGuiContainer.h"
 #include "OgreGuiElementFactory.h"
 #include "OgreException.h"
 #include "OgreLogManager.h"
@@ -40,18 +41,78 @@ namespace Ogre {
     //---------------------------------------------------------------------
     GuiManager::~GuiManager()
     {
-        destroyAllGuiElements();
+        destroyAllGuiElements(false);
+        destroyAllGuiElements(true);
     }
+
     //---------------------------------------------------------------------
-    GuiElement* GuiManager::createGuiElement(const String& typeName, const String& instanceName)
+    GuiManager::ElementMap& GuiManager::getElementMap(bool isTemplate)
+    {
+		return (isTemplate)?mTemplates:mInstances;
+	}
+
+    //---------------------------------------------------------------------
+    GuiElement* GuiManager::createGuiElementFromTemplate(const String& templateName, const String& typeName, const String& instanceName, bool isTemplate)
+    {
+
+		GuiElement* newObj  = NULL;
+
+		if (templateName == "")
+		{
+			newObj = createGuiElement(typeName, instanceName, isTemplate);
+		}
+		else
+		{
+			// no template 
+			GuiElement* templateGui = getGuiElement(templateName, true);
+	
+			String typeNameToCreate;
+			if (typeName == "")
+			{
+				typeNameToCreate = templateGui->getTypeName();
+			}
+			else
+			{
+				typeNameToCreate = typeName;
+			}
+
+			newObj = createGuiElement(typeNameToCreate, instanceName, isTemplate);
+
+			((GuiContainer*)newObj)->copyFromTemplate(templateGui);
+		}
+
+		return newObj;
+	}
+
+    //---------------------------------------------------------------------
+    GuiElement* GuiManager::createGuiElement(const String& typeName, const String& instanceName, bool isTemplate)
+    {
+		return createGuiElementImpl(typeName, instanceName, getElementMap(isTemplate));
+	}
+
+    //---------------------------------------------------------------------
+    GuiElement* GuiManager::createGuiElementImpl(const String& typeName, const String& instanceName, ElementMap& elementMap)
     {
         // Check not duplicated
-        InstanceMap::iterator ii = mInstances.find(instanceName);
-        if (ii != mInstances.end())
+        ElementMap::iterator ii = elementMap.find(instanceName);
+        if (ii != elementMap.end())
         {
             Except(Exception::ERR_DUPLICATE_ITEM, "GuiElement with name " + instanceName +
                 " already exists.", "GuiManager::createGuiElement" );
         }
+		GuiElement* newElem = createGuiElementFromFactory(typeName, instanceName);
+
+        // Register
+        elementMap.insert(ElementMap::value_type(instanceName, newElem));
+
+        return newElem;
+
+
+    }
+
+    //---------------------------------------------------------------------
+    GuiElement* GuiManager::createGuiElementFromFactory(const String& typeName, const String& instanceName)
+    {
         // Look up factory
         FactoryMap::iterator fi = mFactories.find(typeName);
         if (fi == mFactories.end())
@@ -61,21 +122,20 @@ namespace Ogre {
         }
 
         // create
-        GuiElement* newElem = fi->second->createGuiElement(instanceName);
+        return fi->second->createGuiElement(instanceName);
+	}
 
-        // Register
-        mInstances.insert(InstanceMap::value_type(instanceName, newElem));
-
-        return newElem;
-
-
-    }
     //---------------------------------------------------------------------
-    GuiElement* GuiManager::getGuiElement(const String& name)
+    GuiElement* GuiManager::getGuiElement(const String& name, bool isTemplate)
+	{
+		return getGuiElementImpl(name, getElementMap(isTemplate));
+	}
+    //---------------------------------------------------------------------
+    GuiElement* GuiManager::getGuiElementImpl(const String& name, ElementMap& elementMap)
     {
         // Locate instance
-        InstanceMap::iterator ii = mInstances.find(name);
-        if (ii == mInstances.end())
+        ElementMap::iterator ii = elementMap.find(name);
+        if (ii == elementMap.end())
         {
             Except(Exception::ERR_ITEM_NOT_FOUND, "GuiElement with name " + name +
                 " not found.", "GuiManager::destroyGugetGuiElementiElement" );
@@ -84,11 +144,23 @@ namespace Ogre {
         return ii->second;
     }
     //---------------------------------------------------------------------
-    void GuiManager::destroyGuiElement(const String& instanceName)
+    void GuiManager::destroyGuiElement(const String& instanceName, bool isTemplate)
+	{
+		destroyGuiElementImpl(instanceName, getElementMap(isTemplate));
+	}
+
+    //---------------------------------------------------------------------
+    void GuiManager::destroyGuiElement(GuiElement* pInstance, bool isTemplate)
+	{
+		destroyGuiElementImpl(pInstance->getName(), getElementMap(isTemplate));
+	}
+
+    //---------------------------------------------------------------------
+    void GuiManager::destroyGuiElementImpl(const String& instanceName, ElementMap& elementMap)
     {
         // Locate instance
-        InstanceMap::iterator ii = mInstances.find(instanceName);
-        if (ii == mInstances.end())
+        ElementMap::iterator ii = elementMap.find(instanceName);
+        if (ii == elementMap.end())
         {
             Except(Exception::ERR_ITEM_NOT_FOUND, "GuiElement with name " + instanceName +
                 " not found.", "GuiManager::destroyGuiElement" );
@@ -106,16 +178,16 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void GuiManager::destroyGuiElement(GuiElement* pInstance)
-    {
-        destroyGuiElement(pInstance->getName());
-    }
+    void GuiManager::destroyAllGuiElements(bool isTemplate)
+	{
+		destroyAllGuiElementsImpl(getElementMap(isTemplate));
+	}
     //---------------------------------------------------------------------
-    void GuiManager::destroyAllGuiElements(void)
+    void GuiManager::destroyAllGuiElementsImpl(ElementMap& elementMap)
     {
-        InstanceMap::iterator i, iend;
-        iend = mInstances.end();
-        for (i = mInstances.begin(); i != iend; ++i)
+        ElementMap::iterator i, iend;
+        iend = elementMap.end();
+        for (i = elementMap.begin(); i != iend; ++i)
         {
             // Get factory to delete
             FactoryMap::iterator fi = mFactories.find(i->second->getTypeName());
@@ -145,4 +217,6 @@ namespace Ogre {
     {
         return Singleton<GuiManager>::getSingleton();
     }
+
+
 }

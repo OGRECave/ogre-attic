@@ -671,7 +671,6 @@ namespace Ogre {
 		setD3D8Light( i, lt );
 	}
 
-
 	void D3D8RenderSystem::_removeAllLights()
 	{
 		for( int i=0; i < MAX_LIGHTS; i++ )
@@ -683,7 +682,14 @@ namespace Ogre {
 			}
 		}
 	}
+/*	void D3D8RenderSystem::setD3D8LightEnabled( int index, bool fEnabled )
+	{
+		HRESULT hr;
 
+		if( FAILED( hr = mpD3DDevice->LightEnable( index, fEnabled ) ) )
+			Except( hr, "Unable to enable light", "D3D8RenderSystem::setD3D8Light" );
+	}
+*/
 	void D3D8RenderSystem::setD3D8Light( int index, Light* lt )
 	{
 		HRESULT hr;
@@ -992,6 +998,7 @@ namespace Ogre {
 
 		case LBX_ADD:
 			value = D3DTOP_ADD;
+//			value = D3DTOP_ADDSMOOTH;
 			break;
 
 		case LBX_ADD_SIGNED:
