@@ -61,6 +61,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 using namespace XSI;
 
+#define OGRE_XSI_EXPORTER_VERSION L"1.0.1"
+
 /** This is the main file for the OGRE XSI plugin.
 The purpose of the methods in this file are as follows:
 
@@ -235,10 +237,25 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 {	
 	Application app;
 	CStatus st(CStatus::OK);
+	bool createNewProp = true;
 	Property prop = app.GetActiveSceneRoot().GetProperties().GetItem(exportPropertyDialogName);
-	if (!prop.IsValid())
+	if (prop.IsValid())
+	{
+		if (prop.GetParameterValue(L"version").GetAsText().IsEqualNoCase(OGRE_XSI_EXPORTER_VERSION))
+		{
+			// ok, compatible
+			createNewProp = false;
+		}
+		else
+		{
+			// incompatible version, delete old
+			DeleteObj(exportPropertyDialogName);
+		}
+	}
+	if (createNewProp)
 	{
 		prop = app.GetActiveSceneRoot().AddProperty(exportPropertyDialogName);
+		prop.PutParameterValue(L"version", OGRE_XSI_EXPORTER_VERSION);
 	}
 	Ogre::LogManager logMgr;
 	logMgr.createLog("OgreXSIExporter.log", true);
@@ -418,9 +435,13 @@ CStatus OgreMeshExportOptions_Define( const CRef & in_Ctx )
 	int caps = siPersistable  ;
 	CValue nullValue;	// Used for arguments we don't want to set
 
+	prop.AddParameter(	
+		L"version",CValue::siString, caps, 
+		L"Version", L"", 
+		nullValue, param) ;	
     prop.AddParameter(	
         L"objectName",CValue::siString, caps, 
-        L"Export Mesh", L"", 
+        L"Object Name", L"", 
         nullValue, param) ;	
 	prop.AddParameter(	
 		L"objects",CValue::siRefArray, caps, 
@@ -543,7 +564,7 @@ CStatus OgreMeshExportOptions_DefineLayout( const CRef & in_Ctx )
 	item.PutAttribute( siUIFileFilter, L"OGRE Skeleton format (*.skeleton)|*.skeleton|All Files (*.*)|*.*||" );
 	item = oLayout.AddItem(L"fps");
 	item = oLayout.AddItem(L"animationList", L"Animations", siControlGrid);
-	item.PutAttribute(siUIGridColumnWidths, L"0:120:40");
+	item.PutAttribute(siUIGridColumnWidths, L"0:120:60");
 	item.PutAttribute(siUIGridHideRowHeader, true);
 
 	oLayout.EndGroup();
@@ -739,7 +760,7 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 
 			gd.PutColumnCount(2);
 			gd.PutColumnLabel(0, L"Name");
-			gd.PutColumnLabel(1, L"Export");
+			gd.PutColumnLabel(1, L"Export?");
 
 
 			getAnimations(app.GetActiveSceneRoot(), animList);

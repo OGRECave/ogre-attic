@@ -817,11 +817,9 @@ namespace Ogre {
 				"Invalid X3DObject found",
 				"XsiMeshExporter::exportX3DObject");
 		}
-#ifdef _DEBUG
 		// Log a message in script window
 		CString name = x3dObj.GetName() ;
 		mXsiApp.LogMessage(L"-- Traversing " +  name) ;
-#endif
 
 
 		// locate any geometry
@@ -836,12 +834,12 @@ namespace Ogre {
 				Geometry geom(prim.GetGeometry());
 				if (geom.GetRef().GetClassID() == siPolygonMeshID)
 				{
-					// add it to the list 
+					// add it to the list
+					PolygonMesh pmesh(geom);
 					mXsiPolygonMeshList.insert(
-						new PolygonMeshEntry(PolygonMesh(geom), x3dObj));
-#ifdef _DEBUG
+						new PolygonMeshEntry(pmesh, x3dObj));
+
 					mXsiApp.LogMessage(L"-- Queueing " +  name) ;
-#endif
 				}
 			}
 

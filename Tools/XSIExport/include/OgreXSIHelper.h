@@ -148,6 +148,7 @@ namespace Ogre {
 		long startFrame; // -1 if 'from start'
 		long endFrame; // -1 if 'to end'
 		XSI::ActionSource source;
+		std::set<long> frames;
 	};
 	/// Map from deformer name to deformer entry
 	typedef std::vector<AnimationEntry> AnimationList;
