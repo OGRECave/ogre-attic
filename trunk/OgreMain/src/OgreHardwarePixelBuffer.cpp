@@ -96,7 +96,7 @@ namespace Ogre
     /// Internal implementation of lock()
     void* HardwarePixelBuffer::lockImpl(size_t offset, size_t length, LockOptions options)
     {
-        Except(Exception::ERR_INTERNAL_ERROR, "lockImpl(offset,length) is not valid for PixelBuffers and should never be called",
+        OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "lockImpl(offset,length) is not valid for PixelBuffers and should never be called",
             "HardwarePixelBuffer::lockImpl");
     }
 
@@ -106,13 +106,13 @@ namespace Ogre
 	{
 		if(isLocked() || src->isLocked())
 		{
-			Except(Exception::ERR_INTERNAL_ERROR,
+			OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR,
 				"Source and destination buffer may not be locked!",
 				"HardwarePixelBuffer::blit");
 		}
 		if(src == this)
 		{
-			Except( Exception::ERR_INVALIDPARAMS,
+			OGRE_EXCEPT( Exception::ERR_INVALIDPARAMS,
                 "Source must not be the same object",
                 "HardwarePixelBuffer::blit" ) ;
 		}
@@ -147,7 +147,7 @@ namespace Ogre
 	void HardwarePixelBuffer::readData(size_t offset, size_t length, void* pDest)
 	{
 		// TODO
-		Except(Exception::UNIMPLEMENTED_FEATURE,
+		OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE,
 				"Reading a byte range is not implemented. Use blitToMemory.",
 				"HardwarePixelBuffer::readData");
 	}
@@ -157,7 +157,7 @@ namespace Ogre
 			bool discardWholeBuffer)
 	{
 		// TODO
-		Except(Exception::UNIMPLEMENTED_FEATURE,
+		OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE,
 				"Writing a byte range is not implemented. Use blitFromMemory.",
 				"HardwarePixelBuffer::writeData");
 	}

@@ -58,7 +58,7 @@ namespace Ogre {
 
         if (!params || (paramIt = params->find("type")) == params->end())
         {
-            Except(Exception::ERR_INVALIDPARAMS, 
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
                 "You must supply a 'type' parameter",
                 "D3D9GpuProgramManager::createImpl");
         }

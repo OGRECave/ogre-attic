@@ -130,7 +130,7 @@ namespace Ogre {
         case VET_UBYTE4:
             return 4;
 		}
-		Except(Exception::ERR_INVALIDPARAMS, "Invalid type", 
+		OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Invalid type", 
 			"VertexElement::getTypeCount");
 	}
 	//-----------------------------------------------------------------------------
@@ -172,7 +172,7 @@ namespace Ogre {
         default:
             break;
 		}
-		Except(Exception::ERR_INVALIDPARAMS, "Invalid base type", 
+		OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Invalid base type", 
 			"VertexElement::multiplyTypeCount");
 	}
 	//-----------------------------------------------------------------------------
@@ -492,7 +492,7 @@ namespace Ogre {
 		VertexBufferBindingMap::iterator i = mBindingMap.find(index);
 		if (i == mBindingMap.end())
 		{
-			Except(Exception::ERR_ITEM_NOT_FOUND,
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
 				"Cannot find buffer binding for index " + StringConverter::toString(index),
 				"VertexBufferBinding::unsetBinding");
 		}
@@ -515,7 +515,7 @@ namespace Ogre {
 		VertexBufferBindingMap::iterator i = mBindingMap.find(index);
 		if (i == mBindingMap.end())
 		{
-			Except(Exception::ERR_ITEM_NOT_FOUND, "No buffer is bound to that index.",
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "No buffer is bound to that index.",
 				"VertexBufferBinding::getBuffer");
 		}
 		return i->second;

@@ -361,7 +361,7 @@ namespace Ogre {
 			if (!oldElem)
 			{
 				// Error, cannot create new elements with this method
-				Except(Exception::ERR_ITEM_NOT_FOUND, 
+				OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
 					"Element not found in old vertex declaration", 
 					"VertexData::reorganiseBuffers");
 			}

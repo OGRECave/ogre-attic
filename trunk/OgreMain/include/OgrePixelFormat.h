@@ -75,7 +75,7 @@ namespace Ogre {
         /// 32-bit pixel format, 8 bits for blue, 8 bits for green, 8 bits for red
         /// like PF_A8B8G8R8, but alpha will get discarded
         PF_X8B8G8R8 = 27,
-#if OGRE_ENDIAN == ENDIAN_BIG
+#if OGRE_ENDIAN == OGRE_ENDIAN_BIG
 		/// 3 byte pixel format, 1 byte for red, 1 byte for green, 1 byte for blue
 		PF_BYTE_RGB = PF_R8G8B8,
 		/// 3 byte pixel format, 1 byte for blue, 1 byte for green, 1 byte for red

@@ -108,7 +108,7 @@ namespace Ogre
         if ( !val.empty() )
             setPageSize(atoi( val.c_str() ));
         else
-            Except(Exception::ERR_ITEM_NOT_FOUND, "Missing option 'PageSize'",
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Missing option 'PageSize'",
             "TerrainSceneManager::loadConfig");
 
 
@@ -116,7 +116,7 @@ namespace Ogre
         if ( !val.empty() )
             setTileSize(atoi( val.c_str() ));
         else
-            Except(Exception::ERR_ITEM_NOT_FOUND, "Missing option 'TileSize'",
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Missing option 'TileSize'",
             "TerrainSceneManager::loadConfig");
 
         Vector3 v = Vector3::UNIT_SCALE;
@@ -179,7 +179,7 @@ namespace Ogre
         String pageSourceName = config.getSetting("PageSource");
         if (pageSourceName == "")
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, "Missing option 'PageSource'",
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Missing option 'PageSource'",
             "TerrainSceneManager::loadConfig");
         }
         TerrainPageSourceOptionList optlist;
@@ -214,7 +214,7 @@ namespace Ogre
                 StringConverter::toString( image.getWidth() ) +
                 "," + StringConverter::toString( image.getHeight() ) +
                 ". Should be 2^n+1, 2^n+1";
-            Except( Exception::ERR_INVALIDPARAMS, err, "TerrainSceneManager::loadHeightmap" );
+            OGRE_EXCEPT( Exception::ERR_INVALIDPARAMS, err, "TerrainSceneManager::loadHeightmap" );
         }
 
         int upperRange = 0;
@@ -235,7 +235,7 @@ namespace Ogre
         }
         else
         {
-            Except( Exception::ERR_INVALIDPARAMS, "Error: Image is not a grayscale image.",
+            OGRE_EXCEPT( Exception::ERR_INVALIDPARAMS, "Error: Image is not a grayscale image.",
                 "TerrainSceneManager::setWorldGeometry" );
         }
 
@@ -774,7 +774,7 @@ namespace Ogre
         PageSourceMap::iterator i = mPageSources.find(typeName);
         if (i == mPageSources.end())
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                 "Cannot locate a TerrainPageSource for type " + typeName,
                 "TerrainSceneManager::selectPageSource");
         }

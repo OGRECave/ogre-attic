@@ -116,13 +116,13 @@ namespace Ogre {
     {
         if (handle >= OGRE_MAX_NUM_BONES)
         {
-            Except(Exception::ERR_INVALIDPARAMS, "Exceeded the maximum number of bones per skeleton.",
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Exceeded the maximum number of bones per skeleton.",
                 "Skeleton::createBone");
         }
         // Check handle not used
         if (handle < mBoneList.size() && mBoneList[handle] != NULL)
         {
-            Except(
+            OGRE_EXCEPT(
                 Exception::ERR_DUPLICATE_ITEM,
                 "A bone with the handle " + StringConverter::toString(handle) + " already exists",
                 "Skeleton::createBone" );
@@ -143,13 +143,13 @@ namespace Ogre {
     {
         if (handle >= OGRE_MAX_NUM_BONES)
         {
-            Except(Exception::ERR_INVALIDPARAMS, "Exceeded the maximum number of bones per skeleton.",
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Exceeded the maximum number of bones per skeleton.",
                 "Skeleton::createBone");
         }
         // Check handle not used
         if (handle < mBoneList.size() && mBoneList[handle] != NULL)
         {
-            Except(
+            OGRE_EXCEPT(
                 Exception::ERR_DUPLICATE_ITEM,
                 "A bone with the handle " + StringConverter::toString(handle) + " already exists",
                 "Skeleton::createBone" );
@@ -157,7 +157,7 @@ namespace Ogre {
         // Check name not used
         if (mBoneListByName.find(name) != mBoneListByName.end())
         {
-            Except(
+            OGRE_EXCEPT(
                 Exception::ERR_DUPLICATE_ITEM,
                 "A bone with the name " + name + " already exists",
                 "Skeleton::createBone" );
@@ -269,7 +269,7 @@ namespace Ogre {
         // Check name not used
         if (mAnimationsList.find(name) != mAnimationsList.end())
         {
-            Except(
+            OGRE_EXCEPT(
                 Exception::ERR_DUPLICATE_ITEM,
                 "An animation with the name " + name + " already exists",
                 "Skeleton::createAnimation");
@@ -293,7 +293,7 @@ namespace Ogre {
 
         if (i == mAnimationsList.end())
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, "No animation entry found named " + name, 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "No animation entry found named " + name, 
             "Skeleton::getAnimation");
         }
 
@@ -306,7 +306,7 @@ namespace Ogre {
 
         if (i == mAnimationsList.end())
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, "No animation entry found named " + name, 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "No animation entry found named " + name, 
             "Skeleton::getAnimation");
         }
 
@@ -398,7 +398,7 @@ namespace Ogre {
 
         if (i == mBoneListByName.end())
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, "Bone named '" + name + "' not found.", 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Bone named '" + name + "' not found.", 
                 "Skeleton::getBone");
         }
 
@@ -411,7 +411,7 @@ namespace Ogre {
         // Start at the first bone and work up
         if (mBoneList.empty())
         {
-            Except(Exception::ERR_INVALIDPARAMS, "Cannot derive root bone as this "
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Cannot derive root bone as this "
                 "skeleton has no bones!", "Skeleton::deriveRootBone");
         }
 

@@ -843,7 +843,7 @@ namespace Ogre {
 	{
 		SubMeshNameMap::const_iterator i = mSubMeshNameMap.find(name) ;
 		if (i == mSubMeshNameMap.end())
-            Except(Exception::ERR_ITEM_NOT_FOUND, "No SubMesh named " + name + " found.", 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "No SubMesh named " + name + " found.", 
                 "Mesh::_getSubMeshIndex");
 
 		return i->second;
@@ -911,7 +911,7 @@ namespace Ogre {
         else if (tex3D->getType() != VET_FLOAT3) 
         { 
             // tex buffer exists, but not 3D
-            Except(Exception::ERR_INVALIDPARAMS, 
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
                 "Texture coordinate set " + StringConverter::toString(destCoordSet) + 
                 "already exists but is not 3D, therefore cannot contain tangents. Pick "
                 "an alternative destination coordinate set. ", 
@@ -929,7 +929,7 @@ namespace Ogre {
                     VES_TEXTURE_COORDINATES, destCoordSet - 1);
             if (!prevTexCoordElem)
             {
-                Except(Exception::ERR_ITEM_NOT_FOUND, 
+                OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                     "Cannot locate the texture coordinate element preceding the "
                     "destination texture coordinate set to which to append the new "
                     "tangents.", "Mesh::orgagniseTangentsBuffer");
@@ -981,7 +981,7 @@ namespace Ogre {
     {
         if (destTexCoordSet == 0)
         {
-            Except(Exception::ERR_INVALIDPARAMS, 
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
                 "Destination texture coordinate set must be greater than 0", 
                 "Mesh::buildTangentVectors");
         }
@@ -1033,7 +1033,7 @@ namespace Ogre {
 
             if (!srcElem || srcElem->getType() != VET_FLOAT2)
             {
-                Except(Exception::ERR_INVALIDPARAMS, 
+                OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
                     "SubMesh " + StringConverter::toString(sm) + " of Mesh " + mName + 
                     " has no 2D texture coordinates at the selected set, therefore we cannot calculate tangents.", 
                     "Mesh::buildTangentVectors");
@@ -1221,7 +1221,7 @@ namespace Ogre {
             // After iterating, we should have a source and a possible destination (t)
             if (!sourceElem)
             {
-                Except(Exception::ERR_ITEM_NOT_FOUND, 
+                OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                     "Cannot locate an appropriate 2D texture coordinate set for "
                     "all the vertex data in this mesh to create tangents from. ",
                     "Mesh::suggestTangentVectorBuildParams");
@@ -1232,7 +1232,7 @@ namespace Ogre {
             {
                 if (sourceElem->getIndex() != outSourceCoordSet)
                 {
-                    Except(Exception::ERR_INVALIDPARAMS, 
+                    OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
                         "Multiple sets of vertex data in this mesh disagree on "
                         "the appropriate index to use for the source texture coordinates. "
                         "This ambiguity must be rectified before tangents can be generated.",
@@ -1240,7 +1240,7 @@ namespace Ogre {
                 }
                 if (t != outDestCoordSet)
                 {
-                    Except(Exception::ERR_INVALIDPARAMS, 
+                    OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
                         "Multiple sets of vertex data in this mesh disagree on "
                         "the appropriate index to use for the target texture coordinates. "
                         "This ambiguity must be rectified before tangents can be generated.",

@@ -67,7 +67,7 @@ namespace Ogre {
 
 		if (i == mFactories.end())
 		{
-			Except(Exception::ERR_ITEM_NOT_FOUND, 
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
 				"Cannot find factory for language '" + language + "'",
 				"HighLevelGpuProgramManager::getFactory");
 		}
@@ -82,7 +82,7 @@ namespace Ogre {
 
         if (!params || (paramIt = params->find("language")) == params->end())
         {
-            Except(Exception::ERR_INVALIDPARAMS, 
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
                 "You must supply a 'language' parameter",
                 "HighLevelGpuProgramManager::createImpl");
         }

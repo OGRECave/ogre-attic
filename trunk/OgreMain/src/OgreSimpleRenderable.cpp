@@ -56,7 +56,7 @@ namespace Ogre {
         m_strMatName = matName;
         m_pMaterial = MaterialManager::getSingleton().getByName(m_strMatName);
 		if (m_pMaterial.isNull())
-			Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find material " + m_strMatName,
+			OGRE_EXCEPT( Exception::ERR_ITEM_NOT_FOUND, "Could not find material " + m_strMatName,
 				"SimpleRenderable::setMaterial" );
     
         // Won't load twice anyway
@@ -115,7 +115,7 @@ namespace Ogre {
 
     void SimpleRenderable::_updateRenderQueue(RenderQueue* queue)
     {
-        queue->addRenderable( this, mRenderQueueID, RENDERABLE_DEFAULT_PRIORITY); 
+        queue->addRenderable( this, mRenderQueueID, OGRE_RENDERABLE_DEFAULT_PRIORITY); 
     }
 
     SimpleRenderable::~SimpleRenderable()

@@ -149,7 +149,7 @@ namespace Ogre {
 		static bool mInitialised;
 
 	public:
-#define NUM_SHADOW_EXTRUDER_PROGRAMS 8
+#define OGRE_NUM_SHADOW_EXTRUDER_PROGRAMS 8
         enum Programs
         {
             // Point light extruder, infinite distance
@@ -170,7 +170,7 @@ namespace Ogre {
             DIRECTIONAL_LIGHT_FINITE_DEBUG = 7
 
         };
-        static const String programNames[NUM_SHADOW_EXTRUDER_PROGRAMS];
+        static const String programNames[OGRE_NUM_SHADOW_EXTRUDER_PROGRAMS];
 
         /// Initialise the creation of these vertex programs
         static void initialise(void);

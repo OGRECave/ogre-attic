@@ -72,7 +72,7 @@ protected:
 		const RenderSystemCapabilities* caps = Root::getSingleton().getRenderSystem()->getCapabilities();
         if (!caps->hasCapability(RSC_VERTEX_PROGRAM) || !(caps->hasCapability(RSC_FRAGMENT_PROGRAM)))
         {
-            Except(1, "Your card does not support vertex and fragment programs, so cannot "
+            OGRE_EXCEPT(1, "Your card does not support vertex and fragment programs, so cannot "
                 "run this demo. Sorry!", 
                 "CelShading::createScene");
         }
@@ -127,7 +127,7 @@ protected:
 
 
 
-#if OGRE_PLATFORM == PLATFORM_WIN32
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
 
@@ -143,7 +143,7 @@ int main(int argc, char **argv)
     try {
         app.go();
     } catch( Exception& e ) {
-#if OGRE_PLATFORM == PLATFORM_WIN32
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
         MessageBox( NULL, e.getFullDescription().c_str(), "An exception has occured!", MB_OK | MB_ICONERROR | MB_TASKMODAL);
 #else
         std::cerr << "An exception has occured: " << e.getFullDescription();

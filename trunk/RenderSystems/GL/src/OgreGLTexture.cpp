@@ -38,7 +38,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreImageCodec.h"
 
 
-#if OGRE_PLATFORM == PLATFORM_WIN32
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #   include <windows.h>
 #   include <wingdi.h>
 #endif
@@ -247,7 +247,7 @@ namespace Ogre {
     void GLTexture::createRenderTexture(void)
     {
         if (this->getTextureType() != TEX_TYPE_2D)
-            Except( Exception::UNIMPLEMENTED_FEATURE, "**** Create render texture implemented only for 2D textures!!! ****", "GLTexture::createRenderTexture" );
+            OGRE_EXCEPT( Exception::UNIMPLEMENTED_FEATURE, "**** Create render texture implemented only for 2D textures!!! ****", "GLTexture::createRenderTexture" );
 
         // Create the GL texture
 		// This already does everything neccessary
@@ -319,7 +319,7 @@ namespace Ogre {
 				}
             }
             else
-                Except( Exception::UNIMPLEMENTED_FEATURE, "**** Unknown texture type ****", "GLTexture::load" );
+                OGRE_EXCEPT( Exception::UNIMPLEMENTED_FEATURE, "**** Unknown texture type ****", "GLTexture::load" );
         }
     }
 	
@@ -366,10 +366,10 @@ namespace Ogre {
 	HardwarePixelBufferSharedPtr GLTexture::getBuffer(size_t face, size_t mipmap)
 	{
 		if(face >= getNumFaces())
-			Except(Exception::ERR_INVALIDPARAMS, "Face index out of range",
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Face index out of range",
 					"GLTexture::getBuffer");
 		if(mipmap > mNumMipmaps)
-			Except(Exception::ERR_INVALIDPARAMS, "Mipmap index out of range",
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Mipmap index out of range",
 					"GLTexture::getBuffer");
 		unsigned int idx = face*(mNumMipmaps+1) + mipmap;
 		assert(idx < mSurfaceList.size());
@@ -419,7 +419,7 @@ namespace Ogre {
         size_t pos = filename.find_last_of(".");
             String extension;
         if( pos == String::npos )
-            Except(
+            OGRE_EXCEPT(
                 Exception::ERR_INVALIDPARAMS, 
             "Unable to determine image type for '" + filename + "' - invalid extension.",
                 "GLRenderTexture::writeContentsToFile" );

@@ -333,7 +333,7 @@ namespace Ogre {
     {
         mpFont = FontManager::getSingleton().getByName( font );
         if (mpFont.isNull())
-			Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find font " + font,
+			OGRE_EXCEPT( Exception::ERR_ITEM_NOT_FOUND, "Could not find font " + font,
 				"TextAreaOverlayElement::setFontName" );
         mpFont->load();
         mpMaterial = mpFont->getMaterial();

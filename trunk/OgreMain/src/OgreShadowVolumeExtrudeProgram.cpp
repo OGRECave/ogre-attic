@@ -297,7 +297,7 @@ namespace Ogre {
         "dp4 oPos.w, c3, r0\n";
 
 
-    const String ShadowVolumeExtrudeProgram::programNames[NUM_SHADOW_EXTRUDER_PROGRAMS] = 
+    const String ShadowVolumeExtrudeProgram::programNames[OGRE_NUM_SHADOW_EXTRUDER_PROGRAMS] = 
     {
         "Ogre/ShadowExtrudePointLight",
             "Ogre/ShadowExtrudePointLightDebug",
@@ -347,13 +347,13 @@ namespace Ogre {
 			}
 			else
 			{
-				Except(Exception::ERR_INTERNAL_ERROR, 
+				OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
 					"Vertex programs are supposedly supported, but neither "
 					"arbvp1 nor vs_1_1 syntaxes are present.", 
 					"SceneManager::initShadowVolumeMaterials");
 			}
 			// Create all programs
-			for (unsigned short v = 0; v < NUM_SHADOW_EXTRUDER_PROGRAMS; ++v)
+			for (unsigned short v = 0; v < OGRE_NUM_SHADOW_EXTRUDER_PROGRAMS; ++v)
 			{
 				// Create debug extruders
 				if (GpuProgramManager::getSingleton().getByName(
@@ -377,7 +377,7 @@ namespace Ogre {
     {
         if (mInitialised)
         {
-            for (unsigned short v = 0; v < NUM_SHADOW_EXTRUDER_PROGRAMS; ++v)
+            for (unsigned short v = 0; v < OGRE_NUM_SHADOW_EXTRUDER_PROGRAMS; ++v)
             {
                 // Destroy debug extruders
                 GpuProgramManager::getSingleton().remove(programNames[v]);

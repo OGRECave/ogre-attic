@@ -864,13 +864,13 @@ protected:
         Pass* mParent;
 
         // State
-#define MAX_FRAMES 32
+#define OGRE_MAX_TEXTURE_FRAMES 32
 
         /// Number of frames of animation, or frames making up cubic
         unsigned int mNumFrames;        
         /// The xurrent animation frame.
         unsigned int mCurrentFrame;
-        // String mFrames[MAX_FRAMES] is at the end of the class                
+        // String mFrames[OGRE_MAX_TEXTURE_FRAMES] is at the end of the class                
 
         /// Duration of animation in seconds
         Real mAnimDuration;            
@@ -917,7 +917,7 @@ protected:
         // Complex members (those that can't be copied using memcpy) are at the end to 
         // allow for fast copying of the basic members.
         //
-        String mFrames[MAX_FRAMES]; // Names of frames
+        String mFrames[OGRE_MAX_TEXTURE_FRAMES]; // Names of frames
 
         typedef std::multimap<TextureEffectType, TextureEffect> EffectMap;
         EffectMap mEffects;

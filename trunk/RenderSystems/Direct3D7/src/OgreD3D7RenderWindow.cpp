@@ -426,7 +426,7 @@ namespace Ogre {
             }
             else if (FAILED(hr))
             {
-                 Except( 
+                 OGRE_EXCEPT( 
                      hr,
                      "Error flipping surfaces", 
                      "D3D7RenderWindow::swapBuffers" );
@@ -478,7 +478,7 @@ namespace Ogre {
         // Use DirectDraw wrapper object to create surfaces
         if( !mlpDDDriver )
         {
-            Except(
+            OGRE_EXCEPT(
             Exception::ERR_INVALIDPARAMS, 
             "Cannot create surfaces because of no valid DirectDraw object",
             "D3D7RenderWindow::createDDSurfaces" );
@@ -562,7 +562,7 @@ namespace Ogre {
             hr = mlpDDSFront->Restore();
 
             if( FAILED( hr ) )
-                Except( 
+                OGRE_EXCEPT( 
                     Exception::ERR_INTERNAL_ERROR, 
                     "Error restoring lost primary surface.", 
                     "D3D7RenderWindow - restoreDDSurfaces" );
@@ -573,7 +573,7 @@ namespace Ogre {
             hr = mlpDDSBack->Restore();
 
             if( FAILED( hr ) )
-                Except( 
+                OGRE_EXCEPT( 
                     Exception::ERR_INTERNAL_ERROR, 
                     "Error restoring lost back buffer surface.", 
                     "D3D7RenderWindow - restoreDDSurfaces" );
@@ -684,7 +684,7 @@ namespace Ogre {
 		 desc.dwSize = sizeof(DDSURFACEDESC2);
          if (FAILED(hr = mlpDDSBack->GetSurfaceDesc(&desc)))
          {
-	         Except(hr, "Error getting description of back buffer!", 
+	         OGRE_EXCEPT(hr, "Error getting description of back buffer!", 
                  "D3D7RenderWindow::writeContentsToFile");
          }
 
@@ -693,7 +693,7 @@ namespace Ogre {
 
 		 if (FAILED(hr = mlpDDDriver->directDraw()->CreateSurface(&desc, &pTempSurf, NULL)))
 		 {
-             Except(hr, "Error creating temporary surface!", 
+             OGRE_EXCEPT(hr, "Error creating temporary surface!", 
                  "D3D7RenderWindow::writeContentsToFile");
 		 }
 
@@ -715,7 +715,7 @@ namespace Ogre {
 		 if (FAILED(hr = pTempSurf->Lock(NULL, &desc,  
              DDLOCK_WAIT | DDLOCK_READONLY, NULL)))
          {
-             Except(hr, "Cannot lock surface!", 
+             OGRE_EXCEPT(hr, "Cannot lock surface!", 
                  "D3D7RenderWindow::writeContentsToFile");
          }
  
@@ -780,7 +780,7 @@ namespace Ogre {
          size_t pos = filename.find_last_of(".");
          String extension;
  	    if( pos == String::npos )
-             Except(
+             OGRE_EXCEPT(
  		    Exception::ERR_INVALIDPARAMS, 
  		    "Unable to determine image type for '" + filename + "' - invalid extension.",
              "D3D8RenderWindow::writeContentsToFile" );

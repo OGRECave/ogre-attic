@@ -143,7 +143,7 @@ namespace Ogre {
     {
 
         if (mLightType != LT_SPOTLIGHT)
-            Except(9999,
+            OGRE_EXCEPT(9999,
                 "setSpotlightRange is only valid for spotlights.",
                 "Light::setSpotlightRange");
 

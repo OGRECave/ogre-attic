@@ -64,7 +64,7 @@ namespace Ogre {
         std::ifstream fp;
         fp.open(filename.c_str());
         if(!fp)
-            Except(
+            OGRE_EXCEPT(
                 Exception::ERR_FILE_NOT_FOUND, "'" + filename + "' file not found!", "ConfigFile::load" );
         
         // Wrap as a stream
@@ -190,7 +190,7 @@ namespace Ogre {
         SettingsBySection::const_iterator seci = mSettings.find(section);
         if (seci == mSettings.end())
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                 "Cannot find section " + section, 
                 "ConfigFile::getSettingsIterator");
         }

@@ -37,7 +37,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreTechnique.h"
 #include "OgrePass.h"
 
-#if OGRE_COMPILER == COMPILER_MSVC
+#if OGRE_COMPILER == OGRE_COMPILER_MSVC
 // Disable conversion warnings, we do a lot of them, intentionally
 #   pragma warning (disable : 4267)
 #endif
@@ -66,7 +66,7 @@ namespace Ogre {
         // Check that the mesh has it's bounds set
         if (pMesh->getBounds().isNull() || pMesh->getBoundingSphereRadius() == 0.0f)
         {
-            Except(Exception::ERR_INVALIDPARAMS, "The Mesh you have supplied does not have its"
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "The Mesh you have supplied does not have its"
                 " bounds completely defined. Define them first before exporting.", 
                 "MeshSerializerImpl::exportMesh");
         }
@@ -343,7 +343,7 @@ namespace Ogre {
 			size = STREAM_OVERHEAD_SIZE + vbuf->getSizeInBytes();
 			writeChunkHeader(M_GEOMETRY_VERTEX_BUFFER_DATA, size);
 			void* pBuf = vbuf->lock(HardwareBuffer::HBL_READ_ONLY);
-#		if OGRE_ENDIAN == ENDIAN_BIG
+#		if OGRE_ENDIAN == OGRE_ENDIAN_BIG
 			// endian conversion for OSX
 			// Copy data
 			unsigned char* tempData = new unsigned char[vbuf->getSizeInBytes()];
@@ -580,13 +580,13 @@ namespace Ogre {
 		headerID = readChunk(stream);
 		if (headerID != M_GEOMETRY_VERTEX_BUFFER_DATA)
 		{
-			Except(Exception::ERR_ITEM_NOT_FOUND, "Can't find vertex buffer data area",
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Can't find vertex buffer data area",
             	"MeshSerializerImpl::readGeometryVertexBuffer");
 		}
 		// Check that vertex size agrees
 		if (dest->vertexDeclaration->getVertexSize(bindIndex) != vertexSize)
 		{
-			Except(Exception::ERR_INTERNAL_ERROR, "Buffer vertex size does not agree with vertex declaration",
+			OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "Buffer vertex size does not agree with vertex declaration",
             	"MeshSerializerImpl::readGeometryVertexBuffer");
 		}
 		
@@ -811,7 +811,7 @@ namespace Ogre {
             streamID = readChunk(stream);
             if (streamID != M_GEOMETRY)
             {
-                Except(Exception::ERR_INTERNAL_ERROR, "Missing geometry data in mesh file", 
+                OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "Missing geometry data in mesh file", 
                     "MeshSerializerImpl::readSubMesh");
             }
             sm->vertexData = new VertexData();
@@ -1187,7 +1187,7 @@ namespace Ogre {
 			streamID = readChunk(stream);
 			if (streamID != M_MESH_LOD_USAGE)
 			{
-				Except(Exception::ERR_ITEM_NOT_FOUND, 
+				OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
 					"Missing M_MESH_LOD_USAGE stream in " + pMesh->getName(), 
 					"MeshSerializerImpl::readMeshLodInfo");
 			}
@@ -1220,7 +1220,7 @@ namespace Ogre {
 		streamID = readChunk(stream);
 		if (streamID != M_MESH_LOD_MANUAL)
 		{
-			Except(Exception::ERR_ITEM_NOT_FOUND, 
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
 				"Missing M_MESH_LOD_MANUAL stream in " + pMesh->getName(),
 				"MeshSerializerImpl::readMeshLodUsageManual");
 		}
@@ -1244,7 +1244,7 @@ namespace Ogre {
 			streamID = readChunk(stream);
 			if (streamID != M_MESH_LOD_GENERATED)
 			{
-				Except(Exception::ERR_ITEM_NOT_FOUND, 
+				OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
 					"Missing M_MESH_LOD_GENERATED stream in " + pMesh->getName(),
 					"MeshSerializerImpl::readMeshLodUsageGenerated");
 			}
@@ -1297,7 +1297,7 @@ namespace Ogre {
     void MeshSerializerImpl::flipFromLittleEndian(void* pData, size_t vertexCount, 
         size_t vertexSize, const VertexDeclaration::VertexElementList& elems)
 	{
-#	if OGRE_ENDIAN == ENDIAN_BIG
+#	if OGRE_ENDIAN == OGRE_ENDIAN_BIG
         flipEndian(pData, vertexCount, vertexSize, elems);
 #	endif	
     }
@@ -1305,7 +1305,7 @@ namespace Ogre {
     void MeshSerializerImpl::flipToLittleEndian(void* pData, size_t vertexCount, 
 			size_t vertexSize, const VertexDeclaration::VertexElementList& elems)
 	{
-#	if OGRE_ENDIAN == ENDIAN_BIG
+#	if OGRE_ENDIAN == OGRE_ENDIAN_BIG
         flipEndian(pData, vertexCount, vertexSize, elems);
 #	endif	
 	}
@@ -1585,7 +1585,7 @@ namespace Ogre {
                         streamID = readChunk(stream);
                         if (streamID != M_EDGE_GROUP)
                         {
-                            Except(Exception::ERR_INTERNAL_ERROR, 
+                            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
                                 "Missing M_EDGE_GROUP stream", 
                                 "MeshSerializerImpl::readEdgeList");
                         }

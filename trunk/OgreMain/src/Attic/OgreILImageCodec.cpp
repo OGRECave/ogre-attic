@@ -53,7 +53,7 @@ namespace Ogre {
     {        
         OgreGuard( "ILCodec::code" );
 
-        Except(Exception::UNIMPLEMENTED_FEATURE, "code to memory not implemented",
+        OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE, "code to memory not implemented",
             "ILCodec::code");
 
         OgreUnguard();
@@ -118,7 +118,7 @@ namespace Ogre {
         // Check if everything was ok
         ILenum PossibleError = ilGetError() ;
         if( PossibleError != IL_NO_ERROR ) {
-            Except( Exception::UNIMPLEMENTED_FEATURE,
+            OGRE_EXCEPT( Exception::UNIMPLEMENTED_FEATURE,
                 "IL Error",
                 iluErrorString(PossibleError) ) ;
         }

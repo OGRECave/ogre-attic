@@ -54,7 +54,7 @@ namespace Ogre {
         if (FAILED(hr))
         {
 			String msg = DXGetErrorDescription9(hr);
-            Except(hr, "Cannot create D3D9 vertex buffer: " + msg, 
+            OGRE_EXCEPT(hr, "Cannot create D3D9 vertex buffer: " + msg, 
                 "D3D9HardwareVertexBuffer::D3D9HardwareVertexBuffer");
         }
 
@@ -88,7 +88,7 @@ namespace Ogre {
 
         if (FAILED(hr))
         {
-            Except(hr, "Cannot lock D3D9 vertex buffer", 
+            OGRE_EXCEPT(hr, "Cannot lock D3D9 vertex buffer", 
                 "D3D9HardwareVertexBuffer::lock");
         }
 
@@ -145,7 +145,7 @@ namespace Ogre {
 			if (FAILED(hr))
 			{
 				String msg = DXGetErrorDescription9(hr);
-				Except(hr, "Cannot restore D3D9 vertex buffer: " + msg, 
+				OGRE_EXCEPT(hr, "Cannot restore D3D9 vertex buffer: " + msg, 
 					"D3D9HardwareVertexBuffer::recreateIfDefaultPool");
 			}
 		}

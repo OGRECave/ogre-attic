@@ -46,7 +46,7 @@ namespace Ogre {
 
         // set default queue
         mDefaultQueueGroup = RENDER_QUEUE_MAIN;
-		mDefaultRenderablePriority = RENDERABLE_DEFAULT_PRIORITY;
+		mDefaultRenderablePriority = OGRE_RENDERABLE_DEFAULT_PRIORITY;
 
     }
     //---------------------------------------------------------------------

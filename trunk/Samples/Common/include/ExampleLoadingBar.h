@@ -86,7 +86,7 @@ public:
 		mLoadOverlay = (Overlay*)omgr.getByName("Core/LoadOverlay");
 		if (!mLoadOverlay)
 		{
-			Except(Exception::ERR_ITEM_NOT_FOUND, 
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
 				"Cannot find loading overlay", "ExampleLoadingBar::start");
 		}
 		mLoadOverlay->show();

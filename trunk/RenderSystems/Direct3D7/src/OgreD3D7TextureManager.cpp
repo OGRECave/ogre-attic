@@ -29,7 +29,7 @@ namespace Ogre {
 
 /* Auto-inlining must be disabled for this method otherwise problems with the 
    DLL boundary occur on the constructor in release mode. */
-#if OGRE_COMPILER == COMPILER_MSVC
+#if OGRE_COMPILER == OGRE_COMPILER_MSVC
     #pragma auto_inline( off )
 #endif
 
@@ -43,7 +43,7 @@ namespace Ogre {
         ResourceGroupManager::getSingleton()._registerResourceManager(mResourceType, this);
     }
 
-#if OGRE_COMPILER == COMPILER_MSVC
+#if OGRE_COMPILER == OGRE_COMPILER_MSVC
     #pragma auto_inline( on )
 #endif
 

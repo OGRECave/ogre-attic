@@ -30,29 +30,29 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 /* Initial platform/compiler-related stuff to set.
 */
-#define PLATFORM_WIN32 1
-#define PLATFORM_LINUX 2
-#define PLATFORM_APPLE 3
+#define OGRE_PLATFORM_WIN32 1
+#define OGRE_PLATFORM_LINUX 2
+#define OGRE_PLATFORM_APPLE 3
 
-#define COMPILER_MSVC 1
-#define COMPILER_GNUC 2
-#define COMPILER_BORL 3
+#define OGRE_COMPILER_MSVC 1
+#define OGRE_COMPILER_GNUC 2
+#define OGRE_COMPILER_BORL 3
 
-#define ENDIAN_LITTLE 1
-#define ENDIAN_BIG 2
+#define OGRE_ENDIAN_LITTLE 1
+#define OGRE_ENDIAN_BIG 2
 
 /* Finds the compiler type and version.
 */
 #if defined( _MSC_VER )
-#   define OGRE_COMPILER COMPILER_MSVC
+#   define OGRE_COMPILER OGRE_COMPILER_MSVC
 #   define OGRE_COMP_VER _MSC_VER
 
 #elif defined( __GNUC__ )
-#   define OGRE_COMPILER COMPILER_GNUC
+#   define OGRE_COMPILER OGRE_COMPILER_GNUC
 #   define OGRE_COMP_VER (((__GNUC__)*100)+__GNUC_MINOR__)
 
 #elif defined( __BORLANDC__ )
-#   define OGRE_COMPILER COMPILER_BORL
+#   define OGRE_COMPILER OGRE_COMPILER_BORL
 #   define OGRE_COMP_VER __BCPLUSPLUS__
 
 #else
@@ -61,7 +61,7 @@ namespace Ogre {
 #endif
 
 /* See if we can use __forceinline or if we need to use __inline instead */
-#if OGRE_COMPILER == COMPILER_MSVC 
+#if OGRE_COMPILER == OGRE_COMPILER_MSVC 
 #   if OGRE_COMP_VER >= 1200
 #       define FORCEINLINE __forceinline
 #   endif
@@ -72,25 +72,25 @@ namespace Ogre {
 /* Finds the current platform */
 
 #if defined( __WIN32__ ) || defined( _WIN32 )
-#   define OGRE_PLATFORM PLATFORM_WIN32
+#   define OGRE_PLATFORM OGRE_PLATFORM_WIN32
 
 #elif defined( __APPLE_CC__)
-#   define OGRE_PLATFORM PLATFORM_APPLE
+#   define OGRE_PLATFORM OGRE_PLATFORM_APPLE
 
 #else
-#   define OGRE_PLATFORM PLATFORM_LINUX
+#   define OGRE_PLATFORM OGRE_PLATFORM_LINUX
 #endif
 
 // For generating compiler warnings - should work on any compiler
 // As a side note, if you start your message with 'Warning: ', the MSVC
 // IDE actually does catch a warning :)
-#define _QUOTE_INPLACE_(x) # x
-#define QUOTE(x) _QUOTE_INPLACE_(x)
-#define warn( x )  message( __FILE__ "(" QUOTE( __LINE__ ) ") : " x "\n" )
+#define OGRE_QUOTE_INPLACE(x) # x
+#define OGRE_QUOTE(x) OGRE_QUOTE_INPLACE(x)
+#define OGRE_WARN( x )  message( __FILE__ "(" QUOTE( __LINE__ ) ") : " x "\n" )
 
 //----------------------------------------------------------------------------
 // Windows Settings
-#if OGRE_PLATFORM == PLATFORM_WIN32
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 
 // If we're not including this from a client build, specify that the stuff
 // should get exported. Otherwise, import it.
@@ -130,7 +130,7 @@ namespace Ogre {
 
 //----------------------------------------------------------------------------
 // Linux/Apple Settings
-#if OGRE_PLATFORM == PLATFORM_LINUX || OGRE_PLATFORM == PLATFORM_APPLE
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX || OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 
 // Linux compilers don't have symbol import/export directives.
 #   define _OgreExport
@@ -146,17 +146,17 @@ namespace Ogre {
 #       define OGRE_DEBUG_MODE 0
 #   endif
 
-#if OGRE_PLATFORM == PLATFORM_APPLE
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
     #define OGRE_PLATFORM_LIB "OgrePlatform.bundle"
 #else
-    //PLATFORM_LINUX
+    //OGRE_PLATFORM_LINUX
     #define OGRE_PLATFORM_LIB "libOgrePlatform.so"
 #endif
 
 #endif
 
 //For apple, we always have a custom config.h file
-#if OGRE_PLATFORM == PLATFORM_APPLE
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 #    include "config.h"
 //SDL_main must be included in the file that contains
 //the application's main() function.
@@ -172,9 +172,9 @@ namespace Ogre {
 // Endian Settings
 // check for BIG_ENDIAN config flag, set OGRE_ENDIAN correctly
 #ifdef CONFIG_BIG_ENDIAN
-#    define OGRE_ENDIAN ENDIAN_BIG
+#    define OGRE_ENDIAN OGRE_ENDIAN_BIG
 #else
-#    define OGRE_ENDIAN ENDIAN_LITTLE
+#    define OGRE_ENDIAN OGRE_ENDIAN_LITTLE
 #endif
 
 // Integer formats of fixed bit width

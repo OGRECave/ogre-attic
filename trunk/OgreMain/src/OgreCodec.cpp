@@ -41,7 +41,7 @@ namespace Ogre {
         CodecList::const_iterator i = ms_mapCodecs.find(lwrcase);
         if (i == ms_mapCodecs.end())
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                 "Cannot find codec for extension " + extension,
                 "Codec::getCodec");
         }

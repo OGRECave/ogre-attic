@@ -35,7 +35,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include <exception>
 
-#if OGRE_COMPILER == COMPILER_MSVC || OGRE_COMPILER == COMPILER_BORL
+#if OGRE_COMPILER == OGRE_COMPILER_MSVC || OGRE_COMPILER == OGRE_COMPILER_BORL
 #   define SET_TERM_HANDLER { set_terminate( &Ogre::Root::termHandler ); }
 #else
 #   define SET_TERM_HANDLER { std::set_terminate( &Ogre::Root::termHandler ); }

@@ -311,7 +311,7 @@ namespace Ogre {
     {
         if (delim.empty())
         {
-            Except(Exception::ERR_INVALIDPARAMS, "No delimiter provided",
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "No delimiter provided",
                 "FileStreamDataStream::readLine");
         }
         if (delim.size() > 1)
@@ -343,7 +343,7 @@ namespace Ogre {
             }
             else
             {
-                Except(Exception::ERR_INTERNAL_ERROR, 
+                OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
                     "Streaming error occurred", 
                     "FileStreamDataStream::readLine");
             }

@@ -117,7 +117,7 @@ void ATI_FS_GLGpuProgram::loadFromSource(void)
 		// check GL for GPU machine instruction bind erros
 		if (Error)
 		{
-			Except(Exception::ERR_INTERNAL_ERROR, 
+			OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
 				"Cannot Bind ATI fragment shader :" + mName, mName); 
 		}
 
@@ -130,7 +130,7 @@ void ATI_FS_GLGpuProgram::loadFromSource(void)
 		LogManager::getSingleton().logMessage("Warning: atifs compiler reported the following errors:");
 		LogManager::getSingleton().logMessage(buff + mName);
 
-		Except(Exception::ERR_INTERNAL_ERROR, 
+		OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
 			"Cannot Compile ATI fragment shader : " + mName + "\n\n" + buff , mName);// + 
     }
 

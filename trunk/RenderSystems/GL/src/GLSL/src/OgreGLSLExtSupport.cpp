@@ -166,7 +166,7 @@ namespace Ogre
 
             if (forceException) 
 			{
-				Except(Exception::ERR_INTERNAL_ERROR, msg, ogreMethod);
+				OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, msg, ogreMethod);
 			}
 		}
     }

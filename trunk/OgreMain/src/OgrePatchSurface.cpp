@@ -226,7 +226,7 @@ namespace Ogre {
             if(found) break;
         }
         if(!found) {
-            Except(Exception::ERR_INTERNAL_ERROR, "Can't find suitable control points for determining U subdivision level",
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "Can't find suitable control points for determining U subdivision level",
                 "PatchSurface::getAutoULevel");
         }
 
@@ -252,7 +252,7 @@ namespace Ogre {
             if(found) break;
         }
         if(!found) {
-            Except(Exception::ERR_INTERNAL_ERROR, "Can't find suitable control points for determining V subdivision level",
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "Can't find suitable control points for determining V subdivision level",
                 "PatchSurface::getAutoVLevel");
         }
 

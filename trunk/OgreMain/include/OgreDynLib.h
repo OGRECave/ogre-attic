@@ -27,7 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 
-#if OGRE_PLATFORM == PLATFORM_WIN32
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #    define DYNLIB_HANDLE hInstance
 #    define DYNLIB_LOAD( a ) LoadLibrary( a )
 #    define DYNLIB_GETSYM( a, b ) GetProcAddress( a, b )
@@ -36,13 +36,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 struct HINSTANCE__;
 typedef struct HINSTANCE__* hInstance;
 
-#elif OGRE_PLATFORM == PLATFORM_LINUX
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 #    define DYNLIB_HANDLE void*
 #    define DYNLIB_LOAD( a ) dlopen( a, RTLD_LAZY )
 #    define DYNLIB_GETSYM( a, b ) dlsym( a, b )
 #    define DYNLIB_UNLOAD( a ) dlclose( a )
 
-#elif OGRE_PLATFORM == PLATFORM_APPLE
+#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 #    define DYNLIB_HANDLE CFBundleRef
 #    define DYNLIB_LOAD( a ) mac_loadExeBundle( a )
 #    define DYNLIB_GETSYM( a, b ) mac_getBundleSym( a, b )

@@ -260,7 +260,7 @@ namespace Ogre {
 					mPrivateTex->getCubeTexture()->GetCubeMapSurface( (D3DCUBEMAP_FACES)0, 0, &(*pSurf) );
 				else
 				{
-					Except( Exception::UNIMPLEMENTED_FEATURE, 
+					OGRE_EXCEPT( Exception::UNIMPLEMENTED_FEATURE, 
 							"getCustomAttribute is implemented only for 2D and cube textures !!!", 
 							"D3D9RenderTexture::getCustomAttribute" );
 				}
@@ -283,7 +283,7 @@ namespace Ogre {
 					mPrivateTex->getCubeTexture()->GetCubeMapSurface( (D3DCUBEMAP_FACES)0, 0, &(*pSurf) );
 				else
 				{
-					Except( Exception::UNIMPLEMENTED_FEATURE, 
+					OGRE_EXCEPT( Exception::UNIMPLEMENTED_FEATURE, 
 							"getCustomAttribute is implemented only for 2D and cube textures !!!", 
 							"D3D9RenderTexture::getCustomAttribute" );
 				}

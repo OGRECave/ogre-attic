@@ -44,7 +44,7 @@ Ogre-dependent is in the visualization/logging routines and the use of the Timer
 #include "OgreOverlay.h"
 
 #if OGRE_PROFILING == 1
-#   if OGRE_COMPILER != COMPILER_BORL
+#   if OGRE_COMPILER != OGRE_COMPILER_BORL
 #       define OgreProfile( a ) Ogre::Profile _OgreProfileInstance( (a) )
 #       define OgreProfileBegin( a ) Ogre::Profiler::getSingleton().beginProfile( (a) )
 #       define OgreProfileEnd( a ) Ogre::Profiler::getSingleton().endProfile( (a) )

@@ -57,7 +57,7 @@ namespace Ogre {
         RENDER_QUEUE_OVERLAY = 100
     };
 
-    #define RENDERABLE_DEFAULT_PRIORITY  100
+    #define OGRE_RENDERABLE_DEFAULT_PRIORITY  100
 
     /** Class to manage the scene object rendering queue.
         @remarks

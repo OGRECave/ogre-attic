@@ -161,7 +161,7 @@ namespace Ogre
 
 		if (mpMaterial.isNull())
         {
-            Except(Exception::ERR_INTERNAL_ERROR, 
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
                 "Error creating new material!", "Font::load" );
         }
 
@@ -178,7 +178,7 @@ namespace Ogre
         {
             texLayer = mpMaterial->getTechnique(0)->getPass(0)->createTextureUnitState(mSource);
 			if (!texLayer)
-				Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find texture " + mSource,
+				OGRE_EXCEPT( Exception::ERR_ITEM_NOT_FOUND, "Could not find texture " + mSource,
 					"Font::load" );
 			// Manually load since we need to load to get alpha
 			TexturePtr tex = TextureManager::getSingleton().getByName(mSource);
@@ -231,7 +231,7 @@ namespace Ogre
 		FT_Library ftLibrary;
 		// Init freetype
         if( FT_Init_FreeType( &ftLibrary ) )
-            Except( Exception::ERR_INTERNAL_ERROR, "Could not init FreeType library!",
+            OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Could not init FreeType library!",
             "Font::Font");
 
 		uint i, l, m, n;
@@ -250,14 +250,14 @@ namespace Ogre
 		
         // Load font
         if( FT_New_Memory_Face( ftLibrary, ttfchunk.getPtr(), (FT_Long)ttfchunk.size() , 0, &face ) )
-            Except( Exception::ERR_INTERNAL_ERROR, 
+            OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, 
             "Could not open font face!", "Font::createTextureFromFont" );
 
 
         // Convert our point size to freetype 26.6 fixed point format
         FT_F26Dot6 ftSize = (FT_F26Dot6)(mTtfSize * (1 << 6));
         if( FT_Set_Char_Size( face, ftSize, 0, mTtfResolution, mTtfResolution ) )
-            Except( Exception::ERR_INTERNAL_ERROR, 
+            OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, 
             "Could not set char size!", "Font::createTextureFromFont" );
 
         FILE *fo_def = stdout;

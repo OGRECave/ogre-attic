@@ -49,7 +49,7 @@ void D3D7HardwarePixelBuffer::bind(LPDIRECTDRAWSURFACE7 surface, PixelFormat for
 	DDSURFACEDESC2 desc;
 	desc.dwSize = sizeof(DDSURFACEDESC2);
 	if(surface->GetSurfaceDesc(&desc) != D3D_OK)
-		Except(Exception::ERR_RENDERINGAPI_ERROR, "Could not get surface information",
+		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Could not get surface information",
 		 "D3D7HardwarePixelBuffer::D3D7HardwarePixelBuffer");
 	mWidth = desc.dwWidth;
 	mHeight = desc.dwHeight;
@@ -107,7 +107,7 @@ PixelBox D3D7HardwarePixelBuffer::lockImpl(const Image::Box lockBox,  LockOption
 	}
 	hr = mSurface->Lock(mpRect, &lrect, flags, NULL);
 	if (FAILED(hr))		
-		Except(Exception::ERR_RENDERINGAPI_ERROR, "Surface locking failed",
+		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Surface locking failed",
 		 	"D3D7HardwarePixelBuffer::lockImpl");
 	
 	rval.rowPitch = mRowPitch;
@@ -122,7 +122,7 @@ void D3D7HardwarePixelBuffer::unlockImpl(void)
 	// Crazy DX7 convention: Unlock needs the same rect pointer that Lock got
 	hr = mSurface->Unlock(mpRect);	
 	if( FAILED( hr ) )
-        Except( hr, "Error during Unlock operation.", "D3D7HardwarePixelBuffer::unlockImpl" );
+        OGRE_EXCEPT( hr, "Error during Unlock operation.", "D3D7HardwarePixelBuffer::unlockImpl" );
 
 	if(mDoMipmapGen)
 	{
@@ -189,7 +189,7 @@ void D3D7HardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::B
         &pddsTempSurface,
         &numMips ) ) )
     {
-        Except( hr, "Error during blit operation.", "D3D7HardwarePixelBuffer::blitFromMemory" );
+        OGRE_EXCEPT( hr, "Error during blit operation.", "D3D7HardwarePixelBuffer::blitFromMemory" );
     }
 
     /* Load the image into the temporary surface. */
@@ -205,7 +205,7 @@ void D3D7HardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::B
         D3DX_FT_LINEAR ) ) )
     {
         pddsTempSurface->Release();
-        Except( hr, "Error during D3DXLoadTextureFromMemory operation.", "D3D7HardwarePixelBuffer::blitFromMemory" );
+        OGRE_EXCEPT( hr, "Error during D3DXLoadTextureFromMemory operation.", "D3D7HardwarePixelBuffer::blitFromMemory" );
     }
 	
 	RECT texRect;
@@ -222,7 +222,7 @@ void D3D7HardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::B
         NULL ) ) )
     {
         pddsTempSurface->Release();
-        Except( hr, "Error during blit operation.", "D3DTexture::blitImage" );
+        OGRE_EXCEPT( hr, "Error during blit operation.", "D3DTexture::blitImage" );
     }
 
     /* Release the temporary surface. */
@@ -235,7 +235,7 @@ void D3D7HardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::B
 //-----------------------------------------------------------------------------  
 void D3D7HardwarePixelBuffer::blitToMemory(const Image::Box &srcBox, const PixelBox &dst)
 {
-	Except(Exception::UNIMPLEMENTED_FEATURE,
+	OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE,
 				"Function not yet implemented",
 				"D3D7HardwarePixelBuffer::blitToMemory");
 }

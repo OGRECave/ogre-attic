@@ -84,14 +84,14 @@ namespace Ogre {
             mResources.insert( ResourceMap::value_type( res->getName(), res ) );
         if (!result.second)
         {
-            Except(Exception::ERR_DUPLICATE_ITEM, "Resource with the name " + res->getName() + 
+            OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, "Resource with the name " + res->getName() + 
                 " already exists.", "ResourceManager::add");
         }
         std::pair<ResourceHandleMap::iterator, bool> resultHandle = 
             mResourcesByHandle.insert( ResourceHandleMap::value_type( res->getHandle(), res ) );
         if (!result.second)
         {
-            Except(Exception::ERR_DUPLICATE_ITEM, "Resource with the handle " + 
+            OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, "Resource with the handle " + 
                 StringConverter::toString(res->getHandle()) + 
                 " already exists.", "ResourceManager::add");
         }

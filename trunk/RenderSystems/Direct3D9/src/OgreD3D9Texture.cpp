@@ -69,7 +69,7 @@ namespace Ogre
 		if (target->getUsage() != this->getUsage() ||
 			target->getTextureType() != this->getTextureType())
 		{
-			Except( Exception::ERR_INVALIDPARAMS, 
+			OGRE_EXCEPT( Exception::ERR_INVALIDPARAMS, 
 					"Src. and dest. textures must be of same type and must have the same usage !!!", 
 					"D3D9Texture::copyToTexture" );
 		}
@@ -89,7 +89,7 @@ namespace Ogre
 			if( FAILED( hr = mpNormTex->GetSurfaceLevel(0, &pSrcSurface) ) )
 			{
 				String msg = DXGetErrorDescription9(hr);
-				Except( hr, "Couldn't blit : " + msg, "D3D9Texture::copyToTexture" );
+				OGRE_EXCEPT( hr, "Couldn't blit : " + msg, "D3D9Texture::copyToTexture" );
 			}
 
 			// get our target surface
@@ -98,7 +98,7 @@ namespace Ogre
 			if( FAILED( hr = pOthTex->GetSurfaceLevel(0, &pDstSurface) ) )
 			{
 				String msg = DXGetErrorDescription9(hr);
-				Except( hr, "Couldn't blit : " + msg, "D3D9Texture::copyToTexture" );
+				OGRE_EXCEPT( hr, "Couldn't blit : " + msg, "D3D9Texture::copyToTexture" );
 				SAFE_RELEASE(pSrcSurface);
 			}
 
@@ -106,7 +106,7 @@ namespace Ogre
 			if( FAILED( hr = mpDev->StretchRect( pSrcSurface, NULL, pDstSurface, &dstRC, D3DTEXF_NONE) ) )
 			{
 				String msg = DXGetErrorDescription9(hr);
-				Except( hr, "Couldn't blit : " + msg, "D3D9Texture::copyToTexture" );
+				OGRE_EXCEPT( hr, "Couldn't blit : " + msg, "D3D9Texture::copyToTexture" );
 				SAFE_RELEASE(pSrcSurface);
 				SAFE_RELEASE(pDstSurface);
 			}
@@ -127,7 +127,7 @@ namespace Ogre
 				if( FAILED( hr = mpCubeTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, 0, &pSrcSurface) ) )
 				{
 					String msg = DXGetErrorDescription9(hr);
-					Except( hr, "Couldn't blit : " + msg, "D3D9Texture::copyToTexture" );
+					OGRE_EXCEPT( hr, "Couldn't blit : " + msg, "D3D9Texture::copyToTexture" );
 				}
 
 				// get our target surface
@@ -135,7 +135,7 @@ namespace Ogre
 				if( FAILED( hr = pOthTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, 0, &pDstSurface) ) )
 				{
 					String msg = DXGetErrorDescription9(hr);
-					Except( hr, "Couldn't blit : " + msg, "D3D9Texture::copyToTexture" );
+					OGRE_EXCEPT( hr, "Couldn't blit : " + msg, "D3D9Texture::copyToTexture" );
 					SAFE_RELEASE(pSrcSurface);
 				}
 
@@ -143,7 +143,7 @@ namespace Ogre
 				if( FAILED( hr = mpDev->StretchRect( pSrcSurface, NULL, pDstSurface, &dstRC, D3DTEXF_NONE) ) )
 				{
 					String msg = DXGetErrorDescription9(hr);
-					Except( hr, "Couldn't blit : " + msg, "D3D9Texture::copyToTexture" );
+					OGRE_EXCEPT( hr, "Couldn't blit : " + msg, "D3D9Texture::copyToTexture" );
 					SAFE_RELEASE(pSrcSurface);
 					SAFE_RELEASE(pDstSurface);
 				}
@@ -155,7 +155,7 @@ namespace Ogre
 		}
 		else
 		{
-			Except( Exception::UNIMPLEMENTED_FEATURE, 
+			OGRE_EXCEPT( Exception::UNIMPLEMENTED_FEATURE, 
 					"Copy to texture is implemented only for 2D and cube textures !!!", 
 					"D3D9Texture::copyToTexture" );
 		}
@@ -185,7 +185,7 @@ namespace Ogre
 			this->_loadCubeTex();
 			break;
 		default:
-			Except( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::loadImpl" );
+			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::loadImpl" );
 		}
 
 	}
@@ -223,7 +223,7 @@ namespace Ogre
 
             if (FAILED(hr))
 		    {
-			    Except( hr, "Can't create cube texture", "D3D9Texture::_loadCubeTex" );
+			    OGRE_EXCEPT( hr, "Can't create cube texture", "D3D9Texture::_loadCubeTex" );
 			    this->_freeResources();
 		    }
 
@@ -231,7 +231,7 @@ namespace Ogre
 
             if (FAILED(hr))
 		    {
-			    Except( hr, "Can't get base texture", "D3D9Texture::_loadCubeTex" );
+			    OGRE_EXCEPT( hr, "Can't get base texture", "D3D9Texture::_loadCubeTex" );
 			    this->_freeResources();
 		    }
 
@@ -284,7 +284,7 @@ namespace Ogre
 	
 			if (FAILED(hr))
 			{
-				Except(Exception::ERR_INTERNAL_ERROR, 
+				OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
 					"Unable to load volume texture from " + this->getName(),
 					"D3D9Texture::_loadVolumeTex");
 			}
@@ -293,7 +293,7 @@ namespace Ogre
 	
 			if (FAILED(hr))
 			{
-				Except( hr, "Can't get base texture", "D3D9Texture::_loadVolumeTex" );
+				OGRE_EXCEPT( hr, "Can't get base texture", "D3D9Texture::_loadVolumeTex" );
 				this->_freeResources();
 			}
 	
@@ -333,7 +333,7 @@ namespace Ogre
 	
 			if (FAILED(hr))
 			{
-				Except(Exception::ERR_INTERNAL_ERROR, 
+				OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
 					"Unable to load texture from " + this->getName(),
 					"D3D9Texture::_loadNormTex");
 			}
@@ -342,7 +342,7 @@ namespace Ogre
 	
 			if (FAILED(hr))
 			{
-				Except( hr, "Can't get base texture", "D3D9Texture::_loadNormTex" );
+				OGRE_EXCEPT( hr, "Can't get base texture", "D3D9Texture::_loadNormTex" );
 				this->_freeResources();
 			}
 	
@@ -396,7 +396,7 @@ namespace Ogre
 			this->_createVolumeTex();
 			break;
 		default:
-			Except( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::createInternalResources" );
+			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::createInternalResources" );
 			this->_freeResources();
 		}
 	}
@@ -459,14 +459,14 @@ namespace Ogre
 		if (FAILED(hr))
 		{
 			this->_freeResources();
-			Except( hr, "Error creating texture", "D3D9Texture::_createNormTex" );
+			OGRE_EXCEPT( hr, "Error creating texture", "D3D9Texture::_createNormTex" );
 		}
 		
 		// set the base texture we'll use in the render system
 		hr = mpNormTex->QueryInterface(IID_IDirect3DBaseTexture9, (void **)&mpTex);
 		if (FAILED(hr))
 		{
-			Except( hr, "Can't get base texture", "D3D9Texture::_createNormTex" );
+			OGRE_EXCEPT( hr, "Can't get base texture", "D3D9Texture::_createNormTex" );
 			this->_freeResources();
 		}
 		
@@ -476,7 +476,7 @@ namespace Ogre
 		hr = mpNormTex->GetLevelDesc(0, &desc);
 		if (FAILED(hr))
 		{
-			Except( hr, "Can't get texture description", "D3D9Texture::_createNormTex" );
+			OGRE_EXCEPT( hr, "Can't get texture description", "D3D9Texture::_createNormTex" );
 			this->_freeResources();
 		}
 		this->_setFinalAttributes(desc.Width, desc.Height, 1, this->_getPF(desc.Format));
@@ -491,7 +491,7 @@ namespace Ogre
 			hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
 			if(FAILED(hr))
 			{
-				Except( hr, "Could not set best autogen filter type", "D3D9Texture::_createNormTex" );
+				OGRE_EXCEPT( hr, "Could not set best autogen filter type", "D3D9Texture::_createNormTex" );
 			}
 		}
 	}
@@ -539,14 +539,14 @@ namespace Ogre
 		if (FAILED(hr))
 		{
 			this->_freeResources();
-			Except( hr, "Error creating texture", "D3D9Texture::_createCubeTex" );
+			OGRE_EXCEPT( hr, "Error creating texture", "D3D9Texture::_createCubeTex" );
 		}
 
 		// set the base texture we'll use in the render system
 		hr = mpCubeTex->QueryInterface(IID_IDirect3DBaseTexture9, (void **)&mpTex);
 		if (FAILED(hr))
 		{
-			Except( hr, "Can't get base texture", "D3D9Texture::_createCubeTex" );
+			OGRE_EXCEPT( hr, "Can't get base texture", "D3D9Texture::_createCubeTex" );
 			this->_freeResources();
 		}
 		
@@ -556,7 +556,7 @@ namespace Ogre
 		hr = mpCubeTex->GetLevelDesc(0, &desc);
 		if (FAILED(hr))
 		{
-			Except( hr, "Can't get texture description", "D3D9Texture::_createCubeTex" );
+			OGRE_EXCEPT( hr, "Can't get texture description", "D3D9Texture::_createCubeTex" );
 			this->_freeResources();
 		}
 		this->_setFinalAttributes(desc.Width, desc.Height, 1, this->_getPF(desc.Format));
@@ -571,7 +571,7 @@ namespace Ogre
 			hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
 			if(FAILED(hr))
 			{
-				Except( hr, "Could not set best autogen filter type", "D3D9Texture::_createCubeTex" );
+				OGRE_EXCEPT( hr, "Could not set best autogen filter type", "D3D9Texture::_createCubeTex" );
 			}
 		}
 	}
@@ -621,14 +621,14 @@ namespace Ogre
 		if (FAILED(hr))
 		{
 			this->_freeResources();
-			Except( hr, "Error creating texture", "D3D9Texture::_createVolumeTex" );
+			OGRE_EXCEPT( hr, "Error creating texture", "D3D9Texture::_createVolumeTex" );
 		}
 
 		// set the base texture we'll use in the render system
 		hr = mpVolumeTex->QueryInterface(IID_IDirect3DBaseTexture9, (void **)&mpTex);
 		if (FAILED(hr))
 		{
-			Except( hr, "Can't get base texture", "D3D9Texture::_createVolumeTex" );
+			OGRE_EXCEPT( hr, "Can't get base texture", "D3D9Texture::_createVolumeTex" );
 			this->_freeResources();
 		}
 		
@@ -638,7 +638,7 @@ namespace Ogre
 		hr = mpVolumeTex->GetLevelDesc(0, &desc);
 		if (FAILED(hr))
 		{
-			Except( hr, "Can't get texture description", "D3D9Texture::_createVolumeTex" );
+			OGRE_EXCEPT( hr, "Can't get texture description", "D3D9Texture::_createVolumeTex" );
 			this->_freeResources();
 		}
 		this->_setFinalAttributes(desc.Width, desc.Height, desc.Depth, this->_getPF(desc.Format));
@@ -653,7 +653,7 @@ namespace Ogre
 			hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
 			if(FAILED(hr))
 			{
-				Except( hr, "Could not set best autogen filter type", "D3D9Texture::_createCubeTex" );
+				OGRE_EXCEPT( hr, "Could not set best autogen filter type", "D3D9Texture::_createCubeTex" );
 			}
 		}
 	}
@@ -666,19 +666,19 @@ namespace Ogre
 		// get device caps
 		hr = mpDev->GetDeviceCaps(&mDevCaps);
 		if (FAILED(hr))
-			Except( Exception::ERR_INTERNAL_ERROR, "Can't get device description", "D3D9Texture::_setDevice" );
+			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Can't get device description", "D3D9Texture::_setDevice" );
 
 		// get D3D pointer
 		hr = mpDev->GetDirect3D(&mpD3D);
 		// decrement reference count
 		mpD3D->Release();
 		if (FAILED(hr))
-			Except( hr, "Failed to get D3D9 pointer", "D3D9Texture::_setDevice" );
+			OGRE_EXCEPT( hr, "Failed to get D3D9 pointer", "D3D9Texture::_setDevice" );
 
 		// get our device creation parameters
 		hr = mpDev->GetCreationParameters(&mDevCreParams);
 		if (FAILED(hr))
-			Except( hr, "Failed to get D3D9 device creation parameters", "D3D9Texture::_setDevice" );
+			OGRE_EXCEPT( hr, "Failed to get D3D9 device creation parameters", "D3D9Texture::_setDevice" );
 
 		// get our back buffer pixel format
 		IDirect3DSurface9 *pSrf;
@@ -687,12 +687,12 @@ namespace Ogre
 		// decrement reference count
 		pSrf->Release();
 		if (FAILED(hr))
-			Except( hr, "Failed to get D3D9 device pixel format", "D3D9Texture::_setDevice" );
+			OGRE_EXCEPT( hr, "Failed to get D3D9 device pixel format", "D3D9Texture::_setDevice" );
 
 		hr = pSrf->GetDesc(&srfDesc);
 		if (FAILED(hr))
 		{
-			Except( hr, "Failed to get D3D9 device pixel format", "D3D9Texture::_setDevice" );
+			OGRE_EXCEPT( hr, "Failed to get D3D9 device pixel format", "D3D9Texture::_setDevice" );
 		}
 
 		mBBPixelFormat = srfDesc.Format;
@@ -764,7 +764,7 @@ namespace Ogre
 				LogManager::getSingleton().logMessage("D3D9 : Loading Cube Texture, base image name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipmaps) + " mip map levels");
 			break;
 		default:
-			Except( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::_setSrcAttributes" );
+			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::_setSrcAttributes" );
 			this->_freeResources();
 		}
 	}
@@ -874,7 +874,7 @@ namespace Ogre
 		if (FAILED(hr))
 		{
 			String msg = DXGetErrorDescription9(hr);
-			Except( hr, "Error GetDepthStencilSurface : " + msg, "D3D9Texture::_createDepthStencil" );
+			OGRE_EXCEPT( hr, "Error GetDepthStencilSurface : " + msg, "D3D9Texture::_createDepthStencil" );
 			this->_freeResources();
 		}
 		// get it's description
@@ -882,7 +882,7 @@ namespace Ogre
 		if (FAILED(hr))
 		{
 			String msg = DXGetErrorDescription9(hr);
-			Except( hr, "Error GetDesc : " + msg, "D3D9Texture::_createDepthStencil" );
+			OGRE_EXCEPT( hr, "Error GetDesc : " + msg, "D3D9Texture::_createDepthStencil" );
 			SAFE_RELEASE(pSrf);
 			this->_freeResources();
 		}
@@ -904,7 +904,7 @@ namespace Ogre
 		if (FAILED(hr))
 		{
 			String msg = DXGetErrorDescription9(hr);
-			Except( hr, "Error CreateDepthStencilSurface : " + msg, "D3D9Texture::_createDepthStencil" );
+			OGRE_EXCEPT( hr, "Error CreateDepthStencilSurface : " + msg, "D3D9Texture::_createDepthStencil" );
 			this->_freeResources();
 		}
 	}
@@ -956,7 +956,7 @@ namespace Ogre
 			for(size_t mip=0; mip<=mNumMipmaps; ++mip)
 			{
 				if(mpNormTex->GetSurfaceLevel(mip, &surface) != D3D_OK)
-					Except(Exception::ERR_RENDERINGAPI_ERROR, "Get surface level failed",
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Get surface level failed",
 		 				"D3D9Texture::_createSurfaceList");
 				// decrement reference count, the GetSurfaceLevel call increments this
 				// this is safe because the texture keeps a reference as well
@@ -973,7 +973,7 @@ namespace Ogre
 				for(size_t mip=0; mip<=mNumMipmaps; ++mip)
 				{
 					if(mpCubeTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, mip, &surface) != D3D_OK)
-						Except(Exception::ERR_RENDERINGAPI_ERROR, "Get cubemap surface failed",
+						OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Get cubemap surface failed",
 		 				"D3D9Texture::getBuffer");
 					// decrement reference count, the GetSurfaceLevel call increments this
 					// this is safe because the texture keeps a reference as well
@@ -989,7 +989,7 @@ namespace Ogre
 			for(size_t mip=0; mip<=mNumMipmaps; ++mip)
 			{
 				if(mpVolumeTex->GetVolumeLevel(mip, &volume) != D3D_OK)
-					Except(Exception::ERR_RENDERINGAPI_ERROR, "Get volume level failed",
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Get volume level failed",
 		 				"D3D9Texture::getBuffer");	
 				// decrement reference count, the GetSurfaceLevel call increments this
 				// this is safe because the texture keeps a reference as well
@@ -1014,10 +1014,10 @@ namespace Ogre
 	HardwarePixelBufferSharedPtr D3D9Texture::getBuffer(size_t face, size_t mipmap) 
 	{
 		if(face >= getNumFaces())
-			Except(Exception::ERR_INVALIDPARAMS, "A three dimensional cube has six faces",
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "A three dimensional cube has six faces",
 					"D3D9Texture::getBuffer");
 		if(mipmap > mNumMipmaps)
-			Except(Exception::ERR_INVALIDPARAMS, "Mipmap index out of range",
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Mipmap index out of range",
 					"D3D9Texture::getBuffer");
 		int idx = face*(mNumMipmaps+1) + mipmap;
 		assert(idx < mSurfaceList.size());

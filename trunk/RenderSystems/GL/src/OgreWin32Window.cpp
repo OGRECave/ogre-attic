@@ -245,15 +245,15 @@ namespace Ogre {
 			0, 0, 0};
 		int iPixelFormat = ChoosePixelFormat(hdc, &pfd);
 		if (!iPixelFormat)
-			Except(0, "ChoosePixelFormat failed", "Win32Window::create");
+			OGRE_EXCEPT(0, "ChoosePixelFormat failed", "Win32Window::create");
 		if (!SetPixelFormat(hdc, iPixelFormat, &pfd))
-			Except(0, "SetPixelFormat failed", "Win32Window::create");
+			OGRE_EXCEPT(0, "SetPixelFormat failed", "Win32Window::create");
 
 		HGLRC glrc = wglCreateContext(hdc);
 		if (!glrc)
-			Except(0, "wglCreateContext", "Win32Window::create");
+			OGRE_EXCEPT(0, "wglCreateContext", "Win32Window::create");
 		if (!wglMakeCurrent(hdc, glrc))
-			Except(0, "wglMakeCurrent", "Win32Window::create");
+			OGRE_EXCEPT(0, "wglMakeCurrent", "Win32Window::create");
 		
 		mGlrc = glrc;
 		mHDC = hdc;
@@ -369,7 +369,7 @@ namespace Ogre {
 		size_t pos = filename.find_last_of(".");
 		String extension;
 		if( pos == String::npos )
-			Except(
+			OGRE_EXCEPT(
 			Exception::ERR_INVALIDPARAMS, 
 			"Unable to determine image type for '" + filename + "' - invalid extension.",
 			"Win32Window::writeContentsToFile" );

@@ -37,7 +37,7 @@ namespace Ogre {
 
         if (!mBufferId)
         {
-            Except(Exception::ERR_INTERNAL_ERROR, 
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
                 "Cannot create GL index buffer", 
                 "GLHardwareIndexBuffer::GLHardwareIndexBuffer");
         }
@@ -63,7 +63,7 @@ namespace Ogre {
 
         if(mIsLocked)
         {
-            Except(Exception::ERR_INTERNAL_ERROR, 
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
                 "Invalid attempt to lock an index buffer that has already been locked",
                     "GLHardwareIndexBuffer::lock");
         }
@@ -87,7 +87,7 @@ namespace Ogre {
         {
             if(mUsage == HBU_WRITE_ONLY)
             {
-                Except(Exception::ERR_INTERNAL_ERROR, 
+                OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
                     "Invalid attempt to lock a write-only index buffer as read-only",
                     "GLHardwareIndexBuffer::lock");
             }
@@ -103,7 +103,7 @@ namespace Ogre {
         }
         else
         {
-            Except(Exception::ERR_INTERNAL_ERROR, 
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
                 "Invalid locking option set", "GLHardwareIndexBuffer::lock");
         }
 
@@ -111,7 +111,7 @@ namespace Ogre {
 
         if(pBuffer == 0)
         {
-            Except(Exception::ERR_INTERNAL_ERROR, 
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
                 "Index Buffer: Out of memory", 
                 "GLHardwareIndexBuffer::lock");
         }
@@ -128,7 +128,7 @@ namespace Ogre {
 
         if(!glUnmapBufferARB_ptr( GL_ELEMENT_ARRAY_BUFFER_ARB ))
         {
-            Except(Exception::ERR_INTERNAL_ERROR, 
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
                 "Buffer data corrupted, please reload", 
                 "GLHardwareIndexBuffer::unlock");
         }

@@ -207,7 +207,7 @@ namespace Ogre {
         case RenderOperation::OT_LINE_LIST:
         case RenderOperation::OT_LINE_STRIP:
         case RenderOperation::OT_POINT_LIST:
-            Except(Exception::ERR_INTERNAL_ERROR, "Unsupported operation type, only "
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "Unsupported operation type, only "
                 "triangle types are allowed.", "XMLMeshSerializer::writeSubMesh");
             break;
         case RenderOperation::OT_TRIANGLE_FAN:
@@ -724,7 +724,7 @@ namespace Ogre {
                         xmlElem = vertexElem->FirstChildElement("position");
                         if (!xmlElem)
                         {
-                            Except(Exception::ERR_ITEM_NOT_FOUND, "Missing <position> element.",
+                            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Missing <position> element.",
                                 "XMLSerializer::readGeometry");
                         }
                         elem.baseVertexPointerToElement(pVert, &pFloat);
@@ -760,7 +760,7 @@ namespace Ogre {
                         xmlElem = vertexElem->FirstChildElement("normal");
                         if (!xmlElem)
                         {
-                            Except(Exception::ERR_ITEM_NOT_FOUND, "Missing <normal> element.",
+                            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Missing <normal> element.",
                                 "XMLSerializer::readGeometry");
                         }
                         elem.baseVertexPointerToElement(pVert, &pFloat);
@@ -776,7 +776,7 @@ namespace Ogre {
                         xmlElem = vertexElem->FirstChildElement("colour_diffuse");
                         if (!xmlElem)
                         {
-                            Except(Exception::ERR_ITEM_NOT_FOUND, "Missing <colour_diffuse> element.",
+                            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Missing <colour_diffuse> element.",
                                 "XMLSerializer::readGeometry");
                         }
                         elem.baseVertexPointerToElement(pVert, &pCol);
@@ -791,7 +791,7 @@ namespace Ogre {
                         xmlElem = vertexElem->FirstChildElement("colour_specular");
                         if (!xmlElem)
                         {
-                            Except(Exception::ERR_ITEM_NOT_FOUND, "Missing <colour_specular> element.",
+                            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Missing <colour_specular> element.",
                                 "XMLSerializer::readGeometry");
                         }
                         elem.baseVertexPointerToElement(pVert, &pCol);
@@ -815,7 +815,7 @@ namespace Ogre {
                         }
                         if (!xmlElem)
                         {
-                            Except(Exception::ERR_ITEM_NOT_FOUND, "Missing <texcoord> element.",
+                            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Missing <texcoord> element.",
                                 "XMLSerializer::readGeometry");
                         }
 						// Record the latest texture coord entry

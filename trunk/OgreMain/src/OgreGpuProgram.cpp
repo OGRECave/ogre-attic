@@ -445,7 +445,7 @@ namespace Ogre
 			}
 			else
 			{
-				Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot find a parameter named " + name,
+				OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Cannot find a parameter named " + name,
 					"GpuProgramParameters::getParamIndex");
 			}
         }

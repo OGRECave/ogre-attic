@@ -198,13 +198,13 @@ namespace Ogre {
     void ILUtil::toOgre(const PixelBox &dst) 
     {
 		if(!dst.isConsecutive())
-			Except( Exception::UNIMPLEMENTED_FEATURE,
+			OGRE_EXCEPT( Exception::UNIMPLEMENTED_FEATURE,
                 "Destination must currently be consecutive",
                 "ILUtil::ilToOgre" ) ;
 		if(dst.getWidth() != static_cast<size_t>(ilGetInteger( IL_IMAGE_WIDTH )) ||
         	dst.getHeight() != static_cast<size_t>(ilGetInteger( IL_IMAGE_HEIGHT )) ||
         	dst.getDepth() != static_cast<size_t>(ilGetInteger( IL_IMAGE_DEPTH )))
-			Except( Exception::ERR_INVALIDPARAMS,
+			OGRE_EXCEPT( Exception::ERR_INVALIDPARAMS,
                 "Destination dimensions must equal IL dimension",
                 "ILUtil::ilToOgre" ) ;
         
@@ -247,7 +247,7 @@ namespace Ogre {
         }
         else 
         {
-            Except( Exception::UNIMPLEMENTED_FEATURE,
+            OGRE_EXCEPT( Exception::UNIMPLEMENTED_FEATURE,
                 "Cannot convert this DevIL type",
                 "ILUtil::ilToOgre" ) ;
         }

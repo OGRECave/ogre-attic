@@ -93,7 +93,7 @@ namespace Ogre {
 #if OGRE_THREAD_SUPPORT
 		if (!mThread)
 		{
-			Except(Exception::ERR_INTERNAL_ERROR, 
+			OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
 				"Thread not initialised",
 				"ResourceBackgroundQueue::initialiseResourceGroup");
 		}
@@ -117,7 +117,7 @@ namespace Ogre {
 #if OGRE_THREAD_SUPPORT
 		if (!mThread)
 		{
-			Except(Exception::ERR_INTERNAL_ERROR, 
+			OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
 				"Thread not initialised",
 				"ResourceBackgroundQueue::initialiseAllResourceGroups");
 		}
@@ -139,7 +139,7 @@ namespace Ogre {
 #if OGRE_THREAD_SUPPORT
 		if (!mThread)
 		{
-			Except(Exception::ERR_INTERNAL_ERROR, 
+			OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
 				"Thread not initialised",
 				"ResourceBackgroundQueue::loadResourceGroup");
 		}
@@ -166,7 +166,7 @@ namespace Ogre {
 #if OGRE_THREAD_SUPPORT
 		if (!mThread)
 		{
-			Except(Exception::ERR_INTERNAL_ERROR, 
+			OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
 				"Thread not initialised",
 				"ResourceBackgroundQueue::load");
 		}

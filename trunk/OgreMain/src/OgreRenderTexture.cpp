@@ -34,7 +34,7 @@ namespace Ogre
         if (texType != TEX_TYPE_2D &&
 			texType != TEX_TYPE_CUBE_MAP)
 		{
-			Except( Exception::UNIMPLEMENTED_FEATURE, 
+			OGRE_EXCEPT( Exception::UNIMPLEMENTED_FEATURE, 
 					"Render to texture is implemented only for 2D and cube textures", 
 					"RenderTexture::RenderTexture" );
 		}

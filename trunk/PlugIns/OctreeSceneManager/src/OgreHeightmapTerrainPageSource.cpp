@@ -72,7 +72,7 @@ namespace Ogre {
             if (mRawData->size() != numBytes)
             {
                 shutdown();
-                Except(Exception::ERR_INVALIDPARAMS, 
+                OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
                     "RAW size (" + StringConverter::toString(mRawData->size()) + 
                     ") does not agree with configuration settings.", 
                     "HeightmapTerrainPageSource::loadHeightmap");
@@ -85,7 +85,7 @@ namespace Ogre {
             if ( mImage.getWidth() != mImage.getHeight())
             {
                 shutdown();
-                Except(Exception::ERR_INVALIDPARAMS,
+                OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
                     "Heightmap must be square",
                     "HeightmapTerrainPageSource::loadHeightmap");
             }
@@ -98,7 +98,7 @@ namespace Ogre {
             String err = "Error: Invalid heightmap size : " +
                 StringConverter::toString( imgSize ) +
                 ". Should be " + StringConverter::toString(mPageSize);
-            Except( Exception::ERR_INVALIDPARAMS, err, 
+            OGRE_EXCEPT( Exception::ERR_INVALIDPARAMS, err, 
                 "HeightmapTerrainPageSource::loadHeightmap" );
         }
 
@@ -144,7 +144,7 @@ namespace Ogre {
                 mRawBpp = atoi(ti->second.c_str());
                 if (mRawBpp < 1 || mRawBpp > 2)
                 {
-                    Except(Exception::ERR_INVALIDPARAMS, 
+                    OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
                         "Invalid value for 'Heightmap.raw.bpp', must be 1 or 2",
                         "HeightmapTerrainPageSource::initialise");
                 }
@@ -162,14 +162,14 @@ namespace Ogre {
         }
         if (!imageFound)
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                 "Missing option 'Heightmap.image'", 
                 "HeightmapTerrainPageSource::initialise");
         }
         if (mIsRaw && 
             (!rawSizeFound || !rawBppFound))
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                 "Options 'Heightmap.raw.size' and 'Heightmap.raw.bpp' must "
                 "be specified for RAW heightmap sources", 
                 "HeightmapTerrainPageSource::initialise");
@@ -201,7 +201,7 @@ namespace Ogre {
                 PixelFormat pf = mImage.getFormat();
                 if (pf != PF_L8 && pf != PF_L16)
                 {
-                    Except( Exception::ERR_INVALIDPARAMS, 
+                    OGRE_EXCEPT( Exception::ERR_INVALIDPARAMS, 
                         "Error: Image is not a grayscale image.",
                         "HeightmapTerrainPageSource::requestPage" );
                 }
@@ -234,7 +234,7 @@ namespace Ogre {
                 {
                     if (is16bit)
                     {
-                        #if OGRE_ENDIAN == ENDIAN_BIG
+                        #if OGRE_ENDIAN == OGRE_ENDIAN_BIG
                             ushort val = *pSrc++ << 8;
                             val += *pSrc++;
                         #else

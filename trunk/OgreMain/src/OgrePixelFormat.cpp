@@ -444,10 +444,10 @@ namespace Ogre {
 				// Entire buffer is being queried
 				return *this;
 			}
-			Except(Exception::ERR_INVALIDPARAMS, "Cannot return subvolume of compressed PixelBuffer", "PixelBox::getSubVolume");
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Cannot return subvolume of compressed PixelBuffer", "PixelBox::getSubVolume");
 		}
 		if(!contains(def))
-			Except(Exception::ERR_INVALIDPARAMS, "Bounds out of range", "PixelBox::getSubVolume");
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Bounds out of range", "PixelBox::getSubVolume");
 
 		const size_t elemSize = PixelUtil::getNumElemBytes(format);
 		// Calculate new data origin
@@ -499,7 +499,7 @@ namespace Ogre {
 					assert((width&3)==0 && (height&3)==0 && depth==1);
 					return (width/4)*(height/4)*16;
 				default:
-				Except(Exception::ERR_INVALIDPARAMS, "Invalid compressed pixel format", 
+				OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Invalid compressed pixel format", 
 					"PixelUtil::getMemorySize");
 			}
 		} 
@@ -674,7 +674,7 @@ namespace Ogre {
 				break;
             default:
                 // Not yet supported
-                Except(
+                OGRE_EXCEPT(
                     Exception::UNIMPLEMENTED_FEATURE, 
                     "pack to "+getFormatName(pf)+" not implemented", 
                     "PixelUtil::packColour");
@@ -791,7 +791,7 @@ namespace Ogre {
 				break;
             default:
                 // Not yet supported
-                Except(Exception::UNIMPLEMENTED_FEATURE, 
+                OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE, 
                     "unpack from "+getFormatName(pf)+" not implemented", 
                     "PixelUtil::unpackColour");
                 break;
@@ -825,7 +825,7 @@ namespace Ogre {
 			}
 			else
 			{
-				Except(Exception::UNIMPLEMENTED_FEATURE, 
+				OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE, 
 					"This method can not be used to compress or decompress images", 
 					"PixelUtil::bulkPixelConversion");
 			}
@@ -893,7 +893,7 @@ namespace Ogre {
 		}
 
 // NB VC6 can't handle the templates required for optimised conversion, tough
-#if OGRE_COMPILER != COMPILER_MSVC || OGRE_COMP_VER >= 1300
+#if OGRE_COMPILER != OGRE_COMPILER_MSVC || OGRE_COMP_VER >= 1300
         // Is there a specialized, inlined, conversion?
         if(doOptimizedConversion(src, dst))
         {
@@ -933,7 +933,5 @@ namespace Ogre {
             dstptr += dstSliceSkipBytes;
         }
     }
-    
-
 
 }

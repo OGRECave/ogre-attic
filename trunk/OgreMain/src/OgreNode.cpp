@@ -262,7 +262,7 @@ namespace Ogre {
         }
         else
         {
-            Except(
+            OGRE_EXCEPT(
                 Exception::ERR_INVALIDPARAMS, 
                 "Child index out of bounds.", 
                 "Node::getChild" );
@@ -588,7 +588,7 @@ namespace Ogre {
         {
             mpMaterial = MaterialManager::getSingleton().getByName("Core/NodeMaterial");
 			if (mpMaterial.isNull())
-				Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find material Core/NodeMaterial",
+				OGRE_EXCEPT( Exception::ERR_ITEM_NOT_FOUND, "Could not find material Core/NodeMaterial",
 					"Node::getMaterial" );
             mpMaterial->load();
         }
@@ -668,7 +668,7 @@ namespace Ogre {
 
         if (i == mChildren.end())
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, "Child node named " + name +
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Child node named " + name +
                 " does not exist.", "Node::getChild");
         }
         return i->second;
@@ -681,7 +681,7 @@ namespace Ogre {
 
         if (i == mChildren.end())
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, "Child node named " + name +
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Child node named " + name +
                 " does not exist.", "Node::removeChild");
         }
 

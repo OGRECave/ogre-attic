@@ -185,7 +185,7 @@ namespace Ogre {
             }
             else
             {
-                Except(Exception::ERR_ITEM_NOT_FOUND, 
+                OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                     "Parameter at the given index was not found.",
                     "Renderable::getCustomParameter");
             }

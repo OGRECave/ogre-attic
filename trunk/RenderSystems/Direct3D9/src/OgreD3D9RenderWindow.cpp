@@ -338,7 +338,7 @@ namespace Ogre
 	{
 		if (mIsSwapChain && !mpD3DDevice)
 		{
-			Except(Exception::ERR_INTERNAL_ERROR, 
+			OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
 				"Secondary window has not been given the device from the primary!",
 				"D3D9RenderWindow::createD3DResources");
 		}
@@ -411,7 +411,7 @@ namespace Ogre
 				&md3dpp, &mpSwapChain);
 			if (FAILED(hr))
 			{
-				Except(Exception::ERR_RENDERINGAPI_ERROR, 
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
 					"Unable to create an additional swap chain",
 					"D3D9RenderWindow::createD3DResources");
 
@@ -452,7 +452,7 @@ namespace Ogre
 				if( FAILED( hr ) )
 				{
 					destroy();
-					Except( hr, "Failed to create Direct3D9 Device: " + 
+					OGRE_EXCEPT( hr, "Failed to create Direct3D9 Device: " + 
 						Root::getSingleton().getErrorDescription(hr), 
 						"D3D9RenderWindow::createD3DResources" );
 				}
@@ -517,7 +517,7 @@ namespace Ogre
 
 			}
 			else if( FAILED(hr) )
-				Except( hr, "Error Presenting surfaces", "D3D9RenderWindow::swapBuffers" );
+				OGRE_EXCEPT( hr, "Error Presenting surfaces", "D3D9RenderWindow::swapBuffers" );
 		}
 	}
 
@@ -581,7 +581,7 @@ namespace Ogre
 		// get display dimensions
 		// this will be the dimensions of the front buffer
 		if (FAILED(hr = mpD3DDevice->GetDisplayMode(0, &dm)))
-			Except(hr, "Can't get display mode!", "D3D9RenderWindow::writeContentsToFile");
+			OGRE_EXCEPT(hr, "Can't get display mode!", "D3D9RenderWindow::writeContentsToFile");
 
 		desc.Width = dm.Width;
 		desc.Height = dm.Height;
@@ -594,13 +594,13 @@ namespace Ogre
 						&pTempSurf, 
 						NULL)))
 		{
-			Except(hr, "Cannot create offscreen buffer 1!", "D3D9RenderWindow::writeContentsToFile");
+			OGRE_EXCEPT(hr, "Cannot create offscreen buffer 1!", "D3D9RenderWindow::writeContentsToFile");
 		}
 
 		if (FAILED(hr = mpD3DDevice->GetFrontBufferData(0, pTempSurf)))
 		{
 			SAFE_RELEASE(pTempSurf);
-			Except(hr, "Can't get front buffer!", "D3D9RenderWindow::writeContentsToFile");
+			OGRE_EXCEPT(hr, "Can't get front buffer!", "D3D9RenderWindow::writeContentsToFile");
 		}
 
 		if (!mIsFullScreen)
@@ -625,7 +625,7 @@ namespace Ogre
 							NULL)))
 			{
 				SAFE_RELEASE(pSurf);
-				Except(hr, "Cannot create offscreen buffer 2!", "D3D9RenderWindow::writeContentsToFile");
+				OGRE_EXCEPT(hr, "Cannot create offscreen buffer 2!", "D3D9RenderWindow::writeContentsToFile");
 			}
 
 			// Copy
@@ -633,7 +633,7 @@ namespace Ogre
 			{
 				SAFE_RELEASE(pTempSurf);
 				SAFE_RELEASE(pSurf);
-				Except(hr, "Cannot update surface!", "D3D9RenderWindow::writeContentsToFile");
+				OGRE_EXCEPT(hr, "Cannot update surface!", "D3D9RenderWindow::writeContentsToFile");
 			}
 
 			SAFE_RELEASE(pTempSurf);
@@ -645,7 +645,7 @@ namespace Ogre
 		if (FAILED(hr = pTempSurf->LockRect(&lockedRect, NULL, 
 			D3DLOCK_READONLY | D3DLOCK_NOSYSLOCK)))
 		{
-			Except(hr, "can't lock rect!", "D3D9RenderWindow::writeContentsToFile");
+			OGRE_EXCEPT(hr, "can't lock rect!", "D3D9RenderWindow::writeContentsToFile");
 		} 
 
         ImageCodec::ImageData *imgData = new ImageCodec::ImageData();
@@ -709,7 +709,7 @@ namespace Ogre
 		size_t pos = filename.find_last_of(".");
 		String extension;
 		if( pos == String::npos )
-			Except(
+			OGRE_EXCEPT(
 			Exception::ERR_INVALIDPARAMS, 
 			"Unable to determine image type for '" + filename + "' - invalid extension.",
 			"D3D9RenderWindow::writeContentsToFile" );

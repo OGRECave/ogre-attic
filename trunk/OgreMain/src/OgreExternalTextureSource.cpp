@@ -62,7 +62,7 @@ namespace Ogre
 	void ExternalTextureSource::addBaseParams()
 	{
 		if( mDictionaryName == "NotAssigned" )
-            Except(Exception::ERR_FILE_NOT_FOUND, 
+            OGRE_EXCEPT(Exception::ERR_FILE_NOT_FOUND, 
                 "Plugin " + mPlugInName + 
 				" needs to override default mDictionaryName", 
                 "ExternalTextureSource::addBaseParams");

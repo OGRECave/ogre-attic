@@ -370,7 +370,7 @@ int main(int numargs, char** args)
     FILE* pFile = fopen( source.c_str(), "rb" );
     if (!pFile)
     {
-        Except(Exception::ERR_FILE_NOT_FOUND, 
+        OGRE_EXCEPT(Exception::ERR_FILE_NOT_FOUND, 
             "File " + source + " not found.", "OgreMeshUpgrade");
     }
     stat( source.c_str(), &tagStat );

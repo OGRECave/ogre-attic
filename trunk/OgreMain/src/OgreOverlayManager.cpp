@@ -94,7 +94,7 @@ namespace Ogre {
         }
         else
         {
-            Except(Exception::ERR_DUPLICATE_ITEM, 
+            OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
                 "Overlay with name '" + name + "' a;ready exists!",
                 "OverlayManager::create");
         }
@@ -122,7 +122,7 @@ namespace Ogre {
         OverlayMap::iterator i = mOverlayMap.find(name);
         if (i == mOverlayMap.end())
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                 "Overlay with name '" + name + "' not found.",
                 "OverlayManager::destroy");
         }
@@ -146,7 +146,7 @@ namespace Ogre {
             }
         }
 
-        Except(Exception::ERR_ITEM_NOT_FOUND, 
+        OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
             "Overlay not found.",
             "OverlayManager::destroy");
     }
@@ -620,7 +620,7 @@ namespace Ogre {
 		ElementMap::iterator ii = elementMap.find(instanceName);
 		if (ii != elementMap.end())
 		{
-			Except(Exception::ERR_DUPLICATE_ITEM, "OverlayElement with name " + instanceName +
+			OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, "OverlayElement with name " + instanceName +
 				" already exists.", "OverlayManager::createOverlayElement" );
 		}
 		OverlayElement* newElem = createOverlayElementFromFactory(typeName, instanceName);
@@ -640,7 +640,7 @@ namespace Ogre {
 		FactoryMap::iterator fi = mFactories.find(typeName);
 		if (fi == mFactories.end())
 		{
-			Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot locate factory for element type " + typeName,
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Cannot locate factory for element type " + typeName,
 				"OverlayManager::createOverlayElement");
 		}
 
@@ -660,7 +660,7 @@ namespace Ogre {
 		ElementMap::iterator ii = elementMap.find(name);
 		if (ii == elementMap.end())
 		{
-			Except(Exception::ERR_ITEM_NOT_FOUND, "OverlayElement with name " + name +
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "OverlayElement with name " + name +
 				" not found.", "OverlayManager::getOverlayElementImpl" );
 		}
 
@@ -685,7 +685,7 @@ namespace Ogre {
 		ElementMap::iterator ii = elementMap.find(instanceName);
 		if (ii == elementMap.end())
 		{
-			Except(Exception::ERR_ITEM_NOT_FOUND, "OverlayElement with name " + instanceName +
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "OverlayElement with name " + instanceName +
 				" not found.", "OverlayManager::destroyOverlayElement" );
 		}
 		// Look up factory
@@ -693,7 +693,7 @@ namespace Ogre {
 		FactoryMap::iterator fi = mFactories.find(typeName);
 		if (fi == mFactories.end())
 		{
-			Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot locate factory for element type " + typeName,
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Cannot locate factory for element type " + typeName,
 				"OverlayManager::destroyOverlayElement");
 		}
 
@@ -718,7 +718,7 @@ namespace Ogre {
 			FactoryMap::iterator fi = mFactories.find(element->getTypeName());
 			if (fi == mFactories.end())
 			{
-				Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot locate factory for element " 
+				OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Cannot locate factory for element " 
 					+ element->getName(),
 					"OverlayManager::destroyAllOverlayElements");
 			}

@@ -74,7 +74,7 @@ namespace Ogre {
 		LogManager::getSingleton().logMessage("Creating resource group " + name);
         if (getResourceGroup(name))
         {
-            Except(Exception::ERR_DUPLICATE_ITEM, 
+            OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
                 "Resource group with name '" + name + "' already exists!", 
                 "ResourceGroupManager::createResourceGroup");
         }
@@ -93,7 +93,7 @@ namespace Ogre {
 		ResourceGroup* grp = getResourceGroup(name);
 		if (!grp)
 		{
-			Except(Exception::ERR_ITEM_NOT_FOUND, 
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
 				"Cannot find a group named " + name, 
 				"ResourceGroupManager::parseResourceGroupScripts");
 		}
@@ -150,7 +150,7 @@ namespace Ogre {
 		ResourceGroup* grp = getResourceGroup(name);
 		if (!grp)
 		{
-			Except(Exception::ERR_ITEM_NOT_FOUND, 
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
 				"Cannot find a group named " + name, 
 				"ResourceGroupManager::loadResourceGroup");
 		}
@@ -217,7 +217,7 @@ namespace Ogre {
 		ResourceGroup* grp = getResourceGroup(name);
 		if (!grp)
 		{
-			Except(Exception::ERR_ITEM_NOT_FOUND, 
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
 				"Cannot find a group named " + name, 
 				"ResourceGroupManager::unloadResourceGroup");
 		}
@@ -250,7 +250,7 @@ namespace Ogre {
 		ResourceGroup* grp = getResourceGroup(name);
 		if (!grp)
 		{
-			Except(Exception::ERR_ITEM_NOT_FOUND, 
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
 				"Cannot find a group named " + name, 
 				"ResourceGroupManager::clearResourceGroup");
 		}
@@ -271,7 +271,7 @@ namespace Ogre {
 		ResourceGroup* grp = getResourceGroup(name);
 		if (!grp)
 		{
-			Except(Exception::ERR_ITEM_NOT_FOUND, 
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
 				"Cannot find a group named " + name, 
 				"ResourceGroupManager::destroyResourceGroup");
 		}
@@ -333,7 +333,7 @@ namespace Ogre {
 		ResourceGroup* grp = getResourceGroup(resGroup);
 		if (!grp)
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                 "Cannot locate a resource group called '" + resGroup + "'", 
                 "ResourceGroupManager::addResourceLocation");
         }
@@ -395,7 +395,7 @@ namespace Ogre {
 		ResourceGroup* grp = getResourceGroup(groupName);
 		if (!grp)
 		{
-			Except(Exception::ERR_ITEM_NOT_FOUND, 
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
 				"Cannot find a group named " + groupName, 
 				"ResourceGroupManager::declareResource");
 		}
@@ -415,7 +415,7 @@ namespace Ogre {
 		ResourceGroup* grp = getResourceGroup(groupName);
 		if (!grp)
 		{
-			Except(Exception::ERR_ITEM_NOT_FOUND, 
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
 				"Cannot find a group named " + groupName, 
 				"ResourceGroupManager::undeclareResource");
 		}
@@ -440,7 +440,7 @@ namespace Ogre {
 		ResourceGroup* grp = getResourceGroup(groupName);
 		if (!grp)
 		{
-			Except(Exception::ERR_ITEM_NOT_FOUND, 
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
 				"Cannot locate a resource group called '" + groupName + "'", 
 				"ResourceGroupManager::openResource");
 		}
@@ -486,7 +486,7 @@ namespace Ogre {
 
 		
 		// Not found
-		Except(Exception::ERR_FILE_NOT_FOUND, "Cannot locate resource " + 
+		OGRE_EXCEPT(Exception::ERR_FILE_NOT_FOUND, "Cannot locate resource " + 
 			resourceName + " in resource group " + groupName + ".", 
 			"ResourceGroupManager::openResource");
 
@@ -502,7 +502,7 @@ namespace Ogre {
 		ResourceGroup* grp = getResourceGroup(groupName);
 		if (!grp)
 		{
-			Except(Exception::ERR_ITEM_NOT_FOUND, 
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
 				"Cannot locate a resource group called '" + groupName + "'", 
 				"ResourceGroupManager::openResources");
 		}
@@ -828,7 +828,7 @@ namespace Ogre {
         ResourceManagerMap::iterator i = mResourceManagerMap.find(resourceType);
         if (i == mResourceManagerMap.end())
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                 "Cannot locate resource manager for resource type '" +
                 resourceType + "'", "ResourceGroupManager::_getResourceManager");
         }
@@ -1000,7 +1000,7 @@ namespace Ogre {
         ResourceGroup* grp = getResourceGroup(groupName);
         if (!grp)
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                 "Cannot locate a resource group called '" + groupName + "'", 
                 "ResourceGroupManager::listResourceNames");
         }
@@ -1030,7 +1030,7 @@ namespace Ogre {
         ResourceGroup* grp = getResourceGroup(groupName);
         if (!grp)
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                 "Cannot locate a resource group called '" + groupName + "'", 
                 "ResourceGroupManager::listResourceFileInfo");
         }
@@ -1060,7 +1060,7 @@ namespace Ogre {
         ResourceGroup* grp = getResourceGroup(groupName);
         if (!grp)
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                 "Cannot locate a resource group called '" + groupName + "'", 
                 "ResourceGroupManager::findResourceNames");
         }
@@ -1089,7 +1089,7 @@ namespace Ogre {
         ResourceGroup* grp = getResourceGroup(groupName);
         if (!grp)
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                 "Cannot locate a resource group called '" + groupName + "'", 
                 "ResourceGroupManager::findResourceFileInfo");
         }
@@ -1116,7 +1116,7 @@ namespace Ogre {
         ResourceGroup* grp = getResourceGroup(groupName);
         if (!grp)
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                 "Cannot locate a resource group called '" + groupName + "'", 
                 "ResourceGroupManager::resourceExists");
         }
@@ -1168,7 +1168,7 @@ namespace Ogre {
         ResourceGroup* grp = getResourceGroup(group);
         if (!grp)
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                 "Cannot locate a resource group called '" + group + "'", 
                 "ResourceGroupManager::linkWorldGeometryToResourceGroup");
         }
@@ -1185,7 +1185,7 @@ namespace Ogre {
         ResourceGroup* grp = getResourceGroup(group);
         if (!grp)
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                 "Cannot locate a resource group called '" + group + "'", 
                 "ResourceGroupManager::unlinkWorldGeometryFromResourceGroup");
         }

@@ -29,12 +29,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreException.h"
 #include "OgreLogManager.h"
 
-#if OGRE_PLATFORM == PLATFORM_WIN32
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #   define WIN32_LEAN_AND_MEAN
 #   include <windows.h>
 #endif
 
-#if OGRE_PLATFORM == PLATFORM_APPLE
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 #   include "macPlugins.h"
 #endif
 
@@ -47,7 +47,7 @@ namespace Ogre {
         OgreGuard("DynLib::DynLib");
 
         mName = name;
-#if OGRE_PLATFORM == PLATFORM_LINUX
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
         // dlopen() does not add .so to the filename, like windows does for .dll
         if (mName.substr(mName.length() - 3, 3) != ".so")
             mName += ".so";
@@ -73,7 +73,7 @@ namespace Ogre {
         m_hInst = (DYNLIB_HANDLE)DYNLIB_LOAD( mName.c_str() );
 
         if( !m_hInst )
-            Except(
+            OGRE_EXCEPT(
                 Exception::ERR_INTERNAL_ERROR, 
                 "Could not load dynamic library " + mName + 
                 ".  System Error: " + dynlibError(),
@@ -92,7 +92,7 @@ namespace Ogre {
 
         if( DYNLIB_UNLOAD( m_hInst ) )
 		{
-            Except(
+            OGRE_EXCEPT(
                 Exception::ERR_INTERNAL_ERROR, 
                 "Could not unload dynamic library " + mName +
                 ".  System Error: " + dynlibError(),
@@ -110,7 +110,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     String DynLib::dynlibError( void ) 
     {
-#if OGRE_PLATFORM == PLATFORM_WIN32
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
         LPVOID lpMsgBuf; 
         FormatMessage( 
             FORMAT_MESSAGE_ALLOCATE_BUFFER | 
@@ -127,9 +127,9 @@ namespace Ogre {
         // Free the buffer.
         LocalFree( lpMsgBuf );
         return ret;
-#elif OGRE_PLATFORM == PLATFORM_LINUX
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
         return String(dlerror());
-#elif OGRE_PLATFORM == PLATFORM_APPLE
+#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
         return String(mac_errorBundle());
 #else
         return String("");

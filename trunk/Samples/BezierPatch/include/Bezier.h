@@ -91,7 +91,7 @@ public:
 
 protected:
 
-#if OGRE_COMPILER == COMPILER_MSVC
+#if OGRE_COMPILER == OGRE_COMPILER_MSVC
     #pragma pack(push)
     #pragma pack(1)
 #endif
@@ -100,7 +100,7 @@ protected:
         float nx, ny, nz;
         float u, v;
     };
-#if OGRE_COMPILER == COMPILER_MSVC
+#if OGRE_COMPILER == OGRE_COMPILER_MSVC
     #pragma pack(pop)
 #endif
 

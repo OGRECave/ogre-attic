@@ -312,7 +312,7 @@ namespace Ogre {
         mMaterialName = matName;
         mpMaterial = MaterialManager::getSingleton().getByName(matName);
 		if (mpMaterial.isNull())
-			Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find material " + matName,
+			OGRE_EXCEPT( Exception::ERR_ITEM_NOT_FOUND, "Could not find material " + matName,
 				"OverlayElement::setMaterialName" );
         mpMaterial->load();
         // Set some prerequisites to be sure
