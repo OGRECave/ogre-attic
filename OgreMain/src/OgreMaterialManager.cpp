@@ -44,8 +44,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     MaterialManager::MaterialManager()
     {
-	    mDefTextureFiltering = TFO_BILINEAR;
-		mDefAniso = 1;
+	    mDefaultMinFilter = FO_LINEAR;
+	    mDefaultMagFilter = FO_LINEAR;
+	    mDefaultMipFilter = FO_POINT;
+		mDefaultMaxAniso = 1;
 
 
     }
@@ -139,21 +141,72 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	void MaterialManager::setDefaultTextureFiltering(TextureFilterOptions fo)
 	{
-		mDefTextureFiltering = fo;
-	}
-    //-----------------------------------------------------------------------
-	TextureFilterOptions MaterialManager::getDefaultTextureFiltering() const
-	{
-		return mDefTextureFiltering;
+        switch (fo)
+        {
+        case TFO_NONE:
+            setDefaultTextureFiltering(FO_POINT, FO_POINT, FO_NONE);
+            break;
+        case TFO_BILINEAR:
+            setDefaultTextureFiltering(FO_LINEAR, FO_LINEAR, FO_POINT);
+            break;
+        case TFO_TRILINEAR:
+            setDefaultTextureFiltering(FO_LINEAR, FO_LINEAR, FO_LINEAR);
+            break;
+        case TFO_ANISOTROPIC:
+            setDefaultTextureFiltering(FO_ANISOTROPIC, FO_ANISOTROPIC, FO_LINEAR);
+            break;
+        }
 	}
     //-----------------------------------------------------------------------
 	void MaterialManager::setDefaultAnisotropy(int maxAniso)
 	{
-		mDefAniso = maxAniso;
+		mDefaultMaxAniso = maxAniso;
 	}
     //-----------------------------------------------------------------------
 	int MaterialManager::getDefaultAnisotropy() const
 	{
-		return mDefAniso;
+		return mDefaultMaxAniso;
 	}
+    //-----------------------------------------------------------------------
+    void MaterialManager::setDefaultTextureFiltering(FilterType ftype, FilterOptions opts)
+    {
+        switch (ftype)
+        {
+        case FT_MIN:
+            mDefaultMinFilter = opts;
+            break;
+        case FT_MAG:
+            mDefaultMagFilter = opts;
+            break;
+        case FT_MIP:
+            mDefaultMipFilter = opts;
+            break;
+        }
+    }
+    //-----------------------------------------------------------------------
+    void MaterialManager::setDefaultTextureFiltering(FilterOptions minFilter, 
+        FilterOptions magFilter, FilterOptions mipFilter)
+    {
+        mDefaultMinFilter = minFilter;
+        mDefaultMagFilter = magFilter;
+        mDefaultMipFilter = mipFilter;
+    }
+    //-----------------------------------------------------------------------
+    FilterOptions MaterialManager::getDefaultTextureFiltering(FilterType ftype) const
+    {
+        switch (ftype)
+        {
+        case FT_MIN:
+            return mDefaultMinFilter;
+            break;
+        case FT_MAG:
+            return mDefaultMagFilter;
+            break;
+        case FT_MIP:
+            return mDefaultMipFilter;
+            break;
+        }
+        // to keep compiler happy
+        return mDefaultMinFilter;
+    }
 }

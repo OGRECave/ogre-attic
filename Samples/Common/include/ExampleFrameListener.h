@@ -39,6 +39,8 @@ Description: Defines an example frame listener which responds to frame events.
              I/K:       Pitch the root scene node (and it's children)
              F:           Toggle frame rate stats on/off
 			 R:        Render mode
+             T:        Cycle texture filtering
+                       Bilinear, Trilinear, Anisotropic(8)
 -----------------------------------------------------------------------------
 */
 
@@ -121,6 +123,8 @@ public:
         mMoveScale = 0.0f;
         mRotScale = 0.0f;
 	    mTranslateVector = Vector3::ZERO;
+        mAniso = 1;
+        mFiltering = TFO_BILINEAR;
 
         showDebugOverlay(true);
     }
@@ -216,6 +220,31 @@ public:
         if (mInputDevice->isKeyDown(KC_F) && mTimeUntilNextToggle <= 0)
         {
             mStatsOn = !mStatsOn;
+            showDebugOverlay(mStatsOn);
+
+            mTimeUntilNextToggle = 1;
+        }
+        if (mInputDevice->isKeyDown(KC_T) && mTimeUntilNextToggle <= 0)
+        {
+            switch(mFiltering)
+            {
+            case TFO_BILINEAR:
+                mFiltering = TFO_TRILINEAR;
+                mAniso = 1;
+                break;
+            case TFO_TRILINEAR:
+                mFiltering = TFO_ANISOTROPIC;
+                mAniso = 8;
+                break;
+            case TFO_ANISOTROPIC:
+                mFiltering = TFO_BILINEAR;
+                mAniso = 1;
+                break;
+            }
+            MaterialManager::getSingleton().setDefaultTextureFiltering(mFiltering);
+            MaterialManager::getSingleton().setDefaultAnisotropy(mAniso);
+
+
             showDebugOverlay(mStatsOn);
 
             mTimeUntilNextToggle = 1;
@@ -415,6 +444,8 @@ protected:
     // just to stop toggles flipping too fast
     Real mTimeUntilNextToggle ;
     float mRotX, mRotY;
+    TextureFilterOptions mFiltering;
+    int mAniso;
 
 };
 

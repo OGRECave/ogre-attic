@@ -53,6 +53,8 @@ namespace Ogre {
 		mMagFilter = FO_LINEAR;
 		mMipFilter = FO_POINT;
 		mMaxAniso = MaterialManager::getSingleton().getDefaultAnisotropy();
+        mIsDefaultAniso = true;
+        mIsDefaultFiltering = true;
 
 		mUMod = mVMod = 0;
         mUScale = mVScale = 1;
@@ -97,6 +99,8 @@ namespace Ogre {
 		mMagFilter = FO_LINEAR;
 		mMipFilter = FO_POINT;
 		mMaxAniso = MaterialManager::getSingleton().getDefaultAnisotropy();
+        mIsDefaultAniso = true;
+        mIsDefaultFiltering = true;
 
 		mUMod = mVMod = 0;
         mUScale = mVScale = 1;
@@ -808,6 +812,7 @@ namespace Ogre {
             setTextureFiltering(FO_ANISOTROPIC, FO_ANISOTROPIC, FO_LINEAR);
             break;
         }
+        mIsDefaultFiltering = false;
 	}
 	//-----------------------------------------------------------------------
     void TextureUnitState::setTextureFiltering(FilterType ft, FilterOptions fo)
@@ -824,6 +829,7 @@ namespace Ogre {
             mMagFilter = fo;
             break;
         }
+        mIsDefaultFiltering = false;
     }
 	//-----------------------------------------------------------------------
     void TextureUnitState::setTextureFiltering(FilterOptions minFilter, 
@@ -832,18 +838,23 @@ namespace Ogre {
         mMinFilter = minFilter;
         mMagFilter = magFilter;
         mMipFilter = mipFilter;
+        mIsDefaultFiltering = false;
     }
 	//-----------------------------------------------------------------------
 	FilterOptions TextureUnitState::getTextureFiltering(FilterType ft) const
 	{
+
         switch (ft)
         {
         case FT_MIN:
-            return mMinFilter;
+            return mIsDefaultFiltering ? 
+                MaterialManager::getSingleton().getDefaultTextureFiltering(FT_MIN) : mMinFilter;
         case FT_MAG:
-            return mMagFilter;
+            return mIsDefaultFiltering ? 
+                MaterialManager::getSingleton().getDefaultTextureFiltering(FT_MAG) : mMagFilter;
         case FT_MIP:
-            return mMipFilter;
+            return mIsDefaultFiltering ? 
+                MaterialManager::getSingleton().getDefaultTextureFiltering(FT_MIP) : mMipFilter;
         }
 		// to keep compiler happy
 		return mMinFilter;
@@ -853,11 +864,12 @@ namespace Ogre {
 	void TextureUnitState::setTextureAnisotropy(int maxAniso)
 	{
 		mMaxAniso = maxAniso;
+        mIsDefaultAniso = false;
 	}
 	//-----------------------------------------------------------------------
 	int TextureUnitState::getTextureAnisotropy() const
 	{
-		return mMaxAniso;
+        return mIsDefaultAniso? MaterialManager::getSingleton().getDefaultAnisotropy() : mMaxAniso;
 	}
 
 	//-----------------------------------------------------------------------
