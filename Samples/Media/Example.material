@@ -371,20 +371,7 @@ material Examples/Flare2
 		}
 	}
 }
-material Examples/Tree
-{
-	technique
-	{
-		pass
-		{
 
-			texture_unit
-			{
-				texture tree1.tga
-			}
-		}
-	}
-}
 material Examples/Droplet
 {
 	technique
