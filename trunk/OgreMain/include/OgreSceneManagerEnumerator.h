@@ -39,6 +39,7 @@ namespace Ogre {
         ST_GENERIC,
         ST_EXTERIOR_CLOSE,
         ST_EXTERIOR_FAR,
+        ST_EXTERIOR_REAL_FAR,
         ST_INTERIOR
     };
     /** Enumerates the SceneManager classes available to applications.
