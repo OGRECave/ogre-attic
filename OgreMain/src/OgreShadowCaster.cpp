@@ -100,15 +100,16 @@ namespace Ogre {
                     *pIdx++ = edge.vertIndex[0] + originalVertexCount;
                     shadOp->indexData->indexCount += 3;
 
-                    // We're not extruding to infinity
-                    //if (lightType != Light::LT_DIRECTIONAL)
-                    //{
+                    // Are we extruding to infinity?
+                    if (!(lightType == Light::LT_DIRECTIONAL &&
+                        flags & SRF_EXTRUDE_TO_INFINITY))
+                    {
                         // additional tri to make quad
                         *pIdx++ = edge.vertIndex[0] + originalVertexCount;
                         *pIdx++ = edge.vertIndex[1] + originalVertexCount;
                         *pIdx++ = edge.vertIndex[1];
                         shadOp->indexData->indexCount += 3;
-                    //}
+                    }
                     // Do dark cap tri
                     // Use McGuire et al method, a triangle fan covering all silhouette
                     // edges and one point (taken from the initial tri)
@@ -138,15 +139,16 @@ namespace Ogre {
                     *pIdx++ = edge.vertIndex[1] + originalVertexCount;
                     shadOp->indexData->indexCount += 3;
 
-                    // We're not extruding to infinity
-                    //if (lightType != Light::LT_DIRECTIONAL)
-                    //{
+                    // Are we extruding to infinity?
+                    if (!(lightType == Light::LT_DIRECTIONAL &&
+                        flags & SRF_EXTRUDE_TO_INFINITY))
+                    {
                         // additional tri to make quad
                         *pIdx++ = edge.vertIndex[1] + originalVertexCount;
                         *pIdx++ = edge.vertIndex[0] + originalVertexCount;
                         *pIdx++ = edge.vertIndex[0];
                         shadOp->indexData->indexCount += 3;
-                    //}
+                    }
                     // Do dark cap tri
                     // Use McGuire et al method, a triangle fan covering all silhouette
                     // edges and one point (taken from the initial tri)

@@ -349,6 +349,19 @@ namespace Ogre
         /// Returns the reflection plane of the frustum if appropriate
         virtual const Plane& getReflectionPlane(void) { return mReflectPlane; }
 
+        /** Project a sphere onto the near plane and get the bounding rectangle. 
+        @param sphere The world-space sphere to project
+        @param radius Radius of the sphere
+        @param left, top, right, bottom Pointers to destination values, these
+            will be completed with the normalised device coordinates (in the 
+            range {-1,1})
+        @returns true if the sphere was projected to a subset of the near plane,
+            false if the entire near plane was contained
+        */
+        virtual bool projectSphere(const Sphere& sphere, 
+            Real* left, Real* top, Real* right, Real* bottom) const;
+
+
         /// Small constant used to reduce far plane projection to avoid inaccuracies
         static const Real INFINITE_FAR_PLANE_ADJUST;
     };
