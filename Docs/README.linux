@@ -1,0 +1,162 @@
+Title: Ogre in linux
+Author: Ben Woodhead
+Last Updated: 09/27/02
+Licence: LGPL
+
+
+Downloading The Files
+=====================
+
+If are going to using Ogre for more then just to have a look you will want to have a cvs copy of Ogre. If you are just testing it out, feel free to grab one of the release files. 
+
+Release files can be found: 
+http://ogre.sourceforge.net/modules.php?op=modload&name=Downloads&file=index
+
+CVS version (anonymous)
+If you are not an ogre developer then use anonymous. You can't write but why would you want to if you are not a developer. Help is always welcome and the occasional thing can be sent with a patch. 
+
+Anyway enough of the talk, you probably are not reading it anyway. 
+
+Login in
+cvs -d:pserver:anonymous@cvs.ogre.sourceforge.net:/cvsroot/ogre login
+password is blank so just press enter.
+
+Getting the module
+cvs -z3 -d:pserver:anonymous@cvs.ogre.sourceforge.net:/cvsroot/ogre co ogrenew
+// Note the new part on ogre, there is an order version in the repository as well (called ogre).. Don't get that one.
+
+
+Dependencies
+============
+
+So additional files that may not be found on your system that ogre will need.
+
+SDL 1.2.x - To find out if you have it type sdl-config --version. This will tell you the version, if its not found then you will have to get sdl. sdl can be found at www.libsdl.org
+
+FreeType2 2.1.x - If you don't have this on your system then you can get it http://www.freetype.org/, I have know idea how to tell you to check for this, but I am guessing the configure script will check.
+
+
+Compiling Ogre
+==============
+
+You are not just going to read the code, I am guessing that you actually want to try it and even play with it. So here goes. 
+
+GCC Compiler
+I have no idea if Intels compiler will work and I am not going to test to find out.
+
+What version of you compiler are you running. (gcc --version will tell you)
+
+2.95.3 or 2.95.4 
+----------------
+
+I didn't have a lot of luck with this, but I upgraded straight away and didn't bother playing with it much. If you are running this you will need to get a copy of STLport (www.stlport.com).
+
+STLPort v4.5.3 Install
+
+cd STLport/src (or what ever its called)
+cp gcc-linux.mak Makefile  (I am lazy, and I don't want to type things more then once)
+make clean all 
+su -c "make install"
+
+Linking Problems
+The part that messed me up regarding this is what STL called itself when I was fished. The library is found in /usr/local/lib and its named libstlport_gcc.so.
+Can you think of something more irritating. To fix this su to root.
+
+ln -s /usr/local/lib/libstlport_gcc.so.4.5 /usr/local/lib/libstlport.so 
+ldconfig 
+
+Compiling Ogre 
+cd ogrenew (where ever you put that).
+
+NOTE: if you are running the cvs version then you must run ./bootstrap first. It will setup the configure files for you
+
+./configure --with-stlport=/usr/local/include/stlport (don't do any associating pathing, i.e. ../stlport or ~/stlport, it does not work.. I don't know why but it doesn't so save yourself sometime and don't do it).
+
+make (if this causes problems send email to null@null.com ;) Go to the forum there are always people talking about building there)
+
+make install
+
+GCC 3.x
+-------
+
+I have not tried 3.0 or 3.1 but 3.2 does work nicely. I personally don't have a lot of faith in 3.0 or 3.1, but to upgrade would be very difficult. If you are reading this I don't recommend you try this yourself. 
+
+Well the god news is that gcc 3.2 does not need STLport, making things a lot easier. 
+
+Compiling Ogre
+
+
+NOTE: if you are running the cvs version then you must run ./bootstrap first. It will setup the configure files for you
+
+./configure
+make 
+make install
+
+Well you must be thinking that was easy compared to 2.95.3 and you are right. That’s part of the reason I decided to upgrade (again changing compilers is a really good way to turn a linux box into a paper wait, if you can't compile what else are you going to do).
+
+
+Ogre Samples
+============
+
+Alright on to the samples, if you have not used Visual C++ you may find this a little confusing when you start. The linux build tools are not far enough along to resolve this yet. So its going to take a bit of work.
+
+cd <ogrenew>/Samples/Common/bin/ - you will see 2 directories there one is Release and Debug. If you were running windows the files would already be in these directories but there not. 
+
+So the first thing is getting all the plugins (this worked for me, but I don't know about you). 
+cd <ogrenew>
+
+NOTE: this must be done as root
+for plugin in `find . -name *.so* -print` ; do cp $plugin /usr/local/lib ; done
+
+Alright now :
+cd <ogrenew>/Samples/Common/bin/Release (To match the windows version)
+
+Config File
+-----------
+
+The next thing you are going to need is a plugin file. There is one there but don't worry it will not work. So there is still some fun left.
+Remember that linux is case sensitive so the Plugins.cfg file will not be found but its for windows anyway.
+
+plugins.cfg:
+# Defines plugins to load
+
+# Define plugin folder
+PluginFolder=/usr/local/lib
+
+# Define D3D rendering implementation plugin
+Plugin=OgreSDLEngine.so
+Plugin=FileSystem.so
+Plugin=ParticleFX.so
+Plugin=BSPSceneManager.so
+
+# Default scene manager ok, no plugin for that
+
+Next, in windows you have a nice little popup window that you can say the resolution in, linux is not that far along yet. Buts its coming. So for now, you need another config file
+
+ogre.cfg:
+Render System   OpenGL Rendering Subsystem
+Full Screen     Yes
+Video Mode      1024 x 768
+
+
+Ok so now we have everything in place. The next thing you are going to have to do is get all the Samples and move them to the Release directory.
+
+cd <ogrenew>/Samples/Common/bin/Release
+cp <ogrenew>/Samples/SkyBox/src/SkyBox .
+./SkyBox 
+
+
+SAMPLE PROBLEMS
+===============
+
+Well so far I have run into a few problems but nothing serious. 
+
+BSP for some reason or another can not find the BSPSceneManager.so plugin. For all the other plugins they will not be found (on my machine) unless they are in a library directory, but the BSPSceneManager.so file needs to be in the directory that you are running your app from.  
+
+COMMENTS
+========
+
+And that is it.. I hope this helps
+If you have any comments or questions regarding this document please send them to me at zander@echotech.ca
+
+Ben Woodhead
