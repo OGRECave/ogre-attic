@@ -286,7 +286,7 @@ namespace OgreMaya {
             out << " normals=\"true\"";
         if(OPTIONS.exportColours)
             out << " colours_diffuse=\"true\"";
-        if(MayaGeometry.UVSets.size() > 0)          
+        if(MayaGeometry.UVSets.size() > 0 && OPTIONS.exportUVs)          
             out << " texture_coords=\"" << MayaGeometry.UVSets.size() << "\"";
         out << ">\n";
         
@@ -315,7 +315,7 @@ namespace OgreMaya {
 			    out << vertexIt->colour.a << "\"/>\n";                
 		    }
 
-            if(MayaGeometry.UVSets.size() > 0) {
+            if(MayaGeometry.UVSets.size() > 0 && OPTIONS.exportUVs) {
                 MeshVertexUVList::iterator uvIt, uvEnd;
 			    uvEnd = vertexIt->listUV.end();
 			    for (uvIt = vertexIt->listUV.begin(); uvIt!=uvEnd; ++uvIt) {                    
