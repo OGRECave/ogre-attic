@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMatrix4.h"
 #include "OgreIteratorWrappers.h"
 #include "OgreString.h"
+#include "OgreTexture.h"
 
 namespace Ogre {
     /** Class representing the state of a single texture unit during a Pass of a
@@ -178,7 +179,7 @@ namespace Ogre {
         @note
         Applies to both fixed-function and programmable pipeline.
         */
-        void setTextureName( const String& name );
+        void setTextureName( const String& name, TextureType ttype = TEX_TYPE_2D );
 
         /** Sets this texture layer to use a combination of 6 texture maps, each one relating to a face of a cube.
         @remarks
@@ -352,7 +353,9 @@ namespace Ogre {
         */
         int getNumFrames(void) const;
 
-        /** Returns true if this texture layer is a cubic texture, false otherwise.
+        /** Returns true if this texture unit is either a series of 6 2D textures, each
+            in it's own frame, or is a full 3D cube map. You can tell which by checking
+            getTextureType.
         @note
         Applies to both fixed-function and programmable pipeline.
         */
@@ -363,6 +366,12 @@ namespace Ogre {
         Applies to both fixed-function and programmable pipeline.
         */
         bool is3D(void) const;
+
+        /** Returns the type of this texture.
+        @note
+        Applies to both fixed-function and programmable pipeline.
+        */
+        TextureType getTextureType(void) const;
 
         /** Gets the index of the set of texture co-ords this layer uses.
         @note
@@ -856,8 +865,8 @@ protected:
         /// Duration of animation in seconds
         Real mAnimDuration;            
         Controller* mAnimController;
-        bool mCubic; // is this a 6-sided texture?
-        bool mIs3D; // is it packed into one 3d texture? 
+        bool mCubic; // is this a series of 6 2D textures to make up a cube?
+        TextureType mTextureType; 
 
         int mTextureCoordSetIndex;
         TextureAddressingMode mAddressMode;                

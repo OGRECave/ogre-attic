@@ -291,7 +291,7 @@ namespace Ogre {
         }
         else
         {
-            if(mTextureType == TEX_TYPE_2D)
+            if(mTextureType == TEX_TYPE_1D || mTextureType == TEX_TYPE_2D)
             {
                 Image img;
                 img.load( mName );

@@ -818,11 +818,20 @@ Here are the attributes you can use in a 'texture_unit' section of a .material s
 
 Sets the name of the static texture image this layer will use.@*@*
 
-Format: texture <texturename>@*@*
+Format: texture <texturename> [<type>]@*@*
 
 Example: texture funkywall.jpg@*@*
 
 This setting is mutually exclusive with the anim_texture attribute. Note that the texture file cannot include spaces. Those of you Windows users who like spaces in filenames, please get over it and use underscores instead.@*@*
+The 'type' parameter allows you to specify a the type of texture to create - the default is '2d', but you can override this; here's the full list:
+@table @asis
+@item 1d
+A 1-dimensional texture; that is, a texture which is only 1 pixel high. These kinds of textures can be useful when you need to encode a function in a texture and use it as a simple lookup, perhaps in a fragment program. It is important that you use this setting when you use a fragment program which uses 1-dimensional texture coordinates, since GL requires you to use a texture type that matches (D3D will let you get away with it, but you ought to plan for cross-compatibility). Your texture widths should still be a power of 2 for best compatibility and performance.
+@item 2d
+The default type which is assumed if you omit it, your texture has a width and a height, both of which should preferably be powers of 2, and if you can, make them square because this will look best on the most hardware. These can be addressed with 2D texture coordinates.
+@item cubic
+This texture is made up of 6 2D textures which are pasted around the inside of a cube. Can be addressed with 3D texture coordinates and are useful for cubic reflection maps and normal maps.
+@end table
 
 Default: none@*@*
 
