@@ -34,7 +34,7 @@ bool SDLConfig::display(void)
 
     // Get the renderer
     std::cout << "Select Renderer:" << std::endl;
-    int x = 1;
+    int x = 1, choice = 0;
     RenderSystemList* renderers = Root::getSingleton().getAvailableRenderers();
     for (RenderSystemList::iterator pRend = renderers->begin();
             pRend != renderers->end(); pRend++)
@@ -43,11 +43,14 @@ bool SDLConfig::display(void)
         x++;
     }
 
-    std::cin >> x;
-
-    RenderSystemList::iterator pRend =  renderers->begin();
-
-    RenderSystem* renderer = pRend[x-1];
+    std::cin >> choice;
+	
+	if (choice<=0 || choice>=x) {
+		Except(Exception::ERR_INVALIDPARAMS,
+			"Invalid RenderSystem number",
+			"SDLConfig::display");
+	}
+	RenderSystem* renderer = (*renderers)[choice-1];
 
     ConfigOptionMap options = renderer->getConfigOptions();
 
@@ -69,9 +72,15 @@ bool SDLConfig::display(void)
             x++;
         }
 
-        std::cin >> x;
+        choice = 0;
+		std::cin >> choice;
+		if (choice<=0 || choice>=x) {
+			Except(Exception::ERR_INVALIDPARAMS,
+				"Invalid number chosen for '"+it->second.name+"' option",
+				"SDLConfig::display");
+		}
         opt_it = it->second.possibleValues.begin();
-        renderer->setConfigOption(it->second.name, opt_it[x-1]);
+        renderer->setConfigOption(it->second.name, opt_it[choice-1]);
     }
 
     // All done
