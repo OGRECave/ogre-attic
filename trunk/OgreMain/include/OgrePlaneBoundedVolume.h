@@ -44,7 +44,7 @@ namespace Ogre {
         PlaneList planes;
         Plane::Side outside;
 
-        PlaneBoundedVolume() {}
+        PlaneBoundedVolume() :outside(Plane::NEGATIVE_SIDE) {}
         /** Constructor, determines which side is deemed to be 'outside' */
         PlaneBoundedVolume(Plane::Side theOutside) 
             : outside(theOutside) {}

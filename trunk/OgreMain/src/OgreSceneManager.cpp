@@ -2141,8 +2141,33 @@ namespace Ogre {
     bool SceneManager::ShadowCasterSceneQueryListener::queryResult(
         MovableObject* object)
     {
-        mCasterList->push_back(object);
-        return true;
+        // If the object is in the frustum, we can always see the shadow
+        if (mCamera->isVisible(object->getWorldBoundingBox()))
+        {
+            mCasterList->push_back(object);
+            return true;
+        }
+
+        // Otherwise, object can only be casting a shadow into our view if
+        // the light is outside the frustum, and the object is intersecting
+        // on of the volumes formed between the edges of the frustum and the
+        // light
+        if (!mIsLightInFrustum)
+        {
+            // Iterate over volumes
+            PlaneBoundedVolumeList::const_iterator i, iend;
+            iend = mLightClipVolumeList->end();
+            for (i = mLightClipVolumeList->begin(); i != iend; ++i)
+            {
+                if (i->intersects(object->getWorldBoundingBox()))
+                {
+                    mCasterList->push_back(object);
+                    return true;
+                }
+
+            }
+
+        }
     }
 	//---------------------------------------------------------------------
     bool SceneManager::ShadowCasterSceneQueryListener::queryResult(
@@ -2164,15 +2189,30 @@ namespace Ogre {
         }
         else
         {
-            // Really basic
-            SphereSceneQuery* ssc = createSphereQuery(
-                Sphere(light->getPosition(), light->getAttenuationRange()) );
+            Sphere s(light->getPosition(), light->getAttenuationRange());
+            // eliminate early if camera cannot see light sphere
+            if (camera->isVisible(s))
+            {
+                // Really basic
+                SphereSceneQuery* ssc = createSphereQuery(s);
 
-            // Execute, use callback
-            ShadowCasterSceneQueryListener listener(&mShadowCasterList);
-            ssc->execute(&listener);
+                // Determine if light is inside or outside the frustum
+                bool lightInFrustum = camera->isVisible(light->getPosition());
+                const PlaneBoundedVolumeList* volList = 0;
+                if (!lightInFrustum)
+                {
+                    // Only worth building an external volume list if
+                    // light is outside the frustum
+                    volList = &(light->_getFrustumClipVolumes(camera));
+                }
 
-            delete ssc;
+                // Execute, use callback
+                ShadowCasterSceneQueryListener listener(lightInFrustum, 
+                    volList, camera, &mShadowCasterList);
+                ssc->execute(&listener);
+
+                delete ssc;
+            }
 
         }
 
