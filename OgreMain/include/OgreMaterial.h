@@ -1255,20 +1255,20 @@ namespace Ogre {
                 colour The colour of the fog. Either set this to the same as your viewport background colour,
                 or to blend in with a skydome or skybox.
             @param
-                expDensity The density of the fog in FOG_EXP or FOG_EXP2 mode, as a value between 0 and 1. The default is 1. i.e. completely opaque, lower values can mean
-                that fog never completely obscures the scene.
+                expDensity The density of the fog in FOG_EXP or FOG_EXP2 mode, as a value between 0 and 1. 
+                The default is 0.001.
             @param
-                linearStart Distance at which linear fog starts to encroach. The distance must be passed
-                as a parametric value between 0 and 1, with 0 being the near clipping plane, and 1 being the far clipping plane. Only applicable if mode is FOG_LINEAR.
+                linearStart Distance in world units at which linear fog starts to encroach. 
+                Only applicable if mode is FOG_LINEAR.
             @param
-                linearEnd Distance at which linear fog becomes completely opaque.The distance must be passed
-                as a parametric value between 0 and 1, with 0 being the near clipping plane, and 1 being the far clipping plane. Only applicable if mode is FOG_LINEAR.
+                linearEnd Distance in world units at which linear fog becomes completely opaque.
+                Only applicable if mode is FOG_LINEAR.
         */
         void setFog(
             bool overrideScene,
             FogMode mode = FOG_NONE,
             const ColourValue& colour = ColourValue::White,
-            Real expDensity = 1.0, Real linearStart = 0.0, Real linearEnd = 1.0 );
+            Real expDensity = 0.001, Real linearStart = 0.0, Real linearEnd = 1.0 );
 
         /** Returns true if this material is to override the scene fog settings.
         */
