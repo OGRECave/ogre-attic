@@ -142,7 +142,7 @@ void TerrainRenderable::init( TerrainOptions &options )
         HardwareBufferManager::getSingleton().createVertexBuffer(
             decl->getVertexSize(POSITION_BINDING),
             mTerrain->vertexCount, 
-            HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+            HardwareBuffer::HBU_STATIC_WRITE_ONLY, true);
 
     bind->setBinding(POSITION_BINDING, vbuf);
 
@@ -584,59 +584,6 @@ void TerrainRenderable::getRenderOperation( RenderOperation& op )
     op.vertexData = mTerrain;
     op.indexData = indexData;
 
-    /* 
-    rend.useIndexes = true;
-    rend.vertexOptions = LegacyRenderOperation::VO_TEXTURE_COORDS;
-
-    if ( mColored )
-        rend.vertexOptions |= LegacyRenderOperation::VO_DIFFUSE_COLOURS;
-
-    if ( mLit )
-        rend.vertexOptions |= LegacyRenderOperation::VO_NORMALS;
-
-    rend.operationType = LegacyRenderOperation::OT_TRIANGLE_LIST;
-
-    if ( mColored )
-    {
-        rend.pDiffuseColour = mTerrain.pColours;
-        rend.diffuseStride = 0;
-    }
-
-    else
-        rend.pDiffuseColour = 0;
-
-    rend.numTextureCoordSets = 2;
-
-    rend.numTextureDimensions[ 0 ] = 2;
-
-    rend.numTextureDimensions[ 1 ] = 2;
-
-    rend.pTexCoords[ 0 ] = mTerrain.pTexCoords[ 0 ];
-
-    rend.pTexCoords[ 1 ] = mTerrain.pTexCoords[ 1 ];
-
-    rend.texCoordStride[ 0 ] = 0;
-
-    rend.texCoordStride[ 1 ] = 0;
-
-    if ( mLit )
-        rend.pNormals = mTerrain.pNormals;
-    else
-        rend.pNormals = 0;
-
-    rend.numVertices = mTerrain.numVertices;
-
-
-
-    rend.pVertices = mTerrain.pVertices;
-
-    rend.vertexStride = 0;
-
-    rend.pIndexes = buffer -> indexes;
-
-    rend.numIndexes = buffer -> length;
-
-    */
     mRenderedTris += ( indexData->indexCount / 3 );
 
 
