@@ -33,6 +33,8 @@ http://www.gnu.org/copyleft/gpl.html.
 
 namespace Ogre {
 
+class OGREWidget;
+
 class GTKGLSupport : public GLSupport
 {
 public:
@@ -57,8 +59,7 @@ public:
 private:
     Gtk::Main _kit;
     int _context_ref;
-    Glib::RefPtr< Gdk::GL::Window > _window;
-    Glib::RefPtr< Gdk::GL::Context > _context;
+    OGREWidget* _ogre_widget;
 }; // class GTKGLSupport
 
 }; // namespace Ogre
