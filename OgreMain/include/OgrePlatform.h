@@ -22,8 +22,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
-#ifndef _PLATFORM_H__
-#define _PLATFORM_H__
+#ifndef __Platform_H_
+#define __Platform_H_
 
 #include "OgreConfig.h"
 
@@ -57,18 +57,17 @@ http://www.gnu.org/copyleft/gpl.html.
 #endif
 
 /* Hack to get the release version of STLport 4.5.3 to compile when using
-   the release build
-
-   Has to be nested because some compilers return strings for their version
+   the release build in VC7.   
 */
 #if OGRE_COMPILER == COMPILER_MSVC
-#if OGRE_COMP_VER == 1300
-#   define _STLP_LIB_BASENAME "stlport_vc7"
+    // Has to be nested because some compilers return strings for their version
+#   if OGRE_COMP_VER == 1300
+#       define _STLP_LIB_BASENAME "stlport_vc7"
 #   endif
 #endif
 
 /* See if we can use __forceinline or if we need to use __inline instead */
-#if OGRE_COMPILER == COMPILER_MSVC
+#if OGRE_COMPILER == COMPILER_MSVC 
 #   if OGRE_COMP_VER >= 1200
 #       define FORCEINLINE __forceinline
 #   endif
@@ -89,14 +88,11 @@ http://www.gnu.org/copyleft/gpl.html.
 #define END_OGRE_NAMESPACE }
 
 // For generating compiler warnings - should work on any compiler
+// As a side note, if you start your message with 'Warning: ', the MSVC
+// IDE actually does catch a warning :)
 #define _QUOTE_INPLACE_(x) # x
 #define QUOTE(x) _QUOTE_INPLACE_(x)
 #define warn( x )  message( __FILE__ "(" QUOTE( __LINE__ ) ") : " x "\n" )
-
-// ----------------------------------------------------------------------------
-// Tell STLport that we want to link to the DLL version under Win32
-// must define the _STLP_USE_DYNAMIC_LIB macro at the compiler input.
-// ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
 // Windows Settings
@@ -120,4 +116,4 @@ http://www.gnu.org/copyleft/gpl.html.
 #endif // OGRE_LINUX
 
 
-#endif // _PLATFORM_H__
+#endif
