@@ -217,6 +217,8 @@ namespace OgreMaya {
 
 		void _convertObjectToFace(MItMeshPolygon &iterPoly, MIntArray &objIndices, MIntArray &faceIndices);
 
+        MString getMaterialName(MFnMesh &fnMesh);
+
 	};
 
 } // namespace OgreMaya
