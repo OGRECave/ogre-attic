@@ -123,6 +123,8 @@ BOOL MilkshapePlugin::DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam
                 hwndDlgItem = GetDlgItem(hDlg, IDC_EXPORT_MATERIALS);
                 plugin->exportMaterials = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
                 
+                hwndDlgItem = GetDlgItem(hDlg, IDC_SPLIT_ANIMATION);
+                plugin->splitAnimations = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
 
                 EndDialog(hDlg, TRUE);
                 return TRUE;
@@ -427,21 +429,7 @@ Ogre::Skeleton* MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* m
 
     // Complete the details
     
-    // Create the Animation
-    // Milkshape only supports 1 animation (hmm)
-    // Get animation length
-    // Map frames -> seconds, this can be changed in speed of animation anyway
-
-    int numFrames = msModel_GetTotalFrames(pModel);
-    msg = "Number of frames: ";
-    msg << numFrames;
-    logMgr.logMessage(msg);
-
-    logMgr.logMessage("Trying to create Animation object");
-    Ogre::Animation *ogreanim = ogreskel->createAnimation("Default", numFrames);
-    logMgr.logMessage("Animation object created.");
-
-    // Do the bones, include the animation tracks too
+    // Do the bones
     int numBones = msModel_GetBoneCount(pModel);
     msg = "Number of bones: ";
     msg << numBones;
@@ -480,112 +468,6 @@ Ogre::Skeleton* MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* m
             "Ms3d Rotation: {" << msBoneRot[0] << ", " << msBoneRot[1] << ", " << msBoneRot[2] << "} " <<
             "Orientation: " << qfinal;
         logMgr.logMessage(msg);
-
-        // Create animation tracks
-        msg = "";
-        msg << "Creating AnimationTrack for bone " << i;
-        logMgr.logMessage(msg);
-
-        Ogre::AnimationTrack *ogretrack = ogreanim->createTrack(i, ogrebone);
-        logMgr.logMessage("Animation track created.");
-
-        // OGRE uses keyframes which are both position and rotation
-        // Milkshape separates them, so create merged OGRE keyframes
-        int numPosKeys = msBone_GetPositionKeyCount(bone);
-        int numRotKeys = msBone_GetRotationKeyCount(bone);
-
-        msg = "";
-        msg << "Number of keyframes: Pos: " << numPosKeys << " Rot: " << numRotKeys;
-        logMgr.logMessage(msg);
-
-        int currPosIdx, currRotIdx;
-        msPositionKey* currPosKey;
-        msRotationKey* currRotKey;
-        currPosKey = msBone_GetPositionKeyAt(bone, 0);
-        currRotKey = msBone_GetRotationKeyAt(bone, 0);
-        int ogreKeyFrameCount = 0;
-        for (currPosIdx = 0, currRotIdx = 0; 
-            currPosIdx < numPosKeys && currRotIdx < numRotKeys;
-            ++ogreKeyFrameCount )
-        {
-            Ogre::Real time;
-            if (currPosKey->fTime > currRotKey->fTime)
-            {
-                time = currPosKey->fTime;
-            }
-            else
-            {
-                time = currRotKey->fTime;
-            }
-
-            msg = "";
-            msg << "Creating combined (pos & rot) KeyFrame #" << ogreKeyFrameCount <<
-                " for bone #" << i;
-            logMgr.logMessage(msg);
-            // Create keyframe
-            Ogre::KeyFrame *ogrekey = ogretrack->createKeyFrame(time);
-            logMgr.logMessage("KeyFrame created");
-
-            Ogre::Vector3 kfPos(currPosKey->Position[0], currPosKey->Position[1], currPosKey->Position[2]);
-            Ogre::Quaternion kfQ;
-
-            ogrekey->setTranslate(kfPos);
-            qx.FromAngleAxis(currRotKey->Rotation[0], Ogre::Vector3::UNIT_X);
-            qy.FromAngleAxis(currRotKey->Rotation[1], Ogre::Vector3::UNIT_Y);
-            qz.FromAngleAxis(currRotKey->Rotation[2], Ogre::Vector3::UNIT_Z);
-            kfQ = qz * qy * qx;
-            ogrekey->setRotation(kfQ);
-
-            msg = "";
-            msg << "KeyFrame details: Position=" << kfPos << " " <<
-                "Ms3d Rotation= {" << currRotKey->Rotation[0] << ", " << currRotKey->Rotation[1] << ", " << currRotKey->Rotation[2] << "} " <<
-                "Orientation=" << kfQ;
-            logMgr.logMessage(msg);
-
-            // Check to see which one is next
-            if (currPosIdx+1 == numPosKeys && currRotIdx+1 == numRotKeys)
-                break; // were done
-
-            if (currPosIdx+1 == numPosKeys)
-            {
-                // Use next rotation index since position indexes have run out
-                currRotIdx++;
-            }
-            else if (currRotIdx+1 == numRotKeys)
-            {
-                // Use next position index since rotation indexes have run out
-                currPosIdx++;
-            }
-            else
-            {
-                // Neither have run out, time to compare the times of the next of each
-                // We want the lowest time of the next of each
-                msPositionKey* possPosKey = msBone_GetPositionKeyAt(bone, currPosIdx+1);
-                msRotationKey* possRotKey = msBone_GetRotationKeyAt(bone, currRotIdx+1);
-
-                if (possPosKey->fTime == possRotKey->fTime)
-                {
-                    // Increment both if equal
-                    currPosIdx++;
-                    currRotIdx++;
-                }
-                else if (possPosKey->fTime < possRotKey->fTime)
-                {
-                    currPosIdx++;
-                }
-                else
-                {
-                    currRotIdx++;
-                }
-            }
-            
-            // Get the keys
-            currPosKey = msBone_GetPositionKeyAt(bone, currPosIdx);
-            currRotKey = msBone_GetRotationKeyAt(bone, currRotIdx);
-
-
-
-        }
 
         
     }
@@ -628,6 +510,10 @@ Ogre::Skeleton* MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* m
 
     }
     logMgr.logMessage("Bone hierarchy established.");
+
+    // Create the Animation(s)
+    doExportAnimations(pModel, ogreskel);
+
 
 
     // Create skeleton serializer & export
@@ -695,4 +581,264 @@ bool MilkshapePlugin::locateSkeleton(Ogre::Mesh* mesh)
 
 }
 
+struct SplitAnimationStruct
+{
+    int start;
+    int end;
+    Ogre::String name;
+};
+
+void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::Skeleton* ogreskel)
+{
+
+    Ogre::LogManager& logMgr = Ogre::LogManager::getSingleton();
+    std::vector<SplitAnimationStruct> splitInfo;
+    Ogre::String msg;
+
+    int numFrames = msModel_GetTotalFrames(pModel);
+    msg = "Number of frames: ";
+    msg << numFrames;
+    logMgr.logMessage(msg);
+
+    if (splitAnimations)
+    {
+        // Explain
+        msg = "You have chosen to create multiple discrete animations by splitting up the frames in ";
+        msg << "the animation sequence. In order to do this, you must supply a simple text file "
+            << "describing the separate animations, which has a single line per animation in the format: \n\n" 
+            << "startFrame,endFrame,animationName\n\n" << "For example: \n\n"
+            << "1,20,Walk\n21,35,Run\n36,40,Shoot\n\n" 
+            << "..creates 3 separate animations (the frame numbers are inclusive). You must browse to this file in the next dialog.";
+        MessageBox(0,msg.c_str(), "Splitting Animations",MB_ICONINFORMATION | MB_OK);
+        // Prompt for a file which contains animation splitting info
+        OPENFILENAME ofn;
+        memset (&ofn, 0, sizeof (OPENFILENAME));
+        
+        char szFile[MS_MAX_PATH];
+        char szFileTitle[MS_MAX_PATH];
+        char szDefExt[32] = "skeleton";
+        char szFilter[128] = "All Files (*.*)\0*.*\0\0";
+        szFile[0] = '\0';
+        szFileTitle[0] = '\0';
+
+        ofn.lStructSize = sizeof (OPENFILENAME);
+        ofn.lpstrDefExt = szDefExt;
+        ofn.lpstrFilter = szFilter;
+        ofn.lpstrFile = szFile;
+        ofn.nMaxFile = MS_MAX_PATH;
+        ofn.lpstrFileTitle = szFileTitle;
+        ofn.nMaxFileTitle = MS_MAX_PATH;
+        ofn.Flags = OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+        ofn.lpstrTitle = "Open animation split configuration file";
+
+        if (!::GetOpenFileName (&ofn))
+        {
+            msg = "Splitting aborted, generating a single animation called 'Default'";
+            MessageBox(0, msg.c_str(), "Info", MB_OK | MB_ICONWARNING);
+            SplitAnimationStruct split;
+            split.start = 1;
+            split.end = numFrames;
+            split.name = "Default";
+            splitInfo.push_back(split);
+        }
+        else
+        {
+            // Read file
+            Ogre::String sline;
+            char line[256];
+            SplitAnimationStruct newSplit;
+
+            std::ifstream istr;
+            istr.open("c:\\temp\\test.txt");
+
+            while (!istr.eof())
+            {
+                istr.getline(line, 256);
+                sline = line;
+
+                // Ignore blanks & comments
+                if (sline == "" || sline.substr(0,2) == "//")
+                    continue;
+
+                // Split on ','
+                std::vector<Ogre::String> svec = sline.split(",\n");
+
+                // Basic validation on number of elements
+                if (svec.size() != 3)
+                {
+                    MessageBox(0, "Warning: corrupt animation details in file. You should look into this. ",
+                        "Corrupt animations file", MB_ICONWARNING | MB_OK);
+                    continue;
+                }
+                // Remove any embedded spaces
+                svec[0].trim();
+                svec[1].trim();
+                svec[2].trim();
+                // Create split info
+                newSplit.start = atoi(svec[0].c_str());
+                newSplit.end = atoi(svec[1].c_str());
+                newSplit.name = svec[2];
+                splitInfo.push_back(newSplit);
+
+            }
+
+
+        }
+
+    }
+    else
+    {
+        // No splitting
+        SplitAnimationStruct split;
+        split.start = 1;
+        split.end = numFrames;
+        split.name = "Default";
+        splitInfo.push_back(split);
+    }
+
+    // Get animation length
+    // Map frames -> seconds, this can be changed in speed of animation anyway
+
+
+
+    int numBones = msModel_GetBoneCount(pModel);
+
+    std::vector<SplitAnimationStruct>::iterator animsIt;
+    for (animsIt = splitInfo.begin(); animsIt != splitInfo.end(); ++animsIt)
+    {
+        SplitAnimationStruct& currSplit = *animsIt;
+
+        // Create animation
+        msg = "Trying to create Animation object for animation ";
+        msg <<  currSplit.name << " For Frames " << currSplit.start << " to "
+            << currSplit.end << " inclusive.";
+        logMgr.logMessage(msg);
+        Ogre::Animation *ogreanim = 
+            ogreskel->createAnimation(currSplit.name, (currSplit.end - currSplit.start) + 1);
+        logMgr.logMessage("Animation object created.");
+
+        int i;
+        // Create all the animation tracks
+        for (i = 0; i < numBones; ++i)
+        {
+
+            msBone* bone = msModel_GetBoneAt(pModel, i);
+            Ogre::Bone* ogrebone = ogreskel->getBone(bone->szName);
+
+            // Create animation tracks
+            msg = "";
+            msg << "Creating AnimationTrack for bone " << i;
+            logMgr.logMessage(msg);
+
+            Ogre::AnimationTrack *ogretrack = ogreanim->createTrack(i, ogrebone);
+            logMgr.logMessage("Animation track created.");
+
+            // OGRE uses keyframes which are both position and rotation
+            // Milkshape separates them, so create merged OGRE keyframes
+            int numPosKeys = msBone_GetPositionKeyCount(bone);
+            int numRotKeys = msBone_GetRotationKeyCount(bone);
+
+            msg = "";
+            msg << "Number of keyframes: Pos: " << numPosKeys << " Rot: " << numRotKeys;
+            logMgr.logMessage(msg);
+
+            int currPosIdx, currRotIdx;
+            msPositionKey* currPosKey;
+            msRotationKey* currRotKey;
+            currPosKey = msBone_GetPositionKeyAt(bone, 0);
+            currRotKey = msBone_GetRotationKeyAt(bone, 0);
+            int ogreKeyFrameCount = 0;
+            for (currPosIdx = 0, currRotIdx = 0; 
+                currPosIdx < numPosKeys && currRotIdx < numRotKeys;
+                ++ogreKeyFrameCount )
+            {
+                Ogre::Real time;
+                if (currPosKey->fTime > currRotKey->fTime)
+                {
+                    time = currPosKey->fTime;
+                }
+                else
+                {
+                    time = currRotKey->fTime;
+                }
+
+                // Make sure keyframe is in current time frame (for splitting)
+                if (time >= currSplit.start && time <= currSplit.end)
+                {
+
+                    msg = "";
+                    msg << "Creating combined (pos & rot) KeyFrame #" << ogreKeyFrameCount <<
+                        " for bone #" << i;
+                    logMgr.logMessage(msg);
+                    // Create keyframe
+                    // Adjust for start time, and for the fact that frames are numbered from 1
+                    Ogre::KeyFrame *ogrekey = ogretrack->createKeyFrame(time - currSplit.start);
+                    logMgr.logMessage("KeyFrame created");
+
+                    Ogre::Vector3 kfPos(currPosKey->Position[0], currPosKey->Position[1], currPosKey->Position[2]);
+                    Ogre::Quaternion qx, qy, qz, kfQ;
+
+                    ogrekey->setTranslate(kfPos);
+                    qx.FromAngleAxis(currRotKey->Rotation[0], Ogre::Vector3::UNIT_X);
+                    qy.FromAngleAxis(currRotKey->Rotation[1], Ogre::Vector3::UNIT_Y);
+                    qz.FromAngleAxis(currRotKey->Rotation[2], Ogre::Vector3::UNIT_Z);
+                    kfQ = qz * qy * qx;
+                    ogrekey->setRotation(kfQ);
+
+                    msg = "";
+                    msg << "KeyFrame details: Time=" << time << " Position=" << kfPos << " " <<
+                        "Ms3d Rotation= {" << currRotKey->Rotation[0] << ", " << currRotKey->Rotation[1] << ", " << currRotKey->Rotation[2] << "} " <<
+                        "Orientation=" << kfQ;
+                    logMgr.logMessage(msg);
+                } // keyframe creation
+
+                // Check to see which one is next
+                if (currPosIdx+1 == numPosKeys && currRotIdx+1 == numRotKeys)
+                    break; // were done
+
+                if (currPosIdx+1 == numPosKeys)
+                {
+                    // Use next rotation index since position indexes have run out
+                    currRotIdx++;
+                }
+                else if (currRotIdx+1 == numRotKeys)
+                {
+                    // Use next position index since rotation indexes have run out
+                    currPosIdx++;
+                }
+                else
+                {
+                    // Neither have run out, time to compare the times of the next of each
+                    // We want the lowest time of the next of each
+                    msPositionKey* possPosKey = msBone_GetPositionKeyAt(bone, currPosIdx+1);
+                    msRotationKey* possRotKey = msBone_GetRotationKeyAt(bone, currRotIdx+1);
+
+                    if (possPosKey->fTime == possRotKey->fTime)
+                    {
+                        // Increment both if equal
+                        currPosIdx++;
+                        currRotIdx++;
+                    }
+                    else if (possPosKey->fTime < possRotKey->fTime)
+                    {
+                        currPosIdx++;
+                    }
+                    else
+                    {
+                        currRotIdx++;
+                    }
+                }
+                
+                // Get the keys
+                currPosKey = msBone_GetPositionKeyAt(bone, currPosIdx);
+                currRotKey = msBone_GetRotationKeyAt(bone, currRotIdx);
+
+            } // keys
+        } //Bones
+    } // Animations
+
+
+
+
+}
 

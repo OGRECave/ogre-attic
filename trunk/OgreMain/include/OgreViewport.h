@@ -60,10 +60,10 @@ namespace Ogre {
                 width
             @param
                 height
-                Dimensions of the viewport, expressed as decimals between
-                0 and 1. This allows the dimensions to apply irrespective of
+                Dimensions of the viewport, expressed a a pecentage between
+                0 and 100. This allows the dimensions to apply irrespective of
                 changes in the target's size: e.g. to fill the whole area,
-                values of 0,0,1,1 are appropriate.
+                values of 0,0,100,100 are appropriate.
             @param
                 ZOrder Relative Z-order on the target. Lower = further to
                 the front.

@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreBone.h"
 #include "OgreString.h"
 #include "OgreDataChunk.h"
+#include "OgreLogManager.h"
 
 
 
@@ -50,19 +51,30 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void SkeletonSerializer::exportSkeleton(const Skeleton* pSkeleton, const String& filename)
     {
+        String msg;
         mpfFile = fopen(filename, "wb");
 
         writeFileHeader();
 
         // Write main skeleton data
+        LogManager::getSingleton().logMessage("Exporting bones..");
         writeSkeleton(pSkeleton);
+        LogManager::getSingleton().logMessage("Bones exported.");
 
         // Write all animations
         unsigned short numAnims = pSkeleton->getNumAnimations();
+        msg = "Exporting animations, count=";
+        msg << numAnims;
+        LogManager::getSingleton().logMessage(msg);
         for (unsigned short i = 0; i < numAnims; ++i)
         {
             Animation* pAnim = pSkeleton->getAnimation(i);
+            msg = "Exporting animation: ";
+            msg << pAnim->getName();
+            LogManager::getSingleton().logMessage(msg);
             writeAnimation(pAnim);
+            LogManager::getSingleton().logMessage("Animation exported.");
+
         }
         fclose(mpfFile);
 
