@@ -382,14 +382,19 @@ namespace Ogre {
             This method retrieves the rendering-API dependent version of the projection
             matrix. If you want a 'typical' projection matrix then use 
             getStandardProjectionMatrix.
+
         */
         const Matrix4& getProjectionMatrix(void) const;
         /** Gets the 'standard' projection matrix for this camera, ie the 
         projection matrix which conforms to standard right-handed rules.
         @remarks
             This differs from the rendering-API dependent getProjectionMatrix
-            in that it always returns the same result no matter what rendering API
-            is being used.
+            in that it always returns a right-handed projection matrix result 
+            no matter what rendering API is being used - this is required for
+            vertex and fragment programs for example. However, the resulting depth
+            range may still vary between render systems since D3D uses [0,1] and 
+            GL uses [-1,1], and the range must be kept the same between programmable
+            and fixed-function pipelines.
         */
         const Matrix4& getStandardProjectionMatrix(void) const;
 
