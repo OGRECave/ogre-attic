@@ -50,10 +50,6 @@
 	<Image Name="EditBoxMiddle" XPos="47" YPos="108" Width="4" Height="18" />
 	<Image Name="EditBoxRight" XPos="53" YPos="108" Width="4" Height="18" />
 	<Image Name="EditBoxCarat" XPos="60" YPos="108" Width="4" Height="18" />
-	<Image Name="SpinnerUpNormal" XPos="68" YPos="110" Width="10" Height="6" />
-	<Image Name="SpinnerDownNormal" XPos="68" YPos="118" Width="10" Height="6" />
-	<Image Name="SpinnerUpHover" XPos="82" YPos="110" Width="10" Height="6" />
-	<Image Name="SpinnerDownHover" XPos="82" YPos="118" Width="10" Height="6" />
 	<Image Name="TextSelectionBrush" XPos="8" YPos="70" Width="16" Height="16" />
 	<Image Name="VertScrollTop" XPos="182" YPos="2" Width="20" Height="8" />
 	<Image Name="VertScrollMiddle" XPos="182" YPos="12" Width="20" Height="8" />
