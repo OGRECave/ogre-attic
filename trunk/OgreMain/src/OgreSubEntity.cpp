@@ -85,10 +85,8 @@ namespace Ogre {
         // Ensure new material loaded (will not load again if already loaded)
         mpMaterial->load();
 
-        if (mParentEntity->getMesh()->hasSkeleton())
-        {
-            mParentEntity->reevaluateHardwareSkinning();
-        }
+        // tell parent to reconsider material vertex processing options
+        mParentEntity->reevaluateVertexProcessing();
 
 
     }
