@@ -302,7 +302,7 @@ void GLHardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::Box
 				dstBox.getHeight(), dstBox.getDepth(),
 				mFormat)));
 		scaled = PixelBox(dstBox, mFormat, buf->getPtr());
-		Image::scale(src, scaled, Image::FILTER_BOX);
+		Image::scale(src, scaled, Image::FILTER_BILINEAR);
 	}
 	else if(GLPixelUtil::getGLOriginFormat(src.format) == 0 ||
 			GLPixelUtil::getGLOriginDataType(src.format) == 0)
