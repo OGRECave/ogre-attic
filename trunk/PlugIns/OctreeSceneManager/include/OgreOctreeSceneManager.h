@@ -36,7 +36,7 @@ class OctreeNode;
 class OctreeCamera;
 
 
-typedef std::list < AxisAlignedBox * > BoxList;
+typedef std::list < WireBoundingBox * > BoxList;
 typedef std::list < unsigned long > ColorList;
 //typedef std::list < SceneNode * > SceneNodeList;
 
@@ -77,8 +77,6 @@ public:
 
     /** Does nothing more */
     virtual void _updateSceneGraph( Camera * cam );
-    /** Renders the visible objects in the Octree */
-    virtual void _renderVisibleObjects( void );
     /** Recurses through the octree determining which nodes are visible. */
     virtual void _findVisibleObjects ( Camera * cam );
 
@@ -172,12 +170,8 @@ public:
 
 protected:
 
-    Material * mBlankMaterial;
 
     NodeList mVisible;
-
-    /** Inserts the boxes corners into the Real array */
-    void getBoxVerts( AxisAlignedBox &box, Real *r );
 
     /// the world size
     float mWorldSize;
@@ -187,9 +181,6 @@ protected:
 
     /// list of boxes to be rendered
     BoxList mBoxes;
-
-    /// temp render operation
-    RenderOperation mRenderOp;
 
     /// number of rendered objs
     int mNumObjects;

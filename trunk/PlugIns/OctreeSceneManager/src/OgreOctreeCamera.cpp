@@ -33,7 +33,10 @@ unsigned short OctreeCamera::mIndexes[ 24 ] = {0, 1, 1, 2, 2, 3, 3, 0,       //b
 unsigned long OctreeCamera::mColors[ 8 ] = {red, red, red, red, red, red, red, red};
 
 OctreeCamera::OctreeCamera( String name, SceneManager* sm ) : Camera( name, sm )
-{}
+{
+    mMaterial = sm->getMaterial("BaseWhite");
+
+}
 
 OctreeCamera::~OctreeCamera()
 {}
@@ -178,6 +181,22 @@ void OctreeCamera::_getCorner( Real *r, FrustumPlane pp1, FrustumPlane pp2, Frus
     r[ 2 ] = zdet / det;
 
 }
+
+Real OctreeCamera::getSquaredViewDepth(const Camera* cam) const
+{
+	Vector3 dist = cam->getDerivedPosition() - this->getDerivedPosition();
+	return dist.squaredLength();
+}
+Material* OctreeCamera::getMaterial(void) const
+{
+    return mMaterial;
+}
+
+void OctreeCamera::getWorldTransforms(Matrix4* xform)
+{
+    xform[0] = Matrix4::IDENTITY;
+}
+
 }
 
 

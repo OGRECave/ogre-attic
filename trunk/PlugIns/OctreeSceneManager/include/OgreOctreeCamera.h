@@ -19,7 +19,7 @@ email                : janders@users.sf.net
 #define OCTREECAMERA_H
 
 #include <OgreCamera.h>
-#include <OgreRenderOperation.h>
+#include <OgreSimpleRenderable.h>
 
 /**
 *@author Jon Anderson
@@ -39,7 +39,7 @@ for debuggin purposes. It also implements a visibility function that is more gra
 than the default.
 */
 
-class OctreeCamera : public Camera
+class OctreeCamera : public Camera, public Renderable
 {
 public:
 
@@ -64,6 +64,12 @@ public:
     */
     virtual void getRenderOperation( RenderOperation& rend );
 
+    virtual Material* getMaterial(void) const;
+
+    virtual void getWorldTransforms(Matrix4* xform);
+
+    Real getSquaredViewDepth(const Camera* cam) const;
+
 protected:
     /** Internal method used to find corners of the view frustum
     */
@@ -74,6 +80,9 @@ protected:
     static unsigned short mIndexes[ 24 ];
     ///Shared list of colors used to render
     static unsigned long mColors[ 8 ];
+
+    Material* mMaterial;
+
 };
 
 }
