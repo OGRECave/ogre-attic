@@ -488,6 +488,9 @@ namespace Ogre {
             }
         }
 
+        // Set blend weight info
+        targetVertexData->softwareBlendInfo->numWeightsPerVertex = numBlendWeightsPerVertex;
+
     }
     //---------------------------------------------------------------------
     void Mesh::compileBoneAssignmentsHardware(
