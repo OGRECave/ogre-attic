@@ -90,6 +90,9 @@ namespace Ogre {
 #	define _T( x ) # x
 #endif
 
+//-----------------------------------------
+// These should get removed
+//
     typedef bool Bool;
     typedef bool Boolean;
 
@@ -106,6 +109,14 @@ namespace Ogre {
 
     typedef signed long Int32;
     typedef unsigned long UInt32;
+//-----------------------------------------
+
+    /** In order to avoid finger-aches :)
+    */
+    typedef unsigned char uchar;
+    typedef unsigned short ushort;
+    typedef unsigned int uint;  
+    typedef unsigned long ulong;      
 
 // Pre-declare classes
 // Allows use of pointers in header files without including individual .h
