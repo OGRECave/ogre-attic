@@ -50,9 +50,10 @@ void ThingRenderable::initialise()
 {
 	// Fill array with randomly oriented quads
 	Vector3 ax, ay, az;
+	size_t x;
 	Quaternion q;
 	things.clear(); orbits.clear();
-	for(size_t x=0; x<mCount; x++)
+	for(x=0; x<mCount; x++)
 	{
 		ax = Vector3(randFloat(), randFloat(), randFloat());
 		ay = Vector3(randFloat(), randFloat(), randFloat());
@@ -82,7 +83,7 @@ void ThingRenderable::initialise()
 
 	// Quads
 	unsigned short *faces = new unsigned short[mCount*6];
-	for(size_t x=0; x<mCount; x++) 
+	for(x=0; x<mCount; x++) 
 	{
 		faces[x*6+0] = x*4+0;
 		faces[x*6+1] = x*4+1;

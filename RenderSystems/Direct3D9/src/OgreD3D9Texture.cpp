@@ -918,6 +918,7 @@ namespace Ogre
 		IDirect3DSurface9 *surface;
 		IDirect3DVolume9 *volume;
 		D3D9HardwarePixelBuffer *buffer;
+		size_t mip, face;
 		assert(mpTex);
 		// Make sure number of mips is right
 		mNumMipmaps = mpTex->GetLevelCount() - 1;
@@ -953,7 +954,7 @@ namespace Ogre
 		case TEX_TYPE_1D:
 			assert(mpNormTex);
 			// For all mipmaps, store surfaces as HardwarePixelBufferSharedPtr
-			for(size_t mip=0; mip<=mNumMipmaps; ++mip)
+			for(mip=0; mip<=mNumMipmaps; ++mip)
 			{
 				if(mpNormTex->GetSurfaceLevel(mip, &surface) != D3D_OK)
 					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Get surface level failed",
@@ -968,9 +969,9 @@ namespace Ogre
 		case TEX_TYPE_CUBE_MAP:
 			assert(mpCubeTex);
 			// For all faces and mipmaps, store surfaces as HardwarePixelBufferSharedPtr
-			for(size_t face=0; face<6; ++face)
+			for(face=0; face<6; ++face)
 			{
-				for(size_t mip=0; mip<=mNumMipmaps; ++mip)
+				for(mip=0; mip<=mNumMipmaps; ++mip)
 				{
 					if(mpCubeTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, mip, &surface) != D3D_OK)
 						OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Get cubemap surface failed",
@@ -986,7 +987,7 @@ namespace Ogre
 		case TEX_TYPE_3D:
 			assert(mpVolumeTex);
 			// For all mipmaps, store surfaces as HardwarePixelBufferSharedPtr
-			for(size_t mip=0; mip<=mNumMipmaps; ++mip)
+			for(mip=0; mip<=mNumMipmaps; ++mip)
 			{
 				if(mpVolumeTex->GetVolumeLevel(mip, &volume) != D3D_OK)
 					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Get volume level failed",
@@ -1003,7 +1004,7 @@ namespace Ogre
 		// Set autogeneration of mipmaps for each face of the texture, if it is enabled
 		if(mNumMipmaps>0 && (mUsage & TU_AUTOMIPMAP)) 
 		{
-			for(size_t face=0; face<getNumFaces(); ++face)
+			for(face=0; face<getNumFaces(); ++face)
 			{
 				GETLEVEL(face, 0)->_setMipmapping(true, mAutoGenMipmaps, mpTex);
 			}

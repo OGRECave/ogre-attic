@@ -488,6 +488,8 @@ SOURCE=..\src\OgrePrecompiledHeaders.cpp
 
 !IF  "$(CFG)" == "OgreMain - Win32 Release"
 
+# ADD CPP /Yc"OgreStableHeaders.h"
+
 !ELSEIF  "$(CFG)" == "OgreMain - Win32 Debug"
 
 # ADD CPP /Yc"OgreStableHeaders.h"

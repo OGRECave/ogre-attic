@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib OPENGL32.lib GLU32.lib zlib.lib OgreMain.lib /nologo /dll /machine:I386 /libpath:"..\..\..\OgreMain\lib\Release" /libpath:"..\..\..\Dependencies\lib\Release"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib OPENGL32.lib GLU32.lib OgreMain.lib /nologo /dll /machine:I386 /libpath:"..\..\..\OgreMain\lib\Release" /libpath:"..\..\..\Dependencies\lib\Release"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy ..\bin\Release\*.dll ..\..\..\Samples\Common\bin\Release
@@ -105,6 +105,10 @@ SOURCE=..\src\glprocs.c
 # Begin Source File
 
 SOURCE=..\src\OgreGLATIFSInit.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreGLContext.cpp
 # End Source File
 # Begin Source File
 
@@ -172,6 +176,10 @@ SOURCE=..\src\OgreGLTextureManager.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\win32\OgreWin32Context.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreWin32GLSupport.cpp
 # End Source File
 # Begin Source File
@@ -189,6 +197,10 @@ SOURCE=..\src\OgreWin32Window.cpp
 # Begin Source File
 
 SOURCE=..\include\glprocs.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreGLContext.h
 # End Source File
 # Begin Source File
 
@@ -249,6 +261,10 @@ SOURCE=..\include\OgreGLTexture.h
 # Begin Source File
 
 SOURCE=..\include\OgreGLTextureManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreWin32Context.h
 # End Source File
 # Begin Source File
 
