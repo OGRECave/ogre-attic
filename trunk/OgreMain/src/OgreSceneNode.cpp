@@ -310,28 +310,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Node* SceneNode::createChildImpl(void)
     {
-        // Support detached scene nodes
-        if (mCreator)
-        {
-            return mCreator->createSceneNode();
-        }
-        else
-        {
-            return new SceneNode(NULL);
-        }
+        assert(mCreator);
+        return mCreator->createSceneNode();
     }
     //-----------------------------------------------------------------------
     Node* SceneNode::createChildImpl(const String& name)
     {
-        // Support detached scene nodes
-        if (mCreator)
-        {
-            return mCreator->createSceneNode(name);
-        }
-        else
-        {
-            return new SceneNode(NULL, name);
-        }
+        assert(mCreator);
+        return mCreator->createSceneNode(name);
     }
     //-----------------------------------------------------------------------
     AxisAlignedBox SceneNode::_getWorldAABB(void) const
