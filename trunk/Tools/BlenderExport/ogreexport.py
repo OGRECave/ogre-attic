@@ -2133,9 +2133,10 @@ def process_face(face, submesh, mesh, matrix, skeleton=None):
 					uv[1] = 1 - face.uv[i][1]
 				xmlVertex.appendTextureCoordinates(uv)
 			# vertex colour
-			if (submesh.material.mat.mode & Blender.Material.Modes["VCOL_PAINT"]):
-				colour = face.col[i]
-				xmlVertex.setColourDiffuse([colour.r/255.0, colour.g/255.0, colour.b/255.0, colour.a/255.0])
+			if submesh.material.mat:
+				if (submesh.material.mat.mode & Blender.Material.Modes["VCOL_PAINT"]):
+					colour = face.col[i]
+					xmlVertex.setColourDiffuse([colour.r/255.0, colour.g/255.0, colour.b/255.0, colour.a/255.0])
 			# check if an equal xmlVertex already exist
 			# get vertex 
 			if verticesDict.has_key(face.v[i].index):
