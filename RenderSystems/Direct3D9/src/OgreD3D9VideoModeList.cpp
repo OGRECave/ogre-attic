@@ -22,10 +22,11 @@ namespace Ogre
 
 	BOOL D3D9VideoModeList::enumerate()
 	{
+		UINT iMode;
 		LPDIRECT3D9 pD3D = mpDriver->getD3D();
 		UINT adapter = mpDriver->getAdapterNumber();
 
-		for( UINT iMode=0; iMode < pD3D->GetAdapterModeCount( adapter, D3DFMT_R5G6B5 ); iMode++ )
+		for( iMode=0; iMode < pD3D->GetAdapterModeCount( adapter, D3DFMT_R5G6B5 ); iMode++ )
 		{
 			D3DDISPLAYMODE displayMode;
 			pD3D->EnumAdapterModes( adapter, D3DFMT_R5G6B5, iMode, &displayMode );
@@ -56,7 +57,7 @@ namespace Ogre
 				mModeList.push_back( D3D9VideoMode( displayMode ) );
 		}
 
-		for( UINT iMode=0; iMode < pD3D->GetAdapterModeCount( adapter, D3DFMT_X8R8G8B8 ); iMode++ )
+		for( iMode=0; iMode < pD3D->GetAdapterModeCount( adapter, D3DFMT_X8R8G8B8 ); iMode++ )
 		{
 			D3DDISPLAYMODE displayMode;
 			pD3D->EnumAdapterModes( adapter, D3DFMT_X8R8G8B8, iMode, &displayMode );
