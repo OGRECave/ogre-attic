@@ -22,7 +22,7 @@ email                : janders@users.sf.net
 #include <OgreCamera.h>
 #include "OgreException.h"
 #include "OgreStringConverter.h"
-
+#include <OgreRenderSystem.h>
 #include <fstream>
 
 namespace Ogre
@@ -78,35 +78,35 @@ void TerrainSceneManager::setWorldGeometry( const String& filename )
 
     mTileSize = options.size;
 
-    mImage = new Image();
+    Image image;
 
-    mImage -> load( terrain_filename );
+    image.load( terrain_filename );
 
     //check to make sure it's 2^n + 1 size.
-    if ( mImage->getWidth() != mImage->getHeight() ||
-            ! _checkSize( mImage->getWidth() ) )
+    if ( image.getWidth() != image.getHeight() ||
+            ! _checkSize( image.getWidth() ) )
     {
         String err = "Error: Invalid heightmap size : " +
-                     StringConverter::toString( mImage->getWidth() ) +
-                     "," + StringConverter::toString( mImage->getHeight() ) +
+                     StringConverter::toString( image.getWidth() ) +
+                     "," + StringConverter::toString( image.getHeight() ) +
                      ". Should be 2^n+1, 2^n+1";
         Except( Exception::ERR_INVALIDPARAMS, err, "TerrainSceneManager::setWorldGeometry" );
     }
 
-    if ( mImage -> getFormat() != Image::FMT_GREY )
+    if ( image.getFormat() != Image::FMT_GREY )
     {
         Except( Exception::ERR_INVALIDPARAMS, "Error: Image is not a grayscale image.",
                 "TerrainSceneManager::setWorldGeometry" );
     }
 
-    const uchar *data = mImage -> getData();
+    const uchar *data = image. getData();
 
-    int size = mImage->getWidth();
+    int size = image.getWidth();
 
     // set up the octree size.
     float max_x = options.scalex * size;
 
-    float max_y = 255 * size;
+    float max_y = 255 * options.scaley;
 
     float max_z = options.scalez * size;
 
@@ -129,9 +129,8 @@ void TerrainSceneManager::setWorldGeometry( const String& filename )
     }
 
     mTerrainMaterial -> setLightingEnabled( options.lit );
-
+  
     //create a root terrain node.
-
     mTerrainRoot = getRootSceneNode() -> createChild( "Terrain" );
 
     //setup the tile array.
@@ -205,20 +204,30 @@ void TerrainSceneManager::setWorldGeometry( const String& filename )
         for ( i = 0; i < size; i++ )
         {
             mTiles[ i ][ j ] -> _calculateNormals( );
+            //  mTiles[ i ][ j ] -> _generateVertexLighting( Vector3( 255, 100, 255 ), ColourValue(.25,.25,.25) );
+        }
 
+    }
+    /*
+    for ( j = 0; j < 13; j++ )
+    {
+        for ( i = 0; i < size; i++ )
+        {
+            mTiles[ i ][ j ] -> _generateVertexLighting( Vector3( 255, 50, 255 ), ColourValue( .25, .25, .25 ) );
         }
     }
-
+*/
 }
 
 
 void TerrainSceneManager::_updateSceneGraph( Camera * cam )
+
 {
-    /*
-    Vector3 c = cam -> getPosition();
-    c.y = getHeightAt(c.x, c.z ) + 3;
-    cam -> setPosition( c );
-    */
+
+    // Vector3 c = cam -> getPosition();
+    // c.y = getHeightAt(c.x, c.z ) + 3;
+    // cam -> setPosition( c );
+
     OctreeSceneManager::_updateSceneGraph( cam );
 }
 
@@ -233,6 +242,8 @@ void TerrainSceneManager::_renderVisibleObjects( void )
         }
     }
 
+    mDestRenderSystem -> setLightingEnabled( false );
+
     OctreeSceneManager::_renderVisibleObjects();
 
     TerrainRenderable::mRenderedTris = 0;
@@ -246,60 +257,66 @@ void TerrainSceneManager::_findVisibleObjects ( Camera * cam )
 
 float TerrainSceneManager::getHeightAt( float x, float z )
 {
-    //find which tile.
-    const uchar * heightmap = mImage->getData();
-    //for now, assume a static terrain that has only been scaled, not moved.
-
-    //unscale the point.
-    int width = mImage -> getWidth();
-    int depth = mImage -> getHeight();
-
-    float unit_x = x / mScale.x;
-    float unit_z = z / mScale.z;
-
-    int index_x = ( int ) unit_x;
-    int index_z = ( int ) unit_z;
 
 
-    //take care of boundaries...
-    if ( index_x < 0 && index_z < 0 )
-        return ( float ) heightmap[ 0 ] * mScale.y;
-    else if ( index_x >= width - 1 && index_z >= depth - 1 )
+    Vector3 pt( x, 0, z );
+
+    TerrainRenderable * t = getTerrainTile( pt );
+
+    if ( t == 0 )
     {
-        return ( float ) heightmap[ width * depth - 1 ] * mScale.y;
+        //  printf( "No tile found for point\n" );
+        return -1;
     }
 
-    else if ( index_x >= width - 1 )
+    float h = t -> getHeightAt( x, z );
+
+    // printf( "Height is %f\n", h );
+    return h;
+
+}
+
+TerrainRenderable * TerrainSceneManager::getTerrainTile( const Vector3 & pt )
+{
+    /* Since we don't know if the terrain is square, or has holes, we use a line trace
+       to find the containing tile...
+    */
+
+    TerrainRenderable * tile = mTiles[ 0 ][ 0 ];
+
+    while ( tile != 0 )
     {
-        return ( float ) heightmap[ width * index_z ] * mScale.y;
+        AxisAlignedBox b = tile -> getBoundingBox();
+        const Vector3 *corners = b.getAllCorners();
+
+        if ( pt.x < corners[ 0 ].x )
+            tile = tile -> _getNeighbor( TerrainRenderable::WEST );
+        else if ( pt.x > corners[ 4 ].x )
+            tile = tile -> _getNeighbor( TerrainRenderable::EAST );
+        else if ( pt.z < corners[ 0 ].z )
+            tile = tile -> _getNeighbor( TerrainRenderable::NORTH );
+        else if ( pt.z > corners[ 4 ].z )
+            tile = tile -> _getNeighbor( TerrainRenderable::SOUTH );
+        else
+            return tile;
     }
 
-    else if ( index_z >= depth - 1 )
+    return 0;
+}
+
+
+bool TerrainSceneManager::intersectSegment( const Vector3 & start, const Vector3 & end, Vector3 * result )
+{
+
+    TerrainRenderable * t = getTerrainTile( start );
+
+    if ( t == 0 )
     {
-        return ( float ) heightmap[ width * ( depth - 1 ) + index_x ] * mScale.y;
+        *result = Vector3( -1, -1, -1 );
+        return false;
     }
 
-    //we know we are in the terrain, so bilinear interpolate...
-
-    Real a = heightmap[ width * index_z + index_x ];
-
-    Real b = heightmap[ width * index_z + index_x + 1 ];
-
-    Real c = heightmap[ width * ( index_z + 1 ) + index_x ];
-
-    Real d = heightmap[ width * ( index_z + 1 ) + index_x + 1 ];
-
-    Real delta_x = unit_x - index_x;
-
-    Real delta_z = unit_z - index_z;
-
-    Real top = a * ( 1 - delta_x ) + delta_x * b;
-
-    Real bottom = c * ( 1 - delta_x ) + delta_x * d;
-
-    return ( top * ( 1 - delta_z ) + delta_z * bottom ) * mScale.y;
-
-
+    return t -> intersectSegment( start, end, result );
 }
 
 } //namespace

@@ -1,9 +1,9 @@
 /***************************************************************************
-                         terrainrenderable.h  -  description
-                            -------------------
-   begin                : Sat Oct 5 2002
-   copyright            : (C) 2002 by Jon Anderson
-   email                : janders@users.sf.net
+                        terrainrenderable.h  -  description
+                           -------------------
+  begin                : Sat Oct 5 2002
+  copyright            : (C) 2002 by Jon Anderson
+  email                : janders@users.sf.net
 ***************************************************************************/
 
 /***************************************************************************
@@ -32,13 +32,14 @@ namespace Ogre
 class TerrainIndexBuffer
 {
 public:
-    TerrainIndexBuffer(int s)
+    TerrainIndexBuffer( int s )
     {
-        indexes = new unsigned short[s];
-    }   
+        indexes = new unsigned short[ s ];
+    }
+
     ~TerrainIndexBuffer()
     {
-      delete indexes;
+        delete indexes;
     }
 
     unsigned short * indexes;
@@ -84,7 +85,10 @@ public:
     };
 
 
-    int _worldheight( int x, int z ) { return data[ ((z * world_size ) + x ) ]; };
+    int _worldheight( int x, int z )
+    {
+        return data[ ( ( z * world_size ) + x ) ];
+    };
 
     const uchar * data;     //pointer to the world 2D data.
     int size;         //size of this square block
@@ -192,14 +196,27 @@ public:
         return mRenderLevel;
     };
 
+    /** Forces the LOD to the given level from this point on. */
+    inline void setForcedRenderLevel( int i )
+    {
+        mForcedRenderLevel = i;
+    }
+
     /** Returns the maximum number of mipmaps used for LOD. */
     inline int getNumMipMaps()
     {
         return mNumMipMaps;
     };
 
+    /** Calculates the normal at the given location */
+    void _getNormalAt( float x, float y, Vector3 * result );
+
     /** Returns the terrain height at the given coordinates */
     float getHeightAt( float x, float y );
+
+    /** Intersects the segment witht he terrain tile
+     */
+    bool intersectSegment( const Vector3 & start, const Vector3 & end, Vector3 * result );
 
     /** Sets the appropriate neighbor for this TerrainRenderable.  Neighbors are necessary
         to know when to bridge between LODs.
@@ -208,6 +225,14 @@ public:
     {
         mNeighbors[ n ] = t;
     };
+
+    /** Returns the neighbor TerrainRenderable.
+     */
+    TerrainRenderable * _getNeighbor( Neighbor n )
+    {
+        return mNeighbors[ n ];
+    }
+
 
     void setMaterial( Material *m )
     {
@@ -218,6 +243,13 @@ public:
     void _alignNeighbors();
     /** Calculates static normals for lighting the terrain. */
     void _calculateNormals();
+
+
+
+
+    /** Generates terrain shadows and lighting using vertex colors
+     */
+    void _generateVertexLighting( const Vector3 &sun, ColourValue ambient );
 
 
     static int mRenderedTris;
@@ -262,6 +294,8 @@ protected:
 
     }
 
+    void _adjustRenderLevel( int i );
+
     void _initLevelIndexes();
 
     bool _checkSize( int n );
@@ -281,6 +315,7 @@ protected:
 
     AxisAlignedBox mBounds;
     Vector3 mCenter;
+    Vector3 mScale;
 
     int mSize;
     int mWorldSize;
@@ -292,8 +327,6 @@ protected:
 
     bool mRenderLevelChanged;
     bool mInit;
-
-    unsigned long * mColors;
 
     static LevelArray mLevelIndex;
     static bool mLevelInit;
@@ -309,6 +342,8 @@ protected:
 
     bool mColored;
     bool mLit;
+
+    int mForcedRenderLevel;
 
 };
 
