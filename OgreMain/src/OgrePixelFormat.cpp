@@ -1049,12 +1049,7 @@ namespace Ogre {
 			// The format can be understood directly by DevIL. The only 
 			// problem is that ilTexImage expects our image data consecutively 
 			// so we cannot use that directly.
-			ilTexImage(static_cast<ILuint>(src.getWidth()), 
-				static_cast<ILuint>(src.getHeight()), 
-				static_cast<ILuint>(src.getDepth()), 
-				ifmt.numberOfChannels,
-				ifmt.format, ifmt.type, 0);
-
+			
 			// Let DevIL allocate the memory for us, and copy the data consecutively
 			// to its memory
 			ilTexImage(static_cast<ILuint>(src.getWidth()), 
