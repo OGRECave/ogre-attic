@@ -42,17 +42,17 @@ namespace Ogre {
 		mhInstance = hInstance;
 
 		mStreamsInUse = 0;
-		ZeroMemory( &mpXYZBuffer, sizeof(HardwareVertexBuffer) );
-		ZeroMemory( &mpNormalBuffer, sizeof(HardwareVertexBuffer) );
-		ZeroMemory( &mpDiffuseBuffer, sizeof(HardwareVertexBuffer) );
-		ZeroMemory( &mpSpecularBuffer, sizeof(HardwareVertexBuffer) );
+		ZeroMemory( &mpXYZBuffer, sizeof(D3D8VertexBuffer) );
+		ZeroMemory( &mpNormalBuffer, sizeof(D3D8VertexBuffer) );
+		ZeroMemory( &mpDiffuseBuffer, sizeof(D3D8VertexBuffer) );
+		ZeroMemory( &mpSpecularBuffer, sizeof(D3D8VertexBuffer) );
         int i;
 		for( i=0; i < OGRE_MAX_TEXTURE_LAYERS; i++ )
 		{
 			for( int j=0; j < 4; j++ )
-				ZeroMemory( &mpTextures[i][j], sizeof(HardwareVertexBuffer) );
+				ZeroMemory( &mpTextures[i][j], sizeof(D3D8VertexBuffer) );
 		}
-		ZeroMemory( &mpIndicies, sizeof(HardwareIndexBuffer) );
+		ZeroMemory( &mpIndicies, sizeof(D3D8IndexBuffer) );
 
 		ZeroMemory( mCurrentDecl, sizeof(DWORD) * D3D_MAX_DECLSIZE );
 		mhCurrentShader = 0;
