@@ -138,7 +138,8 @@ protected:
             v->setClearEveryFrame( true );
             v->setBackgroundColour( ColourValue::Black );
 
-            Material* mat = mSceneMgr->createMaterial("RttMat");
+            MaterialPtr mat = MaterialManager::getSingleton().create("RttMat",
+                ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
             TextureUnitState* t = mat->getTechnique(0)->getPass(0)->createTextureUnitState("RustedMetal.jpg");
             t = mat->getTechnique(0)->getPass(0)->createTextureUnitState("RttTex");
             // Blend with base texture

@@ -259,11 +259,13 @@ namespace Ogre
         if (mCustomMaterialName == "")
         {
             // define our own material
-            mOptions.terrainMaterial = static_cast<Material*>(
-                MaterialManager::getSingleton().getByName(TERRAIN_MATERIAL_NAME));
+            mOptions.terrainMaterial = 
+                MaterialManager::getSingleton().getByName(TERRAIN_MATERIAL_NAME);
             if (!mOptions.terrainMaterial)
             {
-                mOptions.terrainMaterial = createMaterial( "TerrainSceneManager/Terrain" );
+                mOptions.terrainMaterial = MaterialManager::getSingleton().create(
+                    "TerrainSceneManager/Terrain",
+                    ResourceGroupManager::WORLD_RESOURCE_GROUP_NAME);
 
             }
             else
@@ -337,8 +339,8 @@ namespace Ogre
         else
         {
             // Custom material
-            mOptions.terrainMaterial = static_cast<Material*>(
-                MaterialManager::getSingleton().getByName(mCustomMaterialName));
+            mOptions.terrainMaterial = 
+                MaterialManager::getSingleton().getByName(mCustomMaterialName);
             mOptions.terrainMaterial->load();
 
         }
@@ -412,6 +414,9 @@ namespace Ogre
     //-------------------------------------------------------------------------
     void TerrainSceneManager::setWorldGeometry( const String& filename )
     {
+        // Clear out any existing world resources
+        ResourceGroupManager::getSingleton().clearResourceGroup(
+            ResourceGroupManager::WORLD_RESOURCE_GROUP_NAME);
         mTerrainPages.clear();
         // Load the configuration
         loadConfig(filename);
@@ -849,7 +854,7 @@ namespace Ogre
 
     }
     //-------------------------------------------------------------------------
-    Material* TerrainSceneManager::getTerrainMaterial(void)
+    MaterialPtr& TerrainSceneManager::getTerrainMaterial(void)
     {
         return mOptions.terrainMaterial;
     }

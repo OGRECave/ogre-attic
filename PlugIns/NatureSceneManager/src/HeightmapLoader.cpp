@@ -35,8 +35,7 @@ HeightmapLoader::HeightmapLoader(SceneNode *sceneRoot)
     mHeightMap = 0;
 
     // get default material
-    mMaterial = reinterpret_cast<Material *>
-	(MaterialManager::getSingleton().getByName("BaseWhite"));
+    mMaterial = MaterialManager::getSingleton().getByName("BaseWhite");
 }
 
 //----------------------------------------------------------------------------

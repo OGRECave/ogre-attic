@@ -112,7 +112,7 @@ private:
 	Mesh *clonedMesh ;
 
 	Entity *objectEntity ;
-	std::vector<Material*> clonedMaterials ;
+	std::vector<MaterialPtr> clonedMaterials ;
 
 	// configuration
 	Real displacement ;
@@ -125,7 +125,7 @@ private:
 	LayerBlendOperationEx currentLBX ;
 	size_t currentCubeMapIndex ;
 	StringVector availableCubeMaps ;
-	Material *material ;
+	MaterialPtr material ;
 	
 	void _updatePositionNoise(int numVertices, Real *dstVertices,
 		Real *defaultVertices)
@@ -432,11 +432,11 @@ private:
 			// check if this submesh has material set
 			if (subMesh->isMatInitialised()) {
 				const String& matName = subMesh->getMaterialName();
-				Material *subMat = (Material*) MaterialManager::getSingleton().
-					getByName(matName);
+				MaterialPtr subMat = 
+                    MaterialManager::getSingleton().getByName(matName);
 				if (subMat) { // clone material, add layers from global material
 					subMat->load();
-					Material *cloned = subMat->clone(
+					MaterialPtr cloned = subMat->clone(
 						"CubeMapTempMaterial#"+StringConverter::toString(m));
                     Pass* clonedPass = cloned->getTechnique(0)->getPass(0);
 					// can't help it - have to do it :)
@@ -532,7 +532,7 @@ private:
 		}
 		pass->getTextureUnitState(0)->setCubicTextureName(cubeMapName, true);
 		
-		Material *mat2 = (Material*) 
+		MaterialPtr mat2 = 
 			MaterialManager::getSingleton().getByName(SKYBOX_MATERIAL);
         Pass* pass2 = mat2->getTechnique(0)->getPass(0);
 		for(i=0;i<(int)pass2->getTextureUnitState(0)->getNumFrames();i++) {
@@ -589,8 +589,7 @@ public:
 		timeDensity = 5.0f;
 		objectEntity = 0 ;
 		
-		material = (Material*) MaterialManager::getSingleton().
-			getByName(MATERIAL_NAME);
+		material = MaterialManager::getSingleton().getByName(MATERIAL_NAME);
 
 		if (!material) {
 			Except( Exception::ERR_ITEM_NOT_FOUND,

@@ -64,11 +64,12 @@ namespace Ogre {
         // Do nothing
     }
     //-----------------------------------------------------------------------
-    Material* Quake3Shader::createAsMaterial(SceneManager* sm, int lightmapNumber)
+    MaterialPtr Quake3Shader::createAsMaterial(SceneManager* sm, int lightmapNumber)
     {
         char matName[72];
         sprintf(matName, "%s#%d", mName.c_str(), lightmapNumber);
-        Material* mat = sm->createMaterial(matName);
+        MaterialPtr mat = MaterialManager::getSingleton().create(matName, 
+            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
         char msg[256];
         sprintf(msg, "Using Q3 shader %s", mName.c_str());

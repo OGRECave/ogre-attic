@@ -69,8 +69,9 @@ void prepareCircleMaterial()
 	//~ TextureManager::getSingleton().loadImage( CIRCLES_MATERIAL , img );
 	TextureManager::getSingleton().loadRawData(CIRCLES_MATERIAL,
 		imgchunk, 256, 256, PF_A8R8G8B8);
-	Material *material = (Material*) 
-		MaterialManager::getSingleton().create( CIRCLES_MATERIAL );
+	MaterialPtr material = 
+		MaterialManager::getSingleton().create( CIRCLES_MATERIAL, 
+        ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	TextureUnitState *texLayer = material->getTechnique(0)->getPass(0)->createTextureUnitState( CIRCLES_MATERIAL );
 	texLayer->setTextureAddressingMode( TextureUnitState::TAM_CLAMP );	
 	material->setSceneBlending( SBT_ADD );
@@ -384,13 +385,17 @@ protected:
 	void updateMaterial()
 	{
 		String materialName = MATERIAL_PREFIX+StringConverter::toString(materialNumber);
-		Material *material = static_cast<Material*> (MaterialManager::getSingleton().getByName(materialName));
-		if (!material){
-			if(materialNumber){
+		MaterialPtr material = MaterialManager::getSingleton().getByName(materialName);
+		if (material.isNull())
+        {
+			if(materialNumber)
+            {
 				materialNumber = 0 ;
 				updateMaterial();
 				return ;
-			} else {
+			} 
+            else 
+            {
 				Except(Exception::ERR_INTERNAL_ERROR,
 					"Material "+materialName+"doesn't exist!",
 					"WaterListener::updateMaterial");

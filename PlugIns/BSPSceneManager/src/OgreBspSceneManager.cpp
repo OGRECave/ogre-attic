@@ -277,7 +277,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BspSceneManager::processVisibleLeaf(BspNode* leaf, Camera* cam, bool onlyShadowCasters)
     {
-        Material* pMat;
+        MaterialPtr pMat;
         // Skip world geometry if we're only supposed to process shadow casters
         // World is pre-lit
         if (!onlyShadowCasters)
@@ -294,7 +294,8 @@ namespace Ogre {
                     continue;
                 StaticFaceGroup* faceGroup = mLevel->mFaceGroups + realIndex;
                 // Get Material pointer by handle
-                pMat = getMaterial(faceGroup->materialHandle);
+                pMat = MaterialManager::getSingleton().getByHandle(faceGroup->materialHandle);
+                assert (!pMat.isNull());
                 // Check normal (manual culling)
                 ManualCullingMode cullMode = pMat->getTechnique(0)->getPass(0)->getManualCullingMode();
                 if (cullMode != MANUAL_CULL_NONE)
@@ -308,7 +309,7 @@ namespace Ogre {
                 // Try to insert, will find existing if already there
                 std::pair<MaterialFaceGroupMap::iterator, bool> matgrpi;
                 matgrpi = mMatFaceGroupMap.insert(
-                    MaterialFaceGroupMap::value_type(pMat, std::vector<StaticFaceGroup*>())
+                    MaterialFaceGroupMap::value_type(pMat.getPointer(), std::vector<StaticFaceGroup*>())
                     );
                 // Whatever happened, matgrpi.first is map iterator
                 // Need to get second part of that to get vector

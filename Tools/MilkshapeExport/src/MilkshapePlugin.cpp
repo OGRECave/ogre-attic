@@ -740,6 +740,7 @@ struct SplitAnimationStruct
 void MilkshapePlugin::doExportMaterials(msModel* pModel)
 {
 	Ogre::LogManager& logMgr = Ogre::LogManager::getSingleton();
+    Ogre::ResourceGroupManager resGrpMgrSgl;
 	Ogre::MaterialManager matMgrSgl;
 	Ogre::String msg;
 
@@ -788,7 +789,8 @@ void MilkshapePlugin::doExportMaterials(msModel* pModel)
 
 		msg = "Creating material " + Ogre::String(mat->szName);
 		logMgr.logMessage(msg);
-        Ogre::Material *ogremat = (Ogre::Material*)matMgrSgl.create(mat->szName);
+        Ogre::MaterialPtr ogremat = matMgrSgl.create(mat->szName, 
+            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 		logMgr.logMessage("Created.");
 
 		ogremat->setAmbient(msVec4ToColourValue(mat->Ambient));

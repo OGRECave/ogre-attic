@@ -150,7 +150,7 @@ namespace Ogre {
             [0..1], which will be duly scaled by the TerrainRenderables it
             creates.
         */
-        virtual TerrainPage* buildPage(Real* heightData, Material* pMaterial);
+        virtual TerrainPage* buildPage(Real* heightData, MaterialPtr& pMaterial);
 
 
     public:

@@ -179,7 +179,8 @@ protected:
         // Create entity based on patch
         patchEntity = mSceneMgr->createEntity("Entity1", "Bezier1");
 
-        Material *pMat = (Material*)MaterialManager::getSingleton().create( "TextMat" );
+        MaterialPtr pMat = MaterialManager::getSingleton().create("TextMat", 
+            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         pMat->getTechnique(0)->getPass(0)->createTextureUnitState( "BumpyMetal.jpg" );
         patchEntity->setMaterialName("TextMat");
 

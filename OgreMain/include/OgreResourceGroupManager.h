@@ -131,6 +131,8 @@ namespace Ogre {
     public:
 		/// Default resource group name
 		static String DEFAULT_RESOURCE_GROUP_NAME;
+        /// Default resource group used for world geometry resources
+        static String WORLD_RESOURCE_GROUP_NAME;
         /// Nested struct defining a resource declaration
         struct ResourceDeclaration
         {

@@ -206,7 +206,7 @@ protected:
 		
         {
             Viewport *v = rttTex->addViewport( mCamera );
-            Material* mat = (Material*)MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefraction");
+            MaterialPtr mat = MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefraction");
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(2)->setTextureName("Refraction");
             v->setOverlaysEnabled(false);
             rttTex->addListener(&mRefractionListener);
@@ -216,7 +216,7 @@ protected:
         rttTex = mRoot->getRenderSystem()->createRenderTexture( "Reflection", 512, 512 );
         {
             Viewport *v = rttTex->addViewport( mCamera );
-            Material* mat = (Material*)MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefraction");
+            MaterialPtr mat = MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefraction");
             mat->getTechnique(0)->getPass(0)->getTextureUnitState(1)->setTextureName("Reflection");
             v->setOverlaysEnabled(false);
             rttTex->addListener(&mReflectionListener);

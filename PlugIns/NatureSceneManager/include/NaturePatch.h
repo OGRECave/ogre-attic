@@ -59,7 +59,7 @@ namespace Ogre
             int heightMapWidth;
 
             // material
-            Material *pMaterial;
+            MaterialPtr pMaterial;
         };
 
         struct CustomData
@@ -190,13 +190,13 @@ namespace Ogre
         }
 
         /// Returns the material
-        virtual Material *getMaterial(void) const
+        virtual MaterialPtr& getMaterial(void) const
         {
             return mMaterial;
         }
 
         /// Sets the material
-        void setMaterial(Material *material)
+        void setMaterial(MaterialPtr& material)
         {
             mMaterial = material;
         }
@@ -250,7 +250,7 @@ namespace Ogre
         AxisAlignedBox mBounds;
 
         /// Material used for rendering
-        Material *mMaterial;
+        MaterialPtr mMaterial;
 
         /// Pointer to patch data
         NaturePatchData *mData;

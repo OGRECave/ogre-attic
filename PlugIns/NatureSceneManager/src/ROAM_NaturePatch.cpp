@@ -107,8 +107,7 @@ NaturePatch::NaturePatch()
     mNeedsStitching = 0;
 
     // Get default material
-    mMaterial = reinterpret_cast<Material*>
-	(MaterialManager::getSingleton().getByName("BaseWhite"));
+    mMaterial = MaterialManager::getSingleton().getByName("BaseWhite");
 
     // Generate name for this NaturePatch instance
     mName = "NaturePatch" + toString(mGenNameCount++);

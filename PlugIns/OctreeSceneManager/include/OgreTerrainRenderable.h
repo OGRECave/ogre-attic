@@ -133,7 +133,7 @@ namespace Ogre
         /// Whether vertex colours are enabled
         bool coloured;
         /// Pointer to the material to use to render the terrain
-        Material *terrainMaterial;
+        MaterialPtr terrainMaterial;
 
     };
 
@@ -213,7 +213,7 @@ namespace Ogre
         */
         virtual void getRenderOperation( RenderOperation& rend );
 
-        virtual Material* getMaterial( void ) const
+        virtual MaterialPtr& getMaterial( void ) const
         {
             return mMaterial;
         };
@@ -261,7 +261,7 @@ namespace Ogre
         }
 
 
-        void setMaterial( Material *m )
+        void setMaterial(MaterialPtr& m )
         {
             mMaterial = m;
         };
@@ -368,7 +368,7 @@ namespace Ogre
         /// The MovableObject type
         static String mType;
         /// Current material used by this tile
-        Material *mMaterial;    
+        MaterialPtr mMaterial;    
         /// Whether this tile has been initialised    
         bool mInit;
         /// Shared array of IndexData (reuse indexes across tiles)

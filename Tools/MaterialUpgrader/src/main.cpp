@@ -111,7 +111,7 @@ int main(int numargs, char** args)
     ResourceManager::ResourceMapIterator it = matMgr->getResourceIterator();
     while (it.hasMoreElements())
     {
-        Material *m = static_cast<Material*>(it.getNext());
+        MaterialPtr m = it.getNext();
         // Skip builtin materials
         if (m->getName() == "BaseWhite" || m->getName() == "BaseWhiteNoLighting")
             continue;

@@ -224,8 +224,8 @@ namespace Ogre {
                 q3lvl.mShaders[shadIdx].name,
                 q3lvl.mFaces[face].lm_texture);
 
-            Material *shadMat = sm->getMaterial(shaderName);
-            if (shadMat == 0)
+            MaterialPtr shadMat = MaterialManager::getSingleton().getByName(shaderName);
+            if (shadMat.isNull())
             {
                 // Build new material
 

@@ -64,7 +64,7 @@ private:
     Image *mHeightMap;
 
     /// common material for the terrain
-    Material *mMaterial;
+    MaterialPtr mMaterial;
 
     bool mInited;
 };

@@ -64,7 +64,7 @@ namespace Ogre {
             Creates a new material based on this shaders settings. Registers it with the
             SceneManager passed in. Material name shader#lightmap.
         */
-        Material* createAsMaterial(SceneManager* sm, int lightmapNumber);
+        MaterialPtr createAsMaterial(SceneManager* sm, int lightmapNumber);
 
         struct Pass {
             unsigned int flags;
