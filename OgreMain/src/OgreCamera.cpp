@@ -384,37 +384,19 @@ namespace Ogre {
             }
             else if (mProjType == PT_ORTHOGRAPHIC)
             {
-                // ORTHOGRAPHIC projection
+                // ORTHOGRAPHIC projection, API specific 
+                Root::getSingleton().getRenderSystem()->_makeOrthoMatrix(mFOVy, 
+                    mAspect, mNearDist, mFarDist, mProjMatrix);
 
-                // ---------------------------
-                // Calculate Projection Matrix
-                // ---------------------------
-                // Get tangent of vertical FOV
-               Real thetaY = Math::AngleUnitsToRadians(mFOVy / 2.0f);
+                // PERSPECTIVE transform, API specific for Gpu Programs
+                // Root::getSingleton().getRenderSystem()->_makeOrthoMatrix(mFOVy, 
+                //    mAspect, mNearDist, mFarDist, mStandardProjMatrix, true);
+
+
+				Real thetaY = Math::AngleUnitsToRadians(mFOVy / 2.0f);
                 Real sinThetaY = Math::Sin(thetaY);
                 Real thetaX = thetaY * mAspect;
                 Real sinThetaX = Math::Sin(thetaX);
-                Real w = 1.0 / (sinThetaX * mNearDist);
-                Real h = 1.0 / (sinThetaY * mNearDist);
-                Real q = 1.0 / (mFarDist - mNearDist);
-                //Real qn = -(mFarDist + mNearDist) / (mFarDist - mNearDist);
-
-                //----------------------------
-                // Matrix elements
-                //----------------------------
-
-                // [ w   0   0   0  ]
-                // [ 0   h   0   0  ]
-                // [ 0   0   q   0  ]
-                // [ 0   0   0   -1 ]
-
-
-                mProjMatrix = Matrix4::ZERO;
-                mProjMatrix[0][0] = w;
-                mProjMatrix[1][1] = h;
-                mProjMatrix[2][2] = -q;
-                mProjMatrix[3][3] = 1;
-
                 // Calculate co-efficients for the frustum planes
                 // Special-cased for L = -R and B = -T i.e. viewport centered 
                 // on direction vector.
