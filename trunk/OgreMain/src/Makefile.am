@@ -13,7 +13,6 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreAxisAlignedBox.cpp \
                          OgreBillboard.cpp \
                          OgreBillboardSet.cpp \
-                         OgreBMPCodec.cpp \
                          OgreBone.cpp \
                          OgreBitwise.cpp \
                          OgreCamera.cpp \
@@ -27,7 +26,6 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreCursor.cpp \
                          OgreDataChunk.cpp \
                          OgreDefaultHardwareBufferManager.cpp \
-                         OgreDDSCodec.cpp \
                          OgreDynLib.cpp \
                          OgreDynLibManager.cpp \
                          OgreEdgeListBuilder.cpp \
@@ -58,10 +56,10 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
 						 OgreHighLevelGpuProgram.cpp \
 						 OgreHighLevelGpuProgramManager.cpp \
                          OgreILImageCodec.cpp \
+                         OgreILCodecs.cpp \
                          OgreImage.cpp \
                          OgreInput.cpp \
                          OgreInputEvent.cpp \
-                         OgreJPEGCodec.cpp \
 						 OgreKeyEvent.cpp \
                          OgreKeyFrame.cpp \
 						 OgreKeyTarget.cpp \
@@ -87,7 +85,6 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreNode.cpp \
                          OgreOverlay.cpp \
                          OgreOverlayManager.cpp \
-                         OgrePNGCodec.cpp \
                          OgreParticleEmitter.cpp \
                          OgreParticleEmitterCommands.cpp \
                          OgreParticleIterator.cpp \
@@ -137,7 +134,6 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreSubEntity.cpp \
                          OgreSubMesh.cpp \
                          OgreTagPoint.cpp \
-                         OgreTGACodec.cpp \
                          OgreTechnique.cpp \
                          OgreTexture.cpp \
                          OgreTextureManager.cpp \

@@ -40,6 +40,8 @@ namespace Ogre
 		case 2:
 			switch( ImageFormat )
 			{
+            case IL_LUMINANCE:
+                return PF_L16;
 			case IL_BGR:
 				return PF_B5G6R5;
 			case IL_RGB:

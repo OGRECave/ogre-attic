@@ -49,11 +49,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreConfigDialog.h"
 #include "OgreStringConverter.h"
 
-#include "OgrePNGCodec.h"
-#include "OgreBMPCodec.h"
-#include "OgreJPEGCodec.h"
-#include "OgreTGACodec.h"
-#include "OgreDDSCodec.h"
+#include "OgreILCodecs.h"
 
 #include "OgreFontManager.h"
 #include "OgreHardwareBufferManager.h"
@@ -177,18 +173,8 @@ namespace Ogre {
         mZipArchiveFactory = new ZipArchiveFactory();
         ArchiveManager::getSingleton().addArchiveFactory( mZipArchiveFactory );
 
-        mPNGCodec = new PNGCodec;
-        Codec::registerCodec( mPNGCodec );
-        mJPEGCodec = new JPEGCodec;
-        Codec::registerCodec( mJPEGCodec );
-        mTGACodec = new TGACodec;
-        Codec::registerCodec( mTGACodec );
-        mDDSCodec = new DDSCodec;
-        Codec::registerCodec( mDDSCodec );
-        mJPGCodec = new JPGCodec;
-        Codec::registerCodec( mJPGCodec );
-        mBMPCodec = new BMPCodec;
-        Codec::registerCodec( mBMPCodec );
+	    // Register image codecs
+	    ILCodecs::registerCodecs();	
 
         mHighLevelGpuProgramManager = new HighLevelGpuProgramManager();
 
@@ -244,12 +230,7 @@ namespace Ogre {
 
 		delete mExternalTextureSourceManager;
 
-        delete mBMPCodec;
-        delete mDDSCodec;
-        delete mTGACodec;
-        delete mJPGCodec;
-        delete mJPEGCodec;
-        delete mPNGCodec;
+        ILCodecs::deleteCodecs();
         delete mZipArchiveFactory;
 #if OGRE_PROFILING
         delete mProfiler;
