@@ -27,23 +27,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePlatform.h"
 #include "OgreStdHeaders.h"
-
-#include "OgreImageCodec.h"
+#include "OgrePNGCodec.h"
 #include "OgreImage.h"
 #include "OgreException.h"
 
 #include "macDataProvider.h"
 
 namespace Ogre {
-
-    class PNGCodec : public ImageCodec
-    {
-    public:
-        void code(const DataChunk& input, DataChunk* output, ...) const;
-        Codec::CodecData* decode(const DataChunk& input, DataChunk* output, ...) const;
-        String getType() const { return "png"; }
-        unsigned int getILType(void) const { return 0; }
-    };
 
     //---------------------------------------------------------------------
     void PNGCodec::code( const DataChunk& input, DataChunk* output, ... ) const
@@ -79,8 +69,8 @@ namespace Ogre {
                     "Could not initalize PNG loader.");
         }
     
-        ret_data->width = CGImageGetHeight(image);
-        ret_data->height = CGImageGetWidth(image);
+        ret_data->width = CGImageGetWidth(image);
+        ret_data->height = CGImageGetHeight(image);
     
         uint components;
         CGColorSpaceRef colorSpace;
@@ -119,6 +109,10 @@ namespace Ogre {
     
         CGRect destRect = CGRectMake(0, 0, ret_data->width, ret_data->height);
         CGContextDrawImage(destContext, destRect, image);
+		
+		ret_data->size = imageSize;
+		ret_data->num_mipmaps = 0;
+		ret_data->flags = 0;
     
         CFRelease( destContext );
         CFRelease( colorSpace );
@@ -128,5 +122,8 @@ namespace Ogre {
     
         OgreUnguardRet( ret_data );
     }
+    
+    unsigned int PNGCodec::getILType(void) const
+    { return 0; }
 
 }
