@@ -48,7 +48,7 @@ namespace Ogre {
         // Assemble source into microcode
         LPD3DXBUFFER microcode;
         LPD3DXBUFFER errors;
-		LogManager::getSingleton().logMessage(mSource);
+		//LogManager::getSingleton().logMessage(mSource);
         HRESULT hr = D3DXAssembleShader(
             mSource.c_str(),
             static_cast<UINT>(mSource.length()+1),

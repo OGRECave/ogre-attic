@@ -86,30 +86,14 @@ namespace Ogre
         return GpuProgramManager::getSingleton().createParameters();
     }
 	//-----------------------------------------------------------------------------
-	//-----------------------------------------------------------------------------
-	void GpuProgramParameters::setConstant(size_t index, Real val)
-	{
-		setConstant(index, &val, 1);
-	}
-	//-----------------------------------------------------------------------------
-	void GpuProgramParameters::setConstant(size_t index, int val)
-	{
-		setConstant(index, &val, 1);
-	}
-	//-----------------------------------------------------------------------------
 	void GpuProgramParameters::setConstant(size_t index, const Vector4& vec)
 	{
-		setConstant(index++, &vec.x, 1);
-		setConstant(index++, &vec.y, 1);
-		setConstant(index++, &vec.z, 1);
-		setConstant(index++, &vec.w, 1);
+		setConstant(index, vec.val, 4);
 	}
 	//-----------------------------------------------------------------------------
 	void GpuProgramParameters::setConstant(size_t index, const Vector3& vec)
 	{
-		setConstant(index++, &vec.x, 1);
-		setConstant(index++, &vec.y, 1);
-		setConstant(index++, &vec.z, 1);
+        setConstant(index, Vector4(vec.x, vec.y, vec.z, 1.0f));
 	}
 	//-----------------------------------------------------------------------------
 	void GpuProgramParameters::setConstant(size_t index, const Matrix4& m)
@@ -117,40 +101,50 @@ namespace Ogre
         // set as 4x 4-element floats
         // Turns out in vertex programs, D3D uses the 'right' matrix layout
         // so no need to convert matrix, we can use the same for both
-        GpuProgramParameters::setConstant(index, m[0], 4);
-        GpuProgramParameters::setConstant(index+4, m[1], 4);
-        GpuProgramParameters::setConstant(index+8, m[2], 4);
-        GpuProgramParameters::setConstant(index+12, m[3], 4);
+        GpuProgramParameters::setConstant(index++, m[0], 4);
+        GpuProgramParameters::setConstant(index++, m[1], 4);
+        GpuProgramParameters::setConstant(index++, m[2], 4);
+        GpuProgramParameters::setConstant(index, m[3], 4);
     }
 	//-----------------------------------------------------------------------------
     void GpuProgramParameters::setConstant(size_t index, const ColourValue& colour)
     {
-        setConstant(index++, &colour.r, 1);
-        setConstant(index++, &colour.g, 1);
-        setConstant(index++, &colour.b, 1);
-        setConstant(index++, &colour.a, 1);
+        setConstant(index, colour.val, 4);
     }
     //-----------------------------------------------------------------------------
     void GpuProgramParameters::setConstant(size_t index, const Real *val, size_t count)
     {
+        assert(count % 4 == 0 && "count must be a multiple of 4!");
         // Expand if required
         if (mRealConstants.size() < index + count)
         	mRealConstants.resize(index + count);
 
-        // Copy directly in since vector is a contiguous container
-        memcpy(&mRealConstants[index], val, sizeof(Real)*count);
+        // Copy in chunks of 4
+        while (count--)
+        {
+            RealConstantEntry* e = &(mRealConstants[index++]);
+            e->isSet = true;
+            memcpy(e->val, val, sizeof(Real) * 4);
+            val += 4;
+        }
 
     }
 	//-----------------------------------------------------------------------------
     void GpuProgramParameters::setConstant(size_t index, const int *val, size_t count)
     {
+        assert(count % 4 == 0 && "count must be a multiple of 4!");
         // Expand if required
         if (mIntConstants.size() < index + count)
-			mIntConstants.resize(index + count);
+        	mIntConstants.resize(index + count);
 
-        // Copy directly in since vector is a contiguous container
-        memcpy(&mIntConstants[index], val, sizeof(int)*count);
-
+        // Copy in chunks of 4
+        while (count--)
+        {
+            IntConstantEntry* e = &(mIntConstants[index++]);
+            e->isSet = true;
+            memcpy(e->val, val, sizeof(int) * 4);
+            val += 4;
+        }
     }
 	//-----------------------------------------------------------------------------
     void GpuProgramParameters::setAutoConstant(size_t index, AutoConstantType acType, size_t extraInfo)
@@ -236,18 +230,6 @@ namespace Ogre
             }
         }
     }
-	//-----------------------------------------------------------------------------
-	void GpuProgramParameters::_align(size_t intAlignment, size_t realAlignment)	
-	{
-		size_t rem = mIntConstants.size() % intAlignment;
-        if (rem != 0 )
-			mIntConstants.resize(mIntConstants.size() + rem);
-		
-		rem = mRealConstants.size() % realAlignment;
-        if (rem != 0 )
-			mRealConstants.resize(mRealConstants.size() + rem);
-			
-	}
     //---------------------------------------------------------------------------
     void GpuProgramParameters::_mapParameterNameToIndex(const String& name, 
         size_t index)
@@ -310,4 +292,15 @@ namespace Ogre
     {
         setAutoConstant(getParamIndex(name), acType, extraInfo);
     }
+    //---------------------------------------------------------------------------
+    GpuProgramParameters::RealConstantIterator GpuProgramParameters::getRealConstantIterator(void)
+    {
+        return RealConstantIterator(mRealConstants.begin(), mRealConstants.end());
+    }
+    //---------------------------------------------------------------------------
+    GpuProgramParameters::IntConstantIterator GpuProgramParameters::getIntConstantIterator(void)
+    {
+        return IntConstantIterator(mIntConstants.begin(), mIntConstants.end());
+    }
+
 }

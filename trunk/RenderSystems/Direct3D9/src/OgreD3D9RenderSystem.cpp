@@ -654,14 +654,11 @@ namespace Ogre
         case 1:
             mCapabilities->setMaxVertexProgramVersion("vs_1_1");
             // No boolean params allowed
-            mCapabilities->setVertexProgramConstantBoolBoundary(0);
             mCapabilities->setVertexProgramConstantBoolCount(0);
             // No integer params allowed
-            mCapabilities->setVertexProgramConstantIntBoundary(0);
             mCapabilities->setVertexProgramConstantIntCount(0);
             // float params, always 4D
-            mCapabilities->setVertexProgramConstantFloatBoundary(4);
-            mCapabilities->setVertexProgramConstantFloatCount(mCaps.MaxVertexShaderConst * 4);
+            mCapabilities->setVertexProgramConstantFloatCount(mCaps.MaxVertexShaderConst);
            
             break;
         case 2:
@@ -674,26 +671,20 @@ namespace Ogre
                 mCapabilities->setMaxVertexProgramVersion("vs_2_0");
             }
             // 16 boolean params allowed
-            mCapabilities->setVertexProgramConstantBoolBoundary(1);
             mCapabilities->setVertexProgramConstantBoolCount(16);
             // 16 integer params allowed, 4D
-            mCapabilities->setVertexProgramConstantIntBoundary(4);
-            mCapabilities->setVertexProgramConstantIntCount(16 * 4);
+            mCapabilities->setVertexProgramConstantIntCount(16);
             // float params, always 4D
-            mCapabilities->setVertexProgramConstantFloatBoundary(4);
-            mCapabilities->setVertexProgramConstantFloatCount(mCaps.MaxVertexShaderConst * 4);
+            mCapabilities->setVertexProgramConstantFloatCount(mCaps.MaxVertexShaderConst);
             break;
         case 3:
             mCapabilities->setMaxVertexProgramVersion("vs_3_0");
             // 16 boolean params allowed
-            mCapabilities->setVertexProgramConstantBoolBoundary(1);
             mCapabilities->setVertexProgramConstantBoolCount(16);
             // 16 integer params allowed, 4D
-            mCapabilities->setVertexProgramConstantIntBoundary(4);
-            mCapabilities->setVertexProgramConstantIntCount(16 * 4);
+            mCapabilities->setVertexProgramConstantIntCount(16);
             // float params, always 4D
-            mCapabilities->setVertexProgramConstantFloatBoundary(4);
-            mCapabilities->setVertexProgramConstantFloatCount(mCaps.MaxVertexShaderConst * 4);
+            mCapabilities->setVertexProgramConstantFloatCount(mCaps.MaxVertexShaderConst);
             break;
         default:
             mCapabilities->setMaxVertexProgramVersion("");
@@ -741,42 +732,33 @@ namespace Ogre
             }
             break;
             // no boolean params allowed
-            mCapabilities->setFragmentProgramConstantBoolBoundary(0);
             mCapabilities->setFragmentProgramConstantBoolCount(0);
             // no integer params allowed
-            mCapabilities->setFragmentProgramConstantIntBoundary(0);
             mCapabilities->setFragmentProgramConstantIntCount(0);
             // float params, always 4D
             // NB in ps_1_x these are actually stored as fixed point values,
             // but they are entered as floats
-            mCapabilities->setFragmentProgramConstantFloatBoundary(4);
-            mCapabilities->setFragmentProgramConstantFloatCount(8 * 4);
+            mCapabilities->setFragmentProgramConstantFloatCount(8);
         case 2:
             if (minor > 0)
             {
                 mCapabilities->setMaxFragmentProgramVersion("ps_2_x");
                 // 16 boolean params allowed
-                mCapabilities->setFragmentProgramConstantBoolBoundary(1);
                 mCapabilities->setFragmentProgramConstantBoolCount(16);
                 // 16 integer params allowed, 4D
-                mCapabilities->setFragmentProgramConstantIntBoundary(4);
-                mCapabilities->setFragmentProgramConstantIntCount(16 * 4);
+                mCapabilities->setFragmentProgramConstantIntCount(16);
                 // float params, always 4D
-                mCapabilities->setFragmentProgramConstantFloatBoundary(4);
-                mCapabilities->setFragmentProgramConstantFloatCount(224 * 4);
+                mCapabilities->setFragmentProgramConstantFloatCount(224);
             }
             else
             {
                 mCapabilities->setMaxFragmentProgramVersion("ps_2_0");
                 // no boolean params allowed
-                mCapabilities->setFragmentProgramConstantBoolBoundary(0);
                 mCapabilities->setFragmentProgramConstantBoolCount(0);
                 // no integer params allowed
-                mCapabilities->setFragmentProgramConstantIntBoundary(0);
                 mCapabilities->setFragmentProgramConstantIntCount(0);
                 // float params, always 4D
-                mCapabilities->setFragmentProgramConstantFloatBoundary(4);
-                mCapabilities->setFragmentProgramConstantFloatCount(32 * 4);
+                mCapabilities->setFragmentProgramConstantFloatCount(32);
             }
             break;
         case 3:
@@ -789,14 +771,11 @@ namespace Ogre
                 mCapabilities->setMaxFragmentProgramVersion("ps_3_0");
             }
             // 16 boolean params allowed
-            mCapabilities->setFragmentProgramConstantBoolBoundary(1);
             mCapabilities->setFragmentProgramConstantBoolCount(16);
             // 16 integer params allowed, 4D
-            mCapabilities->setFragmentProgramConstantIntBoundary(4);
-            mCapabilities->setFragmentProgramConstantIntCount(16 * 4);
+            mCapabilities->setFragmentProgramConstantIntCount(16);
             // float params, always 4D
-            mCapabilities->setFragmentProgramConstantFloatBoundary(4);
-            mCapabilities->setFragmentProgramConstantFloatCount(224 * 4);
+            mCapabilities->setFragmentProgramConstantFloatCount(224);
             break;
         default:
             mCapabilities->setMaxFragmentProgramVersion("");
@@ -2016,62 +1995,93 @@ namespace Ogre
         GpuProgramParametersSharedPtr params)
     {
         HRESULT hr;
+        unsigned int index;
+        GpuProgramParameters::IntConstantIterator intIt = params->getIntConstantIterator();
+        GpuProgramParameters::RealConstantIterator realIt = params->getRealConstantIterator();
 
         switch(gptype)
         {
         case GPT_VERTEX_PROGRAM:
-			// Align first
-			params->_align(4, 4);
             // Bind floats
             if (params->hasRealConstantParams())
             {
-                if (FAILED(hr = mpD3DDevice->SetVertexShaderConstantF(
-                    0, // Load all params in bulk from start
-                    params->getRealConstantPointer(), 
-                    static_cast<UINT>(params->getRealConstantCount() * 0.25)))) // multiples of 4 in D3D
+                // Iterate over params and set the relevant ones
+                index = 0;
+                while (realIt.hasMoreElements())
                 {
-                    Except(hr, "Unable to upload shader float parameters", 
-                        "D3D9RenderSystem::bindGpuProgramParameters");
+                    GpuProgramParameters::RealConstantEntry* e = realIt.peekNextPtr();
+                    if (e->isSet)
+                    {
+                        if (FAILED(hr = mpD3DDevice->SetVertexShaderConstantF(
+                            index++, e->val, 1)))
+                        {
+                            Except(hr, "Unable to upload shader float parameters", 
+                                "D3D9RenderSystem::bindGpuProgramParameters");
+                        }
+                    }
+                    realIt.moveNext();
                 }
             }
             // Bind ints
             if (params->hasIntConstantParams())
             {
-                if (FAILED(hr = mpD3DDevice->SetVertexShaderConstantI(
-                    0, // Load all params in bulk from start
-                    params->getIntConstantPointer(), 
-                    static_cast<UINT>(params->getIntConstantCount() * 0.25)))) // multiples of 4 in D3D
+                // Iterate over params and set the relevant ones
+                index = 0;
+                while (intIt.hasMoreElements())
                 {
-                    Except(hr, "Unable to upload shader int parameters", 
-                        "D3D9RenderSystem::bindGpuProgramParameters");
+                    GpuProgramParameters::IntConstantEntry* e = intIt.peekNextPtr();
+                    if (e->isSet)
+                    {
+                        if (FAILED(hr = mpD3DDevice->SetVertexShaderConstantI(
+                            index++, e->val, 1)))
+                        {
+                            Except(hr, "Unable to upload shader float parameters", 
+                                "D3D9RenderSystem::bindGpuProgramParameters");
+                        }
+                    }
+                    intIt.moveNext();
                 }
             }
             break;
         case GPT_FRAGMENT_PROGRAM:
-			// Align first
-			params->_align(4, 4);
             // Bind floats
             if (params->hasRealConstantParams())
             {
-                if (FAILED(hr = mpD3DDevice->SetPixelShaderConstantF(
-                    0, // Load all params in bulk from start
-                    params->getRealConstantPointer(), 
-                    static_cast<UINT>(params->getRealConstantCount() * 0.25)))) // multiples of 4 in D3D
+                // Iterate over params and set the relevant ones
+                index = 0;
+                while (realIt.hasMoreElements())
                 {
-                    Except(hr, "Unable to upload shader float parameters", 
-                        "D3D9RenderSystem::bindGpuProgramParameters");
+                    GpuProgramParameters::RealConstantEntry* e = realIt.peekNextPtr();
+                    if (e->isSet)
+                    {
+                        if (FAILED(hr = mpD3DDevice->SetPixelShaderConstantF(
+                            index++, e->val, 1)))
+                        {
+                            Except(hr, "Unable to upload shader float parameters", 
+                                "D3D9RenderSystem::bindGpuProgramParameters");
+                        }
+                    }
+                    realIt.moveNext();
                 }
             }
             // Bind ints
             if (params->hasIntConstantParams())
             {
-                if (FAILED(hr = mpD3DDevice->SetPixelShaderConstantI(
-                    0, // Load all params in bulk from start
-                    params->getIntConstantPointer(), 
-                    static_cast<UINT>(params->getIntConstantCount() * 0.25)))) // multiples of 4 in D3D
+                // Iterate over params and set the relevant ones
+                index = 0;
+                while (intIt.hasMoreElements())
                 {
-                    Except(hr, "Unable to upload shader int parameters", 
-                        "D3D9RenderSystem::bindGpuProgramParameters");
+                    GpuProgramParameters::IntConstantEntry* e = intIt.peekNextPtr();
+                    if (e->isSet)
+                    {
+                        if (FAILED(hr = mpD3DDevice->SetPixelShaderConstantI(
+                            index++, e->val, 1)))
+                        {
+                            Except(hr, "Unable to upload shader float parameters", 
+                                "D3D9RenderSystem::bindGpuProgramParameters");
+                        }
+                    }
+                    intIt.moveNext();
                 }
             }
             break;

@@ -37,7 +37,12 @@ namespace Ogre
     class _OgreExport Vector4
     {
     public:
-        Real x, y, z, w;        
+        union {
+            struct {
+                Real x, y, z, w;        
+            };
+            Real val[4];
+        };
 
     public:
         inline Vector4()
