@@ -85,7 +85,7 @@ OgreMeshExportOptions_PPGEvent
 */
 
 CString GetUserSelectedObject();
-CValue Popup( const CString& in_inputobjs, const CString& in_keywords, const CString& in_title, const CValue& in_mode, bool in_throw );
+CStatus Popup( const CString& in_inputobjs, const CString& in_keywords, const CString& in_title, const CValue& in_mode, bool in_throw );
 void DeleteObj( const CValue& in_inputobj );
 
 
@@ -223,8 +223,8 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 	Property prop = app.GetActiveSceneRoot().AddProperty( L"OgreMeshExportOptions" ) ;
 	
 	// Popup Returns true if the command was cancelled otherwise it returns false. 
-	bool ret = Popup(L"OgreMeshExportOptions",CValue(),L"OGRE Mesh / Skeleton Export",(long)siModal,true);
-	if (!ret)
+	CStatus ret = Popup(L"OgreMeshExportOptions",CValue(),L"OGRE Mesh / Skeleton Export",(long)siModal,true);
+    if (ret == CStatus::OK)
 	{
         Ogre::XsiMeshExporter exporter;
 
@@ -468,7 +468,7 @@ CString GetUserSelectedObject()
 }
 
 
-CValue Popup( const CString& in_inputobjs, const CString& in_keywords, const CString& in_title, const CValue& /*number*/ in_mode, bool in_throw )
+CStatus Popup( const CString& in_inputobjs, const CString& in_keywords, const CString& in_title, const CValue& /*number*/ in_mode, bool in_throw )
 {
 	Application app;
 	CValueArray args(5);
@@ -481,9 +481,8 @@ CValue Popup( const CString& in_inputobjs, const CString& in_keywords, const CSt
 	args[i++]= in_mode;
 	args[i++]= in_throw;
 
-	CStatus st = app.ExecuteCommand( L"InspectObj", args, retval );
+	return app.ExecuteCommand( L"InspectObj", args, retval );
 
-	return retval;
 }
 
 void DeleteObj( const CValue& in_inputobj )
