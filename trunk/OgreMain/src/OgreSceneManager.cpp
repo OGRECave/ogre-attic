@@ -111,6 +111,7 @@ namespace Ogre {
     SceneManager::~SceneManager()
     {
         clearScene();
+        removeAllCameras();
         delete mSceneRoot;
         delete mFullScreenQuad;
         delete mShadowCasterSphereQuery;
@@ -150,6 +151,8 @@ namespace Ogre {
             if (i->second == cam)
             {
                 mCameras.erase(i);
+                // notify render targets
+                mDestRenderSystem->_notifyCameraRemoved(cam);
                 delete cam;
                 break;
             }
@@ -164,6 +167,8 @@ namespace Ogre {
         CameraList::iterator i = mCameras.find(name);
         if (i != mCameras.end())
         {
+            // Notify render system
+            mDestRenderSystem->_notifyCameraRemoved(i->second);
             delete i->second;
             mCameras.erase(i);
         }
@@ -177,6 +182,8 @@ namespace Ogre {
         CameraList::iterator i = mCameras.begin();
         for (; i != mCameras.end(); ++i)
         {
+            // Notify render system
+            mDestRenderSystem->_notifyCameraRemoved(i->second);
             delete i->second;
         }
         mCameras.clear();
@@ -384,6 +391,18 @@ namespace Ogre {
         }
         mEntities.clear();
     }
+
+    //-----------------------------------------------------------------------
+    void SceneManager::removeAllBillboardSets(void)
+    {
+        // Delete all BillboardSets
+        for (BillboardSetList::iterator bi = mBillboardSets.begin();
+            bi != mBillboardSets.end(); ++bi)
+        {
+            delete bi->second;
+        }
+        mBillboardSets.clear();
+    }
     //-----------------------------------------------------------------------
     void SceneManager::clearScene(void)
     {
@@ -400,30 +419,8 @@ namespace Ogre {
         mSceneRoot->removeAllChildren();
         mSceneRoot->detachAllObjects();
 
-        // Delete all entities
-        for (EntityList::iterator ei = mEntities.begin();
-            ei != mEntities.end(); ++ei)
-        {
-            delete ei->second;
-        }
-        mEntities.clear();
-
-        // Delete all Cameras
-        for (CameraList::iterator ci = mCameras.begin();
-            ci != mCameras.end(); ++ci)
-        {
-            delete ci->second;
-        }
-        mCameras.clear();
-
-        // Delete all BillboardSets
-        for (BillboardSetList::iterator bi = mBillboardSets.begin();
-            bi != mBillboardSets.end(); ++bi)
-        {
-            delete bi->second;
-        }
-        mBillboardSets.clear();
-        // Clear lights
+        removeAllEntities();
+        removeAllBillboardSets();
         removeAllLights();
 
         // Clear animations
@@ -1683,6 +1680,18 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void SceneManager::destroyAnimation(const String& name)
     {
+        // Also destroy any animation states referencing this animation
+        AnimationStateSet::iterator si, siend;
+        siend = mAnimationStates.end();
+        for (si = mAnimationStates.begin(); si != siend; ++si)
+        {
+            if (si->second.getAnimationName() == name)
+            {
+                // erase, does not invalidate iterator
+                mAnimationStates.erase(si);
+            }
+        }
+
         AnimationList::iterator i = mAnimationsList.find(name);
         if (i == mAnimationsList.end())
         {
@@ -1696,10 +1705,14 @@ namespace Ogre {
 
         mAnimationsList.erase(i);
 
+
     }
     //-----------------------------------------------------------------------
     void SceneManager::destroyAllAnimations(void)
     {
+        // Destroy all states too, since they cannot reference destroyed animations
+        destroyAllAnimationStates();
+
         AnimationList::iterator i;
         for (i = mAnimationsList.begin(); i != mAnimationsList.end(); ++i)
         {

@@ -737,6 +737,11 @@ namespace Ogre
         /** Utility method for initialising all render targets attached to this rendering system. */
         virtual void _initRenderTargets(void);
 
+        /** Utility method to notify all render targets that a camera has been removed, 
+            incase they were referring to it as their viewer. 
+        */
+        virtual void _notifyCameraRemoved(const Camera* cam);
+
         /** Internal method for updating all render targets attached to this rendering system. */
         virtual void _updateAllRenderTargets(void);
 

@@ -164,6 +164,8 @@ public:
 
     bool getOptionValues( const String & key, std::list < SDDataChunk > &refValueList );
     bool getOptionKeys( std::list < String > & refKeys );
+    /** Overridden from SceneManager */
+    void clearScene(void);
 
 
 
@@ -187,6 +189,8 @@ protected:
 
     /// max depth for the tree.
     int mMaxDepth;
+    /// Size of the octree
+    AxisAlignedBox mBox;
 
     /// box visibility flag
     bool mShowBoxes;
