@@ -109,6 +109,7 @@ namespace Ogre {
                     // No current system
                     // So first valid data should be a system name
                     pSys = createTemplate(line, groupName);
+					pSys->_notifyOrigin(stream->getName());
                     // Skip to and over next {
                     skipToNextOpenBrace(stream);
                 }

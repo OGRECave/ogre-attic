@@ -83,6 +83,8 @@ namespace Ogre {
         size_t mSize;
 		/// Is this file manually loaded?
 		bool mIsManual;
+		/// Origin of this resource (e.g. script name) - optional
+		String mOrigin;
 		/// Optional manual loader; if provided, data is loaded from here instead of a file
 		ManualResourceLoader* mLoader;
 
@@ -194,6 +196,16 @@ namespace Ogre {
 
 		/// Gets the manager which created this resource
 		ResourceManager* getCreator(void) { return mCreator; }
+		/** Get the origin of this resource, e.g. a script file name.
+		@remarks
+			This property will only contain something if the creator of
+			this resource chose to populate it. Script loaders are advised
+			to populate it.
+		*/
+		const String& getOrigin(void) const { return mOrigin; }
+		/// Notify this resource of it's origin
+		void _notifyOrigin(const String& origin) { mOrigin = origin; }
+
     };
 
 	/** Shared pointer to a Resource.

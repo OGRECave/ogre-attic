@@ -204,6 +204,7 @@ namespace Ogre {
 			
 						// So first valid data should be overlay name
 						pOverlay = create(line);
+						pOverlay->_notifyOrigin(stream->getName());
 						// Skip to and over next {
 						skipToNextOpenBrace(stream);
 						skipLine = true;

@@ -1588,6 +1588,7 @@ namespace Ogre
         // Create a brand new material
         context.material = 
 			MaterialManager::getSingleton().create(params, context.groupName);
+		context.material->_notifyOrigin(context.filename);
         // Remove pre-created technique from defaults
         context.material->removeAllTechniques();
 
@@ -2331,6 +2332,8 @@ namespace Ogre
         }
         // Set skeletal animation option
         gp->setSkeletalAnimationIncluded(def->supportsSkeletalAnimation);
+		// set origin
+		gp->_notifyOrigin(mScriptContext.filename);
 
         // Set up to receive default parameters
         if (gp->isSupported() 
