@@ -26,8 +26,16 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreGLXRenderTexture.h"
 #include "OgreException.h"
+#include "OgreLogManager.h"
 
 #include <iostream>
+
+// Replace by arb ASAP
+#ifndef GLX_ATI_pixel_format_float
+#define GLX_ATI_pixel_format_float  1
+#define GLX_RGBA_FLOAT_ATI_BIT                          0x00000100
+#endif
+
 
 namespace Ogre
 {
@@ -40,13 +48,11 @@ namespace Ogre
         // and double buffered PBuffer
         createPBuffer();
     }
-//  Needed extensions:
-// glXChooseFBConfigSGIX
-// glXCreateGLXPbufferSGIX
-// glXQueryGLXPbufferSGIX    
+
     void GLXRenderTexture::createPBuffer() {        
-        bool bStencil = true;
-           
+        LogManager::getSingleton().logMessage(
+        "GLXRenderTexture::Creating PBuffer"
+        );
            
         _pDpy = glXGetCurrentDisplay();
         GLXContext context = glXGetCurrentContext();
@@ -57,39 +63,40 @@ namespace Ogre
         int attribs[50];
         int attrib = 0;
         // Attribs for glXChooseFBConfig
-        int depth = 1;
-        
+        // Get R,G,B,A depths
+        int depths[4];
+        Image::formatGetDepths(mInternalFormat, depths);
+
         attribs[attrib++] = GLX_RENDER_TYPE;
-        attribs[attrib++] = GLX_RGBA_BIT;
+        if(Image::formatIsFloat(mInternalFormat))
+            attribs[attrib++] = GLX_RGBA_FLOAT_ATI_BIT; // GLX_RGBA_FLOAT_BIT
+        else
+            attribs[attrib++] = GLX_RGBA_BIT;
         
         attribs[attrib++] = GLX_RED_SIZE;
-        attribs[attrib++] = depth;
+        attribs[attrib++] = depths[0];
         attribs[attrib++] = GLX_GREEN_SIZE;
-        attribs[attrib++] = depth;
+        attribs[attrib++] = depths[1];
         attribs[attrib++] = GLX_BLUE_SIZE;
-        attribs[attrib++] = depth;
+        attribs[attrib++] = depths[2];
         attribs[attrib++] = GLX_ALPHA_SIZE;
-        if(Image::formatHasAlpha(mInternalFormat))
-            attribs[attrib++] = depth;
-        else
-            attribs[attrib++] = 0; // No alpha
+        attribs[attrib++] = depths[3];
+
         attribs[attrib++] = GLX_DRAWABLE_TYPE;
         attribs[attrib++] = GLX_PBUFFER_BIT;
         attribs[attrib++] = GLX_STENCIL_SIZE;
-        attribs[attrib++] = (bStencil) ? 8 : 0;
+        attribs[attrib++] = 8;
         attribs[attrib++] = GLX_DEPTH_SIZE;
-        attribs[attrib++] = 16;
+        attribs[attrib++] = 16;             // at least 16
         attribs[attrib++] = GLX_DOUBLEBUFFER;
-        attribs[attrib++] = 1;
+        attribs[attrib++] = 0;
         attribs[attrib++] = None;
         GLXFBConfig * fbConfigs;
         int nConfigs;
         fbConfigs =
             glXChooseFBConfig(_pDpy, screen, attribs, &nConfigs);
-        if (nConfigs == 0 || !fbConfigs) {
-            // TODO exception
-            std::cerr << "RenderTexture::Initialize() creation error: Couldn't find a suitable pixel format" << std::endl;
-        }
+        if (nConfigs == 0 || !fbConfigs) 
+            Except(Exception::UNIMPLEMENTED_FEATURE, "glXChooseFBConfig() failed: Couldn't find a suitable pixel format", "GLRenderTexture::createPBuffer");
         // Attribs for CreatePbuffer
         attrib = 0;
         attribs[attrib++] = GLX_PBUFFER_WIDTH;
@@ -106,10 +113,8 @@ namespace Ogre
     
             if (_hPBuffer) {
                 visInfo = glXGetVisualFromFBConfig(_pDpy, fbConfigs[0]);
-                if (!visInfo) {
-                    // TODO exception
-                    std::cerr << "Error: couldn't get an RGBA, double-buffered visual" << std::endl;
-                }
+                if (!visInfo) 
+                   Except(Exception::UNIMPLEMENTED_FEATURE, "glXGetVisualFromFBConfig() failed: couldn't get an RGBA, double-buffered visual", "GLRenderTexture::createPBuffer");
             
                 _hGLContext =
                     glXCreateContext(_pDpy, visInfo, context, True);
@@ -117,14 +122,11 @@ namespace Ogre
             }
     
         }
-        if (!_hPBuffer) {
-            // TODO exception
-            std::cerr << "RenderTexture::Initialize() pbuffer creation error: glXCreatePbuffer() failed" << std::endl;
-        }
-        if (!_hGLContext) {
-            // TODO exception
-            std::cerr << "RenderTexture::Initialize() pbuffer creation error: Create context failed failed" << std::endl;
-        }
+        if (!_hPBuffer) 
+            Except(Exception::UNIMPLEMENTED_FEATURE, "glXCreatePbuffer() failed", "GLRenderTexture::createPBuffer");
+        if (!_hGLContext) 
+            Except(Exception::UNIMPLEMENTED_FEATURE, "glXCreateContext() failed", "GLRenderTexture::createPBuffer");        
+
         if(fbConfigs)
             XFree(fbConfigs);
         if(visInfo)
@@ -134,7 +136,11 @@ namespace Ogre
         GLuint iWidth, iHeight;
         glXQueryDrawable(_pDpy, _hPBuffer, GLX_WIDTH, &iWidth);
         glXQueryDrawable(_pDpy, _hPBuffer, GLX_HEIGHT, &iHeight);
-        std::cerr << "Real dimensions " << iWidth << "x" << iHeight << std::endl;
+
+        LogManager::getSingleton().logMessage(
+             LML_NORMAL,
+                "GLXRenderTexture::PBuffer created -- Real dimensions %ix%i",iWidth,iHeight
+        );
         mWidth = iWidth;  
         mHeight = iHeight;
 
@@ -155,32 +161,18 @@ namespace Ogre
     
     void GLXRenderTexture::firePreUpdate(void)
     {
-
-        //std::cerr << "Pre" << std::endl;
-
-        //GLXDrawable drawable = glXGetCurrentDrawable();
-        //GLXContext context = glXGetCurrentContext();
-        
-        glXMakeCurrent(_pDpy, _hPBuffer, _hGLContext);
-        //std::cerr << "Switch" << std::endl;
-
-        //glXMakeCurrent(_pDpy, drawable, context);
-        GLint tid = static_cast<GLTexture*>(mTexture)->getGLID();
-        
-        
         // Set context
+        glXMakeCurrent(_pDpy, _hPBuffer, _hGLContext);
+        
         GLRenderTexture::firePreUpdate();
     }
     void GLXRenderTexture::firePostUpdate(void)
     {
         GLRenderTexture::firePostUpdate();
         // Unset, bind texture
-
-        //std::cerr << "Post" << std::endl;
-        glXSwapBuffers(_pDpy, _hPBuffer);
+        //glXSwapBuffers(_pDpy, _hPBuffer);
+        
         GLRenderTexture::_copyToTexture();
-
-        //glXMakeCurrent(_pDpy, None, 0);
 
     }
     
