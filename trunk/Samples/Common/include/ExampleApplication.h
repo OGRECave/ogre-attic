@@ -56,6 +56,9 @@ public:
             return;
 
         mRoot->startRendering();
+
+        // clean up
+        destroyScene();
     }
 
 protected:
@@ -135,6 +138,8 @@ protected:
     }
 
     virtual void createScene(void) = 0;    // pure virtual - this has to be overridden
+
+    virtual void destroyScene(void){}    // Optional to override this
 
     virtual void createViewports(void)
     {

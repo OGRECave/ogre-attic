@@ -192,6 +192,11 @@ protected:
         mCamera->lookAt(0,200,-300);
 
     }
+    void destroyScene(void)
+    {
+        // free up the pointer before we shut down OGRE
+        patch.setNull();
+    }
 	void createFrameListener(void)
     {
 		// This is where we instantiate our own frame listener

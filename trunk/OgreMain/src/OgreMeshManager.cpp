@@ -894,6 +894,7 @@ namespace Ogre
         pm->define(controlPointBuffer, declaration, width, height,
             uMaxSubdivisionLevel, vMaxSubdivisionLevel, visibleSide, vbUsage, ibUsage,
             vbUseShadow, ibUseShadow);
+        pm->load();
         ResourcePtr res(pm);
         addImpl(res);
 
