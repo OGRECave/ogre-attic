@@ -36,6 +36,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 // Hack struct for test
 PatchSurface ps;
+Entity* patchEntity;
 
 // Event handler to add ability to alter subdivision
 class BezierListener : public ExampleFrameListener
@@ -67,7 +68,8 @@ public:
             if (level == 0)
             {
                 wireframe = !wireframe;
-                mCamera->setDetailLevel(wireframe ? SDL_WIREFRAME : SDL_SOLID);
+                //mCamera->setDetailLevel(wireframe ? SDL_WIREFRAME : SDL_SOLID);
+                patchEntity->setRenderDetail(wireframe ? SDL_WIREFRAME : SDL_SOLID);
             }
 
         }
@@ -182,14 +184,14 @@ protected:
         ps.build();
 
         // Create entity based on patch
-        Entity* ent = mSceneMgr->createEntity("Entity1", "Bezier1");
+        patchEntity = mSceneMgr->createEntity("Entity1", "Bezier1");
 
         Material *pMat = (Material*)MaterialManager::getSingleton().create( "TextMat" );
         pMat->addTextureLayer( "BumpyMetal.jpg" );
-        ent->setMaterialName("TextMat");
+        patchEntity->setMaterialName("TextMat");
 
         // Attach the entity to the root of the scene
-        mSceneMgr->getRootSceneNode()->attachObject(ent);
+        mSceneMgr->getRootSceneNode()->attachObject(patchEntity);
 
         mCamera->setPosition(500,500, 1500);
         mCamera->lookAt(0,200,-300);
