@@ -517,7 +517,7 @@ namespace Ogre {
 
             }
 
-            const char* tmp = smElem->Attribute("material");
+            const char* tmp = smElem->Attribute("usesharedvertices");
             if (tmp)
                 sm->useSharedVertices = StringConverter::parseBool(tmp);
             tmp = smElem->Attribute("use32bitindexes");
