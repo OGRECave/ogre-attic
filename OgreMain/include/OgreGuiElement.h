@@ -106,7 +106,16 @@ namespace Ogre {
         /** Gets the name of the material this element uses. */
         virtual const String& getMaterialName(void) const;
 
-        /** Sets the name of the material this element will use. */
+        /** Sets the name of the material this element will use. 
+        @remarks
+            Different elements will use different materials. One constant about them
+            all though is that a Material used for a GuiElement must have it's depth
+            checking set to 'off', which means it always gets rendered on top. OGRE
+            will set this flag for you if necessary. What it does mean though is that 
+            you should not use the same Material for rendering GuiElements as standard 
+            scene objects. It's fine to use the same textures, just not the same
+            Material.
+        */
         virtual void setMaterialName(const String& matName);
 
 
