@@ -81,7 +81,9 @@ namespace Ogre {
         /** Builds the progressive mesh with the specified number of levels.
         @param numLevels The number of levels to include in the mesh including the full detail version.
             Each level will have half as many vertices as the previous one.
-        @param outList Pointer to a list of LOD geometry data which will be completed by the application
+        @param outList Pointer to a list of LOD geometry data which will be completed by the application.
+			The first entry in this list is the original geometry data, each entry after this is a
+			reduced form of the mesh, in decreasing order of detail.
         */
         virtual void build(ushort numLevels, LODGeometryList* outList);
 
@@ -98,7 +100,7 @@ namespace Ogre {
         class PMTriangle {
         public:
             PMTriangle();
-            void setDetails(PMVertex *v0, PMVertex *v1, PMVertex *v2);
+            void setDetails(ushort index, PMVertex *v0, PMVertex *v1, PMVertex *v2);
 	        void computeNormal(void);
 	        void replaceVertex(PMVertex *vold, PMVertex *vnew);
 	        bool  hasVertex(PMVertex *v);
@@ -107,6 +109,7 @@ namespace Ogre {
 	        PMVertex* vertex[3]; // the 3 points that make this tri
 	        Vector3   normal;    // unit vector othogonal to this face
             bool      removed;   // true if this tri is now removed
+			ushort index;
         };
 
         /** A vertex in the progressive mesh, holds info like collapse cost etc. */
@@ -121,7 +124,9 @@ namespace Ogre {
             Vector3  position;  // location of point in euclidean space
 	        ushort index;       // place of vertex in original list
             typedef std::set<PMVertex *> NeighborList;
+            typedef std::set<PMVertex *> DuplicateList;
             NeighborList neighbor; // adjacent vertices
+			DuplicateList duplicates; // Co-located vertices
 	        typedef std::set<PMTriangle *> FaceList;
             FaceList face;     // adjacent triangles
 
@@ -173,6 +178,10 @@ namespace Ogre {
             This also updates all the working vertex lists for the relevant buffer. 
         */
         void collapse(PMVertex *collapser);
+
+		/** Internal debugging method */
+		void dumpContents(const String& log);
+
 
 
 
