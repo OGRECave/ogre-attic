@@ -1171,6 +1171,8 @@ namespace Ogre {
                     // ----- NON-TRANSPARENT ENTITY LOOP -----
                     for (imat = pPriorityGrp->mMaterialGroups.begin(); imat != imatend; ++imat)
                     {
+                        bool isMaterialSet = false;
+
                         // Set Material
                         thisMaterial = imat->first;
                         matLayersLeft = thisMaterial->getNumTextureLayers();
@@ -1178,10 +1180,6 @@ namespace Ogre {
                         // NB do at least one rendering pass even if no layers! (Untextured materials)
                         do
                         {
-                            // Set material - will return non-zero if multipass required so loop will continue, 0 otherwise
-                            matLayersLeft = setMaterial(thisMaterial, matLayersLeft);
-
-
                             // Iterate through renderables and render
                             // Note this may happen multiple times for multipass render
                             std::vector<Renderable*>::iterator irend, irendend;
@@ -1203,6 +1201,13 @@ namespace Ogre {
 
                                 // Issue view / projection changes if any
                                 useRenderableViewProjMode(*irend);
+
+                                // Set material - will return non-zero if multipass required so loop will continue, 0 otherwise
+                                if(!isMaterialSet)
+                                {
+                                    matLayersLeft = setMaterial(thisMaterial, matLayersLeft);
+                                    isMaterialSet = true;
+                                }
 
                                 // Set up the solid / wireframe override
                                 SceneDetailLevel reqDetail = (*irend)->getRenderDetail();
@@ -1246,9 +1251,6 @@ namespace Ogre {
                         // NB do at least one rendering pass even if no layers! (Untextured materials)
                         do
                         {
-                            // Set material - will return non-zero if multipass required so loop will continue, 0 otherwise
-                            matLayersLeft = setMaterial(thisMaterial, matLayersLeft);
-
                             // Set world transformation
                             (*iTrans)->getWorldTransforms(xform);
                             numMatrices = (*iTrans)->getNumWorldTransforms();
@@ -1263,6 +1265,9 @@ namespace Ogre {
 
                             // Issue view / projection changes if any
                             useRenderableViewProjMode(*iTrans);
+
+                            // Set material - will return non-zero if multipass required so loop will continue, 0 otherwise
+                            matLayersLeft = setMaterial(thisMaterial, matLayersLeft);
 
                             // Set up the solid / wireframe override
                             SceneDetailLevel reqDetail = (*iTrans)->getRenderDetail();
