@@ -35,7 +35,12 @@ void exportTextureManager()
     class_<TextureManager, bases<ResourceManager>, boost::noncopyable >(
             "TextureManager", no_init)
         .def("getByName", &TextureManager::getByName, rir())
-        .def("load", &TextureManager::load, rir())
+        .def("load", 
+            (Texture* (TextureManager::*)(const String&, int, Real, int))
+            &TextureManager::load, rir())
+        .def("loadImage", &TextureManager::loadImage, rir())
+        .def("load", (void (TextureManager::*)(Resource*, int))
+            &TextureManager::load, rir())
         .def("unload", &TextureManager::unload)
         .def("setDefaultNumMipMaps", &TextureManager::setDefaultNumMipMaps)
         .def("getDefaultNumMipMaps", &TextureManager::getDefaultNumMipMaps)

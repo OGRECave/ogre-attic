@@ -7,6 +7,7 @@ Ogre_so_SOURCES = OgrePythonCameraLink.cpp \
                   OgrePythonLink.cpp \
                   OgrePythonMaterialLink.cpp \
                   OgrePythonMeshLink.cpp \
+                  OgrePythonRenderLink.cpp \
                   OgrePythonSceneLink.cpp \
                   OgrePythonTextureLink.cpp \
                   OgrePythonUtilityLink.cpp
