@@ -77,7 +77,8 @@ Intersection intersect( const Ray &one, const AxisAlignedBox &two )
 
     Vector3 maxT(-1, -1, -1);
 
-    for(int i=0; i<3; i++ )
+    int i = 0;
+    for(i=0; i<3; i++ )
     {
         if( origin[i] < pCorners[0][i] )
         {
@@ -111,7 +112,7 @@ Intersection intersect( const Ray &one, const AxisAlignedBox &two )
     {
         return OUTSIDE;
     }
-    for(int i=0; i<3; i++ )
+    for(i=0; i<3; i++ )
     {
         if( i!= whichPlane )
         {
