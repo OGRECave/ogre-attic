@@ -117,16 +117,18 @@ namespace Ogre {
 			    if (targetOver == mMouseDragSource)
 			    {
                     retargetMouseEvent(mMouseDragSource, MouseEvent::ME_MOUSE_CLICKED, e);
+                    retargetMouseEvent(mMouseDragSource, e);
 			    }
 			    else // i.e. targetOver != mMouseDragSource
 			    {
                     if (mDragDropActive)
                         retargetMouseEvent(targetOver, MouseEvent::ME_MOUSE_DRAGDROPPED, e);
+                    retargetMouseEvent(mMouseDragSource, e);
 				    retargetMouseEvent(targetOver, MouseEvent::ME_MOUSE_ENTERED, e);
 			    }
             }
-
-            retargetMouseEvent(mMouseDragSource, e);
+            else
+                retargetMouseEvent(mMouseDragSource, e);
 
 			mDragging = false;
             mDragDropActive = false;
