@@ -724,7 +724,14 @@ namespace Ogre {
             mFrustumPlanes[FRUSTUM_PLANE_NEAR].normal = camDirection;
             mFrustumPlanes[FRUSTUM_PLANE_NEAR].d = -(fDdE + mNearDist);
 
-
+            // Deal with reflection on frustum planes
+            if (mReflect)
+            {
+                for (unsigned int i = 0; i < 6; ++i)
+                {
+                    mFrustumPlanes[i].normal = mReflectMatrix * mFrustumPlanes[i].normal;
+                }
+            }
 
 
             mRecalcView = false;
