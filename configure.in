@@ -6,11 +6,6 @@ AM_CONFIG_HEADER(OgreMain/include/config.h)
 
 AC_CANONICAL_TARGET
 
-dnl set our flag defaults
-CFLAGS=""
-CXXFLAGS=""
-LDFLAGS=""
-
 dnl Check for programs
 AC_PROG_CC
 AC_PROG_CXX
@@ -101,6 +96,9 @@ AC_CONFIG_FILES([Makefile \
     Samples/EnvMapping/Makefile \
     Samples/EnvMapping/src/Makefile \
     Samples/EnvMapping/include/Makefile \
+    Samples/Gui/Makefile \
+    Samples/Gui/src/Makefile \
+    Samples/Gui/include/Makefile \
     Samples/Transpacency/Makefile \
     Samples/Transpacency/src/Makefile \
     Samples/Transpacency/include/Makefile \
