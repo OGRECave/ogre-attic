@@ -785,7 +785,7 @@ namespace Ogre {
     void GLRenderSystem::_setAlphaRejectSettings(CompareFunction func, unsigned char value)
     {
         glEnable(GL_ALPHA_TEST);
-        glAlphaFunc(convertCompareFunction(func), value / 128.0f);
+        glAlphaFunc(convertCompareFunction(func), value / 255.0f);
     }
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_setViewport(Viewport *vp)
@@ -868,7 +868,7 @@ namespace Ogre {
         OgreUnguard();
     }
     //-----------------------------------------------------------------------------
-    void GLRenderSystem::_render(LegacyRenderOperation& op)
+    void GLRenderSystem::_render(const LegacyRenderOperation& op)
     {
         OgreGuard("GLRenderSystem::_render");
         

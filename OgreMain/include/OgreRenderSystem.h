@@ -537,7 +537,7 @@ namespace Ogre
         /** Sets the global alpha rejection approach for future renders.
             By default images are rendered regardless of texture alpha. This method lets you change that.
             @param func The comparison function which must pass for a pixel to be written.
-            @param val The value to compare each pixels alpha value to (recommended 0 or 128 for compatibility)
+            @param val The value to compare each pixels alpha value to (0-255)
         */
         virtual void _setAlphaRejectSettings(CompareFunction func, unsigned char value) = 0;
         /**
@@ -558,7 +558,7 @@ namespace Ogre
           @param op A rendering operation instance, which contains
             details of the operation to be performed.
          */
-        virtual void _render(LegacyRenderOperation& op);
+        virtual void _render(const LegacyRenderOperation& op);
 
 
         /**

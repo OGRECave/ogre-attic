@@ -1251,6 +1251,19 @@ namespace Ogre {
 		HRESULT hr;
 
 
+        if (func != CMPF_ALWAYS_PASS)
+        {
+            if( FAILED( hr = __SetRenderState( D3DRS_ALPHATESTENABLE,  TRUE ) ) )
+    			Except( hr, "Failed to enable alpha testing", 
+                "D3D8RenderSystem::_setAlphaRejectSettings" );
+        }
+        else
+        {
+            if( FAILED( hr = __SetRenderState( D3DRS_ALPHATESTENABLE,  FALSE ) ) )
+    			Except( hr, "Failed to disable alpha testing", 
+                "D3D8RenderSystem::_setAlphaRejectSettings" );
+        }
+        // Set always just be sure
 		if( FAILED( hr = __SetRenderState( D3DRS_ALPHAFUNC, 
             convertCompareFunction(func)) ) )
 			Except( hr, "Failed to set render state D3DRS_ALPHAFUNC", "D3D8RenderSystem::_setAlphaRejectSettings" );
@@ -1356,7 +1369,7 @@ namespace Ogre {
 		return true;
 	}
 
-	void D3D8RenderSystem::_render( LegacyRenderOperation &op )
+	void D3D8RenderSystem::_render(const LegacyRenderOperation &op )
 	{
 		OgreGuard( "D3D8RenderSystem::_render" );
 

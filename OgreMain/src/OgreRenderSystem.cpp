@@ -425,7 +425,7 @@ namespace Ogre {
         return mVertexCount;
     }
     //-----------------------------------------------------------------------
-    void RenderSystem::_render(LegacyRenderOperation& op)
+    void RenderSystem::_render(const LegacyRenderOperation& op)
     {
         // Update stats
         int val;
@@ -456,8 +456,8 @@ namespace Ogre {
         if ((op.vertexOptions & LegacyRenderOperation::VO_BLEND_WEIGHTS) && 
             !this->_isVertexBlendSupported())
         {
-            // Software blending required
-            softwareVertexBlend(op, mWorldMatrices);
+            // Software blending required, hack the constness since we need to fudge
+            softwareVertexBlend(const_cast<LegacyRenderOperation&>(op), mWorldMatrices);
         }
     }
     //-----------------------------------------------------------------------

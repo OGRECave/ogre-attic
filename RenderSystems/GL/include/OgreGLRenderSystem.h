@@ -97,11 +97,11 @@ namespace Ogre {
         GLfloat mAutoTextureMatrix[16];
 
         // Pointer to glActiveTextureARB function
-        typedef void (*GL_ActiveTextureARB_Func)(GLenum);
+        typedef void (APIENTRY *GL_ActiveTextureARB_Func)(GLenum);
         GL_ActiveTextureARB_Func glActiveTextureARB_ptr;
 
         // Pointer to glClientActiveTextureARB function
-        typedef void (*GL_ClientActiveTextureARB_Func)(GLenum);
+        typedef void (APIENTRY *GL_ClientActiveTextureARB_Func)(GLenum);
         GL_ClientActiveTextureARB_Func glClientActiveTextureARB_ptr;
 
     public:
@@ -272,7 +272,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void _render(LegacyRenderOperation& op);
+        void _render(const LegacyRenderOperation& op);
         /** See
           RenderSystem
          */
