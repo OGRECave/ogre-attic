@@ -34,7 +34,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include <IL/il.h>
 #include <IL/ilu.h>
-#include <IL/devil_internal_exports.h>
 
 namespace Ogre {
     std::list<ILImageCodec*> ILCodecs::codeclist;
@@ -51,18 +50,22 @@ namespace Ogre {
         ext << il_extensions;
         while(ext >> str)
         {
+#if 0
 			String fileName = "dummy." + str;
+			// DevIL doesn't export this under windows -- how weird
 			int ilType = ilTypeFromExt(const_cast<char*>(fileName.c_str()));
+#endif
+			int ilType = IL_TYPE_UNKNOWN;
             ILImageCodec *codec = new ILImageCodec(str, ilType);
             Codec::registerCodec(codec);
             codeclist.push_back(codec);
-			all += str+String("(")+StringConverter::toString(ilType)+String(") ");
+			//all += str+String("(")+StringConverter::toString(ilType)+String(") ");
         }
 		// Raw format, missing in image formats string
 		ILImageCodec *cod = new ILImageCodec("raw", IL_RAW);
 		Codec::registerCodec(cod);
 		codeclist.push_back(cod);
-		all += String("raw")+"("+StringConverter::toString(IL_RAW)+String(") ");
+		//all += String("raw")+"("+StringConverter::toString(IL_RAW)+String(") ");
 		LogManager::getSingleton().logMessage(
          LML_NORMAL,
             "DevIL image formats: " + all);
