@@ -44,7 +44,7 @@ RSC=rc.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "OGREMAIN_EXPORTS" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /GX /Ot /Oi /Oy /Ob1 /I "..\include" /I "..\..\Dependencies\include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "OGRE_NONCLIENT_BUILD" /Yu"OgreStableHeaders.h" /FD /c
-# SUBTRACT CPP /Z<none> /Ox /Og /Fr
+# SUBTRACT CPP /Ox /Og /Fr
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x418 /d "NDEBUG"
@@ -232,6 +232,14 @@ SOURCE=..\src\OgreFont.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreFontManager.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreGpuProgram.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreGpuProgramManager.cpp
 # End Source File
 # Begin Source File
 
@@ -816,6 +824,14 @@ SOURCE=..\include\OgreFrameListener.h
 # Begin Source File
 
 SOURCE=..\include\OgreGeometryData.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreGpuProgram.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreGpuProgramManager.h
 # End Source File
 # Begin Source File
 
