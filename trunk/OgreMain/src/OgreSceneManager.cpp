@@ -2485,6 +2485,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void SceneManager::setViewport(Viewport* vp)
     {
+        mCurrentViewport = vp;
         // Set viewport in render system
         mDestRenderSystem->_setViewport(vp);
     }
@@ -3055,6 +3056,35 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void SceneManager::renderShadowVolumesToStencil(const Light* light, const Camera* camera)
     {
+
+        // Set up scissor test (point & spot lights only)
+        bool scissored = false;
+        /*
+        if (light->getType() != Light::LT_DIRECTIONAL && 
+            mDestRenderSystem->getCapabilities()->hasCapability(RSC_SCISSOR_TEST))
+        {
+            // Project the sphere onto the camera
+            Real left, right, top, bottom;
+            Sphere sphere(light->getDerivedPosition(), light->getAttenuationRange());
+            if (camera->projectSphere(sphere, &left, &right, &top, &bottom))
+            {
+                scissored = true;
+                // Turn normalised device coordinates into pixels
+                int iLeft, iTop, iWidth, iHeight;
+                mCurrentViewport->getActualDimensions(iLeft, iTop, iWidth, iHeight);
+                size_t szLeft, szRight, szTop, szBottom;
+
+                szLeft = iLeft + ((left + 1) * 0.5 * iWidth);
+                szRight = iLeft + ((right + 1) * 0.5 * iWidth);
+                szTop = iTop + ((-top + 1) * 0.5 * iHeight);
+                szBottom = iTop + ((-bottom + 1) * 0.5 * iHeight);
+
+                mDestRenderSystem->setScissorTest(true, szLeft, szTop, szRight, szBottom);
+
+            }
+
+        }
+        */
         mDestRenderSystem->unbindGpuProgram(GPT_FRAGMENT_PROGRAM);
 
         // Can we do a 2-sided stencil?
@@ -3153,6 +3183,12 @@ namespace Ogre {
             ShadowCaster* caster = *si;
             flags = 0;
 
+            if (!extrudeInSoftware)
+            {
+                // hardware extrusion, to infinity (and beyond!)
+                flags |= SRF_EXTRUDE_TO_INFINITY;
+            }
+
             if (zfailAlgo)
             {
                 // We need to include the light and / or dark cap
@@ -3162,8 +3198,9 @@ namespace Ogre {
                     flags |= SRF_INCLUDE_LIGHT_CAP;
                 }
             }
-            // Dark cap
-            if(camera->isVisible(caster->getDarkCapBounds(*light, extrudeDist)))
+            // Dark cap (no dark cap for directional lights using hardware extrusion)
+            if(!(!extrudeInSoftware && light->getType() == Light::LT_DIRECTIONAL) &&
+                camera->isVisible(caster->getDarkCapBounds(*light, extrudeDist)))
             {
                 flags |= SRF_INCLUDE_DARK_CAP;
             }
@@ -3204,6 +3241,12 @@ namespace Ogre {
         mDestRenderSystem->setStencilCheckEnabled(false);
 
         mDestRenderSystem->unbindGpuProgram(GPT_VERTEX_PROGRAM);
+
+        if (scissored)
+        {
+            // disable scissor test
+            mDestRenderSystem->setScissorTest(false);
+        }
 
     }
     //---------------------------------------------------------------------

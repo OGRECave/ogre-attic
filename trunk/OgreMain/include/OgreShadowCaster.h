@@ -97,7 +97,9 @@ namespace Ogre {
         /// For shadow volume techniques only, generate a light cap on the volume
         SRF_INCLUDE_LIGHT_CAP = 0x00000001,
         /// For shadow volume techniques only, generate a dark cap on the volume
-        SRF_INCLUDE_DARK_CAP  = 0x00000002
+        SRF_INCLUDE_DARK_CAP  = 0x00000002,
+        /// For shadow volume techniques only, indicates volume is extruded to infinity
+        SRF_EXTRUDE_TO_INFINITY  = 0x00000004
     };
 
     /** This class defines the interface that must be implemented by shadow casters.

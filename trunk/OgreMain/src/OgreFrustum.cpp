@@ -758,6 +758,120 @@ namespace Ogre {
         mReflect = false;
         invalidateView();
     }
+    //---------------------------------------------------------------------
+    bool Frustum::projectSphere(const Sphere& sphere, 
+        Real* left, Real* top, Real* right, Real* bottom) const
+    {
+        // initialise
+        *left = *bottom = -1.0f;
+        *right = *top = 1.0f;
+
+        // Transform light position into camera space
+        Vector3 eyeSpacePos = getViewMatrix() * sphere.getCenter();
+        Real r = sphere.getRadius();
+        Real rsq = r * r;
+        Real lxsq = eyeSpacePos.x * eyeSpacePos.x;
+        Real lysq = eyeSpacePos.y * eyeSpacePos.y;
+        Real lzsq = eyeSpacePos.z * eyeSpacePos.z;
+
+        // Normals to the planes which are tangental to the light sphere
+        Vector3 norm[2];
+        // Position at which they touch sphere at tangent
+        Vector3 p[2];
+        Real coeff[4];
+        int i;
+
+        // Do left/right 
+        Real det = ( (rsq * lxsq) - ((lxsq + lzsq)*(rsq - lzsq)) );
+        if (det > 0)
+        {
+            Real detsqrt = Math::Sqrt(det);
+
+            coeff[0] = r * eyeSpacePos.x;
+            coeff[1] = 1 / (lxsq + lzsq);
+            coeff[2] = -1.0f;
+            coeff[3] = lxsq + lzsq - rsq;
+            for (i = 0; i < 2; ++i)
+            {
+
+                norm[i].x = (coeff[0] + (coeff[2] * detsqrt)) * coeff[1];
+                // flip/flop -1 / + 1
+                coeff[2] = coeff[2] * coeff[2];
+                norm[i].y = 0.0f;
+                norm[i].z = (r - (norm[i].x * eyeSpacePos.x)) / eyeSpacePos.z;
+
+                p[i].z = coeff[3] / (eyeSpacePos.z - (norm[i].z / norm[i].x) * eyeSpacePos.x);
+                p[i].y = 0.0f;
+                p[i].x = -(p[i].z * norm[i].z) / norm[i].x;
+
+                if (p[i].z < 0)
+                {
+                    // this is in front
+                    if (p[i].x < eyeSpacePos.x)
+                    {
+                        // left boundary
+                        *left = std::max(-1.0f, 
+                            (norm[i].z * mNearDist) / norm[i].x);
+                    }
+                    else
+                    {
+                        // right boundary
+                        *right = std::min(1.0f, 
+                            (norm[i].z * mNearDist) / norm[i].x);
+                    }
+                }
+
+            }
+
+        }
+
+        // Do top / bottom 
+        det = ( (rsq * lysq) - ((lysq + lzsq)*(rsq - lzsq)) );
+        if (det > 0)
+        {
+            Real detsqrt = Math::Sqrt(det);
+
+            coeff[0] = r * eyeSpacePos.y;
+            coeff[1] = 1 / (lysq + lzsq);
+            coeff[2] = -1.0f;
+            coeff[3] = lysq + lzsq - rsq;
+            for (i = 0; i < 2; ++i)
+            {
+
+                norm[i].x = 0.0f;
+                norm[i].y = (coeff[0] + (coeff[2] * detsqrt)) * coeff[1];
+                // flip/flop -1 / + 1
+                coeff[2] = coeff[2] * coeff[2];
+                norm[i].z = (r - (norm[i].y * eyeSpacePos.y)) / eyeSpacePos.z;
+
+                p[i].z = coeff[3] / (eyeSpacePos.z - (norm[i].z / norm[i].y) * eyeSpacePos.y);
+                p[i].x = 0.0f;
+                p[i].y = -(p[i].z * norm[i].z) / norm[i].y;
+
+                if (p[i].z < 0)
+                {
+                    // this is in front
+                    if (p[i].y < eyeSpacePos.y)
+                    {
+                        // bottom boundary
+                        *bottom = std::max(-1.0f, 
+                            (norm[i].z * mNearDist) / norm[i].y);
+                    }
+                    else
+                    {
+                        // top boundary
+                        *top = std::min(1.0f, 
+                            (norm[i].z * mNearDist) / norm[i].y);
+                    }
+                }
+
+            }
+
+        }
+
+
+        return (*left != -1.0f) || (*top != 1.0f) || (*right != 1.0f) || (*bottom != -1.0f);
+    }
 
 
 
