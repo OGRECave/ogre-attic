@@ -412,11 +412,17 @@ namespace Ogre
 				&md3dpp, &mpSwapChain);
 			if (FAILED(hr))
 			{
+				Except(Exception::ERR_RENDERINGAPI_ERROR, 
+					"Unable to create an additional swap chain",
+					"D3D9RenderWindow::createD3DResources");
+
 			}
 			// Store references to buffers for convenience
 			mpSwapChain->GetBackBuffer( 0, D3DBACKBUFFER_TYPE_MONO, &mpRenderSurface );
+			mpD3DDevice->GetDepthStencilSurface( &mpRenderZBuffer );
 			// release immediately so we don't hog them
 			mpRenderSurface->Release();
+			mpRenderZBuffer->Release();
 		}
 		else
 		{
