@@ -33,6 +33,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre
 {
+	#define PI 3.1415926535897932384626433832795
+
     //-----------------------------------------------------------------------
     template<> MeshManager* Singleton<MeshManager>::ms_Singleton = 0;
     //-----------------------------------------------------------------------
@@ -261,10 +263,133 @@ namespace Ogre
         pMesh->_updateBounds();
 
         return pMesh;
-
-
-
     }
+
+	//-----------------------------------------------------------------------
+	Mesh* MeshManager::createCurvedPlane( const String& name, const Plane& plane, Real width, Real height, Real bow, int xsegments, int ysegments,
+        bool normals, int numTexCoordSets, Real xTile, Real yTile, const Vector3& upVector)
+    {
+        int i;
+        Mesh* pMesh = createManual(name);
+        SubMesh *pSub = pMesh->createSubMesh();
+
+        // Set options
+        pMesh->sharedGeometry.hasColours = false;
+        pMesh->sharedGeometry.hasNormals = normals;
+        pMesh->sharedGeometry.normalStride = 0;
+        pMesh->sharedGeometry.numTexCoords = numTexCoordSets;
+        for (i = 0; i < numTexCoordSets; ++i)
+        {
+            pMesh->sharedGeometry.numTexCoordDimensions[i] = 2;
+            pMesh->sharedGeometry.texCoordStride[i] = 0;
+        }
+        pMesh->sharedGeometry.numVertices = (xsegments + 1) * (ysegments + 1);
+        pMesh->sharedGeometry.vertexStride = 0;
+
+        // Allocate memory
+        pMesh->sharedGeometry.pVertices = new Real[pMesh->sharedGeometry.numVertices * 3];
+        if (normals)
+            pMesh->sharedGeometry.pNormals = new Real[pMesh->sharedGeometry.numVertices * 3];
+        for (i = 0; i < numTexCoordSets; ++i)
+            pMesh->sharedGeometry.pTexCoords[i] = new Real[pMesh->sharedGeometry.numVertices * 2];
+
+        // Work out the transform required
+        // Default orientation of plane is normal along +z, distance 0
+        Matrix4 xlate, xform, rot;
+        Matrix3 rot3;
+        xlate = rot = Matrix4::IDENTITY;
+        // Determine axes
+        Vector3 zAxis, yAxis, xAxis;
+        zAxis = plane.normal;
+        zAxis.normalise();
+        yAxis = upVector;
+        yAxis.normalise();
+        xAxis = yAxis.crossProduct(zAxis);
+        if (xAxis.length() == 0)
+        {
+            //upVector must be wrong
+            Except(Exception::ERR_INVALIDPARAMS, "The upVector you supplied is parallel to the plane normal, so is not valid.",
+                "MeshManager::createPlane");
+        }
+
+        rot3.FromAxes(xAxis, yAxis, zAxis);
+        rot = rot3;
+
+        // Set up standard xform from origin
+        xlate.setTrans(plane.normal * -plane.d);
+
+        // concatenate
+        xform = xlate * rot;
+
+        // Generate vertex data
+        Real* pReal;
+        Real xSpace = width / xsegments;
+        Real ySpace = height / ysegments;
+        Real halfWidth = width / 2;
+        Real halfHeight = height / 2;
+        Real xTex = (1.0f * xTile) / xsegments;
+        Real yTex = (1.0f * yTile) / ysegments;
+        Vector3 vec;
+
+		Real diff_x, diff_y, dist;
+
+        for (int y = 0; y < ysegments + 1; ++y)
+        {
+            for (int x = 0; x < xsegments + 1; ++x)
+            {
+                pReal = pMesh->sharedGeometry.pVertices + (((y * (xsegments+1)) + x) * 3);
+                // Work out centered on origin
+                vec.x = (x * xSpace) - halfWidth;
+                vec.y = (y * ySpace) - halfHeight;
+
+				// Here's where curved plane is different from standard plane.  Amazing, I know.
+				diff_x = (x - ((xsegments) / 2)) / static_cast<Real>((xsegments));
+				diff_y = (y - ((ysegments) / 2)) / static_cast<Real>((ysegments));
+				dist = sqrt(diff_x*diff_x + diff_y * diff_y );
+				vec.z = (-sin((1-dist) * (PI/2)) * bow) + bow;
+
+                // Transform by orientation and distance
+                vec = xform * vec;
+                // Assign to geometry
+                pReal[0] = vec.x;
+                pReal[1] = vec.y;
+                pReal[2] = vec.z;
+
+                if (normals)
+                {
+					/* This part is kinda 'wrong' for curved planes... but curved planes are
+					   very valuable outside sky planes, which don't typically need normals
+					   so I'm not going to mess with it for now. */
+
+                    pReal = pMesh->sharedGeometry.pNormals + (((y * (xsegments+1)) + x) * 3);
+                    // Default normal is along unit Z
+                    vec = Vector3::UNIT_Z;
+                    // Rotate
+                    vec = rot * vec;
+
+                    pReal[0] = vec.x;
+                    pReal[1] = vec.y;
+                    pReal[2] = vec.z;
+                }
+
+                for (i = 0; i < numTexCoordSets; ++i)
+                {
+                    pReal = pMesh->sharedGeometry.pTexCoords[i] + (((y * (xsegments+1)) + x) * 2);
+                    pReal[0] = x * xTex;
+                    pReal[1] = y * yTex;
+                }
+
+            } // x
+        } // y
+
+        // Generate face list
+        tesselate2DMesh(pSub, xsegments + 1, ysegments + 1, false);
+
+        pMesh->_updateBounds();
+
+        return pMesh;
+    }
+
     //-----------------------------------------------------------------------
     void MeshManager::tesselate2DMesh(SubMesh* sm, int meshWidth, int meshHeight, bool doubleSided)
     {

@@ -104,6 +104,40 @@ namespace Ogre {
             bool normals = true, int numTexCoordSets = 1,
             Real uTile = 1.0f, Real vTile = 1.0f, const Vector3& upVector = Vector3::UNIT_Y);
 
+		/** Creates a curved plane, by default majoring on the x/y axes facing positive Z.
+            @param
+                name The name to give the resulting mesh
+            @param
+                plane The orientation of the plane and distance from the origin
+            @param
+                width The width of the plane in world coordinates
+            @param
+                height The height of the plane in world coordinates
+			@param
+				bow The amount of 'bow' in the curved plane.  (Could also be concidered the depth.)
+            @param
+                xsegments The number of segements to the plane in the x direction
+            @param
+                ysegments The number of segements to the plane in the y direction
+            @param
+                normals If true, normals are created perpendicular to the plane
+            @param
+                numTexCoordSets The number of 2D texture coordinate sets created - by default the corners
+                are created to be the corner of the texture.
+            @param
+                uTile The number of times the texture should be repeated in the u direction
+            @param
+                vTile The number of times the texture should be repeated in the v direction
+            @param
+                upVector The 'Up' direction of the plane.
+        */
+		Mesh* createCurvedPlane( 
+			const String& name, const Plane& plane, 
+			Real width, Real height, Real bow = 0.5f, 
+			int xsegments = 1, int ysegments = 1,
+			bool normals = false, int numTexCoordSets = 1, 
+			Real xTile = 1.0f, Real yTile = 1.0f, const Vector3& upVector = Vector3::UNIT_Y);
+
         /** Override standard Singleton retrieval.
             @remarks
                 Why do we do this? Well, it's because the Singleton implementation is in a .h file,

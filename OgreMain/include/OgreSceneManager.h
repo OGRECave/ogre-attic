@@ -713,11 +713,16 @@ namespace Ogre {
                 geometry which can be an optimisation - however you must
                 ensure that the plane.d value is large enough that no objects
                 will 'poke through' the sky plane when it is rendered.
+			@param
+				bow If zero, the plane will be completely flat (like previous
+				versions.  If above zero, the plane will be curved, allowing
+				the sky to appear below camera level.  Curved sky planes are 
+				simular to skydomes, but are more compatable with fog.
         */
         virtual void setSkyPlane(
             bool enable,
             const Plane& plane, const String& materialName, Real scale = 1000,
-            Real tiling = 10, bool drawFirst = true );
+            Real tiling = 10, bool drawFirst = true, Real bow = 0 );
 
         /** Enables / disables a 'sky box' i.e. a 6-sided box at constant
             distance from the camera representing the sky.

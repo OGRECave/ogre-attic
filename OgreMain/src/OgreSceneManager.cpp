@@ -747,7 +747,8 @@ namespace Ogre {
         const String& materialName,
         Real gscale,
         Real tiling,
-        bool drawFirst )
+        bool drawFirst,
+		Real bow)
     {
         mSkyPlaneEnabled = enable;
         if (enable)
@@ -783,9 +784,16 @@ namespace Ogre {
             if (up == Vector3::ZERO)
                 up = plane.normal.crossProduct(-Vector3::UNIT_Z);
 
-            // Create skybox based on new parameters
-            planeMesh = MeshManager::getSingleton().createPlane(meshName, plane, gscale * 100, gscale * 100,
-                1,1, false, 1, tiling, tiling, up);
+            // Create skyplane
+			if( bow > 0 )
+			{
+				// Build a curved skyplane
+				planeMesh = MeshManager::getSingleton().createCurvedPlane(meshName, plane, gscale * 100, gscale * 100, gscale * bow * 100, 6, 6, false, 1, tiling, tiling, up);
+			}
+			else
+			{
+				planeMesh = MeshManager::getSingleton().createPlane(meshName, plane, gscale * 100, gscale * 100, 1, 1, false, 1, tiling, tiling, up);
+			}
 
             // Create entity 
             if (mSkyPlaneEntity)
