@@ -4,7 +4,7 @@
 Name: 'Ogre XML'
 Blender: 233
 Group: 'Export'
-Tooltip: 'Export Mesh and Armature to Ogre'
+Tooltip: 'Exports selected meshs with armature animations to Ogre3D'
 """
 
 # Blender to Ogre Mesh and Skeleton Exporter v0.14.2
@@ -111,6 +111,10 @@ Tooltip: 'Export Mesh and Armature to Ogre'
 #          - fixed redraw if action is changed
 #   0.14.3: * Michael Reimpell <M.Reimpell@tu-bs.de>
 #          - scalar product range correction in calc_rootaxis
+#          - made ArmatureAction.createArmatureActionDict a static method
+#          - renamed private methods to begin with an underscore
+#          - switched to javadoc comments
+#          - changed vertex buffer layout to allow software skinning
 #
 # TODO:
 #          - support for nonuniform armature scaling
@@ -150,6 +154,9 @@ KEEP_SETTINGS = 1
 #######################################################################################
 ## Code starts here.
 
+# epydoc doc format
+__docformat__ = "javadoc en"
+
 ######
 # imports
 ######
@@ -168,20 +175,21 @@ from Blender.BGL import *
 ######
 class ReplacementScrollbar:
 	"""Scrollbar replacement for Draw.Scrollbar
-	   author: Michael Reimpell
+	   <ul>
+	   <li> import Blender
+	   <li> call eventFilter and buttonFilter in registered callbacks
+	   </ul>
 	   
-	   - import Blender
-	   - call eventFilter and buttonFilter in registered callbacks
+	   @author Michael Reimpell
 	"""
 	def __init__(self, initialValue, minValue, maxValue, buttonUpEvent, buttonDownEvent):
 		"""Constructor   
 		   
-		   Parameters:
-		   	initialValue -  inital value
-		   	minValue - minimum value
-		   	maxValue - maxium value
-		   	buttonUpEvent - unique event number
-		   	buttonDownEvent - unique event number
+		   @param initialValue    inital value
+		   @param minValue        minimum value
+		   @param maxValue        maxium value
+		   @param buttonUpEvent   unique event number
+		   @param buttonDownEvent unique event number
 		"""
 		self.currentValue = initialValue
 		self.minValue = minValue
@@ -398,16 +406,17 @@ class ReplacementScrollbar:
 
 class ArmatureAction:
 	"""Resemble Blender's actions
-	   author: Michael Reimpell
-		   
-	   - import Blender, string
+	   <ul>
+	   <li> import Blender, string
+	   </ul>
+	   
+	   @author Michael Reimpell
 	"""
 	def __init__(self, name="", ipoDict=None):
 		"""Constructor
-				   
-		   Parameters:
-		    name - the action name
-		    ipoDict - a dictionary with bone names as keys and action Ipos as values
+		
+		   @param name    the action name
+		   @param ipoDict a dictionary with bone names as keys and action Ipos as values
 		"""
 		self.firstKeyFrame = None
 		self.lastKeyFrame = None
@@ -417,11 +426,11 @@ class ArmatureAction:
 			self.ipoDict = {}
 		else:
 			self.ipoDict = ipoDict
-			self.updateKeyFrameRange()
+			self._updateKeyFrameRange()
 		return
 	
 	# private method	
-	def updateKeyFrameRange(self):
+	def _updateKeyFrameRange(self):
 		"""Updates firstKeyFrame and lastKeyFrame considering the current IpoCurves.
 		"""
 		self.firstKeyFrame = None
@@ -441,15 +450,12 @@ class ArmatureAction:
 		return
 	
 	# static method
-	def createArmatureActionDict(self, object):
+	def createArmatureActionDict(object):
 		"""Creates a dictionary of possible actions belonging to an armature.
-		   Static call with: ArmatureAction.createArmatureActionDict(ArmatureAction(), object)
-		   		   
-		   Parameters:
-		   	object - a Blender.Object of type Armature
-		   	
-		   Return:
-		   	a dictionary of ArmatureAction objects with name as key and ArmatureAction as value
+		   Static call with: ArmatureAction.createArmatureActionDict(object)
+		   
+		   @param object a Blender.Object of type Armature
+		   @return a dictionary of ArmatureAction objects with name as key and ArmatureAction as value
 		"""
 		# create bone dict
 		boneQueue = object.getData().getBones()
@@ -498,19 +504,20 @@ class ArmatureAction:
 					# add action
 					armatureActionDict[actionName] = ArmatureAction(actionName, actionIpoDict)
 		return armatureActionDict
+	createArmatureActionDict = staticmethod(createArmatureActionDict)
 
 class ArmatureActionActuator:
 	"""Resemble Blender's action actuators.
-	   author: Michael Reimpell
+	
+	   @author Michael Reimpell
 	"""
 	def __init__(self, name, startFrame, endFrame, armatureAction):
 		"""Constructor
 		   
-		   Parameters:
-		   	name - Animation name
-		   	startFrame - first frame of the animation
-		   	endFrame - last frame of the animation
-		   	armatureAction - ArmatureAction object of the animation
+		   @param name           Animation name
+		   @param startFrame     first frame of the animation
+		   @param endFrame       last frame of the animation
+		   @param armatureAction ArmatureAction object of the animation
 		"""
 		self.name = name
 		self.startFrame = startFrame
@@ -520,20 +527,21 @@ class ArmatureActionActuator:
 
 class ArmatureActionActuatorListView:
 	"""Mangages a list of ArmatureActionActuators.
-	   author: Michael Reimpell
+	   <ul>
+	   <li> import Blender
+	   <li> call eventFilter and buttonFilter in registered callbacks
+	   </ul>
 	   
-	   - import Blender
-	   - call eventFilter and buttonFilter in registered callbacks
+	   @author Michael Reimpell
 	"""
 	def __init__(self, armatureActionDict, maxActuators, buttonEventRangeStart, armatureAnimationDictList=None):
 		"""Constructor
 		   
-		   Parameters:
-		   	armatureActionDict - possible armature actuator actions
-		   	maxActuators - maximal number of actuator list elements
-		   	buttonEventRangeStart - first button event number
-		   		number of used event numbers is (3 + maxActuators*5)
-			armatureAnimationDictList - list of armature animations (see getArmatureAnimationDictList())
+		   @param armatureActionDict        possible armature actuator actions
+		   @param maxActuators              maximal number of actuator list elements
+		   @param buttonEventRangeStart     first button event number.
+		                                    The number of used event numbers is (3 + maxActuators*5)
+		   @param armatureAnimationDictList list of armature animations (see getArmatureAnimationDictList())
 		"""
 		self.armatureActionDict = armatureActionDict
 		self.maxActuators = maxActuators
@@ -556,20 +564,19 @@ class ArmatureActionActuatorListView:
 					                                                animationDict['startFrame'], \
 					                                                animationDict['endFrame'], \
 					                                                self.armatureActionDict[animationDict['actionKey']])
-					self.addArmatureActionActuator(armatureActionActuator)
+					self._addArmatureActionActuator(armatureActionActuator)
 		else:
 			# create default ArmatureActionActuators
 			for armatureAction in self.armatureActionDict.values():
 				# add default action
 				armatureActionActuator = ArmatureActionActuator(armatureAction.name, armatureAction.firstKeyFrame, armatureAction.lastKeyFrame, armatureAction)
-				self.addArmatureActionActuator(armatureActionActuator)
+				self._addArmatureActionActuator(armatureActionActuator)
 		return
 		
 	def refresh(self, armatureActionDict):
 		"""Delete ArmatureActionActuators for removed Actions.
 		    
-		   Parameters:
-		   	armatureActionDict - possible ArmatureActuator actions
+		   @param armatureActionDict possible ArmatureActuator actions
 		"""
 		self.armatureActionDict = armatureActionDict
 		# delete ArmatureActionActuators for removed Actions
@@ -578,7 +585,7 @@ class ArmatureActionActuatorListView:
 			if not self.armatureActionDict.has_key(armatureActionActuator.armatureAction.name):
 				# remove armatureActionActuator from lists
 				listIndex = self.armatureActionActuatorList.index(armatureActionActuator)
-				self.deleteArmatureActionActuator(listIndex)
+				self._deleteArmatureActionActuator(listIndex)
 		Blender.Draw.Redraw(1)
 		return
 		
@@ -698,7 +705,7 @@ class ArmatureActionActuatorListView:
 				# add default ArmatureActionActuator
 				armatureAction = self.armatureActionDict[self.armatureActionDict.keys()[0]]
 				armatureActionActuator = ArmatureActionActuator(armatureAction.name, armatureAction.firstKeyFrame, armatureAction.lastKeyFrame, armatureAction)
-				self.addArmatureActionActuator(armatureActionActuator)
+				self._addArmatureActionActuator(armatureActionActuator)
 				Blender.Draw.Redraw(1)
 		elif ((3 <= relativeEvent) and (relativeEvent < (3 + self.maxActuators))):
 			# actionMenu
@@ -734,20 +741,21 @@ class ArmatureActionActuatorListView:
 		elif (((3 + 4*self.maxActuators) <= relativeEvent) and (relativeEvent < (3 + 5*self.maxActuators))):
 			# deleteButton
 			listIndex = relativeEvent - (3 + 4*self.maxActuators)
-			self.deleteArmatureActionActuator(listIndex)
+			self._deleteArmatureActionActuator(listIndex)
 			Blender.Draw.Redraw(1)
 		return
 		
 	def getArmatureAnimationDictList(self):
 		"""serialize the armatureActionActuatorList into a pickle storable list
 		   Each item of the returned list is a dictionary with key-value pairs:
-		   	name - ArmatureActionActuator.name
-		   	startFrame - ArmatureActionActuator.startFrame
-		   	endFrame - ArmatureActionActuator.endFrame
-		   	armatureActionKey - ArmatureActionActuator.armatureAction.name
+		   <ul>
+		   <li>	name - ArmatureActionActuator.name
+		   <li>	startFrame - ArmatureActionActuator.startFrame
+		   <li>	endFrame - ArmatureActionActuator.endFrame
+		   <li>	armatureActionKey - ArmatureActionActuator.armatureAction.name
+		   </ul>
 		   
-		   Return:
-		   	serialized actionActuatorList
+		   @return serialized actionActuatorList
 		"""
 		animationDictList = []
 		for armatureActionActuator in self.armatureActionActuatorList:
@@ -763,8 +771,7 @@ class ArmatureActionActuatorListView:
 	def setAnimationDictList(self, animationDictList):
 		"""loads old AnimationDictList with actionKey = (ipoPrefix, ipoPostfix)
 		   
-		   Parameters:
-		   	animationDictList - @see ActionActuatorListView.getAnimationDictList()
+		   @see #getArmatureAnimationDictList()
 		"""
 		# rebuild ArmatureActionActuators for animationList animations
 		for animationDict in animationDictList:
@@ -776,13 +783,15 @@ class ArmatureActionActuatorListView:
 				                                                animationDict['startFrame'], \
 				                                                animationDict['endFrame'], \
 				                                                self.armatureActionDict[armatureActionName])
-				self.addArmatureActionActuator(armatureActionActuator)
+				self._addArmatureActionActuator(armatureActionActuator)
 		return
 		
 	# private methods
-	def addArmatureActionActuator(self, armatureActionActuator):
+	def _addArmatureActionActuator(self, armatureActionActuator):
 		"""adds an ArmatureActionActuator to the list
-		   - call Blender.Draw.Redraw(1) afterwards
+		   <ul>
+		   <li> call Blender.Draw.Redraw(1) afterwards
+		   </ul>
 		"""
 		if (len(self.armatureActionActuatorList) < self.maxActuators):
 			# check if armatureActionActuator.action is available
@@ -810,9 +819,11 @@ class ArmatureActionActuatorListView:
 				print "Error: Could not add ArmatureActionActuator because ArmatureAction is not available!"
 		return
 		
-	def deleteArmatureActionActuator(self, listIndex):
+	def _deleteArmatureActionActuator(self, listIndex):
 		"""removes an ArmatureActionActuator from the list
-		   - call Blender.Draw.Redraw(1) afterwards
+		   <ul>
+		   <li> call Blender.Draw.Redraw(1) afterwards
+		   </ul>
 		"""
 		# check listIndex
 		if ((len(self.armatureActionActuatorList) > 0) and (listIndex >= 0) and (listIndex < len(self.armatureActionActuatorList))):
@@ -1465,16 +1476,16 @@ def export_skeleton(object):
 	if ((armatureToggle.val == 1) and (not skeletonsDict.has_key(object.getName())) and (object.getType() == "Armature")):
 		skeleton = Skeleton(object.name)
 		skeletonsDict[object.name] = skeleton
-
+		
 		testskel = None
 		if armatureMeshToggle.val:
 			testskel = TestSkel(skeleton)
-
+		
 		convert_armature(skeleton, object, testskel)
-
+		
 		if testskel:
 			export_testskel(testskel)
-
+		
 		# export animations
 		if armatureActionActuatorListViewDict.has_key(object.getName()):
 			armatureActionActuatorList = armatureActionActuatorListViewDict[object.getName()].armatureActionActuatorList
@@ -2106,29 +2117,40 @@ def write_mesh(name, submeshes, skeleton):
 
     f.write(tab(3)+"<geometry vertexcount=\"%d\">\n" % len(submesh.vertices))
 
-    f.write(tab(4)+"<vertexbuffer ")
-    f.write("positions=\"true\" ")
-    f.write("normals=\"true\" ")
-    if submesh.material.texture:
-       f.write("texture_coord_dimensions_0=\"2\" texture_coords=\"1\"")
-    f.write(">\n")
-    
-    for v in submesh.vertices:
-      f.write(tab(5)+"<vertex>\n")
-
-      f.write(tab(6)+"<position x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n"
-              % (v.loc[0], v.loc[1], v.loc[2]))
-
-      f.write(tab(6)+"<normal x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n"
-              % (v.normal[0], v.normal[1], v.normal[2]))
-
+    if (armatureToggle.val) :
+      # use seperate vertexbuffer for position and normals when animated
+      f.write(tab(4)+"<vertexbuffer positions=\"true\" normals=\"true\">\n")
+      for v in submesh.vertices:
+        f.write(tab(5)+"<vertex>\n")
+        f.write(tab(6)+"<position x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % (v.loc[0], v.loc[1], v.loc[2]))
+        f.write(tab(6)+"<normal x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % (v.normal[0], v.normal[1], v.normal[2]))
+        f.write(tab(5)+"</vertex>\n")
+      f.write(tab(4)+"</vertexbuffer>\n")
       if submesh.material.texture:
-        f.write(tab(6)+"<texcoord u=\"%.6f\" v=\"%.6f\"/>\n"
-                % (v.uvmaps[0].u, v.uvmaps[0].v))
+        f.write(tab(4)+"<vertexbuffer texture_coord_dimensions_0=\"2\" texture_coords=\"1\">\n")
+        for v in submesh.vertices:
+          f.write(tab(5)+"<vertex>\n")
+          f.write(tab(6)+"<texcoord u=\"%.6f\" v=\"%.6f\"/>\n" % (v.uvmaps[0].u, v.uvmaps[0].v))
+          f.write(tab(5)+"</vertex>\n")
+        f.write(tab(4)+"</vertexbuffer>\n")
+    else:
+      # use only one vertex buffer if mesh is not animated
+      f.write(tab(4)+"<vertexbuffer ")
+      f.write("positions=\"true\" ")
+      f.write("normals=\"true\"")
+      if submesh.material.texture:
+        f.write(" texture_coord_dimensions_0=\"2\" texture_coords=\"1\"")
+      f.write(">\n")
+        
+      for v in submesh.vertices:
+        f.write(tab(5)+"<vertex>\n")
+        f.write(tab(6)+"<position x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % (v.loc[0], v.loc[1], v.loc[2]))
+        f.write(tab(6)+"<normal x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % (v.normal[0], v.normal[1], v.normal[2]))
+        if submesh.material.texture:
+          f.write(tab(6)+"<texcoord u=\"%.6f\" v=\"%.6f\"/>\n" % (v.uvmaps[0].u, v.uvmaps[0].v))
+        f.write(tab(5)+"</vertex>\n")
+      f.write(tab(4)+"</vertexbuffer>\n")
 
-      f.write(tab(5)+"</vertex>\n")
-
-    f.write(tab(4)+"</vertexbuffer>\n")
     f.write(tab(3)+"</geometry>\n")
 
     if skeleton:
@@ -2318,10 +2340,8 @@ def saveSettings(filename):
 	
 	   Settings belonging to removed objects in the .blend file will not be saved.
 	   
-	   Parameters:
-	   	filename - where to store the settings
-	   Return:
-	   	 true on success, else false
+	   @param filename where to store the settings
+	   @return <code>true</code> on success, else <code>false</code>
 	"""
 	global uvToggle
 	global armatureToggle
@@ -2386,10 +2406,8 @@ def loadSettings(filename):
 	   armatuerAnimationDictListDict if you want the animation settings
 	   to take effect.
 	
-	   Parameters:
-	   	filename - where to store the settings
-	   Return:
-	   	 true on success, else false
+	   @param filename where to store the settings
+	   @return <code>true</code> on success, else <code>false</code>
 	"""
 	global uvToggle
 	global armatureToggle
@@ -2456,7 +2474,7 @@ def loadSettings(filename):
 					for armatureName in armatureNameList:
 						if animationDictListDict.has_key(armatureName):
 							# convert animationDictList
-							armatureActionDict = ArmatureAction.createArmatureActionDict(ArmatureAction(), Blender.Object.Get(armatureName))
+							armatureActionDict = ArmatureAction.createArmatureActionDict(Blender.Object.Get(armatureName))
 							armatureActionActuatorListView = ArmatureActionActuatorListView(armatureActionDict, MAXACTUATORS, BUTTON_EVENT_ACTUATOR_RANGESTART,{})
 							armatureActionActuatorListView.setAnimationDictList(animationDictListDict[armatureName])
 							armatureAnimationDictListDict[armatureName] = armatureActionActuatorListView.getArmatureAnimationDictList()
@@ -2494,7 +2512,7 @@ def refreshGUI():
 	# refresh ArmatureActionActuatorListViews
 	for armatureName in armatureDict.values():
 		# create armatureActionDict
-		armatureActionDict = ArmatureAction.createArmatureActionDict(ArmatureAction(), Blender.Object.Get(armatureName))
+		armatureActionDict = ArmatureAction.createArmatureActionDict(Blender.Object.Get(armatureName))
 		# get animationDictList
 		armatureAnimationDictList = None
 		if armatureAnimationDictListDict.has_key(armatureName):
@@ -2535,9 +2553,9 @@ def pathSelectCallback(fileName):
 	
 def eventCallback(event,value):
 	"""handles keyboard and mouse events
-	
-	exit on ESCKEY
-	exit on QKEY
+	   <p>	
+	   exits on ESCKEY<br>
+	   exits on QKEY
 	"""
 	global scrollbar
 	global selectedObjectsList, selectedObjectsMenu, armatureActionActuatorListViewDict, armatureDict
