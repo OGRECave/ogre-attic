@@ -185,6 +185,8 @@ namespace Ogre {
             mDerivedPosition = mPosition;
             mDerivedScale = mScale;
         }
+
+        mCachedTransformOutOfDate = true;
         
 
     }
