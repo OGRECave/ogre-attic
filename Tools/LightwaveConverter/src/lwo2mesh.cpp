@@ -99,36 +99,6 @@ void Lwo2MeshWriter::doExportMaterials()
 		ext[ _MAX_EXT ],
 		texname [128];
 
-/*
-	Ogre::MaterialSerializer matSer;
-
-	for (int i = 0; i < numMaterials; ++i)
-	{
-		msMaterial *mat = msModel_GetMaterialAt(pModel, i);
-
-		msg = "Creating material " + Ogre::String(mat->szName);
-		logMgr.logMessage(msg);
-        Ogre::MaterialPtr ogremat = matMgrSgl.create(mat->szName, 
-            Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-		logMgr.logMessage("Created.");
-
-		ogremat->setAmbient(msVec4ToColourValue(mat->Ambient));
-		ogremat->setDiffuse(msVec4ToColourValue(mat->Diffuse));
-		ogremat->setSpecular(msVec4ToColourValue(mat->Specular));
-		ogremat->setShininess(mat->fShininess);
-
-		if (0 < strlen(mat->szDiffuseTexture))
-			ogremat->getTechnique(0)->getPass(0)->createTextureUnitState(mat->szDiffuseTexture);
-
-        if (0 < strlen(mat->szAlphaTexture))
-			ogremat->getTechnique(0)->getPass(0)->createTextureUnitState(mat->szAlphaTexture);
-
-
-		matSer.queueForExport(ogremat);
-	}
-
-*/
-
 	unsigned int slength = 0;
 
 	if (flags[RenameMaterials])
@@ -205,12 +175,17 @@ void Lwo2MeshWriter::doExportMaterials()
 				surface->luminosity.val * surface->color.rgb[1],
 				surface->luminosity.val * surface->color.rgb[2]
 			);
+
+			unsigned int j;
+			lwTexture *tex;
+			int cindex;
+			lwClip *clip;
 			
-			for (unsigned int j = 0; j < surface->color.textures.size(); j++)
+			for (j = 0; j < surface->color.textures.size(); j++)
 			{
-				lwTexture *tex = surface->color.textures[j];
-				int cindex = tex->param.imap->cindex;
-				lwClip *clip = object->lwFindClip(cindex);
+				tex = surface->color.textures[j];
+				cindex = tex->param.imap->cindex;
+				clip = object->lwFindClip(cindex);
 				
 				if (clip)
 				{
@@ -218,7 +193,22 @@ void Lwo2MeshWriter::doExportMaterials()
 					_makepath( texname, 0, 0, node, ext );					
 					ogreMat->getTechnique(0)->getPass(0)->createTextureUnitState(texname);
 				}
-			}			
+			}
+
+			for (j = 0; j < surface->transparency.val.textures.size(); j++)
+			{
+				tex = surface->transparency.val.textures[j];
+				cindex = tex->param.imap->cindex;
+				clip = object->lwFindClip(cindex);
+				
+				if (clip)
+				{
+					_splitpath( clip->source.still->name, drive, dir, node, ext );
+					_makepath( texname, 0, 0, node, ext );					
+					ogreMat->getTechnique(0)->getPass(0)->createTextureUnitState(texname);
+				}
+			}
+
 			materialSerializer->queueForExport(ogreMat);
 		}
 	}
@@ -643,7 +633,6 @@ bool Lwo2MeshWriter::writeLwo2Mesh(lwObject *nobject, char *ndest)
 
 	bool SeparateLayers = flags[UseSeparateLayers] && ml > 1;
 
-//	if (!SeparateLayers) ogreMesh = new Mesh(ndest);
     if (!SeparateLayers) ogreMesh = Ogre::MeshManager::getSingleton().create(ndest, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
 	Ogre::Vector3 boundingBoxMin(FLT_MAX, FLT_MAX, FLT_MAX);
