@@ -68,15 +68,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void AutoParamDataSource::setCurrentCamera(const Camera* cam)
     {
-        if (cam != mCurrentCamera)
-        {
-            mCurrentCamera = cam;
-            mWorldViewMatrixDirty = true;
-            mWorldViewProjMatrixDirty = true;
-            mInverseViewMatrixDirty = true;
-            mInverseWorldViewMatrixDirty = true;
-            mCameraPositionObjectSpaceDirty = true;
-        }
+        mCurrentCamera = cam;
+        mWorldViewMatrixDirty = true;
+        mWorldViewProjMatrixDirty = true;
+        mInverseViewMatrixDirty = true;
+        mInverseWorldViewMatrixDirty = true;
+        mCameraPositionObjectSpaceDirty = true;
     }
     //-----------------------------------------------------------------------------
     const Matrix4& AutoParamDataSource::getWorldMatrix(void) const
@@ -96,7 +93,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     const Matrix4& AutoParamDataSource::getProjectionMatrix(void) const
     {
-        return mCurrentCamera->getProjectionMatrix();
+        // NB use API-independent projection matrix since GPU programs
+        // bypass the API-specific handedness and use right-handed coords
+        return mCurrentCamera->getStandardProjectionMatrix();
     }
     //-----------------------------------------------------------------------------
     const Matrix4& AutoParamDataSource::getWorldViewMatrix(void) const

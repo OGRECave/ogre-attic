@@ -135,6 +135,8 @@ namespace Ogre {
 
         /// Pre-calced projection matrix
         mutable Matrix4 mProjMatrix;
+        /// Pre-calced standard projection matrix
+        mutable Matrix4 mStandardProjMatrix;
         /// Pre-calced view matrix
         mutable Matrix4 mViewMatrix;
         /// Something's changed in the frustrum shape?
@@ -376,8 +378,20 @@ namespace Ogre {
         Real getAspectRatio(void) const;
 
         /** Gets the projection matrix for this camera. Mainly for use by OGRE internally.
+        @remarks
+            This method retrieves the rendering-API dependent version of the projection
+            matrix. If you want a 'typical' projection matrix then use 
+            getStandardProjectionMatrix.
         */
         const Matrix4& getProjectionMatrix(void) const;
+        /** Gets the 'standard' projection matrix for this camera, ie the 
+        projection matrix which conforms to standard right-handed rules.
+        @remarks
+            This differs from the rendering-API dependent getProjectionMatrix
+            in that it always returns the same result no matter what rendering API
+            is being used.
+        */
+        const Matrix4& getStandardProjectionMatrix(void) const;
 
         /** Gets the view matrix for this camera. Mainly for use by OGRE internally.
         */
