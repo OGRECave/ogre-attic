@@ -610,7 +610,6 @@ namespace Ogre
 
 		if (surfDesc.Format == D3DFMT_D24S8 || surfDesc.Format == D3DFMT_D24X8)
 		{
-			LogManager::getSingleton().logMessage("- Hardware Stencil Buffer");
 			mCapabilities->setCapability(RSC_HWSTENCIL);
 			// Actually, it's always 8-bit
 			mCapabilities->setStencilBufferBitDepth(8);
