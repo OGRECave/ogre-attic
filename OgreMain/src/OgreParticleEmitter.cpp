@@ -62,6 +62,7 @@ namespace Ogre {
         mPosition = Vector3::ZERO;
         mColourRangeStart = mColourRangeEnd = ColourValue::White;
         mEnabled = true;
+        mDurationMax = 0;
 
     }
     //-----------------------------------------------------------------------
