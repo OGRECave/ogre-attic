@@ -29,56 +29,54 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreQuaternion.h"
 #include "OgreColourValue.h"
 
-#include <sstream>
-
 namespace Ogre {
 
     //-----------------------------------------------------------------------
     String StringConverter::toString(Real val)
     {
-        std::stringstream stream;
+        String::StrStreamType stream;
         stream << val;
         return stream.str();
     }
     //-----------------------------------------------------------------------
     String StringConverter::toString(int val)
     {
-        std::stringstream stream;
+        String::StrStreamType stream;
         stream << val;
         return stream.str();
     }
     //-----------------------------------------------------------------------
     String StringConverter::toString(unsigned int val)
     {
-        std::stringstream stream;
+        String::StrStreamType stream;
         stream << val;
         return stream.str();
     }
     //-----------------------------------------------------------------------
     String StringConverter::toString(long val)
     {
-        std::stringstream stream;
+        String::StrStreamType stream;
         stream << val;
         return stream.str();
     }
     //-----------------------------------------------------------------------
     String StringConverter::toString(unsigned long val)
     {
-        std::stringstream stream;
+        String::StrStreamType stream;
         stream << val;
         return stream.str();
     }
     //-----------------------------------------------------------------------
     String StringConverter::toString(const Vector3& val)
     {
-        std::stringstream stream;
+        String::StrStreamType stream;
         stream << val.x << " " << val.y << " " << val.z;
         return stream.str();
     }
     //-----------------------------------------------------------------------
     String StringConverter::toString(const Matrix3& val)
     {
-        std::stringstream stream;
+        String::StrStreamType stream;
         stream << val[0][0] << " " 
             << val[0][1] << " "             
             << val[0][2] << " "             
@@ -102,7 +100,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     String StringConverter::toString(const Matrix4& val)
     {
-        std::stringstream stream;
+        String::StrStreamType stream;
         stream << val[0][0] << " " 
             << val[0][1] << " "             
             << val[0][2] << " "             
@@ -124,14 +122,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     String StringConverter::toString(const Quaternion& val)
     {
-        std::stringstream stream;
+        String::StrStreamType stream;
         stream << val.x << " " << val.y << " " << val.z << " " << val.w;
         return stream.str();
     }
     //-----------------------------------------------------------------------
     String StringConverter::toString(const ColourValue& val)
     {
-        std::stringstream stream;
+        String::StrStreamType stream;
         stream << val.r << " " << val.g << " " << val.b << " " << val.a;
         return stream.str();
     }
