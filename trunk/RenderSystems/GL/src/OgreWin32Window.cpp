@@ -81,21 +81,45 @@ namespace Ogre {
 		if( mHWnd )
 			destroy();
 
-        if (fullScreen) {
+        if (fullScreen)
+        {
 			mColourDepth = colourDepth;
-			mLeft = 0;
-			mTop = 0;
-		}
-		else {
+        }
+		else 
+		{
 			// Get colour depth from display
 			mColourDepth = GetDeviceCaps(GetDC(0), BITSPIXEL);
-			mTop = top;
-			mLeft = left;
 		}
 
 		if (!mExternalHandle) {
+			mWidth = width;
+			mHeight = height;
+			if (!fullScreen)
+			{
+				if (!left && GetSystemMetrics(SM_CXSCREEN) > mWidth)
+                {
+					mLeft = (GetSystemMetrics(SM_CXSCREEN) / 2) - (mWidth / 2);
+                }
+				else
+                {
+					mLeft = left;
+                }
+				if (!top && GetSystemMetrics(SM_CYSCREEN) > mHeight)
+                {
+					mTop = (GetSystemMetrics(SM_CYSCREEN) / 2) - (mHeight / 2);
+                }
+				else
+                {
+                    mTop = top;
+                }
+			}
+			else
+            {
+				mTop = mLeft = 0;
+            }
+
 			// Register the window class
-			// NB allow 4 bytes of window data for Win32Window pointer
+
 			WNDCLASS wndClass = { CS_HREDRAW | CS_VREDRAW, WndProc, 0, 4, hInst,
 				LoadIcon( NULL, "IDI_ICON1" ),
 				LoadCursor( NULL, IDC_ARROW ),
@@ -108,11 +132,12 @@ namespace Ogre {
 			HWND hWnd = CreateWindowEx(fullScreen?WS_EX_TOPMOST:0, TEXT(name.c_str()), TEXT(name.c_str()),
 				(fullScreen?WS_POPUP:WS_OVERLAPPEDWINDOW)|WS_CLIPCHILDREN|WS_CLIPSIBLINGS, left, top,
 				width, height, 0L, 0L, hInst, this);
-
 			mHWnd = hWnd;
-			// Store info
-			mWidth = width;
-			mHeight = height;
+
+            RECT rc;
+			GetClientRect(mHWnd,&rc);
+			mWidth = rc.right;
+			mHeight = rc.bottom;
 
             if (fullScreen) {
 			    DEVMODE DevMode;
@@ -133,6 +158,8 @@ namespace Ogre {
 			GetClientRect(mHWnd, &rc);
 			mWidth = rc.right;
 			mHeight = rc.bottom;
+			mLeft = rc.left;
+			mTop = rc.top;
 		}
 		ShowWindow(mHWnd, SW_SHOWNORMAL);
 		UpdateWindow(mHWnd);
@@ -225,6 +252,7 @@ namespace Ogre {
 
     void Win32Window::resize(int width, int height)
     {
+
 		mWidth = width;
 		mHeight = height;
 
