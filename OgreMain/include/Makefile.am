@@ -40,7 +40,6 @@ OgreFactoryObj.h \
 OgreFont.h \
 OgreFontManager.h \
 OgreFrameListener.h \
-OgreGeometryData.h \
 OgreGuiContainer.h \
 OgreGuiControl.h \
 OgreGuiElement.h \
@@ -85,8 +84,6 @@ OgreMouseTarget.h \
 OgreMovableObject.h \
 OgreNoMemoryMacros.h \
 OgreNode.h \
-OgreOofFile.h \
-OgreOofModelFile.h \
 OgreOverlay.h \
 OgreOverlayManager.h \
 OgrePNGCodec.h \
