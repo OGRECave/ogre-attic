@@ -102,24 +102,6 @@ void TiXmlBase::PutString( const TIXML_STRING& str, TIXML_STRING* outString )
 }
 
 
-// <-- Strange class for a bug fix. Search for STL_STRING_BUG
-TiXmlBase::StringToBuffer::StringToBuffer( const TIXML_STRING& str )
-{
-	buffer = new char[ str.length()+1 ];
-	if ( buffer )
-	{
-		strcpy( buffer, str.c_str() );
-	}
-}
-
-
-TiXmlBase::StringToBuffer::~StringToBuffer()
-{
-	delete [] buffer;
-}
-// End strange bug fix. -->
-
-
 TiXmlNode::TiXmlNode( NodeType _type )
 {
 	parent = 0;
@@ -701,10 +683,7 @@ TiXmlDocument::TiXmlDocument( const char * documentName ) : TiXmlNode( TiXmlNode
 
 bool TiXmlDocument::LoadFile()
 {
-	// See STL_STRING_BUG below.
-	StringToBuffer buf( value );
-
-	if ( buf.buffer && LoadFile( buf.buffer ) )
+	if ( LoadFile( value.c_str() ) )
 		return true;
 
 	return false;
@@ -713,10 +692,7 @@ bool TiXmlDocument::LoadFile()
 
 bool TiXmlDocument::SaveFile() const
 {
-	// See STL_STRING_BUG below.
-	StringToBuffer buf( value );
-
-	if ( buf.buffer && SaveFile( buf.buffer ) )
+	if ( SaveFile( value.c_str() ) )
 		return true;
 
 	return false;

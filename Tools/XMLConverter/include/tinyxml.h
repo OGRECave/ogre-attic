@@ -122,15 +122,6 @@ public:
 	static bool IsWhiteSpaceCondensed()						{ return condenseWhiteSpace; }
 
 protected:
-	// See STL_STRING_BUG
-	// Utility class to overcome a bug.
-	class StringToBuffer
-	{
-	  public:
-		StringToBuffer( const TIXML_STRING& str );
-		~StringToBuffer();
-		char* buffer;
-	};
 
 	static const char*	SkipWhiteSpace( const char* );
 	inline static bool	IsWhiteSpace( int c )		{ return ( isspace( c ) || c == '\n' || c == '\r' ); }
@@ -313,8 +304,7 @@ public:
 	/// STL std::string form.
 	void SetValue( const std::string& value )    
 	{	  
-		StringToBuffer buf( value );
-		SetValue( buf.buffer ? buf.buffer : "" );    	
+		SetValue( value.c_str() );    	
 	}	
 	#endif
 
@@ -525,14 +515,12 @@ public:
 	/// STL std::string form.
 	void SetName( const std::string& _name )	
 	{	
-		StringToBuffer buf( _name );
-		SetName ( buf.buffer ? buf.buffer : "error" );	
+		SetName(_name.c_str() );	
 	}
 	/// STL std::string form.	
 	void SetValue( const std::string& _value )	
 	{	
-		StringToBuffer buf( _value );
-		SetValue( buf.buffer ? buf.buffer : "error" );	
+		SetValue( value.c_str() );	
 	}
 	#endif
 
@@ -906,7 +894,6 @@ public:
 	#ifdef TIXML_USE_STL
 	bool LoadFile( const std::string& filename )			///< STL std::string version.
 	{
-		//StringToBuffer f( filename );
 		return ( LoadFile( filename.c_str() ));
 	}
 	bool SaveFile( const std::string& filename ) const		///< STL std::string version.
