@@ -28,7 +28,7 @@ fi
 dnl Other stuff we need
 OGRE_USE_STLPORT
 AM_PATH_SDL(1.2.0)
-AC_CHECK_FT2(9.1.0)
+AC_CHECK_FT2(9.0.0)
 
 AC_CHECK_LIB(dl, dlopen)
 AC_CHECK_LIB(m, pow)
@@ -38,7 +38,7 @@ AC_CHECK_LIB(IL, ilInit,,AC_MSG_ERROR([
 * You do not have DevIL installed.  This is required to build. *
 * You may find it at http://openil.sourceforge.net/.           *
 ****************************************************************]))
-
+AC_CHECK_LIB(ILU, iluFlipImage)
 AC_CHECK_FUNC(snprintf, AC_DEFINE(HAVE_SNPRINTF,,snprintf))
 AC_CHECK_FUNC(vsnprintf, AC_DEFINE(HAVE_VSNPRINTF,,vsnprintf))
 
