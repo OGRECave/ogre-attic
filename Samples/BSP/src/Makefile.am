@@ -7,4 +7,4 @@ BSP_LDFLAGS = -L$(top_srcdir)/OgreMain/src
 BSP_LDADD = -lOgreMain
 
 install-exec-local:
-	$(INSTALL_PROGRAM) BSP $(top_builddir)/Samples/Common/bin/Debug/BSP
+	$(INSTALL_PROGRAM) BSP $(top_builddir)/Samples/Common/bin/BSP

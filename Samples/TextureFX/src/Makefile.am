@@ -6,4 +6,4 @@ TextureFX_LDFLAGS = -L$(top_srcdir)/OgreMain/src
 TextureFX_LDADD = -lOgreMain
 
 install-exec-local:
-	$(INSTALL_PROGRAM) TextureFX $(top_builddir)/Samples/Common/bin/Debug/TextureFX
+	$(INSTALL_PROGRAM) TextureFX $(top_builddir)/Samples/Common/bin/TextureFX

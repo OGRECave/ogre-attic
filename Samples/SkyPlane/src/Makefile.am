@@ -6,4 +6,4 @@ SkyPlane_LDFLAGS = -L$(top_srcdir)/OgreMain/src
 SkyPlane_LDADD = -lOgreMain
 
 install-exec-local:
-	$(INSTALL_PROGRAM) SkyPlane $(top_builddir)/Samples/Common/bin/Debug/SkyPlane
+	$(INSTALL_PROGRAM) SkyPlane $(top_builddir)/Samples/Common/bin/SkyPlane

@@ -7,4 +7,4 @@ Bezier_LDFLAGS = -L$(top_srcdir)/OgreMain/src
 Bezier_LDADD = -lOgreMain
 
 install-exec-local:
-	$(INSTALL_PROGRAM) Bezier $(top_builddir)/Samples/Common/bin/Debug/Bezier
+	$(INSTALL_PROGRAM) Bezier $(top_builddir)/Samples/Common/bin/Bezier
