@@ -49,10 +49,11 @@ AC_CHECK_LIB(pthread, pthread_create)
 AC_CHECK_FUNC(snprintf, AC_DEFINE(HAVE_SNPRINTF,,snprintf))
 AC_CHECK_FUNC(vsnprintf, AC_DEFINE(HAVE_VSNPRINTF,,vsnprintf))
 
+OGRE_CHECK_CPPUNIT
+
 PKG_CHECK_MODULES(ZZIPLIB, zziplib)
 AC_SUBST(ZZIPLIB_CFLAGS)
 AC_SUBST(ZZIPLIB_LIBS)
-
 
 OGRE_GET_CONFIG_TOOLKIT
 OGRE_GET_PLATFORM
@@ -191,6 +192,8 @@ AC_CONFIG_FILES([Makefile \
     Samples/Water/Makefile \
     Samples/Water/src/Makefile \
     Samples/Water/include/Makefile \
+    Tests/Makefile \
+    Tests/src/Makefile \
     Tools/Makefile \
     Tools/MaterialUpgrader/Makefile \
     Tools/MaterialUpgrader/src/Makefile \
