@@ -1,5 +1,5 @@
 <!ELEMENT mesh (sharedgeometry?, submeshes, 
-	skeletonlink?, boneassignments?, levelofdetail?)>
+	skeletonlink?, boneassignments?, levelofdetail?, submeshnames?)>
 <!ELEMENT sharedgeometry (vertexbuffer+)>
 <!ATTLIST sharedgeometry
 	vertexcount CDATA #REQUIRED>
@@ -87,7 +87,11 @@
 	u	CDATA	#REQUIRED	
 	v	CDATA	"0"	
 	w	CDATA	"0" >
-
+<!ELEMENT submeshnames (submeshname+)>
+<!ELEMENT submeshname EMPTY>
+<!ATTLIST submeshname 
+	name	CDATA	#REQUIRED
+	index	CDATA	#REQUIRED >
 	
 				
 	

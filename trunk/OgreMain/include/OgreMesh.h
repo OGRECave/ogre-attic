@@ -112,10 +112,12 @@ namespace Ogre {
         /** Internal method for getting or creating a 3D texture coord buffer to hold tangents. */
         HardwareVertexBufferSharedPtr getTangentsBuffer(VertexData *vertexData, unsigned short texCoordSet);
 
+    public:
 		/** A hashmap used to store optional SubMesh names.
 			Translates a name into SubMesh index
 		*/
 		typedef HashMap<String, ushort, _StringHash> SubMeshNameMap ;
+    protected:
 		SubMeshNameMap mSubMeshNameMap ;
 
         /// Local bounding box volume
@@ -583,6 +585,9 @@ namespace Ogre {
         static void softwareVertexBlend(const VertexData* sourceVertexData, 
             const VertexData* targetVertexData, const Matrix4* pMatrices, 
             bool blendNormals);
+
+        /** Gets a reference to the optional name assignments of the SubMeshes. */
+        const SubMeshNameMap& getSubMeshNameMap(void) const { return mSubMeshNameMap; }
 
     };
 

@@ -124,9 +124,18 @@ namespace Ogre {
             // Real r, g, b
             // SHININESS
             // Real val;
-            M_TEXTURE_LAYER    = 0x2200 // optional, repeat per layer
+            M_TEXTURE_LAYER    = 0x2200, // optional, repeat per layer
                 // char* name 
                 // TODO - scale, offset, effects
+
+				// Added By DrEvil
+				// optional chunk that contains a table of submesh indexes and the names of
+				// the sub-meshes.
+				M_SUBMESH_NAME_TABLE,
+						// Subchunks of the name table. Each chunk contains an index & string
+						M_SUBMESH_NAME_TABLE_ELEMENT,
+                        // short index
+                        // char* name
 
     };
 

@@ -75,6 +75,7 @@ namespace Ogre {
 			const Mesh::MeshLodUsage& usage);
 		void writeLodUsageGenerated(TiXmlElement* usageNode, unsigned short levelNum,  
 			const Mesh::MeshLodUsage& usage, const Mesh* pMesh);
+        void writeSubMeshNames(TiXmlElement* mMeshNode, const Mesh* m);
 
         void readSubMeshes(TiXmlElement* mSubmeshesNode);
         void readGeometry(TiXmlElement* mGeometryNode, VertexData* pData);
@@ -84,6 +85,7 @@ namespace Ogre {
 		void readLodInfo(TiXmlElement*  lodNode);
 		void readLodUsageManual(TiXmlElement* manualNode, unsigned short index);
 		void readLodUsageGenerated(TiXmlElement* genNode, unsigned short index);
+		void readSubMeshNames(TiXmlElement* mMeshNamesNode, Mesh* sm);
 
 
     };
