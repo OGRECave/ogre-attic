@@ -84,15 +84,15 @@ namespace Ogre {
     XsiMeshExporter::~XsiMeshExporter()
     {
 		/// Tidy up
-		cleanupDeformerList();
+		cleanupDeformerMap();
     }
     //-----------------------------------------------------------------------
-	DeformerList& XsiMeshExporter::exportMesh(const String& fileName, 
+	DeformerMap& XsiMeshExporter::exportMesh(const String& fileName, 
 		bool mergeSubMeshes, bool exportChildren, 
 		bool edgeLists, bool tangents, LodData* lod, const String& skeletonName)
     {
 
-		mXsiApp.LogMessage(L"** Begin OGRE Mesh Export **");
+		LogOgreAndXSI(L"** Begin OGRE Mesh Export **");
         // Derive the scene root
         X3DObject sceneRoot(mXsiApp.GetActiveSceneRoot());
 
@@ -100,7 +100,7 @@ namespace Ogre {
         MeshPtr pMesh = MeshManager::getSingleton().createManual("XSIExport", 
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
-		cleanupDeformerList();
+		cleanupDeformerMap();
 
 		// Find all PolygonMesh objects
 		buildPolygonMeshList(exportChildren);
@@ -116,13 +116,13 @@ namespace Ogre {
 
         if(edgeLists)
         {
-            mXsiApp.LogMessage(L"Calculating edge lists");
+            LogOgreAndXSI(L"Calculating edge lists");
             pMesh->buildEdgeList();
         }
 
         if(tangents)
         {
-            mXsiApp.LogMessage(L"Calculating tangents");
+            LogOgreAndXSI(L"Calculating tangents");
             unsigned short src, dest;
             if (pMesh->suggestTangentVectorBuildParams(src, dest))
             {
@@ -130,7 +130,7 @@ namespace Ogre {
             }
             else
             {
-                mXsiApp.LogMessage(L"Could not derive tangents parameters");
+                LogOgreAndXSI(L"Could not derive tangents parameters");
             }
 
         }
@@ -145,9 +145,9 @@ namespace Ogre {
 
 		cleanupPolygonMeshList();
 
-		mXsiApp.LogMessage(L"** OGRE Mesh Export Complete **");
+		LogOgreAndXSI(L"** OGRE Mesh Export Complete **");
 
-		return mXsiDeformerList;
+		return mXsiDeformerMap;
     }
 	//-----------------------------------------------------------------------
 	void XsiMeshExporter::buildMesh(Mesh* pMesh, bool mergeSubmeshes, bool lookForBoneAssignments)
@@ -267,7 +267,7 @@ namespace Ogre {
 		msg << "Normals: " << srcNormArray.GetCount() << std::endl;
 		msg << "Num UVs: " << mCurrentTextureCoordDimensions.size() << std::endl;
 		String str = msg.str();
-		mXsiApp.LogMessage(OgretoXSI(str));
+		LogOgreAndXSI(str);
 #endif
 		
 		// Save transforms
@@ -580,14 +580,15 @@ namespace Ogre {
 					X3DObject deformer(deformers[d]);
 					// Has this deformer been allocated a boneID already?
 					String deformerName = XSItoOgre(deformer.GetName());
-					DeformerList::iterator di = 
-						mXsiDeformerList.find(deformerName);
+					DeformerMap::iterator di = 
+						mXsiDeformerMap.find(deformerName);
 					DeformerEntry* deformerEntry;
 					bool newDeformerEntry = false;
 					bool atLeastOneAssignment = false;
-					if (di == mXsiDeformerList.end())
+					if (di == mXsiDeformerMap.end())
 					{
-						deformerEntry = new DeformerEntry(mXsiDeformerList.size(), deformer);
+						deformerEntry = new DeformerEntry(mXsiDeformerMap.size(), deformer);
+						deformerEntry->hasVertexAssignments = true;
 						newDeformerEntry = true;
 					}
 					else
@@ -658,7 +659,7 @@ namespace Ogre {
 					// Only add new deformer if we actually had any assignments
 					if (newDeformerEntry && atLeastOneAssignment)
 					{
-						mXsiDeformerList[deformerName] = deformerEntry;
+						mXsiDeformerMap[deformerName] = deformerEntry;
 					}
 
 
@@ -828,7 +829,7 @@ namespace Ogre {
 		}
 		// Log a message in script window
 		CString name = x3dObj.GetName() ;
-		mXsiApp.LogMessage(L"-- Traversing " +  name) ;
+		LogOgreAndXSI(L"-- Traversing " +  name) ;
 
 
 		// locate any geometry
@@ -848,7 +849,7 @@ namespace Ogre {
 					mXsiPolygonMeshList.insert(
 						new PolygonMeshEntry(pmesh, x3dObj));
 
-					mXsiApp.LogMessage(L"-- Queueing " +  name) ;
+					LogOgreAndXSI(L"-- Queueing " +  name) ;
 				}
 			}
 
@@ -878,14 +879,14 @@ namespace Ogre {
 		mXsiPolygonMeshList.clear();
 	}
 	//-----------------------------------------------------------------------
-	void XsiMeshExporter::cleanupDeformerList(void)
+	void XsiMeshExporter::cleanupDeformerMap(void)
 	{
-		for (DeformerList::iterator d = mXsiDeformerList.begin();
-			d != mXsiDeformerList.end(); ++d)
+		for (DeformerMap::iterator d = mXsiDeformerMap.begin();
+			d != mXsiDeformerMap.end(); ++d)
 		{
 			delete d->second;
 		}
-		mXsiDeformerList.clear();
+		mXsiDeformerMap.clear();
 	}
 	//-----------------------------------------------------------------------
 	void XsiMeshExporter::deriveSamplerIndices(const Triangle& tri, 
@@ -930,7 +931,7 @@ namespace Ogre {
 		if (!found[0] || !found[1] || !found[2] )
 		{
 			// Problem!
-			mXsiApp.LogMessage(L"!! Couldn't find a matching UV point!");
+			LogOgreAndXSI(L"!! Couldn't find a matching UV point!");
 		}
 
 	}

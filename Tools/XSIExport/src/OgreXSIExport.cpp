@@ -237,28 +237,17 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 {	
 	Application app;
 	CStatus st(CStatus::OK);
-	bool createNewProp = true;
 	Property prop = app.GetActiveSceneRoot().GetProperties().GetItem(exportPropertyDialogName);
-	if (prop.IsValid())
-	{
-		if (prop.GetParameterValue(L"version").GetAsText().IsEqualNoCase(OGRE_XSI_EXPORTER_VERSION))
-		{
-			// ok, compatible
-			createNewProp = false;
-		}
-		else
-		{
-			// incompatible version, delete old
-			DeleteObj(exportPropertyDialogName);
-		}
-	}
-	if (createNewProp)
+	if (!prop.IsValid())
 	{
 		prop = app.GetActiveSceneRoot().AddProperty(exportPropertyDialogName);
 		prop.PutParameterValue(L"version", OGRE_XSI_EXPORTER_VERSION);
 	}
 	Ogre::LogManager logMgr;
 	logMgr.createLog("OgreXSIExporter.log", true);
+	CString msg(L"OGRE Exporter Version ");
+	msg += OGRE_XSI_EXPORTER_VERSION;
+	LogOgreAndXSI(msg);
 	
 	try
 	{
@@ -327,7 +316,6 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 			Ogre::SkeletonManager skelMgr;;
 			Ogre::DefaultHardwareBufferManager hardwareBufMgr;
 
-			logMgr.createLog("OgreXSIExport.log", true);
 			
 			if (exportSkeleton)
 			{
@@ -381,7 +369,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 				}
 
 				// Do the mesh
-				Ogre::DeformerList& deformers = 
+				Ogre::DeformerMap& deformers = 
 					meshExporter.exportMesh(meshFileName, mergeSubmeshes, 
 						exportChildren, edgeLists, tangents, lodData, skelName);
 				// do the skeleton

@@ -76,7 +76,7 @@ namespace Ogre {
 		@returns List of deformers (bones) which were found whilst exporting (if
 			skeletonName was provided) which can be used to determine the skeleton.
         */
-        DeformerList& exportMesh(const String& fileName, 
+        DeformerMap& exportMesh(const String& fileName, 
             bool mergeSubMeshes, bool exportChildren, bool edgeLists, 
 			bool tangents, LodData* lod = 0, const String& skeletonName = "");
 
@@ -140,7 +140,7 @@ namespace Ogre {
 
 	
 		/// List of deformers we've found whilst parsing the objects
-		DeformerList mXsiDeformerList;
+		DeformerMap mXsiDeformerMap;
 
 		/// Build a list of PolygonMesh instances from selection
 		void buildPolygonMeshList(bool includeChildren);
@@ -156,7 +156,7 @@ namespace Ogre {
 		void processBoneAssignments(Mesh* pMesh, PolygonMeshEntry* pm);
 		
 		/// Tidy up
-		void cleanupDeformerList(void);
+		void cleanupDeformerMap(void);
 
 		typedef std::map<size_t, size_t> IndexRemap;
 		/** Working area which will become a submesh once we've finished figuring

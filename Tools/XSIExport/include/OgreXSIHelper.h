@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef __XSIHELPER_H__
 #define __XSIHELPER_H__
 
+#include <xsi_application.h>
 #include <xsi_string.h>
 #include <xsi_x3dobject.h>
 #include <xsi_vertexcolor.h>
@@ -37,6 +38,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 #include "OgreString.h"
 #include "OgreColourValue.h"
+#include "OgreLogManager.h"
+#include "OgreStringVector.h"
 
 
 /// Useful function to convert an XSI CString to an Ogre String
@@ -103,6 +106,24 @@ inline Ogre::RGBA XSItoOgre(const XSI::CVertexColor& xsiColour)
 
 }
 
+inline void LogOgreAndXSI(const Ogre::String& msg)
+{
+	static XSI::Application app;
+	Ogre::LogManager::getSingleton().logMessage(msg);
+	app.LogMessage(OgretoXSI(msg));
+
+}
+
+inline void LogOgreAndXSI(const XSI::CString& msg)
+{
+	static XSI::Application app;
+	Ogre::LogManager::getSingleton().logMessage(XSItoOgre(msg));
+	app.LogMessage(msg);
+
+}
+
+
+
 namespace Ogre {
 
 	enum XSITrackType
@@ -125,18 +146,20 @@ namespace Ogre {
 		unsigned short boneID;
 		XSI::X3DObject obj;
 		String parentName;
+		StringVector childNames;
+		bool hasVertexAssignments;
 		Bone* pBone;
 		// lists of action source items (probably only one per param?)
 		XSI::AnimationSourceItem xsiTrack[XTT_COUNT];
 
 		DeformerEntry(unsigned short theboneID, XSI::X3DObject& theobj)
-			:boneID(theboneID), obj(theobj), pBone(0)
+			:boneID(theboneID), obj(theobj), hasVertexAssignments(false), pBone(0)
 		{
 		}
 
 	};
 	/// Map from deformer name to deformer entry
-	typedef std::map<String,DeformerEntry*> DeformerList;
+	typedef std::map<String,DeformerEntry*> DeformerMap;
 
 
 	/** An entry for an animation; allows the userto split the timeline into 
