@@ -345,6 +345,11 @@ namespace Ogre {
 		{
 			return Math::intersects(p, *this);
 		}
+        /** Tests whether the vector point is within this box. */
+        bool intersects(const Vector3& v)
+        {
+            return !(mMinimum > v || mMaximum < v);
+        }
 
 
     };

@@ -82,6 +82,11 @@ namespace Ogre {
 		{
 			return Math::intersects(*this, plane);
 		}
+		/** Returns whether or not this sphere interects a point. */
+		bool intersects(const Vector3& v) const
+		{
+			return ((v - mCenter).length() <= mRadius);
+		}
         
 
     };
