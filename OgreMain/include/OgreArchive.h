@@ -4,7 +4,7 @@ This source file is part of OGRE
 (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
-Copyright © 2000-2002 The OGRE Team
+Copyright © 2000-2004 The OGRE Team
 Also see acknowledgements in Readme.html
 
 This program is free software; you can redistribute it and/or modify it under
@@ -48,8 +48,6 @@ namespace Ogre {
         reading files directly through this class. Doing it this way allows you
         to benefit from OGRE's automatic searching of multiple file locations 
         for the resources you are looking for.
-    @par
-        Note that this class provides read-only access to files at this time.
     */
     class _OgreExport Archive  
     {
