@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreGeometryData.h"
 #include "OgreMaterial.h"
 #include "OgreRenderOperation.h"
+#include "OgreVertexBoneAssignment.h"
 
 namespace Ogre {
 
@@ -49,6 +50,7 @@ namespace Ogre {
     class _OgreExport SubMesh
     {
         friend class Mesh;
+        friend class MeshSerializer;
     public:
         SubMesh();
         ~SubMesh();
@@ -100,15 +102,46 @@ namespace Ogre {
         */
         void _getRenderOperation(RenderOperation& rend);
 
+        /** Assigns a vertex to a bone with a given weight, for skeletal animation. 
+        @remarks    
+            This method is only valid after calling setSkeletonName.
+            Since this is a one-off process there exists only 'addBoneAssignment' and
+            'clearBoneAssignments' methods, no 'editBoneAssignment'. You should not need
+            to modify bone assignments during rendering (only the positions of bones) and OGRE
+            reserves the right to do some internal data reformatting of this information, depending
+            on render system requirements.
+        @par
+            This method is for assigning weights to the dedicated geometry of the SubMesh. To assign
+            weights to the shared Mesh geometry, see the equivalent methods on Mesh.
+        */
+        void addBoneAssignment(const VertexBoneAssignment& vertBoneAssign);
+
+        /** Removes all bone assignments for this mesh. 
+        @par
+            This method is for assigning weights to the dedicated geometry of the SubMesh. To assign
+            weights to the shared Mesh geometry, see the equivalent methods on Mesh.
+        */
+        void clearBoneAssignments(void);
 
 
-protected:
+
+    protected:
 
         /// Name of the material this SubMesh uses.
         String mMaterialName;
 
         /// Is there a material yet?
         bool mMatInitialised;
+
+        /// Multimap of verex bone assignments (orders by vertex index)
+        typedef std::multimap<unsigned short, VertexBoneAssignment> VertexBoneAssignmentList;
+       
+        VertexBoneAssignmentList mBoneAssignments;
+
+        /// Flag indicating that bone assignments need to be recompiled
+        bool mBoneAssignmentsOutOfDate;
+        /** Must be called once to compile bone assignments into geometry buffer. */
+        void compileBoneAssignments(void);
 
 
 

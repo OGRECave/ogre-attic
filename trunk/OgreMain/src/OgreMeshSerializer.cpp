@@ -53,28 +53,37 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void MeshSerializer::exportMesh(const Mesh* pMesh, const String& filename, bool includeMaterials)
     {
+        LogManager::getSingleton().logMessage("MeshSerializer writing mesh data to " + filename + "...");
+
         MaterialManager& matMgr = MaterialManager::getSingleton();
         mpfFile = fopen(filename, "wb");
 
         writeFileHeader();
+        LogManager::getSingleton().logMessage("File header written.");
 
         // Write materials if required
         if (includeMaterials)
         {
+            LogManager::getSingleton().logMessage("Writing Materials to file...");
             for (int i = 0; i < pMesh->getNumSubMeshes(); ++i)
             {
                 SubMesh* sm = pMesh->getSubMesh(i);
                 Material* pMat = (Material*)matMgr.getByName(sm->getMaterialName());
                 if (pMat)
                 {
+                    LogManager::getSingleton().logMessage("Exporting Material '" + pMat->getName() + "'...");
                     writeMaterial(pMat);
+                    LogManager::getSingleton().logMessage("Material '" + pMat->getName() + "' exported.");
                 }
             }
         }
 
+        LogManager::getSingleton().logMessage("Writing mesh data...");
         writeMesh(pMesh);
+        LogManager::getSingleton().logMessage("Mesh data exported.");
 
         fclose(mpfFile);
+        LogManager::getSingleton().logMessage("MeshSerializer export successful.");
     }
     //---------------------------------------------------------------------
     void MeshSerializer::importMesh(DataChunk& chunk, Mesh* pDest)
@@ -218,22 +227,30 @@ namespace Ogre {
         // Write Submeshes
         for (int i = 0; i < pMesh->getNumSubMeshes(); ++i)
         {
+            LogManager::getSingleton().logMessage("Writing submesh...");
             writeSubMesh(pMesh->getSubMesh(i));
+            LogManager::getSingleton().logMessage("Submesh exported.");
         }
 
         // Write skeleton info if required
         if (pMesh->hasSkeleton())
         {
+            LogManager::getSingleton().logMessage("Exporting skeleton link...");
             // Write skeleton link
             writeSkeletonLink(pMesh->getSkeleton());
+            LogManager::getSingleton().logMessage("Skeleton link exported.");
 
             // Write bone assignments
+            LogManager::getSingleton().logMessage("Exporting shared geometry bone assignments...");
+
             Mesh::VertexBoneAssignmentList::const_iterator vi;
             for (vi = pMesh->mBoneAssignments.begin(); 
             vi != pMesh->mBoneAssignments.end(); ++vi)
             {
-                writeBoneAssignment(&(vi->second));
+                writeMeshBoneAssignment(&(vi->second));
             }
+
+            LogManager::getSingleton().logMessage("Shared geometry bone assignments exported.");
         }
 
 
@@ -261,6 +278,22 @@ namespace Ogre {
         {
             writeGeometry(&s->geometry);
         }
+
+        // Bone assignments
+        if (!s->mBoneAssignments.empty())
+        {
+            LogManager::getSingleton().logMessage("Exporting dedicated geometry bone assignments...");
+
+            SubMesh::VertexBoneAssignmentList::const_iterator vi;
+            for (vi = s->mBoneAssignments.begin(); 
+            vi != s->mBoneAssignments.end(); ++vi)
+            {
+                writeSubMeshBoneAssignment(&(vi->second));
+            }
+
+            LogManager::getSingleton().logMessage("Shared geometry bone assignments exported.");
+        }
+
 
     }
     //---------------------------------------------------------------------
@@ -541,7 +574,7 @@ namespace Ogre {
                     readSkeletonLink(chunk);
                     break;
                 case M_MESH_BONE_ASSIGNMENT:
-                    readBoneAssignment(chunk);
+                    readMeshBoneAssignment(chunk);
                     break;
                 }
 
@@ -589,6 +622,33 @@ namespace Ogre {
                     "MeshSerializer::readSubMesh");
             }
             readGeometry(chunk, &sm->geometry);
+        }
+
+
+        // Find all bone assignments (if present) 
+        if (!chunk.isEOF())
+        {
+            chunkID = readChunk(chunk);
+            while(!chunk.isEOF())
+            {
+                switch(chunkID)
+                {
+                case M_SUBMESH_BONE_ASSIGNMENT:
+                    readSubMeshBoneAssignment(chunk, sm);
+                    break;
+                }
+
+                if (!chunk.isEOF())
+                {
+                    chunkID = readChunk(chunk);
+                }
+
+            }
+            if (!chunk.isEOF())
+            {
+                // Backpedal back to start of chunk
+                chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
+            }
         }
 
     }
@@ -682,7 +742,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void MeshSerializer::writeBoneAssignment(const VertexBoneAssignment* assign)
+    void MeshSerializer::writeMeshBoneAssignment(const VertexBoneAssignment* assign)
     {
         writeChunkHeader(M_MESH_BONE_ASSIGNMENT, calcBoneAssignmentSize());
 
@@ -694,7 +754,19 @@ namespace Ogre {
         writeReals(&(assign->weight), 1);
     }
     //---------------------------------------------------------------------
-    void MeshSerializer::readBoneAssignment(DataChunk& chunk)
+    void MeshSerializer::writeSubMeshBoneAssignment(const VertexBoneAssignment* assign)
+    {
+        writeChunkHeader(M_SUBMESH_BONE_ASSIGNMENT, calcBoneAssignmentSize());
+
+        // unsigned short vertexIndex;
+        writeShorts(&(assign->vertexIndex), 1);
+        // unsigned short boneIndex;
+        writeShorts(&(assign->boneIndex), 1);
+        // Real weight;
+        writeReals(&(assign->weight), 1);
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializer::readMeshBoneAssignment(DataChunk& chunk)
     {
         VertexBoneAssignment assign;
 
@@ -706,6 +778,21 @@ namespace Ogre {
         readReals(chunk, &(assign.weight), 1);
 
         mpMesh->addBoneAssignment(assign);
+
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializer::readSubMeshBoneAssignment(DataChunk& chunk, SubMesh* sub)
+    {
+        VertexBoneAssignment assign;
+
+        // unsigned short vertexIndex;
+        readShorts(chunk, &(assign.vertexIndex),1);
+        // unsigned short boneIndex;
+        readShorts(chunk, &(assign.boneIndex),1);
+        // Real weight;
+        readReals(chunk, &(assign.weight), 1);
+
+        sub->addBoneAssignment(assign);
 
     }
     //---------------------------------------------------------------------
