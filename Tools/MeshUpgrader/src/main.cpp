@@ -286,6 +286,7 @@ void reorganiseVertexBuffers(const String& desc, Mesh& mesh, VertexData* vertexD
 					offset += VertexElement::getTypeSize(i->getType());
 					
 				}
+                // Usages don't matter here since we're onlly exporting
                 BufferUsageList bufferUsages;
                 for (size_t u = 0; u <= newDecl->getMaxSource(); ++u)
                     bufferUsages.push_back(HardwareBuffer::HBU_STATIC_WRITE_ONLY);

@@ -406,6 +406,10 @@ namespace Ogre {
 
             return true;
         }
+        inline bool operator!= (const VertexDeclaration& rhs) const
+        {
+            return !(*this == rhs);
+        }
 
     };
 
