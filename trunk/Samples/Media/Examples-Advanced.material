@@ -1,0 +1,181 @@
+// -------------------------------
+// Cel Shading Section
+// -------------------------------
+vertex_program Ogre/CelShadingVP cg
+{
+	source Example_CelShading.cg
+	entry_point main_vp
+	profiles vs_1_1 arbvp1
+}
+
+fragment_program Ogre/CelShadingFP cg
+{
+	source Example_CelShading.cg
+	entry_point main_fp
+	profiles ps_1_1 arbfp1 fp20
+}
+
+
+material Examples/OgreCelShading/Eyes
+{
+	technique
+	{
+		pass
+		{
+			vertex_program_ref Ogre/CelShadingVP
+			{
+				param_named_auto lightPosition light_position_object_space 0
+				param_named_auto eyePosition camera_position_object_space
+				param_named shininess float4 3 0 0 0
+				param_named_auto worldViewProj worldviewproj_matrix
+			}
+			fragment_program_ref Ogre/CelShadingFP
+			{
+				param_named diffuse float4 1 0.3 0.3 1
+				param_named specular float4 1 0.3 0.3 1
+			}
+			texture_unit
+			{
+				texture cel_shading_diffuse.png
+				tex_address_mode clamp
+				filtering none
+			}
+			texture_unit
+			{
+				texture cel_shading_specular.png
+				tex_address_mode clamp
+				filtering none
+			}
+			texture_unit
+			{
+				texture cel_shading_edge.png
+				tex_address_mode clamp
+				filtering none
+			}
+		}
+	}
+	
+}
+
+material Examples/OgreCelShading/Skin
+{
+	technique
+	{
+		pass
+		{
+			vertex_program_ref Ogre/CelShadingVP
+			{
+				param_named_auto lightPosition light_position_object_space 0
+				param_named_auto eyePosition camera_position_object_space
+				param_named shininess float4 1 0 0 0
+				param_named_auto worldViewProj worldviewproj_matrix
+			}
+			fragment_program_ref Ogre/CelShadingFP
+			{
+				param_named diffuse float4 0 0.5 0 1
+				param_named specular float4 0 0.5 0 1
+			}
+			texture_unit
+			{
+				texture cel_shading_diffuse.png
+				tex_address_mode clamp
+				filtering none
+			}
+			texture_unit
+			{
+				texture cel_shading_specular.png
+				tex_address_mode clamp
+				filtering none
+			}
+			texture_unit
+			{
+				texture cel_shading_edge.png
+				tex_address_mode clamp
+				filtering none
+			}
+		}
+	}
+}
+
+material Examples/OgreCelShading/Teeth
+{
+	technique
+	{
+		pass
+		{
+			vertex_program_ref Ogre/CelShadingVP
+			{
+				param_named_auto lightPosition light_position_object_space 0
+				param_named_auto eyePosition camera_position_object_space
+				param_named shininess float4 2 0 0 0
+				param_named_auto worldViewProj worldviewproj_matrix
+			}
+			fragment_program_ref Ogre/CelShadingFP
+			{
+				param_named diffuse float4 1 1 0.7 1
+				param_named specular float4 1 1 0.7 1
+			}
+			texture_unit
+			{
+				texture cel_shading_diffuse.png
+				tex_address_mode clamp
+				filtering none
+			}
+			texture_unit
+			{
+				texture cel_shading_specular.png
+				tex_address_mode clamp
+				filtering none
+			}
+			texture_unit
+			{
+				texture cel_shading_edge.png
+				tex_address_mode clamp
+				filtering none
+			}
+			
+		}
+	}
+}
+
+material Examples/OgreCelShading/Earring
+{
+	technique
+	{
+		pass
+		{
+			vertex_program_ref Ogre/CelShadingVP
+			{
+				param_named_auto lightPosition light_position_object_space 0
+				param_named_auto eyePosition camera_position_object_space
+				param_named shininess float4 4 0 0 0
+				param_named_auto worldViewProj worldviewproj_matrix
+			}
+			fragment_program_ref Ogre/CelShadingFP
+			{
+				param_named diffuse float4 1 1 0 1
+				param_named specular float4 1 1 0 1
+			}
+
+			texture_unit
+			{
+				texture cel_shading_diffuse.png
+				tex_address_mode clamp
+				filtering none
+			}
+			texture_unit
+			{
+				texture cel_shading_specular.png
+				tex_address_mode clamp
+				filtering none
+			}
+			texture_unit
+			{
+				texture cel_shading_edge.png
+				tex_address_mode clamp
+				filtering none
+			}
+		}
+	}
+}
+
