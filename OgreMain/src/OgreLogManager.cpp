@@ -38,8 +38,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     LogManager::LogManager()
     {
-        mDefaultLog = 0;
-
+        mDefaultLog = NULL;
     }
     //-----------------------------------------------------------------------
     LogManager::~LogManager()
@@ -50,24 +49,20 @@ namespace Ogre {
         {
             delete i->second;
         }
-        
-
     }
     //-----------------------------------------------------------------------
     Log* LogManager::createLog( const String& name, bool defaultLog, bool debuggerOutput)
     {
         Log* newLog = new Log(name, debuggerOutput);
 
-        if (mLogs.empty() || defaultLog)
+        if( !mDefaultLog || defaultLog )
         {
             mDefaultLog = newLog;
         }
 
-        mLogs[name] = newLog;
+        mLogs.insert( LogList::value_type( name, newLog ) );
 
         return newLog;
-
-
     }
     //-----------------------------------------------------------------------
     Log* LogManager::getDefaultLog()
