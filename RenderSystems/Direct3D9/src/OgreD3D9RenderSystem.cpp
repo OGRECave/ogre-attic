@@ -1135,10 +1135,7 @@ namespace Ogre
 				texCoordDim = 3;
 			}
 
-			if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_ENVIRONMENT_MAP_PLANAR)
-				hr = __SetTextureStageState( stage, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_PROJECTED | texCoordDim );
-			else
-				hr = __SetTextureStageState( stage, D3DTSS_TEXTURETRANSFORMFLAGS, texCoordDim );
+			hr = __SetTextureStageState( stage, D3DTSS_TEXTURETRANSFORMFLAGS, texCoordDim );
 			if (FAILED(hr))
 				Except( hr, "Unable to set texture coord. dimension", "D3D9RenderSystem::_setTextureMatrix" );
 

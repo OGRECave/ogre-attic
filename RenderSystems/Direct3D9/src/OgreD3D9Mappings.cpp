@@ -68,7 +68,16 @@ namespace Ogre
 		case TEXCALC_ENVIRONMENT_MAP_REFLECTION:
 			return D3DTSS_TCI_CAMERASPACEREFLECTIONVECTOR;
 		case TEXCALC_ENVIRONMENT_MAP_PLANAR:
-			return D3DTSS_TCI_CAMERASPACEPOSITION;
+			if (caps.VertexProcessingCaps & D3DVTXPCAPS_TEXGEN_SPHEREMAP)
+			{
+				// Use sphere map if available
+				return D3DTSS_TCI_SPHEREMAP;
+			}
+			else
+			{
+				// If not, fall back on camera space reflection vector which isn't as good
+                return D3DTSS_TCI_CAMERASPACEREFLECTIONVECTOR;
+			}
 		case TEXCALC_ENVIRONMENT_MAP_NORMAL:
 			return D3DTSS_TCI_CAMERASPACENORMAL;
 		case TEXCALC_ENVIRONMENT_MAP:
