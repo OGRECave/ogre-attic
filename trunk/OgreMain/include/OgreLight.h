@@ -235,21 +235,26 @@ namespace Ogre {
 
         /** Sets the range of a spotlight, i.e. the angle of the inner and outer cones and the rate of falloff between them.
             @param
-                innerAngle Angle covered by the bright inner cone, in degrees
+                innerAngle Angle covered by the bright inner cone
             @param
-                outerAngle Angle covered by the outer cone, in degrees
+                outerAngle Angle covered by the outer cone
             @param
                 falloff The rate of falloff between the inner and outer cones. 1.0 means a linear falloff, less means slower falloff, higher means faster falloff.
         */
-        void setSpotlightRange(Real innerAngle, Real outerAngle, Real falloff = 1.0);
+        void setSpotlightRange(const Radian& innerAngle, const Radian& outerAngle, Real falloff = 1.0);
+#ifndef OGRE_FORCE_ANGLE_TYPES
+        inline void setSpotlightRange(Real innerAngle, Real outerAngle, Real falloff = 1.0) {
+            SetSpotlightRange ( Angle(innerAngle), Angle(outerAngle), falloff );
+        }
+#endif//OGRE_FORCE_ANGLE_TYPES
 
-        /** Returns the angle covered by the spotlights inner cone, in degrees.
+        /** Returns the angle covered by the spotlights inner cone.
         */
-        Real getSpotlightInnerAngle(void) const;
+        const Radian& getSpotlightInnerAngle(void) const;
 
-        /** Returns the angle covered by the spotlights outer cone, in degrees.
+        /** Returns the angle covered by the spotlights outer cone.
         */
-        Real getSpotlightOuterAngle(void) const;
+        const Radian& getSpotlightOuterAngle(void) const;
 
         /** Returns the falloff between the inner and outer cones of the spotlight.
         */
@@ -326,8 +331,8 @@ namespace Ogre {
 
         Vector3 mDirection;
 
-        Real mSpotOuter;
-        Real mSpotInner;
+        Radian mSpotOuter;
+        Radian mSpotInner;
         Real mSpotFalloff;
         Real mRange;
         Real mAttenuationConst;

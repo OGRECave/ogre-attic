@@ -25,6 +25,9 @@ http://www.gnu.org/copyleft/lesser.txt
 #ifndef __Prerequisites_H__
 #define __Prerequisites_H__
 
+// undefine this to not require new angular units where applicable
+#define OGRE_FORCE_ANGLE_TYPES
+
 // Platform-specific stuff
 #include "OgrePlatform.h"
 
@@ -138,7 +141,7 @@ namespace Ogre {
 	class ActionEvent;
 	class ActionListener;
 	class ActionTarget;
-	class ExternalTextureSourceManager;
+    class Angle;
     class Animation;
     class AnimationState;
     class AnimationTrack;
@@ -161,6 +164,7 @@ namespace Ogre {
     template <typename T> class ControllerValue;
 	class Cursor;
     class DataChunk;
+	class Degree;
     class DynLib;
     class DynLibManager;
     class EdgeData;
@@ -172,6 +176,7 @@ namespace Ogre {
 	class EventProcessor;
 	class EventQueue;
 	class EventTarget;
+    class ExternalTextureSourceManager;
     class Factory;
     class Font;
     class FontManager;
@@ -242,6 +247,7 @@ namespace Ogre {
     class Profile;
 	class Profiler;
     class Quaternion;
+	class Radian;
     class Ray;
     class RaySceneQuery;
     class RaySceneQueryListener;

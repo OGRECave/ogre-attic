@@ -102,15 +102,15 @@ namespace Ogre {
         return mDirection; 
     }
     //-----------------------------------------------------------------------
-    void ParticleEmitter::setAngle(Real angleunits)
+    void ParticleEmitter::setAngle(const Radian& angle)
     {
         // Store as radians for efficiency
-        mAngle = Math::AngleUnitsToRadians(angleunits);
+        mAngle = angle;
     }
     //-----------------------------------------------------------------------
-    Real ParticleEmitter::getAngle(void) const
+    const Radian& ParticleEmitter::getAngle(void) const
     {
-        return Math::RadiansToAngleUnits(mAngle);
+        return mAngle;
     }
     //-----------------------------------------------------------------------
     void ParticleEmitter::setParticleVelocity(Real speed)
@@ -158,10 +158,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ParticleEmitter::genEmissionDirection(Vector3& destVector)
     {
-        if (mAngle != 0)
+        if (mAngle != Radian(0))
         {
             // Randomise angle
-            Real angle = Math::UnitRandom() * mAngle;
+            Radian angle = Math::UnitRandom() * mAngle;
 
             // Randomise direction
             destVector = mDirection.randomDeviant(angle, mUp);

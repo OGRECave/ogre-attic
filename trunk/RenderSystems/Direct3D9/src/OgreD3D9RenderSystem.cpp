@@ -890,11 +890,11 @@ namespace Ogre
 		*pDest = colour.getAsLongARGB();
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, 
+	void D3D9RenderSystem::_makeProjectionMatrix(const Radian& fovy, Real aspect, Real nearPlane, 
         Real farPlane, Matrix4& dest, bool forGpuProgram)
 	{
 
-        Real theta = Math::AngleUnitsToRadians(fovy * 0.5);
+        Radian theta ( fovy * 0.5 );
 		Real h = 1 / Math::Tan(theta);
 		Real w = h / aspect;
 		Real q, qn;
@@ -927,12 +927,12 @@ namespace Ogre
         dest[2][3] = qn;
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_makeOrthoMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, 
+	void D3D9RenderSystem::_makeOrthoMatrix(const Radian& fovy, Real aspect, Real nearPlane, Real farPlane, 
 		Matrix4& dest, bool forGpuProgram )
 	{
-			Real thetaY = Math::AngleUnitsToRadians(fovy / 2.0f);
+			Radian thetaY (fovy / 2.0f);
             Real sinThetaY = Math::Sin(thetaY);
-            Real thetaX = thetaY * aspect;
+            Radian thetaX ( thetaY * aspect );
             Real sinThetaX = Math::Sin(thetaX);
             Real w = 1.0 / (sinThetaX * nearPlane);
             Real h = 1.0 / (sinThetaY * nearPlane);
@@ -1041,8 +1041,8 @@ namespace Ogre
 			case Light::LT_SPOTLIGHT:
 				d3dLight.Type = D3DLIGHT_SPOT;
 				d3dLight.Falloff = lt->getSpotlightFalloff();
-				d3dLight.Theta = Math::AngleUnitsToRadians( lt->getSpotlightInnerAngle() );
-				d3dLight.Phi = Math::AngleUnitsToRadians( lt->getSpotlightOuterAngle() );
+				d3dLight.Theta = lt->getSpotlightInnerAngle().valueRadians();
+				d3dLight.Phi = lt->getSpotlightOuterAngle().valueRadians();
 				break;
 			}
 

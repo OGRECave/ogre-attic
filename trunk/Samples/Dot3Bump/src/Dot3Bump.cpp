@@ -60,7 +60,7 @@ Vector3 mLightPositions[NUM_LIGHTS] =
 	Vector3(0, -300, -100)
 };
 // Base orientations of the lights 
-Real mLightRotationAngles[NUM_LIGHTS] = { 0,  30, 75 };
+Radian mLightRotationAngles[NUM_LIGHTS] = { Degree(0), Degree(30), Degree(75) };
 Vector3 mLightRotationAxes[NUM_LIGHTS] = {
     Vector3::UNIT_X, 
     Vector3::UNIT_Z,
@@ -183,7 +183,7 @@ public:
 
         // animate the lights
         for (size_t i = 0; i < NUM_LIGHTS; ++i)
-            mLightPivots[i]->rotate(Vector3::UNIT_Z, mLightSpeeds[i] * evt.timeSinceLastFrame);
+            mLightPivots[i]->rotate(Vector3::UNIT_Z, Degree(mLightSpeeds[i] * evt.timeSinceLastFrame));
 
 		return true;
     }

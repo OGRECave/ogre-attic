@@ -78,7 +78,7 @@ protected:
         // Get random player start point
         ViewPoint vp = mSceneMgr->getSuggestedViewpoint(true);
         mCamera->setPosition(vp.position);
-        mCamera->pitch(90); // Quake uses X/Y horizon, Z up
+        mCamera->pitch(Degree(90)); // Quake uses X/Y horizon, Z up
         mCamera->rotate(vp.orientation);
         // Don't yaw along variable axis, causes leaning
         mCamera->setFixedYawAxis(true, Vector3::UNIT_Z);

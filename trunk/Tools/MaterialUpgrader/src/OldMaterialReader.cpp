@@ -824,7 +824,7 @@ void parseRotate(StringVector::iterator& params, int numParams, Material* pMat, 
 	}
 	if (params[0]=="rotate")
 	{
-		pTex->setTextureRotate(StringConverter::parseReal(params[1].c_str()));
+		pTex->setTextureRotate(Degree(StringConverter::parseReal(params[1].c_str())));
 	}
 	else // rotate_anim
 	{

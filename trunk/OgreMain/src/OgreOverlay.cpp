@@ -179,21 +179,16 @@ namespace Ogre {
         mTransformUpdated = true;
     }
     //---------------------------------------------------------------------
-    void Overlay::setRotate(Real angleunits)
+    void Overlay::setRotate(const Radian& angle)
     {
-        mRotate = angleunits;
+        mRotate = angle;
         mTransformOutOfDate = true;
         mTransformUpdated = true;
     }
     //---------------------------------------------------------------------
-    Real Overlay::getRotate(void) const
+    void Overlay::rotate(const Radian& angle)
     {
-        return mRotate;
-    }
-    //---------------------------------------------------------------------
-    void Overlay::rotate(Real angleunits)
-    {
-        setRotate(mRotate += angleunits);
+        setRotate(mRotate + angle);
     }
     //---------------------------------------------------------------------
     void Overlay::setScale(Real x, Real y)
@@ -300,9 +295,8 @@ namespace Ogre {
         //    2. Rotate
         //    3. Translate
 
-        
         Matrix3 rot3x3, scale3x3;
-        rot3x3.FromEulerAnglesXYZ(0,0,Math::AngleUnitsToRadians(mRotate));
+        rot3x3.FromEulerAnglesXYZ(Radian(0),Radian(0),mRotate);
         scale3x3 = Matrix3::ZERO;
         scale3x3[0][0] = mScaleX;
         scale3x3[1][1] = mScaleY;

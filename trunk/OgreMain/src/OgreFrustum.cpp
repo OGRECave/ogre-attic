@@ -47,7 +47,7 @@ namespace Ogre {
     Frustum::Frustum()
     {
         // Reasonable defaults to Frustum params
-        mFOVy = Math::RadiansToAngleUnits(Math::PI/4.0);
+        mFOVy = Radian(Math::PI/4.0);
         mNearDist = 100.0f;
         mFarDist = 100000.0f;
         mAspect = 1.33333333333333f;
@@ -91,14 +91,14 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void Frustum::setFOVy(Real fov)
+    void Frustum::setFOVy(const Radian& fov)
     {
         mFOVy = fov;
         invalidateFrustum();
     }
 
     //-----------------------------------------------------------------------
-    Real Frustum::getFOVy(void) const
+    const Radian& Frustum::getFOVy(void) const
     {
         return mFOVy;
     }
@@ -270,7 +270,7 @@ namespace Ogre {
         if (mRecalcFrustum)
         {
             // Common calcs
-            Real thetaY = Math::AngleUnitsToRadians(mFOVy * 0.5f);
+            Radian thetaY (mFOVy * 0.5f);
             Real tanThetaY = Math::Tan(thetaY);
             Real tanThetaX = tanThetaY * mAspect;
             Real vpTop = tanThetaY * mNearDist;

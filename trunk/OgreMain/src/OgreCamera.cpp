@@ -52,7 +52,7 @@ namespace Ogre {
 
 
         // Reasonable defaults to camera params
-        mFOVy = Math::RadiansToAngleUnits(Math::PI/4.0);
+        mFOVy = Radian(Math::PI/4.0);
         mNearDist = 100.0f;
         mFarDist = 100000.0f;
         mAspect = 1.33333333333333f;
@@ -199,7 +199,7 @@ namespace Ogre {
             {
                 // Oops, a 180 degree turn (infinite possible rotation axes)
                 // Default to yaw i.e. use current UP
-                rotQuat.FromAngleAxis(Math::PI, axes[1]);
+                rotQuat.FromAngleAxis(Radian(Math::PI), axes[1]);
             }
             else
             {
@@ -241,10 +241,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Camera::lookAt(const Vector3& targetPoint)
     {
-
         updateView();
         this->setDirection(targetPoint - mDerivedPosition);
-
     }
 
     //-----------------------------------------------------------------------
@@ -252,22 +250,20 @@ namespace Ogre {
     {
         Vector3 vTemp( x, y, z );
         this->lookAt(vTemp);
-
     }
 
-
     //-----------------------------------------------------------------------
-    void Camera::roll(Real degrees)
+    void Camera::roll(const Radian& angle)
     {
         // Rotate around local Z axis
         Vector3 zAxis = mOrientation * Vector3::UNIT_Z;
-        rotate(zAxis, degrees);
+        rotate(zAxis, angle);
 
         invalidateView();
     }
 
     //-----------------------------------------------------------------------
-    void Camera::yaw(Real degrees)
+    void Camera::yaw(const Radian& angle)
     {
         Vector3 yAxis;
 
@@ -282,30 +278,30 @@ namespace Ogre {
             yAxis = mOrientation * Vector3::UNIT_Y;
         }
 
-        rotate(yAxis, degrees);
+        rotate(yAxis, angle);
 
         invalidateView();
     }
 
     //-----------------------------------------------------------------------
-    void Camera::pitch(Real degrees)
+    void Camera::pitch(const Radian& angle)
     {
         // Rotate around local X axis
         Vector3 xAxis = mOrientation * Vector3::UNIT_X;
-        rotate(xAxis, degrees);
+        rotate(xAxis, angle);
 
         invalidateView();
 
     }
 
     //-----------------------------------------------------------------------
-    void Camera::rotate(const Vector3& axis, Real degrees)
+    void Camera::rotate(const Vector3& axis, const Radian& angle)
     {
         Quaternion q;
-        q.FromAngleAxis(Math::AngleUnitsToRadians(degrees),axis);
+        q.FromAngleAxis(angle,axis);
         rotate(q);
-
     }
+
     //-----------------------------------------------------------------------
     void Camera::rotate(const Quaternion& q)
     {
@@ -388,7 +384,7 @@ namespace Ogre {
         o << "Camera(Name='" << c.mName << "', pos=" << c.mPosition;
         Vector3 dir(c.mOrientation*Vector3(0,0,-1));
         o << ", direction=" << dir << ",near=" << c.mNearDist;
-        o << ", far=" << c.mFarDist << ", FOVy=" << c.mFOVy;
+        o << ", far=" << c.mFarDist << ", FOVy=" << c.mFOVy.valueDegrees();
         o << ", aspect=" << c.mAspect << ", ";
         o << "NearFrustumPlane=" << c.mFrustumPlanes[FRUSTUM_PLANE_NEAR] << ", ";
         o << "FarFrustumPlane=" << c.mFrustumPlanes[FRUSTUM_PLANE_FAR] << ", ";
@@ -503,7 +499,7 @@ namespace Ogre {
         Real centeredScreenX = (screenX - 0.5f);
         Real centeredScreenY = (0.5f - screenY);
 
-        Real normalizedSlope = Math::Tan(Math::DegreesToRadians(mFOVy / 2));
+        Real normalizedSlope = Math::Tan(mFOVy / 2);
         Real viewportYToWorldY = normalizedSlope * mNearDist * 2;
         Real viewportXToWorldX = viewportYToWorldY * mAspect;
 
@@ -541,7 +537,7 @@ namespace Ogre {
             return;
 
 
-        Real thetaY = Math::AngleUnitsToRadians(mFOVy / 2.0f);
+        Radian thetaY ( mFOVy / 2.0f );
         Real tanThetaY = Math::Tan(thetaY);
         //Real thetaX = thetaY * mAspect;
         Real tanThetaX = tanThetaY * mAspect;

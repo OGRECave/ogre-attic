@@ -48,7 +48,7 @@ class ExampleFrameListener: public FrameListener, public KeyListener
 protected:
 	int mSceneDetailIndex ;
     Real mMoveSpeed;
-    Real mRotateSpeed;
+    Degree mRotateSpeed;
     Overlay* mDebugOverlay;
 
     void updateStats(void)
@@ -293,8 +293,8 @@ public:
         }
         else
         {
-            mRotX = -mInputDevice->getMouseRelativeX() * 0.13;
-            mRotY = -mInputDevice->getMouseRelativeY() * 0.13;
+            mRotX = Degree(-mInputDevice->getMouseRelativeX() * 0.13);
+            mRotY = Degree(-mInputDevice->getMouseRelativeY() * 0.13);
         }
 
 
@@ -445,10 +445,10 @@ protected:
     bool mUseBufferedInputKeys, mUseBufferedInputMouse, mInputTypeSwitchingOn;
 	unsigned int mNumScreenShots;
     float mMoveScale;
-    float mRotScale;
+    Degree mRotScale;
     // just to stop toggles flipping too fast
     Real mTimeUntilNextToggle ;
-    float mRotX, mRotY;
+    Radian mRotX, mRotY;
     TextureFilterOptions mFiltering;
     int mAniso;
 

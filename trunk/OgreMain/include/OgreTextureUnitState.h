@@ -486,11 +486,16 @@ namespace Ogre {
         @note
         Has no effect in the programmable pipeline.
         @param
-        degrees The angle of rotation in degrees (anticlockwise).
+        angle The angle of rotation (anticlockwise).
         */
-        void setTextureRotate(Real degrees);
-        // get texture rotation effects degree value
-        Real getTextureRotate(void) const;
+        void setTextureRotate(const Radian& angle);
+#ifndef OGRE_FORCE_ANGLE_TYPES
+        inline void setTextureRotate(Real angle) {
+            setTextureRotate ( Degree(angle) );
+        }
+#endif//OGRE_FORCE_ANGLE_TYPES
+        // get texture rotation effects angle value
+        const Radian& getTextureRotate(void) const;
 
         /** Gets the texture addressing mode, i.e. what happens at uv values above 1.0.
         @note
@@ -905,7 +910,7 @@ protected:
         bool mRecalcTexMatrix;
         Real mUMod, mVMod;
         Real mUScale, mVScale;
-        Real mRotate;
+        Radian mRotate;
         Matrix4 mTexModMatrix;
         CompareFunction mAlphaRejectFunc;
         unsigned char mAlphaRejectVal;

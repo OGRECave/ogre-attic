@@ -65,7 +65,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void HollowEllipsoidEmitter::_initParticle(Particle* pParticle)
     {
-        Real alpha, beta, a, b, c, x, y, z;
+        Real a, b, c, x, y, z;
 
         // Init dimensions
         pParticle->resetDimensions();
@@ -73,8 +73,8 @@ namespace Ogre {
         // create two random angles alpha and beta
         // with these two angles, we are able to select any point on an
         // ellipsoid's surface
-        alpha = Math::RangeRandom(0,Math::TWO_PI);
-        beta  = Math::RangeRandom(0,Math::PI);
+        Radian alpha ( Math::RangeRandom(0,Math::TWO_PI) );
+        Radian beta  ( Math::RangeRandom(0,Math::PI) );
 
         // create three random radius values that are bigger than the inner
         // size, but smaller/equal than/to the outer size 1.0 (inner size is
@@ -87,8 +87,9 @@ namespace Ogre {
         // ellipsoid and the outer sphere (radius 1.0)
         // with alpha and beta we select on point on this random ellipsoid
         // and calculate the 3D coordinates of this point
-        x = a * Math::Cos(alpha) * Math::Sin(beta);
-        y = b * Math::Sin(alpha) * Math::Sin(beta);
+		Real sinbeta ( Math::Sin(beta) );
+        x = a * Math::Cos(alpha) * sinbeta;
+        y = b * Math::Sin(alpha) * sinbeta;
         z = c * Math::Cos(beta);
 
         // scale the found point to the ellipsoid's size and move it

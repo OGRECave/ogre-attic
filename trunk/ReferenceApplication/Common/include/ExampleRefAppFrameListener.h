@@ -229,8 +229,8 @@ public:
         }
         else
         {
-            mRotX = -mInputDevice->getMouseRelativeX() * 0.13;
-            mRotY = -mInputDevice->getMouseRelativeY() * 0.13;
+            mRotX = Degree(-mInputDevice->getMouseRelativeX() * 0.13);
+            mRotY = Degree(-mInputDevice->getMouseRelativeY() * 0.13);
         }
 
 
@@ -293,7 +293,7 @@ public:
 				// Move about 50 units per second,
 				mMoveScale = 50.0 * evt.timeSinceLastFrame;
 				// Take about 10 seconds for full rotation
-				mRotScale = 36 * evt.timeSinceLastFrame;
+				mRotScale = Degree(36 * evt.timeSinceLastFrame);
 			}
 			mRotX = 0;
             mRotY = 0;
@@ -377,10 +377,10 @@ protected:
     bool mUseBufferedInputKeys, mUseBufferedInputMouse, mInputTypeSwitchingOn;
 	unsigned int mNumScreenShots;
     float mMoveScale;
-    float mRotScale;
+    Radian mRotScale;
     // just to stop toggles flipping too fast
     Real mTimeUntilNextToggle ;
-    float mRotX, mRotY;
+    Radian mRotX, mRotY;
 
 };
 

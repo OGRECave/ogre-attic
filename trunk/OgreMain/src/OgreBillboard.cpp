@@ -53,18 +53,13 @@ namespace Ogre {
         mColour = colour;
     }
     //-----------------------------------------------------------------------
-	Real Billboard::getRotation(void) const
-	{
-		return mRotation * Math::fRad2Deg;
-    }
-    //-----------------------------------------------------------------------
-    void Billboard::setRotation(Real rotation)
+    void Billboard::setRotation(const Radian& rotation)
     {
-		mRotation = rotation * Math::fDeg2Rad;
-        if (mRotation != 0)
+        mRotation = rotation;
+        if (mRotation != Radian(0))
             mParentSet->_notifyBillboardTextureCoordsModified();
     }
-	//-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
     void Billboard::setPosition(const Vector3& position)
     {
         mPosition = position;

@@ -39,7 +39,7 @@ public:
     {
 
         // Rotate fountains
-        mFountainNode->yaw(evt.timeSinceLastFrame * 30);
+        mFountainNode->yaw(Degree(evt.timeSinceLastFrame * 30));
 
         // Call default
         return ExampleFrameListener::frameStarted(evt);
@@ -86,7 +86,7 @@ protected:
         // Point the fountain at an angle
         SceneNode* fNode = mFountainNode->createChildSceneNode();
         fNode->translate(200,-100,0);
-        fNode->rotate(Vector3::UNIT_Z, 20);
+        fNode->rotate(Vector3::UNIT_Z, Degree(20));
         fNode->attachObject(pSys2);
 
         // fountain 2
@@ -95,7 +95,7 @@ protected:
         // Point the fountain at an angle
         fNode = mFountainNode->createChildSceneNode();
         fNode->translate(-200,-100,0);
-        fNode->rotate(Vector3::UNIT_Z, -20);
+        fNode->rotate(Vector3::UNIT_Z, Degree(-20));
         fNode->attachObject(pSys3);
 
 

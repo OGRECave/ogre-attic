@@ -1020,7 +1020,7 @@ namespace Ogre
     bool parseRotate(String& params, MaterialScriptContext& context)
     {
         context.textureUnit->setTextureRotate(
-            StringConverter::parseReal(params));
+            StringConverter::parseAngle(params));
 
         return false;
     }
@@ -2795,10 +2795,10 @@ namespace Ogre
 
             // rotate
             if (mDefaults ||
-                pTex->getTextureRotate() != 0)
+                pTex->getTextureRotate() != Radian(0))
             {
                 writeAttribute(4, "rotate");
-                writeValue(StringConverter::toString(pTex->getTextureRotate()));
+                writeValue(StringConverter::toString(pTex->getTextureRotate().valueDegrees()));
             }
 
             // scroll

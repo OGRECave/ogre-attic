@@ -616,7 +616,7 @@ namespace Ogre
             projection matrix, this method allows each to implement their own correctly and pass
             back a generic OGRE matrix for storage in the engine.
         */
-        virtual void _makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, 
+        virtual void _makeProjectionMatrix(const Radian& fovy, Real aspect, Real nearPlane, Real farPlane, 
             Matrix4& dest, bool forGpuProgram = false) = 0;
 
         /** Builds a perspective projection matrix for the case when frustum is
@@ -633,7 +633,7 @@ namespace Ogre
             projection matrix, this method allows each to implement their own correctly and pass
             back a generic OGRE matrix for storage in the engine.
         */
-        virtual void _makeOrthoMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, 
+        virtual void _makeOrthoMatrix(const Radian& fovy, Real aspect, Real nearPlane, Real farPlane, 
             Matrix4& dest, bool forGpuProgram = false) = 0;
         /** Sets how to rasterise triangles, as points, wireframe or solid polys. */
         virtual void _setRasterisationMode(SceneDetailLevel level) = 0;

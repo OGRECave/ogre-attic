@@ -40,7 +40,7 @@ namespace Ogre {
         }
         void CmdAngle::doSet(void* target, const String& val)
         {
-            static_cast<ParticleEmitter*>(target)->setAngle(StringConverter::parseReal(val));
+            static_cast<ParticleEmitter*>(target)->setAngle(StringConverter::parseAngle(val));
         }
         //-----------------------------------------------------------------------
         String CmdColour::doGet(const void* target) const

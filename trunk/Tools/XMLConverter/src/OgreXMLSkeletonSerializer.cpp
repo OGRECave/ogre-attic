@@ -126,13 +126,13 @@ namespace Ogre {
 			
 			Vector3 pos;
 			Vector3 axis;
-			Real angle ;
+			Radian angle ;
 
 			pos.x = StringConverter::parseReal(posElem->Attribute("x"));
 			pos.y = StringConverter::parseReal(posElem->Attribute("y"));
 			pos.z = StringConverter::parseReal(posElem->Attribute("z"));
 			
-			angle = StringConverter::parseReal(rotElem->Attribute("angle"));
+			angle = StringConverter::parseAngle(rotElem->Attribute("angle"));
 
 			axis.x = StringConverter::parseReal(axisElem->Attribute("x"));
 			axis.y = StringConverter::parseReal(axisElem->Attribute("y"));
@@ -219,7 +219,7 @@ namespace Ogre {
         {
 			Vector3 trans;
 			Vector3 axis;
-			Real angle;
+			Radian angle;
 			Real time;
 
             // Get time and create keyframe
@@ -244,7 +244,7 @@ namespace Ogre {
                     Except(Exception::ERR_INTERNAL_ERROR, "Missing 'axis' element "
                     "expected under parent 'rotate'", "MXLSkeletonSerializer::readKeyFrames");
                 }
-			    angle = StringConverter::parseReal(rotElem->Attribute("angle"));
+			    angle = StringConverter::parseAngle(rotElem->Attribute("angle"));
 
 			    axis.x = StringConverter::parseReal(axisElem->Attribute("x"));
 			    axis.y = StringConverter::parseReal(axisElem->Attribute("y"));
@@ -390,7 +390,7 @@ namespace Ogre {
         subNode = 
             boneElem->InsertEndChild(TiXmlElement("rotation"))->ToElement();
         // Show Quaternion as angle / axis
-        Real angle;
+        Radian angle;
         Vector3 axis;
         pBone->getOrientation().ToAngleAxis(angle, axis);
         TiXmlElement* axisNode = 
@@ -483,7 +483,7 @@ namespace Ogre {
         TiXmlElement* rotNode = 
             keyNode->InsertEndChild(TiXmlElement("rotate"))->ToElement();
         // Show Quaternion as angle / axis
-        Real angle;
+        Radian angle;
         Vector3 axis;
         key->getRotation().ToAngleAxis(angle, axis);
         TiXmlElement* axisNode = 

@@ -889,19 +889,19 @@ namespace Ogre {
 				-0.5,-0.5,
 				 0.5,-0.5 };
 
-			const Real		rotation = pBillboard->mRotation;
-			const Real		cos_rot	 = Math::Cos(rotation);
-			const Real		sin_rot	 = Math::Sin(rotation);
+			const Radian    rotation ( pBillboard->mRotation );
+			const Real      cos_rot  ( Math::Cos(rotation)   );
+			const Real      sin_rot  ( Math::Sin(rotation)   );
 		
 			*(*pTex)++ = (cos_rot * texData[0]) + (sin_rot * texData[1]) + 0.5;
 			*(*pTex)++ = (sin_rot * texData[0]) - (cos_rot * texData[1]) + 0.5;
 
 			*(*pTex)++ = (cos_rot * texData[2]) + (sin_rot * texData[3]) + 0.5;
 			*(*pTex)++ = (sin_rot * texData[2]) - (cos_rot * texData[3]) + 0.5;
-	        
+
 			*(*pTex)++ = (cos_rot * texData[4]) + (sin_rot * texData[5]) + 0.5;
 			*(*pTex)++ = (sin_rot * texData[4]) - (cos_rot * texData[5]) + 0.5;
-	        
+
 			*(*pTex)++ = (cos_rot * texData[6]) + (sin_rot * texData[7]) + 0.5;
 			*(*pTex)++ = (sin_rot * texData[6]) - (cos_rot * texData[7]) + 0.5;
 		}

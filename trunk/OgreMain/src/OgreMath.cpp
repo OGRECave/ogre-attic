@@ -120,33 +120,33 @@ namespace Ogre
         return ( iValue > 0 ? +1 : ( iValue < 0 ? -1 : 0 ) );
     }
     //-----------------------------------------------------------------------
-    Real Math::ACos (Real fValue)
+    Radian Math::ACos (Real fValue)
     {
         if ( -1.0 < fValue )
         {
             if ( fValue < 1.0 )
-                return Real(acos(fValue));
+                return Radian(acos(fValue));
             else
-                return 0.0;
+                return Radian(0.0);
         }
         else
         {
-            return PI;
+            return Radian(PI);
         }
     }
     //-----------------------------------------------------------------------
-    Real Math::ASin (Real fValue)
+    Radian Math::ASin (Real fValue)
     {
         if ( -1.0 < fValue )
         {
             if ( fValue < 1.0 )
-                return Real(asin(fValue));
+                return Radian(asin(fValue));
             else
-                return -HALF_PI;
+                return Radian(-HALF_PI);
         }
         else
         {
-            return HALF_PI;
+            return Radian(HALF_PI);
         }
     }
     //-----------------------------------------------------------------------
@@ -209,6 +209,24 @@ namespace Ogre
            return radians * fRad2Deg;
        else
            return radians;
+    }
+
+    //-----------------------------------------------------------------------
+    Real Math::AngleUnitsToDegrees(Real angleunits)
+    {
+       if (msAngleUnit == AU_RADIAN)
+           return angleunits * fRad2Deg;
+       else
+           return angleunits;
+    }
+
+    //-----------------------------------------------------------------------
+    Real Math::DegreesToAngleUnits(Real degrees)
+    {
+       if (msAngleUnit == AU_RADIAN)
+           return degrees * fDeg2Rad;
+       else
+           return degrees;
     }
 
     //-----------------------------------------------------------------------

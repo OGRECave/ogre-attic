@@ -421,7 +421,7 @@ namespace Ogre {
         std::ofstream of;
 
         Quaternion q;
-        Real angle;
+        Radian angle;
         Vector3 axis;
         of.open(filename.c_str());
 
@@ -439,7 +439,7 @@ namespace Ogre {
             q = bone->getOrientation();
             of << "Rotation: " << q;
             q.ToAngleAxis(angle, axis);
-            of << " = " << angle << " radians around axis " << axis << std::endl << std::endl;
+            of << " = " << angle.valueRadians() << " radians around axis " << axis << std::endl << std::endl;
         }
 
         of << "== Animations ==" << std::endl;
@@ -472,7 +472,7 @@ namespace Ogre {
                     q = key->getRotation();
                     of << "    Rotation: " << q;
                     q.ToAngleAxis(angle, axis);
-                    of << " = " << angle << " radians around axis " << axis << std::endl;
+                    of << " = " << angle.valueRadians() << " radians around axis " << axis << std::endl;
                 }
 
             }

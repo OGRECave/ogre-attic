@@ -95,8 +95,8 @@ namespace Ogre {
         Vector3 mDirection;
         // Notional up vector, just used to speed up generation of variant directions
         Vector3 mUp;
-        /// Angle around direction which particles may be emitted, internally radians but degrees for interface
-        Real mAngle;
+        /// Angle around direction which particles may be emitted, internally radians but angleunits for interface
+        Radian mAngle;
         /// Min speed of particles
         Real mMinSpeed;
         /// Max speed of particles
@@ -198,15 +198,20 @@ namespace Ogre {
             Whilst the direction property defines the general direction of emission for particles, 
             this property defines how far the emission angle can deviate away from this base direction.
             This allows you to create a scatter effect - if set to 0, all particles will be emitted
-            exactly along the emitters direction vector, wheras if you set it to 180 or more, particles
-            will be emitted in a sphere, i.e. in all directions.
+            exactly along the emitters direction vector, wheras if you set it to 180 degrees or more,
+            particles will be emitted in a sphere, i.e. in all directions.
         @param degrees
-            Maximum angle in degrees which initial particle direction can deviate from the emitter base direction vector.
+            Maximum angle which initial particle direction can deviate from the emitter base direction vector.
         */
-        virtual void setAngle(Real degrees);
+        virtual void setAngle(const Radian& angle);
+#ifndef OGRE_FORCE_ANGLE_TYPES
+        inline void setAngle(Real angle) {
+            setAngle ( Angle(angle) );
+        }
+#endif//OGRE_FORCE_ANGLE_TYPES
 
         /** Returns the maximum angle which the initial particle direction can deviate from the emitters base direction. */
-        virtual Real getAngle(void) const;
+        virtual const Radian& getAngle(void) const;
 
         /** Sets the initial velocity of particles emitted.
         @remarks

@@ -3490,7 +3490,7 @@ namespace Ogre {
                 // Set ortho projection
                 texCam->setProjectionType(PT_ORTHOGRAPHIC);
                 // set easy FOV and near dist so that texture covers far dist
-                texCam->setFOVy(90);
+                texCam->setFOVy(Degree(90));
                 texCam->setNearClipDistance(shadowDist);
 
                 // Set size of projection
