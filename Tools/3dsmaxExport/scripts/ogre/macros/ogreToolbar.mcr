@@ -78,9 +78,8 @@ macroScript showOgreExportTools
 			editXMLconverter.text = xmlConvPath + "\\" + xmlexe;
 			if (not (doesFileExist editXMLconverter.text)) then
 			(
-				messageBox "The file specified in the .ini for the XML converter does not exist !";
-				
-				editXMLconverter.text = "";
+				--messageBox "The file specified in the .ini for the XML converter does not exist !";
+				editXMLconverter.text = "The file/directory specified in the .ini for the XML converter does not exist !";
 				CBconvertXML.checked = false;
 			)
 			else
