@@ -50,6 +50,16 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     // PROFILE DEFINITIONS
     //-----------------------------------------------------------------------
+    template<> Profiler* Singleton<Profiler>::ms_Singleton = 0;
+    template<> Profiler* Singleton<Profiler>::getSingletonPtr(void)
+    {
+        return ms_Singleton;
+    }
+    template<> Profiler& Singleton<Profiler>::getSingleton(void)
+    {  
+        assert( ms_Singleton );  return ( *ms_Singleton );  
+    }
+    //-----------------------------------------------------------------------
     Profile::Profile(const String& profileName) {
 
         mName = profileName;
@@ -68,16 +78,6 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     // PROFILER DEFINITIONS
-    //-----------------------------------------------------------------------
-    template<> Profiler* Singleton<Profiler>::ms_Singleton = 0;
-    template<> Profiler* Singleton<Profiler>::getSingletonPtr(void)
-    {
-        return ms_Singleton;
-    }
-    template<> Profiler& Singleton<Profiler>::getSingleton(void)
-    {  
-        assert( ms_Singleton );  return ( *ms_Singleton );  
-    }
     //-----------------------------------------------------------------------
     Profiler::Profiler() {
 

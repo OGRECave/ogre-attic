@@ -73,6 +73,16 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 
 namespace Ogre {    
+    //-----------------------------------------------------------------------
+    template<> Root* Singleton<Root>::ms_Singleton = 0;
+    template<> Root* Singleton<Root>::getSingletonPtr(void)
+    {
+        return ms_Singleton;
+    }
+    template<> Root& Singleton<Root>::getSingleton(void)
+    {  
+        assert( ms_Singleton );  return ( *ms_Singleton );  
+    }
 
     typedef void (*DLL_START_PLUGIN)(void);
     typedef void (*DLL_STOP_PLUGIN)(void);
@@ -105,16 +115,6 @@ namespace Ogre {
         handleTerminate();
     }
 
-    //-----------------------------------------------------------------------
-    template<> Root* Singleton<Root>::ms_Singleton = 0;
-    template<> Root* Singleton<Root>::getSingletonPtr(void)
-    {
-        return ms_Singleton;
-    }
-    template<> Root& Singleton<Root>::getSingleton(void)
-    {  
-        assert( ms_Singleton );  return ( *ms_Singleton );  
-    }
     //-----------------------------------------------------------------------
     Root::Root(const String& pluginFileName, const String& configFileName, const String& logFileName)
     {
