@@ -23,6 +23,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 #ifndef __PlatformManager_H__
+#define __PlatformManager_H__
 
 #include "OgrePrerequisites.h"
 
