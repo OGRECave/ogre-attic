@@ -444,90 +444,6 @@ material Examples/Droplet
 		}
 	}
 }
-material Examples/Scrollbar/Up
-{
-	technique
-	{
-		pass
-		{
-
-			texture_unit
-			{
-				texture scr-up.png
-			}
-		}
-	}
-}
-material Examples/Scrollbar/Up/Pressed
-{
-	technique
-	{
-		pass
-		{
-
-			texture_unit
-			{
-				texture scr-up-p.png
-			}
-		}
-	}
-}
-material Examples/Scrollbar/Down
-{
-	technique
-	{
-		pass
-		{
-
-			texture_unit
-			{
-				texture scr-down.png
-			}
-		}
-	}
-}
-material Examples/Scrollbar/Down/Pressed
-{
-	technique
-	{
-		pass
-		{
-
-			texture_unit
-			{
-				texture scr-down-p.png
-			}
-		}
-	}
-}
-material Examples/Scrollbar/Thumb
-{
-	technique
-	{
-		pass
-		{
-
-			texture_unit
-			{
-				texture scr-thumb.png
-			}
-		}
-	}
-}
-material Examples/Scrollbar/Background
-{
-	technique
-	{
-		pass
-		{
-
-			texture_unit
-			{
-				texture scr-back.png
-			}
-		}
-	}
-}
 material Examples/Hilite/Yellow
 {
 	technique
@@ -718,6 +634,36 @@ material Examples/Robot
 	}
 }
 
+material Examples/GrassFloor
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture grass_1024.jpg
+			}
+		}
+	}
+}
+material Examples/GrassBlades
+{
+    technique
+    {
+        pass
+        {
+			alpha_rejection greater 150 
+			scene_blend alpha_blend
+		    cull_hardware none
+            cull_software none
+            texture_unit
+            {
+                texture gras_02.png 
+            }
+        }
+    }
+}
 
 material Examples/Rockwall
 {

@@ -1,0 +1,389 @@
+/*
+-----------------------------------------------------------------------------
+This source file is part of OGRE
+    (Object-oriented Graphics Rendering Engine)
+For the latest info, see http://www.ogre3d.org/
+
+Copyright © 2000-2003 The OGRE Team
+Also see acknowledgements in Readme.html
+
+You may use this sample code for anything you like, it is not covered by the
+LGPL like the rest of the engine.
+-----------------------------------------------------------------------------
+*/
+
+/**
+    \file 
+        Grass.cpp
+    \brief
+        Specialisation of OGRE's framework application to show the
+        use of the StaticGeometry class to create 'baked' instances of
+		many meshes, to create effects like grass efficiently.
+**/
+
+#include "ExampleApplication.h"
+
+#if OGRE_PLATFORM == PLATFORM_WIN32
+#define WIN32_LEAN_AND_MEAN
+#include "windows.h"
+#endif
+
+
+#define KEY_PRESSED(_key,_timeDelay, _macro) \
+{ \
+    if (mInputDevice->isKeyDown(_key) && timeDelay <= 0) \
+    { \
+		timeDelay = _timeDelay; \
+        _macro ; \
+    } \
+}
+
+#define GRASS_HEIGHT 60
+#define GRASS_WIDTH 50
+#define GRASS_MESH_NAME "grassblades"
+#define GRASS_MATERIAL "Examples/GrassBlades"
+
+Light* mLight;
+SceneNode* mLightNode = 0;
+AnimationState* mAnimState = 0;
+ColourValue mMinLightColour(0.5, 0.1, 0.0);
+ColourValue mMaxLightColour(1.0, 0.6, 0.0);
+Real mMinFlareSize = 40;
+Real mMaxFlareSize = 80;
+
+
+/** This class 'wibbles' the light and billboard */
+class LightWibbler : public ControllerValue<Real>
+{
+protected:
+	Light* mLight;
+	Billboard* mBillboard;
+	ColourValue mColourRange;
+	ColourValue mHalfColour;
+	Real mMinSize;
+	Real mSizeRange;
+	Real intensity;
+public:
+	LightWibbler(Light* light, Billboard* billboard, const ColourValue& minColour, 
+		const ColourValue& maxColour, Real minSize, Real maxSize)
+	{
+		mLight = light;
+		mBillboard = billboard;
+		mColourRange.r = (maxColour.r - minColour.r) * 0.5;
+		mColourRange.g = (maxColour.g - minColour.g) * 0.5;
+		mColourRange.b = (maxColour.b - minColour.b) * 0.5;
+		mHalfColour = minColour + mColourRange;
+		mMinSize = minSize;
+		mSizeRange = maxSize - minSize;
+	}
+
+	virtual Real  getValue (void) const
+	{
+		return intensity;
+	}
+
+	virtual void  setValue (Real value)
+	{
+		intensity = value;
+
+		ColourValue newColour;
+
+		// Attenuate the brightness of the light
+		newColour.r = mHalfColour.r + (mColourRange.r * intensity);
+		newColour.g = mHalfColour.g + (mColourRange.g * intensity);
+		newColour.b = mHalfColour.b + (mColourRange.b * intensity);
+
+		mLight->setDiffuseColour(newColour);
+		mBillboard->setColour(newColour);
+		// set billboard size
+		Real newSize = mMinSize + (intensity * mSizeRange);
+		mBillboard->setDimensions(newSize, newSize);
+
+	}
+};
+
+class GrassListener : public ExampleFrameListener
+{
+public:
+	GrassListener(RenderWindow* win, Camera* cam)
+		: ExampleFrameListener(win, cam)
+	{
+	}
+
+	bool frameStarted(const FrameEvent& evt)
+	{
+		if (mAnimState)
+			mAnimState->addTime(evt.timeSinceLastFrame);
+
+		return ExampleFrameListener::frameStarted(evt);        
+	}
+
+
+
+
+};
+
+
+
+class Grass_Application : public ExampleApplication
+{
+public:
+    Grass_Application() {}
+	
+protected:
+	SceneNode *mpObjsNode; // the node wich will hold our entities
+
+	void createGrassMesh()
+	{
+		// Each grass section is 3 planes at 60 degrees to each other
+		// Normals point straight up to simulate correct lighting
+		MeshPtr msh = MeshManager::getSingleton().createManual(GRASS_MESH_NAME, 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		SubMesh* sm = msh->createSubMesh();
+		sm->useSharedVertices = false;
+		sm->vertexData = new VertexData();
+		sm->vertexData->vertexStart = 0;
+		sm->vertexData->vertexCount = 12;
+		VertexDeclaration* dcl = sm->vertexData->vertexDeclaration;
+		size_t offset = 0;
+		dcl->addElement(0, offset, VET_FLOAT3, VES_POSITION);
+		offset += VertexElement::getTypeSize(VET_FLOAT3);
+		dcl->addElement(0, offset, VET_FLOAT3, VES_NORMAL);
+		offset += VertexElement::getTypeSize(VET_FLOAT3);
+		dcl->addElement(0, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES);
+		offset += VertexElement::getTypeSize(VET_FLOAT2);
+
+		HardwareVertexBufferSharedPtr vbuf = HardwareBufferManager::getSingleton()
+			.createVertexBuffer(
+				offset, 12, HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+		Real* pReal = static_cast<Real*>(vbuf->lock(HardwareBuffer::HBL_DISCARD));
+		Vector3 baseVec(GRASS_WIDTH/2, 0, 0);
+		Vector3 vec = baseVec;
+		Quaternion rot;
+		rot.FromAngleAxis(Degree(60), Vector3::UNIT_Y);
+		int i;
+		for (i = 0; i < 3; ++i)
+		{
+			// position
+			*pReal++ = -vec.x;
+			*pReal++ = GRASS_HEIGHT;
+			*pReal++ = -vec.z;
+			// normal
+			*pReal++ = 0;
+			*pReal++ = 1;
+			*pReal++ = 0;
+			// uv
+			*pReal++ = 0;
+			*pReal++ = 0;
+
+			// position
+			*pReal++ = vec.x;
+			*pReal++ = GRASS_HEIGHT;
+			*pReal++ = vec.z;
+			// normal
+			*pReal++ = 0;
+			*pReal++ = 1;
+			*pReal++ = 0;
+			// uv
+			*pReal++ = 1;
+			*pReal++ = 0;
+
+			// position
+			*pReal++ = -vec.x;
+			*pReal++ = 0;
+			*pReal++ = -vec.z;
+			// normal
+			*pReal++ = 0;
+			*pReal++ = 1;
+			*pReal++ = 0;
+			// uv
+			*pReal++ = 0;
+			*pReal++ = 1;
+
+			// position
+			*pReal++ = vec.x;
+			*pReal++ = 0;
+			*pReal++ = vec.z;
+			// normal
+			*pReal++ = 0;
+			*pReal++ = 1;
+			*pReal++ = 0;
+			// uv
+			*pReal++ = 1;
+			*pReal++ = 1;
+
+			vec = rot * vec;
+		}
+		vbuf->unlock();
+		sm->vertexData->vertexBufferBinding->setBinding(0, vbuf);
+		sm->indexData->indexCount = 6*3;
+		sm->indexData->indexBuffer = HardwareBufferManager::getSingleton()
+			.createIndexBuffer(HardwareIndexBuffer::IT_16BIT, 6*3,
+				HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+		uint16* pI = static_cast<uint16*>(
+			sm->indexData->indexBuffer->lock(HardwareBuffer::HBL_DISCARD));
+		for (i = 0; i < 3; ++i)
+		{
+			int off = i*4;
+			*pI++ = 0 + off;
+			*pI++ = 3 + off;
+			*pI++ = 1 + off;
+
+			*pI++ = 0 + off;
+			*pI++ = 2 + off;
+			*pI++ = 3 + off;
+		}
+
+		sm->indexData->indexBuffer->unlock();
+
+		sm->setMaterialName(GRASS_MATERIAL);
+
+	}
+
+	void setupLighting()
+	{
+		// Set ambient light
+		mSceneMgr->setAmbientLight(ColourValue(0.2, 0.2, 0.2));
+		// Point light, movable, reddish
+		mLight = mSceneMgr->createLight("Light2");
+		mLight->setDiffuseColour(mMinLightColour);
+		mLight->setSpecularColour(1, 1, 1);
+		mLight->setAttenuation(8000,1,0.0005,0);
+
+		// Create light node
+		mLightNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(
+			"MovingLightNode");
+		mLightNode->attachObject(mLight);
+		// create billboard set
+		BillboardSet* bbs = mSceneMgr->createBillboardSet("lightbbs", 1);
+		bbs->setMaterialName("Examples/Flare");
+		Billboard* bb = bbs->createBillboard(0,0,0,mMinLightColour);
+		// attach
+		mLightNode->attachObject(bbs);
+
+		// create controller, after this is will get updated on its own
+		ControllerFunctionRealPtr func = ControllerFunctionRealPtr(
+			new WaveformControllerFunction(Ogre::WFT_SINE, 0.0, 0.5));
+		ControllerManager& contMgr = ControllerManager::getSingleton();
+		ControllerValueRealPtr val = ControllerValueRealPtr(
+			new LightWibbler(mLight, bb, mMinLightColour, mMaxLightColour, 
+			mMinFlareSize, mMaxFlareSize));
+		Controller<Real>* controller = contMgr.createController(
+			contMgr.getFrameTimeSource(), val, func);
+
+		//mLight->setPosition(Vector3(300,250,-300));
+		mLightNode->setPosition(Vector3(300,250,-300));
+
+
+		// Create a track for the light
+		Animation* anim = mSceneMgr->createAnimation("LightTrack", 20);
+		// Spline it for nice curves
+		anim->setInterpolationMode(Animation::IM_SPLINE);
+		// Create a track to animate the camera's node
+		AnimationTrack* track = anim->createTrack(0, mLightNode);
+		// Setup keyframes
+		KeyFrame* key = track->createKeyFrame(0); // A startposition
+		key->setTranslate(Vector3(300,350,-300));
+		key = track->createKeyFrame(2);//B
+		key->setTranslate(Vector3(150,400,-250));
+		key = track->createKeyFrame(4);//C
+		key->setTranslate(Vector3(-150,450,-100));
+		key = track->createKeyFrame(6);//D
+		key->setTranslate(Vector3(-400,300,-200));
+		key = track->createKeyFrame(8);//E
+		key->setTranslate(Vector3(-200,300,-400));
+		key = track->createKeyFrame(10);//F
+		key->setTranslate(Vector3(-100,250,-200));
+		key = track->createKeyFrame(12);//G
+		key->setTranslate(Vector3(-100,200,180));
+		key = track->createKeyFrame(14);//H
+		key->setTranslate(Vector3(0,250,400));
+		key = track->createKeyFrame(16);//I
+		key->setTranslate(Vector3(100,450,100));
+		key = track->createKeyFrame(18);//J
+		key->setTranslate(Vector3(250,400,0));
+		key = track->createKeyFrame(20);//K == A
+		key->setTranslate(Vector3(300,350,-300));
+		// Create a new animation state to track this
+		mAnimState = mSceneMgr->createAnimationState("LightTrack");
+		mAnimState->setEnabled(true);
+	}
+
+	void createScene(void)
+    {
+
+		mSceneMgr->setSkyBox(true, "Examples/SpaceSkyBox");
+
+		setupLighting();
+
+
+		Plane plane;
+		plane.normal = Vector3::UNIT_Y;
+		plane.d = 0;
+		MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+			14500,14500,10,10,true,1,50,50,Vector3::UNIT_Z);
+		Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
+		pPlaneEnt->setMaterialName("Examples/GrassFloor");
+		pPlaneEnt->setCastShadows(false);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
+
+		Vector3 minV(-2000,0,-2000);
+		Vector3 maxV(2000,0,2000);
+
+
+		createGrassMesh();
+
+		Entity* e = mSceneMgr->createEntity("1", GRASS_MESH_NAME);
+		//createRandomEntityClones(e, 1000, min, max);
+
+		StaticGeometry* s = mSceneMgr->createStaticGeometry("bing");
+		s->setCastShadows(true);
+		s->setRegionDimensions(Vector3(2000,2000,2000));
+		for (int i = 0; i < 750; ++i)
+		{
+			Vector3 pos;
+			pos.x = Math::RangeRandom(minV.x, maxV.x);
+			pos.y = Math::RangeRandom(minV.y, maxV.y);
+			pos.z = Math::RangeRandom(minV.z, maxV.z);
+
+			s->addEntity(e, pos, Quaternion::IDENTITY, Vector3(5,5,5));
+
+		}
+
+		s->build();
+		mCamera->move(Vector3(0,350,0));
+		//s->setRenderingDistance(1000);
+		//s->dump("static.txt");
+		//mSceneMgr->showBoundingBoxes(true);
+	}
+
+    // Create new frame listener
+    void createFrameListener(void)
+    {
+        mFrameListener= new GrassListener(mWindow, mCamera);
+        mRoot->addFrameListener(mFrameListener);
+    }
+};
+
+#if OGRE_PLATFORM == PLATFORM_WIN32
+INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
+#else
+int main(int argc, char **argv)
+#endif
+{
+    // Create application object
+    Grass_Application app;
+
+    try {
+        app.go();
+    } catch( Exception& e ) {
+#if OGRE_PLATFORM == PLATFORM_WIN32
+        MessageBox( NULL, e.getFullDescription().c_str(), "An exception has occured!", MB_OK | MB_ICONERROR | MB_TASKMODAL);
+#else
+        std::cerr << "An exception has occured: " << e.getFullDescription();
+#endif
+    }
+
+    return 0;
+}

@@ -1,7 +1,7 @@
 SUBDIRS = SkeletalAnimation BezierPatch EnvMapping Transpacency Lighting \
 ParticleFX TextureFX SkyDome BSP Common SkyPlane SkyBox CameraTrack Terrain \
 RenderToTexture Water CubeMapping Dot3Bump Smoke CelShading Fresnel Shadows \
-DynTex VolumeTex
+DynTex VolumeTex Grass
 
 if BUILD_CEGUI_SAMPLE
 SUBDIRS += Gui
