@@ -69,17 +69,17 @@ void ZipArchiveTests::testListFileInfoNonRecursive()
 {
     ZipArchive arch(testPath, "Zip");
     arch.load();
-    Archive::FileInfoListPtr vec = arch.listFileInfo(false);
+    FileInfoListPtr vec = arch.listFileInfo(false);
 
     CPPUNIT_ASSERT_EQUAL((size_t)2, vec->size());
-    Archive::FileInfo& fi1 = vec->at(0);
+    FileInfo& fi1 = vec->at(0);
     CPPUNIT_ASSERT_EQUAL(String("rootfile.txt"), fi1.filename);
     CPPUNIT_ASSERT_EQUAL(String("rootfile.txt"), fi1.basename);
     CPPUNIT_ASSERT_EQUAL(StringUtil::BLANK, fi1.path);
     CPPUNIT_ASSERT_EQUAL((size_t)40, fi1.compressedSize);
     CPPUNIT_ASSERT_EQUAL((size_t)130, fi1.uncompressedSize);
 
-    Archive::FileInfo& fi2 = vec->at(1);
+    FileInfo& fi2 = vec->at(1);
     CPPUNIT_ASSERT_EQUAL(String("rootfile2.txt"), fi2.filename);
     CPPUNIT_ASSERT_EQUAL(String("rootfile2.txt"), fi2.basename);
     CPPUNIT_ASSERT_EQUAL(StringUtil::BLANK, fi2.path);
@@ -90,17 +90,17 @@ void ZipArchiveTests::testListFileInfoRecursive()
 {
     ZipArchive arch(testPath, "Zip");
     arch.load();
-    Archive::FileInfoListPtr vec = arch.listFileInfo(true);
+    FileInfoListPtr vec = arch.listFileInfo(true);
 
     CPPUNIT_ASSERT_EQUAL((size_t)6, vec->size()); 
-    Archive::FileInfo& fi3 = vec->at(0);
+    FileInfo& fi3 = vec->at(0);
     CPPUNIT_ASSERT_EQUAL(String("level1/materials/scripts/file.material"), fi3.filename);
     CPPUNIT_ASSERT_EQUAL(String("file.material"), fi3.basename);
     CPPUNIT_ASSERT_EQUAL(String("level1/materials/scripts/"), fi3.path);
     CPPUNIT_ASSERT_EQUAL((size_t)0, fi3.compressedSize);
     CPPUNIT_ASSERT_EQUAL((size_t)0, fi3.uncompressedSize);
 
-    Archive::FileInfo& fi4 = vec->at(1);
+    FileInfo& fi4 = vec->at(1);
     CPPUNIT_ASSERT_EQUAL(String("level1/materials/scripts/file2.material"), fi4.filename);
     CPPUNIT_ASSERT_EQUAL(String("file2.material"), fi4.basename);
     CPPUNIT_ASSERT_EQUAL(String("level1/materials/scripts/"), fi4.path);
@@ -108,28 +108,28 @@ void ZipArchiveTests::testListFileInfoRecursive()
     CPPUNIT_ASSERT_EQUAL((size_t)0, fi4.uncompressedSize);
 
 
-    Archive::FileInfo& fi5 = vec->at(2);
+    FileInfo& fi5 = vec->at(2);
     CPPUNIT_ASSERT_EQUAL(String("level2/materials/scripts/file3.material"), fi5.filename);
     CPPUNIT_ASSERT_EQUAL(String("file3.material"), fi5.basename);
     CPPUNIT_ASSERT_EQUAL(String("level2/materials/scripts/"), fi5.path);
     CPPUNIT_ASSERT_EQUAL((size_t)0, fi5.compressedSize);
     CPPUNIT_ASSERT_EQUAL((size_t)0, fi5.uncompressedSize);
 
-    Archive::FileInfo& fi6 = vec->at(3);
+    FileInfo& fi6 = vec->at(3);
     CPPUNIT_ASSERT_EQUAL(String("level2/materials/scripts/file4.material"), fi6.filename);
     CPPUNIT_ASSERT_EQUAL(String("file4.material"), fi6.basename);
     CPPUNIT_ASSERT_EQUAL(String("level2/materials/scripts/"), fi6.path);
     CPPUNIT_ASSERT_EQUAL((size_t)0, fi6.compressedSize);
     CPPUNIT_ASSERT_EQUAL((size_t)0, fi6.uncompressedSize);
 
-    Archive::FileInfo& fi1 = vec->at(4);
+    FileInfo& fi1 = vec->at(4);
     CPPUNIT_ASSERT_EQUAL(String("rootfile.txt"), fi1.filename);
     CPPUNIT_ASSERT_EQUAL(String("rootfile.txt"), fi1.basename);
     CPPUNIT_ASSERT_EQUAL(StringUtil::BLANK, fi1.path);
     CPPUNIT_ASSERT_EQUAL((size_t)40, fi1.compressedSize);
     CPPUNIT_ASSERT_EQUAL((size_t)130, fi1.uncompressedSize);
 
-    Archive::FileInfo& fi2 = vec->at(5);
+    FileInfo& fi2 = vec->at(5);
     CPPUNIT_ASSERT_EQUAL(String("rootfile2.txt"), fi2.filename);
     CPPUNIT_ASSERT_EQUAL(String("rootfile2.txt"), fi2.basename);
     CPPUNIT_ASSERT_EQUAL(StringUtil::BLANK, fi2.path);
@@ -163,17 +163,17 @@ void ZipArchiveTests::testFindFileInfoNonRecursive()
 {
     ZipArchive arch(testPath, "Zip");
     arch.load();
-    Archive::FileInfoListPtr vec = arch.findFileInfo("*.txt", false);
+    FileInfoListPtr vec = arch.findFileInfo("*.txt", false);
 
     CPPUNIT_ASSERT_EQUAL((size_t)2, vec->size());
-    Archive::FileInfo& fi1 = vec->at(0);
+    FileInfo& fi1 = vec->at(0);
     CPPUNIT_ASSERT_EQUAL(String("rootfile.txt"), fi1.filename);
     CPPUNIT_ASSERT_EQUAL(String("rootfile.txt"), fi1.basename);
     CPPUNIT_ASSERT_EQUAL(StringUtil::BLANK, fi1.path);
     CPPUNIT_ASSERT_EQUAL((size_t)40, fi1.compressedSize);
     CPPUNIT_ASSERT_EQUAL((size_t)130, fi1.uncompressedSize);
 
-    Archive::FileInfo& fi2 = vec->at(1);
+    FileInfo& fi2 = vec->at(1);
     CPPUNIT_ASSERT_EQUAL(String("rootfile2.txt"), fi2.filename);
     CPPUNIT_ASSERT_EQUAL(String("rootfile2.txt"), fi2.basename);
     CPPUNIT_ASSERT_EQUAL(StringUtil::BLANK, fi2.path);
@@ -184,18 +184,18 @@ void ZipArchiveTests::testFindFileInfoRecursive()
 {
     ZipArchive arch(testPath, "Zip");
     arch.load();
-    Archive::FileInfoListPtr vec = arch.findFileInfo("*.material", true);
+    FileInfoListPtr vec = arch.findFileInfo("*.material", true);
 
     CPPUNIT_ASSERT_EQUAL((size_t)4, vec->size()); 
 
-    Archive::FileInfo& fi3 = vec->at(0);
+    FileInfo& fi3 = vec->at(0);
     CPPUNIT_ASSERT_EQUAL(String("level1/materials/scripts/file.material"), fi3.filename);
     CPPUNIT_ASSERT_EQUAL(String("file.material"), fi3.basename);
     CPPUNIT_ASSERT_EQUAL(String("level1/materials/scripts/"), fi3.path);
     CPPUNIT_ASSERT_EQUAL((size_t)0, fi3.compressedSize);
     CPPUNIT_ASSERT_EQUAL((size_t)0, fi3.uncompressedSize);
 
-    Archive::FileInfo& fi4 = vec->at(1);
+    FileInfo& fi4 = vec->at(1);
     CPPUNIT_ASSERT_EQUAL(String("level1/materials/scripts/file2.material"), fi4.filename);
     CPPUNIT_ASSERT_EQUAL(String("file2.material"), fi4.basename);
     CPPUNIT_ASSERT_EQUAL(String("level1/materials/scripts/"), fi4.path);
@@ -203,14 +203,14 @@ void ZipArchiveTests::testFindFileInfoRecursive()
     CPPUNIT_ASSERT_EQUAL((size_t)0, fi4.uncompressedSize);
 
 
-    Archive::FileInfo& fi5 = vec->at(2);
+    FileInfo& fi5 = vec->at(2);
     CPPUNIT_ASSERT_EQUAL(String("level2/materials/scripts/file3.material"), fi5.filename);
     CPPUNIT_ASSERT_EQUAL(String("file3.material"), fi5.basename);
     CPPUNIT_ASSERT_EQUAL(String("level2/materials/scripts/"), fi5.path);
     CPPUNIT_ASSERT_EQUAL((size_t)0, fi5.compressedSize);
     CPPUNIT_ASSERT_EQUAL((size_t)0, fi5.uncompressedSize);
 
-    Archive::FileInfo& fi6 = vec->at(3);
+    FileInfo& fi6 = vec->at(3);
     CPPUNIT_ASSERT_EQUAL(String("level2/materials/scripts/file4.material"), fi6.filename);
     CPPUNIT_ASSERT_EQUAL(String("file4.material"), fi6.basename);
     CPPUNIT_ASSERT_EQUAL(String("level2/materials/scripts/"), fi6.path);
