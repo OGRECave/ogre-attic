@@ -43,6 +43,12 @@ AC_CHECK_LIB(IL, ilInit,,AC_MSG_ERROR([
 * You may find it at http://openil.sourceforge.net/.           *
 ****************************************************************]))
 AC_CHECK_LIB(ILU, iluFlipImage)
+AC_CHECK_LIB(Cg, cgCreateProgram,,AC_MSG_ERROR([
+****************************************************************
+* You do not have the nVidia Cg libraries installed.           *
+* Go to http://developer.nvidia.com/object/cg_toolkit.html     *
+* (Click on Cg_Linux.tar.gz).                                  *
+****************************************************************]))
 AC_CHECK_FUNC(snprintf, AC_DEFINE(HAVE_SNPRINTF,,snprintf))
 AC_CHECK_FUNC(vsnprintf, AC_DEFINE(HAVE_VSNPRINTF,,vsnprintf))
 
@@ -87,6 +93,9 @@ AC_CONFIG_FILES([Makefile \
     PlugIns/BSPSceneManager/Makefile \
     PlugIns/BSPSceneManager/src/Makefile \
     PlugIns/BSPSceneManager/include/Makefile \
+    PlugIns/CgProgramManager/Makefile \
+    PlugIns/CgProgramManager/src/Makefile \
+    PlugIns/CgProgramManager/include/Makefile \
     PlugIns/FileSystem/Makefile \
     PlugIns/FileSystem/src/Makefile \
     PlugIns/FileSystem/include/Makefile \
