@@ -140,9 +140,7 @@ namespace Ogre {
             {
                 assert(!isLocked() && "Cannot lock this buffer, it is already locked!");
                 void* ret;
-				// if lock is to discard, then we obviously do not have a requirement to read
-				// therefore we can lock the real buffer all the time
-				if (mUseShadowBuffer && options != HBL_DISCARD)
+				if (mUseShadowBuffer)
                 {
 					if (options != HBL_READ_ONLY)
 					{
@@ -154,8 +152,7 @@ namespace Ogre {
                 }
                 else
                 {
-					// Lock the real buffer if there is no shadow buffer or we're
-					// discarding the contents
+					// Lock the real buffer if there is no shadow buffer 
                     ret = lockImpl(offset, length, options);
                     mIsLocked = true;
                 }
