@@ -35,7 +35,13 @@ TerrainSceneManager::TerrainSceneManager() : OctreeSceneManager( )
 }
 
 TerrainSceneManager::~TerrainSceneManager()
-{}
+{
+    int size = mTiles.size();
+
+    for ( int i = 0; i < size; i++ )
+        for ( int j = 0; j < size; j++ )
+            delete mTiles[ i ][ j ];
+}
 
 void TerrainSceneManager::setWorldGeometry( const String& filename )
 {
@@ -161,7 +167,7 @@ void TerrainSceneManager::setWorldGeometry( const String& filename )
             sprintf( name, "tile[%d,%d]", p, q );
 
             SceneNode *c = mTerrainRoot -> createChild( name );
-            TerrainRenderable *tile = new TerrainRenderable();
+            TerrainRenderable *tile = new TerrainRenderable( this );
 
             tile -> setMaterial( mTerrainMaterial );
             tile -> init( options );
