@@ -96,6 +96,9 @@ namespace Ogre
         */
         Bone* removeChild(unsigned short index);
 
+		TagPoint *createChildTagPoint(const Quaternion &offsetOrientation = Quaternion::IDENTITY, 
+								      const Vector3	   &offsetPosition    = Vector3::UNIT_SCALE);
+
         /** Gets the numeric handle for this bone (unique within the skeleton). */
         unsigned short getHandle(void) const;
 

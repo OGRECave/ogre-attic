@@ -43,8 +43,10 @@ namespace Ogre {
     class _OgreExport MovableObject
     {
     protected:
-        /// node to which this object is attached
+        /// scene node to which this object is attached
         SceneNode* mParentNode;
+		/// tag point to which the object is attached (alternative to scene node)
+		TagPoint *mAttachingPoint;
         /// Is this object visible?
         bool mVisible;
         /// User defined object which is linked to this object
@@ -76,6 +78,13 @@ namespace Ogre {
         /** Internal method called to notify the object that it has been attached to a node.
         */
         virtual void _notifyAttached(SceneNode* parent);
+
+        /** Internal method called to notify the object that it has been attached to a bone.
+        */
+        virtual void _notifyAttached(TagPoint* parent);
+
+        /** Returns whether this object is attached to a node. */
+        virtual bool isAttached(void);
 
         /** Returns true if this object is attached to a SceneNode. */
         virtual bool isAttached(void) const;
@@ -134,6 +143,12 @@ namespace Ogre {
 
         /** Gets the queue group for this entity, see setRenderQueueGroup for full details. */
         virtual RenderQueueGroupID getRenderQueueGroup(void);
+
+		/// return the full transformation of the parent sceneNode or the attachingPoint node
+		virtual Matrix4 _getParentNodeFullTransform(void);
+
+        /// Returns the attachment point if this object has been attached to an entity bone
+        virtual TagPoint* getAttachmentPoint(void);
 
 
     };

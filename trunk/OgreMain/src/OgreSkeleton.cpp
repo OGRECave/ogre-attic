@@ -33,6 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 // Just for logging
 #include "OgreAnimationTrack.h"
 #include "OgreKeyFrame.h"
+#include "OgreTagPoint.h"
 
 
 namespace Ogre {
@@ -44,6 +45,7 @@ namespace Ogre {
 
         // Start next handle
         mNextAutoHandle = 0;
+		mNextTagPointAutoHandle = 0;
 
         // Indicate root has not been derived yet
         mRootBone = 0;
@@ -110,6 +112,14 @@ namespace Ogre {
         }
         mBoneList.clear();
 
+        // destroy TagPoints
+        TagPointList::iterator itp;
+        for (itp = mTagPointList.begin(); itp != mTagPointList.end(); ++itp)
+        {
+            delete itp->second;
+        }
+        mTagPointList.clear();
+
         // Destroy animations
         AnimationList::iterator ai;
         for (ai = mAnimationsList.begin(); ai != mAnimationsList.end(); ++ai)
@@ -165,6 +175,30 @@ namespace Ogre {
         mBoneListByName[name] = ret;
         return ret;
     }
+
+	TagPoint* Skeleton::createTagPoint(const Quaternion &offsetOrientation, const Vector3 &offsetPosition)
+	{
+        TagPoint* ret = new TagPoint(mNextTagPointAutoHandle++, this);
+        mTagPointList[mNextTagPointAutoHandle] = ret;
+		
+		ret->translate(offsetPosition);
+		ret->rotate(offsetOrientation);
+		ret->setBindingPose();
+
+        return ret;
+	}
+
+	void Skeleton::setCurrentEntity(Entity *pCurrentEntity)
+	{
+		mCurrentEntity = pCurrentEntity;
+	}
+
+	Entity *Skeleton::getCurrentEntity(void)
+	{
+		return mCurrentEntity;
+	}
+
+
     //---------------------------------------------------------------------
     Bone* Skeleton::getRootBone(void) const
     {

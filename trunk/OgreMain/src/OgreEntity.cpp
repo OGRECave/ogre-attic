@@ -33,12 +33,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSkeleton.h"
 #include "OgreBone.h"
 #include "OgreCamera.h"
+#include "OgreTagPoint.h"
+#include "OgreAxisAlignedBox.h"
 
 namespace Ogre {
     String Entity::msMovableType = "Entity";
     //-----------------------------------------------------------------------
-    Entity::Entity ()
+    Entity::Entity () 
     {
+		mFullBoundingBox = new AxisAlignedBox;
     }
     //-----------------------------------------------------------------------
     Entity::Entity( const String& name, Mesh* mesh, SceneManager* creator) :
@@ -46,6 +49,8 @@ namespace Ogre {
         mMesh(mesh),
         mCreatorSceneManager(creator)
     {
+		mFullBoundingBox = new AxisAlignedBox;
+	
 		// Build main subentity list
 		buildSubEntityList(mesh, &mSubEntityList);
 
@@ -115,9 +120,10 @@ namespace Ogre {
 			delete (*li);
 
 		}
-        if (mBoneMatrices)
+		if (mBoneMatrices)
             delete [] mBoneMatrices;
 
+		delete mFullBoundingBox;
     }
     //-----------------------------------------------------------------------
     Mesh* Entity::getMesh(void)
@@ -194,8 +200,30 @@ namespace Ogre {
     const AxisAlignedBox& Entity::getBoundingBox(void) const
     {
         // Get from Mesh
-        return mMesh->getBounds();
+		*mFullBoundingBox = mMesh->getBounds();
+		mFullBoundingBox->merge(getChildObjectsBoundingBox());
+
+        return *mFullBoundingBox;
     }
+    //-----------------------------------------------------------------------
+	AxisAlignedBox Entity::getChildObjectsBoundingBox(void) const
+	{
+		AxisAlignedBox aa_box;
+		AxisAlignedBox full_aa_box;
+		full_aa_box.setNull();
+		
+		ChildObjectList::const_iterator child_itr = mChildObjectList.begin();
+		ChildObjectList::const_iterator child_itr_end = mChildObjectList.end();
+		for( ; child_itr != child_itr_end; child_itr++)
+		{
+			aa_box = child_itr->second->getBoundingBox();
+			aa_box.transform(child_itr->second->getAttachmentPoint()->_getNodeFullTransform());
+			
+			full_aa_box.merge(aa_box);
+		}
+
+		return full_aa_box;
+	}
     //-----------------------------------------------------------------------
     void Entity::_updateRenderQueue(RenderQueue* queue)
     {
@@ -227,6 +255,14 @@ namespace Ogre {
         if (mMesh->hasSkeleton())
         {
             cacheBoneMatrices();
+			
+			//--- pass this point,  we are sure that the transformation matrix of each bone and tagPoint have been updated			
+			ChildObjectList::iterator child_itr = mChildObjectList.begin();
+			ChildObjectList::iterator child_itr_end = mChildObjectList.end();
+			for( ; child_itr != child_itr_end; child_itr++)
+			{
+				(*child_itr).second->_updateRenderQueue(queue);
+			}
         }
 
         // HACK to display bones
@@ -295,12 +331,18 @@ namespace Ogre {
 			// Use normal mesh
 			theMesh = mMesh;
 		}
+	
+		// Tell the skeleton who's making a call to update him
+		theMesh->getSkeleton()->setCurrentEntity(this);
 
         theMesh->_getBoneMatrices(mAnimationState, mBoneMatrices);
+		// Reset the skeleton to 'no caller'
+        theMesh->getSkeleton()->setCurrentEntity(0);
+		
         // Apply our current world transform to these too, since these are used as
         // replacement world matrices
-        int i;
-        Matrix4 worldXform = mParentNode->_getFullTransform();
+		int i;
+        Matrix4 worldXform = _getParentNodeFullTransform();
 		mNumBoneMatrices = theMesh->_getNumBoneMatrices();
 
         for (i = 0; i < mNumBoneMatrices; ++i)
@@ -354,4 +396,57 @@ namespace Ogre {
             (*i)->setRenderDetail(renderDetail); 
         } 
     }
+
+    //-----------------------------------------------------------------------
+	void Entity::attachObjectToBone(const String &boneName, MovableObject *pMovable, const Quaternion &offsetOrientation, const Vector3 &offsetPosition)
+	{
+		if(pMovable->isAttached())
+		{
+            Except(Exception::ERR_INVALIDPARAMS, "Object already attached to a sceneNode or a Bone", 
+            "Entity::attachObjectToBone");
+		}
+        if (!mMesh->hasSkeleton())
+        {
+            Except(Exception::ERR_INVALIDPARAMS, "This entity's mesh has no skeleton to attach object to.", 
+            "Entity::attachObjectToBone");
+        }
+        Bone* bone = mMesh->getSkeleton()->getBone(boneName);
+        if (!bone)
+        {
+            Except(Exception::ERR_INVALIDPARAMS, "Cannot locate bone named " + boneName, 
+            "Entity::attachObjectToBone");
+        }
+
+		TagPoint *tp = bone->createChildTagPoint(offsetOrientation, offsetPosition);
+		tp->setParentEntity(this);
+		tp->setChildObject(pMovable);
+		
+		attachObjectImpl(pMovable, tp);
+	}
+
+    //-----------------------------------------------------------------------
+	void Entity::attachObjectImpl(MovableObject *pObject, TagPoint *pAttachingPoint)
+	{
+		mChildObjectList[pObject->getName()] = pObject;
+		pObject->_notifyAttached(pAttachingPoint);
+	}
+
+    //-----------------------------------------------------------------------
+	MovableObject* Entity::detachObjectFromBone(const String &name)
+	{
+        ChildObjectList::iterator i = mChildObjectList.find(name);
+
+        if (i == mChildObjectList.end())
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, "No child object entry found named " + name, 
+            "Entity::detachObjectFromBone");
+		}
+
+        i->second->_notifyAttached((TagPoint*)0);
+		mChildObjectList.erase(i);
+        return i->second;
+	}
+
+
+
 }

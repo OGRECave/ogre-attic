@@ -103,6 +103,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreStringVector.cpp \
                          OgreSubEntity.cpp \
                          OgreSubMesh.cpp \
+			 OgreTagPoint.cpp \
                          OgreTGACodec.cpp \
                          OgreTexture.cpp \
                          OgreTextureLayer.cpp \

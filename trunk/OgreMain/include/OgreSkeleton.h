@@ -29,6 +29,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 #include "OgreResource.h"
 #include "OgreAnimationState.h"
+#include "OgreQuaternion.h"
+#include "OgreVector3.h"
 
 namespace Ogre {
 
@@ -231,6 +233,16 @@ namespace Ogre {
         /** Gets a single animation by index. */
         Animation* getAnimation(unsigned short index) const;
 
+
+		/** Creates a TagPoint ready to be attached to a bone */
+		TagPoint* createTagPoint(const Quaternion &offsetOrientation = Quaternion::IDENTITY, 
+								 const Vector3	  &offsetPosition    = Vector3::UNIT_SCALE);
+
+		/** Sets the entity that is currently updating this skeleton */
+		void setCurrentEntity(Entity *pCurrentEntity);
+		/** Gets the entity that is currently updating this skeleton */
+		Entity *getCurrentEntity(void);
+  
 		/** Gets the animation blending mode which this skeleton will use. */
         SkeletonAnimationBlendMode getBlendMode();
         /** Sets the animation blending mode this skeleton will use. */
@@ -246,10 +258,20 @@ namespace Ogre {
         typedef std::map<String, Bone*> BoneListByName;
         BoneListByName mBoneListByName;
 
+        /// Storage of tagPoints, lookup by handle
+        typedef std::map<unsigned short, TagPoint*> TagPointList;
+        TagPointList mTagPointList;
+
+		/// Entity that is currently updating this skeleton
+		Entity *mCurrentEntity;
+
         /// Pointer to root bone (all others follow)
         mutable Bone *mRootBone;
-        /// Automatic handles
+        /// Bone automatic handles
         unsigned short mNextAutoHandle;
+
+        /// TagPoint automatic handles
+        unsigned short mNextTagPointAutoHandle;
 
         /// Storage of animations, lookup by name
         typedef std::map<String, Animation*> AnimationList;
