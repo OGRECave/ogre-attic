@@ -148,7 +148,11 @@ namespace Ogre {
 		virtual void setConstant(size_t index, const Vector4& vec);
 		/** Sets a Vector3 parameter to the program.
 		@param index The index at which to place the parameter
-			NB this index refers to the number of floats, so a Vector3 is 3. 
+			NB this index refers to the number of floats, so a Vector3 is 3. Note that many 
+            rendersystems & programs assume that every floating point parameter is passed in
+            as a vector of 4 items, so you are strongly advised to check with 
+            RenderSystemCapabilities before using this version - if in doubt use Vector4
+            or ColourValue instead (both are 4D).
 		@param vec The value to set
 		*/
 		virtual void setConstant(size_t index, const Vector3& vec);
@@ -176,6 +180,12 @@ namespace Ogre {
 		@param count The number of floats to write
 		*/
 		virtual void setConstant(size_t index, const Real *val, size_t count);
+		/** Sets a ColourValue parameter to the program.
+		@param index The index at which to place the parameter
+			NB this index refers to the number of floats, so a Vector4 is 4. 
+		@param colour The value to set
+		*/
+        virtual void setConstant(size_t index, const ColourValue& colour);
 		
 		/** Sets a multiple value constant integer parameter to the program.
         @remarks
