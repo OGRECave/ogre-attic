@@ -1379,6 +1379,13 @@ namespace Ogre {
             if (FAILED(hr))
                 Except(hr, "Error enabling alpha blending option.",
                     "D3DRenderSystem::_beginFrame");
+
+            // Allow specular effects
+            hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);
+            if (FAILED(hr))
+                Except(hr, "Error enabling specular option.",
+                    "D3DRenderSystem::_beginFrame");
+
             firstTime = false;
         }
 
