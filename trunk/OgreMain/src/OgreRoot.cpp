@@ -269,7 +269,16 @@ namespace Ogre {
         String renderSystem;
         RenderSystemList::iterator pRend;
 
-        cfg.load("ogre.cfg");
+        try {
+            cfg.load("ogre.cfg");
+        }
+        catch (Exception& e)
+        {
+            if (e.getNumber() == Exception::ERR_FILE_NOT_FOUND)
+            {
+                return false;
+            }
+        }
 
         renderSystem = cfg.getSetting("Render System");
         if(!renderSystem)
