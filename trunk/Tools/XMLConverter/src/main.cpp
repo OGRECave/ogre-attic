@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreXMLSkeletonSerializer.h"
 #include "OgreSkeletonSerializer.h"
 #include "OgreDataChunk.h"
+#include "OgreXMLPrerequisites.h"
 #include <iostream>
 #include <sys/stat.h>
 
@@ -90,7 +91,28 @@ void XMLToBinary(String source)
 {
     // TODO
     // Read root element and decide from there what type
-    
+    TiXmlDocument* doc = new TiXmlDocument(source);
+    // Some double-parsing here but never mind
+    doc->LoadFile();
+    TiXmlElement* root = doc->RootElement();
+    // Chop off the '.xml'
+    String dest = source.substr(source.size() - 4);
+    if (!stricmp(root->Value(), "mesh"))
+    {
+        delete doc;
+        Mesh newMesh("conversion");
+        xmlMeshSerializer.importMesh(source, &newMesh);
+        meshSerializer.exportMesh(&newMesh, dest, true);
+    }
+    else if (!stricmp(root->Value(), "skeleton"))
+    {
+        delete doc;
+        Skeleton newSkel("conversion");
+        xmlSkeletonSerializer.importSkeleton(source, &newSkel);
+        skeletonSerializer.exportSkeleton(&newSkel, dest);
+    }
+
+
 }
 
 void skeletonToXML(String source, String dest)

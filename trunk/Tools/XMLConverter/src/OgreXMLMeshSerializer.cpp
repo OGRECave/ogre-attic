@@ -44,15 +44,46 @@ namespace Ogre {
     {
     }
     //---------------------------------------------------------------------
-    Mesh* XMLMeshSerializer::importMesh(const String& filename, Mesh* pMesh)
+    void XMLMeshSerializer::importMesh(const String& filename, Mesh* pMesh)
     {
-        // TODO 
-        return NULL;
+        mpMesh = pMesh;
+        mXMLDoc = new TiXmlDocument(filename);
+        mXMLDoc->LoadFile();
+
+        TiXmlElement* elem;
+
+        // materials
+        elem = mXMLDoc->FirstChildElement("materials");
+        if (elem)
+            readMaterials(elem);
+
+        // shared geometry
+        elem = mXMLDoc->FirstChildElement("sharedgeometry");
+        if (elem)
+            readGeometry(elem, &mpMesh->sharedGeometry);
+
+        // submeshes
+        elem = mXMLDoc->FirstChildElement("submeshes");
+        if (elem)
+            readSubMeshes(elem);
+
+        // skeleton link
+        elem = mXMLDoc->FirstChildElement("skeletonlink");
+        if (elem)
+            readSkeletonLink(elem);
+
+        // bone assignments
+        elem = mXMLDoc->FirstChildElement("boneassignments");
+        if (elem)
+            readBoneAssignments(elem);
+        
     }
     //---------------------------------------------------------------------
     void XMLMeshSerializer::exportMesh(const Mesh* pMesh, const String& filename, bool includeMaterials)
     {
         LogManager::getSingleton().logMessage("XMLMeshSerializer writing mesh data to " + filename + "...");
+        
+        mpMesh = const_cast<Mesh*>(pMesh);
 
         mXMLDoc = new TiXmlDocument();
         mXMLDoc->InsertEndChild(TiXmlElement("mesh"));
@@ -162,6 +193,7 @@ namespace Ogre {
         subNode->SetAttribute("red", StringConverter::toString(ambient.r));
         subNode->SetAttribute("green", StringConverter::toString(ambient.g));
         subNode->SetAttribute("blue", StringConverter::toString(ambient.b));
+        subNode->SetAttribute("alpha", StringConverter::toString(ambient.a));
 
         // Diffuse
         subNode = 
@@ -170,6 +202,7 @@ namespace Ogre {
         subNode->SetAttribute("red", StringConverter::toString(diffuse.r));
         subNode->SetAttribute("green", StringConverter::toString(diffuse.g));
         subNode->SetAttribute("blue", StringConverter::toString(diffuse.b));
+        subNode->SetAttribute("alpha", StringConverter::toString(diffuse.a));
 
         // Specular
         subNode = 
@@ -178,6 +211,7 @@ namespace Ogre {
         subNode->SetAttribute("red", StringConverter::toString(specular.r));
         subNode->SetAttribute("green", StringConverter::toString(specular.g));
         subNode->SetAttribute("blue", StringConverter::toString(specular.b));
+        subNode->SetAttribute("alpha", StringConverter::toString(specular.a));
 
         // Shininess
         subNode = matNode->InsertEndChild(TiXmlElement("shininess"))->ToElement();
@@ -230,13 +264,15 @@ namespace Ogre {
         // M_GEOMETRY chunk (Optional: present only if useSharedVertices = false)
         if (!s->useSharedVertices)
         {
-            writeGeometry(subMeshNode, &s->geometry);
+            TiXmlElement* geomNode = 
+                subMeshNode->InsertEndChild(TiXmlElement("geometry"))->ToElement();
+            writeGeometry(geomNode, &s->geometry);
         }
 
         // Bone assignments
-        SubMesh::BoneAssignmentIterator bi = const_cast<SubMesh*>(s)->getBoneAssignmentIterator();
-        if (bi.hasMoreElements())
+        if (mpMesh->hasSkeleton())
         {
+            SubMesh::BoneAssignmentIterator bi = const_cast<SubMesh*>(s)->getBoneAssignmentIterator();
             LogManager::getSingleton().logMessage("Exporting dedicated geometry bone assignments...");
 
             TiXmlElement* boneAssignNode = 
@@ -245,9 +281,8 @@ namespace Ogre {
             {
                 writeBoneAssignment(boneAssignNode, &bi.getNext());
             }
-
-            LogManager::getSingleton().logMessage("Dedicated geometry bone assignments exported.");
         }
+        LogManager::getSingleton().logMessage("Dedicated geometry bone assignments exported.");
 
     }
     //---------------------------------------------------------------------
@@ -379,4 +414,132 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
+    void XMLMeshSerializer::readMaterials(TiXmlElement* mMaterialsNode)
+    {
+        MaterialManager matMgr = MaterialManager::getSingleton();
+
+        // All children will be materials
+        for (TiXmlElement* matElem = mMaterialsNode->FirstChildElement();
+            matElem != 0; matElem = matElem->NextSiblingElement())
+        {
+            String name = matElem->Attribute("name");
+            Material* newMat = (Material*)matMgr.createDeferred(name);
+
+            ColourValue col;
+            TiXmlElement* colElem;
+            // Ambient
+            colElem = matElem->FirstChildElement("ambient");
+            if (colElem)
+            {
+                col.r = StringConverter::parseReal(colElem->Attribute("red"));
+                col.g = StringConverter::parseReal(colElem->Attribute("green"));
+                col.b = StringConverter::parseReal(colElem->Attribute("blue"));
+                col.a = StringConverter::parseReal(colElem->Attribute("alpha"));
+                newMat->setAmbient(col);
+            }
+            // Diffuse
+            colElem = matElem->FirstChildElement("diffuse");
+            if (colElem)
+            {
+                col.r = StringConverter::parseReal(colElem->Attribute("red"));
+                col.g = StringConverter::parseReal(colElem->Attribute("green"));
+                col.b = StringConverter::parseReal(colElem->Attribute("blue"));
+                col.a = StringConverter::parseReal(colElem->Attribute("alpha"));
+                newMat->setDiffuse(col);
+            }
+            // Specular
+            colElem = matElem->FirstChildElement("diffuse");
+            if (colElem)
+            {
+                col.r = StringConverter::parseReal(colElem->Attribute("red"));
+                col.g = StringConverter::parseReal(colElem->Attribute("green"));
+                col.b = StringConverter::parseReal(colElem->Attribute("blue"));
+                col.a = StringConverter::parseReal(colElem->Attribute("alpha"));
+                newMat->setSpecular(col);
+            }
+            // Shininess
+            colElem = matElem->FirstChildElement("shininess");
+            if (colElem)
+            {
+                newMat->setShininess(StringConverter::parseReal(colElem->Attribute("value")));
+            }
+
+            // Texture layers
+            TiXmlElement* texLayersElem = matElem->FirstChildElement("texturelayers");
+            if (texLayersElem)
+            {
+                for (TiXmlElement* texElem = texLayersElem->FirstChildElement();
+                    texElem != 0; texElem = texElem->NextSiblingElement())
+                {
+                    newMat->addTextureLayer(texElem->Attribute("texture"));
+                }
+
+            } // texture layers
+
+        } // material
+
+    }
+    //---------------------------------------------------------------------
+    void XMLMeshSerializer::readSubMeshes(TiXmlElement* mSubmeshesNode)
+    {
+        for (TiXmlElement* smElem = mSubmeshesNode->FirstChildElement();
+            smElem != 0; smElem = smElem->NextSiblingElement())
+        {
+            // All children should be submeshes 
+            SubMesh* sm = mpMesh->createSubMesh();
+
+            sm->setMaterialName(smElem->Attribute("material"));
+            sm->useSharedVertices = StringConverter::parseBool(smElem->Attribute("useSharedVertices"));
+
+            // Faces
+            TiXmlElement* faces = smElem->FirstChildElement("faces");
+            sm->numFaces = StringConverter::parseInt(faces->Attribute("count"));
+            // Allocate space
+            sm->faceVertexIndices = new unsigned short[sm->numFaces * 3];
+            int faceIdx;
+            TiXmlElement* faceElem;
+            for (faceElem = faces->FirstChildElement(), faceIdx = 0;
+                faceElem != 0; faceElem = faceElem->NextSiblingElement(), faceIdx += 3)
+            {
+                sm->faceVertexIndices[faceIdx] = StringConverter::parseInt(faceElem->Attribute("v1"));
+                sm->faceVertexIndices[faceIdx+1] = StringConverter::parseInt(faceElem->Attribute("v2"));
+                sm->faceVertexIndices[faceIdx+2] = StringConverter::parseInt(faceElem->Attribute("v3"));
+            }
+
+            // Geometry
+            if (!sm->useSharedVertices)
+            {
+                TiXmlElement* geomNode = smElem->FirstChildElement("geometry");
+                if (geomNode)
+                    readGeometry(geomNode, &sm->geometry);
+            }
+
+            // Bone assignments
+            TiXmlElement* boneAssigns = smElem->FirstChildElement("boneassignments");
+            if(boneAssigns)
+                readBoneAssignments(boneAssigns, sm);
+
+        }
+    }
+    //---------------------------------------------------------------------
+    void XMLMeshSerializer::readGeometry(TiXmlElement* mGeometryNode, GeometryData* pGeom)
+    {
+        // TODO
+    }
+    //---------------------------------------------------------------------
+    void XMLMeshSerializer::readSkeletonLink(TiXmlElement* mSkelNode)
+    {
+        // TODO
+    }
+    //---------------------------------------------------------------------
+    void XMLMeshSerializer::readBoneAssignments(TiXmlElement* mBoneAssignmentsNode)
+    {
+        // TODO
+    }
+    //---------------------------------------------------------------------
+    void XMLMeshSerializer::readBoneAssignments(TiXmlElement* mBoneAssignmentsNode, SubMesh* sm)
+    {
+        // TODO
+    }
+
 }
