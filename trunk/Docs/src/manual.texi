@@ -43,6 +43,8 @@ identical to this one.@*@*
 * Scripts::
 * Mesh Tools::
 * Hardware Buffers::
+* External Texture Sources::
+* Shadows::
 @detailmenu
 @end detailmenu
 @end menu
@@ -811,6 +813,8 @@ Here are the attributes you can use in a 'texture_unit' section of a .material s
 @item
 @ref{wave_xform}
 @end itemize
+
+You can also use a nested 'texture_source' section in order to use a special add-in as a source of texture data, @xref{External Texture Sources} for details.
 
 @heading Attribute Descriptions
 @anchor{texture}
@@ -2413,6 +2417,8 @@ OgreMeshUpgrade <oldmesh> <newmesh>
 The OGRE release notes will notify you when this is necessary with a new release.
 
 @include vbos.inc
+@include texturesource.inc
+@include shadows.inc
 
 @bye
 
