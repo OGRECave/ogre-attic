@@ -33,6 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreActionEvent.h"
 #include "OgreInput.h"
 #include "OgreCursor.h"
+#include "OgrePlatformManager.h"
 
 
 namespace Ogre {
