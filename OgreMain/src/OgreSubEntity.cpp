@@ -35,7 +35,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     SubEntity::SubEntity ()
     {
-        mpMaterial = 0;
+        mpMaterial = static_cast<Material*>(MaterialManager::getSingleton().getByName("BaseWhite"));
         mRenderDetail = SDL_SOLID;
     }
     //-----------------------------------------------------------------------
