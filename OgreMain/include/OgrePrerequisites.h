@@ -64,6 +64,13 @@ http://www.gnu.org/copyleft/gpl.html.
 */
 #include "OgreStdHeaders.h"
 
+#if defined( _STLP_USE_DYNAMIC_LIB )
+#pragma warn( "STLport still active?" )
+#undef _STLP_USE_DYNAMIC_LIB
+#endif
+
+#include "OgreMemoryManager.h"
+
 // define the real number values to be used
 // default to use 'float' unless precompiler option set
 namespace Ogre {
@@ -83,6 +90,23 @@ namespace Ogre {
 #	define _T( x ) # x
 #endif
 
+    typedef bool Bool;
+    typedef bool Boolean;
+
+#ifdef Byte
+#undef Byte
+#endif
+    typedef unsigned char Byte;
+
+    typedef signed char Int8;
+    typedef unsigned char UInt8;
+
+    typedef signed short Int16;
+    typedef unsigned short UInt16;
+
+    typedef signed long Int32;
+    typedef unsigned long UInt32;
+
 // Pre-declare classes
 // Allows use of pointers in header files without including individual .h
 // so decreases dependencies between files
@@ -97,6 +121,7 @@ namespace Ogre {
     class BillboardSet;
     class Bone;
     class Camera;
+    class Codec;
     class ColourValue;
     class ControllerManager;
     class Controller;
@@ -105,6 +130,7 @@ namespace Ogre {
     class DynLib;
     class DynLibManager;
     class Entity;
+    class Factory;
     class FrameListener;
     class InputReader;
     class KeyFrame;
