@@ -17,6 +17,15 @@ StarWars
 	resolution 	96
 }
 
+TrebuchetMSBold
+{
+	type 		truetype
+	source 		trebucbd.ttf
+	size 		32
+	resolution 	55
+}
+
+
 Ogre
 {
 	type	image
