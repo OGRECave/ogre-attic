@@ -307,10 +307,6 @@ SOURCE=..\src\OgreImage.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\OgreImageCodec.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\OgreInput.cpp
 # End Source File
 # Begin Source File
