@@ -7,6 +7,11 @@
 using namespace boost::python;
 using namespace Ogre;
 
+SceneNode* SceneNodeCast(Node* node)
+{ 
+    return static_cast<SceneNode*>(node); 
+}
+
 void exportSceneNode()
 {
     class_<SceneNode, bases<Node> >("SceneNode", init<SceneManager*>())
@@ -34,5 +39,7 @@ void exportSceneNode()
         .def("showBoundingBox", &SceneNode::showBoundingBox)
         .def("getShowBoundingBox", &SceneNode::getShowBoundingBox)
     ;
+
+    def("castNodeToSceneNode", SceneNodeCast, rir());
 }
 

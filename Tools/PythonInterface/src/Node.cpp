@@ -20,7 +20,7 @@ struct NodeWrap : Node
     PyObject* _self;
 };
 
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Node_createChild2_stubs, createChild,1,2)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Node_createChild2_stubs, createChild,0,2)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Node_createChild3_stubs, createChild,1,3)
 
 void exportNode()
