@@ -1637,23 +1637,26 @@ namespace Ogre {
     
         for (;i != iend; ++i)
         {
-            Animation* anim = getAnimation(i->second.getAnimationName());
+			if (i->second.getEnabled())
+			{
+				Animation* anim = getAnimation(i->second.getAnimationName());
 
-            // Reset any nodes involved
-            // NB this excludes blended animations
-            const Animation::TrackList& trackList = anim->_getTrackList();
-            Animation::TrackList::const_iterator ti, tend;
-            ti = trackList.begin();
-            tend = trackList.end();
-            for (;ti != tend; ++ti)
-            {
-                Node* nd = ti->second->getAssociatedNode();
-                nd->resetToInitialState();
-            }
+				// Reset any nodes involved
+				// NB this excludes blended animations
+				const Animation::TrackList& trackList = anim->_getTrackList();
+				Animation::TrackList::const_iterator ti, tend;
+				ti = trackList.begin();
+				tend = trackList.end();
+				for (;ti != tend; ++ti)
+				{
+					Node* nd = ti->second->getAssociatedNode();
+					nd->resetToInitialState();
+				}
 
 
-            // Apply the animation
-            anim->apply(i->second.getTimePosition(), i->second.getWeight());
+				// Apply the animation
+				anim->apply(i->second.getTimePosition(), i->second.getWeight());
+			}
         }
 
 
