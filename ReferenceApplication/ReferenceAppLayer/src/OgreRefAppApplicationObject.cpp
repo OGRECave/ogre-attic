@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreRefAppApplicationObject.h"
 #include "OgreRefAppWorld.h"
+#include "ode/collision.h"
 
 namespace OgreRefApp
 {
@@ -57,7 +58,14 @@ namespace OgreRefApp
             mOdeBody = 0;
         }
 
-        // Destroy collision proxy
+        // Destroy collision proxies
+        CollisionProxyList::iterator i, iend;
+        iend = mCollisionProxies.end();
+        for (i = mCollisionProxies.begin(); i != iend; ++i)
+        {
+            delete (*i);
+        }
+
 
 
     }
@@ -67,6 +75,7 @@ namespace OgreRefApp
         mSceneNode->setPosition(vec);
         if (mDynamicsEnabled && mOdeBody)
             mOdeBody->setPosition(vec.x, vec.y, vec.z);
+        updateCollisionProxies();
     }
     //-------------------------------------------------------------------------
     void ApplicationObject::setOrientation(const Quaternion& orientation)
@@ -77,6 +86,7 @@ namespace OgreRefApp
             dReal dquat[4] = {orientation.w, orientation.x, orientation.y, orientation.z };
             mOdeBody->setQuaternion(dquat);
         }
+        updateCollisionProxies();
     }
     //-------------------------------------------------------------------------
     const Vector3& ApplicationObject::getPosition(void)
@@ -100,6 +110,8 @@ namespace OgreRefApp
             mSceneNode->setPosition((Real)pos[0], (Real)pos[1], (Real)pos[2]);
             mSceneNode->setOrientation((Real)quat[0], (Real)quat[1], 
                 (Real)quat[2], (Real)quat[3]);
+
+            updateCollisionProxies();
         }
     }
     //-------------------------------------------------------------------------
@@ -175,7 +187,62 @@ namespace OgreRefApp
     {
         return mOdeBody;
     }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::updateCollisionProxies(void)
+    {
+        CollisionProxyList::iterator i, iend;
+        iend = mCollisionProxies.end();
+        for (i = mCollisionProxies.begin(); i != iend; ++i)
+        {
+            // set from node
+            const Vector3& pos = mSceneNode->getPosition();
+            dGeom* pProxy = *i;
+            pProxy->setPosition(pos.x, pos.y, pos.z);
+            const Quaternion& orientation = mSceneNode->getOrientation();
+            dReal dquat[4] = {orientation.w, orientation.x, orientation.y, orientation.z };
+            //pProxy->setRotation(dquat);
+        }
 
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::testCollide(ApplicationObject* otherObj)
+    {
+        dContactGeom contactGeom;
+        dGeom *o1, *o2;
+        o1 = *(mCollisionProxies.begin());
+        o2 = *(otherObj->mCollisionProxies.begin());
+        int numc = dCollide(o1->id(), o2->id(), 0, &contactGeom, sizeof(dContactGeom));
+        if (numc)
+        {
+            // Create contact joints
+            // TODO: parameterise
+            dContact contact;
+            contact.surface.mode = dContactBounce | dContactSoftCFM;
+            contact.surface.mu = dInfinity;
+            contact.surface.mu2 = 0;
+            contact.surface.bounce = 0.1;
+            contact.surface.bounce_vel = 0.1;
+            contact.surface.soft_cfm = 0.01;
+            contact.geom = contactGeom;
+            dContactJoint contactJoint(
+                World::getSingleton().getOdeWorld()->id(), 
+                World::getSingleton().getOdeContactJointGroup()->id(), 
+                &contact);
+
+            // Get ODE bodies
+            // May be null, if so use 0 (immovable) body ids
+            dBody *b1, *b2;
+            dBodyID bid1, bid2;
+            bid1 = bid2 = 0;
+            b1 = this->getOdeBody();
+            b2 = otherObj->getOdeBody();
+            if (b1) bid1 = b1->id();
+            if (b2) bid2 = b2->id();
+            contactJoint.attach(bid1, bid2);
+
+
+        }
+    }
 
 
 
