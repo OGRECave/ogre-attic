@@ -25,7 +25,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 
 #include "OgreBillboardParticleRenderer.h"
-#include "OgreBillboardSet.h"
 #include "OgreParticle.h"
 
 namespace Ogre {
@@ -107,6 +106,26 @@ namespace Ogre {
         mBillboardSet->setMaterialName(mat->getName());
     }
     //-----------------------------------------------------------------------
+    void BillboardParticleRenderer::setBillboardType(BillboardType bbt)
+    {
+        mBillboardSet->setBillboardType(bbt);
+    }
+    //-----------------------------------------------------------------------
+    BillboardType BillboardParticleRenderer::getBillboardType(void) const
+    {
+        return mBillboardSet->getBillboardType();
+    }
+    //-----------------------------------------------------------------------
+    void BillboardParticleRenderer::setCommonDirection(const Vector3& vec)
+    {
+        mBillboardSet->setCommonDirection(vec);
+    }
+    //-----------------------------------------------------------------------
+    const Vector3& BillboardParticleRenderer::getCommonDirection(void) const
+    {
+        return mBillboardSet->getCommonDirection();
+    }
+    //-----------------------------------------------------------------------
     void BillboardParticleRenderer::_notifyCurrentCamera(Camera* cam)
     {
         mBillboardSet->_notifyCurrentCamera(cam);
@@ -144,6 +163,61 @@ namespace Ogre {
         ParticleSystemRenderer* inst)
     {
         delete inst;
+    }
+    //-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
+    String BillboardParticleRenderer::CmdBillboardType::doGet(const void* target) const
+    {
+        BillboardType t = static_cast<const BillboardParticleRenderer*>(target)->getBillboardType();
+        switch(t)
+        {
+        case BBT_POINT:
+            return "point";
+            break;
+        case BBT_ORIENTED_COMMON:
+            return "oriented_common";
+            break;
+        case BBT_ORIENTED_SELF:
+            return "oriented_self";
+            break;
+        }
+        // Compiler nicety
+        return "";
+    }
+    void BillboardParticleRenderer::CmdBillboardType::doSet(void* target, const String& val)
+    {
+        BillboardType t;
+        if (val == "point")
+        {
+            t = BBT_POINT;
+        }
+        else if (val == "oriented_common")
+        {
+            t = BBT_ORIENTED_COMMON;
+        }
+        else if (val == "oriented_self")
+        {
+            t = BBT_ORIENTED_SELF;
+        }
+        else
+        {
+            Except(Exception::ERR_INVALIDPARAMS, 
+                "Invalid billboard_type '" + val + "'", 
+                "ParticleSystem::CmdBillboardType::doSet");
+        }
+
+        static_cast<BillboardParticleRenderer*>(target)->setBillboardType(t);
+    }
+    //-----------------------------------------------------------------------
+    String BillboardParticleRenderer::CmdCommonDirection::doGet(const void* target) const
+    {
+        return StringConverter::toString(
+            static_cast<const BillboardParticleRenderer*>(target)->getCommonDirection() );
+    }
+    void BillboardParticleRenderer::CmdCommonDirection::doSet(void* target, const String& val)
+    {
+        static_cast<BillboardParticleRenderer*>(target)->setCommonDirection(
+            StringConverter::parseVector3(val));
     }
 
 }

@@ -48,6 +48,7 @@ namespace Ogre {
     ParticleSystem::CmdMaterial ParticleSystem::msMaterialCmd;
     ParticleSystem::CmdQuota ParticleSystem::msQuotaCmd;
     ParticleSystem::CmdWidth ParticleSystem::msWidthCmd;
+    ParticleSystem::CmdRenderer ParticleSystem::msRendererCmd;
 
     //-----------------------------------------------------------------------
     ParticleSystem::ParticleSystem() :
@@ -64,6 +65,9 @@ namespace Ogre {
         Vector3 min( Math::POS_INFINITY, Math::POS_INFINITY, Math::POS_INFINITY );
         Vector3 max( Math::NEG_INFINITY, Math::NEG_INFINITY, Math::NEG_INFINITY );
         mWorldAABB.setExtents(min, max);
+
+        // Default to billboard renderer
+        setRenderer("Billboard");
 
     }
     //-----------------------------------------------------------------------
@@ -87,6 +91,8 @@ namespace Ogre {
         Vector3 max( Math::NEG_INFINITY, Math::NEG_INFINITY, Math::NEG_INFINITY );
         mWorldAABB.setExtents(min, max);
 
+        // Default to billboard renderer
+        setRenderer("Billboard");
     }
     //-----------------------------------------------------------------------
     ParticleSystem::~ParticleSystem()
@@ -697,6 +703,18 @@ namespace Ogre {
         return mRenderer;
     }
     //-----------------------------------------------------------------------
+    const String& ParticleSystem::getRendererName(void) const
+    {
+        if (mRenderer)
+        {
+            return mRenderer->getType();
+        }
+        else
+        {
+            return StringUtil::BLANK;
+        }
+    }
+    //-----------------------------------------------------------------------
     bool ParticleSystem::getCullIndividually(void) const
     {
         return mCullIndividual;
@@ -794,61 +812,14 @@ namespace Ogre {
         static_cast<ParticleSystem*>(target)->setParticleQuota(
             StringConverter::parseUnsignedInt(val));
     }
-    /*
     //-----------------------------------------------------------------------
-    String ParticleSystem::CmdBillboardType::doGet(const void* target) const
+    String ParticleSystem::CmdRenderer::doGet(const void* target) const
     {
-        BillboardType t = static_cast<const ParticleSystem*>(target)->getBillboardType();
-        switch(t)
-        {
-        case BBT_POINT:
-            return "point";
-            break;
-        case BBT_ORIENTED_COMMON:
-            return "oriented_common";
-            break;
-        case BBT_ORIENTED_SELF:
-            return "oriented_self";
-            break;
-        }
-        // Compiler nicety
-        return "";
+        return static_cast<const ParticleSystem*>(target)->getRendererName();
     }
-    void ParticleSystem::CmdBillboardType::doSet(void* target, const String& val)
+    void ParticleSystem::CmdRenderer::doSet(void* target, const String& val)
     {
-        BillboardType t;
-        if (val == "point")
-        {
-            t = BBT_POINT;
-        }
-        else if (val == "oriented_common")
-        {
-            t = BBT_ORIENTED_COMMON;
-        }
-        else if (val == "oriented_self")
-        {
-            t = BBT_ORIENTED_SELF;
-        }
-        else
-        {
-            Except(Exception::ERR_INVALIDPARAMS, 
-                "Invalid billboard_type '" + val + "'", 
-                "ParticleSystem::CmdBillboardType::doSet");
-        }
-
-        static_cast<ParticleSystem*>(target)->setBillboardType(t);
+        static_cast<ParticleSystem*>(target)->setRenderer(val);
     }
-    //-----------------------------------------------------------------------
-    String ParticleSystem::CmdCommonDirection::doGet(const void* target) const
-    {
-        return StringConverter::toString(
-            static_cast<const ParticleSystem*>(target)->getCommonDirection() );
-    }
-    void ParticleSystem::CmdCommonDirection::doSet(void* target, const String& val)
-    {
-        static_cast<ParticleSystem*>(target)->setCommonDirection(
-            StringConverter::parseVector3(val));
-    }
-    */
 
 }

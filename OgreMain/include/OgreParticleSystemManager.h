@@ -204,7 +204,7 @@ namespace Ogre {
         @param 
             quota The maximum number of particles to allow in this system. 
         */
-        ParticleSystem* createSystem(const String& name, unsigned int quota = 500);
+        ParticleSystem* createSystem(const String& name, size_t quota = 500);
 
         /** Creates a particle system based on a template.
         @remarks

@@ -32,9 +32,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreLogManager.h"
 #include "OgreString.h"
 #include "OgreParticleSystemRenderer.h"
-
+#include "OgreBillboardParticleRenderer.h"
 
 namespace Ogre {
+    //-----------------------------------------------------------------------
+    // Shortcut to set up billboard particle renderer
+    BillboardParticleRendererFactory* mBillboardRendererFactory = 0;
+    //-----------------------------------------------------------------------
     template<> ParticleSystemManager* Singleton<ParticleSystemManager>::ms_Singleton = 0;
     ParticleSystemManager* ParticleSystemManager::getSingletonPtr(void)
     {
@@ -64,6 +68,10 @@ namespace Ogre {
         }
         mSystems.clear();
         ResourceGroupManager::getSingleton()._unregisterScriptLoader(this);
+        // delete billboard factory
+        if (mBillboardRendererFactory)
+            delete mBillboardRendererFactory;
+
     }
     //-----------------------------------------------------------------------
     const StringVector& ParticleSystemManager::getScriptPatterns(void) const
@@ -202,7 +210,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    ParticleSystem* ParticleSystemManager::createSystem(const String& name, unsigned int quota)
+    ParticleSystem* ParticleSystemManager::createSystem(const String& name, size_t quota)
     {
         ParticleSystem* sys = new ParticleSystem(name);
         sys->setParticleQuota(quota);
@@ -377,6 +385,10 @@ namespace Ogre {
         // Register self as a frame listener
         Root::getSingleton().addFrameListener(this);
 
+        // Create Billboard renderer factory
+        mBillboardRendererFactory = new BillboardParticleRendererFactory();
+        addRendererFactory(mBillboardRendererFactory);
+
     }
     //-----------------------------------------------------------------------
     void ParticleSystemManager::parseNewEmitter(const String& type, DataStreamPtr& stream, ParticleSystem* sys)
@@ -448,6 +460,16 @@ namespace Ogre {
         // Look up first param (command setting)
         if (!sys->setParameter(vecparams[0], vecparams[1]))
         {
+            // Attribute not supported by particle system, try the renderer
+            ParticleSystemRenderer* renderer = sys->getRenderer();
+            if (renderer)
+            {
+                if (!renderer->setParameter(vecparams[0], vecparams[1]))
+                {
+                    LogManager::getSingleton().logMessage("Bad particle system attribute line: '"
+                        + line + "' in " + sys->getName());
+                }
+            }
             // BAD command. BAD!
             LogManager::getSingleton().logMessage("Bad particle system attribute line: '"
                 + line + "' in " + sys->getName());

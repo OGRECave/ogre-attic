@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 #include "OgreParticleSystemRenderer.h"
+#include "OgreBillboardSet.h"
 
 namespace Ogre {
 
@@ -60,6 +61,33 @@ namespace Ogre {
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
+
+        /** Sets the type of billboard to render.
+        @remarks
+            The default sort of billboard (BBT_POINT), always has both x and y axes parallel to 
+            the camera's local axes. This is fine for 'point' style billboards (e.g. flares,
+            smoke, anything which is symmetrical about a central point) but does not look good for
+            billboards which have an orientation (e.g. an elongated raindrop). In this case, the
+            oriented billboards are more suitable (BBT_ORIENTED_COMMON or BBT_ORIENTED_SELF) since they retain an independant Y axis
+            and only the X axis is generated, perpendicular to both the local Y and the camera Z.
+        @param bbt The type of billboard to render
+        */
+        void setBillboardType(BillboardType bbt);
+
+        /** Returns the billboard type in use. */
+        BillboardType getBillboardType(void) const;
+
+        /** Use this to specify the common direction given to billboards of type BBT_ORIENTED_COMMON.
+        @remarks
+            Use BBT_ORIENTED_COMMON when you want oriented billboards but you know they are always going to 
+            be oriented the same way (e.g. rain in calm weather). It is faster for the system to calculate
+            the billboard vertices if they have a common direction.
+        @param vec The direction for all billboards.
+        */
+        void setCommonDirection(const Vector3& vec);
+
+        /** Gets the common direction for all billboards (BBT_ORIENTED_COMMON) */
+        const Vector3& getCommonDirection(void) const;
 
         /// @copydoc ParticleSystemRenderer::getType
         const String& getType(void) const;

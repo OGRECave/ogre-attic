@@ -87,6 +87,13 @@ namespace Ogre {
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
+        /** Command object for renderer (see ParamCommand).*/
+        class CmdRenderer : public ParamCommand
+        {
+        public:
+            String doGet(const void* target) const;
+            void doSet(void* target, const String& val);
+        };
 
         /// Default constructor required for STL creation in manager
         ParticleSystem();
@@ -112,6 +119,8 @@ namespace Ogre {
 
         /** Gets the ParticleRenderer to be used to render this particle system. */
         ParticleSystemRenderer* getRenderer(void) const;
+        /** Gets the name of the ParticleRenderer to be used to render this particle system. */
+        const String& getRendererName(void) const;
 
         /** Adds an emitter to this particle system.
         @remarks
@@ -396,6 +405,7 @@ namespace Ogre {
         static CmdMaterial msMaterialCmd;
         static CmdQuota msQuotaCmd;
         static CmdWidth msWidthCmd;
+        static CmdRenderer msRendererCmd;
 
 
         AxisAlignedBox mAABB;
