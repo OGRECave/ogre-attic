@@ -29,7 +29,7 @@ namespace Ogre
 			switch( ImageFormat )
 			{
 			case IL_BGR:
-				return PF_B8R8G8;
+				return PF_B8G8R8;
 			case IL_RGB:
 				return PF_R8G8B8;
 			}
@@ -68,7 +68,7 @@ namespace Ogre
 			return std::pair< int, int >( IL_BGRA, 2 );
 		case PF_R8G8B8:
 			return std::pair< int, int >( IL_RGB, 3 );
-		case PF_B8R8G8:
+		case PF_B8G8R8:
 			return std::pair< int, int >( IL_BGR, 3 );
 		case PF_A8R8G8B8:
 			return std::pair< int, int >( IL_RGBA, 4 );

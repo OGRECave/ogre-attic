@@ -41,7 +41,7 @@ namespace Ogre {
         case PF_L4A4:
         case PF_B5G6R5:
         case PF_B4G4R4A4:
-        case PF_B8R8G8:
+        case PF_B8G8R8:
         case PF_B8G8R8A8:
         case PF_B10G10R10A2:
             return true;
@@ -74,7 +74,7 @@ namespace Ogre {
         case PF_B4G4R4A4:
             return D3DX_SF_A4R4G4B4;
         case PF_R8G8B8:
-        case PF_B8R8G8:
+        case PF_B8G8R8:
             return D3DX_SF_R8G8B8;
         case PF_A8R8G8B8:
         case PF_B8G8R8A8:
@@ -169,7 +169,7 @@ namespace Ogre {
             break;
 
         case PF_R8G8B8:
-        case PF_B8R8G8:
+        case PF_B8G8R8:
             out.dwFlags = DDPF_RGB;
             out.dwRGBBitCount = 24;
 

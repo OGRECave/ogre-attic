@@ -114,6 +114,10 @@ namespace Ogre {
                 return GL_LUMINANCE;
             case PF_R8G8B8:
                 return GL_RGB;
+            case PF_B8G8R8:
+                return GL_BGR;
+            case PF_B8G8R8A8:
+                return GL_BGRA;
             case PF_A8R8G8B8:
                 return GL_RGBA;
             default:

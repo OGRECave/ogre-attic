@@ -160,7 +160,7 @@ namespace Ogre {
 		/// 24-bit pixel format, 8 bits for red, green and blue.
 		PF_R8G8B8,
 		/// 24-bit pixel format, 8 bits for blue, green and red.
-		PF_B8R8G8,
+		PF_B8G8R8,
 		/// 32-bit pixel format, 8 bits for alpha, red, green and blue.
 		PF_A8R8G8B8,
 		/// 32-bit pixel format, 8 bits for blue, green, red and alpha.
