@@ -43,7 +43,7 @@ namespace Ogre {
         /* Name of the format, as in the enum */
         char *name;
         /* Number of bytes one element (colour value) takes. */
-        int elemBytes;
+        size_t elemBytes;
         /* Pixel format flags, see enum PixelFormatFlags for the bit field
         * definitions 
         */
@@ -336,7 +336,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	size_t PixelBox::getConsecutiveSize() const 
 	{ 
-		return getWidth()*getHeight()*getDepth()*PixelUtil::getNumElemBytes(format); 
+		return PixelUtil::getMemorySize(getWidth(), getHeight(), getDepth(), format); 
 	}
 	PixelBox PixelBox::getSubVolume(const Box &def) const
 	{
@@ -370,12 +370,37 @@ namespace Ogre {
         return _pixelFormats[ord];
     }
     //-----------------------------------------------------------------------
-    int PixelUtil::getNumElemBytes( PixelFormat format )
+    size_t PixelUtil::getNumElemBytes( PixelFormat format )
     {
         return getDescriptionFor(format).elemBytes;
     }
+	//-----------------------------------------------------------------------
+	size_t PixelUtil::getMemorySize(size_t width, size_t height, size_t depth, PixelFormat format)
+	{
+		if(isCompressed(format)) 
+		{
+			switch(format) 
+			{
+				// DXT formats work by dividing the image into 4x4 blocks, then encoding each
+				// 4x4 block with a certain number of bytes. DXT can only be used on 2D images.
+				case PF_DXT1:
+					assert((width&3)==0 && (height&3)==0 && depth==1);
+					return (width/4)*(height/4)*8;
+				case PF_DXT2:
+				case PF_DXT3:
+				case PF_DXT4:
+				case PF_DXT5:
+					assert((width&3)==0 && (height&3)==0 && depth==1);
+					return (width/4)*(height/4)*16;
+			}
+		} 
+		else 
+		{
+			return width*height*depth*getNumElemBytes(format); 
+		}
+	}
     //-----------------------------------------------------------------------
-    int PixelUtil::getNumElemBits( PixelFormat format )
+    size_t PixelUtil::getNumElemBits( PixelFormat format )
     {
         return getDescriptionFor(format).elemBytes * 8;
     }
