@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 // This file includes all the other files which you will need to build a client application
 #include "OgrePrerequisites.h"
 
+#include "OgreException.h"
 #include "OgreRoot.h"
 #include "OgreTextureManager.h"
 #include "OgreSceneManager.h"
