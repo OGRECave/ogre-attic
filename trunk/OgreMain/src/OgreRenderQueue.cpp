@@ -37,6 +37,9 @@ namespace Ogre {
         // Create the 'main' queue up-front since we'll always need that
         mGroups.insert(RenderQueueGroupMap::value_type(RENDER_QUEUE_MAIN, new RenderQueueGroup()));
 
+        // set default queue
+        mDefaultQueueGroup = RENDER_QUEUE_MAIN;
+
     }
     //---------------------------------------------------------------------
     RenderQueue::~RenderQueue()
@@ -96,6 +99,21 @@ namespace Ogre {
     RenderQueue::QueueGroupIterator RenderQueue::_getQueueGroupIterator(void)
     {
         return QueueGroupIterator(mGroups.begin(), mGroups.end());
+    }
+    //-----------------------------------------------------------------------
+    void RenderQueue::addRenderable(Renderable* pRend, ushort priority)
+    {
+        addRenderable(pRend, mDefaultQueueGroup, priority);
+    }
+    //-----------------------------------------------------------------------
+    RenderQueueGroupID RenderQueue::getDefaultQueueGroup(void)
+    {
+        return mDefaultQueueGroup;
+    }
+    //-----------------------------------------------------------------------
+    void RenderQueue::setDefaultQueueGroup(RenderQueueGroupID grp)
+    {
+        mDefaultQueueGroup = grp;
     }
 }
 
