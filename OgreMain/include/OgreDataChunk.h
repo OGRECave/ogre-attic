@@ -133,6 +133,19 @@ namespace Ogre {
 		    size_t size, 
 		    const char* delim = "\n" );
 
+        /** Skips data into the provided buffer until hitting the specified
+            character or reaching the end of the data.
+            @remarks
+                The terminating characters is not included in the data
+                returned, and it is skipped over so the next read will occur
+                after it.
+            @param
+                delim List of delimiters to skip up to.
+            @returns
+                The number of characters that were skipped.
+        */
+        unsigned long skipUpTo( const char* delim );
+
 	    /** Returns true if the buffer pointer has reached the end of the
 		    buffer.
 	    */

@@ -139,6 +139,15 @@ namespace Ogre {
         return static_cast< ulong >( pos );
     }
     //-----------------------------------------------------------------------
+    ulong DataChunk::skipUpTo( const char *delim )
+    {
+        size_t pos = strcspn( (const char*)mPos, delim );
+
+        mPos += pos + 1;
+
+        return static_cast< ulong >( pos );
+    }
+    //-----------------------------------------------------------------------
     bool DataChunk::isEOF(void)
     {
         if (mPos >= mEnd)
