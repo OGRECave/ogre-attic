@@ -300,34 +300,52 @@ namespace Ogre {
                 Image img;
                 img.load( mName );
 
-                loadImage( img );
-            }
-            else if (mTextureType == TEX_TYPE_CUBE_MAP)
-            {
-                if (getName().endsWith(".dds"))
+                if (getName().endsWith(".dds") && img.hasFlag(IF_CUBEMAP))
                 {
-                }
-                else
-                {
-                    Image img;
-                    String baseName, ext;
+                    Image newImage;
                     std::vector<Image> images;
-                    String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_fr", "_bk"};
+                    uint imageSize = img.getSize() / 6;
 
-                    for(unsigned int i = 0; i < 6; i++)
+                    mTextureType = TEX_TYPE_CUBE_MAP;
+
+                    uint offset = 0;
+                    for(int i = 0; i < 6; i++)
                     {
-                        size_t pos = mName.find_last_of(".");
-                        baseName = mName.substr(0, pos);
-                        ext = mName.substr(pos);
-                        String fullName = baseName + suffixes[i] + ext;
-
-                        img.load( fullName );
-                        images.push_back(img);
+                        DataChunk chunk(img.getData() + offset, imageSize);
+                        newImage.loadRawData(chunk, img.getWidth(), 
+                            img.getHeight(), img.getFormat());
+                        offset += imageSize;
+                        images.push_back(newImage);
                     }
-    
+
                     loadImages( images );
                     images.clear();
                 }
+                else
+                {
+                    loadImage( img );
+                }
+            }
+            else if (mTextureType == TEX_TYPE_CUBE_MAP)
+            {
+                Image img;
+                String baseName, ext;
+                std::vector<Image> images;
+                String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_fr", "_bk"};
+
+                for(unsigned int i = 0; i < 6; i++)
+                {
+                    size_t pos = mName.find_last_of(".");
+                    baseName = mName.substr(0, pos);
+                    ext = mName.substr(pos);
+                    String fullName = baseName + suffixes[i] + ext;
+
+                    img.load( fullName );
+                    images.push_back(img);
+                }
+
+                loadImages( images );
+                images.clear();
             }
             else
                 Except( Exception::UNIMPLEMENTED_FEATURE, "**** Unknown texture type ****", "GLTexture::load" );
