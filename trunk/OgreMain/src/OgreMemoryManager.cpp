@@ -233,16 +233,16 @@ namespace Ogre
     }
 
     /** This helper function writes file and line information to a string.
+		\internal
+		@note
+			Maybe remove the static tag from str?
     */
     const char *ownerString(
         const char *sourceFile, 
         const unsigned int sourceLine, 
         const char *sourceFunc )
     {
-    #if OGRE_COMPILER == COMPILER_MSVC
-    #   define snprintf _snprintf
-    #endif
-        char    str[90];
+        static char str[90];
         snprintf( str, 89, "%s(%05d)::%s", 
             sourceFileStripper(sourceFile), 
             sourceLine, 
@@ -255,8 +255,8 @@ namespace Ogre
     */
     const char *insertCommas( unsigned long value )
     {
-        char    str[30];
-        sprintf( str, "%u", value );
+        static char str[30];
+        sprintf( str, "%lu", value );
 
         if( strlen(str) > 3 )
         {
@@ -280,7 +280,7 @@ namespace Ogre
     // ---------------------------------------------------------------------------------------------------------------------------------
     const char *memorySizeString( unsigned long size )
     {
-        char    str[90];
+        static char str[90];
         
         if( size > (1024*1024) )    
             sprintf( str, "%10s (%7.2fM)", insertCommas(size), (float) size / (1024.0f * 1024.0f) );
@@ -1656,3 +1656,11 @@ namespace Ogre
 #endif // OGRE_DEBUG_MEMORY_MANAGER
 
 }
+
+//-----------------------------------------------------------------------------
+// This is the CVS log of the file. Do NOT modify beyond this point as this
+// may cause inconsistencies between the actual log and what's written here.
+// (for more info, see http://www.cvshome.org/docs/manual/cvs_12.html#SEC103 )
+//
+// $Log: not supported by cvs2svn $
+//-----------------------------------------------------------------------------

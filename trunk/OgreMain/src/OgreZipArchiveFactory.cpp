@@ -38,18 +38,13 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    ArchiveEx* ZipArchiveFactory::createArchive(const String& name)
-    {
-        return new Zip(name);
-    }
-
     ArchiveEx *ZipArchiveFactory::createObj( int nA, ... )
     {
         va_list lst;
         va_start( lst, nA );
 
-        String &name = va_arg( lst, String );
-        return new Zip( name );
+        String * name = va_arg( lst, String* );
+        return new Zip( *name );
 
         va_end( lst );
     }
@@ -60,3 +55,11 @@ namespace Ogre {
     }
 
 }
+
+//-----------------------------------------------------------------------------
+// This is the CVS log of the file. Do NOT modify beyond this point as this
+// may cause inconsistencies between the actual log and what's written here.
+// (for more info, see http://www.cvshome.org/docs/manual/cvs_12.html#SEC103 )
+//
+// $Log: not supported by cvs2svn $
+//-----------------------------------------------------------------------------

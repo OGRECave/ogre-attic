@@ -299,7 +299,7 @@ namespace Ogre {
 			    pen_x += delta.x >> 6;
 		    }
 
-		    unsigned char *pChar = slot->bitmap.buffer;
+		    //unsigned char *pChar = slot->bitmap.buffer;
 
 		    pen_dx = pen_x + slot->bitmap_left;
 		    pen_dy = pen_y - slot->bitmap_top;
@@ -429,4 +429,7 @@ namespace Ogre {
 // (for more info, see http://www.cvshome.org/docs/manual/cvs_12.html#SEC103 )
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/08/22 12:32:10  cearny
+// Some more 'byte' removals.
+//
 //-----------------------------------------------------------------------------

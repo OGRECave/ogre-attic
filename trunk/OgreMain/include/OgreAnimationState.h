@@ -27,9 +27,9 @@ http://www.gnu.org/copyleft/gpl.html.
 #define __AnimationSet_H__
 
 #include "OgrePrerequisites.h"
+
 #include "OgreString.h"
 #include "OgreController.h"
-
 
 namespace Ogre {
 
@@ -45,6 +45,10 @@ namespace Ogre {
     public:
         /// Default constructor for STL only
         AnimationState();
+		/** Destructor - is here because class has virtual functions and some compilers 
+			would whine if it won't exist.
+		*/
+		virtual ~AnimationState();
         
         /// Normal constructor with all params supplied
         AnimationState(const String& animName, Real timePos, Real length, Real weight = 1.0, bool enabled = false);
@@ -102,3 +106,10 @@ namespace Ogre {
 
 #endif
 
+//-----------------------------------------------------------------------------
+// This is the CVS log of the file. Do NOT modify beyond this point as this
+// may cause inconsistencies between the actual log and what's written here.
+// (for more info, see http://www.cvshome.org/docs/manual/cvs_12.html#SEC103 )
+//
+// $Log: not supported by cvs2svn $
+//-----------------------------------------------------------------------------

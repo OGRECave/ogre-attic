@@ -46,7 +46,7 @@ namespace Ogre {
 
         // Generate a name
         static char temp[64];
-        sprintf(temp, "Unnamed_%d", msNextGeneratedNameExt++);
+        sprintf(temp, "Unnamed_%lu", msNextGeneratedNameExt++);
         mName = temp;
 
     }
@@ -429,3 +429,11 @@ namespace Ogre {
         return mName;
     }
 }
+
+//-----------------------------------------------------------------------------
+// This is the CVS log of the file. Do NOT modify beyond this point as this
+// may cause inconsistencies between the actual log and what's written here.
+// (for more info, see http://www.cvshome.org/docs/manual/cvs_12.html#SEC103 )
+//
+// $Log: not supported by cvs2svn $
+//-----------------------------------------------------------------------------

@@ -22,6 +22,9 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
+#ifndef __JPEGCodec_H__
+#define __JPEGCodec_H__
+
 #include "OgrePrerequisites.h"
 
 #include "OgreImageCodec.h"
@@ -39,7 +42,8 @@ namespace Ogre {
     protected:
         /* Crappy  callbacks required by jpeglib */
         static void init_source(j_decompress_ptr cinfo);
-        static bool fill_input_buffer(j_decompress_ptr cinfo);    
+		/* boolean is actually int from libJPEG's point of view */
+        static int fill_input_buffer(j_decompress_ptr cinfo);    
         static void skip_input_data(j_decompress_ptr cinfo, long count);
         static void term_source(j_decompress_ptr cinfo);
 
@@ -57,3 +61,13 @@ namespace Ogre {
     };
 
 } //namespace
+
+#endif
+
+//-----------------------------------------------------------------------------
+// This is the CVS log of the file. Do NOT modify beyond this point as this
+// may cause inconsistencies between the actual log and what's written here.
+// (for more info, see http://www.cvshome.org/docs/manual/cvs_12.html#SEC103 )
+//
+// $Log: not supported by cvs2svn $
+//-----------------------------------------------------------------------------

@@ -64,7 +64,7 @@ namespace Ogre {
         void createAlphaMask(
             const String& strTexName, const String& strString,
             unsigned uTexX, unsigned uTexY,
-            uchar cRed, byte cGreen, byte cBlue,
+            uchar cRed, uchar cGreen, uchar cBlue,
             unsigned uFontX = 600, unsigned uFontY = 0,
             unsigned uFontResX = 72, unsigned uFontResY = 0,
             unsigned uStartX = 1, unsigned uStartY = 1 );
@@ -78,3 +78,11 @@ namespace Ogre {
 } //namespace
 
 #endif
+
+//-----------------------------------------------------------------------------
+// This is the CVS log of the file. Do NOT modify beyond this point as this
+// may cause inconsistencies between the actual log and what's written here.
+// (for more info, see http://www.cvshome.org/docs/manual/cvs_12.html#SEC103 )
+//
+// $Log: not supported by cvs2svn $
+//-----------------------------------------------------------------------------

@@ -82,7 +82,7 @@ namespace Ogre {
                 // upgrade to RGB
                 size = mWidth*mHeight*3;
                 output->allocate( size );
-                mpBuffer = const_cast< byte * >( output->getPtr() );
+                mpBuffer = const_cast< uchar * >( output->getPtr() );
                 const unsigned short* s = (const unsigned short*) data;
 
                 for( unsigned i = 0; i < mWidth*mHeight; i++) {
@@ -105,7 +105,7 @@ namespace Ogre {
             {
                 size = mWidth*mHeight*(hdr->bpp>>3);
                 output->allocate( size );
-                mpBuffer = const_cast< byte * >( output->getPtr() );
+                mpBuffer = const_cast< uchar * >( output->getPtr() );
                 memcpy(mpBuffer,data,size);
             }
             break;
@@ -118,7 +118,7 @@ namespace Ogre {
         case 32:
             {
                 output->allocate( mWidth*mHeight*(hdr->bpp>>3) );
-                mpBuffer = const_cast< byte * >( output->getPtr() );                    
+                mpBuffer = const_cast< uchar * >( output->getPtr() );                    
                 size = mWidth*mHeight;
                 unsigned int i = 0;
                 unsigned char* p = mpBuffer;
@@ -238,4 +238,7 @@ namespace Ogre {
 // (for more info, see http://www.cvshome.org/docs/manual/cvs_12.html#SEC103 )
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/08/22 12:32:10  cearny
+// Some more 'byte' removals.
+//
 //-----------------------------------------------------------------------------

@@ -14,9 +14,7 @@ namespace Ogre {
     public:
         virtual ~ZipArchiveFactory();
 
-        String getArchiveType(void);
-        ArchiveEx* createArchive(const String& name);
-        
+        String getArchiveType(void);       
         ArchiveEx *createObj( int nA, ... );
         String getType();
     };
