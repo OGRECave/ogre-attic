@@ -59,8 +59,9 @@ namespace Ogre {
         /// Collection of pointers to direct children; hashmap for efficiency
         ChildNodeMap mChildren;
 
+		typedef std::set<Node*> ChildUpdateSet;
         /// List of children which need updating, used if self is not out of date but children are
-        mutable std::list<Node*> mChildrenToUpdate;
+        mutable ChildUpdateSet mChildrenToUpdate;
         /// Flag to indicate own transform is out of date
         mutable bool mNeedUpdate;
 
