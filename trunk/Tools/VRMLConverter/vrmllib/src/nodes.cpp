@@ -184,6 +184,10 @@ BEGIN_NODE(Box)
 	ATTR(size)
 END_NODE
 
+BEGIN_NODE(Sphere)
+	ATTR(radius)
+END_NODE
+
 BEGIN_NODE(TextureCoordinate)
 	VATTR(point)
 END_NODE

@@ -146,6 +146,12 @@ public:
 	vec3 size;
 };
 
+class Sphere : public node {
+	VRMLLIB_NODE_CLASS_ND(Sphere)
+public:
+	float radius;
+};
+
 class ImageTexture : public node {
 	VRMLLIB_NODE_CLASS(ImageTexture)
 public:
