@@ -161,7 +161,7 @@ class NatureListener : public ExampleFrameListener
         if (mInputDevice->isKeyDown(KC_F) && timeUntilNextToggle <= 0)
         {
             mStatsOn = !mStatsOn;
-            Root::getSingleton().showDebugOverlay(mStatsOn);
+            showDebugOverlay(mStatsOn);
 
             timeUntilNextToggle = 1;
         }
@@ -225,6 +225,7 @@ protected:
     virtual void createFrameListener(void)
     {
         mFrameListener= new NatureListener(mSceneMgr, mWindow, mCamera);
+        mFrameListener->showDebugOverlay(true);
         mRoot->addFrameListener(mFrameListener);
     }
 
@@ -298,7 +299,7 @@ protected:
 
         mSceneMgr->setFog(FOG_EXP2, ColourValue(0.77, 0.86, 1.0), 0.0015, 0,0 );
         //mSceneMgr->setFog(FOG_LINEAR, ColourValue(0.77, 0.86, 1.0), 0, 150, 500);
-       mRoot -> showDebugOverlay( true );
+       //mRoot -> showDebugOverlay( true );
 
        mCamera->setPosition(2000,100,2000);
     }

@@ -22,35 +22,14 @@
 #include <OgreMovableObject.h>
 #include <OgreAxisAlignedBox.h>
 #include <OgreString.h>
-#include <OgreGeometryData.h>
+#include <OgreHardwareBufferManager.h>
 
 #include <vector>
 
 namespace Ogre
 {
 
-/**
-  * An index buffer for terrain tiles.  These are cached once created, and reused
-  * for different tiles.
-  */
-class TerrainIndexBuffer
-{
-public:
-    TerrainIndexBuffer( int s )
-    {
-        indexes = new unsigned short[ s ];
-    }
-
-    ~TerrainIndexBuffer()
-    {
-        delete []indexes;
-    }
-
-    unsigned short * indexes;
-    int length;
-};
-
-typedef std::vector < TerrainIndexBuffer * > IndexArray;
+typedef std::vector < IndexData* > IndexArray;
 typedef std::vector < IndexArray > LevelArray;
 
 /**
@@ -59,18 +38,17 @@ typedef std::vector < IndexArray > LevelArray;
  */
 class TerrainBufferCache
 {
-  public:
-  ~TerrainBufferCache()
+public:
+    ~TerrainBufferCache()
     {
-      for( int i=0; i<mCache.size(); i++ )
-	{
-	  delete mCache[i];
-	}
+        for( int i=0; i<mCache.size(); i++ )
+        {
+            delete mCache[i];
+        }
     }
-  IndexArray mCache;
+
+    IndexArray mCache;
 };
-
-
 
 inline Real _max( Real x, Real y )
 {
@@ -190,12 +168,12 @@ public:
     virtual void _updateRenderQueue( RenderQueue* queue );
 
     /**
-      Constructs a LegacyRenderOperation to render the TerrainRenderable.
+      Constructs a RenderOperation to render the TerrainRenderable.
       @remarks
         Each TerrainRenderable has a block of vertices that represent the terrain.  Index arrays are dynamically
         created for mipmap level, and then cached.
      */
-    virtual void getLegacyRenderOperation( LegacyRenderOperation& rend );
+    virtual void getRenderOperation( RenderOperation& rend );
 
     virtual Material* getMaterial( void ) const
     {
@@ -292,7 +270,17 @@ protected:
     /** Returns the  vertex coord for the given coordinates */
     inline float _vertex( int x, int z, int n )
     {
+        HardwareVertexBufferSharedPtr vbuf = 
+            mTerrain->vertexBufferBinding->getBuffer(0);
+
+        Real vertex = 0.0;
+
+        vbuf->readData((x * 3 + z * mSize * 3 + n) * sizeof(Real), sizeof(Real), &vertex);
+
+        return vertex;
+      /* 
         return mTerrain.pVertices[ x * 3 + z * mSize * 3 + n ];
+        */
     };
 
 
@@ -331,7 +319,7 @@ protected:
 
     Real _calculateCFactor();
 
-    GeometryData mTerrain;
+    VertexData* mTerrain;
 
     int mNumMipMaps;
     int mRenderLevel;

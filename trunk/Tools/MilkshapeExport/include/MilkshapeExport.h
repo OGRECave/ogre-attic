@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #define WIN32_LEAN_AND_MEAN
 
+#define NOMINMAX
 #include <windows.h>
 
 // Implement the required DLL factory method 

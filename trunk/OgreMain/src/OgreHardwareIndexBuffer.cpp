@@ -23,13 +23,17 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 #include "OgreHardwareIndexBuffer.h"
+#include "OgreHardwareBufferManager.h"
+#include "OgreDefaultHardwareBufferManager.h"
+
 
 namespace Ogre {
 
     //-----------------------------------------------------------------------------
     HardwareIndexBuffer::HardwareIndexBuffer(IndexType idxType, 
-        size_t numIndexes, HardwareBuffer::Usage usage) 
-        : HardwareBuffer(usage), mIndexType(idxType), mNumIndexes(numIndexes)
+        size_t numIndexes, HardwareBuffer::Usage usage, 
+        bool useSystemMemory, bool useShadowBuffer) 
+        : HardwareBuffer(usage, useSystemMemory, useShadowBuffer), mIndexType(idxType), mNumIndexes(numIndexes)
     {
         // Calculate the size of the indexes
         switch (mIndexType)
@@ -38,11 +42,34 @@ namespace Ogre {
             mIndexSize = sizeof(unsigned short);
             break;
         case IT_32BIT:
-            mIndexSize = sizeof(unsigned long);
+            mIndexSize = sizeof(unsigned int);
             break;
         }
         mSizeInBytes = mIndexSize * mNumIndexes;
 
+        // Create a shadow buffer if required
+        if (mUseShadowBuffer)
+        {
+            mpShadowBuffer = new DefaultHardwareIndexBuffer(mIndexType, 
+                mNumIndexes, HardwareBuffer::HBU_DYNAMIC);
+        }
+
+
     }
+    //-----------------------------------------------------------------------------
+    HardwareIndexBuffer::~HardwareIndexBuffer()
+    {
+        if (mpShadowBuffer)
+        {
+            delete mpShadowBuffer;
+        }
+    }
+    //-----------------------------------------------------------------------------
+    HardwareIndexBufferSharedPtr::HardwareIndexBufferSharedPtr(HardwareIndexBuffer* buf)
+        : SharedPtr<HardwareIndexBuffer>(buf)
+    {
+
+    }
+
 }
 

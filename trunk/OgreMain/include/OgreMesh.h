@@ -28,12 +28,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 
 #include "OgreResource.h"
-#include "OgreGeometryData.h"
+#include "OgreVertexIndexData.h"
 #include "OgreAxisAlignedBox.h"
 #include "OgreVertexBoneAssignment.h"
 #include "OgreAnimationState.h"
 #include "OgreIteratorWrappers.h"
 #include "OgreProgressiveMesh.h"
+#include "OgreHardwareVertexBuffer.h"
 
 
 namespace Ogre {
@@ -77,7 +78,9 @@ namespace Ogre {
 
     class _OgreExport Mesh: public Resource
     {
-        friend class MeshSerializer;
+        friend class MeshSerializerImpl;
+        friend class MeshSerializerImpl_v1;
+        friend class SubMesh;
     public:
         /** Default constructor - used by MeshManager
             @warning
@@ -132,21 +135,15 @@ namespace Ogre {
 		*/
 		SubMesh* getSubMesh(const String& name) const ;
 
-        /** Shared geometry data.
+        /** Shared vertex data.
             @remarks
-                This vertex data can be shared among multiple submeshes.
-                When a submesh uses a very small subset of the shared geometry
-                it is (processor) inefficient since the whole buffer is sent during the
-                submesh rendering operation. Therefore in this case the SubMesh
-                would use it's own vertex data. For other cases it is more
-                memory efficient to use a shared buffer since vertices are not duplicated,
-                or if hardware vertex buffers are available it can be better to
-                use one set of data.
+                This vertex data can be shared among multiple submeshes. SubMeshes may not have
+                their own VertexData, they may share this one.
             @par
                 The use of shared or non-shared buffers is determined when
                 model data is converted to the OGRE .mesh format.
         */
-        GeometryData sharedGeometry;
+        VertexData *sharedVertexData;
 
         /** Call this to indicate that this Mesh will be manually defined rather than loaded from a file.
             @remarks
@@ -171,26 +168,31 @@ namespace Ogre {
 		/** Gets the radius of the bounding sphere surrounding this mesh. */
 		Real getBoundingSphereRadius(void);
 
-        /** Debugging method - dump contents to a readable text file.
-        */
-        void _dumpContents(String filename);
-        void _dumpGeometry(GeometryData& g, std::ofstream& of);
-
         /** Updates the local bounding box of this mesh.
+        NOW REMOVED BECAUSE WE CANNOT READ HARDWARE BUFFERS
             @remarks
                 Only needs to be called for manually modified meshes, loaded meshes do this automatically.
-        */
         void _updateBounds(void);
+        */
 
         /** Manually set the bounding box for this Mesh.
             @remarks
-                Use with care, designed only for internal engine usage. By calling this method
-                you set the bounds of the mesh manually rather than letting the Mesh scan it's own
-                geometry to derive it. This is most useful if you are building the Mesh geometry
-                procedurally (e.g. see PatchSurface) and you have a simpler hull which you know it
-                falls within.
+            Calling this method is required when building manual meshes now, because OGRE can no longer 
+            update the bounds for you, because it cannot necessarily read vertex data back from 
+            the vertex buffers which this mesh uses (they very well might be write-only, and even
+            if they are not, reading data from a hardware buffer is a bottleneck).
+
         */
         void _setBounds(const AxisAlignedBox& bounds);
+
+        /** Manually set the bounding radius. 
+        @remarks
+            Calling this method is required when building manual meshes now, because OGRE can no longer 
+            update the bounds for you, because it cannot necessarily read vertex data back from 
+            the vertex buffers which this mesh uses (they very well might be write-only, and even
+            if they are not, reading data from a hardware buffer is a bottleneck).
+        */
+        void _setBoundingSphereRadius(Real radius);
 
         /** Sets the name of the skeleton this Mesh uses for animation.
         @remarks
@@ -262,7 +264,7 @@ namespace Ogre {
         void _notifySkeleton(Skeleton* pSkel);
 
         /// Multimap of vertex bone assignments (orders by vertex index)
-        typedef std::multimap<unsigned short, VertexBoneAssignment> VertexBoneAssignmentList;
+        typedef std::multimap<size_t, VertexBoneAssignment> VertexBoneAssignmentList;
         typedef MapIterator<VertexBoneAssignmentList> BoneAssignmentIterator;
 
         /** Gets an iterator for access all bone assignments. 
@@ -364,19 +366,17 @@ namespace Ogre {
 		/** Internal methods for loading LOD, do not use. */
 		void _setLodUsage(unsigned short level, Mesh::MeshLodUsage& usage);
 		/** Internal methods for loading LOD, do not use. */
-		void _setSubMeshLodFaceList(unsigned short subIdx, unsigned short level, ProgressiveMesh::LODFaceData& facedata);
+		void _setSubMeshLodFaceList(unsigned short subIdx, unsigned short level, IndexData* facedata);
 
         /** Removes all LOD data from this Mesh. */
         void removeLodLevels(void);
-        /** Utility method for cloning geometry.
-        */
-        static void cloneGeometry(GeometryData& source, GeometryData& dest);
 
-		/** Sets the policy for the vertex and index buffers to be used when loading
+		/** Sets the policy for the vertex buffers to be used when loading
 			this Mesh.
 		@remarks
-			By default, when loading the Mesh, static vertex and index buffers will be used
-			where possible in order to improve rendering performance. However, such buffers
+			By default, when loading the Mesh, static, write-only vertex and index buffers 
+			will be used where possible in order to improve rendering performance. 
+			However, such buffers
 			cannot be manipulated on the fly by CPU code (although shader code can). If you
 			wish to use the CPU to modify these buffers, you should call this method. Note,
 			however, that it only takes effect after the Mesh has been reloaded. Note that you
@@ -387,10 +387,38 @@ namespace Ogre {
 			You can define the approach to a Mesh by changing the default parameters to 
 			MeshManager::load if you wish; this means the Mesh is loaded with those options
 			the first time instead of you having to reload the mesh after changing these options.
+		@param usage The usage flags, which by default are 
+			HardwareBuffer::HBU_STATIC_WRITE_ONLY
+		@param shadowBuffer If set to true, the vertex buffers will be created with a
+            system memory shadow buffer. You should set this if you want to be able to
+			read from the buffer, because reading from a hardware buffer is a no-no.
 		*/
-		void setBufferPolicy(bool vertexBuffersDynamic, bool indexBuffersDynamic);
+		void setVertexBufferPolicy(HardwareBuffer::Usage usage, bool shadowBuffer = false);
+		/** Sets the policy for the index buffers to be used when loading
+			this Mesh.
+		@remarks
+			By default, when loading the Mesh, static, write-only vertex and index buffers 
+			will be used where possible in order to improve rendering performance. 
+			However, such buffers
+			cannot be manipulated on the fly by CPU code (although shader code can). If you
+			wish to use the CPU to modify these buffers, you should call this method. Note,
+			however, that it only takes effect after the Mesh has been reloaded. Note that you
+			still have the option of manually repacing the buffers in this mesh with your
+			own if you see fit too, in which case you don't need to call this method since it
+			only affects buffers created by the mesh itself.
+		@par
+			You can define the approach to a Mesh by changing the default parameters to 
+			MeshManager::load if you wish; this means the Mesh is loaded with those options
+			the first time instead of you having to reload the mesh after changing these options.
+		@param usage The usage flags, which by default are 
+			HardwareBuffer::HBU_STATIC_WRITE_ONLY
+		@param shadowBuffer If set to true, the index buffers will be created with a
+            system memory shadow buffer. You should set this if you want to be able to
+			read from the buffer, because reading from a hardware buffer is a no-no.
+		*/
+		void setIndexBufferPolicy(HardwareBuffer::Usage usage, bool shadowBuffer = false);
 
-    private:
+    protected:
         typedef std::vector<SubMesh*> SubMeshList;
         /** A list of submeshes which make up this mesh.
             Each mesh is made up of 1 or more submeshes, which
@@ -415,7 +443,7 @@ namespace Ogre {
 
 
         /// Flag to indicate that bounds need updating
-        bool mUpdateBounds;
+        //bool mUpdateBounds;
 
         /// Optional linked skeleton
         String mSkeletonName;
@@ -429,13 +457,28 @@ namespace Ogre {
         /** Must be called once to compile bone assignments into geometry buffer. */
         void compileBoneAssignments(void);
 
+        /** Software blending oriented bone assignment compilation */
+        void compileBoneAssignmentsSoftware(const VertexBoneAssignmentList& boneAssignments,
+            unsigned short numBlendWeightsPerVertex, VertexData* targetVertexData);
+        /** Hardware blending oriented bone assignment compilation */
+        void compileBoneAssignmentsHardware(const VertexBoneAssignmentList& boneAssignments,
+            unsigned short numBlendWeightsPerVertex, VertexData* targetVertexData);
+
+        HardwareVertexBufferSharedPtr mBlendingVB;
+		unsigned short mNumBlendWeightsPerVertex;
+        /// Option whether to use software or hardware blending, there are tradeoffs to both
+        bool mUseSoftwareBlending;
+
 		bool mIsLodManual;
 		ushort mNumLods;
 		typedef std::vector<MeshLodUsage> MeshLodUsageList;
 		MeshLodUsageList mMeshLodUsageList;
 
-		bool mVertexBuffersDynamic;
-		bool mIndexBuffersDynamic;
+		HardwareBuffer::Usage mVertexBufferUsage;
+		HardwareBuffer::Usage mIndexBufferUsage;
+		bool mVertexBufferShadowBuffer;
+		bool mIndexBufferShadowBuffer;
+
 
 
     };

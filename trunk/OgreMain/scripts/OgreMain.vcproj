@@ -207,6 +207,9 @@
 				RelativePath="..\src\OgreDataChunk.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreDefaultHardwareBufferManager.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreDynLib.cpp">
 			</File>
 			<File
@@ -330,6 +333,9 @@
 				RelativePath="..\src\OgreMeshSerializer.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreMeshSerializerImpl.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreMouseEvent.cpp">
 			</File>
 			<File
@@ -343,9 +349,6 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreNode.cpp">
-			</File>
-			<File
-				RelativePath="..\src\OgreOofModelFile.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreOverlay.cpp">
@@ -370,6 +373,9 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreParticleSystemManager.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgrePatchMesh.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgrePatchSurface.cpp">
@@ -504,6 +510,9 @@
 				RelativePath="..\src\OgreVector3.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreVertexIndexData.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreViewport.cpp">
 			</File>
 			<File
@@ -605,6 +614,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreDataChunk.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreDefaultHardwareBufferManager.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreDllInteface.h">
@@ -778,6 +790,9 @@
 				RelativePath="..\include\OgreMeshSerializer.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreMeshSerializerImpl.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreMouseEvent.h">
 			</File>
 			<File
@@ -794,15 +809,6 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreNode.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreObjectModel.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreOofFile.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreOofModelFile.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreOverlay.h">
@@ -839,6 +845,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreParticleSystemManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgrePatchMesh.h">
 			</File>
 			<File
 				RelativePath="..\include\OgrePatchSurface.h">
@@ -1022,6 +1031,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreVertexBoneAssignment.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreVertexIndexData.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreViewport.h">

@@ -26,5 +26,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreTexture.h"
 
 namespace Ogre {
+	
+	void Texture::loadRawData( const DataChunk &pData, 
+		ushort uWidth, ushort uHeight, PixelFormat eFormat)
+	{
+		Image img ;
+		img.loadRawData( pData, uWidth, uHeight, eFormat);
+		loadImage(img);
+	}
   
 }

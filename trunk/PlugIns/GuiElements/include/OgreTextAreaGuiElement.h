@@ -64,8 +64,9 @@ namespace Ogre
     public:
         /** Constructor. */
         TextAreaGuiElement(const String& name);
-        ~TextAreaGuiElement();
+        virtual ~TextAreaGuiElement();
 
+        virtual void initialise(void);
         void setCaption( const String& caption );
         const String& getCaption() const;
 
@@ -81,7 +82,7 @@ namespace Ogre
         /** See GuiElement. */
         virtual const String& getTypeName(void);
         /** See Renderable. */
-        void getLegacyRenderOperation(LegacyRenderOperation& rend);
+        void getRenderOperation(RenderOperation& op);
         /** Overridden from GuiElement */
         void setMaterialName(const String& matName);
 
@@ -209,7 +210,7 @@ namespace Ogre
         bool mTransparent;
 
         /// Render operation
-        LegacyRenderOperation mRenderOp;
+        RenderOperation mRenderOp;
 
         /// Method for setting up base parameters for this class
         void addBaseParameters(void);
@@ -235,6 +236,7 @@ namespace Ogre
         /// Colours to use for the vertices
         ColourValue mColourBottom;
         ColourValue mColourTop;
+        bool mColoursChanged;
 
 
         /// Internal method to update the geometry

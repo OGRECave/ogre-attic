@@ -77,7 +77,9 @@ namespace Ogre {
 	    void addBaseParameters(void);
 
 		ButtonGuiElement(const String& name);
-		void processEvent(InputEvent* e) ;
+        ~ButtonGuiElement() {}
+
+		void processEvent(InputEvent* e);
 
 		void updateMaterials(bool init = false);
 

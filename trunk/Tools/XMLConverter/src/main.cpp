@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSkeletonSerializer.h"
 #include "OgreDataChunk.h"
 #include "OgreXMLPrerequisites.h"
+#include "OgreDefaultHardwareBufferManager.h"
 #include <iostream>
 #include <sys/stat.h>
 
@@ -41,7 +42,7 @@ void help(void)
     // Print help message
     cout << endl << "OgreXMLConvert: Converts data between XML and OGRE binary formats." << endl;
     cout << "Provided for OGRE by Steve Streeting 2002" << endl << endl;
-    cout << "Usage: OgreXMLConvert sourcefile [destfile] " << endl;
+    cout << "Usage: OgreXMLConverter sourcefile [destfile] " << endl;
     cout << "sourcefile = name of file to convert" << endl;
     cout << "destfile   = optional name of file to write to. If you don't" << endl;
     cout << "             specify this OGRE works it out through the extension " << endl;
@@ -66,6 +67,7 @@ MeshSerializer* meshSerializer;
 XMLMeshSerializer* xmlMeshSerializer;
 SkeletonSerializer* skeletonSerializer;
 XMLSkeletonSerializer* xmlSkeletonSerializer;
+DefaultHardwareBufferManager *bufferManager;
 
 
 void meshToXML(String source, String dest)
@@ -83,7 +85,7 @@ void meshToXML(String source, String dest)
 
     meshSerializer->importMesh(chunk, &mesh);
    
-    xmlMeshSerializer->exportMesh(&mesh, dest, true);
+    xmlMeshSerializer->exportMesh(&mesh, dest);
 
 }
 
@@ -188,7 +190,7 @@ void XMLToBinary(String source)
         }
 
 
-        meshSerializer->exportMesh(&newMesh, dest, true);
+        meshSerializer->exportMesh(&newMesh, dest);
     }
     else if (!stricmp(root->Value(), "skeleton"))
     {
@@ -236,12 +238,13 @@ int main(int numargs, char** args)
     xmlMeshSerializer = new XMLMeshSerializer();
     skeletonSerializer = new SkeletonSerializer();
     xmlSkeletonSerializer = new XMLSkeletonSerializer();
+    bufferManager = new DefaultHardwareBufferManager(); // needed because we don't have a rendersystem
 
 
 
     String source(args[1]);
 
-    logMgr->createLog("XMLConverter.log");
+    logMgr->createLog("OgreXMLConverter.log");
 
     std::vector<String> parts = source.split(".");
     String& ext = parts.back();
@@ -262,6 +265,7 @@ int main(int numargs, char** args)
 
     
 
+    delete bufferManager;
     delete xmlSkeletonSerializer;
     delete skeletonSerializer;
     delete xmlMeshSerializer;

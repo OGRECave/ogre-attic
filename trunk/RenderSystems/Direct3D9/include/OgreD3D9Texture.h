@@ -95,8 +95,6 @@ namespace Ogre {
 		static PixelFormat _getPF(D3DFORMAT d3dPF);
 		/// internal method, convert Ogre pixel format to D3D9 pixel format
 		static D3DFORMAT _getPF(PixelFormat ogrePF);
-		/// internal method, return true if the specified format has alpha
-		static bool _getPFHasAlpha(PixelFormat ogrePF);
 
 		/// internal method, free D3D9 resources
 		void _freeResources();

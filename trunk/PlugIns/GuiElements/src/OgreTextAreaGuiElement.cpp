@@ -27,6 +27,8 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreRoot.h"
 #include "OgreLogManager.h"
 #include "OgreOverlayManager.h"
+#include "OgreHardwareBufferManager.h"
+#include "OgreHardwareVertexBuffer.h"
 
 namespace Ogre {
 
@@ -40,6 +42,9 @@ namespace Ogre {
     TextAreaGuiElement::CmdColourBottom TextAreaGuiElement::msCmdColourBottom;
     TextAreaGuiElement::CmdColourTop TextAreaGuiElement::msCmdColourTop;
     //---------------------------------------------------------------------
+    #define POS_TEX_BINDING 0
+    #define COLOUR_BINDING 1
+    //---------------------------------------------------------------------
     TextAreaGuiElement::TextAreaGuiElement(const String& name)
         : GuiElement(name)
     {
@@ -47,19 +52,11 @@ namespace Ogre {
         mAlignment = Left;
 		mpFont = 0;
 
-        memset( &mRenderOp, 0, sizeof( mRenderOp ) );
-        mRenderOp.operationType = LegacyRenderOperation::OT_TRIANGLE_LIST;
-        mRenderOp.vertexOptions = LegacyRenderOperation::VO_TEXTURE_COORDS | 
-            LegacyRenderOperation::VO_DIFFUSE_COLOURS;
-        mRenderOp.numTextureCoordSets = 1;
-        mRenderOp.numTextureDimensions[0] = 2;
-
         mColourTop = ColourValue::White;
         mColourBottom = ColourValue::White;
-
+        mColoursChanged = true;
 
         mAllocSize = 0;
-        checkMemoryAllocation( DEFAULT_INITIAL_CHARS );
 
         mCharHeight = 0.02;
 		mPixelCharHeight = 12;
@@ -72,43 +69,89 @@ namespace Ogre {
         }
     }
 
+    void TextAreaGuiElement::initialise(void)
+    {
+        // Set up the render op
+        // Combine positions and texture coords since they tend to change together
+        // since character sizes are different
+        mRenderOp.vertexData = new VertexData();
+        VertexDeclaration* decl = mRenderOp.vertexData->vertexDeclaration;
+        size_t offset = 0;
+        // Positions
+        decl->addElement(POS_TEX_BINDING, offset, VET_FLOAT3, VES_POSITION);
+        offset += VertexElement::getTypeSize(VET_FLOAT3);
+        // Texcoords
+        decl->addElement(POS_TEX_BINDING, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
+        offset += VertexElement::getTypeSize(VET_FLOAT2);
+        // Colours - store these in a separate buffer because they change less often
+        decl->addElement(COLOUR_BINDING, 0, VET_COLOUR, VES_DIFFUSE);
+
+        mRenderOp.operationType = RenderOperation::OT_TRIANGLE_LIST;
+        mRenderOp.useIndexes = false;
+        mRenderOp.vertexData->vertexStart = 0;
+        // Vertex buffer will be created in checkMemoryAllocation
+
+        checkMemoryAllocation( DEFAULT_INITIAL_CHARS );
+
+    }
+
     void TextAreaGuiElement::checkMemoryAllocation( uint numChars )
     {
         if( mAllocSize < numChars)
         {
-            if( mRenderOp.pVertices )
-                delete [] mRenderOp.pVertices;
-            if (mRenderOp.pTexCoords[0])
-                delete [] mRenderOp.pTexCoords[0];
-            if (mRenderOp.pDiffuseColour)
-                delete [] mRenderOp.pDiffuseColour;
+            // Create and bind new buffers
+            // Note that old buffers will be deleted automatically through reference counting
             
             // 6 verts per char since we're doing tri lists without indexes
-            mRenderOp.pVertices = new Real[ numChars * 6 * 3 ];
-            mRenderOp.pTexCoords[0] = new Real[ numChars * 6 * 2 ];
-            mRenderOp.pDiffuseColour = new RGBA[numChars * 6];
+            // Allocate space for positions & texture coords
+            VertexDeclaration* decl = mRenderOp.vertexData->vertexDeclaration;
+            VertexBufferBinding* bind = mRenderOp.vertexData->vertexBufferBinding;
+
+            mRenderOp.vertexData->vertexCount = numChars * 6;
+
+            // Create dynamic since text tends to change alot
+            // positions & texcoords
+            HardwareVertexBufferSharedPtr vbuf = 
+                HardwareBufferManager::getSingleton().
+                    createVertexBuffer(
+                        decl->getVertexSize(POS_TEX_BINDING), 
+                        mRenderOp.vertexData->vertexCount,
+                        HardwareBuffer::HBU_DYNAMIC);
+            bind->setBinding(POS_TEX_BINDING, vbuf);
+
+            // colours
+            vbuf = HardwareBufferManager::getSingleton().
+                    createVertexBuffer(
+                        decl->getVertexSize(COLOUR_BINDING), 
+                        mRenderOp.vertexData->vertexCount,
+                        HardwareBuffer::HBU_DYNAMIC);
+            bind->setBinding(COLOUR_BINDING, vbuf);
 
             mAllocSize = numChars;
+            mColoursChanged = true; // force colour buffer regeneration
         }
 
     }
 
     void TextAreaGuiElement::updateGeometry()
     {
-        Real *pVert, *pTex;
+        Real *pVert;
 
 		if (!mpFont)
 		{
 			// not initialised yet, probably due to the order of creation in a template
 			return;
 		}
+
         size_t charlen = mCaption.size();
         checkMemoryAllocation( charlen );
 
-        mRenderOp.numVertices = charlen * 6;
-
-        pVert = mRenderOp.pVertices;
-        pTex = mRenderOp.pTexCoords[ 0 ];
+        mRenderOp.vertexData->vertexCount = charlen * 6;
+        // Get position / texcoord buffer
+        HardwareVertexBufferSharedPtr vbuf = 
+            mRenderOp.vertexData->vertexBufferBinding->getBuffer(POS_TEX_BINDING);
+        pVert = static_cast<Real*>(
+            vbuf->lock(HardwareBuffer::HBL_DISCARD) );
 
 		float largestWidth = 0;
         float left = _getDerivedLeft() * 2.0 - 1.0;
@@ -162,7 +205,7 @@ namespace Ogre {
                 // Just leave a gap, no tris
                 left += mSpaceWidth;
                 // Also reduce tri count
-                mRenderOp.numVertices -= 6;
+                mRenderOp.vertexData->vertexCount -= 6;
                 continue;
             }
 
@@ -170,6 +213,7 @@ namespace Ogre {
             Real u1, u2, v1, v2; 
             mpFont->getGlyphTexCoords( *i, u1, v1, u2, v2 );
 
+            // each vert is (x, y, z, u, v)
             //-------------------------------------------------------------------------------------
             // First tri
             //
@@ -177,6 +221,8 @@ namespace Ogre {
             *pVert++ = left;
             *pVert++ = top;
             *pVert++ = -1.0;
+            *pVert++ = u1;
+            *pVert++ = v1;
 
             top -= mCharHeight * 2.0;
 
@@ -184,6 +230,8 @@ namespace Ogre {
             *pVert++ = left;
             *pVert++ = top;
             *pVert++ = -1.0;
+            *pVert++ = u1;
+            *pVert++ = v2;
 
             top += mCharHeight * 2.0;
             left += horiz_height * mCharHeight * 2.0;
@@ -192,6 +240,8 @@ namespace Ogre {
             *pVert++ = left;
             *pVert++ = top;
             *pVert++ = -1.0;
+            *pVert++ = u2;
+            *pVert++ = v1;
             //-------------------------------------------------------------------------------------
 
             //-------------------------------------------------------------------------------------
@@ -201,6 +251,8 @@ namespace Ogre {
             *pVert++ = left;
             *pVert++ = top;
             *pVert++ = -1.0;
+            *pVert++ = u2;
+            *pVert++ = v1;
 
             top -= mCharHeight * 2.0;
             left -= horiz_height  * mCharHeight * 2.0;
@@ -209,6 +261,8 @@ namespace Ogre {
             *pVert++ = left;
             *pVert++ = top;
             *pVert++ = -1.0;
+            *pVert++ = u1;
+            *pVert++ = v2;
 
             left += horiz_height  * mCharHeight * 2.0;
 
@@ -216,36 +270,12 @@ namespace Ogre {
             *pVert++ = left;
             *pVert++ = top;
             *pVert++ = -1.0;
+            *pVert++ = u2;
+            *pVert++ = v2;
             //-------------------------------------------------------------------------------------
 
             // Go back up with top
             top += mCharHeight * 2.0;
-
-            //---------------------------------------------------------------------------------
-            // First tri
-            //
-            *pTex++ = u1;
-            *pTex++ = v1;
-
-            *pTex++ = u1;
-            *pTex++ = v2;
-
-            *pTex++ = u2;
-            *pTex++ = v1;
-            //---------------------------------------------------------------------------------
-
-            //---------------------------------------------------------------------------------
-            // Second tri
-            //
-            *pTex++ = u2;
-            *pTex++ = v1;
-
-            *pTex++ = u1;
-            *pTex++ = v2;
-
-            *pTex++ = u2;
-            *pTex++ = v2;
-            //---------------------------------------------------------------------------------
 
 			float currentWidth = (left + 1)/2 - _getDerivedLeft();
 			if (currentWidth > largestWidth)
@@ -254,6 +284,8 @@ namespace Ogre {
 
 			}
         }
+        // Unlock vertex buffer
+        vbuf->unlock();
 		setWidth(largestWidth);
         updateColours();
 
@@ -331,15 +363,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     TextAreaGuiElement::~TextAreaGuiElement()
     {
-        if( mRenderOp.pVertices )
-            delete [] mRenderOp.pVertices;
-
-        if( mRenderOp.pTexCoords[0] )
-            delete [] mRenderOp.pTexCoords[0];
-        
-        if( mRenderOp.pDiffuseColour )
-            delete [] mRenderOp.pDiffuseColour;
-
+        delete mRenderOp.vertexData;
     }
     //---------------------------------------------------------------------
     const String& TextAreaGuiElement::getTypeName(void)
@@ -347,9 +371,9 @@ namespace Ogre {
         return msTypeName;
     }
     //---------------------------------------------------------------------
-    void TextAreaGuiElement::getLegacyRenderOperation(LegacyRenderOperation& rend)
+    void TextAreaGuiElement::getRenderOperation(RenderOperation& op)
     {
-        rend = mRenderOp;
+        op = mRenderOp;
     }
     //---------------------------------------------------------------------
     void TextAreaGuiElement::setMaterialName(const String& matName)
@@ -397,6 +421,7 @@ namespace Ogre {
     void TextAreaGuiElement::setColour(const ColourValue& col)
     {
         mColourBottom = mColourTop = col;
+        mColoursChanged = true;
         updateColours();
     }
     //---------------------------------------------------------------------
@@ -409,6 +434,7 @@ namespace Ogre {
     void TextAreaGuiElement::setColourBottom(const ColourValue& col)
     {
         mColourBottom = col;
+        mColoursChanged = true;
         updateColours();
     }
     //---------------------------------------------------------------------
@@ -420,6 +446,7 @@ namespace Ogre {
     void TextAreaGuiElement::setColourTop(const ColourValue& col)
     {
         mColourTop = col;
+        mColoursChanged = true;
         updateColours();
     }
     //---------------------------------------------------------------------
@@ -430,11 +457,19 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void TextAreaGuiElement::updateColours(void)
     {
+        if (!mColoursChanged) return; // do nothing if colours haven't changed
+
         // Convert to system-specific
         RGBA topColour, bottomColour;
         Root::getSingleton().convertColourValue(mColourTop, &topColour);
         Root::getSingleton().convertColourValue(mColourBottom, &bottomColour);
-        RGBA* pDest = mRenderOp.pDiffuseColour;
+
+        HardwareVertexBufferSharedPtr vbuf = 
+            mRenderOp.vertexData->vertexBufferBinding->getBuffer(COLOUR_BINDING);
+
+        RGBA* pDest = static_cast<RGBA*>(
+            vbuf->lock(HardwareBuffer::HBL_DISCARD) );
+
         for (uint i = 0; i < mAllocSize; ++i)
         {
             // First tri (top, bottom, top)
@@ -446,6 +481,9 @@ namespace Ogre {
             *pDest++ = bottomColour;
             *pDest++ = bottomColour;
         }
+        vbuf->unlock();
+
+        mColoursChanged = false;
 
     }
     //-----------------------------------------------------------------------

@@ -217,7 +217,7 @@ namespace Ogre
             queue->addRenderable(this);
         }
 
-        virtual void getLegacyRenderOperation(LegacyRenderOperation& rend) = 0;
+        virtual void getRenderOperation(RenderOperation& op) = 0;
 
         virtual void _notifyCurrentCamera(Camera *cam) = 0;
 

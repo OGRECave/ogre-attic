@@ -50,6 +50,8 @@ namespace Ogre {
     {
         Real x, y, z;
 
+        // Call superclass
+        AreaEmitter::_initParticle(pParticle);
         // First we create a random point inside a bounding sphere with a
         // radius of 1 (this is easy to do). The distance of the point from
         // 0,0,0 must be <= 1 (== 1 means on the surface and we count this as

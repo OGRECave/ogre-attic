@@ -30,6 +30,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreResourceManager.h"
 #include "OgreSingleton.h"
 #include "OgreVector3.h"
+#include "OgreHardwareBuffer.h"
+#include "OgrePatchMesh.h"
 
 namespace Ogre {
 
@@ -59,19 +61,19 @@ namespace Ogre {
                 control over pre-processed data (such as
                 collision boxes, LOD reductions etc).
 			@param filename The name of the .mesh file
-			@param vertexBuffersDynamic Forces the vertex buffers created for this
-				mesh to be dynamic, therefore modifiable by the system. If left
-				as default, the system will try to use static buffers which are more
-				efficient
-			@param indexBuffersDynamic Forces the index buffers created for this
-				mesh to be dynamic, therefore modifiable by the system. If left
-				as default, the system will try to use static buffers which are more
-				efficient
+			@param vertexBufferUsage The usage flags with which the vertex buffer(s)
+				will be created
+			@param indexBufferUsage The usage flags with which the index buffer(s) created for 
+				this mesh will be created with.
+			@param vertexBufferSysMem If true, the vertex buffers will be created in system memory
+			@param indexBufferSysMem If true, the index buffers will be created in system memory
 			@param priority The priority of this mesh in the resource system
         */
         Mesh* load( const String& filename, 
-			bool vertexBuffersDynamic = false, 
-			bool indexBuffersDynamic = false, int priority = 1);
+			HardwareBuffer::Usage vertexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
+			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
+			bool vertexBufferSysMem = false, bool indexBufferSysMem = false,
+			int priority = 1);
 
         /** Creates a Mesh resource.
             @note
@@ -82,8 +84,10 @@ namespace Ogre {
         /** Creates a new Mesh specifically for manual definition rather
             than loading from an object file. 
 		@remarks
-			Note that once you've defined your mesh, you must call Mesh::_updateBounds
-			in order to define the bounding box of your mesh.
+			Note that once you've defined your mesh, you must call Mesh::_setBounds and
+            Mesh::_setBoundingRadius in order to define the bounds of your mesh. In previous
+            versions of OGRE you could call Mesh::_updateBounds, but OGRE's support of 
+            write-only vertex buffers makes this no longer appropriate.
         */
         Mesh* createManual( const String& name);
 
@@ -111,15 +115,87 @@ namespace Ogre {
                 vTile The number of times the texture should be repeated in the v direction
             @param
                 upVector The 'Up' direction of the plane.
+			@param
+				vertexBufferUsage The usage flag with which the vertex buffer for this plane will be created
+			@param
+				indexBufferUsage The usage flag with which the index buffer for this plane will be created
+			@param
+				vertexShadowBuffer If this flag is set to true, the vertex buffer will be created 
+				with a system memory shadow buffer,
+				allowing you to read it back more efficiently than if it is in hardware
+			@param
+				indexShadowBuffer If this flag is set to true, the index buffer will be 
+				created with a system memory shadow buffer,
+				allowing you to read it back more efficiently than if it is in hardware
         */
         Mesh* createPlane(
             const String& name, const Plane& plane,
             Real width, Real height,
             int xsegments = 1, int ysegments = 1,
             bool normals = true, int numTexCoordSets = 1,
-            Real uTile = 1.0f, Real vTile = 1.0f, const Vector3& upVector = Vector3::UNIT_Y);
+            Real uTile = 1.0f, Real vTile = 1.0f, const Vector3& upVector = Vector3::UNIT_Y,
+			HardwareBuffer::Usage vertexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
+			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY,
+			bool vertexShadowBuffer = false, bool indexShadowBuffer = false);
 
-		/** Creates a curved plane, by default majoring on the x/y axes facing positive Z.
+        
+        /** Creates a plane, which because of it's texture coordinates looks like a curved
+			surface, useful for skies in a skybox. 
+            @param
+                name The name to give the resulting mesh
+            @param
+                plane The orientation of the plane and distance from the origin
+            @param
+                width The width of the plane in world coordinates
+            @param
+                height The height of the plane in world coordinates
+            @param
+				curvature The curvature of the plane. Good values are
+                between 2 and 65. Higher values are more curved leading to
+                a smoother effect, lower values are less curved meaning
+                more distortion at the horizons but a better distance effect.
+			@param
+                xsegments The number of segements to the plane in the x direction
+            @param
+                ysegments The number of segements to the plane in the y direction
+            @param
+                normals If true, normals are created perpendicular to the plane
+            @param
+                numTexCoordSets The number of 2D texture coordinate sets created - by default the corners
+                are created to be the corner of the texture.
+            @param
+                uTile The number of times the texture should be repeated in the u direction
+            @param
+                vTile The number of times the texture should be repeated in the v direction
+            @param
+                upVector The 'Up' direction of the plane.
+            @param
+                orientation The orientation of the overall sphere that's used to create the illusion
+			@param
+				vertexBufferUsage The usage flag with which the vertex buffer for this plane will be created
+			@param
+				indexBufferUsage The usage flag with which the index buffer for this plane will be created
+			@param
+				vertexShadowBuffer If this flag is set to true, the vertex buffer will be created 
+				with a system memory shadow buffer,
+				allowing you to read it back more efficiently than if it is in hardware
+			@param
+				indexShadowBuffer If this flag is set to true, the index buffer will be 
+				created with a system memory shadow buffer,
+				allowing you to read it back more efficiently than if it is in hardware
+        */
+		Mesh* createCurvedIllusionPlane(
+            const String& name, const Plane& plane,
+            Real width, Real height, Real curvature,
+            int xsegments = 1, int ysegments = 1,
+            bool normals = true, int numTexCoordSets = 1,
+            Real uTile = 1.0f, Real vTile = 1.0f, const Vector3& upVector = Vector3::UNIT_Y,
+            const Quaternion& orientation = Quaternion::IDENTITY,
+			HardwareBuffer::Usage vertexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
+			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY,
+			bool vertexShadowBuffer = false, bool indexShadowBuffer = false);
+
+		/** Creates a genuinely curved plane, by default majoring on the x/y axes facing positive Z.
             @param
                 name The name to give the resulting mesh
             @param
@@ -145,14 +221,71 @@ namespace Ogre {
                 vTile The number of times the texture should be repeated in the v direction
             @param
                 upVector The 'Up' direction of the plane.
+			@param
+				vertexBufferUsage The usage flag with which the vertex buffer for this plane will be created
+			@param
+				indexBufferUsage The usage flag with which the index buffer for this plane will be created
+			@param
+				vertexShadowBuffer If this flag is set to true, the vertex buffer will be created 
+				with a system memory shadow buffer,
+				allowing you to read it back more efficiently than if it is in hardware
+			@param
+				indexShadowBuffer If this flag is set to true, the index buffer will be 
+				created with a system memory shadow buffer,
+				allowing you to read it back more efficiently than if it is in hardware
         */
 		Mesh* createCurvedPlane( 
 			const String& name, const Plane& plane, 
 			Real width, Real height, Real bow = 0.5f, 
 			int xsegments = 1, int ysegments = 1,
 			bool normals = false, int numTexCoordSets = 1, 
-			Real xTile = 1.0f, Real yTile = 1.0f, const Vector3& upVector = Vector3::UNIT_Y);
+			Real xTile = 1.0f, Real yTile = 1.0f, const Vector3& upVector = Vector3::UNIT_Y,
+			HardwareBuffer::Usage vertexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
+			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY,
+			bool vertexShadowBuffer = false, bool indexShadowBuffer = false);
 
+        /** Creates a Bezier patch based on an array of control vertices.
+            @param
+                name The name to give the newly created mesh. 
+            @param
+                controlPointBuffer A pointer to a buffer containing the vertex data which defines control points 
+                of the curves rather than actual vertices. Note that you are expected to provide not
+                just position information, but potentially normals and texture coordinates too. The
+                format of the buffer is defined in the VertexDeclaration parameter
+            @param
+                decaration VertexDeclaration describing the contents of the buffer. 
+                Note this declaration must _only_ draw on buffer source 0!
+            @param
+                width Specifies the width of the patch in control points.
+            @param
+                height Specifies the height of the patch in control points. 
+            @param
+                uMaxSubdivisionLevel,vMaxSubdivisionLevel If you want to manually set the top level of subdivision, 
+                do it here, otherwise let the system decide.
+            @param
+                visibleSide Determines which side of the patch (or both) triangles are generated for.
+            @param
+                vbUsage Vertex buffer usage flags. Recommend the default since vertex buffer should be static.
+            @param
+                ibUsage Index buffer usage flags. Recommend the default since index buffer should 
+                be dynamic to change levels but not readable.
+            @param
+                vbUseShadow Flag to determine if a shadow buffer is generated for the vertex buffer. See
+                    HardwareBuffer for full details.
+            @param
+                ibUseShadow Flag to determine if a shadow buffer is generated for the index buffer. See
+                    HardwareBuffer for full details.
+        */
+        PatchMesh* createBezierPatch(
+            const String& name, void* controlPointBuffer, 
+            VertexDeclaration *declaration, size_t width, size_t height,
+            size_t uMaxSubdivisionLevel = PatchSurface::AUTO_LEVEL, 
+            size_t vMaxSubdivisionLevel = PatchSurface::AUTO_LEVEL,
+            PatchSurface::VisibleSide visibleSide = PatchSurface::VS_FRONT,
+            HardwareBuffer::Usage vbUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
+            HardwareBuffer::Usage ibUsage = HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY,
+            bool vbUseShadow = false, bool ibUseShadow = false);
+        
         /** Override standard Singleton retrieval.
             @remarks
                 Why do we do this? Well, it's because the Singleton implementation is in a .h file,
@@ -169,7 +302,10 @@ namespace Ogre {
     protected:
         /** Utility method for tesselating 2D meshes.
         */
-        void tesselate2DMesh(SubMesh* pSub, int meshWidth, int meshHeight, bool doubleSided = false);
+        void tesselate2DMesh(SubMesh* pSub, int meshWidth, int meshHeight, 
+			bool doubleSided = false, 
+			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY,
+			bool indexSysMem = false);
 
         void createPrefabPlane(void);
     };

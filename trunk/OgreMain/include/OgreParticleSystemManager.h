@@ -198,15 +198,13 @@ namespace Ogre {
             subclasses, a ParticleSystem is not rendered until it is attached to a SceneNode. 
         @par
             This is probably the more useful particle system creation method since it does not require manual
-            setup of the system.
+            setup of the system. Note that the initial quota is based on the template but may be changed later.
         @param 
             name The name to give the new particle system instance.
         @param 
             templateName The name of the template to base the new instance on.
-        @param 
-            quota The maximum number of particles to allow in this system (can be changed later)
         */
-        ParticleSystem* createSystem(const String& name, const String& templateName, unsigned int quota = 500);
+        ParticleSystem* createSystem(const String& name, const String& templateName);
 
         /** Destroys a particle system, freeing it's memory and removing references to it in this class.
         @remarks

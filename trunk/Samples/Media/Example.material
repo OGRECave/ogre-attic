@@ -265,6 +265,7 @@ Examples/Flare
 {
 	lighting off
 	scene_blend add
+	depth_write off
 	{
 		texture flare.png
 	}
@@ -274,6 +275,7 @@ Examples/Flare2
 {
 	lighting off
 	scene_blend add
+	depth_write off
 	{
 		texture flaretrail.png
 	}
@@ -291,6 +293,7 @@ Examples/Tree
 Examples/Droplet
 {
 	diffuse 1.0 1.0 1.0
+	depth_write off
 	scene_blend modulate
 	{
 		texture basic_droplet.png
@@ -383,3 +386,41 @@ Examples/10PointBlock
 	}
 
 }
+
+// -- This section deals with materials for really old meshes
+// -- Embedded material definitions has been removed from 1.1 mesh format
+
+// Razor
+Material__25
+{
+	{
+		texture texmap2.jpg
+	}
+}
+// Knot
+2 - Default
+{
+	{
+		texture MTLPLAT2.JPG
+	}
+}
+// Dragon
+Material #8
+{
+	{
+		texture BODY.jpg
+	}
+}
+Material #3
+{
+	{
+		texture HEAD4.jpg
+	}
+}
+Material #9
+{
+	{
+		texture LEGS.jpg
+	}
+}
+

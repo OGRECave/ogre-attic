@@ -134,6 +134,10 @@ namespace Ogre {
             {
                 // scene blend
                 mat->setSceneBlending(pass[p].blendSrc, pass[p].blendDest);
+                if (mat->isTransparent() && 
+                    pass[p].blendSrc != SBF_SOURCE_ALPHA)
+                    mat->setDepthWriteEnabled(false);
+
                 t->setColourOperation(LBO_REPLACE);
             }
             else

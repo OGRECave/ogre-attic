@@ -42,29 +42,15 @@ Ogre/Eyes
 	}
 }
 
-Core/NodeMaterial
+
+Cursor/default
 {
-	cull_hardware none
-	lighting off
-	depth_write off
-	depth_check off
-	scene_blend add
-
-	{
-		texture axes.png
-	}
+         scene_blend alpha_blend
+         {
+                 tex_address_mode clamp
+                 texture cursor.png
+         }
 }
-
-Core/StatsBlockBorder
-{
-	lighting off
-	depth_check off
-	scene_blend alpha_blend
-	{
-		texture New_Ogre_Border.png
-	}
-}
-
 Core/StatsBlockBorder/Down
 {
 	lighting off
@@ -85,39 +71,4 @@ Core/StatsBlockBorder/Up
 	}
 }
 
-Core/StatsBlockCenter
-{
-	lighting off
-	depth_check off
-	scene_blend alpha_blend
-	{
-		texture New_Ogre_Border_Center.png
-	}
-}
-Core/OgreText
-{
-	lighting off
-	depth_check off
-	scene_blend alpha_blend
-	{
-		texture New_Ogre_Logo.png
-	}
-}
-Core/StatsBreak
-{
-	lighting off
-	depth_check off
-	scene_blend alpha_blend
-	{
-		texture New_Ogre_Border_Break.png
-	}
-}
-Cursor/default
-{
-         scene_blend alpha_blend
-         {
-                 tex_address_mode clamp
-                 texture cursor.png
-         }
-}
 

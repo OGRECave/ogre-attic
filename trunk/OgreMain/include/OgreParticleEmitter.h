@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreColourValue.h"
 #include "OgreStringInterface.h"
 #include "OgreParticleEmitterCommands.h"
+#include "OgreParticle.h"
 
 
 namespace Ogre {
@@ -345,7 +346,10 @@ namespace Ogre {
             starts particles. This is passed as a pointer rather than being created by the emitter so the
             ParticleSystem can reuse Particle instances, and can also set defaults itself.
         */
-        virtual void _initParticle(Particle* pParticle) = 0;
+        virtual void _initParticle(Particle* pParticle) {
+            // Initialise size incase it's been altered
+            pParticle->resetDimensions();
+        }
 
 
         /** Returns the name of the type of emitter. 

@@ -42,6 +42,9 @@ namespace Ogre {
     {
         Vector3 xOff, yOff, zOff;
 
+        // Call superclass
+        ParticleEmitter::_initParticle(pParticle);
+
         xOff = Math::SymmetricRandom() * mXRange;
         yOff = Math::SymmetricRandom() * mYRange;
         zOff = Math::SymmetricRandom() * mZRange;

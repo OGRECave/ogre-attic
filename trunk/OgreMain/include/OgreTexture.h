@@ -134,11 +134,16 @@ namespace Ogre {
 
 		/** Copies (and maybe scales to fit) the contents of this texture to
 			another texture. */
-		virtual void copyToTexture( Texture * target ) {};
+		virtual void copyToTexture( Texture * target ) {}
 
         /** Loads the data from an image.
         */
         virtual void loadImage( const Image &img ) = 0;
+			
+		/** Loads the data from the raw memory area.
+		*/
+		virtual void loadRawData( const DataChunk &pData, 
+			ushort uWidth, ushort uHeight, PixelFormat eFormat) ;
 
         void enable32Bit( bool setting = true ) 
         {

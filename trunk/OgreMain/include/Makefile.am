@@ -25,6 +25,7 @@ OgreController.h \
 OgreControllerManager.h \
 OgreCursor.h \
 OgreDataChunk.h \
+OgreDefaultHardwareBufferManager.h \
 OgreDynLib.h \
 OgreDynLibManager.h \
 OgreEntity.h \
@@ -40,7 +41,6 @@ OgreFactoryObj.h \
 OgreFont.h \
 OgreFontManager.h \
 OgreFrameListener.h \
-OgreGeometryData.h \
 OgreGuiContainer.h \
 OgreGuiControl.h \
 OgreGuiElement.h \
@@ -79,14 +79,13 @@ OgreMesh.h \
 OgreMeshFileFormat.h \
 OgreMeshManager.h \
 OgreMeshSerializer.h \
+OgreMeshSerializerImpl.h \
 OgreMouseEvent.h \
 OgreMouseMotionTarget.h \
 OgreMouseTarget.h \
 OgreMovableObject.h \
 OgreNoMemoryMacros.h \
 OgreNode.h \
-OgreOofFile.h \
-OgreOofModelFile.h \
 OgreOverlay.h \
 OgreOverlayManager.h \
 OgrePNGCodec.h \
@@ -99,6 +98,7 @@ OgreParticleEmitterFactory.h \
 OgreParticleIterator.h \
 OgreParticleSystem.h \
 OgreParticleSystemManager.h \
+OgrePatchMesh.h \
 OgrePatchSurface.h \
 OgrePlane.h \
 OgrePlatform.h \
@@ -160,6 +160,7 @@ OgreTimer.h \
 OgreUserDefinedObject.h \
 OgreVector3.h \
 OgreVertexBoneAssignment.h \
+OgreVertexIndexData.h \
 OgreViewport.h \
 OgreWireBoundingBox.h \
 OgreZip.h \

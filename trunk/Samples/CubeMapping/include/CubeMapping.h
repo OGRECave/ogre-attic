@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
         Specialisation of OGRE's framework application to show the
         cube mapping feature where a wrap-around environment is reflected
         off of an object.
+		Extended with Perlin noise to show we can.
 */
 
 #include "ExampleApplication.h"
@@ -37,6 +38,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringConverter.h"
 
 #define ENTITY_NAME "CubeMappedEntity"
+#define MESH_NAME "CubeMappedMesh"
 #define MATERIAL_NAME "Examples/SceneCubeMap2"
 
 /* ==================================================================== */
@@ -81,9 +83,9 @@ int p[512]={
 	};
 
 double noise3(double x, double y, double z) {
-	int X = (int)floor(x) & 255,                  // FIND UNIT CUBE THAT
-		Y = (int)floor(y) & 255,                  // CONTAINS POINT.
-		Z = (int)floor(z) & 255;
+	int X = ((int)floor(x)) & 255,                  // FIND UNIT CUBE THAT
+		Y = ((int)floor(y)) & 255,                  // CONTAINS POINT.
+		Z = ((int)floor(z)) & 255;
 	x -= floor(x);                                // FIND RELATIVE X,Y,Z
 	y -= floor(y);                                // OF POINT IN CUBE.
 	z -= floor(z);
@@ -105,71 +107,68 @@ double noise3(double x, double y, double z) {
 /* ==================================================================== */
 /*  Generic normal calculation, please fix it if it's slow/incorrect ;) */
 /* ==================================================================== */
-void _normalsZero(int numVertices, Real *normals) 
-{
-	memset(normals, 0, sizeof(Real)*numVertices * 3);
-}
-void _normalsAdd(int numFaces, unsigned short *vertexIndices, 
-	Real *vertices, Real *normals) 
-{
-	for(int i=0;i<numFaces;i++) {
-		int p0 = vertexIndices[3*i] ;
-		int p1 = vertexIndices[3*i+1] ;
-		int p2 = vertexIndices[3*i+2] ;
-		Vector3 v0(vertices[3*p0], vertices[3*p0+1], vertices[3*p0+2]);
-		Vector3 v1(vertices[3*p1], vertices[3*p1+1], vertices[3*p1+2]);
-		Vector3 v2(vertices[3*p2], vertices[3*p2+1], vertices[3*p2+2]);
-		Vector3 diff1 = v1 - v2 ;
-		Vector3 diff2 = v1 - v0 ;
-		Vector3 fn = diff1.crossProduct(diff2);
-#define _ADD_VECTOR_TO_REALS(ptr,vec) { *(ptr)+=vec.x; *(ptr+1)+=vec.y; *(ptr+2)+=vec.z; }
-		_ADD_VECTOR_TO_REALS(normals+3*p0, fn);
-		_ADD_VECTOR_TO_REALS(normals+3*p1, fn);
-		_ADD_VECTOR_TO_REALS(normals+3*p2, fn);
-#undef _ADD_VECTOR_TO_REALS
-	}
-}
+//~ void _normalsZero(GeometryData &geometry) 
+//~ {
+	//~ memset(geometry.pNormals, 0, sizeof(Real) * geometry.numVertices * 3);
+//~ }
+//~ void _normalsAdd(SubMesh *subMesh, GeometryData &geometry)
+//~ {
+	//~ int numFaces = subMesh->numFaces ;
+	//~ unsigned short *vertexIndices = subMesh->faceVertexIndices;
+	//~ int polyStep = (subMesh->useTriStrips)?1:3;
+	//~ Real *vertices = geometry.pVertices ;
+	//~ Real *normals = geometry.pNormals ;
+	//~ for(int i=0 ; i<numFaces ; i++, vertexIndices+=polyStep) {
+		//~ int p0 = vertexIndices[0] ;
+		//~ int p1 = vertexIndices[1] ;
+		//~ int p2 = vertexIndices[2] ;
+		//~ Vector3 v0(vertices[3*p0], vertices[3*p0+1], vertices[3*p0+2]);
+		//~ Vector3 v1(vertices[3*p1], vertices[3*p1+1], vertices[3*p1+2]);
+		//~ Vector3 v2(vertices[3*p2], vertices[3*p2+1], vertices[3*p2+2]);
+		//~ Vector3 diff1 = v1 - v2 ;
+		//~ Vector3 diff2 = v1 - v0 ;
+		//~ Vector3 fn = diff1.crossProduct(diff2);
+//~ #define _ADD_VECTOR_TO_REALS(ptr,vec) { *(ptr)+=vec.x; *(ptr+1)+=vec.y; *(ptr+2)+=vec.z; }
+		//~ _ADD_VECTOR_TO_REALS(normals+3*p0, fn);
+		//~ _ADD_VECTOR_TO_REALS(normals+3*p1, fn);
+		//~ _ADD_VECTOR_TO_REALS(normals+3*p2, fn);
+//~ #undef _ADD_VECTOR_TO_REALS
+	//~ }
+//~ }
+//~ void _normalsNormalize(GeometryData &geometry)
+//~ {
+	//~ Real *normals = geometry.pNormals ;
+	//~ int numVertices = geometry.numVertices ;
+	//~ for(int i=0;i<numVertices;i++, normals+=3) {
+		//~ Vector3 n(normals[0], normals[1], normals[2]);
+		//~ n.normalise(); // has to be normalise, not normalisedCopy() !
+		//~ normals[0] = n.x ;
+		//~ normals[1] = n.y ;
+		//~ normals[2] = n.z ;
+	//~ }
+//~ }
 
-void _normalsSaveNormalized(int numVertices, Real *normals)
-{
-	for(int i=0;i<numVertices;i++, normals+=3) {
-		Vector3 n(normals[0], normals[1], normals[2]);
-		n.normalise();
-		normals[0] = n.x ;
-		normals[1] = n.y ;
-		normals[2] = n.z ;
-	}
-}
-
-void calculateMeshNormals(Mesh *mesh)
-{
-	bool sharedUsed = false ;
-	for(int m=0;m<mesh->getNumSubMeshes();m++) {
-		SubMesh *subMesh = mesh->getSubMesh(m);
-		if (subMesh->useSharedVertices) { 
-			if (!sharedUsed) { //first time
-				_normalsZero(mesh->sharedGeometry.numVertices, 
-					mesh->sharedGeometry.pNormals);
-				sharedUsed = true ;
-			}
-			_normalsAdd(subMesh->numFaces, subMesh->faceVertexIndices,
-				mesh->sharedGeometry.pVertices,
-				mesh->sharedGeometry.pNormals);
-		} else {
-			_normalsZero(subMesh->geometry.numVertices,
-				subMesh->geometry.pNormals);
-			_normalsAdd(subMesh->numFaces, subMesh->faceVertexIndices,
-				subMesh->geometry.pVertices,
-				subMesh->geometry.pNormals);
-			_normalsSaveNormalized(subMesh->geometry.numVertices,
-				subMesh->geometry.pNormals);
-		}
-	}
-	if (sharedUsed) {
-		_normalsSaveNormalized(mesh->sharedGeometry.numVertices,
-			mesh->sharedGeometry.pNormals);
-	}
-}
+//~ void calculateMeshNormals(Mesh *mesh)
+//~ {
+	//~ bool sharedUsed = false ;
+	//~ for(int m=0;m<mesh->getNumSubMeshes();m++) {
+		//~ SubMesh *subMesh = mesh->getSubMesh(m);
+		//~ if (subMesh->useSharedVertices) { 
+			//~ if (!sharedUsed) { //first time
+				//~ _normalsZero(mesh->sharedGeometry);
+				//~ sharedUsed = true ;
+			//~ }
+			//~ _normalsAdd(subMesh, mesh->sharedGeometry);
+		//~ } else {
+			//~ _normalsZero(subMesh->geometry);
+			//~ _normalsAdd(subMesh, subMesh->geometry);
+			//~ _normalsNormalize(subMesh->geometry);
+		//~ }
+	//~ }
+	//~ if (sharedUsed) {
+		//~ _normalsNormalize(mesh->sharedGeometry);
+	//~ }
+//~ }
 /* ==================================================================== */
 /*                                 Main part                            */
 /* ==================================================================== */
@@ -184,11 +183,10 @@ private:
 	SceneNode *objectNode ;
 
 	// mesh-specific data
-	Mesh *objectMesh ;
+	Mesh *originalMesh ;
+	Mesh *clonedMesh ;
+
 	Entity *objectEntity ;
-	int numSubMeshes ;
-	Real **defaultVertices ;
-	Real *parentVertexBuffer ;
 	std::vector<Material*> clonedMaterials ;
 
 	// configuration
@@ -202,70 +200,258 @@ private:
 	std::vector<String> availableMeshes ;
 	Material *material ;
 	
-	void _updateGeometryNoise(GeometryData& geometry, Real *defaultVertices)
+	void _updatePositionNoise(int numVertices, Real *dstVertices,
+		Real *defaultVertices)
 	{
-		int numVertices = geometry.numVertices ;
 		for(int i=0;i<3*numVertices;i+=3) {
 			double n = 1 + displacement * noise3(
 				defaultVertices[i]/density + tm,
 				defaultVertices[i+1]/density + tm,
 				defaultVertices[i+2]/density + tm);
-			geometry.pVertices[i+0] = defaultVertices[i] * n ;
-			geometry.pVertices[i+1] = defaultVertices[i+1] * n ;
-			geometry.pVertices[i+2] = defaultVertices[i+2] * n ;
+			dstVertices[i+0] = defaultVertices[i] * n ;
+			dstVertices[i+1] = defaultVertices[i+1] * n ;
+			dstVertices[i+2] = defaultVertices[i+2] * n ;
 		}
 	}
 	
+	Real* _normalsGetCleared(VertexData *vertexData)
+	{
+		const VertexElement *normVE = vertexData->
+			vertexDeclaration->findElementBySemantic(VES_NORMAL);
+		HardwareVertexBufferSharedPtr normHVB = vertexData->
+			vertexBufferBinding->getBuffer(normVE->getSource());
+		Real* normals = (Real*) normHVB->lock(0, normHVB->getSizeInBytes(), 
+			HardwareBuffer::HBL_DISCARD);
+		memset(normals, 0, normHVB->getSizeInBytes());
+		return normals;
+	}
+	
+	void _normalsSaveNormalized(VertexData *vertexData, Real *normals)
+	{
+		const VertexElement *normVE = vertexData->
+			vertexDeclaration->findElementBySemantic(VES_NORMAL);
+		HardwareVertexBufferSharedPtr normHVB = vertexData->
+			vertexBufferBinding->getBuffer(normVE->getSource());
+		int numVertices = normHVB->getNumVertices();
+		for(int i=0;i<numVertices;i++, normals+=3) {
+			Vector3 n(normals[0], normals[1], normals[2]);
+			n.normalise();
+			normals[0] = n.x ;
+			normals[1] = n.y ;
+			normals[2] = n.z ;
+		}
+		normHVB->unlock();
+	}
+	
+	void _updateVertexDataNoiseAndNormals(
+			VertexData *dstData, 
+			VertexData *orgData,
+			IndexData *indexData,
+			Real *normals)
+	{
+		int i ;
+		
+		// Find destination vertex buffer
+		const VertexElement *dstVEPos = dstData->
+			vertexDeclaration->findElementBySemantic(VES_POSITION);
+		HardwareVertexBufferSharedPtr dstHVBPos = dstData->
+			vertexBufferBinding->getBuffer(dstVEPos->getSource());
+		// Find source vertex buffer 
+		const VertexElement *orgVEPos = orgData->
+			vertexDeclaration->findElementBySemantic(VES_POSITION);
+		HardwareVertexBufferSharedPtr orgHVBPos = orgData->
+			vertexBufferBinding->getBuffer(orgVEPos->getSource());
+		// Lock these buffers
+		Real *dstDataPos = (Real*) dstHVBPos->lock(0, dstHVBPos->getSizeInBytes(),
+			HardwareBuffer::HBL_DISCARD);
+		Real *orgDataPos = (Real*) orgHVBPos->lock(0, orgHVBPos->getSizeInBytes(),
+			HardwareBuffer::HBL_READ_ONLY);
+		// make noise
+		int numVertices = orgHVBPos->getNumVertices();
+		for(i=0;i<3*numVertices;i+=3) {
+			double n = 1 + displacement * noise3(
+				orgDataPos[i]/density + tm,
+				orgDataPos[i+1]/density + tm,
+				orgDataPos[i+2]/density + tm);
+			dstDataPos[i+0] = orgDataPos[i] * n ;
+			dstDataPos[i+1] = orgDataPos[i+1] * n ;
+			dstDataPos[i+2] = orgDataPos[i+2] * n ;
+		}
+		// Unlock original position buffer
+		orgHVBPos->unlock();
+
+		// calculate normals
+		HardwareIndexBufferSharedPtr indexHB = indexData->indexBuffer ;
+		unsigned short * vertexIndices = (unsigned short*) indexHB->lock(
+			0, indexHB->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY);
+		int numFaces = indexData->indexCount / 3 ;
+		for(i=0 ; i<numFaces ; i++, vertexIndices+=3) {
+			//~ int p0 = 0;
+			//~ int p1 = 1;
+			//~ int p2 = 2;
+			int p0 = vertexIndices[0] ;
+			int p1 = vertexIndices[1] ;
+			int p2 = vertexIndices[2] ;
+
+			//~ Vector3 v0(10,0,20);
+			//~ Vector3 v1(30,0,20);
+			//~ Vector3 v2(20,-1,50);
+			Vector3 v0(dstDataPos[3*p0], dstDataPos[3*p0+1], dstDataPos[3*p0+2]);
+			Vector3 v1(dstDataPos[3*p1], dstDataPos[3*p1+1], dstDataPos[3*p1+2]);
+			Vector3 v2(dstDataPos[3*p2], dstDataPos[3*p2+1], dstDataPos[3*p2+2]);
+
+			Vector3 diff1 = v1 - v2 ;
+			Vector3 diff2 = v1 - v0 ;
+			Vector3 fn = diff1.crossProduct(diff2);
+#define _ADD_VECTOR_TO_REALS(ptr,vec) { *(ptr)+=vec.x; *((ptr)+1)+=vec.y; *((ptr)+2)+=vec.z; }
+			_ADD_VECTOR_TO_REALS(normals+3*p0, fn);
+			_ADD_VECTOR_TO_REALS(normals+3*p1, fn);
+			_ADD_VECTOR_TO_REALS(normals+3*p2, fn);
+#undef _ADD_VECTOR_TO_REALS
+		}
+		indexHB->unlock();
+
+		// Unlock destination position buffer
+		dstHVBPos->unlock();
+	}
+
 	void updateNoise()
 	{
-		int currentVertexBuffer=0;
+		//~ return ;
 		bool usedShared = false ;
-		for(int m=0;m<numSubMeshes;m++) { // for each subMesh
-			SubMesh *subMesh = objectMesh->getSubMesh(m);
+		Real *sharedNormals ;
+		for(int m=0;m<clonedMesh->getNumSubMeshes();m++) { // for each subMesh
+			SubMesh *subMesh = clonedMesh->getSubMesh(m);
+			SubMesh *orgSubMesh = originalMesh->getSubMesh(m);
 			if (subMesh->useSharedVertices) {
-				usedShared = true ;
-				continue ;
+				if (!usedShared) { // first of shared
+					sharedNormals = _normalsGetCleared(clonedMesh->sharedVertexData);
+					usedShared = true ;
+				}
+				_updateVertexDataNoiseAndNormals(
+					clonedMesh->sharedVertexData, 
+					originalMesh->sharedVertexData,
+					subMesh->indexData,
+					sharedNormals);
+			} else {
+				Real* normals = _normalsGetCleared(subMesh->vertexData);
+				_updateVertexDataNoiseAndNormals(
+					subMesh->vertexData, 
+					orgSubMesh->vertexData,
+					subMesh->indexData,
+					normals);
+				_normalsSaveNormalized(subMesh->vertexData, normals);
 			}
-			_updateGeometryNoise(subMesh->geometry, defaultVertices[m]);
 		}
 		if (usedShared) {
-			_updateGeometryNoise(objectMesh->sharedGeometry, parentVertexBuffer);
+			_normalsSaveNormalized(clonedMesh->sharedVertexData, sharedNormals);
 		}
-		calculateMeshNormals(objectMesh);
 	}
 
 	void clearEntity()
 	{
-		int m;
 		// delete cloned materials 
-		for(m=0;m<clonedMaterials.size();m++) {
-			printf("###Destroying material %s\n", 
-				clonedMaterials[m]->getName().c_str());
+		for(unsigned int m=0;m<clonedMaterials.size();m++) {
 			MaterialManager::getSingleton().unload(clonedMaterials[m]) ;
 			delete clonedMaterials[m];
 		}
 		clonedMaterials.clear();
 		
-		// delete vertex buffers
-		for(m=0;m<numSubMeshes;m++) {
-			if (defaultVertices[m]) 
-				delete [] defaultVertices[m];
-		}
-		delete [] defaultVertices ;
-
-		if (parentVertexBuffer) {
-			delete [] parentVertexBuffer ;
-		}
-
 		// detach and destroy entity
 		objectNode->detachAllObjects();
 		mSceneMgr->removeEntity(ENTITY_NAME);
 		
 		// destroy mesh as well, to reset its geometry
-		MeshManager::getSingleton().unload(objectMesh);
-		delete objectMesh;
+		MeshManager::getSingleton().unload(clonedMesh);
+		delete clonedMesh;
 		
 		objectEntity = 0 ;
+	}
+	
+	VertexData* _prepareVertexData(VertexData *orgVD)
+	{
+		if (!orgVD)
+			return 0 ;
+		VertexData* newVD = new VertexData();
+		// copy things that do not change
+		newVD->vertexCount = orgVD->vertexCount ;
+		newVD->vertexStart = orgVD->vertexStart ;
+		// now copy vertex buffers, looking in the declarations
+		VertexDeclaration* newVDecl = newVD->vertexDeclaration ;
+		VertexBufferBinding* newVBind = newVD->vertexBufferBinding ;
+		// note: I assume various semantics are not shared among buffers
+		const VertexDeclaration::VertexElementList& orgVEL = orgVD->vertexDeclaration->getElements() ;
+		VertexDeclaration::VertexElementList::const_iterator veli, velend;
+		velend = orgVEL.end();
+		// For each declaration, prepare buffer
+		for( veli = orgVEL.begin() ; veli != velend ; ++veli)
+		{
+			VertexElementSemantic ves = (*veli).getSemantic();
+			int source = (*veli).getSource() ;
+			HardwareVertexBufferSharedPtr orgBuf = orgVD->vertexBufferBinding->
+				getBuffer( source );
+			// check usage for the new buffer
+			bool dynamic = false ;
+			switch(ves) {
+				case VES_NORMAL :
+				case VES_POSITION :
+					dynamic = true ;
+					break ;
+				case VES_BLEND_INDICES : 
+				case VES_BLEND_WEIGHTS :
+				case VES_DIFFUSE : 
+				case VES_SPECULAR :
+				case VES_TEXTURE_COORDINATES :
+				default :
+					dynamic = false ;
+					break ;
+			}
+			if (dynamic) { // create a new dynamic buffer with write access
+				HardwareVertexBufferSharedPtr newBuf = 
+					HardwareBufferManager::getSingleton().createVertexBuffer(
+						orgBuf->getVertexSize(), orgBuf->getNumVertices(),
+						HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, 
+						//~ HardwareBuffer::HBU_DYNAMIC, 
+						true
+						//~ false
+						);
+				newBuf->copyData(*orgBuf, 0, 0, orgBuf->getSizeInBytes(), true);
+				newVBind->setBinding( source, newBuf );
+			} else { // use the old one
+				newVBind->setBinding( source, orgBuf );
+			}
+			// add element for declaration
+			newVDecl->addElement(source, (*veli).getOffset(), (*veli).getType(),
+				ves, (*veli).getIndex());
+		}
+		return newVD;
+	}
+	
+	void prepareClonedMesh()
+	{
+		// we create new Mesh based on the original one, but changing
+		// HBU flags (inside _prepareVertexData)
+		clonedMesh = MeshManager::getSingleton().createManual(MESH_NAME);
+		clonedMesh->_setBounds(originalMesh->getBounds()); 
+		clonedMesh->_setBoundingSphereRadius(originalMesh->getBoundingSphereRadius());
+		//~ if (originalMesh->sharedVertexData)
+			//~ clonedMesh->sharedVertexData = originalMesh->sharedVertexData->clone();
+		clonedMesh->sharedVertexData = 
+			_prepareVertexData(originalMesh->sharedVertexData);
+		for(int sm=0;sm<originalMesh->getNumSubMeshes();sm++) {
+			SubMesh *orgSM = originalMesh->getSubMesh(sm);
+			SubMesh *newSM = clonedMesh->createSubMesh();
+			if (orgSM->isMatInitialised()) {
+				newSM->setMaterialName(orgSM->getMaterialName());
+			}
+			newSM->useSharedVertices = orgSM->useSharedVertices ;
+			// prepare vertex data
+			newSM->vertexData = _prepareVertexData(orgSM->vertexData);
+			// reuse index data
+			newSM->indexData->indexBuffer = orgSM->indexData->indexBuffer ;
+			newSM->indexData->indexStart = orgSM->indexData->indexStart ;
+			newSM->indexData->indexCount = orgSM->indexData->indexCount ;
+		}
 	}
 
 	void prepareEntity(const String& meshName) 
@@ -274,63 +460,49 @@ private:
 			clearEntity();
 		}
 		
-		objectMesh = (Mesh*) MeshManager::getSingleton().getByName(meshName);
-		if (!objectMesh) {
-			objectMesh = MeshManager::getSingleton().load(meshName);
-			if (!objectMesh) {
+		// load mesh if necessary - note, I assume this is the only point
+		// Mesh can get loaded, since I want to make sure about its HBU etc.
+		originalMesh = (Mesh*) MeshManager::getSingleton().getByName(meshName);
+		if (!originalMesh) {
+			originalMesh = MeshManager::getSingleton().load(meshName,
+				HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
+				HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
+				true, true); //so we can still read it
+			if (!originalMesh) {
 				Except(Exception::ERR_ITEM_NOT_FOUND,
 					"Can't find a mesh: '"+meshName+"'",
 					"CubeMapListener::prepareEntity");
 			}
 		}
+		
+		
+		prepareClonedMesh();
 
-		// save old vertices, prepare materials if necessary
-		numSubMeshes = objectMesh->getNumSubMeshes();
-		defaultVertices = new Real*[numSubMeshes];
-		parentVertexBuffer = 0 ;
-
-#define COPY_VERTEX_DATA(dstBuf,srcGeom) \
-int numVertices = (srcGeom).numVertices; \
-dstBuf = new Real[numVertices*3] ;\
-memcpy(dstBuf,(srcGeom).pVertices,numVertices*3*sizeof(Real)); 
-
-		int m;
-		for(m=0;m<numSubMeshes;m++) {
-			SubMesh *subMesh = objectMesh->getSubMesh(m);
-			if (subMesh->useSharedVertices) { // need to store shared geometry 
-				if (!parentVertexBuffer) { // only once
-					COPY_VERTEX_DATA(parentVertexBuffer, objectMesh->sharedGeometry);
-				}
-				defaultVertices[m] = 0 ;
-			} else {
-				COPY_VERTEX_DATA(defaultVertices[m], subMesh->geometry);
-			}
-		}
-
-        objectEntity = mSceneMgr->createEntity( ENTITY_NAME, meshName);
+        // create an entity based on cloned mesh
+		objectEntity = mSceneMgr->createEntity( ENTITY_NAME, MESH_NAME);
         objectEntity->setMaterialName( material->getName() );
 		
 		// go through subentities and set materials as required
-		for(m=0;m<numSubMeshes;m++) {
-			SubMesh *subMesh = objectMesh->getSubMesh(m);
+		for(int m=0;m<clonedMesh->getNumSubMeshes();m++) {
+			SubMesh *subMesh = clonedMesh->getSubMesh(m);
 			SubEntity *subEntity = objectEntity->getSubEntity(m);
 			// check if this submesh has material set
 			if (subMesh->isMatInitialised()) {
 				const String& matName = subMesh->getMaterialName();
 				Material *subMat = (Material*) MaterialManager::getSingleton().
 					getByName(matName);
-				if (subMat && subMat) { // clone material, add layers from global material
+				if (subMat) { // clone material, add layers from global material
+					subMat->load();
 					Material *cloned = subMat->clone(
 						"CubeMapTempMaterial#"+StringConverter::toString(m));
-					// can't help it - have to do it
+					// can't help it - have to do it :)
 					if (meshName=="knot.mesh") {
 						for(int tl=0;tl<cloned->getNumTextureLayers();tl++) {
-							Material::TextureLayer *orgTL = cloned->getTextureLayer(tl);
-							orgTL->setScrollAnimation(0.25, 0);
+							Material::TextureLayer *tlayer = cloned->getTextureLayer(tl);
+							tlayer->setScrollAnimation(1.0 , 0);
 						}
 					}
 					// add layers
-					printf("SubMesh #%d cloned material had %d texture layers\n", m, cloned->getNumTextureLayers());
 					for(int tl=0;tl<material->getNumTextureLayers();tl++) {
 						Material::TextureLayer *orgTL = material->getTextureLayer(tl);
 						Material::TextureLayer *newTL = cloned->addTextureLayer(
@@ -338,19 +510,15 @@ memcpy(dstBuf,(srcGeom).pVertices,numVertices*3*sizeof(Real));
 						*newTL = *orgTL ;
 						newTL->setColourOperationEx(currentLBX);
 					}
-					printf("SubMesh #%d cloned material now has %d texture layers\n", m, cloned->getNumTextureLayers());
 					subEntity->setMaterialName(cloned->getName());
 					clonedMaterials.push_back(cloned);
-				} else {
-					subEntity->setMaterialName(material->getName());
-				}
-			} else {
-				subEntity->setMaterialName(material->getName());
-			}
+				} 
+			} 
 		}
 
 		objectNode->attachObject(objectEntity);
 		
+		// update noise to avoid one frame w/o noise
 		if (noiseOn)
 			updateNoise();
 	}
@@ -444,7 +612,7 @@ public:
 			getByName(MATERIAL_NAME);
 		if (!material) {
 			Except( Exception::ERR_ITEM_NOT_FOUND,
-				"Can't find material: "+StringConverter::toString(MATERIAL_NAME),
+				"Can't find material: "+String(MATERIAL_NAME),
 				"CubeMapListener::CubeMapListener");
 		}
 
@@ -479,7 +647,7 @@ public:
 
 		if (noiseOn)
 			updateNoise();
-		
+
         // Call default
         return ExampleFrameListener::frameStarted(evt);
     }
@@ -528,8 +696,6 @@ public:
 
 		return retval ;
 	}
-     	
-	
 } ;
 
 class CubeMapApplication : public ExampleApplication

@@ -48,6 +48,7 @@ Description: Defines an example frame listener which responds to frame events.
 #include "Ogre.h"
 #include "OgreKeyEvent.h"
 #include "OgreEventListeners.h"
+#include "OgreStringConverter.h"
 
 using namespace Ogre;
 
@@ -55,6 +56,35 @@ class ExampleFrameListener: public FrameListener, public KeyListener
 {
 private:
 	int mSceneDetailIndex ;
+
+    void updateStats(void)
+    {
+        static String currFps = "Current FPS: ";
+        static String avgFps = "Average FPS: ";
+        static String bestFps = "Best FPS: ";
+        static String worstFps = "Worst FPS: ";
+        static String tris = "Triangle Count: ";
+
+        // update stats when necessary
+        GuiElement* guiAvg = GuiManager::getSingleton().getGuiElement("Core/AverageFps");
+        GuiElement* guiCurr = GuiManager::getSingleton().getGuiElement("Core/CurrFps");
+        GuiElement* guiBest = GuiManager::getSingleton().getGuiElement("Core/BestFps");
+        GuiElement* guiWorst = GuiManager::getSingleton().getGuiElement("Core/WorstFps");
+
+        guiAvg->setCaption(avgFps + StringConverter::toString(mWindow->getAverageFPS()));
+        guiCurr->setCaption(currFps + StringConverter::toString(mWindow->getLastFPS()));
+        guiBest->setCaption(bestFps + StringConverter::toString(mWindow->getBestFPS())
+            +" "+StringConverter::toString(mWindow->getBestFrameTime())+" ms");
+        guiWorst->setCaption(worstFps + StringConverter::toString(mWindow->getWorstFPS())
+            +" "+StringConverter::toString(mWindow->getWorstFrameTime())+" ms");
+
+        GuiElement* guiTris = GuiManager::getSingleton().getGuiElement("Core/NumTris");
+        guiTris->setCaption(tris + StringConverter::toString(mWindow->getTriangleCount()));
+
+        GuiElement* guiDbg = GuiManager::getSingleton().getGuiElement("Core/DebugText");
+        guiDbg->setCaption(mWindow->getDebugText());
+    }
+
 public:
     // Constructor takes a RenderWindow because it uses that to determine input context
     ExampleFrameListener(RenderWindow* win, Camera* cam, bool useBufferedInputKeys = false, bool useBufferedInputMouse = false)
@@ -78,11 +108,14 @@ public:
             mInputDevice = PlatformManager::getSingleton().createInputReader();
             mInputDevice->initialise(win,true, true);
         }
+
         mCamera = cam;
         mWindow = win;
         mStatsOn = true;
 		mNumScreenShots = 0;
 		mTimeUntilNextToggle = 0;
+
+        showDebugOverlay(true);
     }
     virtual ~ExampleFrameListener()
     {
@@ -176,7 +209,7 @@ public:
         if (mInputDevice->isKeyDown(KC_F) && mTimeUntilNextToggle <= 0)
         {
             mStatsOn = !mStatsOn;
-            Root::getSingleton().showDebugOverlay(mStatsOn);
+            showDebugOverlay(mStatsOn);
 
             mTimeUntilNextToggle = 1;
         }
@@ -239,6 +272,22 @@ public:
 
 
 	}
+
+    void showDebugOverlay(bool show)
+    {
+        Overlay* o = (Overlay*)OverlayManager::getSingleton().getByName("Core/DebugOverlay");
+        if (!o)
+            Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find overlay Core/DebugOverlay",
+                "showDebugOverlay" );
+        if (show)
+        {
+            o->show();
+        }
+        else
+        {
+            o->hide();
+        }
+    }
 
     // Override frameStarted event to process that (don't care about frameEnded)
     bool frameStarted(const FrameEvent& evt)
@@ -307,7 +356,14 @@ public:
 			moveCamera();
 
 		}
+
 		return true;
+    }
+
+    bool frameEnded(const FrameEvent& evt)
+    {
+        updateStats();
+        return true;
     }
 
 	void switchMouseMode() 
@@ -341,6 +397,7 @@ protected:
     EventProcessor* mEventProcessor;
     InputReader* mInputDevice;
     Camera* mCamera;
+
     Vector3 mTranslateVector;
     RenderWindow* mWindow;
     bool mStatsOn;

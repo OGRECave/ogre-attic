@@ -136,9 +136,10 @@ void OctreeNode::_addToRenderQueue( Camera* cam, RenderQueue *queue )
 }
 
 
-void OctreeNode::getLegacyRenderOperation( LegacyRenderOperation& rend )
+void OctreeNode::getRenderOperation( RenderOperation& rend )
 {
 
+    /* TODO
     rend.useIndexes = true;
     rend.numTextureCoordSets = 0; // no textures
     rend.vertexOptions = LegacyRenderOperation::VO_DIFFUSE_COLOURS;
@@ -163,6 +164,7 @@ void OctreeNode::getLegacyRenderOperation( LegacyRenderOperation& rend )
         rend.pVertices[ index ] = corners[ i ].z;
         index++;
     }
+    */
 
 
 }

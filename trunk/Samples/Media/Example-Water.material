@@ -94,3 +94,62 @@ Examples/Water5
       env_map spherical 
    } 
 } 
+
+Examples/Water6
+{
+    // No dynamic lighting, fully lit
+    lighting off
+    
+    // Texture layer 0
+    {
+        // 6-sided texture, cubemap_fr.jpg, cubemap_up.jpg etc
+        cubic_texture cubescene.jpg combinedUVW
+        // set reflection environment map
+        env_map cubic_reflection
+        // clamp to avoid fuzziness at edges due to filtering
+        tex_address_mode clamp
+    }
+}
+
+// From Antiarc #2 with cubemap
+Examples/Water7
+{ 
+   ambient 1 1 1 1 
+   diffuse 1 1 1 1 
+   cull_hardware none 
+   cull_software none 
+   { 
+      texture BeachStones.jpg 
+      scale 0.25 0.25 
+   } 
+   { 
+        // 6-sided texture, cubemap_fr.jpg, cubemap_up.jpg etc
+        cubic_texture cubescene.jpg combinedUVW
+        // set reflection environment map
+        env_map cubic_reflection
+        // clamp to avoid fuzziness at edges due to filtering
+        tex_address_mode clamp  
+   } 
+} 
+
+Examples/Water8
+{
+    // No dynamic lighting, fully lit
+   lighting off
+   ambient 1 1 1 0.5
+   diffuse 1 1 1 0.5
+   cull_hardware none 
+   cull_software none 
+   scene_blend add
+    
+    // Texture layer 0
+    {
+        // 6-sided texture, cubemap_fr.jpg, cubemap_up.jpg etc
+        cubic_texture cubescene.jpg combinedUVW
+        // set reflection environment map
+        env_map cubic_reflection
+        // clamp to avoid fuzziness at edges due to filtering
+        tex_address_mode clamp
+    }
+}
+

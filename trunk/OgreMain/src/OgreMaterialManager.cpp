@@ -149,6 +149,7 @@ namespace Ogre {
 		    {
 			    LogManager::getSingleton().logMessage("Bad scene_blend attribute line in "
 				    + pMat->getName() + ", unrecognised parameter '" + params[1] + "'");
+				return ;
 		    }
 		    pMat->setSceneBlending(stype);
 

@@ -43,6 +43,8 @@ namespace Ogre {
 		GuiContainer* mCursorGuiRegistered;
 		MouseMotionListener* mCursorListener;
 		Overlay* mCursorLevelOverlay;
+        bool mCursorGuiInitialised;
+
         void parseNewElement( DataChunk& chunk, String& elemType, String& elemName, 
             bool isContainer, Overlay* pOverlay, bool isTemplate, String templateName = String(""), GuiContainer* container = 0);
         void parseAttrib( const String& line, Overlay* pOverlay);

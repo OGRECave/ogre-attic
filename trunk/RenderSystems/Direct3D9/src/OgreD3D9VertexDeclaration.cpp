@@ -38,12 +38,12 @@ namespace Ogre {
         SAFE_RELEASE(mlpD3DDecl);
     }
     //-----------------------------------------------------------------------
-    void D3D9VertexDeclaration::addElement(unsigned short source, 
+    const VertexElement& D3D9VertexDeclaration::addElement(unsigned short source, 
         size_t offset, VertexElementType theType,
         VertexElementSemantic semantic, unsigned short index)
     {
-        VertexDeclaration::addElement(source, offset, theType, semantic, index);
         mNeedsRebuild = true;
+        return VertexDeclaration::addElement(source, offset, theType, semantic, index);
     }
     //-----------------------------------------------------------------------
     void D3D9VertexDeclaration::removeElement(unsigned short elem_index)
@@ -66,7 +66,7 @@ namespace Ogre {
         {
             SAFE_RELEASE(mlpD3DDecl);
             // Create D3D elements
-            D3DVERTEXELEMENT9* d3delems = new D3DVERTEXELEMENT9[mElementList.size()];
+            D3DVERTEXELEMENT9* d3delems = new D3DVERTEXELEMENT9[mElementList.size() + 1];
 
             VertexElementList::const_iterator i, iend;
             unsigned int idx;
@@ -93,6 +93,13 @@ namespace Ogre {
 					d3delems[idx].UsageIndex = i->getIndex();
 				}
             }
+            // Add terminator
+		    d3delems[idx].Stream = 0xff;
+		    d3delems[idx].Offset = 0;
+		    d3delems[idx].Type = D3DDECLTYPE_UNUSED;
+		    d3delems[idx].Method = 0;
+		    d3delems[idx].Usage = 0;
+		    d3delems[idx].UsageIndex = 0;
             
             HRESULT hr = mlpD3DDevice->CreateVertexDeclaration(d3delems, &mlpD3DDecl);
 

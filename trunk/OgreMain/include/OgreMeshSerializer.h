@@ -27,10 +27,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __MeshSerializer_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreMeshSerializerImpl.h"
 #include "OgreSerializer.h"
-#include "OgreMaterial.h"
-#include "OgreString.h"
-#include "OgreMesh.h"
 
 namespace Ogre {
 
@@ -70,9 +68,8 @@ namespace Ogre {
             and optionally the Materials it uses to a .mesh file.
         @param pMesh Pointer to the Mesh to export
         @param filename The destination filename
-        @param includeMaterials If true, Material data is also exported into the file.
         */
-        void exportMesh(const Mesh* pMesh, const String& filename, bool includeMaterials = false);
+        void exportMesh(const Mesh* pMesh, const String& filename);
 
         /** Imports Mesh and (optionally) Material data from a .mesh file DataChunk.
         @remarks
@@ -82,55 +79,11 @@ namespace Ogre {
         @param pDest Pointer to the Mesh object which will receive the data. Should be blank already.
         */
         void importMesh(DataChunk& chunk, Mesh* pDest);
+    protected:
+        static String msCurrentVersion;
 
-        /** Imports Mesh and (optionally) Material data from legacy .oof file DataChunk.
-        @remarks
-            <b>Deprecated</b>. This method is provided for backwards-compatibility only. 
-            It imports data from a .oof file which was OGRE's previous mesh data format.
-        */
-        void importLegacyOof(DataChunk& chunk, Mesh* pDest);
-
-    private:
-        typedef std::map<String, Material*> MaterialMap;
-        MaterialMap mMaterialList;
-        Mesh* mpMesh;
-
-        // Internal methods
-        void writeMaterial(const Material* m);
-        void writeTextureLayer(const Material::TextureLayer* pTex);
-        void writeMesh(const Mesh* pMesh);
-        void writeSubMesh(const SubMesh* s);
-        void writeGeometry(const GeometryData* pGeom);
-        void writeSkeletonLink(const String& skelName);
-        void writeMeshBoneAssignment(const VertexBoneAssignment* assign);
-        void writeSubMeshBoneAssignment(const VertexBoneAssignment* assign);
-        void writeLodInfo(const Mesh* pMesh);
-        void writeLodSummary(unsigned short numLevels, bool manual);
-        void writeLodUsageManual(const Mesh::MeshLodUsage& usage);
-        void writeLodUsageGenerated(const Mesh* pMesh, const Mesh::MeshLodUsage& usage, unsigned short lodNum);
-
-        unsigned long calcMaterialSize(const Material* pMat);
-        unsigned long calcTextureLayerSize(const Material::TextureLayer* pTex);
-        unsigned long calcMeshSize(const Mesh* pMesh);
-        unsigned long calcSubMeshSize(const SubMesh* pSub);
-        unsigned long calcGeometrySize(const GeometryData* pGeom);
-        unsigned long calcSkeletonLinkSize(const String& skelName);
-        unsigned long calcBoneAssignmentSize(void);
-
-        void readMaterial(DataChunk& chunk);
-        void readTextureLayer(DataChunk& chunk, Material* pMat);
-        void readMesh(DataChunk& chunk);
-        void readSubMesh(DataChunk& chunk);
-        void readGeometry(DataChunk& chunk, GeometryData* dest);
-        void readSkeletonLink(DataChunk &chunk);
-        void readMeshBoneAssignment(DataChunk& chunk);
-        void readSubMeshBoneAssignment(DataChunk& chunk, SubMesh* sub);
-		void readMeshLodInfo(DataChunk& chunk);
-		void readMeshLodUsageManual(DataChunk& chunk, unsigned short lodNum, Mesh::MeshLodUsage& usage);
-		void readMeshLodUsageGenerated(DataChunk& chunk, unsigned short lodNum, Mesh::MeshLodUsage& usage);
-
-
-
+        typedef std::map<String, MeshSerializerImpl* > MeshSerializerImplMap;
+        MeshSerializerImplMap mImplementations;
 
     };
 

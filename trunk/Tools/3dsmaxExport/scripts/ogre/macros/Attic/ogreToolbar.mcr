@@ -3,7 +3,6 @@
 -- 
 -- Copyright © 2002 John Martin
 --
--- $Id: ogreToolbar.mcr,v 1.7 2003-08-01 22:33:39 sinbad Exp $
 --
 -- Macroscript for the Ogre Toolbar.
 --

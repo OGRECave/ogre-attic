@@ -354,9 +354,14 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------------
-    bool Image::getHasAlpha() const
+    bool Image::getHasAlpha(void) const
     {
-        switch( m_eFormat )
+        return Image::formatHasAlpha(m_eFormat);
+    }
+    //-----------------------------------------------------------------------------
+    bool Image::formatHasAlpha(PixelFormat format)
+    {
+        switch( format )
 		{
 		case PF_A8:
 		case PF_A4L4:

@@ -66,6 +66,9 @@ namespace Ogre {
     {
         Real alpha, beta, a, b, c, x, y, z;
 
+        // Init dimensions
+        pParticle->resetDimensions();
+
         // create two random angles alpha and beta
         // with these two angles, we are able to select any point on an
         // ellipsoid's surface

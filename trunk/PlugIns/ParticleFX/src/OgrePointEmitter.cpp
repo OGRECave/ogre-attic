@@ -45,6 +45,9 @@ namespace Ogre {
     {
         // Very simple emitter, uses default implementations with no modification
 
+        // Call superclass
+        ParticleEmitter::_initParticle(pParticle);
+
         // Point emitter emits from own position
         pParticle->mPosition = mPosition;
 

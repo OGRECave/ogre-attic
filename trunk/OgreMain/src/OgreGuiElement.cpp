@@ -49,9 +49,9 @@ namespace Ogre {
     GuiElementCommands::CmdVerticalAlign GuiElement::msVerticalAlignCmd;
     //---------------------------------------------------------------------
     GuiElement::GuiElement(const String& name)
-        : mName(name),
-		MouseTarget(),
-		MouseMotionTarget()
+        : MouseTarget(),
+          MouseMotionTarget(),
+          mName(name)
     {
         mParent = 0;
         mLeft = 0.0f;

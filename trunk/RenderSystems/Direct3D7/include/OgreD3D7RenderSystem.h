@@ -34,7 +34,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <ddraw.h>
 #include <d3d.h>
 
+
 #include "OgreRenderSystem.h"
+#include "OgreD3D7HardwareBufferManager.h"
 
 namespace Ogre {
 
@@ -47,13 +49,10 @@ namespace Ogre {
     class D3DRenderSystem : public RenderSystem
     {
     private:
-
-
         // Direct3D rendering device
         // Only created after top-level window created
         LPDIRECT3DDEVICE7 mlpD3DDevice;
         D3DDEVICEDESC7 mD3DDeviceDesc;
-
 
         // List of DD drivers installed (video cards)
         // Enumerates itself
@@ -80,6 +79,51 @@ namespace Ogre {
         DDDriverList* getDirectDrawDrivers(void);
         void refreshDDSettings(void);
 
+ 		/// enum identifying D3D9 tex. types
+ 		enum eD3DTexType
+ 		{
+ 			/// standard texture
+ 			D3D_TEX_TYPE_NORMAL,
+ 			/// cube texture
+ 			D3D_TEX_TYPE_CUBE,
+			/// volume texture
+ 			D3D_TEX_TYPE_VOLUME
+ 		};
+ 
+ 		/// return the D3DtexType equivalent of a Ogre tex. type
+ 		eD3DTexType _ogreTexTypeToD3DTexType(TextureType ogreTexType)
+ 		{
+ 			eD3DTexType ret;
+ 			switch (ogreTexType)
+ 			{
+ 			case TEX_TYPE_1D :
+ 			case TEX_TYPE_2D :
+ 				ret = D3D_TEX_TYPE_NORMAL;
+ 				break;
+ 			case TEX_TYPE_CUBE_MAP :
+ 				ret = D3D_TEX_TYPE_CUBE;
+ 				break;
+ 			default :
+ 				Except( Exception::ERR_INVALIDPARAMS, "Invalid tex.type", "D3D9RenderSystem::_ogreTexTypeToD3DTexType" );
+ 				break;
+ 			}
+ 			return ret;
+ 		}
+ 
+ 		/// structure holding texture unit settings for every stage
+ 		struct sD3DTextureStageDesc
+ 		{
+ 			/// the type of the texture
+ 			eD3DTexType texType;
+ 			/// wich texCoordIndex to use
+ 			int coordIndex;
+ 			/// type of auto tex. calc. used
+ 			TexCoordCalcMethod autoTexCoordType;
+ 			/// texture, if it's 0/NULL the tex layer is disabled
+ 			LPDIRECTDRAWSURFACE7 pTex;
+ 		} mTexStageDesc[OGRE_MAX_TEXTURE_LAYERS];
+
+
         // Matrix conversion
         D3DMATRIX makeD3DMatrix(const Matrix4& mat);
         Matrix4 convertD3DMatrix(const D3DMATRIX& mat);
@@ -92,10 +136,16 @@ namespace Ogre {
         D3DCMPFUNC convertCompareFunction(CompareFunction func);
         D3DSTENCILOP convertStencilOp(StencilOperation op);
 
+		// state management methods, very primitive !!!
+		HRESULT __SetRenderState(D3DRENDERSTATETYPE state, DWORD value);
+		HRESULT __SetTextureStageState(DWORD stage, D3DTEXTURESTAGESTATETYPE type, DWORD value);
+
 		DWORD _getMipFilter(const TextureFilterOptions fo);
 		DWORD _getMagFilter(const TextureFilterOptions fo);
 		DWORD _getMinFilter(const TextureFilterOptions fo);
 		DWORD _getCurrentAnisotropy(int unit);
+
+        HardwareBufferManager* mHardwareBufferManager;
 
 	public:
         // Default constructor / destructor
@@ -228,14 +278,6 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void _setTextureCoordSet(int stage, int index);
-        /** See
-          RenderSystem
-         */
-        void _setTextureCoordCalculation(int stage, TexCoordCalcMethod m);
-        /** See
-          RenderSystem
-         */
         void _setTextureBlendMode(int stage, const LayerBlendModeEx& bm);
         /** See
           RenderSystem
@@ -245,6 +287,14 @@ namespace Ogre {
           RenderSystem
          */
         void _setTextureMatrix(int stage, const Matrix4& xform);
+        /** See
+          RenderSystem
+         */
+        void _setTextureCoordSet( int stage, int index );
+        /** See
+          RenderSystem
+         */
+        void _setTextureCoordCalculation(int unit, TexCoordCalcMethod m);
         /** See
           RenderSystem
          */
@@ -264,7 +314,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void _render(const LegacyRenderOperation& op);
+        void _render(const RenderOperation& op);
         /** See
           RenderSystem
          */
@@ -349,10 +399,6 @@ namespace Ogre {
           RenderSystem
          */
 		void setVertexBufferBinding(VertexBufferBinding* binding);
-        /** See
-          RenderSystem
-         */
-        void _render(const RenderOperation& op);
 
         // ----------------------------------
         // End Overridden members

@@ -269,6 +269,10 @@ namespace Ogre {
             is the more realistic the fast-forward, but it takes more iterations to do it.
         */
         void fastForward(Real time, Real interval = 0.1);
+
+        /** Overridden from MovableObject */
+        virtual const String& getMovableType(void) const;
+
     protected:
 
         /// Command objects

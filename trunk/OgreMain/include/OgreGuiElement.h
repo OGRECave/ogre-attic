@@ -35,6 +35,7 @@
     #include "OgreActionTarget.h"
     #include "OgreMouseTarget.h"
     #include "OgreMouseMotionTarget.h"
+	#include "OgreColourValue.h"
     
     namespace Ogre {
     
@@ -171,6 +172,9 @@
         GuiElement(const String& name);
         virtual ~GuiElement();
 
+        /** Initialise gui element */
+        virtual void initialise(void) = 0;
+
         /** Gets the name of this overlay. */
         const String& getName(void) const;
 
@@ -236,7 +240,7 @@
         /** See Renderable */
         Material* getMaterial(void) const;
 
-        // NB getLegacyRenderOperation not implemented, still abstract here
+        // NB getRenderOperation not implemented, still abstract here
 
         /** See Renderable */
         void getWorldTransforms(Matrix4* xform);

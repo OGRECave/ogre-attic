@@ -34,6 +34,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreLogManager.h"
 #include "OgreLight.h"
 #include "OgreMath.h"
+#include "OgreD3D9HardwareBufferManager.h"
 #include "OgreD3D9HardwareIndexBuffer.h"
 #include "OgreD3D9HardwareVertexBuffer.h"
 #include "OgreD3D9VertexDeclaration.h"
@@ -55,13 +56,9 @@ namespace Ogre
 		mpD3DDevice = NULL;
 		mDriverList = NULL;
 		mActiveD3DDriver = NULL;
-		mpCurrentVertexDecl = NULL;
 		mExternalHandle = NULL;
-		mDVBMgr = NULL;
-		mDIBMgr = NULL;
-
-		// zero our declarations
-		ZeroMemory( mCurrentDecl, sizeof(D3DVERTEXELEMENT9) * D3D_MAX_DECLSIZE );
+        mTextureManager = NULL;
+        mHardwareBufferManager = NULL;
 
 		// init lights
 		for(int i = 0; i < MAX_LIGHTS; i++ )
@@ -87,6 +84,8 @@ namespace Ogre
 			mTexStageDesc[n].pTex = 0;
 		}
 
+		mLastVertexSourceCount = 0;
+
 		OgreUnguard();
 	}
 	//---------------------------------------------------------------------
@@ -94,17 +93,17 @@ namespace Ogre
 	{
 		OgreGuard( "D3D9RenderSystem::~D3D9RenderSystem" );
 
-		SAFE_RELEASE( mpCurrentVertexDecl );
+		// Unbind any vertex streams to avoid memory leaks
+		for (unsigned int i = 0; i < mLastVertexSourceCount; ++i)
+		{
+            HRESULT hr = mpD3DDevice->SetStreamSource(i, NULL, 0, 0);
+		}
+		
+		
 		SAFE_DELETE( mDriverList );
 		SAFE_DELETE( mTextureManager );
+        SAFE_DELETE(mHardwareBufferManager);
 		SAFE_RELEASE( mpD3D );
-
-		// dynamic vertex buffers manager
-		if (mDVBMgr)
-			delete mDVBMgr;
-		// dynamic index buffers manager
-		if (mDIBMgr)
-			delete mDIBMgr;
 
         if (mCapabilities)
         {
@@ -406,8 +405,6 @@ namespace Ogre
 	RenderWindow* D3D9RenderSystem::initialise( bool autoCreateWindow )
 	{
 		RenderWindow* autoWindow = NULL;
-		// call superclass method
-		RenderSystem::initialise( autoCreateWindow );
 		LogManager::getSingleton().logMessage( "D3D9 : Subsystem Initialising" );
 
 		// Init using current settings
@@ -466,26 +463,10 @@ namespace Ogre
 		LogManager::getSingleton().logMessage("*** D3D9 : Subsystem Initialised OK ***");
         LogManager::getSingleton().logMessage("***************************************");
 
-        LogManager::getSingleton().logMessage(
-            "The following capabilities are available:");
+		// call superclass method
+		RenderSystem::initialise( autoCreateWindow );
 
-        // Check for hardware stencil support
-		LPDIRECT3DSURFACE9 pSurf;
-		D3DSURFACE_DESC surfDesc;
-		mpD3DDevice->GetDepthStencilSurface(&pSurf);
-		pSurf->GetDesc(&surfDesc);
 
-		if (surfDesc.Format == D3DFMT_D24S8)
-        {
-            LogManager::getSingleton().logMessage("- Hardware Stencil Buffer");
-            mCapabilities->setCapability(RSC_HWSTENCIL);
-		    // Actually, it's always 8-bit
-            mCapabilities->setStencilBufferBitDepth(8);
-
-        }
-
-        // Set number of texture units
-        mCapabilities->setNumTextureUnits(mCaps.MaxSimultaneousTextures);
 
 		return autoWindow;
 	}
@@ -557,6 +538,8 @@ namespace Ogre
 	RenderWindow* D3D9RenderSystem::createRenderWindow( const String &name, int width, int height, int colourDepth,
 		bool fullScreen, int left, int top, bool depthBuffer, RenderWindow* parentWindowHandle)
 	{
+		static bool firstWindow = true;
+		
 		OgreGuard( "D3D9RenderSystem::createRenderWindow" );
 
 		String msg;
@@ -583,8 +566,8 @@ namespace Ogre
 
 		attachRenderTarget( *win );
 
-		// If this is the parent window, get the D3D device and create the texture manager
-		if( NULL == parentWindowHandle )
+		// If this is the first window, get the D3D device and create the texture manager
+		if( firstWindow )
 		{
 			win->getCustomAttribute( "D3DDEVICE", &mpD3DDevice );
 			// get caps
@@ -593,6 +576,31 @@ namespace Ogre
 			// Create the texture manager for use by others
 			mTextureManager = new D3D9TextureManager( mpD3DDevice );
             // Also create hardware buffer manager
+            mHardwareBufferManager = new D3D9HardwareBufferManager(mpD3DDevice);
+
+			LogManager::getSingleton().logMessage(
+				"The following capabilities are available:");
+
+			// Check for hardware stencil support
+			LPDIRECT3DSURFACE9 pSurf;
+			D3DSURFACE_DESC surfDesc;
+			mpD3DDevice->GetDepthStencilSurface(&pSurf);
+			pSurf->GetDesc(&surfDesc);
+
+			if (surfDesc.Format == D3DFMT_D24S8)
+			{
+				LogManager::getSingleton().logMessage("- Hardware Stencil Buffer");
+				mCapabilities->setCapability(RSC_HWSTENCIL);
+				// Actually, it's always 8-bit
+				mCapabilities->setStencilBufferBitDepth(8);
+
+			}
+
+			// Set number of texture units
+			mCapabilities->setNumTextureUnits(mCaps.MaxSimultaneousTextures);
+
+			firstWindow = false;
+			
 		}
 
 		OgreUnguardRet( win );
@@ -1127,10 +1135,7 @@ namespace Ogre
 				texCoordDim = 3;
 			}
 
-			if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_ENVIRONMENT_MAP_PLANAR)
-				hr = __SetTextureStageState( stage, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_PROJECTED | texCoordDim );
-			else
-				hr = __SetTextureStageState( stage, D3DTSS_TEXTURETRANSFORMFLAGS, texCoordDim );
+			hr = __SetTextureStageState( stage, D3DTSS_TEXTURETRANSFORMFLAGS, texCoordDim );
 			if (FAILED(hr))
 				Except( hr, "Unable to set texture coord. dimension", "D3D9RenderSystem::_setTextureMatrix" );
 
@@ -1324,19 +1329,31 @@ namespace Ogre
 	{
 		HRESULT hr;
 
-		if( mode == FOG_NONE || !(mCaps.RasterCaps & D3DPRASTERCAPS_FOGTABLE))
+		D3DRENDERSTATETYPE fogType, fogTypeNot;
+
+		if (mCaps.RasterCaps & D3DPRASTERCAPS_FOGTABLE)
+		{
+			fogType = D3DRS_FOGTABLEMODE;
+			fogTypeNot = D3DRS_FOGVERTEXMODE;
+		}
+		else
+		{
+			fogType = D3DRS_FOGVERTEXMODE;
+			fogTypeNot = D3DRS_FOGTABLEMODE;
+		}
+
+		if( mode == FOG_NONE)
 		{
 			// just disable
-			if (mCaps.RasterCaps & D3DPRASTERCAPS_FOGTABLE)
-				hr = __SetRenderState( D3DRS_FOGTABLEMODE, D3DFOG_NONE );
+			hr = __SetRenderState(fogType, D3DFOG_NONE );
 			hr = __SetRenderState(D3DRS_FOGENABLE, FALSE);
 		}
 		else
 		{
 			// Allow fog
 			hr = __SetRenderState( D3DRS_FOGENABLE, TRUE );
-			hr = __SetRenderState( D3DRS_FOGVERTEXMODE, D3DFOG_NONE );
-			hr = __SetRenderState( D3DRS_FOGTABLEMODE, D3D9Mappings::get(mode) );
+			hr = __SetRenderState( fogTypeNot, D3DFOG_NONE );
+			hr = __SetRenderState( fogType, D3D9Mappings::get(mode) );
 
 			hr = __SetRenderState( D3DRS_FOGCOLOR, colour.getAsLongARGB() );
 			hr = __SetRenderState( D3DRS_FOGSTART, *((LPDWORD)(&start)) );
@@ -1625,270 +1642,6 @@ namespace Ogre
 
 		return true;
 	}
-	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_render(const LegacyRenderOperation &op)
-	{
-		// Guard
-		OgreGuard("D3D9RenderSystem::_render");
-		// Call super class
-		RenderSystem::_render(op);
-		
-		HRESULT hr; // result for D3D operations
-		// shader declarations
-		D3DVERTEXELEMENT9 shaderDecl[D3D_MAX_DECLSIZE];	
-		// the currDecl index into the shader decl
-		int currDecl = 0;
-		// hold the vertex buffer size calculated from stride if present
-		unsigned short bufSize = 0;
-		// streams counter
-		UINT streamsInUse = 0;
-		// init some vars
-		//ZeroMemory( shaderDecl, sizeof(D3DVERTEXELEMENT9) * D3D_MAX_DECLSIZE );
-
-		// create our VB/IB menagers if they don't exist
-		if (!mDIBMgr)
-			mDIBMgr = new D3D9DynIBManager(mpD3DDevice);
-		if (!mDVBMgr)
-			mDVBMgr = new D3D9DynVBManager(mpD3DDevice);
-
-		// Must include at least vertex normal, colour or tex coords
-		if( op.vertexOptions == 0 )
-		{
-			Except( Exception::ERR_INVALIDPARAMS, 
-					"You must specify at least vertex normals, "
-					"vertex colours ot texture co-ordinates to render.", 
-					"D3D9RenderSystem::_renderUsingDecCache" );
-		}
-
-		// By default we will have XYZ positional data (3 floats)
-		D3D9DynVBManager::FloatVB *pPos = mDVBMgr->getPositionBuffer(op.numVertices, op.vertexStride);
-		// calc. size
-		bufSize = op.vertexStride ? op.vertexStride + (sizeof(float) * 3) : sizeof(float) * 3;
-		// set the stream
-		hr = mpD3DDevice->SetStreamSource(streamsInUse, pPos->getBuffer(), 0, bufSize);
-		if (FAILED(hr))
-			Except( hr, "Failed to set stream source for XYZ buffer", "D3D9RenderSystem::_renderUsingDecCache" );
-		// set the declaration
-		shaderDecl[currDecl].Stream = streamsInUse;
-		shaderDecl[currDecl].Offset = 0;
-		shaderDecl[currDecl].Type = D3DDECLTYPE_FLOAT3;
-		shaderDecl[currDecl].Method = D3DDECLMETHOD_DEFAULT;
-		shaderDecl[currDecl].Usage = D3DDECLUSAGE_POSITION;
-		shaderDecl[currDecl].UsageIndex = 0;
-		// copy data to the buffer
-		pPos->setData(op.pVertices, op.numVertices);
-
-		// Vertex normals
-		if( op.vertexOptions & LegacyRenderOperation::VO_NORMALS )
-		{
-			D3D9DynVBManager::FloatVB *pNor = mDVBMgr->getNormalBuffer(op.numVertices, op.normalStride);
-			// calc. size
-			bufSize = op.normalStride ? op.normalStride + (sizeof(float) * 3) : sizeof(float) * 3;
-			// set stream
-			streamsInUse++;
-			hr = mpD3DDevice->SetStreamSource(streamsInUse, pNor->getBuffer(), 0, bufSize);
-			if (FAILED(hr))
-				Except( hr, "Failed to set stream source for normal buffer", "D3D9RenderSystem::_renderUsingDecCache" );
-			// set declaration
-			currDecl++;
-			shaderDecl[currDecl].Stream = streamsInUse;
-			shaderDecl[currDecl].Offset = 0;
-			shaderDecl[currDecl].Type = D3DDECLTYPE_FLOAT3;
-			shaderDecl[currDecl].Method = D3DDECLMETHOD_DEFAULT;
-			shaderDecl[currDecl].Usage = D3DDECLUSAGE_NORMAL;
-			shaderDecl[currDecl].UsageIndex = 0;
-			// copy data to the buffer
-			pNor->setData(op.pNormals, op.numVertices);
-		}
-
-		// Diffuse colours
-		if( op.vertexOptions & LegacyRenderOperation::VO_DIFFUSE_COLOURS )
-		{
-			D3D9DynVBManager::ColorVB *pDif = mDVBMgr->getDiffuseBuffer(op.numVertices, op.diffuseStride);
-			// calc. size
-			bufSize = op.diffuseStride ? op.diffuseStride + sizeof(D3DCOLOR) : sizeof(D3DCOLOR);
-			// set stream
-			streamsInUse++;
-			hr = mpD3DDevice->SetStreamSource(streamsInUse, pDif->getBuffer(), 0, bufSize);
-			if (FAILED(hr))
-				Except( hr, "Failed to set stream source for diffuse buffer", "D3D9RenderSystem::_renderUsingDecCache" );
-			// set declaration
-			currDecl++;
-			shaderDecl[currDecl].Stream = streamsInUse;
-			shaderDecl[currDecl].Offset = 0;
-			shaderDecl[currDecl].Type = D3DDECLTYPE_D3DCOLOR;
-			shaderDecl[currDecl].Method = D3DDECLMETHOD_DEFAULT;
-			shaderDecl[currDecl].Usage = D3DDECLUSAGE_COLOR;
-			shaderDecl[currDecl].UsageIndex = 0;
-			// copy data to the buffer
-			pDif->setData(op.pDiffuseColour, op.numVertices);
-		}
-
-		// specular colors
-		if( op.vertexOptions & LegacyRenderOperation::VO_SPECULAR_COLOURS )
-		{
-			D3D9DynVBManager::ColorVB *pSpe = mDVBMgr->getSpecularBuffer(op.numVertices, op.specularStride);
-			// calc. size
-			bufSize = op.specularStride ? op.specularStride + sizeof(D3DCOLOR) : sizeof(D3DCOLOR);
-			// set stream
-			streamsInUse++;
-			hr = mpD3DDevice->SetStreamSource(streamsInUse, pSpe->getBuffer(), 0, bufSize);
-			if (FAILED(hr))
-				Except( hr, "Failed to set stream source for specular buffer", "D3D9RenderSystem::_renderUsingDecCache" );
-			// set declaration
-			currDecl++;
-			shaderDecl[currDecl].Stream = streamsInUse;
-			shaderDecl[currDecl].Offset = 0;
-			shaderDecl[currDecl].Type = D3DDECLTYPE_D3DCOLOR;
-			shaderDecl[currDecl].Method = D3DDECLMETHOD_DEFAULT;
-			shaderDecl[currDecl].Usage = D3DDECLUSAGE_COLOR;
-			shaderDecl[currDecl].UsageIndex = 1;
-			// copy data to the buffer
-			pSpe->setData(op.pSpecularColour, op.numVertices);
-		}
-
-		// set texture coords only if they are present in the LegacyRenderOperation
-		if (op.vertexOptions & LegacyRenderOperation::VO_TEXTURE_COORDS)
-		{
-			// do tex. coord. for every unit if req. and present in 'op'
-			for (int index = 0; index < op.numTextureCoordSets; index++)
-			{
-				if (_isCoordIndexInUse(index))
-				{
-					// get the dimension of the coordinates
-					int tcDim = op.numTextureDimensions[index];
-					// the stride of the tex.coord.buffer
-					int tcStride = op.texCoordStride[index];
-
-					// get the buffer
-					D3D9DynVBManager::FloatVB *pTex;
-					if (tcDim == 1)
-						pTex = mDVBMgr->getTexCoord1Buffer(op.numVertices, tcStride);
-					else if (tcDim == 2)
-						pTex = mDVBMgr->getTexCoord2Buffer(op.numVertices, tcStride);
-					else if (tcDim == 3)
-						pTex = mDVBMgr->getTexCoord3Buffer(op.numVertices, tcStride);
-					else if (tcDim == 4)
-						pTex = mDVBMgr->getTexCoord4Buffer(op.numVertices, tcStride);
-					// calculate buffer size, based on stride and coordinates dimensions
-					bufSize =	tcStride ? 
-								tcStride + ((unsigned short)sizeof(float) * tcDim):
-								(unsigned short)sizeof(float) * tcDim;
-					// set the stream
-					streamsInUse++;
-					hr = mpD3DDevice->SetStreamSource(streamsInUse, pTex->getBuffer(), 0, bufSize);
-					if (FAILED(hr))
-						Except( hr, "Failed to set stream source for texture coordinates buffer", "D3D9RenderSystem::_renderUsingDecCache" );
-					// set the declaration
-					currDecl++;
-					shaderDecl[currDecl].Stream = streamsInUse;
-					shaderDecl[currDecl].Offset = 0;
-					shaderDecl[currDecl].Type = _texCoordDimToDeclType(tcDim);
-					shaderDecl[currDecl].Method = D3DDECLMETHOD_DEFAULT;
-					shaderDecl[currDecl].Usage = D3DDECLUSAGE_TEXCOORD;
-					shaderDecl[currDecl].UsageIndex = index;
-					// copy data
-					pTex->setData(op.pTexCoords[index], op.numVertices);
-				} // if coord. index in use...
-			} // for...
-		}// if coords...
-
-		// this last declaration tell's D3D9 that the declaration is finished ;)
-		currDecl++;
-		streamsInUse++;
-		shaderDecl[currDecl].Stream = 0xff;
-		shaderDecl[currDecl].Offset = 0;
-		shaderDecl[currDecl].Type = D3DDECLTYPE_UNUSED;
-		shaderDecl[currDecl].Method = 0;
-		shaderDecl[currDecl].Usage = 0;
-		shaderDecl[currDecl].UsageIndex = 0;
-
-		// Determine rendering operation
-		D3DPRIMITIVETYPE primType;
-		DWORD primCount = 0;
-		switch( op.operationType )
-		{
-		case LegacyRenderOperation::OT_POINT_LIST:
-			primType = D3DPT_POINTLIST;
-			primCount = (op.useIndexes ? op.numIndexes : op.numVertices);
-			break;
-
-		case LegacyRenderOperation::OT_LINE_LIST:
-			primType = D3DPT_LINELIST;
-			primCount = (op.useIndexes ? op.numIndexes : op.numVertices) / 2;
-			break;
-
-		case LegacyRenderOperation::OT_LINE_STRIP:
-			primType = D3DPT_LINESTRIP;
-			primCount = (op.useIndexes ? op.numIndexes : op.numVertices) - 1;
-			break;
-
-		case LegacyRenderOperation::OT_TRIANGLE_LIST:
-			primType = D3DPT_TRIANGLELIST;
-			primCount = (op.useIndexes ? op.numIndexes : op.numVertices) / 3;
-			break;
-
-		case LegacyRenderOperation::OT_TRIANGLE_STRIP:
-			primType = D3DPT_TRIANGLESTRIP;
-			primCount = (op.useIndexes ? op.numIndexes : op.numVertices) - 2;
-			break;
-
-		case LegacyRenderOperation::OT_TRIANGLE_FAN:
-			primType = D3DPT_TRIANGLEFAN;
-			primCount = (op.useIndexes ? op.numIndexes : op.numVertices) - 2;
-			break;
-		}
-
-		// Create our vertex shader based on the declaration
-		if( !compareDecls( mCurrentDecl, shaderDecl, D3D_MAX_DECLSIZE ) )
-		{
-			// no match, create new
-			SAFE_RELEASE(mpCurrentVertexDecl);
-			memcpy( mCurrentDecl, shaderDecl, sizeof(D3DVERTEXELEMENT9)*D3D_MAX_DECLSIZE );
-			
-			if(FAILED(hr = mpD3DDevice->CreateVertexDeclaration(mCurrentDecl, &mpCurrentVertexDecl)))
-			{
-				String msg = DXGetErrorDescription9(hr);
-				Except(hr, "Failed to create vertex shader declaration : " + msg, "D3D9RenderSystem::_renderUsingDecCache");
-			}
-		}
-
-		// set the declaration
-		if(FAILED(hr = mpD3DDevice->SetVertexDeclaration(mpCurrentVertexDecl)))
-		{
-			String msg = DXGetErrorDescription9(hr);
-			Except(hr, "Failed to set vertex declaration : " + msg, "D3D9RenderSystem::_renderUsingDecCache");
-		}
-
-		// set up indices
-		if( op.useIndexes )
-		{
-			// copy data to a buffer
-			D3D9DynIBManager::IndexBuffer *pBuff = mDIBMgr->getBuffer(op.numIndexes);
-			pBuff->setData(op.pIndexes, op.numIndexes);
-			// set indices
-			hr = mpD3DDevice->SetIndices( pBuff->getBuffer() );
-			if (FAILED(hr))
-				Except( hr, "Failed to set index buffer", "D3D9RenderSystem::_renderUsingDecCache" );
-
-			// do indexed draw operation
-			hr = mpD3DDevice->DrawIndexedPrimitive( primType, 0, 0, op.numVertices, 0, primCount );
-		}
-		else
-			hr = mpD3DDevice->DrawPrimitive( primType, 0, primCount ); // no indices :(
-
-		if( FAILED( hr ) )
-		{
-			String msg = DXGetErrorDescription9(hr);
-			Except( hr, "Failed to DrawPrimitive : " + msg, "D3D9RenderSystem::_renderUsingDecCache" );
-		}
-
-		// clear the 'in use' flag from tex.coord.buffers
-		mDVBMgr->clearInUseFlagedBuffers();
-
-		// UnGuard
-		OgreUnguard();
-	}
     //---------------------------------------------------------------------
 	void D3D9RenderSystem::setVertexDeclaration(VertexDeclaration* decl)
 	{
@@ -1899,11 +1652,17 @@ namespace Ogre
         D3D9VertexDeclaration* d3ddecl = 
             static_cast<D3D9VertexDeclaration*>(decl);
 
-        // TODO: attempt to detect duplicates
-        if (FAILED(hr = mpD3DDevice->SetVertexDeclaration(d3ddecl->getD3DVertexDeclaration())))
+        static VertexDeclaration* lastDecl = 0;
+
+        // attempt to detect duplicates
+        if (!lastDecl || !(*lastDecl == *decl))
         {
-            Except(hr, "Unable to set D3D9 vertex declaration", 
-                "D3D9RenderSystem::setVertexDeclaration");
+
+            if (FAILED(hr = mpD3DDevice->SetVertexDeclaration(d3ddecl->getD3DVertexDeclaration())))
+            {
+                Except(hr, "Unable to set D3D9 vertex declaration", 
+                    "D3D9RenderSystem::setVertexDeclaration");
+            }
         }
 
         // UnGuard
@@ -1924,7 +1683,7 @@ namespace Ogre
         for (i = binds.begin(); i != iend; ++i)
         {
             const D3D9HardwareVertexBuffer* d3d9buf = 
-                static_cast<const D3D9HardwareVertexBuffer*>(i->second);
+                static_cast<const D3D9HardwareVertexBuffer*>(i->second.get());
             hr = mpD3DDevice->SetStreamSource(
                 i->first,
                 d3d9buf->getD3D9VertexBuffer(),
@@ -1939,6 +1698,21 @@ namespace Ogre
 
 
         }
+
+		// Unbind any unused sources
+		for (size_t unused = binds.size(); unused < mLastVertexSourceCount; ++unused)
+		{
+			
+            hr = mpD3DDevice->SetStreamSource(unused, NULL, 0, 0);
+            if (FAILED(hr))
+            {
+                Except(hr, "Unable to reset unused D3D9 stream source", 
+                    "D3D9RenderSystem::setVertexBufferBinding");
+            }
+			
+		}
+		mLastVertexSourceCount = binds.size();
+		
 
 		
         // UnGuard
@@ -1955,8 +1729,8 @@ namespace Ogre
         // To think about: possibly remove setVertexDeclaration and 
         // setVertexBufferBinding from RenderSystem since the sequence is
         // a bit too D3D9-specific?
-		setVertexDeclaration(op.vertexData.vertexDeclaration);
-        setVertexBufferBinding(op.vertexData.vertexBufferBinding);
+		setVertexDeclaration(op.vertexData->vertexDeclaration);
+        setVertexBufferBinding(op.vertexData->vertexBufferBinding);
 
 		// Determine rendering operation
 		D3DPRIMITIVETYPE primType;
@@ -1965,42 +1739,44 @@ namespace Ogre
 		{
         case RenderOperation::OT_POINT_LIST:
 			primType = D3DPT_POINTLIST;
-			primCount = (DWORD)(op.useIndexes ? op.indexData.indexCount : op.vertexData.vertexCount);
+			primCount = (DWORD)(op.useIndexes ? op.indexData->indexCount : op.vertexData->vertexCount);
 			break;
 
 		case RenderOperation::OT_LINE_LIST:
 			primType = D3DPT_LINELIST;
-			primCount = (DWORD)(op.useIndexes ? op.indexData.indexCount : op.vertexData.vertexCount) / 2;
+			primCount = (DWORD)(op.useIndexes ? op.indexData->indexCount : op.vertexData->vertexCount) / 2;
 			break;
 
 		case RenderOperation::OT_LINE_STRIP:
 			primType = D3DPT_LINESTRIP;
-			primCount = (DWORD)(op.useIndexes ? op.indexData.indexCount : op.vertexData.vertexCount) - 1;
+			primCount = (DWORD)(op.useIndexes ? op.indexData->indexCount : op.vertexData->vertexCount) - 1;
 			break;
 
 		case RenderOperation::OT_TRIANGLE_LIST:
 			primType = D3DPT_TRIANGLELIST;
-			primCount = (DWORD)(op.useIndexes ? op.indexData.indexCount : op.vertexData.vertexCount) / 3;
+			primCount = (DWORD)(op.useIndexes ? op.indexData->indexCount : op.vertexData->vertexCount) / 3;
 			break;
 
 		case RenderOperation::OT_TRIANGLE_STRIP:
 			primType = D3DPT_TRIANGLESTRIP;
-			primCount = (DWORD)(op.useIndexes ? op.indexData.indexCount : op.vertexData.vertexCount) - 2;
+			primCount = (DWORD)(op.useIndexes ? op.indexData->indexCount : op.vertexData->vertexCount) - 2;
 			break;
 
 		case RenderOperation::OT_TRIANGLE_FAN:
 			primType = D3DPT_TRIANGLEFAN;
-			primCount = (DWORD)(op.useIndexes ? op.indexData.indexCount : op.vertexData.vertexCount) - 2;
+			primCount = (DWORD)(op.useIndexes ? op.indexData->indexCount : op.vertexData->vertexCount) - 2;
 			break;
 		}
 
-        
+        if (!primCount)
+			return;
+
 		// Issue the op
         HRESULT hr;
 		if( op.useIndexes )
 		{
             D3D9HardwareIndexBuffer* d3dIdxBuf = 
-                static_cast<D3D9HardwareIndexBuffer*>(op.indexData.indexBuffer);
+                static_cast<D3D9HardwareIndexBuffer*>(op.indexData->indexBuffer.get());
 			hr = mpD3DDevice->SetIndices( d3dIdxBuf->getD3DIndexBuffer() );
 			if (FAILED(hr))
             {
@@ -2010,10 +1786,10 @@ namespace Ogre
 			// do indexed draw operation
 			hr = mpD3DDevice->DrawIndexedPrimitive(
                 primType, 
-                op.vertexData.vertexStart, 
+                op.vertexData->vertexStart, 
                 0, // Min vertex index - assume we can go right down to 0 
-                op.vertexData.vertexCount, 
-                op.indexData.indexStart, 
+                op.vertexData->vertexCount, 
+                op.indexData->indexStart, 
                 primCount );
 		}
 		else
@@ -2021,7 +1797,7 @@ namespace Ogre
             // Unindexed, a little simpler!
 			hr = mpD3DDevice->DrawPrimitive(
                 primType, 
-                op.vertexData.vertexStart, 
+                op.vertexData->vertexStart, 
                 primCount ); 
         }
 

@@ -35,17 +35,18 @@ namespace Ogre {
     {
     protected:
         LPDIRECT3DINDEXBUFFER9 mlpD3DBuffer;
+        /** See HardwareBuffer. */
+        void* lockImpl(size_t offset, size_t length, LockOptions options);
+        /** See HardwareBuffer. */
+		void unlockImpl(void);
     public:
-		D3D9HardwareIndexBuffer(IndexType idxType, size_t numIndexes, HardwareBuffer::Usage usage, LPDIRECT3DDEVICE9 pDev);
+		D3D9HardwareIndexBuffer(IndexType idxType, size_t numIndexes, 
+			HardwareBuffer::Usage usage, LPDIRECT3DDEVICE9 pDev, bool useSystemMem, bool useShadowBuffer);
         ~D3D9HardwareIndexBuffer();
         /** See HardwareBuffer. */
-        unsigned char* lock(size_t offset, size_t length, LockOptions options);
+        void readData(size_t offset, size_t length, void* pDest);
         /** See HardwareBuffer. */
-		void unlock(void);
-        /** See HardwareBuffer. */
-        void readData(size_t offset, size_t length, unsigned char* pDest);
-        /** See HardwareBuffer. */
-        void writeData(size_t offset, size_t length, const unsigned char* pSource,
+        void writeData(size_t offset, size_t length, const void* pSource,
 				bool discardWholeBuffer = false);
 
         /// Get the D3D-specific index buffer

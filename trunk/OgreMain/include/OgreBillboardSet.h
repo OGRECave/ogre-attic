@@ -147,16 +147,18 @@ namespace Ogre {
 
 
         /// The vertex position data for all billboards in this set.
-        Real* mpPositions;
+        //Real* mpPositions;
+        VertexData* mVertexData;
 
         /// The vertex colour data for all billboards in this set
-        RGBA* mpColours;
+        //RGBA* mpColours;
 
         /// The texture coordinates for all billboards in this set
-        Real* mpTexCoords;
+        //Real* mpTexCoords;
 
         /// The vertex index data for all billboards in this set (1 set only)
-        unsigned short* mpIndexes;
+        //unsigned short* mpIndexes;
+        IndexData* mIndexData;
 
         /// Flag indicating whether each billboard should be culled separately (default: false)
         bool mCullIndividual;
@@ -439,7 +441,7 @@ namespace Ogre {
             @see
                 MovableObject
         */
-        virtual void getLegacyRenderOperation(LegacyRenderOperation& rend);
+        virtual void getRenderOperation(RenderOperation& op);
 
         /** Overridden from MovableObject
             @see

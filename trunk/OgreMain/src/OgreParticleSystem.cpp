@@ -60,10 +60,12 @@ namespace Ogre {
         // This will call setPoolSize in the BillboardSet context and create Billboard objects
         //  instead of Particle objects
         // Unavoidable due to C++ funky virtualisation rules & constructors
-        mpPositions = 0;
-        mpColours = 0;
-        mpIndexes = 0;
-        mpTexCoords = 0;
+        //mpPositions = 0;
+        //mpColours = 0;
+        //mpIndexes = 0;
+        mVertexData = 0;
+        mIndexData = 0;
+        //mpTexCoords = 0;
         mAutoExtendPool = true;
         mAllDefaultSize = true;
         mOriginType = BBO_CENTER;
@@ -218,10 +220,13 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ParticleSystem::_update(Real timeElapsed)
     {
+		// Update existing particles
         _expire(timeElapsed);
-        _triggerEmitters(timeElapsed);
         _triggerAffectors(timeElapsed);
         _applyMotion(timeElapsed);
+		// Emit new particles
+        _triggerEmitters(timeElapsed);
+		// Update bounds
         _updateBounds();
 
     }
@@ -286,9 +291,14 @@ namespace Ogre {
         }
 
         // Emit
+		// For each emission, apply a subset of the motion for the frame
+		// this ensures an even distribution of particles when many are
+		// emitted in a single frame
         for (it = mEmitters.begin(), i = 0; it != iEmitEnd; ++it, ++i)
         {
-            for (unsigned int j = 0; j < requested[i]; ++j)
+			Real timePoint = 0.0f;
+			Real timeInc = timeElapsed / requested[i];
+	        for (unsigned int j = 0; j < requested[i]; ++j)
             {
                 // Create a new particle & init using emitter
                 Particle* p = addParticle();
@@ -297,6 +307,12 @@ namespace Ogre {
                 // Maybe make emitter do this?
                 p->mPosition =  (mParentNode->_getDerivedOrientation() * p->mPosition) + mParentNode->_getDerivedPosition();
                 p->mDirection = mParentNode->_getDerivedOrientation() * p->mDirection;
+
+				// apply partial frame motion to this particle
+            	p->mPosition += (p->mDirection * timePoint);
+
+				// Increment time fragment
+				timePoint += timeInc;
 
             }
         }
@@ -491,6 +507,12 @@ namespace Ogre {
         {
             _update(interval);
         }
+    }
+    //-----------------------------------------------------------------------
+    const String& ParticleSystem::getMovableType(void) const
+    {
+        static String mType = "ParticleSystem";
+        return mType;
     }
 
     //-----------------------------------------------------------------------

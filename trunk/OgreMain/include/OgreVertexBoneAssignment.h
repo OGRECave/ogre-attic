@@ -40,7 +40,7 @@ namespace Ogre
     */
     typedef struct VertexBoneAssignment_s
     {
-        unsigned short vertexIndex;
+        unsigned int vertexIndex;
         unsigned short boneIndex;
         Real weight;
 

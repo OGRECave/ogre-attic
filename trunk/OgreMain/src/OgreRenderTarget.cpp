@@ -104,9 +104,9 @@ namespace Ogre {
         {
             fireViewportPreUpdate((*it).second);
             (*it).second->update();
-            mTris += (*it++).second->_getNumRenderedFaces();
+            mTris += (*it).second->_getNumRenderedFaces();
             fireViewportPostUpdate((*it).second);
-
+			++it;
         }
 
         // notify listeners (post)
@@ -121,12 +121,12 @@ namespace Ogre {
     Viewport* RenderTarget::addViewport(Camera* cam, int ZOrder, float left, float top ,
         float width , float height)
     {
-        char msg[100];
         // Check no existing viewport with this Z-order
         ViewportList::iterator it = mViewportList.find(ZOrder);
 
         if (it != mViewportList.end())
         {
+            char msg[256];
             sprintf(msg, "Can't create another viewport for %s with Z-Order %i "
                 " because a viewport exists with this Z-Order already.",
                 this->getName().c_str(), ZOrder);
@@ -198,13 +198,20 @@ namespace Ogre {
     {
         return mWorstFPS;
     }
+    float RenderTarget::getBestFrameTime()
+    {
+        return mBestFrameTime;
+    }
+    float RenderTarget::getWorstFrameTime()
+    {
+        return mWorstFrameTime;
+    }
 
 
     void RenderTarget::resetStatistics(void)
     {
         mAvgFPS = 0.0;
         mBestFPS = 0.0;
-        mLastFPS = 0.0;
         mLastFPS = 0.0;
         mWorstFPS = 999.0;
 		mBestFrameTime = 999.0;
@@ -265,6 +272,7 @@ namespace Ogre {
 				worstFrameTime = 0 ;
 			}
 		}
+      /*
 
         static String currFps = "Current FPS: ";
         static String avgFps = "Average FPS: ";
@@ -293,6 +301,7 @@ namespace Ogre {
 
         GuiElement* guiDbg = GuiManager::getSingleton().getGuiElement("Core/DebugText");
         guiDbg->setCaption(mDebugText);
+        */
 
     }
 

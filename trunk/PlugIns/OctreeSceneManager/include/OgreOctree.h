@@ -68,7 +68,11 @@ public:
     This is used for octant index determination and rendering, but not culling
     */
     AxisAlignedBox mBox;
-    WireBoundingBox mWireBox;
+    WireBoundingBox* mWireBoundingBox;
+    
+    /** Creats the wire frame bounding box for this octant
+    */
+    WireBoundingBox* getWireBoundingBox();
 
     /** Vector containing the dimensions of this octree / 2
     */

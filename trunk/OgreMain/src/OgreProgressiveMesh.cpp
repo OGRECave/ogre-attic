@@ -30,8 +30,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 #include "OgreProgressiveMesh.h"
-#include "OgreGeometryData.h"
 #include "OgreString.h"
+#include "OgreHardwareBufferManager.h"
 #include <algorithm>
 
 #include <iostream>
@@ -58,14 +58,13 @@ namespace Ogre {
 		}
 	};
     //---------------------------------------------------------------------
-    ProgressiveMesh::ProgressiveMesh(GeometryData* data, 
-        ushort* indexBuffer, ushort numIndexes)
+    ProgressiveMesh::ProgressiveMesh(const VertexData* vertexData, 
+        const IndexData* indexData)
     {
-        addWorkingData(data->pVertices, data, indexBuffer, numIndexes);
-        mpGeomData = data;
-        mpIndexBuffer = indexBuffer;
-        mNumIndexes = numIndexes;
-        mWorstCosts.resize(data->numVertices);
+        addWorkingData(vertexData, indexData);
+        mpVertexData = vertexData;
+        mpIndexData = indexData;
+        mWorstCosts.resize(vertexData->vertexCount);
 
 
 
@@ -75,15 +74,15 @@ namespace Ogre {
     {
     }
     //---------------------------------------------------------------------
-    void ProgressiveMesh::addExtraVertexPositionBuffer(Real* buffer)
+    void ProgressiveMesh::addExtraVertexPositionBuffer(const VertexData* vertexData)
     {
-        addWorkingData(buffer, mpGeomData, mpIndexBuffer, mNumIndexes);
+        addWorkingData(vertexData, mpIndexData);
     }
     //---------------------------------------------------------------------
     void ProgressiveMesh::build(ushort numLevels, LODFaceList* outList, 
 			VertexReductionQuota quota, Real reductionValue)
     {
-        LODFaceData newLod;
+        IndexData* newLod;
 
         computeAllCosts();
 
@@ -92,9 +91,9 @@ namespace Ogre {
 #endif
 
         // Init
-        mCurrNumIndexes = mNumIndexes;
-        ushort numVerts, numCollapses;
-        numVerts = mpGeomData->numVertices;
+        mCurrNumIndexes = mpIndexData->indexCount;
+        size_t numVerts, numCollapses;
+        numVerts = mpVertexData->vertexCount;
 		
 		PMVertex* test = &(mWorkingData[0].mVertList[347]);
 
@@ -107,11 +106,11 @@ namespace Ogre {
         {
 			if (quota == VRQ_PROPORTIONAL)
 			{
-				numCollapses = static_cast<ushort>(numVerts * reductionValue);
+				numCollapses = numVerts * reductionValue;
 			}
 			else 
 			{
-				numCollapses = static_cast<ushort>(reductionValue);
+				numCollapses = reductionValue;
 			}
             // Minimum 3 verts!
             if ( (numVerts - numCollapses) < 3) 
@@ -121,7 +120,7 @@ namespace Ogre {
 
 			while(numCollapses-- && !abandon)
             {
-                ushort nextIndex = getNextCollapser();
+                size_t nextIndex = getNextCollapser();
                 // Collapse on every buffer
                 WorkingDataList::iterator idata, idataend;
                 idataend = mWorkingData.end();
@@ -153,7 +152,8 @@ namespace Ogre {
 #endif
 
             // Bake a new LOD and add it to the list
-            bakeNewLOD(&newLod);
+            newLod = new IndexData();
+            bakeNewLOD(newLod);
             outList->push_back(newLod);
 			
         }
@@ -162,30 +162,39 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void ProgressiveMesh::addWorkingData(Real* pPositions, GeometryData* data, 
-        ushort* indexBuffer, ushort numIndexes)
+    void ProgressiveMesh::addWorkingData(const VertexData * vertexData, 
+        const IndexData * indexData)
     {
         // Insert blank working data, then fill 
         mWorkingData.push_back(PMWorkingData());
 
         PMWorkingData& work = mWorkingData.back();
 
-        uint i;
         // Build vertex list
 		// Resize face list (this will always be this big)
-		work.mFaceVertList.resize(data->numVertices);
+		work.mFaceVertList.resize(vertexData->vertexCount);
 		// Also resize common vert list to max, to avoid reallocations
-		work.mVertList.resize(data->numVertices);
+		work.mVertList.resize(vertexData->vertexCount);
 
-        Real* pReal = data->pVertices;
-        Vector3 pos;
+		// locate position element & hte buffer to go with it
+		const VertexElement* posElem = vertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
+		HardwareVertexBufferSharedPtr vbuf = 
+			vertexData->vertexBufferBinding->getBuffer(posElem->getSource());
+		// lock the buffer for reading
+		unsigned char* pVertex = static_cast<unsigned char*>(
+			vbuf->lock(HardwareBuffer::HBL_READ_ONLY));
+		Real* pReal;
+		Vector3 pos;
 		// Map for identifying duplicate position vertices
 		typedef std::map<Vector3, ushort, vectorLess> CommonVertexMap;
 		CommonVertexMap commonVertexMap;
 		CommonVertexMap::iterator iCommonVertex;
-		ushort numCommon = 0;
-        for (i = 0; i < data->numVertices; ++i)
+		size_t numCommon = 0;
+        size_t i = 0;
+        for (i = 0; i < vertexData->vertexCount; ++i, pVertex += vbuf->getVertexSize())
         {
+			posElem->baseVertexPointerToElement(pVertex, &pReal);
+
             pos.x = *pReal++;
             pos.y = *pReal++;
             pos.z = *pReal++;
@@ -222,21 +231,36 @@ namespace Ogre {
 			}
 			
         }
+		vbuf->unlock();
 
 		mNumCommonVertices = numCommon;
 
         // Build tri list
-        ushort numTris = numIndexes / 3;
-        ushort* pIdx = indexBuffer;
+        ushort numTris = indexData->indexCount / 3;
+		unsigned short* pShort;
+		unsigned int* pInt;
+		HardwareIndexBufferSharedPtr ibuf = indexData->indexBuffer;
+		bool use32bitindexes = (ibuf->getType() == HardwareIndexBuffer::IT_32BIT);
+		if (use32bitindexes)
+		{
+			pInt = static_cast<unsigned int*>(
+				ibuf->lock(HardwareBuffer::HBL_READ_ONLY));
+		}
+		else
+		{
+			pShort = static_cast<unsigned short*>(
+				ibuf->lock(HardwareBuffer::HBL_READ_ONLY));
+		}
         work.mTriList.resize(numTris); // assumed tri list
         for (i = 0; i < numTris; ++i)
         {
 			PMFaceVertex *v0, *v1, *v2;
-			ushort vindex = *pIdx++;
+			// use 32-bit index always since we're not storing
+			unsigned int vindex = use32bitindexes? *pInt++ : *pShort++;
 			v0 = &(work.mFaceVertList[vindex]);
-			vindex = *pIdx++;
+			vindex = use32bitindexes? *pInt++ : *pShort++;
 			v1 = &(work.mFaceVertList[vindex]);
-			vindex = *pIdx++;
+			vindex = use32bitindexes? *pInt++ : *pShort++;
 			v2 = &(work.mFaceVertList[vindex]);
 
 			work.mTriList[i].setDetails(i, v0, v1, v2);
@@ -244,6 +268,7 @@ namespace Ogre {
             work.mTriList[i].removed = false;
 
         }
+		ibuf->unlock();
 
     }
     //---------------------------------------------------------------------
@@ -416,7 +441,7 @@ namespace Ogre {
         
     }
     //---------------------------------------------------------------------
-    Real ProgressiveMesh::computeEdgeCostAtVertexForBuffer(WorkingDataList::iterator idata, ushort vertIndex)
+    Real ProgressiveMesh::computeEdgeCostAtVertexForBuffer(WorkingDataList::iterator idata, size_t vertIndex)
     {
         // compute the edge collapse cost for all edges that start
         // from vertex v.  Since we are only interested in reducing
@@ -458,8 +483,8 @@ namespace Ogre {
     void ProgressiveMesh::computeAllCosts(void)
     {
         initialiseEdgeCollapseCosts();
-        ushort i;
-        for (i = 0; i < mpGeomData->numVertices; ++i)
+        size_t i;
+        for (i = 0; i < mpVertexData->vertexCount; ++i)
         {
             computeEdgeCostAtVertex(i);
         }
@@ -581,7 +606,7 @@ namespace Ogre {
 		
     }
     //---------------------------------------------------------------------
-    void ProgressiveMesh::computeEdgeCostAtVertex(ushort vertIndex)
+    void ProgressiveMesh::computeEdgeCostAtVertex(size_t vertIndex)
     {
 		// Call computer for each buffer on this vertex
         Real worstCost = -0.01f;
@@ -596,12 +621,12 @@ namespace Ogre {
         mWorstCosts[vertIndex] = worstCost;
     }
     //---------------------------------------------------------------------
-    ushort ProgressiveMesh::getNextCollapser(void)
+    size_t ProgressiveMesh::getNextCollapser(void)
     {
         // Scan
         // Not done as a sort because want to keep the lookup simple for now
         Real bestVal = NEVER_COLLAPSE_COST;
-        ushort i, bestIndex;
+        size_t i, bestIndex;
 		bestIndex = 0; // NB this is ok since if nothing is better than this, nothing will collapse
         for (i = 0; i < mNumCommonVertices; ++i)
         {
@@ -614,13 +639,36 @@ namespace Ogre {
         return bestIndex;
     }
     //---------------------------------------------------------------------
-    void ProgressiveMesh::bakeNewLOD(ProgressiveMesh::LODFaceData* pData)
+    void ProgressiveMesh::bakeNewLOD(IndexData* pData)
     {
         // Zip through the tri list of any working data copy and bake
-        pData->numIndexes = mCurrNumIndexes;
-        pData->pIndexes = new ushort[mCurrNumIndexes];
+        pData->indexCount = mCurrNumIndexes;
+		pData->indexStart = 0;
+		// Base size of indexes on original 
+		bool use32bitindexes = 
+			(mpIndexData->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT);
 
-        ushort* pIndex = pData->pIndexes;
+		// Create index buffer, we don't need to read it back or modify it a lot
+		pData->indexBuffer = HardwareBufferManager::getSingleton().createIndexBuffer(
+			use32bitindexes? HardwareIndexBuffer::IT_32BIT : HardwareIndexBuffer::IT_16BIT,
+			pData->indexCount, HardwareBuffer::HBU_STATIC_WRITE_ONLY, false);
+
+        unsigned short* pShort;
+		unsigned int* pInt;
+		if (use32bitindexes)
+		{
+			pInt = static_cast<unsigned int*>(
+				pData->indexBuffer->lock( 0,
+					pData->indexBuffer->getSizeInBytes(),
+					HardwareBuffer::HBL_DISCARD));
+		}
+		else
+		{
+			pShort = static_cast<unsigned short*>(
+				pData->indexBuffer->lock( 0,
+					pData->indexBuffer->getSizeInBytes(),
+					HardwareBuffer::HBL_DISCARD));
+		}
         TriangleList::iterator tri, triend;
         // Use the first working data buffer, they are all the same index-wise
         WorkingDataList::iterator pWork = mWorkingData.begin();
@@ -629,11 +677,21 @@ namespace Ogre {
         {
             if (!tri->removed)
             {
-                *pIndex++ = tri->vertex[0]->realIndex;
-                *pIndex++ = tri->vertex[1]->realIndex;
-                *pIndex++ = tri->vertex[2]->realIndex;
+				if (use32bitindexes)
+				{
+					*pInt++ = tri->vertex[0]->realIndex;
+					*pInt++ = tri->vertex[1]->realIndex;
+					*pInt++ = tri->vertex[2]->realIndex;
+				}
+				else
+				{
+					*pShort++ = tri->vertex[0]->realIndex;
+					*pShort++ = tri->vertex[1]->realIndex;
+					*pShort++ = tri->vertex[2]->realIndex;
+				}
             }
         }
+		pData->indexBuffer->unlock();
 
     }
     //---------------------------------------------------------------------
@@ -641,7 +699,7 @@ namespace Ogre {
     {
     }
     //---------------------------------------------------------------------
-    void ProgressiveMesh::PMTriangle::setDetails(ushort newindex, 
+    void ProgressiveMesh::PMTriangle::setDetails(size_t newindex, 
 		ProgressiveMesh::PMFaceVertex *v0, ProgressiveMesh::PMFaceVertex *v1, 
         ProgressiveMesh::PMFaceVertex *v2)
     {
@@ -866,7 +924,7 @@ namespace Ogre {
 		CommonVertexList::iterator vi, vend;
 		vend = worki->mVertList.end();
 		ofdump << "-------== VERTEX LIST ==-----------------" << std::endl;
-		ushort i;
+		size_t i;
 		for (vi = worki->mVertList.begin(), i = 0; i < mNumCommonVertices; ++vi, ++i)
 		{
 			ofdump << "Vertex " << vi->index << " pos: " << vi->position << " removed: " 
@@ -900,7 +958,7 @@ namespace Ogre {
 		}
 
 		ofdump << "-------== COLLAPSE COST LIST ==-----------------" << std::endl;
-		for (ushort ci = 0; ci < mNumCommonVertices; ++ci)
+		for (size_t ci = 0; ci < mNumCommonVertices; ++ci)
 		{
 			ofdump << "Vertex " << ci << ": " << mWorstCosts[ci] << std::endl;
 		}

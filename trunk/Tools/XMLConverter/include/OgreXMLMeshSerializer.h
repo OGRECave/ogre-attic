@@ -27,7 +27,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __XMLMeshSerializer_H__
 
 #include "OgreXMLPrerequisites.h"
-#include "OgreMaterial.h"
 #include "OgreMesh.h"
 
 
@@ -57,7 +56,7 @@ namespace Ogre {
         void importMesh(const String& filename, Mesh* pMesh);
 
         /** Exports a mesh to the named XML file. */
-        void exportMesh(const Mesh* pMesh, const String& filename, bool includeMaterials = false);
+        void exportMesh(const Mesh* pMesh, const String& filename);
 
     protected:
         // State for export
@@ -66,11 +65,9 @@ namespace Ogre {
         Mesh* mpMesh;
 
         // Internal methods
-        void writeMaterial(TiXmlElement* mMaterialsNode, const Material* m);
-        void writeTextureLayer(TiXmlElement* mLayersNode, const Material::TextureLayer* pTex);
         void writeMesh(const Mesh* pMesh);
         void writeSubMesh(TiXmlElement* mSubmeshesNode, const SubMesh* s);
-        void writeGeometry(TiXmlElement* mParentNode, const GeometryData* pGeom);
+        void writeGeometry(TiXmlElement* mParentNode, const VertexData* pData);
         void writeSkeletonLink(TiXmlElement* mMeshNode, const String& skelName);
         void writeBoneAssignment(TiXmlElement* mBoneAssignNode, const VertexBoneAssignment* assign);
 		void writeLodInfo(TiXmlElement* mMeshNode, const Mesh* pMesh);
@@ -79,9 +76,8 @@ namespace Ogre {
 		void writeLodUsageGenerated(TiXmlElement* usageNode, unsigned short levelNum,  
 			const Mesh::MeshLodUsage& usage, const Mesh* pMesh);
 
-        void readMaterials(TiXmlElement* mMaterialsNode);
         void readSubMeshes(TiXmlElement* mSubmeshesNode);
-        void readGeometry(TiXmlElement* mGeometryNode, GeometryData* pGeom);
+        void readGeometry(TiXmlElement* mGeometryNode, VertexData* pData);
         void readSkeletonLink(TiXmlElement* mSkelNode);
         void readBoneAssignments(TiXmlElement* mBoneAssignmentsNode);
         void readBoneAssignments(TiXmlElement* mBoneAssignmentsNode, SubMesh* sm);

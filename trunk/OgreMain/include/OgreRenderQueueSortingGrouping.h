@@ -53,16 +53,19 @@ namespace Ogre {
         {
             const Camera* camera;
 
-            _OgreExport bool operator()(const Renderable* x, const Renderable* y) const
+            _OgreExport bool operator()(const Renderable* a, const Renderable* b) const
             {
-				// Sort DESCENDING by depth (ie far objects first)
-				if (x->getSquaredViewDepth(camera) > y->getSquaredViewDepth(camera))
+                Real adepth = a->getSquaredViewDepth(camera);
+                Real bdepth = b->getSquaredViewDepth(camera);
+				if (adepth == bdepth)
 				{
-					return true;
+                    // Must return deterministic result, doesn't matter what
+                    return a < b;
 				}
 				else
 				{
-					return false;
+				    // Sort DESCENDING by depth (ie far objects first)
+					return (adepth > bdepth);
 				}
 
             }
