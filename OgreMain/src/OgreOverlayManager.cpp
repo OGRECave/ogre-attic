@@ -60,8 +60,8 @@ namespace Ogre {
 		mCursorGuiRegistered = 0;
 
         // Scripting is supported by this manager
-        mScriptingSupported = true;
         mScriptPatterns.push_back("*.overlay");
+		ResourceGroupManager::getSingleton()._registerScriptLoader(this);
         // Loading order
         mLoadOrder = 200.0f;
         // Resource type
@@ -77,6 +77,7 @@ namespace Ogre {
     {
         // Unregister with resource group manager
         ResourceGroupManager::getSingleton()._unregisterResourceManager(mResourceType);
+		ResourceGroupManager::getSingleton()._unregisterScriptLoader(this);
     }
     //---------------------------------------------------------------------
     void OverlayManager::parseScript(DataStreamPtr& stream, const String& groupName)

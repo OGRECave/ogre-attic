@@ -40,8 +40,6 @@ namespace Ogre {
 	//---------------------------------------------------------------------------
 	GpuProgramManager::GpuProgramManager()
 	{
-		// Scripting is not supported by this manager (material scripts define)
-		mScriptingSupported = false;
 		// Loading order
 		mLoadOrder = 50.0f;
 		// Resource type

@@ -36,7 +36,7 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     ResourceManager::ResourceManager()
-		:mMemoryUsage(0), mNextHandle(1), mScriptingSupported(false), mLoadOrder(0)
+		:mMemoryUsage(0), mNextHandle(1), mLoadOrder(0)
     {
         // Init memory limit & usage
         mMemoryBudget = std::numeric_limits<unsigned long>::max();

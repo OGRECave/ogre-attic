@@ -47,8 +47,10 @@ namespace Ogre
 	FontManager::FontManager() : ResourceManager()
 	{
 		// Scripting is supported by this manager
-		mScriptingSupported = true;
 		mScriptPatterns.push_back("*.fontdef");
+		// Register scripting with resource group manager
+		ResourceGroupManager::getSingleton()._registerScriptLoader(this);
+
 		// Loading order
 		mLoadOrder = 200.0f;
 		// Resource type
@@ -64,6 +66,9 @@ namespace Ogre
 	{
 		// Unregister with resource group manager
 		ResourceGroupManager::getSingleton()._unregisterResourceManager(mResourceType);
+		// Unegister scripting with resource group manager
+		ResourceGroupManager::getSingleton()._unregisterScriptLoader(this);
+
 	}
 	//---------------------------------------------------------------------
 	Resource* FontManager::createImpl(const String& name, ResourceHandle handle, 

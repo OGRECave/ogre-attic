@@ -40,7 +40,6 @@ namespace Ogre {
     TextureManager::TextureManager(bool enable32Bit)
          : mIs32Bit(enable32Bit), mDefaultNumMipMaps(0)
     {
-        mScriptingSupported = false;
         mResourceType = "Texture";
         mLoadOrder = 75.0f;
 

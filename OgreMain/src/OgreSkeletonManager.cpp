@@ -42,7 +42,6 @@ namespace Ogre
     //-----------------------------------------------------------------------
     SkeletonManager::SkeletonManager()
     {
-        mScriptingSupported = false;
         mLoadOrder = 300.0f;
         mResourceType = "Skeleton";
 

@@ -57,9 +57,10 @@ namespace Ogre {
 		mDefaultMaxAniso = 1;
 
 		// Scripting is supported by this manager
-		mScriptingSupported = true;
 		mScriptPatterns.push_back("*.program");
 		mScriptPatterns.push_back("*.material");
+		ResourceGroupManager::getSingleton()._registerScriptLoader(this);
+
 		// Loading order
 		mLoadOrder = 100.0f;
 		// Resource type
@@ -76,6 +77,7 @@ namespace Ogre {
 	    // Resources cleared by superclass
 		// Unregister with resource group manager
 		ResourceGroupManager::getSingleton()._unregisterResourceManager(mResourceType);
+		ResourceGroupManager::getSingleton()._unregisterScriptLoader(this);
     }
 	//-----------------------------------------------------------------------
 	Resource* MaterialManager::createImpl(const String& name, ResourceHandle handle, 
