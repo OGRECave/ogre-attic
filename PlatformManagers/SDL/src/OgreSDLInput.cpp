@@ -74,7 +74,7 @@ namespace Ogre {
             }
         }
 
-        if (mUseBuffered)
+        if (mUseBufferedMouse)
         {
             processBufferedMouse();
         }
@@ -84,7 +84,9 @@ namespace Ogre {
         // Get Keyboard state
         mKeyboardBuffer = SDL_GetKeyState(NULL);
 
-        if (!mUseBuffered)
+		// NB buffered keyboard not yet supported!
+		// TODO
+        if (!mUseBufferedMouse)
         {
             mMouseKeys = 0;
 
