@@ -64,6 +64,7 @@ SkeletonManager* skelMgr;
 MeshSerializer* meshSerializer;
 SkeletonSerializer* skeletonSerializer;
 DefaultHardwareBufferManager *bufferManager;
+ResourceGroupManager* rgm;
 MeshManager* meshMgr;
 
 String describeSemantic(VertexElementSemantic sem)
@@ -340,6 +341,7 @@ int main(int numargs, char** args)
     }
 
     logMgr = new LogManager();
+    rgm = new ResourceGroupManager();
     mth = new Math();
     matMgr = new MaterialManager();
     matMgr->initialise();
@@ -561,6 +563,7 @@ int main(int numargs, char** args)
     delete skelMgr;
     delete matMgr;
     delete mth;
+    delete rgm;
     delete logMgr;
 
     return 0;
