@@ -30,6 +30,7 @@ namespace Ogre {
     SDLTextureManager::SDLTextureManager()
         : TextureManager()
     {
+        Image::setFlipY( true );
     }
     //-----------------------------------------------------------------------------
     SDLTextureManager::~SDLTextureManager()

@@ -171,7 +171,7 @@ namespace Ogre {
         Image img;
         // Load from memory chunk
         img.load(chunk,extension);
-        chunk.free();
+        chunk.clear();
         if (img.isGreyscale())
         {
             mSrcBpp = 8;
