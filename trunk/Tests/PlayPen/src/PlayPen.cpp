@@ -1936,7 +1936,7 @@ protected:
         //t->setColourOperation(LBO_ADD);
 
         OverlayContainer* debugPanel = (OverlayContainer*)
-            (GuiManager::getSingleton().createOverlayElement("Panel", "Ogre/DebugShadowPanel"));
+            (OverlayManager::getSingleton().createOverlayElement("Panel", "Ogre/DebugShadowPanel"));
         debugPanel->_setPosition(0.8, 0);
         debugPanel->_setDimensions(0.2, 0.3);
         debugPanel->setMaterialName("Ogre/DebugShadowMap");
