@@ -121,6 +121,26 @@ namespace Ogre
         };
 
 
+	/** Resizes the octree to the given size */
+	void resize( const AxisAlignedBox &box );
+
+	/** Sets the given option for the SceneManager 
+            @remarks
+	    Options are:
+	    "Size", AxisAlignedBox *;
+	    "CullCamera", bool *;
+	    "Depth", int *;
+	    "ShowOctree", bool *;
+	*/
+	  
+	virtual bool  setOption( const String &, const void * );
+	/** Gets the given option for the Scene Manager.
+	    @remarks
+	    See setOption
+	*/
+	virtual bool getOption( const String &, void * );
+
+
     protected:
 
         /** Inserts the boxes corners into the Real array */
