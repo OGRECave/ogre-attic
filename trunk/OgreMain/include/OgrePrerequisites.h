@@ -173,7 +173,6 @@ namespace Ogre {
     class Entity;
     class ErrorDialog;
 	class EventDispatcher;
-	class EventMulticaster;
 	class EventProcessor;
 	class EventQueue;
 	class EventTarget;

@@ -52,18 +52,8 @@ email                : kenny@sparksuit.com
 
 namespace Ogre {
 
-	/**
-	 * EventListener is an abstract class used as a base for EventMulticaster
-	 */
     class _OgreExport EventListener 
     {
-		/**
-		 * Returns whether or not the listener is a multicaster
-		 */
-	public:
-		virtual bool isMulticaster() const
-		{ return false; }
-
 	};
     
 	/** Specialised EventListener for discrete mouse events.
@@ -73,8 +63,6 @@ namespace Ogre {
 	*/
 	class _OgreExport MouseListener : public EventListener
     {
-    protected:
-
 	public :
 		/**
 		 * Invoked when the mouse has been clicked on a component.
