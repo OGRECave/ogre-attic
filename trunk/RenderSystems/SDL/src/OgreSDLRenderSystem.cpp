@@ -241,6 +241,7 @@ namespace Ogre {
 
         SDL_Quit();
         LogManager::getSingleton().logMessage("-+-+- SDL Shutting down");
+        mStopRendering = true;
     }
 
     void SDLRenderSystem::startRendering(void)
@@ -259,7 +260,7 @@ namespace Ogre {
         RenderSystem::startRendering();
         
         mStopRendering = false;
-        while( mRenderTargets.size() )
+        while( mRenderTargets.size() && !mStopRendering )
         {
             FrameEvent evt;
 
@@ -271,8 +272,10 @@ namespace Ogre {
                 evt.timeSinceLastFrame = (float)(fTime - lastStartTime) / CLOCKS_PER_SEC;
                 evt.timeSinceLastEvent = (float)(fTime - lastEndTime) / CLOCKS_PER_SEC;
                 // Stop rendering if frame callback says so
-                if(!fireFrameStarted(evt))
+                if(!fireFrameStarted(evt) || mStopRendering)
                     return;
+
+                // We'll also check here if they decided to shut us down
             }
           
 
@@ -295,7 +298,7 @@ namespace Ogre {
                 evt.timeSinceLastFrame = (float)(fTime - lastEndTime) / CLOCKS_PER_SEC;
                 evt.timeSinceLastEvent = (float)(fTime - lastStartTime) / CLOCKS_PER_SEC;
                 // Stop rendering if frame callback says so
-                if(!fireFrameEnded(evt))
+                if(!fireFrameEnded(evt) || mStopRendering)
                     return;
             }
 
