@@ -241,7 +241,64 @@ at each pixel. Gives a more natural lighting effect but is more expensive and
 works better at high levels of tesselation. Not supported on all hardware.</TD></TR></TABLE><P>Default: 
 shading gouraud</P><P CLASS="SectionHeader"><A NAME="filtering"></A>filtering</P><P>Sets 
 the type of texture filtering used when magnifying or minifying a texture. </P><P>Format: 
-filtering &lt;none|bilinear|trilinear&gt;</P><P>Default: filtering bilinear</P><P CLASS="SectionHeader">&nbsp;</P><P CLASS="header">Texture 
+filtering &lt;none|bilinear|trilinear&gt;</P><P>Default: filtering bilinear</P>
+<P CLASS="SectionHeader"><a name="fog_override"></a>fog_override</P>
+<p>Tells the material to whether it should override the scene fog settings, and 
+  enforce it's own. Very useful for things that you don't want to be affected 
+  by fog when the rest of the scene is fogged, or vice versa</p>
+<p>Format: fog_override &lt;override?&gt; [&lt;type&gt; &lt;colour&gt; &lt;density&gt; 
+  &lt;start&gt; &lt;end&gt;]</p>
+<p>Default: fog_override false</p>
+<p>If you specify 'true' for the first parameter and you supply the rest of the 
+  parameters, you are telling the material to use these fog settings in preference 
+  to the scene settings, whatever they might be. If you specify 'true' but provide 
+  no further parameters, you are telling this material to never use fogging no 
+  matter what the scene says. Here is an explanation of the parameters:</p>
+<table width="100%" border="1" cellspacing="0" cellpadding="0">
+  <tr> 
+    <td width="10%" height="19"> 
+      <div align="CENTER">type</div>
+    </td>
+    <td width="90%" height="19"> 
+      <p>none: No fog, equivalent of just using 'fog_override true' <br>
+        linear: Linear fog from the &lt;start&gt; and &lt;end&gt; distances<br>
+        exp: Fog increases exponentially from the camera (fog = 1/e^(distance 
+        * density)), use &lt;density&gt; param to control it<br>
+        exp2: Fog increases at the square of FOG_EXP, i.e. even quicker (fog = 
+        1/e^(distance * density)^2), use &lt;density&gt; param to control it</p>
+    </td>
+  </tr>
+  <tr> 
+    <td width="10%" height="19"> 
+      <div align="CENTER">colour</div>
+    </td>
+    <td width="90%" height="19">Sequence of 3 floating point values from 0 to 
+      1 indicating the red, green and blue intensities</td>
+  </tr>
+  <tr> 
+    <td width="10%" height="19"> 
+      <div align="center">density</div>
+    </td>
+    <td width="90%" height="19">The density parameter used in the 'exp' or 'exp2' 
+      fog types. Not used in linear mode but param must still be there as a placeholder</td>
+  </tr>
+  <tr> 
+    <td width="10%" height="19"> 
+      <div align="center">start</div>
+    </td>
+    <td width="90%" height="19">The start distance from the camera of linear fog. 
+      Must still be present in other modes, even though it is not used.</td>
+  </tr>
+  <tr>
+    <td width="10%" height="19">
+      <div align="center">end</div>
+    </td>
+    <td width="90%" height="19">The end distance from the camera of linear fog. 
+      Must still be present in other modes, even though it is not used.</td>
+  </tr>
+</table>
+<p>Example: fog_override true exp 1 1 1 0.002 100 10000</p>
+<P CLASS="header">Texture 
 Layer Attributes</P><P>Texture layers are added in order by including nested brace 
 sections in the material. Any of the following attributes can be included in any 
 order within these braces:</P><P><A NAME="texture"></A><SPAN CLASS="SectionHeader">texture</SPAN></P><P>Sets 

@@ -2126,6 +2126,7 @@ namespace Ogre {
         {
             // Just disable
             hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_FOGTABLEMODE, D3DFOG_NONE);
+			hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE, FALSE);
         }
         else
         {

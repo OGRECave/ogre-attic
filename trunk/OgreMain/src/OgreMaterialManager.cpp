@@ -291,6 +291,47 @@ namespace Ogre {
 		    LogManager::getSingleton().logMessage("Bad lighting attribute line in "
 			    + pMat->getName() + ", valid parameters are 'on' or 'off'.");
     }
+	//-----------------------------------------------------------------------
+    void parseFogging(StringVector::iterator& params, int numParams, Material* pMat)
+    {
+	    if (numParams < 2)
+	    {
+		    LogManager::getSingleton().logMessage("Bad " + params[0] + " attribute line in "
+			    + pMat->getName() + ", wrong number of parameters (expected 1)");
+		    return;
+	    }
+	    if (params[1]=="true")
+		{
+			// if true, we need to see if they supplied all arguments, or just the 1... if just the one,
+			// Assume they want to disable the default fog from effecting this material.
+			if( numParams == 9 )
+			{
+				FogMode mFogtype;
+				if( params[2] == "none" )
+					mFogtype = FOG_NONE;
+				else if( params[2] == "linear" )
+					mFogtype = FOG_LINEAR;
+				else if( params[2] == "exp" )
+					mFogtype = FOG_EXP;
+				else if( params[2] == "exp2" )
+					mFogtype = FOG_EXP2;
+				else
+					LogManager::getSingleton().logMessage("Bad fogging attribute line in "
+						+ pMat->getName() + ", valid parameters are 'none', 'linear', 'exp', or 'exp2'.");
+					
+				pMat->setFog(true,mFogtype,ColourValue(atof(params[3].c_str()),atof(params[4].c_str()),atof(params[5].c_str())),atof(params[6].c_str()),atof(params[7].c_str()),atof(params[8].c_str()));
+			}
+			else
+			{
+				pMat->setFog(true);
+			}
+		}
+	    else if (params[1]=="false")
+			pMat->setFog(false);
+		else
+		    LogManager::getSingleton().logMessage("Bad fog_override attribute line in "
+			    + pMat->getName() + ", valid parameters are 'true' or 'false'.");
+    }
     //-----------------------------------------------------------------------
     void parseShading(StringVector::iterator& params, int numParams, Material* pMat)
     {
@@ -788,6 +829,7 @@ namespace Ogre {
 	    mMatAttribParsers.insert(MatAttribParserList::value_type("cull_hardware", (MATERIAL_ATTRIB_PARSER)parseCullMode));
 	    mMatAttribParsers.insert(MatAttribParserList::value_type("cull_software", (MATERIAL_ATTRIB_PARSER)parseCullMode));
 	    mMatAttribParsers.insert(MatAttribParserList::value_type("lighting", (MATERIAL_ATTRIB_PARSER)parseLighting));
+		mMatAttribParsers.insert(MatAttribParserList::value_type("fog_override", (MATERIAL_ATTRIB_PARSER)parseFogging));
 	    mMatAttribParsers.insert(MatAttribParserList::value_type("shading", (MATERIAL_ATTRIB_PARSER)parseShading));
 	    mMatAttribParsers.insert(MatAttribParserList::value_type("filtering", (MATERIAL_ATTRIB_PARSER)parseFiltering));
 	    mMatAttribParsers.insert(MatAttribParserList::value_type("depth_bias", (MATERIAL_ATTRIB_PARSER)parseDepthBias));
