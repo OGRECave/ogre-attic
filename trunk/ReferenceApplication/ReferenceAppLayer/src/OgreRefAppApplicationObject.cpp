@@ -142,9 +142,19 @@ namespace OgreRefApp
         }
         mDynamicsEnabled = enabled;
         if (enabled)
+        {
+            // Ensure body is synced
             mOdeBody->enable();
+            const Vector3& pos = getPosition();
+            mOdeBody->setPosition(pos.x, pos.y, pos.z);
+            const Quaternion& q = getOrientation();
+            dReal dquat[4] = {q.w, q.x, q.y, q.z };
+            mOdeBody->setQuaternion(dquat);
+        }
         else
+        {
             mOdeBody->disable();
+        }
     }
     //-------------------------------------------------------------------------
     void ApplicationObject::addForce(const Vector3& direction, const Vector3& atPosition)
