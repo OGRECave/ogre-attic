@@ -31,7 +31,7 @@ namespace Ogre
 {
     //-----------------------------------------------------------------------
     Controller::Controller(SharedPtr<ControllerValue> src, SharedPtr<ControllerValue> dest, SharedPtr<ControllerFunction> func)
-		: mFunc(func), mSource(src), mDest(dest)
+		: mSource(src), mDest(dest), mFunc(func)
     {
 		mEnabled = true;
     }

@@ -34,7 +34,7 @@ class NaturePatchManager : public Singleton<NaturePatchManager>
 public:
     NaturePatchManager();
 
-    ~NaturePatchManager();
+    virtual ~NaturePatchManager();
 
     bool initialise(SceneNode *sceneMgr, NaturePatchLoader *loader);
 

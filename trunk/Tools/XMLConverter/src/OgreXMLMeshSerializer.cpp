@@ -347,6 +347,8 @@ namespace Ogre {
                         StringConverter::toString(VertexElement::getTypeCount(elem.getType())));
                     ++numTextureCoords;
                     break;
+                default:
+                    break;
                 }
             }
             if (numTextureCoords > 0)
@@ -415,9 +417,12 @@ namespace Ogre {
     						dataNode->SetAttribute("v", StringConverter::toString(*pReal++));
     						dataNode->SetAttribute("w", StringConverter::toString(*pReal++));
                             break;
+                        default:
+                            break;
                         }
 						break;
-
+                    default:
+                        break;
 
 					}
 				}

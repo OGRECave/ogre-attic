@@ -91,7 +91,7 @@ protected:
     Real* patchCtlPoints;
 
 public:
-    BezierApplication() : patchCtlPoints(NULL), patchDecl(NULL) { }
+    BezierApplication() : patchDecl(NULL), patchCtlPoints(NULL) { }
     ~BezierApplication()
     {
         if (patchCtlPoints)

@@ -79,7 +79,7 @@ namespace Ogre {
 		{	return (val < low) ? low: ((val > high) ? high : val); }
 	public :
 		Cursor();
-		~Cursor();
+		virtual ~Cursor();
 
 		/** add relative amount to X */
 		void addToX(Real val);

@@ -63,6 +63,7 @@ namespace Ogre {
 
 	public :
 		GuiPressable(const String& name);
+        virtual ~GuiPressable() { }
 
 		void setSource(GuiElement* source);
 		String getActionCommand();
