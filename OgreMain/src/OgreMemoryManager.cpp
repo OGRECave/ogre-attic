@@ -44,7 +44,7 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreNoMemoryMacros.h"
 //-----------------------------------------------------------------------------
 
-namespace Ogre 
+namespace Ogre
 {
 
     //-----------------------------------------------------------------------------
