@@ -489,7 +489,7 @@ namespace Ogre {
         {
             Overlay* o = (Overlay*)i->second;
 			int z = o->getZOrder();
-			if (z > currZ)
+			if (z > currZ && o->isVisible())
 			{
 				PositionTarget* elementFound = static_cast<MouseTarget*>(o->findElementAt(x,y));	// GuiElements are MouseTargets and MouseMotionTargets,
 																									// you need to choose one to static cast
