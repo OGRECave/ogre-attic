@@ -71,6 +71,8 @@ namespace Ogre {
 
         // Store last depth write state
         bool mDepthWrite;
+		// Store last colour write state
+		bool mColourWrite[4];
 
         GLint convertCompareFunction(CompareFunction func);
         GLint convertStencilOp(StencilOperation op);
@@ -242,7 +244,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void _setTextureAddressingMode(int stage, Material::TextureLayer::TextureAddressingMode tam);
+        void _setTextureAddressingMode(int stage, TextureUnitState::TextureAddressingMode tam);
         /** See
           RenderSystem
          */
@@ -292,6 +294,10 @@ namespace Ogre {
          */
         void _setDepthBias(ushort bias);
         /** See
+          RenderSystem
+         */
+        void _setColourBufferWriteEnabled(bool red, bool green, bool blue, bool alpha);
+		/** See
           RenderSystem
          */
         void _setFog(FogMode mode, ColourValue colour, Real density, Real start, Real end);

@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreSceneManagerEnumerator.h"
 #include "OgreMaterialManager.h"
+#include "OgreIteratorWrappers.h"
 
 namespace Ogre {
 
@@ -39,180 +40,51 @@ namespace Ogre {
 	    static unsigned short num = 1;
 	    char name[14];
 
-	    mDeferLoad = false;
 	    sprintf(name, "Undefined%d", num++);
 	    mName = name;
+        mCompilationRequired = true;
 
 	    mHandle = -1;
 
-	    // Default to white ambient & diffuse, no specular / emissive
-	    mAmbient = mDiffuse = ColourValue::White;
-	    mSpecular = mEmissive = ColourValue::Black;
-	    mShininess = 0;
-
-	    // No textures
-	    mNumTextureLayers = 0;
-
-	    // No fog
-	    mFogOverride = false;
-
-	    // Default blending (overwrite)
-	    mSourceBlendFactor = SBF_ONE;
-	    mDestBlendFactor = SBF_ZERO;
-
-	    mDepthCheck = true;
-	    mDepthWrite = true;
-	    mDepthFunc = CMPF_LESS_EQUAL;
-        mDepthBias = 0;
-	    mCullMode = CULL_CLOCKWISE;
-	    mManualCullMode = MANUAL_CULL_BACK;
-	    mLightingEnabled = true;
-	    mShadeOptions = SO_GOURAUD;
-
-		mTextureFiltering = MaterialManager::getSingleton().getDefaultTextureFiltering();
-		mMaxAniso = MaterialManager::getSingleton().getDefaultAnisotropy();
-		mIsDefFiltering = true;
-		mIsDefAniso = true;
     }
     //-----------------------------------------------------------------------
-    Material::Material( const String& name, bool deferLoad)
+    Material::Material( const String& name )
     {
 	    applyDefaults();
-	    mDeferLoad = deferLoad;
 
 	    // Assign name
 	    mName = name;
 	    mHandle = -1;
+        mCompilationRequired = true;
 		
-		// Apply default texture filtering & anisotropy level
+		/** TODO: MOVE TO TEXTUREUNITSTATE
+        // Apply default texture filtering & anisotropy level
 		mTextureFiltering = MaterialManager::getSingleton().getDefaultTextureFiltering();
 		mMaxAniso = MaterialManager::getSingleton().getDefaultAnisotropy();
-		mIsDefFiltering = true;
-		mIsDefAniso = true;
+        */
     }
     //-----------------------------------------------------------------------
     Material& Material::operator=(const Material& rhs)
     {
 	    mName = rhs.mName;
 	    mHandle = rhs.mHandle;
+        mCompilationRequired = rhs.mCompilationRequired;
+        mSize = rhs.mSize;
+        mLastAccess = rhs.mLastAccess;
 
-	    memcpy( 
-		    &(this->mAmbient), 
-		    &(rhs.mAmbient), 
-		    (uchar*)(&rhs.mNumTextureLayers) - (uchar*)(&rhs.mAmbient) + sizeof( rhs.mNumTextureLayers ) );
-	    /*
-	    mAmbient = rhs.mAmbient;
-	    mDiffuse = rhs.mDiffuse;
-	    mEmissive = rhs.mEmissive;
-	    mShininess = rhs.mShininess;
-	    mSpecular = rhs.mSpecular;
-	    mNumTextureLayers = rhs.mNumTextureLayers;
-	    mSourceBlendFactor = rhs.mSourceBlendFactor;
-	    mDestBlendFactor = rhs.mDestBlendFactor;
-	    */
-	    // Copy texture layers
-	    for (int i = 0; i < mNumTextureLayers; ++i)
-	    {
-		    mTextureLayers[i] = rhs.mTextureLayers[i];
-	    }
-	    /*
-	    mDepthCheck = rhs.mDepthCheck;
-	    mDepthWrite = rhs.mDepthWrite;
-	    mDepthFunc = rhs.mDepthFunc;
-	    mCullMode = rhs.mCullMode;
-	    mLightingEnabled = rhs.mLightingEnabled;
-	    mShadeOptions = rhs.mShadeOptions;
-	    mTextureFiltering = rhs.mTextureFiltering;
-	    mFogOverride = rhs.mFogOverride;
-	    mFogMode = rhs.mFogMode;
-	    mFogColour = rhs.mFogColour;
-	    mFogDensity = rhs.mFogDensity;
-	    mFogStart = rhs.mFogStart;
-	    mFogEnd = rhs.mFogEnd;
-	    mDeferLoad = rhs.mDeferLoad;
-	    */
+
+
+        // Copy Techniques
+        this->removeAllTechniques();
+        Techniques::const_iterator i, iend;
+        iend = rhs.mTechniques.end();
+        for(i = rhs.mTechniques.begin(); i != iend; ++i)
+        {
+            Technique* t = this->createTechnique();
+            *t = *(*i);
+        }
 
 	    return *this;
-    }
-    //-----------------------------------------------------------------------
-    void Material::setAmbient(Real red, Real green, Real blue)
-    {
-	    mAmbient.r = red;
-	    mAmbient.g = green;
-	    mAmbient.b = blue;
-
-    }
-    //-----------------------------------------------------------------------
-    void Material::setAmbient(const ColourValue& ambient)
-    {
-	    mAmbient = ambient;
-    }
-    //-----------------------------------------------------------------------
-    void Material::setDiffuse(Real red, Real green, Real blue)
-    {
-	    mDiffuse.r = red;
-	    mDiffuse.g = green;
-	    mDiffuse.b = blue;
-    }
-    //-----------------------------------------------------------------------
-    void Material::setDiffuse(const ColourValue& diffuse)
-    {
-	    mDiffuse = diffuse;
-    }
-    //-----------------------------------------------------------------------
-    void Material::setSpecular(Real red, Real green, Real blue)
-    {
-	    mSpecular.r = red;
-	    mSpecular.g = green;
-	    mSpecular.b = blue;
-    }
-    //-----------------------------------------------------------------------
-    void Material::setSpecular(const ColourValue& specular)
-    {
-	    mSpecular = specular;
-    }
-    //-----------------------------------------------------------------------
-    void Material::setShininess(Real val)
-    {
-	    mShininess = val;
-    }
-    //-----------------------------------------------------------------------
-    void Material::setSelfIllumination(Real red, Real green, Real blue)
-    {
-	    mEmissive.r = red;
-	    mEmissive.g = green;
-	    mEmissive.b = blue;
-
-    }
-    //-----------------------------------------------------------------------
-    void Material::setSelfIllumination(const ColourValue& selfIllum)
-    {
-	    mEmissive = selfIllum;
-    }
-    //-----------------------------------------------------------------------
-    const ColourValue& Material::getAmbient(void) const
-    {
-	    return mAmbient;
-    }
-    //-----------------------------------------------------------------------
-    const ColourValue& Material::getDiffuse(void) const
-    {
-	    return mDiffuse;
-    }
-    //-----------------------------------------------------------------------
-    const ColourValue& Material::getSpecular(void) const
-    {
-	    return mSpecular;
-    }
-    //-----------------------------------------------------------------------
-    const ColourValue& Material::getSelfIllumination(void) const
-    {
-	    return mEmissive;
-    }
-    //-----------------------------------------------------------------------
-    Real Material::getShininess(void) const
-    {
-	    return mShininess;
     }
 
 
@@ -235,246 +107,39 @@ namespace Ogre {
 	    return mHandle;
     }
     //-----------------------------------------------------------------------
-    Material::TextureLayer* Material::addTextureLayer(const String& textureName, int texCoordSet)
-    {
-	    mTextureLayers[mNumTextureLayers].setDeferredLoad(mDeferLoad);
-	    mTextureLayers[mNumTextureLayers].setTextureName(textureName);
-	    mTextureLayers[mNumTextureLayers].setTextureCoordSet(texCoordSet);
-	    mTextureLayers[mNumTextureLayers]._setDefTextureLayerFiltering(mTextureFiltering);
-	    mTextureLayers[mNumTextureLayers]._setDefTextureAnisotropy(mMaxAniso);
-	    return &mTextureLayers[mNumTextureLayers++];
-    }
-    //-----------------------------------------------------------------------
-    Material::TextureLayer* Material::getTextureLayer(int index) const
-    {
-	    return const_cast<Material::TextureLayer*>(&mTextureLayers[index]);
-    }
-    //-----------------------------------------------------------------------
-    void Material::removeTextureLayer()
-    {
-	    mNumTextureLayers--;
-    }
-    //-----------------------------------------------------------------------
-    void Material::removeAllTextureLayers(void)
-    {
-	    mNumTextureLayers = 0;
-    }
-    //-----------------------------------------------------------------------
-    void Material::setSceneBlending(SceneBlendType sbt)
-    {
-	    // Turn predefined type into blending factors
-	    switch (sbt)
-	    {
-	    case SBT_TRANSPARENT_ALPHA:
-		    setSceneBlending(SBF_SOURCE_ALPHA, SBF_ONE_MINUS_SOURCE_ALPHA);
-		    break;
-	    case SBT_TRANSPARENT_COLOUR:
-		    setSceneBlending(SBF_SOURCE_COLOUR, SBF_ONE_MINUS_SOURCE_COLOUR);
-		    break;
-	    case SBT_ADD:
-		    setSceneBlending(SBF_ONE, SBF_ONE);
-		    break;
-	    // TODO: more
-	    }
-
-    }
-    //-----------------------------------------------------------------------
-    void Material::setSceneBlending(SceneBlendFactor sourceFactor, SceneBlendFactor destFactor)
-    {
-	    mSourceBlendFactor = sourceFactor;
-	    mDestBlendFactor = destFactor;
-
-        /* DON'T DO THIS ANYMORE
-           Where a material uses alpha blending to purely mask (rather than blend)
-           this setting causes problems.
-	    if ((sourceFactor == SBF_ONE && destFactor == SBF_ZERO) ||
-		    (sourceFactor == SBF_ZERO && destFactor == SBF_ONE))
-	    {
-		    // Solid
-
-	    }
-	    else
-	    {
-		    // Transparent
-		    setDepthWriteEnabled(false);
-	    }
-        */
-
-    }
-    //-----------------------------------------------------------------------
-    SceneBlendFactor Material::getSourceBlendFactor(void) const
-    {
-	    return mSourceBlendFactor;
-    }
-    //-----------------------------------------------------------------------
-    SceneBlendFactor Material::getDestBlendFactor(void) const
-    {
-	    return mDestBlendFactor;
-    }
-    //-----------------------------------------------------------------------
-    bool Material::isTransparent(void) const
-    {
-	    if (mSourceBlendFactor != SBF_ONE || mDestBlendFactor != SBF_ZERO)
-		    return true;
-	    else
-		    return false;
-    }
-    //-----------------------------------------------------------------------
-    void Material::setDepthCheckEnabled(bool enabled)
-    {
-	    mDepthCheck = enabled;
-    }
-    //-----------------------------------------------------------------------
-    bool Material::getDepthCheckEnabled(void) const
-    {
-	    return mDepthCheck;
-    }
-    //-----------------------------------------------------------------------
-    void Material::setDepthWriteEnabled(bool enabled)
-    {
-	    mDepthWrite = enabled;
-    }
-    //-----------------------------------------------------------------------
-    bool Material::getDepthWriteEnabled(void) const
-    {
-	    return mDepthWrite;
-    }
-    //-----------------------------------------------------------------------
-    void Material::setDepthFunction( CompareFunction func)
-    {
-	    mDepthFunc = func;
-    }
-    //-----------------------------------------------------------------------
-    CompareFunction Material::getDepthFunction(void) const
-    {
-	    return mDepthFunc;
-    }
-    //-----------------------------------------------------------------------
-    void Material::setCullingMode( CullingMode mode)
-    {
-	    mCullMode = mode;
-    }
-    //-----------------------------------------------------------------------
-    CullingMode Material::getCullingMode(void) const
-    {
-	    return mCullMode;
-    }
-    //-----------------------------------------------------------------------
-    void Material::setLightingEnabled(bool enabled)
-    {
-	    mLightingEnabled = enabled;
-    }
-    //-----------------------------------------------------------------------
-    bool Material::getLightingEnabled(void) const
-    {
-	    return mLightingEnabled;
-    }
-    //-----------------------------------------------------------------------
-    void Material::setShadingMode(ShadeOptions mode)
-    {
-	    mShadeOptions = mode;
-    }
-    //-----------------------------------------------------------------------
-    ShadeOptions Material::getShadingMode(void) const
-    {
-	    return mShadeOptions;
-    }
-    //-----------------------------------------------------------------------
-    void Material::applyDefaults(void)
-    {
-	    *this = *Material::mDefaultSettings;
-    }
-    //-----------------------------------------------------------------------
-    void Material::setManualCullingMode(ManualCullingMode mode)
-    {
-	    mManualCullMode = mode;
-    }
-    //-----------------------------------------------------------------------
-    ManualCullingMode Material::getManualCullingMode(void) const
-    {
-	    return mManualCullMode;
-    }
-    //-----------------------------------------------------------------------
-    void Material::setFog(bool overrideScene, FogMode mode, const ColourValue& colour, Real density, Real start, Real end)
-    {
-	    mFogOverride = overrideScene;
-	    if (overrideScene)
-	    {
-		    mFogMode = mode;
-		    mFogColour = colour;
-		    mFogStart = start;
-		    mFogEnd = end;
-		    mFogDensity = density;
-	    }
-    }
-    //-----------------------------------------------------------------------
-    bool Material::getFogOverride(void) const
-    {
-	    return mFogOverride;
-    }
-    //-----------------------------------------------------------------------
-    FogMode Material::getFogMode(void) const
-    {
-	    return mFogMode;
-    }
-    //-----------------------------------------------------------------------
-    const ColourValue& Material::getFogColour(void) const
-    {
-	    return mFogColour;
-    }
-    //-----------------------------------------------------------------------
-    Real Material::getFogStart(void) const
-    {
-	    return mFogStart;
-    }
-    //-----------------------------------------------------------------------
-    Real Material::getFogEnd(void) const
-    {
-	    return mFogEnd;
-    }
-    //-----------------------------------------------------------------------
-    Real Material::getFogDensity(void) const
-    {
-	    return mFogDensity;
-    }
-    //-----------------------------------------------------------------------
     void Material::load(void)
     {
 	    if (!mIsLoaded)
 	    {
-		    if (mDeferLoad)
-		    {
-			    // Load all textures & controllers
-			    for (int i = 0; i < mNumTextureLayers; ++i)
-			    {
-				    mTextureLayers[i]._load();
-			    }
-			    mDeferLoad = false;
-		    }
+			// compile if required
+            compile();
 
+            // Load all supported techniques
+            Techniques::iterator i, iend;
+            iend = mSupportedTechniques.end();
+            for (i = mSupportedTechniques.begin(); i != iend; ++i)
+            {
+                (*i)->_load();
+            }
 
-		    mIsLoaded = true;
+            mIsLoaded = true;
+
 	    }
-
-
     }
     //-----------------------------------------------------------------------
     void Material::unload(void)
     {
-    }
-    //-----------------------------------------------------------------------
-    bool Material::_compareSurfaceParams(const Material& cmp) const
-    {
-	    if (mAmbient != cmp.mAmbient || mDiffuse != cmp.mDiffuse ||
-	    mSpecular != cmp.mSpecular || mEmissive != cmp.mEmissive ||
-	    mShininess != cmp.mShininess)
-	    {
-		    return false;
-	    }
-	    else
-	    {
-		    return true;
-	    }
+        if (mIsLoaded)
+        {
+            // Unload all supported techniques
+            Techniques::iterator i, iend;
+            iend = mSupportedTechniques.end();
+            for (i = mSupportedTechniques.begin(); i != iend; ++i)
+            {
+                (*i)->_unload();
+            }
+            mIsLoaded = false;
+        }
     }
     //-----------------------------------------------------------------------
     Material* Material::clone(const String& newName)
@@ -509,26 +174,87 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void Material::setDepthBias(ushort bias)
+    void Material::applyDefaults(void)
     {
-        assert(bias <= 16 && "Depth bias must be between 0 and 16");
-        mDepthBias = bias;
+	    *this = *mDefaultSettings;
     }
     //-----------------------------------------------------------------------
-    ushort Material::getDepthBias(void) const
+    Technique* Material::createTechnique(void)
     {
-        return mDepthBias;
+        Technique *t = new Technique(this);
+        mTechniques.push_back(t);
+        return t;
     }
     //-----------------------------------------------------------------------
-	void Material::_setDefAnisotropy(int maxAniso)
+    Technique* Material::getTechnique(unsigned short index)
+    {
+        assert (index < mTechniques.size() && "Index out of bounds.");
+        return mTechniques[index];
+    }
+    //-----------------------------------------------------------------------
+    void Material::removeTechnique(unsigned short index)
+    {
+        assert (index < mTechniques.size() && "Index out of bounds.");
+        Techniques::iterator i = mTechniques.begin() + index;
+        delete(*i);
+        mTechniques.erase(i);
+    }
+    //-----------------------------------------------------------------------
+    void Material::removeAllTechniques(void)
+    {
+        Techniques::iterator i, iend;
+        iend = mTechniques.end();
+        for (i = mTechniques.begin(); i != iend; ++i)
+        {
+            delete(*i);
+        }
+        mTechniques.clear();
+    }
+    //-----------------------------------------------------------------------
+    Material::TechniqueIterator Material::getTechniqueIterator(void) 
+    {
+        return TechniqueIterator(mTechniques.begin(), mTechniques.end());
+    }
+    //-----------------------------------------------------------------------
+    Material::TechniqueIterator Material::getSupportedTechniqueIterator(void)
+    {
+        return TechniqueIterator(mSupportedTechniques.begin(), mSupportedTechniques.end());
+    }
+    //-----------------------------------------------------------------------
+    bool Material::isTransparent(void) const
 	{
-		if (mIsDefAniso)
+		// Check each technique
+		Techniques::const_iterator i, iend;
+		iend = mTechniques.end();
+		for (i = mTechniques.begin(); i != iend; ++i)
 		{
-			mMaxAniso = maxAniso;
-			for (int n = 0; n < mNumTextureLayers; n++)
-				mTextureLayers[n]._setDefTextureAnisotropy(mMaxAniso);
+			if ( (*i)->isTransparent() )
+				return true;
 		}
+		return false;
 	}
+    //-----------------------------------------------------------------------
+    void Material::compile(bool autoManageTextureUnits)
+    {
+        // Compile each technique, then add it to the list of supported techniques
+        mSupportedTechniques.clear();
+
+        Techniques::iterator i, iend;
+        iend = mTechniques.end();
+        for (i = mTechniques.begin(); i != iend; ++i)
+        {
+            (*i)->_compile(autoManageTextureUnits);
+            if ( (*i)->isSupported() )
+            {
+                mSupportedTechniques.push_back(*i);
+            }
+        }
+    }
+    //-----------------------------------------------------------------------
+
+
+
+    /** TODO: MOVE TO TEXTUREUNITSTATE
     //-----------------------------------------------------------------------
 	void Material::setAnisotropy(int maxAniso)
 	{
@@ -566,5 +292,8 @@ namespace Ogre {
 	    return mTextureFiltering;
     }
     //-----------------------------------------------------------------------
+    */
+
+
 }
 

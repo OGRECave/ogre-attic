@@ -37,7 +37,7 @@ namespace Ogre {
     /// Function def for material attribute parser.
     typedef void (*MATERIAL_ATTRIB_PARSER)(StringVector::iterator&, int, Material*);
     /// Function def for texture layer attribute parser.
-    typedef void (*TEXLAYER_ATTRIB_PARSER)(StringVector::iterator&, int, Material*, Material::TextureLayer*);
+    typedef void (*TEXLAYER_ATTRIB_PARSER)(StringVector::iterator&, int, Material*, TextureUnitState*);
 
     /** Class for managing Material settings for Ogre.
         @remarks
@@ -59,7 +59,7 @@ namespace Ogre {
     protected:
         void parseNewTextureLayer( DataChunk& chunk, Material* pMat );
         void parseAttrib( const String& line, Material* pMat);
-        void parseLayerAttrib( const String& line, Material* pMat, Material::TextureLayer* pLayer );
+        void parseLayerAttrib( const String& line, Material* pMat, TextureUnitState* pLayer );
 
         /// Keyword-mapped attribute parsers.
         //typedef std::map<String, MATERIAL_ATTRIB_PARSER> MatAttribParserList;
@@ -101,6 +101,9 @@ namespace Ogre {
         */
         Material* add(const Material& mat);
 
+        /** Overridden from ResourceManager, adds an existing Resource. */
+        void add(Resource* res);
+
 
         /** Gets a pointer to a Material by it's numerical handle.
             @remarks
@@ -119,13 +122,11 @@ namespace Ogre {
         void parseAllSources(const String& extension = ".material");
 
         /** Create implementation required by ResourceManager.
+        @remarks
+            All Materials created by this method are deferred-load, ie none of
+            the textures referenced by the TextureUnitState are loaded, and 
         */
         Resource* create( const String& name );
-
-        /** Create implementation that creates a deferred-load Material, ie one that does not load any resources
-            like texture files etc, and does not register itself with SceneManagers until it is actually used.
-        */
-        Material* createDeferred( const String& name );
 
         /** Sets the default texture filtering to be used for loaded textures, for when textures are
             loaded automatically (e.g. by Material class) or when 'load' is called with the default

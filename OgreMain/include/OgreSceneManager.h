@@ -163,25 +163,11 @@ namespace Ogre {
         Real mFogEnd;
         Real mFogDensity;
 
-        /** Internal method for setting a material for subsequent rendering.
-            @remarks
-                If this method returns a non-zero value, it means that not all
-                the remaining texture layers can be rendered in one pass, and a
-                subset of them have been set up in the RenderSystem for the first
-                pass - the caller should render the geometry then call this
-                method again to set the remaining texture layers and re-render
-                the geometry again.
+        /** Internal method for setting up the renderstate for a rendering pass.
             @param
-                mat The Material to set.
-            @param
-                numLayers The top 'n' number of layers to be processed,
-                will only be less than total layers if a previous call
-                resulted in a multipass render being required.
-            @returns
-                The number of layers unprocessed because of insufficient
-                available texture units in the hardware.
+                pass The Pass details to set.
         */
-        int setMaterial(Material* mat, int numLayers);
+        void setPass(Pass* pass);
 
         enum BoxPlane
         {
@@ -322,7 +308,7 @@ namespace Ogre {
                 settings. All materials created from then on will be configured
                 with the new defaults you have specified.
             @par
-                The default settings begin as:
+                The default settings begin as a single Technique with a single Pass:
                 - ambient = ColourValue::White
                 - diffuse = ColourValue::White
                 - specular = ColourValue::Black
@@ -691,7 +677,7 @@ namespace Ogre {
                 any camera using this scene manager).
             @note
                 To apply scaling, scrolls etc to the sky texture(s) you
-                should use the Material::TextureLayer class methods.
+                should use the TextureUnitState class methods.
             @param
                 enable True to enable the plane, false to disable it
             @param
@@ -707,7 +693,7 @@ namespace Ogre {
             @param
                 tiling How many times to tile the texture across the sky.
                 Applies to all texture layers. If you need finer control use
-                the TextureLayer texture coordinate transformation methods.
+                the TextureUnitState texture coordinate transformation methods.
             @param
                 drawFirst If true, the plane is drawn before all other
                 geometry in the scene, without updating the depth buffer.
@@ -744,7 +730,7 @@ namespace Ogre {
                 The material you use for the skybox can either contain layers
                 which are single textures, or they can be cubic textures, i.e.
                 made up of 6 images, one for each plane of the cube. See the
-                Material::TextureLayer class for more information.
+                TextureUnitState class for more information.
             @param
                 enable True to enable the skybox, false to disable it
             @param

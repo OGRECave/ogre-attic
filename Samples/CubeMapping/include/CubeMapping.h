@@ -435,14 +435,14 @@ private:
 					// can't help it - have to do it :)
 					if (meshName=="knot.mesh") {
 						for(int tl=0;tl<cloned->getNumTextureLayers();tl++) {
-							Material::TextureLayer *tlayer = cloned->getTextureLayer(tl);
+							TextureUnitState *tlayer = cloned->getTextureLayer(tl);
 							tlayer->setScrollAnimation(1.0 , 0);
 						}
 					}
 					// add layers
 					for(int tl=0;tl<material->getNumTextureLayers();tl++) {
-						Material::TextureLayer *orgTL = material->getTextureLayer(tl);
-						Material::TextureLayer *newTL = cloned->addTextureLayer(
+						TextureUnitState *orgTL = material->getTextureLayer(tl);
+						TextureUnitState *newTL = cloned->addTextureLayer(
 							orgTL->getTextureName());
 						*newTL = *orgTL ;
 						newTL->setColourOperationEx(currentLBX);

@@ -71,7 +71,7 @@ namespace Ogre {
         LogManager::getSingleton().logMessage(msg, LML_CRITICAL);
         for (int p = 0; p < numPasses; ++p)
         {
-            Material::TextureLayer* t;
+            TextureUnitState* t;
             // Create basic texture
             if (pass[p].textureName == "$lightmap")
             {
@@ -164,7 +164,7 @@ namespace Ogre {
             }
             else if (pass[p].texGen == TEXGEN_ENVIRONMENT)
             {
-                t->setEnvironmentMap(true, Material::TextureLayer::ENV_PLANAR);
+                t->setEnvironmentMap(true, TextureUnitState::ENV_PLANAR);
             }
             // Tex mod
             // Scale
@@ -186,12 +186,12 @@ namespace Ogre {
                         // Turbulent scroll
                         if (pass[p].tcModScroll[0])
                         {
-                            t->setTransformAnimation(Material::TextureLayer::TT_TRANSLATE_U, WFT_SINE,
+                            t->setTransformAnimation(TextureUnitState::TT_TRANSLATE_U, WFT_SINE,
                                 pass[p].tcModTurb[0], pass[p].tcModTurb[3], pass[p].tcModTurb[2], pass[p].tcModTurb[1]);
                         }
                         if (pass[p].tcModScroll[1])
                         {
-                            t->setTransformAnimation(Material::TextureLayer::TT_TRANSLATE_V, WFT_SINE,
+                            t->setTransformAnimation(TextureUnitState::TT_TRANSLATE_V, WFT_SINE,
                                 pass[p].tcModTurb[0], pass[p].tcModTurb[3], pass[p].tcModTurb[2], pass[p].tcModTurb[1]);
                         }
                     }
@@ -224,9 +224,9 @@ namespace Ogre {
 
                     }
                     // Create wave-based stretcher
-                    t->setTransformAnimation(Material::TextureLayer::TT_SCALE_U, wft, pass[p].tcModStretchParams[3],
+                    t->setTransformAnimation(TextureUnitState::TT_SCALE_U, wft, pass[p].tcModStretchParams[3],
                         pass[p].tcModStretchParams[0], pass[p].tcModStretchParams[2], pass[p].tcModStretchParams[1]);
-                    t->setTransformAnimation(Material::TextureLayer::TT_SCALE_V, wft, pass[p].tcModStretchParams[3],
+                    t->setTransformAnimation(TextureUnitState::TT_SCALE_V, wft, pass[p].tcModStretchParams[3],
                         pass[p].tcModStretchParams[0], pass[p].tcModStretchParams[2], pass[p].tcModStretchParams[1]);
                 }
             }

@@ -39,6 +39,7 @@ namespace Ogre {
 		GPT_FRAGMENT_PROGRAM
 	};
 
+    
     /** Collects together the program parameters used for a GpuProgram.
     @remarks
         Gpu program state includes constant parameters used by the program, and
@@ -52,15 +53,54 @@ namespace Ogre {
     */
     class _OgreExport GpuProgramParameters
     {
+    public:
+        /** Defines the types of automatically updated values that may be bound to GpuProgram
+        parameters, or used to modify parameters on a per-object basis.
+        */
+        enum AutoConstantType
+        {
+            /// The current world matrix
+            ACT_WORLD_MATRIX,
+            /// The current world & view matrices concatenated
+            ACT_WORLDVIEW_MATRIX,
+            /// The current world matrix, inverted
+            ACT_INVERSE_WORLD_MATRIX,
+            /// The current world & view matrices concatenated, then inverted
+            ACT_INVERSE_WORLDVIEW_MATRIX,
+            /// A light position in object space (index determined by setAutoConstant call)
+            ACT_LIGHT_POSITION_OBJECT_SPACE,
+            /// A light direction in object space (index determined by setAutoConstant call)
+            ACT_LIGHT_DIRECTION_OBJECT_SPACE,
+            /// The current camera's position in object space 
+            ACT_CAMERA_POSITION_OBJECT_SPACE,
+        };
+        /** Structure recording the use of an automatic parameter. */
+        class AutoConstantEntry
+        {
+        public:
+            /// The type of parameter
+            AutoConstantType paramType;
+            /// The target index
+            size_t index;
+            /// Additional information to go with the parameter
+            size_t data;
+
+            AutoConstantEntry(AutoConstantType theType, size_t theIndex, size_t theData)
+                : paramType(theType), index(theIndex), data(theData) {}
+
+        };
     protected:
         // Constant lists
         typedef std::vector<Real> RealConstantList;
         typedef std::vector<int> IntConstantList;
-
+        // Auto parameter storage
+        typedef std::vector<AutoConstantEntry> AutoConstantList;
         /// Packed list of floating-point constants
         RealConstantList mRealConstants;
         /// Packed list of integer constants
         IntConstantList mIntConstants;
+        /// List of automatically updated parameters
+        AutoConstantList mAutoConstants;
     public:
 		GpuProgramParameters() {}
 		virtual ~GpuProgramParameters() {}
@@ -172,6 +212,28 @@ namespace Ogre {
         virtual bool hasRealConstantParams(void) { return !(mRealConstants.empty()); }
         /// Returns true if there are any int constants contained here
         virtual bool hasIntConstantParams(void) { return !(mIntConstants.empty()); }
+
+        /** Sets up a constant which will automatically be updated by the system.
+        @remarks
+            Vertex and fragment programs often need parameters which are to do with the
+            current render state, or particular values which may very well change over time,
+            and often between objects which are being rendered. This feature allows you 
+            to set up a certain number of predefined parameter mappings that are kept up to 
+            date for you.
+        @param acType The type of automatic constant to set
+        @param index The location in the constant list to place this updated constant every time
+            it is changed. Note that because of the nature of the types, we know how big the 
+            parameter details will be so you don't need to set that like you do for manual constants.
+        @param extraInfo If the constant type needs more information (like a light index) put it here.
+        */
+        virtual void setAutoConstant(AutoConstantType acType, size_t index, size_t extraInfo = 0);
+        /** Clears all the existing automatic constants. */
+        virtual void clearAutoConstants(void);
+        typedef VectorIterator<AutoConstantList> AutoConstantIterator;
+        /** Gets an iterator over the automatic constant bindings currently in place. */
+        virtual AutoConstantIterator getAutoConstantIterator(void);
+        /** Returns true if this instance has any automatic constants. */
+        virtual bool hasAutoConstants(void){ return !(mAutoConstants.empty()); }
     };
 
     /// Shared pointer used to hold references to GpuProgramParameters instances
@@ -202,9 +264,9 @@ namespace Ogre {
 
         /** Sets the source assembly for this program.
         @remarks
-            You should not need to use this method - use the GpuProgramManager::load
-            methods instead, which will call this method. Setting this will have no effect
-            unless you reload the program in any case.
+            You should not need to use this method - use the GpuProgramManager::load or
+            GpuProgramManager::create methods instead, which will call this method. 
+            Setting this will have no effect unless you reload the program in any case.
         */
         virtual void setSource(const String& source);
 

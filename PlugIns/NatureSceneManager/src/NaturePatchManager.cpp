@@ -69,7 +69,7 @@ Material *NaturePatchManager::createTerrainMaterial()
     // START TEST!!!
     Material *mMaterial = mSceneRoot->getCreator()->createMaterial("NatureQuadMaterial" + toString(count++));
 #if USE_TEXTURES
-    Material::TextureLayer *layer;
+    TextureUnitState *layer;
 
     layer = mMaterial->addTextureLayer("grass_1024.jpg", 0);
     layer->setColourOperation(LBO_REPLACE);

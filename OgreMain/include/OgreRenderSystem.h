@@ -30,7 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreString.h"
 
-#include "OgreMaterial.h"
+#include "OgreTextureUnitState.h"
 #include "OgreCommon.h"
 
 #include "OgreRenderOperation.h"
@@ -418,9 +418,11 @@ namespace Ogre
             only sets those settings which are different from the current settings for this
             unit, thus minimising render state changes.
         */
-        virtual void _setTextureUnitSettings(int texUnit, Material::TextureLayer& tl);
+        virtual void _setTextureUnitSettings(size_t texUnit, TextureUnitState& tl);
         /** Turns off a texture unit. */
-        virtual void _disableTextureUnit(int texUnit);
+        virtual void _disableTextureUnit(size_t texUnit);
+        /** Disables all texture units from the given unit upwards */
+        virtual void _disableTextureUnitsFrom(size_t texUnit);
         /** Sets the surface properties to be used for future rendering.
 
             This method sets the the properties of the surfaces of objects
@@ -474,7 +476,7 @@ namespace Ogre
         /**
           Sets the texture coordinate set to use for a texture unit.
 
-          Meant for use internally - not generally used directly by apps - the Material and TextureLayer
+          Meant for use internally - not generally used directly by apps - the Material and TextureUnitState
           classes let you manage textures far more easily.
 
           @param unit Texture unit as above
@@ -490,9 +492,9 @@ namespace Ogre
          */
         virtual void _setTextureCoordCalculation(int unit, TexCoordCalcMethod m) = 0;
 
-        /** Sets the texture blend modes from a TextureLayer record.
+        /** Sets the texture blend modes from a TextureUnitState record.
             Meant for use internally only - apps should use the Material
-            and TextureLayer classes.
+            and TextureUnitState classes.
             @param unit Texture unit as above
             @param bm Details of the blending mode
         */
@@ -508,7 +510,7 @@ namespace Ogre
 		virtual void _setAnisotropy(int maxAnisotropy);
 
 		/** Sets the texture addressing mode for a texture unit.*/
-        virtual void _setTextureAddressingMode(int unit, Material::TextureLayer::TextureAddressingMode tam) = 0;
+        virtual void _setTextureAddressingMode(int unit, TextureUnitState::TextureAddressingMode tam) = 0;
 
         /** Sets the texture coordinate transformation matrix for a texture unit.
             @param unit Texture unit to affect
@@ -602,6 +604,14 @@ namespace Ogre
              for the new pixel to be written.
         */
         virtual void _setDepthBufferFunction(CompareFunction func = CMPF_LESS_EQUAL) = 0;
+		/** Sets whether or not colour buffer writing is enabled, and for which channels. 
+		@remarks
+			For some advanced effects, you may wish to turn off the writing of certain colour
+			channels, or even all of the colour channels so that only the depth buffer is updated
+			in a rendering pass. However, the chances are that you really want to use this option
+			through the Material class.
+		@param red, green, blue, alpha Whether writing is enabled for each of the 4 colour channels. */
+		virtual void _setColourBufferWriteEnabled(bool red, bool green, bool blue, bool alpha) = 0;
         /** Sets the depth bias, NB you should use the Material version of this. 
         @remarks
             When polygons are coplanar, you can get problems with 'depth fighting' where
@@ -855,7 +865,7 @@ namespace Ogre
         bool mVSync;
 
         // Store record of texture unit settings for efficient alterations
-        Material::TextureLayer mTextureUnits[OGRE_MAX_TEXTURE_LAYERS];
+        TextureUnitState mTextureUnits[OGRE_MAX_TEXTURE_LAYERS];
 
         size_t mFaceCount;
         size_t mVertexCount;

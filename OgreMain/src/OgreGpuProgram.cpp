@@ -108,6 +108,20 @@ namespace Ogre
         memcpy(&mIntConstants[index], val, sizeof(int)*count);
 
     }
-
+	//-----------------------------------------------------------------------------
+    void GpuProgramParameters::setAutoConstant(AutoConstantType acType, size_t index, size_t extraInfo)
+    {
+        mAutoConstants.push_back(AutoConstantEntry(acType, index, extraInfo));
+    }
+	//-----------------------------------------------------------------------------
+    void GpuProgramParameters::clearAutoConstants(void)
+    {
+        mAutoConstants.clear();
+    }
+	//-----------------------------------------------------------------------------
+    GpuProgramParameters::AutoConstantIterator GpuProgramParameters::getAutoConstantIterator(void)
+    {
+        return AutoConstantIterator(mAutoConstants.begin(), mAutoConstants.end());
+    }
 
 }

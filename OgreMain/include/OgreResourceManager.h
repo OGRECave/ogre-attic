@@ -76,6 +76,9 @@ namespace Ogre {
         */
         virtual void load( Resource *res, int priority );
 
+        /** Add a resource to this manager; normally only done by subclasses.
+        */
+        virtual void add( Resource *res );
         /** Unloads a Resource from the managed resources list, calling it's unload() method.
             @remarks
                 This method removes a resource from the list maintained by this manager, and unloads it from

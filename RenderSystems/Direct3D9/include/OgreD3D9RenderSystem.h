@@ -125,6 +125,13 @@ namespace Ogre
         /// Flag to indicate normal normalisation is forced
         bool mForcedNormalisation;
 
+        /// Internal method for populating the capabilities structure
+        void initCapabilities(void);
+
+        String convertVertexShaderCapsToProfileName(DWORD version);
+        String convertPixelShaderCapsToProfileName(DWORD version);
+
+
 	public:
 		// constructor
 		D3D9RenderSystem( HINSTANCE hInstance );
@@ -179,7 +186,7 @@ namespace Ogre
         void _setTextureCoordSet( int stage, int index );
         void _setTextureCoordCalculation(int unit, TexCoordCalcMethod m);
 		void _setTextureBlendMode( int stage, const LayerBlendModeEx& bm );
-		void _setTextureAddressingMode( int stage, Material::TextureLayer::TextureAddressingMode tam );
+		void _setTextureAddressingMode( int stage, TextureUnitState::TextureAddressingMode tam );
 		void _setTextureMatrix( int stage, const Matrix4 &xform );
 		void _setSceneBlending( SceneBlendFactor sourceFactor, SceneBlendFactor destFactor );
 		void _setAlphaRejectSettings( CompareFunction func, unsigned char value );
@@ -189,6 +196,7 @@ namespace Ogre
 		void _setCullingMode( CullingMode mode );
 		void _setDepthBufferParams( bool depthTest = true, bool depthWrite = true, CompareFunction depthFunction = CMPF_LESS_EQUAL );
 		void _setDepthBufferCheckEnabled( bool enabled = true );
+		void _setColourBufferWriteEnabled(bool red, bool green, bool blue, bool alpha);
 		void _setDepthBufferWriteEnabled(bool enabled = true);
 		void _setDepthBufferFunction( CompareFunction func = CMPF_LESS_EQUAL );
 		void _setDepthBias(ushort bias);

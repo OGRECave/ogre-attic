@@ -48,6 +48,23 @@ namespace Ogre {
     {
         return Singleton<GpuProgramManager>::getSingleton();
     }
+    //---------------------------------------------------------------------------
+	GpuProgram* GpuProgramManager::createProgram(const String& filename, GpuProgramType gptype, 
+        int priority)
+    {
+        GpuProgram* prg = create(filename, gptype);
+        ResourceManager::add(prg);
+        return prg;
+    }
+    //---------------------------------------------------------------------------
+	GpuProgram* GpuProgramManager::createProgram(const String& name, const String& code, 
+        GpuProgramType gptype, int priority)
+    {
+        GpuProgram* prg = create(name, gptype);
+        prg->setSource(code);
+        ResourceManager::add(prg);
+        return prg;
+    }
 
 
 }

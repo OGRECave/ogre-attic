@@ -89,8 +89,8 @@ void prepareCircleMaterial()
 		imgchunk, 256, 256, PF_A8R8G8B8);
 	Material *material = (Material*) 
 		MaterialManager::getSingleton().create( CIRCLES_MATERIAL );
-	Material::TextureLayer *texLayer = material->addTextureLayer( CIRCLES_MATERIAL );
-	texLayer->setTextureAddressingMode( Material::TextureLayer::TAM_CLAMP );	
+	TextureUnitState *texLayer = material->addTextureLayer( CIRCLES_MATERIAL );
+	texLayer->setTextureAddressingMode( TextureUnitState::TAM_CLAMP );	
 	material->setSceneBlending( SBT_ADD );
 	material->setDepthWriteEnabled( false ) ;
 }

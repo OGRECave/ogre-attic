@@ -129,9 +129,7 @@ namespace Ogre {
         if (!mManuallyDefined)
         {
             MeshSerializer serializer;
-            char msg[100];
-            sprintf(msg, "Mesh: Loading %s .", mName.c_str());
-            LogManager::getSingleton().logMessage(msg);
+            LogManager::getSingleton().logMessage("Mesh: Loading " + mName + ".");
 
             DataChunk chunk;
             MeshManager::getSingleton()._findResourceData(mName, chunk);

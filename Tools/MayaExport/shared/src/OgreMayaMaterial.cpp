@@ -86,8 +86,8 @@ namespace OgreMaya {
                 
                 Material& mat = **it;
 
-                list<TextureLayer>::iterator tlIt  = mat.textureLayers.begin();
-                list<TextureLayer>::iterator tlEnd = mat.textureLayers.end();
+                list<TextureUnitState>::iterator tlIt  = mat.textureLayers.begin();
+                list<TextureUnitState>::iterator tlEnd = mat.textureLayers.end();
                 
                 out << mat.name << '\n';
                 out << "{\n";                
@@ -120,7 +120,7 @@ namespace OgreMaya {
                     << mat.selfIllumination.a << "\n\n";
 
                 for(;tlIt!=tlEnd; ++tlIt) {
-                    TextureLayer& layer = *tlIt;
+                    TextureUnitState& layer = *tlIt;
                     out << "\t{\n";
                     out << "\t\ttexture " << layer.textureName << '\n';
                     out << "\t\ttex_coord_set " << layer.uvSet << '\n';
@@ -245,7 +245,7 @@ namespace OgreMaya {
                         textureFile = textureFile.substring(substrI+1, textureFile.length()-1);
 
 		    		mat->textureLayers.push_back(
-                        TextureLayer(textureFile.asChar(), iTexCoordSet)
+                        TextureUnitState(textureFile.asChar(), iTexCoordSet)
                     );
 			          
                     ItShaderGraph.next();

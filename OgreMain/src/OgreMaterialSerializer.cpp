@@ -322,7 +322,7 @@ namespace Ogre
 		LogManager::getSingleton().logMessage("MaterialSerializer : done.", LML_CRITICAL);
     }
 
-	void MaterialSerializer::writeTextureLayer(const Material::TextureLayer *pTex)
+	void MaterialSerializer::writeTextureLayer(const TextureUnitState *pTex)
     {
 		LogManager::getSingleton().logMessage("MaterialSerializer : parsing texture layer.", LML_CRITICAL);
 
@@ -374,18 +374,18 @@ namespace Ogre
 
 		//addressing mode
 		if (mDefaults || 
-			pTex->getTextureAddressingMode() != Ogre::Material::TextureLayer::TAM_WRAP)
+			pTex->getTextureAddressingMode() != Ogre::TextureUnitState::TAM_WRAP)
 		{
 			writeSubAttribute("tex_address_mode");
 			switch (pTex->getTextureAddressingMode())
 			{
-			case Ogre::Material::TextureLayer::TAM_CLAMP:
+			case Ogre::TextureUnitState::TAM_CLAMP:
 				writeValue("clamp");
 				break;
-			case Ogre::Material::TextureLayer::TAM_MIRROR:
+			case Ogre::TextureUnitState::TAM_MIRROR:
 				writeValue("mirror");
 				break;
-			case Ogre::Material::TextureLayer::TAM_WRAP:
+			case Ogre::TextureUnitState::TAM_WRAP:
 				writeValue("wrap");
 				break;
 			}
@@ -488,22 +488,22 @@ namespace Ogre
 			EffectMap::const_iterator it;
 			for (it = m_ef.begin(); it != m_ef.end(); ++it)
 			{
-				Material::TextureLayer::TextureEffect ef = it->second;
+				TextureUnitState::TextureEffect ef = it->second;
 				switch (ef.type)
 				{
-				case Material::TextureLayer::ET_ENVIRONMENT_MAP :
+				case TextureUnitState::ET_ENVIRONMENT_MAP :
 					writeEnvironmentMapEffect(ef, pTex);
 					break;
-				case Material::TextureLayer::ET_ROTATE :
+				case TextureUnitState::ET_ROTATE :
 					writeRotationEffect(ef, pTex);
 					break;
-				case Material::TextureLayer::ET_SCROLL :
+				case TextureUnitState::ET_SCROLL :
 					writeScrollEffect(ef, pTex);
 					break;
-				case Material::TextureLayer::ET_TRANSFORM :
+				case TextureUnitState::ET_TRANSFORM :
 					writeTransformEffect(ef, pTex);
 					break;
-				case Material::TextureLayer::ET_BUMP_MAP :
+				case TextureUnitState::ET_BUMP_MAP :
 				default:
 					break;
 				}
@@ -511,27 +511,27 @@ namespace Ogre
 		}
 	}
 
-	void MaterialSerializer::writeEnvironmentMapEffect(const Material::TextureLayer::TextureEffect effect, const Material::TextureLayer *pTex)
+	void MaterialSerializer::writeEnvironmentMapEffect(const TextureUnitState::TextureEffect effect, const TextureUnitState *pTex)
 	{
 		writeSubAttribute("env_map");
 		switch (effect.subtype)
 		{
-		case Material::TextureLayer::ENV_PLANAR:
+		case TextureUnitState::ENV_PLANAR:
 			writeValue("planar");
 			break;
-		case Material::TextureLayer::ENV_CURVED:
+		case TextureUnitState::ENV_CURVED:
 			writeValue("spherical");
 			break;
-		case Material::TextureLayer::ENV_NORMAL:
+		case TextureUnitState::ENV_NORMAL:
 			writeValue("cubic_normal");
 			break;
-		case Material::TextureLayer::ENV_REFLECTION:
+		case TextureUnitState::ENV_REFLECTION:
 			writeValue("cubic_reflection");
 			break;
 		}
 	}
 
-	void MaterialSerializer::writeRotationEffect(const Material::TextureLayer::TextureEffect effect, const Material::TextureLayer *pTex)
+	void MaterialSerializer::writeRotationEffect(const TextureUnitState::TextureEffect effect, const TextureUnitState *pTex)
 	{
 		if (effect.arg1)
 		{
@@ -540,25 +540,25 @@ namespace Ogre
 		}
 	}
 
-	void MaterialSerializer::writeTransformEffect(const Material::TextureLayer::TextureEffect effect, const Material::TextureLayer *pTex)
+	void MaterialSerializer::writeTransformEffect(const TextureUnitState::TextureEffect effect, const TextureUnitState *pTex)
 	{
 		writeSubAttribute("wave_xform");
 		
 		switch (effect.type)
 		{
-		case Material::TextureLayer::TT_ROTATE:
+		case TextureUnitState::TT_ROTATE:
 			writeValue("rotate");
 			break;
-		case Material::TextureLayer::TT_SCALE_U:
+		case TextureUnitState::TT_SCALE_U:
 			writeValue("scale_x");
 			break;
-		case Material::TextureLayer::TT_SCALE_V:
+		case TextureUnitState::TT_SCALE_V:
 			writeValue("scale_u");
 			break;
-		case Material::TextureLayer::TT_TRANSLATE_U:
+		case TextureUnitState::TT_TRANSLATE_U:
 			writeValue("scroll_x");
 			break;
-		case Material::TextureLayer::TT_TRANSLATE_V:
+		case TextureUnitState::TT_TRANSLATE_V:
 			writeValue("scroll_y");
 			break;
 		}
@@ -588,7 +588,7 @@ namespace Ogre
 		writeValue(StringConverter::toString(effect.amplitude));
 	}
 
-	void MaterialSerializer::writeScrollEffect(const Material::TextureLayer::TextureEffect effect, const Material::TextureLayer *pTex)
+	void MaterialSerializer::writeScrollEffect(const TextureUnitState::TextureEffect effect, const TextureUnitState *pTex)
 	{
 		if (effect.arg1 || effect.arg2)
 		{

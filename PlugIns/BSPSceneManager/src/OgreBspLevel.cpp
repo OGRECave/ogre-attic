@@ -227,7 +227,7 @@ namespace Ogre {
                 {
                     // No shader script, try default type texture
                     // Try jpg
-                    Material::TextureLayer* tex = mat.addTextureLayer(tryName + ".jpg");
+                    TextureUnitState* tex = mat.addTextureLayer(tryName + ".jpg");
                     if (tex->isBlank())
                     {
                         // Try tga
@@ -235,7 +235,7 @@ namespace Ogre {
                     }
                     // Set replace on all first layer textures for now
                     tex->setColourOperation(LBO_REPLACE);
-                    tex->setTextureAddressingMode(Material::TextureLayer::TAM_WRAP);
+                    tex->setTextureAddressingMode(TextureUnitState::TAM_WRAP);
 
                     if (q3lvl.mFaces[face].lm_texture != -1)
                     {
@@ -248,7 +248,7 @@ namespace Ogre {
                         // Use 2nd texture co-ordinate set
                         tex->setTextureCoordSet(1);
                         // Clamp
-                        tex->setTextureAddressingMode(Material::TextureLayer::TAM_CLAMP);
+                        tex->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
 
                     }
                     // Set culling mode to none

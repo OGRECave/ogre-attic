@@ -1269,20 +1269,20 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void D3DRenderSystem::_setTextureAddressingMode(int stage, Material::TextureLayer::TextureAddressingMode tam)
+    void D3DRenderSystem::_setTextureAddressingMode(int stage, TextureUnitState::TextureAddressingMode tam)
     {
         HRESULT hr;
         D3DTEXTUREADDRESS d3dType;
 
         switch(tam)
         {
-        case Material::TextureLayer::TAM_WRAP:
+        case TextureUnitState::TAM_WRAP:
             d3dType = D3DTADDRESS_WRAP;
             break;
-        case Material::TextureLayer::TAM_MIRROR:
+        case TextureUnitState::TAM_MIRROR:
             d3dType = D3DTADDRESS_MIRROR;
             break;
-        case Material::TextureLayer::TAM_CLAMP:
+        case TextureUnitState::TAM_CLAMP:
             d3dType = D3DTADDRESS_CLAMP;
             break;
         }

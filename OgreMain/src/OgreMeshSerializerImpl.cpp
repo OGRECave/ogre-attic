@@ -141,7 +141,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::writeTextureLayer(const Material::TextureLayer* pTex)
+    void MeshSerializerImpl::writeTextureLayer(const TextureUnitState* pTex)
     {
         /* No longer supported in 1.1 mesh format
         // Header
@@ -401,7 +401,7 @@ namespace Ogre {
         return size;
     }
     //---------------------------------------------------------------------
-    unsigned long MeshSerializerImpl::calcTextureLayerSize(const Material::TextureLayer* pTex)
+    unsigned long MeshSerializerImpl::calcTextureLayerSize(const TextureUnitState* pTex)
     {
         unsigned long size = CHUNK_OVERHEAD_SIZE;
 

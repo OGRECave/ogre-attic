@@ -285,7 +285,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void _setTextureAddressingMode(int stage, Material::TextureLayer::TextureAddressingMode tam);
+        void _setTextureAddressingMode(int stage, TextureUnitState::TextureAddressingMode tam);
         /** See
           RenderSystem
          */
@@ -346,7 +346,14 @@ namespace Ogre {
           RenderSystem
          */
         void _setDepthBias(ushort bias);
-        /** See
+        /** See RenderSystem
+		@remarks
+			Direct3D7 DOES NOT SUPPORT COLOUR WRITE MASKING! This feature will not work
+			on this legacy render system.
+         */
+		void _setColourBufferWriteEnabled(bool red, bool green, bool blue, bool alpha) {}
+        
+		/** See
           RenderSystem
          */
         void _setFog(FogMode mode, ColourValue colour, Real density, Real start, Real end);

@@ -68,10 +68,20 @@ namespace Ogre {
     {
         res->load();
         res->touch();
-
-        mResources.insert( ResourceMap::value_type( res->getName(), res ) );
+        this->add(res);
     }
 
+    //-----------------------------------------------------------------------
+    void ResourceManager::add( Resource *res )
+    {
+        std::pair<ResourceMap::iterator, bool> result = 
+            mResources.insert( ResourceMap::value_type( res->getName(), res ) );
+        if (!result.second)
+        {
+            Except(Exception::ERR_DUPLICATE_ITEM, "Resource with the name " + res->getName() + 
+                " already exists.", "ResourceManager::add");
+        }
+    }
     //-----------------------------------------------------------------------
     void ResourceManager::setMemoryBudget( size_t bytes)
     {

@@ -141,7 +141,7 @@ namespace Ogre
                     "Error creating new material!", "Font::load" );
             }
 
-            Material::TextureLayer *texLayer;
+            TextureUnitState *texLayer;
             bool blendByAlpha = true;
             if (mType == FT_TRUETYPE)
             {
@@ -160,7 +160,7 @@ namespace Ogre
                 blendByAlpha = tex->hasAlpha();
             }
             // Clamp to avoid fuzzy edges
-            texLayer->setTextureAddressingMode( Material::TextureLayer::TAM_CLAMP );
+            texLayer->setTextureAddressingMode( TextureUnitState::TAM_CLAMP );
 
             // Set up blending
             if (blendByAlpha)

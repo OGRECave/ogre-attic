@@ -45,6 +45,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringConverter.h"
 #include "OgreRenderQueueListener.h"
 #include "OgreBillboardSet.h"
+#include "OgrePass.h"
 
 // This class implements the most basic scene manager
 
@@ -452,51 +453,33 @@ namespace Ogre {
         
     }
     //-----------------------------------------------------------------------
-    int SceneManager::setMaterial(Material* mat, int numLayersLeft)
+    void SceneManager::setPass(Pass* pass)
     {
-        //static bool firstTime = true;
-        static bool lastUsedFallback = false;
-        static int lastNumTexUnitsUsed = 0;
-        //static Material lastMat; // Last material settings, to minimise render state changes
+        // Set surface reflectance properties        
+        mDestRenderSystem->_setSurfaceParams( 
+            pass->getAmbient(), 
+            pass->getDiffuse(), 
+            pass->getSpecular(), 
+            pass->getSelfIllumination(), 
+            pass->getShininess() );
 
-        // Recent changes: eliminated the need to copy all material settings to set with RenderSystem
-        // Now only issues required render state changes to the render system for maximum performance
-
-        // Set surface properties
-        //if (firstTime || mat->_compareSurfaceParams(lastMat) == false)
-        //{
-           ColourValue a, b, c, d;
-           a = mat->getAmbient();
-           b = mat->getDiffuse();
-           c = mat->getSpecular();
-           d = mat->getSelfIllumination();
-            mDestRenderSystem->_setSurfaceParams( a, b, c, d, mat->getShininess() );
-        //}
-
-        // Set global blending, play it safe if last one was fallback
-        //if (firstTime || lastUsedFallback ||
-        //(lastMat.getSourceBlendFactor() != mat->getSourceBlendFactor() ||
-        // lastMat.getDestBlendFactor() != mat->getDestBlendFactor()))
-        //{
-            mDestRenderSystem->_setSceneBlending(mat->getSourceBlendFactor(), mat->getDestBlendFactor());
-        //}
+        // Set scene blending
+        mDestRenderSystem->_setSceneBlending(
+            pass->getSourceBlendFactor(), pass->getDestBlendFactor());
 
         // Fog
         // New fog params can either be from scene or from material
         FogMode newFogMode;
         ColourValue newFogColour;
         Real newFogStart, newFogEnd, newFogDensity;
-        //static FogMode oldFogMode;
-        //static ColourValue oldFogColour;
-        //static Real oldFogStart, oldFogEnd, oldFogDensity;
-        if (mat->getFogOverride())
+        if (pass->getFogOverride())
         {
             // New fog params from material
-            newFogMode = mat->getFogMode();
-            newFogColour = mat->getFogColour();
-            newFogStart = mat->getFogStart();
-            newFogEnd = mat->getFogEnd();
-            newFogDensity = mat->getFogDensity();
+            newFogMode = pass->getFogMode();
+            newFogColour = pass->getFogColour();
+            newFogStart = pass->getFogStart();
+            newFogEnd = pass->getFogEnd();
+            newFogDensity = pass->getFogDensity();
         }
         else
         {
@@ -507,139 +490,35 @@ namespace Ogre {
             newFogEnd = mFogEnd;
             newFogDensity = mFogDensity;
         }
-        //if (firstTime || newFogMode != oldFogMode || newFogColour != oldFogColour ||
-        //    newFogStart != oldFogStart || newFogEnd != oldFogEnd ||
-        //    newFogDensity != oldFogDensity)
-        //{
-            mDestRenderSystem->_setFog(newFogMode, newFogColour, newFogDensity, newFogStart, newFogEnd);
-        //    oldFogMode = newFogMode;
-        //    oldFogColour = newFogColour;
-        //    oldFogStart = newFogStart;
-        //    oldFogEnd = newFogEnd;
-        //    oldFogDensity = newFogDensity;
-        //}
+        mDestRenderSystem->_setFog(
+            newFogMode, newFogColour, newFogDensity, newFogStart, newFogEnd);
 
-
-
-        // Texture layers
-        int texLayer = mat->getNumTextureLayers() - numLayersLeft;
-        int thisUnitsRequested = numLayersLeft;
-        int texUnits = mDestRenderSystem->getCapabilities()->numTextureUnits();
-
-#if OGRE_TEST_MULTIPASS == 1
-        texUnits = 1;
-#endif
-
-        // Iterate over texture units, set them up to the higher of the last texturing units used and the current to be used
-        //   but no higher than the number of units
-        lastUsedFallback = false;
-       int unit;
-        for (unit = 0;
-            (unit < lastNumTexUnitsUsed || unit < thisUnitsRequested) && unit < texUnits;
-            ++unit, ++texLayer)
+        // Texture unit settings
+        
+        Pass::TextureUnitStateIterator texIter =  pass->getTextureUnitStateIterator();
+        size_t unit = 0;
+        while(texIter.hasMoreElements())
         {
-            if (unit >= thisUnitsRequested)
-            {
-                // We've run out of texture layers before we ran out of units to set
-                // Turn off the texturing for this unit
-                mDestRenderSystem->_disableTextureUnit(unit);
-            }
-            else
-            {
-                Material::TextureLayer* pTex = mat->getTextureLayer(texLayer);
-                // We still have texture layers to put in this unit
-                if (unit == 0 && 
-                    thisUnitsRequested > 0 && 
-                    thisUnitsRequested < mat->getNumTextureLayers())
-                {
-                    // We're on the second (or more) leg of a multipass render
-                    // because remaining layers is not the total number
-
-                    // So we need to use the multipass fallback and override first texture layer blend
-                    lastUsedFallback = true;
-
-                    // Copy texture layer info and set custom blending
-                    Material::TextureLayer newTex = *pTex;
-
-                    // Set multitexture blend to NO blend (avoids any modulation with material colour)
-                    newTex.setColourOperation(LBO_REPLACE);
-                    // Set scene blending to colour blending equivalent (fallback)
-                    mDestRenderSystem->_setSceneBlending(pTex->getColourBlendFallbackSrc(), pTex->getColourBlendFallbackDest());
-
-                    // Set texture unit settings
-                    // NB rendersystem will know to only change relevant settings
-                    mDestRenderSystem->_setTextureUnitSettings(unit, newTex);
-                }
-                else
-                {
-                    if (lastUsedFallback)
-                    {
-                        // Ensure that fallback alpha on bottom layer does not mask out alpha on this layer
-                        pTex->setAlphaOperation(LBX_ADD);
-                    }
-
-                    // Standard issue
-                    mDestRenderSystem->_setTextureUnitSettings(unit, *pTex);
-                }
-
-                numLayersLeft--;
-            }
+            TextureUnitState* pTex = texIter.getNext();
+            mDestRenderSystem->_setTextureUnitSettings(unit, *pTex);
+            ++unit;
         }
+        // Disable remaining texture units
+        mDestRenderSystem->_disableTextureUnitsFrom(pass->getNumTextureUnitStates());
 
         // Set up non-texture related material settings
         // Depth buffer settings
-        //if (firstTime || lastMat.getDepthFunction() != mat->getDepthFunction())
-        //{
-            mDestRenderSystem->_setDepthBufferFunction(mat->getDepthFunction());
-        //}
-        //if (firstTime || lastMat.getDepthCheckEnabled() != mat->getDepthCheckEnabled())
-        //{
-            mDestRenderSystem->_setDepthBufferCheckEnabled(mat->getDepthCheckEnabled());
-        //}
-        //if (firstTime || lastMat.getDepthWriteEnabled() != mat->getDepthWriteEnabled())
-        //{
-            mDestRenderSystem->_setDepthBufferWriteEnabled(mat->getDepthWriteEnabled());
-        //}
-        //if (firstTime || lastMat.getDepthBias() != mat->getDepthBias())
-        //{
-            mDestRenderSystem->_setDepthBias(mat->getDepthBias());
-        //}
-
+        mDestRenderSystem->_setDepthBufferFunction(pass->getDepthFunction());
+        mDestRenderSystem->_setDepthBufferCheckEnabled(pass->getDepthCheckEnabled());
+        mDestRenderSystem->_setDepthBufferWriteEnabled(pass->getDepthWriteEnabled());
+        mDestRenderSystem->_setDepthBias(pass->getDepthBias());
 
         // Culling mode
-        //if (firstTime || lastMat.getCullingMode() != mat->getCullingMode())
-        //{
-            mDestRenderSystem->_setCullingMode(mat->getCullingMode());
-        //}
+        mDestRenderSystem->_setCullingMode(pass->getCullingMode());
         // Dynamic lighting enabled
-        //if (firstTime || lastMat.getLightingEnabled() != mat->getLightingEnabled())
-        //{
-            mDestRenderSystem->setLightingEnabled(mat->getLightingEnabled());
-        //}
+        mDestRenderSystem->setLightingEnabled(pass->getLightingEnabled());
         // Shading
-        //if (firstTime || lastMat.getShadingMode() != mat->getShadingMode())
-        //{
-            mDestRenderSystem->setShadingType(mat->getShadingMode());
-        //}
-        
-		// FIX : texture filtering not needed here, it is set by RenderSystem->_setTextureUnitSettings
-		// Texture filtering
-        //if (firstTime || lastMat.getTextureFiltering() != mat->getTextureFiltering())
-        //{
-            //mDestRenderSystem->setTextureFiltering(mat->getTextureFiltering());
-        //}
-        // anisotropy
-        //if (firstTime || lastMat.getAnisotropy() != mat->getAnisotropy())
-        //{
-            //mDestRenderSystem->_setAnisotropy(mat->getAnisotropy());
-        //}
-
-
-        //firstTime = false;
-        // Copy material settings from last render
-        //lastMat = *mat;
-        lastNumTexUnitsUsed = unit;
-        return numLayersLeft;
+        mDestRenderSystem->setShadingType(pass->getShadingMode());
 
     }
     //-----------------------------------------------------------------------
@@ -847,7 +726,7 @@ namespace Ogre {
             // Make sure the material doesn't update the depth buffer
             m->setDepthWriteEnabled(false);
             // Also clamp texture, don't wrap (otherwise edges can get filtered)
-            m->getTextureLayer(0)->setTextureAddressingMode(Material::TextureLayer::TAM_CLAMP);
+            m->getTextureLayer(0)->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
 
             // Ensure loaded
             m->load();

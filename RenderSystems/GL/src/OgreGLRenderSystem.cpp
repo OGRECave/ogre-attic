@@ -57,7 +57,8 @@ GL_GetBufferSubDataARB_Func glGetBufferSubDataARB_ptr;
 namespace Ogre {
 
     GLRenderSystem::GLRenderSystem()
-      : mDepthWrite(false), 
+      : mDepthWrite(true), mColourWrite[0](true), mColourWrite[1](true),
+	  mColourWrite[2](true), mColourWrite[3](true)
         mHardwareBufferManager(0)
     {
         int i;
@@ -756,18 +757,18 @@ namespace Ogre {
         glActiveTextureARB_ptr( GL_TEXTURE0 );
     }
     //-----------------------------------------------------------------------------
-    void GLRenderSystem::_setTextureAddressingMode(int stage, Material::TextureLayer::TextureAddressingMode tam)
+    void GLRenderSystem::_setTextureAddressingMode(int stage, TextureUnitState::TextureAddressingMode tam)
     {
         GLint type;
         switch(tam)
         {
-        case Material::TextureLayer::TAM_WRAP:
+        case TextureUnitState::TAM_WRAP:
             type = GL_REPEAT;
             break;
-        case Material::TextureLayer::TAM_MIRROR:
+        case TextureUnitState::TAM_MIRROR:
             type = GL_MIRRORED_REPEAT;
             break;
-        case Material::TextureLayer::TAM_CLAMP:
+        case TextureUnitState::TAM_CLAMP:
             type = GL_CLAMP_TO_EDGE;
             break;
         }
@@ -922,12 +923,18 @@ namespace Ogre {
             ColourValue col = mActiveViewport->getBackgroundColour();
             
             glClearColor(col.r, col.g, col.b, col.a);
-            // Enable depth buffer for writing if it isn't
+            // Enable depth & colour buffer for writing if it isn't
          
             if (!mDepthWrite)
             {
               glDepthMask( GL_TRUE );
             }
+			bool colourMask = !mColourWrite[0] || !mColourWrite[1] 
+				|| !mColourWrite[2] || mColourWrite[3]; 
+			if (colourMask)
+			{
+				glColorMask(true, true, true, true);
+			}
             // Clear buffers
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             // Reset depth write state if appropriate
@@ -936,6 +943,10 @@ namespace Ogre {
             {
               glDepthMask( GL_FALSE );
             }
+			if (colourMask)
+			{
+				glColorMask(mColourWrite[0], mColourWrite[1], mColourWrite[2], mColourWrite[3]);
+			}
 
         }        
 
@@ -1022,7 +1033,17 @@ namespace Ogre {
             glDisable(GL_POLYGON_OFFSET_LINE);
         }
     }
-    //-----------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------
+	void GLRenderSystem::_setColourBufferWriteEnabled(bool red, bool green, bool blue, bool alpha)
+	{
+		glColorMask(red, green, blue, alpha);
+		// record this
+		mColourWrite[0] = red;
+		mColourWrite[1] = blue;
+		mColourWrite[2] = green;
+		mColourWrite[3] = alpha;
+	}
+	//-----------------------------------------------------------------------------
     String GLRenderSystem::getErrorDescription(long errCode)
     {
         // XXX FIXME

@@ -158,7 +158,7 @@ namespace Ogre {
         pShader->pass[passIdx].tcModTurb[0] = pShader->pass[passIdx].tcModTurb[1] =
             pShader->pass[passIdx].tcModTurb[2] = pShader->pass[passIdx].tcModTurb[3] = 0;
         pShader->pass[passIdx].texGen = TEXGEN_BASE;
-        pShader->pass[passIdx].addressMode = Material::TextureLayer::TAM_WRAP;
+        pShader->pass[passIdx].addressMode = TextureUnitState::TAM_WRAP;
         pShader->pass[passIdx].customBlend = false;
         pShader->pass[passIdx].alphaVal = 0;
         pShader->pass[passIdx].alphaFunc = CMPF_ALWAYS_PASS;
@@ -266,7 +266,7 @@ namespace Ogre {
             pPass->textureName = params[1];
             if (params[1].toLowerCase() == "$lightmap")
                 pPass->texGen = TEXGEN_LIGHTMAP;
-            pPass->addressMode = Material::TextureLayer::TAM_CLAMP;
+            pPass->addressMode = TextureUnitState::TAM_CLAMP;
         }
         // ANIMMAP
         else if (params[0] == "animmap")

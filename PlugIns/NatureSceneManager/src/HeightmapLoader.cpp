@@ -133,7 +133,7 @@ bool HeightmapLoader::initialise(const String& filename)
     {
 	mMaterial = mSceneRoot->getCreator()->createMaterial("NaturePatchMaterial");
     
-	Material::TextureLayer *layer;
+	TextureUnitState *layer;
 	layer = mMaterial->addTextureLayer(texture, 1);
 //	layer->setColourOperation(LBO_REPLACE);
 
