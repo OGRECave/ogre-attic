@@ -572,14 +572,39 @@ namespace Ogre {
         if (mParentNode && (mBoundsAutoUpdate || mBoundsUpdateTime > 0.0f))
         {
 
-            // Iterate over the particles in world space and grow the box as required
-            Vector3 min = mWorldAABB.getMinimum();
-            Vector3 max = mWorldAABB.getMaximum();
+            Vector3 min;  
+            Vector3 max; 
+            if (!mBoundsAutoUpdate)
+            {
+                // We're on a limit, grow rather than reset each time
+                // so that we pick up the worst case scenario
+                min = mWorldAABB.getMinimum();
+                max = mWorldAABB.getMaximum();
+            }
+            else
+            {
+                min.x = min.y = min.z = Math::POS_INFINITY;
+                max.x = max.y = max.z = Math::NEG_INFINITY;
+            }
             ActiveParticleList::iterator p;
+            Vector3 halfScale = Vector3::UNIT_SCALE * 0.5;
+            Vector3 defaultPadding = 
+                halfScale * std::max(mDefaultHeight, mDefaultWidth);
             for (p = mActiveParticles.begin(); p != mActiveParticles.end(); ++p)
             {
-                min.makeFloor((*p)->position);
-                max.makeCeil((*p)->position);
+
+                if ((*p)->mOwnDimensions)
+                {
+                    Vector3 padding = 
+                        halfScale * std::max((*p)->mWidth, (*p)->mHeight);
+                    min.makeFloor((*p)->position - padding);
+                    max.makeCeil((*p)->position + padding);
+                }
+                else
+                {
+                    min.makeFloor((*p)->position - defaultPadding);
+                    max.makeCeil((*p)->position + defaultPadding);
+                }
             }
             mWorldAABB.setExtents(min, max);
 
@@ -604,6 +629,8 @@ namespace Ogre {
             newAABB.setExtents(min, max);
             // Merge calculated box with current AABB to preserve any user-set AABB
             mAABB.merge(newAABB);
+
+            mParentNode->needUpdate();
         }
     }
     //-----------------------------------------------------------------------
