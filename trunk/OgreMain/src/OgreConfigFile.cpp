@@ -4,7 +4,7 @@ This source file is part of OGRE
     (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
-Copyright © 2000-2002 The OGRE Team
+Copyright ? 2000-2002 The OGRE Team
 Also see acknowledgements in Readme.html
 
 This program is free software; you can redistribute it and/or modify it under
@@ -27,6 +27,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreException.h"
 
+#include <iostream>
+
 namespace Ogre {
 
     //-----------------------------------------------------------------------
@@ -36,33 +38,32 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ConfigFile::load(const String& filename, const String& separators, bool trimWhitespace)
     {
-        FILE *fp;
-        char rec[100], *ret;
-        String optName, optVal;
-
+        /* Clear current settings map */
         mSettings.clear();
-
-        // Open and parse entire file
-        fp = fopen(filename.c_str(), "r");
-        if( !fp )
+        
+        /* Open the configuration file */
+        std::ifstream fp(filename.c_str());
+        if(!fp)
             Except(
                 Exception::ERR_FILE_NOT_FOUND, "'" + filename + "' file not found!", "ConfigFile::load" );
-
-        ret = fgets(rec, 100, fp);
-        while (ret != NULL)
+        
+        /* Process the file line for line */
+        String line, optName, optVal;
+        while (getline(fp, line))
         {
-            String tst = rec;
-            StringUtil::trim(tst);
-            // Ignore comments & blanks
-            if (tst.length() > 0 && tst.at(0) != '#' && tst.at(0) != '@' && tst.at(0) != '\n')
+            StringUtil::trim(line);
+            /* Ignore comments & blanks */
+            if (line.length() > 0 && line.at(0) != '#' && line.at(0) != '@' && line.at(0) != '\n')
             {
-                // Tokenise on tab
-                char* pName = strtok(rec, separators.c_str());
-                char* pVal = strtok(NULL, "\n");
-                if (pName && pVal)
+                /* Find the first seperator character and split the string there */
+                int separator_pos = line.find_first_of(separators, 0);
+                if (separator_pos != std::string::npos)
                 {
-                    String optName = pName;
-                    String optVal = pVal;
+                    optName = line.substr(0, separator_pos);
+                    /* Find the first non-seperator character following the name */
+                    int nonseparator_pos = line.find_first_not_of(separators, separator_pos);
+                    /* ... and extract the value */
+                    optVal = line.substr(nonseparator_pos);
                     if (trimWhitespace)
                     {
                         StringUtil::trim(optVal);
@@ -71,11 +72,7 @@ namespace Ogre {
                     mSettings.insert(std::multimap<String, String>::value_type(optName, optVal));
                 }
             }
-            ret = fgets(rec, 100, fp);
         }
-
-        fclose(fp);
-
 
     }
     //-----------------------------------------------------------------------
@@ -97,6 +94,7 @@ namespace Ogre {
     StringVector ConfigFile::getMultiSetting(const String& key) const
     {
         StringVector ret;
+
 
         std::multimap<String, String>::const_iterator i;
 
