@@ -47,17 +47,18 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     HollowEllipsoidEmitter::HollowEllipsoidEmitter()
     {
-        initDefaults("HollowEllipsoid");
-        // Add custom parameters
-        ParamDictionary* pDict = getParamDictionary();
+        if (initDefaults("HollowEllipsoid"))
+        {
+            // Add custom parameters
+            ParamDictionary* pDict = getParamDictionary();
 
-        pDict->addParameter(ParameterDef("inner_width", "Parametric value describing the proportion of the "
-            "shape which is hollow.", PT_REAL), &msCmdInnerX);
-        pDict->addParameter(ParameterDef("inner_height", "Parametric value describing the proportion of the "
-            "shape which is hollow.", PT_REAL), &msCmdInnerY);
-        pDict->addParameter(ParameterDef("inner_depth", "Parametric value describing the proportion of the "
-            "shape which is hollow.", PT_REAL), &msCmdInnerZ);
-
+            pDict->addParameter(ParameterDef("inner_width", "Parametric value describing the proportion of the "
+                "shape which is hollow.", PT_REAL), &msCmdInnerX);
+            pDict->addParameter(ParameterDef("inner_height", "Parametric value describing the proportion of the "
+                "shape which is hollow.", PT_REAL), &msCmdInnerY);
+            pDict->addParameter(ParameterDef("inner_depth", "Parametric value describing the proportion of the "
+                "shape which is hollow.", PT_REAL), &msCmdInnerZ);
+        }
         // default is half empty
         setInnerSize(0.5,0.5,0.5);
     }

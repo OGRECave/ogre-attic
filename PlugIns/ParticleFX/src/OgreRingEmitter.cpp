@@ -39,15 +39,16 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     RingEmitter::RingEmitter()
     {
-        initDefaults("Ring");
-        // Add custom parameters
-        ParamDictionary* pDict = getParamDictionary();
+        if (initDefaults("Ring"))
+        {
+            // Add custom parameters
+            ParamDictionary* pDict = getParamDictionary();
 
-        pDict->addParameter(ParameterDef("inner_width", "Parametric value describing the proportion of the "
-            "shape which is hollow.", PT_REAL), &msCmdInnerX);
-        pDict->addParameter(ParameterDef("inner_height", "Parametric value describing the proportion of the "
-            "shape which is hollow.", PT_REAL), &msCmdInnerY);
-
+            pDict->addParameter(ParameterDef("inner_width", "Parametric value describing the proportion of the "
+                "shape which is hollow.", PT_REAL), &msCmdInnerX);
+            pDict->addParameter(ParameterDef("inner_height", "Parametric value describing the proportion of the "
+                "shape which is hollow.", PT_REAL), &msCmdInnerY);
+        }
         // default is half empty
         setInnerSize(0.5,0.5);
     }

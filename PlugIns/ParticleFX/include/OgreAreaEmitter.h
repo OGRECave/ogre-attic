@@ -123,8 +123,10 @@ namespace Ogre {
 
         /// Internal method for generating the area axes
         void genAreaAxes(void);
-        /// Internal for initializing some defaults and parameters
-        void initDefaults(const String& mType);
+        /** Internal for initializing some defaults and parameters
+        @returns True if custom parameters need initialising
+        */
+        bool initDefaults(const String& mType);
 
         /// Command objects
         static CmdWidth msWidthCmd;
