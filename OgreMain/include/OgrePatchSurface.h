@@ -165,7 +165,8 @@ namespace Ogre {
         /// V-direction subdivision level
         size_t mVLevel;
         /// Max subdivision level
-        size_t mMaxLevel;
+        size_t mMaxULevel;
+        size_t mMaxVLevel;
         /// Width of the subdivided mesh (max)
         size_t mMaxMeshWidth;
         /// Height of the subdivided mesh (max)

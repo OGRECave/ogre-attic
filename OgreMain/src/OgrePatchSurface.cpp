@@ -37,7 +37,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    // TODO: make this deal with colours and more than 2 texture coords
+    // TODO: make this deal with specular colours and more than 2 texture coords
 
     //-----------------------------------------------------------------------
     PatchSurface::PatchSurface()
@@ -90,8 +90,8 @@ namespace Ogre {
 
         mVSide = visibleSide;
 
-        setMaxSubdivisionLevel(maxSubdivisionLevel);
         setSubdivisionLevel(subdivisionLevel);
+        setMaxSubdivisionLevel(maxSubdivisionLevel);
 
 
         mNeedsBuild = true;
@@ -231,13 +231,13 @@ namespace Ogre {
 
 
         }
-        if (mVLevel > mMaxLevel)
+        if (mVLevel > mMaxVLevel)
         {
-            mVLevel = mMaxLevel;
+            mVLevel = mMaxVLevel;
         }
-        if (mULevel > mMaxLevel)
+        if (mULevel > mMaxULevel)
         {
-            mULevel = mMaxLevel;
+            mULevel = mMaxULevel;
         }
         // Derive mesh width / height
         mMeshWidth  = (LEVEL_WIDTH(mULevel)-1) * ((mCtlWidth-1)/2) + 1;
@@ -250,14 +250,25 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void PatchSurface::setMaxSubdivisionLevel(size_t level)
     {
-        if (level != mMaxLevel)
+        size_t maxULevel, maxVLevel;
+
+        if (level != AUTO_LEVEL)
         {
-            mMaxLevel = level;
-            // Derive mesh width / height
-            mMaxMeshWidth  = (LEVEL_WIDTH(mMaxLevel)-1) * ((mCtlWidth-1)/2) + 1;
-            mMaxMeshHeight = (LEVEL_WIDTH(mMaxLevel)-1) * ((mCtlHeight-1)/2) + 1;
-            allocateMemory();
+            maxULevel = level;
+            maxVLevel = level;
         }
+        else
+        {
+            maxULevel = mULevel;
+            maxVLevel = mVLevel;
+        }
+
+        mMaxULevel = maxULevel;
+        mMaxVLevel = maxVLevel;
+        // Derive mesh width / height
+        mMaxMeshWidth  = (LEVEL_WIDTH(mMaxULevel)-1) * ((mCtlWidth-1)/2) + 1;
+        mMaxMeshHeight = (LEVEL_WIDTH(mMaxVLevel)-1) * ((mCtlHeight-1)/2) + 1;
+        allocateMemory();
     }
     //-----------------------------------------------------------------------
     Mesh* PatchSurface::getMesh(void)
@@ -387,6 +398,7 @@ namespace Ogre {
         void* pSrc = mControlPointBuffer;
         size_t vertexSize = mDeclaration->getVertexSize(0);
         Real *pSrcReal, *pDestReal;
+        RGBA *pSrcRGBA, *pDestRGBA;
         void* pDest;
         const VertexElement* elemPos = mDeclaration->findElementBySemantic(VES_POSITION);
         const VertexElement* elemNorm = mDeclaration->findElementBySemantic(VES_NORMAL);
@@ -416,6 +428,14 @@ namespace Ogre {
                     *pDestReal++ = *pSrcReal++;
                     *pDestReal++ = *pSrcReal++;
                     *pDestReal++ = *pSrcReal++;
+                }
+
+                // Copy Diffuse
+                if (elemDiffuse)
+                {
+                    elemDiffuse->baseVertexPointerToElement(pSrc, &pSrcRGBA);
+                    elemDiffuse->baseVertexPointerToElement(pDest, &pDestRGBA);
+                    *pDestRGBA++ = *pSrcRGBA++;
                 }
 
                 // Copy texture coords
@@ -576,11 +596,12 @@ namespace Ogre {
         size_t vertexSize = mDeclaration->getVertexSize(0);
         const VertexElement* elemPos = mDeclaration->findElementBySemantic(VES_POSITION);
         const VertexElement* elemNorm = mDeclaration->findElementBySemantic(VES_NORMAL);
+        const VertexElement* elemDiffuse = mDeclaration->findElementBySemantic(VES_DIFFUSE);
         const VertexElement* elemTex0 = mDeclaration->findElementBySemantic(VES_TEXTURE_COORDINATES, 0);
         const VertexElement* elemTex1 = mDeclaration->findElementBySemantic(VES_TEXTURE_COORDINATES, 1);
-        const VertexElement* elemDiffuse = mDeclaration->findElementBySemantic(VES_DIFFUSE);
 
         Real *pDestReal, *pLeftReal, *pRightReal;
+        unsigned char *pDestChar, *pLeftChar, *pRightChar;
         unsigned char *pDest, *pLeft, *pRight;
 
         // Set up pointers & interpolate
@@ -612,7 +633,18 @@ namespace Ogre {
             *pDestReal++ = norm.y;
             *pDestReal++ = norm.z;
         }
-        // Skip colours for now
+        if (elemDiffuse)
+        {
+            // Blend each byte individually
+            elemDiffuse->baseVertexPointerToElement(pDest, &pDestChar);
+            elemDiffuse->baseVertexPointerToElement(pLeft, &pLeftChar);
+            elemDiffuse->baseVertexPointerToElement(pRight, &pRightChar);
+            // 4 bytes to RGBA
+            *pDestChar++ = ((*pLeftChar++) + (*pRightChar++)) * 0.5;
+            *pDestChar++ = ((*pLeftChar++) + (*pRightChar++)) * 0.5;
+            *pDestChar++ = ((*pLeftChar++) + (*pRightChar++)) * 0.5;
+            *pDestChar++ = ((*pLeftChar++) + (*pRightChar++)) * 0.5;
+        }
         if (elemTex0)
         {
             elemTex0->baseVertexPointerToElement(pDest, &pDestReal);
