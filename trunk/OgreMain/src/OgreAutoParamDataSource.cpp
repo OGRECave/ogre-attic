@@ -174,6 +174,16 @@ namespace Ogre {
             return *((*mpLightList)[index]);
         }
     }
-
+    //-----------------------------------------------------------------------------
+	void AutoParamDataSource::setAmbientLightColour(const ColourValue& ambient)
+	{
+		mAmbientLight = ambient;
+	}
+    //-----------------------------------------------------------------------------
+	const ColourValue& AutoParamDataSource::getAmbientLightColour(void) const
+	{
+		return mAmbientLight;
+		
+	}
 }
 

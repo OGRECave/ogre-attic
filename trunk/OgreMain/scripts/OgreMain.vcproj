@@ -313,6 +313,12 @@
 				RelativePath="..\src\OgreHardwareVertexBuffer.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreHighLevelGpuProgram.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreHighLevelGpuProgramManager.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreImage.cpp">
 			</File>
 			<File
@@ -889,6 +895,12 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreHardwareVertexBuffer.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreHighLevelGpuProgram.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreHighLevelGpuProgramManager.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreImage.h">

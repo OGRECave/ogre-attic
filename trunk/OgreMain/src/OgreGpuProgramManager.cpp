@@ -29,15 +29,16 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     template<> GpuProgramManager* Singleton<GpuProgramManager>::ms_Singleton = 0;
     //---------------------------------------------------------------------------
-    GpuProgram* GpuProgramManager::load(const String& filename, GpuProgramType gptype, 
-        const String& syntaxCode, int priority)
+    GpuProgram* GpuProgramManager::load(const String& name, const String& filename, 
+		GpuProgramType gptype, const String& syntaxCode, int priority)
     {
-        GpuProgram* prg = create(filename, gptype, syntaxCode);
+        GpuProgram* prg = create(name, gptype, syntaxCode);
+		prg->setSourceFile(filename);
         ResourceManager::load(prg, priority);
         return prg;
     }
     //---------------------------------------------------------------------------
-	GpuProgram* GpuProgramManager::load(const String& name, const String& code, 
+	GpuProgram* GpuProgramManager::loadFromString(const String& name, const String& code, 
         GpuProgramType gptype, const String& syntaxCode, int priority)
     {
         GpuProgram* prg = create(name, gptype, syntaxCode);
@@ -51,16 +52,17 @@ namespace Ogre {
         return Singleton<GpuProgramManager>::getSingleton();
     }
     //---------------------------------------------------------------------------
-	GpuProgram* GpuProgramManager::createProgram(const String& filename, GpuProgramType gptype, 
-        const String& syntaxCode, int priority)
+	GpuProgram* GpuProgramManager::createProgram(const String& name, const String& filename, 
+		GpuProgramType gptype, const String& syntaxCode, int priority)
     {
-        GpuProgram* prg = create(filename, gptype, syntaxCode);
+        GpuProgram* prg = create(name, gptype, syntaxCode);
+		prg->setSourceFile(filename);
         ResourceManager::add(prg);
         return prg;
     }
     //---------------------------------------------------------------------------
-	GpuProgram* GpuProgramManager::createProgram(const String& name, const String& code, 
-        GpuProgramType gptype, const String& syntaxCode, int priority)
+	GpuProgram* GpuProgramManager::createProgramFromString(const String& name, 
+		const String& code, GpuProgramType gptype, const String& syntaxCode, int priority)
     {
         GpuProgram* prg = create(name, gptype, syntaxCode);
         prg->setSource(code);

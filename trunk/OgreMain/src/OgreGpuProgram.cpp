@@ -40,9 +40,17 @@ namespace Ogre
 		mName = name;
 	}
 	//-----------------------------------------------------------------------------
+	void GpuProgram::setSourceFile(const String& filename)
+	{
+		mFilename = filename;
+		mSource = "";
+		mLoadFromFile = true;
+	}
+	//-----------------------------------------------------------------------------
     void GpuProgram::setSource(const String& source)
     {
         mSource = source;
+		mFilename = "";
         mLoadFromFile = false;
 	}
 
@@ -201,6 +209,9 @@ namespace Ogre
             case ACT_CAMERA_POSITION_OBJECT_SPACE:
                 setConstant(i->index, source.getCameraPositionObjectSpace());
                 break;
+			case ACT_AMBIENT_LIGHT_COLOUR:
+				setConstant(i->index, source.getAmbientLightColour());
+				break;
             case ACT_LIGHT_ATTENUATION:
                 // range, const, linear, quad
                 const Light& l = source.getLight(i->data);
@@ -225,5 +236,66 @@ namespace Ogre
 			mRealConstants.resize(mRealConstants.size() + rem);
 			
 	}
-
+    //---------------------------------------------------------------------------
+    void GpuProgramParameters::_mapParameterNameToIndex(const String& name, 
+        size_t index)
+    {
+        mParamNameMap[name] = index;
+    }
+    //---------------------------------------------------------------------------
+    size_t GpuProgramParameters::getParamIndex(const String& name)
+    {
+        ParamNameMap::iterator i = mParamNameMap.find(name);
+        if (i == mParamNameMap.end())
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot find a parameter named " + name,
+                "GpuProgramParameters::getParamIndex");
+        }
+        return i->second;
+    }
+    //---------------------------------------------------------------------------
+	void GpuProgramParameters::setNamedConstant(const String& name, Real val)
+    {
+        setConstant(getParamIndex(name), val);
+    }
+    //---------------------------------------------------------------------------
+	void GpuProgramParameters::setNamedConstant(const String& name, int val)
+    {
+        setConstant(getParamIndex(name), val);
+    }
+    //---------------------------------------------------------------------------
+	void GpuProgramParameters::setNamedConstant(const String& name, const Vector4& vec)
+    {
+        setConstant(getParamIndex(name), vec);
+    }
+    //---------------------------------------------------------------------------
+	void GpuProgramParameters::setNamedConstant(const String& name, const Vector3& vec)
+    {
+        setConstant(getParamIndex(name), vec);
+    }
+    //---------------------------------------------------------------------------
+	void GpuProgramParameters::setNamedConstant(const String& name, const Matrix4& m)
+    {
+        setConstant(getParamIndex(name), m);
+    }
+    //---------------------------------------------------------------------------
+	void GpuProgramParameters::setNamedConstant(const String& name, const Real *val, size_t count)
+    {
+        setConstant(getParamIndex(name), val, count);
+    }
+    //---------------------------------------------------------------------------
+    void GpuProgramParameters::setNamedConstant(const String& name, const ColourValue& colour)
+    {
+        setConstant(getParamIndex(name), colour);
+    }
+    //---------------------------------------------------------------------------
+	void GpuProgramParameters::setNamedConstant(const String& name, const int *val, size_t count)
+    {
+        setConstant(getParamIndex(name), val, count);
+    }
+    //---------------------------------------------------------------------------
+    void GpuProgramParameters::setNamedAutoConstant(const String& name, AutoConstantType acType, size_t extraInfo)
+    {
+        setAutoConstant(getParamIndex(name), acType, extraInfo);
+    }
 }

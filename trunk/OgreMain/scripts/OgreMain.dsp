@@ -291,6 +291,14 @@ SOURCE=..\src\OgreHardwareVertexBuffer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreHighLevelGpuProgram.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreHighLevelGpuProgramManager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreImage.cpp
 # End Source File
 # Begin Source File
@@ -908,6 +916,14 @@ SOURCE=..\include\OgreHardwareIndexBuffer.h
 # Begin Source File
 
 SOURCE=..\include\OgreHardwareVertexBuffer.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreHighLevelGpuProgram.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreHighLevelGpuProgramManager.h
 # End Source File
 # Begin Source File
 

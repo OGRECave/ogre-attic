@@ -85,7 +85,9 @@ namespace Ogre {
             /// A light direction in object space (index determined by setAutoConstant call)
             ACT_LIGHT_DIRECTION_OBJECT_SPACE,
             /// The current camera's position in object space 
-            ACT_CAMERA_POSITION_OBJECT_SPACE
+            ACT_CAMERA_POSITION_OBJECT_SPACE,
+			/// The ambient light colour set in the scene
+			ACT_AMBIENT_LIGHT_COLOUR
         };
         /** Structure recording the use of an automatic parameter. */
         class AutoConstantEntry
@@ -114,6 +116,11 @@ namespace Ogre {
         IntConstantList mIntConstants;
         /// List of automatically updated parameters
         AutoConstantList mAutoConstants;
+        /// Mapping from parameter names to indexes - high-level programs are expected to populate this
+        typedef std::map<String, size_t> ParamNameMap;
+        ParamNameMap mParamNameMap;
+        size_t getParamIndex(const String& name);
+
     public:
 		GpuProgramParameters() {}
 		virtual ~GpuProgramParameters() {}
@@ -266,6 +273,136 @@ namespace Ogre {
 			values to be set on certain boundaries.
 		*/
 		virtual void _align(size_t intAlignment, size_t realAlignment);
+
+		/** Sets a single value constant floating-point parameter to the program.
+        @remarks
+            Different types of GPU programs support different types of constant parameters.
+            For example, it's relatively common to find that vertex programs only support
+            floating point constants, and that fragment programs only support integer (fixed point)
+            parameters. This can vary depending on the program version supported by the
+            graphics card being used. You should consult the documentation for the type of
+            low level program you are using, or alternatively use the methods
+            provided on RenderSystemCapabilities to determine the options.
+        @par
+            Another possible limitation is that some systems only allow constants to be set
+            on certain boundaries, e.g. in sets of 4 values for example. Again, see
+            RenderSystemCapabilities for full details.
+        @note
+            This named option will only work if you are using a parameters object created
+            from a high-level program (HighLevelGpuProgram).
+		@param name The name of the parameter
+		@param val The value to set
+		*/
+		virtual void setNamedConstant(const String& name, Real val);
+		/** Sets a single value constant integer parameter to the program.
+        @remarks
+            Different types of GPU programs support different types of constant parameters.
+            For example, it's relatively common to find that vertex programs only support
+            floating point constants, and that fragment programs only support integer (fixed point)
+            parameters. This can vary depending on the program version supported by the
+            graphics card being used. You should consult the documentation for the type of
+            low level program you are using, or alternatively use the methods
+            provided on RenderSystemCapabilities to determine the options.
+        @par
+            Another possible limitation is that some systems only allow constants to be set
+            on certain boundaries, e.g. in sets of 4 values for example. Again, see
+            RenderSystemCapabilities for full details.
+        @note
+            This named option will only work if you are using a parameters object created
+            from a high-level program (HighLevelGpuProgram).
+        @param name The name of the parameter
+		@param val The value to set
+		*/
+		virtual void setNamedConstant(const String& name, int val);
+		/** Sets a Vector4 parameter to the program.
+        @param name The name of the parameter
+		@param vec The value to set
+		*/
+		virtual void setNamedConstant(const String& name, const Vector4& vec);
+		/** Sets a Vector3 parameter to the program.
+        @note
+            This named option will only work if you are using a parameters object created
+            from a high-level program (HighLevelGpuProgram).
+		@param index The index at which to place the parameter
+			NB this index refers to the number of floats, so a Vector3 is 3. Note that many 
+            rendersystems & programs assume that every floating point parameter is passed in
+            as a vector of 4 items, so you are strongly advised to check with 
+            RenderSystemCapabilities before using this version - if in doubt use Vector4
+            or ColourValue instead (both are 4D).
+		@param vec The value to set
+		*/
+		virtual void setNamedConstant(const String& name, const Vector3& vec);
+		/** Sets a Matrix4 parameter to the program.
+        @param name The name of the parameter
+		@param m The value to set
+		*/
+		virtual void setNamedConstant(const String& name, const Matrix4& m);
+		/** Sets a multiple value constant floating-point parameter to the program.
+        @remarks
+            Different types of GPU programs support different types of constant parameters.
+            For example, it's relatively common to find that vertex programs only support
+            floating point constants, and that fragment programs only support integer (fixed point)
+            parameters. This can vary depending on the program version supported by the
+            graphics card being used. You should consult the documentation for the type of
+            low level program you are using, or alternatively use the methods
+            provided on RenderSystemCapabilities to determine the options.
+        @par
+            Another possible limitation is that some systems only allow constants to be set
+            on certain boundaries, e.g. in sets of 4 values for example. Again, see
+            RenderSystemCapabilities for full details.
+        @note
+            This named option will only work if you are using a parameters object created
+            from a high-level program (HighLevelGpuProgram).
+        @param name The name of the parameter
+		@param val Pointer to the values to write
+		@param count The number of floats to write
+		*/
+		virtual void setNamedConstant(const String& name, const Real *val, size_t count);
+		/** Sets a ColourValue parameter to the program.
+        @param name The name of the parameter
+		@param colour The value to set
+		*/
+        virtual void setNamedConstant(const String& name, const ColourValue& colour);
+		
+		/** Sets a multiple value constant integer parameter to the program.
+        @remarks
+            Different types of GPU programs support different types of constant parameters.
+            For example, it's relatively common to find that vertex programs only support
+            floating point constants, and that fragment programs only support integer (fixed point)
+            parameters. This can vary depending on the program version supported by the
+            graphics card being used. You should consult the documentation for the type of
+            low level program you are using, or alternatively use the methods
+            provided on RenderSystemCapabilities to determine the options.
+        @par
+            Another possible limitation is that some systems only allow constants to be set
+            on certain boundaries, e.g. in sets of 4 values for example. Again, see
+            RenderSystemCapabilities for full details.
+        @note
+            This named option will only work if you are using a parameters object created
+            from a high-level program (HighLevelGpuProgram).
+        @param name The name of the parameter
+		@param val Pointer to the values to write
+		@param count The number of integers to write
+		*/
+		virtual void setNamedConstant(const String& name, const int *val, size_t count);
+
+        /** Sets up a constant which will automatically be updated by the system.
+        @remarks
+            Vertex and fragment programs often need parameters which are to do with the
+            current render state, or particular values which may very well change over time,
+            and often between objects which are being rendered. This feature allows you 
+            to set up a certain number of predefined parameter mappings that are kept up to 
+            date for you.
+        @note
+            This named option will only work if you are using a parameters object created
+            from a high-level program (HighLevelGpuProgram).
+        @param name The name of the parameter
+        @param acType The type of automatic constant to set
+        @param extraInfo If the constant type needs more information (like a light index) put it here.
+        */
+        virtual void setNamedAutoConstant(const String& name, AutoConstantType acType, size_t extraInfo = 0);
+        /// Internal method for associating a parameter name with an index
+        void _mapParameterNameToIndex(const String& name, size_t index);
     };
 
     /// Shared pointer used to hold references to GpuProgramParameters instances
@@ -285,7 +422,9 @@ namespace Ogre {
 	protected:
 		/// The type of the program
 		GpuProgramType mType;
-        /// The assembler source of the program
+		/// The name of the file to load source from (may be blank)
+		String mFilename;
+        /// The assembler source of the program (may be blank until file loaded)
         String mSource;
         /// Whether we need to load source from file or not
         bool mLoadFromFile;
@@ -297,17 +436,23 @@ namespace Ogre {
 		GpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode);
 		virtual ~GpuProgram() {}
 
-        /** Sets the source assembly for this program.
+        /** Sets the filename of the source assembly for this program.
         @remarks
-            You should not need to use this method - use the GpuProgramManager::load or
-            GpuProgramManager::create methods instead, which will call this method. 
-            Setting this will have no effect unless you reload the program in any case.
+            Setting this will have no effect until you (re)load the program.
+        */
+        virtual void setSourceFile(const String& filename);
+
+		/** Sets the source assembly for this program from an in-memory string.
+        @remarks
+            Setting this will have no effect until you (re)load the program.
         */
         virtual void setSource(const String& source);
 
         /** Gets the syntax code for this program e.g. arbvp1, fp20, vs_1_1 etc */
         virtual const String& getSyntaxCode(void) const { return mSyntaxCode; }
 
+		/** Gets the name of the file used as source for this program. */
+		virtual const String& getSourceFile(void) const { return mFilename; }
         /** Gets the assembler source for this program. */
         virtual const String& getSource(void) const { return mSource; }
         /// Get the program type

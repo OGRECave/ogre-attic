@@ -58,6 +58,8 @@ OgreHardwareBuffer.h \
 OgreHardwareBufferManager.h \
 OgreHardwareIndexBuffer.h \
 OgreHardwareVertexBuffer.h \
+OgreHighLevelGpuProgram.h \
+OgreHighLevelGpuProgramManager.h \
 OgreImage.h \
 OgreImageCodec.h \
 OgreInput.h \
