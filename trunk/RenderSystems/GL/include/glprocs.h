@@ -600,6 +600,19 @@ typedef struct {
   BOOL (WINAPI *SwapIntervalEXT) (int interval);
   int (WINAPI *GetSwapIntervalEXT) (void);
 #endif /* _WIN32 */
+	// BEGIN OGRE CHANGES
+	void (APIENTRY *BindBufferARB) (GLenum, GLuint);
+	void (APIENTRY *DeleteBuffersARB) (GLsizei, const GLuint *);
+	void (APIENTRY *GenBuffersARB) (GLsizei, GLuint *);
+	GLboolean (APIENTRY *IsBufferARB) (GLuint);
+	void (APIENTRY *BufferDataARB) (GLenum, GLsizeiptrARB, const GLvoid *, GLenum);
+	void (APIENTRY *BufferSubDataARB) (GLenum, GLintptrARB, GLsizeiptrARB, const GLvoid *);
+	void (APIENTRY *GetBufferSubDataARB) (GLenum, GLintptrARB, GLsizeiptrARB, GLvoid *);
+	GLvoid* (APIENTRY *MapBufferARB) (GLenum, GLenum);
+	GLboolean (APIENTRY *UnmapBufferARB) (GLenum);
+	void (APIENTRY *GetBufferParameterivARB) (GLenum, GLenum, GLint *);
+	void (APIENTRY *GetBufferPointervARB) (GLenum, GLenum, GLvoid* *);
+	// END OGRE CHANGES
 } _GLextensionProcs;
 
 #define glBlendColor                     (_GET_TLS_PROCTABLE()->BlendColor)
@@ -1142,6 +1155,20 @@ typedef struct {
 #define wglSwapIntervalEXT                (_GET_TLS_PROCTABLE()->SwapIntervalEXT)
 #define wglGetSwapIntervalEXT             (_GET_TLS_PROCTABLE()->GetSwapIntervalEXT)
 #endif /* _WIN32 */
+
+// BEGIN OGRE CHANGES
+#define glBindBufferARB					(_GET_TLS_PROCTABLE()->BindBufferARB)
+#define glDeleteBuffersARB				(_GET_TLS_PROCTABLE()->DeleteBuffersARB)
+#define glGenBuffersARB		            (_GET_TLS_PROCTABLE()->GenBuffersARB)
+#define glIsBufferARB					(_GET_TLS_PROCTABLE()->IsBufferARB)
+#define glBufferDataARB					(_GET_TLS_PROCTABLE()->BufferDataARB)
+#define glBufferSubDataARB				(_GET_TLS_PROCTABLE()->BufferSubDataARB)
+#define glGetBufferSubDataARB			(_GET_TLS_PROCTABLE()->GetBufferSubDataARB)
+#define glMapBufferARB					(_GET_TLS_PROCTABLE()->MapBufferARB)
+#define glUnmapBufferARB				(_GET_TLS_PROCTABLE()->UnmapBufferARB)
+#define glGetBufferParameterivARB		(_GET_TLS_PROCTABLE()->GetBufferParameterivARB)
+#define glGetBufferPointervARB			(_GET_TLS_PROCTABLE()->GetBufferPointervARB)
+// END OGRE CHANGES
 
 #ifndef _APP_PROCTABLE
 

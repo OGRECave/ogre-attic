@@ -24,7 +24,7 @@ extern "C" {
 ** 
 ** Original Code. The Original Code is: OpenGL Sample Implementation,
 ** Version 1.2.1, released January 26, 2000, developed by Silicon Graphics,
-** Inc. The Original Code is Copyright (c) 1991-2000 Silicon Graphics, Inc.
+** Inc. The Original Code is Copyright (c) 1991-2002 Silicon Graphics, Inc.
 ** Copyright in any portions created by third parties is as indicated
 ** elsewhere herein. All Rights Reserved.
 ** 
@@ -42,17 +42,27 @@ extern "C" {
 #ifndef APIENTRY
 #define APIENTRY
 #endif
+#ifndef GLAPI
+#define GLAPI extern
+#endif
 
 /*************************************************************/
 
 /* Header file version number */
-#define WGL_WGLEXT_VERSION 1
+/* wglext.h last updated 2002/03/22 */
+/* Current version at http://oss.sgi.com/projects/ogl-sample/registry/ */
+#define WGL_WGLEXT_VERSION 4
 
 #ifndef WGL_ARB_buffer_region
 #define WGL_FRONT_COLOR_BUFFER_BIT_ARB 0x00000001
 #define WGL_BACK_COLOR_BUFFER_BIT_ARB  0x00000002
 #define WGL_DEPTH_BUFFER_BIT_ARB       0x00000004
 #define WGL_STENCIL_BUFFER_BIT_ARB     0x00000008
+#endif
+
+#ifndef WGL_ARB_multisample
+#define WGL_SAMPLE_BUFFERS_ARB         0x2041
+#define WGL_SAMPLES_ARB                0x2042
 #endif
 
 #ifndef WGL_ARB_extensions_string
@@ -124,6 +134,42 @@ extern "C" {
 #define WGL_PBUFFER_WIDTH_ARB          0x2034
 #define WGL_PBUFFER_HEIGHT_ARB         0x2035
 #define WGL_PBUFFER_LOST_ARB           0x2036
+#endif
+
+#ifndef WGL_ARB_render_texture
+#define WGL_BIND_TO_TEXTURE_RGB_ARB    0x2070
+#define WGL_BIND_TO_TEXTURE_RGBA_ARB   0x2071
+#define WGL_TEXTURE_FORMAT_ARB         0x2072
+#define WGL_TEXTURE_TARGET_ARB         0x2073
+#define WGL_MIPMAP_TEXTURE_ARB         0x2074
+#define WGL_TEXTURE_RGB_ARB            0x2075
+#define WGL_TEXTURE_RGBA_ARB           0x2076
+#define WGL_NO_TEXTURE_ARB             0x2077
+#define WGL_TEXTURE_CUBE_MAP_ARB       0x2078
+#define WGL_TEXTURE_1D_ARB             0x2079
+#define WGL_TEXTURE_2D_ARB             0x207A
+#define WGL_MIPMAP_LEVEL_ARB           0x207B
+#define WGL_CUBE_MAP_FACE_ARB          0x207C
+#define WGL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB 0x207D
+#define WGL_TEXTURE_CUBE_MAP_NEGATIVE_X_ARB 0x207E
+#define WGL_TEXTURE_CUBE_MAP_POSITIVE_Y_ARB 0x207F
+#define WGL_TEXTURE_CUBE_MAP_NEGATIVE_Y_ARB 0x2080
+#define WGL_TEXTURE_CUBE_MAP_POSITIVE_Z_ARB 0x2081
+#define WGL_TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB 0x2082
+#define WGL_FRONT_LEFT_ARB             0x2083
+#define WGL_FRONT_RIGHT_ARB            0x2084
+#define WGL_BACK_LEFT_ARB              0x2085
+#define WGL_BACK_RIGHT_ARB             0x2086
+#define WGL_AUX0_ARB                   0x2087
+#define WGL_AUX1_ARB                   0x2088
+#define WGL_AUX2_ARB                   0x2089
+#define WGL_AUX3_ARB                   0x208A
+#define WGL_AUX4_ARB                   0x208B
+#define WGL_AUX5_ARB                   0x208C
+#define WGL_AUX6_ARB                   0x208D
+#define WGL_AUX7_ARB                   0x208E
+#define WGL_AUX8_ARB                   0x208F
+#define WGL_AUX9_ARB                   0x2090
 #endif
 
 #ifndef WGL_EXT_make_current_read
@@ -204,7 +250,19 @@ extern "C" {
 #define WGL_SAMPLES_EXT                0x2042
 #endif
 
-#ifndef WGL_I3D_unknown_genlock_extension_name
+#ifndef WGL_I3D_digital_video_control
+#define WGL_DIGITAL_VIDEO_CURSOR_ALPHA_FRAMEBUFFER_I3D 0x2050
+#define WGL_DIGITAL_VIDEO_CURSOR_ALPHA_VALUE_I3D 0x2051
+#define WGL_DIGITAL_VIDEO_CURSOR_INCLUDED_I3D 0x2052
+#define WGL_DIGITAL_VIDEO_GAMMA_CORRECTED_I3D 0x2053
+#endif
+
+#ifndef WGL_I3D_gamma
+#define WGL_GAMMA_TABLE_SIZE_I3D       0x204E
+#define WGL_GAMMA_EXCLUDE_DESKTOP_I3D  0x204F
+#endif
+
+#ifndef WGL_I3D_genlock
 #define WGL_GENLOCK_SOURCE_MULTIVIEW_I3D 0x2044
 #define WGL_GENLOCK_SOURCE_EXTENAL_SYNC_I3D 0x2045
 #define WGL_GENLOCK_SOURCE_EXTENAL_FIELD_I3D 0x2046
@@ -216,16 +274,38 @@ extern "C" {
 #define WGL_GENLOCK_SOURCE_EDGE_BOTH_I3D 0x204C
 #endif
 
-#ifndef WGL_I3D_unknown_gamma_extension_name
-#define WGL_GAMMA_TABLE_SIZE_I3D       0x204E
-#define WGL_GAMMA_EXCLUDE_DESKTOP_I3D  0x204F
+#ifndef WGL_I3D_image_buffer
+#define WGL_IMAGE_BUFFER_MIN_ACCESS_I3D 0x00000001
+#define WGL_IMAGE_BUFFER_LOCK_I3D      0x00000002
 #endif
 
-#ifndef WGL_I3D_unknown_digital_video_cursor_extension_name
-#define WGL_DIGITAL_VIDEO_CURSOR_ALPHA_FRAMEBUFFER_I3D 0x2050
-#define WGL_DIGITAL_VIDEO_CURSOR_ALPHA_VALUE_I3D 0x2051
-#define WGL_DIGITAL_VIDEO_CURSOR_INCLUDED_I3D 0x2052
-#define WGL_DIGITAL_VIDEO_GAMMA_CORRECTED_I3D 0x2053
+#ifndef WGL_I3D_swap_frame_lock
+#endif
+
+#ifndef WGL_NV_render_depth_texture
+#define WGL_BIND_TO_TEXTURE_DEPTH_NV   0x20A3
+#define WGL_BIND_TO_TEXTURE_RECTANGLE_DEPTH_NV 0x20A4
+#define WGL_DEPTH_TEXTURE_FORMAT_NV    0x20A5
+#define WGL_TEXTURE_DEPTH_COMPONENT_NV 0x20A6
+#define WGL_DEPTH_COMPONENT_NV         0x20A7
+#endif
+
+#ifndef WGL_NV_render_texture_rectangle
+#define WGL_BIND_TO_TEXTURE_RECTANGLE_RGB_NV 0x20A0
+#define WGL_BIND_TO_TEXTURE_RECTANGLE_RGBA_NV 0x20A1
+#define WGL_TEXTURE_RECTANGLE_NV       0x20A2
+#endif
+
+#ifndef WGL_NV_float_buffer
+#define WGL_FLOAT_COMPONENTS_NV        0x20B0
+#define WGL_BIND_TO_TEXTURE_RECTANGLE_FLOAT_R_NV 0x20B1
+#define WGL_BIND_TO_TEXTURE_RECTANGLE_FLOAT_RG_NV 0x20B2
+#define WGL_BIND_TO_TEXTURE_RECTANGLE_FLOAT_RGB_NV 0x20B3
+#define WGL_BIND_TO_TEXTURE_RECTANGLE_FLOAT_RGBA_NV 0x20B4
+#define WGL_TEXTURE_FLOAT_R_NV         0x20B5
+#define WGL_TEXTURE_FLOAT_RG_NV        0x20B6
+#define WGL_TEXTURE_FLOAT_RGB_NV       0x20B7
+#define WGL_TEXTURE_FLOAT_RGBA_NV      0x20B8
 #endif
 
 
@@ -250,6 +330,10 @@ typedef HANDLE (WINAPI * PFNWGLCREATEBUFFERREGIONARBPROC) (HDC hDC, int iLayerPl
 typedef VOID (WINAPI * PFNWGLDELETEBUFFERREGIONARBPROC) (HANDLE hRegion);
 typedef BOOL (WINAPI * PFNWGLSAVEBUFFERREGIONARBPROC) (HANDLE hRegion, int x, int y, int width, int height);
 typedef BOOL (WINAPI * PFNWGLRESTOREBUFFERREGIONARBPROC) (HANDLE hRegion, int x, int y, int width, int height, int xSrc, int ySrc);
+#endif
+
+#ifndef WGL_ARB_multisample
+#define WGL_ARB_multisample 1
 #endif
 
 #ifndef WGL_ARB_extensions_string
@@ -296,6 +380,18 @@ typedef HDC (WINAPI * PFNWGLGETPBUFFERDCARBPROC) (HPBUFFERARB hPbuffer);
 typedef int (WINAPI * PFNWGLRELEASEPBUFFERDCARBPROC) (HPBUFFERARB hPbuffer, HDC hDC);
 typedef BOOL (WINAPI * PFNWGLDESTROYPBUFFERARBPROC) (HPBUFFERARB hPbuffer);
 typedef BOOL (WINAPI * PFNWGLQUERYPBUFFERARBPROC) (HPBUFFERARB hPbuffer, int iAttribute, int *piValue);
+#endif
+
+#ifndef WGL_ARB_render_texture
+#define WGL_ARB_render_texture 1
+#ifdef WGL_WGLEXT_PROTOTYPES
+extern BOOL WINAPI wglBindTexImageARB (HPBUFFERARB, int);
+extern BOOL WINAPI wglReleaseTexImageARB (HPBUFFERARB, int);
+extern BOOL WINAPI wglSetPbufferAttribARB (HPBUFFERARB, const int *);
+#endif /* WGL_WGLEXT_PROTOTYPES */
+typedef BOOL (WINAPI * PFNWGLBINDTEXIMAGEARBPROC) (HPBUFFERARB hPbuffer, int iBuffer);
+typedef BOOL (WINAPI * PFNWGLRELEASETEXIMAGEARBPROC) (HPBUFFERARB hPbuffer, int iBuffer);
+typedef BOOL (WINAPI * PFNWGLSETPBUFFERATTRIBARBPROC) (HPBUFFERARB hPbuffer, const int *piAttribList);
 #endif
 
 #ifndef WGL_EXT_display_color_table
@@ -368,16 +464,140 @@ typedef BOOL (WINAPI * PFNWGLSWAPINTERVALEXTPROC) (int interval);
 typedef int (WINAPI * PFNWGLGETSWAPINTERVALEXTPROC) (void);
 #endif
 
-#ifndef WGL_WGL_EXT_depth_float
-#define WGL_WGL_EXT_depth_float 1
+#ifndef WGL_EXT_depth_float
+#define WGL_EXT_depth_float 1
 #endif
 
-#ifndef WGL_WGL_3DFX_multisample
-#define WGL_WGL_3DFX_multisample 1
+#ifndef WGL_NV_vertex_array_range
+#define WGL_NV_vertex_array_range 1
+#ifdef WGL_WGLEXT_PROTOTYPES
+extern void* WINAPI wglAllocateMemoryNV (GLsizei, GLfloat, GLfloat, GLfloat);
+extern void WINAPI wglFreeMemoryNV (void *);
+#endif /* WGL_WGLEXT_PROTOTYPES */
+typedef void* (WINAPI * PFNWGLALLOCATEMEMORYNVPROC) (GLsizei size, GLfloat readfreq, GLfloat writefreq, GLfloat priority);
+typedef void (WINAPI * PFNWGLFREEMEMORYNVPROC) (void *pointer);
 #endif
 
-#ifndef WGL_WGL_EXT_multisample
-#define WGL_WGL_EXT_multisample 1
+#ifndef WGL_3DFX_multisample
+#define WGL_3DFX_multisample 1
+#endif
+
+#ifndef WGL_EXT_multisample
+#define WGL_EXT_multisample 1
+#endif
+
+#ifndef WGL_OML_sync_control
+#define WGL_OML_sync_control 1
+#ifdef WGL_WGLEXT_PROTOTYPES
+extern BOOL WINAPI wglGetSyncValuesOML (HDC, INT64 *, INT64 *, INT64 *);
+extern BOOL WINAPI wglGetMscRateOML (HDC, INT32 *, INT32 *);
+extern INT64 WINAPI wglSwapBuffersMscOML (HDC, INT64, INT64, INT64);
+extern INT64 WINAPI wglSwapLayerBuffersMscOML (HDC, int, INT64, INT64, INT64);
+extern BOOL WINAPI wglWaitForMscOML (HDC, INT64, INT64, INT64, INT64 *, INT64 *, INT64 *);
+extern BOOL WINAPI wglWaitForSbcOML (HDC, INT64, INT64 *, INT64 *, INT64 *);
+#endif /* WGL_WGLEXT_PROTOTYPES */
+typedef BOOL (WINAPI * PFNWGLGETSYNCVALUESOMLPROC) (HDC hdc, INT64 *ust, INT64 *msc, INT64 *sbc);
+typedef BOOL (WINAPI * PFNWGLGETMSCRATEOMLPROC) (HDC hdc, INT32 *numerator, INT32 *denominator);
+typedef INT64 (WINAPI * PFNWGLSWAPBUFFERSMSCOMLPROC) (HDC hdc, INT64 target_msc, INT64 divisor, INT64 remainder);
+typedef INT64 (WINAPI * PFNWGLSWAPLAYERBUFFERSMSCOMLPROC) (HDC hdc, int fuPlanes, INT64 target_msc, INT64 divisor, INT64 remainder);
+typedef BOOL (WINAPI * PFNWGLWAITFORMSCOMLPROC) (HDC hdc, INT64 target_msc, INT64 divisor, INT64 remainder, INT64 *ust, INT64 *msc, INT64 *sbc);
+typedef BOOL (WINAPI * PFNWGLWAITFORSBCOMLPROC) (HDC hdc, INT64 target_sbc, INT64 *ust, INT64 *msc, INT64 *sbc);
+#endif
+
+#ifndef WGL_I3D_digital_video_control
+#define WGL_I3D_digital_video_control 1
+#ifdef WGL_WGLEXT_PROTOTYPES
+extern BOOL WINAPI wglGetDigitalVideoParametersI3D (HDC, int, int *);
+extern BOOL WINAPI wglSetDigitalVideoParametersI3D (HDC, int, const int *);
+#endif /* WGL_WGLEXT_PROTOTYPES */
+typedef BOOL (WINAPI * PFNWGLGETDIGITALVIDEOPARAMETERSI3DPROC) (HDC hDC, int iAttribute, int *piValue);
+typedef BOOL (WINAPI * PFNWGLSETDIGITALVIDEOPARAMETERSI3DPROC) (HDC hDC, int iAttribute, const int *piValue);
+#endif
+
+#ifndef WGL_I3D_gamma
+#define WGL_I3D_gamma 1
+#ifdef WGL_WGLEXT_PROTOTYPES
+extern BOOL WINAPI wglGetGammaTableParametersI3D (HDC, int, int *);
+extern BOOL WINAPI wglSetGammaTableParametersI3D (HDC, int, const int *);
+extern BOOL WINAPI wglGetGammaTableI3D (HDC, int, USHORT *, USHORT *, USHORT *);
+extern BOOL WINAPI wglSetGammaTableI3D (HDC, int, const USHORT *, const USHORT *, const USHORT *);
+#endif /* WGL_WGLEXT_PROTOTYPES */
+typedef BOOL (WINAPI * PFNWGLGETGAMMATABLEPARAMETERSI3DPROC) (HDC hDC, int iAttribute, int *piValue);
+typedef BOOL (WINAPI * PFNWGLSETGAMMATABLEPARAMETERSI3DPROC) (HDC hDC, int iAttribute, const int *piValue);
+typedef BOOL (WINAPI * PFNWGLGETGAMMATABLEI3DPROC) (HDC hDC, int iEntries, USHORT *puRed, USHORT *puGreen, USHORT *puBlue);
+typedef BOOL (WINAPI * PFNWGLSETGAMMATABLEI3DPROC) (HDC hDC, int iEntries, const USHORT *puRed, const USHORT *puGreen, const USHORT *puBlue);
+#endif
+
+#ifndef WGL_I3D_genlock
+#define WGL_I3D_genlock 1
+#ifdef WGL_WGLEXT_PROTOTYPES
+extern BOOL WINAPI wglEnableGenlockI3D (HDC);
+extern BOOL WINAPI wglDisableGenlockI3D (HDC);
+extern BOOL WINAPI wglIsEnabledGenlockI3D (HDC, BOOL *);
+extern BOOL WINAPI wglGenlockSourceI3D (HDC, UINT);
+extern BOOL WINAPI wglGetGenlockSourceI3D (HDC, UINT *);
+extern BOOL WINAPI wglGenlockSourceEdgeI3D (HDC, UINT);
+extern BOOL WINAPI wglGetGenlockSourceEdgeI3D (HDC, UINT *);
+extern BOOL WINAPI wglGenlockSampleRateI3D (HDC, UINT);
+extern BOOL WINAPI wglGetGenlockSampleRateI3D (HDC, UINT *);
+extern BOOL WINAPI wglGenlockSourceDelayI3D (HDC, UINT);
+extern BOOL WINAPI wglGetGenlockSourceDelayI3D (HDC, UINT *);
+extern BOOL WINAPI wglQueryGenlockMaxSourceDelayI3D (HDC, UINT *, UINT *);
+#endif /* WGL_WGLEXT_PROTOTYPES */
+typedef BOOL (WINAPI * PFNWGLENABLEGENLOCKI3DPROC) (HDC hDC);
+typedef BOOL (WINAPI * PFNWGLDISABLEGENLOCKI3DPROC) (HDC hDC);
+typedef BOOL (WINAPI * PFNWGLISENABLEDGENLOCKI3DPROC) (HDC hDC, BOOL *pFlag);
+typedef BOOL (WINAPI * PFNWGLGENLOCKSOURCEI3DPROC) (HDC hDC, UINT uSource);
+typedef BOOL (WINAPI * PFNWGLGETGENLOCKSOURCEI3DPROC) (HDC hDC, UINT *uSource);
+typedef BOOL (WINAPI * PFNWGLGENLOCKSOURCEEDGEI3DPROC) (HDC hDC, UINT uEdge);
+typedef BOOL (WINAPI * PFNWGLGETGENLOCKSOURCEEDGEI3DPROC) (HDC hDC, UINT *uEdge);
+typedef BOOL (WINAPI * PFNWGLGENLOCKSAMPLERATEI3DPROC) (HDC hDC, UINT uRate);
+typedef BOOL (WINAPI * PFNWGLGETGENLOCKSAMPLERATEI3DPROC) (HDC hDC, UINT *uRate);
+typedef BOOL (WINAPI * PFNWGLGENLOCKSOURCEDELAYI3DPROC) (HDC hDC, UINT uDelay);
+typedef BOOL (WINAPI * PFNWGLGETGENLOCKSOURCEDELAYI3DPROC) (HDC hDC, UINT *uDelay);
+typedef BOOL (WINAPI * PFNWGLQUERYGENLOCKMAXSOURCEDELAYI3DPROC) (HDC hDC, UINT *uMaxLineDelay, UINT *uMaxPixelDelay);
+#endif
+
+#ifndef WGL_I3D_image_buffer
+#define WGL_I3D_image_buffer 1
+#ifdef WGL_WGLEXT_PROTOTYPES
+extern LPVOID WINAPI wglCreateImageBufferI3D (HDC, DWORD, UINT);
+extern BOOL WINAPI wglDestroyImageBufferI3D (HDC, LPVOID);
+extern BOOL WINAPI wglAssociateImageBufferEventsI3D (HDC, const HANDLE *, const LPVOID *, const DWORD *, UINT);
+extern BOOL WINAPI wglReleaseImageBufferEventsI3D (HDC, const LPVOID *, UINT);
+#endif /* WGL_WGLEXT_PROTOTYPES */
+typedef LPVOID (WINAPI * PFNWGLCREATEIMAGEBUFFERI3DPROC) (HDC hDC, DWORD dwSize, UINT uFlags);
+typedef BOOL (WINAPI * PFNWGLDESTROYIMAGEBUFFERI3DPROC) (HDC hDC, LPVOID pAddress);
+typedef BOOL (WINAPI * PFNWGLASSOCIATEIMAGEBUFFEREVENTSI3DPROC) (HDC hDC, const HANDLE *pEvent, const LPVOID *pAddress, const DWORD *pSize, UINT count);
+typedef BOOL (WINAPI * PFNWGLRELEASEIMAGEBUFFEREVENTSI3DPROC) (HDC hDC, const LPVOID *pAddress, UINT count);
+#endif
+
+#ifndef WGL_I3D_swap_frame_lock
+#define WGL_I3D_swap_frame_lock 1
+#ifdef WGL_WGLEXT_PROTOTYPES
+extern BOOL WINAPI wglEnableFrameLockI3D (void);
+extern BOOL WINAPI wglDisableFrameLockI3D (void);
+extern BOOL WINAPI wglIsEnabledFrameLockI3D (BOOL *);
+extern BOOL WINAPI wglQueryFrameLockMasterI3D (BOOL *);
+#endif /* WGL_WGLEXT_PROTOTYPES */
+typedef BOOL (WINAPI * PFNWGLENABLEFRAMELOCKI3DPROC) (void);
+typedef BOOL (WINAPI * PFNWGLDISABLEFRAMELOCKI3DPROC) (void);
+typedef BOOL (WINAPI * PFNWGLISENABLEDFRAMELOCKI3DPROC) (BOOL *pFlag);
+typedef BOOL (WINAPI * PFNWGLQUERYFRAMELOCKMASTERI3DPROC) (BOOL *pFlag);
+#endif
+
+#ifndef WGL_I3D_swap_frame_usage
+#define WGL_I3D_swap_frame_usage 1
+#ifdef WGL_WGLEXT_PROTOTYPES
+extern BOOL WINAPI wglGetFrameUsageI3D (float *);
+extern BOOL WINAPI wglBeginFrameTrackingI3D (void);
+extern BOOL WINAPI wglEndFrameTrackingI3D (void);
+extern BOOL WINAPI wglQueryFrameTrackingI3D (DWORD *, DWORD *, float *);
+#endif /* WGL_WGLEXT_PROTOTYPES */
+typedef BOOL (WINAPI * PFNWGLGETFRAMEUSAGEI3DPROC) (float *pUsage);
+typedef BOOL (WINAPI * PFNWGLBEGINFRAMETRACKINGI3DPROC) (void);
+typedef BOOL (WINAPI * PFNWGLENDFRAMETRACKINGI3DPROC) (void);
+typedef BOOL (WINAPI * PFNWGLQUERYFRAMETRACKINGI3DPROC) (DWORD *pFrameCount, DWORD *pMissedFrames, float *pLastMissedUsage);
 #endif
 
 
