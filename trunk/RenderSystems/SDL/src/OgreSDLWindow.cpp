@@ -26,6 +26,24 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSDLWindow.h"
 #include "OgreRoot.h"
 #include "OgreRenderSystem.h"
+#include "OgreImageCodec.h"
+
+#if OGRE_PLATFORM == PLATFORM_WIN32
+#   include <windows.h>
+#   include <wingdi.h>
+#   include "gl.h"
+#   define GL_GLEXT_PROTOTYPES
+#   include "glprocs.h"
+#   include <GL/glu.h>
+#elif OGRE_PLATFORM == PLATFORM_LINUX
+#   include <GL/gl.h>
+#   include <GL/glu.h>
+#elif OGRE_PLATFORM == PLATFORM_APPLE
+#   include <OpenGL/gl.h>
+#   define GL_EXT_texture_env_combine 1
+#   include <OpenGL/glext.h>
+#   include <OpenGL/glu.h>
+#endif
 
 namespace Ogre {
 
@@ -118,9 +136,51 @@ namespace Ogre {
     {
         //XXX FIXME
     }
-    void SDLWindow::writeContentsToFile(const String& filename)
-    {
-        // TODO
-    }
+	void SDLWindow::writeContentsToFile(const String& filename)
+	{
+		ImageCodec::ImageData imgData;
+		imgData.ulWidth = mWidth;
+		imgData.ulHeight = mHeight;
+		imgData.eFormat = Image::FMT_RGB;
+
+		// Allocate buffer 
+		uchar* pBuffer = new uchar[mWidth * mHeight * 3];
+
+		// Read pixels
+		// I love GL: it does all the locking & colour conversion for us
+		glReadPixels(0,0, mWidth-1, mHeight-1, GL_RGB, GL_UNSIGNED_BYTE, pBuffer);
+
+		// Wrap buffer in a chunk
+		DataChunk chunk(pBuffer, mWidth * mHeight * 3);
+
+		// Need to flip the read data over in Y though
+		Image img;
+		img.loadRawData(chunk, mWidth, mHeight, Image::FMT_RGB);
+		img.flipAroundX();
+
+		DataChunk chunkFlipped(img.getData(), chunk.getSize());
+
+		// Get codec 
+		size_t pos = filename.find_last_of(".");
+		String extension;
+		if( pos == String::npos )
+			Except(
+			Exception::ERR_INVALIDPARAMS, 
+			"Unable to determine image type for '" + filename + "' - invalid extension.",
+			"D3D8RenderWindow::writeContentsToFile" );
+
+		while( pos != filename.length() - 1 )
+			extension += filename[++pos];
+
+		// Get the codec
+		Codec * pCodec = Codec::getCodec(extension);
+
+		// Write out
+		pCodec->codeToFile(chunkFlipped, filename, &imgData);
+
+		delete [] pBuffer;
+
+
+	}
 }
 
