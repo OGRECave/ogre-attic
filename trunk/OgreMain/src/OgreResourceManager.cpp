@@ -88,11 +88,11 @@ namespace Ogre {
         res->load();
         res->touch();
 
-        mResources[res->getName()] = res; //.insert(res->getName(), res);
+        mResources.insert( ResourceMap::value_type( res->getName(), res ) );
     }
 
     //-----------------------------------------------------------------------
-    void ResourceManager::setMemoryBudget(unsigned long bytes)
+    void ResourceManager::setMemoryBudget( size_t bytes)
     {
         // Update limit & check usage
         mMemoryBudget = bytes;
@@ -106,12 +106,10 @@ namespace Ogre {
         res->unload();
 
         // Erase entry in map
-        mResources.erase(res->getName());
+        mResources.erase( res->getName() );
 
         // Update memory usage
         mMemoryUsage -= res->getSize();
-
-        // Note that we DON'T destroy Resource object
     }
 
     //-----------------------------------------------------------------------
@@ -124,7 +122,7 @@ namespace Ogre {
             ++it)
         {
             it->second->unload();
-            delete it->second;
+            it->second->destroy();
         }
 
         // Empty the list
