@@ -75,7 +75,7 @@ class GLXConfigurator {
 
 public:
 	GLXConfigurator();
-	~GLXConfigurator();
+	virtual ~GLXConfigurator();
 
 	bool CreateWindow();
 	void Main();
