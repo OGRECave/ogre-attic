@@ -408,6 +408,9 @@
 				RelativePath="..\src\OgreSceneNode.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreSceneQuery.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreSerializer.cpp">
 			</File>
 			<File
@@ -863,6 +866,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreSceneNode.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreSceneQuery.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreSerializer.h">
