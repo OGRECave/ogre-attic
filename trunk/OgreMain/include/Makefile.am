@@ -76,6 +76,7 @@ OgreRenderOperation.h \
 OgreRenderQueue.h \
 OgreRenderSystem.h \
 OgreRenderTarget.h \
+OgreRenderTargetListener.h \
 OgreRenderWindow.h \
 OgreRenderWindowMap.h \
 OgreRenderable.h \
