@@ -1,8 +1,11 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
 <!-- saved from url=(0094)http://homepages.ihug.co.nz/~evilnic/Tutorials/Ogre/LightsCameraAction/WaveformController.html -->
-<HTML><HEAD><TITLE>Creating OGRE Project Files</TITLE>
-<META http-equiv=Content-Type content="text/html; charset=windows-1252">
-<STYLE type=text/css>.MainHeader {
+  <title>Creating OGRE Project Files</title>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=windows-1252">
+  <style type="text/css">.MainHeader {
 	FONT-WEIGHT: bold; FONT-SIZE: 10pt; COLOR: #ffffff; BACKGROUND-COLOR: #003300
 }
 BODY {
@@ -50,235 +53,145 @@ TH {
 PRE {
 	FONT-SIZE: 12px; COLOR: #000066
 }
-</STYLE>
-
-<META content="MSHTML 6.00.2600.0" name=GENERATOR>
-<META content="" name=keywords>
-<META content="" name=description>
-<META content=Nicholas name=author>
-<META http-equiv=reply-to content=vastrim@hotmail.com>
-<META content="Sat, 13 Jul, 2002 12:32:59 p GMT" name=creation_date></HEAD>
-<BODY text=#000000 bgColor=#ffffff>
-<P class=header align=center>OGRE (Object-Oriented Graphics Rendering 
-Engine)</P>
-<P class=header align=center>Using Waveform Controllers </P>
-<P class=MainHeader align=left>&nbsp;</P>
-<P class=SectionHeader align=left>Controllers, ControllerFunctions, and 
-ControllerValues</P>
-<P align=left>When I initially wrote the source for the tutorial I used two 
-variables of type Real, and two booleans for each light to control its flashing. 
-The code was a couple pages long and it would have been very hard to extend the 
-functionality of it. I thought to myself that it would be nice if I could just 
-set up the logic of controlling the colour value of a Light and Billboard pair 
-just once and let different time based functions control the intensity. Just 
-when I was about to make my own I discovered that Ogre has these built into it. 
-And now they are my new best friends. </P>
-<P>The way it hangs together in Ogre is that you create a class descending from 
-ControllerValue which overrides the methods getValue and setValue. The names 
-should make their function obvious enough but one thing to note is that they 
-only deal with values between 0.0 and 1.0. </P>
-<P>A ControllerFunction is given a value to operate on and outputs a result 
-between 0.0 and 1.0, which gets fed to a ControllerValue. These functions can be 
-based on anything, but for this tutorial we will only focus on using it to 
-control values based on time. </P>
-<P>A Controller connects a ControllerFunction with an input ControllerValue and 
-an output ControllerValue. The most useful input ControllerValue to us comes 
-from a method on the ControllerManager called getFrameTimeSource which will give 
-the value of time between frames. </P>
-<P class=SectionHeader align=left>Controllers, ControllerFunctions, and 
-ControllerValues</P>
-<P align=left>With our new found knowledge of controllers lets make a 
-ControllerValue and ControllerFunction to control these lights. Go to the top of 
-the Space.h file just after #include "ExampleApplication.h and enter this <PRE>
-class LightFlasher : public ControllerValue
-{
-protected:
-	Light* mLight;
-	Billboard* mBillboard;
-	ColourValue mMaxColour;
-	Real intensity;
-public:
-	LightFlasher(Light* light, Billboard* billboard, ColourValue maxColour)
-	{
-		mLight = light;
-		mBillboard = billboard;
-		mMaxColour = maxColour;
-	}
-
-	virtual Real  getValue (void)
-	{
-		return intensity;
-	}
-
-	virtual void  setValue (Real value)
-	{
-		intensity = value;
-
-		ColourValue newColour;
-
-		// Attenuate the brightness of the light
-		newColour.r = mMaxColour.r * intensity;
-		newColour.g = mMaxColour.g * intensity;
-		newColour.b = mMaxColour.b * intensity;
-
-		mLight-&gt;setDiffuseColour(newColour);
-		mBillboard-&gt;setColour(newColour);
-	}
-};
-</PRE>
-<P align=left>When the controller calls setValue, the value is used to 
-attentuate the Red, Green, and Blue values of the Light and Billboard. The 
-effect of this will be that when the value is set to 0.0 the light will be black 
-which is the same as being off, and when set to 1.0 the light will be at its 
-brightest. 
-<P>
-<P align=left>The ControllerFunction that we will use will be based on 
-WaveformControllerFunction. We do not need to modify the class very much, in 
-fact all we will do is override the constructor and default some of the 
-arguments to make using it a little easier. <PRE>class LightFlasherControllerFunction : public WaveformControllerFunction
-{
-public:
-	LightFlasherControllerFunction(WaveformType wavetype, Real frequency, Real phase) : WaveformControllerFunction(wavetype, 0, frequency, phase, 1, true)
-	{
-
-	}
-};
-</PRE>The constructor for a WaveformControllerFunction is <PRE>WaveformControllerFunction::WaveformControllerFunction(WaveformType wType, Real base,  Real frequency, Real phase, Real amplitude, bool delta)
-</PRE>The first argument, WaveformType is the type of wave to be generated, 
-which can be a sine, traingle, square, sawtooth, or inverse sawtooth. We will 
-use most of these wave forms in the tutorial. Base is added to the value 
-generated, it effectively sets the bottom value of the wave and we will only use 
-0.0 in this tutorial so it has been hardcoded in the constructor. Frequency is 
-how often the whole wave form is produced within one second. Phase is how far 
-through the wave to start in. Amplitude is multiplied to the wave value to 
-increase the size of the wave, we will only use 1.0 for this. Delta is used 
-internally to specify wether or not the values are supplied as delta or absolute 
-values, defaulting here to true. 
-<P></P>
-<P class=SectionHeader align=left>Switching the lights on</P>
-<P align=left>In the previous tutorial we had to turn the ambient lighting on so 
-that we could see the ship but now we want to turn it back down again so that we 
-can see the effects of our new light sources. So in the createScene method 
-change the line setting the ambient lighting to <PRE>		// Set a very low level of ambient lighting
-		mSceneMgr-&gt;setAmbientLight(ColourValue(0.2, 0.2, 0.2));
-</PRE>We need some member variables to hold the Controllers and their Values and 
-Functions. Add these to the protected section of the class. <PRE>	// Light flashers
-	LightFlasher* mRedLightFlasher;
-	LightFlasher* mBlueLightFlasher;
-	LightFlasher* mWhiteLightFlasher;
-
-	// Light controller functions
-	LightFlasherControllerFunction* mRedLightControllerFunc;
-	LightFlasherControllerFunction* mBlueLightControllerFunc;
-	LightFlasherControllerFunction* mWhiteLightControllerFunc;
-
-	// Light controllers
-	Controller* mRedLightController;
-	Controller* mBlueLightController;
-	Controller* mWhiteLightController;
-
-</PRE>And now, finally, we create our controllers. Type this into the bottom of 
-the createScene method. <PRE>		// Light flashers
-		mRedLightFlasher = new LightFlasher(mRedLight, mRedLightBoard, ColourValue::Red);
-		mBlueLightFlasher = new LightFlasher(mBlueLight, mBlueLightBoard, ColourValue::Blue);
-		mWhiteLightFlasher = new LightFlasher(mWhiteLight, mWhiteLightBoard, ColourValue::White);
-
-		// Light controller functions
-		mRedLightControllerFunc = new LightFlasherControllerFunction(Ogre::WFT_SINE, 0.5, 0.0);
-		mBlueLightControllerFunc = new LightFlasherControllerFunction(Ogre::WFT_SQUARE, 0.5, 0.5);
-		mWhiteLightControllerFunc = new LightFlasherControllerFunction(Ogre::WFT_TRIANGLE, 4, 0.0);
-
-		// Light controllers
-		ControllerManager* mControllerManager = &amp;ControllerManager::getSingleton();
-		mRedLightController = mControllerManager-&gt;createController(mControllerManager-&gt;getFrameTimeSource(), mRedLightFlasher, mRedLightControllerFunc);
-		mBlueLightController = mControllerManager-&gt;createController(mControllerManager-&gt;getFrameTimeSource(), mBlueLightFlasher, mBlueLightControllerFunc);
-		mWhiteLightController = mControllerManager-&gt;createController(mControllerManager-&gt;getFrameTimeSource(), mWhiteLightFlasher, mWhiteLightControllerFunc);
-
-
-</PRE>There is one LightFlasher for each of Red, Blue, and White connected to 
-their respective Light and Billboard. Then we create one ControllerFunction to 
-pulse the red light in a sine wave fashion, one to flash the blue light on and 
-off, and one to pulse the white light 4 times a second in a triangle wave 
-fashion. We then use the ControllerManager to create three Controllers, one for 
-each light and hook them up to their ControllerFunctions and ControllerValues. 
-The first argument to their constructors is a call to getFrameTimeSource, which 
-will give us an object that provides the Controller with time information. 
-<P></P>
-<P>Compile and run the program. The lights should be flashing or pulsing as 
-described above. </P>
-<P class=SectionHeader align=left>Blinking Lights</P>
-<P align=left>I said earlier that is is easier to extend the functionality of 
-this than my first attempt. Lets do it now by changing the way that the white 
-light works. Lets make it blink on for one tenth of a second once every 4 
-seconds. To do this we will create a new class called LightBlinker inheriting 
-from the LightFlasher. It will be designed to accept input from the sawtooth 
-wave and when the wave hits a certain value we will turn the light on, otherwise 
-the light will remain off. </P>
-<P>Put this class definition just after the definition of LightFlasher. <PRE>
-class LightBlinker : public LightFlasher
-{
-protected:
-	ColourValue mMinColour;
-	Real mActivationLevel;
-public:
-	LightBlinker(Light* light, Billboard* billboard, ColourValue maxColour, ColourValue minColour, Real activationLevel) : LightFlasher(light, billboard, maxColour)
-	{
-		mMinColour = minColour;
-		mActivationLevel = activationLevel;
-	}
-
-	virtual Real  getValue (void)
-	{
-		return intensity;
-	}
-
-	virtual void setValue(Real value)
-	{
-		intensity = value;
-
-
-		if(value &lt; mActivationLevel)
-		{
-			// Light is off
-			mLight-&gt;setDiffuseColour(mMinColour);
-			mBillboard-&gt;setColour(mMinColour);
-		} else {
-			// Light is blinking on
-			mLight-&gt;setDiffuseColour(mMaxColour);
-			mBillboard-&gt;setColour(mMaxColour);
-		}
-	}
-
-};
-
-</PRE>Lets now use our new class. Change the line creating the light controller 
-function for the white light to be <PRE>	mWhiteLightControllerFunc = new LightFlasherControllerFunction(Ogre::WFT_SAWTOOTH, 0.25, 0.0);
-</PRE>And the line creating the white light flasher. <PRE>	mWhiteLightFlasher = new LightBlinker(mWhiteLight, mWhiteLightBoard, ColourValue::White, ColourValue::Black, 0.975);
-</PRE>So what is this value of 0.975? As described above it is the value that 
-the wave must reach before the light will turn on. But why that particular 
-value? This is the way it works: the saw tooth wave starts at 0 and hits 1.0 at 
-the end of 4 seconds (frequency is 0.25 as stated in the constructor for the 
-LightFlasherFunction). This means that each second will contribute 0.25 to the 
-value. We however only want one tenth of a second, leaving us with 0.025 and 
-since we want the light to be on for only that last tenth of a second we 
-subtract 0.025 from 1.0 and we get 0.975, clear enough? 
-<P></P>
-<P>Compile and run the program so far. You should have all three lights working 
-but the white light will blink on only once every 4 seconds. </P>
-<TABLE cellSpacing=2 cellPadding=0 width="100%" border=0>
-  <TBODY>
-  <TR>
-    <TD width="14%"><A 
-      href="Index.html">Back 
-      to Index</A></TD>
-    <TD width="39%">&nbsp;</TD>
-    <TD width="22%"><A 
-      href="AvionicLights.html">&lt;&lt; 
-      Previous section</A></TD>
-    <TD width="25%"><A 
-		    href="CameraMotion.html">Next 
-      section &gt;&gt;</A></TD></TR></TBODY></TABLE>
-<P>&nbsp;</P>
-<P>&nbsp;</P>
-<P>&nbsp;</P>
-<P class=SectionHeader>&nbsp;</P></BODY></HTML>
+  </style>
+  <meta content="MSHTML 6.00.2600.0" name="GENERATOR">
+  <meta content="" name="keywords">
+  <meta content="" name="description">
+  <meta content="Nicholas" name="author">
+  <meta http-equiv="reply-to" content="vastrim@hotmail.com">
+  <meta content="Sat, 13 Jul, 2002 12:32:59 p GMT" name="creation_date">
+</head>
+<body text="#000000" bgcolor="#ffffff">
+<p class="header" align="center">OGRE (Object-Oriented Graphics
+Rendering Engine)</p>
+<p class="header" align="center">Using Waveform Controllers </p>
+<p class="MainHeader" align="left">&nbsp;</p>
+<p class="SectionHeader" align="left">Controllers, ControllerFunctions,
+and ControllerValues</p>
+<p align="left">When I initially wrote the source for the tutorial I
+used two variables of type Real, and two booleans for each light to
+control its flashing. The code was a couple pages long and it would
+have been very hard to extend the functionality of it. I thought to
+myself that it would be nice if I could just set up the logic of
+controlling the colour value of a Light and Billboard pair just once
+and let different time based functions control the intensity. Just when
+I was about to make my own I discovered that Ogre has these built into
+it. And now they are my new best friends. </p>
+<p>The way it hangs together in Ogre is that you create a class
+descending from ControllerValue which overrides the methods getValue
+and setValue. The names should make their function obvious enough but
+one thing to note is that they only deal with values between 0.0 and
+1.0. </p>
+<p>A ControllerFunction is given a value to operate on and outputs a
+result between 0.0 and 1.0, which gets fed to a ControllerValue. These
+functions can be based on anything, but for this tutorial we will only
+focus on using it to control values based on time. </p>
+<p>A Controller connects a ControllerFunction with an input
+ControllerValue and an output ControllerValue. The most useful input
+ControllerValue to us comes from a method on the ControllerManager
+called getFrameTimeSource which will give the value of time between
+frames. </p>
+<p class="SectionHeader" align="left">Controllers, ControllerFunctions,
+and ControllerValues</p>
+<p align="left">With our new found knowledge of controllers lets make a
+ControllerValue and ControllerFunction to control these lights. Go to
+the top of the Space.h file just after #include "ExampleApplication.h
+and enter this </p>
+<pre>class LightFlasher : public ControllerValue<br>{<br>protected:<br>	Light* mLight;<br>	Billboard* mBillboard;<br>	ColourValue mMaxColour;<br>	Real intensity;<br>public:<br>	LightFlasher(Light* light, Billboard* billboard, ColourValue maxColour)<br>	{<br>		mLight = light;<br>		mBillboard = billboard;<br>		mMaxColour = maxColour;<br>	}<br><br>	virtual Real  getValue (void) const<br>	{<br>		return intensity;<br>	}<br><br>	virtual void  setValue (Real value)<br>	{<br>		intensity = value;<br><br>		ColourValue newColour;<br><br>		// Attenuate the brightness of the light<br>		newColour.r = mMaxColour.r * intensity;<br>		newColour.g = mMaxColour.g * intensity;<br>		newColour.b = mMaxColour.b * intensity;<br><br>		mLight-&gt;setDiffuseColour(newColour);<br>		mBillboard-&gt;setColour(newColour);<br>	}<br>};<br></pre>
+<p align="left">When the controller calls setValue, the value is used
+to attentuate the Red, Green, and Blue values of the Light and
+Billboard. The effect of this will be that when the value is set to 0.0
+the light will be black which is the same as being off, and when set to
+1.0 the light will be at its brightest. </p>
+<p></p>
+<p align="left">The ControllerFunction that we will use will be based
+on WaveformControllerFunction. We do not need to modify the class very
+much, in fact all we will do is override the constructor and default
+some of the arguments to make using it a little easier. </p>
+<pre>class LightFlasherControllerFunction : public WaveformControllerFunction<br>{<br>public:<br>	LightFlasherControllerFunction(WaveformType wavetype, Real frequency, Real phase) : WaveformControllerFunction(wavetype, 0, frequency, phase, 1, true)<br>	{<br><br>	}<br>};<br></pre>
+The constructor for a WaveformControllerFunction is
+<pre>WaveformControllerFunction::WaveformControllerFunction(WaveformType wType, Real base,  Real frequency, Real phase, Real amplitude, bool delta)<br></pre>
+The first argument, WaveformType is the type of wave to be generated,
+which can be a sine, traingle, square, sawtooth, or inverse sawtooth.
+We will use most of these wave forms in the tutorial. Base is added to
+the value generated, it effectively sets the bottom value of the wave
+and we will only use 0.0 in this tutorial so it has been hardcoded in
+the constructor. Frequency is how often the whole wave form is produced
+within one second. Phase is how far through the wave to start in.
+Amplitude is multiplied to the wave value to increase the size of the
+wave, we will only use 1.0 for this. Delta is used internally to
+specify wether or not the values are supplied as delta or absolute
+values, defaulting here to true.
+<p></p>
+<p class="SectionHeader" align="left">Switching the lights on</p>
+<p align="left">In the previous tutorial we had to turn the ambient
+lighting on so that we could see the ship but now we want to turn it
+back down again so that we can see the effects of our new light
+sources. So in the createScene method change the line setting the
+ambient lighting to </p>
+<pre>		// Set a very low level of ambient lighting<br>		mSceneMgr-&gt;setAmbientLight(ColourValue(0.2, 0.2, 0.2));<br></pre>
+We need some member variables to hold the Controllers and their Values
+and Functions. Add these to the protected section of the class.
+<pre>	// Light flashers<br>	LightFlasher* mRedLightFlasher;<br>	LightFlasher* mBlueLightFlasher;<br>	LightFlasher* mWhiteLightFlasher;<br><br>	// Light controller functions<br>	LightFlasherControllerFunction* mRedLightControllerFunc;<br>	LightFlasherControllerFunction* mBlueLightControllerFunc;<br>	LightFlasherControllerFunction* mWhiteLightControllerFunc;<br><br>	// Light controllers<br>	Controller* mRedLightController;<br>	Controller* mBlueLightController;<br>	Controller* mWhiteLightController;<br><br></pre>
+And now, finally, we create our controllers. Type this into the bottom
+of the createScene method.
+<pre>		// Light flashers<br>		mRedLightFlasher = new LightFlasher(mRedLight, mRedLightBoard, ColourValue::Red);<br>		mBlueLightFlasher = new LightFlasher(mBlueLight, mBlueLightBoard, ColourValue::Blue);<br>		mWhiteLightFlasher = new LightFlasher(mWhiteLight, mWhiteLightBoard, ColourValue::White);<br><br>		// Light controller functions<br>		mRedLightControllerFunc = new LightFlasherControllerFunction(Ogre::WFT_SINE, 0.5, 0.0);<br>		mBlueLightControllerFunc = new LightFlasherControllerFunction(Ogre::WFT_SQUARE, 0.5, 0.5);<br>		mWhiteLightControllerFunc = new LightFlasherControllerFunction(Ogre::WFT_TRIANGLE, 4, 0.0);<br><br>		// Light controllers<br>		ControllerManager* mControllerManager = &amp;ControllerManager::getSingleton();<br>		mRedLightController = mControllerManager-&gt;createController(mControllerManager-&gt;getFrameTimeSource(), mRedLightFlasher, mRedLightControllerFunc);<br>		mBlueLightController = mControllerManager-&gt;createController(mControllerManager-&gt;getFrameTimeSource(), mBlueLightFlasher, mBlueLightControllerFunc);<br>		mWhiteLightController = mControllerManager-&gt;createController(mControllerManager-&gt;getFrameTimeSource(), mWhiteLightFlasher, mWhiteLightControllerFunc);<br><br><br></pre>
+There is one LightFlasher for each of Red, Blue, and White connected to
+their respective Light and Billboard. Then we create one
+ControllerFunction to pulse the red light in a sine wave fashion, one
+to flash the blue light on and off, and one to pulse the white light 4
+times a second in a triangle wave fashion. We then use the
+ControllerManager to create three Controllers, one for each light and
+hook them up to their ControllerFunctions and ControllerValues. The
+first argument to their constructors is a call to getFrameTimeSource,
+which will give us an object that provides the Controller with time
+information.
+<p></p>
+<p>Compile and run the program. The lights should be flashing or
+pulsing as described above. </p>
+<p class="SectionHeader" align="left">Blinking Lights</p>
+<p align="left">I said earlier that is is easier to extend the
+functionality of this than my first attempt. Lets do it now by changing
+the way that the white light works. Lets make it blink on for one tenth
+of a second once every 4 seconds. To do this we will create a new class
+called LightBlinker inheriting from the LightFlasher. It will be
+designed to accept input from the sawtooth wave and when the wave hits
+a certain value we will turn the light on, otherwise the light will
+remain off. </p>
+<p>Put this class definition just after the definition of LightFlasher.
+</p>
+<pre>class LightBlinker : public LightFlasher<br>{<br>protected:<br>	ColourValue mMinColour;<br>	Real mActivationLevel;<br>public:<br>	LightBlinker(Light* light, Billboard* billboard, ColourValue maxColour, ColourValue minColour, Real activationLevel) : LightFlasher(light, billboard, maxColour)<br>	{<br>		mMinColour = minColour;<br>		mActivationLevel = activationLevel;<br>	}<br><br>	virtual Real  getValue (void) const<br>	{<br>		return intensity;<br>	}<br><br>	virtual void setValue(Real value)<br>	{<br>		intensity = value;<br><br><br>		if(value &lt; mActivationLevel)<br>		{<br>			// Light is off<br>			mLight-&gt;setDiffuseColour(mMinColour);<br>			mBillboard-&gt;setColour(mMinColour);<br>		} else {<br>			// Light is blinking on<br>			mLight-&gt;setDiffuseColour(mMaxColour);<br>			mBillboard-&gt;setColour(mMaxColour);<br>		}<br>	}<br><br>};<br><br></pre>
+Lets now use our new class. Change the line creating the light
+controller function for the white light to be
+<pre>	mWhiteLightControllerFunc = new LightFlasherControllerFunction(Ogre::WFT_SAWTOOTH, 0.25, 0.0);<br></pre>
+And the line creating the white light flasher.
+<pre>	mWhiteLightFlasher = new LightBlinker(mWhiteLight, mWhiteLightBoard, ColourValue::White, ColourValue::Black, 0.975);<br></pre>
+So what is this value of 0.975? As described above it is the value that
+the wave must reach before the light will turn on. But why that
+particular value? This is the way it works: the saw tooth wave starts
+at 0 and hits 1.0 at the end of 4 seconds (frequency is 0.25 as stated
+in the constructor for the LightFlasherFunction). This means that each
+second will contribute 0.25 to the value. We however only want one
+tenth of a second, leaving us with 0.025 and since we want the light to
+be on for only that last tenth of a second we subtract 0.025 from 1.0
+and we get 0.975, clear enough?
+<p></p>
+<p>Compile and run the program so far. You should have all three lights
+working but the white light will blink on only once every 4 seconds. </p>
+<table cellspacing="2" cellpadding="0" width="100%" border="0">
+  <tbody>
+    <tr>
+      <td width="14%"><a href="Index.html">Back to Index</a></td>
+      <td width="39%">&nbsp;</td>
+      <td width="22%"><a href="AvionicLights.html">&lt;&lt; Previous
+section</a></td>
+      <td width="25%"><a href="CameraMotion.html">Next section &gt;&gt;</a></td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p class="SectionHeader">&nbsp;</p>
+</body>
+</html>
