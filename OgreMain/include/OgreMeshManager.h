@@ -168,6 +168,8 @@ namespace Ogre {
                 vTile The number of times the texture should be repeated in the v direction
             @param
                 upVector The 'Up' direction of the plane.
+            @param
+                orientation The orientation of the overall sphere that's used to create the illusion
 			@param
 				vertexBufferUsage The usage flag with which the vertex buffer for this plane will be created
 			@param
@@ -187,6 +189,7 @@ namespace Ogre {
             int xsegments = 1, int ysegments = 1,
             bool normals = true, int numTexCoordSets = 1,
             Real uTile = 1.0f, Real vTile = 1.0f, const Vector3& upVector = Vector3::UNIT_Y,
+            const Quaternion& orientation = Quaternion::IDENTITY,
 			HardwareBuffer::Usage vertexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
 			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY,
 			bool vertexShadowBuffer = false, bool indexShadowBuffer = false);

@@ -1093,7 +1093,7 @@ namespace Ogre {
         Real planeSize = distance * 2;
         const int BOX_SEGMENTS = 16;
         planeMesh = mm.createCurvedIllusionPlane(meshName, plane, planeSize, planeSize, curvature, 
-			BOX_SEGMENTS, BOX_SEGMENTS, false, 1, tiling, tiling, up, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
+			BOX_SEGMENTS, BOX_SEGMENTS, false, 1, tiling, tiling, up, orientation, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
 			false, false);
 
         //planeMesh->_dumpContents(meshName);

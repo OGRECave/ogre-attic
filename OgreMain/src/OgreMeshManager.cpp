@@ -407,7 +407,8 @@ namespace Ogre
         int xsegments, int ysegments,
         bool normals, int numTexCoordSets,
         Real uTile, Real vTile, const Vector3& upVector,
-		HardwareBuffer::Usage vertexBufferUsage, 
+		const Quaternion& orientation, 
+        HardwareBuffer::Usage vertexBufferUsage, 
 		HardwareBuffer::Usage indexBufferUsage,
 		bool vertexShadowBuffer, bool indexShadowBuffer)
 	{
@@ -545,7 +546,7 @@ namespace Ogre
                     // Default normal is along unit Z
                     norm = Vector3::UNIT_Z;
                     // Rotate
-                    norm = rot * norm;
+                    norm = orientation * norm;
 
                     *pReal++ = norm.x;
                     *pReal++ = norm.y;
@@ -554,6 +555,8 @@ namespace Ogre
 
 				// Generate texture coords
 				// Normalise position
+                // modify by orientation to return +y up
+                vec = orientation.Inverse() * vec;
 				vec.normalise();
 				// Find distance to sphere
 				sphDist = Math::Sqrt(camPos*camPos * (vec.y*vec.y-1.0) + sphereRadius*sphereRadius) - camPos*vec.y;
