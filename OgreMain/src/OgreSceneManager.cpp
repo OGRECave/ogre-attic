@@ -98,6 +98,7 @@ namespace Ogre {
         mShadowStencilPass = 0;
         mShadowModulativePass = 0;
         mFullScreenQuad = 0;
+        mShadowCasterSphereQuery = 0;
 
 
 		// init render queues that do not need shadows
@@ -112,6 +113,7 @@ namespace Ogre {
         clearScene();
         delete mSceneRoot;
         delete mFullScreenQuad;
+        delete mShadowCasterSphereQuery;
     }
 
     //-----------------------------------------------------------------------
@@ -2196,8 +2198,10 @@ namespace Ogre {
             // eliminate early if camera cannot see light sphere
             if (camera->isVisible(s))
             {
-                // Really basic
-                SphereSceneQuery* ssc = createSphereQuery(s);
+                if (!mShadowCasterSphereQuery)
+                    mShadowCasterSphereQuery = createSphereQuery(s);
+                else
+                    mShadowCasterSphereQuery->setSphere(s);
 
                 // Determine if light is inside or outside the frustum
                 bool lightInFrustum = camera->isVisible(light->getPosition());
@@ -2210,11 +2214,10 @@ namespace Ogre {
                 }
 
                 // Execute, use callback
-                ShadowCasterSceneQueryListener listener(lightInFrustum, 
+                mShadowCasterQueryListener.prepare(lightInFrustum, 
                     volList, camera, &mShadowCasterList);
-                ssc->execute(&listener);
+                mShadowCasterSphereQuery->execute(&mShadowCasterQueryListener);
 
-                delete ssc;
             }
 
         }

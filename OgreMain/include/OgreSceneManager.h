@@ -280,6 +280,8 @@ namespace Ogre {
 
         typedef std::vector<ShadowCaster*> ShadowCasterList;
         ShadowCasterList mShadowCasterList;
+        SphereSceneQuery* mShadowCasterSphereQuery;
+
 
         /// Inner class to use as callback for shadow caster scene query
         class ShadowCasterSceneQueryListener : public SceneQueryListener
@@ -290,14 +292,24 @@ namespace Ogre {
             const PlaneBoundedVolumeList* mLightClipVolumeList;
             const Camera* mCamera;
         public:
-            ShadowCasterSceneQueryListener(bool lightInFrustum, 
+            ShadowCasterSceneQueryListener() : mCasterList(0), 
+                mIsLightInFrustum(false), mLightClipVolumeList(0), 
+                mCamera(0) {}
+            // Prepare the listener for use with a set of parameters  
+            void prepare(bool lightInFrustum, 
                 const PlaneBoundedVolumeList* lightClipVolumes, 
                 const Camera* cam, ShadowCasterList* casterList) 
-                : mCasterList(casterList), mIsLightInFrustum(lightInFrustum), 
-                mLightClipVolumeList(lightClipVolumes), mCamera(cam) {}
+            {
+                mCasterList = casterList;
+                mIsLightInFrustum = lightInFrustum;
+                mLightClipVolumeList = lightClipVolumes;
+                mCamera = cam;
+            }
             bool queryResult(MovableObject* object);
             bool queryResult(SceneQuery::WorldFragment* fragment);
         };
+
+        ShadowCasterSceneQueryListener mShadowCasterQueryListener;
 
         /** Internal method for locating a list of shadow casters which 
             could be affecting the frustum for a given light. 
