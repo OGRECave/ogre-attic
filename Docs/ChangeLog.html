@@ -84,7 +84,37 @@ CODE.str {
 <p align="center" class="header">OGRE (Object-Oriented Graphics
 Rendering Engine)</p>
 <p align="center" class="header">Change Log</p>
-<p align="left" class="MainHeader">v0.12.1 (12 October 2003)</p>
+<p align="left" class="MainHeader">v0.12.2 (21 November 2003) -
+Maintenance Release<br>
+</p>
+<p align="left">Changes since 0.12.1:<br>
+</p>
+<ul>
+  <li>Blender exporter updated; now supports the latest version of Blender, and
+also supports animation</li>
+  <li>Wings3D exporter updated, now supports the new uv exporting
+format of 0.98.16b</li>
+  <li>Fixed bug in BspIntersectionQuery which caused intersectins to be
+reported between entities and the world when collision was disabled</li>
+  <li>Meshes exported with more than 4 bone assignments per vertex now
+have their weights rebalanced to just 4 automatically on conversion to
+.mesh<br>
+  </li>
+  <li>Fixed a bug in Quaternion::Slerp which resulted in a non-unit
+Quaternion being returned sometimes when the 'shortestPath' option was
+used. This manifested itself as oddly scaling bones when animating an
+entity<br>
+  </li>
+  <li>Fixed a bug in ray / plane intersection where it was incorrectly
+concluded that the ray was parallel to the plane</li>
+  <li>Fixed some D3D memory leaks</li>
+  <li>Fixed some Mesh automatic loading and unloading issues</li>
+  <li>Colour values in XML files are now parsed as r,g,b,a instead of a
+packed long</li>
+</ul>
+<p align="left" class="MainHeader">v0.12.1 (12 October 2003) -
+Maintenance Release<br>
+</p>
 <p align="left">Changes since 0.12.0:<br>
 </p>
 <ul>
@@ -109,7 +139,9 @@ properly</li>
 loading ogre.cfg since some ATI drivers have a trailing space<br>
   </li>
 </ul>
-<p align="left" class="MainHeader">v0.12.0 (23 September 2003)</p>
+<p align="left" class="MainHeader">v0.12.0 (23 September 2003) - Major
+Release <br>
+</p>
 <p align="left">Changes since 0.11.0:</p>
 <ul>
   <li>Complete overhaul of core geometry usage resulting in optimised
