@@ -34,7 +34,7 @@ namespace Ogre {
 
     //-------------------------------------------------------------------------
     HeightmapTerrainPageSource::HeightmapTerrainPageSource()
-        : mIsRaw(false), mPage(0)
+        : mIsRaw(false), mFlipTerrain(false), mPage(0)
     {
     }
     //-------------------------------------------------------------------------
@@ -141,6 +141,10 @@ namespace Ogre {
                 }
                 rawBppFound = true;
             }
+            else if (val.startsWith("Heightmap.flip", false))
+            {
+                mFlipTerrain = StringConverter::parseBool(ti->second);
+            }
         }
         if (!imageFound)
         {
@@ -204,10 +208,14 @@ namespace Ogre {
                 rowSize =  mPageSize;
             }
             // Read the data
-            // Work backwards since terrain is built bottom left upwards
+            pSrc = pOrigSrc;
             for (ulong j = 0; j < mPageSize; ++j)
             {
-                pSrc = pOrigSrc + (rowSize * (mPageSize - j - 1));
+                if (mFlipTerrain)
+                {
+                    // Work backwards 
+                    pSrc = pOrigSrc + (rowSize * (mPageSize - j - 1));
+                }
                 for (ulong i = 0; i < mPageSize; ++i)
                 {
                     if (is16bit)

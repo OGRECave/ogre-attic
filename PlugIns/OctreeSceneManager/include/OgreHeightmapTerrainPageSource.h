@@ -43,6 +43,8 @@ namespace Ogre {
     protected:
         /// Is this input RAW?
         bool mIsRaw;
+        /// Should we flip terrain vertically?
+        bool mFlipTerrain;
         /// Image containing the source heightmap if loaded from non-RAW
         Image mImage;
         /// Arbitrary data loaded from RAW
