@@ -195,16 +195,14 @@ BOOL MilkshapePlugin::DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam
                
                 hwndDlgItem = GetDlgItem(hDlg, IDC_SPLIT_ANIMATION);
                 plugin->splitAnimations = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
-                if (plugin->splitAnimations)
+
+                hwndDlgItem = GetDlgItem(hDlg, IDC_FPS);
+                GetWindowText(hwndDlgItem, val, 20);
+                plugin->fps = atof(val);
+                if (!plugin->fps)
                 {
-                    hwndDlgItem = GetDlgItem(hDlg, IDC_FPS);
-                    GetWindowText(hwndDlgItem, val, 20);
-                    plugin->fps = atof(val);
-                    if (!plugin->fps)
-                    {
-                        MessageBox(hDlg, "Invalid frame rate specified", "Validation error", MB_OK | MB_ICONEXCLAMATION);
-                        return TRUE;
-                    }
+                    MessageBox(hDlg, "Invalid frame rate specified", "Validation error", MB_OK | MB_ICONEXCLAMATION);
+                    return TRUE;
                 }
 
                 EndDialog(hDlg, TRUE);
