@@ -342,7 +342,7 @@ namespace Ogre {
 		typedef std::map<unsigned short, HardwareVertexBufferSharedPtr> VertexBufferBindingMap;
 	protected:
 		VertexBufferBindingMap mBindingMap;
-		unsigned short mHighIndex;
+		mutable unsigned short mHighIndex;
 	public:
 		/// Constructor, should not be called direct, use HardwareBufferManager::createVertexBufferBinding
 		VertexBufferBinding();
@@ -373,7 +373,7 @@ namespace Ogre {
 			This is to assist in binding the vertex buffers such that there are
 			not gaps in the list.
 		*/
-		virtual unsigned short getNextIndex(void) const { return mHighIndex; }
+		virtual unsigned short getNextIndex(void) const { return mHighIndex++; }
 
 
 
