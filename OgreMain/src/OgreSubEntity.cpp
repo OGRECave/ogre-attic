@@ -122,12 +122,21 @@ namespace Ogre {
         }
         else
         {
-            // Bones, use cached matrices built when Entity::_updateRenderQueue was called
-            int i;
-            for (i = 0; i < mParentEntity->mNumBoneMatrices; ++i)
+            if (!mParentEntity->isHardwareSkinningEnabled())
             {
-                *xform = mParentEntity->mBoneMatrices[i];
-                ++xform;
+                // Software skinning involves pretransforming
+                // No transform required
+                *xform = Matrix4::IDENTITY;
+            }
+            else
+            {
+                // Bones, use cached matrices built when Entity::_updateRenderQueue was called
+                int i;
+                for (i = 0; i < mParentEntity->mNumBoneMatrices; ++i)
+                {
+                    *xform = mParentEntity->mBoneMatrices[i];
+                    ++xform;
+                }
             }
         }
     }
@@ -145,10 +154,17 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     unsigned short SubEntity::getNumWorldTransforms(void) const
     {
-        if (!mParentEntity->mNumBoneMatrices)
+        if (!mParentEntity->mNumBoneMatrices ||
+            !mParentEntity->isHardwareSkinningEnabled())
+        {
+            // No skeletal animation, or software skinning (pretransformed)
             return 1;
+        }
         else
+        {
+            // Hardware skinning, pass all matrices
             return mParentEntity->mNumBoneMatrices;
+        }
     }
     //-----------------------------------------------------------------------
     Real SubEntity::getSquaredViewDepth(const Camera* cam) const
