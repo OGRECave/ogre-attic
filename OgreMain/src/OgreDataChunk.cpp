@@ -171,10 +171,7 @@ namespace Ogre {
 
         size_t count = readUpTo(buf, 511);
         buf[count] = '\0';
-        String ret;
-        std::string s;
-        s.append(buf);
-        ret = s;
+        String ret = buf;
         if (trimAfter)
             ret.trim();
         return ret;
