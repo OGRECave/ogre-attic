@@ -3039,6 +3039,7 @@ Pass* SceneManager::deriveShadowCasterPass(Pass* pass)
 						mShadowTextureCustomCasterVPParams);
 
 				}
+				mShadowTextureCasterVPDirty = false;
 			}
 			return mShadowTextureCustomCasterPass;
 		}
@@ -3115,6 +3116,7 @@ Pass* SceneManager::deriveShadowReceiverPass(Pass* pass)
 						mShadowTextureCustomReceiverVPParams);
 
 				}
+				mShadowTextureReceiverVPDirty = false;
 			}
 			return mShadowTextureCustomReceiverPass;
 		}
