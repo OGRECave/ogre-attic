@@ -108,7 +108,9 @@ namespace Ogre {
 			/// The ambient light colour set in the scene
 			ACT_AMBIENT_LIGHT_COLOUR, 
             /// The view/projection matrix of the assigned texture projection frustum
-            ACT_TEXTURE_VIEWPROJ_MATRIX
+            ACT_TEXTURE_VIEWPROJ_MATRIX,
+            /// A custom parameter which will come from the renderable, using 'data' as the identifier
+            ACT_CUSTOM
         };
         /** Structure recording the use of an automatic parameter. */
         class AutoConstantEntry

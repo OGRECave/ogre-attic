@@ -287,5 +287,10 @@ namespace Ogre {
 			return l.getAttenuationRange() - objPos.length();
 		}
 	}
+    //-----------------------------------------------------------------------------
+    const Renderable* AutoParamDataSource::getCurrentRenderable(void) const
+    {
+        return mCurrentRenderable;
+    }
 }
 

@@ -33,6 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMaterial.h"
 #include "OgrePlane.h"
 #include "OgreRectangle.h"
+#include "OgreGpuProgram.h"
 
 
 namespace Ogre {
@@ -148,6 +149,28 @@ namespace Ogre {
             generate a shadow.
         */
         virtual bool getCastsShadows(void) const { return false; }
+
+        /** Update a custom GpuProgramParameters constant which is derived from 
+            information only this Renderable knows.
+        @remarks
+            This method allows a Renderable to map in a custom GPU program parameter
+            based on it's own data. This is represented by a GPU auto parameter
+            of ACT_CUSTOM, and to allow there to be more than one of these per
+            Renderable, the 'data' field on the auto parameter will identify
+            which parameter is being updated. The implementation of this method
+            must identify the parameter being updated, and call a 'setContant' 
+            method on the passed in GpuProgramParameters object, using the details
+            provided in the incoming auto constant setting to identify the index
+            at which to set the parameter.
+        @param constantEntry The auto constant entry referring to the parameter
+            being updated
+        @param params The parameters object which this method should call to 
+            set the updated parameters.
+        */
+        virtual void updateCustomGpuParameter(
+            const GpuProgramParameters::AutoConstantEntry& constantEntry,
+            GpuProgramParameters* params) const {}
+
 
     private:
         static const PlaneList msDummyPlaneList;
