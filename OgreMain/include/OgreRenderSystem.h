@@ -80,6 +80,13 @@ namespace Ogre
         SOP_INVERT
     };
 
+    /** Defines the frame buffers which can be cleared. */
+    enum FrameBufferType {
+        FBT_COLOUR  = 0x1,
+        FBT_DEPTH   = 0x2,
+        FBT_STENCIL = 0x4
+    };
+
     /** Defines the functionality of a 3D API
         @remarks
             The RenderSystem class provides a base interface
@@ -734,6 +741,17 @@ namespace Ogre
         */
         virtual void setScissorTest(bool enabled, size_t left = 0, size_t top = 0, 
             size_t right = 800, size_t bottom = 600) = 0;
+
+        /** Clears one or more frame buffers on the active render target. 
+        @param buffers Combination of one or more elements of FrameBufferType
+            denoting which buffers are to be cleared
+        @param colour The colour to clear the colour buffer with, if enabled
+        @param depth The value to initialise the depth buffer with, if enabled
+        @param stencil The value to initialise the stencil buffer with, if enabled.
+        */
+        virtual void clearFrameBuffer(unsigned int buffers, 
+            const ColourValue& colour = ColourValue::Black, 
+            Real depth = 1.0f, unsigned short stencil = 0) = 0;
     protected:
 
 

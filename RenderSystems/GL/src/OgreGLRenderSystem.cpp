@@ -1020,34 +1020,8 @@ namespace Ogre {
             // Activate the viewport clipping
             glEnable(GL_SCISSOR_TEST);
 
-            ColourValue col = mActiveViewport->getBackgroundColour();
-            
-            glClearColor(col.r, col.g, col.b, col.a);
-            // Enable depth & colour buffer for writing if it isn't
-         
-            if (!mDepthWrite)
-            {
-              glDepthMask( GL_TRUE );
-            }
-			bool colourMask = !mColourWrite[0] || !mColourWrite[1] 
-				|| !mColourWrite[2] || mColourWrite[3]; 
-			if (colourMask)
-			{
-				glColorMask(true, true, true, true);
-			}
-            // Clear buffers
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            // Reset depth write state if appropriate
-            // Enable depth buffer for writing if it isn't
-            if (!mDepthWrite)
-            {
-              glDepthMask( GL_FALSE );
-            }
-			if (colourMask)
-			{
-				glColorMask(mColourWrite[0], mColourWrite[1], mColourWrite[2], mColourWrite[3]);
-			}
-
+            clearFrameBuffer(FBT_COLOUR | FBT_DEPTH, 
+                mActiveViewport->getBackgroundColour());
         }        
 
         // Update light positions / directions because GL modifies them
@@ -1942,6 +1916,56 @@ namespace Ogre {
         {
             glDisable(GL_SCISSOR_TEST);
         }
+    }
+    //---------------------------------------------------------------------
+    void GLRenderSystem::clearFrameBuffer(unsigned int buffers, 
+        const ColourValue& colour, Real depth, unsigned short stencil)
+    {
+
+        GLbitfield flags = 0;
+        if (buffers & FBT_COLOUR)
+        {
+            flags |= GL_COLOR_BUFFER_BIT;
+        }
+        if (buffers & FBT_DEPTH)
+        {
+            flags |= GL_DEPTH_BUFFER_BIT;
+        }
+        if (buffers & FBT_STENCIL)
+        {
+            flags |= GL_STENCIL_BUFFER_BIT;
+        }
+
+
+        // Enable depth & colour buffer for writing if it isn't
+
+        if (!mDepthWrite)
+        {
+            glDepthMask( GL_TRUE );
+        }
+        bool colourMask = !mColourWrite[0] || !mColourWrite[1] 
+        || !mColourWrite[2] || mColourWrite[3]; 
+        if (colourMask)
+        {
+            glColorMask(true, true, true, true);
+        }
+        // Set values
+        glClearColor(colour.r, colour.g, colour.b, colour.a);
+        glClearDepth(depth);
+        glClearStencil(stencil);
+        // Clear buffers
+        glClear(flags);
+        // Reset depth write state if appropriate
+        // Enable depth buffer for writing if it isn't
+        if (!mDepthWrite)
+        {
+            glDepthMask( GL_FALSE );
+        }
+        if (colourMask)
+        {
+            glColorMask(mColourWrite[0], mColourWrite[1], mColourWrite[2], mColourWrite[3]);
+        }
+
     }
 
 

@@ -380,7 +380,12 @@ namespace Ogre {
          */
         void setScissorTest(bool enabled, size_t left = 0, size_t top = 0, size_t right = 800, size_t bottom = 600)
         { /* do nothing, d3d7 does not support scissor rect */ }
-
+        /** See
+        RenderSystem
+        */
+        void clearFrameBuffer(unsigned int buffers, 
+            const ColourValue& colour = ColourValue::Black, 
+            Real depth = 1.0f, unsigned short stencil = 0);
 
         // ----------------------------------
         // End Overridden members
