@@ -56,8 +56,6 @@ namespace Ogre {
         /** @copydoc InputReader::capture */
         virtual void capture();
 
-        /** @copydoc InputReader::isKeyDown */
-        virtual bool isKeyDown(KeyCode kc) const;
 
         /*
          *	Mouse getters.
@@ -76,6 +74,10 @@ namespace Ogre {
 
 		void setBufferedInput(bool keys, bool mouse) ;
 		void flushAllBuffers() ;
+    protected:
+        /** @copydoc InputReader::isKeyDown */
+        virtual bool isKeyDownImmediate(KeyCode kc) const;
+
     private:
         // Input device details
         IDirectInput8* mlpDI;
@@ -102,7 +104,6 @@ namespace Ogre {
 		   NOTE this doesn't support keyboard buffering yet */
 		long getKeyModifiers() const;
 
-    private:
         /* For mouse immediate mode. Note that the space origin in DX is (0,0,0), here we
            only hold the 'last' center for relative input. */
         long mMouseCenterX, mMouseCenterY, mMouseCenterZ;

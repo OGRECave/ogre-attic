@@ -258,7 +258,7 @@ namespace Ogre {
         }
     }
 
-    bool SDLInput::isKeyDown(KeyCode kc) const
+    bool SDLInput::isKeyDownImmediate(KeyCode kc) const
     {
         switch(kc)
         {

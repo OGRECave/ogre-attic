@@ -239,7 +239,7 @@ void GTKInput::capture()
 	}
 }
 
-bool GTKInput::isKeyDown( KeyCode kc ) const
+bool GTKInput::isKeyDownImmediate( KeyCode kc ) const
 {
     RInputKeyMap::const_iterator it = _rkey_map.find(kc);
     // Make sure it's a mappable key

@@ -46,7 +46,6 @@ public:
     void initialise( RenderWindow* pWindow, bool useKeyboard = true, bool useMouse = true, bool useGameController = false );
     void capture();
 
-    bool isKeyDown( KeyCode kc ) const;
 
     /*
      * Mouse getters
@@ -69,6 +68,7 @@ protected:
     bool on_key_release(GdkEventKey* event);
     bool on_button_press(GdkEventButton* event);
     bool on_button_release(GdkEventButton* event);
+    bool isKeyDownImmediate( KeyCode kc ) const;
 
 private:
     // Capture mouse?

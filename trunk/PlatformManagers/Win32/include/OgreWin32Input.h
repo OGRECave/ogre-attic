@@ -62,21 +62,6 @@ namespace Ogre {
         */
         void capture(void);
 
-        /** Determines if the specified key is currently depressed.
-            Note that this enquiry method uses the state of the keyboard at the last 'capture' call.
-        */
-      virtual bool isKeyDown(KeyCode kc) const ;
-
-        /** Retrieves the relative position of the mouse when capture was called relative to the last time. */
-//        int getMouseRelativeX(void) ;
-        /** Retrieves the relative position of the mouse when capture was called relative to the last time. */
-//        int getMouseRelativeY(void) ;
-
-
-
-
-       /** @copydoc InputReader::isKeyDown */
-//      virtual bool isKeyDown(KeyCode kc) const;
 
         /*
          *	Mouse getters.
@@ -97,6 +82,11 @@ namespace Ogre {
 //		void flushAllBuffers() ;
 
 
+    protected:
+        /** Determines if the specified key is currently depressed.
+        Note that this enquiry method uses the state of the keyboard at the last 'capture' call.
+        */
+        bool isKeyDownImmediate(KeyCode kc) const ;
 
 
     private:
