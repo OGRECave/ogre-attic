@@ -424,7 +424,7 @@ namespace Ogre {
                     unsigned short blockSize = (mFormat == PF_DXT1) ? 8 : 16;
                     int size = ((mWidth+3)/4)*((mHeight+3)/4)*blockSize; 
 
-                    glCompressedTexImage2DARB(
+                    glCompressedTexImage2DARB_ptr(
                         mTextureType == TEX_TYPE_CUBE_MAP ?
                             GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceNumber :
                             getGLTextureType(), 0,

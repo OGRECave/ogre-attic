@@ -162,6 +162,8 @@ typedef void (APIENTRY *GL_TrackMatrixNV_Func)(GLenum, GLuint, GLenum, GLenum);
 extern GL_TrackMatrixNV_Func glTrackMatrixNV_ptr;
 };
 
+extern PFNGLCOMPRESSEDTEXIMAGE2DARBPROC glCompressedTexImage2DARB_ptr;
+
 namespace Ogre {
     // Forward declarations
     class GLSupport;
