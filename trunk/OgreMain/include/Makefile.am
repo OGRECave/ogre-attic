@@ -21,7 +21,6 @@ OgreConfigFile.h \
 OgreConfigOptionMap.h \
 OgreController.h \
 OgreControllerManager.h \
-OgreCustomizable.h \
 OgreDataChunk.h \
 OgreDynLib.h \
 OgreDynLibManager.h \
