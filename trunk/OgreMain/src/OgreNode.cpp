@@ -90,7 +90,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    Matrix4 Node::_getFullTransform(void)
+    Matrix4 Node::_getFullTransform(void) const
     {
         if (mCachedTransformOutOfDate)
         {
@@ -455,7 +455,7 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     void Node::makeTransform(const Vector3& position, const Vector3& scale, const Quaternion& orientation, 
-        Matrix4& destMatrix)
+        Matrix4& destMatrix) const
     {
         destMatrix = Matrix4::IDENTITY;
         // Ordering:

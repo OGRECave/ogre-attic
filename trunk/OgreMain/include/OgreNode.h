@@ -137,7 +137,7 @@ namespace Ogre {
             const Vector3& position, 
             const Vector3& scale, 
             const Quaternion& orientation, 
-            Matrix4& destMatrix );
+            Matrix4& destMatrix ) const;
 
         /** Internal method for building an inverse Matrix4 from orientation / scale / position. 
         @remarks
@@ -470,7 +470,7 @@ namespace Ogre {
                 derived transforms have been updated before calling this method.
                 Applications using Ogre should just use the relative transforms.
         */
-        virtual Matrix4 _getFullTransform(void);
+        virtual Matrix4 _getFullTransform(void) const;
 
         /** Internal method to update the Node.
             @note
