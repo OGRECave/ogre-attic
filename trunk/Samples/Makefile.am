@@ -1,1 +1,1 @@
-SUBDIRS = BezierPatch EnvMapping Transpacency Lighting ParticleFX TextureFX SkyDome BSP
+SUBDIRS = BezierPatch EnvMapping Transpacency Lighting ParticleFX TextureFX SkyDome BSP Common
