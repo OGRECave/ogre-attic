@@ -27,7 +27,10 @@ or go to http://www.gnu.org/licenses/gpl.txt
 #include <maya/MFileIO.h>
 #include <maya/MStatus.h>
 
+#ifdef _WIN32
 #include <direct.h>
+#endif
+
 #include <iostream>
 
 namespace OgreMaya {
@@ -71,7 +74,11 @@ namespace OgreMaya {
 
 		// Store working directory to restore later
 		char szDir[300];
+#ifdef _WIN32
 		_getcwd(szDir, 300);
+#else
+		getcwd(szDir, 300);
+#endif
 
 		// Initialize Maya if required
 		if (!mbInitialized) {
@@ -95,7 +102,11 @@ namespace OgreMaya {
 		}
 
 		// Restore working directory
+#ifdef _WIN32
 		_chdir(szDir);
+#else
+		chdir(szDir);
+#endif
 
 		// Read the scene file
 		status = MFileIO::open(OPTIONS.inFile.c_str());

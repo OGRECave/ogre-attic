@@ -233,7 +233,8 @@ namespace OgreMaya {
                 materials.push_back(mat);
 
 				MFnDependencyNode ShaderFn(ShaderPlugArray[iPlug].node());
-				MItDependencyGraph ItShaderGraph(ShaderPlugArray[iPlug], 
+				MPlug thePlug = ShaderPlugArray[iPlug];
+				MItDependencyGraph ItShaderGraph(thePlug, 
 					                             MFn::kFileTexture, 
 										         MItDependencyGraph::kUpstream);
 				int iTexCoordSet = 0;
