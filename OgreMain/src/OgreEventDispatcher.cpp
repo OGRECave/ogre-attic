@@ -85,8 +85,8 @@ namespace Ogre {
 			if (targetOver && targetOver != mMousePositionTarget)
 			{
 				
-                                if (mMousePositionTarget)
-                                       mMousePositionTarget->processEvent(e); 
+                if (mMousePositionTarget)
+					mMousePositionTarget->processEvent(e); 
 				retargetMouseEvent(targetOver, MouseEvent::ME_MOUSE_ENTERED, e);
 				setMouseTarget(targetOver, e);
 
@@ -145,7 +145,6 @@ namespace Ogre {
 
 		}
 		retargetMouseEvent(mMousePositionTarget, id, e);
-		e->consume();
 
 		return e->isConsumed();
 	}
@@ -180,6 +179,9 @@ namespace Ogre {
 											   e->getClickCount());
 
 		target->processEvent(retargeted);
+		
+		e->consume();
+		
 		delete retargeted;
 	}
     //---------------------------------------------------------------------
