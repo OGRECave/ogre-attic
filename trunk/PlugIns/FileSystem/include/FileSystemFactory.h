@@ -14,7 +14,7 @@ namespace Ogre {
         String getArchiveType(void);
         ArchiveEx* createArchive(const String& name);
 
-        ArchiveEx *createObj( int nA, ... );
+        ArchiveEx *createObj( const String& name );
         String getType();        
     };
 

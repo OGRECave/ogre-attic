@@ -24,15 +24,9 @@ namespace Ogre {
         return "FileSystem";
     }
 
-    ArchiveEx *FileSystemFactory::createObj( int nA, ... )
+    ArchiveEx *FileSystemFactory::createObj( const String& name)
     {
-        va_list lst;
-        va_start( lst, nA );
-
-        String &name = va_arg( lst, String );
-        return new FileSystem( name );
-
-        va_end( lst );
+        return new FileSystem(name);
     }
 
 }
