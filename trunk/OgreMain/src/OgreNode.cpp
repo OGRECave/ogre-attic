@@ -429,12 +429,12 @@ namespace Ogre {
         {
         case TS_PARENT:
             // Rotations are normally relative to local axes, transform up
-            mOrientation = mOrientation * (mOrientation.Inverse() * q);
+            mOrientation = mOrientation * mOrientation.Inverse() * q * mOrientation;
             break;
         case TS_WORLD:
             // Rotations are normally relative to local axes, transform up
-            mOrientation = mOrientation * 
-                (_getDerivedOrientation().Inverse() * q);
+            mOrientation = mOrientation * _getDerivedOrientation().Inverse() 
+                * q * _getDerivedOrientation();
             break;
         case TS_LOCAL:
             // Note the order of the mult, i.e. q comes after
