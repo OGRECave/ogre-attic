@@ -12,12 +12,6 @@ void exportEnums()
         .value("ST_INTERIOR", ST_INTERIOR)
     ;
 
-    enum_<ResourceType>("ResourceType")
-        .value("RESTYPE_ALL", RESTYPE_ALL)
-        .value("RESTYPE_TEXTURES", RESTYPE_TEXTURES)
-        .value("RESTYPE_MODELS", RESTYPE_MODELS)
-    ;
-
     enum_<LayerBlendOperation>("LayerBlendOperation")
         .value("LBO_REPLACE", LBO_REPLACE)
         .value("LBO_ADD", LBO_ADD)
@@ -28,7 +22,17 @@ void exportEnums()
 
 void exportGeneral()
 {
+    // These are some of the simple types in the system
     implicitly_convertible<String, std::string>();
     implicitly_convertible<std::string, String>();
+
+    class_<ConfigOption>("ConfigOption", no_init)
+        .def_readwrite("name", &ConfigOption::name)
+        .def_readwrite("currentValue", &ConfigOption::currentValue)
+        .def_readwrite("possibleValues", &ConfigOption::possibleValues)
+        .def_readwrite("immutable", &ConfigOption::immutable)
+    ;
+
+    
 }
 

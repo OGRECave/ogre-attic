@@ -11,71 +11,34 @@ using namespace Ogre;
 
 void exportRoot()
 {
-    class_<Root>("Root")
-        .def("showConfigDialog", &Root::showConfigDialog)
-        .def("initialise", &Root::initialise, return_internal_reference<>())
-        .def("restoreConfig", &Root::restoreConfig)
+    class_<Root>("Root", init<optional<const String&> >())
         .def("saveConfig", &Root::saveConfig)
-        .def("getAvailableRenderers", &Root::getAvailableRenderers,
-                return_internal_reference<>())
-        .def("getRenderSystem", &Root::getRenderSystem,
-                return_internal_reference<>())
-        .def("getSceneManager", &Root::getSceneManager,
-                return_internal_reference<>())
-        .def("getTextureManager", &Root::getTextureManager,
-                return_internal_reference<>())
+        .def("restoreConfig", &Root::restoreConfig)
+        .def("showConfigDialog", &Root::showConfigDialog)
+        .def("addRenderSystem", &Root::addRenderSystem)
+        .def("setSceneManager", &Root::setSceneManager)
+        .def("getAvailableRenderers", &Root::getAvailableRenderers, rir())
+        .def("setRenderSystem", &Root::setRenderSystem)
+        .def("getRenderSystem", &Root::getRenderSystem, rir())
+        .def("initialise", &Root::initialise, rir())
+        .def("getSceneManager", &Root::getSceneManager, rir())
+        .def("getTextureManager", &Root::getTextureManager, rir())
+        .def("getMeshManager", &Root::getMeshManager, rir())
+        .def("getErrorDescription", &Root::getErrorDescription)
         .def("addFrameListener", &Root::addFrameListener)
         .def("removeFrameListener", &Root::removeFrameListener)
         .def("startRendering", &Root::startRendering)
+        .def("shutdown", &Root::shutdown)
         .def("addResourceLocation", &Root::addResourceLocation)
-    ;
-}
-
-void exportRenderWindow()
-{
-    class_<RenderTarget, boost::noncopyable>("RenderTarget", no_init)
-        .def("addViewport", &RenderTarget::addViewport,
-                return_internal_reference<>())
-        .def("getColourDepth", &RenderTarget::getColourDepth)
-        .def("getHeight", &RenderTarget::getHeight)
-        .def("getName", &RenderTarget::getName)
-        .def("getWidth", &RenderTarget::getWidth)
-        .def("getLastFPS", &RenderTarget::getLastFPS)
-        .def("getAverageFPS", &RenderTarget::getAverageFPS)
-        .def("getBestFPS", &RenderTarget::getBestFPS)
-        .def("getWorstFPS", &RenderTarget::getWorstFPS)
-        .def("removeAllViewports", &RenderTarget::removeAllViewports)
-        .def("resetStatistics", &RenderTarget::resetStatistics)
-        .def("setStatsDisplay", &RenderTarget::setStatsDisplay)
-        .def("update", &RenderTarget::update)
+        .def("convertColourValue", &Root::convertColourValue)
+        .def("createRenderWindow", &Root::createRenderWindow, rir())
+        .def("showDebugOverlay", &Root::showDebugOverlay)
     ;
 
-    class_<RenderWindow, bases<RenderTarget>, boost::noncopyable>(
-            "RenderWindow", no_init)
-        .def("isActive", &RenderWindow::isActive)
-        .def("isClosed", &RenderWindow::isClosed)
-        .def("isFullScreen", &RenderWindow::isFullScreen)
-        .def("reposition", &RenderWindow::reposition)
-        .def("resize", &RenderWindow::resize)
-        .def("swapBuffers", &RenderWindow::swapBuffers)
-    ;
-}
-
-void exportRenderSystem()
-{
-    class_<RenderSystem, boost::noncopyable>("RenderSystem", no_init)
-        .def("addFrameListener", &RenderSystem::addFrameListener)
-        .def("createRenderWindow", &RenderSystem::createRenderWindow, rir())
-        .def("destroyRenderWindow", (void (RenderSystem::*)(const String&))&RenderSystem::destroyRenderWindow)
-        .def("destroyRenderWindow", (void (RenderSystem::*)(RenderWindow*))&RenderSystem::destroyRenderWindow)
-        .def("getName", &RenderSystem::getName, ccr())
-        .def("getRenderWindow", &RenderSystem::getRenderWindow, rir())
-        .def("removeFrameListener", &RenderSystem::removeFrameListener)
-        .def("setAmbientLight", &RenderSystem::setAmbientLight)
-        .def("setConfigOption", &RenderSystem::setConfigOption)
-        .def("setShadingType", &RenderSystem::setShadingType)
-        .def("setTextureFiltering", &RenderSystem::setTextureFiltering)
-        .def("startRendering", &RenderSystem::startRendering)
+    enum_<ResourceType>("ResourceType")
+        .value("RESTYPE_ALL", RESTYPE_ALL)
+        .value("RESTYPE_TEXTURES", RESTYPE_TEXTURES)
+        .value("RESTYPE_MODELS", RESTYPE_MODELS)
     ;
 }
 
@@ -139,6 +102,7 @@ BOOST_PYTHON_MODULE(Ogre)
     exportQuaternion();
     exportResource();
     exportRoot();
+    exportRenderTarget();
     exportRenderWindow();
     exportCamera();
     exportViewport();
@@ -155,4 +119,5 @@ BOOST_PYTHON_MODULE(Ogre)
     exportSceneNode();
     exportFrameListener();
     exportAxisAlignedBox();
+    exportSphere();
 }
