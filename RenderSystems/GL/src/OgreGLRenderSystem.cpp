@@ -456,11 +456,13 @@ namespace Ogre {
         for (i = lights.begin(); i != iend && num < limit; ++i, ++num)
         {
             setGLLight(num, *i);
+            mLights[num] = *i;
         }
         // Disable extra lights
         for (; num < mCurrentLights; ++num)
         {
             setGLLight(num, NULL);
+            mLights[num] = NULL;
         }
         mCurrentLights = std::min(limit, static_cast<unsigned short>(lights.size()));
 
