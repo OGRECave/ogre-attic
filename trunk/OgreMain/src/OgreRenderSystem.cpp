@@ -300,14 +300,6 @@ namespace Ogre {
 
         Material::TextureLayer::TextureAddressingMode addr = tl.getTextureAddressingMode();
 
-        // Change tetxure matrix if required
-        // NB concatenate with any existing texture matrix created for generate
-        const Matrix4& xform = tl.getTextureTransform();
-        //if( !(curr.getTextureTransform() == xform ))
-        //{
-            _setTextureMatrix(texUnit, xform);
-        //}
-
         // Fix: GL requires addressing mode to be set in ALL cases
         // If the extra state changes in D3D become problematic, refactor this
         //if (currIsBlank || curr.getTextureAddressingMode() != addr)
@@ -406,6 +398,15 @@ namespace Ogre {
             _setTextureCoordCalculation(texUnit, TEXCALC_NONE);
             _setTextureCoordSet(texUnit, tl.getTextureCoordSet());
         }
+
+        // Change tetxure matrix if required
+        // NB concatenate with any existing texture matrix created for generate
+        const Matrix4& xform = tl.getTextureTransform();
+        //if( !(curr.getTextureTransform() == xform ))
+        //{
+            _setTextureMatrix(texUnit, xform);
+        //}
+
 
         // Set alpha rejection
         unsigned char alphaVal = tl.getAlphaRejectValue();
