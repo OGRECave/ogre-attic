@@ -30,7 +30,7 @@ function flipYZTransform Tform = (
 -- ia if its parent is undefined or is not a bone.
 --------------------------------------------------------------------
 function isRoot b = (
-	if (b.parent==undefined or not (iskindof b.parent BoneGeometry)) then
+	if (b.parent==undefined or not (iskindof b.parent BoneGeometry or iskindOf b.parent Biped_Object) ) then
 		return true ;
 	else
 		return false ;
@@ -112,6 +112,25 @@ function getSkin obj =
 		)
 	s ;
 )
+
+
+-----------------------------------------------------------------------------
+-- return the physique modifier or undefined if object don't have it
+-----------------------------------------------------------------------------
+
+function getPhysique obj =
+(
+	local s,i ;
+	s = undefined ;
+	if obj != undefined then
+		for i in obj.modifiers do
+		(
+			if iskindof i Physique do
+				s = i ;
+		)
+	s ;
+)
+
 --------------------------------------------------
 -- return an Array with the root bones of the skin
 --------------------------------------------------

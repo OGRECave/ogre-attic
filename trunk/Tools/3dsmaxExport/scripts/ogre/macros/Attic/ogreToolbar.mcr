@@ -3,10 +3,11 @@
 -- 
 -- Copyright © 2002 John Martin
 --
+-- $Id: ogreToolbar.mcr,v 1.9 2003-12-25 16:44:41 sinbad Exp $
 --
 -- Macroscript for the Ogre Toolbar.
 --
--- New buttons added in order to runs others scripts by Etienne Mallard in 2003.
+-- New buttons added in order to run others scripts by Etienne Mallard in 2003.
 --
 
 
@@ -16,8 +17,8 @@
 -- include "ogre/lib/ogreExportLib.ms"
 -- include "ogre/lib/ogreToolsLib.ms"
 include "ogre/lib/ogreSkeletonLib.ms"
-include "ogre/lib/ogreMaterialPlugin.ms"
 include "ogre/lib/ogreMaterialLib.ms"
+include "ogre/lib/ogreMaterialPlugin.ms"
 
 macroScript showSkeletonTools
 	category:"Ogre Tools"
@@ -47,6 +48,7 @@ macroScript showSkeletonTools
 		checkBox ExportColCB "Export colour information " align:#right ;
 		
 		checkBox exportSkeletonCB "export Skeleton" align:#left ;
+		checkBox useBipedCB "This skeleton is a Biped" align:#left ;
 		
 		editText animNameET "Animation name:" align:#left ;
  	 	spinner firstFrameSP "First frame of animation:" range:[0,1000,0] type:#Integer ;
@@ -94,7 +96,7 @@ macroScript showSkeletonTools
 			
 				-- options accessible ou non
 				exportMeshCB.enabled = true ;				
-				exportSkeletonCB.enabled = (getSkin(selection[1]) != undefined) ;
+				exportSkeletonCB.enabled = (getSkin(selection[1]) != undefined) or (getPhysique(selection[1]) != undefined) ;
 			)
 						
 		)
@@ -142,7 +144,11 @@ macroScript showSkeletonTools
 					options.length = animLengthSP.value ;
 					options.animName = animNameET.text ;
 					
-					writeSkeleton m options filenameET.text ;
+					if (useBipedCB.checked) then
+						writeBiped m options filenameET.text ;
+					else
+						writeSkeleton m options filenameET.text ;
+
 					exportingSkelDone = true ;
 				)
 				
@@ -180,6 +186,7 @@ macroScript showSkeletonTools
 			lastFrameSP.enabled = true ;
 			animNameET.enabled = true ;
 			animLengthSP.enabled = true ;
+			useBipedCB.enabled = true ;
 		)
 		
 		-- Press of exportSkeletonCheckBox
@@ -189,6 +196,7 @@ macroScript showSkeletonTools
 			lastFrameSP.enabled = false ;
 			animNameET.enabled = false ;
 			animLengthSP.enabled = false ;
+			useBipedCB.enabled = false ;
 		)
 		
 		-- Press of exportMeshCheckBox
@@ -226,6 +234,8 @@ macroScript showSkeletonTools
 			ExportUVCB.enabled = false ;
 			ExportUVCB.checked = true ;
 			flipYZCB.checked = true ;
+			useBipedCB.enabled = false ;
+			useBipedCB.checked = false ;
 
 		)
 	)
@@ -266,6 +276,9 @@ macroScript showSkeletonTools
 
 )
 
+---------------------------------------------------------------
+-------------------   MATERIAL EXPORTER -----------------------
+---------------------------------------------------------------
 
 macroScript showMaterialTools
 	category:"Ogre Tools"
@@ -283,6 +296,7 @@ macroScript showMaterialTools
 	    editText filenameET "File:" align:#left ;
 		button chooseFileButton "Choose File..." align:#right ;
 		button materialExportButton "Export" align:#right ;
+		button allMaterialsExportButton "Or Try to export all the materials used in the scene !" align:#center ;
 		
 		
 		on materialExportButton pressed do
@@ -293,7 +307,7 @@ macroScript showMaterialTools
 				-- saves settings
 				setINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Settings" "lastMaterialFile" filenameET.text	
 
-				exportMultiMaterial (choosemtl.material) filename ;
+				exportMaterial (choosemtl.material) filename ;
 			)
 			else
 			    messageBox "You have to choose a filename." ;
@@ -308,6 +322,22 @@ macroScript showMaterialTools
 				filenameET.text = filename ;
 			)
 		)
+		
+		-- Press of export all materials button
+		on allMaterialsExportButton pressed do
+		(
+			filename = filenameET.text ;			
+			if (filename != "") then
+			(
+				-- saves settings
+				setINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Settings" "lastMaterialFile" filenameET.text	
+
+				exportAllSceneMaterials filename ;
+			)
+			else
+			    messageBox "You have to choose a filename." ;
+		)
+
 		
 		on materialExportRollout open do
 		(

@@ -62,7 +62,7 @@ function writeTrack sk boneId firstframe lastframe length scale flipYZ outFile=
 	timelist = getTimeList d firstframe lastframe ;
 	
 	-- track header
-	format("\t\t\t\t<track bone = \"%\">\n") d.name to:outFile ;
+	format("\t\t\t\t<track bone = \"%\">\n") (replaceSpaces d.name) to:outFile ;
 	format("\t\t\t\t\t<keyframes>\n") to:outFile ;
 	
 	-- gets initial transform at frame 0f
@@ -157,7 +157,7 @@ function writeB sk id scale flipYZ outFile =
 	d = execute ("$" + bname) ;
 	
 	-- gets initial transform at frame 0f
-	format("\t\t<bone id=\"%\" name=\"%\">\n") id d.name to:outFile ;
+	format("\t\t<bone id=\"%\" name=\"%\">\n") id (replaceSpaces d.name) to:outFile ;
 	
 	slidertime = 0f ;
 	Tform = d.transform ;
@@ -214,16 +214,18 @@ function writeBones sk scale flipYZ outFile =
 
 function writeH b outFile =
 (
-	if (b.parent != undefined and (isKindOf b.parent BoneGeometry) ) do
+	if ( b.parent != undefined and (isKindOf b.parent BoneGeometry or iskindOf b.parent Biped_Object)) then
 	(
 		p = b.parent ;
-		format("\t\t<boneparent bone=\"%\" parent=\"%\" />\n") b.name p.name to:outFile ;
+		format("\t\t<boneparent bone=\"%\" parent=\"%\" />\n") (replaceSpaces b.name) (replaceSpaces p.name) to:outFile ;
 	)
 	childrenArray = b.children ;
 	for i=1 to childrenArray.count do
 	(
-		writeH childrenArray[i] outFile ;
+        if (isKindOf b BoneGeometry or iskindOf b Biped_Object) then
+			writeH childrenArray[i] outFile ;
 	)
+	
 )
 
 --------------------------

@@ -40,6 +40,25 @@ materialName = "" ;
 
 -- materialName is the name that Ogre will use
 
+
+-----------------------------------------------------------------
+-- There is no function to have the number of a bone with the 
+-- Physique modifier, so before trying to export, the user
+-- properties "number" is added to bones.
+-----------------------------------------------------------------
+
+function setBonesNumber phy =
+(
+	local i ;
+
+	for i=1 to (physiqueOps.GetBoneCount $) do
+	(
+		b = (physiqueOps.getBones $)[i] ;
+		setUserProp b "number" i ;
+	)
+)
+
+
 	
 -----------------------------------------------------------------
 -- exploreMesh returns a string which is "OK" or an error message
@@ -82,7 +101,7 @@ function exploreMesh pmesh exportUV exportColours=
 -- stores datas in verticesArrays and facesArrays.
 ----------------------------------------------------------------------------
 
-function getDatas tmesh flipyz scale flipNormal exportUV exportColours sk=
+function getDatas tmesh flipyz scale flipNormal exportUV exportColours sk phy =
 (
     local num_tverts, num_faces,v,f,cf,face,nmal,vert,vertTmp,tvertTmp,faceTmp ;
 	local couple,searchTable,ogreface ;
@@ -224,10 +243,8 @@ function getDatas tmesh flipyz scale flipNormal exportUV exportColours sk=
 					(
 						bid = skinOps.getVertexWeightBoneID sk a k ;
 						w = skinOps.getVertexWeight sk a k ;
-						-- There will be a bone assignement if weight > 0.01 --> it could increase speed.
-						if w > 0.01 then (
-							append boneAssignments[matId] #(ogreVertNum,bid,w) ;
-						)
+						
+						append boneAssignments[matId] #(ogreVertNum,bid,w) ;
 					)
 					-- assignment to the root bone.
 					if (vwcount==0) then (
@@ -235,11 +252,37 @@ function getDatas tmesh flipyz scale flipNormal exportUV exportColours sk=
 						rootId=getRootsId sk
 						append boneAssignments[matId] #(ogreVertNum,rootId[1],1) ;
 					)
-				)			
+				)
+				-- same thing with physique modifier if defined
+				if (phy != undefined) then (
+					-- TODO: here the selection ($) is used because tmesh can't be used...
+					-- it should be changed ti use pmesh (in the main function) for example.
+					
+					vwcount = physiqueOps.getVertexBoneCount $ a ; -- a is the vertex number: "a = (int) (f[j]) ;"
+
+					for k=1 to vwcount do
+					(
+						bone = physiqueOps.getVertexBone $ a k
+						w = physiqueOps.getVertexWeight $ a k
+						
+						-- search the bone number
+						bid = getUserProp bone "number" ;
+						
+						--format "%,%\n%(%)\n" v weight bid.Name k ;
+						append boneAssignments[matId] #(ogreVertNum,bid,w) ;
+					)
+					-- assignment to the root bone.
+					if (vwcount==0) then (
+						-- gets the root Id:
+						--rootId=getRootsId sk
+						--append boneAssignments[matId] #(ogreVertNum,rootId[1],1) ;
+						print "No assignment" ;
+					)
+				)				
+
 			)
-			
-			ogreFace[j] = ogreVertNum ;
-			
+		
+			ogreFace[j] = ogreVertNum ;		
 		)
 		
 		-- flip normal capability
@@ -265,7 +308,7 @@ function getDatas tmesh flipyz scale flipNormal exportUV exportColours sk=
 -- Uses the arrays verticesArrays and facesArrays
 -------------------------------------------------
 
-function writeM exportUV exportColours outName =
+function writeM exportUV exportColours material outName =
 (
 	local a,v,f,matname,hasSkeleton,outFile,numTexCoord,hasColours,matId ;
 	
@@ -294,7 +337,12 @@ function writeM exportUV exportColours outName =
 		if arrayLength verticesArrays[matId] > 65535 then
 			use32bitindexes = "true";
 		
-		format("\t\t<submesh material = \"%_sub%\" usesharedvertices=\"false\" use32bitindexes=\"%\">\n") materialName matId use32bitindexes to:outFile ;
+		-- get the name of the sub material if needed.
+		submatname = material.name ;
+		if (classof material == MultiMaterial) then
+		   submatname  += "/" + material.materiallist[matId].name ;
+		
+		format("\t\t<submesh material = \"%\" usesharedvertices=\"false\" use32bitindexes=\"%\">\n") submatname use32bitindexes to:outFile ;
 	
 		format "- writing faces...\n"		
 		format("\t\t\t<faces count=\"%\">\n") (arraylength facesArrays[matId]) to:outFile;
@@ -326,17 +374,18 @@ function writeM exportUV exportColours outName =
 		format("\t\t\t</geometry>\n") to:outFile ;
 					
 	
-		-- and now bone assignments (and skeleton), if there is at least one element in boneAssignments array.
+		-- and now bone assignments (and skeleton), if there is at least one element in boneAssignments array.		
 		if ((arrayLength boneAssignments[matId]) != 0) then 
 		(
 			hasSkeleton = true ;
 			format "- writing bone assignments...\n"	
 			format("\t\t\t<boneassignments>\n") to:outFile ;
-			for a in boneAssignments[matId] do
+				
+			for a in boneAssignments[matId] do (
 				format("\t\t\t\t<vertexboneassignment vertexindex=\"%\" boneindex=\"%\" weight=\"%\" />\n") a[1] a[2] a[3] to:outFile ;
-			format("\t\t\t</boneassignments>\n") to:outFile ;		
+			)
+			format("\t\t\t</boneassignments>\n") to:outFile ;
 		)
-	
 	
 		-- submesh end
 		format("\t\t</submesh>\n") to:outFile ;
@@ -363,7 +412,7 @@ function writeM exportUV exportColours outName =
 
 function writeMesh pmesh exportOptions out_name =
 (
-	local m,sk,outFile,message ;
+	local m,sk,outFile,message,phy ;
 
 	m = snapshotAsMesh pmesh ;
 		
@@ -383,16 +432,32 @@ function writeMesh pmesh exportOptions out_name =
 		format "-----                                -----\n"
 		
 		-- get the skin modifier ( may be undefined )
+		-- and physique modifier
+		phy = getPhysique pmesh ;
 		sk = getSkin pmesh;
+		
 		if (sk != undefined) then
 			format "Skin modifier detected.\n"
+			
+		if (phy != undefined) then
+			format "Physique modifier detected.\n"
 					
-		-- if undefined skin modifier is selected in modifier tab. Or there will be an error.
+		-- if not undefined, skin modifier is selected in modifier tab. Or there will be an error.
 		if (sk != undefined) then
 		(
 			-- in order to perform, skin should be opened
 			max modify mode ;
 			modPanel.setCurrentObject pmesh.modifiers[#Skin] ;		
+		)
+		
+		-- physique
+		if (phy != undefined) then
+		(
+			-- in order to perform, skin should be opened
+			max modify mode ;
+			modPanel.setCurrentObject pmesh.modifiers[#Physique] ;
+			setBonesNumber phy ;
+			--physiqueOps.setInitialPose pmesh true ;
 		)
 		
 		-- retieving material
@@ -401,15 +466,16 @@ function writeMesh pmesh exportOptions out_name =
 			replaceSpaces materialName ;
 		)
 		else materialName = pmesh.name + "Material" ;
-		format "Material name exported : \n- %_sub* \n" materialName ;
+		
+		format "Material name exported : \n- %/*** \n" materialName ;
 		
 		-- retrieving all datas
 		format "Retrieving vertices and faces data : \n" ;
-		getDatas m exportOptions.flipyz exportOptions.scale exportOptions.flipNormal exportOptions.exportUV exportOptions.exportColours sk;
+		getDatas m exportOptions.flipyz exportOptions.scale exportOptions.flipNormal exportOptions.exportUV exportOptions.exportColours sk phy;
 		
 		-- writing in the file
 		format "Writing in file %.mesh.xml : \n" out_name ;
-		WriteM exportOptions.exportUV exportOptions.exportColours out_name ;
+		WriteM exportOptions.exportUV exportOptions.exportColours pmesh.material out_name ;
 		
 		format "Export successful.\n"		
 		
