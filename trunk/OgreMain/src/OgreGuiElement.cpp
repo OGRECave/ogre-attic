@@ -213,7 +213,9 @@ namespace Ogre {
     {
         mMaterialName = matName;
         mpMaterial = (Material*)MaterialManager::getSingleton().getByName(matName);
-        assert(mpMaterial);
+		if (!mpMaterial)
+			Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find material " + matName,
+				"GuiElement::setMaterialName" );
         mpMaterial->load();
         // Set some prerequisites to be sure
         mpMaterial->setLightingEnabled(false);

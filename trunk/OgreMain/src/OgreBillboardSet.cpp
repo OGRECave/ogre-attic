@@ -247,9 +247,9 @@ namespace Ogre {
         mpMaterial = static_cast<Material *>(
             MaterialManager::getSingleton().getByName(name) );
 
-        if (!mpMaterial)
-            Except( Exception::ERR_ITEM_NOT_FOUND,
-		"Could not find the requested material", "BillboardSet::setMaterialName" );
+		if (!mpMaterial)
+			Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find material " + name,
+				"BillboardSet::setMaterialName" );
 
         /* Ensure that the new material was loaded (will not load again if
            already loaded anyway)

@@ -361,7 +361,9 @@ namespace Ogre {
     {
         mBorderMaterialName = name;
         mpBorderMaterial = (Material*)MaterialManager::getSingleton().getByName(name);
-        assert(mpBorderMaterial);
+        if (!mpBorderMaterial)
+			Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find material " + name,
+				"BorderPanelGuiElement::setBorderMaterialName" );
         mpBorderMaterial->load();
         // Set some prerequisites to be sure
         mpBorderMaterial->setLightingEnabled(false);

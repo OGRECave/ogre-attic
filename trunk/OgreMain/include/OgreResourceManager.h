@@ -96,7 +96,7 @@ namespace Ogre {
         */
         virtual void unloadAndDestroyAll(void);
 
-        /** Retrieves a pointer to a resource by name.
+        /** Retrieves a pointer to a resource by name, or null if the resource does not exist.
         */
         virtual Resource* getByName(const String& name);
 

@@ -82,6 +82,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ResourceManager::unload(Resource* res)
     {
+		if (!res)
+			return;
+
         // Unload resource
         res->unload();
 

@@ -340,6 +340,9 @@ namespace Ogre {
     std::pair< uint, uint > Material::TextureLayer::getTextureDimensions( int frame ) const
     {
         Texture *tex = (Texture *)TextureManager::getSingleton().getByName( mFrames[ frame ] );
+		if (!tex)
+			Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find texture " + mFrames[ frame ],
+				"Material::TextureLayer::getTextureDimensions" );
         return std::pair< uint, uint >( tex->getWidth(), tex->getHeight() );
     }
     //-----------------------------------------------------------------------

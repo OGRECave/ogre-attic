@@ -278,6 +278,9 @@ namespace Ogre {
     void TextAreaGuiElement::setFontName( const String& font )
     {
         mpFont = (Font*)FontManager::getSingleton().getByName( font );
+        if (!mpFont)
+			Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find font " + font,
+				"TextAreaGuiElement::setFontName" );
         mpFont->load();
         mpMaterial = mpFont->getMaterial();
         mpMaterial->setDepthCheckEnabled(false);
