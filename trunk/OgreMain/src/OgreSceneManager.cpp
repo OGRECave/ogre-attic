@@ -1463,6 +1463,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void SceneManager::renderTextureShadowCasterQueueGroupObjects(RenderQueueGroup* pGroup)
     {
+        static LightList nullLightList;
         // This is like the basic group render, except we skip all transparents
         // and we also render any non-shadowed objects
         // Note that non-shadow casters will have already been eliminated during
@@ -1471,6 +1472,9 @@ namespace Ogre {
         // Iterate through priorities
         RenderQueueGroup::PriorityMapIterator groupIt = pGroup->getIterator();
 
+        // Override auto param ambient to stop vertex programs using it to colour
+        mAutoParamDataSource.setAmbientLightColour(ColourValue::Black);
+
         while (groupIt.hasMoreElements())
         {
             RenderPriorityGroup* pPriorityGrp = groupIt.getNext();
@@ -1478,9 +1482,9 @@ namespace Ogre {
             // Sort the queue first
             pPriorityGrp->sort(mCameraInProgress);
 
-            // Do solids
-            renderObjects(pPriorityGrp->_getSolidPasses(), true);
-            renderObjects(pPriorityGrp->_getSolidPassesNoShadow(), true);
+            // Do solids, override light list incase any vertex programs use them
+            renderObjects(pPriorityGrp->_getSolidPasses(), false, &nullLightList);
+            renderObjects(pPriorityGrp->_getSolidPassesNoShadow(), false, &nullLightList);
 
         }// for each priority
     }
