@@ -40,6 +40,9 @@ public:
     /// @copydoc Resource::unload
     void unload(void);
 
+    /// Execute the binding functions for this program
+    void bindProgram(void);
+
     /// Get the assigned GL program id
     const GLuint getProgramID(void) const
     { return mProgramID; }

@@ -35,6 +35,12 @@ GLGpuProgram::GLGpuProgram(const String& name, GpuProgramType gptype, const Stri
     glGenProgramsARB_ptr(1, &mProgramID);
 }
 
+void GLGpuProgram::bindProgram(void)
+{
+    glEnable(mProgramType);
+    glBindProgramARB_ptr(mProgramType, mProgramID);
+}
+
 void GLGpuProgram::unload(void)
 {
     glDeleteProgramsARB_ptr(1, &mProgramID);

@@ -312,8 +312,18 @@ namespace Ogre {
             mGpuProgramManager->_pushSyntaxCode("arbfp1");
             mGpuProgramManager->registerProgram(GPT_FRAGMENT_PROGRAM, createProgram<GLGpuProgram>);
         }
-        
+        /*
+        else if (mGLSupport->checkExtension("GL_NV_register_combiners2") &&
+            mGLSupport->checkExtension("GL_NV_texture_shader"))
+        {
+            mCapabilities->setCapability(RSC_FRAGMENT_PROGRAM);
+            mCapabilities->setMaxFragmentProgramVersion("fp20");
 
+            mGpuProgramManager->_pushSyntaxCode("fp20");
+            mGpuProgramManager->registerProgram(GPT_FRAGMENT_PROGRAM, createProgram<GLGpuNvparseProgram>);
+        }
+
+        */
         // Get extension function pointers
         glActiveTextureARB_ptr = 
             (GL_ActiveTextureARB_Func)mGLSupport->getProcAddress("glActiveTextureARB");
@@ -1787,17 +1797,25 @@ namespace Ogre {
     void GLRenderSystem::bindGpuProgram(GpuProgram* prg)
     {
         GLGpuProgram* glprg = static_cast<GLGpuProgram*>(prg);
-        GLuint glProgType = glprg->getProgramType();
-        glEnable(glProgType);
-        glBindProgramARB_ptr(glProgType, glprg->getProgramID());
+        glprg->bindProgram();
     }
 	//---------------------------------------------------------------------
     void GLRenderSystem::unbindGpuProgram(GpuProgramType gptype)
     {
         GLuint glProgType = (gptype == GPT_VERTEX_PROGRAM) ? 
             GL_VERTEX_PROGRAM_ARB : GL_FRAGMENT_PROGRAM_ARB;
-        glBindProgramARB_ptr(glProgType, 0);
-        glDisable(glProgType);
+
+        if(mCapabilities->hasCapability(RSC_FRAGMENT_PROGRAM) && 
+            mCapabilities->getMaxFragmentProgramVersion() == "fp20")
+        {
+            glDisable(GL_TEXTURE_SHADER_NV);
+            glDisable(GL_REGISTER_COMBINERS_NV);
+        }
+        else
+        {
+            glBindProgramARB_ptr(glProgType, 0);
+            glDisable(glProgType);
+        }
     }
 	//---------------------------------------------------------------------
     void GLRenderSystem::bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParametersSharedPtr params)
