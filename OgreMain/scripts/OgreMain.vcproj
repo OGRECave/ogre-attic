@@ -575,6 +575,12 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\src\OgreStaticGeometry.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalOptions="/Zm1000"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\OgreString.cpp">
