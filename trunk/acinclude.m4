@@ -35,7 +35,7 @@ if test x$ft_config_prefix != x ; then
 fi
 AC_PATH_PROG(FT2_CONFIG, freetype-config, no)
 
-min_ft_version=ifelse([$1], ,6.1.0,$1)
+min_ft_version=ifelse([$1], ,9.1.0,$1)
 AC_MSG_CHECKING(for FreeType - version >= $min_ft_version)
 no_ft=""
 if test "$FT2_CONFIG" = "no" ; then
