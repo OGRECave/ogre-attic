@@ -96,6 +96,13 @@ namespace Ogre
         */
         void reset(void);
 
+        
+        /** Gets the inverse transform which takes bone space to origin from the binding pose. 
+        @remarks
+            Internal use only.
+        */
+        Matrix4 _getBindingPoseInverseTransform(void);
+
 
     protected:
         /// The numeric handle of this bone
@@ -112,10 +119,8 @@ namespace Ogre
         /// Original position in binding pose
         Vector3 mBindPosition;
 
-        /// The derived orientation of the bone in the binding pose
-        Quaternion mBindDerivedOrientation;
-        /// The derived position of the bone in the binding pose
-        Vector3 mBindDerivedPosition;
+        /// The inversed derived transform of the bone in the binding pose
+        Matrix4 mBindDerivedInverseTransform;
 
     };
 

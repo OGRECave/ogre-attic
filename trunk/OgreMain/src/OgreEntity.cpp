@@ -59,6 +59,21 @@ namespace Ogre {
             mSubEntityList.push_back(subEnt);
         }
 
+        // Initialise the AnimationState, if Mesh has animation
+        if (mesh->hasSkeleton())
+        {
+            mesh->_initAnimationState(&mAnimationState);
+            mNumBoneMatrices = mesh->_getNumBoneMatrices();
+            mBoneMatrices = new Matrix4[mNumBoneMatrices];
+        }
+        else
+        {
+            mBoneMatrices = 0;
+            mNumBoneMatrices = 0;
+        }
+
+
+
     }
     //-----------------------------------------------------------------------
     Entity::~Entity()
@@ -69,6 +84,9 @@ namespace Ogre {
         {
             delete *i;
         }
+        if (mBoneMatrices)
+            delete [] mBoneMatrices;
+
     }
     //-----------------------------------------------------------------------
     Mesh* Entity::getMesh(void)
@@ -106,6 +124,7 @@ namespace Ogre {
         {
             newEnt->getSubEntity(n)->setMaterialName((*i)->getMaterialName());
         }
+        newEnt->mAnimationState = mAnimationState;
         return newEnt;
     }
     //-----------------------------------------------------------------------
@@ -141,6 +160,13 @@ namespace Ogre {
             queue->addRenderable(*i);
         }
 
+        // Since we know we're going to be rendered, take this opportunity to 
+        // cache bone matrices & apply world matrix to them
+        if (mMesh->hasSkeleton())
+        {
+            cacheBoneMatrices();
+        }
+
     }
     //-----------------------------------------------------------------------
     AnimationState* Entity::getAnimationState(const String& name)
@@ -170,5 +196,21 @@ namespace Ogre {
     {
         return msMovableType;
     }
+    //-----------------------------------------------------------------------
+    void Entity::cacheBoneMatrices(void)
+    {
+        mMesh->_getBoneMatrices(mAnimationState, mBoneMatrices);
+        // Apply our current world transform to these too, since these are used as
+        // replacement world matrices
+        int i;
+        Matrix4 worldXform = mParentNode->_getFullTransform();
+
+        for (i = 0; i < mMesh->_getNumBoneMatrices(); ++i)
+        {
+            mBoneMatrices[i] = worldXform * mBoneMatrices[i];
+        }
+
+    }
+
 
 }

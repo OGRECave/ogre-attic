@@ -74,13 +74,16 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void Bone::setBindingPose(void)
     {
+        
         // Bake the current status into the binding pose
         mBindOrientation = mOrientation;
         mBindPosition = mPosition;
 
-        // Save derived, used for mesh transform later (assumes _update() has been called by Skeleton)
-        mBindDerivedOrientation = mDerivedOrientation;
-        mBindDerivedPosition = mDerivedPosition;
+        // Save inverse derived, used for mesh transform later (assumes _update() has been called by Skeleton)
+        makeTransform(_getDerivedPosition(), Vector3::UNIT_SCALE , 
+            _getDerivedOrientation(), mBindDerivedInverseTransform);
+        // Invert, no scale so transpose is inverse
+        mBindDerivedInverseTransform = mBindDerivedInverseTransform.transpose();
     }
     //---------------------------------------------------------------------
     void Bone::reset(void)
@@ -89,6 +92,12 @@ namespace Ogre {
         mOrientation = mBindOrientation;
         mPosition = mBindPosition;
     }
+    //---------------------------------------------------------------------
+    Matrix4 Bone::_getBindingPoseInverseTransform(void)
+    {
+        return mBindDerivedInverseTransform;
+    }
+
 
 
 

@@ -103,6 +103,14 @@ namespace Ogre {
         static String msMovableType;
 
 
+        /// Cached bone matrices, including any world transform
+        Matrix4 *mBoneMatrices;
+        unsigned short mNumBoneMatrices;
+
+        /// Private method to cache bone matrices from skeleton
+        void cacheBoneMatrices(void);
+
+
     public:
         /** Default destructor.
         */
@@ -178,6 +186,8 @@ namespace Ogre {
             initialised from the Mesh object.
         */
         AnimationStateSet* getAllAnimationStates(void);
+
+
     };
 
 } // namespace

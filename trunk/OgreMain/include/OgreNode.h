@@ -108,6 +108,15 @@ namespace Ogre {
         /** Internal method for creating a new child node - must be overridden per subclass. */
         virtual Node* createChildImpl(void) = 0;
 
+        /** Internal method for building a Matrix4 from orientation / scale / position. 
+        @remarks
+            Transform is performed in the order rotate, scale, translation, i.e. translation is independent
+            of orientation axes, scale does not affect size of translation, rotation and scaling are always
+            centered on the origin.
+        */
+        void makeTransform(const Vector3& position, const Vector3& scale, const Quaternion& orientation, 
+            Matrix4& destMatrix);
+
     public:
         /** Constructor, should only be called by parent, not directly.
         */

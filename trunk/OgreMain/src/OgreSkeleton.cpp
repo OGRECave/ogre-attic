@@ -86,6 +86,11 @@ namespace Ogre {
     //---------------------------------------------------------------------
     Bone* Skeleton::createBone(unsigned short handle)
     {
+        if (mBoneList.size() == OGRE_MAX_NUM_BONES)
+        {
+            Except(Exception::ERR_INVALIDPARAMS, "Exceeded the maximum number of bones per skeleton.",
+                "Skeleton::createBone");
+        }
         Bone* ret = new Bone(handle, this);
         mBoneList[handle] = ret;
         return ret;
@@ -100,7 +105,6 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void Skeleton::setAnimationState(const AnimationStateSet& animSet)
     {
-        // TODO
         /* 
         Algorithm:
           1. Check if animation state is any different from last, if not do nothing
@@ -149,6 +153,7 @@ namespace Ogre {
                 anim->apply(animState.getTimePosition(), animState.getWeight());
             }
         }
+
 
     }
     //---------------------------------------------------------------------
@@ -221,6 +226,54 @@ namespace Ogre {
     {
         return mLastAnimationState;
     }
+    //-----------------------------------------------------------------------
+    void Skeleton::_initAnimationState(AnimationStateSet* animSet)
+    {
+        animSet->clear();
+           
+        AnimationList::iterator i;
+        for (i = mAnimationsList.begin(); i != mAnimationsList.end(); ++i)
+        {
+            Animation* anim = i->second;
+            // Create animation at time index 0, default params mean this has weight 1 and is disabled
+            String animName = anim->getName();
+            (*animSet)[animName] = AnimationState(animName, 0.0, anim->getLength());
+        }
+    }
+    //-----------------------------------------------------------------------
+    unsigned short Skeleton::getNumBones(void)
+    {
+        return (unsigned short)mBoneList.size();
+    }
+    //-----------------------------------------------------------------------
+    void Skeleton::_getBoneMatrices(Matrix4* pMatrices)
+    {
+        // Update derived transforms
+        mRootBone->_update();
+
+        /* 
+            Calculating the bone matrices
+            -----------------------------
+            Now that we have the derived orientations & positions in the Bone nodes, we have
+            to compute the Matrix4 to apply to the vertices of a mesh.
+            Because any modification of a vertex has to be relative to the bone, we must first
+            reverse transform by the Bone's original derived position/orientation, then transform
+            by the new derived position / orientation.
+        */
+
+        BoneList::iterator i, boneend;
+        boneend = mBoneList.end();
+        
+        
+        for(i = mBoneList.begin();i != boneend; ++i)
+        {
+            Bone* pBone = i->second;
+            *pMatrices = pBone->_getFullTransform() *  pBone->_getBindingPoseInverseTransform();
+            pMatrices++;
+        }
+
+    }
+
 
 
 }

@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreDataChunk.h"
 #include "OgreMeshSerializer.h"
 #include "OgreSkeletonManager.h"
+#include "OgreSkeleton.h"
 
 
 
@@ -535,6 +536,30 @@ namespace Ogre {
         mBoneAssignments.clear();
     }
     //-----------------------------------------------------------------------
+    void Mesh::_initAnimationState(AnimationStateSet* animSet)
+    {
+        // Delegate to Skeleton
+        assert(mSkeleton && "Skeleton not present");
+        mSkeleton->_initAnimationState(animSet);
+    }
+    //-----------------------------------------------------------------------
+    unsigned short Mesh::_getNumBoneMatrices(void)
+    {
+        // Delegate to Skeleton
+        assert(mSkeleton && "Skeleton not present");
+
+        return mSkeleton->getNumBones();
+    }
+    //-----------------------------------------------------------------------
+    void Mesh::_getBoneMatrices(const AnimationStateSet& animSet, Matrix4* pMatrices)
+    {
+        // Delegate to Skeleton
+        assert(mSkeleton && "Skeleton not present");
+
+        mSkeleton->setAnimationState(animSet);
+        mSkeleton->_getBoneMatrices(pMatrices);
+
+    }
 
 }
 

@@ -362,6 +362,8 @@ namespace Ogre
         virtual void _popRenderState(void) = 0;
         /** Sets the world transform matrix. */
         virtual void _setWorldMatrix(const Matrix4 &m) = 0;
+        /** Sets multiple world matrices (vertex blending). */
+        virtual void _setWorldMatrices(const Matrix4* m, unsigned short count);
         /** Sets the view transform matrix */
         virtual void _setViewMatrix(const Matrix4 &m) = 0;
         /** Sets the projection transform matrix */
@@ -601,6 +603,14 @@ namespace Ogre
         */
         virtual void convertColourValue(const ColourValue& colour, unsigned long* pDest) = 0;
 
+        /** Returns whether or not this RenderSystem supports hardware vertex blending, ie multiple
+            world matrices per vertex with blending weights.
+        */
+        virtual bool _isVertexBlendSupported(void);
+
+        /** Returns the number of matrices available to hardware vertex blending for this rendering system. */
+        virtual unsigned short _getNumVertexBlendMatrices(void);
+
     protected:
 
         /** Set of registered frame listeners */
@@ -638,6 +648,19 @@ namespace Ogre
 
         unsigned int mFaceCount;
         unsigned int mVertexCount;
+
+        /// Saved set of world matrices
+        Matrix4 mWorldMatrices[256];
+        /** Performs a software vertex blend on the passed in operation. 
+        @remarks
+            This function is supplied to calculate a vertex blend when no hardware
+            support is available. The vertices contained in the passed in operation
+            will be modified by the matrices supplied according to the blending weights
+            also in the operation. To avoid accidentally modifying core vertex data, a
+            temporary vertex buffer is used for the result, which is then used in the
+            RenderOperation instead of the original passed in vertex data.
+        */
+        void softwareVertexBlend(RenderOperation& op, Matrix4* pMatrices);
 
 
 
