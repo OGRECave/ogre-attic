@@ -35,6 +35,13 @@ namespace Ogre
         mRotate = Quaternion::IDENTITY;
     }
     //---------------------------------------------------------------------
+    KeyFrame::KeyFrame() : mTime(0.0)
+    {
+        mTranslate = Vector3::ZERO;
+        mScale.x = mScale.y = mScale.z = 1.0;
+        mRotate = Quaternion::IDENTITY;
+    }
+    //---------------------------------------------------------------------
     Real KeyFrame::getTime(void)
     {
         return mTime;

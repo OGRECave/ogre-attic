@@ -51,8 +51,6 @@ namespace Ogre {
         Node* mParent;
         std::vector<Node*> mChildren;
 
-        /// SceneManager which created this node
-        SceneManager* mCreator;
 
         /// Stores the orientation of the node relative to it's parent.
         Quaternion mOrientation;
@@ -111,9 +109,9 @@ namespace Ogre {
         virtual Node* createChildImpl(void) = 0;
 
     public:
-        /** Constructor, only to be called by the creator SceneManager.
+        /** Constructor, should only be called by parent, not directly.
         */
-        Node(SceneManager* creator);
+        Node();
         virtual ~Node();
 
         /** Gets this node's parent (0 if this is the root).

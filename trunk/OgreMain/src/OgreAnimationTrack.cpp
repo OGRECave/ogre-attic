@@ -150,5 +150,42 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
+    KeyFrame AnimationTrack::getInterpolatedKeyFrame(Real timeIndex)
+    {
+        // Return value
+        KeyFrame kret(timeIndex);
+        
+        // Keyframe pointers
+        KeyFrame *k1, *k2;
+
+        Real t = this->getKeyFramesAtTime(timeIndex, &k1, &k2);
+
+        if (t == 0.0)
+        {
+            // Just use k1
+            kret.setRotation(k1->getRotation());
+            kret.setTranslate(k1->getTranslate());
+            kret.setScale(k1->getScale());
+        }
+        else
+        {
+            // Interpolate by t
+
+            // Rotation
+            kret.setRotation( Quaternion::Slerp(t, k1->getRotation(), k2->getRotation()) );
+
+            // Translation
+            kret.setTranslate( (k2->getTranslate() - k1->getTranslate()) * t );
+
+            // Scale
+            kret.setScale( (k2->getScale() - k1->getScale()) * t );
+
+        }
+        
+
+        return kret;
+        
+    }
+    //---------------------------------------------------------------------
 }
 

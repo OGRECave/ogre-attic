@@ -136,6 +136,10 @@ SOURCE=..\src\OgreBitwise.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreBone.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreBoneTrack.cpp
 # End Source File
 # Begin Source File
@@ -348,6 +352,10 @@ SOURCE=..\src\OgreSingleton.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreSkeleton.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreString.cpp
 # End Source File
 # Begin Source File
@@ -449,6 +457,10 @@ SOURCE=..\include\OgreBitwise.h
 # Begin Source File
 
 SOURCE=..\include\OgreBlendMode.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreBone.h
 # End Source File
 # Begin Source File
 
@@ -737,6 +749,10 @@ SOURCE=..\include\OgreSimpleRenderable.h
 # Begin Source File
 
 SOURCE=..\include\OgreSingleton.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreSkeleton.h
 # End Source File
 # Begin Source File
 
