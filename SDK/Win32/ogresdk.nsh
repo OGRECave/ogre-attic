@@ -96,7 +96,7 @@ Section "MainSection" SEC01
   ; ode.lib is only one available, no separate release version
   File "..\..\Dependencies\lib\Debug\ode.lib"
   File "..\..\Samples\Common\CEGUIRenderer\lib\OgreGUIRenderer_d.lib"
-  File "..\..\Samples\Common\CEGUIRenderer\lib\OgreGUIRenderer_d.pdb"
+  File "..\..\Samples\Common\CEGUIRenderer\bin\Debug\OgreGUIRenderer.pdb"
 
   File "..\..\OgreMain\lib\Release\OgreMain.lib"
   File "..\..\Dependencies\lib\Release\CEGUIBase.lib"
@@ -105,19 +105,31 @@ Section "MainSection" SEC01
   ; Optional library files (for linking direct to plugins)
   SetOutPath "$INSTDIR\lib\opt\debug"
   SetOverwrite try
-  File "..\..\Plugins\OctreeSceneManager\lib\debug\Plugin_OctreeSceneManager.lib"
-  File "..\..\Plugins\OctreeSceneManager\lib\debug\Plugin_OctreeSceneManager.pdb"
-  File "..\..\Plugins\OctreeSceneManager\lib\debug\Plugin_BspSceneManager.lib"
-  File "..\..\Plugins\OctreeSceneManager\lib\debug\Plugin_BspSceneManager.pdb"
+  File "..\..\Plugins\OctreeSceneManager\bin\debug\Plugin_OctreeSceneManager.lib"
+  File "..\..\Plugins\OctreeSceneManager\bin\debug\Plugin_OctreeSceneManager.pdb"
+  File "..\..\Plugins\BspSceneManager\bin\debug\Plugin_BspSceneManager.lib"
+  File "..\..\Plugins\BspSceneManager\bin\debug\Plugin_BspSceneManager.pdb"
   File "..\..\ReferenceApplication\ReferenceAppLayer\lib\Debug\ReferenceAppLayer.lib"
   SetOutPath "$INSTDIR\lib\opt\release"
   SetOverwrite try
-  File "..\..\Plugins\OctreeSceneManager\lib\release\Plugin_OctreeSceneManager.lib"
-  File "..\..\Plugins\OctreeSceneManager\lib\release\Plugin_BspSceneManager.lib"
+  File "..\..\Plugins\OctreeSceneManager\bin\release\Plugin_OctreeSceneManager.lib"
+  File "..\..\Plugins\BspSceneManager\bin\release\Plugin_BspSceneManager.lib"
   File "..\..\ReferenceApplication\ReferenceAppLayer\lib\Release\ReferenceAppLayer.lib"
 
   ; Samples
-  
+  ; We assume copysamples.sh has been run recently enough for these files to be available
+  SetOutPath "$INSTDIR\Samples\scripts"
+  SetOverwrite try
+  File ".\Samples\scripts\*.vcproj"
+  SetOutPath "$INSTDIR\Samples\src"
+  SetOverwrite try
+  File /r /x CVS /x CEGUIRenderer "..\..\Samples\*.cpp"
+  SetOutPath "$INSTDIR\Samples\include"
+  SetOverwrite try
+  File /r /x CVS /x CEGUIRenderer "..\..\Samples\*.h"
+
+  ; TODO: reference app source & bspcollision source
+
 
 
   ; Binaries - debug
@@ -157,11 +169,11 @@ Section "MainSection" SEC01
   File "..\..\Samples\Common\bin\Release\zlib1.dll"
   File "..\..\Samples\Common\bin\Release\xerces-c_2_5_0.dll"
 
-  File "..\..\Samples\Common\bin\Release\OgreMain_d.dll"
-  File "..\..\Samples\Common\bin\Release\OgrePlatform_d.dll"
-  File "..\..\Samples\Common\bin\Release\CEGUIBase_d.dll"
-  File "..\..\Samples\Common\bin\Release\CEGUITaharezLook_d.dll"
-  File "..\..\Samples\Common\bin\Release\CEGUIWindowsLook_d.dll"
+  File "..\..\Samples\Common\bin\Release\OgreMain.dll"
+  File "..\..\Samples\Common\bin\Release\OgrePlatform.dll"
+  File "..\..\Samples\Common\bin\Release\CEGUIBase.dll"
+  File "..\..\Samples\Common\bin\Release\CEGUITaharezLook.dll"
+  File "..\..\Samples\Common\bin\Release\CEGUIWindowsLook.dll"
   File "..\..\Samples\Common\bin\Release\Plugin_BSPSceneManager.dll"
   File "..\..\Samples\Common\bin\Release\Plugin_CgProgramManager.dll"
   File "..\..\Samples\Common\bin\Release\Plugin_OctreeSceneManager.dll"
@@ -170,7 +182,7 @@ Section "MainSection" SEC01
   File "..\..\Samples\Common\bin\Release\RenderSystem_Direct3D7.dll"
   File "..\..\Samples\Common\bin\Release\RenderSystem_Direct3D9.dll"
   File "..\..\Samples\Common\bin\Release\RenderSystem_GL.dll"
-  File "..\..\Samples\Common\bin\Release\OgreGUIRenderer_d.dll"
+  File "..\..\Samples\Common\bin\Release\OgreGUIRenderer.dll"
 
   ; Documentation
   SetOutPath "$INSTDIR\docs\manual\images"
