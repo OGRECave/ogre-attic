@@ -111,19 +111,19 @@ public:
             pSpecular [i / 3] = 0xffffffff;
         }
 
-        mRO.numVertices = 300;
-        mRO.useIndexes = false;
+        mRendOp.numVertices = 300;
+        mRendOp.useIndexes = false;
 
-        mRO.pVertices = m_pVertexCache;
-        mRO.pDiffuseColour = m_pDiffuseCache;
-        mRO.pSpecularColour = m_pSpecularCache;
+        mRendOp.pVertices = m_pVertexCache;
+        mRendOp.pDiffuseColour = m_pDiffuseCache;
+        mRendOp.pSpecularColour = m_pSpecularCache;
 
-        mRO.vertexOptions = RenderOperation::VO_DIFFUSE_COLOURS | RenderOperation::VO_SPECULAR_COLOURS;
-        mRO.operationType = RenderOperation::OT_POINT_LIST;
+        mRendOp.vertexOptions = RenderOperation::VO_DIFFUSE_COLOURS | RenderOperation::VO_SPECULAR_COLOURS;
+        mRendOp.operationType = RenderOperation::OT_POINT_LIST;
 
         setMaterial( "Examples/OgreLogo" );
 
-        mAAB.setExtents( -300, -300, -300, 300, 300, 300 );
+        mBox.setExtents( -300, -300, -300, 300, 300, 300 );
     }
 
     void _update()
