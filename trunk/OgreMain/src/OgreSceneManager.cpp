@@ -890,21 +890,8 @@ namespace Ogre {
                     m->copyDetailsTo(boxMat);
                 }
                 // Set active frame
-                //??? Why is back/front BACKWARDS from 3D Studio???
-                // I thought LEFT was relative to looking FRONT, but appears not when you look at the output
-                // Quake3 images also have this
-                if ((Material::TextureLayer::TextureCubeFace)i == Material::TextureLayer::CUBE_BACK)
-                {
-                    boxMat->getTextureLayer(0)->setCurrentFrame(Material::TextureLayer::CUBE_FRONT);
-                }
-                else if ((Material::TextureLayer::TextureCubeFace)i == Material::TextureLayer::CUBE_FRONT)
-                {
-                    boxMat->getTextureLayer(0)->setCurrentFrame(Material::TextureLayer::CUBE_BACK);
-                }
-                else
-                {
-                    boxMat->getTextureLayer(0)->setCurrentFrame(i);
-                }
+                boxMat->getTextureLayer(0)->setCurrentFrame(i);
+
                 mSkyBoxEntity[i]->setMaterialName(boxMat->getName());
 
                 // Attach to node
