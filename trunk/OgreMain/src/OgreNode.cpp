@@ -523,6 +523,7 @@ namespace Ogre {
         mAccumAnimWeight = 0.0f;
         mTransFromInitial = Vector3::ZERO;
         mRotFromInitial = Quaternion::IDENTITY;
+        mScaleFromInitial = Vector3::UNIT_SCALE;
 
         mDerivedOutOfDate = true;
     }
@@ -580,13 +581,14 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     void Node::_weightedTransform(Real weight, const Vector3& translate, 
-       const Quaternion& rotate)
+       const Quaternion& rotate, const Vector3& scale)
     {
         // If no previous transforms, we can just apply
         if (mAccumAnimWeight == 0.0f)
         {
             mRotFromInitial = rotate;
             mTransFromInitial = translate;
+            mScaleFromInitial = scale;
             mAccumAnimWeight = weight;
         }
         else
@@ -596,6 +598,10 @@ namespace Ogre {
             mTransFromInitial += (translate - mTransFromInitial) * factor;
             mRotFromInitial = 
                 Quaternion::Slerp(factor, mRotFromInitial, rotate);
+            // For scale, find delta from 1.0, factor then add back before applying
+            Vector3 scaleDiff = (scale - Vector3::UNIT_SCALE) * factor;
+            mScaleFromInitial = mScaleFromInitial * 
+                (scaleDiff + Vector3::UNIT_SCALE);
             mAccumAnimWeight += weight;
 
         }
@@ -603,6 +609,7 @@ namespace Ogre {
         // Update final based on bind position + offsets
         mOrientation = mInitialOrientation * mRotFromInitial;
         mPosition = mInitialPosition + mTransFromInitial;
+        mScale = mInitialScale * mScaleFromInitial;
         mDerivedOutOfDate = true;
 
     }

@@ -294,7 +294,8 @@ namespace Ogre {
         //node->rotate(kf.getRotation() * weight);
         //node->translate(kf.getTranslate() * weight);
 
-        node->_weightedTransform(weight, kf.getTranslate(), kf.getRotation());
+        node->_weightedTransform(weight, kf.getTranslate(), kf.getRotation(), 
+            kf.getScale());
 
 
 
