@@ -136,18 +136,23 @@ namespace Ogre {
             This method executes the scene query as configured, gathers the results
             into one structure and returns a reference to that structure. These
             results will also persist in this query object until the next query is
-            executed, or clearResults() is called. An alternative callback version of
-            this method is also available.
+            executed, or clearResults() is called. An more lightweight version of
+            this method that returns results through a listener is also available.
         */
         virtual SceneQueryResult& execute(void) = 0;
 
-        /** Operates just like the other version of execute, except that instead of
-            returning details of the query as a list, a listener is called for each
-            result of the query.
+        /** Executes the query and returns each match through a listener interface. 
+        @remarks
+            Note that this method does not store the results of the query internally 
+            so does not update the 'last result' value. This means that this version of
+            execute is more lightweight and therefore more efficient than the version 
+            which returns the results as a collection.
         */
         virtual void execute(SceneQueryListener* listener) = 0;
         
-        /** Gets the results of the last query that was run using this object. */
+        /** Gets the results of the last query that was run using this object, provided
+            the query was executed using the collection-returning version of execute. 
+        */
         virtual SceneQueryResult& getLastResults(void);
         /** Clears the results of the last query execution.
         @remarks
@@ -312,18 +317,23 @@ namespace Ogre {
             This method executes the scene query as configured, gathers the results
             into one structure and returns a reference to that structure. These
             results will also persist in this query object until the next query is
-            executed, or clearResults() is called. An alternative callback version of
-            this method is also available.
+            executed, or clearResults() is called. An more lightweight version of
+            this method that returns results through a listener is also available.
         */
         virtual IntersectionSceneQueryResult& execute(void) = 0;
 
-        /** Operates just like the other version of execute, except that instead of
-            returning details of the query as a list, a listener is called for each
-            result of the query.
+        /** Executes the query and returns each match through a listener interface. 
+        @remarks
+            Note that this method does not store the results of the query internally 
+            so does not update the 'last result' value. This means that this version of
+            execute is more lightweight and therefore more efficient than the version 
+            which returns the results as a collection.
         */
         virtual void execute(IntersectionSceneQueryListener* listener) = 0;
 
-        /** Gets the results of the last query that was run using this object. */
+        /** Gets the results of the last query that was run using this object, provided
+            the query was executed using the collection-returning version of execute. 
+        */
         virtual IntersectionSceneQueryResult& getLastResults(void);
         /** Clears the results of the last query execution.
         @remarks
@@ -332,6 +342,12 @@ namespace Ogre {
             results itself when executing and when destroying itself.
         */
         virtual void clearResults(void);
+
+
+
+        
+
+
     };
     
 

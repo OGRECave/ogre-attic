@@ -75,6 +75,24 @@ namespace Ogre {
         {
             _OgreExport bool operator()(const Material* x, const Material* y) const;
         };
+
+        /** Internal implementation of IntersectionSceneQuery. */
+        class _OgreExport DefaultIntersectionSceneQuery : 
+            public IntersectionSceneQuery, public IntersectionSceneQueryListener 
+        {
+        public:
+            DefaultIntersectionSceneQuery(SceneManager* creator);
+            virtual ~DefaultIntersectionSceneQuery();
+
+            /** See IntersectionSceneQuery. */
+            IntersectionSceneQueryResult& execute(void);
+            /** See IntersectionSceneQuery. */
+            void execute(IntersectionSceneQueryListener* listener);
+            /** Self-callback in order to deal with execute which returns collection. */
+            bool queryResult(MovableObject* first, MovableObject* second);
+
+
+        };
     protected:
 
         /// Queue of objects for rendering

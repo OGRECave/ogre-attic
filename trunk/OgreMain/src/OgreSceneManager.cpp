@@ -1961,7 +1961,7 @@ namespace Ogre {
     SceneManager::createIntersectionQuery(unsigned long mask)
     {
         // TODO
-        return NULL;
+        return new DefaultIntersectionSceneQuery(this);
     }
 	//---------------------------------------------------------------------
     void SceneManager::destroyQuery(SceneQuery* query)
@@ -1969,6 +1969,68 @@ namespace Ogre {
         delete query;
     }
 	//---------------------------------------------------------------------
+    SceneManager::DefaultIntersectionSceneQuery::DefaultIntersectionSceneQuery(SceneManager* creator)
+        : IntersectionSceneQuery(creator)
+    {
+    }
+	//---------------------------------------------------------------------
+    SceneManager::DefaultIntersectionSceneQuery::~DefaultIntersectionSceneQuery()
+    {
+    }
+	//---------------------------------------------------------------------
+    IntersectionSceneQueryResult& 
+    SceneManager::DefaultIntersectionSceneQuery::execute(void)
+    {
+        clearResults();
+        mLastResult = new IntersectionSceneQueryResult();
+        // Call callback version with self as listener
+        execute(this);
+        return *mLastResult;
+    }
+	//---------------------------------------------------------------------
+    void SceneManager::DefaultIntersectionSceneQuery::execute(IntersectionSceneQueryListener* listener)
+    {
+        // TODO: BillboardSets? Will need per-billboard collision most likely
+        // Entities only for now
+        EntityList::const_iterator a, b, theEnd;
+        theEnd = mParentSceneMgr->mEntities.end();
+        uint numEntities;
+        // Loop a from first to last-1
+        a = mParentSceneMgr->mEntities.begin();
+        numEntities = (uint)mParentSceneMgr->mEntities.size();
+        for (uint i = 0; i < (numEntities - 1); ++i, ++a)
+        {
+            // Loop b from a+1 to last
+            b = a;
+            for (++b; b != theEnd; ++b)
+            {
+                // Apply mask (both must pass)
+                if ( (a->second->getQueryFlags() & mQueryMask) && 
+                     (b->second->getQueryFlags() & mQueryMask))
+                {
+                    const AxisAlignedBox& box1 = a->second->getBoundingBox();
+                    const AxisAlignedBox& box2 = b->second->getBoundingBox();
+
+                    if (box1.intersects(box2))
+                    {
+                        listener->queryResult(a->second, b->second);
+                    }
+                }
+
+            }
+        }
+    }
+	//---------------------------------------------------------------------
+    bool SceneManager::DefaultIntersectionSceneQuery::
+        queryResult(MovableObject* first, MovableObject* second)
+    {
+        // Add to internal list
+        mLastResult->movables2movables.push_back(
+            SceneQueryMovableObjectPair(first, second)
+            );
+        // Continue
+        return true;
+    }
 
 
 }
