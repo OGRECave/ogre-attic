@@ -166,7 +166,7 @@ namespace
 			cval[1] = c.g;
 			cval[2] = c.b;
 			cval[3] = c.a;
-			glCombinerStageParameterfvNV(stage, cclr, cval);
+			glCombinerStageParameterfvNV_ptr(stage, cclr, cval);
 		}
 	};
 
