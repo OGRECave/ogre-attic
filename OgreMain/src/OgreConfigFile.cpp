@@ -78,7 +78,7 @@ namespace Ogre {
         const String& separators, bool trimWhitespace)
     {
         DataStreamPtr stream = 
-            ResourceGroupManager::getSingleton()._findResource(filename, resourceGroup);
+            ResourceGroupManager::getSingleton().openResource(filename, resourceGroup);
         load(stream, separators, trimWhitespace);
 
     }

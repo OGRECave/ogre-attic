@@ -159,16 +159,8 @@ namespace Ogre {
 		typedef std::vector<ResourceGroupListener*> ResourceGroupListenerList;
         ResourceGroupListenerList mResourceGroupListenerList;
 
-		struct ResourceIndexEntry
-		{
-			/// Full name if recursive was used
-			String fullname;
-			/// Archive where file was found
-			Archive* archive;
-
-		};
-        /// Resource index entry, resourcename->location (also maps basename if recursive)
-        typedef std::map<String, ResourceIndexEntry> ResourceLocationIndex;
+        /// Resource index entry, resourcename->location 
+        typedef std::map<String, Archive*> ResourceLocationIndex;
 
 		/// Resource location entry
 		struct ResourceLocation
@@ -379,9 +371,11 @@ namespace Ogre {
             shutdown. Otherwise it must be the name of a group; if it
             has not already been created with createResourceGroup then it is created
             automatically.
-        @param recursive Whether subdirectories will be searched for files which 
-            are loaded with no specific path. Note that this can slow down file 
-            location speeds if enabled.
+        @param recursive Whether subdirectories will be searched for files when using 
+			a pattern match (such as *.material), and whether subdirectories will be
+			indexed. This can slow down initial loading of the archive and searches.
+			When opening a resource you still need to use the fully qualified name, 
+			this allows duplicate names in alternate paths.
         */
         void addResourceLocation(const String& name, const String& locType, 
             const String& resGroup = DEFAULT_RESOURCE_GROUP_NAME, bool recursive = false);
@@ -437,27 +431,33 @@ namespace Ogre {
         */
         void undeclareResource(const String& name, const String& groupName);
 
-		/** Find a single resource by name and return a DataStream
+		/** Open a single resource by name and return a DataStream
 		 	pointing at the source of the data.
-		@param resourceName The name of the resource to locate
+		@param resourceName The name of the resource to locate.
+			Even if resource locations are added recursively, you
+			must provide a fully qualified name to this method. You 
+			can find out the matching fully qualified names by using the
+			find() method if you need to.
 		@param groupName The name of the resource group; this determines which 
 			locations are searched. 
 		@returns Shared pointer to data stream containing the data, will be
 			destroyed automatically when no longer referenced
 		*/
-		DataStreamPtr _findResource(const String& resourceName, 
+		DataStreamPtr openResource(const String& resourceName, 
 			const String& groupName = DEFAULT_RESOURCE_GROUP_NAME);
 
-		/** Find all resources matching a given pattern (which can contain
-			the character '*' as a wildcard, and return a collection of 
+		/** Open all resources matching a given pattern (which can contain
+			the character '*' as a wildcard), and return a collection of 
 			DataStream objects on them.
-		@param pattern The pattern to look for
+		@param pattern The pattern to look for. If resource locations have been
+			added recursively, subdirectories will be searched too so this
+			does not need to be fully qualified.
 		@param groupName The resource group; this determines which locations
 			are searched.
 		@returns Shared pointer to a data stream list , will be
 			destroyed automatically when no longer referenced
 		*/
-		DataStreamListPtr _findResources(const String& pattern, 
+		DataStreamListPtr openResources(const String& pattern, 
 			const String& groupName = DEFAULT_RESOURCE_GROUP_NAME);
 		
         /** List all file names in a resource group.
@@ -486,10 +486,9 @@ namespace Ogre {
         */
         StringVectorPtr findResourceNames(const String& groupName, const String& pattern);
 
-        /** Find out if the named file exists in a group (note: fully qualified 
-            filename required) 
+        /** Find out if the named file exists in a group. 
         @param group The name of the resource group
-        @param filename Name of the file to test for
+        @param filename Fully qualified name of the file to test for
         */
         bool resourceExists(const String& group, const String& filename);
 

@@ -80,7 +80,7 @@ namespace Ogre {
         // Use Quake3 file loader
         Quake3Level q3;
         DataStreamPtr stream = 
-			ResourceGroupManager::getSingleton()._findResource(mName, 
+			ResourceGroupManager::getSingleton().openResource(mName, 
 				ResourceGroupManager::getSingleton().getWorldResourceGroupName());
 
         q3.loadFromStream(stream);

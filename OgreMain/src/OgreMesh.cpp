@@ -155,7 +155,7 @@ namespace Ogre {
             LogManager::getSingleton().logMessage("Mesh: Loading " + mName + ".");
 
             DataStreamPtr stream = 
-                ResourceGroupManager::getSingleton()._findResource(mName, mGroup);
+                ResourceGroupManager::getSingleton().openResource(mName, mGroup);
             serializer.importMesh(stream, this);
 
         }

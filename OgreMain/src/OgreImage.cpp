@@ -292,7 +292,7 @@ namespace Ogre {
             "Image::load" );
 
         DataStreamPtr encoded = 
-            ResourceGroupManager::getSingleton()._findResource(strFileName, group);
+            ResourceGroupManager::getSingleton().openResource(strFileName, group);
 
 		Codec::DecodeResult res = pCodec->decode(encoded);
 
