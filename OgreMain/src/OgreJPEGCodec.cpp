@@ -38,6 +38,14 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #endif
 
+// We might as well re-define boolean in this source file, as it doesn't change anything outside.
+#ifdef boolean
+#undef boolean
+#endif
+
+#define boolean unsigned char
+#define HAVE_BOOLEAN
+
 extern "C" {
 #include "jpeglib.h"
 }
