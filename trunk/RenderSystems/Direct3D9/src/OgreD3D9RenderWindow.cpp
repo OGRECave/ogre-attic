@@ -255,6 +255,12 @@ namespace Ogre
 									 TEXT(name.c_str()),
 									 WS_OVERLAPPEDWINDOW, mLeft, mTop,
 									 mWidth, mHeight, 0L, 0L, hInst, this);
+
+			RECT rc;
+			GetClientRect(hWnd,&rc);
+			mWidth = rc.right;
+			mHeight = rc.bottom;
+
 			ShowWindow(hWnd, SW_SHOWNORMAL);
 			UpdateWindow(hWnd);
 
