@@ -41,6 +41,10 @@ public:
     }
 };
 
+// Custom parameter bindings
+#define CUSTOM_SHININESS 1
+#define CUSTOM_DIFFUSE 2
+#define CUSTOM_SPECULAR 3
 
 class CelShadingApplication : public ExampleApplication
 {
@@ -86,11 +90,33 @@ protected:
         mCamera->lookAt(0,0,0);
 
 
-        // Set materials loaded from Example.material
-        ent->getSubEntity(0)->setMaterialName("Examples/OgreCelShading/Eyes");
-        ent->getSubEntity(1)->setMaterialName("Examples/OgreCelShading/Skin");
-        ent->getSubEntity(2)->setMaterialName("Examples/OgreCelShading/Earring");
-        ent->getSubEntity(3)->setMaterialName("Examples/OgreCelShading/Teeth");
+        // Set common material, but define custom parameters to change colours
+        // See Example-Advanced.material for how these are finally bound to GPU parameters
+        SubEntity* sub;
+        // eyes
+        sub = ent->getSubEntity(0);
+        sub->setMaterialName("Examples/CelShading");
+        sub->setCustomParameter(CUSTOM_SHININESS, Vector4(35.0f, 0.0f, 0.0f, 0.0f));
+        sub->setCustomParameter(CUSTOM_DIFFUSE, Vector4(1.0f, 0.3f, 0.3f, 1.0f));
+        sub->setCustomParameter(CUSTOM_SPECULAR, Vector4(1.0f, 0.6f, 0.6f, 1.0f));
+        // skin
+        sub = ent->getSubEntity(1);
+        sub->setMaterialName("Examples/CelShading");
+        sub->setCustomParameter(CUSTOM_SHININESS, Vector4(10.0f, 0.0f, 0.0f, 0.0f));
+        sub->setCustomParameter(CUSTOM_DIFFUSE, Vector4(0.0f, 0.5f, 0.0f, 1.0f));
+        sub->setCustomParameter(CUSTOM_SPECULAR, Vector4(0.3f, 0.5f, 0.3f, 1.0f));
+        // earring
+        sub = ent->getSubEntity(2);
+        sub->setMaterialName("Examples/CelShading");
+        sub->setCustomParameter(CUSTOM_SHININESS, Vector4(25.0f, 0.0f, 0.0f, 0.0f));
+        sub->setCustomParameter(CUSTOM_DIFFUSE, Vector4(1.0f, 1.0f, 0.0f, 1.0f));
+        sub->setCustomParameter(CUSTOM_SPECULAR, Vector4(1.0f, 1.0f, 0.7f, 1.0f));
+        // teeth
+        sub = ent->getSubEntity(3);
+        sub->setMaterialName("Examples/CelShading");
+        sub->setCustomParameter(CUSTOM_SHININESS, Vector4(20.0f, 0.0f, 0.0f, 0.0f));
+        sub->setCustomParameter(CUSTOM_DIFFUSE, Vector4(1.0f, 1.0f, 0.7f, 1.0f));
+        sub->setCustomParameter(CUSTOM_SPECULAR, Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 
         // Add entity to the root scene node
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);

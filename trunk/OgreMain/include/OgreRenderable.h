@@ -34,7 +34,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePlane.h"
 #include "OgreRectangle.h"
 #include "OgreGpuProgram.h"
-
+#include "OgreVector4.h"
+#include "OgreException.h"
 
 namespace Ogre {
 
@@ -150,6 +151,45 @@ namespace Ogre {
         */
         virtual bool getCastsShadows(void) const { return false; }
 
+        /** Sets a custom parameter for this Renderable, which may be used to 
+            drive calculations for this specific Renderable, like GPU program parameters.
+        @remarks
+            Calling this method simply associates a numeric index with a 4-dimensional
+            value for this specific Renderable. This is most useful if the material
+            which this Renderable uses a vertex or fragment program, and has an 
+            ACT_CUSTOM parameter entry. This parameter entry can refer to the
+            index you specify as part of this call, thereby mapping a custom
+            parameter for this renderable to a program parameter.
+        @param index The index with which to associate the value. Note that this
+            does not have to start at 0, and can include gaps. It also has no direct
+            correlation with a GPU program parameter index - the mapping between the
+            two is performed by the ACT_CUSTOM entry, if that is used.
+        @param value The value to associate.
+        */
+        void setCustomParameter(size_t index, const Vector4& value) 
+        {
+            mCustomParameters[index] = value;
+        }
+
+        /** Gets the custom value associated with this Renderable at the given index.
+        @param
+            @see setCustomParaemter for full details.
+        */
+        const Vector4& getCustomParameter(size_t index) const
+        {
+            CustomParameterMap::const_iterator i = mCustomParameters.find(index);
+            if (i != mCustomParameters.end())
+            {
+                return i->second;
+            }
+            else
+            {
+                Except(Exception::ERR_ITEM_NOT_FOUND, 
+                    "Parameter at the given index was not found.",
+                    "Renderable::getCustomParameter");
+            }
+        }
+
         /** Update a custom GpuProgramParameters constant which is derived from 
             information only this Renderable knows.
         @remarks
@@ -162,18 +202,34 @@ namespace Ogre {
             method on the passed in GpuProgramParameters object, using the details
             provided in the incoming auto constant setting to identify the index
             at which to set the parameter.
+        @par
+            You do not need to override this method if you're using the standard
+            sets of data associated with the Renderable as provided by setCustomParameter
+            and getCustomParameter. By default, the implementation will map from the
+            value indexed by the 'constantEntry.data' parameter to a value previously
+            set by setCustomParameter. But custom Renderables are free to override
+            this if they want, in any case.
         @param constantEntry The auto constant entry referring to the parameter
             being updated
         @param params The parameters object which this method should call to 
             set the updated parameters.
         */
-        virtual void updateCustomGpuParameter(
+        virtual void _updateCustomGpuParameter(
             const GpuProgramParameters::AutoConstantEntry& constantEntry,
-            GpuProgramParameters* params) const {}
+            GpuProgramParameters* params) const
+        {
+            CustomParameterMap::const_iterator i = mCustomParameters.find(constantEntry.data);
+            if (i != mCustomParameters.end())
+            {
+                params->setConstant(constantEntry.index, i->second);
+            }
+        }
 
 
-    private:
+    protected:
         static const PlaneList msDummyPlaneList;
+        typedef std::map<size_t, Vector4> CustomParameterMap;
+        CustomParameterMap mCustomParameters;
     };
 
 

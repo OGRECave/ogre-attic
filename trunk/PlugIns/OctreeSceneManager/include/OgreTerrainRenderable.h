@@ -287,7 +287,7 @@ namespace Ogre
         const LightList& getLights(void) const;
 
         /// Overridden from Renderable to allow the morph LOD entry to be set
-        void updateCustomGpuParameter(
+        void _updateCustomGpuParameter(
             const GpuProgramParameters::AutoConstantEntry& constantEntry,
             GpuProgramParameters* params) const;
         /// Get the static list of indexes cached (internal use only)

@@ -1386,6 +1386,8 @@ The current cameras position in object space (ie when the object is at (0,0,0)).
 The current time, factored by the optional parameter (or 1.0f if not supplied).
 @item texture_viewproj_matrix
 Only applicable to vertex programs which have been specified as the 'shadow receiver' vertex program alternative; this provides details of the view/projection matrix for the current shadow projector.
+@item custom
+This allows you to map a custom parameter on an individual Renderable (see Renderable::setCustomParameter) to a parameter on a GPU program. It requires that you complete the 'extra_params' field with the index that was used in the Renderable::setCustomParameter call, and this will ensure that whenever this Renderable is used, it will have it's custom parameter mapped in. It's very important that this parameter has been defined on all Renderables that are assigned the material that contains this automatic mapping, otherwise the process will fail.
 @end table
 
 @anchor{param_named}
