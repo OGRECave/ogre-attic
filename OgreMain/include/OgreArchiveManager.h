@@ -60,15 +60,13 @@ namespace Ogre {
                 The filename that will be opened
             @param refLibrary
                 The library that contains the data-handling code
-            @param priority
-                The priority of the archive (not yet used)
             @returns
                 If the function succeeds, a valid pointer to an Archive
                 object is returened.
             @par
                 If the function fails, an exception is thrown.
         */
-        Archive* load( const String& filename, const String& archiveType, int priority = 1 );
+        Archive* load( const String& filename, const String& archiveType);
 
 
         /** Adds a new ArchiveFactory to the list of available factories.

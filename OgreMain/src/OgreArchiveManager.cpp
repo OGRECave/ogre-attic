@@ -47,7 +47,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 
     //-----------------------------------------------------------------------
-    Archive* ArchiveManager::load( const String& filename, const String& archiveType, int priority /* =1 */ )
+    Archive* ArchiveManager::load( const String& filename, const String& archiveType)
     {
         ArchiveMap::iterator i = mArchives.find(filename);
         Archive* pArch = 0;
