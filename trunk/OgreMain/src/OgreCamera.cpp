@@ -668,12 +668,12 @@ namespace Ogre {
             Vector3 trans = -rotT * mDerivedPosition;
 
             // Make final matrix
-            // Matrix is pre-zeroised in constructor
+            // Must init entire matrix incase reflection was used
+            mViewMatrix = Matrix4::IDENTITY;
             mViewMatrix = rotT; // fills upper 3x3
             mViewMatrix[0][3] = trans.x;
             mViewMatrix[1][3] = trans.y;
             mViewMatrix[2][3] = trans.z;
-            mViewMatrix[3][3] = 1.0f;
 
             // Deal with reflections
             if (mReflect)
@@ -727,9 +727,24 @@ namespace Ogre {
             // Deal with reflection on frustum planes
             if (mReflect)
             {
+                Vector3 pos = mReflectMatrix * mDerivedPosition;
+                Vector3 dir = camDirection.reflect(mReflectPlane.normal);
+                fDdE = dir.dotProduct(pos);
                 for (unsigned int i = 0; i < 6; ++i)
                 {
-                    mFrustumPlanes[i].normal = mReflectMatrix * mFrustumPlanes[i].normal;
+                    mFrustumPlanes[i].normal = mFrustumPlanes[i].normal.reflect(mReflectPlane.normal);
+                    // Near / far plane dealt with differently since they don't pass through camera
+                    switch (i)
+                    {
+                    case FRUSTUM_PLANE_NEAR:
+                        mFrustumPlanes[i].d = -(fDdE + mNearDist);
+                        break;
+                    case FRUSTUM_PLANE_FAR:
+                        mFrustumPlanes[i].d = fDdE + mFarDist;
+                        break;
+                    default:
+                        mFrustumPlanes[i].d = -pos.dotProduct(mFrustumPlanes[i].normal);
+                    }
                 }
             }
 

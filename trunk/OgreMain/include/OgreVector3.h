@@ -537,7 +537,7 @@ namespace Ogre
         */
         inline Vector3 reflect(const Vector3& normal)
         {
-            return Vector3( ( 2 * this->dotProduct(normal) * normal ) - *this );
+            return Vector3( *this - ( 2 * this->dotProduct(normal) * normal ) );
         }
 
         // special points
