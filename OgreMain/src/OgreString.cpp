@@ -78,6 +78,7 @@ namespace Ogre {
             {
                 // Copy the rest of the string
                 ret.push_back( substr(start) );
+                break;
             }
             else
             {

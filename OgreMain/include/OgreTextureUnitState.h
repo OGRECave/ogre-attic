@@ -59,8 +59,6 @@ namespace Ogre {
         */
         enum TextureEffectType
         {
-            /// Bump mapping
-            ET_BUMP_MAP,
             /// Generate all texture coords based on angle between camera and vertex
             ET_ENVIRONMENT_MAP,
             /// Constant u/v scrolling effect

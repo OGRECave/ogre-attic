@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 7 2003 by texi2html 1.64 -->
+<!-- Created on , 10 2003 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -37,7 +37,9 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 <H3> 3.1.4 Declaring Vertex and Fragment Programs </H3>
 <!--docid::SEC71::-->
 
-In order to use a vertex or fragment program in your materials (See section <A HREF="manual_21.html#SEC73">3.1.5 Using Vertex and Fragment Programs in a Pass</A>), you have to define them. The definition of a program must be made in a .program script, which can then be referenced many times from a .material script.  Just like .material scripts, .program scripts will be read from any location which is on your resource path, and have a simple text structure. And just like .material, you can define many programs in a single script.<BR><BR>
+In order to use a vertex or fragment program in your materials (See section <A HREF="manual_21.html#SEC73">3.1.5 Using Vertex and Fragment Programs in a Pass</A>), you first have to define them. A single program definition can be used by any number of materials, the only prerequisite is that a program must be defined before being referenced in the pass section of a material.<BR><BR>
+
+The definition of a program can either be embedded in the .material script itself (in which case it must precede any references to it in the script), or if you wish to use the same program across multiple .material files, you can define it in an external .program script. You define the program in exactly the same way whether you use a .program script or a .material script, the only difference is that all .program scripts are guaranteed to have been parsed before <STRONG>all</STRONG> .material scripts, so you can guarantee that your program has been defined before any .material script that might use it. Just like .material scripts, .program scripts will be read from any location which is on your resource path, and you can define many programs in a single script.<BR><BR>
 
 Vertex and fragment programs can be low-level (i.e. assembler code written to the specification of a given low level syntax such as vs_1_1 or arbfp1) or high-level such as nVidia's Cg language (See section <A HREF="manual_20.html#SEC72">High-level Programs</A>). High level languages give you a number of advantages, such as being able to write more intuitive code, and possibly being able to target multiple architectures in a single program (for example, the same Cg program might be able to be used in both D3D and GL, whilst the equivalent low-level programs would require separate techniques, each targetting a different API). High-level programs also allow you to use named parameters instead of simply indexed ones, although parameters are not defined here, they are used in the Pass.<BR><BR>
 
@@ -83,7 +85,7 @@ Next, instead of a fixed 'syntax' parameter, you specify one or more 'profiles';
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 7 2003</I>
+by <I>Steve Streeting</I> on <I>, 10 2003</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

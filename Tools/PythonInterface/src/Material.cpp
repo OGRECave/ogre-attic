@@ -87,7 +87,6 @@ void exportMaterial()
     // Enumerations
 
     enum_<TextureUnitState::TextureEffectType>("TextureEffectType")
-        .value("ET_BUMP_MAP", TextureUnitState::ET_BUMP_MAP)
         .value("ET_ENVIRONMENT_MAP", TextureUnitState::ET_ENVIRONMENT_MAP)
         .value("ET_SCROLL", TextureUnitState::ET_SCROLL)
         .value("ET_ROTATE", TextureUnitState::ET_ROTATE)

@@ -47,6 +47,17 @@ namespace Ogre {
 	    mDefTextureFiltering = TFO_BILINEAR;
 		mDefAniso = 1;
 
+
+    }
+    //-----------------------------------------------------------------------
+    MaterialManager::~MaterialManager()
+    {
+        delete Material::mDefaultSettings;
+	    // Resources cleared by superclass
+    }
+    //-----------------------------------------------------------------------
+	void MaterialManager::initialise(void)
+	{
 		// Set up default material - don't use name contructor as we want to avoid applying defaults
 	    Material::mDefaultSettings = new Material();
 	    Material::mDefaultSettings->mName = "DefaultSettings";
@@ -59,13 +70,12 @@ namespace Ogre {
         Material* baseWhiteNoLighting = (Material*)this->create("BaseWhiteNoLighting");
         baseWhiteNoLighting->setLightingEnabled(false);
 
-    }
-    //-----------------------------------------------------------------------
-    MaterialManager::~MaterialManager()
-    {
-        delete Material::mDefaultSettings;
-	    // Resources cleared by superclass
-    }
+		// Parse all .program scripts first
+		parseAllSources(".program");
+		// Parse all .material scripts
+		parseAllSources(".material");
+
+	}
     //-----------------------------------------------------------------------
     void MaterialManager::parseScript(DataChunk& chunk)
     {
@@ -102,7 +112,7 @@ namespace Ogre {
 			    SDDataChunk dat; pChunk = &dat;
 			    (*i)->fileRead(si[0], &pChunk );
 			    LogManager::getSingleton().logMessage("Parsing material script: " + si[0]);
-			    parseScript(dat);
+			    mSerializer.parseScript(dat, si[0]);
 		    }
 	    }
 

@@ -41,8 +41,19 @@ namespace Ogre {
         MSS_TECHNIQUE,
         MSS_PASS,
         MSS_TEXTUREUNIT,
-        MSS_PROGRAM
+        MSS_PROGRAM_REF,
+		MSS_PROGRAM
     };
+	/** Struct for holding a program definition which is in progress. */
+	struct MaterialScriptProgramDefinition
+	{
+		String name;
+		GpuProgramType progType;
+		String language;
+		String source;
+		String syntax;
+		std::map<String, String> customParameters;
+	};
     /** Struct for holding the script context while parsing. */
     struct MaterialScriptContext 
     {
@@ -51,8 +62,11 @@ namespace Ogre {
         Technique* technique;
         Pass* pass;
         TextureUnitState* textureUnit;
-        GpuProgram* program;
+        GpuProgram* program; // used when referencing a program, not when defining it
         GpuProgramParametersSharedPtr programParams;
+		MaterialScriptProgramDefinition* programDef; // this is used while defining a program
+
+		// Error reporting state
         size_t lineNo;
         String filename;
     };
@@ -74,6 +88,10 @@ namespace Ogre {
         bool parseScriptLine(String& line);
         /** internal method for finding & invoking an attribute parser. */
         bool invokeParser(String& line, AttribParserList& parsers);
+		/** Internal method for saving a program definition which has been
+		    built up.
+		*/
+		void finishProgramDefinition(void);
         /// Parsers for the root of the material script
         AttribParserList mRootAttribParsers;
         /// Parsers for the material section of a script
@@ -85,6 +103,8 @@ namespace Ogre {
         /// Parsers for the texture unit section of a script
         AttribParserList mTextureUnitAttribParsers;
         /// Parsers for the program reference section of a script
+        AttribParserList mProgramRefAttribParsers;
+        /// Parsers for the program definition section of a script
         AttribParserList mProgramAttribParsers;
 
         void writeMaterial(const Material *pMat);

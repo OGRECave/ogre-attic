@@ -33,6 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreTextureUnitState.h"
 #include "OgreMaterialManager.h"
 #include "OgreGpuProgramManager.h"
+#include "OgreHighLevelGpuProgramManager.h"
 
 namespace Ogre 
 {
@@ -1383,7 +1384,7 @@ namespace Ogre
     bool parseVertexProgramRef(String& params, MaterialScriptContext& context)
     {
         // update section
-        context.section = MSS_PROGRAM;
+        context.section = MSS_PROGRAM_REF;
 
         context.program = static_cast<GpuProgram*>(
             GpuProgramManager::getSingleton().getByName(params));
@@ -1411,14 +1412,14 @@ namespace Ogre
     bool parseFragmentProgramRef(String& params, MaterialScriptContext& context)
     {
         // update section
-        context.section = MSS_PROGRAM;
+        context.section = MSS_PROGRAM_REF;
 
         context.program = static_cast<GpuProgram*>(
             GpuProgramManager::getSingleton().getByName(params));
         if (context.program == 0)
         {
             // Unknown program
-            logParseError("Invalid vertex_program_ref entry - fragment program " 
+            logParseError("Invalid fragment_program_ref entry - fragment program " 
                 + params + " has not been defined.", context);
             return true;
         }
@@ -1436,11 +1437,102 @@ namespace Ogre
         return true;
     }
     //-----------------------------------------------------------------------
+    bool parseVertexProgram(String& params, MaterialScriptContext& context)
+    {
+        // update section
+        context.section = MSS_PROGRAM;
+
+		// Create new program definition-in-progress
+		context.programDef = new MaterialScriptProgramDefinition();
+		context.programDef->progType = GPT_VERTEX_PROGRAM;
+
+		// Get name and language code
+		StringVector vecparams = params.split(" \t");
+		if (vecparams.size() != 2)
+		{
+            logParseError("Invalid vertex_program entry - expected "
+				"2 parameters.", context);
+            return true;
+		}
+		// Name, preserve case
+		context.programDef->name = vecparams[0];
+		// language code, make lower case
+		context.programDef->language = vecparams[1].toLowerCase();
+
+        // Return TRUE because this must be followed by a {
+        return true;
+	}
+    //-----------------------------------------------------------------------
+    bool parseFragmentProgram(String& params, MaterialScriptContext& context)
+    {
+        // update section
+        context.section = MSS_PROGRAM;
+
+		// Create new program definition-in-progress
+		context.programDef = new MaterialScriptProgramDefinition();
+		context.programDef->progType = GPT_FRAGMENT_PROGRAM;
+
+		// Get name and language code
+		StringVector vecparams = params.split(" \t");
+		if (vecparams.size() != 2)
+		{
+            logParseError("Invalid fragment_program entry - expected "
+				"2 parameters.", context);
+            return true;
+		}
+		// Name, preserve case
+		context.programDef->name = vecparams[0];
+		// language code, make lower case
+		context.programDef->language = vecparams[1].toLowerCase();
+
+		// Return TRUE because this must be followed by a {
+        return true;
+	
+	}
+    //-----------------------------------------------------------------------
+    bool parseProgramSource(String& params, MaterialScriptContext& context)
+    {
+		// Source filename, preserve case
+		context.programDef->source = params;
+
+		return false;
+	}
+    //-----------------------------------------------------------------------
+    bool parseProgramSyntax(String& params, MaterialScriptContext& context)
+    {
+		// Syntax code, make lower case
+		context.programDef->syntax = params;
+
+		return false;
+	}
+    //-----------------------------------------------------------------------
+    bool parseProgramCustomParameter(String& params, MaterialScriptContext& context)
+    {
+		// This params object does not have the command stripped
+		// Lower case the command, but not the value incase it's relevant
+		// Split only up to first delimiter, program deals with the rest
+		StringVector vecparams = params.split(" \t", 1);
+		if (vecparams.size() != 2)
+		{
+            logParseError("Invalid custom program parameter entry; "
+				"there must be a parameter name and at least one value.", 
+				context);
+            return false;
+		}
+
+		context.programDef->customParameters[vecparams[0]] = vecparams[1];
+
+		return false;
+	}
+	
+    //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     MaterialSerializer::MaterialSerializer()
     {
         // Set up root attribute parsers
         mRootAttribParsers.insert(AttribParserList::value_type("material", (ATTRIBUTE_PARSER)parseMaterial));
+        mRootAttribParsers.insert(AttribParserList::value_type("vertex_program", (ATTRIBUTE_PARSER)parseVertexProgram));
+        mRootAttribParsers.insert(AttribParserList::value_type("fragment_program", (ATTRIBUTE_PARSER)parseFragmentProgram));
         // Set up material attribute parsers
         mMaterialAttribParsers.insert(AttribParserList::value_type("lod_distances", (ATTRIBUTE_PARSER)parseLodDistances));
         mMaterialAttribParsers.insert(AttribParserList::value_type("technique", (ATTRIBUTE_PARSER)parseTechnique));
@@ -1488,11 +1580,16 @@ namespace Ogre
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("filtering", (ATTRIBUTE_PARSER)parseFiltering));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("max_anisotropy", (ATTRIBUTE_PARSER)parseAnisotropy));
 
-        // Set up program attribute parsers
-        mProgramAttribParsers.insert(AttribParserList::value_type("param_indexed", (ATTRIBUTE_PARSER)parseParamIndexed));
-        mProgramAttribParsers.insert(AttribParserList::value_type("param_indexed_auto", (ATTRIBUTE_PARSER)parseParamIndexedAuto));
-        mProgramAttribParsers.insert(AttribParserList::value_type("param_named", (ATTRIBUTE_PARSER)parseParamNamed));
-        mProgramAttribParsers.insert(AttribParserList::value_type("param_named_auto", (ATTRIBUTE_PARSER)parseParamNamedAuto));
+        // Set up program reference attribute parsers
+        mProgramRefAttribParsers.insert(AttribParserList::value_type("param_indexed", (ATTRIBUTE_PARSER)parseParamIndexed));
+        mProgramRefAttribParsers.insert(AttribParserList::value_type("param_indexed_auto", (ATTRIBUTE_PARSER)parseParamIndexedAuto));
+        mProgramRefAttribParsers.insert(AttribParserList::value_type("param_named", (ATTRIBUTE_PARSER)parseParamNamed));
+        mProgramRefAttribParsers.insert(AttribParserList::value_type("param_named_auto", (ATTRIBUTE_PARSER)parseParamNamedAuto));
+
+        // Set up program definition attribute parsers
+        mProgramAttribParsers.insert(AttribParserList::value_type("source", (ATTRIBUTE_PARSER)parseProgramSource));
+        mProgramAttribParsers.insert(AttribParserList::value_type("syntax", (ATTRIBUTE_PARSER)parseProgramSource));
+		
 
         mScriptContext.section = MSS_NONE;
         mScriptContext.material = 0;
@@ -1626,7 +1723,7 @@ namespace Ogre
                 return invokeParser(line, mTextureUnitAttribParsers); 
             }
             break;
-        case MSS_PROGRAM:
+        case MSS_PROGRAM_REF:
             if (line == "}")
             {
                 // End of program
@@ -1636,7 +1733,40 @@ namespace Ogre
             else
             {
                 // find & invoke a parser
-                return invokeParser(line, mProgramAttribParsers); 
+                return invokeParser(line, mProgramRefAttribParsers); 
+            }
+            break;
+        case MSS_PROGRAM:
+			// Program definitions are slightly different, they are deferred
+			// until all the information required is known
+            if (line == "}")
+            {
+                // End of program
+				finishProgramDefinition();
+                mScriptContext.section = MSS_NONE;
+                delete mScriptContext.programDef;
+                mScriptContext.programDef = NULL;
+            }
+            else
+            {
+                // find & invoke a parser
+				// do this manually because we want to call a custom
+				// routine when the parser is not found
+				// First, split line on first divisor only
+				StringVector splitCmd = line.split(" \t", 1);
+				// Find attribute parser
+				AttribParserList::iterator iparser = mProgramAttribParsers.find(splitCmd[0]);
+				if (iparser == mProgramAttribParsers.end())
+				{
+					// custom parameter, use original line
+					parseProgramCustomParameter(line, mScriptContext);
+				}
+				else
+				{
+					// Use parser with remainder
+					iparser->second(splitCmd[1], mScriptContext );
+				}
+				
             }
             break;
         };
@@ -1644,7 +1774,59 @@ namespace Ogre
         return false;
     }
     //-----------------------------------------------------------------------
-    bool MaterialSerializer::invokeParser(String& line, AttribParserList& parsers)
+	void MaterialSerializer::finishProgramDefinition(void)
+	{
+		// Now it is time to create the program and propagate the parameters
+		MaterialScriptProgramDefinition* def = mScriptContext.programDef;
+		if (def->language == "asm")
+		{
+			// Native assembler
+			// Validate
+			if (def->source.empty())
+			{
+				logParseError("Invalid program definition for " + def->name +
+					", you must specify a source file.", mScriptContext);
+			}
+			if (def->syntax.empty())
+			{
+				logParseError("Invalid program definition for " + def->name +
+					", you must specify a syntax code.", mScriptContext);
+			}
+			// Create
+			GpuProgram* gp = GpuProgramManager::getSingleton().
+				create(def->name, def->progType, def->syntax);
+            gp->setSourceFile(def->source);
+			
+		}
+		else
+		{
+			// High-level program
+			// Validate
+			if (def->source.empty())
+			{
+				logParseError("Invalid program definition for " + def->name +
+					", you must specify a source file.", mScriptContext);
+			}
+			// Create
+			HighLevelGpuProgram* gp = HighLevelGpuProgramManager::getSingleton().
+				createProgram(def->name, def->language, def->progType);
+            // Set source file
+            gp->setSourceFile(def->source);
+			// Set custom parameters
+			std::map<String, String>::const_iterator i, iend;
+			iend = def->customParameters.end();
+			for (i = def->customParameters.begin(); i != iend; ++i)
+			{
+				if (!gp->setParameter(i->first, i->second))
+				{
+					logParseError("Error in program " + def->name + 
+						" parameter " + i->first + " is not valid.", mScriptContext);
+				}
+			}
+		}
+	}
+    //-----------------------------------------------------------------------
+	bool MaterialSerializer::invokeParser(String& line, AttribParserList& parsers)
     {
         // First, split line on first divisor only
         StringVector splitCmd = line.split(" \t", 1);
@@ -2150,7 +2332,6 @@ namespace Ogre
                     case TextureUnitState::ET_TRANSFORM :
                         writeTransformEffect(ef, pTex);
                         break;
-                    case TextureUnitState::ET_BUMP_MAP :
                     default:
                         break;
                     }
