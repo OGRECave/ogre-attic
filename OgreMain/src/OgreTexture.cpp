@@ -27,19 +27,20 @@ http://www.gnu.org/copyleft/gpl.html.
 
 namespace Ogre {
 
-    void Texture::applyGamma( uchar *p, int size, int bpp )
+    void Texture::applyGamma( unsigned char* p, uint size, int bpp )
     {
         if( mGamma == 1.0f )
             return;
 
-        float factor = mGamma;
+        //float factor = mGamma;
+        //float inv_255 = 1.0f / 255.0f;
 
         //NB only 24/32-bit supported
         if( bpp != 24 && bpp != 32 ) return;
 
         int stride = bpp >> 3;
 
-        for(int i = 0; i < size/stride; i++, p+=stride) 
+        for( uint i = 0; i < size/stride; i++, p+=stride) 
         {
             float r, g, b;
 
@@ -47,20 +48,20 @@ namespace Ogre {
             g = (float)p[1];
             b = (float)p[2];
 
-            r = r * factor / 255.0f;
-            g = g * factor / 255.0f;
-            b = b * factor / 255.0f;
+            r = r * mGamma/* * inv_255*/;
+            g = g * mGamma/* * inv_255*/;
+            b = b * mGamma/* * inv_255*/;
 
             float scale = 1.0f, tmp;
 
-            if( r > 1.0f && (tmp=(1.0f/r)) < scale )
+            if( r > 255.0f && (tmp=(255.0f/r)) < scale )
                 scale = tmp;
-            if( g > 1.0f && (tmp=(1.0f/g)) < scale )
+            if( g > 255.0f && (tmp=(255.0f/g)) < scale )
                 scale = tmp;
-            if( b > 1.0f && (tmp=(1.0f/b)) < scale )
+            if( b > 255.0f && (tmp=(255.0f/b)) < scale )
                 scale = tmp;
 
-            scale *= 255.0f;
+            //scale *= 255.0f;
 
             r *= scale; g *= scale; b *= scale;
 
@@ -69,5 +70,4 @@ namespace Ogre {
             p[2] = (uchar)b;
         }
     }
-
 }
