@@ -256,8 +256,8 @@ namespace Ogre {
             Real* pVBStart = static_cast<Real*>(
                 vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD) );
 
-            size_t uvSize = VertexElement::getTypeSize(VET_FLOAT2);
-            size_t vertexSize = decl->getVertexSize(TEXCOORD_BINDING);
+            size_t uvSize = VertexElement::getTypeSize(VET_FLOAT2) / sizeof(Real);
+            size_t vertexSize = decl->getVertexSize(TEXCOORD_BINDING) / sizeof(Real);
             for (ushort i = 0; i < numLayers; ++i)
             {
                 // Calc upper tex coords
@@ -272,7 +272,7 @@ namespace Ogre {
                     1-----3
                 */
                 // Find start offset for this set
-                Real* pTex = pVBStart + i * VertexElement::getTypeSize(VET_FLOAT2);
+                Real* pTex = pVBStart + (i * uvSize);
 
                 pTex[0] = 0.0f;
                 pTex[1] = upperY;

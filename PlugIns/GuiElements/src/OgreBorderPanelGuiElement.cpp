@@ -314,13 +314,13 @@ namespace Ogre {
         
         HardwareVertexBufferSharedPtr vbuf = 
             mRenderOp2.vertexData->vertexBufferBinding->getBuffer(TEXCOORD_BINDING);
-        // Lock just the portion we need in write-only mode
+        // Lock just the portion we need in read-only mode
         // Can't use discard since this discards whole buffer
         Real* pUV = static_cast<Real*>(
             vbuf->lock(
                 BCELL_UV(idx) * sizeof(Real), 
                 sizeof(Real)*8, 
-                HardwareBuffer::HBL_NORMAL) );
+                HardwareBuffer::HBL_READ_ONLY) );
 
         String ret = StringConverter::toString(pUV[0]) + " " +
 		            StringConverter::toString(pUV[1]) + " " +
