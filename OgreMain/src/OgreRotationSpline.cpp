@@ -97,8 +97,7 @@ namespace Ogre {
         // Assume endpoint tangents are parallel with line with neighbour
 
         unsigned int i, numPoints;
-
-        mTangents.resize(mPoints.size());
+        bool isClosed;
 
         numPoints = (unsigned int)mPoints.size();
 
@@ -106,6 +105,17 @@ namespace Ogre {
         {
             // Can't do anything yet
             return;
+        }
+
+        mTangents.resize(numPoints);
+
+        if (mPoints[0] == mPoints[numPoints-1])
+        {
+            isClosed = true;
+        }
+        else
+        {
+            isClosed = false;
         }
 
         Quaternion invp, part1, part2, preExp;
@@ -118,12 +128,28 @@ namespace Ogre {
             {
                 // special case start
                 part1 = (invp * mPoints[i+1]).Log();
-                part2 = (invp * p).Log();
+                if (isClosed)
+                {
+                    // Use numPoints-2 since numPoints-1 == end == start == this one
+                    part2 = (invp * mPoints[numPoints-2]).Log();
+                }
+                else
+                {
+                    part2 = (invp * p).Log();
+                }
             }
             else if (i == numPoints-1)
             {
                 // special case end
-                part1 = (invp * p).Log();
+                if (isClosed)
+                {
+                    // Wrap to [1] (not [0], this is the same as end == this one)
+                    part1 = (invp * mPoints[1]).Log();
+                }
+                else
+                {
+                    part1 = (invp * p).Log();
+                }
                 part2 = (invp * mPoints[i-1]).Log();
             }
             else
