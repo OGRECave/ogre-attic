@@ -851,7 +851,7 @@ HRESULT WINAPI testEnumAtt(
         if( mNumMipmaps )
         {
             ddsd.dwFlags |= DDSD_MIPMAPCOUNT;
-            ddsd.dwMipmapCount = mNumMipmaps;
+            ddsd.dwMipMapCount = mNumMipmaps;
 
             ddsd.ddsCaps.dwCaps |= DDSCAPS_MIPMAP | DDSCAPS_COMPLEX;            
         }
@@ -988,7 +988,7 @@ HRESULT WINAPI testEnumAtt(
         if( mNumMipmaps )
         {
             ddsd.dwFlags |= DDSD_MIPMAPCOUNT;
-            ddsd.dwMipmapCount = mNumMipmaps;
+            ddsd.dwMipMapCount = mNumMipmaps;
 
             ddsd.ddsCaps.dwCaps |= DDSCAPS_MIPMAP;            
         }
