@@ -701,7 +701,8 @@ namespace Ogre {
         
         imgData->width = mGLTexture->getWidth();
         imgData->height = mGLTexture->getHeight();
-        imgData->format = PF_R8G8B8;
+		imgData->depth = 1;
+        imgData->format = PF_BYTE_RGB;
 
         // Allocate buffer 
         uchar* pBuffer = new uchar[imgData->width * imgData->height * 3];
