@@ -149,6 +149,10 @@ namespace Ogre {
         const VertexData* getBlendedVertexData(void) { return mBlendedVertexData; }
         /** @copydoc Renderable::getCastsShadows */
         bool getCastsShadows(void) const;
+		/** Advanced method to get the temporarily blended vertex information
+		for entities which are software skinned. 
+		*/
+		const VertexData* _getBlendedVertexData(void) const;
     };
 
 }

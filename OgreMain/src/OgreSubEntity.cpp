@@ -222,5 +222,11 @@ namespace Ogre {
     {
         return mParentEntity->getCastShadows();
     }
+	//-----------------------------------------------------------------------
+	const VertexData* SubEntity::_getBlendedVertexData(void) const
+	{
+		assert (mBlendedVertexData && "Not software skinned!");
+		return mBlendedVertexData;
+	}
 
 }
