@@ -85,7 +85,8 @@ namespace Ogre {
 
         SDLExtensionManager* mExtMgr;
 
-
+        /// Internal method to set pos / direction of a light
+        void setGLLightPositionDirection(Light* lt, int lightindex);
     public:
         // Default constructor / destructor
         SDLRenderSystem();
