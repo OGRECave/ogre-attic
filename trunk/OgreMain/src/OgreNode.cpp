@@ -482,6 +482,7 @@ namespace Ogre {
         if (!pMaterial)
         {
             pMaterial = (Material*)MaterialManager::getSingleton().getByName("Core/NodeMaterial");
+            pMaterial->load();
         }
         return pMaterial;
 
