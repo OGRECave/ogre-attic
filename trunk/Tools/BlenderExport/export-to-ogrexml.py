@@ -2,16 +2,36 @@
 # OGRE XML format exporter
 #   This script currently only works with Blender Publisher 2.25
 #
+# Revisions:
+#   0.1 :  Initial release
+#   0.2 :  Moved to the libxml2 library for footprint reasons.  Can fairly
+#           easily handle a 48k model now.
+#
 # Things I want to do:
 #   - Interact directly with the xmlconverter
 #   - GUI, gtk maybe, that'll make the progress bars a lot more helpful
 #   - Colors
 #
-# Original Author:  Thomas "temas" Muldowney
+# Original Author:  Thomas "temas" Muldowney <temas@box5.net>
+#
+# HOW TO USE:
+#   This script is fairly easy to use.  You open it up in a blender text
+#   window (alt-f11).  Then you select all of the objects you want exported.
+#   This is often easier in the relations view (alt-f9).  Once you have those
+#   selected run the python script with alt-p over the text window.  If you get
+#   errors about not being able to find the libxml2 library then you probably
+#   need to export a PYTHONPATH environment variable before running the script.
+#   For example I use:  
+#     export PYTHONPATH=/usr/lib/python2.1/:/usr/lib/python2.1/site-packages
+#   Below are a few options while exporting, rescaling on the X, Y, and Z axises
+#   and you can enable UV exporting by chaning the 0 to a 1.  Make sure you've
+#   assigned UV coordinates though.  Use the OGRE forums
+#   (http://ogre.sf.net/phpBB2) if you have any questions, comments, problems,
+#   or anything else fun like that.
 ##
 import Blender
 import sys
-from xml.dom.minidom import Document
+import libxml2
 
 #######
 # rescale factor, set to [1,1,1] for no rescaling
@@ -33,8 +53,7 @@ if Blender.Window.__dict__.has_key("drawProgressBar"):
 
 ## Add a face to the xml node
 def addFace(face, elems, verts, indices = [0,1,2]):
-    face_elem = xmldoc.createElement("face")
-    elems[0].appendChild(face_elem)
+    face_elem = elems[0].newChild(None, "face", None)
     curvert = 1
     for x in indices:
         vert = face[x]
@@ -42,38 +61,32 @@ def addFace(face, elems, verts, indices = [0,1,2]):
         if verts.has_key(vert):
             vertid = verts[vert]
         else:
-            vertex_elem = xmldoc.createElement("vertex")
-            elems[1].appendChild(vertex_elem)
-            tmp_elem = xmldoc.createElement("position")
-            vertex_elem.appendChild(tmp_elem)
+            vertex_elem = elems[1].newChild(None, "vertex", None)
+            tmp_elem = vertex_elem.newChild(None, "position", None)
             xyz = multVertByMat4(vert, obj_mat)
-            tmp_elem.setAttribute("x", str(xyz[0]))
-            tmp_elem.setAttribute("y", str(xyz[1]))
-            tmp_elem.setAttribute("z", str(xyz[2]))
+            tmp_elem.setProp("x", str(xyz[0]))
+            tmp_elem.setProp("y", str(xyz[1]))
+            tmp_elem.setProp("z", str(xyz[2]))
             # Save the normals
             normal = vert.no
-            vertex_elem = xmldoc.createElement("vertex")
-            elems[2].appendChild(vertex_elem)
-            tmp_elem = xmldoc.createElement("normal")
-            vertex_elem.appendChild(tmp_elem)
-            tmp_elem.setAttribute("x", str(normal[0]))
-            tmp_elem.setAttribute("y", str(normal[1]))
-            tmp_elem.setAttribute("z", str(normal[2]))
+            vertex_elem = elems[2].newChild(None, "vertex", None)
+            tmp_elem = vertex_elem.newChild(None, "normal", None)
+            tmp_elem.setProp("x", str(normal[0]))
+            tmp_elem.setProp("y", str(normal[1]))
+            tmp_elem.setProp("z", str(normal[2]))
             # Save the texture coords
             if exportUVs and len(face.uv):
                 texcoord = vert.uvco
-                vertex_elem = xmldoc.createElement("vertex")
-                elems[3].appendChild(vertex_elem)
-                tmp_elem = xmldoc.createElement("texcoord")
-                vertex_elem.appendChild(tmp_elem)
-                tmp_elem.setAttribute("u", str(face.uv[x][0]))
-                tmp_elem.setAttribute("v", str(face.uv[x][1]))
+                vertex_elem = elems[3].newChild(None, "vertex", None)
+                tmp_elem = vertex_elem.newChild(None, "texcoord", None)
+                tmp_elem.setProp("u", str(face.uv[x][0]))
+                tmp_elem.setProp("v", str(face.uv[x][1]))
             # track the vertex id
             vertid = len(verts)
             verts[vert] = vertid
             
         # Set the vert index on the face
-        face_elem.setAttribute("v%d" % curvert, str(vertid))
+        face_elem.setProp("v%d" % curvert, str(vertid))
         curvert += 1
 
 ## Multiply a vertex by a 4x4 array
@@ -88,29 +101,24 @@ def multVertByMat4(vert, mat):
     return res_vert
 
 def addMaterial(mat, xmldoc, mesh_elem):
-    material_elem = xmldoc.createElement("material")
-    material_elem.setAttribute("name", mat.name)
-    materials_elem.appendChild(material_elem)
-    tmp_elem = xmldoc.createElement("ambient")
-    tmp_elem.setAttribute("red", str(mat.R))
-    tmp_elem.setAttribute("blue", str(mat.B))
-    tmp_elem.setAttribute("green", str(mat.G))
-    tmp_elem.setAttribute("alpha", str(mat.alpha))
-    material_elem.appendChild(tmp_elem)
-    tmp_elem = xmldoc.createElement("diffuse")
-    tmp_elem.setAttribute("red", str(mat.R))
-    tmp_elem.setAttribute("blue", str(mat.B))
-    tmp_elem.setAttribute("green", str(mat.G))
-    tmp_elem.setAttribute("alpha", str(mat.alpha))
-    material_elem.appendChild(tmp_elem)
-    tmp_elem = xmldoc.createElement("specular")
-    tmp_elem.setAttribute("red", str(mat.specR))
-    tmp_elem.setAttribute("blue", str(mat.specB))
-    tmp_elem.setAttribute("green", str(mat.specG))
-    tmp_elem.setAttribute("alpha", str(mat.specTransp))
-    material_elem.appendChild(tmp_elem)
-    tmp_elem = xmldoc.createElement("texturelayers")
-    material_elem.appendChild(tmp_elem)
+    material_elem = materials_elem.newChild(None, "material", None)
+    material_elem.setProp("name", mat.name)
+    tmp_elem = material_elem.newChild(None, "ambient", None)
+    tmp_elem.setProp("red", str(mat.R))
+    tmp_elem.setProp("blue", str(mat.B))
+    tmp_elem.setProp("green", str(mat.G))
+    tmp_elem.setProp("alpha", str(mat.alpha))
+    tmp_elem = material_elem.newChild(None, "diffuse", None)
+    tmp_elem.setProp("red", str(mat.R))
+    tmp_elem.setProp("blue", str(mat.B))
+    tmp_elem.setProp("green", str(mat.G))
+    tmp_elem.setProp("alpha", str(mat.alpha))
+    tmp_elem = material_elem.newChild(None, "specular", None)
+    tmp_elem.setProp("red", str(mat.specR))
+    tmp_elem.setProp("blue", str(mat.specB))
+    tmp_elem.setProp("green", str(mat.specG))
+    tmp_elem.setProp("alpha", str(mat.specTransp))
+    tmp_elem = material_elem.newChild(None, "texturelayers", None)
 
 
 
@@ -119,19 +127,22 @@ print "Starting export to OGRE XML format..."
 objs = Blender.Object.GetSelected()
 if (len(objs) == 0):
     print "No Objects Selected!"
-    exit
-
-fd = open("OGREObject.xml", 'w')
+    sys.exit(0)
 
 # Create our xml document
-xmldoc = Document()
+xmldoc = libxml2.newDoc("1.0")
+if not xmldoc:
+    print "Unable to create doc!!!"
+    sys.exit(0)
+
 # Add in our defaults
-mesh_elem = xmldoc.createElement("mesh")
-xmldoc.appendChild(mesh_elem)
-materials_elem = xmldoc.createElement("materials")
-mesh_elem.appendChild(materials_elem)
-submeshes_elem = xmldoc.createElement("submeshes")
-mesh_elem.appendChild(submeshes_elem)
+mesh_elem = libxml2.newNode("mesh")
+try:
+    mesh_elem.docSetRootElement(xmldoc)
+except libxml2.treeError:
+    pass
+materials_elem = mesh_elem.newChild(None, "materials", None)
+submeshes_elem = mesh_elem.newChild(None, "submeshes", None)
 
 all_mats = []
 
@@ -149,37 +160,30 @@ for obj in objs:
     pbar(0.0, "Exporting %s" % obj.name) 
 
     # The XML we'll need
-    cmnt = xmldoc.createComment("Submesh for " + obj.name)
-    submeshes_elem.appendChild(cmnt)
-    submesh_elem = xmldoc.createElement("submesh")
-    submeshes_elem.appendChild(submesh_elem)
-    submesh_elem.setAttribute("useSharedVertices", "false")
-    faces_elem = xmldoc.createElement("faces")
-    submesh_elem.appendChild(faces_elem)
-    geometry_elem = xmldoc.createElement("geometry")
-    submesh_elem.appendChild(geometry_elem)
-    vb_position_elem = xmldoc.createElement("vertexbuffer")
-    vb_position_elem.setAttribute("positions", "true")
-    vb_position_elem.setAttribute("normals", "false")
-    vb_position_elem.setAttribute("colours", "false")
-    vb_position_elem.setAttribute("numtexcoords", "0")
-    geometry_elem.appendChild(vb_position_elem)
-    vb_normal_elem = xmldoc.createElement("vertexbuffer")
-    vb_normal_elem.setAttribute("positions", "false")
-    vb_normal_elem.setAttribute("normals", "true")
-    vb_normal_elem.setAttribute("colours", "false")
-    vb_normal_elem.setAttribute("numtexcoords", "0")
-    geometry_elem.appendChild(vb_normal_elem)
+    cmnt = xmldoc.newDocComment("Submesh for " + obj.name)
+    submesh_elem = submeshes_elem.newChild(None, "submesh", None)
+    submesh_elem.setProp("useSharedVertices", "false")
+    faces_elem = submesh_elem.newChild(None, "faces", None)
+    geometry_elem = submesh_elem.newChild(None, "geometry", None)
+    vb_position_elem = geometry_elem.newChild(None, "vertexbuffer", None)
+    vb_position_elem.setProp("positions", "true")
+    vb_position_elem.setProp("normals", "false")
+    vb_position_elem.setProp("colours", "false")
+    vb_position_elem.setProp("numtexcoords", "0")
+    vb_normal_elem = geometry_elem.newChild(None, "vertexbuffer", None)
+    vb_normal_elem.setProp("positions", "false")
+    vb_normal_elem.setProp("normals", "true")
+    vb_normal_elem.setProp("colours", "false")
+    vb_normal_elem.setProp("numtexcoords", "0")
     vb_texcoord_elem = None
     if exportUVs and (len(mesh_data.faces[0].uv)):
-        vb_texcoord_elem = xmldoc.createElement("vertexbuffer")
-        vb_texcoord_elem.setAttribute("positions", "false")
-        vb_texcoord_elem.setAttribute("normals", "false")
-        vb_texcoord_elem.setAttribute("colours", "false")
-        vb_texcoord_elem.setAttribute("numtexcoords", "1")
-        vb_texcoord_elem.setAttribute("texcoordsets", "0")
-        vb_texcoord_elem.setAttribute("texcoorddimensions", "2")
-        geometry_elem.appendChild(vb_texcoord_elem)
+        vb_texcoord_elem = geometry_elem.newChild(None, "vertexbuffer", None)
+        vb_texcoord_elem.setProp("positions", "false")
+        vb_texcoord_elem.setProp("normals", "false")
+        vb_texcoord_elem.setProp("colours", "false")
+        vb_texcoord_elem.setProp("numtexcoords", "1")
+        vb_texcoord_elem.setProp("texcoordsets", "0")
+        vb_texcoord_elem.setProp("texcoorddimensions", "2")
 
     # Check for new materials
     mesh_mats = mesh.getMaterials()
@@ -188,9 +192,9 @@ for obj in objs:
             addMaterial(mat, xmldoc, mesh_elem)
             all_mats.append(mat.name)
     if mesh_mats:
-        submesh_elem.setAttribute("material", mesh_mats[0].name)
+        submesh_elem.setProp("material", mesh_mats[0].name)
     else:
-        submesh_elem.setAttribute("material", "BaseWhite");
+        submesh_elem.setProp("material", "BaseWhite");
     
     # start processing the mesh data
     obj_mat = obj.getMatrix()
@@ -214,14 +218,14 @@ for obj in objs:
         cur_perc = float(num_faces)/float(face_count)
         pbar(cur_perc, "Exporting %s (%d%%)" % (obj.name, cur_perc * 100.0))
 
-    faces_elem.setAttribute("count", str(num_faces))
-    geometry_elem.setAttribute("count", str(len(verts)))
+    faces_elem.setProp("count", str(num_faces))
+    geometry_elem.setProp("count", str(len(verts)))
 
 # Save it out
-xmldoc.writexml(fd)
-fd.close()
+print "Saving to OGREObject.xml"
+xmldoc.saveFile("OGREObject.xml")
 
-xmldoc.unlink()
+xmldoc.freeDoc()
 del xmldoc
 
 print "Done export to OGRE XML Format."
