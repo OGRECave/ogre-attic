@@ -1329,22 +1329,10 @@ namespace Ogre {
 	//-----------------------------------------------------------------------------
     void GLRenderSystem::_setTextureBlendMode(int stage, const LayerBlendModeEx& bm)
     {       
-<<<<<<< OgreGLRenderSystem.cpp
-		if (mGLCaps.arbCombine)
-			_setTextureBlendMode_ARB(stage, bm);
-		else if (mGLCaps.extCombine)
-			_setTextureBlendMode_EXT(stage, bm);
-    }
-	//-----------------------------------------------------------------------------
-    void GLRenderSystem::_setTextureBlendMode_ARB(int stage, const LayerBlendModeEx& bm)
-    {       
-#ifdef GL_VERSION_1_3
-=======
         // Check to see if blending is supported
         if(!mGLSupport->hasBlending())
             return;
 
->>>>>>> 1.7
         GLenum src1op, src2op, cmd;
         GLfloat cv1[4], cv2[4], av1[4], av2[4];
 
@@ -1458,91 +1446,7 @@ namespace Ogre {
         /*
 		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
 		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_MODULATE);
-<<<<<<< OgreGLRenderSystem.cpp
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, cmd);
-		if (cmd != GL_DOT3_RGB_ARB)
-			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, cmd);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, src1op);
-        glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, src2op);
-        glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_ARB, GL_CONSTANT_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, src1op);
-        glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_ARB, src2op);
-        glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_ARB, GL_CONSTANT_ARB);
-
-		if (bm.operation == LBX_BLEND_TEXTURE_ALPHA)
-		{
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_ARB, GL_TEXTURE);
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_ARB, GL_TEXTURE);
-		}
-		if (bm.operation == LBX_BLEND_CURRENT_ALPHA)
-		{
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_ARB, GL_PREVIOUS_ARB);
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_ARB, GL_PREVIOUS_ARB);
-		}
-
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB, GL_SRC_COLOR);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB, GL_SRC_COLOR);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB_ARB, GL_SRC_ALPHA);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB, GL_SRC_ALPHA);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA_ARB, GL_SRC_ALPHA);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_ALPHA_ARB, GL_SRC_ALPHA);
-
-		if (bm.operation == LBX_MODULATE)
-			glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ? GL_RGB_SCALE_ARB : GL_ALPHA_SCALE, 1);
-		if (bm.operation == LBX_MODULATE_X2)
-			glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ? GL_RGB_SCALE_ARB : GL_ALPHA_SCALE, 2);
-		if (bm.operation == LBX_MODULATE_X4)
-			glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ? GL_RGB_SCALE_ARB : GL_ALPHA_SCALE, 4);
-
-		if (bm.blendType == LBT_COLOUR && bm.source1 == LBS_MANUAL)
-			glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, cv1);
-		if (bm.blendType == LBT_COLOUR && bm.source2 == LBS_MANUAL)
-			glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, cv2);
-
-        glActiveTextureARB(GL_TEXTURE0_ARB);
-#else
-        LogManager::getSingleton().logMessage("!!!!!!!!!! ERROR:  Your OpenGL installation is majorly broken.  Attempting to call ARB texture blending functions on old GL version.");
-        abort();
-#endif
-	}
-	//-----------------------------------------------------------------------------
-    void GLRenderSystem::_setTextureBlendMode_EXT(int stage, const LayerBlendModeEx& bm)
-    {       
-		glActiveTextureARB(GL_TEXTURE0_ARB + stage);
-
-        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
-        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_EXT, GL_SRC_COLOR);
-        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_EXT, GL_SRC_ALPHA);
-        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_EXT, GL_SRC_COLOR);
-        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA_EXT, GL_SRC_ALPHA);
-        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB_EXT, GL_SRC_COLOR); 
-        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_ALPHA_EXT, GL_SRC_ALPHA); 
-
-        GLenum type, src1, src2, src1op, src2op, cmd;
-        GLfloat cv1[4], cv2[4], av1[4], av2[4];
-
-		cv1[0] = bm.colourArg1.r;
-		cv1[1] = bm.colourArg1.g;
-		cv1[2] = bm.colourArg1.b;
-		cv1[3] = bm.colourArg1.a;
-
-		cv2[0] = bm.colourArg2.r;
-		cv2[1] = bm.colourArg2.g;
-		cv2[2] = bm.colourArg2.b;
-		cv2[3] = bm.colourArg2.a;
-
-		av1[0] = 0;
-		av1[1] = 0;
-		av1[2] = 0;
-		av1[3] = bm.alphaArg1;
-
-		av2[0] = 0;
-		av2[1] = 0;
-		av2[2] = 0;
-		av2[3] = bm.alphaArg2;
-=======
         */
->>>>>>> 1.7
 
         if (bm.blendType == LBT_COLOUR)
         {
@@ -1582,48 +1486,7 @@ namespace Ogre {
 			glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ? 
                 GL_RGB_SCALE : GL_ALPHA_SCALE, 4);
             break;
-<<<<<<< OgreGLRenderSystem.cpp
-        case LBX_SOURCE2:
-            cmd = GL_REPLACE;
-            break;
-        case LBX_MODULATE:
-            cmd = GL_MODULATE;
-			glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ? GL_RGB_SCALE_EXT : GL_ALPHA_SCALE, 1);
-            break;
-        case LBX_MODULATE_X2:
-            cmd = GL_MODULATE;
-            glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ? GL_RGB_SCALE_EXT : GL_ALPHA_SCALE, 2);
-            break;
-        case LBX_MODULATE_X4:
-            cmd = GL_MODULATE;
-            glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ? GL_RGB_SCALE_EXT : GL_ALPHA_SCALE, 4);
-            break;
-        case LBX_ADD:
-            cmd = GL_ADD;
-            break;
-        case LBX_ADD_SIGNED:
-            cmd = GL_ADD_SIGNED_EXT;
-            break;
-        case LBX_BLEND_TEXTURE_ALPHA:
-            cmd = GL_INTERPOLATE_EXT;
-            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_EXT, GL_TEXTURE);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_EXT, GL_TEXTURE);
-            break;
-        case LBX_BLEND_CURRENT_ALPHA:
-            cmd = GL_INTERPOLATE_EXT;
-            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_EXT, GL_PREVIOUS_EXT);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_EXT, GL_PREVIOUS_EXT);
-            break;
-        case LBX_DOTPRODUCT:
-			cmd = mGLCaps.dp3ext ? GL_DOT3_RGB_EXT : GL_MODULATE;
-            break;
-        // XXX
-        default:
-			cmd = 0;
-        }
-=======
 		}
->>>>>>> 1.7
 
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
