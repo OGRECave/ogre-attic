@@ -116,7 +116,7 @@ int main(int numargs, char** args)
     String response;
     if (mesh.getNumLodLevels() > 1)
     {
-        std::cout << "\nXML already contains level-of detail information.\n"
+        std::cout << "\nMesh already contains level-of detail information.\n"
             "Do you want to: (u)se it, (r)eplace it, or (d)rop it?";
         while (response == "")
         {
