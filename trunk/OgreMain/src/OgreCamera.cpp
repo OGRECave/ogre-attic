@@ -299,12 +299,16 @@ namespace Ogre {
 
         updateFrustum();
 
-        Root::getSingleton().getRenderSystem()->_makeProjectionMatrix(
-            mFOVy, mAspect, mNearDist, mFarDist, mProjMatrix);
-
         return mProjMatrix;
     }
+    //-----------------------------------------------------------------------
+    const Matrix4& Camera::getStandardProjectionMatrix(void) const
+    {
 
+        updateFrustum();
+
+        return mStandardProjMatrix;
+    }
     //-----------------------------------------------------------------------
     const Matrix4& Camera::getViewMatrix(void) const
     {
@@ -475,16 +479,41 @@ namespace Ogre {
             // Recalc if frustum params changed
             if (mProjType == PT_PERSPECTIVE)
             {
-                // PERSPECTIVE transform
+                // PERSPECTIVE transform, API specific
                 Root::getSingleton().getRenderSystem()->_makeProjectionMatrix(mFOVy, 
                     mAspect, mNearDist, mFarDist, mProjMatrix);
+
+                // standard perspective transform, not API specific
+                Real thetaY = Math::AngleUnitsToRadians(mFOVy / 2.0f);
+                Real tanThetaY = Math::Tan(thetaY);
+                //Real thetaX = thetaY * aspect;
+                //Real tanThetaX = Math::Tan(thetaX);
+
+                // Calc matrix elements
+                Real w = (1.0f / tanThetaY) / mAspect;
+                Real h = 1.0f / tanThetaY;
+                Real q = -(mFarDist + mNearDist) / (mFarDist - mNearDist);
+                //Real qn= q * mNearDist;
+                Real qn = -2 * (mFarDist * mNearDist) / (mFarDist - mNearDist);
+
+                // NB This creates Z in range [-1,1]
+                //
+                // [ w   0   0   0  ]
+                // [ 0   h   0   0  ]
+                // [ 0   0   q   qn ]
+                // [ 0   0   -1  0  ]
+
+                mStandardProjMatrix = Matrix4::ZERO;
+                mStandardProjMatrix[0][0] = w;
+                mStandardProjMatrix[1][1] = h;
+                mStandardProjMatrix[2][2] = q;
+                mStandardProjMatrix[2][3] = qn;
+                mStandardProjMatrix[3][2] = -1;
 
                 // Calculate co-efficients for the frustum planes
                 // Special-cased for L = -R and B = -T i.e. viewport centered 
                 // on direction vector.
                 // Taken from ideas in WildMagic 0.2 http://www.magic-software.com
-                Real thetaY = Math::AngleUnitsToRadians(mFOVy / 2.0f);
-                Real tanThetaY = Math::Tan(thetaY);
                 //Real thetaX = thetaY * mAspect;
                 Real tanThetaX = tanThetaY * mAspect;
 
