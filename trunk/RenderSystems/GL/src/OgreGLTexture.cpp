@@ -306,14 +306,18 @@ namespace Ogre {
             // Same dest dimensions for GL
             mWidth = mSrcWidth;
             mHeight = mSrcHeight;
-
             mDepth = img.getDepth();
 
+			// Never *generate* mipmaps for floating point textures. This is buggy in current
+			// GLU implementations
+			if(Image::formatIsFloat(mFormat))
+				mNumMipMaps = 0;
+
+			// The custom mipmaps in the image have priority over everything
             unsigned short imageMipmaps = img.getNumMipmaps();
             if(imageMipmaps)
                 mNumMipMaps = imageMipmaps;
-
-            glTexParameteri(getGLTextureTarget(), GL_TEXTURE_MAX_LEVEL, mNumMipMaps);
+			glTexParameteri(getGLTextureTarget(), GL_TEXTURE_MAX_LEVEL, mNumMipMaps);
 
             uchar *pTempData = rescaleNPower2(img);
 
