@@ -316,6 +316,9 @@ namespace Ogre {
 	{
 		GuiContainer* backPanel = static_cast<GuiContainer*> (getChild(getListItemPanelName(r)));
 
+		if (mSelectedElement == backPanel->getChild(getListItemName(r)))
+			mSelectedElement = 0;
+
 
 		backPanel->removeChild(getListItemName(r));
 		removeChild(getListItemPanelName(r));
@@ -343,7 +346,6 @@ namespace Ogre {
                 " to remove from list.", "ListGuiElement::removeListItem");
         }
 
-		mResourceList.erase(i);
 		layoutItems();
 
 	}
@@ -585,7 +587,7 @@ namespace Ogre {
 		if (mSelectedElement != NULL)
 		{
 
-			int currentIndex = 1;
+			int currentIndex = 0;
 			for (i = mResourceList.begin(); i != mResourceList.end(); ++i, currentIndex++)
 			{
 				if ((*i)->getName() == mSelectedElement->getCaption())
