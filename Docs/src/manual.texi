@@ -579,7 +579,7 @@ Default: emissive 0.0 0.0 0.0 0.0@*@*
 
 Sets the kind of blending this pass has with the existing contents of the scene. Wheras the texture blending operations seen in the texture_unit entries are concerned with blending between texture layers, this blending is about combining the output of this pass as a whole with the existing contents of the rendering target. This blending therefore allows object transparency and other special effects. There are 2 formats, one using predefined blend types, the other allowing a roll-your-own approach using source and destination factors.@*@*
 
-Format1: scene_blend <add|modulate|alpha_blend>@*@*
+Format1: scene_blend <add|modulate|alpha_blend|colour_blend>@*@*
 
 Example: scene_blend add@*@*
 
@@ -588,7 +588,9 @@ This is the simpler form, where the most commonly used blending modes are enumer
 @item add
 The colour of the rendering output is added to the scene. Good for exposions, flares, lights, ghosts etc. Equivalent to 'scene_blend one one'.
 @item modulate
-The colour of the rendering output is multiplied with the scene contents. Generally colours and darkens the scene, good for smoked glass, semi-transparent objects etc. Equivalent to 'scene_blend src_colour one_minus_src_colour'
+The colour of the rendering output is multiplied with the scene contents. Generally colours and darkens the scene, good for smoked glass, semi-transparent objects etc. Equivalent to 'scene_blend dest_colour zero'.
+@item colour_blend
+Colour the scene based on the brightness of the input colours, but don't darken. Equivalent to 'scene_blend src_colour one_minus_src_colour'
 @item alpha_blend
 The alpha value of the rendering output is used as a mask. Equivalent to 'scene_blend src_alpha one_minus_src_alpha'
 @end table

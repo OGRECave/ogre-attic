@@ -264,7 +264,7 @@ namespace Ogre {
 
         /** Gets the physical width in bytes of each row of pixels.
         */
-        ushort getRowSpan(void) const;
+        size_t getRowSpan(void) const;
 
         /** Returns the image format.
         */

@@ -1,6 +1,6 @@
 Title: Ogre in linux
 Author: Ben Woodhead
-Last Updated: 07/04/03
+Last Updated: 19 Feb 05
 License: LGPL
 
 Edited by Steve Streeting following configuration changes.
@@ -40,6 +40,10 @@ FreeType2 2.1.x - If you don't have this on your system then you can get it http
 
 DevIL 1.5.x or greater - If you don't have this on your system then you can get
 it from http://openil.sourceforge.net/.  UPDATE: DevIL 1.6.6 seems to introduce some problems, stick to 1.6.5 for the moment.
+
+zziplib 0.12.x or above, available from http://zziplib.sourceforge.net.
+
+Cg, preferably version 1.1 since later versions have known bug which have been reported to nVidia. http://developer.nvidia.com/cg
 
 *Important* 
 Do not install the binary version of DevIL as this has caused problems for some

@@ -136,11 +136,12 @@ namespace Ogre {
             "(" + OGRE_VERSION_NAME + ")";
 		mConfigFileName = configFileName;
 
-        // Create log manager and default log file if there is no log manager yet
-        if(LogManager::getSingletonPtr() == 0) {
-            mLogManager = new LogManager();
-            mLogManager->createLog(logFileName, true, true);
-        }
+		// Create log manager and default log file if there is no log manager yet
+		if(LogManager::getSingletonPtr() == 0) 
+		{
+			mLogManager = new LogManager();
+			mLogManager->createLog(logFileName, true, true);
+		}
 
         // Dynamic library manager
         mDynLibManager = new DynLibManager();
@@ -214,9 +215,9 @@ namespace Ogre {
         if (!pluginFileName.empty())
             loadPlugins(pluginFileName);        
 
-        mLogManager->logMessage("*-*-* OGRE Initialising");
+		LogManager::getSingleton().logMessage("*-*-* OGRE Initialising");
         msg = "*-*-* Version " + mVersion;
-        mLogManager->logMessage(msg);
+        LogManager::getSingleton().logMessage(msg);
 
         // Can't create managers until initialised
         mControllerManager = 0;
@@ -643,7 +644,7 @@ namespace Ogre {
 		mResourceBackgroundQueue->shutdown();
         ResourceGroupManager::getSingleton().shutdownAll();
 
-        mLogManager->logMessage("*-*-* OGRE Shutdown");
+		LogManager::getSingleton().logMessage("*-*-* OGRE Shutdown");
     }
     //-----------------------------------------------------------------------
     void Root::loadPlugins( const String& pluginsfile )

@@ -119,10 +119,17 @@ namespace Ogre {
 			a given LOD has wastage, we create an optimised version of it's
 			geometry which is ready for copying with no wastage.
 		*/
-		struct OptimisedSubMeshGeometry
+		class OptimisedSubMeshGeometry
 		{
-			VertexData vertexData;
-			IndexData indexData;
+		public:
+			OptimisedSubMeshGeometry() :vertexData(0), indexData(0) {}
+			~OptimisedSubMeshGeometry() 
+			{
+				delete vertexData;
+				delete indexData;
+			}
+			VertexData *vertexData;
+			IndexData *indexData;
 		};
 		typedef std::list<OptimisedSubMeshGeometry*> OptimisedSubMeshGeometryList;
 		/// Saved link between SubMesh at a LOD and vertex/index data

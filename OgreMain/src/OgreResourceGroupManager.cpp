@@ -186,7 +186,7 @@ namespace Ogre {
 				oi != grp->loadResourceOrderMap.end(); ++oi)
 			{
 				for (LoadUnloadResourceList::iterator l = oi->second->begin();
-					l != oi->second->end(); ++oi)
+					l != oi->second->end(); ++l)
 				{
 					fireResourceStarted(*l);
 					(*l)->load();
@@ -230,7 +230,7 @@ namespace Ogre {
 		for (oi = grp->loadResourceOrderMap.rbegin(); oi != grp->loadResourceOrderMap.rend(); ++oi)
 		{
 			for (LoadUnloadResourceList::iterator l = oi->second->begin();
-				l != oi->second->end(); ++oi)
+				l != oi->second->end(); ++l)
 			{
 				(*l)->unload();
 			}
@@ -279,6 +279,7 @@ namespace Ogre {
 		mCurrentGroup = grp;
         unloadResourceGroup(name); // will throw an exception if name not valid
 		dropGroupContents(grp);
+		deleteGroup(grp);
         mResourceGroupMap.erase(mResourceGroupMap.find(name));
 		// reset current group
 		mCurrentGroup = 0;
@@ -377,6 +378,7 @@ namespace Ogre {
                     }
                 }
 				// Erase list entry
+				delete *li;
 				grp->locationList.erase(li);
 				break;
 			}
@@ -840,6 +842,13 @@ namespace Ogre {
 	{
 		OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME)
 
+		bool groupSet = false;
+		if (!mCurrentGroup)
+		{
+			// Set current group to indicate ignoring of notifications
+			mCurrentGroup = grp;
+			groupSet = true;
+		}
 		// delete all the load list entries
 		ResourceGroup::LoadResourceOrderMap::iterator j, jend;
 		jend = grp->loadResourceOrderMap.end();
@@ -854,6 +863,11 @@ namespace Ogre {
 			delete j->second;
 		}
         grp->loadResourceOrderMap.clear();
+
+		if (groupSet)
+		{
+			mCurrentGroup = 0;
+		}
 	}
 	//-----------------------------------------------------------------------
 	void ResourceGroupManager::deleteGroup(ResourceGroup* grp)

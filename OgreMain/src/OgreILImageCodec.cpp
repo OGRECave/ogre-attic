@@ -131,7 +131,15 @@ namespace Ogre {
 			ImageType != IL_FLOAT &&
 			ImageType != IL_UNSIGNED_SHORT && ImageType != IL_SHORT) {
             ilConvertImage(ImageFormat, IL_FLOAT);
+			ImageType = IL_FLOAT;
         }
+		// Converted paletted images
+		if(ImageFormat == IL_COLOUR_INDEX)
+		{
+			ilConvertImage(IL_BGRA, IL_UNSIGNED_BYTE);
+			ImageFormat = IL_BGRA;
+			ImageType = IL_UNSIGNED_BYTE;
+		}
 
         // Now sets some variables
         BytesPerPixel = ilGetInteger( IL_IMAGE_BYTES_PER_PIXEL ); 
@@ -142,6 +150,18 @@ namespace Ogre {
         imgData->depth = ilGetInteger( IL_IMAGE_DEPTH );
         imgData->num_mipmaps = ilGetInteger ( IL_NUM_MIPMAPS );
         imgData->flags = 0;
+		
+		if(imgData->format == PF_UNKNOWN)
+		{
+			std::stringstream err;
+			err << "Unsupported devil format ImageFormat=" << std::hex << ImageFormat << 
+				" ImageType="<< ImageType << std::dec;
+			ilDeleteImages( 1, &ImageName );
+			
+			OGRE_EXCEPT( Exception::UNIMPLEMENTED_FEATURE,
+                err.str(),
+                "ILImageCodec::decode" ) ;
+		}
 
         // Check for cubemap
         //ILuint cubeflags = ilGetInteger ( IL_IMAGE_CUBEFLAGS );

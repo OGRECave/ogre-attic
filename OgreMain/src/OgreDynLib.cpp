@@ -47,11 +47,6 @@ namespace Ogre {
         OgreGuard("DynLib::DynLib");
 
         mName = name;
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-        // dlopen() does not add .so to the filename, like windows does for .dll
-        if (mName.substr(mName.length() - 3, 3) != ".so")
-            mName += ".so";
-#endif
         m_hInst = NULL;
 
         OgreUnguard();
@@ -70,7 +65,14 @@ namespace Ogre {
         // Log library load
         LogManager::getSingleton().logMessage("Loading library " + mName);
 
-        m_hInst = (DYNLIB_HANDLE)DYNLIB_LOAD( mName.c_str() );
+		std::string name = mName;
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+        // dlopen() does not add .so to the filename, like windows does for .dll
+        if (name.substr(name.length() - 3, 3) != ".so")
+           name += ".so";
+#endif
+
+        m_hInst = (DYNLIB_HANDLE)DYNLIB_LOAD( name.c_str() );
 
         if( !m_hInst )
             OGRE_EXCEPT(

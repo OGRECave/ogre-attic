@@ -303,6 +303,7 @@ protected:
 		sm->indexData->indexBuffer->unlock();
 
 		sm->setMaterialName(GRASS_MATERIAL);
+		msh->load();
 
 	}
 
