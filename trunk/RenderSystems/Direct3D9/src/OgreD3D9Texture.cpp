@@ -14,29 +14,57 @@
 #include <dxerr9.h>
 #include "OgreMemoryMacros.h"
 
-namespace Ogre {
-
+namespace Ogre 
+{
 	D3D9Texture::D3D9Texture( String name, LPDIRECT3DDEVICE9 pD3DDevice, TextureUsage usage )
 	{
         mName = name;
-		mpD3DDevice = pD3DDevice;
 
+		mpD3DDevice = pD3DDevice;
 		if( !mpD3DDevice )
 			Except( 999, "Invalid Direct3D9 Device passed in", "D3D9Texture::D3D9Texture" );
-
 		mpD3DDevice->AddRef();
+        HRESULT hr;
+		if (FAILED(hr = mpD3DDevice->GetDeviceCaps(&mCaps)))
+		{
+			String msg = DXGetErrorDescription9(hr);
+			Except( hr, "Failed GetDeviceCaps : " + msg, "D3D9Texture::D3D9Texture" );
+		}
 		enable32Bit( false );
-        mUsage = usage;
+
+		mUsage = usage;
+		if( mUsage == TU_RENDERTARGET )
+        {
+            mSrcWidth = mSrcHeight = 512;
+            mSrcBpp = mFinalBpp;
+		}
+
 		mpTexture = NULL;
 		mpTempTexture = NULL;       
         mpRenderZBuffer = NULL;
+		mIsLoaded = false;
 	}
 
 	D3D9Texture::D3D9Texture( String name, IDirect3DDevice9 * device, uint width, uint height, uint num_mips, PixelFormat format, TextureUsage usage )
 	{
 		mName = name;
+
 		mpD3DDevice = device;
-		
+		if( !mpD3DDevice )
+			Except( 999, "Invalid Direct3D9 Device passed in", "D3D9Texture::D3D9Texture" );
+		mpD3DDevice->AddRef();
+        HRESULT hr;
+        if (FAILED(hr = mpD3DDevice->GetDeviceCaps(&mCaps)))
+		{
+			String msg = DXGetErrorDescription9(hr);
+			Except( hr, "Failed GetDeviceCaps : " + msg, "D3D9Texture::D3D9Texture" );
+		}
+		enable32Bit( false );
+
+		mpTexture = NULL;
+		mpTempTexture = NULL;       
+        mpRenderZBuffer = NULL;
+
 		mSrcWidth = width;
 		mSrcHeight = height;
 		mNumMipMaps = num_mips;
@@ -45,7 +73,7 @@ namespace Ogre {
 		mFormat = format;
 		mSrcBpp = mFinalBpp = Image::getNumElemBits( mFormat );
 
-        if( mUsage == TU_RENDERTARGET )
+		if( mUsage == TU_RENDERTARGET )
         {
             mSrcWidth = mSrcHeight = 512;
             mSrcBpp = mFinalBpp;
@@ -180,8 +208,15 @@ namespace Ogre {
 
 		HRESULT hr;
 		// Use D3DX to help us create the texture, this way it can adjust any relevant sizes
-		if( FAILED( hr = D3DXCreateTexture( mpD3DDevice, mSrcWidth, mSrcHeight, (mNumMipMaps ? mNumMipMaps : 1), 
-			0, format, D3DPOOL_SYSTEMMEM, &mpTempTexture ) ) )
+		if( FAILED( hr = D3DXCreateTexture( 
+			mpD3DDevice, 
+			mSrcWidth, 
+			mSrcHeight, 
+			(mNumMipMaps ? mNumMipMaps : 1), 
+			0, 
+			format, 
+			D3DPOOL_SYSTEMMEM, 
+			&mpTempTexture ) ) )
 		{
 			String msg = DXGetErrorDescription9(hr);
 			Except( hr, "Error creating temp Direct3D texture D3DXCreateTexture : " + msg, "D3DXTexture::createTexture" );
@@ -194,7 +229,10 @@ namespace Ogre {
                 mSrcWidth, 
                 mSrcHeight, 
                 (mNumMipMaps ? mNumMipMaps : 1), 
-                0, format, D3DPOOL_DEFAULT, &mpTexture ) ) )
+                0, 
+				format, 
+				D3DPOOL_DEFAULT, 
+				&mpTexture ) ) )
 		    {
 				String msg = DXGetErrorDescription9(hr);
 				Except( hr, "Error creating Direct3D texture D3DXCreateTexture : " + msg, "D3DXTexture::createTexture" );
@@ -520,34 +558,38 @@ namespace Ogre {
 		{
 			SAFE_RELEASE(pTempSurface);
 			SAFE_RELEASE(pDestSurface);
+			SAFE_RELEASE( mpTempTexture );
 			String msg = DXGetErrorDescription9(hr);
 			Except( hr, "Failed to get level 0 surface for texture : " + msg, "D3D9Texture::copyMemoryToTexture" );
 		}
+
 		if( FAILED( hr = D3DXLoadSurfaceFromSurface( pDestSurface, NULL, NULL, pTempSurface, NULL, NULL, D3DX_DEFAULT, 0 ) ) )
 		{
 			SAFE_RELEASE(pTempSurface);
 			SAFE_RELEASE(pDestSurface);
+			SAFE_RELEASE( mpTempTexture );
 			String msg = DXGetErrorDescription9(hr);
 			Except( hr, "Failed to copy temp surface to texture : " + msg, "D3D9Texture::copyMemoryToTexture" );
+		}
+
+		if( FAILED( hr = D3DXFilterTexture( mpTempTexture, NULL, D3DX_DEFAULT, D3DX_DEFAULT ) ) )
+		{
+			SAFE_RELEASE(pTempSurface);
+			SAFE_RELEASE(pDestSurface);
+			SAFE_RELEASE( mpTempTexture );
+			String msg = DXGetErrorDescription9(hr);
+			Except( hr, "Failed to filter temporary texture (generate mip maps) : " + msg, "D3D9Texture::copyMemoryToTexture" );
 		}
 
 		if( FAILED( hr = mpD3DDevice->UpdateTexture(mpTempTexture, mpTexture) ) )
 		{
 			SAFE_RELEASE(pTempSurface);
 			SAFE_RELEASE(pDestSurface);
+			SAFE_RELEASE( mpTempTexture );
 			String msg = DXGetErrorDescription9(hr);
 			Except( hr, "Failed to stretch texture : " + msg, "D3D9Texture::copyMemoryToTexture" );
 		}
-
-		// Finally we will use D3DX to create the mip map levels
-		if( FAILED( hr = D3DXFilterTexture( mpTexture, NULL, D3DX_DEFAULT, D3DX_DEFAULT ) ) )
-		{
-			SAFE_RELEASE(pTempSurface);
-			SAFE_RELEASE(pDestSurface);
-			String msg = DXGetErrorDescription9(hr);
-			Except( hr, "Failed to filter texture (generate mip maps) : " + msg, "D3D9Texture::copyMemoryToTexture" );
-		}
-
+		
 		SAFE_RELEASE( pTempSurface );
 		SAFE_RELEASE( pDestSurface );
 		SAFE_RELEASE( mpTempTexture );

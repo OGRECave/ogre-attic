@@ -22,6 +22,7 @@ namespace Ogre {
 		LPDIRECT3DTEXTURE9	mpTexture;          //< The actual texture surface
         LPDIRECT3DSURFACE9  mpRenderZBuffer;    //< The z-buffer for the render surface.
 		LPDIRECT3DTEXTURE9  mpTempTexture;	    //< This is just a temporary texture to create the real one from
+		D3DCAPS9			mCaps;
 
     protected:
 		void createTexture();
@@ -62,13 +63,7 @@ namespace Ogre {
             : RenderTexture( name, width, height )
         {
         }
-
-		virtual ~D3D9RenderTexture()
-		{
-			mPrivateTex->unload();
-			delete mPrivateTex;
-		}
-
+		
 		virtual void getCustomAttribute( String name, void* pData )
         {
 			if( name == "DDBACKBUFFER" )
