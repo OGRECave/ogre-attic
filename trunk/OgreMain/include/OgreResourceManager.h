@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreResource.h"
 #include "OgreDataChunk.h"
 #include "OgreArchiveEx.h"
+#include "OgreIteratorWrappers.h"
 
 
 namespace Ogre {
@@ -186,7 +187,6 @@ namespace Ogre {
         */
         static bool _findCommonResourceData( const String& filename, DataChunk& refChunk );
 
-
     protected:
 
         /** Allocates the next handle. */
@@ -199,7 +199,9 @@ namespace Ogre {
         static FileMap mCommonArchiveFiles;
         FileMap mArchiveFiles;
 
+    public:
         typedef std::map<ResourceHandle, Resource*> ResourceHandleMap;
+    protected:
         ResourceHandleMap mResourcesByHandle;
         ResourceMap mResources;
 
@@ -217,6 +219,16 @@ namespace Ogre {
 
         /// Collection of searchable ArchiveEx classes (virtual file system) for this resource type.
         std::vector<ArchiveEx*> mVFS;
+
+    public:
+        typedef MapIterator<ResourceHandleMap> ResourceMapIterator;
+        /** Returns an iterator over all resources in this manager. */
+        ResourceMapIterator getResourceIterator(void) 
+        {
+            return ResourceMapIterator(mResourcesByHandle.begin(), mResourcesByHandle.end());
+        }
+    
+
     };
 
 }
