@@ -91,5 +91,8 @@ AC_OUTPUT(Makefile \
     Samples/SkyDome/include/Makefile \
     Samples/BSP/Makefile \
     Samples/BSP/src/Makefile \
-    Samples/BSP/include/Makefile
+    Samples/BSP/include/Makefile \
+    Samples/SkeletalAnimation/Makefile \
+    Samples/SkeletalAnimation/src/Makefile \
+    Samples/SkeletalAnimation/include/Makefile
     )

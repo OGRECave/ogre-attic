@@ -1,7 +1,7 @@
 INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/Samples/SkeletalAnimation/include -I$(top_srcdir)/OgreMain/include -I$(top_srcdir)/Samples/Common/include
 
-noinst_PROGRAMS = ParticleFX
+noinst_PROGRAMS = SkeletalAnimation
 
-ParticleFX_SOURCES = SkeletalAnimation.cpp
-ParticleFX_LDFLAGS = -L$(top_srcdir)/OgreMain/src
-ParticleFX_LDADD = -lOgreMain
+SkeletalAnimation_SOURCES = SkeletalAnimation.cpp
+SkeletalAnimation_LDFLAGS = -L$(top_srcdir)/OgreMain/src
+SkeletalAnimation_LDADD = -lOgreMain
