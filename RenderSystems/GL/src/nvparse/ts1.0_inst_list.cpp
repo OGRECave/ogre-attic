@@ -20,6 +20,8 @@
 
 #include <OgreGLPrerequisites.h>
 
+using namespace Ogre;
+
 const int instListInc = 4;
 
 InstList::InstList()
