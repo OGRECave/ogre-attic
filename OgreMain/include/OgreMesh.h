@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 
 #include "OgreResource.h"
+#include "OgreVertexIndexData.h"
 #include "OgreAxisAlignedBox.h"
 #include "OgreVertexBoneAssignment.h"
 #include "OgreAnimationState.h"
@@ -71,6 +72,9 @@ namespace Ogre {
             also that mesh sub-sections (when used in an instantiated object)
             share the same scene node as the parent.
     */
+
+
+
     class _OgreExport Mesh: public Resource
     {
         friend class MeshSerializer;
@@ -127,6 +131,17 @@ namespace Ogre {
 		/** Gets a SubMesh by name
 		*/
 		SubMesh* getSubMesh(const String& name) const ;
+
+        /** Shared vertex data.
+            @remarks
+                This vertex data can be shared among multiple submeshes. It is here simply as
+				a central place to reference the whole thing; however each SubMesh has it's 
+				own VertexData too which will simply reference the same vertex buffers.
+            @par
+                The use of shared or non-shared buffers is determined when
+                model data is converted to the OGRE .mesh format.
+        */
+        VertexData *sharedVertexData;
 
         /** Call this to indicate that this Mesh will be manually defined rather than loaded from a file.
             @remarks
@@ -193,6 +208,26 @@ namespace Ogre {
         */
         void _initAnimationState(AnimationStateSet* animSet);
 
+        /** Assigns a vertex to a bone with a given weight, for skeletal animation. 
+        @remarks    
+            This method is only valid after calling setSkeletonName.
+            Since this is a one-off process there exists only 'addBoneAssignment' and
+            'clearBoneAssignments' methods, no 'editBoneAssignment'. You should not need
+            to modify bone assignments during rendering (only the positions of bones) and OGRE
+            reserves the right to do some internal data reformatting of this information, depending
+            on render system requirements.
+        @par
+            This method is for assigning weights to the shared geometry of the Mesh. To assign
+            weights to the per-SubMesh geometry, see the equivalent methods on SubMesh.
+        */
+        void addBoneAssignment(const VertexBoneAssignment& vertBoneAssign);
+
+        /** Removes all bone assignments for this mesh. 
+        @remarks
+            This method is for modifying weights to the shared geometry of the Mesh. To assign
+            weights to the per-SubMesh geometry, see the equivalent methods on SubMesh.
+        */
+        void clearBoneAssignments(void);
 
         /** Returns the number of bone matrices this mesh uses.
         @remarks
@@ -215,6 +250,15 @@ namespace Ogre {
             really know what you're doing.
         */
         void _notifySkeleton(Skeleton* pSkel);
+
+        /// Multimap of vertex bone assignments (orders by vertex index)
+        typedef std::multimap<unsigned short, VertexBoneAssignment> VertexBoneAssignmentList;
+        typedef MapIterator<VertexBoneAssignmentList> BoneAssignmentIterator;
+
+        /** Gets an iterator for access all bone assignments. 
+        */
+        BoneAssignmentIterator getBoneAssignmentIterator(void);
+
 
 		/** A way of recording the way each LODs is recorded this Mesh. */
 		struct MeshLodUsage
@@ -310,15 +354,10 @@ namespace Ogre {
 		/** Internal methods for loading LOD, do not use. */
 		void _setLodUsage(unsigned short level, Mesh::MeshLodUsage& usage);
 		/** Internal methods for loading LOD, do not use. */
-		void _setSubMeshLodFaceList(unsigned short subIdx, unsigned short level, IndexData& facedata);
+		void _setSubMeshLodFaceList(unsigned short subIdx, unsigned short level, IndexData* facedata);
 
         /** Removes all LOD data from this Mesh. */
         void removeLodLevels(void);
-        
-        /*
-        /// Utility method for cloning geometry.
-        static void cloneGeometry(GeometryData& source, GeometryData& dest);
-        */
 
 		/** Sets the policy for the vertex and index buffers to be used when loading
 			this Mesh.
@@ -370,6 +409,13 @@ namespace Ogre {
         Skeleton* mSkeleton;
 
        
+        VertexBoneAssignmentList mBoneAssignments;
+
+        /// Flag indicating that bone assignments need to be recompiled
+        bool mBoneAssignmentsOutOfDate;
+        /** Must be called once to compile bone assignments into geometry buffer. */
+        void compileBoneAssignments(void);
+
 		bool mIsLodManual;
 		ushort mNumLods;
 		typedef std::vector<MeshLodUsage> MeshLodUsageList;

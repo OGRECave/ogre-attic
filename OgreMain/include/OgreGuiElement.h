@@ -35,6 +35,7 @@
     #include "OgreActionTarget.h"
     #include "OgreMouseTarget.h"
     #include "OgreMouseMotionTarget.h"
+	#include "OgreColourValue.h"
     
     namespace Ogre {
     

@@ -157,6 +157,7 @@ OgreTimer.h \
 OgreUserDefinedObject.h \
 OgreVector3.h \
 OgreVertexBoneAssignment.h \
+OgreVertexIndexData.h \
 OgreViewport.h \
 OgreWireBoundingBox.h \
 OgreZip.h \

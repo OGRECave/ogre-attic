@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 
+#include "OgreVertexIndexData.h"
 #include "OgreMaterial.h"
 #include "OgreRenderOperation.h"
 #include "OgreVertexBoneAssignment.h"
@@ -55,23 +56,21 @@ namespace Ogre {
         SubMesh();
         ~SubMesh();
 
-        /** The render operation this SubMesh will issue.
-        @remarks
-            Note that in previous versions, the SubMesh had an optional
-            facility to share vertex data with other SubMeshes via the Mesh.
-            This facility is still supported, because HardwareVertexBuffer
-            objects can be shared between multiple SubMeshes (and even between 
-            Meshes if you like) through the VertexData structure, therefore the
-            specific shared / dedicated geometry feature of SubMesh is no longer
-            required.
-        @par
-            Note that depending on how the mesh was created, the vertex buffers
-            which are used to hold mesh data may not be modifiable - see HardwareBuffer
-            and MeshManager for full details.
+
+        /// Indicates if this submesh shares vertex data with other meshes or whether it has it's own vertices.
+        bool useSharedVertices;
+
+        /** Dedicated vertex data (only valid if useSharedVertices = false).
+            @remarks
+                This data is completely owned by this submesh.
+            @par
+                The use of shared or non-shared buffers is determined when
+                model data is converted to the OGRE .mesh format.
         */
-        VertexData vertexData;
-        /** The index data which describes the faces of this SubMesh. */
-        IndexData indexData;
+        VertexData *vertexData;
+
+        /// Face index data
+        IndexData *indexData;
 
         ProgressiveMesh::LODFaceList mLodFaceList;
 
@@ -87,12 +86,12 @@ namespace Ogre {
         bool isMatInitialised(void) const;
 
         /** Returns a RenderOperation structure required to render this mesh.
+            @param 
+                rend Reference to a RenderOperation structure to populate.
             @param
                 lodIndex The index of the LOD to use. 
-            @returns 
-                rend Reference to the RenderOperation structure to use for rendering.
         */
-        void _getRenderOperation(RenderOperation& op, ushort lodIndex = 0);
+        void _getRenderOperation(RenderOperation& rend, ushort lodIndex = 0);
 
         /** Assigns a vertex to a bone with a given weight, for skeletal animation. 
         @remarks    
@@ -125,10 +124,6 @@ namespace Ogre {
         */
         BoneAssignmentIterator getBoneAssignmentIterator(void);
 
-        /** Clones this SubMesh and creates the clone as a child of the passed in Mesh. */
-        void clone(Mesh* newParent);
-
-
     protected:
 
         /// Name of the material this SubMesh uses.
@@ -148,8 +143,6 @@ namespace Ogre {
         /// Internal method for removing LOD data
         void removeLodLevels(void);
 
-        /** Calculates the bounds for this SubMesh. */
-        void calculateBounds(AxisAlignedBox* boxBounds, Real* sphereBoundSquaredRadius);
 
 
     };

@@ -40,11 +40,12 @@ namespace Ogre {
     Mesh::Mesh(String name)
     {
         mName = name;
-
+		sharedVertexData = NULL;
         // Default to load from file
         mManuallyDefined = false;
         mUpdateBounds = true;
         setSkeletonName("");
+        mBoneAssignmentsOutOfDate = false;
 		mNumLods = 1;
 		// Init first (manual) lod
 		MeshLodUsage lod;
@@ -54,7 +55,6 @@ namespace Ogre {
 
 		mVertexBuffersDynamic = false;
 		mIndexBuffersDynamic = false;
-
 
     }
 
@@ -134,7 +134,6 @@ namespace Ogre {
             String& ext = extVec[extVec.size() - 1];
             ext.toLowerCase();
 
-            // .oof now deprecated
             if (ext == "mesh")
             {
                 serializer.importMesh(chunk, this);
@@ -163,6 +162,10 @@ namespace Ogre {
         {
             delete *i;
         }
+        if (sharedVertexData)
+        {
+            delete sharedVertexData;
+        }
 		// Clear SubMesh names
 		mSubMeshNameMap.clear();
     }
@@ -184,9 +187,30 @@ namespace Ogre {
 
         // Copy submeshes first
         std::vector<SubMesh*>::iterator subi;
+        SubMesh* newSub;
         for (subi = mSubMeshList.begin(); subi != mSubMeshList.end(); ++subi)
         {
-            (*subi)->clone(newMesh);
+            newSub = newMesh->createSubMesh();
+            newSub->mMaterialName = (*subi)->mMaterialName;
+            newSub->mMatInitialised = (*subi)->mMatInitialised;
+            newSub->parent = newMesh;
+            newSub->useSharedVertices = (*subi)->useSharedVertices;
+
+            if (!(*subi)->useSharedVertices)
+            {
+                // Copy unique vertex data
+				newSub->vertexData = (*subi)->vertexData->clone();
+            }
+
+            // Copy index data
+			newSub->indexData = (*subi)->indexData->clone();
+
+        }
+
+        // Copy shared geometry, if any
+        if (sharedVertexData)
+        {
+            newMesh->sharedVertexData = sharedVertexData->clone();
         }
 
 		// Copy submesh names
@@ -195,47 +219,6 @@ namespace Ogre {
         return newMesh;
 
     }
-    //-----------------------------------------------------------------------
-    /*
-    void Mesh::cloneGeometry(GeometryData& source, GeometryData& dest)
-    {
-        int tex;
-
-        dest.colourStride = source.colourStride;
-        dest.hasColours = source.hasColours;
-        dest.hasNormals = source.hasNormals;
-        dest.normalStride = source.normalStride;
-        dest.numTexCoords = source.numTexCoords;
-        for (tex = 0; tex < source.numTexCoords; ++tex)
-        {
-            dest.numTexCoordDimensions[tex] = source.numTexCoordDimensions[tex];
-            dest.texCoordStride[tex] = source.texCoordStride[tex];
-        }
-        dest.numVertices = source.numVertices;
-        dest.vertexStride = source.vertexStride;
-
-        // Create geometry
-        dest.pVertices = new Real[source.numVertices * 3];
-        memcpy(dest.pVertices, source.pVertices, sizeof(Real) * source.numVertices * 3);
-
-        if (source.hasColours)
-        {
-            dest.pColours = new unsigned long[source.numVertices];
-            memcpy(dest.pColours, source.pColours, sizeof(int) * source.numVertices);
-        }
-        if (source.hasNormals)
-        {
-            dest.pNormals = new Real[source.numVertices * 3];
-            memcpy(dest.pNormals, source.pNormals, sizeof(Real) * source.numVertices * 3);
-        }
-        for (tex = 0; tex < source.numTexCoords; ++tex)
-        {
-            dest.pTexCoords[tex] = new Real[source.numVertices * source.numTexCoordDimensions[tex]];
-            memcpy(dest.pTexCoords[tex], source.pTexCoords[tex], sizeof(Real) * source.numVertices *
-                                                                        source.numTexCoordDimensions[tex]);
-        }
-    }
-    */
     //-----------------------------------------------------------------------
     void Mesh::_updateBounds(void)
     {
@@ -248,22 +231,25 @@ namespace Ogre {
 
         // Loop through SubMeshes, find extents
         SubMeshList::iterator i;
-        mAABB.setNull();
-
-        AxisAlignedBox smAABB;
-        Real smMaxSquaredLength;
         for (i = mSubMeshList.begin(); i != mSubMeshList.end(); ++i)
         {
-            (*i)->calculateBounds(&smAABB, &smMaxSquaredLength );
-            mAABB.merge(smAABB);
-            maxSquaredLength = std::max(maxSquaredLength, smMaxSquaredLength);
+            if (!(*i)->useSharedVertices)
+            {
+				(*i)->vertexData->getBounds(&mAABB, &maxSquaredLength);
+            }
+        }
+
+        // Check shared
+        if (sharedVertexData)
+        {
+			sharedVertexData->getBounds(&mAABB, &maxSquaredLength);
         }
 
         // Pad out the AABB a little, helps with most bounds tests
-        mAABB.setExtents(mAABB.getMinimum() - Vector3::UNIT_SCALE, 
-                        mAABB.getMaximum() + Vector3::UNIT_SCALE);
+		mAABB.setExtents(mAABB.getMinimum() - Vector3::UNIT_SCALE, 
+			mAABB.getMaximum() + Vector3::UNIT_SCALE);
         // Pad out the sphere a little too
-        mBoundRadius = Math::Sqrt(maxSquaredLength) * 1.25;
+		mBoundRadius = Math::Sqrt(maxSquaredLength) * 1.25;
         mUpdateBounds = false;
 
     }
@@ -327,11 +313,28 @@ namespace Ogre {
         return mSkeleton;
     }
     //-----------------------------------------------------------------------
+    void Mesh::addBoneAssignment(const VertexBoneAssignment& vertBoneAssign)
+    {
+        mBoneAssignments.insert(
+            VertexBoneAssignmentList::value_type(vertBoneAssign.vertexIndex, vertBoneAssign));
+        mBoneAssignmentsOutOfDate = true;
+    }
+    //-----------------------------------------------------------------------
+    void Mesh::clearBoneAssignments(void)
+    {
+        mBoneAssignments.clear();
+        mBoneAssignmentsOutOfDate = true;
+    }
+    //-----------------------------------------------------------------------
     void Mesh::_initAnimationState(AnimationStateSet* animSet)
     {
         // Delegate to Skeleton
         assert(mSkeleton && "Skeleton not present");
         mSkeleton->_initAnimationState(animSet);
+
+        // Take the opportunity to update the compiled bone assignments
+        if (mBoneAssignmentsOutOfDate)
+            compileBoneAssignments();
 
         SubMeshList::iterator i;
         for (i = mSubMeshList.begin(); i != mSubMeshList.end(); ++i)
@@ -360,11 +363,93 @@ namespace Ogre {
         mSkeleton->_getBoneMatrices(pMatrices);
 
     }
+    //-----------------------------------------------------------------------
+    void Mesh::compileBoneAssignments(void)
+    {
+		/** TODO
+        // Deallocate
+        if (sharedGeometry.pBlendingWeights)
+        {
+            delete [] sharedGeometry.pBlendingWeights;
+            sharedGeometry.pBlendingWeights = 0;
+        }
+
+        // Iterate through, finding the largest # bones per vertex
+        unsigned short maxBones = 0;
+        unsigned short currBones, lastVertIdx = std::numeric_limits< ushort >::max();
+        VertexBoneAssignmentList::iterator i, iend;
+        i = mBoneAssignments.begin();
+        iend = mBoneAssignments.end();
+        for (; i != iend; ++i)
+        {
+            if (lastVertIdx != i->second.vertexIndex)
+            {
+                // change in vertex
+                if (maxBones < currBones)
+                    maxBones = currBones;
+                currBones = 0;
+            }
+
+            currBones++;
+
+            lastVertIdx = i->second.vertexIndex;
+
+        }
+
+        if (maxBones == 0)
+        {
+            // No bone assignments
+            sharedGeometry.numBlendWeightsPerVertex = 0;
+            return;
+        }
+        // Allocate a buffer for bone weights
+        sharedGeometry.numBlendWeightsPerVertex = maxBones;
+        sharedGeometry.pBlendingWeights = 
+            new LegacyRenderOperation::VertexBlendData[sharedGeometry.numVertices * maxBones];
+
+        // Assign data
+        unsigned short v;
+        i = mBoneAssignments.begin();
+        LegacyRenderOperation::VertexBlendData *pBlend = sharedGeometry.pBlendingWeights;
+        // Iterate by vertex
+        for (v = 0; v < sharedGeometry.numVertices; ++v)
+        {
+            for (unsigned short bone = 0; bone < maxBones; ++bone)
+            {
+                // Do we still have data for this vertex?
+                if (i->second.vertexIndex == v)
+                {
+                    // If so, assign
+                    pBlend->matrixIndex = i->second.boneIndex;
+                    pBlend->blendWeight = i->second.weight;
+                    ++i;
+                }
+                else
+                {
+                    // Ran out of assignments for this vertex, use weight 0 to indicate empty
+                    pBlend->blendWeight = 0;
+                    pBlend->matrixIndex = 0;
+                }
+                ++pBlend;
+            }
+        }
+
+		*/
+
+        mBoneAssignmentsOutOfDate = false;
+
+    }
     //---------------------------------------------------------------------
     void Mesh::_notifySkeleton(Skeleton* pSkel)
     {
         mSkeleton = pSkel;
         mSkeletonName = pSkel->getName();
+    }
+    //---------------------------------------------------------------------
+    Mesh::BoneAssignmentIterator Mesh::getBoneAssignmentIterator(void)
+    {
+        return BoneAssignmentIterator(mBoneAssignments.begin(),
+            mBoneAssignments.end());
     }
     //---------------------------------------------------------------------
     const String& Mesh::getSkeletonName(void) const
@@ -387,7 +472,10 @@ namespace Ogre {
         isubend = mSubMeshList.end();
         for (isub = mSubMeshList.begin(); isub != isubend; ++isub)
         {
-            ProgressiveMesh pm(&(*isub)->vertexData, &(*isub)->indexData);
+            // Set up data for reduction
+            VertexData* pVertexData = (*isub)->useSharedVertices ? sharedVertexData : (*isub)->vertexData;
+
+            ProgressiveMesh pm(pVertexData, (*isub)->indexData);
             pm.build(
             static_cast<ushort>(lodDistances.size()), 
                 &((*isub)->mLodFaceList), 
@@ -507,10 +595,10 @@ namespace Ogre {
 	}
     //---------------------------------------------------------------------
 	void Mesh::_setSubMeshLodFaceList(unsigned short subIdx, unsigned short level, 
-		IndexData& facedata)
+		IndexData* facedata)
 	{
 		SubMesh* sm = mSubMeshList[subIdx];
-		*(sm->mLodFaceList[level - 1]) = facedata;
+		sm->mLodFaceList[level - 1] = facedata;
 
 	}
     //---------------------------------------------------------------------

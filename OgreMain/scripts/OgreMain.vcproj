@@ -501,6 +501,9 @@
 				RelativePath="..\src\OgreVector3.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreVertexIndexData.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreViewport.cpp">
 			</File>
 			<File
@@ -1010,6 +1013,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreVertexBoneAssignment.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreVertexIndexData.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreViewport.h">

@@ -178,6 +178,7 @@ namespace Ogre {
         virtual void modifyElement(unsigned short elem_index, unsigned short source, size_t offset, VertexElementType theType,
             VertexElementSemantic semantic, unsigned short index = 0);
 
+
     };
 
 	/** Records the state of all the vertex buffer bindings required to provide a vertex declaration
@@ -217,6 +218,9 @@ namespace Ogre {
 
 		/// Gets a read-only version of the buffer bindings
 		virtual const VertexBufferBindingMap& getBindings(void) const;
+
+		/// Gets the buffer bound to the given source index
+		virtual HardwareVertexBufferSharedPtr getBuffer(unsigned short index);
 
 
 

@@ -133,6 +133,25 @@ namespace Ogre {
             virtual void writeData(size_t offset, size_t length, const void* pSource,
 					bool discardWholeBuffer = false) = 0;
 
+			/** Copy data from another buffer into this one.
+			@remarks
+				Note that this buffer must be able to be written to so it must
+				not static. 
+			@param srcBuffer The buffer from which to read the copied data
+			@param srcOffset Offset in the source buffer at which to start reading
+			@param dstOffset Offset in the destination buffer to start writing
+			@param length Length of the data to copy, in bytes.
+			@param discardWholeBuffer If true, will discard the entire contents of this buffer before copying
+			*/
+			virtual void copyData(HardwareBuffer& srcBuffer, size_t srcOffset, 
+				size_t dstOffset, size_t length, bool discardWholeBuffer = false)
+			{
+				const void *srcData = srcBuffer.lock(
+					srcOffset, length, HBL_READ_ONLY);
+				this->writeData(dstOffset, length, srcData, discardWholeBuffer);
+				srcBuffer.unlock();
+			}
+
             /// Returns the size of this buffer in bytes
             size_t getSizeInBytes(void) { return mSizeInBytes; }
             /// Returns the Usage flags with which this buffer was created

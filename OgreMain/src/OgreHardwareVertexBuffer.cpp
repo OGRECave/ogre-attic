@@ -124,6 +124,17 @@ namespace Ogre {
 		return mBindingMap;
 	}
     //-----------------------------------------------------------------------------
+	HardwareVertexBufferSharedPtr VertexBufferBinding::getBuffer(unsigned short index)
+	{
+		VertexBufferBindingMap::iterator i = mBindingMap.find(index);
+		if (i == mBindingMap.end())
+		{
+			Except(Exception::ERR_ITEM_NOT_FOUND, "No buffer is bound to that index.",
+				"VertexBufferBinding::getBuffer");
+		}
+		return i->second;
+	}
+    //-----------------------------------------------------------------------------
     HardwareVertexBufferSharedPtr::HardwareVertexBufferSharedPtr(HardwareVertexBuffer* buf)
         : SharedPtr<HardwareVertexBuffer>(buf)
     {

@@ -590,7 +590,7 @@ namespace Ogre {
         // Vertex blending: do software if required
 		bool vertexBlend = false;
 		const VertexDeclaration::VertexElementList& elemList = 
-			op.vertexData->vertexDeclaration.getElements();
+			op.vertexData->vertexDeclaration->getElements();
 		VertexDeclaration::VertexElementList::const_iterator i, iend;
 		iend = elemList.end();
 		for (i = elemList.begin(); i != iend; ++i)

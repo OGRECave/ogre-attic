@@ -32,15 +32,21 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     SubMesh::SubMesh()
     {
+		useSharedVertices = true;
+		vertexData = NULL;
+		indexData = new IndexData();
         mMatInitialised = false;
         mBoneAssignmentsOutOfDate = false;
+
     }
     //-----------------------------------------------------------------------
     SubMesh::~SubMesh()
     {
-        // Destroy vertex and index data
-
-        // TODO
+        if (vertexData)
+        {
+            delete vertexData;
+        }
+		delete indexData;
 
 		removeLodLevels();
     }
@@ -66,13 +72,21 @@ namespace Ogre {
     void SubMesh::_getRenderOperation(RenderOperation& ro, ushort lodIndex) 
     {
         
-        /* TODO
-        */
-       
+		// SubMeshes always use indexes
+        ro.useIndexes = true;
+		ro.indexData = indexData;
+		ro.operationType = RenderOperation::OT_TRIANGLE_LIST;
+		ro.vertexData = useSharedVertices? parent->sharedVertexData : vertexData;
+
     }
     //-----------------------------------------------------------------------
     void SubMesh::addBoneAssignment(const VertexBoneAssignment& vertBoneAssign)
     {
+        if (useSharedVertices)
+        {
+            Except(Exception::ERR_INVALIDPARAMS, "This SubMesh uses shared geometry,  you "
+                "must assign bones to the Mesh, not the SubMesh", "SubMesh.addBoneAssignment");
+        }
         mBoneAssignments.insert(
             VertexBoneAssignmentList::value_type(vertBoneAssign.vertexIndex, vertBoneAssign));
         mBoneAssignmentsOutOfDate = true;
@@ -87,7 +101,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void SubMesh::compileBoneAssignments(void)
     {
-        /* TODO
+		/* TODO
         // Deallocate
         if (geometry.pBlendingWeights)
         {
@@ -127,12 +141,12 @@ namespace Ogre {
         // Allocate a buffer for bone weights
         geometry.numBlendWeightsPerVertex = maxBones;
         geometry.pBlendingWeights = 
-            new LegacyRenderOperation::VertexBlendData[geometry.numVertices * maxBones];
+            new RenderOperation::VertexBlendData[geometry.numVertices * maxBones];
 
         // Assign data
         unsigned short v;
         i = mBoneAssignments.begin();
-        LegacyRenderOperation::VertexBlendData *pBlend = geometry.pBlendingWeights;
+        RenderOperation::VertexBlendData *pBlend = geometry.pBlendingWeights;
         // Iterate by vertex
         for (v = 0; v < geometry.numVertices; ++v)
         {
@@ -155,12 +169,9 @@ namespace Ogre {
                 ++pBlend;
             }
         }
-
-        */
+		*/
 
         mBoneAssignmentsOutOfDate = false;
-
-
 
 
     }
@@ -183,19 +194,7 @@ namespace Ogre {
         mLodFaceList.clear();
 
     }
-    //---------------------------------------------------------------------
-    void SubMesh::clone(Mesh* newParent)
-    {
-        /* TODO
-         - remember to check if SubMesh has a name, in which case use named createSubMesh
-        */
-    }
-    //---------------------------------------------------------------------
-    void SubMesh::calculateBounds(AxisAlignedBox* boxBounds, Real* sphereBoundSquaredRadius)
-    {
-        /* TODO
-        */
-    }
+
 
 
 }

@@ -122,6 +122,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
 						 OgreTimer.cpp \
                          OgreUserDefinedObject.cpp \
                          OgreVector3.cpp \
+			 OgreVertexIndexData.cpp \
                          OgreViewport.cpp \
                          OgreWireBoundingBox.cpp \
                          OgreZip.cpp \

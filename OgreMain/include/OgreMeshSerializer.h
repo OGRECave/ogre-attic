@@ -94,8 +94,9 @@ namespace Ogre {
         void writeTextureLayer(const Material::TextureLayer* pTex);
         void writeMesh(const Mesh* pMesh);
         void writeSubMesh(const SubMesh* s);
-        void writeGeometry(const VertexData* pVertData);
+        void writeGeometry(const VertexData* pGeom);
         void writeSkeletonLink(const String& skelName);
+        void writeMeshBoneAssignment(const VertexBoneAssignment* assign);
         void writeSubMeshBoneAssignment(const VertexBoneAssignment* assign);
         void writeLodInfo(const Mesh* pMesh);
         void writeLodSummary(unsigned short numLevels, bool manual);
@@ -106,7 +107,7 @@ namespace Ogre {
         unsigned long calcTextureLayerSize(const Material::TextureLayer* pTex);
         unsigned long calcMeshSize(const Mesh* pMesh);
         unsigned long calcSubMeshSize(const SubMesh* pSub);
-        // TODO unsigned long calcGeometrySize(const GeometryData* pGeom);
+        unsigned long calcGeometrySize(const GeometryData* pGeom);
         unsigned long calcSkeletonLinkSize(const String& skelName);
         unsigned long calcBoneAssignmentSize(void);
 
@@ -114,8 +115,9 @@ namespace Ogre {
         void readTextureLayer(DataChunk& chunk, Material* pMat);
         void readMesh(DataChunk& chunk);
         void readSubMesh(DataChunk& chunk);
-        void readGeometry(DataChunk& chunk, GeometryData* dest);
+        void readGeometry(DataChunk& chunk, VertexData* dest);
         void readSkeletonLink(DataChunk &chunk);
+        void readMeshBoneAssignment(DataChunk& chunk);
         void readSubMeshBoneAssignment(DataChunk& chunk, SubMesh* sub);
 		void readMeshLodInfo(DataChunk& chunk);
 		void readMeshLodUsageManual(DataChunk& chunk, unsigned short lodNum, Mesh::MeshLodUsage& usage);
