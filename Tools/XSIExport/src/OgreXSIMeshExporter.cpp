@@ -33,6 +33,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <xsi_kinematics.h>
 #include <xsi_kinematicstate.h>
 #include <xsi_selection.h>
+#include <xsi_envelope.h>
+#include <xsi_time.h>
 
 #include "OgreException.h"
 #include "OgreXSIHelper.h"
@@ -43,6 +45,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMeshManager.h"
 #include "OgreDefaultHardwareBufferManager.h"
 #include "OgreMeshSerializer.h"
+#include "OgreVertexBoneAssignment.h"
 
 using namespace XSI;
 
@@ -84,7 +87,7 @@ namespace Ogre {
 		cleanupDeformerList();
     }
     //-----------------------------------------------------------------------
-	const XsiMeshExporter::DeformerList& 
+	XsiMeshExporter::DeformerList& 
 	XsiMeshExporter::exportMesh(const XSI::CString& fileName, 
 		bool mergeSubMeshes, bool exportChildren, 
 		bool edgeLists, bool tangents, LodData* lod, const String& skeletonName)
@@ -551,8 +554,116 @@ namespace Ogre {
 		
 	}
 	//-----------------------------------------------------------------------
-	void XsiMeshExporter::processBoneAssignments(Mesh* pMesh, PolygonMeshEntry* pm)
+	void XsiMeshExporter::processBoneAssignments(Mesh* pMesh, PolygonMeshEntry* xsiMesh)
 	{
+		// We have to iterate over the clusters which have envelope assignments
+		// then, for each protosubmesh which uses this polymesh, we need to create
+		// a bone assignment for each deformer, not forgetting to add one for 
+		// each duplicated copy of this vertex too
+		// We build up a global list of deformers as we go which will get passed
+		// back to the top-level caller to build a skeleton from later
+		CRefArray clusterRefArray;
+		// Filter to 'vertex' types
+		xsiMesh->mesh.GetClusters().Filter(
+			siVertexCluster,CStringArray(),L"",clusterRefArray);
+
+
+
+		for(int i = 0; i < clusterRefArray.GetCount(); ++i)
+		{
+			Cluster cluster(clusterRefArray[i]);	
+
+			// Get mapping from cluster element index to geometry position index
+			CLongArray derefArray = cluster.GetElements().GetArray();
+
+			CRefArray envelopes = cluster.GetEnvelopes();
+			for (int e = 0; e < envelopes.GetCount(); ++e)
+			{
+				Envelope envelope(envelopes[e]);
+
+				CRefArray deformers = envelope.GetDeformers();
+				for (int d = 0; d < deformers.GetCount(); ++d)
+				{
+					X3DObject deformer(deformers[d]);
+					// Has this deformer been allocated a boneID already?
+					String deformerName = XSItoOgre(deformer.GetName());
+					DeformerList::iterator di = 
+						mXsiDeformerList.find(deformerName);
+					DeformerEntry* deformerEntry;
+					if (di == mXsiDeformerList.end())
+					{
+						deformerEntry = new DeformerEntry(mXsiDeformerList.size(), deformer);
+						mXsiDeformerList[deformerName] = deformerEntry;
+					}
+					else
+					{
+						deformerEntry = di->second;
+					}
+
+					// Get the weights for this deformer
+					CDoubleArray weights = 
+						envelope.GetDeformerWeights(deformer, CTime().GetTime());
+					// Weights are in order of cluster elements, we need to dereference
+					// those to the original point index using the cluster element array
+					for (int w = 0; w < weights.GetCount(); ++w)
+					{
+						size_t positionIndex = derefArray[w];
+						float weight = weights[w];
+
+						// Locate ProtoSubMeshes which use this mesh
+						for (ProtoSubMeshList::iterator psi = mProtoSubmeshList.begin();
+							psi != mProtoSubmeshList.end(); ++psi)
+						{
+							ProtoSubMesh* ps = psi->second;
+							ProtoSubMesh::PolygonMeshOffsetMap::iterator poli = 
+								ps->polygonMeshOffsetMap.find(xsiMesh);
+							if (poli != ps->polygonMeshOffsetMap.end())
+							{
+								// adjust index based on merging
+								size_t adjIndex = positionIndex + poli->second;
+								// look up real index
+								IndexRemap::iterator remi = ps->posIndexRemap.find(adjIndex);
+								assert (remi != ps->posIndexRemap.end()); // should never fail
+
+								size_t vertIndex = remi->second;
+								bool moreVerts = true;
+								// add UniqueVertex and clones
+								while (moreVerts)
+								{
+									UniqueVertex& vertex = ps->uniqueVertices[vertIndex];
+									VertexBoneAssignment vba;
+									vba.boneIndex = deformerEntry->boneID;
+									vba.vertexIndex = vertIndex;
+									vba.weight = weight;
+									ps->boneAssignments.insert(
+										Mesh::VertexBoneAssignmentList::value_type(vertIndex, vba));
+
+									if (vertex.nextIndex == 0)
+									{
+										moreVerts = false;
+									}
+									else
+									{
+										vertIndex = vertex.nextIndex;
+									}
+								}
+
+
+							}
+						}
+
+
+
+					}
+
+
+
+					
+				}
+				
+
+			}
+		}
 
 	}
 	//-----------------------------------------------------------------------
@@ -663,6 +774,20 @@ namespace Ogre {
         {
             createVertexBuffer(sm->vertexData, b, proto->uniqueVertices);
         }
+
+		// deal with any bone assignments
+		if (!proto->boneAssignments.empty())
+		{
+			// rationalise first (normalises and strips out any excessive bones)
+			sm->parent->_rationaliseBoneAssignments(
+				sm->vertexData->vertexCount, proto->boneAssignments);
+
+			for (Mesh::VertexBoneAssignmentList::iterator bi = proto->boneAssignments.begin();
+				bi != proto->boneAssignments.end(); ++bi)
+			{
+				sm->addBoneAssignment(bi->second);
+			}
+		}
 		
 	}
 	//-----------------------------------------------------------------------
@@ -755,7 +880,7 @@ namespace Ogre {
 		for (DeformerList::iterator d = mXsiDeformerList.begin();
 			d != mXsiDeformerList.end(); ++d)
 		{
-			delete *d;
+			delete d->second;
 		}
 		mXsiDeformerList.clear();
 	}

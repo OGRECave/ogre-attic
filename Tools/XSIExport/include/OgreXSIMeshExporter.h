@@ -73,16 +73,8 @@ namespace Ogre {
 			}
 
 		};
-		/// ordering function, required for set 
-		struct DeformerEntryLess
-		{
-			bool operator()(DeformerEntry* lhs, DeformerEntry* rhs)
-			{
-				// can't name objects the same in XSI, so use that
-				return XSItoOgre(lhs->obj.GetName()) < XSItoOgre(rhs->obj.GetName());
-			}
-		};
-		typedef std::set<DeformerEntry*,DeformerEntryLess> DeformerList;
+		/// Map from deformer name to deformer entry
+		typedef std::map<String,DeformerEntry*> DeformerList;
 
 		
 		/** Perform an export of the selection to Ogre .mesh.
@@ -99,7 +91,7 @@ namespace Ogre {
 		@returns List of deformers (bones) which were found whilst exporting (if
 			skeletonName was provided) which can be used to determine the skeleton.
         */
-        const DeformerList& exportMesh(const XSI::CString& fileName, 
+        DeformerList& exportMesh(const XSI::CString& fileName, 
             bool mergeSubMeshes, bool exportChildren, bool edgeLists, 
 			bool tangents, LodData* lod = 0, const String& skeletonName = "");
 
@@ -204,6 +196,7 @@ namespace Ogre {
 			PolygonMeshOffsetMap polygonMeshOffsetMap;
 			// map original position index (+any PM offset) -> first real instance in this one
 			IndexRemap posIndexRemap;
+			Mesh::VertexBoneAssignmentList boneAssignments;
 			
 		};
 		/// List of proto submeshes by material
