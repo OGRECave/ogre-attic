@@ -84,6 +84,86 @@ CODE.str {
 <p align="center" class="header">OGRE (Object-Oriented Graphics
 Rendering Engine)</p>
 <p align="center" class="header">Change Log</p>
+<p align="left" class="MainHeader">v1.0.0 [Azathoth] (5 February 2005)
+-
+Major Release<br>
+</p>
+<p>1.0.0 is a big release, and due to us wanting to freeze interfaces at the best possible level for 1.0.0 there are more interface breaking changes in 1.0.0 than is typical for previous releases. For the full lowdown on upgrading your code from Hastur (0.15.x) to Azathoth (1.0.x) , please see the <a href="http://ogrewiki.digitalsentience.com/index.php/AzathothNotes">Azathoth Porting Notes Wiki Page</a>.
+<p align="left">Enhancements and new Features:<br>
+<ul>
+	<li><span style="color: rgb(255, 255, 51);">Resource System Overhaul</span>:
+		<ul>
+			<li>Resources now addressed through shared pointers</li>
+			<li>Resource groups can now be defined so that you can load and unload resources in groups, and also set up group-specific search paths and scripting tasks.</li>
+			<li>Manual resource provision formalised; there is now a ManualLoader class that should be implemented when creating resources in code; this allows resource reloads to be possible in all cases</li>
+			<li>Streaming support - data is now accessed from Ogre's virtual file system solely through the DataStream class (and subclasses), meaning that accessing very large files efficiently is now possible while still using the resource system.</li>
+			<li>Loading progress reports; you can now register ResourceGroupListeners in order to implement loading bars</li>
+			<li>Thread safety - steps have been taked to make the resource system thread-safe to allow background loading. This feature is experimental and should only be used by experienced users.</li>
+		</ul>
+	</li>
+	<li><span style="color: rgb(255, 255, 51);">Hardware Pixel Buffers &amp; Image enhancements</span>:
+	<ul>
+		<li>Direct access to read / write to texture surfaces through the HardwarePixelBuffer class, including mip levels, cube surfaces and volume slices</li>
+		<li>Pixel formats have been extended, are now unambiguous across endianness, having separate 'native' endian formats and per-byte formats</li>
+		<li>Support for floating-point pixel formats, luminence formats, depth formats, and compressed formats</li> 
+		<li>Image class has been tidied and enhanced to support composite images (like cube maps)</li>
+		<li>PixelUtil class now provides access to all pixel format conversion functions, with optimised templated conversion routines available in capable compilers</li>
+	</ul>
+	</li>
+	<li><span style="color: rgb(255, 255, 51);">High Dynamic Range (HDR) rendering support</span>:
+	<ul>
+		<li>Create render textures in floating-point pixel formats</li>
+		<li>Load .hdr or .exr textures from disk using the OpenEXR plugin (optional)</li>
+	</ul>
+	</li>
+	<li><span style="color: rgb(255, 255, 51);">Particle System enhancements</span>: Particle systems are no longer limited to rendering with billboards, they render through instances of ParticleSystemRenderer subclasses, which can be implemented in plugins and added at runtime. Use of these alternative renderers is scriptable and can be used to implement alternative particle types like ribbons.</li>
+	<li><span style="color: rgb(255, 255, 51);">GUI changes</span>: 
+	<ul>
+		<li>The OGRE internal GUI has been replaced with <a href="http://www.cegui.org.uk">Crazy Eddie's GUI</a>, a superior GUI system which follows the same kind of design principles as Ogre itself (portable, clean OO code).</li>
+		<li>Non-interactive overlays remain within OGRE itself, the classes have been renamed *OverlayElement instead of *GuiElement to reflect their role</li> 	
+	</ul>
+	</li>
+	<li>Material changes:
+	<ul>
+		<li>alpha_rejection has been moved from the texture_unit to the pass</li>
+		<li>Linking vertex colours to material attributes; you can now link vertex colours to any of the diffuse, specular, emissive or ambient material attribures, (e.g. 'ambient vertexcolour')  rather than the linkage being implicit.</li>
+		<li>You can now define the number of mipmaps to be generated when loading a texture in the material script, from '0' to 'unlimited'</li>
+	</ul>
+	</li>
+	<li>New StaticGeometry class allows you to batch up individual meshes and render thousands of them far more efficiently than if they were separate movable objects</li>
+	<li>GL now supports render textures larger than the frame buffer (through pbuffers)</li>
+	<li>D3D9 uses best possible filter method supported by hardware for generating Mipmaps, this can improve display quality especially when using trilinear filtering</li>
+	<li> Support all image types that DevIL can load: bmp, gif, hdr, ico, jpeg, pnm, mng and many more</li>
+	<li>GLX, SDL, D3D9: FSAA(Full Scene AntiAliasing) support improved</li>
+	<li>Image codecs are now completely replaceable, if you wish to remove the use of DevIL</li>
+	<li>Better support for 3D and compressed textures</li>
+	<li>New and improved demos:
+	<ul>
+		<li>'DynTex' shows how to procedurally generate textures using the new pixel buffer API</li>
+		<li>'VolumeTex' demonstrates volume rendering and procedurally generated meshes and 3D textures</li>
+		<li>'Grass' demonstrates the use of the new StaticGeometry class to batch up lots of individual meshes</li>
+		<li>'Gui' has been updated to use Crazy Eddies GUI. </li>
+	</ul>
+	</li>
+	<li>Interface to RenderSystem::createWindow and RenderSystem::createRenderTexture cleaned up and made more flexible</li>
+	<li>Support Athlon 64 in native 64-bit mode (Linux)</li>
+	<li>Support running the OGRE core in double precision floating point mode through the use of OGRE_DOUBLE_PRECISION</li>
+	<li>Add 'inverse transform' automatic shader parameter bindings</li> 
+	<li>MinGW/Cygwin build system using auto* tools included</li>
+	<li>Visual C++ 2005 Beta support</li>
+</ul>
+</p>
+<p align="left">Bugfixes:<br>
+<ul>
+	<li>Fixed texture_view_proj shader parameter binding</li>
+	<li>Terrain now supports texture shadows</li>
+	<li>Fixed 4-weight hardware skinning vertex shader</li>
+	<li>Fixed possible texture frame overflow in animated texture controller</li>
+	<li>GLX: alt-tab now allows mouse to escape window</li>
+	
+</ul>
+</p>
+
 <p align="left" class="MainHeader">v0.15.2 [Hastur] (13 January 2005)
 -
 Maintenance Release<br>
