@@ -73,6 +73,7 @@ namespace Ogre {
 
         if( mIsLoaded )
         {
+            std::cout << "Unloading image" << std::endl;
             unload();
         }
 
