@@ -2,8 +2,7 @@ INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/PlatformManagers/SDL/include -I$(to
 
 noinst_PROGRAMS = OgrePlatform.so
 
-OgrePlatform_so_SOURCES = OgreSDLConfig.cpp \
-                          OgreSDLInput.cpp \
+OgrePlatform_so_SOURCES = OgreSDLInput.cpp \
                           OgreSDLPlatform.cpp
 
 
