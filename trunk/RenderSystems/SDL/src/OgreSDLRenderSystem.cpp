@@ -221,6 +221,7 @@ namespace Ogre {
         bool allWindowsClosed;
         static float lastStartTime;
         static float lastEndTime;
+        RenderWindowMap::iterator i;
 
         // Init times to avoid large first-frame time
         lastStartTime = lastEndTime = ((float)clock())/CLOCKS_PER_SEC;
@@ -233,8 +234,7 @@ namespace Ogre {
             // Check all windows to see if any are active / closed
             isActive = false;
             allWindowsClosed = true; // assume all closed unless we find otherwise
-            for(
-                RenderWindowMap::iterator i = mRenderWindows.begin(); 
+            for(i = mRenderWindows.begin(); 
                 i != mRenderWindows.end(); 
                 /* Nada */ )
             {
@@ -279,8 +279,7 @@ namespace Ogre {
             lastStartTime = fTime;
 
             // Render a frame during idle time (no messages are waiting)
-            for(
-                RenderWindowMap::iterator i = mRenderWindows.begin(); 
+            for(i = mRenderWindows.begin(); 
                 i != mRenderWindows.end(); 
                 ++i )
             {
