@@ -1,11 +1,68 @@
-# Blender to Ogre Mesh and Skeleton Exporter v0.7
-# url: http://people.freenet.de/hoffmajs/exporter/
+#!BPY
 
-# Ogre exporter written by Jens Hoffmann
+"""
+Name: 'Ogre XML'
+Blender: 232
+Group: 'Export'
+Tooltip: 'Export Mesh and Armature to Ogre'
+"""
+
+# Blender to Ogre Mesh and Skeleton Exporter v0.11
+# url: http://www.ogre3d.org
+
+# Ogre exporter written by Jens Hoffmann and Michael Reimpell
 # based on the Cal3D exporter v0.5 written by Jean-Baptiste LAMY
 
+# Copyright (C) 2004 Michael Reimpell -- <M.Reimpell@tu-bs.de>
 # Copyright (C) 2003 Jens Hoffmann -- <hoffmajs@gmx.de>
 # Copyright (C) 2003 Jean-Baptiste LAMY -- jiba@tuxfamily.org
+#
+# ChangeLog:
+#   0.7 :  released by Jens Hoffman
+#   0.8 :  * Mon Feb 02 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
+#          - added GUI
+#   0.9 :  * Tue Feb 03 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
+#          - added special header to be registered in blenders export menu
+#   0.10:  * Wed Feb 04 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
+#          - blenders broken Draw.Scrollbar replaced with own class
+#          - texture origin changed to top-left (Ogre v0.13.0)
+#          - export log is shown in message window
+#          - dirty hack for blender 2.32 (does not implement IpoCurve.getName()
+#            for action Ipos)
+#   0.11:  * Mon Feb 09 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
+#          - strip path from texture filenames in material file
+#          - back button for doneMessageBox
+#          - changed scrollbar focus behaviour
+#          - log text position offset
+#          - Ogre v0.13.0 material script support
+#            Material specific:
+#             amb * rgbCol          -> ambient <r> <g> <b> 
+#             rgbCol                -> diffuse <r> <g> <b>
+#             spec * specCol, hard  -> specular <r> <g> <b> <hard>
+#             emit*rgbCol           -> emissive <r> <g> <b>
+#             Material.mode
+#              ZINVERT              -> depth_func greater_equal
+#              ENV                  -> depth_func always_fail
+#              SHADELESS            -> lighting off
+#              NOMIST               -> fog_override true
+#            Face specific:
+#             NMFace.mode
+#              INVISIBLE            -> no export
+#              TEX                  -> texture_unit
+#             NMFace.transp
+#              SOLID                -> Default: scene_blend one zero
+#              ADD                  -> scene_blend add
+#              ALPHA                -> scene_blend alpha_blend
+#            Texture specific:
+#             NMFace.image.filename -> texture <name without path>
+# TODO:
+#          - TWOSIDE face mode, TWOSIDED mesh mode
+#          - SUBSURF mesh mode
+#          - code cleanup
+#          - selection preview
+#          - save default action names in blenders registry
+#          - documentation
+#          - help button
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -39,47 +96,253 @@
 # then, you have to rename the bone _and_ the ipo.
 
 # Another problem is that the name of the Action is lost on export,
-# instead the actions will be named "Action.000", "Action.001" and so on.
-# you can set a mapping (see below) to rename the action.
-
-
-# Parameters:
-
-# The directory where the exported files are saved.
-SAVE_DIR = "/tmp/ogre/"
-
-# all material definitions go in this file (relative to save dir)
-MATERIAL_FILE = "export.material"
-
-# scale factor
-SCALE = 5.0
-
-# export sticky uv coordinates, if available (0 = off)
-EXPORT_UV = 1
-
-# export skeletons and bone weights in meshes (0 = off)
-EXPORT_SKELETON = 1
-
-# animation speed in frames per second
-FPS = 25.0
-
-# Use this dictionary to rename animations
-RENAME_ANIMATIONS = {
-   "Action.000" : "Walk",
-   "Action.001" : "Jump",
-  
-  }
-
-# create an extra mesh with the form of the skeleton
-# (looks similar like the armature in blender)
-EXPORT_TEST_SKELETON = 0
-
+# instead the actions will be named "Action.", "Action.001",  "Action.002"
+# and so on. You can set a mapping to rename the action.
 
 #######################################################################################
 ## Code starts here.
 
-import sys, os.path, math, string
-import Blender
+######
+# imports
+######
+import Blender, sys, os, math, string
+
+######
+# namespaces
+######
+from Blender import Draw
+from Blender.BGL import *
+
+######
+# Classes
+######
+class ReplacementScrollbar:
+	def __init__(self, initialValue, minValue, maxValue, buttonUpEvent, buttonDownEvent):
+		"""Scrollbar replacement for Draw.Scrollbar
+		   
+		   - import Blender
+		   - call eventFilter and buttonFilter in registered callbacks
+		      
+		   Parameters:
+		   	initialValue -  inital value
+		   	minValue - minimum value
+		   	maxValue - maxium value
+		   	buttonUpEvent - unique event number
+		   	buttonDownEvent - unique event number
+		"""
+		self.currentValue = initialValue
+		self.minValue = minValue
+		if maxValue > minValue:
+			self.maxValue = maxValue
+		else:
+			self.maxValue = self.minValue
+			self.minValue = maxValue
+		self.buttonUpEvent = buttonUpEvent
+		self.buttonDownEvent = buttonDownEvent
+		# private
+		self.guiRect = [0,0,0,0]
+		self.positionRect = [0,0,0,0]
+		self.markerRect = [0,0,0,0]
+		self.mousePressed = 0
+		self.mouseFocusY = 0
+		self.mouseFocusX = 0
+		return
+	
+	def getCurrentValue(self):
+		"""current marker position
+		"""
+		return self.currentValue
+		
+	def up(self, steps=1):
+		"""move scrollbar up
+		"""
+		if (steps > 0):
+			if ((self.currentValue - steps) > self.minValue):
+				self.currentValue -= steps
+			else:
+				self.currentValue = self.minValue
+		return
+	
+	def down(self, steps=1):
+		"""move scrollbar down
+		"""
+		if (steps > 0):
+			if ((self.currentValue + steps) < self.maxValue): 
+				self.currentValue += steps
+			else:
+				self.currentValue = self.maxValue
+		return
+	
+	def draw(self, x, y, width, height):
+		"""draw scrollbar
+		"""
+		# get size of the GUI window to translate MOUSEX and MOUSEY events
+		guiRectBuffer = Blender.BGL.Buffer(GL_FLOAT, 4)
+		Blender.BGL.glGetFloatv(Blender.BGL.GL_SCISSOR_BOX, guiRectBuffer)
+		self.guiRect =  guiRectBuffer.list
+		# relative position
+		self.positionRect = [ x, y, x + width, y + height]
+		# check minimal size:
+		# 2 square buttons,4 pixel borders and 1 pixel inside for inner and marker rectangles
+		if ((height > (2*(width+5))) and (width > 2*5)):
+			# keep track of remaining area
+			remainRect = self.positionRect[:]
+			# draw square buttons
+			Blender.Draw.Button("/\\", self.buttonUpEvent, x, y + (height-width), width, width, "scroll up") 
+			remainRect[3] -=  width + 2
+			Blender.Draw.Button("\\/", self.buttonDownEvent, x, y, width, width, "scroll down") 
+			remainRect[1] +=  width + 1
+			# draw inner rectangle
+			Blender.BGL.glColor3f(0.13,0.13,0.13) # dark grey
+			Blender.BGL.glRectf(remainRect[0], remainRect[1], remainRect[2], remainRect[3])
+			remainRect[0] += 1
+			remainRect[3] -= 1
+			Blender.BGL.glColor3f(0.78,0.78,0.78) # light grey
+			Blender.BGL.glRectf(remainRect[0], remainRect[1], remainRect[2], remainRect[3])
+			remainRect[1] += 1
+			remainRect[2] -= 1
+			Blender.BGL.glColor3f(0.48,0.48,0.48) # grey
+			Blender.BGL.glRectf(remainRect[0], remainRect[1], remainRect[2], remainRect[3])
+			# draw marker rectangle
+			# calculate marker rectangle
+			innerHeight = remainRect[3]-remainRect[1]
+			markerHeight = innerHeight/(self.maxValue-self.minValue+1.0)
+			# markerRect 
+			self.markerRect[0] = remainRect[0]
+			self.markerRect[1] = remainRect[1] + (self.maxValue - self.currentValue)*markerHeight
+			self.markerRect[2] = remainRect[2]
+			self.markerRect[3] = self.markerRect[1] + markerHeight
+			# clip markerRect to innerRect (catch all missed by one errors)
+			if self.markerRect[1] > remainRect[3]:
+				self.markerRect[1] = remainRect[3]
+			if self.markerRect[3] > remainRect[3]:
+				self.markerRect[3] = remainRect[3]
+			# draw markerRect
+			remainRect = self.markerRect
+			Blender.BGL.glColor3f(0.78,0.78,0.78) # light grey
+			Blender.BGL.glRectf(remainRect[0], remainRect[1], remainRect[2], remainRect[3])
+			remainRect[0] += 1
+			remainRect[3] -= 1
+			Blender.BGL.glColor3f(0.13,0.13,0.13) # dark grey
+			Blender.BGL.glRectf(remainRect[0], remainRect[1], remainRect[2], remainRect[3])
+			remainRect[1] += 1
+			remainRect[2] -= 1
+			Blender.BGL.glColor3f(0.56,0.56,0.56) # marker grey
+			Blender.BGL.glRectf(remainRect[0], remainRect[1], remainRect[2], remainRect[3])
+		else:
+			print "scrollbar draw size to small!"
+		return
+		
+	def eventFilter(self, event, value):
+		"""event filter for keyboard and mouse input events
+		   call it inside the registered event function
+		"""
+		if (value != 0):
+			# Buttons
+			if (event == Blender.Draw.PAGEUPKEY):
+				self.up(3)
+				Blender.Draw.Redraw(1)
+			elif (event == Blender.Draw.PAGEDOWNKEY):
+				self.down(3)
+				Blender.Draw.Redraw(1)
+			elif (event == Blender.Draw.UPARROWKEY):
+				self.up(1)
+				Blender.Draw.Redraw(1)
+			elif (event == Blender.Draw.DOWNARROWKEY):
+				self.down(1)
+				Blender.Draw.Redraw(1)
+			# Mouse
+			elif (event == Blender.Draw.MOUSEX):
+				# check if mouse is inside postionRect
+				if (value >= (self.guiRect[0] + self.positionRect[0])) and (value <= (self.guiRect[0] + self.positionRect[2])):
+					self.mouseFocusX = 1
+				else:
+					self.mouseFocusX = 0
+			elif (event == Blender.Draw.MOUSEY):
+				# check if mouse is inside positionRect
+				if (value >= (self.guiRect[1] + self.positionRect[1])) and (value <= (self.guiRect[1] + self.positionRect[3])):
+					self.mouseFocusY = 1
+				else:
+					self.mouseFocusY = 0
+				# move marker
+				if ((self.mousePressed == 1) and (self.mouseFocusY == 1)):
+					# relative mouse position
+					mousePositionY = value - self.guiRect[1]
+					# calculate step from distance to marker
+					if (mousePositionY > self.markerRect[3]):
+						# up
+						self.up(1)
+						Blender.Draw.Redraw(1)
+					elif (mousePositionY < self.markerRect[1]):
+						# down
+						self.down(1)
+						Blender.Draw.Redraw(1)
+			elif ((event == Blender.Draw.LEFTMOUSE) and (self.mouseFocusX == 1) and (self.mouseFocusY == 1)):
+				self.mousePressed = 1
+		else: # released keys and buttons
+			if (event == Blender.Draw.LEFTMOUSE):
+				self.mousePressed = 0
+		return
+		
+	def buttonFilter(self, event):
+		"""button filter for Draw Button events
+		   call it inside the registered button function
+		"""
+		if (event  == self.buttonUpEvent):
+			self.up()
+			Blender.Draw.Redraw(1)
+		elif (event == self.buttonDownEvent):
+			self.down()
+			Blender.Draw.Redraw(1)
+		return
+
+######
+# global variables
+######
+uvToggle = Draw.Create(1)
+armatureToggle = Draw.Create(1)
+armatureMeshToggle = Draw.Create(0)
+pathString = Draw.Create(os.path.dirname(Blender.Get('filename')))
+materialString = Draw.Create("export.material")
+scaleNumber = Draw.Create(1.0)
+fpsNumber = Draw.Create(25)
+doneMessage = ""
+
+# action dictionary to rename animations
+# key = actionKeyList[i]
+# value = actionStringList[i].val
+actionDict = {}
+actionStringList = []
+actionKeyList = []
+# scrollbar = Draw.Create(0)
+scrollbar = ReplacementScrollbar(0,0,0,0,0)
+
+# button event numbers:
+BUTTON_EVENT_OK = 1
+BUTTON_EVENT_QUIT = 2
+BUTTON_EVENT_EXPORT = 3
+BUTTON_EVENT_UVTOGGLE = 4
+BUTTON_EVENT_ARMATURETOGGLE = 5
+BUTTON_EVENT_ARMATUREMESHTOGGLE = 6
+BUTTON_EVENT_PATHSTRING = 7
+BUTTON_EVENT_PATHBUTTON = 8
+BUTTON_EVENT_MATERIALSTRING = 9
+BUTTON_EVENT_SCALENUMBER = 10
+BUTTON_EVENT_FPSNUMBER = 11
+BUTTON_EVENT_ACTIONSTRINGS = 12
+BUTTON_EVENT_ACTIONSCROLLBAR = 13
+BUTTON_EVENT_SCROLLBARUP = 14
+BUTTON_EVENT_SRCROLLBARDOWN = 15
+
+# error indication:
+EXPORT_SUCCESS = 0
+EXPORT_SUCCESS_MESSAGE = "Successfully exported!"
+EXPORT_WARNING = 1
+EXPORT_WARNING_MESSAGE = "Exported with warnings!"
+EXPORT_ERROR = 2
+EXPORT_ERROR_MESSAGE = "Error in export!"
+exportStatus = EXPORT_SUCCESS
+exportLog = []
 
 #######################################################################################
 ## math functions
@@ -276,9 +539,11 @@ def vector_length(v):
   return math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2])
 
 def vector_normalize(v):
+  global exportStatus, exportLog
   l = math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2])
   if l <= 0.000001:
-    print "error in normalize"
+    exportLog.append("error in normalize")
+    exportStatus = EXPORT_ERROR
     return [0 , l, 0]
   return [v[0] / l, v[1] / l, v[2] / l]
 
@@ -320,10 +585,11 @@ def vector_angle(v1, v2):
 ## data structures
 
 class Material:
-  def __init__(self, name, mat, texname):
+  def __init__(self, name, mat, texname, mode):
     self.name = name
     self.mat = mat
     self.texture = texname
+    self.mode = mode
 
 class SubMesh:
   def __init__(self, material):
@@ -486,7 +752,7 @@ def calc_rootaxis(pos, pos2, tmp_mat):
   px1 = vector_crossproduct(nor, pz)
   if vector_dotproduct(px1, px) < 0.0:
     px1 = vector_crossproduct(pz, nor)
-    print "neg"
+    # exportLog.append("neg")
   px1 = vector_normalize(px1)
 
   # get new axis (in correct y-direction, but wrong roll)
@@ -582,9 +848,11 @@ def convert_armature(skeleton, obj, debugskel):
 
 
 def export_skeleton(obj):
+  global armatureToggle, fpsNumber, armatureMeshToggle
   global skeletonsDict
+  global exportStatus, exportLog
   
-  if not EXPORT_SKELETON or skeletonsDict.has_key(obj.name) or obj.getType() != "Armature":
+  if not armatureToggle.val or skeletonsDict.has_key(obj.name) or obj.getType() != "Armature":
     return
   
   data = obj.getData()
@@ -592,7 +860,7 @@ def export_skeleton(obj):
   skeletonsDict[obj.name] = skeleton
 
   testskel = None
-  if EXPORT_TEST_SKELETON:
+  if armatureMeshToggle.val:
     testskel = TestSkel(skeleton)
 
   convert_armature(skeleton, obj, testskel)
@@ -626,7 +894,8 @@ def export_skeleton(obj):
     ipoName = ipo.getName()
     prefix = "Action."
     if ipoName[0:len(prefix)] != prefix:
-      print "error: ignored IPO: \"%s\" (only Action.<bone-name>[.xxx] is recognized)" % ipoName
+      exportLog.append("error: ignored IPO: \"%s\" (only Action.<bone-name>[.xxx] is recognized)" % ipoName)
+      exportStatus = EXPORT_WARNING
       continue
 
     rest = ipoName[len(prefix):]
@@ -637,7 +906,9 @@ def export_skeleton(obj):
       animationName = prefix+ext[1:]
     else:
       boneName = rest
-      animationName = prefix+"000"
+      # animationName = prefix+"000"
+      # rename in dictonary instead
+      animationName = prefix
       
     bone = 0
     found = 0
@@ -648,10 +919,12 @@ def export_skeleton(obj):
 
     if found != 1:
       if found == 0:
-        print "error: can not find a bone for ipo \"%s\"." % ipoName
+        exportLog.append("error: can not find a bone for ipo \"%s\"." % ipoName)
+        exportStatus = EXPORT_ERROR
       else:
-        print "error: more than one bone matches the ipo \"%s\"." % ipoName
-      print "       please rename the bone and its ipo in blender."
+        exportLog.append("error: more than one bone matches the ipo \"%s\"." % ipoName)
+        exportLog.append("       please rename the bone and its ipo in blender.")
+        exportStatus = EXPORT_ERROR
       continue
 
     #print "IPO %s -> bone: %s, animation: %s" % (ipoName, bone.name, animationName)
@@ -668,22 +941,60 @@ def export_skeleton(obj):
     curveId = {}
     id = have_quat = 0
     for curve in ipo.getCurves():
-      name = curve.getName()
-      if (name == "LocX" or name == "LocY" or name == "LocZ" or
-          name == "SizeX" or name == "SizeY" or name == "SizeZ" or
-          name == "QuatX" or name == "QuatY" or name == "QuatZ" or name == "QuatW"):
-        curveId[name] = id
-        id += 1
-      else:
-        # bug: 2.28 does not return "Quat*"...
+      try:
+        name = curve.getName()
+        if (name == "LocX" or name == "LocY" or name == "LocZ" or \
+        	name == "SizeX" or name == "SizeY" or name == "SizeZ" or \
+        	name == "QuatX" or name == "QuatY" or name == "QuatZ" or name == "QuatW"):
+        	curveId[name] = id
+        	id += 1
+        else:
+        	# bug: 2.28 does not return "Quat*"...
+        	if not have_quat:
+        		curveId["QuatX"] = id
+        		curveId["QuatY"] = id+1
+        		curveId["QuatZ"] = id+2
+        		curveId["QuatW"] = id+3
+        		id += 4
+        		have_quat = 1
+      except TypeError:
+        # blender 2.32 does not implement IpoCurve.getName() for action Ipos
         if not have_quat:
-          curveId["QuatX"] = id
-          curveId["QuatY"] = id+1
-          curveId["QuatZ"] = id+2
-          curveId["QuatW"] = id+3
-          id += 4
-          have_quat = 1
-
+        	# no automatic assignments so far
+        	# guess Ipo Names       
+        	nIpoCurves = ipo.getNcurves()
+        	if nIpoCurves in [4,7,10]:
+        		exportLog.append("Warning: IpoCurve.getName() not available!")
+        		exportLog.append("         The exporter tries to guess the IpoCurve names.")
+        		exportStatus = EXPORT_WARNING
+        		if (nIpoCurves >= 7):
+        			# not only Quats
+        			# guess: Quats and Locs
+        			curveId["LocX"] = id
+        			curveId["LocY"] = id+1
+        			curveId["LocZ"] = id+2
+        			id += 3      
+        		if (nIpoCurves == 10):
+        			# all possible Action IpoCurves
+        			curveId["SizeX"] = id
+        			curveId["SizeY"] = id+1
+        			curveId["SizeZ"] = id+2
+        			id += 3
+        		if (nIpoCurves >= 4):
+        			# at least 4 IpoCurves
+        			# guess: 4 Quats
+        			curveId["QuatX"] = id
+        			curveId["QuatY"] = id+1
+        			curveId["QuatZ"] = id+2
+        			curveId["QuatW"] = id+3
+        			id += 4
+        		have_quat = 1
+        	else:
+        		exportLog.append("Error: IpoCurve.getName() not available!")
+        		exportLog.append("       Could not guess the IpoCurve names. Blender versions 2.28 - 3.31a may work.")
+        		exportStatus = EXPORT_ERROR
+        		return
+    
     # get all frame numbers where this ipo has a point in one of its curves 
     framenumberSet = {}
     for i in range(ipo.getNcurves()):
@@ -719,7 +1030,7 @@ def export_skeleton(obj):
         size = max(size, sz)
 
       # Convert time units from Blender's frame (starting at 1) to second
-      time = (frame-1) / FPS
+      time = (frame-1.0) / fpsNumber.val
       if animation.duration < time:
         animation.duration = time
 
@@ -783,9 +1094,11 @@ def export_testskel(testskel):
 # remap vertices for faces
 def process_face(face, submesh, data, matrix, skeleton):
   global verticesDict
+  global exportStatus, exportLog
 
   if not len(face.v) in [ 3, 4 ]:
-    print "ignored face with %d edges" % len(face.v)
+    exportLog.append("ignored face with %d edges" % len(face.v))
+    exportStatus = EXPORT_WARNING
     return
 
   if not face.smooth:
@@ -816,7 +1129,8 @@ def process_face(face, submesh, data, matrix, skeleton):
       if skeleton:
         influences = data.getVertexInfluences(face.v[i].index)
         if not influences:
-          print "Error: vertex in skinned mesh without influence! check your mesh"
+          exportLog.append("Error: vertex in skinned mesh without influence! check your mesh")
+          exportStatus = EXPORT_ERROR
 
         # limit influences to 4 bones per vertex
         def cmpfunc(x, y):
@@ -849,7 +1163,8 @@ def process_face(face, submesh, data, matrix, skeleton):
         old_vertex.clones.append(vertex)
 
     if submesh.material.texture:
-      uv = [face.uv[i][0], face.uv[i][1]]
+      # origin is now in the top-left (Ogre v0.13.0)
+      uv = [face.uv[i][0], 1 - face.uv[i][1]]
 
       if not vertex.uvmaps:
         vertex.uvmaps.append(UVMap(*uv))
@@ -876,81 +1191,106 @@ def process_face(face, submesh, data, matrix, skeleton):
   if len(face.v) == 4:
     Face(submesh, face_vertices[2], face_vertices[3], face_vertices[0])
 
-
-def export_mesh(obj):
-  global verticesDict
-  global materialsDict
-  global textureDict
-  
-  if obj.getType() != "Mesh":
-    return
-
-  # is this mesh attached to an armature?
-  skeleton = 0
-  if EXPORT_SKELETON:
-    parent = obj.getParent()
-    if parent and parent.getType() == "Armature":
-      export_skeleton(parent)
-      skeleton = skeletonsDict[parent.name]
-
-  data = obj.getData()
-  submeshes = []
-  matrix = matrix_multiply(BASE_MATRIX, obj.getMatrix())
-
-  defaultMat = 0
-  nMaterials = len(data.materials)
-  if nMaterials == 0:
-    defaultMat = 1
-    nMaterials = 1
-
-  faces = data.faces
-  while len(faces): # loop to catch all textures
-    for matIndex in range(nMaterials):
-
-      if defaultMat:
-        mat = 0
-        matName = "DefaultMaterial"
-      else:
-        mat = data.materials[matIndex]
-        matName = mat.name
-
-      # are there textures with sticky UV?
-      imageName = ""
-      image = None
-      if EXPORT_UV and data.hasFaceUV():
-        image = faces[0].image
-      if image:
-        imageName = image.filename
-        texNum = textureDict.get(imageName)
-        if not texNum:
-          texNum = len(textureDict)
-          textureDict[imageName] = texNum 
-
-        texName = "Tex_%04d" % texNum
-        if mat:
-          matName = texName + "_" + matName
-        else:
-          matName = texName
-      
-      material = materialsDict.get(matName)
-      if not material:
-        material = Material(matName, mat, imageName)
-        materialsDict[matName] = material
-        
-      submesh = SubMesh(material)
-      verticesDict = {}
-      tmpset = faces[:] # make a real copy (hence the [:])
-      for face in tmpset:
-        if defaultMat or face.materialIndex == matIndex:
-          if not image or (image and image.filename == imageName):
-            process_face(face, submesh, data, matrix, skeleton)
-            faces.remove(face)
-
-      if len(submesh.faces):
-        submeshes.append(submesh)
-
-  write_mesh(obj.getName(), submeshes, skeleton)
-
+def export_mesh(object):
+	global uvToggle, armatureToggle
+	global verticesDict
+	global materialsDict
+	global textureDict
+	global exportStatus, exportLog
+	
+	if object.getType() != "Mesh":
+		return
+	
+	# is this mesh attached to an armature?
+	skeleton = 0
+	if armatureToggle.val:
+		parent = object.getParent()
+		if parent and parent.getType() == "Armature":
+			export_skeleton(parent)
+			skeleton = skeletonsDict[parent.name]
+	
+	#NMesh of the object
+	data = object.getData()
+	matrix = matrix_multiply(BASE_MATRIX, object.getMatrix())
+	
+	# materials of the object
+	# note: ogre assigns different textures and different facemodes
+	#       to different materials
+	objectMaterialDict = {}
+	# faces assign to objectMaterial keys
+	objectMaterialFacesDict = {}
+	
+	# note: these are blender materials. Evene if nMaterials = 0
+	#       the face can still have a texture (see above)
+	nMaterials = len(data.materials)
+	  
+	# create ogre materials
+	for face in data.faces:
+		if not(face.mode & Blender.NMesh.FaceModes["INVISIBLE"]):
+			# face is visible
+			hasTexture = 0
+			if ((uvToggle.val) and (data.hasFaceUV()) and (face.mode & Blender.NMesh.FaceModes["TEX"])):
+				if face.image:
+					hasTexture = 1
+				else:
+					exportLog.append("Error: Face is textured but has no image assigned!")
+					exportStatus = EXPORT_ERROR
+			if ((nMaterials > 0 ) or (hasTexture == 1)):
+				# create material of the face:
+				# blenders material name / FaceTranspMode / texture image name
+				# blenders material name
+				materialName = ""
+				# blenders material name
+				faceMaterial = None
+				if (nMaterials > 0):
+					faceMaterial = data.materials[face.materialIndex]
+					materialName += faceMaterial.getName() +"/"
+				# FaceTranspMode
+				# default: solid
+				blendMode = Blender.NMesh.FaceTranspModes["SOLID"]
+				if (face.transp == Blender.NMesh.FaceTranspModes["ALPHA"]):
+					materialName += "ALPHA/"
+					blendMode = Blender.NMesh.FaceTranspModes["ALPHA"]
+				elif (face.transp == Blender.NMesh.FaceTranspModes["ADD"]):
+					materialName += "ADD/"
+					blendMode = Blender.NMesh.FaceTranspModes["ADD"]
+				else:
+					materialName += "SOLID/"
+				# texture image name
+				textureFile = None
+				if hasTexture:
+					textureFile = face.image.filename
+					materialName += os.path.basename(textureFile)
+				# insert into Dicts
+				material = objectMaterialDict.get(materialName)
+				if not material:
+					material = Material(materialName, faceMaterial, textureFile, blendMode)
+					objectMaterialDict[materialName] = material
+					# faces
+					objectMaterialFacesDict[materialName] = [face]
+				else:
+					# append faces
+					faceList = objectMaterialFacesDict[materialName]
+					faceList.append(face)
+					objectMaterialFacesDict[materialName] = faceList
+	# process faces
+	submeshes = []
+	for materialKey in objectMaterialDict.keys():
+		submesh = SubMesh(objectMaterialDict[materialKey])
+		verticesDict = {}
+		for face in objectMaterialFacesDict[materialKey]:
+			process_face(face, submesh, data, matrix, skeleton)
+		if len(submesh.faces):
+			submeshes.append(submesh)
+			# update global materialsDicts
+			material = materialsDict.get(materialKey)
+			if not material:
+				materialsDict[materialKey] = objectMaterialDict[materialKey]
+	
+	
+	# write mesh
+	write_mesh(object.getName(), submeshes, skeleton)
+	return
 
 #######################################################################################
 ## file output
@@ -966,10 +1306,11 @@ def clamp(val):
     return val
 
 def write_skeleton(skeleton):
+  global pathString, actionDict, exportLog
   file = skeleton.name+".skeleton.xml"
-  print "skeleton  \"%s\"" % file
+  exportLog.append("skeleton  \"%s\"" % file)
 
-  f = open(os.path.join(SAVE_DIR, file), "w")
+  f = open(os.path.join(pathString.val, file), "w")
   f.write(tab(0)+"<skeleton>\n")
 
   f.write(tab(1)+"<bones>\n")
@@ -999,7 +1340,7 @@ def write_skeleton(skeleton):
     #if not animation.duration:
     #  continue
 
-    name = RENAME_ANIMATIONS.get(animation.name) or animation.name
+    name = actionDict.get(animation.name) or animation.name
 
     f.write(tab(2)+"<animation")
     f.write(" name=\"%s\"" % name)
@@ -1039,10 +1380,11 @@ def write_skeleton(skeleton):
 
 
 def write_mesh(name, submeshes, skeleton):
+  global pathString, exportLog
   file = name+".mesh.xml"
-  print "mesh      \"%s\"" % file
+  exportLog.append("mesh      \"%s\"" % file)
 
-  f = open(os.path.join(SAVE_DIR, file), "w")
+  f = open(os.path.join(pathString.val, file), "w")
   f.write(tab(0)+"<mesh>\n")
   f.write(tab(1)+"<submeshes>\n")
   for submesh in submeshes:
@@ -1108,51 +1450,82 @@ def write_mesh(name, submeshes, skeleton):
 
 
 def write_materials():
-  file = MATERIAL_FILE
-  print "materials \"%s\"" % file
+	global pathString, materialString, exportLog
+	global materialsDict
+	file = materialString.val
+	exportLog.append("materials \"%s\"" % file)
 
-  f = open(os.path.join(SAVE_DIR, file), "w")
-  for name, material in materialsDict.items():
-    f.write("%s\n" % name)
-    f.write("{\n");
-
-    mat = material.mat
-    if mat:
-      if mat.amb > 0.0:
-        ambR = mat.amb * mat.rgbCol[0]
-        ambG = mat.amb * mat.rgbCol[1]
-        ambB = mat.amb * mat.rgbCol[2]
-        f.write(tab(1)+"ambient %f %f %f\n" % (ambR, ambG, ambB))
-
-      diffR = mat.rgbCol[0]
-      diffG = mat.rgbCol[1]
-      diffB = mat.rgbCol[2]
-      f.write(tab(1)+"diffuse %f %f %f\n" % (diffR, diffG, diffB))
-            
-      if mat.spec > 0.0:
-        specR = clamp(mat.spec * mat.specCol[0])
-        specG = clamp(mat.spec * mat.specCol[1])
-        specB = clamp(mat.spec * mat.specCol[2])
-        specShine = mat.hard
-        f.write(tab(1)+"specular %f %f %f %f\n" % (specR, specG, specB, specShine))
-
-    if material.texture:
-      f.write(tab(1)+"{\n")
-      f.write(tab(2)+"texture %s\n" % material.texture)
-      f.write(tab(1)+"}\n")
-      
-    f.write("}\n\n");
-
-  f.close()
+	f = open(os.path.join(pathString.val, file), "w")
+	for name, material in materialsDict.items():
+		# material
+		f.write("material %s\n" % name)
+		f.write("{\n")
+		# technique
+		f.write(tab(1)+"technique\n")
+		f.write(tab(1)+"{\n")
+		# pass
+		f.write(tab(2)+"pass\n")
+		f.write(tab(2)+"{\n")
+		if material.mat:
+			# pass attributes
+			mat = material.mat
+			# ambient <- amb * rgbCol
+			ambR = clamp(mat.amb * mat.rgbCol[0])
+			ambG = clamp(mat.amb * mat.rgbCol[1])
+			ambB = clamp(mat.amb * mat.rgbCol[2])
+			f.write(tab(3)+"ambient %f %f %f\n" % (ambR, ambG, ambB))
+			# diffuse <- rgbCol
+			diffR = clamp(mat.rgbCol[0])
+			diffG = clamp(mat.rgbCol[1])
+			diffB = clamp(mat.rgbCol[2])
+			f.write(tab(3)+"diffuse %f %f %f\n" % (diffR, diffG, diffB))
+			# specular <- spec * specCol, hard
+			specR = clamp(mat.spec * mat.specCol[0])
+			specG = clamp(mat.spec * mat.specCol[1])
+			specB = clamp(mat.spec * mat.specCol[2])
+			specShine = mat.hard
+			f.write(tab(3)+"specular %f %f %f %f\n" % (specR, specG, specB, specShine))
+			# emissive <-emit * rgbCol
+			emR = clamp(mat.emit * mat.rgbCol[0])
+			emG = clamp(mat.emit * mat.rgbCol[1])
+			emB = clamp(mat.emit * mat.rgbCol[2])
+			f.write(tab(3)+"emissive %f %f %f\n" % (emR, emG, emB))	
+			# depth_func  <- ZINVERT; ENV
+			if (mat.mode & Blender.Material.Modes["ENV"]):
+				f.write(tab(3)+"depth_func always_fail\n")
+			elif (mat.mode & Blender.Material.Modes["ZINVERT"]):
+				f.write(tab(3)+"depth_func greater_equal\n")
+			# lighting <- SHADELESS
+			if (mat.mode & Blender.Material.Modes["SHADELESS"]):
+				f.write(tab(3)+"lighting off\n")
+			# fog_override <- NOMIST
+			if (mat.mode & Blender.Material.Modes["NOMIST"]):
+				f.write(tab(3)+"fog_override true\n")
+		# scene_blend <- transp
+		if (material.mode == Blender.NMesh.FaceTranspModes["ALPHA"]):
+			f.write(tab(3)+"scene_blend alpha_blend \n")
+		elif (material.mode == Blender.NMesh.FaceTranspModes["ADD"]):
+			f.write(tab(3)+"scene_blend add\n")
+		if material.texture:
+			f.write(tab(3)+"texture_unit\n")
+			f.write(tab(3)+"{\n")
+			f.write(tab(4)+"texture %s\n" % os.path.basename(material.texture))
+			f.write(tab(3)+"}\n") # texture_unit
+		f.write(tab(2)+"}\n") # pass
+		f.write(tab(1)+"}\n") # technique
+		f.write("}\n\n") # material
+	f.close()
   
 #######################################################################################
-## main
+## main export
 
-def main():
+def export():
+    global pathString, scaleNumber
     global materialsDict
     global textureDict
     global skeletonsDict
     global BASE_MATRIX
+    global exportStatus, exportLog
     
     materialsDict = {}
     textureDict = {}
@@ -1160,16 +1533,16 @@ def main():
 
     # set matrix to 90 degree rotation around x-axis and scale
     rot_mat = matrix_rotate_x(-math.pi / 2.0)
-    scale_mat = matrix_scale(SCALE, SCALE, SCALE)
+    scale_mat = matrix_scale(scaleNumber.val, scaleNumber.val, scaleNumber.val)
     BASE_MATRIX = matrix_multiply(scale_mat, rot_mat)
     
-    if not os.path.exists(SAVE_DIR):
-      print "invalid path: "+SAVE_DIR
+    if not os.path.exists(pathString.val):
+      exportLog.append("invalid path: "+pathString.val)
+      exportStatus = EXPORT_ERROR
       return
 
+    exportLog.append("exporting selected objects:")    
     objs = Blender.Object.GetSelected()
-    print
-    print "exporting selected objects:"
     n = 0
     for obj in objs:
       if not obj:
@@ -1183,12 +1556,306 @@ def main():
         export_skeleton(obj)
 
     if n == 0:
-        print "no mesh objects selected!"
+        exportLog.append("no mesh objects selected!")
+        exportStatus = EXPORT_WARNING
 
     if len(materialsDict):
       write_materials()
 
-    print
-    print "finished."
-main()
-      
+    exportLog.append("finished.")
+    return exportStatus
+    
+#######################################################################################
+## GUI
+
+######
+# global variables
+######
+# see above
+
+######
+# methods
+######
+def initGUI():
+	"""initialization of the GUI
+	"""
+	global exportStatus, exportLog, actionKeyList, actionStringList, scrollbar
+	# export settings
+	exportStatus = EXPORT_SUCCESS
+	exportLog = []
+	# scrollbar
+	for ipo in Blender.Ipo.Get():
+		if ipo.getNcurves() != 0:
+			ipoName = ipo.getName()
+			prefix = "Action."
+			if ipoName[0:len(prefix)] == prefix:
+				rest = ipoName[len(prefix):]
+				ext = rest[-4:]
+				d = string.digits
+				if len(ext) == 4 and ext[1] in d and ext[2] in d and ext[3] in d:
+					animationKey = prefix+ext[1:]
+				else:
+					animationKey = prefix
+				if actionKeyList.count(animationKey) == 0:
+					# default action names
+					if animationKey == 'Action.':
+						animationValue = 'Walk'
+					elif animationKey == 'Action.000':
+						animationValue = 'Walk'
+					elif animationKey == 'Action.001':
+						animationValue = 'Jump'
+					else:
+						# no translation
+						animationValue = animationKey
+					# add action to dictionary (key and value lists)
+					# actionDict[animationKey] = animationValue
+					actionKeyList.append(animationKey)
+					actionStringList.append(Draw.Create(animationValue))
+	if (len(actionKeyList) > 0):
+		scrollbar = ReplacementScrollbar(0,0,len(actionKeyList)-1,BUTTON_EVENT_SCROLLBARUP,BUTTON_EVENT_SRCROLLBARDOWN)
+	else:
+		scrollbar = ReplacementScrollbar(0,0,0,BUTTON_EVENT_SCROLLBARUP,BUTTON_EVENT_SRCROLLBARDOWN)
+	return
+
+def pathSelectCallback(fileName):
+	"""handles FileSelector output
+	"""
+	global pathString
+	# strip path from fileName
+	pathString.val = os.path.dirname(fileName)
+	return
+	
+def eventCallback(event,value):
+	"""handles keyboard and mouse events
+	
+	exit on ESCKEY
+	exit on QKEY
+	"""
+	global scrollbar
+	scrollbar.eventFilter(event,value)
+	if (not value):
+		# released
+		if (event == Draw.ESCKEY):
+			Draw.Exit()
+			return
+		if (event == Draw.QKEY):
+			Draw.Exit()
+			return
+	return
+
+def buttonCallback(event):
+	"""handles button events
+	"""
+	global materialString, actionDict, doneMessage, doneMessageBox, eventCallback, buttonCallback, \
+		scrollbar, exportLog
+	scrollbar.buttonFilter(event)
+	if (event == BUTTON_EVENT_OK): # Ok
+		# restart
+		initGUI()
+		Draw.Register(gui, eventCallback, buttonCallback)
+	elif (event  == BUTTON_EVENT_QUIT): # Quit
+		Draw.Exit()
+		return
+	elif (event == BUTTON_EVENT_ARMATURETOGGLE): # armatureToggle
+		Draw.Redraw(1)
+	elif (event == BUTTON_EVENT_PATHBUTTON): # pathButton
+		Blender.Window.FileSelector(pathSelectCallback, "Export Directory")
+		Draw.Redraw(1)
+	elif (event == BUTTON_EVENT_MATERIALSTRING): # materialString
+		materialString.val = os.path.basename(materialString.val)
+		if (len(materialString.val) == 0):
+			materialString.val = "export.material"
+		Draw.Redraw(1)
+	elif (event == BUTTON_EVENT_ACTIONSCROLLBAR): # scrollbar
+		Draw.Redraw(1)
+	elif (event == BUTTON_EVENT_EXPORT): # export
+		# construct dictionary
+		for keyi in range(len(actionKeyList)):
+			actionDict[actionKeyList[keyi]] = actionStringList[keyi].val
+		# export
+		status = export()
+		if (status == EXPORT_SUCCESS):
+			doneMessage = EXPORT_SUCCESS_MESSAGE
+		elif (status == EXPORT_WARNING):
+			doneMessage = EXPORT_WARNING_MESSAGE
+		elif (status == EXPORT_ERROR):
+			doneMessage = EXPORT_ERROR_MESSAGE
+		# set donemessage
+		scrollbar = ReplacementScrollbar(0,0,len(exportLog)-1,BUTTON_EVENT_SCROLLBARUP,BUTTON_EVENT_SRCROLLBARDOWN)
+		Draw.Register(doneMessageBox, eventCallback, buttonCallback)
+	return
+
+def gui():
+	"""draws the screen
+	"""
+	global uvToggle, armatureToggle, armatureMeshToggle, pathString, materialString, \
+		scaleNumber, fpsNumber, actionStringList, actionKeyList, scrollbar
+	# get size of the window
+	guiRectBuffer = Buffer(GL_FLOAT, 4)
+	glGetFloatv(GL_SCISSOR_BOX, guiRectBuffer)
+	guiRect =  guiRectBuffer.list
+	guiRect[0] = 0;
+	guiRect[1] = 0;
+	
+	remainRect = guiRect[:]
+	remainRect[0] += 10
+	remainRect[1] += 10
+	remainRect[2] -= 10
+	remainRect[3] -= 10
+	
+	# clear background
+	glClearColor(0.6,0.6,0.6,1) # Background: grey
+	glClear(GL_COLOR_BUFFER_BIT)
+	
+	# title
+	glColor3f(52.0/255,154.0/255,52.0/255)
+	glRectf(remainRect[0],remainRect[3]-20,remainRect[2],remainRect[3])
+	remainRect[3] -= 20
+	glColor3f(0,0,0) # Defaul color: black
+	glRasterPos2i(remainRect[0]+4,remainRect[3]+7)
+	Draw.Text("Ogre Exporter","normal")
+	
+	# what to export toggles
+	uvToggle = Draw.Toggle("Export Textures", BUTTON_EVENT_UVTOGGLE, \
+				remainRect[0], remainRect[3]-30, 220, 20, \
+				uvToggle.val, "export sticky uv coordinates, if available") 
+	remainRect[3] -= 30
+	armatureToggle = Draw.Toggle("Export Armature", BUTTON_EVENT_ARMATURETOGGLE, \
+				remainRect[0], remainRect[3]-25, 220, 20, \
+				armatureToggle.val, "export skeletons and bone weights in meshes")
+	remainRect[3] -= 25
+	if (armatureToggle.val == 1):
+		armatureMeshToggle = Draw.Toggle("Export Armature as Mesh", BUTTON_EVENT_ARMATUREMESHTOGGLE, \
+				remainRect[0], remainRect[3]-25, 220, 20, \
+				armatureMeshToggle.val, "create an extra mesh with the form of the skeleton")
+	remainRect[3] -= 30
+	
+	# Material file
+	materialString = Draw.String("Material File: ", BUTTON_EVENT_MATERIALSTRING, \
+			remainRect[0],remainRect[3]-25, 220, 20, \
+			materialString.val, 255,"all material definitions go in this file (relative to the save path)")
+	remainRect[3] -= 25
+	
+	# Scale and FPS settings
+	scaleNumber = Draw.Number("Mesh Scale Factor: ", BUTTON_EVENT_SCALENUMBER, \
+			remainRect[0], remainRect[3]-25, 220, 20, \
+			scaleNumber.val, 0.0, 1000.0, "scale factor")
+	remainRect[3] -= 25
+	if (armatureToggle.val == 1):
+		fpsNumber = Draw.Number("Frs/Sec: ", BUTTON_EVENT_FPSNUMBER, \
+				remainRect[0], remainRect[3]-25, 220, 20, \
+				fpsNumber.val, 1, 120, "animation speed in frames per second")
+	remainRect[3] -= 35
+	
+	# Path setting
+	pathString = Draw.String("Path: ", BUTTON_EVENT_PATHSTRING, \
+			10, 50, guiRect[2]-91, 20, \
+			pathString.val, 255, "the directory where the exported files are saved")
+	Draw.Button("Select", BUTTON_EVENT_PATHBUTTON, guiRect[2]-80, 50, 70, 20, "select the export directory")
+	# button panel
+	Draw.Button("Export", BUTTON_EVENT_EXPORT,10,10,100,30,"export selected objects")
+	# Draw.Button("Help",BUTTON_EVENT_HELP ,(guiRect[2])/2-50,10,100,30,"notes on usage")	
+	Draw.Button("Quit", BUTTON_EVENT_QUIT,guiRect[2]-110,10,100,30,"quit without exporting")
+	remainRect[1] += 70
+	
+	# rename animation dictionary
+	if ((armatureToggle.val == 1) and (len(actionKeyList) > 0)):
+		glRasterPos2i(remainRect[0],remainRect[3]-10)
+		Draw.Text("Rename Actions:")
+		remainRect[3] -= 15
+		scrollPanelRect = remainRect[:];
+		#glRectf(remainRect[0],remainRect[1],remainRect[2],remainRect[3])
+		actioniMax = len(actionKeyList)
+		# action Strings
+		actioni = scrollbar.getCurrentValue()
+		while (((remainRect[3]-remainRect[1]) >= 20) and ( actioni < actioniMax )):
+			actionStringList[actioni] = Draw.String(actionKeyList[actioni]+" : ", \
+				BUTTON_EVENT_ACTIONSTRINGS, \
+				remainRect[0], remainRect[3]-20, remainRect[2]-remainRect[0]-21, 20, \
+				actionStringList[actioni].val, 200, "click to edit")
+			remainRect[3] -= 21
+			actioni += 1
+		# scrollbar
+		scrollbar.draw(scrollPanelRect[2]-20, scrollPanelRect[1], 20, scrollPanelRect[3]-scrollPanelRect[1])
+		# scrollbar = Draw.Scrollbar(BUTTON_EVENT_ACTIONSCROLLBAR, \
+		#	scrollPanelRect[2]-20, scrollPanelRect[1], 20, scrollPanelRect[3]-scrollPanelRect[1], \
+		#	scrollbar.val, 0, actioniMax-1) 
+		
+	return
+
+def doneMessageBox():
+	"""displays export message and log
+	"""
+	global doneMessage, exportLog
+	# get size of the window
+	guiRectBuffer = Buffer(GL_FLOAT, 4)
+	glGetFloatv(GL_SCISSOR_BOX, guiRectBuffer)
+	guiRect =  guiRectBuffer.list
+	guiRect[0] = 0;
+	guiRect[1] = 0;
+	
+	remainRect = guiRect[:]
+	remainRect[0] += 10
+	remainRect[1] += 10
+	remainRect[2] -= 10
+	remainRect[3] -= 10
+	
+	# clear background
+	glClearColor(0.6,0.6,0.6,1) # Background: grey
+	glClear(GL_COLOR_BUFFER_BIT)
+	
+	# title
+	glColor3f(52.0/255,154.0/255,52.0/255)
+	glRectf(remainRect[0],remainRect[3]-20,remainRect[2],remainRect[3])
+	remainRect[3] -= 20
+	glColor3f(0,0,0) # Defaul color: black
+	glRasterPos2i(remainRect[0]+4,remainRect[3]+7)
+	Draw.Text("Ogre Exporter","normal")
+
+	# Ok button
+	Draw.Button("OK", BUTTON_EVENT_OK,10,10,100,30,"return to export settings")
+	Draw.Button("Quit", BUTTON_EVENT_QUIT,guiRect[2]-110,10,100,30,"quit export script")
+	remainRect[1] += 40
+	
+	# message
+	remainRect[3] -= 20
+	glRasterPos2i(remainRect[0],remainRect[3])
+	Draw.Text(doneMessage,"normal")
+	remainRect[3] -= 20
+	glRasterPos2i(remainRect[0],remainRect[3])
+	Draw.Text("Export Log:","small")
+	remainRect[3] -= 4
+	
+	# black border
+	logRect = remainRect[:]
+	logRect[2] -= 22
+	glRectf(logRect[0],logRect[1],logRect[2],logRect[3])
+	logRect[0] += 1
+	logRect[1] += 1
+	logRect[2] -= 1
+	logRect[3] -= 1
+	glColor3f(0.6,0.6,0.6) # Background: grey
+	glRectf(logRect[0],logRect[1],logRect[2],logRect[3])
+	
+	# display exportLog
+	scrollPanelRect = remainRect[:]
+	loglineiMax = len(exportLog)
+	loglinei = scrollbar.getCurrentValue()
+	glColor3f(0,0,0)
+	while (((logRect[3]-logRect[1]) >= 20) and ( loglinei < loglineiMax )):
+		logRect[3] -= 16
+		glRasterPos2i(logRect[0]+4,logRect[3])
+		Draw.Text(exportLog[loglinei])
+		loglinei += 1
+	# clip log text
+	glColor3f(0.6,0.6,0.6) # Background: grey
+	glRectf(scrollPanelRect[2]-22,scrollPanelRect[1], guiRect[2],scrollPanelRect[3])
+	# draw scrollbar
+	scrollbar.draw(scrollPanelRect[2]-20, scrollPanelRect[1], 20, scrollPanelRect[3]-scrollPanelRect[1])
+	return
+
+######
+# Main
+######
+initGUI()
+Draw.Register(gui, eventCallback, buttonCallback)
