@@ -124,8 +124,10 @@ namespace Ogre {
         ImageFormat = ilGetInteger( IL_IMAGE_FORMAT );
         ImageType = ilGetInteger( IL_IMAGE_TYPE );
 
-        // Convert image if ImageType is != IL_*BYTE and != IL_FLOAT
-        if(ImageType != IL_BYTE && ImageType != IL_UNSIGNED_BYTE && ImageType != IL_FLOAT) {
+        // Convert image if ImageType is incompatible with us (double or long)
+        if(ImageType != IL_BYTE && ImageType != IL_UNSIGNED_BYTE && 
+			ImageType != IL_FLOAT &&
+			ImageType != IL_UNSIGNED_SHORT && ImageType != IL_SHORT) {
             ilConvertImage(ImageFormat, IL_FLOAT);
         }
 
