@@ -610,7 +610,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void Root::destroyRenderWindow(RenderWindow* pWin)
+    void Root::detachRenderTarget(RenderTarget* target)
     {
         if (!mActiveRenderer)
         {
@@ -619,10 +619,10 @@ namespace Ogre {
             "system has been selected.", "Root::destroyRenderWindow");
         }
 
-        mActiveRenderer->destroyRenderWindow(pWin);
+        mActiveRenderer->detachRenderTarget( target->getName() );
     }
     //-----------------------------------------------------------------------
-    void Root::destroyRenderWindow(const String &name)
+    void Root::detachRenderTarget(const String &name)
     {
         if (!mActiveRenderer)
         {
@@ -630,10 +630,11 @@ namespace Ogre {
             "Cannot create window - no render "
             "system has been selected.", "Root::destroyRenderWindow");
         }
-        mActiveRenderer->destroyRenderWindow(name);
+
+        mActiveRenderer->detachRenderTarget( name );
     }
     //-----------------------------------------------------------------------
-    RenderWindow* Root::getRenderWindow(const String &name)
+    RenderTarget* Root::getRenderTarget(const String &name)
     {
         if (!mActiveRenderer)
         {
@@ -642,7 +643,7 @@ namespace Ogre {
             "system has been selected.", "Root::getRenderWindow");
         }
 
-        return mActiveRenderer->getRenderWindow(name);
+        return mActiveRenderer->getRenderTarget(name);
     }
     //-----------------------------------------------------------------------
     void Root::showDebugOverlay(bool show)
