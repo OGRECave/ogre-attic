@@ -182,7 +182,17 @@ namespace Ogre {
     size_t MemoryDataStream::readLine(char* buf, size_t maxCount, 
         const String& delim)
     {
-        size_t pos = strcspn((const char*)mPos, delim.c_str());
+        // Since we already read binary, have to deal with Unix / Windows LFs
+        String newDelim = delim;
+        size_t extraChar = 0;
+#if OGRE_PLATFORM == PLATFORM_WIN32
+        if (newDelim.at(0) == '\n')
+        {
+            newDelim.replace(0, 1, "\r");
+            extraChar = 1;
+        }
+#endif
+        size_t pos = strcspn((const char*)mPos, newDelim.c_str());
         if (pos > maxCount)
             pos = maxCount;
 
@@ -196,19 +206,29 @@ namespace Ogre {
         // terminate
         buf[pos+1] = '\0';
 
-        mPos += pos + 1;
+        mPos += pos + 1 + extraChar;
 
         return pos;
     }
     //-----------------------------------------------------------------------
     size_t MemoryDataStream::skipLine(const String& delim)
     {
-        size_t pos = strcspn( (const char*)mPos, delim.c_str() );
+        // Since we already read binary, have to deal with Unix / Windows LFs
+        String newDelim = delim;
+        size_t extraChar = 0;
+#if OGRE_PLATFORM == PLATFORM_WIN32
+        if (newDelim.at(0) == '\n')
+        {
+            newDelim.replace(0, 1, "\r");
+            extraChar = 1;
+        }
+#endif        
+        size_t pos = strcspn( (const char*)mPos, newDelim.c_str() );
 
         // Make sure pos can never go past the end of the data 
         if(mPos + pos > mEnd) pos = mEnd - mPos; 
 
-        mPos += pos + 1;
+        mPos += pos + 1 + extraChar;
 
         return pos;
 
@@ -296,8 +316,26 @@ namespace Ogre {
             LogManager::getSingleton().logMessage(
                 "WARNING: FileStreamDataStream::readLine - using only first delimeter");
         }
-        mpStream->getline(buf, maxCount, delim.at(0));
-        return mpStream->gcount();
+        // Since we already read binary, have to deal with Unix / Windows LFs
+        String newDelim = delim;
+        size_t extraChar = 0;
+#if OGRE_PLATFORM == PLATFORM_WIN32
+        if (newDelim.at(0) == '\n')
+        {
+            newDelim.replace(0, 1, "\r");
+            extraChar = 1;
+        }
+#endif
+        mpStream->getline(buf, maxCount, newDelim.at(0));
+        size_t ret = mpStream->gcount();
+
+#if OGRE_PLATFORM == PLATFORM_WIN32
+        if (extraChar)
+        {
+            mpStream->seekg(extraChar, std::ios_base::cur);
+        }
+#endif
+        return ret;
     }
     //-----------------------------------------------------------------------
     size_t FileStreamDataStream::skipLine(const String& delim)
@@ -375,6 +413,18 @@ namespace Ogre {
         // Have to buffer the data
         // since we have no read up to delimeter method
 
+        // Since we already read binary, have to deal with Unix / Windows LFs
+        String newDelim = delim;
+        size_t extraChar = 0;
+#if OGRE_PLATFORM == PLATFORM_WIN32
+        size_t cpos = newDelim.find_first_of('\n');
+        while (cpos != String::npos)
+        {
+            newDelim.replace(cpos, 1, "\r");
+            extraChar = 1;
+            cpos = newDelim.find_first_of('\n');
+        }
+#endif
         size_t chunkSize = std::min(maxCount, (size_t)OGRE_STREAM_TEMP_SIZE-1);
         size_t totalCount = 0;
         size_t readCount; 
@@ -383,7 +433,7 @@ namespace Ogre {
             // Terminate
             mTmpArea[readCount] = '\0';
             // Find first delimiter
-            size_t pos = strcspn(mTmpArea, delim.c_str());
+            size_t pos = strcspn(mTmpArea, newDelim.c_str());
 
             if (pos > 0)
             {
@@ -399,7 +449,7 @@ namespace Ogre {
             {
                 // found terminator
                 // reposition backwards
-                fseek(mFileHandle, pos - readCount + 1, SEEK_CUR);
+                fseek(mFileHandle, pos - readCount + 1 + extraChar, SEEK_CUR);
                 break;
             }
             // Adjust chunkSize for next time
