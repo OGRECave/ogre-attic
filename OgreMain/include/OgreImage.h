@@ -201,6 +201,11 @@ namespace Ogre {
         /** Gets the depth of the image.
         */
         ushort getDepth(void) const;
+		
+		/** Get the numer of faces of the image. This is usually 6 for a cubemap, and
+		    1 for a normal image.
+		*/
+		size_t getNumFaces(void) const;
 
         /** Gets the physical width in bytes of each row of pixels.
         */
@@ -235,7 +240,7 @@ namespace Ogre {
         /**
          * Get a PixelBox encapsulating the image data of a mipmap
          */
-        PixelBox getPixelBox(int cubeface, int mipmap) const;
+        PixelBox getPixelBox(int face = 0, int mipmap = 0) const;
 
 		enum Filter
 		{

@@ -216,7 +216,7 @@ namespace Ogre {
 			@remarks	The buffer is invalidated when the resource is unloaded or destroyed.
 						Do not use it after the lifetime of the containing texture.
 		*/
-		virtual HardwarePixelBufferSharedPtr getBuffer(int face, int mipmap) = 0;
+		virtual HardwarePixelBufferSharedPtr getBuffer(int face=0, int mipmap=0) = 0;
 
     protected:
         unsigned long mHeight;

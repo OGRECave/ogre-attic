@@ -449,7 +449,13 @@ namespace Ogre {
     {
         return m_uHeight;
     }
-
+	//-----------------------------------------------------------------------------
+	size_t Image::getNumFaces(void) const
+	{
+		if(m_uFlags&IF_CUBEMAP)
+			return 6;
+		return 1;
+	}
     //-----------------------------------------------------------------------------
     ushort Image::getRowSpan() const
     {
@@ -607,10 +613,19 @@ namespace Ogre {
     
     //-----------------------------------------------------------------------------    
 
-    PixelBox Image::getPixelBox(int cubeface, int mipmap) const
+    PixelBox Image::getPixelBox(int face, int mipmap) const
     {
-        // TODO - do something with cubeface & mipmap
-        PixelBox src(getWidth(), getHeight(), getDepth(), getFormat(), const_cast<uint8*>(getData()));
+		if(mipmap != 0)
+            Except( Exception::UNIMPLEMENTED_FEATURE,
+                "Custom mipmaps not yet supported",
+                "Image::getPixelBox" ) ;
+		if(face < 0 || face >= getNumFaces())
+			Except(Exception::ERR_INVALIDPARAMS, "Face index out of range",
+					"Image::getPixelBox");
+		// Size of one face
+		size_t imageSize = PixelUtil::getMemorySize(getWidth(), getHeight(), getDepth(), getFormat());
+		// Return subface as pixelbox
+        PixelBox src(getWidth(), getHeight(), getDepth(), getFormat(), const_cast<uint8*>(getData())+imageSize*face);
         return src;
     }
 
