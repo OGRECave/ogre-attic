@@ -22,8 +22,8 @@ void exportVector3()
 {
     object vec_class = class_<Vector3>("Vector3", 
             "Standard 3-dimensional vector")
-        // Constructors
-        .def(init<Real,Real,Real>(args("fX", "fY", "fZ")))
+
+        .def(init<Real, Real, Real>())
 
         // Member variables
         .def_readwrite("x", &Vector3::x)
@@ -52,7 +52,7 @@ void exportVector3()
         .def("length", &Vector3::length)
         .def("squaredLength", &Vector3::squaredLength)
         .def("dotProduct", &Vector3::dotProduct)
-        .def("normalise", &Vector3::normalise)
+        .def("normalise", &Vector3::normalise, rir())
         .def("crossProduct", &Vector3::crossProduct)
         .def("midPoint", &Vector3::midPoint)
         .def("makeFloor", &Vector3::makeFloor)
