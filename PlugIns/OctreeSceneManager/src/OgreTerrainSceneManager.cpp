@@ -414,14 +414,6 @@ void TerrainSceneManager::setWorldGeometry( const String& filename )
 void TerrainSceneManager::_renderVisibleObjects( void )
 {
 
-    for ( int i = 0; i < ( int ) mTiles.size(); i++ )
-    {
-        for ( int j = 0; j < ( int ) mTiles.size(); j++ )
-        {
-            mTiles[ i ][ j ] ->_alignNeighbors();
-        }
-    }
-
     mDestRenderSystem -> setLightingEnabled( false );
 
     OctreeSceneManager::_renderVisibleObjects();
