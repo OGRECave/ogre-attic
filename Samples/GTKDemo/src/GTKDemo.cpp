@@ -12,20 +12,25 @@ LGPL like the rest of the engine.
 -----------------------------------------------------------------------------
 */
 
-#include "ExampleApplication.h"
-#include "ExampleFrameListener.h"
+#include "ExampleGTKApplication.h"
+//#include "ExampleFrameListener.h"
 
-#include "GTKWindow.h"
-
+//#include "GTKWindow.h"
+#include <gtkmm/main.h>
 #include <gtkmm/box.h>
 #include <gtkmm/scale.h>
 #include <gtkmm/window.h>
+#include <gtkmm/frame.h>
+#include <gtkglmm.h>
 
 using namespace Ogre;
 
 class GTKDemoFrameListener : public FrameListener
 {
 public:
+    GTKDemoFrameListener() {
+    }
+
     bool frameStarted(const FrameEvent& evt)
     {
         return true;
@@ -45,8 +50,13 @@ public:
         if (!setup())
             return;
 
-        gtk_win->show();
-        gtk_win->update();
+        //gtk_win->show_all();
+        //gtk_win->update();
+	//std::cout << "Go!" << std::endl;
+	mWindow->update();
+	// Redraw viewport after scene update
+	//owidget->queue_draw();
+
         Gtk::Main::run();
     }
 
@@ -57,74 +67,99 @@ protected:
         return false;
     }
 
-    bool on_expose_event(GdkEventExpose* event)
-    {
-        gtk_win->update();
-        return false;
-    }
-
     void on_value_changed(void)
     {
         Real s = hscale->get_value();
         headNode->setScale(s, s, s);
-        gtk_win->update();
+        //mWindow->update();
+	owidget->queue_draw();
     }
 
+	/**
+	* At the end of this routine, the window containing the OGRE widget must be
+	* created and visible
+	*/
     void setupGTKWindow(void)
     {
-        // Setup our window
-        gtk_win = static_cast<GTKWindow*>(mWindow);
+	gtk_win = new Gtk::Window();
+	gtk_win->set_title("An Ogre Head in a box");
         gtk_win->signal_delete_event().connect(SigC::slot(*this,
             &GTKDemoApplication::on_delete_event));
-        OGREWidget* owidget = gtk_win->get_ogre_widget();
-        owidget->signal_expose_event().connect(SigC::slot(*this,
-            &GTKDemoApplication::on_expose_event));
-        owidget->reference();
-        gtk_win->remove();
+
+
+        // Setup our window
         vbox = new Gtk::VBox;
         gtk_win->add(*vbox);
-        vbox->show();
 
-        vbox->pack_end(*owidget, true, true);
-        owidget->unreference();
+	int width = 640;
+	int height = 480;
 
+	// Create a bin in which we will attach the Ogre widget
+	Gtk::Bin *bin = Gtk::manage(new Gtk::Frame());
+	bin->show();
+        vbox->pack_end(*bin, true, true);
+
+	// Create a horizontal scaler to show normal GTK
+	// widgets working together with Ogre
         hscale = Gtk::manage(new Gtk::HScale(1.0, 5.0, 0.1));
         hscale->signal_value_changed().connect(SigC::slot(*this,
             &GTKDemoApplication::on_value_changed));
+
         vbox->pack_end(*hscale, false, true);
-        hscale->show();
+
+	// Now show allAn Ogre in a box
+	gtk_win->show_all();
+
+	// Add our OGRE widget
+	std::cout << "Creating OGRE widget" << std::endl;
+
+	// Create OGRE widget and attach it
+	// Note that the parent widget *must* be visible already at this point,
+	// or the widget won't get realized in time for the GLinit that follows
+	// this call. This is usually the case for Glade generated windows, anyway.
+	mWindow = mRoot->createRenderWindow(
+			"An Ogre in a box",
+			width, height, 32,
+			false, // non fullscreen
+			0, 0, // left, top
+			true, // depth buffer
+			reinterpret_cast<RenderWindow*>(bin)
+		);
+
+    	mWindow->getCustomAttribute("GTKGLMMWIDGET", &owidget);
+	std::cout << "Created OGRE widget" << std::endl;
+	//gtk_win->show_all();
     }
 
     void createScene(void)
     {
-        setupGTKWindow();
-
-        mRoot->showDebugOverlay(false);
-
         mSceneMgr->setAmbientLight(ColourValue(0.6, 0.6, 0.6));
+
         // Setup the actual scene
         Light* l = mSceneMgr->createLight("MainLight");
         l->setPosition(0, 100, 500);
 
-		Entity* head = mSceneMgr->createEntity("head", "ogrehead.mesh");
+	Entity* head = mSceneMgr->createEntity("head", "ogrehead.mesh");
         headNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-		headNode->attachObject(head);
+	headNode->attachObject(head);
 
         mCamera->setAutoTracking(true, headNode);
     }
 
     void createFrameListener(void)
     {
-		// This is where we instantiate our own frame listener
-        mFrameListener= new GTKDemoFrameListener();
+	// This is where we instantiate our own frame listener
+        mFrameListener = new GTKDemoFrameListener();
         mRoot->addFrameListener(mFrameListener);
     }
 
 private:
-    GTKWindow* gtk_win;
-    Gtk::VBox* vbox;
-    Gtk::HScale* hscale;
-    SceneNode* headNode;
+    	Gtk::Window* gtk_win;
+    	Gtk::VBox* vbox;
+    	Gtk::HScale* hscale;
+    	SceneNode* headNode;
+	Gtk::GL::DrawingArea *owidget;
+//	RenderWindow* mWindow;
 };
 
 #if OGRE_PLATFORM == PLATFORM_WIN32
