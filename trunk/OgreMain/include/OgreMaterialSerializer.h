@@ -30,18 +30,24 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
     /** Class for serializing a Material to a material.script.*/
-    class MaterialSerializer
+    class _OgreExport MaterialSerializer
     {
     public:
-		MaterialSerializer() {};
+		/** default constructor*/
+		MaterialSerializer();
+		/** default destructor*/
 		virtual ~MaterialSerializer() {};
 
-		/** Imports a Material from the given Material object.*/
-        //void importMaterial(const Material *pMat, bool exportDefaults = false);
-        /** Exports a Material to the named material script file. */
+		/** Queue an in-memory Material to the internal buffer for export.*/
+        void queueForExport(const Material *pMat, bool clearQueued = false, bool exportDefaults = false);
+        /** Exports queued material(s) to a named material script file. */
+		void exportQueued(const String& filename);
+        /** Exports an in-memory Material to the named material script file. */
         void exportMaterial(const Material *pMat, const String& filename, bool exportDefaults = false);
-		/** return a string representing the parsed material */
-		const String &getString() const;
+		/** Returns a string representing the parsed material(s) */
+		const String &getQueuedAsString() const;
+		/** Clears the internal buffer */
+		void clearQueue();
 
     protected:
 		void writeMaterial(const Material *pMat);

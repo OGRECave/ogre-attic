@@ -26,47 +26,62 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMaterialSerializer.h"
 #include "OgreStringConverter.h"
 #include "OgreLogManager.h"
+#include "OgreException.h"
 
 namespace Ogre 
 {
-	void MaterialSerializer::exportMaterial(const Material *pMat, const String &fileName, bool exportDefaults)
+	MaterialSerializer::MaterialSerializer()
 	{
 		mBuffer = "";
+	}
+
+	void MaterialSerializer::exportMaterial(const Material *pMat, const String &fileName, bool exportDefaults)
+	{
+		clearQueue();
 		mDefaults = exportDefaults;
-
-		LogManager::getSingleton().logMessage("** MaterialSerializer : parsing material " + pMat->getName() + " to material script : " + fileName, LML_CRITICAL);
 		writeMaterial(pMat);
+		exportQueued(fileName);
+	}
 
+	void MaterialSerializer::exportQueued(const String &fileName)
+	{
+		if (mBuffer == "")
+			Except(Exception::ERR_INVALIDPARAMS, "Queue is empty !", "MaterialSerializer::exportQueued");
+
+		LogManager::getSingleton().logMessage("MaterialSerializer : writing material(s) to material script : " + fileName, LML_CRITICAL);
 		FILE *fp;
         fp = fopen(fileName.c_str(), "w");
 		if (!fp)
-            Except(Exception::ERR_CANNOT_WRITE_TO_FILE, "Cannot create material file file.",
-            "MaterialSerializer::exportMaterial");
+            Except(Exception::ERR_CANNOT_WRITE_TO_FILE, "Cannot create material file.",
+            "MaterialSerializer::export");
 
 		fputs(mBuffer.c_str(), fp);
         fclose(fp);
-		LogManager::getSingleton().logMessage("** MaterialSerializer : done.", LML_CRITICAL);
+		LogManager::getSingleton().logMessage("MaterialSerializer : done.", LML_CRITICAL);
 	}
 
-	/*
-    void MaterialSerializer::importMaterial(const Material *pMat, bool exportDefaults)
+	void MaterialSerializer::queueForExport(const Material *pMat, bool clearQueued, bool exportDefaults)
+	{
+		if (clearQueued)
+			clearQueue();
+
+		mDefaults = exportDefaults;
+		writeMaterial(pMat);
+	}
+
+	void MaterialSerializer::clearQueue()
 	{
 		mBuffer = "";
-		mDefaults = exportDefaults;
-
-		LogManager::getSingleton().logMessage("** MaterialSerializer : parsing material " + pMat->getName(), LML_CRITICAL);
-		writeMaterial(pMat);
-		LogManager::getSingleton().logMessage("** MaterialSerializer : done.", LML_CRITICAL);
 	}
-    */
 
-	const String &MaterialSerializer::getString() const
+	const String &MaterialSerializer::getQueuedAsString() const
 	{
 		return mBuffer;
 	}
 
 	void MaterialSerializer::writeMaterial(const Material *pMat)
     {
+		LogManager::getSingleton().logMessage("MaterialSerializer : parsing material " + pMat->getName() + " to queue.", LML_CRITICAL);
         // Name
         mBuffer += pMat->getName();
 		beginSection();
@@ -264,10 +279,12 @@ namespace Ogre
 			}
 		}
 		endSection();
+		LogManager::getSingleton().logMessage("MaterialSerializer : done.", LML_CRITICAL);
     }
 
 	void MaterialSerializer::writeTextureLayer(const Material::TextureLayer *pTex)
     {
+		LogManager::getSingleton().logMessage("MaterialSerializer : parsing texture layer.", LML_CRITICAL);
 		//texture name
 		writeSubAttribute("texture");
 		writeValue(pTex->getTextureName());
