@@ -66,6 +66,8 @@ namespace Ogre
     {
         mForcedRenderLevel = -1;
         mLastNextLevel = -1;
+        // Default query flags to top bit so users can exclude it if they wish
+        mQueryFlags = 0x80000000;
 
         mMinLevelDistSqr = 0;
 
