@@ -180,12 +180,14 @@ namespace Ogre {
     class ExternalTextureSourceManager;
     class Factory;
     class Font;
+    class FontPtr;
     class FontManager;
     struct FrameEvent;
     class FrameListener;
     class Frustum;
     class GuiContainer;
     class GpuProgram;
+    class GpuProgramPtr;
     class GpuProgramManager;
 	class GpuProgramUsage;
     class GuiManager;
@@ -193,6 +195,7 @@ namespace Ogre {
     class HardwareOcclusionQuery;
     class HardwareVertexBuffer;
 	class HighLevelGpuProgram;
+    class HighLevelGpuProgramPtr;
 	class HighLevelGpuProgramManager;
 	class HighLevelGpuProgramFactory;
     class IndexData;
@@ -212,6 +215,7 @@ namespace Ogre {
     class Log;
     class LogManager;
     class Material;
+    class MaterialPtr;
     class MaterialManager;
     class Math;
     class Matrix3;
@@ -228,6 +232,7 @@ namespace Ogre {
 	class MouseTarget;
     class Node;
     class Overlay;
+    class OverlayPtr;
     class OverlayElement;
     class OverlayElementFactory;
     class OverlayManager;
@@ -283,6 +288,7 @@ namespace Ogre {
     class SimpleRenderable;
     class SimpleSpline;
     class Skeleton;
+    class SkeletonPtr;
     class SkeletonInstance;
     class SkeletonManager;
     class Sphere;
@@ -297,6 +303,7 @@ namespace Ogre {
 	class ExternalTextureSource;
     class TextureUnitState;
     class Texture;
+    class TexturePtr;
 	class TextureFont;
     class TextureManager;
 	class Timer;
