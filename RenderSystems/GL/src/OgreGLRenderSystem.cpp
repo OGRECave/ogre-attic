@@ -132,6 +132,14 @@ namespace Ogre {
 
         mGLSupport->start();
 		RenderWindow* autoWindow = mGLSupport->createWindow(autoCreateWindow, this);
+
+        _setCullingMode( mCullingMode );
+        
+        return autoWindow;
+    }
+
+    void GLRenderSystem::initGL(void)
+    {
         mGLSupport->initialiseExtensions();
 
         LogManager::getSingleton().logMessage(
@@ -230,12 +238,6 @@ namespace Ogre {
             mHardwareBufferManager = new GLDefaultHardwareBufferManager;
         }
 
-        //The main startup
-        RenderSystem::initialise(autoCreateWindow);
-
-        _setCullingMode( mCullingMode );
-
-		return autoWindow;
     }
 
     void GLRenderSystem::reinitialise(void)
@@ -318,10 +320,13 @@ namespace Ogre {
         }
 
         // Create the window
-        RenderWindow* win = mGLSupport->newWindow(name, width, height, colourDepth, fullScreen,
-			left, top, depthBuffer, parentWindowHandle, mVSync);
+        RenderWindow* win = mGLSupport->newWindow(name, width, height, 
+            colourDepth, fullScreen, left, top, depthBuffer, parentWindowHandle,
+            mVSync);
 
         attachRenderTarget( *win );
+
+        initGL();
 
         if (parentWindowHandle == NULL)
         {

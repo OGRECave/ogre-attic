@@ -740,7 +740,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void TTYGuiElement::_update(void)
     {
-        if (mMetricsMode == GMM_PIXELS && OverlayManager::getSingleton().hasViewportChanged())
+        if (mMetricsMode == GMM_PIXELS && 
+            (OverlayManager::getSingleton().hasViewportChanged() || mGeomPositionsOutOfDate))
         {
             // Recalc character size
             Real vpHeight;
