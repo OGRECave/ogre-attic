@@ -92,6 +92,12 @@ namespace Ogre {
             const String &name, const Image &img, 
             TextureType texType = TEX_TYPE_2D,
             int iNumMipMaps = -1, Real gamma = 1.0f, int priority = 1 );
+			
+		virtual Texture *loadRawData( 
+			const String &name, const DataChunk &pData, 
+			ushort uWidth, ushort uHeight, PixelFormat eFormat,
+            TextureType texType = TEX_TYPE_2D,
+            int iNumMipMaps = -1, Real gamma = 1.0f, int priority = 1 );
 
         /** @copydoc ResourceManager::load */
         virtual void load( Resource *res, int priority = 1 )

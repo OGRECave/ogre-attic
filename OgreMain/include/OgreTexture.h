@@ -139,6 +139,11 @@ namespace Ogre {
         /** Loads the data from an image.
         */
         virtual void loadImage( const Image &img ) = 0;
+			
+		/** Loads the data from the raw memory area.
+		*/
+		virtual void loadRawData( const DataChunk &pData, 
+			ushort uWidth, ushort uHeight, PixelFormat eFormat) ;
 
         void enable32Bit( bool setting = true ) 
         {
