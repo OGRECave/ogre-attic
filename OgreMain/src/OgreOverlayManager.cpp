@@ -47,7 +47,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     OverlayManager::OverlayManager() :
         mLastViewportWidth(0), mLastViewportHeight(0), 
-        mViewportDimensionsChanged(false)
+        mViewportDimensionsChanged(false), mCursorGuiInitialised(false)
     {
 		mCursorGuiRegistered = 0;
 		mCursorLevelOverlay = 0;
@@ -565,11 +565,17 @@ namespace Ogre {
 	{
 		mCursorGuiRegistered = cursor;
 		mCursorListener = cursorListener;
+        mCursorGuiInitialised = false;
 	}
 
 	//-----------------------------------------------------------------------------
 	GuiContainer* OverlayManager::getCursorGui()
 	{
+        if(!mCursorGuiInitialised)
+        {
+            mCursorGuiRegistered->initialise();
+            mCursorGuiInitialised = true;
+        }
 		return mCursorGuiRegistered;
 	}
 

@@ -52,6 +52,25 @@ namespace Ogre {
         mAlignment = Left;
 		mpFont = 0;
 
+        mColourTop = ColourValue::White;
+        mColourBottom = ColourValue::White;
+        mColoursChanged = true;
+
+        mAllocSize = 0;
+
+        mCharHeight = 0.02;
+		mPixelCharHeight = 12;
+		mSpaceWidth = 0;
+		mPixelSpaceWidth = 0;
+
+        if (createParamDictionary("TextAreaGuiElement"))
+        {
+            addBaseParameters();
+        }
+    }
+
+    void TextAreaGuiElement::initialise(void)
+    {
         // Set up the render op
         // Combine positions and texture coords since they tend to change together
         // since character sizes are different
@@ -72,23 +91,8 @@ namespace Ogre {
         mRenderOp.vertexData->vertexStart = 0;
         // Vertex buffer will be created in checkMemoryAllocation
 
-        mColourTop = ColourValue::White;
-        mColourBottom = ColourValue::White;
-        mColoursChanged = true;
-
-
-        mAllocSize = 0;
         checkMemoryAllocation( DEFAULT_INITIAL_CHARS );
 
-        mCharHeight = 0.02;
-		mPixelCharHeight = 12;
-		mSpaceWidth = 0;
-		mPixelSpaceWidth = 0;
-
-        if (createParamDictionary("TextAreaGuiElement"))
-        {
-            addBaseParameters();
-        }
     }
 
     void TextAreaGuiElement::checkMemoryAllocation( uint numChars )
@@ -138,6 +142,7 @@ namespace Ogre {
 			// not initialised yet, probably due to the order of creation in a template
 			return;
 		}
+
         size_t charlen = mCaption.size();
         checkMemoryAllocation( charlen );
 
