@@ -334,8 +334,7 @@ namespace OgreMaya {
 
 
         // BONE ASSIGMENTS
-//        if(OPTIONS.exportSkeleton) {
-        if(OPTIONS.exportVBA) {
+        if(OPTIONS.exportVBA || OPTIONS.exportSkeleton) {
             out << "\t\t\t<boneassignments>\n";
 
             int i;
