@@ -147,6 +147,11 @@ namespace Ogre {
         mBillboardSet->setPoolSize(quota);
     }
     //-----------------------------------------------------------------------
+    void BillboardParticleRenderer::_notifyAttached(Node* parent, bool isTagPoint)
+    {
+        mBillboardSet->_notifyAttached(parent, isTagPoint);
+    }
+    //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     const String& BillboardParticleRendererFactory::getType() const

@@ -478,12 +478,15 @@ namespace Ogre {
                 if (!renderer->setParameter(vecparams[0], vecparams[1]))
                 {
                     LogManager::getSingleton().logMessage("Bad particle system attribute line: '"
-                        + line + "' in " + sys->getName());
+                        + line + "' in " + sys->getName() + " (tried renderer)");
                 }
             }
-            // BAD command. BAD!
-            LogManager::getSingleton().logMessage("Bad particle system attribute line: '"
-                + line + "' in " + sys->getName());
+            else
+            {
+                // BAD command. BAD!
+                LogManager::getSingleton().logMessage("Bad particle system attribute line: '"
+                    + line + "' in " + sys->getName() + " (no renderer)");
+            }
         }
     }
     //-----------------------------------------------------------------------

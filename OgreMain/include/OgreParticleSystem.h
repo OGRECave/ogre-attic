@@ -294,6 +294,12 @@ namespace Ogre {
         virtual void _notifyCurrentCamera(Camera* cam);
 
         /** Overridden from MovableObject
+        @see
+        MovableObject
+        */
+        void _notifyAttached(Node* parent, bool isTagPoint = false);
+
+        /** Overridden from MovableObject
             @see
                 MovableObject
         */
