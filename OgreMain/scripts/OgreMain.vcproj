@@ -390,6 +390,9 @@
 				RelativePath="..\src\OgrePredefinedControllers.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreProfiler.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreProgressiveMesh.cpp">
 			</File>
 			<File
@@ -869,6 +872,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgrePrerequisites.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreProfiler.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreProgressiveMesh.h">

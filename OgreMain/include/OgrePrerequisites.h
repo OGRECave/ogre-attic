@@ -187,6 +187,8 @@ namespace Ogre {
     class ParticleSystemManager;
     class Plane;
 	class PositionTarget;
+    class Profile;
+	class Profiler;
     class Quaternion;
     class Ray;
     class Renderable;

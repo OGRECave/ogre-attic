@@ -106,6 +106,7 @@ OgrePlatformManager.h \
 OgrePositionTarget.h \
 OgrePredefinedControllers.h \
 OgrePrerequisites.h \
+OgreProfiler.h \
 OgreProgressiveMesh.h \
 OgreQuaternion.h \
 OgreRay.h \
