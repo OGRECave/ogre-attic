@@ -63,6 +63,16 @@ namespace Ogre {
 
 	}
     //-----------------------------------------------------------------------
+    ResourcePtr ResourceManager::load(const String& name, 
+        const String& group,
+        const NameValuePairList& loadParams, bool isManual = false, 
+        ManualResourceLoader* loader = 0)
+    {
+        ResourcePtr ret = create(name, group, isManual, loader, loadParams);
+        ret->load();
+        return ret;
+    }
+    //-----------------------------------------------------------------------
     void ResourceManager::addImpl( ResourcePtr& res )
     {
         std::pair<ResourceMap::iterator, bool> result = 

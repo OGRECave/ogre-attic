@@ -185,7 +185,7 @@ namespace Ogre {
 		virtual ResourcePtr load(const String& name, 
             const String& group,
 			const NameValuePairList& loadParams, bool isManual = false, 
-			ManualResourceLoader* loader = 0) = 0;
+			ManualResourceLoader* loader = 0);
 
 		/** Gets the file patterns which should be used to find scripts for this
 			ResourceManager.
