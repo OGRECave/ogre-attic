@@ -659,23 +659,6 @@ namespace Ogre {
     {
         // Clone without copying data
         VertexData* ret = source->clone(false);
-        const VertexElement* blendIndexElem = 
-            source->vertexDeclaration->findElementBySemantic(VES_BLEND_INDICES);
-        const VertexElement* blendWeightElem = 
-            source->vertexDeclaration->findElementBySemantic(VES_BLEND_WEIGHTS);
-        // Remove blend index
-        if (blendIndexElem)
-        {
-            // Remove buffer reference
-            ret->vertexBufferBinding->unsetBinding(blendIndexElem->getSource());
-
-        }
-        if (blendWeightElem && 
-            blendWeightElem->getSource() != blendIndexElem->getSource())
-        {
-            // Remove buffer reference
-            ret->vertexBufferBinding->unsetBinding(blendWeightElem->getSource());
-        }
         // remove elements from declaration
         ret->vertexDeclaration->removeElement(VES_BLEND_INDICES);
         ret->vertexDeclaration->removeElement(VES_BLEND_WEIGHTS);
