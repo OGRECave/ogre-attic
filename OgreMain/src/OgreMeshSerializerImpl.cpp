@@ -163,11 +163,12 @@ namespace Ogre {
         writeChunkHeader(M_MESH, calcMeshSize(pMesh));
 
 		// bool skeletallyAnimated
-		bool skelAnim = mpMesh->hasSkeleton();
+		bool skelAnim = pMesh->hasSkeleton();
 		writeBools(&skelAnim, 1);
 
-        // Write geometry
-        writeGeometry(pMesh->sharedVertexData);
+        // Write shared geometry
+        if (pMesh->sharedVertexData)
+            writeGeometry(pMesh->sharedVertexData);
 
         // Write Submeshes
         for (int i = 0; i < pMesh->getNumSubMeshes(); ++i)
@@ -209,6 +210,8 @@ namespace Ogre {
             LogManager::getSingleton().logMessage("LOD information exported.");
             
         }
+        // Write bounds information
+        writeBoundsInfo(pMesh);
 
 
     }
@@ -556,7 +559,7 @@ namespace Ogre {
 		}
 
 
-        // M_GEOMETRY chunk
+        // M_GEOMETRY chunk (optional)
         chunkID = readChunk(chunk);
         if (chunkID == M_GEOMETRY)
         {
@@ -1067,6 +1070,51 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
+    void MeshSerializerImpl::writeBoundsInfo(const Mesh* pMesh)
+    {
+		// Usage Header
+        unsigned long size = CHUNK_OVERHEAD_SIZE;
+
+        size += sizeof(Real) * 7;
+        writeChunkHeader(M_MESH_BOUNDS, size);
+
+        // Real minx, miny, minz
+        const Vector3& min = pMesh->mAABB.getMinimum();
+        const Vector3& max = pMesh->mAABB.getMaximum();
+        writeReals(&min.x, 1);
+        writeReals(&min.y, 1);
+        writeReals(&min.z, 1);
+        // Real maxx, maxy, maxz
+        writeReals(&max.x, 1);
+        writeReals(&max.y, 1);
+        writeReals(&max.z, 1);
+        // Real radius
+        writeReals(&pMesh->mBoundRadius, 1);
+
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl::readBoundsInfo(DataChunk& chunk)
+    {
+        Vector3 min, max;
+        // Real minx, miny, minz
+        readReals(chunk, &min.x, 1);
+        readReals(chunk, &min.y, 1);
+        readReals(chunk, &min.z, 1);
+        // Real maxx, maxy, maxz
+        readReals(chunk, &max.x, 1);
+        readReals(chunk, &max.y, 1);
+        readReals(chunk, &max.z, 1);
+        AxisAlignedBox box(min, max);
+        mpMesh->_setBounds(box);
+        // Real radius
+        Real radius;
+        readReals(chunk, &radius, 1);
+        mpMesh->_setBoundingSphereRadius(radius);
+
+
+
+    }
+    //---------------------------------------------------------------------
 	void MeshSerializerImpl::readMeshLodInfo(DataChunk& chunk)
 	{
 		unsigned short chunkID, i;
@@ -1209,6 +1257,8 @@ namespace Ogre {
     void MeshSerializerImpl_v1::readMesh(DataChunk& chunk)
     {
         unsigned short chunkID;
+
+        mFirstGeometry = true;
 
         // M_GEOMETRY chunk
         chunkID = readChunk(chunk);
@@ -1390,6 +1440,51 @@ namespace Ogre {
         pReal = static_cast<Real*>(
             vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
         readReals(chunk, pReal, dest->vertexCount * 3);
+
+        // Since in v1 we did not save mesh bounds, we need to calculate them now
+		AxisAlignedBox localBox;
+		Vector3 min, max;
+		bool first = true;
+        Real maxSquaredRadius = -1;
+
+		for (size_t vert = 0; vert < dest->vertexCount; ++vert)
+		{
+			Vector3 vec(pReal[0], pReal[1], pReal[2]);
+
+			// Update sphere bounds
+			maxSquaredRadius = std::max(vec.squaredLength(), maxSquaredRadius);
+
+			// Update box
+			if (first)
+			{
+				min = vec;
+				max = vec;
+				first = false;
+			}
+			else
+			{
+				min.makeFloor(vec);
+				max.makeCeil(vec);
+			}
+
+			pReal += 3;
+		}
+		localBox.setExtents(min, max);
+        
+        if (mFirstGeometry)
+        {
+            mpMesh->_setBounds(localBox);
+            mpMesh->_setBoundingSphereRadius(Math::Sqrt(maxSquaredRadius));
+            mFirstGeometry = false;
+        }
+        else
+        {
+            localBox.merge(mpMesh->mAABB);
+            mpMesh->_setBounds(localBox);
+            maxSquaredRadius = std::max(maxSquaredRadius, mpMesh->mBoundRadius);
+            mpMesh->_setBoundingSphereRadius(Math::Sqrt(maxSquaredRadius));
+        }
+
         vbuf->unlock();
         dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
         ++bindIdx;

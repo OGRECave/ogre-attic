@@ -63,7 +63,7 @@ namespace Ogre {
                 // TODO - scale, offset, effects
         M_MESH                = 0x3000,
 			// bool skeletallyAnimated   // important flag which affects h/w buffer policies
-            // M_GEOMETRY chunk
+            // Optional M_GEOMETRY chunk
             M_SUBMESH             = 0x4000, 
                 // char* materialName
                 // bool useSharedVertices
@@ -107,7 +107,7 @@ namespace Ogre {
                     M_MESH_LOD_MANUAL = 0x8110,
                     // Required if M_MESH_LOD section manual = true
                     // String manualMeshName;
-                    M_MESH_LOD_GENERATED = 0x8120
+                    M_MESH_LOD_GENERATED = 0x8120,
                     // Required if M_MESH_LOD section manual = false
 					// Repeating section (1 per submesh)
                     // unsigned int indexCount;
@@ -115,6 +115,10 @@ namespace Ogre {
                     // unsigned short* faceIndexes;  (indexCount)
                     // OR
                     // unsigned int* faceIndexes;  (indexCount)
+            M_MESH_BOUNDS = 0x9000
+                // Real minx, miny, minz
+                // Real maxx, maxy, maxz
+                // Real radius
                     
                     
 

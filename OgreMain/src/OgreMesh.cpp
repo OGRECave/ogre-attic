@@ -45,7 +45,7 @@ namespace Ogre {
 		sharedVertexData = NULL;
         // Default to load from file
         mManuallyDefined = false;
-        mUpdateBounds = true;
+        //mUpdateBounds = true;
         setSkeletonName("");
         mBoneAssignmentsOutOfDate = false;
 		mNumLods = 1;
@@ -153,7 +153,7 @@ namespace Ogre {
             chunk.clear();
         }
 
-        _updateBounds();
+        //_updateBounds();
 
     }
 
@@ -228,6 +228,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
+    /*
     void Mesh::_updateBounds(void)
     {
         Vector3 min, max;
@@ -260,11 +261,14 @@ namespace Ogre {
         mUpdateBounds = false;
 
     }
+    */
     //-----------------------------------------------------------------------
     const AxisAlignedBox& Mesh::getBounds(void)
     {
+        /*
         if (mUpdateBounds)
             _updateBounds();
+        */
         return mAABB;
     }
     //-----------------------------------------------------------------------
@@ -277,7 +281,12 @@ namespace Ogre {
 		Real sqLen2 = mAABB.getMaximum().squaredLength();
 		mBoundRadius = Math::Sqrt(std::max(sqLen1, sqLen2)); 
 		
-        mUpdateBounds = false;
+        //mUpdateBounds = false;
+    }
+    //-----------------------------------------------------------------------
+    void Mesh::_setBoundingSphereRadius(Real radius)
+    {
+        mBoundRadius = radius;
     }
     //-----------------------------------------------------------------------
     void Mesh::setSkeletonName(const String& skelName)

@@ -83,8 +83,10 @@ namespace Ogre {
         /** Creates a new Mesh specifically for manual definition rather
             than loading from an object file. 
 		@remarks
-			Note that once you've defined your mesh, you must call Mesh::_updateBounds
-			in order to define the bounding box of your mesh.
+			Note that once you've defined your mesh, you must call Mesh::_setBounds and
+            Mesh::_setBoundingRadius in order to define the bounds of your mesh. In previous
+            versions of OGRE you could call Mesh::_updateBounds, but OGRE's support of 
+            write-only vertex buffers makes this no longer appropriate.
         */
         Mesh* createManual( const String& name);
 

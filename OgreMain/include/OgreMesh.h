@@ -168,20 +168,30 @@ namespace Ogre {
 		Real getBoundingSphereRadius(void);
 
         /** Updates the local bounding box of this mesh.
+        NOW REMOVED BECAUSE WE CANNOT READ HARDWARE BUFFERS
             @remarks
                 Only needs to be called for manually modified meshes, loaded meshes do this automatically.
-        */
         void _updateBounds(void);
+        */
 
         /** Manually set the bounding box for this Mesh.
             @remarks
-                Use with care, designed only for internal engine usage. By calling this method
-                you set the bounds of the mesh manually rather than letting the Mesh scan it's own
-                geometry to derive it. This is most useful if you are building the Mesh geometry
-                procedurally (e.g. see PatchSurface) and you have a simpler hull which you know it
-                falls within.
+            Calling this method is required when building manual meshes now, because OGRE can no longer 
+            update the bounds for you, because it cannot necessarily read vertex data back from 
+            the vertex buffers which this mesh uses (they very well might be write-only, and even
+            if they are not, reading data from a hardware buffer is a bottleneck).
+
         */
         void _setBounds(const AxisAlignedBox& bounds);
+
+        /** Manually set the bounding radius. 
+        @remarks
+            Calling this method is required when building manual meshes now, because OGRE can no longer 
+            update the bounds for you, because it cannot necessarily read vertex data back from 
+            the vertex buffers which this mesh uses (they very well might be write-only, and even
+            if they are not, reading data from a hardware buffer is a bottleneck).
+        */
+        void _setBoundingSphereRadius(Real radius);
 
         /** Sets the name of the skeleton this Mesh uses for animation.
         @remarks
@@ -432,7 +442,7 @@ namespace Ogre {
 
 
         /// Flag to indicate that bounds need updating
-        bool mUpdateBounds;
+        //bool mUpdateBounds;
 
         /// Optional linked skeleton
         String mSkeletonName;

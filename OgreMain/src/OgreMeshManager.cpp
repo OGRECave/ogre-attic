@@ -175,6 +175,9 @@ namespace Ogre
         Real xTex = (1.0f * xTile) / xsegments;
         Real yTex = (1.0f * yTile) / ysegments;
         Vector3 vec;
+        Vector3 min, max;
+        Real maxSquaredLength;
+        bool firstTime = true;
 
         for (int y = 0; y < ysegments + 1; ++y)
         {
@@ -192,6 +195,21 @@ namespace Ogre
                 *pReal++ = vec.x;
                 *pReal++ = vec.y;
                 *pReal++ = vec.z;
+
+                // Build bounds as we go
+                if (firstTime)
+                {
+                    min = vec;
+                    max = vec;
+                    maxSquaredLength = vec.squaredLength();
+                    firstTime = false;
+                }
+                else
+                {
+                    min.makeFloor(vec);
+                    max.makeCeil(vec);
+                    maxSquaredLength = std::max(maxSquaredLength, vec.squaredLength());
+                }
 
                 if (normals)
                 {
@@ -211,6 +229,7 @@ namespace Ogre
                     *pReal++ = y * yTex;
                 }
 
+
             } // x
         } // y
 
@@ -220,7 +239,9 @@ namespace Ogre
         pSub->useSharedVertices = true;
         tesselate2DMesh(pSub, xsegments + 1, ysegments + 1, false, indexBufferUsage, indexSystemMemory);
 
-        pMesh->_updateBounds();
+        //pMesh->_updateBounds();
+        pMesh->_setBounds(AxisAlignedBox(min, max));
+        pMesh->_setBoundingSphereRadius(Math::Sqrt(maxSquaredLength));
         return pMesh;
     }
 
@@ -345,8 +366,8 @@ namespace Ogre
         // Generate face list
         tesselate2DMesh(pSub, xsegments + 1, ysegments + 1, false);
 
-		*/
         pMesh->_updateBounds();
+		*/
 
         return pMesh;
     }

@@ -56,13 +56,15 @@ namespace Ogre {
 		*/
 		VertexData* clone(void);
 
-		/** Gets the positional bounds of this vertex data.
+		
+        /** Gets the positional bounds of this vertex data.
+        REMOVED BECAUSE NOT COMPATIBLE WITH WRITE-ONLY BUFFERS
 		@remarks The results of this vertex data will be combined with any
 		existing values in the input parameters, so ensure they are initialised.
 		@param box Pointer to an AxisAlignedBox to update
 		@param maxSquaredRadius Pointer to a Real to update with the squared radius
-		*/
 		void getBounds(AxisAlignedBox *box, Real *maxSquaredRadius);
+		*/
 
 	};
 

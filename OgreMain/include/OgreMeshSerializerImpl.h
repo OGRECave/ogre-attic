@@ -85,6 +85,7 @@ namespace Ogre {
         virtual void writeLodSummary(unsigned short numLevels, bool manual);
         virtual void writeLodUsageManual(const Mesh::MeshLodUsage& usage);
         virtual void writeLodUsageGenerated(const Mesh* pMesh, const Mesh::MeshLodUsage& usage, unsigned short lodNum);
+        virtual void writeBoundsInfo(const Mesh* pMesh);
 
         virtual unsigned long calcMaterialSize(const Material* pMat);
         virtual unsigned long calcTextureLayerSize(const Material::TextureLayer* pTex);
@@ -105,6 +106,7 @@ namespace Ogre {
 		virtual void readMeshLodInfo(DataChunk& chunk);
 		virtual void readMeshLodUsageManual(DataChunk& chunk, unsigned short lodNum, Mesh::MeshLodUsage& usage);
 		virtual void readMeshLodUsageGenerated(DataChunk& chunk, unsigned short lodNum, Mesh::MeshLodUsage& usage);
+        virtual void readBoundsInfo(DataChunk& chunk);
 
 
     };
@@ -112,6 +114,8 @@ namespace Ogre {
     /** Class for providing backwards-compatibility for loading version 1.0 of the .mesh format. */
     class MeshSerializerImpl_v1 : public MeshSerializerImpl
     {
+    protected:
+        bool mFirstGeometry;
     public:
         MeshSerializerImpl_v1();
         void readMesh(DataChunk& chunk);

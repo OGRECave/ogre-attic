@@ -82,6 +82,7 @@ namespace Ogre {
 		return dest;
 	}
     //-----------------------------------------------------------------------
+    /*
 	void VertexData::getBounds(AxisAlignedBox *box, Real *maxSquaredRadius)
 	{
 		// Find the position semantic element(s)
@@ -125,6 +126,7 @@ namespace Ogre {
 		localBox.setExtents(min, max);
 		box->merge(localBox);
 	}
+    */
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
 	IndexData::IndexData()
