@@ -179,7 +179,13 @@ namespace Ogre {
         bool getCastShadows(void) const { return false; }
         /// Define a default implementation of method from ShadowCaster which implements no shadows
         EdgeData* getEdgeList(void) { return NULL; }
-
+        /// Define a default implementation of method from ShadowCaster which implements no shadows
+        ShadowRenderableListIterator getShadowVolumeRenderableIterator(
+            ShadowTechnique shadowTechnique, const Light* light, 
+            unsigned long flags, HardwareIndexBufferSharedPtr* useThisIndexBuffer)
+        {
+            return ShadowRenderableListIterator(NULL, NULL);
+        }
 
 
 

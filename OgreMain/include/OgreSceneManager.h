@@ -55,43 +55,6 @@ namespace Ogre {
 	class DefaultSphereSceneQuery;
 	class DefaultAxisAlignedBoxSceneQuery;
 
-    /** An enumeration of broad shadow techniques */
-    enum _OgreExport ShadowTechnique
-    {
-        /** No shadows */
-        SHADOWTYPE_NONE,
-        /** Stencil shadow technique which renders all shadow volumes as
-            a modulation after all the non-transparent areas have been 
-            rendered. This technique is considerably less fillrate intensive 
-            than the additive stencil shadow approach when there are multiple
-            lights, but is not an accurate model. 
-        */
-        SHADOWTYPE_STENCIL_MODULATIVE,
-        /** Stencil shadow technique which renders each light as a separate
-            additive pass to the scene. This technique can be very fillrate
-            intensive because it requires at least 2 passes of the entire
-            scene, more if there are multiple lights. However, it is a more
-            accurate model than the modulative stencil approach and this is
-            especially apparant when using coloured lights or bump mapping.
-        */
-        SHADOWTYPE_STENCIL_ADDITIVE,
-        /** Texture-based shadow technique which involves a monochrome render-to-texture
-            of the shadow caster and a projection of that texture onto the 
-            shadow receivers as a modulative pass. 
-        */
-        SHADOWTYPE_TEXTURE_MODULATIVE,
-        /** Texture-based shadow technique which involves a render-to-texture
-            of the shadow caster and a projection of that texture onto the 
-            shadow receivers, followed by a depth test to detect the closest
-            fragment to the light.
-        */
-        SHADOWTYPE_TEXTURE_SHADOWMAP,
-        /** Simple shadow technique that simply renders a 'shadow blob' underneath
-            a movable object.
-        */
-        SHADOWTYPE_DECAL
-    };
-
     /** Manages the rendering of a 'scene' i.e. a collection of primitives.
         @remarks
             This class defines the basic behaviour of the 'Scene Manager' family. These classes will

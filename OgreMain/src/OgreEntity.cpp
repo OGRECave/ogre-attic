@@ -244,11 +244,7 @@ namespace Ogre {
 		*mFullBoundingBox = mMesh->getBounds();
 		mFullBoundingBox->merge(getChildObjectsBoundingBox());
 
-        // Scale
-        if (mParentNode)
-        {
-            mFullBoundingBox->scale(mParentNode->_getDerivedScale());
-        }
+        // Don't scale here, this is taken into account when world BBox calculation is done
 
         return *mFullBoundingBox;
     }
@@ -534,5 +530,15 @@ namespace Ogre {
         // Get from Mesh
         return mMesh->getEdgeList();
     }
+    //-----------------------------------------------------------------------
+    ShadowCaster::ShadowRenderableListIterator 
+    Entity::getShadowVolumeRenderableIterator(
+        ShadowTechnique shadowTechnique, const Light* light, 
+        unsigned long flags, HardwareIndexBufferSharedPtr* useThisIndexBuffer)
+    {
+        // TODO
+        return ShadowRenderableListIterator(NULL, NULL);
+    }
+
 
 }
