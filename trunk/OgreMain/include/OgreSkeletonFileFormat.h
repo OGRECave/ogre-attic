@@ -82,6 +82,7 @@ namespace Ogre {
                     // Real time                    : The time position (seconds)
                     // Quaternion rotate            : Rotation to apply at this keyframe
                     // Vector3 translate            : Translation to apply at this keyframe
+                    // Vector3 scale                : Scale to apply at this keyframe
     };
 
 } // namespace

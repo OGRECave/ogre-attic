@@ -212,6 +212,8 @@ namespace Ogre {
         writeObject(key->getRotation());
         // Vector3 translate            : Translation to apply at this keyframe
         writeObject(key->getTranslate());
+        // Vector3 scale                : Scale to apply at this keyframe
+        writeObject(key->getScale());
     }
     //---------------------------------------------------------------------
     unsigned long SkeletonSerializer::calcBoneSize(const Bone* pBone)
@@ -291,6 +293,8 @@ namespace Ogre {
         // Quaternion rotate            : Rotation to apply at this keyframe
         size += sizeof(Real) * 4;
         // Vector3 translate            : Translation to apply at this keyframe
+        size += sizeof(Real) * 3;
+        // Vector3 scale                : Scale to apply at this keyframe
         size += sizeof(Real) * 3;
 
         return size;
@@ -427,6 +431,13 @@ namespace Ogre {
         Vector3 trans;
         readObject(chunk, &trans);
         kf->setTranslate(trans);
+        // Do we have scale?
+        if (mCurrentChunkLen == calcKeyFrameSize(kf))
+        {
+            Vector3 scale;
+            readObject(chunk, &scale);
+            kf->setScale(scale);
+        }
     }
     //---------------------------------------------------------------------
 
