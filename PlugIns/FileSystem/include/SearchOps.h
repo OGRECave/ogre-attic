@@ -1,5 +1,3 @@
-#if OGRE_PLATFORM != PLATFORM_WIN32
-
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -7,6 +5,10 @@
 #include <fnmatch.h>
 #include <unistd.h>
 #include <stdlib.h>
+
+#include "OgrePlatform.h"
+
+#if OGRE_PLATFORM != PLATFORM_WIN32
 
 /* The max number of searches to allow at one time */
 #define MAX_FIND_SEARCHES 10
