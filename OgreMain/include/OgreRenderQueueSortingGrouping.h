@@ -70,7 +70,7 @@ namespace Ogre {
             {
                 // Sort by passHash, which is pass, then texture unit changes
                 unsigned long hasha = a->getHash();
-                unsigned long hashb = a->getHash();
+                unsigned long hashb = b->getHash();
                 if (hasha == hashb)
                 {
                     // Must differentiate by pointer incase 2 passes end up with the same hash
