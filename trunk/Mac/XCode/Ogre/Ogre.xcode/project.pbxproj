@@ -6785,12 +6785,12 @@
 			};
 		};
 		8227095507010AC300E6B1F9 = {
+			explicitFileType = wrapper.framework;
 			isa = PBXFileReference;
-			lastKnownFileType = wrapper.framework;
 			name = SDL.framework;
-			path = ../../../../../Library/Frameworks/SDL.framework;
-			refType = 4;
-			sourceTree = "<group>";
+			path = /Library/Frameworks/SDL.framework;
+			refType = 0;
+			sourceTree = "<absolute>";
 		};
 		8227095607010AC300E6B1F9 = {
 			fileRef = 8227095507010AC300E6B1F9;
@@ -10360,10 +10360,9 @@
 		82A3A30A07A1AA89001CBF8B = {
 			isa = PBXFileReference;
 			lastKnownFileType = text.xml;
-			name = "EXRCodec Plugin-Info.plist";
-			path = "/Users/temas/cvs/ogre/Mac/XCode/Ogre/EXRCodec Plugin-Info.plist";
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = "EXRCodec Plugin-Info.plist";
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		82A3A30D07A1AA9E001CBF8B = {
 			children = (
@@ -10489,12 +10488,12 @@
 			};
 		};
 		82A3A35207A1ABBD001CBF8B = {
+			explicitFileType = wrapper.framework;
 			isa = PBXFileReference;
-			lastKnownFileType = wrapper.framework;
 			name = zzip.framework;
-			path = "../../../../../work/zziplib-0.10.82/Xcode/build/zzip.framework";
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
+			path = "/Users/temas/work/zziplib-0.10.82/Xcode/build/zzip.framework";
+			refType = 0;
+			sourceTree = "<absolute>";
 		};
 		82A3A35307A1ABBD001CBF8B = {
 			fileRef = 82A3A35207A1ABBD001CBF8B;
