@@ -348,7 +348,14 @@ namespace Ogre
 			if( capsType & linearUsage )
 				return D3DTEXF_LINEAR;
 		case TFO_NONE:
-			return D3DTEXF_POINT;
+            if (usage == D3D_FUSAGE_MIP)
+            {
+			    return D3DTEXF_POINT;
+            }
+            else
+            {
+			    return D3DTEXF_NONE;
+            }
 		}
 		return 0;
 	}

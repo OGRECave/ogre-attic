@@ -1472,6 +1472,11 @@ namespace Ogre {
         OgreGuard( "D3DRenderSystem::_render" );
         HRESULT hr;
 
+        // Exit immediately if there is nothing to render
+        // This caused a problem on FireGL 8800
+        if (op.vertexData->vertexCount == 0)
+            return;
+
         // call superclass
         RenderSystem::_render(op);
         // Set up vertex flags
@@ -2470,6 +2475,7 @@ namespace Ogre {
         __SetTextureStageState(unit,D3DTSS_MAGFILTER, _getMagFilter(texLayerFilterOps));
         __SetTextureStageState(unit,D3DTSS_MINFILTER, _getMinFilter(texLayerFilterOps));
         __SetTextureStageState(unit,D3DTSS_MIPFILTER, _getMipFilter(texLayerFilterOps));
+        // NB D3D7 doesn't allow mipmapping to be turned off by filter options like D3D9
     }
 
     void D3DRenderSystem::_setTextureLayerAnisotropy(int unit, int maxAnisotropy)
