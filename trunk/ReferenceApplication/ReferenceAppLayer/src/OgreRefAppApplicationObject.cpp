@@ -199,12 +199,35 @@ namespace OgreRefApp
             dGeom* pProxy = *i;
             pProxy->setPosition(pos.x, pos.y, pos.z);
             const Quaternion& orientation = mSceneNode->getOrientation();
-            dReal dquat[4] = {orientation.w, orientation.x, orientation.y, orientation.z };
             // Hmm, no setQuaternion on proxy
-            //pProxy->setQuaternion(dquat);
-            dMatrix3 m3;
-            dQtoR(dquat, m3);
-            pProxy->setRotation(m3); 
+            // Do a really awkward conversion
+            // For some bizarre reason, using ODE's dQtoR does not work
+            // If you do this:
+            /*
+            dReal dquat[4] = {orientation.w, orientation.x, orientation.y, orientation.z };
+            dMatrix3 dm3;
+            memset(dm3, 0, sizeof(dMatrix3));
+            dQtoR(dquat, dm3);
+            pProxy->setRotation(dm3); 
+            */
+            // ... none of the objects are visible!! Even though dm3 comes out the same
+            // as dRSetIdentity for an identity quaternion. The weird thing is that ODE
+            // uses a 4x3 matrix rather than a 3x3 matrix, so the code below should not work! 
+            // Plus, the same quaternion conversion works fine for bodies. Very, very odd.
+            Matrix3 m3;
+            dMatrix3 dm3;
+            orientation.ToRotationMatrix(m3);
+            dRSetIdentity(dm3);
+            dm3[0] = m3[0][0];
+            dm3[1] = m3[0][1];
+            dm3[2] = m3[0][2];
+            dm3[3] = m3[1][0];
+            dm3[4] = m3[1][1];
+            dm3[5] = m3[1][2];
+            dm3[6] = m3[2][0];
+            dm3[7] = m3[2][1];
+            dm3[8] = m3[2][2];
+            pProxy->setRotation(dm3); 
         }
 
     }
