@@ -51,6 +51,9 @@ namespace Ogre {
     class _OgreExport SubMesh
     {
         friend class Mesh;
+        friend class MeshSerializerImpl;
+        friend class MeshSerializerImpl_v1_2;
+        friend class MeshSerializerImpl_v1_1;
     public:
         SubMesh();
         ~SubMesh();

@@ -96,6 +96,10 @@ namespace Ogre {
     class _OgreExport Mesh: public Resource
     {
         friend class SubMesh;
+        friend class MeshSerializerImpl;
+        friend class MeshSerializerImpl_v1_2;
+        friend class MeshSerializerImpl_v1_1;
+
     public:
 		/** A way of recording the way each LODs is recorded this Mesh. */
 		struct MeshLodUsage

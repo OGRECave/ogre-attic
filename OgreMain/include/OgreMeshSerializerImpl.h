@@ -107,7 +107,7 @@ namespace Ogre {
         virtual void readGeometryVertexElement(DataStreamPtr& stream, Mesh* pMesh, VertexData* dest);
         virtual void readGeometryVertexBuffer(DataStreamPtr& stream, Mesh* pMesh, VertexData* dest);
 
-        virtual void readSkeletonLink(DataStream &stream, Mesh* pMesh);
+        virtual void readSkeletonLink(DataStreamPtr& stream, Mesh* pMesh);
         virtual void readMeshBoneAssignment(DataStreamPtr& stream, Mesh* pMesh);
         virtual void readSubMeshBoneAssignment(DataStreamPtr& stream, Mesh* pMesh, 
             SubMesh* sub);

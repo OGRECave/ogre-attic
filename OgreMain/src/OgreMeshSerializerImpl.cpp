@@ -85,7 +85,7 @@ namespace Ogre {
         readFileHeader(stream);
 
         unsigned short streamID;
-        while(!stream.eof())
+        while(!stream->eof())
         {
             streamID = readChunk(stream);
             switch (streamID)
@@ -476,10 +476,10 @@ namespace Ogre {
         readInts(stream, &dest->vertexCount, 1);
 
         // Find optional geometry streams
-        if (!stream.eof())
+        if (!stream->eof())
         {
             unsigned short streamID = readChunk(stream);
-            while(!stream.eof() && 
+            while(!stream->eof() && 
                 (streamID == M_GEOMETRY_VERTEX_DECLARATION || 
                  streamID == M_GEOMETRY_VERTEX_BUFFER ))
             {
@@ -493,15 +493,15 @@ namespace Ogre {
                     break;
                 }
                 // Get next stream
-                if (!stream.eof())
+                if (!stream->eof())
                 {
                     streamID = readChunk(stream);
                 }
             }
-            if (!stream.eof())
+            if (!stream->eof())
             {
                 // Backpedal back to start of non-submesh stream
-                stream.skip(-(long)stream_OVERHEAD_SIZE);
+                stream->skip(-(long)stream_OVERHEAD_SIZE);
             }
         }
     }
@@ -510,10 +510,10 @@ namespace Ogre {
         Mesh* pMesh, VertexData* dest)
     {
         // Find optional geometry streams
-        if (!stream.eof())
+        if (!stream->eof())
         {
             unsigned short streamID = readChunk(stream);
-            while(!stream.eof() && 
+            while(!stream->eof() && 
                 (streamID == M_GEOMETRY_VERTEX_ELEMENT ))
             {
                 switch (streamID)
@@ -523,15 +523,15 @@ namespace Ogre {
                     break;
                 }
                 // Get next stream
-                if (!stream.eof())
+                if (!stream->eof())
                 {
                     streamID = readChunk(stream);
                 }
             }
-            if (!stream.eof())
+            if (!stream->eof())
             {
                 // Backpedal back to start of non-submesh stream
-                stream.skip(-(long)stream_OVERHEAD_SIZE);
+                stream->skip(-(long)stream_OVERHEAD_SIZE);
             }
         }
 		
@@ -592,7 +592,7 @@ namespace Ogre {
             pMesh->mVertexBufferUsage, 
 			pMesh->mVertexBufferShadowBuffer);
         void* pBuf = vbuf->lock(HardwareBuffer::HBL_DISCARD);
-        stream.read(pBuf, dest->vertexCount * vertexSize);
+        stream->read(pBuf, dest->vertexCount * vertexSize);
 
 		// endian conversion for OSX
 		flipFromLittleEndian(
@@ -620,10 +620,10 @@ namespace Ogre {
 		// the optional stream M_SUBMESH_NAME_TABLE.
 
         // Read in all the sub-streams. Each sub-stream should contain an index and Ogre::String for the name.
-		if (!stream.eof())
+		if (!stream->eof())
 		{
 			streamID = readChunk(stream);
-			while(!stream.eof() && (streamID == M_SUBMESH_NAME_TABLE_ELEMENT ))
+			while(!stream->eof() && (streamID == M_SUBMESH_NAME_TABLE_ELEMENT ))
 			{
 				// Read in the index of the submesh.
 				readShorts(stream, &subMeshIndex, 1);
@@ -631,13 +631,13 @@ namespace Ogre {
 				subMeshNames[subMeshIndex] = readString(stream);					
 
 				// If we're not end of file get the next stream ID
-				if (!stream.eof())
+				if (!stream->eof())
 					streamID = readChunk(stream);
 			}
-			if (!stream.eof())
+			if (!stream->eof())
 			{
 				// Backpedal back to start of stream
-				stream.skip(-(long)stream_OVERHEAD_SIZE);
+				stream->skip(-(long)stream_OVERHEAD_SIZE);
 			}
 		}
 
@@ -670,10 +670,10 @@ namespace Ogre {
 		readBools(stream, &mIsSkeletallyAnimated, 1);
 
         // Find all substreams 
-        if (!stream.eof())
+        if (!stream->eof())
         {
             streamID = readChunk(stream);
-            while(!stream.eof() &&
+            while(!stream->eof() &&
                 (streamID == M_GEOMETRY ||
 				 streamID == M_SUBMESH ||
                  streamID == M_MESH_SKELETON_LINK ||
@@ -698,7 +698,7 @@ namespace Ogre {
 							delete pMesh->sharedVertexData;
 							pMesh->sharedVertexData = 0;
 							// Skip this stream (pointer will have been returned to just after header)
-							stream.skip(mCurrentstreamLen - stream_OVERHEAD_SIZE);
+							stream->skip(mCurrentstreamLen - stream_OVERHEAD_SIZE);
 						}
 						else
 						{
@@ -730,16 +730,16 @@ namespace Ogre {
 					
                 }
 
-                if (!stream.eof())
+                if (!stream->eof())
                 {
                     streamID = readChunk(stream);
                 }
 
             }
-            if (!stream.eof())
+            if (!stream->eof())
             {
                 // Backpedal back to start of stream
-                stream.skip(-(long)stream_OVERHEAD_SIZE);
+                stream->skip(-(long)stream_OVERHEAD_SIZE);
             }
         }
 
@@ -813,10 +813,10 @@ namespace Ogre {
 
 
         // Find all bone assignments (if present) 
-        if (!stream.eof())
+        if (!stream->eof())
         {
             streamID = readChunk(stream);
-            while(!stream.eof() &&
+            while(!stream->eof() &&
                 (streamID == M_SUBMESH_BONE_ASSIGNMENT ||
                  streamID == M_SUBMESH_OPERATION))
             {
@@ -830,16 +830,16 @@ namespace Ogre {
                     break;
                 }
 
-                if (!stream.eof())
+                if (!stream->eof())
                 {
                     streamID = readChunk(stream);
                 }
 
             }
-            if (!stream.eof())
+            if (!stream->eof())
             {
                 // Backpedal back to start of stream
-                stream.skip(-(long)stream_OVERHEAD_SIZE);
+                stream->skip(-(long)stream_OVERHEAD_SIZE);
             }
         }
 	
@@ -863,7 +863,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readSkeletonLink(DataStream &stream, Mesh* pMesh)
+    void MeshSerializerImpl::readSkeletonLink(DataStreamPtr& stream, Mesh* pMesh)
     {
         String skelName = readString(stream);
         pMesh->setSkeletonName(skelName);
@@ -1221,14 +1221,14 @@ namespace Ogre {
 		}
 
 		usage.manualName = readString(stream);
-		usage.manualMesh = NULL; // will trigger load later
+		usage.manualMesh.setNull(); // will trigger load later
 	}
     //---------------------------------------------------------------------
 	void MeshSerializerImpl::readMeshLodUsageGenerated(DataStreamPtr& stream, 
         Mesh* pMesh, unsigned short lodNum, Mesh::MeshLodUsage& usage)
 	{
 		usage.manualName = "";
-		usage.manualMesh = 0;
+		usage.manualMesh.setNull();
 
 		// Get one set of detail per SubMesh
 		unsigned short numSubs, i;
@@ -1518,10 +1518,10 @@ namespace Ogre {
 	{
         unsigned short streamID;
 
-        if (!stream.eof())
+        if (!stream->eof())
         {
             streamID = readChunk(stream);
-            while(!stream.eof() &&
+            while(!stream->eof() &&
                 streamID == M_EDGE_LIST_LOD)
             {
                 // Process single LOD
@@ -1636,16 +1636,16 @@ namespace Ogre {
                     
                 }
 
-                if (!stream.eof())
+                if (!stream->eof())
                 {
                     streamID = readChunk(stream);
                 }
 
             }
-            if (!stream.eof())
+            if (!stream->eof())
             {
                 // Backpedal back to start of stream
-                stream.skip(-(long)stream_OVERHEAD_SIZE);
+                stream->skip(-(long)stream_OVERHEAD_SIZE);
             }
         }
 
@@ -1692,10 +1692,10 @@ namespace Ogre {
         ++bindIdx;
 
         // Find optional geometry streams
-        if (!stream.eof())
+        if (!stream->eof())
         {
             unsigned short streamID = readChunk(stream);
-            while(!stream.eof() && 
+            while(!stream->eof() && 
                 (streamID == M_GEOMETRY_NORMALS || 
                  streamID == M_GEOMETRY_COLOURS ||
                  streamID == M_GEOMETRY_TEXCOORDS ))
@@ -1713,15 +1713,15 @@ namespace Ogre {
                     break;
                 }
                 // Get next stream
-                if (!stream.eof())
+                if (!stream->eof())
                 {
                     streamID = readChunk(stream);
                 }
             }
-            if (!stream.eof())
+            if (!stream->eof())
             {
                 // Backpedal back to start of non-submesh stream
-                stream.skip(-(long)stream_OVERHEAD_SIZE);
+                stream->skip(-(long)stream_OVERHEAD_SIZE);
             }
         }
     }
