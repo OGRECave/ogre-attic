@@ -39,7 +39,7 @@ namespace Ogre {
         This archive format supports all archives compressed in the standard
         zip format, including iD pk3 files.
     */
-    class ZipArchive : public Archive 
+    class _OgreExport ZipArchive : public Archive 
     {
     protected:
         /// Handle to root zip file

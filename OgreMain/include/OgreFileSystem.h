@@ -35,7 +35,7 @@ namespace Ogre {
     /** Specialisation of the Archive class to allow reading of files from 
         filesystem folders / directories.
     */
-    class FileSystemArchive : public Archive 
+    class _OgreExport FileSystemArchive : public Archive 
     {
     protected:
         /// Base path; actually the same as mName, but for clarity
