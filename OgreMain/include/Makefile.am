@@ -31,6 +31,7 @@ OgreDefaultHardwareBufferManager.h \
 OgreDDSCodec.h \
 OgreDynLib.h \
 OgreDynLibManager.h \
+OgreEdgeListBuilder.h \
 OgreEntity.h \
 OgreErrorDialog.h \
 OgreEventDispatcher.h \

@@ -229,6 +229,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreDynLibManager.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreEdgeListBuilder.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreEntity.cpp">
 			</File>
 			<File
@@ -703,6 +706,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreDynLibManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreEdgeListBuilder.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreEntity.h">
