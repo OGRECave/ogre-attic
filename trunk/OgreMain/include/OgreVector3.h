@@ -301,7 +301,7 @@ namespace Ogre
             Real fLength = Math::Sqrt( x * x + y * y + z * z );
 
             // Will also work for zero-sized vectors, but will change nothing
-            if ( fLength > 1e-06 )
+            if ( fLength > 1e-08 )
             {
                 Real fInvLength = 1.0 / fLength;
                 x *= fInvLength;
