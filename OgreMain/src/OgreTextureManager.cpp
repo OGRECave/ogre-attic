@@ -103,7 +103,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     TexturePtr TextureManager::createManual(const String & name, const String& group,
         TextureType texType, uint width, uint height, uint depth, uint numMipmaps,
-        PixelFormat format, TextureUsage usage, ManualResourceLoader* loader)
+        PixelFormat format, int usage, ManualResourceLoader* loader)
     {
         TexturePtr ret = create(name, group, true, loader);
         ret->setTextureType(texType);

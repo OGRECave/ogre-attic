@@ -137,8 +137,12 @@ namespace Ogre {
                 format The internal format you wish to request; the manager reserves
                 the right to create a different format if the one you select is
                 not available in this context.
-            @param
-                usage The kind of usage this texture is intended for
+			@param 
+				usage The kind of usage this texture is intended for. It 
+				is a combination of TU_STATIC, TU_DYNAMIC, TU_WRITE_ONLY, TU_DISCARDABLE, 
+				TU_AUTOMIPMAP and TU_RENDERTARGET (see TextureUsage enum). You are
+            	strongly advised to use HBU_STATIC_WRITE_ONLY wherever possible, if you need to 
+            	update regularly, consider HBU_DYNAMIC_WRITE_ONLY.
             @param
                 loader If you intend the contents of the manual texture to be 
                 regularly updated, to the extent that you don't need to recover 
@@ -151,7 +155,7 @@ namespace Ogre {
         */
         virtual TexturePtr createManual(const String & name, const String& group,
             TextureType texType, uint width, uint height, uint depth, 
-			uint num_mips, PixelFormat format, TextureUsage usage = TU_DEFAULT, ManualResourceLoader* loader = 0 );
+			uint num_mips, PixelFormat format, int usage = TU_DEFAULT, ManualResourceLoader* loader = 0 );
 			
         /** Create a manual texture with a depth of 1 (not loaded from a file).
             @param
@@ -171,8 +175,12 @@ namespace Ogre {
                 format The internal format you wish to request; the manager reserves
                 the right to create a different format if the one you select is
                 not available in this context.
-            @param
-                usage The kind of usage this texture is intended for
+			@param 
+				usage The kind of usage this texture is intended for. It 
+				is a combination of TU_STATIC, TU_DYNAMIC, TU_WRITE_ONLY, TU_DISCARDABLE, 
+				TU_AUTOMIPMAP and TU_RENDERTARGET (see TextureUsage enum). You are
+            	strongly advised to use HBU_STATIC_WRITE_ONLY wherever possible, if you need to 
+            	update regularly, consider HBU_DYNAMIC_WRITE_ONLY.
             @param
                 loader If you intend the contents of the manual texture to be 
                 regularly updated, to the extent that you don't need to recover 
@@ -185,7 +193,7 @@ namespace Ogre {
         */
         TexturePtr createManual(const String & name, const String& group,
             TextureType texType, uint width, uint height, uint num_mips,
-            PixelFormat format, TextureUsage usage = TU_DEFAULT, ManualResourceLoader* loader = 0 )
+            PixelFormat format, int usage = TU_DEFAULT, ManualResourceLoader* loader = 0 )
 		{
 			return createManual(name, group, texType, width, height, 1, 
 				num_mips, format, usage, loader);
