@@ -99,6 +99,25 @@ extern GL_BufferDataARB_Func glBufferDataARB_ptr;
 typedef void (APIENTRY *GL_GetBufferSubDataARB_Func)(GLenum, GLintptrARB, GLsizeiptrARB, GLvoid*);
 extern GL_GetBufferSubDataARB_Func glGetBufferSubDataARB_ptr;
 
+// Pointer to glGenProgramsARB function
+typedef void (APIENTRY *GL_GenProgramsARB_Func)(GLsizei, GLuint*);
+extern GL_GenProgramsARB_Func glGenProgramsARB_ptr;
+
+// Pointer to glDeleteProgramsARB function
+typedef void (APIENTRY *GL_DeleteProgramsARB_Func)(GLsizei, const GLuint*);
+extern GL_DeleteProgramsARB_Func glDeleteProgramsARB_ptr;
+
+// Pointer to glBindProgramARB function
+typedef void (APIENTRY *GL_BindProgramARB_Func)(GLenum, GLuint);
+extern GL_BindProgramARB_Func glBindProgramARB_ptr;
+
+// Pointer to glProgramStringARB function
+typedef void (APIENTRY *GL_ProgramStringARB_Func)(GLenum, GLenum, GLsizei, const GLvoid*);
+extern GL_ProgramStringARB_Func glProgramStringARB_ptr;
+
+// Pointer to glProgramLocalParameter4fvARB function
+typedef void (APIENTRY *GL_ProgramLocalParameter4fvARB_Func)(GLenum, GLuint, const GLfloat *);
+extern GL_ProgramLocalParameter4fvARB_Func glProgramLocalParameter4fvARB_ptr;
 };
 
 namespace Ogre {
