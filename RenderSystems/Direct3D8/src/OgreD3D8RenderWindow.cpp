@@ -231,6 +231,13 @@ namespace Ogre
 			md3dpp.hDeviceWindow			= mHWnd;
 			md3dpp.BackBufferWidth			= mWidth;
 			md3dpp.BackBufferHeight			= mHeight;
+
+			// Don't wait for vsync in fullscreen mode
+			if (fullScreen)
+			{
+				md3dpp.FullScreen_PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+			}
+
 			if( !fullScreen )
 				md3dpp.BackBufferFormat		= mpD3DDriver->getDesktopMode().Format;
 			else
@@ -348,6 +355,7 @@ namespace Ogre
 	{
 		if( mpD3DDevice )
 		{
+
 			HRESULT hr = mpD3DDevice->Present( NULL, NULL, 0, NULL );
 			if( D3DERR_DEVICELOST == hr )
 			{

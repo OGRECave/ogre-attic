@@ -46,10 +46,16 @@ namespace Ogre {
 			std::vector<D3D8VideoMode>::iterator it;
 			for( it = mModeList.begin(); it != mModeList.end(); it++ )
 			{
-				if( it->getWidth() == displayMode.Width &&
-					it->getHeight() == displayMode.Height &&
-					it->getFormat() == displayMode.Format )
+				D3DDISPLAYMODE oldDisp = it->getDisplayMode();
+				if( oldDisp.Width == displayMode.Width &&
+					oldDisp.Height == displayMode.Height &&
+					oldDisp.Format == displayMode.Format )
 				{
+					// Check refresh rate and favour higher if poss
+					if (oldDisp.RefreshRate < displayMode.RefreshRate)
+					{
+						it->increaseRefreshRate(displayMode.RefreshRate);
+					}
 					found = TRUE;
 					break;
 				}
