@@ -196,7 +196,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void SceneNode::_findVisibleObjects(Camera* cam, RenderQueue* queue, bool includeChildren)
+    void SceneNode::_findVisibleObjects(Camera* cam, RenderQueue* queue, bool includeChildren, bool displayNodes)
     {
         // Check self visible
         if (!cam->isVisible(mWorldAABB))
@@ -217,8 +217,14 @@ namespace Ogre {
             for (child = mChildren.begin(); child != childend; ++child)
             {
                 SceneNode* sceneChild = static_cast<SceneNode*>(*child);
-                sceneChild->_findVisibleObjects(cam, queue, includeChildren);
+                sceneChild->_findVisibleObjects(cam, queue, includeChildren, displayNodes);
             }
+        }
+
+        if (displayNodes)
+        {
+            // Include self in the render queue
+            queue->addRenderable(this);
         }
 
     }

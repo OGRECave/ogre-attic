@@ -1217,7 +1217,7 @@ namespace Ogre {
     {
         // Tell nodes to find, cascade down all nodes
         mRenderQueue.clear();
-        mSceneRoot->_findVisibleObjects(cam, &mRenderQueue, true);
+        mSceneRoot->_findVisibleObjects(cam, &mRenderQueue, true, mDisplayNodes);
 
     }
     //-----------------------------------------------------------------------
@@ -1417,6 +1417,9 @@ namespace Ogre {
             mBillboardSets.erase(i);
         }
     }
-
-
+    //-----------------------------------------------------------------------
+    void SceneManager::setDisplaySceneNodes(bool display)
+    {
+        mDisplayNodes = display;
+    }
 }

@@ -195,6 +195,10 @@ namespace Ogre {
             Real curvature, Real tiling, Real distance,
             const Quaternion& orientation);
 
+        // Flag indicating whether SceneNodes will be rendered as a set of 3 axes
+        bool mDisplayNodes;
+
+
     public:
         /** Default constructor.
         */
@@ -873,6 +877,15 @@ namespace Ogre {
                 scene. If you are unsure, use clearScene.
         */
         virtual void removeBillboardSet(const String& name);
+
+        /** Tells the SceneManager whether it should render the SceneNodes which 
+            make up the scene as well as the objects in the scene.
+        @remarks
+            This method is mainly for debugging purposes. If you set this to 'true',
+            each node will be rendered as a set of 3 axes to allow you to easily see
+            the orientation of the nodes.
+        */
+        virtual void setDisplaySceneNodes(bool display);
     };
 
 

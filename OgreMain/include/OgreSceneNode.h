@@ -171,8 +171,12 @@ namespace Ogre {
                 queue The SceneManager's rendering queue
             @param
                 includeChildren If true, the call is cascaded down to all child nodes automatically.
+            @param
+                displayNodes If true, the nodes themselves are rendered as a set of 3 axes as well
+                    as the objects being rendered. For debugging purposes.
         */
-        void _findVisibleObjects(Camera* cam, RenderQueue* queue, bool includeChildren = true);
+        void _findVisibleObjects(Camera* cam, RenderQueue* queue, 
+            bool includeChildren = true, bool displayNodes = false);
 
         /** Gets the axis-aligned bounding box of this node (and hence all subnodes).
         @remarks
