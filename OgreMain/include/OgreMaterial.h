@@ -101,6 +101,7 @@ namespace Ogre {
         bool mCompilationRequired;
         LodDistanceList mLodDistances;
         bool mReceiveShadows;
+		bool mTransparencyCastsShadows;
 
     public:
 
@@ -147,6 +148,18 @@ namespace Ogre {
         void setReceiveShadows(bool enabled) { mReceiveShadows = enabled; }
         /** Returns whether or not objects using this material will receive shadows. */
         bool getReceiveShadows(void) const { return mReceiveShadows; }
+
+		/** Sets whether objects using this material be classified as opaque to	the shadow caster system.
+		@remarks
+		This method allows a material to cast a shadow, even if it is transparent.
+		By default, transparent materials neither cast nor receive shadows. Shadows
+		will not be cast on any objects unless the scene is set up to support shadows 
+		(@see SceneManager::setShadowTechnique), and not all techniques cast
+		shadows on all objects.
+		*/
+		void setTransparencyCastsShadows(bool enabled) { mTransparencyCastsShadows = enabled; }
+		/** Returns whether or not objects using this material be classified as opaque to the shadow caster system. */
+		bool getTransparencyCastsShadows(void) const { return mTransparencyCastsShadows; }
 
         /** Creates a new Technique for this Material.
         @remarks

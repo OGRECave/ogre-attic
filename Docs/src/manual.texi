@@ -1,7 +1,7 @@
 \input texinfo   @c -*-texinfo-*-
 @c %**start of header
 @setfilename manual.info
-@settitle OGRE Manual v0.14
+@settitle OGRE Manual v0.15
 @c %**end of header
    
 @titlepage
@@ -401,9 +401,18 @@ This attribute controls the distances at which different Techniques can come int
 @subheading receive_shadows
 This attribute controls whether objects using this material can have shadows cast upon them.@*@* 
 
-Format: receive_shadows <on|off>@*@*
+Format: receive_shadows <on|off>@*
+Default: on@*@*
 
 Whether or not an object receives a shadow is the combination of a number of factors, @xref{Shadows} for full details; however this allows you to make a material opt-out of receiving shadows if required. Note that transparent materials never receive shadows so this option only has an effect on solid materials.
+
+@anchor{transparency_casts_shadows}
+@subheading transparency_casts_shadows
+This attribute controls whether transparent materials can cast certain kinds of shadow.@*@* 
+
+Format: transparency_casts_shadows <on|off>@*
+Default: off@*@*
+Whether or not an object casts a shadow is the combination of a number of factors, @xref{Shadows} for full details; however this allows you to make a transparent material cast shadows, when it would otherwise not. For example, when using texture shadows, transparent materials are normally not rendered into the shadow texture because they should not block light. This flag overrides that.
 
 @node Techniques
 @subsection Techniques

@@ -445,6 +445,13 @@ namespace Ogre {
         /** Render a set of objects, see renderSingleObject for param definitions */
 		virtual void renderObjects(const RenderPriorityGroup::TransparentRenderablePassList& objs, 
             bool doLightIteration, const LightList* manualLightList = 0);
+		/** Render those objects in the transparent pass list which have shadow casting forced on
+		@remarks
+			This function is intended to be used to render the shadows of transparent objects which have
+			transparency_casts_shadows set to 'on' in their material
+		*/
+		virtual void renderTransparentShadowCasterObjects(const RenderPriorityGroup::TransparentRenderablePassList& objs, 
+			bool doLightIteration, const LightList* manualLightList = 0);
 
     public:
         /** Default constructor.

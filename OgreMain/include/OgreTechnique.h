@@ -381,6 +381,11 @@ namespace Ogre {
         /** Gets the level-of-detail index assigned to this Technique. */
         unsigned short getLodIndex(void) const { return mLodIndex; }
 
+        /** Is depth writing going to occur on this technique? */
+        bool isDepthWriteEnabled(void) const;
+
+        /** Is depth checking going to occur on this technique? */
+        bool isDepthCheckEnabled(void) const;
 
     };
 

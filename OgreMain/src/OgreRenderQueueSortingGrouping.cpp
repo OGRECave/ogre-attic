@@ -109,8 +109,9 @@ namespace Ogre {
             pTech = rend->getTechnique();
         }
 
-        // Transparent?
-        if (pTech->isTransparent())
+        // Transparent and depth settings mean depth sorting is required?
+        if (pTech->isTransparent() && 
+            !(pTech->isDepthWriteEnabled() && pTech->isDepthCheckEnabled()) )
         {
             addTransparentRenderable(pTech, rend);
         }

@@ -50,11 +50,15 @@ namespace Ogre {
         mIsLoaded = false;
 		mLodDistances.push_back(0.0f);
         mReceiveShadows = true;
+		mTransparencyCastsShadows = false;
     }
     //-----------------------------------------------------------------------
     Material::Material( const String& name )
     {
 	    applyDefaults();
+
+		// This gets set true unless it's cleared here - applyDefaults appears to do nowt??
+		mTransparencyCastsShadows = false;
 
 	    // Assign name
 	    mName = name;
@@ -187,7 +191,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Material::applyDefaults(void)
     {
-	    *this = *mDefaultSettings;
+		*this = *mDefaultSettings;
         mCompilationRequired = true;
 
     }
