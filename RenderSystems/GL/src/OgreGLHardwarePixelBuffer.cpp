@@ -305,8 +305,7 @@ void GLHardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::Box
 		scaled = PixelBox(dstBox, mFormat, buf->getPtr());
 		Image::scale(src, scaled, Image::FILTER_BILINEAR);
 	}
-	else if(GLPixelUtil::getGLOriginFormat(src.format) == 0 ||
-			GLPixelUtil::getGLOriginDataType(src.format) == 0)
+	else if(GLPixelUtil::getGLOriginFormat(src.format) == 0)
 	{
 		// Extents match, but format is not accepted as valid source format for GL
 		// do conversion in temporary buffer
