@@ -167,10 +167,10 @@ namespace Ogre {
             CGtype paramType = cgGetParameterType(parameter);
             
             // *** test
-            String tempName = cgGetParameterName(parameter);
-            size_t tempindex = cgGetParameterResourceIndex(parameter);
-            LogManager::getSingleton().logMessage(
-                tempName + " -> " + StringConverter::toString(tempindex));
+            //String tempName = cgGetParameterName(parameter);
+            //size_t tempindex = cgGetParameterResourceIndex(parameter);
+            //LogManager::getSingleton().logMessage(
+            //    tempName + " -> " + StringConverter::toString(tempindex));
 
             // *** end test
 
