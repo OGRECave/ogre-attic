@@ -9,4 +9,4 @@ To install the 3ds exporter, do the following:
 That's it, you should now have an 'Ogre Tools' toolbar with 2 buttons on it.
 
 
-The OGRE Team would like to thank Etienne 'earthquakeProof' Mallard for developing this exporter.
+The OGRE Team would like to thank Banania and Etienne 'earthquakeProof' Mallard for developing this exporter.
