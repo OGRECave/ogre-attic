@@ -92,6 +92,7 @@ namespace Ogre
         ArchiveFactory *mZipArchiveFactory;
         ArchiveFactory *mFileSystemArchiveFactory;
 		ResourceGroupManager* mResourceGroupManager;
+		ResourceBackgroundQueue* mResourceBackgroundQueue;
 
         Timer* mTimer;
         RenderWindow* mAutoWindow;

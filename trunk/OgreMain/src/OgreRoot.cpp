@@ -51,6 +51,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreZip.h"
 #include "OgreFileSystem.h"
 #include "OgreShadowVolumeExtrudeProgram.h"
+#include "OgreResourceBackgroundQueue.h"
 
 #include "OgreILCodecs.h"
 
@@ -146,6 +147,9 @@ namespace Ogre {
 
 		// ResourceGroupManager
 		mResourceGroupManager = new ResourceGroupManager();
+
+		// ResourceBackgroundQueue
+		mResourceBackgroundQueue = new ResourceBackgroundQueue();
 
 		// Create SceneManager enumerator (note - will be managed by singleton)
         mSceneManagerEnum = new SceneManagerEnumerator();
@@ -255,6 +259,7 @@ namespace Ogre {
         unloadPlugins();
         delete mMaterialManager;        
         Pass::processPendingPassUpdates(); // make sure passes are cleaned
+		delete mResourceBackgroundQueue;
         delete mResourceGroupManager;
 
 
@@ -440,6 +445,8 @@ namespace Ogre {
         mControllerManager = new ControllerManager();
 
         mAutoWindow =  mActiveRenderer->initialise(autoCreateWindow, windowTitle);
+
+		mResourceBackgroundQueue->initialise();
 
         if (autoCreateWindow)
         {
@@ -629,6 +636,7 @@ namespace Ogre {
     {
         SceneManagerEnumerator::getSingleton().shutdownAll();
         ShadowVolumeExtrudeProgram::shutdown();
+		mResourceBackgroundQueue->shutdown();
         ResourceGroupManager::getSingleton().shutdownAll();
 
         mLogManager->logMessage("*-*-* OGRE Shutdown");
