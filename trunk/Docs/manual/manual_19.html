@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 4 2003 by texi2html 1.64 -->
+<!-- Created on , 6 2003 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -232,7 +232,7 @@ Default: alpha_rejection always_pass<BR><BR>
 
 This is an extended version of the <A HREF="manual_19.html#SEC58">colour_op</A> attribute which allows extremely detailed control over the blending applied between this and earlier layers. Multitexturing hardware can apply more complex blending operations that multipass blendind, but you are limited to the number of texture units which are available in hardware.<BR><BR>
 
-Format: colour_op_ex &#60;operation&#62; &#60;source1&#62; &#60;source2&#62; [&#60;manual&#62;]<BR><BR>
+Format: colour_op_ex &#60;operation&#62; &#60;source1&#62; &#60;source2&#62; [&#60;manual_factor&#62;] [&#60;manual_colour1&#62;] [&#60;manual_colour2&#62;]<BR><BR>
 
 Example colour_op_ex add_signed src_manual src_current 0.5<BR><BR>
 
@@ -278,6 +278,8 @@ See the IMPORTANT note below about the issues between mulitpass and multitexturi
 <DD>	The interpolated diffuse colour from the vertices (same as 'src_current' for first layer).
 <DT>src_specular
 <DD>	The interpolated specular colour from the vertices.
+<DT>src_manual
+<DD>	The manual colour specified at the end of the command.
 </DL>
 </DL>
 <BR>
@@ -309,7 +311,7 @@ The parameters are the same as in the scene_blend attribute; this is because mul
 <H3> alpha_op_ex </H3>
 <!--docid::SEC62::-->
 
-Behaves in exactly the same away as <A HREF="manual_19.html#SEC60">colour_op_ex</A> except that it determines how alpha values are combined between texture layers rather than colour values.
+Behaves in exactly the same away as <A HREF="manual_19.html#SEC60">colour_op_ex</A> except that it determines how alpha values are combined between texture layers rather than colour values.The only difference is that the 2 manual colours at the end of colour_op_ex are just single floating-point values in alpha_op_ex.
 
 <A NAME="env_map"></A>
 <A NAME="SEC63"></A>
@@ -326,8 +328,11 @@ Environment maps make an object look reflective by using automatic texture coord
 <DD>	A spherical environment map. Requires a single texture which is either a fish-eye lens view of the reflected scene, or some other texture which looks good as a spherical map (a texture of glossy highlights is popular especially in car sims). This effect is based on the relationship between the eye direction and the vertex normals of the object, so works best when there are a lot of gradually changing normals, i.e. curved objects.
 <DT>planar
 <DD>	Similar to the spherical environment map, but the effect is based on the position of the vertices in the viewport rather than vertex normals. This effect is therefore useful for planar geometry (where a spherical env_map would not look good because the normals are all the same) or objects without normals.
-<DT>cubic
-<DD>	A more advanced form of reflection mapping which uses a group of 6 textures making up the inside of a cube, each of which is a view if the scene down each axis. Works extremely well in all cases but has a higher technical requirement from the card than spherical mapping.
+<DT>cubic_reflection
+<DD>	A more advanced form of reflection mapping which uses a group of 6 textures making up the inside of a cube, each of which is a view if the scene down each axis. Works extremely well in all cases but has a higher technical requirement from the card than spherical mapping. Requires that you bind a <A HREF="manual_19.html#SEC54">cubic_texture</A> to this texture unit and use the 'combinedUVW' option.
+<DT>cubic_normal
+<DD>	Generates 3D texture coordinates containing the camera space normal vector from the normal information held in the vertex data. Again, full use of this feature requires a <A HREF="manual_19.html#SEC54">cubic_texture</A> with the 'combinedUVW' option.
+	
 </DL>
 <BR>
 Default: env_map off<BR>
@@ -449,7 +454,7 @@ The range of the output of the wave will be {base, base+amplitude}. So the examp
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 4 2003</I>
+by <I>Steve Streeting</I> on <I>, 6 2003</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
