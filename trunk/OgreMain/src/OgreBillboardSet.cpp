@@ -146,8 +146,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Billboard* BillboardSet::getBillboard( unsigned int index ) const
     {
-        OgreAssert(
-            index < mActiveBillboards.size(),
+        assert(
+            index < mActiveBillboards.size() &&
             "Billboard index out of bounds." );
 
         /* We can't access it directly, so we check wether it's in the first
