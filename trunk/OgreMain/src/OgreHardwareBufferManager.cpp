@@ -318,9 +318,9 @@ namespace Ogre {
     void TempBlendedBufferInfo::licenseExpired(HardwareBuffer* buffer)
     {
         if (buffer == destPositionBuffer.get())
-            destPositionBuffer.release();
+            destPositionBuffer.setNull();
         if (buffer == destNormalBuffer.get())
-            destNormalBuffer.release();
+            destNormalBuffer.setNull();
 
     }
 

@@ -776,7 +776,7 @@ namespace Ogre {
         if (!normElem)
         {
             info->posNormalShareBuffer = false;
-            info->srcNormalBuffer.release();
+            info->srcNormalBuffer.setNull();
         }
         else
         {
@@ -784,7 +784,7 @@ namespace Ogre {
             if (info->normBindIndex == info->posBindIndex)
             {
                 info->posNormalShareBuffer = true;
-                info->srcNormalBuffer.release();
+                info->srcNormalBuffer.setNull();
             }
             else
             {
