@@ -421,7 +421,7 @@ namespace Ogre {
             }
             else
             {
-                for (vert = 0; vert < (*i)->geometry.numVertices * 3; vert+=3)
+                for (vert = 0; vert < (*i)->geometry.numVertices * 3; vert+=(3+ (*i)->geometry.vertexStride))
                 {
                     if (first || (*i)->geometry.pVertices[vert] < min.x)
                     {
@@ -455,7 +455,7 @@ namespace Ogre {
         // Check shared
         if (useShared)
         {
-            for (vert = 0; vert < sharedGeometry.numVertices * 3; vert+=3)
+            for (vert = 0; vert < sharedGeometry.numVertices * 3; vert+=(3 + sharedGeometry.vertexStride))
             {
                 if (first || sharedGeometry.pVertices[vert] < min.x)
                 {
