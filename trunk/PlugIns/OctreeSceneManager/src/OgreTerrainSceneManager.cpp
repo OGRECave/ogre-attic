@@ -70,6 +70,9 @@ namespace Ogre
         mPagingEnabled = false;
         mLivePageMargin = 0;
         mBufferedPageMargin = 0;
+		// Construct listener manager singleton
+		new TerrainPageSourceListenerManager();
+		
 
 
     }
@@ -79,6 +82,9 @@ namespace Ogre
         // Make sure the indexes are destroyed during orderly shutdown
         // and not when statics are destroyed (may be too late)
         TerrainRenderable::_getIndexCache().shutdown();
+
+		// destroy listener manager
+		delete TerrainPageSourceListenerManager::getSingletonPtr();
     }
     //-------------------------------------------------------------------------
     void TerrainSceneManager::loadConfig(const String& filename)

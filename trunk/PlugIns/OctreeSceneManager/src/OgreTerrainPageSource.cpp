@@ -30,10 +30,50 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+    //-----------------------------------------------------------------------
+    template<> TerrainPageSourceListenerManager* Singleton<TerrainPageSourceListenerManager>::ms_Singleton = 0;
+    TerrainPageSourceListenerManager* TerrainPageSourceListenerManager::getSingletonPtr(void)
+    {
+        return ms_Singleton;
+    }
+    TerrainPageSourceListenerManager& TerrainPageSourceListenerManager::getSingleton(void)
+    {  
+        assert( ms_Singleton );  return ( *ms_Singleton );  
+    }
     //-------------------------------------------------------------------------
-    TerrainPageSource::PageSourceListenerList TerrainPageSource::mPageSourceListeners;
+	void TerrainPageSourceListenerManager::addListener(TerrainPageSourceListener* pl)
+	{
+        mPageSourceListeners.push_back(pl);
+	}
     //-------------------------------------------------------------------------
-    TerrainPage* TerrainPageSource::buildPage(Real* heightData, Material* pMaterial)
+	void TerrainPageSourceListenerManager::removeListener(TerrainPageSourceListener* pl)
+	{
+        PageSourceListenerList::iterator i, iend;
+        iend = mPageSourceListeners.end();
+        for(i = mPageSourceListeners.begin(); i != iend; ++i)
+        {
+            if (*i == pl)
+            {
+                mPageSourceListeners.erase(i);
+                break;
+            }
+        }
+	}
+    //-------------------------------------------------------------------------
+	void TerrainPageSourceListenerManager::firePageConstructed(size_t pagex, size_t pagez, Real* heightData)
+	{
+        PageSourceListenerList::iterator i, iend;
+        iend = mPageSourceListeners.end();
+        for(i = mPageSourceListeners.begin(); i != iend; ++i)
+        {
+            (*i)->pageConstructed(pagex, pagez, heightData);
+        }
+	}
+	//-------------------------------------------------------------------------
+	TerrainPageSource::TerrainPageSource() : mSceneManager(0), mAsyncLoading(false) {
+	}
+	//-------------------------------------------------------------------------
+	TerrainPage* TerrainPageSource::buildPage(Real* heightData, Material* pMaterial)
     {
         String name;
 
@@ -88,31 +128,17 @@ namespace Ogre {
     //-------------------------------------------------------------------------
     void TerrainPageSource::firePageConstructed(size_t pagex, size_t pagez, Real* heightData)
     {
-        PageSourceListenerList::iterator i, iend;
-        iend = mPageSourceListeners.end();
-        for(i = mPageSourceListeners.begin(); i != iend; ++i)
-        {
-            (*i)->pageConstructed(pagex, pagez, heightData);
-        }
+		TerrainPageSourceListenerManager::getSingleton().firePageConstructed(pagex, pagez, heightData);
     }
     //-------------------------------------------------------------------------
     void TerrainPageSource::addListener(TerrainPageSourceListener* pl)
     {
-        mPageSourceListeners.push_back(pl);
+		TerrainPageSourceListenerManager::getSingleton().addListener(pl);
     }
     //-------------------------------------------------------------------------
     void TerrainPageSource::removeListener(TerrainPageSourceListener* pl)
     {
-        PageSourceListenerList::iterator i, iend;
-        iend = mPageSourceListeners.end();
-        for(i = mPageSourceListeners.begin(); i != iend; ++i)
-        {
-            if (*i == pl)
-            {
-                mPageSourceListeners.erase(i);
-                break;
-            }
-        }
+		TerrainPageSourceListenerManager::getSingleton().removeListener(pl);
 
     }
     //-------------------------------------------------------------------------
