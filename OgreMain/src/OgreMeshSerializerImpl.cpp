@@ -1288,7 +1288,7 @@ namespace Ogre {
         size_t vertexSize, const VertexDeclaration::VertexElementList& elems)
 	{
 #	if OGRE_ENDIAN == ENDIAN_BIG
-        flipEndian(pData, vertexCount, vertexSize, decl);
+        flipEndian(pData, vertexCount, vertexSize, elems);
 #	endif	
     }
     //---------------------------------------------------------------------
@@ -1296,7 +1296,7 @@ namespace Ogre {
 			size_t vertexSize, const VertexDeclaration::VertexElementList& elems)
 	{
 #	if OGRE_ENDIAN == ENDIAN_BIG
-        flipEndian(pData, vertexCount, vertexSize, decl);
+        flipEndian(pData, vertexCount, vertexSize, elems);
 #	endif	
 	}
     //---------------------------------------------------------------------
