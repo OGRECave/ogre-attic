@@ -2285,11 +2285,14 @@ namespace Ogre {
         Matrix4& dest, bool forGpuProgram )
     {
         Radian thetaY (fovy / 2.0f);
-        Real sinThetaY = Math::Sin(thetaY);
-        Radian thetaX ( thetaY * aspect );
-        Real sinThetaX = Math::Sin(thetaX);
-        Real w = 1.0 / (sinThetaX * nearPlane);
-        Real h = 1.0 / (sinThetaY * nearPlane);
+        Real tanThetaY = Math::Tan(thetaY);
+
+        //Real thetaX = thetaY * aspect;
+        Real tanThetaX = tanThetaY * aspect; //Math::Tan(thetaX);
+        Real half_w = tanThetaX * nearPlane;
+        Real half_h = tanThetaY * nearPlane;
+        Real iw = 1.0 / half_w;
+        Real ih = 1.0 / half_h;
         Real q;
         if (farPlane == 0)
         {
@@ -2300,12 +2303,13 @@ namespace Ogre {
             q = 1.0 / (farPlane - nearPlane);
         }
 
-
         dest = Matrix4::ZERO;
-        dest[0][0] = w;
-        dest[1][1] = h;
+        dest[0][0] = iw;
+        dest[1][1] = ih;
         dest[2][2] = q;
-        dest[3][3] = 1;	
+        dest[2][3] = -nearPlane / (farPlane - nearPlane);
+        dest[3][3] = 1;
+
     }
     //---------------------------------------------------------------------
     void D3DRenderSystem::_setRasterisationMode(SceneDetailLevel level)
