@@ -141,6 +141,8 @@ namespace Ogre {
 
         mActiveRenderTarget = NULL;
 
+        mGLInitialized = false;
+
         glActiveTextureARB_ptr = 0;
         glClientActiveTextureARB_ptr = 0;
         glSecondaryColorPointerEXT_ptr = 0;
@@ -518,6 +520,7 @@ namespace Ogre {
             (GL_GetOcclusionQueryuivNV_Func)mGLSupport->getProcAddress("glGetOcclusionQueryuivNV");
 
         mCapabilities->log(LogManager::getSingleton().getDefaultLog());
+        mGLInitialized = true;
     }
 
     void GLRenderSystem::reinitialise(void)
@@ -574,10 +577,9 @@ namespace Ogre {
 
         attachRenderTarget( *win );
 
-        initGL();
-
-        if (parentWindowHandle == NULL)
+        if (!mGLInitialized) 
         {
+            initGL();
             mTextureManager = new GLTextureManager(*mGLSupport);
         }
 

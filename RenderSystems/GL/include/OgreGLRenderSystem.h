@@ -102,6 +102,8 @@ namespace Ogre {
         bool mUseAutoTextureMatrix;
         GLfloat mAutoTextureMatrix[16];
 
+        // check if the GL system has already been initialized
+        bool mGLInitialized;
         // Initialise GL context
         void initGL(void);
 
