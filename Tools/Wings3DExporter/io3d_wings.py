@@ -173,6 +173,9 @@ class wings_reader:
 			a, Sv, Ev, Lf, Rf, LP, LS, RP, RS = edgedata
 			self.check_atom(a, "edge")
 
+			minf, maxf = min(Lf, Rf), max(Lf, Rf)
+			wobj.edges.append((minf, maxf, Sv, Ev))
+
 			# store color info here if any
 			if LSp and LEp:
 				if wobj.face_vert_colors.has_key((Lf, Sv)) or \
@@ -183,7 +186,7 @@ class wings_reader:
 
 			# store hardness info
 			if edge_index in hard_edges:
-				wobj.hard_edges.append((Lf, Rf))
+				wobj.hard_edges.append((minf, maxf))
 
 			# store left and right face
 			safe_append(faces, Lf, (Sv, Ev))
@@ -272,7 +275,7 @@ class wings_reader:
 
 	def postprocess(self, wobj):
 		wobj.make_face_normals()
-		wobj.make_vert_normals()
+		wobj.make_vert_normals(1)
 		wobj.flatten()
 		wobj.triangulate()
 		wobj.submeshize()
