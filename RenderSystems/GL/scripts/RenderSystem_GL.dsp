@@ -164,19 +164,7 @@ SOURCE=..\src\OgreWin32Window.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=..\include\gl.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\glext.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\include\glprocs.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\glxext.h
 # End Source File
 # Begin Source File
 
@@ -233,10 +221,6 @@ SOURCE=..\include\OgreWin32Prerequisites.h
 # Begin Source File
 
 SOURCE=..\include\OgreWin32Window.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\wglext.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

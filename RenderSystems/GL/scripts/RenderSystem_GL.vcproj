@@ -360,19 +360,16 @@
 				RelativePath="..\include\OgreWin32Window.h">
 			</File>
 			<File
-				RelativePath="..\include\gl.h">
+				RelativePath="..\..\..\Dependencies\include\GL\gl.h">
 			</File>
 			<File
-				RelativePath="..\include\glext.h">
+				RelativePath="..\..\..\Dependencies\include\GL\glext.h">
 			</File>
 			<File
-				RelativePath="..\include\glprocs.h">
+				RelativePath="..\..\..\Dependencies\include\GL\glxext.h">
 			</File>
 			<File
-				RelativePath="..\include\glxext.h">
-			</File>
-			<File
-				RelativePath="..\include\wglext.h">
+				RelativePath="..\..\..\Dependencies\include\GL\wglext.h">
 			</File>
 		</Filter>
 		<Filter
