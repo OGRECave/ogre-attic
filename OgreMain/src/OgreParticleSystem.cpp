@@ -91,9 +91,19 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     ParticleSystem::~ParticleSystem()
     {
-        // Arrange for the deletion of emitters & affectors
+		// Arrange for the deletion of emitters & affectors
         removeAllEmitters();
         removeAllAffectors();
+
+		// Deallocate all particles
+		destroyVisualParticles(0, mParticlePool.size());
+        // Free pool items
+        ParticlePool::iterator i;
+        for (i = mParticlePool.begin(); i != mParticlePool.end(); ++i)
+        {
+            delete *i;
+        }
+
     }
     //-----------------------------------------------------------------------
     ParticleEmitter* ParticleSystem::addEmitter(const String& emitterType)
