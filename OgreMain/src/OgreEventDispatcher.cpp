@@ -160,6 +160,7 @@ namespace Ogre {
 											   e->getClickCount());
 
 		target->processEvent(retargeted);
+		delete retargeted;
 	}
     //---------------------------------------------------------------------
 	void EventDispatcher::setMouseTarget(PositionTarget* target, MouseEvent* e) 
