@@ -39,7 +39,7 @@ namespace Ogre {
 
         msg << "Creating viewport on target '" << target->getName() << "'"
 			<< ", rendering from camera '" << cam->getName() << "'"
-			<< ", relative dimensions "	<< std::ios::fixed << std::setprecision(2) 
+			<< ", relative dimensions "	<< std::fixed << std::setprecision(2) 
 			<< "L: " << left << " T: " << top << " W: " << width << " H: " << height
 			<< " ZOrder: " << ZOrder;
         LogManager::getSingleton().logMessage(msg.str());
@@ -105,7 +105,7 @@ namespace Ogre {
 		StringUtil::StrStreamType msg;
 
         msg << "Viewport for camera '" << mCamera->getName() << "'"
-			<< ", actual dimensions "	<< std::ios::fixed << std::setprecision(2) 
+			<< ", actual dimensions "	<< std::fixed << std::setprecision(2) 
 			<< "L: " << mActLeft << " T: " << mActTop << " W: " << mActWidth << " H: " << mActHeight;
 
         LogManager::getSingleton().logMessage(msg.str());
