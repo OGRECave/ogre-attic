@@ -61,6 +61,11 @@ namespace Ogre {
         LogManager::getSingleton().logMessage("GL_VENDOR = " + tmpStr);
         mVendor = tmpStr.substr(0, tmpStr.find(" "));
 
+        // Get renderer
+        const GLubyte* pcRenderer = glGetString(GL_RENDERER);
+        tmpStr = (const char*)pcRenderer;
+        LogManager::getSingleton().logMessage("GL_RENDERER = " + tmpStr);
+
         // Set extension list
 		std::stringstream ext;
         String str;
