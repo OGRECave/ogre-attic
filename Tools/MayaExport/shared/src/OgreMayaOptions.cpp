@@ -77,8 +77,13 @@ namespace OgreMaya {
     }
 
     void Options::debugOutput() {
-        cout << inFile << ", " << outMeshFile << ", " << outSkelFile << "\n";
-        cout << "snct = " << exportSkeleton << exportNormals << exportColours << exportUVs << "\n";
+        cout << "=== options ================================\n";
+        cout << inFile << " -> " << outMeshFile << ", " << outSkelFile << "\n";
+        cout << "exportSkeleton :" << exportSkeleton << '\n';
+        cout << "exportNormals  :" << exportNormals << '\n';
+        cout << "exportColours  :" << exportColours << '\n';
+        cout << "exportUVs      :" << exportUVs << '\n';        
+        cout << "============================================\n";
     }
 
     void Options::parseIn() {
