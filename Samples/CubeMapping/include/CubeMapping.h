@@ -134,7 +134,7 @@ void _normalsSaveNormalized(int numVertices, Real *normals)
 {
 	for(int i=0;i<numVertices;i++, normals+=3) {
 		Vector3 n(normals[0], normals[1], normals[2]);
-		n.normalisedCopy();
+		n.normalise();
 		normals[0] = n.x ;
 		normals[1] = n.y ;
 		normals[2] = n.z ;
