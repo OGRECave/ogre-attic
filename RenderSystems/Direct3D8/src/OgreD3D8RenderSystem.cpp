@@ -1800,6 +1800,7 @@ namespace Ogre {
 		{
 			// just disable
 			hr = mpD3DDevice->SetRenderState( D3DRS_FOGTABLEMODE, D3DFOG_NONE );
+			hr = mpD3DDevice->SetRenderState(D3DRS_FOGENABLE, FALSE);
 		}
 		else
 		{
