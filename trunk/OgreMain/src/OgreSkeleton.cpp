@@ -24,6 +24,9 @@ http://www.gnu.org/copyleft/gpl.html.
 */
 #include "OgreSkeleton.h"
 #include "OgreBone.h"
+#include "OgreAnimation.h"
+#include "OgreAnimationState.h"
+#include "OgreException.h"
 
 
 namespace Ogre {
@@ -64,6 +67,15 @@ namespace Ogre {
                 delete i->second;
         }
         mBoneList.clear();
+
+        // Destroy animations
+        AnimationList::iterator ai;
+        for (ai = mAnimationsList.begin(); ai != mAnimationsList.end(); ++i)
+        {
+            delete ai->second;
+        }
+        mAnimationsList.clear();
+
     }
     //---------------------------------------------------------------------
     Bone* Skeleton::createBone(void)
@@ -85,7 +97,126 @@ namespace Ogre {
         return mRootBone;
 
     }
+    //---------------------------------------------------------------------
+    void Skeleton::setAnimationState(const AnimationStateSet& animSet)
+    {
+        // TODO
+        /* 
+        Algorithm:
+          1. Check if animation state is any different from last, if not do nothing
+          2. Reset all bone positions
+          3. Iterate per AnimationState, if enabled get Animation and call Animation::apply
+        */
 
+        if (mLastAnimationState.size() == animSet.size())
+        {
+            // Same size, may be able to skip update
+            bool different = false;
+            AnimationStateSet::iterator i;
+            AnimationStateSet::const_iterator j;
+            i = mLastAnimationState.begin();
+            j = animSet.begin();
+            for (; i != mLastAnimationState.end(); ++i, ++j)
+            {
+                if (i->second != j->second)
+                {
+                    different = true;
+                    break;
+                }
+            }
+            // Check any differences?
+            if (!different)
+            {
+                // No, no need to update
+                return;
+            }
+        }
+
+        // Ok, we've established the animation state is different
+
+        // Reset bones
+        reset();
+
+        // Per animation state
+        AnimationStateSet::const_iterator istate;
+        for (istate = animSet.begin(); istate != animSet.end(); ++istate)
+        {
+            // Apply if enabled
+            const AnimationState& animState = istate->second;
+            if (animState.getEnabled())
+            {
+                Animation* anim = getAnimation(animState.getAnimationName());
+                anim->apply(animState.getTimePosition(), animState.getWeight());
+            }
+        }
+
+    }
+    //---------------------------------------------------------------------
+    void Skeleton::setBindingPose(void)
+    {
+        BoneList::iterator i;
+        for (i = mBoneList.begin(); i != mBoneList.end(); ++i)
+        {
+            i->second->setBindingPose();
+        }
+    }
+    //---------------------------------------------------------------------
+    void Skeleton::reset(void)
+    {
+        BoneList::iterator i;
+        for (i = mBoneList.begin(); i != mBoneList.end(); ++i)
+        {
+            i->second->reset();
+        }
+    }
+    //---------------------------------------------------------------------
+    Animation* Skeleton::createAnimation(const String& name, Real length)
+    {
+        Animation* ret = new Animation(name, length);
+
+        // Add to list
+        mAnimationsList[name] = ret;
+
+        // Also add to state
+        mLastAnimationState[name] = AnimationState(name, 0, length);
+
+        return ret;
+
+    }
+    //---------------------------------------------------------------------
+    Animation* Skeleton::getAnimation(const String& name)
+    {
+        AnimationList::iterator i = mAnimationsList.find(name);
+
+        if (i == mAnimationsList.end())
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, "No animation entry found named " + name, 
+            "Skeleton::getAnimation");
+        }
+
+        return i->second;
+    }
+    //---------------------------------------------------------------------
+    void Skeleton::removeAnimation(const String& name)
+    {
+        AnimationList::iterator i = mAnimationsList.find(name);
+
+        if (i == mAnimationsList.end())
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, "No animation entry found named " + name, 
+            "Skeleton::getAnimation");
+        }
+
+        delete i->second;
+
+        mAnimationsList.erase(i);
+
+    }
+    //---------------------------------------------------------------------
+    const AnimationStateSet& Skeleton::getAnimationState(void)
+    {
+        return mLastAnimationState;
+    }
 
 
 }

@@ -95,7 +95,6 @@ namespace Ogre {
     class Billboard;
     class BillboardSet;
     class Bone;
-    class BoneTrack;
     class Camera;
     class ColourValue;
     class ControllerManager;
@@ -118,6 +117,7 @@ namespace Ogre {
     class Mesh;
     class MeshManager;
     class MovableObject;
+    class Node;
     class Particle;
     class ParticleAffector;
     class ParticleAffectorFactory;

@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "OgreString.h"
 #include "OgreMovableObject.h"
+#include "OgreAnimationState.h"
 
 namespace Ogre {
     /** Defines an instance of a discrete, movable object based on a Mesh.
@@ -95,6 +96,9 @@ namespace Ogre {
         SceneManager* mCreatorSceneManager;
 
 
+        /// State of animation for animable meshes
+        AnimationStateSet mAnimationState;
+
     public:
         /** Default destructor.
         */
@@ -149,6 +153,21 @@ namespace Ogre {
         /** Overridden - see MovableObject.
         */
         void _updateRenderQueue(RenderQueue* queue);
+
+        /** For entities based on animated meshes, gets the AnimationState object for a single animation.
+        @remarks
+            You animate an entity by updating the animation state objects. Each of these represents the
+            current state of each animation available to the entity. The AnimationState objects are
+            initialised from the Mesh object.
+        */
+        AnimationState* getAnimationState(const String& name);
+        /** For entities based on animated meshes, gets the AnimationState objects for all animations.
+        @remarks
+            You animate an entity by updating the animation state objects. Each of these represents the
+            current state of each animation available to the entity. The AnimationState objects are
+            initialised from the Mesh object.
+        */
+        AnimationStateSet* getAllAnimationStates(void);
     };
 
 } // namespace

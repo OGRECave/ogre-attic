@@ -143,6 +143,9 @@ makeall_vc7.bat
 				RelativePath="..\src\OgreAnimation.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreAnimationState.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreAnimationTrack.cpp">
 			</File>
 			<File
@@ -165,9 +168,6 @@ makeall_vc7.bat
 			</File>
 			<File
 				RelativePath="..\src\OgreBone.cpp">
-			</File>
-			<File
-				RelativePath="..\src\OgreBoneTrack.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreCamera.cpp">
@@ -415,9 +415,6 @@ makeall_vc7.bat
 			</File>
 			<File
 				RelativePath="..\include\OgreBone.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreBoneTrack.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreCamera.h">

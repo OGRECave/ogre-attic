@@ -141,4 +141,22 @@ namespace Ogre {
         }
 
     }
+    //-----------------------------------------------------------------------
+    AnimationState* Entity::getAnimationState(const String& name)
+    {
+        AnimationStateSet::iterator i = mAnimationState.find(name);
+
+        if (i == mAnimationState.end())
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, "No animation entry found named " + name, 
+            "Entity::getAnimationState");
+        }
+
+        return &(i->second);
+    }
+    //-----------------------------------------------------------------------
+    AnimationStateSet* Entity::getAllAnimationStates(void)
+    {
+        return &mAnimationState;
+    }
 }

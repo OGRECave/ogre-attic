@@ -58,15 +58,20 @@ namespace Ogre {
         Real getLength(void);
 
         /** Creates an AnimationTrack. 
-        @remarks
-            An animation track is the vehicle for actually applying a sequence of keyframes 
-            to something. The type of the track depends on the kind of animation you
-            want to do, e.g. "Bone" creates a BoneTrack object.
-        @param typeName The type of track to create
         @param handle Numeric handle to give the track, used for accessing the track later. 
             Must be unique within this Animation.
         */
-        AnimationTrack* createTrack(const String& typeName, unsigned short handle);
+        AnimationTrack* createTrack(unsigned short handle);
+
+        /** Creates a new AnimationTrack automatically associated with a Node. 
+        @remarks
+            This method creates a standard AnimationTrack, but also associates it with a
+            target Node which will receive all keyframe effects.
+        @param handle Numeric handle to give the track, used for accessing the track later. 
+            Must be unique within this Animation.
+        @param node A pointer to the Node object which will be affected by this track
+        */
+        AnimationTrack* createTrack(unsigned short handle, Node* node);
 
         /** Gets the number of AnimationTrack objects which make up this animation. */
         unsigned short getNumTracks(void);
@@ -80,6 +85,21 @@ namespace Ogre {
 
         /** Removes and destroys all tracks making up this animation. */
         void destroyAllTracks(void);
+
+        /** Applies an animation given a specific time point and weight.
+        @remarks
+            Where you have associated animation tracks with Node objects, you can eaily apply
+            an animation to those nodes by calling this method.
+        @param timePos The time position in the animation to apply.
+        @param weight The influence to give to this track, 1.0 for full influence, less to blend with
+          other animations.
+        */
+        void apply(Real timePos, Real weight = 1.0);
+
+
+
+
+
 
 
     protected:
