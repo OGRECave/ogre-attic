@@ -124,7 +124,7 @@ namespace Ogre {
     String StringConverter::toString(const Quaternion& val)
     {
         String::StrStreamType stream;
-        stream << val.x << " " << val.y << " " << val.z << " " << val.w;
+        stream  << val.w << " " << val.x << " " << val.y << " " << val.z;
         return stream.str();
     }
     //-----------------------------------------------------------------------
