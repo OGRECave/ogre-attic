@@ -434,7 +434,8 @@ namespace Ogre {
         // Ensure controller pointer is null
         effect.controller = 0;
 
-        if (effect.type == ET_ENVIRONMENT_MAP || effect.type == ET_SCROLL || effect.type == ET_ROTATE)
+        if (effect.type == ET_ENVIRONMENT_MAP || effect.type == ET_SCROLL || effect.type == ET_ROTATE
+            || effect.type == ET_PROJECTIVE_TEXTURE)
         {
             // Replace - must be unique
             // Search for existing effect of this type
