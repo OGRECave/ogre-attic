@@ -108,8 +108,8 @@ private:
 	SceneNode *objectNode ;
 
 	// mesh-specific data
-	Mesh *originalMesh ;
-	Mesh *clonedMesh ;
+	MeshPtr originalMesh ;
+	MeshPtr clonedMesh ;
 
 	Entity *objectEntity ;
 	std::vector<MaterialPtr> clonedMaterials ;
@@ -276,8 +276,7 @@ private:
 	{
 		// delete cloned materials 
 		for(unsigned int m=0;m<clonedMaterials.size();m++) {
-			MaterialManager::getSingleton().unload(clonedMaterials[m]) ;
-			delete clonedMaterials[m];
+			MaterialManager::getSingleton().remove(clonedMaterials[m]->getHandle()) ;
 		}
 		clonedMaterials.clear();
 		
@@ -286,8 +285,7 @@ private:
 		mSceneMgr->removeEntity(ENTITY_NAME);
 		
 		// destroy mesh as well, to reset its geometry
-		MeshManager::getSingleton().unload(clonedMesh);
-		delete clonedMesh;
+		MeshManager::getSingleton().remove(clonedMesh->getHandle());
 		
 		objectEntity = 0 ;
 	}
@@ -373,7 +371,8 @@ private:
 	{
 		// we create new Mesh based on the original one, but changing
 		// HBU flags (inside _prepareVertexData)
-		clonedMesh = MeshManager::getSingleton().createManual(MESH_NAME);
+		clonedMesh = MeshManager::getSingleton().createManual(MESH_NAME, 
+            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 		clonedMesh->_setBounds(originalMesh->getBounds()); 
 		clonedMesh->_setBoundingSphereRadius(originalMesh->getBoundingSphereRadius());
 		//~ if (originalMesh->sharedVertexData)
@@ -404,13 +403,14 @@ private:
 		
 		// load mesh if necessary - note, I assume this is the only point
 		// Mesh can get loaded, since I want to make sure about its HBU etc.
-		originalMesh = (Mesh*) MeshManager::getSingleton().getByName(meshName);
-		if (!originalMesh) {
+		originalMesh = MeshManager::getSingleton().getByName(meshName);
+		if (originalMesh.isNull()) {
 			originalMesh = MeshManager::getSingleton().load(meshName,
+                ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
 				HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
 				HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
 				true, true); //so we can still read it
-			if (!originalMesh) {
+			if (originalMesh.isNull()) {
 				Except(Exception::ERR_ITEM_NOT_FOUND,
 					"Can't find a mesh: '"+meshName+"'",
 					"CubeMapListener::prepareEntity");
@@ -434,7 +434,7 @@ private:
 				const String& matName = subMesh->getMaterialName();
 				MaterialPtr subMat = 
                     MaterialManager::getSingleton().getByName(matName);
-				if (subMat) { // clone material, add layers from global material
+				if (!subMat.isNull()) { // clone material, add layers from global material
 					subMat->load();
 					MaterialPtr cloned = subMat->clone(
 						"CubeMapTempMaterial#"+StringConverter::toString(m));
@@ -526,9 +526,7 @@ private:
 			String oldTexName = pass->getTextureUnitState(0)->
 				getFrameTextureName(i);
 			TexturePtr oldTex = TextureManager::getSingleton().getByName(oldTexName);
-			TextureManager::getSingleton().unload(oldTexName);
-			//~ oldTex->unload();
-			delete oldTex ;
+			TextureManager::getSingleton().remove(oldTexName);
 		}
 		pass->getTextureUnitState(0)->setCubicTextureName(cubeMapName, true);
 		
@@ -539,9 +537,7 @@ private:
 			String oldTexName = pass2->getTextureUnitState(0)->
 				getFrameTextureName(i);
 			TexturePtr oldTex = TextureManager::getSingleton().getByName(oldTexName);
-			TextureManager::getSingleton().unload(oldTexName);
-			//~ oldTex->unload();
-			delete oldTex ;
+			TextureManager::getSingleton().remove(oldTexName);
 		}
 		pass2->getTextureUnitState(0)->setCubicTextureName(cubeMapName, false);
 
@@ -591,7 +587,7 @@ public:
 		
 		material = MaterialManager::getSingleton().getByName(MATERIAL_NAME);
 
-		if (!material) {
+		if (material.isNull()) {
 			Except( Exception::ERR_ITEM_NOT_FOUND,
 				"Can't find material: "+String(MATERIAL_NAME),
 				"CubeMapListener::CubeMapListener");

@@ -233,8 +233,9 @@ protected:
 
         // Load the meshes with non-default HBU options
 		for(int mn = 0; mn < NUM_ENTITIES; mn++) {
-			Mesh* pMesh = MeshManager::getSingleton().load(mEntityMeshes[mn],
-				HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, 
+			MeshPtr pMesh = MeshManager::getSingleton().load(mEntityMeshes[mn],
+                ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,    
+                HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, 
 				HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
 				true, true); //so we can still read it
             // Build tangent vectors, all our meshes use only 1 texture coordset 

@@ -226,7 +226,9 @@ protected:
         // Define a floor plane mesh
         reflectionPlane.normal = Vector3::UNIT_Y;
         reflectionPlane.d = 0;
-        MeshManager::getSingleton().createPlane("ReflectPlane",reflectionPlane,
+        MeshManager::getSingleton().createPlane("ReflectPlane",
+            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+            reflectionPlane,
             1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
         pPlaneEnt = mSceneMgr->createEntity( "plane", "ReflectPlane" );
         pPlaneEnt->setMaterialName("Examples/FresnelReflectionRefraction");

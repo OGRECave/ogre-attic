@@ -83,7 +83,9 @@ protected:
         Plane p;
         p.normal = Vector3::UNIT_Y;
         p.d = 200;
-        MeshManager::getSingleton().createPlane("FloorPlane",p,200000,200000,20,20,true,1,50,50,Vector3::UNIT_Z);
+        MeshManager::getSingleton().createPlane(
+            "FloorPlane", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
+            p, 200000, 200000, 20, 20, true, 1, 50, 50, Vector3::UNIT_Z);
 
         // Create an entity (the floor)
         ent = mSceneMgr->createEntity("floor", "FloorPlane");

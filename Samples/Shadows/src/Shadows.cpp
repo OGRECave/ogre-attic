@@ -348,8 +348,13 @@ protected:
         mLightNode->setAutoTracking(true, mSceneMgr->getRootSceneNode());
 
         // Prepare athene mesh for normalmapping
-        Mesh* pAthene = MeshManager::getSingleton().load("athene.mesh");
-        pAthene->buildTangentVectors(0,1);
+        MeshPtr pAthene = MeshManager::getSingleton().load("athene.mesh", 
+            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+        unsigned short src, dest;
+        if (!pAthene->suggestTangentVectorBuildParams(src, dest))
+        {
+            pAthene->buildTangentVectors(src, dest);
+        }
 
         SceneNode* node;
         node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
@@ -401,7 +406,8 @@ protected:
         Plane plane;
         plane.normal = Vector3::UNIT_Y;
         plane.d = 100;
-        MeshManager::getSingleton().createPlane("Myplane",plane,
+        MeshManager::getSingleton().createPlane("Myplane",
+            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
             1500,1500,20,20,true,1,5,5,Vector3::UNIT_Z);
         Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
         pPlaneEnt->setMaterialName("Examples/Rockwall");
