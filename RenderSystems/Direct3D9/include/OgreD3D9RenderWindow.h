@@ -60,7 +60,7 @@ namespace Ogre
 		bool requiresTextureFlipping() const { return false; }
 
 		// Method for dealing with resize / move & 3d library
-		void WindowMovedOrResized(void);
+		virtual void WindowMovedOrResized(void);
 		// Method for passing a external window handle before creation ;)
 		void SetExternalWindowHandle(HWND externalHandle) {mExternalHandle = externalHandle;};
 

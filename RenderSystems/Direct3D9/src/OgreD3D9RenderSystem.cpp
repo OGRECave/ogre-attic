@@ -143,7 +143,7 @@ namespace Ogre
 			return false;
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::initConfigOptions()
+	D3D9RenderSystem::initConfigOptions()
 	{
 		OgreGuard( "D3D9RenderSystem::initConfigOptions" );
 
@@ -164,7 +164,7 @@ namespace Ogre
 		optDevice.immutable = false;
 
 		optVideoMode.name = "Video Mode";
-		optVideoMode.currentValue = "";
+		optVideoMode.currentValue = "800 x 600 @ 32-bit colour";
 		optVideoMode.immutable = false;
 
 		optFullScreen.name = "Full Screen";
@@ -939,17 +939,17 @@ namespace Ogre
 	{
 		HRESULT hr;
 		D3D9Texture *dt = (D3D9Texture *)TextureManager::getSingleton().getByName(texname);
-		if (enabled)
+		if (enabled && dt)
 		{
-			if (!dt)
-				Except( Exception::ERR_INTERNAL_ERROR, "Unable to set texture in D3D9", "D3D9RenderSystem::_setTexture" );
-
 			IDirect3DBaseTexture9 *pTex = dt->getTexture();
 			if (mTexStageDesc[stage].pTex != pTex)
 			{
 				hr = mpD3DDevice->SetTexture(stage, pTex);
 				if( hr != S_OK )
-					Except( hr, "Unable to set texture in D3D9", "D3D9RenderSystem::_setTexture" );
+				{
+					String str = "Unable to set texture '" + texname + "' in D3D9";
+					Except( hr, str, "D3D9RenderSystem::_setTexture" );
+				}
 				
 				// set stage desc.
 				mTexStageDesc[stage].pTex = pTex;
@@ -958,20 +958,21 @@ namespace Ogre
 		}
 		else
 		{
-			for (int unit = stage; unit < this->_getNumTextureUnits(); unit++)
+			if (mTexStageDesc[stage].pTex != 0)
 			{
-				if (unit)
+				hr = mpD3DDevice->SetTexture(stage, 0);
+				if( hr != S_OK )
 				{
-					hr = this->__SetTextureStageState(unit, D3DTSS_COLOROP, D3DTOP_DISABLE);
-					if( hr != S_OK )
-						Except( hr, "Unable to disable texture in D3D9", "D3D9RenderSystem::_setTexture" );
+					String str = "Unable to disable texture '" + texname + "' in D3D9";
+					Except( hr, str, "D3D9RenderSystem::_setTexture" );
 				}
-				else
-				{
-					hr = mpD3DDevice->SetTexture(unit, 0);
-					if( hr != S_OK )
-						Except( hr, "Unable to disable texture in D3D9", "D3D9RenderSystem::_setTexture" );
-				}
+			}
+
+			hr = this->__SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_DISABLE);
+			if( hr != S_OK )
+			{
+				String str = "Unable to disable texture '" + texname + "' in D3D9";
+				Except( hr, str, "D3D9RenderSystem::_setTexture" );
 			}
 
 			// set stage desc. to defaults

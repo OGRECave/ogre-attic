@@ -98,6 +98,8 @@ namespace Ogre {
 		/// internal method, return true if the specified format has alpha
 		static bool _getPFHasAlpha(PixelFormat ogrePF);
 
+		/// internal method, free D3D9 resources
+		void _freeResources();
 		/// internal method, initialize member vars
 		void _initMembers();
 		/// internal method, set the device and fillIn the device caps
