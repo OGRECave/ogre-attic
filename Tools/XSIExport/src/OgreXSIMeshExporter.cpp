@@ -252,6 +252,7 @@ namespace Ogre {
 
 #if _DEBUG
 		StringUtil::StrStreamType msg;
+		msg << "-- " << XSItoOgre(xsiMesh->obj.GetName()) << " --" << std::endl;
 		msg << "Points: " << pointArray.GetCount() << std::endl;
 		msg << "Triangles: " << triArray.GetCount() << std::endl;
 		msg << "Normals: " << srcNormArray.GetCount() << std::endl;
@@ -270,7 +271,7 @@ namespace Ogre {
         bool first = true;
 
         // Iterate through all the triangles
-        // There will often be less poisitions than normals and UVs
+        // There will often be less positions than normals and UVs
         // But TrianglePoint
         for (long t = 0; t < triArray.GetCount(); ++t)
         {

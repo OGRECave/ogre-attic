@@ -471,6 +471,46 @@ CStatus OgreMeshExportOptions_DefineLayout( const CRef & in_Ctx )
 	return CStatus::OK;	
 }
 
+
+bool hasSkeleton(X3DObject& si, bool recurse)
+{
+	if (si.GetEnvelopes().GetCount() > 0)
+	{
+		return true;
+	}
+
+	if (recurse)
+	{
+
+		CRefArray children = si.GetChildren();
+
+		for(long i = 0; i < children.GetCount(); i++)
+		{
+			X3DObject child(children[i]);
+			bool ret = hasSkeleton(child, recurse);
+			if (ret)
+				return ret;
+		}
+	}
+
+	return false;
+	
+}
+
+bool hasSkeleton(Selection& sel, bool recurse)
+{
+	// iterate over selection
+	for (int i = 0; i < sel.GetCount(); ++i)
+	{
+		X3DObject obj(sel[i]);
+		bool ret = hasSkeleton(obj, recurse);
+		if (ret)
+			return ret;
+	}
+
+	return false;
+}
+
 #ifdef unix
 extern "C" 
 #endif
@@ -507,12 +547,36 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 		else
 		{
 			// no selection, assume entire scene
-			prop.PutParameterValue(L"objectName", L"[Entire Scene]");
+			prop.PutParameterValue(L"objectName", CString(L"[Entire Scene]"));
 		}
         // Make the selection read-only
 		objectNameParam.PutCapabilityFlag( siReadOnly, true );
 
-        // TODO - disable the export skeleton if no animation found
+        // enable / disable the skeleton export based on envelopes
+		if (!hasSkeleton(sel, true))
+		{
+			prop.PutParameterValue(L"exportSkeleton", false);
+			Parameter param = prop.GetParameters().GetItem(L"exportSkeleton");
+			param.PutCapabilityFlag(siReadOnly, true);
+			param = prop.GetParameters().GetItem(L"targetSkeletonFileName");
+			param.PutCapabilityFlag(siReadOnly, true);
+			param = prop.GetParameters().GetItem(L"fps");
+			param.PutCapabilityFlag(siReadOnly, true);
+			param = prop.GetParameters().GetItem(L"animationSplit");
+			param.PutCapabilityFlag(siReadOnly, true);
+		}
+		else
+		{
+			prop.PutParameterValue(L"exportSkeleton", true);
+			Parameter param = prop.GetParameters().GetItem(L"exportSkeleton");
+			param.PutCapabilityFlag(siReadOnly, false);
+			param = prop.GetParameters().GetItem(L"targetSkeletonFileName");
+			param.PutCapabilityFlag(siReadOnly, false);
+			param = prop.GetParameters().GetItem(L"fps");
+			param.PutCapabilityFlag(siReadOnly, false);
+			param = prop.GetParameters().GetItem(L"animationSplit");
+			param.PutCapabilityFlag(siReadOnly, false);
+		}
 	}
     // On clicking a button
 	else if ( eventID == PPGEventContext::siButtonClicked )
