@@ -145,8 +145,11 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BillboardSet::clear()
     {
-        // Remove all active instances
-        mActiveBillboards.clear();
+		// Insert actives into free list
+		mFreeBillboards.insert(mFreeBillboards.end(), mActiveBillboards.begin(), mActiveBillboards.end());
+      
+		// Remove all active instances
+      	mActiveBillboards.clear(); 
     }
 
     //-----------------------------------------------------------------------
