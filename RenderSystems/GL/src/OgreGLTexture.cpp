@@ -40,7 +40,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     // Simple round up function
-    double round_up(double value) {
+    double round_up(double value) 
+    {
         if (value - floor(value) > std::numeric_limits<double>::epsilon())
         {
             return floor(value) + 1;
@@ -51,18 +52,21 @@ namespace Ogre {
         }
     }
 
-    GLTexture::GLTexture(String name) 
+    GLTexture::GLTexture(String name, TextureType texType) 
     {
         mName = name;
+        mTextureType = texType;
+
         mUsage = TU_DEFAULT;
         enable32Bit(false);
     }
 
     // XXX init rather than assign
-    GLTexture::GLTexture(String name, uint width, uint height, uint num_mips,
-        PixelFormat format, TextureUsage usage)
+    GLTexture::GLTexture(String name, TextureType texType, uint width, 
+        uint height, uint num_mips, PixelFormat format, TextureUsage usage)
     {
         mName = name;
+        mTextureType = texType;
 
         mSrcWidth = width;
         mSrcHeight = height;
@@ -85,6 +89,21 @@ namespace Ogre {
         unload();
     }
 
+    GLenum GLTexture::getGLTextureType(void)
+    {
+        switch(mTextureType)
+        {
+            case TEX_TYPE_1D:
+                return GL_TEXTURE_1D;
+            case TEX_TYPE_2D:
+                return GL_TEXTURE_2D;
+            case TEX_TYPE_CUBE_MAP:
+                return GL_TEXTURE_CUBE_MAP;
+            default:
+                return 0;
+        };
+    }
+
     void GLTexture::blitToTexture( 
         const Image& src, 
         unsigned uStartX, unsigned uStartY )
@@ -102,33 +121,8 @@ namespace Ogre {
             GL_UNSIGNED_BYTE, img.getData() );
     }
 
-    void GLTexture::loadImage( const Image &src )
+    uchar* GLTexture::rescaleNPower2( const Image& src ) 
     {
-        Image img = src;
-        img.flipAroundX();
-
-        if( mIsLoaded )
-        {
-            std::cout << "Unloading image" << std::endl;
-            unload();
-        }
-
-        LogManager::getSingleton().logMessage( 
-            LML_NORMAL,
-            "GLTexture: Loading %s with %d mipmaps from Image.", 
-            mName.c_str(), mNumMipMaps );        
-
-        mFormat = img.getFormat();
-
-        mSrcBpp = Image::PF2BPP(mFormat);
-        mHasAlpha = img.getHasAlpha();
-
-        mSrcWidth = img.getWidth();
-        mSrcHeight = img.getHeight();
-        // Same dest dimensions for GL
-        mWidth = mSrcWidth;
-        mHeight = mSrcHeight;
-
         // Scale image to n^2 dimensions
         unsigned int newWidth = 
           (unsigned int)pow(2.0,round_up(log((double)mSrcWidth) / log(2.0)));
@@ -144,11 +138,11 @@ namespace Ogre {
 
           pTempData = new uchar[ newImageSize ];
           if(gluScaleImage(mHasAlpha ? GL_RGBA : GL_RGB, mSrcWidth, mSrcHeight,
-                GL_UNSIGNED_BYTE, img.getData(), newWidth, newHeight, 
+                GL_UNSIGNED_BYTE, src.getData(), newWidth, newHeight, 
                 GL_UNSIGNED_BYTE, pTempData) != 0)
           {
             Except(Exception::ERR_INTERNAL_ERROR, 
-                "Error while rescaling image!", "GLTexture::loadImage");
+                "Error while rescaling image!", "GLTexture::rescaleNPower2");
           }
 
           Image::applyGamma( pTempData, mGamma, newImageSize, mSrcBpp );
@@ -158,18 +152,73 @@ namespace Ogre {
         }
         else
         {
-          pTempData = new uchar[ img.getSize() ];
-          memcpy( pTempData, img.getData(), img.getSize() );
-          Image::applyGamma( pTempData, mGamma, img.getSize(), mSrcBpp );
+          pTempData = new uchar[ src.getSize() ];
+          memcpy( pTempData, src.getData(), src.getSize() );
+          Image::applyGamma( pTempData, mGamma, src.getSize(), mSrcBpp );
+        }
+
+        return pTempData;
+    }
+
+    void GLTexture::loadImage( const Image& img )
+    {
+        std::vector<Image> images;
+
+        images.push_back(img);
+        loadImages(images);
+        images.clear();
+    }
+
+    void GLTexture::loadImages( const std::vector<Image> images )
+    {
+        bool useSoftwareMipmaps = true;
+
+        if( mIsLoaded )
+        {
+            std::cout << "Unloading image" << std::endl;
+            unload();
         }
 
         // Create the GL texture
         glGenTextures( 1, &mTextureID );
-        glBindTexture( GL_TEXTURE_2D, mTextureID );
+        glBindTexture( getGLTextureType(), mTextureID );
 
-        generateMipMaps( pTempData );
+        if(mNumMipMaps && GLSupport::getSingleton().hasHWMipmap())
+        {
+            glTexParameteri( getGLTextureType(), GL_GENERATE_MIPMAP, GL_TRUE );
+            useSoftwareMipmaps = false;
+        }
 
-        delete [] pTempData;
+        glTexParameteri(getGLTextureType(), GL_TEXTURE_MAX_LEVEL, mNumMipMaps);
+
+        for(unsigned int i = 0; i < images.size(); i++)
+        {
+            Image img = images[i];
+            if(mTextureType != TEX_TYPE_CUBE_MAP)
+                img.flipAroundX();
+
+            LogManager::getSingleton().logMessage( 
+                LML_NORMAL,
+                "GLTexture: Loading %s with %d mipmaps from Image.", 
+                mName.c_str(), mNumMipMaps );        
+
+            mFormat = img.getFormat();
+
+            mSrcBpp = Image::PF2BPP(mFormat);
+            mHasAlpha = img.getHasAlpha();
+
+            mSrcWidth = img.getWidth();
+            mSrcHeight = img.getHeight();
+            // Same dest dimensions for GL
+            mWidth = mSrcWidth;
+            mHeight = mSrcHeight;
+
+            uchar *pTempData = rescaleNPower2(img);
+
+            generateMipMaps( pTempData, useSoftwareMipmaps, i );
+
+            delete [] pTempData;
+        }
 
         // Update size (the final size, not including temp space)
         short bytesPerPixel = mFinalBpp >> 3;
@@ -205,10 +254,34 @@ namespace Ogre {
         }
         else
         {
-            Image img;
-            img.load( mName );
+            if(mTextureType == TEX_TYPE_2D)
+            {
+                Image img;
+                img.load( mName );
 
-            loadImage( img );
+                loadImage( img );
+            }
+            else
+            {
+                Image img;
+                String baseName, ext;
+                std::vector<Image> images;
+                String suffixes[6] = {"_fr", "_bk", "_lf", "_rt", "_up", "_dn"};
+
+                for(unsigned int i = 0; i < 6; i++)
+                {
+                    size_t pos = mName.find_last_of(".");
+                    baseName = mName.substr(0, pos);
+                    ext = mName.substr(pos);
+                    String fullName = baseName + suffixes[i] + ext;
+
+                    img.load( fullName );
+                    images.push_back(img);
+                }
+
+                loadImages( images );
+                images.clear();
+            }
         }
     }
     
@@ -221,30 +294,33 @@ namespace Ogre {
         }
     }
 
-    void GLTexture::generateMipMaps( uchar *data )
+    void GLTexture::generateMipMaps( uchar *data, bool useSoftware, 
+        unsigned int faceNumber )
     {
-        bool foundHardware = false;
+        GLenum cubeFaces [] = { 
+            GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB,
+            GL_TEXTURE_CUBE_MAP_POSITIVE_Z_ARB,
+            GL_TEXTURE_CUBE_MAP_NEGATIVE_X_ARB,
+            GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB,
+            GL_TEXTURE_CUBE_MAP_POSITIVE_Y_ARB,
+            GL_TEXTURE_CUBE_MAP_NEGATIVE_Y_ARB,
+        };
 
-        if(mNumMipMaps && GLSupport::getSingleton().hasHWMipmap())
+        if(useSoftware && mNumMipMaps)
         {
-            glTexParameteri( GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE );
-            foundHardware = true;
-        }
-
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mNumMipMaps );
-
-        if(!foundHardware && mNumMipMaps)
-        {
-          gluBuild2DMipmaps(
-              GL_TEXTURE_2D, mHasAlpha ? GL_RGBA : GL_RGB, mSrcWidth, 
-              mSrcHeight, mHasAlpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data);
+            gluBuild2DMipmaps(
+                mTextureType == TEX_TYPE_CUBE_MAP ? 
+                cubeFaces[faceNumber] : getGLTextureType(), 
+                mHasAlpha ? GL_RGBA : GL_RGB, mSrcWidth, mSrcHeight, 
+                mHasAlpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data);
         }
         else
         {
-          glTexImage2D(
-            GL_TEXTURE_2D, 0, mHasAlpha ? GL_RGBA : GL_RGB, 
-            mSrcWidth, mSrcHeight, 0, 
-            mHasAlpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data );
+            glTexImage2D(
+              mTextureType == TEX_TYPE_CUBE_MAP ? 
+              cubeFaces[faceNumber] : getGLTextureType(), 0, 
+              mHasAlpha ? GL_RGBA : GL_RGB, mSrcWidth, mSrcHeight, 0, 
+              mHasAlpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data );
         }
     }
 
