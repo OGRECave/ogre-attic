@@ -30,11 +30,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
     
-    SDLInput::SDLInput() : InputReader()
+    SDLInput::SDLInput() 
+        : InputReader(), mMouseX(0), mMouseY(0), mMouseCenterX(0), 
+          mMouseCenterY(0), mScale(0.002), _visible(true)
     {
         mEventQueue = 0;
-        mScale = 0.002;
-        _visible = true;
 
         _key_map.insert(InputKeyMap::value_type(SDLK_ESCAPE,KC_ESCAPE));
         _key_map.insert(InputKeyMap::value_type(SDLK_1, KC_1));
@@ -156,8 +156,8 @@ namespace Ogre {
         int width, height, depth, left, top;
         pWindow->getMetrics(width, height, depth, left, top);
 
-        mMouseCenterX = width / 2;
-        mMouseCenterY = height / 2;
+        mMouseX = mMouseCenterX = width / 2;
+        mMouseY = mMouseCenterY = height / 2;
 
         SDL_WarpMouse(mMouseCenterX, mMouseCenterY);
     }
