@@ -24,4 +24,4 @@ if test -z "`libtool --version 2>&1|head -1|egrep '1.4'`"; then
 fi
 
 # Fire up autotools
-libtoolize --force && aclocal && autoheader && automake --include-deps --add-missing && autoconf 
+libtoolize --force && aclocal $ACLOCAL_FLAGS && autoheader && automake --include-deps --add-missing && autoconf 

@@ -68,7 +68,11 @@ ldconfig
 Compiling Ogre 
 cd ogrenew (where ever you put that).
 
-NOTE: if you are running the cvs version then you must run ./bootstrap first. It will setup the configure files for you
+NOTE: if you are running the cvs version then you must run ./bootstrap first. It
+will setup the configure files for you.  If you have some of the dependent
+libraries installed in another directory (like /usr/local) you might need to set
+the ACLOCAL_FLAGS variable to point at the extra aclocal directory.  An example
+is:  export ACLOCAL_FLAGS="-I /usr/local/share/aclocal"; ./bootstrap
 
 ./configure --with-stlport=/usr/local/include/stlport (don't do any associating pathing, i.e. ../stlport or ~/stlport, it does not work.. I don't know why but it doesn't so save yourself sometime and don't do it).
 
@@ -86,7 +90,11 @@ Well the god news is that gcc 3.2 does not need STLport, making things a lot eas
 Compiling Ogre
 
 
-NOTE: if you are running the cvs version then you must run ./bootstrap first. It will setup the configure files for you
+NOTE: if you are running the cvs version then you must run ./bootstrap first. It
+will setup the configure files for you.  If you have some of the dependent
+libraries installed in another directory (like /usr/local) you might need to set
+the ACLOCAL_FLAGS variable to point at the extra aclocal directory.  An example
+is:  export ACLOCAL_FLAGS="-I /usr/local/share/aclocal"; ./bootstrap
 
 ./configure
 make 
