@@ -58,6 +58,9 @@ namespace OgreRefApp {
 
         IntersectionSceneQuery* mIntersectionQuery;
 
+        /// The step size of the collision / physics simulation
+        Real mSimulationStepSize;
+
     public:
         /** Creates an instance of the world, must have a pointer to SceneManager. */
         World(SceneManager* sceneMgr);
@@ -89,11 +92,14 @@ namespace OgreRefApp {
             This method performs the appropriate queries to detect all the colliding objects
             in the world, tells the objects about it and adds the appropriate physical simulation
             constructs required to apply collision response when applyDynamics is called.
+        @par This method is called automatically by World::simulationStep()
         */
-        void applyCollision(void);
+        void _applyCollision(void);
 
-        /** Updates the world simulation. */
-        void applyDynamics(Real timeElapsed);
+        /** Updates the world simulation. 
+        @par This method is called automatically by World::simulationStep()
+        */
+        void _applyDynamics(Real timeElapsed);
 
         /** Internal method for notifying the world of a change in the dynamics status of an object. */
         void _notifyDynamicsStateForObject(ApplicationObject* obj, bool dynamicsEnabled);
@@ -116,6 +122,36 @@ namespace OgreRefApp {
         */
         Joint* createJoint(const String& name, Joint::JointType jtype,
             ApplicationObject* obj1, ApplicationObject* obj2);
+
+        /** Sets the step size of the simulation.
+        @remarks
+            This parameter allows you to alter the accuracy of the simulation. 
+            This is the interval at which collision and physics are performed,
+            such that in high frame rate scenarios these operations are
+            not done every single frame, and in low frame rate situations more
+            steps are performed per frame to ensure the stability of the
+            simulation.
+        @par
+            The default value for this parameter is 0.01s.
+        */
+        void setSimulationStepSize(Real step);
+        /** Returns the size of the simulation step. */
+        Real getSimulationStepSize(void);
+
+        /** Performs a simulation step, ie applies collision and physics.
+        @remarks
+            Collision events will cause callbacks to your ApplicationObject
+            instances to notify them of the collisions; this is for information,
+            dynamics are applied automatically if turned on for the objects so you
+            do not need to handle physics yourself if you do not wish to.
+        @par
+            Note that if the timeElapsed parameter is greater than the simulation
+            step size (as set using setSimulationStepSize), more than one collision
+            and dynamics step will take place during this call. Similarly, no step
+            may occur if the time elapsed has not reached the simulation step
+            size yet.
+        */
+        void simulationStep(Real timeElapsed);
 
         /** Override standard Singleton retrieval.
             @remarks

@@ -37,6 +37,7 @@ namespace OgreRefApp
     World::World(SceneManager* sceneMgr)
     {
         mSceneMgr = sceneMgr;
+        mSimulationStepSize = 0.01f;
 
         // Create the dynamics world
         mOdeWorld = new dWorld();
@@ -126,7 +127,7 @@ namespace OgreRefApp
         return mOdeWorld;
     }
     //-------------------------------------------------------------------------
-    void World::applyDynamics(Real timeElapsed)
+    void World::_applyDynamics(Real timeElapsed)
     {
         if (timeElapsed != 0.0f)
         {
@@ -175,7 +176,7 @@ namespace OgreRefApp
         return mOdeContactGroup;
     }
     //-------------------------------------------------------------------------
-    void World::applyCollision(void)
+    void World::_applyCollision(void)
     {
         // Collision detection
         IntersectionSceneQueryResult& results = mIntersectionQuery->execute();
@@ -195,14 +196,16 @@ namespace OgreRefApp
             uo1 = it->first->getUserObject();
             uo2 = it->second->getUserObject();
 
-            assert(uo1 && uo2 && "Missing one or other UserDefinedObject links!!");
-
-            // Cast to ApplicationObject
-            ApplicationObject *ao1, *ao2;
-            ao1 = static_cast<ApplicationObject*>(uo1);
-            ao2 = static_cast<ApplicationObject*>(uo2);
-            // Do detailed collision test
-            ao1->testCollide(ao2);
+            // Only perform collision if we have UserDefinedObject links
+            if (uo1 && uo2)
+            {
+                // Cast to ApplicationObject
+                ApplicationObject *ao1, *ao2;
+                ao1 = static_cast<ApplicationObject*>(uo1);
+                ao2 = static_cast<ApplicationObject*>(uo2);
+                // Do detailed collision test
+                ao1->testCollide(ao2);
+            }
         }
     }
     //-------------------------------------------------------------------------
@@ -233,6 +236,38 @@ namespace OgreRefApp
         mJoints[name] = ret;
         return ret;
     }
+    //-------------------------------------------------------------------------
+    void World::setSimulationStepSize(Real step)
+    {
+        mSimulationStepSize = step;
+    }
+    //-------------------------------------------------------------------------
+    Real World::getSimulationStepSize(void)
+    {
+        return mSimulationStepSize;
+    }
+    //-------------------------------------------------------------------------
+    void World::simulationStep(Real timeElapsed)
+    {
+        /* Hmm, gives somewhat jerky results
+        static Real leftOverTime = 0.0f;
+
+		Real time = timeElapsed + leftOverTime;	
+		uint steps = (uint)(time / mSimulationStepSize);
+		for(uint i=0; i < steps; ++i)
+        {
+			_applyCollision();
+            _applyDynamics(mSimulationStepSize);
+        }
+		leftOverTime = time - (steps * mSimulationStepSize);
+        */
+		_applyCollision();
+        _applyDynamics(timeElapsed);
+
+
+
+    }
+    //-------------------------------------------------------------------------
 
 }
 
