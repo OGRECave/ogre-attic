@@ -80,6 +80,139 @@ namespace Ogre {
 	    /** Retrieves colours as ABGR */
 	    ABGR getAsLongABGR(void) const;
 
+        // arithmetic operations
+        inline ColourValue operator + ( const ColourValue& rkVector ) const
+        {
+            ColourValue kSum;
+
+            kSum.r = r + rkVector.r;
+            kSum.g = g + rkVector.g;
+            kSum.b = b + rkVector.b;
+            kSum.a = a + rkVector.a;
+
+            return kSum;
+        }
+
+        inline ColourValue operator - ( const ColourValue& rkVector ) const
+        {
+            ColourValue kDiff;
+
+            kDiff.r = r - rkVector.r;
+            kDiff.g = g - rkVector.g;
+            kDiff.b = b - rkVector.b;
+            kDiff.a = a - rkVector.a;
+
+            return kDiff;
+        }
+
+        inline ColourValue operator * ( Real fScalar ) const
+        {
+            ColourValue kProd;
+
+            kProd.r = fScalar*r;
+            kProd.g = fScalar*g;
+            kProd.b = fScalar*b;
+            kProd.a = fScalar*a;
+
+            return kProd;
+        }
+
+        inline ColourValue operator * ( const ColourValue& rhs) const
+        {
+            ColourValue kProd;
+
+            kProd.r = rhs.r * r;
+            kProd.g = rhs.g * g;
+            kProd.b = rhs.b * b;
+            kProd.a = rhs.a * a;
+
+            return kProd;
+        }
+
+        inline ColourValue operator / ( const ColourValue& rhs) const
+        {
+            ColourValue kProd;
+
+            kProd.r = rhs.r / r;
+            kProd.g = rhs.g / g;
+            kProd.b = rhs.b / b;
+            kProd.a = rhs.a / a;
+
+            return kProd;
+        }
+
+        inline ColourValue operator / ( Real fScalar ) const
+        {
+            assert( fScalar != 0.0 );
+
+            ColourValue kDiv;
+
+            Real fInv = 1.0 / fScalar;
+            kDiv.r = r * fInv;
+            kDiv.g = g * fInv;
+            kDiv.b = b * fInv;
+            kDiv.a = a * fInv;
+
+            return kDiv;
+        }
+
+        inline friend ColourValue operator * ( Real fScalar, const ColourValue& rkVector )
+        {
+            ColourValue kProd;
+
+            kProd.r = fScalar * rkVector.r;
+            kProd.g = fScalar * rkVector.g;
+            kProd.b = fScalar * rkVector.b;
+            kProd.a = fScalar * rkVector.a;
+
+            return kProd;
+        }
+
+        // arithmetic updates
+        inline ColourValue& operator += ( const ColourValue& rkVector )
+        {
+            r += rkVector.r;
+            g += rkVector.g;
+            b += rkVector.b;
+            a += rkVector.a;
+
+            return *this;
+        }
+
+        inline ColourValue& operator -= ( const ColourValue& rkVector )
+        {
+            r -= rkVector.r;
+            g -= rkVector.g;
+            b -= rkVector.b;
+            a -= rkVector.a;
+
+            return *this;
+        }
+
+        inline ColourValue& operator *= ( Real fScalar )
+        {
+            r *= fScalar;
+            g *= fScalar;
+            b *= fScalar;
+            a *= fScalar;
+            return *this;
+        }
+
+        inline ColourValue& operator /= ( Real fScalar )
+        {
+            assert( fScalar != 0.0 );
+
+            Real fInv = 1.0 / fScalar;
+
+            r *= fInv;
+            g *= fInv;
+            b *= fInv;
+            a *= fInv;
+
+            return *this;
+        }
+
+
     };
 
 } // namespace
