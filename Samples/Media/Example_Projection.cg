@@ -41,8 +41,10 @@ void distortion_vp(
 		uniform float fresnelBias,
 		uniform float fresnelScale,
 		uniform float fresnelPower,
-		uniform float2   scroll, // the amount by which to scroll the noise
-		uniform float    noisePos // the stage of the noise
+		uniform float timeVal,
+		uniform float scale, 
+		uniform float scroll, // the amount by which to scroll the noise
+		uniform float noise  // the noise perturb as a factor of the  time
 		)
 {
 	oPos = mul(worldViewProjMatrix, pos);
@@ -53,8 +55,8 @@ void distortion_vp(
 								   0,   0,   0,   1);
 	projectionCoord = mul(scalemat, oPos);
 	// Noise map coords
-	noiseCoord.xy = tex + scroll;
-	noiseCoord.z = noisePos;
+	noiseCoord.xy = (tex + (timeVal * scroll)) * scale;
+	noiseCoord.z = noise * timeVal;
 
 	// calc fresnel factor (reflection coefficient)
 	float3 eyeDir = normalize(pos.xyz - eyePosition);
