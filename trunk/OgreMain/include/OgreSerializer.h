@@ -76,6 +76,7 @@ namespace Ogre {
         void readObject(DataChunk& chunk, Quaternion* pDest);
 
         String readString(DataChunk& chunk);
+        String readString(DataChunk& chunk, size_t numChars);
         
         void flipToLittleEndian(void* pData, size_t size, size_t count = 1);
         void flipFromLittleEndian(void* pData, size_t size, size_t count = 1);
