@@ -38,12 +38,12 @@ namespace Ogre {
         SAFE_RELEASE(mlpD3DDecl);
     }
     //-----------------------------------------------------------------------
-    void D3D9VertexDeclaration::addElement(unsigned short source, 
+    const VertexElement& D3D9VertexDeclaration::addElement(unsigned short source, 
         size_t offset, VertexElementType theType,
         VertexElementSemantic semantic, unsigned short index)
     {
-        VertexDeclaration::addElement(source, offset, theType, semantic, index);
         mNeedsRebuild = true;
+        return VertexDeclaration::addElement(source, offset, theType, semantic, index);
     }
     //-----------------------------------------------------------------------
     void D3D9VertexDeclaration::removeElement(unsigned short elem_index)

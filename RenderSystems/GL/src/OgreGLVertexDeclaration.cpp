@@ -36,12 +36,12 @@ namespace Ogre {
     {
     }
     //-----------------------------------------------------------------------
-    void GLVertexDeclaration::addElement(unsigned short source, size_t offset, 
+    const VertexElement& GLVertexDeclaration::addElement(unsigned short source, size_t offset, 
         VertexElementType theType, VertexElementSemantic semantic, 
         unsigned short index)
     {
-        VertexDeclaration::addElement(source, offset, theType, semantic, index);
         mNeedsRebuild = true;
+        return VertexDeclaration::addElement(source, offset, theType, semantic, index);
     }
     //-----------------------------------------------------------------------
     void GLVertexDeclaration::removeElement(unsigned short elem_index)

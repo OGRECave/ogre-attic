@@ -1687,8 +1687,8 @@ namespace Ogre
         // To think about: possibly remove setVertexDeclaration and 
         // setVertexBufferBinding from RenderSystem since the sequence is
         // a bit too D3D9-specific?
-		setVertexDeclaration(&(op.vertexData->vertexDeclaration));
-        setVertexBufferBinding(&(op.vertexData->vertexBufferBinding));
+		setVertexDeclaration(op.vertexData->vertexDeclaration);
+        setVertexBufferBinding(op.vertexData->vertexBufferBinding);
 
 		// Determine rendering operation
 		D3DPRIMITIVETYPE primType;

@@ -42,7 +42,7 @@ namespace Ogre {
         ~D3D9VertexDeclaration();
         
         /** See VertexDeclaration */
-        void addElement(unsigned short source, size_t offset, VertexElementType theType,
+        const VertexElement& addElement(unsigned short source, size_t offset, VertexElementType theType,
             VertexElementSemantic semantic, unsigned short index = 0);
 
         /** See VertexDeclaration */
