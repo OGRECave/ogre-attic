@@ -1368,5 +1368,35 @@ namespace Ogre {
         // GL accesses by byte, so use ABGR so little-endian format will make it RGBA in byte mode
         *pDest = colour.getAsLongABGR();
     }
+    
+    void SDLRenderSystem::_makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, 
+        Real farPlane, Matrix4& dest)
+    {
+        Real thetaY = Math::DegreesToRadians(fovy / 2.0f);
+        Real tanThetaY = Math::Tan(thetaY);
+        Real thetaX = thetaY * aspect;
+        Real tanThetaX = Math::Tan(thetaX);
 
+        // Calc matrix elements
+        Real w = 1.0f / tanThetaX;
+        Real h = 1.0f / tanThetaY;
+        Real q = -(farPlane + nearPlane) / (farPlane - nearPlane);
+        //Real qn= q * mNearDist;
+        Real qn = -2 * (farPlane * nearPlane) / (farPlane - nearPlane);
+
+        // NB This creates Z in range [-1,1]
+        //
+        // [ w   0   0   0  ]
+        // [ 0   h   0   0  ]
+        // [ 0   0   q   qn ]
+        // [ 0   0   -1  0  ]
+
+        dest = Matrix4::ZERO;
+        dest[0][0] = w;
+        dest[1][1] = h;
+        dest[2][2] = q;
+        dest[2][3] = qn;
+        dest[3][2] = -1;
+
+    }
 }

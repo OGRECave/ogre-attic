@@ -645,6 +645,7 @@ namespace Ogre {
             _renderSkyDome(camera);
 
 
+        
         /*
         // BEGIN TEST HUD HACK
         // NB works in SDL but in D3D depth buffer is not right (objects show thru)
@@ -657,10 +658,10 @@ namespace Ogre {
         // Place at -1 z (as far forward in homogenous clip space as you can get)
         // Use {-1, 1} 2D coords, make slightly smaller than total for effect
         Real testPositions[4*3] = {
-            -1, -1, -1,
-             1, -1, -1,
-             1,  1, -1, 
-            -1,  1, -1};
+            -1, -1, 0,
+             1, -1, 0,
+             1,  1, 0, 
+            -1,  1, 0};
         Real testUV[4*2] = {
             0, 0,
             1, 0,
@@ -693,6 +694,7 @@ namespace Ogre {
         //---------------------------------------------------------------------
         // END HUD TEST HACK 
         */
+        
 
         // End frame
         mDestRenderSystem->_endFrame();

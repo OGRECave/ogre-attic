@@ -924,11 +924,10 @@ namespace Ogre {
         D3DMATRIX d3dmat = makeD3DMatrix(m);
 
         // Flip the Z to compensate for D3D's left-handed co-ordinate system
-        // No, don't do this! Because: Camera already flips Z ready for screen space
-        //d3dmat.m[2][0] = -d3dmat.m[2][0];
-        //d3dmat.m[2][1] = -d3dmat.m[2][1];
-        //d3dmat.m[2][2] = -d3dmat.m[2][2];
-        //d3dmat.m[2][3] = -d3dmat.m[2][3];
+        d3dmat.m[0][2] = -d3dmat.m[0][2];
+        d3dmat.m[1][2] = -d3dmat.m[1][2];
+        d3dmat.m[2][2] = -d3dmat.m[2][2];
+        d3dmat.m[3][2] = -d3dmat.m[3][2];
 
 
         HRESULT hr = mlpD3DDevice->SetTransform(D3DTRANSFORMSTATE_VIEW, &d3dmat);
@@ -943,12 +942,6 @@ namespace Ogre {
     {
 
         D3DMATRIX d3dmat = makeD3DMatrix(m);
-        // Flip a number of entries for d3d
-        //d3dmat.m[2][3] = -d3dmat.m[2][3];
-        //d3dmat.m[2][2] = -d3dmat.m[2][2];
-        //d3dmat.m[3][2] = -d3dmat.m[3][2];
-
-
         HRESULT hr = mlpD3DDevice->SetTransform(D3DTRANSFORMSTATE_PROJECTION, &d3dmat);
 
         if (FAILED(hr))
@@ -2271,6 +2264,22 @@ namespace Ogre {
     void D3DRenderSystem::convertColourValue(const ColourValue& colour, unsigned long* pDest)
     {
         *pDest = colour.getAsLongARGB();
+    }
+    //---------------------------------------------------------------------
+    void D3DRenderSystem::_makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, Matrix4& dest)
+    {
+        Real theta = Math::DegreesToRadians(fovy * 0.5);
+        Real w = 1 / Math::Tan(theta * aspect);
+        Real h = 1 / Math::Tan(theta);
+        Real Q = farPlane / ( farPlane - nearPlane );
+
+        dest = Matrix4::ZERO;
+        dest[0][0] = w;
+        dest[1][1] = h;
+        dest[2][2] = Q;
+        dest[3][2] = 1.0f;
+        dest[2][3] = -Q * nearPlane;
+
     }
 
 

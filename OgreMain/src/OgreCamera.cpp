@@ -32,6 +32,8 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreSphere.h"
 #include "OgreLogManager.h"
 #include "OgreException.h"
+#include "OgreRoot.h"
+#include "OgreRenderSystem.h"
 
 namespace Ogre {
 
@@ -455,41 +457,18 @@ namespace Ogre {
             if (mProjType == PT_PERSPECTIVE)
             {
                 // PERSPECTIVE transform
-
-                // ---------------------------
-                // Calculate Projection Matrix
-                // ---------------------------
-                // Get tangent of vertical FOV
-                Real thetaY = Math::DegreesToRadians(mFOVy / 2.0f);
-                Real tanThetaY = Math::Tan(thetaY);
-                Real thetaX = thetaY * mAspect;
-                Real tanThetaX = Math::Tan(thetaX);
-
-                // Calc matrix elements
-                Real w = 1.0f / tanThetaX;
-                Real h = 1.0f / tanThetaY;
-                Real q = -mFarDist / (mFarDist - mNearDist);
-                Real qn= q * mNearDist;
-
-                // NB This creates Z in range [0,1]
-                // May need to change for OpenGL which uses [-1, 1]
-                //
-                // [ w   0   0   0  ]
-                // [ 0   h   0   0  ]
-                // [ 0   0   q   qn ]
-                // [ 0   0   -1  0  ]
-
-                mProjMatrix = Matrix4::ZERO;
-                mProjMatrix[0][0] = w;
-                mProjMatrix[1][1] = h;
-                mProjMatrix[2][2] = q;
-                mProjMatrix[2][3] = qn;
-                mProjMatrix[3][2] = -1;
+                Root::getSingleton().getRenderSystem()->_makeProjectionMatrix(mFOVy, 
+                    mAspect, mNearDist, mFarDist, mProjMatrix);
 
                 // Calculate co-efficients for the frustum planes
                 // Special-cased for L = -R and B = -T i.e. viewport centered 
                 // on direction vector.
                 // Taken from ideas in WildMagic 0.2 http://www.magic-software.com
+                Real thetaY = Math::DegreesToRadians(mFOVy / 2.0f);
+                Real tanThetaY = Math::Tan(thetaY);
+                Real thetaX = thetaY * mAspect;
+                Real tanThetaX = Math::Tan(thetaX);
+
                 Real vpTop = tanThetaY * mNearDist;
                 Real vpRight = tanThetaX * mNearDist;
                 Real vpBottom = -vpTop;
