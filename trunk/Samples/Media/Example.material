@@ -241,3 +241,65 @@ Examples/Robot
 		texture r2skin.jpg
 	}
 }
+
+
+// Scrollbar Textures
+Examples/Scrollbar/Up
+{
+	{
+		texture scr-up.png
+	}
+}
+
+
+// Scrollbar Textures
+Examples/Scrollbar/Up/Pressed
+{
+	{
+		texture scr-up-p.png
+	}
+}
+
+
+// Scrollbar Textures
+Examples/Scrollbar/Down
+{
+	{
+		texture scr-down.png
+	}
+}
+
+
+// Scrollbar Textures
+Examples/Scrollbar/Down/Pressed
+{
+	{
+		texture scr-down-p.png
+	}
+}
+
+
+// Scrollbar Textures
+Examples/Scrollbar/Thumb
+{
+	{
+		texture scr-thumb.png
+	}
+}
+
+
+// Scrollbar Textures
+Examples/Scrollbar/Background
+{
+	{
+		texture scr-back.png
+	}
+}
+
+
+Examples/Hilite/Yellow
+{
+	{
+		texture dkyellow.png
+	}
+}
