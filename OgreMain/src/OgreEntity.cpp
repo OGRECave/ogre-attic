@@ -837,10 +837,11 @@ namespace Ogre {
                     pVertData = egi->vertexData;
                 }
                 // Create a new renderable, create a separate light cap if
-                // we're using a vertex program since otherwise we get
-                // depth-fighting on the light cap
+                // we're using a vertex program (either for this model, or
+				// for extruding the shadow volume) since otherwise we can 
+				// get depth-fighting on the light cap
                 *si = new EntityShadowRenderable(this, indexBuffer, pVertData, 
-                    mVertexProgramInUse);
+                    mVertexProgramInUse || !extrude);
             }
             else if (hasSkeleton())
             {

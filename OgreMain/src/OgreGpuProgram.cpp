@@ -298,8 +298,9 @@ namespace Ogre
                 setConstant(i->index, source.getLight(i->data).getSpecularColour());
                 break;
             case ACT_LIGHT_POSITION:
+				// Get as 4D vector, works for directional lights too
                 setConstant(i->index, 
-                    source.getLight(i->data).getDerivedPosition());
+                    source.getLight(i->data).getAs4DVector());
                 break;
             case ACT_LIGHT_DIRECTION:
                 vec3 = source.getLight(i->data).getDerivedDirection();
@@ -308,7 +309,7 @@ namespace Ogre
                 break;
             case ACT_LIGHT_POSITION_OBJECT_SPACE:
                 setConstant(i->index, 
-                    source.getInverseWorldMatrix() * source.getLight(i->data).getDerivedPosition());
+                    source.getInverseWorldMatrix() * source.getLight(i->data).getAs4DVector());
                 break;
             case ACT_LIGHT_DIRECTION_OBJECT_SPACE:
                 vec3 = source.getInverseWorldMatrix() * 
