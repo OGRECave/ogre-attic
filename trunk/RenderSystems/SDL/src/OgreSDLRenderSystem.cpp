@@ -36,6 +36,11 @@ http://www.gnu.org/copyleft/gpl.html.
 #   include <wingdi.h>
 #endif
 
+// Hack 
+/// TODO: resolve this properly
+#ifndef GL_MIRRORED_REPEAT_IBM 
+#   define GL_MIRRORED_REPEAT_IBM 0x8370 
+#endif 
 
 namespace Ogre {
 
