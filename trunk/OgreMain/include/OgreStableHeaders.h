@@ -32,6 +32,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef __OgreStableHeaders__
 #define __OgreStableHeaders__
 
+#include "OgrePlatform.h"
+
+#if OGRE_PLATFORM == PLATFORM_WIN32
 #include "OgreArchiveEx.h"
 #include "OgreAxisAlignedBox.h"
 #include "OgreBitwise.h"
@@ -68,5 +71,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreVector4.h"
 #include "OgreWireBoundingBox.h"
 #include "OgreZip.h"
+#endif
 
 #endif 

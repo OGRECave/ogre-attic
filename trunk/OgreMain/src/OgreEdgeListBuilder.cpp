@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreEdgeListBuilder.h"
 #include "OgreLogManager.h"
 #include "OgreStringConverter.h"
+#include "OgreVertexIndexData.h"
 
 namespace Ogre {
 

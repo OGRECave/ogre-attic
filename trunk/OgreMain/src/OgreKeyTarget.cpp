@@ -25,9 +25,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreStableHeaders.h"
 
+#include "OgreKeyTarget.h"
+
 #include "OgreKeyEvent.h"
 #include "OgreEventListeners.h"
-#include "OgreKeyTarget.h"	// HACK move higher
 #include "OgreEventMulticaster.h"	
 
 

@@ -24,6 +24,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreStableHeaders.h"
 #include "OgreHardwareBufferManager.h"
+#include "OgreVertexIndexData.h"
 
 
 namespace Ogre {

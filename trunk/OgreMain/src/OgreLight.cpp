@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreException.h"
 #include "OgreSceneNode.h"
+#include "OgreCamera.h"
 
 namespace Ogre {
     String Light::msMovableType = "Light";

@@ -47,6 +47,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreProfiler.h"
 #include "OgreErrorDialog.h"
 #include "OgreConfigDialog.h"
+#include "OgreStringConverter.h"
 
 #include "OgrePNGCodec.h"
 #include "OgreBMPCodec.h"
