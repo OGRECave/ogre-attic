@@ -37,79 +37,48 @@ namespace Ogre {
     class _OgreExport SimpleRenderable : public MovableObject, public Renderable
     {
     protected:
-        RenderOperation mRO;
-        Matrix4 mWorldTransform;
-        AxisAlignedBox mAAB;
+        RenderOperation mRendOp;
+        Matrix4 m_matWorldTransform;
+        AxisAlignedBox mBox;
 
         String m_strMatName;
         Material *m_pMaterial;
 
         Real *m_pVertexCache;
-        unsigned short *m_pIndexCache;
+        ushort *m_pIndexCache;
         Real *m_pNormalCache;
         RGBA *m_pDiffuseCache;
         RGBA *m_pSpecularCache;
         Real *m_pTexCache[OGRE_MAX_TEXTURE_COORD_SETS];
 
+        /// The scene manager for the current frame.
         SceneManager *m_pParentSceneManager;
 
+        /// The camera for the current frame.
         Camera *m_pCamera;
 
-        /// Name, for conformance with MovableObject
-        String mName;
+        /// The name of the object.
+        String m_strName;
 
-        /// Counter for auto-generating names for backwards compatibility
-        static int msGenNameCount;
-
-        /// Shared class-level name for Movable type
-        static String msMovableType;
+        /// Static member used to automatically generate names for SimpleRendaerable objects.
+        static uint ms_uGenNameCount;
 
     public:
-        SimpleRenderable()
-        {
-            mWorldTransform = Matrix4::IDENTITY;
-
-            m_strMatName = ""; m_pMaterial = NULL;
-
-            m_pVertexCache = 0;
-            m_pIndexCache = 0;
-            m_pNormalCache = 0;
-            m_pDiffuseCache = m_pSpecularCache = NULL;        
-
-            for( int i=0; i<OGRE_MAX_TEXTURE_COORD_SETS; i++ )
-                m_pTexCache[i] = NULL;
-
-            m_pParentSceneManager = NULL;
-
-            mParentNode = NULL;
-            m_pCamera = NULL;
-
-            // Generate name
-            char tempName[32];
-            sprintf(tempName, "SimpleRenderable%d", msGenNameCount++);
-            mName = tempName;
-
-
-
-        }
-
-        // These are to quickly set the RO's properties
-        RenderOperation& getRO();
-
-        const RenderOperation& getRO() const;
+        SimpleRenderable();
 
         Real **getVertexCache();
-        unsigned short **getIndexCache();
+        ushort **getIndexCache();
         Real **getNormalCache();
         RGBA **getDiffuseCache();
         RGBA **getSpecularCache();
-        Real **getTexCoordCcache( unsigned short cn );
+        Real **getTexCoordCache( unsigned short cn );
 
         void setMaterial( const String& matName );
         virtual Material* getMaterial(void) const;
 
         virtual void setRenderOperation( const RenderOperation& rend );
         virtual void getRenderOperation( RenderOperation& rend );
+        RenderOperation& getRenderOperation();
 
         void setWorldTransform( const Matrix4& xform );
         virtual void getWorldTransforms( Matrix4* xform );
@@ -119,7 +88,7 @@ namespace Ogre {
         virtual void _notifyAttached( SceneNode* parent );
         virtual void _notifyCurrentCamera(Camera* cam);
 
-        AxisAlignedBox& getABB();
+        void setBoundingBox( const AxisAlignedBox& box );
         virtual const AxisAlignedBox& getBoundingBox(void) const;
 
         virtual void _updateRenderQueue(RenderQueue* queue);
@@ -127,10 +96,10 @@ namespace Ogre {
         virtual ~SimpleRenderable();
 
         /** Overridden from MovableObject */
-        String getName(void);
+        virtual const String& getName(void) const;
 
         /** Overridden from MovableObject */
-        String getMovableType(void);
+        virtual const String getMovableType(void) const;
 
 
     };
