@@ -638,6 +638,15 @@ namespace Ogre {
         // Auto-track camera if required
         camera->_autoTrack();
 
+        if (camera->isReflected())
+        {
+            mDestRenderSystem->setInvertVertexWinding(true);
+        }
+        else
+        {
+            mDestRenderSystem->setInvertVertexWinding(false);
+        }
+
         // Clear the render queue
         mRenderQueue.clear();
 

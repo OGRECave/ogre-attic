@@ -78,6 +78,9 @@ namespace Ogre {
         // Init lod
         mSceneLodFactor = mSceneLodFactorInv =  1.0f;
 
+        // no reflection
+        mReflect = false;
+
 
         updateView();
     }
@@ -672,6 +675,13 @@ namespace Ogre {
             mViewMatrix[2][3] = trans.z;
             mViewMatrix[3][3] = 1.0f;
 
+            // Deal with reflections
+            if (mReflect)
+            {
+                mViewMatrix = mViewMatrix * mReflectMatrix;
+            }
+
+
             // -------------------------
             // Update the frustum planes
             // -------------------------
@@ -880,4 +890,19 @@ namespace Ogre {
 	{
 		return mNearDist;
 	}
+    //-----------------------------------------------------------------------
+    void Camera::enableReflection(const Plane& p)
+    {
+        mReflect = true;
+        mReflectPlane = p;
+        mReflectMatrix = Math::buildReflectionMatrix(p);
+        mRecalcView = true;
+        
+    }
+    //-----------------------------------------------------------------------
+    void Camera::disableReflection(void)
+    {
+        mReflect = false;
+        mRecalcView = true;
+    }
 } // namespace Ogre

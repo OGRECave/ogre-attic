@@ -1367,7 +1367,11 @@ namespace Ogre
 	void D3D9RenderSystem::_setCullingMode( CullingMode mode )
 	{
 		HRESULT hr;
-		if( FAILED (hr = __SetRenderState(D3DRS_CULLMODE, D3D9Mappings::get(mode, mActiveRenderTarget->requiresTextureFlipping()))) )
+        bool flip = ((mActiveRenderTarget->requiresTextureFlipping() && !mInvertVertexWinding) ||
+                (!mActiveRenderTarget->requiresTextureFlipping() && mInvertVertexWinding));
+
+		if( FAILED (hr = __SetRenderState(D3DRS_CULLMODE, 
+            D3D9Mappings::get(mode, flip))) )
 			Except( hr, "Failed to set culling mode", "D3D9RenderSystem::_setCullingMode" );
 	}
 	//---------------------------------------------------------------------

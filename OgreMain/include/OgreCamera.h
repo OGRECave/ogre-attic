@@ -162,6 +162,11 @@ namespace Ogre {
 		/// Inverted scene LOD factor, can be used by Renderables to adjust their LOD
 		Real mSceneLodFactorInv;
 
+        /// Is this camera to act as a reflection of itself?
+        bool mReflect;
+        Matrix4 mReflectMatrix;
+        Plane mReflectPlane;
+
     public:
         /** Standard constructor.
         */
@@ -533,6 +538,23 @@ namespace Ogre {
 			See Camera::setLodBias for more details.
 		*/
 		Real getLodBias(void) const;
+
+        /** Modifies this camera so it always renders from the reflection of itself through the
+            plane specified.
+        @remarks
+            This is obviously useful for rendering planar reflections. 
+        */
+        void enableReflection(const Plane& p);
+
+        /** Disables reflection modification previously turned on with enableReflection */
+        void disableReflection(void);
+
+        /// Returns whether this camera is being reflected
+        bool isReflected(void) { return mReflect; }
+        /// Returns the reflection matrix of the camera if appropriate
+        const Matrix4& getReflectionMatrix(void) { return mReflectMatrix; }
+        /// Returns the reflection plane of the camera if appropriate
+        const Plane& getReflectionPlane(void) { return mReflectPlane; }
 
 		/** Internal method for OGRE to use for LOD calculations. */
 		Real _getLodBiasInverse(void) const;

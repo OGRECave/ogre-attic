@@ -240,6 +240,9 @@ namespace Ogre
             const Vector3& position1, const Vector3& position2, const Vector3& position3,
             Real u1, Real v1, Real u2, Real v2, Real u3, Real v3);
 
+        /** Build a reflection matrix for the passed in plane. */
+        static Matrix4 buildReflectionMatrix(const Plane& p);
+
         static const Real POS_INFINITY;
         static const Real NEG_INFINITY;
         static const Real PI;
