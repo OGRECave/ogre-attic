@@ -51,7 +51,17 @@ namespace Ogre {
     #define TEXCOORD_BINDING 1
     //---------------------------------------------------------------------
     BorderPanelGuiElement::BorderPanelGuiElement(const String& name)
-        : PanelGuiElement(name), mBorderRenderable(0)
+      : PanelGuiElement(name), 
+        mLeftBorderSize(0),
+        mRightBorderSize(0),
+        mTopBorderSize(0),
+        mBottomBorderSize(0),
+        mPixelLeftBorderSize(0),
+        mPixelRightBorderSize(0),
+        mPixelTopBorderSize(0),
+        mPixelBottomBorderSize(0),
+        mpBorderMaterial(0),
+        mBorderRenderable(0)
     {
         if (createParamDictionary("BorderPanelGuiElement"))
         {

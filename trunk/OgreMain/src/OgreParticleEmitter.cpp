@@ -51,6 +51,13 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     ParticleEmitter::ParticleEmitter()
+      : mStartTime(0),
+        mDurationMin(0),
+        mDurationMax(0),
+        mDurationRemain(0),
+        mRepeatDelayMin(0),
+        mRepeatDelayMax(0),
+        mRepeatDelayRemain(0)
     {
 
         // Reasonable defaults
@@ -62,7 +69,6 @@ namespace Ogre {
         mPosition = Vector3::ZERO;
         mColourRangeStart = mColourRangeEnd = ColourValue::White;
         mEnabled = true;
-        mDurationMax = 0;
 
     }
     //-----------------------------------------------------------------------

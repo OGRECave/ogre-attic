@@ -295,9 +295,7 @@ namespace Ogre {
         static CmdBorderTopRightUV msCmdBorderTopRightUV;
         static CmdBorderBottomRightUV msCmdBorderBottomRightUV;
 
-    protected:
         BorderRenderable* mBorderRenderable;
-
     };
 
     /** Class for rendering the border of a BorderPanelGuiElement.
