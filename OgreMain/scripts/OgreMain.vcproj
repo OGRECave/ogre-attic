@@ -321,6 +321,9 @@
 				RelativePath="..\src\OgreRoot.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreRotationSpline.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreSDDataChunk.cpp">
 			</File>
 			<File
@@ -662,6 +665,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreRoot.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreRotationalSpline.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreSDDataChunk.h">
