@@ -3389,7 +3389,7 @@ namespace Ogre {
         mShadowTextures.clear();
 
         // Recreate shadow textures
-        for (unsigned short t = 0; t < mShadowTextureCount; ++t)
+        for (unsigned short t = 0; t < count; ++t)
         {
             String targName = baseName + StringConverter::toString(t);
             String matName = baseName + "Mat" + StringConverter::toString(t);
