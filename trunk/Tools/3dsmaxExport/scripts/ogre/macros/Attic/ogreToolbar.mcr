@@ -3,7 +3,7 @@
 -- 
 -- Copyright © 2002 John Martin
 --
--- $Id: ogreToolbar.mcr,v 1.3 2003-03-19 22:51:52 sinbad Exp $
+-- $Id: ogreToolbar.mcr,v 1.4 2003-05-09 17:40:48 sinbad Exp $
 --
 -- Macroscript for the Ogre Toolbar.
 
@@ -247,9 +247,9 @@ macroScript setOptions
 macroScript showSkeletonTools
 	category:"Ogre Tools"
 	internalCategory:"Ogre Tools"
-	buttonText:"Skeleton"
-	tooltip:"Skeleton Tools"
-	-- Icon:#("OgreTools",1)
+	buttonText:"Export"
+	tooltip:"Export to OGRE"
+	Icon:#("OgreTools",3)
 (
 
 	-- create a floater

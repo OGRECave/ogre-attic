@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+  <title>Using the 3DS Max exporter</title>
+</head>
+<body>
+<span style="font-weight: bold; text-decoration: underline;">How to use
+the 3DS exporter</span><br>
+<br>
+Please read '<a href="install.txt">install.txt</a>' for information on
+how to install the exporter.<br>
+<br>
+Features of the exporter:<br>
+<ul>
+  <li>exports meshes</li>
+  <li>exports bones, vertex assignements and bones animation, using the
+skin modifier</li>
+  <li>optionally exports embedded material definitions, however you are
+better to simply assign named materials and use an OGRE .material
+script to define them, since you can then use the full OGRE material
+properties.</li>
+  <li>exports everything to XML, which allows you to review or alter
+the exported details if you wish. The CML must be converted to OGRE
+binary format using XMLConverter before runtime use.<br>
+  </li>
+</ul>
+<span style="font-weight: bold; text-decoration: underline;">How to use
+it</span><br>
+<ol>
+  <li>In the 'Ogre Tools' toolbar, click the 'Export to OGRE' button</li>
+  <li>Click the 'Select A Mesh' button and pick the mesh you wish to
+export</li>
+  <li>Tick the'Export Mesh' checkbox if you want to export the geometry
+of the object</li>
+  <li>Tick the 'Export Skeleton' box if you want to export the skeleton
+and animations. Specify the name you want to give the animation, the
+range and duration.<br>
+  </li>
+  <li>Specify an output file name which will be used as a base for all
+exported files</li>
+  <li>Click 'Export'</li>
+</ol>
+This will create XML files called &lt;outputfile&gt;.mesh.xml and
+&lt;outputfile&gt;.skeleton.xml. The former contains the geometry,
+material links and bone assignments, the latter contains the definition
+of the skeleton and the animation which was exported. Note that it is
+possible to have more than one animation for the skeleton in the same
+skeleton file, all you have to do is export the animations to separate
+files, and combine the extra animations in one XML file by adding the
+&lt;animation&gt; node&nbsp; and all it's children to the one
+&lt;animations&gt; node on the combined file, with a text editor.<br>
+<br>
+<span style="font-weight: bold; text-decoration: underline;">Converting
+XML to binary files</span><br>
+Once you're happy with the files, you need to convert them to OGRE's
+binary formats to use them at runtime (XML is too inefficient to use
+for large data structures like meshes at runtime).<br>
+<br>
+To do this, you need to use the XMLConverter tool, provided in the Ogre
+source tree under ogrenew/Tools/XMLConverter, or available as a
+precompiled binary if required. Simply run:<br>
+<pre>XMLConverter &lt;xml filename&gt;</pre>
+.. on both the .mesh.xml and .skeleton.xml files, and XMLConverter will
+produce .mesh and .skeleton binary files out of the XML. These can then
+be placed into your OGRE resource locations for runtime use.<br>
+<br>
+<span style="font-weight: bold; text-decoration: underline;">Issues<br>
+</span>
+<ul>
+  <li><span style="font-weight: bold;">WARNING </span>: Always create
+new bones as children of another AND don't unlink and re-link a bone.
+For example, if you have created a leg, copy all the bones and then use
+position controller in a track view to move it and so get the other leg. <br>
+  </li>
+  <li><span style="font-weight: bold;">WARNING</span> : Don't use mirror
+when you create your bones because results are strange.</li>
+  <li>Sometimes XMLConverter reports a message about not being able to
+find the .skeleton file when converting a .mesh.xml. Do not worry about
+this, this is because the converter uses the runtime objects from OGRE
+itself and has not established any resource locations; <br>
+this message will not affect the validity of the .mesh produced.</li>
+  <li>At every keyframe, you have to had a key for position x,y,z and
+rotation x,y,z, otherwise you will have an error message: "a key
+missing for a track" or something like that. To get around this, use
+the&nbsp; 'Add missing keys for selected object' button at the bottom
+of the export dialog.</li>
+  <li>Frame 0 must be a keyframe and at this keyframe, bones mustn't be
+rotated, they must be in their rest position. If you want to begin your
+animation with a different position, start animating at a higher frame
+number and tell the exporter to start from there.</li>
+  <li>There is sometimes a problem with mapping. Try to add a UVW map
+modifier.</li>
+  <li>Only skeletal animation is supported, so a 'skin' modifier is
+required.</li>
+  <li><span style="font-weight: bold;"></span>A new material is
+available in the material editor: OGRE Material. Only this kind of
+material can be embedded in the .mesh; however, in any case it is
+better to simply name your materials and use a .material script to
+define the material, that way you can use all the OGRE material
+properties.</li>
+</ul>
+The OGRE team would like to thank John Martin and EarthquakeProof for
+developing this exporter.<br>
+<br>
+</body>
+</html>

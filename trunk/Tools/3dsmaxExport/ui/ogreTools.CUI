@@ -296,13 +296,9 @@ Item15=2|0|0|31|4|0|40701|0|0|"ActiveShade Floater"||8|Render
 TabName="Ogre Tools"
 ToolbarRows=1
 ToolbarType=3
-ItemCount=6
-Item0=2|0|0|31|3|647394|showAbout`Ogre Tools|0|0|"About Ogre Tools"|"About"|-1|
-Item1=2|0|0|31|3|647394|exportStaticMesh`Ogre Tools|0|0|"Export a Static Mesh"|"Export Mesh"|-1|
-Item2=2|0|0|31|3|647394|configAnimations`Ogre Tools|0|0|"Configure Animations"|"Config Anim"|-1|
-Item3=2|0|0|31|3|647394|exportAnimMesh`Ogre Tools|0|0|"Export Animated Mesh"|"Export Anim"|-1|
-Item4=2|0|0|31|3|647394|setOptions`Ogre Tools|0|0|"Set General Options"|"Options"|-1|
-Item5=2|0|0|31|4|647394|showSkeletonTools`Ogre Tools|0|0|"Skeleton Tools"||48|Maintoolbar
+ItemCount=2
+Item0=2|0|0|31|3|647394|showSkeletonTools`Ogre Tools|0|0|"Export to OGRE"|"Export"|-1|
+Item1=2|0|0|31|3|647394|showAbout`Ogre Tools|0|0|"About Ogre Tools"|"About"|-1|
 [Main Toolbar]
 Rank=0
 SubRank=0
