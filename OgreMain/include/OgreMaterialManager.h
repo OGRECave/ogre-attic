@@ -72,9 +72,6 @@ namespace Ogre {
 
         typedef HashMap<int, Material*> MaterialHandleList;
 
-        /// Materials by handle.
-        MaterialHandleList mHandles;
-
 		/// default texture filtering
 		TextureFilterOptions mDefTextureFiltering;
 
@@ -90,18 +87,6 @@ namespace Ogre {
         */
         virtual ~MaterialManager();
 
-
-        /** Overridden from ResourceManager, adds an existing Resource. */
-        void add(Resource* res);
-
-
-        /** Gets a pointer to a Material by it's numerical handle.
-            @remarks
-                Numerical handles are assigned on creation of a material, or when a copy is registered
-                with the MaterialManager using the add method. Retreiving materials by handle is more
-                efficient than doing so by name.
-        */
-        Material* getByHandle(int handle);
 
         /** Parses a Material script file passed as a chunk.
         */
