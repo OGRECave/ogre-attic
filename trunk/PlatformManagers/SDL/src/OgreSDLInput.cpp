@@ -104,7 +104,7 @@ namespace Ogre {
 
             mMouseState.Buttons = 0;
 
-            for( i = 0; i < 3; i++ )
+            for(int i = 0; i < 3; i++ )
                 if( mMouseKeys & SDL_BUTTON( i ) )
                     mMouseState.Buttons |= ( 1 << i );
 
@@ -114,7 +114,7 @@ namespace Ogre {
         SDL_WarpMouse( mMouseCenterX, mMouseCenterY );
     }
 
-    bool SDLInput::isKeyDown(KeyCode kc)
+    bool SDLInput::isKeyDown(KeyCode kc) const
     {
         switch(kc)
         {
@@ -403,7 +403,7 @@ namespace Ogre {
         return 0;
     }
 
-    virtual bool getMouseButton( uchar button ) const
+    bool SDLInput::getMouseButton( uchar button ) const
     {
         return mMouseState.isButtonDown( button );
     }
