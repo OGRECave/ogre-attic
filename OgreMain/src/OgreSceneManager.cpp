@@ -3043,6 +3043,9 @@ namespace Ogre {
                 texCam->setPosition(800,600,0);
                 texCam->lookAt(0,0,0);
 
+                if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE)
+                    shadowTex->getViewport(0)->setBackgroundColour(ColourValue::White);
+
                 // Update target
                 shadowTex->update();
 
