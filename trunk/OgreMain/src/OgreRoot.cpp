@@ -40,6 +40,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreParticleSystemManager.h"
 #include "OgreSkeletonManager.h"
 #include "OgreGuiManager.h"
+#include "OgreOverlayManager.h"
 #include "OgreZipArchiveFactory.h"
 
 #include "OgrePNGCodec.h"
@@ -131,6 +132,8 @@ namespace Ogre {
         // Platform manager
         mPlatformManager = new PlatformManager();
 
+        // Overlay manager
+        mOverlayManager = new OverlayManager();
         // Gui Manager
         mGuiManager = new GuiManager();
 

@@ -61,6 +61,8 @@ OgreNoMemoryMacros.h \
 OgreNode.h \
 OgreOofFile.h \
 OgreOofModelFile.h \
+OgreOverlay.h \
+OgreOverlayManager.h \
 OgrePNGCodec.h \
 OgreParticle.h \
 OgreParticleAffector.h \

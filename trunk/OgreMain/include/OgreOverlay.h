@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreSceneNode.h"
 #include "OgreIteratorWrappers.h"
 #include "OgreMatrix4.h"
+#include "OgreResource.h"
 
 namespace Ogre {
 
@@ -45,7 +46,8 @@ namespace Ogre {
         components attached to it do not have to. An overlay has no visual element
         in itself, it it merely a container for visual elements.
     @par
-        Overlays are created by calling SceneManager::createOverlay. As many overlays
+        Overlays are created by calling SceneManager::createOverlay, or by defining them
+        in special text scripts (.overlay files). As many overlays
         as you like can be defined; after creation an overlay is hidden i.e. not
         visible until you specifically enable it by calling 'show'. This allows you to have multiple
         overlays predefined (menus etc) which you make visible only when you want.
@@ -58,7 +60,7 @@ namespace Ogre {
         don't want the overlay displayed in the smaller viewports. You turn this off for 
         a specific viewport by calling the Viewport::setDisplayOverlays method.
     */
-    class _OgreExport Overlay
+    class _OgreExport Overlay : public Resource
     {
 
     protected:
@@ -87,8 +89,13 @@ namespace Ogre {
 
     public:
         /// Constructor: do not call direct, use SceneManager::createOverlay
-        Overlay(const String& name, ushort zorder = 100);
+        Overlay(const String& name);
         virtual ~Overlay();
+
+        /** Generic load - called by OverlayManager. */
+        virtual void load(void);
+        /** Generic unload - called by OverlayManager. */
+        virtual void unload(void);
 
         /** Gets the name of this overlay. */
         const String& getName(void) const;
