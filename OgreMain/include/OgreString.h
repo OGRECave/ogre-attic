@@ -182,20 +182,17 @@ namespace Ogre {
         */
         template< typename T > String& operator << (T value)
         {
-            // Create stringstream based on *this contents
+            // Create stringstream to convert
             StrStreamType sstr;
-            sstr.str(*this);
-            // Seek to end
-            sstr.seekp(0, std::ios_base::end);
-            // Write
+            // Write value to string
             sstr << value;
-            // Assign back
-            *this = _StringBase( sstr.str() );
+            // Append
+            *this += sstr.str();
 
             return *this;
         }
         /// Constant blank string, useful for returning by ref where local does not exist
-        static String BLANK;
+        static const String BLANK;
     };
 
 #ifdef GCC_3_1
