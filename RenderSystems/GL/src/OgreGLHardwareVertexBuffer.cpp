@@ -135,8 +135,14 @@ namespace Ogre {
             const void* pSource, bool discardWholeBuffer)
     {
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, mBufferId);
-        glBufferDataARB(GL_ARRAY_BUFFER_ARB, mSizeInBytes, pSource, 
-            GLHardwareBufferManager::getGLUsage(mUsage));
+
+        if(discardWholeBuffer)
+        {
+            glBufferDataARB(GL_ARRAY_BUFFER_ARB, mSizeInBytes, NULL, 
+                GLHardwareBufferManager::getGLUsage(mUsage));
+        }
+
+        glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, offset, length, pSource); 
     }
 	//---------------------------------------------------------------------
 
