@@ -146,7 +146,6 @@ namespace Ogre
 		mDriver(driver)
 	{
 		mIsFullScreen = false;
-		mpD3DDevice = deviceIfSwapChain;
 		mIsSwapChain = deviceIfSwapChain != NULL;
 		mHWnd = 0;
 		mActive = false;
@@ -156,7 +155,13 @@ namespace Ogre
 
 	D3D9RenderWindow::~D3D9RenderWindow()
 	{
-		SAFE_RELEASE( mpD3DDevice );
+		// access and update device through driver, realse only primary
+		if (!mIsSwapChain) 
+		{
+			LPDIRECT3DDEVICE9 mpD3DDevice = mDriver->getD3DDevice();
+			SAFE_RELEASE( mpD3DDevice );
+			mDriver->setD3DDevice( mpD3DDevice );
+		}
 	}
 
 	bool D3D9RenderWindow::_checkMultiSampleQuality(D3DMULTISAMPLE_TYPE type, DWORD *outQuality, D3DFORMAT format, UINT adapterNum, D3DDEVTYPE deviceType, BOOL fullScreen)
@@ -336,6 +341,9 @@ namespace Ogre
 
 	void D3D9RenderWindow::createD3DResources(void)
 	{
+		// access device via driver
+		LPDIRECT3DDEVICE9 mpD3DDevice = mDriver->getD3DDevice();
+
 		if (mIsSwapChain && !mpD3DDevice)
 		{
 			OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
@@ -403,10 +411,9 @@ namespace Ogre
 		md3dpp.MultiSampleType = mFSAAType;
 		md3dpp.MultiSampleQuality = (mFSAAQuality == 0) ? 0 : mFSAAQuality;
 
-
 		if (mIsSwapChain)
 		{
-			// Create swap chain
+			// Create swap chain			
 			hr = mpD3DDevice->CreateAdditionalSwapChain(
 				&md3dpp, &mpSwapChain);
 			if (FAILED(hr))
@@ -418,10 +425,35 @@ namespace Ogre
 			}
 			// Store references to buffers for convenience
 			mpSwapChain->GetBackBuffer( 0, D3DBACKBUFFER_TYPE_MONO, &mpRenderSurface );
-			mpD3DDevice->GetDepthStencilSurface( &mpRenderZBuffer );
+			// Additional swap chains need their own depth buffer
+			// to support resizing them
+			if (mIsDepthBuffered) 
+			{
+				hr = mpD3DDevice->CreateDepthStencilSurface(
+					mWidth, mHeight,
+					md3dpp.AutoDepthStencilFormat,
+					md3dpp.MultiSampleType,
+					md3dpp.MultiSampleQuality, 
+					(md3dpp.Flags & D3DPRESENTFLAG_DISCARD_DEPTHSTENCIL),
+					&mpRenderZBuffer, NULL
+					);
+
+				if (FAILED(hr)) 
+				{
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+						"Unable to create a depth buffer for the swap chain",
+						"D3D9RenderWindow::createD3DResources");
+
+				}
+			} 
+			else 
+			{
+				mpRenderZBuffer = 0;
+			}
 			// release immediately so we don't hog them
 			mpRenderSurface->Release();
-			mpRenderZBuffer->Release();
+			// We'll need the depth buffer for rendering the swap chain
+			//mpRenderZBuffer->Release();
 		}
 		else
 		{
@@ -457,6 +489,8 @@ namespace Ogre
 						"D3D9RenderWindow::createD3DResources" );
 				}
 			}
+			// update device in driver
+			mDriver->setD3DDevice( mpD3DDevice );
 			// Store references to buffers for convenience
 			mpD3DDevice->GetRenderTarget( 0, &mpRenderSurface );
 			mpD3DDevice->GetDepthStencilSurface( &mpRenderZBuffer );
@@ -471,23 +505,88 @@ namespace Ogre
 	void D3D9RenderWindow::destroy()
 	{
 		mpRenderSurface = 0;
-		mpRenderZBuffer = 0;
 		if (mIsSwapChain)
 		{
+			SAFE_RELEASE(mpRenderZBuffer);
 			SAFE_RELEASE(mpSwapChain);
 		}
 		else
 		{
+			// ignore deptzh buffer, access device through driver
+			mpRenderZBuffer = 0;
+			LPDIRECT3DDEVICE9 mpD3DDevice = mDriver->getD3DDevice();
 			SAFE_RELEASE(mpD3DDevice);
+			mDriver->setD3DDevice( mpD3DDevice );
+			DestroyWindow( mHWnd );
 		}
-		DestroyWindow( mHWnd );
 		mHWnd = 0;
 	}
 
 	void D3D9RenderWindow::resize( unsigned int width, unsigned int height )
 	{
-		mWidth = width;
-		mHeight = height;
+		
+		if (mIsSwapChain) 
+		{
+
+			D3DPRESENT_PARAMETERS pp = md3dpp;
+
+			pp.BackBufferWidth = width;
+			pp.BackBufferHeight = height;
+
+			SAFE_RELEASE( mpRenderZBuffer );
+			SAFE_RELEASE( mpSwapChain );
+
+			HRESULT hr = mDriver->getD3DDevice()->CreateAdditionalSwapChain(
+				&pp,
+				&mpSwapChain);
+
+			if (FAILED(hr)) 
+			{
+				StringUtil::StrStreamType str;
+				str << "D3D9RenderWindow: failed to reset device to new dimensions << "
+					<< width << " x " << height << ". Trying to recover.";
+				LogManager::getSingleton().logMessage(LML_CRITICAL, str.str());
+
+				// try to recover
+				hr = mDriver->getD3DDevice()->CreateAdditionalSwapChain(
+					&md3dpp,
+					&mpSwapChain);
+
+				if (FAILED(hr))
+					OGRE_EXCEPT( hr, "Reset window to last size failed", "D3D9RenderWindow::resize" );
+
+			}		
+			else 
+			{
+				md3dpp = pp;
+
+				mWidth = width;
+				mHeight = height;
+
+				hr = mpSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &mpRenderSurface);
+				hr = mDriver->getD3DDevice()->CreateDepthStencilSurface(
+						mWidth, mHeight,
+						md3dpp.AutoDepthStencilFormat,
+						md3dpp.MultiSampleType,
+						md3dpp.MultiSampleQuality, 
+						(md3dpp.Flags & D3DPRESENTFLAG_DISCARD_DEPTHSTENCIL),
+						&mpRenderZBuffer, NULL
+						);
+
+				if (FAILED(hr)) 
+				{
+					OGRE_EXCEPT( hr, "Failed to create depth stencil surface for Swap Chain", "D3D9RenderWindow::resize" );
+				}
+
+				mpRenderSurface->Release();
+			}
+		}
+		// primary windows would reset the device - not implemented yet.
+		else 
+		{
+			mWidth = width;
+			mHeight = height;
+		}
 
 		// Notify viewports of resize
 		ViewportList::iterator it = mViewportList.begin();
@@ -498,6 +597,8 @@ namespace Ogre
 
 	void D3D9RenderWindow::swapBuffers( bool waitForVSync )
 	{
+		// access device through driver
+		LPDIRECT3DDEVICE9 mpD3DDevice = mDriver->getD3DDevice();
 		if( mpD3DDevice )
 		{
 			HRESULT hr;
@@ -577,6 +678,9 @@ namespace Ogre
 		LPDIRECT3DSURFACE9 pSurf=NULL, pTempSurf=NULL;
 		D3DSURFACE_DESC desc;
 		D3DDISPLAYMODE dm;
+
+		// access device through driver
+		LPDIRECT3DDEVICE9 mpD3DDevice = mDriver->getD3DDevice();
 
 		// get display dimensions
 		// this will be the dimensions of the front buffer
@@ -736,6 +840,10 @@ namespace Ogre
 	{
 		D3D9RenderSystem* rs = static_cast<D3D9RenderSystem*>(
 			Root::getSingleton().getRenderSystem());
+
+		// access device through driver
+		LPDIRECT3DDEVICE9 mpD3DDevice = mDriver->getD3DDevice();
+
 		if (rs->isDeviceLost())
 		{
 			// Test the cooperative mode first
@@ -747,7 +855,11 @@ namespace Ogre
 				// D3DERR_DEVICENOTRESET; rendering calls will silently fail until 
 				// then (except Present, but we ignore device lost there too)
 				mpRenderSurface = 0;
-				mpRenderZBuffer = 0;
+				// need to release if swap chain
+				if (!mIsSwapChain)
+					mpRenderZBuffer = 0;
+				else
+					SAFE_RELEASE (mpRenderZBuffer);
 				Sleep(500);
 				return;
 			}
@@ -764,12 +876,44 @@ namespace Ogre
 					return;
 				}
 			
-				// re-qeuery buffers
-				mpD3DDevice->GetRenderTarget( 0, &mpRenderSurface );
-				mpD3DDevice->GetDepthStencilSurface( &mpRenderZBuffer );
-				// release immediately so we don't hog them
-				mpRenderSurface->Release();
-				mpRenderZBuffer->Release();
+				// fixed: this only works for not swap chained
+				if (!mIsSwapChain) 
+				{
+					// re-qeuery buffers
+					mpD3DDevice->GetRenderTarget( 0, &mpRenderSurface );
+					mpD3DDevice->GetDepthStencilSurface( &mpRenderZBuffer );
+					// release immediately so we don't hog them
+					mpRenderSurface->Release();
+					mpRenderZBuffer->Release();
+				}
+				else 
+				{
+					mpSwapChain->GetBackBuffer( 0, D3DBACKBUFFER_TYPE_MONO, &mpRenderSurface );
+					if (mIsDepthBuffered) {
+						hr = mpD3DDevice->CreateDepthStencilSurface(
+							mWidth, mHeight,
+							md3dpp.AutoDepthStencilFormat,
+							md3dpp.MultiSampleType,
+							md3dpp.MultiSampleQuality, 
+							(md3dpp.Flags & D3DPRESENTFLAG_DISCARD_DEPTHSTENCIL),
+							&mpRenderZBuffer, NULL
+							);
+
+						if (FAILED(hr)) {
+							OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+								"Unable to re-create depth buffer for the swap chain",
+								"D3D9RenderWindow::update");
+
+						}
+					} 
+					else
+					{
+						mpRenderZBuffer = 0;
+					}
+
+					// release immediately so we don't hog them
+					mpRenderSurface->Release();
+				}
 			}
 
 		}

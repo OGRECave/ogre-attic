@@ -32,6 +32,8 @@ namespace Ogre
 	{
 		tempNo = ++driverCount;
 		mpD3D = NULL;
+		// initialise device member
+		mpD3DDevice = NULL;
 		ZeroMemory( &mAdapterIdentifier, sizeof(mAdapterIdentifier) );
 		ZeroMemory( &mDesktopDisplayMode, sizeof(mDesktopDisplayMode) );
 		mpVideoModeList = NULL;
@@ -41,6 +43,8 @@ namespace Ogre
 	{
 		tempNo = ++driverCount;
 		mpD3D = ob.mpD3D;
+		// copy device member
+		mpD3DDevice = ob.mpD3DDevice;
 		mAdapterNumber = ob.mAdapterNumber;
 		mAdapterIdentifier = ob.mAdapterIdentifier;
 		mDesktopDisplayMode = ob.mDesktopDisplayMode;
@@ -51,6 +55,8 @@ namespace Ogre
 	{
 		tempNo = ++driverCount;
 		mpD3D = pD3D;
+		// initialise device member
+		mpD3DDevice = NULL;
 		mAdapterNumber = adapterNumber;
 		mAdapterIdentifier = adapterIdentifier;
 		mDesktopDisplayMode = desktopDisplayMode;
