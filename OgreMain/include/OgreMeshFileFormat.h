@@ -62,6 +62,7 @@ namespace Ogre {
                 // char* name 
                 // TODO - scale, offset, effects
         M_MESH                = 0x3000,
+			// bool skeletallyAnimated   // important flag which affects h/w buffer policies
             // M_GEOMETRY chunk
             M_SUBMESH             = 0x4000, 
                 // char* materialName

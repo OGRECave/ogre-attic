@@ -48,7 +48,7 @@ namespace Ogre {
 
 	    public:
 		    /// Should be called by HardwareBufferManager
-		    HardwareIndexBuffer(IndexType idxType, size_t numIndexes, HardwareBuffer::Usage usage);
+		    HardwareIndexBuffer(IndexType idxType, size_t numIndexes, HardwareBuffer::Usage usage, bool useSystemMemory);
             virtual ~HardwareIndexBuffer() {}
     		/// Get the type of indexes used in this buffer
             IndexType getType(void) { return mIndexType; }

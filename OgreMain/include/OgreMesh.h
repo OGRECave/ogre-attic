@@ -360,11 +360,12 @@ namespace Ogre {
         /** Removes all LOD data from this Mesh. */
         void removeLodLevels(void);
 
-		/** Sets the policy for the vertex and index buffers to be used when loading
+		/** Sets the policy for the vertex buffers to be used when loading
 			this Mesh.
 		@remarks
-			By default, when loading the Mesh, static vertex and index buffers will be used
-			where possible in order to improve rendering performance. However, such buffers
+			By default, when loading the Mesh, static, write-only vertex and index buffers 
+			will be used where possible in order to improve rendering performance. 
+			However, such buffers
 			cannot be manipulated on the fly by CPU code (although shader code can). If you
 			wish to use the CPU to modify these buffers, you should call this method. Note,
 			however, that it only takes effect after the Mesh has been reloaded. Note that you
@@ -375,9 +376,36 @@ namespace Ogre {
 			You can define the approach to a Mesh by changing the default parameters to 
 			MeshManager::load if you wish; this means the Mesh is loaded with those options
 			the first time instead of you having to reload the mesh after changing these options.
+		@param usage The usage flags, which by default are 
+			HardwareBuffer::HBU_STATIC | HardwareBuffer::HBU_WRITE_ONLY
+		@param systemMemory If set to true, the vertex buffer will be created in system
+			memory rather than hardware. You should set this if you want to be able to
+			read from the buffer, because reading from a hardware buffer is a no-no.
 		*/
-		void setBufferPolicy(HardwareBuffer::Usage vertexBufferUsage, 
-			HardwareBuffer::Usage indexBufferUsage);
+		void setVertexBufferPolicy(HardwareBuffer::Usage usage, bool systemMemory = false);
+		/** Sets the policy for the index buffers to be used when loading
+			this Mesh.
+		@remarks
+			By default, when loading the Mesh, static, write-only vertex and index buffers 
+			will be used where possible in order to improve rendering performance. 
+			However, such buffers
+			cannot be manipulated on the fly by CPU code (although shader code can). If you
+			wish to use the CPU to modify these buffers, you should call this method. Note,
+			however, that it only takes effect after the Mesh has been reloaded. Note that you
+			still have the option of manually repacing the buffers in this mesh with your
+			own if you see fit too, in which case you don't need to call this method since it
+			only affects buffers created by the mesh itself.
+		@par
+			You can define the approach to a Mesh by changing the default parameters to 
+			MeshManager::load if you wish; this means the Mesh is loaded with those options
+			the first time instead of you having to reload the mesh after changing these options.
+		@param usage The usage flags, which by default are 
+			HardwareBuffer::HBU_STATIC | HardwareBuffer::HBU_WRITE_ONLY
+		@param systemMemory If set to true, the vertex buffer will be created in system
+			memory rather than hardware. You should set this if you want to be able to
+			read from the buffer, because reading from a hardware buffer is a no-no.
+		*/
+		void setIndexBufferPolicy(HardwareBuffer::Usage usage, bool systemMemory = false);
 
     private:
         typedef std::vector<SubMesh*> SubMeshList;
@@ -428,6 +456,9 @@ namespace Ogre {
 
 		HardwareBuffer::Usage mVertexBufferUsage;
 		HardwareBuffer::Usage mIndexBufferUsage;
+		bool mVertexBufferSysMem;
+		bool mIndexBufferSysMem;
+
 
 
     };

@@ -56,20 +56,26 @@ namespace Ogre {
                 /** Static buffer which the application rarely modifies once created. Modifying 
                 the contents of this buffer will involve a performance hit.
                 */
-                HBU_STATIC,
+                HBU_STATIC = 1,
 			    /** Indicates the application would like to modify this buffer with the CPU
 			    fairly often. 
 			    Buffers created with this flag will typically end up in AGP memory rather 
 			    than video memory.
 			    */
-			    HBU_DYNAMIC,
+			    HBU_DYNAMIC = 2,
 			    /** Indicates the application will never read the contents of the buffer back, 
 			    it will only ever write data. Locking a buffer with this flag will ALWAYS 
 			    return a pointer to new, blank memory rather than the memory associated 
 			    with the contents of the buffer; this avoids DMA stalls because you can 
 			    write to a new memory area while the previous one is being used
 			    */
-			    HBU_WRITE_ONLY
+			    HBU_WRITE_ONLY = 4,
+				/// Combination of HBU_STATIC and HBU_WRITE_ONLY
+				HBU_STATIC_WRITE_ONLY = 5, 
+				/// Combination of HBU_DYNAMIC and HBU_WRITE_ONLY
+				HBU_DYNAMIC_WRITE_ONLY = 6
+
+
 		    };
 		    /// Locking options
 		    enum LockOptions
@@ -91,10 +97,12 @@ namespace Ogre {
 		    bool mIsLocked;
 		    size_t mSizeInBytes;
 		    Usage mUsage;
+			bool mSystemMemory;
     		
 	    public:
 		    /// Constructor, to be called by HardwareBufferManager only
-            HardwareBuffer(Usage usage) : mUsage(usage), mIsLocked(false) {}
+            HardwareBuffer(Usage usage, bool systemMemory) 
+				: mUsage(usage), mIsLocked(false), mSystemMemory(systemMemory) {}
             virtual ~HardwareBuffer() {}
 		    /** Lock the buffer for (potentially) reading / writing.
 		    @param offset The byte offset from the start of the buffer to lock
@@ -158,6 +166,8 @@ namespace Ogre {
             size_t getSizeInBytes(void) { return mSizeInBytes; }
             /// Returns the Usage flags with which this buffer was created
             Usage getUsage(void) { return mUsage; }
+			/// Returns whether this buffer is held in system memory
+			bool isSystemMemory(void) { return mSystemMemory; }
             /// Returns whether or not this buffer is currently locked.
             bool isLocked(void) { return mIsLocked; };
 

@@ -91,7 +91,7 @@ namespace Ogre {
 
         // Init
         mCurrNumIndexes = mpIndexData->indexCount;
-        ushort numVerts, numCollapses;
+        size_t numVerts, numCollapses;
         numVerts = mpVertexData->vertexCount;
 		
 		PMVertex* test = &(mWorkingData[0].mVertList[347]);
@@ -105,11 +105,11 @@ namespace Ogre {
         {
 			if (quota == VRQ_PROPORTIONAL)
 			{
-				numCollapses = static_cast<ushort>(numVerts * reductionValue);
+				numCollapses = numVerts * reductionValue;
 			}
 			else 
 			{
-				numCollapses = static_cast<ushort>(reductionValue);
+				numCollapses = reductionValue;
 			}
             // Minimum 3 verts!
             if ( (numVerts - numCollapses) < 3) 
@@ -119,7 +119,7 @@ namespace Ogre {
 
 			while(numCollapses-- && !abandon)
             {
-                ushort nextIndex = getNextCollapser();
+                size_t nextIndex = getNextCollapser();
                 // Collapse on every buffer
                 WorkingDataList::iterator idata, idataend;
                 idataend = mWorkingData.end();
@@ -169,7 +169,6 @@ namespace Ogre {
 
         PMWorkingData& work = mWorkingData.back();
 
-        uint i;
         // Build vertex list
 		// Resize face list (this will always be this big)
 		work.mFaceVertList.resize(vertexData->vertexCount);
@@ -417,7 +416,7 @@ namespace Ogre {
         
     }
     //---------------------------------------------------------------------
-    Real ProgressiveMesh::computeEdgeCostAtVertexForBuffer(WorkingDataList::iterator idata, ushort vertIndex)
+    Real ProgressiveMesh::computeEdgeCostAtVertexForBuffer(WorkingDataList::iterator idata, size_t vertIndex)
     {
         // compute the edge collapse cost for all edges that start
         // from vertex v.  Since we are only interested in reducing
@@ -459,7 +458,7 @@ namespace Ogre {
     void ProgressiveMesh::computeAllCosts(void)
     {
         initialiseEdgeCollapseCosts();
-        ushort i;
+        size_t i;
         for (i = 0; i < mpVertexData->vertexCount; ++i)
         {
             computeEdgeCostAtVertex(i);
@@ -582,7 +581,7 @@ namespace Ogre {
 		
     }
     //---------------------------------------------------------------------
-    void ProgressiveMesh::computeEdgeCostAtVertex(ushort vertIndex)
+    void ProgressiveMesh::computeEdgeCostAtVertex(size_t vertIndex)
     {
 		// Call computer for each buffer on this vertex
         Real worstCost = -0.01f;
@@ -597,12 +596,12 @@ namespace Ogre {
         mWorstCosts[vertIndex] = worstCost;
     }
     //---------------------------------------------------------------------
-    ushort ProgressiveMesh::getNextCollapser(void)
+    size_t ProgressiveMesh::getNextCollapser(void)
     {
         // Scan
         // Not done as a sort because want to keep the lookup simple for now
         Real bestVal = NEVER_COLLAPSE_COST;
-        ushort i, bestIndex;
+        size_t i, bestIndex;
 		bestIndex = 0; // NB this is ok since if nothing is better than this, nothing will collapse
         for (i = 0; i < mNumCommonVertices; ++i)
         {
@@ -644,7 +643,7 @@ namespace Ogre {
     {
     }
     //---------------------------------------------------------------------
-    void ProgressiveMesh::PMTriangle::setDetails(ushort newindex, 
+    void ProgressiveMesh::PMTriangle::setDetails(size_t newindex, 
 		ProgressiveMesh::PMFaceVertex *v0, ProgressiveMesh::PMFaceVertex *v1, 
         ProgressiveMesh::PMFaceVertex *v2)
     {
@@ -869,7 +868,7 @@ namespace Ogre {
 		CommonVertexList::iterator vi, vend;
 		vend = worki->mVertList.end();
 		ofdump << "-------== VERTEX LIST ==-----------------" << std::endl;
-		ushort i;
+		size_t i;
 		for (vi = worki->mVertList.begin(), i = 0; i < mNumCommonVertices; ++vi, ++i)
 		{
 			ofdump << "Vertex " << vi->index << " pos: " << vi->position << " removed: " 
@@ -903,7 +902,7 @@ namespace Ogre {
 		}
 
 		ofdump << "-------== COLLAPSE COST LIST ==-----------------" << std::endl;
-		for (ushort ci = 0; ci < mNumCommonVertices; ++ci)
+		for (size_t ci = 0; ci < mNumCommonVertices; ++ci)
 		{
 			ofdump << "Vertex " << ci << ": " << mWorstCosts[ci] << std::endl;
 		}

@@ -27,7 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
 	DefaultHardwareVertexBuffer::DefaultHardwareVertexBuffer(size_t vertexSize, size_t numVertices, 
-		HardwareBuffer::Usage usage) : HardwareVertexBuffer(vertexSize, numVertices, usage)
+		HardwareBuffer::Usage usage) : HardwareVertexBuffer(vertexSize, numVertices, usage, true)
 	{
 		mpData = new unsigned char[mSizeInBytes];
 	}
@@ -66,7 +66,7 @@ namespace Ogre {
 
 	DefaultHardwareIndexBuffer::DefaultHardwareIndexBuffer(IndexType idxType, 
 		size_t numIndexes, HardwareBuffer::Usage usage) 
-		: HardwareIndexBuffer(idxType, numIndexes, usage)
+		: HardwareIndexBuffer(idxType, numIndexes, usage, true)
 	{
 		mpData = new unsigned char[mSizeInBytes];
 	}
@@ -124,7 +124,8 @@ namespace Ogre {
 	}
     //-----------------------------------------------------------------------
 	HardwareVertexBufferSharedPtr 
-        DefaultHardwareBufferManager::createVertexBuffer(size_t vertexSize, size_t numVerts, HardwareBuffer::Usage usage)
+        DefaultHardwareBufferManager::createVertexBuffer(size_t vertexSize, 
+		size_t numVerts, HardwareBuffer::Usage usage, bool useSystemMemory)
 	{
 		return HardwareVertexBufferSharedPtr(
 			new DefaultHardwareVertexBuffer(vertexSize, numVerts, usage));
@@ -132,7 +133,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	HardwareIndexBufferSharedPtr 
         DefaultHardwareBufferManager::createIndexBuffer(HardwareIndexBuffer::IndexType itype, 
-		size_t numIndexes, HardwareBuffer::Usage usage)
+		size_t numIndexes, HardwareBuffer::Usage usage, bool useSystemMemory)
 	{
 		return HardwareIndexBufferSharedPtr(
 			new DefaultHardwareIndexBuffer(itype, numIndexes, usage) );

@@ -29,8 +29,8 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------------
     HardwareIndexBuffer::HardwareIndexBuffer(IndexType idxType, 
-        size_t numIndexes, HardwareBuffer::Usage usage) 
-        : HardwareBuffer(usage), mIndexType(idxType), mNumIndexes(numIndexes)
+        size_t numIndexes, HardwareBuffer::Usage usage, bool useSystemMemory) 
+        : HardwareBuffer(usage, useSystemMemory), mIndexType(idxType), mNumIndexes(numIndexes)
     {
         // Calculate the size of the indexes
         switch (mIndexType)

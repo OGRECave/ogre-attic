@@ -40,11 +40,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     HardwareVertexBufferSharedPtr 
     D3D9HardwareBufferManager::
-    createVertexBuffer(size_t vertexSize, size_t numVerts, HardwareBuffer::Usage usage)
+    createVertexBuffer(size_t vertexSize, size_t numVerts, HardwareBuffer::Usage usage,
+		bool useSystemMemory)
     {
         return HardwareVertexBufferSharedPtr(
             new D3D9HardwareVertexBuffer(vertexSize, 
-            numVerts, usage, mlpD3DDevice) );
+            numVerts, usage, mlpD3DDevice, useSystemMemory) );
     }
     //-----------------------------------------------------------------------
 	void D3D9HardwareBufferManager::destroyVertexBuffer(HardwareVertexBuffer* buf)
@@ -55,12 +56,12 @@ namespace Ogre {
 	HardwareIndexBufferSharedPtr 
     D3D9HardwareBufferManager::
     createIndexBuffer(HardwareIndexBuffer::IndexType itype, size_t numIndexes, 
-        HardwareBuffer::Usage usage)
+        HardwareBuffer::Usage usage, bool useSystemMemory)
     {
         // NB no longer store the buffer in a local list since reference counted
         return HardwareIndexBufferSharedPtr(
                 new D3D9HardwareIndexBuffer(itype, numIndexes, 
-                usage, mlpD3DDevice) );
+                usage, mlpD3DDevice, useSystemMemory) );
             
     }
     //-----------------------------------------------------------------------

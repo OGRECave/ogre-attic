@@ -30,7 +30,7 @@ namespace Ogre {
 	//---------------------------------------------------------------------
     GLHardwareIndexBuffer::GLHardwareIndexBuffer(IndexType idxType,
         size_t numIndexes, HardwareBuffer::Usage usage)
-        : HardwareIndexBuffer(idxType, numIndexes, usage)
+        : HardwareIndexBuffer(idxType, numIndexes, usage, false)
     {
         glGenBuffersARB( 1, &mBufferId );
 

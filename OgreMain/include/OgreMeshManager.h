@@ -64,11 +64,14 @@ namespace Ogre {
 				will be created
 			@param indexBufferUsage The usage flags with which the index buffer(s) created for 
 				this mesh will be created with.
+			@param vertexBufferSysMem If true, the vertex buffers will be created in system memory
+			@param indexBufferSysMem If true, the index buffers will be created in system memory
 			@param priority The priority of this mesh in the resource system
         */
         Mesh* load( const String& filename, 
 			HardwareBuffer::Usage vertexBufferUsage = HardwareBuffer::HBU_STATIC, 
 			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC, 
+			bool vertexBufferSysMem = false, bool indexBufferSysMem = false,
 			int priority = 1);
 
         /** Creates a Mesh resource.
@@ -113,7 +116,12 @@ namespace Ogre {
 				vertexBufferUsage The usage flag with which the vertex buffer for this plane will be created
 			@param
 				indexBufferUsage The usage flag with which the index buffer for this plane will be created
-
+			@param
+				vertexSystemMemory If this flag is set to true, the vertex buffer will be created in system memory,
+				allowing you to read it back more efficiently than if it is in hardware
+			@param
+				indexSystemMemory If this flag is set to true, the vertex buffer will be created in system memory,
+				allowing you to read it back more efficiently than if it is in hardware
         */
         Mesh* createPlane(
             const String& name, const Plane& plane,
@@ -122,7 +130,8 @@ namespace Ogre {
             bool normals = true, int numTexCoordSets = 1,
             Real uTile = 1.0f, Real vTile = 1.0f, const Vector3& upVector = Vector3::UNIT_Y,
 			HardwareBuffer::Usage vertexBufferUsage = HardwareBuffer::HBU_STATIC, 
-			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC);
+			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC,
+			bool vertexSystemMemory = false, bool indexSystemMemory = false);
 
 		/** Creates a curved plane, by default majoring on the x/y axes facing positive Z.
             @param
@@ -176,7 +185,8 @@ namespace Ogre {
         */
         void tesselate2DMesh(SubMesh* pSub, int meshWidth, int meshHeight, 
 			bool doubleSided = false, 
-			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC);
+			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC,
+			bool indexSysMem = false);
 
         void createPrefabPlane(void);
     };

@@ -30,15 +30,15 @@ namespace Ogre {
 
 	//---------------------------------------------------------------------
     D3D9HardwareVertexBuffer::D3D9HardwareVertexBuffer(size_t vertexSize, 
-        size_t numVertices, HardwareBuffer::Usage usage, LPDIRECT3DDEVICE9 pDev)
-        : HardwareVertexBuffer(vertexSize, numVertices, usage)
+        size_t numVertices, HardwareBuffer::Usage usage, LPDIRECT3DDEVICE9 pDev, bool useSystemMemory)
+        : HardwareVertexBuffer(vertexSize, numVertices, usage, useSystemMemory)
     {
         // Create the vertex buffer
         HRESULT hr = pDev->CreateVertexBuffer(
             mSizeInBytes, 
             D3D9Mappings::get(usage), 
             0, // No FVF here, thankyou
-            D3DPOOL_DEFAULT, 
+			useSystemMemory? D3DPOOL_SYSTEMMEM : D3DPOOL_DEFAULT, 
             &mlpD3DBuffer,
             NULL);
         if (FAILED(hr))

@@ -30,15 +30,15 @@ namespace Ogre {
 
 	//---------------------------------------------------------------------
     D3D9HardwareIndexBuffer::D3D9HardwareIndexBuffer(HardwareIndexBuffer::IndexType idxType, 
-        size_t numIndexes, HardwareBuffer::Usage usage, LPDIRECT3DDEVICE9 pDev)
-        : HardwareIndexBuffer(idxType, numIndexes, usage)
+        size_t numIndexes, HardwareBuffer::Usage usage, LPDIRECT3DDEVICE9 pDev, bool useSystemMemory)
+        : HardwareIndexBuffer(idxType, numIndexes, usage, useSystemMemory)
     {
         // Create the Index buffer
         HRESULT hr = pDev->CreateIndexBuffer(
             mSizeInBytes,
             D3D9Mappings::get(usage),
             D3D9Mappings::get(idxType),
-            D3DPOOL_DEFAULT,
+			mSystemMemory ? D3DPOOL_SYSTEMMEM : D3DPOOL_DEFAULT,
             &mlpD3DBuffer,
             NULL
             );

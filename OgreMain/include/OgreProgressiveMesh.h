@@ -98,8 +98,8 @@ namespace Ogre {
         const VertexData *mpVertexData;
         const IndexData *mpIndexData;
 
-        ushort mCurrNumIndexes;
-		ushort mNumCommonVertices;
+        size_t mCurrNumIndexes;
+		size_t mNumCommonVertices;
 
         // Internal classes
         class PMTriangle;
@@ -111,7 +111,7 @@ namespace Ogre {
 		by the face, and a pointer to the common vertex used for surface evaluation. */
 		class PMFaceVertex {
 		public:
-			ushort realIndex;
+			size_t realIndex;
 			PMVertex* commonVertex;
 		};
 
@@ -121,7 +121,7 @@ namespace Ogre {
         class PMTriangle {
         public:
             PMTriangle();
-            void setDetails(ushort index, PMFaceVertex *v0, PMFaceVertex *v1, PMFaceVertex *v2);
+            void setDetails(size_t index, PMFaceVertex *v0, PMFaceVertex *v1, PMFaceVertex *v2);
 	        void computeNormal(void);
 	        void replaceVertex(PMFaceVertex *vold, PMFaceVertex *vnew);
 	        bool  hasCommonVertex(PMVertex *v);
@@ -132,7 +132,7 @@ namespace Ogre {
 	        PMFaceVertex* vertex[3]; // the 3 points that make this tri
 	        Vector3   normal;    // unit vector othogonal to this face
             bool      removed;   // true if this tri is now removed
-			ushort index;
+			size_t index;
         };
 
         /** A vertex in the progressive mesh, holds info like collapse cost etc. 
@@ -151,7 +151,7 @@ namespace Ogre {
 			void notifyRemoved(void);
 
             Vector3  position;  // location of point in euclidean space
-	        ushort index;       // place of vertex in original list
+	        size_t index;       // place of vertex in original list
             typedef std::set<PMVertex *> NeighborList;
             typedef std::set<PMVertex *> DuplicateList;
             NeighborList neighbor; // adjacent vertices
@@ -195,13 +195,13 @@ namespace Ogre {
         /// Internal calculation method for deriving a collapse cost  from u to v
         Real computeEdgeCollapseCost(PMVertex *src, PMVertex *dest);
         /// Internal method evaluates all collapse costs from this vertex and picks the lowest for a single buffer
-        Real computeEdgeCostAtVertexForBuffer(WorkingDataList::iterator idata, ushort vertIndex);
+        Real computeEdgeCostAtVertexForBuffer(WorkingDataList::iterator idata, size_t vertIndex);
         /// Internal method evaluates all collapse costs from this vertex for every buffer and returns the worst
-        void computeEdgeCostAtVertex(ushort vertIndex);
+        void computeEdgeCostAtVertex(size_t vertIndex);
         /// Internal method to compute edge collapse costs for all buffers /
         void computeAllCosts(void);
         /// Internal method for getting the index of next best vertex to collapse
-        ushort getNextCollapser(void);
+        size_t getNextCollapser(void);
         /// Internal method builds an new LOD based on the current state
         void bakeNewLOD(IndexData* pData);
 

@@ -57,6 +57,8 @@ namespace Ogre {
 
 		mVertexBufferUsage = HardwareBuffer::HBU_STATIC;
 		mIndexBufferUsage = HardwareBuffer::HBU_STATIC;
+		mVertexBufferSysMem = false;
+		mIndexBufferSysMem = false;
 
     }
 
@@ -436,9 +438,10 @@ namespace Ogre {
 			VertexElement::multiplyTypeCount(VET_SHORT1, mNumBlendWeightsPerVertex),
 			VES_BLEND_INDICES);
 		// Create buffer (will destroy old one because of reference counting)
+		// NB we create in system memory because we need to read this back later
 		mBlendingVB = HardwareBufferManager::getSingleton().createVertexBuffer(
 			decl->getVertexSize(bindIndex), sharedVertexData->vertexCount, 
-			HardwareBuffer::HBU_STATIC);
+			HardwareBuffer::HBU_DYNAMIC, true);
 		// Set binding
 		sharedVertexData->vertexBufferBinding->setBinding(bindIndex, mBlendingVB); 
 
@@ -683,10 +686,16 @@ namespace Ogre {
         return mBoundRadius;
     }
     //---------------------------------------------------------------------
-	void Mesh::setBufferPolicy(HardwareBuffer::Usage vbUsage, HardwareBuffer::Usage ibUsage)
+	void Mesh::setVertexBufferPolicy(HardwareBuffer::Usage vbUsage, bool systemMemory)
 	{
 		mVertexBufferUsage = vbUsage;
-		mIndexBufferUsage = ibUsage;
+		mVertexBufferSysMem = systemMemory;
+	}
+    //---------------------------------------------------------------------
+	void Mesh::setIndexBufferPolicy(HardwareBuffer::Usage vbUsage, bool systemMemory)
+	{
+		mIndexBufferUsage = vbUsage;
+		mIndexBufferSysMem = systemMemory;
 	}
 
 }

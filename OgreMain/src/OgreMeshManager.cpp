@@ -61,13 +61,15 @@ namespace Ogre
     Mesh* MeshManager::load( const String& filename, 
 		HardwareBuffer::Usage vertexBufferUsage, 
 		HardwareBuffer::Usage indexBufferUsage, 
+		bool vertexBufferSysMem, bool indexBufferSysMem,
 		int priority)
     {
         Mesh* pMesh = (Mesh*)(getByName(filename));
         if (!pMesh)
         {
             pMesh = (Mesh*)create(filename);
-			pMesh->setBufferPolicy(vertexBufferUsage, indexBufferUsage);
+			pMesh->setVertexBufferPolicy(vertexBufferUsage, vertexBufferSysMem);
+			pMesh->setIndexBufferPolicy(indexBufferUsage, indexBufferSysMem);
             ResourceManager::load(pMesh, priority);
             //pMesh->_registerMaterials();
         }
@@ -90,7 +92,8 @@ namespace Ogre
     //-----------------------------------------------------------------------
     Mesh* MeshManager::createPlane( const String& name, const Plane& plane, Real width, Real height, int xsegments, int ysegments,
         bool normals, int numTexCoordSets, Real xTile, Real yTile, const Vector3& upVector,
-		HardwareBuffer::Usage vertexBufferUsage, HardwareBuffer::Usage indexBufferUsage)
+		HardwareBuffer::Usage vertexBufferUsage, HardwareBuffer::Usage indexBufferUsage,
+		bool vertexSystemMemory, bool indexSystemMemory)
     {
         int i;
         Mesh* pMesh = createManual(name);
@@ -126,7 +129,7 @@ namespace Ogre
 		HardwareVertexBufferSharedPtr vbuf = 
 			HardwareBufferManager::getSingleton().
 			createVertexBuffer(vertexDecl->getVertexSize(0), vertexData->vertexCount,
-			vertexBufferUsage);
+			vertexBufferUsage, vertexSystemMemory);
 
 		// Set up the binding (one source only)
 		VertexBufferBinding* binding = vertexData->vertexBufferBinding;
@@ -215,7 +218,7 @@ namespace Ogre
 		vbuf->unlock();
         // Generate face list
         pSub->useSharedVertices = true;
-        tesselate2DMesh(pSub, xsegments + 1, ysegments + 1, false, indexBufferUsage);
+        tesselate2DMesh(pSub, xsegments + 1, ysegments + 1, false, indexBufferUsage, indexSystemMemory);
 
         pMesh->_updateBounds();
         return pMesh;
@@ -350,7 +353,7 @@ namespace Ogre
 
     //-----------------------------------------------------------------------
     void MeshManager::tesselate2DMesh(SubMesh* sm, int meshWidth, int meshHeight, 
-		bool doubleSided, HardwareBuffer::Usage indexBufferUsage)
+		bool doubleSided, HardwareBuffer::Usage indexBufferUsage, bool indexSystemMemory)
     {
         // The mesh is built, just make a list of indexes to spit out the triangles
         int vInc, uInc, v, u, iterations;
@@ -374,7 +377,7 @@ namespace Ogre
         sm->indexData->indexCount = (meshWidth-1) * (meshHeight-1) * 2 * iterations * 3;
 		sm->indexData->indexBuffer = HardwareBufferManager::getSingleton().
 			createIndexBuffer(HardwareIndexBuffer::IT_16BIT,
-			sm->indexData->indexCount, indexBufferUsage);
+			sm->indexData->indexCount, indexBufferUsage, indexSystemMemory);
 
         int v1, v2, v3;
         //bool firstTri = true;

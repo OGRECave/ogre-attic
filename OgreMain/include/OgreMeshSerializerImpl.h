@@ -114,6 +114,7 @@ namespace Ogre {
     {
     public:
         MeshSerializerImpl_v1();
+        void readMesh(DataChunk& chunk);
         void readSubMesh(DataChunk& chunk);
         void readGeometry(DataChunk& chunk, VertexData* dest);
         void readMeshBoneAssignment(DataChunk& chunk);

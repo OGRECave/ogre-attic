@@ -72,16 +72,30 @@ namespace Ogre {
             this based on the kind of data you expect to populate this buffer with.
         @param numVerts The number of vertices in this buffer.
         @param usage One or more members of the HardwareBuffer::Usage enumeration.
+		@param useSystemMemory If set to true, this buffer will be stored in system memory
+			rather than GPU or AGP memory. You should set this flag if you intend to read
+			from the vertex buffer on a regular basis, because reading data from a buffer
+			in the GPU or AGP memory is very expensive.
         */
 		virtual HardwareVertexBufferSharedPtr 
-            createVertexBuffer(size_t vertexSize, size_t numVerts, HardwareBuffer::Usage usage) = 0;
-		/** Create a hardware vertex buffer.
+            createVertexBuffer(size_t vertexSize, size_t numVerts, HardwareBuffer::Usage usage, 
+			bool useSystemMemory = false) = 0;
+		/** Create a hardware index buffer.
         @remarks Note that because buffers can be shared, they are reference
             counted so you do not need to worry about destroying themm this will be done
             automatically.
+		@param itype The type in index, either 16- or 32-bit, depending on how many vertices
+			you need to be able to address
+		@param numIndexes The number of indexes in the buffer
+        @param usage One or more members of the HardwareBuffer::Usage enumeration.
+		@param useSystemMemory If set to true, this buffer will be stored in system memory
+			rather than GPU or AGP memory. You should set this flag if you intend to read
+			from the vertex buffer on a regular basis, because reading data from a buffer
+			in the GPU or AGP memory is very expensive.
         */
 		virtual HardwareIndexBufferSharedPtr 
-            createIndexBuffer(HardwareIndexBuffer::IndexType itype, size_t numIndexes, HardwareBuffer::Usage usage) = 0;
+            createIndexBuffer(HardwareIndexBuffer::IndexType itype, size_t numIndexes, 
+			HardwareBuffer::Usage usage, bool useSystemMemory = false) = 0;
         /// Creates a vertex declaration, may be overridden by certain rendering APIs
         virtual VertexDeclaration* createVertexDeclaration(void);
         /// Destroys a vertex declaration, may be overridden by certain rendering APIs

@@ -41,7 +41,7 @@ namespace Ogre {
         LPDIRECT3DVERTEXBUFFER9 mlpD3DBuffer;
     public:
 		D3D9HardwareVertexBuffer(size_t vertexSize, size_t numVertices, 
-            HardwareBuffer::Usage usage, LPDIRECT3DDEVICE9 pDev);
+            HardwareBuffer::Usage usage, LPDIRECT3DDEVICE9 pDev, bool useSystemMem);
         ~D3D9HardwareVertexBuffer();
         /** See HardwareBuffer. */
         void* lock(size_t offset, size_t length, LockOptions options);

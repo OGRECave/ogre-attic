@@ -36,7 +36,8 @@ namespace Ogre {
     protected:
         LPDIRECT3DINDEXBUFFER9 mlpD3DBuffer;
     public:
-		D3D9HardwareIndexBuffer(IndexType idxType, size_t numIndexes, HardwareBuffer::Usage usage, LPDIRECT3DDEVICE9 pDev);
+		D3D9HardwareIndexBuffer(IndexType idxType, size_t numIndexes, 
+			HardwareBuffer::Usage usage, LPDIRECT3DDEVICE9 pDev, bool useSystemMem);
         ~D3D9HardwareIndexBuffer();
         /** See HardwareBuffer. */
         void* lock(size_t offset, size_t length, LockOptions options);

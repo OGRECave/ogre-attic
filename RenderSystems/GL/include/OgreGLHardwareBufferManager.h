@@ -43,11 +43,11 @@ namespace Ogre {
         ~GLHardwareBufferManager();
         /// Creates a vertex buffer
         HardwareVertexBufferSharedPtr createVertexBuffer(size_t vertexSize, 
-            size_t numVerts, HardwareBuffer::Usage usage);
+            size_t numVerts, HardwareBuffer::Usage usage, bool useSystemMemory = false);
         /// Create a hardware vertex buffer
         HardwareIndexBufferSharedPtr createIndexBuffer(
             HardwareIndexBuffer::IndexType itype, size_t numIndexes, 
-            HardwareBuffer::Usage usage);
+            HardwareBuffer::Usage usage, bool useSystemMemory = false);
 
         /// Creates a vertex declaration, may be overridden by certain rendering APIs
         VertexDeclaration* createVertexDeclaration(void);

@@ -32,8 +32,8 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------------
     HardwareVertexBuffer::HardwareVertexBuffer(size_t vertexSize,  
-        size_t numVertices, HardwareBuffer::Usage usage) 
-        : HardwareBuffer(usage), mVertexSize(vertexSize), mNumVertices(numVertices)
+        size_t numVertices, HardwareBuffer::Usage usage, bool useSystemMemory) 
+        : HardwareBuffer(usage, useSystemMemory), mVertexSize(vertexSize), mNumVertices(numVertices)
     {
         // Calculate the size of the vertices
         mSizeInBytes = mVertexSize * numVertices;

@@ -30,7 +30,7 @@ namespace Ogre {
 	//---------------------------------------------------------------------
     GLHardwareVertexBuffer::GLHardwareVertexBuffer(size_t vertexSize, 
         size_t numVertices, HardwareBuffer::Usage usage)
-        : HardwareVertexBuffer(vertexSize, numVertices, usage)
+        : HardwareVertexBuffer(vertexSize, numVertices, usage, false)
     {
         glGenBuffersARB( 1, &mBufferId );
 

@@ -66,7 +66,8 @@ namespace Ogre {
 			// create new buffer with the same settings
 			HardwareVertexBufferSharedPtr dstBuf = 
 				HardwareBufferManager::getSingleton().createVertexBuffer(
-					srcbuf->getVertexSize(), srcbuf->getNumVertices(), srcbuf->getUsage() );
+					srcbuf->getVertexSize(), srcbuf->getNumVertices(), srcbuf->getUsage(),
+					srcbuf->isSystemMemory());
 
 			// copy data
 			dstBuf->copyData(*srcbuf, 0, 0, srcbuf->getSizeInBytes(), true);
@@ -144,7 +145,7 @@ namespace Ogre {
 		{
 			dest->indexBuffer = HardwareBufferManager::getSingleton().
 				createIndexBuffer(indexBuffer->getType(), indexBuffer->getNumIndexes(),
-				indexBuffer->getUsage());
+				indexBuffer->getUsage(), indexBuffer->isSystemMemory());
 			dest->indexBuffer->copyData(*indexBuffer, 0, 0, indexBuffer->getSizeInBytes(), true);
 		}
 		dest->indexCount = indexCount;
