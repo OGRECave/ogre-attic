@@ -190,6 +190,10 @@ SOURCE=..\src\OgreDataChunk.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreDDSCodec.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreDefaultHardwareBufferManager.cpp
 # End Source File
 # Begin Source File
@@ -760,6 +764,10 @@ SOURCE=..\include\OgreCustomizable.h
 # Begin Source File
 
 SOURCE=..\include\OgreDataChunk.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreDDSCodec.h
 # End Source File
 # Begin Source File
 
