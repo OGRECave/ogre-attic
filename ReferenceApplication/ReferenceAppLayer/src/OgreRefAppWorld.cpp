@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRefAppWorld.h"
 #include "OgreRefAppOgreHead.h"
 #include "OgreRefAppPlane.h"
+#include "OgreRefAppSphere.h"
 
 //-------------------------------------------------------------------------
 template<> OgreRefApp::World* Ogre::Singleton<OgreRefApp::World>::ms_Singleton = 0;
@@ -39,6 +40,8 @@ namespace OgreRefApp
         // Create the dynamics world
         mOdeWorld = new dWorld();
         mOdeContactGroup = new dJointGroup();
+
+        mIntersectionQuery = mSceneMgr->createIntersectionQuery();
 
     }
     //-------------------------------------------------------------------------
@@ -77,6 +80,18 @@ namespace OgreRefApp
         mObjects[name] = plane;
 
         return plane;
+    }
+    //-------------------------------------------------------------------------
+    OgreRefApp::Sphere* World::createSphere(const String& name, Real radius, const Vector3& pos, 
+        const Quaternion& orientation)
+    {
+        OgreRefApp::Sphere* sphere = new OgreRefApp::Sphere(name, radius);
+        sphere->setPosition(pos);
+        sphere->setOrientation(orientation);
+
+        mObjects[name] = sphere;
+
+        return sphere;
     }
     //-------------------------------------------------------------------------
     void World::clear(void)
@@ -141,6 +156,35 @@ namespace OgreRefApp
     dJointGroup* World::getOdeContactJointGroup(void)
     {
         return mOdeContactGroup;
+    }
+    //-------------------------------------------------------------------------
+    void World::applyCollision(void)
+    {
+        // Collision detection
+        IntersectionSceneQueryResult& results = mIntersectionQuery->execute();
+
+        SceneQueryMovableIntersectionList::iterator it, itend;
+        itend = results.movables2movables.end();
+        for (it = results.movables2movables.begin(); it != itend; ++it)
+        {
+            MovableObject *mo1, *mo2;
+            mo1 = it->first;
+            mo2 = it->second;
+
+            // Get user defined objects (generic in OGRE)
+            UserDefinedObject *uo1, *uo2;
+            uo1 = it->first->getUserObject();
+            uo2 = it->second->getUserObject();
+
+            assert(uo1 && uo2 && "Missing one or other UserDefinedObject links!!");
+
+            // Cast to ApplicationObject
+            ApplicationObject *ao1, *ao2;
+            ao1 = static_cast<ApplicationObject*>(uo1);
+            ao2 = static_cast<ApplicationObject*>(uo2);
+            // Do detailed collision test
+            ao1->testCollide(ao2);
+        }
     }
 
 }
