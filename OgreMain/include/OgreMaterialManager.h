@@ -67,15 +67,11 @@ namespace Ogre {
         MatAttribParserList mMatAttribParsers;
         /// Keyword-mapped attribute parsers.
         typedef std::map<String, TEXLAYER_ATTRIB_PARSER> LayerAttribParserList;
-        //typedef std::hash_map<String, TEXLAYER_ATTRIB_PARSER, std::hash<String>> LayerAttribParserList;
+        //typedef HashMap<String, TEXLAYER_ATTRIB_PARSER, std::hash<String>> LayerAttribParserList;
         LayerAttribParserList mLayerAttribParsers;
 
-        //typedef std::map<int, Material*, std::less<int> > MaterialHandleList;
-#ifdef GCC_3_1
-        typedef __gnu_cxx::hash_map<int, Material*> MaterialHandleList;
-#else
-        typedef std::hash_map<int, Material*> MaterialHandleList;
-#endif
+        typedef HashMap<int, Material*> MaterialHandleList;
+
         /// Materials by handle.
         MaterialHandleList mHandles;
 

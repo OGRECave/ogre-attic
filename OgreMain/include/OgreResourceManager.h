@@ -175,11 +175,7 @@ namespace Ogre {
 
     protected:
 
-#ifdef GCC_3_1
-        typedef __gnu_cxx::hash_map< String, ArchiveEx *, _StringHash > FileMap;
-#else
-        typedef std::hash_map< String, ArchiveEx *, _StringHash > FileMap;
-#endif
+        typedef HashMap< String, ArchiveEx *, _StringHash > FileMap;
         static FileMap mCommonArchiveFiles;
         FileMap mArchiveFiles;
 

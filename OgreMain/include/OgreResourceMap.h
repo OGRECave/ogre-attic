@@ -35,11 +35,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #   pragma warning( disable : 4172 )
 #endif
 namespace Ogre {
-#ifdef GCC_3_1
-    typedef __gnu_cxx::hash_map< String, Resource*, _StringHash > ResourceMap;
-#else
-    typedef std::hash_map< String, Resource*, _StringHash > ResourceMap;
-#endif
+    typedef HashMap< String, Resource*, _StringHash > ResourceMap;
 }
 #endif
 #if defined( _MSC_VER )
