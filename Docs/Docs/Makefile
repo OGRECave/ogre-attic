@@ -11,5 +11,4 @@ htmlhelp: html
 html: ../html/index.html
 
 ../html/index.html:
-	cd Config
-	doxygen html.cfg
+	cd Config; doxygen html.cfg
