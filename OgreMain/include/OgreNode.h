@@ -99,7 +99,7 @@ namespace Ogre {
         bool mInheritScale;
 
         /// Only available internally - notification of parent.
-        void setParent(Node* parent);
+        virtual void setParent(Node* parent);
 
         /** Cached combined orientation.
             @par

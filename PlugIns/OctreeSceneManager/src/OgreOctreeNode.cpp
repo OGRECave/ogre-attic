@@ -128,6 +128,8 @@ void OctreeNode::_updateBounds( void )
 */
 bool OctreeNode::_isIn( AxisAlignedBox &box )
 {
+	// Always fail if not in the scene graph
+	if (!mIsInSceneGraph) return false;
 
     Vector3 center = mWorldAABB.getMaximum().midPoint( mWorldAABB.getMinimum() );
 

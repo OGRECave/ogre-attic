@@ -308,6 +308,7 @@ void OctreeSceneManager::init( AxisAlignedBox &box, int depth )
     // Don't do it this way, it will add it to the mSceneNodes which we don't want
     //mSceneRoot = createSceneNode( "SceneRoot" );
     mSceneRoot = new OctreeNode( this, "SceneRoot" );
+	mSceneRoot->_notifyRootNode();
     // -- End changes by Steve
 
     if ( mOctree != 0 )
