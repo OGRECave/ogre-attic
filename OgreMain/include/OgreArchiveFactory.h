@@ -28,50 +28,33 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgrePrerequisites.h"
 
 #include "OgreString.h"
+#include "OgreFactoryObj.h"
 
+BEGIN_OGRE_NAMESPACE
 
-namespace Ogre {
+/** Abstract factory class, archive codec plugins can register concrete
+    subclasses of this.
+    @remarks
+        All access to 'archives' (collections of files, compressed or
+        just folders, maybe even remote) is managed via the abstract
+        ArchiveEx class. Plugins are expected to provide the
+        implementation for the actual codec itself, but because a
+        subclass of ArchiveEx has to be created for every archive, a
+        factory class is required to create the appropriate subclass.
+    @par
+        So archive plugins create a subclass of ArchiveEx AND a subclass
+        of ArchiveFactory which creates instances of the ArchiveEx
+        subclass. See the 'Zip' and 'FileSystem' plugins for examples.
+        Each ArchiveEx and ArchiveFactory subclass pair deal with a
+        single archive type (identified by a string).
+*/
+class _OgreExport ArchiveFactory : public FactoryObj< ArchiveEx >
+{
+public:
+    virtual ArchiveEx *createObj( int nA, ... ) = 0;
+    virtual String getType() = 0;
+};
 
-    /** Abstract factory class, archive codec plugins can register concrete
-        subclasses of this.
-        @remarks
-            All access to 'archives' (collections of files, compressed or
-            just folders, maybe even remote) is managed via the abstract
-            ArchiveEx class. Plugins are expected to provide the
-            implementation for the actual codec itself, but because a
-            subclass of ArchiveEx has to be created for every archive, a
-            factory class is required to create the appropriate subclass.
-        @par
-            So archive plugins create a subclass of ArchiveEx AND a subclass
-            of ArchiveFactory which creates instances of the ArchiveEx
-            subclass. See the 'Zip' and 'FileSystem' plugins for examples.
-            Each ArchiveEx and ArchiveFactory subclass pair deal with a
-            single archive type (identified by a string).
-    */
-    class _OgreExport ArchiveFactory
-    {
-    public:
-        /** Gets the String identifying the type of archive this
-            ArchiveFactory creates ArchiveEx subclasses for. E.g. 'Zip'.
-            @remarks
-                Subclasses must define this method, it becomes the codec
-                identifier for this factory.
-        */
-        virtual String getArchiveType(void) = 0;
-
-        /** Creates an instance of the concrete ArchiveEx of the type managed
-            by this factory.
-            @note
-                <br>There is no corresponding 'destroy' method, ArchiveEx
-                subclasses are expected to delete themsleves when their
-                unload method is called.
-            @param
-                name Name of the archive, format depends on the type of
-                archive managed.
-        */
-        virtual ArchiveEx* createArchive(const String& name) = 0;
-    };
-
-}
+END_OGRE_NAMESPACE
 
 #endif

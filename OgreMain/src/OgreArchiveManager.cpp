@@ -49,7 +49,7 @@ namespace Ogre {
                 Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot find an archive factory "
                     "to deal with archive of type " + archiveType, "ArchiveManager::load");
 
-            pArch = it->second->createArchive(filename);
+            pArch = it->second->createObj( 1, filename );
 
             ResourceManager::load(pArch, priority);
         }
@@ -81,9 +81,9 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     void ArchiveManager::addArchiveFactory(ArchiveFactory* factory)
-    {
-        mArchFactories.insert(ArchiveFactoryMap::value_type(factory->getArchiveType(), factory));
-        LogManager::getSingleton().logMessage("ArchiveFactory for archive type " +     factory->getArchiveType() + " registered.");
+    {        
+        mArchFactories.insert( ArchiveFactoryMap::value_type( factory->getType(), factory ) );
+        LogManager::getSingleton().logMessage("ArchiveFactory for archive type " +     factory->getType() + " registered.");
     }
 
 }

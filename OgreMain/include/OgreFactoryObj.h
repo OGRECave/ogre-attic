@@ -22,41 +22,22 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
+#ifndef _FactoryObj_H__
+#define _FactoryObj_H__
 
-#include "OgreZipArchiveFactory.h"
+#include "OgrePrerequisites.h"
 
 BEGIN_OGRE_NAMESPACE
 
-ZipArchiveFactory::~ZipArchiveFactory()
+template< typename T > class FactoryObj
 {
-}
+public:
+    virtual ~FactoryObj() {};
 
-//-----------------------------------------------------------------------
-String ZipArchiveFactory::getArchiveType(void)
-{
-    return "Zip";
-}
-
-//-----------------------------------------------------------------------
-ArchiveEx* ZipArchiveFactory::createArchive(const String& name)
-{
-    return new Zip(name);
-}
-
-ArchiveEx *ZipArchiveFactory::createObj( int nA, ... )
-{
-    va_list lst;
-    va_start( lst, nA );
-
-    String &name = va_arg( lst, String );
-    return new Zip( name );
-
-    va_end( lst );
-}
-
-String ZipArchiveFactory::getType()
-{
-    return "Zip";
-}
+    virtual String getType() = 0;
+    virtual T* createObj( int nA, ... ) = 0;    
+};
 
 END_OGRE_NAMESPACE
+
+#endif
