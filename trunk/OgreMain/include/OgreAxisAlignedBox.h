@@ -242,6 +242,19 @@ namespace Ogre {
 		    }
 
 	    }
+		
+		/** Extends the box to encompass the specified point (if needed).
+		*/
+		void merge( const Vector3& point )
+		{
+			if (mNull){ // if null, use this point
+				setExtents(point, point);
+			} else {
+				mMaximum.makeCeil(point);
+				mMinimum.makeFloor(point);
+				updateCorners();
+			}
+		}
 
 	    /** Transforms the box according to the matrix supplied.
 		    @remarks
