@@ -51,7 +51,7 @@ namespace Ogre {
 	 * the <code>MouseEvent</code> is passed to it.
 	 *
 	 */
-	class ButtonGuiElement : public BorderPanelGuiElement, public ActionTarget
+	class _OgreGuiElementExport ButtonGuiElement : public BorderPanelGuiElement, public ActionTarget
     {
     protected:
 		String mActionCommand;
