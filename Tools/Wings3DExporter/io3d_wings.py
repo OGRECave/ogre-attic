@@ -170,6 +170,18 @@ class wings_reader:
 					LSp = mesh.ColorProp((u1, v1))
 					LEp = mesh.ColorProp((u2, v2))
 
+ 				# new UV packing for Wings3D 0.98.16b?
+ 				# I leave the old code in for older mesh files
+ 				if elem[0] == erlang_atom('uv_lt'):
+ 					uvdata = struct.unpack('>dd', elem[1])
+ 					u1, v1 = uvdata
+ 					LSp = mesh.ColorProp((u1, v1))
+
+ 				if elem[0] == erlang_atom('uv_rt'):
+ 					uvdata = struct.unpack('>dd', elem[1])
+ 					u2, v2 = uvdata
+ 					LEp = mesh.ColorProp((u2, v2))
+
 				if elem[0] == erlang_atom('color'):
 					colordata = struct.unpack('>dddddd', elem[1])
 					r1, g1, b1, r2, g2, b2 = colordata

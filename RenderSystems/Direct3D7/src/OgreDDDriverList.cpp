@@ -69,6 +69,10 @@ namespace Ogre {
 
     DDDriverList::~DDDriverList()
     {
+		for(unsigned int i=0; i<count(); i++)
+		{
+			item(i)->Cleanup();
+		}
         // Release drivers
         mDriverList.clear();
     }

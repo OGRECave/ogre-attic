@@ -66,6 +66,10 @@ namespace Ogre
 
     D3DDeviceList::~D3DDeviceList()
     {
+		for(unsigned int i=0; i<count(); i++)
+		{
+			item(i)->Cleanup();
+		}
         mDeviceList.clear();
 
     }
