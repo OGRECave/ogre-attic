@@ -98,6 +98,9 @@ AC_CONFIG_FILES([Makefile \
     Samples/BezierPatch/include/Makefile \
     Samples/CameraTrack/Makefile \
     Samples/CameraTrack/src/Makefile \
+    Samples/CubeMapping/Makefile \
+    Samples/CubeMapping/src/Makefile \
+    Samples/CubeMapping/include/Makefile \
     Samples/EnvMapping/Makefile \
     Samples/EnvMapping/src/Makefile \
     Samples/EnvMapping/include/Makefile \
