@@ -406,6 +406,9 @@ namespace Ogre {
             }
         }
 
+        // Scissor test is standard in GL 1.2 (is it emulated on some cards though?)
+        mCapabilities->setCapability(RSC_SCISSOR_TEST);
+
         // Get extension function pointers
         glActiveTextureARB_ptr = 
             (GL_ActiveTextureARB_Func)mGLSupport->getProcAddress("glActiveTextureARB");
@@ -1940,5 +1943,21 @@ namespace Ogre {
             mCurrentFragmentProgram->bindProgramParameters(params);
         }
     }
+	//---------------------------------------------------------------------
+    void GLRenderSystem::setScissorTest(bool enabled, size_t left, 
+        size_t top, size_t right, size_t bottom)
+    {
+        if (enabled)
+        {
+            glEnable(GL_SCISSOR_TEST);
+            // NB GL uses width / height rather than right / bottom
+            glScissor(left, top, right-left, bottom-top);
+        }
+        else
+        {
+            glDisable(GL_SCISSOR_TEST);
+        }
+    }
+
 
 }

@@ -607,6 +607,10 @@ namespace Ogre
         // We always support VBOs
         mCapabilities->setCapability(RSC_VBO);
 
+        // Scissor test
+        if (mCaps.RasterCaps & D3DPRASTERCAPS_SCISSORTEST)
+            mCapabilities->setCapability(RSC_SCISSOR_TEST);
+
         convertVertexShaderCaps();
         convertPixelShaderCaps();
 
@@ -2079,5 +2083,38 @@ namespace Ogre
             break;
         };
     }
+	//---------------------------------------------------------------------
+    void D3D9RenderSystem::setScissorTest(bool enabled, size_t left, size_t top, size_t right,
+        size_t bottom)
+    {
+        HRESULT hr;
+        if (enabled)
+        {
+            if (FAILED(hr = __SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE)))
+            {
+                Except(hr, "Unable to enable scissor rendering state; " + getErrorDescription(hr), 
+                    "D3D9RenderSystem::setScissorTest");
+            }
+            RECT rect;
+            rect.left = left;
+            rect.top = top;
+            rect.bottom = bottom;
+            rect.right = right;
+            if (FAILED(hr = mpD3DDevice->SetScissorRect(&rect)))
+            {
+                Except(hr, "Unable to set scissor rectangle; " + getErrorDescription(hr), 
+                    "D3D9RenderSystem::setScissorTest");
+            }
+        }
+        else
+        {
+            if (FAILED(hr = __SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE)))
+            {
+                Except(hr, "Unable to disable scissor rendering state; " + getErrorDescription(hr), 
+                    "D3D9RenderSystem::setScissorTest");
+            }
+        }
+    }
+
 
 }

@@ -47,7 +47,8 @@ namespace Ogre {
 		RSC_FRAGMENT_PROGRAM        = 0x00000400,
 		RSC_TEXTURE_COMPRESSION     = 0x00000800,
 		RSC_TEXTURE_COMPRESSION_DXT = 0x00001000,
-		RSC_TEXTURE_COMPRESSION_VTC = 0x00002000
+		RSC_TEXTURE_COMPRESSION_VTC = 0x00002000,
+        RSC_SCISSOR_TEST            = 0x00004000
     };
 
     /** singleton class for storing the capabilities of the graphics card. 

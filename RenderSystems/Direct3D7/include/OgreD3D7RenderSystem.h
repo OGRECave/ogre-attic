@@ -393,6 +393,12 @@ namespace Ogre {
           RenderSystem
          */
         void bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParametersSharedPtr params) { /* do nothing */}
+        /** See
+          RenderSystem
+         */
+        void setScissorTest(bool enabled, size_t left = 0, size_t top = 0, size_t right = 800, size_t bottom = 600)
+        { /* do nothing, d3d7 does not support scissor rect */ }
+
 
         // ----------------------------------
         // End Overridden members
