@@ -1105,7 +1105,7 @@ Behaves in exactly the same away as @ref{colour_op_ex} except that it determines
 
 Turns on/off texture coordinate effect that makes this layer an environment map.@*@*
 
-Format: env_map <off|spherical|planar|cubic>@*@*
+Format: env_map <off|spherical|planar|cubic_reflection|cubic_normal>@*@*
 
 Environment maps make an object look reflective by using automatic texture coordinate generation depending on the relationship between the objects vertices or normals and the eye.@*@*
 @table @asis
