@@ -50,15 +50,11 @@ namespace Ogre {
     ParticleSystem::CmdRenderer ParticleSystem::msRendererCmd;
 
     //-----------------------------------------------------------------------
-    ParticleSystem::ParticleSystem() :
-		mSpeedFactor(1.0f),
-        mBoundsAutoUpdate(true),
-        mBoundsUpdateTime(10.0f),
+    ParticleSystem::ParticleSystem() 
+      : mBoundsAutoUpdate(true), mBoundsUpdateTime(10.0f),
         mResourceGroupName(ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME),
-        mIsRendererConfigured(false),
-        mPoolSize(0),
-        mRenderer(0),
-        mCullIndividual(false)
+        mIsRendererConfigured(false), mSpeedFactor(1.0f), mRenderer(0),
+        mCullIndividual(false), mPoolSize(0)
     {
         initParameters();
         mAABB.setExtents(-1, -1, -1, 1, 1, 1);
@@ -73,15 +69,10 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    ParticleSystem::ParticleSystem(const String& name, const String& resourceGroup):
-		mSpeedFactor(1.0f),
-        mBoundsAutoUpdate(true),
-        mBoundsUpdateTime(10.0f),
-        mResourceGroupName(resourceGroup),
-        mIsRendererConfigured(false),
-        mPoolSize(0),
-        mRenderer(0),
-        mCullIndividual(false)
+    ParticleSystem::ParticleSystem(const String& name, const String& resourceGroup)
+      : mBoundsAutoUpdate(true), mBoundsUpdateTime(10.0f),
+        mResourceGroupName(resourceGroup), mIsRendererConfigured(false),
+		mSpeedFactor(1.0f), mRenderer(0), mCullIndividual(false), mPoolSize(0)
     {
         mName = name;
         setDefaultDimensions( 100, 100 );

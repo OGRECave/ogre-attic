@@ -93,9 +93,9 @@ namespace Ogre {
             Box( long l, long t, long ff, long r, long b, long bb ):
                 left(l),
                 top(t),   
-                front(ff),
                 right(r),
                 bottom(b),
+                front(ff),
                 back(bb)
             {
             }
