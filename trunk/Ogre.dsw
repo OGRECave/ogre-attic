@@ -630,6 +630,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "Demo_VolumeTex"=.\Samples\VolumeTex\scripts\Demo_VolumeTex.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "Demo_Water"=.\Samples\Water\scripts\Demo_Water.dsp - Package Owner=<4>
 
 Package=<5>
