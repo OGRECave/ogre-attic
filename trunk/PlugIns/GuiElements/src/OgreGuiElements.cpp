@@ -44,7 +44,8 @@ namespace Ogre {
     GuiElementFactory* pListFactory = NULL;
     GuiElementFactory* pScrollBarFactory = NULL;
     GuiElementFactory* pPopupMenuFactory = NULL;
-	CursorGuiElement* pCursorGui = NULL;
+    GuiElementFactory* pTTYFactory = NULL;
+  	CursorGuiElement* pCursorGui = NULL;
     //-----------------------------------------------------------------------
 
     //-----------------------------------------------------------------------
@@ -81,7 +82,9 @@ namespace Ogre {
 
 		pCursorGui = new CursorGuiElement("Cursor default");
 		OverlayManager::getSingleton().setCursorGui(pCursorGui, pCursorGui);
-
+        
+        pTTYFactory = new TTYGuiElementFactory();
+        GuiManager::getSingleton().addGuiElementFactory(pTTYFactory);
     } 
 
     //-----------------------------------------------------------------------

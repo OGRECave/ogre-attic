@@ -9,4 +9,5 @@ noinst_HEADERS = OgreBorderPanelGuiElement.h \
 		 OgrePopupMenuGuiElement.h \
 		 OgreScrollBarGuiElement.h \
 		 OgreTextAreaGuiElement.h \
-		 OgreTextBoxGuiElement.h
+		 OgreTextBoxGuiElement.h \
+		 OgreTTYGuiElement.h 
