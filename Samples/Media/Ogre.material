@@ -61,7 +61,7 @@ Core/StatsBlockBorder
 	depth_check off
 	scene_blend alpha_blend
 	{
-		texture ogreborder.png
+		texture New_Ogre_Border.png
 	}
 }
 Core/StatsBlockCenter
@@ -70,6 +70,24 @@ Core/StatsBlockCenter
 	depth_check off
 	scene_blend alpha_blend
 	{
-		texture ogrebordercenter.png
+		texture New_Ogre_Border_Center.png
+	}
+}
+Core/OgreText
+{
+	lighting off
+	depth_check off
+	scene_blend alpha_blend
+	{
+		texture New_Ogre_Logo.png
+	}
+}
+Core/StatsBreak
+{
+	lighting off
+	depth_check off
+	scene_blend alpha_blend
+	{
+		texture New_Ogre_Border_Break.png
 	}
 }
