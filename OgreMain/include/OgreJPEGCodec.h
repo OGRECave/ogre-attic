@@ -43,7 +43,13 @@ namespace Ogre {
         /* Crappy  callbacks required by jpeglib */
         static void init_source(j_decompress_ptr cinfo);
 		/* boolean is actually int from libJPEG's point of view */
-        static int fill_input_buffer(j_decompress_ptr cinfo);    
+        static 
+#if OGRE_PLATFORM == PLATFORM_LINUX
+			int 
+#else
+			uchar
+#endif
+			fill_input_buffer(j_decompress_ptr cinfo);    
         static void skip_input_data(j_decompress_ptr cinfo, long count);
         static void term_source(j_decompress_ptr cinfo);
 
@@ -70,6 +76,9 @@ namespace Ogre {
 // (for more info, see http://www.cvshome.org/docs/manual/cvs_12.html#SEC103 )
 //
 // $Log$
+// Revision 1.6  2002/08/22 15:33:10  cearny
+// Solved a new Win bug - seems that on Linux boolean is defined as 'int' and on Windows as 'unsigned char' for JPEGlib
+//
 // Revision 1.5  2002/08/22 14:51:37  cearny
 // Linux changes.
 //
