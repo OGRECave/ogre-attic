@@ -4,12 +4,12 @@
 
 
 1) Install dlcompat (http://www.opendarwin.org/projects/dlcompat/). 
-<./configre>, <make> then <make install) 
+<./configure>, <make> then <make install> (as root)) 
 
 The version of dlcompat from fink does not work. 
 
 2) Install freetype2 (freetype.sourceforge.net) v. 2.1.4 rc2 
-<./configure>, <make>, then <make install> 
+<./configure>, <make>, then <make install> (as root)
 
 The version of freetype from fink does not work. 
 
@@ -24,7 +24,7 @@ The version of freetype from fink does not work.
 "ln -s /sw/bin/glibtool /sw/bin/libtool" 
 
 7) Install DevIL from http://homepage.mac.com/jrusak/DevIL.sit 
-<./configure>, <make>, then <make install> 
+<./configure>, <make>, then <make install> (as root)
 
 8) Get the latest cvs version of OGRE (see http://ogre.sourceforge.net ) 
 
