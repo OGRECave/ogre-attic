@@ -40,7 +40,7 @@
 				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Demo_Terrain.pdb"
-				SubSystem="1"
+				SubSystem="2"
 				OptimizeForWindows98="1"
 				TargetMachine="1"/>
 			<Tool
@@ -97,7 +97,7 @@
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="FALSE"
-				SubSystem="1"
+				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				OptimizeForWindows98="1"
