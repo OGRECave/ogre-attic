@@ -56,6 +56,8 @@ namespace Ogre {
     {
         Real alpha, a, b, x, y, z;
 
+        // Call superclass
+        AreaEmitter::_initParticle(pParticle);
         // create a random angle from 0 .. PI*2
         alpha = Math::RangeRandom(0,Math::TWO_PI);
   

@@ -45,6 +45,9 @@ namespace Ogre {
     {
         Real x, y, z;
 
+        // Call superclass
+        AreaEmitter::_initParticle(pParticle);
+
         // First we create a random point inside a bounding cylinder with a
         // radius and height of 1 (this is easy to do). The distance of the
         // point from 0,0,0 must be <= 1 (== 1 means on the surface and we
