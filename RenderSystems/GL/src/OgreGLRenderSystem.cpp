@@ -41,6 +41,19 @@ http://www.gnu.org/copyleft/lesser.txt.s
 // Convenience macro from ARB_vertex_buffer_object spec
 #define VBO_BUFFER_OFFSET(i) ((char *)NULL + (i))
 
+// Pointers to extension functions
+GL_ActiveTextureARB_Func glActiveTextureARB_ptr;
+GL_ClientActiveTextureARB_Func glClientActiveTextureARB_ptr;
+GL_SecondaryColorPointerEXT_Func glSecondaryColorPointerEXT_ptr;
+GL_GenBuffersARB_Func glGenBuffersARB_ptr;
+GL_BindBufferARB_Func glBindBufferARB_ptr;
+GL_DeleteBuffersARB_Func glDeleteBuffersARB_ptr;
+GL_MapBufferARB_Func glMapBufferARB_ptr;
+GL_UnmapBufferARB_Func glUnmapBufferARB_ptr;
+GL_BufferDataARB_Func glBufferDataARB_ptr;
+GL_BufferSubDataARB_Func glBufferSubDataARB_ptr;
+GL_GetBufferSubDataARB_Func glGetBufferSubDataARB_ptr;
+
 namespace Ogre {
 
     GLRenderSystem::GLRenderSystem()
@@ -185,9 +198,6 @@ namespace Ogre {
             mCapabilities->setNumTextureUnits(1);
         }
             
-        glActiveTextureARB_ptr = (GL_ActiveTextureARB_Func)mGLSupport->getProcAddress("glActiveTextureARB");
-        glClientActiveTextureARB_ptr = (GL_ClientActiveTextureARB_Func)mGLSupport->getProcAddress("glClientActiveTextureARB");
-
         // Check for Anisotropy support
         if(mGLSupport->checkExtension("GL_EXT_texture_filter_anisotropic"))
         {
@@ -231,13 +241,35 @@ namespace Ogre {
             mCapabilities->setCapability(RSC_VBO);
 
             mHardwareBufferManager = new GLHardwareBufferManager;
-            glBindBufferARB_ptr = (GL_BindBufferARB_Func)mGLSupport->getProcAddress("glBindBufferARB");
         }
         else
         {
             mHardwareBufferManager = new GLDefaultHardwareBufferManager;
         }
 
+        // Get extension function pointers
+        glActiveTextureARB_ptr = 
+            (GL_ActiveTextureARB_Func)mGLSupport->getProcAddress("glActiveTextureARB");
+        glClientActiveTextureARB_ptr = 
+            (GL_ClientActiveTextureARB_Func)mGLSupport->getProcAddress("glClientActiveTextureARB");
+        glSecondaryColorPointerEXT_ptr = 
+            (GL_SecondaryColorPointerEXT_Func)mGLSupport->getProcAddress("glSecondaryColorPointerEXT");
+        glGenBuffersARB_ptr = 
+            (GL_GenBuffersARB_Func)mGLSupport->getProcAddress("glGenBuffersARB");
+        glBindBufferARB_ptr = 
+            (GL_BindBufferARB_Func)mGLSupport->getProcAddress("glBindBufferARB");
+        glDeleteBuffersARB_ptr = 
+            (GL_DeleteBuffersARB_Func)mGLSupport->getProcAddress("glDeleteBuffersARB");
+        glMapBufferARB_ptr = 
+            (GL_MapBufferARB_Func)mGLSupport->getProcAddress("glMapBufferARB");
+        glUnmapBufferARB_ptr = 
+            (GL_UnmapBufferARB_Func)mGLSupport->getProcAddress("glUnmapBufferARB");
+        glBufferDataARB_ptr = 
+            (GL_BufferDataARB_Func)mGLSupport->getProcAddress("glBufferDataARB");
+        glBufferSubDataARB_ptr = 
+            (GL_BufferSubDataARB_Func)mGLSupport->getProcAddress("glBufferSubDataARB");
+        glGetBufferSubDataARB_ptr = 
+            (GL_GetBufferSubDataARB_Func)mGLSupport->getProcAddress("glGetBufferSubDataARB");
     }
 
     void GLRenderSystem::reinitialise(void)
@@ -1579,7 +1611,7 @@ namespace Ogre {
                 glEnableClientState( GL_COLOR_ARRAY );
                 break;
             case VES_SPECULAR:
-                glSecondaryColorPointer(4, 
+                glSecondaryColorPointerEXT_ptr(4, 
                     GLHardwareBufferManager::getGLType(elem->getType()), 
                     vertexBuffer->getVertexSize(), pBufferData);
                 glEnableClientState( GL_SECONDARY_COLOR_ARRAY );

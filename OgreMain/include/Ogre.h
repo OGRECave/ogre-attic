@@ -83,6 +83,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreHardwareVertexBuffer.h"
 #include "OgreHardwareIndexBuffer.h"
 #include "OgrePatchMesh.h"
+#include "OgreString.h"
+#include "OgreStringConverter.h"
 
 // .... more to come
 

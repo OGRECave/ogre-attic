@@ -96,18 +96,6 @@ namespace Ogre {
         // Initialise GL context
         void initGL(void);
 
-        // Pointer to glActiveTextureARB function
-        typedef void (APIENTRY *GL_ActiveTextureARB_Func)(GLenum);
-        GL_ActiveTextureARB_Func glActiveTextureARB_ptr;
-
-        // Pointer to glClientActiveTextureARB function
-        typedef void (APIENTRY *GL_ClientActiveTextureARB_Func)(GLenum);
-        GL_ClientActiveTextureARB_Func glClientActiveTextureARB_ptr;
-
-        // Pointer to glBindBufferARB function
-        typedef void (APIENTRY *GL_BindBufferARB_Func)(GLenum, GLuint);
-        GL_BindBufferARB_Func glBindBufferARB_ptr;
-
         HardwareBufferManager* mHardwareBufferManager;
 
     public:

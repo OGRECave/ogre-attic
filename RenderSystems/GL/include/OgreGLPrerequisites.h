@@ -52,10 +52,52 @@ http://www.gnu.org/copyleft/lesser.txt.
 #   include <OpenGL/glu.h>
 #endif
 
-// Need to define this for non win32 systems
-#ifndef APIENTRY
-#   define APIENTRY
-#endif
+extern "C" {
+// Pointer to glActiveTextureARB function
+typedef void (APIENTRY *GL_ActiveTextureARB_Func)(GLenum);
+extern GL_ActiveTextureARB_Func glActiveTextureARB_ptr;
+
+// Pointer to glClientActiveTextureARB function
+typedef void (APIENTRY *GL_ClientActiveTextureARB_Func)(GLenum);
+extern GL_ClientActiveTextureARB_Func glClientActiveTextureARB_ptr;
+
+// Pointer to glSecondaryColorPointerEXT function
+typedef void (APIENTRY *GL_SecondaryColorPointerEXT_Func)(GLint, GLenum, GLsizei, const GLvoid*);
+extern GL_SecondaryColorPointerEXT_Func glSecondaryColorPointerEXT_ptr;
+
+// Pointer to glGenBuffersARB function
+typedef void (APIENTRY *GL_GenBuffersARB_Func)(GLsizei, GLuint*);
+extern GL_GenBuffersARB_Func glGenBuffersARB_ptr;
+
+// Pointer to glBindBufferARB function
+typedef void (APIENTRY *GL_BindBufferARB_Func)(GLenum, GLuint);
+extern GL_BindBufferARB_Func glBindBufferARB_ptr;
+
+// Pointer to glDeleteBuffersARB function
+typedef void (APIENTRY *GL_DeleteBuffersARB_Func)(GLsizei, const GLuint*);
+extern GL_DeleteBuffersARB_Func glDeleteBuffersARB_ptr;
+
+// Pointer to glMapBufferARB function
+typedef GLvoid* (APIENTRY *GL_MapBufferARB_Func)(GLenum, GLenum);
+extern GL_MapBufferARB_Func glMapBufferARB_ptr;
+
+// Pointer to glUnmapBufferARB function
+typedef GLboolean (APIENTRY *GL_UnmapBufferARB_Func)(GLenum);
+extern GL_UnmapBufferARB_Func glUnmapBufferARB_ptr;
+
+// Pointer to glBufferSubDataARB function
+typedef void (APIENTRY *GL_BufferSubDataARB_Func)(GLenum, GLintptrARB, GLsizeiptrARB, const GLvoid*);
+extern GL_BufferSubDataARB_Func glBufferSubDataARB_ptr;
+
+// Pointer to glBufferDataARB function
+typedef void (APIENTRY *GL_BufferDataARB_Func)(GLenum, GLsizeiptrARB, const GLvoid* , GLenum);
+extern GL_BufferDataARB_Func glBufferDataARB_ptr;
+
+// Pointer to glGetBufferSubDataARB function
+typedef void (APIENTRY *GL_GetBufferSubDataARB_Func)(GLenum, GLintptrARB, GLsizeiptrARB, GLvoid*);
+extern GL_GetBufferSubDataARB_Func glGetBufferSubDataARB_ptr;
+
+};
 
 namespace Ogre {
     // Forward declarations
