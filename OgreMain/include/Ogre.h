@@ -61,7 +61,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreParticleEmitter.h"
 #include "OgreParticleAffector.h"
 #include "OgreMeshSerializer.h"
-#include "OgreMaterialManager.h"
+#include "OgreMaterialSerializer.h"
 #include "OgreSkeleton.h"
 #include "OgreBone.h"
 #include "OgreSkeletonSerializer.h"
