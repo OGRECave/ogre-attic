@@ -46,6 +46,7 @@ namespace Ogre
     AnimationState::AnimationState(const String& animName, Real timePos, Real length, Real weight, bool enabled)
         : mAnimationName(animName), mTimePos(timePos), mWeight(weight), mEnabled(enabled)
     {
+        mLoop = true;
         setLength(length);
     }
     //---------------------------------------------------------------------
@@ -133,7 +134,8 @@ namespace Ogre
             mEnabled == rhs.mEnabled &&
             mTimePos == rhs.mTimePos &&
             mWeight == rhs.mWeight &&
-            mLength == rhs.mLength)
+            mLength == rhs.mLength && 
+            mLoop == rhs.mLoop)
         {
             return true;
         }
