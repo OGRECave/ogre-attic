@@ -35,6 +35,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+#ifdef __BORLANDC__
+    using namespace std;
+#endif
+
     /** Archive-handling class.
         @remarks
             This class is supposed to be subclassed in order to create
