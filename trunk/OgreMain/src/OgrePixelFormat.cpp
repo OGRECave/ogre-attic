@@ -864,40 +864,25 @@ namespace Ogre {
         PixelFormat fmt = PF_UNKNOWN;
         switch( ImageFormat )
         {
-            /* Compressed formats -- ignore type */
-			case IL_DXT1:   fmt = PF_DXT1; break;
-			case IL_DXT2:   fmt = PF_DXT2; break;
-			case IL_DXT3:   fmt = PF_DXT3; break;
-			case IL_DXT4:   fmt = PF_DXT4; break;
-			case IL_DXT5:   fmt = PF_DXT5; break;
-            /* Normal formats */
-#if OGRE_ENDIAN == ENDIAN_BIG
+		/* Compressed formats -- ignore type */
+		case IL_DXT1:   fmt = PF_DXT1; break;
+		case IL_DXT2:   fmt = PF_DXT2; break;
+		case IL_DXT3:   fmt = PF_DXT3; break;
+		case IL_DXT4:   fmt = PF_DXT4; break;
+		case IL_DXT5:   fmt = PF_DXT5; break;
+		/* Normal formats */
         case IL_RGB:
-            fmt = PF_R8G8B8;
+            fmt = PF_BYTE_RGB;
             break;
         case IL_BGR:
-            fmt = PF_B8G8R8;
+            fmt = PF_BYTE_BGR;
             break;            
         case IL_RGBA:
-            fmt = PF_A8R8G8B8;// No direct match
+            fmt = PF_BYTE_RGBA;
             break;
         case IL_BGRA:
-            fmt = PF_B8G8R8A8;
+            fmt = PF_BYTE_BGRA;
             break;
-#else
-        case IL_RGB:
-            fmt = PF_B8G8R8;
-            break;
-        case IL_BGR:
-            fmt = PF_R8G8B8;
-            break;            
-        case IL_RGBA:
-            fmt = PF_A8B8G8R8;
-            break;
-        case IL_BGRA:
-            fmt = PF_A8R8G8B8;
-            break;
-#endif
         case IL_LUMINANCE:
             switch(ImageType)
             {
@@ -924,16 +909,10 @@ namespace Ogre {
             case PF_L8: return ILFormat(1, IL_LUMINANCE, IL_UNSIGNED_BYTE);
 			case PF_A8: return ILFormat(1, IL_LUMINANCE, IL_UNSIGNED_BYTE);
 			case PF_L16: return ILFormat(1, IL_LUMINANCE, IL_UNSIGNED_SHORT);
-#if OGRE_ENDIAN == ENDIAN_BIG      
-			case PF_R8G8B8: return ILFormat(3, IL_RGB, IL_UNSIGNED_BYTE);
-            case PF_B8G8R8: return ILFormat(3, IL_BGR, IL_UNSIGNED_BYTE);
-            case PF_B8G8R8A8: return ILFormat(4, IL_BGRA, IL_UNSIGNED_BYTE);
-#else
-			case PF_R8G8B8: return ILFormat(3, IL_BGR, IL_UNSIGNED_BYTE);
-            case PF_B8G8R8: return ILFormat(3, IL_RGB, IL_UNSIGNED_BYTE);
-            case PF_A8B8G8R8: return ILFormat(4, IL_RGBA, IL_UNSIGNED_BYTE);
-			case PF_A8R8G8B8: return ILFormat(4, IL_BGRA, IL_UNSIGNED_BYTE);
-#endif
+			case PF_BYTE_RGB: return ILFormat(3, IL_RGB, IL_UNSIGNED_BYTE);
+			case PF_BYTE_RGBA: return ILFormat(4, IL_RGBA, IL_UNSIGNED_BYTE);
+            case PF_BYTE_BGR: return ILFormat(3, IL_BGR, IL_UNSIGNED_BYTE);
+            case PF_BYTE_BGRA: return ILFormat(4, IL_BGRA, IL_UNSIGNED_BYTE);
 			case PF_FP_R32G32B32: return ILFormat(3, IL_RGB, IL_FLOAT);
 			case PF_FP_R32G32B32A32: return ILFormat(4, IL_RGBA, IL_FLOAT);
 			case PF_DXT1: return ILFormat(0, IL_DXT1);
