@@ -26,10 +26,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __XSIHELPER_H__
 
 #include <xsi_string.h>
+#include <xsi_x3dobject.h>
 #include <xsi_vertexcolor.h>
 #include <xsi_math.h>
 #include <stdlib.h>
 #include "OgrePrerequisites.h"
+#include "OgreString.h"
+#include "OgreColourValue.h"
+
 
 /// Useful function to convert an XSI CString to an Ogre String
 inline Ogre::String XSItoOgre(const XSI::CString& xsistr)
@@ -91,5 +95,25 @@ inline Ogre::RGBA XSItoOgre(const XSI::CVertexColor& xsiColour)
 
 }
 
+namespace Ogre {
+	/** An entry for a Deformer - need original index because this will be boneID */
+	class DeformerEntry
+	{
+	public:
+		unsigned short boneID;
+		XSI::X3DObject obj;
+		String parentName;
+		Bone* pBone;
+
+		DeformerEntry(unsigned short theboneID, XSI::X3DObject& theobj)
+			:boneID(theboneID), obj(theobj), pBone(0)
+		{
+		}
+
+	};
+	/// Map from deformer name to deformer entry
+	typedef std::map<String,DeformerEntry*> DeformerList;
+
+}
 #endif
 
