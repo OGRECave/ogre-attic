@@ -29,9 +29,20 @@ http://www.gnu.org/copyleft/gpl.html.
 
 BEGIN_OGRE_NAMESPACE
 
+/** Abstract class that defines a 'codec'.
+    @remarks
+        A codec class works like a two-way filter for data - data entered on
+        one end (the decode end) gets processed and transformed into easily
+        usable data while data passed the other way around codes it back.
+    @par
+        The codec concept is a pretty generic one - you can easily understand
+        how it can be used for images, sounds, archives, even compressed data.
+*/
 class _OgreExport Codec
 {
 protected:
+    /** A map that contains all the registered codecs.
+    */
     static std::map< String, Codec* > ms_mapCodecs;
 
 public:
@@ -40,48 +51,45 @@ public:
     public:
         virtual ~CodecData() {};
 
+        /** Returns the type of the data.
+        */
         virtual String dataType() { return "CodecData"; };
     };
 
 public:
+    /** Registers a new codec in the database.
+    */
     static void registerCodec( Codec *pCodec )
     {
         ms_mapCodecs[pCodec->getType()] = pCodec;
     }
 
+    /** Returns a map of all the registered codecs.
+    */
     static std::map< String, Codec* >& getColl()
     {
         return ms_mapCodecs;
     }
 
+    /** Codes the data in the input chunk and saves the result in the output
+        chunk.
+        @note
+            Has a variable number of arguments, which depend on the codec type.
+    */
     virtual void code( const DataChunk& input, DataChunk* output, ... ) const = 0;
-    virtual CodecData * decode( const DataChunk& input, DataChunk* output ) const = 0;
 
-    virtual String getType() const = 0;
-};
+    /** Codes the data from the input chunk into the output chunk.
+        @remarks
+            The returned CodecData pointer is a pointer to a class that holds
+            information about the decoded buffer. For an image, this would be 
+            the size, the bitdepht, etc.
+        @note
+            Has a variable number of arguments, which depend on the codec type.
+    */
+    virtual CodecData * decode( const DataChunk& input, DataChunk* output, ... ) const = 0;
 
-class _OgreExport ImageCodec : public Codec
-{
-public:
-    class ImageData : public Codec::CodecData
-    {
-    public:
-        UInt32 ulHeight;
-        UInt32 ulWidth;
-        Bool   bGreyS;
-        Bool   b32Bit;
-
-    public:
-        String dataType()
-        {
-            return "ImageData";
-        }
-    };
-
-public:
-    virtual void code( const DataChunk& input, DataChunk* output, ... ) const = 0;
-    virtual CodecData * decode( const DataChunk& input, DataChunk* output ) const = 0;
-
+    /** Returns the type of the codec as a String
+    */
     virtual String getType() const = 0;
 };
 
