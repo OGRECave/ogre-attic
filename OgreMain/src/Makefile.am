@@ -1,4 +1,4 @@
-INCLUDES = $(STLPORT_CFLAGS) $(FT2_CFLAGS) -I$(top_srcdir)/OgreMain/include
+INCLUDES = $(STLPORT_CFLAGS) $(FT2_CFLAGS) -I$(top_srcdir)/OgreMain/include -DOGRE_NONCLIENT_BUILD
 
 lib_LTLIBRARIES=libOgreMain.la
 
