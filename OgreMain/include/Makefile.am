@@ -101,6 +101,7 @@ OgreProgressiveMesh.h \
 OgreQuaternion.h \
 OgreRenderOperation.h \
 OgreRenderQueue.h \
+OgreRenderQueueListener.h \
 OgreRenderQueueSortingGrouping.h \
 OgreRenderSystem.h \
 OgreRenderTarget.h \
