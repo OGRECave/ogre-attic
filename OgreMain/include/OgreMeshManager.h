@@ -185,6 +185,9 @@ namespace Ogre {
 				indexShadowBuffer If this flag is set to true, the index buffer will be 
 				created with a system memory shadow buffer,
 				allowing you to read it back more efficiently than if it is in hardware
+            @param ySegmentsToKeep The number of segments from the top of the dome
+                downwards to keep. -1 keeps all of them. This can save fillrate if
+                you cannot see much of the sky lower down.
         */
 		Mesh* createCurvedIllusionPlane(
             const String& name, const Plane& plane,
@@ -195,7 +198,8 @@ namespace Ogre {
             const Quaternion& orientation = Quaternion::IDENTITY,
 			HardwareBuffer::Usage vertexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
 			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY,
-			bool vertexShadowBuffer = true, bool indexShadowBuffer = true);
+			bool vertexShadowBuffer = true, bool indexShadowBuffer = true, 
+            int ySegmentsToKeep = -1);
 
 		/** Creates a genuinely curved plane, by default majoring on the x/y axes facing positive Z.
             @param
