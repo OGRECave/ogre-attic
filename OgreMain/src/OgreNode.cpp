@@ -335,26 +335,26 @@ namespace Ogre {
         translate(axes,d);
     }
     //-----------------------------------------------------------------------
-    void Node::roll(Real degrees)
+    void Node::roll(Real angleunits)
     {
-        rotate(Vector3::UNIT_Z, degrees);
+        rotate(Vector3::UNIT_Z, angleunits);
     }
     //-----------------------------------------------------------------------
-    void Node::pitch(Real degrees)
+    void Node::pitch(Real angleunits)
     {
-        rotate(Vector3::UNIT_X, degrees);
+        rotate(Vector3::UNIT_X, angleunits);
     }
     //-----------------------------------------------------------------------
-    void Node::yaw(Real degrees)
+    void Node::yaw(Real angleunits)
     {
-        rotate(Vector3::UNIT_Y, degrees);
+        rotate(Vector3::UNIT_Y, angleunits);
 
     }
     //-----------------------------------------------------------------------
-    void Node::rotate(const Vector3& axis, Real degrees)
+    void Node::rotate(const Vector3& axis, Real angleunits)
     {
         Quaternion q;
-        q.FromAngleAxis(Math::getSingleton().DegreesToRadians(degrees),axis);
+        q.FromAngleAxis(Math::getSingleton().AngleUnitsToRadians(angleunits),axis);
         rotate(q);
     }
 

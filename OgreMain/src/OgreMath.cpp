@@ -36,6 +36,7 @@ namespace Ogre
     const Real Math::HALF_PI = Real( 0.5 * PI );
 
     int Math::mTrigTableSize;
+   Math::AngleUnit Math::msAngleUnit;
 
     Real  Math::mTrigTableFactor;
     Real *Math::mSinTable = NULL;
@@ -44,6 +45,8 @@ namespace Ogre
     //-----------------------------------------------------------------------
     Math::Math( unsigned int trigTableSize )
     {
+        msAngleUnit = AU_DEGREE;
+
         mTrigTableSize = trigTableSize;
         mTrigTableFactor = mTrigTableSize / Math::TWO_PI;
 
@@ -265,6 +268,38 @@ namespace Ogre
         static Real fRad2Deg = Real(180.0) / PI;
 
         return radians * fRad2Deg;
+    }
+
+   //-----------------------------------------------------------------------
+    void Math::setAngleUnit(Math::AngleUnit unit)
+   {
+       msAngleUnit = unit;
+   }
+   //-----------------------------------------------------------------------
+   Math::AngleUnit Math::getAngleUnit(void)
+   {
+       return msAngleUnit;
+   }
+    //-----------------------------------------------------------------------
+    Real Math::AngleUnitsToRadians(Real angleunits)
+    {
+        static Real fDeg2Rad = PI / Real(180.0);
+
+       if (msAngleUnit == AU_DEGREE)
+           return angleunits * fDeg2Rad;
+       else
+           return angleunits;
+    }
+
+    //-----------------------------------------------------------------------
+    Real Math::RadiansToAngleUnits(Real radians)
+    {
+        static Real fRad2Deg = Real(180.0) / PI;
+
+       if (msAngleUnit == AU_DEGREE)
+           return radians * fRad2Deg;
+       else
+           return radians;
     }
 
     //-----------------------------------------------------------------------

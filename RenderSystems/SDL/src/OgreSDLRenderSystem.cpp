@@ -1342,7 +1342,7 @@ namespace Ogre {
     void SDLRenderSystem::_makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, 
         Real farPlane, Matrix4& dest)
     {
-        Real thetaY = Math::DegreesToRadians(fovy / 2.0f);
+        Real thetaY = Math::AngleUnitsToRadians(fovy / 2.0f);
         Real tanThetaY = Math::Tan(thetaY);
         //Real thetaX = thetaY * aspect;
         //Real tanThetaX = Math::Tan(thetaX);
