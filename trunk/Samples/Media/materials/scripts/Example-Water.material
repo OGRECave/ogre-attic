@@ -5,7 +5,7 @@ material Examples/Water0
 	{
 		pass
 		{
-			scene_blend modulate
+			scene_blend colour_blend
 
 			texture_unit
 			{
@@ -22,7 +22,7 @@ material Examples/Water1
 	{
 		pass
 		{
-			scene_blend modulate
+			scene_blend colour_blend
 
 			texture_unit
 			{
@@ -45,7 +45,7 @@ material Examples/Water2
 	{
 		pass
 		{
-			scene_blend modulate
+			scene_blend colour_blend
 
 			texture_unit
 			{
@@ -61,7 +61,7 @@ material Examples/Water3
 	{
 		pass
 		{
-			scene_blend modulate
+			scene_blend colour_blend
 
 			texture_unit
 			{

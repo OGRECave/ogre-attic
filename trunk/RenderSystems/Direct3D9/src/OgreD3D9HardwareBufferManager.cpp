@@ -45,6 +45,7 @@ namespace Ogre {
     createVertexBuffer(size_t vertexSize, size_t numVerts, HardwareBuffer::Usage usage,
 		bool useShadowBuffer)
     {
+		assert (numVerts > 0);
 #if OGRE_D3D_MANAGE_BUFFERS
         // Override shadow buffer setting; managed buffers are automatically
         // backed by system memory
@@ -85,6 +86,7 @@ namespace Ogre {
     createIndexBuffer(HardwareIndexBuffer::IndexType itype, size_t numIndexes, 
         HardwareBuffer::Usage usage, bool useShadowBuffer)
     {
+		assert (numIndexes > 0);
 #if OGRE_D3D_MANAGE_BUFFERS
         // Override shadow buffer setting; managed buffers are automatically
         // backed by system memory

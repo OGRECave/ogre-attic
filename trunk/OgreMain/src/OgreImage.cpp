@@ -509,7 +509,7 @@ namespace Ogre {
 		return 1;
 	}
 	//-----------------------------------------------------------------------------
-	ushort Image::getRowSpan() const
+	size_t Image::getRowSpan() const
 	{
 		return m_uWidth * m_ucPixelSize;
 	}
@@ -638,17 +638,17 @@ namespace Ogre {
 			}
 			// super-optimized: no conversion
 			switch (PixelUtil::getNumElemBytes(src.format)) {
-		case 1: NearestResampler<1>::scale(src, temp); break;
-		case 2: NearestResampler<2>::scale(src, temp); break;
-		case 3: NearestResampler<3>::scale(src, temp); break;
-		case 4: NearestResampler<4>::scale(src, temp); break;
-		case 6: NearestResampler<6>::scale(src, temp); break;
-		case 8: NearestResampler<8>::scale(src, temp); break;
-		case 12: NearestResampler<12>::scale(src, temp); break;
-		case 16: NearestResampler<16>::scale(src, temp); break;
-		default:
-			// never reached
-			assert(false);
+			case 1: NearestResampler<1>::scale(src, temp); break;
+			case 2: NearestResampler<2>::scale(src, temp); break;
+			case 3: NearestResampler<3>::scale(src, temp); break;
+			case 4: NearestResampler<4>::scale(src, temp); break;
+			case 6: NearestResampler<6>::scale(src, temp); break;
+			case 8: NearestResampler<8>::scale(src, temp); break;
+			case 12: NearestResampler<12>::scale(src, temp); break;
+			case 16: NearestResampler<16>::scale(src, temp); break;
+			default:
+				// never reached
+				assert(false);
 			}
 			if(temp.data != scaled.data)
 			{
@@ -660,41 +660,50 @@ namespace Ogre {
 		case FILTER_LINEAR:
 		case FILTER_BILINEAR:
 			switch (src.format) {
-		case PF_L8: case PF_A8: case PF_BYTE_LA:
-		case PF_R8G8B8: case PF_B8G8R8:
-		case PF_R8G8B8A8: case PF_B8G8R8A8:
-		case PF_A8B8G8R8: case PF_A8R8G8B8:
-		case PF_X8B8G8R8: case PF_X8R8G8B8:
-			if(src.format == scaled.format) {
-				// No intermediate buffer needed
-				temp = scaled;
-			}
-			else
-			{
-				// Allocate temp buffer of destination size in source format 
-				temp = PixelBox(scaled.getWidth(), scaled.getHeight(), scaled.getDepth(), src.format);
-				buf.bind(new MemoryDataStream(temp.getConsecutiveSize()));
-				temp.data = buf->getPtr();
-			}
-			// super-optimized: byte-oriented math, no conversion
-			switch (PixelUtil::getNumElemBytes(src.format)) {
-		case 1: LinearResampler_Byte<1>::scale(src, temp); break;
-		case 2: LinearResampler_Byte<2>::scale(src, temp); break;
-		case 3: LinearResampler_Byte<3>::scale(src, temp); break;
-		case 4: LinearResampler_Byte<4>::scale(src, temp); break;
-		default:
-			// never reached
-			assert(false);
-			}
-			if(temp.data != scaled.data)
-			{
-				// Blit temp buffer
-				PixelUtil::bulkPixelConversion(temp, scaled);
-			}
-			break;
-		default:
-			// non-optimized: floating-point math, performs conversion but always works
-			LinearResampler::scale(src, scaled);
+			case PF_L8: case PF_A8: case PF_BYTE_LA:
+			case PF_R8G8B8: case PF_B8G8R8:
+			case PF_R8G8B8A8: case PF_B8G8R8A8:
+			case PF_A8B8G8R8: case PF_A8R8G8B8:
+			case PF_X8B8G8R8: case PF_X8R8G8B8:
+				if(src.format == scaled.format) {
+					// No intermediate buffer needed
+					temp = scaled;
+				}
+				else
+				{
+					// Allocate temp buffer of destination size in source format 
+					temp = PixelBox(scaled.getWidth(), scaled.getHeight(), scaled.getDepth(), src.format);
+					buf.bind(new MemoryDataStream(temp.getConsecutiveSize()));
+					temp.data = buf->getPtr();
+				}
+				// super-optimized: byte-oriented math, no conversion
+				switch (PixelUtil::getNumElemBytes(src.format)) {
+				case 1: LinearResampler_Byte<1>::scale(src, temp); break;
+				case 2: LinearResampler_Byte<2>::scale(src, temp); break;
+				case 3: LinearResampler_Byte<3>::scale(src, temp); break;
+				case 4: LinearResampler_Byte<4>::scale(src, temp); break;
+				default:
+					// never reached
+					assert(false);
+				}
+				if(temp.data != scaled.data)
+				{
+					// Blit temp buffer
+					PixelUtil::bulkPixelConversion(temp, scaled);
+				}
+				break;
+			case PF_FLOAT32_RGB:
+			case PF_FLOAT32_RGBA:
+				if (scaled.format == PF_FLOAT32_RGB || scaled.format == PF_FLOAT32_RGBA)
+				{
+					// float32 to float32, avoid unpack/repack overhead
+					LinearResampler_Float32::scale(src, scaled);
+					break;
+				}
+				// else, fall through
+			default:
+				// non-optimized: floating-point math, performs conversion but always works
+				LinearResampler::scale(src, scaled);
 			}
 			break;
 		default:

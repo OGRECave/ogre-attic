@@ -89,6 +89,7 @@ namespace Ogre {
         }
         mBoneList.clear();
         mBoneListByName.clear();
+		mRootBones.clear();
 
 
         // Destroy animations
@@ -415,7 +416,7 @@ namespace Ogre {
                 "skeleton has no bones!", "Skeleton::deriveRootBone");
         }
 
-        mRootBones.empty();
+        mRootBones.clear();
 
         Bone* currentBone;
         BoneList::const_iterator i;

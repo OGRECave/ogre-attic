@@ -313,6 +313,7 @@ namespace Ogre {
 		}
 		// Otherwise, we have to create a new one
 		SubMeshLodGeometryLinkList* lodList = new SubMeshLodGeometryLinkList();
+		mSubMeshGeometryLookup[sm] = lodList;
 		ushort numLods = sm->parent->isLodManual() ? 1 : 
 			sm->parent->getNumLodLevels();
 		lodList->resize(numLods);
@@ -407,6 +408,8 @@ namespace Ogre {
 		// Convenience
 		VertexData* newvd = targetGeomLink->vertexData;
 		IndexData* newid = targetGeomLink->indexData;
+		// Update the vertex count
+		newvd->vertexCount = indexRemap.size();
 			
 		size_t numvbufs = vd->vertexBufferBinding->getBufferCount();
 		// Copy buffers from old to new
@@ -434,9 +437,15 @@ namespace Ogre {
 			uchar* pDstBase = static_cast<uchar*>(
 				newBuf->lock(HardwareBuffer::HBL_DISCARD));
 			size_t vertexSize = oldBuf->getVertexSize();
+			// Buffers should be the same size
+			assert (vertexSize == newBuf->getVertexSize());
+
 			for (IndexRemap::iterator r = indexRemap.begin(); 
 				r != indexRemap.end(); ++r)
 			{
+				assert (r->first < oldBuf->getNumVertices());
+				assert (r->second < newBuf->getNumVertices());
+
 				uchar* pSrc = pSrcBase + r->first * vertexSize; 
 				uchar* pDst = pDstBase + r->second * vertexSize; 
 				memcpy(pDst, pSrc, vertexSize);
@@ -480,6 +489,12 @@ namespace Ogre {
 		targetGeomLink->indexData->indexStart = 0;
 		targetGeomLink->indexData->indexCount = id->indexCount;
 		targetGeomLink->indexData->indexBuffer = ibuf;
+
+		// Store optimised geometry for deallocation later
+		OptimisedSubMeshGeometry *optGeom = new OptimisedSubMeshGeometry();
+		optGeom->indexData = targetGeomLink->indexData;
+		optGeom->vertexData = targetGeomLink->vertexData;
+		mOptimisedSubMeshGeometryList.push_back(optGeom);
 	}
 	//--------------------------------------------------------------------------
 	void StaticGeometry::addSceneNode(const SceneNode* node)
@@ -548,6 +563,20 @@ namespace Ogre {
 			delete *i;
 		}
 		mQueuedSubMeshes.clear();
+		// Delete precached geoemtry lists
+		for (SubMeshGeometryLookup::iterator l = mSubMeshGeometryLookup.begin();
+			l != mSubMeshGeometryLookup.end(); ++l)
+		{
+			delete l->second;
+		}
+		mSubMeshGeometryLookup.clear();
+		// Delete optimised geometry
+		for (OptimisedSubMeshGeometryList::iterator o = mOptimisedSubMeshGeometryList.begin();
+			o != mOptimisedSubMeshGeometryList.end(); ++o)
+		{
+			delete *o;
+		}
+		mOptimisedSubMeshGeometryList.clear();
 
 	}
 	//--------------------------------------------------------------------------
@@ -1046,6 +1075,7 @@ namespace Ogre {
 	void StaticGeometry::LODBucket::assign(QueuedSubMesh* qmesh, ushort atLod)
 	{
 		QueuedGeometry* q = new QueuedGeometry();
+		mQueuedGeometryList.push_back(q);
 		q->position = qmesh->position;
 		q->orientation = qmesh->orientation;
 		q->scale = qmesh->scale;

@@ -65,6 +65,7 @@ IntersectionSceneQuery* intersectionQuery = 0;
 RaySceneQuery* rayQuery = 0;
 Entity* ball = 0;
 Vector3 ballVector;
+bool testreload = false;
 
 
 // Hacky globals
@@ -170,6 +171,27 @@ public:
 
 
         }
+
+
+		static float reloadtime = 10.0f;
+		if (testreload)
+		{
+			reloadtime -= evt.timeSinceLastFrame;
+			if (reloadtime <= 0)
+			{
+				Entity* e = mSceneMgr->getEntity("1");
+				e->getParentSceneNode()->detachObject("1");
+				e = mSceneMgr->getEntity("2");
+				e->getParentSceneNode()->detachObject("2");
+				mSceneMgr->removeAllEntities();
+				ResourceGroupManager::getSingleton().unloadResourceGroup("Sinbad");
+				ResourceGroupManager::getSingleton().loadResourceGroup("Sinbad");
+
+				testreload = false;
+
+			}
+		}
+
 
 
 
@@ -663,18 +685,90 @@ protected:
         pMesh->touch();
     }
 
-    void testBug(void)
+    void stressTestStaticGeometry(void)
     {
+
 		// Set ambient light
 		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
 
 		// Create a point light
 		Light* l = mSceneMgr->createLight("MainLight");
 		l->setType(Light::LT_DIRECTIONAL);
-		l->setDirection(-Vector3::UNIT_Y);
+		Vector3 dir(1, -1, -1.5);
+		dir.normalise();
+		l->setDirection(dir);
+		l->setDiffuseColour(1.0, 0.7, 0.0);
+
+
+		Plane plane;
+		plane.normal = Vector3::UNIT_Y;
+		plane.d = 0;
+		MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+			4500,4500,10,10,true,1,5,5,Vector3::UNIT_Z);
+		Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
+		pPlaneEnt->setMaterialName("Examples/GrassFloor");
+		pPlaneEnt->setCastShadows(false);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
+
+		Vector3 min(-2000,0,-2000);
+		Vector3 max(2000,0,2000);
+
+
+		Entity* e = mSceneMgr->createEntity("1", "ogrehead.mesh");
+		StaticGeometry* s = 0;
+
+		unsigned int count = 10;
+		while(count--)
+		{
+			if(s) mSceneMgr->removeStaticGeometry(s);
+			s = mSceneMgr->createStaticGeometry("bing");
+
+			s->addEntity(e, Vector3(100, 100, 100));
+
+			s->build();
+		}
+
+
+		//s->setRenderingDistance(1000);
+		//s->dump("static.txt");
+		//mSceneMgr->showBoundingBoxes(true);
+		mCamera->setLodBias(0.5);
         
 
     }
+
+	void testBug()
+	{
+		// Full white diffuse lighting
+		mSceneMgr->setAmbientLight(ColourValue(0.0f, 0.0f, 0.0f));
+		Light* l = mSceneMgr->createLight("MainLight");
+		l->setType(Light::LT_DIRECTIONAL);
+		Vector3 dir(1, -1, -1.5);
+		dir.normalise();
+		l->setDirection(dir);
+		l->setDiffuseColour(1.0, 1.0, 1.0);
+
+		MaterialPtr m = MaterialManager::getSingleton().create("testbug", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass *p1, *p2, *p3;
+		p1 = m->getTechnique(0)->getPass(0);
+		p2 = m->getTechnique(0)->createPass();
+		p3 = m->getTechnique(0)->createPass();
+
+		p1->setDiffuse(ColourValue(1, 0, 0));
+		p2->setDiffuse(ColourValue(0, 0, 1));
+		p2->setSceneBlending(SBT_MODULATE);
+		p3->setDiffuse(ColourValue(0, 1, 0));
+		p3->setSceneBlending(SBT_MODULATE);
+		m->load();
+
+		Entity* e = mSceneMgr->createEntity("1", "ogrehead.mesh");
+		e->setMaterialName("testbug");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+
+
+	}
 
     void testCthNewBlending(void)
     {
@@ -2164,6 +2258,26 @@ protected:
 
 	}
 
+	void testReloadResources()
+	{
+		mSceneMgr->setAmbientLight(ColourValue::White);
+		ResourceGroupManager::getSingleton().createResourceGroup("Sinbad");
+		Root::getSingleton().addResourceLocation("../../../Media/models", "FileSystem", "Sinbad");
+		MeshManager& mmgr = MeshManager::getSingleton();
+		mmgr.load("robot.mesh", "Sinbad");
+		mmgr.load("knot.mesh", "Sinbad");
+
+		Entity* e = mSceneMgr->createEntity("1", "robot.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+		e = mSceneMgr->createEntity("2", "robot.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(100,0,0))->attachObject(e);
+		e = mSceneMgr->createEntity("3", "knot.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(100,300,0))->attachObject(e);
+
+		testreload = true;
+
+	}
+
 
     // Just override the mandatory create scene method
     void createScene(void)
@@ -2172,7 +2286,6 @@ protected:
         //testBsp();
         //testAlpha();
         //testAnimation();
-        //testBug();
 
         //testGpuPrograms();
         //testMultiViewports();
@@ -2203,8 +2316,9 @@ protected:
 		//testLotsAndLotsOfEntities();
 		//testSimpleMesh();
 		//test2Windows();
-		testStaticGeometry();
-		//testBug();
+		//testStaticGeometry();
+		testBug();
+		//testReloadResources();
     }
     // Create new frame listener
     void createFrameListener(void)

@@ -497,6 +497,7 @@ namespace Ogre
 			miscParams["colourDepth"] = StringConverter::toString(videoMode->getColourDepth());
 			miscParams["FSAA"] = StringConverter::toString(mFSAAType);
 			miscParams["FSAAQuality"] = StringConverter::toString(mFSAAQuality);
+			miscParams["vsync"] = StringConverter::toString(mVSync);
 
 			autoWindow = this->createRenderWindow( windowTitle, width, height, 
 				fullScreen, &miscParams );
@@ -1651,7 +1652,8 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setDepthBias(ushort bias)
 	{
-		HRESULT hr = __SetRenderState(D3DRS_DEPTHBIAS, bias);
+		float bias_float = static_cast<float>(-bias);
+		HRESULT hr = __SetRenderState(D3DRS_DEPTHBIAS, *(DWORD*)&bias_float);
 		if (FAILED(hr))
 			OGRE_EXCEPT(hr, "Error setting depth bias", "D3D9RenderSystem::_setDepthBias");
 	}

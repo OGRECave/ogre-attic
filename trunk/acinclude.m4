@@ -425,10 +425,13 @@ AC_MSG_CHECKING([whether -fPIC is needed])
 ])
 
 AC_DEFUN([OGRE_CHECK_CEGUI], [
-    PKG_CHECK_MODULES(CEGUI, CEGUI-OGRE, 
+    PKG_CHECK_MODULES(CEGUI, CEGUI, 
             [build_cegui_sample=true], [build_cegui_sample=false])
     if test x$build_cegui_sample = xtrue; then
-        AC_CONFIG_FILES([Samples/Gui/Makefile \
+        AC_CONFIG_FILES([Samples/Common/CEGUIRenderer/Makefile \
+                         Samples/Common/CEGUIRenderer/src/Makefile \
+                         Samples/Common/CEGUIRenderer/include/Makefile \
+                         Samples/Gui/Makefile \
                          Samples/Gui/src/Makefile])
         AC_SUBST(CEGUI_CFLAGS)
         AC_SUBST(CEGUI_LIBS)

@@ -179,13 +179,7 @@ namespace Ogre {
             of the shadow caster and a projection of that texture onto the 
             shadow receivers as a modulative pass. 
         */
-        SHADOWTYPE_TEXTURE_MODULATIVE,
-        /** Texture-based shadow technique which involves a render-to-texture
-            of the shadow caster and a projection of that texture onto the 
-            shadow receivers, followed by a depth test to detect the closest
-            fragment to the light.
-        SHADOWTYPE_TEXTURE_SHADOWMAP
-        */
+        SHADOWTYPE_TEXTURE_MODULATIVE
     };
 
     /** An enumeration describing which material properties should track the vertex colours */

@@ -364,6 +364,9 @@ namespace Ogre {
 	    case SBT_TRANSPARENT_COLOUR:
 		    setSceneBlending(SBF_SOURCE_COLOUR, SBF_ONE_MINUS_SOURCE_COLOUR);
 		    break;
+		case SBT_MODULATE:
+			setSceneBlending(SBF_DEST_COLOUR, SBF_ZERO);
+			break;
 	    case SBT_ADD:
 		    setSceneBlending(SBF_ONE, SBF_ONE);
 		    break;

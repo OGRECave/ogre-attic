@@ -97,6 +97,7 @@ mShadowDirLightExtrudeDist(10000),
 mIlluminationStage(IRS_NONE),
 mShadowTextureSize(512),
 mShadowTextureCount(1),
+mShadowTextureFormat(PF_X8R8G8B8),
 mShadowUseInfiniteFarPlane(true),
 mShadowCasterSphereQuery(0),
 mShadowCasterAABBQuery(0),
@@ -104,8 +105,12 @@ mShadowFarDist(0),
 mShadowFarDistSquared(0),
 mShadowTextureOffset(0.6), 
 mShadowTextureFadeStart(0.7), 
-mShadowTextureFadeEnd(0.9)
-
+mShadowTextureFadeEnd(0.9),
+mShadowTextureSelfShadow(false),
+mShadowTextureCustomCasterPass(0),
+mShadowTextureCustomReceiverPass(0),
+mShadowTextureCasterVPDirty(false),
+mShadowTextureReceiverVPDirty(false)
 {
     // Root scene node
     mSceneRoot = new SceneNode(this, "root node");
@@ -825,8 +830,7 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
     {
         // Locate any lights which could be affecting the frustum
         findLightsAffectingFrustum(camera);
-        if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE 
-            /* || mShadowTechnique == SHADOWTYPE_TEXTURE_SHADOWMAP */)
+        if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE)
         {
             // *******
             // WARNING
@@ -1768,10 +1772,10 @@ bool SceneManager::validatePassForRendering(Pass* pass)
 bool SceneManager::validateRenderableForRendering(Pass* pass, Renderable* rend)
 {
     // Skip this renderable if we're doing texture shadows, it casts shadows
-    // and we're doing the render receivers pass
+    // and we're doing the render receivers pass and we're not self-shadowing
     if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE && 
         mIlluminationStage == IRS_RENDER_MODULATIVE_PASS && 
-        rend->getCastsShadows())
+        rend->getCastsShadows() && !mShadowTextureSelfShadow)
     {
         return false;
     }
@@ -2633,10 +2637,9 @@ void SceneManager::setShadowTechnique(ShadowTechnique technique)
         getRenderQueue()->setSplitNoShadowPasses(false);
     }
 
-    if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE 
-        /* || mShadowTechnique == SHADOWTYPE_TEXTURE_SHADOWMAP */)
+    if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE)
     {
-        createShadowTextures(mShadowTextureSize, mShadowTextureCount);
+        createShadowTextures(mShadowTextureSize, mShadowTextureCount, mShadowTextureFormat);
     }
 
 }
@@ -2947,6 +2950,8 @@ void SceneManager::initShadowVolumeMaterials(void)
             mShadowCasterPlainBlackPass->setDiffuse(ColourValue::Black);
             mShadowCasterPlainBlackPass->setSelfIllumination(ColourValue::Black);
             mShadowCasterPlainBlackPass->setSpecular(ColourValue::Black);
+			// Override fog
+			mShadowCasterPlainBlackPass->setFog(true, FOG_NONE);
             // no textures or anything else, we will bind vertex programs
             // every so often though
         }
@@ -3003,37 +3008,71 @@ Pass* SceneManager::deriveShadowCasterPass(Pass* pass)
     switch (mShadowTechnique)
     {
     case SHADOWTYPE_TEXTURE_MODULATIVE:
-        if (pass->hasVertexProgram())
-        {
-            // Have to merge the shadow caster vertex program in
-            // This may in fact be blank, in which case it falls back on 
-            // fixed function
-            mShadowCasterPlainBlackPass->setVertexProgram(
-                pass->getShadowCasterVertexProgramName());
-            // Did this result in a new vertex program?
-            if (mShadowCasterPlainBlackPass->hasVertexProgram())
-            {
-                const GpuProgramPtr& prg = mShadowCasterPlainBlackPass->getVertexProgram();
-                // Load this program if not done already
-                if (!prg->isLoaded())
-                    prg->load();
-                // Copy params
-                mShadowCasterPlainBlackPass->setVertexProgramParameters(
-                    pass->getShadowCasterVertexProgramParameters());
-            }
-            // Also have to hack the light autoparams, that is done later
-        }
-        else if (mShadowCasterPlainBlackPass->hasVertexProgram())
-        {
-            // reset
-            mShadowCasterPlainBlackPass->setVertexProgram("");
-        }
-        return mShadowCasterPlainBlackPass;
-        /*
-        case SHADOWTYPE_TEXTURE_SHADOWMAP:
-        // todo
-        return pass;
-        */
+		if (mShadowTextureCustomCasterPass)
+		{
+			// Caster pass has been customised
+
+			if (!pass->getShadowCasterVertexProgramName().empty())
+			{
+				// Have to merge the shadow caster vertex program in
+				mShadowTextureCustomCasterPass->setVertexProgram(
+					pass->getShadowCasterVertexProgramName());
+				const GpuProgramPtr& prg = mShadowTextureCustomCasterPass->getVertexProgram();
+				// Load this program if not done already
+				if (!prg->isLoaded())
+					prg->load();
+				// Copy params
+				mShadowTextureCustomCasterPass->setVertexProgramParameters(
+					pass->getShadowCasterVertexProgramParameters());
+				// mark that we've overridden the standard
+				mShadowTextureCasterVPDirty = true;
+				// Also have to hack the light autoparams, that is done later
+			}
+			else if (mShadowTextureCasterVPDirty)
+			{
+				// reset
+				mShadowTextureCustomCasterPass->setVertexProgram(
+					mShadowTextureCustomCasterVertexProgram);
+				if(mShadowTextureCustomCasterPass->hasVertexProgram())
+				{
+					mShadowTextureCustomCasterPass->setVertexProgramParameters(
+						mShadowTextureCustomCasterVPParams);
+
+				}
+				mShadowTextureCasterVPDirty = false;
+			}
+			return mShadowTextureCustomCasterPass;
+		}
+		else
+		{
+			// Standard pass
+			if (pass->hasVertexProgram())
+			{
+				// Have to merge the shadow caster vertex program in
+				// This may in fact be blank, in which case it falls back on 
+				// fixed function
+				mShadowCasterPlainBlackPass->setVertexProgram(
+					pass->getShadowCasterVertexProgramName());
+				// Did this result in a new vertex program?
+				if (mShadowCasterPlainBlackPass->hasVertexProgram())
+				{
+					const GpuProgramPtr& prg = mShadowCasterPlainBlackPass->getVertexProgram();
+					// Load this program if not done already
+					if (!prg->isLoaded())
+						prg->load();
+					// Copy params
+					mShadowCasterPlainBlackPass->setVertexProgramParameters(
+						pass->getShadowCasterVertexProgramParameters());
+				}
+				// Also have to hack the light autoparams, that is done later
+			}
+			else if (mShadowCasterPlainBlackPass->hasVertexProgram())
+			{
+				// reset
+				mShadowCasterPlainBlackPass->setVertexProgram("");
+			}
+			return mShadowCasterPlainBlackPass;
+		}
     default:
         return pass;
     };
@@ -3046,38 +3085,71 @@ Pass* SceneManager::deriveShadowReceiverPass(Pass* pass)
     switch (mShadowTechnique)
     {
     case SHADOWTYPE_TEXTURE_MODULATIVE:
-        if (pass->hasVertexProgram())
-        {
-            // Have to merge the receiver vertex program in
-            // This may return "" which means fixed function will be used
-            mShadowReceiverPass->setVertexProgram(
-                pass->getShadowReceiverVertexProgramName());
-            // Did this result in a new vertex program?
-            if (mShadowReceiverPass->hasVertexProgram())
-            {
-                const GpuProgramPtr& prg = mShadowReceiverPass->getVertexProgram();
-                // Load this program if required
-                if (!prg->isLoaded())
-                    prg->load();
-                // Copy params
-                mShadowReceiverPass->setVertexProgramParameters(
-                    pass->getShadowReceiverVertexProgramParameters());
-            }
-            // Also have to hack the light autoparams, that is done later
-        }
-        else if (mShadowReceiverPass->hasVertexProgram())
-        {
-            // reset
-            mShadowReceiverPass->setVertexProgram("");
+		if (mShadowTextureCustomReceiverPass)
+		{
+			// Receiver pass has been customised
 
-        }
+			if (!pass->getShadowReceiverVertexProgramName().empty())
+			{
+				// Have to merge the shadow Receiver vertex program in
+				mShadowTextureCustomReceiverPass->setVertexProgram(
+					pass->getShadowReceiverVertexProgramName());
+				const GpuProgramPtr& prg = mShadowTextureCustomReceiverPass->getVertexProgram();
+				// Load this program if not done already
+				if (!prg->isLoaded())
+					prg->load();
+				// Copy params
+				mShadowTextureCustomReceiverPass->setVertexProgramParameters(
+					pass->getShadowReceiverVertexProgramParameters());
+				// mark that we've overridden the standard
+				mShadowTextureReceiverVPDirty = true;
+				// Also have to hack the light autoparams, that is done later
+			}
+			else if (mShadowTextureReceiverVPDirty)
+			{
+				// reset
+				mShadowTextureCustomReceiverPass->setVertexProgram(
+					mShadowTextureCustomReceiverVertexProgram);
+				if(mShadowTextureCustomReceiverPass->hasVertexProgram())
+				{
+					mShadowTextureCustomReceiverPass->setVertexProgramParameters(
+						mShadowTextureCustomReceiverVPParams);
+
+				}
+				mShadowTextureReceiverVPDirty = false;
+			}
+			return mShadowTextureCustomReceiverPass;
+		}
+		else
+		{
+			if (pass->hasVertexProgram())
+			{
+				// Have to merge the receiver vertex program in
+				// This may return "" which means fixed function will be used
+				mShadowReceiverPass->setVertexProgram(
+					pass->getShadowReceiverVertexProgramName());
+				// Did this result in a new vertex program?
+				if (mShadowReceiverPass->hasVertexProgram())
+				{
+					const GpuProgramPtr& prg = mShadowReceiverPass->getVertexProgram();
+					// Load this program if required
+					if (!prg->isLoaded())
+						prg->load();
+					// Copy params
+					mShadowReceiverPass->setVertexProgramParameters(
+						pass->getShadowReceiverVertexProgramParameters());
+				}
+				// Also have to hack the light autoparams, that is done later
+			}
+			else if (mShadowReceiverPass->hasVertexProgram())
+			{
+				// reset
+				mShadowReceiverPass->setVertexProgram("");
+
+			}
+		}
 
         return mShadowReceiverPass;
-        /*
-        case SHADOWTYPE_TEXTURE_SHADOWMAP:
-        // todo
-        return pass;
-        */
     default:
         return pass;
     };
@@ -3498,39 +3570,110 @@ void SceneManager::setShadowIndexBufferSize(size_t size)
 void SceneManager::setShadowTextureSize(unsigned short size)
 {
     // possibly recreate
-    createShadowTextures(size, mShadowTextureCount);
+    createShadowTextures(size, mShadowTextureCount, mShadowTextureFormat);
     mShadowTextureSize = size;
 }
 //---------------------------------------------------------------------
 void SceneManager::setShadowTextureCount(unsigned short count)
 {
     // possibly recreate
-    createShadowTextures(mShadowTextureSize, count);
+    createShadowTextures(mShadowTextureSize, count, mShadowTextureFormat);
     mShadowTextureCount = count;
 }
 //---------------------------------------------------------------------
-void SceneManager::setShadowTextureSettings(unsigned short size, unsigned short count)
+void SceneManager::setShadowTexturePixelFormat(PixelFormat fmt)
+{
+	// possibly recreate
+	createShadowTextures(mShadowTextureSize, mShadowTextureCount, fmt);
+	mShadowTextureFormat = fmt;
+}
+//---------------------------------------------------------------------
+void SceneManager::setShadowTextureSettings(unsigned short size, 
+	unsigned short count, PixelFormat fmt)
 {
     if (!mShadowTextures.empty() && 
         (count != mShadowTextureCount ||
-        size != mShadowTextureSize))
+        size != mShadowTextureSize ||
+		fmt != mShadowTextureFormat))
     {
         // recreate
-        createShadowTextures(size, count);
+        createShadowTextures(size, count, fmt);
     }
     mShadowTextureCount = count;
     mShadowTextureSize = size;
+	mShadowTextureFormat = fmt;
 }
 //---------------------------------------------------------------------
-void SceneManager::createShadowTextures(unsigned short size, unsigned short count)
+void SceneManager::setShadowTextureCasterMaterial(const String& name)
+{
+	if (name.empty())
+	{
+		mShadowTextureCustomCasterPass = 0;
+	}
+	else
+	{
+		MaterialPtr mat = MaterialManager::getSingleton().getByName(name);
+		if (mat.isNull())
+		{
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
+				"Cannot locate material called '" + name + "'", 
+				"SceneManager::setShadowTextureCasterMaterial");
+		}
+		mat->load();
+		mShadowTextureCustomCasterPass = mat->getBestTechnique()->getPass(0);
+		if (mShadowTextureCustomCasterPass->hasVertexProgram())
+		{
+			// Save vertex program and params in case we have to swap them out
+			mShadowTextureCustomCasterVertexProgram = 
+				mShadowTextureCustomCasterPass->getVertexProgramName();
+			mShadowTextureCustomCasterVPParams = 
+				mShadowTextureCustomCasterPass->getVertexProgramParameters();
+			mShadowTextureCasterVPDirty = false;
+
+		}
+	}
+}
+//---------------------------------------------------------------------
+void SceneManager::setShadowTextureReceiverMaterial(const String& name)
+{
+	if (name.empty())
+	{
+		mShadowTextureCustomReceiverPass = 0;
+	}
+	else
+	{
+		MaterialPtr mat = MaterialManager::getSingleton().getByName(name);
+		if (mat.isNull())
+		{
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
+				"Cannot locate material called '" + name + "'", 
+				"SceneManager::setShadowTextureReceiverMaterial");
+		}
+		mat->load();
+		mShadowTextureCustomReceiverPass = mat->getBestTechnique()->getPass(0);
+		if (mShadowTextureCustomReceiverPass->hasVertexProgram())
+		{
+			// Save vertex program and params in case we have to swap them out
+			mShadowTextureCustomReceiverVertexProgram = 
+				mShadowTextureCustomReceiverPass->getVertexProgramName();
+			mShadowTextureCustomReceiverVPParams = 
+				mShadowTextureCustomReceiverPass->getVertexProgramParameters();
+			mShadowTextureReceiverVPDirty = false;
+
+		}
+	}
+}
+//---------------------------------------------------------------------
+void SceneManager::createShadowTextures(unsigned short size,
+	unsigned short count, PixelFormat fmt)
 {
     static const String baseName = "Ogre/ShadowTexture";
 
-    if ((mShadowTechnique != SHADOWTYPE_TEXTURE_MODULATIVE 
-        /*&& mShadowTechnique != SHADOWTYPE_TEXTURE_SHADOWMAP */) ||
+    if (mShadowTechnique != SHADOWTYPE_TEXTURE_MODULATIVE ||
         !mShadowTextures.empty() && 
         count == mShadowTextureCount &&
-        size == mShadowTextureSize)
+        size == mShadowTextureSize && 
+		fmt == mShadowTextureFormat)
     {
         // no change
         return;
@@ -3560,14 +3703,8 @@ void SceneManager::createShadowTextures(unsigned short size, unsigned short coun
         if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE)
         {
             shadowTex = mDestRenderSystem->createRenderTexture( 
-                targName, size, size );
+                targName, size, size, TEX_TYPE_2D, mShadowTextureFormat);
         }
-        /*
-        else if (mShadowTechnique == SHADOWTYPE_TEXTURE_SHADOWMAP)
-        {
-        // todo
-        }
-        */
 
         // Create a camera to go with this texture
         Camera* cam = createCamera(camName);

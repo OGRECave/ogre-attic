@@ -31,9 +31,8 @@ LGPL like the rest of the engine.
 #include <CEGUI/elements/CEGUIPushButton.h>
 #include <CEGUI/elements/CEGUIScrollbar.h>
 #include <CEGUI/elements/CEGUIStaticImage.h>
-#include <CEGUI/renderers/OgreGUIRenderer/ogrerenderer.h>
-#include <CEGUI/renderers/OgreGUIRenderer/OgreResourceProvider.h>
-#include <CEGUI/CEGUIDefaultResourceProvider.h>
+#include "OgreCEGUIRenderer.h"
+#include "OgreCEGUIResourceProvider.h"
 
 #include "ExampleApplication.h"
 
@@ -130,12 +129,23 @@ public:
 		CEGUI::System::getSingleton().injectChar(e->getKeyChar());
         e->consume();
     }
+
+	void keyReleased(KeyEvent* e)
+	{
+		CEGUI::System::getSingleton().injectKeyUp(e->getKey());
+		e->consume();
+	}
+	void keyClicked(KeyEvent* e) 
+	{
+		// Do nothing
+		e->consume();
+	}
 };
 
 class GuiApplication : public ExampleApplication
 {
 private:
-    CEGUI::OgreRenderer* mGUIRenderer;
+    CEGUI::OgreCEGUIRenderer* mGUIRenderer;
     CEGUI::System* mGUISystem;
     CEGUI::Window* mEditorGuiSheet;
 	CEGUI::Scrollbar* mRed;
@@ -214,7 +224,7 @@ protected:
         l->setPosition(20,80,50);
 
         // setup GUI system
-        mGUIRenderer = new CEGUI::OgreRenderer(mWindow, 
+        mGUIRenderer = new CEGUI::OgreCEGUIRenderer(mWindow, 
             Ogre::RENDER_QUEUE_OVERLAY, false, 3000);
 
         mGUISystem = new CEGUI::System(mGUIRenderer);
@@ -290,14 +300,6 @@ protected:
     {
         mFrameListener= new GuiFrameListener(mWindow, mCamera, mGUIRenderer);
         mRoot->addFrameListener(mFrameListener);
-    }
-
-    bool setup()
-    {
-        ExampleApplication::setup();
-        LogManager::getSingleton().setLogDetail( LL_BOREME );
-
-        return true;
     }
 
     void setupEventHandlers(void)

@@ -498,6 +498,21 @@ namespace Ogre {
             mFrameAnimationLastUpdated = currentFrameNumber;
         }
     }
+	//-----------------------------------------------------------------------
+	void Entity::_updateAnimation(void)
+	{
+		// Externally visible method
+		if (hasSkeleton())
+		{
+			updateAnimation();
+		}
+	}
+	//-----------------------------------------------------------------------
+	const VertexData* Entity::_getSharedBlendedVertexData(void) const
+	{
+		assert (mSharedBlendedVertexData && "Not software skinned!");
+        return mSharedBlendedVertexData;
+	}
     //-----------------------------------------------------------------------
     void Entity::cacheBoneMatrices(void)
     {
