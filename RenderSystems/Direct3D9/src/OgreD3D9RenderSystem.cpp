@@ -1026,7 +1026,8 @@ namespace Ogre
 		D3DXMatrixIdentity(&d3dMatId);
 
 		// check if env_map is applyed
-		if (mTexStageDesc[stage].autoTexCoordType != TEXCALC_NONE)
+        // Note, only applicable to sphere maps
+		if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_ENVIRONMENT_MAP)
 		{
 			// if so we must concatenate the current with the env_map matrix
 			D3DXMATRIX d3dMatEnvMap; // the env_map matrix
@@ -1040,8 +1041,41 @@ namespace Ogre
 			// convert it to ogre format
 			Matrix4 ogreMatEnvMap = convertD3DXMatrix(d3dMatEnvMap);
 			// concatenate with the xForm
-			newMat = xForm.concatenate(ogreMatEnvMap);
+			newMat = newMat.concatenate(ogreMatEnvMap);
 		}
+
+        // If this is a cubic reflection, we need to modify using the view matrix
+        if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_ENVIRONMENT_MAP_REFLECTION)
+        {
+            D3DXMATRIX viewMatrix; 
+
+            // Get view matrix
+            mpD3DDevice->GetTransform(D3DTS_VIEW, &viewMatrix);
+            // Get transposed 3x3, ie since D3D is transposed just copy
+            // We want to transpose since that will invert an orthonormal matrix ie rotation
+            Matrix4 ogreViewTransposed;
+            ogreViewTransposed[0][0] = viewMatrix.m[0][0];
+            ogreViewTransposed[0][1] = viewMatrix.m[0][1];
+            ogreViewTransposed[0][2] = viewMatrix.m[0][2];
+            ogreViewTransposed[0][3] = 0.0f;
+
+            ogreViewTransposed[1][0] = viewMatrix.m[1][0];
+            ogreViewTransposed[1][1] = viewMatrix.m[1][1];
+            ogreViewTransposed[1][2] = viewMatrix.m[1][2];
+            ogreViewTransposed[1][3] = 0.0f;
+
+            ogreViewTransposed[2][0] = viewMatrix.m[2][0];
+            ogreViewTransposed[2][1] = viewMatrix.m[2][1];
+            ogreViewTransposed[2][2] = viewMatrix.m[2][2];
+            ogreViewTransposed[2][3] = 0.0f;
+
+            ogreViewTransposed[3][0] = 0.0f;
+            ogreViewTransposed[3][1] = 0.0f;
+            ogreViewTransposed[3][2] = 0.0f;
+            ogreViewTransposed[3][3] = 1.0f;
+            
+            newMat = newMat.concatenate(ogreViewTransposed);
+        }
 
 		// convert our matrix to D3D format
 		d3dMat = makeD3DXMatrix(newMat);
