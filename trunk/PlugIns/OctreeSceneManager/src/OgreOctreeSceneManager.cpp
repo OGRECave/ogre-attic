@@ -214,7 +214,7 @@ namespace Ogre
         // Don't do this here, SceneManager will do it
         /*
         if( mSceneRoot )
-            delete mSceneRoot;
+        delete mSceneRoot;
         */
         // --End Changes by Steve
 
@@ -247,7 +247,10 @@ namespace Ogre
         if ( ! onode -> _isIn( onode -> getOctant() -> mBox ) )
         {
             _removeOctreeNode( onode );
-            _addOctreeNode( onode, mOctree );
+            if( ! onode -> _isIn( mOctree -> mBox ) )
+                mOctree->_addNode( onode );
+            else
+                _addOctreeNode( onode, mOctree );
         }
     }
 
@@ -430,7 +433,10 @@ namespace Ogre
         {
             v = OctreeCamera::FULL;
         }
-
+        else if ( octant == mOctree )
+        { 
+            v = OctreeCamera::PARTIAL;
+        }
         else
         {
             AxisAlignedBox box;
@@ -439,6 +445,7 @@ namespace Ogre
         }
 
 
+        // if the octant is visible, or if it's the root node...
         if ( v != OctreeCamera::NONE )
         {
 
@@ -629,6 +636,83 @@ namespace Ogre
         if ( octant -> mChildren[ 1 ][ 1 ][ 1 ] != 0 ) findNodesIn( sphere, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 1 ] );
 
     }
+    void OctreeSceneManager::resize( const AxisAlignedBox &box )
+    {
+        std::list<SceneNode *> nodes;
+        std::list<SceneNode *>::iterator it;
 
+        findNodesIn( mOctree->mBox, nodes, 0, true, mOctree );
+
+        delete mOctree;
+
+        mOctree = new Octree( 0 );
+        mOctree->mBox = box;
+
+        it = nodes.begin();
+        while( it != nodes.end() )
+        {
+            OctreeNode *on = static_cast<OctreeNode *>( *it );
+            on -> setOctant( 0 );
+            _updateOctreeNode( on );
+            ++it;
+        }
+
+    }
+
+    bool OctreeSceneManager::setOption( const String & key, const void * val )
+    {
+        if( key == "Size" )
+        {
+            resize( * static_cast<const AxisAlignedBox *>( val ) );
+            return true;
+        }
+        else if ( key == "Depth" )
+        {
+            mMaxDepth = * static_cast<const int *>( val );
+            resize( mOctree->mBox );
+            return true;
+        }
+        else if ( key == "ShowOctree" )
+        {
+            mShowBoxes = * static_cast<const bool *>( val );
+            return true;
+        }
+        else if ( key == "CullCamera" )
+        { 
+            mCullCamera = * static_cast<const bool *>( val );
+            return true;
+        }
+
+        return SceneManager::setOption( key, val );
+
+
+    }
+    bool OctreeSceneManager::getOption( const String & key, void *val )
+    {
+        if( key == "Size" )
+        {
+            AxisAlignedBox *b = static_cast<AxisAlignedBox *>( val );
+            b -> setExtents( mOctree->mBox.getMinimum(), mOctree->mBox.getMaximum() );
+            return true;
+        }
+        else if ( key == "Depth" )
+        {
+            * static_cast<int *>(val) = mMaxDepth;
+            return true;
+        }
+        else if ( key == "ShowOctree" )
+        {
+
+            * static_cast<bool *>( val ) = mShowBoxes;
+            return true;
+        }
+        else if ( key == "CullCamera" )
+        { 
+            * static_cast<bool *>( val ) = mCullCamera;
+            return true;
+        }
+
+        return SceneManager::getOption( key, val );
+
+    }
 }
-
