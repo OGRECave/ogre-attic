@@ -570,7 +570,7 @@ namespace Ogre
         ImageCodec::ImageData *imgData = new ImageCodec::ImageData();
         imgData->width = desc.Width;
         imgData->height = desc.Height;
-        imgData->format = PF_R8G8B8;
+        imgData->format = PF_BYTE_RGB;
 
 		// Allocate contiguous buffer (surfaces aren't necessarily contiguous)
 		uchar* pBuffer = new uchar[desc.Width * desc.Height * 3];
