@@ -35,9 +35,10 @@ namespace Ogre
     {
     public:
         RenderTexture( const String & name, uint width, uint height, TextureType texType = TEX_TYPE_2D );
-
+        ~RenderTexture();
     protected:
 		RenderTexture() {};
+
 		virtual void firePostUpdate();
 		virtual void _copyToTexture() = 0;
 

@@ -46,6 +46,12 @@ namespace Ogre
 		TextureManager::getSingleton().load( static_cast< Resource * >( mTexture ) );
     }
 
+    RenderTexture::~RenderTexture()
+    {
+        TextureManager::getSingleton().unload(mName);
+        delete mTexture;
+    }
+
 	void RenderTexture::firePostUpdate()
 	{
 		RenderTarget::firePostUpdate();
