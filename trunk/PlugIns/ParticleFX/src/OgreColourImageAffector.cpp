@@ -87,11 +87,11 @@ namespace Ogre {
 
             if(index < 0)
             {
-                mColourImage.getColourAt(&p->colour, 0, 0, 0);
+				p->colour = mColourImage.getColourAt(0, 0, 0);
             }
             else if(index >= width) 
             {
-                mColourImage.getColourAt(&p->colour, width, 0, 0);
+                p->colour = mColourImage.getColourAt(width, 0, 0);
             }
             else
             {
@@ -100,9 +100,8 @@ namespace Ogre {
 				const Real		to_colour	= fract;
 				const Real		from_colour	= 1.0f - to_colour;
              
-                ColourValue from,to;
-                mColourImage.getColourAt(&from, index, 0, 0);
-                mColourImage.getColourAt(&to, index+1, 0, 0);
+                ColourValue from=mColourImage.getColourAt(index, 0, 0),
+							to=mColourImage.getColourAt(index+1, 0, 0);
 
 				p->colour.r = from.r*from_colour + to.r*to_colour;
                 p->colour.g = from.g*from_colour + to.g*to_colour;

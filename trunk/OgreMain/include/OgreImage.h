@@ -230,7 +230,7 @@ namespace Ogre {
          * is only valid for cubemaps and volume textures. This uses the first (largest)
          * mipmap.
          */
-        void getColourAt(ColourValue *out, int x, int y, int z);
+        ColourValue getColourAt(int x, int y, int z);
         
         /**
          * Get a PixelBox encapsulating the image data of a mipmap
