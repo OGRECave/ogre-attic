@@ -324,7 +324,7 @@ namespace Ogre {
 
             mFormat = img.getFormat();
 
-            mSrcBpp = PixelUtil::getNumElemBytes(mFormat);
+            mSrcBpp = PixelUtil::getNumElemBits(mFormat);
             mHasAlpha = img.getHasAlpha();
 
             mSrcWidth = img.getWidth();
