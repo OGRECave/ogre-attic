@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="odbc32.lib odbccp32.lib OgreMain.lib"
+				AdditionalDependencies="OgreMain.lib"
 				OutputFile=".\..\bin\Release/Plugin_NatureSceneManager.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -101,7 +101,7 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="odbc32.lib odbccp32.lib OgreMain_d.lib"
+				AdditionalDependencies="OgreMain_d.lib"
 				OutputFile=".\..\bin\Debug/Plugin_NatureSceneManager.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
