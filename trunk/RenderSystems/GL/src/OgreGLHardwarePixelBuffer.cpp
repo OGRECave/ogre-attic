@@ -86,7 +86,7 @@ GLHardwarePixelBuffer::GLHardwarePixelBuffer(GLenum target, GLuint id, GLint fac
 	mBuffer = PixelBox(mWidth, mHeight, mDepth, mFormat);
 				
 	// Allocate buffer
-	if(mUsage != HBU_STATIC)
+	if(mUsage & HBU_STATIC)
 		allocateBuffer();
 }
 
@@ -111,6 +111,7 @@ void GLHardwarePixelBuffer::allocateBuffer()
 		// Already allocated
 		return;
 	mBuffer.data = new uint8[mSizeInBytes];
+	// TODO: use PBO if we're HBU_DYNAMIC
 }
 //-----------------------------------------------------------------------------  
 void GLHardwarePixelBuffer::freeBuffer()
@@ -131,7 +132,7 @@ void GLHardwarePixelBuffer::unlockImpl(void)
 	upload(mCurrentLock);
 	
 	// deallocate or keep buffer depending on usage
-	if(mUsage == HBU_STATIC)
+	if(mUsage & HBU_STATIC)
 		freeBuffer();
 }
 //-----------------------------------------------------------------------------
