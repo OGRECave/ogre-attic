@@ -48,23 +48,45 @@ namespace Ogre {
     public:
         typedef std::map<String, GuiElement*> ChildMap;
         typedef MapIterator<ChildMap> ChildIterator;
+        typedef std::map<String, GuiContainer*> ChildContainerMap;
+        typedef MapIterator<ChildContainerMap> ChildContainerIterator;
     protected:
+        // Map of all children
         ChildMap mChildren;
+        // Map of container children (subset of mChildren)
+        ChildContainerMap mChildContainers;
+        
     public:
         /// Constructor: do not call direct, use GuiManager::createContainer
         GuiContainer(const String& name);
         virtual ~GuiContainer();
 
         /** Adds another GuiElement to this container. */
-        void addChild(GuiElement* elem);
+        virtual void addChild(GuiElement* elem);
+        /** Add a nested container to this container. */
+        virtual void addChild(GuiContainer* cont);
         /** Removes a named element from this container. */
-        void removeChild(const String& name);
+        virtual void removeChild(const String& name);
         /** Gets the named child of this container. */
-        GuiElement* getChild(const String& name);
+        virtual GuiElement* getChild(const String& name);
 
-        /** Gets an object for iterating over the children of this object. */
-        ChildIterator getChildIterator(void);
+        /** Gets an object for iterating over all the children of this object. */
+        virtual ChildIterator getChildIterator(void);
 
+        /** Gets an iterator for just the container children of this object.
+        @remarks
+            Good for cascading updates without having to use RTTI
+        */
+        virtual ChildContainerIterator getChildContainerIterator(void);
+
+        /** Overridden from GuiElement. */
+        virtual void _update(void);
+
+        /** Overridden from GuiElement. */
+        virtual void _notifyZOrder(ushort newZOrder);
+
+        /** Overridden from GuiElement. */
+        virtual void _updateRenderQueue(RenderQueue* queue);
 
 
 

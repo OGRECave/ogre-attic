@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreOverlay.h"
 #include "OgreRoot.h"
 #include "OgreSceneManager.h"
+#include "OgreGuiContainer.h"
 
 
 namespace Ogre {
@@ -59,6 +60,15 @@ namespace Ogre {
     void Overlay::setZOrder(ushort zorder)
     {
         mZOrder = zorder;
+
+        // Notify attached 2D elements
+        GuiContainerList::iterator i, iend;
+        iend = m2DElements.end();
+        for (i = m2DElements.begin(); i != iend; ++i)
+        {
+            (*i)->_notifyZOrder(zorder);
+        }
+
     }
     //---------------------------------------------------------------------
     ushort Overlay::getZOrder(void) const
@@ -84,6 +94,11 @@ namespace Ogre {
     void Overlay::add2D(GuiContainer* cont)
     {
         m2DElements.push_back(cont);
+        // Notify parent
+        cont->_notifyParent(0, this);
+        // Set Z order, scaled to separate overlays
+        // NB max 100 container levels per overlay, should be plenty
+        cont->_notifyZOrder(mZOrder * 100);
     }
     //---------------------------------------------------------------------
     void Overlay::remove2D(GuiContainer* cont)
@@ -171,9 +186,21 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void Overlay::_updateRenderQueue(RenderQueue* queue)
+    void Overlay::_findVisibleObjects(Camera* cam, RenderQueue* queue)
     {
-        // TODO
+        // Add 3D elements
+        mRootNode->_update(cam);
+        mRootNode->_findVisibleObjects(cam, queue, true, false);
+
+
+        // Add 2D elements
+        GuiContainerList::iterator i, iend;
+        iend = m2DElements.end();
+        for (i = m2DElements.begin(); i != iend; ++i)
+        {
+            (*i)->_updateRenderQueue(queue);
+        }
+       
     }
     //---------------------------------------------------------------------
     void Overlay::updateTransform(void)

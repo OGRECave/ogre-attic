@@ -812,6 +812,10 @@ SOURCE=..\include\OgreRenderTarget.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreRenderTargetListener.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreRenderWindow.h
 # End Source File
 # Begin Source File

@@ -73,6 +73,11 @@ namespace Ogre {
         Real mDerivedTop;
         bool mDerivedOutOfDate;
 
+        // Zorder for when sending to render queue
+        // Derived from parent
+        ushort mZOrder;
+
+
     public:
         /// Constructor: do not call direct, use GuiManager::createElement
         GuiElement(const String& name);
@@ -145,6 +150,12 @@ namespace Ogre {
         /** See Renderable */
         void getWorldTransforms(Matrix4* xform);
 
+        /** See Renderable */
+        bool useIdentityProjection(void);
+
+        /** See Renderable */
+        bool useIdentityView(void);
+
         /** Internal method to update the element based on transforms applied. */
         virtual void _update(void);
 
@@ -159,6 +170,21 @@ namespace Ogre {
 
         /** Gets the 'top' position as derived from own left and that of parents. */
         virtual Real _getDerivedTop(void);
+
+        /** Internal method to notify the element when Zorder of parent overlay
+         has changed.
+         @remarks
+            Overlays have explicit Z orders. GuiElements do not, they inherit the 
+            ZOrder of the overlay, and the Zorder is incremented for every container
+            nested within this to ensure that containers are displayed behind contained
+            items. This method is used internally to notify the element of a change in
+            final zorder which is used to render the element.
+        */
+        virtual void _notifyZOrder(ushort newZOrder);
+
+        /** Internal method to put the contents onto the render queue. */
+        virtual void _updateRenderQueue(RenderQueue* queue);
+
 
 
 
