@@ -51,6 +51,7 @@ ColourValue mMinLightColour(0.5, 0.1, 0.0);
 ColourValue mMaxLightColour(1.0, 0.6, 0.0);
 Real mMinFlareSize = 40;
 Real mMaxFlareSize = 80;
+StaticGeometry* mStaticGeom;
 
 
 /** This class 'wibbles' the light and billboard */
@@ -105,16 +106,78 @@ public:
 
 class GrassListener : public ExampleFrameListener
 {
+protected:
+	SceneManager* mSceneManager;
+	bool mShowBBs;
 public:
-	GrassListener(RenderWindow* win, Camera* cam)
-		: ExampleFrameListener(win, cam)
+	GrassListener(RenderWindow* win, Camera* cam, SceneManager* sceneManager)
+		: ExampleFrameListener(win, cam), 
+		mSceneManager(sceneManager), mShowBBs(false)
 	{
+	}
+
+
+	void waveGrass(Real timeElapsed)
+	{
+		static Real xinc = Math::PI;
+		static Real zinc = Math::PI * 1.3;
+		static Real xpos = Math::RangeRandom(-Math::PI, Math::PI);
+		static Real zpos = Math::RangeRandom(-Math::PI, Math::PI);
+
+		xpos += xinc * timeElapsed;
+		zpos += zinc * timeElapsed;
+
+		// Update vertex program parameters by binding a value to each renderable
+		static Vector4 offset(0,0,0,0);
+
+		StaticGeometry::RegionIterator rit =  mStaticGeom->getRegionIterator();
+		while (rit.hasMoreElements())
+		{
+			StaticGeometry::Region* reg = rit.getNext();
+
+			// a little randomness
+			xpos += reg->getCentre().x * 0.001;
+			zpos += reg->getCentre().z * 0.001;
+			offset.x = Math::Sin(xpos) * 0.05;
+			offset.z = Math::Sin(zpos) * 0.05;
+
+			StaticGeometry::Region::LODIterator lodit = reg->getLODIterator();
+			while (lodit.hasMoreElements())
+			{
+				StaticGeometry::LODBucket* lod = lodit.getNext();
+				StaticGeometry::LODBucket::MaterialIterator matit = 
+					lod->getMaterialIterator();
+				while (matit.hasMoreElements())
+				{
+					StaticGeometry::MaterialBucket* mat = matit.getNext();
+					StaticGeometry::MaterialBucket::GeometryIterator geomit = 
+						mat->getGeometryIterator();
+					while (geomit.hasMoreElements())
+					{
+						StaticGeometry::GeometryBucket* geom = geomit.getNext();
+						geom->setCustomParameter(OFFSET_PARAM, offset);
+
+					}
+				}
+			}
+		}
+
 	}
 
 	bool frameStarted(const FrameEvent& evt)
 	{
+		static Real timeDelay = 0;
+		timeDelay -= evt.timeSinceLastFrame;
+
 		if (mAnimState)
 			mAnimState->addTime(evt.timeSinceLastFrame);
+
+		KEY_PRESSED(KC_B, 1, 
+			mShowBBs = !mShowBBs;
+			mSceneManager->showBoundingBoxes(mShowBBs);
+			)
+
+		waveGrass(evt.timeSinceLastFrame);
 
 		return ExampleFrameListener::frameStarted(evt);        
 	}
@@ -284,27 +347,27 @@ protected:
 		AnimationTrack* track = anim->createTrack(0, mLightNode);
 		// Setup keyframes
 		KeyFrame* key = track->createKeyFrame(0); // A startposition
-		key->setTranslate(Vector3(300,350,-300));
+		key->setTranslate(Vector3(300,550,-300));
 		key = track->createKeyFrame(2);//B
-		key->setTranslate(Vector3(150,400,-250));
+		key->setTranslate(Vector3(150,600,-250));
 		key = track->createKeyFrame(4);//C
-		key->setTranslate(Vector3(-150,450,-100));
+		key->setTranslate(Vector3(-150,650,-100));
 		key = track->createKeyFrame(6);//D
-		key->setTranslate(Vector3(-400,300,-200));
+		key->setTranslate(Vector3(-400,500,-200));
 		key = track->createKeyFrame(8);//E
-		key->setTranslate(Vector3(-200,300,-400));
+		key->setTranslate(Vector3(-200,500,-400));
 		key = track->createKeyFrame(10);//F
-		key->setTranslate(Vector3(-100,250,-200));
+		key->setTranslate(Vector3(-100,450,-200));
 		key = track->createKeyFrame(12);//G
-		key->setTranslate(Vector3(-100,200,180));
+		key->setTranslate(Vector3(-100,400,180));
 		key = track->createKeyFrame(14);//H
-		key->setTranslate(Vector3(0,250,400));
+		key->setTranslate(Vector3(0,250,600));
 		key = track->createKeyFrame(16);//I
-		key->setTranslate(Vector3(100,450,100));
+		key->setTranslate(Vector3(100,650,100));
 		key = track->createKeyFrame(18);//J
-		key->setTranslate(Vector3(250,400,0));
+		key->setTranslate(Vector3(250,600,0));
 		key = track->createKeyFrame(20);//K == A
-		key->setTranslate(Vector3(300,350,-300));
+		key->setTranslate(Vector3(300,550,-300));
 		// Create a new animation state to track this
 		mAnimState = mSceneMgr->createAnimationState("LightTrack");
 		mAnimState->setEnabled(true);
@@ -336,11 +399,12 @@ protected:
 		createGrassMesh();
 
 		Entity* e = mSceneMgr->createEntity("1", GRASS_MESH_NAME);
-		//createRandomEntityClones(e, 1000, min, max);
 
 		StaticGeometry* s = mSceneMgr->createStaticGeometry("bing");
-		s->setCastShadows(true);
-		s->setRegionDimensions(Vector3(2000,2000,2000));
+		s->setRegionDimensions(Vector3(1000,1000,1000));
+		// Set the region origin so the centre is at 0 world
+		s->setOrigin(Vector3(-500, 500, -500));
+
 		for (int x = -1950; x < 1950; x += 150)
 		{
 			for (int z = -1950; z < 1950; z += 150)
@@ -361,16 +425,14 @@ protected:
 		}
 
 		s->build();
+		mStaticGeom = s;
 		mCamera->move(Vector3(0,350,0));
-		//s->setRenderingDistance(1000);
-		//s->dump("static.txt");
-		//mSceneMgr->showBoundingBoxes(true);
 	}
 
     // Create new frame listener
     void createFrameListener(void)
     {
-        mFrameListener= new GrassListener(mWindow, mCamera);
+        mFrameListener= new GrassListener(mWindow, mCamera, mSceneMgr);
         mRoot->addFrameListener(mFrameListener);
     }
 };
