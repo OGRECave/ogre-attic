@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "RENDERSYSTEM_GL_EXPORTS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /Ob0 /I "..\include" /I "..\src\win32" /I "..\..\..\OgreMain\include" /I "..\..\..\Dependencies\include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "RENDERSYSTEM_GL_EXPORTS" /D "OGRE_GL_USE_MULTITEXTURING" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /Ob0 /I "..\include" /I "..\src\win32" /I "..\..\..\OgreMain\include" /I "..\..\..\Dependencies\include" /I "..\src\nvparse" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "RENDERSYSTEM_GL_EXPORTS" /D "OGRE_GL_USE_MULTITEXTURING" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x418 /d "NDEBUG"
@@ -73,7 +73,7 @@ PostBuild_Cmds=copy ..\bin\Release\*.dll ..\..\..\Samples\Common\bin\Release
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "RENDERSYSTEM_GL_EXPORTS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include" /I "..\src\win32" /I "..\..\..\OgreMain\include" /I "..\..\..\Dependencies\include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "RENDERSYSTEM_GL_EXPORTS" /D "OGRE_GL_USE_MULTITEXTURING" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include" /I "..\src\win32" /I "..\..\..\OgreMain\include" /I "..\..\..\Dependencies\include" /I "..\src\nvparse" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "RENDERSYSTEM_GL_EXPORTS" /D "OGRE_GL_USE_MULTITEXTURING" /YX /FD /GZ /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x418 /d "_DEBUG"
@@ -242,6 +242,170 @@ SOURCE=..\include\wglext.h
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+# End Group
+# Begin Group "nvparse"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\src\nvparse\_ps1.0_lexer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\_ps1.0_parser.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\_ps1.0_parser.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\_rc1.0_lexer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\_rc1.0_parser.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\_rc1.0_parser.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\_ts1.0_lexer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\_ts1.0_parser.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\_ts1.0_parser.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\_vs1.0_lexer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\_vs1.0_parser.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\_vs1.0_parser.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\avp1.0_impl.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\macro.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\nvparse.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\nvparse.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\nvparse_errors.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\nvparse_errors.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\nvparse_externs.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\ps1.0_program.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\ps1.0_program.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\rc1.0_combiners.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\rc1.0_combiners.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\rc1.0_final.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\rc1.0_final.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\rc1.0_general.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\rc1.0_general.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\rc1.0_register.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\ts1.0_inst.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\ts1.0_inst.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\ts1.0_inst_list.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\ts1.0_inst_list.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\unistd.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\vcp1.0_impl.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\vp1.0_impl.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\vs1.0_inst.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\vs1.0_inst.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\vs1.0_inst_list.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\vs1.0_inst_list.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\nvparse\vsp1.0_impl.cpp
+# End Source File
 # End Group
 # End Target
 # End Project
