@@ -44,6 +44,8 @@ namespace Ogre {
     String BillboardSet::msMovableType = "BillboardSet";
     //-----------------------------------------------------------------------
     BillboardSet::BillboardSet() :
+        mBuffersCreated(false),
+        mPoolSize(0),
         mOriginType( BBO_CENTER ),
         mAllDefaultSize( true ),
         mAutoExtendPool( true ),
@@ -62,6 +64,8 @@ namespace Ogre {
     BillboardSet::BillboardSet(
         const String& name,
         unsigned int poolSize ) :
+        mBuffersCreated(false),
+        mPoolSize(poolSize),
         mName( name ),
         mOriginType( BBO_CENTER ),
         mAllDefaultSize( true ),
@@ -295,6 +299,10 @@ namespace Ogre {
         Vector3 min( Math::POS_INFINITY, Math::POS_INFINITY, Math::POS_INFINITY );
         Vector3 max( Math::NEG_INFINITY, Math::NEG_INFINITY, Math::NEG_INFINITY );
         */
+
+        // create vertex and index buffers if they haven't already been
+        if(!mBuffersCreated)
+            _createBuffers();
 
         ActiveBillboardList::iterator it;
         // Parametric offsets of origin
@@ -540,130 +548,138 @@ namespace Ogre {
                 // Add new items to the queue
                 mFreeBillboards.push_back( mBillboardPool[i] );
             }
-
-            /* Allocate / reallocate vertex data
-               Note that we allocate enough space for ALL the billboards in the pool, but only issue
-               rendering operations for the sections relating to the active billboards
-            */
+            
+            mPoolSize = size;
+            mBuffersCreated = false;
 
             if (mVertexData)
                 delete mVertexData;
             if (mIndexData)
                 delete mIndexData;
-
-            /* Alloc positions   ( 4 verts per billboard, 3 components )
-                     colours     ( 1 x RGBA per vertex )
-                     indices     ( 6 per billboard ( 2 tris ) )
-                     tex. coords ( 2D coords, 4 per billboard )
-            */
-            mVertexData = new VertexData();
-            mIndexData  = new IndexData();
-
-            mVertexData->vertexCount = size * 4;
-            mVertexData->vertexStart = 0;
-
-            // Vertex declaration
-            VertexDeclaration* decl = mVertexData->vertexDeclaration;
-            VertexBufferBinding* binding = mVertexData->vertexBufferBinding;
-
-            size_t offset = 0;
-            decl->addElement(POSITION_BINDING, offset, VET_FLOAT3, VES_POSITION);
-            //offset += VertexElement::getTypeSize(VET_FLOAT2);
-            decl->addElement(COLOUR_BINDING, offset, VET_COLOUR, VES_DIFFUSE);
-            decl->addElement(TEXCOORD_BINDING, 0, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
-
-            HardwareVertexBufferSharedPtr vbuf = 
-                HardwareBufferManager::getSingleton().createVertexBuffer(
-                    decl->getVertexSize(POSITION_BINDING),
-                    mVertexData->vertexCount, 
-                    HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY);
-            // bind position and diffuses
-            binding->setBinding(POSITION_BINDING, vbuf);
-
-            vbuf = 
-                HardwareBufferManager::getSingleton().createVertexBuffer(
-                    decl->getVertexSize(COLOUR_BINDING),
-                    mVertexData->vertexCount, 
-                    HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY);
-            // bind position and diffuses
-            binding->setBinding(COLOUR_BINDING, vbuf);
-
-            vbuf = 
-                HardwareBufferManager::getSingleton().createVertexBuffer(
-                    decl->getVertexSize(TEXCOORD_BINDING),
-                    mVertexData->vertexCount, 
-                    HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY);
-            // bind position
-            binding->setBinding(TEXCOORD_BINDING, vbuf);
-
-            mIndexData->indexStart = 0;
-            mIndexData->indexCount = size * 6;
-
-            mIndexData->indexBuffer = HardwareBufferManager::getSingleton().
-                createIndexBuffer(HardwareIndexBuffer::IT_16BIT,
-                    mIndexData->indexCount,
-                    HardwareBuffer::HBU_STATIC_WRITE_ONLY);
-
-            /* Create indexes and tex coords (will be the same every frame)
-               Using indexes because it means 1/3 less vertex transforms (4 instead of 6)
-
-               Billboard layout relative to camera:
-
-                2-----3
-                |    /|
-                |  /  |
-                |/    |
-                0-----1
-            */
-
-            // Create template texcoord data
-            Real texData[8] = {
-                0.0, 1.0,
-                1.0, 1.0,
-                0.0, 0.0,
-                1.0, 0.0 };
-
-            ushort* pIdx = static_cast<ushort*>(
-                mIndexData->indexBuffer->lock(0,
-                  mIndexData->indexBuffer->getSizeInBytes(),
-                  HardwareBuffer::HBL_DISCARD) );
-
-            vbuf = mVertexData->vertexBufferBinding->getBuffer(TEXCOORD_BINDING);
-
-            Real* pT = static_cast<Real*>(
-                vbuf->lock(HardwareBuffer::HBL_DISCARD) );
-
-            for(
-                size_t idx, idxOff, texOff, bboard = 0;
-                bboard < size;
-                ++bboard )
-            {
-                // Do indexes
-                idx    = bboard * 6;
-                idxOff = bboard * 4;
-                texOff = bboard * 4 * 2;
-
-                pIdx[idx] = static_cast<unsigned short>(idxOff); // + 0;, for clarity
-                pIdx[idx+1] = static_cast<unsigned short>(idxOff + 1);
-                pIdx[idx+2] = static_cast<unsigned short>(idxOff + 3);
-                pIdx[idx+3] = static_cast<unsigned short>(idxOff + 0);
-                pIdx[idx+4] = static_cast<unsigned short>(idxOff + 3);
-                pIdx[idx+5] = static_cast<unsigned short>(idxOff + 2);
-
-                // Do tex coords
-                pT[texOff]   = texData[0];
-                pT[texOff+1] = texData[1];
-                pT[texOff+2] = texData[2];
-                pT[texOff+3] = texData[3];
-                pT[texOff+4] = texData[4];
-                pT[texOff+5] = texData[5];
-                pT[texOff+6] = texData[6];
-                pT[texOff+7] = texData[7];
-            }
-
-            vbuf->unlock();
-            mIndexData->indexBuffer->unlock();
         }
+    }
+
+    //-----------------------------------------------------------------------
+    void BillboardSet::_createBuffers(void)
+    {
+        /* Allocate / reallocate vertex data
+           Note that we allocate enough space for ALL the billboards in the pool, but only issue
+           rendering operations for the sections relating to the active billboards
+        */
+
+        /* Alloc positions   ( 4 verts per billboard, 3 components )
+                 colours     ( 1 x RGBA per vertex )
+                 indices     ( 6 per billboard ( 2 tris ) )
+                 tex. coords ( 2D coords, 4 per billboard )
+        */
+        mVertexData = new VertexData();
+        mIndexData  = new IndexData();
+
+        mVertexData->vertexCount = mPoolSize * 4;
+        mVertexData->vertexStart = 0;
+
+        // Vertex declaration
+        VertexDeclaration* decl = mVertexData->vertexDeclaration;
+        VertexBufferBinding* binding = mVertexData->vertexBufferBinding;
+
+        size_t offset = 0;
+        decl->addElement(POSITION_BINDING, offset, VET_FLOAT3, VES_POSITION);
+        //offset += VertexElement::getTypeSize(VET_FLOAT2);
+        decl->addElement(COLOUR_BINDING, offset, VET_COLOUR, VES_DIFFUSE);
+        decl->addElement(TEXCOORD_BINDING, 0, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
+
+        HardwareVertexBufferSharedPtr vbuf = 
+            HardwareBufferManager::getSingleton().createVertexBuffer(
+                decl->getVertexSize(POSITION_BINDING),
+                mVertexData->vertexCount, 
+                HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY);
+        // bind position and diffuses
+        binding->setBinding(POSITION_BINDING, vbuf);
+
+        vbuf = 
+            HardwareBufferManager::getSingleton().createVertexBuffer(
+                decl->getVertexSize(COLOUR_BINDING),
+                mVertexData->vertexCount, 
+                HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY);
+        // bind position and diffuses
+        binding->setBinding(COLOUR_BINDING, vbuf);
+
+        vbuf = 
+            HardwareBufferManager::getSingleton().createVertexBuffer(
+                decl->getVertexSize(TEXCOORD_BINDING),
+                mVertexData->vertexCount, 
+                HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY);
+        // bind position
+        binding->setBinding(TEXCOORD_BINDING, vbuf);
+
+        mIndexData->indexStart = 0;
+        mIndexData->indexCount = mPoolSize * 6;
+
+        mIndexData->indexBuffer = HardwareBufferManager::getSingleton().
+            createIndexBuffer(HardwareIndexBuffer::IT_16BIT,
+                mIndexData->indexCount,
+                HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+
+        /* Create indexes and tex coords (will be the same every frame)
+           Using indexes because it means 1/3 less vertex transforms (4 instead of 6)
+
+           Billboard layout relative to camera:
+
+            2-----3
+            |    /|
+            |  /  |
+            |/    |
+            0-----1
+        */
+
+        // Create template texcoord data
+        Real texData[8] = {
+            0.0, 1.0,
+            1.0, 1.0,
+            0.0, 0.0,
+            1.0, 0.0 };
+
+        ushort* pIdx = static_cast<ushort*>(
+            mIndexData->indexBuffer->lock(0,
+              mIndexData->indexBuffer->getSizeInBytes(),
+              HardwareBuffer::HBL_DISCARD) );
+
+        vbuf = mVertexData->vertexBufferBinding->getBuffer(TEXCOORD_BINDING);
+
+        Real* pT = static_cast<Real*>(
+            vbuf->lock(HardwareBuffer::HBL_DISCARD) );
+
+        for(
+            size_t idx, idxOff, texOff, bboard = 0;
+            bboard < mPoolSize;
+            ++bboard )
+        {
+            // Do indexes
+            idx    = bboard * 6;
+            idxOff = bboard * 4;
+            texOff = bboard * 4 * 2;
+
+            pIdx[idx] = static_cast<unsigned short>(idxOff); // + 0;, for clarity
+            pIdx[idx+1] = static_cast<unsigned short>(idxOff + 1);
+            pIdx[idx+2] = static_cast<unsigned short>(idxOff + 3);
+            pIdx[idx+3] = static_cast<unsigned short>(idxOff + 0);
+            pIdx[idx+4] = static_cast<unsigned short>(idxOff + 3);
+            pIdx[idx+5] = static_cast<unsigned short>(idxOff + 2);
+
+            // Do tex coords
+            pT[texOff]   = texData[0];
+            pT[texOff+1] = texData[1];
+            pT[texOff+2] = texData[2];
+            pT[texOff+3] = texData[3];
+            pT[texOff+4] = texData[4];
+            pT[texOff+5] = texData[5];
+            pT[texOff+6] = texData[6];
+            pT[texOff+7] = texData[7];
+        }
+
+        vbuf->unlock();
+        mIndexData->indexBuffer->unlock();
+        mBuffersCreated = true;
     }
 
     //-----------------------------------------------------------------------
