@@ -153,42 +153,55 @@ GTKInput::GTKInput() : InputReader(),
 
 GTKInput::~GTKInput()
 {
-    // XXX Do more?
+    	// XXX Do more?
+	// It's not needed to detach the various signals here, that
+	// happens automatically.
 }
 
 void GTKInput::initialise(RenderWindow* pWindow, bool useKeyboard,
                           bool useMouse, bool useGameController)
 {
-    _kit = Gtk::Main::instance();
-    // Extract Window and DrawingArea from pWindow in magic way
-    pWindow->getCustomAttribute("GTKMMWINDOW", &_win);
-    pWindow->getCustomAttribute("GTKGLMMWIDGET", &_widget);
+    	_kit = Gtk::Main::instance();
+   	// Extract Window and DrawingArea from pWindow in magic way
+    	pWindow->getCustomAttribute("GTKMMWINDOW", &_win);
+    	pWindow->getCustomAttribute("GTKGLMMWIDGET", &_widget);
 
-    unsigned int w, h, d;
-	int l, t;
-    pWindow->getMetrics(w, h, d, l, t);
+	// Do mouse capture only when this is stated
+	mUseMouse = useMouse;
 
-    mMouseCenterX = w / 2;
-    mMouseCenterY = h / 2;
+	if(mUseMouse) {
+		unsigned int w, h, d;
+		int l, t;
+    		pWindow->getMetrics(w, h, d, l, t);
 
-    Glib::RefPtr<Gdk::Window> win = _win->get_window();
-    Gdk::Color col;
-    char invisible_cursor_bits[] = { 0x0 };
-    Glib::RefPtr<Gdk::Pixmap> nada = Gdk::Pixmap::create_from_data(win,
-        invisible_cursor_bits, 1, 1, 1, col, col);
+    		mMouseCenterX = w / 2;
+    		mMouseCenterY = h / 2;
 
-    win->set_cursor(Gdk::Cursor(nada, nada, col, col, 0, 0));
+    		Glib::RefPtr<Gdk::Window> win = _win->get_window();
+    		Gdk::Color col;
+    		char invisible_cursor_bits[] = { 0x0 };
+    		Glib::RefPtr<Gdk::Pixmap> nada = Gdk::Pixmap::create_from_data(win,
+        		invisible_cursor_bits, 1, 1, 1, col, col);
 
-    _win->signal_key_press_event().connect(
-        SigC::slot(*this, &GTKInput::on_key_press));
-    _win->signal_key_release_event().connect(
-        SigC::slot(*this, &GTKInput::on_key_release));
-    _widget->signal_motion_notify_event().connect(
-        SigC::slot(*this, &GTKInput::on_mouse_motion));
-    _widget->signal_button_press_event().connect(
-        SigC::slot(*this, &GTKInput::on_button_press));
-    _widget->signal_button_release_event().connect(
-        SigC::slot(*this, &GTKInput::on_button_release));
+    		win->set_cursor(Gdk::Cursor(nada, nada, col, col, 0, 0));
+	}
+
+	/**
+    	 * Connect key handlers before any other
+	 */
+    	_win->signal_key_press_event().connect(
+        	SigC::slot(*this, &GTKInput::on_key_press), false);
+    	_win->signal_key_release_event().connect(
+        	SigC::slot(*this, &GTKInput::on_key_release), false);
+
+	if(mUseMouse) {
+	    	_widget->signal_motion_notify_event().connect(
+        		SigC::slot(*this, &GTKInput::on_mouse_motion));
+	    	_widget->signal_button_press_event().connect(
+        		SigC::slot(*this, &GTKInput::on_button_press));
+	    	_widget->signal_button_release_event().connect(
+        		SigC::slot(*this, &GTKInput::on_button_release));
+	}
 }
 
 void GTKInput::capture()
@@ -204,25 +217,26 @@ void GTKInput::capture()
     }
     _captured_keys = _cur_keys;
 
-    if (!mUseBufferedMouse)
-    {
-        mMouseState.Xabs = mMouseX;
-        mMouseState.Yabs = mMouseY;
-        mMouseState.Zabs = 0;
+    	if (mUseMouse) {
+		if (!mUseBufferedMouse) {
+        		mMouseState.Xabs = mMouseX;
+        		mMouseState.Yabs = mMouseY;
+        		mMouseState.Zabs = 0;
 
-        mMouseState.Xrel = mMouseX - mMouseCenterX;
-        mMouseState.Yrel = mMouseY - mMouseCenterY;
-        mMouseState.Zrel = 0;
-    }
+        		mMouseState.Xrel = mMouseX - mMouseCenterX;
+        		mMouseState.Yrel = mMouseY - mMouseCenterY;
+        		mMouseState.Zrel = 0;
+    		}
 
 #if OGRE_PLATFORM == PLATFORM_LINUX
-    XWarpPointer(GDK_WINDOW_XDISPLAY(_win->get_window()->gobj()), None,
-                 GDK_WINDOW_XWINDOW(_win->get_window()->gobj()), 0, 0, 0, 0, 
-                 mMouseCenterX, mMouseCenterY);
+    		XWarpPointer(GDK_WINDOW_XDISPLAY(_win->get_window()->gobj()), None,
+                	 GDK_WINDOW_XWINDOW(_win->get_window()->gobj()), 0, 0, 0, 0, 
+                 	mMouseCenterX, mMouseCenterY);
 #endif
 
-    mMouseX = mMouseCenterX;
-    mMouseY = mMouseCenterY;
+    		mMouseX = mMouseCenterX;
+    		mMouseY = mMouseCenterY;
+	}
 }
 
 bool GTKInput::isKeyDown( KeyCode kc ) const
