@@ -11,6 +11,11 @@
 using namespace Ogre;
 
 namespace Ogre {
+    Win32GLSupport::Win32GLSupport():
+        mExternalWindowHandle(0)
+    {
+    } 
+
 	template<class C> void remove_duplicates(C& c)
 	{
 		std::sort(c.begin(), c.end());
