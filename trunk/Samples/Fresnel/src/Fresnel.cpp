@@ -40,6 +40,18 @@ Camera* theCam;
 Entity* pPlaneEnt;
 std::vector<Entity*> aboveWaterEnts;
 std::vector<Entity*> belowWaterEnts;
+
+// Fish!
+#define NUM_FISH 30
+#define NUM_FISH_WAYPOINTS 10
+#define FISH_PATH_LENGTH 200 
+AnimationState* fishAnimations[NUM_FISH];
+SimpleSpline fishSplines[NUM_FISH];
+Vector3 fishLastPosition[NUM_FISH];
+SceneNode* fishNodes[NUM_FISH];
+Real animTime = 0.0f;
+
+
 Plane reflectionPlane;
 
 
@@ -56,7 +68,6 @@ public:
         {
             (*i)->setVisible(false);
         }
-
 
     }
     void postRenderTargetUpdate(const RenderTargetEvent& evt)
@@ -103,6 +114,41 @@ public:
 
 };
 
+class FresnelFrameListener : public ExampleFrameListener
+{
+public:
+
+    FresnelFrameListener(RenderWindow* win, Camera* cam)
+        : ExampleFrameListener(win, cam, false, false)
+    {}
+    bool frameStarted(const FrameEvent &evt)
+    {
+        animTime += evt.timeSinceLastFrame;
+        while (animTime > FISH_PATH_LENGTH)
+            animTime -= FISH_PATH_LENGTH;
+
+        for (size_t fish = 0; fish < NUM_FISH; ++fish)
+        {
+            // Animate the fish
+            fishAnimations[fish]->addTime(evt.timeSinceLastFrame*2);
+            // Move the fish
+            Vector3 newPos = fishSplines[fish].interpolate(animTime / FISH_PATH_LENGTH);
+            fishNodes[fish]->setPosition(newPos);
+            // Work out the direction
+            Vector3 direction = fishLastPosition[fish] - newPos;
+            direction.normalise();
+            Quaternion orientation = -Vector3::UNIT_X.getRotationTo(direction);
+            fishNodes[fish]->setOrientation(orientation);
+            fishLastPosition[fish] = newPos;
+
+        }
+
+
+
+        return ExampleFrameListener::frameStarted(evt);
+    }
+
+};
 
 class FresnelApplication : public ExampleApplication
 {
@@ -157,6 +203,7 @@ protected:
 
         Entity* pEnt;
 
+        
         RenderTexture* rttTex = mRoot->getRenderSystem()->createRenderTexture( "Refraction", 512, 512 );
         {
             Viewport *v = rttTex->addViewport( mCamera );
@@ -165,6 +212,7 @@ protected:
             v->setOverlaysEnabled(false);
             rttTex->addListener(&mRefractionListener);
         }
+        
 
         rttTex = mRoot->getRenderSystem()->createRenderTexture( "Reflection", 512, 512 );
         {
@@ -174,6 +222,8 @@ protected:
             v->setOverlaysEnabled(false);
             rttTex->addListener(&mReflectionListener);
         }
+        
+        
         // Define a floor plane mesh
         reflectionPlane.normal = Vector3::UNIT_Y;
         reflectionPlane.d = 0;
@@ -186,17 +236,86 @@ protected:
         
         mSceneMgr->setSkyBox(true, "Examples/CloudyNoonSkyBox");
 
-        int i;
-        for (i = 0; i < 10; ++i)
+        // My node to which all objects will be attached
+        SceneNode* myRootNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+
+        // Above water entities - NB all meshes are static
+        pEnt = mSceneMgr->createEntity( "head1", "head1.mesh" );
+        myRootNode->attachObject(pEnt);
+        aboveWaterEnts.push_back(pEnt);
+        pEnt = mSceneMgr->createEntity( "Pillar1", "Pillar1.mesh" );
+        myRootNode->attachObject(pEnt);
+        aboveWaterEnts.push_back(pEnt);
+        pEnt = mSceneMgr->createEntity( "Pillar2", "Pillar2.mesh" );
+        myRootNode->attachObject(pEnt);
+        aboveWaterEnts.push_back(pEnt);
+        pEnt = mSceneMgr->createEntity( "Pillar3", "Pillar3.mesh" );
+        myRootNode->attachObject(pEnt);
+        aboveWaterEnts.push_back(pEnt);
+        pEnt = mSceneMgr->createEntity( "Pillar4", "Pillar4.mesh" );
+        myRootNode->attachObject(pEnt);
+        aboveWaterEnts.push_back(pEnt);
+        pEnt = mSceneMgr->createEntity( "UpperSurround", "UpperSurround.mesh" );
+        myRootNode->attachObject(pEnt);
+        aboveWaterEnts.push_back(pEnt);
+
+        // Now the below water ents
+        pEnt = mSceneMgr->createEntity( "LowerSurround", "LowerSurround.mesh" );
+        myRootNode->attachObject(pEnt);
+        belowWaterEnts.push_back(pEnt);
+        pEnt = mSceneMgr->createEntity( "PoolFloor", "PoolFloor.mesh" );
+        myRootNode->attachObject(pEnt);
+        belowWaterEnts.push_back(pEnt);
+
+        for (size_t fishNo = 0; fishNo < NUM_FISH; ++fishNo)
         {
-            pEnt = mSceneMgr->createEntity( "ogre" + StringConverter::toString(i), "ogrehead.mesh" );
-            mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(i*100 - 500, -75, 0))->attachObject(pEnt);
+            pEnt = mSceneMgr->createEntity("fish" + StringConverter::toString(fishNo), "fish.mesh");
+            fishNodes[fishNo] = myRootNode->createChildSceneNode();
+            fishAnimations[fishNo] = pEnt->getAnimationState("swim");
+            fishAnimations[fishNo]->setEnabled(true);
+            fishNodes[fishNo]->attachObject(pEnt);
             belowWaterEnts.push_back(pEnt);
-            pEnt = mSceneMgr->createEntity( "knot" + StringConverter::toString(i), "knot.mesh" );
-            mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(i*100 - 500, 140, 0))->attachObject(pEnt);
-            aboveWaterEnts.push_back(pEnt);
+
+
+            // Generate a random selection of points for the fish to swim to
+            fishSplines[fishNo].setAutoCalculate(false);
+            Vector3 lastPos;
+            for (size_t waypoint = 0; waypoint < NUM_FISH_WAYPOINTS; ++waypoint)
+            {
+                Vector3 pos = Vector3(
+                    Math::SymmetricRandom() * 700, -10, Math::SymmetricRandom() * 700);
+                if (waypoint > 0)
+                {
+                    // check this waypoint isn't too far, we don't want turbo-fish ;)
+                    // since the waypoints are achieved every 5 seconds, half the length
+                    // of the pond is ok
+                    while ((lastPos - pos).length() > 750)
+                    {
+                        pos = Vector3(
+                            Math::SymmetricRandom() * 700, -10, Math::SymmetricRandom() * 700);
+                    }
+                }
+                fishSplines[fishNo].addPoint(pos);
+                lastPos = pos;
+            }
+            // close the spline
+            fishSplines[fishNo].addPoint(fishSplines[fishNo].getPoint(0));
+            // recalc
+            fishSplines[fishNo].recalcTangents();
+
+
         }
 
+
+
+
+    }
+
+    void createFrameListener(void)
+    {
+        mFrameListener= new FresnelFrameListener(mWindow, mCamera);
+        mFrameListener->showDebugOverlay(true);
+        mRoot->addFrameListener(mFrameListener);
     }
 
 };
