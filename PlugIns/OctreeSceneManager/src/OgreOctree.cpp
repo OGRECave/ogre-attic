@@ -64,7 +64,9 @@ void Octree::_getChildIndexes( AxisAlignedBox &box, int *x, int *y, int *z )
 
 }
 
-Octree::Octree( Octree * parent ) : mHalfSize( 0, 0, 0 )
+Octree::Octree( Octree * parent ) 
+    : mHalfSize( 0, 0, 0 ),
+      mWireBoundingBox(0)
 {
     //initialize all children to null.
     for ( int i = 0; i < 2; i++ )
@@ -97,6 +99,9 @@ Octree::~Octree()
         }
     }
 
+    if(mWireBoundingBox)
+        delete mWireBoundingBox;
+
     mParent = 0;
 }
 
@@ -123,6 +128,16 @@ void Octree::_getCullBounds( AxisAlignedBox *b )
 {
     const Vector3 * corners = mBox.getAllCorners();
     b -> setExtents( corners[ 0 ] - mHalfSize, corners[ 4 ] + mHalfSize );
+}
+
+WireBoundingBox* Octree::getWireBoundingBox()
+{
+    // Create a WireBoundingBox if needed
+    if(mWireBoundingBox == 0)
+        mWireBoundingBox = new WireBoundingBox();
+
+    mWireBoundingBox->setupBoundingBox(mBox);
+    return mWireBoundingBox;
 }
 
 }
