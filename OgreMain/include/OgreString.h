@@ -46,8 +46,11 @@ namespace __gnu_cxx
     {
         size_t operator()( const Ogre::_StringBase _stringBase ) const 
         { 
-            hash<const char*> H;
-            return H(_stringBase.c_str());
+            register size_t ret = 0;
+            for( Ogre::_StringBase::const_iterator it = _stringBase.begin(); it != _stringBase.end(); ++it )
+                ret = 5 * ret + *it;
+
+            return ret;
         }
     };
 }
@@ -63,8 +66,11 @@ namespace stdext
 {
     template<> size_t hash_compare< Ogre::_StringBase, std::less< Ogre::_StringBase > >::operator ()( const Ogre::_StringBase& _stringBase ) const
     {
-        hash_compare<const char*> H;
-        return H(_stringBase.c_str());
+        register size_t ret = 0;
+        for( Ogre::_StringBase::const_iterator it = _stringBase.begin(); it != _stringBase.end(); ++it )
+            ret = 5 * ret + *it;
+
+        return ret;
     }
 }
 
