@@ -178,7 +178,7 @@ namespace Ogre {
 #endif
 
 // Integer formats of fixed bit width
-typedef unsigned long uint32;
+typedef unsigned int uint32;
 typedef unsigned short uint16;
 typedef unsigned char uint8;
 
