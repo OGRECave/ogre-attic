@@ -47,10 +47,6 @@ class TerrainListener : public ExampleFrameListener
         // local just to stop toggles flipping too fast
         static Real timeUntilNextToggle = 0;
 
-        String text = "Time: ";
-        text += StringConverter::toString(evt.timeSinceLastFrame);
-        mWindow->setDebugText(text);
-
         if (timeUntilNextToggle >= 0)
             timeUntilNextToggle -= evt.timeSinceLastFrame;
 
