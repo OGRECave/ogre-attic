@@ -227,7 +227,7 @@ namespace Ogre {
 			*/
 			bool assign(QueuedGeometry* qsm);
 			/// Build
-			void build(void);
+			void build(bool stencilShadows);
 			/// Dump contents for diagnostics
 			void dump(std::ofstream& of) const;
 		};
@@ -265,7 +265,7 @@ namespace Ogre {
 			/// Assign geometry to this bucket
 			void assign(QueuedGeometry* qsm);
 			/// Build
-			void build(void);
+			void build(bool stencilShadows);
 			/// Add children to the render queue
 			void addRenderables(RenderQueue* queue, RenderQueueGroupID group, 
 				Real camSquaredDist);
@@ -312,7 +312,7 @@ namespace Ogre {
 			/// Assign a queued submesh to this bucket, using specified mesh LOD
 			void assign(QueuedSubMesh* qsm, ushort atLod);
 			/// Build
-			void build(void);
+			void build(bool stencilShadows);
 			/// Add children to the render queue
 			void addRenderables(RenderQueue* queue, RenderQueueGroupID group, 
 				Real camSquaredDistance);
@@ -338,6 +338,31 @@ namespace Ogre {
 			/// list of LOD Buckets in this region
 			typedef std::vector<LODBucket*> LODBucketList;
 		protected:
+			/** Nested class to allow region shadows. */
+			class _OgreExport RegionShadowRenderable : public ShadowRenderable
+			{
+			protected:
+				Region* mParent;
+				// Shared link to position buffer
+				HardwareVertexBufferSharedPtr mPositionBuffer;
+				// Shared link to w-coord buffer (optional)
+				HardwareVertexBufferSharedPtr mWBuffer;
+
+			public:
+				RegionShadowRenderable(Region* parent, 
+					HardwareIndexBufferSharedPtr* indexBuffer, const VertexData* vertexData, 
+					bool createSeparateLightCap, bool isLightCap = false);
+				~RegionShadowRenderable();
+				/// Overridden from ShadowRenderable
+				void getWorldTransforms(Matrix4* xform) const;
+				/// Overridden from ShadowRenderable
+				const Quaternion& getWorldOrientation(void) const;
+				/// Overridden from ShadowRenderable
+				const Vector3& getWorldPosition(void) const;
+				HardwareVertexBufferSharedPtr getPositionBuffer(void) { return mPositionBuffer; }
+				HardwareVertexBufferSharedPtr getWBuffer(void) { return mWBuffer; }
+
+			};
 			/// Parent static geometry
 			StaticGeometry* mParent;
 			/// Generated name
@@ -372,6 +397,11 @@ namespace Ogre {
 			bool mBeyondFarDistance;
 			/// Edge list, used if stencil shadow casting is enabled 
 			EdgeData* mEdgeList;
+			/// List of shadow renderables
+			ShadowRenderableList mShadowRenderables;
+			/// Is a vertex program in use somewhere in this region?
+			bool mVertexProgramInUse;
+
 
 
 		public:
@@ -379,11 +409,11 @@ namespace Ogre {
 				uint32 regionID, const Vector3& centre);
 			virtual ~Region();
 			// more fields can be added in subclasses
-			
+			StaticGeometry* getParent(void) const { return mParent;}
 			/// Assign a queued mesh to this region, read for final build
 			void assign(QueuedSubMesh* qmesh);
 			/// Build this region
-			void build(void);
+			void build(bool stencilShadows);
 			/// Get the region ID of this region
 			uint32 getID(void) const { return mRegionID; }
 			/// Get the centre point of the region
