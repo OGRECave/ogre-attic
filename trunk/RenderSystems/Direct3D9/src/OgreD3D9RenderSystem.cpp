@@ -2382,4 +2382,16 @@ namespace Ogre
     {
         return new D3D9HardwareOcclusionQuery(mpD3DDevice); 
     }
+    //---------------------------------------------------------------------
+    Real D3D9RenderSystem::getHorizontalTexelOffset(void)
+    {
+        // D3D considers the origin to be in the center of a pixel
+        return -0.5f;
+    }
+    //---------------------------------------------------------------------
+    Real D3D9RenderSystem::getVerticalTexelOffset(void)
+    {
+        // D3D considers the origin to be in the center of a pixel
+        return -0.5f;
+    }
 }
