@@ -136,6 +136,12 @@
 				RelativePath="..\src\OgreRefAppBall.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreRefAppJoint.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreRefAppJointSubtypes.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreRefAppOgreHead.cpp">
 			</File>
 			<File
@@ -153,6 +159,12 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreRefAppBall.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreRefAppJoint.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreRefAppJointSubtypes.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreRefAppOgreHead.h">

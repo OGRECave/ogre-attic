@@ -411,6 +411,50 @@ namespace OgreRefApp
     {
         return &mMass;
     }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::setLinearVelocity(const Vector3& vel)
+    {
+        assert(mOdeBody && mDynamicsEnabled &&
+            "Cannot set velocity on an object unless dynamics are enabled and"
+            " an ODE body exists");
+        mOdeBody->setLinearVel(vel.x, vel.y, vel.z);
+    }
+    //-------------------------------------------------------------------------
+    const Vector3& ApplicationObject::getLinearVelocity(void)
+    {
+        assert(mOdeBody && mDynamicsEnabled &&
+            "Cannot get velocity on an object unless dynamics are enabled and"
+            " an ODE body exists");
+        static Vector3 vel;
+        const dReal* odeVel = mOdeBody->getLinearVel();
+        vel.x = odeVel[0];
+        vel.y = odeVel[1];
+        vel.z = odeVel[2];
+        return vel;
+        
+    }
+    //-------------------------------------------------------------------------
+    const Vector3& ApplicationObject::getAngularVelocity(void)
+    {
+        assert(mOdeBody && mDynamicsEnabled &&
+            "Cannot get velocity on an object unless dynamics are enabled and"
+            " an ODE body exists");
+        static Vector3 vel;
+        const dReal* odeVel = mOdeBody->getAngularVel();
+        vel.x = odeVel[0];
+        vel.y = odeVel[1];
+        vel.z = odeVel[2];
+        return vel;
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::setAngularVelocity(const Vector3& vel)
+    {
+        assert(mOdeBody && mDynamicsEnabled &&
+            "Cannot set velocity on an object unless dynamics are enabled and"
+            " an ODE body exists");
+        mOdeBody->setAngularVel(vel.x, vel.y, vel.z);
+    }
+    //-------------------------------------------------------------------------
 
 
 
