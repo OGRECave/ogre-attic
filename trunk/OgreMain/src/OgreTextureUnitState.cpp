@@ -213,13 +213,8 @@ namespace Ogre {
         {
             mFrames[i] = names[i];
         }
-        if (isLoaded())
-        {
-            // Load immediately if parent is loaded
-            _load();
-            // Tell parent to recalculate hash
-            mParent->_recalculateHash();
-        }
+        // Tell parent we need recompiling, will cause reload too
+        mParent->_notifyNeedsRecompile();
     }
     //-----------------------------------------------------------------------
     bool TextureUnitState::isCubic(void) const
