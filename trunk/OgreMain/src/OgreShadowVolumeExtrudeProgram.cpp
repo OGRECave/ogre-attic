@@ -309,63 +309,68 @@ namespace Ogre {
             "Ogre/ShadowExtrudeDirLightFiniteDebug"
     };
 
+	bool ShadowVolumeExtrudeProgram::mInitialised = false;
     //---------------------------------------------------------------------
     //---------------------------------------------------------------------
     void ShadowVolumeExtrudeProgram::initialise(void)
     {
-        String syntax;
-        bool vertexProgramFinite[8] = 
-        {
-            false, false, false, false, 
-                true, true, true, true
-        };
-        bool vertexProgramDebug[8] = 
-        {
-            false, true, false, true, 
-                false, true, false, true
-        };
-        Light::LightTypes vertexProgramLightTypes[8] = 
-        {
-            Light::LT_POINT, Light::LT_POINT, 
-                Light::LT_DIRECTIONAL, Light::LT_DIRECTIONAL, 
-                Light::LT_POINT, Light::LT_POINT, 
-                Light::LT_DIRECTIONAL, Light::LT_DIRECTIONAL 
-        };
+		if (!mInitialised)
+		{
+			String syntax;
+			bool vertexProgramFinite[8] = 
+			{
+				false, false, false, false, 
+					true, true, true, true
+			};
+			bool vertexProgramDebug[8] = 
+			{
+				false, true, false, true, 
+					false, true, false, true
+			};
+			Light::LightTypes vertexProgramLightTypes[8] = 
+			{
+				Light::LT_POINT, Light::LT_POINT, 
+					Light::LT_DIRECTIONAL, Light::LT_DIRECTIONAL, 
+					Light::LT_POINT, Light::LT_POINT, 
+					Light::LT_DIRECTIONAL, Light::LT_DIRECTIONAL 
+			};
 
-        // load hardware extrusion programs for point & dir lights
-        if (GpuProgramManager::getSingleton().isSyntaxSupported("arbvp1"))
-        {
-            // ARBvp1
-            syntax = "arbvp1";
-        }
-        else if (GpuProgramManager::getSingleton().isSyntaxSupported("vs_1_1"))
-        {
-            syntax = "vs_1_1";
-        }
-        else
-        {
-            Except(Exception::ERR_INTERNAL_ERROR, 
-                "Vertex programs are supposedly supported, but neither "
-                "arbvp1 nor vs_1_1 syntaxes are present.", 
-                "SceneManager::initShadowVolumeMaterials");
-        }
-        // Create all programs
-        for (unsigned short v = 0; v < NUM_SHADOW_EXTRUDER_PROGRAMS; ++v)
-        {
-            // Create debug extruders
-            if (!GpuProgramManager::getSingleton().getByName(
-                programNames[v]))
-            {
-                GpuProgram* vp = 
-                    GpuProgramManager::getSingleton().createProgramFromString(
-                    programNames[v],
-                    ShadowVolumeExtrudeProgram::getProgramSource(
-                    vertexProgramLightTypes[v], syntax, 
-                    vertexProgramFinite[v], vertexProgramDebug[v]),
-                    GPT_VERTEX_PROGRAM, syntax);
-                vp->load();
-            }
-        }
+			// load hardware extrusion programs for point & dir lights
+			if (GpuProgramManager::getSingleton().isSyntaxSupported("arbvp1"))
+			{
+				// ARBvp1
+				syntax = "arbvp1";
+			}
+			else if (GpuProgramManager::getSingleton().isSyntaxSupported("vs_1_1"))
+			{
+				syntax = "vs_1_1";
+			}
+			else
+			{
+				Except(Exception::ERR_INTERNAL_ERROR, 
+					"Vertex programs are supposedly supported, but neither "
+					"arbvp1 nor vs_1_1 syntaxes are present.", 
+					"SceneManager::initShadowVolumeMaterials");
+			}
+			// Create all programs
+			for (unsigned short v = 0; v < NUM_SHADOW_EXTRUDER_PROGRAMS; ++v)
+			{
+				// Create debug extruders
+				if (!GpuProgramManager::getSingleton().getByName(
+					programNames[v]))
+				{
+					GpuProgram* vp = 
+						GpuProgramManager::getSingleton().createProgramFromString(
+						programNames[v],
+						ShadowVolumeExtrudeProgram::getProgramSource(
+						vertexProgramLightTypes[v], syntax, 
+						vertexProgramFinite[v], vertexProgramDebug[v]),
+						GPT_VERTEX_PROGRAM, syntax);
+					vp->load();
+				}
+			}
+			mInitialised = true;
+		}
     }
     //---------------------------------------------------------------------
     const String& ShadowVolumeExtrudeProgram::getProgramSource(

@@ -63,19 +63,47 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    SceneManager::SceneManager()
+    SceneManager::SceneManager() :
+        mRenderQueue(0),
+        mSkyPlaneEnabled(false),
+        mSkyBoxEnabled(false),
+        mSkyDomeEnabled(false),
+        mSkyPlaneEntity(0),
+        mSkyPlaneNode(0),
+        mSkyDomeNode(0),
+        mSkyBoxNode(0),
+        mFogMode(FOG_NONE),
+        mDisplayNodes(false),
+	    mShowBoundingBoxes(false),
+        mShadowTechnique(SHADOWTYPE_NONE),
+        mDebugShadows(false),
+        mShadowDebugPass(0),
+        mShadowStencilPass(0),
+        mShadowModulativePass(0),
+        mShadowCasterPlainBlackPass(0),
+        mShadowReceiverPass(0),
+        mFullScreenQuad(0),
+        mShadowCasterSphereQuery(0),
+        mShadowCasterAABBQuery(0),
+        mShadowDirLightExtrudeDist(10000),
+        mIlluminationStage(IRS_NONE),
+        mShadowFarDist(0),
+        mShadowFarDistSquared(0),
+		mShadowIndexBufferSize(51200),
+        mShadowTextureSize(512),
+        mShadowTextureCount(1),
+        mShadowColour(ColourValue(0.25, 0.25, 0.25)),
+        mShadowTextureOffset(0.6), 
+        mShadowTextureFadeStart(0.7), 
+        mShadowTextureFadeEnd(0.9), 
+		mShadowUseInfiniteFarPlane(true),
+		mShadowMaterialInitDone(false)
+		
     {
         // Root scene node
         mSceneRoot = new SceneNode(this, "root node");
-        mRenderQueue = 0;
-
-        // No sky by default
-        mSkyPlaneEnabled = false;
-        mSkyBoxEnabled = false;
-        mSkyDomeEnabled = false;
 
         // init sky
-        mSkyPlaneEntity = 0;
         size_t i;
         for (i = 0; i < 6; ++i)
         {
@@ -85,39 +113,6 @@ namespace Ogre {
         {
             mSkyDomeEntity[i] = 0;
         }
-        mSkyPlaneNode = 0;
-        mSkyDomeNode = 0;
-        mSkyBoxNode = 0;
-
-
-        // No fog
-        mFogMode = FOG_NONE;
-
-        mDisplayNodes = false;
-
-	    mShowBoundingBoxes = false;
-        mShadowTechnique = SHADOWTYPE_NONE;
-        mDebugShadows = false;
-        mShadowDebugPass = 0;
-        mShadowStencilPass = 0;
-        mShadowModulativePass = 0;
-        mShadowCasterPlainBlackPass = 0;
-        mShadowReceiverPass = 0;
-        mFullScreenQuad = 0;
-        mShadowCasterSphereQuery = 0;
-        mShadowCasterAABBQuery = 0;
-        mShadowDirLightExtrudeDist = 10000;
-        mIlluminationStage = IRS_NONE;
-        mShadowFarDist = 0;
-        mShadowFarDistSquared = 0;
-		mShadowIndexBufferSize = 51200;
-        mShadowTextureSize = 512;
-        mShadowTextureCount = 1;
-        mShadowColour = ColourValue(0.25, 0.25, 0.25);
-        mShadowTextureOffset = 0.6; 
-        mShadowTextureFadeStart = 0.7; 
-        mShadowTextureFadeEnd = 0.9; 
-		mShadowUseInfiniteFarPlane = true;
 
 
     }
@@ -2773,103 +2768,124 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void SceneManager::initShadowVolumeMaterials(void)
     {
-        bool compileStencilDebugPass = false;
-        bool compileStencilPass = false;
 
-        Material* matDebug = static_cast<Material*>(
-            MaterialManager::getSingleton().getByName("Ogre/Debug/ShadowVolumes"));
-        if (!matDebug)
-        {
-            // Create
-            matDebug = static_cast<Material*>(
-                MaterialManager::getSingleton().create("Ogre/Debug/ShadowVolumes"));
-            mShadowDebugPass = matDebug->getTechnique(0)->getPass(0);
-            mShadowDebugPass->setSceneBlending(SBT_ADD); 
-            mShadowDebugPass->setLightingEnabled(false);
-            mShadowDebugPass->setDepthWriteEnabled(false);
-            TextureUnitState* t = mShadowDebugPass->createTextureUnitState();
-            t->setColourOperationEx(LBX_MODULATE, LBS_MANUAL, LBS_CURRENT, 
-                ColourValue(0.7, 0.0, 0.2));
-            mShadowDebugPass->setCullingMode(CULL_NONE);
-            compileStencilDebugPass = true;
+		if (mShadowMaterialInitDone)
+			return;
+		
+		if (!mShadowDebugPass)
+		{
+	        Material* matDebug = static_cast<Material*>(
+    	        MaterialManager::getSingleton().getByName(
+					"Ogre/Debug/ShadowVolumes"));
+			if (!matDebug)
+			{
+				// Create
+				matDebug = static_cast<Material*>(
+					MaterialManager::getSingleton().create("Ogre/Debug/ShadowVolumes"));
+				mShadowDebugPass = matDebug->getTechnique(0)->getPass(0);
+				mShadowDebugPass->setSceneBlending(SBT_ADD); 
+				mShadowDebugPass->setLightingEnabled(false);
+				mShadowDebugPass->setDepthWriteEnabled(false);
+				TextureUnitState* t = mShadowDebugPass->createTextureUnitState();
+				t->setColourOperationEx(LBX_MODULATE, LBS_MANUAL, LBS_CURRENT, 
+					ColourValue(0.7, 0.0, 0.2));
+				mShadowDebugPass->setCullingMode(CULL_NONE);
 
-        }
+        		if (mDestRenderSystem->getCapabilities()->hasCapability(
+							RSC_VERTEX_PROGRAM))
+        		{
+            		ShadowVolumeExtrudeProgram::initialise();
+				
+		            // Enable the (infinite) point light extruder for now, just to get some params
+					mShadowDebugPass->setVertexProgram(
+						ShadowVolumeExtrudeProgram::programNames[ShadowVolumeExtrudeProgram::POINT_LIGHT]);
+					mInfiniteExtrusionParams = 
+						mShadowDebugPass->getVertexProgramParameters();
+					mInfiniteExtrusionParams->setAutoConstant(0, 
+						GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
+					mInfiniteExtrusionParams->setAutoConstant(4, 
+						GpuProgramParameters::ACT_LIGHT_POSITION_OBJECT_SPACE);
+				}	
+                matDebug->compile();
 
-        Material* matStencil = static_cast<Material*>(
-            MaterialManager::getSingleton().getByName("Ogre/StencilShadowVolumes"));
-        if (!matStencil)
-        {
-            // Init
-            matStencil = static_cast<Material*>(
-                MaterialManager::getSingleton().create("Ogre/StencilShadowVolumes"));
-            mShadowStencilPass = matStencil->getTechnique(0)->getPass(0);
-            compileStencilPass = true;
-            // Nothing else, we don't use this like a 'real' pass anyway,
-            // it's more of a placeholder
-        }
+			}
+			else
+			{
+				mShadowDebugPass = matDebug->getTechnique(0)->getPass(0);
+			}
+		}
+
+		if (!mShadowStencilPass)
+		{
+
+        	Material* matStencil = static_cast<Material*>(
+            	MaterialManager::getSingleton().getByName(
+					"Ogre/StencilShadowVolumes"));
+			if (!matStencil)
+			{
+				// Init
+				matStencil = static_cast<Material*>(
+					MaterialManager::getSingleton().create(
+						"Ogre/StencilShadowVolumes"));
+				mShadowStencilPass = matStencil->getTechnique(0)->getPass(0);
+
+        		if (mDestRenderSystem->getCapabilities()->hasCapability(
+							RSC_VERTEX_PROGRAM))
+        		{
+				
+					// Enable the finite point light extruder for now, just to get some params
+					mShadowStencilPass->setVertexProgram(
+						ShadowVolumeExtrudeProgram::programNames[ShadowVolumeExtrudeProgram::POINT_LIGHT_FINITE]);
+					mFiniteExtrusionParams = 
+						mShadowStencilPass->getVertexProgramParameters();
+					mFiniteExtrusionParams->setAutoConstant(0, 
+						GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
+					mFiniteExtrusionParams->setAutoConstant(4, 
+						GpuProgramParameters::ACT_LIGHT_POSITION_OBJECT_SPACE);
+					// Note extra parameter
+					mFiniteExtrusionParams->setAutoConstant(5, 
+						GpuProgramParameters::ACT_SHADOW_EXTRUSION_DISTANCE);
+				}
+                matStencil->compile();
+				// Nothing else, we don't use this like a 'real' pass anyway,
+				// it's more of a placeholder
+			}
+			else
+			{
+				mShadowStencilPass = matStencil->getTechnique(0)->getPass(0);
+			}
+		}
 
 
 
-        if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM))
-        {
-            ShadowVolumeExtrudeProgram::initialise();
 
-            
-            // Enable the (infinite) point light extruder for now, just to get some params
-            mShadowDebugPass->setVertexProgram(
-                ShadowVolumeExtrudeProgram::programNames[ShadowVolumeExtrudeProgram::POINT_LIGHT]);
-            mInfiniteExtrusionParams = 
-                mShadowDebugPass->getVertexProgramParameters();
-            mInfiniteExtrusionParams->setAutoConstant(0, 
-                GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
-            mInfiniteExtrusionParams->setAutoConstant(4, 
-                GpuProgramParameters::ACT_LIGHT_POSITION_OBJECT_SPACE);
+		if (!mShadowModulativePass)
+		{
 
-            // Enable the finite point light extruder for now, just to get some params
-            mShadowStencilPass->setVertexProgram(
-                ShadowVolumeExtrudeProgram::programNames[ShadowVolumeExtrudeProgram::POINT_LIGHT_FINITE]);
-            mFiniteExtrusionParams = 
-                mShadowStencilPass->getVertexProgramParameters();
-            mFiniteExtrusionParams->setAutoConstant(0, 
-                GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
-            mFiniteExtrusionParams->setAutoConstant(4, 
-                GpuProgramParameters::ACT_LIGHT_POSITION_OBJECT_SPACE);
-            // Note extra parameter
-            mFiniteExtrusionParams->setAutoConstant(5, 
-                GpuProgramParameters::ACT_SHADOW_EXTRUSION_DISTANCE);
+        	Material* matModStencil = static_cast<Material*>(
+            	MaterialManager::getSingleton().getByName(
+					"Ogre/StencilShadowModulationPass"));
+			if (!matModStencil)
+			{
+				// Init
+				matModStencil = static_cast<Material*>(
+					MaterialManager::getSingleton().create(
+						"Ogre/StencilShadowModulationPass"));
+				mShadowModulativePass = matModStencil->getTechnique(0)->getPass(0);
+				mShadowModulativePass->setSceneBlending(SBF_DEST_COLOUR, SBF_ZERO); 
+				mShadowModulativePass->setLightingEnabled(false);
+				mShadowModulativePass->setDepthWriteEnabled(false);
+				mShadowModulativePass->setDepthCheckEnabled(false);
+				TextureUnitState* t = mShadowModulativePass->createTextureUnitState();
+				t->setColourOperationEx(LBX_MODULATE, LBS_MANUAL, LBS_CURRENT, 
+					mShadowColour);
 
-        }
-
-
-        if (compileStencilDebugPass)
-        {
-            matDebug->compile();
-        }
-
-        if (compileStencilPass)
-        {
-            matStencil->compile();
-        }
-
-
-
-        Material* matModStencil = static_cast<Material*>(
-            MaterialManager::getSingleton().getByName("Ogre/StencilShadowModulationPass"));
-        if (!matModStencil)
-        {
-            // Init
-            matModStencil = static_cast<Material*>(
-                MaterialManager::getSingleton().create("Ogre/StencilShadowModulationPass"));
-            mShadowModulativePass = matModStencil->getTechnique(0)->getPass(0);
-            mShadowModulativePass->setSceneBlending(SBF_DEST_COLOUR, SBF_ZERO); 
-            mShadowModulativePass->setLightingEnabled(false);
-            mShadowModulativePass->setDepthWriteEnabled(false);
-            mShadowModulativePass->setDepthCheckEnabled(false);
-            TextureUnitState* t = mShadowModulativePass->createTextureUnitState();
-            t->setColourOperationEx(LBX_MODULATE, LBS_MANUAL, LBS_CURRENT, 
-                mShadowColour);
-
-        }
+			}
+			else
+			{
+				mShadowModulativePass = matModStencil->getTechnique(0)->getPass(0);
+			}
+		}
 
         // Also init full screen quad while we're at it
         if (!mFullScreenQuad)
@@ -2879,39 +2895,56 @@ namespace Ogre {
         }
 
         // Also init shadow caster material for texture shadows
-        Material* matPlainBlack = static_cast<Material*>(
-            MaterialManager::getSingleton().getByName("Ogre/TextureShadowCaster"));
-        if (!matPlainBlack)
-        {
-            matPlainBlack = static_cast<Material*>(
-                MaterialManager::getSingleton().create("Ogre/TextureShadowCaster"));
-            mShadowCasterPlainBlackPass = matPlainBlack->getTechnique(0)->getPass(0);
-            // Lighting has to be on, because we need shadow coloured objects
-            // Note that because we can't predict vertex programs, we'll have to
-            // bind light values to those, and so we bind White to ambient
-            // reflectance, and we'll set the ambient colour to the shadow colour
-            mShadowCasterPlainBlackPass->setAmbient(ColourValue::White);
-            mShadowCasterPlainBlackPass->setDiffuse(ColourValue::Black);
-            mShadowCasterPlainBlackPass->setSelfIllumination(ColourValue::Black);
-            mShadowCasterPlainBlackPass->setSpecular(ColourValue::Black);
-            // no textures or anything else, we will bind vertex programs
-            // every so often though
-        }
+        if (!mShadowCasterPlainBlackPass)
+		{
+			Material* matPlainBlack = static_cast<Material*>(
+				MaterialManager::getSingleton().getByName(
+					"Ogre/TextureShadowCaster"));
+			if (!matPlainBlack)
+			{
+				matPlainBlack = static_cast<Material*>(
+					MaterialManager::getSingleton().create(
+						"Ogre/TextureShadowCaster"));
+				mShadowCasterPlainBlackPass = matPlainBlack->getTechnique(0)->getPass(0);
+				// Lighting has to be on, because we need shadow coloured objects
+				// Note that because we can't predict vertex programs, we'll have to
+				// bind light values to those, and so we bind White to ambient
+				// reflectance, and we'll set the ambient colour to the shadow colour
+				mShadowCasterPlainBlackPass->setAmbient(ColourValue::White);
+				mShadowCasterPlainBlackPass->setDiffuse(ColourValue::Black);
+				mShadowCasterPlainBlackPass->setSelfIllumination(ColourValue::Black);
+				mShadowCasterPlainBlackPass->setSpecular(ColourValue::Black);
+				// no textures or anything else, we will bind vertex programs
+				// every so often though
+			}
+			else
+			{
+				mShadowCasterPlainBlackPass = matPlainBlack->getTechnique(0)->getPass(0);
+			}
+		}
 
-        Material* matShadRec = static_cast<Material*>(
-            MaterialManager::getSingleton().getByName("Ogre/TextureShadowReceiver"));
-        if (!matShadRec)
-        {
-            matShadRec = static_cast<Material*>(
-                MaterialManager::getSingleton().create("Ogre/TextureShadowReceiver"));
-            mShadowReceiverPass = matShadRec->getTechnique(0)->getPass(0);
-            mShadowReceiverPass->setSceneBlending(SBF_DEST_COLOUR, SBF_ZERO);
-            // No lighting, one texture unit 
-            // everything else will be bound as needed during the receiver pass
-            mShadowReceiverPass->setLightingEnabled(false);
-            TextureUnitState* t = mShadowReceiverPass->createTextureUnitState();
-            t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
-        }
+		if (!mShadowReceiverPass)
+		{
+        	Material* matShadRec = static_cast<Material*>(
+            	MaterialManager::getSingleton().getByName(
+					"Ogre/TextureShadowReceiver"));
+			if (!matShadRec)			
+			{
+				matShadRec = static_cast<Material*>(
+					MaterialManager::getSingleton().create("Ogre/TextureShadowReceiver"));
+				mShadowReceiverPass = matShadRec->getTechnique(0)->getPass(0);
+				mShadowReceiverPass->setSceneBlending(SBF_DEST_COLOUR, SBF_ZERO);
+				// No lighting, one texture unit 
+				// everything else will be bound as needed during the receiver pass
+				mShadowReceiverPass->setLightingEnabled(false);
+				TextureUnitState* t = mShadowReceiverPass->createTextureUnitState();
+				t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+			}
+			else
+			{
+				mShadowReceiverPass = matShadRec->getTechnique(0)->getPass(0);
+			}
+		}
 
         // Set up spot shadow fade texture (loaded from code data block)
         Texture* spotShadowFadeTex = (Texture*) 
@@ -2926,9 +2959,7 @@ namespace Ogre {
                 TextureManager::getSingleton().loadImage("spot_shadow_fade.png", img, TEX_TYPE_2D);
         }
 
-
-
-
+		mShadowMaterialInitDone = true;
     }
     //---------------------------------------------------------------------
     Pass* SceneManager::deriveShadowCasterPass(Pass* pass)
