@@ -122,6 +122,8 @@ Tooltip: 'Exports selected meshs with armature animations to Ogre3D'
 #   0.15.1: * Michael Reimpell <M.Reimpell@tu-bs.de>
 #          - use Blender.World.GetCurrent() for Blender > 2.34
 #          - fixed calculation of initial bone rotation
+#   0.15.1: * Sun Nov 27 2004 John Bartholomew <johnb213@users.sourceforge.net>
+#          - option to run OgreXMLConverter automatically on the exported files
 #
 # TODO:
 #          - vertex colours
@@ -154,6 +156,11 @@ Tooltip: 'Exports selected meshs with armature animations to Ogre3D'
 #  transparently load and save settings to a file named after the current
 #  .blend file with suffix ".ogre".
 KEEP_SETTINGS = 1
+
+# OGRE_XML_CONVERTER
+#  the command line used to run the OgreXMLConverter tool.
+#  Set to '' to disable automatical conversion of XML files.
+OGRE_XML_CONVERTER = ''
 
 #######################################################################################
 ## Code starts here.
@@ -1021,40 +1028,6 @@ OGRE_LOGO = Buffer(GL_BYTE, [48,4*77],[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 
 #######################################################################################
 ## math functions
-## (not everything is used, but im to lazy to sort it out)
-
-def quaternion2matrix(q):
-  xx = q[0] * q[0]
-  yy = q[1] * q[1]
-  zz = q[2] * q[2]
-  xy = q[0] * q[1]
-  xz = q[0] * q[2]
-  yz = q[1] * q[2]
-  wx = q[3] * q[0]
-  wy = q[3] * q[1]
-  wz = q[3] * q[2]
-  return [[1.0 - 2.0 * (yy + zz),       2.0 * (xy + wz),       2.0 * (xz - wy), 0.0],
-          [      2.0 * (xy - wz), 1.0 - 2.0 * (xx + zz),       2.0 * (yz + wx), 0.0],
-          [      2.0 * (xz + wy),       2.0 * (yz - wx), 1.0 - 2.0 * (xx + yy), 0.0],
-          [0.0                  , 0.0                  , 0.0                  , 1.0]]
-
-def quaternion_normalize(q):
-  l = math.sqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3])
-  return q[0] / l, q[1] / l, q[2] / l, q[3] / l
-
-def quaternion_multiply(q1, q2):
-  r = [
-    q2[3] * q1[0] + q2[0] * q1[3] + q2[1] * q1[2] - q2[2] * q1[1],
-    q2[3] * q1[1] + q2[1] * q1[3] + q2[2] * q1[0] - q2[0] * q1[2],
-    q2[3] * q1[2] + q2[2] * q1[3] + q2[0] * q1[1] - q2[1] * q1[0],
-    q2[3] * q1[3] - q2[0] * q1[0] - q2[1] * q1[1] - q2[2] * q1[2],
-    ]
-  d = math.sqrt(r[0] * r[0] + r[1] * r[1] + r[2] * r[2] + r[3] * r[3])
-  r[0] /= d
-  r[1] /= d
-  r[2] /= d
-  r[3] /= d
-  return r
 
 def matrix_translate(m, v):
   m[3][0] += v[0]
@@ -1123,36 +1096,6 @@ def matrix_transpose(m):
            [ m[0][2], m[1][2], m[2][2], m[3][2] ],
            [ m[0][3], m[1][3], m[2][3], m[3][3] ] ]
 
-def matrix_rotate_x(angle):
-  cos = math.cos(angle)
-  sin = math.sin(angle)
-  return [
-    [1.0,  0.0, 0.0, 0.0],
-    [0.0,  cos, sin, 0.0],
-    [0.0, -sin, cos, 0.0],
-    [0.0,  0.0, 0.0, 1.0],
-    ]
-
-def matrix_rotate_y(angle):
-  cos = math.cos(angle)
-  sin = math.sin(angle)
-  return [
-    [cos, 0.0, -sin, 0.0],
-    [0.0, 1.0,  0.0, 0.0],
-    [sin, 0.0,  cos, 0.0],
-    [0.0, 0.0,  0.0, 1.0],
-    ]
-
-def matrix_rotate_z(angle):
-  cos = math.cos(angle)
-  sin = math.sin(angle)
-  return [
-    [ cos, sin, 0.0, 0.0],
-    [-sin, cos, 0.0, 0.0],
-    [ 0.0, 0.0, 1.0, 0.0],
-    [ 0.0, 0.0, 0.0, 1.0],
-    ]
-
 def matrix_rotate(axis, angle):
   vx  = axis[0]
   vy  = axis[1]
@@ -1170,34 +1113,15 @@ def matrix_rotate(axis, angle):
     [0.0, 0.0, 0.0, 1.0],
     ]
 
-def matrix_scale(fx, fy, fz):
-  return [
-    [ fx, 0.0, 0.0, 0.0],
-    [0.0,  fy, 0.0, 0.0],
-    [0.0, 0.0,  fz, 0.0],
-    [0.0, 0.0, 0.0, 1.0],
-    ]
-  
 def point_by_matrix(p, m):
   return [p[0] * m[0][0] + p[1] * m[1][0] + p[2] * m[2][0] + m[3][0],
           p[0] * m[0][1] + p[1] * m[1][1] + p[2] * m[2][1] + m[3][1],
           p[0] * m[0][2] + p[1] * m[1][2] + p[2] * m[2][2] + m[3][2]]
 
-def point_add(p1, p2):
-  return [ p1[0] + p2[0],
-           p1[1] + p2[1],
-           p1[2] + p2[2] ]
-
-def point_distance(p1, p2):
-  return math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2 + (p2[2] - p1[2]) ** 2)
-
 def vector_by_matrix(p, m):
   return [p[0] * m[0][0] + p[1] * m[1][0] + p[2] * m[2][0],
           p[0] * m[0][1] + p[1] * m[1][1] + p[2] * m[2][1],
           p[0] * m[0][2] + p[1] * m[1][2] + p[2] * m[2][2]]
-
-def vector_length(v):
-  return math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2])
 
 def vector_normalize(v):
   global exportLogger
@@ -1212,17 +1136,6 @@ def normal_by_matrix(n, m):
   return vector_normalize(vector_by_matrix(n, m))
 
 
-def quaternion2axisangle(q):
-  x, y, z, w = quaternion_normalize(q)
-  s = math.sqrt(1 - w * w)
-  if abs(s) < 0.00000001:
-    s=0.00000001
-
-  angle = 2 * math.acos(w)
-  x , y, z = x/s, y/s, z/s
-  return [angle, x, y, z]
-
-
 def vector_dotproduct(v1, v2):
   return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2]
 
@@ -1232,13 +1145,6 @@ def vector_crossproduct(v1, v2):
     v1[2] * v2[0] - v1[0] * v2[2],
     v1[0] * v2[1] - v1[1] * v2[0],
     ]
-
-def vector_angle(v1, v2):
-  s = vector_length(v1) * vector_length(v2)
-  f = vector_dotproduct(v1, v2) / s
-  if f >=  1.0: return 0.0
-  if f <= -1.0: return math.pi / 2.0
-  return math.atan(-f / math.sqrt(1.0 - f * f)) + math.pi / 2.0
 
 
 #######################################################################################
@@ -1506,11 +1412,11 @@ class Skeleton:
     self.animationsDict = {}
 
 class Bone:
-  def __init__(self, skeleton, parent, name, loc, rot, conversionMatrix):
+  def __init__(self, skeleton, parent, name, loc, rotQuat, conversionMatrix):
     self.parent = parent
     self.name   = name
     self.loc = loc # offset from parent bone
-    self.rot = rot # axis as quaternion
+    self.rotQuat = rotQuat # axis as quaternion
     self.children = []
     self.conversionMatrix = conversionMatrix # converts Blender's local bone coordinates into Ogre's local bone coordinates
 
@@ -1536,10 +1442,10 @@ class Track:
     animation.tracksDict[bone.name] = self
     
 class KeyFrame:
-  def __init__(self, track, time, loc, rot, scale):
+  def __init__(self, track, time, loc, rotQuat, scale):
     self.time = time
     self.loc  = loc
-    self.rot  = rot
+    self.rotQuat  = rotQuat
     self.scale = scale
     
     self.track = track
@@ -1595,20 +1501,14 @@ def blender_bone2matrix(head, tail, roll):
   return matrix_multiply(rMatrix, bMatrix)
 
 def convert_armature(skeleton, obj, debugskel):
-  global scaleNumber
-
+  """Calculate inital bone positions and rotations.
+  """
   stack = []
-  matrix = None
-  if (Blender.Get("version") >= 234):
-    matrix = matrix_multiply(BASE_MATRIX, obj.getMatrix("worldspace"))
-  else:
-    matrix = matrix_multiply(BASE_MATRIX, obj.getMatrix())
-  # make a new root bone
+  matrix = matrix_multiply(BASE_MATRIX, obj.getMatrix("worldspace"))
+ 
   loc = [ 0.0, 0, 0 ]
-  rot = [ 0.0, 0, 0, 1 ]
   matrix_one = [[1.0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
-  parent = None #Bone(skeleton, None, "__root", loc, rot)
-  #parent.pos = loc
+  parent = None
   
   # get parent bones
   boneList = obj.getData().getBones()
@@ -1629,14 +1529,15 @@ def convert_armature(skeleton, obj, debugskel):
     #     accu_mat = T_{length of parent}*R_{parent}*T_{to head of parent}*M_{parent's parent}
     #  invertedOgreTransformation
     #    inverse of transformation done in Ogre so far, i.e. identity for root bones,
-    #    M^{-1}_{Ogre, parent's parent}*T^(-1)_{Ogre, parent}*R^(-1)_{Ogre, parent} for child bones.
+    #    M^{-1}_{Ogre, parent's parent}*T^{-1}_{Ogre, parent}*R^{-1}_{Ogre, parent} for child bones.
     
     head = bbone.getHead()
     tail = bbone.getTail()
     roll = bbone.getRoll()
-    
+
     # get the restmat 
-    R_bmat = blender_bone2matrix(head, tail, roll)
+    R_bmat = bbone.getRestMatrix('bonespace').rotationPart()
+    R_bmat.resize4x4()
 
     # get the bone's root offset (in the parent's coordinate system)
     T_root = [ [       1,       0,       0,      0 ],
@@ -1669,21 +1570,21 @@ def convert_armature(skeleton, obj, debugskel):
       rotQuat = bbone.getRestMatrix('bonespace').toQuat()
 
     else:
-      rotQuat = (bbone.getRestMatrix('worldspace')*Mathutils.Matrix(*BASE_MATRIX)).toQuat()
+      rotQuat = (bbone.getRestMatrix('bonespace')*obj.getMatrix("worldspace")*BASE_MATRIX).toQuat()
 
-    rot = (rotQuat.x, rotQuat.y, rotQuat.z, rotQuat.w)
     x, y, z = pos
     # pos = loc * M_{Ogre}
     loc = point_by_matrix([x, y, z], invertedOgreTransformation)
     x, y, z = loc
     ogreTranslationMatrix = [[ 1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [x, y, z, 1]]
-    x, y, z, w = rot
+
     # R_{Ogre} is either
     # the rotation part of R_{bone}*T_{to_head}*M_{parent} for root bones or
     # the rotation part of R_{bone}*T_{to_head} of child bones
-    ogreRotationMatrix = quaternion2matrix(quaternion_normalize([x, y, z, w]))
+    ogreRotationMatrix = rotQuat.toMatrix()
+    ogreRotationMatrix.resize4x4()
     invertedOgreTransformation = matrix_multiply(matrix_invert(ogreTranslationMatrix), invertedOgreTransformation)
-    parent = Bone(skeleton, parent, bbone.getName(), loc, rot, matrix_multiply(invertedOgreTransformation, tmp_mat))
+    parent = Bone(skeleton, parent, bbone.getName(), loc, rotQuat, matrix_multiply(invertedOgreTransformation, tmp_mat))
     # matrix_multiply(invertedOgreTransformation, tmp_mat) is R*T*M_{parent} M^{-1}_{Ogre}T^{-1}_{Ogre}.
     # Necessary, since Ogre's delta location is in the Bone's parent coordinate system, i.e.
     # delatT_{Blender}*R*T*M = deltaT_{Ogre}*T_{Ogre}*M_{Ogre}
@@ -1827,7 +1728,7 @@ def export_skeleton(object):
 									# in the bones coordinate system.
 									frame = frameNumberDict[time]
 									loc = ( 0.0, 0.0, 0.0 )
-									rot = [ 0.0, 0.0, 0.0, 1.0 ]
+									rotQuat = Mathutils.Quaternion([1.0, 0.0, 0.0, 0.0])
 									sizeX = 1.0
 									sizeY = 1.0
 									sizeZ = 1.0
@@ -1847,16 +1748,18 @@ def export_skeleton(object):
 										loc = point_by_matrix(blenderLoc, skeleton.bonesDict[boneName].conversionMatrix)
 									if curveId.has_key("QuatX") and curveId.has_key("QuatY") and curveId.has_key("QuatZ") and curveId.has_key("QuatW"):
 										if not (Blender.Get("version") == 234):
+											rot = [ ipo.EvaluateCurveOn(curveId["QuatW"], frame), \
+											        ipo.EvaluateCurveOn(curveId["QuatX"], frame), \
+											        ipo.EvaluateCurveOn(curveId["QuatY"], frame), \
+											        ipo.EvaluateCurveOn(curveId["QuatZ"], frame) ]
+											rotQuat = Mathutils.Quaternion(rot)
+										else:
+											# Blender 2.34 quaternion naming bug
 											rot = [ ipo.EvaluateCurveOn(curveId["QuatX"], frame), \
 											        ipo.EvaluateCurveOn(curveId["QuatY"], frame), \
 											        ipo.EvaluateCurveOn(curveId["QuatZ"], frame), \
 											        ipo.EvaluateCurveOn(curveId["QuatW"], frame) ]
-										else:
-											# Blender 2.34 quaternion naming bug
-											rot = [ ipo.EvaluateCurveOn(curveId["QuatY"], frame), \
-											        ipo.EvaluateCurveOn(curveId["QuatZ"], frame), \
-											        ipo.EvaluateCurveOn(curveId["QuatW"], frame), \
-											        ipo.EvaluateCurveOn(curveId["QuatX"], frame) ]
+											rotQuat = Mathutils.Quaternion(rot)
 									if curveId.has_key("SizeX"):
 										sizeX = ipo.EvaluateCurveOn(curveId["SizeX"], frame)
 									if curveId.has_key("SizeY"):
@@ -1864,7 +1767,7 @@ def export_skeleton(object):
 									if curveId.has_key("SizeZ"):
 										sizeZ = ipo.EvaluateCurveOn(curveId["SizeZ"], frame)
 									size = (sizeX, sizeY, sizeZ)
-									KeyFrame(track, time, loc, rot, size)
+									KeyFrame(track, time, loc, rotQuat, size)
 								# append track
 								animation.tracksDict[boneName] = track
 							else:
@@ -2166,6 +2069,27 @@ def clamp(val):
         val = 1.0
     return val
 
+def convertXMLFile(filename):
+	"""Calls the OgreXMLConverter on a file.
+	   
+	   If the script variable <code>OGRE_XML_CONVERTER</code> is nonempty, the
+	   OgreXMLConverter is called to convert the given file.
+	   
+	   @param filename filename of the XML file to convert.
+	"""
+	global exportLogger
+	if OGRE_XML_CONVERTER != '':
+		commandLine = OGRE_XML_CONVERTER + ' "' + filename + '"'
+		exportLogger.logInfo("Running OgreXMLConverter: " + commandLine)
+		xmlConverter = os.popen(commandLine, 'r')
+		if xmlConverter == None:
+			exportLogger.logError('Could not run OgreXMLConverter!')
+		else:
+			for line in xmlConverter:
+				exportLogger.logInfo("OgreXMLConverter: " + line)
+			xmlConverter.close()
+	return
+
 def write_skeleton(skeleton):
   global pathString, exportLogger
   file = skeleton.name+".skeleton.xml"
@@ -2181,9 +2105,8 @@ def write_skeleton(skeleton):
     x, y, z = bone.loc
     f.write(tab(3)+"<position x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % (x, y, z))
 
-    angle, x, y, z = quaternion2axisangle(bone.rot)
-    f.write(tab(3)+"<rotation angle=\"%.6f\">\n" % angle)
-    f.write(tab(4)+"<axis x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % (x, y, z))
+    f.write(tab(3)+"<rotation angle=\"%.6f\">\n" % (bone.rotQuat.angle/360*2*math.pi))
+    f.write(tab(4)+"<axis x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % tuple(bone.rotQuat.axis))
     f.write(tab(3)+"</rotation>\n")
     f.write(tab(2)+"</bone>\n")
   f.write(tab(1)+"</bones>\n")
@@ -2216,10 +2139,9 @@ def write_skeleton(skeleton):
 
         x, y, z = keyframe.loc
         f.write(tab(7)+"<translate x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % (x, y, z))
-          
-        angle, x, y, z = quaternion2axisangle(keyframe.rot)
-        f.write(tab(7)+"<rotate angle=\"%.6f\">\n" % angle)
-        f.write(tab(8)+"<axis x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % (x, y, z))
+        
+        f.write(tab(7)+"<rotate angle=\"%.6f\">\n" % (keyframe.rotQuat.angle/360*2*math.pi))
+        f.write(tab(8)+"<axis x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % tuple(keyframe.rotQuat.axis))
         f.write(tab(7)+"</rotate>\n")
 
         f.write(tab(7)+"<scale x=\"%f\" y=\"%f\" z=\"%f\"/>\n" % keyframe.scale)
@@ -2235,7 +2157,8 @@ def write_skeleton(skeleton):
   f.write(tab(1)+"</animations>\n")
   f.write(tab(0)+"</skeleton>\n")
   f.close()
-
+  convertXMLFile(os.path.join(pathString.val, file))
+  return
 
 def write_mesh(name, submeshes, skeleton):
   global pathString, exportLogger
@@ -2313,7 +2236,8 @@ def write_mesh(name, submeshes, skeleton):
 
   f.write(tab(0)+"</mesh>\n")    
   f.close()
-
+  convertXMLFile(os.path.join(pathString.val, file))
+  return
 
 def write_materials():
 	global pathString, materialString, exportLogger
@@ -2424,19 +2348,20 @@ def export(selectedObjectsList):
     materialsDict = {}
     skeletonsDict = {}
 
-    # default: set matrix to 90 degree rotation around x-axis and scale
-    # multiply rotations Z*Y*X
-    # WARNING: here: left multiplication
-    rot_mat = matrix_multiply( matrix_rotate_z(2.0*math.pi/360.0*rotZNumber.val),
-              matrix_multiply( matrix_rotate_y(2.0*math.pi/360.0*rotYNumber.val),
-                               matrix_rotate_x(2.0*math.pi/360.0*rotXNumber.val) ))
-    scale_mat = matrix_scale(scaleNumber.val, scaleNumber.val, scaleNumber.val)
-    BASE_MATRIX = matrix_multiply(scale_mat, rot_mat)
+    # default: set matrix to 90 degree rotation around x-axis
+    # rotation order: x, y, z
+    # WARNING: Blender uses left multiplication!
+    rotationMatrix = Mathutils.RotationMatrix(rotXNumber.val,4,'x')
+    rotationMatrix *= Mathutils.RotationMatrix(rotYNumber.val,4,'y')
+    rotationMatrix *= Mathutils.RotationMatrix(rotZNumber.val,4,'z')
+    scaleMatrix = Mathutils.Matrix([scaleNumber.val,0,0],[0,scaleNumber.val,0],[0,0,scaleNumber.val])
+    scaleMatrix.resize4x4()
+    BASE_MATRIX = rotationMatrix*scaleMatrix
     
     if not os.path.exists(pathString.val):
       exportLogger.logError("Invalid path: "+pathString.val)
     else:
-      exportLogger.logInfo("Exporting selected objects:")    
+      exportLogger.logInfo("Exporting selected objects into \"" + pathString.val + "\":")
       n = 0
       for obj in selectedObjectsList:
           if not obj:
