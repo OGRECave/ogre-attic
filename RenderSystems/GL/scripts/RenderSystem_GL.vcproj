@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\src\win32;..\..\..\OgreMain\include;..\..\..\Dependencies\include"
+				AdditionalIncludeDirectories="..\include;..\src\win32;..\..\..\OgreMain\include;..\..\..\Dependencies\include;..\src\nvparse;..\src\nvparse\glh"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;OGRE_GL_USE_MULTITEXTURING"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -80,7 +80,7 @@
 				OmitFramePointers="TRUE"
 				EnableFiberSafeOptimizations="TRUE"
 				OptimizeForProcessor="2"
-				AdditionalIncludeDirectories="..\include;..\src\win32;..\..\..\OgreMain\include;..\..\..\Dependencies\include"
+				AdditionalIncludeDirectories="..\include;..\src\win32;..\..\..\OgreMain\include;..\..\..\Dependencies\include;..\src\nvparse"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;RenderSystem_GL_EXPORTS;OGRE_GL_USE_MULTITEXTURING"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -139,6 +139,9 @@
 				RelativePath="..\src\OgreGLEngineDll.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreGLGpuNvparseProgram.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreGLGpuProgram.cpp">
 			</File>
 			<File
@@ -174,12 +177,139 @@
 			<File
 				RelativePath="..\src\glprocs.c">
 			</File>
+			<Filter
+				Name="nvparse"
+				Filter="">
+				<File
+					RelativePath="..\src\nvparse\_ps1.0_lexer.cpp">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\_ps1.0_parser.cpp">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\_ps1.0_parser.h">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\_rc1.0_lexer.cpp">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\_rc1.0_parser.cpp">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\_rc1.0_parser.h">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\_ts1.0_lexer.cpp">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\_ts1.0_parser.cpp">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\_ts1.0_parser.h">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\_vs1.0_lexer.cpp">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\_vs1.0_parser.cpp">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\_vs1.0_parser.h">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\avp1.0_impl.cpp">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\macro.h">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\nvparse.cpp">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\nvparse.h">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\nvparse_errors.cpp">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\nvparse_errors.h">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\nvparse_externs.h">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\ps1.0_program.cpp">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\ps1.0_program.h">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\rc1.0_combiners.cpp">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\rc1.0_combiners.h">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\rc1.0_final.cpp">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\rc1.0_final.h">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\rc1.0_general.cpp">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\rc1.0_general.h">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\rc1.0_register.h">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\ts1.0_inst.cpp">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\ts1.0_inst.h">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\ts1.0_inst_list.cpp">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\ts1.0_inst_list.h">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\unistd.h">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\vcp1.0_impl.cpp">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\vp1.0_impl.cpp">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\vs1.0_inst.cpp">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\vs1.0_inst.h">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\vs1.0_inst_list.cpp">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\vs1.0_inst_list.h">
+				</File>
+				<File
+					RelativePath="..\src\nvparse\vsp1.0_impl.cpp">
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
 				RelativePath="..\include\OgreGLDefaultHardwareBufferManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreGLGpuNvparseProgram.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreGLGpuProgram.h">
