@@ -499,11 +499,11 @@ protected:
 
         // Generate vertex data
         // Lock the whole buffer
-        Real* pPos = static_cast<Real*>(
+        float* pPos = static_cast<float*>(
             vbufpos->lock(HardwareBuffer::HBL_DISCARD) );
-        Real* pNorm = static_cast<Real*>(
+        float* pNorm = static_cast<float*>(
             vbufnorm->lock(HardwareBuffer::HBL_DISCARD) );
-        Real* pTex = static_cast<Real*>(
+        float* pTex = static_cast<float*>(
             vbuftex->lock(HardwareBuffer::HBL_DISCARD) );
         Real xSpace = width / xsegments;
         Real ySpace = height / ysegments;
@@ -1163,11 +1163,11 @@ protected:
         vd.vertexDeclaration->addElement(0, 0, VET_FLOAT3, VES_POSITION);
         HardwareVertexBufferSharedPtr vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(sizeof(float)*3, 4, HardwareBuffer::HBU_STATIC,true);
         vd.vertexBufferBinding->setBinding(0, vbuf);
-        Real* pReal = static_cast<Real*>(vbuf->lock(HardwareBuffer::HBL_DISCARD));
-        *pReal++ = 0  ; *pReal++ = 0  ; *pReal++ = 0  ;
-        *pReal++ = 50 ; *pReal++ = 0  ; *pReal++ = 0  ;
-        *pReal++ = 0  ; *pReal++ = 100; *pReal++ = 0  ;
-        *pReal++ = 0  ; *pReal++ = 0  ; *pReal++ = -50;
+        float* pFloat = static_cast<float*>(vbuf->lock(HardwareBuffer::HBL_DISCARD));
+        *pFloat++ = 0  ; *pFloat++ = 0  ; *pFloat++ = 0  ;
+        *pFloat++ = 50 ; *pFloat++ = 0  ; *pFloat++ = 0  ;
+        *pFloat++ = 0  ; *pFloat++ = 100; *pFloat++ = 0  ;
+        *pFloat++ = 0  ; *pFloat++ = 0  ; *pFloat++ = -50;
         vbuf->unlock();
             
         id.indexBuffer = HardwareBufferManager::getSingleton().createIndexBuffer(
@@ -1207,11 +1207,11 @@ protected:
         vd.vertexDeclaration->addElement(0, 0, VET_FLOAT3, VES_POSITION);
         HardwareVertexBufferSharedPtr vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(sizeof(float)*3, 4, HardwareBuffer::HBU_STATIC,true);
         vd.vertexBufferBinding->setBinding(0, vbuf);
-        Real* pReal = static_cast<Real*>(vbuf->lock(HardwareBuffer::HBL_DISCARD));
-        *pReal++ = 0  ; *pReal++ = 0  ; *pReal++ = 0  ;
-        *pReal++ = 50 ; *pReal++ = 0  ; *pReal++ = 0  ;
-        *pReal++ = 0  ; *pReal++ = 100; *pReal++ = 0  ;
-        *pReal++ = 0  ; *pReal++ = 0  ; *pReal++ = -50;
+        float* pFloat = static_cast<float*>(vbuf->lock(HardwareBuffer::HBL_DISCARD));
+        *pFloat++ = 0  ; *pFloat++ = 0  ; *pFloat++ = 0  ;
+        *pFloat++ = 50 ; *pFloat++ = 0  ; *pFloat++ = 0  ;
+        *pFloat++ = 0  ; *pFloat++ = 100; *pFloat++ = 0  ;
+        *pFloat++ = 0  ; *pFloat++ = 0  ; *pFloat++ = -50;
         vbuf->unlock();
             
         id[0].indexBuffer = HardwareBufferManager::getSingleton().createIndexBuffer(
@@ -1278,10 +1278,10 @@ protected:
         vd[0].vertexDeclaration->addElement(0, 0, VET_FLOAT3, VES_POSITION);
         HardwareVertexBufferSharedPtr vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(sizeof(float)*3, 3, HardwareBuffer::HBU_STATIC,true);
         vd[0].vertexBufferBinding->setBinding(0, vbuf);
-        Real* pReal = static_cast<Real*>(vbuf->lock(HardwareBuffer::HBL_DISCARD));
-        *pReal++ = 0  ; *pReal++ = 0  ; *pReal++ = 0  ;
-        *pReal++ = 50 ; *pReal++ = 0  ; *pReal++ = 0  ;
-        *pReal++ = 0  ; *pReal++ = 100; *pReal++ = 0  ;
+        float* pFloat = static_cast<float*>(vbuf->lock(HardwareBuffer::HBL_DISCARD));
+        *pFloat++ = 0  ; *pFloat++ = 0  ; *pFloat++ = 0  ;
+        *pFloat++ = 50 ; *pFloat++ = 0  ; *pFloat++ = 0  ;
+        *pFloat++ = 0  ; *pFloat++ = 100; *pFloat++ = 0  ;
         vbuf->unlock();
 
         vd[1].vertexCount = 3;
@@ -1290,10 +1290,10 @@ protected:
         vd[1].vertexDeclaration->addElement(0, 0, VET_FLOAT3, VES_POSITION);
         vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(sizeof(float)*3, 3, HardwareBuffer::HBU_STATIC,true);
         vd[1].vertexBufferBinding->setBinding(0, vbuf);
-        pReal = static_cast<Real*>(vbuf->lock(HardwareBuffer::HBL_DISCARD));
-        *pReal++ = 0  ; *pReal++ = 0  ; *pReal++ = 0  ;
-        *pReal++ = 0  ; *pReal++ = 100; *pReal++ = 0  ;
-        *pReal++ = 0  ; *pReal++ = 0  ; *pReal++ = -50;
+        pFloat = static_cast<float*>(vbuf->lock(HardwareBuffer::HBL_DISCARD));
+        *pFloat++ = 0  ; *pFloat++ = 0  ; *pFloat++ = 0  ;
+        *pFloat++ = 0  ; *pFloat++ = 100; *pFloat++ = 0  ;
+        *pFloat++ = 0  ; *pFloat++ = 0  ; *pFloat++ = -50;
         vbuf->unlock();
 
         vd[2].vertexCount = 3;
@@ -1302,10 +1302,10 @@ protected:
         vd[2].vertexDeclaration->addElement(0, 0, VET_FLOAT3, VES_POSITION);
         vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(sizeof(float)*3, 3, HardwareBuffer::HBU_STATIC,true);
         vd[2].vertexBufferBinding->setBinding(0, vbuf);
-        pReal = static_cast<Real*>(vbuf->lock(HardwareBuffer::HBL_DISCARD));
-        *pReal++ = 50 ; *pReal++ = 0  ; *pReal++ = 0  ;
-        *pReal++ = 0  ; *pReal++ = 100; *pReal++ = 0  ;
-        *pReal++ = 0  ; *pReal++ = 0  ; *pReal++ = -50;
+        pFloat = static_cast<float*>(vbuf->lock(HardwareBuffer::HBL_DISCARD));
+        *pFloat++ = 50 ; *pFloat++ = 0  ; *pFloat++ = 0  ;
+        *pFloat++ = 0  ; *pFloat++ = 100; *pFloat++ = 0  ;
+        *pFloat++ = 0  ; *pFloat++ = 0  ; *pFloat++ = -50;
         vbuf->unlock();
             
         vd[3].vertexCount = 3;
@@ -1314,10 +1314,10 @@ protected:
         vd[3].vertexDeclaration->addElement(0, 0, VET_FLOAT3, VES_POSITION);
         vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(sizeof(float)*3, 3, HardwareBuffer::HBU_STATIC,true);
         vd[3].vertexBufferBinding->setBinding(0, vbuf);
-        pReal = static_cast<Real*>(vbuf->lock(HardwareBuffer::HBL_DISCARD));
-        *pReal++ = 0  ; *pReal++ = 0  ; *pReal++ = 0  ;
-        *pReal++ = 50 ; *pReal++ = 0  ; *pReal++ = 0  ;
-        *pReal++ = 0  ; *pReal++ = 0  ; *pReal++ = -50;
+        pFloat = static_cast<float*>(vbuf->lock(HardwareBuffer::HBL_DISCARD));
+        *pFloat++ = 0  ; *pFloat++ = 0  ; *pFloat++ = 0  ;
+        *pFloat++ = 50 ; *pFloat++ = 0  ; *pFloat++ = 0  ;
+        *pFloat++ = 0  ; *pFloat++ = 0  ; *pFloat++ = -50;
         vbuf->unlock();
 
         id[0].indexBuffer = HardwareBufferManager::getSingleton().createIndexBuffer(
@@ -2105,9 +2105,10 @@ protected:
 
 	void testStaticGeometry(void)
 	{
-		mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);
+		//mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);
 		//mSceneMgr->setShowDebugShadows(true);
 
+		mSceneMgr->setSkyBox(true, "Examples/EveningSkyBox");
 		// Set ambient light
 		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
 
@@ -2117,37 +2118,38 @@ protected:
 		Vector3 dir(1, -1, -1.5);
 		dir.normalise();
 		l->setDirection(dir);
+		l->setDiffuseColour(1.0, 0.7, 0.0);
 
 
 		Plane plane;
 		plane.normal = Vector3::UNIT_Y;
-		plane.d = 100;
+		plane.d = 0;
 		MeshManager::getSingleton().createPlane("Myplane",
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
 			4500,4500,10,10,true,1,5,5,Vector3::UNIT_Z);
 		Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
-		pPlaneEnt->setMaterialName("2 - Default");
+		pPlaneEnt->setMaterialName("Examples/GrassFloor");
 		pPlaneEnt->setCastShadows(false);
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
 
-		Entity* e = mSceneMgr->createEntity("1", "column.mesh");
-		Vector3 min(-2500,0,-2500);
-		Vector3 max(2500,0,2500);
+		Vector3 min(-2000,0,-2000);
+		Vector3 max(2000,0,2000);
 
 
-		//createRandomEntityClones(e, 2000, min, max);
+		Entity* e = mSceneMgr->createEntity("1", "gras_02.mesh");
+		//createRandomEntityClones(e, 1000, min, max);
 		
 		StaticGeometry* s = mSceneMgr->createStaticGeometry("bing");
 		s->setCastShadows(true);
-		//s->setRegionDimensions(Vector3(2000,2000,2000));
-		for (int i = 0; i < 150; ++i)
+		s->setRegionDimensions(Vector3(500,500,500));
+		for (int i = 0; i < 3000; ++i)
 		{
 			Vector3 pos;
 			pos.x = Math::RangeRandom(min.x, max.x);
 			pos.y = Math::RangeRandom(min.y, max.y);
 			pos.z = Math::RangeRandom(min.z, max.z);
 
-			s->addEntity(e, pos);
+			s->addEntity(e, pos, Quaternion::IDENTITY, Vector3(5,5,5));
 
 		}
 

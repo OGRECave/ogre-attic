@@ -120,7 +120,7 @@ namespace Ogre {
         HardwareVertexBufferSharedPtr vbuf =
             mRenderOp.vertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);     
 
-        Real* pPos = static_cast<Real*>(
+        float* pPos = static_cast<float*>(
             vbuf->lock(HardwareBuffer::HBL_DISCARD));
 
 		// line 0

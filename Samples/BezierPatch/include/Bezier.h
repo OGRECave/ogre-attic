@@ -77,7 +77,7 @@ class BezierApplication : public ExampleApplication
 {
 protected:
     VertexDeclaration* patchDecl;
-    Real* patchCtlPoints;
+    float* patchCtlPoints;
 
 public:
     BezierApplication() : patchDecl(NULL), patchCtlPoints(NULL) { }
@@ -96,9 +96,9 @@ protected:
     #pragma pack(1)
 #endif
     struct PatchVertex {
-        Real x, y, z;
-        Real nx, ny, nz;
-        Real u, v;
+        float x, y, z;
+        float nx, ny, nz;
+        float u, v;
     };
 #if OGRE_COMPILER == COMPILER_MSVC
     #pragma pack(pop)
@@ -121,11 +121,11 @@ protected:
         // Create patch
         patchDecl = HardwareBufferManager::getSingleton().createVertexDeclaration();
         patchDecl->addElement(0, 0, VET_FLOAT3, VES_POSITION);
-        patchDecl->addElement(0, sizeof(Real)*3, VET_FLOAT3, VES_NORMAL);
-        patchDecl->addElement(0, sizeof(Real)*6, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
+        patchDecl->addElement(0, sizeof(float)*3, VET_FLOAT3, VES_NORMAL);
+        patchDecl->addElement(0, sizeof(float)*6, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
 
         // Make a 3x3 patch for test
-        patchCtlPoints = (Real*)( new PatchVertex[9] );
+        patchCtlPoints = (float*)( new PatchVertex[9] );
 
         // Patch data
         PatchVertex *pVert = (PatchVertex*)patchCtlPoints;

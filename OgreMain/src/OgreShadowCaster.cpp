@@ -211,17 +211,17 @@ namespace Ogre {
         HardwareVertexBufferSharedPtr vertexBuffer, 
         size_t originalVertexCount, const Vector4& light, Real extrudeDist)
     {
-        assert (vertexBuffer->getVertexSize() == sizeof(Real) * 3
+        assert (vertexBuffer->getVertexSize() == sizeof(float) * 3
             && "Position buffer should contain only positions!");
 
         // Extrude the first area of the buffer into the second area
         // Lock the entire buffer for writing, even though we'll only be
         // updating the latter because you can't have 2 locks on the same
         // buffer
-        Real* pSrc = static_cast<Real*>(
+        float* pSrc = static_cast<float*>(
             vertexBuffer->lock(HardwareBuffer::HBL_NORMAL));
 
-        Real* pDest = pSrc + originalVertexCount * 3;
+        float* pDest = pSrc + originalVertexCount * 3;
         // Assume directional light, extrusion is along light direction
         Vector3 extrusionDir(-light.x, -light.y, -light.z);
         extrusionDir.normalise();

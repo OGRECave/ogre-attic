@@ -198,7 +198,7 @@ namespace Ogre {
 
 		HardwareVertexBufferSharedPtr vbuf = 
 			mRenderOp.vertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);
-		Real* pPos = static_cast<Real*>(
+		float* pPos = static_cast<float*>(
 			vbuf->lock(HardwareBuffer::HBL_DISCARD) );
 	    
 		// Use the furthest away depth value, since materials should have depth-check off
@@ -272,11 +272,11 @@ namespace Ogre {
             // Get the tcoord buffer & lock
             HardwareVertexBufferSharedPtr vbuf = 
                 mRenderOp.vertexData->vertexBufferBinding->getBuffer(TEXCOORD_BINDING);
-            Real* pVBStart = static_cast<Real*>(
+            float* pVBStart = static_cast<float*>(
                 vbuf->lock(HardwareBuffer::HBL_DISCARD) );
 
-            size_t uvSize = VertexElement::getTypeSize(VET_FLOAT2) / sizeof(Real);
-            size_t vertexSize = decl->getVertexSize(TEXCOORD_BINDING) / sizeof(Real);
+            size_t uvSize = VertexElement::getTypeSize(VET_FLOAT2) / sizeof(float);
+            size_t vertexSize = decl->getVertexSize(TEXCOORD_BINDING) / sizeof(float);
             for (ushort i = 0; i < numLayers; ++i)
             {
                 // Calc upper tex coords
@@ -291,7 +291,7 @@ namespace Ogre {
                     1-----3
                 */
                 // Find start offset for this set
-                Real* pTex = pVBStart + (i * uvSize);
+                float* pTex = pVBStart + (i * uvSize);
 
                 pTex[0] = 0.0f;
                 pTex[1] = 0.0f;

@@ -233,20 +233,20 @@ namespace Ogre {
 		unsigned char* vertex = 
 			static_cast<unsigned char*>(
 				vbuf->lock(HardwareBuffer::HBL_READ_ONLY));
-		Real* pReal;
+		float* pFloat;
 
 		Vector3 min, max;
 		bool first = true;
 
 		for(size_t j = 0; j < vertexData->vertexCount; ++j, vertex += vbuf->getVertexSize())
 		{
-			posElem->baseVertexPointerToElement(vertex, &pReal);
+			posElem->baseVertexPointerToElement(vertex, &pFloat);
 
 			Vector3 pt;
 
-			pt.x = (*pReal++);
-			pt.y = (*pReal++);
-			pt.z = (*pReal++);
+			pt.x = (*pFloat++);
+			pt.y = (*pFloat++);
+			pt.z = (*pFloat++);
 			// Transform to world (scale, rotate, translate)
 			pt = (orientation * (pt * scale)) + position;
 			if (first)
@@ -775,7 +775,8 @@ namespace Ogre {
 		mCamDistanceSquared = diff.squaredLength() 
 			- mBoundingRadius*mBoundingRadius;
 		// Clamp to 0
-		mCamDistanceSquared = std::max(0.0f, mCamDistanceSquared);
+		mCamDistanceSquared = std::max(static_cast<Real>(0.0), mCamDistanceSquared);
+
 
 		Real maxDist = mParent->getSquaredRenderingDistance();
 		if (maxDist && mCamDistanceSquared > maxDist)
@@ -1484,7 +1485,7 @@ namespace Ogre {
 				size_t bufInc = srcBuf->getVertexSize();
 				
 				// Iterate over vertices
-				Real *pSrcReal, *pDstReal;
+				float *pSrcReal, *pDstReal;
 				Vector3 tmp;
 				for (size_t v = 0; v < srcVData->vertexCount; ++v)
 				{
@@ -1569,10 +1570,10 @@ namespace Ogre {
 			if (rend && rend->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM))
 			{
 				buf = HardwareBufferManager::getSingleton().createVertexBuffer(
-					sizeof(Real), mVertexData->vertexCount * 2, 
+					sizeof(float), mVertexData->vertexCount * 2, 
 					HardwareBuffer::HBU_STATIC_WRITE_ONLY, false);
 				// Fill the first half with 1.0, second half with 0.0
-				Real *pW = static_cast<Real*>(
+				float *pW = static_cast<float*>(
 					buf->lock(HardwareBuffer::HBL_DISCARD));
 				size_t v;
 				for (v = 0; v < mVertexData->vertexCount; ++v)

@@ -67,7 +67,7 @@ namespace Ogre {
                     // Optional bone weights (repeating section)
                     // unsigned int vertexIndex;
                     // unsigned short boneIndex;
-                    // Real weight;
+                    // float weight;
             M_GEOMETRY          = 0x5000, // NB this chunk is embedded within M_MESH and M_SUBMESH
                 // unsigned int vertexCount
 				M_GEOMETRY_VERTEX_DECLARATION = 0x5100,
@@ -89,7 +89,7 @@ namespace Ogre {
                 // Optional bone weights (repeating section)
                 // unsigned int vertexIndex;
                 // unsigned short boneIndex;
-                // Real weight;
+                // float weight;
             M_MESH_LOD = 0x8000,
                 // Optional LOD information
                 // unsigned short numLevels;
@@ -97,7 +97,7 @@ namespace Ogre {
                 M_MESH_LOD_USAGE = 0x8100,
                 // Repeating section, ordered in increasing depth
 				// NB LOD 0 (full detail from 0 depth) is omitted
-                // Real fromSquaredDepth;
+                // float fromSquaredDepth;
                     M_MESH_LOD_MANUAL = 0x8110,
                     // Required if M_MESH_LOD section manual = true
                     // String manualMeshName;
@@ -110,9 +110,9 @@ namespace Ogre {
                     // OR
                     // unsigned int* faceIndexes;  (indexCount)
             M_MESH_BOUNDS = 0x9000,
-                // Real minx, miny, minz
-                // Real maxx, maxy, maxz
-                // Real radius
+                // float minx, miny, minz
+                // float maxx, maxy, maxz
+                // float radius
                     
 			// Added By DrEvil
 			// optional chunk that contains a table of submesh indexes and the names of
@@ -136,7 +136,7 @@ namespace Ogre {
                             // unsigned long vertexSet
                             // unsigned long vertIndex[3]
                             // unsigned long sharedVertIndex[3] 
-                            // Real normal[4] 
+                            // float normal[4] 
 
                         M_EDGE_GROUP = 0xB110,
                             // unsigned long vertexSet
@@ -170,18 +170,18 @@ namespace Ogre {
                     // Optional bone weights (repeating section)
                     // unsigned int vertexIndex;
                     // unsigned short boneIndex;
-                    // Real weight;
+                    // float weight;
             M_GEOMETRY          = 0x5000, // NB this chunk is embedded within M_MESH and M_SUBMESH
 			*/
                 // unsigned int vertexCount
-                // Real* pVertices (x, y, z order x numVertices)
+                // float* pVertices (x, y, z order x numVertices)
                 M_GEOMETRY_NORMALS = 0x5100,    //(Optional)
-                    // Real* pNormals (x, y, z order x numVertices)
+                    // float* pNormals (x, y, z order x numVertices)
                 M_GEOMETRY_COLOURS = 0x5200,    //(Optional)
                     // unsigned long* pColours (RGBA 8888 format x numVertices)
                 M_GEOMETRY_TEXCOORDS = 0x5300,    //(Optional, REPEATABLE, each one adds an extra set)
                     // unsigned short dimensions    (1 for 1D, 2 for 2D, 3 for 3D)
-                    // Real* pTexCoords  (u [v] [w] order, dimensions x numVertices)
+                    // float* pTexCoords  (u [v] [w] order, dimensions x numVertices)
 			/*
             M_MESH_SKELETON_LINK = 0x6000,
                 // Optional link to skeleton
@@ -190,7 +190,7 @@ namespace Ogre {
                 // Optional bone weights (repeating section)
                 // unsigned int vertexIndex;
                 // unsigned short boneIndex;
-                // Real weight;
+                // float weight;
             M_MESH_LOD = 0x8000,
                 // Optional LOD information
                 // unsigned short numLevels;
@@ -198,7 +198,7 @@ namespace Ogre {
                 M_MESH_LOD_USAGE = 0x8100,
                 // Repeating section, ordered in increasing depth
 				// NB LOD 0 (full detail from 0 depth) is omitted
-                // Real fromSquaredDepth;
+                // float fromSquaredDepth;
                     M_MESH_LOD_MANUAL = 0x8110,
                     // Required if M_MESH_LOD section manual = true
                     // String manualMeshName;
@@ -211,9 +211,9 @@ namespace Ogre {
                     // OR
                     // unsigned int* faceIndexes;  (indexCount)
             M_MESH_BOUNDS = 0x9000
-                // Real minx, miny, minz
-                // Real maxx, maxy, maxz
-                // Real radius
+                // float minx, miny, minz
+                // float maxx, maxy, maxz
+                // float radius
 
 			// Added By DrEvil
 			// optional chunk that contains a table of submesh indexes and the names of

@@ -1992,13 +1992,25 @@ namespace Ogre {
 		// Use general 4D vector which is the same as GL's approach
 		vec = lt->getAs4DVector();
 
+#if OGRE_DOUBLE_PRECISION
+		// Must convert to float*
+		float tmp[4] = {vec.x, vec.y, vec.z, vec.w};
+		glLightfv(lightindex, GL_POSITION, tmp);
+#else
 		glLightfv(lightindex, GL_POSITION, vec.val);
+#endif
 		// Set spotlight direction
         if (lt->getType() == Light::LT_SPOTLIGHT)
         {
             vec = lt->getDerivedDirection();
             vec.w = 0.0; 
+#if OGRE_DOUBLE_PRECISION
+			// Must convert to float*
+			float tmp2[4] = {vec.x, vec.y, vec.z, vec.w};
+			glLightfv(lightindex, GL_SPOT_DIRECTION, tmp2);
+#else
             glLightfv(lightindex, GL_SPOT_DIRECTION, vec.val);
+#endif
         }
     }
     //---------------------------------------------------------------------

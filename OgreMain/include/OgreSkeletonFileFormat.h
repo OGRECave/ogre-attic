@@ -67,7 +67,7 @@ namespace Ogre {
         // A single animation for this skeleton
 
             // char* name                       : Name of the animation
-            // Real length                      : Length of the animation in seconds
+            // float length                      : Length of the animation in seconds
 
             SKELETON_ANIMATION_TRACK = 0x4100,
             // A single animation track (relates to a single bone)
@@ -79,7 +79,7 @@ namespace Ogre {
                 // A single keyframe within the track
                 // Repeating section
 
-                    // Real time                    : The time position (seconds)
+                    // float time                    : The time position (seconds)
                     // Quaternion rotate            : Rotation to apply at this keyframe
                     // Vector3 translate            : Translation to apply at this keyframe
                     // Vector3 scale                : Scale to apply at this keyframe

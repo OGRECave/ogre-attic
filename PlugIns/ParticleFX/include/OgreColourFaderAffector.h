@@ -86,17 +86,17 @@ namespace Ogre {
             values will be added to the colour of all particles every second, scaled over each frame
             for a smooth adjustment.
         */
-        void setAdjust(Real red, Real green, Real blue, Real alpha = 0.0);
+        void setAdjust(float red, float green, float blue, float alpha = 0.0);
         /** Sets the red adjustment to be made per second to particles. 
         @param red
             The adjustment to be made to the colour component per second. This
             value will be added to the colour of all particles every second, scaled over each frame
             for a smooth adjustment.
         */
-        void setRedAdjust(Real red);
+        void setRedAdjust(float red);
 
         /** Gets the red adjustment to be made per second to particles. */
-        Real getRedAdjust(void) const;
+        float getRedAdjust(void) const;
 
         /** Sets the green adjustment to be made per second to particles. 
         @param green
@@ -104,18 +104,18 @@ namespace Ogre {
             value will be added to the colour of all particles every second, scaled over each frame
             for a smooth adjustment.
         */
-        void setGreenAdjust(Real green);
+        void setGreenAdjust(float green);
         /** Gets the green adjustment to be made per second to particles. */
-        Real getGreenAdjust(void) const;
+        float getGreenAdjust(void) const;
         /** Sets the blue adjustment to be made per second to particles. 
         @param blue
             The adjustment to be made to the colour component per second. This
             value will be added to the colour of all particles every second, scaled over each frame
             for a smooth adjustment.
         */
-        void setBlueAdjust(Real blue);
+        void setBlueAdjust(float blue);
         /** Gets the blue adjustment to be made per second to particles. */
-        Real getBlueAdjust(void) const;
+        float getBlueAdjust(void) const;
 
         /** Sets the alpha adjustment to be made per second to particles. 
         @param alpha
@@ -123,9 +123,9 @@ namespace Ogre {
             value will be added to the colour of all particles every second, scaled over each frame
             for a smooth adjustment.
         */
-        void setAlphaAdjust(Real alpha);
+        void setAlphaAdjust(float alpha);
         /** Gets the alpha adjustment to be made per second to particles. */
-        Real getAlphaAdjust(void) const;
+        float getAlphaAdjust(void) const;
 
         static CmdRedAdjust msRedCmd;
         static CmdGreenAdjust msGreenCmd;
@@ -133,13 +133,13 @@ namespace Ogre {
         static CmdAlphaAdjust msAlphaCmd;
 
     protected:
-        Real mRedAdj;
-        Real mGreenAdj;
-        Real mBlueAdj;
-        Real mAlphaAdj;
+        float mRedAdj;
+        float mGreenAdj;
+        float mBlueAdj;
+        float mAlphaAdj;
 
         /** Internal method for adjusting while clamping to [0,1] */
-        inline void applyAdjustWithClamp(Real* pComponent, Real adjust)
+        inline void applyAdjustWithClamp(float* pComponent, float adjust)
         {
             *pComponent += adjust;
             // Limit to 0

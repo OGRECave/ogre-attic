@@ -208,7 +208,7 @@ namespace Ogre
         setConstant(index, colour.val, 1);
     }
     //-----------------------------------------------------------------------------
-    void GpuProgramParameters::setConstant(size_t index, const Real *val, size_t count)
+    void GpuProgramParameters::setConstant(size_t index, const float *val, size_t count)
     {
         // Expand if required
         if (mRealConstants.size() < index + count)
@@ -219,7 +219,27 @@ namespace Ogre
         {
             RealConstantEntry* e = &(mRealConstants[index++]);
             e->isSet = true;
-            memcpy(e->val, val, sizeof(Real) * 4);
+            memcpy(e->val, val, sizeof(float) * 4);
+            val += 4;
+        }
+
+    }
+    //-----------------------------------------------------------------------------
+    void GpuProgramParameters::setConstant(size_t index, const double *val, size_t count)
+    {
+        // Expand if required
+        if (mRealConstants.size() < index + count)
+        	mRealConstants.resize(index + count);
+
+        // Copy, casting to float
+        while (count--)
+        {
+            RealConstantEntry* e = &(mRealConstants[index++]);
+            e->isSet = true;
+			e->val[0] = static_cast<float>(val[0]);
+			e->val[1] = static_cast<float>(val[1]);
+			e->val[2] = static_cast<float>(val[2]);
+			e->val[3] = static_cast<float>(val[3]);
             val += 4;
         }
 
@@ -463,7 +483,12 @@ namespace Ogre
         setConstant(getParamIndex(name), m, numEntries);
     }
     //---------------------------------------------------------------------------
-	void GpuProgramParameters::setNamedConstant(const String& name, const Real *val, size_t count)
+	void GpuProgramParameters::setNamedConstant(const String& name, const float *val, size_t count)
+    {
+        setConstant(getParamIndex(name), val, count);
+    }
+    //---------------------------------------------------------------------------
+	void GpuProgramParameters::setNamedConstant(const String& name, const double *val, size_t count)
     {
         setConstant(getParamIndex(name), val, count);
     }

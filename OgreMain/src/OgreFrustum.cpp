@@ -66,7 +66,7 @@ namespace Ogre {
         mVertexData.vertexStart = 0;
         mVertexData.vertexBufferBinding->setBinding( 0,
             HardwareBufferManager::getSingleton().createVertexBuffer(
-                sizeof(Real)*3, 32, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY) );
+                sizeof(float)*3, 32, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY) );
 
         // Initialise material
         mMaterial = MaterialManager::getSingleton().getByName("BaseWhiteNoLighting");
@@ -330,60 +330,60 @@ namespace Ogre {
             // 1, 2, 3, 4 are the points on the near plane, top left first, clockwise
             // 5, 6, 7, 8 are the points on the far plane, top left first, clockwise
             HardwareVertexBufferSharedPtr vbuf = mVertexData.vertexBufferBinding->getBuffer(0);
-            Real* pReal = static_cast<Real*>(vbuf->lock(HardwareBuffer::HBL_DISCARD));
+            float* pFloat = static_cast<float*>(vbuf->lock(HardwareBuffer::HBL_DISCARD));
 
             // near plane (remember frustum is going in -Z direction)
-            *pReal++ = vpLeft;  *pReal++ = vpTop;    *pReal++ = -mNearDist;
-            *pReal++ = vpRight; *pReal++ = vpTop;    *pReal++ = -mNearDist;
+            *pFloat++ = vpLeft;  *pFloat++ = vpTop;    *pFloat++ = -mNearDist;
+            *pFloat++ = vpRight; *pFloat++ = vpTop;    *pFloat++ = -mNearDist;
 
-            *pReal++ = vpRight; *pReal++ = vpTop;    *pReal++ = -mNearDist;
-            *pReal++ = vpRight; *pReal++ = vpBottom; *pReal++ = -mNearDist;
+            *pFloat++ = vpRight; *pFloat++ = vpTop;    *pFloat++ = -mNearDist;
+            *pFloat++ = vpRight; *pFloat++ = vpBottom; *pFloat++ = -mNearDist;
 
-            *pReal++ = vpRight; *pReal++ = vpBottom; *pReal++ = -mNearDist;
-            *pReal++ = vpLeft;  *pReal++ = vpBottom; *pReal++ = -mNearDist;
+            *pFloat++ = vpRight; *pFloat++ = vpBottom; *pFloat++ = -mNearDist;
+            *pFloat++ = vpLeft;  *pFloat++ = vpBottom; *pFloat++ = -mNearDist;
 
-            *pReal++ = vpLeft;  *pReal++ = vpBottom; *pReal++ = -mNearDist;
-            *pReal++ = vpLeft;  *pReal++ = vpTop;    *pReal++ = -mNearDist;
+            *pFloat++ = vpLeft;  *pFloat++ = vpBottom; *pFloat++ = -mNearDist;
+            *pFloat++ = vpLeft;  *pFloat++ = vpTop;    *pFloat++ = -mNearDist;
 
             // far plane (remember frustum is going in -Z direction)
-            *pReal++ = farLeft;  *pReal++ = farTop;    *pReal++ = -farDist;
-            *pReal++ = farRight; *pReal++ = farTop;    *pReal++ = -farDist;
+            *pFloat++ = farLeft;  *pFloat++ = farTop;    *pFloat++ = -farDist;
+            *pFloat++ = farRight; *pFloat++ = farTop;    *pFloat++ = -farDist;
 
-            *pReal++ = farRight; *pReal++ = farTop;    *pReal++ = -farDist;
-            *pReal++ = farRight; *pReal++ = farBottom; *pReal++ = -farDist;
+            *pFloat++ = farRight; *pFloat++ = farTop;    *pFloat++ = -farDist;
+            *pFloat++ = farRight; *pFloat++ = farBottom; *pFloat++ = -farDist;
 
-            *pReal++ = farRight; *pReal++ = farBottom; *pReal++ = -farDist;
-            *pReal++ = farLeft;  *pReal++ = farBottom; *pReal++ = -farDist;
+            *pFloat++ = farRight; *pFloat++ = farBottom; *pFloat++ = -farDist;
+            *pFloat++ = farLeft;  *pFloat++ = farBottom; *pFloat++ = -farDist;
 
-            *pReal++ = farLeft;  *pReal++ = farBottom; *pReal++ = -farDist;
-            *pReal++ = farLeft;  *pReal++ = farTop;    *pReal++ = -farDist;
+            *pFloat++ = farLeft;  *pFloat++ = farBottom; *pFloat++ = -farDist;
+            *pFloat++ = farLeft;  *pFloat++ = farTop;    *pFloat++ = -farDist;
 
             // Sides of the pyramid
-            *pReal++ = 0.0f;    *pReal++ = 0.0f;   *pReal++ = 0.0f;
-            *pReal++ = vpLeft;  *pReal++ = vpTop;  *pReal++ = -mNearDist;
+            *pFloat++ = 0.0f;    *pFloat++ = 0.0f;   *pFloat++ = 0.0f;
+            *pFloat++ = vpLeft;  *pFloat++ = vpTop;  *pFloat++ = -mNearDist;
 
-            *pReal++ = 0.0f;    *pReal++ = 0.0f;   *pReal++ = 0.0f;
-            *pReal++ = vpRight; *pReal++ = vpTop;    *pReal++ = -mNearDist;
+            *pFloat++ = 0.0f;    *pFloat++ = 0.0f;   *pFloat++ = 0.0f;
+            *pFloat++ = vpRight; *pFloat++ = vpTop;    *pFloat++ = -mNearDist;
 
-            *pReal++ = 0.0f;    *pReal++ = 0.0f;   *pReal++ = 0.0f;
-            *pReal++ = vpRight; *pReal++ = vpBottom; *pReal++ = -mNearDist;
+            *pFloat++ = 0.0f;    *pFloat++ = 0.0f;   *pFloat++ = 0.0f;
+            *pFloat++ = vpRight; *pFloat++ = vpBottom; *pFloat++ = -mNearDist;
 
-            *pReal++ = 0.0f;    *pReal++ = 0.0f;   *pReal++ = 0.0f;
-            *pReal++ = vpLeft;  *pReal++ = vpBottom; *pReal++ = -mNearDist;
+            *pFloat++ = 0.0f;    *pFloat++ = 0.0f;   *pFloat++ = 0.0f;
+            *pFloat++ = vpLeft;  *pFloat++ = vpBottom; *pFloat++ = -mNearDist;
 
             // Sides of the box
 
-            *pReal++ = vpLeft;  *pReal++ = vpTop;  *pReal++ = -mNearDist;
-            *pReal++ = farLeft;  *pReal++ = farTop;  *pReal++ = -farDist;
+            *pFloat++ = vpLeft;  *pFloat++ = vpTop;  *pFloat++ = -mNearDist;
+            *pFloat++ = farLeft;  *pFloat++ = farTop;  *pFloat++ = -farDist;
 
-            *pReal++ = vpRight; *pReal++ = vpTop;    *pReal++ = -mNearDist;
-            *pReal++ = farRight; *pReal++ = farTop;    *pReal++ = -farDist;
+            *pFloat++ = vpRight; *pFloat++ = vpTop;    *pFloat++ = -mNearDist;
+            *pFloat++ = farRight; *pFloat++ = farTop;    *pFloat++ = -farDist;
 
-            *pReal++ = vpRight; *pReal++ = vpBottom; *pReal++ = -mNearDist;
-            *pReal++ = farRight; *pReal++ = farBottom; *pReal++ = -farDist;
+            *pFloat++ = vpRight; *pFloat++ = vpBottom; *pFloat++ = -mNearDist;
+            *pFloat++ = farRight; *pFloat++ = farBottom; *pFloat++ = -farDist;
 
-            *pReal++ = vpLeft;  *pReal++ = vpBottom; *pReal++ = -mNearDist;
-            *pReal++ = farLeft;  *pReal++ = farBottom; *pReal++ = -farDist;
+            *pFloat++ = vpLeft;  *pFloat++ = vpBottom; *pFloat++ = -mNearDist;
+            *pFloat++ = farLeft;  *pFloat++ = farBottom; *pFloat++ = -farDist;
 
 
             vbuf->unlock();
@@ -757,10 +757,10 @@ namespace Ogre {
             Real possTop = screenSpacePos.y + spheresize.y;
             Real possBottom = screenSpacePos.y - spheresize.y;
 
-            *left = std::max(-1.0f, possLeft);
-            *right = std::min(1.0f, possRight);
-            *top = std::min(1.0f, possTop);
-            *bottom = std::max(-1.0f, possBottom);
+            *left = std::max(static_cast<Real>(-1.0), possLeft);
+            *right = std::min(static_cast<Real>(1.0), possRight);
+            *top = std::min(static_cast<Real>(1.0), possTop);
+            *bottom = std::max(static_cast<Real>(-1.0), possBottom);
 
         }
 

@@ -165,13 +165,13 @@ namespace Ogre {
                 vbuf->hasShadowBuffer());
 
             // Iterate over the old buffer, copying the appropriate elements and initialising the rest
-            Real* pSrc;
+            float* pSrc;
             unsigned char *pBaseSrc = static_cast<unsigned char*>(
                 vbuf->lock(HardwareBuffer::HBL_READ_ONLY));
             // Point first destination pointer at the start of the new position buffer,
             // the other one half way along
-            Real *pDest = static_cast<Real*>(newPosBuffer->lock(HardwareBuffer::HBL_DISCARD));
-            Real* pDest2 = pDest + oldVertexCount * 3; 
+            float *pDest = static_cast<float*>(newPosBuffer->lock(HardwareBuffer::HBL_DISCARD));
+            float* pDest2 = pDest + oldVertexCount * 3; 
 
             // Precalculate any dimensions of vertex areas outside the position
             size_t prePosVertexSize, postPosVertexSize, postPosVertexOffset;
@@ -228,9 +228,9 @@ namespace Ogre {
             {
                 // Now it's time to set up the w buffer
                 hardwareShadowVolWBuffer = HardwareBufferManager::getSingleton().createVertexBuffer(
-                    sizeof(Real), newVertexCount, HardwareBuffer::HBU_STATIC_WRITE_ONLY, false);
+                    sizeof(float), newVertexCount, HardwareBuffer::HBU_STATIC_WRITE_ONLY, false);
                 // Fill the first half with 1.0, second half with 0.0
-                pDest = static_cast<Real*>(
+                pDest = static_cast<float*>(
                     hardwareShadowVolWBuffer->lock(HardwareBuffer::HBL_DISCARD));
                 for (v = 0; v < oldVertexCount; ++v)
                 {

@@ -440,7 +440,7 @@ namespace Ogre {
         if (mShowNodeAABs)
         {
             // Add set of lines
-            Real* pVertices = (Real*)mAABGeometry.pVertices + (mAABGeometry.numVertices*3);
+            float* pVertices = (float*)mAABGeometry.pVertices + (mAABGeometry.numVertices*3);
             unsigned short* pIndexes = mAABGeometry.pIndexes + mAABGeometry.numIndexes;
             unsigned long* pColours = (unsigned long*)mAABGeometry.pDiffuseColour + mAABGeometry.numVertices;
 

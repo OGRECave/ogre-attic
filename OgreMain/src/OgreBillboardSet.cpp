@@ -354,7 +354,7 @@ namespace Ogre {
         // Init num visible
         mNumVisibleBillboards = 0;
 
-        mLockPtr = static_cast<Real*>( 
+        mLockPtr = static_cast<float*>( 
             mMainBuf->lock(HardwareBuffer::HBL_DISCARD) );
 
     }
@@ -867,19 +867,19 @@ namespace Ogre {
         RGBA colour;
         Root::getSingleton().convertColourValue(bb.mColour, &colour);
 		RGBA* pCol;
-        static Real basicTexData[8] = {
+        static float basicTexData[8] = {
             0.0, 1.0,
             1.0, 1.0,
             0.0, 0.0,
             1.0, 0.0 };
-        static Real rotTexDataBase[8] = {
+        static float rotTexDataBase[8] = {
             -0.5, 0.5,
              0.5, 0.5,
             -0.5,-0.5,
              0.5,-0.5 };
-        static Real rotTexData[8];
+        static float rotTexData[8];
 
-		Real* pTexData;
+		float* pTexData;
 
         // Texcoords
         if (mFixedTextureCoords)
@@ -913,11 +913,11 @@ namespace Ogre {
         *mLockPtr++ = offsets[0].y + bb.mPosition.y;
         *mLockPtr++ = offsets[0].z + bb.mPosition.z;
 		// Colour
-		// Convert Real* to RGBA*
+		// Convert float* to RGBA*
         pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
         *pCol++ = colour;
         // Update lock pointer
-        mLockPtr = static_cast<Real*>(static_cast<void*>(pCol));
+        mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
 		// Texture coords
 		*mLockPtr++ = *pTexData++;
 		*mLockPtr++ = *pTexData++;
@@ -929,11 +929,11 @@ namespace Ogre {
         *mLockPtr++ = offsets[1].y + bb.mPosition.y;
         *mLockPtr++ = offsets[1].z + bb.mPosition.z;
 		// Colour
-		// Convert Real* to RGBA*
+		// Convert float* to RGBA*
         pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
         *pCol++ = colour;
         // Update lock pointer
-        mLockPtr = static_cast<Real*>(static_cast<void*>(pCol));
+        mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
 		// Texture coords
 		*mLockPtr++ = *pTexData++;
 		*mLockPtr++ = *pTexData++;
@@ -944,11 +944,11 @@ namespace Ogre {
         *mLockPtr++ = offsets[2].y + bb.mPosition.y;
         *mLockPtr++ = offsets[2].z + bb.mPosition.z;
 		// Colour
-		// Convert Real* to RGBA*
+		// Convert float* to RGBA*
         pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
         *pCol++ = colour;
         // Update lock pointer
-        mLockPtr = static_cast<Real*>(static_cast<void*>(pCol));
+        mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
 		// Texture coords
 		*mLockPtr++ = *pTexData++;
 		*mLockPtr++ = *pTexData++;
@@ -959,11 +959,11 @@ namespace Ogre {
         *mLockPtr++ = offsets[3].y + bb.mPosition.y;
         *mLockPtr++ = offsets[3].z + bb.mPosition.z;
 		// Colour
-		// Convert Real* to RGBA*
+		// Convert float* to RGBA*
         pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
         *pCol++ = colour;
         // Update lock pointer
-        mLockPtr = static_cast<Real*>(static_cast<void*>(pCol));
+        mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
 		// Texture coords
 		*mLockPtr++ = *pTexData++;
 		*mLockPtr++ = *pTexData++;

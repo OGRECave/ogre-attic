@@ -183,17 +183,17 @@ namespace Ogre {
         }
         /** Adjusts a pointer to the base of a vertex to point at this element.
         @remarks
-            This variant is for Real pointers, passed as a parameter because we can't
+            This variant is for float pointers, passed as a parameter because we can't
             rely on covariant return types.
         @param pBase Pointer to the start of a vertex in this buffer.
         @param pElem Pointer to a pointer which will be set to the start of this element.
         */
-        inline void baseVertexPointerToElement(void* pBase, Real** pElem) const
+        inline void baseVertexPointerToElement(void* pBase, float** pElem) const
         {
             // The only way we can do this is to cast to char* in order to use byte offset
-            // then cast back to Real*. However we have to go via void* because casting  
+            // then cast back to float*. However we have to go via void* because casting  
             // directly is not allowed
-            *pElem = static_cast<Real*>(
+            *pElem = static_cast<float*>(
                 static_cast<void*>(
                     static_cast<unsigned char*>(pBase) + mOffset));
         }

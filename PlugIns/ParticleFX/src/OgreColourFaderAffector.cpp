@@ -68,7 +68,7 @@ namespace Ogre {
     {
         ParticleIterator pi = pSystem->_getIterator();
         Particle *p;
-        Real dr, dg, db, da;
+        float dr, dg, db, da;
 
         // Scale adjustments by time
         dr = mRedAdj * timeElapsed;
@@ -87,7 +87,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void ColourFaderAffector::setAdjust(Real red, Real green, Real blue, Real alpha)
+    void ColourFaderAffector::setAdjust(float red, float green, float blue, float alpha)
     {
         mRedAdj = red;
         mGreenAdj = green;
@@ -95,42 +95,42 @@ namespace Ogre {
         mAlphaAdj = alpha;
     }
     //-----------------------------------------------------------------------
-    void ColourFaderAffector::setRedAdjust(Real red)
+    void ColourFaderAffector::setRedAdjust(float red)
     {
         mRedAdj = red;
     }
     //-----------------------------------------------------------------------
-    Real ColourFaderAffector::getRedAdjust(void) const
+    float ColourFaderAffector::getRedAdjust(void) const
     {
         return mRedAdj;
     }
     //-----------------------------------------------------------------------
-    void ColourFaderAffector::setGreenAdjust(Real green)
+    void ColourFaderAffector::setGreenAdjust(float green)
     {
         mGreenAdj = green;
     }
     //-----------------------------------------------------------------------
-    Real ColourFaderAffector::getGreenAdjust(void) const
+    float ColourFaderAffector::getGreenAdjust(void) const
     {
         return mGreenAdj;
     }
     //-----------------------------------------------------------------------
-    void ColourFaderAffector::setBlueAdjust(Real blue)
+    void ColourFaderAffector::setBlueAdjust(float blue)
     {
         mBlueAdj = blue;
     }
     //-----------------------------------------------------------------------
-    Real ColourFaderAffector::getBlueAdjust(void) const
+    float ColourFaderAffector::getBlueAdjust(void) const
     {
         return mBlueAdj;
     }
     //-----------------------------------------------------------------------
-    void ColourFaderAffector::setAlphaAdjust(Real alpha)
+    void ColourFaderAffector::setAlphaAdjust(float alpha)
     {
         mAlphaAdj = alpha;
     }
     //-----------------------------------------------------------------------
-    Real ColourFaderAffector::getAlphaAdjust(void) const
+    float ColourFaderAffector::getAlphaAdjust(void) const
     {
         return mAlphaAdj;
     }

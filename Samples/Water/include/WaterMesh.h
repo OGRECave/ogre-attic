@@ -31,7 +31,7 @@ class WaterMesh
 private:
 	MeshPtr mesh ;
 	SubMesh *subMesh ; 
-	Real *vertexBuffers[3] ; // we need 3 vertex buffers
+	float *vertexBuffers[3] ; // we need 3 vertex buffers
 	int currentBuffNumber ;
 	int complexity ;
 	String meshName ;

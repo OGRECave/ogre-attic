@@ -190,7 +190,7 @@ namespace Ogre {
 		// lock the buffer for reading
 		unsigned char* pVertex = static_cast<unsigned char*>(
 			vbuf->lock(HardwareBuffer::HBL_READ_ONLY));
-		Real* pReal;
+		float* pFloat;
 		Vector3 pos;
 		// Map for identifying duplicate position vertices
 		typedef std::map<Vector3, size_t, vectorLess> CommonVertexMap;
@@ -200,11 +200,11 @@ namespace Ogre {
         size_t i = 0;
         for (i = 0; i < vertexData->vertexCount; ++i, pVertex += vbuf->getVertexSize())
         {
-			posElem->baseVertexPointerToElement(pVertex, &pReal);
+			posElem->baseVertexPointerToElement(pVertex, &pFloat);
 
-            pos.x = *pReal++;
-            pos.y = *pReal++;
-            pos.z = *pReal++;
+            pos.x = *pFloat++;
+            pos.y = *pFloat++;
+            pos.z = *pFloat++;
 
 			// Try to find this position in the existing map 
 			iCommonVertex = commonVertexMap.find(pos);

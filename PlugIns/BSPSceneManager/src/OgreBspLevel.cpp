@@ -393,8 +393,9 @@ namespace Ogre {
             {
                 dest->fType = FGT_FACE_LIST;
                 // Assign plane
-                dest->plane.normal = Vector3(src->normal);
-                dest->plane.d = -dest->plane.normal.dotProduct(Vector3(src->org));
+                dest->plane.normal = Vector3(src->normal[0], src->normal[1], src->normal[2]);
+                dest->plane.d = -dest->plane.normal.dotProduct(
+					Vector3(src->org[0], src->org[1], src->org[2]));
 
                 // Don't rebase indexes here - Quake3 re-uses some indexes for multiple vertex
                 // groups eg repeating small details have the same relative vertex data but
@@ -432,8 +433,9 @@ namespace Ogre {
 			{
 				dest->fType = FGT_FACE_LIST;
 				// Assign plane
-				dest->plane.normal = Vector3(src->normal);
-				dest->plane.d = -dest->plane.normal.dotProduct(Vector3(src->org));                
+				dest->plane.normal = Vector3(src->normal[0], src->normal[1], src->normal[2]);
+				dest->plane.d = -dest->plane.normal.dotProduct(
+					Vector3(src->org[0], src->org[1], src->org[2]));                
 			}
 			else
 			{
@@ -487,7 +489,9 @@ namespace Ogre {
             // Set owner
             node->mOwner = this;
             // Set plane
-            node->mSplitPlane.normal = Vector3(q3lvl.mPlanes[q3node->plane].normal);
+            node->mSplitPlane.normal.x = q3lvl.mPlanes[q3node->plane].normal[0];
+            node->mSplitPlane.normal.y = q3lvl.mPlanes[q3node->plane].normal[1];
+            node->mSplitPlane.normal.z = q3lvl.mPlanes[q3node->plane].normal[2];
             node->mSplitPlane.d = -q3lvl.mPlanes[q3node->plane].dist;
             // Set bounding box
             node->mBounds.setMinimum(Vector3(&q3node->bbox[0]));
@@ -565,7 +569,12 @@ namespace Ogre {
                 bsp_plane_t* q3brushplane = &q3lvl.mPlanes[q3brushside->planenum];
                 // Notice how we normally invert Q3A plane distances, but here we do not
                 // Because we want plane normals pointing out of solid brushes, not in
-                Plane brushSide(Vector3(q3brushplane->normal), q3brushplane->dist);
+                Plane brushSide(
+					Vector3(
+						q3brushplane->normal[0], 
+						q3brushplane->normal[1], 
+						q3brushplane->normal[2]), 
+					q3brushplane->dist);
                 pBrush->planes.push_back(brushSide);
                 ++brushSideIdx;
             }
@@ -951,8 +960,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BspLevel::quakeVertexToBspVertex(const bsp_vertex_t* src, BspVertex* dest)
     {
-        memcpy(dest->position, src->point, sizeof(Real) * 3);
-        memcpy(dest->normal, src->normal,  sizeof(Real) * 3);
+        memcpy(dest->position, src->point, sizeof(float) * 3);
+        memcpy(dest->normal, src->normal,  sizeof(float) * 3);
         dest->colour = src->color;
         dest->texcoords[0]  = src->texture[0];
         dest->texcoords[1]  = src->texture[1];

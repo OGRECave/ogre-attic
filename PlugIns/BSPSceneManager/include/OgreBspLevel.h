@@ -113,11 +113,11 @@ namespace Ogre {
         */
         struct BspVertex
         {
-            Real position[3];
-            Real normal[3];
+            float position[3];
+            float normal[3];
             int colour;
-            Real texcoords[2];
-            Real lightmap[2];
+            float texcoords[2];
+            float lightmap[2];
         };
         /*
         /// Array of vertices for whole level.

@@ -137,7 +137,7 @@ namespace Ogre {
         and may actually be being used internally by the program. */
         struct RealConstantEntry
         {
-            Real val[4];
+            float val[4];
             bool isSet;
             RealConstantEntry() : isSet(false) {}
         };
@@ -210,7 +210,14 @@ namespace Ogre {
 		@param val Pointer to the values to write, must contain 4*count floats
 		@param count The number of groups of 4 floats to write
 		*/
-		void setConstant(size_t index, const Real *val, size_t count);
+		void setConstant(size_t index, const float *val, size_t count);
+		/** Sets a multiple value constant floating-point parameter to the program.
+		@param index The constant index at which to start placing parameters (each constant is
+            a 4D float)
+		@param val Pointer to the values to write, must contain 4*count floats
+		@param count The number of groups of 4 floats to write
+		*/
+		void setConstant(size_t index, const double *val, size_t count);
 		/** Sets a ColourValue parameter to the program.
 		@param index The constant index at which to place the parameter (each constant is
             a 4D float)
@@ -410,7 +417,28 @@ namespace Ogre {
 		@param val Pointer to the values to write
 		@param count The number of floats to write
 		*/
-		void setNamedConstant(const String& name, const Real *val, size_t count);
+		void setNamedConstant(const String& name, const float *val, size_t count);
+		/** Sets a multiple value constant floating-point parameter to the program.
+        @remarks
+            Different types of GPU programs support different types of constant parameters.
+            For example, it's relatively common to find that vertex programs only support
+            floating point constants, and that fragment programs only support integer (fixed point)
+            parameters. This can vary depending on the program version supported by the
+            graphics card being used. You should consult the documentation for the type of
+            low level program you are using, or alternatively use the methods
+            provided on RenderSystemCapabilities to determine the options.
+        @par
+            Another possible limitation is that some systems only allow constants to be set
+            on certain boundaries, e.g. in sets of 4 values for example. Again, see
+            RenderSystemCapabilities for full details.
+        @note
+            This named option will only work if you are using a parameters object created
+            from a high-level program (HighLevelGpuProgram).
+        @param name The name of the parameter
+		@param val Pointer to the values to write
+		@param count The number of floats to write
+		*/
+		void setNamedConstant(const String& name, const double *val, size_t count);
 		/** Sets a ColourValue parameter to the program.
         @param name The name of the parameter
 		@param colour The value to set

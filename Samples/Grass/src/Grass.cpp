@@ -220,7 +220,7 @@ protected:
 		HardwareVertexBufferSharedPtr vbuf = HardwareBufferManager::getSingleton()
 			.createVertexBuffer(
 				offset, 12, HardwareBuffer::HBU_STATIC_WRITE_ONLY);
-		Real* pReal = static_cast<Real*>(vbuf->lock(HardwareBuffer::HBL_DISCARD));
+		float* pReal = static_cast<float*>(vbuf->lock(HardwareBuffer::HBL_DISCARD));
 		Vector3 baseVec(GRASS_WIDTH/2, 0, 0);
 		Vector3 vec = baseVec;
 		Quaternion rot;

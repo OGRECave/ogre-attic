@@ -146,7 +146,7 @@ namespace Ogre {
 
     void TextAreaOverlayElement::updatePositionGeometry()
     {
-		Real *pVert;
+		float *pVert;
 
 		if (mpFont.isNull())
 		{
@@ -161,7 +161,7 @@ namespace Ogre {
 		// Get position / texcoord buffer
 		HardwareVertexBufferSharedPtr vbuf = 
 			mRenderOp.vertexData->vertexBufferBinding->getBuffer(POS_TEX_BINDING);
-		pVert = static_cast<Real*>(
+		pVert = static_cast<float*>(
 			vbuf->lock(HardwareBuffer::HBL_DISCARD) );
 
 		float largestWidth = 0;

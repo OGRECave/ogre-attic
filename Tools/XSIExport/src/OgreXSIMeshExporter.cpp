@@ -455,7 +455,7 @@ namespace Ogre {
         VertexDeclaration::VertexElementList elems = vd->vertexDeclaration->findElementsBySource(bufIdx);
         VertexDeclaration::VertexElementList::iterator ei, eiend;
         eiend = elems.end();
-        Real* pReal;
+        float* pFloat;
         RGBA* pRGBA;
 
         UniqueVertexList::iterator srci = mUniqueVertices.begin();
@@ -468,25 +468,25 @@ namespace Ogre {
                 switch(elem.getSemantic())
                 {
                 case VES_POSITION:
-                    elem.baseVertexPointerToElement(pBase, &pReal);
-                    *pReal++ = srci->position.x;
-                    *pReal++ = srci->position.y;
-                    *pReal++ = srci->position.z;
+                    elem.baseVertexPointerToElement(pBase, &pFloat);
+                    *pFloat++ = srci->position.x;
+                    *pFloat++ = srci->position.y;
+                    *pFloat++ = srci->position.z;
                     break;
                 case VES_NORMAL:
-                    elem.baseVertexPointerToElement(pBase, &pReal);
-                    *pReal++ = srci->normal.x;
-                    *pReal++ = srci->normal.y;
-                    *pReal++ = srci->normal.z;
+                    elem.baseVertexPointerToElement(pBase, &pFloat);
+                    *pFloat++ = srci->normal.x;
+                    *pFloat++ = srci->normal.y;
+                    *pFloat++ = srci->normal.z;
                     break;
                 case VES_DIFFUSE:
                     elem.baseVertexPointerToElement(pBase, &pRGBA);
                     *pRGBA = srci->colour;
                     break;
                 case VES_TEXTURE_COORDINATES:
-                    elem.baseVertexPointerToElement(pBase, &pReal);
-                    *pReal++ = srci->uv[elem.getIndex()].x;
-                    *pReal++ = srci->uv[elem.getIndex()].y;
+                    elem.baseVertexPointerToElement(pBase, &pFloat);
+                    *pFloat++ = srci->uv[elem.getIndex()].x;
+                    *pFloat++ = srci->uv[elem.getIndex()].y;
                     break;
                 }
             }

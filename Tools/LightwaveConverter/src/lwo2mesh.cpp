@@ -406,9 +406,9 @@ void Lwo2MeshWriter::copyDataToVertexData(vpoints &points,
 	HardwareVertexBufferSharedPtr tbuf = vertexData->vertexBufferBinding->getBuffer(TEXCOORD_BINDING);
 	HardwareIndexBufferSharedPtr ibuf = indexData->indexBuffer;
 
-	Real* pPos = static_cast<Real*>(pbuf->lock(HardwareBuffer::HBL_DISCARD));
-	Real* pNor = static_cast<Real*>(nbuf->lock(HardwareBuffer::HBL_DISCARD));
-	Real* pTex = static_cast<Real*>(tbuf->lock(HardwareBuffer::HBL_DISCARD));
+	float* pPos = static_cast<float*>(pbuf->lock(HardwareBuffer::HBL_DISCARD));
+	float* pNor = static_cast<float*>(nbuf->lock(HardwareBuffer::HBL_DISCARD));
+	float* pTex = static_cast<float*>(tbuf->lock(HardwareBuffer::HBL_DISCARD));
 	unsigned short *pIdx = static_cast<unsigned short*>(ibuf->lock(HardwareBuffer::HBL_DISCARD));
 
 	for (unsigned int p = 0; p < polygons.size(); p++)

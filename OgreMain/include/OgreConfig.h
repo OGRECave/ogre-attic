@@ -47,7 +47,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define OGRE_PRETEND_TEXTURE_UNITS 0
 
 /** If set to 1, Real is typedef'ed to double. Otherwise, Real is typedef'ed
-    to float.
+    to float. Setting this allows you to perform mathematical operations in the
+	CPU (Quaternion, Vector3 etc) with more precision, but bear in mind that the
+	GPU still operates in single-precision mode. 
 */
 #define OGRE_DOUBLE_PRECISION 0
 

@@ -70,11 +70,11 @@ namespace Ogre {
         const VertexElement* elem = declaration->findElementBySemantic(VES_POSITION);
         size_t vertSize = declaration->getVertexSize(0);
         const unsigned char *pVert = static_cast<const unsigned char*>(controlPointBuffer);
-        Real* pReal;
+        float* pFloat;
         for (size_t i = 0; i < mCtlCount; ++i)
         {
-            elem->baseVertexPointerToElement((void*)pVert, &pReal);
-            mVecCtlPoints.push_back(Vector3(pReal));
+            elem->baseVertexPointerToElement((void*)pVert, &pFloat);
+            mVecCtlPoints.push_back(Vector3(pFloat[0], pFloat[1], pFloat[2]));
             pVert += vertSize;
         }
 
@@ -393,7 +393,7 @@ namespace Ogre {
 
         void* pSrc = mControlPointBuffer;
         size_t vertexSize = mDeclaration->getVertexSize(0);
-        Real *pSrcReal, *pDestReal;
+        float *pSrcReal, *pDestReal;
         RGBA *pSrcRGBA, *pDestRGBA;
         void* pDest;
         const VertexElement* elemPos = mDeclaration->findElementBySemantic(VES_POSITION);
@@ -641,7 +641,7 @@ namespace Ogre {
         const VertexElement* elemTex0 = mDeclaration->findElementBySemantic(VES_TEXTURE_COORDINATES, 0);
         const VertexElement* elemTex1 = mDeclaration->findElementBySemantic(VES_TEXTURE_COORDINATES, 1);
 
-        Real *pDestReal, *pLeftReal, *pRightReal;
+        float *pDestReal, *pLeftReal, *pRightReal;
         unsigned char *pDestChar, *pLeftChar, *pRightChar;
         unsigned char *pDest, *pLeft, *pRight;
 
