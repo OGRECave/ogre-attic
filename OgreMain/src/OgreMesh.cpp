@@ -452,7 +452,7 @@ namespace Ogre {
                 totalWeight += i->second.weight;
             }
             // Now normalise if total weight is outside tolerance
-            if (Math::RealEqual(totalWeight, 1.0f))
+            if (!Math::RealEqual(totalWeight, 1.0f))
             {
                 for (i = normalise_range.first; i != normalise_range.second; ++i)
                 {
