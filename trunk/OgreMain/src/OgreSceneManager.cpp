@@ -658,24 +658,26 @@ namespace Ogre {
         }
 
         // Set camera window clipping planes (if any)
-        if (camera->isWindowSet())
-        {
-            const std::vector<Plane>& planeList = 
-                camera->getWindowPlanes();
-            for (int i = 0; i < 4; ++i)
-            {
-                mDestRenderSystem->enableClipPlane(i, true);
-                mDestRenderSystem->setClipPlane(i, planeList[i]);
-            }
-        }
-        else
-        {
-            for (int i = 0; i < 4; ++i)
-            {
-                mDestRenderSystem->enableClipPlane(i, false);
-            }
-        }
-
+		if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_USER_CLIP_PLANES))
+		{
+			if (camera->isWindowSet())  
+			{
+				const std::vector<Plane>& planeList = 
+					camera->getWindowPlanes();
+				for (int i = 0; i < 4; ++i)
+				{
+					mDestRenderSystem->enableClipPlane(i, true);
+					mDestRenderSystem->setClipPlane(i, planeList[i]);
+				}
+			}
+			else
+			{
+				for (int i = 0; i < 4; ++i)
+				{
+					mDestRenderSystem->enableClipPlane(i, false);
+				}
+			}
+		}
         // Clear the render queue
         mRenderQueue.clear();
 

@@ -67,7 +67,9 @@ namespace Ogre {
         /// Supports wrapping the stencil value at the range extremeties
         RSC_STENCIL_WRAP            = 0x00010000,
         /// Supports hardware occlusion queries
-        RSC_HWOCCLUSION				= 0x00020000
+        RSC_HWOCCLUSION				= 0x00020000,
+        /// Supports user clipping planes
+        RSC_USER_CLIP_PLANES		= 0x00040000
 
     };
 
