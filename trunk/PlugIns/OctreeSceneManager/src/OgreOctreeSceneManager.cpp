@@ -353,7 +353,7 @@ void OctreeSceneManager::_addOctreeNode( OctreeNode * n, Octree *octant, int dep
             octant -> mChildren[ x ][ y ][ z ] -> mHalfSize = ( max - min ) / 2;
         }
 
-        _addOctreeNode( n, octant -> mChildren[ x ][ y ][ z ], depth++ );
+        _addOctreeNode( n, octant -> mChildren[ x ][ y ][ z ], ++depth );
 
     }
 
