@@ -202,9 +202,10 @@ namespace OgreRefApp
             dReal dquat[4] = {orientation.w, orientation.x, orientation.y, orientation.z };
             // Hmm, no setQuaternion on proxy
             //pProxy->setQuaternion(dquat);
-            dMatrix3 m3; 
-            dQtoR(dquat, m3); 
-            pProxy->setRotation(m3); 
+            dMatrix3 m3;
+            dQtoR(dquat, m3);
+            pProxy->setRotation(m3); 
+        }
 
     }
     //-------------------------------------------------------------------------
