@@ -88,36 +88,36 @@ namespace Ogre {
             Scene objects can include Entity objects, Camera objects, Light objects, 
             ParticleSystem objects etc. Anything that subclasses from MovableObject.
         */
-        void attachObject(MovableObject* obj);
+        virtual void attachObject(MovableObject* obj);
 
         /** Reports the number of objects attached to this node.
         */
-        unsigned short numAttachedObjects(void);
+        virtual unsigned short numAttachedObjects(void);
 
         /** Retrieves a pointer to an attached object.
         @remarks Retrieves by index, see alternate version to retrieve by name. The index
         of an object may change as other objects are added / removed.
         */
-        MovableObject* getAttachedObject(unsigned short index);
+        virtual MovableObject* getAttachedObject(unsigned short index);
 
         /** Retrieves a pointer to an attached object.
         @remarks Retrieves by object name, see alternate version to retrieve by index.
         */
-        MovableObject* getAttachedObject(const String& name);
+        virtual MovableObject* getAttachedObject(const String& name);
 
         /** Detaches the indexed object from this scene node.
         @remarks
             Detaches by index, see the alternate version to detach by name. Object indexes
             may change as other objects are added / removed.
         */
-        MovableObject* detachObject(unsigned short index);
+        virtual MovableObject* detachObject(unsigned short index);
 
         /** Detaches the named object from this node and returns a pointer to it. */
-        MovableObject* detachObject(const String& name);
+        virtual MovableObject* detachObject(const String& name);
 
         /** Detaches all objects attached to this node.
         */
-        void detachAllObjects(void);
+        virtual void detachAllObjects(void);
 
         /** Adds a light to this node.
         @remarks
@@ -161,7 +161,7 @@ namespace Ogre {
                 displayNodes If true, the nodes themselves are rendered as a set of 3 axes as well
                     as the objects being rendered. For debugging purposes.
         */
-        void _findVisibleObjects(Camera* cam, RenderQueue* queue, 
+        virtual void _findVisibleObjects(Camera* cam, RenderQueue* queue, 
             bool includeChildren = true, bool displayNodes = false);
 
         /** Gets the axis-aligned bounding box of this node (and hence all subnodes).
@@ -169,7 +169,7 @@ namespace Ogre {
             Recommended only if you are extending a SceneManager, because the bounding box returned
             from this method is only up to date after the SceneManager has called _update.
         */
-        AxisAlignedBox _getWorldAABB(void) const;
+        virtual AxisAlignedBox _getWorldAABB(void) const;
 
         /** Retrieves an iterator which can be used to efficiently step through the objects 
             attached to this node.
@@ -181,7 +181,7 @@ namespace Ogre {
             until the end, or retrieve a new iterator after making the change. Making changes to
             the object returned through the iterator is OK though.
         */
-        ObjectIterator getAttachedObjectIterator(void);
+        virtual ObjectIterator getAttachedObjectIterator(void);
 
 
         /** Gets the creator of this scene node. 
@@ -201,7 +201,7 @@ namespace Ogre {
             detaching it from it's parent. Note that any objects attached to
             the nodes will be detached but will not themselves be destroyed.
         */
-        void removeAndDestroyChild(const String& name);
+        virtual void removeAndDestroyChild(const String& name);
 
         /** This method removes and destroys the child and all of its children.
         @remarks
@@ -213,7 +213,7 @@ namespace Ogre {
             detaching it from it's parent. Note that any objects attached to
             the nodes will be detached but will not themselves be destroyed.
         */
-        void removeAndDestroyChild(unsigned short index);
+        virtual void removeAndDestroyChild(unsigned short index);
 
         /** Removes and destroys all children of this node.
         @remarks
@@ -221,17 +221,17 @@ namespace Ogre {
             them from the scene graph. Note that all objects attached to this
             node will be detached but will not be destroyed.
         */
-        void removeAndDestroyAllChildren(void);
+        virtual void removeAndDestroyAllChildren(void);
 
         /** Allows the showing of the node's bounding box.
         @remarks
             Use this to show or hide the bounding box of the node.
         */
-		void showBoundingBox(bool bShow);
+		virtual void showBoundingBox(bool bShow);
 
         /** Add the bounding box to the rendering queue.
         */
-		void _addBoundingBoxToQueue(RenderQueue* queue);
+		virtual void _addBoundingBoxToQueue(RenderQueue* queue);
 
         /** This allows scene managers to determine if the node's bounding box
 			should be added to the rendering queue.
@@ -240,7 +240,7 @@ namespace Ogre {
 			check this flag and then use _addBoundingBoxToQueue to add the bounding box
 			wireframe.
         */
-		bool getShowBoundingBox();
+		virtual bool getShowBoundingBox();
 
     };
 

@@ -75,6 +75,8 @@ namespace Ogre {
         */
         void _notifyObjectMoved(const MovableObject* mov, 
             const Vector3& pos);
+		/** Internal method, makes sure an object is removed from the leaves when detached from a node. */
+		void _notifyObjectDetached(const MovableObject* mov);
     protected:
         /** Pointer to the root node of the BSP tree;
             This pointer actually has a dual purpose; to avoid allocating lots of small chunks of

@@ -46,6 +46,33 @@ namespace Ogre {
         }
 
     }
+	//-------------------------------------------------------------------------
+	MovableObject* BspSceneNode::detachObject(unsigned short index)
+	{
+		MovableObject* ret = SceneNode::detachObject(index);
+		static_cast<BspSceneManager*>(mCreator)->_notifyObjectDetached(ret);
+		return ret;
+		
+	}
+	//-------------------------------------------------------------------------
+	MovableObject* BspSceneNode::detachObject(const String& name)
+	{
+		MovableObject* ret = SceneNode::detachObject(name);
+		static_cast<BspSceneManager*>(mCreator)->_notifyObjectDetached(ret);
+		return ret;
+	}
+	//-------------------------------------------------------------------------
+	void BspSceneNode::detachAllObjects(void)
+	{
+		ObjectMap::const_iterator i, iend;
+		iend = mObjectsByName.end();
+		for (i = mObjectsByName.begin(); i != iend; ++i)
+		{
+			static_cast<BspSceneManager*>(mCreator)
+				->_notifyObjectDetached(i->second);
+		}
+		SceneNode::detachAllObjects();
+	}
 
 }
 
