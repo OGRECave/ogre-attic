@@ -268,13 +268,69 @@ namespace Ogre {
 
     };
 
+    /*
+    /// Specialises the SceneQuery class for querying within a pyramid. 
+    class _OgreExport PyramidSceneQuery : public RegionSceneQuery
+    {
+    public:
+        PyramidSceneQuery(SceneManager* mgr);
+        virtual ~PyramidSceneQuery();
+    };
+    */
+
+    /** Alternative listener class for dealing with RaySceneQuery.
+    @remarks
+        Because the RaySceneQuery returns results in an extra bit of information, namely
+        distance, the listener interface must be customised from the standard SceneQueryListener.
+    */
+    class _OgreExport RaySceneQueryListener 
+    {
+    public:
+        /** Called when a movable objects intersects the ray.
+        @remarks
+            As with SceneQueryListener, the implementor of this method should return 'true'
+            if further results are required, or 'false' to abandon any further results from
+            the current query.
+        */
+        virtual bool queryResult(MovableObject* obj, Real distance) = 0;
+
+        /** Called when a world fragment is intersected by the ray. 
+        @remarks
+            As with SceneQueryListener, the implementor of this method should return 'true'
+            if further results are required, or 'false' to abandon any further results from
+            the current query.
+        */
+        virtual bool queryResult(SceneQuery::WorldFragment* fragment, Real distance) = 0;
+
+    };
+      
+    /** This struct allows a single comparison of result data no matter what the type */
+    struct _OgreExport RaySceneQueryResultEntry
+    {
+        /// Distance along the ray
+        Real distance;
+        /// The movable, or NULL if this is not a movable result
+        MovableObject* movable;
+        /// The world fragment, or NULL if this is not a fragment result
+        SceneQuery::WorldFragment* worldFragment;
+        /// Comparison operator for sorting
+        bool operator < (const RaySceneQueryResultEntry& rhs) const
+        {
+            return this->distance < rhs.distance;
+        }
+
+    };
+    typedef std::list<RaySceneQueryResultEntry> RaySceneQueryResult;
+
     /** Specialises the SceneQuery class for querying along a ray. */
-    class _OgreExport RaySceneQuery : public RegionSceneQuery
+    class _OgreExport RaySceneQuery : public SceneQuery, public RaySceneQueryListener
     {
     protected:
         Ray mRay;
         bool mSortByDistance;
         ushort mMaxResults;
+        RaySceneQueryResult* mLastResult;
+
     public:
         RaySceneQuery(SceneManager* mgr);
         virtual ~RaySceneQuery();
@@ -306,22 +362,46 @@ namespace Ogre {
         /** Gets the maximum number of results returned from the query (only relevant if 
         results are being sorted) */
         ushort getMaxResults(void);
+        /** Executes the query, returning the results back in one list.
+        @remarks
+            This method executes the scene query as configured, gathers the results
+            into one structure and returns a reference to that structure. These
+            results will also persist in this query object until the next query is
+            executed, or clearResults() is called. An more lightweight version of
+            this method that returns results through a listener is also available.
+        */
+        virtual RaySceneQueryResult& execute(void);
+
+        /** Executes the query and returns each match through a listener interface. 
+        @remarks
+            Note that this method does not store the results of the query internally 
+            so does not update the 'last result' value. This means that this version of
+            execute is more lightweight and therefore more efficient than the version 
+            which returns the results as a collection.
+        */
+        virtual void execute(RaySceneQueryListener* listener) = 0;
+
+        /** Gets the results of the last query that was run using this object, provided
+            the query was executed using the collection-returning version of execute. 
+        */
+        virtual RaySceneQueryResult& getLastResults(void);
+        /** Clears the results of the last query execution.
+        @remarks
+            You only need to call this if you specifically want to free up the memory
+            used by this object to hold the last query results. This object clears the
+            results itself when executing and when destroying itself.
+        */
+        virtual void clearResults(void);
+
+        /** Self-callback in order to deal with execute which returns collection. */
+        bool queryResult(MovableObject* obj, Real distance);
+        /** Self-callback in order to deal with execute which returns collection. */
+        bool queryResult(SceneQuery::WorldFragment* fragment, Real distance);
 
 
 
 
     };
-
-    /*
-    /// Specialises the SceneQuery class for querying within a pyramid. 
-    class _OgreExport PyramidSceneQuery : public RegionSceneQuery
-    {
-    public:
-        PyramidSceneQuery(SceneManager* mgr);
-        virtual ~PyramidSceneQuery();
-    };
-    */
-
 
     /** Alternative listener class for dealing with IntersectionSceneQuery.
     @remarks

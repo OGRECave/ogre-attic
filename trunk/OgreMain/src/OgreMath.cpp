@@ -450,7 +450,7 @@ namespace Ogre
         const Vector3& raydir = ray.getDirection();
 
         // Check origin inside first
-        if ( !(rayorig < min || rayorig > max) )
+        if ( rayorig > min && rayorig < max )
         {
             return std::pair<bool, Real>(true, 0);
         }
@@ -466,7 +466,7 @@ namespace Ogre
                 hitpoint = rayorig + raydir * t;
                 if (hitpoint.y >= min.y && hitpoint.y <= max.y &&
                     hitpoint.z >= min.z && hitpoint.z <= max.z &&
-                    t < lowt)
+                    (!hit || t < lowt))
                 {
                     hit = true;
                     lowt = t;
@@ -483,7 +483,7 @@ namespace Ogre
                 hitpoint = rayorig + raydir * t;
                 if (hitpoint.y >= min.y && hitpoint.y <= max.y &&
                     hitpoint.z >= min.z && hitpoint.z <= max.z &&
-                    t < lowt)
+                    (!hit || t < lowt))
                 {
                     hit = true;
                     lowt = t;
@@ -500,7 +500,7 @@ namespace Ogre
                 hitpoint = rayorig + raydir * t;
                 if (hitpoint.x >= min.x && hitpoint.x <= max.x &&
                     hitpoint.z >= min.z && hitpoint.z <= max.z &&
-                    t < lowt)
+                    (!hit || t < lowt))
                 {
                     hit = true;
                     lowt = t;
@@ -517,7 +517,7 @@ namespace Ogre
                 hitpoint = rayorig + raydir * t;
                 if (hitpoint.x >= min.x && hitpoint.x <= max.x &&
                     hitpoint.z >= min.z && hitpoint.z <= max.z &&
-                    t < lowt)
+                    (!hit || t < lowt))
                 {
                     hit = true;
                     lowt = t;
@@ -534,7 +534,7 @@ namespace Ogre
                 hitpoint = rayorig + raydir * t;
                 if (hitpoint.x >= min.x && hitpoint.x <= max.x &&
                     hitpoint.y >= min.y && hitpoint.y <= max.y &&
-                    t < lowt)
+                    (!hit || t < lowt))
                 {
                     hit = true;
                     lowt = t;
@@ -551,7 +551,7 @@ namespace Ogre
                 hitpoint = rayorig + raydir * t;
                 if (hitpoint.x >= min.x && hitpoint.x <= max.x &&
                     hitpoint.y >= min.y && hitpoint.y <= max.y &&
-                    t < lowt)
+                    (!hit || t < lowt))
                 {
                     hit = true;
                     lowt = t;

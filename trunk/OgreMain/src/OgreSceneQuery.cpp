@@ -154,10 +154,11 @@ namespace Ogre {
         return mSphere;
     }
     //-----------------------------------------------------------------------
-    RaySceneQuery::RaySceneQuery(SceneManager* mgr) : RegionSceneQuery(mgr)
+    RaySceneQuery::RaySceneQuery(SceneManager* mgr) : SceneQuery(mgr)
     {
         mSortByDistance = false;
         mMaxResults = 0;
+        mLastResult = NULL;
     }
     //-----------------------------------------------------------------------
     RaySceneQuery::~RaySceneQuery()
@@ -188,6 +189,76 @@ namespace Ogre {
     ushort RaySceneQuery::getMaxResults(void)
     {
         return mMaxResults;
+    }
+    //-----------------------------------------------------------------------
+    RaySceneQueryResult& RaySceneQuery::execute(void)
+    {
+        clearResults();
+        mLastResult = new RaySceneQueryResult();
+        // Call callback version with self as listener
+        this->execute(this);
+
+        if (mSortByDistance)
+        {
+            // Perform sort
+            mLastResult->sort();
+
+            if (mMaxResults && mLastResult->size() > mMaxResults)
+            {
+                // Constrain to maxresults
+                RaySceneQueryResult::iterator start;
+                int x = 0;
+                for(start = mLastResult->begin(); x < mMaxResults; ++x)
+                {
+                    // Increment deletion start point
+                    ++start;
+                }
+                // erase
+                mLastResult->erase(start, mLastResult->end());
+            }
+        }
+
+        return *mLastResult;
+
+    }
+    //-----------------------------------------------------------------------
+    RaySceneQueryResult& RaySceneQuery::getLastResults(void)
+    {
+        assert (mLastResult);
+        return *mLastResult;
+    }
+    //-----------------------------------------------------------------------
+    void RaySceneQuery::clearResults(void)
+    {
+        if (mLastResult)
+        {
+            delete mLastResult;
+        }
+        mLastResult = NULL;
+    }
+    //-----------------------------------------------------------------------
+    bool RaySceneQuery::queryResult(MovableObject* obj, Real distance)
+    {
+        // Add to internal list
+        RaySceneQueryResultEntry dets;
+        dets.distance = distance;
+        dets.movable = obj;
+        dets.worldFragment = NULL;
+        mLastResult->push_back(dets);
+        // Continue
+        return true;
+    }
+    //-----------------------------------------------------------------------
+    bool RaySceneQuery::queryResult(SceneQuery::WorldFragment* fragment, Real distance)
+    {
+        // Add to internal list
+        RaySceneQueryResultEntry dets;
+        dets.distance = distance;
+        dets.movable = NULL;
+        dets.worldFragment = fragment;
+        mLastResult->push_back(dets);
+        // Continue
+        return true;
     }
     //-----------------------------------------------------------------------
     /*
