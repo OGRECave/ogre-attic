@@ -2870,7 +2870,7 @@ void SceneManager::initShadowVolumeMaterials(void)
     }
 
     // Also init shadow caster material for texture shadows
-    if (mShadowCasterPlainBlackPass)
+    if (!mShadowCasterPlainBlackPass)
     {
         MaterialPtr matPlainBlack = MaterialManager::getSingleton().getByName(
             "Ogre/TextureShadowCaster");

@@ -114,11 +114,11 @@ namespace Ogre {
 
         /** Set the height of the texture; can only do this before load();
         */
-        void setHeight(unsigned int h) { mHeight = h; }
+        void setHeight(unsigned int h) { mHeight = mSrcHeight = h; }
 
         /** Set the width of the texture; can only do this before load();
         */
-        void setWidth(unsigned int w) { mWidth = w; }
+        void setWidth(unsigned int w) { mWidth = mSrcWidth = w; }
 
         /** Set the depth of the texture (only applicable for 3D textures);
             ; can only do this before load();
