@@ -169,6 +169,10 @@ namespace Ogre
         */
         uint getTrueTypeResolution(void);
 
+        /** Returns the size in pixels of a box that could contain the whole string.
+        */
+        std::pair< uint, uint > StrBBox( const String & text, Real char_height, RenderWindow & window  );
+
         /** See Resource. */
         virtual void load();
         /** See Resource. */
