@@ -175,7 +175,8 @@ namespace Ogre {
         // Seed random number generator for future use
         srand((unsigned)time(0));
 
-#if OGRE_COMPILER == COMPILER_MSVC && OGRE_COMP_VER < 1300
+#if OGRE_COMPILER == COMPILER_MSVC
+#   if OGRE_COMP_VER < 1300
         // Instantiate templates for spooling to a String
         // This seems to be a crappy VC6 thing, it generates link errors if we use
         //  the templates from outside OgreMain, even when 'inline'.
@@ -190,6 +191,7 @@ namespace Ogre {
         str2 = "aa";
         str1 << str2 << q << v << f << i << c;
         // Stop instantiating templates
+#   endif
 #endif
 
         
