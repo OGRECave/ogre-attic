@@ -72,6 +72,9 @@ namespace Ogre {
         // Allow SceneManager full access
         friend class SceneManager;
         friend class SubEntity;
+    public:
+	typedef std::set<Entity*> EntitySet;
+    
     protected:
 
         /** Private constructor (instances cannot be created directly).
@@ -101,7 +104,7 @@ namespace Ogre {
 
 
         /// State of animation for animable meshes
-        AnimationStateSet mAnimationState;
+        AnimationStateSet* mAnimationState;
 
         /// Shared class-level name for Movable type
         static String msMovableType;
@@ -133,8 +136,20 @@ namespace Ogre {
         /// Records the last frame in which animation was updated
         unsigned long mFrameAnimationLastUpdated;
 
-        /// Perform all the updates required for an animated entity
+         /// Perform all the updates required for an animated entity
         void updateAnimation(void);
+
+        /// Records the last frame in which the bones was updated
+        /// It's a pointer because it can be shared between different entities with
+        /// a shared skeleton.
+        unsigned long *mFrameBonesLastUpdated;
+
+        /**
+        * A set of all the entities which shares a single SkeletonInstance.
+        * This is only created if the entity is in fact sharing it's SkeletonInstance with
+        * other Entities.
+        */
+        EntitySet* mSharedSkeletonEntities;
         
         /// Private method to cache bone matrices from skeleton
         void cacheBoneMatrices(void);
@@ -449,6 +464,29 @@ namespace Ogre {
 
         /** Overridden from MovableObject */
         void _notifyAttached(Node* parent, bool isTagPoint = false);
+
+        /** Shares the SkeletonInstance with the supplied entity.
+        *   Note that in order for this to work, both entities must have the same
+        *   Skeleton.
+        */
+        void shareSkeletonInstanceWith(Entity* entity);
+
+	
+        /** Stops sharing the SkeletonInstance with other entities.
+        */
+        void Entity::stopSharingSkeletonInstance();
+
+
+        /**
+        * Returns whether this entity shares it's SkeltonInstance with other entity instances.
+        */
+        inline bool sharesSkeletonInstance() const { return mSharedSkeletonEntities != NULL; }
+
+        /**
+        * Returns a pointer to the set of entities which share a SkeletonInstance.
+        * If this instance does not share it's SkeletonInstance with other instances NULL will be returned
+        */
+        inline const EntitySet* getSkeletonInstanceSharingSet() const { return mSharedSkeletonEntities; }
 
 
     };
