@@ -72,8 +72,8 @@ namespace Ogre {
         // and calculate it's coordinates
         x = a * Math::Sin(alpha);
         y = b * Math::Cos(alpha);
-        // the height is simple running from 0 to 1
-        z = Math::UnitRandom();     // 0..1
+        // the height is simple -1 to 1
+        z = Math::SymmetricRandom();     
 
         // scale the found point to the ring's size and move it
         // relatively to the center of the emitter point
