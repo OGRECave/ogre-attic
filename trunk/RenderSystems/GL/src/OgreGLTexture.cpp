@@ -282,7 +282,7 @@ namespace Ogre {
                 Image img;
                 String baseName, ext;
                 std::vector<Image> images;
-                String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_bk", "_fr"};// "_fr", "_bk"};
+                String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_fr", "_bk"};
 
                 for(unsigned int i = 0; i < 6; i++)
                 {
