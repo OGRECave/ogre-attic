@@ -78,7 +78,7 @@ public:
 	virtual MString defaultExtension() const;
 
 	virtual MPxFileTranslator::MFileKind identifyFile( const MFileObject &file,
-	                                                   const char * const buffer,
+	                                                   const char * buffer,
 	                                                   short              size ) const;
 
 private:
