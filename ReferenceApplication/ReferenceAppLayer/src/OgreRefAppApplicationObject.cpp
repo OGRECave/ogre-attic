@@ -36,7 +36,7 @@ namespace OgreRefApp
         mEntity = 0;
         mOdeBody = 0;
         mDynamicsEnabled = false;
-        mCollisionEnabled = false;
+        mCollisionEnabled = true;
 		mSoftness = 0.0;
 		mBounceCoeffRestitution = 0;
 		mBounceVelocityThreshold = 0.1;
@@ -138,6 +138,7 @@ namespace OgreRefApp
     void ApplicationObject::setCollisionEnabled(bool enabled)
     {
         mCollisionEnabled = enabled;
+        setEntityQueryFlags();
     }
     //-------------------------------------------------------------------------
     void ApplicationObject::setDynamicsEnabled(bool enabled)
@@ -378,19 +379,32 @@ namespace OgreRefApp
 
         for (proxy = mCollisionProxies.begin(); proxy != proxyend; ++proxy)
         {
+            // Hack, simply collide against the most distant plane which is facing towards
+            // the center
+            // We can't do this properly without mesh collision
             obj = *proxy;
+            Real maxdist = -1.0f;
+            const Plane* bestPlane = 0;
             for (pi = wf->planes->begin(); pi != piend; ++pi)
             {
-                const Plane& boundPlane = *pi;
-                dPlane odePlane(0, boundPlane.normal.x, boundPlane.normal.y, boundPlane.normal.z, 
-                    -boundPlane.d);
+                const Plane *boundPlane = &(*pi);
+                Real dist = boundPlane->getDistance(this->getPosition());
+                if (dist >= 0.0f && dist > maxdist)
+                {
+                    bestPlane = boundPlane;
+                }
+
+            }
+
+            if (bestPlane)
+            {
+                dPlane odePlane(0, bestPlane->normal.x, bestPlane->normal.y, bestPlane->normal.z, 
+                    -bestPlane->d);
 
                 int numc = dCollide(obj->id(), odePlane.id() , 0, &contactGeom, sizeof(dContactGeom));
                 if (numc)
                 {
-                    // Create contact joints if either object is dynamics simulated
-                    // If one is not, then sim will not affect it anyway, it will be fixed
-                    // However if one is enabled, we need the contact joint
+                    // Create contact joints if object is dynamics simulated
                     if (this->isDynamicsEnabled())
                     {
                         // TODO: combine object parameters with WorldFragment physical properties
@@ -405,7 +419,7 @@ namespace OgreRefApp
                             contact.surface.mode |= dContactSoftCFM;
 						    contact.surface.soft_cfm = softness;
 					    }
-    					
+        				
                         // Set friction 
                         contact.surface.mu = this->getFriction();
                         contact.surface.mu2 = 0;
@@ -647,6 +661,17 @@ namespace OgreRefApp
     void ApplicationObject::rotate(const Quaternion& q)
     {
         setOrientation(getOrientation() * q);
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::setEntityQueryFlags(void)
+    {
+        // Real basic query mask usage for now
+        // collision enabled = 0xFFFFFFFF
+        // collision disabled = 0x0
+        if (mEntity)
+        {
+            mEntity->setQueryFlags( mCollisionEnabled ? 0xFFFFFFFF : 0 );
+        }
     }
 
 
