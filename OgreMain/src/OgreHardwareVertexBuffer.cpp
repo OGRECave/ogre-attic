@@ -54,6 +54,11 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     HardwareVertexBuffer::~HardwareVertexBuffer()
     {
+		HardwareBufferManager* mgr = HardwareBufferManager::getSingletonPtr();
+		if (mgr)
+		{
+			mgr->_notifyVertexBufferDestroyed(this);
+		}
         if (mpShadowBuffer)
         {
             delete mpShadowBuffer;

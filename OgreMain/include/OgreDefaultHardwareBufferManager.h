@@ -92,12 +92,6 @@ namespace Ogre {
 	*/
 	class _OgreExport DefaultHardwareBufferManager : public HardwareBufferManager
 	{
-    protected:
-		/// Destroy a hardware vertex buffer
-		void destroyVertexBuffer(HardwareVertexBuffer* buf);
-		/// Destroy a hardware index buffer
-		void destroyIndexBuffer(HardwareIndexBuffer* buf);
-
     public:
         DefaultHardwareBufferManager();
         ~DefaultHardwareBufferManager();

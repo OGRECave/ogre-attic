@@ -89,19 +89,10 @@ namespace Ogre {
     protected:
         typedef std::list<VertexDeclaration*> VertexDeclarationList;
 		typedef std::list<VertexBufferBinding*> VertexBufferBindingList;
-        typedef std::set<HardwareVertexBuffer*> VertexBufferList;
-        typedef std::set<HardwareIndexBuffer*> IndexBufferList;
 
         VertexDeclarationList mVertexDeclarations;
 		VertexBufferBindingList mVertexBufferBindings;
-        VertexBufferList mVertexBuffers;
-        IndexBufferList mIndexBuffers;
 
-
-		/// Destroy a hardware vertex buffer, do not call direct
-		virtual void destroyVertexBuffer(HardwareVertexBuffer* buf) = 0;
-		/// Destroy a hardware index buffer, do not call direct
-		virtual void destroyIndexBuffer(HardwareIndexBuffer* buf) = 0;
 
         virtual void destroyAllDeclarations(void);
         virtual void destroyAllBindings(void);
@@ -144,6 +135,12 @@ namespace Ogre {
         typedef std::vector<VertexBufferLicense> TemporaryVertexBufferLicenseList;
         /// List of currently licensed temp buffers
         TemporaryVertexBufferLicenseList mTempVertexBufferLicenses;
+
+		typedef std::set<HardwareVertexBuffer*> VertexBufferList;
+		typedef std::set<HardwareIndexBuffer*> IndexBufferList;
+		VertexBufferList mVertexBuffers;
+		IndexBufferList mIndexBuffers;
+
 
         /// Creates  a new buffer as a copy of the source, does not copy data
         HardwareVertexBufferSharedPtr makeBufferCopy(
@@ -267,6 +264,12 @@ namespace Ogre {
         */
         virtual void _forceReleaseBufferCopies(
             const HardwareVertexBufferSharedPtr& sourceBuffer);
+
+		/// Notification that a hardware vertex buffer has been destroyed
+		void _notifyVertexBufferDestroyed(HardwareVertexBuffer* buf);
+		/// Notification that a hardware index buffer has been destroyed
+		void _notifyIndexBufferDestroyed(HardwareIndexBuffer* buf);
+
         /** Override standard Singleton retrieval.
         @remarks
         Why do we do this? Well, it's because the Singleton

@@ -272,7 +272,24 @@ namespace Ogre {
             }
         }
     }
-
+	//-----------------------------------------------------------------------
+	void HardwareBufferManager::_notifyVertexBufferDestroyed(HardwareVertexBuffer* buf)
+	{
+		VertexBufferList::iterator i = mVertexBuffers.find(buf);
+		if (i != mVertexBuffers.end())
+		{
+			mVertexBuffers.erase(i);
+		}
+	}
+	//-----------------------------------------------------------------------
+	void HardwareBufferManager::_notifyIndexBufferDestroyed(HardwareIndexBuffer* buf)
+	{
+		IndexBufferList::iterator i = mIndexBuffers.find(buf);
+		if (i != mIndexBuffers.end())
+		{
+			mIndexBuffers.erase(i);
+		}
+	}
     //-----------------------------------------------------------------------
     HardwareVertexBufferSharedPtr 
     HardwareBufferManager::makeBufferCopy(

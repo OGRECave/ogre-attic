@@ -129,16 +129,6 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	
 	
-	//-----------------------------------------------------------------------
-	void GLDefaultHardwareBufferManager::destroyVertexBuffer(HardwareVertexBuffer* buf)
-	{
-		delete buf;
-	}
-    //-----------------------------------------------------------------------
-	void GLDefaultHardwareBufferManager::destroyIndexBuffer(HardwareIndexBuffer* buf)
-	{
-		delete buf;
-	}
     //-----------------------------------------------------------------------
     GLDefaultHardwareBufferManager::GLDefaultHardwareBufferManager()
 	{
