@@ -111,7 +111,7 @@ private:
 	// some buffers shared by all circles
 	static HardwareVertexBufferSharedPtr posnormVertexBuffer ; 
 	static HardwareIndexBufferSharedPtr indexBuffer ; // indices for 2 faces
-	static HardwareVertexBufferSharedPtr texcoordsVertexBuffer ;
+	static HardwareVertexBufferSharedPtr *texcoordsVertexBuffers ;
 	
 	Real *texBufData;
 	void _prepareMesh()
@@ -146,32 +146,29 @@ private:
 				posnormBufData[6*i+5]=0 ; // normal Z
 			}
 			posnormVertexBuffer->unlock();
-			//~ posnormVertexBuffer->writeData(0, 
-				//~ posnormVertexBuffer->getSizeInBytes(),
-				//~ posnormBufData,
-				//~ true); // discard ?
 
-			// static buffer for 16 sets of texture coordinates
-			texcoordsVertexBuffer = 
-				HardwareBufferManager::getSingleton().createVertexBuffer( 
-					2*sizeof(Real), // size of one vertex data
-					16*numVertices, // number of vertices
-					HardwareBuffer::HBU_STATIC_WRITE_ONLY, // usage
-					false); // no shadow buffer
-			Real *texcoordsBufData = (Real*) texcoordsVertexBuffer->
-				lock(HardwareBuffer::HBL_DISCARD);
+			// static buffers for 16 sets of texture coordinates
+			texcoordsVertexBuffers = new HardwareVertexBufferSharedPtr[16];
 			for(lvl=0;lvl<16;lvl++) {
+				texcoordsVertexBuffers[lvl] = 
+					HardwareBufferManager::getSingleton().createVertexBuffer( 
+						2*sizeof(Real), // size of one vertex data
+						numVertices, // number of vertices
+						HardwareBuffer::HBU_STATIC_WRITE_ONLY, // usage
+						false); // no shadow buffer
+				Real *texcoordsBufData = (Real*) texcoordsVertexBuffers[lvl]->
+					lock(HardwareBuffer::HBL_DISCARD);
 				float x0 = (Real)(lvl % 4) * 0.25 ;
 				float y0 = (Real)(lvl / 4) * 0.25 ;
 				y0 = 0.75-y0 ; // upside down
 				for(i=0;i<4;i++) {
-					texcoordsBufData[(lvl*numVertices+i)*2 + 0]=
+					texcoordsBufData[i*2 + 0]=
 						x0 + 0.25 * (Real)(i%2) ;
-					texcoordsBufData[(lvl*numVertices+i)*2 + 1]=
+					texcoordsBufData[i*2 + 1]=
 						y0 + 0.25 * (Real)(i/2) ;
 				}
+				texcoordsVertexBuffers[lvl]->unlock();
 			}
-			texcoordsVertexBuffer->unlock();
 
 			// Index buffer for 2 faces
 			unsigned short faces[6] = {2,1,0,  2,3,1};
@@ -193,7 +190,7 @@ private:
 		// first, set vertex buffer bindings
 		VertexBufferBinding *vbind = subMesh->vertexData->vertexBufferBinding ; 
 		vbind->setBinding(0, posnormVertexBuffer);
-		vbind->setBinding(1, texcoordsVertexBuffer);
+		vbind->setBinding(1, texcoordsVertexBuffers[0]);
 		// now, set vertex buffer declaration
 		VertexDeclaration *vdecl = subMesh->vertexData->vertexDeclaration ;
 		vdecl->addElement(0, 0, VET_FLOAT3, VES_POSITION);
@@ -214,8 +211,7 @@ public:
 	int lvl ;
 	void setTextureLevel()
 	{
-		subMesh->vertexData->vertexDeclaration->modifyElement(2,
-			1, lvl*8*sizeof(Real), VET_FLOAT2, VES_TEXTURE_COORDINATES); // I like it :)
+		subMesh->vertexData->vertexBufferBinding->setBinding(1, texcoordsVertexBuffers[lvl]);
 	}
 	WaterCircle(const String& name, Real x, Real y)
 	{
@@ -250,7 +246,10 @@ public:
 	{
 		posnormVertexBuffer = HardwareVertexBufferSharedPtr() ;
 		indexBuffer = HardwareIndexBufferSharedPtr() ;
-		texcoordsVertexBuffer = HardwareVertexBufferSharedPtr() ;
+		for(int i=0;i<16;i++) {
+			texcoordsVertexBuffers[i] = HardwareVertexBufferSharedPtr() ;
+		}
+		delete [] texcoordsVertexBuffers;
 	}
 } ;
 bool WaterCircle::first = true ;
@@ -258,8 +257,7 @@ HardwareVertexBufferSharedPtr WaterCircle::posnormVertexBuffer =
 	HardwareVertexBufferSharedPtr() ;
 HardwareIndexBufferSharedPtr WaterCircle::indexBuffer = 
 	HardwareIndexBufferSharedPtr() ;
-HardwareVertexBufferSharedPtr WaterCircle::texcoordsVertexBuffer =
-	HardwareVertexBufferSharedPtr() ;
+HardwareVertexBufferSharedPtr* WaterCircle::texcoordsVertexBuffers = 0 ;
 
 /* =========================================================================*/
 /*               WaterListener class                                          */
