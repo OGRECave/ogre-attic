@@ -141,7 +141,7 @@ void D3D7HardwarePixelBuffer::blit(HardwarePixelBuffer *src, const Image::Box &s
 void D3D7HardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::Box &dstBox)
 {
 	/* No 3D textures support in D3D7 */
-	assert(srcBox.getDepth() == 1);
+	assert(src.getDepth() == 1);
 	assert(dstBox.getDepth() == 1);
 
 	/* We need a temporary surface in which to load the image data. */
