@@ -325,7 +325,7 @@ namespace Ogre {
         case KC_DIVIDE:  /* / on numeric keypad */
             return mKeyboardBuffer[SDLK_KP_DIVIDE];
         case KC_SYSRQ:
-            return mKeyboardBuffer[SDLK_SYSREQ];
+            return mKeyboardBuffer[SDLK_SYSREQ] | mKeyboardBuffer[SDLK_PRINT];
         case KC_RMENU:  /* right Alt */
             return mKeyboardBuffer[SDLK_RALT];
         case KC_PAUSE:  /* Pause */
