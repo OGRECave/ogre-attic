@@ -45,7 +45,6 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreGpuProgramManager.cpp \
                          OgreGpuProgramUsage.cpp \
                          OgreGuiContainer.cpp \
-                         OgreGuiControl.cpp \
                          OgreGuiElementCommands.cpp \
                          OgreGuiManager.cpp \
 						 OgreGuiPressable.cpp \

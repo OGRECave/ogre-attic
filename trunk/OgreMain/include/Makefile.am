@@ -48,7 +48,6 @@ OgreFontManager.h \
 OgreFrameListener.h \
 OgreFrustum.h \
 OgreGuiContainer.h \
-OgreGuiControl.h \
 OgreGuiElementCommands.h \
 OgreGuiManager.h \
 OgreGuiPressable.h \
