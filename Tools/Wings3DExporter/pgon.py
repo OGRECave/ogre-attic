@@ -157,6 +157,8 @@ class Triangulator:
 				factors.remove(f)
 				work.remove(eartip)
 
+		print self.pgon
+		print self.indices
 		raise ValueError("failed!")
 
 	def find_and_clip_earx(self):

@@ -6,6 +6,8 @@ import sys
 #import libxml2 as myxml
 import xmlout as myxml
 
+import pprint
+
 def vector_to_xml(elem, vector, coord_names):
 	for i in range(len(coord_names)):
 		coord = "%.6f" % vector[i]
@@ -29,7 +31,10 @@ class ogre_writer:
 		self.submeshes_elem = mesh_elem.newChild(None, "submeshes", None)
 
 	def add(self, mesh):
-		self.add_geometry(self.sharedgeometry_elem, mesh.glverts)
+		if mesh.shared_geometry:
+			self.add_geometry(self.sharedgeometry_elem, mesh.glverts)
+		else:
+			self.sharedgeometry_elem.setProp("count", "0")
 		for submesh in mesh.subs:
 			self.add_material(submesh.mat_data)
 			self.add_submesh(submesh, mesh.shared_geometry)
@@ -85,22 +90,28 @@ class ogre_writer:
 			vb_texcoord_elem.setProp("texcoordsets", "0")
 			vb_texcoord_elem.setProp("texcoorddimensions", "2")
 
-		for vert in vertices:
-			# position
-			vertex_elem = vb_position_elem.newChild(None, "vertex", None)
-			position_elem = vertex_elem.newChild(None, "position", None)
-			vector_to_xml(position_elem, vert.pos, ["x", "y", "z"])
+		try:
+			for vert in vertices:
+				# position
+				vertex_elem = vb_position_elem.newChild(None, "vertex", None)
+				position_elem = vertex_elem.newChild(None, "position", None)
+				vector_to_xml(position_elem, vert.pos, ["x", "y", "z"])
 
-			# normal
-			vertex_elem = vb_normal_elem.newChild(None, "vertex", None)
-			normal_elem = vertex_elem.newChild(None, "normal", None)
-			vector_to_xml(normal_elem, vert.normal, ["x", "y", "z"])
+				# normal
+				vertex_elem = vb_normal_elem.newChild(None, "vertex", None)
+				normal_elem = vertex_elem.newChild(None, "normal", None)
+				vector_to_xml(normal_elem, vert.normal, ["x", "y", "z"])
 
-			# uv texture coords
-			if want_uvs:
-				vertex_elem = vb_texcoord_elem.newChild(None, "vertex", None)
-				texcoord_elem = vertex_elem.newChild(None, "texcoord", None)
-				vector_to_xml(texcoord_elem, vert.uv, ["u", "v"])
+				# uv texture coords
+				if want_uvs:
+					vertex_elem = vb_texcoord_elem.newChild(None, "vertex", None)
+					texcoord_elem = vertex_elem.newChild(None, "texcoord", None)
+					vector_to_xml(texcoord_elem, vert.uv, ["u", "v"])
+		except:
+			pp = pprint.PrettyPrinter(indent=4,width=78)
+			pp.pprint(vertices)
+
+			raise
 
 	def add_faces(self, submesh_elem, faces):
 		faces_elem = submesh_elem.newChild(None, "faces", None)

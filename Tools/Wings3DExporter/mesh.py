@@ -103,6 +103,7 @@ class SubMesh:
 		self.material = None
 		self.mat_data = None
 		self.gltris = []
+		self.glverts = []
 
 # object which describes a mesh
 class Mesh:
@@ -145,7 +146,7 @@ class Mesh:
 		self.gltris = []
 		self.tri_materials = []
 
-		self.shared_geometry = 1
+		self.shared_geometry = 0
 
 	def faces_containing_vertex(self, vertex):
 		return filter(lambda face: vertex in self.faces[face],
@@ -322,6 +323,8 @@ class Mesh:
 	def triangulate(self):
 		"triangulate polygons"
 
+		print "tesselating..."
+
 		self.gltris = []
 		self.tri_materials = []
 		for i in range(len(self.glfaces)):
@@ -344,6 +347,8 @@ class Mesh:
 	def submeshize(self):
 		"create submeshes"
 
+		print "creating submeshes..."
+
 		temp = {}
 		for t in self.tri_materials:
 			temp[t] = 1
@@ -354,9 +359,27 @@ class Mesh:
 			submesh = SubMesh()
 			submesh.material = mat
 			submesh.mat_data = self.materials[mat]
-			for i in range(len(self.tri_materials)):
-				if self.tri_materials[i] == mat:
-					submesh.gltris.append(self.gltris[i])
+			if self.shared_geometry:
+				# use shared geometry
+				for i in range(len(self.tri_materials)):
+					if self.tri_materials[i] == mat:
+						submesh.gltris.append(self.gltris[i])
+			else:
+				verts = {}
+				for i in range(len(self.tri_materials)):
+					if self.tri_materials[i] == mat:
+						for vert in self.gltris[i]:
+							verts[vert] = 1
+				verts = verts.keys()
+				verts.sort()
+				for i in verts:
+					submesh.glverts.append(self.glverts[i])
+				for i in range(len(self.tri_materials)):
+					if self.tri_materials[i] == mat:
+						tri = []
+						for vert in self.gltris[i]:
+							tri.append(verts.index(vert))
+						submesh.gltris.append(tri)
 			self.subs.append(submesh)
 
 	def dump(self):

@@ -48,7 +48,8 @@ class XMLNode:
 		self.props.append((name, value)) 
 	
 	def _write(self, f, indent):
-		istr = "  " * indent
+		#istr = "  " * indent
+		istr = "\t" * indent
 
 		# put together our tag
 		tag = self.name
