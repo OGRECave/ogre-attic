@@ -31,8 +31,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     SDLInput::SDLInput()
-        : InputReader(), mMouseX(0), mMouseY(0), mMouseRelativeX(0),
-          mMouseRelativeY(0), mMouseRelativeZ(0), mScale(0.002), _visible(true)
+      : InputReader(), mKeyboardBuffer(0), mMouseX(0), mMouseY(0), 
+        mMouseRelativeX(0), mMouseRelativeY(0), mMouseRelativeZ(0), mScale(0.002), 
+        _visible(true)
     {
 		mMouseGrabbed = false;
 		mGrabMouse = false;
@@ -348,6 +349,8 @@ namespace Ogre {
 
     bool SDLInput::isKeyDownImmediate(KeyCode kc) const
     {
+        assert(mKeyboardBuffer && "SDLInput::isKeyDownImmediate called before SDLInput::capture has initialized it");
+
         switch(kc)
         {
         case KC_ESCAPE:
