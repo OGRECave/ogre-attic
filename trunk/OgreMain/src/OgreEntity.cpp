@@ -328,7 +328,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	void Entity::setLodBias(Real factor, ushort maxDetailIndex, ushort minDetailIndex)
 	{
-		assert(factor <= 0.0f && "Bias factor must be > 0!");
+		assert(factor > 0.0f && "Bias factor must be > 0!");
 		mMeshLodFactorInv = 1.0f / factor;
 		mMaxMeshLodIndex = maxDetailIndex;
 		mMinMeshLodIndex = minDetailIndex;

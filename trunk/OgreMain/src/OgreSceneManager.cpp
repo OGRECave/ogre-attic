@@ -53,8 +53,7 @@ namespace Ogre {
     SceneManager::SceneManager()
     {
         // Root scene node
-        mSceneRoot = new SceneNode(this);
-
+        mSceneRoot = new SceneNode(this, "root node");
 
         // No sky by default
         mSkyPlaneEnabled = false;
@@ -1173,7 +1172,7 @@ namespace Ogre {
         // In this implementation, just update from the root
         // Smarter SceneManager subclasses may choose to update only
         //   certain scene graph branches
-        mSceneRoot->_update(cam, true);
+        mSceneRoot->_update(true, false);
 
 
     }
@@ -1187,6 +1186,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void SceneManager::_renderVisibleObjects(void)
     {
+        int render_count = 0;
         // Render each separate queue
         RenderQueue::QueueGroupIterator queueIt = mRenderQueue._getQueueGroupIterator();
         // NB only queues which have been created are rendered, no time is wasted
@@ -1217,6 +1217,7 @@ namespace Ogre {
 
                 while (groupIt.hasMoreElements())
                 {
+                    render_count++;
                     RenderPriorityGroup* pPriorityGrp = groupIt.getNext();
 
                     // Render each non-transparent entity in turn, grouped by material
@@ -1366,10 +1367,6 @@ namespace Ogre {
             } while (repeatQueue);
 
         } // for each queue group
-
-               
-
-
     }
     //-----------------------------------------------------------------------
     void SceneManager::_updateDynamicLights(void)

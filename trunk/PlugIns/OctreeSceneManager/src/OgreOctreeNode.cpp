@@ -43,38 +43,9 @@ OctreeNode::OctreeNode( SceneManager* creator, const String& name ) : SceneNode(
 OctreeNode::~OctreeNode()
 {}
 
-void OctreeNode::_update( Camera* cam, bool updateChildren )
-{
-    _updateFromParent();
-
-    // Tell attached objects about camera position (incase any extra processing they want to do)
-
-    ObjectMap::iterator i = mObjectsByName.begin();
-
-    while ( i != mObjectsByName.end() )
-    {
-        i -> second ->_notifyCurrentCamera( cam );
-        ++i;
-    }
-
-    if ( updateChildren )
-    {
-        ChildNodeMap::iterator i = mChildren.begin();
-
-        while ( i != mChildren.end() )
-        {
-            SceneNode * sceneChild = static_cast < SceneNode* > ( i->second );
-            sceneChild->_update( cam, updateChildren );
-            ++i;
-        }
-    }
-
-    _updateOctreeBounds();
-
-}
 
 //same as SceneNode, only it doesn't care about children...
-void OctreeNode::_updateOctreeBounds( void )
+void OctreeNode::_updateBounds( void )
 {
     mWorldAABB.setNull();
     mLocalAABB.setNull();
@@ -124,7 +95,7 @@ bool OctreeNode::_isIn( AxisAlignedBox &box )
 }
 
 /** Addes the attached objects of this OctreeScene node into the queue. */
-void OctreeNode::_addToRenderQueue( RenderQueue *queue )
+void OctreeNode::_addToRenderQueue( Camera* cam, RenderQueue *queue )
 {
     ObjectMap::iterator mit = mObjectsByName.begin();
 
@@ -132,6 +103,7 @@ void OctreeNode::_addToRenderQueue( RenderQueue *queue )
     {
         MovableObject * mo = mit->second;
 
+        mo->_notifyCurrentCamera(cam);
         if ( mo->isVisible() )
         {
             mo -> _updateRenderQueue( queue );

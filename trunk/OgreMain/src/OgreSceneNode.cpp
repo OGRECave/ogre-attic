@@ -38,11 +38,13 @@ namespace Ogre {
     SceneNode::SceneNode(SceneManager* creator) 
     : Node(), mCreator(creator), mWireBoundingBox(0), mShowBoundingBox(false)
     {
+        needUpdate();
     }
     //-----------------------------------------------------------------------
     SceneNode::SceneNode(SceneManager* creator, const String& name) 
     : Node(name), mCreator(creator), mWireBoundingBox(0), mShowBoundingBox(false)
     {
+        needUpdate();
     }
     //-----------------------------------------------------------------------
     SceneNode::~SceneNode()
@@ -52,28 +54,9 @@ namespace Ogre {
 		}
     }
     //-----------------------------------------------------------------------
-    void SceneNode::_update(Camera* cam, bool updateChildren)
+    void SceneNode::_update(bool updateChildren, bool parentHasChanged)
     {
-        // Update transforms
-        _updateFromParent();
-
-        // Tell attached objects about camera position (incase any extra processing they want to do)
-        ObjectMap::iterator i;
-        for (i = mObjectsByName.begin(); i != mObjectsByName.end(); ++i)
-        {
-            i->second->_notifyCurrentCamera(cam);
-        }
-
-        if (updateChildren)
-        {
-            ChildNodeMap::iterator i;
-            for (i = mChildren.begin(); i != mChildren.end(); ++i)
-            {
-                SceneNode* sceneChild = static_cast<SceneNode*>(i->second);
-                sceneChild->_update(cam, updateChildren);
-            }
-        }
-
+        Node::_update(updateChildren, parentHasChanged);
         _updateBounds();
 
     }
@@ -85,6 +68,9 @@ namespace Ogre {
 
         // Also add to name index
         mObjectsByName.insert(ObjectMap::value_type(obj->getName(), obj));
+
+        // Make sure bounds get updated (must go right to the top)
+        needUpdate();
     }
     //-----------------------------------------------------------------------
     unsigned short SceneNode::numAttachedObjects(void)
@@ -138,6 +124,9 @@ namespace Ogre {
             mObjectsByName.erase(i);
             ret->_notifyAttached(0);
 
+            // Make sure bounds get updated (must go right to the top)
+            needUpdate();
+
             return ret;
 
         }
@@ -160,6 +149,8 @@ namespace Ogre {
         MovableObject* ret = it->second;
         mObjectsByName.erase(it);
         ret->_notifyAttached(0);
+        // Make sure bounds get updated (must go right to the top)
+        needUpdate();
         
         return ret;
 
@@ -178,6 +169,8 @@ namespace Ogre {
     void SceneNode::detachAllObjects(void)
     {
         mObjectsByName.clear();
+        // Make sure bounds get updated (must go right to the top)
+        needUpdate();
     }
     //-----------------------------------------------------------------------
     void SceneNode::_updateBounds(void)
@@ -219,6 +212,8 @@ namespace Ogre {
         ObjectMap::iterator iobjend = mObjectsByName.end();
         for (iobj = mObjectsByName.begin(); iobj != iobjend; ++iobj)
         {
+            // Tell attached objects about camera position (incase any extra processing they want to do)
+            iobj->second->_notifyCurrentCamera(cam);
             if (iobj->second->isVisible())
             {
                 iobj->second->_updateRenderQueue(queue);

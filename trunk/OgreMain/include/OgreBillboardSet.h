@@ -504,6 +504,9 @@ namespace Ogre {
         /** Overridden, see Renderable */
         Real getSquaredViewDepth(const Camera* cam) const;
 
+        /** Update the bounds of the billboardset */
+        virtual void _updateBounds(void);
+
     };
 
 }

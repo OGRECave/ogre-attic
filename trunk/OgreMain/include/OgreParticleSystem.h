@@ -254,7 +254,7 @@ namespace Ogre {
 
         /** Overridden from BillboardSet
         */
-        void _notifyCurrentCamera(Camera* cam);
+        void _updateBounds(void);
 
         /** Fast-forwards this system by the required number of seconds.
         @remarks
@@ -318,6 +318,7 @@ namespace Ogre {
 
         /** Internal method for initialising string interface. */
         void initParameters(void);
+
     };
 }
 

@@ -96,6 +96,16 @@ namespace Ogre {
     {
         return mColour;
     }
+    //-----------------------------------------------------------------------
+    Real Billboard::getOwnWidth(void)
+    {
+        return mWidth;
+    }
+    //-----------------------------------------------------------------------
+    Real Billboard::getOwnHeight(void)
+    {
+        return mHeight;
+    }
 
 
 

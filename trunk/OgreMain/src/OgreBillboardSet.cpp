@@ -117,6 +117,8 @@ namespace Ogre {
         newBill->setColour(colour);
         newBill->_notifyOwner(this);
 
+        _updateBounds();
+
         return newBill;
     }
 
@@ -376,6 +378,7 @@ namespace Ogre {
             }
         }
 
+        /*
         // Update bounding box limits
         unsigned int vertBufferSize = mNumVisibleBillboards * 4 * 3;
 
@@ -394,8 +397,32 @@ namespace Ogre {
 
         // Set AABB
         mAABB.setExtents(min, max);
+        */
     }
+    //-----------------------------------------------------------------------
+    void BillboardSet::_updateBounds(void)
+    {
+        Vector3 min, max;
+        ActiveBillboardList::iterator i, iend;
 
+        iend = mActiveBillboards.end();
+        for (i = mActiveBillboards.begin(); i != iend; ++i)
+        {
+            min.makeFloor((*i)->getPosition());
+            max.makeCeil((*i)->getPosition());
+        }
+        // Adjust for billboard size
+        Real adjust = std::max(mDefaultWidth, mDefaultHeight);
+        Vector3 vecAdjust(adjust, adjust, adjust);
+        min -= vecAdjust;
+        max += vecAdjust;
+
+        mAABB.setExtents(min, max);
+
+        if (mParentNode)
+            mParentNode->needUpdate();
+        
+    }
     //-----------------------------------------------------------------------
     const AxisAlignedBox& BillboardSet::getBoundingBox(void) const
     {

@@ -539,7 +539,7 @@ void OctreeSceneManager::walkOctree( OctreeCamera *camera, RenderQueue *queue, O
             {
 
                 mNumObjects++;
-                sn -> _addToRenderQueue( queue );
+                sn -> _addToRenderQueue(camera, queue );
 
                 mVisible.push_back( sn );
 
