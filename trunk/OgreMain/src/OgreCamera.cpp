@@ -715,10 +715,10 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void Camera::_renderScene(Viewport *vp)
+    void Camera::_renderScene(Viewport *vp, bool includeHUD)
     {
 
-        mSceneMgr->_renderScene(this, vp);
+        mSceneMgr->_renderScene(this, vp, includeHUD);
     }
 
     //-----------------------------------------------------------------------

@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreMath.h"
 
 namespace Ogre {
+    //---------------------------------------------------------------------
     Viewport::Viewport(Camera* cam, RenderTarget* target, Real left, Real top, Real width, Real height, int ZOrder)
     {
         char msg[200];
@@ -57,23 +58,24 @@ namespace Ogre {
         _updateDimensions();
 
         mUpdated = true;
+        mShowHUD = true;
     }
-
+    //---------------------------------------------------------------------
     Viewport::~Viewport()
     {
 
     }
-
+    //---------------------------------------------------------------------
     bool Viewport::_isUpdated(void) const
     {
         return mUpdated;
     }
-
+    //---------------------------------------------------------------------
     void Viewport::_clearUpdatedFlag(void)
     {
         mUpdated = false;
     }
-
+    //---------------------------------------------------------------------
     void Viewport::_updateDimensions(void)
     {
         float height = (float) mTarget->getHeight();
@@ -103,56 +105,57 @@ namespace Ogre {
 
         mUpdated = true;
     }
-
+    //---------------------------------------------------------------------
     RenderTarget* Viewport::getTarget(void) const
     {
         return mTarget;
     }
-
+    //---------------------------------------------------------------------
     Camera* Viewport::getCamera(void) const
     {
         return mCamera;
     }
-
+    //---------------------------------------------------------------------
     Real Viewport::getLeft(void) const
     {
         return mRelLeft;
     }
-
+    //---------------------------------------------------------------------
     Real Viewport::getTop(void) const
     {
         return mRelTop;
     }
-
+    //---------------------------------------------------------------------
     Real Viewport::getWidth(void) const
     {
         return mRelWidth;
     }
-
+    //---------------------------------------------------------------------
     Real Viewport::getHeight(void) const
     {
         return mRelHeight;
     }
-
+    //---------------------------------------------------------------------
     int Viewport::getActualLeft(void) const
     {
         return mActLeft;
     }
-
+    //---------------------------------------------------------------------
     int Viewport::getActualTop(void) const
     {
         return mActTop;
     }
-
+    //---------------------------------------------------------------------
     int Viewport::getActualWidth(void) const
     {
         return mActWidth;
     }
+    //---------------------------------------------------------------------
     int Viewport::getActualHeight(void) const
     {
         return mActHeight;
     }
-
+    //---------------------------------------------------------------------
     void Viewport::setDimensions(Real left, Real top, Real width, Real height)
     {
         mRelLeft = left;
@@ -161,33 +164,33 @@ namespace Ogre {
         mRelHeight = height;
         _updateDimensions();
     }
-
+    //---------------------------------------------------------------------
     void Viewport::update(void)
     {
         // Tell Camera to render into me
-        mCamera->_renderScene(this);
+        mCamera->_renderScene(this, mShowHUD);
     }
-
+    //---------------------------------------------------------------------
     void Viewport::setBackgroundColour(ColourValue colour)
     {
         mBackColour = colour;
     }
-
+    //---------------------------------------------------------------------
     const ColourValue& Viewport::getBackgroundColour(void) const
     {
         return mBackColour;
     }
-
+    //---------------------------------------------------------------------
     void Viewport::setClearEveryFrame(bool clear)
     {
         mClearEveryFrame = clear;
     }
-
+    //---------------------------------------------------------------------
     bool Viewport::getClearEveryFrame(void) const
     {
         return mClearEveryFrame;
     }
-
+    //---------------------------------------------------------------------
     void Viewport::getActualDimensions(int &left, int&top, int &width, int &height) const
     {
         left = mActLeft;
@@ -196,14 +199,25 @@ namespace Ogre {
         height = mActHeight;
 
     }
+    //---------------------------------------------------------------------
     unsigned int Viewport::_getNumRenderedFaces(void) const
     {
         return mCamera->_getNumRenderedFaces();
     }
-
+    //---------------------------------------------------------------------
     void Viewport::setCamera(Camera* cam)
     {
         mCamera = cam;
 
+    }
+    //---------------------------------------------------------------------
+    void Viewport::setHUDEnabled(bool enabled)
+    {
+        mShowHUD = enabled;
+    }
+    //---------------------------------------------------------------------
+    bool Viewport::getHUDEnabled(void)
+    {
+        return mShowHUD;
     }
 }

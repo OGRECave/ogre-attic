@@ -191,6 +191,23 @@ namespace Ogre {
         */
         unsigned int _getNumRenderedFaces(void) const;
 
+        /** Tells this viewport whether it should display HUD objects.
+        @remarks
+            HUD objects are overlays which appear on top of the scene. They are created via
+            SceneManager::createHUDObject and every viewport displays these by default.
+            However, you probably don't want this if you're using multiple viewports,
+            because one of them is probably a picture-in-picture which is not supposed to
+            have a HUD of it's own. In this case you can turn off the HUD on this viewport
+            by calling this method.
+        @param enabled If true, any HUD objects are displayed, if false they are not.
+        */
+        void setHUDEnabled(bool enabled);
+
+        /** Returns whether or not HUD objects (created in the SceneManager) are displayed in this
+            viewport. */
+        bool getHUDEnabled(void);
+
+
     protected:
         Camera* mCamera;
         RenderTarget* mTarget;
@@ -204,6 +221,7 @@ namespace Ogre {
         ColourValue mBackColour;
         bool mClearEveryFrame;
         bool mUpdated;
+        bool mShowHUD;
     };
 
 }

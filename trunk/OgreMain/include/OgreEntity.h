@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreString.h"
 #include "OgreMovableObject.h"
 #include "OgreAnimationState.h"
+#include "OgreRenderQueue.h"
 
 namespace Ogre {
     /** Defines an instance of a discrete, movable object based on a Mesh.
@@ -113,6 +114,9 @@ namespace Ogre {
         /// Flag determines whether or not to display skeleton
         bool mDisplaySkeleton;
 
+        /// The render queue to use when rendering this entity
+        RenderQueueGroupID mRenderQueueID;
+
 
     public:
         /** Default destructor.
@@ -188,6 +192,22 @@ namespace Ogre {
         /** Tells the Entity whether or not it should display it's skeleton, if it has one.
         */
         void setDisplaySkeleton(bool display);
+
+        /** Sets the render queue group this entity will be rendered through.
+        @remarks
+            Render queues are grouped to allow you to more tightly control the ordering
+            of rendered objects. If you do not call this method, all Entity objects default
+            to RENDER_QUEUE_MAIN which is fine for most objects. You may want to alter this
+            if you want this entity to always appear in front of other objects, e.g. for
+            a 3D menu system or such.
+        @par
+            See RenderQueue for more details.
+        @param queueID Enumerated value of the queue group to use. 
+        */
+        void setRenderQueueGroup(RenderQueueGroupID queueID);
+
+        /** Gets the queue group for this entity, see setRenderQueueGroup for full details. */
+        RenderQueueGroupID getRenderQueueGroup(void);
 
 
 
