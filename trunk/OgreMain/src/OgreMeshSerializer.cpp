@@ -481,7 +481,7 @@ namespace Ogre {
         Material* pMat;
         try 
         {
-            pMat = (Material*)MaterialManager::getSingleton().create(name);
+            pMat = (Material*)MaterialManager::getSingleton().createDeferred(name);
         }
         catch (Exception& e)
         {
