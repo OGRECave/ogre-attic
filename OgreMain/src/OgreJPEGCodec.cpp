@@ -26,21 +26,17 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgrePlatform.h"
 #include "OgreStdHeaders.h"
 
-#if OGRE_COMPILER == COMPILER_MSVC
-
-#	ifndef XMD_H
-#		define XMD_H
-#	endif
-
-#	ifdef FAR
-#		undef FAR
-#	endif
-
-#endif
-
 // We might as well re-define boolean in this source file, as it doesn't change anything outside.
 #ifdef boolean
-#undef boolean
+    #undef boolean
+#endif
+
+#ifndef XMD_H
+    #define XMD_H
+#endif
+
+#ifdef FAR
+    #undef FAR
 #endif
 
 #define boolean unsigned char
