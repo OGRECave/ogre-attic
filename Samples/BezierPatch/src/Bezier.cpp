@@ -19,11 +19,7 @@ LGPL like the rest of the engine.
         Shows OGRE's bezier patch feature
 */
 
-#if OGRE_PLATFORM == PLATFORM_APPLE
-#	include <Ogre/Ogre.h>
-#else
-#   include "Ogre.h"
-#endif
+#include "Ogre.h"
 #include "Bezier.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32

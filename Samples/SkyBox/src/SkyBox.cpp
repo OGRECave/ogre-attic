@@ -20,11 +20,7 @@ LGPL like the rest of the engine.
         onto a cube around the camera.
 */
 
-#if OGRE_PLATFORM == PLATFORM_APPLE
-#   include <Ogre/Ogre.h>
-#else
-#   include "Ogre.h"
-#endif
+#include "Ogre.h"
 #include "SkyBox.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32

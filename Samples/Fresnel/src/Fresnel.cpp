@@ -29,12 +29,6 @@ Description: Fresnel reflections and refractions
 -----------------------------------------------------------------------------
 */
 
-#if OGRE_PLATFORM == PLATFORM_APPLE
-#   include <Ogre/Ogre.h>
-#else
-#   include "Ogre.h"
-#endif
-
 #include "ExampleApplication.h"
 
 // Hacky globals

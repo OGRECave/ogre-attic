@@ -19,11 +19,7 @@ Description: Shows OGRE's environment mapping feature as well as the
 -----------------------------------------------------------------------------
 */
 
-#if OGRE_PLATFORM == PLATFORM_APPLE
-#   include <Ogre/Ogre.h>
-#else
-#   include "Ogre.h"
-#endif
+#include "Ogre.h"
 #include "Smoke.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32

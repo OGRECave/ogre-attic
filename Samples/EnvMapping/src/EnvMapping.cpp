@@ -20,11 +20,7 @@ LGPL like the rest of the engine.
         blending modes available when using multiple texture layers
 */
 
-#if OGRE_PLATFORM == PLATFORM_APPLE
-#   include <Ogre/Ogre.h>
-#else
-#   include "Ogre.h"
-#endif
+#include "Ogre.h"
 #include "EnvMapping.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32
