@@ -285,6 +285,10 @@ namespace Ogre {
         virtual void firePreUpdate(void);
         /// internal method for firing events
         virtual void firePostUpdate(void);
+        /// internal method for firing events
+        virtual void fireViewportPreUpdate(Viewport* vp);
+        /// internal method for firing events
+        virtual void fireViewportPostUpdate(Viewport* vp);
     };
 
 } // Namespace

@@ -38,6 +38,13 @@ namespace Ogre {
         RenderTarget* source;
     };
 
+    /** Struct containing information about a RenderTarget Viewport-specific event.
+    */
+    struct RenderTargetViewportEvent
+    {
+        /// The source of the event being raised
+        Viewport* source;
+    };
 
     /** A interface class defining a listener which can be used to receive
         notifications of RenderTarget events.
@@ -52,7 +59,8 @@ namespace Ogre {
             There is no limit to the number of RenderTarget listeners you can register,
             allowing you to register multiple listeners for different purposes.
             </p>
-            RenderTarget events occur before and after the target is updated. Each one
+            RenderTarget events occur before and after the target is updated as a whole,
+            and before and after each viewport on that target is updated. Each RenderTarget
             holds it's own set of listeners, but you can register the same listener on
             multiple render targets if you like since the event contains details of the
             originating RenderTarget.
@@ -89,6 +97,21 @@ namespace Ogre {
             you use etc).
         */
         virtual void postRenderTargetUpdate(const RenderTargetEvent& evt) { }
+
+        /* Called just before a Viewport on a RenderTarget is to be updated.
+        @remarks
+            This method is called before each viewport on the RenderTarget is
+            rendered to. You can use this to perform per-viewport settings changes,
+            such as showing / hiding particular overlays.
+        */
+        virtual void preViewportUpdate(const RenderTargetViewportEvent& evt) { }
+
+        /* Called just after a Viewport on a RenderTarget is to be updated.
+        @remarks
+            This method is called after each viewport on the RenderTarget is
+            rendered to. 
+        */
+        virtual void postViewportUpdate(const RenderTargetViewportEvent& evt) { }
     };
 }
 
