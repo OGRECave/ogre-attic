@@ -40,7 +40,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     /// stream overhead = ID + size
-    const size_t stream_OVERHEAD_SIZE = sizeof(uint16) + sizeof(uint32);
+    const size_t STREAM_OVERHEAD_SIZE = sizeof(uint16) + sizeof(uint32);
     //---------------------------------------------------------------------
     MeshSerializerImpl::MeshSerializerImpl()
     {
@@ -183,7 +183,7 @@ namespace Ogre {
 		while(it != pMesh->mSubMeshNameMap.end())
 		{
 			// Header
-			writeChunkHeader(M_SUBMESH_NAME_TABLE_ELEMENT, stream_OVERHEAD_SIZE + 
+			writeChunkHeader(M_SUBMESH_NAME_TABLE_ELEMENT, STREAM_OVERHEAD_SIZE + 
 				sizeof(unsigned short) + (unsigned long)it->first.length() + 1);
 
 			// write the index
@@ -274,13 +274,13 @@ namespace Ogre {
             vertexData->vertexBufferBinding->getBindings();
         VertexBufferBinding::VertexBufferBindingMap::const_iterator vbi, vbiend;
 
-		size_t size = stream_OVERHEAD_SIZE + sizeof(unsigned int) + // base
-			(stream_OVERHEAD_SIZE + elemList.size() * (stream_OVERHEAD_SIZE + sizeof(unsigned short) * 5)); // elements
+		size_t size = STREAM_OVERHEAD_SIZE + sizeof(unsigned int) + // base
+			(STREAM_OVERHEAD_SIZE + elemList.size() * (STREAM_OVERHEAD_SIZE + sizeof(unsigned short) * 5)); // elements
         vbiend = bindings.end();
 		for (vbi = bindings.begin(); vbi != vbiend; ++vbi)
 		{
 			const HardwareVertexBufferSharedPtr& vbuf = vbi->second;
-			size += (stream_OVERHEAD_SIZE * 2) + (sizeof(unsigned short) * 2) + vbuf->getSizeInBytes();
+			size += (STREAM_OVERHEAD_SIZE * 2) + (sizeof(unsigned short) * 2) + vbuf->getSizeInBytes();
 		}
 
 		// Header
@@ -290,13 +290,13 @@ namespace Ogre {
         writeInts(&vertexCount, 1);
 
 		// Vertex declaration
-		size = stream_OVERHEAD_SIZE + elemList.size() * (stream_OVERHEAD_SIZE + sizeof(unsigned short) * 5);
+		size = STREAM_OVERHEAD_SIZE + elemList.size() * (STREAM_OVERHEAD_SIZE + sizeof(unsigned short) * 5);
 		writeChunkHeader(M_GEOMETRY_VERTEX_DECLARATION, size);
 		
         VertexDeclaration::VertexElementList::const_iterator vei, veiend;
 		veiend = elemList.end();
 		unsigned short tmp;
-		size = stream_OVERHEAD_SIZE + sizeof(unsigned short) * 5;
+		size = STREAM_OVERHEAD_SIZE + sizeof(unsigned short) * 5;
 		for (vei = elemList.begin(); vei != veiend; ++vei)
 		{
 			const VertexElement& elem = *vei;
@@ -324,7 +324,7 @@ namespace Ogre {
 		for (vbi = bindings.begin(); vbi != vbiend; ++vbi)
 		{
 			const HardwareVertexBufferSharedPtr& vbuf = vbi->second;
-			size = (stream_OVERHEAD_SIZE * 2) + (sizeof(unsigned short) * 2) + vbuf->getSizeInBytes();
+			size = (STREAM_OVERHEAD_SIZE * 2) + (sizeof(unsigned short) * 2) + vbuf->getSizeInBytes();
 			writeChunkHeader(M_GEOMETRY_VERTEX_BUFFER,  size);
 			// unsigned short bindIndex;	// Index to bind this buffer to
 			tmp = vbi->first;
@@ -334,7 +334,7 @@ namespace Ogre {
 			writeShorts(&tmp, 1);
 			
 			// Data
-			size = stream_OVERHEAD_SIZE + vbuf->getSizeInBytes();
+			size = STREAM_OVERHEAD_SIZE + vbuf->getSizeInBytes();
 			writeChunkHeader(M_GEOMETRY_VERTEX_BUFFER_DATA, size);
 			void* pBuf = vbuf->lock(HardwareBuffer::HBL_READ_ONLY);
 #		if OGRE_ENDIAN == ENDIAN_BIG
@@ -359,7 +359,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
 	uint32 MeshSerializerImpl::calcSubMeshNameTableSize(const Mesh* pMesh)
 	{
-		size_t size = stream_OVERHEAD_SIZE;
+		size_t size = STREAM_OVERHEAD_SIZE;
 		// Figure out the size of the Name table.
 		// Iterate through the subMeshList & add up the size of the indexes and names.
 		Mesh::SubMeshNameMap::const_iterator it = pMesh->mSubMeshNameMap.begin();		
@@ -379,7 +379,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     uint32 MeshSerializerImpl::calcMeshSize(const Mesh* pMesh)
     {
-        size_t size = stream_OVERHEAD_SIZE;
+        size_t size = STREAM_OVERHEAD_SIZE;
 
         // Num shared vertices
         size += sizeof(uint32);
@@ -416,7 +416,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     uint32 MeshSerializerImpl::calcSubMeshSize(const SubMesh* pSub)
     {
-        size_t size = stream_OVERHEAD_SIZE;
+        size_t size = STREAM_OVERHEAD_SIZE;
 
         // Material name
         size += static_cast<uint32>(pSub->getMaterialName().length()) + 1;
@@ -441,12 +441,12 @@ namespace Ogre {
     //---------------------------------------------------------------------
     uint32 MeshSerializerImpl::calcSubMeshOperationSize(const SubMesh* pSub)
     {
-        return stream_OVERHEAD_SIZE + sizeof(uint16);
+        return STREAM_OVERHEAD_SIZE + sizeof(uint16);
     }
     //---------------------------------------------------------------------
     uint32 MeshSerializerImpl::calcGeometrySize(const VertexData* vertexData)
     {
-        size_t size = stream_OVERHEAD_SIZE;
+        size_t size = STREAM_OVERHEAD_SIZE;
 
         // Num vertices
         size += sizeof(unsigned int);
@@ -501,7 +501,7 @@ namespace Ogre {
             if (!stream->eof())
             {
                 // Backpedal back to start of non-submesh stream
-                stream->skip(-(long)stream_OVERHEAD_SIZE);
+                stream->skip(-(long)STREAM_OVERHEAD_SIZE);
             }
         }
     }
@@ -531,7 +531,7 @@ namespace Ogre {
             if (!stream->eof())
             {
                 // Backpedal back to start of non-submesh stream
-                stream->skip(-(long)stream_OVERHEAD_SIZE);
+                stream->skip(-(long)STREAM_OVERHEAD_SIZE);
             }
         }
 		
@@ -637,7 +637,7 @@ namespace Ogre {
 			if (!stream->eof())
 			{
 				// Backpedal back to start of stream
-				stream->skip(-(long)stream_OVERHEAD_SIZE);
+				stream->skip(-(long)STREAM_OVERHEAD_SIZE);
 			}
 		}
 
@@ -698,7 +698,7 @@ namespace Ogre {
 							delete pMesh->sharedVertexData;
 							pMesh->sharedVertexData = 0;
 							// Skip this stream (pointer will have been returned to just after header)
-							stream->skip(mCurrentstreamLen - stream_OVERHEAD_SIZE);
+							stream->skip(mCurrentstreamLen - STREAM_OVERHEAD_SIZE);
 						}
 						else
 						{
@@ -739,7 +739,7 @@ namespace Ogre {
             if (!stream->eof())
             {
                 // Backpedal back to start of stream
-                stream->skip(-(long)stream_OVERHEAD_SIZE);
+                stream->skip(-(long)STREAM_OVERHEAD_SIZE);
             }
         }
 
@@ -840,7 +840,7 @@ namespace Ogre {
             if (!stream->eof())
             {
                 // Backpedal back to start of stream
-                stream->skip(-(long)stream_OVERHEAD_SIZE);
+                stream->skip(-(long)STREAM_OVERHEAD_SIZE);
             }
         }
 	
@@ -878,7 +878,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     uint32 MeshSerializerImpl::calcSkeletonLinkSize(const String& skelName)
     {
-        size_t size = stream_OVERHEAD_SIZE;
+        size_t size = STREAM_OVERHEAD_SIZE;
 
         size += static_cast<uint32>(skelName.length()) + 1;
 
@@ -943,7 +943,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     uint32 MeshSerializerImpl::calcBoneAssignmentSize(void)
     {
-        size_t size = stream_OVERHEAD_SIZE;
+        size_t size = STREAM_OVERHEAD_SIZE;
 
         // Vert index
         size += sizeof(unsigned int);
@@ -982,7 +982,7 @@ namespace Ogre {
     void MeshSerializerImpl::writeLodSummary(unsigned short numLevels, bool manual)
     {
         // Header
-        size_t size = stream_OVERHEAD_SIZE;
+        size_t size = STREAM_OVERHEAD_SIZE;
         // unsigned short numLevels;
         size += sizeof(unsigned short);
         // bool manual;  (true for manual alternate meshes, false for generated)
@@ -1001,8 +1001,8 @@ namespace Ogre {
     void MeshSerializerImpl::writeLodUsageManual(const Mesh::MeshLodUsage& usage)
     {
         // Header
-        size_t size = stream_OVERHEAD_SIZE;
-        size_t manualSize = stream_OVERHEAD_SIZE;
+        size_t size = STREAM_OVERHEAD_SIZE;
+        size_t manualSize = STREAM_OVERHEAD_SIZE;
         // Real fromDepthSquared;
         size += sizeof(Real);
         // Manual part size
@@ -1025,7 +1025,7 @@ namespace Ogre {
 		unsigned short lodNum)
     {
 		// Usage Header
-        size_t size = stream_OVERHEAD_SIZE;
+        size_t size = STREAM_OVERHEAD_SIZE;
 		unsigned short subidx;
 
         // Real fromDepthSquared;
@@ -1035,7 +1035,7 @@ namespace Ogre {
 		for(subidx = 0; subidx < pMesh->getNumSubMeshes(); ++subidx)
 		{
 			// header
-			size += stream_OVERHEAD_SIZE;
+			size += STREAM_OVERHEAD_SIZE;
 			// unsigned int numFaces;
 			size += sizeof(unsigned int);
 			SubMesh* sm = pMesh->getSubMesh(subidx);
@@ -1064,7 +1064,7 @@ namespace Ogre {
         // Calc generated SubMesh sections size
 		for(subidx = 0; subidx < pMesh->getNumSubMeshes(); ++subidx)
 		{
-			size = stream_OVERHEAD_SIZE;
+			size = STREAM_OVERHEAD_SIZE;
 			// unsigned int numFaces;
 			size += sizeof(unsigned int);
 			SubMesh* sm = pMesh->getSubMesh(subidx);
@@ -1113,7 +1113,7 @@ namespace Ogre {
     void MeshSerializerImpl::writeBoundsInfo(const Mesh* pMesh)
     {
 		// Usage Header
-        unsigned long size = stream_OVERHEAD_SIZE;
+        unsigned long size = STREAM_OVERHEAD_SIZE;
 
         size += sizeof(Real) * 7;
         writeChunkHeader(M_MESH_BOUNDS, size);
@@ -1347,7 +1347,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
 	uint32 MeshSerializerImpl::calcEdgeListSize(const Mesh* pMesh)
 	{
-        size_t size = stream_OVERHEAD_SIZE;
+        size_t size = STREAM_OVERHEAD_SIZE;
 
         for (ushort i = 0; i < pMesh->getNumLodLevels(); ++i)
         {
@@ -1364,7 +1364,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     uint32 MeshSerializerImpl::calcEdgeListLodSize(const EdgeData* edgeData, bool isManual)
     {
-        size_t size = stream_OVERHEAD_SIZE;
+        size_t size = STREAM_OVERHEAD_SIZE;
 
         // unsigned short lodIndex
         size += sizeof(uint16);
@@ -1403,7 +1403,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     uint32 MeshSerializerImpl::calcEdgeGroupSize(const EdgeData::EdgeGroup& group)
     {
-        size_t size = stream_OVERHEAD_SIZE;
+        size_t size = STREAM_OVERHEAD_SIZE;
 
         // unsigned long vertexSet
         size += sizeof(uint32);
@@ -1644,7 +1644,7 @@ namespace Ogre {
             if (!stream->eof())
             {
                 // Backpedal back to start of stream
-                stream->skip(-(long)stream_OVERHEAD_SIZE);
+                stream->skip(-(long)STREAM_OVERHEAD_SIZE);
             }
         }
 
@@ -1721,7 +1721,7 @@ namespace Ogre {
             if (!stream->eof())
             {
                 // Backpedal back to start of non-submesh stream
-                stream->skip(-(long)stream_OVERHEAD_SIZE);
+                stream->skip(-(long)STREAM_OVERHEAD_SIZE);
             }
         }
     }

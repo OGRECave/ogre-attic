@@ -40,7 +40,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
     /// stream overhead = ID + size
-    const size_t stream_OVERHEAD_SIZE = sizeof(uint16) + sizeof(uint32);
+    const size_t STREAM_OVERHEAD_SIZE = sizeof(uint16) + sizeof(uint32);
     //---------------------------------------------------------------------
     SkeletonSerializer::SkeletonSerializer()
     {
@@ -223,7 +223,7 @@ namespace Ogre {
     uint32 SkeletonSerializer::calcBoneSize(const Skeleton* pSkel, 
         const Bone* pBone)
     {
-        size_t size = stream_OVERHEAD_SIZE;
+        size_t size = STREAM_OVERHEAD_SIZE;
 
         // handle
         size += sizeof(unsigned short);
@@ -239,7 +239,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     uint32 SkeletonSerializer::calcBoneParentSize(const Skeleton* pSkel)
     {
-        size_t size = stream_OVERHEAD_SIZE;
+        size_t size = STREAM_OVERHEAD_SIZE;
 
         // handle
         size += sizeof(unsigned short);
@@ -254,7 +254,7 @@ namespace Ogre {
     uint32 SkeletonSerializer::calcAnimationSize(const Skeleton* pSkel, 
         const Animation* pAnim)
     {
-        size_t size = stream_OVERHEAD_SIZE;
+        size_t size = STREAM_OVERHEAD_SIZE;
 
         // Name, including terminator
         size += pAnim->getName().length() + 1;
@@ -273,7 +273,7 @@ namespace Ogre {
     uint32 SkeletonSerializer::calcAnimationTrackSize(const Skeleton* pSkel, 
         const AnimationTrack* pTrack)
     {
-        size_t size = stream_OVERHEAD_SIZE;
+        size_t size = STREAM_OVERHEAD_SIZE;
 
         // unsigned short boneIndex     : Index of bone to apply to
         size += sizeof(unsigned short);
@@ -291,7 +291,7 @@ namespace Ogre {
     uint32 SkeletonSerializer::calcKeyFrameSize(const Skeleton* pSkel, 
         const KeyFrame* pKey)
     {
-        size_t size = stream_OVERHEAD_SIZE;
+        size_t size = STREAM_OVERHEAD_SIZE;
 
         // Real time                    : The time position (seconds)
         size += sizeof(Real);
@@ -374,7 +374,7 @@ namespace Ogre {
             if (!stream->eof())
             {
                 // Backpedal back to start of this stream if we've found a non-track
-                stream->skip(-stream_OVERHEAD_SIZE);
+                stream->skip(-(long)STREAM_OVERHEAD_SIZE);
             }
 
         }
@@ -413,7 +413,7 @@ namespace Ogre {
             if (!stream->eof())
             {
                 // Backpedal back to start of this stream if we've found a non-keyframe
-                stream->skip(-stream_OVERHEAD_SIZE);
+                stream->skip(-(long)STREAM_OVERHEAD_SIZE);
             }
 
         }

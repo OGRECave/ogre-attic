@@ -35,8 +35,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     /// stream overhead = ID + size
-    const unsigned long stream_OVERHEAD_SIZE = sizeof(unsigned short) + sizeof(unsigned long);
-    const unsigned short HEADER_stream_ID = 0x1000;
+    const unsigned long STREAM_OVERHEAD_SIZE = sizeof(unsigned short) + sizeof(unsigned long);
+    const unsigned short HEADER_STREAM_ID = 0x1000;
     //---------------------------------------------------------------------
     Serializer::Serializer()
     {
@@ -51,7 +51,7 @@ namespace Ogre {
     void Serializer::writeFileHeader(void)
     {
         
-        unsigned short val = HEADER_stream_ID;
+        unsigned short val = HEADER_STREAM_ID;
         writeShorts(&val, 1);
 
         writeString(mVersion);
@@ -150,7 +150,7 @@ namespace Ogre {
         // Read header ID
         readShorts(stream, &headerID, 1);
         
-        if (headerID == HEADER_stream_ID)
+        if (headerID == HEADER_STREAM_ID)
         {
             // Read version
             String ver = readString(stream);
