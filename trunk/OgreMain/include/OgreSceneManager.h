@@ -204,6 +204,11 @@ namespace Ogre {
         AnimationList mAnimationsList;
         AnimationStateSet mAnimationStates;
 
+        // List of overlays
+        typedef std::map<String, Overlay*> OverlayList;
+        OverlayList mOverlays;
+
+
 
 
 
@@ -1006,8 +1011,32 @@ namespace Ogre {
         virtual void manualRender(RenderOperation* rend, Material* mat, Viewport* vp, 
             const Matrix4& worldMatrix, const Matrix4& viewMatrix, const Matrix4& projMatrix) ;
 
+        /** Creates a new Overlay.
+        @remarks
+            Overlays can be used to render heads-up-displays (HUDs), menu systems,
+            cockpits and any other 2D or 3D object you need to appear above the
+            rest of the scene. See the Overlay class for more information.
+        @par
+            NOTE: after creation, the Overlay is initially hidden. You can create
+            as many overlays as you like ready to be displayed whenever. Just call
+            Overlay::show to display the overlay.
+        @param name The name to give the overlay, must be unique.
+        @param zorder The zorder of the overlay relative to it's peers, higher zorders
+            appear on top of lower ones.
+        */
+        Overlay* createOverlay(const String& name, ushort zorder = 100); 
+
+        /** Gets a pointer to the named Overlay, previously created using createOverlay. */
+        Overlay* getOverlay(const String& name);
+
+        /** Destroys the named Overlay. */
+        void destroyOverlay(const String& name);
+        
+        /** Destroys all the overlays. */
+        void destroyAllOverlays(void);
+
         /** Internal method, queues any overlay objects for rendering. */
-        void _queueOverlays(void);
+        void _queueOverlays(Camera* cam);
 
 
     };

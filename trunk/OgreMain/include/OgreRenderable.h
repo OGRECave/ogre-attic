@@ -76,6 +76,25 @@ namespace Ogre {
         */
         virtual unsigned short getNumWorldTransforms(void) { return 1; }
 
+        /** Returns whether or not to use an 'identity' projection.
+        @remarks
+            Usually Renderable objects will use a projection matrix as determined
+            by the active camera. However, if they want they can cancel this out
+            and use an identity projection, which effectively projects in 2D using
+            a {-1, 1} view space. Useful for overlay rendering. Normal renderables need
+            not override this.
+        */
+        virtual bool useIdentityProjection(void) { return false; }
+
+        /** Returns whether or not to use an 'identity' projection.
+        @remarks
+            Usually Renderable objects will use a view matrix as determined
+            by the active camera. However, if they want they can cancel this out
+            and use an identity matrix, which means all geometry is assumed
+            to be relative to camera space already. Useful for overlay rendering. 
+            Normal renderables need not override this.
+        */
+        virtual bool useIdentityView(void) { return false; }
 
     };
 

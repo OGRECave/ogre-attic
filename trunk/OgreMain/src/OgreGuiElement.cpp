@@ -45,6 +45,7 @@ namespace Ogre {
         mVisible = true;
         mpMaterial = 0;
         mDerivedOutOfDate = true;
+        mZOrder = 0;
        
     }
     //---------------------------------------------------------------------
@@ -151,6 +152,16 @@ namespace Ogre {
         mOverlay->_getWorldTransforms(xform);
     }
     //---------------------------------------------------------------------
+    bool GuiElement::useIdentityProjection(void)
+    {
+        return true;
+    }
+    //---------------------------------------------------------------------
+    bool GuiElement::useIdentityView(void)
+    {
+        return true;
+    }
+    //---------------------------------------------------------------------
     void GuiElement::_update(void)
     {
         _updateFromParent();
@@ -177,6 +188,7 @@ namespace Ogre {
     {
         mParent = parent;
         mOverlay = overlay;
+
         mDerivedOutOfDate = true;
     }
     //---------------------------------------------------------------------
@@ -197,5 +209,19 @@ namespace Ogre {
         }
         return mDerivedTop;
     }
+    //---------------------------------------------------------------------
+    void GuiElement::_notifyZOrder(ushort newZOrder)
+    {
+        mZOrder = newZOrder;
+    }
+    //---------------------------------------------------------------------
+    void GuiElement::_updateRenderQueue(RenderQueue* queue)
+    {
+        queue->addRenderable(this, RENDER_QUEUE_OVERLAY, mZOrder);
+      
+    }
+
+
+
 }
 

@@ -92,7 +92,10 @@ namespace Ogre {
 
         /** Gets the name of this overlay. */
         const String& getName(void) const;
-        /** Alters the ZOrder of this overlay. */
+        /** Alters the ZOrder of this overlay. 
+        @remarks
+            Values between 0 and 600 are valid here.
+        */
         void setZOrder(ushort zorder);
         /** Gets the ZOrder of this overlay. */
         ushort getZOrder(void) const;
@@ -215,7 +218,7 @@ namespace Ogre {
         void _getWorldTransforms(Matrix4* xform);
 
         /** Internal method to put the overlay contents onto the render queue. */
-        void _updateRenderQueue(RenderQueue* queue);
+        void _findVisibleObjects(Camera* cam, RenderQueue* queue);
 
 
 

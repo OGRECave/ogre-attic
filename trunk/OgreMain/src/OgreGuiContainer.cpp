@@ -52,6 +52,9 @@ namespace Ogre {
 
         mChildren.insert(ChildMap::value_type(name, elem));
 
+        // tell child about ZOrder
+        elem->_notifyZOrder(mZOrder + 1);
+
 
     }
     //---------------------------------------------------------------------
@@ -85,8 +88,65 @@ namespace Ogre {
         return ChildIterator(mChildren.begin(), mChildren.end());
     }
     //---------------------------------------------------------------------
+    void GuiContainer::addChild(GuiContainer* cont)
+    {
+        // Add to main map first 
+        // This will pick up duplicates
+        GuiElement* pElem = cont;
+        addChild(pElem);
+
+        // Now add to specific map too
+        mChildContainers.insert(ChildContainerMap::value_type(cont->getName(), cont));
+
+    }
+    //---------------------------------------------------------------------
+    GuiContainer::ChildContainerIterator GuiContainer::getChildContainerIterator(void)
+    {
+        return ChildContainerIterator(mChildContainers.begin(), mChildContainers.end());
+    }
+    //---------------------------------------------------------------------
+    void GuiContainer::_update(void)
+    {
+        // call superclass
+        GuiElement::_update();
+
+        // Update children
+        ChildIterator it = getChildIterator();
+        while (it.hasMoreElements())
+        {
+            it.getNext()->_update();
+        }
 
 
+    }
+    //---------------------------------------------------------------------
+    void GuiContainer::_notifyZOrder(ushort newZOrder)
+    {
+        GuiElement::_notifyZOrder(newZOrder);
+
+        // Update children
+        ChildIterator it = getChildIterator();
+        while (it.hasMoreElements())
+        {
+            // Give children ZOrder 1 higher than this
+            it.getNext()->_notifyZOrder(newZOrder + 1);
+        }
+
+    }
+    //---------------------------------------------------------------------
+    void GuiContainer::_updateRenderQueue(RenderQueue* queue)
+    {
+        GuiElement::_updateRenderQueue(queue);
+
+        // Also add children
+        ChildIterator it = getChildIterator();
+        while (it.hasMoreElements())
+        {
+            // Give children ZOrder 1 higher than this
+            it.getNext()->_updateRenderQueue(queue);
+        }
+
+    }
 
 }
 
