@@ -49,7 +49,9 @@ namespace Ogre {
         alphaBlendMode.source2 = LBS_CURRENT;
 		
 		//default filtering
-		mTextureFiltering = MaterialManager::getSingleton().getDefaultTextureFiltering();
+		mMinFilter = FO_LINEAR;
+		mMagFilter = FO_LINEAR;
+		mMipFilter = FO_POINT;
 		mMaxAniso = MaterialManager::getSingleton().getDefaultAnisotropy();
 
 		mUMod = mVMod = 0;
@@ -90,7 +92,9 @@ namespace Ogre {
         alphaBlendMode.source2 = LBS_CURRENT;
 
 		//default filtering && anisotropy
-		mTextureFiltering = MaterialManager::getSingleton().getDefaultTextureFiltering();
+		mMinFilter = FO_LINEAR;
+		mMagFilter = FO_LINEAR;
+		mMipFilter = FO_POINT;
 		mMaxAniso = MaterialManager::getSingleton().getDefaultAnisotropy();
 
 		mUMod = mVMod = 0;
@@ -779,13 +783,58 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void TextureUnitState::setTextureFiltering(TextureFilterOptions filterType)
 	{
-		mTextureFiltering = filterType;
+        switch (filterType)
+        {
+        case TFO_NONE:
+            setTextureFiltering(FO_POINT, FO_POINT, FO_NONE);
+            break;
+        case TFO_BILINEAR:
+            setTextureFiltering(FO_LINEAR, FO_LINEAR, FO_POINT);
+            break;
+        case TFO_TRILINEAR:
+            setTextureFiltering(FO_LINEAR, FO_LINEAR, FO_LINEAR);
+            break;
+        case TFO_ANISOTROPIC:
+            setTextureFiltering(FO_ANISOTROPIC, FO_ANISOTROPIC, FO_LINEAR);
+            break;
+        }
 	}
-
 	//-----------------------------------------------------------------------
-	TextureFilterOptions TextureUnitState::getTextureFiltering() const
+    void TextureUnitState::setTextureFiltering(FilterType ft, FilterOptions fo)
+    {
+        switch (ft)
+        {
+        case FT_MIN:
+            mMinFilter = fo;
+            break;
+        case FT_MAG:
+            mMagFilter = fo;
+            break;
+        case FT_MIP:
+            mMagFilter = fo;
+            break;
+        }
+    }
+	//-----------------------------------------------------------------------
+    void TextureUnitState::setTextureFiltering(FilterOptions minFilter, 
+        FilterOptions magFilter, FilterOptions mipFilter)
+    {
+        mMinFilter = minFilter;
+        mMagFilter = magFilter;
+        mMipFilter = mipFilter;
+    }
+	//-----------------------------------------------------------------------
+	FilterOptions TextureUnitState::getTextureFiltering(FilterType ft) const
 	{
-		return mTextureFiltering;
+        switch (ft)
+        {
+        case FT_MIN:
+            return mMinFilter;
+        case FT_MAG:
+            return mMagFilter;
+        case FT_MIP:
+            return mMipFilter;
+        }
 	}
 
 	//-----------------------------------------------------------------------

@@ -61,6 +61,12 @@ namespace Ogre {
 		
     }
     //-----------------------------------------------------------------------
+    Material::~Material()
+    {
+        removeAllTechniques();
+        // parent Resource will call unload
+    }
+    //-----------------------------------------------------------------------
     Material& Material::operator=(const Material& rhs)
     {
 	    mName = rhs.mName;

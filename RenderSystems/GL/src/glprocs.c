@@ -8897,7 +8897,7 @@ void APIENTRY InitProgramLocalParameter4fvARB (GLenum a, GLuint b, const GLfloat
 {
 	void *extproc;
 
-	extproc = (void *) wglGetProcAddress("glProgramEnvParameter4fvARB");
+	extproc = (void *) wglGetProcAddress("glProgramLocalParameter4fvARB");
 
 	if (extproc == NULL) {
 		_ASSERT(0);

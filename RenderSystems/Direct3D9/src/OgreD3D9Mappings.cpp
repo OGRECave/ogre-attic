@@ -298,26 +298,29 @@ namespace Ogre
 		return 0;
 	}
 	//---------------------------------------------------------------------
-	DWORD D3D9Mappings::get(TextureFilterOptions tfo, D3DCAPS9 devCaps, eD3DTexType texType, eD3DFilterUsage usage)
+	D3DSAMPLERSTATETYPE D3D9Mappings::get(FilterType ft)
+    {
+        switch (ft)
+        {
+        case FT_MIN:
+            return D3DSAMP_MINFILTER;
+            break;
+        case FT_MAG:
+            return D3DSAMP_MAGFILTER;
+            break;
+        case FT_MIP:
+            return D3DSAMP_MIPFILTER;
+            break;
+        }
+
+        // to keep compiler happy
+        return D3DSAMP_MINFILTER;
+    }
+	//---------------------------------------------------------------------
+	DWORD D3D9Mappings::get(FilterType ft, FilterOptions fo, D3DCAPS9 devCaps, 
+        eD3DTexType texType)
 	{
 		DWORD capsType;
-		DWORD anisoUsage;
-		DWORD linearUsage;
-
-		switch( usage )
-		{
-		case D3D_FUSAGE_MIN:
-			anisoUsage = D3DPTFILTERCAPS_MINFANISOTROPIC;
-			linearUsage = D3DPTFILTERCAPS_MINFLINEAR;
-			break;
-		case D3D_FUSAGE_MAG:
-			anisoUsage = D3DPTFILTERCAPS_MAGFANISOTROPIC;
-			linearUsage = D3DPTFILTERCAPS_MAGFLINEAR;
-			break;
-		case D3D_FUSAGE_MIP:
-			linearUsage = D3DPTFILTERCAPS_MIPFLINEAR;
-			break;
-		}
 
 		switch( texType )
 		{
@@ -332,32 +335,78 @@ namespace Ogre
 			break;
 		}
 
-		switch( tfo )
-		{
-		// NOTE: Fall through if device doesn't support requested type
-		case TFO_ANISOTROPIC:
-			// mip filter anisotropic don't exist
-			// fall to linear...
-			if (usage != D3D_FUSAGE_MIP)
-			{
-				if( capsType & anisoUsage )
-					return D3DTEXF_ANISOTROPIC;
-			}
-		case TFO_TRILINEAR:
-		case TFO_BILINEAR:
-			if( capsType & linearUsage )
-				return D3DTEXF_LINEAR;
-		case TFO_NONE:
-            if (usage == D3D_FUSAGE_MIP)
+        switch (ft)
+        {
+        case FT_MIN:
+            switch( fo )
             {
-			    return D3DTEXF_POINT;
+                // NOTE: Fall through if device doesn't support requested type
+            case FO_ANISOTROPIC:
+                if( capsType & D3DPTFILTERCAPS_MINFANISOTROPIC )
+                {
+                    return D3DTEXF_ANISOTROPIC;
+                    break;
+                }
+            case FO_LINEAR:
+                if( capsType & D3DPTFILTERCAPS_MINFLINEAR )
+                {
+                    return D3DTEXF_LINEAR;
+                    break;
+                }
+            case FO_POINT:
+            case TFO_NONE:
+                return D3DTEXF_POINT;
+                break;
             }
-            else
+            break;
+        case FT_MAG:
+            switch( fo )
             {
-			    return D3DTEXF_NONE;
+            // NOTE: Fall through if device doesn't support requested type
+            case FO_ANISOTROPIC:
+                if( capsType & D3DPTFILTERCAPS_MAGFANISOTROPIC )
+                {
+                    return D3DTEXF_ANISOTROPIC;
+                    break;
+                }
+            case FO_LINEAR:
+                if( capsType & D3DPTFILTERCAPS_MAGFLINEAR )
+                {
+                    return D3DTEXF_LINEAR;
+                    break;
+                }
+            case FO_POINT:
+            case FO_NONE:
+                return D3DTEXF_POINT;
+                break;
             }
-		}
-		return 0;
+            break;
+        case FT_MIP:
+            switch( fo )
+            {
+            case FO_ANISOTROPIC:
+            case FO_LINEAR:
+                if( capsType & D3DPTFILTERCAPS_MIPFLINEAR )
+                {
+                    return D3DTEXF_LINEAR;
+                    break;
+                }
+            case FO_POINT:
+                if( capsType & D3DPTFILTERCAPS_MIPFPOINT )
+                {
+                    return D3DTEXF_POINT;
+                    break;
+                }
+            case TFO_NONE:
+                return D3DTEXF_NONE;
+                break;
+            }
+            break;
+        }
+
+        // should never get here
+        return 0;
+
 	}
 	//---------------------------------------------------------------------
 	D3D9Mappings::eD3DTexType D3D9Mappings::get(TextureType ogreTexType)

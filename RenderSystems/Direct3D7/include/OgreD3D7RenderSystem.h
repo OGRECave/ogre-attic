@@ -129,9 +129,9 @@ namespace Ogre {
 		HRESULT __SetRenderState(D3DRENDERSTATETYPE state, DWORD value);
 		HRESULT __SetTextureStageState(DWORD stage, D3DTEXTURESTAGESTATETYPE type, DWORD value);
 
-		DWORD _getMipFilter(const TextureFilterOptions fo);
-		DWORD _getMagFilter(const TextureFilterOptions fo);
-		DWORD _getMinFilter(const TextureFilterOptions fo);
+
+        D3DTEXTURESTAGESTATETYPE _getFilterCode(FilterType ft);
+        DWORD _getFilter(FilterType ft, FilterOptions fo);
 		DWORD _getCurrentAnisotropy(size_t unit);
 
         HardwareBufferManager* mHardwareBufferManager;
@@ -367,7 +367,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-		void _setTextureLayerFiltering(size_t unit, const TextureFilterOptions texLayerFilterOps);
+        void _setTextureUnitFiltering(size_t unit, FilterType ftype, FilterOptions filter);
         /** See
           RenderSystem
          */

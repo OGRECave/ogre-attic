@@ -1,11 +1,19 @@
-Examples/Smoke
+
+material Examples/Smoke
 {
-	lighting off
-	scene_blend alpha_blend
-	depth_write off
+	technique
 	{
-		texture smoke.png
-		tex_address_mode clamp
+		pass
+		{
+			lighting off
+			scene_blend alpha_blend
+			depth_write off
+
+			texture_unit
+			{
+				texture smoke.png
+				tex_address_mode clamp
+			}
+		}
 	}
-	
 }

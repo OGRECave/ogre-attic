@@ -240,17 +240,6 @@ namespace Ogre
         */
         virtual void setShadingType(ShadeOptions so) = 0;
 
-        /** Sets the type of texture filtering used when rendering
-            @remarks
-                This method sets the kind of texture filtering applied when rendering textures onto
-                primitives. Filtering covers how the effects of minification and magnification are
-                disguised by resampling.
-            @param
-                fo The type of filtering to apply. The options are described in
-                TextureFilterOptions
-         */
-        virtual void setTextureFiltering(TextureFilterOptions fo);
-
         /** Sets whether or not dynamic lighting is enabled.
             @param
                 enabled If true, dynamic lighting is performed on geometry with normals supplied, geometry without
@@ -460,14 +449,24 @@ namespace Ogre
         */
         virtual void _setTextureBlendMode(size_t unit, const LayerBlendModeEx& bm) = 0;
 
-		/** Sets the texture filtering type for a texture unit.*/
-		virtual void _setTextureLayerFiltering(size_t unit, const TextureFilterOptions texLayerFilterOps) = 0;
+        /** Sets the filtering options for a given texture unit.
+        @param unit The texture unit to set the filtering options for
+        @param minFilter The filter used when a texture is reduced in size
+        @param magFilter The filter used when a texture is magnified
+        @param mipFilter The filter used between mipmap levels, FO_NONE disables mipmapping
+        */
+        virtual void _setTextureUnitFiltering(size_t unit, FilterOptions minFilter,
+            FilterOptions magFilter, FilterOptions mipFilter);
+
+        /** Sets a single filter for a given texture unit.
+        @param unit The texture unit to set the filtering options for
+        @param ftype The filter type
+        @param filter The filter to be used
+        */
+        virtual void _setTextureUnitFiltering(size_t unit, FilterType ftype, FilterOptions filter) = 0;
 
 		/** Sets the maximal anisotropy for the specified texture unit.*/
 		virtual void _setTextureLayerAnisotropy(size_t unit, int maxAnisotropy) = 0;
-
-		/** Sets the maximal anisotropy.*/
-		virtual void _setAnisotropy(int maxAnisotropy);
 
 		/** Sets the texture addressing mode for a texture unit.*/
         virtual void _setTextureAddressingMode(size_t unit, TextureUnitState::TextureAddressingMode tam) = 0;

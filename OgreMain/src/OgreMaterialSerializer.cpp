@@ -31,14 +31,1638 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreTechnique.h"
 #include "OgrePass.h"
 #include "OgreTextureUnitState.h"
+#include "OgreMaterialManager.h"
+#include "OgreGpuProgramManager.h"
 
 namespace Ogre 
 {
+    //-----------------------------------------------------------------------
+    // Internal parser methods
+    //-----------------------------------------------------------------------
+    void logParseError(const String& error, const MaterialScriptContext& context)
+    {
+        // log material name only if filename not specified
+        if (context.filename.empty() && context.material)
+        {
+            LogManager::getSingleton().logMessage(
+                "Error in material " + context.material->getName() + 
+                " : " + error);
+        }
+        else
+        {
+            if (context.material)
+            {
+                LogManager::getSingleton().logMessage(
+                    "Error in material " + context.material->getName() +
+                    " at line " + StringConverter::toString(context.lineNo) + 
+                    " of " + context.filename + ": " + error);
+            }
+            else
+            {
+                LogManager::getSingleton().logMessage(
+                    "Error at line " + StringConverter::toString(context.lineNo) + 
+                    " of " + context.filename + ": " + error);
+            }
+        }
+    }
+    //-----------------------------------------------------------------------
+    ColourValue _parseColourValue(StringVector& vecparams)
+    {
+        return ColourValue(
+            StringConverter::parseReal(vecparams[0]) ,
+            StringConverter::parseReal(vecparams[1]) ,
+            StringConverter::parseReal(vecparams[2]) ,
+            (vecparams.size()==4) ? StringConverter::parseReal(vecparams[3]) : 1.0f ) ;
+    }
+    //-----------------------------------------------------------------------
+    FilterOptions convertFiltering(const String& s)
+    {
+        if (s == "none")
+        {
+            return FO_NONE;
+        }
+        else if (s == "point")
+        {
+            return FO_POINT;
+        }
+        else if (s == "linear")
+        {
+            return FO_LINEAR;
+        }
+        else if (s == "anisotropic")
+        {
+            return FO_ANISOTROPIC;
+        }
+
+        return FO_POINT;
+    }
+    //-----------------------------------------------------------------------
+    bool parseAmbient(String& params, MaterialScriptContext& context)
+    {
+        StringVector vecparams = params.split(" \t");
+        // Must be 3 or 4 parameters 
+        if (vecparams.size() != 3 && vecparams.size() != 4)
+        {
+            logParseError(
+                "Bad ambient attribute, wrong number of parameters (expected 3 or 4)", 
+                context);
+        }
+        else
+        {
+            context.pass->setAmbient( _parseColourValue(vecparams) );
+        }
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseDiffuse(String& params, MaterialScriptContext& context)
+    {
+        StringVector vecparams = params.split(" \t");
+        // Must be 3 or 4 parameters 
+        if (vecparams.size() != 3 && vecparams.size() != 4)
+        {
+            logParseError(
+                "Bad diffuse attribute, wrong number of parameters (expected 3 or 4)", 
+                context);
+        }
+        else
+        {
+            context.pass->setDiffuse( _parseColourValue(vecparams) );
+        }
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseSpecular(String& params, MaterialScriptContext& context)
+    {
+        StringVector vecparams = params.split(" \t");
+        // Must be 4 or 5 parameters 
+        if (vecparams.size() != 4 && vecparams.size() != 5)
+        {
+            logParseError(
+                "Bad specular attribute, wrong number of parameters (expected 4 or 5)",
+                context);
+        }
+        else
+        {
+            context.pass->setSpecular( _parseColourValue(vecparams) );
+            context.pass->setShininess(
+                StringConverter::parseReal(vecparams[vecparams.size() - 1]) );
+        }
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseEmissive(String& params, MaterialScriptContext& context)
+    {
+        StringVector vecparams = params.split(" \t");
+        // Must be 3 or 4 parameters 
+        if (vecparams.size() != 3 && vecparams.size() != 4)
+        {
+            logParseError(
+                "Bad emissive attribute, wrong number of parameters (expected 3 or 4)", 
+                context);
+        }
+        else
+        {
+            context.pass->setSelfIllumination( _parseColourValue(vecparams) );
+        }
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    SceneBlendFactor convertBlendFactor(const String& param)
+    {
+        if (param == "one")
+            return SBF_ONE;
+        else if (param == "zero")
+            return SBF_ZERO;
+        else if (param == "dest_colour")
+            return SBF_DEST_COLOUR;
+        else if (param == "src_colour")
+            return SBF_SOURCE_COLOUR;
+        else if (param == "one_minus_dest_colour")
+            return SBF_ONE_MINUS_DEST_COLOUR;
+        else if (param == "one_minus_src_colour")
+            return SBF_ONE_MINUS_SOURCE_COLOUR;
+        else if (param == "dest_alpha")
+            return SBF_DEST_ALPHA;
+        else if (param == "src_alpha")
+            return SBF_SOURCE_ALPHA;
+        else if (param == "one_minus_dest_alpha")
+            return SBF_ONE_MINUS_DEST_ALPHA;
+        else if (param == "one_minus_src_alpha")
+            return SBF_ONE_MINUS_SOURCE_ALPHA;
+        else
+        {
+            Except(Exception::ERR_INVALIDPARAMS, "Invalid blend factor.", "convertBlendFactor");
+        }
+
+
+    }
+    //-----------------------------------------------------------------------
+    bool parseSceneBlend(String& params, MaterialScriptContext& context)
+    {
+        params.toLowerCase();
+        StringVector vecparams = params.split(" \t");
+        // Should be 1 or 2 params 
+        if (vecparams.size() == 1)
+        {
+            //simple
+            SceneBlendType stype;
+            if (vecparams[0] == "add")
+                stype = SBT_ADD;
+            else if (vecparams[0] == "modulate")
+                stype = SBT_TRANSPARENT_COLOUR;
+            else if (vecparams[0] == "alpha_blend")
+                stype = SBT_TRANSPARENT_ALPHA;
+            else
+            {
+                logParseError(
+                    "Bad scene_blend attribute, unrecognised parameter '" + vecparams[0] + "'",
+                    context);
+                return false;
+            }
+            context.pass->setSceneBlending(stype);
+
+        }
+        else if (vecparams.size() == 2)
+        {
+            //src/dest
+            SceneBlendFactor src, dest;
+
+            try {
+                src = convertBlendFactor(vecparams[0]);
+                dest = convertBlendFactor(vecparams[1]);
+                context.pass->setSceneBlending(src,dest);
+            }
+            catch (Exception& e)
+            {
+                logParseError("Bad scene_blend attribute, " + e.getFullDescription(), context);
+            }
+
+        }
+        else
+        {
+            logParseError(
+                "Bad scene_blend attribute, wrong number of parameters (expected 1 or 2)", 
+                context);
+        }
+
+        return false;
+
+    }
+    //-----------------------------------------------------------------------
+    CompareFunction convertCompareFunction(const String& param)
+    {
+        if (param == "always_fail")
+            return CMPF_ALWAYS_FAIL;
+        else if (param == "always_pass")
+            return CMPF_ALWAYS_PASS;
+        else if (param == "less")
+            return CMPF_LESS;
+        else if (param == "less_equal")
+            return CMPF_LESS_EQUAL;
+        else if (param == "equal")
+            return CMPF_EQUAL;
+        else if (param == "not_equal")
+            return CMPF_NOT_EQUAL;
+        else if (param == "greater_equal")
+            return CMPF_GREATER_EQUAL;
+        else if (param == "greater")
+            return CMPF_GREATER;
+        else
+            Except(Exception::ERR_INVALIDPARAMS, "Invalid compare function", "convertCompareFunction");
+
+    }
+    //-----------------------------------------------------------------------
+    bool parseDepthCheck(String& params, MaterialScriptContext& context)
+    {
+        params.toLowerCase();
+        if (params == "on")
+            context.pass->setDepthCheckEnabled(true);
+        else if (params == "off")
+            context.pass->setDepthCheckEnabled(false);
+        else
+            logParseError(
+            "Bad depth_check attribute, valid parameters are 'on' or 'off'.", 
+            context);
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseDepthWrite(String& params, MaterialScriptContext& context)
+    {
+        params.toLowerCase();
+        if (params == "on")
+            context.pass->setDepthWriteEnabled(true);
+        else if (params == "off")
+            context.pass->setDepthWriteEnabled(false);
+        else
+            logParseError(
+                "Bad depth_write attribute, valid parameters are 'on' or 'off'.", 
+                context);
+        return false;
+    }
+
+    //-----------------------------------------------------------------------
+    bool parseDepthFunc(String& params, MaterialScriptContext& context)
+    {
+        params.toLowerCase();
+        try {
+            CompareFunction func = convertCompareFunction(params);
+            context.pass->setDepthFunction(func);
+        }
+        catch (...)
+        {
+            logParseError("Bad depth_func attribute, invalid function parameter.", context);
+        }
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseColourWrite(String& params, MaterialScriptContext& context)
+    {
+        params.toLowerCase();
+        if (params == "on")
+            context.pass->setColourWriteEnabled(true);
+        else if (params == "off")
+            context.pass->setColourWriteEnabled(false);
+        else
+            logParseError(
+                "Bad colour_write attribute, valid parameters are 'on' or 'off'.", 
+                context);
+        return false;
+    }
+
+    //-----------------------------------------------------------------------
+    bool parseCullHardware(String& params, MaterialScriptContext& context)
+    {
+        params.toLowerCase();
+        if (params=="none")
+            context.pass->setCullingMode(CULL_NONE);
+        else if (params=="anticlockwise")
+            context.pass->setCullingMode(CULL_ANTICLOCKWISE);
+        else if (params=="clockwise")
+            context.pass->setCullingMode(CULL_CLOCKWISE);
+        else
+            logParseError(
+                "Bad cull_hardware attribute, valid parameters are "
+                "'none', 'clockwise' or 'anticlockwise'.", context);
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseCullSoftware(String& params, MaterialScriptContext& context)
+    {
+        params.toLowerCase();
+        if (params=="none")
+            context.pass->setManualCullingMode(MANUAL_CULL_NONE);
+        else if (params=="back")
+            context.pass->setManualCullingMode(MANUAL_CULL_BACK);
+        else if (params=="front")
+            context.pass->setManualCullingMode(MANUAL_CULL_FRONT);
+        else
+            logParseError(
+                "Bad cull_software attribute, valid parameters are 'none', "
+                "'front' or 'back'.", context);
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseLighting(String& params, MaterialScriptContext& context)
+    {
+        params.toLowerCase();
+        if (params=="on")
+            context.pass->setLightingEnabled(true);
+        else if (params=="off")
+            context.pass->setLightingEnabled(false);
+        else
+            logParseError(
+                "Bad lighting attribute, valid parameters are 'on' or 'off'.", context);
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseFogging(String& params, MaterialScriptContext& context)
+    {
+        params.toLowerCase();
+        StringVector vecparams = params.split(" \t");
+        if (vecparams[0]=="true")
+        {
+            // if true, we need to see if they supplied all arguments, or just the 1... if just the one,
+            // Assume they want to disable the default fog from effecting this material.
+            if( vecparams.size() == 8 )
+            {
+                FogMode mFogtype;
+                if( vecparams[1] == "none" )
+                    mFogtype = FOG_NONE;
+                else if( vecparams[1] == "linear" )
+                    mFogtype = FOG_LINEAR;
+                else if( vecparams[1] == "exp" )
+                    mFogtype = FOG_EXP;
+                else if( vecparams[1] == "exp2" )
+                    mFogtype = FOG_EXP2;
+                else
+                {
+                    logParseError(
+                        "Bad fogging attribute, valid parameters are "
+                        "'none', 'linear', 'exp', or 'exp2'.", context);
+                    return false;
+                }
+
+                context.pass->setFog(
+                    true,
+                    mFogtype,
+                    ColourValue(
+                    StringConverter::parseReal(vecparams[2]),
+                    StringConverter::parseReal(vecparams[3]),
+                    StringConverter::parseReal(vecparams[4])),
+                    StringConverter::parseReal(vecparams[5]),
+                    StringConverter::parseReal(vecparams[6]),
+                    StringConverter::parseReal(vecparams[7])
+                    );
+            }
+            else
+            {
+                context.pass->setFog(true);
+            }
+        }
+        else if (vecparams[0]=="false")
+            context.pass->setFog(false);
+        else
+            logParseError(
+                "Bad fog_override attribute, valid parameters are 'true' or 'false'.", 
+                context);
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseShading(String& params, MaterialScriptContext& context)
+    {
+        params.toLowerCase();
+        if (params=="flat")
+            context.pass->setShadingMode(SO_FLAT);
+        else if (params=="gouraud")
+            context.pass->setShadingMode(SO_GOURAUD);
+        else if (params=="phong")
+            context.pass->setShadingMode(SO_PHONG);
+        else
+            logParseError("Bad shading attribute, valid parameters are 'flat', "
+                "'gouraud' or 'phong'.", context);
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseFiltering(String& params, MaterialScriptContext& context)
+    {
+        params.toLowerCase();
+        StringVector vecparams = params.split(" \t");
+        // Must be 1 or 3 parameters 
+        if (vecparams.size() == 1)
+        {
+            // Simple format
+            if (vecparams[0]=="none")
+                context.textureUnit->setTextureFiltering(TFO_NONE);
+            else if (vecparams[0]=="bilinear")
+                context.textureUnit->setTextureFiltering(TFO_BILINEAR);
+            else if (vecparams[0]=="trilinear")
+                context.textureUnit->setTextureFiltering(TFO_TRILINEAR);
+            else if (vecparams[0]=="anisotropic")
+                context.textureUnit->setTextureFiltering(TFO_ANISOTROPIC);
+            else
+            {
+                logParseError("Bad filtering attribute, valid parameters for simple format are "
+                    "'none', 'bilinear', 'trilinear' or 'anisotropic'.", context);
+                return false;
+            }
+        }
+        else if (vecparams.size() == 3)
+        {
+            // Complex format
+            context.textureUnit->setTextureFiltering(
+                convertFiltering(vecparams[0]), 
+                convertFiltering(vecparams[1]), 
+                convertFiltering(vecparams[2]));
+
+
+        }
+        else
+        {
+            logParseError(
+                "Bad filtering attribute, wrong number of parameters (expected 1 or 3)", 
+                context);
+        }
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    // Texture layer attributes
+    bool parseTexture(String& params, MaterialScriptContext& context)
+    {
+        context.textureUnit->setTextureName(params);
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseAnimTexture(String& params, MaterialScriptContext& context)
+    {
+        StringVector vecparams = params.split(" \t");
+        size_t numParams = vecparams.size();
+        // Determine which form it is
+        // Must have at least 3 params though
+        if (numParams < 3)
+        {
+            logParseError("Bad anim_texture attribute, wrong number of parameters "
+                "(expected at least 3)", context);
+            return false;
+        }
+        if (numParams == 3 && StringConverter::parseInt(vecparams[1]) != 0 )
+        {
+            // First form using base name & number of frames
+            context.textureUnit->setAnimatedTextureName(
+                vecparams[0], 
+                StringConverter::parseInt(vecparams[1]), 
+                StringConverter::parseReal(vecparams[2]));
+        }
+        else
+        {
+            // Second form using individual names
+            context.textureUnit->setAnimatedTextureName(
+                (String*)&vecparams[0], 
+                numParams-1, 
+                StringConverter::parseReal(vecparams[numParams-1]));
+        }
+        return false;
+
+    }
+    //-----------------------------------------------------------------------
+    bool parseCubicTexture(String& params, MaterialScriptContext& context)
+    {
+
+        StringVector vecparams = params.split(" \t");
+        size_t numParams = vecparams.size();
+
+        // Get final param
+        bool useUVW;
+        String uvOpt = vecparams[numParams-1].toLowerCase();
+        if (uvOpt == "combineduvw")
+            useUVW = true;
+        else if (uvOpt == "separateuv")
+            useUVW = false;
+        else
+        {
+            logParseError("Bad cubic_texture attribute, final parameter must be "
+                "'combinedUVW' or 'separateUV'.", context);
+            return false;
+        }
+        // Determine which form it is
+        if (numParams == 2)
+        {
+            // First form using base name
+            context.textureUnit->setCubicTextureName(vecparams[0], useUVW);
+        }
+        else if (numParams == 7)
+        {
+            // Second form using individual names
+            // Can use vecparams[0] as array start point
+            context.textureUnit->setCubicTextureName((String*)&vecparams[0], useUVW);
+        }
+        else
+        {
+            logParseError(
+                "Bad cubic_texture attribute, wrong number of parameters (expected 2 or 7)", 
+                context);
+            return false;
+        }
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseTexCoord(String& params, MaterialScriptContext& context)
+    {
+        context.textureUnit->setTextureCoordSet(
+            StringConverter::parseInt(params));
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseTexAddressMode(String& params, MaterialScriptContext& context)
+    {
+        params.toLowerCase();
+        if (params=="wrap")
+            context.textureUnit->setTextureAddressingMode(TextureUnitState::TAM_WRAP);
+        else if (params=="mirror")
+            context.textureUnit->setTextureAddressingMode(TextureUnitState::TAM_MIRROR);
+        else if (params=="clamp")
+            context.textureUnit->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+        else
+            logParseError("Bad tex_address_mode attribute, valid parameters are "
+                "'wrap', 'clamp' or 'mirror'.", context);
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseColourOp(String& params, MaterialScriptContext& context)
+    {
+        params.toLowerCase();
+        if (params=="replace")
+            context.textureUnit->setColourOperation(LBO_REPLACE);
+        else if (params=="add")
+            context.textureUnit->setColourOperation(LBO_ADD);
+        else if (params=="modulate")
+            context.textureUnit->setColourOperation(LBO_MODULATE);
+        else if (params=="alpha_blend")
+            context.textureUnit->setColourOperation(LBO_ALPHA_BLEND);
+        else
+            logParseError("Bad colour_op attribute, valid parameters are "
+                "'replace', 'add', 'modulate' or 'alpha_blend'.", context);
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseAlphaRejection(String& params, MaterialScriptContext& context)
+    {
+        params.toLowerCase();
+        StringVector vecparams = params.split(" \t");
+        if (vecparams.size() != 3)
+        {
+            logParseError(
+                "Bad alpha_rejection attribute, wrong number of parameters (expected 2)", 
+                context);
+            return false;
+        }
+
+        CompareFunction cmp;
+        try {
+            cmp = convertCompareFunction(vecparams[0]);
+        }
+        catch (...)
+        {
+            logParseError("Bad alpha_rejection attribute, invalid compare function.", context);
+            return false;
+        }
+
+        context.textureUnit->setAlphaRejectSettings(cmp, StringConverter::parseInt(vecparams[1]));
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    LayerBlendOperationEx convertBlendOpEx(const String& param)
+    {
+        if (param == "source1")
+            return LBX_SOURCE1;
+        else if (param == "source2")
+            return LBX_SOURCE2;
+        else if (param == "modulate")
+            return LBX_MODULATE;
+        else if (param == "modulate_x2")
+            return LBX_MODULATE_X2;
+        else if (param == "modulate_x4")
+            return LBX_MODULATE_X4;
+        else if (param == "add")
+            return LBX_ADD;
+        else if (param == "add_signed")
+            return LBX_ADD_SIGNED;
+        else if (param == "add_smooth")
+            return LBX_ADD_SMOOTH;
+        else if (param == "subtract")
+            return LBX_SUBTRACT;
+        else if (param == "blend_diffuse_alpha")
+            return LBX_BLEND_DIFFUSE_ALPHA;
+        else if (param == "blend_texture_alpha")
+            return LBX_BLEND_TEXTURE_ALPHA;
+        else if (param == "blend_current_alpha")
+            return LBX_BLEND_CURRENT_ALPHA;
+        else if (param == "blend_manual")
+            return LBX_BLEND_MANUAL;
+        else if (param == "dotproduct")
+            return LBX_DOTPRODUCT;
+        else
+            Except(Exception::ERR_INVALIDPARAMS, "Invalid blend function", "convertBlendOpEx");
+    }
+    //-----------------------------------------------------------------------
+    LayerBlendSource convertBlendSource(const String& param)
+    {
+        if (param == "src_current")
+            return LBS_CURRENT;
+        else if (param == "src_texture")
+            return LBS_TEXTURE;
+        else if (param == "src_diffuse")
+            return LBS_DIFFUSE;
+        else if (param == "src_specular")
+            return LBS_SPECULAR;
+        else if (param == "src_manual")
+            return LBS_MANUAL;
+        else
+            Except(Exception::ERR_INVALIDPARAMS, "Invalid blend source", "convertBlendSource");
+    }
+    //-----------------------------------------------------------------------
+    bool parseColourOpEx(String& params, MaterialScriptContext& context)
+    {
+        params.toLowerCase();
+        StringVector vecparams = params.split(" \t");
+        size_t numParams = vecparams.size();
+
+        if (numParams < 3 || numParams > 10)
+        {
+            logParseError(
+                "Bad colour_op_ex attribute, wrong number of parameters (expected 3 to 10)", 
+                context);
+            return false;
+        }
+        LayerBlendOperationEx op;
+        LayerBlendSource src1, src2;
+        Real manual = 0.0;
+        ColourValue colSrc1 = ColourValue::White;
+        ColourValue colSrc2 = ColourValue::White;
+
+        try {
+            op = convertBlendOpEx(vecparams[0]);
+            src1 = convertBlendSource(vecparams[1]);
+            src2 = convertBlendSource(vecparams[2]);
+
+            if (op == LBX_BLEND_MANUAL)
+            {
+                if (numParams < 4)
+                {
+                    logParseError("Bad colour_op_ex attribute, wrong number of parameters "
+                        "(expected 4 for manual blend)", context);
+                    return false;
+                }
+                manual = StringConverter::parseReal(vecparams[4]);
+            }
+
+            if (src1 == LBS_MANUAL)
+            {
+                unsigned int parIndex = 3;
+                if (op == LBX_BLEND_MANUAL)
+                    parIndex++;
+
+                if (numParams < parIndex + 3)
+                {
+                    logParseError("Bad colour_op_ex attribute, wrong number of parameters "
+                        "(expected " + StringConverter::toString(parIndex + 3) + ")", context);
+                    return false;
+                }
+
+                colSrc1.r = StringConverter::parseReal(vecparams[parIndex++]);
+                colSrc1.g = StringConverter::parseReal(vecparams[parIndex++]);
+                colSrc1.b = StringConverter::parseReal(vecparams[parIndex]);
+            }
+
+            if (src2 == LBS_MANUAL)
+            {
+                unsigned int parIndex = 3;
+                if (op == LBX_BLEND_MANUAL)
+                    parIndex++;
+                if (src1 == LBS_MANUAL)
+                    parIndex += 3;
+
+                if (numParams < parIndex + 3)
+                {
+                    logParseError("Bad colour_op_ex attribute, wrong number of parameters "
+                        "(expected " + StringConverter::toString(parIndex + 3) + ")", context);
+                    return false;
+                }
+
+                colSrc2.r = StringConverter::parseReal(vecparams[parIndex++]);
+                colSrc2.g = StringConverter::parseReal(vecparams[parIndex++]);
+                colSrc2.b = StringConverter::parseReal(vecparams[parIndex]);
+            }
+        }
+        catch (Exception& e)
+        {
+            logParseError("Bad colour_op_ex attribute, " + e.getFullDescription(), context);
+            return false;
+        }
+
+        context.textureUnit->setColourOperationEx(op, src1, src2, colSrc1, colSrc2, manual);
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseColourOpFallback(String& params, MaterialScriptContext& context)
+    {
+        params.toLowerCase();
+        StringVector vecparams = params.split(" \t");
+        if (vecparams.size() != 2)
+        {
+            logParseError("Bad colour_op_multipass_fallback attribute, wrong number "
+                "of parameters (expected 2)", context);
+            return false;
+        }
+
+        //src/dest
+        SceneBlendFactor src, dest;
+
+        try {
+            src = convertBlendFactor(vecparams[0]);
+            dest = convertBlendFactor(vecparams[1]);
+            context.textureUnit->setColourOpMultipassFallback(src,dest);
+        }
+        catch (Exception& e)
+        {
+            logParseError("Bad colour_op_multipass_fallback attribute, " 
+                + e.getFullDescription(), context);
+        }
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseAlphaOpEx(String& params, MaterialScriptContext& context)
+    {
+        params.toLowerCase();
+        StringVector vecparams = params.split(" \t");
+        size_t numParams = vecparams.size();
+        if (numParams < 3 || numParams > 6)
+        {
+            logParseError("Bad alpha_op_ex attribute, wrong number of parameters "
+                "(expected 3 to 6)", context);
+            return false;
+        }
+        LayerBlendOperationEx op;
+        LayerBlendSource src1, src2;
+        Real manual = 0.0;
+        Real arg1 = 1.0, arg2 = 1.0;
+
+        try {
+            op = convertBlendOpEx(vecparams[0]);
+            src1 = convertBlendSource(vecparams[1]);
+            src2 = convertBlendSource(vecparams[2]);
+            if (op == LBX_BLEND_MANUAL)
+            {
+                if (numParams != 4)
+                {
+                    logParseError("Bad alpha_op_ex attribute, wrong number of parameters "
+                        "(expected 4 for manual blend)", context);
+                    return false;
+                }
+                manual = StringConverter::parseReal(vecparams[4]);
+            }
+            if (src1 == LBS_MANUAL)
+            {
+                unsigned int parIndex = 3;
+                if (op == LBX_BLEND_MANUAL)
+                    parIndex++;
+
+                if (numParams < parIndex)
+                {
+                    logParseError(
+                        "Bad alpha_op_ex attribute, wrong number of parameters (expected " + 
+                        StringConverter::toString(parIndex - 1) + ")", context);
+                    return false;
+                }
+
+                arg1 = StringConverter::parseReal(vecparams[parIndex]);
+            }
+
+            if (src2 == LBS_MANUAL)
+            {
+                unsigned int parIndex = 3;
+                if (op == LBX_BLEND_MANUAL)
+                    parIndex++;
+                if (src1 == LBS_MANUAL)
+                    parIndex++;
+
+                if (numParams < parIndex)
+                {
+                    logParseError(
+                        "Bad alpha_op_ex attribute, wrong number of parameters "
+                        "(expected " + StringConverter::toString(parIndex - 1) + ")", context);
+                    return false;
+                }
+
+                arg2 = StringConverter::parseReal(vecparams[parIndex]);
+            }
+        }
+        catch (Exception& e)
+        {
+            logParseError("Bad alpha_op_ex attribute, " + e.getFullDescription(), context);
+            return false;
+        }
+
+        context.textureUnit->setAlphaOperation(op, src1, src2, arg1, arg2, manual);
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseEnvMap(String& params, MaterialScriptContext& context)
+    {
+        params.toLowerCase();
+        if (params=="off")
+            context.textureUnit->setEnvironmentMap(false);
+        else if (params=="spherical")
+            context.textureUnit->setEnvironmentMap(true, TextureUnitState::ENV_CURVED);
+        else if (params=="planar")
+            context.textureUnit->setEnvironmentMap(true, TextureUnitState::ENV_PLANAR);
+        else if (params=="cubic_reflection")
+            context.textureUnit->setEnvironmentMap(true, TextureUnitState::ENV_REFLECTION);
+        else if (params=="cubic_normal")
+            context.textureUnit->setEnvironmentMap(true, TextureUnitState::ENV_NORMAL);
+        else
+            logParseError("Bad env_map attribute, valid parameters are 'off', "
+                "'spherical', 'planar', 'cubic_reflection' and 'cubic_normal'.", context);
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseScroll(String& params, MaterialScriptContext& context)
+    {
+        StringVector vecparams = params.split(" \t");
+        if (vecparams.size() != 2)
+        {
+            logParseError("Bad scroll attribute, wrong number of parameters (expected 2)", context);
+            return false;
+        }
+        context.textureUnit->setTextureScroll(
+            StringConverter::parseReal(vecparams[0]), 
+            StringConverter::parseReal(vecparams[1]));
+
+    
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseScrollAnim(String& params, MaterialScriptContext& context)
+    {
+        StringVector vecparams = params.split(" \t");
+        if (vecparams.size() != 2)
+        {
+            logParseError("Bad scroll_anim attribute, wrong number of "
+                "parameters (expected 2)", context);
+            return false;
+        }
+        context.textureUnit->setScrollAnimation(
+            StringConverter::parseReal(vecparams[0]), 
+            StringConverter::parseReal(vecparams[1]));
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseRotate(String& params, MaterialScriptContext& context)
+    {
+        context.textureUnit->setTextureRotate(
+            StringConverter::parseReal(params));
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseRotateAnim(String& params, MaterialScriptContext& context)
+    {
+        context.textureUnit->setRotateAnimation(
+            StringConverter::parseReal(params));
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseScale(String& params, MaterialScriptContext& context)
+    {
+        StringVector vecparams = params.split(" \t");
+        if (vecparams.size() != 2)
+        {
+            logParseError("Bad scale attribute, wrong number of parameters (expected 2)", context);
+            return false;
+        }
+        context.textureUnit->setTextureScale(
+            StringConverter::parseReal(vecparams[0]), 
+            StringConverter::parseReal(vecparams[1]));
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseWaveXform(String& params, MaterialScriptContext& context)
+    {
+        params.toLowerCase();
+        StringVector vecparams = params.split(" \t");
+
+        if (vecparams.size() != 6)
+        {
+            logParseError("Bad wave_xform attribute, wrong number of parameters "
+                "(expected 6)", context);
+            return false;
+        }
+        TextureUnitState::TextureTransformType ttype;
+        WaveformType waveType;
+        // Check transform type
+        if (vecparams[0]=="scroll_x")
+            ttype = TextureUnitState::TT_TRANSLATE_U;
+        else if (vecparams[0]=="scroll_y")
+            ttype = TextureUnitState::TT_TRANSLATE_V;
+        else if (vecparams[0]=="rotate")
+            ttype = TextureUnitState::TT_ROTATE;
+        else if (vecparams[0]=="scale_x")
+            ttype = TextureUnitState::TT_SCALE_U;
+        else if (vecparams[0]=="scale_y")
+            ttype = TextureUnitState::TT_SCALE_V;
+        else
+        {
+            logParseError("Bad wave_xform attribute, parameter 1 must be 'scroll_x', "
+                "'scroll_y', 'rotate', 'scale_x' or 'scale_y'", context);
+            return false;
+        }
+        // Check wave type
+        if (vecparams[1]=="sine")
+            waveType = WFT_SINE;
+        else if (vecparams[1]=="triangle")
+            waveType = WFT_TRIANGLE;
+        else if (vecparams[1]=="square")
+            waveType = WFT_SQUARE;
+        else if (vecparams[1]=="sawtooth")
+            waveType = WFT_SAWTOOTH;
+        else if (vecparams[1]=="inverse_sawtooth")
+            waveType = WFT_INVERSE_SAWTOOTH;
+        else
+        {
+            logParseError("Bad wave_xform attribute, parameter 2 must be 'sine', "
+                "'triangle', 'square', 'sawtooth' or 'inverse_sawtooth'", context);
+            return false;
+        }
+
+        context.textureUnit->setTransformAnimation(
+            ttype, 
+            waveType, 
+            StringConverter::parseReal(vecparams[2]), 
+            StringConverter::parseReal(vecparams[3]),
+            StringConverter::parseReal(vecparams[4]), 
+            StringConverter::parseReal(vecparams[5]) );
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseDepthBias(String& params, MaterialScriptContext& context)
+    {
+        context.pass->setDepthBias(
+            StringConverter::parseReal(params));
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseAnisotropy(String& params, MaterialScriptContext& context)
+    {
+        context.textureUnit->setTextureAnisotropy(
+            StringConverter::parseInt(params));
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseLodDistances(String& params, MaterialScriptContext& context)
+    {
+        StringVector vecparams = params.split(" \t");
+
+        // iterate over the parameters and parse distances out of them
+        Material::LodDistanceList lodList;
+        StringVector::iterator i, iend;
+        iend = vecparams.end();
+        for (i = vecparams.begin(); i != iend; ++i)
+        {
+            lodList.push_back(StringConverter::parseReal(*i));
+        }
+
+        context.material->setLodLevels(lodList);
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseLodIndex(String& params, MaterialScriptContext& context)
+    {
+        context.technique->setLodIndex(StringConverter::parseInt(params));
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    void processManualProgramParam(size_t index, const String& commandname, 
+        StringVector& vecparams, MaterialScriptContext& context)
+    {
+        // NB we assume that the first element of vecparams is taken up with either 
+        // the index or the parameter name, which we ignore
+
+        // Determine type
+        size_t start, dims, i;
+        bool isReal;
+        if (vecparams[1] == "matrix4x4")
+        {
+            dims = 16;
+            isReal = true;
+        }
+        else if ((start = vecparams[1].find("float")) != String::npos)
+        {
+            // find the dimensionality
+            start = vecparams[1].find_first_not_of("float");
+            dims = StringConverter::parseInt(vecparams[1].substr(start));
+            isReal = true;
+        }
+        else if ((start = vecparams[1].find("int")) != String::npos)
+        {
+            // find the dimensionality
+            start = vecparams[1].find_first_not_of("int");
+            dims = StringConverter::parseInt(vecparams[1].substr(start));
+            isReal = false;
+        }
+        else
+        {
+            logParseError("Invalid " + commandname + " attribute - unrecognised "
+                "parameter type " + vecparams[1], context);
+        }
+
+        if (vecparams.size() != 2 + dims)
+        {
+            logParseError("Invalid " + commandname + " attribute - you need " +
+                StringConverter::toString(2 + dims) + " parameters for a parameter of "
+                "type " + vecparams[1], context);
+        }
+
+        if (dims % 4 != 0)
+        {
+            logParseError("Invalid " + commandname + " attribute; parameter type must "
+                "have a cardinality which is a multiple of 4", context);
+        }
+
+        // Now parse all the values
+        if (isReal)
+        {
+            Real* realBuffer = new Real[dims];
+            for (i = 0; i < dims; ++i)
+            {
+                realBuffer[i] = StringConverter::parseReal(vecparams[i+2]);
+            }
+            // Set
+            context.programParams->setConstant(index, realBuffer, dims);
+            delete [] realBuffer;
+        }
+        else
+        {
+            int* intBuffer = new int[dims];
+            for (i = 0; i < dims; ++i)
+            {
+                intBuffer[i] = StringConverter::parseInt(vecparams[i+2]);
+            }
+            // Set
+            context.programParams->setConstant(index, intBuffer, dims);
+            delete [] intBuffer;
+        }
+    }
+    //-----------------------------------------------------------------------
+    void processAutoProgramParam(size_t index, const String& commandname, 
+        StringVector& vecparams, MaterialScriptContext& context)
+    {
+        // NB we assume that the first element of vecparams is taken up with either 
+        // the index or the parameter name, which we ignore
+
+        bool extras = false;
+        GpuProgramParameters::AutoConstantType acType;
+
+        if (vecparams[1] == "world_matrix")
+        {
+            acType = GpuProgramParameters::ACT_WORLD_MATRIX;
+        }
+        else if (vecparams[1] == "view_matrix")
+        {
+            acType = GpuProgramParameters::ACT_VIEW_MATRIX;
+        }
+        else if (vecparams[1] == "worldview_matrix")
+        {
+            acType = GpuProgramParameters::ACT_WORLDVIEW_MATRIX;
+        }
+        else if (vecparams[1] == "worldviewproj_matrix")
+        {
+            acType = GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX;
+        }
+        else if (vecparams[1] == "inverse_world_matrix")
+        {
+            acType = GpuProgramParameters::ACT_INVERSE_WORLD_MATRIX;
+        }
+        else if (vecparams[1] == "inverse_worldview_matrix")
+        {
+            acType = GpuProgramParameters::ACT_INVERSE_WORLDVIEW_MATRIX;
+        }
+        else if (vecparams[1] == "light_diffuse_colour")
+        {
+            acType = GpuProgramParameters::ACT_LIGHT_DIFFUSE_COLOUR;
+            extras = true;
+        }
+        else if (vecparams[1] == "light_specular_colour")
+        {
+            acType = GpuProgramParameters::ACT_LIGHT_SPECULAR_COLOUR;
+            extras = true;
+        }
+        else if (vecparams[1] == "light_attenuation")
+        {
+            acType = GpuProgramParameters::ACT_LIGHT_ATTENUATION;
+            extras = true;
+        }
+        else if (vecparams[1] == "light_position_object_space")
+        {
+            acType = GpuProgramParameters::ACT_LIGHT_POSITION_OBJECT_SPACE;
+            extras = true;
+        }
+        else if (vecparams[1] == "light_direction_object_space")
+        {
+            acType = GpuProgramParameters::ACT_LIGHT_DIRECTION_OBJECT_SPACE;
+            extras = true;
+        }
+        else if (vecparams[1] == "ambient_light_colour")
+        {
+            acType = GpuProgramParameters::ACT_AMBIENT_LIGHT_COLOUR;
+        }
+        else if (vecparams[1] == "camera_position_object_space")
+        {
+            acType = GpuProgramParameters::ACT_CAMERA_POSITION_OBJECT_SPACE;
+        }
+
+        // Do we need any extra parameters?
+        size_t extraParam = 0;
+        if (extras)
+        {
+            if (vecparams.size() != 3)
+            {
+                logParseError("Invalid " + commandname + " attribute - "
+                    "expected 3 parameters.", context);
+                return;
+            }
+            extraParam = StringConverter::parseInt(vecparams[2]);
+        }
+
+        context.programParams->setAutoConstant(index, acType, extraParam);
+    }
+    //-----------------------------------------------------------------------
+    bool parseParamIndexed(String& params, MaterialScriptContext& context)
+    {
+        // NB skip this if the program is not supported or could not be found
+        if (!context.program || !context.program->isSupported())
+        {
+            return false;
+        }
+
+        params.toLowerCase();
+        StringVector vecparams = params.split(" \t");
+        if (vecparams.size() < 3)
+        {
+            logParseError("Invalid param_indexed attribute - expected at least 3 parameters.", 
+                context);
+            return false;
+        }
+
+        // Get start index
+        size_t index = StringConverter::parseInt(vecparams[0]);
+
+        processManualProgramParam(index, "param_indexed", vecparams, context);
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseParamIndexedAuto(String& params, MaterialScriptContext& context)
+    {
+        // NB skip this if the program is not supported or could not be found
+        if (!context.program || !context.program->isSupported())
+        {
+            return false;
+        }
+
+        params.toLowerCase();
+        StringVector vecparams = params.split(" \t");
+        if (vecparams.size() != 2 && vecparams.size() != 3)
+        {
+            logParseError("Invalid param_indexed_auto attribute - expected 2 or 3 parameters.", 
+                context);
+            return false;
+        }
+
+        // Get start index
+        size_t index = StringConverter::parseInt(vecparams[0]);
+
+        processAutoProgramParam(index, "param_indexed_auto", vecparams, context);
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseParamNamed(String& params, MaterialScriptContext& context)
+    {
+        // NB skip this if the program is not supported or could not be found
+        if (!context.program || !context.program->isSupported())
+        {
+            return false;
+        }
+
+        params.toLowerCase();
+        StringVector vecparams = params.split(" \t");
+        if (vecparams.size() < 3)
+        {
+            logParseError("Invalid param_named attribute - expected at least 3 parameters.", 
+                context);
+            return false;
+        }
+
+        // Get start index from name
+        size_t index;
+        try {
+            index = context.programParams->getParamIndex(vecparams[0]);
+        }
+        catch (Exception& e)
+        {
+            logParseError("Invalid param_named attribute - " + e.getFullDescription(), context);
+            return false;
+        }
+
+        processManualProgramParam(index, "param_named", vecparams, context);
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseParamNamedAuto(String& params, MaterialScriptContext& context)
+    {
+        // NB skip this if the program is not supported or could not be found
+        if (!context.program || !context.program->isSupported())
+        {
+            return false;
+        }
+
+        params.toLowerCase();
+        StringVector vecparams = params.split(" \t");
+        if (vecparams.size() != 2 && vecparams.size() != 3)
+        {
+            logParseError("Invalid param_indexed_auto attribute - expected 2 or 3 parameters.", 
+                context);
+            return false;
+        }
+
+        // Get start index from name
+        size_t index;
+        try {
+            index = context.programParams->getParamIndex(vecparams[0]);
+        }
+        catch (Exception& e)
+        {
+            logParseError("Invalid param_named_auto attribute - " + e.getFullDescription(), context);
+            return false;
+        }
+
+        processAutoProgramParam(index, "param_named_auto", vecparams, context);
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseMaterial(String& params, MaterialScriptContext& context)
+    {
+        // Create a brand new material
+        context.material = static_cast<Material*>(
+            MaterialManager::getSingleton().create(params));
+        // Remove pre-created technique from defaults
+        context.material->removeAllTechniques();
+
+        // update section
+        context.section = MSS_MATERIAL;
+
+        // Return TRUE because this must be followed by a {
+        return true;
+    }
+    //-----------------------------------------------------------------------
+    bool parseTechnique(String& params, MaterialScriptContext& context)
+    {
+        // Create a new technique
+        context.technique = context.material->createTechnique();
+
+        // update section
+        context.section = MSS_TECHNIQUE;
+
+        // Return TRUE because this must be followed by a {
+        return true;
+    }
+    //-----------------------------------------------------------------------
+    bool parsePass(String& params, MaterialScriptContext& context)
+    {
+        // Create a new pass
+        context.pass = context.technique->createPass();
+
+        // update section
+        context.section = MSS_PASS;
+
+        // Return TRUE because this must be followed by a {
+        return true;
+    }
+    //-----------------------------------------------------------------------
+    bool parseTextureUnit(String& params, MaterialScriptContext& context)
+    {
+        // Create a new texture unit
+        context.textureUnit = context.pass->createTextureUnitState();
+
+        // update section
+        context.section = MSS_TEXTUREUNIT;
+
+        // Return TRUE because this must be followed by a {
+        return true;
+    }
+    //-----------------------------------------------------------------------
+    bool parseVertexProgramRef(String& params, MaterialScriptContext& context)
+    {
+        // update section
+        context.section = MSS_PROGRAM;
+
+        context.program = static_cast<GpuProgram*>(
+            GpuProgramManager::getSingleton().getByName(params));
+        if (context.program == 0)
+        {
+            // Unknown program
+            logParseError("Invalid vertex_program_ref entry - vertex program " 
+                + params + " has not been defined.", context);
+            return true;
+        }
+        
+        // Set the vertex program for this pass
+        context.pass->setVertexProgram(params);
+
+        // Create params? Skip this if program is not supported
+        if (context.program->isSupported())
+        {
+            context.programParams = context.pass->getVertexProgramParameters();
+        }
+
+        // Return TRUE because this must be followed by a {
+        return true;
+    }
+    //-----------------------------------------------------------------------
+    bool parseFragmentProgramRef(String& params, MaterialScriptContext& context)
+    {
+        // update section
+        context.section = MSS_PROGRAM;
+
+        context.program = static_cast<GpuProgram*>(
+            GpuProgramManager::getSingleton().getByName(params));
+        if (context.program == 0)
+        {
+            // Unknown program
+            logParseError("Invalid vertex_program_ref entry - fragment program " 
+                + params + " has not been defined.", context);
+            return true;
+        }
+        
+        // Set the vertex program for this pass
+        context.pass->setFragmentProgram(params);
+
+        // Create params? Skip this if program is not supported
+        if (context.program->isSupported())
+        {
+            context.programParams = context.pass->getFragmentProgramParameters();
+        }
+
+        // Return TRUE because this must be followed by a {
+        return true;
+    }
+    //-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
     MaterialSerializer::MaterialSerializer()
     {
+        // Set up root attribute parsers
+        mRootAttribParsers.insert(AttribParserList::value_type("material", (ATTRIBUTE_PARSER)parseMaterial));
+        // Set up material attribute parsers
+        mMaterialAttribParsers.insert(AttribParserList::value_type("lod_distances", (ATTRIBUTE_PARSER)parseLodDistances));
+        mMaterialAttribParsers.insert(AttribParserList::value_type("technique", (ATTRIBUTE_PARSER)parseTechnique));
+        // Set up technique attribute parsers
+        mTechniqueAttribParsers.insert(AttribParserList::value_type("lod_index", (ATTRIBUTE_PARSER)parseLodIndex));
+        mTechniqueAttribParsers.insert(AttribParserList::value_type("pass", (ATTRIBUTE_PARSER)parsePass));
+        // Set up pass attribute parsers
+        mPassAttribParsers.insert(AttribParserList::value_type("ambient", (ATTRIBUTE_PARSER)parseAmbient));
+        mPassAttribParsers.insert(AttribParserList::value_type("diffuse", (ATTRIBUTE_PARSER)parseDiffuse));
+        mPassAttribParsers.insert(AttribParserList::value_type("specular", (ATTRIBUTE_PARSER)parseSpecular));
+        mPassAttribParsers.insert(AttribParserList::value_type("emissive", (ATTRIBUTE_PARSER)parseEmissive));
+        mPassAttribParsers.insert(AttribParserList::value_type("scene_blend", (ATTRIBUTE_PARSER)parseSceneBlend));
+        mPassAttribParsers.insert(AttribParserList::value_type("depth_check", (ATTRIBUTE_PARSER)parseDepthCheck));
+        mPassAttribParsers.insert(AttribParserList::value_type("depth_write", (ATTRIBUTE_PARSER)parseDepthWrite));
+        mPassAttribParsers.insert(AttribParserList::value_type("depth_func", (ATTRIBUTE_PARSER)parseDepthFunc));
+        mPassAttribParsers.insert(AttribParserList::value_type("colour_write", (ATTRIBUTE_PARSER)parseColourWrite));
+        mPassAttribParsers.insert(AttribParserList::value_type("cull_hardware", (ATTRIBUTE_PARSER)parseCullHardware));
+        mPassAttribParsers.insert(AttribParserList::value_type("cull_software", (ATTRIBUTE_PARSER)parseCullSoftware));
+        mPassAttribParsers.insert(AttribParserList::value_type("lighting", (ATTRIBUTE_PARSER)parseLighting));
+        mPassAttribParsers.insert(AttribParserList::value_type("fog_override", (ATTRIBUTE_PARSER)parseFogging));
+        mPassAttribParsers.insert(AttribParserList::value_type("shading", (ATTRIBUTE_PARSER)parseShading));
+        mPassAttribParsers.insert(AttribParserList::value_type("depth_bias", (ATTRIBUTE_PARSER)parseDepthBias));
+        mPassAttribParsers.insert(AttribParserList::value_type("texture_unit", (ATTRIBUTE_PARSER)parseTextureUnit));
+        mPassAttribParsers.insert(AttribParserList::value_type("vertex_program_ref", (ATTRIBUTE_PARSER)parseVertexProgramRef));
+        mPassAttribParsers.insert(AttribParserList::value_type("fragment_program_ref", (ATTRIBUTE_PARSER)parseFragmentProgramRef));
+
+        // Set up texture unit attribute parsers
+        mTextureUnitAttribParsers.insert(AttribParserList::value_type("texture", (ATTRIBUTE_PARSER)parseTexture));
+        mTextureUnitAttribParsers.insert(AttribParserList::value_type("anim_texture", (ATTRIBUTE_PARSER)parseAnimTexture));
+        mTextureUnitAttribParsers.insert(AttribParserList::value_type("cubic_texture", (ATTRIBUTE_PARSER)parseCubicTexture));
+        mTextureUnitAttribParsers.insert(AttribParserList::value_type("tex_coord_set", (ATTRIBUTE_PARSER)parseTexCoord));
+        mTextureUnitAttribParsers.insert(AttribParserList::value_type("tex_address_mode", (ATTRIBUTE_PARSER)parseTexAddressMode));
+        mTextureUnitAttribParsers.insert(AttribParserList::value_type("colour_op", (ATTRIBUTE_PARSER)parseColourOp));
+        mTextureUnitAttribParsers.insert(AttribParserList::value_type("alpha_rejection", (ATTRIBUTE_PARSER)parseAlphaRejection));
+        mTextureUnitAttribParsers.insert(AttribParserList::value_type("colour_op_ex", (ATTRIBUTE_PARSER)parseColourOpEx));
+        mTextureUnitAttribParsers.insert(AttribParserList::value_type("colour_op_multipass_fallback", (ATTRIBUTE_PARSER)parseColourOpFallback));
+        mTextureUnitAttribParsers.insert(AttribParserList::value_type("alpha_op_ex", (ATTRIBUTE_PARSER)parseAlphaOpEx));
+        mTextureUnitAttribParsers.insert(AttribParserList::value_type("env_map", (ATTRIBUTE_PARSER)parseEnvMap));
+        mTextureUnitAttribParsers.insert(AttribParserList::value_type("scroll", (ATTRIBUTE_PARSER)parseScroll));
+        mTextureUnitAttribParsers.insert(AttribParserList::value_type("scroll_anim", (ATTRIBUTE_PARSER)parseScrollAnim));
+        mTextureUnitAttribParsers.insert(AttribParserList::value_type("rotate", (ATTRIBUTE_PARSER)parseRotate));
+        mTextureUnitAttribParsers.insert(AttribParserList::value_type("rotate_anim", (ATTRIBUTE_PARSER)parseRotateAnim));
+        mTextureUnitAttribParsers.insert(AttribParserList::value_type("scale", (ATTRIBUTE_PARSER)parseScale));
+        mTextureUnitAttribParsers.insert(AttribParserList::value_type("wave_xform", (ATTRIBUTE_PARSER)parseWaveXform));
+        mTextureUnitAttribParsers.insert(AttribParserList::value_type("filtering", (ATTRIBUTE_PARSER)parseFiltering));
+        mTextureUnitAttribParsers.insert(AttribParserList::value_type("max_anisotropy", (ATTRIBUTE_PARSER)parseAnisotropy));
+
+        // Set up program attribute parsers
+        mProgramAttribParsers.insert(AttribParserList::value_type("param_indexed", (ATTRIBUTE_PARSER)parseParamIndexed));
+        mProgramAttribParsers.insert(AttribParserList::value_type("param_indexed_auto", (ATTRIBUTE_PARSER)parseParamIndexedAuto));
+        mProgramAttribParsers.insert(AttribParserList::value_type("param_named", (ATTRIBUTE_PARSER)parseParamNamed));
+        mProgramAttribParsers.insert(AttribParserList::value_type("param_named_auto", (ATTRIBUTE_PARSER)parseParamNamedAuto));
+
+        mScriptContext.section = MSS_NONE;
+        mScriptContext.material = 0;
+        mScriptContext.technique = 0;
+        mScriptContext.pass = 0;
+        mScriptContext.textureUnit = 0;
+        mScriptContext.program = 0;
+        mScriptContext.lineNo = 0;
+        mScriptContext.filename = "";
+
         mBuffer = "";
     }
 
+    //-----------------------------------------------------------------------
+    void MaterialSerializer::parseScript(DataChunk& chunk, const String& filename)
+    {
+        String line;
+        bool nextIsOpenBrace = false;
+
+        mScriptContext.section = MSS_NONE;
+        mScriptContext.material = 0;
+        mScriptContext.technique = 0;
+        mScriptContext.pass = 0;
+        mScriptContext.textureUnit = 0;
+        mScriptContext.program = 0;
+        mScriptContext.lineNo = 0;
+        mScriptContext.filename = filename;
+        while(!chunk.isEOF())
+        {
+            line = chunk.getLine();
+            mScriptContext.lineNo++;
+            
+            // DEBUG LINE
+            //LogManager::getSingleton().logMessage("About to attempt line: " + 
+            //    StringConverter::toString(mScriptContext.lineNo));
+
+            // Ignore comments & blanks
+            if (!(line.length() == 0 || line.substr(0,2) == "//"))
+            {
+                if (nextIsOpenBrace)
+                {
+                    // NB, parser will have changed context already
+                    if (line != "{")
+                    {
+                        logParseError("Expecting '{' but got " +
+                            line + " instead.", mScriptContext);
+                    }
+                    nextIsOpenBrace = false;
+                }
+                else
+                {
+                    nextIsOpenBrace = parseScriptLine(line);
+                }
+
+            }
+        }
+
+        // Check all braces were closed
+        if (mScriptContext.section != MSS_NONE)
+        {
+            logParseError("Unexpected end of file.", mScriptContext);
+        }
+
+    }
+    //-----------------------------------------------------------------------
+    bool MaterialSerializer::parseScriptLine(String& line)
+    {
+        switch(mScriptContext.section)
+        {
+        case MSS_NONE:
+            if (line == "}")
+            {
+                logParseError("Unexpected terminating brace.", mScriptContext);
+                return false;
+            }
+            else
+            {
+                // find & invoke a parser
+                return invokeParser(line, mRootAttribParsers); 
+            }
+            break;
+        case MSS_MATERIAL:
+            if (line == "}")
+            {
+                // End of material
+                mScriptContext.section = MSS_NONE;
+                mScriptContext.material = NULL;
+            }
+            else
+            {
+                // find & invoke a parser
+                return invokeParser(line, mMaterialAttribParsers); 
+            }
+            break;
+        case MSS_TECHNIQUE:
+            if (line == "}")
+            {
+                // End of technique
+                mScriptContext.section = MSS_MATERIAL;
+                mScriptContext.technique = NULL;
+            }
+            else
+            {
+                // find & invoke a parser
+                return invokeParser(line, mTechniqueAttribParsers); 
+            }
+            break;
+        case MSS_PASS:
+            if (line == "}")
+            {
+                // End of pass
+                mScriptContext.section = MSS_TECHNIQUE;
+                mScriptContext.pass = NULL;
+            }
+            else
+            {
+                // find & invoke a parser
+                return invokeParser(line, mPassAttribParsers); 
+            }
+            break;
+        case MSS_TEXTUREUNIT:
+            if (line == "}")
+            {
+                // End of texture unit
+                mScriptContext.section = MSS_PASS;
+                mScriptContext.textureUnit = NULL;
+            }
+            else
+            {
+                // find & invoke a parser
+                return invokeParser(line, mTextureUnitAttribParsers); 
+            }
+            break;
+        case MSS_PROGRAM:
+            if (line == "}")
+            {
+                // End of program
+                mScriptContext.section = MSS_PASS;
+                mScriptContext.program = NULL;
+            }
+            else
+            {
+                // find & invoke a parser
+                return invokeParser(line, mProgramAttribParsers); 
+            }
+            break;
+        };
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool MaterialSerializer::invokeParser(String& line, AttribParserList& parsers)
+    {
+        // First, split line on first divisor only
+        StringVector splitCmd = line.split(" \t", 1);
+        // Find attribute parser
+        AttribParserList::iterator iparser = parsers.find(splitCmd[0]);
+        if (iparser == parsers.end())
+        {
+            // BAD command. BAD!
+            logParseError("Unrecognised command: " + splitCmd[0], mScriptContext);
+            return false;
+        }
+        else
+        {
+            // Use parser
+            return iparser->second(splitCmd[1], mScriptContext );
+        }
+    }
+    //-----------------------------------------------------------------------
     void MaterialSerializer::exportMaterial(const Material *pMat, const String &fileName, bool exportDefaults)
     {
         clearQueue();
@@ -46,7 +1670,7 @@ namespace Ogre
         writeMaterial(pMat);
         exportQueued(fileName);
     }
-
+    //-----------------------------------------------------------------------
     void MaterialSerializer::exportQueued(const String &fileName)
     {
         if (mBuffer == "")
@@ -64,7 +1688,7 @@ namespace Ogre
         LogManager::getSingleton().logMessage("MaterialSerializer : done.", LML_CRITICAL);
         clearQueue();
     }
-
+    //-----------------------------------------------------------------------
     void MaterialSerializer::queueForExport(const Material *pMat, bool clearQueued, bool exportDefaults)
     {
         if (clearQueued)
@@ -73,17 +1697,17 @@ namespace Ogre
         mDefaults = exportDefaults;
         writeMaterial(pMat);
     }
-
+    //-----------------------------------------------------------------------
     void MaterialSerializer::clearQueue()
     {
         mBuffer = "";
     }
-
+    //-----------------------------------------------------------------------
     const String &MaterialSerializer::getQueuedAsString() const
     {
         return mBuffer;
     }
-
+    //-----------------------------------------------------------------------
     void MaterialSerializer::writeMaterial(const Material *pMat)
     {
         LogManager::getSingleton().logMessage("MaterialSerializer : writing material " + pMat->getName() + " to queue.", LML_CRITICAL);
@@ -101,7 +1725,7 @@ namespace Ogre
         }
         endSection(0);
     }
-
+    //-----------------------------------------------------------------------
     void MaterialSerializer::writeTechnique(const Technique* pTech)
     {
         // Technique header
@@ -118,7 +1742,7 @@ namespace Ogre
         endSection(1);
 
     }
-
+    //-----------------------------------------------------------------------
     void MaterialSerializer::writePass(const Pass* pPass)
     {
         writeAttribute(2, "pass");
@@ -322,7 +1946,24 @@ namespace Ogre
         endSection(2);
         LogManager::getSingleton().logMessage("MaterialSerializer : done.", LML_CRITICAL);
     }
+    //-----------------------------------------------------------------------
+    String MaterialSerializer::convertFiltering(FilterOptions fo)
+    {
+        switch (fo)
+        {
+        case FO_NONE:
+            return "none";
+        case FO_POINT:
+            return "point";
+        case FO_LINEAR:
+            return "linear";
+        case FO_ANISOTROPIC:
+            return "anisotropic";
+        }
 
+        return "point";
+    }
+    //-----------------------------------------------------------------------
     void MaterialSerializer::writeTextureUnit(const TextureUnitState *pTex)
     {
         LogManager::getSingleton().logMessage("MaterialSerializer : parsing texture layer.", LML_CRITICAL);
@@ -364,7 +2005,7 @@ namespace Ogre
             if (mDefaults || 
                 pTex->getTextureAnisotropy() != 1)
             {
-                writeAttribute(4, "tex_anisotropy");
+                writeAttribute(4, "max_anisotropy");
                 writeValue(StringConverter::toString(pTex->getTextureAnisotropy()));
             }
 
@@ -397,24 +2038,17 @@ namespace Ogre
 
             //filtering
             if (mDefaults || 
-                pTex->getTextureFiltering() != TFO_BILINEAR)
+                pTex->getTextureFiltering(FT_MIN) != FO_LINEAR ||
+                pTex->getTextureFiltering(FT_MAG) != FO_LINEAR ||
+                pTex->getTextureFiltering(FT_MIP) != FO_POINT)
             {
-                writeAttribute(4, "tex_filtering");
-                switch (pTex->getTextureFiltering())
-                {
-                case TFO_BILINEAR:
-                    writeValue("bilinear");
-                    break;
-                case TFO_NONE:
-                    writeValue("none");
-                    break;
-                case TFO_TRILINEAR:
-                    writeValue("trilinear");
-                    break;
-                case TFO_ANISOTROPIC:
-                    writeValue("anisotropic");
-                    break;
-                }
+                writeAttribute(4, "filtering");
+                writeValue(
+                    convertFiltering(pTex->getTextureFiltering(FT_MIN))
+                    + " "
+                    + convertFiltering(pTex->getTextureFiltering(FT_MAG))
+                    + " "
+                    + convertFiltering(pTex->getTextureFiltering(FT_MIP)));
             }
 
             // alpha_rejection
@@ -492,7 +2126,7 @@ namespace Ogre
                 EffectMap::const_iterator it;
                 for (it = m_ef.begin(); it != m_ef.end(); ++it)
                 {
-                    TextureUnitState::TextureEffect ef = it->second;
+                    const TextureUnitState::TextureEffect& ef = it->second;
                     switch (ef.type)
                     {
                     case TextureUnitState::ET_ENVIRONMENT_MAP :
@@ -517,8 +2151,8 @@ namespace Ogre
         endSection(3);
 
     }
-
-    void MaterialSerializer::writeEnvironmentMapEffect(const TextureUnitState::TextureEffect effect, const TextureUnitState *pTex)
+    //-----------------------------------------------------------------------
+    void MaterialSerializer::writeEnvironmentMapEffect(const TextureUnitState::TextureEffect& effect, const TextureUnitState *pTex)
     {
         writeAttribute(4, "env_map");
         switch (effect.subtype)
@@ -537,8 +2171,8 @@ namespace Ogre
             break;
         }
     }
-
-    void MaterialSerializer::writeRotationEffect(const TextureUnitState::TextureEffect effect, const TextureUnitState *pTex)
+    //-----------------------------------------------------------------------
+    void MaterialSerializer::writeRotationEffect(const TextureUnitState::TextureEffect& effect, const TextureUnitState *pTex)
     {
         if (effect.arg1)
         {
@@ -546,12 +2180,12 @@ namespace Ogre
             writeValue(StringConverter::toString(effect.arg1));
         }
     }
-
-    void MaterialSerializer::writeTransformEffect(const TextureUnitState::TextureEffect effect, const TextureUnitState *pTex)
+    //-----------------------------------------------------------------------
+    void MaterialSerializer::writeTransformEffect(const TextureUnitState::TextureEffect& effect, const TextureUnitState *pTex)
     {
         writeAttribute(4, "wave_xform");
 
-        switch (effect.type)
+        switch (effect.subtype)
         {
         case TextureUnitState::TT_ROTATE:
             writeValue("rotate");
@@ -560,7 +2194,7 @@ namespace Ogre
             writeValue("scale_x");
             break;
         case TextureUnitState::TT_SCALE_V:
-            writeValue("scale_u");
+            writeValue("scale_y");
             break;
         case TextureUnitState::TT_TRANSLATE_U:
             writeValue("scroll_x");
@@ -594,8 +2228,8 @@ namespace Ogre
         writeValue(StringConverter::toString(effect.phase));
         writeValue(StringConverter::toString(effect.amplitude));
     }
-
-    void MaterialSerializer::writeScrollEffect(const TextureUnitState::TextureEffect effect, const TextureUnitState *pTex)
+    //-----------------------------------------------------------------------
+    void MaterialSerializer::writeScrollEffect(const TextureUnitState::TextureEffect& effect, const TextureUnitState *pTex)
     {
         if (effect.arg1 || effect.arg2)
         {
@@ -604,7 +2238,7 @@ namespace Ogre
             writeValue(StringConverter::toString(effect.arg2));
         }
     }
-
+    //-----------------------------------------------------------------------
     void MaterialSerializer::writeSceneBlendFactor(const SceneBlendFactor sbf)
     {
         switch (sbf)
@@ -641,7 +2275,7 @@ namespace Ogre
             break;
         }
     }
-
+    //-----------------------------------------------------------------------
     void MaterialSerializer::writeSceneBlendFactor(const SceneBlendFactor sbf_src, const SceneBlendFactor sbf_dst)
     {
         if (sbf_src == SBF_ONE && sbf_dst == SBF_ONE )
@@ -656,7 +2290,7 @@ namespace Ogre
             writeSceneBlendFactor(sbf_dst);
         }
     }
-
+    //-----------------------------------------------------------------------
     void MaterialSerializer::writeCompareFunction(const CompareFunction cf)
     {
         switch (cf)
@@ -687,7 +2321,7 @@ namespace Ogre
             break;
         }
     }
-
+    //-----------------------------------------------------------------------
     void MaterialSerializer::writeColourValue(const ColourValue &colour, bool writeAlpha)
     {
         writeValue(StringConverter::toString(colour.r));
@@ -696,7 +2330,7 @@ namespace Ogre
         if (writeAlpha)
             writeValue(StringConverter::toString(colour.a));
     }
-
+    //-----------------------------------------------------------------------
     void MaterialSerializer::writeLayerBlendOperationEx(const LayerBlendOperationEx op)
     {
         switch (op)
@@ -745,7 +2379,7 @@ namespace Ogre
             break;
         }
     }
-
+    //-----------------------------------------------------------------------
     void MaterialSerializer::writeLayerBlendSource(const LayerBlendSource lbs)
     {
         switch (lbs)

@@ -226,6 +226,15 @@ namespace Ogre {
 	    return mShininess;
     }
     //-----------------------------------------------------------------------
+    TextureUnitState* Pass::createTextureUnitState(void)
+    {
+        TextureUnitState *t = new TextureUnitState(this);
+        mTextureUnitStates.push_back(t);
+        // Needs recompilation
+        mParent->_notifyNeedsRecompile();
+	    return t;
+    }
+    //-----------------------------------------------------------------------
     TextureUnitState* Pass::createTextureUnitState(
         const String& textureName, unsigned short texCoordSet)
     {

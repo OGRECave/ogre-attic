@@ -31,13 +31,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreResourceManager.h"
 #include "OgreMaterial.h"
 #include "OgreStringVector.h"
+#include "OgreMaterialSerializer.h"
 
 namespace Ogre {
 
-    /// Function def for material attribute parser.
-    typedef void (*MATERIAL_ATTRIB_PARSER)(StringVector::iterator&, int, Material*);
-    /// Function def for texture layer attribute parser.
-    typedef void (*TEXLAYER_ATTRIB_PARSER)(StringVector::iterator&, int, Material*, TextureUnitState*);
 
     /** Class for managing Material settings for Ogre.
         @remarks
@@ -57,18 +54,6 @@ namespace Ogre {
     class _OgreExport MaterialManager : public ResourceManager, public Singleton<MaterialManager>
     {
     protected:
-        void parseNewTextureLayer( DataChunk& chunk, Material* pMat );
-        void parseAttrib( const String& line, Material* pMat);
-        void parseLayerAttrib( const String& line, Material* pMat, TextureUnitState* pLayer );
-
-        /// Keyword-mapped attribute parsers.
-        //typedef std::map<String, MATERIAL_ATTRIB_PARSER> MatAttribParserList;
-        typedef std::map<String, MATERIAL_ATTRIB_PARSER> MatAttribParserList;
-        MatAttribParserList mMatAttribParsers;
-        /// Keyword-mapped attribute parsers.
-        typedef std::map<String, TEXLAYER_ATTRIB_PARSER> LayerAttribParserList;
-        //typedef HashMap<String, TEXLAYER_ATTRIB_PARSER, std::hash<String>> LayerAttribParserList;
-        LayerAttribParserList mLayerAttribParsers;
 
         typedef HashMap<int, Material*> MaterialHandleList;
 
@@ -77,6 +62,9 @@ namespace Ogre {
 
 		/// default maxAnisotropy
 		int mDefAniso;
+
+        /// Serializer
+        MaterialSerializer mSerializer;
 
     public:
         /** Default constructor.

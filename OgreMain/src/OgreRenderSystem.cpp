@@ -259,7 +259,10 @@ namespace Ogre {
         _setTextureCoordSet(texUnit, tl.getTextureCoordSet());
 
         // Set texture layer filtering
-        _setTextureLayerFiltering(texUnit, tl.getTextureFiltering());
+        _setTextureUnitFiltering(texUnit, 
+            tl.getTextureFiltering(FT_MIN), 
+            tl.getTextureFiltering(FT_MAG), 
+            tl.getTextureFiltering(FT_MIP));
 
         // Set texture layer filtering
         _setTextureLayerAnisotropy(texUnit, tl.getTextureAnisotropy());
@@ -336,20 +339,14 @@ namespace Ogre {
             _disableTextureUnit(i);
         }
     }
-    //---------------------------------------------------------------------
- 	void RenderSystem::_setAnisotropy(int maxAnisotropy)
- 	{
- 		for (int n = 0; n < mCapabilities->getNumTextureUnits(); n++)
- 			_setTextureLayerAnisotropy(n, maxAnisotropy);
- 	}
     //-----------------------------------------------------------------------
-    void RenderSystem::setTextureFiltering(TextureFilterOptions fo)
+    void RenderSystem::_setTextureUnitFiltering(size_t unit, FilterOptions minFilter,
+            FilterOptions magFilter, FilterOptions mipFilter)
     {
-        int units = mCapabilities->getNumTextureUnits();
-        for (int i = 0; i < units; ++i)
-			_setTextureLayerFiltering(i, fo);
+        _setTextureUnitFiltering(unit, FT_MIN, minFilter);
+        _setTextureUnitFiltering(unit, FT_MAG, magFilter);
+        _setTextureUnitFiltering(unit, FT_MIP, mipFilter);
     }
-
     //-----------------------------------------------------------------------
     CullingMode RenderSystem::_getCullingMode(void) const
     {

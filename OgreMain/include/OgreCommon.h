@@ -54,15 +54,43 @@ namespace Ogre {
         CMPF_GREATER
     };
 
-    /** Texture filtering defining the different minification and magnification 
-		supersampling modes. */
+    /** High-level filtering options providing shortcuts to settings the
+        minification, magnification and mip filters. */
     enum TextureFilterOptions
     {
+        /// Equal to: min=FO_POINT, mag=FO_POINT, mip=FO_NONE
         TFO_NONE,
+        /// Equal to: min=FO_LINEAR, mag=FO_LINEAR, mip=FO_POINT
         TFO_BILINEAR,
+        /// Equal to: min=FO_LINEAR, mag=FO_LINEAR, mip=FO_LINEAR
         TFO_TRILINEAR,
+        /// Equal to: min=FO_ANISOTROPIC, max=FO_ANISOTROPIC, mip=FO_LINEAR
 		TFO_ANISOTROPIC
     };
+
+    enum FilterType
+    {
+        /// The filter used when shrinking a texture
+        FT_MIN,
+        /// The filter used when magnifiying a texture
+        FT_MAG,
+        /// The filter used when determining the mipmap
+        FT_MIP
+    };
+    /** Filtering options for textures / mipmaps. */
+    enum FilterOptions
+    {
+        /// No filtering, used for FILT_MIP to turn off mipmapping
+        FO_NONE,
+        /// Use the closest pixel
+        FO_POINT,
+        /// Average of a 2x2 pixel area, denotes bilinear for MIN and MAG, trilinear for MIP
+        FO_LINEAR,
+        /// Similar to FO_LINEAR, but compensates for the angle of the texture plane
+        FO_ANISOTROPIC
+    };
+
+
 
     /** Light shading modes. */
     enum ShadeOptions
