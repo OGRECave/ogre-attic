@@ -52,8 +52,32 @@ WaterMesh::WaterMesh(const String& meshName, Real planeSize, int complexity)
 	
 	// Vertex buffers
 	subMesh->vertexData = new VertexData();
+	subMesh->vertexData->vertexStart = 0;
+	subMesh->vertexData->vertexCount = numVertices;
+
 	VertexDeclaration* vdecl = subMesh->vertexData->vertexDeclaration; 
 	VertexBufferBinding* vbind = subMesh->vertexData->vertexBufferBinding;
+	
+
+	vdecl->addElement(0, 0, VET_FLOAT3, VES_POSITION);
+	vdecl->addElement(1, 0, VET_FLOAT3, VES_NORMAL);
+	vdecl->addElement(2, 0, VET_FLOAT2, VES_TEXTURE_COORDINATES);
+	
+	// Prepare buffer for positions - todo: first attempt, slow
+	posVertexBuffer = 
+         HardwareBufferManager::getSingleton().createVertexBuffer( 
+            3*sizeof(Real), 
+			numVertices, 
+			HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY);
+	vbind->setBinding(0, posVertexBuffer);
+
+	// Prepare buffer for normals - write only
+	normVertexBuffer = 
+         HardwareBufferManager::getSingleton().createVertexBuffer( 
+            3*sizeof(Real), 
+			numVertices, 
+			HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY);
+	vbind->setBinding(1, normVertexBuffer);
 	
 	// Prepare texture coords buffer - static one
 	// todo: optimize to write directly into buffer
@@ -74,26 +98,7 @@ WaterMesh::WaterMesh(const String& meshName, Real planeSize, int complexity)
 		texcoordsBufData,
 		true); // true?
 	delete [] texcoordsBufData;
-    vbind->setBinding(0, texcoordsVertexBuffer); 
-	vdecl->addElement(0, 0, VET_FLOAT2, VES_TEXTURE_COORDINATES);
-	
-	// Prepare buffer for normals - write only
-	normVertexBuffer = 
-         HardwareBufferManager::getSingleton().createVertexBuffer( 
-            3*sizeof(Real), 
-			numVertices, 
-			HardwareBuffer::HBU_WRITE_ONLY);
-	vbind->setBinding(1, normVertexBuffer);
-	vdecl->addElement(1, 0, VET_FLOAT3, VES_NORMAL);
-	
-	// Prepare buffer for positions - todo: first attempt, slow
-	posVertexBuffer = 
-         HardwareBufferManager::getSingleton().createVertexBuffer( 
-            3*sizeof(Real), 
-			numVertices, 
-			HardwareBuffer::HBU_WRITE_ONLY);
-	vbind->setBinding(2, posVertexBuffer);
-	vdecl->addElement(2, 0, VET_FLOAT3, VES_POSITION);
+    vbind->setBinding(2, texcoordsVertexBuffer); 
 	
 	// Prepare buffer for indices
 	indexBuffer = 

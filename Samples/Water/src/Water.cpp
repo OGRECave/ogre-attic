@@ -189,6 +189,8 @@ private:
 		
 		// Initialize vertex data
 		subMesh->vertexData = new VertexData();
+		subMesh->vertexData->vertexStart = 0;
+		subMesh->vertexData->vertexCount = 4;
 		// first, set vertex buffer bindings
 		VertexBufferBinding *vbind = subMesh->vertexData->vertexBufferBinding ; 
 		vbind->setBinding(0, posnormVertexBuffer);
@@ -197,7 +199,7 @@ private:
 		VertexDeclaration *vdecl = subMesh->vertexData->vertexDeclaration ;
 		vdecl->addElement(0, 0, VET_FLOAT3, VES_POSITION);
 		vdecl->addElement(0, 3*sizeof(Real), VET_FLOAT3, VES_NORMAL);
-		vdecl->addElement(0, 0, VET_FLOAT2, VES_TEXTURE_COORDINATES); 
+		vdecl->addElement(1, 0, VET_FLOAT2, VES_TEXTURE_COORDINATES); 
 		
 		// Initialize index data
 		subMesh->indexData->indexBuffer = indexBuffer;
