@@ -52,21 +52,22 @@ void main_vp(float4 position	: POSITION,
 }
 
 void main_fp( float2 uv			: TEXCOORD0,
-			  float  TSlightDir : TEXCOORD1,
+			  float3 TSlightDir : TEXCOORD1,
 
 			  out float4 colour	: COLOR,
 
-			  uniform samplerCUBE normalCubeMap,
-			  uniform sampler2D   normalMap)
+			  uniform float4 lightDiffuse,
+			  uniform sampler2D   normalMap,
+			  uniform samplerCUBE normalCubeMap)
 {
 	// retrieve normalised light vector, expand from range-compressed
-	float3 lightVec = expand(texCUBE(normalCubeMap, TXlightDir));
+	float3 lightVec = expand(texCUBE(normalCubeMap, TSlightDir).xyz);
 
 	// get bump map vector, again expand from range-compressed
-	float3 bumpVec = expand(tex2D(normalMap, uv));
+	float3 bumpVec = expand(tex2D(normalMap, uv).xyz);
 
 	// Calculate dot product
-	colour = dot(bumpVec, lightVec);
+	colour = lightDiffuse * dot(bumpVec, lightVec);
 	
 }
 
