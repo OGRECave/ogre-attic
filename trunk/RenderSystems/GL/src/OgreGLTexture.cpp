@@ -315,7 +315,7 @@ namespace Ogre {
 			// accept a 0 pointer like normal glTexImageXD
 			// Run through this process for every mipmap to pregenerate mipmap piramid
 			uint8 *tmpdata = new uint8[size];
-			std::memset(tmpdata, 0, size);
+			memset(tmpdata, 0, size);
 			
 			for(int mip=0; mip<mNumMipmaps; mip++)
 			{
