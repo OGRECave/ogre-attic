@@ -82,7 +82,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib OgreMain.lib ReferenceAppLayer.lib /nologo /subsystem:windows /debug /machine:I386 /nodefaultlib:"LIBCMT" /out:"../../../Samples/Common/Bin/Debug/Demo_BspCollision.exe" /pdbtype:sept /libpath:"..\..\..\OgreMain\lib\debug" /libpath:"..\..\ReferenceAppLayer\lib\debug"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib OgreMain_d.lib ReferenceAppLayer.lib /nologo /subsystem:windows /debug /machine:I386 /nodefaultlib:"LIBCMT" /out:"../../../Samples/Common/Bin/Debug/Demo_BspCollision.exe" /pdbtype:sept /libpath:"..\..\..\OgreMain\lib\debug" /libpath:"..\..\ReferenceAppLayer\lib\debug"
 # SUBTRACT LINK32 /verbose
 
 !ENDIF 

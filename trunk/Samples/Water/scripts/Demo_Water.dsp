@@ -82,7 +82,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib OgreMain.lib /nologo /subsystem:windows /debug /machine:I386 /nodefaultlib:"LIBCMT" /out:"../../Common/Bin/Debug/Demo_Water.exe" /pdbtype:sept /libpath:"..\..\..\OgreMain\lib\debug"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib OgreMain_d.lib /nologo /subsystem:windows /debug /machine:I386 /nodefaultlib:"LIBCMT" /out:"../../Common/Bin/Debug/Demo_Water.exe" /pdbtype:sept /libpath:"..\..\..\OgreMain\lib\debug"
 # SUBTRACT LINK32 /verbose
 
 !ENDIF 
@@ -96,11 +96,11 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=..\src\WaterMesh.cpp
+SOURCE=..\src\Water.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\Water.cpp
+SOURCE=..\src\WaterMesh.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
