@@ -34,11 +34,10 @@ namespace Ogre {
     std::vector<ArchiveEx*> ResourceManager::mCommonVFS;
     ResourceManager::FileMap ResourceManager::mCommonArchiveFiles;
 
-    //-----------------------------------------------------------------------
-    String convertPath( const String &init)
+    /** Internal method for standardising paths - use forward slashes only, end with slash. 
+    */
+    static String convertPath( const String &init)
     {
-        // Internal method for standardising paths
-        // Use forward slashes only, end with slash
         String path = init;
 
         std::replace( path.begin(), path.end(), '\\', '/' );
@@ -46,25 +45,6 @@ namespace Ogre {
             path += '/';
 
         return path;
-        /*
-
-        int pos;
-
-        pos = path.find("\\",0);
-        while (pos != -1)
-        {
-            // Replace bckslash with forward slash
-            path.at(pos) = '/';
-            pos = path.find("\\",pos);
-        }
-
-        if (path.at(path.length()-1) != '/')
-        {
-            // Make sure finishes with slash
-            path += "/";
-
-        }
-        */
     }
 
     //-----------------------------------------------------------------------
@@ -122,7 +102,7 @@ namespace Ogre {
             ++it)
         {
             it->second->unload();
-            delete it->second;
+            it->second->destroy();
         }
 
         // Empty the list
