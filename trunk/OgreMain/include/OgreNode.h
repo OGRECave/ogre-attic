@@ -37,6 +37,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+
     /** Class representing a general-purpose node an articulated scene graph.
         @remarks
             A node in the scene graph is a node in a structured tree. A node contains
@@ -50,6 +51,17 @@ namespace Ogre {
     class _OgreExport Node : public Renderable
     {
     public:
+        /** Enumeration denoting the spaces which a transform can be relative to.
+        */
+        enum TransformSpace
+        {
+            /// Transform is relative to the local space
+            TS_LOCAL,
+            /// Transform is relative to the space of the parent node
+            TS_PARENT,
+            /// Transform is relative to world space
+            TS_WORLD
+        };
         typedef HashMap<String, Node*, _StringHash> ChildNodeMap;
         typedef MapIterator<ChildNodeMap> ChildNodeIterator;
 
@@ -307,8 +319,10 @@ namespace Ogre {
                 world cartesian axes, i.e. along world x,y,z
             @param 
                 d Vector with x,y,z values representing the translation.
+            @param
+                relativeTo The space which this transform is relative to.
         */
-        virtual void translate(const Vector3& d);
+        virtual void translate(const Vector3& d, TransformSpace relativeTo = TS_PARENT);
         /** Moves the node along the cartesian axes.
             @par
                 This method moves the node by the supplied vector along the
@@ -319,8 +333,10 @@ namespace Ogre {
                 y
             @param
                 z Real x, y and z values representing the translation.
+            @param
+            relativeTo The space which this transform is relative to.
         */
-        virtual void translate(Real x, Real y, Real z);
+        virtual void translate(Real x, Real y, Real z, TransformSpace relativeTo = TS_PARENT);
         /** Moves the node along arbitrary axes.
             @remarks
                 This method translates the node by a vector which is relative to
@@ -337,8 +353,10 @@ namespace Ogre {
                 i.e. the identity matrix.
             @param 
                 move Vector relative to the axes above.
+            @param
+            relativeTo The space which this transform is relative to.
         */
-        virtual void translate(const Matrix3& axes, const Vector3& move);
+        virtual void translate(const Matrix3& axes, const Vector3& move, TransformSpace relativeTo = TS_PARENT);
         /** Moves the node along arbitrary axes.
             @remarks
             This method translates the node by a vector which is relative to
@@ -355,28 +373,30 @@ namespace Ogre {
                 i.e. the identity matrix.
             @param 
                 x,y,z Translation components relative to the axes above.
+            @param
+                relativeTo The space which this transform is relative to.
         */
-        virtual void translate(const Matrix3& axes, Real x, Real y, Real z);
+        virtual void translate(const Matrix3& axes, Real x, Real y, Real z, TransformSpace relativeTo = TS_PARENT);
 
         /** Rotate the node around the Z-axis.
         */
-        virtual void roll(Real degrees);
+        virtual void roll(Real degrees, TransformSpace relativeTo = TS_LOCAL);
 
         /** Rotate the node around the X-axis.
         */
-        virtual void pitch(Real degrees);
+        virtual void pitch(Real degrees, TransformSpace relativeTo = TS_LOCAL);
 
         /** Rotate the node around the Y-axis.
         */
-        virtual void yaw(Real degrees);
+        virtual void yaw(Real degrees, TransformSpace relativeTo = TS_LOCAL);
 
         /** Rotate the node around an arbitrary axis.
         */
-        virtual void rotate(const Vector3& axis, Real degrees);
+        virtual void rotate(const Vector3& axis, Real degrees, TransformSpace relativeTo = TS_LOCAL);
 
         /** Rotate the node around an aritrary axis using a Quarternion.
         */
-        virtual void rotate(const Quaternion& q);
+        virtual void rotate(const Quaternion& q, TransformSpace relativeTo = TS_LOCAL);
 
         /** Gets a matrix whose columns are the local axes based on
             the nodes orientation relative to it's parent. */
