@@ -89,10 +89,12 @@ namespace Ogre {
         // Manipulate using C-strings as case-insensitive compare is hard in STL?
         char extension[5];
 
-        int pos = filename.find_last_of(".");
-        if (pos == -1)
-            Except(999, "Unable to load image - invalid extension.",
-                "Image::load");
+        size_t pos = filename.find_last_of(".");
+		if( pos == String::npos )
+            Except(
+			Exception::ERR_INVALIDPARAMS, 
+			"Unable to load image - invalid extension.",
+            "Image::load" );
 
         strcpy(extension, filename.substr(pos + 1, filename.length() - pos).c_str());
 
@@ -263,9 +265,8 @@ namespace Ogre {
     {
         DataChunk* pChunk = (DataChunk*)png_ptr->io_ptr;
 
-        if(pChunk->read((void*)data, length) != length)
+        if( pChunk->read((void*)data, static_cast< unsigned long >( length ) ) != length )
             png_error(png_ptr, "Read Error.");
-
     }
     //-----------------------------------------------------------------------
     void Image::loadFromPNGChunk(DataChunk& chunk)
