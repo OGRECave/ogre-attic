@@ -33,8 +33,8 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
 	 ScrollEvent::ScrollEvent(ScrollTarget* source, int id, Real when, int modifiers,
-		int topVisible, int range, int total) :
-		InputEvent(source, id, when, modifiers),
+		size_t topVisible, size_t range, size_t total) :
+     InputEvent(source, id, when, modifiers),
 		mTopVisible(topVisible),
 		mRange(range), 
 		mTotal(total)
@@ -42,20 +42,20 @@ namespace Ogre {
 	}
 
     //-----------------------------------------------------------------------
-	int ScrollEvent::getTopVisible() const
+	size_t ScrollEvent::getTopVisible() const
 	{
 		return mTopVisible;
 	}
 
     //-----------------------------------------------------------------------
-	int ScrollEvent::getRange() const
+	size_t ScrollEvent::getRange() const
 	{
 		return mRange;
 	}
 
 
     //-----------------------------------------------------------------------
-	int ScrollEvent::getTotal() const
+	size_t ScrollEvent::getTotal() const
 	{
 		return mTotal;
 	}
@@ -70,7 +70,10 @@ namespace Ogre {
 		  default:
 			  typeStr = "unknown type";
 		}
-		return typeStr + ",top="+StringConverter::toString(mTopVisible)+",range="+StringConverter::toString(mRange)+",total="+StringConverter::toString(mTotal);
+		return typeStr + 
+            ",top=" + StringConverter::toString(static_cast<unsigned int>(mTopVisible)) +
+            ",range=" + StringConverter::toString(static_cast<unsigned int>(mRange)) + 
+            ",total=" + StringConverter::toString(static_cast<unsigned int>(mTotal));
 	}
     //-----------------------------------------------------------------------
 

@@ -320,7 +320,8 @@ namespace Ogre {
             sn->removeAndDestroyAllChildren();
             sn->getCreator()->destroySceneNode(sn->getName());
         }
-	mChildren.clear();
+	    mChildren.clear();
+        needUpdate();
     }
 
 

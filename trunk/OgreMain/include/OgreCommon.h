@@ -171,10 +171,8 @@ namespace Ogre {
 		PF_B10G10R10A2
 	};
 
-#ifdef OGRE_NONCLIENT_BUILD
 	PixelFormat ilFormat2OgreFormat( int ImageFormat, int BytesPerPixel );
 	std::pair< int, int > OgreFormat2ilFormat( PixelFormat format );
-#endif
 }
 
 #endif

@@ -173,6 +173,10 @@ namespace Ogre {
           RenderSystem
          */
         void convertColourValue(const ColourValue& colour, unsigned long* pDest);
+        /** See
+          RenderSystem
+         */
+        void setNormaliseNormals(bool normalise);
 
         // -----------------------------
         // Low-level overridden members

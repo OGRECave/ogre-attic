@@ -78,6 +78,8 @@ namespace Ogre {
             mTexStageDesc[n].pTex = NULL;
         }
 
+        mForcedNormalisation = false;
+
         OgreUnguard();
     }
 
@@ -989,23 +991,28 @@ namespace Ogre {
         {
         case TEXCALC_NONE:
 		    // if no calc we've already set index through D3D9RenderSystem::_setTextureCoordSet
-            hr = __SetRenderState( D3DRENDERSTATE_NORMALIZENORMALS, FALSE );
+			setNormaliseNormals(false);
+            mForcedNormalisation = false;
             break;
         case TEXCALC_ENVIRONMENT_MAP: 
             // D3D7 does not support spherical reflection
-            hr = __SetRenderState( D3DRENDERSTATE_NORMALIZENORMALS, TRUE );
+			setNormaliseNormals(true);
+            mForcedNormalisation = true;
             hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3DTSS_TCI_CAMERASPACENORMAL );
             break;
         case TEXCALC_ENVIRONMENT_MAP_REFLECTION:
-            hr = __SetRenderState( D3DRENDERSTATE_NORMALIZENORMALS, FALSE );
+			setNormaliseNormals(false);
+            mForcedNormalisation = false;
             hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3DTSS_TCI_CAMERASPACEREFLECTIONVECTOR );
             break;
         case TEXCALC_ENVIRONMENT_MAP_PLANAR:
-            hr = __SetRenderState( D3DRENDERSTATE_NORMALIZENORMALS, FALSE );
+			setNormaliseNormals(false);
+            mForcedNormalisation = false;
             hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3DTSS_TCI_CAMERASPACEPOSITION );
             break;
         case TEXCALC_ENVIRONMENT_MAP_NORMAL:
-            hr = __SetRenderState( D3DRENDERSTATE_NORMALIZENORMALS, TRUE );
+			setNormaliseNormals(true);
+            mForcedNormalisation = true;
             hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3DTSS_TCI_CAMERASPACENORMAL );
             break;
         }
@@ -1515,23 +1522,23 @@ namespace Ogre {
             case VES_POSITION:
                 d3dVertexFormat |= D3DFVF_XYZ; // Untransformed  
                 strideData.position.lpvData = pBufPtrs[source] + offset;
-                strideData.position.dwStride = vertexSize;
+                strideData.position.dwStride = static_cast<DWORD>(vertexSize);
                 // Set up pointer
                 break;
             case VES_NORMAL:
                 d3dVertexFormat |= D3DFVF_NORMAL; 
                 strideData.normal.lpvData = pBufPtrs[source] + offset;
-                strideData.normal.dwStride = vertexSize;
+                strideData.normal.dwStride = static_cast<DWORD>(vertexSize);
                 break;
             case VES_DIFFUSE:
                 d3dVertexFormat |= D3DFVF_DIFFUSE; 
                 strideData.diffuse.lpvData = pBufPtrs[source] + offset;
-                strideData.diffuse.dwStride = vertexSize;
+                strideData.diffuse.dwStride = static_cast<DWORD>(vertexSize);
                 break;
             case VES_SPECULAR:
                 d3dVertexFormat |= D3DFVF_SPECULAR; 
                 strideData.specular.lpvData = pBufPtrs[source] + offset;
-                strideData.specular.dwStride = vertexSize;
+                strideData.specular.dwStride = static_cast<DWORD>(vertexSize);
                 break;
             case VES_TEXTURE_COORDINATES:
                 // texcoords must go in order
@@ -1559,7 +1566,7 @@ namespace Ogre {
                 }
 
                 strideData.textureCoords[numTexCoords].lpvData = pBufPtrs[source] + offset;
-                strideData.textureCoords[numTexCoords].dwStride = vertexSize;
+                strideData.textureCoords[numTexCoords].dwStride = static_cast<DWORD>(vertexSize);
 
                 // Increment number of coords
                 ++numTexCoords;
@@ -1634,13 +1641,20 @@ namespace Ogre {
                     HardwareBuffer::HBL_READ_ONLY) );
 
             hr = mlpD3DDevice->DrawIndexedPrimitiveStrided(primType,
-                d3dVertexFormat, &strideData, op.vertexData->vertexCount,
-                pIdx, op.indexData->indexCount, 0);
+                d3dVertexFormat, 
+                &strideData, 
+                static_cast<DWORD>(op.vertexData->vertexCount),
+                pIdx, 
+                static_cast<DWORD>(op.indexData->indexCount)
+                , 0);
         }
         else
         {
             hr = mlpD3DDevice->DrawPrimitiveStrided(primType,
-                d3dVertexFormat, &strideData, op.vertexData->vertexCount, 0);
+                d3dVertexFormat, 
+                &strideData, 
+                static_cast<DWORD>(op.vertexData->vertexCount),
+                0);
         }
 
         // unlock buffers
@@ -2571,6 +2585,12 @@ namespace Ogre {
         }
 
         return ret;
+    }
+    //---------------------------------------------------------------------
+    void D3DRenderSystem::setNormaliseNormals(bool normalise)
+    {
+        __SetRenderState(D3DRENDERSTATE_NORMALIZENORMALS, 
+            (normalise || mForcedNormalisation) ? TRUE : FALSE);
     }
     //---------------------------------------------------------------------
     HRESULT D3DRenderSystem::__SetRenderState(D3DRENDERSTATETYPE state, DWORD value)

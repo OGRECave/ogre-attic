@@ -223,10 +223,10 @@ void create3DTexCoordsFromTSLVector(Entity *pEnt, Vector3 objectLightPositionVec
 		HardwareVertexBufferSharedPtr buffVPos = vBind->getBuffer(elemVPos->getSource());
 		pVPos = (Real*) buffVPos->lock(HardwareBuffer::HBL_READ_ONLY); // ***LOCK***
 		
-		int numFaces = indexData->indexCount / 3 ;
+		size_t numFaces = indexData->indexCount / 3 ;
 		
 		// loop through all faces to calculate the tangents and normals
-		int n;
+		size_t n;
 		for (n = 0; n < numFaces; ++n)
 		{
 			int i;
@@ -262,7 +262,7 @@ void create3DTexCoordsFromTSLVector(Entity *pEnt, Vector3 objectLightPositionVec
 			}
 		}
 		// now loop through all vertices and normalize them
-		int numVerts = usedVertexData->vertexCount ;
+		size_t numVerts = usedVertexData->vertexCount ;
 		for (n = 0; n < numVerts * 3; n += 3)
 		{
 			// read the vertex

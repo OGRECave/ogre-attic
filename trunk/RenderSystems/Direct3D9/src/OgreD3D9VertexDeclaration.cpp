@@ -74,7 +74,7 @@ namespace Ogre {
             for (idx = 0, i = mElementList.begin(); i != iend; ++i, ++idx)
             {
                 d3delems[idx].Method = D3DDECLMETHOD_DEFAULT;
-                d3delems[idx].Offset = i->getOffset();
+                d3delems[idx].Offset = static_cast<WORD>(i->getOffset());
                 d3delems[idx].Stream = i->getSource();
 				d3delems[idx].Type = D3D9Mappings::get(i->getType());
 				d3delems[idx].Usage = D3D9Mappings::get(i->getSemantic());

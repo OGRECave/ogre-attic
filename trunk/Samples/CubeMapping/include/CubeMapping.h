@@ -132,11 +132,11 @@ private:
 	Real density ;
 	Real timeDensity ;
 	bool noiseOn ;
-	int currentMeshIndex ;
+	unsigned int currentMeshIndex ;
 	std::vector<String> availableMeshes ;
 	int currentLBXindex ;
 	LayerBlendOperationEx currentLBX ;
-	int currentCubeMapIndex ;
+	size_t currentCubeMapIndex ;
 	std::vector<String> availableCubeMaps ;
 	Material *material ;
 	
@@ -172,8 +172,8 @@ private:
 			vertexDeclaration->findElementBySemantic(VES_NORMAL);
 		HardwareVertexBufferSharedPtr normHVB = vertexData->
 			vertexBufferBinding->getBuffer(normVE->getSource());
-		int numVertices = normHVB->getNumVertices();
-		for(int i=0;i<numVertices;i++, normals+=3) {
+		size_t numVertices = normHVB->getNumVertices();
+		for(size_t i=0;i<numVertices;i++, normals+=3) {
 			Vector3 n(normals[0], normals[1], normals[2]);
 			n.normalise();
 			normals[0] = n.x ;
@@ -189,7 +189,7 @@ private:
 			IndexData *indexData,
 			Real *normals)
 	{
-		int i ;
+		size_t i ;
 		
 		// Find destination vertex buffer
 		const VertexElement *dstVEPos = dstData->
@@ -207,7 +207,7 @@ private:
 		Real *orgDataPos = (Real*) orgHVBPos->lock(0, orgHVBPos->getSizeInBytes(),
 			HardwareBuffer::HBL_READ_ONLY);
 		// make noise
-		int numVertices = orgHVBPos->getNumVertices();
+		size_t numVertices = orgHVBPos->getNumVertices();
 		for(i=0;i<3*numVertices;i+=3) {
 			double n = 1 + displacement * noise3(
 				orgDataPos[i]/density + tm,
@@ -224,7 +224,7 @@ private:
 		HardwareIndexBufferSharedPtr indexHB = indexData->indexBuffer ;
 		unsigned short * vertexIndices = (unsigned short*) indexHB->lock(
 			0, indexHB->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY);
-		int numFaces = indexData->indexCount / 3 ;
+		size_t numFaces = indexData->indexCount / 3 ;
 		for(i=0 ; i<numFaces ; i++, vertexIndices+=3) {
 			//~ int p0 = 0;
 			//~ int p1 = 1;

@@ -135,8 +135,8 @@ namespace Ogre {
 						break;
 					}
 #if OGRE_DEBUG_MODE 
-					ofdebug << "Collapsing index " << collapser->index << "(border: "<< collapser->isBorder() <<
-						") to " << collapser->collapseTo->index << "(border: "<< collapser->collapseTo->isBorder() <<
+					ofdebug << "Collapsing index " << (unsigned int)collapser->index << "(border: "<< collapser->isBorder() <<
+						") to " << (unsigned int)collapser->collapseTo->index << "(border: "<< collapser->collapseTo->isBorder() <<
 						")" << std::endl;
 #endif
 					assert(collapser->collapseTo->removed == false);
@@ -186,7 +186,7 @@ namespace Ogre {
 		Real* pReal;
 		Vector3 pos;
 		// Map for identifying duplicate position vertices
-		typedef std::map<Vector3, ushort, vectorLess> CommonVertexMap;
+		typedef std::map<Vector3, size_t, vectorLess> CommonVertexMap;
 		CommonVertexMap commonVertexMap;
 		CommonVertexMap::iterator iCommonVertex;
 		size_t numCommon = 0;
@@ -236,7 +236,7 @@ namespace Ogre {
 		mNumCommonVertices = numCommon;
 
         // Build tri list
-        ushort numTris = indexData->indexCount / 3;
+        size_t numTris = indexData->indexCount / 3;
 		unsigned short* pShort;
 		unsigned int* pInt;
 		HardwareIndexBufferSharedPtr ibuf = indexData->indexBuffer;
@@ -579,7 +579,7 @@ namespace Ogre {
 			assert(destFaceVert);
 
 #if OGRE_DEBUG_MODE 
-			ofdebug << "Replacing vertex on face " << (*f)->index << std::endl;
+			ofdebug << "Replacing vertex on face " << (unsigned int)(*f)->index << std::endl;
 #endif
             (*f)->replaceVertex(srcFaceVert, destFaceVert);
 		}
@@ -587,7 +587,7 @@ namespace Ogre {
 	    for(f = faceRemovalList.begin(); f != faceRemovalList.end(); ++f) 
 		{
 #if OGRE_DEBUG_MODE 
-			ofdebug << "Removing face " << (*f)->index << std::endl;
+			ofdebug << "Removing face " << (unsigned int)(*f)->index << std::endl;
 #endif
 			(*f)->notifyRemoved();
 		}
@@ -679,15 +679,15 @@ namespace Ogre {
             {
 				if (use32bitindexes)
 				{
-					*pInt++ = tri->vertex[0]->realIndex;
-					*pInt++ = tri->vertex[1]->realIndex;
-					*pInt++ = tri->vertex[2]->realIndex;
+					*pInt++ = static_cast<unsigned int>(tri->vertex[0]->realIndex);
+					*pInt++ = static_cast<unsigned int>(tri->vertex[1]->realIndex);
+					*pInt++ = static_cast<unsigned int>(tri->vertex[2]->realIndex);
 				}
 				else
 				{
-					*pShort++ = tri->vertex[0]->realIndex;
-					*pShort++ = tri->vertex[1]->realIndex;
-					*pShort++ = tri->vertex[2]->realIndex;
+					*pShort++ = static_cast<unsigned short>(tri->vertex[0]->realIndex);
+					*pShort++ = static_cast<unsigned short>(tri->vertex[1]->realIndex);
+					*pShort++ = static_cast<unsigned short>(tri->vertex[2]->realIndex);
 				}
             }
         }
@@ -806,8 +806,8 @@ namespace Ogre {
             assert(vertex[i]->commonVertex->face.find(this) != vertex[i]->commonVertex->face.end());
             for(int j=0;j<3;j++) if(i!=j) {
 #if OGRE_DEBUG_MODE 
-				ofdebug << "Adding vertex " << vertex[j]->commonVertex->index << " to the neighbor list "
-					"of vertex " << vertex[i]->commonVertex->index << std::endl;
+				ofdebug << "Adding vertex " << (unsigned int)vertex[j]->commonVertex->index << " to the neighbor list "
+					"of vertex " << (unsigned int)vertex[i]->commonVertex->index << std::endl;
 #endif 
                 vertex[i]->commonVertex->neighbor.insert(vertex[j]->commonVertex);
             }
@@ -819,7 +819,7 @@ namespace Ogre {
     {
     }
     //---------------------------------------------------------------------
-    void ProgressiveMesh::PMVertex::setDetails(const Vector3& v, int newindex)
+    void ProgressiveMesh::PMVertex::setDetails(const Vector3& v, size_t newindex)
     {
         position = v;
         index = newindex;
@@ -902,7 +902,7 @@ namespace Ogre {
         }
 
 #if OGRE_DEBUG_MODE 
-		ofdebug << "Vertex " << n->index << " is no longer a neighbour of vertex " << this->index <<
+		ofdebug << "Vertex " << (unsigned int)n->index << " is no longer a neighbour of vertex " << (unsigned int)this->index <<
 			" so has been removed from the latter's neighbor list." << std::endl;
 #endif
         neighbor.erase(n);
@@ -927,21 +927,21 @@ namespace Ogre {
 		size_t i;
 		for (vi = worki->mVertList.begin(), i = 0; i < mNumCommonVertices; ++vi, ++i)
 		{
-			ofdump << "Vertex " << vi->index << " pos: " << vi->position << " removed: " 
+			ofdump << "Vertex " << (unsigned int)vi->index << " pos: " << vi->position << " removed: " 
 				<< vi->removed << " isborder: " << vi->isBorder() << std::endl;
 			ofdump << "    Faces:" << std::endl;
 			PMVertex::FaceList::iterator f, fend;
 			fend = vi->face.end();
 			for(f = vi->face.begin(); f != fend; ++f)
 			{
-				ofdump << "    Triangle index " << (*f)->index << std::endl;
+				ofdump << "    Triangle index " << (unsigned int)(*f)->index << std::endl;
 			}
 			ofdump << "    Neighbours:" << std::endl;
 			PMVertex::NeighborList::iterator n, nend;
 			nend = vi->neighbor.end();
 			for (n = vi->neighbor.begin(); n != nend; ++n)
 			{
-				ofdump << "    Vertex index " << (*n)->index << std::endl;
+				ofdump << "    Vertex index " << (unsigned int)(*n)->index << std::endl;
 			}
 
 		}
@@ -951,16 +951,16 @@ namespace Ogre {
 		ofdump << "-------== TRIANGLE LIST ==-----------------" << std::endl;
 		for(ti = worki->mTriList.begin(); ti != tend; ++ti)
 		{
-			ofdump << "Triangle " << ti->index << " norm: " << ti->normal << " removed: " << ti->removed << std::endl;
-			ofdump << "    Vertex 0: " << ti->vertex[0]->realIndex << std::endl;
-			ofdump << "    Vertex 1: " << ti->vertex[1]->realIndex << std::endl;
-			ofdump << "    Vertex 2: " << ti->vertex[2]->realIndex << std::endl;
+			ofdump << "Triangle " << (unsigned int)ti->index << " norm: " << ti->normal << " removed: " << ti->removed << std::endl;
+			ofdump << "    Vertex 0: " << (unsigned int)ti->vertex[0]->realIndex << std::endl;
+			ofdump << "    Vertex 1: " << (unsigned int)ti->vertex[1]->realIndex << std::endl;
+			ofdump << "    Vertex 2: " << (unsigned int)ti->vertex[2]->realIndex << std::endl;
 		}
 
 		ofdump << "-------== COLLAPSE COST LIST ==-----------------" << std::endl;
 		for (size_t ci = 0; ci < mNumCommonVertices; ++ci)
 		{
-			ofdump << "Vertex " << ci << ": " << mWorstCosts[ci] << std::endl;
+			ofdump << "Vertex " << (unsigned int)ci << ": " << mWorstCosts[ci] << std::endl;
 		}
 
 		ofdump.close();

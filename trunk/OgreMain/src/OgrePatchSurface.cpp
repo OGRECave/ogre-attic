@@ -500,15 +500,15 @@ namespace Ogre {
         // Calculate steps
         int vStep = 1 << (mMaxVLevel - mVLevel);
         int uStep = 1 << (mMaxULevel - mULevel);
-        int currWidth = (LEVEL_WIDTH(mULevel)-1) * ((mCtlWidth-1)/2) + 1;
-        int currHeight = (LEVEL_WIDTH(mVLevel)-1) * ((mCtlHeight-1)/2) + 1;
+        size_t currWidth = (LEVEL_WIDTH(mULevel)-1) * ((mCtlWidth-1)/2) + 1;
+        size_t currHeight = (LEVEL_WIDTH(mVLevel)-1) * ((mCtlHeight-1)/2) + 1;
 
         bool use32bitindexes = (mIndexBuffer->getType() == HardwareIndexBuffer::IT_32BIT);
 
         // The mesh is built, just make a list of indexes to spit out the triangles
         int vInc, uInc;
         
-        int vCount, uCount, v, u, iterations;
+        size_t vCount, uCount, v, u, iterations;
 
         if (mVSide == VS_BOTH)
         {
@@ -575,15 +575,15 @@ namespace Ogre {
                     // Output indexes
                     if (use32bitindexes)
                     {
-                        *p32++ = v1;
-                        *p32++ = v2;
-                        *p32++ = v3;
+                        *p32++ = static_cast<unsigned int>(v1);
+                        *p32++ = static_cast<unsigned int>(v2);
+                        *p32++ = static_cast<unsigned int>(v3);
                     }
                     else
                     {
-                        *p16++ = v1;
-                        *p16++ = v2;
-                        *p16++ = v3;
+                        *p16++ = static_cast<unsigned short>(v1);
+                        *p16++ = static_cast<unsigned short>(v2);
+                        *p16++ = static_cast<unsigned short>(v3);
                     }
                     // Second Tri in cell
                     // ------------------
@@ -593,15 +593,15 @@ namespace Ogre {
                     // Output indexes
                     if (use32bitindexes)
                     {
-                        *p32++ = v1;
-                        *p32++ = v2;
-                        *p32++ = v3;
+                        *p32++ = static_cast<unsigned int>(v1);
+                        *p32++ = static_cast<unsigned int>(v2);
+                        *p32++ = static_cast<unsigned int>(v3);
                     }
                     else
                     {
-                        *p16++ = v1;
-                        *p16++ = v2;
-                        *p16++ = v3;
+                        *p16++ = static_cast<unsigned short>(v1);
+                        *p16++ = static_cast<unsigned short>(v2);
+                        *p16++ = static_cast<unsigned short>(v3);
                     }
 
                     // Next column

@@ -760,6 +760,18 @@ namespace Ogre
 		/** Sets the current vertex buffer binding state. */
 		virtual void setVertexBufferBinding(VertexBufferBinding* binding) = 0;
 
+        /** Sets whether or not normals are to be automatically normalised.
+        @remarks
+            This is useful when, for example, you are scaling SceneNodes such that
+            normals may not be unit-length anymore. Note though that this has an
+            overhead so should not be turn on unless you really need it.
+        @par
+            You should not normally call this direct unless you are rendering
+            world geometry; set it on the Renderable because otherwise it will be
+            overridden by material settings. 
+        */
+        virtual void setNormaliseNormals(bool normalise) = 0;
+
         /**
           Render something to the active viewport.
 

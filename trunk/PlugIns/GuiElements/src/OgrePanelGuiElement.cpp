@@ -221,7 +221,7 @@ namespace Ogre {
             if (mNumTexCoordsInBuffer > numLayers)
             {
                 // remove extras
-                for (size_t i = mNumTexCoordsInBuffer; i > numLayers; --i)
+                for (unsigned short i = mNumTexCoordsInBuffer; i > numLayers; --i)
                 {
                     decl->removeElement(VES_TEXTURE_COORDINATES, i);
                 }
@@ -230,7 +230,7 @@ namespace Ogre {
             {
                 // Add extra texcoord elements
                 size_t offset = VertexElement::getTypeSize(VET_FLOAT2) * mNumTexCoordsInBuffer;
-                for (size_t i = mNumTexCoordsInBuffer; i < numLayers; ++i)
+                for (unsigned short i = mNumTexCoordsInBuffer; i < numLayers; ++i)
                 {
                     decl->addElement(TEXCOORD_BINDING,
                         offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, i);

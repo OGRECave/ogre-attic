@@ -227,7 +227,7 @@ bool MilkshapePlugin::showOptions(void)
     exportMesh = true;
     exportSkeleton = false;
     
-	return DialogBox(hInst, MAKEINTRESOURCE(IDD_OPTIONS), NULL, DlgProc);
+	return (DialogBox(hInst, MAKEINTRESOURCE(IDD_OPTIONS), NULL, DlgProc) == TRUE);
 
 
 
@@ -282,7 +282,8 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
     bool foundBoneAssignment = false;
 
     // No shared geometry
-    int i, j;
+    int i;
+    size_t j;
     Ogre::Vector3 min, max, currpos;
     Ogre::Real maxSquaredRadius;
     bool first = true;

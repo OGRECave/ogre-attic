@@ -447,7 +447,7 @@ namespace Ogre {
         return r;
 	}
 	
-	int PopupMenuGuiElement::getListSize() 
+	size_t PopupMenuGuiElement::getListSize() 
 	{
 		return mResourceList.size();
 	}

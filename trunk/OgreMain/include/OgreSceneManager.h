@@ -1130,8 +1130,27 @@ namespace Ogre {
         /** Destroys a scene query of any type. */
         virtual void destroyQuery(SceneQuery* query);
 
+        typedef MapIterator<LightList> LightIterator;
+        typedef MapIterator<EntityList> EntityIterator;
+        typedef MapIterator<CameraList> CameraIterator;
+        typedef MapIterator<BillboardSetList> BillboardSetIterator;
 
-
+        /** Returns a specialised MapIterator over all lights in the scene. */
+        LightIterator getLightIterator(void) {
+            return LightIterator(mLights.begin(), mLights.end());
+        }
+        /** Returns a specialised MapIterator over all entities in the scene. */
+        EntityIterator getEntityIterator(void) {
+            return EntityIterator(mEntities.begin(), mEntities.end());
+        }
+        /** Returns a specialised MapIterator over all cameras in the scene. */
+        CameraIterator getCameraIterator(void) {
+            return CameraIterator(mCameras.begin(), mCameras.end());
+        }
+        /** Returns a specialised MapIterator over all cameras in the scene. */
+        BillboardSetIterator getBillboardSetIterator(void) {
+            return BillboardSetIterator(mBillboardSets.begin(), mBillboardSets.end());
+        }
 
 
 

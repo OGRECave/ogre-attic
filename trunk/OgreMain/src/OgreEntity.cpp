@@ -42,6 +42,7 @@ namespace Ogre {
     Entity::Entity () 
     {
 		mFullBoundingBox = new AxisAlignedBox;
+        mNormaliseNormals = false;
     }
     //-----------------------------------------------------------------------
     Entity::Entity( const String& name, Mesh* mesh, SceneManager* creator) :

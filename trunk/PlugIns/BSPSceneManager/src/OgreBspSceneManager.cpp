@@ -379,7 +379,7 @@ namespace Ogre {
         mLevel->mIndexes->unlock();
 
         // return number of elements
-        return numIdx;
+        return static_cast<unsigned int>(numIdx);
 
 
     }

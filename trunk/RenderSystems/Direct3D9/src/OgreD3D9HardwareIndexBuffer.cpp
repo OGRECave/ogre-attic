@@ -36,7 +36,7 @@ namespace Ogre {
     {
         // Create the Index buffer
         HRESULT hr = pDev->CreateIndexBuffer(
-            mSizeInBytes,
+            static_cast<UINT>(mSizeInBytes),
             D3D9Mappings::get(usage),
             D3D9Mappings::get(idxType),
 			mSystemMemory ? D3DPOOL_SYSTEMMEM : D3DPOOL_DEFAULT,
@@ -73,8 +73,8 @@ namespace Ogre {
 			lockOpts= D3D9Mappings::get(options);
 		} 
         HRESULT hr = mlpD3DBuffer->Lock(
-            offset, 
-            length, 
+            static_cast<UINT>(offset), 
+            static_cast<UINT>(length), 
             &pBuf,
             lockOpts);
 
