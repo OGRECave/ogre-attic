@@ -111,6 +111,7 @@ OgreParticleSystemManager.h \
 OgrePass.h \
 OgrePatchMesh.h \
 OgrePatchSurface.h \
+OgrePixelFormat.h \
 OgrePlane.h \
 OgrePlaneBoundedVolume.h \
 OgrePlatform.h \
