@@ -606,6 +606,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "NatureConsoleTest"=.\Samples\Nature\scripts\Nature.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "OgreMain"=.\OgreMain\scripts\OgreMain.dsp - Package Owner=<4>
 
 Package=<5>
@@ -675,6 +687,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "Plugin_NatureSceneManager"=.\PlugIns\NatureSceneManager\scripts\Plugin_NatureSceneManager.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "Plugin_OctreeSceneManager"=.\PlugIns\OctreeSceneManager\scripts\Plugin_OctreeSceneManager.dsp - Package Owner=<4>
 
 Package=<5>
@@ -721,6 +745,18 @@ Package=<4>
 ###############################################################################
 
 Project: "RenderSystem_Direct3D8"=.\RenderSystems\Direct3D8\scripts\RenderSystem_Direct3D8.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "RenderSystem_Direct3D9"=.\RenderSystems\Direct3D9\scripts\RenderSystem_Direct3D9.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
