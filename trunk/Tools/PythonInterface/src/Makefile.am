@@ -16,6 +16,7 @@ Ogre_so_SOURCES = general.cpp \
                   Mesh.cpp \
                   MeshManager.cpp \
                   MovableObject.cpp \
+                  Node.cpp \
                   Plane.cpp \
                   Quaternion.cpp \
                   RenderSystem.cpp \
