@@ -244,7 +244,7 @@ namespace Ogre {
         void setSpotlightRange(const Radian& innerAngle, const Radian& outerAngle, Real falloff = 1.0);
 #ifndef OGRE_FORCE_ANGLE_TYPES
         inline void setSpotlightRange(Real innerAngle, Real outerAngle, Real falloff = 1.0) {
-            SetSpotlightRange ( Angle(innerAngle), Angle(outerAngle), falloff );
+            setSpotlightRange ( Angle(innerAngle), Angle(outerAngle), falloff );
         }
 #endif//OGRE_FORCE_ANGLE_TYPES
 
