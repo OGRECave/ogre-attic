@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMayaScene.h"
 #include "OgreMayaMesh.h"
 #include "OgreMayaSkeleton.h"
+#include "OgreMayaMaterial.h"
 
 #include <maya/MDagPath.h>
 #include <maya/MGlobal.h>
@@ -53,6 +54,7 @@ int main(int argc, char *argv[]) {
   	    SceneMgr          sceneMgr;
 	    MeshGenerator     meshGen;
 	    SkeletonGenerator skelGen;
+        MatGenerator      matGen;
 
 	    bool bStatus;
 
@@ -102,6 +104,17 @@ int main(int argc, char *argv[]) {
 			return -4;
 		}
 
+        // --- Material		
+
+        if(OPTIONS.exportMaterial) {
+            cout << "Exporting material...\n";	
+		    bStatus = matGen.exportAll();
+		    if (!bStatus) {            
+			    cout << "\tMatGenerator::exportAll() failed!\n";
+			    return -5;
+		    }
+        }  
+
     }
 
 
@@ -111,12 +124,16 @@ int main(int argc, char *argv[]) {
 
 void showHelp()
 {
-	cout << "Usage: maya2ogre -in FILE [-mesh FILE] [-skel FILE] [-s] [-n] [-c] [-t]\n\n";
-	cout << " -in   FILE   input mb File\n";
-    cout << " -mesh FILE   mesh file name\n";
-    cout << " -skel FILE   skeleton file name\n";
-    cout << " -s           export skeleton\n";
-    cout << " -n           export normals\n";
-    cout << " -c           export diffuse colours\n";
-    cout << " -t           export texture coords\n";    
+	cout << "Usage: maya2ogre -in FILE [-mesh FILE] [-skel FILE] [-mat FILE]\n";
+    cout << "                 [-mprefix PREFIX] [-m] [-s] [-n] [-c] [-t]\n\n";
+	cout << " -in      FILE   input mb File\n";
+    cout << " -mesh    FILE   mesh file name\n";
+    cout << " -skel    FILE   skeleton file name\n";
+    cout << " -mat     FILE   material file name\n";
+    cout << " -mprefix PREFIX material prefix\n";
+    cout << " -m              export material\n";
+    cout << " -s              export skeleton\n";
+    cout << " -n              export normals\n";
+    cout << " -c              export diffuse colours\n";
+    cout << " -t              export texture coords\n";    
 }

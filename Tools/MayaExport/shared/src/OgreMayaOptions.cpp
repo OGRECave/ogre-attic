@@ -31,13 +31,16 @@ namespace OgreMaya {
         reset();
 
         // init parameter map
-        builderMap["-in"  ] = &Options::parseIn;
-        builderMap["-mesh"] = &Options::parseMeshOut;
-        builderMap["-skel"] = &Options::parseSkelOut;
-        builderMap["-s"   ] = &Options::parseS;
-        builderMap["-n"   ] = &Options::parseN;
-        builderMap["-c"   ] = &Options::parseC;
-        builderMap["-t"   ] = &Options::parseT;
+        builderMap["-in"     ] = &Options::parseIn;
+        builderMap["-mesh"   ] = &Options::parseMeshOut;
+        builderMap["-skel"   ] = &Options::parseSkelOut;
+        builderMap["-mat"    ] = &Options::parseMatOut;
+        builderMap["-mprefix"] = &Options::parseMatPrefix;
+        builderMap["-m"      ] = &Options::parseM;
+        builderMap["-s"      ] = &Options::parseS;
+        builderMap["-n"      ] = &Options::parseN;
+        builderMap["-c"      ] = &Options::parseC;
+        builderMap["-t"      ] = &Options::parseT;
     }
 
     void Options::reset() {
@@ -47,10 +50,14 @@ namespace OgreMaya {
         exportNormals  = false;
         exportColours  = false;
         exportUVs      = false;
+        exportMaterial = false;
 
         inFile         = "";
         outMeshFile    = "";
         outSkelFile    = "";
+        outMatFile     = "";
+
+        matPrefix      = "";
 
         argv           = 0;
         argc           = 0;
@@ -78,11 +85,13 @@ namespace OgreMaya {
 
     void Options::debugOutput() {
         cout << "=== options ================================\n";
-        cout << inFile << " -> " << outMeshFile << ", " << outSkelFile << "\n";
+        cout << inFile << " -> mesh=" << outMeshFile << ", skel=" << outSkelFile << "\n";
+        cout << "Material: prefix=" << matPrefix << ", file=" << outMatFile << "\n";
         cout << "exportSkeleton :" << exportSkeleton << '\n';
         cout << "exportNormals  :" << exportNormals << '\n';
         cout << "exportColours  :" << exportColours << '\n';
         cout << "exportUVs      :" << exportUVs << '\n';        
+        cout << "exportMaterial :" << exportMaterial << '\n';   
         cout << "============================================\n";
     }
 
@@ -94,10 +103,12 @@ namespace OgreMaya {
             if(i>=0) {
                 outMeshFile = inFile.substr(0, i) + ".mesh.xml";
                 outSkelFile = inFile.substr(0, i) + ".skeleton.xml";
+                outMatFile  = inFile.substr(0, i) + ".material";
             }
             else {
                 outMeshFile = inFile + ".mesh.xml";
                 outSkelFile = inFile + ".skeleton.xml";
+                outMatFile  = inFile + ".material";
             }
 
             valid = true;
@@ -115,6 +126,24 @@ namespace OgreMaya {
             exportSkeleton = true;
             outSkelFile = argv[currentArg];
         }
+    }
+
+    void Options::parseMatOut() {
+        if(++currentArg < argc) {
+            exportMaterial = true;
+            outMatFile = argv[currentArg];
+        }
+    }
+
+    void Options::parseMatPrefix() {
+        if(++currentArg < argc) {
+            exportMaterial = true;
+            matPrefix = argv[currentArg];
+        }
+    }
+    
+    void Options::parseM() {
+        exportMaterial = true;
     }
 
     void Options::parseS() {

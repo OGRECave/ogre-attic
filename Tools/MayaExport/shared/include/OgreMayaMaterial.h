@@ -23,29 +23,46 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef _OGREMAYA_MAT_H_
 #define _OGREMAYA_MAT_H_
 
+#include "OgreMayaCommon.h"
+
 #include <maya/MFnMesh.h>
 
+#include <fstream.h>
+
+#include <string>
+#include <list>
+#include <vector>
 
 namespace OgreMaya {
+    
+    using namespace std;
 
-	//	===========================================================================
-	/** \struct		MatOptions
-		Information required by MatGenerator to convert the materials in a Maya 
-		scene into an Ogre .material file.
-	*/	
-	//	===========================================================================
-	struct MatOptions
-	{
-		bool bValid;
-		string sOgreFile;
-		string sMaterialPrefix;
+    struct TextureLayer {
 
-		MatOptions() {
-			bValid         = false;
-			sOgreFile      = "";
-		}
-	};
+        TextureLayer(string textureName, int uvSet):
+            textureName(textureName), uvSet(uvSet) {}
 
+        string textureName;
+        int uvSet;
+    };
+
+    typedef list<TextureLayer> TextureLayerList;
+
+
+    struct Material {        
+
+        string name;
+        string shadingMode;
+        
+        ColourValue ambient;
+        ColourValue diffuse;
+        ColourValue selfIllumination;
+        ColourValue specular;
+
+        Real shininess;
+        
+        TextureLayerList textureLayers;
+    };
 
 	//	===========================================================================
 	/** \class		MatGenerator
@@ -56,8 +73,7 @@ namespace OgreMaya {
 		Generates an Ogre material file from a Maya scene.
 	*/	
 	//	===========================================================================
-	class MatGenerator : public OptionParser
-	{
+	class MatGenerator {
 	public:
 
 		/// Utility function for other classes
@@ -77,19 +93,13 @@ namespace OgreMaya {
 		bool exportSelection();
 
 	protected:
-		MatOptions	     mMatOptions;
-		MaterialManager *mpOgreMatMgr;
-		std::vector<Material*> mOgreMatPtrs;
-
-		/// Required for OptionParser interface.
-		bool _validateOptions();
+        vector<Material*> materials;
 
 		bool _extractMaterials();
 		void _makeMaterials(MObject &ShaderSet);
-		Material *_makePhongMaterial(MObject &ShaderNode);
-		Material *_makeBlinnMaterial(MObject &ShaderNode);
-		Material *_makeLambertMaterial(MObject &ShaderNode);
-
+		Material* _makePhongMaterial(MObject &ShaderNode);
+		Material* _makeBlinnMaterial(MObject &ShaderNode);
+		Material* _makeLambertMaterial(MObject &ShaderNode);
 	};
 
 } // namespace OgreMaya
