@@ -78,7 +78,7 @@ namespace Ogre {
         }
         if (parent == NULL)
         {
-            mRootBone = newBone;
+            mRootBones.push_back(newBone);
         }
         else
         {
@@ -103,8 +103,13 @@ namespace Ogre {
         // construct self from master
         mBlendState = mSkeleton->mBlendState;
         // Copy bones
-        cloneBoneAndChildren(mSkeleton->mRootBone, 0);
-        mRootBone->_update(true, false);
+        BoneIterator i = mSkeleton->getRootBoneIterator();
+        while (i.hasMoreElements())
+        {
+            Bone* b = i.getNext();
+            cloneBoneAndChildren(b, 0);
+            b->_update(true, false);
+        }
         setBindingPose();
         mIsLoaded = true;
     }

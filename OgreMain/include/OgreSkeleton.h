@@ -153,7 +153,7 @@ namespace Ogre {
         /** Returns the number of bones in this skeleton. */
         virtual unsigned short getNumBones(void) const;
 
-        /** Gets the root bone of the skeleton. 
+        /** Gets the root bone of the skeleton: deprecated in favour of getRootBoneIterator. 
         @remarks
             The system derives the root bone the first time you ask for it. The root bone is the
             only bone in the skeleton which has no parent. The system locates it by taking the
@@ -165,6 +165,13 @@ namespace Ogre {
             bone you create will by default be the root.
         */
         virtual Bone* getRootBone(void) const;
+
+        typedef std::vector<Bone*> BoneList;
+        typedef VectorIterator<BoneList> BoneIterator;
+        /// Get an iterator over the root bones in the skeleton, ie those with no parents
+        virtual BoneIterator getRootBoneIterator(void);
+        /// Get an iterator over all the bones in the skeleton
+        virtual BoneIterator getBoneIterator(void);
 
         /** Gets a bone by it's handle. */
         virtual Bone* getBone(unsigned short handle) const;
@@ -243,19 +250,21 @@ namespace Ogre {
         /** Sets the animation blending mode this skeleton will use. */
 		virtual void setBlendMode(SkeletonAnimationBlendMode state);
 
+        /// Updates all the derived transforms in the skeleton
+        virtual void _updateTransforms(void);
+
 
     protected:
 		SkeletonAnimationBlendMode mBlendState;
         /// Storage of bones, indexed by bone handle
-        typedef std::vector<Bone*> BoneList;
         BoneList mBoneList;
         /// Lookup by bone name
         typedef std::map<String, Bone*> BoneListByName;
         BoneListByName mBoneListByName;
 
 
-        /// Pointer to root bone (all others follow)
-        mutable Bone *mRootBone;
+        /// Pointer to root bones (can now have multiple roots)
+        mutable BoneList mRootBones;
         /// Bone automatic handles
         unsigned short mNextAutoHandle;
 
