@@ -67,6 +67,13 @@ namespace Ogre {
             ms_mapCodecs[pCodec->getType()] = pCodec;
         }
 
+        /** Unregisters a codec from the database.
+        */
+        static void unRegisterCodec( Codec *pCodec )
+        {
+            ms_mapCodecs.erase(pCodec->getType());
+        }
+
         /** Gets the codec registered for the passed in file extension. */
         static Codec* getCodec(const String& extension);
 
