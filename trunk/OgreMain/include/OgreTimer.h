@@ -58,6 +58,13 @@ namespace Ogre
 		*/	
 		virtual unsigned long getMillisecondsCPU();
 		
+		/** Returns microseconds since initialisation or last reset
+		*/
+		virtual unsigned long getMicroseconds() ;
+		
+		/** Returns microseconds since initialisation or last reset, only CPU time measured
+		*/	
+		virtual unsigned long getMicrosecondsCPU();
 	} ;
 }
 #endif

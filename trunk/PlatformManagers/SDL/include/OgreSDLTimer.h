@@ -35,12 +35,14 @@ namespace Ogre {
     class SDLTimer : public Timer
     {
 	private:
-		unsigned long zeroTicks ;
+    		struct timeval start;    
+
 		
     public:
 		// overrides standard methods
 		virtual void reset();
 		virtual unsigned long getMilliseconds();
+		virtual unsigned long getMicroseconds();
     };
 }
 

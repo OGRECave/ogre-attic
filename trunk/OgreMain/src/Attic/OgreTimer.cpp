@@ -48,4 +48,15 @@ namespace Ogre
 		clock_t newClock = clock();
 		return (unsigned long)((float)(newClock-zeroClock) / ((float)CLOCKS_PER_SEC/1000.0)) ;
 	}
+
+	unsigned long Timer::getMicroseconds()
+	{
+		return getMicrosecondsCPU();
+	}
+	
+	unsigned long Timer::getMicrosecondsCPU()
+	{
+		clock_t newClock = clock();
+		return (unsigned long)((float)(newClock-zeroClock) / ((float)CLOCKS_PER_SEC/1000000.0)) ;
+	}
 }

@@ -37,6 +37,7 @@ class GTKTimer : public Timer
 public:
     virtual void reset();
     virtual unsigned long getMilliseconds();
+    virtual unsigned long getMicroseconds();
 private:
     struct timeval start;    
 }; // class GTKTimer
