@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 
 #include "OgreAnimationState.h"
+#include "OgreException.h"
 
 namespace Ogre 
 {
@@ -159,7 +160,32 @@ namespace Ogre
     {
         mTimePos = value * mLength;
     }
+    //---------------------------------------------------------------------
+    void AnimationState::copyStateFrom(const AnimationState& animState)
+    {
+        mTimePos = animState.mTimePos;
+        mLength = animState.mLength;
+        mInvLength = animState.mInvLength;
+        mWeight = animState.mWeight;
+        mEnabled = animState.mEnabled;
+        mLoop = animState.mLoop;
+    }
 
+    //---------------------------------------------------------------------
+    void CopyAnimationStateSubset(AnimationStateSet& target, const AnimationStateSet& source)
+    {
+        AnimationStateSet::iterator i, iend;
+        iend = target.end();
+        for (i = target.begin(); i != iend; ++i) {
+            AnimationStateSet::const_iterator iother = source.find(i->first);
+            if (iother == source.end()) {
+                Except(Exception::ERR_ITEM_NOT_FOUND, "No animation entry found named " + i->first, 
+                    "CopyAnimationStateSubset");
+            } else {
+                i->second.copyStateFrom(iother->second);
+            }
+        }
+    }
 
 
 }
