@@ -261,6 +261,7 @@ namespace Ogre {
         delete mSkeletonManager;
         delete mMeshManager;
         delete mMaterialManager;        
+        Pass::processPendingPassUpdates(); // make sure passes are cleaned
         delete mParticleManager;
 
         if( mControllerManager )
