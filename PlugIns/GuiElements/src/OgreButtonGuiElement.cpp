@@ -300,7 +300,7 @@ namespace Ogre {
 		// one copy when the children are copied, and another copy when setButtonCaption is set.
 		mInsideObject->setCloneable(false);
 
-		addChild((GuiContainer*)mInsideObject);
+		addChild(mInsideObject);
 
 		// to make sure everything is right (colour)
 		updateMaterials();
@@ -459,5 +459,11 @@ namespace Ogre {
 			static_cast<ButtonGuiElement*>(target)->setButtonCaption(vec[0], vec[1]);
 		}
     }
+    //---------------------------------------------------------------------
+    const String& ButtonGuiElement::getTypeName(void)
+    {
+        return msTypeName;
+    }
+
 }
 

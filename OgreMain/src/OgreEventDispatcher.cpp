@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreTargetManager.h"
 #include "OgreEventProcessor.h"
 #include "OgrePositionTarget.h"
+#include "OgreKeyEvent.h"
 
 namespace Ogre {
 
@@ -38,7 +39,7 @@ namespace Ogre {
     {
 		mFocus = 0;
 		mMousePositionTarget = 0;
-		mCursorOn = 0;
+		mKeyCursorOn = 0;
 		mEventMask = 0;
 		mTargetLastEntered = 0;
 		mDragging = false;
@@ -61,10 +62,27 @@ namespace Ogre {
 			MouseEvent* me = static_cast<MouseEvent*> (e);
 			ret = processMouseEvent(me);
 		}
+		else if (e->isEventBetween(KeyEvent::KE_FIRST_EVENT, KeyEvent::KE_LAST_EVENT))
+		{
+			KeyEvent* ke = static_cast<KeyEvent*> (e);
+			ret = processKeyEvent(ke);
+
+		}
 		// todo do focus and key event handling
 		return ret;
 	}
 
+
+	bool EventDispatcher::processKeyEvent(KeyEvent* e) 
+	{
+		if (mKeyCursorOn)
+		{
+			mKeyCursorOn->processEvent(e);
+		}
+		return e->isConsumed();
+
+	}
+	
     //---------------------------------------------------------------------
 
 	bool EventDispatcher::processMouseEvent(MouseEvent* e) 
@@ -76,6 +94,14 @@ namespace Ogre {
 		{		
 		case MouseEvent::ME_MOUSE_PRESSED:
 			mDragging = true;
+			if (mMousePositionTarget && mMousePositionTarget->isKeyEnabled())
+			{
+				mKeyCursorOn = mMousePositionTarget;
+			}
+			else
+			{
+				mKeyCursorOn = NULL;
+			}
 			break;
 
 		case MouseEvent::ME_MOUSE_RELEASED:

@@ -37,6 +37,8 @@ namespace Ogre {
     public:
 		virtual void addListItem(Resource* r) = 0;
 		virtual void removeListItem(Resource* r) = 0;
+		virtual Resource* getSelectedItem() = 0;
+		virtual void setSelectedItem(Resource* r, bool on) = 0;
 
     };
 

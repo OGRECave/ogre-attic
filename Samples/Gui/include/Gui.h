@@ -90,6 +90,12 @@ protected:
 
 		list->addListItem(new StringResource("test1"));
 		list->addListItem(new StringResource("test2"));
+		list->addListItem(new StringResource("test3"));
+		list->addListItem(new StringResource("test4"));
+		list->addListItem(new StringResource("test5"));
+		list->addListItem(new StringResource("test6"));
+		list->addListItem(new StringResource("test7"));
+		list->addListItem(new StringResource("test8"));
 
 		(GuiManager::getSingleton().getGuiElement("Core/CurrFps"))->addMouseListener(this);
 

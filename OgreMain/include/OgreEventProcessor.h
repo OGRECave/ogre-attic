@@ -65,6 +65,7 @@ email                : kenny@sparksuit.com
 #include "OgreFrameListener.h"
 #include "OgreMouseTarget.h"
 #include "OgreActionTarget.h"
+#include "OgreKeyTarget.h"
 #include "OgreMouseMotionTarget.h"
 
 namespace Ogre {
@@ -86,7 +87,7 @@ namespace Ogre {
 		You can listen default actions to the processor by e.g.
 			mProcessor->addMouseListener(defaultMouseMovement);
 	*/
-    class _OgreExport EventProcessor : public FrameListener, public MouseTarget, public MouseMotionTarget, public Singleton<EventProcessor>
+    class _OgreExport EventProcessor : public FrameListener, public MouseTarget, public MouseMotionTarget, public Singleton<EventProcessor>, public KeyTarget
     {
     protected:
 		EventQueue* mEventQueue;
@@ -186,6 +187,9 @@ namespace Ogre {
                 preventing link errors.
         */
         static EventProcessor& getSingleton(void);
+
+		bool isKeyEnabled() 
+		{ return true; }
 
     };
 

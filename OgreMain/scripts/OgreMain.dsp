@@ -268,7 +268,15 @@ SOURCE=..\src\OgreJPEGCodec.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreKeyEvent.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreKeyFrame.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreKeyTarget.cpp
 # End Source File
 # Begin Source File
 
@@ -457,6 +465,14 @@ SOURCE=..\src\OgreSceneNode.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreSceneQuery.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreScrollEvent.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreScrollTarget.cpp
 # End Source File
 # Begin Source File
 
@@ -800,7 +816,15 @@ SOURCE=..\include\OgreJPEGCodec.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreKeyEvent.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreKeyFrame.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreKeyTarget.h
 # End Source File
 # Begin Source File
 
@@ -992,6 +1016,10 @@ SOURCE=..\include\OgreQuaternion.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreRay.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreRenderable.h
 # End Source File
 # Begin Source File
@@ -1001,6 +1029,10 @@ SOURCE=..\include\OgreRenderOperation.h
 # Begin Source File
 
 SOURCE=..\include\OgreRenderQueue.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreRenderQueueListener.h
 # End Source File
 # Begin Source File
 
@@ -1061,6 +1093,14 @@ SOURCE=..\include\OgreSceneNode.h
 # Begin Source File
 
 SOURCE=..\include\OgreSceneQuery.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreScrollEvent.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreScrollTarget.h
 # End Source File
 # Begin Source File
 
@@ -1161,6 +1201,10 @@ SOURCE=..\include\OgreTGACodec.h
 # Begin Source File
 
 SOURCE=..\include\OgreUnzip.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreUserDefinedObject.h
 # End Source File
 # Begin Source File
 

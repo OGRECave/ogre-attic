@@ -117,7 +117,9 @@ namespace Ogre {
 		String getItemPanelMaterialSelected();
 		void setItemPanelMaterial(const String& val);
 		void setItemPanelMaterialSelected(const String& val);
+		Resource* getSelectedItem();
 
+		void setSelectedItem(Resource* r, bool on);
     protected:
 		void setSelectedItem(GuiElement* item, bool on);
 

@@ -35,6 +35,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreListGuiElement.h"
 #include "OgrePopupMenuGuiElement.h"
 #include "OgreTextAreaGuiElement.h"
+#include "OgreTextBoxGuiElement.h"
 
 
 // This file includes definitions for all the GuiElement factories provided with OGRE
@@ -93,6 +94,24 @@ namespace Ogre {
         }
     };
 
+    /** Factory for creating TextBoxGuiElement instances. */
+    class _OgreGuiElementExport TextBoxGuiElementFactory: public GuiElementFactory
+    {
+    public:
+        /** See GuiElementFactory */
+        GuiElement* createGuiElement(const String& instanceName)
+        {
+            return new TextBoxGuiElement(instanceName);
+        }
+        /** See GuiElementFactory */
+        const String& getTypeName(void)
+        {
+            static String name = "TextBox";
+            return name;
+        }
+    };
+
+
     /** Factory for creating ButtonGuiElement instances. */
     class _OgreGuiElementExport ButtonGuiElementFactory: public GuiElementFactory
     {
@@ -143,7 +162,24 @@ namespace Ogre {
             return name;
         }
     };
+ 
 
+    /** Factory for creating ButtonGuiElement instances. */
+    class _OgreGuiElementExport ScrollBarGuiElementFactory: public GuiElementFactory
+    {
+    public:
+        /** See GuiElementFactory */
+        GuiElement* createGuiElement(const String& instanceName)
+        {
+            return new ScrollBarGuiElement(instanceName);
+        }
+        /** See GuiElementFactory */
+        const String& getTypeName(void)
+        {
+            static String name = "ScrollBar";
+            return name;
+        }
+    };
     /** Factory for creating ButtonGuiElement instances. */
     class _OgreGuiElementExport PopupMenuGuiElementFactory: public GuiElementFactory
     {

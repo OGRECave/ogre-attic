@@ -232,7 +232,7 @@ namespace Ogre {
 		if (container)
 		{
 			// Attach to container
-			container->addChild((GuiContainer*)newElement);
+			container->addChild(newElement);
 		}
 		// do not add a template to the overlay. For templates overlay = 0
 		else if (pOverlay)	

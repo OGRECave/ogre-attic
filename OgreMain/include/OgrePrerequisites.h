@@ -140,7 +140,10 @@ namespace Ogre {
     class GuiManager;
 	class InputEvent;
     class InputReader;
+	class KeyEvent;
     class KeyFrame;
+	class KeyListener;
+	class KeyTarget;
     class Light;
 	class ListSelectionEvent;
 	class ListSelectionListener;
@@ -158,6 +161,7 @@ namespace Ogre {
 	class MouseEvent;
 	class MouseListener;
 	class MouseMotionListener;
+	class MouseTarget;
     class Node;
     class Overlay;
     class OverlayManager;
@@ -185,6 +189,9 @@ namespace Ogre {
     class SceneManager;
     class SceneManagerEnumerator;
     class SceneNode;
+	class ScrollEvent;
+	class ScrollListener;
+	class ScrollTarget;
     class SDDataChunk;
     class SimpleRenderable;
     class Skeleton;
@@ -206,4 +213,5 @@ namespace Ogre {
 }
 
 #endif // __OgrePrerequisites_H__
+
 

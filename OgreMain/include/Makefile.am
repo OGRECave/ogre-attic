@@ -53,7 +53,9 @@ OgreInput.h \
 OgreInputEvent.h \
 OgreIteratorWrappers.h \
 OgreJPEGCodec.h \
+OgreKeyEvent.h \
 OgreKeyFrame.h \
+OgreKeyTarget.h \
 OgreLight.h \
 OgreListChanger.h \
 OgreListSelectionEvent.h \
@@ -122,6 +124,8 @@ OgreSceneManager.h \
 OgreSceneManagerEnumerator.h \
 OgreSceneNode.h \
 OgreSceneQuery.h \
+OgreScrollEvent.h \
+OgreScrollTarget.h \
 OgreSerializer.h \
 OgreSimpleRenderable.h \
 OgreSimpleSpline.h \

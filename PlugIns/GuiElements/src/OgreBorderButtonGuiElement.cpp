@@ -363,5 +363,10 @@ namespace Ogre {
 			static_cast<BorderButtonGuiElement*>(target)->setButtonCaption(vec[0], vec[1]);
 		}
     }
+    //---------------------------------------------------------------------
+    const String& BorderButtonGuiElement::getTypeName(void)
+    {
+        return msTypeName;
+    }
 
 }

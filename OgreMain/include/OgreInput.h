@@ -30,6 +30,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+//    typedef HashMap<int, char> KeyChars;
+    typedef std::map<unsigned short, char> KeyChars;
+
     /** Keyboard scan codes - copied from DirectInput for now for speed.
     */
     enum KeyCode
@@ -303,6 +306,8 @@ namespace Ogre {
 		/** Remove a mouse motion listener to the cursor object.
 		    This keeps the Cursor object hidden. */
 		void removeCursorMoveListener( MouseMotionListener* c );
+		static char getKeyChar(int keyCode);
+
 
 	protected:
 
@@ -310,11 +315,14 @@ namespace Ogre {
             and what key modifiers are down (e.g. shift/alt). */
 		long mModifiers;
 
+//		static KeyChars sKeyChars;
+		static bool sKeysInitialised;
 		/** Internal Cursor object. 
             @remarks
                 This is a mathematical representation of where the cursor is, it does 
                 not draw a cursor.
             @see CursorGuiElement. */
+
 		Cursor* mCursor;
 
 		/** EventQueue is used for buffered input support. */
@@ -338,6 +346,10 @@ namespace Ogre {
 
 		/** Creates mouse pressed, released, and clicked events. */
 		void triggerMouseButton(int nMouseCode, bool mousePressed);
+
+		void createKeyEvent(int id, int key);
+		void keyChanged(int key, bool down);
+		void setupKeyChars();
     };
 
 

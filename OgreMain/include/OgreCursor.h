@@ -111,6 +111,9 @@ namespace Ogre {
 		/** The parent of the cursor is NULL as it's position is absolute in the window */
 		PositionTarget* getPositionTargetParent();
 
+		inline virtual bool isKeyEnabled() 
+		{ return false; }
+
     };
 
 }

@@ -77,8 +77,61 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Win32Input8::initialiseBufferedKeyboard()
 	{
-		// not implemented yet
-		initialiseImmediateKeyboard();	// HACK
+
+        HRESULT hr;
+        LogManager::getSingleton().logMessage("Win32Input8: Establishing keyboard input.");
+
+        // Create keyboard device
+        hr = mlpDI->CreateDevice(GUID_SysKeyboard, &mlpDIKeyboard, NULL);
+
+
+        if (FAILED(hr))
+            throw Exception(hr, "Unable to create DirectInput keyboard device.",
+                "Win32Input8 - initialise");
+
+        // Set data format
+        hr = mlpDIKeyboard->SetDataFormat(&c_dfDIKeyboard);
+        if (FAILED(hr))
+            throw Exception(hr, "Unable to set DirectInput keyboard device data format.",
+                "Win32Input8 - initialise");
+
+        // Make the window grab keyboard behaviour when foreground
+        hr = mlpDIKeyboard->SetCooperativeLevel(mHWnd,
+                   DISCL_FOREGROUND | DISCL_EXCLUSIVE);
+        if (FAILED(hr))
+            throw Exception(hr, "Unable to set DirectInput keyboard device co-operative level.",
+                "Win32Input8 - initialise");
+
+
+		// IMPORTANT STEP TO USE BUFFERED DEVICE DATA!
+		//
+		// DirectInput uses unbuffered I/O (buffer size = 0) by default.
+		// If you want to read buffered data, you need to set a nonzero
+		// buffer size.
+		//
+		// Set the buffer size to SAMPLE_BUFFER_SIZE (defined above) elements.
+		//
+		// The buffer size is a DWORD property associated with the device.
+		DIPROPDWORD dipdw;
+		dipdw.diph.dwSize       = sizeof(DIPROPDWORD);
+		dipdw.diph.dwHeaderSize = sizeof(DIPROPHEADER);
+		dipdw.diph.dwObj        = 0;
+		dipdw.diph.dwHow        = DIPH_DEVICE;
+		dipdw.dwData            = DINPUT_BUFFERSIZE; // Arbitary buffer size
+
+		hr = mlpDIKeyboard->SetProperty( DIPROP_BUFFERSIZE, &dipdw.diph );
+
+        if (FAILED(hr))
+            throw Exception(hr, "Unable to create DirectInput keyboard buffer.",
+                "Win32Input8 - initialise");
+
+        // Acquire input
+        hr = mlpDIKeyboard->Acquire();
+        if (FAILED(hr))
+            throw Exception(hr, "Unable to set aquire DirectInput keyboard device.",
+                "Win32Input8 - initialise");
+
+        LogManager::getSingleton().logMessage("Win32Input8: Keyboard input established.");
 	}
 
     //-----------------------------------------------------------------------
@@ -422,7 +475,66 @@ namespace Ogre {
 	//-----------------------------------------------------------------------------
 	bool Win32Input8::readBufferedKeyboardData()
 	{
-		captureKeyboard();		// HACK - buffered not implemented yet - use immediate
+		DIDEVICEOBJECTDATA didod[ DINPUT_BUFFERSIZE ];  // Receives buffered data 
+		DWORD              dwElements;
+		HRESULT            hr;
+
+		if( NULL == mlpDIKeyboard ) 
+			return true;
+    
+		dwElements = DINPUT_BUFFERSIZE;
+
+		hr = mlpDIKeyboard->GetDeviceData( sizeof(DIDEVICEOBJECTDATA),
+										 didod, &dwElements, 0 );
+		if( hr != DI_OK ) 
+		{
+			// We got an error or we got DI_BUFFEROVERFLOW.
+			//
+			// Either way, it means that continuous contact with the
+			// device has been lost, either due to an external
+			// interruption, or because the buffer overflowed
+			// and some events were lost.
+			//
+			// Consequently, if a button was pressed at the time
+			// the buffer overflowed or the connection was broken,
+			// the corresponding "up" message might have been lost.
+			//
+			// But since our simple sample doesn't actually have
+			// any state associated with button up or down events,
+			// there is no state to reset.  (In a real game, ignoring
+			// the buffer overflow would result in the game thinking
+			// a key was held down when in fact it isn't; it's just
+			// that the "up" event got lost because the buffer
+			// overflowed.)
+			//
+			// If we want to be cleverer, we could do a
+			// GetDeviceState() and compare the current state
+			// against the state we think the device is in,
+			// and process all the states that are currently
+			// different from our private state.
+			hr = mlpDIKeyboard->Acquire();
+			while( hr == DIERR_INPUTLOST ) 
+				hr = mlpDIKeyboard->Acquire();
+
+			// Update the dialog text 
+	/*        if( hr == DIERR_OTHERAPPHASPRIO || 
+				hr == DIERR_NOTACQUIRED ) 
+				SetDlgItemText( hDlg, IDC_DATA, TEXT("Unacquired") );
+	*/
+			// hr may be DIERR_OTHERAPPHASPRIO or other errors.  This
+			// may occur when the app is minimized or in the process of 
+			// switching, so just try again later 
+			return S_OK; 
+		}
+
+		if( FAILED(hr) )  
+			return false;
+
+		for(unsigned int i = 0; i < dwElements; i++ ) 
+		{
+			keyChanged( didod[ i ].dwOfs, (bool) (didod[ i ].dwData & 0x80));
+
+		}
 		return true;
 	}
 
@@ -549,6 +661,10 @@ namespace Ogre {
 				default:
 					break;
 			}
+			if (nMouseCode != -1)
+			{
+				triggerMouseButton(nMouseCode, (didod [ i ].dwData & 0x80) != 0);
+			}
 			if (xSet && ySet)	// don't create 2 mousemove events for an single X and Y move, just create 1.
 			{
 				mouseMoved(); 
@@ -556,10 +672,6 @@ namespace Ogre {
 				xSet = false;
 			}
 
-			if (nMouseCode != -1)
-			{
-				triggerMouseButton(nMouseCode, (didod [ i ].dwData & 0x80) != 0);
-			}
 
 		}
 		if (zSet || xSet || ySet) // check for last moved at end
@@ -630,21 +742,39 @@ namespace Ogre {
     //---------------------------------------------------------------------------------------------
 	long Win32Input8::getKeyModifiers()
 	{
-		int ret = 0;
+		int ret = mModifiers;
+
+		if (mModifiers == 16)
+		{
+			int x=5;
+
+		}
 
 		if (isKeyDown(KC_LMENU) || isKeyDown(KC_RMENU))
 		{
 			ret |= InputEvent::ALT_MASK;
+		}
+		else
+		{
+			ret &= ~InputEvent::ALT_MASK;
 		}
 
 		if (isKeyDown(KC_LSHIFT) || isKeyDown(KC_RSHIFT))
 		{
 			ret |= InputEvent::SHIFT_MASK;
 		}
+		else
+		{
+			ret &= ~InputEvent::SHIFT_MASK;
+		}
 
 		if (isKeyDown(KC_LCONTROL) || isKeyDown(KC_LCONTROL))
 		{
 			ret |= InputEvent::CTRL_MASK;
+		}
+		else
+		{
+			ret &= ~InputEvent::CTRL_MASK;
 		}
 
 		return ret;

@@ -7,4 +7,6 @@ noinst_HEADERS = OgreBorderPanelGuiElement.h \
 		 OgreListGuiElement.h \
 		 OgrePanelGuiElement.h \
 		 OgrePopupMenuGuiElement.h \
-		 OgreTextAreaGuiElement.h 
+		 OgreScrollBarGuiElement.h \
+		 OgreTextAreaGuiElement.h \
+		 OgreTextBoxGuiElement.h

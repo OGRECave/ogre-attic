@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreListSelectionTarget.h"
 #include "OgreBorderPanelGuiElement.h"
 #include "OgreListChanger.h"
+#include "OgreScrollBarGuiElement.h"
 #include "OgreEventListeners.h"
 
 namespace Ogre {
@@ -55,7 +56,8 @@ namespace Ogre {
 	 * the <code>MouseEvent</code> is passed to it.
 	 *
 	 */
-	class _OgreGuiElementExport ListGuiElement : public PanelGuiElement, public ListSelectionTarget, public ListChanger, public MouseListener
+
+	class _OgreGuiElementExport ListGuiElement : public PanelGuiElement, public ListSelectionTarget, public ListChanger, public ScrollListener, public MouseListener
     {
 	public :
 //	    void addBaseParameters(void);
@@ -99,6 +101,13 @@ namespace Ogre {
             void doSet(void* target, const String& val);
         };
 
+        /** Command object for specifying the scrollbar for the list (see ParamCommand).*/
+        class CmdScrollBar : public ParamCommand
+        {
+        public:
+            String doGet(void* target);
+            void doSet(void* target, const String& val);
+        };
 
 
 
@@ -122,6 +131,14 @@ namespace Ogre {
 		void setItemPanelMaterial(const String& val);
 		void setItemPanelMaterialSelected(const String& val);
 
+		void setScrollBarName(const String& val);
+		String getScrollBarName();
+
+		void scrollPerformed(ScrollEvent* se);
+
+		void setSelectedItem(Resource* r, bool on);
+		Resource* getSelectedItem();
+
     protected:
 		void setSelectedItem(GuiElement* item, bool on);
 
@@ -131,12 +148,14 @@ namespace Ogre {
 
         static CmdItemTemplate msCmdItemTemplate;
         static CmdVSpacing msCmdVSpacing;
+		static CmdScrollBar msCmdScrollBar;
         static CmdHSpacing msCmdHSpacing;
         static CmdItemPanelMaterial msCmdItemPanelMaterial;
         static CmdItemPanelMaterialSelected msCmdItemPanelMaterialSelected;
         static String msTypeName;
 
 		void layoutItems();
+		int mFirstVisibleItem, mVisibleRange;
 		Real mVSpacing;
 		Real mHSpacing;
 
@@ -145,7 +164,7 @@ namespace Ogre {
 		String mItemTemplateName;
 		String mItemPanelMaterial;
 		String mItemPanelMaterialSelected;
-
+		ScrollBarGuiElement* mScrollBar;
 
 		ResourceList mResourceList; 
 
@@ -156,3 +175,4 @@ namespace Ogre {
 
 
 #endif  // __ListGuiElement_H__
+
