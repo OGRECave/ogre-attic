@@ -1,8 +1,11 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
 <!-- saved from url=(0089)http://homepages.ihug.co.nz/~evilnic/Tutorials/Ogre/LightsCameraAction/AvionicLights.html -->
-<HTML><HEAD><TITLE>Creating OGRE Project Files</TITLE>
-<META http-equiv=Content-Type content="text/html; charset=windows-1252">
-<STYLE type=text/css>.MainHeader {
+  <title>Creating OGRE Project Files</title>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=windows-1252">
+  <style type="text/css">.MainHeader {
 	FONT-WEIGHT: bold; FONT-SIZE: 10pt; COLOR: #ffffff; BACKGROUND-COLOR: #003300
 }
 BODY {
@@ -50,166 +53,130 @@ TH {
 PRE {
 	FONT-SIZE: 12px; COLOR: #000066
 }
-</STYLE>
-
-<META content="MSHTML 6.00.2600.0" name=GENERATOR>
-<META content="" name=keywords>
-<META content="" name=description>
-<META content=Nicholas name=author>
-<META http-equiv=reply-to content=vastrim@hotmail.com>
-<META content="Sat, 13 Jul, 2002 12:32:59 p GMT" name=creation_date></HEAD>
-<BODY text=#000000 bgColor=#ffffff>
-<P class=header align=center>OGRE (Object-Oriented Graphics Rendering 
-Engine)</P>
-<P class=header align=center>Avionic Flying Lights </P>
-<P class=MainHeader align=left>&nbsp;</P>
-<P class=SectionHeader align=left>Some new classes to play with</P>
-<P align=left>We are now going to give the ship some lights on it's wings and 
-tail so that pilots of other ships can see it againt the blackness of space. By 
-using different colours and patterns on each of the wings and tail, another 
-pilot will also be able to determine which direction the ship is facing. </P>
-<P>To do this we will be using three object classes: Light, BillboardSet, and 
-Billboard. </P>
-<P class=SectionHeader align=left>Billboards and Materials</P>
-<P align=left>A billboard simply displays a 2D image in the 3D world that we 
-create. Whenever a billboard is rendered it faces the viewer. This is perfect 
-for the lights we are about to make, they can appear as small balls of light. 
-The image displayed on the billboard is a material just like any other so it 
-needs to be defined in our material script file. </P>
-<P>Open ogrenew\Samples\Media\example.material and add the following to the 
-script: <PRE>// Light effects
-Examples/FlyingLightMaterial
-{
-	lighting off
-	scene_blend add
-	{
-		texture flare.png
-	}
-	
-}
-</PRE>It may look familiar to some of you. It is in fact the material used for 
-the flare effects earlier in the script, but its name has been changed to suit 
-our purposes. 
-<P></P>
-<P class=SectionHeader align=left>BillboardSets and Billboards</P>
-<P align=left>A BillboardSet is a grouping of Billboards in 3D space. The 
-relationship between BillboardSet and Billboard is well documented in the Ogre 
-API so there is really no need to describe it here. </P>
-<P class=SectionHeader align=left>Member Variables</P>
-<P align=left>Time to add member variables for the lights and billboards. Add 
-this to the protected section of our SpaceApplication class <PRE>	// The set of all the billboards used for the avionic lights
-	BillboardSet* mLights;
-
-	// Billboards
-	Billboard* mRedLightBoard;
-	Billboard* mBlueLightBoard;
-	Billboard* mWhiteLightBoard;
-
-	// Lights
-	Light* mRedLight;
-	Light* mBlueLight;
-	Light* mWhiteLight;
-</PRE>
-<P></P>
-<P class=SectionHeader align=left>Lighting Instances</P>
-<P align=left>The general flow of this is: 
-<TABLE cellSpacing=0 cellPadding=0 width="100%" border=0>
-  <TBODY>
-  <TR>
-    <TD width=50>
-    <TD>1) Create BillboardSet</TD></TR>
-  <TR>
-    <TD width=50>
-    <TD>2) Set its material and attach it to the scene</TD></TR>
-  <TR>
-    <TD width=50>
-    <TD>3) Using the new BillboardSet create as many billboards as you 
-      require, position each of them</TD></TR>
-  <TR>
-    <TD width=50>
-    <TD>4) Create the lights and attach them to the 
-scene</TD></TR></TBODY></TABLE></P>
-<P align=left>So let's begin by creating the BillboardSet. Type this in at the 
-bottom of the createScene method <PRE>		// First create the BillboardSet. This will define the materials for the billboards
-		// in its set to use
-		mLights = mSceneMgr-&gt;createBillboardSet("FlyingLights");
-		mLights-&gt;setMaterialName("Examples/FlyingLightMaterial");
-		mShipNode-&gt;attachObject(mLights);
-
-</PRE>There should not be too much there that needs explaining. Like other 
-objects in Ogre, BillboardSets all have unique names. This one is called 
-"FlyingLights" and the material that we want it to be using for its Billboards 
-is "Examples/FlyingLightMaterial", which is of course the material we put into 
-the material script earlier. 
-<P></P>
-<P></P>Each of the three coloured lights has two properties of any interest. 
-Position and colour. <PRE>		// Red light billboard, in "off" state
-		Vector3 redLightPosition(78, -8, -70);
-		mRedLightBoard = mLights-&gt;createBillboard(redLightPosition);
-		mRedLightBoard-&gt;setColour(ColourValue::Black);
-
-
-		// Blue light billboard, in "off" state
-		Vector3 blueLightPosition(-90, -8, -70);
-		mBlueLightBoard = mLights-&gt;createBillboard(blueLightPosition);
-		mBlueLightBoard-&gt;setColour(ColourValue::Black);
-
-
-		// White light billboard, in "off" state
-		Vector3 whiteLightPosition(-4.5, 30, -80);
-		mWhiteLightBoard = mLights-&gt;createBillboard(whiteLightPosition);
-		mWhiteLightBoard-&gt;setColour(ColourValue::Black);
-</PRE>You might notice that the positions chosen here are not symmetrical. I 
-originally used symmetrical values but then discovered that the lights just 
-would not line up on the ship. Instead of modifying the model and distributing 
-that I decided to just change these positions. If you find that the lights still 
-do not line up on your model you may want to adjust these values yourself later 
-on. 
-<P></P>
-<P>The light objects are next on the list. Each of them has a distinct name, a 
-type, a colour, and a position. <PRE>		// Red light, in "off" state
-		mRedLight = mSceneMgr-&gt;createLight("RedFlyingLight");
-		mRedLight-&gt;setType(Light::LT_POINT);
-		mRedLight-&gt;setPosition(redLightPosition);
-		mRedLight-&gt;setDiffuseColour(ColourValue::Black);
-		mShipNode-&gt;attachLight(mRedLight);
-
-		// Blue light, in "off" state
-		mBlueLight = mSceneMgr-&gt;createLight("BlueFlyingLight");
-		mBlueLight-&gt;setType(Light::LT_POINT);
-		mBlueLight-&gt;setPosition(blueLightPosition);
-		mBlueLight-&gt;setDiffuseColour(ColourValue::Black);
-		mShipNode-&gt;attachLight(mBlueLight);
-
-		// White light in "off" state
-		mWhiteLight = mSceneMgr-&gt;createLight("WhiteFlyingLight");
-		mWhiteLight-&gt;setType(Light::LT_POINT);
-		mWhiteLight-&gt;setPosition(whiteLightPosition);
-		mWhiteLight-&gt;setDiffuseColour(ColourValue::Black);
-		mShipNode-&gt;attachLight(mWhiteLight);
-
-</PRE>If you run the program as it stands right now you wont notice anything 
-different. Why is that? well that is because we told the lights and billboards 
-to be black. Just to see where the lights and billboards are try changing the 
-colour of all of the billboards to their "on" colour. For instance, set the 
-colour of mRedLightBoard to ColourValue::Red. When you run it you will then see 
-three coloured balls, one on the left wingtip, one on the right wingtip, and one 
-on the tail wingtip. Change them all back to black and save. 
-<P></P>
-<TABLE cellSpacing=2 cellPadding=0 width="100%" border=0>
-  <TBODY>
-  <TR>
-    <TD width="14%"><A 
-      href="http://homepages.ihug.co.nz/~evilnic/Tutorials/Ogre/LightsCameraAction/Index.html">Back 
-      to Index</A></TD>
-    <TD width="39%">&nbsp;</TD>
-    <TD width="22%"><A 
-      href="http://homepages.ihug.co.nz/~evilnic/Tutorials/Ogre/LightsCameraAction/ChangeShipMovement.html">&lt;&lt; 
-      Previous section</A></TD>
-    <TD width="25%"><A 
-      href="http://homepages.ihug.co.nz/~evilnic/Tutorials/Ogre/LightsCameraAction/WaveformController.html">Next 
-      section &gt;&gt;</A></TD></TR></TBODY></TABLE>
-<P>&nbsp;</P>
-<P>&nbsp;</P>
-<P>&nbsp;</P>
-<P class=SectionHeader>&nbsp;</P></BODY></HTML>
+  </style>
+  <meta content="MSHTML 6.00.2600.0" name="GENERATOR">
+  <meta content="" name="keywords">
+  <meta content="" name="description">
+  <meta content="Nicholas" name="author">
+  <meta http-equiv="reply-to" content="vastrim@hotmail.com">
+  <meta content="Sat, 13 Jul, 2002 12:32:59 p GMT" name="creation_date">
+</head>
+<body text="#000000" bgcolor="#ffffff">
+<p class="header" align="center">OGRE (Object-Oriented Graphics
+Rendering Engine)</p>
+<p class="header" align="center">Avionic Flying Lights </p>
+<p class="MainHeader" align="left">&nbsp;</p>
+<p class="SectionHeader" align="left">Some new classes to play with</p>
+<p align="left">We are now going to give the ship some lights on it's
+wings and tail so that pilots of other ships can see it againt the
+blackness of space. By using different colours and patterns on each of
+the wings and tail, another pilot will also be able to determine which
+direction the ship is facing. </p>
+<p>To do this we will be using three object classes: Light,
+BillboardSet, and Billboard. </p>
+<p class="SectionHeader" align="left">Billboards and Materials</p>
+<p align="left">A billboard simply displays a 2D image in the 3D world
+that we create. Whenever a billboard is rendered it faces the viewer.
+This is perfect for the lights we are about to make, they can appear as
+small balls of light. The image displayed on the billboard is a
+material just like any other so it needs to be defined in our material
+script file. </p>
+<p>Open ogrenew\Samples\Media\example.material and add the following to
+the script: </p>
+<pre>// Light effects<br>Examples/FlyingLightMaterial<br>{<br>	lighting off<br>	scene_blend add<br>	depth_write off<br>	{<br>		texture flare.png<br>	}<br>	<br>}<br></pre>
+It may look familiar to some of you. It is in fact the material used
+for the flare effects earlier in the script, but its name has been
+changed to suit our purposes.
+<p></p>
+<p class="SectionHeader" align="left">BillboardSets and Billboards</p>
+<p align="left">A BillboardSet is a grouping of Billboards in 3D space.
+The relationship between BillboardSet and Billboard is well documented
+in the Ogre API so there is really no need to describe it here. </p>
+<p class="SectionHeader" align="left">Member Variables</p>
+<p align="left">Time to add member variables for the lights and
+billboards. Add this to the protected section of our SpaceApplication
+class </p>
+<pre>	// The set of all the billboards used for the avionic lights<br>	BillboardSet* mLights;<br><br>	// Billboards<br>	Billboard* mRedLightBoard;<br>	Billboard* mBlueLightBoard;<br>	Billboard* mWhiteLightBoard;<br><br>	// Lights<br>	Light* mRedLight;<br>	Light* mBlueLight;<br>	Light* mWhiteLight;<br></pre>
+<p></p>
+<p class="SectionHeader" align="left">Lighting Instances</p>
+<p align="left">The general flow of this is:
+<table cellspacing="0" cellpadding="0" width="100%" border="0">
+  <tbody>
+    <tr>
+      <td width="50"> <br>
+      </td>
+      <td>1) Create BillboardSet</td>
+    </tr>
+    <tr>
+      <td width="50"> <br>
+      </td>
+      <td>2) Set its material and attach it to the scene</td>
+    </tr>
+    <tr>
+      <td width="50"> <br>
+      </td>
+      <td>3) Using the new BillboardSet create as many billboards as
+you require, position each of them</td>
+    </tr>
+    <tr>
+      <td width="50"> <br>
+      </td>
+      <td>4) Create the lights and attach them to the scene</td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p align="left">So let's begin by creating the BillboardSet. Type this
+in at the bottom of the createScene method </p>
+<pre>		// First create the BillboardSet. This will define the materials for the billboards<br>		// in its set to use<br>		mLights = mSceneMgr-&gt;createBillboardSet("FlyingLights");<br>		mLights-&gt;setMaterialName("Examples/FlyingLightMaterial");<br>		mShipNode-&gt;attachObject(mLights);<br><br></pre>
+There should not be too much there that needs explaining. Like other
+objects in Ogre, BillboardSets all have unique names. This one is
+called "FlyingLights" and the material that we want it to be using for
+its Billboards is "Examples/FlyingLightMaterial", which is of course
+the material we put into the material script earlier.
+<p></p>
+<p></p>
+Each of the three coloured lights has two properties of any interest.
+Position and colour.
+<pre>		// Red light billboard, in "off" state<br>		Vector3 redLightPosition(78, -8, -70);<br>		mRedLightBoard = mLights-&gt;createBillboard(redLightPosition);<br>		mRedLightBoard-&gt;setColour(ColourValue::Black);<br><br><br>		// Blue light billboard, in "off" state<br>		Vector3 blueLightPosition(-90, -8, -70);<br>		mBlueLightBoard = mLights-&gt;createBillboard(blueLightPosition);<br>		mBlueLightBoard-&gt;setColour(ColourValue::Black);<br><br><br>		// White light billboard, in "off" state<br>		Vector3 whiteLightPosition(-4.5, 30, -80);<br>		mWhiteLightBoard = mLights-&gt;createBillboard(whiteLightPosition);<br>		mWhiteLightBoard-&gt;setColour(ColourValue::Black);<br></pre>
+You might notice that the positions chosen here are not symmetrical. I
+originally used symmetrical values but then discovered that the lights
+just would not line up on the ship. Instead of modifying the model and
+distributing that I decided to just change these positions. If you find
+that the lights still do not line up on your model you may want to
+adjust these values yourself later on.
+<p></p>
+<p>The light objects are next on the list. Each of them has a distinct
+name, a type, a colour, and a position. </p>
+<pre>		// Red light, in "off" state<br>		mRedLight = mSceneMgr-&gt;createLight("RedFlyingLight");<br>		mRedLight-&gt;setType(Light::LT_POINT);<br>		mRedLight-&gt;setPosition(redLightPosition);<br>		mRedLight-&gt;setDiffuseColour(ColourValue::Black);<br>		mShipNode-&gt;attachLight(mRedLight);<br><br>		// Blue light, in "off" state<br>		mBlueLight = mSceneMgr-&gt;createLight("BlueFlyingLight");<br>		mBlueLight-&gt;setType(Light::LT_POINT);<br>		mBlueLight-&gt;setPosition(blueLightPosition);<br>		mBlueLight-&gt;setDiffuseColour(ColourValue::Black);<br>		mShipNode-&gt;attachLight(mBlueLight);<br><br>		// White light in "off" state<br>		mWhiteLight = mSceneMgr-&gt;createLight("WhiteFlyingLight");<br>		mWhiteLight-&gt;setType(Light::LT_POINT);<br>		mWhiteLight-&gt;setPosition(whiteLightPosition);<br>		mWhiteLight-&gt;setDiffuseColour(ColourValue::Black);<br>		mShipNode-&gt;attachLight(mWhiteLight);<br><br></pre>
+If you run the program as it stands right now you wont notice anything
+different. Why is that? well that is because we told the lights and
+billboards to be black. Just to see where the lights and billboards are
+try changing the colour of all of the billboards to their "on" colour.
+For instance, set the colour of mRedLightBoard to ColourValue::Red.
+When you run it you will then see three coloured balls, one on the left
+wingtip, one on the right wingtip, and one on the tail wingtip. Change
+them all back to black and save.
+<p></p>
+<table cellspacing="2" cellpadding="0" width="100%" border="0">
+  <tbody>
+    <tr>
+      <td width="14%"><a
+ href="http://homepages.ihug.co.nz/%7Eevilnic/Tutorials/Ogre/LightsCameraAction/Index.html">Back
+to Index</a></td>
+      <td width="39%">&nbsp;</td>
+      <td width="22%"><a
+ href="http://homepages.ihug.co.nz/%7Eevilnic/Tutorials/Ogre/LightsCameraAction/ChangeShipMovement.html">&lt;&lt;
+Previous section</a></td>
+      <td width="25%"><a
+ href="http://homepages.ihug.co.nz/%7Eevilnic/Tutorials/Ogre/LightsCameraAction/WaveformController.html">Next
+section &gt;&gt;</a></td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p class="SectionHeader">&nbsp;</p>
+</body>
+</html>
