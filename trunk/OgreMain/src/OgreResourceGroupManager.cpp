@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreArchiveManager.h"
 #include "OgreLogManager.h"
 #include "OgreScriptLoader.h"
+#include "OgreSceneManager.h"
 
 namespace Ogre {
 
@@ -82,6 +83,7 @@ namespace Ogre {
         }
         ResourceGroup* grp = new ResourceGroup();
         grp->name = name;
+        grp->worldGeometrySceneManager = 0;
         mResourceGroupMap.insert(
             ResourceGroupMap::value_type(name, grp));
     }
@@ -132,6 +134,13 @@ namespace Ogre {
 		{
 			resourceCount += oi->second->size();
 		}
+        // Estimate world geometry size
+        if (grp->worldGeometrySceneManager)
+        {
+            resourceCount += grp->worldGeometrySceneManager->estimateWorldGeometry(
+                grp->worldGeometry);
+        }
+
 		fireResourceGroupLoadStarted(name, resourceCount);
 
 		// Now load for real
@@ -145,6 +154,12 @@ namespace Ogre {
 				fireResourceLoaded(*l);
 			}
 		}
+        // Load World Geometry
+        if (grp->worldGeometrySceneManager)
+        {
+            grp->worldGeometrySceneManager->setWorldGeometry(
+                grp->worldGeometry);
+        }
 		fireResourceGroupLoadEnded(name);
 
 		// reset current group
@@ -901,6 +916,16 @@ namespace Ogre {
 			(*l)->resourceLoaded(resource);
 		}
 	}
+    //-----------------------------------------------------------------------
+    void ResourceGroupManager::_notifyWorldGeometryProgress(void)
+    {
+		OGRE_LOCK_AUTO_MUTEX
+		for (ResourceGroupListenerList::iterator l = mResourceGroupListenerList.begin();
+			l != mResourceGroupListenerList.end(); ++l)
+		{
+			(*l)->worldGeometryStageCompleted();
+		}
+    }
 	//-----------------------------------------------------------------------
 	void ResourceGroupManager::fireResourceGroupLoadEnded(const String& groupName)
 	{
@@ -1093,6 +1118,40 @@ namespace Ogre {
 		return false;
 
 	}
+    //-----------------------------------------------------------------------
+    void ResourceGroupManager::linkWorldGeometryToResourceGroup(const String& group, 
+        const String& worldGeometry, SceneManager* sceneManager)
+    {
+        OGRE_LOCK_AUTO_MUTEX
+        ResourceGroup* grp = getResourceGroup(group);
+        if (!grp)
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, 
+                "Cannot locate a resource group called '" + group + "'", 
+                "ResourceGroupManager::linkWorldGeometryToResourceGroup");
+        }
+
+        OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME) // lock group mutex
+
+        grp->worldGeometry = worldGeometry;
+        grp->worldGeometrySceneManager = sceneManager;
+    }
+    //-----------------------------------------------------------------------
+    void ResourceGroupManager::unlinkWorldGeometryFromResourceGroup(const String& group)
+    {
+        OGRE_LOCK_AUTO_MUTEX
+        ResourceGroup* grp = getResourceGroup(group);
+        if (!grp)
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, 
+                "Cannot locate a resource group called '" + group + "'", 
+                "ResourceGroupManager::unlinkWorldGeometryFromResourceGroup");
+        }
+
+		OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME) // lock group mutex
+        grp->worldGeometry = StringUtil::BLANK;
+        grp->worldGeometrySceneManager = 0;
+    }
     //-----------------------------------------------------------------------
 
 
