@@ -88,8 +88,6 @@ CString GetUserSelectedObject();
 CValue Popup( const CString& in_inputobjs, const CString& in_keywords, const CString& in_title, const CValue& in_mode, bool in_throw );
 void DeleteObj( const CValue& in_inputobj );
 
-// LogManager is created for the life of the plugin
-Ogre::LogManager* ogreLogManager;
 
 #ifdef unix
 extern "C" 
@@ -101,8 +99,6 @@ CStatus XSILoadPlugin( XSI::PluginRegistrar& registrar )
 	registrar.PutName( L"OGRE Exporter Plugin" );	
     registrar.PutVersion( 0, 15 );
     registrar.PutURL(L"http://www.ogre3d.org");
-    ogreLogManager = new Ogre::LogManager();
-    ogreLogManager->createLog("OgreXSIPlugin.log", true);
     
 
 	// register the mesh export command
@@ -118,7 +114,6 @@ CStatus XSILoadPlugin( XSI::PluginRegistrar& registrar )
     Application app;
     app.LogMessage( registrar.GetName() + L" has been loaded.");
 #endif
-    ogreLogManager->logMessage("OGRE XSI Plugin loaded");
 
     return XSI::CStatus::OK;	
 }
@@ -133,8 +128,6 @@ XSI::CStatus XSIUnloadPlugin( const XSI::PluginRegistrar& registrar )
     Application app;
 	app.LogMessage(registrar.GetName() + L" has been unloaded.");
 #endif
-    ogreLogManager->logMessage("OGRE XSI Plugin unloaded");
-    delete ogreLogManager;
 
 	return XSI::CStatus::OK;
 }

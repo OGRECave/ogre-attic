@@ -30,7 +30,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreVector3.h"
 #include "OgreColourValue.h"
 #include "OgreMesh.h"
-#include "OgreHardwareBufferManager.h"
 #include <xsi_x3dobject.h>
 #include <xsi_string.h>
 #include <xsi_application.h>
@@ -65,11 +64,6 @@ namespace Ogre {
         void exportX3DObject(Mesh* pMesh, XSI::X3DObject& x3dObj);
         /// Export a submesh from the attached information
         void exportSubMesh(Mesh* pMesh, XSI::X3DObject& x3dObj, XSI::Geometry& geom);
-
-        // Ogre Objects
-        LogManager* mLogManager;
-        MeshManager* mMeshManager;
-        HardwareBufferManager* mBufferManager;
 
         // XSI Objects
         XSI::Application mXsiApp;
