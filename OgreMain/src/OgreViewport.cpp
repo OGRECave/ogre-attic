@@ -200,4 +200,10 @@ namespace Ogre {
     {
         return mCamera->_getNumRenderedFaces();
     }
+
+    void Viewport::setCamera(Camera* cam)
+    {
+        mCamera = cam;
+
+    }
 }
