@@ -2,7 +2,6 @@
 ===============================================================================
 This source file is part of the Ogre-Maya Tools.
 Distributed as part of Ogre (Object-oriented Graphics Rendering Engine).
-Copyright © 2003 Fifty1 Software Inc. 
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free Software
@@ -32,7 +31,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace OgreMaya {
 
-    using namespace std;
+//    using namespace std;
+	using std::map;
+	using std::string;
+
 
 	class Options {
 	public:        
@@ -68,8 +70,10 @@ namespace OgreMaya {
             matPrefix;
 
         bool
-            exportSkeleton,
-            exportNormals,
+            exportMesh,
+			exportSkeleton,
+            exportVBA,
+			exportNormals,
             exportColours,
             exportUVs,
             exportMaterial;
@@ -93,6 +97,7 @@ namespace OgreMaya {
         void parseMatOut();
         void parseMatPrefix();
         void parseAnimation();
+        void parseVBA();
         void parseM();
         void parseS();
         void parseN();

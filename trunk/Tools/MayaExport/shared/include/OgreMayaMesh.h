@@ -2,7 +2,6 @@
 ===============================================================================
 This source file is part of the Ogre-Maya Tools.
 Distributed as part of Ogre (Object-oriented Graphics Rendering Engine).
-Copyright © 2003 Fifty1 Software Inc. 
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free 
@@ -35,13 +34,18 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <maya/MStatus.h>
 #include <maya/MItMeshPolygon.h>
 
-#include <fstream.h>
+#include <fstream>
 
 #include <string>
 #include <list>
 #include <vector>
 
 namespace OgreMaya {
+
+	using std::ofstream;
+	using std::list;
+	using std::string;
+	using std::vector;
 
 	//	===========================================================================
 	/** \struct		MeshUV
@@ -61,7 +65,7 @@ namespace OgreMaya {
             return u==other.u && v==other.v;
         }
 	};
-	typedef std::list<MeshVertexUV> MeshVertexUVList;
+	typedef list<MeshVertexUV> MeshVertexUVList;
 	
 
 	//	===========================================================================
@@ -74,7 +78,7 @@ namespace OgreMaya {
 		MFloatArray	vArray;
 		MString		sName;
 	};
-	typedef std::list<MeshMayaUVSet> MeshMayaUVSetList;
+	typedef list<MeshMayaUVSet> MeshMayaUVSetList;
 
 
     //	===========================================================================
@@ -86,7 +90,7 @@ namespace OgreMaya {
         int boneId;
 		float weight;
 	};
-	typedef std::list<VertexBoneAssigment> VertexBoneAssigmentList;
+	typedef list<VertexBoneAssigment> VertexBoneAssigmentList;
 
 
 	//	===========================================================================
@@ -103,7 +107,7 @@ namespace OgreMaya {
 		MIntArray			     TriangleVertexIds;	 // face-relative ids
 		MIntArray			     TrianglePolygonIds; // polygon number for each triangle
 		MeshMayaUVSetList	     UVSets;
-        std::vector<MFloatArray> Weights;
+        vector<MFloatArray>      Weights;
 	};
 
 	//	===========================================================================
@@ -131,7 +135,7 @@ namespace OgreMaya {
                 );                
 		}
 	};
-	typedef std::vector<MeshFaceVertex> MeshFaceVertexVector;
+	typedef vector<MeshFaceVertex> MeshFaceVertexVector;
 
 
 	//	===========================================================================
@@ -145,7 +149,7 @@ namespace OgreMaya {
 		unsigned long index1;
 		unsigned long index2;
 	};
-	typedef std::list<MeshTriFace> MeshTriFaceList;
+	typedef list<MeshTriFace> MeshTriFaceList;
 
 
 	//	===========================================================================

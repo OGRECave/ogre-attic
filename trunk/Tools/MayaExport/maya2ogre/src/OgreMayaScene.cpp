@@ -2,7 +2,6 @@
 ===============================================================================
 This source file is part of the Ogre-Maya Tools.
 Distributed as part of Ogre (Object-oriented Graphics Rendering Engine).
-Copyright © 2003 Fifty1 Software Inc. 
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free Software
@@ -25,9 +24,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <maya/MLibrary.h>
 #include <maya/MFileIO.h>
 #include <maya/MStatus.h>
+
 #include <direct.h>
+#include <iostream>
 
 namespace OgreMaya {
+	
+	using namespace std;
+
 	//	--------------------------------------------------------------------------
 	/**	Standard constructor.
 	*/	
