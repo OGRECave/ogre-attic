@@ -31,7 +31,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreResourceGroupManager.h"
 #include "OgreIteratorWrappers.h"
 #include "OgreCommon.h"
-
+#include "OgreDataStream.h"
+#include "OgreStringVector.h"
 
 namespace Ogre {
 
@@ -79,10 +80,12 @@ namespace Ogre {
 			if you wish, but the Resource will never be able to reload if 
 			anything ever causes it to unload. Therefore provision of a proper
 			ManualLoader instance is strongly recommended.
+        @param createParams If any parameters are required to create an instance,
+            they should be supplied here as name / value pairs
         */
-        virtual Resource* create(const String& name, 
-			const String& group = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
-			bool isManual = false, ManualResourceLoader* loader = 0);
+        virtual ResourcePtr create(const String& name, const String& group, 
+            bool isManual = false, ManualResourceLoader* loader = 0, 
+            const NameValuePairList* createParams = 0);
         /** Set a limit on the amount of memory this resource handler may use.
             @remarks
                 If, when asked to load a new resource, the manager believes it will exceed this memory
@@ -179,7 +182,8 @@ namespace Ogre {
 			when this resource is loaded; only applicable when you specify true
 			for the previous parameter
 		*/
-		virtual ResourcePtr load(const String& name, const String& group, 
+		virtual ResourcePtr load(const String& name, 
+            const String& group,
 			const NameValuePairList& loadParams, bool isManual = false, 
 			ManualResourceLoader* loader = 0) = 0;
 
@@ -246,9 +250,26 @@ namespace Ogre {
 			parameters are populated at this point). 
 		@remarks
 			Subclasses must override this method and create a subclass of Resource.
+		@param name The unique name of the resource
+		@param group The name of the resource group to attach this new resource to
+		@param isManual Is this resource manually loaded? If so, you should really
+			populate the loader parameter in order that the load process
+			can call the loader back when loading is required. 
+		@param loader Pointer to a ManualLoader implementation which will be called
+			when the Resource wishes to load (should be supplied if you set
+			isManual to true). You can in fact leave this parameter null 
+			if you wish, but the Resource will never be able to reload if 
+			anything ever causes it to unload. Therefore provision of a proper
+			ManualLoader instance is strongly recommended.
+        @param createParams If any parameters are required to create an instance,
+            they should be supplied here as name / value pairs. These do not need 
+            to be set on the instance (handled elsewhere), just used if required
+            to differentiate which concrete class is created.
+
 		*/
 		virtual Resource* createImpl(const String& name, ResourceHandle handle, 
-			const String& group, bool isManual, ManualResourceLoader* loader) = 0;
+			const String& group, bool isManual, ManualResourceLoader* loader, 
+            const NameValuePairList* createParams) = 0;
 		/** Add a newly created resource to the manager (note weak reference) */
 		virtual void addImpl( ResourcePtr& res );
 		/** Remove a resource from this manager; remove it from the lists. */

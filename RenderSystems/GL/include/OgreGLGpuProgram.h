@@ -35,7 +35,8 @@ namespace Ogre {
     class GLGpuProgram : public GpuProgram
     {
     public:
-        GLGpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode);
+        GLGpuProgram(ResourceManager* creator, const String& name, ResourceHandle handle,
+            const String& group, bool isManual = false, ManualResourceLoader* loader = 0);
         virtual ~GLGpuProgram() { }
 
         /// Execute the binding functions for this program
@@ -53,6 +54,8 @@ namespace Ogre {
         { return mProgramID; }
 
     protected:
+        /// @copydoc Resource::unloadImpl
+        void unloadImpl(void) {}
 
         GLuint mProgramID;
         GLenum mProgramType;
@@ -62,11 +65,13 @@ namespace Ogre {
     class GLArbGpuProgram : public GLGpuProgram
     {
     public:
-        GLArbGpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode);
+        GLArbGpuProgram(ResourceManager* creator, const String& name, ResourceHandle handle,
+            const String& group, bool isManual = false, ManualResourceLoader* loader = 0);
         virtual ~GLArbGpuProgram() { }
 
-        /// @copydoc Resource::unload
-        void unload(void);
+        /// @copydoc GpuProgram::setType
+        void setType(GpuProgramType t);
+
 
         /// Execute the binding functions for this program
         void bindProgram(void);
@@ -81,6 +86,8 @@ namespace Ogre {
 
     protected:
         void loadFromSource(void);
+        /// @copydoc Resource::unloadImpl
+        void unloadImpl(void);
 
     };
 

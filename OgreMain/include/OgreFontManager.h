@@ -80,7 +80,8 @@ namespace Ogre
 
         /// Internal methods
 		Resource* createImpl(const String& name, ResourceHandle handle, 
-			const String& group, bool isManual, ManualResourceLoader* loader);
+			const String& group, bool isManual, ManualResourceLoader* loader, 
+            const NameValuePairList* params);
 		void parseAttribute(const String& line, FontPtr& pFont);
 
         void logBadAttrib(const String& line, FontPtr& pFont);

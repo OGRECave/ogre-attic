@@ -35,8 +35,11 @@ http://www.gnu.org/copyleft/gpl.html.
 using namespace Ogre;
 
 
-ATI_FS_GLGpuProgram::ATI_FS_GLGpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode) :
-    GLGpuProgram(name, gptype, syntaxCode)
+ATI_FS_GLGpuProgram::ATI_FS_GLGpuProgram(ResourceManager* creator, 
+        const String& name, ResourceHandle handle, 
+        const String& group, bool isManual, ManualResourceLoader* loader,
+        GpuProgramType gptype, const String& syntaxCode) :
+    GLGpuProgram(creator, name, handle, group, isManual, loader)
 {
 	mProgramType = GL_FRAGMENT_SHADER_ATI;
     mProgramID = glGenFragmentShadersATI_ptr(1);
@@ -81,7 +84,7 @@ void ATI_FS_GLGpuProgram::bindProgramParameters(GpuProgramParametersSharedPtr pa
 }
 
 
-void ATI_FS_GLGpuProgram::unload(void)
+void ATI_FS_GLGpuProgram::unloadImpl(void)
 {
 	glDeleteFragmentShaderATI_ptr(mProgramID);
 }

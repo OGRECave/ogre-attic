@@ -73,11 +73,26 @@ namespace Ogre {
         return prg;
     }
     //---------------------------------------------------------------------------
+    ResourcePtr GpuProgramManager::create(const String& name, const String& group, 
+        GpuProgramType gptype, const String& syntaxCode, bool isManual, 
+        ManualResourceLoader* loader)
+    {
+        // Call creation implementation
+        ResourcePtr ret = ResourcePtr(
+            createImpl(name, getNextHandle(), group, isManual, loader, gptype, syntaxCode));
+
+        addImpl(ret);
+        // Tell resource group manager
+        ResourceGroupManager::getSingleton()._notifyResourceCreated(ret);
+        return ret;
+    }
+    //---------------------------------------------------------------------------
 	GpuProgramPtr GpuProgramManager::createProgram(const String& name, 
 		const String& groupName, const String& filename, 
 		GpuProgramType gptype, const String& syntaxCode)
     {
-		GpuProgramPtr prg = create(name, groupName);
+		GpuProgramPtr prg = create(name, groupName, gptype, syntaxCode);
+        // Set all prarmeters (create does not set, just determines factory)
 		prg->setType(gptype);
 		prg->setSyntaxCode(syntaxCode);
 		prg->setSourceFile(filename);
@@ -88,7 +103,8 @@ namespace Ogre {
 		const String& groupName, const String& code, GpuProgramType gptype, 
 		const String& syntaxCode)
     {
-		GpuProgramPtr prg = create(name, groupName);
+		GpuProgramPtr prg = create(name, groupName, gptype, syntaxCode);
+        // Set all prarmeters (create does not set, just determines factory)
 		prg->setType(gptype);
 		prg->setSyntaxCode(syntaxCode);
 		prg->setSource(code);

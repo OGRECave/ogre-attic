@@ -35,11 +35,12 @@ namespace Ogre {
 	class ATI_FS_GLGpuProgram : public GLGpuProgram
 	{
 	public:
-		ATI_FS_GLGpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode);
+        ATI_FS_GLGpuProgram(ResourceManager* creator, 
+            const String& name, ResourceHandle handle, 
+            const String& group, bool isManual, ManualResourceLoader* loader,
+            GpuProgramType gptype, const String& syntaxCode);
 		virtual ~ATI_FS_GLGpuProgram() { }
 
-		/// @copydoc Resource::unload
-		void unload(void);
 
 		/// Execute the binding functions for this program
 		void bindProgram(void);
@@ -53,6 +54,8 @@ namespace Ogre {
 		{ return mProgramID; }
 
 	protected:
+		/// @copydoc Resource::unload
+		void unloadImpl(void);
 		void loadFromSource(void);
 
 	}; // class ATI_FS_GLGpuProgram

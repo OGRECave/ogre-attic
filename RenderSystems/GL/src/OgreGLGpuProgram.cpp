@@ -28,16 +28,25 @@ http://www.gnu.org/copyleft/gpl.html.
 
 using namespace Ogre;
 
-GLGpuProgram::GLGpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode) :
-    GpuProgram(name, gptype, syntaxCode)
+GLGpuProgram::GLGpuProgram(ResourceManager* creator, const String& name, 
+    ResourceHandle handle, const String& group, bool isManual, 
+    ManualResourceLoader* loader) 
+    : GpuProgram(creator, name, handle, group, isManual, loader)
 {
 }
 
-GLArbGpuProgram::GLArbGpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode) :
-    GLGpuProgram(name, gptype, syntaxCode)
+GLArbGpuProgram::GLArbGpuProgram(ResourceManager* creator, const String& name, 
+    ResourceHandle handle, const String& group, bool isManual, 
+    ManualResourceLoader* loader) 
+    : GLGpuProgram(creator, name, handle, group, isManual, loader)
 {
-    mProgramType = (gptype == GPT_VERTEX_PROGRAM) ? GL_VERTEX_PROGRAM_ARB : GL_FRAGMENT_PROGRAM_ARB;
     glGenProgramsARB_ptr(1, &mProgramID);
+}
+
+void GLArbGpuProgram::setType(GpuProgramType t)
+{
+    GLGpuProgram::setType(t);
+    mProgramType = (mType == GPT_VERTEX_PROGRAM) ? GL_VERTEX_PROGRAM_ARB : GL_FRAGMENT_PROGRAM_ARB;
 }
 
 void GLArbGpuProgram::bindProgram(void)
@@ -77,7 +86,7 @@ void GLArbGpuProgram::bindProgramParameters(GpuProgramParametersSharedPtr params
 
 }
 
-void GLArbGpuProgram::unload(void)
+void GLArbGpuProgram::unloadImpl(void)
 {
     glDeleteProgramsARB_ptr(1, &mProgramID);
 }

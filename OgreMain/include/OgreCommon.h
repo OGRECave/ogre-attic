@@ -255,8 +255,7 @@ namespace Ogre {
     typedef std::map<String, String> BinaryOptionList;
 
 	/// Name / value parameter pair (first = name, second = value)
-	typedef std::pair<String, String> NameValuePair;
-	typedef std::list<NameValuePair> NameValuePairList;
+	typedef std::map<String, String> NameValuePairList;
 
 	
 	/** Locate command-line options of the unary form '-blah' and of the

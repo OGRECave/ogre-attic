@@ -38,7 +38,9 @@ namespace Ogre {
         LPDIRECT3DDEVICE9 mpDevice;
         LPD3DXBUFFER mpExternalMicrocode; // microcode from elsewhere, we do NOT delete this ourselves
     public:
-        D3D9GpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode, LPDIRECT3DDEVICE9 pDev);
+        D3D9GpuProgram(ResourceManager* creator, const String& name, ResourceHandle handle,
+            const String& group, bool isManual, ManualResourceLoader* loader, LPDIRECT3DDEVICE9 pDev);
+        
 
         /** Tells the program to load from some externally created microcode instead of a file or source. 
         @remarks
@@ -47,9 +49,9 @@ namespace Ogre {
         void setExternalMicrocode(LPD3DXBUFFER pMicrocode) { mpExternalMicrocode = pMicrocode; }
         /** Gets the external microcode buffer, if any. */
         LPD3DXBUFFER getExternalMicrocode(void) { return mpExternalMicrocode; }
-        /** Override load function to allow load direct from external microcode. */
-        void load(void);
     protected:
+        /** @copydoc Resource::loadImpl */
+        void loadImpl(void);
         /** Overridden from GpuProgram */
         void loadFromSource(void);
         /** Internal method to load from microcode, must be overridden by subclasses. */
@@ -64,13 +66,14 @@ namespace Ogre {
     protected:
         LPDIRECT3DVERTEXSHADER9 mpVertexShader;
     public:
-        D3D9GpuVertexProgram(const String& name, const String& syntaxCode, LPDIRECT3DDEVICE9 pDev);
-        /// @copydoc Resource::unload
-        void unload(void);
+        D3D9GpuVertexProgram(ResourceManager* creator, const String& name, ResourceHandle handle,
+            const String& group, bool isManual, ManualResourceLoader* loader, LPDIRECT3DDEVICE9 pDev);
 
         /// Gets the vertex shader
         LPDIRECT3DVERTEXSHADER9 getVertexShader(void) const { return mpVertexShader; }
     protected:
+        /** @copydoc Resource::unloadImpl */
+        void unloadImpl(void);
         void loadFromMicrocode(LPD3DXBUFFER microcode);
     };
 
@@ -80,13 +83,51 @@ namespace Ogre {
     protected:
         LPDIRECT3DPIXELSHADER9 mpPixelShader;
     public:
-        D3D9GpuFragmentProgram(const String& name, const String& syntaxCode, LPDIRECT3DDEVICE9 pDev);
-        /// @copydoc Resource::unload
-        void unload(void);
+        D3D9GpuFragmentProgram(ResourceManager* creator, const String& name, ResourceHandle handle,
+            const String& group, bool isManual, ManualResourceLoader* loader, LPDIRECT3DDEVICE9 pDev);
         /// Gets the pixel shader
         LPDIRECT3DPIXELSHADER9 getPixelShader(void) const { return mpPixelShader; }
     protected:
+        /** @copydoc Resource::unloadImpl */
+        void unloadImpl(void);
         void loadFromMicrocode(LPD3DXBUFFER microcode);
+    };
+    /** Specialisation of SharedPtr to allow SharedPtr to be assigned to D3D9GpuProgramPtr 
+    @note Has to be a subclass since we need operator=.
+    We could templatise this instead of repeating per Resource subclass, 
+    except to do so requires a form VC6 does not support i.e.
+    ResourceSubclassPtr<T> : public SharedPtr<T>
+    */
+    class _OgreExport D3D9GpuProgramPtr : public SharedPtr<D3D9GpuProgram> 
+    {
+    public:
+        D3D9GpuProgramPtr() : SharedPtr<D3D9GpuProgram>() {}
+        D3D9GpuProgramPtr(D3D9GpuProgram* rep) : SharedPtr<D3D9GpuProgram>(rep) {}
+        D3D9GpuProgramPtr(const D3D9GpuProgramPtr& r) : SharedPtr<D3D9GpuProgram>(r) {} 
+        D3D9GpuProgramPtr(const ResourcePtr& r) : SharedPtr<D3D9GpuProgram>()
+        {
+            pRep = static_cast<D3D9GpuProgram*>(r.getPointer());
+            pUseCount = r.useCountPointer();
+            if (pUseCount)
+            {
+                ++(*pUseCount);
+            }
+        }
+
+        /// Operator used to convert a ResourcePtr to a D3D9GpuProgramPtr
+        D3D9GpuProgramPtr& operator=(const ResourcePtr& r)
+        {
+            if (pRep == static_cast<D3D9GpuProgram*>(r.getPointer()))
+                return *this;
+            release();
+            pRep = static_cast<D3D9GpuProgram*>(r.getPointer());
+            pUseCount = r.useCountPointer();
+            if (pUseCount)
+            {
+                ++(*pUseCount);
+            }
+            return *this;
+        }
     };
 
 }

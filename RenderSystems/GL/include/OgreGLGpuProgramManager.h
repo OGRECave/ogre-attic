@@ -33,19 +33,31 @@ namespace Ogre {
 class GLGpuProgramManager : public GpuProgramManager
 {
 public:
-    typedef GpuProgram* (*CreateGpuProgramCallback)(const String&, GpuProgramType, const String&);
+    typedef GpuProgram* (*CreateGpuProgramCallback)(ResourceManager* creator, 
+        const String& name, ResourceHandle handle, 
+        const String& group, bool isManual, ManualResourceLoader* loader,
+        GpuProgramType gptype, const String& syntaxCode);
 
 private:
     typedef std::map<String, CreateGpuProgramCallback> ProgramMap;
     ProgramMap mProgramMap;
 
+protected:
+    /// @copydoc ResourceManager::createImpl
+    Resource* createImpl(const String& name, ResourceHandle handle, 
+        const String& group, bool isManual, ManualResourceLoader* loader,
+        const NameValuePairList* params);
+    /// Specialised create method with specific parameters
+    Resource* createImpl(const String& name, ResourceHandle handle, 
+        const String& group, bool isManual, ManualResourceLoader* loader,
+        GpuProgramType gptype, const String& syntaxCode);
+
 public:
-    GLGpuProgramManager() {}
+    GLGpuProgramManager();
     ~GLGpuProgramManager();
     GpuProgramParametersSharedPtr createParameters(void);
     bool registerProgramFactory(const String& syntaxCode, CreateGpuProgramCallback createFn);
     bool unregisterProgramFactory(const String& syntaxCode);
-    GpuProgram* create(const String& name, GpuProgramType gptype, const String& syntaxCode);
 };
 
 }; //namespace Ogre

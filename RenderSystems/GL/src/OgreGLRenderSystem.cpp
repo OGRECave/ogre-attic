@@ -92,20 +92,32 @@ GL_GetOcclusionQueryuivNV_Func glGetOcclusionQueryuivNV_ptr;
 namespace Ogre {
 
     // Callback function used when registering GLGpuPrograms
-    GpuProgram* createGLArbGpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode)
+    GpuProgram* createGLArbGpuProgram(ResourceManager* creator, 
+        const String& name, ResourceHandle handle, 
+        const String& group, bool isManual, ManualResourceLoader* loader,
+        GpuProgramType gptype, const String& syntaxCode)
     {
-        return new GLArbGpuProgram(name, gptype, syntaxCode);
+        return new GLArbGpuProgram(creator, name, handle, group, isManual, 
+            loader, gptype, syntaxCode);
     }
 
-    GpuProgram* createGLGpuNvparseProgram(const String& name, GpuProgramType gptype, const String& syntaxCode)
+    GpuProgram* createGLGpuNvparseProgram(ResourceManager* creator, 
+        const String& name, ResourceHandle handle, 
+        const String& group, bool isManual, ManualResourceLoader* loader,
+        GpuProgramType gptype, const String& syntaxCode)
     {
-        return new GLGpuNvparseProgram(name, gptype, syntaxCode);
+        return new GLGpuNvparseProgram(creator, name, handle, group, isManual, 
+            loader, gptype, syntaxCode);
     }
 
-	GpuProgram* createGL_ATI_FS_GpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode)
+    GpuProgram* createGL_ATI_FS_GpuProgram(ResourceManager* creator, 
+        const String& name, ResourceHandle handle, 
+        const String& group, bool isManual, ManualResourceLoader* loader,
+        GpuProgramType gptype, const String& syntaxCode)
 	{
 
-		return new ATI_FS_GLGpuProgram(name, gptype, syntaxCode);
+        return new ATI_FS_GLGpuProgram(creator, name, handle, group, isManual, 
+            loader, gptype, syntaxCode);
 	}
 
     GLRenderSystem::GLRenderSystem()
@@ -677,9 +689,6 @@ namespace Ogre {
 	//---------------------------------------------------------------------
     void GLRenderSystem::_useLights(const LightList& lights, unsigned short limit)
     {
-		// Set nicer lighting model
-		glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
-		glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
 
         // Save previous modelview
         glMatrixMode(GL_MODELVIEW);

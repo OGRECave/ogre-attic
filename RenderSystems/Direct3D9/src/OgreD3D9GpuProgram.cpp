@@ -27,25 +27,20 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreException.h"
 #include "OgreLogManager.h"
 #include "OgreD3D9Mappings.h"
-#include "OgreGpuProgramManager.h"
-#include "OgreSDDataChunk.h"
+#include "OgreResourceGroupManager.h"
 
 namespace Ogre {
 
     //-----------------------------------------------------------------------------
-	D3D9GpuProgram::D3D9GpuProgram(const String& name, GpuProgramType gptype, 
-        const String& syntaxCode, LPDIRECT3DDEVICE9 pDev) 
-        : GpuProgram(name, gptype, syntaxCode), mpDevice(pDev), mpExternalMicrocode(NULL)
+    D3D9GpuProgram::D3D9GpuProgram(ResourceManager* creator, const String& name, ResourceHandle handle,
+        const String& group, bool isManual, ManualResourceLoader* loader, LPDIRECT3DDEVICE9 pDev) 
+        : GpuProgram(creator, name, handle, group, isManual, loader), 
+        mpDevice(pDev), mpExternalMicrocode(NULL)
     {
     }
 	//-----------------------------------------------------------------------------
-    void D3D9GpuProgram::load(void)
+    void D3D9GpuProgram::loadImpl(void)
     {
-        if (mIsLoaded)
-        {
-            unload();
-        }
-
         if (mpExternalMicrocode)
         {
             loadFromMicrocode(mpExternalMicrocode);
@@ -56,16 +51,14 @@ namespace Ogre {
             if (mLoadFromFile)
             {
                 // find & load source code
-                SDDataChunk chunk;
-                GpuProgramManager::getSingleton()._findResourceData(mFilename, chunk);
-                mSource = chunk.getAsString();
+                DataStreamPtr stream = 
+                    ResourceGroupManager::getSingleton()._findResource(mFilename, mGroup);
+                mSource = stream->getAsString();
             }
 
             // Call polymorphic load
             loadFromSource();
         }
-
-        mIsLoaded = true;
 
     }
 	//-----------------------------------------------------------------------------
@@ -97,10 +90,13 @@ namespace Ogre {
         SAFE_RELEASE(errors);
     }
 	//-----------------------------------------------------------------------------
-    D3D9GpuVertexProgram::D3D9GpuVertexProgram(const String& name, const String& syntaxCode, LPDIRECT3DDEVICE9 pDev) 
-        : D3D9GpuProgram(name, GPT_VERTEX_PROGRAM, syntaxCode, pDev), mpVertexShader(NULL)
+    D3D9GpuVertexProgram::D3D9GpuVertexProgram(ResourceManager* creator, 
+        const String& name, ResourceHandle handle, const String& group, 
+        bool isManual, ManualResourceLoader* loader, LPDIRECT3DDEVICE9 pDev) 
+        : D3D9GpuProgram(creator, name, handle, group, isManual, loader, pDev)
+        , mpVertexShader(NULL)
     {
-        // do nothing here, all is done in load()
+        mType = GPT_VERTEX_PROGRAM;
     }
 	//-----------------------------------------------------------------------------
     void D3D9GpuVertexProgram::loadFromMicrocode(LPD3DXBUFFER microcode)
@@ -118,16 +114,19 @@ namespace Ogre {
         }
     }
 	//-----------------------------------------------------------------------------
-    void D3D9GpuVertexProgram::unload(void)
+    void D3D9GpuVertexProgram::unloadImpl(void)
     {
         SAFE_RELEASE(mpVertexShader);
     }
 	//-----------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------
-    D3D9GpuFragmentProgram::D3D9GpuFragmentProgram(const String& name, const String& syntaxCode, LPDIRECT3DDEVICE9 pDev) 
-        : D3D9GpuProgram(name, GPT_FRAGMENT_PROGRAM, syntaxCode, pDev), mpPixelShader(NULL)
+    D3D9GpuFragmentProgram::D3D9GpuFragmentProgram(ResourceManager* creator, 
+        const String& name, ResourceHandle handle, const String& group, 
+        bool isManual, ManualResourceLoader* loader, LPDIRECT3DDEVICE9 pDev) 
+        : D3D9GpuProgram(creator, name, handle, group, isManual, loader, pDev)
+        , mpPixelShader(NULL)
     {
-        // do nothing here, all is done in load()
+        mType = GPT_FRAGMENT_PROGRAM;
     }
 	//-----------------------------------------------------------------------------
     void D3D9GpuFragmentProgram::loadFromMicrocode(LPD3DXBUFFER microcode)
@@ -145,7 +144,7 @@ namespace Ogre {
         }
     }
 	//-----------------------------------------------------------------------------
-    void D3D9GpuFragmentProgram::unload(void)
+    void D3D9GpuFragmentProgram::unloadImpl(void)
     {
         SAFE_RELEASE(mpPixelShader);
     }

@@ -47,11 +47,15 @@ namespace Ogre {
         removeAll();
     }
 	//-----------------------------------------------------------------------
-	Resource* create(const String& name, const String& group, 
-		bool isManual, ManualResourceLoader* loader)
+    ResourcePtr ResourceManager::create(const String& name, const String& group, 
+		bool isManual, ManualResourceLoader* loader, const NameValuePairList* params)
 	{
 		// Call creation implementation
-		Resource* ret = createImpl(name, getNextHandle(), group, isManual, loader);
+		ResourcePtr ret = ResourcePtr(
+            createImpl(name, getNextHandle(), group, isManual, loader, params));
+        if (params)
+            ret->setParameterList(*params);
+
 		addImpl(ret);
 		// Tell resource group manager
 		ResourceGroupManager::getSingleton()._notifyResourceCreated(ret);

@@ -42,6 +42,10 @@ namespace Ogre {
 	protected:
 		/// Supported program syntax codes
 		SyntaxCodes mSyntaxCodes;
+        /// Specialised create method with specific parameters
+        virtual Resource* createImpl(const String& name, ResourceHandle handle, 
+            const String& group, bool isManual, ManualResourceLoader* loader,
+            GpuProgramType gptype, const String& syntaxCode) = 0;
 	public:
 		GpuProgramManager();
 		virtual ~GpuProgramManager();
@@ -124,6 +128,13 @@ namespace Ogre {
 		virtual GpuProgramPtr createProgramFromString(const String& name, 
 			const String& groupName, const String& code, 
             GpuProgramType gptype, const String& syntaxCode);
+
+        /** General create method, using specific create parameters
+            instead of name / value pairs. 
+        */
+        virtual ResourcePtr create(const String& name, const String& group, 
+            GpuProgramType gptype, const String& syntaxCode, bool isManual = false, 
+            ManualResourceLoader* loader = 0);
 
         /** Internal method for populating the supported syntax codes, called by RenderSystem. */
         virtual void _pushSyntaxCode(const String& syntaxCode) { mSyntaxCodes.insert(syntaxCode); }

@@ -72,7 +72,8 @@ namespace Ogre {
 		MaterialPtr mDefaultSettings;
 		/// Overridden from ResourceManager
 		Resource* createImpl(const String& name, ResourceHandle handle, 
-			const String& group, bool isManual, ManualResourceLoader* loader);
+			const String& group, bool isManual, ManualResourceLoader* loader,
+            const NameValuePairList* params);
 
     public:
         /** Default constructor.
