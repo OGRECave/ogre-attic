@@ -200,6 +200,14 @@ namespace Ogre {
             static ShadowRenderableList dummyList;
             return ShadowRenderableListIterator(dummyList.begin(), dummyList.end());
         }
+		
+		ShadowRenderableListIterator getLastShadowVolumeRenderableIterator(void)
+        {
+            static ShadowRenderableList dummyList;
+            return ShadowRenderableListIterator(dummyList.begin(), dummyList.end());
+        }
+		
+		
         /** Overridden member from ShadowCaster. */
         const AxisAlignedBox& getLightCapBounds(void) const;
         /** Overridden member from ShadowCaster. */
