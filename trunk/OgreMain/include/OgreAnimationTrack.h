@@ -27,6 +27,8 @@ http://www.gnu.org/copyleft/gpl.html.
 #define __AnimationTrack_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreSimpleSpline.h"
+#include "OgreRotationalSpline.h"
 
 namespace Ogre 
 {
@@ -76,11 +78,14 @@ namespace Ogre
             keyframe just before or at this time index.
         @param keyFrame2 Pointer to a KeyFrame pointer which will receive the pointer to the 
             keyframe just after this time index. 
+        @param firstKeyIndex Pointer to an unsigned short which, if supplied, will receive the 
+            index of the 'from' keyframe incase the caller needs it.
         @returns Parametric value indicating how far along the gap between the 2 keyframes the timePos
             value is, e.g. 0.0 for exactly at 1, 0.25 for a quarter etc. By definition the range of this 
             value is:  0.0 <= returnValue < 1.0 .
         */
-        Real getKeyFramesAtTime(Real timePos, KeyFrame** keyFrame1, KeyFrame** keyFrame2) const;
+        Real getKeyFramesAtTime(Real timePos, KeyFrame** keyFrame1, KeyFrame** keyFrame2,
+            unsigned short* firstKeyIndex = 0) const;
 
         /** Creates a new KeyFrame and adds it to this animation at the given time index.
         @remarks
@@ -137,6 +142,16 @@ namespace Ogre
         Real mMaxKeyFrameTime;
         Animation* mParent;
         Node* mTargetNode;
+
+        // Flag indicating we need to rebuild the splines next time
+        void buildInterpolationSplines(void) const;
+
+        // Prebuilt splines, must be mutable since lazy-update in const method
+        mutable bool mSplineBuildNeeded;
+        mutable SimpleSpline mPositionSpline;
+        mutable SimpleSpline mScaleSpline;
+        mutable RotationalSpline mRotationSpline;
+      
 
     };
 }

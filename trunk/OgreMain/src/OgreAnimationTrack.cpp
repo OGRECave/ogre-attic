@@ -41,12 +41,14 @@ namespace Ogre {
     {
         mTargetNode = 0;
         mMaxKeyFrameTime = -1;
+        mSplineBuildNeeded = false;
     }
     //---------------------------------------------------------------------
     AnimationTrack::AnimationTrack(Animation* parent, Node* targetNode) 
         : mTargetNode(targetNode)
     {
         mMaxKeyFrameTime = -1;
+        mSplineBuildNeeded = false;
     }
     //---------------------------------------------------------------------
     AnimationTrack::~AnimationTrack()
@@ -67,8 +69,10 @@ namespace Ogre {
         return mKeyFrames[index];
     }
     //---------------------------------------------------------------------
-    Real AnimationTrack::getKeyFramesAtTime(Real timePos, KeyFrame** keyFrame1, KeyFrame** keyFrame2) const
+    Real AnimationTrack::getKeyFramesAtTime(Real timePos, KeyFrame** keyFrame1, KeyFrame** keyFrame2,
+            unsigned short* firstKeyIndex) const
     {
+        unsigned short firstIndex = -1;
         Real totalAnimationLength = mParent->getLength();
 
         // Wrap time 
@@ -82,6 +86,13 @@ namespace Ogre {
         while (i != mKeyFrames.end() && (*i)->getTime() <= timePos)
         {
             *keyFrame1 = *i++;
+            ++firstIndex;
+        }
+
+        // Fill index of the first key
+        if (firstKeyIndex != NULL)
+        {
+            *firstKeyIndex = firstIndex;
         }
 
         // Parametric time
@@ -136,6 +147,8 @@ namespace Ogre {
             mKeyFrames.insert(i, kf);
         }
 
+        mSplineBuildNeeded = true;
+
         return kf;
 
     }
@@ -153,6 +166,9 @@ namespace Ogre {
 
         mKeyFrames.erase(i);
 
+        mSplineBuildNeeded = true;
+
+
     }
     //---------------------------------------------------------------------
     void AnimationTrack::removeAllKeyFrames(void)
@@ -163,6 +179,9 @@ namespace Ogre {
         {
             delete *i;
         }
+
+        mSplineBuildNeeded = true;
+
         mKeyFrames.clear();
 
     }
@@ -174,8 +193,9 @@ namespace Ogre {
         
         // Keyframe pointers
         KeyFrame *k1, *k2;
+        unsigned short firstKeyIndex;
 
-        Real t = this->getKeyFramesAtTime(timeIndex, &k1, &k2);
+        Real t = this->getKeyFramesAtTime(timeIndex, &k1, &k2, &firstKeyIndex);
 
         if (t == 0.0)
         {
@@ -187,17 +207,44 @@ namespace Ogre {
         else
         {
             // Interpolate by t
+            Animation::InterpolationMode im = mParent->getInterpolationMode();
+            Vector3 base;
+            switch(im)
+            {
+            case Animation::IM_LINEAR:
+                // Interpolate linearly
+                // Rotation
+                kret.setRotation( Quaternion::Slerp(t, k1->getRotation(), k2->getRotation()) );
 
-            // Rotation
-            kret.setRotation( Quaternion::Slerp(t, k1->getRotation(), k2->getRotation()) );
+                // Translation
+                base = k1->getTranslate();
+                kret.setTranslate( base + ((k2->getTranslate() - base) * t) );
 
-            // Translation
-            Vector3 base = k1->getTranslate();
-            kret.setTranslate( base + ((k2->getTranslate() - base) * t) );
+                // Scale
+                base = k1->getScale();
+                kret.setScale( base + ((k2->getScale() - base) * t) );
+                break;
 
-            // Scale
-            base = k1->getScale();
-            kret.setScale( base + ((k2->getScale() - base) * t) );
+            case Animation::IM_SPLINE:
+                // Spline interpolation
+
+                // Build splines if required
+                if (mSplineBuildNeeded)
+                {
+                    buildInterpolationSplines();
+                }
+
+                // Rotation
+                kret.setRotation( mRotationSpline.interpolate(firstKeyIndex, t) );
+
+                // Translation
+                kret.setTranslate( mPositionSpline.interpolate(firstKeyIndex, t) );
+
+                // Scale
+                kret.setScale( mScaleSpline.interpolate(firstKeyIndex, t) );
+
+                break;
+            }
 
         }
         
@@ -242,7 +289,34 @@ namespace Ogre {
 
 
     }
+    //---------------------------------------------------------------------
+    void AnimationTrack::buildInterpolationSplines(void) const
+    {
+        // Don't calc automatically, do it on request at the end
+        mPositionSpline.setAutoCalculate(false);
+        mRotationSpline.setAutoCalculate(false);
+        mScaleSpline.setAutoCalculate(false);
 
+        mPositionSpline.clear();
+        mRotationSpline.clear();
+        mScaleSpline.clear();
+
+        KeyFrameList::const_iterator i, iend;
+        iend = mKeyFrames.end(); // precall to avoid overhead
+        for (i = mKeyFrames.begin(); i != iend; ++i)
+        {
+            mPositionSpline.addPoint((*i)->getTranslate());
+            mRotationSpline.addPoint((*i)->getRotation());
+            mScaleSpline.addPoint((*i)->getScale());
+        }
+
+        mPositionSpline.recalcTangents();
+        mRotationSpline.recalcTangents();
+        mScaleSpline.recalcTangents();
+
+
+        mSplineBuildNeeded = false;
+    }
 
 }
 

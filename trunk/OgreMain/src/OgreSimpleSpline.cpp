@@ -51,6 +51,8 @@ namespace Ogre {
         mCoeffs[3][1] = 0;
         mCoeffs[3][2] = 0;
         mCoeffs[3][3] = 0;
+
+        mAutoCalc = true;
     }
     //---------------------------------------------------------------------
     SimpleSpline::~SimpleSpline()
@@ -60,7 +62,10 @@ namespace Ogre {
     void SimpleSpline::addPoint(const Vector3& p)
     {
         mPoints.push_back(p);
-        recalcTangents();
+        if (mAutoCalc)
+        {
+            recalcTangents();
+        }
     }
     //---------------------------------------------------------------------
     Vector3 SimpleSpline::interpolate(Real t)
@@ -204,9 +209,17 @@ namespace Ogre {
             "Point index is out of bounds!!");
 
         mPoints[index] = value;
-        recalcTangents();
+        if (mAutoCalc)
+        {
+            recalcTangents();
+        }
     }
     //---------------------------------------------------------------------
+    void SimpleSpline::setAutoCalculate(bool autoCalc)
+    {
+        mAutoCalc = autoCalc;
+    }
+
 
 
 
