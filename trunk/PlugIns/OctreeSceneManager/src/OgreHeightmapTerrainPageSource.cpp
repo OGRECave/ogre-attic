@@ -63,7 +63,7 @@ namespace Ogre {
             // Load data
             mRawData.setNull();
             DataStreamPtr stream = 
-                ResourceGroupManager::getSingleton()._findResource(
+                ResourceGroupManager::getSingleton().openResource(
                     mSource, ResourceGroupManager::getSingleton().getWorldResourceGroupName());
             mRawData = MemoryDataStreamPtr(new MemoryDataStream(mSource, stream));
 

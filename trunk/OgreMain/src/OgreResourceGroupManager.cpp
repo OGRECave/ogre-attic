@@ -252,32 +252,15 @@ namespace Ogre {
         StringVectorPtr vec = pArch->find("*", recursive);
         for( StringVector::iterator it = vec->begin(); it != vec->end(); ++it )
         {
-			ResourceIndexEntry resIdx;
-			resIdx.archive = pArch;
-			resIdx.fullname = (*it);
 			// Index under full name, case sensitive
-            grp->resourceIndexCaseSensitive[resIdx.fullname] = resIdx;
+            grp->resourceIndexCaseSensitive[(*it)] = pArch;
             if (!pArch->isCaseSensitive())
             {
 	            // Index under lower case name too for case insensitive match
-    	        String indexName = resIdx.fullname;
+    	        String indexName = (*it);
                 StringUtil::toLowerCase(indexName);
-	            grp->resourceIndexCaseInsensitive[indexName] = resIdx;
+	            grp->resourceIndexCaseInsensitive[indexName] = pArch;
             }
-            // if recursive, index file under basename too
-			if (recursive)
-			{
-				String baseName, path;
-				StringUtil::splitFilename((*it), baseName, path);
-   				grp->resourceIndexCaseSensitive[baseName] = resIdx;
-	            if (!pArch->isCaseSensitive())
-                {
-		            // Index under lower case name too for case insensitive match
-    		        String indexName = baseName;
-        	        StringUtil::toLowerCase(indexName);
-	        	    grp->resourceIndexCaseInsensitive[indexName] = resIdx;
-                }
-			}
         }
 		
 		StringUtil::StrStreamType msg;
@@ -315,7 +298,7 @@ namespace Ogre {
 				ritend = grp->resourceIndexCaseInsensitive.end();
 				for (rit = grp->resourceIndexCaseInsensitive.begin(); rit != ritend;)
 				{
-					if (rit->second.archive == pArch)
+					if (rit->second == pArch)
 					{
 						ResourceLocationIndex::iterator del = rit++;
 						grp->resourceIndexCaseInsensitive.erase(del);
@@ -328,7 +311,7 @@ namespace Ogre {
                 ritend = grp->resourceIndexCaseSensitive.end();
                 for (rit = grp->resourceIndexCaseSensitive.begin(); rit != ritend;)
                 {
-                    if (rit->second.archive == pArch)
+                    if (rit->second == pArch)
                     {
                         ResourceLocationIndex::iterator del = rit++;
                         grp->resourceIndexCaseSensitive.erase(del);
@@ -395,7 +378,7 @@ namespace Ogre {
 		}
     }
     //-----------------------------------------------------------------------
-    DataStreamPtr ResourceGroupManager::_findResource(
+    DataStreamPtr ResourceGroupManager::openResource(
         const String& resourceName, const String& groupName)
     {
 		// Try to find in resource index first
@@ -404,7 +387,7 @@ namespace Ogre {
 		{
 			Except(Exception::ERR_ITEM_NOT_FOUND, 
 				"Cannot locate a resource group called '" + groupName + "'", 
-				"ResourceGroupManager::_findResource");
+				"ResourceGroupManager::openResource");
 		}
 
 		OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME) // lock group mutex
@@ -414,10 +397,8 @@ namespace Ogre {
 		if (rit != grp->resourceIndexCaseSensitive.end())
 		{
 			// Found in the index
-			pArch = rit->second.archive;
-			// look up under the fullname (this lets us load based on short name
-			// if recursive was on)
-			return pArch->open(rit->second.fullname);
+			pArch = rit->second;
+			return pArch->open(resourceName);
 		}
         else 
         {
@@ -428,10 +409,8 @@ namespace Ogre {
             if (rit != grp->resourceIndexCaseInsensitive.end())
             {
                 // Found in the index
-                pArch = rit->second.archive;
-                // look up under the fullname (this lets us load based on short name
-                // if recursive was on)
-                return pArch->open(rit->second.fullname);
+                pArch = rit->second;
+                return pArch->open(resourceName);
             }
 		    else
 		    {
@@ -454,7 +433,7 @@ namespace Ogre {
 		// Not found
 		Except(Exception::ERR_FILE_NOT_FOUND, "Cannot locate resource " + 
 			resourceName + " in resource group " + groupName + ".", 
-			"ResourceGroupManager::_findResource");
+			"ResourceGroupManager::openResource");
 
 		// Keep compiler happy
 		return DataStreamPtr();
@@ -462,7 +441,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    DataStreamListPtr ResourceGroupManager::_findResources(
+    DataStreamListPtr ResourceGroupManager::openResources(
         const String& pattern, const String& groupName)
     {
 		ResourceGroup* grp = getResourceGroup(groupName);
@@ -470,7 +449,7 @@ namespace Ogre {
 		{
 			Except(Exception::ERR_ITEM_NOT_FOUND, 
 				"Cannot locate a resource group called '" + groupName + "'", 
-				"ResourceGroupManager::_findResources");
+				"ResourceGroupManager::openResources");
 		}
 
 		OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME) // lock group mutex
@@ -614,7 +593,7 @@ namespace Ogre {
 			const StringVector& patterns = su->getScriptPatterns();
 			for (StringVector::const_iterator p = patterns.begin(); p != patterns.end(); ++p)
 			{
-				DataStreamListPtr streamList = _findResources(*p, name);
+				DataStreamListPtr streamList = openResources(*p, name);
 				scriptCount += streamList->size();
 				streamListList.push_back(streamList);
 			}

@@ -245,7 +245,7 @@ namespace Ogre
         // Locate ttf file, load it pre-buffered into memory by wrapping the
 		// original DataStream in a MemoryDataStream
 		DataStreamPtr dataStreamPtr =
-			ResourceGroupManager::getSingleton()._findResource(mSource, mGroup);
+			ResourceGroupManager::getSingleton().openResource(mSource, mGroup);
 		MemoryDataStream ttfchunk(dataStreamPtr);
 		
         // Load font

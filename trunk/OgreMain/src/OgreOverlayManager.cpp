@@ -182,7 +182,7 @@ namespace Ogre {
 				{
                     std::vector<String> params = StringUtil::split(line, "\t\n ()<>");
                     DataStreamPtr includeStream = 
-                        ResourceGroupManager::getSingleton()._findResource(
+                        ResourceGroupManager::getSingleton().openResource(
                             params[1], groupName);
 					parseScript(includeStream, groupName);
 					continue;
