@@ -1,11 +1,28 @@
-OGRE was initially created by Steve Streeting. Adrian Cearnau and
-Thomas Muldowney joined the project in 2002.
+OGRE Core Developers
+====================
+Current Active Members
+----------------------
+Steve Streeting	(sinbad)
+Thomas Muldowney (temas)
+James O'Sullivan (_mental_)
+Marcin Zukowski (eru)
 
-See Readme.html in the Docs folder for more details.
+Previous Members
+----------------
+Adrian Cearnau (cearny)
+Jon Anderson (janders)
+
+Contributors
+------------
+Jesse Rusak (jder), earthquakeproof, Paolo Gavocano (cTh), Ivica Aracic (macross/bytelord), Jeff Leigh, Jose A Milan (jamilan), Stephan Kaiser (psyclonist), Michael Casaday, Philippe Culet, Daniel Wesslén, Timo Keller (norondion), Benny Kramek (wolfman8k), Riku Nurminen (rakkis), Christopher John Gilbert (thegilb), Nikita Mikros (santanopoulos), Martin Pollard (xmp), Jon L. Griffeth (silent3), Dan Sonnemann (oberleutnantdan), Amit Mathew, Dennis Verbeek.
+
+If we've forgotten you in the above list, please contact us!
+
+See Readme.html in the Docs folder for more details, in particular information on the media supplied with the demos.
 
 -----
 
-Copyright 1999-2002 The OGRE Team.
+Copyright 1999-2003 The OGRE Team.
 
 This file is part of OGRE (Object-Oriented Graphics Rendering Engine).
 

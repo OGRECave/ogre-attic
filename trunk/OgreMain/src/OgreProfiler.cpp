@@ -600,8 +600,10 @@ namespace Ogre {
                 bIter++;
                 g = *bIter;
                 g->show();
-                g->setLeft(mBarIndent + ((*iter).totalTime / (*iter).totalCalls) * mGuiWidth);
-
+                if ((*iter).totalCalls != 0)
+                    g->setLeft(mBarIndent + ((*iter).totalTime / (*iter).totalCalls) * mGuiWidth);
+                else
+                    g->setLeft(mBarIndent);
                 // we set the height of the display with respect to the number of profiles displayed
                 newGuiHeight += mBarHeight * 2;
 
@@ -714,7 +716,15 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Profiler::reset() {
 
-        mProfileHistory.clear();
+        ProfileHistoryList::iterator iter;
+        for (iter = mProfileHistory.begin(); iter != mProfileHistory.end(); ++iter) {
+        
+            (*iter).currentTime = (*iter).maxTime = (*iter).numCallsThisFrame =
+                (*iter).totalTime = (*iter).totalCalls = 0;
+
+            (*iter).minTime = 1;
+
+        }
 
     }
     //-----------------------------------------------------------------------
