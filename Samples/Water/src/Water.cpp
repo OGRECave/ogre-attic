@@ -441,6 +441,17 @@ public:
 		updateInfoSkyBox();
     }
 
+ 	virtual ~WaterListener ()
+ 	{
+ 		// If when you finish the application is still raining there
+ 		// are water circles that are still being processed
+ 		unsigned int activeCircles = this->circles.size ();
+ 		
+ 		// Kill the active water circles
+ 		for (unsigned int i = 0; i < activeCircles; i++)
+ 			delete (this->circles[i]);
+ 	}
+ 
     bool frameStarted(const FrameEvent& evt)
     {
 		bool retval = ExampleFrameListener::frameStarted(evt); 
@@ -520,7 +531,9 @@ public:
     
     }
 
-    ~WaterApplication() {  }
+    ~WaterApplication() {  
+        delete waterMesh;
+    }
 
 protected:
 	WaterMesh *waterMesh ;
