@@ -361,6 +361,7 @@ inline void operator delete[](void *reportedAddress)
 	*/
     class _OgreExport MemoryManager
     {
+    public:
         static MemoryManager sMemManager;
 
         MemoryManager();
@@ -424,6 +425,9 @@ inline void operator delete[]( void* ptr )
 // (for more info, see http://www.cvshome.org/docs/manual/cvs_12.html#SEC103 )
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/08/22 12:48:59  cearny
+// Added ending newline.
+//
 // Revision 1.8  2002/08/20 11:45:00  cearny
 // Another test for the Log macro
 //
