@@ -36,7 +36,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
-				AdditionalDependencies="OgreMain.lib d3d9.lib d3dx9.lib dxerr9.lib"
+				AdditionalDependencies="OgreMain_d.lib d3d9.lib d3dx9.lib dxerr9.lib"
 				OutputFile="$(OutDir)/RenderSystem_Direct3D9.dll"
 				Version="0.99"
 				LinkIncremental="2"

@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="kernel32.lib zlib.lib freetype.lib user32.lib $(NOINHERIT)"
-				OutputFile="$(OutDir)/OgreMain.dll"
+				OutputFile="$(OutDir)/OgreMain_d.dll"
 				Version="0.99"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
@@ -48,10 +48,10 @@
 				IgnoreAllDefaultLibraries="FALSE"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/OgreMain.pdb"
+				ProgramDatabaseFile="$(OutDir)/OgreMain_d.pdb"
 				SubSystem="1"
 				OptimizeForWindows98="1"
-				ImportLibrary="$(OutDir)/OgreMain.lib"
+				ImportLibrary="$(OutDir)/OgreMain_d.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>

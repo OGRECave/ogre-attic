@@ -34,7 +34,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
-				AdditionalDependencies="OgreMain.lib SDL.lib SDLmain.lib OPENGL32.lib GLU32.lib"
+				AdditionalDependencies="OgreMain_d.lib OPENGL32.lib GLU32.lib"
 				OutputFile="$(OutDir)/RenderSystem_GL.dll"
 				Version="0.99"
 				LinkIncremental="2"
@@ -95,7 +95,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
-				AdditionalDependencies="OgreMain.lib SDL.lib SDLmain.lib OPENGL32.lib GLU32.lib"
+				AdditionalDependencies="OgreMain.lib OPENGL32.lib GLU32.lib"
 				OutputFile="$(OutDir)/RenderSystem_GL.dll"
 				Version="0.99"
 				LinkIncremental="1"

@@ -34,7 +34,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain.lib"
+				AdditionalDependencies="OgreMain_d.lib"
 				OutputFile="$(OutDir)/Demo_TextureFX.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;"

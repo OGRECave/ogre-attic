@@ -34,7 +34,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msModelLibd.lib OgreMain.lib"
+				AdditionalDependencies="msModelLibd.lib OgreMain_d.lib"
 				OutputFile="$(OutDir)/msOGREExporter.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\lib\Debug;..\..\..\OgreMain\lib\Debug"
@@ -144,10 +144,10 @@
 				RelativePath="..\include\msPlugIn.h">
 			</File>
 			<File
-				RelativePath="..\misc\resource.h">
+				RelativePath="..\include\resource.h">
 			</File>
 			<File
-				RelativePath="..\include\resource.h">
+				RelativePath="..\misc\resource.h">
 			</File>
 		</Filter>
 		<Filter

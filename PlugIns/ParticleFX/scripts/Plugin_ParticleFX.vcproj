@@ -36,7 +36,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
-				AdditionalDependencies="OgreMain.lib"
+				AdditionalDependencies="OgreMain_d.lib"
 				OutputFile="$(OutDir)/Plugin_ParticleFX.dll"
 				Version="0.99"
 				LinkIncremental="2"
