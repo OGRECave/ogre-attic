@@ -22,7 +22,7 @@
 				ImproveFloatingPointConsistency="FALSE"
 				OptimizeForProcessor="2"
 				AdditionalIncludeDirectories="..\include;..\..\Dependencies\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_USRDLL;_MT;_DLL;OGRE_NONCLIENT_BUILD"
+				PreprocessorDefinitions="WIN32;_DEBUG;_USRDLL;_MT;OGRE_NONCLIENT_BUILD"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="TRUE"
@@ -39,14 +39,14 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib zlib.lib freetype219MT.lib user32.lib $(NOINHERIT) zziplibd.lib"
+				AdditionalDependencies="kernel32.lib user32.lib zziplibd.lib zdll.lib freetype219MT_D.lib"
 				OutputFile="$(OutDir)/OgreMain_d.dll"
 				Version="0.99"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\Dependencies\lib\$(ConfigurationName)"
 				IgnoreAllDefaultLibraries="FALSE"
-				IgnoreDefaultLibraryNames=""
+				IgnoreDefaultLibraryNames="LIBCD;LIBCMTD"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/OgreMain_d.pdb"
 				SubSystem="1"
@@ -90,7 +90,7 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				EnableFiberSafeOptimizations="TRUE"
 				OptimizeForProcessor="2"
 				AdditionalIncludeDirectories="..\include;..\..\Dependencies\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_USRDLL;_MT;_DLL;OGRE_NONCLIENT_BUILD"
+				PreprocessorDefinitions="WIN32;NDEBUG;_USRDLL;_MT;OGRE_NONCLIENT_BUILD"
 				StringPooling="TRUE"
 				MinimalRebuild="TRUE"
 				RuntimeLibrary="2"
@@ -106,7 +106,7 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib zlib.lib freetype219MT.lib user32.lib $(NOINHERIT) zziplib.lib"
+				AdditionalDependencies="kernel32.lib user32.lib zziplib.lib zdll.lib freetype219MT.lib"
 				OutputFile="$(OutDir)/OgreMain.dll"
 				Version="0.99"
 				LinkIncremental="1"
@@ -619,23 +619,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\src\OgreZip.cpp">
-			</File>
-			<File
-				RelativePath="..\src\unzip.c">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-						PrecompiledHeaderThrough=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-						PrecompiledHeaderThrough=""/>
-				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter
@@ -1237,9 +1220,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\asm_math.h">
-			</File>
-			<File
-				RelativePath="..\include\unzip.h">
 			</File>
 		</Filter>
 		<Filter
