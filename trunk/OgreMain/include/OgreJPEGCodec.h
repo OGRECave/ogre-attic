@@ -37,7 +37,6 @@ namespace Ogre {
     {
     public:
         void code( const DataChunk& input, DataChunk* output, ... ) const;
-        CodecData * decode( const DataChunk& input, DataChunk* output, ... ) const;
 
         String getType() const { return "jpeg"; }
 
