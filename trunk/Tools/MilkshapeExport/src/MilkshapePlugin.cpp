@@ -432,7 +432,7 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
         // Build LOD depth list
         Ogre::Mesh::LodDistanceList distList;
         float depth = 0;
-        for (unsigned short depth = 0; depth < numLods; ++depth)
+        for (unsigned short depthidx = 0; depthidx < numLods; ++depthidx)
         {
             depth += lodDepthIncrement;
             distList.push_back(depth);
