@@ -160,7 +160,7 @@ namespace Ogre {
             }
             else if (pass[p].texGen == TEXGEN_ENVIRONMENT)
             {
-                t->setEnvironmentMap(true, true);
+                t->setEnvironmentMap(true, Material::TextureLayer::ENV_PLANAR);
             }
             // Tex mod
             // Scale

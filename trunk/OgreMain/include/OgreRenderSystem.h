@@ -53,7 +53,9 @@ namespace Ogre
         /// Environment map based on vertex normals
         TEXCALC_ENVIRONMENT_MAP,
         /// Environment map based on vertex positions
-        TEXCALC_ENVIRONMENT_MAP_PLANAR
+        TEXCALC_ENVIRONMENT_MAP_PLANAR,
+        TEXCALC_ENVIRONMENT_MAP_REFLECTION,
+        TEXCALC_ENVIRONMENT_MAP_NORMAL
     };
     /// Enum describing the various actions which can be taken onthe stencil buffer
     enum StencilOperation

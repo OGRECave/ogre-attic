@@ -181,58 +181,63 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Material::TextureLayer::setCubicTextureName( const String& name, bool forUVW)
     {
-        String ext;
-        String suffixes[6] = {"_fr", "_bk", "_lf", "_rt", "_up", "_dn"};
-        String baseName;
-        String fullNames[6];
-
-
-        size_t pos = name.find_last_of(".");
-        baseName = name.substr(0, pos);
-        ext = name.substr(pos);
-
-        for (int i = 0; i < 6; ++i)
+        if (forUVW)
         {
-            fullNames[i] = baseName + suffixes[i] + ext;
+            setCubicTextureName(&name, forUVW);
         }
+        else
+        {
+            String ext;
+            String suffixes[6] = {"_fr", "_bk", "_lf", "_rt", "_up", "_dn"};
+            String baseName;
+            String fullNames[6];
 
-        setCubicTextureName(fullNames, forUVW);
+
+            size_t pos = name.find_last_of(".");
+            baseName = name.substr(0, pos);
+            ext = name.substr(pos);
+
+            for (int i = 0; i < 6; ++i)
+            {
+                fullNames[i] = baseName + suffixes[i] + ext;
+            }
+
+            setCubicTextureName(fullNames, forUVW);
+        }
     }
     //-----------------------------------------------------------------------
     void Material::TextureLayer::setCubicTextureName(const String* const names, bool forUVW)
     {
-        if (forUVW)
-        {
-			String msg;
-			LogManager::getSingleton().logMessage(names[0] + " : combinedUVW not supported yet. Texture layer will be blank.");
-			mIsBlank = true;
-        }
-        else
-        {
-            mNumFrames = 6;
-            mCurrentFrame = 0;
-            mCubic = true;
+        mNumFrames = forUVW ? 1 : 6;
+        mCurrentFrame = 0;
+        mCubic = true;
 
-            for (int i = 0; i < 6; ++i)
+        for (int i = 0; i < mNumFrames; ++i)
+        {
+            mFrames[i] = names[i];
+            if (!mDeferLoad)
             {
-                mFrames[i] = names[i];
-                if (!mDeferLoad)
-                {
-                    // Ensure texture is loaded, default MipMaps and priority
-                    try {
+                // Ensure texture is loaded, default MipMaps and priority
+                try {
 
+                    if(forUVW)
+                    {
+                        TextureManager::getSingleton().load(mFrames[i], 
+                            TEX_TYPE_CUBE_MAP);
+                    }
+                    else
+                    {
                         TextureManager::getSingleton().load(mFrames[i]);
-                        mIsBlank = false;
                     }
-                    catch (...) {
-                        String msg;
-                        msg = msg + "Error loading texture " + mFrames[i]  + ". Texture layer will be blank.";
-                        LogManager::getSingleton().logMessage(msg);
-                        mIsBlank = true;
-                    }
+                    mIsBlank = false;
+                }
+                catch (...) {
+                    String msg;
+                    msg = msg + "Error loading texture " + mFrames[i]  + ". Texture layer will be blank.";
+                    LogManager::getSingleton().logMessage(msg);
+                    mIsBlank = true;
                 }
             }
-
         }
     }
     //-----------------------------------------------------------------------
@@ -510,23 +515,15 @@ namespace Ogre {
         mAddressMode = tam;
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setEnvironmentMap(bool enable, bool planar)
+    void Material::TextureLayer::setEnvironmentMap(bool enable, EnvMapType envMapType)
     {
         TextureEffect eff;
         eff.type = ET_ENVIRONMENT_MAP;
 
         if (enable)
         {
-            if (planar)
-            {
-                eff.subtype = ENV_PLANAR;
-                addEffect(eff);
-            }
-            else
-            {
-                eff.subtype = ENV_CURVED;
-                addEffect(eff);
-            }
+            eff.subtype = envMapType;
+            addEffect(eff);
         }
         else
         {
@@ -730,7 +727,11 @@ namespace Ogre {
                 // Ensure texture is loaded, default MipMaps and priority
                 try {
 
-                    TextureManager::getSingleton().load(mFrames[i]);
+                    if(is3D())
+                        TextureManager::getSingleton().load(mFrames[i], TEX_TYPE_CUBE_MAP);
+                    else
+                        TextureManager::getSingleton().load(mFrames[i]);
+
                     mIsBlank = false;
                 }
                 catch (...) {

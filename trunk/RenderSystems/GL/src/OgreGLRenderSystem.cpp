@@ -489,12 +489,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     unsigned short GLRenderSystem::_getNumTextureUnits(void)
     {
-#ifdef OGRE_GL_DISABLE_MULTITEXTURING
+        if (!mGLSupport->hasMultiTexture())
+        {
             return 1;
-#endif
-            GLint units;
-            glGetIntegerv( GL_MAX_TEXTURE_UNITS, &units );
-            return (unsigned short)units;
+        }
+
+        GLint units;
+        glGetIntegerv( GL_MAX_TEXTURE_UNITS, &units );
+        return (unsigned short)units;
     }
 
     //-----------------------------------------------------------------------------
@@ -559,8 +561,11 @@ namespace Ogre {
             glEnable( GL_TEXTURE_GEN_S );
             glEnable( GL_TEXTURE_GEN_T );
             break;
+        case TEXCALC_ENVIRONMENT_MAP_REFLECTION:
+            break;
+        case TEXCALC_ENVIRONMENT_MAP_NORMAL:
+            break;
         }
-
         glActiveTextureARB( GL_TEXTURE0 );
     }
     //-----------------------------------------------------------------------------

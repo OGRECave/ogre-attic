@@ -309,6 +309,8 @@ namespace Ogre {
         Material::TextureLayer::EffectMap::iterator effi;
         bool currEnv = false;
         bool currEnvPlanar = false;
+        bool currEnvReflection = false;
+        bool currEnvNormal = false;
         // bool currTexMod = false;
         // Iterate over current effects
         for (effi = curr.mEffects.begin(); effi != curr.mEffects.end(); ++effi)
@@ -323,6 +325,14 @@ namespace Ogre {
                 else if (effi->second.subtype == Material::TextureLayer::ENV_PLANAR)
                 {
                     currEnvPlanar = true;
+                }
+                else if (effi->second.subtype == Material::TextureLayer::ENV_REFLECTION)
+                {
+                    currEnvReflection = true;
+                }
+                else if (effi->second.subtype == Material::TextureLayer::ENV_NORMAL)
+                {
+                    currEnvNormal = true;
                 }
                 break;
 	    case Material::TextureLayer::ET_BUMP_MAP:
@@ -352,6 +362,22 @@ namespace Ogre {
                     if (currIsBlank || !currEnvPlanar)
                     {
                         _setTextureCoordCalculation(texUnit, TEXCALC_ENVIRONMENT_MAP_PLANAR);
+                    }
+                    anyCalcs = true;
+                }
+                else if (effi->second.subtype == Material::TextureLayer::ENV_REFLECTION)
+                {
+                    if (currIsBlank || !currEnvReflection)
+                    {
+                        _setTextureCoordCalculation(texUnit, TEXCALC_ENVIRONMENT_MAP_REFLECTION);
+                    }
+                    anyCalcs = true;
+                }
+                else if (effi->second.subtype == Material::TextureLayer::ENV_NORMAL)
+                {
+                    if (currIsBlank || !currEnvNormal)
+                    {
+                        _setTextureCoordCalculation(texUnit, TEXCALC_ENVIRONMENT_MAP_NORMAL);
                     }
                     anyCalcs = true;
                 }
