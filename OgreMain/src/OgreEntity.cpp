@@ -649,17 +649,20 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Entity::EntityShadowRenderable::getWorldTransforms(Matrix4* xform) const
     {
-        if (!mParent->mNumBoneMatrices)
+        unsigned short numBones = mParent->_getNumBoneMatrices();
+
+		if (!numBones)
         {
             *xform = mParent->_getParentNodeFullTransform();
         }
         else
         {
             // Bones, use cached matrices built when Entity::_updateRenderQueue was called
+			const Matrix4* bones = mParent->_getBoneMatrices();
             int i;
-            for (i = 0; i < mParent->mNumBoneMatrices; ++i)
+            for (i = 0; i < numBones; ++i)
             {
-                *xform = mParent->mBoneMatrices[i];
+                *xform = bones[i];
                 ++xform;
             }
         }
