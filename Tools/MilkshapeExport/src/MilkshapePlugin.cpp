@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "msLib.h"
 #include "resource.h"
 #include "OgreMaterialManager.h"
+#include "OgreSkeletonSerializer.h"
 
 
 //---------------------------------------------------------------------
