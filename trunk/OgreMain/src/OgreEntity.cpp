@@ -241,7 +241,8 @@ namespace Ogre {
 		{
 			aa_box = child_itr->second->getBoundingBox();
             TagPoint* tp = (TagPoint*)child_itr->second->getParentNode();
-			aa_box.transform(tp->_getNodeFullTransform());
+            // Use transform local to skeleton since world xform comes later
+			aa_box.transform(tp->_getFullLocalTransform());
 			
 			full_aa_box.merge(aa_box);
 		}
