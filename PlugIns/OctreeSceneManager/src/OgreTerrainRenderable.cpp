@@ -390,10 +390,18 @@ void TerrainRenderable::_notifyCurrentCamera( Camera* cam )
             // Set the morph such that the morph happens in the last 0.25 of
             // the distance range
             Real range = mMinLevelDistSqr[nextLevel] - mMinLevelDistSqr[mRenderLevel];
-            Real percent = (L - mMinLevelDistSqr[mRenderLevel]) / range;
-            // scale result so that msLODMorphStart == 0, 1 == 1, clamp to 0 below that
-            Real rescale = 1.0f / (1.0f - msLODMorphStart);
-            mLODMorphFactor = std::max((percent - msLODMorphStart) * rescale, 0.0f);
+            if (range)
+            {
+                Real percent = (L - mMinLevelDistSqr[mRenderLevel]) / range;
+                // scale result so that msLODMorphStart == 0, 1 == 1, clamp to 0 below that
+                Real rescale = 1.0f / (1.0f - msLODMorphStart);
+                mLODMorphFactor = std::max((percent - msLODMorphStart) * rescale, 0.0f);
+            }
+            else
+            {
+                // Identical ranges
+                mLODMorphFactor = 0.0f;
+            }
 
             assert(mLODMorphFactor >= 0 && mLODMorphFactor <= 1);
         }
@@ -624,17 +632,25 @@ void TerrainRenderable::_calculateMinLevelDist2( Real C )
     }
 
     // Now reverse traverse the list setting the 'next level down'
-    Real lastDist = 0;
+    Real lastDist = -1;
     int lastIndex = 0;
     for (i = mNumMipMaps - 1; i >= 0; --i)
     {
-        if (mMinLevelDistSqr[i] != lastDist)
+        if (i == mNumMipMaps - 1)
+        {
+            // Last one is always 0
+            lastDist = mMinLevelDistSqr[i];
+            mNextLevelDown[i] = 0;
+        }
+        else
         {
             mNextLevelDown[i] = lastIndex;
-            lastIndex = i;
-            lastDist = mMinLevelDistSqr[i];
+            if (mMinLevelDistSqr[i] != lastDist)
+            {
+                lastIndex = i;
+                lastDist = mMinLevelDistSqr[i];
+            }
         }
-
     }
 
 
