@@ -24,6 +24,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreStableHeaders.h"
 #include "OgreGpuProgram.h"
+#include "OgreHighLevelGpuProgram.h"
 #include "OgreGpuProgramManager.h"
 #include "OgreVector3.h"
 #include "OgreVector4.h"
@@ -652,5 +653,20 @@ namespace Ogre
 		GpuProgram* t = static_cast<GpuProgram*>(target);
 		t->setSkeletalAnimationIncluded(StringConverter::parseBool(val));
 	}
+    //-----------------------------------------------------------------------
+    GpuProgramPtr& GpuProgramPtr::operator=(const HighLevelGpuProgramPtr& r)
+    {
+        // Can assign direct
+        if (pRep == r.getPointer())
+            return *this;
+        release();
+        pRep = r.getPointer();
+        pUseCount = r.useCountPointer();
+        if (pUseCount)
+        {
+            ++(*pUseCount);
+        }
+        return *this;
+    }
 
 }

@@ -698,6 +698,8 @@ namespace Ogre {
 			}
 			return *this;
 		}
+        /// Operator used to convert a HighLevelGpuProgramPtr to a GpuProgramPtr
+        GpuProgramPtr& operator=(const HighLevelGpuProgramPtr& r);
 	};
 }
 

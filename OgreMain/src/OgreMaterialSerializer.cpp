@@ -2236,8 +2236,8 @@ namespace Ogre
 			    HighLevelGpuProgramPtr hgp = HighLevelGpuProgramManager::getSingleton().
 				    createProgram(def->name, mScriptContext.groupName, 
                         def->language, def->progType);
-                // Manual bind
-                gp.bind(hgp.getPointer());
+                // Assign to generalised version
+                gp = hgp;
                 // Set source file
                 hgp->setSourceFile(def->source);
 
