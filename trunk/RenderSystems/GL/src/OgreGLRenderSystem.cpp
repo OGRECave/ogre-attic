@@ -1723,6 +1723,9 @@ namespace Ogre {
         case LBX_BLEND_CURRENT_ALPHA:
             cmd = GL_INTERPOLATE;
             break;
+        case LBX_BLEND_MANUAL:
+            cmd = GL_INTERPOLATE;
+            break;
         case LBX_DOTPRODUCT:
             cmd = mCapabilities->hasCapability(RSC_DOT3) 
                 ? GL_DOT3_RGB : GL_MODULATE;
@@ -1749,35 +1752,39 @@ namespace Ogre {
 		    glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA, GL_CONSTANT);
 	    }
 
+        float blendValue[4] = {0, 0, 0, bm.factor};
         switch (bm.operation)
         {
-          case LBX_BLEND_DIFFUSE_ALPHA:
+        case LBX_BLEND_DIFFUSE_ALPHA:
             glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_PRIMARY_COLOR);
             glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA, GL_PRIMARY_COLOR);
             break;
-          case LBX_BLEND_TEXTURE_ALPHA:
+        case LBX_BLEND_TEXTURE_ALPHA:
 			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_TEXTURE);
 			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA, GL_TEXTURE);
             break;
-		  case LBX_BLEND_CURRENT_ALPHA:
+        case LBX_BLEND_CURRENT_ALPHA:
 			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_PREVIOUS);
 			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA, GL_PREVIOUS);
             break;
-          default:
+        case LBX_BLEND_MANUAL:
+            glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, blendValue);
+            break;
+        default:
             break;
         };
 
         switch (bm.operation)
         {
-		  case LBX_MODULATE_X2:
+        case LBX_MODULATE_X2:
 			glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ? 
                 GL_RGB_SCALE : GL_ALPHA_SCALE, 2);
             break;
-          case LBX_MODULATE_X4:
+        case LBX_MODULATE_X4:
 			glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ? 
                 GL_RGB_SCALE : GL_ALPHA_SCALE, 4);
             break;
-          default:
+        default:
 			glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ? 
                 GL_RGB_SCALE : GL_ALPHA_SCALE, 1);
             break;
