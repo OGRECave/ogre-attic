@@ -492,19 +492,18 @@ namespace Ogre {
         StringVector pluginList;
         String pluginDir;
         ConfigFile cfg;
-        DynLib* lib;
-        cfg.load( pluginsfile );
+
+		try {
+        	cfg.load( pluginsfile );
+		}
+		catch (Exception& e)
+		{
+			LogManager::getSingleton().logMessage(pluginsfile + " not found, automatic plugin loading disabled.");
+			return;
+		}
 
         pluginDir = cfg.getSetting("PluginFolder");
         pluginList = cfg.getMultiSetting("Plugin");
-
-        if (pluginDir == "")
-        {
-            char cwd[255];
-            getcwd(cwd, 254);
-            Except(Exception::ERR_FILE_NOT_FOUND, "Unable to determine plugins folder, plugins.cfg not found in " + String(cwd),
-                "Root::loadPlugins");
-        }
 
         char last_char = pluginDir[pluginDir.length()-1];
         if (last_char != '/' || last_char != '\\')
@@ -516,27 +515,11 @@ namespace Ogre {
 #endif
         }
 
-//        char szBuffer[260];
-//        getcwd( szBuffer, 259 );
-//        chdir( pluginDir.c_str() );
-
         for( StringVector::iterator it = pluginList.begin(); it != pluginList.end(); ++it )
         {
-            // Load plugin library
-            lib = DynLibManager::getSingleton().load( pluginDir + (*it));
-            // Store for later unload
-            mPluginLibs.push_back(lib);
-
-            // Call startup function
-            DLL_START_PLUGIN pFunc = (DLL_START_PLUGIN)lib->getSymbol("dllStartPlugin");
-
-            if (!pFunc)
-                Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot find symbol dllStartPlugin in library " + *it,
-                    "Root::loadPlugins");
-            pFunc();
+			loadPlugin(pluginDir + (*it));
         }
 
-//        chdir( szBuffer );
     }
     //-----------------------------------------------------------------------
     void Root::unloadPlugins(void)
@@ -664,5 +647,41 @@ namespace Ogre {
 
         
     }
+    //-----------------------------------------------------------------------
+	void Root::loadPlugin(String pluginName)
+	{
+		// Load plugin library
+        DynLib* lib = DynLibManager::getSingleton().load( pluginName );
+		// Store for later unload
+		mPluginLibs.push_back(lib);
 
+		// Call startup function
+		DLL_START_PLUGIN pFunc = (DLL_START_PLUGIN)lib->getSymbol("dllStartPlugin");
+
+		if (!pFunc)
+			Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot find symbol dllStartPlugin in library " + pluginName,
+				"Root::loadPlugins");
+		pFunc();
+	}
+    //-----------------------------------------------------------------------
+	void Root::unloadPlugin(String pluginName)
+	{
+        std::vector<DynLib*>::iterator i;
+
+        for (i = mPluginLibs.begin(); i != mPluginLibs.end(); ++i)
+        {
+			if ((*i)->getName() == pluginName)
+			{
+				// Call plugin shutdown
+				DLL_STOP_PLUGIN pFunc = (DLL_STOP_PLUGIN)(*i)->getSymbol("dllStopPlugin");
+				pFunc();
+				// Unload library & destroy
+				DynLibManager::getSingleton().unload((Resource*)*i);
+				delete *i;
+				mPluginLibs.erase(i);
+				return;
+			}
+
+        }
+	}
 }

@@ -471,6 +471,23 @@ namespace Ogre
         */
         void showDebugOverlay(bool show);
 
+		/** Manually load a plugin.
+		 @remarks
+		 	Plugins are loaded at startup using the plugin configuration
+			file specified when you create Root (default: plugins.cfg).
+			This method allows you to load plugins in code.
+		@param pluginName Name of the plugin library to load
+		*/
+		void loadPlugin(String pluginName);
+
+		/** Manually unloads a plugin.
+		 @remarks
+		 	Plugins are unloaded at shutdown automatically.
+			This method allows you to unload plugins in code, but
+			make sure their dependencies are decoupled frist.
+		@param pluginName Name of the plugin library to unload
+		*/
+		void unloadPlugin(String pluginName);
 
     };
 } // Namespace Ogre
