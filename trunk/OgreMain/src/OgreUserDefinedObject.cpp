@@ -23,6 +23,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 #include "OgreUserDefinedObject.h"
+#include "OgreString.h"
 
 namespace Ogre
 {
@@ -33,6 +34,11 @@ namespace Ogre
     long UserDefinedObject::getTypeID(void)
     {
         return 0;
+    }
+    const String& UserDefinedObject::getTypeName(void)
+    {
+        static String sName("Unspecified");
+        return sName;
     }
 
 }

@@ -54,13 +54,29 @@ namespace Ogre {
     public:
         /** Standard constructor. */
         UserDefinedObject();
-        /** Return a number identifying the type of user dedined object.
+        /** Return a number identifying the type of user defined object.
         @remarks
             Can be used to differentiate between different types of object which you attach to
             OGRE MovableObject instances. Recommend you override this in your classes if you
             use more than one type of object.
+        @par
+            Alternatively, you can override the getTypeName method and use that instead; 
+            that version is a litle more friendly and easier to scope, but obviously 
+            slightly less efficient. You choose which you prefer.
         */
         virtual long getTypeID(void);
+
+        /** Return a string identifying the type of user defined object.
+        @remarks
+            Can be used to differentiate between different types of object which you attach to
+            OGRE MovableObject instances. Recommend you override this in your classes if you
+            use more than one type of object.
+        @par
+            Alternatively, you can override the getTypeID method and use that instead; 
+            that version is a litle more efficient, but obviously 
+            slightly less easy to read. You choose which you prefer.
+        */
+        virtual const String& getTypeName(void);
         
     };
     
