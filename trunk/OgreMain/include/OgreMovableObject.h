@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 // Precompiler options
 #include "OgrePrerequisites.h"
+#include "OgreRenderQueue.h"
 
 namespace Ogre {
 
@@ -41,6 +42,15 @@ namespace Ogre {
     */
     class _OgreExport MovableObject
     {
+    protected:
+        /// node to which this object is attached
+        SceneNode* mParentNode;
+        /// Is this object visible?
+        bool mVisible;
+        /// User defined object which is linked to this object
+        UserDefinedObject *mUserObject;
+        /// The render queue to use when rendering this object
+        RenderQueueGroupID mRenderQueueID;
     public:
         /// Constructor
         MovableObject();
@@ -86,7 +96,7 @@ namespace Ogre {
 
         /** Internal method by which the movable object must add Renderable subclass instances to the rendering queue.
             @remarks
-                The engine will call this methof when this object is to be rendered. The object must then create one or more
+                The engine will call this method when this object is to be rendered. The object must then create one or more
                 Renderable subclass instances which it places on the passed in Queue for rendering.
         */
         virtual void _updateRenderQueue(RenderQueue* queue) = 0;
@@ -97,9 +107,35 @@ namespace Ogre {
         /** Returns whether or not this object is supposed to be visible or not. */
         virtual bool isVisible(void) const;
 
-    protected:
-        SceneNode* mParentNode;
-        bool mVisible;
+        /** Call this to associate your own custom user object instance with this MovableObject.
+        @remarks
+            By simply making your game / application object a subclass of UserDefinedObject, you
+            can establish a link between an OGRE instance of MovableObject and your own application
+            classes. Call this method to establish the link.
+        */
+        virtual void setUserObject(UserDefinedObject* obj) { mUserObject = obj; }
+        /** Retrieves a pointer to a custom application object associated with this movable by an earlier
+            call to setUserObject.
+        */
+        virtual UserDefinedObject* getUserObject(void) { return mUserObject; }
+
+        /** Sets the render queue group this entity will be rendered through.
+        @remarks
+            Render queues are grouped to allow you to more tightly control the ordering
+            of rendered objects. If you do not call this method, all Entity objects default
+            to RENDER_QUEUE_MAIN which is fine for most objects. You may want to alter this
+            if you want this entity to always appear in front of other objects, e.g. for
+            a 3D menu system or such.
+        @par
+            See RenderQueue for more details.
+        @param queueID Enumerated value of the queue group to use.
+        */
+        virtual void setRenderQueueGroup(RenderQueueGroupID queueID);
+
+        /** Gets the queue group for this entity, see setRenderQueueGroup for full details. */
+        virtual RenderQueueGroupID getRenderQueueGroup(void);
+
+
     };
 
 }

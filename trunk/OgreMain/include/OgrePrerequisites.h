@@ -196,6 +196,7 @@ namespace Ogre {
     class SubMesh;
 	class TargetManager;
 	class TextureFont;
+    class UserDefinedObject;
     class Vector3;
     class Viewport;  
     class WireBoundingBox; 

@@ -140,6 +140,7 @@ OgreTargetManager.h \
 OgreTGACodec.h \
 OgreTexture.h \
 OgreTextureManager.h \
+OgreUserDefinedObject.h \
 OgreVector3.h \
 OgreVertexBoneAssignment.h \
 OgreViewport.h \
