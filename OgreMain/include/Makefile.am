@@ -48,6 +48,9 @@ OgreGuiElementCommands.h \
 OgreGuiElementFactory.h \
 OgreGuiManager.h \
 OgreGuiPressable.h \
+OgreHardwareBuffer.h \
+OgreHardwareIndexBuffer.h \
+OgreHardwareVertexBuffer.h \
 OgreImage.h \
 OgreImageCodec.h \
 OgreInput.h \
@@ -110,6 +113,7 @@ OgreRenderQueue.h \
 OgreRenderQueueListener.h \
 OgreRenderQueueSortingGrouping.h \
 OgreRenderSystem.h \
+OgreRenderSystemCapabilities.h \
 OgreRenderTarget.h \
 OgreRenderTargetListener.h \
 OgreRenderTexture.h \
