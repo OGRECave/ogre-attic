@@ -1,4 +1,4 @@
-INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/RenderSystems/SDL/include -I$(top_srcdir)/OgreMain/include $(SDL_CFLAGS)
+INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/RenderSystems/GL/include -I$(top_srcdir)/OgreMain/include $(SDL_CFLAGS)
 
 pkglib_PROGRAMS = RenderSystem_GL.so
 
