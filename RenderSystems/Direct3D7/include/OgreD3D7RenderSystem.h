@@ -89,7 +89,13 @@ namespace Ogre {
 
         D3DCMPFUNC convertCompareFunction(CompareFunction func);
         D3DSTENCILOP convertStencilOp(StencilOperation op);
-    public:
+
+		DWORD _getMipFilter(const TextureFilterOptions fo);
+		DWORD _getMagFilter(const TextureFilterOptions fo);
+		DWORD _getMinFilter(const TextureFilterOptions fo);
+		DWORD _getCurrentAnisotropy(int unit);
+
+	public:
         // Default constructor / destructor
         D3DRenderSystem(HINSTANCE hInstance);
         ~D3DRenderSystem();
@@ -341,13 +347,21 @@ namespace Ogre {
           RenderSystem
          */
         void setStencilBufferPassOperation(StencilOperation op);
-
+        /** See
+          RenderSystem
+         */
+		void _setTextureLayerFiltering(int unit, const TextureFilterOptions texLayerFilterOps);
+        /** See
+          RenderSystem
+         */
+		void _setAnisotropy(int maxAnisotropy);
+        /** See
+          RenderSystem
+         */
+		void _setTextureLayerAnisotropy(int unit, int maxAnisotropy);
         // ----------------------------------
         // End Overridden members
         // ----------------------------------
-
-
-
     };
 }
 #endif

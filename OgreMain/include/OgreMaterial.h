@@ -744,6 +744,18 @@ namespace Ogre {
             // get the animated-texture animation duration
             Real getAnimationDuration(void) const;
 
+			// set this layer texture filtering
+			void setTextureLayerFiltering(TextureFilterOptions filterType);
+			// get this layer texture filtering
+			TextureFilterOptions getTextureLayerFiltering() const;
+
+			/** Sets the anisotropy level to be used for this texture level.
+			@par maxAniso The maximal anisotropy level, should be between 2 and the maximum supported by hardware (1 is the default, ie. no anisotrophy).
+			*/
+			void setTextureAnisotropy(int maxAniso);
+			// get this layer texture anisotropy level
+			int getTextureAnisotropy() const;
+
 			protected:
                 // State
                 #define MAX_FRAMES 32
@@ -782,6 +794,11 @@ namespace Ogre {
                 Real mUScrollAnim, mVScrollAnim;
                 Real mRotateAnim;
 
+				/// Texture layer filtering
+				TextureFilterOptions mTextureLayerFiltering;
+
+				//Texture layer anisotropy
+				int mMaxAniso;
 
     //-----------------------------------------------------------------------------
     // Complex members (those that can't be copied using memcpy) are at the end to 
@@ -862,6 +879,9 @@ namespace Ogre {
 
         /// Texture filtering
         TextureFilterOptions mTextureFiltering;
+
+		// texture anisotropy level
+		int mMaxAniso;
 
         //-------------------------------------------------------------------------    
         // Fog
@@ -1372,7 +1392,15 @@ namespace Ogre {
 
         /** Retrieves the depth bias value as set by setDepthValue. */
         ushort getDepthBias(void) const;
-    };
+
+        /** Sets the anisotropy level to be used for this material.
+        @par maxAniso The maximal anisotropy level, should be between 2 and the maximum supported by hardware (1 is the default, ie. no anisotrophy).
+        */
+        void setAnisotropy(int maxAniso);
+
+        /** Retrieves the anisotropy level. */
+        int getAnisotropy(void) const;
+};
 
 } //namespace 
 

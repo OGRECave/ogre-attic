@@ -121,7 +121,7 @@ namespace Ogre
 					pMat->getSpecular().r != 0 ||
 					pMat->getSpecular().g != 0 ||
 					pMat->getSpecular().b != 0 ||
-					pMat->getSpecular().a != 0)
+					pMat->getSpecular().a != 1)
 				{
 					writeAttribute("specular");
 					writeColourValue(pMat->getSpecular(), true);
@@ -145,6 +145,14 @@ namespace Ogre
 			{
 				writeAttribute("scene_blend");
 				writeSceneBlendFactor(pMat->getSourceBlendFactor(), pMat->getDestBlendFactor());
+			}
+
+			//anisotropy level
+			if (mDefaults || 
+				pMat->getAnisotropy() != 1)
+			{
+				writeAttribute("anisotropy");
+				writeValue(StringConverter::toString(pMat->getAnisotropy()));
 			}
 
 			//depth check
@@ -254,6 +262,9 @@ namespace Ogre
 				case TFO_TRILINEAR:
 					writeValue("trilinear");
 					break;
+				case TFO_ANISOTROPIC:
+					writeValue("anisotropic");
+					break;
 				}
 			}
 
@@ -344,6 +355,14 @@ namespace Ogre
 				writeValue("separateUV");
 		}
 		
+		//anisotropy level
+		if (mDefaults || 
+			pTex->getTextureAnisotropy() != 1)
+		{
+			writeAttribute("tex_anisotropy");
+			writeValue(StringConverter::toString(pTex->getTextureAnisotropy()));
+		}
+
 		//texture coordinate set
 		if (mDefaults || 
 			pTex->getTextureCoordSet() != 0)
@@ -371,6 +390,28 @@ namespace Ogre
 			}
 		}
 		
+		//filtering
+		if (mDefaults || 
+			pTex->getTextureLayerFiltering() != TFO_BILINEAR)
+		{
+			writeSubAttribute("tex_filtering");
+			switch (pTex->getTextureLayerFiltering())
+			{
+			case TFO_BILINEAR:
+				writeValue("bilinear");
+				break;
+			case TFO_NONE:
+				writeValue("none");
+				break;
+			case TFO_TRILINEAR:
+				writeValue("trilinear");
+				break;
+			case TFO_ANISOTROPIC:
+				writeValue("anisotropic");
+				break;
+			}
+		}
+
 		// alpha_rejection
 		if (mDefaults || 
 			pTex->getAlphaRejectFunction() != CMPF_ALWAYS_PASS ||
@@ -480,15 +521,6 @@ namespace Ogre
 
 	void MaterialSerializer::writeRotationEffect(const Material::TextureLayer::TextureEffect effect, const Material::TextureLayer *pTex)
 	{
-		/*
-		if (pTex->getTextureRotate())
-		{
-			writeSubAttribute("rotate");
-			writeValue(StringConverter::toString(pTex->getTextureRotate()));
-		}
-		else if (effect.arg1)
-		{
-		*/
 		if (effect.arg1)
 		{
 			writeSubAttribute("rotate_anim");
@@ -546,16 +578,6 @@ namespace Ogre
 
 	void MaterialSerializer::writeScrollEffect(const Material::TextureLayer::TextureEffect effect, const Material::TextureLayer *pTex)
 	{
-		/*
-		if (pTex->getTextureUScroll() || pTex->getTextureVScroll())
-		{
-			writeSubAttribute("scroll");
-			writeValue(StringConverter::toString(pTex->getTextureUScroll()));
-			writeValue(StringConverter::toString(pTex->getTextureVScroll()));
-		}
-		else if (effect.arg1 || effect.arg2)
-		{
-		*/
 		if (effect.arg1 || effect.arg2)
 		{
 			writeSubAttribute("scroll_anim");
@@ -698,6 +720,9 @@ namespace Ogre
 			break;
 		case LBX_SUBTRACT:
 			writeValue("subtract");
+			break;
+		case LBX_DOTPRODUCT:
+			writeValue("dotproduct");
 			break;
 		}
 	}

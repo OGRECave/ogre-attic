@@ -25,6 +25,102 @@
 
 namespace Ogre {
 
+	DWORD D3D8RenderSystem::_getMagFilter(const TextureFilterOptions fo)
+	{
+		DWORD ret;
+		switch( fo )
+		{
+		// NOTE: Fall through if device doesn't support requested type
+		case TFO_ANISOTROPIC:
+			if( mCaps.TextureFilterCaps & D3DPTFILTERCAPS_MAGFANISOTROPIC )
+			{
+				ret = D3DTEXF_ANISOTROPIC;
+				break;
+			}
+		case TFO_TRILINEAR:
+			if( mCaps.TextureFilterCaps & D3DPTFILTERCAPS_MAGFLINEAR )
+			{
+				ret = D3DTEXF_LINEAR;
+				break;
+			}
+		case TFO_BILINEAR:
+			if( mCaps.TextureFilterCaps & D3DPTFILTERCAPS_MAGFLINEAR )
+			{
+				ret = D3DTEXF_LINEAR;
+				break;
+			}
+		case TFO_NONE:
+			ret = D3DTEXF_POINT;
+			break;
+		}
+		
+		return ret;
+	}
+
+	DWORD D3D8RenderSystem::_getMinFilter(const TextureFilterOptions fo)
+	{
+		DWORD ret;
+		switch( fo )
+		{
+		// NOTE: Fall through if device doesn't support requested type
+		case TFO_ANISOTROPIC:
+			if( mCaps.TextureFilterCaps & D3DPTFILTERCAPS_MINFANISOTROPIC )
+			{
+				ret = D3DTEXF_ANISOTROPIC;
+				break;
+			}
+		case TFO_TRILINEAR:
+			if( mCaps.TextureFilterCaps & D3DPTFILTERCAPS_MINFLINEAR )
+			{
+				ret = D3DTEXF_LINEAR;
+				break;
+			}
+		case TFO_BILINEAR:
+			if( mCaps.TextureFilterCaps & D3DPTFILTERCAPS_MINFLINEAR )
+			{
+				ret = D3DTEXF_LINEAR;
+				break;
+			}
+		case TFO_NONE:
+			ret = D3DTEXF_POINT;
+			break;
+		}
+		
+		return ret;
+	}
+
+	DWORD D3D8RenderSystem::_getMipFilter(const TextureFilterOptions fo)
+	{
+		DWORD ret;
+		switch( fo )
+		{
+		// NOTE: Fall through if device doesn't support requested type
+		case TFO_ANISOTROPIC:
+			if( mCaps.TextureFilterCaps & D3DPTFILTERCAPS_MIPFLINEAR )
+			{
+				ret = D3DTEXF_LINEAR;
+				break;
+			}
+		case TFO_TRILINEAR:
+			if( mCaps.TextureFilterCaps & D3DPTFILTERCAPS_MIPFLINEAR )
+			{
+				ret = D3DTEXF_LINEAR;
+				break;
+			}
+		case TFO_BILINEAR:
+			if( mCaps.TextureFilterCaps & D3DPTFILTERCAPS_MIPFLINEAR )
+			{
+				ret = D3DTEXF_POINT;
+				break;
+			}
+		case TFO_NONE:
+			ret = D3DTEXF_NONE;
+			break;
+		}
+		
+		return ret;
+	}
+
 	D3D8RenderSystem::D3D8RenderSystem( HINSTANCE hInstance )
 	{
 		OgreGuard( "D3D8RenderSystem::D3D8RenderSystem" );
@@ -158,7 +254,7 @@ namespace Ogre {
 		optVSync.immutable = false;
 		optVSync.possibleValues.push_back( "Yes" );
 		optVSync.possibleValues.push_back( "No" );
-		optVSync.currentValue = "Yes";
+		optVSync.currentValue = "No";
 
 		mOptions[optDevice.name] = optDevice;
 		mOptions[optVideoMode.name] = optVideoMode;
@@ -251,6 +347,11 @@ namespace Ogre {
 				it = mOptions.find( "Video Mode" );
 				it->second.currentValue = "N/A";
 				it->second.immutable = true;
+
+				// VSync is not applicable
+				it = mOptions.find( "VSync" );
+				it->second.currentValue = "No";
+				it->second.immutable = true;
 			}
 			else
 			{
@@ -259,7 +360,20 @@ namespace Ogre {
 				// default to 640 x 480 @ 16
 				it->second.currentValue = "640 x 480 @ 16-bit colour";
 				it->second.immutable = false;
+
+				// VSync is not applicable
+				it = mOptions.find( "VSync" );
+				it->second.currentValue = "No";
+				it->second.immutable = false;
 			}
+		}
+
+		if( name == "VSync" )
+		{
+			if (value == "Yes")
+				mVSync = true;
+			else
+				mVSync = false;
 		}
 
 		OgreUnguard();
@@ -298,6 +412,11 @@ namespace Ogre {
                 "the 'Rendering Device' has been changed.";
         }
 
+        it = mOptions.find( "VSync" );
+		if( it->second.currentValue == "Yes" )
+			mVSync = true;
+		else
+			mVSync = false;
 
 		return "";
 	}
@@ -472,38 +591,7 @@ namespace Ogre {
 	{
 		int units = _getNumTextureUnits();
 		for( int i=0; i < units; i++ )
-		{
-			switch( fo )
-			{
-			// NOTE: Fall through if device doesn't support requested type
-			case TFO_TRILINEAR:
-				if( mCaps.TextureFilterCaps & D3DPTFILTERCAPS_MIPFLINEAR )
-				{
-					mpD3DDevice->SetTextureStageState( i, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
-					mpD3DDevice->SetTextureStageState( i, D3DTSS_MINFILTER, D3DTEXF_LINEAR );
-					mpD3DDevice->SetTextureStageState( i, D3DTSS_MIPFILTER, D3DTEXF_LINEAR );
-					LogManager::getSingleton().logMessage( "Texture filtering set to: TRILINEAR" );
-					break;
-				}
-
-			case TFO_BILINEAR:
-				if( mCaps.TextureFilterCaps & D3DPTFILTERCAPS_MINFLINEAR )
-				{
-					mpD3DDevice->SetTextureStageState( i, D3DTSS_MAGFILTER, D3DTEXF_LINEAR );
-					mpD3DDevice->SetTextureStageState( i, D3DTSS_MINFILTER, D3DTEXF_LINEAR );
-					mpD3DDevice->SetTextureStageState( i, D3DTSS_MIPFILTER, D3DTEXF_POINT );
-					LogManager::getSingleton().logMessage( "Texture filtering set to: BILINEAR" );
-					break;
-				}
-
-			case TFO_NONE:
-				mpD3DDevice->SetTextureStageState( i, D3DTSS_MAGFILTER, D3DTEXF_POINT );
-				mpD3DDevice->SetTextureStageState( i, D3DTSS_MINFILTER, D3DTEXF_POINT );
-				mpD3DDevice->SetTextureStageState( i, D3DTSS_MIPFILTER, D3DTEXF_NONE );
-				LogManager::getSingleton().logMessage( "Texture filtering disabled" );
-				break;
-			}
-		}
+			_setTextureLayerFiltering(i, fo);
 	}
 
 	void D3D8RenderSystem::setLightingEnabled( bool enabled )
@@ -531,7 +619,7 @@ namespace Ogre {
 
 		RenderWindow* win = new D3D8RenderWindow();
 		win->create( name, width, height, colourDepth, fullScreen, 
-			left, top, depthBuffer, &mhInstance, mActiveD3DDriver, parentWindowHandle );
+			left, top, depthBuffer, &mhInstance, mActiveD3DDriver, parentWindowHandle, mVSync );
 
 		attachRenderTarget( *win );
 
@@ -861,14 +949,18 @@ namespace Ogre {
 		if( enabled && dt )
 		{
 			hr = mpD3DDevice->SetTexture( stage, dt->getD3DTexture() );
+			if( FAILED( hr ) )
+				Except( hr, "Unable to set texture in D3D", "D3D8RenderSystem::_setTexture" );
 		}
 		else
 		{
 			hr = mpD3DDevice->SetTexture( stage, NULL );
+			if( FAILED( hr ) )
+				Except( hr, "Unable to disable texture in D3D8", "D3D8RenderSystem::_setTexture" );
+			hr = mpD3DDevice->SetTextureStageState( stage, D3DTSS_COLOROP, D3DTOP_DISABLE );
+			if( FAILED( hr ) )
+				Except( hr, "Unable to disable texture in D3D8", "D3D8RenderSystem::_setTexture" );
 		}
-
-		if( FAILED( hr ) )
-			Except( hr, "Unable to set texture in D3D", "D3D8RenderSystem::_setTexture" );
 	}
 
 	void D3D8RenderSystem::_setTextureCoordSet( int stage, int index )
@@ -959,7 +1051,6 @@ namespace Ogre {
 
 		case LBX_ADD:
 			value = D3DTOP_ADD;
-//			value = D3DTOP_ADDSMOOTH;
 			break;
 
 		case LBX_ADD_SIGNED:
@@ -991,6 +1082,13 @@ namespace Ogre {
 			// set facto in render state
 			hr = mpD3DDevice->SetRenderState( D3DRS_TEXTUREFACTOR, D3DXCOLOR(0.0, 0.0, 0.0,  bm.factor) );
 			break;
+
+		case LBX_DOTPRODUCT:
+			if (mCaps.TextureOpCaps & D3DTEXOPCAPS_DOTPRODUCT3)
+				value = D3DTOP_DOTPRODUCT3;
+			else
+				value = D3DTOP_MODULATE;
+            break;
 		}
 
 		// Make call to set operation
@@ -2040,5 +2138,35 @@ namespace Ogre {
         return D3DSTENCILOP_KEEP;
 
     }
-
+  	DWORD D3D8RenderSystem::_getCurrentAnisotropy(int unit)
+ 	{
+ 		DWORD oldVal;
+ 		mpD3DDevice->GetTextureStageState(unit, D3DTSS_MAXANISOTROPY, &oldVal);
+ 			return oldVal;
+ 	}
+ 
+    //---------------------------------------------------------------------
+ 	void D3D8RenderSystem::_setTextureLayerFiltering(int unit, const TextureFilterOptions texLayerFilterOps)
+ 	{
+ 		mpD3DDevice->SetTextureStageState( unit, D3DTSS_MAGFILTER, _getMagFilter(texLayerFilterOps) );
+ 		mpD3DDevice->SetTextureStageState( unit, D3DTSS_MINFILTER, _getMinFilter(texLayerFilterOps) );
+ 		mpD3DDevice->SetTextureStageState( unit, D3DTSS_MIPFILTER, _getMipFilter(texLayerFilterOps) );
+ 	}
+ 
+    //---------------------------------------------------------------------
+ 	void D3D8RenderSystem::_setTextureLayerAnisotropy(int unit, int maxAnisotropy)
+ 	{
+ 		if ((DWORD)maxAnisotropy > mCaps.MaxAnisotropy)
+ 			maxAnisotropy = mCaps.MaxAnisotropy;
+ 
+ 		if (_getCurrentAnisotropy(unit) != maxAnisotropy)
+ 			mpD3DDevice->SetTextureStageState( unit, D3DTSS_MAXANISOTROPY, maxAnisotropy );
+ 	}
+ 
+    //---------------------------------------------------------------------
+ 	void D3D8RenderSystem::_setAnisotropy(int maxAnisotropy)
+ 	{
+ 		for (int n = 0; n < _getNumTextureUnits(); n++)
+ 			_setTextureLayerAnisotropy(n, maxAnisotropy);
+ 	}
 }

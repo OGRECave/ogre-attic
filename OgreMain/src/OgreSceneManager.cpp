@@ -625,6 +625,11 @@ namespace Ogre {
         {
             mDestRenderSystem->setTextureFiltering(mat->getTextureFiltering());
         }
+        // anisotropy
+        if (firstTime || lastMat.getAnisotropy() != mat->getAnisotropy())
+        {
+            mDestRenderSystem->_setAnisotropy(mat->getAnisotropy());
+        }
 
 
         firstTime = false;

@@ -42,6 +42,8 @@ namespace Ogre
 		LPDIRECT3D9			mpD3D;
 		LPDIRECT3DDEVICE9	mpD3DDevice;
 		
+		// wait for vsync
+		bool mVSync;
 		//full-screen multisampling, anti aliasing quality
 		DWORD mMultiSampleQuality;
 		//external window handle ;)
@@ -106,6 +108,11 @@ namespace Ogre
 		HRESULT __SetRenderState(D3DRENDERSTATETYPE state, DWORD value);
 		HRESULT __SetSamplerState(DWORD sampler, D3DSAMPLERSTATETYPE type, DWORD value);
 		HRESULT __SetTextureStageState(DWORD stage, D3DTEXTURESTAGESTATETYPE type, DWORD value);
+
+		DWORD _getMipFilter(const TextureFilterOptions fo);
+		DWORD _getMagFilter(const TextureFilterOptions fo);
+		DWORD _getMinFilter(const TextureFilterOptions fo);
+		DWORD _getCurrentAnisotropy(int unit);
 
 	public:
 		// method for resizing/repositing the render window
@@ -173,7 +180,6 @@ namespace Ogre
 		void _setDepthBufferCheckEnabled( bool enabled = true );
 		void _setDepthBufferWriteEnabled(bool enabled = true);
 		void _setDepthBufferFunction( CompareFunction func = CMPF_LESS_EQUAL );
-		void _setMultiSampleAntiAlias( BOOL set );
 	/** See
 		RenderSystem
 		*/
@@ -217,6 +223,18 @@ namespace Ogre
 		RenderSystem
 		*/
 		void setStencilBufferPassOperation(StencilOperation op);
+        /** See
+          RenderSystem
+         */
+		void _setTextureLayerFiltering(int unit, const TextureFilterOptions texLayerFilterOps);
+        /** See
+          RenderSystem
+         */
+		void _setAnisotropy(int maxAnisotropy);
+        /** See
+          RenderSystem
+         */
+		void _setTextureLayerAnisotropy(int unit, int maxAnisotropy);
 	};
 }
 #endif

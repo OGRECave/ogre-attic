@@ -162,6 +162,8 @@ namespace Ogre
 		// miscParam[1] = D3D9Driver
 		// miscParam[2] = parent HWND
 		// miscParam[3] = multisample quality
+		// miscParam[4] = vsync
+
 		va_list marker;
 		va_start( marker, depthBuffer );
 
@@ -180,6 +182,9 @@ namespace Ogre
 
 		tempPtr = va_arg( marker, long );
 		mMultiSampleQuality = (DWORD)tempPtr;
+
+		tempPtr = va_arg( marker, long );
+		bool vsync = tempPtr ? true : false;
 
 		va_end( marker );
 
@@ -267,8 +272,9 @@ namespace Ogre
 			md3dpp.BackBufferWidth			= mWidth;
 			md3dpp.BackBufferHeight			= mHeight;
 
-			// Don't wait for vsync in fullscreen mode
-			if (fullScreen)
+			if (vsync)
+				md3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
+			else
 				md3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 
 			if( !fullScreen )
@@ -321,20 +327,9 @@ namespace Ogre
 
 			//check for multisample capabilities
 			//fall to D3DMULTISAMPLE_NONMASKABLE if requested not supported
+			/*D3DMULTISAMPLE_TYPE msType = (D3DMULTISAMPLE_TYPE)mMultiSampleQuality;
 			if (_checkMultiSampleQuality(
-				(D3DMULTISAMPLE_TYPE)mMultiSampleQuality,
-				NULL, 
-				md3dpp.BackBufferFormat, 
-				md3dpp.AutoDepthStencilFormat, 
-				mpD3DDriver->getAdapterNumber(), 
-				devType, 
-				fullScreen))
-			{
-				md3dpp.MultiSampleType			= (D3DMULTISAMPLE_TYPE)mMultiSampleQuality;
-				md3dpp.MultiSampleQuality		= NULL;//mMultiSampleQuality;
-			}
-			else if (_checkMultiSampleQuality(
-				D3DMULTISAMPLE_NONMASKABLE,
+				msType,
 				&mMultiSampleQuality, 
 				md3dpp.BackBufferFormat, 
 				md3dpp.AutoDepthStencilFormat, 
@@ -342,8 +337,21 @@ namespace Ogre
 				devType, 
 				fullScreen))
 			{
+				md3dpp.MultiSampleType			= msType;
+				md3dpp.MultiSampleQuality		= mMultiSampleQuality ? mMultiSampleQuality - 1 : 0;
+			}
+			else*/ if (	mMultiSampleQuality && 
+						_checkMultiSampleQuality(
+							D3DMULTISAMPLE_NONMASKABLE,
+							&mMultiSampleQuality, 
+							md3dpp.BackBufferFormat, 
+							md3dpp.AutoDepthStencilFormat, 
+							mpD3DDriver->getAdapterNumber(), 
+							devType, 
+							fullScreen))
+			{
 				md3dpp.MultiSampleType			= D3DMULTISAMPLE_NONMASKABLE;
-				md3dpp.MultiSampleQuality		= NULL;//mMultiSampleQuality;
+				md3dpp.MultiSampleQuality		= mMultiSampleQuality ? mMultiSampleQuality - 1 : NULL;
 			}
 			else
 			{

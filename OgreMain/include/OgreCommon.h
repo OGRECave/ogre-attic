@@ -58,7 +58,8 @@ namespace Ogre {
     {
         TFO_NONE,
         TFO_BILINEAR,
-        TFO_TRILINEAR
+        TFO_TRILINEAR,
+		TFO_ANISOTROPIC
     };
 
     /** Light shading modes. */

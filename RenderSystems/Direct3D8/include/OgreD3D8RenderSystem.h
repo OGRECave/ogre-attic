@@ -44,6 +44,7 @@ namespace Ogre {
 		LPDIRECT3D8			mpD3D;
 		LPDIRECT3DDEVICE8	mpD3DDevice;
 		
+		bool mVSync;
 		// List of D3D drivers installed (video cards)
 		// Enumerates itself
 		D3D8DriverList* mDriverList;
@@ -97,6 +98,11 @@ namespace Ogre {
 #endif
         D3DCMPFUNC convertCompareFunction(CompareFunction func);
         D3DSTENCILOP convertStencilOp(StencilOperation op);
+
+		DWORD _getMipFilter(const TextureFilterOptions fo);
+		DWORD _getMagFilter(const TextureFilterOptions fo);
+		DWORD _getMinFilter(const TextureFilterOptions fo);
+		DWORD _getCurrentAnisotropy(int unit);
 
 	public:
 		D3D8RenderSystem( HINSTANCE hInstance );
@@ -200,6 +206,18 @@ namespace Ogre {
           RenderSystem
          */
         void setStencilBufferPassOperation(StencilOperation op);
+        /** See
+          RenderSystem
+         */
+		void _setTextureLayerFiltering(int unit, const TextureFilterOptions texLayerFilterOps);
+        /** See
+          RenderSystem
+         */
+		void _setAnisotropy(int maxAnisotropy);
+        /** See
+          RenderSystem
+         */
+		void _setTextureLayerAnisotropy(int unit, int maxAnisotropy);
 	};
 
 }

@@ -29,17 +29,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderSystem.h"
 #include "OgreSDLPrerequisites.h"
 
-
-
 namespace Ogre {
-
     /**
       Implementation of SDL as a rendering system.
      */
     class SDLRenderSystem : public RenderSystem
     {
     private:
-
         // Allowed video modes
         SDL_Rect** mVideoModes;
 
@@ -58,7 +54,6 @@ namespace Ogre {
 
         // XXX 8 max texture units?
         int mTextureCoordIndex[OGRE_MAX_TEXTURE_COORD_SETS];
-
 
         void initConfigOptions(void);
         void initInputDevices(void);
@@ -83,16 +78,30 @@ namespace Ogre {
         GLuint mStencilMask;
         GLint mStencilFail, mStencilZFail, mStencilPass;
 
-        SDLExtensionManager* mExtMgr;
+		// internal method for anisotrophy validation
+		GLfloat _getCurrentAnisotrofy();
+		void _setTextureBlendMode_ARB(int stage, const LayerBlendModeEx& bm);
+		void _setTextureBlendMode_EXT(int stage, const LayerBlendModeEx& bm);
+		
+		// structure to hold some OpenGL extension capabilities determined on window creation for later use
+		struct glCaps
+		{
+			bool aniso;			// GL_TEXTURE_MAX_ANISOTROPY_EXT
+			bool dp3ext;		// GL_DOT3_RGB_EXT/GL_DOT3_RGBA_EXT
+			bool dp3arb;		// GL_DOT3_RGB_ARB/GL_DOT3_RGBA_ARB
+			bool arbCombine;	// GL_COMBINE_ARB
+			bool extCombine;	// GL_COMBINE_ARB
+		} mGLCaps;
+
+		SDLExtensionManager* mExtMgr;
 
         /// Internal method to set pos / direction of a light
         void setGLLightPositionDirection(Light* lt, int lightindex);
+
     public:
         // Default constructor / destructor
         SDLRenderSystem();
         ~SDLRenderSystem();
-
-
 
         // ----------------------------------
         // Overridden RenderSystem functions
@@ -348,12 +357,21 @@ namespace Ogre {
             StencilOperation stencilFailOp = SOP_KEEP, 
             StencilOperation depthFailOp = SOP_KEEP,
             StencilOperation passOp = SOP_KEEP);
+        /** See
+          RenderSystem
+         */
+		void _setTextureLayerFiltering(int unit, const TextureFilterOptions texLayerFilterOps);
+        /** See
+          RenderSystem
+         */
+		void _setAnisotropy(int maxAnisotropy);
+        /** See
+          RenderSystem
+         */
+		void _setTextureLayerAnisotropy(int unit, int maxAnisotropy);
         // ----------------------------------
         // End Overridden members
         // ----------------------------------
-
-
-
     };
 }
 #endif

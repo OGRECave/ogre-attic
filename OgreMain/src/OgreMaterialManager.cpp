@@ -377,9 +377,11 @@ namespace Ogre {
 		    pMat->setTextureFiltering(TFO_BILINEAR);
 	    else if (params[1]=="trilinear")
 		    pMat->setTextureFiltering(TFO_TRILINEAR);
+	    else if (params[1]=="anisotropic")
+		    pMat->setTextureFiltering(TFO_ANISOTROPIC);
 	    else
 		    LogManager::getSingleton().logMessage("Bad filtering attribute line in "
-			    + pMat->getName() + ", valid parameters are 'none', 'bilinear' or 'trilinear'.");
+			    + pMat->getName() + ", valid parameters are 'none', 'bilinear', 'trilinear' or 'anisotropic'.");
     }
     //-----------------------------------------------------------------------
     // Texture layer attributes
@@ -564,10 +566,10 @@ namespace Ogre {
 		    return LBX_BLEND_CURRENT_ALPHA;
 	    else if (param == "blend_manual")
 		    return LBX_BLEND_MANUAL;
+	    else if (param == "dotproduct")
+		    return LBX_DOTPRODUCT;
 	    else
 		    Except(Exception::ERR_INVALIDPARAMS, "Invalid blend function", "convertBlendOpEx");
-
-
     }
     //-----------------------------------------------------------------------
     LayerBlendSource convertBlendSource(const String& param)
@@ -586,9 +588,30 @@ namespace Ogre {
 		    Except(Exception::ERR_INVALIDPARAMS, "Invalid blend source", "convertBlendSource");
     }
     //-----------------------------------------------------------------------
+    void parseLayerFiltering(StringVector::iterator& params, int numParams, Material* pMat, Material::TextureLayer* pTex)
+    {
+	    if (numParams != 2)
+	    {
+		    LogManager::getSingleton().logMessage("Bad " + params[0] + " attribute line in "
+			    + pMat->getName() + ", wrong number of parameters (expected 1)");
+		    return;
+	    }
+	    if (params[1]=="none")
+		    pTex->setTextureLayerFiltering(TFO_NONE);
+	    else if (params[1]=="bilinear")
+		    pTex->setTextureLayerFiltering(TFO_BILINEAR);
+	    else if (params[1]=="trilinear")
+		    pTex->setTextureLayerFiltering(TFO_TRILINEAR);
+	    else if (params[1]=="anisotropic")
+		    pTex->setTextureLayerFiltering(TFO_ANISOTROPIC);
+	    else
+		    LogManager::getSingleton().logMessage("Bad texture layer filtering attribute line in "
+			    + pMat->getName() + ", valid parameters are 'none', 'bilinear', 'trilinear' or 'anisotropic'.");
+    }
+    //-----------------------------------------------------------------------
     void parseColourOpEx(StringVector::iterator& params, int numParams, Material* pMat, Material::TextureLayer* pTex)
     {
-	    if (numParams < 4 || numParams > 11)
+	    if (numParams < 4 || numParams > 13)
 	    {
 		    LogManager::getSingleton().logMessage("Bad " + params[0] + " attribute line in "
 			    + pMat->getName() + ", wrong number of parameters (expected 3 to 10)");
@@ -604,7 +627,8 @@ namespace Ogre {
 		    op = convertBlendOpEx(params[1]);
 		    src1 = convertBlendSource(params[2]);
 		    src2 = convertBlendSource(params[3]);
-		    if (op == LBX_BLEND_MANUAL)
+
+			if (op == LBX_BLEND_MANUAL)
 		    {
 			    if (numParams < 5)
 			    {
@@ -614,6 +638,7 @@ namespace Ogre {
 			    }
 			    manual = atof(params[4]);
 		    }
+
 			if (src1 == LBS_MANUAL)
 			{
 				int parIndex = 4;
@@ -631,6 +656,7 @@ namespace Ogre {
 				colSrc1.g = atof(params[parIndex++]);
 				colSrc1.b = atof(params[parIndex]);
 			}
+
 			if (src2 == LBS_MANUAL)
 			{
 				int parIndex = 4;
@@ -687,7 +713,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void parseAlphaOpEx(StringVector::iterator& params, int numParams, Material* pMat, Material::TextureLayer* pTex)
     {
-	    if (numParams < 4 || numParams > 5)
+	    if (numParams < 4 || numParams > 7)
 	    {
 		    LogManager::getSingleton().logMessage("Bad " + params[0] + " attribute line in "
 			    + pMat->getName() + ", wrong number of parameters (expected 3 or 4)");
@@ -696,6 +722,7 @@ namespace Ogre {
 	    LayerBlendOperationEx op;
 	    LayerBlendSource src1, src2;
 	    Real manual = 0.0;
+		Real arg1 = 1.0, arg2 = 1.0;
 
 	    try {
 		    op = convertBlendOpEx(params[1]);
@@ -711,7 +738,39 @@ namespace Ogre {
 			    }
 			    manual = atof(params[4]);
 		    }
+			if (src1 == LBS_MANUAL)
+			{
+				int parIndex = 4;
+				if (op == LBX_BLEND_MANUAL)
+					parIndex++;
 
+			    if (numParams < parIndex)
+			    {
+				    LogManager::getSingleton().logMessage("Bad " + params[0] + " attribute line in "
+						+ pMat->getName() + ", wrong number of parameters (expected " + StringConverter::toString(parIndex - 1) + ")");
+				    return;
+			    }
+
+				arg1 = atof(params[parIndex]);
+			}
+
+			if (src2 == LBS_MANUAL)
+			{
+				int parIndex = 4;
+				if (op == LBX_BLEND_MANUAL)
+					parIndex++;
+				if (src1 == LBS_MANUAL)
+					parIndex++;
+
+			    if (numParams < parIndex)
+			    {
+				    LogManager::getSingleton().logMessage("Bad " + params[0] + " attribute line in "
+						+ pMat->getName() + ", wrong number of parameters (expected " + StringConverter::toString(parIndex - 1) + ")");
+				    return;
+			    }
+
+				arg2 = atof(params[parIndex]);
+			}
 	    }
 	    catch (Exception& e)
 	    {
@@ -720,8 +779,7 @@ namespace Ogre {
 		    return;
 	    }
 
-	    pTex->setAlphaOperation(op, src1, src2, 1.0, 1.0, manual);
-
+	    pTex->setAlphaOperation(op, src1, src2, arg1, arg2, manual);
     }
     //-----------------------------------------------------------------------
     void parseEnvMap(StringVector::iterator& params, int numParams, Material* pMat, Material::TextureLayer* pTex)
@@ -854,13 +912,37 @@ namespace Ogre {
 	    }
 	    pMat->setDepthBias(atoi(params[1].c_str()));
     }
-
+	//-----------------------------------------------------------------------
+    void parseAnisotropy(StringVector::iterator& params, int numParams, Material* pMat)
+    {
+	    if (numParams != 2)
+	    {
+		    LogManager::getSingleton().logMessage("Bad " + params[0] + " attribute line in "
+			    + pMat->getName() + ", wrong number of parameters (expected 2)");
+		    return;
+	    }
+	    pMat->setAnisotropy(atoi(params[1].c_str()));
+    }
+	//-----------------------------------------------------------------------
+    void parseLayerAnisotropy(StringVector::iterator& params, int numParams, Material* pMat, Material::TextureLayer* pTex)
+    {
+	    if (numParams != 2)
+	    {
+		    LogManager::getSingleton().logMessage("Bad " + params[0] + " attribute line in "
+			    + pMat->getName() + ", wrong number of parameters (expected 2)");
+		    return;
+	    }
+	    pTex->setTextureAnisotropy(atof(params[1].c_str()));
+    }
     //-----------------------------------------------------------------------
     template<> MaterialManager* Singleton<MaterialManager>::ms_Singleton = 0;
     //-----------------------------------------------------------------------
     MaterialManager::MaterialManager()
     {
-	    // Set up default material - don't use name contructor as we want to avoid applying defaults
+	    mDefTextureFiltering = TFO_BILINEAR;
+		mDefAniso = 1;
+
+		// Set up default material - don't use name contructor as we want to avoid applying defaults
 	    Material::mDefaultSettings = new Material();
 	    Material::mDefaultSettings->mName = "DefaultSettings";
 
@@ -883,6 +965,8 @@ namespace Ogre {
 	    mMatAttribParsers.insert(MatAttribParserList::value_type("shading", (MATERIAL_ATTRIB_PARSER)parseShading));
 	    mMatAttribParsers.insert(MatAttribParserList::value_type("filtering", (MATERIAL_ATTRIB_PARSER)parseFiltering));
 	    mMatAttribParsers.insert(MatAttribParserList::value_type("depth_bias", (MATERIAL_ATTRIB_PARSER)parseDepthBias));
+	    mMatAttribParsers.insert(MatAttribParserList::value_type("anisotropy", (MATERIAL_ATTRIB_PARSER)parseAnisotropy));
+
 	    // Set up layer attribute parsers
 	    mLayerAttribParsers.insert(LayerAttribParserList::value_type("texture", (TEXLAYER_ATTRIB_PARSER)parseTexture));
 	    mLayerAttribParsers.insert(LayerAttribParserList::value_type("anim_texture", (TEXLAYER_ATTRIB_PARSER)parseAnimTexture));
@@ -901,8 +985,8 @@ namespace Ogre {
 	    mLayerAttribParsers.insert(LayerAttribParserList::value_type("rotate_anim", (TEXLAYER_ATTRIB_PARSER)parseRotate));
 	    mLayerAttribParsers.insert(LayerAttribParserList::value_type("scale", (TEXLAYER_ATTRIB_PARSER)parseScale));
 	    mLayerAttribParsers.insert(LayerAttribParserList::value_type("wave_xform", (TEXLAYER_ATTRIB_PARSER)parseWaveXform));
-
-
+	    mLayerAttribParsers.insert(LayerAttribParserList::value_type("tex_filtering", (TEXLAYER_ATTRIB_PARSER)parseLayerFiltering));
+	    mLayerAttribParsers.insert(LayerAttribParserList::value_type("tex_anisotropy", (TEXLAYER_ATTRIB_PARSER)parseLayerAnisotropy));
     }
     //-----------------------------------------------------------------------
     MaterialManager::~MaterialManager()
@@ -1168,11 +1252,26 @@ namespace Ogre {
 	    mResources[name] = m;
 	    mHandles.insert(MaterialHandleList::value_type(m->mHandle, m));
 
-
 	    return m;
-
-
     }
+	
+	void MaterialManager::setDefaultTextureFiltering(TextureFilterOptions fo)
+	{
+		mDefTextureFiltering = fo;
+	}
 
+	TextureFilterOptions MaterialManager::getDefaultTextureFiltering()
+	{
+		return mDefTextureFiltering;
+	}
+
+	void MaterialManager::setDefaultAnisotropy(int maxAniso)
+	{
+		mDefAniso = maxAniso;
+	}
+
+	int MaterialManager::getDefaultAnisotropy()
+	{
+		return mDefAniso;
+	}
 }
-

@@ -230,6 +230,12 @@ namespace Ogre {
 
         // Initialise extension manager
         mExtMgr = new SDLExtensionManager();
+		//fill in the mGLCaps structure for later use
+		mGLCaps.arbCombine = mExtMgr->checkExtension("GL_ARB_texture_env_combine");
+		mGLCaps.extCombine = mExtMgr->checkExtension("GL_EXT_texture_env_combine");
+		mGLCaps.dp3arb = mExtMgr->checkExtension("GL_ARB_texture_env_dot3");
+		mGLCaps.dp3ext = mExtMgr->checkExtension("GL_EXT_texture_env_dot3");
+		mGLCaps.aniso = mExtMgr->checkExtension("GL_EXT_texture_filter_anisotropic");
         
         LogManager::getSingleton().logMessage(
             "*****************************\n"
@@ -312,47 +318,7 @@ namespace Ogre {
         OgreGuard( "SDLRenderSystem::setTextureFiltering" );        
 
         for (int i = 0; i < _getNumTextureUnits(); i++)
-        {
-            glActiveTextureARB( GL_TEXTURE0_ARB + i );
-            switch( fo )
-            {
-            case TFO_TRILINEAR:
-                glTexParameteri(
-                    GL_TEXTURE_2D, 
-                    GL_TEXTURE_MAG_FILTER, 
-                    GL_LINEAR);
-
-                glTexParameteri(
-                    GL_TEXTURE_2D, 
-                    GL_TEXTURE_MIN_FILTER,
-                    GL_LINEAR_MIPMAP_LINEAR);
-                break;
-
-            case TFO_BILINEAR:
-                glTexParameteri(
-                    GL_TEXTURE_2D, 
-                    GL_TEXTURE_MAG_FILTER, 
-                    GL_LINEAR);
-
-                glTexParameteri(
-                    GL_TEXTURE_2D, 
-                    GL_TEXTURE_MIN_FILTER,
-                    GL_LINEAR_MIPMAP_NEAREST);
-                break;
-
-            case TFO_NONE:
-                glTexParameteri(
-                    GL_TEXTURE_2D, 
-                    GL_TEXTURE_MAG_FILTER, 
-                    GL_NEAREST);
-
-                glTexParameteri(
-                    GL_TEXTURE_2D, 
-                    GL_TEXTURE_MIN_FILTER,
-                    GL_NEAREST);
-                break;
-            }
-        }
+			_setTextureLayerFiltering(i, fo);
 
         glActiveTextureARB( GL_TEXTURE0_ARB );
 
@@ -607,8 +573,6 @@ namespace Ogre {
         glLoadMatrixf(mat);
         glMatrixMode(GL_MODELVIEW);
     }
-
-
     //-----------------------------------------------------------------------------
     void SDLRenderSystem::_setSurfaceParams(const ColourValue &ambient,
         const ColourValue &diffuse, const ColourValue &specular,
@@ -640,14 +604,13 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     unsigned short SDLRenderSystem::_getNumTextureUnits(void)
     {
-        #ifdef OGRE_SDL_DISABLE_MULTITEXTURING
+		#ifdef OGRE_SDL_DISABLE_MULTITEXTURING
             return 1;
         #else
             GLint units;
             glGetIntegerv( GL_MAX_TEXTURE_UNITS_ARB, &units );
             return (unsigned short)units;
         #endif
-
     }
 
     //-----------------------------------------------------------------------------
@@ -655,15 +618,16 @@ namespace Ogre {
     {
         SDLTexture* tex = static_cast<SDLTexture*>(TextureManager::getSingleton().getByName(texname));
 
-        glActiveTextureARB( GL_TEXTURE0_ARB + stage );
-        if (enabled && tex)
+		glActiveTextureARB( GL_TEXTURE0_ARB + stage );
+		if (enabled && tex)
         {
             glEnable( GL_TEXTURE_2D );
             glBindTexture( GL_TEXTURE_2D, tex->getGLID() );
         }
         else
         {
-            glDisable( GL_TEXTURE_2D );
+			glDisable(GL_TEXTURE_2D);
+			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
         }
         glActiveTextureARB( GL_TEXTURE0_ARB );
     }
@@ -712,144 +676,6 @@ namespace Ogre {
         }
 
         glActiveTextureARB( GL_TEXTURE0_ARB );
-    }
-    //-----------------------------------------------------------------------------
-    void SDLRenderSystem::_setTextureBlendMode(int stage, const LayerBlendModeEx& bm)
-    {       
-        glActiveTextureARB(GL_TEXTURE0_ARB + stage);
-
-        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
-//
-//        std::cout << "Need to do blend op: " << bm.operation << std::endl;
-//        std::cout << "Type: " << bm.blendType << std::endl;
-//        std::cout << "Src1: " << bm.source1 << std::endl;
-//        std::cout << "Src2: " << bm.source2 << std::endl;
-
-        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_EXT, GL_SRC_COLOR);
-        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_EXT, GL_SRC_ALPHA);
-        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_EXT, GL_SRC_COLOR);
-        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA_EXT, GL_SRC_ALPHA);
-        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB_EXT, GL_SRC_COLOR); 
-        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_ALPHA_EXT, GL_SRC_ALPHA); 
-
-        GLenum type, src1, src2, src1op, src2op, cmd;
-        if (bm.blendType == LBT_COLOUR)
-        {
-            type = GL_COMBINE_RGB_EXT;
-            src1 = GL_SOURCE0_RGB_EXT;
-            src2 = GL_SOURCE1_RGB_EXT;
-        }
-        else
-        {
-            type = GL_COMBINE_ALPHA_EXT;
-            src1 = GL_SOURCE0_ALPHA_EXT;
-            src2 = GL_SOURCE1_ALPHA_EXT;
-        }
-
-        switch (bm.source1)
-        {
-        case LBS_CURRENT:
-            src1op = GL_PREVIOUS_EXT;
-            break;
-        case LBS_TEXTURE:
-            src1op = GL_TEXTURE;
-            break;
-        // XXX
-        case LBS_DIFFUSE:
-            src1op = 0;
-            break;
-        case LBS_SPECULAR:
-            src1op = 0;
-            break;
-        case LBS_MANUAL:
-            src1op = 0;
-        };
-
-        switch (bm.source2)
-        {
-        case LBS_CURRENT:
-            src2op = GL_PREVIOUS_EXT;
-            break;
-        case LBS_TEXTURE:
-            src2op = GL_TEXTURE;
-            break;
-        // XXX
-        case LBS_DIFFUSE:
-            src2op = 0;
-            break;
-        case LBS_SPECULAR:
-            src2op = 0;
-            break;
-        case LBS_MANUAL:
-            src2op = 0;
-        };
-
-        switch (bm.operation)
-        {
-        case LBX_SOURCE1:
-            cmd = GL_REPLACE;
-            break;
-        case LBX_SOURCE2:
-            cmd = GL_REPLACE;
-            break;
-        case LBX_MODULATE:
-            cmd = GL_MODULATE;
-            break;
-        case LBX_MODULATE_X2:
-            cmd = GL_MODULATE;
-            glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ?
-                    GL_RGB_SCALE_EXT : GL_ALPHA_SCALE, 2);
-            break;
-        case LBX_MODULATE_X4:
-            cmd = GL_MODULATE;
-            glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ?
-                    GL_RGB_SCALE_EXT : GL_ALPHA_SCALE, 4);
-            break;
-        case LBX_ADD:
-            cmd = GL_ADD;
-            break;
-        case LBX_ADD_SIGNED:
-            cmd = GL_ADD_SIGNED_EXT;
-            break;
-#if 0
-        case LBX_ADD_SMOOTH:
-            value = D3DTOP_ADDSMOOTH;
-            break;
-        case LBX_SUBTRACT:
-            value = D3DTOP_SUBTRACT;
-            break;
-        case LBX_BLEND_DIFFUSE_ALPHA:
-            value = D3DTOP_BLENDDIFFUSEALPHA;
-            break;
-#endif
-        case LBX_BLEND_TEXTURE_ALPHA:
-            cmd = GL_INTERPOLATE_EXT;
-            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_EXT, GL_TEXTURE);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_EXT, GL_TEXTURE);
-            break;
-        case LBX_BLEND_CURRENT_ALPHA:
-            cmd = GL_INTERPOLATE_EXT;
-            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_EXT, GL_PREVIOUS_EXT);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_EXT, GL_PREVIOUS_EXT);
-            break;
-#if 0
-        case LBX_BLEND_MANUAL:
-            value = D3DTOP_BLENDFACTORALPHA;
-            // Set factor in render state
-            hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREFACTOR,
-                D3DRGBA(0,0,0,bm.factor));
-            break;
-#endif
-        default:
-            printf("Unhandled type %d\n", bm.operation);
-        }
-
-        //printf("Blending type(%x), cmd(%x), src1(%x), src1op(%x), src2(%x), src2op(%x)\n)", type, cmd, src1, src1op, src2, src2op);
-        glTexEnvi(GL_TEXTURE_ENV, type, cmd);
-        glTexEnvi(GL_TEXTURE_ENV, src1, src1op);
-        glTexEnvi(GL_TEXTURE_ENV, src2, src2op);
-
-        glActiveTextureARB(GL_TEXTURE0_ARB);
     }
     //-----------------------------------------------------------------------------
     void SDLRenderSystem::_setTextureAddressingMode(int stage, Material::TextureLayer::TextureAddressingMode tam)
@@ -974,8 +800,9 @@ namespace Ogre {
               vp->_clearUpdatedFlag();
         }
     }
-  void SDLRenderSystem::setLights()
-  {
+
+	void SDLRenderSystem::setLights()
+	{
         for (int i = 0; i < MAX_LIGHTS; ++i)
         {
             if (mLights[i] != NULL)
@@ -984,8 +811,7 @@ namespace Ogre {
                 setGLLightPositionDirection(lt, i);
             }
         }
-
-  }
+	}
 
     //-----------------------------------------------------------------------------
     void SDLRenderSystem::_beginFrame(void)
@@ -1024,10 +850,8 @@ namespace Ogre {
 
         // Update light positions / directions because GL modifies them
         setLights();
-
         OgreUnguard();
     }
-
     //-----------------------------------------------------------------------------
     void SDLRenderSystem::_render(RenderOperation& op)
     {
@@ -1077,7 +901,8 @@ namespace Ogre {
         }
         
         // Textures if available
-        GLint index = GL_TEXTURE0_ARB;
+        /*
+		GLint index = GL_TEXTURE0_ARB;
         for (int i = 0; i < _getNumTextureUnits(); i++)
         {
             if( (op.vertexOptions & RenderOperation::VO_TEXTURE_COORDS) &&
@@ -1085,10 +910,11 @@ namespace Ogre {
             {                
                 glClientActiveTextureARB(index + i);
                 glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-                stride = op.texCoordStride[mTextureCoordIndex[i]] ?  
-                    op.texCoordStride[mTextureCoordIndex[i]] +
-                    (sizeof(GL_FLOAT) * 
-                     op.numTextureDimensions[mTextureCoordIndex[i]])
+                stride = 
+					op.texCoordStride[mTextureCoordIndex[i]] ?  
+                    op.texCoordStride[mTextureCoordIndex[i]] + 
+					((unsigned short)sizeof(GL_FLOAT) * 
+					op.numTextureDimensions[mTextureCoordIndex[i]])
                     : 0;
                 glTexCoordPointer(
                     op.numTextureDimensions[mTextureCoordIndex[i]],
@@ -1097,12 +923,42 @@ namespace Ogre {
             }
             else
             {
-               glClientActiveTextureARB( index + i );
-               glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+				glClientActiveTextureARB( index + i );
+				glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+            }
+        }
+		*/
+
+		GLint index = GL_TEXTURE0_ARB;
+        for (int i = 0; i < _getNumTextureUnits(); i++)
+        {
+            if( (op.vertexOptions & RenderOperation::VO_TEXTURE_COORDS) )
+            {                
+                glClientActiveTextureARB(index + i);
+				if (glIsEnabled(GL_TEXTURE_2D))
+				{
+					int texCoordSet = (i < op.numTextureCoordSets) ? i : 0;
+					glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+					stride = 
+						op.texCoordStride[mTextureCoordIndex[texCoordSet]] ?  
+						op.texCoordStride[mTextureCoordIndex[texCoordSet]] + 
+						((unsigned short)sizeof(GL_FLOAT) * 
+						op.numTextureDimensions[mTextureCoordIndex[texCoordSet]])
+						: 0;
+					glTexCoordPointer(
+						op.numTextureDimensions[mTextureCoordIndex[texCoordSet]],
+						GL_FLOAT, stride, 
+						op.pTexCoords[mTextureCoordIndex[texCoordSet]] );
+				}
+            }
+            else
+            {
+				glClientActiveTextureARB( index + i );
+				glDisableClientState( GL_TEXTURE_COORD_ARRAY );
             }
         }
 
-        // Reset the texture to 0
+		// Reset the texture to 0
         glClientActiveTextureARB(index);
 
         // Find the correct type to render
@@ -1142,8 +998,7 @@ namespace Ogre {
             glDrawArrays( primType, 0, op.numVertices );
         }
 
-     
-        OgreUnguard();
+		OgreUnguard();
     }
     
     //-----------------------------------------------------------------------------
@@ -1173,14 +1028,12 @@ namespace Ogre {
         glEnable( GL_CULL_FACE );
         glFrontFace( cullMode );
     }
-
     //-----------------------------------------------------------------------------
     void SDLRenderSystem::_setDepthBufferParams(bool depthTest, bool depthWrite, CompareFunction depthFunction)
     {
         _setDepthBufferCheckEnabled(depthTest);
         _setDepthBufferWriteEnabled(depthWrite);
         _setDepthBufferFunction(depthFunction);
-
     }
     //-----------------------------------------------------------------------------
     void SDLRenderSystem::_setDepthBufferCheckEnabled(bool enabled)
@@ -1230,10 +1083,8 @@ namespace Ogre {
     String SDLRenderSystem::getErrorDescription(long errCode)
     {
         // XXX FIXME
-
         return String("Uknown Error");
     }
-
     //-----------------------------------------------------------------------------
     void SDLRenderSystem::setLightingEnabled(bool enabled)
     {
@@ -1331,7 +1182,6 @@ namespace Ogre {
         }
 
         glPolygonMode(GL_FRONT_AND_BACK, glmode);
-
     }
     //---------------------------------------------------------------------
     void SDLRenderSystem::setStencilCheckEnabled(bool enabled)
@@ -1344,7 +1194,6 @@ namespace Ogre {
         {
             glDisable(GL_STENCIL_TEST);
         }
-        
     }
     //---------------------------------------------------------------------
     bool SDLRenderSystem::hasHardwareStencil(void)
@@ -1465,7 +1314,386 @@ namespace Ogre {
         mStencilPass = convertStencilOp(passOp);
         glStencilFunc(mStencilFunc, mStencilRef, mStencilMask);
         glStencilOp(mStencilFail, mStencilZFail, mStencilPass);
+    }
+	//---------------------------------------------------------------------
+	void SDLRenderSystem::_setTextureLayerFiltering(int unit, const TextureFilterOptions texLayerFilterOps)
+	{
+        OgreGuard( "SDLRenderSystem::_setTextureLayerFiltering" );        
 
+		glActiveTextureARB( GL_TEXTURE0_ARB + unit );
+		switch( texLayerFilterOps )
+		{
+		case TFO_ANISOTROPIC:
+			glTexParameteri(
+				GL_TEXTURE_2D, 
+				GL_TEXTURE_MAG_FILTER, 
+				GL_LINEAR);
+
+			glTexParameteri(
+				GL_TEXTURE_2D, 
+				GL_TEXTURE_MIN_FILTER,
+				GL_LINEAR_MIPMAP_LINEAR);
+			break;
+
+		case TFO_TRILINEAR:
+			glTexParameteri(
+				GL_TEXTURE_2D, 
+				GL_TEXTURE_MAG_FILTER, 
+				GL_LINEAR);
+
+			glTexParameteri(
+				GL_TEXTURE_2D, 
+				GL_TEXTURE_MIN_FILTER,
+				GL_LINEAR_MIPMAP_LINEAR);
+			break;
+
+		case TFO_BILINEAR:
+			glTexParameteri(
+				GL_TEXTURE_2D, 
+				GL_TEXTURE_MAG_FILTER, 
+				GL_LINEAR);
+
+			glTexParameteri(
+				GL_TEXTURE_2D, 
+				GL_TEXTURE_MIN_FILTER,
+				GL_LINEAR_MIPMAP_NEAREST);
+			break;
+
+		case TFO_NONE:
+			glTexParameteri(
+				GL_TEXTURE_2D, 
+				GL_TEXTURE_MAG_FILTER, 
+				GL_NEAREST);
+
+			glTexParameteri(
+				GL_TEXTURE_2D, 
+				GL_TEXTURE_MIN_FILTER,
+				GL_NEAREST);
+			break;
+		}
+
+		OgreUnguard();
+	}
+	//---------------------------------------------------------------------
+	GLfloat SDLRenderSystem::_getCurrentAnisotrofy()
+	{
+		GLfloat curAniso = 0;
+		glGetTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, &curAniso);
+		return curAniso ? curAniso : 1;
+	}
+	//---------------------------------------------------------------------
+	void SDLRenderSystem::_setTextureLayerAnisotropy(int unit, int maxAnisotropy)
+	{
+		if (!mGLCaps.aniso)
+			return;
+
+		GLfloat largest_supported_anisotropy = 0;
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest_supported_anisotropy);
+		if (maxAnisotropy > largest_supported_anisotropy)
+			maxAnisotropy = largest_supported_anisotropy ? largest_supported_anisotropy : 1;
+		if (_getCurrentAnisotrofy() != maxAnisotropy)
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy);
+	}
+	//---------------------------------------------------------------------
+	void SDLRenderSystem::_setAnisotropy(int maxAnisotropy)
+	{
+		if (!mGLCaps.aniso)
+			return;
+		for (int n = 0; n < _getNumTextureUnits(); n++)
+			_setTextureLayerAnisotropy(n, maxAnisotropy);
+	}
+	//-----------------------------------------------------------------------------
+    void SDLRenderSystem::_setTextureBlendMode(int stage, const LayerBlendModeEx& bm)
+    {       
+		if (mGLCaps.arbCombine)
+			_setTextureBlendMode_ARB(stage, bm);
+		else if (mGLCaps.extCombine)
+			_setTextureBlendMode_EXT(stage, bm);
+    }
+	//-----------------------------------------------------------------------------
+    void SDLRenderSystem::_setTextureBlendMode_ARB(int stage, const LayerBlendModeEx& bm)
+    {       
+        GLenum src1op, src2op, cmd;
+        GLfloat cv1[4], cv2[4], av1[4], av2[4];
+
+		cv1[0] = bm.colourArg1.r;
+		cv1[1] = bm.colourArg1.g;
+		cv1[2] = bm.colourArg1.b;
+		cv1[3] = bm.colourArg1.a;
+
+		cv2[0] = bm.colourArg2.r;
+		cv2[1] = bm.colourArg2.g;
+		cv2[2] = bm.colourArg2.b;
+		cv2[3] = bm.colourArg2.a;
+
+		av1[0] = 0;
+		av1[1] = 0;
+		av1[2] = 0;
+		av1[3] = bm.alphaArg1;
+
+		av2[0] = 0;
+		av2[1] = 0;
+		av2[2] = 0;
+		av2[3] = bm.alphaArg2;
+
+        switch (bm.source1)
+        {
+        case LBS_CURRENT:
+            src1op = GL_PREVIOUS_ARB;
+            break;
+        case LBS_TEXTURE:
+            src1op = GL_TEXTURE;
+            break;
+        case LBS_MANUAL:
+			src1op = GL_CONSTANT_ARB;
+			break;
+        // XXX
+        case LBS_DIFFUSE:
+        case LBS_SPECULAR:
+		default:
+            src1op = 0;
+        }
+
+        switch (bm.source2)
+        {
+        case LBS_CURRENT:
+            src2op = GL_PREVIOUS_ARB;
+            break;
+        case LBS_TEXTURE:
+            src2op = GL_TEXTURE;
+            break;
+        case LBS_MANUAL:
+			src2op = GL_CONSTANT_ARB;
+			break;
+        // XXX
+		case LBS_DIFFUSE:
+        case LBS_SPECULAR:
+		default:
+            src2op = 0;
+        }
+
+        switch (bm.operation)
+        {
+        case LBX_SOURCE1:
+            cmd = GL_REPLACE;
+            break;
+        case LBX_SOURCE2:
+            cmd = GL_REPLACE;
+            break;
+        case LBX_MODULATE:
+            cmd = GL_MODULATE;
+            break;
+        case LBX_MODULATE_X2:
+            cmd = GL_MODULATE;
+            break;
+        case LBX_MODULATE_X4:
+            cmd = GL_MODULATE;
+            break;
+        case LBX_ADD:
+            cmd = GL_ADD;
+            break;
+        case LBX_ADD_SIGNED:
+            cmd = GL_ADD_SIGNED_ARB;
+            break;
+        case LBX_BLEND_TEXTURE_ALPHA:
+            cmd = GL_INTERPOLATE_ARB;
+            break;
+        case LBX_BLEND_CURRENT_ALPHA:
+            cmd = GL_INTERPOLATE_ARB;
+            break;
+        case LBX_DOTPRODUCT:
+			cmd = mGLCaps.dp3arb ? GL_DOT3_RGB_ARB : GL_MODULATE;
+            break;
+		// XXX
+		default:
+            cmd = 0;
+        }
+
+		glActiveTextureARB(GL_TEXTURE0_ARB + stage);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_MODULATE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, cmd);
+		if (cmd != GL_DOT3_RGB_ARB)
+			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, cmd);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, src1op);
+        glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, src2op);
+        glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_ARB, GL_CONSTANT_ARB);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, src1op);
+        glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_ARB, src2op);
+        glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_ARB, GL_CONSTANT_ARB);
+
+		if (bm.operation == LBX_BLEND_TEXTURE_ALPHA)
+		{
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_ARB, GL_TEXTURE);
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_ARB, GL_TEXTURE);
+		}
+		if (bm.operation == LBX_BLEND_CURRENT_ALPHA)
+		{
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_ARB, GL_PREVIOUS_ARB);
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_ARB, GL_PREVIOUS_ARB);
+		}
+
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB, GL_SRC_COLOR);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB, GL_SRC_COLOR);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB_ARB, GL_SRC_ALPHA);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB, GL_SRC_ALPHA);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA_ARB, GL_SRC_ALPHA);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_ALPHA_ARB, GL_SRC_ALPHA);
+
+		if (bm.operation == LBX_MODULATE)
+			glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ? GL_RGB_SCALE_ARB : GL_ALPHA_SCALE, 1);
+		if (bm.operation == LBX_MODULATE_X2)
+			glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ? GL_RGB_SCALE_ARB : GL_ALPHA_SCALE, 2);
+		if (bm.operation == LBX_MODULATE_X4)
+			glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ? GL_RGB_SCALE_ARB : GL_ALPHA_SCALE, 4);
+
+		if (bm.blendType == LBT_COLOUR && bm.source1 == LBS_MANUAL)
+			glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, cv1);
+		if (bm.blendType == LBT_COLOUR && bm.source2 == LBS_MANUAL)
+			glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, cv2);
+
+        glActiveTextureARB(GL_TEXTURE0_ARB);
+	}
+	//-----------------------------------------------------------------------------
+    void SDLRenderSystem::_setTextureBlendMode_EXT(int stage, const LayerBlendModeEx& bm)
+    {       
+		glActiveTextureARB(GL_TEXTURE0_ARB + stage);
+
+        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
+        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_EXT, GL_SRC_COLOR);
+        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_EXT, GL_SRC_ALPHA);
+        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_EXT, GL_SRC_COLOR);
+        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA_EXT, GL_SRC_ALPHA);
+        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB_EXT, GL_SRC_COLOR); 
+        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_ALPHA_EXT, GL_SRC_ALPHA); 
+
+        GLenum type, src1, src2, src1op, src2op, cmd;
+        GLfloat cv1[4], cv2[4], av1[4], av2[4];
+
+		cv1[0] = bm.colourArg1.r;
+		cv1[1] = bm.colourArg1.g;
+		cv1[2] = bm.colourArg1.b;
+		cv1[3] = bm.colourArg1.a;
+
+		cv2[0] = bm.colourArg2.r;
+		cv2[1] = bm.colourArg2.g;
+		cv2[2] = bm.colourArg2.b;
+		cv2[3] = bm.colourArg2.a;
+
+		av1[0] = 0;
+		av1[1] = 0;
+		av1[2] = 0;
+		av1[3] = bm.alphaArg1;
+
+		av2[0] = 0;
+		av2[1] = 0;
+		av2[2] = 0;
+		av2[3] = bm.alphaArg2;
+
+        if (bm.blendType == LBT_COLOUR)
+        {
+            type = GL_COMBINE_RGB_EXT;
+            src1 = GL_SOURCE0_RGB_EXT;
+            src2 = GL_SOURCE1_RGB_EXT;
+        }
+        else
+        {
+            type = GL_COMBINE_ALPHA_EXT;
+            src1 = GL_SOURCE0_ALPHA_EXT;
+            src2 = GL_SOURCE1_ALPHA_EXT;
+        }
+
+        switch (bm.source1)
+        {
+        case LBS_CURRENT:
+            src1op = GL_PREVIOUS_EXT;
+            break;
+        case LBS_TEXTURE:
+            src1op = GL_TEXTURE;
+            break;
+        case LBS_MANUAL:
+            src1op = GL_CONSTANT_EXT;
+			break;
+        // XXX
+		case LBS_DIFFUSE:
+        case LBS_SPECULAR:
+		default:
+            src1op = 0;
+        }
+
+        switch (bm.source2)
+        {
+        case LBS_CURRENT:
+            src2op = GL_PREVIOUS_EXT;
+            break;
+        case LBS_TEXTURE:
+            src2op = GL_TEXTURE;
+            break;
+        case LBS_MANUAL:
+            src2op = GL_CONSTANT_EXT;
+			break;
+        // XXX
+		case LBS_DIFFUSE:
+        case LBS_SPECULAR:
+		default:
+            src2op = 0;
+        }
+
+        switch (bm.operation)
+        {
+        case LBX_SOURCE1:
+            cmd = GL_REPLACE;
+            break;
+        case LBX_SOURCE2:
+            cmd = GL_REPLACE;
+            break;
+        case LBX_MODULATE:
+            cmd = GL_MODULATE;
+			glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ? GL_RGB_SCALE_ARB : GL_ALPHA_SCALE, 1);
+            break;
+        case LBX_MODULATE_X2:
+            cmd = GL_MODULATE;
+            glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ? GL_RGB_SCALE_EXT : GL_ALPHA_SCALE, 2);
+            break;
+        case LBX_MODULATE_X4:
+            cmd = GL_MODULATE;
+            glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ? GL_RGB_SCALE_EXT : GL_ALPHA_SCALE, 4);
+            break;
+        case LBX_ADD:
+            cmd = GL_ADD;
+            break;
+        case LBX_ADD_SIGNED:
+            cmd = GL_ADD_SIGNED_EXT;
+            break;
+        case LBX_BLEND_TEXTURE_ALPHA:
+            cmd = GL_INTERPOLATE_EXT;
+            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_EXT, GL_TEXTURE);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_EXT, GL_TEXTURE);
+            break;
+        case LBX_BLEND_CURRENT_ALPHA:
+            cmd = GL_INTERPOLATE_EXT;
+            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_EXT, GL_PREVIOUS_EXT);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_EXT, GL_PREVIOUS_EXT);
+            break;
+        case LBX_DOTPRODUCT:
+			cmd = mGLCaps.dp3ext ? GL_DOT3_RGB_EXT : GL_MODULATE;
+            break;
+        // XXX
+        default:
+			cmd = 0;
+        }
+
+        glTexEnvi(GL_TEXTURE_ENV, type, cmd);
+        glTexEnvi(GL_TEXTURE_ENV, src1, src1op);
+        glTexEnvi(GL_TEXTURE_ENV, src2, src2op);
+
+		if (bm.blendType == LBT_COLOUR && bm.source1 == LBS_MANUAL)
+			glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, cv1);
+		if (bm.blendType == LBT_COLOUR && bm.source2 == LBS_MANUAL)
+			glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, cv2);
+
+		glActiveTextureARB(GL_TEXTURE0_ARB);
     }
     //---------------------------------------------------------------------
     void SDLRenderSystem::setGLLightPositionDirection(Light* lt, int lightindex)
