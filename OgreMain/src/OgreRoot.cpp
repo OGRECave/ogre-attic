@@ -140,6 +140,10 @@ namespace Ogre {
         if(LogManager::getSingletonPtr() == 0) {
             mLogManager = new LogManager();
             mLogManager->createLog(logFileName, true, true);
+	}
+	else
+	{
+            mLogManager = LogManager::getSingletonPtr();
         }
 
         // Dynamic library manager
