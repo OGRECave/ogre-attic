@@ -3,7 +3,7 @@ INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/Samples/BSP/include -I$(top_srcdir)
 noinst_PROGRAMS = BSP
 
 BSP_SOURCES = BSP.cpp
-BSP_LDFLAGS = -L$(top_srcdir)/OgreMain/src
+BSP_LDFLAGS = -L$(top_builddir)/OgreMain/src
 BSP_LDADD = -lOgreMain
 
 install-exec-local:

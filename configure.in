@@ -1,22 +1,26 @@
 AC_PREREQ(2.50)
 
-AC_INIT([OGRE], 0.15.0)
+AC_INIT([OGRE], [0.15.0])
 
 AC_CANONICAL_TARGET
 
-#AM_INIT_AUTOMAKE([1.6.1 foreign no-installinfo no-installman subdir-objects])
+# New syntax, but this is still buggy; PACKAGE gets defined as 'ogre' not 'OGRE'
+#AM_INIT_AUTOMAKE([1.7.0 foreign no-installinfo no-installman subdir-objects])
 AM_INIT_AUTOMAKE([OGRE], 0.15.0)
-AM_CONFIG_HEADER(OgreMain/include/config.h)
+AC_CONFIG_HEADERS([OgreMain/include/config.h])
 
 dnl Check for programs
 AC_PROG_CC
 AC_PROG_CXX
 AM_PROG_CC_C_O
 AC_PROG_INSTALL
+AC_PROG_YACC
 AM_PROG_LEX
-AC_CHECK_PROG([BISON], bison, bison)
 
-AM_PROG_LIBTOOL
+dnl Setup target-specific parameters
+OGRE_SETUP_FOR_TARGET
+
+AC_PROG_LIBTOOL
 
 dnl GCC version check
 if test x$GCC = xyes; then
@@ -61,9 +65,7 @@ dnl Find the optional components we should build
 OGRE_CHECK_CG
 OGRE_BUILD_PYTHON_LINK
 OGRE_CHECK_OPENEXR
-
-dnl This needs to be figured out later (MingW)
-OGRE_SETUP_FOR_HOST
+OGRE_CHECK_DX9
 
 dnl Detect endianness
 OGRE_DETECT_ENDIAN
@@ -80,6 +82,7 @@ OGREMAIN_AGE=0
 OGREMAIN_VERSION_INFO=$OGREMAIN_CURRENT:$OGREMAIN_REVISION:$OGREMAIN_AGE
 AC_SUBST(OGREMAIN_VERSION_INFO)
 
+
 dnl Create the makefiles
 AC_CONFIG_FILES([Makefile \
     OgreMain/Makefile \
@@ -95,6 +98,9 @@ AC_CONFIG_FILES([Makefile \
     PlatformManagers/GLX/Makefile \
     PlatformManagers/GLX/src/Makefile \
     PlatformManagers/GLX/include/Makefile \
+    PlatformManagers/Win32/Makefile \
+    PlatformManagers/Win32/src/Makefile \
+    PlatformManagers/Win32/include/Makefile \
     PlugIns/Makefile \
     PlugIns/BSPSceneManager/Makefile \
     PlugIns/BSPSceneManager/src/Makefile \
@@ -124,6 +130,10 @@ AC_CONFIG_FILES([Makefile \
     RenderSystems/GL/src/GLSL/Makefile \
     RenderSystems/GL/src/GLSL/include/Makefile \
     RenderSystems/GL/src/GLSL/src/Makefile \
+    RenderSystems/GL/src/nvparse/Makefile \
+    RenderSystems/Direct3D9/Makefile \
+    RenderSystems/Direct3D9/src/Makefile \
+    RenderSystems/Direct3D9/include/Makefile \
     Samples/Makefile \
     Samples/Common/Makefile \
     Samples/Common/include/Makefile \

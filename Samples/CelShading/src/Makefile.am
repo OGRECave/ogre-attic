@@ -3,7 +3,7 @@ INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/Samples/CelShading/include -I$(top_
 noinst_PROGRAMS = CelShading
 
 CelShading_SOURCES = CelShading.cpp
-CelShading_LDFLAGS = -L$(top_srcdir)/OgreMain/src
+CelShading_LDFLAGS = -L$(top_builddir)/OgreMain/src
 CelShading_LDADD = -lOgreMain
 
 install-exec-local:

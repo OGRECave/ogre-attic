@@ -3,7 +3,7 @@ INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/../OgreMain/include -I$(top_srcdir)
 noinst_PROGRAMS = BspCollision
 
 BspCollision_SOURCES = BspCollision.cpp
-BspCollision_LDFLAGS = -L$(top_srcdir)/../OgreMain/src -L$(top_srcdir)/ReferenceAppLayer/src
+BspCollision_LDFLAGS = -L$(top_builddir)/../OgreMain/src -L$(top_builddir)/ReferenceAppLayer/src
 BspCollision_LDADD = -lOgreMain -lOgreReferenceAppLayer
 
 install-exec-local:

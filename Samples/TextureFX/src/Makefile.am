@@ -2,7 +2,7 @@ INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/Samples/TextureFX/include -I$(top_s
 
 noinst_PROGRAMS = TextureFX
 TextureFX_SOURCES = TextureFX.cpp
-TextureFX_LDFLAGS = -L$(top_srcdir)/OgreMain/src
+TextureFX_LDFLAGS = -L$(top_builddir)/OgreMain/src
 TextureFX_LDADD = -lOgreMain
 
 install-exec-local:

@@ -1,10 +1,10 @@
 INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/PlugIns/CgProgramManager/include -I$(top_srcdir)/OgreMain/include
 
-pkglib_PROGRAMS = Plugin_CgProgramManager.so
+pkglib_LTLIBRARIES = Plugin_CgProgramManager.la
 
-Plugin_CgProgramManager_so_SOURCES = OgreCgProgram.cpp \
+Plugin_CgProgramManager_la_SOURCES = OgreCgProgram.cpp \
                              OgreCgProgramFactory.cpp \
                              OgreCgProgramManagerDll.cpp 
 
-Plugin_CgProgramManager_so_LDFLAGS = $(SHARED_FLAGS) -L$(top_srcdir)/OgreMain/src
-Plugin_CgProgramManager_so_LDADD = -lOgreMain -lCg
+Plugin_CgProgramManager_la_LDFLAGS = -module $(PLUGIN_FLAGS) -L$(top_builddir)/OgreMain/src
+Plugin_CgProgramManager_la_LIBADD = -lOgreMain -lCg

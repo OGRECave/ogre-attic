@@ -292,7 +292,7 @@
 					RelativePath="..\src\nvparse\ts1.0_inst_list.h">
 				</File>
 				<File
-					RelativePath="..\src\nvparse\unistd.h">
+					RelativePath="..\src\nvparse\winheaders\unistd.h">
 				</File>
 				<File
 					RelativePath="..\src\nvparse\vcp1.0_impl.cpp">

@@ -1,8 +1,8 @@
 INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/PlugIns/NatureSceneManager/include -I$(top_srcdir)/OgreMain/include
 
-pkglib_PROGRAMS = Plugin_NatureSceneManager.so
+pkglib_LTLIBRARIES = Plugin_NatureSceneManager.la
 
-Plugin_NatureSceneManager_so_SOURCES = NaturePatch.cpp \
+Plugin_NatureSceneManager_la_SOURCES = NaturePatch.cpp \
 				       NatureCustomPatch.cpp \
 				       NatureTerrainPatch.cpp \
 				       NaturePatchManager.cpp \
@@ -10,5 +10,5 @@ Plugin_NatureSceneManager_so_SOURCES = NaturePatch.cpp \
 				       NatureSceneManagerDll.cpp \
 				       HeightmapLoader.cpp
 
-Plugin_NatureSceneManager_so_LDFLAGS = $(SHARED_FLAGS) -L$(top_srcdir)/OgreMain/src
-Plugin_NatureSceneManager_so_LDADD = -lOgreMain
+Plugin_NatureSceneManager_la_LDFLAGS = -module $(PLUGIN_FLAGS) -L$(top_builddir)/OgreMain/src
+Plugin_NatureSceneManager_la_LIBADD = -lOgreMain

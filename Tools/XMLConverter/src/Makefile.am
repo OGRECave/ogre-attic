@@ -8,5 +8,5 @@ OgreXMLConverter_SOURCES= OgreXMLMeshSerializer.cpp \
                       tinyxml.cpp \
                       tinyxmlerror.cpp \
                       tinyxmlparser.cpp
-OgreXMLConverter_LDFLAGS= -L$(top_srcdir)/OgreMain/src
+OgreXMLConverter_LDFLAGS= -L$(top_builddir)/OgreMain/src
 OgreXMLConverter_LDADD= -lOgreMain
