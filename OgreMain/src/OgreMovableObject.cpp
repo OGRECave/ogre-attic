@@ -24,6 +24,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 #include "OgreMovableObject.h"
+#include "OgreSceneNode.h"
+#include "OgreTagPoint.h"
 
 namespace Ogre {
 
@@ -33,11 +35,15 @@ namespace Ogre {
         mParentNode = 0;
         mVisible = true;
         mUserObject = 0;
+		mAttachingPoint = 0;
         mRenderQueueID = RENDER_QUEUE_MAIN;
     }
     //-----------------------------------------------------------------------
     void MovableObject::_notifyAttached(SceneNode* parent)
     {
+        // Cannot be attached to a bone too.
+        assert(!mAttachingPoint);
+
         mParentNode = parent;
     }
     //-----------------------------------------------------------------------
@@ -72,8 +78,43 @@ namespace Ogre {
     {
         return mRenderQueueID;
     }
+    //-----------------------------------------------------------------------
+	Matrix4 MovableObject::_getParentNodeFullTransform(void)
+	{
+		
+		if(mParentNode)
+		{
+			// object attached to a sceneNode
+			return mParentNode->_getFullTransform();
+		}
+		else if(mAttachingPoint)
+		{
+			// object is attached to an attachingPoint (tagPoint)
+			return mAttachingPoint->_getFullTransform();
+		}
 
+        // fallback
+        return Matrix4::IDENTITY;
+	}
+    //-----------------------------------------------------------------------
+    TagPoint* MovableObject::getAttachmentPoint(void)
+    {
+        return mAttachingPoint;
+    }
+    //-----------------------------------------------------------------------
+    bool MovableObject::isAttached(void)
+    {
+        return (mParentNode != 0 || mAttachingPoint != 0);
+    }
+    //-----------------------------------------------------------------------
+    void MovableObject::_notifyAttached(TagPoint* parent)
+    {
+        // Cannot be attached to a scene node too.
+        assert(!mParentNode);
 
+        mAttachingPoint = parent;
+
+    }
 
 
 }

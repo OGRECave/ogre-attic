@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSceneManager.h"
 #include "OgreMaterialManager.h"
 #include "OgreSubMesh.h"
+#include "OgreTagPoint.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
@@ -84,8 +85,7 @@ namespace Ogre {
     {
         if (!mParentEntity->mNumBoneMatrices)
         {
-            // No bones, just a single world matrix
-            *xform = mParentEntity->getParentNode()->_getFullTransform();
+            *xform = mParentEntity->_getParentNodeFullTransform();
         }
         else
         {

@@ -31,6 +31,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreString.h"
 #include "OgreMovableObject.h"
 #include "OgreAnimationState.h"
+#include "OgreQuaternion.h"
+#include "OgreVector3.h"
+
 
 namespace Ogre {
     /** Defines an instance of a discrete, movable object based on a Mesh.
@@ -137,6 +140,17 @@ namespace Ogre {
 		/** Builds a list of SubEntities based on the SubMeshes contained in the Mesh. */
 		void buildSubEntityList(Mesh* mesh, SubEntityList* sublist);
 
+		/// internal implementation of attaching a 'child' object to this entity and assign the parent node to the child entity
+		void attachObjectImpl(MovableObject *pMovable, TagPoint *pAttachingPoint);
+
+		/// Contains the child objects (attached to bones) indexed by name
+        typedef std::map<String, MovableObject*> ChildObjectList;
+        ChildObjectList mChildObjectList;
+
+
+		/// Bounding box that 'contains' all the mesh of each child entity
+		AxisAlignedBox *mFullBoundingBox;
+
 
     public:
         /** Default destructor.
@@ -183,6 +197,9 @@ namespace Ogre {
         /** Overridden - see MovableObject.
         */
         const AxisAlignedBox& getBoundingBox(void) const;
+
+        /// merge all the child object Bounds a return it
+		AxisAlignedBox getChildObjectsBoundingBox(void) const;
 
         /** Overridden - see MovableObject.
         */
@@ -244,6 +261,22 @@ namespace Ogre {
 			
         /** Sets the rendering detail of this entire entity (solid, wireframe etc) */
         void setRenderDetail(SceneDetailLevel renderDetail);
+
+		/** Attaches another object to a certain bone of the skeleton which this entity uses.
+        @remarks
+            This method can be used to attach another object to an animated part of this entity,
+            by attaching it to a bone in the skeleton (with an offset if required). As this entity 
+            is animated, the attached object will move relative to the bone to which it is attached.
+        @param boneName The name of the bone (in the skeleton) to attach this object
+        @param pMovable Pointer to the object to attach
+        @param offsetOrientation An adjustment to the orientation of the attached object, relative to the bone.
+        @param offsetPosition An adjustment to the position of the attached object, relative to the bone.
+        */
+		void attachObjectToBone(const String &boneName, MovableObject *pMovable, const Quaternion &offsetOrientation = Quaternion::IDENTITY, const Vector3 &offsetPosition = Vector3::ZERO);
+
+		/// detach a MovableObject previously attached using attachObjectToBone
+		MovableObject* detachObjectFromBone(const String &movableName);
+
 
     };
 

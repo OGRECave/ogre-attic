@@ -194,6 +194,7 @@ namespace Ogre {
     class StringInterface;
     class SubEntity;
     class SubMesh;
+	class TagPoint;
 	class TargetManager;
 	class TextureFont;
     class UserDefinedObject;

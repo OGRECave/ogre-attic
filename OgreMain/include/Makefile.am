@@ -136,6 +136,7 @@ OgreStringResource.h \
 OgreStringVector.h \
 OgreSubEntity.h \
 OgreSubMesh.h \
+OgreTagPoint.h \
 OgreTargetManager.h \
 OgreTGACodec.h \
 OgreTexture.h \

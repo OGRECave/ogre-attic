@@ -504,6 +504,10 @@ SOURCE=..\src\OgreSubMesh.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreTagPoint.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreTexture.cpp
 # End Source File
 # Begin Source File
@@ -1109,6 +1113,10 @@ SOURCE=..\include\OgreSubEntity.h
 # Begin Source File
 
 SOURCE=..\include\OgreSubMesh.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreTagPoint.h
 # End Source File
 # Begin Source File
 

@@ -25,7 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreBone.h"
 #include "OgreSkeleton.h"
-
+#include "OgreTagPoint.h"
 
 namespace Ogre {
 
@@ -115,6 +115,14 @@ namespace Ogre {
     {
         return mHandle;
     }
+
+	TagPoint *Bone::createChildTagPoint(const Quaternion &offsetOrientation,const Vector3 &offsetPosition)
+	{
+		TagPoint *tp = mCreator->createTagPoint(offsetOrientation, offsetPosition);
+		addChild(tp);
+		
+		return tp;
+	}
 
 
 

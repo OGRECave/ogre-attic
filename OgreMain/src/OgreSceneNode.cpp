@@ -122,7 +122,7 @@ namespace Ogre {
 
             ret = i->second;
             mObjectsByName.erase(i);
-            ret->_notifyAttached(0);
+            ret->_notifyAttached((SceneNode*)0);
 
             // Make sure bounds get updated (must go right to the top)
             needUpdate();
@@ -148,7 +148,7 @@ namespace Ogre {
         }
         MovableObject* ret = it->second;
         mObjectsByName.erase(it);
-        ret->_notifyAttached(0);
+        ret->_notifyAttached((SceneNode*)0);
         // Make sure bounds get updated (must go right to the top)
         needUpdate();
         

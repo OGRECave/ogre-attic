@@ -447,6 +447,9 @@
 				RelativePath="..\src\OgreTGACodec.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreTagPoint.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreTexture.cpp">
 			</File>
 			<File
@@ -911,6 +914,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreTGACodec.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreTagPoint.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreTargetManager.h">
