@@ -52,6 +52,15 @@ function exploreKeys sk =
 		d = execute ("$" + boneName) ;
 		rotContr = d.rotation.controller ;
 		posContr = d.pos.controller ;
+		
+		if (not ((IsKindOf rotContr Euler_XYZ) and (IsKindOf posContr Position_XYZ) )) then
+		(
+			append answer "Your bones must have Euler_XYZ and Position_XYZ controllers (rotation and position)" ;
+			append answer boneName ;
+		)
+		
+		else (
+		
 		--3dsmax5 :
 		subRotContr = getXYZControllers rotContr ;
 		subPosContr = getXYZControllers posContr ;
@@ -102,6 +111,7 @@ function exploreKeys sk =
 					)
 			)
 		)
+		)
 	)
 	append answer "OK" ;
 	--format "results of verification: % \n" answer ;
@@ -121,7 +131,7 @@ function getAllKeys sk boneId firstFrame lastFrame length scale =
 	local angle,ax,timef,nKeys ,i,j,tmp;
 	local bname,d,rotContr,posContr,subRotContr,subPosContr,rotValues,posValues ;
 	
-	format "retrieving key information for % ...\n" (skinOps.GetBoneName sk boneId 1) ;
+	-- format "retrieving key information for % ...\n" (skinOps.GetBoneName sk boneId 1) ;
 	
 	a = #() ;
 	ax = #() ;
@@ -244,7 +254,7 @@ function writeB sk id scale flipYZ outFile =
 
 	if ((d.parent == undefined) and flipYZ) then  -- FLIP Y/Z: root bone
 	(
-		print "Flipping root bone..." ;
+		format "- Flipping root bone... \n" ;
 		-- rotate
 		aaX = Angleaxis (-90) (point3 1 0 0) ;
 		aaY =AngleAxis 0 (point3 0 1 0) ;
@@ -504,33 +514,36 @@ function writeSkeleton pmesh exportOptions out_name =
 		)
 		else
 		(
+			format "------------------------------------------\n"
+			format "------ OGRE skeleton Exporter Log   ------\n"
+			format "------------------------------------------\n"
 		
-			format "firstFrame: % - lastFrame: %\n" exportOptions.firstFrame exportOptions.lastFrame ;
+			format "Exporter options :\n"
+			format "- firstFrame: % \n- lastFrame: %\n" exportOptions.firstFrame exportOptions.lastFrame ;
 			-- create the output file
 			outFile = createfile (out_name + ".skeleton.xml") ;
 
---			try
-			(
 				-- ecriture de l'entete
 				format("<skeleton>\n") to:outFile ;	
 	
 				--if (exportOptions.yAxis==3 and exportOptions.zAxis==2) then
 				--	flipYZ sk keys initialKeys ;
-				
+				format "Writing bones :\n" ;
 				writeBones sk exportOptions.scale exportOptions.flipYZ outFile ;
+				format "Writing bone hierarchy.\n" ;
 				writeHierarchy sk outFile ;
+				format "Writing bone tracks.\n" ;
 				writeAnim sk exportOptions.firstFrame exportOptions.lastFrame exportOptions.length exportOptions.animName outFile ;
 
 				-- ecriture, fin des balises
 				format("</skeleton>\n") to: outFile ;
+				
+			format "------------------------------------------\n"
+			format "----------          END          ---------\n"
+			format "------------------------------------------\n"
+		
 				close outFile ;
 				messageBox "Exporting skeleton successful !"
-			)
---			catch
---			(
---				messageBox "Error while exporting skeleton: Sorry I can't tell you more...." ;
---				close outFile ;
---			)
 		)
 	)
 	
