@@ -506,46 +506,6 @@ namespace Ogre
 		LogManager::getSingleton().logMessage("D3D9 : Shutting down cleanly.");
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::startRendering()
-	{
-		OgreGuard( "D3D9RenderSystem::startRendering" );
-
-		MSG  msg;
-		// Call superclass
-		RenderSystem::startRendering();
-
-		// Render this window
-		PeekMessage( &msg, NULL, 0U, 0U, PM_NOREMOVE );
-
-		while( mRenderTargets.size() )
-		{
-			if( PeekMessage( &msg, NULL, 0U, 0U, PM_REMOVE ) )
-			{
-				TranslateMessage( &msg );
-				DispatchMessage( &msg );
-			}
-			else
-			{
-				if(!fireFrameStarted())
-					return;
-
-				// Render a frame during idle time (no messages are waiting)
-				RenderTargetPriorityMap::iterator itarg, itargend;
-				itargend = mPrioritisedRenderTargets.end();
-				for( itarg = mPrioritisedRenderTargets.begin(); itarg != itargend; ++itarg )
-				{
-					if( itarg->second->isActive() )
-						itarg->second->update();
-				}
-
-				if(!fireFrameEnded())
-					return;
-			}
-		}
-
-		OgreUnguard();
-	}
-	//---------------------------------------------------------------------
 	RenderWindow* D3D9RenderSystem::createRenderWindow( const String &name, int width, int height, int colourDepth,
 		bool fullScreen, int left, int top, bool depthBuffer, RenderWindow* parentWindowHandle)
 	{

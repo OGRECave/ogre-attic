@@ -109,6 +109,23 @@ namespace Ogre
         // Internal method for one-time tasks after first window creation
         void oneTimePostWindowInit(void);
 
+        /** Set of registered frame listeners */
+        std::set<FrameListener*> mFrameListeners;
+
+
+        /** Indicates the type of event to be considered by calculateEventTime(). */
+        enum FrameEventTimeType {
+            FETT_ANY, FETT_STARTED, FETT_ENDED
+        };
+
+        /// Contains the times of recently fired events
+        std::deque<unsigned long> mEventTimes[3];
+
+        /** Internal method for calculating the average time between recently fired events.
+        @param now The current time in ms.
+        @param type The type of event to be considered.
+        */
+        Real calculateEventTime(unsigned long now, FrameEventTimeType type);
     public:
 
         static void termHandler();
@@ -290,8 +307,7 @@ namespace Ogre
         /** Registers a FrameListener which will be called back every frame.
             @remarks
                 A FrameListener is a class which implements methods which
-                will be called during Ogre's automatic rendering loop
-                (started with RenderSystem::startRendering).
+                will be called every frame.
             @par
                 See the FrameListener class for more details on the specifics
                 It is imperitive that the instance passed to this method is
@@ -509,6 +525,70 @@ namespace Ogre
         /** Gets a pointer to the central timer used for all OGRE timings */
         Timer* getTimer(void);
 
+        /** Method for raising frame started events. 
+        @remarks
+            This method is only for internal use when you use OGRE's inbuilt rendering
+            loop (Root::startRendering). However, if you run your own rendering loop then
+            you should call this method to ensure that FrameListener objects are notified
+            of frame events; processes like texture animation and particle systems rely on 
+            this.
+        @note
+            This method takes an event object as a parameter, so you can specify the times
+            yourself. If you are happy for OGRE to automatically calculate the frame time
+            for you, then call the other version of this method with no parameters.
+        @param evt Event object which includes all the timing information which you have 
+            calculated for yourself
+        @returns False if one or more frame listeners elected that the rendering loop should
+            be terminated, true otherwise.
+        */
+        bool _fireFrameStarted(FrameEvent& evt);
+        /** Method for raising frame ended events. 
+        @remarks
+            This method is only for internal use when you use OGRE's inbuilt rendering
+            loop (Root::startRendering). However, if you run your own rendering loop then
+            you should call this method to ensure that FrameListener objects are notified
+            of frame events; processes like texture animation and particle systems rely on 
+            this.
+        @note
+            This method takes an event object as a parameter, so you can specify the times
+            yourself. If you are happy for OGRE to automatically calculate the frame time
+            for you, then call the other version of this method with no parameters.
+        @param evt Event object which includes all the timing information which you have 
+            calculated for yourself
+        @returns False if one or more frame listeners elected that the rendering loop should
+            be terminated, true otherwise.
+        */
+        bool _fireFrameEnded(FrameEvent& evt);
+        /** Method for raising frame started events. 
+        @remarks
+            This method is only for internal use when you use OGRE's inbuilt rendering
+            loop (Root::startRendering). However, if you run your own rendering loop then
+            you should call this method to ensure that FrameListener objects are notified
+            of frame events; processes like texture animation and particle systems rely on 
+            this.
+        @note
+            This method calculates the frame timing information for you based on the elapsed
+            time. If you want to specify elapsed times yourself you should call the other 
+            version of this method which takes event details as a parameter.
+        @returns False if one or more frame listeners elected that the rendering loop should
+            be terminated, true otherwise.
+        */
+        bool _fireFrameStarted();
+        /** Method for raising frame ended events. 
+        @remarks
+            This method is only for internal use when you use OGRE's inbuilt rendering
+            loop (Root::startRendering). However, if you run your own rendering loop then
+            you should call this method to ensure that FrameListener objects are notified
+            of frame events; processes like texture animation and particle systems rely on 
+            this.
+        @note
+            This method calculates the frame timing information for you based on the elapsed
+            time. If you want to specify elapsed times yourself you should call the other 
+            version of this method which takes event details as a parameter.
+        @returns False if one or more frame listeners elected that the rendering loop should
+            be terminated, true otherwise.
+        */
+        bool _fireFrameEnded();
     };
 } // Namespace Ogre
 #endif

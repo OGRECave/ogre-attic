@@ -39,7 +39,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib zlib.lib freetype.lib $(NOINHERIT)"
+				AdditionalDependencies="kernel32.lib zlib.lib freetype.lib user32.lib $(NOINHERIT)"
 				OutputFile="$(OutDir)/OgreMain.dll"
 				Version="0.99"
 				LinkIncremental="2"
@@ -58,7 +58,8 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\Samples\Common\bin\$(ConfigurationName)
-copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)"/>
+copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
+"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -105,7 +106,7 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)"/>
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib zlib.lib freetype.lib $(NOINHERIT)"
+				AdditionalDependencies="kernel32.lib zlib.lib freetype.lib user32.lib $(NOINHERIT)"
 				OutputFile="$(OutDir)/OgreMain.dll"
 				Version="0.99"
 				LinkIncremental="1"
@@ -125,7 +126,8 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\Samples\Common\bin\$(ConfigurationName)
-copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)"/>
+copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
+"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool

@@ -190,47 +190,6 @@ namespace Ogre
         */
         virtual void shutdown(void);
 
-        /** Registers a FrameListener which will be called back every frame.
-            @remarks
-                A FrameListener is a class which implements methods which
-                will be called during Ogre's automatic rendering loop (started
-                with RenderSystem::startRendering).
-            @par
-                See the FrameListener class for more details on the specifics.
-                It is imperitive that the instance passed to this method is
-                not destroyed before iether the rendering loop ends, or the
-                class is removed from the listening list using removeFrameListener.
-            @see
-                FrameListener
-        */
-        virtual void addFrameListener(FrameListener* newListener);
-
-        /** Removes a FrameListener from the list of listening classes.
-        */
-        virtual void removeFrameListener(FrameListener* oldListener);
-
-        /** Starts / restarts the automatic rendering cycle.
-            @remarks
-                This method begins the automatic rendering of the scene.
-                This method will NOT RETURN until the rendering
-                cycle is halted.
-            @par
-                During rendering, any FrameListener classes registered using
-                addFrameListener will be called back for each frame that is to be rendered,
-                These classes can tell OGRE to halt the rendering if required,
-                which will cause this method to return.
-            @par
-                Note - users of the OGRE library do not have to use this
-                automatic rendering loop. It is there as a convenience and is most
-                useful for high frame rate applications e.g. games. For applications that
-                don't need to constantly refresh the rendering targets (e.g. an editor
-                utility), it is better to manually refresh each render target only when
-                required by calling RenderTarget::update.
-            @par
-                This frees up the CPU to do other things in between refreshes, since in
-                this case frame rate is less important.
-         */
-        virtual void startRendering(void);
 
         /** Sets the colour & strength of the ambient (global directionless) light in the world.
         */
@@ -773,33 +732,14 @@ namespace Ogre
             This returns the pipeline to fixed-function processing for this type.
         */
         virtual void unbindGpuProgram(GpuProgramType gptype) = 0;
+
+        /** Utility method for initialising all render targets attached to this rendering system. */
+        virtual void _initRenderTargets(void);
+
+        /** Internal method for updating all render targets attached to this rendering system. */
+        virtual void _updateAllRenderTargets(void);
     protected:
 
-        /** Set of registered frame listeners */
-        std::set<FrameListener*> mFrameListeners;
-
-        /** Internal method for raising frame started events. */
-        bool fireFrameStarted(FrameEvent& evt);
-        /** Internal method for raising frame ended events. */
-        bool fireFrameEnded(FrameEvent& evt);
-
-		/** Internal timer */
-		Timer *mTimer ;
-        /** Internal method for raising frame started events. */
-        bool fireFrameStarted();
-        /** Internal method for raising frame ended events. */
-        bool fireFrameEnded();
-
-        /** Indicates the type of event to be considered by calculateEventTime(). */
-        enum FrameEventTimeType {
-            FETT_ANY, FETT_STARTED, FETT_ENDED
-        };
-
-        /** Internal method for calculating the average time between recently fired events.
-        @param now The current time in ms.
-        @param type The type of event to be considered.
-        */
-        Real calculateEventTime(unsigned long now, FrameEventTimeType type);
 
         /** The render targets. */
         RenderTargetMap mRenderTargets;
@@ -830,8 +770,6 @@ namespace Ogre
         /// Saved set of world matrices
         Matrix4 mWorldMatrices[256];
 
-        /// Contains the times of recently fired events
-        std::deque<unsigned long> mEventTimes[3];
     };
 }
 

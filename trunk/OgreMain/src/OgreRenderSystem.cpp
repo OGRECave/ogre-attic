@@ -55,9 +55,6 @@ namespace Ogre {
         // This makes it the same as OpenGL and other right-handed systems
         mCullingMode = CULL_CLOCKWISE;
 
-		// get a Timer
-        mTimer = Root::getSingleton().getTimer();
-
         // instanciate RenderSystemCapabilities
         mCapabilities = new RenderSystemCapabilities();
     }
@@ -68,96 +65,7 @@ namespace Ogre {
         shutdown();
     }
     //-----------------------------------------------------------------------
-    void RenderSystem::addFrameListener(FrameListener* newListener)
-    {
-        // Insert, unique only (set)
-        mFrameListeners.insert(newListener);
-    }
-    //-----------------------------------------------------------------------
-    void RenderSystem::removeFrameListener(FrameListener* oldListener)
-    {
-        // Remove, 1 only (set)
-        mFrameListeners.erase(oldListener);
-    }
-    //-----------------------------------------------------------------------
-    bool RenderSystem::fireFrameStarted(FrameEvent& evt)
-    {
-        // Tell all listeners
-        std::set<FrameListener*>::iterator i;
-        for (i= mFrameListeners.begin(); i != mFrameListeners.end(); ++i)
-        {
-            if (!(*i)->frameStarted(evt))
-                return false;
-        }
-
-        return true;
-
-    }
-    //-----------------------------------------------------------------------
-    bool RenderSystem::fireFrameEnded(FrameEvent& evt)
-    {
-        // Tell all listeners
-        std::set<FrameListener*>::iterator i;
-        for (i= mFrameListeners.begin(); i != mFrameListeners.end(); ++i)
-        {
-            if (!(*i)->frameEnded(evt))
-                return false;
-        }
-        return true;
-    }
-    //-----------------------------------------------------------------------
-    bool RenderSystem::fireFrameStarted()
-    {
-        unsigned long now = mTimer->getMilliseconds();
-        FrameEvent evt;
-        evt.timeSinceLastEvent = calculateEventTime(now, FETT_ANY);
-        evt.timeSinceLastFrame = calculateEventTime(now, FETT_STARTED);
-
-        return fireFrameStarted(evt);
-    }
-    //-----------------------------------------------------------------------
-    bool RenderSystem::fireFrameEnded()
-    {
-        unsigned long now = mTimer->getMilliseconds();
-        FrameEvent evt;
-        evt.timeSinceLastEvent = calculateEventTime(now, FETT_ANY);
-        evt.timeSinceLastFrame = calculateEventTime(now, FETT_ENDED);
-
-        return fireFrameEnded(evt);
-    }
-    //-----------------------------------------------------------------------
-    Real RenderSystem::calculateEventTime(unsigned long now, FrameEventTimeType type)
-    {
-        // Calculate the average time passed between events of the given type
-        // during the last 0.1 seconds.
-
-        std::deque<unsigned long>& times = mEventTimes[type];
-        times.push_back(now);
-
-        if(times.size() == 1)
-            return 0;
-
-        // Times up to 0.1 seconds old should be kept
-        unsigned long discardLimit = now - 100;
-
-        // Find the oldest time to keep
-        std::deque<unsigned long>::iterator it = times.begin(),
-            end = times.end()-2; // We need at least two times
-        while(it != end)
-        {
-            if(*it < discardLimit)
-                ++it;
-            else
-                break;
-        }
-
-        // Remove old times
-        times.erase(times.begin(), it);
-
-        return Real(times.back() - times.front()) / ((times.size()-1) * 1000);
-    }
-    //-----------------------------------------------------------------------
-    void RenderSystem::startRendering(void)
+    void RenderSystem::_initRenderTargets(void)
     {
 
         // Init stats
@@ -169,9 +77,19 @@ namespace Ogre {
             it->second->resetStatistics();
         }
 
-        // Clear event times
-        for(int i=0; i!=3; ++i)
-            mEventTimes[i].clear();
+    }
+    //-----------------------------------------------------------------------
+    void RenderSystem::_updateAllRenderTargets(void)
+    {
+        // Update all in order of priority
+        // This ensures render-to-texture targets get updated before render windows
+		RenderTargetPriorityMap::iterator itarg, itargend;
+		itargend = mPrioritisedRenderTargets.end();
+		for( itarg = mPrioritisedRenderTargets.begin(); itarg != itargend; ++itarg )
+		{
+			if( itarg->second->isActive() )
+				itarg->second->update();
+		}
     }
     //-----------------------------------------------------------------------
     RenderWindow* RenderSystem::initialise(bool autoCreateWindow)

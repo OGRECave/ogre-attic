@@ -184,10 +184,6 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void startRendering(void);
-        /** See
-          RenderSystem
-         */
         void setAmbientLight(float r, float g, float b);
         /** See
           RenderSystem

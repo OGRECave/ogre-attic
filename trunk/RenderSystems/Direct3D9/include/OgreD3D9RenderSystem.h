@@ -157,7 +157,6 @@ namespace Ogre
 		void setConfigOption( const String &name, const String &value );
 		void reinitialise();
 		void shutdown();
-		void startRendering();
 		void setAmbientLight( float r, float g, float b );
 		void setShadingType( ShadeOptions so );
 		void setLightingEnabled( bool enabled );

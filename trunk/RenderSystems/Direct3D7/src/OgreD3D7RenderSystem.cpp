@@ -474,50 +474,6 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void D3DRenderSystem::startRendering(void)
-    {
-        OgreGuard( "D3DRenderSystem::startRendering" );
-
-        MSG  msg;
-
-        // Call superclass
-        RenderSystem::startRendering();
-
-        // Render this window
-        PeekMessage( &msg, NULL, 0U, 0U, PM_NOREMOVE );
-
-        while( mRenderTargets.size() )
-        {
-            while( PeekMessage( &msg, NULL, 0U, 0U, PM_REMOVE ) )
-            {
-                TranslateMessage( &msg );
-                DispatchMessage( &msg );
-            }
-
-            {
-                if(!fireFrameStarted())
-                    return;
-
-                // Render a frame during idle time (no messages are waiting)
-                RenderTargetPriorityMap::iterator itarg, itargend;
-                itargend = mPrioritisedRenderTargets.end();
-                for( itarg = mPrioritisedRenderTargets.begin(); itarg != itargend; ++itarg )
-                {
-                    if( itarg->second->isActive() )
-                    {
-                        itarg->second->update();
-                    }
-                }
-
-                if(!fireFrameEnded())
-                    return;
-            }
-        }
-
-        OgreUnguard();
-    }
-
-    //-----------------------------------------------------------------------
     void D3DRenderSystem::setAmbientLight(float r, float g, float b)
     {
         // Call D3D

@@ -63,6 +63,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #   define WIN32_LEAN_AND_MEAN
 #   include <direct.h>
+#   include <windows.h>
 
 #endif
 
@@ -479,22 +480,128 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Root::addFrameListener(FrameListener* newListener)
     {
-        assert(mActiveRenderer != 0);
-        mActiveRenderer->addFrameListener(newListener);
+        // Insert, unique only (set)
+        mFrameListeners.insert(newListener);
 
     }
 
     //-----------------------------------------------------------------------
     void Root::removeFrameListener(FrameListener* oldListener)
     {
-        assert(mActiveRenderer != 0);
-        mActiveRenderer->removeFrameListener(oldListener);
+        // Remove, 1 only (set)
+        mFrameListeners.erase(oldListener);
+    }
+    //-----------------------------------------------------------------------
+    bool Root::_fireFrameStarted(FrameEvent& evt)
+    {
+        // Tell all listeners
+        std::set<FrameListener*>::iterator i;
+        for (i= mFrameListeners.begin(); i != mFrameListeners.end(); ++i)
+        {
+            if (!(*i)->frameStarted(evt))
+                return false;
+        }
+
+        return true;
+
+    }
+    //-----------------------------------------------------------------------
+    bool Root::_fireFrameEnded(FrameEvent& evt)
+    {
+        // Tell all listeners
+        std::set<FrameListener*>::iterator i;
+        for (i= mFrameListeners.begin(); i != mFrameListeners.end(); ++i)
+        {
+            if (!(*i)->frameEnded(evt))
+                return false;
+        }
+        return true;
+    }
+    //-----------------------------------------------------------------------
+    bool Root::_fireFrameStarted()
+    {
+        unsigned long now = mTimer->getMilliseconds();
+        FrameEvent evt;
+        evt.timeSinceLastEvent = calculateEventTime(now, FETT_ANY);
+        evt.timeSinceLastFrame = calculateEventTime(now, FETT_STARTED);
+
+        return _fireFrameStarted(evt);
+    }
+    //-----------------------------------------------------------------------
+    bool Root::_fireFrameEnded()
+    {
+        unsigned long now = mTimer->getMilliseconds();
+        FrameEvent evt;
+        evt.timeSinceLastEvent = calculateEventTime(now, FETT_ANY);
+        evt.timeSinceLastFrame = calculateEventTime(now, FETT_ENDED);
+
+        return _fireFrameEnded(evt);
+    }
+    //-----------------------------------------------------------------------
+    Real Root::calculateEventTime(unsigned long now, FrameEventTimeType type)
+    {
+        // Calculate the average time passed between events of the given type
+        // during the last 0.1 seconds.
+
+        std::deque<unsigned long>& times = mEventTimes[type];
+        times.push_back(now);
+
+        if(times.size() == 1)
+            return 0;
+
+        // Times up to 0.1 seconds old should be kept
+        unsigned long discardLimit = now - 100;
+
+        // Find the oldest time to keep
+        std::deque<unsigned long>::iterator it = times.begin(),
+            end = times.end()-2; // We need at least two times
+        while(it != end)
+        {
+            if(*it < discardLimit)
+                ++it;
+            else
+                break;
+        }
+
+        // Remove old times
+        times.erase(times.begin(), it);
+
+        return Real(times.back() - times.front()) / ((times.size()-1) * 1000);
     }
     //-----------------------------------------------------------------------
     void Root::startRendering(void)
     {
         assert(mActiveRenderer != 0);
-        mActiveRenderer->startRendering();
+
+        mActiveRenderer->_initRenderTargets();
+
+        // Clear event times
+        for(int i=0; i!=3; ++i)
+            mEventTimes[i].clear();
+
+        // Infinite loop, until broken out of by frame listeners
+		while( true )
+		{
+#if OGRE_PLATFORM == PLATFORM_WIN32
+            // Pump events on Win32
+    		MSG  msg;
+			while( PeekMessage( &msg, NULL, 0U, 0U, PM_REMOVE ) )
+			{
+				TranslateMessage( &msg );
+				DispatchMessage( &msg );
+			}
+#endif
+
+			if(!_fireFrameStarted())
+				break;
+
+            mActiveRenderer->_updateAllRenderTargets();
+
+			if(!_fireFrameEnded())
+				break;
+		}
+
+
     }
     //-----------------------------------------------------------------------
     void Root::shutdown(void)
