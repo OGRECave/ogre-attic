@@ -45,7 +45,7 @@ namespace Ogre {
 		/* boolean is actually int from libJPEG's point of view */
         static 
 
-        int	fill_input_buffer(j_decompress_ptr cinfo);    
+        uchar fill_input_buffer(j_decompress_ptr cinfo);    
         static void skip_input_data(j_decompress_ptr cinfo, long count);
         static void term_source(j_decompress_ptr cinfo);
 

@@ -27,6 +27,9 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "OgrePrerequisites.h"
 
+#define WIN32_LEAN_AND_MEAN
+#include "windows.h"
+
 /**
     This has to be done in order to make sure the file compiles correctly under DirectX 8
 */

@@ -30,7 +30,6 @@ http://www.gnu.org/copyleft/gpl.html.
 
 
 #include "OgreConfigDialog.h"
-#include "windows.h"
 
 namespace Ogre {
     /** A Windows 95/98/NT platform version of the default engine configuration dialog. */

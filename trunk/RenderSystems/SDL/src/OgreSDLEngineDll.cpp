@@ -26,11 +26,6 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreSDLRenderSystem.h"
 #include "OgreRoot.h"
 
-#if OGRE_PLATFORM == PLATFORM_WIN32
-#   include <windows.h>
-#   include <wingdi.h>
-#endif
-
 namespace Ogre {
 
     SDLRenderSystem* sdlRendPlugin;

@@ -22,10 +22,16 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
+
 #include "OgreDynLib.h"
 
 #include "OgreException.h"
 #include "OgreLogManager.h"
+
+#if OGRE_PLATFORM == PLATFORM_WIN32
+#   define WIN32_LEAN_AND_MEAN
+#   include <windows.h>
+#endif
 
 namespace Ogre {
 

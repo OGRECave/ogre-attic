@@ -32,10 +32,6 @@ http://www.gnu.org/copyleft/gpl.html.
 #		define XMD_H
 #	endif
 
-#   ifdef boolean
-		define HAVE_BOOLEAN
-#	endif
-
 #	ifdef FAR
 #		undef FAR
 #	endif
@@ -56,7 +52,7 @@ namespace Ogre {
     {
     }
 
-	int JPEGCodec::fill_input_buffer( j_decompress_ptr cinfo )
+	uchar JPEGCodec::fill_input_buffer( j_decompress_ptr cinfo )
     {
         return TRUE;
     }
