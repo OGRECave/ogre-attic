@@ -34,7 +34,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     GpuProgramParametersSharedPtr D3D9GpuProgramManager::createParameters(void)
     {
-        return GpuProgramParametersSharedPtr(new D3D9GpuProgramParameters());
+        return GpuProgramParametersSharedPtr(new GpuProgramParameters());
     }
     //-----------------------------------------------------------------------------
     GpuProgram* D3D9GpuProgramManager::create(const String& name, GpuProgramType gptype, const String& syntaxCode)
