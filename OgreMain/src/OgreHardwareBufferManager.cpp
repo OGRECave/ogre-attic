@@ -103,7 +103,31 @@ namespace Ogre {
         }
         mVertexBufferBindings.clear();
     }
-    //-----------------------------------------------------------------------
+	//-----------------------------------------------------------------------
+    void HardwareBufferManager::registerVertexBufferSourceAndCopy(
+			const HardwareVertexBufferSharedPtr& sourceBuffer,
+			const HardwareVertexBufferSharedPtr& copy)
+	{
+        // Locate source buffer copy in free list
+        FreeTemporaryVertexBufferMap::iterator vbmi = 
+            mFreeTempVertexBufferMap.find(sourceBuffer.getPointer());
+
+        if (vbmi == mFreeTempVertexBufferMap.end())
+        {
+            // Add new entry
+            FreeTemporaryVertexBufferList *newList = new FreeTemporaryVertexBufferList();
+            std::pair<FreeTemporaryVertexBufferMap::iterator, bool> retPair = 
+                mFreeTempVertexBufferMap.insert(
+                    FreeTemporaryVertexBufferMap::value_type(
+                        sourceBuffer.getPointer(), newList));
+            assert(retPair.second && "Error inserting buffer list");
+            vbmi = retPair.first;
+        }
+
+		// Add copy to free list
+		vbmi->second->push_back(copy);
+	}
+	//-----------------------------------------------------------------------
     HardwareVertexBufferSharedPtr 
     HardwareBufferManager::allocateVertexBufferCopy(
         const HardwareVertexBufferSharedPtr& sourceBuffer, 

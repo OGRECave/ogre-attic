@@ -69,7 +69,9 @@ namespace Ogre {
         /// Supports hardware occlusion queries
         RSC_HWOCCLUSION				= 0x00020000,
         /// Supports user clipping planes
-        RSC_USER_CLIP_PLANES		= 0x00040000
+        RSC_USER_CLIP_PLANES		= 0x00040000,
+		/// Supports the VET_UBYTE4 vertex element type
+		RSC_VERTEX_FORMAT_UBYTE4	= 0x00080000
 
     };
 

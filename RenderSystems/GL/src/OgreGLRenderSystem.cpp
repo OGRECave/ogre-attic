@@ -440,7 +440,8 @@ namespace Ogre {
         {
             mCapabilities->setCapability(RSC_HWOCCLUSION);		
         }
-
+		// UBYTE4 always supported
+		mCapabilities->setCapability(RSC_VERTEX_FORMAT_UBYTE4);
 
         // Get extension function pointers
         glActiveTextureARB_ptr = 
