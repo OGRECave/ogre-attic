@@ -651,6 +651,7 @@ namespace Ogre
 
         /// Temporary buffer for vertex blending in software
         std::vector<Real> mTempVertexBlendBuffer;
+        std::vector<Real> mTempNormalBlendBuffer;
         /** Performs a software vertex blend on the passed in operation. 
         @remarks
             This function is supplied to calculate a vertex blend when no hardware
