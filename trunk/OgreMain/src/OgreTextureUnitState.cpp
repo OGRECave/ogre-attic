@@ -123,6 +123,9 @@ namespace Ogre {
 
         setTextureName(texName);
         setTextureCoordSet(texCoordSet);
+
+        mParent->_dirtyHash();
+
     }
     //-----------------------------------------------------------------------
     TextureUnitState::~TextureUnitState()
