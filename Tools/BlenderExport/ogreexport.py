@@ -116,6 +116,7 @@ Tooltip: 'Exports selected meshs with armature animations to Ogre3D'
 #          - switched to javadoc comments
 #          - changed vertex buffer layout to allow software skinning
 #          - settings are now stored inside the .blend file
+#          - importing pickle module now optional
 #
 # TODO:
 #          - support for nonuniform armature scaling
@@ -161,7 +162,13 @@ __docformat__ = "javadoc en"
 ######
 # imports
 ######
-import Blender, sys, os, math, string, pickle
+import Blender, sys, os, math, string
+if KEEP_SETTINGS:
+	try:
+		import pickle
+	except ImportError:
+		Blender.Draw.PupMenu("Can't import pickle module!%t|Permanent settings disabled.")
+		KEEP_SETTINGS = 0
 
 ######
 # namespaces
@@ -406,7 +413,7 @@ class ReplacementScrollbar:
 		return
 
 class ArmatureAction:
-	"""Resemble Blender's actions
+	"""Resembles Blender's actions
 	   <ul>
 	   <li> import Blender, string
 	   </ul>
@@ -508,7 +515,7 @@ class ArmatureAction:
 	createArmatureActionDict = staticmethod(createArmatureActionDict)
 
 class ArmatureActionActuator:
-	"""Resemble Blender's action actuators.
+	"""Resembles Blender's action actuators.
 	
 	   @author Michael Reimpell
 	"""
@@ -536,7 +543,7 @@ class ArmatureActionActuatorListView:
 	   @author Michael Reimpell
 	"""
 	def __init__(self, armatureActionDict, maxActuators, buttonEventRangeStart, armatureAnimationDictList=None):
-		"""Constructor
+		"""Constructor.
 		   
 		   @param armatureActionDict        possible armature actuator actions
 		   @param maxActuators              maximal number of actuator list elements
@@ -845,6 +852,71 @@ class ArmatureActionActuatorListView:
 			self.scrollbar = ReplacementScrollbar(scrollbarPosition,0,len(self.armatureActionActuatorList), self.buttonEventRangeStart+1, self.buttonEventRangeStart+2)
 			return
 
+class Logger:
+	"""Logs messages and status.
+	
+	   Logs messages as a list of strings and keeps track of the status.
+	   Possible status values are info, warning and error.
+	   
+	   @cvar INFO info status
+	   @cvar WARNING warning status
+	   @cvar ERROR error status
+	"""
+	INFO, WARNING, ERROR = range(3)
+	def __init__(self):
+		"""Constructor.
+		"""
+		self.messageList = []
+		self.status = Logger.INFO
+		return
+	def logInfo(self, message):
+		"""Logs an info message.
+		
+		   @param message message string
+		"""
+		self.messageList.append(message)
+		return		
+	def logWarning(self, message):
+		"""Logs a warning message.
+		
+		   The status is set to <code>Logger.WARNING</code> if it is not already <code>Logger.ERROR</code>.
+		   
+		   @param message message string
+		"""
+		self.messageList.append("Warning: "+message)
+		if not self.status == Logger.ERROR:
+			self.status = Logger.WARNING
+		return
+	def logError(self, message):
+		"""Logs an error message.
+		
+		   The status is set to <code>Logger.ERROR</code>.
+		   
+		   @param message message string
+		"""
+		self.messageList.append("Error: "+message)
+		self.status = Logger.ERROR
+		return
+	def getStatus(self):
+		"""Gets the current status.
+		
+		   The status can be
+		   <ul>
+		   <li><code>Logger.INFO</code>
+		   <li><code>Logger.WARNING</code>
+		   <li><code>Logger.ERROR</code>
+		   </ul>
+		   
+		   @return status
+		"""
+		return self.status
+	def getMessageList(self):
+		"""Returns the list of log messages.
+		
+		   @return list of strings
+		"""
+		return self.messageList
+
 ######
 # global variables
 ######
@@ -864,7 +936,6 @@ rotZNumber = Draw.Create(0.0)
 selectedObjectsList = Blender.Object.GetSelected()
 selectedObjectsMenu = Draw.Create(0)
 scrollbar = ReplacementScrollbar(0,0,0,0,0)
-doneMessage = ""
 # key: objectName, value: armatureName
 armatureDict = {}
 # key: armatureName, value: armatureActionActuatorListView
@@ -896,15 +967,7 @@ BUTTON_EVENT_UPDATEBUTTON = 1018
 BUTTON_EVENT_SELECTEDOBJECTSMENU = 1019
 BUTTON_EVENT_ACTUATOR_RANGESTART = 1020
 
-# error indication:
-EXPORT_SUCCESS = 0
-EXPORT_SUCCESS_MESSAGE = "Successfully exported!"
-EXPORT_WARNING = 1
-EXPORT_WARNING_MESSAGE = "Exported with warnings!"
-EXPORT_ERROR = 2
-EXPORT_ERROR_MESSAGE = "Error in export!"
-exportStatus = EXPORT_SUCCESS
-exportLog = []
+exportLogger = Logger()
 
 OGRE_LOGO = Buffer(GL_BYTE, [48,4*77],[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12,11,25,4,2,2,8,74,1,1,5,114,1,1,4,123,1,1,4,124,1,1,4,126,0,0,4,124,0,0,5,109,2,2,9,66,11,10,26,7,56,56,56,0,9,8,28,13,8,8,19,31,2,1,12,46,5,5,16,34,43,43,43,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,4,14,25,3,3,6,119,4,4,2,127,5,5,3,127,5,5,3,127,4,4,2,127,4,4,2,127,2,2,1,127,0,0,0,127,0,0,0,127,1,1,3,127,3,3,5,127,3,3,3,127,2,2,1,127,1,2,1,127,0,0,0,127,0,0,3,125,0,0,4,109,2,1,7,79,6,5,16,32,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -1152,11 +1215,10 @@ def vector_length(v):
   return math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2])
 
 def vector_normalize(v):
-  global exportStatus, exportLog
+  global exportLogger
   l = math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2])
   if l <= 0.000001:
-    exportLog.append("error in normalize")
-    exportStatus = EXPORT_ERROR
+    exportLogger.logError("error in normalize")
     return [0 , l, 0]
   return [v[0] / l, v[1] / l, v[2] / l]
 
@@ -1366,7 +1428,6 @@ def calc_rootaxis(pos, pos2, tmp_mat):
   px1 = vector_crossproduct(nor, pz)
   if vector_dotproduct(px1, px) < 0.0:
     px1 = vector_crossproduct(pz, nor)
-    # exportLog.append("neg")
   px1 = vector_normalize(px1)
 
   # get new axis (in correct y-direction, but wrong roll)
@@ -1414,7 +1475,7 @@ def convert_armature(skeleton, obj, debugskel):
     head = bbone.getHead()
     tail = bbone.getTail()
     roll = bbone.getRoll()
-
+    
     # get the restmat 
     R_bmat = blender_bone2matrix(head, tail, roll)
 
@@ -1469,7 +1530,7 @@ def convert_armature(skeleton, obj, debugskel):
 def export_skeleton(object):
 	global armatureToggle, fpsNumber, armatureMeshToggle, armatureActionActuatorListViewDict
 	global skeletonsDict
-	global exportStatus, exportLog
+	global exportLogger
 	
 	# threshold to compare floats
 	threshold = 1e-6
@@ -1534,10 +1595,8 @@ def export_skeleton(object):
 											# guess Ipo Names       
 											nIpoCurves = ipo.getNcurves()
 											if nIpoCurves in [4,7,10]:
-												exportLog.append("Warning: IpoCurve.getName() not available!")
-												exportLog.append("         The exporter tries to guess the IpoCurve names.")
-												if not exportStatus == EXPORT_ERROR:
-													exportStatus = EXPORT_WARNING
+												exportLogger.logWarning("IpoCurve.getName() not available!")
+												exportLogger.logWarning("The exporter tries to guess the IpoCurve names.")
 												if (nIpoCurves >= 7):
 													# not only Quats
 													# guess: Quats and Locs
@@ -1561,9 +1620,8 @@ def export_skeleton(object):
 													index += 4
 												have_quat = 1
 											else:
-												exportLog.append("Error: IpoCurve.getName() not available!")
-												exportLog.append("       Could not guess the IpoCurve names. Other Blender versions may work.")
-												exportStatus = EXPORT_ERROR
+												exportLogger.logError("IpoCurve.getName() not available!")
+												exportLogger.logError("Could not guess the IpoCurve names. Other Blender versions may work.")
 								# get all frame numbers between startFrame and endFrame where this ipo has a point in one of its curves
 								frameNumberDict = {}
 								for curveIndex in range(ipo.getNcurves()):
@@ -1601,6 +1659,8 @@ def export_skeleton(object):
 								timeList = frameNumberDict.keys()
 								timeList.sort()
 								for time in timeList:
+									# Blender's transformation ordering: translate, rotate, scale
+									# Ogre's transformation ordering: rotate, scale, translate
 									frame = frameNumberDict[time]
 									loc = ( 0.0, 0.0, 0.0 )
 									rot = [ 0.0, 0.0, 0.0, 1.0 ]
@@ -1619,30 +1679,23 @@ def export_skeleton(object):
 									if hasLocKey:
 										loc = point_by_matrix(blenderLoc, skeleton.bonesDict[boneName].conversionMatrix)
 									if curveId.has_key("QuatX") and curveId.has_key("QuatY") and curveId.has_key("QuatZ") and curveId.has_key("QuatW"):
-										blenderRot = rot
 										if not (Blender.Get("version") == 234):
-											blenderRot = [ ipo.EvaluateCurveOn(curveId["QuatX"], frame), \
-											               ipo.EvaluateCurveOn(curveId["QuatY"], frame), \
-											               ipo.EvaluateCurveOn(curveId["QuatZ"], frame), \
-											               ipo.EvaluateCurveOn(curveId["QuatW"], frame) ]
+											rot = [ ipo.EvaluateCurveOn(curveId["QuatX"], frame), \
+											        ipo.EvaluateCurveOn(curveId["QuatY"], frame), \
+											        ipo.EvaluateCurveOn(curveId["QuatZ"], frame), \
+											        ipo.EvaluateCurveOn(curveId["QuatW"], frame) ]
 										else:
 											# Blender 2.34 quaternion naming bug
-											blenderRot = [ ipo.EvaluateCurveOn(curveId["QuatY"], frame), \
-											               ipo.EvaluateCurveOn(curveId["QuatZ"], frame), \
-											               ipo.EvaluateCurveOn(curveId["QuatW"], frame), \
-											               ipo.EvaluateCurveOn(curveId["QuatX"], frame) ]
-										x, y, z, w = matrix2quaternion( \
-										             matrix_multiply(skeleton.bonesDict[boneName].conversionMatrix, \
-										             quaternion2matrix(quaternion_normalize(blenderRot))))
-										rot = [x, y, z, w]
-										rot = blenderRot
+											rot = [ ipo.EvaluateCurveOn(curveId["QuatY"], frame), \
+											        ipo.EvaluateCurveOn(curveId["QuatZ"], frame), \
+											        ipo.EvaluateCurveOn(curveId["QuatW"], frame), \
+											        ipo.EvaluateCurveOn(curveId["QuatX"], frame) ]
 									if curveId.has_key("SizeX"):
 										sx = ipo.EvaluateCurveOn(curveId["SizeX"], frame)
 										sy = ipo.EvaluateCurveOn(curveId["SizeY"], frame)
 										sz = ipo.EvaluateCurveOn(curveId["SizeZ"], frame)
 										if ((math.fabs(sx-sy) > threshold) or (math.fabs(sx-sz) > threshold)):
-											exportLog.append("Error: Ogre does not support nonuniform keyframe scaling.")
-											exportStatus = EXPORT_ERROR
+											exportLogger.logError("Ogre does not support nonuniform keyframe scaling.")
 										size = sx
 										size = max(size, sy)
 										size = max(size, sz)
@@ -1651,25 +1704,19 @@ def export_skeleton(object):
 								animation.tracksDict[boneName] = track
 							else:
 								# ipo name contains bone but armature doesn't
-								exportLog.append("Warning: Unused action channel \"%s\" in action \"%s\" for skeleton \"%s\"." \
+								exportLogger.logWarning("Unused action channel \"%s\" in action \"%s\" for skeleton \"%s\"." \
 								                 % (boneName, armatureActionActuator.armatureAction.name, skeleton.name))
-								if not exportStatus == EXPORT_ERROR:
-									exportStatus = EXPORT_WARNING
 						else:
 							# track for that bone already exists
-							exportLog.append("Error: Ambiguous bone name \"%s\", track already exists." % boneName)
-							exportStatus = EXPORT_ERROR
+							exportLogger.logError("Ambiguous bone name \"%s\", track already exists." % boneName)
 					# append animation
 					skeleton.animationsDict[armatureActionActuator.name] = animation
 				else:
 					# animation export name already exists
-					exportLog.append("Error: Ambiguous animation name \"%s\"." % armatureActionActuator.name)
-					exportStatus = EXPORT_ERROR
+					exportLogger.logError("Ambiguous animation name \"%s\"." % armatureActionActuator.name)
 		else:
 			# armature has no armatureActionActuatorListView
-			exportLog.append("Error: No animation settings for armature \"%s\"." % object.getName())
-			exportStatus = EXPORT_ERROR
-
+			exportLogger.logError("No animation settings for armature \"%s\"." % object.getName())
 		write_skeleton(skeleton)
 	return
 
@@ -1737,7 +1784,7 @@ def process_face(face, submesh, mesh, matrix, skeleton):
 	   	skeleton - skeleton of the mesh (if any)
 	"""
 	global verticesDict
-	global exportStatus, exportLog
+	global exportLogger
 	# threshold to compare floats
 	threshold = 1e-6
 	if len(face.v) in [ 3, 4 ]:
@@ -1869,9 +1916,7 @@ def process_face(face, submesh, mesh, matrix, skeleton):
 				if skeleton:
 					influences = mesh.getVertexInfluences(face.v[i].index)
 					if not influences:
-						exportLog.append("Error: vertex in skinned mesh without influence! check your mesh")
-						exportStatus = EXPORT_ERROR
-					
+						exportLogger.logError("Vertex in skinned mesh without influence, check your mesh!")
 					# limit influences to 4 bones per vertex
 					def cmpfunc(x, y):
 						xname, xweight = x
@@ -1894,16 +1939,14 @@ def process_face(face, submesh, mesh, matrix, skeleton):
 		if len(face.v) == 4:
 			Face(submesh, face_vertices[2], face_vertices[3], face_vertices[0])
 	else:
-		exportLog.append("ignored face with %d edges" % len(face.v))
-		if not exportStatus == EXPORT_ERROR:
-			exportStatus = EXPORT_WARNING
+		exportLogger.logWarning("Ignored face with %d edges." % len(face.v))
 	return
 
 def export_mesh(object):
 	global uvToggle, armatureToggle
 	global verticesDict
 	global materialsDict
-	global exportStatus, exportLog
+	global exportLogger
 	
 	if (object.getType() == "Mesh"):
 		# is this mesh attached to an armature?
@@ -1942,8 +1985,7 @@ def export_mesh(object):
 					if face.image:
 						hasTexture = 1
 					else:
-						exportLog.append("Error: Face is textured but has no image assigned!")
-						exportStatus = EXPORT_ERROR
+						exportLogger.logError("Face is textured but has no image assigned!")
 				if ((nMaterials > 0 ) or (hasTexture == 1)):
 					# create material of the face:
 					# blenders material name / FaceTranspMode / texture image name
@@ -1998,9 +2040,7 @@ def export_mesh(object):
 		# write mesh
 		if len(submeshes) == 0:
 			# no submeshes
-			exportLog.append("%s has no visible faces!" % data.name)
-			if not exportStatus == EXPORT_ERROR:
-				exportStatus = EXPORT_WARNING
+			exportLogger.logWarning("Mesh %s has no visible faces!" % data.name)
 		else:
 			# write mesh
 			write_mesh(object.getName(), submeshes, skeleton)
@@ -2020,9 +2060,9 @@ def clamp(val):
     return val
 
 def write_skeleton(skeleton):
-  global pathString, exportLog
+  global pathString, exportLogger
   file = skeleton.name+".skeleton.xml"
-  exportLog.append("skeleton  \"%s\"" % file)
+  exportLogger.logInfo("Skeleton \"%s\"" % file)
 
   f = open(os.path.join(pathString.val, file), "w")
   f.write(tab(0)+"<skeleton>\n")
@@ -2094,9 +2134,9 @@ def write_skeleton(skeleton):
 
 
 def write_mesh(name, submeshes, skeleton):
-  global pathString, exportLog
+  global pathString, exportLogger
   file = name+".mesh.xml"
-  exportLog.append("mesh      \"%s\"" % file)
+  exportLogger.logInfo("Mesh \"%s\"" % file)
 
   f = open(os.path.join(pathString.val, file), "w")
   f.write(tab(0)+"<mesh>\n")
@@ -2175,11 +2215,10 @@ def write_mesh(name, submeshes, skeleton):
 
 
 def write_materials():
-	global pathString, materialString, exportLog
+	global pathString, materialString, exportLogger
 	global materialsDict
-	global exportStatus, exportLog
 	file = materialString.val
-	exportLog.append("materials \"%s\"" % file)
+	exportLogger.logInfo("Materials \"%s\"" % file)
 
 	f = open(os.path.join(pathString.val, file), "w")
 	for name, material in materialsDict.items():
@@ -2209,9 +2248,7 @@ def write_materials():
 					if (Blender.Get("version") < 234):
 						# Blender.World.GetActive() not available
 						world = worldList[0]
-						exportLog.append("Warning: Can't get active world. Used ambient colour of world \"%s\"" % world.name)
-						if not exportStatus == EXPORT_ERROR:
-							exportStatus = EXPORT_WARNING
+						exportLogger.logWarning("Can't get active world. Used ambient colour of world \"%s\"" % world.name)
 					else:
 						world = Blender.World.GetActive()
 				if (world):
@@ -2279,7 +2316,7 @@ def export(selectedObjectsList):
     global materialsDict
     global skeletonsDict
     global BASE_MATRIX
-    global exportStatus, exportLog
+    global exportLogger
     
     materialsDict = {}
     skeletonsDict = {}
@@ -2294,10 +2331,9 @@ def export(selectedObjectsList):
     BASE_MATRIX = matrix_multiply(scale_mat, rot_mat)
     
     if not os.path.exists(pathString.val):
-      exportLog.append("invalid path: "+pathString.val)
-      exportStatus = EXPORT_ERROR
+      exportLogger.logError("Invalid path: "+pathString.val)
     else:
-      exportLog.append("exporting selected objects:")    
+      exportLogger.logInfo("Exporting selected objects:")    
       n = 0
       for obj in selectedObjectsList:
           if not obj:
@@ -2309,18 +2345,14 @@ def export(selectedObjectsList):
           elif obj.getType() == "Armature":
             export_skeleton(obj)
       if n == 0:
-          exportLog.append("no mesh objects selected!")
-          if not exportStatus == EXPORT_ERROR:
-            exportStatus = EXPORT_WARNING
+          exportLogger.logWarning("No mesh objects selected!")
       elif len(materialsDict) == 0:
-          exportLog.append("no materials or textures defined!")
-          if not exportStatus == EXPORT_ERROR:
-            exportStatus = EXPORT_WARNING
+          exportLogger.logWarning("No materials or textures defined!")
       else:
           write_materials()
       
-      exportLog.append("finished.")
-    return exportStatus
+      exportLogger.logInfo("Finished.")
+    return exportLogger.getStatus()
     
 #######################################################################################
 ## GUI
@@ -2506,13 +2538,12 @@ def loadSettings(filename):
 def refreshGUI():
 	"""refresh GUI after export and selection change
 	"""
-	global exportStatus, exportLog
+	global exportLogger
 	global selectedObjectsList, armatureToggle, armatureDict
 	global armatureActionActuatorListViewDict
 	global armatureAnimationDictListDict
 	# export settings
-	exportStatus = EXPORT_SUCCESS
-	exportLog = []
+	exportLogger = Logger()
 	# synchronize armatureAnimationDictListDict
 	for armatureName in armatureActionActuatorListViewDict.keys():
 		armatureAnimationDictListDict[armatureName] = armatureActionActuatorListViewDict[armatureName].getArmatureAnimationDictList()
@@ -2600,7 +2631,7 @@ def eventCallback(event,value):
 def buttonCallback(event):
 	"""handles button events
 	"""
-	global materialString, doneMessage, doneMessageBox, eventCallback, buttonCallback, scrollbar
+	global materialString, doneMessageBox, eventCallback, buttonCallback, scrollbar
 	global selectedObjectsList, selectedObjectsMenu, armatureActionActuatorListViewDict, armatureDict
 	global fpsNumber
 	# buttonFilter for current ArmatureActionActuatorListView
@@ -2643,15 +2674,9 @@ def buttonCallback(event):
 		if (Blender.Get("version") >= 233):
 			# get blender's current "scene->format->frames per second" setting
 			fpsNumber = Draw.Create(Blender.Scene.GetCurrent().getRenderingContext().framesPerSec())
-		status = export(selectedObjectsList)
-		if (status == EXPORT_SUCCESS):
-			doneMessage = EXPORT_SUCCESS_MESSAGE
-		elif (status == EXPORT_WARNING):
-			doneMessage = EXPORT_WARNING_MESSAGE
-		elif (status == EXPORT_ERROR):
-			doneMessage = EXPORT_ERROR_MESSAGE
+		export(selectedObjectsList)
 		# set donemessage
-		scrollbar = ReplacementScrollbar(0,0,len(exportLog)-1,BUTTON_EVENT_SCROLLBARUP,BUTTON_EVENT_SRCROLLBARDOWN)
+		scrollbar = ReplacementScrollbar(0,0,len(exportLogger.getMessageList())-1,BUTTON_EVENT_SCROLLBARUP,BUTTON_EVENT_SRCROLLBARDOWN)
 		Draw.Register(doneMessageBox, eventCallback, buttonCallback)
 		Draw.Redraw(1)
 	return
@@ -2823,7 +2848,10 @@ def exportMessageBox():
 def doneMessageBox():
 	"""displays export message and log
 	"""
-	global doneMessage, exportLog
+	global exportLogger
+	EXPORT_SUCCESS_MESSAGE = "Successfully exported!"
+	EXPORT_WARNING_MESSAGE = "Exported with warnings!"
+	EXPORT_ERROR_MESSAGE = "Error in export!"	
 	# get size of the window
 	guiRectBuffer = Buffer(GL_FLOAT, 4)
 	glGetFloatv(GL_SCISSOR_BOX, guiRectBuffer)
@@ -2847,13 +2875,26 @@ def doneMessageBox():
 	remainRect[1] += 40
 	
 	# message
+	status = exportLogger.getStatus()
+	doneMessage = ''
+	if (status == Logger.INFO):
+		doneMessage= EXPORT_SUCCESS_MESSAGE
+	elif (status == Logger.WARNING):
+		doneMessage = EXPORT_WARNING_MESSAGE
+		glColor3f(1.0,1.0,0.0)
+		Blender.BGL.glRectf(remainRect[0], remainRect[3]-24, remainRect[0]+Draw.GetStringWidth(doneMessage), remainRect[3]-7)
+	elif (status == Logger.ERROR):
+		doneMessage = EXPORT_ERROR_MESSAGE
+		glColor3f(1.0,0.0,0.0)
+		Blender.BGL.glRectf(remainRect[0], remainRect[3]-24, remainRect[0]+Draw.GetStringWidth(doneMessage), remainRect[3]-7)
 	remainRect[3] -= 20
+	glColor3f(0.0,0.0,0.0) # Defaul color: black
 	glRasterPos2i(remainRect[0],remainRect[3])
-	glColor3f(0,0,0) # Defaul color: black
 	Draw.Text(doneMessage,"normal")
+	
 	remainRect[3] -= 20
+	glColor3f(0.0,0.0,0.0) # Defaul color: black
 	glRasterPos2i(remainRect[0],remainRect[3])
-	glColor3f(0,0,0) # Defaul color: black
 	Draw.Text("Export Log:","small")
 	remainRect[3] -= 4
 	
@@ -2866,10 +2907,11 @@ def doneMessageBox():
 	logRect[1] += 1
 	logRect[2] -= 1
 	logRect[3] -= 1
-	glColor3f(0.6,0.6,0.6) # Background: grey
+	glColor3f(0.662,0.662,0.662) # Background: grey
 	glRectf(logRect[0],logRect[1],logRect[2],logRect[3])
 	
-	# display exportLog
+	# display export log
+	exportLog = exportLogger.getMessageList()
 	scrollPanelRect = remainRect[:]
 	loglineiMax = len(exportLog)
 	loglinei = scrollbar.getCurrentValue()
