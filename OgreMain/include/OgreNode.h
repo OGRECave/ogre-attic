@@ -128,11 +128,11 @@ public:
 
     /** Gets this node's parent (NULL if this is the root).
     */
-    virtual Node* getParent(void);
+    virtual Node* getParent(void) const;
 
     /** Returns a quaternion representing the nodes orientation.
     */
-    virtual const Quaternion & getOrientation();
+    virtual const Quaternion & getOrientation() const;
 
     /** Sets the orientation of this node via a quaternion.
     */
@@ -152,7 +152,7 @@ public:
 
     /** Gets the position of the node relative to it's parent.
     */
-    virtual const Vector3 & getPosition(void);
+    virtual const Vector3 & getPosition(void) const;
 
     /** Sets the scaling factor applied to this node.
     @remarks
@@ -186,7 +186,7 @@ public:
 
     /** Gets the scaling factor of this node.
     */
-    virtual const Vector3 & getScale(void);
+    virtual const Vector3 & getScale(void) const;
 
     /** Tells the node whether it should inherit scaling factors from it's parent node.
     @remarks
@@ -207,7 +207,7 @@ public:
     @remarks
         See setInheritScale for more info.
     */
-    virtual bool getInheritScale(void);
+    virtual bool getInheritScale(void) const;
 
     /** Scales the node, combining it's current scale with the passed in scaling factor. 
     @remarks
@@ -334,7 +334,7 @@ public:
 
     /** Reports the number of child nodes under this one.
     */
-    virtual unsigned short numChildren(void);
+    virtual unsigned short numChildren(void) const;
 
     /** Gets a pointer to a child node.
     @remarks
@@ -344,7 +344,7 @@ public:
         support for covariant return types in some compilers (inc VC6) methods which
         differ only by return type cannot be virtual.
     */
-    Node* getChild(unsigned short index);    
+    Node* getChild(unsigned short index) const;    
 
     /** Drops the specified child from this node. 
     @remarks

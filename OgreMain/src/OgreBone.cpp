@@ -55,7 +55,7 @@ namespace Ogre {
         return retBone;
     }
     //---------------------------------------------------------------------
-    Bone* Bone::getChild(unsigned short index)
+    Bone* Bone::getChild(unsigned short index) const
     {
         // Provided as a passthrough to superclass just for ease
         return static_cast<Bone*>(Node::getChild(index));
@@ -96,6 +96,11 @@ namespace Ogre {
     Matrix4 Bone::_getBindingPoseInverseTransform(void)
     {
         return mBindDerivedInverseTransform;
+    }
+    //---------------------------------------------------------------------
+    unsigned short Bone::getHandle(void) const
+    {
+        return mHandle;
     }
 
 

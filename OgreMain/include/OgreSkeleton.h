@@ -89,7 +89,8 @@ namespace Ogre {
         @par
             Note that this method automatically generates a handle for the bone, which you
             can retrieve using Bone::getHandle. If you wish the new Bone to have a specific
-            handle, use the alternate form of this method which takes a handle as a parameter.
+            handle, use the alternate form of this method which takes a handle as a parameter,
+            although you should note the restrictions.
         */
         Bone* createBone(void);
 
@@ -103,14 +104,20 @@ namespace Ogre {
         @param handle The handle to give to this new bone - must be unique within this skeleton. Note
             that the root bone of the skeleton (created for you when the Skeleton is created) always
             has handle 0, so don't try to use this one.
+            You should also ensure that all bone handles are eventually contiguous. For this reason
+            it is advised that you use the simpler createBone method which automatically assigns a
+            handle.
         */
         Bone* createBone(unsigned short handle);
 
         /** Returns the number of bones in this skeleton. */
-        unsigned short getNumBones(void);
+        unsigned short getNumBones(void) const;
 
         /** Gets the root bone of the skeleton. */
-        Bone* getRootBone(void);
+        Bone* getRootBone(void) const;
+
+        /** Gets a bone by it's handle. */
+        Bone* getBone(unsigned short handle) const;
 
         /** Sets the current position / orientation to be the 'binding pose' ie the layout in which 
             bones were originally bound to a mesh.
@@ -132,7 +139,7 @@ namespace Ogre {
         Animation* createAnimation(const String& name, Real length);
 
         /** Returns the named Animation object. */
-        Animation* getAnimation(const String& name);
+        Animation* getAnimation(const String& name) const;
 
         /** Removes an Animation from this skeleton. */
         void removeAnimation(const String& name);
@@ -151,7 +158,7 @@ namespace Ogre {
         void setAnimationState(const AnimationStateSet& animSet);
 
         /** Gets the last animation state of this skeleton. */
-        const AnimationStateSet& getAnimationState(void);
+        const AnimationStateSet& getAnimationState(void) const;
         
 
         /** Initialise an animation set suitable for use with this mesh. 
@@ -167,6 +174,14 @@ namespace Ogre {
             Assumes animation has already been updated.
         */
         void _getBoneMatrices(Matrix4* pMatrices);
+
+        /** Gets the number of animations on this skeleton. */
+        unsigned short getNumAnimations(void) const;
+
+        /** Gets a single animation by index. */
+        Animation* getAnimation(unsigned short index) const;
+
+
 
     protected:
         /// Storage of bones, lookup by bone handle

@@ -55,7 +55,7 @@ namespace Ogre {
         MaterialManager& matMgr = MaterialManager::getSingleton();
         mpfFile = fopen(filename, "wb");
 
-        writeFileHeader((unsigned short)mMaterialList.size());
+        writeFileHeader();
 
         // Write materials if required
         if (includeMaterials)

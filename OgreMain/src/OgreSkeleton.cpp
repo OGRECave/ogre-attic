@@ -132,7 +132,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    Bone* Skeleton::getRootBone(void)
+    Bone* Skeleton::getRootBone(void) const
     {
         return mRootBone;
 
@@ -228,9 +228,9 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    Animation* Skeleton::getAnimation(const String& name)
+    Animation* Skeleton::getAnimation(const String& name) const
     {
-        AnimationList::iterator i = mAnimationsList.find(name);
+        AnimationList::const_iterator i = mAnimationsList.find(name);
 
         if (i == mAnimationsList.end())
         {
@@ -257,7 +257,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    const AnimationStateSet& Skeleton::getAnimationState(void)
+    const AnimationStateSet& Skeleton::getAnimationState(void) const
     {
         return mLastAnimationState;
     }
@@ -276,7 +276,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    unsigned short Skeleton::getNumBones(void)
+    unsigned short Skeleton::getNumBones(void) const
     {
         return (unsigned short)mBoneList.size();
     }
@@ -306,6 +306,37 @@ namespace Ogre {
             *pMatrices = pBone->_getFullTransform() *  pBone->_getBindingPoseInverseTransform();
             pMatrices++;
         }
+
+    }
+    //---------------------------------------------------------------------
+    unsigned short Skeleton::getNumAnimations(void) const
+    {
+        return (unsigned short)mAnimationsList.size();
+    }
+    //---------------------------------------------------------------------
+    Animation* Skeleton::getAnimation(unsigned short index) const
+    {
+        assert(index < mAnimationsList.size() && index >= 0 && "Index out of bounds");
+
+        AnimationList::const_iterator i = mAnimationsList.begin();
+
+        while (index)
+            ++i;
+
+        return i->second;
+    }
+    //---------------------------------------------------------------------
+    Bone* Skeleton::getBone(unsigned short handle) const
+    {
+        BoneList::const_iterator i = mBoneList.find(handle);
+
+        if (i == mBoneList.end())
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, "Bone with specified handle not found.", 
+                "Skeleton::getBone");
+        }
+
+        return i->second;
 
     }
 

@@ -50,11 +50,14 @@ namespace Ogre {
         String mVersion;
 
         // Internal methods
-        virtual void writeFileHeader(unsigned short numMaterials);
+        virtual void writeFileHeader(void);
         virtual void writeChunkHeader(unsigned short id, unsigned long size);
         void writeReals(const Real* pReal, unsigned short count);
         void writeShorts(const unsigned short* pShort, unsigned short count);
         void writeLongs(const unsigned long* pLong, unsigned short count); 
+        void writeObject(const Vector3& vec);
+        void writeObject(const Quaternion& q);
+
 
         void writeData(const void* buf, size_t size, size_t count);
         void writeString(const String& string);
@@ -62,9 +65,13 @@ namespace Ogre {
         virtual void readFileHeader(DataChunk& chunk);
         virtual unsigned short readChunk(DataChunk& chunk);
 
+        
+        
         void readReals(DataChunk& chunk, Real* pDest, unsigned short count);
         void readShorts(DataChunk& chunk, unsigned short* pDest, unsigned short count);
         void readLongs(DataChunk& chunk, unsigned long* pDest, unsigned short count); 
+        void readObject(DataChunk& chunk, Vector3* pDest);
+        void readObject(DataChunk& chunk, Quaternion* pDest);
 
         String readString(DataChunk& chunk);
 

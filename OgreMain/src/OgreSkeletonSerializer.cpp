@@ -23,10 +23,18 @@ http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
 
+#include "OgreSkeletonFileFormat.h"
 #include "OgreSkeletonSerializer.h"
+#include "OgreSkeleton.h"
+#include "OgreAnimation.h"
+#include "OgreBone.h"
+
+
 
 
 namespace Ogre {
+    /// Chunk overhead = ID + size
+    const unsigned long CHUNK_OVERHEAD_SIZE = sizeof(unsigned short) + sizeof(unsigned long);
     //---------------------------------------------------------------------
     SkeletonSerializer::SkeletonSerializer()
     {
@@ -38,12 +46,142 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void SkeletonSerializer::exportSkeleton(const Skeleton* pSkeleton, const String& filename)
     {
-        //TODO
+        mpfFile = fopen(filename, "wb");
+
+        writeFileHeader();
+
+        // Write main skeleton data
+        writeSkeleton(pSkeleton);
+
+        // Write all animations
+        unsigned short numAnims = pSkeleton->getNumAnimations();
+        for (unsigned short i = 0; i < numAnims; ++i)
+        {
+            Animation* pAnim = pSkeleton->getAnimation(i);
+            writeAnimation(pAnim);
+        }
+        fclose(mpfFile);
+
     }
     //---------------------------------------------------------------------
     void SkeletonSerializer::importSkeleton(DataChunk& chunk, Skeleton* pDest)
     {
         //TODO
+    }
+    //---------------------------------------------------------------------
+    void SkeletonSerializer::writeSkeleton(const Skeleton* pSkel)
+    {
+        // Write each bone
+        unsigned short numBones = pSkel->getNumBones();
+        for (unsigned short i = 0; i < numBones; ++i)
+        {
+            Bone* pBone = pSkel->getBone(i);
+            writeBone(pBone);
+        }
+        // Write parents
+        for (unsigned short i = 0; i < numBones; ++i)
+        {
+            Bone* pBone = pSkel->getBone(i);
+            unsigned short handle = pBone->getHandle();
+            if (handle != 0) // root bone
+            {
+                Bone* pParent = (Bone*)pBone->getParent();
+                writeBoneParent(handle, pParent->getHandle());
+            }
+        }
+    }
+    //---------------------------------------------------------------------
+    void SkeletonSerializer::writeBone(const Bone* pBone)
+    {
+        writeChunkHeader(SKELETON_BONE, calcBoneSize(pBone));
+
+        unsigned short handle = pBone->getHandle();
+        writeShorts(&handle, 1);
+        writeObject(pBone->getPosition());
+        writeObject(pBone->getOrientation());
+    }
+    //---------------------------------------------------------------------
+    void SkeletonSerializer::writeBoneParent(unsigned short boneId, unsigned short parentId)
+    {
+        writeChunkHeader(SKELETON_BONE_PARENT, calcBoneParentSize());
+
+        writeShorts(&boneId, 1);
+        writeShorts(&parentId, 1);
+
+    }
+    //---------------------------------------------------------------------
+    void SkeletonSerializer::writeAnimation(const Animation* anim)
+    {
+        // TODO
+    }
+    //---------------------------------------------------------------------
+    void SkeletonSerializer::writeAnimationTrack(const AnimationTrack* track)
+    {
+        // TODO
+    }
+    //---------------------------------------------------------------------
+    void SkeletonSerializer::writeKeyFrame(const KeyFrame* key)
+    {
+        // TODO
+    }
+    //---------------------------------------------------------------------
+    unsigned long SkeletonSerializer::calcBoneSize(const Bone* pBone)
+    {
+        unsigned long size = CHUNK_OVERHEAD_SIZE;
+
+        // handle
+        size += sizeof(unsigned short);
+
+        // position
+        size += sizeof(Real) * 3;
+
+        // orientation
+        size += sizeof(Real) * 4;
+
+        return size;
+
+    }
+    //---------------------------------------------------------------------
+    unsigned long SkeletonSerializer::calcBoneParentSize(void)
+    {
+        unsigned long size = CHUNK_OVERHEAD_SIZE;
+
+        // handle
+        size += sizeof(unsigned short);
+
+        // parent handle
+        size += sizeof(unsigned short);
+
+        return size;
+
+    }
+    //---------------------------------------------------------------------
+    unsigned long SkeletonSerializer::calcAnimationSize(const Animation* pAnim)
+    {
+        unsigned long size = CHUNK_OVERHEAD_SIZE;
+
+        // TODO
+
+        return size;
+
+    }
+    //---------------------------------------------------------------------
+    unsigned long SkeletonSerializer::calcAnimationTrackSize(const AnimationTrack* pTrack)
+    {
+        unsigned long size = CHUNK_OVERHEAD_SIZE;
+
+        // TODO
+
+        return size;
+    }
+    //---------------------------------------------------------------------
+    unsigned long SkeletonSerializer::calcKeyFrameSize(const KeyFrame* pKey)
+    {
+        unsigned long size = CHUNK_OVERHEAD_SIZE;
+
+        // TODO
+
+        return size;
     }
     //---------------------------------------------------------------------
 

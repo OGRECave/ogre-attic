@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgrePrerequisites.h"
 #include "OgreString.h"
 #include "OgreSkeleton.h"
+#include "OgreSerializer.h"
 
 namespace Ogre {
 
@@ -44,7 +45,7 @@ namespace Ogre {
         <LI>Call the exportSkeleton method</LI>
         </OL>
     */
-    class _OgreExport SkeletonSerializer
+    class _OgreExport SkeletonSerializer : public Serializer
     {
     public:
         SkeletonSerializer();
@@ -75,6 +76,20 @@ namespace Ogre {
         Skeleton* mpSkeleton;
 
         // Internal methods
+        void writeSkeleton(const Skeleton* pSkel);
+        void writeBone(const Bone* pBone);
+        void writeBoneParent(unsigned short boneId, unsigned short parentId);
+        void writeAnimation(const Animation* anim);
+        void writeAnimationTrack(const AnimationTrack* track);
+        void writeKeyFrame(const KeyFrame* key);
+
+        unsigned long calcBoneSize(const Bone* pBone);
+        unsigned long calcBoneParentSize(void);
+        unsigned long calcAnimationSize(const Animation* pAnim);
+        unsigned long calcAnimationTrackSize(const AnimationTrack* pTrack);
+        unsigned long calcKeyFrameSize(const KeyFrame* pKey);
+
+
 
 
     };
