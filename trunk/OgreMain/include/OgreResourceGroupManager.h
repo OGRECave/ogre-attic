@@ -491,11 +491,7 @@ namespace Ogre {
         @param group The name of the resource group
         @param filename Name of the file to test for
         */
-        bool resourceExists(const String& group, const String& filename) 
-        {
-            StringVectorPtr vec = findResourceNames(group, filename);
-            return !(vec->empty());
-        }
+        bool resourceExists(const String& group, const String& filename);
 
         /** Find all files matching a given pattern in a group and get 
         some detailed information about them.

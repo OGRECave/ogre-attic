@@ -198,6 +198,15 @@ namespace Ogre {
         return ret;
     }
     //-----------------------------------------------------------------------
+	bool ZipArchive::exists(const String& filename)
+	{
+		ZZIP_STAT zstat;
+		int res = zzip_dir_stat(mZzipDir, filename.c_str(), &zstat, ZZIP_CASEINSENSITIVE);
+
+		return (res == ZZIP_NO_ERROR);
+
+	}
+	//-----------------------------------------------------------------------
     void ZipArchive::checkZzipError(const zzip_error_t& zzipError, const String& operation) const
     {
         if (zzipError != ZZIP_NO_ERROR)

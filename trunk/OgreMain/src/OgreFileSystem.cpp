@@ -250,6 +250,19 @@ namespace Ogre {
         return ret;
     }
     //-----------------------------------------------------------------------
+	bool FileSystemArchive::exists(const String& filename)
+	{
+		bool ret;
+        pushDirectory(mBasePath);
+
+        struct stat tagStat;
+        ret = (stat(filename.c_str(), &tagStat) == 0);
+
+		popDirectory();
+
+		return ret;
+		
+	}
     //-----------------------------------------------------------------------
     const String& FileSystemArchiveFactory::getType(void) const
     {

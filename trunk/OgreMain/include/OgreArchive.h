@@ -152,11 +152,7 @@ namespace Ogre {
         virtual StringVectorPtr find(const String& pattern, bool recursive = true) = 0;
 
         /** Find out if the named file exists (note: fully qualified filename required) */
-        virtual bool exists(const String& filename) 
-        {
-            StringVectorPtr vec = find(filename, false);
-            return !(vec->empty());
-        }
+        virtual bool exists(const String& filename) = 0; 
 
         /** Find all files matching a given pattern in this archive and get 
             some detailed information about them.
