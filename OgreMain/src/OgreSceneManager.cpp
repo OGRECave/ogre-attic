@@ -718,8 +718,19 @@ namespace Ogre {
         mCamChanged = true;
 
 
-        // Update the scene
-        _applySceneAnimations();
+        // Update the scene, only do this once per frame
+        static unsigned long lastFrameNumber = 0;
+        unsigned long thisFrameNumber = Root::getSingleton().getCurrentFrameNumber();
+        if (thisFrameNumber != lastFrameNumber)
+        {
+            // Update animations
+            _applySceneAnimations();
+            // Update controllers 
+            ControllerManager::getSingleton().updateAllControllers();
+            lastFrameNumber = thisFrameNumber;
+        }
+        
+        // Update scene graph for this camera (can happen multiple times per frame)
         _updateSceneGraph(camera);
 
         // Auto-track nodes
@@ -731,6 +742,7 @@ namespace Ogre {
         }
         // Auto-track camera if required
         camera->_autoTrack();
+
 
         // Are we using any shadows at all?
         if (mShadowTechnique != SHADOWTYPE_NONE && 
@@ -827,9 +839,6 @@ namespace Ogre {
 
         // Set rasterisation mode
         mDestRenderSystem->_setRasterisationMode(camera->getDetailLevel());
-
-        // Update controllers (after begineFrame since some are frameTime dependent)
-        ControllerManager::getSingleton().updateAllControllers();
 
         // Render scene content 
         _renderVisibleObjects();
