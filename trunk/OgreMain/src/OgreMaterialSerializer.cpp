@@ -2006,7 +2006,7 @@ namespace Ogre
 				else
 				{
 					// Use parser with remainder
-					iparser->second(splitCmd[1], mScriptContext );
+                    iparser->second(splitCmd.size() >= 2? splitCmd[1]:"", mScriptContext );
 				}
 				
             }
