@@ -31,87 +31,62 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre
 {
     //-----------------------------------------------------------------------------
-    GpuProgramUsage::GpuProgramUsage(GpuProgramType gptype, const String& programName, 
-        bool validateImmediately) :
-        mType(gptype), mProgramName(programName), 
-        mDeferValidation(!validateImmediately), mProgram(NULL)
+    GpuProgramUsage::GpuProgramUsage(GpuProgramType gptype) :
+        mType(gptype), mProgram(NULL)
     {
-		// Create a set of parameters incase we don't want to share the params
-		mLowLevelParams = GpuProgramManager::getSingleton().createParameters();
     }
 	//-----------------------------------------------------------------------------
 	GpuProgramUsage::GpuProgramUsage(const GpuProgramUsage& oth)
 	{
 		mType = oth.mType;
-		mProgramName = oth.mProgramName;
-		mDeferValidation = oth.mDeferValidation;
 		mProgram = oth.mProgram;
-		mLowLevelParams =  oth.mLowLevelParams;
+		mParameters =  oth.mParameters;
 	}
 	//-----------------------------------------------------------------------------
 	void GpuProgramUsage::setProgramName(const String& name)
 	{
-		mProgramName = name;
-		if (!mDeferValidation)
-		{
-			validateName();
-		}
-	}
-	//-----------------------------------------------------------------------------
-    void GpuProgramUsage::enableValidation(void)
-    {
-		if (mDeferValidation)
-		{
-			// Get a handle to the program
-			validateName();
-			validateNamedParameters();
-		}
-        mDeferValidation = false;
-    }
-    //-----------------------------------------------------------------------------
-    void GpuProgramUsage::setParameters(GpuProgramParametersSharedPtr params)
-    {
-        mLowLevelParams = params;
-    }
-    //-----------------------------------------------------------------------------
-    GpuProgramParametersSharedPtr GpuProgramUsage::getParameters(void)
-    {
-        return mLowLevelParams;
-    }
-    //-----------------------------------------------------------------------------
-	void GpuProgramUsage::validateName(void)
-	{
 		mProgram = static_cast<GpuProgram*>(
-			GpuProgramManager::getSingleton().getByName(mProgramName));
+			GpuProgramManager::getSingleton().getByName(name));
 
         if (!mProgram)
         {
             String progType = (mType == GPT_VERTEX_PROGRAM ? "vertex" : "fragment");
             Except(Exception::ERR_ITEM_NOT_FOUND, 
-                "Unable to locate " + progType + " program called " + mProgramName + ".",
-                "GpuProgramUsage::validateName");
+                "Unable to locate " + progType + " program called " + name + ".",
+                "GpuProgramUsage::setProgramName");
         }
+        // Reset parameters 
+        mParameters = mProgram->createParameters();
+
 	}
     //-----------------------------------------------------------------------------
-	void GpuProgramUsage::validateNamedParameters(void)
-	{
-		// TODO
-	}
+    void GpuProgramUsage::setParameters(GpuProgramParametersSharedPtr params)
+    {
+        mParameters = params;
+    }
     //-----------------------------------------------------------------------------
-	GpuProgram* GpuProgramUsage::getProgram(void)
-	{
-		if(!mProgram)
+    GpuProgramParametersSharedPtr GpuProgramUsage::getParameters(void)
+    {
+        if (mParameters.isNull())
         {
-            // Need to validate to connect with program
-            enableValidation();
+            Except(Exception::ERR_INVALIDPARAMS, "You must specify a program before "
+                "you can retrieve parameters.", "GpuProgramUsage::getParameters");
         }
-		return mProgram;
-	}
+
+        return mParameters;
+    }
+    //-----------------------------------------------------------------------------
+	void GpuProgramUsage::setProgram(GpuProgram* prog) 
+	{
+        mProgram = prog;
+        // Reset parameters 
+        mParameters = mProgram->createParameters();
+    }
     //-----------------------------------------------------------------------------
     void GpuProgramUsage::_load(void)
     {
-        enableValidation();
-        mProgram->load();
+        if (!mProgram->isLoaded())
+            mProgram->load();
     }
     //-----------------------------------------------------------------------------
     void GpuProgramUsage::_unload(void)

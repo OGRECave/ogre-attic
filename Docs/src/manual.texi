@@ -387,7 +387,7 @@ Each technique can be made up of many passes (@xref{Passes}), that is a complete
 
 Within each pass, there can be zero or many texture units in use (@xref{Texture Units}). These define the texture to be used, and optionally some blending operations (which use multitexturing) and texture effects.@*@*
 
-You can also define vertex and fragment programs in a .material script, and reference those programs in a pass with a given set of parameters. @xref{Declaring Vertex and Fragment Programs} and @ref{Using Vertex and Fragment Programs in a Pass}.
+You can also reference vertex and fragment programs (or vertex and pixel shaders, if you want to use that terminology) in a pass with a given set of parameters. Programs themselves are declared in separate .program scripts (@xref{Declaring Vertex and Fragment Programs}) and are used as described in @ref{Using Vertex and Fragment Programs in a Pass}.
 
 @node Techniques
 @subsection Techniques
@@ -1080,9 +1080,9 @@ The range of the output of the wave will be {base, base+amplitude}. So the examp
 @node Declaring Vertex and Fragment Programs
 @subsection Declaring Vertex and Fragment Programs
 
-In order to use a vertex or fragment program in your materials (@xref{Using Vertex and Fragment Programs in a Pass}), you have to define them. The definition of a program can be in the same .material script, or it can be in another one - the ordering of the definition and the use do not matter in the script, so long as when the material is used for the first time, the program has been defined.@*@*
+In order to use a vertex or fragment program in your materials (@xref{Using Vertex and Fragment Programs in a Pass}), you have to define them. The definition of a program must be made in a .program script, which can then be referenced many times from a .material script.  Just like .material scripts, .program scripts will be read from any location which is on your resource path, and have a simple text structure. And just like .material, you can define many programs in a single script.@*@*
 
-Vertex and fragment programs can be low-level (i.e. assembler code written to the specification of a given low level syntax such as vs_1_1 or arbfp1) or high-level such as nVidia's Cg language. High level languages give you a number of advantages, such as being able to write more intuitive code, and possibly being able to target multiple architectures in a single program (for example, the same Cg program might be able to be used in both D3D and GL, whilst the equivalent low-level programs would require separate techniques, each targetting a different API). High-level programs also allow you to use named parameters instead of simply indexed ones, although parameters are not defined here, they are used in the Pass.@*@*
+Vertex and fragment programs can be low-level (i.e. assembler code written to the specification of a given low level syntax such as vs_1_1 or arbfp1) or high-level such as nVidia's Cg language (@xref{High-level Programs}). High level languages give you a number of advantages, such as being able to write more intuitive code, and possibly being able to target multiple architectures in a single program (for example, the same Cg program might be able to be used in both D3D and GL, whilst the equivalent low-level programs would require separate techniques, each targetting a different API). High-level programs also allow you to use named parameters instead of simply indexed ones, although parameters are not defined here, they are used in the Pass.@*@*
 
 Here is an example of a definition of a low-level vertex program:
 @example
@@ -1101,7 +1101,7 @@ Fragment program syntax is exactly the same, just replace vertex_program with fr
 @subheading High-level Programs
 Support for high level programs is provided through plugins; this is to make sure that an application using OGRE can use as little or as much of the high-level program functionality as they like. The first high-level program type supported by OGRE is Cg, a cross-API, cross-platform and cross-card language which has the same syntax as Direct3D9's HLSL, but can be compiled for GL too (@url{www.nvidia.com/cg}).@*@*
 
-The definition of high-level programs in .material scripts allows for additional custom parameters to be set in the body of the program definition. Here is an example of declaring a Cg fragment program:
+The definition of high-level programs in .program scripts allows for additional custom parameters to be set in the body of the program definition. Here is an example of declaring a Cg fragment program:
 @example
 fragment_program myCgFragmentProgram cg
 {
@@ -1117,7 +1117,7 @@ Next, instead of a fixed 'syntax' parameter, you specify one or more 'profiles';
 @node Using Vertex and Fragment Programs in a Pass
 @subsection Using Vertex and Fragment Programs in a Pass
 
-Within a pass section of a material script, you can reference a vertex and / or a fragment program which is been defined elsewhere either in this or another .material script (@xref{Declaring Vertex and Fragment Programs}). The programs are defined separately from the usage of them in the pass, since the programs are very likely to be reused between many separate materials, probably across many different .material scripts, so this approach lets you define the program only once and use it many times.@*@*
+Within a pass section of a material script, you can reference a vertex and / or a fragment program which is been defined in a .program script (@xref{Declaring Vertex and Fragment Programs}). The programs are defined separately from the usage of them in the pass, since the programs are very likely to be reused between many separate materials, probably across many different .material scripts, so this approach lets you define the program only once and use it many times.@*@*
 
 As well as naming the program in question, you can also provide parameters to it. Here's a simple example:
 @example

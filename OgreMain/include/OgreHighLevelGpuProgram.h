@@ -82,7 +82,7 @@ namespace Ogre {
         /** @copydoc Resource::unload */
         void unload();
 
-        /** Creates a new parameters object from this program definition. 
+        /** Creates a new parameters object compatible with this program definition. 
         @remarks
             Unlike low-level assembly programs, parameters objects are specific to the
             program and therefore must be created from it rather than by the 

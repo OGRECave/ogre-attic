@@ -63,80 +63,58 @@ namespace Ogre
     {
     protected:
         GpuProgramType mType;
-        String mProgramName;
-        bool mDeferValidation;
-
         // The program link
         GpuProgram* mProgram;
-        //HighLevelGpuProgram* mHighLevelProgram;
-        // TODO: add storage of named parameters pending setting on HLGP
 
-        /// Low-level program parameters
-        GpuProgramParametersSharedPtr mLowLevelParams;
+        /// program parameters
+        GpuProgramParametersSharedPtr mParameters;
 
 
     public:
         /** Default constructor.
         @param gptype The type of program to link to
-        @param programName The name of the program to use. Note that at this stage the program is
-            <strong>not</strong> looked up, so there is really no validation of this parameter
-            until you call validate() or set the last parameter of this method to true.
-        @param validateImmediately Set this to true if you want to immediately check the
-            program name and any named parameters that you set.
         */
-        GpuProgramUsage(GpuProgramType gptype, const String& programName = "", 
-            bool validateImmediately = false);
+        GpuProgramUsage(GpuProgramType gptype);
 
 		/** Copy constructor */
 		GpuProgramUsage(const GpuProgramUsage& rhs);
 
         /** Gets the type of program we're trying to link to. */
         GpuProgramType getType(void) const { return mType; }
-        /** Gets the name of the program we're trying to link to. */
-        const String& getProgramName(void) const{ return mProgramName; }
 
-		/** Sets the name of the program to use. */
-		void setProgramName(const String& name);
-        /** Turns on validation for this class, if it was left disabled on initial creation.
+		/** Sets the name of the program to use. 
         @remarks
-            Validation of the program name, and the named parameters which are used for
-            high-level programs can be deferred in order to relax the ordering of using this
-            class and defining the programs to which it refers. Eventually, however, these
-            things do have to be checked, and this method turns on that checking permanently.
+            Note that this will create a fresh set of parameters from the
+            new program being linked, so if you had previously set parameters
+            you will have to set them again.
         */
-        void enableValidation(void);
-
-        /** Sets the low-level parameters that should be used; because parameters can be
-            shared between multiple usages for efficiency, this method is here for you
-            to register externally created parameter objects.
+		void setProgramName(const String& name);
+		/** Sets the program to use.
         @remarks
-            For high-level programs you will want to use the alternative named parameter object
-            version.
+            Note that this will create a fresh set of parameters from the
+            new program being linked, so if you had previously set parameters
+            you will have to set them again.
+        */
+        void setProgram(GpuProgram* prog);
+		/** Gets the program being used. */
+        GpuProgram* getProgram() const { return mProgram; }
+		/** Gets the program being used. */
+        const String& getProgramName(void) const { return mProgram->getName(); }
+
+        /** Sets the program parameters that should be used; because parameters can be
+            shared between multiple usages for efficiency, this method is here for you
+            to register externally created parameter objects. Otherwise, the parameters
+            will be created for you when a program is linked.
         */
         void setParameters(GpuProgramParametersSharedPtr params);
-        /** Gets the low-level parameters being used here. */
+        /** Gets the parameters being used here. 
+        */
         GpuProgramParametersSharedPtr getParameters(void);
-
-		/** Gets the program this usage is linked to; only available after the usage has been
-			validated either via enableValidation or by enabling validation on construction. */
-		GpuProgram* getProgram(void);
 
         /// Load this usage (and ensure program is loaded)
         void _load(void);
         /// Unload this usage 
         void _unload(void);
-
-
-
-        /* TODO - high-level params */
-
-	protected:
-		/// Internal validation function - checks the name of the program (and links)
-		void validateName(void);
-		/// Internal validation function - checks the named parameters
-		void validateNamedParameters(void);
-
-
 
     };
 }

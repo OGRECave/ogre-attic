@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 23 2003 by texi2html 1.64 -->
+<!-- Created on , 30 2003 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -37,7 +37,7 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 <H3> 3.1.5 Using Vertex and Fragment Programs in a Pass </H3>
 <!--docid::SEC70::-->
 
-Within a pass section of a material script, you can reference a vertex and / or a fragment program which is been defined elsewhere either in this or another .material script (See section <A HREF="manual_20.html#SEC68">3.1.4 Declaring Vertex and Fragment Programs</A>). The programs are defined separately from the usage of them in the pass, since the programs are very likely to be reused between many separate materials, probably across many different .material scripts, so this approach lets you define the program only once and use it many times.<BR><BR>
+Within a pass section of a material script, you can reference a vertex and / or a fragment program which is been defined in a .program script (See section <A HREF="manual_20.html#SEC68">3.1.4 Declaring Vertex and Fragment Programs</A>). The programs are defined separately from the usage of them in the pass, since the programs are very likely to be reused between many separate materials, probably across many different .material scripts, so this approach lets you define the program only once and use it many times.<BR><BR>
 
 As well as naming the program in question, you can also provide parameters to it. Here's a simple example:
 <TABLE><tr><td>&nbsp;</td><td class=example><pre>vertex_program_ref myVertexProgram
@@ -113,6 +113,8 @@ example: param_indexed_auto 0 WORLDVIEWPROJ_MATRIX<BR><BR>
 <DD>The position of a given light in object space (ie when the object is at (0,0,0)). This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to all zeroes.
 <DT>LIGHT_DIRECTION_OBJECT_SPACE
 <DD>The direction of a given light in object space (ie when the object is at (0,0,0)). This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to all zeroes.
+<DT>AMBIENT_LIGHT_COLOUR
+<DD>The colour of the ambient light currently set in the scene.
 <DT>CAMERA_POSITION_OBJECT_SPACE
 <DD>The current cameras position in object space (ie when the object is at (0,0,0)).
 </DL>
@@ -151,7 +153,7 @@ The allowed value codes and the meaning of extra_params are detailed in <A HREF=
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 23 2003</I>
+by <I>Steve Streeting</I> on <I>, 30 2003</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
