@@ -145,19 +145,6 @@ namespace Ogre {
         */
         virtual void removeAllViewports(void);
 
-        /** DEPRECATED Set what kind of statistics display (if any) should be displayed by the system about this target.
-            @remarks
-                This method is now DEPRECATED. Use Root::showDebugOverlay instead.
-                OGRE keeps details about the current rendering performance, and can display this on
-                screen if required. This method allows you to specify what should be displayed.
-                Alternatively, the application can retrieve the stats using
-                RenderTarget::getStatistics and report them itself.
-            @param
-                sf Flags indicating which stats to display. Details are in
-                StatFlags
-        */
-        virtual void setStatsDisplay(StatFlags sf);
-
         /** Retieves details of current rendering performance.
             @remarks
                 If the user application wishes to do it's own performance
@@ -304,7 +291,6 @@ namespace Ogre {
         bool mIsDepthBuffered;
 
         // Stats
-        StatFlags mStatFlags;
 		FrameStats mStats;
         
         Timer* mTimer ;

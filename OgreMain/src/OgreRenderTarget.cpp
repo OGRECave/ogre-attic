@@ -38,7 +38,6 @@ namespace Ogre {
     RenderTarget::RenderTarget()
     {
         // Default to no stats display
-        mStatFlags = SF_NONE;
         mActive = true;
         mAutoUpdate = true;
         mPriority = OGRE_DEFAULT_RT_GROUP;
@@ -165,10 +164,6 @@ namespace Ogre {
 
         mViewportList.clear();
 
-    }
-    void RenderTarget::setStatsDisplay(StatFlags sf)
-    {
-        mStatFlags = sf;
     }
 
     void RenderTarget::getStatistics(float& lastFPS, float& avgFPS,
