@@ -69,7 +69,9 @@ namespace Ogre {
         struct stat tagStat;
         DataChunk *pChunk = *ppChunk;
 
-        stat( strFile.c_str(), &tagStat );
+        int ret = stat( strFile.c_str(), &tagStat );
+        assert(ret == 0 && "Problem getting file size" );
+
         pChunk->allocate( tagStat.st_size );
 
         FILE* pFile = fopen( strFile.c_str(), "rb" );
