@@ -493,6 +493,10 @@ SOURCE=..\src\OgreQuaternion.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreRectangle2D.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreRenderQueue.cpp
 # End Source File
 # Begin Source File
@@ -1191,6 +1195,10 @@ SOURCE=..\include\OgreQuaternion.h
 # Begin Source File
 
 SOURCE=..\include\OgreRay.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreRectangle2D.h
 # End Source File
 # Begin Source File
 

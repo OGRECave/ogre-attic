@@ -125,6 +125,7 @@ OgreProgressiveMesh.h \
 OgreQuaternion.h \
 OgreRay.h \
 OgreRectangle.h \
+OgreRectangle2D.h \
 OgreRenderOperation.h \
 OgreRenderQueue.h \
 OgreRenderQueueListener.h \

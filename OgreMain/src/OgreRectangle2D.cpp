@@ -1,0 +1,120 @@
+/*
+-----------------------------------------------------------------------------
+This source file is part of OGRE
+(Object-oriented Graphics Rendering Engine)
+For the latest info, see http://www.ogre3d.org/
+
+Copyright © 2000-2002 The OGRE Team
+Also see acknowledgements in Readme.html
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 2 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+Place - Suite 330, Boston, MA 02111-1307, USA, or go to
+http://www.gnu.org/copyleft/lesser.txt.
+-----------------------------------------------------------------------------
+*/
+#include "OgreStableHeaders.h"
+#include "OgreRectangle2D.h"
+
+#include "OgreSimpleRenderable.h"
+#include "OgreHardwareBufferManager.h"
+#include "OgreCamera.h"
+
+namespace Ogre {
+#define POSITION_BINDING 0
+
+    Rectangle2D::Rectangle2D() 
+    {
+        mRenderOp.vertexData = new VertexData();
+
+        mRenderOp.indexData = 0;
+        mRenderOp.vertexData->vertexCount = 4; 
+        mRenderOp.vertexData->vertexStart = 0; 
+        mRenderOp.operationType = RenderOperation::OT_TRIANGLE_STRIP; 
+        mRenderOp.useIndexes = false; 
+
+        VertexDeclaration* decl = mRenderOp.vertexData->vertexDeclaration;
+        VertexBufferBinding* bind = mRenderOp.vertexData->vertexBufferBinding;
+
+        decl->addElement(POSITION_BINDING, 0, VET_FLOAT3, VES_POSITION);
+
+
+        HardwareVertexBufferSharedPtr vbuf = 
+            HardwareBufferManager::getSingleton().createVertexBuffer(
+            decl->getVertexSize(POSITION_BINDING),
+            mRenderOp.vertexData->vertexCount,
+            HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+
+        // Bind buffer
+        bind->setBinding(POSITION_BINDING, vbuf);
+
+        // set basic white material
+        this->setMaterial("BaseWhiteNoLighting");
+
+
+
+    }
+
+    Rectangle2D::~Rectangle2D() 
+    {
+        delete mRenderOp.vertexData;
+    }
+
+    void Rectangle2D::setCorners(Real left, Real top, Real right, Real bottom) 
+    {
+        HardwareVertexBufferSharedPtr vbuf = 
+            mRenderOp.vertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);
+        Real* pReal = static_cast<Real*>(vbuf->lock(HardwareBuffer::HBL_DISCARD));
+
+        *pReal++ = left;
+        *pReal++ = top;
+        *pReal++ = -1;
+
+        *pReal++ = left;
+        *pReal++ = bottom;
+        *pReal++ = -1;
+
+        *pReal++ = top;
+        *pReal++ = right;
+        *pReal++ = -1;
+
+        *pReal++ = right;
+        *pReal++ = bottom;
+        *pReal++ = -1;
+
+        vbuf->unlock();
+
+        AxisAlignedBox aabb;
+        aabb.setExtents(left, top, 0, right, bottom, 0);
+
+    }
+
+    // Override this method to prevent parent transforms (rotation,translation,scale)
+    void Rectangle2D::getWorldTransforms( Matrix4* xform ) const
+    {
+        // return identity matrix to prevent parent transforms
+        *xform = Matrix4::IDENTITY;
+    }
+    //-----------------------------------------------------------------------
+    const Quaternion& Rectangle2D::getWorldOrientation(void) const
+    {
+        return Quaternion::IDENTITY;
+    }
+    //-----------------------------------------------------------------------
+    const Vector3& Rectangle2D::getWorldPosition(void) const
+    {
+        return Vector3::ZERO;
+    }
+
+
+}
+
