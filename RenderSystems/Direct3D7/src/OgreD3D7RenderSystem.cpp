@@ -47,8 +47,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
     const Matrix4 PROJECTIONCLIPSPACE2DTOIMAGESPACE(
-        0.5,    0,  0, 0.5, 
-        0, -0.5,  0, 0.5, 
+        0.5,    0,  0, -0.5, 
+        0, -0.5,  0, -0.5, 
         0,    0,  0,   1,
         0,    0,  0,   1);
 
