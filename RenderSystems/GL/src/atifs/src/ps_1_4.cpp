@@ -32,228 +32,609 @@ http://www.gnu.org/copyleft/gpl.html.
 
 /* ********************* START OF PS_1_4 CLASS STATIC DATA ********************************* */
 
-PS_1_4::TokenInstType PS_1_4::InstTypeLib[] = {
-
- {"ANY", id_ANY},
- {"REGISTER", id_REGISTER},
- {"CONSTANT", id_CONSTANT},
- {"COLOR", id_COLOR},
- {"TEXTURE", id_TEXTURE},
- {"OPINST", id_OPINST},
- {"MASK", id_MASK},
- {"TEXSWIZZLE", id_TEXSWIZZLE},
- {"DSTMOD", id_DSTMOD},
- {"ARGMOD", id_ARGMOD},
- {"NUMVAL", id_NUMVAL},
- {"SEPERATOR", id_SEPERATOR}
-};
 
 // library of built in symbol types
 
-PS_1_4::ASMSymbolDef PS_1_4::PS_1_4_ASMSymbolTypeLib[] = {
+bool PS_1_4::LibInitialized = false;
+
+PS_1_4::SymbolDef PS_1_4::PS_1_4_SymbolTypeLib[] = {
 	// pixel shader versions supported
-	{id_ANY, sid_PS_1_4, GL_NONE, 0, rwa_NONE, 0, id_ANY, id_OPINST, ckp_PS_BASE, ckp_PS_1_4},
-	{id_ANY, sid_PS_1_1, GL_NONE, 0, rwa_NONE, 0, id_ANY, id_OPINST, ckp_PS_BASE, ckp_PS_1_1},
-	{id_ANY, sid_PS_1_2, GL_NONE, 0, rwa_NONE, 0, id_ANY, id_OPINST, ckp_PS_BASE, ckp_PS_1_2 + ckp_PS_1_1},
-	{id_ANY, sid_PS_1_3, GL_NONE, 0, rwa_NONE, 0, id_ANY, id_OPINST, ckp_PS_BASE, ckp_PS_1_3 + ckp_PS_1_2 + ckp_PS_1_1},
+	{sid_PS_1_4, GL_NONE, ckp_PS_BASE, ckp_PS_1_4},
+	{sid_PS_1_1, GL_NONE, ckp_PS_BASE, ckp_PS_1_1},
+	{sid_PS_1_2, GL_NONE, ckp_PS_BASE, ckp_PS_1_2 + ckp_PS_1_1},
+	{sid_PS_1_3, GL_NONE, ckp_PS_BASE, ckp_PS_1_3 + ckp_PS_1_2 + ckp_PS_1_1},
 
 	// PS_BASE
 
 	// constants
-	{id_CONSTANT, sid_C0, GL_CON_0_ATI, 0, rwa_READ, 0, id_PARMETERLEFT, id_PARMETERRIGHT, ckp_PS_BASE},
-	{id_CONSTANT, sid_C1, GL_CON_1_ATI, 0, rwa_READ, 0, id_PARMETERLEFT, id_PARMETERRIGHT, ckp_PS_BASE},
-	{id_CONSTANT, sid_C2, GL_CON_2_ATI, 0, rwa_READ, 0, id_PARMETERLEFT, id_PARMETERRIGHT, ckp_PS_BASE},
-	{id_CONSTANT, sid_C3, GL_CON_3_ATI, 0, rwa_READ, 0, id_PARMETERLEFT, id_PARMETERRIGHT, ckp_PS_BASE},
-	{id_CONSTANT, sid_C4, GL_CON_4_ATI, 0, rwa_READ, 0, id_PARMETERLEFT, id_PARMETERRIGHT, ckp_PS_BASE},
-	{id_CONSTANT, sid_C5, GL_CON_5_ATI, 0, rwa_READ, 0, id_PARMETERLEFT, id_PARMETERRIGHT, ckp_PS_BASE},
-	{id_CONSTANT, sid_C6, GL_CON_6_ATI, 0, rwa_READ, 0, id_PARMETERLEFT, id_PARMETERRIGHT, ckp_PS_BASE},
-	{id_CONSTANT, sid_C7, GL_CON_7_ATI, 0, rwa_READ, 0, id_PARMETERLEFT, id_PARMETERRIGHT, ckp_PS_BASE},
+	{sid_C0, GL_CON_0_ATI, ckp_PS_BASE},
+	{sid_C1, GL_CON_1_ATI, ckp_PS_BASE},
+	{sid_C2, GL_CON_2_ATI, ckp_PS_BASE},
+	{sid_C3, GL_CON_3_ATI, ckp_PS_BASE},
+	{sid_C4, GL_CON_4_ATI, ckp_PS_BASE},
+	{sid_C5, GL_CON_5_ATI, ckp_PS_BASE},
+	{sid_C6, GL_CON_6_ATI, ckp_PS_BASE},
+	{sid_C7, GL_CON_7_ATI, ckp_PS_BASE},
 
 	// colour
-	{id_COLOR, sid_V0, GL_PRIMARY_COLOR_ARB, 0, rwa_READ, 0, id_PARMETERLEFT, id_PARMETERRIGHT, ckp_PS_BASE},
-	{id_COLOR, sid_V1, GL_SECONDARY_INTERPOLATOR_ATI, 0, rwa_READ, 0, id_PARMETERLEFT, id_PARMETERRIGHT, ckp_PS_BASE},
+	{sid_V0, GL_PRIMARY_COLOR_ARB,  ckp_PS_BASE},
+	{sid_V1, GL_SECONDARY_INTERPOLATOR_ATI,  ckp_PS_BASE},
 
 	// instruction ops
-	{id_OPINST, sid_ADD, GL_ADD_ATI, 3, rwa_NONE, 0, id_OPLEFT, id_DSTMOD | id_TEMPREGISTERS, ckp_PS_BASE},
-	{id_OPINST, sid_SUB, GL_SUB_ATI, 3, rwa_NONE, 0, id_OPLEFT, id_DSTMOD | id_TEMPREGISTERS, ckp_PS_BASE},
-	{id_OPINST, sid_MUL, GL_MUL_ATI, 3, rwa_NONE, 0, id_OPLEFT, id_DSTMOD | id_TEMPREGISTERS, ckp_PS_BASE},
-	{id_OPINST, sid_MAD, GL_MAD_ATI, 4, rwa_NONE, 0, id_OPLEFT, id_DSTMOD | id_TEMPREGISTERS, ckp_PS_BASE},
-	{id_OPINST, sid_LRP, GL_LERP_ATI, 4, rwa_NONE, 0, id_OPLEFT, id_DSTMOD | id_TEMPREGISTERS, ckp_PS_BASE},
-	{id_OPINST, sid_MOV, GL_MOV_ATI, 2, rwa_NONE, 0, id_OPLEFT, id_DSTMOD | id_TEMPREGISTERS, ckp_PS_BASE},
-	{id_OPINST, sid_CMP, GL_CND0_ATI, 4, rwa_NONE, 0, id_OPLEFT, id_DSTMOD | id_TEMPREGISTERS, ckp_PS_BASE},
-	{id_OPINST, sid_CND, GL_CND_ATI, 4, rwa_NONE, 0, id_OPLEFT, id_DSTMOD | id_TEMPREGISTERS, ckp_PS_BASE},
-	{id_OPINST, sid_DP3, GL_DOT3_ATI, 3, rwa_NONE, 0, id_OPLEFT, id_DSTMOD | id_TEMPREGISTERS, ckp_PS_BASE},
-	{id_OPINST, sid_DP4, GL_DOT4_ATI, 3, rwa_NONE, 0, id_OPLEFT, id_DSTMOD | id_TEMPREGISTERS, ckp_PS_BASE},
+	{sid_ADD, GL_ADD_ATI, ckp_PS_BASE},
+	{sid_SUB, GL_SUB_ATI, ckp_PS_BASE},
+	{sid_MUL, GL_MUL_ATI, ckp_PS_BASE},
+	{sid_MAD, GL_MAD_ATI, ckp_PS_BASE},
+	{sid_LRP, GL_LERP_ATI, ckp_PS_BASE},
+	{sid_MOV, GL_MOV_ATI, ckp_PS_BASE},
+	{sid_CMP, GL_CND0_ATI, ckp_PS_BASE},
+	{sid_CND, GL_CND_ATI, ckp_PS_BASE},
+	{sid_DP3, GL_DOT3_ATI, ckp_PS_BASE},
+	{sid_DP4, GL_DOT4_ATI, ckp_PS_BASE},
 
-	{id_OPINST, sid_DEF, GL_NONE, 5, rwa_NONE, 0, id_OPLEFT, id_CONSTANT, ckp_PS_BASE},
+	{sid_DEF, GL_NONE, ckp_PS_BASE},
 
 	// Masks
-	{id_MASK, sid_R, GL_RED_BIT_ATI, 0, rwa_NONE, 0, id_MASKREPLEFT, id_MASKREPRIGHT, ckp_PS_BASE},
-	{id_MASK, sid_RA, GL_RED_BIT_ATI | ALPHA_BIT, 0, rwa_NONE, 0, id_REGISTER | id_ARGMOD, id_SEPERATOR | id_DSTMOD, ckp_PS_BASE},
-	{id_MASK, sid_G, GL_GREEN_BIT_ATI, 0, rwa_NONE, 0, id_MASKREPLEFT, id_MASKREPRIGHT, ckp_PS_BASE},
-	{id_MASK, sid_GA, GL_GREEN_BIT_ATI | ALPHA_BIT, 0, rwa_NONE, 0, id_REGISTER | id_ARGMOD, id_SEPERATOR | id_OPINST | id_DSTMOD, ckp_PS_BASE},
-	{id_MASK, sid_B, GL_BLUE_BIT_ATI, 0, rwa_NONE, 0, id_MASKREPLEFT, id_MASKREPRIGHT, ckp_PS_BASE},
-	{id_MASK, sid_BA, GL_BLUE_BIT_ATI | ALPHA_BIT, 0, rwa_NONE, 0, id_TEMPREGISTERS | id_ARGMOD, id_SEPERATOR, ckp_PS_BASE},
-	{id_MASK, sid_A, ALPHA_BIT, 0, rwa_NONE, 0, id_MASKREPLEFT, id_MASKREPRIGHT, ckp_PS_BASE},
-	{id_MASK, sid_RGBA, RGB_BITS | ALPHA_BIT, 0, rwa_NONE, 0, id_TEMPREGISTERS | id_ARGMOD, id_SEPERATOR, ckp_PS_BASE},
-	{id_MASK, sid_RGB, RGB_BITS, 0, rwa_NONE, 0, id_TEMPREGISTERS | id_ARGMOD, id_SEPERATOR, ckp_PS_BASE},
-	{id_MASK, sid_RG, GL_RED_BIT_ATI | GL_GREEN_BIT_ATI, 0, rwa_NONE, 0, id_TEMPREGISTERS | id_ARGMOD, id_SEPERATOR, ckp_PS_BASE},
-	{id_MASK, sid_RGA, GL_RED_BIT_ATI | GL_GREEN_BIT_ATI | ALPHA_BIT, 0, rwa_NONE, 0, id_REGISTER | id_ARGMOD, id_SEPERATOR, ckp_PS_BASE},
-	{id_MASK, sid_RB, GL_RED_BIT_ATI | GL_BLUE_BIT_ATI, 0, rwa_NONE, 0, id_TEMPREGISTERS | id_ARGMOD, id_SEPERATOR, ckp_PS_BASE},
-	{id_MASK, sid_RBA, GL_RED_BIT_ATI | GL_BLUE_BIT_ATI | ALPHA_BIT, 0, rwa_NONE, 0, id_TEMPREGISTERS | id_ARGMOD, id_SEPERATOR, ckp_PS_BASE},
-	{id_MASK, sid_GB, GL_GREEN_BIT_ATI | GL_BLUE_BIT_ATI, 0, rwa_NONE, 0, id_TEMPREGISTERS | id_ARGMOD, id_SEPERATOR, ckp_PS_BASE},
-	{id_MASK, sid_GBA, GL_GREEN_BIT_ATI | GL_BLUE_BIT_ATI | ALPHA_BIT, 0, rwa_NONE, 0, id_TEMPREGISTERS | id_ARGMOD, id_SEPERATOR, ckp_PS_BASE},
+	{sid_R, GL_RED_BIT_ATI, ckp_PS_1_4},
+	{sid_RA, GL_RED_BIT_ATI | ALPHA_BIT, ckp_PS_1_4},
+	{sid_G, GL_GREEN_BIT_ATI, ckp_PS_1_4},
+	{sid_GA, GL_GREEN_BIT_ATI | ALPHA_BIT, ckp_PS_1_4},
+	{sid_B, GL_BLUE_BIT_ATI, ckp_PS_1_4},
+	{sid_BA, GL_BLUE_BIT_ATI | ALPHA_BIT, ckp_PS_1_4},
+	{sid_A, ALPHA_BIT, ckp_PS_BASE},
+	{sid_RGBA, RGB_BITS | ALPHA_BIT, ckp_PS_BASE},
+	{sid_RGB, RGB_BITS,  ckp_PS_BASE},
+	{sid_RG, GL_RED_BIT_ATI | GL_GREEN_BIT_ATI, ckp_PS_1_4},
+	{sid_RGA, GL_RED_BIT_ATI | GL_GREEN_BIT_ATI | ALPHA_BIT, ckp_PS_1_4},
+	{sid_RB, GL_RED_BIT_ATI | GL_BLUE_BIT_ATI, ckp_PS_1_4},
+	{sid_RBA, GL_RED_BIT_ATI | GL_BLUE_BIT_ATI | ALPHA_BIT, ckp_PS_1_4},
+	{sid_GB, GL_GREEN_BIT_ATI | GL_BLUE_BIT_ATI, ckp_PS_1_4},
+	{sid_GBA, GL_GREEN_BIT_ATI | GL_BLUE_BIT_ATI | ALPHA_BIT, ckp_PS_1_4},
+
+	// Rep
+	{sid_RRRR, GL_RED, ckp_PS_1_4},
+	{sid_GGGG, GL_GREEN, ckp_PS_1_4},
+	{sid_BBBB, GL_BLUE, ckp_PS_BASE},
+	{sid_AAAA, GL_ALPHA, ckp_PS_BASE},
 
 
 	// modifiers
-	{id_DSTMOD, sid_X2, GL_2X_BIT_ATI, 0, rwa_NONE, 0, id_OPINST | id_ARGUMENT | id_MASK, id_SEPERATOR | id_REGISTER | id_OPINST, ckp_PS_BASE},
-	{id_DSTMOD, sid_X4, GL_4X_BIT_ATI, 0, rwa_NONE, 0, id_OPINST, id_TEMPREGISTERS, ckp_PS_BASE},
-	{id_DSTMOD, sid_D2, GL_HALF_BIT_ATI, 0, rwa_NONE, 0, id_OPINST, id_SEPERATOR | id_TEMPREGISTERS , ckp_PS_BASE},
-	{id_DSTMOD, sid_SAT, GL_SATURATE_BIT_ATI, 0, rwa_NONE, 0, id_OPINST | id_DSTMOD, id_TEMPREGISTERS, ckp_PS_BASE},
+	{sid_X2, GL_2X_BIT_ATI, ckp_PS_BASE}, {sid_X4, GL_4X_BIT_ATI, ckp_PS_BASE},
+	{sid_D2, GL_HALF_BIT_ATI, ckp_PS_BASE}, {sid_SAT, GL_SATURATE_BIT_ATI, ckp_PS_BASE},
 
 	// argument modifiers
-	{id_ARGMOD, sid_BIAS, GL_BIAS_BIT_ATI, 0, rwa_NONE, 0, id_ARGUMENT | id_ARGMOD | id_MASK, id_ANY, ckp_PS_BASE},
-	{id_ARGMOD, sid_INVERT, GL_COMP_BIT_ATI, 0, rwa_NONE, 0, id_SEPERATOR | id_ARGMOD, id_ARGUMENT | id_ARGMOD, ckp_PS_BASE},
-	{id_ARGMOD, sid_NEGATE, GL_NEGATE_BIT_ATI, 0, rwa_NONE, 0, id_SEPERATOR, id_ARGUMENT | id_ARGMOD, ckp_PS_BASE},
-	{id_ARGMOD, sid_BX2, GL_2X_BIT_ATI | GL_BIAS_BIT_ATI, 0, rwa_NONE, 0, id_ARGUMENT | id_ARGMOD | id_MASK, id_ANY, ckp_PS_BASE, ckp_PS_BASE},
+	{sid_BIAS, GL_BIAS_BIT_ATI, ckp_PS_BASE}, {sid_INVERT, GL_COMP_BIT_ATI, ckp_PS_BASE},
+	{sid_NEGATE, GL_NEGATE_BIT_ATI, ckp_PS_BASE}, {sid_BX2, GL_2X_BIT_ATI | GL_BIAS_BIT_ATI, ckp_PS_BASE},
 
 	// seperator characters
-	{id_SEPERATOR, sid_COMMA, GL_NONE, 0, rwa_NONE, 0, id_ARGUMENT | id_ARGMOD | id_NUMVAL | id_MASK, id_ARGUMENT | id_ARGMOD | id_NUMVAL, ckp_PS_BASE},
-	{id_NUMVAL, sid_VALUE, GL_NONE, 0, rwa_NONE, 0, id_CONSTANT | id_SEPERATOR, id_SEPERATOR | id_OPINST, ckp_PS_BASE},
+	{sid_COMMA, GL_NONE, ckp_PS_BASE}, {sid_VALUE, GL_NONE, ckp_PS_BASE},
 
 	// PS_1_4
 	// temp R/W registers
-	{id_REGISTER, sid_R0, GL_REG_0_ATI, 0, rwa_READ | rwa_WRITE, 0, id_PARMETERLEFT, id_PARMETERRIGHT, ckp_PS_1_4},
-	{id_REGISTER, sid_R1, GL_REG_1_ATI, 0, rwa_READ | rwa_WRITE, 0, id_PARMETERLEFT, id_PARMETERRIGHT, ckp_PS_1_4},
-	{id_REGISTER, sid_R2, GL_REG_2_ATI, 0, rwa_READ | rwa_WRITE, 0, id_PARMETERLEFT, id_PARMETERRIGHT, ckp_PS_1_4},
-	{id_REGISTER, sid_R3, GL_REG_3_ATI, 0, rwa_READ | rwa_WRITE, 0, id_PARMETERLEFT, id_PARMETERRIGHT, ckp_PS_1_4},
-	{id_REGISTER, sid_R4, GL_REG_4_ATI, 0, rwa_READ | rwa_WRITE, 0, id_PARMETERLEFT, id_PARMETERRIGHT, ckp_PS_1_4},
-	{id_REGISTER, sid_R5, GL_REG_5_ATI, 0, rwa_READ | rwa_WRITE, 0, id_PARMETERLEFT, id_PARMETERRIGHT, ckp_PS_1_4},
+	{sid_R0, GL_REG_0_ATI, ckp_PS_1_4}, {sid_R1, GL_REG_1_ATI, ckp_PS_1_4},	{sid_R2, GL_REG_2_ATI, ckp_PS_1_4},
+	{sid_R3, GL_REG_3_ATI, ckp_PS_1_4},	{sid_R4, GL_REG_4_ATI, ckp_PS_1_4},	{sid_R5, GL_REG_5_ATI, ckp_PS_1_4},
 
 	// textures
-	{id_TEXTURE, sid_T0, GL_TEXTURE0_ARB, 0, rwa_READ, 0,id_SEPERATOR, id_TEXSWIZZLE | id_OPINST, ckp_PS_1_4},
-	{id_TEXTURE, sid_T1, GL_TEXTURE1_ARB, 0, rwa_READ, 0,id_SEPERATOR, id_TEXSWIZZLE | id_OPINST, ckp_PS_1_4},
-	{id_TEXTURE, sid_T2, GL_TEXTURE2_ARB, 0, rwa_READ, 0,id_SEPERATOR, id_TEXSWIZZLE | id_OPINST, ckp_PS_1_4},
-	{id_TEXTURE, sid_T3, GL_TEXTURE3_ARB, 0, rwa_READ, 0,id_SEPERATOR, id_TEXSWIZZLE | id_OPINST, ckp_PS_1_4},
-	{id_TEXTURE, sid_T4, GL_TEXTURE4_ARB, 0, rwa_READ, 0,id_SEPERATOR, id_TEXSWIZZLE | id_OPINST, ckp_PS_1_4},
-	{id_TEXTURE, sid_T5, GL_TEXTURE5_ARB, 0, rwa_READ, 0,id_SEPERATOR, id_TEXSWIZZLE | id_OPINST, ckp_PS_1_4},
+	{sid_T0, GL_TEXTURE0_ARB, ckp_PS_1_4}, {sid_T1, GL_TEXTURE1_ARB, ckp_PS_1_4}, {sid_T2, GL_TEXTURE2_ARB, ckp_PS_1_4},
+	{sid_T3, GL_TEXTURE3_ARB, ckp_PS_1_4}, {sid_T4, GL_TEXTURE4_ARB, ckp_PS_1_4}, {sid_T5, GL_TEXTURE5_ARB, ckp_PS_1_4},
+	{sid_DP2ADD, GL_DOT2_ADD_ATI, ckp_PS_1_4},
 
-	{id_OPINST, sid_DP2ADD, GL_DOT2_ADD_ATI, 4, rwa_NONE, 0, id_OPLEFT, id_DSTMOD | id_REGISTER, ckp_PS_1_4},
 	// modifiers
-	{id_DSTMOD, sid_X8, GL_8X_BIT_ATI, 0, rwa_NONE, 0, id_OPINST, id_REGISTER, ckp_PS_1_4},
-	{id_DSTMOD, sid_D8, GL_EIGHTH_BIT_ATI, 0, rwa_NONE, 0, id_OPINST, id_REGISTER, ckp_PS_1_4},
-	{id_DSTMOD, sid_D4, GL_QUARTER_BIT_ATI, 0, rwa_NONE, 0, id_OPINST, id_TEMPREGISTERS, ckp_PS_1_4},
+	{sid_X8, GL_8X_BIT_ATI, ckp_PS_1_4}, {sid_D8, GL_EIGHTH_BIT_ATI, ckp_PS_1_4}, {sid_D4, GL_QUARTER_BIT_ATI, ckp_PS_1_4},
 
 	// instructions
-	{id_OPINST, sid_TEXCRD, GL_NONE, 2, rwa_NONE, 0, id_OPLEFT, id_DSTMOD | id_REGISTER, ckp_PS_1_4},
-	{id_OPINST, sid_TEXLD, GL_NONE, 2, rwa_NONE, 0, id_OPLEFT, id_DSTMOD | id_REGISTER, ckp_PS_1_4},
+	{sid_TEXCRD, GL_NONE, ckp_PS_1_4}, {sid_TEXLD, GL_NONE, ckp_PS_1_4},
 
 	// texture swizzlers
-	{id_TEXSWIZZLE, sid_STRDR, GL_SWIZZLE_STR_DR_ATI, 0, rwa_NONE, 0, id_TEXTURE, id_OPINST, ckp_PS_1_4},
-	{id_TEXSWIZZLE, sid_STQDQ, GL_SWIZZLE_STQ_DQ_ATI, 0, rwa_NONE, 0, id_TEXTURE, id_OPINST, ckp_PS_1_4},
 
-	{id_ANY, sid_PHASE, GL_NONE, 0, rwa_NONE, 0, id_ANY, id_OPINST, ckp_PS_1_4},
+	{sid_STR, GL_SWIZZLE_STR_ATI - GL_SWIZZLE_STR_ATI, ckp_PS_1_4},
+	{sid_STQ, GL_SWIZZLE_STQ_ATI - GL_SWIZZLE_STR_ATI, ckp_PS_1_4},
+	{sid_STRDR, GL_SWIZZLE_STR_DR_ATI - GL_SWIZZLE_STR_ATI, ckp_PS_1_4},
+	{sid_STQDQ, GL_SWIZZLE_STQ_DQ_ATI - GL_SWIZZLE_STR_ATI, ckp_PS_1_4}, 
+
+	{sid_BEM, GL_NONE, ckp_PS_1_4},
+	{sid_PHASE, GL_NONE, ckp_PS_1_4},
 
 	// PS_1_1 
 	// temp R/W registers
 	// r0, r1 are mapped to r4, r5
 	// t0 to t3 are mapped to r0 to r3
-	{id_REGISTER, sid_1R0, GL_REG_4_ATI, 0, rwa_READ | rwa_WRITE, 0, id_PARMETERLEFT, id_PARMETERRIGHT, ckp_PS_1_1},
-	{id_REGISTER, sid_1R1, GL_REG_5_ATI, 0, rwa_READ | rwa_WRITE, 0, id_PARMETERLEFT, id_PARMETERRIGHT, ckp_PS_1_1},
-	{id_TEXREGISTER, sid_1T0, GL_REG_0_ATI, 0, rwa_READ | rwa_WRITE, 0, id_PARMETERLEFT, id_PARMETERRIGHT, ckp_PS_1_1},
-	{id_TEXREGISTER, sid_1T1, GL_REG_1_ATI, 0, rwa_READ | rwa_WRITE, 0, id_PARMETERLEFT, id_PARMETERRIGHT, ckp_PS_1_1},
-	{id_TEXREGISTER, sid_1T2, GL_REG_2_ATI, 0, rwa_READ | rwa_WRITE, 0, id_PARMETERLEFT, id_PARMETERRIGHT, ckp_PS_1_1},
-	{id_TEXREGISTER, sid_1T3, GL_REG_3_ATI, 0, rwa_READ | rwa_WRITE, 0, id_PARMETERLEFT, id_PARMETERRIGHT, ckp_PS_1_1},
+	{sid_1R0, GL_REG_4_ATI, ckp_PS_1_1}, {sid_1R1, GL_REG_5_ATI, ckp_PS_1_1},
+	{sid_1T0, GL_REG_0_ATI, ckp_PS_1_1},
+	{sid_1T1, GL_REG_1_ATI, ckp_PS_1_1}, {sid_1T2, GL_REG_2_ATI, ckp_PS_1_1}, {sid_1T3, GL_REG_3_ATI, ckp_PS_1_1},
 
 	// instructions common to PS_1_1, PS_1_2, PS_1_3
-	{id_OPINST, sid_TEX, GL_NONE, 1, rwa_NONE, 0, id_OPLEFT, id_TEXREGISTER, ckp_PS_1_1},
-	{id_OPINST, sid_TEXCOORD, GL_NONE, 1, rwa_NONE, 0, id_OPLEFT, id_TEXREGISTER, ckp_PS_1_1},
-	{id_OPINST, sid_TEXM3X2PAD, GL_NONE, 2, rwa_NONE, 0, id_OPLEFT, id_TEXREGISTER, ckp_PS_1_1},
-	{id_OPINST, sid_TEXM3X2TEX, GL_NONE, 2, rwa_NONE, 0, id_OPLEFT, id_TEXREGISTER, ckp_PS_1_1},
-	{id_OPINST, sid_TEXM3X3PAD, GL_NONE, 2, rwa_NONE, 0, id_OPLEFT, id_TEXREGISTER, ckp_PS_1_1},
-	{id_OPINST, sid_TEXM3X3TEX, GL_NONE, 2, rwa_NONE, 0, id_OPLEFT, id_TEXREGISTER, ckp_PS_1_1},
-	{id_OPINST, sid_TEXM3X3SPEC, GL_NONE, 3, rwa_NONE, 0, id_OPLEFT, id_TEXREGISTER, ckp_PS_1_1},
-	{id_OPINST, sid_TEXM3X3VSPEC, GL_NONE, 3, rwa_NONE, 0, id_OPLEFT, id_TEXREGISTER, ckp_PS_1_1},
-	{id_OPINST, sid_TEXREG2AR, GL_NONE, 2, rwa_NONE, 0, id_OPLEFT, id_TEXREGISTER, ckp_PS_1_2},
-	{id_OPINST, sid_TEXREG2GB, GL_NONE, 2, rwa_NONE, 0, id_OPLEFT, id_TEXREGISTER, ckp_PS_1_2},
+	{sid_TEX, GL_NONE, ckp_PS_1_1},	{sid_TEXCOORD, GL_NONE, ckp_PS_1_1}, {sid_TEXM3X2PAD, GL_NONE, ckp_PS_1_1},
+	{sid_TEXM3X2TEX, GL_NONE, ckp_PS_1_1}, {sid_TEXM3X3PAD, GL_NONE, ckp_PS_1_1}, {sid_TEXM3X3TEX, GL_NONE, ckp_PS_1_1},
+	{sid_TEXM3X3SPEC, GL_NONE, ckp_PS_1_1}, {sid_TEXM3X3VSPEC, GL_NONE, ckp_PS_1_1}, {sid_TEXREG2AR, GL_NONE, ckp_PS_1_2},
+	{sid_TEXREG2GB, GL_NONE, ckp_PS_1_2},
 
 	// PS_1_2 & PS_1_3
-	{id_OPINST, sid_TEXREG2RGB, GL_NONE, 2, rwa_NONE, 0, id_OPLEFT, id_TEXREGISTER, ckp_PS_1_2},
-	{id_OPINST, sid_TEXDP3, GL_NONE, 2, rwa_NONE, 0, id_OPLEFT, id_TEXREGISTER, ckp_PS_1_1},
-	{id_OPINST, sid_TEXDP3TEX, GL_NONE, 2, rwa_NONE, 0, id_OPLEFT, id_TEXREGISTER, ckp_PS_1_1},
+	{sid_TEXREG2RGB, GL_NONE, ckp_PS_1_2}, {sid_TEXDP3, GL_NONE, ckp_PS_1_2}, {sid_TEXDP3TEX, GL_NONE, ckp_PS_1_2},
 	
 
 	// Common
-	{id_ANY, sid_SKIP, GL_NONE, 0, rwa_NONE, 0, id_ANY, id_OPINST, ckp_PS_BASE},
+	{sid_SKIP, GL_NONE, ckp_PS_BASE}, {sid_PLUS, GL_NONE, ckp_PS_BASE},
+
+	// Non-Terminal Tokens
+	{sid_PROGRAM, GL_NONE, ckp_PS_BASE},
+	{sid_PROGRAMTYPE, GL_NONE, ckp_PS_BASE},
+	{sid_DECLCONSTS, GL_NONE, ckp_PS_BASE},
+	{sid_DEFCONST, GL_NONE, ckp_PS_BASE},
+	{sid_CONSTANT, GL_NONE, ckp_PS_BASE},
+	{sid_COLOR, GL_NONE, ckp_PS_BASE}, 
+	{sid_TEXSWIZZLE, GL_NONE, ckp_PS_BASE},
+	{sid_UNARYOP, GL_NONE, ckp_PS_BASE},
+	{sid_NUMVAL, GL_NONE, ckp_PS_BASE},
+	{sid_SEPERATOR, GL_NONE, ckp_PS_BASE},
+	{sid_ALUOPS, GL_NONE, ckp_PS_BASE},
+	{sid_TEXMASK, GL_NONE, ckp_PS_BASE},
+	{sid_TEXOP_PS1_1_3, GL_NONE, ckp_PS_1_1}, 
+	{sid_TEXOP_PS1_4, GL_NONE, ckp_PS_1_4},
+	{sid_ALU_STATEMENT, GL_NONE, ckp_PS_BASE},
+	{sid_DSTMODSAT, GL_NONE, ckp_PS_BASE},
+	{sid_UNARYOP_ARGS, GL_NONE, ckp_PS_BASE},
+	{sid_REG_PS1_4, GL_NONE, ckp_PS_1_4},
+	{sid_TEX_PS1_4, GL_NONE, ckp_PS_1_4},
+	{sid_REG_PS1_1_3, GL_NONE, ckp_PS_1_1},
+	{sid_TEX_PS1_1_3, GL_NONE, ckp_PS_1_1},
+	{sid_DSTINFO, GL_NONE, ckp_PS_BASE},
+	{sid_SRCINFO, GL_NONE, ckp_PS_BASE},
+	{sid_BINARYOP_ARGS, GL_NONE, ckp_PS_BASE},
+	{sid_TERNARYOP_ARGS, GL_NONE, ckp_PS_BASE},
+	{sid_TEMPREG, GL_NONE, ckp_PS_BASE},
+	{sid_DSTMASK, GL_NONE, ckp_PS_BASE},
+	{sid_PRESRCMOD, GL_NONE, ckp_PS_BASE},
+	{sid_SRCNAME, GL_NONE, ckp_PS_BASE},
+	{sid_SRCREP, GL_NONE, ckp_PS_BASE},
+	{sid_POSTSRCMOD, GL_NONE, ckp_PS_BASE},
+	{sid_DSTMOD, GL_NONE, ckp_PS_BASE},
+	{sid_DSTSAT, GL_NONE, ckp_PS_BASE},
+	{sid_BINARYOP, GL_NONE, ckp_PS_BASE},
+	{sid_TERNARYOP, GL_NONE, ckp_PS_BASE},
+	{sid_TEXOPS_PHASE1, GL_NONE, ckp_PS_BASE},
+	{sid_COISSUE, GL_NONE, ckp_PS_BASE},
+	{sid_PHASEMARKER, GL_NONE, ckp_PS_1_4},
+	{sid_TEXOPS_PHASE2, GL_NONE, ckp_PS_1_4},
+	{sid_TEXREG_PS1_4, GL_NONE, ckp_PS_1_4},
+	{sid_TEXOPS_PS1_4, GL_NONE, ckp_PS_1_4},
+	{sid_TEXOPS_PS1_1_3, GL_NONE, ckp_PS_1_1},
+	{sid_TEXCISCOP_PS1_1_3, GL_NONE, ckp_PS_1_1},
 
 };
 
-// library of all the text aliases for each symbol type
-PS_1_4::ASMSymbolText PS_1_4::PS_1_4_ASMSymbolTextLib[] = {
-	{"ps.1.4", sid_PS_1_4}, {"ps.1.1", sid_PS_1_1}, {"ps.1.2", sid_PS_1_2}, {"ps.1.3", sid_PS_1_3},
 
-	// symbols common to all ps flavors
-	{"c0", sid_C0}, {"c1", sid_C1}, {"c2", sid_C2}, {"c3", sid_C3}, {"c4", sid_C4},
-	{"c5", sid_C5}, {"c6", sid_C6}, {"c7", sid_C7},
-	{"v0", sid_V0}, {"v1", sid_V1},
+// Rule Path Database for ps.1.x code based on extended Backus Naur Form notation
 
-	{"add", sid_ADD}, {"sub", sid_SUB}, {"mul", sid_MUL}, {"mad", sid_MAD}, {"lrp", sid_LRP},
-	{"mov", sid_MOV}, {"cmp", sid_CMP}, {"cnd", sid_CND},  {"dp3", sid_DP3},
-	{"dp4", sid_DP4},
+// <>	- non-terminal token
+#define _rule_		{otRULE,		// ::=	- rule definition
+#define _is_		},{otAND,
+#define _and_		},{otAND,		//      - blank space is an implied "AND" meaning the token is required
+#define _or_		},{otOR,		// |	- or
+#define _optional_	},{otOPTIONAL,	// []	- optional
+#define _repeat_	},{otREPEAT,	// {}	- repeat until fail
+#define _end_		},{otEND},
+// " "  - terminal token string
 
-	{"def", sid_DEF},
+PS_1_4::TokenRule PS_1_4::PS_1_x_RulePath[] = {
 
-	{"_x2", sid_X2}, {"_x4", sid_X4},
-	{"_d2", sid_D2}, {"_d4", sid_D4},
-	{"_sat", sid_SAT},
+	_rule_ sid_PROGRAM, "Program"
 
-	{"_bias", sid_BIAS}, {"1-", sid_INVERT}, {"1 -", sid_INVERT}, {"-", sid_NEGATE}, {"_bx2", sid_BX2},
-	{",", sid_COMMA},
-	{"value", sid_VALUE},
-	{"+", sid_SKIP}, 
+		_is_ sid_PROGRAMTYPE
+		_optional_ sid_DECLCONSTS
+		_optional_ sid_TEXOPS_PHASE1
+		_optional_ sid_ALUOPS 
+		_optional_ sid_PHASEMARKER
+		_optional_ sid_TEXOPS_PHASE2
+		_optional_ sid_ALUOPS
+		_end_ 
 
-	// PS_1_4 symbols
-	{"r0", sid_R0}, {"r1", sid_R1}, {"r2", sid_R2}, {"r3", sid_R3}, {"r4", sid_R4},
-	{"r5", sid_R5},
-	{"t0", sid_T0}, {"t1", sid_T1}, {"t2", sid_T2}, {"t3", sid_T3}, {"t4", sid_T4},
-	{"t5", sid_T5},
-	{"texcrd", sid_TEXCRD}, {"texld", sid_TEXLD},
-	{"dp2", sid_DP2ADD},
-	{".r", sid_R}, {".x", sid_R}, {".s", sid_R}, {".ra", sid_RA}, {".xw", sid_RA}, {".sq", sid_RA},
-	{".g", sid_G}, {".y", sid_G}, {".t", sid_G}, {".ga", sid_GA}, {".yw", sid_GA}, {".tq", sid_GA},
-	{".b", sid_B}, {".z", sid_B}, {".r", sid_B}, {".ba", sid_BA}, {".zw", sid_BA}, {".rw", sid_BA},
-	{".a", sid_A}, {".w", sid_A}, {".q", sid_A}, {".rgba", sid_RGBA}, {".xyzw", sid_RGBA},
-	{".strq", sid_RGBA}, {".rgb", sid_RGB}, {".xyz", sid_RGB}, {".str", sid_RGB}, {".rg", sid_RG},
-	{".xy", sid_RG}, {".st", sid_RG}, {".rga", sid_RGA}, {".xyw", sid_RGA},  {".stq", sid_RGA},
-	{".rb", sid_RB}, {".xz", sid_RB}, {".sr", sid_RB}, {".rba", sid_RBA}, {".xzw", sid_RBA},
-	{".srq", sid_RBA}, {".gb", sid_GB}, {".yz", sid_GB}, {".tr", sid_GB}, {".gba", sid_GBA},
-	{".yzw", sid_GBA}, {".trq", sid_GBA}, {".str_dr", sid_STRDR}, {".xyz_dz", sid_STRDR}, {".rgb_db", sid_STRDR},
-	{".stq_dq", sid_STQDQ}, {".xyw_dw", sid_STQDQ}, {".rga_da", sid_STQDQ},
-	{"_x8", sid_X8}, 
-	{"_d8", sid_D8},
-	{"phase", sid_PHASE},
+	_rule_ sid_PROGRAMTYPE, "<ProgramType>"
 
-	// PS_1_1 symbols
-	{"r0", sid_1R0}, {"r1", sid_1R1},
-	{"t0", sid_1T0}, {"t1", sid_1T1}, {"t2", sid_1T2}, {"t3", sid_1T3},
-	{"tex", sid_TEX}, {"texcoord", sid_TEXCOORD}, {"texdp3", sid_TEXDP3}, {"texdp3tex", sid_TEXDP3TEX}, {"texm3x2pad", sid_TEXM3X2PAD},
-	{"texm3x2tex", sid_TEXM3X2TEX}, {"texm3x3pad", sid_TEXM3X3PAD}, {"texm3x3tex", sid_TEXM3X3TEX},
-	{"texm3x3spec", sid_TEXM3X3SPEC}, {"texm3x3vspec", sid_TEXM3X3VSPEC},
+		_is_ sid_PS_1_4, "ps.1.4"
+		_or_ sid_PS_1_1, "ps.1.1"
+		_or_ sid_PS_1_2, "ps.1.2"
+		_or_ sid_PS_1_3, "ps.1.3"
+		_end_
 
-	// PS_1_2 symbols
-	{"texreg2rgb", sid_TEXREG2RGB}, {"texreg2ar", sid_TEXREG2AR}, {"texreg2gb", sid_TEXREG2GB},
+	_rule_ sid_PHASEMARKER, "<PhaseMarker>"
+
+		_is_ sid_PHASE, "phase"
+		_end_
+
+	_rule_ sid_DECLCONSTS, "<DeclareConstants>"
+
+		_repeat_ sid_DEFCONST
+		_end_
+
+
+	_rule_ sid_TEXOPS_PHASE1, "<TexOps_Phase1>"
+
+		_is_ sid_TEXOPS_PS1_1_3
+		_or_ sid_TEXOPS_PS1_4
+		_end_
+
+	_rule_ sid_TEXOPS_PHASE2, "<TexOps_Phase2>"
+
+		_is_ sid_TEXOPS_PS1_4
+		_end_
+
+	_rule_ sid_NUMVAL, "<NumVal>"
+
+		_is_ sid_VALUE, "Float Value"
+		_end_
+
+	_rule_ sid_TEXOPS_PS1_1_3, "<TexOps_PS1_1_3>"
+
+		_repeat_ sid_TEXOP_PS1_1_3
+		_end_
+
+	_rule_ sid_TEXOPS_PS1_4, "<TexOps_PS1_4>"
+
+		_repeat_ sid_TEXOP_PS1_4
+		_end_
+
+	_rule_ sid_TEXOP_PS1_1_3, "<TexOp_PS1_1_3>"
+
+		_is_  sid_TEXCISCOP_PS1_1_3
+		_and_ sid_TEX_PS1_1_3
+		_and_ sid_SEPERATOR
+		_and_ sid_TEX_PS1_1_3
+
+		_or_  sid_TEXCOORD, "texcoord"
+		_and_ sid_TEX_PS1_1_3
+
+		_or_  sid_TEX, "tex"
+		_and_ sid_TEX_PS1_1_3
+
+
+
+		_end_
+
+	_rule_ sid_TEXOP_PS1_4, "<TexOp_PS1_4>"
+
+		_is_  sid_TEXCRD, "texcrd"
+		_and_ sid_REG_PS1_4
+		_optional_ sid_TEXMASK
+		_and_ sid_SEPERATOR
+		_and_ sid_TEXREG_PS1_4
+
+		_or_  sid_TEXLD, "texld"
+		_and_ sid_REG_PS1_4
+		_optional_ sid_TEXMASK
+		_and_ sid_SEPERATOR
+		_and_ sid_TEXREG_PS1_4 
+		_end_
+
+	_rule_ sid_ALUOPS, "<ALUOps>"
+
+		_repeat_ sid_ALU_STATEMENT
+		_end_
+
+	_rule_ sid_ALU_STATEMENT, "<ALUStatement>"
+
+		_is_ sid_COISSUE
+		_and_ sid_UNARYOP
+		_optional_ sid_DSTMODSAT
+		_and_ sid_UNARYOP_ARGS 
+
+		_or_ sid_COISSUE
+		_and_ sid_BINARYOP
+		_optional_ sid_DSTMODSAT
+		_and_ sid_BINARYOP_ARGS
+		
+		_or_ sid_COISSUE
+		_and_ sid_TERNARYOP
+		_optional_ sid_DSTMODSAT
+		_and_ sid_TERNARYOP_ARGS 
+		_end_
+
+
+	_rule_ sid_TEXREG_PS1_4, "<TexReg_PS1_4>"
+
+		_is_ sid_TEX_PS1_4  _optional_ sid_TEXSWIZZLE
+		_or_ sid_REG_PS1_4  _optional_ sid_TEXSWIZZLE
+		_end_
+
+	_rule_ sid_UNARYOP_ARGS, "<UnaryOpArgs>"
+
+		_is_  sid_DSTINFO
+		_and_ sid_SRCINFO
+		_end_
+
+	_rule_ sid_BINARYOP_ARGS, "<BinaryOpArgs>"
+	
+		_is_  sid_DSTINFO
+		_and_ sid_SRCINFO
+		_and_ sid_SRCINFO
+		_end_
+
+	_rule_ sid_TERNARYOP_ARGS, "<TernaryOpArgs>"
+		
+		_is_  sid_DSTINFO
+		_and_ sid_SRCINFO
+		_and_ sid_SRCINFO
+		_and_ sid_SRCINFO
+		_end_
+ 
+	_rule_ sid_DSTINFO, "<DstInfo>"
+
+		_is_ sid_TEMPREG
+		_optional_ sid_DSTMASK
+		_end_
+
+	_rule_ sid_SRCINFO, "<SrcInfo>"
+	
+		_is_ sid_SEPERATOR
+		_optional_ sid_PRESRCMOD
+		_and_ sid_SRCNAME
+		_optional_ sid_POSTSRCMOD
+		_optional_ sid_SRCREP
+		_end_
+
+	_rule_ sid_SRCNAME, "<SrcName>"
+	
+		_is_ sid_TEMPREG
+		_or_ sid_CONSTANT
+		_or_ sid_COLOR
+		_end_
+
+	_rule_ sid_DEFCONST, "<DefineConstant>"
+
+		_is_ sid_DEF, "def"
+		_and_ sid_CONSTANT
+		_and_ sid_SEPERATOR
+		_and_ sid_NUMVAL
+		_and_ sid_SEPERATOR
+		_and_ sid_NUMVAL
+		_and_ sid_SEPERATOR
+		_and_ sid_NUMVAL
+		_and_ sid_SEPERATOR
+		_and_ sid_NUMVAL
+		_end_
+
+	_rule_ sid_CONSTANT, "<Constant>"
+
+		_is_ sid_C0, "c0"
+		_or_ sid_C1, "c1"
+		_or_ sid_C2, "c2"
+		_or_ sid_C3, "c3"
+		_or_ sid_C4, "c4"
+		_or_ sid_C5, "c5"
+		_or_ sid_C6, "c6"
+		_or_ sid_C7, "c7"
+		_end_
+
+
+	_rule_ sid_TEXCISCOP_PS1_1_3, "<TexCISCOp_PS1_1_3>"
+
+		_is_ sid_TEXDP3TEX,		"texdp3tex"
+		_or_ sid_TEXDP3,		"texdp3"
+		_or_ sid_TEXM3X2PAD,	"texm3x2pad"
+		_or_ sid_TEXM3X2TEX,	"texm3x2tex"
+		_or_ sid_TEXM3X3PAD,	"texm3x3pad"
+		_or_ sid_TEXM3X3TEX,	"texm3x3tex"
+		_or_ sid_TEXM3X3SPEC,	"texm3x3spec"
+		_or_ sid_TEXM3X3VSPEC,	"texm3x3vspec"
+		_or_ sid_TEXREG2RGB,	"texreg2rgb"
+		_or_ sid_TEXREG2AR,		"texreg2ar"
+		_or_ sid_TEXREG2GB,		"texreg2gb"
+		_end_
+
+
+	_rule_ sid_TEXSWIZZLE, "<TexSwizzle>"
+
+		_is_ sid_STQDQ,	"_dw.xyw"
+		_or_ sid_STQDQ,	"_da.rga"
+		_or_ sid_STRDR,	"_dz.xyz"
+		_or_ sid_STRDR,	"_db.rgb"
+		_or_ sid_STR,	".xyz"
+		_or_ sid_STR,	".rgb"
+		_or_ sid_STQ,	".xyw"
+		_or_ sid_STQ,	".rga"
+		_end_ 
+
+	_rule_ sid_TEXMASK, "<TexMask>"
+
+		_is_ sid_RGB,	".rgb"
+		_or_ sid_RGB,	".xyz"
+		_or_ sid_RG,	".rg"
+		_or_ sid_RG,	".xy"
+		_end_
+
+	_rule_ sid_SEPERATOR, "<Seperator>"
+
+		_is_ sid_COMMA, ","
+		_end_
+
+	_rule_ sid_REG_PS1_4, "<Reg_PS1_4>"
+
+		_is_ sid_R0, "r0"
+		_or_ sid_R1, "r1"
+		_or_ sid_R2, "r2"
+		_or_ sid_R3, "r3"
+		_or_ sid_R4, "r4"
+		_or_ sid_R5, "r5"
+		_end_
+
+	_rule_ sid_TEX_PS1_4, "<Tex_PS1_4>"
+
+		_is_ sid_T0, "t0"
+		_or_ sid_T1, "t1"
+		_or_ sid_T2, "t2"
+		_or_ sid_T3, "t3"
+		_or_ sid_T4, "t4"
+		_or_ sid_T5, "t5"
+		_end_
+
+	_rule_ sid_REG_PS1_1_3, "<Reg_PS1_1_3>"
+
+		_is_ sid_1R0, "r0"
+		_or_ sid_1R1, "r1"
+		_end_
+
+	_rule_ sid_TEX_PS1_1_3, "<Tex_PS1_1_3>"
+
+		_is_ sid_1T0, "t0"
+		_or_ sid_1T1, "t1"
+		_or_ sid_1T2, "t2"
+		_or_ sid_1T3, "t3"
+		_end_
+
+	_rule_ sid_COLOR, "<Color>"
+
+		_is_ sid_V0, "v0"
+		_or_ sid_V1, "v1"
+		_end_
+
+
+	_rule_ sid_TEMPREG, "<TempReg>"
+
+		_is_ sid_REG_PS1_4
+		_or_ sid_REG_PS1_1_3
+		_or_ sid_TEX_PS1_1_3
+		_end_
+
+	_rule_ sid_DSTMODSAT, "<DstModSat>"
+	
+		_optional_ sid_DSTMOD
+		_optional_ sid_DSTSAT
+		_end_
+
+	_rule_  sid_UNARYOP, "<UnaryOp>"
+
+		_is_ sid_MOV, "mov"
+		_end_
+
+	_rule_ sid_BINARYOP, "<BinaryOP>"
+	
+		_is_ sid_ADD, "add"
+		_or_ sid_MUL, "mul"
+		_or_ sid_SUB, "sub"
+		_or_ sid_DP3, "dp3"
+		_or_ sid_DP4, "dp4"
+		_or_ sid_BEM, "bem"
+		_end_
+
+	_rule_ sid_TERNARYOP, "<TernaryOp>"
+	
+		_is_ sid_MAD, "mad"
+		_or_ sid_LRP, "lrp"
+		_or_ sid_CND, "cnd"
+		_or_ sid_CMP, "cmp"
+		_end_
+
+	_rule_ sid_DSTMASK, "<DstMask>"
+
+		_is_ sid_RGBA,	".rgba"
+		_or_ sid_RGBA,	".xyzw"
+		_or_ sid_RGB,	".rgb"
+		_or_ sid_RGB,	".xyz"
+		_or_ sid_RGA,	".xyw"
+		_or_ sid_RGA,	".rga"
+		_or_ sid_RBA,	".rba"
+		_or_ sid_RBA,	".xzw"
+		_or_ sid_GBA,	".gba"
+		_or_ sid_GBA,	".yzw"
+		_or_ sid_RG,	".rg"
+		_or_ sid_RG,	".xy"
+		_or_ sid_RB,	".xz"
+		_or_ sid_RB,	".rb"
+		_or_ sid_RA,	".xw"
+		_or_ sid_RA,	".ra"
+		_or_ sid_GB,	".gb"
+		_or_ sid_GB,	".yz"
+		_or_ sid_GA,	".yw"
+		_or_ sid_GA,	".ga"
+		_or_ sid_BA,	".zw"
+		_or_ sid_BA,	".ba"
+		_or_ sid_R,		".r"
+		_or_ sid_R,		".x"
+		_or_ sid_G,		".g"
+		_or_ sid_G,		".y"
+		_or_ sid_B,		".b"
+		_or_ sid_B,		".z"
+		_or_ sid_A,		".a"
+		_or_ sid_A,		".w"
+		_end_
+
+	_rule_ sid_SRCREP, "<SrcRep>"
+	
+		_is_ sid_RRRR, ".r"
+		_or_ sid_RRRR, ".x"
+		_or_ sid_GGGG, ".g"
+		_or_ sid_GGGG, ".y"
+		_or_ sid_BBBB, ".b"
+		_or_ sid_BBBB, ".z"
+		_or_ sid_AAAA, ".a"
+		_or_ sid_AAAA, ".w"
+		_end_
+
+	_rule_ sid_PRESRCMOD, "<PreSrcMod>"
+
+		_is_ sid_INVERT, "1-"
+		_or_ sid_INVERT, "1 -"
+		_or_ sid_NEGATE, "-"
+		_end_
+
+	_rule_ sid_POSTSRCMOD, "<PostSrcMod>"
+
+		_is_ sid_BX2, "_bx2"
+		_or_ sid_X2, "_x2"
+		_or_ sid_BIAS, "_bias"
+		_end_
+
+	_rule_ sid_DSTMOD, "<DstMod>"
+
+		_is_ sid_X2, "_x2"
+		_or_ sid_X4, "_x4"
+		_or_ sid_D2, "_d2"
+		_or_ sid_X8, "_x8"
+		_or_ sid_D4, "_d4"
+		_or_ sid_D8, "_d8"
+		_end_
+
+	_rule_ sid_DSTSAT, "<DstSat>"
+
+		_is_ sid_SAT, "_sat"
+		_end_
+
+	_rule_ sid_COISSUE, "<CoIssue>"
+
+		_optional_ sid_PLUS, "+"
+		_end_
 
 };
 
+//***************************** MACROs for PS1_1 , PS1_2, PS1_3 CISC instructions **************************************
+
+// macro to make the macro text data easier to read
+#define _token_ },{
 
 // macro token expansion for ps_1_2 instruction: texreg2ar
 PS_1_4::TokenInst PS_1_4::texreg2ar[] = {
 	// mov r(x).r, r(y).a
-	{sid_MOV}, {sid_R1}, {sid_R,}, {sid_COMMA}, {sid_R0}, {sid_A},
+	{		sid_UNARYOP,	sid_MOV
+	_token_ sid_REG_PS1_4,	sid_R1
+	_token_ sid_DSTMASK,	sid_R
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R0
+	_token_ sid_SRCREP,		sid_AAAA
+
 	// mov r(x).g, r(y).r
-	{sid_MOV}, {sid_R1}, {sid_G}, {sid_COMMA}, {sid_R0}, {sid_R},
+	_token_ sid_UNARYOP,	sid_MOV
+	_token_ sid_REG_PS1_4,	sid_R1
+	_token_ sid_DSTMASK,	sid_G
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R0
+	_token_ sid_SRCREP,		sid_RRRR
+
 	// texld r(x), r(x)
-	{sid_TEXLD}, {sid_R1}, {sid_COMMA}, {sid_R1},
+	_token_ sid_TEXOP_PS1_4, sid_TEXLD
+	_token_ sid_REG_PS1_4,	sid_R1
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R1
+	}
 };
 
 PS_1_4::RegModOffset PS_1_4::texreg2xx_RegMods[] = {
@@ -274,11 +655,27 @@ PS_1_4::MacroRegModify PS_1_4::texreg2ar_MacroMods = {
 // macro token expansion for ps_1_2 instruction: texreg2gb
 PS_1_4::TokenInst PS_1_4::texreg2gb[] = {
 	// mov r(x).r, r(y).g
-	{sid_MOV}, {sid_R1}, {sid_R}, {sid_COMMA}, {sid_R0}, {sid_G},
+	{		sid_UNARYOP,	sid_MOV
+	_token_ sid_REG_PS1_4,	sid_R1
+	_token_ sid_DSTMASK,	sid_R
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R0
+	_token_ sid_SRCREP,		sid_GGGG
+
 	// mov r(x).g, r(y).b
-	{sid_MOV}, {sid_R1}, {sid_G}, {sid_COMMA}, {sid_R0}, {sid_B},
+	_token_ sid_UNARYOP,	sid_MOV
+	_token_ sid_REG_PS1_4,	sid_R1
+	_token_ sid_DSTMASK,	sid_G
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R0
+	_token_ sid_SRCREP,		sid_BBBB
+
 	// texld r(x), r(x)
-	{sid_TEXLD}, {sid_R1}, {sid_COMMA}, {sid_R1},
+	_token_ sid_TEXOP_PS1_4, sid_TEXLD
+	_token_ sid_REG_PS1_4,	sid_R1
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R1
+	}
 };
 
 PS_1_4::MacroRegModify PS_1_4::texreg2gb_MacroMods = {
@@ -290,10 +687,19 @@ PS_1_4::MacroRegModify PS_1_4::texreg2gb_MacroMods = {
 // macro token expansion for ps_1_1 instruction: texdp3
 PS_1_4::TokenInst PS_1_4::texdp3[] = {
 	// texcoord t(x)
-	{sid_TEXCOORD}, {sid_1T1},
+	{		sid_TEXOP_PS1_1_3, sid_TEXCOORD
+	_token_ sid_TEX_PS1_1_3, sid_1T1
+
 	// dp3 r(x), r(x), r(y)
-	{sid_DP3}, {sid_R1}, {sid_COMMA}, {sid_R1}, {sid_COMMA}, {sid_R0},
+	_token_ sid_BINARYOP,	sid_DP3
+	_token_ sid_REG_PS1_4,	sid_R1
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R1
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R0
+	}
 };
+
 
 PS_1_4::RegModOffset PS_1_4::texdp3_RegMods[] = {
 	{1, T_BASE, 0},
@@ -303,20 +709,35 @@ PS_1_4::RegModOffset PS_1_4::texdp3_RegMods[] = {
 
 };
 
+
 PS_1_4::MacroRegModify PS_1_4::texdp3_MacroMods = {
 	texdp3, ARRAYSIZE(texdp3),
 	texdp3_RegMods, ARRAYSIZE(texdp3_RegMods)
 };
 
+
 // macro token expansion for ps_1_1 instruction: texdp3tex
 PS_1_4::TokenInst PS_1_4::texdp3tex[] = {
 	// texcoord t(x)
-	{sid_TEXCOORD}, {sid_1T1},
+	{		sid_TEXOP_PS1_1_3, sid_TEXCOORD
+	_token_ sid_TEX_PS1_1_3, sid_1T1
+
 	// dp3 r1, r(x), r(y)
-	{sid_DP3}, {sid_R1}, {sid_COMMA}, {sid_R1}, {sid_COMMA}, {sid_R0},
+	_token_ sid_BINARYOP,	sid_DP3
+	_token_ sid_REG_PS1_4,	sid_R1
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R1
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R0
+
 	// texld r(x), r(x)
-	{sid_TEXLD}, {sid_R1}, {sid_COMMA}, {sid_R1},
+	_token_ sid_TEXOP_PS1_4, sid_TEXLD
+	_token_ sid_REG_PS1_4,	sid_R1
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R1
+	}
 };
+
 
 PS_1_4::RegModOffset PS_1_4::texdp3tex_RegMods[] = {
 	{1, T_BASE, 0},
@@ -328,25 +749,38 @@ PS_1_4::RegModOffset PS_1_4::texdp3tex_RegMods[] = {
 
 };
 
+
 PS_1_4::MacroRegModify PS_1_4::texdp3tex_MacroMods = {
 	texdp3tex, ARRAYSIZE(texdp3tex),
 	texdp3tex_RegMods, ARRAYSIZE(texdp3tex_RegMods)
 };
 
+
 // macro token expansion for ps_1_1 instruction: texm3x2pad
 PS_1_4::TokenInst PS_1_4::texm3x2pad[] = {
 	// texcoord t(x)
-	{sid_TEXCOORD}, {sid_1T0},
+	{		sid_TEXOP_PS1_1_3, sid_TEXCOORD
+	_token_ sid_TEX_PS1_1_3, sid_1T0
+
 	// dp3 r4.r, r(x), r(y)
-	{sid_DP3}, {sid_R4}, {sid_R}, {sid_COMMA}, {sid_R1}, {sid_COMMA}, {sid_R0},
+	_token_ sid_BINARYOP,	sid_DP3
+	_token_ sid_REG_PS1_4,	sid_R4
+	_token_ sid_DSTMASK,	sid_R
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R1
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R0
+	}
 
 };
+
 
 PS_1_4::RegModOffset PS_1_4::texm3xxpad_RegMods[] = {
 	{1, T_BASE, 0},
 	{6, R_BASE, 0},
 	{8, R_BASE, 1},
 };
+
 
 PS_1_4::MacroRegModify PS_1_4::texm3x2pad_MacroMods = {
 	texm3x2pad, ARRAYSIZE(texm3x2pad),
@@ -357,11 +791,24 @@ PS_1_4::MacroRegModify PS_1_4::texm3x2pad_MacroMods = {
 // macro token expansion for ps_1_1 instruction: texm3x2tex
 PS_1_4::TokenInst PS_1_4::texm3x2tex[] = {
 	// texcoord t(x)
-	{sid_TEXCOORD}, {sid_1T1},
+	{		sid_TEXOP_PS1_1_3, sid_TEXCOORD
+	_token_ sid_TEX_PS1_1_3, sid_1T1
+
 	// dp3 r4.g, r(x), r(y)
-	{sid_DP3}, {sid_R4}, {sid_G}, {sid_COMMA}, {sid_R1}, {sid_COMMA}, {sid_R0},
+	_token_ sid_BINARYOP,	sid_DP3
+	_token_ sid_REG_PS1_4,	sid_R4
+	_token_ sid_DSTMASK,	sid_G
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R1
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R0
+
 	// texld r(x), r4
-	{sid_TEXLD}, {sid_R1}, {sid_COMMA}, {sid_R4}
+	_token_ sid_TEXOP_PS1_4, sid_TEXLD
+	_token_ sid_REG_PS1_4,	sid_R1
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R4
+	}
 
 };
 
@@ -377,14 +824,22 @@ PS_1_4::MacroRegModify PS_1_4::texm3x2tex_MacroMods = {
 	texm3xxtex_RegMods, ARRAYSIZE(texm3xxtex_RegMods)
 };
 
-// macro token expansion for ps_1_1 instruction: texm3x3pad
+// macro token expansion for ps_1_1 instruction: texm3x3tex
 PS_1_4::TokenInst PS_1_4::texm3x3pad[] = {
 	// texcoord t(x)
-	{sid_TEXCOORD}, {sid_1T1},
-	// dp3 r4.r, r(x), r(y)
-	{sid_DP3}, {sid_R4}, {sid_R}, {sid_COMMA}, {sid_R1}, {sid_COMMA}, {sid_R0},
-	// texld r1, r4
-	{sid_TEXLD}, {sid_R1}, {sid_COMMA}, {sid_R4}
+	{		sid_TEXOP_PS1_1_3, sid_TEXCOORD
+	_token_ sid_TEX_PS1_1_3, sid_1T0
+
+	// dp3 r4.b, r(x), r(y)
+	_token_ sid_BINARYOP,	sid_DP3
+	_token_ sid_REG_PS1_4,	sid_R4
+	_token_ sid_DSTMASK,	sid_B
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R1
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R0
+	}
+
 };
 
 
@@ -393,14 +848,33 @@ PS_1_4::MacroRegModify PS_1_4::texm3x3pad_MacroMods = {
 	texm3xxpad_RegMods, ARRAYSIZE(texm3xxpad_RegMods)
 };
 
-// macro token expansion for ps_1_1 instruction: texm3x3tex
+
+// macro token expansion for ps_1_1 instruction: texm3x3pad
 PS_1_4::TokenInst PS_1_4::texm3x3tex[] = {
 	// texcoord t(x)
-	{sid_TEXCOORD}, {sid_1T0},
-	// dp3 r4.b, r(x), r(y)
-	{sid_DP3}, {sid_R4}, {sid_B}, {sid_COMMA}, {sid_R1}, {sid_COMMA}, {sid_R0},
+	{		sid_TEXOP_PS1_1_3, sid_TEXCOORD
+	_token_ sid_TEX_PS1_1_3, sid_1T1
 
+	// dp3 r4.b, r(x), r(y)
+	_token_ sid_BINARYOP,	sid_DP3
+	_token_ sid_REG_PS1_4,	sid_R4
+	_token_ sid_DSTMASK,	sid_B
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R1
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R0
+
+	// texld r1, r4
+	_token_ sid_TEXOP_PS1_4, sid_TEXLD
+	_token_ sid_REG_PS1_4,	sid_R1
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R4
+	}
 };
+
+
+
+
 
 
 PS_1_4::MacroRegModify PS_1_4::texm3x3tex_MacroMods = {
@@ -408,24 +882,74 @@ PS_1_4::MacroRegModify PS_1_4::texm3x3tex_MacroMods = {
 	texm3xxtex_RegMods, ARRAYSIZE(texm3xxtex_RegMods)
 };
 
+
 // macro token expansion for ps_1_1 instruction: texm3x3spec
 PS_1_4::TokenInst PS_1_4::texm3x3spec[] = {
 	// texcoord t(x)
-	{sid_TEXCOORD}, {sid_1T3},
+	{		sid_TEXOP_PS1_1_3, sid_TEXCOORD
+	_token_ sid_TEX_PS1_1_3, sid_1T3
+
 	// dp3 r4.b, r3, r(x)
-	{sid_DP3}, {sid_R4}, {sid_B}, {sid_COMMA}, {sid_R3}, {sid_COMMA}, {sid_R0},
+	_token_ sid_BINARYOP,	sid_DP3
+	_token_ sid_REG_PS1_4,	sid_R4
+	_token_ sid_DSTMASK,	sid_B
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R3
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R0
+
 	// dp3_x2 r3, r4, c(x)
-	{sid_DP3}, {sid_X2}, {sid_R3}, {sid_COMMA}, {sid_R4}, {sid_COMMA}, {sid_C0},
+	_token_ sid_BINARYOP,	sid_DP3
+	_token_ sid_DSTMOD,		sid_X2
+	_token_ sid_REG_PS1_4,	sid_R3
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R4
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_CONSTANT,	sid_C0
+
 	// mul r3, r3, c(x)
-	{sid_MUL}, {sid_R3}, {sid_COMMA}, {sid_R3}, {sid_COMMA}, {sid_C0},
+	_token_ sid_UNARYOP,	sid_MUL
+	_token_ sid_REG_PS1_4,	sid_R3
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R3
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_CONSTANT,	sid_C0
+
 	// dp3 r2, r4, r4
-	{sid_DP3}, {sid_R2}, {sid_COMMA}, {sid_R4}, {sid_COMMA}, {sid_R4},
+	_token_ sid_BINARYOP,	sid_DP3
+	_token_ sid_REG_PS1_4,	sid_R2
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R4
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R4
+
 	// mad r4.rgb, 1-c(x), r2, r3
-	{sid_MAD}, {sid_R4}, {sid_RGB}, {sid_COMMA}, {sid_INVERT}, {sid_C0}, {sid_COMMA}, {sid_R2}, {sid_COMMA}, {sid_R3},
+	_token_ sid_TERNARYOP,	sid_MAD
+	_token_ sid_REG_PS1_4,	sid_R4
+	_token_ sid_DSTMASK,	sid_RGB
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_PRESRCMOD,	sid_INVERT
+	_token_ sid_CONSTANT,	sid_C0
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R2
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R3
+
 	// + mov r4.a, r2.r
-	{sid_MOV}, {sid_R4}, {sid_A}, {sid_COMMA}, {sid_R2}, {sid_R},
+	_token_ sid_UNARYOP,	sid_MOV
+	_token_ sid_REG_PS1_4,	sid_R4
+	_token_ sid_DSTMASK,	sid_A
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R2
+	_token_ sid_SRCREP,		sid_RRRR
+
 	// texld r3, r4.xyz_dz
-	{sid_TEXLD}, {sid_R3}, {sid_COMMA}, {sid_R4}, {sid_STRDR}
+	_token_ sid_TEXOP_PS1_4, sid_TEXLD
+	_token_ sid_REG_PS1_4,	sid_R3
+	_token_ sid_SEPERATOR,	sid_COMMA
+	_token_ sid_REG_PS1_4,	sid_R4
+	_token_ sid_TEXSWIZZLE,	sid_STRDR
+	}
 
 };
 
@@ -454,17 +978,23 @@ PS_1_4::PS_1_4()
 	mPhase2ALU_mi.reserve(100);
 
 
-	mASMSymbolTextLib = PS_1_4_ASMSymbolTextLib;
-	mASMSymbolTextLibCnt = ARRAYSIZE(PS_1_4_ASMSymbolTextLib);
-	mASMSymbolTypeLib = PS_1_4_ASMSymbolTypeLib;
-	mASMSymbolTypeLibCnt = ARRAYSIZE(PS_1_4_ASMSymbolTypeLib);
+	mSymbolTypeLib = PS_1_4_SymbolTypeLib;
+	mSymbolTypeLibCnt = ARRAYSIZE(PS_1_4_SymbolTypeLib);
+	mRootRulePath = PS_1_x_RulePath;
+	mRulePathLibCnt = ARRAYSIZE(PS_1_x_RulePath);
 	// tell compiler what the symbol id is for a numeric value
 	mValueID = sid_VALUE;
 	// The type library must have text definitions initialized
 	// before compiler is invoked
 
-	mPhaseMarkerFound = false;
-	InitTypeLibText();
+	// only need to initialize the rule database once
+	if(LibInitialized == false) {
+		InitSymbolTypeLib();
+		LibInitialized = true;
+	}
+
+	// set initial context to recognize PS base instructions
+	mActiveContexts = ckp_PS_BASE;
 
 }
 
@@ -483,9 +1013,9 @@ bool PS_1_4::bindMachineInstInPassToFragmentShader(const MachineInstContainer & 
             PassMachineInstructions[instIDX+2], // dst
             PassMachineInstructions[instIDX+3], // dstMask
             PassMachineInstructions[instIDX+4], // dstMod
-            PassMachineInstructions[instIDX+5],   // arg1
-            PassMachineInstructions[instIDX+6],   // arg1Rep
-            PassMachineInstructions[instIDX+7]);  // arg1Mod
+            PassMachineInstructions[instIDX+5], // arg1
+            PassMachineInstructions[instIDX+6], // arg1Rep
+            PassMachineInstructions[instIDX+7]);// arg1Mod
         instIDX += 8;
         break;
 
@@ -495,30 +1025,30 @@ bool PS_1_4::bindMachineInstInPassToFragmentShader(const MachineInstContainer & 
             PassMachineInstructions[instIDX+2], // dst
             PassMachineInstructions[instIDX+3], // dstMask
             PassMachineInstructions[instIDX+4], // dstMod
-            PassMachineInstructions[instIDX+5],   // arg1
-            PassMachineInstructions[instIDX+6],   // arg1Rep
-            PassMachineInstructions[instIDX+7],  // arg1Mod
-            PassMachineInstructions[instIDX+8],   // arg2
-            PassMachineInstructions[instIDX+9],   // arg2Rep
-            PassMachineInstructions[instIDX+10]);  // arg2Mod
+            PassMachineInstructions[instIDX+5], // arg1
+            PassMachineInstructions[instIDX+6], // arg1Rep
+            PassMachineInstructions[instIDX+7], // arg1Mod
+            PassMachineInstructions[instIDX+8], // arg2
+            PassMachineInstructions[instIDX+9], // arg2Rep
+            PassMachineInstructions[instIDX+10]);// arg2Mod
         instIDX += 11;
         break;
 
       case mi_COLOROP3:
         if((instIDX+13) < instCount)
           glColorFragmentOp3ATI_ptr(PassMachineInstructions[instIDX+1], // op
-            PassMachineInstructions[instIDX+2], // dst
-            PassMachineInstructions[instIDX+3], // dstMask
-            PassMachineInstructions[instIDX+4], // dstMod
-            PassMachineInstructions[instIDX+5],   // arg1
-            PassMachineInstructions[instIDX+6],   // arg1Rep
+            PassMachineInstructions[instIDX+2],  // dst
+            PassMachineInstructions[instIDX+3],  // dstMask
+            PassMachineInstructions[instIDX+4],  // dstMod
+            PassMachineInstructions[instIDX+5],  // arg1
+            PassMachineInstructions[instIDX+6],  // arg1Rep
             PassMachineInstructions[instIDX+7],  // arg1Mod
-            PassMachineInstructions[instIDX+8],   // arg2
-            PassMachineInstructions[instIDX+9],   // arg2Rep
-            PassMachineInstructions[instIDX+10],  // arg2Mod
-            PassMachineInstructions[instIDX+11],   // arg2
-            PassMachineInstructions[instIDX+12],   // arg2Rep
-            PassMachineInstructions[instIDX+13]);  // arg2Mod
+            PassMachineInstructions[instIDX+8],  // arg2
+            PassMachineInstructions[instIDX+9],  // arg2Rep
+            PassMachineInstructions[instIDX+10], // arg2Mod
+            PassMachineInstructions[instIDX+11], // arg2
+            PassMachineInstructions[instIDX+12], // arg2Rep
+            PassMachineInstructions[instIDX+13]);// arg2Mod
         instIDX += 14;
         break;
 
@@ -616,7 +1146,6 @@ uint PS_1_4::getMachineInst(uint Idx)
 		else {
 			Idx -= mPhase1ALU_mi.size();
 			if (Idx < mPhase2TEX_mi.size()) {
-			//MessageBox(NULL, "ptPHASE2TEX instruction index", "ATI fs compiler", MB_OK);
 				return mPhase2TEX_mi[Idx];
 			}
 			else {
@@ -650,7 +1179,6 @@ void PS_1_4::addMachineInst(PhaseType phase, uint inst)
 
 		case ptPHASE2TEX:
 			mPhase2TEX_mi.push_back(inst);
-			//MessageBox(NULL, "ptPHASE2TEX instruction", "ATI fs compiler", MB_OK);
 
 			break;
 
@@ -712,225 +1240,301 @@ bool PS_1_4::BuildMachineInst()
 	bool passed = false;
 
 	// check the states to see if a machine instruction can be assembled
-	if(mOpInst != sid_INVALID) {
 
-		// only build the machine instruction if all arguments have been set up
+	// assume all arguments have been set up
 
-		if(mArgCnt == (mNumArgs - 1)) {
-			bool doalpha = false;
-			PhaseType instruction_phase;
-			MachineInstID alphaoptype;
-			GLuint glopinst;
-			int srccnt = mNumArgs - 2;
-			passed = true; // assume everything will go okay untill proven otherwise
+	bool doalpha = false;
+	PhaseType instruction_phase;
+	MachineInstID alphaoptype;
+	GLuint glopinst;
+	int srccnt = mArgCnt - 1;
 
-			// start with machine NOP instuction
-			// this is used after the switch to see if an instruction was set up
-			// determine which MachineInstID is required based on the op instruction
-			mOpType = mi_NOP;
+	passed = true; // assume everything will go okay untill proven otherwise
 
-			switch(mOpInst) {
-				case sid_ADD:
-				case sid_SUB:
-				case sid_MUL:
-				case sid_MAD:
-				case sid_LRP:
-				case sid_MOV:
-				case sid_CMP:
-				case sid_CND:
-				case sid_DP2ADD:
-				case sid_DP3:
-				case sid_DP4:
-					glopinst = mASMSymbolTypeLib[mOpInst].mPass2Data;
-					mOpType = (MachineInstID)(mi_COLOROP1 + srccnt);
+	// start with machine NOP instuction
+	// this is used after the switch to see if an instruction was set up
+	// determine which MachineInstID is required based on the op instruction
+	mOpType = mi_NOP;
 
-					// if context is ps.1.x and Macro not on or a phase marker was found then put all ALU ops in phase 2 ALU container
-					if (((mActiveContexts & ckp_PS_1_1) && !mMacroOn) || mPhaseMarkerFound) instruction_phase = ptPHASE2ALU;
-					else instruction_phase = ptPHASE1ALU;
-					// check for alpha op in destination register which is OpParrams[0]
-					// if no Mask for destination then make it .rgba
-					if(mOpParrams[0].MaskRep == 0) mOpParrams[0].MaskRep =
-					GL_RED_BIT_ATI | GL_GREEN_BIT_ATI | GL_BLUE_BIT_ATI | ALPHA_BIT;
-					if (mOpParrams[0].MaskRep & ALPHA_BIT) {
-						doalpha = true;
-						mOpParrams[0].MaskRep -= ALPHA_BIT;
-						if(mOpParrams[0].MaskRep == 0) mOpType = mi_NOP; // only do alpha op
-						alphaoptype = (MachineInstID)(mi_ALPHAOP1 + srccnt);
-					}
-					passed = checkSourceParramsReplicate();
-					break;
+	switch(mOpInst) {
+		// ALU operations
+		case sid_ADD:
+		case sid_SUB:
+		case sid_MUL:
+		case sid_MAD:
+		case sid_LRP:
+		case sid_MOV:
+		case sid_CMP:
+		case sid_CND:
+		case sid_DP2ADD:
+		case sid_DP3:
+		case sid_DP4:
+			glopinst = mSymbolTypeLib[mOpInst].mPass2Data;
+			mOpType = (MachineInstID)(mi_COLOROP1 + srccnt);
 
-				case sid_TEXCRD:
-					mOpType = mi_PASSTEXCOORD;
-					if (mPhaseMarkerFound) instruction_phase = ptPHASE2TEX;
-					else instruction_phase = ptPHASE1TEX;
-					break;
-
-				case sid_TEXLD:
-					mOpType = mi_SAMPLEMAP;
-					if (mPhaseMarkerFound) instruction_phase = ptPHASE2TEX;
-					else instruction_phase = ptPHASE1TEX;
-					break;
-
-				case sid_TEX: // PS_1_1 emulation
-					mOpType = mi_TEX;
-					instruction_phase = ptPHASE1TEX;
-					break;
-
-				case sid_TEXCOORD: // PS_1_1 emulation
-					mOpType = mi_TEXCOORD;
-					instruction_phase = ptPHASE1TEX;
-					break;
-
-				case sid_TEXREG2AR:
-					expandMacro(texreg2ar_MacroMods);
-					break;
-
-				case sid_TEXREG2GB:
-					expandMacro(texreg2gb_MacroMods);
-					break;
-
-				case sid_TEXDP3:
-					expandMacro(texdp3_MacroMods);
-					break;
-
-				case sid_TEXDP3TEX:
-					expandMacro(texdp3tex_MacroMods);
-					break;
-
-				case sid_TEXM3X2PAD:
-					expandMacro(texm3x2pad_MacroMods);
-					break;
-
-				case sid_TEXM3X2TEX:
-					expandMacro(texm3x2tex_MacroMods);
-					break;
-
-				case sid_TEXM3X3PAD:
-					// only 2 texm3x3pad instructions allowed
-					// use count to modify macro to select which mask to use
-					if(mTexm3x3padCount<2) {
-						texm3x3pad[4].mID = sid_R + mTexm3x3padCount;
-						mTexm3x3padCount++;
-						expandMacro(texm3x3pad_MacroMods);
-
-					}
-					else passed = false;
-
-					break;
-
-				case sid_TEXM3X3TEX:
-					expandMacro(texm3x3tex_MacroMods);
-					break;
-
-				case sid_DEF:
-					mOpType = mi_SETCONSTANTS;
-					instruction_phase = ptPHASE1TEX;
-					break;
-
-				case sid_PHASE: // PS_1_4 only
-					mPhaseMarkerFound = true;
-					break;
-
-			} // end of switch
-			// push instructions onto MachineInstructions container
-			// assume that an instruction will be built
-			if (mOpType != mi_NOP) {
-
-				// a machine instruction will be built
-				// this is currently the last one being built so keep track of it
-				if (instruction_phase == ptPHASE2ALU) { 
-					mSecondLastInstructionPos = mLastInstructionPos;
-					mLastInstructionPos = mPhase2ALU_mi.size();
-				}
-
-				switch (mOpType) {
-					case mi_COLOROP1:
-					case mi_COLOROP2:
-					case mi_COLOROP3:
-						{
-							addMachineInst(instruction_phase, mOpType);
-							addMachineInst(instruction_phase, glopinst);
-							// send all parameters to machine inst container
-							for(int i=0; i<=mArgCnt; i++) {
-								addMachineInst(instruction_phase, mOpParrams[i].Arg);
-								addMachineInst(instruction_phase, mOpParrams[i].MaskRep);
-								addMachineInst(instruction_phase, mOpParrams[i].Mod);
-							}
-						}
-						break;
-
-					case mi_SETCONSTANTS:
-						addMachineInst(instruction_phase, mOpType);
-						addMachineInst(instruction_phase, mOpParrams[0].Arg); // dst
-						addMachineInst(instruction_phase, mConstantsPos); // index into constants array
-						break;
-
-					case mi_PASSTEXCOORD:
-					case mi_SAMPLEMAP:
-						// if source is a temp register than place instruction in phase 2 Texture ops
-						if ((mOpParrams[1].Arg >= GL_REG_0_ATI) && (mOpParrams[1].Arg <= GL_REG_5_ATI)) {
-							instruction_phase = ptPHASE2TEX;
-						}
-						addMachineInst(instruction_phase, mOpType);
-						addMachineInst(instruction_phase, mOpParrams[0].Arg); // dst
-						addMachineInst(instruction_phase, mOpParrams[1].Arg); // coord
-						addMachineInst(instruction_phase, mOpParrams[1].MaskRep + GL_SWIZZLE_STR_ATI); // swizzle
-						break;
-
-					case mi_TEX: // PS_1_1 emulation - turn CISC into RISC - phase 1
-						addMachineInst(instruction_phase, mi_SAMPLEMAP);
-						addMachineInst(instruction_phase, mOpParrams[0].Arg); // dst
-						// tex tx becomes texld rx, tx with x: 0 - 3
-						addMachineInst(instruction_phase, mOpParrams[0].Arg - GL_REG_0_ATI + GL_TEXTURE0_ARB); // interp
-						// default to str which fills rgb of destination register
-						addMachineInst(instruction_phase, GL_SWIZZLE_STR_ATI); // swizzle
-						break;
-
-					case mi_TEXCOORD: // PS_1_1 emulation - turn CISC into RISC - phase 1
-						addMachineInst(instruction_phase, mi_PASSTEXCOORD);
-						addMachineInst(instruction_phase, mOpParrams[0].Arg); // dst
-						// texcoord tx becomes texcrd rx, tx with x: 0 - 3
-						addMachineInst(instruction_phase, mOpParrams[0].Arg - GL_REG_0_ATI + GL_TEXTURE0_ARB); // interp
-						// default to str which fills rgb of destination register
-						addMachineInst(instruction_phase, GL_SWIZZLE_STR_ATI); // swizzle
-						break;
-
-			
-
-
-				} // end of switch (mOpType)
-			} // end of if (mOpType != mi_NOP)
-
-			if(doalpha) { // process alpha channel
-				//
-				// a scaler machine instruction will be built
-				// this is currently the last one being built so keep track of it
-				if (instruction_phase == ptPHASE2ALU) { 
-					mSecondLastInstructionPos = mLastInstructionPos;
-					mLastInstructionPos = mPhase2ALU_mi.size();
-				}
-
-				addMachineInst(instruction_phase, alphaoptype);
-				addMachineInst(instruction_phase, glopinst);
-				// put all parameters in instruction que
-				for(int i=0; i<=mArgCnt; i++) {
-					addMachineInst(instruction_phase, mOpParrams[i].Arg);
-					// destination parameter has no mask since it is the alpha channel
-					// don't push mask for parrameter 0 (dst)
-					if(i>0) addMachineInst(instruction_phase, mOpParrams[i].MaskRep);
-					addMachineInst(instruction_phase, mOpParrams[i].Mod);
-				}
+			// if context is ps.1.x and Macro not on or a phase marker was found then put all ALU ops in phase 2 ALU container
+			if (((mActiveContexts & ckp_PS_1_1) && !mMacroOn) || mPhaseMarkerFound) instruction_phase = ptPHASE2ALU;
+			else instruction_phase = ptPHASE1ALU;
+			// check for alpha op in destination register which is OpParrams[0]
+			// if no Mask for destination then make it .rgba
+			if(mOpParrams[0].MaskRep == 0) mOpParrams[0].MaskRep =
+			GL_RED_BIT_ATI | GL_GREEN_BIT_ATI | GL_BLUE_BIT_ATI | ALPHA_BIT;
+			if (mOpParrams[0].MaskRep & ALPHA_BIT) {
+				doalpha = true;
+				mOpParrams[0].MaskRep -= ALPHA_BIT;
+				if(mOpParrams[0].MaskRep == 0) mOpType = mi_NOP; // only do alpha op
+				alphaoptype = (MachineInstID)(mi_ALPHAOP1 + srccnt);
 			}
-			// instruction passed on to machine instruction so clear the pipe
-			clearMachineInstState();
+			break;
 
-		}// end if (NumArgs == ArgCnt)
+		case sid_TEXCRD:
+			mOpType = mi_PASSTEXCOORD;
+			if (mPhaseMarkerFound) instruction_phase = ptPHASE2TEX;
+			else instruction_phase = ptPHASE1TEX;
+			break;
 
-	}// end if (OpInst != sid_INVALID_)
+		case sid_TEXLD:
+			mOpType = mi_SAMPLEMAP;
+			if (mPhaseMarkerFound) instruction_phase = ptPHASE2TEX;
+			else instruction_phase = ptPHASE1TEX;
+			break;
+
+		case sid_TEX: // PS_1_1 emulation
+			mOpType = mi_TEX;
+			instruction_phase = ptPHASE1TEX;
+			break;
+
+		case sid_TEXCOORD: // PS_1_1 emulation
+			mOpType = mi_TEXCOORD;
+			instruction_phase = ptPHASE1TEX;
+			break;
+
+		case sid_TEXREG2AR:
+			expandMacro(texreg2ar_MacroMods);
+			break;
+
+		case sid_TEXREG2GB:
+			expandMacro(texreg2gb_MacroMods);
+			break;
+
+		case sid_TEXDP3:
+			expandMacro(texdp3_MacroMods);
+			break;
+
+		case sid_TEXDP3TEX:
+			expandMacro(texdp3tex_MacroMods);
+			break;
+
+		case sid_TEXM3X2PAD:
+			expandMacro(texm3x2pad_MacroMods);
+			break;
+
+		case sid_TEXM3X2TEX:
+			expandMacro(texm3x2tex_MacroMods);
+			break;
+
+		case sid_TEXM3X3PAD:
+			// only 2 texm3x3pad instructions allowed
+			// use count to modify macro to select which mask to use
+			if(mTexm3x3padCount<2) {
+				texm3x3pad[4].mID = sid_R + mTexm3x3padCount;
+				mTexm3x3padCount++;
+				expandMacro(texm3x3pad_MacroMods);
+
+			}
+			else passed = false;
+
+			break;
+
+		case sid_TEXM3X3TEX:
+			expandMacro(texm3x3tex_MacroMods);
+			break;
+
+		case sid_DEF:
+			mOpType = mi_SETCONSTANTS;
+			instruction_phase = ptPHASE1TEX;
+			break;
+
+		case sid_PHASE: // PS_1_4 only
+			mPhaseMarkerFound = true;
+			break;
+
+	} // end of switch
+
+	// now push instructions onto MachineInstructions container
+	// assume that an instruction will be built
+	if (mOpType != mi_NOP) {
+
+		// a machine instruction will be built
+		// this is currently the last one being built so keep track of it
+		if (instruction_phase == ptPHASE2ALU) { 
+			mSecondLastInstructionPos = mLastInstructionPos;
+			mLastInstructionPos = mPhase2ALU_mi.size();
+		}
+
+
+		switch (mOpType) {
+			case mi_COLOROP1:
+			case mi_COLOROP2:
+			case mi_COLOROP3:
+				{
+					addMachineInst(instruction_phase, mOpType);
+					addMachineInst(instruction_phase, glopinst);
+					// send all parameters to machine inst container
+					for(int i=0; i<=mArgCnt; i++) {
+						addMachineInst(instruction_phase, mOpParrams[i].Arg);
+						addMachineInst(instruction_phase, mOpParrams[i].MaskRep);
+						addMachineInst(instruction_phase, mOpParrams[i].Mod);
+						// check if source register read is valid in this phase
+						passed &= isRegisterReadValid(instruction_phase, i);
+					}
+
+					// record which registers were written to and in which phase
+					// mOpParrams[0].Arg is always the destination register r0 -> r5
+					updateRegisterWriteState(instruction_phase);
+
+				}
+				break;
+
+			case mi_SETCONSTANTS:
+				addMachineInst(instruction_phase, mOpType);
+				addMachineInst(instruction_phase, mOpParrams[0].Arg); // dst
+				addMachineInst(instruction_phase, mConstantsPos); // index into constants array
+				break;
+
+			case mi_PASSTEXCOORD:
+			case mi_SAMPLEMAP:
+				// if source is a temp register than place instruction in phase 2 Texture ops
+				if ((mOpParrams[1].Arg >= GL_REG_0_ATI) && (mOpParrams[1].Arg <= GL_REG_5_ATI)) {
+					instruction_phase = ptPHASE2TEX;
+				}
+
+				addMachineInst(instruction_phase, mOpType);
+				addMachineInst(instruction_phase, mOpParrams[0].Arg); // dst
+				addMachineInst(instruction_phase, mOpParrams[1].Arg); // coord
+				addMachineInst(instruction_phase, mOpParrams[1].MaskRep + GL_SWIZZLE_STR_ATI); // swizzle
+				// record which registers were written to and in which phase
+				// mOpParrams[0].Arg is always the destination register r0 -> r5
+				updateRegisterWriteState(instruction_phase);
+				break;
+
+			case mi_TEX: // PS_1_1 emulation - turn CISC into RISC - phase 1
+				addMachineInst(instruction_phase, mi_SAMPLEMAP);
+				addMachineInst(instruction_phase, mOpParrams[0].Arg); // dst
+				// tex tx becomes texld rx, tx with x: 0 - 3
+				addMachineInst(instruction_phase, mOpParrams[0].Arg - GL_REG_0_ATI + GL_TEXTURE0_ARB); // interp
+				// default to str which fills rgb of destination register
+				addMachineInst(instruction_phase, GL_SWIZZLE_STR_ATI); // swizzle
+				// record which registers were written to and in which phase
+				// mOpParrams[0].Arg is always the destination register r0 -> r5
+				updateRegisterWriteState(instruction_phase);
+				break;
+
+			case mi_TEXCOORD: // PS_1_1 emulation - turn CISC into RISC - phase 1
+				addMachineInst(instruction_phase, mi_PASSTEXCOORD);
+				addMachineInst(instruction_phase, mOpParrams[0].Arg); // dst
+				// texcoord tx becomes texcrd rx, tx with x: 0 - 3
+				addMachineInst(instruction_phase, mOpParrams[0].Arg - GL_REG_0_ATI + GL_TEXTURE0_ARB); // interp
+				// default to str which fills rgb of destination register
+				addMachineInst(instruction_phase, GL_SWIZZLE_STR_ATI); // swizzle
+				// record which registers were written to and in which phase
+				// mOpParrams[0].Arg is always the destination register r0 -> r5
+				updateRegisterWriteState(instruction_phase);
+				break;
+
+	
+
+
+		} // end of switch (mOpType)
+	} // end of if (mOpType != mi_NOP)
+
+	if(doalpha) { // process alpha channel
+		//
+		// a scaler machine instruction will be built
+		// this is currently the last one being built so keep track of it
+		if (instruction_phase == ptPHASE2ALU) { 
+			mSecondLastInstructionPos = mLastInstructionPos;
+			mLastInstructionPos = mPhase2ALU_mi.size();
+		}
+
+		addMachineInst(instruction_phase, alphaoptype);
+		addMachineInst(instruction_phase, glopinst);
+		// put all parameters in instruction que
+		for(int i=0; i<=mArgCnt; i++) {
+			addMachineInst(instruction_phase, mOpParrams[i].Arg);
+			// destination parameter has no mask since it is the alpha channel
+			// don't push mask for parrameter 0 (dst)
+			if(i>0) addMachineInst(instruction_phase, mOpParrams[i].MaskRep);
+			addMachineInst(instruction_phase, mOpParrams[i].Mod);
+			// check if source register read is valid in this phase
+			passed &= isRegisterReadValid(instruction_phase, i);
+		}
+
+		updateRegisterWriteState(instruction_phase);
+	}
+
+	// instruction passed on to machine instruction so clear the pipe
+	clearMachineInstState();
+
 
 	return passed;
 }
+
+void PS_1_4::updateRegisterWriteState(PhaseType phase)
+{
+	int reg_offset = mOpParrams[0].Arg - GL_REG_0_ATI;
+
+	switch(phase) {
+
+		case ptPHASE1TEX:
+		case ptPHASE1ALU:
+			Phase_RegisterUsage[reg_offset].Phase1Write = true;
+			break;
+
+		case ptPHASE2TEX:
+		case ptPHASE2ALU:
+			Phase_RegisterUsage[reg_offset].Phase2Write = true;
+			break;
+
+	} // end switch(phase)
+
+}
+
+
+bool PS_1_4::isRegisterReadValid(PhaseType phase, int param)
+{
+	bool passed = true; // assume everything will go alright
+	// if in phase 2 ALU and argument is a source
+	if((phase == ptPHASE2ALU) && (param>0)) {
+		// is source argument a temp register r0 - r5?
+		if((mOpParrams[param].Arg >= GL_REG_0_ATI) && (mOpParrams[param].Arg <= GL_REG_5_ATI)) {
+			int reg_offset = mOpParrams[param].Arg - GL_REG_0_ATI;
+			// if register was not written to in phase 2 but was in phase 1
+			if((Phase_RegisterUsage[reg_offset].Phase2Write == false) && Phase_RegisterUsage[reg_offset].Phase1Write) {
+				// only perform register pass if there are ALU instructions in phase 1
+				if(mPhase1ALU_mi.size() > 0) {
+					// build machine instructions for passing a register from phase 1 to phase 2
+					// NB: only rgb components of register will get passed
+
+					addMachineInst(ptPHASE2TEX, mi_PASSTEXCOORD);
+					addMachineInst(ptPHASE2TEX, mOpParrams[param].Arg); // dst
+					addMachineInst(ptPHASE2TEX, mOpParrams[param].Arg); // coord
+					addMachineInst(ptPHASE2TEX, GL_SWIZZLE_STR_ATI); // swizzle
+					// mark register as being written to
+					Phase_RegisterUsage[reg_offset].Phase2Write = true;
+				}
+
+			}
+			// register can not be used because it has not been written to previously
+			else passed = false;
+		}
+
+	}
+
+	return passed;
+
+}
+
 
 void PS_1_4::optimize()
 {
@@ -958,49 +1562,21 @@ void PS_1_4::optimize()
 
 }
 
-bool PS_1_4::checkSourceParramsReplicate()
-{
-  // make sure that all source params have proper replicators ie: .r .g .b .a or equivalent
-  bool passed = true;
-  for(int i=1; i<=mArgCnt; i++) {
-    switch(mOpParrams[i].MaskRep) {
-      case GL_RED_BIT_ATI:
-        mOpParrams[i].MaskRep = GL_RED;
-        break;
-      case GL_GREEN_BIT_ATI:
-        mOpParrams[i].MaskRep = GL_GREEN;
-        break;
-      case GL_BLUE_BIT_ATI:
-        mOpParrams[i].MaskRep = GL_BLUE;
-        break;
-      case ALPHA_BIT:
-        mOpParrams[i].MaskRep = GL_ALPHA;
-        break;
-
-      default:
-        passed = false;
-    }// end of switch
-
-  } // end of for
-
-  return passed;
-
-}
-
 
 void PS_1_4::clearMachineInstState()
 {
-  // set current Machine Instruction State to baseline
-  mOpType = mi_NOP;
-  mOpInst = sid_INVALID;
-  mNumArgs = 0;
-  mArgCnt = 0;
-  for(int i=0; i<MAXOPPARRAMS; i++) {
-    mOpParrams[i].Arg = GL_NONE;
-    mOpParrams[i].Filled = false;
-    mOpParrams[i].MaskRep = GL_NONE;
-    mOpParrams[i].Mod = GL_NONE;
-  }
+	// set current Machine Instruction State to baseline
+	mOpType = mi_NOP;
+	mOpInst = sid_INVALID;
+	mNumArgs = 0;
+	mArgCnt = 0;
+
+	for(int i=0; i<MAXOPPARRAMS; i++) {
+		mOpParrams[i].Arg = GL_NONE;
+		mOpParrams[i].Filled = false;
+		mOpParrams[i].MaskRep = GL_NONE;
+		mOpParrams[i].Mod = GL_NONE;
+	}
 
 }
 
@@ -1013,19 +1589,28 @@ void PS_1_4::clearAllMachineInst()
 	mPhase2TEX_mi.clear();
 	mPhase2ALU_mi.clear();
 
+	// reset write state for all registers
+	for(int i = 0; i<6; i++) {
+		Phase_RegisterUsage[i].Phase1Write = false;
+		Phase_RegisterUsage[i].Phase2Write = false;
+
+	}
+
+	mPhaseMarkerFound = false;
+	mConstantsPos = -4;
+	// keep track of the last instruction built
+	// this info is used at the end of pass 2 to optimize the machine code
+	mLastInstructionPos = 0;
+	mSecondLastInstructionPos = 0;
+
+	mMacroOn = false;  // macro's off at the beginning
+	mTexm3x3padCount = 0;
 
 }
 
 bool PS_1_4::doPass2()
 {
 	clearAllMachineInst();
-	mConstantsPos = -4;
-	// keep track of the last instruction built
-	// this info is used at the end of pass 2 to optimize the machine code
-	mLastInstructionPos = 0;
-	mSecondLastInstructionPos = 0;
-	mMacroOn = false;  // macro's off at the beginning
-	mTexm3x3padCount = 0;
 	// if pass 2 was successful, optimize the machine instructions
 	bool passed = Pass2scan(&mTokenInstructions[0], mTokenInstructions.size());
 	if (passed) optimize();  
@@ -1037,12 +1622,11 @@ bool PS_1_4::doPass2()
 
 bool PS_1_4::Pass2scan(TokenInst * Tokens, uint size)
 {
-	//if(Tokens == texreg2ar)  MessageBox(NULL, "starting texreg2ar", "ATI fs compiler", MB_OK);
 
 	// execute TokenInstructions to build MachineInstructions
 	bool passed = true;
-	//GLuint insttype;
-	ASMSymbolDef* cursymboldef;
+	SymbolDef* cursymboldef;
+	uint ActiveNTTRuleID;
 
 	clearMachineInstState();
 
@@ -1052,73 +1636,66 @@ bool PS_1_4::Pass2scan(TokenInst * Tokens, uint size)
 	for(uint i = 0; i < size; i++) {
 		// lookup instruction type in library
 
-		cursymboldef = &mASMSymbolTypeLib[Tokens[i].mID];
+		cursymboldef = &mSymbolTypeLib[Tokens[i].mID];
+		ActiveNTTRuleID = Tokens[i].mNTTRuleID;
 		mCurrentLine = Tokens[i].mLine;
 		mCharPos = Tokens[i].mPos;
 
-		switch(cursymboldef->mInstType) {
-			case id_REGISTER:
-			case id_TEXREGISTER:
-			case id_CONSTANT:
+		switch(ActiveNTTRuleID) {
+
+			case sid_CONSTANT:
+			case sid_COLOR:
+			case sid_REG_PS1_4:
+			case sid_TEX_PS1_4:
+			case sid_REG_PS1_1_3:
+			case sid_TEX_PS1_1_3:
 				// registars can be used for read and write so they can be used for dst and arg
 				passed = setOpParram(cursymboldef);
 				break;
 
-			case id_COLOR:
-			case id_TEXTURE:
-				if(mArgCnt>0) passed = setOpParram(cursymboldef);
-				else passed = false;
-				break;
 
-			case id_OPINST:
+			case sid_DEFCONST:
+			case sid_UNARYOP:
+			case sid_BINARYOP:
+			case sid_TERNARYOP:
+			case sid_TEXOP_PS1_1_3:
+			case sid_TEXOP_PS1_4:
+			case sid_PHASEMARKER:
+			case sid_TEXCISCOP_PS1_1_3:
 				// if the last instruction has not been passed on then do it now
 				// make sure the pipe is clear for a new instruction
 				BuildMachineInst();
 				if(mOpInst == sid_INVALID) {
-					// set op instruction, num of parameters required
 					mOpInst = cursymboldef->mID;
-					mNumArgs = cursymboldef->mParrameters;
 				}
 				else passed = false;
 				break;
 
-			case id_MASK:
+			case sid_DSTMASK:
+			case sid_SRCREP:
+			case sid_TEXSWIZZLE:
 				// could be a dst mask or a arg replicator
 				// if dst mask and alpha included then make up a alpha instruction: maybe best to wait until instruction args completed
 				mOpParrams[mArgCnt].MaskRep = cursymboldef->mPass2Data;
 				break;
 
-			case id_TEXSWIZZLE:
-				// to be completed
-				// only applicable to ps.1.4 texld and sampltex instructions
-				if (mArgCnt > 0) mOpParrams[mArgCnt].Mod = cursymboldef->mPass2Data;
-				else passed = false;
-				break;
-
-			case id_DSTMOD:
-				if((mArgCnt == 0) || (cursymboldef->mID == sid_X2)) mOpParrams[mArgCnt].Mod |= cursymboldef->mPass2Data;
-				else passed = false;
-				break;
-
-			case id_ARGMOD:
-				// can only be applied to ArgCnt>0 : arguments other than destination
-				//if(ArgCnt>0)
+			case sid_DSTMOD:
+			case sid_DSTSAT:
+			case sid_PRESRCMOD:
+			case sid_POSTSRCMOD:
 				mOpParrams[mArgCnt].Mod |= cursymboldef->mPass2Data;
-				//else passed = false;
 				break;
 
-			case id_NUMVAL:
-				if(mArgCnt>0) {
+
+			case sid_NUMVAL:
 				passed = setOpParram(cursymboldef);
 				// keep track of how many values are used
 				// update Constants array position
 				mConstantsPos++;
-				}
-				else passed = false;
 				break;
 
-			case id_SEPERATOR:
-				if(cursymboldef->mID == sid_COMMA) mArgCnt++;
+			case sid_SEPERATOR:
+				mArgCnt++;
 				break;
 		} // end of switch
 
@@ -1138,7 +1715,7 @@ bool PS_1_4::Pass2scan(TokenInst * Tokens, uint size)
 
 
 
-bool PS_1_4::setOpParram(ASMSymbolDef* symboldef)
+bool PS_1_4::setOpParram(SymbolDef* symboldef)
 {
   bool success = true;
   if(mArgCnt<MAXOPPARRAMS) {
@@ -1158,6 +1735,7 @@ bool PS_1_4::setOpParram(ASMSymbolDef* symboldef)
 
 // *********************************************************************************
 //  this is where the tests are carried out to make sure the PS_1_4 compiler works
+
 #ifdef _DEBUG
 // check the functionality of functions in PS_1_4: each test will print to the output file PASSED of FAILED
 void PS_1_4::test()
@@ -1194,10 +1772,7 @@ void PS_1_4::test()
   };
 
 
-  char TestStr2[] = "ps.1.4\nmov r0.xzw, c1, -r1.x_bias \nmul r3, r2, c3";
-  SymbolID test2result[] = {sid_PS_1_4, sid_MOV, sid_R0, sid_RBA, sid_COMMA, sid_C1, sid_COMMA,
-                            sid_NEGATE, sid_R1, sid_R, sid_BIAS, sid_MUL, sid_R3, sid_COMMA,
-                            sid_R2, sid_COMMA, sid_C3};
+
   SymbolID test3result[] = { sid_MOV, sid_COMMA, sid_MUL, sid_ADD, sid_NEGATE, sid_T0
   };
 
@@ -1212,7 +1787,6 @@ void PS_1_4::test()
   // loop variable used in for loops
   int i;
   fp = fopen("ASMTests.txt", "wt");
-  //MessageBox(NULL, "starting compiler tests", "ATI fs compiler", MB_OK);
 
 // **************************************************************
   // first test: see if positionToNextSymbol can find a valid Symbol
@@ -1230,6 +1804,8 @@ void PS_1_4::test()
     mCharPos++;
   }
   fprintf(fp, "finished testing: positionToNextSymbol\n");
+
+
 // **************************************************************
   // Second Test
   // did the type lib get initialized properly with a default name index
@@ -1237,6 +1813,7 @@ void PS_1_4::test()
   char* resultstr = getTypeDefText(sid_MOV);
   fprintf(fp, "  default name of mov is: [%s]: %s", resultstr, (strcmp("mov", resultstr)==0)?passed:failed);
   fprintf(fp, "finished testing: getTypeDefText\n");
+
 // **************************************************************
 // **************************************************************
   // fourth test - does isSymbol work correctly
@@ -1269,100 +1846,83 @@ void PS_1_4::test()
 
   fprintf(fp, "finished testing: isFloatValue\n");
 
-// **************************************************************
-  // fifth test
-  fprintf(fp, "\nTesting: checkTokenSemantics\n");
-  int testarraysize = ARRAYSIZE(test2result) - 1;
-  fprintf(fp, "  Semantic checks that should pass:\n");
-  for(i=0;i<testarraysize; i++) {
-    fprintf(fp, "  [%s] [%s] : %s", getTypeDefText(test2result[i]),
-    getTypeDefText(test2result[i+1]), checkTokenSemantics(test2result[i],test2result[i+1])?passed:failed);
-  }
-
-  fprintf(fp, "\n  Semantic checks that should fail:\n");
-  testarraysize = ARRAYSIZE(test3result) - 1;
-  for(i=0;i<testarraysize; i++) {
-    fprintf(fp, "  [%s] [%s] : %s", getTypeDefText(test3result[i]),
-    getTypeDefText(test3result[i+1]), checkTokenSemantics(test3result[i],test3result[i+1])?passed:failed);
-  }
-  fprintf(fp, "finished testing: checkTokenSemantics\n");
 
 // **************************************************************
-  fprintf(fp, "\nTesting: Tokenize & context check\n");
-  setActiveContexts(ckp_PS_BASE | ckp_PS_1_4);
-  mSource = TestStr2;
-  mCharPos = 0;
-  fprintf(fp, "Part 1:\n");
-  fprintf(fp, "  before: [%s]\n", mSource);
-  resultID = Tokenize();
-  fprintf(fp, "\n  after: [%s] : %s\n", mSource + mCharPos, (resultID == sid_PS_1_4)?passed:failed);
 
-  mCharPos = 13;
-  fprintf(fp,"\nPart 2: checking similar names\n");
-  fprintf(fp, "  before: [%s]\n", mSource + mCharPos);
-  resultID = Tokenize();
-  if(resultID<sid_INVALID) fprintf(fp, "Symbol found: [%s]\n",getTypeDefText((SymbolID)resultID));
-  if(resultID == sid_RBA) {
-    fprintf(fp, "\n  after: [%s] : %s", mSource + mCharPos, passed);
-  }
-  else {
-    fprintf(fp, failed);
-  }
+  // simple compile test:
+  char CompileTest1src[] = "ps.1.4\n";
+  SymbolID CompileTest1result[] = {sid_PS_1_4};
 
-  fprintf(fp, "finished testing: Tokenize\n");
+  testCompile("Basic PS_1_4", CompileTest1src, CompileTest1result, ARRAYSIZE(CompileTest1result));
+
+// **************************************************************
+  char CompileTest2src[] = "ps.1.1\n";
+  SymbolID CompileTest2result[] = {sid_PS_1_1};
+
+  testCompile("Basic PS_1_1", CompileTest2src, CompileTest2result, ARRAYSIZE(CompileTest2result));
+
+// **************************************************************
+  char CompileTest3src[] = "ps.1.4\ndef c0, 1.0, 2.0, 3.0, 4.0\n";
+  SymbolID CompileTest3result[] = {sid_PS_1_4, sid_DEF, sid_C0, sid_COMMA, sid_VALUE, sid_COMMA,
+		sid_VALUE, sid_COMMA, sid_VALUE, sid_COMMA, sid_VALUE};
+
+  testCompile("PS_1_4 with defines", CompileTest3src, CompileTest3result, ARRAYSIZE(CompileTest3result));
 
 
 // **************************************************************
-  // sixth test:
-  fprintf(fp, "\nTesting: Compile\n");
-  fprintf(fp, "Part 1 Compile: Check Pass 1 of \n\n%s\n\n", TestStr2);
+  char CompileTest4src[] = "ps.1.4\n//test kkl \ndef c0, 1.0, 2.0, 3.0, 4.0\ndef c3, 1.0, 2.0, 3.0, 4.0\n";
+  SymbolID CompileTest4result[] = {sid_PS_1_4, sid_DEF, sid_C0, sid_COMMA, sid_VALUE, sid_COMMA,
+		sid_VALUE, sid_COMMA, sid_VALUE, sid_COMMA, sid_VALUE,sid_DEF, sid_C3, sid_COMMA, sid_VALUE, sid_COMMA,
+		sid_VALUE, sid_COMMA, sid_VALUE, sid_COMMA, sid_VALUE};
 
-  bool compiled = compile(TestStr2);
-  fprintf(fp, "  Lines scaned: %d, instructions produced: %d out of %d: %s",
-    mCurrentLine, mTokenInstructions.size(), PART2INST,
-    (mTokenInstructions.size() == PART2INST)? passed : failed);
-  //bool semcheck = checkTokenInstructionsForSemantics();
-  //fprintf(fp, "  semantic check: %s",semcheck ? passed : failed);
-  //if(!semcheck) {
-  //  fprintf(fp, "error at: [%s]\n\n",&TestStr2[mCharPos]);
-  //}
-  for(i = 0; i<(int)mTokenInstructions.size(); i++) {
-    fprintf(fp,"  [%s] : %s", getTypeDefText(mTokenInstructions[i].mID),
-      (mTokenInstructions[i].mID == (uint)test2result[i])?passed:failed);
-  }
+  testCompile("PS_1_4 with 2 defines", CompileTest4src, CompileTest4result, ARRAYSIZE(CompileTest4result));
 
-  fprintf(fp, "finished testing: Compile\n");
+// **************************************************************
+  char CompileTest5src[] = "ps.1.4\ndef c0, 1.0, 2.0, 3.0, 4.0\n";
+  SymbolID CompileTest5result[] = {sid_PS_1_4, sid_DEF, sid_C0, sid_COMMA, sid_VALUE, sid_COMMA,
+		sid_VALUE, sid_COMMA, sid_VALUE, sid_COMMA, sid_VALUE};
+  GLuint CompileTest5MachinInstResults[] = {mi_SETCONSTANTS, GL_CON_0_ATI, 0};
+
+  testCompile("PS_1_4 with defines", CompileTest3src, CompileTest3result, ARRAYSIZE(CompileTest3result), CompileTest5MachinInstResults, ARRAYSIZE(CompileTest5MachinInstResults));
+// **************************************************************
+  char CompileTest6Src[] = "ps.1.4\nmov r0.xzw, c1 \nmul r3, r2, c3";
+  SymbolID CompileTest6result[] = {sid_PS_1_4, sid_MOV, sid_R0, sid_RBA, sid_COMMA, sid_C1,
+	  sid_MUL, sid_R3, sid_COMMA, sid_R2, sid_COMMA, sid_C3};
+  
+  testCompile("PS_1_4 ALU simple", CompileTest6Src, CompileTest6result, ARRAYSIZE(CompileTest6result));
+
 // **************************************************************
   // test to see if PS_1_4 compile pass 2 generates the proper machine instructions
-	char TestStr4[] = "ps.1.4\ndef c0,1.0,2.0,3.0,4.0\nmov_x8 r1,v0\nmov r0,r1";
+	char CompileTest7Src[] = "ps.1.4\ndef c0,1.0,2.0,3.0,4.0\nmov_x8 r1,v0\nmov r0,r1.g";
 
-	SymbolID test4result[] = {
+	SymbolID CompileTest7result[] = {
 		sid_PS_1_4, sid_DEF, sid_C0, sid_COMMA, sid_VALUE, sid_COMMA,
 		sid_VALUE, sid_COMMA, sid_VALUE, sid_COMMA, sid_VALUE, sid_MOV, sid_X8, sid_R1, sid_COMMA,
-		sid_V0, sid_MOV, sid_R0, sid_COMMA, sid_R1
+		sid_V0, sid_MOV, sid_R0, sid_COMMA, sid_R1, sid_GGGG
 	};
 
-	GLuint test4MachinInstResults[] = {
-		mi_SETCONSTANTS, GL_CON_0_ATI, 0, mi_COLOROP1, GL_MOV_ATI, GL_REG_1_ATI, RGB_BITS, GL_8X_BIT_ATI,
-		GL_PRIMARY_COLOR_ARB, GL_NONE, GL_NONE,mi_ALPHAOP1, GL_MOV_ATI, GL_REG_1_ATI, GL_8X_BIT_ATI,
-		GL_PRIMARY_COLOR_ARB, GL_NONE, GL_NONE, mi_COLOROP1, GL_MOV_ATI, GL_REG_0_ATI, RGB_BITS, GL_NONE,GL_REG_1_ATI, GL_NONE, GL_NONE,
-		mi_ALPHAOP1, GL_MOV_ATI, GL_REG_0_ATI, GL_NONE,GL_REG_1_ATI, GL_NONE, GL_NONE,
+	GLuint CompileTest7MachinInstResults[] = {
+		mi_SETCONSTANTS, GL_CON_0_ATI, 0,
+		mi_COLOROP1, GL_MOV_ATI, GL_REG_1_ATI, RGB_BITS, GL_8X_BIT_ATI,	GL_PRIMARY_COLOR_ARB, GL_NONE, GL_NONE,
+		mi_ALPHAOP1, GL_MOV_ATI, GL_REG_1_ATI, GL_8X_BIT_ATI, GL_PRIMARY_COLOR_ARB, GL_NONE, GL_NONE,
+		mi_COLOROP1, GL_MOV_ATI, GL_REG_0_ATI, RGB_BITS, GL_NONE,GL_REG_1_ATI, GL_GREEN, GL_NONE,
+		mi_ALPHAOP1, GL_MOV_ATI, GL_REG_0_ATI, GL_NONE, GL_REG_1_ATI, GL_GREEN, GL_NONE,
 	};
 
 
-	testCompile("PS_1_4", TestStr4, test4result, ARRAYSIZE(test4result), test4MachinInstResults, ARRAYSIZE(test4MachinInstResults));
+	testCompile("PS_1_4 ALU simple modifier", CompileTest7Src, CompileTest7result, ARRAYSIZE(CompileTest7result), CompileTest7MachinInstResults, ARRAYSIZE(CompileTest7MachinInstResults));
 
 // **************************************************************
 // test to see if a PS_1_1 can be compiled - pass 1 and pass 2 are checked
 
-	char TestStr5[] = "ps.1.1\ndef c0,1.0,2.0,3.0,4.0\ntex t0\n// test\ntex t1\ndp3 t0.rgb, t0_bx2, t1_bx2\nmov r0,1 - t0";
+	char TestStr5[] = "ps.1.1\ndef c0,1.0,2.0,3.0,4.0\ntex t0\n// test\ntex t1\ndp3 t0.rgb, t0_bx2, t1_bx2\n+ mov r0,1 - t0";
 
 	SymbolID test5result[] = {
 		sid_PS_1_1, sid_DEF, sid_C0, sid_COMMA, sid_VALUE, sid_COMMA,
 		sid_VALUE, sid_COMMA, sid_VALUE, sid_COMMA, sid_VALUE, sid_TEX, sid_1T0, sid_TEX, sid_1T1,
 		sid_DP3, sid_1T0, sid_RGB, sid_COMMA, sid_1T0, sid_BX2, sid_COMMA, sid_1T1, sid_BX2,
 		
-		sid_MOV, sid_1R0, sid_COMMA, sid_INVERT, sid_1T0
+		sid_PLUS, sid_MOV, sid_1R0, sid_COMMA, sid_INVERT, sid_1T0
 	};
 
 	GLuint test5MachinInstResults[] = {
@@ -1374,7 +1934,7 @@ void PS_1_4::test()
 	};
 
 
-	testCompile("PS_1_1", TestStr5, test5result, ARRAYSIZE(test5result), test5MachinInstResults, ARRAYSIZE(test5MachinInstResults));
+	testCompile("PS_1_1 Texture simple", TestStr5, test5result, ARRAYSIZE(test5result), test5MachinInstResults, ARRAYSIZE(test5MachinInstResults));
 
 
 // **************************************************************
@@ -1405,11 +1965,54 @@ void PS_1_4::test()
 
 	testCompile("PS_1_2 CISC instructions", TestStr6, test6result, ARRAYSIZE(test6result), test6MachinInstResults, ARRAYSIZE(test6MachinInstResults));
 
+// **************************************************************
+// test to see if a PS_1_4 two phase can be compiled - pass 1 and pass 2 are checked
+
+	char TestStr7[] = "ps.1.4\ndef c0,1.0,2.0,3.0,4.0\ntexld r0, t0\n// test\nmul r0, r0, c0\nphase\ntexld r1, r0\nmul r0,r0,r1\n";
+
+	SymbolID test7result[] = {
+		sid_PS_1_4,
+		// def c0,1.0,2.0,3.0,4.0
+		sid_DEF, sid_C0, sid_COMMA, sid_VALUE, sid_COMMA, sid_VALUE, sid_COMMA, sid_VALUE, sid_COMMA, sid_VALUE,
+		// texld r0, t0
+		sid_TEXLD, sid_R0, sid_COMMA, sid_T0,
+		// mul r0, r0, c0
+		sid_MUL, sid_R0, sid_COMMA, sid_R0, sid_COMMA, sid_C0,
+		// phase
+		sid_PHASE,
+		// texld r1, r0
+		sid_TEXLD, sid_R1, sid_COMMA, sid_R0,
+		// mul r0, r0, r1
+		sid_MUL, sid_R0, sid_COMMA, sid_R0, sid_COMMA, sid_R1,
+
+	};
+
+	GLuint test7MachinInstResults[] = {
+		// def c0
+		mi_SETCONSTANTS, GL_CON_0_ATI, 0,
+		// texld r0, t0.str
+		mi_SAMPLEMAP, GL_REG_0_ATI, GL_TEXTURE0_ARB, GL_SWIZZLE_STR_ATI,
+		// mul r0, r0, c0
+		mi_COLOROP2, GL_MUL_ATI, GL_REG_0_ATI, RGB_BITS, GL_NONE, GL_REG_0_ATI, GL_NONE, GL_NONE, GL_CON_0_ATI, GL_NONE, GL_NONE,
+		mi_ALPHAOP2, GL_MUL_ATI, GL_REG_0_ATI, GL_NONE, GL_REG_0_ATI, GL_NONE, GL_NONE, GL_CON_0_ATI, GL_NONE, GL_NONE,
+		// phase
+		// texld r1, r0.str
+		mi_SAMPLEMAP, GL_REG_1_ATI, GL_REG_0_ATI, GL_SWIZZLE_STR_ATI,
+		// pass ro register
+		mi_PASSTEXCOORD, GL_REG_0_ATI, GL_REG_0_ATI, GL_SWIZZLE_STR_ATI,
+		// mul r0, r0, r1
+		mi_COLOROP2, GL_MUL_ATI, GL_REG_0_ATI, RGB_BITS, GL_NONE, GL_REG_0_ATI, GL_NONE, GL_NONE, GL_REG_1_ATI, GL_NONE, GL_NONE,
+		// mul r0.a, r0
+		mi_ALPHAOP2, GL_MUL_ATI, GL_REG_0_ATI, GL_NONE, GL_REG_0_ATI, GL_NONE, GL_NONE, GL_REG_1_ATI, GL_NONE, GL_NONE,
+	};
+
+
+	testCompile("PS_1_4 texture complex : Phase - instructions", TestStr7, test7result, ARRAYSIZE(test7result), test7MachinInstResults, ARRAYSIZE(test7MachinInstResults));
+
 
 	fclose(fp);
 	fp = NULL;
-
-	//MessageBox(NULL, "finished PS compiler tests", "ATI fs compiler", MB_OK);
+	//reset contexts
 
 // **************************************************************
 }
@@ -1420,28 +2023,34 @@ void PS_1_4::testCompile(char* testname, char* teststr, SymbolID* testresult, ui
 	char passed[] = "PASSED\n";
 	char failed[] = "***** FAILED ****\n";
 
+	setActiveContexts(ckp_PS_BASE);
+
 	fprintf(fp, "\n*** TESTING: %s Compile: Check Pass 1 and 2\n", testname);
-	fprintf(fp, "  source to compile:\n[%s]\n", teststr);
+	fprintf(fp, "  source to compile:\n[\n%s\n]\n", teststr);
 	bool compiled = compile(teststr);
-	fprintf(fp, "  Pass 1 Lines scaned: %d, instructions produced: %d out of %d: %s",
+	fprintf(fp, "  Pass 1 Lines scaned: %d, Tokens produced: %d out of %d: %s",
 		mCurrentLine, mTokenInstructions.size(), testresultsize,
 		(mTokenInstructions.size() == (uint)testresultsize) ? passed : failed);
 
-	fprintf(fp, "\n  Checking Pass 2:\n");
+	fprintf(fp, "\n  Validating Pass 1:\n");
 
-	fprintf(fp, "  Pass 2 Machine Instructions generated: %d out of %d: %s", getMachineInstCount(),
-		MachinInstResultsSize, (getMachineInstCount() == MachinInstResultsSize) ? passed : failed);
+	fprintf(fp, "\n  Tokens:\n");
+	for(uint i = 0; i<(mTokenInstructions.size()); i++) {
+		fprintf(fp,"    Token[%d] [%s] %d: [%s] %d: %s", i, getTypeDefText(mTokenInstructions[i].mID),
+			mTokenInstructions[i].mID, getTypeDefText(testresult[i]), testresult[i],
+			(mTokenInstructions[i].mID == (uint)testresult[i]) ? passed : failed);
+	}
 
-	if(compiled) {
-		fprintf(fp, "\n  Tokens:\n");
-		for(uint i = 0; i<(testresultsize); i++) {
-			fprintf(fp,"    [%s] : %s", getTypeDefText(mTokenInstructions[i].mID),
-				(mTokenInstructions[i].mID == (uint)testresult[i]) ? passed : failed);
-		}
-
+	if(MachinInstResults != NULL) {
 		fprintf(fp, "\n  Machine Instructions:\n");
 
-		for(i = 0; i<MachinInstResultsSize; i++) {
+		fprintf(fp, "  Pass 2 Machine Instructions generated: %d out of %d: %s", getMachineInstCount(),
+			MachinInstResultsSize, (getMachineInstCount() == MachinInstResultsSize) ? passed : failed);
+
+		uint MIcount = getMachineInstCount();
+
+		fprintf(fp, "\n  Validating Pass 2:\n");
+		for(i = 0; i<MIcount; i++) {
 			fprintf(fp,"    instruction[%d] = 0x%x : 0x%x : %s", i, getMachineInst(i), MachinInstResults[i], (getMachineInst(i) == MachinInstResults[i]) ? passed : failed);
 		}
 
@@ -1449,16 +2058,12 @@ void PS_1_4::testCompile(char* testname, char* teststr, SymbolID* testresult, ui
 		for(i=0; i<4; i++) {
 			fprintf(fp, "    Constants[%d] = %f : %s", i, mConstants[i], (mConstants[i] == (1.0f+i)) ? passed : failed);
 		}
-
-
 	}
-
-	else {
-		fprintf(fp, failed);
-	}
+	if(!compiled) fprintf(fp, failed);
 
 	fprintf(fp, "\nfinished testing: %s Compile: Check Pass 2\n\n", testname);
 
+	setActiveContexts(ckp_PS_BASE);
 }
 
 void PS_1_4::testbinder()

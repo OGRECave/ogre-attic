@@ -52,30 +52,8 @@ http://www.gnu.org/copyleft/gpl.html.
 
 
 //---------------------------------------------------------------------------
+// macro to get the size of a static array
 #define ARRAYSIZE(array) (sizeof(array)/sizeof(array[0]))
-// Rule Symbol group types
-#define id_ANY          0xffff
-#define id_REGISTER     0x1
-#define id_CONSTANT     0x2
-#define id_COLOR        0x4
-#define id_TEXTURE      0x8
-#define id_OPINST       0x10
-#define id_MASK         0x20
-#define id_TEXSWIZZLE   0x40
-#define id_DSTMOD       0x80
-#define id_ARGMOD       0x100
-#define id_NUMVAL       0x200
-#define id_SEPERATOR    0x400
-#define id_TEXREGISTER  0x800
-
-//Combined semantic rules to make bit fields used for semantic checks on each Token instruction
-#define id_PARMETERLEFT  (id_OPINST | id_SEPERATOR | id_DSTMOD | id_MASK | id_ARGMOD)
-#define id_PARMETERRIGHT  (id_SEPERATOR | id_ARGMOD | id_MASK | id_OPINST | id_DSTMOD)
-#define id_ARGUMENT (id_REGISTER | id_CONSTANT | id_COLOR | id_TEXREGISTER)
-#define id_MASKREPLEFT (id_ARGUMENT | id_ARGMOD)
-#define id_MASKREPRIGHT (id_ARGMOD | id_SEPERATOR | id_OPINST | id_DSTMOD)
-#define id_OPLEFT (id_ARGUMENT | id_DSTMOD | id_MASK | id_ARGMOD | id_NUMVAL | id_TEXSWIZZLE | id_TEXTURE)
-#define id_TEMPREGISTERS (id_REGISTER | id_TEXREGISTER)
 
 #define ALPHA_BIT 0x08
 #define RGB_BITS 0x07
@@ -121,8 +99,15 @@ private:
 
 	};
 
+	struct RegisterUsage {
+		bool Phase1Write;
+		bool Phase2Write;
+	};
+
 	// Token ID enumeration
 	enum SymbolID {
+		// Terminal Tokens section
+
 		// DirectX pixel shader source formats 
 		sid_PS_1_4, sid_PS_1_1, sid_PS_1_2, sid_PS_1_3,
 					
@@ -133,6 +118,7 @@ private:
 		sid_DP3, sid_DP4, sid_DEF,
 		sid_R, sid_RA, sid_G, sid_GA, sid_B, sid_BA, sid_A, sid_RGBA, sid_RGB,
 		sid_RG, sid_RGA, sid_RB, sid_RBA, sid_GB, sid_GBA,
+		sid_RRRR, sid_GGGG, sid_BBBB, sid_AAAA,
 		sid_X2, sid_X4, sid_D2, sid_SAT,
 		sid_BIAS, sid_INVERT, sid_NEGATE, sid_BX2,
 		sid_COMMA, sid_VALUE,
@@ -143,7 +129,9 @@ private:
 		sid_DP2ADD,
 		sid_X8, sid_D8, sid_D4,
 		sid_TEXCRD, sid_TEXLD,
+		sid_STR, sid_STQ,
 		sid_STRDR, sid_STQDQ,
+		sid_BEM,
 		sid_PHASE,
 
 		//PS_1_1 sid
@@ -156,7 +144,24 @@ private:
 		sid_TEXREG2RGB, sid_TEXDP3, sid_TEXDP3TEX,
 
 		// common
-		sid_SKIP,
+		sid_SKIP, sid_PLUS,
+
+		// non-terminal tokens section
+		sid_PROGRAM, sid_PROGRAMTYPE, sid_DECLCONSTS, sid_DEFCONST,
+		sid_CONSTANT, sid_COLOR,
+		sid_TEXSWIZZLE, sid_UNARYOP,
+		sid_NUMVAL, sid_SEPERATOR, sid_ALUOPS, sid_TEXMASK, sid_TEXOP_PS1_1_3,
+		sid_TEXOP_PS1_4,
+		sid_ALU_STATEMENT, sid_DSTMODSAT, sid_UNARYOP_ARGS, sid_REG_PS1_4,
+		sid_TEX_PS1_4, sid_REG_PS1_1_3, sid_TEX_PS1_1_3, sid_DSTINFO,
+		sid_SRCINFO, sid_BINARYOP_ARGS, sid_TERNARYOP_ARGS, sid_TEMPREG,
+		sid_DSTMASK, sid_PRESRCMOD, sid_SRCNAME, sid_SRCREP, sid_POSTSRCMOD,
+		sid_DSTMOD, sid_DSTSAT, sid_BINARYOP,  sid_TERNARYOP,
+		sid_TEXOPS_PHASE1, sid_COISSUE, sid_PHASEMARKER, sid_TEXOPS_PHASE2, 
+		sid_TEXREG_PS1_4, sid_TEXOPS_PS1_4, sid_TEXOPS_PS1_1_3, sid_TEXCISCOP_PS1_1_3,
+
+
+		// last token
 		sid_INVALID = BAD_TOKEN // must be last in enumeration
 	};
 
@@ -193,11 +198,12 @@ private:
 	#define C_BASE  (sid_C0 - GL_CON_0_ATI)
 	#define T_BASE  (sid_1T0 - GL_REG_0_ATI)
 
-	// Static Macro database for ps.1.1 ps.1.2 ps.1.3 instructions
+	// static library database for tokens and BNF rules
+	static SymbolDef PS_1_4_SymbolTypeLib[];
+	static TokenRule PS_1_x_RulePath[];
+	static bool LibInitialized;
 
-	static TokenInstType InstTypeLib[];
-	static ASMSymbolDef PS_1_4_ASMSymbolTypeLib[];
-	static ASMSymbolText PS_1_4_ASMSymbolTextLib[];
+	// Static Macro database for ps.1.1 ps.1.2 ps.1.3 instructions
 
 	static TokenInst texreg2ar[];
 	static RegModOffset texreg2xx_RegMods[];
@@ -248,10 +254,20 @@ private:
 	uint mOpInst;
 	int mNumArgs;
 	int mArgCnt;
+	int mConstantsPos;
 
 	#define MAXOPPARRAMS 5 // max number of parrams bound to an instruction
 	
 	OpParram mOpParrams[MAXOPPARRAMS];
+
+	/// keeps track of which registers are written to in each phase
+	/// if a register is read from but has not been written to in phase 2
+	/// then if it was written to in phase 1 perform a register pass function
+	/// at the begining of phase2 so that the register has something worthwhile in it
+	/// NB: check ALU and TEX section of phase 1 and phase 2
+	/// there are 6 temp registers r0 to r5 to keep track off
+	/// checks are performed in pass 2 when building machine instructions
+	RegisterUsage Phase_RegisterUsage[6];
 
 	bool mMacroOn; // if true then put all ALU instructions in phase 1
 
@@ -267,7 +283,7 @@ private:
 	FILE* fp;
 	// full compiler test with output results going to a text file
 	void testCompile(char* testname, char* teststr, SymbolID* testresult,
-		uint testresultsize, GLuint* MachinInstResults, uint MachinInstResultsSize);
+		uint testresultsize, GLuint* MachinInstResults = NULL, uint MachinInstResultsSize = 0);
 #endif // _DEBUG
 
 
@@ -276,9 +292,7 @@ private:
 	
 	void clearMachineInstState();
 
-	bool checkSourceParramsReplicate();
-
-	bool setOpParram(ASMSymbolDef* symboldef);
+	bool setOpParram(SymbolDef* symboldef);
 
 	// optimizes machine instructions depending on pixel shader context
 	// only applies to ps.1.1 ps.1.2 and ps.1.3 since they use CISC instructions
@@ -287,6 +301,7 @@ private:
 
 	// the method is expected to be recursive to allow for inline expansion of instructions if required
 	bool Pass2scan(TokenInst * Tokens, uint size);
+
 	// supply virtual functions for Compiler2Pass
 	bool doPass2();
 
@@ -299,6 +314,8 @@ private:
 	uint getMachineInstCount();
 	void addMachineInst(PhaseType phase, uint inst);
 	void clearAllMachineInst();
+	void updateRegisterWriteState(PhaseType phase);
+	bool isRegisterReadValid(PhaseType phase, int param);
 
 public:
 

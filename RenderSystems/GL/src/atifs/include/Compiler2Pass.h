@@ -35,7 +35,6 @@ http://www.gnu.org/copyleft/gpl.html.
 
 // FIX ME - should not be hard coded
 #define BAD_TOKEN 999
-#define MAX_CONSTANTS 50
 
 typedef unsigned int uint; 
 
@@ -47,8 +46,8 @@ typedef unsigned int uint;
 
 	PASS 1 - tokenize source: this is a simple brute force lexical scanner/analyzer that also parses
 			 the formed token for proper semantics and context in one pass
-			 it uses Look Ahead Left-Right (LALR) ruling for semantic checking and also performs
-			 context checking
+			 it uses Look Ahead Left-Right (LALR) ruling based on Backus - Naur From notation for semantic
+			 checking and also performs	context checking allowing for language dialects
 
 	PASS 2 - generate application specific instructions ie native instructions
 
@@ -61,30 +60,39 @@ class Compiler2Pass {
 
 protected:
 
+	// BNF operation types
+	enum OperationType {otRULE, otAND, otOR, otOPTIONAL, otREPEAT, otEND};
+
+	/** structure used to build rule paths
+
+	*/
+	struct TokenRule {
+		OperationType mOperation;
+		uint mTokenID;
+		char* mSymbol;
+		uint mErrorID;
+
+	};
+
 	/** structure used to build Symbol Type library */
-	struct ASMSymbolDef {
-	  uint mInstType;			// Instruction group type
+	struct SymbolDef {
 	  uint mID;					// Token ID which is the index into the Token Type library
 	  uint mPass2Data;			// data used by pass 2 to build native instructions
-	  int mParrameters;			// number of parramters associated with instruction
-	  int mRWAccess;			// type of access required
-	  int mDefTextID;			// index into text table for default name : set at runtime
-	  uint mLeftRules;			// semantic rules for left hand side
-	  uint mRightRules;			// semantic rules for right hand side
+
 	  uint mContextKey;			// context key to fit the Active Context 
 	  uint mContextPatternSet;	// new pattern to set for Active Context bits
 	  uint mContextPatternClear;// Contexts bits to clear Active Context bits
 
+	  int mDefTextID;			// index into text table for default name : set at runtime
+	  uint mRuleID;				// index into Rule database for non-terminal toke rulepath
+								// if RuleID is zero the token is terminal
+
 	};
 
-	/** structure used to build Symbol Text library */
-	struct ASMSymbolText {
-	  char* mName;				// text
-	  uint mID;					// Token ID associated with the text
-	};
 
 	/** structure for Token instructions */
 	struct TokenInst {
+	  uint mNTTRuleID;			// Non-Terminal Token Rule ID that generated Token
 	  uint mID;					// Token ID
 	  int mLine;				// line number in source code where Token was found
 	  int mPos;					// Character position in source where Token was found
@@ -102,22 +110,22 @@ protected:
 	int mEndOfSource;
 
 	/// pointers to Text and Token Type libraries setup by subclass
-	ASMSymbolText* mASMSymbolTextLib;
-	ASMSymbolDef* mASMSymbolTypeLib;
+	SymbolDef* mSymbolTypeLib;
+
+	/// pointer to root rule path - has to be set by subclass constructor
+	TokenRule* mRootRulePath;
 
 	/// number of entries in Text and Token Type libraries
-	int mASMSymbolTextLibCnt;
-	int mASMSymbolTypeLibCnt;
+	int mRulePathLibCnt;
+	int mSymbolTypeLibCnt;
 
 	/// mVauleID needs to be initialized by the subclass before compiling occurs
 	/// it defines the token ID used in the symbol type library
 	uint mValueID;
-	/// number of Constants defined 
-	int mConstantsPos;
-	float mConstantFloatValue;
 
-	/// storage array for constants defined in source
-	float mConstants[MAX_CONSTANTS];
+
+	/// storage container for constants defined in source
+	std::vector<float> mConstants;
 
 	/// Active Contexts pattern used in pass 1 to determine which tokens are valid for a certain context
 	uint mActiveContexts;
@@ -130,7 +138,7 @@ protected:
 		false if either fails the semantic bind test
 
 	*/
-	bool checkTokenSemantics(uint ID1, uint ID2);
+	//bool checkTokenSemantics(uint ID1, uint ID2);
 
 	/** perform pass 1 of compile process
 		scans source for symbols that can be tokenized and then
@@ -139,47 +147,6 @@ protected:
 
 	*/
 	bool doPass1();
-
-	/** get the text symbol for this token
-	@remark
-		mainly used for debugging and in test routines
-	@param sid is the token ID
-	@return a pointer to the string text
-	*/
-	char* getTypeDefText(uint sid);
-
-	/** check to see if the text is in the symbol text library
-	@param symbol points to begining of text where a symbol token might exist
-	@param symbolsize reference that will receive the size value of the symbol found
-	@return
-		true if a matching token could be found in the token type library
-		false if could not be tokenized
-	*/
-	bool isSymbol(char* symbol, int & symbolsize);
-
-	/** check to see if the text at the present position in the source is a numerical constant
-	@param fvalue is a reference that will receive the float value that is in the source
-	@param charsize reference to receive number of characters that make of the value in the source
-	@return
-		true if characters form a valid float representation
-		false if a number value could not be extracted
-	*/
-	bool isFloatValue(float & fvalue, int & charsize);
-
-	/// position to the next possible valid sysmbol
-	bool positionToNextSymbol();
-
-	/// comment specifiers are hard coded : // ; #
-	void skipComments();
-	void skipEOL();
-	void findEOL();
-	void skipWhiteSpace();
-
-
-	uint Tokenize();
-
-	// setup ActiveContexts - should be called by subclass to setup initial language contexts
-	void setActiveContexts(uint contexts){ mActiveContexts = contexts; }
 
 	/** pure virtual method that must be set up by subclass to perform Pass 2 of compile process
 	@remark
@@ -190,15 +157,90 @@ protected:
 	*/
 	virtual bool doPass2() = 0;
 
+	void findEOL();
+
+	/** get the text symbol for this token
+	@remark
+		mainly used for debugging and in test routines
+	@param sid is the token ID
+	@return a pointer to the string text
+	*/
+	char* getTypeDefText(uint sid);
+
+	/** check to see if the text at the present position in the source is a numerical constant
+	@param fvalue is a reference that will receive the float value that is in the source
+	@param charsize reference to receive number of characters that make of the value in the source
+	@return
+		true if characters form a valid float representation
+		false if a number value could not be extracted
+	*/
+	bool isFloatValue(float & fvalue, int & charsize);
+
+	/** check to see if the text is in the symbol text library
+	@param symbol points to begining of text where a symbol token might exist
+	@param symbolsize reference that will receive the size value of the symbol found
+	@return
+		true if a matching token could be found in the token type library
+		false if could not be tokenized
+	*/
+	bool isSymbol(char* symbol, int & symbolsize);
+
+
+	/// position to the next possible valid sysmbol
+	bool positionToNextSymbol();
+
+
+	/** process input source text using rulepath to determine allowed tokens
+	@remarks
+		the method is reentrant and recursive
+		if a non-terminal token is encountered in the current rule path then the method is
+		called using the new rule path referenced by the non-terminal token
+		Tokens can have the following operation states which effects the flow path of the rule
+			RULE: defines a rule path for the non-terminal token
+			AND: the token is required for the rule to pass
+			OR: if the previous tokens failed then try these ones
+			OPTIONAL: the token is optional and does not cause the rule to fail if the token is not found
+			REPEAT: the token is required but there can be more than one in a sequence
+			END: end of the rule path - the method returns the succuss of the rule
+
+	@param rulepathIDX index into to array of Token Rules that define a rule path to be processed
+	@return 
+		true if rule passed - all required tokens found
+		false if one or more tokens required to complete the rule were not found
+	*/
+	bool processRulePath( uint rulepathIDX);
+
+	
+	// setup ActiveContexts - should be called by subclass to setup initial language contexts
+	void setActiveContexts(uint contexts){ mActiveContexts = contexts; }
+
+
+	/// comment specifiers are hard coded
+	void skipComments();
+
+	/// find end of line marker and move past it
+	void skipEOL();
+
+	/// skip all the white space which includes spaces and tabs
+	void skipWhiteSpace();
+
+
+	/** check if current position in source has the symbol text equivalent to the TokenID
+	@param rulepathIDX index into rule path database of token to validate
+	@param activeRuleID index of non-terminal rule that generated the token
+	@return
+		true if token was found
+		false if token symbol text does not match the source text
+		if token is non-terminal then processRulePath is called 
+	*/
+	bool ValidateToken(uint rulepathIDX, uint activeRuleID); 
+
+
 public:
 	// ** these probably should not be public 
 	int mCurrentLine;
 	int mCharPos;
 
-	/** Initialize the type library with matching symbol text found in symbol text library
-		called by subclass after libraries setup
-	*/
-	void InitTypeLibText();
 
 	/// constructor
 	Compiler2Pass();
@@ -214,6 +256,16 @@ public:
 		false if any errors occur in Pass 1 or Pass 2
 	*/
 	bool compile(const char* source);
+
+	/** Initialize the type library with matching symbol text found in symbol text library
+		find a default text for all Symbol Types in library
+
+		scan through all the rules and initialize TypeLib with index to text and index to rules for non-terminal tokens
+
+		must be called by subclass after libraries and rule database setup
+	*/
+
+	void InitSymbolTypeLib();
 
 };
 
