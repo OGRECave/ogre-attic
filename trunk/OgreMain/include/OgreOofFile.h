@@ -30,12 +30,14 @@ http://www.gnu.org/copyleft/gpl.html.
 namespace Ogre {
 
 /** Definition of the Ogre Object Format (.oof) file format.
-
-    OOF files are arranged into chunks of data, very like 3D Studio's format.
-    A chunk always consists of:
-        unsigned short CHUNK_ID        : one of the following chunk ids identifying the chunk
-        unsigned short DATA_LENGTH    : length of the contained data in bytes
-        void*           DATA            : the data, which may contain other sub-chunks (various data types)
+    @remarks
+        <b>This format is now DEPRECATED.</b>The .mesh format replaces it.
+    @par
+        OOF files are arranged into chunks of data, very like 3D Studio's format.
+        A chunk always consists of:
+            unsigned short CHUNK_ID        : one of the following chunk ids identifying the chunk
+            unsigned short DATA_LENGTH    : length of the contained data in bytes
+            void*           DATA            : the data, which may contain other sub-chunks (various data types)
 */
     enum OofChunkIDs {
         OOF_HEADER                = 0x1000,

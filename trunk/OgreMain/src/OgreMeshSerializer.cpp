@@ -642,6 +642,7 @@ namespace Ogre {
 
         // Real* pVertices (x, y, z order x numVertices)
         dest->pVertices = new Real[dest->numVertices * 3];
+        dest->vertexStride = 0;
         readReals(chunk, dest->pVertices, dest->numVertices * 3);
 
         // Find optional geometry chunks
@@ -657,11 +658,15 @@ namespace Ogre {
                 {
                 case M_GEOMETRY_NORMALS:
                     // Real* pNormals (x, y, z order x numVertices)
+                    dest->hasNormals = true;
+                    dest->normalStride = 0;
                     dest->pNormals = new Real[dest->numVertices * 3];
                     readReals(chunk, dest->pNormals, dest->numVertices * 3);
                     break;
                 case M_GEOMETRY_COLOURS:
                     // unsigned long* pColours (RGBA 8888 format x numVertices)
+                    dest->hasColours = true;
+                    dest->colourStride = 0;
                     dest->pColours = new unsigned long[dest->numVertices];
                     readLongs(chunk, dest->pColours, dest->numVertices);
                     break;
@@ -671,6 +676,7 @@ namespace Ogre {
                     // Real* pTexCoords  (u [v] [w] order, dimensions x numVertices)
                     dest->pTexCoords[texCoordSet] = 
                         new Real[dest->numVertices * dest->numTexCoordDimensions[texCoordSet]];
+                    dest->texCoordStride[texCoordSet] = 0;
                     readReals(chunk, dest->pTexCoords[texCoordSet],
                         dest->numVertices * dest->numTexCoordDimensions[texCoordSet]);
                     ++texCoordSet;

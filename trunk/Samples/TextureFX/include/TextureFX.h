@@ -56,7 +56,8 @@ protected:
 
     void createScrollingKnot()
     {
-        Entity *ent = mSceneMgr->createEntity("knot", "knot.oof");
+        Entity *ent = mSceneMgr->createEntity("knot", "knot.mesh");
+
 
         ent->setMaterialName("Examples/TextureEffect2");
         // Add entity to the root scene node

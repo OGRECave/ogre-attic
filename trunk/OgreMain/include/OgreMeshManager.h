@@ -51,13 +51,10 @@ namespace Ogre {
                 will be returned.
             @remarks
                 Ogre loads model files from it's own proprietary
-                format called .oof (Ogre Object File). This is because
-                the .oof file will contain pre-processed data (such as
-                collision boxes, LOD reductions etc)
-                to make mesh loading as fast as possible. You can convert
-                .3ds files to .oof using the '3ds2oof' utility provided
-                by Ogre. Other formats are not currently supported, but
-                most files can be converted to .3ds.
+                format called .mesh. This is because having a single file
+                format is better for runtime performance, and we also have
+                control over pre-processed data (such as
+                collision boxes, LOD reductions etc).
         */
         Mesh* load( const String& filename, int priority = 1);
 

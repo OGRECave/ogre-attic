@@ -63,8 +63,9 @@ protected:
         l->setPosition(20,80,50);
 
         // Also add a nice dragon in
-        Entity *ent = mSceneMgr->createEntity("dragon", "dragon.oof");
+        Entity *ent = mSceneMgr->createEntity("dragon", "dragon.mesh");
         mSceneMgr->getRootSceneNode()->attachObject(ent);
+
 
 
     }

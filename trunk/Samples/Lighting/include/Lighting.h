@@ -46,7 +46,7 @@ protected:
         mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
 
         // Create an entity from a model (will be loaded automatically)
-        Entity* ent = mSceneMgr->createEntity("Ogre", "ogrehead.oof");
+        Entity* ent = mSceneMgr->createEntity("Ogre", "ogrehead.mesh");
 
         // Create 3 lights each of a different colour
         Light* l = mSceneMgr->createLight("RedLight");

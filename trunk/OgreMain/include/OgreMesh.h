@@ -118,8 +118,7 @@ namespace Ogre {
                 use one set of data.
             @par
                 The use of shared or non-shared buffers is determined when
-                model data is converted to the OGRE Object Format - see the
-                readme.txt in the 3ds2oof utility folder.
+                model data is converted to the OGRE .mesh format.
         */
         GeometryData sharedGeometry;
 

@@ -166,7 +166,8 @@ protected:
         l->setPosition(20,80,50);
 
         // Also add a nice starship in
-        Entity *ent = mSceneMgr->createEntity( "razor", "razor.oof" );
+        Entity *ent = mSceneMgr->createEntity( "razor", "razor.mesh" );
+
         mSceneMgr->getRootSceneNode()->attachObject( ent );
 
         ParticleSystem *pThrusters = ParticleSystemManager::getSingleton().createSystem( "ParticleSys1", 200 );
