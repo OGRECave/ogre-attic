@@ -398,6 +398,20 @@ namespace Ogre {
         return sn;
     }
     //-----------------------------------------------------------------------
+    void SceneManager::destroySceneNode(const String& name)
+    {
+        SceneNodeList::iterator i = mSceneNodes.find(name);
+
+        if (i == mSceneNodes.end())
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, "SceneNode '" + name + "' not found.",
+                "SceneManager::destroySceneNode");
+        }
+
+        delete i->second;
+        mSceneNodes.erase(i);
+    }
+    //-----------------------------------------------------------------------
     SceneNode* SceneManager::getRootSceneNode(void) const
     {
         return mSceneRoot;
