@@ -86,10 +86,27 @@ namespace Ogre {
 		ret_data->height = ilGetInteger( IL_IMAGE_HEIGHT );
 
 		uint ImageSize = ilGetInteger( IL_IMAGE_WIDTH ) * ilGetInteger( IL_IMAGE_HEIGHT ) * ilGetInteger( IL_IMAGE_BYTES_PER_PIXEL );
-
-		// Move the image data to the output buffer
+		
 		output->allocate( ImageSize );
-		memcpy( output->getPtr(), ilGetData(), ImageSize );
+		
+		//check to see whether the image is upside down
+		if(ilGetInteger(IL_ORIGIN_MODE) == IL_ORIGIN_LOWER_LEFT)
+		{
+			//if so (probably) put it right side up
+			ilEnable(IL_ORIGIN_SET);
+			ilSetInteger(IL_ORIGIN_MODE, IL_ORIGIN_UPPER_LEFT);
+		}
+		//check to see whether the pixels are reversed
+		if( Imagformat==IL_BGR || Imagformat==IL_BGRA)
+		{
+			//if so (probably) reverse the b and the r, this is slower but at least it works
+			ILint newIF = Imagformat==IL_BGR ? IL_RGB : IL_RGBA;
+			ilCopyPixels(0, 0, 0, ret_data->width , ret_data->height, 1, newIF, IL_UNSIGNED_BYTE, output->getPtr());
+		}
+		else
+        {
+			memcpy( output->getPtr(), ilGetData(), ImageSize );
+        }
 
 		ilDeleteImages( 1, &ImageName );
 
