@@ -84,6 +84,8 @@ namespace Ogre {
 		void _createNormTex();
 		/// internal method, create a blank cube texture
 		void _createCubeTex();
+		/// internal method, create a blank cube texture
+		void _createVolumeTex();
 
 		/// internal method, return a D3D pixel format for texture creation
 		D3DFORMAT _chooseD3DFormat();
