@@ -185,9 +185,9 @@ private:
 #if USE_TEXTURES
         // calculate texture coordinates
         *pBuffer++ = 1.0 - (static_cast<Real>(x) / EDGE_LENGTH);
-        *pBuffer++ = (static_cast<Real>(z) / EDGE_LENGTH);
+        *pBuffer++ = 1.0 - (static_cast<Real>(z) / EDGE_LENGTH);
         *pBuffer++ = (x + mZone.x) / mManager->mZoneSize;
-        *pBuffer   = 1.0 - ((z + mZone.z) / mManager->mZoneSize);
+        *pBuffer   = (z + mZone.z) / mManager->mZoneSize;
 #endif
         // add vertex to lookup table
         mManager->mVertexLookup[idx] = v;
