@@ -50,7 +50,7 @@
 				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\bin\$(ConfigurationName)\$(TargetFileName) ..\..\..\Samples\Common\Bin\$(ConfigurationName)\OgrePlatform.dll"/>
+				CommandLine="copy ..\bin\$(ConfigurationName)\$(TargetFileName) ..\..\..\Samples\Common\Bin\$(ConfigurationName)\OgrePlatform_d.dll"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool

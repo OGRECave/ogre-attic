@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreConfig.h"
 
+namespace Ogre {
 /* Initial platform/compiler-related stuff to set.
 */
 #define PLATFORM_WIN32 1
@@ -118,6 +119,12 @@ http://www.gnu.org/copyleft/lesser.txt.
     #define vsnprintf _vsnprintf
 #endif
 
+#if OGRE_DEBUG_MODE
+    #define OGRE_PLATFORM_LIB "OgrePlatform_d.dll"
+#else
+    #define OGRE_PLATFORM_LIB "OgrePlatform.dll"
+#endif
+
 #endif
 //----------------------------------------------------------------------------
 
@@ -150,6 +157,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 #   include <SDL/SDL_main.h>
 #endif
 
+#if OGRE_PLATFORM == PLATFORM_APPLE
+    #define OGRE_PLATFORM_LIB "OgrePlatform.bundle"
+#else
+    //PLATFORM_LINUX
+    #define OGRE_PLATFORM_LIB "libOgrePlatform.so"
+#endif
+
+
 #endif
 
 //----------------------------------------------------------------------------
@@ -167,5 +182,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 typedef unsigned long uint32;
 typedef unsigned short uint16;
 typedef unsigned char uint8;
+
+}
 
 #endif
