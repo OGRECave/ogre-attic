@@ -178,6 +178,9 @@
 				RelativePath="..\src\OgreWin32GLSupport.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreWin32RenderTexture.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreWin32Window.cpp">
 			</File>
 			<File
@@ -408,6 +411,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreWin32Prerequisites.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreWin32RenderTexture.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreWin32Window.h">
