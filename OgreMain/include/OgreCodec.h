@@ -41,9 +41,10 @@ namespace Ogre {
     class _OgreExport Codec
     {
     protected:
+        typedef std::map< String, Codec* > CodecList; 
         /** A map that contains all the registered codecs.
         */
-        static std::map< String, Codec* > ms_mapCodecs;
+        static CodecList ms_mapCodecs;
 
     public:
         class CodecData 
@@ -64,12 +65,8 @@ namespace Ogre {
             ms_mapCodecs[pCodec->getType()] = pCodec;
         }
 
-        /** Returns a map of all the registered codecs.
-        */
-        static std::map< String, Codec* >& getColl()
-        {
-            return ms_mapCodecs;
-        }
+        /** Gets the codec registered for the passed in file extension. */
+        static Codec* getCodec(const String& extension);
 
         /** Codes the data in the input chunk and saves the result in the output
             chunk.
@@ -77,6 +74,14 @@ namespace Ogre {
                 Has a variable number of arguments, which depend on the codec type.
         */
         virtual void code( const DataChunk& input, DataChunk* output, ... ) const = 0;
+        /** Codes the data in the input chunk and saves the result in the output
+            filename provided. Provided for efficiency since coding to memory is
+            progressive therefore memory required is unknown leading to reallocations.
+        @param input The input data
+        @param outFileName The filename to write to
+        @param pData Extra information to be passed to the codec (codec type specific)
+        */
+        virtual void codeToFile( const DataChunk& input, const String& outFileName, CodecData* pData) const = 0;
 
         /** Codes the data from the input chunk into the output chunk.
             @remarks

@@ -71,11 +71,11 @@ namespace Ogre {
     {
         return TRUE;
     }
-
+    //---------------------------------------------------------------------
     void JPEGCodec::init_source( j_decompress_ptr cinfo )
     {
     }
-
+    //---------------------------------------------------------------------
     void JPEGCodec::skip_input_data( j_decompress_ptr cinfo, long count )
     {
         jpeg_source_mgr * src = cinfo->src;
@@ -84,17 +84,32 @@ namespace Ogre {
             src->next_input_byte += count;
         }
     }
-
+    //---------------------------------------------------------------------
     void JPEGCodec::term_source( j_decompress_ptr cinfo )
     {
     }
-
+    //---------------------------------------------------------------------
     void JPEGCodec::code( const DataChunk& input, DataChunk* output, ... ) const
     {
         OgreGuard( "JPEGCodec::code" );
+
+        Except(Exception::UNIMPLEMENTED_FEATURE, "code to memory not implemented",
+            "JPEGCodec::code");
+
         OgreUnguard();
     }
+    //---------------------------------------------------------------------
+    void JPEGCodec::codeToFile( const DataChunk& input, 
+        const String& outFileName, Codec::CodecData* pData) const
+    {
+        OgreGuard( "JPEGCodec::codeToFile" );
 
+        Except(Exception::UNIMPLEMENTED_FEATURE, "code to file not implemented",
+            "JPEGCodec::code");
+
+        OgreUnguard();
+    }
+    //---------------------------------------------------------------------
     Codec::CodecData * JPEGCodec::decode( const DataChunk& input, DataChunk* output, ... ) const
     {
         OgreGuard( "JPEGCodec::decode" );

@@ -219,6 +219,9 @@ namespace Ogre {
         */
         virtual void setActive( bool state );
 
+        /** Writes the current contents of the render target to the named file. */
+        virtual void writeContentsToFile(const String& filename) = 0;
+
     protected:
         /// The name of this target
         String mName;

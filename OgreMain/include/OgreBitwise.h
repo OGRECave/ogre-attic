@@ -33,8 +33,8 @@ namespace Ogre {
     */
     class _OgreExport Bitwise {
     public:
-        typedef unsigned short BYTE;
-        typedef unsigned int WORD;
+        typedef unsigned char BYTE;
+        typedef unsigned short WORD;
         typedef unsigned long DWORD;
 
         /** Returns the number of bits a pattern must be shifted right by to

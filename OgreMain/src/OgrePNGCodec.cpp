@@ -29,7 +29,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreException.h"
 
 namespace Ogre {
-
+    
+    //---------------------------------------------------------------------
     void PNGCodec::pngChunkRead(png_structp png_ptr, png_bytep data, png_size_t length)
     {
         DataChunk* pChunk = (DataChunk*)png_ptr->io_ptr;
@@ -37,10 +38,122 @@ namespace Ogre {
         if( pChunk->read((void*)data, static_cast< unsigned long >( length ) ) != length )
             png_error(png_ptr, "Read Error.");
     }
-
+    //---------------------------------------------------------------------
     void PNGCodec::code( const DataChunk& input, DataChunk* output, ... ) const
     {        
+        OgreGuard( "PNGCodec::code" );
+
+        Except(Exception::UNIMPLEMENTED_FEATURE, "code to memory not implemented",
+            "PNGCodec::code");
+
+        OgreUnguard();
+
     }
+    //---------------------------------------------------------------------
+    void PNGCodec::codeToFile( const DataChunk& input, 
+        const String& outFileName, Codec::CodecData* pData) const
+    {
+        OgreGuard( "PNGCodec::codeToFile" );
+
+        ImageData* pImgData = static_cast<ImageData*>(pData);
+
+        // Open file
+        FILE *fp = fopen(outFileName, "wb");
+        if (!fp)
+        {
+            Except(Exception::ERR_INTERNAL_ERROR, "Cannot open " + outFileName + 
+                " for writing.", "PNGCodec::codeToFile");
+        }
+        
+        // Create PNG structs
+        png_structp png_ptr = png_create_write_struct
+           (PNG_LIBPNG_VER_STRING, (png_voidp)NULL,
+            NULL, NULL);
+        if (!png_ptr)
+        {
+            Except(Exception::ERR_INTERNAL_ERROR, "Cannot create PNG write structure",
+                "PNGCodec::codeToFile");
+        }
+
+        png_infop info_ptr = png_create_info_struct(png_ptr);
+        if (!info_ptr)
+        {
+           png_destroy_write_struct(&png_ptr,
+             (png_infopp)NULL);
+            Except(Exception::ERR_INTERNAL_ERROR, "Cannot create PNG info structure",
+                "PNGCodec::codeToFile");
+        }
+
+        /*
+        // Set up libpng's freaky error handling
+        if (setjmp(png_jmpbuf(png_ptr)))
+        {
+           png_destroy_write_struct(&png_ptr, &info_ptr);
+           fclose(fp);
+            Except(Exception::ERR_INTERNAL_ERROR, "Problems calling setjmp.",
+                "PNGCodec::codeToFile");
+        }
+        */
+
+        // init
+        png_init_io(png_ptr, fp);
+
+        // Set up info
+        int bitsPerChannel, colourType;
+
+        bitsPerChannel = 8; // Always use 8 bits per channel
+        unsigned short rowspan;
+        switch(pImgData->eFormat)
+        {
+        case Image::FMT_GREY:
+            colourType = PNG_COLOR_TYPE_GRAY;
+            rowspan = pImgData->ulWidth;
+            break;
+        case Image::FMT_ALPHA:
+            colourType = PNG_COLOR_MASK_ALPHA;
+            rowspan = pImgData->ulWidth;
+            break;
+        case Image::FMT_GREY_ALPHA:
+            colourType = PNG_COLOR_TYPE_GRAY_ALPHA;
+            rowspan = pImgData->ulWidth * 2;
+            break;
+        case Image::FMT_RGB:
+            colourType = PNG_COLOR_TYPE_RGB;
+            rowspan = pImgData->ulWidth * 3;
+            break;
+        case Image::FMT_RGB_ALPHA:
+            colourType = PNG_COLOR_TYPE_RGB_ALPHA;
+            rowspan = pImgData->ulWidth * 4;
+            break;
+
+        };
+
+        png_set_IHDR(png_ptr, info_ptr, pImgData->ulWidth, pImgData->ulHeight,
+            bitsPerChannel, colourType, PNG_INTERLACE_NONE,
+            PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+
+        png_bytep* rowPtr = new png_bytep[pImgData->ulHeight];
+        const uchar* buffer = input.getPtr();
+        for( unsigned i = 0; i < pImgData->ulHeight; i++ )
+            rowPtr[i] = (png_bytep)&( buffer[i*rowspan] );
+
+        png_set_rows(png_ptr, info_ptr, rowPtr);
+
+
+        // Write
+        png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+        png_write_end(png_ptr, info_ptr);
+
+
+        // Clean
+        png_destroy_write_struct(&png_ptr, &info_ptr);
+
+
+        fclose(fp);
+
+        OgreUnguard();
+    }
+    //---------------------------------------------------------------------
     Codec::CodecData * PNGCodec::decode( const DataChunk& input, DataChunk* output, ... ) const
     {
         OgreGuard( "PNGCodec::decode" );

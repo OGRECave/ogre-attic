@@ -40,8 +40,15 @@ namespace Ogre {
         static void
         pngChunkRead(png_structp png_ptr, png_bytep data, png_size_t length);
 
+
     public:
         void code( const DataChunk& input, DataChunk* output, ... ) const;
+        /** Encodes data to a PNG file.
+        @param input Chunk containing data to write
+        @param outFileName Filename to output to
+        @param pData ImageData pointer
+        */
+        void codeToFile( const DataChunk& input, const String& outFileName, CodecData* pData) const;
         CodecData * decode( const DataChunk& input, DataChunk* output, ... ) const;
 
         String getType() const { return "png"; }

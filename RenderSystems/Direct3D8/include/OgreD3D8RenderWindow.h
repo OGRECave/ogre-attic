@@ -39,6 +39,9 @@ namespace Ogre {
 
 		void outputText( int x, int ty, const String& text );
 		void getCustomAttribute( String name, void* pData );
+        /** Overridden - see RenderTarget.
+        */
+        void writeContentsToFile(const String& filename);
 
 	protected:
 		HWND	mHWnd;					// Win32 Window handle

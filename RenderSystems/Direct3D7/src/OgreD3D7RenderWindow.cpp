@@ -30,6 +30,8 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreRoot.h"
 #include "OgreRenderSystem.h"
 #include "OgreD3D7TextureManager.h"
+#include "OgreBitwise.h"
+#include "OgreImageCodec.h"
 
 namespace Ogre {
 
@@ -622,4 +624,118 @@ namespace Ogre {
         }
     }
 
+
+    void D3D7RenderWindow::writeContentsToFile(const String& filename)
+    {
+         HRESULT hr;
+         LPDIRECTDRAWSURFACE7 pTempSurf;
+         DDSURFACEDESC2 desc;
+ 
+         // Cannot lock surface direct, so create temp surface and blit
+		 desc.dwSize = sizeof(DDSURFACEDESC2);
+		 hr = mlpDDSBack->GetSurfaceDesc(&desc);
+		 if (FAILED(hr = mlpDDDriver->directDraw()->CreateSurface(&desc, &pTempSurf, NULL)))
+		 {
+             Except(hr, "Error creating temporary surface!", 
+                 "D3D7RenderWindow::writeContentsToFile");
+		 }
+		 pTempSurf->Blt(NULL, mlpDDSBack, NULL, NULL, NULL);
+
+		 if (FAILED(hr = pTempSurf->Lock(NULL, &desc,  
+             DDLOCK_WAIT | DDLOCK_READONLY, NULL)))
+         {
+             Except(hr, "Cannot lock surface!", 
+                 "D3D7RenderWindow::writeContentsToFile");
+         }
+ 
+ 
+         ImageCodec::ImageData imgData;
+         imgData.ulWidth = desc.dwWidth;
+         imgData.ulHeight = desc.dwHeight;
+         imgData.eFormat = Image::FMT_RGB;
+ 
+         // Allocate contiguous buffer (surfaces aren't necessarily contiguous)
+         uchar* pBuffer = new uchar[desc.dwWidth * desc.dwHeight * 3];
+ 
+         uint x, y;
+         uchar *pData, *pDest;
+ 
+         pData = (uchar*)desc.lpSurface;
+         pDest = pBuffer;
+         for (y = 0; y < desc.dwHeight; ++y)
+         {
+             uchar *pRow = pData;
+ 
+             for (x = 0; x < desc.dwWidth; ++x)
+             {
+				 if (desc.ddpfPixelFormat.dwRGBBitCount == 16)
+				 {
+                     WORD val;
+					 BYTE result;
+                     ushort srcMask;
+                     BYTE destMask;
+ 
+                     destMask = 0xFF;
+                     val = *((WORD*)pRow);
+					 pRow += 2;
+
+					 srcMask = 0xF800;
+                     Bitwise::convertBitPattern(&val, &srcMask, 16, &result, &destMask, 8);
+					 *pDest++ = result;
+                     srcMask = 0x07E0;
+                     Bitwise::convertBitPattern(&val, &srcMask, 16, &result, &destMask, 8);
+					 *pDest++ = result;
+                     srcMask = 0x1F;
+                     Bitwise::convertBitPattern(&val, &srcMask, 16, &result, &destMask, 8);
+					 *pDest++ = result;
+				 }
+				 else
+				 {
+					 // Actual format is BRGA for some reason
+                     *pDest++ = pRow[2]; // R
+                     *pDest++ = pRow[1]; // G
+                     *pDest++ = pRow[0]; // B
+
+                     pRow += 3; // skip alpha / dummy
+
+					 if (desc.ddpfPixelFormat.dwRGBBitCount == 32)
+					 {
+						 ++pRow; // Skip alpha
+					 }
+                 }
+ 
+                 
+             }
+             // increase by one line
+             pData += desc.lPitch;
+ 
+         }
+ 
+ 
+         // Wrap buffer in a chunk
+         DataChunk chunk(pBuffer, desc.dwWidth * desc.dwHeight * 3);
+ 
+         // Get codec 
+         size_t pos = filename.find_last_of(".");
+         String extension;
+ 	    if( pos == String::npos )
+             Except(
+ 		    Exception::ERR_INVALIDPARAMS, 
+ 		    "Unable to determine image type for '" + filename + "' - invalid extension.",
+             "D3D8RenderWindow::writeContentsToFile" );
+ 
+         while( pos != filename.length() - 1 )
+             extension += filename[++pos];
+ 
+         // Get the codec
+         Codec * pCodec = Codec::getCodec(extension);
+ 
+         // Write out
+         pCodec->codeToFile(chunk, filename, &imgData);
+ 
+         delete [] pBuffer;
+ 
+     }
+
 }
+
