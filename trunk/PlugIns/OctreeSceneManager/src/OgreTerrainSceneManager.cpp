@@ -412,7 +412,7 @@ namespace Ogre
     //-------------------------------------------------------------------------
     void TerrainSceneManager::setWorldGeometry( const String& filename )
     {
-
+        mTerrainPages.clear();
         // Load the configuration
         loadConfig(filename);
 
@@ -426,6 +426,12 @@ namespace Ogre
 
         setupTerrainPages();
 
+    }
+    //-------------------------------------------------------------------------
+    void TerrainSceneManager::clearScene(void)
+    {
+        OctreeSceneManager::clearScene();
+        mTerrainPages.clear();
     }
     //-------------------------------------------------------------------------
     void TerrainSceneManager::_renderScene(Camera* cam, Viewport *vp, bool includeOverlays)
