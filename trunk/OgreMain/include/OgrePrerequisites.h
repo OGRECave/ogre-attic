@@ -134,7 +134,9 @@ namespace Ogre {
     class Factory;
     class FrameListener;
     class GuiElement;
+    class GuiElementFactory;
     class GuiContainer;
+    class GuiManager;
     class InputReader;
     class KeyFrame;
     class Light;

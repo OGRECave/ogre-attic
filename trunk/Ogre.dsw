@@ -32,6 +32,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name RenderSystem_SDL
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_OctreeSceneManager
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -64,6 +67,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name RenderSystem_SDL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_OctreeSceneManager
     End Project Dependency
 }}}
 
@@ -98,6 +104,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name RenderSystem_SDL
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_OctreeSceneManager
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -130,6 +139,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name RenderSystem_SDL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_OctreeSceneManager
     End Project Dependency
 }}}
 
@@ -164,6 +176,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name RenderSystem_SDL
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_OctreeSceneManager
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -196,6 +211,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name RenderSystem_SDL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_OctreeSceneManager
     End Project Dependency
 }}}
 
@@ -230,6 +248,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name RenderSystem_SDL
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_OctreeSceneManager
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -262,6 +283,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name RenderSystem_SDL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_OctreeSceneManager
     End Project Dependency
 }}}
 
@@ -296,6 +320,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name RenderSystem_SDL
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_OctreeSceneManager
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -329,6 +356,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name RenderSystem_SDL
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_OctreeSceneManager
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -361,6 +391,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name RenderSystem_SDL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_OctreeSceneManager
     End Project Dependency
 }}}
 
@@ -424,6 +457,21 @@ Package=<4>
 ###############################################################################
 
 Project: "Plugin_FileSystem"=.\PlugIns\FileSystem\scripts\Plugin_FileSystem.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name OgreMain
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "Plugin_OctreeSceneManager"=.\PlugIns\OctreeSceneManager\scripts\Plugin_OctreeSceneManager.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
