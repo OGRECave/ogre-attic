@@ -283,6 +283,24 @@ namespace Ogre {
             }
         }
 
+        /** Returns wether a pixel format is floating point (at least not fixed point).
+          @returns
+               True when the format is floating point.
+       */
+       inline static bool formatIsFloat(PixelFormat format) 
+       {
+            switch(format) {
+                case PF_FP_R16G16B16:
+				case PF_FP_R32G32B32:
+                case PF_FP_R16G16B16A16:
+                case PF_FP_R32G32B32A32:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+
 		/** Decides wether converting from a pixel format to another requires 
 			endian-flipping.
 			@param srcformat
