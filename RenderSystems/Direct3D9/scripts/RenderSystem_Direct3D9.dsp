@@ -120,6 +120,22 @@ SOURCE=..\include\OgreD3D9DriverList.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreD3D9GpuProgram.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreD3D9GpuProgram.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreD3D9GpuProgramManager.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreD3D9GpuProgramManager.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreD3D9HardwareBufferManager.cpp
 # End Source File
 # Begin Source File
