@@ -22,44 +22,47 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#ifndef _TGACodec_H__
-#define _TGACodec_H__
 
 #include "OgreImageCodec.h"
-#include "OgreSDDataChunk.h"
+#include "OgreImage.h"
+#include "OgreException.h"
+
+#include <IL/il.h>
+#include <IL/ilu.h>
 
 namespace Ogre {
 
-    /** ImageCodec specialized in Traga images.
-    */
-    class _OgreExport TGACodec : public ImageCodec
+	bool ImageCodec::_is_initialized = false;    
+    //---------------------------------------------------------------------
+    void ImageCodec::codeToFile( const DataChunk& input, 
+        const String& outFileName, Codec::CodecData* pData) const
     {
-    protected:
+        OgreGuard( "ImageCodec::codeToFile" );
 
-    // We're mapping onto raw file data, so ensure members are packed with no gaps 
-    //    by using uchars all the way (more portable than #pragma pack
-    typedef struct {
-	    uchar id_length;
-	    uchar color_map_type;
-	    uchar image_type;
-	    uchar first_entry_index[2];
-	    uchar color_map_length[2];
-	    uchar color_map_entry_size;
-	    uchar x_origin[2];
-	    uchar y_origin[2];
-	    uchar image_width[2];
-	    uchar image_height[2];
-	    uchar pixel_depth;
-	    uchar image_descriptor;
-    } TgaHeader;
+		ILuint ImageName;
 
-    public:
-        void code( const DataChunk& input, DataChunk* output, ... ) const;
-        CodecData * decode( const DataChunk& input, DataChunk* output, ... ) const;
+		if( !_is_initialized )
+		{
+			ilInit();
+			ilEnable( IL_FILE_OVERWRITE );
+			_is_initialized = true;
+		}
 
-        String getType() const { return "tga"; }
-    };
+		ilGenImages( 1, &ImageName );
+		ilBindImage( ImageName );
 
+		ImageData* pImgData = static_cast< ImageData * >( pData );
+		std::pair< int, int > fmt_bpp = OgreFormat2ilFormat( pImgData->format );
+		ilTexImage( 
+			pImgData->width, pImgData->height, 1, fmt_bpp.second, fmt_bpp.first, IL_UNSIGNED_BYTE, 
+			static_cast< void * >( const_cast< uchar * >( ( input.getPtr() ) ) ) );
+        iluFlipImage();
+
+        // Implicitly pick DevIL codec
+		ilSaveImage(const_cast< char * >( outFileName.c_str() ) );
+
+        ilDeleteImages(1, &ImageName);
+        
+        OgreUnguard();
+    }
 }
-
-#endif

@@ -45,17 +45,6 @@ namespace Ogre {
         OgreUnguard();
     }
     //---------------------------------------------------------------------
-    void JPEGCodec::codeToFile( const DataChunk& input, 
-        const String& outFileName, Codec::CodecData* pData) const
-    {
-        OgreGuard( "JPEGCodec::codeToFile" );
-
-        Except(Exception::UNIMPLEMENTED_FEATURE, "code to file not implemented",
-            "JPEGCodec::code");
-
-        OgreUnguard();
-    }
-    //---------------------------------------------------------------------
     Codec::CodecData * JPEGCodec::decode( const DataChunk& input, DataChunk* output, ... ) const
     {
 		OgreGuard( "JPEGCodec::decode" );
