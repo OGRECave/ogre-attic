@@ -1207,7 +1207,7 @@ namespace Ogre {
         // Just render each entity in turn, grouped by material
         RenderQueue::RenderQueueMap::iterator imat, imatend;
         imatend = mRenderQueue.mQueue.end();
-        Matrix4 xform;
+        static Matrix4 xform[256];
         RenderOperation ro;
 
         for (imat = mRenderQueue.mQueue.begin(); imat != imatend; ++imat)
@@ -1231,8 +1231,16 @@ namespace Ogre {
                 for (irend = imat->second.begin(); irend != irendend; ++irend)
                 {
                     // Set world transformation
-                    (*irend)->getWorldTransforms(&xform);
-                    mDestRenderSystem->_setWorldMatrix(xform);
+                    (*irend)->getWorldTransforms(xform);
+                    unsigned short numMatrices = (*irend)->getNumWorldTransforms();
+                    if (numMatrices > 1)
+                    {
+                        mDestRenderSystem->_setWorldMatrices(xform, numMatrices);
+                    }
+                    else
+                    {
+                        mDestRenderSystem->_setWorldMatrix(*xform);
+                    }
 
                     // Set up rendering operation
                     (*irend)->getRenderOperation(ro);

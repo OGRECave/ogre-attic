@@ -38,7 +38,7 @@ namespace Ogre {
         mParent = 0;
         mOrientation = mDerivedOrientation = Quaternion::IDENTITY;
         mPosition = mDerivedPosition = Vector3::ZERO;
-        mScale = Vector3(1.0, 1.0, 1.0);
+        mScale = Vector3::UNIT_SCALE;
         mInheritScale = true;
         mDerivedOutOfDate = true;
 
@@ -62,21 +62,9 @@ namespace Ogre {
     Matrix4 Node::_getFullTransform(void)
     {
         // Use derived values 
-        // Note that translation is always after rotation.
-        // Parent scaling is already applied to derived position
-        // Own scale is applied after rotation
-        Matrix3 rot_scale;
-        _getDerivedOrientation().ToRotationMatrix(rot_scale);
-        // Apply scale
-        Vector3 scale = _getDerivedScale();
-        rot_scale[0][0] *= scale.x;
-        rot_scale[1][1] *= scale.y;
-        rot_scale[2][2] *= scale.z;
-
-        Matrix4 result = Matrix4::IDENTITY;
-        result = rot_scale;
-        result.setTrans(_getDerivedPosition());
-
+        Matrix4 result;
+        makeTransform(_getDerivedPosition(), _getDerivedScale(), 
+            _getDerivedOrientation(), result);
         return result;
     }
     //-----------------------------------------------------------------------
@@ -403,6 +391,23 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
+    void Node::makeTransform(const Vector3& position, const Vector3& scale, const Quaternion& orientation, 
+        Matrix4& destMatrix)
+    {
+        destMatrix = Matrix4::IDENTITY;
+        // Note that translation is always after rotation.
+        // Parent scaling is already applied to derived position
+        // Own scale is applied after rotation
+        Matrix3 rot_scale;
+        orientation.ToRotationMatrix(rot_scale);
+        // Apply scale
+        rot_scale[0][0] *= scale.x;
+        rot_scale[1][1] *= scale.y;
+        rot_scale[2][2] *= scale.z;
+
+        destMatrix = rot_scale;
+        destMatrix.setTrans(position);
+    }
 
 
 

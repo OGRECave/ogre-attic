@@ -32,6 +32,8 @@ http://www.gnu.org/copyleft/gpl.html.
 
 namespace Ogre {
 
+#define OGRE_MAX_NUM_BONES 256
+
     /** A collection of Bone objects used to animate a skinned mesh.
     @remarks
         Skeletal animation works by having a collection of 'bones' which are 
@@ -104,6 +106,9 @@ namespace Ogre {
         */
         Bone* createBone(unsigned short handle);
 
+        /** Returns the number of bones in this skeleton. */
+        unsigned short getNumBones(void);
+
         /** Gets the root bone of the skeleton. */
         Bone* getRootBone(void);
 
@@ -145,13 +150,23 @@ namespace Ogre {
         */
         void setAnimationState(const AnimationStateSet& animSet);
 
-        /** Gets the last animation state of this skeleton, also useful for initialising
-            Entities which also keep an animation state. */
+        /** Gets the last animation state of this skeleton. */
         const AnimationStateSet& getAnimationState(void);
         
 
+        /** Initialise an animation set suitable for use with this mesh. 
+        @remarks
+            Only recommended for use inside the engine, not by applications.
+        */
+        void _initAnimationState(AnimationStateSet* animSet);
 
-
+        /** Populates the passed in array with the bone matrices based on the current position.
+        @remarks
+            Internal use only. The array pointed to by the passed in pointer must
+            be at least as large as the number of bones.
+            Assumes animation has already been updated.
+        */
+        void _getBoneMatrices(Matrix4* pMatrices);
 
     protected:
         /// Storage of bones, lookup by bone handle

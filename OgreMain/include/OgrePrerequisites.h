@@ -88,6 +88,7 @@ namespace Ogre {
 // so decreases dependencies between files
     class Animation;
     class AnimationTrack;
+    class AnimationState;
     class ArchiveEx;
     class ArchiveManager;
     class ArchiveFactory;

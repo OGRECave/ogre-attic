@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreGeometryData.h"
 #include "OgreAxisAlignedBox.h"
 #include "OgreVertexBoneAssignment.h"
+#include "OgreAnimationState.h"
 
 namespace Ogre {
 
@@ -182,6 +183,12 @@ namespace Ogre {
         /** Gets a pointer to any linked Skeleton. */
         Skeleton* getSkeleton(void);
 
+        /** Initialise an animation set suitable for use with this mesh. 
+        @remarks
+            Only recommended for use inside the engine, not by applications.
+        */
+        void _initAnimationState(AnimationStateSet* animSet);
+
         /** Assigns a vertex to a bone with a given weight, for skeletal animation. 
         @remarks    
             This method is only valid after calling setSkeletonName.
@@ -195,6 +202,20 @@ namespace Ogre {
 
         /** Removes all bone assignments for this mesh. */
         void clearBoneAssignments(void);
+
+        /** Returns the number of bone matrices this mesh uses.
+        @remarks
+            Only applicable if hasSkeleton() is true, for internal use only.
+        */
+        unsigned short _getNumBoneMatrices(void);
+
+        /** Applies the animation set passed in, and populates the passed in array of bone matrices. 
+        @remarks
+            Internal use only.
+            The array pointed to by the passed in Matrix4 pointer must have enough 'slots' for the number
+            of bone matrices required (see _getNumBoneMatrices).
+        */
+        void _getBoneMatrices(const AnimationStateSet& animSet, Matrix4* pMatrices);
 
     private:
         typedef std::vector<SubMesh*> SubMeshList;

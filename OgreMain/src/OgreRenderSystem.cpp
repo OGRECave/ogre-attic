@@ -397,14 +397,53 @@ namespace Ogre {
         case RenderOperation::OT_TRIANGLE_FAN:
             mFaceCount += val - 2;
             break;
-	case RenderOperation::OT_POINT_LIST:
-	case RenderOperation::OT_LINE_LIST:
-	case RenderOperation::OT_LINE_STRIP:
-	  break;
-	}
+	    case RenderOperation::OT_POINT_LIST:
+	    case RenderOperation::OT_LINE_LIST:
+	    case RenderOperation::OT_LINE_STRIP:
+	        break;
+	    }
 
         mVertexCount += op.numVertices;
-    }
 
+        // Vertex blending: do software if required
+        if ((op.vertexOptions & RenderOperation::VO_BLEND_WEIGHTS) && 
+            !this->_isVertexBlendSupported())
+        {
+            // Software blending required
+            softwareVertexBlend(op, mWorldMatrices);
+        }
+    }
+    //-----------------------------------------------------------------------
+    bool RenderSystem::_isVertexBlendSupported(void)
+    {
+        // TODO: implement vertex blending support in DX8 & possibly GL_ARB_VERTEX_BLEND (in subclasses)
+        // DX7 support not good enough - only 4 matrices supported
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    unsigned short RenderSystem::_getNumVertexBlendMatrices(void)
+    {
+        // TODO: implement vertex blending support in DX8 & possibly GL_ARB_VERTEX_BLEND (in subclasses)
+        return 1;
+    }
+    //-----------------------------------------------------------------------
+    void RenderSystem::softwareVertexBlend(RenderOperation& op, Matrix4* pMatrices)
+    {
+
+    }
+    //-----------------------------------------------------------------------
+    void RenderSystem::_setWorldMatrices(const Matrix4* m, unsigned short count)
+    {
+        if (!_isVertexBlendSupported())
+        {
+            // Save these matrices for software blending later
+            int i;
+            for (i = 0; i < count; ++i)
+            {
+                mWorldMatrices[i] = m[i];
+            }
+        }
+        // TODO: implement vertex blending support in DX8 & possibly GL_ARB_VERTEX_BLEND (in subclasses)
+    }
 
 }

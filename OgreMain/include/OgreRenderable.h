@@ -37,7 +37,8 @@ namespace Ogre {
         @remarks
             This interface abstracts renderable discrete objects which will be queued in the render pipeline,
             grouped by material. Classes implementing this interface must be based on a single material, a single
-            world matrix, and must be renderable via a single render operation.
+            world matrix (or a collection of world matrices which are blended by weights), and must be 
+            renderable via a single render operation.
         @par
             Note that deciding whether to put these objects in the rendering pipeline is done from the more specific
             classes e.g. entities. Only once it is decided that the specific class is to be rendered is the abstract version

@@ -72,7 +72,21 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void SubEntity::getWorldTransforms(Matrix4* xform)
     {
-        *xform = mParentEntity->getParentNode()->_getFullTransform();
+        if (!mParentEntity->mNumBoneMatrices)
+        {
+            // No bones, just a single world matrix
+            *xform = mParentEntity->getParentNode()->_getFullTransform();
+        }
+        else
+        {
+            // Bones, use cached matrices built when Entity::_updateRenderQueue was called
+            int i;
+            for (i = 0; i < mParentEntity->mNumBoneMatrices; ++i)
+            {
+                *xform = mParentEntity->mBoneMatrices[i];
+                ++xform;
+            }
+        }
     }
 
 }
