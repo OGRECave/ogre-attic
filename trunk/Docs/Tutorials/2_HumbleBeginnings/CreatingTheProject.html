@@ -1,0 +1,190 @@
+<html>
+	<style type="text/css">
+	<!--
+	.MainHeader {  font-weight: bold; color: #FFFFFF; background-color: #003300; font-size: 10pt}
+	body {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #003300; background-color: #FFFFFF}
+	.BorderHeader {  background-color: #999900; font-size: 8pt; font-weight: bold; color: #333300; text-align: center}
+	.MainContent { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #003300}
+	.BorderContent {  font-size: 8pt; color: #000000; border-color: black #666600 #666600; padding-top: 2px; padding-right: 2px; padding-bottom: 10px; padding-left: 2px; margin-bottom: 2px; border-style: solid; border-top-width: 0px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px}
+	a:link {  color: #000066; text-decoration: underline}
+	a:hover {  color: #0000FF; text-decoration: underline}
+	a:visited {  color: #660066; text-decoration: underline}
+	li {  color: #000000; list-style-type: circle; position: relative; left: -15px; clip:    rect(   )}
+	.NewsDate {  color: #000000; font-weight: bold}
+	td {  font-size: 10pt}
+	th {  font-size: 10pt}
+	.Annotation {  font-size: 10px}
+	.header {  font-size: 16pt; color: #000000}
+	.SectionHeader {  font-size: 14px; color: #000000; font-weight: bold}
+	pre {  color: #000066; font-size: 12px}
+
+	-->
+	</style> 
+	<head>
+		<title> Creating OGRE Project Files </title>
+		<meta name="generator"      content="Deppo's HTML Editor v2.1 BETA 2">
+		<meta name="keywords"       content="">
+		<meta name="description"    content="">
+		<meta name="author"         content="Nicholas">
+		<meta http-equiv="reply-to" content="vastrim@hotmail.com">
+		<meta name="creation_date"  content="Sat, 13 Jul, 2002 12:32:59 p GMT">
+	</head>
+<body bgcolor="#FFFFFF" text="#000000">
+<p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p>
+<p align="center" class="header"> Creating project files for OGRE </p>
+
+<p align="left" class="MainHeader">&nbsp;</p>
+<p align="left" class="SectionHeader">
+	Files</p>
+<p align="left">
+In these tutorials I will assume that the projects being created are located in their own folder in  
+OgreNew\Samples. I will use APPNAME as a place holder for where you type in the name of the application. 
+So in the example of where the project files should be stored it would be OgreNew\Samples\APPNAME.
+</p>
+
+<p align="left">
+NB: In a moments time we will embark on creating a small application called "Space", based on some of the 
+examples supplied with Ogre. I suggest that if you plan on doing that tutorial that you use Space as the 
+APPNAME.
+</p>
+
+<p align="left" class="SectionHeader">
+	Visual C++ 7</p>
+
+<p align="left">
+
+The first thing you need to do is create a blank Win32 Project. 
+Make sure that you create a C++ project and that you have ticked the "Empty Project" tick box.<br>
+
+Now right click on the project in the solution explorer and change the following properties:<br>
+
+<pre>
+<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="1">
+	<TR>
+		<TD>Debug - Working Directory</TD>
+		<TD>=</TD>
+		<TD>..\Common\Bin\Debug</TD>
+	</TR>
+	<TR>
+		<TD>C/C++ - Preprocessor Defines</TD>
+		<TD>=</TD>
+		<TD>_WINDOWS,_STLP_USE_DYNAMIC_LIB,OGRE_LIBRARY_IMPORTS,_DEBUG,WIN32</TD>
+	</TR>
+	<TR>
+		<TD>C/C++ - Additional Include Directories</TD>
+		<TD>=</TD>
+		<TD>..\Common\Include</TD>
+	</TR>
+
+	<TR>
+		<TD>Linker - Output File</TD>
+		<TD>=</TD>
+		<TD>..\Common\Bin\Debug\APPNAME.EXE</TD>
+	</TR>
+	<TR>
+		<TD>Linker - Additional Library Directories</TD>
+		<TD>=</TD>
+		<TD>..\..\OgreMain\Lib\Debug</TD>
+	</TR>
+	<TR>
+		<TD>Linker - Additional Dependencies</TD>
+		<TD>=</TD>
+		<TD>OGREMain.LIB</TD>
+	</TR>
+</TABLE>
+</pre>
+
+
+<p align="left">
+
+Copy Samples\Skyplane\Src\SkyPlane.CPP and Samples\Skyplane\Include\SkyPlane.H into the directory with your project.
+Right click on the project in the solution explorer and select "Add Existing Item". Highlight the two files you just 
+copied and then rebuild your solution. Now run it in debug mode. Everything should work. </p>
+
+<p align="left">
+
+Now remove those two files from your project and delete them from your projects directory. </p>
+
+<p align="left">
+
+The last step that we need to take in setting up the project is to create the main program loop. This is simpler than
+it sounds because if we are following the Ogre Example Framework then all it means we do is create an instance of 
+our Application object and call it's go() method. In Visual C++ it will look like this:
+
+<pre>
+/* APPNAME.CPP */
+
+#include "Ogre.h"
+#include "APPNAMEApplication.h"
+
+#define WIN32_LEAN_AND_MEAN
+#include "windows.h"
+
+INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
+{
+    // Create application object
+    APPNAMEApplication app;
+
+    try {
+        app.go();
+    } catch( Ogre::Exception& e ) {
+        MessageBox( NULL, e.getFullDescription().c_str(), "An exception has occured!", MB_OK | MB_ICONERROR | MB_TASKMODAL );
+    }
+
+    return 0;
+}
+
+</pre>
+
+
+<p align="left">
+This doesn't compile does it? No, because we have not written APPNAMEApplication.h yet. That will be discussed in the next section.
+
+</p>
+
+
+
+<p align="left" class="SectionHeader">
+	Visual C++ 6</p>
+
+<p align="left">
+	Under construction.		
+</p>
+
+
+
+
+<p align="left" class="SectionHeader">
+	Linux</p>
+
+<p align="left">
+	Under construction.		
+</p>
+
+
+
+
+<p align="left" class="SectionHeader">
+	Borland</p>
+
+<p align="left">
+	Under construction.		
+</p>
+
+
+<TABLE WIDTH="100%" BORDER="0" CELLSPACING="2" CELLPADDING="0">
+	<TR>
+		<TD WIDTH="14%"><A HREF="Index.html">Back to Index</A></TD>
+		<TD WIDTH="39%">&nbsp;</TD>
+		<TD WIDTH="22%">&lt;&lt; Previous section</TD>
+		<TD WIDTH="25%"><a href="SettingUpTheScene.html">Next section &gt;&gt;</a></TD>
+	</TR>
+</TABLE>
+
+<P>&nbsp;</P>
+<P>&nbsp;</P>
+<P>&nbsp;</P>
+
+<P CLASS="SectionHeader">&nbsp;</P>
+	</body>
+</html>

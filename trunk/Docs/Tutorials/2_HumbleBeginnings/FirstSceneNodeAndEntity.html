@@ -1,0 +1,136 @@
+<html>
+	<style type="text/css">
+	<!--
+	.MainHeader {  font-weight: bold; color: #FFFFFF; background-color: #003300; font-size: 10pt}
+	body {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #003300; background-color: #FFFFFF}
+	.BorderHeader {  background-color: #999900; font-size: 8pt; font-weight: bold; color: #333300; text-align: center}
+	.MainContent { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #003300}
+	.BorderContent {  font-size: 8pt; color: #000000; border-color: black #666600 #666600; padding-top: 2px; padding-right: 2px; padding-bottom: 10px; padding-left: 2px; margin-bottom: 2px; border-style: solid; border-top-width: 0px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px}
+	a:link {  color: #000066; text-decoration: underline}
+	a:hover {  color: #0000FF; text-decoration: underline}
+	a:visited {  color: #660066; text-decoration: underline}
+	li {  color: #000000; list-style-type: circle; position: relative; left: -15px; clip:    rect(   )}
+	.NewsDate {  color: #000000; font-weight: bold}
+	td {  font-size: 10pt}
+	th {  font-size: 10pt}
+	.Annotation {  font-size: 10px}
+	.header {  font-size: 16pt; color: #000000}
+	.SectionHeader {  font-size: 14px; color: #000000; font-weight: bold}
+	pre {  color: #000066; font-size: 12px}
+
+	-->
+	</style> 
+	<head>
+		<title> Creating OGRE Project Files </title>
+		<meta name="generator"      content="Deppo's HTML Editor v2.1 BETA 2">
+		<meta name="keywords"       content="">
+		<meta name="description"    content="">
+		<meta name="author"         content="Nicholas">
+		<meta http-equiv="reply-to" content="vastrim@hotmail.com">
+		<meta name="creation_date"  content="Sat, 13 Jul, 2002 12:32:59 p GMT">
+	</head>
+<body bgcolor="#FFFFFF" text="#000000">
+<p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p>
+<p align="center" class="header"> Our First Scene Node and Entity </p>
+
+<p align="left" class="MainHeader">&nbsp;</p>
+
+
+<p align="left" class="SectionHeader">
+	A ship in space</p>
+<p align="left">
+What use is outer space if there are no space ships in it? Its time to make something that we can fly around in.
+We are going to do this by creating instances of two object types. Entities and Scene Nodes. 
+</p>
+
+
+
+<p align="left" class="SectionHeader">
+	Member variables</p>
+<p align="left">
+Create some member variables to store pointers to the Scene Node and Entity for use later.
+<pre>
+	Entity* mShip;
+	SceneNode* mShipNode;
+</pre>
+</p>
+
+<p align="left" class="SectionHeader">
+	Entities</p>
+<p align="left">
+An Entity in Ogre is a moveable object based on a mesh. These meshes are loaded through the Resource Manager and 
+its position is determined by a Scene Node that it is attached to. To create our ship, add a line into the 
+createScene method in SpaceApplication.h (after setting the sky box)
+
+<pre>
+	mShip = mSceneMgr->createEntity("razor", "razor.mesh");
+</pre>
+</p>
+
+<p align="left">
+Just like the skybox, we supply a resource name to the Scene Manager and it will locate it. In this case it is the
+name of a mesh file (razor.mesh) which is found in the Media directory. Another important thing to note about we just 
+did, we gave the entity a name. This name (razor) has to be unique within the application or the Scene Manager will
+give you an error.  
+</p>
+
+<p align="left" class="SectionHeader">
+	The Scene Node</p>
+<p align="left">
+As mentioned above, Entities attach to Scene Nodes which dictate their position in the scene. Scene Nodes can be attached 
+to other tree nodes to create a type of positional hierachy, but for the purposes of this tutorial just one will do.
+</p>
+
+<p align="left">
+To create this Scene Node we ask the root node of the scene to create it for us. The root node is maintained by Ogre
+and every entity that is part of the scene is directly or indirectly attached to it. When we ask the root node to 
+create the node for us we are saying that the root node is the node's parent. After creating it we set its position
+orientation relative to the scene node (effectively the absolute position in the scene as far as this tutorial goes, 
+but not necessarily true in other circumstances).
+
+<pre>
+	mShipNode = mSceneMgr->getRootSceneNode()->createChild();
+</pre>
+</p>
+
+
+</p align="left">
+Almost there... attach the ship Entity to the Scene Node.
+<pre>
+	mShipNode->attachObject(mShip);
+</pre>
+</p>
+
+
+<p align="left" class="SectionHeader">
+	Lighting</p>
+<p align="left">
+Lastly, we have to turn on some lights or you won't be able to see anything. Lets just use some ambient 
+lighting supplied by the Scene Manager for now. Place this line at the start of createScene.
+<pre>
+	mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+</pre>
+</p>
+
+<p align="left">
+Compile and run. Have a walk around the ship. 
+</p>
+
+<TABLE WIDTH="100%" BORDER="0" CELLSPACING="2" CELLPADDING="0">
+	<TR>
+		<TD WIDTH="14%"><A HREF="Index.html">Back to Index</A></TD>
+		<TD WIDTH="39%">&nbsp;</TD>
+		<TD WIDTH="22%"><A HREF="SettingUpTheScene.html">&lt;&lt; Previous section</A></TD>
+		<TD WIDTH="25%"><A HREF="FrameListener.html">Next section &gt;&gt;</A></TD>
+	</TR>
+</TABLE>
+
+<P>&nbsp;</P>
+<P>&nbsp;</P>
+<P>&nbsp;</P>
+
+<P CLASS="SectionHeader">&nbsp;</P>
+
+
+	</body>
+</html>
