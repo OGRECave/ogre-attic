@@ -169,6 +169,13 @@ namespace Ogre {
                 includeChildren If true, the call is cascaded down to all child nodes automatically.
         */
         void _findVisibleObjects(Camera* cam, RenderQueue* queue, bool includeChildren = true);
+
+        /** Gets the axis-aligned bounding box of this node (and hence all subnodes).
+        @remarks
+            Recommended only if you are extending a SceneManager, because the bounding box returned
+            from this method is only up to date after the SceneManager has called _update.
+        */
+        AxisAlignedBox _getWorldAABB(void) const;
     };
 
 

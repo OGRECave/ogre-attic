@@ -315,6 +315,11 @@ namespace Ogre {
         // the previous version of the SceneNode interface (before I abstracted to Node)
         return static_cast<SceneNode*>(Node::removeChild(index));
     }
+    //-----------------------------------------------------------------------
+    AxisAlignedBox SceneNode::_getWorldAABB(void) const
+    {
+        return mWorldAABB;
+    }
 
 
 }
