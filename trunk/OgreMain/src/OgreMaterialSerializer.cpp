@@ -1952,20 +1952,22 @@ namespace Ogre
                 if (mDefaults ||
                     pPass->getAmbient().r != 1 ||
                     pPass->getAmbient().g != 1 ||
-                    pPass->getAmbient().b != 1)
+                    pPass->getAmbient().b != 1 ||
+                    pPass->getAmbient().a != 1)
                 {
                     writeAttribute(3, "ambient");
-                    writeColourValue(pPass->getAmbient());
+                    writeColourValue(pPass->getAmbient(), true);
                 }
 
                 // Diffuse
                 if (mDefaults ||
                     pPass->getDiffuse().r != 1 ||
                     pPass->getDiffuse().g != 1 ||
-                    pPass->getDiffuse().b != 1)
+                    pPass->getDiffuse().b != 1 ||
+                    pPass->getDiffuse().a != 1)
                 {
                     writeAttribute(3, "diffuse");
-                    writeColourValue(pPass->getDiffuse());
+                    writeColourValue(pPass->getDiffuse(), true);
                 }
 
                 // Specular
@@ -1973,20 +1975,23 @@ namespace Ogre
                     pPass->getSpecular().r != 0 ||
                     pPass->getSpecular().g != 0 ||
                     pPass->getSpecular().b != 0 ||
-                    pPass->getSpecular().a != 1)
+                    pPass->getSpecular().a != 1 ||
+                    pPass->getShininess() != 0)
                 {
                     writeAttribute(3, "specular");
                     writeColourValue(pPass->getSpecular(), true);
+                    writeValue(StringConverter::toString(pPass->getShininess()));
                 }
 
                 // Emissive
                 if (mDefaults ||
                     pPass->getSelfIllumination().r != 0 ||
                     pPass->getSelfIllumination().g != 0 ||
-                    pPass->getSelfIllumination().b != 0)
+                    pPass->getSelfIllumination().b != 0 ||
+                    pPass->getSelfIllumination().a != 1)
                 {
                     writeAttribute(3, "emissive");
-                    writeColourValue(pPass->getSelfIllumination());
+                    writeColourValue(pPass->getSelfIllumination(), true);
                 }
             }
 
