@@ -662,7 +662,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void BillboardSet:: genBillboardAxes(const Camera& cam, Vector3* pX, Vector3 *pY, const Billboard* pBill)
+    void BillboardSet:: genBillboardAxes(Camera& cam, Vector3* pX, Vector3 *pY, const Billboard* pBill)
     {
         // Default behaviour is that billboards are in local node space
         // so orientation of camera (in world space) must be reverse-transformed 
@@ -675,7 +675,7 @@ namespace Ogre {
         {
         case BBT_POINT:
             // Get camera world axes for X and Y (depth is irrelevant)
-            camQ = cam.getOrientation();
+            camQ = cam.getDerivedOrientation();
             // Convert into billboard local space
             camQ = invTransform * camQ;
             *pX = camQ * Vector3::UNIT_X;
@@ -687,7 +687,7 @@ namespace Ogre {
             *pY = mCommonDirection;
             // Convert into billboard local space
             camQ = invTransform * camQ;
-            *pX = camQ * cam.getDirection().crossProduct(*pY);
+            *pX = camQ * cam.getDerivedDirection().crossProduct(*pY);
             
             break;
         case BBT_ORIENTED_SELF:
@@ -696,7 +696,7 @@ namespace Ogre {
             *pY = pBill->mDirection;
             // Convert into billboard local space
             camQ = invTransform * camQ;
-            *pX = camQ * cam.getDirection().crossProduct(*pY);
+            *pX = camQ * cam.getDerivedDirection().crossProduct(*pY);
 
             break;
         }

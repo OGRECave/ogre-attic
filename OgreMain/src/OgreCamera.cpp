@@ -228,7 +228,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Camera::lookAt(const Vector3& targetPoint)
     {
-        this->setDirection(targetPoint - mPosition);
+
+        updateView();
+        this->setDirection(targetPoint - mDerivedPosition);
 
     }
 
@@ -664,7 +666,7 @@ namespace Ogre {
 
             // Make the translation relative to new axes
             Matrix3 rotT = rot.Transpose();
-            Vector3 trans = -rotT * mPosition;
+            Vector3 trans = -rotT * mDerivedPosition;
 
             // Make final matrix
             // Matrix is pre-zeroised in constructor
@@ -680,31 +682,31 @@ namespace Ogre {
             updateFrustum();
             // Use camera view direction for frustum, which is -Z not Z as for matrix calc
             Vector3 camDirection = mDerivedOrientation* -Vector3::UNIT_Z;
-            Real fDdE = camDirection.dotProduct(mPosition);
+            Real fDdE = camDirection.dotProduct(mDerivedPosition);
 
             // left plane
             mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal = mCoeffL[0]*left +
                     mCoeffL[1]*camDirection;
             mFrustumPlanes[FRUSTUM_PLANE_LEFT].d =
-                    mPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal);
+                    mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal);
 
             // right plane
             mFrustumPlanes[FRUSTUM_PLANE_RIGHT].normal = mCoeffR[0]*left +
                     mCoeffR[1]*camDirection;
             mFrustumPlanes[FRUSTUM_PLANE_RIGHT].d =
-                    mPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_RIGHT].normal);
+                    mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_RIGHT].normal);
 
             // bottom plane
             mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].normal = mCoeffB[0]*up +
                     mCoeffB[1]*camDirection;
             mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].d =
-                    mPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].normal);
+                    mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].normal);
 
             // top plane
             mFrustumPlanes[FRUSTUM_PLANE_TOP].normal = mCoeffT[0]*up +
                     mCoeffT[1]*camDirection;
             mFrustumPlanes[FRUSTUM_PLANE_TOP].d =
-                    mPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_TOP].normal);
+                    mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_TOP].normal);
 
             // far plane
             mFrustumPlanes[FRUSTUM_PLANE_FAR].normal = -camDirection;
@@ -793,5 +795,23 @@ namespace Ogre {
         mOrientation = q;
         mRecalcView = true;
     }
-
+    //-----------------------------------------------------------------------
+    Quaternion Camera::getDerivedOrientation(void) 
+    {
+        updateView();
+        return mDerivedOrientation;
+    }
+    //-----------------------------------------------------------------------
+    Vector3 Camera::getDerivedPosition(void) 
+    {
+        updateView();
+        return mDerivedPosition;
+    }
+    //-----------------------------------------------------------------------
+    Vector3 Camera::getDerivedDirection(void) 
+    {
+        // Direction points down -Z by default
+        updateView();
+        return mDerivedOrientation * -Vector3::UNIT_Z;
+    }
 } // namespace Ogre

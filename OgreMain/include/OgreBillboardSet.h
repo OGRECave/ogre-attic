@@ -185,7 +185,7 @@ namespace Ogre {
         @remarks
             Optional parameter pBill is only present for type BBT_ORIENTED_SELF
         */
-        virtual void genBillboardAxes(const Camera& cam, Vector3* pX, Vector3 *pY, const Billboard* pBill = 0);
+        virtual void genBillboardAxes(Camera& cam, Vector3* pX, Vector3 *pY, const Billboard* pBill = 0);
 
         /** Internal method, generates parametric offsets based on origin.
         */

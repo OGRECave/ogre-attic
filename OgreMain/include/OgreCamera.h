@@ -463,6 +463,16 @@ namespace Ogre {
         /** Internal method to retrieve the number of visible faces in the last render.
         */
         unsigned int _getNumRenderedFaces(void) const;
+
+        /** Gets the derived orientation of the camera, including any 
+            rotation inherited from a node attachment. */
+        Quaternion getDerivedOrientation(void);
+        /** Gets the derived position of the camera, including any 
+            translation inherited from a node attachment. */
+        Vector3 getDerivedPosition(void);
+        /** Gets the derived direction vector of the camera, including any 
+            translation inherited from a node attachment. */
+        Vector3 getDerivedDirection(void);
     };
 
 } // namespace Ogre

@@ -312,7 +312,7 @@ namespace Ogre {
             @see
                 BillboardSet
         */
-        void genBillboardAxes(const Camera& cam, Vector3* pX, Vector3 *pY, const Billboard* pBill = 0);
+        void genBillboardAxes(Camera& cam, Vector3* pX, Vector3 *pY, const Billboard* pBill = 0);
 
         /** Internal method for initialising string interface. */
         void initParameters(void);
