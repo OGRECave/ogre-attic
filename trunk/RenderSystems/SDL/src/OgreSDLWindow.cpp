@@ -65,7 +65,7 @@ namespace Ogre {
     {
         fprintf(stderr, "SDLWindow::create\n");
         SDL_Surface* screen;
-        int flags = SDL_OPENGL | SDL_GL_DOUBLEBUFFER | SDL_HWPALETTE;
+        int flags = SDL_OPENGL | SDL_HWPALETTE;
 
         SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 
