@@ -113,6 +113,7 @@ namespace Ogre {
 		const ColourValue& getAmbientLightColour(void) const;
         const Matrix4& getTextureViewProjMatrix(void) const;
         const RenderTarget* getCurrentRenderTarget(void) const;
+        const Renderable* getCurrentRenderable(void) const;
 		Real getShadowExtrusionDistance(void) const;
 
     };

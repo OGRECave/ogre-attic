@@ -278,6 +278,9 @@ namespace Ogre
             case ACT_TEXTURE_VIEWPROJ_MATRIX:
                 setConstant(i->index, source.getTextureViewProjMatrix());
                 break;
+            case ACT_CUSTOM:
+                source.getCurrentRenderable()->updateCustomGpuParameter(*i, this);
+                break;
             default:
                 break;
             }
