@@ -140,8 +140,11 @@ namespace Ogre {
         @param indexData The index information which describes the triangles.
         @param vertexSet The vertex data set this index data refers to; you only need to alter this
             if you have added multiple sets of vertices
+        @param opType The operation type used to render these indexes. Only triangle types
+            are supported (no point or line types)
         */
-        void addIndexData(const IndexData* indexData, size_t vertexSet = 0);
+        void addIndexData(const IndexData* indexData, size_t vertexSet = 0, 
+            RenderOperation::OperationType opType = RenderOperation::OT_TRIANGLE_LIST);
 
         /** Builds the edge information based on the information built up so far.
         @remarks
@@ -167,8 +170,10 @@ namespace Ogre {
         typedef std::vector<const VertexData*> VertexDataList;
         typedef std::vector<const IndexData*> IndexDataList;
         typedef std::vector<CommonVertex> CommonVertexList;
+        typedef std::vector<RenderOperation::OperationType> OperationTypeList;
 
         IndexDataList mIndexDataList;
+        OperationTypeList mOperationTypeList;
         std::vector<size_t> mIndexDataVertexDataSetList;
         VertexDataList mVertexDataList;
         CommonVertexList mVertices;
