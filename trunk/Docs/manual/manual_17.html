@@ -1,0 +1,346 @@
+<HTML>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Created on , 15 2003 by texi2html 1.64 -->
+<!-- 
+Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
+            Karl Berry  <karl@freefriends.org>
+            Olaf Bachmann <obachman@mathematik.uni-kl.de>
+            and many others.
+Maintained by: Olaf Bachmann <obachman@mathematik.uni-kl.de>
+Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
+ 
+-->
+<HEAD>
+<TITLE>OGRE Manual: Material Attributes</TITLE>
+
+<META NAME="description" CONTENT="OGRE Manual: Material Attributes">
+<META NAME="keywords" CONTENT="OGRE Manual: Material Attributes">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+<META NAME="Generator" CONTENT="texi2html 1.64">
+<LINK TYPE="text/css" rel="stylesheet" href="../style.css"> 
+</HEAD>
+
+<BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+
+<A NAME="SEC30"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC25"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC25"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_18.html#SEC46"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<HR SIZE=1>
+<H3> 3.1.1 Material Attributes </H3>
+<!--docid::SEC30::-->
+
+These attributes are valid within the outer braces of a material in a script. They must each be on their own line. Ordering is unimportant.
+
+<A NAME="ambient"></A>
+<A NAME="SEC31"></A>
+<H3> ambient </H3>
+<!--docid::SEC31::-->
+
+Sets the ambient colour reflectance properties of this material.<BR><BR>
+
+Format: ambient &#60;red&#62; &#60;green&#62; &#60;blue&#62;<BR>
+NB valid colour values are between 0.0 and 1.0.<BR><BR>
+
+Example: ambient 0.0 0.8 0.0<BR><BR>
+
+The base colour of a material is determined by how much red, green and blue light is reflects. This property determines how much ambient light (directionless global light) is reflected. The default is full white, meaning objects are completely globally illuminated. Reduce this if you want to see diffuse or specular light effects, or change the blend of colours to make the object have a base colour other than white. This setting has no effect if dynamic lighting is disabled using the 'lighting off' attribute, or if any texture layer has a 'colour_op replace' attribute.<BR><BR>
+
+Default: ambient 1.0 1.0 1.0<BR><BR>
+
+<A NAME="diffuse"></A>
+<A NAME="SEC32"></A>
+<H3> diffuse </H3>
+<!--docid::SEC32::-->
+
+Sets the diffuse colour reflectance properties of this material.<BR><BR>
+
+Format: diffuse &#60;red&#62; &#60;green&#62; &#60;blue&#62;<BR>
+NB valid colour values are between 0.0 and 1.0.<BR><BR>
+
+Example: diffuse 1.0 0.5 0.5<BR><BR>
+
+The base colour of a material is determined by how much red, green and blue light is reflects. This property determines how much diffuse light (light from instances of the Light class in the scene) is reflected. The default is full white, meaning objects reflect the maximum white light they can from Light objects. This setting has no effect if dynamic lighting is disabled using the 'lighting off' attribute, or if any texture layer has a 'colour_op replace' attribute.<BR><BR>
+
+Default: diffuse 1.0 1.0 1.0<BR><BR>
+
+<A NAME="specular"></A>
+<A NAME="SEC33"></A>
+<H3> specular </H3>
+<!--docid::SEC33::-->
+
+Sets the specular colour reflectance properties of this material.<BR><BR>
+
+Format: specular &#60;red&#62; &#60;green&#62; &#60;blue&#62; &#60;shininess&#62;<BR>
+NB valid colour values are between 0.0 and 1.0. Shininess can be any value greater than 0.<BR><BR>
+
+Example: specular 1.0 1.0 1.0 12.5<BR><BR>
+
+The base colour of a material is determined by how much red, green and blue light is reflects. This property determines how much specular light (highlights from instances of the Light class in the scene) is reflected. The default is to reflect no specular light. The colour of the specular highlights is determined by the colour parameters, and the size of the highlights by the separate shininess parameter. This setting has no effect if dynamic lighting is disabled using the 'lighting off' attribute, or if any texture layer has a 'colour_op replace' attribute.<BR><BR>
+
+Default: specular 0.0 0.0 0.0 0.0<BR><BR>
+
+<A NAME="emissive"></A>
+<A NAME="SEC34"></A>
+<H3> emissive </H3>
+<!--docid::SEC34::-->
+
+Sets the amount of self-illumination an object has.<BR><BR>
+
+Format: emissive &#60;red&#62; &#60;green&#62; &#60;blue&#62;<BR>
+NB valid colour values are between 0.0 and 1.0.<BR><BR>
+
+Example: emissive 1.0 0.0 0.0<BR><BR>
+
+If an object is self-illuminating, it does not need external sources to light it, ambient or otherwise. It's like the object has it's own personal ambient light. Unlike the name suggests, this object doesn't act as a light source for other objects in the scene (if you want it to, you have to create a light which is centered on the object). This setting has no effect if dynamic lighting is disabled using the 'lighting off' attribute, or if any texture layer has a 'colour_op replace' attribute.<BR><BR>
+
+Default: emissive 0.0 0.0 0.0<BR><BR>
+
+<A NAME="scene_blend"></A>
+<A NAME="SEC35"></A>
+<H3> scene_blend </H3>
+<!--docid::SEC35::-->
+
+Sets the kind of blending this material has with the existing contents of the scene. Wheras the texture blending operations seen in the TextureLayer class are concerned with blending between texture layers, this blending is about combining the output of the material as a whole with the existing contents of the rendering target. This blending therefore allows object transparency and other special effects. There are 2 formats, one using predefined blend types, the other allowing a roll-your-own approach using source and destination factors.<BR><BR>
+
+Format1: scene_blend &#60;add|modulate|alpha_blend&#62;<BR><BR>
+
+Example: scene_blend add<BR><BR>
+
+This is the simpler form, where the most commonly used blending modes are enumerated using a single parameter. Valid &#60;blend_type&#62; parameters are:
+<DL COMPACT>
+<DT>add
+<DD>The colour of the rendering output is added to the scene. Good for exposions, flares, lights, ghosts etc. Equivalent to 'scene_blend one one'.
+<DT>modulate
+<DD>The colour of the rendering output is multiplied with the scene contents. Generally colours and darkens the scene, good for smoked glass, semi-transparent objects etc. Equivalent to 'scene_blend src_colour one_minus_src_colour'
+<DT>alpha_blend
+<DD>The alpha value of the rendering output is used as a mask. Equivalent to 'scene_blend src_alpha one_minus_src_alpha'
+</DL>
+<BR>
+Format2: scene_blend &#60;src_factor&#62; &#60;dest_factor&#62;<BR><BR>
+
+Example: scene_blend one one_minus_dest_alpha<BR><BR>
+
+This version of the method allows complete control over the blending operation, by specifying the source and destination blending factors. The resulting colour which is written to the rendering target is (texture * sourceFactor) + (scene_pixel * destFactor). Valid values for both parameters are:
+<DL COMPACT>
+<DT>one
+<DD>Constant value of 1.0
+<DT>zero
+<DD>Constant value of 0.0
+<DT>dest_colour
+<DD>The existing pixel colour
+<DT>src_colour
+<DD>The texture pixel (texel) colour
+<DT>one_minus_dest_colour
+<DD>1 - (dest_colour)
+<DT>one_minus_src_colour
+<DD>1 - (src_colour)
+<DT>dest_alpha
+<DD>The existing pixel alpha value
+<DT>src_alpha
+<DD>The texel alpha value
+<DT>one_minus_dest_alpha
+<DD>1 - (dest_alpha)
+<DT>one_minus_src_alpha
+<DD>1 - (src_alpha)
+</DL>
+<BR>
+Default: scene_blend one zero (opaque)
+<BR>
+<A NAME="depth_check"></A>
+<A NAME="SEC36"></A>
+<H3> depth_check </H3>
+<!--docid::SEC36::-->
+
+Sets whether or not this material renders with depth-buffer checking on or not.<BR><BR>
+
+Format: depth_check &#60;on|off&#62;<BR><BR>
+
+If depth-buffer checking is on, whenever a pixel is about to be written to the frame buffer the depth buffer is checked to see if the pixel is in front of all other pixels written at that point. If not, the pixel is not written. If depth checking is off, pixels are written no matter what has been rendered before. Also see depth_func for more advanced depth check configuration.<BR><BR>
+
+Default: depth_check on<BR><BR>
+
+<A NAME="depth_write"></A>
+<A NAME="SEC37"></A>
+<H3> depth_write </H3>
+<!--docid::SEC37::-->
+
+Sets whether or not this material renders with depth-buffer writing on or not.<BR>
+
+Format: depth_write &#60;on|off&#62;<BR><BR>
+
+If depth-buffer writing is on, whenever a pixel is written to the frame buffer the depth buffer is updated with the depth value of that new pixel, thus affecting future rendering operations if future pixels are behind this one. If depth writing is off, pixels are written without updating the depth buffer. Depth writing should normally be on but can be turned off when rendering static backgrounds or when rendering a collection of transparent objects at the end of a scene so that they overlap each other correctly.<BR><BR>
+
+Default: depth_write on<BR>
+
+<A NAME="depth_func"></A>
+<A NAME="SEC38"></A>
+<H3> depth_func </H3>
+<!--docid::SEC38::-->
+
+Sets the function used to compare depth values when depth checking is on.<BR><BR>
+
+Format: depth_func &#60;func&#62;<BR><BR>
+
+If depth checking is enabled (see depth_check) a comparison occurs between the depth value of the pixel to be written and the current contents of the buffer. This comparison is normally less_equal, i.e. the pixel is written if it is closer (or at the same distance) than the current contents. The possible functions are:
+<DL COMPACT>
+<DT>always_fail
+<DD>Never writes a pixel to the render target
+<DT>always_pass
+<DD>Always writes a pixel to the render target
+<DT>less
+<DD>Write if (new_Z &#60; existing_Z)
+<DT>less_equal
+<DD>Write if (new_Z &#60;= existing_Z)
+<DT>equal
+<DD>Write if (new_Z == existing_Z)
+<DT>not_equal
+<DD>Write if (new_Z != existing_Z)
+<DT>greater_equal
+<DD>Write if (new_Z &#62;= existing_Z)
+<DT>greater
+<DD>Write if (new_Z &#62;existing_Z)
+</DL>
+<BR>
+Default: depth_func less_equal
+
+<A NAME="depth_bias"></A>
+<A NAME="SEC39"></A>
+<H3> depth_bias </H3>
+<!--docid::SEC39::-->
+
+Sets the bias applied to the depth value of this material. Can be used to make coplanar polygons appear on top of others e.g. for decals. <BR><BR>
+
+Format: depth_bias &#60;value&#62;<BR><BR>
+
+Where &#60;value&#62; is between 0 and 16, the default being 0. The higher the value, the greater the offset (for if you want to do multiple overlapping decals).<BR><BR>
+
+<A NAME="cull_hardware"></A>
+<A NAME="SEC40"></A>
+<H3> cull_hardware </H3>
+<!--docid::SEC40::-->
+
+Sets the hardware culling mode for this material.<BR><BR>
+
+Format: cull_hardware &#60;clockwise|anitclockwise|none&#62;<BR><BR>
+
+A typical way for the hardware rendering engine to cull triangles is based on the 'vertex winding' of triangles. Vertex winding refers to the direction in which the vertices are passed or indexed to in the rendering operation as viewed from the camera, and will wither be clockwise or anticlockwise (that's 'counterclockwise' for you Americans out there ;). If the option 'cull_hardware clockwise' is set, all triangles whose vertices are viewed in clockwise order from the camera will be culled by the hardware. 'anticlockwise' is the reverse (obviously), and 'none' turns off hardware culling so all triagles are rendered (useful for creating 2-sided materials).<BR><BR>
+
+Default: cull_hardware clockwise<BR>
+NB this is the same as OpenGL's default but the opposite of Direct3D's default (because Ogre uses a right-handed coordinate system like OpenGL).
+
+<A NAME="cull_software"></A>
+<A NAME="SEC41"></A>
+<H3> cull_software </H3>
+<!--docid::SEC41::-->
+
+Sets the software culling mode for this material.<BR><BR>
+
+Format: cull_software &#60;back|front|none&#62;<BR><BR>
+
+In some situations the engine will also cull geometry in software before sending it to the hardware renderer. This setting only takes effect on SceneManager's that use it (since it is best used on large groups of planar world geometry rather than on movable geometry since this would be expensive), but if used can cull geometry before it is sent to the hardware. In this case the culling is based on whether the 'back' or 'front' of the traingle is facing the camera - this definition is based on the face normal (a vector which sticks out of the front side of the polygon perpendicular to the face). Since Ogre expects face normals to be on anticlockwise side of the face, 'cull_software back' is the software equivalent of 'cull_hardware clockwise' setting, which is why they are both the default. The naming is different to reflect the way the culling is done though, since most of the time face normals are precalculated and they don't have to be the way Ogre expects - you could set 'cull_hardware none' and completely cull in software based on your own face normals, if you have the right SceneManager which uses them.<BR><BR>
+
+Default: cull_software back<BR><BR>
+
+<A NAME="lighting"></A>
+<A NAME="SEC42"></A>
+<H3> lighting </H3>
+<!--docid::SEC42::-->
+
+Sets whether or not dynamic lighting is turned on for this material or not. If lighting is turned off, all objects rendered using the material will be fully lit.<BR><BR>
+
+Format: lighting &#60;on|off&#62;<BR><BR>
+
+Turning dynamic lighting off makes any ambient, diffuse, specular, emissive and shading properties for this material redundant. When lighting is turned on, objects are lit according to their vertex normals for diffuse and specular light, and globally for ambient and emissive.<BR><BR>
+
+Default: lighting on<BR><BR>
+
+<A NAME="shading"></A>
+<A NAME="SEC43"></A>
+<H3> shading </H3>
+<!--docid::SEC43::-->
+
+Sets the kind of shading which should be used for representing dynamic lighting for this material.<BR><BR>
+
+Format: shading &#60;flat|gouraud|phong&#62;<BR><BR>
+
+When dynamic lighting is turned on, the effect is to generate colour values at each vertex. Whether these values are interpolated across the face (and how) depends on this setting.<BR><BR>
+<DL COMPACT>
+<DT>flat
+<DD>	No interpolation takes place. Each face is shaded with a single colour determined from the first vertex in the face.
+<DT>gouraud
+<DD>	Colour at each vertex is linearly interpolated across the face.
+<DT>phong
+<DD>	Vertex normals are interpolated across the face, and these are used to determine colour at each pixel. Gives a more natural lighting effect but is more expensive and works better at high levels of tesselation. Not supported on all hardware.
+</DL>
+Default: shading gouraud<BR><BR>
+
+<A NAME="filtering"></A>
+<A NAME="SEC44"></A>
+<H3> filtering </H3>
+<!--docid::SEC44::-->
+
+Sets the type of texture filtering used when magnifying or minifying a texture.<BR><BR>
+
+Format: filtering &#60;none|bilinear|trilinear&#62;<BR><BR>
+
+Default: filtering bilinear<BR><BR>
+
+<A NAME="fog_override"></A>
+<A NAME="SEC45"></A>
+<H3> fog_override </H3>
+<!--docid::SEC45::-->
+
+Tells the material to whether it should override the scene fog settings, and enforce it's own. Very useful for things that you don't want to be affected by fog when the rest of the scene is fogged, or vice versa.<BR><BR>
+
+Format: fog_override &#60;override?&#62; [&#60;type&#62; &#60;colour&#62; &#60;density&#62; &#60;start&#62; &#60;end&#62;]<BR><BR>
+
+Default: fog_override false<BR><BR>
+
+If you specify 'true' for the first parameter and you supply the rest of the parameters, you are telling the material to use these fog settings in preference to the scene settings, whatever they might be. If you specify 'true' but provide no further parameters, you are telling this material to never use fogging no matter what the scene says. Here is an explanation of the parameters:<BR>
+<DL COMPACT>
+<DT>type
+<DD><STRONG>none</STRONG> = No fog, equivalent of just using 'fog_override true'<BR>
+<STRONG>linear</STRONG> = Linear fog from the &#60;start&#62; and &#60;end&#62; distances<BR>
+<STRONG>exp</STRONG> = Fog increases exponentially from the camera (fog = 1/e^(distance * density)), use &#60;density&#62; param to control it<BR>
+<STRONG>exp2</STRONG> = Fog increases at the square of FOG_EXP, i.e. even quicker (fog = 1/e^(distance * density)^2), use &#60;density&#62; param to control it
+<DT>colour
+<DD>	Sequence of 3 floating point values from 0 to 1 indicating the red, green and blue intensities
+<DT>density
+<DD>	The density parameter used in the 'exp' or 'exp2' fog types. Not used in linear mode but param must still be there as a placeholder
+<DT>start
+<DD>	The start distance from the camera of linear fog. Must still be present in other modes, even though it is not used.
+<DT>end
+<DD>	The end distance from the camera of linear fog. Must still be present in other modes, even though it is not used.
+</DL>
+<BR>
+Example: fog_override true exp 1 1 1 0.002 100 10000
+
+
+<A NAME="Texture Layer Attributes"></A>
+<HR SIZE=1>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC25"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC25"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_18.html#SEC46"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<BR>  
+<FONT SIZE="-1">
+This document was generated
+by <I>Steve Streeting</I> on <I>, 15 2003</I>
+using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
+"><I>texi2html</I></A>
+
+</BODY>
+</HTML>

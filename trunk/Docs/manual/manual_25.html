@@ -1,0 +1,153 @@
+<HTML>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Created on , 15 2003 by texi2html 1.64 -->
+<!-- 
+Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
+            Karl Berry  <karl@freefriends.org>
+            Olaf Bachmann <obachman@mathematik.uni-kl.de>
+            and many others.
+Maintained by: Olaf Bachmann <obachman@mathematik.uni-kl.de>
+Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
+ 
+-->
+<HEAD>
+<TITLE>OGRE Manual: Standard Particle Affectors</TITLE>
+
+<META NAME="description" CONTENT="OGRE Manual: Standard Particle Affectors">
+<META NAME="keywords" CONTENT="OGRE Manual: Standard Particle Affectors">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+<META NAME="Generator" CONTENT="texi2html 1.64">
+<LINK TYPE="text/css" rel="stylesheet" href="../style.css"> 
+</HEAD>
+
+<BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+
+<A NAME="SEC97"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_24.html#SEC96"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC64"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC101"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<HR SIZE=1>
+<H3> 3.2.6 Standard Particle Affectors </H3>
+<!--docid::SEC97::-->
+Ogre comes preconfigured with a few particle affectors. New ones can be added by creating plugins: see the Plugin_ParticleFX project as an example of how you would do this (this is where these affectors are implemented).
+
+<UL>
+<LI>
+<A HREF="manual_25.html#SEC98">Linear Force Affector</A>
+<LI>
+<A HREF="manual_25.html#SEC99">ColourFader Affector</A>
+<LI>
+<A HREF="manual_25.html#SEC100">Scaler Affector</A>
+</UL>
+
+<A NAME="Linear Force Affector"></A>
+<A NAME="SEC98"></A>
+<H3> Linear Force Affector </H3>
+<!--docid::SEC98::-->
+
+This affector applies a force vector to all particles to modify their trajectory. Can be used for gravity, wind, or any other linear force. It's extra attributes are:<BR><BR>
+<DL COMPACT>
+<DT>force_vector
+<DD>Sets the vector for the force to be applied to every particle. The magnitude of this vector determines how strong the force is.<BR>
+    format: force_vector &#60;x&#62; &#60;y&#62; &#60;z&#62;<BR>
+    example: force_vector 50 0 -50<BR>
+    default: 0 -100 0 (a fair gravity effect)<BR>
+<DT>force_application
+<DD>
+Sets the way in which the force vector is applied to particle momentum.<BR>
+    format: force_application &#60;add|average&#62;<BR>
+    example: force_application average<BR>
+    default: add<BR>
+The options are:
+<DL COMPACT>
+<DT>average
+<DD>	The resulting momentum is the average of the force vector and the particle's current motion. Is self-stabilising but the speed at which the particle changes direction is non-linear.
+<DT>add
+<DD>	The resulting momentum is the particle's current motion plus the force vector. This is traditional force acceleration but can potentially result in unlimited velocity.
+</DL>
+</DL>
+<BR>
+To create a linear force affector, include a section like this within your particle system script:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>affector LinearForce
+{
+    // Settings go here
+}
+</pre></td></tr></table>Please note that the name of the affector type ('LinearForce') is case-sensitive.
+
+<A NAME="ColourFader Affector"></A>
+<A NAME="SEC99"></A>
+<H3> ColourFader Affector </H3>
+<!--docid::SEC99::-->
+
+This affector modifies the colour of particles in flight. It's extra attributes are:
+<DL COMPACT>
+<DT>red
+<DD>Sets the adjustment to be made to the red component of the particle colour per second.<BR>
+    format: red &#60;delta_value&#62;<BR>
+    example: red -0.1<BR>
+    default: 0<BR>
+<DT>green
+<DD>Sets the adjustment to be made to the green component of the particle colour per second.<BR>
+    format: green &#60;delta_value&#62;<BR>
+    example: green -0.1<BR>
+    default: 0<BR>
+<DT>blue
+<DD>Sets the adjustment to be made to the blue component of the particle colour per second.<BR>
+    format: blue &#60;delta_value&#62;<BR>
+    example: blue -0.1<BR>
+    default: 0<BR>
+<DT>alpha
+<DD>Sets the adjustment to be made to the alpha component of the particle colour per second.<BR>
+    format: alpha &#60;delta_value&#62;<BR>
+example: alpha -0.1<BR>
+default: 0<BR>
+</DL>
+To create a colour fader affector, include a section like this within your particle system script:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>affector ColourFader
+{
+    // Settings go here
+}
+</pre></td></tr></table>
+<A NAME="Scaler Affector"></A>
+<A NAME="SEC100"></A>
+<H3> Scaler Affector </H3>
+<!--docid::SEC100::-->
+
+This affector scales particles in flight. It's extra attributes are:
+<DL COMPACT>
+<DT>rate
+<DD>The amount by which to scale the particles in both the x and y direction per second.
+</DL>
+To create a scale affector, include a section like this within your particle system script:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>affector Scaler
+{
+    // Settings go here
+}
+</pre></td></tr></table>
+<A NAME="Overlay Scripts"></A>
+<HR SIZE=1>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_24.html#SEC96"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC64"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC101"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<BR>  
+<FONT SIZE="-1">
+This document was generated
+by <I>Steve Streeting</I> on <I>, 15 2003</I>
+using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
+"><I>texi2html</I></A>
+
+</BODY>
+</HTML>
