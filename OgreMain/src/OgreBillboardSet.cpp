@@ -832,75 +832,109 @@ namespace Ogre {
     void BillboardSet::genVertices( 
         const Vector3* const offsets, const Billboard& bb)
     {
-        // Positions
-
-        // Left-top
-        *mLockPtr++ = offsets[0].x + bb.mPosition.x;
-        *mLockPtr++ = offsets[0].y + bb.mPosition.y;
-        *mLockPtr++ = offsets[0].z + bb.mPosition.z;
-        // Right-top
-        *mLockPtr++ = offsets[1].x + bb.mPosition.x;
-        *mLockPtr++ = offsets[1].y + bb.mPosition.y;
-        *mLockPtr++ = offsets[1].z + bb.mPosition.z;
-        // Left-bottom
-        *mLockPtr++ = offsets[2].x + bb.mPosition.x;
-        *mLockPtr++ = offsets[2].y + bb.mPosition.y;
-        *mLockPtr++ = offsets[2].z + bb.mPosition.z;
-        // Right-bottom
-        *mLockPtr++ = offsets[3].x + bb.mPosition.x;
-        *mLockPtr++ = offsets[3].y + bb.mPosition.y;
-        *mLockPtr++ = offsets[3].z + bb.mPosition.z;
-
-        // Update colours
         RGBA colour;
         Root::getSingleton().convertColourValue(bb.mColour, &colour);
-        // Convert REal* to RGBA*
-        RGBA* pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
+		RGBA* pCol;
+        static Real basicTexData[8] = {
+            0.0, 1.0,
+            1.0, 1.0,
+            0.0, 0.0,
+            1.0, 0.0 };
+        static Real rotTexDataBase[8] = {
+            -0.5, 0.5,
+             0.5, 0.5,
+            -0.5,-0.5,
+             0.5,-0.5 };
+        static Real rotTexData[8];
 
-        *pCol++ = colour;
-        *pCol++ = colour;
-        *pCol++ = colour;
-        *pCol++ = colour;
-
-        // Update lock pointer
-        mLockPtr = static_cast<Real*>(static_cast<void*>(pCol));
+		Real* pTexData;
 
         // Texcoords
         if (mFixedTextureCoords)
         {
-            static Real basicTexData[8] = {
-                0.0, 1.0,
-                1.0, 1.0,
-                0.0, 0.0,
-                1.0, 0.0 };
-            for (uint t = 0; t < 8; ++t)
-                *mLockPtr++ = basicTexData[t];
+			pTexData = basicTexData;
         }
         else
         {
-            // Create template texcoord data
-            static Real texData[8] = {
-                -0.5, 0.5,
-                 0.5, 0.5,
-                -0.5,-0.5,
-                 0.5,-0.5 };
 
             const Real      cos_rot  ( Math::Cos(bb.mRotation)   );
             const Real      sin_rot  ( Math::Sin(bb.mRotation)   );
 
-            *mLockPtr++ = (cos_rot * texData[0]) + (sin_rot * texData[1]) + 0.5;
-            *mLockPtr++ = (sin_rot * texData[0]) - (cos_rot * texData[1]) + 0.5;
+            rotTexData[0] = (cos_rot * rotTexDataBase[0]) + (sin_rot * rotTexDataBase[1]) + 0.5;
+            rotTexData[1] = (sin_rot * rotTexDataBase[0]) - (cos_rot * rotTexDataBase[1]) + 0.5;
 
-            *mLockPtr++ = (cos_rot * texData[2]) + (sin_rot * texData[3]) + 0.5;
-            *mLockPtr++ = (sin_rot * texData[2]) - (cos_rot * texData[3]) + 0.5;
+            rotTexData[2] = (cos_rot * rotTexDataBase[2]) + (sin_rot * rotTexDataBase[3]) + 0.5;
+            rotTexData[3] = (sin_rot * rotTexDataBase[2]) - (cos_rot * rotTexDataBase[3]) + 0.5;
 
-            *mLockPtr++ = (cos_rot * texData[4]) + (sin_rot * texData[5]) + 0.5;
-            *mLockPtr++ = (sin_rot * texData[4]) - (cos_rot * texData[5]) + 0.5;
+            rotTexData[4] = (cos_rot * rotTexDataBase[4]) + (sin_rot * rotTexDataBase[5]) + 0.5;
+            rotTexData[5]= (sin_rot * rotTexDataBase[4]) - (cos_rot * rotTexDataBase[5]) + 0.5;
 
-            *mLockPtr++ = (cos_rot * texData[6]) + (sin_rot * texData[7]) + 0.5;
-            *mLockPtr++ = (sin_rot * texData[6]) - (cos_rot * texData[7]) + 0.5;
+            rotTexData[6] = (cos_rot * rotTexDataBase[6]) + (sin_rot * rotTexDataBase[7]) + 0.5;
+            rotTexData[7] = (sin_rot * rotTexDataBase[6]) - (cos_rot * rotTexDataBase[7]) + 0.5;
+			pTexData = rotTexData;
         }
+		
 
+        // Left-top
+		// Positions
+        *mLockPtr++ = offsets[0].x + bb.mPosition.x;
+        *mLockPtr++ = offsets[0].y + bb.mPosition.y;
+        *mLockPtr++ = offsets[0].z + bb.mPosition.z;
+		// Colour
+		// Convert Real* to RGBA*
+        pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
+        *pCol++ = colour;
+        // Update lock pointer
+        mLockPtr = static_cast<Real*>(static_cast<void*>(pCol));
+		// Texture coords
+		*mLockPtr++ = *pTexData++;
+		*mLockPtr++ = *pTexData++;
+
+
+		// Right-top
+		// Positions
+        *mLockPtr++ = offsets[1].x + bb.mPosition.x;
+        *mLockPtr++ = offsets[1].y + bb.mPosition.y;
+        *mLockPtr++ = offsets[1].z + bb.mPosition.z;
+		// Colour
+		// Convert Real* to RGBA*
+        pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
+        *pCol++ = colour;
+        // Update lock pointer
+        mLockPtr = static_cast<Real*>(static_cast<void*>(pCol));
+		// Texture coords
+		*mLockPtr++ = *pTexData++;
+		*mLockPtr++ = *pTexData++;
+
+		// Left-bottom
+		// Positions
+        *mLockPtr++ = offsets[2].x + bb.mPosition.x;
+        *mLockPtr++ = offsets[2].y + bb.mPosition.y;
+        *mLockPtr++ = offsets[2].z + bb.mPosition.z;
+		// Colour
+		// Convert Real* to RGBA*
+        pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
+        *pCol++ = colour;
+        // Update lock pointer
+        mLockPtr = static_cast<Real*>(static_cast<void*>(pCol));
+		// Texture coords
+		*mLockPtr++ = *pTexData++;
+		*mLockPtr++ = *pTexData++;
+
+		// Right-bottom
+		// Positions
+        *mLockPtr++ = offsets[3].x + bb.mPosition.x;
+        *mLockPtr++ = offsets[3].y + bb.mPosition.y;
+        *mLockPtr++ = offsets[3].z + bb.mPosition.z;
+		// Colour
+		// Convert Real* to RGBA*
+        pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
+        *pCol++ = colour;
+        // Update lock pointer
+        mLockPtr = static_cast<Real*>(static_cast<void*>(pCol));
+		// Texture coords
+		*mLockPtr++ = *pTexData++;
+		*mLockPtr++ = *pTexData++;
 
     }
     //-----------------------------------------------------------------------
