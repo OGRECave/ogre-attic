@@ -38,7 +38,7 @@ namespace Ogre {
     TextBoxGuiElement::CmdTextArea TextBoxGuiElement::msCmdTextArea;
     //---------------------------------------------------------------------
     TextBoxGuiElement::TextBoxGuiElement(const String& name)
-        : PanelGuiElement(name)
+        : PanelOverlayElement(name)
     {
         if (createParamDictionary("TextBoxGuiElement"))
         {
@@ -65,7 +65,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void TextBoxGuiElement::addBaseParameters(void)
     {
-        PanelGuiElement::addBaseParameters();
+        PanelOverlayElement::addBaseParameters();
         ParamDictionary* dict = getParamDictionary();
 
         dict->addParameter(ParameterDef("back_panel", 
@@ -143,7 +143,7 @@ namespace Ogre {
 			mTextArea = NULL;
 		}
 
-		mTextArea = static_cast<TextAreaGuiElement*>
+		mTextArea = static_cast<TextAreaOverlayElement*>
 			(GuiManager::getSingleton().createGuiElementFromTemplate(mTextAreaTemplateName, "", mName + "/textArea"));
 
 		mCaption = name;
@@ -225,7 +225,7 @@ namespace Ogre {
     //---------------------------------------------------------------------------------------------
 	void TextBoxGuiElement::processEvent(InputEvent* e) 
 	{
-		PanelGuiElement::processEvent(e);
+		PanelOverlayElement::processEvent(e);
 
 		if (mTextArea)
 		{

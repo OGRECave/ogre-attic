@@ -23,10 +23,9 @@ Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA or go to
 http://www.gnu.org/copyleft/lesser.txt
 -------------------------------------------------------------------------*/
 
-#ifndef _TextAreaGuiElement_H__
-#define _TextAreaGuiElement_H__
+#ifndef _TextAreaOverlayElement_H__
+#define _TextAreaOverlayElement_H__
 
-#include "OgreGuiElementPrerequisites.h"
 #include "OgreGuiContainer.h"
 #include "OgreMaterial.h"
 #include "OgreStringConverter.h"
@@ -45,13 +44,13 @@ namespace Ogre
     @par
     This component is suitable for backgrounds and grouping other elements. Note that because
     it has a single repeating material it cannot have a discrete border (unless the texture has one and
-    the texture is tiled only once). For a bordered panel, see it's subclass BorderTextAreaGuiElement.
+    the texture is tiled only once). For a bordered panel, see it's subclass BorderTextAreaOverlayElement.
     @par
     Note that the material can have all the usual effects applied to it like multiple texture
     layers, scrolling / animated textures etc. For multiple texture layers, you have to set 
     the tiling level for each layer.
     */
-    class _OgreGuiElementExport TextAreaGuiElement : public GuiElement
+    class _OgreExport TextAreaOverlayElement : public GuiElement
     {
     public:
         enum Alignment
@@ -63,8 +62,8 @@ namespace Ogre
 
     public:
         /** Constructor. */
-        TextAreaGuiElement(const String& name);
-        virtual ~TextAreaGuiElement();
+        TextAreaOverlayElement(const String& name);
+        virtual ~TextAreaOverlayElement();
 
         virtual void initialise(void);
         void setCaption( const String& caption );

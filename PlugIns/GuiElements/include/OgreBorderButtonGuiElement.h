@@ -26,7 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __BorderButtonGuiElement_H__
 
 #include "OgreGuiElementPrerequisites.h"
-#include "OgreBorderPanelGuiElement.h"
+#include "OgreBorderPanelOverlayElement.h"
 #include "OgreGuiPressable.h"
 
 namespace Ogre {
@@ -51,7 +51,7 @@ namespace Ogre {
 	 * the <code>MouseEvent</code> is passed to it.
 	 *
 	 */
-	class _OgreGuiElementExport BorderButtonGuiElement : public BorderPanelGuiElement, public GuiPressable
+	class _OgreGuiElementExport BorderButtonGuiElement : public BorderPanelOverlayElement, public GuiPressable
     {
     protected:
 		String mBorderDownMaterialName;

@@ -29,13 +29,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGuiElementPrerequisites.h"
 #include "OgreGuiElementFactory.h"
 #include "OgreCursorGuiElement.h"
-#include "OgrePanelGuiElement.h"
-#include "OgreBorderPanelGuiElement.h"
+#include "OgrePanelOverlayElement.h"
+#include "OgreBorderPanelOverlayElement.h"
 #include "OgreButtonGuiElement.h"
 #include "OgreBorderButtonGuiElement.h"
 #include "OgreListGuiElement.h"
 #include "OgrePopupMenuGuiElement.h"
-#include "OgreTextAreaGuiElement.h"
+#include "OgreTextAreaOverlayElement.h"
 #include "OgreTextBoxGuiElement.h"
 #include "OgreTTYGuiElement.h"
 
@@ -45,7 +45,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    /** Factory for creating PanelGuiElement instances. */
+    /** Factory for creating PanelOverlayElement instances. */
     class _OgreGuiElementExport CursorGuiElementFactory: public GuiElementFactory
     {
     public:
@@ -62,14 +62,14 @@ namespace Ogre {
         }
     };
 
-    /** Factory for creating PanelGuiElement instances. */
+    /** Factory for creating PanelOverlayElement instances. */
     class _OgreGuiElementExport PanelGuiElementFactory: public GuiElementFactory
     {
     public:
         /** See GuiElementFactory */
         GuiElement* createGuiElement(const String& instanceName)
         {
-            return new PanelGuiElement(instanceName);
+            return new PanelOverlayElement(instanceName);
         }
         /** See GuiElementFactory */
         const String& getTypeName(void) const
@@ -79,14 +79,14 @@ namespace Ogre {
         }
     };
 
-    /** Factory for creating BorderPanelGuiElement instances. */
+    /** Factory for creating BorderPanelOverlayElement instances. */
     class _OgreGuiElementExport BorderPanelGuiElementFactory: public GuiElementFactory
     {
     public:
         /** See GuiElementFactory */
         GuiElement* createGuiElement(const String& instanceName)
         {
-            return new BorderPanelGuiElement(instanceName);
+            return new BorderPanelOverlayElement(instanceName);
         }
         /** See GuiElementFactory */
         const String& getTypeName(void) const
@@ -96,14 +96,14 @@ namespace Ogre {
         }
     };
 
-    /** Factory for creating TextAreaGuiElement instances. */
+    /** Factory for creating TextAreaOverlayElement instances. */
     class _OgreGuiElementExport TextAreaGuiElementFactory: public GuiElementFactory
     {
     public:
         /** See GuiElementFactory */
         GuiElement* createGuiElement(const String& instanceName)
         {
-            return new TextAreaGuiElement(instanceName);
+            return new TextAreaOverlayElement(instanceName);
         }
         /** See GuiElementFactory */
         const String& getTypeName(void) const

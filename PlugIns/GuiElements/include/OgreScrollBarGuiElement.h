@@ -26,7 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __ScrollBarElement_H__
 
 #include "OgreGuiElementPrerequisites.h"
-#include "OgrePanelGuiElement.h"
+#include "OgrePanelOverlayElement.h"
 #include "OgreButtonGuiElement.h"
 #include "OgreEventListeners.h"
 #include "OgreScrollTarget.h"
@@ -54,7 +54,7 @@ namespace Ogre {
 	 *
 	 */
 
-	class _OgreGuiElementExport ScrollBarGuiElement : public PanelGuiElement, ActionListener, public ScrollTarget, public MouseMotionListener, public MouseListener
+	class _OgreGuiElementExport ScrollBarGuiElement : public PanelOverlayElement, ActionListener, public ScrollTarget, public MouseMotionListener, public MouseListener
     {
 	public :
 //	    void addBaseParameters(void);
@@ -121,7 +121,7 @@ namespace Ogre {
   		String mUpButtonName, mDownButtonName, mScrollBitName;
 
 		ButtonGuiElement *mUpButton, *mDownButton;
-		PanelGuiElement *mScrollBit;
+		PanelOverlayElement *mScrollBit;
 
 		size_t mTotalItems, mStartingItem, mVisibilityRange;
 		Real mSpacing;

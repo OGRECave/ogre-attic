@@ -27,7 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreGuiElementPrerequisites.h"
 #include "OgreListSelectionTarget.h"
-#include "OgrePanelGuiElement.h"
+#include "OgrePanelOverlayElement.h"
 #include "OgreListChanger.h"
 #include "OgreGuiPressable.h"
 #include "OgreStringResource.h"
@@ -56,7 +56,7 @@ namespace Ogre {
 	 * the <code>MouseEvent</code> is passed to it.
 	 *
 	 */
-	class _OgreGuiElementExport PopupMenuGuiElement : public PanelGuiElement, public ListSelectionTarget, public ListChanger, public GuiPressable, public MouseMotionListener
+	class _OgreGuiElementExport PopupMenuGuiElement : public PanelOverlayElement, public ListSelectionTarget, public ListChanger, public GuiPressable, public MouseMotionListener
     {
 	public :
 //	    void addBaseParameters(void);
