@@ -296,7 +296,7 @@ namespace Ogre {
         if (vbuf->getVertexSize() == elem->getSize())
         {
             // Bulk copy
-            writeReals(static_cast<Real*>(pVert), vertexCount * 3);
+            writeReals(static_cast<Real*>(pVert), vertexCount * VertexElement::getTypeCount(elem->getType()));
         }
         else
         {
