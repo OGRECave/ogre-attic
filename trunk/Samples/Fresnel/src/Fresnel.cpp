@@ -183,7 +183,9 @@ protected:
         else
         {
             if (!GpuProgramManager::getSingleton().isSyntaxSupported("arbfp1") &&
-                !GpuProgramManager::getSingleton().isSyntaxSupported("ps_2_0"))
+                !GpuProgramManager::getSingleton().isSyntaxSupported("ps_2_0") &&
+				!GpuProgramManager::getSingleton().isSyntaxSupported("ps_1_4")
+				)
             {
                 Except(1, "Your card does not support advanced fragment programs, "
                     "so cannot run this demo. Sorry!", 
@@ -205,6 +207,7 @@ protected:
 
         
         RenderTexture* rttTex = mRoot->getRenderSystem()->createRenderTexture( "Refraction", 512, 512 );
+		
         {
             Viewport *v = rttTex->addViewport( mCamera );
             Material* mat = (Material*)MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefraction");
@@ -213,7 +216,7 @@ protected:
             rttTex->addListener(&mRefractionListener);
         }
         
-
+		
         rttTex = mRoot->getRenderSystem()->createRenderTexture( "Reflection", 512, 512 );
         {
             Viewport *v = rttTex->addViewport( mCamera );
