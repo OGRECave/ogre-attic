@@ -124,7 +124,7 @@ namespace Ogre
         @param weight The influence to give to this track, 1.0 for full influence, less to blend with
           other animations.
         */
-        void apply(Real timePos, Real weight = 1.0);
+        void apply(Real timePos, Real weight = 1.0, bool accumulate = false);
 
         /** Returns a pointer to the associated Node object (if any). */
         Node* getAssociatedNode(void) const;
@@ -133,7 +133,7 @@ namespace Ogre
         void setAssociatedNode(Node* node);
 
         /** As the 'apply' method but applies to a specified Node instead of associated node. */
-        void applyToNode(Node* node, Real timePos, Real weight = 1.0);
+        void applyToNode(Node* node, Real timePos, Real weight = 1.0, bool accumulate = false);
 
 
     protected:

@@ -109,12 +109,12 @@ namespace Ogre {
         return mName;
     }
     //---------------------------------------------------------------------
-    void Animation::apply(Real timePos, Real weight)
+	void Animation::apply(Real timePos, Real weight, bool accumulate)
     {
         TrackList::iterator i;
         for (i = mTrackList.begin(); i != mTrackList.end(); ++i)
         {
-            i->second->apply(timePos, weight);
+            i->second->apply(timePos, weight, accumulate);
         }
 
 
