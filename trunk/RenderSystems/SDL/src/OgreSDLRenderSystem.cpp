@@ -1159,7 +1159,7 @@ namespace Ogre {
         {
             GLint index = GL_TEXTURE0_ARB;
 
-            for (int i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; i++)
+            for (int i = 0; i < _getNumTextureUnits(); i++)
             {
                 if( i < op.numTextureCoordSets )
                 {                
