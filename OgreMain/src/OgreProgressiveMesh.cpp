@@ -63,7 +63,8 @@ namespace Ogre {
         addWorkingData(buffer, mpGeomData, mpIndexBuffer, mNumIndexes);
     }
     //---------------------------------------------------------------------
-    void ProgressiveMesh::build(ushort numLevels, LODGeometryList* outList)
+    void ProgressiveMesh::build(ushort numLevels, LODGeometryList* outList, 
+			VertexReductionQuota quota, Real reductionValue)
     {
         LODGeometryData newLod;
 
@@ -88,8 +89,14 @@ namespace Ogre {
 		numCollapses = 0;
 		while (numLevels--)
         {
-            // Halve vertices every time
-            numCollapses = numVerts * 0.5f;
+			if (quota == VRQ_PROPORTIONAL)
+			{
+				numCollapses = numVerts * reductionValue;
+			}
+			else 
+			{
+				numCollapses = reductionValue;
+			}
             // Minimum 3 verts!
             if ( (numVerts - numCollapses) < 3) 
                 numCollapses = numVerts - 3;
@@ -181,6 +188,45 @@ namespace Ogre {
 
         }
 
+
+		// Scan for border vertices which are connected to others
+		// This happens when we need duplicate verts to hold different texture coords etc at seams
+        for (i = 0; i < data->numVertices; ++i)
+        {
+			PMVertex *thisVert = &(work.mVertList[i]);
+			if (thisVert->isBorder())
+			{
+				// Look for other borders in the same place
+				int j;
+				for (j = 0; j < data->numVertices; ++j)
+				{
+					PMVertex* otherVert = &(work.mVertList[j]);
+					if (thisVert != otherVert &&
+						otherVert->isBorder() && 
+						otherVert->position == thisVert->position)
+					{
+						// Link together
+						otherVert->borderJoined.insert(thisVert);
+						thisVert->borderJoined.insert(otherVert);
+
+						// Copy neighbour info both ways
+						otherVert->neighbor.insert(
+							thisVert->neighbor.begin(), thisVert->neighbor.end());
+						thisVert->neighbor.insert(
+							otherVert->neighbor.begin(), otherVert->neighbor.end());
+						// Copy face links both ways
+						otherVert->face.insert(
+							thisVert->face.begin(), thisVert->face.end());
+						thisVert->face.insert(
+							otherVert->face.begin(), otherVert->face.end());
+
+					}
+
+				}
+			}
+		}
+
+
     }
     //---------------------------------------------------------------------
     Real ProgressiveMesh::computeEdgeCollapseCost(PMVertex *src, PMVertex *dest)
@@ -192,13 +238,14 @@ namespace Ogre {
         // effective polygon reduction.
         Vector3 edgeVector = src->position - dest->position;
 
-        Real curvature = 0.001f;
+        Real cost;
+		Real curvature = 0.001f;
 
         // find the "sides" triangles that are on the edge uv
         PMVertex::FaceList sides;
         PMVertex::FaceList::iterator srcface, srcfaceEnd;
         srcfaceEnd = src->face.end();
-        // Iterate over src's faces
+        // Iterate over src's faces and find 'sides' of the shared edge which is being collapsed
         for(srcface = src->face.begin(); srcface != srcfaceEnd; ++srcface)
         {
             // Check if this tri also has dest in it (shared edge)
@@ -208,34 +255,114 @@ namespace Ogre {
             }
         }
 
-        // Calculate curvature
-        // use the triangle facing most away from the sides 
-        // to determine our curvature term
-        // Iterate over src's faces again
-        for(srcface = src->face.begin(); srcface != srcfaceEnd; ++srcface) 
+		// Special cases
+		// If we're looking at a border vertex
+        if(src->isBorder())
         {
-            Real mincurv = 1.0f; // curve for face i and closer side to it
-            // Iterate over the sides
-            PMVertex::FaceList::iterator sidesFace, sidesFaceEnd;
-            sidesFaceEnd = sides.end();
-            for(sidesFace = sides.begin(); sidesFace != sidesFaceEnd; ++sidesFace) 
-            {
-                // Dot product of face normal gives a good delta angle
-                Real dotprod = (*srcface)->normal.dotProduct( (*sidesFace)->normal );
-                mincurv =  std::min(mincurv,(1.002f - dotprod)/2.0f);
-            }
-            curvature = std::max(curvature, mincurv);
-        }
+			if (sides.size() > 1) 
+			{
+				// src is on a border, but the src-dest edge has more than one tri on it
+				// So it must be collapsing inwards
+				// Mark as very high-value cost
+				//curvature = 1.0f;
+				cost = NEVER_COLLAPSE_COST;
+			}
+			else
+			{
+				// Collapsing ALONG a border
+				// We can't use curvature to measure the effect on the model
+				// Instead, see what effect it has on 'pulling' the other border edges
+				// The more colinear, the less effect it will have
+				// So measure the 'kinkiness' (for want of a better term)
+				// Normally there can be at most 1 other border edge attached to this
+				// However in weird cases there may be more, so find the worst
+				Vector3 otherBorderEdge;
+				Real kinkiness, maxKinkiness;
+				PMVertex::NeighborList::iterator n, nend;
+				nend = src->neighbor.end();
+				maxKinkiness = 0.0f;
+				for (n = src->neighbor.begin(); n != nend; ++n)
+				{
+					if (*n != dest && (*n)->isBorder())
+					{
+						otherBorderEdge = src->position - (*n)->position;
+						// This time, the nearer the dot is to -1, the better, because that means
+						// the edges are opposite each other, therefore less kinkiness
+						// Scale into [0..1]
+						kinkiness = (otherBorderEdge.dotProduct(edgeVector) + 1.002f) * 0.5f;
+						maxKinkiness = std::max(kinkiness, maxKinkiness);
 
-        // check for border to interior collapses
-        if(src->isBorder() && sides.size() > 1) 
-        {
-            // src is on a border, but the src-dest edge has more than one tri on it
-            // So it must be collapsing inwards
-            // Mark as high-value cost
-            //curvature = 1.0f;
-			return NEVER_COLLAPSE_COST;
+					}
+				}
+
+				cost = maxKinkiness + 0.1; // bias a little to prefer inner verts
+
+			}
         } 
+		else // not a border
+		{
+
+			// Standard inner vertex
+			// Calculate curvature
+			// use the triangle facing most away from the sides 
+			// to determine our curvature term
+			// Iterate over src's faces again
+			for(srcface = src->face.begin(); srcface != srcfaceEnd; ++srcface) 
+			{
+				Real mincurv = 1.0f; // curve for face i and closer side to it
+				// Iterate over the sides
+				PMVertex::FaceList::iterator sidesFace, sidesFaceEnd;
+				sidesFaceEnd = sides.end();
+				for(sidesFace = sides.begin(); sidesFace != sidesFaceEnd; ++sidesFace) 
+				{
+					// Dot product of face normal gives a good delta angle
+					Real dotprod = (*srcface)->normal.dotProduct( (*sidesFace)->normal );
+					// NB we do (1-..) to invert curvature where 1 is high curvature [0..1]
+					// Whilst dot product is high when angle difference is low
+					mincurv =  std::min(mincurv,(1.002f - dotprod) * 0.5f);
+				}
+				curvature = std::max(curvature, mincurv);
+			}
+			cost = curvature;
+		}
+
+		// Degenerate case check
+		// Are we going to invert a face normal of one of the neighbouring faces?
+		// Can occur when we have a very small remaining edge and collapse crosses it
+		// Look for a face normal changing by > 90 degrees
+		for(srcface = src->face.begin(); srcface != srcfaceEnd; ++srcface) 
+		{
+			// Ignore the deleted faces (those including src & dest)
+			if( !(*srcface)->hasVertex(dest) )
+			{
+				// Test the new face normal
+				PMVertex *v0, *v1, *v2;
+				// Replace src with dest wherever it is
+				v0 = ( (*srcface)->vertex[0] == src) ? dest : (*srcface)->vertex[0];
+				v1 = ( (*srcface)->vertex[1] == src) ? dest : (*srcface)->vertex[1];
+				v2 = ( (*srcface)->vertex[1] == src) ? dest : (*srcface)->vertex[2];
+
+				// Cross-product 2 edges
+				Vector3 e1 = v1->position - v0->position; 
+				Vector3 e2 = v2->position - v1->position;
+
+				Vector3 newNormal = e1.crossProduct(e2);
+				newNormal.normalise();
+
+				// Dot old and new face normal
+				// If < 0 then more than 90 degree difference
+				if (newNormal.dotProduct( (*srcface)->normal ) < 0.0f )
+				{
+					// Don't do it!
+					cost = NEVER_COLLAPSE_COST;
+					break; // No point continuing
+				}
+
+
+			}
+		}
+
+
 
         // check for texture seam ripping
         /* Not reimplemented (This is Stan's code below so won't compile here!)
@@ -269,11 +396,8 @@ namespace Ogre {
         curvature = 9999.9f;
         }
         */
-
-
-        // Cost is the product of the edge length and the curvature
-        //return edgeVector.length() * curvature;
-		return curvature;
+		
+		return cost;
     }
     //---------------------------------------------------------------------
     void ProgressiveMesh::initialiseEdgeCollapseCosts(void)
@@ -438,6 +562,7 @@ namespace Ogre {
         // Not done as a sort because want to keep the lookup simple for now
         Real bestVal = NEVER_COLLAPSE_COST;
         ushort i, bestIndex;
+		bestIndex = 0; // NB this is ok since if nothing is better than this, nothing will collapse
         for (i = 0; i < mpGeomData->numVertices; ++i)
         {
             if (mWorstCosts[i] < bestVal)
@@ -610,7 +735,7 @@ namespace Ogre {
                     count ++;
                 }
             }
-            assert(count>0); // Must be at least one!
+            //assert(count>0); // Must be at least one!
             // This edge has only 1 tri on it, it's a border
             if(count == 1) 
 				return true;
