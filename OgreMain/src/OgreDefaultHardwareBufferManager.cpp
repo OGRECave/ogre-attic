@@ -140,27 +140,49 @@ namespace Ogre {
 		delete buf;
 	}
     //-----------------------------------------------------------------------
+    void DefaultHardwareBufferManager::destroyAllBuffers(void)
+    {
+        VertexBufferList::iterator vb;
+        for (vb = mVertexBuffers.begin(); vb != mVertexBuffers.end(); ++vb)
+        {
+            delete *vb;
+        }
+        mVertexBuffers.clear();
+
+        IndexBufferList::iterator ib;
+        for (ib = mIndexBuffers.begin(); ib != mIndexBuffers.end(); ++ib)
+        {
+            delete *ib;
+        }
+        mIndexBuffers.clear();
+    }
+    //-----------------------------------------------------------------------
     DefaultHardwareBufferManager::DefaultHardwareBufferManager()
 	{
 	}
     //-----------------------------------------------------------------------
     DefaultHardwareBufferManager::~DefaultHardwareBufferManager()
 	{
+        destroyAllDeclarations();
+        destroyAllBindings();
+        destroyAllBuffers();
 	}
     //-----------------------------------------------------------------------
 	HardwareVertexBufferSharedPtr 
         DefaultHardwareBufferManager::createVertexBuffer(size_t vertexSize, 
 		size_t numVerts, HardwareBuffer::Usage usage, bool useShadowBuffer)
 	{
-		return HardwareVertexBufferSharedPtr(
-			new DefaultHardwareVertexBuffer(vertexSize, numVerts, usage));
+        DefaultHardwareVertexBuffer* vb = new DefaultHardwareVertexBuffer(vertexSize, numVerts, usage);
+        mVertexBuffers.push_back(vb);
+        return HardwareVertexBufferSharedPtr(vb);
 	}
     //-----------------------------------------------------------------------
 	HardwareIndexBufferSharedPtr 
         DefaultHardwareBufferManager::createIndexBuffer(HardwareIndexBuffer::IndexType itype, 
 		size_t numIndexes, HardwareBuffer::Usage usage, bool useShadowBuffer)
 	{
-		return HardwareIndexBufferSharedPtr(
-			new DefaultHardwareIndexBuffer(itype, numIndexes, usage) );
+        DefaultHardwareIndexBuffer* ib = new DefaultHardwareIndexBuffer(itype, numIndexes, usage);
+        mIndexBuffers.push_back(ib);
+		return HardwareIndexBufferSharedPtr(ib);
 	}
 }

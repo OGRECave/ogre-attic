@@ -42,6 +42,7 @@ namespace Ogre {
         void* lockImpl(size_t offset, size_t length, LockOptions options);
         /** See HardwareBuffer. */
 		void unlockImpl(void);
+
     public:
 		GLDefaultHardwareVertexBuffer(size_t vertexSize, size_t numVertices, 
             HardwareBuffer::Usage usage);
@@ -99,6 +100,8 @@ namespace Ogre {
 		void destroyVertexBuffer(HardwareVertexBuffer* buf);
 		/// Destroy a hardware index buffer
 		void destroyIndexBuffer(HardwareIndexBuffer* buf);
+        void destroyAllBuffers(void);
+
     public:
         GLDefaultHardwareBufferManager();
         ~GLDefaultHardwareBufferManager();

@@ -36,6 +36,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     D3D9HardwareBufferManager::~D3D9HardwareBufferManager()
     {
+        destroyAllDeclarations();
+        destroyAllBindings();
+        destroyAllBuffers();
     }
     //-----------------------------------------------------------------------
     HardwareVertexBufferSharedPtr 
@@ -51,6 +54,33 @@ namespace Ogre {
 	void D3D9HardwareBufferManager::destroyVertexBuffer(HardwareVertexBuffer* buf)
     {
         delete buf;
+    }
+    //-----------------------------------------------------------------------
+    void D3D9HardwareBufferManager::destroyAllBuffers(void)
+    {
+        VertexBufferList::iterator vb;
+        for (vb = mVertexBuffers.begin(); vb != mVertexBuffers.end(); ++vb)
+        {
+            delete *vb;
+        }
+        mVertexBuffers.clear();
+
+        IndexBufferList::iterator ib;
+        for (ib = mIndexBuffers.begin(); ib != mIndexBuffers.end(); ++ib)
+        {
+            delete *ib;
+        }
+        mIndexBuffers.clear();
+    }
+    //-----------------------------------------------------------------------
+    void D3D9HardwareBufferManager::destroyAllDeclarations(void)
+    {
+        VertexDeclarationList::iterator decl;
+        for (decl = mVertexDeclarations.begin(); decl != mVertexDeclarations.end(); ++decl)
+        {
+            delete *decl;
+        }
+        mVertexDeclarations.clear();
     }
     //-----------------------------------------------------------------------
 	HardwareIndexBufferSharedPtr 

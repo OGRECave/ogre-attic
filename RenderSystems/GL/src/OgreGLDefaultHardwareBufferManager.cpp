@@ -146,6 +146,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     GLDefaultHardwareBufferManager::~GLDefaultHardwareBufferManager()
 	{
+        destroyAllDeclarations();
+        destroyAllBindings();
+        destroyAllBuffers();
 	}
     //-----------------------------------------------------------------------
 	HardwareVertexBufferSharedPtr 
@@ -163,4 +166,22 @@ namespace Ogre {
 		return HardwareIndexBufferSharedPtr(
 			new GLDefaultHardwareIndexBuffer(itype, numIndexes, usage) );
 	}
+    //-----------------------------------------------------------------------
+    void GLDefaultHardwareBufferManager::destroyAllBuffers(void)
+    {
+        VertexBufferList::iterator vb;
+        for (vb = mVertexBuffers.begin(); vb != mVertexBuffers.end(); ++vb)
+        {
+            delete *vb;
+        }
+        mVertexBuffers.clear();
+
+        IndexBufferList::iterator ib;
+        for (ib = mIndexBuffers.begin(); ib != mIndexBuffers.end(); ++ib)
+        {
+            delete *ib;
+        }
+        mIndexBuffers.clear();
+    }
+
 }

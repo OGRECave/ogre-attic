@@ -36,6 +36,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     HardwareBufferManager::~HardwareBufferManager()
     {
+        // Destroy everything
+        /* can't do this here because destroyAllBuffers has to be pure virtual?
+        destroyAllDeclarations();
+        destroyAllBindings();
+        destroyAllBuffers();
+        */
     }
     //-----------------------------------------------------------------------
     HardwareBufferManager& HardwareBufferManager::getSingleton(void)
@@ -69,6 +75,27 @@ namespace Ogre {
 		mVertexBufferBindings.remove(binding);
 		delete binding;
 	}
+    //-----------------------------------------------------------------------
+    void HardwareBufferManager::destroyAllDeclarations(void)
+    {
+        VertexDeclarationList::iterator decl;
+        for (decl = mVertexDeclarations.begin(); decl != mVertexDeclarations.end(); ++decl)
+        {
+            delete *decl;
+        }
+        mVertexDeclarations.clear();
+
+    }
+    //-----------------------------------------------------------------------
+    void HardwareBufferManager::destroyAllBindings(void)
+    {
+        VertexBufferBindingList::iterator bind;
+        for (bind = mVertexBufferBindings.begin(); bind != mVertexBufferBindings.end(); ++bind)
+        {
+            delete *bind;
+        }
+        mVertexBufferBindings.clear();
+    }
 
 
 }
