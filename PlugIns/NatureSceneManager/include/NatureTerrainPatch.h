@@ -83,7 +83,8 @@ public:
     void prepareMesh();
     /// Creates vertex/index/colour... buffers for mesh
     void generateMesh();
-
+    
+   
     void getRenderOperation(RenderOperation& rend);
     
     void _notifyCurrentCamera(Camera *cam);

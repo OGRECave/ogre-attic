@@ -16,7 +16,7 @@
 #include "NaturePatchManager.h"
 
 #include "HeightmapLoader.h"
-
+#include "OgreEntity.h"
 namespace Ogre
 {
 
@@ -116,6 +116,47 @@ void NatureSceneManager::_updateSceneGraph(Camera *cam)
 }
 
 //----------------------------------------------------------------------------
+IntersectionSceneQuery* 
+NatureSceneManager::createIntersectionQuery(unsigned long mask)
+{
+    
+    NatureIntersectionSceneQuery* q = new NatureIntersectionSceneQuery(this);
+    q->setQueryMask(mask);
+    return q;
+}
+
+//----------------------------------------------------------------------------
+void NatureIntersectionSceneQuery::execute(IntersectionSceneQueryListener* listener)
+{
+    // Do movables to movables as before
+    DefaultIntersectionSceneQuery::execute(listener);
+    SceneQuery::WorldFragment frag;
+
+    // Do entities to world
+	SceneManager::EntityList::const_iterator a, theEnd;
+    NatureSceneManager *sceneMgr = static_cast<NatureSceneManager*>(mParentSceneMgr);
+    theEnd = sceneMgr->getEntities().end();
+    for (a = sceneMgr->getEntities().begin();a != theEnd; ++a)
+    {
+        // Apply mask 
+        if ( a->second->getQueryFlags() & mQueryMask)
+        {
+            const AxisAlignedBox& box = a->second->getWorldBoundingBox();
+            std::list<RenderOperation> opList;
+            sceneMgr->mNaturePatchManager->getPatchRenderOpsInBox(box, opList);
+            
+            std::list<RenderOperation>::iterator i, iend;
+            iend = opList.end();
+            for (i = opList.begin(); i != iend; ++i)
+            {
+                frag.fragmentType = SceneQuery::WFT_RENDER_OPERATION;
+                frag.renderOp = &(*i);
+                listener->queryResult(a->second, &frag);
+            }
+        }
+
+    }
+}
 
 } // namespace Ogre
 

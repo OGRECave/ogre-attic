@@ -21,8 +21,12 @@ namespace Ogre
 
 //----------------------------------------------------------------------------
 
+// forward decl
+class NatureIntersectionSceneQuery;
+
 class NatureSceneManager : public SceneManager
 {
+    friend class NatureIntersectionSceneQuery;
 public:
     NatureSceneManager();
 
@@ -35,14 +39,30 @@ public:
     virtual void _renderVisibleObjects();
 
     virtual void _updateSceneGraph(Camera *cam); 
+    IntersectionSceneQuery* createIntersectionQuery(unsigned long mask);
 
 private:
     SceneNode	    *mNatureRoot;
+    // Passthrough call to allow queries to access parent protected entity list
+    EntityList& getEntities() { return mEntities; }
 
     NaturePatchManager *mNaturePatchManager;
     NaturePatchLoader  *mNaturePatchLoader;
 };
 
+
+/** Nature's specialisation of IntersectionSceneQuery. */
+class NatureIntersectionSceneQuery : 
+    public DefaultIntersectionSceneQuery
+{
+public:
+    NatureIntersectionSceneQuery(SceneManager* creator) : DefaultIntersectionSceneQuery(creator) 
+    { mSupportedWorldFragments.insert(SceneQuery::WFT_RENDER_OPERATION);}
+    ~NatureIntersectionSceneQuery() {}
+
+    /** See IntersectionSceneQuery. */
+    void execute(IntersectionSceneQueryListener* listener);
+};
 } // namespace Ogre
 
 

@@ -649,6 +649,42 @@ void NaturePatchManager::updatePatches(Camera *cam)
     }
 }
 
-//----------------------------------------------------------------------------
+NaturePatch* NaturePatchManager::getPatchAtPosition(const Vector3& pos)
+{
+    // NB only works if loaded
+    // Get location
+    int x, y;
+    mMapLoader->getPatchAtPosition(pos, &x, &y);
+
+    int idx = y * mPageSize + x;
+
+    return mPatches[idx];
+
+}
+
+void NaturePatchManager::getPatchRenderOpsInBox(const AxisAlignedBox& box, std::list<RenderOperation>& opList)
+{
+    // Get the patches at the 4 corners at the bottom of the box, ie 0, 3, 6, 7
+    std::set<NaturePatch*> uniqueSet;
+
+    const Vector3* corners = box.getAllCorners();
+
+    uniqueSet.insert(getPatchAtPosition(corners[0]));
+    uniqueSet.insert(getPatchAtPosition(corners[3]));
+    uniqueSet.insert(getPatchAtPosition(corners[6]));
+    uniqueSet.insert(getPatchAtPosition(corners[7]));
+
+    // Iterate over uniques
+    std::set<NaturePatch*>::iterator i, iend;
+    RenderOperation rend;
+    for (i = uniqueSet.begin(); i != iend; ++i)
+    {
+        (*i)->getRenderOperation(rend);
+        opList.push_back(rend);
+    }
+
+
+}
+
 
 } // namespace Ogre

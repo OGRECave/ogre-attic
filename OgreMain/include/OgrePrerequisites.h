@@ -190,6 +190,7 @@ namespace Ogre {
     class Quaternion;
     class Ray;
     class Renderable;
+    class RenderOperation;
     class RenderPriorityGroup;
     class RenderQueue;
     class RenderQueueGroup;

@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreAxisAlignedBox.h"
 #include "OgreSphere.h"
 #include "OgreRay.h"
+#include "OgreRenderOperation.h"
 
 namespace Ogre {
 
@@ -76,7 +77,9 @@ namespace Ogre {
             /// Return a single intersection point (typically RaySceneQuery only)
             WFT_SINGLE_INTERSECTION,
             /// Custom geometry as defined by the SceneManager
-            WFT_CUSTOM_GEOMETRY
+            WFT_CUSTOM_GEOMETRY,
+            /// General RenderOperation structure
+            WFT_RENDER_OPERATION
         };
 
         /** Represents part of the world geometry that is a result of a SceneQuery. 
@@ -99,8 +102,11 @@ namespace Ogre {
             Vector3 singleIntersection;
             /// Planes bounding a convex region, only applicable for WFT_PLANE_BOUNDED_REGION
             std::list<Plane>* planes;
-            // Raw geometry, only applicable for WFT_CUSTOM_GEOMETRY
-            GeometryData* geometry;
+            /// Custom geometry block, only applicable for WFT_CUSTOM_GEOMETRY
+            void* geometry;
+            /// General render operation structure, fallback if nothing else is available
+            RenderOperation* renderOp;
+            
         };
     protected:
         SceneManager* mParentSceneMgr;
