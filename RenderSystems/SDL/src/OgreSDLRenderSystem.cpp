@@ -989,9 +989,8 @@ namespace Ogre {
             if (mLights[i] != NULL)
             {
                 Light* lt = mLights[i];
-                // Position (don't set for directional)
                 Vector3 vec;
-                if (lt->getType() != Light::LT_DIRECTIONAL)
+                if (lt->getType() == Light::LT_POINT)
                 {
                     vec = lt->getDerivedPosition();
                     f4vals[0] = vec.x;
@@ -1000,14 +999,31 @@ namespace Ogre {
                     f4vals[3] = 1.0;
                     glLightfv(GL_LIGHT0 + i, GL_POSITION, f4vals);
                 }
-                // Direction (not needed for point lights)
-                if (lt->getType() != Light::LT_POINT)
+                if (lt->getType() == Light::LT_DIRECTIONAL)
                 {
                     vec = lt->getDerivedDirection();
+                    f4vals[0] = -vec.x; // GL light directions are in eye coords
+                    f4vals[1] = vec.y;
+                    f4vals[2] = -vec.z; // GL light directions are in eye coords
+                    f4vals[3] = 0.0; // important!
+                    // In GL you set direction through position, but the
+                    //  w value of the vector being 0 indicates which it is
+                    glLightfv(GL_LIGHT0 + i, GL_POSITION, f4vals);
+                }
+                if (lt->getType() == Light::LT_SPOTLIGHT)
+                {
+                    vec = lt->getDerivedPosition();
                     f4vals[0] = vec.x;
                     f4vals[1] = vec.y;
                     f4vals[2] = vec.z;
-                    f4vals[3] = 0.0;
+                    f4vals[3] = 1.0;
+                    glLightfv(GL_LIGHT0 + i, GL_POSITION, f4vals);
+
+                    vec = lt->getDerivedDirection();
+                    f4vals[0] = -vec.x; // GL light directions are in eye coords
+                    f4vals[1] = vec.y;
+                    f4vals[2] = -vec.z; // GL light directions are in eye coords
+                    f4vals[3] = 0.0; 
                     glLightfv(GL_LIGHT0 + i, GL_SPOT_DIRECTION, f4vals);
                 }
             }
