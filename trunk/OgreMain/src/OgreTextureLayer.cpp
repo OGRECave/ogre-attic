@@ -60,6 +60,12 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
+    Material::TextureLayer::TextureLayer( const TextureLayer& oth )
+    {
+        *this = oth;
+    }
+
+    //-----------------------------------------------------------------------
     Material::TextureLayer::TextureLayer( const String& texName, int texCoordSet, bool deferLoad)
     {
         mIsBlank = true;
@@ -107,6 +113,21 @@ namespace Ogre {
         // Don't unload textures. may be used elsewhere
         */
 
+    }
+    //-----------------------------------------------------------------------
+    Material::TextureLayer & Material::TextureLayer::operator = ( 
+        const Material::TextureLayer &oth )
+    {
+        // copy basic members (int's, real's)
+        memcpy( this, &oth, (uchar *)(&oth.mFrames[0]) - (uchar *)(&oth) );
+
+        // copy complex members
+        for( ushort i = 0; i<mNumFrames; i++ )
+            mFrames[i] = oth.mFrames[i];
+
+        mEffects = oth.mEffects;
+
+        return *this;
     }
     //-----------------------------------------------------------------------
     const String& Material::TextureLayer::getTextureName(void) const
