@@ -239,7 +239,7 @@ protected:
     RenderWindow* mWindow;
     bool mStatsOn;
     bool mUseBufferedInput;
-	uint mNumScreenShots;
+	unsigned int mNumScreenShots;
 
 };
 
