@@ -880,8 +880,8 @@ namespace Ogre
         // Store record of texture unit settings for efficient alterations
         Material::TextureLayer mTextureUnits[OGRE_MAX_TEXTURE_LAYERS];
 
-        unsigned int mFaceCount;
-        unsigned int mVertexCount;
+        size_t mFaceCount;
+        size_t mVertexCount;
 
         /// Saved set of world matrices
         Matrix4 mWorldMatrices[256];
