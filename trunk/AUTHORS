@@ -1,20 +1,65 @@
-OGRE Core Developers
-====================
-Current Active Members
-----------------------
-Steve Streeting	(sinbad)
+AUTHORS
+=======
+
+OGRE Team 
+---------
+Steve Streeting	(sinbad)              
 Thomas Muldowney (temas)
 James O'Sullivan (_mental_)
-Marcin Zukowski (eru)
 
-Previous Members
-----------------
-Adrian Cearnau (cearny)
-Jon Anderson (janders)
+Feature Contributors
+--------------------
+The following list includes developers who have contributed features to OGRE:
 
-Contributors
-------------
-Jesse Rusak (jder), earthquakeproof, Paolo Gavocanov (cTh), Ivica Aracic (macross/bytelord), Jeff Leigh, Jose A Milan (jamilan), Stephan Kaiser (psyclonist), Michael Casaday, Philippe Culet, Daniel Wesslén, Timo Keller (norondion), Benny Kramek (wolfman8k), Riku Nurminen (rakkis), Christopher John Gilbert (thegilb), Nikita Mikros (santanopoulos), Martin Pollard (xmp), Jon L. Griffeth (silent3), Dan Sonnemann (oberleutnantdan), Amit Mathew, Dennis Verbeek.
+Contributor                             Subject Areas 
+-----------                             --------------------------------------
+Adrian Cearnau (cearny)               : Codecs, dynamic library loading
+Jon Anderson (janders)                : octree plugin
+Martin Persson                        : Nature plugin
+Jesse Rusak (jder) 	  				  : Mac OSX port
+Etienne Mallard (earthquakeproof)	  : 3D Studio Model Exporter
+Paolo Gavocanov (cTh) 				  : Initial D3D9 port, Meshviewer, 
+                                        3D Studio Scene Exporter
+Ivica Aracic (macross/bytelord)       : Ogre4J, Maya exporter, .scene format
+Jeff Leigh							  : Sky enhancements, debug overlay
+Jose A Milan (jamilan)                : Paging landscape plugin
+Stephan Kaiser (psyclonist)           : OgreFsrad, OgreLMTS, .scene format
+Philippe Culet                        : Attaching objects to bones
+Jon L. Griffeth (silent3)             : GUI enhancements
+Dan Sonnemann (oberleutnantdan)       : Timers
+Amit Mathew                           : Profiler
+Dennis Verbeek                        : Lightwave exporter
+David Whittaker                       : Displacement mapping terrain
+Chris Groskopf (staringmonkey)        : OgreTok
+Jeff Doyle (nfz)                      : ATI_fragment_shader compiler, 
+                                        paging landscape
+Patrick Kooman                        : Overlay editor
+Doug Wolanick (icetec)                : DotSceneOctree exporter & plugin
+John Van Vliet (granite/fifty1)       : Maya exporter
+Marcin Zukowski (eru)                 : Demo_CubeMapping and Demo_Water
+Jens Hoffmann                         : Blender exporter
+Michael Reimpell                      : Blender exporter
+Sam le Pirate                         : BMP support
+Attila Tajti (attis)                  : Wings3D exporter
+? (Firestorm)                         : Particle scale and rotate affectors
+
+Others
+------
+The following people have been notable in their support of OGRE through the
+fixing of bugs and various other miscellaneous contributions:
+
+Timo Keller (norondion) 
+Kai-Peter Bäckman
+Daniel Wesslén
+Benny Kramek (wolfman8k) 
+Riku Nurminen (rakkis)
+Christopher John Gilbert (thegilb)
+Martin Pollard (xmp)
+Nikita Mikros (santanopoulos)
+Chris Heald (antiarc)
+Michael Casaday
+Evgeni Popov
+
 
 If we've forgotten you in the above list, please contact us!
 
@@ -22,7 +67,7 @@ See Readme.html in the Docs folder for more details, in particular information o
 
 -----
 
-Copyright 1999-2003 The OGRE Team.
+Copyright 1999-2004 The OGRE Team.
 
 This file is part of OGRE (Object-Oriented Graphics Rendering Engine).
 
