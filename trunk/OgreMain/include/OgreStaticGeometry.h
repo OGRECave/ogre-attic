@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 #include "OgreMovableObject.h"
 #include "OgreRenderable.h"
+#include "OgreEdgeListBuilder.h"
 
 namespace Ogre {
 
@@ -369,6 +370,8 @@ namespace Ogre {
 			mutable ulong mLightListUpdated;
 			/// Hidden because of distance?
 			bool mBeyondFarDistance;
+			/// Edge list, used if stencil shadow casting is enabled 
+			EdgeData* mEdgeList;
 
 
 		public:
@@ -398,6 +401,14 @@ namespace Ogre {
 			LODIterator getLODIterator(void);
 			/// Shared set of lights for all GeometryBuckets
 			const LightList& getLights(void) const;
+			/// @copydoc ShadowCaster::getShadowVolumeRenderableIterator
+			ShadowRenderableListIterator getShadowVolumeRenderableIterator(
+				ShadowTechnique shadowTechnique, const Light* light, 
+				HardwareIndexBufferSharedPtr* indexBuffer, 
+				bool extrudeVertices, Real extrusionDistance, unsigned long flags = 0 );
+			/// Overridden from MovableObject
+			EdgeData* getEdgeList(void);
+
 
 			/// Dump contents for diagnostics
 			void dump(std::ofstream& of) const;
@@ -627,12 +638,15 @@ namespace Ogre {
 			edge lists will be copied from the underlying meshes on build.
 			It is essential that all meshes support stencil shadows in this
 			case.
-		@note Must be called before 'build'.
+		@note If you intend to use stencil shadows, you must set this to 
+			true before calling 'build' as well as making sure you set the
+			scene's shadow type (that should always be the first thing you do
+			anyway). You can turn shadows off temporarily but they can never 
+			be turned on if they were not at the time of the build. 
 		*/
-		virtual void setCastsShadows(bool castShadows) 
-		{ mCastShadows = castShadows; }
+		virtual void setCastShadows(bool castShadows);
 		/// Will the geometry from this object cast shadows?
-		virtual bool getCastsShadows(void) { return mCastShadows; }
+		virtual bool getCastShadows(void) { return mCastShadows; }
 
 		/** Sets the size of a single region of geometry.
 		@remarks

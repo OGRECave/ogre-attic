@@ -154,6 +154,7 @@ namespace Ogre {
 			Vector3 centre = getRegionCentre(x, y, z);
 			ret = new Region(this, str.str(), mOwner, index, centre);
 			ret->setVisible(mVisible);
+			ret->setCastShadows(mCastShadows);
 			if (mRenderQueueIDSet)
 			{
 				ret->setRenderQueueGroup(mRenderQueueID);
@@ -317,7 +318,15 @@ namespace Ogre {
 		for (ushort lod = 0; lod < numLods; ++lod)
 		{
 			SubMeshLodGeometryLink& geomLink = (*lodList)[lod];
-			const Mesh::MeshLodUsage& lodUsage = sm->parent->getLodLevel(lod);
+			IndexData *lodIndexData;
+			if (lod == 0)
+			{
+				lodIndexData = sm->indexData;
+			}
+			else
+			{
+				lodIndexData = sm->mLodFaceList[lod - 1];
+			}
 			// Can use the original mesh geometry?
 			if (sm->useSharedVertices)
 			{
@@ -325,13 +334,13 @@ namespace Ogre {
 				{
 					// Ok, this is actually our own anyway
 					geomLink.vertexData = sm->parent->sharedVertexData;
-					geomLink.indexData = sm->indexData;
+					geomLink.indexData = lodIndexData;
 				}
 				else
 				{
 					// We have to split it
 					splitGeometry(sm->parent->sharedVertexData, 
-						sm->indexData, &geomLink);
+						lodIndexData, &geomLink);
 				}
 			}
 			else
@@ -347,7 +356,7 @@ namespace Ogre {
 				{
 					// We have to split it
 					splitGeometry(sm->vertexData, 
-						sm->indexData, &geomLink);
+						lodIndexData, &geomLink);
 				}
 			}
 			assert (geomLink.vertexData->vertexStart == 0 && 
@@ -451,6 +460,8 @@ namespace Ogre {
 			pDst32 = static_cast<uint32*>(ibuf->lock(
 				HardwareBuffer::HBL_DISCARD));
 			remapIndexes(pSrc32, pDst32, indexRemap, id->indexCount);
+			id->indexBuffer->unlock();
+			ibuf->unlock();
 		}
 		else
 		{
@@ -460,6 +471,8 @@ namespace Ogre {
 			pDst16 = static_cast<uint16*>(ibuf->lock(
 				HardwareBuffer::HBL_DISCARD));
 			remapIndexes(pSrc16, pDst16, indexRemap, id->indexCount);
+			id->indexBuffer->unlock();
+			ibuf->unlock();
 		}
 		
 		targetGeomLink->indexData = new IndexData();
@@ -541,6 +554,18 @@ namespace Ogre {
 		}
 	}
 	//--------------------------------------------------------------------------
+	void StaticGeometry::setCastShadows(bool castShadows)
+	{
+		mCastShadows = castShadows;
+		// tell any existing regions
+		for (RegionMap::iterator ri = mRegionMap.begin(); 
+			ri != mRegionMap.end(); ++ri)
+		{
+			ri->second->setCastShadows(castShadows);
+		}
+
+	}
+	//--------------------------------------------------------------------------
     void StaticGeometry::setRenderQueueGroup(RenderQueueGroupID queueID)
 	{
 		mRenderQueueIDSet = true;
@@ -588,7 +613,8 @@ namespace Ogre {
 		SceneManager* mgr, uint32 regionID, const Vector3& centre) 
 		: mParent(parent), mName(name), mSceneMgr(mgr), mNode(0), 
 		mRegionID(regionID), mCentre(centre), mBoundingRadius(0.0f), 
-		mCurrentLod(0), mLightListUpdated(0), mBeyondFarDistance(false)
+		mCurrentLod(0), mLightListUpdated(0), mBeyondFarDistance(false),
+		mEdgeList(0)
 	{
 		// First LOD mandatory, and always from 0
 		mLodSquaredDistances.push_back(0.0f);
@@ -670,6 +696,35 @@ namespace Ogre {
 			lodBucket->build();
 		}
 
+		// Do we need to build an edge list?
+		if (mCastShadows && 
+			(mSceneMgr->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE ||
+			mSceneMgr->getShadowTechnique() == SHADOWTYPE_STENCIL_MODULATIVE))
+		{
+			EdgeListBuilder eb;
+			size_t vertexSet = 0;
+			LODIterator lodIterator = getLODIterator();
+			while (lodIterator.hasMoreElements())
+			{
+				LODBucket* lod = lodIterator.getNext();
+				LODBucket::MaterialIterator matIt = lod->getMaterialIterator();
+				while (matIt.hasMoreElements())
+				{
+					MaterialBucket* mat = matIt.getNext();
+					MaterialBucket::GeometryIterator geomIt = 
+						mat->getGeometryIterator();
+					while (geomIt.hasMoreElements())
+					{
+						GeometryBucket* geom = geomIt.getNext();
+						eb.addVertexData(geom->getVertexData());
+						eb.addIndexData(geom->getIndexData(), vertexSet++);
+					}
+				}
+			}
+			mEdgeList = eb.build();
+
+		}
+
 
 	}
 	//--------------------------------------------------------------------------
@@ -703,12 +758,13 @@ namespace Ogre {
 		{
 			mBeyondFarDistance = false;
 
-			mCurrentLod = 0;
+			mCurrentLod = mLodSquaredDistances.size() - 1;
 			for (ushort i = 0; i < mLodSquaredDistances.size(); ++i)
 			{
 				if (mLodSquaredDistances[i] > mCamDistanceSquared)
 				{
 					mCurrentLod = i - 1;
+					break;
 				}
 			}
 		}
@@ -754,6 +810,22 @@ namespace Ogre {
 		}
 		return mLightList;
 
+	}
+	//--------------------------------------------------------------------------
+	ShadowCaster::ShadowRenderableListIterator 
+	StaticGeometry::Region::getShadowVolumeRenderableIterator(
+		ShadowTechnique shadowTechnique, const Light* light, 
+		HardwareIndexBufferSharedPtr* indexBuffer, 
+		bool extrudeVertices, Real extrusionDistance, unsigned long flags)
+	{
+		// TODO
+		return MovableObject::getShadowVolumeRenderableIterator(shadowTechnique, 
+			light, indexBuffer, extrudeVertices, extrusionDistance, flags);
+	}
+	//--------------------------------------------------------------------------
+	EdgeData* StaticGeometry::Region::getEdgeList(void)
+	{
+		return mEdgeList;
 	}
 	//--------------------------------------------------------------------------
 	void StaticGeometry::Region::dump(std::ofstream& of) const
