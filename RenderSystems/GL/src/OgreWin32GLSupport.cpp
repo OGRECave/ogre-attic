@@ -68,8 +68,8 @@ namespace Ogre {
 
 		optVSync.name = "VSync";
 		optVSync.immutable = false;
-		optVSync.possibleValues.push_back("Yes");
 		optVSync.possibleValues.push_back("No");
+		optVSync.possibleValues.push_back("Yes");
 		optVSync.currentValue = "No";
 
 		mOptions[optFullScreen.name] = optFullScreen;
@@ -109,7 +109,7 @@ namespace Ogre {
 		}
 		remove_duplicates(optColourDepth->possibleValues);
 		remove_duplicates(optDisplayFrequency->possibleValues);
-		optColourDepth->currentValue = optColourDepth->possibleValues.front();
+		optColourDepth->currentValue = optColourDepth->possibleValues.back();
 		optDisplayFrequency->currentValue = optDisplayFrequency->possibleValues.front();
 	}
 
