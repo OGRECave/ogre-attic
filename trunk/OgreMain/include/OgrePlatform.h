@@ -85,20 +85,6 @@ http://www.gnu.org/copyleft/gpl.html.
 #   define OGRE_PLATFORM PLATFORM_LINUX
 #endif
 
-/* Sets the standard character type for OGRE strings
-*/
-#if OGRE_WCHAR_T_STRINGS == 1
-#   define OGRE_CHAR_TYPE wchar_t
-#else
-#   define OGRE_CHAR_TYPE char
-#endif
-
-#if OGRE_WCHAR_T_STRINGS == 1
-namespace Ogre { typedef wchar_t Char; }
-#else
-namespace Ogre { typedef char Char; }
-#endif
-
 #define BEGIN_OGRE_NAMESPACE namespace Ogre {
 #define END_OGRE_NAMESPACE }
 
