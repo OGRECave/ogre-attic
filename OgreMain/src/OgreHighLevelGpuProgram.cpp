@@ -46,7 +46,7 @@ namespace Ogre
         // create low-level implementation
         createLowLevelImpl();
         // load constructed assembler program
-        assert(mAssemblerProgram && "Subclass did not initialise mAssemblerProgram!");
+        assert(!mAssemblerProgram.isNull() && "Subclass did not initialise mAssemblerProgram!");
         mAssemblerProgram->load();
         mIsLoaded = true;
     }

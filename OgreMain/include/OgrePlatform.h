@@ -106,6 +106,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 #       define OGRE_DEBUG_MODE 0
 #   endif
 
+#if defined( __MINGW32__ )
+    #define GCC_3_1
+    #define EXT_HASH
+#else
+    #define snprintf _snprintf
+    #define vsnprintf _vsnprintf
+#endif
+
 #endif
 //----------------------------------------------------------------------------
 
