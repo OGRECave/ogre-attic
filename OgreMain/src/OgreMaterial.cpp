@@ -427,6 +427,26 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
+    void Material::setTextureFiltering(TextureFilterOptions filterType)
+    {
+        Techniques::iterator i, iend;
+        iend = mTechniques.end();
+        for (i = mTechniques.begin(); i != iend; ++i)
+        {
+            (*i)->setTextureFiltering(filterType);
+        }
+    }
+    // --------------------------------------------------------------------
+    void Material::setTextureAnisotropy(int maxAniso)
+    {
+        Techniques::iterator i, iend;
+        iend = mTechniques.end();
+        for (i = mTechniques.begin(); i != iend; ++i)
+        {
+            (*i)->setTextureAnisotropy(maxAniso);
+        }
+    }
+    // --------------------------------------------------------------------
 
 
 
