@@ -179,9 +179,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void HardwareBufferManager::_releaseBufferCopies(void)
     {
-        TemporaryVertexBufferLicenseList::iterator i, iend;
-        iend = mTempVertexBufferLicenses.end();
-        for (i = mTempVertexBufferLicenses.begin(); i != iend; ++i)
+        TemporaryVertexBufferLicenseList::iterator i;
+        i = mTempVertexBufferLicenses.begin(); 
+
+        while (i != mTempVertexBufferLicenses.end()) 
         {
 
             const VertexBufferLicense& vbl = *i;
@@ -195,6 +196,10 @@ namespace Ogre {
                 vbi->second->push_back(vbl.buffer);
                 i = mTempVertexBufferLicenses.erase(i);
 
+            }
+            else
+            {
+                ++i;
             }
         }
     }
