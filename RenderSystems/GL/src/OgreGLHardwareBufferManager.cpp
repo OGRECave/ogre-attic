@@ -83,6 +83,7 @@ namespace Ogre {
         switch(usage)
         {
         case HardwareBuffer::HBU_STATIC:
+        case HardwareBuffer::HBU_STATIC_WRITE_ONLY:
             return GL_STATIC_DRAW_ARB;
         case HardwareBuffer::HBU_DYNAMIC:
         case HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY:
