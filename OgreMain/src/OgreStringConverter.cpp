@@ -22,6 +22,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
+#include "OgreStableHeaders.h"
 #include "OgreStringConverter.h"
 #include "OgreVector3.h"
 #include "OgreMatrix3.h"
@@ -123,7 +124,7 @@ namespace Ogre {
     String StringConverter::toString(const Quaternion& val)
     {
         String::StrStreamType stream;
-        stream << val.x << " " << val.y << " " << val.z << " " << val.w;
+        stream  << val.w << " " << val.x << " " << val.y << " " << val.z;
         return stream.str();
     }
     //-----------------------------------------------------------------------
