@@ -72,7 +72,7 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------
     EdgeListBuilder::EdgeListBuilder()
-        : mWeldVerticesAcrossSets(true)
+        : mWeldVerticesAcrossSets(true), mWeldVerticesWithinSets(true)
     {
     }
     //---------------------------------------------------------------------
@@ -139,6 +139,7 @@ namespace Ogre {
 
         // Default to try to form a combined hull from multiple non-manifold parts
         mWeldVerticesAcrossSets = true;
+        mWeldVerticesWithinSets = true;
 
         mEdgeData = new EdgeData();
         // resize the edge group list to equal the number of vertex sets
@@ -181,9 +182,27 @@ namespace Ogre {
                     // since the 'too many tris on an edge' case would have resulted in 
                     // artefacts anyway)
 
-                    if (mWeldVerticesAcrossSets)
+                    if (mWeldVerticesAcrossSets || mWeldVerticesWithinSets)
                     {
-                        mWeldVerticesAcrossSets = false;
+                        if (mWeldVerticesAcrossSets)
+                        {
+                            LogManager::getSingleton().logMessage(
+                                "RECOVERY: attempting to find valid hull "
+                                "by assuming all individual submeshes are "
+                                "manifold with their own geometry...");
+
+                            mWeldVerticesAcrossSets = false;
+                        }
+                        else if (mWeldVerticesWithinSets)
+                        {
+                            LogManager::getSingleton().logMessage(
+                                "WARNING: edge calculation process detected "
+                                "ambiguous hull. This is almost certainly going "
+                                "to result in stencil shadow artefacts.");
+
+                            mWeldVerticesWithinSets = false;
+                        }
+
                         // reset
                         mUniqueEdges.clear();
                         mEdgeData->triangles.clear();
@@ -198,7 +217,58 @@ namespace Ogre {
                         i = mIndexDataList.begin();
                         mapi = mIndexDataVertexDataSetList.begin();
                         indexSet = 0;
-                        buildTrianglesEdges(indexSet, *mapi);
+                        try 
+                        {
+
+                            buildTrianglesEdges(indexSet, *mapi);
+                        }
+                        catch (Exception& e2)
+                        {
+                            if (e.getNumber() == Exception::ERR_DUPLICATE_ITEM)
+                            {
+                                if (mWeldVerticesWithinSets)
+                                {
+                                    // Oh, for feck sakes
+                                    // This means that, even splitting by vertex set
+                                    // we still managed to get a situation where there
+                                    // are too many faces meeting at the same edge
+                                    // This is likely because the source of this mesh
+                                    // has co-incident vertices, but they're not meant
+                                    // to be treated as the same edge
+                                    // So we don't weld at all now
+                                    mWeldVerticesWithinSets = false;
+
+                                    LogManager::getSingleton().logMessage(
+                                        "WARNING: edge calculation process detected "
+                                        "ambiguous hull. This is almost certainly going "
+                                        "to result in stencil shadow artefacts.");
+                                    // reset
+                                    mUniqueEdges.clear();
+                                    mEdgeData->triangles.clear();
+                                    EdgeData::EdgeGroupList::iterator egi, egiend;
+                                    egiend = mEdgeData->edgeGroups.end();
+                                    for(egi = mEdgeData->edgeGroups.begin(); egi != egiend; ++egi)
+                                    {
+                                        egi->edges.clear();
+                                    }
+                                    // try again (reset and issue 1st) - LAST CHANCE!
+                                    // Any exceptions this time will be thrown to parent
+                                    i = mIndexDataList.begin();
+                                    mapi = mIndexDataVertexDataSetList.begin();
+                                    indexSet = 0;
+                                    buildTrianglesEdges(indexSet, *mapi);
+                                }
+                                else
+                                {
+                                    throw;
+                                }
+
+                            }
+                            else
+                            {
+                                throw;
+                            }
+                        }
                     }
                     else
                     {
@@ -425,7 +495,8 @@ namespace Ogre {
             if (Math::RealEqual(vec.x, commonVec.position.x, 1e-04) && 
                 Math::RealEqual(vec.y, commonVec.position.y, 1e-04) && 
                 Math::RealEqual(vec.z, commonVec.position.z, 1e-04) && 
-                (commonVec.vertexSet == vertexSet || mWeldVerticesAcrossSets))
+                ((commonVec.vertexSet == vertexSet && mWeldVerticesWithinSets)
+                || mWeldVerticesAcrossSets))
             {
                 return index;
             }

@@ -186,6 +186,8 @@ namespace Ogre {
         UniqueEdgeSet mUniqueEdges;
         // Should we treat coincident vertices from different vertex sets as one?
         bool mWeldVerticesAcrossSets;
+        // Should we treat coincident vertices from the same vertex sets as one?
+        bool mWeldVerticesWithinSets;
 
         void buildTrianglesEdges(size_t indexSet, size_t vertexSet);
         void connectEdges(void);
