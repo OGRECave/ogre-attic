@@ -241,11 +241,7 @@ namespace Ogre {
             shadow receivers, followed by a depth test to detect the closest
             fragment to the light.
         */
-        SHADOWTYPE_TEXTURE_SHADOWMAP,
-        /** Simple shadow technique that simply renders a 'shadow blob' underneath
-            a movable object.
-        */
-        SHADOWTYPE_DECAL
+        SHADOWTYPE_TEXTURE_SHADOWMAP
     };
 
 

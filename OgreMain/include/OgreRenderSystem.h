@@ -279,6 +279,13 @@ namespace Ogre
 		*/
         virtual RenderTexture * createRenderTexture( const String & name, unsigned int width, unsigned int height ) = 0;
 
+        /** Destroys a render window */
+        virtual void destroyRenderWindow(const String& name);
+        /** Destroys a render texture */
+        virtual void destroyRenderTexture(const String& name);
+        /** Destroys a render target of any sort */
+        virtual void destroyRenderTarget(const String& name);
+
         /** Attaches the passed render target to the render system.
         */
         virtual void attachRenderTarget( RenderTarget &target );

@@ -241,7 +241,8 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void SceneNode::_findVisibleObjects(Camera* cam, RenderQueue* queue, bool includeChildren, bool displayNodes)
+    void SceneNode::_findVisibleObjects(Camera* cam, RenderQueue* queue, 
+        bool includeChildren, bool displayNodes, bool onlyShadowCasters)
     {
         // Check self visible
         if (!cam->isVisible(mWorldAABB))
@@ -254,7 +255,8 @@ namespace Ogre {
         {
             // Tell attached objects about camera position (incase any extra processing they want to do)
             iobj->second->_notifyCurrentCamera(cam);
-            if (iobj->second->isVisible())
+            if (iobj->second->isVisible() && 
+                (!onlyShadowCasters || iobj->second->getCastShadows()))
             {
                 iobj->second->_updateRenderQueue(queue);
             }

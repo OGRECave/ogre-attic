@@ -114,6 +114,22 @@ namespace Ogre {
         return 0;
     }
     //---------------------------------------------------------------------------------------------
+    void RenderSystem::destroyRenderWindow(const String& name)
+    {
+        destroyRenderTarget(name);
+    }
+    //---------------------------------------------------------------------------------------------
+    void RenderSystem::destroyRenderTexture(const String& name)
+    {
+        destroyRenderTarget(name);
+    }
+    //---------------------------------------------------------------------------------------------
+    void RenderSystem::destroyRenderTarget(const String& name)
+    {
+        RenderTarget* rt = detachRenderTarget(name);
+        delete rt;
+    }
+    //---------------------------------------------------------------------------------------------
     void RenderSystem::attachRenderTarget( RenderTarget &target )
     {
 		assert( target.getPriority() < OGRE_NUM_RENDERTARGET_GROUPS );

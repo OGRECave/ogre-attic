@@ -14,7 +14,6 @@ email                : janders@users.sf.net
 *   License, or (at your option) any later version.                       *
 *                                                                         *
 ***************************************************************************/
-
 #include <OgreRoot.h>
 
 #include <OgreOctreeNode.h>
@@ -116,7 +115,7 @@ bool OctreeNode::_isIn( AxisAlignedBox &box )
 }
 
 /** Addes the attached objects of this OctreeScene node into the queue. */
-void OctreeNode::_addToRenderQueue( Camera* cam, RenderQueue *queue )
+void OctreeNode::_addToRenderQueue( Camera* cam, RenderQueue *queue, bool onlyShadowCasters )
 {
     ObjectMap::iterator mit = mObjectsByName.begin();
 
@@ -125,7 +124,8 @@ void OctreeNode::_addToRenderQueue( Camera* cam, RenderQueue *queue )
         MovableObject * mo = mit->second;
 
         mo->_notifyCurrentCamera(cam);
-        if ( mo->isVisible() )
+        if ( mo->isVisible() &&
+            (!onlyShadowCasters || mo->getCastShadows()))
         {
             mo -> _updateRenderQueue( queue );
         }

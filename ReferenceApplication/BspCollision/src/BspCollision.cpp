@@ -99,11 +99,12 @@ protected:
     }
     void createScene(void)
     {
+        mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_MODULATIVE);
         // Set ambient light
-        mSceneMgr->setAmbientLight(ColourValue(0.6, 0.6, 0.6));
+        mSceneMgr->setAmbientLight(ColourValue(0.2, 0.2, 0.2));
         // Create a point light
         Light* l = mSceneMgr->createLight("MainLight");
-        l->setPosition(-128,50,50);
+        l->setPosition(-100,50,100);
 
 
         // Setup World

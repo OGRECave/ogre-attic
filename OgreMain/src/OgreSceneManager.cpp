@@ -64,6 +64,7 @@ namespace Ogre {
     {
         // Root scene node
         mSceneRoot = new SceneNode(this, "root node");
+        mRenderQueue = 0;
 
         // No sky by default
         mSkyPlaneEnabled = false;
@@ -106,13 +107,10 @@ namespace Ogre {
         mShadowFarDist = 0;
         mShadowFarDistSquared = 0;
 		mShadowIndexBufferSize = 51200;
+        mShadowTextureSize = 512;
+        mShadowTexture = 0;
 
 
-		// init render queues that do not need shadows
-		mRenderQueue.getQueueGroup(RENDER_QUEUE_BACKGROUND)->setShadowsEnabled(false);
-		mRenderQueue.getQueueGroup(RENDER_QUEUE_OVERLAY)->setShadowsEnabled(false);
-        mRenderQueue.getQueueGroup(RENDER_QUEUE_SKIES_EARLY)->setShadowsEnabled(false);
-        mRenderQueue.getQueueGroup(RENDER_QUEUE_SKIES_LATE)->setShadowsEnabled(false);
     }
 
     SceneManager::~SceneManager()
@@ -123,8 +121,27 @@ namespace Ogre {
         delete mFullScreenQuad;
         delete mShadowCasterSphereQuery;
         delete mShadowCasterAABBQuery;
+        delete mRenderQueue;
     }
-
+    //-----------------------------------------------------------------------
+    RenderQueue* SceneManager::getRenderQueue(void)
+    {
+        if (!mRenderQueue)
+        {
+            initRenderQueue();
+        }
+        return mRenderQueue;
+    }
+    //-----------------------------------------------------------------------
+    void SceneManager::initRenderQueue(void)
+    {
+        mRenderQueue = new RenderQueue();
+        // init render queues that do not need shadows
+        mRenderQueue->getQueueGroup(RENDER_QUEUE_BACKGROUND)->setShadowsEnabled(false);
+        mRenderQueue->getQueueGroup(RENDER_QUEUE_OVERLAY)->setShadowsEnabled(false);
+        mRenderQueue->getQueueGroup(RENDER_QUEUE_SKIES_EARLY)->setShadowsEnabled(false);
+        mRenderQueue->getQueueGroup(RENDER_QUEUE_SKIES_LATE)->setShadowsEnabled(false);
+    }
     //-----------------------------------------------------------------------
     Camera* SceneManager::createCamera(const String& name)
     {
@@ -731,7 +748,7 @@ namespace Ogre {
 			}
 		}
         // Clear the render queue
-        mRenderQueue.clear();
+        getRenderQueue()->clear();
 
         // Are we using any shadows at all?
         if (mShadowTechnique != SHADOWTYPE_NONE)
@@ -741,11 +758,12 @@ namespace Ogre {
         }
 
         // Parse the scene and tag visibles
-        _findVisibleObjects(camera);
+        _findVisibleObjects(camera, 
+            mIlluminationStage == IRS_RENDER_TO_TEXTURE? true : false);
         // Add overlays, if viewport deems it
         if (vp->getOverlaysEnabled())
         {
-            OverlayManager::getSingleton()._queueOverlaysForRendering(camera, &mRenderQueue, vp);
+            OverlayManager::getSingleton()._queueOverlaysForRendering(camera, getRenderQueue(), vp);
         }
         // Queue skies
         _queueSkiesForRendering(camera);
@@ -1196,17 +1214,18 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void SceneManager::_findVisibleObjects(Camera* cam)
+    void SceneManager::_findVisibleObjects(Camera* cam, bool onlyShadowCasters)
     {
         // Tell nodes to find, cascade down all nodes
-        mSceneRoot->_findVisibleObjects(cam, &mRenderQueue, true, mDisplayNodes);
+        mSceneRoot->_findVisibleObjects(cam, getRenderQueue(), true, 
+            mDisplayNodes, onlyShadowCasters);
 
     }
     //-----------------------------------------------------------------------
     void SceneManager::_renderVisibleObjects(void)
     {
         // Render each separate queue
-        RenderQueue::QueueGroupIterator queueIt = mRenderQueue._getQueueGroupIterator();
+        RenderQueue::QueueGroupIterator queueIt = getRenderQueue()->_getQueueGroupIterator();
 
         // NB only queues which have been created are rendered, no time is wasted
         //   parsing through non-existent queues (even though there are 10 available)
@@ -1243,8 +1262,28 @@ namespace Ogre {
             } while (repeatQueue);
 
         } // for each queue group
+
+        // For texture-based shadows, we need to perform additional rendering
+        if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE ||
+            mShadowTechnique == SHADOWTYPE_TEXTURE_SHADOWMAP)
+        {
+            renderTextureShadows();
+        }
     }
-	//-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
+    void SceneManager::renderTextureShadows(void)
+    {
+        // only perform this if we're in the 'normal' render stage
+        // otherwise this process will become infinitely recursive
+        if (mIlluminationStage != IRS_NONE)
+            return;
+
+        // First, we need to save the current rendering queue, because
+        // we'll need it to render the modulative pass for each light
+
+        // Set ill
+    }
+    //-----------------------------------------------------------------------
 	void SceneManager::renderAdditiveStencilShadowedQueueGroupObjects(RenderQueueGroup* pGroup)
 	{
         RenderQueueGroup::PriorityMapIterator groupIt = pGroup->getIterator();
@@ -1405,6 +1444,38 @@ namespace Ogre {
 		}// for each priority
 
 	}
+    //-----------------------------------------------------------------------
+    void SceneManager::renderTextureShadowCasterQueueGroupObjects(RenderQueueGroup* pGroup)
+    {
+        // This is like the basic group render, except we skip all transparents
+        // and we also render any non-shadowed objects
+        // Note that non-shadow casters will have already been eliminated during
+        // _findVisibleObjects
+
+        // Iterate through priorities
+        RenderQueueGroup::PriorityMapIterator groupIt = pGroup->getIterator();
+
+        while (groupIt.hasMoreElements())
+        {
+            RenderPriorityGroup* pPriorityGrp = groupIt.getNext();
+
+            // Sort the queue first
+            pPriorityGrp->sort(mCameraInProgress);
+
+            // Do solids
+            renderObjects(pPriorityGrp->_getSolidPasses(), true);
+            renderObjects(pPriorityGrp->_getSolidPassesNoShadow(), true);
+
+        }// for each priority
+    }
+    //-----------------------------------------------------------------------
+    void SceneManager::renderTextureShadowReceiverQueueGroupObjects(RenderQueueGroup* group)
+    {
+        // Shadow receivers are already separated from non-shadow receivers
+        // Shadow casters should also have been filtered out already
+
+        // Never render transparents
+    }
 	//-----------------------------------------------------------------------
 	void SceneManager::renderObjects(
         const RenderPriorityGroup::SolidRenderablePassMap& objs, bool doLightIteration, 
@@ -1458,41 +1529,68 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void SceneManager::renderQueueGroupObjects(RenderQueueGroup* pGroup)
 	{
-		// Redirect to alternate versions if stencil shadows in use
 		if (pGroup->getShadowsEnabled() && 
 			mShadowTechnique == SHADOWTYPE_STENCIL_ADDITIVE)
 		{
+            // Additive stencil shadows in use
 			renderAdditiveStencilShadowedQueueGroupObjects(pGroup);
 		}
 		else if (pGroup->getShadowsEnabled() && 
 			mShadowTechnique == SHADOWTYPE_STENCIL_MODULATIVE)
 		{
+            // Modulative stencil shadows in use
 			renderModulativeStencilShadowedQueueGroupObjects(pGroup);
 		}
+        else if (pGroup->getShadowsEnabled() && 
+            mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE)
+        {
+            // Modulative texture shadows in use
+            if (mIlluminationStage == IRS_RENDER_TO_TEXTURE)
+            {
+                // Shadow caster pass
+                renderTextureShadowCasterQueueGroupObjects(pGroup);
+            }
+            else if (mIlluminationStage == IRS_RENDER_MODULATIVE_PASS)
+            {
+                // Shadow receiver pass
+                renderTextureShadowReceiverQueueGroupObjects(pGroup);
+            }
+            else
+            {
+                // Ordinary pass
+                renderBasicQueueGroupObjects(pGroup);
+            }
+        }
 		else
 		{
-			// Basic render loop
-			// Iterate through priorities
-			RenderQueueGroup::PriorityMapIterator groupIt = pGroup->getIterator();
-
-			while (groupIt.hasMoreElements())
-			{
-				RenderPriorityGroup* pPriorityGrp = groupIt.getNext();
-
-				// Sort the queue first
-				pPriorityGrp->sort(mCameraInProgress);
-
-				// Do solids
-				renderObjects(pPriorityGrp->_getSolidPasses(), true);
-				// Do transparents
-				renderObjects(pPriorityGrp->_getTransparentPasses(), true);
-
-
-			}// for each priority
-		}
+            // No shadows, ordinary pass
+            renderBasicQueueGroupObjects(pGroup);
+        }
 
 
 	}
+    //-----------------------------------------------------------------------
+    void SceneManager::renderBasicQueueGroupObjects(RenderQueueGroup* pGroup)
+    {
+        // Basic render loop
+        // Iterate through priorities
+        RenderQueueGroup::PriorityMapIterator groupIt = pGroup->getIterator();
+
+        while (groupIt.hasMoreElements())
+        {
+            RenderPriorityGroup* pPriorityGrp = groupIt.getNext();
+
+            // Sort the queue first
+            pPriorityGrp->sort(mCameraInProgress);
+
+            // Do solids
+            renderObjects(pPriorityGrp->_getSolidPasses(), true);
+            // Do transparents
+            renderObjects(pPriorityGrp->_getTransparentPasses(), true);
+
+
+        }// for each priority
+    }
     //-----------------------------------------------------------------------
     void SceneManager::renderSingleObject(Renderable* rend, Pass* pass, 
         bool doLightIteration, const LightList* manualLightList)
@@ -2124,7 +2222,7 @@ namespace Ogre {
         {
             qid = mSkyPlaneDrawFirst? 
                         RENDER_QUEUE_SKIES_EARLY : RENDER_QUEUE_SKIES_LATE;
-            mRenderQueue.addRenderable(mSkyPlaneEntity->getSubEntity(0), qid, RENDERABLE_DEFAULT_PRIORITY);
+            getRenderQueue()->addRenderable(mSkyPlaneEntity->getSubEntity(0), qid, RENDERABLE_DEFAULT_PRIORITY);
         }
 
         uint plane;
@@ -2135,7 +2233,7 @@ namespace Ogre {
 
             for (plane = 0; plane < 6; ++plane)
             {
-                mRenderQueue.addRenderable(
+                getRenderQueue()->addRenderable(
                     mSkyBoxEntity[plane]->getSubEntity(0), qid, RENDERABLE_DEFAULT_PRIORITY);
             }
         }
@@ -2147,7 +2245,7 @@ namespace Ogre {
 
             for (plane = 0; plane < 5; ++plane)
             {
-                mRenderQueue.addRenderable(
+                getRenderQueue()->addRenderable(
                     mSkyDomeEntity[plane]->getSubEntity(0), qid, RENDERABLE_DEFAULT_PRIORITY);
             }
         }
@@ -2233,35 +2331,52 @@ namespace Ogre {
         if (technique == SHADOWTYPE_STENCIL_ADDITIVE || 
             technique == SHADOWTYPE_STENCIL_MODULATIVE)
         {
-            // Create an estimated sized shadow index buffer
-            mShadowIndexBuffer = HardwareBufferManager::getSingleton().
-                createIndexBuffer(HardwareIndexBuffer::IT_16BIT, 
-					mShadowIndexBufferSize, 
-                	HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, 
-					false);
-            // tell all meshes to prepare shadow volumes
-            MeshManager::getSingleton().setPrepareAllMeshesForShadowVolumes(true);
-
+            // Firstly check that we  have a stencil
+            // Otherwise forget it
+            if (!mDestRenderSystem->getCapabilities()->hasCapability(RSC_HWSTENCIL))
+            {
+                LogManager::getSingleton().logMessage(
+                    "WARNING: Stencil shadows were requested, but this device does not "
+                    "have a hardware stencil. Shadows disabled.");
+                mShadowTechnique = SHADOWTYPE_NONE;
+            }
+            else
+            {
+                // Create an estimated sized shadow index buffer
+                mShadowIndexBuffer = HardwareBufferManager::getSingleton().
+                    createIndexBuffer(HardwareIndexBuffer::IT_16BIT, 
+					    mShadowIndexBufferSize, 
+                	    HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, 
+					    false);
+                // tell all meshes to prepare shadow volumes
+                MeshManager::getSingleton().setPrepareAllMeshesForShadowVolumes(true);
+            }
         }
 
         if (mShadowTechnique == SHADOWTYPE_STENCIL_ADDITIVE)
         {
             // Additive stencil, we need to split everything by illumination stage
-            mRenderQueue.setSplitPassesByLightingType(true);
+            getRenderQueue()->setSplitPassesByLightingType(true);
         }
         else
         {
-            mRenderQueue.setSplitPassesByLightingType(false);
+            getRenderQueue()->setSplitPassesByLightingType(false);
         }
 
         if (mShadowTechnique != SHADOWTYPE_NONE)
         {
             // Tell render queue to split off non-shadowable materials
-            mRenderQueue.setSplitNoShadowPasses(true);
+            getRenderQueue()->setSplitNoShadowPasses(true);
         }
         else
         {
-            mRenderQueue.setSplitNoShadowPasses(false);
+            getRenderQueue()->setSplitNoShadowPasses(false);
+        }
+
+        if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE ||
+            mShadowTechnique == SHADOWTYPE_TEXTURE_SHADOWMAP)
+        {
+            createShadowTexture(mShadowTextureSize);
         }
 
     }
@@ -2780,6 +2895,37 @@ namespace Ogre {
 		}
 		mShadowIndexBufferSize = size;
 	}
+    //---------------------------------------------------------------------
+    void SceneManager::setShadowTextureSize(unsigned short size)
+    {
+        if (mShadowTexture && size != mShadowTextureSize)
+        {
+            // recreate
+            createShadowTexture(size);
+        }
+        mShadowTextureSize = size;
+    }
+    //---------------------------------------------------------------------
+    void SceneManager::createShadowTexture(unsigned short size)
+    {
+        static const String texname = "Ogre/ShadowTexture";
+        // destroy existing
+        if (mShadowTexture)
+            mDestRenderSystem->destroyRenderTexture(texname);
+
+        // Recreate shadow texture
+        if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE)
+        {
+            mShadowTexture = mDestRenderSystem->createRenderTexture( 
+                texname, size, size );
+        }
+        else if (mShadowTechnique == SHADOWTYPE_TEXTURE_SHADOWMAP)
+        {
+            // todo
+        }
+        // Don't auto-update, we'll do this manually
+        mShadowTexture->setAutoUpdated(false);
+    }
     //---------------------------------------------------------------------
     AxisAlignedBoxSceneQuery* 
     SceneManager::createAABBQuery(const AxisAlignedBox& box, unsigned long mask)

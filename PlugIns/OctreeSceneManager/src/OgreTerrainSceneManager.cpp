@@ -270,11 +270,6 @@ void TerrainSceneManager::_renderVisibleObjects( void )
 
 }
 
-void TerrainSceneManager::_findVisibleObjects ( Camera * cam )
-{
-    OctreeSceneManager::_findVisibleObjects( cam );
-}
-
 float TerrainSceneManager::getHeightAt( float x, float z )
 {
 

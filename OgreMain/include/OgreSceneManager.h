@@ -114,7 +114,7 @@ namespace Ogre {
     protected:
 
         /// Queue of objects for rendering
-        RenderQueue mRenderQueue;
+        RenderQueue* mRenderQueue;
 
         /// Current ambient light, cached for RenderSystem
         ColourValue mAmbientLight;
@@ -195,11 +195,18 @@ namespace Ogre {
         Real mFogEnd;
         Real mFogDensity;
 
+        /** Internal method for initialising the render queue.
+        @remarks
+            Subclasses can use this to install their own RenderQueue implementation.
+        */
+        virtual void initRenderQueue(void);
+        /** Retrieves the internal render queue. */
+        virtual RenderQueue* getRenderQueue(void);
         /** Internal method for setting up the renderstate for a rendering pass.
             @param
                 pass The Pass details to set.
         */
-        void setPass(Pass* pass);
+        virtual void setPass(Pass* pass);
         /// A pass designed to let us render black on white for texture shadows
         Pass* mShadowCasterPlainBlackPass;
         /** Internal method for turning a regular pass into a shadow caster pass.
@@ -295,6 +302,8 @@ namespace Ogre {
         Rectangle2D* mFullScreenQuad;
         Real mShadowDirLightExtrudeDist;
         IlluminationRenderStage mIlluminationStage;
+        unsigned short mShadowTextureSize;
+        RenderTexture* mShadowTexture;
 
         /** Internal method for locating a list of lights which could be affecting the frustum. 
         @remarks
@@ -305,6 +314,8 @@ namespace Ogre {
         virtual void findLightsAffectingFrustum(const Camera* camera);
         /// Internal method for setting up materials for shadows
         virtual void initShadowVolumeMaterials(void);
+        /// Internal method for creating a shadow texture (texture-based shadows)
+        virtual void createShadowTexture(unsigned short size);
         /** Internal method for rendering all the objects for a given light into the 
             stencil buffer.
         @param light The light source
@@ -319,7 +330,8 @@ namespace Ogre {
         virtual void setShadowVolumeStencilState(bool secondpass, bool zfail, bool twosided);
         /** Render a single shadow volume to the stencil buffer. */
         void renderSingleShadowVolumeToStencil(ShadowRenderable* sr, bool zfail, bool stencil2sided);
-
+        /** Internal method - render texture shadows. */
+        virtual void renderTextureShadows(void);
         typedef std::vector<ShadowCaster*> ShadowCasterList;
         ShadowCasterList mShadowCasterList;
         SphereSceneQuery* mShadowCasterSphereQuery;
@@ -371,10 +383,16 @@ namespace Ogre {
 		/** Render the objects in a given queue group 
 		*/
 		virtual void renderQueueGroupObjects(RenderQueueGroup* group);
+        /** Render a group in the ordinary way */
+        virtual void renderBasicQueueGroupObjects(RenderQueueGroup* pGroup);
 		/** Render a group with the added complexity of additive stencil shadows. */
 		virtual void renderAdditiveStencilShadowedQueueGroupObjects(RenderQueueGroup* group);
 		/** Render a group with the added complexity of additive stencil shadows. */
 		virtual void renderModulativeStencilShadowedQueueGroupObjects(RenderQueueGroup* group);
+        /** Render a group rendering only shadow casters. */
+        virtual void renderTextureShadowCasterQueueGroupObjects(RenderQueueGroup* group);
+        /** Render a group rendering only shadow receivers. */
+        virtual void renderTextureShadowReceiverQueueGroupObjects(RenderQueueGroup* group);
 		/** Render a set of objects, see renderSingleObject for param definitions */
 		virtual void renderObjects(const RenderPriorityGroup::SolidRenderablePassMap& objs, 
             bool doLightIteration, const LightList* manualLightList = 0);
@@ -795,7 +813,7 @@ namespace Ogre {
                 Any visible objects will be added to a rendering queue, which is indexed by material in order
                 to ensure objects with the same material are rendered together to minimise render state changes.
         */
-        virtual void _findVisibleObjects(Camera* cam);
+        virtual void _findVisibleObjects(Camera* cam, bool onlyShadowCasters);
 
         /** Internal method for applying animations to scene nodes.
         @remarks
@@ -1467,9 +1485,18 @@ namespace Ogre {
 			number of triangles.
 		*/
 		virtual void setShadowIndexBufferSize(size_t size);
-
+        /// Get the size of the shadow index buffer
 		virtual size_t getShadowIndexBufferSize(void)
 		{ return mShadowIndexBufferSize; }
+        /** Set the size of the texture used for texture-based shadows.
+        @remarks
+            The larger the shadow texture, the better the detail on 
+            texture based shadows, but obviously this takes more memory.
+            The default size is 512. Sizes must be a power of 2.
+        */
+        virtual void setShadowTextureSize(unsigned short size);
+        /// Get the size of the texture used for texture based shadows
+        unsigned short getShadowTextureSize(void) {return mShadowTextureSize; }
     };
 
     /** Default implementation of IntersectionSceneQuery. */
