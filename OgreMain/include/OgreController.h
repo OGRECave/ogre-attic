@@ -122,6 +122,8 @@ namespace Ogre {
         ControllerValue *mDest;
         /// Function
         ControllerFunction* mFunc;
+		/// Controller is enabled or not
+        bool mEnabled;
 
 
     public:
@@ -144,6 +146,12 @@ namespace Ogre {
         ControllerValue* getSource(void);
         void setDestination(ControllerValue* dest);
         ControllerValue* getDestination(void);
+
+        /// Returns true if this controller is currently enabled
+        bool getEnabled(void) const;
+        /// Sets whether this controller is enabled
+        void setEnabled(bool enabled);
+
 
         /** Sets the function object to be used by this controller.
         */
