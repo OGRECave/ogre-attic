@@ -101,6 +101,8 @@ namespace Ogre {
 		case VET_SHORT4:
 			return 4;
 		}
+		Except(Exception::ERR_INVALIDPARAMS, "Invalid type", 
+			"VertexElement::getTypeCount");
 	}
 	//-----------------------------------------------------------------------------
 	VertexElementType VertexElement::multiplyTypeCount(VertexElementType baseType, 
