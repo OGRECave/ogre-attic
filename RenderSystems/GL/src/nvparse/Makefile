@@ -17,7 +17,7 @@ endif
 
 MAIN=../libnvparse.a
 CC=g++
-CFLAGS= -mno-cygwin -DYY_NO_UNPUT -Wall -g \
+CFLAGS= -DYY_NO_UNPUT -Wall -g \
 		-I../../../../OgreMain/include \
 		-I../../include \
 		-DEXT_HASH -DGCC_3_1
@@ -30,7 +30,7 @@ ifeq ($(OS), "Linux")
 endif
 
 ifeq ($(OS), "Windows_NT")
-#  CFLAGS += -DUNIX
+  CFLAGS += -mno-cygwin 
   SRCS += _vs1.0_lexer.cpp _vs1.0_parser.cpp _ps1.0_lexer.cpp _ps1.0_parser.cpp vs1.0_inst.cpp  vs1.0_inst_list.cpp ps1.0_program.cpp vsp1.0_impl.cpp vcp1.0_impl.cpp vp1.0_impl.cpp 
 endif
 
