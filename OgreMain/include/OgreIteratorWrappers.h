@@ -52,6 +52,8 @@ namespace Ogre {
 		/// Private constructor since only the parameterised constructor should be used
         VectorIterator() {};
     public:
+        typedef typename T::value_type ValueType;
+
         /** Constructor.
         @remarks
             Provide a start and end iterator to initialise.
@@ -115,6 +117,9 @@ namespace Ogre {
         /// Private constructor since only the parameterised constructor should be used
         MapIterator() {};
     public:
+        typedef typename T::mapped_type MappedType;
+        typedef typename T::key_type KeyType;
+
         /** Constructor.
         @remarks
             Provide a start and end iterator to initialise.
@@ -190,6 +195,8 @@ namespace Ogre {
         /// Private constructor since only the parameterised constructor should be used
         ConstVectorIterator() {};
     public:
+        typedef typename T::value_type ValueType;
+
         /** Constructor.
         @remarks
         Provide a start and end iterator to initialise.
@@ -253,6 +260,9 @@ namespace Ogre {
         /// Private constructor since only the parameterised constructor should be used
         ConstMapIterator() {};
     public:
+        typedef typename T::mapped_type MappedType;
+        typedef typename T::key_type KeyType;
+
         /** Constructor.
         @remarks
         Provide a start and end iterator to initialise.
