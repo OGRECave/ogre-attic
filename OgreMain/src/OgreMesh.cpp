@@ -82,7 +82,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     unsigned short Mesh::getNumSubMeshes() const
     {
-        return mSubMeshList.size();
+        return static_cast< unsigned short >( mSubMeshList.size() );
     }
 
     //-----------------------------------------------------------------------

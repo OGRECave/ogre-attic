@@ -165,7 +165,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     unsigned short Node::numChildren(void)
     {
-        return mChildren.size();
+        return static_cast< unsigned short >( mChildren.size() );
     }
     //-----------------------------------------------------------------------
     Node* Node::getChild(unsigned short index)

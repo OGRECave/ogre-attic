@@ -105,7 +105,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     unsigned long DataChunk::readUpTo(void* buffer, unsigned long size, const char* delim)
     {
-        unsigned long pos = strcspn((const char*)mPos, delim);
+        size_t pos = strcspn((const char*)mPos, delim);
         if (pos > size)
             pos = size;
 
@@ -115,7 +115,7 @@ namespace Ogre {
         }
         mPos += pos + 1;
 
-        return pos;
+        return static_cast< unsigned long >( pos );
     }
     //-----------------------------------------------------------------------
     bool DataChunk::isEOF(void)
