@@ -30,6 +30,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSceneManager.h"
 
 namespace Ogre {
+
+    RenderWindow::RenderWindow()
+        : RenderTarget()
+    {
+    }
+
     //-----------------------------------------------------------------------
     void RenderWindow::getMetrics(int &width, int &height, int &colourDepth, int &left, int &top)
     {

@@ -38,6 +38,7 @@ namespace Ogre {
     {
         // Default to no stats display
         mStatFlags = SF_NONE;
+        mActive = true;
         resetStatistics();
     }
 
@@ -336,8 +337,15 @@ namespace Ogre {
         while (index--)
             ++i;
         return i->second;
-
-
     }
 
+    bool RenderTarget::isActive() const
+    {
+        return mActive;
+    }
+    
+    void RenderTarget::setActive( bool state )
+    {
+        mActive = state;
+    }
 }        

@@ -56,6 +56,10 @@ namespace Ogre
     {
 
     public:
+        /** Default constructor.
+        */
+        RenderWindow();
+
         /** Creates & displays the new window.
             @param
                 width The width of the window in pixels.
@@ -93,19 +97,6 @@ namespace Ogre
         /** Reposition the window.
         */
         virtual void reposition(int left, int top) = 0;
-
-        /** Determine if the window is active & visible.
-            @remarks
-                This method returns true if the window is active
-                i.e. is visible somewhere on screen, therefore should
-                receive more images.
-            @par
-                The render system will use this to determine if it
-                should bother rendering. If the window is minimised,
-                the render will simply update the world and not
-                bother rendering anything, to save CPU time.
-         */
-        virtual bool isActive(void) = 0;
 
         /** Indicates whether the window has been closed by the user.
         */
