@@ -254,7 +254,8 @@ namespace Ogre {
                     // Calc squared distance
                     lt->tempSquareDist = (lt->getDerivedPosition() - position).squaredLength();
                     // only add in-range lights
-                    if (lt->tempSquareDist <= lt->getAttenuationRange())
+                    Real range = lt->getAttenuationRange();
+                    if (lt->tempSquareDist <= (range * range))
                     {
                         destList.push_back(lt);
                     }
