@@ -217,7 +217,7 @@ namespace Ogre {
     class GLTexture;
     class GLTextureManager;
     class GLGpuProgram;
-
+    class GLContext;
 }
 
 

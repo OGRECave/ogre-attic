@@ -64,15 +64,6 @@ namespace Ogre
 		 * Initialise support specific capabilities
 		 */
 		virtual void initialiseCapabilities(RenderSystemCapabilities &caps);
-
-		/**
-		 * GL Context stack. Remebering previous active contexts is needed (instead 
-		 * of trivially just setting the context) because sometimes nested contexts are used
-		 * inside the OGRE code; an example is in the Shadow rtt code. This also gives the
-		 * chance to optimize away some context switches entirely.
-		 */
-		void pushContext(HDC hdc, HGLRC hglrc);
-		void popContext();
 	private:
 		// Allowed video modes
 		std::vector<DEVMODE> mDevModes;
@@ -80,11 +71,6 @@ namespace Ogre
 		void refreshConfig();
 
 		HWND mExternalWindowHandle;
-
-		typedef std::pair<HDC,HGLRC> W32Context;
-		typedef std::list<W32Context> W32ContextList;
-		W32ContextList mContextStack;
-		W32Context mCurrentContext;
 	};
 
 }

@@ -46,6 +46,11 @@ public:
 	*/
 	void stop();
 
+    /**
+     * Mark capabilities exposed by GLSupport
+     */
+    void initialiseCapabilities(RenderSystemCapabilities &caps);
+
 	/**
 	* Get the address of a function
 	*/

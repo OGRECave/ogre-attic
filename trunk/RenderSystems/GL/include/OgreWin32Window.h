@@ -62,9 +62,6 @@ namespace Ogre {
 		void setReady(bool set) { mReady = set; }
 		void setActive(bool set) { mActive = set; }
 
-        /// internal method for firing events
-        virtual void firePreUpdate(void);
-		virtual void firePostUpdate(void);
 	protected:
 		Win32GLSupport &mGLSupport;
 		HWND	mExternalHandle;		// External Win32 window handle
@@ -75,6 +72,7 @@ namespace Ogre {
 		bool	mActive;				// Is active i.e. visible
 		bool	mReady;					// Is ready i.e. available for update
 		bool	mClosed;
+        Win32Context *mContext;
 
 		static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
     };

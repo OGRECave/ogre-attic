@@ -4,4 +4,4 @@ INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/RenderSystems/GL/include \
 
 noinst_LIBRARIES = libsupport.a
 
-libsupport_a_SOURCES = OgreGLXGLSupport.cpp OgreGLXWindow.cpp
+libsupport_a_SOURCES = OgreGLXGLSupport.cpp OgreGLXWindow.cpp OgreGLXRenderTexture.cpp OgreGLXContext.cpp

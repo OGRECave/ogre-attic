@@ -32,9 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGLXWindow.h"
 #include "OgreGLTexture.h"
 
-#ifdef HW_RTT
 #include "OgreGLXRenderTexture.h"
-#endif
 
 namespace Ogre {
 
@@ -140,6 +138,14 @@ void GLXGLSupport::stop() {
 		XCloseDisplay(mDisplay);
 	mDisplay = 0;
 }
+
+void GLXGLSupport::initialiseCapabilities(RenderSystemCapabilities &caps) 
+{
+    // Always? 
+    caps.setCapability(RSC_HWRENDER_TO_TEXTURE);
+}
+
+
 extern "C" {
 extern void (*glXGetProcAddressARB(const GLubyte *procName))( void );
 };
@@ -150,7 +156,7 @@ void* GLXGLSupport::getProcAddress(const String& procname) {
 
 RenderTexture * GLXGLSupport::createRenderTexture( const String & name, unsigned int width, unsigned int height, TextureType texType,  PixelFormat format ) 
 {
-	return new GLRenderTexture(name, width, height, texType, format);
+	return new GLXRenderTexture(name, width, height, texType, format);
 }  
 
 }

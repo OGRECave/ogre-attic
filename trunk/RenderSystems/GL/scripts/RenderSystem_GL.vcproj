@@ -133,6 +133,9 @@
 				RelativePath="..\src\OgreGLATIFSInit.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreGLContext.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreGLDefaultHardwareBufferManager.cpp">
 			</File>
 			<File
@@ -176,6 +179,9 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreWin32GLSupport.cpp">
+			</File>
+			<File
+				RelativePath="..\src\win32\OgreWin32Context.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreWin32RenderTexture.cpp">
@@ -359,6 +365,9 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
+				RelativePath="..\include\OgreGLContext.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreGLDefaultHardwareBufferManager.h">
 			</File>
 			<File
@@ -405,6 +414,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreSDLWindow.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreWin32Context.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreWin32GLSupport.h">

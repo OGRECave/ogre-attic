@@ -39,9 +39,9 @@ namespace Ogre {
     protected:
         virtual void _copyToTexture();
         /// internal method for firing events
-        virtual void firePreUpdate(void);
+        // virtual void firePreUpdate(void);
         /// internal method for firing events
-        virtual void firePostUpdate(void);
+        // virtual void firePostUpdate(void);
 
         void createPBuffer();
 		void destroyPBuffer();
@@ -50,6 +50,7 @@ namespace Ogre {
 		HDC		mHDC;
 		HGLRC	mGlrc;
 		HPBUFFERARB mPBuffer;
+        Win32Context *mContext;
     };
 }
 

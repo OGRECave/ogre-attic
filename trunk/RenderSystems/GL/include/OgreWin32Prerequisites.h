@@ -34,7 +34,7 @@ namespace Ogre {
     // Forward declarations
     class Win32GLSupport;
     class Win32Window;
-
+    class Win32Context;
 }
 
 
