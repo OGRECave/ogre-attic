@@ -327,7 +327,7 @@ protected:
     {
         // Create dynamic texture
 		ptex = TextureManager::getSingleton().createManual(
-			"DynaTex","General", TEX_TYPE_2D, reactorExtent-2, reactorExtent-2, 1, PF_A8R8G8B8);
+			"DynaTex","General", TEX_TYPE_2D, reactorExtent-2, reactorExtent-2, 0, PF_A8R8G8B8);
 		buffer = ptex->getBuffer(0, 0);
 
 		// Set ambient light
