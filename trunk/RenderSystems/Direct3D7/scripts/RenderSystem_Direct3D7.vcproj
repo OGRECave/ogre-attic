@@ -34,7 +34,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
-				AdditionalDependencies="OgreMain.lib dxguid.lib ddraw.lib d3dx.lib"
+				AdditionalDependencies="OgreMain_d.lib dxguid.lib ddraw.lib d3dx.lib"
 				OutputFile="$(OutDir)/RenderSystem_Direct3D7.dll"
 				Version="0.99"
 				LinkIncremental="2"

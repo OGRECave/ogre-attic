@@ -34,7 +34,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
-				AdditionalDependencies="OgreMain.lib cg.lib"
+				AdditionalDependencies="OgreMain_d.lib cg.lib"
 				OutputFile="$(OutDir)/Plugin_CgProgramManager.dll"
 				Version="0.99"
 				LinkIncremental="2"

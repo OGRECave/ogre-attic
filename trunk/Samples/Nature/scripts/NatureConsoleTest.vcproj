@@ -94,7 +94,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="odbc32.lib odbccp32.lib OgreMain.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib OgreMain_d.lib"
 				OutputFile="../../Common/Bin/Debug/Demo_Nature.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"

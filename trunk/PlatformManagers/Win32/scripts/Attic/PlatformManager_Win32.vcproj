@@ -34,7 +34,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
-				AdditionalDependencies="OgreMain.lib dxguid.lib dinput8.lib"
+				AdditionalDependencies="OgreMain_d.lib dxguid.lib dinput8.lib"
 				OutputFile="$(OutDir)/PlatformManager_Win32.dll"
 				Version="0.99"
 				LinkIncremental="2"

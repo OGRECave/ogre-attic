@@ -34,7 +34,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain.lib Plugin_GuiElements.lib"
+				AdditionalDependencies="OgreMain_d.lib Plugin_GuiElements.lib"
 				OutputFile="$(OutDir)/Demo_Gui.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;..\..\..\Plugins\GuiElements\bin\Debug"

@@ -32,7 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain.lib zlib.lib"
+				AdditionalDependencies="OgreMain_d.lib zlib.lib"
 				OutputFile="$(OutDir)/OgreMaterialUpgrade.exe"
 				Version="0.99"
 				LinkIncremental="2"

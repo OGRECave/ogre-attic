@@ -34,7 +34,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
-				AdditionalDependencies="OgreMain.lib"
+				AdditionalDependencies="OgreMain_d.lib"
 				OutputFile="$(OutDir)/Plugin_OctreeSceneManager.dll"
 				Version="0.99"
 				LinkIncremental="2"

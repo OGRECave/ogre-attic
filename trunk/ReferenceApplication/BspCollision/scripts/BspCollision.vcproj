@@ -34,7 +34,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain.lib ReferenceAppLayer.lib"
+				AdditionalDependencies="OgreMain_d.lib ReferenceAppLayer.lib"
 				OutputFile="$(OutDir)/Demo_BspCollision.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\Dependencies\lib\$(ConfigurationName)&quot;;&quot;..\..\ReferenceAppLayer\lib\$(ConfigurationName)&quot;"
