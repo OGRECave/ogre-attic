@@ -368,6 +368,11 @@ namespace Ogre {
             numIdx = faceGroup->patchSurf->getCurrentIndexCount();
             vertexStart = faceGroup->patchSurf->getVertexOffset();
         }
+		else
+		{
+			// Unsupported face type
+			return 0;
+		}
 
 
         // Copy index data
