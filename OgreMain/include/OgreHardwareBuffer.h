@@ -198,7 +198,7 @@ namespace Ogre {
 		    @param options Locking options
 		    @returns Pointer to the locked memory
             */
-            void* lock(LockOptions options)
+            virtual void* lock(LockOptions options)
             {
                 return this->lock(0, mSizeInBytes, options);
             }
