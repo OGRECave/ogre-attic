@@ -1,4 +1,4 @@
-<html>
+<html><head>
 <STYLE TYPE="text/css">
 <!--
 .MainHeader {  font-weight: bold; color: #FFFF33; background-color: #006600; font-size: 10pt}
@@ -74,51 +74,36 @@ CODE.str {
 .header {  font-size: 16px; font-weight: bold; color: #FFFFCC}
 -->
 </STYLE> 
-	<head>
+	
 		<title> Copying the sample sources </title>
 	</head>
 <body bgcolor="#FFFFFF" text="#000000">
-<p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p>
-<p align="center" class="header"> Copying the sample sources</p>
-
-<p align="left" class="MainHeader">&nbsp;</p>
-<p>This step is the same whether you're using the 'easy' or the 'advanced' way. </p>
-<p>In summary: 
-<UL><LI>Copy <a href="SampleApp.cpp">SampleApp.cpp</A> from this folder
-into your application folder, and rename it to reflect your application's name.</LI></UL>
-</p>
-<p>
-And now in more detail: 
-OGRE comes with a useful set of classes for getting applications up and running, called
-'ExampleApplication' and 'ExampleFrameListener'. These classes basically boot the OGRE
-system, set up all the usual stuff like displaying a configuration dialog and creating
-a window, sets up a camera and make it responds to the standard mouselook & WSAD controls,
-and just basically make your life easy. All you have to do to create your application
-is to subclass these classes to customise the behaviour where you want.</p>
-<p>And hey, to make it even easier, I've created a sample subclass which you can use as
-a template. In the same folder as this tutorial is a file called 'SampleApp.cpp', which 
-you can just copy into your application folder, rename, and fill in the blanks. As your 
-project gets bigger you will want to split things up into more files, but for simplicity
-I've included it all in one file for the moment (since excluding comments it's less than
-a page of code anyway).
-</p>
-<p>
-All you <i>have</i> to do is to fill in the 'createScene' implementation. If you want to do more 
-advanced things like adding extra controls, choosing a different scene manager, setting up
-different resource locations etc you will need to override more methods of ExampleApplication
-and maybe introduce a subclass of ExampleFrameListener. You can look at the other tutorials
-and the sample applications provided with OGRE to see how this is done.
-</p>
-
-<TABLE WIDTH="100%" BORDER="0" CELLSPACING="2" CELLPADDING="0">
-	<TR>
-		<TD WIDTH="14%"><A HREF="index.html">Back to Index</A></TD>
-		<TD WIDTH="39%">&nbsp;</TD>
-		<TD WIDTH="22%"><a href="createfolder.html">&lt;&lt; Previous section</a></TD>
-		<TD WIDTH="25%"><a href="createproject.html">Next section &gt;&gt;</a></TD>
-	</TR>
-</TABLE>
-
-<P CLASS="MainHeader">&nbsp;</P>
+<p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p><p align="center" class="header"> 
+Copying the sample sources</p><p align="left" class="MainHeader">&nbsp;</p><p>This step 
+is the same whether you're using the 'easy' or the 'advanced' way. </p><p>In summary: 
+<UL><LI>Copy <a href="SampleApp.cpp" TARGET="_blank">SampleApp.cpp</A> from this 
+folder into your application folder, and rename it to reflect your application's 
+name.</LI></UL><P></p><p> And now in more detail: OGRE comes with a useful set 
+of classes for getting applications up and running, called 'ExampleApplication' 
+and 'ExampleFrameListener'. These classes basically boot the OGRE system, set 
+up all the usual stuff like displaying a configuration dialog and creating a window, 
+sets up a camera and make it responds to the standard mouselook & WSAD controls, 
+and just basically make your life easy. All you have to do to create your application 
+is to subclass these classes to customise the behaviour where you want.</p><p>And 
+hey, to make it even easier, I've created a sample subclass which you can use 
+as a template. In the same folder as this tutorial is a file called 'SampleApp.cpp', 
+which you can just copy into your application folder, rename, and fill in the 
+blanks. As your project gets bigger you will want to split things up into more 
+files, but for simplicity I've included it all in one file for the moment (since 
+excluding comments it's less than a page of code anyway). </p><p> All you <i>have</i> 
+to do is to fill in the 'createScene' implementation. If you want to do more advanced 
+things like adding extra controls, choosing a different scene manager, setting 
+up different resource locations etc you will need to override more methods of 
+ExampleApplication and maybe introduce a subclass of ExampleFrameListener. You 
+can look at the other tutorials and the sample applications provided with OGRE 
+to see how this is done. </p><TABLE WIDTH="100%" BORDER="0" CELLSPACING="2" CELLPADDING="0"> 
+<TR> <TD WIDTH="14%"><A HREF="index.html">Back to Index</A></TD><TD WIDTH="39%">&nbsp;</TD><TD WIDTH="22%"><a href="createfolder.html">&lt;&lt; 
+Previous section</a></TD><TD WIDTH="25%"><a href="createproject.html">Next section 
+&gt;&gt;</a></TD></TR> </TABLE><P CLASS="MainHeader">&nbsp;</P>
 	</body>
 </html>
