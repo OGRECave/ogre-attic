@@ -355,6 +355,7 @@ namespace Ogre {
         }
         else // not all default size
         {
+            Vector3 vOwnOffset[4];
             for( it = mActiveBillboards.begin(); it != mActiveBillboards.end(); ++it )
             {
                 // Skip if not visible (NB always true if not bounds checking individual billboards)
@@ -371,10 +372,14 @@ namespace Ogre {
                 {
                     // Generate using own dimensions
                     genVertOffsets(leftOff, rightOff, topOff, bottomOff, 
-                        (*it)->mWidth, (*it)->mHeight, camX, camY, vOffset);
+                        (*it)->mWidth, (*it)->mHeight, camX, camY, vOwnOffset);
+                    // Create vertex data            
+                    genVertices(&pV, &pC, vOwnOffset, *it);
                 }
-                // Create vertex data            
-                genVertices(&pV, &pC, vOffset, *it);
+                else // Use default dimension, already computed before the loop, for faster creation
+                {
+                    genVertices(&pV, &pC, vOffset, *it);
+                }
 
                 // Increment visibles
                 mNumVisibleBillboards++;
