@@ -56,16 +56,18 @@ namespace Ogre {
     class _OgreExport HighLevelGpuProgram : public GpuProgram, public StringInterface
     {
     protected:
+        /// Whether the high-level program (and it's parameter defs) is loaded
+        bool mHighLevelLoaded;
         /// The underlying assembler program
         GpuProgram* mAssemblerProgram;
 
-        /** Internal load implementation, must be implemented by subclasses.
-        @remarks
-            Subclasses should implement this method to load the high-level program
-            and to construct a low-level equivalent based on the current settings.
-            This low-level equivalent will then be loaded by this class.
+        /** Internal load implementation, loads just the high-level portion, enough to 
+            get parameters.
         */
-        virtual void loadImpl(void) = 0;
+        virtual void loadHighLevelImpl(void);
+        /** Internal method for creating an appropriate low-level program from this
+        high-level program, must be implemented by subclasses. */
+        virtual void createLowLevelImpl(void) = 0;
         /// Internal unload implementation, must be implemented by subclasses
         virtual void unloadImpl(void) = 0;
         /// Populate the passed parameters with name->index map, must be overridden
@@ -88,6 +90,8 @@ namespace Ogre {
             object containing the definition of the parameters this program understands.
         */
         GpuProgramParametersSharedPtr createParameters(void);
+        /** @copydoc GpuProgram::getBindingDelegate */
+        GpuProgram* _getBindingDelegate(void) { return mAssemblerProgram; }
 
 
 

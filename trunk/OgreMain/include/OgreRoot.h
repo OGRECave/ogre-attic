@@ -93,6 +93,7 @@ namespace Ogre
         Timer* mTimer;
         RenderWindow* mAutoWindow;
         Profiler* mProfiler;
+        HighLevelGpuProgramManager* mHighLevelGpuProgramManager;
 
         std::vector<DynLib*> mPluginLibs;
         /** Method reads a plugins configuration file and instantiates all

@@ -55,6 +55,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreFontManager.h"
 
 #include "OgreOverlay.h"
+#include "OgreHighLevelGpuProgramManager.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32
 
@@ -187,8 +188,10 @@ namespace Ogre {
         // Create new Math object (will be managed by singleton)
         mMath = new Math();
 
-        // Can't create controller manager until initialised
+        // Can't create managers until initialised
         mControllerManager = 0;
+        mHighLevelGpuProgramManager = 0;
+
 
         // Seed random number generator for future use
         srand((unsigned)time(0));
@@ -245,6 +248,8 @@ namespace Ogre {
         delete mMaterialManager;        
         delete mMath;
         delete mParticleManager;
+        if (mHighLevelGpuProgramManager)
+            delete mHighLevelGpuProgramManager;
         if( mControllerManager )
             delete mControllerManager;
 
@@ -433,12 +438,11 @@ namespace Ogre {
 
         mControllerManager = new ControllerManager();
 
+        mAutoWindow =  mActiveRenderer->initialise(autoCreateWindow);
+
+        mHighLevelGpuProgramManager = new HighLevelGpuProgramManager();
         // Parse all material scripts
         mMaterialManager->parseAllSources();
-
-
-
-        mAutoWindow =  mActiveRenderer->initialise(autoCreateWindow);
 
         if (autoCreateWindow)
         {
