@@ -74,6 +74,15 @@ namespace Ogre {
     typedef float Real;
 #endif
 
+// define the Char type as either char or wchar_t
+#if OGRE_WCHAR_T_STRINGS == 1
+	typedef wchar_t Char;
+#	define _T( x ) L # x
+#else
+	typedef char Char;
+#	define _T( x ) # x
+#endif
+
 // Pre-declare classes
 // Allows use of pointers in header files without including individual .h
 // so decreases dependencies between files
@@ -137,6 +146,7 @@ namespace Ogre {
     class StringInterface;
     class SubEntity;
     class SubMesh;
+	class TextureFont;
     class Vector3;
     class Viewport;   
 
