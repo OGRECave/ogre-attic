@@ -23,40 +23,40 @@ http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
 
-/**
-    \file 
-        Bezier.cpp
-    \brief
-        Shows OGRE's bezier patch feature
-*/
+#ifndef __CLICONFIGDIALOG_H__
+#define __CLICONFIGDIALOG_H__
 
-#include "Ogre.h"
-#include "Bezier.h"
+#include "OgreConfigDialog.h"
+#include "OgreRoot.h"
+#include "OgreRenderSystem.h"
+#include <iostream>
 
-#if OGRE_PLATFORM == PLATFORM_WIN32
-#define WIN32_LEAN_AND_MEAN
-#include "windows.h"
+namespace Ogre {
+    /** Simple CLI config */
+    class SDLConfig : public ConfigDialog
+    {
+    public:
+        SDLConfig()
+        { }
 
-INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
-#else
-int main(int argc, char **argv)
-#endif
-{
-
-    // Create application object
-    BezierApplication app;
-
-    try {
-        app.go();
-    } catch( Ogre::Exception& e ) {
-#if OGRE_PLATFORM == PLATFORM_WIN32
-        MessageBox( NULL, e.getFullDescription().c_str(), "An exception has occured!", MB_OK | MB_ICONERROR | MB_TASKMODAL );
-#else
-        fprintf(stderr, "An exception has occured: %s\n",
-                e.getFullDescription().c_str());
-#endif
-    }
-
-
-    return 0;
+        /** 
+         * Displays a message about reading the config and then attempts to
+         * read it from a config file
+         */
+        bool display(void)
+        {
+            RenderSystemList* lstRend;
+            RenderSystemList::iterator pRend;
+            std::cout << "*** Reading config file" << std::endl;
+            lstRend = Root::getSingleton().getAvailableRenderers();
+            pRend = lstRend->begin();
+            std::cout << "Renderer: " << (*pRend)->getName() << std::endl;
+            Root::getSingleton().setRenderSystem((*pRend));
+            Root::getSingleton().saveConfig();
+            
+            return true;
+        }
+    };
 }
+
+#endif

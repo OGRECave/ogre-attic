@@ -23,40 +23,45 @@ http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
 
-/**
-    \file 
-        Bezier.cpp
-    \brief
-        Shows OGRE's bezier patch feature
-*/
+#include "OgreRoot.h"
+#include "OgreSDLConfig.h"
+#include "OgreSDLError.h"
+#include "OgreSDLInput.h"
 
-#include "Ogre.h"
-#include "Bezier.h"
+namespace Ogre {
 
-#if OGRE_PLATFORM == PLATFORM_WIN32
-#define WIN32_LEAN_AND_MEAN
-#include "windows.h"
-
-INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
-#else
-int main(int argc, char **argv)
-#endif
-{
-
-    // Create application object
-    BezierApplication app;
-
-    try {
-        app.go();
-    } catch( Ogre::Exception& e ) {
-#if OGRE_PLATFORM == PLATFORM_WIN32
-        MessageBox( NULL, e.getFullDescription().c_str(), "An exception has occured!", MB_OK | MB_ICONERROR | MB_TASKMODAL );
-#else
-        fprintf(stderr, "An exception has occured: %s\n",
-                e.getFullDescription().c_str());
-#endif
+    extern "C" void createPlatformConfigDialog(ConfigDialog** ppDlg)
+    {
+        *ppDlg = new SDLConfig();
     }
 
+    extern "C" void createPlatformErrorDialog(ErrorDialog** ppDlg)
+    {
+        *ppDlg = new SDLError();
+    }
 
-    return 0;
+    extern "C" void createPlatformInputReader(InputReader** ppDlg)
+    {
+        *ppDlg = new SDLInput();
+    }
+
+    extern "C" void destroyPlatformConfigDialog(ConfigDialog* dlg)
+    {
+        delete dlg;
+    }
+
+    extern "C" void destroyPlatformErrorDialog(ErrorDialog* dlg)
+    {
+        delete dlg;
+    }
+
+    extern "C" void destroyPlatformRenderWindow(RenderWindow* wnd)
+    {
+        delete wnd;
+    }
+
+    extern "C" void destroyPlatformInputReader(InputReader* reader)
+    {
+        delete reader;
+    }
 }

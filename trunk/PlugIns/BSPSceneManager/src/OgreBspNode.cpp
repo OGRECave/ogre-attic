@@ -86,7 +86,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    AxisAlignedBox BspNode::getBoundingBox(void)
+    AxisAlignedBox& BspNode::getBoundingBox(void)
     {
         if (!mIsLeaf)
             throw Exception(Exception::ERR_INVALIDPARAMS,

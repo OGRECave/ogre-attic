@@ -23,40 +23,26 @@ http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
 
-/**
-    \file 
-        Bezier.cpp
-    \brief
-        Shows OGRE's bezier patch feature
-*/
+#ifndef __CLIERRORDIALOG_H__
+#define __CLIERRORDIALOG_H__
 
-#include "Ogre.h"
-#include "Bezier.h"
+#include "OgreErrorDialog.h"
+#include <iostream>
 
-#if OGRE_PLATFORM == PLATFORM_WIN32
-#define WIN32_LEAN_AND_MEAN
-#include "windows.h"
+namespace Ogre {
+    /** Simple CLI error output */
+    class SDLError : public ErrorDialog
+    {
+    public:
+        SDLError()
+        { }
 
-INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
-#else
-int main(int argc, char **argv)
-#endif
-{
-
-    // Create application object
-    BezierApplication app;
-
-    try {
-        app.go();
-    } catch( Ogre::Exception& e ) {
-#if OGRE_PLATFORM == PLATFORM_WIN32
-        MessageBox( NULL, e.getFullDescription().c_str(), "An exception has occured!", MB_OK | MB_ICONERROR | MB_TASKMODAL );
-#else
-        fprintf(stderr, "An exception has occured: %s\n",
-                e.getFullDescription().c_str());
-#endif
-    }
-
-
-    return 0;
+        // Simply defined here
+        void display(String errorMessage, String logName = "")
+        {
+            std::cout << "*** ERROR: " << errorMessage << std::endl;
+        }
+    };
 }
+
+#endif
