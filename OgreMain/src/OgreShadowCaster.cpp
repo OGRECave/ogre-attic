@@ -63,6 +63,8 @@ namespace Ogre {
             shadOp->indexData->indexStart = indexStart;
             // original number of verts (without extruded copy)
             size_t originalVertexCount = eg.vertexData->vertexCount;
+            bool  firstDarkCapTri = true;
+            unsigned short darkCapStart;
 
             EdgeData::EdgeList::iterator i, iend;
             iend = eg.edges.end();
@@ -104,6 +106,25 @@ namespace Ogre {
                         *pIdx++ = edge.vertIndex[1];
                         shadOp->indexData->indexCount += 3;
                     }
+                    // Do dark cap tri
+                    // Use McGuire et al method, a triangle fan covering all silhouette
+                    // edges and one point (taken from the initial tri)
+                    if (flags & SRF_INCLUDE_DARK_CAP)
+                    {
+                        if (firstDarkCapTri)
+                        {
+                            darkCapStart = edge.vertIndex[0] + originalVertexCount;
+                            firstDarkCapTri = false;
+                        }
+                        else
+                        {
+                            *pIdx++ = darkCapStart;
+                            *pIdx++ = edge.vertIndex[1] + originalVertexCount;
+                            *pIdx++ = edge.vertIndex[0] + originalVertexCount;
+                            shadOp->indexData->indexCount += 3;
+                        }
+
+                    }
                 }
                 else if (!t1.lightFacing && (edge.degenerate || t2.lightFacing))
                 {
@@ -122,13 +143,64 @@ namespace Ogre {
                         *pIdx++ = edge.vertIndex[0];
                         shadOp->indexData->indexCount += 3;
                     }
+                    // Do dark cap tri
+                    // Use McGuire et al method, a triangle fan covering all silhouette
+                    // edges and one point (taken from the initial tri)
+                    if (flags & SRF_INCLUDE_DARK_CAP)
+                    {
+                        if (firstDarkCapTri)
+                        {
+                            darkCapStart = edge.vertIndex[1] + originalVertexCount;
+                            firstDarkCapTri = false;
+                        }
+                        else
+                        {
+                            *pIdx++ = darkCapStart;
+                            *pIdx++ = edge.vertIndex[0] + originalVertexCount;
+                            *pIdx++ = edge.vertIndex[1] + originalVertexCount;
+                            shadOp->indexData->indexCount += 3;
+                        }
+
+                    }
                 }
 
             }
-            // update next indexStart (al renderables sharing the buffer)
+            // update next indexStart (all renderables sharing the buffer)
             indexStart += shadOp->indexData->indexCount;
 
+            // Do light cap
+            // Have to do this as a separate render op because depth function
+            // has to be set to 'always fail'
+            if (flags & SRF_INCLUDE_LIGHT_CAP) 
+            {
+                ShadowRenderable* lightCapRend = (*si)->getLightCapRenderable();
+                RenderOperation* lightShadOp = lightCapRend->getRenderOperationForUpdate();
+                lightShadOp->indexData->indexCount = 0;
+                lightShadOp->indexData->indexStart = indexStart;
+
+                // Iterate over edges in group again, but only consider t1, 
+                // since it ensures uniqueness and affinity to this renderable's
+                // vertex buffer
+                for (i = eg.edges.begin(); i != iend; ++i)
+                {
+                    EdgeData::Edge& edge = *i;
+                    EdgeData::Triangle &t1 = edgeData->triangles[edge.triIndex[0]];
+                    if (t1.lightFacing)
+                    {
+                        *pIdx++ = t1.vertIndex[0];
+                        *pIdx++ = t1.vertIndex[1];
+                        *pIdx++ = t1.vertIndex[2];
+                        lightShadOp->indexData->indexCount += 3;
+                    }
+                }
+
+                // Increment index past light cap renderable
+                indexStart += lightShadOp->indexData->indexCount;
+            }
+
+
         }
+
 
         // Unlock index buffer
         indexBuffer->unlock();
@@ -137,12 +209,11 @@ namespace Ogre {
     // ------------------------------------------------------------------------
     void ShadowCaster::extrudeVertices(
         HardwareVertexBufferSharedPtr vertexBuffer, 
-        size_t originalVertexCount, const Vector4& light)
+        size_t originalVertexCount, const Vector4& light, Real extrudeDist)
     {
         assert (vertexBuffer->getVertexSize() == sizeof(Real) * 3
             && "Position buffer should contain only positions!");
 
-        #define EXTRUSION_DISTANCE 10000000;
         // Extrude the first area of the buffer into the second area
         // Lock the entire buffer for writing, even though we'll only be
         // updating the latter because you can't have 2 locks on the same
@@ -154,7 +225,7 @@ namespace Ogre {
         // Assume directional light, extrusion is along light direction
         Vector3 extrusionDir(light.x, light.y, light.z);
         extrusionDir.normalise();
-        extrusionDir *= EXTRUSION_DISTANCE;
+        extrusionDir *= extrudeDist;
         for (size_t vert = 0; vert < originalVertexCount; ++vert)
         {
             if (light.w != 0.0f)
@@ -164,7 +235,7 @@ namespace Ogre {
                 extrusionDir.y = pSrc[1] - light.y;
                 extrusionDir.z = pSrc[2] - light.z;
                 extrusionDir.normalise();
-                extrusionDir *= EXTRUSION_DISTANCE;
+                extrusionDir *= extrudeDist;
             }
             *pDest++ = *pSrc++ + extrusionDir.x;
             *pDest++ = *pSrc++ + extrusionDir.y;
@@ -174,4 +245,43 @@ namespace Ogre {
         vertexBuffer->unlock();
 
     }
+    // ------------------------------------------------------------------------
+    void ShadowCaster::extrudeBounds(AxisAlignedBox& box, const Vector4& light, Real extrudeDist)
+    {
+        Vector3 extrusionDir;
+
+        if (light.w == 0)
+        {
+            extrusionDir.x = light.x;
+            extrusionDir.y = light.y;
+            extrusionDir.z = light.z;
+            extrusionDir.normalise();
+            extrusionDir *= extrudeDist;
+            box.setExtents(box.getMinimum() + extrusionDir, 
+                box.getMaximum() + extrusionDir);
+        }
+        else
+        {
+            Vector3 vmin = box.getMinimum();
+            extrusionDir.x = vmin.x - light.x;
+            extrusionDir.y = vmin.y - light.y;
+            extrusionDir.z = vmin.z - light.z;
+            extrusionDir.normalise();
+            extrusionDir *= extrudeDist;
+            vmin += extrusionDir;
+
+            Vector3 vmax = box.getMaximum();
+            extrusionDir.x = vmax.x - light.x;
+            extrusionDir.y = vmax.y - light.y;
+            extrusionDir.z = vmax.z - light.z;
+            extrusionDir.normalise();
+            extrusionDir *= extrudeDist;
+            vmax += extrusionDir;
+
+            box.setExtents(vmin, vmax);
+
+        }
+
+    }
+
 }

@@ -59,6 +59,8 @@ namespace Ogre {
         mutable AxisAlignedBox mWorldAABB;
 		// Cached world bounding sphere
 		mutable Sphere mWorldBoundingSphere;
+        /// World space AABB of this object's dark cap
+        mutable AxisAlignedBox mWorldDarkCapBounds;
 
     public:
         /// Constructor
@@ -188,6 +190,11 @@ namespace Ogre {
             static ShadowRenderableList dummyList;
             return ShadowRenderableListIterator(dummyList.begin(), dummyList.end());
         }
+        /** Overridden member from ShadowCaster. */
+        const AxisAlignedBox& getLightCapBounds(void);
+        /** Overridden member from ShadowCaster. */
+        const AxisAlignedBox& getDarkCapBounds(const Light& light);
+
 
 
 

@@ -823,7 +823,7 @@ namespace Ogre {
                 {
                     pVertData = egi->vertexData;
                 }
-                *si = new EntityShadowRenderable(this, indexBuffer, pVertData);
+                *si = new EntityShadowRenderable(this, indexBuffer, pVertData, false);
             }
             // Get shadow renderable
             esr = static_cast<EntityShadowRenderable*>(*si);
@@ -844,7 +844,8 @@ namespace Ogre {
             if (extrude)
             {
                 extrudeVertices(esr->getPositionBuffer(), 
-                    egi->vertexData->vertexCount, lightPos);
+                    egi->vertexData->vertexCount, 
+                    lightPos, light->getAttenuationRange());
 
             }
 
@@ -884,7 +885,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     Entity::EntityShadowRenderable::EntityShadowRenderable(Entity* parent, 
-        HardwareIndexBufferSharedPtr* indexBuffer, const VertexData* vertexData)
+        HardwareIndexBufferSharedPtr* indexBuffer, const VertexData* vertexData, 
+        bool isLightCap)
         : mParent(parent)
     {
         // Initialise render op
@@ -913,12 +915,21 @@ namespace Ogre {
         }
         // Use same vertex start as input
         mRenderOp.vertexData->vertexStart = vertexData->vertexStart;
-        // Vertex count must take into account the doubling of the buffer,
-        // because second half of the buffer is the extruded copy
-        mRenderOp.vertexData->vertexCount = 
-            vertexData->vertexCount * 2;
-        
-
+        if (isLightCap)
+        {
+            // Use original vertex count, no extrusion
+            mRenderOp.vertexData->vertexCount = vertexData->vertexCount;
+        }
+        else
+        {
+            // Vertex count must take into account the doubling of the buffer,
+            // because second half of the buffer is the extruded copy
+            mRenderOp.vertexData->vertexCount = 
+                vertexData->vertexCount * 2;
+            // Create child light cap
+            mLightCap = new EntityShadowRenderable(parent, 
+                indexBuffer, vertexData, true);
+        }
     }
     //-----------------------------------------------------------------------
     Entity::EntityShadowRenderable::~EntityShadowRenderable()

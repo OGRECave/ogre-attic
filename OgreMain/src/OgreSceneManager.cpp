@@ -2250,6 +2250,7 @@ namespace Ogre {
         mDestRenderSystem->_setColourBufferWriteEnabled(false, false, false, false);
         mDestRenderSystem->_setDepthBufferWriteEnabled(false);
         mDestRenderSystem->setStencilCheckEnabled(true);
+        mDestRenderSystem->_setDepthBufferFunction(CMPF_LESS);
 
 
         // Figure out the near clip volume
@@ -2273,7 +2274,19 @@ namespace Ogre {
 
                 if (zfailAlgo)
                 {
-                    flags |= SRF_INCLUDE_LIGHT_CAP | SRF_INCLUDE_DARK_CAP;
+                    // We need to include the light and / or dark cap
+                    // But only if they will be visible
+                    if(camera->isVisible(caster->getLightCapBounds()))
+                    {
+                        flags |= SRF_INCLUDE_LIGHT_CAP;
+                    }
+                    // Dark caps are not needed for directional lights if
+                    // extrusion is done in hardware (since extruded to infinity)
+                    if((light->getType() != Light::LT_DIRECTIONAL || extrudeInSoftware)
+                        && camera->isVisible(caster->getDarkCapBounds(*light)))
+                    {
+                        flags |= SRF_INCLUDE_DARK_CAP;
+                    }
                 }
 
                 // Get shadow renderables
@@ -2284,29 +2297,31 @@ namespace Ogre {
                 while (iShadowRenderables.hasMoreElements())
                 {
                     ShadowRenderable* sr = iShadowRenderables.getNext();
-
-                    // Render a shadow volume here
-                    //  - if we have 2-sided stencil, one render with no culling
-                    //  - otherwise, 2 renders, one with each culling method and invert the ops
-                    setShadowVolumeStencilState(false, zfailAlgo, stencil2sided);
-                    renderSingleObject(sr, mShadowStencilPass, false);
-                    
-                    if (!stencil2sided)
+                    // main volume, including dark cap
+                    renderSingleShadowVolumeToStencil(sr, zfailAlgo, stencil2sided);
+                    // light cap too?
+                    if (flags & SRF_INCLUDE_LIGHT_CAP)
                     {
-                        // Second pass
-                        setShadowVolumeStencilState(true, zfailAlgo, false);
-                        renderSingleObject(sr, mShadowStencilPass, false);
+                        // must always fail depth check
+                        mDestRenderSystem->_setDepthBufferFunction(CMPF_ALWAYS_FAIL);
+                        assert(sr->getLightCapRenderable() && "Shadow renderable is "
+                            "missing a light cap renderable!");
+                        mDestRenderSystem->_setCullingMode(CULL_NONE);
+                        mDestRenderSystem->setStencilBufferParams(
+                            CMPF_ALWAYS_PASS, // always pass stencil check
+                            0, // no ref value (no compare)
+                            0xFFFFFFFF, // no mask
+                            SOP_KEEP, // stencil test will never fail
+                            SOP_DECREMENT, // front face depth fail
+                            SOP_INCREMENT, // front face pass
+                            false
+                            );
+                        renderSingleObject(sr->getLightCapRenderable(), mShadowStencilPass, false);
+                        // reset depth function
+                        mDestRenderSystem->_setDepthBufferFunction(CMPF_LESS);
+
                     }
 
-                    // Do we need to render a debug shadow marker?
-                    if (mDebugShadows)
-                    {
-                        // reset stencil & colour ops
-                        mDestRenderSystem->setStencilBufferParams();
-                        setPass(mShadowDebugPass);
-                        renderSingleObject(sr, mShadowDebugPass, false);
-                        mDestRenderSystem->_setColourBufferWriteEnabled(false, false, false, false);
-                    }
                 }
 
             }
@@ -2315,9 +2330,37 @@ namespace Ogre {
 		mDestRenderSystem->_setColourBufferWriteEnabled(true, true, true, true);
 		// revert depth write state
 		mDestRenderSystem->_setDepthBufferWriteEnabled(true);
+        mDestRenderSystem->_setDepthBufferFunction(CMPF_LESS_EQUAL);
 
         mDestRenderSystem->setStencilCheckEnabled(false);
 
+    }
+    //---------------------------------------------------------------------
+    void SceneManager::renderSingleShadowVolumeToStencil(ShadowRenderable* sr,
+        bool zfailAlgo, bool stencil2sided)
+    {
+        // Render a shadow volume here
+        //  - if we have 2-sided stencil, one render with no culling
+        //  - otherwise, 2 renders, one with each culling method and invert the ops
+        setShadowVolumeStencilState(false, zfailAlgo, stencil2sided);
+        renderSingleObject(sr, mShadowStencilPass, false);
+
+        if (!stencil2sided)
+        {
+            // Second pass
+            setShadowVolumeStencilState(true, zfailAlgo, false);
+            renderSingleObject(sr, mShadowStencilPass, false);
+        }
+
+        // Do we need to render a debug shadow marker?
+        if (mDebugShadows)
+        {
+            // reset stencil & colour ops
+            mDestRenderSystem->setStencilBufferParams();
+            setPass(mShadowDebugPass);
+            renderSingleObject(sr, mShadowDebugPass, false);
+            mDestRenderSystem->_setColourBufferWriteEnabled(false, false, false, false);
+        }
     }
     //---------------------------------------------------------------------
     void SceneManager::setShadowVolumeStencilState(bool secondpass, bool zfail, bool twosided)
