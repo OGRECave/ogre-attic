@@ -42,10 +42,10 @@ namespace Ogre {
                 "GLHardwareIndexBuffer::GLHardwareIndexBuffer");
         }
 
-        glBindBufferARB_ptr(GL_ARRAY_BUFFER_ARB, mBufferId);
+        glBindBufferARB_ptr(GL_ELEMENT_ARRAY_BUFFER_ARB, mBufferId);
 
         // Initialise buffer and set usage
-        glBufferDataARB_ptr(GL_ARRAY_BUFFER_ARB, mSizeInBytes, NULL, 
+        glBufferDataARB_ptr(GL_ELEMENT_ARRAY_BUFFER_ARB, mSizeInBytes, NULL, 
             GLHardwareBufferManager::getGLUsage(usage));
 
         //std::cerr << "creating index buffer " << mBufferId << std::endl;
