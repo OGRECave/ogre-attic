@@ -62,6 +62,8 @@ namespace Ogre {
         PF_A8B8G8R8 = 13,
         /// 32-bit pixel format, 8 bits for blue, green, red and alpha.
         PF_B8G8R8A8 = 14,
+		/// 32-bit pixel format, 8 bits for red, green, blue and alpha.
+		PF_R8G8B8A8 = 28,
         /// 32-bit pixel format, 8 bits for red, 8 bits for green, 8 bits for blue
         /// like PF_A8R8G8B8, but alpha will get discarded
         PF_X8R8G8B8 = 26,
@@ -75,6 +77,8 @@ namespace Ogre {
 		PF_BYTE_BGR = PF_B8G8R8,
 		/// 4 byte pixel format, 1 byte for blue, 1 byte for green, 1 byte for red and one byte for alpha
 		PF_BYTE_BGRA = PF_B8G8R8A8,
+		/// 4 byte pixel format, 1 byte for red, 1 byte for green, 1 byte for blue, and one byte for alpha
+		PF_BYTE_RGBA = PF_R8G8B8A8,
 #else
 		/// 3 byte pixel format, 1 byte for red, 1 byte for green, 1 byte for blue
 		PF_BYTE_RGB = PF_B8G8R8,
@@ -82,6 +86,8 @@ namespace Ogre {
 		PF_BYTE_BGR = PF_R8G8B8,
 		/// 4 byte pixel format, 1 byte for blue, 1 byte for green, 1 byte for red and one byte for alpha
 		PF_BYTE_BGRA = PF_A8R8G8B8,
+		/// 4 byte pixel format, 1 byte for red, 1 byte for green, 1 byte for blue, and one byte for alpha
+		PF_BYTE_RGBA = PF_A8B8G8R8,
 #endif        
         /// 32-bit pixel format, 2 bits for alpha, 10 bits for red, green and blue.
         PF_A2R10G10B10 = 15,
@@ -105,8 +111,10 @@ namespace Ogre {
         PF_FP_R32G32B32 = 24,
         // 128-bit pixel format, 32 bits (float) for red, 32 bits (float) for green, 32 bits (float) for blue, 32 bits (float) for alpha
         PF_FP_R32G32B32A32 = 25,
-        // Number of pixel formats currently defined
-        PF_COUNT = 28
+		// Depth texture format
+		PF_DEPTH = 29,
+		// Number of pixel formats currently defined
+        PF_COUNT = 30
     };
 
     /**
