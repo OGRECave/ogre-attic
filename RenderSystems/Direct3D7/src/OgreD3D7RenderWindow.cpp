@@ -231,10 +231,13 @@ namespace Ogre {
                                   TEXT(name.c_str()),
                                   WS_OVERLAPPEDWINDOW, left, top,
                                   width, height, 0L, 0L, hInst, this );
-		RECT rc;
-		GetClientRect(hWnd,&rc);
-		mWidth = rc.right;
-		mHeight = rc.bottom;
+		if (!fullScreen)
+		{
+			RECT rc;
+			GetClientRect(hWnd,&rc);
+			mWidth = rc.right;
+			mHeight = rc.bottom;
+		}
 
 		ShowWindow( hWnd, SW_SHOWNORMAL );
         UpdateWindow( hWnd );
