@@ -7,7 +7,7 @@ Group: 'Export'
 Tooltip: 'Export Mesh and Armature to Ogre'
 """
 
-# Blender to Ogre Mesh and Skeleton Exporter v0.11
+# Blender to Ogre Mesh and Skeleton Exporter v0.12
 # url: http://www.ogre3d.org
 
 # Ogre exporter written by Jens Hoffmann and Michael Reimpell
@@ -55,14 +55,21 @@ Tooltip: 'Export Mesh and Armature to Ogre'
 #              ALPHA                -> scene_blend alpha_blend
 #            Texture specific:
 #             NMFace.image.filename -> texture <name without path>
+#   0.12:  * Mon Feb 16 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
+#          - black border flashing removed
+#          - added material script support for
+#            Material.mode
+#              TEXFACE -> disable ambient, diffuse, specular and emissive
+#          - exit on ESCKEY or QKEY pressed (not released)
+#          - added frame based animation export
+#
 # TODO:
 #          - TWOSIDE face mode, TWOSIDED mesh mode
 #          - SUBSURF mesh mode
-#          - code cleanup
-#          - selection preview
-#          - save default action names in blenders registry
+#          - load/save animation export settings
 #          - documentation
 #          - help button
+#          - code cleanup
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -94,10 +101,6 @@ Tooltip: 'Export Mesh and Armature to Ogre'
 # results in a trucated name in the ipo name) the exporter won't find
 # the ipo for its bone.
 # then, you have to rename the bone _and_ the ipo.
-
-# Another problem is that the name of the Action is lost on export,
-# instead the actions will be named "Action.", "Action.001",  "Action.002"
-# and so on. You can set a mapping to rename the action.
 
 #######################################################################################
 ## Code starts here.
@@ -295,6 +298,407 @@ class ReplacementScrollbar:
 			self.down()
 			Blender.Draw.Redraw(1)
 		return
+class Action:
+	def __init__(self, ipoPrefix="", ipoPostfix= "", boneList=None, firstKeyFrame=None, lastKeyFrame=None):
+		"""Resemble Blender's actions.
+		   
+		   - import Blender, string
+		   
+		   Parameters:
+		   	ipoPrefix - prefix of the corresponding action ipo name, e.g. "Action.BAKED
+		   	ipoPostfix - postfix of the corresponding action ipo name, e.g. ".001"
+		   	boneList - list of bone names belonging to that action
+		   	firstKeyFrame - first keyframe of that action
+		   	lastKeyFrame - last keyframe of that action
+		"""
+		self.ipoPrefix = ipoPrefix
+		self.ipoPostfix = ipoPostfix
+		if boneList is None:
+			self.boneList = []
+		else:
+			self.boneList = boneList
+		if firstKeyFrame is None:
+			self.firstKeyFrame = firstKeyFrame
+		else:
+			self.firstKeyFrame = int(firstKeyFrame)
+		if lastKeyFrame is None:
+			self.lastKeyFrame = lastKeyFrame
+		else:
+			self.lastKeyFrame = int(lastKeyFrame)
+		return
+	
+	def addBone(self, bone, firstKeyFrame=None, lastKeyFrame=None):
+		"""Add bone to the bone list of that action.
+		   
+		   Paraneters:
+		   	bone - name of the new bone
+			firstKeyFrame - first keyframe of that bone
+			lastKeyFrame - last keyframe of that bone
+		"""
+		self.boneList.append(bone)
+		if (((firstKeyFrame < self.firstKeyFrame) or (self.firstKeyFrame is None)) and (firstKeyFrame is not None)):
+			self.firstKeyFrame = int(firstKeyFrame)
+		if (((lastKeyFrame > self.lastKeyFrame) or (self.lastKeyFrame is None)) and (lastKeyFrame is not None)):
+			self.lastKeyFrame = int(lastKeyFrame)
+		return
+	
+	def createActionDict(self, armature):
+		"""Creates a dictionary of possible actions belonging to an armature.
+		   Static call with: Action.createActionDict(Action(), armature)
+		   
+		   Note: There is no direct way to get Action Ipos of a
+		         Blender.Armature. Therefore this method is based on
+		         name comparison between Ipos and Bones.
+		   
+		   Parameters:
+		   	armature - a Blender.Armature object
+		   Return:
+		   	a dictionary of Action objects with keys (ipoPrefix, ipoPostfix)
+		"""
+		actionDict = {}
+		# get all bone names
+		boneNameList = []
+		boneQueue = armature.getBones()
+		while (len(boneQueue) > 0):
+			# get all bones of the armature
+			currentBone = boneQueue.pop(0)
+			boneNameList.append(currentBone.getName())
+			children = currentBone.getChildren()
+			if (len(children) > 0):
+				for child in children:
+					boneQueue.append(child)
+		# check all ipos:
+		#   if prefix = Action.<action name>.
+		#      postfix = [.<3 digits> | ""]
+		#      infix = <bone name>:
+		#     actionName = prefix.postfix
+		#     if action does not allready exist
+		#       create action
+		#     append bone
+		for ipo in Blender.Ipo.Get():
+			ipoName = ipo.getName()
+			prefix = "Action."
+			if ipoName[0:len(prefix)] == prefix:
+				# Action Ipo
+				# check postfix for .<3 digits>
+				postfix = ipoName[-4:]
+				if ((postfix[0] == ".") and \
+				(postfix[1] in string.digits) and \
+				(postfix[2] in string.digits) and \
+				(postfix[3] in string.digits)):
+					ipoPostfix = postfix
+				else:
+					ipoPostfix = ""
+				# check if ipoName contains a bone name
+				for boneName in boneNameList:
+					if (len(ipoName) >= (len(prefix) + len(boneName) + len(ipoPostfix))):
+						# ipoName is long enough
+						if (len(ipoPostfix) > 0):
+							infix = ipoName[-(len(boneName) + len(ipoPostfix) + 1):-len(ipoPostfix)]
+						else:
+							infix = ipoName[-(len(boneName) + 1):]
+						if (infix == "." + boneName):
+							# Action Ipo name contains bone name
+							ipoPrefix = ipoName[:-(len(infix)+len(ipoPostfix))]
+							if (actionDict.has_key((ipoPrefix,ipoPostfix))):
+								# action already exists
+								action = actionDict[(ipoPrefix,ipoPostfix)]
+							else:
+								# create action
+								action = Action(ipoPrefix, ipoPostfix)
+							# append bone
+							# get first and last keyframe
+							frameList = []
+							for ipoCurve in ipo.getCurves():
+								for bezTriple in ipoCurve.getPoints():
+									frameList.append(bezTriple.getPoints()[0])
+							frameList.sort()
+							action.addBone(boneName, frameList.pop(0), frameList.pop())
+							actionDict[(ipoPrefix,ipoPostfix)]= action
+		return actionDict
+
+class ActionActuator:
+	def __init__(self, name, startFrame, endFrame, action):
+		"""Resemble Blender's action actuators.
+		   
+		   Parameters:
+		   	name - Animation name
+		   	startFrame - first frame of the animation
+		   	endFrame - last frame of the animation
+		   	action - Action object of the animation
+		"""
+		self.name = name
+		self.startFrame = startFrame
+		self.endFrame = endFrame
+		self.action = action
+		return
+
+class ActionActuatorListView:
+	def __init__(self, actionDict, maxActuators, buttonEventRangeStart):
+		"""Mangages a list of ActionActuators.
+		   
+		   - import Blender
+		   - call eventFilter and buttonFilter in registered callbacks
+		      
+		   Parameters:
+		   	actionDict - possible actuator actions
+		   	maxActuators - maximal number of actuator list elements
+		   	buttonEventRangeStart - first button event number
+		   		number of used event numbers is (3 + maxActuators*5)
+		   		
+		"""
+		self.actionDict = actionDict
+		self.maxActuators = maxActuators
+		self.buttonEventRangeStart = buttonEventRangeStart
+		self.actionActuatorList = []
+		self.actionMenuList = []
+		self.startFrameNumberButtonList = []
+		self.endFrameNumberButtonList = []
+		self.animationNameStringButtonList = []
+		# scrollbar values:
+		#   0:(len(self.actionActuatorList)-1) = listIndex
+		#   len(self.actionActuatorList) = addbuttonline
+		self.scrollbar = ReplacementScrollbar(0,0,0, self.buttonEventRangeStart+1, self.buttonEventRangeStart+2)
+		# create default ActionActuators
+		self.refresh(self.actionDict)
+		return
+		
+	def refresh(self, actionDict):
+		"""Delete ActionActuators for removed Actions,
+		   add default ActionActuators for new Actions.
+		    
+		   Parameters:
+		   	actionDict - possible actuator actions
+		"""
+		usedActionKeyList = []
+		# delete ActionActuators for removed Actions
+		for actionActuator in self.actionActuatorList[:]:
+			key = (actionActuator.action.ipoPrefix, actionActuator.action.ipoPostfix)
+			# check if action is still available
+			if not actionDict.has_key(key):
+				# remove actionActuator from lists
+				listIndex = self.actionActuatorList.index(actionActuator)
+				self.deleteActionActuator(listIndex)
+			else:
+				# mark action as used
+				usedActionKeyList.append(key)
+		
+		# add default ActionActuators for new Actions
+		self.actionDict = actionDict
+		for actionKey in self.actionDict.keys():
+			if (usedActionKeyList.count(actionKey) == 0):
+				# add default action
+				action = self.actionDict[actionKey]
+				actionActuator = ActionActuator(action.ipoPrefix + action.ipoPostfix, action.firstKeyFrame, action.lastKeyFrame, action)
+				self.addActionActuator(actionActuator)
+		Blender.Draw.Redraw(1)
+		return
+		
+	def draw(self, x, y, width, height):
+		"""draw actuatorList
+		   use scrollbar if needed
+		"""
+		# black border
+		minX = x
+		minY = y
+		maxX = x + width
+		maxY = y + height
+		minWidth = 441
+		if ((width - 5) > minWidth):
+			glColor3f(0.0,0.0,0.0)
+			glRectf(minX, minY, maxX - 22, maxY)
+			glColor3f(0.6,0.6,0.6) # Background: grey
+			glRectf(minX + 1, minY + 1, maxX - 23, maxY - 1)
+			x += 3
+			y += 3
+			width -= 5
+			height -= 6
+		else:
+			print "ActionActuatorListView draw size to small!"
+			glColor3f(0.0,0.0,0.0)
+			glRectf(minX, minY, maxX, maxY)
+			glColor3f(0.6,0.6,0.6) # Background: grey
+			glRectf(minX + 1, minY + 1, maxX, maxY - 1)
+			x += 3
+			y += 3
+			width -= 5
+			height -= 6
+		# Layout:
+		# |---- 105 ---|2|----80---|2|---80---|2|---- >80 ----|2|---60---|2|----20---|
+		# actionPrefix | startFrame | endFrame | animationName | [delete] | scrollbar
+		# [ add ]                                                         | scrollbar
+		if (len(self.actionDict.keys()) > 0):
+			# construct actionMenu name
+			menuValue = 0
+			menuName = ""
+			for key in self.actionDict.keys():
+				menuName += self.actionDict[key].ipoPrefix + self.actionDict[key].ipoPostfix + " %x" + ("%d" % menuValue) + "|"
+				menuValue +=1
+			# first line
+			lineY = y + height - 20
+			lineX = x
+			listIndex = self.scrollbar.getCurrentValue()
+			while ((listIndex < len(self.actionActuatorList)) and (lineY >= y)):
+				# still actionActuators left to draw
+				lineX = x
+				actionActuator = self.actionActuatorList[listIndex]
+				# draw actionMenu
+				event = self.buttonEventRangeStart + 3 + listIndex
+				menuValue = self.actionDict.keys().index((actionActuator.action.ipoPrefix, actionActuator.action.ipoPostfix))
+				self.actionMenuList[listIndex] = Blender.Draw.Menu(menuName,event, x, lineY, 105, 20, menuValue, "Action name")
+				lineX += 107
+				# draw startFrameNumberButton
+				event = self.buttonEventRangeStart + 3 + self.maxActuators + listIndex
+				self.startFrameNumberButtonList[listIndex] = Blender.Draw.Number("Sta: ", event, lineX, lineY, 80, 20, \
+				                                         actionActuator.startFrame, -18000, 18000, "Start frame")
+				lineX += 82
+				# draw endFrameNumberButton
+				event = self.buttonEventRangeStart + 3 + 2*self.maxActuators + listIndex
+				self.endFrameNumberButtonList[listIndex] = Blender.Draw.Number("End: ", event, lineX, lineY, 80, 20, \
+				                                         actionActuator.endFrame, -18000, 18000, "End frame")
+				lineX += 82
+				# compute animationNameWidht
+				animationNameWidth = width - 271 - 85
+				if (animationNameWidth < 80):
+					animationNameWidth = 80
+				# draw animationNameStringButton
+				event = self.buttonEventRangeStart + 3 + 3*self.maxActuators + listIndex
+				self.animationNameStringButtonList[listIndex] = Blender.Draw.String("",event, lineX, lineY, animationNameWidth, 20, \
+				                                                actionActuator.name, 1000, "Animation export name") 
+				lineX += animationNameWidth + 2
+				# draw deleteButton
+				event = self.buttonEventRangeStart + 3 + 4*self.maxActuators + listIndex
+				Draw.Button("Delete", event, lineX, lineY, 60, 20, "Delete export animation")
+				lineX += 62
+				# inc line
+				lineY -= 22
+				listIndex += 1
+			# draw add button
+			if (lineY >= y):
+				Draw.Button("Add", self.buttonEventRangeStart, x, lineY, 60, 20, "Add new export animation")
+		# draw scrollbar
+		if (width > minWidth):
+			# align left
+			self.scrollbar.draw(maxX - 20, minY, 20, (maxY - minY))
+		return
+	
+	def eventFilter(self, event, value):
+		"""event filter for keyboard and mouse input events
+		   call it inside the registered event function
+		"""
+		self.scrollbar.eventFilter(event,value)
+		return
+		
+	def buttonFilter(self, event):
+		"""button filter for Draw Button events
+		   call it inside the registered button function
+		"""
+		# button numbers = self.buttonEventRangeStart + buttonNumberOffset
+		# buttonNumberOffsets:
+		# addButton: 0 
+		# scrollbar: 1 and 2
+		# actionMenu range: 3 <= event < 3 + maxActuators
+		# startFrameNumberButton range:  3 + maxActuators <= event < 3 + 2*maxActuators
+		# endFrameNumberButton range: 3 + 2*maxActuators <= event < 3 + 3*maxActuators
+		# animationNameStringButton range: 3 + 3*maxActuators <= event < 3 + 4*maxActuators
+		# deleteButton range: 3 + 4*maxActuators <= event < 3 + 5*maxActuators
+		self.scrollbar.buttonFilter(event)
+		relativeEvent = event - self.buttonEventRangeStart
+		if (relativeEvent == 0):
+			# add button pressed
+			if (len(self.actionDict.keys()) > 0):
+				# add default ActionActuator
+				action = self.actionDict[self.actionDict.keys()[0]]
+				actionActuator = ActionActuator(action.ipoPrefix + action.ipoPostfix, action.firstKeyFrame, action.lastKeyFrame, action)
+				self.addActionActuator(actionActuator)
+				Blender.Draw.Redraw(1)
+		elif ((3 <= relativeEvent) and (relativeEvent < (3 + self.maxActuators))):
+			# actionMenu
+			listIndex = relativeEvent - 3
+			actionActuator = self.actionActuatorList[listIndex]
+			# button value is self.actionDict.keys().index
+			keyIndex = self.actionMenuList[listIndex].val
+			key = self.actionDict.keys()[keyIndex]
+			actionActuator.action = self.actionDict[key]
+			self.actionActuatorList[listIndex] = actionActuator
+		elif (((3 + self.maxActuators) <= relativeEvent) and (relativeEvent < (3 + 2*self.maxActuators))):
+			# startFrameNumberButton
+			listIndex = relativeEvent - (3 + self.maxActuators)
+			actionActuator = self.actionActuatorList[listIndex]
+			actionActuator.startFrame = self.startFrameNumberButtonList[listIndex].val
+			self.actionActuatorList[listIndex] = actionActuator
+		elif (((3 + 2*self.maxActuators) <= relativeEvent) and (relativeEvent < (3 + 3*self.maxActuators))):
+			# endFrameNumberButton
+			listIndex = relativeEvent - (3 + 2*self.maxActuators)
+			actionActuator = self.actionActuatorList[listIndex]
+			actionActuator.endFrame = self.endFrameNumberButtonList[listIndex].val
+			self.actionActuatorList[listIndex] = actionActuator
+		elif (((3 + 3*self.maxActuators) <= relativeEvent) and (relativeEvent < (3 + 4*self.maxActuators))):
+			# animationNameStringButton
+			listIndex = relativeEvent - (3 + 3*self.maxActuators)
+			actionActuator = self.actionActuatorList[listIndex]
+			actionActuator.name = self.animationNameStringButtonList[listIndex].val
+			self.actionActuatorList[listIndex] = actionActuator
+		elif (((3 + 4*self.maxActuators) <= relativeEvent) and (relativeEvent < (3 + 5*self.maxActuators))):
+			# deleteButton
+			listIndex = relativeEvent - (3 + 4*self.maxActuators)
+			self.deleteActionActuator(listIndex)
+			Blender.Draw.Redraw(1)
+		return
+		
+	# private methods
+	def addActionActuator(self, actionActuator):
+		"""adds an ActionActuator to the list
+		   - call Blender.Draw.Redraw(1) afterwards
+		"""
+		if (len(self.actionActuatorList) < self.maxActuators):
+			# check if actionActuator.action is available
+			if (actionActuator.action.ipoPrefix, actionActuator.action.ipoPostfix) in self.actionDict.keys():
+				# create actionMenu
+				# get Action index in actionDict.keys() list
+				actionMenu = Draw.Create(self.actionDict.keys().index((actionActuator.action.ipoPrefix, actionActuator.action.ipoPostfix)))
+				self.actionMenuList.append(actionMenu)
+				# create startFrameNumberButton
+				startFrameNumberButton = Draw.Create(int(actionActuator.startFrame))
+				self.startFrameNumberButtonList.append(startFrameNumberButton)
+				# create endFrameNumberButton
+				endFrameNumberButton = Draw.Create(int(actionActuator.endFrame))
+				self.endFrameNumberButtonList.append(endFrameNumberButton)
+				# create animationNameStringButton
+				animationNameStringButton = Draw.Create(actionActuator.name)
+				self.animationNameStringButtonList.append(animationNameStringButton)
+				# append to actionActuatorList
+				self.actionActuatorList.append(actionActuator)
+				# adjust scrollbar
+				scrollbarPosition = self.scrollbar.getCurrentValue()
+				self.scrollbar = ReplacementScrollbar(scrollbarPosition,0,len(self.actionActuatorList), self.buttonEventRangeStart+1, self.buttonEventRangeStart+2)
+				# TODO: change scrollbarPosition in a way, such that the new actuator is visible
+			else:
+				print "Error: Could not add ActionActuator because Action is not available!"
+		return
+		
+	def deleteActionActuator(self, listIndex):
+		"""removes an ActionActuator from the list
+		   - call Blender.Draw.Redraw(1) afterwards
+		"""
+		# check listIndex
+		if ((len(self.actionActuatorList) > 0) and (listIndex >= 0) and (listIndex < len(self.actionActuatorList))):
+			# remove actionMenu
+			self.actionMenuList.pop(listIndex)
+			# remove startFrameNumberButton
+			self.startFrameNumberButtonList.pop(listIndex)
+			# remove endFrameNumberButton
+			self.endFrameNumberButtonList.pop(listIndex)
+			# remove animationNameStringButton
+			self.animationNameStringButtonList.pop(listIndex)
+			# remove actionActuator
+			self.actionActuatorList.pop(listIndex)
+			# adjust scrollbar
+			scrollbarPosition = self.scrollbar.getCurrentValue()
+			if (scrollbarPosition > len(self.actionActuatorList)):
+				scrollbarPosition = len(self.actionActuatorList)
+			self.scrollbar = ReplacementScrollbar(scrollbarPosition,0,len(self.actionActuatorList), self.buttonEventRangeStart+1, self.buttonEventRangeStart+2)
+			return
 
 ######
 # global variables
@@ -306,33 +710,34 @@ pathString = Draw.Create(os.path.dirname(Blender.Get('filename')))
 materialString = Draw.Create("export.material")
 scaleNumber = Draw.Create(1.0)
 fpsNumber = Draw.Create(25)
-doneMessage = ""
-
-# action dictionary to rename animations
-# key = actionKeyList[i]
-# value = actionStringList[i].val
-actionDict = {}
-actionStringList = []
-actionKeyList = []
-# scrollbar = Draw.Create(0)
+selectedObjectsList = Blender.Object.GetSelected()
+selectedObjectsMenu = Draw.Create(0)
 scrollbar = ReplacementScrollbar(0,0,0,0,0)
+doneMessage = ""
+# key: objectName, value: armatureName
+armatureDict = {}
+# key: armatureName, value: actionActuatorListView
+actionActuatorListViewDict = {}
+MAXACTUATORS = 100
 
 # button event numbers:
-BUTTON_EVENT_OK = 1
-BUTTON_EVENT_QUIT = 2
-BUTTON_EVENT_EXPORT = 3
-BUTTON_EVENT_UVTOGGLE = 4
-BUTTON_EVENT_ARMATURETOGGLE = 5
-BUTTON_EVENT_ARMATUREMESHTOGGLE = 6
-BUTTON_EVENT_PATHSTRING = 7
-BUTTON_EVENT_PATHBUTTON = 8
-BUTTON_EVENT_MATERIALSTRING = 9
-BUTTON_EVENT_SCALENUMBER = 10
-BUTTON_EVENT_FPSNUMBER = 11
-BUTTON_EVENT_ACTIONSTRINGS = 12
-BUTTON_EVENT_ACTIONSCROLLBAR = 13
-BUTTON_EVENT_SCROLLBARUP = 14
-BUTTON_EVENT_SRCROLLBARDOWN = 15
+BUTTON_EVENT_OK = 101
+BUTTON_EVENT_QUIT = 102
+BUTTON_EVENT_EXPORT = 103
+BUTTON_EVENT_UVTOGGLE = 104
+BUTTON_EVENT_ARMATURETOGGLE = 105
+BUTTON_EVENT_ARMATUREMESHTOGGLE = 106
+BUTTON_EVENT_PATHSTRING = 107
+BUTTON_EVENT_PATHBUTTON = 108
+BUTTON_EVENT_MATERIALSTRING = 109
+BUTTON_EVENT_SCALENUMBER = 1010
+BUTTON_EVENT_FPSNUMBER = 1011
+BUTTON_EVENT_SCROLLBAR = 1012
+BUTTON_EVENT_SCROLLBARUP = 1013
+BUTTON_EVENT_SRCROLLBARDOWN = 1014
+BUTTON_EVENT_UPDATEBUTTON = 1015
+BUTTON_EVENT_SELECTEDOBJECTSMENU = 1016
+BUTTON_EVENT_ACTUATOR_RANGESTART = 1017
 
 # error indication:
 EXPORT_SUCCESS = 0
@@ -847,197 +1252,214 @@ def convert_armature(skeleton, obj, debugskel):
       stack.append([child, parent, accu_mat, pos])
 
 
-def export_skeleton(obj):
-  global armatureToggle, fpsNumber, armatureMeshToggle
-  global skeletonsDict
-  global exportStatus, exportLog
-  
-  if not armatureToggle.val or skeletonsDict.has_key(obj.name) or obj.getType() != "Armature":
-    return
-  
-  data = obj.getData()
-  skeleton = Skeleton(obj.name)
-  skeletonsDict[obj.name] = skeleton
+def export_skeleton(object):
+	global armatureToggle, fpsNumber, armatureMeshToggle, actionActuatorListViewDict
+	global skeletonsDict
+	global exportStatus, exportLog
+	
+	if ((armatureToggle.val == 1) and (not skeletonsDict.has_key(object.getName())) and (object.getType() == "Armature")):
+		skeleton = Skeleton(object.name)
+		skeletonsDict[object.name] = skeleton
 
-  testskel = None
-  if armatureMeshToggle.val:
-    testskel = TestSkel(skeleton)
+		testskel = None
+		if armatureMeshToggle.val:
+			testskel = TestSkel(skeleton)
 
-  convert_armature(skeleton, obj, testskel)
+		convert_armature(skeleton, object, testskel)
 
-  if testskel:
-    export_testskel(testskel)
+		if testskel:
+			export_testskel(testskel)
 
-  # get scale from obj matrix (for loc keys)
-  matrix = matrix_multiply(BASE_MATRIX, obj.getMatrix())
-  pz = point_by_matrix([0, 0, 0], matrix)
+		# get scale from obj matrix (for loc keys)
+		matrix = matrix_multiply(BASE_MATRIX, object.getMatrix())
+		pz = point_by_matrix([0, 0, 0], matrix)
 
-  p = point_by_matrix([1, 0, 0], matrix)
-  dx, dy, dz = p[0] - pz[0], p[1] - pz[1], p[2] - pz[2], 
-  scale_x = math.sqrt(dx*dx + dy*dy + dz*dz)
+		p = point_by_matrix([1, 0, 0], matrix)
+		dx, dy, dz = p[0] - pz[0], p[1] - pz[1], p[2] - pz[2], 
+		scale_x = math.sqrt(dx*dx + dy*dy + dz*dz)
 
-  p = point_by_matrix([0, 1, 0], matrix)
-  dx, dy, dz = p[0] - pz[0], p[1] - pz[1], p[2] - pz[2], 
-  scale_y = math.sqrt(dx*dx + dy*dy + dz*dz)
+		p = point_by_matrix([0, 1, 0], matrix)
+		dx, dy, dz = p[0] - pz[0], p[1] - pz[1], p[2] - pz[2], 
+		scale_y = math.sqrt(dx*dx + dy*dy + dz*dz)
 
-  p = point_by_matrix([0, 0, 1], matrix)
-  dx, dy, dz = p[0] - pz[0], p[1] - pz[1], p[2] - pz[2], 
-  scale_z = math.sqrt(dx*dx + dy*dy + dz*dz)
+		p = point_by_matrix([0, 0, 1], matrix)
+		dx, dy, dz = p[0] - pz[0], p[1] - pz[1], p[2] - pz[2], 
+		scale_z = math.sqrt(dx*dx + dy*dy + dz*dz)
 
-  #print "scale" , scale_x, scale_y, scale_z
+		# create bone dict
+		boneQueue = object.getData().getBones()
+		boneDict = {}
+		while (len(boneQueue) > 0):
+			# get all bones of the armature
+			currentBone = boneQueue.pop(0)
+			boneDict[currentBone.getName()] = currentBone
+			children = currentBone.getChildren()
+			if (len(children) > 0):
+				for child in children:
+					boneQueue.append(child)
+		# export animations
+		if actionActuatorListViewDict.has_key(object.getName()):
+			actionActuatorList = actionActuatorListViewDict[object.getName()].actionActuatorList
+			# map actionActuatorList to skeleton.animationsDict
+			for actionActuator in actionActuatorList:
+				# map actionActuator to animation
+				if (not skeleton.animationsDict.has_key(actionActuator.name)):
+					# create animation
+					animation = Animation(actionActuator.name)
+					# map bones to tracks
+					for boneName in actionActuator.action.boneList:
+						if (not animation.tracksDict.has_key(boneName)):
+							# get bone object
+							if boneDict.has_key(boneName):
+								# create track
+								track = Track(animation, boneDict[boneName])
+								# map ipocurves to keyframes
+								# get ipo for that bone
+								ipoName = actionActuator.action.ipoPrefix + "." + boneName + actionActuator.action.ipoPostfix
+								try:
+									ipo = Blender.Ipo.Get(ipoName)
+									# map curve names to curvepos
+									curveId = {}
+									id = 0
+									have_quat = 0
+									for curve in ipo.getCurves():
+										try:
+											name = curve.getName()
+											if (name == "LocX" or name == "LocY" or name == "LocZ" or \
+											name == "SizeX" or name == "SizeY" or name == "SizeZ" or \
+											name == "QuatX" or name == "QuatY" or name == "QuatZ" or name == "QuatW"):
+												curveId[name] = id
+												id += 1
+											else:
+											# bug: 2.28 does not return "Quat*"...
+												if not have_quat:
+													curveId["QuatX"] = id
+													curveId["QuatY"] = id+1
+													curveId["QuatZ"] = id+2
+													curveId["QuatW"] = id+3
+													id += 4
+													have_quat = 1
+										except TypeError:
+											# blender 2.32 does not implement IpoCurve.getName() for action Ipos
+											if not have_quat:
+												# no automatic assignments so far
+												# guess Ipo Names       
+												nIpoCurves = ipo.getNcurves()
+												if nIpoCurves in [4,7,10]:
+													exportLog.append("Warning: IpoCurve.getName() not available!")
+													exportLog.append("         The exporter tries to guess the IpoCurve names.")
+													exportStatus = EXPORT_WARNING
+													if (nIpoCurves >= 7):
+														# not only Quats
+														# guess: Quats and Locs
+														curveId["LocX"] = id
+														curveId["LocY"] = id+1
+														curveId["LocZ"] = id+2
+														id += 3      
+													if (nIpoCurves == 10):
+														# all possible Action IpoCurves
+														curveId["SizeX"] = id
+														curveId["SizeY"] = id+1
+														curveId["SizeZ"] = id+2
+														id += 3
+													if (nIpoCurves >= 4):
+														# at least 4 IpoCurves
+														# guess: 4 Quats
+														curveId["QuatX"] = id
+														curveId["QuatY"] = id+1
+														curveId["QuatZ"] = id+2
+														curveId["QuatW"] = id+3
+														id += 4
+													have_quat = 1
+												else:
+													exportLog.append("Error: IpoCurve.getName() not available!")
+													exportLog.append("       Could not guess the IpoCurve names. Blender versions 2.28 - 3.31a may work.")
+													exportStatus = EXPORT_ERROR
+									# get all frame numbers between startFrame and endFrame where this ipo has a point in one of its curves
+									frameNumberDict = {}
+									for curveIndex in range(ipo.getNcurves()):
+										for bez in range(ipo.getNBezPoints(curveIndex)):
+											frame = int(ipo.getCurveBeztriple(curveIndex, bez)[3])
+											frameNumberDict[frame] = frame
+									frameNumberDict[actionActuator.startFrame] = actionActuator.startFrame
+									frameNumberDict[actionActuator.endFrame] = actionActuator.endFrame
+									# remove frame numbers not in the startFrame endFrame range
+									if (actionActuator.startFrame > actionActuator.endFrame):
+										minFrame = actionActuator.endFrame
+										maxFrame = actionActuator.startFrame
+									else:
+										minFrame = actionActuator.startFrame
+										maxFrame = actionActuator.endFrame
+									for frameNumber in frameNumberDict.keys()[:]:
+										if ((frameNumber < minFrame) or (frameNumber > maxFrame)):
+											del frameNumberDict[frameNumber]
+									frameNumberList = frameNumberDict.keys()
+									# convert frame numbers to seconds
+									# frameNumberDict: key = export time, value = frame number
+									frameNumberDict = {}
+									for frameNumber in frameNumberList:
+										if  (actionActuator.startFrame <= actionActuator.endFrame):
+											# forward animation
+											time = float(frameNumber-actionActuator.startFrame)/fpsNumber.val
+										else:
+											# backward animation
+											time = float(actionActuator.endFrame-frameNumber)/fpsNumber.val
+										# update animation duration
+										if animation.duration < time:
+											animation.duration = time
+										frameNumberDict[time] = frameNumber
+									# create key frames
+									timeList = frameNumberDict.keys()
+									timeList.sort()
+									for time in timeList:
+										frame = frameNumberDict[time]
+										loc = [ 0.0, 0.0, 0.0 ]
+										rot = [ 0.0, 0.0, 0.0, 1.0 ]
+										size = 1.0
+										if curveId.has_key("LocX"):
+											loc = [ ipo.EvaluateCurveOn(curveId["LocX"], frame) * -1.0 * scale_x, \
+												ipo.EvaluateCurveOn(curveId["LocY"], frame) * -1.0 * scale_y, \
+												ipo.EvaluateCurveOn(curveId["LocZ"], frame) *  1.0 * scale_z ]
+										if curveId.has_key("QuatX"):
+											rot = [ ipo.EvaluateCurveOn(curveId["QuatX"], frame), \
+												ipo.EvaluateCurveOn(curveId["QuatY"], frame), \
+												ipo.EvaluateCurveOn(curveId["QuatZ"], frame), \
+												ipo.EvaluateCurveOn(curveId["QuatW"], frame) ]
+										if curveId.has_key("SizeX"):
+											sx = ipo.EvaluateCurveOn(curveId["SizeX"], frame)
+											sy = ipo.EvaluateCurveOn(curveId["SizeY"], frame)
+											sz = ipo.EvaluateCurveOn(curveId["SizeZ"], frame)
+											size = sx
+											size = max(size, sy)
+											size = max(size, sz)
+										KeyFrame(track, time, loc, rot, size)
+									# append track
+									animation.tracksDict[boneName] = track
+								except NameError:
+									# there is no ipo called ipoName
+									exportLog.append("error: Unknown Ipo \"%s\" ." % ipoName)
+									exportStatus = EXPORT_ERROR
+							else:
+								# ipo name contains bone but armature doesn't
+								exportLog.append("error: ambiguous bone name \"%s\" ." % boneName)
+								exportStatus = EXPORT_ERROR
+						else:
+							# track for that bone already exists
+							exportLog.append("error: ambiguous bone name \"%s\" ." % boneName)
+							exportStatus = EXPORT_ERROR
+					# append animation
+					skeleton.animationsDict[actionActuator.name] = animation
+				else:
+					# animation export name already exists
+					exportLog.append("error: ambiguous animation name \"%s\" ." % actionActuator.name)
+					exportStatus = EXPORT_ERROR
+		else:
+			# armature has no actionActuatorListView
+			exportLog.append("error: No animation settings for armature \"%s\" ." % object.getName())
+			exportStatus = EXPORT_ERROR
 
-  for ipo in Blender.Ipo.Get():
-    if ipo.getNcurves() == 0:
-      continue
-    
-    # too bad, there is no clean way to get the ipo for a bone :(
-    ipoName = ipo.getName()
-    prefix = "Action."
-    if ipoName[0:len(prefix)] != prefix:
-      exportLog.append("error: ignored IPO: \"%s\" (only Action.<bone-name>[.xxx] is recognized)" % ipoName)
-      exportStatus = EXPORT_WARNING
-      continue
-
-    rest = ipoName[len(prefix):]
-    ext = rest[-4:]
-    d = string.digits
-    if len(ext) == 4 and ext[1] in d and ext[2] in d and ext[3] in d:
-      boneName = rest[0:-4]
-      animationName = prefix+ext[1:]
-    else:
-      boneName = rest
-      # animationName = prefix+"000"
-      # rename in dictonary instead
-      animationName = prefix
-      
-    bone = 0
-    found = 0
-    for b in skeleton.bones:
-      if boneName == b.name or boneName+ext == b.name:
-        found += 1
-        bone = b
-
-    if found != 1:
-      if found == 0:
-        exportLog.append("error: can not find a bone for ipo \"%s\"." % ipoName)
-        exportStatus = EXPORT_ERROR
-      else:
-        exportLog.append("error: more than one bone matches the ipo \"%s\"." % ipoName)
-        exportLog.append("       please rename the bone and its ipo in blender.")
-        exportStatus = EXPORT_ERROR
-      continue
-
-    #print "IPO %s -> bone: %s, animation: %s" % (ipoName, bone.name, animationName)
-
-    animation = skeleton.animationsDict.get(animationName)
-    if not animation:
-      animation = skeleton.animationsDict[animationName] = Animation(animationName)
-
-    track = animation.tracksDict.get(boneName)
-    if not track:
-      track = animation.tracksDict[boneName] = Track(animation, bone)
-
-    # map curve names to curvepos
-    curveId = {}
-    id = have_quat = 0
-    for curve in ipo.getCurves():
-      try:
-        name = curve.getName()
-        if (name == "LocX" or name == "LocY" or name == "LocZ" or \
-        	name == "SizeX" or name == "SizeY" or name == "SizeZ" or \
-        	name == "QuatX" or name == "QuatY" or name == "QuatZ" or name == "QuatW"):
-        	curveId[name] = id
-        	id += 1
-        else:
-        	# bug: 2.28 does not return "Quat*"...
-        	if not have_quat:
-        		curveId["QuatX"] = id
-        		curveId["QuatY"] = id+1
-        		curveId["QuatZ"] = id+2
-        		curveId["QuatW"] = id+3
-        		id += 4
-        		have_quat = 1
-      except TypeError:
-        # blender 2.32 does not implement IpoCurve.getName() for action Ipos
-        if not have_quat:
-        	# no automatic assignments so far
-        	# guess Ipo Names       
-        	nIpoCurves = ipo.getNcurves()
-        	if nIpoCurves in [4,7,10]:
-        		exportLog.append("Warning: IpoCurve.getName() not available!")
-        		exportLog.append("         The exporter tries to guess the IpoCurve names.")
-        		exportStatus = EXPORT_WARNING
-        		if (nIpoCurves >= 7):
-        			# not only Quats
-        			# guess: Quats and Locs
-        			curveId["LocX"] = id
-        			curveId["LocY"] = id+1
-        			curveId["LocZ"] = id+2
-        			id += 3      
-        		if (nIpoCurves == 10):
-        			# all possible Action IpoCurves
-        			curveId["SizeX"] = id
-        			curveId["SizeY"] = id+1
-        			curveId["SizeZ"] = id+2
-        			id += 3
-        		if (nIpoCurves >= 4):
-        			# at least 4 IpoCurves
-        			# guess: 4 Quats
-        			curveId["QuatX"] = id
-        			curveId["QuatY"] = id+1
-        			curveId["QuatZ"] = id+2
-        			curveId["QuatW"] = id+3
-        			id += 4
-        		have_quat = 1
-        	else:
-        		exportLog.append("Error: IpoCurve.getName() not available!")
-        		exportLog.append("       Could not guess the IpoCurve names. Blender versions 2.28 - 3.31a may work.")
-        		exportStatus = EXPORT_ERROR
-        		return
-    
-    # get all frame numbers where this ipo has a point in one of its curves 
-    framenumberSet = {}
-    for i in range(ipo.getNcurves()):
-      for bez in range(ipo.getNBezPoints(i)):
-        frame = int(ipo.getCurveBeztriple(i, bez)[3])
-        framenumberSet[frame] = frame
-    framenumberSet[1] = 1 # make sure there is a keyframe at 1
-    framenumbers = framenumberSet.values()
-    framenumbers.sort()
-    
-    for frame in framenumbers:
-      loc = [ 0.0, 0.0, 0.0 ]
-      rot = [ 0.0, 0.0, 0.0, 1.0 ]
-      size = 1.0
-
-      if curveId.has_key("LocX"):
-        loc = [ ipo.EvaluateCurveOn(curveId["LocX"], frame) * -1.0 * scale_x,
-                ipo.EvaluateCurveOn(curveId["LocY"], frame) * -1.0 * scale_y,
-                ipo.EvaluateCurveOn(curveId["LocZ"], frame) *  1.0 * scale_z ]
-        
-      if curveId.has_key("QuatX"):
-        rot = [ ipo.EvaluateCurveOn(curveId["QuatX"], frame),
-                ipo.EvaluateCurveOn(curveId["QuatY"], frame),
-                ipo.EvaluateCurveOn(curveId["QuatZ"], frame),
-                ipo.EvaluateCurveOn(curveId["QuatW"], frame) ]
-
-      if curveId.has_key("SizeX"):
-        sx = ipo.EvaluateCurveOn(curveId["SizeX"], frame)
-        sy = ipo.EvaluateCurveOn(curveId["SizeY"], frame)
-        sz = ipo.EvaluateCurveOn(curveId["SizeZ"], frame)
-        size = sx
-        size = max(size, sy)
-        size = max(size, sz)
-
-      # Convert time units from Blender's frame (starting at 1) to second
-      time = (frame-1.0) / fpsNumber.val
-      if animation.duration < time:
-        animation.duration = time
-
-      KeyFrame(track, time, loc, rot, size)
-
-  write_skeleton(skeleton)
-
+		write_skeleton(skeleton)
+	return
 
 def export_testskel(testskel):
 
@@ -1195,101 +1617,96 @@ def export_mesh(object):
 	global uvToggle, armatureToggle
 	global verticesDict
 	global materialsDict
-	global textureDict
 	global exportStatus, exportLog
 	
-	if object.getType() != "Mesh":
-		return
-	
-	# is this mesh attached to an armature?
-	skeleton = 0
-	if armatureToggle.val:
-		parent = object.getParent()
-		if parent and parent.getType() == "Armature":
-			export_skeleton(parent)
-			skeleton = skeletonsDict[parent.name]
-	
-	#NMesh of the object
-	data = object.getData()
-	matrix = matrix_multiply(BASE_MATRIX, object.getMatrix())
-	
-	# materials of the object
-	# note: ogre assigns different textures and different facemodes
-	#       to different materials
-	objectMaterialDict = {}
-	# faces assign to objectMaterial keys
-	objectMaterialFacesDict = {}
-	
-	# note: these are blender materials. Evene if nMaterials = 0
-	#       the face can still have a texture (see above)
-	nMaterials = len(data.materials)
-	  
-	# create ogre materials
-	for face in data.faces:
-		if not(face.mode & Blender.NMesh.FaceModes["INVISIBLE"]):
-			# face is visible
-			hasTexture = 0
-			if ((uvToggle.val) and (data.hasFaceUV()) and (face.mode & Blender.NMesh.FaceModes["TEX"])):
-				if face.image:
-					hasTexture = 1
-				else:
-					exportLog.append("Error: Face is textured but has no image assigned!")
-					exportStatus = EXPORT_ERROR
-			if ((nMaterials > 0 ) or (hasTexture == 1)):
-				# create material of the face:
-				# blenders material name / FaceTranspMode / texture image name
-				# blenders material name
-				materialName = ""
-				# blenders material name
-				faceMaterial = None
-				if (nMaterials > 0):
-					faceMaterial = data.materials[face.materialIndex]
-					materialName += faceMaterial.getName() +"/"
-				# FaceTranspMode
-				# default: solid
-				blendMode = Blender.NMesh.FaceTranspModes["SOLID"]
-				if (face.transp == Blender.NMesh.FaceTranspModes["ALPHA"]):
-					materialName += "ALPHA/"
-					blendMode = Blender.NMesh.FaceTranspModes["ALPHA"]
-				elif (face.transp == Blender.NMesh.FaceTranspModes["ADD"]):
-					materialName += "ADD/"
-					blendMode = Blender.NMesh.FaceTranspModes["ADD"]
-				else:
-					materialName += "SOLID/"
-				# texture image name
-				textureFile = None
-				if hasTexture:
-					textureFile = face.image.filename
-					materialName += os.path.basename(textureFile)
-				# insert into Dicts
-				material = objectMaterialDict.get(materialName)
+	if (object.getType() == "Mesh"):
+		# is this mesh attached to an armature?
+		skeleton = 0
+		if armatureToggle.val:
+			parent = object.getParent()
+			if parent and parent.getType() == "Armature":
+				export_skeleton(parent)
+				skeleton = skeletonsDict[parent.name]
+
+		#NMesh of the object
+		data = object.getData()
+		matrix = matrix_multiply(BASE_MATRIX, object.getMatrix())
+
+		# materials of the object
+		# note: ogre assigns different textures and different facemodes
+		#       to different materials
+		objectMaterialDict = {}
+		# faces assign to objectMaterial keys
+		objectMaterialFacesDict = {}
+
+		# note: these are blender materials. Evene if nMaterials = 0
+		#       the face can still have a texture (see above)
+		nMaterials = len(data.materials)
+
+		# create ogre materials
+		for face in data.faces:
+			if not(face.mode & Blender.NMesh.FaceModes["INVISIBLE"]):
+				# face is visible
+				hasTexture = 0
+				if ((uvToggle.val) and (data.hasFaceUV()) and (face.mode & Blender.NMesh.FaceModes["TEX"])):
+					if face.image:
+						hasTexture = 1
+					else:
+						exportLog.append("Error: Face is textured but has no image assigned!")
+						exportStatus = EXPORT_ERROR
+				if ((nMaterials > 0 ) or (hasTexture == 1)):
+					# create material of the face:
+					# blenders material name / FaceTranspMode / texture image name
+					# blenders material name
+					materialName = ""
+					# blenders material name
+					faceMaterial = None
+					if (nMaterials > 0):
+						faceMaterial = data.materials[face.materialIndex]
+						materialName += faceMaterial.getName() +"/"
+					# FaceTranspMode
+					# default: solid
+					blendMode = Blender.NMesh.FaceTranspModes["SOLID"]
+					if (face.transp == Blender.NMesh.FaceTranspModes["ALPHA"]):
+						materialName += "ALPHA/"
+						blendMode = Blender.NMesh.FaceTranspModes["ALPHA"]
+					elif (face.transp == Blender.NMesh.FaceTranspModes["ADD"]):
+						materialName += "ADD/"
+						blendMode = Blender.NMesh.FaceTranspModes["ADD"]
+					else:
+						materialName += "SOLID/"
+					# texture image name
+					textureFile = None
+					if hasTexture:
+						textureFile = face.image.filename
+						materialName += os.path.basename(textureFile)
+					# insert into Dicts
+					material = objectMaterialDict.get(materialName)
+					if not material:
+						material = Material(materialName, faceMaterial, textureFile, blendMode)
+						objectMaterialDict[materialName] = material
+						# faces
+						objectMaterialFacesDict[materialName] = [face]
+					else:
+						# append faces
+						faceList = objectMaterialFacesDict[materialName]
+						faceList.append(face)
+						objectMaterialFacesDict[materialName] = faceList
+		# process faces
+		submeshes = []
+		for materialKey in objectMaterialDict.keys():
+			submesh = SubMesh(objectMaterialDict[materialKey])
+			verticesDict = {}
+			for face in objectMaterialFacesDict[materialKey]:
+				process_face(face, submesh, data, matrix, skeleton)
+			if len(submesh.faces):
+				submeshes.append(submesh)
+				# update global materialsDict
+				material = materialsDict.get(materialKey)
 				if not material:
-					material = Material(materialName, faceMaterial, textureFile, blendMode)
-					objectMaterialDict[materialName] = material
-					# faces
-					objectMaterialFacesDict[materialName] = [face]
-				else:
-					# append faces
-					faceList = objectMaterialFacesDict[materialName]
-					faceList.append(face)
-					objectMaterialFacesDict[materialName] = faceList
-	# process faces
-	submeshes = []
-	for materialKey in objectMaterialDict.keys():
-		submesh = SubMesh(objectMaterialDict[materialKey])
-		verticesDict = {}
-		for face in objectMaterialFacesDict[materialKey]:
-			process_face(face, submesh, data, matrix, skeleton)
-		if len(submesh.faces):
-			submeshes.append(submesh)
-			# update global materialsDicts
-			material = materialsDict.get(materialKey)
-			if not material:
-				materialsDict[materialKey] = objectMaterialDict[materialKey]
-	
-	
-	# write mesh
-	write_mesh(object.getName(), submeshes, skeleton)
+					materialsDict[materialKey] = objectMaterialDict[materialKey]
+		# write mesh
+		write_mesh(object.getName(), submeshes, skeleton)
 	return
 
 #######################################################################################
@@ -1306,7 +1723,7 @@ def clamp(val):
     return val
 
 def write_skeleton(skeleton):
-  global pathString, actionDict, exportLog
+  global pathString, exportLog
   file = skeleton.name+".skeleton.xml"
   exportLog.append("skeleton  \"%s\"" % file)
 
@@ -1340,7 +1757,7 @@ def write_skeleton(skeleton):
     #if not animation.duration:
     #  continue
 
-    name = actionDict.get(animation.name) or animation.name
+    name = animation.name
 
     f.write(tab(2)+"<animation")
     f.write(" name=\"%s\"" % name)
@@ -1469,27 +1886,28 @@ def write_materials():
 		if material.mat:
 			# pass attributes
 			mat = material.mat
-			# ambient <- amb * rgbCol
-			ambR = clamp(mat.amb * mat.rgbCol[0])
-			ambG = clamp(mat.amb * mat.rgbCol[1])
-			ambB = clamp(mat.amb * mat.rgbCol[2])
-			f.write(tab(3)+"ambient %f %f %f\n" % (ambR, ambG, ambB))
-			# diffuse <- rgbCol
-			diffR = clamp(mat.rgbCol[0])
-			diffG = clamp(mat.rgbCol[1])
-			diffB = clamp(mat.rgbCol[2])
-			f.write(tab(3)+"diffuse %f %f %f\n" % (diffR, diffG, diffB))
-			# specular <- spec * specCol, hard
-			specR = clamp(mat.spec * mat.specCol[0])
-			specG = clamp(mat.spec * mat.specCol[1])
-			specB = clamp(mat.spec * mat.specCol[2])
-			specShine = mat.hard
-			f.write(tab(3)+"specular %f %f %f %f\n" % (specR, specG, specB, specShine))
-			# emissive <-emit * rgbCol
-			emR = clamp(mat.emit * mat.rgbCol[0])
-			emG = clamp(mat.emit * mat.rgbCol[1])
-			emB = clamp(mat.emit * mat.rgbCol[2])
-			f.write(tab(3)+"emissive %f %f %f\n" % (emR, emG, emB))	
+			if (not(mat.mode & Blender.Material.Modes["TEXFACE"])):
+				# ambient <- amb * rgbCol
+				ambR = clamp(mat.amb * mat.rgbCol[0])
+				ambG = clamp(mat.amb * mat.rgbCol[1])
+				ambB = clamp(mat.amb * mat.rgbCol[2])
+				f.write(tab(3)+"ambient %f %f %f\n" % (ambR, ambG, ambB))
+				# diffuse <- rgbCol
+				diffR = clamp(mat.rgbCol[0])
+				diffG = clamp(mat.rgbCol[1])
+				diffB = clamp(mat.rgbCol[2])
+				f.write(tab(3)+"diffuse %f %f %f\n" % (diffR, diffG, diffB))
+				# specular <- spec * specCol, hard
+				specR = clamp(mat.spec * mat.specCol[0])
+				specG = clamp(mat.spec * mat.specCol[1])
+				specB = clamp(mat.spec * mat.specCol[2])
+				specShine = mat.hard
+				f.write(tab(3)+"specular %f %f %f %f\n" % (specR, specG, specB, specShine))
+				# emissive <-emit * rgbCol
+				emR = clamp(mat.emit * mat.rgbCol[0])
+				emG = clamp(mat.emit * mat.rgbCol[1])
+				emB = clamp(mat.emit * mat.rgbCol[2])
+				f.write(tab(3)+"emissive %f %f %f\n" % (emR, emG, emB))	
 			# depth_func  <- ZINVERT; ENV
 			if (mat.mode & Blender.Material.Modes["ENV"]):
 				f.write(tab(3)+"depth_func always_fail\n")
@@ -1519,16 +1937,14 @@ def write_materials():
 #######################################################################################
 ## main export
 
-def export():
+def export(selectedObjectsList):
     global pathString, scaleNumber
     global materialsDict
-    global textureDict
     global skeletonsDict
     global BASE_MATRIX
     global exportStatus, exportLog
     
     materialsDict = {}
-    textureDict = {}
     skeletonsDict = {}
 
     # set matrix to 90 degree rotation around x-axis and scale
@@ -1542,9 +1958,8 @@ def export():
       return
 
     exportLog.append("exporting selected objects:")    
-    objs = Blender.Object.GetSelected()
     n = 0
-    for obj in objs:
+    for obj in selectedObjectsList:
       if not obj:
         continue
       
@@ -1576,45 +1991,44 @@ def export():
 ######
 # methods
 ######
-def initGUI():
-	"""initialization of the GUI
+def refreshGUI():
+	"""refresh GUI after export
 	"""
-	global exportStatus, exportLog, actionKeyList, actionStringList, scrollbar
+	global exportStatus, exportLog
+	global selectedObjectsList, armatureToggle, armatureDict, actionActuatorListViewDict
 	# export settings
 	exportStatus = EXPORT_SUCCESS
 	exportLog = []
-	# scrollbar
-	for ipo in Blender.Ipo.Get():
-		if ipo.getNcurves() != 0:
-			ipoName = ipo.getName()
-			prefix = "Action."
-			if ipoName[0:len(prefix)] == prefix:
-				rest = ipoName[len(prefix):]
-				ext = rest[-4:]
-				d = string.digits
-				if len(ext) == 4 and ext[1] in d and ext[2] in d and ext[3] in d:
-					animationKey = prefix+ext[1:]
-				else:
-					animationKey = prefix
-				if actionKeyList.count(animationKey) == 0:
-					# default action names
-					if animationKey == 'Action.':
-						animationValue = 'Walk'
-					elif animationKey == 'Action.000':
-						animationValue = 'Walk'
-					elif animationKey == 'Action.001':
-						animationValue = 'Jump'
-					else:
-						# no translation
-						animationValue = animationKey
-					# add action to dictionary (key and value lists)
-					# actionDict[animationKey] = animationValue
-					actionKeyList.append(animationKey)
-					actionStringList.append(Draw.Create(animationValue))
-	if (len(actionKeyList) > 0):
-		scrollbar = ReplacementScrollbar(0,0,len(actionKeyList)-1,BUTTON_EVENT_SCROLLBARUP,BUTTON_EVENT_SRCROLLBARDOWN)
-	else:
-		scrollbar = ReplacementScrollbar(0,0,0,BUTTON_EVENT_SCROLLBARUP,BUTTON_EVENT_SRCROLLBARDOWN)
+	selectedObjectsList = Blender.Object.GetSelected()
+	armatureDict = {}
+	# create armatureDict
+	for object in selectedObjectsList:
+		if (object.getType() == "Armature"):
+			# add armature to armatureDict
+			armatureDict[object.getName()] = object.getName()
+		elif (object.getType() == "Mesh"):
+			parent = object.getParent()
+			if parent and parent.getType() == "Armature":
+				# add armature to armatureDict
+				armatureDict[object.getName()] = parent.getName()
+	# create ActionActuatorListView
+	for armatureName in armatureDict.values():
+		# create actionDict
+		actionDict = Action.createActionDict(Action(), Blender.Object.Get(armatureName).data)
+		if actionActuatorListViewDict.has_key(armatureName):
+			# refresh actionActuators
+			actionActuatorListViewDict[armatureName].refresh(actionDict)
+		else:
+			# create actionActuatorListView
+			actionActuatorListViewDict[armatureName] = ActionActuatorListView(actionDict, MAXACTUATORS, BUTTON_EVENT_ACTUATOR_RANGESTART)
+	return
+
+def initGUI():
+	"""initialization of the GUI
+	"""
+	global actionActuatorListViewDict
+	actionActuatorListViewDict = {}
+	refreshGUI()
 	return
 
 def pathSelectCallback(fileName):
@@ -1632,9 +2046,17 @@ def eventCallback(event,value):
 	exit on QKEY
 	"""
 	global scrollbar
-	scrollbar.eventFilter(event,value)
-	if (not value):
-		# released
+	global selectedObjectsList, selectedObjectsMenu, actionActuatorListViewDict, armatureDict
+	# eventFilter for current ActionActuatorListView
+	if (len(selectedObjectsList) > 0):
+		selectedObjectsListIndex = selectedObjectsMenu.val
+		selectedObjectName = selectedObjectsList[selectedObjectsListIndex].getName()
+		if armatureDict.has_key(selectedObjectName):
+			armatureName = armatureDict[selectedObjectName]
+			actionActuatorListViewDict[armatureName].eventFilter(event, value)
+	scrollbar.eventFilter(event, value)
+	if not(value == 0):
+		# pressed
 		if (event == Draw.ESCKEY):
 			Draw.Exit()
 			return
@@ -1646,13 +2068,27 @@ def eventCallback(event,value):
 def buttonCallback(event):
 	"""handles button events
 	"""
-	global materialString, actionDict, doneMessage, doneMessageBox, eventCallback, buttonCallback, \
-		scrollbar, exportLog
+	global materialString, doneMessage, doneMessageBox, eventCallback, buttonCallback, scrollbar
+	global selectedObjectsList, selectedObjectsMenu, actionActuatorListViewDict, armatureDict
+	# buttonFilter for current ActionActuatorListView
+	if (len(selectedObjectsList) > 0):
+		selectedObjectsListIndex = selectedObjectsMenu.val
+		selectedObjectName = selectedObjectsList[selectedObjectsListIndex].getName()
+		if armatureDict.has_key(selectedObjectName):
+			armatureName = armatureDict[selectedObjectName]
+			actionActuatorListViewDict[armatureName].buttonFilter(event)
 	scrollbar.buttonFilter(event)
 	if (event == BUTTON_EVENT_OK): # Ok
 		# restart
-		initGUI()
+		refreshGUI()
 		Draw.Register(gui, eventCallback, buttonCallback)
+	elif (event == BUTTON_EVENT_UPDATEBUTTON):
+		# update list of selected objects
+		refreshGUI()
+		Draw.Redraw(1)
+	elif (event == BUTTON_EVENT_SELECTEDOBJECTSMENU):
+		# selected object changed
+		Draw.Redraw(1)
 	elif (event  == BUTTON_EVENT_QUIT): # Quit
 		Draw.Exit()
 		return
@@ -1666,14 +2102,11 @@ def buttonCallback(event):
 		if (len(materialString.val) == 0):
 			materialString.val = "export.material"
 		Draw.Redraw(1)
-	elif (event == BUTTON_EVENT_ACTIONSCROLLBAR): # scrollbar
+	elif (event == BUTTON_EVENT_SCROLLBAR): # scrollbar
 		Draw.Redraw(1)
 	elif (event == BUTTON_EVENT_EXPORT): # export
-		# construct dictionary
-		for keyi in range(len(actionKeyList)):
-			actionDict[actionKeyList[keyi]] = actionStringList[keyi].val
 		# export
-		status = export()
+		status = export(selectedObjectsList)
 		if (status == EXPORT_SUCCESS):
 			doneMessage = EXPORT_SUCCESS_MESSAGE
 		elif (status == EXPORT_WARNING):
@@ -1689,7 +2122,8 @@ def gui():
 	"""draws the screen
 	"""
 	global uvToggle, armatureToggle, armatureMeshToggle, pathString, materialString, \
-		scaleNumber, fpsNumber, actionStringList, actionKeyList, scrollbar
+		scaleNumber, fpsNumber, scrollbar
+	global selectedObjectsList, selectedObjectsMenu, actionActuatorListViewDict, armatureDict
 	# get size of the window
 	guiRectBuffer = Buffer(GL_FLOAT, 4)
 	glGetFloatv(GL_SCISSOR_BOX, guiRectBuffer)
@@ -1715,35 +2149,35 @@ def gui():
 	glRasterPos2i(remainRect[0]+4,remainRect[3]+7)
 	Draw.Text("Ogre Exporter","normal")
 	
-	# what to export toggles
+	# export settings
+	remainRect[3] -= 5
+	# first row
 	uvToggle = Draw.Toggle("Export Textures", BUTTON_EVENT_UVTOGGLE, \
-				remainRect[0], remainRect[3]-30, 220, 20, \
+				remainRect[0], remainRect[3]-25, 220, 20, \
 				uvToggle.val, "export sticky uv coordinates, if available") 
-	remainRect[3] -= 30
+	# Material file
+	materialString = Draw.String("Material File: ", BUTTON_EVENT_MATERIALSTRING, \
+			remainRect[0]+230,remainRect[3]-25, 220, 20, \
+			materialString.val, 255,"all material definitions go in this file (relative to the save path)")
+
+	remainRect[3] -= 25
+	# second row
 	armatureToggle = Draw.Toggle("Export Armature", BUTTON_EVENT_ARMATURETOGGLE, \
 				remainRect[0], remainRect[3]-25, 220, 20, \
 				armatureToggle.val, "export skeletons and bone weights in meshes")
+	# Scale and FPS settings
+	scaleNumber = Draw.Number("Mesh Scale Factor: ", BUTTON_EVENT_SCALENUMBER, \
+			remainRect[0]+230, remainRect[3]-25, 220, 20, \
+			scaleNumber.val, 0.0, 1000.0, "scale factor")
 	remainRect[3] -= 25
+	# third row
 	if (armatureToggle.val == 1):
 		armatureMeshToggle = Draw.Toggle("Export Armature as Mesh", BUTTON_EVENT_ARMATUREMESHTOGGLE, \
 				remainRect[0], remainRect[3]-25, 220, 20, \
 				armatureMeshToggle.val, "create an extra mesh with the form of the skeleton")
-	remainRect[3] -= 30
-	
-	# Material file
-	materialString = Draw.String("Material File: ", BUTTON_EVENT_MATERIALSTRING, \
-			remainRect[0],remainRect[3]-25, 220, 20, \
-			materialString.val, 255,"all material definitions go in this file (relative to the save path)")
-	remainRect[3] -= 25
-	
-	# Scale and FPS settings
-	scaleNumber = Draw.Number("Mesh Scale Factor: ", BUTTON_EVENT_SCALENUMBER, \
-			remainRect[0], remainRect[3]-25, 220, 20, \
-			scaleNumber.val, 0.0, 1000.0, "scale factor")
-	remainRect[3] -= 25
 	if (armatureToggle.val == 1):
 		fpsNumber = Draw.Number("Frs/Sec: ", BUTTON_EVENT_FPSNUMBER, \
-				remainRect[0], remainRect[3]-25, 220, 20, \
+				remainRect[0]+230, remainRect[3]-25, 220, 20, \
 				fpsNumber.val, 1, 120, "animation speed in frames per second")
 	remainRect[3] -= 35
 	
@@ -1758,29 +2192,35 @@ def gui():
 	Draw.Button("Quit", BUTTON_EVENT_QUIT,guiRect[2]-110,10,100,30,"quit without exporting")
 	remainRect[1] += 70
 	
-	# rename animation dictionary
-	if ((armatureToggle.val == 1) and (len(actionKeyList) > 0)):
-		glRasterPos2i(remainRect[0],remainRect[3]-10)
-		Draw.Text("Rename Actions:")
-		remainRect[3] -= 15
-		scrollPanelRect = remainRect[:];
-		#glRectf(remainRect[0],remainRect[1],remainRect[2],remainRect[3])
-		actioniMax = len(actionKeyList)
-		# action Strings
-		actioni = scrollbar.getCurrentValue()
-		while (((remainRect[3]-remainRect[1]) >= 20) and ( actioni < actioniMax )):
-			actionStringList[actioni] = Draw.String(actionKeyList[actioni]+" : ", \
-				BUTTON_EVENT_ACTIONSTRINGS, \
-				remainRect[0], remainRect[3]-20, remainRect[2]-remainRect[0]-21, 20, \
-				actionStringList[actioni].val, 200, "click to edit")
-			remainRect[3] -= 21
-			actioni += 1
-		# scrollbar
-		scrollbar.draw(scrollPanelRect[2]-20, scrollPanelRect[1], 20, scrollPanelRect[3]-scrollPanelRect[1])
-		# scrollbar = Draw.Scrollbar(BUTTON_EVENT_ACTIONSCROLLBAR, \
-		#	scrollPanelRect[2]-20, scrollPanelRect[1], 20, scrollPanelRect[3]-scrollPanelRect[1], \
-		#	scrollbar.val, 0, actioniMax-1) 
-		
+	# rename animation part	
+	if (armatureToggle.val == 1):
+		animationText = "Export animations of"
+		glRasterPos2i(remainRect[0],remainRect[3]-15)
+		Draw.Text(animationText)
+		xOffset = Draw.GetStringWidth(animationText) + 5
+		selectedObjectsMenuName = ""
+		selectedObjectsMenuIndex = 0
+		if (len(selectedObjectsList) > 0):
+			for object in selectedObjectsList:
+				# add menu string
+				selectedObjectsMenuName += object.getName() + " %x" + ("%d" % selectedObjectsMenuIndex) + "|"
+				selectedObjectsMenuIndex += 1
+		else:
+			selectedObjectsMenuName = "No objects selected! %t"
+		selectedObjectsMenu = Draw.Menu(selectedObjectsMenuName, BUTTON_EVENT_SELECTEDOBJECTSMENU, \
+		                      remainRect[0]+xOffset, remainRect[3]-20, 140, 20, \
+		                      selectedObjectsMenu.val, "choose one of the selected objects")
+		xOffset += 141
+		# update button
+		Draw.Button("Update", BUTTON_EVENT_UPDATEBUTTON, remainRect[0]+xOffset, remainRect[3]-20, 60, 20, "update list of selected objects")
+		remainRect[3] -= 25
+		# draw actionActuator
+		if (len(selectedObjectsList) > 0):
+			selectedObjectsListIndex = selectedObjectsMenu.val
+			selectedObjectName = selectedObjectsList[selectedObjectsListIndex].getName()
+			if armatureDict.has_key(selectedObjectName):
+				armatureName = armatureDict[selectedObjectName]
+				actionActuatorListViewDict[armatureName].draw(remainRect[0], remainRect[1], remainRect[2]-remainRect[0], remainRect[3]-remainRect[1])
 	return
 
 def doneMessageBox():
@@ -1820,15 +2260,18 @@ def doneMessageBox():
 	# message
 	remainRect[3] -= 20
 	glRasterPos2i(remainRect[0],remainRect[3])
+	glColor3f(0,0,0) # Defaul color: black
 	Draw.Text(doneMessage,"normal")
 	remainRect[3] -= 20
 	glRasterPos2i(remainRect[0],remainRect[3])
+	glColor3f(0,0,0) # Defaul color: black
 	Draw.Text("Export Log:","small")
 	remainRect[3] -= 4
 	
 	# black border
 	logRect = remainRect[:]
 	logRect[2] -= 22
+	glColor3f(0,0,0) # Defaul color: black
 	glRectf(logRect[0],logRect[1],logRect[2],logRect[3])
 	logRect[0] += 1
 	logRect[1] += 1
