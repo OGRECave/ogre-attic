@@ -45,6 +45,8 @@ Enhancements 2003 - 2004 (C) The OGRE Team
 #include "OgreRenderSystemCapabilities.h"
 #include <fstream>
 
+#define TERRAIN_MATERIAL_NAME "TerrainSceneManager/Terrain"
+
 namespace Ogre
 {
 
@@ -56,6 +58,9 @@ TerrainSceneManager::TerrainSceneManager() : OctreeSceneManager( )
     mUseCustomMaterial = false;
     mUseNamedParameterLodMorph = false;
     mLodMorphParamIndex = 3;
+    mTerrainRoot = 0;
+    mTerrainMaterial = 0;
+
 
 }
 
@@ -199,28 +204,60 @@ void TerrainSceneManager::loadHeightmap(void)
 
 void TerrainSceneManager::setupTerrainMaterial(void)
 {
-    mTerrainMaterial = createMaterial( "Terrain" );
-
-    if ( mWorldTextureName != "" )
-        mTerrainMaterial->getTechnique(0)->getPass(0)->createTextureUnitState( mWorldTextureName, 0 );
-
-    if ( mDetailTextureName != "" )
+    if (mCustomMaterialName == "")
     {
-        mTerrainMaterial->getTechnique(0)->getPass(0)->createTextureUnitState( mDetailTextureName, 1 );
+        // define our own material
+        mTerrainMaterial = static_cast<Material*>(
+            MaterialManager::getSingleton().getByName(TERRAIN_MATERIAL_NAME));
+        if (!mTerrainMaterial)
+        {
+            mTerrainMaterial = createMaterial( "TerrainSceneManager/Terrain" );
+
+        }
+        else
+        {
+            mTerrainMaterial->getTechnique(0)->getPass(0)->removeAllTextureUnitStates();
+        }
+
+        if ( mWorldTextureName != "" )
+        {
+            mTerrainMaterial->getTechnique(0)->getPass(0)->
+                createTextureUnitState( mWorldTextureName, 0 );
+        }
+        if ( mDetailTextureName != "" )
+        {
+            mTerrainMaterial->getTechnique(0)->getPass(0)->
+                createTextureUnitState( mDetailTextureName, 1 );
+        }
+
+        mTerrainMaterial -> setLightingEnabled( mOptions.lit );
+
+        if (mOptions.lodMorph)
+        {
+            // Create & assign LOD morphing vertex program
+
+        }
+
+        mTerrainMaterial->load();
+
     }
-
-    mTerrainMaterial -> setLightingEnabled( mOptions.lit );
-
-    mTerrainMaterial->load();
-
-
-    //create a root terrain node.
-    mTerrainRoot = getRootSceneNode() -> createChildSceneNode( "Terrain" );
+    else
+    {
+        // Custom material
+        mTerrainMaterial = static_cast<Material*>(
+            MaterialManager::getSingleton().getByName(mCustomMaterialName));
+        mTerrainMaterial->load();
+    }
 
 }
 
 void TerrainSceneManager::setupTerrainTiles(void)
 {
+
+    //create a root terrain node.
+    if (!mTerrainRoot)
+        mTerrainRoot = getRootSceneNode() -> createChildSceneNode( "Terrain" );
+
     //setup the tile array.
     int num_tiles = ( mOptions.world_size - 1 ) / ( mOptions.size - 1 );
     int i, j;
@@ -410,6 +447,7 @@ void TerrainSceneManager::setUseTriStrips(bool useStrips)
 }
 void TerrainSceneManager::setUseLODMorph(bool morph)
 {
+    mOptions.lodMorph = morph;
     // Set true only if vertex programs are supported
     TerrainRenderable::_setUseLODMorph(
         morph && mDestRenderSystem->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM));

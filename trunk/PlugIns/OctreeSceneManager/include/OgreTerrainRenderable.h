@@ -98,6 +98,7 @@ public:
         detail_tile = 1;
         lit = false;
         colored = false;
+        lodMorph = false;
     };
 
 
@@ -122,6 +123,7 @@ public:
 
     bool lit;
     bool colored;
+    bool lodMorph;
 
 };
 

@@ -56,7 +56,7 @@ TerrainBufferCache gIndexCache;
 
 String TerrainRenderable::mType = "TerrainMipMap";
 bool TerrainRenderable::msUseTriStrips = false;
-bool TerrainRenderable::msUseLODMorph = true;
+bool TerrainRenderable::msUseLODMorph = false;
 
 LevelArray TerrainRenderable::mLevelIndex;
 bool TerrainRenderable::mLevelInit = false;
