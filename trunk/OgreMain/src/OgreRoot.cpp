@@ -39,6 +39,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreTextureManager.h"
 #include "OgreParticleSystemManager.h"
 #include "OgreSkeletonManager.h"
+#include "OgreGuiManager.h"
 #include "OgreZipArchiveFactory.h"
 
 #include "OgrePNGCodec.h"
@@ -130,6 +131,9 @@ namespace Ogre {
         // Platform manager
         mPlatformManager = new PlatformManager();
 
+        // Gui Manager
+        mGuiManager = new GuiManager();
+
         mZipArchiveFactory = new ZipArchiveFactory();
         ArchiveManager::getSingleton().addArchiveFactory( mZipArchiveFactory );
 
@@ -193,6 +197,7 @@ namespace Ogre {
         delete mJPEGCodec;
         delete mPNGCodec;
         delete mZipArchiveFactory;
+        delete mGuiManager;
         delete mArchiveManager;
         delete mSkeletonManager;
         delete mMeshManager;

@@ -210,7 +210,9 @@ namespace Ogre {
 
 
 
-
+        /** Internal method used by _renderVisibleObjects to deal with renderables
+            which override the camera's own view / projection materices. */
+        void useRenderableViewProjMode(Renderable* pRend);
 
     public:
         /** Default constructor.
@@ -597,8 +599,14 @@ namespace Ogre {
         */
         virtual void _updateSceneGraph(Camera* cam);
 
-        /** Internal method which parses the scene to find visible objetcs to render.
+        /** Internal method which parses the scene to find visible objects to render.
             @remarks
+                If you're implementing a custom scene manager, this is the most important method to
+                override since it's here you can apply your custom world partitioning scheme. Once you
+                have added the appropriate objects to the render queue, you can let the default
+                SceneManager objects _renderVisibleObjects handle the actual rendering of the objects
+                you pick.
+            @par
                 Any visible objects will be added to a rendering queue, which is indexed by material in order
                 to ensure objects with the same material are rendered together to minimise render state changes.
         */

@@ -50,7 +50,8 @@ namespace Ogre {
         /** See GuiElementFactory */
         const String& getTypeName(void)
         {
-            return "Panel";
+            static String name = "Panel";
+            return name;
         }
     };
 
@@ -66,7 +67,8 @@ namespace Ogre {
     //    /** See GuiElementFactory */
     //    const String& getTypeName(void)
     //    {
-    //        return "BorderPanel";
+    //        static String name = "BorderPanel";
+    //        return name;
     //    }
     //};
 
@@ -82,7 +84,8 @@ namespace Ogre {
     //    /** See GuiElementFactory */
     //    const String& getTypeName(void)
     //    {
-    //        return "TextArea";
+    //        static String name = "TextArea";
+    //        return name;
     //    }
     //};
 
