@@ -70,8 +70,11 @@ namespace OgreRefApp {
         /** Internal method for updating the state of the collision proxies. */
         virtual void updateCollisionProxies(void);
 
-        /** Internal method for testing the plane bounded region WorldFragmetn type. */
+        /** Internal method for testing the plane bounded region WorldFragment type. */
         virtual bool testCollidePlaneBounds(SceneQuery::WorldFragment* wf);
+
+        /// Internal method for updating the query mask
+        virtual void setEntityQueryFlags(void);
 
     public:
         ApplicationObject(const String& name);
