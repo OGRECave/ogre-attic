@@ -104,13 +104,24 @@ namespace Ogre {
          */        
         virtual void blit(const Image::Box &srcBox, HardwarePixelBuffer *dst, const Image::Box &dstBox);
 		
-		/** Copies a region from normal memory to a region of this pixelbuffer. 
+		/** Copies a region from normal memory to a region of this pixelbuffer. The source
+			image can be in any pixel format supported by OGRE.
 		   	@param src		PixelBox containing the source pixels and format in memory
 		   	@param dstBox	Image::Box describing the destination region in this buffer
-		   	@remarks The source and destination regions don't have to match, in which
-		   	case scaling is done.
+		   	@remarks The source and destination regions dimensions don't have to match, in which
+		   	case scaling is done. This scaling is done in software for some render systems, 
+			so for realtime usage it is recommended to pass the source image in the right dimensions.
 		*/
 		virtual void blitFromMemory(const PixelBox &src, const Image::Box &dstBox) = 0;
+		
+		/** Convience function that blits a pixelbox from memory to the entire 
+			buffer. The source image is scaled as needed.
+			@param src		PixelBox containing the source pixels and format in memory
+		*/
+		void blitFromMemory(const PixelBox &src)
+		{
+			blitFromMemory(src, Box(0,0,0,mWidth,mHeight,mDepth));
+		}
 		
 		/** Copies a region of this pixelbuffer to normal memory.
 		   	@param srcBox	Image::Box describing the source region of this buffer
