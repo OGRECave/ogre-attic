@@ -519,12 +519,12 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    bool Mesh::hasSkeleton(void)
+    bool Mesh::hasSkeleton(void) const
     {
         return mSkeleton != 0;
     }
     //-----------------------------------------------------------------------
-    Skeleton* Mesh::getSkeleton(void)
+    Skeleton* Mesh::getSkeleton(void) const
     {
         return mSkeleton;
     }

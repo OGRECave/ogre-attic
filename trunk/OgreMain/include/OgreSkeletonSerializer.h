@@ -75,13 +75,20 @@ namespace Ogre {
     private:
         Skeleton* mpSkeleton;
 
-        // Internal methods
+        // Internal export methods
         void writeSkeleton(const Skeleton* pSkel);
         void writeBone(const Bone* pBone);
         void writeBoneParent(unsigned short boneId, unsigned short parentId);
         void writeAnimation(const Animation* anim);
         void writeAnimationTrack(const AnimationTrack* track);
         void writeKeyFrame(const KeyFrame* key);
+
+        // Internal import methods
+        void readBone(DataChunk &chunk);
+        void readBoneParent(DataChunk &chunk);
+        void readAnimation(DataChunk &chunk);
+        void readAnimationTrack(DataChunk &chunk, Animation* anim);
+        void readKeyFrame(DataChunk &chunk, AnimationTrack* track);
 
         unsigned long calcBoneSize(const Bone* pBone);
         unsigned long calcBoneParentSize(void);

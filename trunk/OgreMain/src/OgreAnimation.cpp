@@ -39,7 +39,7 @@ namespace Ogre {
         destroyAllTracks();
     }
     //---------------------------------------------------------------------
-    Real Animation::getLength(void)
+    Real Animation::getLength(void) const
     {
         return mLength;
     }
@@ -63,14 +63,14 @@ namespace Ogre {
         return ret;
     }
     //---------------------------------------------------------------------
-    unsigned short Animation::getNumTracks(void)
+    unsigned short Animation::getNumTracks(void) const
     {
         return (unsigned short)mTrackList.size();
     }
     //---------------------------------------------------------------------
-    AnimationTrack* Animation::getTrack(unsigned short handle)
+    AnimationTrack* Animation::getTrack(unsigned short handle) const
     {
-        TrackList::iterator i = mTrackList.find(handle);
+        TrackList::const_iterator i = mTrackList.find(handle);
 
         if (i == mTrackList.end())
         {
@@ -102,7 +102,7 @@ namespace Ogre {
         mTrackList.clear();
     }
     //---------------------------------------------------------------------
-    String Animation::getName(void)
+    String Animation::getName(void) const
     {
         return mName;
     }
