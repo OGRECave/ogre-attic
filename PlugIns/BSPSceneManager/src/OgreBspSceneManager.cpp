@@ -486,7 +486,7 @@ namespace Ogre {
         {
             if (random)
             {
-                size_t idx = (size_t)( Math::getSingleton().UnitRandom() * mLevel->mPlayerStarts.size() );
+                size_t idx = (size_t)( Math::UnitRandom() * mLevel->mPlayerStarts.size() );
                 return mLevel->mPlayerStarts[idx];
             }
             else

@@ -668,10 +668,10 @@ namespace Ogre {
 
             // Create template texcoord data
             Real texData[8] = {
-                0.0, 0.0,
-                1.0, 0.0,
                 0.0, 1.0,
-                1.0, 1.0 };
+                1.0, 1.0,
+                0.0, 0.0,
+                1.0, 0.0 };
 
             ushort* pIdx = static_cast<ushort*>(
                 mIndexData->indexBuffer->lock(0,
@@ -916,10 +916,10 @@ namespace Ogre {
 		{
 			// Create template texcoord data
 			Real texData[8] = {
-				-0.5,-0.5,
-				 0.5,-0.5,
 				-0.5, 0.5,
-				 0.5, 0.5 };
+				 0.5, 0.5,
+				-0.5,-0.5,
+				 0.5,-0.5 };
 
 			const Real		rotation = pBillboard->mRotation;
 			const Real		cos_rot	 = Math::Cos(rotation);

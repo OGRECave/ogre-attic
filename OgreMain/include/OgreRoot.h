@@ -74,7 +74,6 @@ namespace Ogre
 				String mConfigFileName;
 
         // Singletons
-        Math* mMath;
         LogManager* mLogManager;
         ControllerManager* mControllerManager;
         SceneManagerEnumerator* mSceneManagerEnum;
