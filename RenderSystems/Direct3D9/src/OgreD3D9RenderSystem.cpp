@@ -929,8 +929,8 @@ namespace Ogre
 			{
 				ss << it->first << "=" << it->second << " ";
 			}
-			LogManager::getSingleton().logMessage(ss.str());
 		}
+		LogManager::getSingleton().logMessage(ss.str());
 		// Create render texture
 		D3D9RenderTexture *rt = new D3D9RenderTexture( name, width, height, texType, internalFormat, miscParams );
 		attachRenderTarget( *rt );

@@ -408,7 +408,7 @@ namespace Ogre
 
 		// determine wich D3D9 pixel format we'll use
 		HRESULT hr;
-		D3DFORMAT d3dPF = (mUsage & TU_RENDERTARGET) ? mBBPixelFormat : this->_chooseD3DFormat();
+		D3DFORMAT d3dPF = this->_chooseD3DFormat();
 
 		// Use D3DX to help us create the texture, this way it can adjust any relevant sizes
 		DWORD usage = (mUsage & TU_RENDERTARGET) ? D3DUSAGE_RENDERTARGET : 0;
@@ -503,7 +503,7 @@ namespace Ogre
 
 		// determine wich D3D9 pixel format we'll use
 		HRESULT hr;
-		D3DFORMAT d3dPF = (mUsage & TU_RENDERTARGET) ? mBBPixelFormat : this->_chooseD3DFormat();
+		D3DFORMAT d3dPF = this->_chooseD3DFormat();
 
 		// Use D3DX to help us create the texture, this way it can adjust any relevant sizes
 		DWORD usage = (mUsage & TU_RENDERTARGET) ? D3DUSAGE_RENDERTARGET : 0;
@@ -583,7 +583,7 @@ namespace Ogre
 
 		// determine wich D3D9 pixel format we'll use
 		HRESULT hr;
-		D3DFORMAT d3dPF = (mUsage & TU_RENDERTARGET) ? mBBPixelFormat : this->_chooseD3DFormat();
+		D3DFORMAT d3dPF = this->_chooseD3DFormat();
 
 		// Use D3DX to help us create the texture, this way it can adjust any relevant sizes
 		DWORD usage = (mUsage & TU_RENDERTARGET) ? D3DUSAGE_RENDERTARGET : 0;
@@ -856,6 +856,9 @@ namespace Ogre
 	/****************************************************************************************/
 	D3DFORMAT D3D9Texture::_chooseD3DFormat()
 	{
+		// Choose frame buffer pixel format in case PF_UNKNOWN was requested
+		if(mFormat == PF_UNKNOWN)
+			return mBBPixelFormat;
 		// Choose closest supported D3D format as a D3D format
 		return _getPF(_getClosestSupportedPF(mFormat));
 	}
