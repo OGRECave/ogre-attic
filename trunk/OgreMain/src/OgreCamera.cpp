@@ -81,6 +81,8 @@ namespace Ogre {
         // no reflection
         mReflect = false;
 
+        mVisible = false;
+
 
         updateView();
     }
@@ -253,73 +255,6 @@ namespace Ogre {
 
     }
 
-    //-----------------------------------------------------------------------
-    void Camera::setFOVy(Real fov)
-    {
-        mFOVy = fov;
-        mRecalcFrustum = true;
-    }
-
-    //-----------------------------------------------------------------------
-    Real Camera::getFOVy(void) const
-    {
-        return mFOVy;
-    }
-
-
-    //-----------------------------------------------------------------------
-    void Camera::setFarClipDistance(Real farPlane)
-    {
-        mFarDist = farPlane;
-        mRecalcFrustum = true;
-    }
-
-    //-----------------------------------------------------------------------
-    Real Camera::getFarClipDistance(void) const
-    {
-        return mFarDist;
-    }
-
-    //-----------------------------------------------------------------------
-    void Camera::setNearClipDistance(Real nearPlane)
-    {
-        if (nearPlane <= 0)
-            Except(Exception::ERR_INVALIDPARAMS, "Near clip distance must be greater than zero.",
-                "Camera::setNearClipDistance");
-        mNearDist = nearPlane;
-        mRecalcFrustum = true;
-    }
-
-    //-----------------------------------------------------------------------
-    Real Camera::getNearClipDistance(void) const
-    {
-        return mNearDist;
-    }
-
-    //-----------------------------------------------------------------------
-    const Matrix4& Camera::getProjectionMatrix(void) const
-    {
-
-        updateFrustum();
-
-        return mProjMatrix;
-    }
-    //-----------------------------------------------------------------------
-    const Matrix4& Camera::getStandardProjectionMatrix(void) const
-    {
-
-        updateFrustum();
-
-        return mStandardProjMatrix;
-    }
-    //-----------------------------------------------------------------------
-    const Matrix4& Camera::getViewMatrix(void) const
-    {
-        updateView();
-
-        return mViewMatrix;
-
-    }
 
     //-----------------------------------------------------------------------
     void Camera::roll(Real degrees)
@@ -381,102 +316,9 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    const Plane& Camera::getFrustumPlane(FrustumPlane plane) const
-    {
-        // Make any pending updates to the calculated frustum
-        updateView();
-
-        return mFrustumPlanes[plane];
-
-    }
-
-    //-----------------------------------------------------------------------
-    bool Camera::isVisible(const AxisAlignedBox& bound, FrustumPlane* culledBy) const
-    {
-        // Null boxes always invisible
-        if (bound.isNull()) return false;
-
-        // Make any pending updates to the calculated frustum
-        updateView();
-
-        // Get corners of the box
-        const Vector3* pCorners = bound.getAllCorners();
-
-
-        // For each plane, see if all points are on the negative side
-        // If so, object is not visible
-        for (size_t plane = 0; plane < 6; ++plane)
-        {
-            if (mFrustumPlanes[plane].getSide(pCorners[0]) == Plane::NEGATIVE_SIDE &&
-                mFrustumPlanes[plane].getSide(pCorners[1]) == Plane::NEGATIVE_SIDE &&
-                mFrustumPlanes[plane].getSide(pCorners[2]) == Plane::NEGATIVE_SIDE &&
-                mFrustumPlanes[plane].getSide(pCorners[3]) == Plane::NEGATIVE_SIDE &&
-                mFrustumPlanes[plane].getSide(pCorners[4]) == Plane::NEGATIVE_SIDE &&
-                mFrustumPlanes[plane].getSide(pCorners[5]) == Plane::NEGATIVE_SIDE &&
-                mFrustumPlanes[plane].getSide(pCorners[6]) == Plane::NEGATIVE_SIDE &&
-                mFrustumPlanes[plane].getSide(pCorners[7]) == Plane::NEGATIVE_SIDE)
-            {
-                // ALL corners on negative side therefore out of view
-                if (culledBy)
-                    *culledBy = (FrustumPlane)plane;
-                return false;
-            }
-
-        }
-
-        return true;
-    }
-
-    //-----------------------------------------------------------------------
-    bool Camera::isVisible(const Vector3& vert, FrustumPlane* culledBy) const
-    {
-        // Make any pending updates to the calculated frustum
-        updateView();
-
-        // For each plane, see if all points are on the negative side
-        // If so, object is not visible
-        for (size_t plane = 0; plane < 6; ++plane)
-        {
-            if (mFrustumPlanes[plane].getSide(vert) == Plane::NEGATIVE_SIDE)
-            {
-                // ALL corners on negative side therefore out of view
-                if (culledBy)
-                    *culledBy = (FrustumPlane)plane;
-                return false;
-            }
-
-        }
-
-        return true;
-    }
-
-    //-----------------------------------------------------------------------
-    bool Camera::isVisible(const Sphere& sphere, FrustumPlane* culledBy) const
-    {
-        // Make any pending updates to the calculated frustum
-        updateView();
-
-        // For each plane, see if sphere is on negative side
-        // If so, object is not visible
-        for (size_t plane = 0; plane < 6; ++plane)
-        {
-            // If the distance from sphere center to plane is negative, and 'more negative' 
-            // than the radius of the sphere, sphere is outside frustum
-            if (mFrustumPlanes[plane].getDistance(sphere.getCenter()) < -sphere.getRadius())
-            {
-                // ALL corners on negative side therefore out of view
-                if (culledBy)
-                    *culledBy = (FrustumPlane)plane;
-                return false;
-            }
-
-        }
-
-        return true;
-    }
-    //-----------------------------------------------------------------------
     void Camera::updateFrustum(void) const
     {
+        // Overridden from Frustum to include API-specific projection
         if (mRecalcFrustum)
         {
             // Recalc if frustum params changed
@@ -601,6 +443,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool Camera::isViewOutOfDate(void) const
     {
+        // Overridden from Frustum to use local orientation / position offsets
         // Attached to node?
         if (mParentNode != 0)
         {
@@ -628,11 +471,6 @@ namespace Ogre {
         }
     }
 
-    //-----------------------------------------------------------------------
-    bool Camera::isFrustumOutOfDate(void) const
-    {
-        return mRecalcFrustum;
-    }
 
     //-----------------------------------------------------------------------
     void Camera::updateView(void) const
@@ -656,8 +494,8 @@ namespace Ogre {
 
             // Get orientation from quaternion
 
-			Matrix3 rot;
-			mDerivedOrientation.ToRotationMatrix(rot);
+            Matrix3 rot;
+            mDerivedOrientation.ToRotationMatrix(rot);
             Vector3 left = rot.GetColumn(0);
             Vector3 up = rot.GetColumn(1);
             Vector3 direction = rot.GetColumn(2);
@@ -693,27 +531,27 @@ namespace Ogre {
 
             // left plane
             mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal = mCoeffL[0]*left +
-                    mCoeffL[1]*camDirection;
+                mCoeffL[1]*camDirection;
             mFrustumPlanes[FRUSTUM_PLANE_LEFT].d =
-                    -mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal);
+                -mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal);
 
             // right plane
             mFrustumPlanes[FRUSTUM_PLANE_RIGHT].normal = mCoeffR[0]*left +
-                    mCoeffR[1]*camDirection;
+                mCoeffR[1]*camDirection;
             mFrustumPlanes[FRUSTUM_PLANE_RIGHT].d =
-                    -mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_RIGHT].normal);
+                -mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_RIGHT].normal);
 
             // bottom plane
             mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].normal = mCoeffB[0]*up +
-                    mCoeffB[1]*camDirection;
+                mCoeffB[1]*camDirection;
             mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].d =
-                    -mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].normal);
+                -mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].normal);
 
             // top plane
             mFrustumPlanes[FRUSTUM_PLANE_TOP].normal = mCoeffT[0]*up +
-                    mCoeffT[1]*camDirection;
+                mCoeffT[1]*camDirection;
             mFrustumPlanes[FRUSTUM_PLANE_TOP].d =
-                    -mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_TOP].normal);
+                -mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_TOP].normal);
 
             // far plane
             mFrustumPlanes[FRUSTUM_PLANE_FAR].normal = -camDirection;
@@ -754,7 +592,6 @@ namespace Ogre {
         }
 
     }
-
     //-----------------------------------------------------------------------
     void Camera::_renderScene(Viewport *vp, bool includeOverlays)
     {
@@ -762,18 +599,6 @@ namespace Ogre {
         mSceneMgr->_renderScene(this, vp, includeOverlays);
     }
 
-    //-----------------------------------------------------------------------
-    Real Camera::getAspectRatio(void) const
-    {
-        return mAspect;
-    }
-
-    //-----------------------------------------------------------------------
-    void Camera::setAspectRatio(Real r)
-    {
-        mAspect = r;
-        mRecalcFrustum = true;
-    }
 
     //-----------------------------------------------------------------------
     std::ostream& operator<<( std::ostream& o, Camera& c )
@@ -845,23 +670,6 @@ namespace Ogre {
         return mDerivedOrientation * -Vector3::UNIT_Z;
     }
     //-----------------------------------------------------------------------
-    void Camera::_notifyCurrentCamera(Camera* cam)
-    {
-        // Do nothing
-    }
-    //-----------------------------------------------------------------------
-    const AxisAlignedBox& Camera::getBoundingBox(void) const
-    {
-        // Null, cameras are not visible
-        static AxisAlignedBox box;
-        return box;
-    }
-    //-----------------------------------------------------------------------
-    void Camera::_updateRenderQueue(RenderQueue* queue)
-    {
-        // Do nothing
-    }
-    //-----------------------------------------------------------------------
     const String& Camera::getMovableType(void) const
     {
         return msMovableType;
@@ -906,11 +714,6 @@ namespace Ogre {
 	Real Camera::_getLodBiasInverse(void) const
 	{
 		return mSceneLodFactorInv;
-	}
-    //-----------------------------------------------------------------------
-	Real Camera::getBoundingRadius(void) const
-	{
-		return mNearDist;
 	}
     //-----------------------------------------------------------------------
     void Camera::enableReflection(const Plane& p)

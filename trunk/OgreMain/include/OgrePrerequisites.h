@@ -245,6 +245,7 @@ namespace Ogre {
     class RenderOperation;
     class Resource;
     class ResourceManager;
+	class Root;
     class SceneManager;
     class SceneManagerEnumerator;
     class SceneNode;

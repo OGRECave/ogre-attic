@@ -116,6 +116,9 @@ namespace Ogre {
 
     };
 
+    typedef std::vector<PlaneBoundedVolume> PlaneBoundedVolumeList;
+
+
 }
 
 #endif

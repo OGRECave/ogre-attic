@@ -80,7 +80,7 @@ namespace Ogre {
             This is useful for implementing more complex Camera / object
             relationships i.e. having a camera attached to a world object.
     */
-    class _OgreExport Camera : public MovableObject
+    class _OgreExport Camera : public Frustum
     {
     protected:
         /// Camera name
@@ -94,58 +94,19 @@ namespace Ogre {
         /// Camera position - default (0,0,0)
         Vector3 mPosition;
 
-        /// Stored versions of parent orientation / position
-        mutable Quaternion mLastParentOrientation;
-        mutable Vector3 mLastParentPosition;
-
         /// Derived positions of parent orientation / position
         mutable Quaternion mDerivedOrientation;
         mutable Vector3 mDerivedPosition;
 
-        /// Camera y-direction field-of-view (default 45)
-        Real mFOVy;
-        /// Far clip distance - default 10000
-        Real mFarDist;
-        /// Near clip distance - default 100
-        Real mNearDist;
-        /// x/y viewport ratio - default 1.3333
-        Real mAspect;
         /// Whether to yaw around a fixed axis.
         bool mYawFixed;
         /// Fixed axis to yaw around
         Vector3 mYawFixedAxis;
 
-        /// The 6 main clipping planes
-        mutable Plane mFrustumPlanes[6];
-
         /// Orthographic or perspective?
         ProjectionType mProjType;
         /// Rendering type
         SceneDetailLevel mSceneDetail;
-
-
-        /// Pre-calced projection matrix
-        mutable Matrix4 mProjMatrix;
-        /// Pre-calced standard projection matrix
-        mutable Matrix4 mStandardProjMatrix;
-        /// Pre-calced view matrix
-        mutable Matrix4 mViewMatrix;
-        /// Something's changed in the frustrum shape?
-        mutable bool mRecalcFrustum;
-        /// Something re the view pos has changed
-        mutable bool mRecalcView;
-
-        /** Temp coefficient values calculated from a frustum change,
-            used when establishing the frustum planes when the view changes
-        */
-        mutable Real mCoeffL[2], mCoeffR[2], mCoeffB[2], mCoeffT[2];
-
-
-        // Internal functions for calcs
-        void updateFrustum(void) const;
-        void updateView(void) const;
-        bool isViewOutOfDate(void) const;
-        bool isFrustumOutOfDate(void) const;
 
         /// Stored number of visible faces in the last render
         unsigned int mVisFacesLastRender;
@@ -167,6 +128,10 @@ namespace Ogre {
         bool mReflect;
         Matrix4 mReflectMatrix;
         Plane mReflectPlane;
+        // Internal functions for calcs
+        void updateFrustum(void) const;
+        void updateView(void) const;
+        bool isViewOutOfDate(void) const;
 
     public:
         /** Standard constructor.
@@ -302,146 +267,6 @@ namespace Ogre {
         */
         void setFixedYawAxis( bool useFixed, const Vector3& fixedAxis = Vector3::UNIT_Y );
 
-        /** Sets the Y-dimension Field Of View (FOV) of the camera.
-            @remarks
-                Field Of View (FOV) is the angle made between the camera's position, and the left & right edges
-                of the 'screen' onto which the scene is projected. High values (90+) result in a wide-angle,
-                fish-eye kind of view, low values (30-) in a stretched, telescopic kind of view. Typical values
-                are between 45 and 60.
-            @par
-                This value represents the HORIZONTAL field-of-view. The vertical field of view is calculated from
-                this depending on the dimensions of the viewport (they will only be the same if the viewport is square).
-            @note
-                Setting the FOV overrides the value supplied for Camera::setNearClipPlane.
-         */
-        void setFOVy(Real fovy);
-
-        /** Retrieves the cameras Y-dimension Field Of View (FOV).
-        */
-        Real getFOVy(void) const;
-
-        /** Sets the position of the near clipping plane.
-            @remarks
-                The position of the near clipping plane is the distance from the cameras position to the screen
-                on which the world is projected. The near plane distance, combined with the field-of-view and the
-                aspect ratio, determines the size of the viewport through which the world is viewed (in world
-                co-ordinates). Note that this world viewport is different to a screen viewport, which has it's
-                dimensions expressed in pixels. The cameras viewport should have the same aspect ratio as the
-                screen viewport it renders into to avoid distortion.
-            @param
-                near The distance to the near clipping plane from the camera in world coordinates.
-         */
-        void setNearClipDistance(Real nearDist);
-
-        /** Sets the position of the near clipping plane.
-        */
-        Real getNearClipDistance(void) const;
-
-        /** Sets the distance to the far clipping plane.
-            @remarks
-                The view frustrum is a pyramid created from the camera position and the edges of the viewport.
-                This frustrum does not extend to infinity - it is cropped near to the camera and there is a far
-                plane beyond which nothing is displayed. This method sets the distance for the far plane. Different
-                applications need different values: e.g. a flight sim needs a much further far clipping plane than
-                a first-person shooter. An important point here is that the larger the gap between near and far
-                clipping planes, the lower the accuracy of the Z-buffer used to depth-cue pixels. This is because the
-                Z-range is limited to the size of the Z buffer (16 or 32-bit) and the max values must be spread over
-                the gap between near and far clip planes. The bigger the range, the more the Z values will
-                be approximated which can cause artifacts when lots of objects are close together in the Z-plane. So
-                make sure you clip as close to the camera as you can - don't set a huge value for the sake of
-                it.
-            @param
-                far The distance to the far clipping plane from the camera in world coordinates.
-        */
-        void setFarClipDistance(Real farDist);
-
-        /** Retrieves the distance from the camera to the far clipping plane.
-        */
-        Real getFarClipDistance(void) const;
-
-        /** Sets the aspect ratio for the camera viewport.
-            @remarks
-                The ratio between the x and y dimensions of the rectangular area visible through the camera
-                is known as aspect ratio: aspect = width / height .
-            @par
-                The default for most fullscreen windows is 1.3333 - this is also assumed by Ogre unless you
-                use this method to state otherwise.
-        */
-        void setAspectRatio(Real ratio);
-
-        /** Retreives the current aspect ratio.
-        */
-        Real getAspectRatio(void) const;
-
-        /** Gets the projection matrix for this camera. Mainly for use by OGRE internally.
-        @remarks
-            This method retrieves the rendering-API dependent version of the projection
-            matrix. If you want a 'typical' projection matrix then use 
-            getStandardProjectionMatrix.
-
-        */
-        const Matrix4& getProjectionMatrix(void) const;
-        /** Gets the 'standard' projection matrix for this camera, ie the 
-        projection matrix which conforms to standard right-handed rules.
-        @remarks
-            This differs from the rendering-API dependent getProjectionMatrix
-            in that it always returns a right-handed projection matrix result 
-            no matter what rendering API is being used - this is required for
-            vertex and fragment programs for example. However, the resulting depth
-            range may still vary between render systems since D3D uses [0,1] and 
-            GL uses [-1,1], and the range must be kept the same between programmable
-            and fixed-function pipelines.
-        */
-        const Matrix4& getStandardProjectionMatrix(void) const;
-
-        /** Gets the view matrix for this camera. Mainly for use by OGRE internally.
-        */
-        const Matrix4& getViewMatrix(void) const;
-
-        /** Retrieves a specified plane of the frustum.
-            @remarks
-                Gets a reference to one of the planes which make up the camera frustum, e.g. for clipping purposes.
-        */
-        const Plane& getFrustumPlane( FrustumPlane plane ) const;
-
-        /** Tests whether the given container is visible in the Frustum.
-            @param
-                bound Bounding box to be checked
-            @param
-                culledBy Optional pointer to an int which will be filled by the plane number which culled
-                the box if the result was false;
-            @returns
-                If the box was visible, true is returned.
-            @par
-                Otherwise, false is returned.
-        */
-        bool isVisible(const AxisAlignedBox& bound, FrustumPlane* culledBy = 0) const;
-
-        /** Tests whether the given container is visible in the Frustum.
-            @param
-                bound Bounding sphere to be checked
-            @param
-                culledBy Optional pointer to an int which will be filled by the plane number which culled
-                the box if the result was false;
-            @returns
-                If the sphere was visible, true is returned.
-            @par
-                Otherwise, false is returned.
-        */
-        bool isVisible(const Sphere& bound, FrustumPlane* culledBy = 0) const;
-
-        /** Tests whether the given vertex is visible in the Frustum.
-            @param
-                vert Vertex to be checked
-            @param
-                culledBy Optional pointer to an int which will be filled by the plane number which culled
-                the box if the result was false;
-            @returns
-                If the box was visible, true is returned.
-            @par
-                Otherwise, false is returned.
-        */
-        bool isVisible(const Vector3& vert, FrustumPlane* culledBy = 0) const;
 
         /** Returns the camera's current orientation.
         */
@@ -478,18 +303,6 @@ namespace Ogre {
         /** Gets the derived direction vector of the camera, including any 
             translation inherited from a node attachment. */
         Vector3 getDerivedDirection(void) const;
-
-        /** Overridden from MovableObject */
-        void _notifyCurrentCamera(Camera* cam);
-
-        /** Overridden from MovableObject */
-        const AxisAlignedBox& getBoundingBox(void) const;
-
-        /** Overridden from MovableObject */
-		Real getBoundingRadius(void) const;
-
-		/** Overridden from MovableObject */
-        void _updateRenderQueue(RenderQueue* queue);
 
         /** Overridden from MovableObject */
         const String& getMovableType(void) const;
@@ -570,6 +383,7 @@ namespace Ogre {
 
         /** Internal method used by OGRE to update auto-tracking cameras. */
         void _autoTrack(void);
+
     };
 
 } // namespace Ogre
