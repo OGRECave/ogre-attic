@@ -61,9 +61,16 @@ namespace Ogre {
     Quaternion RotationalSpline::interpolate(unsigned int fromIndex, Real t)
     {
         // Bounds check
-        assert (fromIndex >= 0 && (fromIndex + 1) < mPoints.size() &&
-            "fromIndex must be >= 0 and there must be at least one point after it");
+        assert (fromIndex >= 0 && fromIndex < mPoints.size() &&
+            "fromIndex out of bounds");
 
+        if ((fromIndex + 1) == mPoints.size())
+        {
+            // Duff request, cannot blend to nothing
+            // Just return source
+            return mPoints[fromIndex];
+
+        }
         // Fast special cases
         if (t == 0.0f)
         {
