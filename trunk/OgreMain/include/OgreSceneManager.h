@@ -1444,7 +1444,7 @@ namespace Ogre {
         virtual void setShadowTechnique(ShadowTechnique technique);
         
         /** Gets the current shadow technique. */
-        virtual ShadowTechnique getShadowTechnique(void) { return mShadowTechnique; }
+        virtual ShadowTechnique getShadowTechnique(void) const { return mShadowTechnique; }
 
         /** Enables / disables the rendering of debug information for shadows. */
         virtual void setShowDebugShadows(bool debug) { mDebugShadows = debug; }
@@ -1479,7 +1479,7 @@ namespace Ogre {
         virtual void setShadowDirectionalLightExtrusionDistance(Real dist); 
         /** Gets the distance a shadow volume is extruded for a directional light.
         */
-        virtual Real getShadowDirectionalLightExtrusionDistance(void);
+        virtual Real getShadowDirectionalLightExtrusionDistance(void) const;
         /** Sets the maximum distance away from the camera that shadows
         will be visible.
         @remarks
@@ -1499,7 +1499,7 @@ namespace Ogre {
         /** Gets the maximum distance away from the camera that shadows
         will be visible.
         */
-        virtual Real getShadowFarDistance(void) 
+        virtual Real getShadowFarDistance(void) const
         { return mShadowFarDist; }
 
 		/** Sets the maximum size of the index buffer used to render shadow
@@ -1529,7 +1529,7 @@ namespace Ogre {
 		*/
 		virtual void setShadowIndexBufferSize(size_t size);
         /// Get the size of the shadow index buffer
-		virtual size_t getShadowIndexBufferSize(void)
+		virtual size_t getShadowIndexBufferSize(void) const
 		{ return mShadowIndexBufferSize; }
         /** Set the size of the texture used for texture-based shadows.
         @remarks
@@ -1539,7 +1539,7 @@ namespace Ogre {
         */
         virtual void setShadowTextureSize(unsigned short size);
         /// Get the size of the texture used for texture based shadows
-        unsigned short getShadowTextureSize(void) {return mShadowTextureSize; }
+        unsigned short getShadowTextureSize(void) const {return mShadowTextureSize; }
         /** Set the number of textures allocated for texture-based shadows.
         @remarks
             The default number of textures assigned to deal with texture based
@@ -1549,7 +1549,7 @@ namespace Ogre {
         */
         virtual void setShadowTextureCount(unsigned short count);
         /// Get the number of the textures allocated for texture based shadows
-        unsigned short getShadowTextureCount(void) {return mShadowTextureCount; }
+        unsigned short getShadowTextureCount(void) const {return mShadowTextureCount; }
         /** Sets the size and count of textures used in texture-based shadows. 
         @remarks
             @see setShadowTextureSize and setShadowTextureCount for details, this

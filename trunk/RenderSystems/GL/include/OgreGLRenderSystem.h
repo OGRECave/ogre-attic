@@ -78,7 +78,7 @@ namespace Ogre {
         void setGLLight(size_t index, Light* lt);
         void makeGLMatrix(GLfloat gl_matrix[16], const Matrix4& m);
  
-        GLint getBlendMode(SceneBlendFactor ogreBlend);
+        GLint getBlendMode(SceneBlendFactor ogreBlend) const;
 
         void setLights();
 
@@ -87,8 +87,8 @@ namespace Ogre {
 		// Store last colour write state
 		bool mColourWrite[4];
 
-        GLint convertCompareFunction(CompareFunction func);
-        GLint convertStencilOp(StencilOperation op, bool invert = false);
+        GLint convertCompareFunction(CompareFunction func) const;
+        GLint convertStencilOp(StencilOperation op, bool invert = false) const;
 
 		// internal method for anisotrophy validation
 		GLfloat _getCurrentAnisotropy(size_t unit);
@@ -112,7 +112,7 @@ namespace Ogre {
 
         unsigned short mCurrentLights;
 
-        GLuint getCombinedMinMipFilter(void);
+        GLuint getCombinedMinMipFilter(void) const;
 
         GLGpuProgram* mCurrentVertexProgram;
         GLGpuProgram* mCurrentFragmentProgram;
@@ -182,7 +182,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        String getErrorDescription(long errorNumber);
+        String getErrorDescription(long errorNumber) const;
 
         /** See
           RenderSystem

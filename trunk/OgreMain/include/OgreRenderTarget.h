@@ -278,7 +278,7 @@ namespace Ogre {
         /** Gets whether this target is automatically updated if Ogre's rendering
             loop or Root::_updateAllRenderTargets is being used.
         */
-        virtual bool isAutoUpdated(void);
+        virtual bool isAutoUpdated(void) const;
 
         /** Writes the current contents of the render target to the named file. */
         virtual void writeContentsToFile(const String& filename) = 0;

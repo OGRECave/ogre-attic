@@ -115,7 +115,11 @@ namespace Ogre {
         friend Quaternion operator* (Real fScalar,
             const Quaternion& rkQ);
         Quaternion operator- () const;
-        bool operator== (const Quaternion& rhs) const;
+        inline bool operator== (const Quaternion& rhs) const
+		{
+			return (rhs.x == x) && (rhs.y == y) &&
+				(rhs.z == z) && (rhs.w == w);
+		}
 
         // functions of a quaternion
         Real Dot (const Quaternion& rkQ) const;  // dot product

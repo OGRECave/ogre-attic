@@ -64,7 +64,7 @@ namespace Ogre
                 It does <b>NOT</b> initialize the matrix for efficiency.
         */
 		inline Matrix3 () {};
-        inline Matrix3 (const Real arr[3][3])
+        inline explicit Matrix3 (const Real arr[3][3])
 		{
 			memcpy(m,arr,9*sizeof(Real));
 		}
@@ -88,16 +88,16 @@ namespace Ogre
 		}
 
         // member access, allows use of construct mat[r][c]
-        inline Real* operator[] (int iRow) const
+        inline Real* operator[] (size_t iRow) const
 		{
 			return (Real*)m[iRow];
 		}
-        inline operator Real* ()
+        /*inline operator Real* ()
 		{
 			return (Real*)m[0];
-		}
-        Vector3 GetColumn (int iCol) const;
-        void SetColumn(int iCol, const Vector3& vec);
+		}*/
+        Vector3 GetColumn (size_t iCol) const;
+        void SetColumn(size_t iCol, const Vector3& vec);
         void FromAxes(const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis);
 
         // assignment and comparison
@@ -196,7 +196,7 @@ namespace Ogre
 
         // support for singular value decomposition
         static const Real ms_fSvdEpsilon;
-        static const int ms_iSvdMaxIterations;
+        static const unsigned int ms_iSvdMaxIterations;
         static void Bidiagonalize (Matrix3& kA, Matrix3& kL,
             Matrix3& kR);
         static void GolubKahanStep (Matrix3& kA, Matrix3& kL,

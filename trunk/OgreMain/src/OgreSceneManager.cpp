@@ -76,7 +76,7 @@ namespace Ogre {
 
         // init sky
         mSkyPlaneEntity = 0;
-        uint i;
+        size_t i;
         for (i = 0; i < 6; ++i)
         {
             mSkyBoxEntity[i] = 0;
@@ -786,7 +786,7 @@ namespace Ogre {
 			{
 				const std::vector<Plane>& planeList = 
 					camera->getWindowPlanes();
-				for (int i = 0; i < 4; ++i)
+				for (ushort i = 0; i < 4; ++i)
 				{
 					mDestRenderSystem->enableClipPlane(i, true);
 					mDestRenderSystem->setClipPlane(i, planeList[i]);
@@ -794,7 +794,7 @@ namespace Ogre {
 			}
 			else
 			{
-				for (int i = 0; i < 4; ++i)
+				for (ushort i = 0; i < 4; ++i)
 				{
 					mDestRenderSystem->enableClipPlane(i, false);
 				}
@@ -2672,7 +2672,7 @@ namespace Ogre {
             min = max = corners[0];
             min.makeFloor(corners[0] + extrude);
             max.makeCeil(corners[0] + extrude);
-            for (int c = 1; c < 8; ++c)
+            for (size_t c = 1; c < 8; ++c)
             {
                 min.makeFloor(corners[c]);
                 max.makeCeil(corners[c]);
@@ -3348,7 +3348,7 @@ namespace Ogre {
         mShadowDirLightExtrudeDist = dist;
     }
     //---------------------------------------------------------------------
-    Real SceneManager::getShadowDirectionalLightExtrusionDistance(void)
+    Real SceneManager::getShadowDirectionalLightExtrusionDistance(void) const
     {
         return mShadowDirLightExtrudeDist;
     }

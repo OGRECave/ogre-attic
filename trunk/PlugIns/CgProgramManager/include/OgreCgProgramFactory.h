@@ -39,7 +39,7 @@ namespace Ogre
         CgProgramFactory();
         ~CgProgramFactory();
 		/// Get the name of the language this factory creates programs for
-		const String& getLanguage(void);
+		const String& getLanguage(void) const;
         HighLevelGpuProgram* create(const String& name, GpuProgramType gptype);
 		void destroy(HighLevelGpuProgram* prog);
 

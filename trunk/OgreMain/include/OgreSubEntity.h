@@ -148,7 +148,7 @@ namespace Ogre {
         /// Get the temporary blended vertex data for this subentity
         const VertexData* getBlendedVertexData(void) { return mBlendedVertexData; }
         /** @copydoc Renderable::getCastsShadows */
-        bool getCastsShadows(void); 
+        bool getCastsShadows(void) const;
     };
 
 }

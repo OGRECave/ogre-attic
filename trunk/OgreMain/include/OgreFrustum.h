@@ -343,11 +343,11 @@ namespace Ogre
         virtual void disableReflection(void);
 
         /// Returns whether this frustum is being reflected
-        virtual bool isReflected(void) { return mReflect; }
+        virtual bool isReflected(void) const { return mReflect; }
         /// Returns the reflection matrix of the frustum if appropriate
-        virtual const Matrix4& getReflectionMatrix(void) { return mReflectMatrix; }
+        virtual const Matrix4& getReflectionMatrix(void) const { return mReflectMatrix; }
         /// Returns the reflection plane of the frustum if appropriate
-        virtual const Plane& getReflectionPlane(void) { return mReflectPlane; }
+        virtual const Plane& getReflectionPlane(void) const { return mReflectPlane; }
 
         /** Project a sphere onto the near plane and get the bounding rectangle. 
         @param sphere The world-space sphere to project

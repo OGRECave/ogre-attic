@@ -579,7 +579,7 @@ namespace Ogre {
 
     }
     // -------------------------------------------------------------------
-    const std::vector<Plane>& Camera::getWindowPlanes(void)
+    const std::vector<Plane>& Camera::getWindowPlanes(void) const
     {
         setWindowImpl();
         return mWindowClipPlanes;

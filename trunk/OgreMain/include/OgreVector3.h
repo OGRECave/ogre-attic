@@ -83,14 +83,14 @@ namespace Ogre
         {
         }
 
-        inline Real operator [] ( unsigned i ) const
+		inline Real operator [] ( size_t i ) const
         {
             assert( i < 3 );
 
             return *(&x+i);
         }
 
-		inline Real& operator [] ( unsigned i )
+		inline Real& operator [] ( size_t i )
         {
             assert( i < 3 );
 

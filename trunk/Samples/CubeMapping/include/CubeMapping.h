@@ -503,7 +503,7 @@ private:
 	void setCubeMap()
 	{
 		currentCubeMapIndex %= availableCubeMaps.size();
-		int i ;
+		unsigned int i ;
 		String cubeMapName = availableCubeMaps[currentCubeMapIndex];
 		Pass *pass = material->getTechnique(0)->getPass(0);
 		for(i=0;i<pass->getTextureUnitState(0)->getNumFrames();i++) {

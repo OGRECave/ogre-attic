@@ -84,7 +84,7 @@ namespace Ogre {
             inaccuracies caused by calculating the shadow geometry separately from
             the real geometry. 
         */
-        bool isLightCapSeparate(void) { return mLightCap != 0; }
+        bool isLightCapSeparate(void) const { return mLightCap != 0; }
 
         /// Get the light cap version of this renderable
         ShadowRenderable* getLightCapRenderable(void) { return mLightCap; }
@@ -118,9 +118,9 @@ namespace Ogre {
         /** Get the world bounding box of the caster. */
         virtual const AxisAlignedBox& getWorldBoundingBox(bool derive = false) const = 0;
         /** Gets the world space bounding box of the light cap */
-        virtual const AxisAlignedBox& getLightCapBounds(void) = 0;
+        virtual const AxisAlignedBox& getLightCapBounds(void) const = 0;
         /** Gets the world space bounding box of the dark cap, as extruded using the light provided */
-        virtual const AxisAlignedBox& getDarkCapBounds(const Light& light, Real dirLightExtrusionDist) = 0;
+        virtual const AxisAlignedBox& getDarkCapBounds(const Light& light, Real dirLightExtrusionDist) const = 0;
 
         typedef std::vector<ShadowRenderable*> ShadowRenderableList;
         typedef VectorIterator<ShadowRenderableList> ShadowRenderableListIterator;
@@ -200,7 +200,7 @@ namespace Ogre {
         @param extrudeDist The distance to extrude
         */
         virtual void extrudeBounds(AxisAlignedBox& box, const Vector4& lightPos, 
-            Real extrudeDist);
+            Real extrudeDist) const;
 
 
     };

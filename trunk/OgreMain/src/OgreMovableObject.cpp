@@ -126,13 +126,13 @@ namespace Ogre {
 	}
 
     //-----------------------------------------------------------------------
-    const AxisAlignedBox& MovableObject::getLightCapBounds(void) 
+    const AxisAlignedBox& MovableObject::getLightCapBounds(void) const
     {
         // Same as original bounds
         return getWorldBoundingBox();
     }
     //-----------------------------------------------------------------------
-    const AxisAlignedBox& MovableObject::getDarkCapBounds(const Light& light, Real dirLightExtrusionDist) 
+    const AxisAlignedBox& MovableObject::getDarkCapBounds(const Light& light, Real dirLightExtrusionDist) const
     {
         // Extrude own light cap bounds
         mWorldDarkCapBounds = getLightCapBounds();

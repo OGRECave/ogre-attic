@@ -95,7 +95,7 @@ namespace Ogre {
         */
         void setLoop(bool loop) { mLoop = loop; }
         /// Gets whether or not this animation loops            
-        bool getLoop(void) { return mLoop; }
+        bool getLoop(void) const { return mLoop; }
      
     protected:
         String mAnimationName;

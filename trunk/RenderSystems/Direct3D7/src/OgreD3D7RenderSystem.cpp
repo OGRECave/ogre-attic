@@ -1719,7 +1719,7 @@ namespace Ogre {
             "D3DRenderSystem::_setDepthBias");
     }
     //-----------------------------------------------------------------------
-    String D3DRenderSystem::getErrorDescription(long errCode)
+    String D3DRenderSystem::getErrorDescription(long errCode) const
     {
         char* errDesc;
         DWORD i;
@@ -2467,7 +2467,7 @@ namespace Ogre {
         // TODO
     }
     //-----------------------------------------------------------------------
-    D3DTEXTURESTAGESTATETYPE D3DRenderSystem::_getFilterCode(FilterType ft)
+    D3DTEXTURESTAGESTATETYPE D3DRenderSystem::_getFilterCode(FilterType ft) const
     {
         switch (ft)
         {
@@ -2486,7 +2486,7 @@ namespace Ogre {
         return D3DTSS_MINFILTER;
     }
     //-----------------------------------------------------------------------
-    DWORD D3DRenderSystem::_getFilter(FilterType ft, FilterOptions fo)
+    DWORD D3DRenderSystem::_getFilter(FilterType ft, FilterOptions fo) const
     {
         switch (ft)
         {

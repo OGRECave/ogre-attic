@@ -119,7 +119,7 @@ namespace Ogre {
 		void _createDepthStencil();
 
 		/// internal method, the cube map face name for the spec. face index
-		String _getCubeFaceName(unsigned char face)
+		String _getCubeFaceName(unsigned char face) const
 		{ assert(face < 6); return mCubeFaceNames[face]; }
 		/// internal method, return the BPP for the specified format
 		static unsigned short _getPFBpp(PixelFormat ogrePF)

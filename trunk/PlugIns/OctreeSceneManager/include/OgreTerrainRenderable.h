@@ -83,7 +83,7 @@ public:
     };
 
 
-    int _worldheight( int x, int z )
+    int _worldheight( int x, int z ) const
     {
         return data[ ( ( z * world_size ) + x ) ];
     };
@@ -186,13 +186,13 @@ public:
     virtual const Vector3& getWorldPosition(void) const;
 
     /** Returns the size of the TerrainRenderable */
-    inline int getSize()
+    inline int getSize() const
     {
         return mSize;
     };
 
     /** Returns the mipmap level that will be rendered for this frame. */
-    inline int getRenderLevel()
+    inline int getRenderLevel() const
     {
         return mRenderLevel;
     };
@@ -269,7 +269,7 @@ public:
 protected:
 
     /** Returns the index into the height array for the given coords. */
-    inline int _index( int x, int z )
+    inline int _index( int x, int z ) const
     {
         return ( x + z * mSize );
     };
@@ -291,7 +291,7 @@ protected:
     };
 
 
-    inline int _numNeighbors()
+    inline int _numNeighbors() const
     {
         int n = 0;
 
@@ -304,12 +304,12 @@ protected:
         return n;
     }
 
-    inline bool _hasNeighborRenderLevel( int i )
+    inline bool _hasNeighborRenderLevel( int i ) const
     {
         for ( int j = 0; j < 4; j++ )
         {
             if ( mNeighbors[ j ] != 0 && mNeighbors[ j ] ->mRenderLevel == i )
-                return true;;
+                return true;
         }
 
         return false;

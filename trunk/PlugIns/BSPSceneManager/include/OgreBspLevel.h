@@ -84,7 +84,7 @@ namespace Ogre {
         /** Gets a pointer to the start of the leaf nodes. */
         BspNode* getLeafStart(void) {return &mRootNode[mLeafStart]; }
         /** Gets the number of leaf nodes */
-        int getNumLeaves(void) { return mNumLeaves; }
+        int getNumLeaves(void) const { return mNumLeaves; }
 
         /** Utility class just to enable queueing of patches */
     protected:
