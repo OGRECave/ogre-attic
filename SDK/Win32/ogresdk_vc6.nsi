@@ -1,4 +1,4 @@
-!define TARGET_COMPILER_DESCRIPTION "Visual C++ 6.0"
+!define TARGET_COMPILER_DESCRIPTION "Visual C++ 6"
 !define TARGET_COMPILER "VC6"
 !include ogresdk.nsh
 
@@ -7,20 +7,17 @@ Section -Samples
   SetOutPath "$INSTDIR\samples\scripts"
   SetOverwrite try
   File ".\Samples\scripts\*.dsp"
-  File ".\ReferenceApplication\BspCollision\scripts\*.dsp"
   SetOutPath "$INSTDIR\samples\src"
   SetOverwrite try
-  File /r /x CVS /x CEGUIRenderer "..\..\Samples\*.cpp"
-  File "..\..\ReferenceApplication\BspCollision\src\*.cpp"
+  File ".\Samples\src\*.cpp"
   SetOutPath "$INSTDIR\samples\include"
   SetOverwrite try
-  File /r /x CVS /x CEGUIRenderer "..\..\Samples\*.h"
-  File "..\..\ReferenceApplication\BspCollision\include\*.h"
+  File ".\Samples\include\*.h"
 
   ; Refapp
   SetOutPath "$INSTDIR\samples\refapp\scripts"
   SetOverwrite try
-  File ".\ReferenceApplication\scripts\*.dsp"
+  File ".\samples\refapp\scripts\*.dsp"
   SetOutPath "$INSTDIR\samples\refapp\src"
   SetOverwrite try
   File "..\..\ReferenceApplication\ReferenceAppLayer\src\*.cpp"
