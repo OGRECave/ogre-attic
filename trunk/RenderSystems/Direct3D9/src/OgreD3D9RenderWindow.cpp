@@ -631,7 +631,10 @@ namespace Ogre
 		Codec * pCodec = Codec::getCodec(extension);
 
 		// Write out
-        pCodec->codeToFile(stream, filename, Codec::CodecDataPtr(imgData));
+		{
+			Codec::CodecDataPtr ptr(imgData);
+        	pCodec->codeToFile(stream, filename, ptr);
+		}
 
 		delete [] pBuffer;
 
