@@ -88,6 +88,9 @@ namespace Ogre {
         typedef std::vector<EdgeGroup> EdgeGroupList;
         TriangleList triangles;
         EdgeGroupList edgeGroups;
+		// manifold? NB This value is not stored in the  binary Mesh format yet so
+		// cannot be relied upon unless this has been calculated interactively.
+		//bool isClosed; // manifold?
 
 
         /** Calculate the light facing state of the triangles in this edge list
@@ -171,42 +174,59 @@ namespace Ogre {
             size_t indexSet;    // The index set this was referenced (first) from
             size_t originalIndex; // place of vertex in original vertex set
         };
+        /** A set of indexed geometry data */
+        struct Geometry {
+            size_t vertexSet;           // The vertex data set this geometry data refers to
+            size_t indexSet;            // The index data set this geometry data refers to
+            const IndexData* indexData; // The index information which describes the triangles.
+            RenderOperation::OperationType opType;  // The operation type used to render this geometry
+        };
+        /** Comparator for sorting geometries by vertex set */
+        struct geometryLess {
+            bool operator()(const Geometry& a, const Geometry& b) const
+            {
+                if (a.vertexSet < b.vertexSet) return true;
+                if (a.vertexSet > b.vertexSet) return false;
+                return a.indexSet < b.indexSet;
+            }
+        };
+        /** Comparator for unique vertex list */
+        struct vectorLess {
+            bool operator()(const Vector3& a, const Vector3& b) const
+            {
+                if (a.x < b.x) return true;
+                if (a.x > b.x) return false;
+                if (a.y < b.y) return true;
+                if (a.y > b.y) return false;
+                return a.z < b.z;
+            }
+        };
 
         typedef std::vector<const VertexData*> VertexDataList;
-        typedef std::vector<const IndexData*> IndexDataList;
+        typedef std::vector<Geometry> GeometryList;
         typedef std::vector<CommonVertex> CommonVertexList;
-        typedef std::vector<RenderOperation::OperationType> OperationTypeList;
 
-        IndexDataList mIndexDataList;
-        OperationTypeList mOperationTypeList;
-        std::vector<size_t> mIndexDataVertexDataSetList;
+        GeometryList mGeometryList;
         VertexDataList mVertexDataList;
         CommonVertexList mVertices;
         EdgeData* mEdgeData;
-        /// Unique edges, used to detect whether there are too many triangles on an edge
-        typedef std::set< std::pair<size_t, size_t> > UniqueEdgeSet;
-        UniqueEdgeSet mUniqueEdges;
-        // Do we weld common vertices at all?
-        bool mWeldVertices;
-        // Should we treat coincident vertices from different vertex sets as one?
-        bool mWeldVerticesAcrossVertexSets;
-        // Should we treat coincident vertices referenced from different index sets as one?
-        bool mWeldVerticesAcrossIndexSets;
+		/// Map for identifying common vertices
+		typedef std::map<Vector3, size_t, vectorLess> CommonVertexMap;
+		CommonVertexMap mCommonVertexMap;
+        /** Edge map, used to connect edges. Note we allow many triangles on an edge,
+        after connected an existing edge, we will remove it and never used again.
+        */
+        typedef std::multimap< std::pair<size_t, size_t>, std::pair<size_t, size_t> > EdgeMap;
+        EdgeMap mEdgeMap;
 
-        void buildTrianglesEdges(size_t indexSet, size_t vertexSet);
-        void connectEdges(void);
-        EdgeData::Edge* findEdge(size_t sharedIndex1, size_t sharedIndex2);
+        void buildTrianglesEdges(const Geometry &geometry);
 
         /// Finds an existing common vertex, or inserts a new one
         size_t findOrCreateCommonVertex(const Vector3& vec, size_t vertexSet, 
             size_t indexSet, size_t originalIndex);
-        /** Create a new edge - utility method during building */
-        void createEdge(size_t vertexSet, size_t triangleIndex, size_t vertIndex0, size_t vertIndex1, 
+        /// Connect existing edge or create a new edge - utility method during building
+        void connectOrCreateEdge(size_t vertexSet, size_t triangleIndex, size_t vertIndex0, size_t vertIndex1, 
             size_t sharedVertIndex0, size_t sharedVertIndex1);
-
-        /// Internal method to attempt to build the edge list
-        void attemptBuild(void);
-
     };
 
 }

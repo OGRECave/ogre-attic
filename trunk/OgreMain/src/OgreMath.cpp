@@ -696,4 +696,17 @@ namespace Ogre
         normal.normalise();
         return normal;
     }
+    //-----------------------------------------------------------------------
+    Vector4 Math::calculateFaceNormalWithoutNormalize(const Vector3& v1, const Vector3& v2, const Vector3& v3)
+    {
+        Vector3 normal = calculateBasicFaceNormalWithoutNormalize(v1, v2, v3);
+        // Now set up the w (distance of tri from origin)
+        return Vector4(normal.x, normal.y, normal.z, -(normal.dotProduct(v1)));
+    }
+    //-----------------------------------------------------------------------
+    Vector3 Math::calculateBasicFaceNormalWithoutNormalize(const Vector3& v1, const Vector3& v2, const Vector3& v3)
+    {
+        Vector3 normal = (v2 - v1).crossProduct(v3 - v1);
+        return normal;
+    }
 }

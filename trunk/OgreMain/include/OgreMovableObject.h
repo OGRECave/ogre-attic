@@ -105,7 +105,12 @@ namespace Ogre {
         /** Returns true if this object is attached to a SceneNode or TagPoint. */
         virtual bool isAttached(void) const;
 
-        /** Internal method to notify the object of the camera to be used for the next rendering operation.
+        /** Returns true if this object is attached to a SceneNode or TagPoint, 
+			and this SceneNode / TagPoint is currently in an active part of the
+			scene graph. */
+        virtual bool isInScene(void) const;
+
+		/** Internal method to notify the object of the camera to be used for the next rendering operation.
             @remarks
                 Certain objects may want to do specific processing based on the camera position. This method notifies
                 them incase they wish to do this.
