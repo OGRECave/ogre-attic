@@ -48,7 +48,7 @@ public:
 
     bool frameStarted(const FrameEvent& evt)
     {
-        mAnimState->addTime(evt.timeSinceLastFrame * 20);
+        mAnimState->addTime(evt.timeSinceLastFrame);
 
         // Call default
         return ExampleFrameListener::frameStarted(evt);
@@ -69,6 +69,9 @@ protected:
     // Just override the mandatory create scene method
     void createScene(void)
     {
+        // Setup animation default
+        //Animation::setDefaultInterpolationMode(Animation::IM_SPLINE);
+
         // Set ambient light
         mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
 
