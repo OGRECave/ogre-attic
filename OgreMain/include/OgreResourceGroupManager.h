@@ -131,6 +131,7 @@ namespace Ogre {
     class _OgreExport ResourceGroupManager : public Singleton<ResourceGroupManager>
     {
     public:
+		OGRE_AUTO_MUTEX // public to allow external locking
 		/// Default resource group name
 		static String DEFAULT_RESOURCE_GROUP_NAME;
         /// Default resource group used for world geometry resources
@@ -184,6 +185,7 @@ namespace Ogre {
 		/// Resource group entry
 		struct ResourceGroup
 		{
+			OGRE_AUTO_MUTEX
 			/// Group name
 			String name;
 			/// List of possible locations to search

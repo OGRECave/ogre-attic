@@ -46,6 +46,7 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	void Resource::load(void)
 	{
+		OGRE_LOCK_AUTO_MUTEX
 		if (!mIsLoaded)
 		{
 			if (mIsManual)
@@ -81,6 +82,7 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	void Resource::unload(void) 
 	{ 
+		OGRE_LOCK_AUTO_MUTEX
 		if (mIsLoaded)
 		{
 			unloadImpl();
@@ -92,6 +94,7 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	void Resource::reload(void) 
 	{ 
+		OGRE_LOCK_AUTO_MUTEX
 		if (mIsLoaded)
 		{
 			unload();
@@ -101,6 +104,7 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	void Resource::touch(void) 
 	{
+		OGRE_LOCK_AUTO_MUTEX
 		mCreator->_notifyResourceTouched(this);
 	}
 	//-----------------------------------------------------------------------

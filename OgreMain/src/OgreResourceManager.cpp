@@ -78,6 +78,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ResourceManager::addImpl( ResourcePtr& res )
     {
+		OGRE_LOCK_AUTO_MUTEX
+
         std::pair<ResourceMap::iterator, bool> result = 
             mResources.insert( ResourceMap::value_type( res->getName(), res ) );
         if (!result.second)
@@ -98,6 +100,8 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void ResourceManager::removeImpl( ResourcePtr& res )
 	{
+		OGRE_LOCK_AUTO_MUTEX
+
 		ResourceMap::iterator nameIt = mResources.find(res->getName());
 		if (nameIt != mResources.end())
 		{
@@ -151,6 +155,8 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void ResourceManager::unloadAll(void)
 	{
+		OGRE_LOCK_AUTO_MUTEX
+
 		ResourceMap::iterator i, iend;
 		iend = mResources.end();
 		for (i = mResources.begin(); i != iend; ++i)
@@ -162,6 +168,8 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void ResourceManager::reloadAll(void)
 	{
+		OGRE_LOCK_AUTO_MUTEX
+
 		ResourceMap::iterator i, iend;
 		iend = mResources.end();
 		for (i = mResources.begin(); i != iend; ++i)
@@ -193,6 +201,8 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void ResourceManager::removeAll(void)
 	{
+		OGRE_LOCK_AUTO_MUTEX
+
 		mResources.clear();
 		mResourcesByHandle.clear();
 		// Notify resource group manager
@@ -201,6 +211,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     ResourcePtr ResourceManager::getByName(const String& name)
     {
+		OGRE_LOCK_AUTO_MUTEX
+
         ResourceMap::iterator it = mResources.find(name);
 
         if( it == mResources.end())
@@ -215,6 +227,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     ResourcePtr ResourceManager::getByHandle(ResourceHandle handle)
     {
+		OGRE_LOCK_AUTO_MUTEX
+
         ResourceHandleMap::iterator it = mResourcesByHandle.find(handle);
         if (it == mResourcesByHandle.end())
         {
@@ -228,6 +242,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     ResourceHandle ResourceManager::getNextHandle(void)
     {
+		OGRE_LOCK_AUTO_MUTEX
+
         return mNextHandle++;
     }
     //-----------------------------------------------------------------------
@@ -243,11 +259,15 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void ResourceManager::_notifyResourceLoaded(Resource* res)
 	{
+		OGRE_LOCK_AUTO_MUTEX
+
 		mMemoryUsage += res->getSize();
 	}
 	//-----------------------------------------------------------------------
 	void ResourceManager::_notifyResourceUnloaded(Resource* res)
 	{
+		OGRE_LOCK_AUTO_MUTEX
+
 		mMemoryUsage -= res->getSize();
 	}
 	//-----------------------------------------------------------------------

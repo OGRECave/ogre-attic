@@ -62,6 +62,7 @@ namespace Ogre {
 	class _OgreExport ResourceManager : public ScriptLoader
     {
     public:
+		OGRE_AUTO_MUTEX // public to allow external locking
         ResourceManager();
         virtual ~ResourceManager();
 

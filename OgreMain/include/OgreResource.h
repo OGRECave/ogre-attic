@@ -66,6 +66,8 @@ namespace Ogre {
     */
 	class _OgreExport Resource : public StringInterface
     {
+	public:
+		OGRE_AUTO_MUTEX // public to allow external locking
     protected:
 		/// Creator
 		ResourceManager* mCreator;
@@ -183,6 +185,7 @@ namespace Ogre {
         */
         bool isLoaded(void) const 
         { 
+			OGRE_LOCK_AUTO_MUTEX
             return mIsLoaded; 
         }
 
