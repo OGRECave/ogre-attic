@@ -189,7 +189,7 @@ public:
         case SHADOWTYPE_TEXTURE_MODULATIVE:
             // Change fixed point light to spotlight
             // Fixed light, dim
-            mSunLight->setCastShadows(false);
+            mSunLight->setCastShadows(true);
 
             // Change moving light to spotlight
             // Point light, movable, reddish

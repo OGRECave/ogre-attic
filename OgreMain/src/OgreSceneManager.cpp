@@ -1547,6 +1547,10 @@ namespace Ogre {
                 i != iend && si != siend; ++i)
             {
                 Light* l = *i;
+
+                if (!l->getCastShadows())
+                    continue;
+
                 mCurrentShadowTexture = *si;
                 // Hook up receiver texture
                 mShadowReceiverPass->getTextureUnitState(0)->setTextureName(
@@ -1582,6 +1586,8 @@ namespace Ogre {
                 {
                     renderTextureShadowReceiverQueueGroupObjects(pGroup);
                 }
+
+                ++si;
 
             }// for each light
 
