@@ -25,11 +25,16 @@ http://www.gnu.org/copyleft/gpl.html.
 #ifndef __Config_H_
 #define __Config_H_
 
-/* 
+/** Because of transferring STL containers (which allocate memory) from memory
+    space to memory space (ie allocate in a DLL and clean or use in the main 
+    app), we have to kink to the dynamic version of the STLport libaray. This 
+    way, all the (de)allocations are done in STLport's memory space and everyone
+    is happy.
 */
-#ifndef _STLP_USE_DYNAMIC_LIB
-#define _STLP_USE_DYNAMIC_LIB
-#endif
+// Probably obsolete now
+//#ifndef _STLP_USE_DYNAMIC_LIB
+//#define _STLP_USE_DYNAMIC_LIB
+//#endif
 
 /** If set to 1, stack unwinding code is compiled into the library and called
     in case an exception is thrown in order to show the call stack.
@@ -60,12 +65,12 @@ http://www.gnu.org/copyleft/gpl.html.
 */
 #define OGRE_MAX_TEXTURE_COORD_SETS 6
 
-/** Define max number of texture layers allowed per material. */
+/** Define max number of texture layers allowed per material. 
+*/
 #define OGRE_MAX_TEXTURE_LAYERS 8
 
-#define OGRE_DYNAMIC_LINKAGE 1
-/**
-_STLP_USE_DYNAMIC_LIB,_STLP_DEBUG
+/** Set this to zero if you want to link OGRE as a static lib. 
 */
+#define OGRE_DYNAMIC_LINKAGE 1
 
 #endif
