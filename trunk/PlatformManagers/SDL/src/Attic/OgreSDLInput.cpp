@@ -25,15 +25,20 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreSDLInput.h"
 #include "OgreLogManager.h"
+#include "OgreMouseEvent.h"
+#include "OgreCursor.h"
 
 namespace Ogre {
     
-    SDLInput::SDLInput()
+    SDLInput::SDLInput() : InputReader()
     {
+        mEventQueue = 0;
+        mScale = 0.002;
     }
 
     SDLInput::~SDLInput()
     {
+        SDL_WM_GrabInput(SDL_GRAB_OFF);
         SDL_ShowCursor(1);
     }
 
@@ -41,36 +46,49 @@ namespace Ogre {
     {
         // Hide the cursor
         SDL_ShowCursor(0);
+        SDL_WM_GrabInput(SDL_GRAB_ON);
 
-        // Get the center and put the mouse there
-        int width, height, depth, left, top;
-        pWindow->getMetrics(width, height, depth, left, top);
+        if (!mUseBuffered)
+        {
+            // Get the center and put the mouse there
+            int width, height, depth, left, top;
+            pWindow->getMetrics(width, height, depth, left, top);
 
-        mMouseCenterX = width / 2;
-        mMouseCenterY = height / 2;
+            mMouseCenterX = width / 2;
+            mMouseCenterY = height / 2;
 
-        SDL_WarpMouse(mMouseCenterX, mMouseCenterY);
-
-        
-        // XXX Anything to do?
+            SDL_WarpMouse(mMouseCenterX, mMouseCenterY);
+        }
+        else
+        {
+            // XXX anything to do here for buffered?
+        }
     }
 
     void SDLInput::capture()
     {
+        if (mUseBuffered)
+        {
+            processBufferedMouse();
+        }
+
         SDL_PumpEvents();
 
         // Get Keyboard state
         mKeyboardBuffer = SDL_GetKeyState(NULL);
 
-        // Get mouse info
-        if( SDL_GetAppState() & SDL_APPMOUSEFOCUS )
+        if (!mUseBuffered)
         {
-            mMouseKeys = SDL_GetMouseState( &mMouseX, &mMouseY );
-            SDL_WarpMouse( mMouseCenterX, mMouseCenterY );
-        }
+            // Get mouse info
+            if( SDL_GetAppState() & SDL_APPMOUSEFOCUS )
+            {
+                mMouseKeys = SDL_GetMouseState( &mMouseX, &mMouseY );
+                SDL_WarpMouse( mMouseCenterX, mMouseCenterY );
+            }
 
-        // XXX Fix me up
-        // Game controller state
+            // XXX Fix me up
+            // Game controller state
+        }
     }
 
     bool SDLInput::isKeyDown(KeyCode kc)
@@ -340,5 +358,79 @@ namespace Ogre {
     int SDLInput::getMouseRelativeY()
     {
         return mMouseY - mMouseCenterY;
+    }
+
+    void SDLInput::processBufferedMouse()
+    {
+        // XXX Arbitrarily picked 16 
+        SDL_Event events[16];
+
+        int count = SDL_PeepEvents(events, 16, SDL_GETEVENT,
+                (SDL_MOUSEMOTIONMASK | SDL_MOUSEBUTTONDOWNMASK |
+                 SDL_MOUSEBUTTONUPMASK));
+        if (!count)
+        {
+            return;
+        }
+
+        bool Xset, Yset, Zset;
+        Xset = Yset = Zset = false;
+        for (int i = 0; i < count; i++)
+        {
+            int button_mask = -1;
+            bool button_down = false;
+            switch (events[i].type)
+            {
+            case SDL_MOUSEMOTION:
+                if (events[i].motion.xrel)
+                {
+                    if (Xset)
+                    {
+                        mouseMoved();
+                    }
+                    mCursor->addToX(events[i].motion.xrel * mScale);
+                    Xset = true;
+                }
+                if (events[i].motion.yrel)
+                {
+                    if (Yset)
+                    {
+                        mouseMoved();
+                    }
+                    mCursor->addToY(events[i].motion.yrel * mScale);
+                    Yset = true;
+                }
+                break;
+            case SDL_MOUSEBUTTONDOWN:
+                button_down = true;
+            case SDL_MOUSEBUTTONUP:
+                switch(events[i].button.button)
+                {
+                case SDL_BUTTON_LEFT:
+                    button_mask = InputEvent::BUTTON0_MASK;
+                    break;
+                case SDL_BUTTON_RIGHT:
+                    button_mask = InputEvent::BUTTON1_MASK;
+                    break;
+                case SDL_BUTTON_MIDDLE:
+                    button_mask = InputEvent::BUTTON2_MASK;
+                    break;
+                };
+                triggerMouseButton(button_mask, button_down);
+                break;
+            };
+            
+            if (Xset && Yset)
+            {
+                mouseMoved();
+                Xset = Yset = false;
+            }
+        }
+
+        if (Xset || Yset)
+        {
+            mouseMoved();
+        }
+                    
     }
 }
