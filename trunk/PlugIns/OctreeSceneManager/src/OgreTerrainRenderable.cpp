@@ -152,7 +152,7 @@ void TerrainRenderable::init( TerrainOptions &options )
       mTerrain.pVertices[ m + 2 ] = ( Real ) j * options.scalez; //z
 
       mTerrain.pTexCoords[ 0 ][ q ] = ( Real ) i / ( Real ) options.world_size ;
-      mTerrain.pTexCoords[ 0 ][ q + 1 ] = ( Real ) options.world_size - ( Real ) j / ( Real ) options.world_size;
+      mTerrain.pTexCoords[ 0 ][ q + 1 ] = ( Real ) 1.0 - ( Real ) j / ( Real ) options.world_size; 
 
       if ( height < min )
         min = ( Real ) height;
