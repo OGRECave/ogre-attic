@@ -2015,8 +2015,8 @@ namespace Ogre {
                 if ( (a->second->getQueryFlags() & mQueryMask) && 
                      (b->second->getQueryFlags() & mQueryMask))
                 {
-                    const AxisAlignedBox& box1 = a->second->getBoundingBox();
-                    const AxisAlignedBox& box2 = b->second->getBoundingBox();
+                    const AxisAlignedBox& box1 = a->second->getWorldBoundingBox();
+                    const AxisAlignedBox& box2 = b->second->getWorldBoundingBox();
 
                     if (box1.intersects(box2))
                     {

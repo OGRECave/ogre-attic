@@ -80,9 +80,31 @@ namespace Ogre {
     */
     class _OgreExport SceneQuery
     {
+    public:
+        /** This type can be used by collaborating applications & SceneManagers to 
+            agree on the type of world geometry to be returned from queries. Not all
+            these types will be supported by all SceneManagers; once the application
+            has decided which SceneManager specialisation to use, it is expected that 
+            it will know which type of world geometry abstraction is available to it.
+        */
+        enum WorldFragmentType {
+            /// Return no world geometry hits at all
+            WFT_NONE,
+            /// Return pointers to the renderable geometry
+            WFT_NORMAL,
+            /// Return pointers to simplified geometry, the exact nature of which is up to the SceneManager
+            WFT_SIMPLIFIED,
+            /// Custom type, placeholder for possible extensions
+            WFT_CUSTOM_1,
+            /// Custom type, placeholder for possible extensions
+            WFT_CUSTOM_2,
+            /// Custom type, placeholder for possible extensions
+            WFT_CUSTOM_3
+        };
     protected:
         SceneManager* mParentSceneMgr;
         unsigned long mQueryMask;
+        WorldFragmentType mWorldFragmentType;
     
     public:
         /** Standard constructor, should be called by SceneManager. */
@@ -101,6 +123,21 @@ namespace Ogre {
         virtual void setQueryMask(unsigned long mask);
         /** Returns the current mask for this query. */
         virtual unsigned long getQueryMask(void);
+
+        /** Tells the query what kind of world geometry to return from queries;
+            often the full renderable geometry is not what is needed. 
+        @remarks
+            The application receiving the world geometry is expected to know 
+            what to do with it; inevitably this means that the application must 
+            have knowledge of at least some of the structures
+            used by the custom SceneManager.
+        @par
+            The default setting is WFT_NONE.
+        */
+        virtual void setWorldFragmentType(enum WorldFragmentType wft);
+
+        /** Gets the current world fragment types to be returned from the query. */
+        virtual WorldFragmentType getWorldFragmentType(void);
 
         
     };
