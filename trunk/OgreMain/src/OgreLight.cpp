@@ -72,8 +72,8 @@ namespace Ogre {
         mDirection = Vector3::UNIT_Z;
 
         // Default some spot values
-        mSpotInner = 30.0f;
-        mSpotOuter = 40.0f;
+        mSpotInner = Degree(30.0f);
+        mSpotOuter = Degree(40.0f);
         mSpotFalloff = 1.0f;
         mParentNode = NULL;
 
