@@ -1267,6 +1267,8 @@ namespace Ogre {
 		// Clone the structure from the example
 		mVertexData = vData->clone(false);
 		mIndexData = iData->clone(false);
+		mVertexData->vertexCount = 0;
+		mIndexData->indexCount = 0;
 		mIndexType = iData->indexBuffer->getType();
 		// Derive the max vertices
 		if (mIndexType == HardwareIndexBuffer::IT_32BIT)
