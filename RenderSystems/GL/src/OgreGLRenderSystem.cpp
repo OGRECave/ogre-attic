@@ -1812,8 +1812,9 @@ namespace Ogre {
                 GpuProgramParameters::RealConstantEntry* e = realIt.peekNextPtr();
                 if (e->isSet)
                 {
-                    glProgramLocalParameter4fvARB_ptr(type, index++, e->val);
+                    glProgramLocalParameter4fvARB_ptr(type, index, e->val);
                 }
+                index++;
                 realIt.moveNext();
             }
         }

@@ -2012,12 +2012,13 @@ namespace Ogre
                     if (e->isSet)
                     {
                         if (FAILED(hr = mpD3DDevice->SetVertexShaderConstantF(
-                            index++, e->val, 1)))
+                            index, e->val, 1)))
                         {
                             Except(hr, "Unable to upload shader float parameters", 
                                 "D3D9RenderSystem::bindGpuProgramParameters");
                         }
                     }
+                    index++;
                     realIt.moveNext();
                 }
             }
@@ -2032,12 +2033,13 @@ namespace Ogre
                     if (e->isSet)
                     {
                         if (FAILED(hr = mpD3DDevice->SetVertexShaderConstantI(
-                            index++, e->val, 1)))
+                            index, e->val, 1)))
                         {
                             Except(hr, "Unable to upload shader float parameters", 
                                 "D3D9RenderSystem::bindGpuProgramParameters");
                         }
                     }
+                    index++;
                     intIt.moveNext();
                 }
             }
@@ -2053,13 +2055,24 @@ namespace Ogre
                     GpuProgramParameters::RealConstantEntry* e = realIt.peekNextPtr();
                     if (e->isSet)
                     {
+                        /*
+                        // TEST
+                        LogManager::getSingleton().logMessage(
+                            "  Set Constant " + StringConverter::toString(index) + " to float4(" +
+                            StringConverter::toString(e->val[0]) + ", " + 
+                            StringConverter::toString(e->val[1]) + ", " + 
+                            StringConverter::toString(e->val[2]) + ", " + 
+                            StringConverter::toString(e->val[3]) + ")"); 
+                        */
+
                         if (FAILED(hr = mpD3DDevice->SetPixelShaderConstantF(
-                            index++, e->val, 1)))
+                            index, e->val, 1)))
                         {
                             Except(hr, "Unable to upload shader float parameters", 
                                 "D3D9RenderSystem::bindGpuProgramParameters");
                         }
                     }
+                    index++;
                     realIt.moveNext();
                 }
             }
@@ -2074,12 +2087,13 @@ namespace Ogre
                     if (e->isSet)
                     {
                         if (FAILED(hr = mpD3DDevice->SetPixelShaderConstantI(
-                            index++, e->val, 1)))
+                            index, e->val, 1)))
                         {
                             Except(hr, "Unable to upload shader float parameters", 
                                 "D3D9RenderSystem::bindGpuProgramParameters");
                         }
                     }
+                    index++;
                     intIt.moveNext();
                 }
             }

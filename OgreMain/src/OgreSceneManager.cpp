@@ -49,6 +49,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreTechnique.h"
 #include "OgreTextureUnitState.h"
 #include "OgreException.h"
+#include "OgreLogManager.h"
 
 // This class implements the most basic scene manager
 
@@ -492,6 +493,13 @@ namespace Ogre {
     {
 		static bool lastUsedVertexProgram = false;
 		static bool lastUsedFragmentProgram = false;
+
+        // TEST
+        /*
+        LogManager::getSingleton().logMessage("BEGIN PASS " + StringConverter::toString(pass->getIndex()) + 
+            " of " + pass->getParent()->getParent()->getName());
+        */
+
         if (pass->hasVertexProgram())
         {
             mDestRenderSystem->bindGpuProgram(pass->getVertexProgram()->_getBindingDelegate());
@@ -1205,6 +1213,13 @@ namespace Ogre {
             mAutoParamDataSource.setCurrentRenderable(rend);
             pass->_updateAutoParams(mAutoParamDataSource);
             // NOTE: We MUST bind parameters AFTER updating the autos
+
+            // TEST
+            /*
+            LogManager::getSingleton().logMessage("BIND PARAMS FOR " + 
+                pass->getParent()->getParent()->getName());
+            */
+
             if (pass->hasVertexProgram())
             {
                 mDestRenderSystem->bindGpuProgramParameters(GPT_VERTEX_PROGRAM, 

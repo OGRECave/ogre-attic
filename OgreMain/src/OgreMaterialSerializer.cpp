@@ -1297,6 +1297,11 @@ namespace Ogre
             return false;
         }
 
+        // TEST
+        /*
+        LogManager::getSingleton().logMessage("SETTING PARAMETER " + vecparams[0] + " as index " +
+            StringConverter::toString(index));
+        */
         processManualProgramParam(index, "param_named", vecparams, context);
 
         return false;

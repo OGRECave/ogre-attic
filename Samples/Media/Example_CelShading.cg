@@ -46,8 +46,7 @@ void main_fp(float diffuseIn 	: TEXCOORD0,
 			 
 			 uniform float4 diffuse,
 			 uniform float4 specular,
-			 // Samplers are 2D because we use the same texture for all
-			 // just with different v coordinates
+			 
 			 uniform sampler1D diffuseRamp,
 			 uniform sampler1D specularRamp,
 			 uniform sampler1D edgeRamp)
@@ -57,9 +56,8 @@ void main_fp(float diffuseIn 	: TEXCOORD0,
 	specularIn = tex1D(specularRamp, specularIn).x;
 	edge = tex1D(edgeRamp, edge).x;
 
-	// temp hack, colour params not working yet
-	colour = edge * (diffuse * diffuseIn + 
-					float4(1,1,0,1) * specularIn);
+	colour = edge * ((diffuse * diffuseIn) + 
+					(specular * specularIn));
 }
 			 
 			 
