@@ -98,6 +98,8 @@ namespace Ogre {
 
             delete [] d3delems;
 
+			mNeedsRebuild = false;
+
         }
         return mlpD3DDecl;
     }
