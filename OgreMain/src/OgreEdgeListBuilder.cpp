@@ -256,6 +256,7 @@ namespace Ogre {
             mEdgeData->triangles.push_back(tri);
             // Create edges from common list
             EdgeData::Edge e;
+            e.degenerate = true; // initialise as degenerate
             if (tri.sharedVertIndex[0] < tri.sharedVertIndex[1])
             {
                 // Set only first tri, the other will be completed in connectEdges
@@ -312,6 +313,7 @@ namespace Ogre {
                 if (e)
                 {
                     e->triIndex[1] = triIndex;
+                    e->degenerate = false;
                 }
             }
             if (tri.sharedVertIndex[1] > tri.sharedVertIndex[2])
@@ -321,6 +323,7 @@ namespace Ogre {
                 if (e)
                 {
                     e->triIndex[1] = triIndex;
+                    e->degenerate = false;
                 }
             }
             if (tri.sharedVertIndex[2] > tri.sharedVertIndex[0])
@@ -329,6 +332,7 @@ namespace Ogre {
                 if (e)
                 {
                     e->triIndex[1] = triIndex;
+                    e->degenerate = false;
                 }
             }
 

@@ -2077,7 +2077,10 @@ namespace Ogre {
                 MaterialManager::getSingleton().create("Ogre/Debug/ShadowVolumes"));
             Pass* p = matDebug->getTechnique(0)->getPass(0);
             p->setSceneBlending(SBT_ADD); 
-            p->setAmbient(1,0,0.5);
+            p->setLightingEnabled(false);
+            TextureUnitState* t = p->createTextureUnitState();
+            t->setColourOperationEx(LBX_MODULATE, LBS_MANUAL, LBS_CURRENT, 
+                ColourValue(0.7, 0.0, 0.2));
             p->setCullingMode(CULL_NONE);
             if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM))
             {
