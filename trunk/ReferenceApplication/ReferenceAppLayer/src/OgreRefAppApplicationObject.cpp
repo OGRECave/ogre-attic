@@ -37,6 +37,9 @@ namespace OgreRefApp
         mOdeBody = 0;
         mDynamicsEnabled = false;
         mCollisionEnabled = false;
+		mSoftness = 0.0;
+		mBounceCoeffRestitution = 0;
+		mBounceVelocityThreshold = 0.1;
 
     }
     //-------------------------------------------------------------------------
@@ -257,14 +260,29 @@ namespace OgreRefApp
                     // However if one is enabled, we need the contact joint
                     if (this->isDynamicsEnabled() || otherObj->isDynamicsEnabled())
                     {
-                        // TODO: parameterise
+						// We use the most agressive parameters from both objects for the contact
                         dContact contact;
-                        contact.surface.mode = dContactBounce | dContactSoftCFM;
-                        contact.surface.mu = dInfinity;
+						Real bounce, velThresh, softness;
+						// Use the highest coeff of restitution from both objects
+						bounce = std::max(this->getBounceRestitutionValue(), 
+								otherObj->getBounceRestitutionValue());
+						// Use the lowest velocity threshold from both objects
+						velThresh = std::min(this->getBounceVelocityThreshold(),
+								otherObj->getBounceVelocityThreshold());
+						// Set flags
+						contact.surface.mode = dContactBounce | dContactApprox1;
+						contact.surface.bounce = bounce;
+						contact.surface.bounce_vel = velThresh;
+
+						softness = this->getSoftness() + otherObj->getSoftness();
+						if (softness > 0)
+						{
+                        	contact.surface.mode |= dContactSoftCFM;
+							contact.surface.soft_cfm = softness;
+						}
+							
+						contact.surface.mu = 20;
                         contact.surface.mu2 = 0;
-                        contact.surface.bounce = 0.1;
-                        contact.surface.bounce_vel = 0.1;
-                        contact.surface.soft_cfm = 0.01;
                         contact.geom = contactGeom;
                         dContactJoint contactJoint(
                             World::getSingleton().getOdeWorld()->id(), 
@@ -309,6 +327,33 @@ namespace OgreRefApp
     {
         // NB contacts for physics are not created here but in testCollide
     }
+    //-------------------------------------------------------------------------
+	void ApplicationObject::setBounceParameters(Real restitutionValue, 
+			Real velocityThreshold)
+	{
+		mBounceCoeffRestitution = restitutionValue;
+		mBounceVelocityThreshold = velocityThreshold;
+	}
+    //-------------------------------------------------------------------------
+	Real ApplicationObject::getBounceRestitutionValue(void)
+	{
+		return mBounceCoeffRestitution;
+	}
+    //-------------------------------------------------------------------------
+	Real ApplicationObject::getBounceVelocityThreshold(void)
+	{
+		return mBounceVelocityThreshold;
+	}
+    //-------------------------------------------------------------------------
+	void ApplicationObject::setSoftness(Real softness)
+	{
+		mSoftness = softness;
+	}
+    //-------------------------------------------------------------------------
+	Real ApplicationObject::getSoftness(void)
+	{
+		return mSoftness;
+	}
 
 
 

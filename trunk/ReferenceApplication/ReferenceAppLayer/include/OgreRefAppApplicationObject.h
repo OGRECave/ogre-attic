@@ -58,6 +58,9 @@ namespace OgreRefApp {
         bool mDynamicsEnabled;
         bool mCollisionEnabled;
 
+		Real mBounceCoeffRestitution;
+		Real mBounceVelocityThreshold;
+		Real mSoftness;
 
         // Set up method, must override
         virtual void setUp(const String& name) = 0;
@@ -84,6 +87,35 @@ namespace OgreRefApp {
         virtual bool isDynamicsEnabled(void);
         virtual void setCollisionEnabled(bool enabled);
         virtual void setDynamicsEnabled(bool enabled);
+
+		/** Sets the 'bounciness' of this object.
+		 * @remarks
+		 * Only applies if this object has both collision and dynamics enabled.
+		 * When 2 movable objects collide, the greatest bounce parameters 
+		 * from both objects apply, so even a non-bouncy object can
+		 * bounce if it hits a bouncy surface. 
+		 * @param restitutionValue Coeeficient of restitution 
+		 * 		(0 for no bounce, 1 for perfect bounciness)
+		 * @param velocityThreshold Velocity below which no bounce will occur; 
+		 * 		this is a dampening value to ensure small velocities do not
+		 * 		cause bounce.
+		 */
+		virtual void setBounceParameters(Real restitutionValue,	Real velocityThreshold);
+		/** Gets the cefficient of restitution (bounciness) for this object. */
+		virtual Real getBounceRestitutionValue(void);
+		/** Gets the bounce velocity threshold for this object. */
+		virtual Real getBounceVelocityThreshold(void);
+
+		/** Sets the softness of this object, which determines how much it is allowed to 
+		 * penetrate other objects.
+		 * @remarks
+		 * 	This parameter only has meaning if collision and dynamics are enabled for this object.
+		 * 	@param softness Softness factor (0 is completely hard). Softness will be combined from
+		 * 		both objects involved in a collision to determine how much they will penetrate.
+		 */
+		virtual void setSoftness(Real softness);
+		/** Gets the softness factor of this object. */
+		virtual Real getSoftness(void);
 
         virtual void addForce(const Vector3& direction, const Vector3& atPosition = Vector3::ZERO);
         virtual void addForceWorldSpace(const Vector3& direction, const Vector3& atPosition = Vector3::ZERO);
