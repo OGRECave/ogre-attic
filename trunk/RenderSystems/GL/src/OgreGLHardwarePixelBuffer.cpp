@@ -142,12 +142,15 @@ void GLHardwarePixelBuffer::unlockImpl(void)
 void GLHardwarePixelBuffer::upload(const PixelBox &data)
 {
 	glBindTexture( mTarget, mTextureID );
-	if(PixelUtil::isCompressed(mFormat))
+	if(PixelUtil::isCompressed(data.format))
 	{
-		assert(data.format == mFormat);
+		if(data.format != mFormat || !data.isConsecutive())
+			Except(Exception::ERR_INVALIDPARAMS, 
+			"Compressed images must be consecutive, in the source format",
+		 	"GLHardwarePixelBuffer::upload");
 		GLenum format = GLPixelUtil::getClosestGLInternalFormat(mFormat);
 		// Data must be consecutive and at beginning of buffer as PixelStorei not allowed
-		// for compressed formate
+		// for compressed formats
 		switch(mTarget) {
 			case GL_TEXTURE_1D:
 				glCompressedTexSubImage1DARB_ptr(GL_TEXTURE_1D, mLevel, 
@@ -273,9 +276,12 @@ void GLHardwarePixelBuffer::download(const PixelBox &data)
 		Except(Exception::ERR_INVALIDPARAMS, "only download of entire buffer is supported by GL",
 		 	"GLHardwarePixelBuffer::download");
 	glBindTexture( mTarget, mTextureID );
-	if(PixelUtil::isCompressed(mFormat))
+	if(PixelUtil::isCompressed(data.format))
 	{
-		assert(data.format == mFormat);
+		if(data.format != mFormat || !data.isConsecutive())
+			Except(Exception::ERR_INVALIDPARAMS, 
+			"Compressed images must be consecutive, in the source format",
+		 	"GLHardwarePixelBuffer::upload");
 		// Data must be consecutive and at beginning of buffer as PixelStorei not allowed
 		// for compressed formate
 		glGetCompressedTexImageARB_ptr(mFaceTarget, mLevel, data.data);
@@ -360,9 +366,11 @@ void GLHardwarePixelBuffer::blitToMemory(const Image::Box &srcBox, const PixelBo
 	   srcBox.front == 0 && srcBox.back == getDepth() &&
 	   dst.getWidth() == getWidth() &&
 	   dst.getHeight() == getHeight() &&
-	   dst.getDepth() == getDepth())
+	   dst.getDepth() == getDepth() &&
+	   GLPixelUtil::getGLOriginFormat(dst.format) != 0)
 	{
-		// The direct case: the user wants the entire texture, so we don't need an intermediate buffer
+		// The direct case: the user wants the entire texture in a format supported by GL
+		// so we don't need an intermediate buffer
 		download(dst);
 	}
 	else
