@@ -71,8 +71,8 @@ namespace Ogre {
         void readReals(DataStreamPtr& stream, Real* pDest, size_t count);
         void readShorts(DataStreamPtr& stream, uint16* pDest, size_t count);
         void readInts(DataStreamPtr& stream, uint32* pDest, size_t count);
-        void readObject(DataStreamPtr& stream, Vector3* pDest);
-        void readObject(DataStreamPtr& stream, Quaternion* pDest);
+        void readObject(DataStreamPtr& stream, Vector3& pDest);
+        void readObject(DataStreamPtr& stream, Quaternion& pDest);
 
         String readString(DataStreamPtr& stream);
         String readString(DataStreamPtr& stream, size_t numChars);

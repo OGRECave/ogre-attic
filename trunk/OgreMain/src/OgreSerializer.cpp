@@ -243,19 +243,19 @@ namespace Ogre {
         writeReals(&q.w, 1);
     }
     //---------------------------------------------------------------------
-    void Serializer::readObject(DataStreamPtr& stream, Vector3* pDest)
+    void Serializer::readObject(DataStreamPtr& stream, Vector3& pDest)
     {
-        readReals(stream, &pDest->x, 1);
-        readReals(stream, &pDest->y, 1);
-        readReals(stream, &pDest->z, 1);
+        readReals(stream, &pDest.x, 1);
+        readReals(stream, &pDest.y, 1);
+        readReals(stream, &pDest.z, 1);
     }
     //---------------------------------------------------------------------
-    void Serializer::readObject(DataStreamPtr& stream, Quaternion* pDest)
+    void Serializer::readObject(DataStreamPtr& stream, Quaternion& pDest)
     {
-        readReals(stream, &pDest->x, 1);
-        readReals(stream, &pDest->y, 1);
-        readReals(stream, &pDest->z, 1);
-        readReals(stream, &pDest->w, 1);
+        readReals(stream, &pDest.x, 1);
+        readReals(stream, &pDest.y, 1);
+        readReals(stream, &pDest.z, 1);
+        readReals(stream, &pDest.w, 1);
     }
     //---------------------------------------------------------------------
 
