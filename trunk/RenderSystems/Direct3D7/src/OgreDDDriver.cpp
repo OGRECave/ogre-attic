@@ -28,7 +28,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreDDVideoMode.h"
 #include "OgreD3D7DeviceList.h"
 #include "OgreD3D7Device.h"
-#include "png.h"
 #include "OgreLogManager.h"
 #include "OgreException.h"
 #include "OgreBitwise.h"
@@ -568,125 +567,6 @@ namespace Ogre {
         LogManager::getSingleton().logMessage(msg);
 
 
-
-    }
-
-    void DDDriver::takeScreenShot(void)
-    {
-        HRESULT hr;
-        DDSURFACEDESC2 ddsd;
-        static int numPics = 0;
-        char filename[30];
-        BYTE *pBuffer;
-        BYTE **rowPointers;
-        WORD *in16;
-        DWORD *in32;
-        BYTE *out8;
-        FILE *fp;
-        unsigned long lRow, lCol;
-
-
-        // Lock front buffer
-        ddsd.dwSize = sizeof(DDSURFACEDESC2);
-        hr = lpDDSPrimary->Lock(NULL, &ddsd, NULL, NULL);
-
-        if (FAILED(hr))
-            throw Exception(hr, "Cannot lock surface.",
-                "DDDriver::takeScreenShot");
-
-        // Copy screen contents into a buffer, doing translation
-        // to PNG-compatible bit depth (8-bits per channel)
-        // Also create row pointers that PNG encoding requires
-        pBuffer = (BYTE*)malloc(ddsd.ddpfPixelFormat.dwRGBBitCount *
-                            ddsd.dwHeight * ddsd.dwWidth);
-        rowPointers = (BYTE**)malloc(sizeof(BYTE*) * ddsd.dwHeight);
-        out8 = pBuffer;
-        for (lRow = 0; lRow < ddsd.dwHeight; lRow++)
-        {
-            rowPointers[lRow] = pBuffer + (3 * ddsd.dwWidth * lRow);
-            if(ddsd.ddpfPixelFormat.dwRGBBitCount == 16)
-                in16 = (WORD*)ddsd.lpSurface + (ddsd.lPitch/2 * lRow);
-            else
-                in32 = (DWORD*)ddsd.lpSurface + (ddsd.lPitch/4 * lRow);
-
-            for (lCol = 0; lCol < ddsd.dwWidth; lCol++)
-            {
-                // Convert each colour component to it's 8-bit
-                //   counterpart
-                BYTE mask8 = 0xFF;
-                if(ddsd.ddpfPixelFormat.dwRGBBitCount == 16)
-                {
-                    Bitwise::convertBitPattern(in16, &ddsd.ddpfPixelFormat.dwRBitMask, 16,
-                                    out8++, &mask8, 8);
-                    Bitwise::convertBitPattern(in16, &ddsd.ddpfPixelFormat.dwGBitMask, 16,
-                                    out8++, &mask8, 8);
-                    Bitwise::convertBitPattern(in16, &ddsd.ddpfPixelFormat.dwBBitMask, 16,
-                                    out8++, &mask8, 8);
-                    in16++;
-                }
-                else
-                {
-                    Bitwise::convertBitPattern(in32, &ddsd.ddpfPixelFormat.dwRBitMask, 32,
-                                    out8++, &mask8, 8);
-                    Bitwise::convertBitPattern(in32, &ddsd.ddpfPixelFormat.dwGBitMask, 32,
-                                    out8++, &mask8, 8);
-                    Bitwise::convertBitPattern(in32, &ddsd.ddpfPixelFormat.dwBBitMask, 32,
-                                    out8++, &mask8, 8);
-                    in32++;
-                }
-            }
-        }
-
-        // Unlock surface
-        lpDDSPrimary->Unlock(NULL);
-
-        numPics++;
-        sprintf(filename, "screenshot%3.3d.png", numPics);
-
-        fp = fopen(filename,"wb");
-
-        if (!fp)
-            throw Exception(999,"Cannot open file for writing.",
-                "DDDriver::takeScreenShot");
-
-        png_structp png_ptr = png_create_write_struct
-           (PNG_LIBPNG_VER_STRING, NULL,
-            NULL, NULL);
-        if (!png_ptr)
-            throw Exception(999,"Error initialising PNG library.",
-                "DDDriver::takeScreenShot");
-
-        png_infop info_ptr = png_create_info_struct(png_ptr);
-        if (!info_ptr)
-        {
-           png_destroy_write_struct(&png_ptr,
-             (png_infopp)NULL);
-            throw Exception(999,"Error initialising PNG library.",
-                "DDDriver::takeScreenShot");
-        }
-
-        png_init_io(png_ptr, fp);
-
-        // Set image size, and channel bit depth (8),
-        //  colour type (RGB), interlace type (NONE),
-        //  compression & filter types (DEFAULT),
-        png_set_IHDR(png_ptr, info_ptr, ddsd.dwWidth, ddsd.dwHeight,
-           8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
-           PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
-
-        // Omit all other info like gamma, description etc
-
-        // Write info
-        png_write_info(png_ptr, info_ptr);
-
-        // Write data
-        png_write_image(png_ptr, rowPointers);
-
-        png_write_end(png_ptr, info_ptr);
-        png_destroy_write_struct(&png_ptr, &info_ptr);
-
-
-        free(pBuffer);
 
     }
 

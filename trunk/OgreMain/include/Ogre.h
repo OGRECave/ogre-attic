@@ -77,6 +77,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderQueueListener.h"
 #include "OgreEventProcessor.h"
 #include "OgreOverlayManager.h"
+#include "OgreRenderTexture.h"
 // .... more to come
 
 #endif

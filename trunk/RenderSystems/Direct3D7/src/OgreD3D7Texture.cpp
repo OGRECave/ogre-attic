@@ -28,7 +28,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreImage.h"
 #include "OgreLogManager.h"
 
-#include "png.h"
 #include "d3dutil.h"
 #include "d3dxcore.h"
 #include "OgreRoot.h"
@@ -36,10 +35,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     //---------------------------------------------------------------------------------------------
-    D3DTexture::D3DTexture(String name, LPDIRECT3DDEVICE7 lpDirect3dDevice)
+    D3DTexture::D3DTexture(String name, LPDIRECT3DDEVICE7 lpDirect3dDevice, TextureUsage usage )
     {
         mName = name;
         mD3DDevice = lpDirect3dDevice; mD3DDevice->AddRef();
+        mUsage = usage;
 
         // Default to 16-bit texture
         enable32Bit( false );
@@ -59,13 +59,15 @@ namespace Ogre {
         const Image &src, unsigned uStartX, unsigned uStartY )
     {
 		blitImage( src, Image::Rect( uStartX, uStartY, src.getWidth(), src.getHeight() ),
-			Image::Rect( 0, 0, getWidth(), getHeight() ) );
+            Image::Rect( 0, 0, Texture::getWidth(), Texture::getHeight() ) );
     }
 
     //---------------------------------------------------------------------------------------------
     void D3DTexture::blitImage( const Image& src, 
             const Image::Rect imgRect, const Image::Rect texRect )
     {
+        OgreGuard( "D3DTexture::blitImage" );
+
         /* We need a temporary surface in which to load the image data. */
         LPDIRECTDRAWSURFACE7 pddsTempSurface;
         HRESULT hr;
@@ -103,8 +105,11 @@ namespace Ogre {
                 texFmt = D3DX_SF_R8G8B8;
         }
 
-        /* Oh, you, endianness! How thy beauty never ceases to amaze me. NOT! */
-        Image tempImg = src;
+        /* Oh, you, endianness! How thy beauty never ceases to amaze me. NOT! 
+           In other words we need to create a temporary image in which we can
+           convert the data (and also apply gamma transformation). */
+        Image tempImg( src );
+        Image::applyGamma( tempImg.getData(), mGamma, static_cast< uint >( tempImg.getSize() ), tempImg.getBPP() );
         {
             /* Scoping in order to get rid of the local vars. */
             uchar *c = tempImg.getData();
@@ -232,11 +237,25 @@ namespace Ogre {
 
         /* Release the last mip-map level surface. */
         ddsMipLevel->Release();
+
+        OgreUnguard();
     }
+
+	void D3DTexture::copyToTexture( Texture * target )
+	{
+		D3DTexture * other = (D3DTexture *)target;
+
+		if( FAILED( other->getDDSurface()->Blt( NULL, mSurface, NULL, DDBLT_WAIT, NULL ) ) )
+		{
+			Except( Exception::ERR_RENDERINGAPI_ERROR, "Couldn't blit!", "" );
+		}
+	}
 
     //---------------------------------------------------------------------------------------------
     void D3DTexture::loadImage( const Image & img )
     {
+        OgreGuard( "D3DTexture::loadImage" );
+
         if( mIsLoaded )
         {
             unload();
@@ -245,10 +264,9 @@ namespace Ogre {
         LogManager::getSingleton().logMessage( 
             LML_TRIVIAL,
             "D3DTexture: Loading %s with %d mipmaps from Image.", 
-            mName.c_str(), mNumMipMaps );
+            Texture::mName.c_str(), mNumMipMaps );
 
-        Image *tempImg = NULL;
-
+        /* Get parameters from the Image */
         mHasAlpha = img.getHasAlpha();
         mSrcWidth = img.getWidth();
         mSrcHeight = img.getHeight();
@@ -257,47 +275,43 @@ namespace Ogre {
         /* Now that we have the image's parameters, create the D3D surface based on them. */
         createSurface();
 
-        /* Since calculating gamma requires an extra copy of the data, we may want to skip that. */
-        if( mGamma == 1.0 )
-        {
-            blitImage( 
-                const_cast< Image & >( img ), 
-                Image::Rect( 0, 0, mSrcWidth, mSrcHeight ),
-                Image::Rect( 0, 0, mWidth, mHeight ) );
-        }
-        else
-        {
-            tempImg = new Image( img );
-            Image::applyGamma( 
-                tempImg->getData(), mGamma, 
-                static_cast< uint >( tempImg->getSize() ), mSrcBpp );
-
-            blitImage( 
-                *tempImg, 
-                Image::Rect( 0, 0, mSrcWidth, mSrcHeight ),
-                Image::Rect( 0, 0, mWidth, mHeight ) );
-        }
+        /* Blit to the image. This also creates the mip-maps and applies gamma. */
+        blitImage( 
+            img, 
+            Image::Rect( 0, 0, mSrcWidth, mSrcHeight ),
+            Image::Rect( 0, 0, Texture::mWidth, Texture::mHeight ) );
         
         short bytesPerPixel = mFinalBpp >> 3;
         if( !mHasAlpha && mFinalBpp == 32 )
         {
             bytesPerPixel--;
         }
-        mSize = mWidth * mHeight * bytesPerPixel;
+        mSize = Texture::mWidth * Texture::mHeight * bytesPerPixel;
 
         mIsLoaded = true;
 
-        if( tempImg )
-            delete tempImg;
+        OgreUnguard();
     }
     
     //---------------------------------------------------------------------------------------------
     void D3DTexture::load(void)
     {
-        Image img;
-        img.load( mName );
+        if( mIsLoaded )
+            return;
 
-        loadImage( img );
+        if( mUsage == TU_DEFAULT )
+        {
+            Image img;
+            img.load( Texture::mName );
+
+            loadImage( img );
+        }
+        else
+        {
+            mSrcWidth = mSrcHeight = 512;
+            mSrcBpp = mFinalBpp;
+            createSurface();
+        }
     }
 
     //---------------------------------------------------------------------------------------------
@@ -326,26 +340,27 @@ namespace Ogre {
         D3DUtil_InitSurfaceDesc( ddsd );
 
         ddsd.dwSize          = sizeof(DDSURFACEDESC2);
-        ddsd.dwFlags         = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH |
-                               DDSD_PIXELFORMAT | DDSD_TEXTURESTAGE;
+        ddsd.dwFlags         = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
         ddsd.ddsCaps.dwCaps  = DDSCAPS_TEXTURE;
+		ddsd.ddsCaps.dwCaps2 = DDSCAPS2_TEXTUREMANAGE;
         ddsd.dwWidth         = mSrcWidth;
         ddsd.dwHeight        = mSrcHeight;
 
+        /* If the texture is a render target, set the corresponding flags */
+        if( mUsage == TU_RENDERTARGET )
+        {
+            ddsd.ddsCaps.dwCaps |= DDSCAPS_3DDEVICE | DDSCAPS_LOCALVIDMEM | DDSCAPS_VIDEOMEMORY;
+			ddsd.ddsCaps.dwCaps2 = 0;
+        }
         /* If we want to have mip-maps, set the flags. Note that if the
-           texture is the render target type mip-maps are automatically 
-           disabled. */
-        if( mNumMipMaps && !isRenderTarget() )
+        texture is the render target type mip-maps are automatically 
+        disabled. */
+        else if( mUsage == TU_DEFAULT && mNumMipMaps )
         {
             ddsd.dwFlags |= DDSD_MIPMAPCOUNT;
-            ddsd.ddsCaps.dwCaps |= DDSCAPS_MIPMAP | DDSCAPS_COMPLEX;
+			ddsd.dwMipMapCount = mNumMipMaps;
 
-            ddsd.dwMipMapCount = mNumMipMaps;
-        }
-        /* If the texture is a render target, set the corresponding flags */
-        else if( isRenderTarget() )
-        {
-            ddsd.ddsCaps.dwCaps |= DDSCAPS_3DDEVICE;
+			ddsd.ddsCaps.dwCaps |= DDSCAPS_MIPMAP | DDSCAPS_COMPLEX;            
         }
 
         /* The pixel format is always RGB */
@@ -395,17 +410,6 @@ namespace Ogre {
             }
         }
 
-        /* Try and get the texture managed by DirectX. This only happens for true 
-           hardware devices (since software devices don't have a video memory). */
-        if( ddDesc.deviceGUID == IID_IDirect3DHALDevice || ddDesc.deviceGUID == IID_IDirect3DTnLHalDevice )
-        {
-            ddsd.ddsCaps.dwCaps2 = DDSCAPS2_TEXTUREMANAGE;
-        }
-        else
-        {
-            ddsd.ddsCaps.dwCaps |= DDSCAPS_SYSTEMMEMORY;
-        }
-
         /* Change texture size so that it is a power of 2, if needed. */
         if( ddDesc.dpcTriCaps.dwTextureCaps & D3DPTEXTURECAPS_POW2 )
         {
@@ -427,6 +431,7 @@ namespace Ogre {
         /* Register the possibly modified dimensions. */
         mWidth = ddsd.dwWidth;
         mHeight = ddsd.dwHeight;
+        mIsLoaded = true;
 
         LPDIRECTDRAWSURFACE7 pddsRender;
         LPDIRECTDRAW7        pDD;
@@ -435,6 +440,16 @@ namespace Ogre {
         mD3DDevice->GetRenderTarget( &pddsRender );
         pddsRender->GetDDInterface( (VOID**)&pDD );
         pddsRender->Release();
+
+        if( mUsage == TU_RENDERTARGET )
+        {
+            /* Get the pixel format of the primary surface - we need it because
+               render target surfaces need to have the same pixel format. */
+            IDirectDrawSurface7 * pddsPrimarySurface;
+            pDD->GetGDISurface( &pddsPrimarySurface );
+            pddsPrimarySurface->GetPixelFormat( &( ddsd.ddpfPixelFormat ) );
+            pddsPrimarySurface->Release();
+        }
 
         HRESULT hr;
 
@@ -447,18 +462,212 @@ namespace Ogre {
                 "D3DTexture::createSurfaces" );
         }
 
+        if( mUsage != TU_RENDERTARGET )
+        {
+            pDD->Release();
+            return;
+        }
+
+        LPDIRECTDRAWSURFACE7 pddsZBuffer, pddsBackBuffer, pddsTexZBuffer;
+
+        DDSCAPS2 ZBuffDDSCaps;
+        DDSURFACEDESC2 ZBuffDDSD;
+
+        ZBuffDDSCaps.dwCaps = DDSCAPS_ZBUFFER;
+        ZBuffDDSCaps.dwCaps2 = ZBuffDDSCaps.dwCaps3 = ZBuffDDSCaps.dwCaps4 = 0;
+
+        memset( &ZBuffDDSD, 0, sizeof( DDSURFACEDESC2 ) );
+        ZBuffDDSD.dwSize = sizeof( DDSURFACEDESC2 );
+
+        /* If the primary surface has an attached z-buffer, we need one for our texture
+        too. Here, we get the primary surface's z-buffer format and we create a new
+        z-buffer that we attach to the our texture. */
+        if( SUCCEEDED( mD3DDevice->GetRenderTarget( &pddsBackBuffer ) ) )
+            if( SUCCEEDED( pddsBackBuffer->GetAttachedSurface( &ZBuffDDSCaps, &pddsZBuffer ) ) )
+            {
+                pddsZBuffer->GetSurfaceDesc( &ZBuffDDSD );
+
+                ZBuffDDSD.dwWidth = ddsd.dwWidth;
+                ZBuffDDSD.dwHeight = ddsd.dwHeight;
+
+                hr = pDD->CreateSurface( &ZBuffDDSD, &pddsTexZBuffer, NULL );
+                hr = mSurface->AddAttachedSurface( pddsTexZBuffer );
+
+                pddsBackBuffer->Release();
+                pddsZBuffer->Release();
+                pddsTexZBuffer->Release();
+            }
+
         /* Release the DirectDraw interface used in the surface creation */
         pDD->Release();
     }
 
+    //---------------------------------------------------------------------------------------------
+
+#ifdef NO_NO
+    void D3DTexture::createRendTargSurface(void)
+    {
+        D3DDEVICEDESC7 ddDesc;
+        ZeroMemory( &ddDesc, sizeof(D3DDEVICEDESC7) );
+
+        if( FAILED( mD3DDevice->GetCaps( &ddDesc ) ) )
+            Except( Exception::ERR_RENDERINGAPI_ERROR, 
+                    "Could not retrieve Direct3D Device caps.",
+                    "D3D7RenderTargetTexture::createSurfaces" );
+
+        // Create a surface descriptor.
+        DDSURFACEDESC2 ddsd;
+        D3DUtil_InitSurfaceDesc( ddsd );
+
+        ddsd.dwSize            = sizeof(DDSURFACEDESC2);
+        ddsd.dwFlags           = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
+        ddsd.ddsCaps.dwCaps    = DDSCAPS_3DDEVICE | DDSCAPS_TEXTURE | DDSCAPS_LOCALVIDMEM | DDSCAPS_VIDEOMEMORY;
+        ddsd.dwWidth           = mSrcWidth;
+        ddsd.dwHeight          = mSrcHeight;
+
+        /* Change texture size so that it is a power of 2, if needed. */
+        if( ddDesc.dpcTriCaps.dwTextureCaps & D3DPTEXTURECAPS_POW2 )
+        {
+            for( ddsd.dwWidth = 1; mSrcWidth > ddsd.dwWidth; ddsd.dwWidth <<= 1 );
+            for( ddsd.dwHeight = 1; mSrcHeight > ddsd.dwHeight; ddsd.dwHeight <<= 1 );
+        }
+
+        /* Change texture size so that it is square, if needed. Note that we made it a
+           power of 2 in the above test, so here we just have to find the bigger dimension
+           and make it the side length. */
+        if( ddDesc.dpcTriCaps.dwTextureCaps & D3DPTEXTURECAPS_SQUAREONLY )
+        {
+            if( ddsd.dwWidth > ddsd.dwHeight ) 
+                ddsd.dwHeight = ddsd.dwWidth;
+            else                               
+                ddsd.dwWidth  = ddsd.dwHeight;
+        }
+
+        /* Register the possibly modified dimensions. */
+        Texture::mWidth = RenderTarget::mWidth = ddsd.dwWidth;
+        Texture::mHeight = RenderTarget::mHeight = ddsd.dwHeight;
+
+        LPDIRECTDRAWSURFACE7 pddsRender;
+        LPDIRECTDRAW7        pDD;
+
+        /* Get a DirectDraw interface. */
+        mD3DDevice->GetRenderTarget( &pddsRender );
+        pddsRender->GetDDInterface( (VOID**)&pDD );
+        pddsRender->Release();
+
+        HRESULT hr;
+
+        /* Get the pixel format of the primary surface - we need it because
+           render target surfaces need to have the same pixel format. */
+        LPDIRECTDRAWSURFACE7 pddsPrimarySurface;
+        pDD->GetGDISurface( &pddsPrimarySurface );
+        pddsPrimarySurface->GetPixelFormat( &( ddsd.ddpfPixelFormat ) );
+        pddsPrimarySurface->Release();
+
+        /* Create the render target surface. */
+        if( FAILED( hr = pDD->CreateSurface( &ddsd, &mRenderSurface, NULL ) ) )
+        {
+            pDD->Release();
+            Except( Exception::ERR_RENDERINGAPI_ERROR,
+                "Could not create DirectDraw surface.",
+                "D3D7RenderTargetTexture::createSurfaces" );
+        }
+
+        ddsd.ddsCaps.dwCaps = DDSCAPS_TEXTURE | DDSCAPS_LOCALVIDMEM | DDSCAPS_VIDEOMEMORY;
+
+        /* Now create the texture. */
+        if( FAILED( hr = pDD->CreateSurface( &ddsd, &mSurface, NULL ) ) )
+        {
+            pDD->Release();
+            Except( Exception::ERR_RENDERINGAPI_ERROR,
+                "Could not create DirectDraw surface.",
+                "D3D7RenderTargetTexture::createSurfaces" );
+        }
+
+        LPDIRECTDRAWSURFACE7 pddsZBuffer, pddsBackBuffer, pddsTexZBuffer;
+
+        DDSCAPS2 ZBuffDDSCaps;
+        DDSURFACEDESC2 ZBuffDDSD;
+
+        ZBuffDDSCaps.dwCaps = DDSCAPS_ZBUFFER;
+	    ZBuffDDSCaps.dwCaps2 = ZBuffDDSCaps.dwCaps3 = ZBuffDDSCaps.dwCaps4 = 0;
+
+		memset( &ZBuffDDSD, 0, sizeof( DDSURFACEDESC2 ) );
+		ZBuffDDSD.dwSize = sizeof( DDSURFACEDESC2 );
+
+        /* If the primary surface has an attached z-buffer, we need one for our texture
+           too. Here, we get the primary surface's z-buffer format and we create a new
+           z-buffer that we attach to the our texture. */
+        if( SUCCEEDED( mD3DDevice->GetRenderTarget( &pddsBackBuffer ) ) )
+            if( SUCCEEDED( pddsBackBuffer->GetAttachedSurface( &ZBuffDDSCaps, &pddsZBuffer ) ) )
+            {
+                pddsZBuffer->GetSurfaceDesc( &ZBuffDDSD );
+
+                ZBuffDDSD.dwWidth = ddsd.dwWidth;
+                ZBuffDDSD.dwHeight = ddsd.dwHeight;
+
+                hr = pDD->CreateSurface( &ZBuffDDSD, &pddsTexZBuffer, NULL );
+                hr = mRenderSurface->AddAttachedSurface( pddsTexZBuffer );
+
+                pddsBackBuffer->Release();
+                pddsZBuffer->Release();
+                pddsTexZBuffer->Release();
+            }
+
+        /* Release the DirectDraw interface used in the surface creation */
+        pDD->Release();
+    }
+
+    void D3DTexture::getCustomAttribute( String name, void* pData )
+    {
+        // Valid attributes and their equivalent native functions:
+        // D3DDEVICE            : getD3DDeviceDriver
+        // DDBACKBUFFER         : getDDBackBuffer
+        // DDFRONTBUFFER        : getDDFrontBuffer
+        // HWND                 : getWindowHandle
+
+        if( name == "D3DDEVICE" )
+        {
+            LPDIRECT3DDEVICE7 *pDev = (LPDIRECT3DDEVICE7*)pData;
+
+            *pDev = mD3DDevice;
+            return;
+        }
+        else if( name == "DDBACKBUFFER" )
+        {
+            LPDIRECTDRAWSURFACE7 *pSurf = (LPDIRECTDRAWSURFACE7*)pData;
+
+            *pSurf = mSurface;
+            return;
+        }
+        else if( name == "DDFRONTBUFFER" )
+        {
+            LPDIRECTDRAWSURFACE7 *pSurf = (LPDIRECTDRAWSURFACE7*)pData;
+
+            *pSurf = mSurface;
+            return;
+        }
+        else if( name == "HWND" )
+        {
+            HWND *pHwnd = (HWND*)pData;
+
+            *pHwnd = NULL;
+            return;
+        }
+        else if( name == "isTexture" )
+        {
+            bool *b = reinterpret_cast< bool * >( pData );
+            *b = true;
+
+            return;
+        }
+    }
+
+#endif
+
     LPDIRECTDRAWSURFACE7 D3DTexture::getDDSurface(void)
     {
         return mSurface;
-    }
-
-    D3D7RenderTargetTexture::D3D7RenderTargetTexture( String name, LPDIRECT3DDEVICE7 lpDirect3dDevice )
-        : D3DTexture( name, lpDirect3dDevice )
-    {
     }
 }
 

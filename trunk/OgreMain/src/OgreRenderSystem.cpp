@@ -43,6 +43,7 @@ namespace Ogre {
     RenderSystem::RenderSystem()
     {
         mActiveViewport = 0;
+		mActiveRenderTarget = NULL;
         mTextureManager = 0;
         mVSync = true;
 
@@ -61,14 +62,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     RenderSystem::~RenderSystem()
     {
-        // Destroy render windows created
-        for (RenderWindowMap::iterator i = mRenderWindows.begin();
-                i != mRenderWindows.end(); ++i)
-        {
-            delete i->second;
-        }
-        mRenderWindows.clear();
-
+        shutdown();
     }
     //-----------------------------------------------------------------------
     void RenderSystem::addFrameListener(FrameListener* newListener)
@@ -114,8 +108,8 @@ namespace Ogre {
 
         // Init stats
         for(
-            RenderWindowMap::iterator it = mRenderWindows.begin();
-            it != mRenderWindows.end();
+            RenderTargetMap::iterator it = mRenderTargets.begin();
+            it != mRenderTargets.end();
             ++it )
         {
             it->second->resetStatistics();
@@ -140,30 +134,13 @@ namespace Ogre {
 
         return 0;
     }
-    //-----------------------------------------------------------------------
-    RenderWindow* RenderSystem::getRenderWindow(const String &name)
-    {
-        RenderWindowMap::iterator it = mRenderWindows.find(name);
-
-        if( it == mRenderWindows.end() )
-            Except(
-                Exception::ERR_ITEM_NOT_FOUND,
-                "Cannot find window called '" + name + "'",
-                "RenderSystem::getRenderWindow");
-
-        return( it->second );
-    }
-    //-----------------------------------------------------------------------
-    void RenderSystem::destroyRenderWindow(const String &name)
-    {
-        mRenderWindows.erase(name);
-
-    }
-
     //---------------------------------------------------------------------------------------------
     void RenderSystem::attachRenderTarget( RenderTarget &target )
     {
+		assert( target.getPriority() < OGRE_NUM_RENDERTARGET_GROUPS );
+
         mRenderTargets.insert( RenderTargetMap::value_type( target.getName(), &target ) );
+		mPrioritisedRenderTargets[ target.getPriority() ].push_back( &target );
     }
 
     //---------------------------------------------------------------------------------------------
@@ -189,6 +166,14 @@ namespace Ogre {
         if( it != mRenderTargets.end() )
         {
             ret = it->second;
+			
+			/* Remove the render target from the priority groups. */
+			for( RenderTargetList::iterator lit = mPrioritisedRenderTargets[ ret->getPriority() ].begin(); lit != mPrioritisedRenderTargets[ ret->getPriority() ].end(); lit++ )
+				if( *lit == ret ) {
+					mPrioritisedRenderTargets[ ret->getPriority() ].erase( lit );
+					break;
+				}
+
             mRenderTargets.erase( it );
         }
 
@@ -391,12 +376,15 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void RenderSystem::shutdown(void)
     {
-        // Close all windows
-        for( RenderWindowMap::iterator it = mRenderWindows.begin(); it != mRenderWindows.end(); ++it )
+        // Remove all the render targets.
+        for( RenderTargetMap::iterator it = mRenderTargets.begin(); it != mRenderTargets.end(); ++it )
         {
-            it->second->destroy();
+            delete it->second;
         }
+		mRenderTargets.clear();
 
+		for( uchar i = 0; i < 10; i++ )
+			mPrioritisedRenderTargets[ i ].clear();
     }
     //-----------------------------------------------------------------------
     void RenderSystem::_beginGeometryCount(void)

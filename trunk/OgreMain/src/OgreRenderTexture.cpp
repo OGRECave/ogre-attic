@@ -32,9 +32,9 @@ namespace Ogre
         mName = name;
         mWidth = width;
         mHeight = height;
-		mPriority = 2;
+        mPriority = OGRE_REND_TO_TEX_RT_GROUP;
         mTexture = static_cast< Texture * >( TextureManager::getSingleton().create( mName ) );
-		mPrivateTex = TextureManager::getSingleton().createAsRenderTarget( mName + "_PRIVATE##" );
+        mPrivateTex = TextureManager::getSingleton().createAsRenderTarget( mName + "_PRIVATE##" );
         TextureManager::getSingleton().load( static_cast< Resource * >( mTexture ) );
     }
 

@@ -39,6 +39,7 @@ namespace Ogre {
         // Default to no stats display
         mStatFlags = SF_NONE;
         mActive = true;
+        mPriority = OGRE_DEFAULT_RT_GROUP;
         resetStatistics();
     }
 
@@ -268,6 +269,11 @@ namespace Ogre {
     {
         mDebugText = text;
     }
+	//-----------------------------------------------------------------------
+	const String & RenderTarget::getDebugText() const
+	{ 
+		return mDebugText; 
+	}
     //-----------------------------------------------------------------------
     void RenderTarget::addListener(RenderTargetListener* listener)
     {

@@ -27,6 +27,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreD3D7Prerequisites.h"
 #include "OgreTexture.h"
+#include "OgreRenderTarget.h"
+#include "OgreRenderTexture.h"
+#include "OgreRenderTargetListener.h"
 #include <ddraw.h>
 #include <d3d.h>
 
@@ -38,7 +41,7 @@ namespace Ogre {
     {
     public:
         // Constructor, called from D3DTextureManager
-        D3DTexture(String name, LPDIRECT3DDEVICE7 lpDirect3dDevice);
+        D3DTexture(String name, LPDIRECT3DDEVICE7 lpDirect3dDevice, TextureUsage usage );
         virtual ~D3DTexture();
 
         virtual void load(void);
@@ -47,24 +50,69 @@ namespace Ogre {
         virtual void blitImage( const Image& src, 
             const Image::Rect imgRect, const Image::Rect texRect );
         virtual void unload(void);
+		virtual void copyToTexture( Texture * target );
 
         /// D3D-specific member that returns the underlying surface.
         LPDIRECTDRAWSURFACE7 getDDSurface(void);
 
     protected:
-        /// A pointer to the Direct3D device.
-        LPDIRECT3DDEVICE7 mD3DDevice;
-        /// Surface of the (first) device-specific texture.
-        LPDIRECTDRAWSURFACE7 mSurface;
+        IDirect3DDevice7 * mD3DDevice;       ///< A pointer to the Direct3D device.
+        IDirectDrawSurface7 * mSurface;      ///< Surface of the (first) device-specific texture.
 
     protected:
         void createSurface();
     };
 
-    class D3D7RenderTargetTexture : public D3DTexture
+    class D3D7RenderTexture : public RenderTexture
     {
     public:
-        D3D7RenderTargetTexture( String name, LPDIRECT3DDEVICE7 lpDirect3dDevice );
+        D3D7RenderTexture( const String & name, uint width, uint height )
+        {
+			mName = name;
+			mWidth = width;
+			mHeight = height;
+			mPriority = 2;
+			mTexture = TextureManager::getSingleton().createAsRenderTarget( mName );
+			TextureManager::getSingleton().load( static_cast< Resource * >( mTexture ) );
+
+			mPrivateTex = TextureManager::getSingleton().createAsRenderTarget( mName + "_PRIVATE##" );
+        }
+
+		bool requiresTextureFlipping() const { return true; }
+
+        virtual void getCustomAttribute( String name, void* pData )
+        {
+            if( name == "DDBACKBUFFER" )
+            {
+                LPDIRECTDRAWSURFACE7 *pSurf = (LPDIRECTDRAWSURFACE7*)pData;
+
+                *pSurf = ((D3DTexture*)mPrivateTex)->getDDSurface();
+                return;
+            }
+            else if( name == "DDFRONTBUFFER" )
+            {
+                LPDIRECTDRAWSURFACE7 *pSurf = (LPDIRECTDRAWSURFACE7*)pData;
+
+                *pSurf = ((D3DTexture*)mPrivateTex)->getDDSurface();
+                return;
+            }
+            else if( name == "HWND" )
+            {
+                HWND *pHwnd = (HWND*)pData;
+
+                *pHwnd = NULL;
+                return;
+            }
+            else if( name == "isTexture" )
+            {
+                bool *b = reinterpret_cast< bool * >( pData );
+                *b = true;
+
+                return;
+            }
+        }
+        virtual void writeContentsToFile( const String & filename ) {}
+        virtual void outputText(int x, int y, const String& text) {}
     };
 }
 

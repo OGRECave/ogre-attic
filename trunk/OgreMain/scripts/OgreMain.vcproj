@@ -39,7 +39,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib zlib.lib libpng.lib jpeglib.lib freetype.lib $(NOINHERIT)"
+				AdditionalDependencies="kernel32.lib zlib.lib freetype.lib $(NOINHERIT)"
 				OutputFile="$(OutDir)/OgreMain.dll"
 				Version="0.99"
 				LinkIncremental="2"
@@ -104,7 +104,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib zlib.lib libpng.lib jpeglib.lib freetype.lib $(NOINHERIT)"
+				AdditionalDependencies="kernel32.lib zlib.lib freetype.lib $(NOINHERIT)"
 				OutputFile="$(OutDir)/OgreMain.dll"
 				Version="0.99"
 				LinkIncremental="1"
@@ -184,6 +184,9 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreColourValue.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreCommon.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreConfigFile.cpp">
@@ -367,6 +370,9 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreRenderTarget.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreRenderTexture.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreRenderWindow.cpp">
@@ -553,6 +559,9 @@
 				RelativePath="..\include\OgreDataChunk.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreDllInteface.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreDynLib.h">
 			</File>
 			<File
@@ -566,6 +575,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreEventDispatcher.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreEventFramework.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreEventListeners.h">
@@ -620,6 +632,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreImageCodec.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreImageHelpers.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreInput.h">
@@ -704,6 +719,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreNode.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreObjectModel.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreOofFile.h">
@@ -794,6 +812,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreRenderTargetListener.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreRenderTexture.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreRenderWindow.h">

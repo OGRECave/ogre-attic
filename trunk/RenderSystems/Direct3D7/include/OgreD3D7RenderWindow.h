@@ -135,6 +135,8 @@ namespace Ogre {
         */
         void outputText(int x, int y, const String& text);
 
+        bool requiresTextureFlipping() const { return false; }
+
         /** Overridden - see RenderTarget.
         */
         void getCustomAttribute(String name, void* pData);
