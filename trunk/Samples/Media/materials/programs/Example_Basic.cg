@@ -77,8 +77,6 @@ void hardwareSkinningOneWeightCaster_vp(
 	float4 blendPos = float4(mul(worldMatrix3x4Array[blendIdx], position).xyz, 1.0);
 	// view / projection
 	oPosition = mul(viewProjectionMatrix, blendPos);
-	// transform normal
-	float3 norm = mul((float3x3)worldMatrix3x4Array[blendIdx], normal);
 	
 	colour = ambient;
 	
