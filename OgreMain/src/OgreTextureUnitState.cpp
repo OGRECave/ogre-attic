@@ -81,6 +81,7 @@ namespace Ogre {
     TextureUnitState::TextureUnitState(Pass* parent, const TextureUnitState& oth )
     {
         mParent = parent;
+        mAnimController = 0;
         *this = oth;
     }
 
