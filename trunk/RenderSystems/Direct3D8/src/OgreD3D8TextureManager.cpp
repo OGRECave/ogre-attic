@@ -24,14 +24,14 @@ namespace Ogre {
 
 	Resource* D3D8TextureManager::create( const String& name )
 	{
-		D3D8Texture* t = new D3D8Texture( name, mpD3DDevice );
+		D3D8Texture* t = new D3D8Texture( name, mpD3DDevice, TU_DEFAULT );
 		t->enable32Bit( mIs32Bit );
 		return t;
 	}
 
     Texture * D3D8TextureManager::createAsRenderTarget( const String& name )
     {
-        D3D8RenderTargetTexture * newTex = new D3D8RenderTargetTexture( name, mpD3DDevice );
+        D3D8Texture * newTex = new D3D8Texture( name, mpD3DDevice, TU_RENDERTARGET  );
         newTex->enable32Bit( mIs32Bit );
         return newTex;
     }

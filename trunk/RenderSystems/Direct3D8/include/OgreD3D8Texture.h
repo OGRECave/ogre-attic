@@ -3,9 +3,14 @@
 
 #include "OgreD3D8Prerequisites.h"
 #include "OgreTexture.h"
+#include "OgreRenderTarget.h"
+#include "OgreRenderTexture.h"
+#include "OgreRenderTargetListener.h"
 
 #include "OgreNoMemoryMacros.h"
 #include <d3d8.h>
+#include <d3dx8.h>
+#include <dxerr8.h>
 #include "OgreMemoryMacros.h"
 
 namespace Ogre {
@@ -14,16 +19,19 @@ namespace Ogre {
 	{
 	protected:
 		LPDIRECT3DDEVICE8	mpD3DDevice;
-		LPDIRECT3DTEXTURE8	mpTexture;
-		LPDIRECT3DTEXTURE8  mpTempTexture;	// This is just a temporary texture to create the real one from
+		LPDIRECT3DTEXTURE8	mpTexture;          //< The actual texture surface
+        LPDIRECT3DTEXTURE8  mpRenderSurface;    //< This surface is used as the render target
+        LPDIRECT3DSURFACE8  mpRenderZBuffer;    //< The z-buffer for the render surface.
+		LPDIRECT3DTEXTURE8  mpTempTexture;	    //< This is just a temporary texture to create the real one from
         bool m_bIsRenderTarget;
 
+    protected:
 		void createTexture();
 		void copyMemoryToTexture( unsigned char* pBuffer );
 		void getColourMasks( D3DFORMAT format, DWORD* pdwRed, DWORD* pdwGreen, DWORD* pdwBlue, DWORD* pdwAlpha, DWORD* pdwRGBBitCount );
 
 	public:
-		D3D8Texture( String name, LPDIRECT3DDEVICE8 pD3DDevice );
+		D3D8Texture( String name, LPDIRECT3DDEVICE8 pD3DDevice, TextureUsage usage );
 		virtual ~D3D8Texture();
 
         virtual void blitToTexture( const Image &src, unsigned uStartX, unsigned uStartY );
@@ -32,15 +40,65 @@ namespace Ogre {
 		virtual void loadImage( const Image &img );
 		virtual void unload();
 
-		LPDIRECT3DTEXTURE8 getD3DTexture() { return mpTexture; }
+        virtual void getCustomAttribute( String name, void* pData );
+        virtual void outputText( int x, int y, const String& text ) {}
+
+		IDirect3DTexture8 * getD3DTexture() { return mpTexture; }
 	};
 
-    class D3D8RenderTargetTexture : public D3D8Texture
+    class D3D8RenderTexture : public RenderTexture
     {
     public:
-        D3D8RenderTargetTexture( String name, LPDIRECT3DDEVICE8 pD3DDevice );
-    };
+        D3D8RenderTexture( const String & name, uint width, uint height )
+            : RenderTexture( name, width, height )
+        {
+        }
 
+        virtual void getCustomAttribute( String name, void* pData )
+        {
+            if( name == "DDBACKBUFFER" )
+            {
+                IDirect3DSurface8 ** pSurf = (IDirect3DSurface8 **)pData;
+
+                ((D3D8Texture*)mTexture)->getD3DTexture()->GetSurfaceLevel( 0, &(*pSurf) );
+                (*pSurf)->Release();
+                return;
+            }
+            else if( name == "D3DZBUFFER" )
+            {
+                IDirect3DSurface8 ** pSurf = (IDirect3DSurface8 **)pData;
+
+                *pSurf = NULL;
+                return;
+            }
+            else if( name == "DDFRONTBUFFER" )
+            {
+                IDirect3DSurface8 ** pSurf = (IDirect3DSurface8 **)pData;
+
+                ((D3D8Texture*)mTexture)->getD3DTexture()->GetSurfaceLevel( 0, &(*pSurf) );
+                (*pSurf)->Release();
+                return;
+            }
+            else if( name == "HWND" )
+            {
+                HWND *pHwnd = (HWND*)pData;
+
+                *pHwnd = NULL;
+                return;
+            }
+            else if( name == "isTexture" )
+            {
+                bool *b = reinterpret_cast< bool * >( pData );
+                *b = true;
+
+                return;
+            }
+        }
+
+		bool requiresTextureFlipping() const { return true; }
+        virtual void writeContentsToFile( const String & filename ) {}
+        virtual void outputText(int x, int y, const String& text) {}
+    };
 }
 
 #endif

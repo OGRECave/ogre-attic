@@ -3,8 +3,8 @@
 #include "OgreBitwise.h"
 #include "OgreImage.h"
 #include "OgreLogManager.h"
+#include "OgreImageCodec.h"
 
-#include "png.h"
 #include "dxutil.h"
 #include "OgreRoot.h"
 
@@ -16,17 +16,17 @@
 
 namespace Ogre {
 
-	D3D8Texture::D3D8Texture( String name, LPDIRECT3DDEVICE8 pD3DDevice )
+	D3D8Texture::D3D8Texture( String name, LPDIRECT3DDEVICE8 pD3DDevice, TextureUsage usage )
 	{
-		mName = name;
+        mName = name;
 		mpD3DDevice = pD3DDevice;
 		if( !mpD3DDevice )
 			Except( 999, "Invalid Direct3D Device passed in", "D3D8Texture::D3D8Texture" );
 		mpD3DDevice->AddRef();
 		enable32Bit( false );
+        mUsage = usage;
 		mpTexture = NULL;
-		mpTempTexture = NULL;
-        m_bIsRenderTarget = false;
+		mpTempTexture = NULL;       
 	}
 
 	D3D8Texture::~D3D8Texture()
@@ -34,22 +34,25 @@ namespace Ogre {
 		if( mIsLoaded )
 			unload();
 		SAFE_RELEASE( mpD3DDevice );
+        SAFE_RELEASE( mpRenderSurface );
 	}
 
 	void D3D8Texture::load()
 	{
-		Image img;
-		img.load( mName );
+        if( mUsage == TU_RENDERTARGET )
+        {
+            mSrcWidth = mSrcHeight = 256;
+            mSrcBpp = mFinalBpp;
 
-		loadImage( img );
+            createTexture();
+        }
+        else
+        {
+		    Image img;
+            img.load( Texture::mName );
 
-		// Just for fun, save this texture to a file, so we can see that it worked
-		//HRESULT hr;
-		//LPDIRECT3DSURFACE8 pSurface;
-		//char filename[128];
-		//sprintf( filename, "%s.dds", mName.c_str() );
-		//if( FAILED( hr = D3DXSaveTextureToFile( filename, D3DXIFF_DDS, mpTexture, NULL ) ) )
-		//	DXTRACE_ERR_NOMSGBOX( "Failed to save file", hr );
+		    loadImage( img );
+        }
 	}
 
 	void D3D8Texture::loadImage( const Image& img )
@@ -58,15 +61,11 @@ namespace Ogre {
 			unload();
 
 		LogManager::getSingleton().logMessage( LML_TRIVIAL, "D3D8Texture: Loading %s iwth %d mipmaps from Image.",
-			mName.c_str(), mNumMipMaps );
+            Texture::mName.c_str(), mNumMipMaps );
 
-		Image::PixelFormat pf = img.getFormat();
+		PixelFormat pf = img.getFormat();
 		mSrcBpp = Image::PF2BPP( pf );
-
-		if( pf & Image::FMT_ALPHA )
-			mHasAlpha = true;
-		else
-			mHasAlpha = false;
+        mHasAlpha = img.getHasAlpha();
 
 		mSrcWidth = img.getWidth();
 		mSrcHeight = img.getHeight();
@@ -108,16 +107,31 @@ namespace Ogre {
 		HRESULT hr;
 		// Use D3DX to help us create the texture, this way it can adjust any relevant sizes
 		if( FAILED( hr = D3DXCreateTexture( mpD3DDevice, mSrcWidth, mSrcHeight, (mNumMipMaps ? mNumMipMaps : 1), 
-            ( m_bIsRenderTarget ? D3DUSAGE_RENDERTARGET : 0 ), format, D3DPOOL_SYSTEMMEM, &mpTempTexture ) ) )
+            0, format, D3DPOOL_SYSTEMMEM, &mpTempTexture ) ) )
 		{
 			Except( hr, "Error creating temp Direct3D texture", "D3DXTexture::createTexture" );
 		}
 
 		if( FAILED( hr = D3DXCreateTexture( mpD3DDevice, mSrcWidth, mSrcHeight, (mNumMipMaps ? mNumMipMaps : 1), 
-            ( m_bIsRenderTarget ? D3DUSAGE_RENDERTARGET : 0 ), format, D3DPOOL_DEFAULT, &mpTexture ) ) )
+            0, format, D3DPOOL_DEFAULT, &mpTexture ) ) )
 		{
 			Except( hr, "Error creating Direct3D texture", "D3D8Texture::createTexture" );
 		}
+
+        if( mUsage == TU_RENDERTARGET )
+        {
+            if( FAILED( hr = D3DXCreateTexture( mpD3DDevice, mSrcWidth, mSrcHeight, 1, 
+                D3DUSAGE_RENDERTARGET, format, D3DPOOL_DEFAULT, &mpRenderSurface ) ) )
+		    {
+			    Except( hr, "Error creating Direct3D texture", "D3D8Texture::createTexture" );
+		    }
+
+            if( FAILED( hr = mpD3DDevice->CreateDepthStencilSurface( mSrcWidth, mSrcHeight, D3DFMT_D32, D3DMULTISAMPLE_NONE, &mpRenderZBuffer ) ) )
+            {
+                const char *ch = DXGetErrorDescription8( hr );
+                _asm int 3;
+            }          
+        }
 
 		// Check the actual dimensions vs requested
 		D3DSURFACE_DESC desc;
@@ -129,7 +143,7 @@ namespace Ogre {
 		{
 			char msg[255];
             sprintf(msg, "Surface dimensions for requested texture %s have been altered by "
-                "the renderer.", mName.c_str());
+                "the renderer.", Texture::mName.c_str());
             LogManager::getSingleton().logMessage(msg);
 
             sprintf(msg,"   Requested: %dx%d Actual: %dx%d",
@@ -139,8 +153,8 @@ namespace Ogre {
             LogManager::getSingleton().logMessage("   Likely cause is that requested dimensions are not a power of 2, "
                 "or device requires square textures.");
 		}
-		mWidth = desc.Width;
-		mHeight = desc.Height;
+        mWidth = desc.Width;
+        mHeight = desc.Height;
 	}
 
 	void D3D8Texture::getColourMasks( D3DFORMAT format, DWORD* pdwRed, DWORD* pdwGreen, DWORD* pdwBlue, DWORD* pdwAlpha, DWORD* pdwRGBBitCount )
@@ -374,10 +388,57 @@ namespace Ogre {
 		SAFE_RELEASE( mpTempTexture );
 	}
 
-    D3D8RenderTargetTexture::D3D8RenderTargetTexture( String name, LPDIRECT3DDEVICE8 pD3DDevice )
-        : D3D8Texture( name, pD3DDevice )
+    void D3D8Texture::getCustomAttribute( String name, void* pData )
     {
-        m_bIsRenderTarget = true;
-    }
+        // Valid attributes and their equivalent native functions:
+        // D3DDEVICE            : getD3DDeviceDriver
+        // DDBACKBUFFER         : getDDBackBuffer
+        // DDFRONTBUFFER        : getDDFrontBuffer
+        // HWND                 : getWindowHandle
 
+        if( name == "D3DDEVICE" )
+        {
+            LPDIRECT3DDEVICE8 *pDev = (LPDIRECT3DDEVICE8*)pData;
+
+            *pDev = mpD3DDevice;
+            return;
+        }
+        else if( name == "DDBACKBUFFER" )
+        {
+            LPDIRECT3DSURFACE8 *pSurf = (LPDIRECT3DSURFACE8*)pData;
+
+            mpRenderSurface->GetSurfaceLevel( 0, &(*pSurf) );
+            (*pSurf)->Release();
+            return;
+        }
+        else if( name == "D3DZBUFFER" )
+        {
+            LPDIRECT3DSURFACE8 *pSurf = (LPDIRECT3DSURFACE8*)pData;
+
+            *pSurf = mpRenderZBuffer;
+            return;
+        }
+        else if( name == "DDFRONTBUFFER" )
+        {
+            LPDIRECT3DSURFACE8 *pSurf = (LPDIRECT3DSURFACE8*)pData;
+
+            mpRenderSurface->GetSurfaceLevel( 0, &(*pSurf) );
+            (*pSurf)->Release();
+            return;
+        }
+        else if( name == "HWND" )
+        {
+            HWND *pHwnd = (HWND*)pData;
+
+            *pHwnd = NULL;
+            return;
+        }
+        else if( name == "isTexture" )
+        {
+            bool *b = reinterpret_cast< bool * >( pData );
+            *b = true;
+
+            return;
+        }
+    }
 }

@@ -296,6 +296,8 @@ namespace Ogre
 			{
 				OutputDebugStr( "Created Direct3D device using hardware vertex processing" );
 
+                mpD3DDevice->GetRenderTarget( &mpRenderSurface );
+                mpD3DDevice->GetDepthStencilSurface( &mpRenderZBuffer );
 			}
 			else
 			{
@@ -304,6 +306,9 @@ namespace Ogre
 				if( SUCCEEDED( hr ) )
 				{
 					OutputDebugStr( "Created Direct3D device using mixed vertex processing" );
+
+                    mpD3DDevice->GetRenderTarget( &mpRenderSurface );
+                    mpD3DDevice->GetDepthStencilSurface( &mpRenderZBuffer );
 				}
 				else
 				{
@@ -312,6 +317,9 @@ namespace Ogre
 					if( SUCCEEDED( hr ) )
 					{
 						OutputDebugString( "Created Direct3D device using software vertex processing" );
+
+                        mpD3DDevice->GetRenderTarget( &mpRenderSurface );
+                        mpD3DDevice->GetDepthStencilSurface( &mpRenderZBuffer );
 					}
 				}
 			}
@@ -393,6 +401,34 @@ namespace Ogre
 			*pHwnd = getWindowHandle();
 			return;
 		}
+        else if( name == "isTexture" )
+        {
+            bool *b = reinterpret_cast< bool * >( pData );
+            *b = false;
+
+            return;
+        }
+        else if( name == "D3DZBUFFER" )
+        {
+            LPDIRECT3DSURFACE8 *pSurf = (LPDIRECT3DSURFACE8*)pData;
+
+            *pSurf = mpRenderZBuffer;
+            return;
+        }
+        else if( name == "DDBACKBUFFER" )
+        {
+            LPDIRECT3DSURFACE8 *pSurf = (LPDIRECT3DSURFACE8*)pData;
+
+            *pSurf = mpRenderSurface;
+            return;
+        }
+        else if( name == "DDFRONTBUFFER" )
+        {
+            LPDIRECT3DSURFACE8 *pSurf = (LPDIRECT3DSURFACE8*)pData;
+
+            *pSurf = mpRenderSurface;
+            return;
+        }
 	}
 
 	void D3D8RenderWindow::outputText( int x, int y, const String& text )
@@ -454,9 +490,9 @@ namespace Ogre
  
  
          ImageCodec::ImageData imgData;
-         imgData.ulWidth = desc.Width;
-         imgData.ulHeight = desc.Height;
-         imgData.eFormat = Image::FMT_RGB;
+         imgData.width = desc.Width;
+         imgData.height = desc.Height;
+         imgData.format = PF_R8G8B8;
  
          // Allocate contiguous buffer (surfaces aren't necessarily contiguous)
          uchar* pBuffer = new uchar[desc.Width * desc.Height * 3];
