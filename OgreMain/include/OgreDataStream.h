@@ -117,12 +117,16 @@ namespace Ogre {
 		*/
 		virtual size_t skipLine(const String& delim = "\n") = 0;
 
-		/** Skip a defined number of bytes. */
+		/** Skip a defined number of bytes. This can also be a negative value, in which case
+		the file pointer rewinds a defined number of bytes. */
 		virtual void skip(long count) = 0;
 	
-	    /** Repositions the read point to a specified byte.
+		/** Repositions the read point to a specified byte.
 	    */
 	    virtual void seek( size_t pos ) = 0;
+		
+		/** Returns the current byte offset from beginning */
+	    virtual size_t tell( ) = 0;
 
 		/** Returns true if the stream has reached the end.
 	    */
@@ -279,6 +283,10 @@ namespace Ogre {
 		/** @copydoc DataStream::seek
 		*/
 	    void seek( size_t pos );
+		
+		/** @copydoc DataStream::tell
+		*/
+	    size_t tell( );
 
 		/** @copydoc DataStream::eof
 		*/
@@ -362,6 +370,10 @@ namespace Ogre {
 		*/
 	    void seek( size_t pos );
 
+		/** @copydoc DataStream::tell
+		*/
+		size_t tell();
+
 		/** @copydoc DataStream::eof
 		*/
 	    bool eof(void) const;
@@ -411,6 +423,10 @@ namespace Ogre {
 		/** @copydoc DataStream::seek
 		*/
 	    void seek( size_t pos );
+
+		/** @copydoc DataStream::tell
+		*/
+		size_t tell();
 
 		/** @copydoc DataStream::eof
 		*/
