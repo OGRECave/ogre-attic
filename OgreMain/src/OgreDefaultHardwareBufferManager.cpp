@@ -132,30 +132,23 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void DefaultHardwareBufferManager::destroyVertexBuffer(HardwareVertexBuffer* buf)
 	{
-		delete buf;
+        VertexBufferList::iterator i = mVertexBuffers.find(buf);
+        if (i != mVertexBuffers.end())
+        {
+		    delete *i;
+            mVertexBuffers.erase(i);
+        }
 	}
     //-----------------------------------------------------------------------
 	void DefaultHardwareBufferManager::destroyIndexBuffer(HardwareIndexBuffer* buf)
 	{
-		delete buf;
+        IndexBufferList::iterator i = mIndexBuffers.find(buf);
+        if (i != mIndexBuffers.end())
+        {
+		    delete *i;
+            mIndexBuffers.erase(i);
+        }
 	}
-    //-----------------------------------------------------------------------
-    void DefaultHardwareBufferManager::destroyAllBuffers(void)
-    {
-        VertexBufferList::iterator vb;
-        for (vb = mVertexBuffers.begin(); vb != mVertexBuffers.end(); ++vb)
-        {
-            delete *vb;
-        }
-        mVertexBuffers.clear();
-
-        IndexBufferList::iterator ib;
-        for (ib = mIndexBuffers.begin(); ib != mIndexBuffers.end(); ++ib)
-        {
-            delete *ib;
-        }
-        mIndexBuffers.clear();
-    }
     //-----------------------------------------------------------------------
     DefaultHardwareBufferManager::DefaultHardwareBufferManager()
 	{
@@ -164,8 +157,7 @@ namespace Ogre {
     DefaultHardwareBufferManager::~DefaultHardwareBufferManager()
 	{
         destroyAllDeclarations();
-        destroyAllBindings();
-        destroyAllBuffers();
+        destroyAllBindings(); 
 	}
     //-----------------------------------------------------------------------
 	HardwareVertexBufferSharedPtr 
@@ -173,7 +165,7 @@ namespace Ogre {
 		size_t numVerts, HardwareBuffer::Usage usage, bool useShadowBuffer)
 	{
         DefaultHardwareVertexBuffer* vb = new DefaultHardwareVertexBuffer(vertexSize, numVerts, usage);
-        mVertexBuffers.push_back(vb);
+        mVertexBuffers.insert(vb);
         return HardwareVertexBufferSharedPtr(vb);
 	}
     //-----------------------------------------------------------------------
@@ -182,7 +174,7 @@ namespace Ogre {
 		size_t numIndexes, HardwareBuffer::Usage usage, bool useShadowBuffer)
 	{
         DefaultHardwareIndexBuffer* ib = new DefaultHardwareIndexBuffer(itype, numIndexes, usage);
-        mIndexBuffers.push_back(ib);
+        mIndexBuffers.insert(ib);
 		return HardwareIndexBufferSharedPtr(ib);
 	}
 }

@@ -44,8 +44,8 @@ namespace Ogre {
     protected:
         typedef std::list<VertexDeclaration*> VertexDeclarationList;
 		typedef std::list<VertexBufferBinding*> VertexBufferBindingList;
-        typedef std::list<HardwareVertexBuffer*> VertexBufferList;
-        typedef std::list<HardwareIndexBuffer*> IndexBufferList;
+        typedef std::set<HardwareVertexBuffer*> VertexBufferList;
+        typedef std::set<HardwareIndexBuffer*> IndexBufferList;
 
         VertexDeclarationList mVertexDeclarations;
 		VertexBufferBindingList mVertexBufferBindings;
@@ -58,7 +58,6 @@ namespace Ogre {
 		/// Destroy a hardware index buffer, do not call direct
 		virtual void destroyIndexBuffer(HardwareIndexBuffer* buf) = 0;
 
-        virtual void destroyAllBuffers(void) = 0;
         virtual void destroyAllDeclarations(void);
         virtual void destroyAllBindings(void);
     public:

@@ -336,12 +336,6 @@ namespace Ogre {
     {
 
     }
-    //-----------------------------------------------------------------------------
-    void HardwareVertexBufferSharedPtr::destroy(void)
-    {
-        HardwareBufferManager::getSingleton().destroyVertexBuffer(pRep);
-		delete pUseCount;
-    }
 
 
 

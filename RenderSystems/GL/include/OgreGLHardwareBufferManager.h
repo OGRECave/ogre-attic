@@ -38,7 +38,6 @@ namespace Ogre {
         void destroyVertexBuffer(HardwareVertexBuffer* buf);
         /// Destroy a hardware index buffer
         void destroyIndexBuffer(HardwareIndexBuffer* buf);
-        void destroyAllBuffers(void);
     public:
         GLHardwareBufferManager();
         ~GLHardwareBufferManager();

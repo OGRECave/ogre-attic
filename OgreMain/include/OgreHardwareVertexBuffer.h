@@ -62,8 +62,6 @@ namespace Ogre {
     public:
         HardwareVertexBufferSharedPtr() : SharedPtr<HardwareVertexBuffer>() {}
         HardwareVertexBufferSharedPtr(HardwareVertexBuffer* buf);
-        /// Just override the destroy method to desotry through factory
-        void destroy(void);
 
 
     };

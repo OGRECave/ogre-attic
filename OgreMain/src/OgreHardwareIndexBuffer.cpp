@@ -70,12 +70,6 @@ namespace Ogre {
     {
 
     }
-    //-----------------------------------------------------------------------------
-    void HardwareIndexBufferSharedPtr::destroy(void)
-    {
-        HardwareBufferManager::getSingleton().destroyIndexBuffer(pRep);
-		delete pUseCount;
-    }
 
 }
 

@@ -68,8 +68,6 @@ namespace Ogre {
     public:
         HardwareIndexBufferSharedPtr() : SharedPtr<HardwareIndexBuffer>() {}
         HardwareIndexBufferSharedPtr(HardwareIndexBuffer* buf);
-        /// Just override the destroy method to desotry through factory
-        void destroy(void);
     };
 }
 #endif

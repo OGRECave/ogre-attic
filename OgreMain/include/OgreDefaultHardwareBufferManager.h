@@ -98,7 +98,6 @@ namespace Ogre {
 		/// Destroy a hardware index buffer
 		void destroyIndexBuffer(HardwareIndexBuffer* buf);
 
-        void destroyAllBuffers(void);
     public:
         DefaultHardwareBufferManager();
         ~DefaultHardwareBufferManager();

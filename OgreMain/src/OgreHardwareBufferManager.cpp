@@ -37,11 +37,9 @@ namespace Ogre {
     HardwareBufferManager::~HardwareBufferManager()
     {
         // Destroy everything
-        /* can't do this here because destroyAllBuffers has to be pure virtual?
         destroyAllDeclarations();
         destroyAllBindings();
-        destroyAllBuffers();
-        */
+        // No need to destroy buffers - they will be destroyed by removal of bindings
     }
     //-----------------------------------------------------------------------
     HardwareBufferManager& HardwareBufferManager::getSingleton(void)
