@@ -165,9 +165,6 @@ namespace Ogre {
         // Only 1 page provided
         if (x == 0 && y == 0 && !mPage)
         {
-            ushort numTiles = (mPageSize - 1) / (mTileSize - 1);
-            mPage = new TerrainPage(numTiles);
-
             // Convert the image data to unscaled floats
             ulong totalPageSize = mPageSize * mPageSize; 
             Real *heightData = new Real[totalPageSize];
@@ -234,6 +231,9 @@ namespace Ogre {
             // Note that we're using a single material for now
             mPage = buildPage(heightData, 
                 TerrainSceneManager::getOptions().terrainMaterial);
+
+            // Free temp store
+            delete [] heightData;
 
             // Now attach the page to scene manager
             mSceneManager->attachPage(0, 0, mPage);
