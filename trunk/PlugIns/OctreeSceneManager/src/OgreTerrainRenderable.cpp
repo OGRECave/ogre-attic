@@ -805,6 +805,14 @@ float TerrainRenderable::getHeightAt( float x, float z )
     float b1 = _vertex( x_index, z_index + 1, 1 );
     float b2 = _vertex( x_index + 1, z_index + 1, 1 );
 
+    float midpoint = (b1 + t2) / 2.0;
+
+    if (x_pct + z_pct <= 1) {
+        b2 = midpoint + (midpoint - t1);
+    } else {
+        t1 = midpoint + (midpoint - b2);
+    }
+
     float t = ( t1 * ( 1 - x_pct ) ) + ( t2 * ( x_pct ) );
     float b = ( b1 * ( 1 - x_pct ) ) + ( b2 * ( x_pct ) );
 
