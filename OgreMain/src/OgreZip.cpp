@@ -238,25 +238,34 @@ namespace Ogre {
 		size_t chunkSize = std::min(maxCount, (size_t)OGRE_STREAM_TEMP_SIZE-1);
 		size_t totalCount = 0;
 		size_t readCount; 
-        // Since we already read binary, have to deal with Unix / Windows LFs
-        String newDelim = delim;
-        size_t extraChar = 0;
-#if OGRE_PLATFORM == PLATFORM_WIN32
-        if (newDelim.at(0) == '\n')
-        {
-            newDelim.replace(0, 1, "\r");
-            extraChar = 1;
-        }
-#endif
+		// Deal with both Unix & Windows LFs
+		bool trimCR = false;
+		if (delim.find_first_of('\n') != String::npos)
+		{
+			trimCR = true;
+		}
 		while (chunkSize && (readCount = zzip_file_read(mZzipFile, mTmpArea, chunkSize)))
 		{
 			// Terminate
 			mTmpArea[readCount] = '\0';
 			// Find first delimiter
-			size_t pos = strcspn(mTmpArea, newDelim.c_str());
+			size_t pos = strcspn(mTmpArea, delim.c_str());
+
+			if (pos < readCount)
+			{
+				// found terminator
+                // reposition backwards
+                zzip_seek(mZzipFile, pos - readCount + 1, SEEK_CUR);
+				break;
+			}
 
 			if (pos > 0)
 			{
+				if (trimCR && mTmpArea[pos-1] == '\r')
+				{
+					// strip off CR
+					--pos;
+				}
 				// Are we genuinely copying?
 				if (buf)
 				{
@@ -266,13 +275,6 @@ namespace Ogre {
 				totalCount += pos;
 			}
 
-			if (pos < readCount)
-			{
-				// found terminator
-                // reposition backwards
-                zzip_seek(mZzipFile, pos - readCount + 1 + extraChar, SEEK_CUR);
-				break;
-			}
 			// Adjust chunkSize for next time
 			chunkSize = std::min(maxCount-totalCount, (size_t)OGRE_STREAM_TEMP_SIZE-1);
 			

@@ -182,17 +182,14 @@ namespace Ogre {
     size_t MemoryDataStream::readLine(char* buf, size_t maxCount, 
         const String& delim)
     {
-        // Since we already read binary, have to deal with Unix / Windows LFs
-        String newDelim = delim;
-        size_t extraChar = 0;
-#if OGRE_PLATFORM == PLATFORM_WIN32
-        if (newDelim.at(0) == '\n')
-        {
-            newDelim.replace(0, 1, "\r");
-            extraChar = 1;
-        }
-#endif
-        size_t pos = strcspn((const char*)mPos, newDelim.c_str());
+        // Deal with both Unix & Windows LFs
+		bool trimCR = false;
+		if (delim.find_first_of('\n') != String::npos)
+		{
+			trimCR = true;
+		}
+
+        size_t pos = strcspn((const char*)mPos, delim.c_str());
         if (pos > maxCount)
             pos = maxCount;
 
@@ -203,32 +200,31 @@ namespace Ogre {
         {
             memcpy(buf, (const void*)mPos, pos);
         }
-        // terminate
-        buf[pos+1] = '\0';
 
-        mPos += pos + 1 + extraChar;
+		// reposition pointer
+		mPos += pos + 1;
+
+		// Trim off trailing CR if this was a CR/LF entry
+		if (trimCR && buf[pos-1] == '\r')
+		{
+			// terminate 1 character early
+			--pos;
+		}
+		// terminate
+		buf[pos] = '\0';
+
 
         return pos;
     }
     //-----------------------------------------------------------------------
     size_t MemoryDataStream::skipLine(const String& delim)
     {
-        // Since we already read binary, have to deal with Unix / Windows LFs
-        String newDelim = delim;
-        size_t extraChar = 0;
-#if OGRE_PLATFORM == PLATFORM_WIN32
-        if (newDelim.at(0) == '\n')
-        {
-            newDelim.replace(0, 1, "\r");
-            extraChar = 1;
-        }
-#endif        
-        size_t pos = strcspn( (const char*)mPos, newDelim.c_str() );
+        size_t pos = strcspn( (const char*)mPos, delim.c_str() );
 
         // Make sure pos can never go past the end of the data 
         if(mPos + pos > mEnd) pos = mEnd - mPos; 
 
-        mPos += pos + 1 + extraChar;
+        mPos += pos + 1;
 
         return pos;
 
@@ -316,25 +312,22 @@ namespace Ogre {
             LogManager::getSingleton().logMessage(
                 "WARNING: FileStreamDataStream::readLine - using only first delimeter");
         }
-        // Since we already read binary, have to deal with Unix / Windows LFs
-        String newDelim = delim;
-        size_t extraChar = 0;
-#if OGRE_PLATFORM == PLATFORM_WIN32
-        if (newDelim.at(0) == '\n')
-        {
-            newDelim.replace(0, 1, "\r");
-            extraChar = 1;
-        }
-#endif
-        mpStream->getline(buf, maxCount, newDelim.at(0));
+        // Deal with both Unix & Windows LFs
+		bool trimCR = false;
+		if (delim.at(0) == '\n') 
+		{
+			trimCR = true;
+		}
+        mpStream->getline(buf, maxCount, delim.at(0));
         size_t ret = mpStream->gcount();
 
-#if OGRE_PLATFORM == PLATFORM_WIN32
-        if (extraChar)
-        {
-            mpStream->seekg(extraChar, std::ios_base::cur);
-        }
-#endif
+		// trim off CR if we found CR/LF
+		if (trimCR && buf[ret-1] == '\r')
+		{
+			--ret;
+			buf[ret] = '\0';
+		}
+
         return ret;
     }
     //-----------------------------------------------------------------------
@@ -413,18 +406,13 @@ namespace Ogre {
         // Have to buffer the data
         // since we have no read up to delimeter method
 
-        // Since we already read binary, have to deal with Unix / Windows LFs
-        String newDelim = delim;
-        size_t extraChar = 0;
-#if OGRE_PLATFORM == PLATFORM_WIN32
-        size_t cpos = newDelim.find_first_of('\n');
-        while (cpos != String::npos)
-        {
-            newDelim.replace(cpos, 1, "\r");
-            extraChar = 1;
-            cpos = newDelim.find_first_of('\n');
-        }
-#endif
+		// Deal with both Unix & Windows LFs
+		bool trimCR = false;
+		if (delim.find_first_of('\n') != String::npos)
+		{
+			trimCR = true;
+		}
+
         size_t chunkSize = std::min(maxCount, (size_t)OGRE_STREAM_TEMP_SIZE-1);
         size_t totalCount = 0;
         size_t readCount; 
@@ -433,25 +421,33 @@ namespace Ogre {
             // Terminate
             mTmpArea[readCount] = '\0';
             // Find first delimiter
-            size_t pos = strcspn(mTmpArea, newDelim.c_str());
-
-            if (pos > 0)
-            {
-                // Are we genuinely copying?
-                if (buf)
-                {
-                    memcpy(buf, (const void*)mTmpArea, pos);
-                }
-                totalCount += pos;
-            }
+            size_t pos = strcspn(mTmpArea, delim.c_str());
 
             if (pos < readCount)
             {
                 // found terminator
                 // reposition backwards
-                fseek(mFileHandle, pos - readCount + 1 + extraChar, SEEK_CUR);
+                fseek(mFileHandle, pos - readCount + 1, SEEK_CUR);
                 break;
             }
+
+			if (pos > 0)
+            {
+				// terminate early if CR found
+				if (trimCR && mTmpArea[pos-1] == '\r')
+				{
+					--pos;
+				}
+
+                // Are we genuinely copying?
+                if (buf)
+                {
+                    memcpy(buf, (const void*)mTmpArea, pos);
+					buf[pos] = '\0';
+                }
+                totalCount += pos;
+            }
+
             // Adjust chunkSize for next time
             chunkSize = std::min(maxCount-totalCount, (size_t)OGRE_STREAM_TEMP_SIZE-1);
 
