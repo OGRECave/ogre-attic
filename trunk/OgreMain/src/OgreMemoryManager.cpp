@@ -135,7 +135,7 @@ namespace Ogre
     //---------------------------------------------------------------------------------------------
 
     sAllocUnit *hashTable[hashSize];
-    sAllocUnit *reservoir;
+    sAllocUnit *reservoir = NULL;
 
     unsigned int currentAllocationCount = 0;
     unsigned int breakOnAllocationCount = 0;

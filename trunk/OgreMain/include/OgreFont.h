@@ -178,7 +178,7 @@ namespace Ogre
         */
         inline void getGlyphTexCoords(OgreChar id, Real& u1, Real& v1, Real& u2, Real& v2 ) const
         {
-            OgreChar idx = OGRE_GLYPH_INDEX(id);
+            unsigned OgreChar idx = OGRE_GLYPH_INDEX(id);
             u1 = mTexCoords_u1[ idx ];
             v1 = mTexCoords_v1[ idx ];
             u2 = mTexCoords_u2[ idx ];
@@ -193,7 +193,7 @@ namespace Ogre
         */
         inline void setGlyphTexCoords( OgreChar id, Real u1, Real v1, Real u2, Real v2 )
         {
-            OgreChar idx = OGRE_GLYPH_INDEX(id);
+            unsigned OgreChar idx = OGRE_GLYPH_INDEX(id);
             mTexCoords_u1[ idx ] = u1;
             mTexCoords_v1[ idx ] = v1;
             mTexCoords_u2[ idx ] = u2;
@@ -203,7 +203,7 @@ namespace Ogre
         /** Gets the aspect ratio (width / height) of this character. */
         inline Real getGlyphAspectRatio( OgreChar id ) const
         {
-            OgreChar idx = OGRE_GLYPH_INDEX(id);
+            unsigned OgreChar idx = OGRE_GLYPH_INDEX(id);
             return mAspectRatio[ idx ];
         }
         /** Sets the aspect ratio (width / height) of this character.
@@ -213,7 +213,7 @@ namespace Ogre
         */
         inline void setGlyphAspectRatio( OgreChar id, Real ratio )
         {
-            OgreChar idx = OGRE_GLYPH_INDEX(id);
+            unsigned OgreChar idx = OGRE_GLYPH_INDEX(id);
             mAspectRatio[ idx ] = ratio;
         }
         /** Gets the material generated for this font. 
