@@ -62,12 +62,14 @@ libOgreMain_la_SOURCES = OgreAnimation.cpp \
                          OgreResourceManager.cpp \
                          OgreResourceMap.cpp \
                          OgreRoot.cpp \
+			 OgreRotationSpline.cpp \
                          OgreSDDataChunk.cpp \
                          OgreSceneManager.cpp \
                          OgreSceneManagerEnumerator.cpp \
                          OgreSceneNode.cpp \
                          OgreSerializer.cpp \
                          OgreSimpleRenderable.cpp \
+			 OgreSimpleSpline.cpp \
                          OgreSingleton.cpp \
                          OgreSkeleton.cpp \
                          OgreSkeletonManager.cpp \

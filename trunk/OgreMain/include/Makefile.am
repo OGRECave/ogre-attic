@@ -83,12 +83,14 @@ OgreResource.h \
 OgreResourceManager.h \
 OgreResourceMap.h \
 OgreRoot.h \
+OgreRotationalSpline.h \
 OgreSDDataChunk.h \
 OgreSceneManager.h \
 OgreSceneManagerEnumerator.h \
 OgreSceneNode.h \
 OgreSerializer.h \
 OgreSimpleRenderable.h \
+OgreSimpleSpline.h \
 OgreSingleton.h \
 OgreSkeleton.h \
 OgreSkeletonFileFormat.h \
