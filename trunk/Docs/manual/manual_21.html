@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 29 2004 by texi2html 1.64 -->
+<!-- Created on , 2 2004 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -91,12 +91,16 @@ example: param_indexed_auto 0 WORLDVIEWPROJ_MATRIX<BR><BR>
 <DL COMPACT>
 <DT>world_matrix
 <DD>The current world matrix.
+<DT>world_matrix_array_3x4
+<DD>An array of world matrices, each represented as only a 3x4 matrix (3 rows of 4columns) usually for doing hardware skinning. You should make enough entries available in your vertex program for the number of bones in use, ie an array of numBones*3 float4's.
 <DT>view_matrix
 <DD>The current view matrix.
 <DT>projection_matrix
 <DD>The current projection matrix.
 <DT>worldview_matrix
 <DD>The current world and view matrices concatenated.
+<DT>viewproj_matrix
+<DD>The current view and projection matrices concatenated.
 <DT>worldviewproj_matrix
 <DD>The current world, view and projection matrices concatenated.
 <DT>inverse_world_matrix
@@ -155,7 +159,7 @@ The allowed value codes and the meaning of extra_params are detailed in <A HREF=
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 29 2004</I>
+by <I>Steve Streeting</I> on <I>, 2 2004</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

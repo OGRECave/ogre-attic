@@ -62,10 +62,16 @@ namespace Ogre {
         {
             /// The current world matrix
             ACT_WORLD_MATRIX,
+            /// The current array of world matrices, as a 3x4 matrix, used for blending
+            ACT_WORLD_MATRIX_ARRAY_3x4,
+            /// The current array of world matrices, used for blending
+            ACT_WORLD_MATRIX_ARRAY,
             /// The current view matrix
             ACT_VIEW_MATRIX,
             /// The current projection matrix
             ACT_PROJECTION_MATRIX,
+            /// The current view & projection matrices concatenated
+            ACT_VIEWPROJ_MATRIX,
             /// The current world & view matrices concatenated
             ACT_WORLDVIEW_MATRIX,
             /// The current world, view & projection matrices concatenated
@@ -167,6 +173,14 @@ namespace Ogre {
 		@param m The value to set
 		*/
 		void setConstant(size_t index, const Matrix4& m);
+        /** Sets a list of Matrix4 parameters to the program.
+        @param index The constant index at which to start placing the parameter (each constant is
+        a 4D float).
+        NB since a Matrix4 is 16 floats long, so each entry will take up 4 indexes.
+        @param m Pointer to an array of matrices to set
+        @param numEntries Number of Matrix4 entries
+        */
+        void setConstant(size_t index, const Matrix4* m, size_t numEntries);
 		/** Sets a multiple value constant floating-point parameter to the program.
 		@param index The constant index at which to start placing parameters (each constant is
             a 4D float)
@@ -313,6 +327,14 @@ namespace Ogre {
 		@param m The value to set
 		*/
 		void setNamedConstant(const String& name, const Matrix4& m);
+        /** Sets a list of Matrix4 parameters to the program.
+        @param name The name of the parameter; this must be the first index of an array,
+            for examples 'matrices[0]'
+        NB since a Matrix4 is 16 floats long, so each entry will take up 4 indexes.
+        @param m Pointer to an array of matrices to set
+        @param numEntries Number of Matrix4 entries
+        */
+        void setNamedConstant(const String& name, const Matrix4* m, size_t numEntries);
 		/** Sets a multiple value constant floating-point parameter to the program.
         @remarks
             Different types of GPU programs support different types of constant parameters.

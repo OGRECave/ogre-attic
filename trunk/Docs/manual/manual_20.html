@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 29 2004 by texi2html 1.64 -->
+<!-- Created on , 2 2004 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -100,9 +100,9 @@ DirectX9 HLSL has a vert similar language syntax to Cg but is tied to the Direct
 </pre></td></tr></table>As you can see, the syntax is almost identical, except that instead of 'profiles' with a list of assembler formats, you have a 'target' parameter which allows a single assembler target to be specified - obviously this has to be a DirectX assembler format syntax code.
 
 <A NAME="SEC76"></A>
-<H3> Skeletal Animatin in Vertex Programs </H3>
+<H3> Skeletal Animation in Vertex Programs </H3>
 <!--docid::SEC76::-->
-You can implement skeletal animation in hardware by writing a vertex program which uses the per-vertex blending indices and blending weights, together with an array of world matrices (which will be provided for you by Ogre if you bind the automatic parameter 'world_matrix'). However, you need to communicate this support to Ogre so it does not perform skeletal animation in software for you. You do this by adding the following attribute to your vertex_program definition:
+You can implement skeletal animation in hardware by writing a vertex program which uses the per-vertex blending indices and blending weights, together with an array of world matrices (which will be provided for you by Ogre if you bind the automatic parameter 'world_matrix_array_3x4'). However, you need to communicate this support to Ogre so it does not perform skeletal animation in software for you. You do this by adding the following attribute to your vertex_program definition:
 <TABLE><tr><td>&nbsp;</td><td class=example><pre>	includes_skeletal_animation true
 </pre></td></tr></table>When you do this, any skeletally animated entity which uses this material will forgo the usual animation blend and will expect the vertex program to do it, for both vertex positions and normals.
 
@@ -120,7 +120,7 @@ You can implement skeletal animation in hardware by writing a vertex program whi
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 29 2004</I>
+by <I>Steve Streeting</I> on <I>, 2 2004</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
