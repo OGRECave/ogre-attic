@@ -89,7 +89,7 @@ BEGIN
     PUSHBUTTON      "&Cancel",IDCANCEL,237,254,60,14
     LTEXT           "Rendering Subsystem:",IDC_STATIC,3,144,73,12
     COMBOBOX        IDC_CBO_RENDERSYSTEM,77,142,219,57,CBS_DROPDOWNLIST | 
-                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+                    WS_VSCROLL | WS_TABSTOP
     GROUPBOX        "Rendering System Options",IDC_OPTFRAME,2,159,295,94
     LISTBOX         IDC_LST_OPTIONS,7,168,286,63,LBS_NOINTEGRALHEIGHT | 
                     WS_VSCROLL | WS_TABSTOP
