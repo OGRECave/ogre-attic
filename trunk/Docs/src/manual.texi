@@ -1999,6 +1999,15 @@ Each exporter has to be written specifically for the modeller in question, altho
 
 All the exporters here can be built from the source code, or you can download precompiled versions from the OGRE web site.@*@*
 
+@heading A Note About Modelling / Animation For OGRE
+There are a few rules when creating an animated model for OGRE:
+@itemize @bullet
+@item You must have no more than 4 weighted bone assignments per vertex. If you have more, OGRE will eliminate the lowest weighted assignments and renormalise the other weights. This limit is imposed by hardware blending limitations.
+@item All vertices must be assigned to at least one bone - assign static vertices to the root bone.
+@item At the very least each bone must have a keyframe at the beginning and end of the animation.
+@end itemize
+If you're creating unanimated meshes, then you do not need to be concerned with the above.
+
 @heading Milkshape3D
 
 Milkshape3D is a popular low-polygon editor, especially popular in the modding community because of it's low price and the fact that it supports many game file formats. Installation instructions are included with the exporter itself. The Milkshape exporter supports exporting of meshes and animations. An important tip: Make sure you are not in 'animation' mode when you do this, otherwise Milkshape gets confused as to what the 'reference' position of the mesh is. Just make sure the 'Anim' button in the bottom-right is NOT depressed.@*@*
