@@ -165,7 +165,7 @@ namespace Ogre {
             mLightListDirty = false;
         }
         // If outside light range, return a blank light to ensure zeroised for program
-        if (mpLightList->size() < index)
+        if (mpLightList->size() <= index)
         {
             return mBlankLight;
         }
