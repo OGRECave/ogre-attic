@@ -133,12 +133,16 @@ namespace Ogre {
 		}
 	}
     //-----------------------------------------------------------------------
-    void ResourceGroupManager::loadResourceGroup(const String& name)
+    void ResourceGroupManager::loadResourceGroup(const String& name, 
+		bool loadMainResources, bool loadWorldGeom)
     {
 		// Can only bulk-load one group at a time (reasonable limitation I think)
 		OGRE_LOCK_AUTO_MUTEX
 
-		LogManager::getSingleton().logMessage("Loading resource group " + name);
+		StringUtil::StrStreamType str;
+		str << "Loading resource group '" << name << "' - Resources: "
+			<< loadMainResources << " World Geometry: " << loadWorldGeom;
+		LogManager::getSingleton().logMessage(str.str());
 		// load all created resources
 		ResourceGroup* grp = getResourceGroup(name);
 		if (!grp)
@@ -155,32 +159,40 @@ namespace Ogre {
 		// Count up resources for starting event
 		ResourceGroup::LoadResourceOrderMap::iterator oi;
 		size_t resourceCount = 0;
-		for (oi = grp->loadResourceOrderMap.begin(); oi != grp->loadResourceOrderMap.end(); ++oi)
+		if (loadMainResources)
 		{
-			resourceCount += oi->second->size();
+			for (oi = grp->loadResourceOrderMap.begin(); oi != grp->loadResourceOrderMap.end(); ++oi)
+			{
+				resourceCount += oi->second->size();
+			}
 		}
         // Estimate world geometry size
-        if (grp->worldGeometrySceneManager)
+        if (grp->worldGeometrySceneManager && loadWorldGeom)
         {
-            resourceCount += grp->worldGeometrySceneManager->estimateWorldGeometry(
-                grp->worldGeometry);
+            resourceCount += 
+				grp->worldGeometrySceneManager->estimateWorldGeometry(
+					grp->worldGeometry);
         }
 
 		fireResourceGroupLoadStarted(name, resourceCount);
 
 		// Now load for real
-		for (oi = grp->loadResourceOrderMap.begin(); oi != grp->loadResourceOrderMap.end(); ++oi)
+		if (loadMainResources)
 		{
-			for (LoadUnloadResourceList::iterator l = oi->second->begin();
-				l != oi->second->end(); ++oi)
+			for (oi = grp->loadResourceOrderMap.begin(); 
+				oi != grp->loadResourceOrderMap.end(); ++oi)
 			{
-                fireResourceStarted(*l);
-				(*l)->load();
-				fireResourceEnded();
+				for (LoadUnloadResourceList::iterator l = oi->second->begin();
+					l != oi->second->end(); ++oi)
+				{
+					fireResourceStarted(*l);
+					(*l)->load();
+					fireResourceEnded();
+				}
 			}
 		}
         // Load World Geometry
-        if (grp->worldGeometrySceneManager)
+        if (grp->worldGeometrySceneManager && loadWorldGeom)
         {
             grp->worldGeometrySceneManager->setWorldGeometry(
                 grp->worldGeometry);
