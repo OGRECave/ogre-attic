@@ -253,6 +253,15 @@ namespace Ogre {
             which may be occluded by word geometry.
         */
         virtual void findLightsAffectingFrustum(const Camera* camera);
+        /// Internal method for setting up debug materials for shadows
+        virtual void initShadowVolumeDebugMaterials(void);
+        /** Internal method for rendering all the objects for a given light into the 
+            stencil buffer.
+        @param light The light source
+        @param cam The camera being viewed from
+        @param use2SidedStencil Whether or not a 2-sided stencil is supported (caller should derive)
+        */
+        virtual void renderShadowVolumesToStencil(const Light* light, const Camera* cam);
 
         typedef std::vector<ShadowCaster*> ShadowCasterList;
         ShadowCasterList mShadowCasterList;
