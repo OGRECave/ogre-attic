@@ -207,6 +207,12 @@
 				RelativePath="..\src\OgreException.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreFont.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreFontManager.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreGuiContainer.cpp">
 			</File>
 			<File
@@ -399,9 +405,6 @@
 				RelativePath="..\src\OgreTexture.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreTextureFont.cpp">
-			</File>
-			<File
 				RelativePath="..\src\OgreTextureLayer.cpp">
 			</File>
 			<File
@@ -521,6 +524,12 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreFactoryObj.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreFont.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreFontManager.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreFrameListener.h">
@@ -785,9 +794,6 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreTexture.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreTextureFont.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreTextureManager.h">

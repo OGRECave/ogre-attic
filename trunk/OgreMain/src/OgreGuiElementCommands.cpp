@@ -81,6 +81,16 @@ namespace Ogre {
             static_cast<GuiElement*>(target)->setMaterialName(val);
         }
         //-----------------------------------------------------------------------
+        //-----------------------------------------------------------------------
+        String CmdCaption::doGet(void* target)
+        {
+            return static_cast<GuiElement*>(target)->getCaption();
+        }
+        void CmdCaption::doSet(void* target, const String& val)
+        {
+            static_cast<GuiElement*>(target)->setCaption(val);
+        }
+        //-----------------------------------------------------------------------
     }
 }
 

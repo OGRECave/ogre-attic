@@ -188,6 +188,14 @@ SOURCE=..\src\OgreException.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreFont.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreFontManager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreGuiContainer.cpp
 # End Source File
 # Begin Source File
@@ -440,10 +448,6 @@ SOURCE=..\src\OgreTexture.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\OgreTextureFont.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\OgreTextureLayer.cpp
 # End Source File
 # Begin Source File
@@ -609,6 +613,14 @@ SOURCE=..\include\OgreException.h
 # Begin Source File
 
 SOURCE=..\include\OgreFactoryObj.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreFont.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreFontManager.h
 # End Source File
 # Begin Source File
 
@@ -957,10 +969,6 @@ SOURCE=..\include\OgreSubMesh.h
 # Begin Source File
 
 SOURCE=..\include\OgreTexture.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreTextureFont.h
 # End Source File
 # Begin Source File
 

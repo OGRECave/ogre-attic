@@ -95,7 +95,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    String String::toLowerCase(void)
+    String String::toLowerCase(void) 
     {
         std::transform(
             begin(),
@@ -107,7 +107,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    String String::toUpperCase(void)
+    String String::toUpperCase(void) 
     {
         std::transform(
             begin(),

@@ -118,6 +118,10 @@ SOURCE=..\misc\OgreGuiElements.def
 
 SOURCE=..\src\OgrePanelGuiElement.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreTextAreaGuiElement.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -137,6 +141,10 @@ SOURCE=..\include\OgreGuiElementPrerequisites.h
 # Begin Source File
 
 SOURCE=..\include\OgrePanelGuiElement.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreTextAreaGuiElement.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

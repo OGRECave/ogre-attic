@@ -62,7 +62,6 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreParticleAffector.h"
 #include "OgreMeshSerializer.h"
 #include "OgreMaterialManager.h"
-#include "OgreTextureFont.h"
 #include "OgreSkeleton.h"
 #include "OgreBone.h"
 #include "OgreSkeletonSerializer.h"

@@ -120,9 +120,6 @@ namespace Ogre {
         SDL_SOLID
     };
 
-
-
-
 }
 
 #endif

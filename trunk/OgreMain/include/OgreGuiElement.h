@@ -68,6 +68,7 @@ namespace Ogre {
         static GuiElementCommands::CmdWidth msWidthCmd;
         static GuiElementCommands::CmdHeight msHeightCmd;
         static GuiElementCommands::CmdMaterial msMaterialCmd;
+        static GuiElementCommands::CmdCaption msCaptionCmd;
 
         String mName;
         bool mVisible;
@@ -77,6 +78,7 @@ namespace Ogre {
         Real mHeight;
         String mMaterialName;
         Material* mpMaterial;
+        String mCaption;
 
         // Parent pointer
         GuiContainer* mParent;
@@ -217,6 +219,18 @@ namespace Ogre {
 
         /** Gets the type name of the element. All concrete subclasses must implement this. */
         virtual const String& getTypeName(void) = 0;
+
+        /** Sets the caption on elements that support it. 
+        @remarks
+            This property doesn't do something on all elements, just those that support it.
+            However, being a common requirement it is in the top-level interface to avoid
+            having to set it via the StringInterface all the time.
+        */
+        virtual void setCaption(const String& text);
+
+        /** Gets the caption for this element. */
+        virtual const String& getCaption(void) const;
+
 
 
 

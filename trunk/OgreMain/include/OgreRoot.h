@@ -97,6 +97,7 @@ namespace Ogre
         SkeletonManager* mSkeletonManager;
         GuiManager* mGuiManager;
         OverlayManager* mOverlayManager;
+        FontManager* mFontManager;
         ArchiveFactory *mZipArchiveFactory;
         Codec* mPNGCodec, *mJPGCodec, *mJPEGCodec, *mTGACodec;
 

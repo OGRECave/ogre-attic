@@ -89,6 +89,12 @@ namespace Ogre {
             setting ? mFinalBpp = 32 : mFinalBpp = 16;
         }
 
+        // Tests whether this texture has an alpha layer
+        virtual bool hasAlpha(void)
+        {
+            return mHasAlpha;
+        }
+
     protected:
         // NB: No indexed colour support - deliberately
         unsigned long mHeight;

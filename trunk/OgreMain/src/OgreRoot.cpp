@@ -42,6 +42,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreGuiManager.h"
 #include "OgreOverlayManager.h"
 #include "OgreZipArchiveFactory.h"
+#include "OgreFontManager.h"
 
 #include "OgrePNGCodec.h"
 #include "OgreJPEGCodec.h"
@@ -136,6 +137,8 @@ namespace Ogre {
         mOverlayManager = new OverlayManager();
         // Gui Manager
         mGuiManager = new GuiManager();
+        // Font manager
+        mFontManager = new FontManager();
 
         mZipArchiveFactory = new ZipArchiveFactory();
         ArchiveManager::getSingleton().addArchiveFactory( mZipArchiveFactory );
@@ -403,6 +406,8 @@ namespace Ogre {
         {
             // Init particle systems manager
             mParticleManager->_initialise();
+            // parse all font scripts
+            mFontManager->parseAllSources();
             // parse all overlay scripts
             mOverlayManager->parseAllSources();
         }
@@ -579,6 +584,8 @@ namespace Ogre {
         {
             // Init particle systems manager
             mParticleManager->_initialise();
+            // parse all font scripts
+            mFontManager->parseAllSources();
             // init overlays
             mOverlayManager->parseAllSources();
             firstOne = false;

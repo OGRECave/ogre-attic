@@ -40,6 +40,7 @@ namespace Ogre {
     GuiElementCommands::CmdWidth GuiElement::msWidthCmd;
     GuiElementCommands::CmdHeight GuiElement::msHeightCmd;
     GuiElementCommands::CmdMaterial GuiElement::msMaterialCmd;
+    GuiElementCommands::CmdCaption GuiElement::msCaptionCmd;
     //---------------------------------------------------------------------
     GuiElement::GuiElement(const String& name)
         : mName(name)
@@ -261,10 +262,23 @@ namespace Ogre {
             &msHeightCmd);
         dict->addParameter(ParameterDef("material", 
             "The name of the material to use."
-            , PT_REAL),
+            , PT_STRING),
             &msMaterialCmd);
+        dict->addParameter(ParameterDef("caption", 
+            "The element caption, if supported."
+            , PT_STRING),
+            &msCaptionCmd);
     }
-
+    //-----------------------------------------------------------------------
+    void GuiElement::setCaption( const String& caption )
+    {
+        mCaption = caption;
+    }
+    //-----------------------------------------------------------------------
+    const String& GuiElement::getCaption() const
+    {
+        return mCaption;
+    }
 
 
 

@@ -62,6 +62,19 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
+    GuiElement* GuiManager::getGuiElement(const String& name)
+    {
+        // Locate instance
+        InstanceMap::iterator ii = mInstances.find(name);
+        if (ii == mInstances.end())
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, "GuiElement with name " + name +
+                " not found.", "GuiManager::destroyGugetGuiElementiElement" );
+        }
+
+        return ii->second;
+    }
+    //---------------------------------------------------------------------
     void GuiManager::destroyGuiElement(const String& instanceName)
     {
         // Locate instance
@@ -122,12 +135,5 @@ namespace Ogre {
     GuiManager& GuiManager::getSingleton(void)
     {
         return Singleton<GuiManager>::getSingleton();
-    }
-    //-----------------------------------------------------------------------
-    GuiElement * GuiManager::getGuiElement( const String& name )
-    {
-        if( mInstances.find( name ) == mInstances.end() )
-            return NULL;
-        return mInstances.find( name )->second;
     }
 }
