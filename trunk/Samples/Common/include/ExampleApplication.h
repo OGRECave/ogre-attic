@@ -86,7 +86,12 @@ protected:
         // Set default mipmap level (NB some APIs ignore this)
         TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
-        // Create the scene
+		// Create any resource listeners (for loading screens)
+		createResourceListener();
+		// Load resources
+		loadResources();
+
+		// Create the scene
         createScene();
 
         createFrameListener();
@@ -105,10 +110,6 @@ protected:
             // If returned true, user clicked OK so initialise
             // Here we choose to let the system create a default rendering window by passing 'true'
             mWindow = mRoot->initialise(true);
-			// Create any resource listeners (for loading screens)
-			createResourceListener();
-			// Load resources
-			loadResources();
             return true;
         }
         else
