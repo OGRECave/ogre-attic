@@ -2144,7 +2144,8 @@ namespace Ogre
         {
             flags |= D3DCLEAR_ZBUFFER;
         }
-        if (buffers & FBT_STENCIL)
+        // Only try to clear the stencil buffer if supported
+        if (buffers & FBT_STENCIL && mCapabilities->hasCapability(RSC_HWSTENCIL))
         {
             flags |= D3DCLEAR_STENCIL;
         }
