@@ -50,8 +50,9 @@ struct XmlOptions
     Real lodPercent;
     size_t lodFixed;
     bool usePercent;
-    bool omitEdgeLists;
+    bool generateEdgeLists;
     bool generateTangents;
+    bool reorganiseBuffers;
 };
 
 void help(void)
@@ -68,6 +69,7 @@ void help(void)
     cout << "-p lodpercent  = Percentage triangle reduction amount per LOD" << endl;
     cout << "-f lodnumtris  = Fixed vertex reduction per LOD" << endl;
     cout << "-e             = DON'T generate edge lists (for stencil shadows)" << endl;
+    cout << "-r             = DON'T reorganise vertex buffers to OGRE recommended format." << endl;
     cout << "-t             = Generate tangents (for normal mapping)" << endl;
     cout << "sourcefile     = name of file to convert" << endl;
     cout << "destfile       = optional name of file to write to. If you don't" << endl;
@@ -90,8 +92,9 @@ XmlOptions parseArgs(int numArgs, char **args)
     opts.lodPercent = 20;
     opts.numLods = 0;
     opts.usePercent = true;
-    opts.omitEdgeLists = false;
+    opts.generateEdgeLists = true;
     opts.generateTangents = false;
+    opts.reorganiseBuffers = true;
 
     // ignore program name
     char* source = 0;
@@ -103,6 +106,7 @@ XmlOptions parseArgs(int numArgs, char **args)
 
     unOpt["-i"] = false;
     unOpt["-e"] = false;
+    unOpt["-r"] = false;
     unOpt["-t"] = false;
     binOpt["-l"] = "";
     binOpt["-d"] = "";
@@ -123,9 +127,15 @@ XmlOptions parseArgs(int numArgs, char **args)
         ui = unOpt.find("-e");
         if (ui->second)
         {
-            opts.omitEdgeLists = true;
+            opts.generateEdgeLists = false;
         }
     
+        ui = unOpt.find("-r");
+        if (ui->second)
+        {
+            opts.reorganiseBuffers = false;
+        }
+
         ui = unOpt.find("-t");
         if (ui->second)
         {
@@ -287,6 +297,51 @@ void XMLToBinary(XmlOptions opts)
         Mesh newMesh("conversion");
         xmlMeshSerializer->importMesh(opts.source, &newMesh);
 
+        // Re-jig the buffers?
+        if (opts.reorganiseBuffers)
+        {
+            logMgr->logMessage("Reorganising vertex buffers to automatic layout..");
+            // Shared geometry
+            if (newMesh.sharedVertexData)
+            {
+                // Automatic
+                VertexDeclaration* newDcl = 
+                    newMesh.sharedVertexData->vertexDeclaration->getAutoOrganisedDeclaration(
+                        newMesh.hasSkeleton());
+                if (*newDcl != *(newMesh.sharedVertexData->vertexDeclaration))
+                {
+                    // Usages don't matter here since we're onlly exporting
+                    BufferUsageList bufferUsages;
+                    for (size_t u = 0; u <= newDcl->getMaxSource(); ++u)
+                        bufferUsages.push_back(HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+                    newMesh.sharedVertexData->reorganiseBuffers(newDcl, bufferUsages);
+                }
+            }
+            // Dedicated geometry
+            Mesh::SubMeshIterator smIt = newMesh.getSubMeshIterator();
+            unsigned short idx = 0;
+            while (smIt.hasMoreElements())
+            {
+                SubMesh* sm = smIt.getNext();
+                if (!sm->useSharedVertices)
+                {
+                    // Automatic
+                    VertexDeclaration* newDcl = 
+                        sm->vertexData->vertexDeclaration->getAutoOrganisedDeclaration(
+                            newMesh.hasSkeleton());
+                    if (*newDcl != *(sm->vertexData->vertexDeclaration))
+                    {
+                        // Usages don't matter here since we're onlly exporting
+                        BufferUsageList bufferUsages;
+                        for (size_t u = 0; u <= newDcl->getMaxSource(); ++u)
+                            bufferUsages.push_back(HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+                        sm->vertexData->reorganiseBuffers(newDcl, bufferUsages);
+                    }
+                }
+            }
+
+        }
+
         // Prompt for LOD generation?
         bool genLod = false;
         bool askLodDtls = false;
@@ -434,7 +489,7 @@ void XMLToBinary(XmlOptions opts)
                 }
                 else if (response == "n")
                 {
-                    opts.omitEdgeLists = true;
+                    opts.generateEdgeLists = false;
                 }
                 else
                 {
@@ -463,7 +518,7 @@ void XMLToBinary(XmlOptions opts)
             }
         }
 
-        if (!opts.omitEdgeLists)
+        if (opts.generateEdgeLists)
         {
             std::cout << "Generating edge lists...." << std::endl;
             newMesh.buildEdgeList();
