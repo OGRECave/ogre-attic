@@ -197,6 +197,8 @@ namespace Ogre {
 			Pass* p = new Pass(this, (*i)->getIndex(), *(*i));
 			mPasses.push_back(p);
 		}
+        // recompile illumination passes
+        _compileIlluminationPasses();
 		return *this;
     }
     //-----------------------------------------------------------------------------
