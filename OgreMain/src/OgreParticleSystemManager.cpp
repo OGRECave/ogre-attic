@@ -35,7 +35,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 
 namespace Ogre {
-    ParticleSystemManager* Singleton<ParticleSystemManager>::ms_Singleton = 0;
+    template<> ParticleSystemManager* Singleton<ParticleSystemManager>::ms_Singleton = 0;
     //-----------------------------------------------------------------------
     ParticleSystemManager::ParticleSystemManager()
     {
