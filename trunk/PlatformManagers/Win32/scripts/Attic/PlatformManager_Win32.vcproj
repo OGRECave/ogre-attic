@@ -147,6 +147,9 @@
 			<File
 				RelativePath="..\src\OgreWin32PlatformDll.cpp">
 			</File>
+			<File
+				RelativePath="..\src\OgreWin32Timer.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -162,6 +165,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreWin32Prerequisites.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreWin32Timer.h">
 			</File>
 			<File
 				RelativePath="..\include\resource.h">

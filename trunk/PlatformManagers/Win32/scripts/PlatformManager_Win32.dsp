@@ -127,6 +127,10 @@ SOURCE=..\src\OgreWin32PlatformDll.cpp
 
 SOURCE=..\misc\OgreWin32Resources.rc
 # End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreWin32Timer.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -150,6 +154,10 @@ SOURCE=..\include\OgreWin32Input8.h
 # Begin Source File
 
 SOURCE=..\include\OgreWin32Prerequisites.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreWin32Timer.h
 # End Source File
 # Begin Source File
 

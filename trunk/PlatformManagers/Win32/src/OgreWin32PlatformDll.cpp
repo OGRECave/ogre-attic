@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreWin32ConfigDialog.h"
 #include "OgreWin32ErrorDialog.h"
 #include "OgreWin32Input8.h"
+#include "OgreWin32Timer.h"
 #include "OgreRoot.h"
 #include "OgreLogManager.h"
 
@@ -63,7 +64,8 @@ namespace Ogre {
 	/// Creates a Timer using default implementation
 	extern "C" void createTimer(Timer** ppTimer)
 	{
-		*ppTimer = new Timer();
+		*ppTimer = new Win32Timer();
+        (*ppTimer)->reset();
 	}
 
 	extern "C" void destroyTimer(Timer* ppTimer)

@@ -49,6 +49,7 @@ namespace Ogre {
 	extern "C" void createTimer(Timer** ppTimer)
 	{
 		*ppTimer = new SDLTimer();
+        (*ppTimer)->reset();
 	}
 
 	extern "C" void destroyTimer(Timer* ppTimer)

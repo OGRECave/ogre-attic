@@ -28,7 +28,8 @@ namespace Ogre
 {
 	Timer::Timer()
 	{
-		reset();
+        // SJS: removed reset call since this is not polymorphic
+		// reset();
 	}
 	
 	void Timer::reset()

@@ -22,58 +22,29 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-
-#include "OgreRoot.h"
-#include "OgreSDLConfig.h"
-#include "OgreSDLError.h"
-#include "OgreSDLInput.h"
-#include "OgreSDLTimer.h"
+#include "OgreWin32Timer.h"
 
 namespace Ogre {
-
-    extern "C" void createPlatformConfigDialog(ConfigDialog** ppDlg)
+    //-------------------------------------------------------------------------
+    void Win32Timer::reset()
     {
-        *ppDlg = new SDLConfig();
+        Timer::reset();
+        QueryPerformanceFrequency(&mFrequency);
+        QueryPerformanceCounter(&mStartTime);
     }
-
-    extern "C" void createPlatformErrorDialog(ErrorDialog** ppDlg)
+    //-------------------------------------------------------------------------
+    unsigned long Win32Timer::getMilliseconds()
     {
-        *ppDlg = new SDLError();
-    }
+        LARGE_INTEGER curTime;
+        LONGLONG newTicks;
 
-    extern "C" void createPlatformInputReader(InputReader** ppDlg)
-    {
-        *ppDlg = new SDLInput();
-    }
-	
-	extern "C" void createTimer(Timer** ppTimer)
-	{
-		*ppTimer = new SDLTimer();
-        (*ppTimer)->reset();
-	}
+        QueryPerformanceCounter(&curTime);
 
-	extern "C" void destroyTimer(Timer* ppTimer)
-	{
-		delete ppTimer;
-	}
+        newTicks = (curTime.QuadPart - mStartTime.QuadPart);
+        // Scale by 1000 in order to get millisecond precision
+        newTicks *= 1000;
+        newTicks /= mFrequency.QuadPart;
 
-    extern "C" void destroyPlatformConfigDialog(ConfigDialog* dlg)
-    {
-        delete dlg;
+        return (unsigned long)newTicks;
     }
-
-    extern "C" void destroyPlatformErrorDialog(ErrorDialog* dlg)
-    {
-        delete dlg;
-    }
-
-    extern "C" void destroyPlatformRenderWindow(RenderWindow* wnd)
-    {
-        delete wnd;
-    }
-
-    extern "C" void destroyPlatformInputReader(InputReader* reader)
-    {
-        delete reader;
-    }
-}
+} 
