@@ -234,6 +234,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Root::~Root()
     {
+		shutdownPlugins();
         shutdown();
         delete mSceneManagerEnum;
 
@@ -544,17 +545,21 @@ namespace Ogre {
         mRemovedFrameListeners.clear();
         
         // Tell all listeners
+		bool ret = true;
         for (i= mFrameListeners.begin(); i != mFrameListeners.end(); ++i)
         {
             if (!(*i)->frameEnded(evt))
-                return false;
+			{
+                ret = false;
+				break;
+			}
         }
 
         // Tell buffer manager to free temp buffers used this frame
         if (HardwareBufferManager::getSingletonPtr())
             HardwareBufferManager::getSingleton()._releaseBufferCopies();
 
-        return true;
+        return ret;
     }
     //-----------------------------------------------------------------------
     bool Root::_fireFrameStarted()
@@ -700,7 +705,24 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void Root::unloadPlugins(void)
+	void Root::shutdownPlugins(void)
+	{
+		std::vector<DynLib*>::reverse_iterator i;
+
+		// NB Shutdown plugins in reverse order to enforce dependencies
+		for (i = mPluginLibs.rbegin(); i != mPluginLibs.rend(); ++i)
+		{
+			// Call plugin shutdown (optional)
+			DLL_STOP_PLUGIN pFunc = (DLL_STOP_PLUGIN)(*i)->getSymbol("dllShutdownPlugin");
+			if (pFunc)
+			{
+				pFunc();
+			}
+
+		}
+	}
+	//-----------------------------------------------------------------------
+	void Root::unloadPlugins(void)
     {
         std::vector<DynLib*>::reverse_iterator i;
 

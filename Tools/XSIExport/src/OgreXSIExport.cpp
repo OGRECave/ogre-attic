@@ -43,10 +43,16 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <xsi_uitoolkit.h>
 
 #include "OgreXSIMeshExporter.h"
+#include "OgreXSISkeletonExporter.h"
 #include "OgreLogManager.h"
 #include "OgreException.h"
 #include "OgreXSIHelper.h"
 #include "OgreProgressiveMesh.h"
+#include "OgreString.h"
+#include "OgreLogManager.h"
+#include "OgreMeshManager.h"
+#include "OgreSkeletonManager.h"
+#include "OgreDefaultHardwareBufferManager.h"
 
 using namespace XSI;
 
@@ -227,7 +233,8 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 	CStatus ret = Popup(L"OgreMeshExportOptions",CValue(),L"OGRE Mesh / Skeleton Export",(long)siModal,true);
     if (ret == CStatus::OK)
 	{
-        Ogre::XsiMeshExporter exporter;
+        Ogre::XsiMeshExporter meshExporter;
+		Ogre::XsiSkeletonExporter skelExporter;
 
         // retrieve the parameters
         Parameter param = prop.GetParameters().GetItem(L"objectName");
@@ -271,23 +278,69 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 				lodData->reductionValue = reduction;
 
 		}
-        /* TODO
-        "targetSkeletonFileName"
-        "fps"
-        "animationSplit"
-        */
 
-        try 
-        {
-            exporter.exportMesh(meshFileName, mergeSubmeshes, 
-				exportChildren, edgeLists, tangents, lodData);
-        }
-        catch (Ogre::Exception& e)
-        {
-            // Will already have been logged to the Ogre log manager
-            // Tell XSI
-            app.LogMessage(OgretoXSI(e.getFullDescription()), XSI::siErrorMsg);
-        }
+		param = prop.GetParameters().GetItem( L"exportSkeleton" );
+		bool exportSkeleton = param.GetValue();
+
+
+		try 
+		{
+			Ogre::LogManager logMgr;
+			logMgr.createLog("OgreXSIExporter.log", true);
+			Ogre::ResourceGroupManager rgm;
+			Ogre::MeshManager meshMgr;
+			Ogre::SkeletonManager skelMgr;;
+			Ogre::DefaultHardwareBufferManager hardwareBufMgr;
+
+			logMgr.createLog("OgreXSIExport.log", true);
+			
+			if (exportSkeleton)
+			{
+				param = prop.GetParameters().GetItem( L"targetSkeletonFileName" );
+				Ogre::String skeletonFileName = XSItoOgre(param.GetValue());
+
+				/* TODO
+				"targetSkeletonFileName"
+				"fps"
+				"animationSplit"
+				*/
+
+				// Truncate the skeleton filename to just the name (no path)
+				Ogre::String skelName = skeletonFileName;
+				int pos = skeletonFileName.find_last_of("\\");
+				if (pos == Ogre::String::npos)
+				{
+					pos = skeletonFileName.find_last_of("/");
+				}
+				if (pos != Ogre::String::npos)
+				{
+					skelName = skelName.substr(pos+1, skelName.size() - pos - 1);
+				}
+
+				// Do the mesh
+				Ogre::DeformerList& deformers = 
+					meshExporter.exportMesh(meshFileName, mergeSubmeshes, 
+						exportChildren, edgeLists, tangents, lodData, skelName);
+				// do the skeleton
+				skelExporter.exportSkeleton(skeletonFileName, deformers);
+
+
+
+			}
+			else
+			{
+				// Just mesh
+				meshExporter.exportMesh(meshFileName, mergeSubmeshes, 
+					exportChildren, edgeLists, tangents, lodData);
+			}
+		}
+		catch (Ogre::Exception& e)
+		{
+			// Will already have been logged to the Ogre log manager
+			// Tell XSI
+			app.LogMessage(OgretoXSI(e.getFullDescription()), XSI::siErrorMsg);
+		}
+
 		
 		delete lodData;
 
@@ -521,6 +574,7 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 	// This is where you implement the "logic" code.
 
 	Application app ;
+	static bool hasSkel = false;
 
 	PPGEventContext ctx( io_Ctx ) ;
 
@@ -564,6 +618,7 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 			param.PutCapabilityFlag(siReadOnly, true);
 			param = prop.GetParameters().GetItem(L"animationSplit");
 			param.PutCapabilityFlag(siReadOnly, true);
+			hasSkel = false;
 		}
 		else
 		{
@@ -576,6 +631,7 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 			param.PutCapabilityFlag(siReadOnly, false);
 			param = prop.GetParameters().GetItem(L"animationSplit");
 			param.PutCapabilityFlag(siReadOnly, false);
+			hasSkel = true;
 		}
 	}
     // On clicking a button
@@ -611,6 +667,16 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 		CString   paramName = changed.GetScriptName() ; 
 
         // Check paramName against parameter names, perform custom onChanged event
+		if (paramName == L"targetMeshFileName")
+		{
+			Ogre::String meshName = XSItoOgre(changed.GetValue());
+			if (hasSkel && Ogre::StringUtil::endsWith(meshName, "mesh"))
+			{
+				Ogre::String skelName = meshName.substr(0, meshName.size() - 4) + "skeleton";
+				CString xsiSkelName = OgretoXSI(skelName);
+				prop.PutParameterValue(L"targetSkeletonFileName", xsiSkelName);
+			}
+		}
 	}
 
 

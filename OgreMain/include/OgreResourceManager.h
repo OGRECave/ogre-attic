@@ -215,12 +215,12 @@ namespace Ogre {
 		/// Returns whether the named resource exists in this manager
 		virtual bool resourceExists(const String& name)
 		{
-			return getByName(name).isNull();
+			return !getByName(name).isNull();
 		}
 		/// Returns whether a resource with the given handle exists in this manager
 		virtual bool resourceExists(ResourceHandle handle)
 		{
-			return getByHandle(handle).isNull();
+			return !getByHandle(handle).isNull();
 		}
 
 		/** Notify this manager that a resource which it manages has been 

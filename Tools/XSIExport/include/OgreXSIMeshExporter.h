@@ -60,21 +60,6 @@ namespace Ogre {
 		};
 
 		
-		/** An entry for a Deformer - need original index because this will be boneID */
-		class DeformerEntry
-		{
-		public:
-			unsigned short boneID;
-			XSI::X3DObject obj;
-
-			DeformerEntry(unsigned short theboneID, XSI::X3DObject& theobj)
-				:boneID(theboneID), obj(theobj)
-			{
-			}
-
-		};
-		/// Map from deformer name to deformer entry
-		typedef std::map<String,DeformerEntry*> DeformerList;
 
 		
 		/** Perform an export of the selection to Ogre .mesh.

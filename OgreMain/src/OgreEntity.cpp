@@ -1312,7 +1312,7 @@ namespace Ogre {
         else 
         {
             delete mSkeletonInstance;
-            delete mBoneMatrices;
+            delete [] mBoneMatrices;
             delete mAnimationState;
             delete mFrameBonesLastUpdated;
             mSkeletonInstance = entity->mSkeletonInstance;

@@ -76,8 +76,8 @@ namespace Ogre {
         static String toString(int val, unsigned short width = 0, 
             char fill = ' ', 
             std::ios::fmtflags flags = std::ios::fmtflags(0) );
-        /** Converts an int to a String. */
-        static String toString(unsigned int val, 
+        /** Converts a size_t to a String. */
+        static String toString(size_t val, 
             unsigned short width = 0, char fill = ' ', 
             std::ios::fmtflags flags = std::ios::fmtflags(0) );
         /** Converts a long to a String. */
