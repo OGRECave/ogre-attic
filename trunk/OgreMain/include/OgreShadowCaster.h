@@ -96,6 +96,9 @@ namespace Ogre {
         /** Returns details of the edges which might be used to determine a silhouette. */
         virtual EdgeData* getEdgeList(void) = 0;
 
+        /** Get the world bounding box of the caster. */
+        virtual const AxisAlignedBox& getWorldBoundingBox(bool derive = false) const = 0;
+
         typedef std::vector<ShadowRenderable*> ShadowRenderableList;
         typedef VectorIterator<ShadowRenderableList> ShadowRenderableListIterator;
 

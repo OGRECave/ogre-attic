@@ -113,6 +113,7 @@ OgrePass.h \
 OgrePatchMesh.h \
 OgrePatchSurface.h \
 OgrePlane.h \
+OgrePlaneBoundedVolume.h \
 OgrePlatform.h \
 OgrePlatformManager.h \
 OgrePositionTarget.h \

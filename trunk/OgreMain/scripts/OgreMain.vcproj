@@ -963,6 +963,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgrePlane.h">
 			</File>
 			<File
+				RelativePath="..\include\OgrePlaneBoundedVolume.h">
+			</File>
+			<File
 				RelativePath="..\include\OgrePlatform.h">
 			</File>
 			<File

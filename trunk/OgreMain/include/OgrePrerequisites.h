@@ -222,6 +222,7 @@ namespace Ogre {
     class PatchMesh;
     class PlatformManager;
     class Plane;
+    class PlaneBoundedVolume;
 	class PositionTarget;
     class ProgressiveMesh;
     class Profile;
