@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMaterialManager.h"
 #include "OgreOverlay.h"
 #include "OgreGuiContainer.h"
+#include "OgreOverlayManager.h"
 
 
 namespace Ogre {
@@ -41,6 +42,9 @@ namespace Ogre {
     GuiElementCommands::CmdHeight GuiElement::msHeightCmd;
     GuiElementCommands::CmdMaterial GuiElement::msMaterialCmd;
     GuiElementCommands::CmdCaption GuiElement::msCaptionCmd;
+    GuiElementCommands::CmdMetricsMode GuiElement::msMetricsModeCmd;
+    GuiElementCommands::CmdHorizontalAlign GuiElement::msHorizontalAlignCmd;
+    GuiElementCommands::CmdVerticalAlign GuiElement::msVerticalAlignCmd;
     //---------------------------------------------------------------------
     GuiElement::GuiElement(const String& name)
         : mName(name)
@@ -54,6 +58,10 @@ namespace Ogre {
         mpMaterial = 0;
         mDerivedOutOfDate = true;
         mZOrder = 0;
+        mMetricsMode = GMM_RELATIVE;
+        mHorzAlign = GHA_LEFT;
+        mVertAlign = GVA_TOP;
+        mGeomPositionsOutOfDate = true;
        
     }
     //---------------------------------------------------------------------
@@ -83,21 +91,48 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void GuiElement::setDimensions(Real width, Real height)
     {
-        mWidth = width;
-        mHeight = height;
+        if (mMetricsMode == GMM_PIXELS)
+        {
+            mPixelWidth = width;
+            mPixelHeight = height;
+        }
+        else
+        {
+            mWidth = width;
+            mHeight = height;
+        }
         mDerivedOutOfDate = true;
+        mGeomPositionsOutOfDate = true;
     }
     //---------------------------------------------------------------------
     void GuiElement::setPosition(Real left, Real top)
     {
-        mLeft = left;
-        mTop = top;
+        if (mMetricsMode == GMM_PIXELS)
+        {
+            mPixelLeft = left;
+            mPixelTop = top;
+        }
+        else
+        {
+            mLeft = left;
+            mTop = top;
+        }
         mDerivedOutOfDate = true;
+        mGeomPositionsOutOfDate = true;
+
     }
     //---------------------------------------------------------------------
     void GuiElement::setWidth(Real width)
     {
-        mWidth = width;
+        if (mMetricsMode == GMM_PIXELS)
+        {
+            mPixelWidth = width;
+        }
+        else
+        {
+            mWidth = width;
+        }
+        mGeomPositionsOutOfDate = true;
     }
     //---------------------------------------------------------------------
     Real GuiElement::getWidth(void) const
@@ -107,7 +142,15 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void GuiElement::setHeight(Real height)
     {
-        mHeight = height;
+        if (mMetricsMode == GMM_PIXELS)
+        {
+            mPixelHeight = height;
+        }
+        else
+        {
+            mHeight = height;
+        }
+        mGeomPositionsOutOfDate = true;
     }
     //---------------------------------------------------------------------
     Real GuiElement::getHeight(void) const
@@ -117,8 +160,16 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void GuiElement::setLeft(Real left)
     {
-        mLeft = left;
+        if (mMetricsMode == GMM_PIXELS)
+        {
+            mPixelLeft = left;
+        }
+        else
+        {
+            mLeft = left;
+        }
         mDerivedOutOfDate = true;
+        mGeomPositionsOutOfDate = true;
     }
     //---------------------------------------------------------------------
     Real GuiElement::getLeft(void) const
@@ -128,8 +179,17 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void GuiElement::setTop(Real top)
     {
-        mTop = top;
+        if (mMetricsMode == GMM_PIXELS)
+        {
+            mPixelTop = top;
+        }
+        else
+        {
+            mTop = top;
+        }
+
         mDerivedOutOfDate = true;
+        mGeomPositionsOutOfDate = true;
     }
     //---------------------------------------------------------------------
     Real GuiElement::getTop(void) const
@@ -177,25 +237,82 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void GuiElement::_update(void)
     {
+        // Check size if pixel-based
+        if (mMetricsMode == GMM_PIXELS && OverlayManager::getSingleton().hasViewportChanged())
+        {
+            // Derive parametric version of dimensions
+            Real vpWidth, vpHeight;
+            vpWidth = (Real) (OverlayManager::getSingleton().getViewportWidth());
+            vpHeight = (Real) (OverlayManager::getSingleton().getViewportHeight());
+
+            mLeft = (Real) mPixelLeft / vpWidth;
+            mWidth = (Real) mPixelWidth / vpWidth;
+            mTop = (Real) mPixelTop / vpHeight;
+            mHeight = (Real) mPixelHeight / vpHeight;
+        }
         _updateFromParent();
         // NB container subclasses will update children too
 
         // Tell self to update own position geometry
-        updatePositionGeometry();
+        if (mGeomPositionsOutOfDate)
+        {
+            updatePositionGeometry();
+            mGeomPositionsOutOfDate = false;
+        }
     }
     //---------------------------------------------------------------------
     void GuiElement::_updateFromParent(void)
     {
+        Real parentLeft, parentTop, parentBottom, parentRight;
+
         if (mParent)
         {
-            mDerivedLeft = mParent->_getDerivedLeft() + mLeft;
-            mDerivedTop = mParent->_getDerivedTop() + mTop;
+            parentLeft = mParent->_getDerivedLeft();
+            parentTop = mParent->_getDerivedTop();
+            if (mHorzAlign == GHA_CENTER || mHorzAlign == GHA_RIGHT)
+            {
+                parentRight = parentLeft + mParent->getWidth();
+            }
+            if (mVertAlign == GVA_CENTER || mVertAlign == GVA_BOTTOM)
+            {
+                parentBottom = parentTop + mParent->getHeight();
+            }
+
         }
         else
         {
-            mDerivedLeft = mLeft;
-            mDerivedTop = mTop;
+            parentLeft = parentTop = 0.0f;
+            parentRight = parentBottom = 1.0f;
         }
+
+        // Sort out position based on alignment
+        // NB all we do is derived the origin, we don't automatically sort out the position
+        // This is more flexible than forcing absolute right & middle 
+        switch(mHorzAlign)
+        {
+        case GHA_CENTER:
+            mDerivedLeft = ((parentLeft + parentRight) * 0.5f) + mLeft;
+            break;
+        case GHA_LEFT:
+            mDerivedLeft = parentLeft + mLeft;
+            break;
+        case GHA_RIGHT:
+            mDerivedLeft = parentRight + mLeft;
+            break;
+        };
+        switch(mVertAlign)
+        {
+        case GVA_CENTER:
+            mDerivedTop = ((parentTop + parentBottom) * 0.5f) + mTop;
+            break;
+        case GVA_TOP:
+            mDerivedTop = parentTop + mTop;
+            break;
+        case GVA_BOTTOM:
+            mDerivedTop = parentBottom + mTop;
+            break;
+        };
+
         mDerivedOutOfDate = false;
 
     }
@@ -245,19 +362,19 @@ namespace Ogre {
         ParamDictionary* dict = getParamDictionary();
 
         dict->addParameter(ParameterDef("left", 
-            "The position of the left border of the gui element as a proportion of screen space."
+            "The position of the left border of the gui element."
             , PT_REAL),
             &msLeftCmd);
         dict->addParameter(ParameterDef("top", 
-            "The position of the top border of the gui element as a proportion of screen space."
+            "The position of the top border of the gui element."
             , PT_REAL),
             &msTopCmd);
         dict->addParameter(ParameterDef("width", 
-            "The width of the element as a proportion of screen space."
+            "The width of the element."
             , PT_REAL),
             &msWidthCmd);
         dict->addParameter(ParameterDef("height", 
-            "The height of the element as a proportion of screen space."
+            "The height of the element."
             , PT_REAL),
             &msHeightCmd);
         dict->addParameter(ParameterDef("material", 
@@ -268,17 +385,75 @@ namespace Ogre {
             "The element caption, if supported."
             , PT_STRING),
             &msCaptionCmd);
+        dict->addParameter(ParameterDef("metrics_mode", 
+            "The type of metrics to use, either 'relative' to the screen, or 'pixels'."
+            , PT_STRING),
+            &msMetricsModeCmd);
+        dict->addParameter(ParameterDef("horz_align", 
+            "The horizontal alignment, 'left', 'right' or 'center'."
+            , PT_STRING),
+            &msHorizontalAlignCmd);
+        dict->addParameter(ParameterDef("vert_align", 
+            "The vertical alignment, 'top', 'bottom' or 'center'."
+            , PT_STRING),
+            &msVerticalAlignCmd);
     }
     //-----------------------------------------------------------------------
     void GuiElement::setCaption( const String& caption )
     {
         mCaption = caption;
+        mGeomPositionsOutOfDate = true;
     }
     //-----------------------------------------------------------------------
     const String& GuiElement::getCaption() const
     {
         return mCaption;
     }
+    //-----------------------------------------------------------------------
+    void GuiElement::setMetricsMode(GuiMetricsMode gmm)
+    {
+        mMetricsMode = gmm;
+        if (mMetricsMode == GMM_PIXELS)
+        {
+            // Copy settings into pixel versions
+            // Relative versions will be derived at viewport change time
+            mPixelLeft = mLeft;
+            mPixelTop = mTop;
+            mPixelWidth = mWidth;
+            mPixelHeight = mHeight;
+        }
+        mDerivedOutOfDate = true;
+        mGeomPositionsOutOfDate = true;
+    }
+    //-----------------------------------------------------------------------
+    GuiMetricsMode GuiElement::getMetricsMode(void)
+    {
+        return mMetricsMode;
+    }
+    //-----------------------------------------------------------------------
+    void GuiElement::setHorizontalAlignment(GuiHorizontalAlignment gha)
+    {
+        mHorzAlign = gha;
+        mGeomPositionsOutOfDate = true;
+    }
+    //-----------------------------------------------------------------------
+    GuiHorizontalAlignment GuiElement::getHorizontalAlignment(void)
+    {
+        return mHorzAlign;
+    }
+    //-----------------------------------------------------------------------
+    void GuiElement::setVerticalAlignment(GuiVerticalAlignment gva)
+    {
+        mVertAlign = gva;
+        mGeomPositionsOutOfDate = true;
+    }
+    //-----------------------------------------------------------------------
+    GuiVerticalAlignment GuiElement::getVerticalAlignment(void)
+    {
+        return mVertAlign;
+    }
+    //-----------------------------------------------------------------------
+
 
 
 

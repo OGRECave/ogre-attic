@@ -81,6 +81,7 @@ namespace Ogre {
         mFogMode = FOG_NONE;
 
         mDisplayNodes = false;
+
     }
 
     SceneManager::~SceneManager()
@@ -632,7 +633,10 @@ namespace Ogre {
     {
         mCameraInProgress = camera;
         mCamChanged = true;
-        mViewportInProgress = vp;
+
+
+        // Set the viewport
+        setViewport(vp);
 
 
         // Update the scene
@@ -651,15 +655,13 @@ namespace Ogre {
         // Add overlays, if viewport deems it
         if (vp->getOverlaysEnabled())
         {
-            OverlayManager::getSingleton()._queueOverlaysForRendering(camera, &mRenderQueue);
+            OverlayManager::getSingleton()._queueOverlaysForRendering(camera, &mRenderQueue, vp);
         }
         // Queue skies
         _queueSkiesForRendering(camera);
 
 
 
-        // Set viewport
-        mDestRenderSystem->_setViewport(vp);
         // Don't do view / proj here anymore
         // Checked per renderable now, although only changed when required
         //mDestRenderSystem->_setViewMatrix(camera->getViewMatrix());
@@ -1752,15 +1754,6 @@ namespace Ogre {
 
         if (useIdentityProj && (mCamChanged || !lastProjWasIdentity))
         {
-            // Using flat projection now
-            /*
-            // NB not quite identity projection, adjust for viewport aspect ratio
-            static Matrix4 proj = Matrix4::IDENTITY;
-            Real ratio = (Real)mViewportInProgress->getActualHeight()
-                / (Real)mViewportInProgress->getActualWidth();
-            proj[0][0] = ratio;
-            mDestRenderSystem->_setProjectionMatrix(proj);
-            */
             mDestRenderSystem->_setProjectionMatrix(Matrix4::IDENTITY);
 
             lastProjWasIdentity = true;
@@ -1872,5 +1865,12 @@ namespace Ogre {
         }
         return repeat;
     }
+    //---------------------------------------------------------------------
+    void SceneManager::setViewport(Viewport* vp)
+    {
+        // Set viewport in render system
+        mDestRenderSystem->_setViewport(vp);
+    }
+
 
 }

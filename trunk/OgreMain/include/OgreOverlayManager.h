@@ -44,6 +44,9 @@ namespace Ogre {
         void parseNewMesh(DataChunk& chunk, String& meshName, String& entityName, Overlay* pOverlay);
         void skipToNextCloseBrace(DataChunk& chunk);
         void skipToNextOpenBrace(DataChunk& chunk);
+        
+        int mLastViewportWidth, mLastViewportHeight;
+        bool mViewportDimensionsChanged;
 
 
     public:
@@ -60,10 +63,19 @@ namespace Ogre {
         virtual Resource* create( const String& name);
 
         /** Internal method for queueing the visible overlays for rendering. */
-        void _queueOverlaysForRendering(Camera* cam, RenderQueue* pQueue);
+        void _queueOverlaysForRendering(Camera* cam, RenderQueue* pQueue, Viewport *vp);
 
+        /** Method for determining if the viewport has changed dimensions. 
+        @remarks This is used by pixel-based GuiElements to work out if they need to
+            reclaculate their sizes.
+        */
+        bool hasViewportChanged(void);
 
+        /** Gets the height of the destination viewport in pixels. */
+        int getViewportHeight(void);
         
+        /** Gets the width of the destination viewport in pixels. */
+        int getViewportWidth(void);
 
         /** Override standard Singleton retrieval.
             Why do we do this? Well, it's because the Singleton implementation is in a .h file,
@@ -75,9 +87,6 @@ namespace Ogre {
             single compilation unit, preventing link errors.
         */
         static OverlayManager& getSingleton(void);
-
-
-
 
     };
 

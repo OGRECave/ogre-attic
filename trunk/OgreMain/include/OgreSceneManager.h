@@ -122,8 +122,6 @@ namespace Ogre {
 
         /// Camera in progress
         Camera* mCameraInProgress;
-        // Viewport in progress
-        Viewport* mViewportInProgress;
 
         /// Root scene node
         SceneNode* mSceneRoot;
@@ -222,6 +220,9 @@ namespace Ogre {
         bool fireRenderQueueStarted(RenderQueueGroupID id);
         /// Internal method for firing the queue end event, returns true if queue is to be repeated
         bool fireRenderQueueEnded(RenderQueueGroupID id);
+
+        /** Internal method for setting the destination viewport for the next render. */
+        virtual void setViewport(Viewport *vp);
     public:
         /** Default constructor.
         */
@@ -1051,6 +1052,7 @@ namespace Ogre {
 
         /** Removes a listener previously added with addRenderQueueListener. */
         virtual void removeRenderQueueListener(RenderQueueListener* delListener);
+
        
 
 

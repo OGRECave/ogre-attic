@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMaterialManager.h"
 #include "OgreMaterial.h"
 #include "OgreStringConverter.h"
+#include "OgreOverlayManager.h"
 
 namespace Ogre {
     //---------------------------------------------------------------------
@@ -165,26 +166,53 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void BorderPanelGuiElement::setBorderSize(Real size)
     {
-        mLeftBorderSize = mRightBorderSize = 
-            mTopBorderSize = mBottomBorderSize = size;
-        updatePositionGeometry();
+        if (mMetricsMode == GMM_PIXELS)
+        {
+            mPixelLeftBorderSize = mPixelRightBorderSize = 
+                mPixelTopBorderSize = mPixelBottomBorderSize = size;
+        }
+        else
+        {
+            mLeftBorderSize = mRightBorderSize = 
+                mTopBorderSize = mBottomBorderSize = size;
+        }
+        mGeomPositionsOutOfDate = true;
     }
     //---------------------------------------------------------------------
     void BorderPanelGuiElement::setBorderSize(Real sides, Real topAndBottom)
     {
-        mLeftBorderSize = mRightBorderSize = sides;
-        mTopBorderSize = mBottomBorderSize = topAndBottom;
-        updatePositionGeometry();
+        if (mMetricsMode == GMM_PIXELS)
+        {
+            mPixelLeftBorderSize = mPixelRightBorderSize = sides;
+            mPixelTopBorderSize = mPixelBottomBorderSize = topAndBottom;
+        }
+        else
+        {
+            mLeftBorderSize = mRightBorderSize = sides;
+            mTopBorderSize = mBottomBorderSize = topAndBottom;
+        }
+        mGeomPositionsOutOfDate = true;
+
 
     }
     //---------------------------------------------------------------------
     void BorderPanelGuiElement::setBorderSize(Real left, Real right, Real top, Real bottom)
     {
-        mLeftBorderSize = left;
-        mRightBorderSize = right;
-        mTopBorderSize = top;
-        mBottomBorderSize = bottom;
-        updatePositionGeometry();
+        if (mMetricsMode == GMM_PIXELS)
+        {
+            mPixelLeftBorderSize = left;
+            mPixelRightBorderSize = right;
+            mPixelTopBorderSize = top;
+            mPixelBottomBorderSize = bottom;
+        }
+        else
+        {
+            mLeftBorderSize = left;
+            mRightBorderSize = right;
+            mTopBorderSize = top;
+            mBottomBorderSize = bottom;
+        }
+        mGeomPositionsOutOfDate = true;
     }
     //---------------------------------------------------------------------
     Real BorderPanelGuiElement::getLeftBorderSize(void)
@@ -375,6 +403,37 @@ namespace Ogre {
             queue->addRenderable(mBorderRenderable, RENDER_QUEUE_OVERLAY, mZOrder);
         }
     }
+    //-----------------------------------------------------------------------
+    void BorderPanelGuiElement::setMetricsMode(GuiMetricsMode gmm)
+    {
+        PanelGuiElement::setMetricsMode(gmm);
+        if (gmm == GMM_PIXELS)
+        {
+            mPixelBottomBorderSize = mBottomBorderSize;
+            mPixelLeftBorderSize = mLeftBorderSize;
+            mPixelRightBorderSize = mRightBorderSize;
+            mPixelTopBorderSize = mTopBorderSize;
+        }
+    }
+    //-----------------------------------------------------------------------
+    void BorderPanelGuiElement::_update(void)
+    {
+        if (mMetricsMode == GMM_PIXELS && OverlayManager::getSingleton().hasViewportChanged())
+        {
+            // Recalc border size
+            Real vpWidth, vpHeight;
+            vpWidth = (Real) (OverlayManager::getSingleton().getViewportWidth());
+            vpHeight = (Real) (OverlayManager::getSingleton().getViewportHeight());
+
+            mLeftBorderSize = (Real) mPixelLeftBorderSize / vpWidth;
+            mRightBorderSize = (Real) mPixelRightBorderSize / vpWidth;
+            mTopBorderSize = (Real) mPixelTopBorderSize / vpHeight;
+            mBottomBorderSize = (Real) mPixelBottomBorderSize / vpHeight;
+        }
+        PanelGuiElement::_update();
+
+    }
+    //-----------------------------------------------------------------------
     //---------------------------------------------------------------------
     //---------------------------------------------------------------------
     // Command objects
@@ -544,5 +603,8 @@ namespace Ogre {
             StringConverter::parseReal(vec[3])
             );
     }
+
+
+
 }
 

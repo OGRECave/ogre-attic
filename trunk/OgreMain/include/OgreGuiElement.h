@@ -36,6 +36,36 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
 
+    /** Enum describing how the position / size of an element is to be recorded. 
+    */
+    enum GuiMetricsMode
+    {
+        /// 'left', 'top', 'height' and 'width' are parametrics from 0.0 to 1.0
+        GMM_RELATIVE,
+        /// Positions & sizes are in absolute pixels
+        GMM_PIXELS
+    };
+
+    /** Enum describing where '0' is in relation to the parent in the horizontal dimension.
+    @remarks Affects how 'left' is interpreted.
+    */
+    enum GuiHorizontalAlignment
+    {
+        GHA_LEFT,
+        GHA_CENTER,
+        GHA_RIGHT
+    };
+    /** Enum describing where '0' is in relation to the parent in the vertical dimension.
+    @remarks Affects how 'top' is interpreted.
+    */
+    enum GuiVerticalAlignment
+    {
+        GVA_TOP,
+        GVA_CENTER,
+        GVA_BOTTOM
+    };
+
+
     /** Abstract definition of a 2D element to be displayed in an Overlay.
     @remarks
         This class abstracts all the details of a 2D element which will appear in
@@ -69,6 +99,10 @@ namespace Ogre {
         static GuiElementCommands::CmdHeight msHeightCmd;
         static GuiElementCommands::CmdMaterial msMaterialCmd;
         static GuiElementCommands::CmdCaption msCaptionCmd;
+        static GuiElementCommands::CmdMetricsMode msMetricsModeCmd;
+        static GuiElementCommands::CmdHorizontalAlign msHorizontalAlignCmd;
+        static GuiElementCommands::CmdVerticalAlign msVerticalAlignCmd;
+
 
         String mName;
         bool mVisible;
@@ -80,6 +114,16 @@ namespace Ogre {
         Material* mpMaterial;
         String mCaption;
 
+        GuiMetricsMode mMetricsMode;
+        GuiHorizontalAlignment mHorzAlign;
+        GuiVerticalAlignment mVertAlign;
+
+        // Pixel-mode positions, used in GMM_PIXELS mode.
+        short mPixelTop;
+        short mPixelLeft;
+        short mPixelWidth;
+        short mPixelHeight;
+
         // Parent pointer
         GuiContainer* mParent;
         // Overlay attached to
@@ -89,6 +133,9 @@ namespace Ogre {
         Real mDerivedLeft;
         Real mDerivedTop;
         bool mDerivedOutOfDate;
+
+        /// Falg indicating if the vertex positons need recalculating
+        bool mGeomPositionsOutOfDate;
 
         // Zorder for when sending to render queue
         // Derived from parent
@@ -230,6 +277,58 @@ namespace Ogre {
 
         /** Gets the caption for this element. */
         virtual const String& getCaption(void) const;
+
+        /** Tells this element how to interpret the position and dimension values it is given.
+        @remarks
+            By default, GuiElements are positioned and sized according to relative dimensions
+            of the screen. This is to ensure portability between different resolutions when you
+            want things to be positioned and sized the same way across all resolutions. However, 
+            sometimes you want things to be sized according to fixed pixels. In order to do this,
+            you can call this method with the parameter GMM_PIXELS. Note that if you then want
+            to place your element relative to the center, right or bottom of it's parent, you will
+            need to use the setHorizontalAlignment and setVerticalAlignment methods.
+        */
+        virtual void setMetricsMode(GuiMetricsMode gmm);
+        /** Retrieves the current settings of how the element metrics are interpreted. */
+        virtual GuiMetricsMode getMetricsMode(void);
+        /** Sets the horizontal origin for this element.
+        @remarks
+            By default, the horizontal origin for a GuiElement is the left edge of the parent container
+            (or the screen if this is a root element). You can alter this by calling this method, which is
+            especially useful when you want to use pixel-based metrics (see setMetricsMode) since in this
+            mode you can't use relative positioning.
+        @par
+            For example, if you were using GMM_PIXELS metrics mode, and you wanted to place a 30x30 pixel
+            crosshair in the center of the screen, you would use GHA_CENTER with a 'left' property of -15.
+        @par
+            Note that neither GHA_CENTER or GHA_RIGHT alter the position of the element based
+            on it's width, you have to alter the 'left' to a negative number to do that; all this
+            does is establish the origin. This is because this way you can align multiple things
+            in the center and right with different 'left' offsets for maximum flexibility.
+        */
+        virtual void setHorizontalAlignment(GuiHorizontalAlignment gha);
+        /** Gets the horizontal alignment for this element. */
+        virtual GuiHorizontalAlignment getHorizontalAlignment(void);
+        /** Sets the vertical origin for this element. 
+        @remarks
+            By default, the vertical origin for a GuiElement is the top edge of the parent container
+            (or the screen if this is a root element). You can alter this by calling this method, which is
+            especially useful when you want to use pixel-based metrics (see setMetricsMode) since in this
+            mode you can't use relative positioning.
+        @par
+            For example, if you were using GMM_PIXELS metrics mode, and you wanted to place a 30x30 pixel
+            crosshair in the center of the screen, you would use GHA_CENTER with a 'top' property of -15.
+        @par
+            Note that neither GVA_CENTER or GVA_BOTTOM alter the position of the element based
+            on it's height, you have to alter the 'top' to a negative number to do that; all this
+            does is establish the origin. This is because this way you can align multiple things
+            in the center and bottom with different 'top' offsets for maximum flexibility.
+        */
+        virtual void setVerticalAlignment(GuiVerticalAlignment gva);
+        /** Gets the vertical alignment for this element. */
+        virtual GuiVerticalAlignment getVerticalAlignment(void);
+
+
 
 
 

@@ -34,13 +34,16 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSceneManager.h"
 #include "OgreSceneNode.h"
 #include "OgreEntity.h"
+#include "OgreViewport.h"
 
 namespace Ogre {
 
     //---------------------------------------------------------------------
     template<> OverlayManager *Singleton<OverlayManager>::ms_Singleton = 0;
     //---------------------------------------------------------------------
-    OverlayManager::OverlayManager()
+    OverlayManager::OverlayManager() :
+        mLastViewportWidth(0), mLastViewportHeight(0), 
+        mViewportDimensionsChanged(false)
     {
     }
     //---------------------------------------------------------------------
@@ -169,8 +172,23 @@ namespace Ogre {
         return s;
     }
     //---------------------------------------------------------------------
-    void OverlayManager::_queueOverlaysForRendering(Camera* cam, RenderQueue* pQueue)
+    void OverlayManager::_queueOverlaysForRendering(Camera* cam, 
+        RenderQueue* pQueue, Viewport* vp)
     {
+        // Flag for update pixel-based GUIElements if viewport has changed dimensions
+        if (mLastViewportWidth != vp->getActualWidth() || 
+            mLastViewportHeight != vp->getActualHeight())
+        {
+            mViewportDimensionsChanged = true;
+            mLastViewportWidth = vp->getActualWidth();
+            mLastViewportHeight = vp->getActualHeight();
+
+        }
+        else
+        {
+            mViewportDimensionsChanged = false;
+        }
+
         ResourceMap::iterator i, iend;
         iend = mResources.end();
         for (i = mResources.begin(); i != iend; ++i)
@@ -405,12 +423,23 @@ namespace Ogre {
         // Attach node to overlay
         pOverlay->add3D(node);
         
-
-
-
-
     }
-
+    //---------------------------------------------------------------------
+    bool OverlayManager::hasViewportChanged(void)
+    {
+        return mViewportDimensionsChanged;
+    }
+    //---------------------------------------------------------------------
+    int OverlayManager::getViewportHeight(void)
+    {
+        return mLastViewportHeight;
+    }
+    //---------------------------------------------------------------------
+    int OverlayManager::getViewportWidth(void)
+    {
+        return mLastViewportWidth;
+    }
+    //---------------------------------------------------------------------
 
 
 

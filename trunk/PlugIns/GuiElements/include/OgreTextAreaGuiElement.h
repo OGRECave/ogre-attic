@@ -121,6 +121,12 @@ namespace Ogre
             return mAlignment;
         }
 
+        /** Overridden from GuiElement */
+        void setMetricsMode(GuiMetricsMode gmm);
+
+        /** Overridden from GuiElement */
+        void _update(void);
+
         //-----------------------------------------------------------------------------------------
         /** Command object for setting the caption.
                 @see ParamCommand
@@ -207,6 +213,7 @@ namespace Ogre
 
         Font *mpFont;
         Real mCharHeight;
+        ushort mPixelCharHeight;
         uint mAllocSize;
 
         /// Colours to use for the vertices
