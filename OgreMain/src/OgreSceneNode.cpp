@@ -50,6 +50,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     SceneNode::~SceneNode()
     {
+		detachAllObjects();
 		if (mWireBoundingBox) {
 			delete mWireBoundingBox;
 		}
