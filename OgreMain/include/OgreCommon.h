@@ -28,7 +28,18 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    /// Comparison functions
+	enum ResourceType
+    {
+        /// All resource types
+        RESTYPE_ALL,
+        /// Textures
+        RESTYPE_TEXTURES,
+        /// Models
+        RESTYPE_MODELS,
+    };
+
+    /** Comparison functions used for the depth/stencil buffer operations and 
+		others. */
     enum CompareFunction
     {
         CMPF_ALWAYS_FAIL,
@@ -41,7 +52,8 @@ namespace Ogre {
         CMPF_GREATER
     };
 
-    /** Texture filtering ie minification and magnification supersampling modes. */
+    /** Texture filtering defining the different minification and magnification 
+		supersampling modes. */
     enum TextureFilterOptions
     {
         TFO_NONE,
@@ -69,57 +81,99 @@ namespace Ogre {
         /// Fog density increases linearly between the start and end distances
         FOG_LINEAR
     };
+
     /** Hardware culling modes based on vertex winding.
-        This setting applies to how the hardware API culls triangles it is sent.
-    */
+        This setting applies to how the hardware API culls triangles it is sent. */
     enum CullingMode
     {
-        /// Hardware never culls triangles and renders everything it is sent
+        /// Hardware never culls triangles and renders everything it receives.
         CULL_NONE = 1,
-        /// Hardware culls triangles whose vertices are listed clockwise in the view (default)
+        /// Hardware culls triangles whose vertices are listed clockwise in the view (default).
         CULL_CLOCKWISE = 2,
-        /// Hardware culls triangles whose vertices are listed anticlockwise in the view
+        /// Hardware culls triangles whose vertices are listed anticlockwise in the view.
         CULL_ANTICLOCKWISE = 3
     };
+
     /** Manual culling modes based on vertex normals.
-        This setting applies to how the software culls triangles before sending them to the hardware API.
-        Only used by SceneManager's which choose to use it, normally those which deal with large amounts of
-        fixed world geometry which is often planar (software culling movable variable geometry is expensive)
-    */
+        This setting applies to how the software culls triangles before sending them to the 
+		hardware API. This culling mode is used by scene managers which choose to implement it -
+		normally those which deal with large amounts of fixed world geometry which is often 
+		planar (software culling movable variable geometry is expensive). */
     enum ManualCullingMode
     {
-        /// No software culling - all triangles are sent to the hardware
+        /// No culling so everything is sent to the hardware.
         MANUAL_CULL_NONE = 1,
-        /// Cull triangles whose normal is pointing away from the camera (default)
+        /// Cull triangles whose normal is pointing away from the camera (default).
         MANUAL_CULL_BACK = 2,
-        /// Cull triangles whose normal is pointing towards the camera
+        /// Cull triangles whose normal is pointing towards the camera.
         MANUAL_CULL_FRONT = 3
     };
+
     /** Enumerates the wave types usable with the Ogre engine. */
     enum WaveformType
     {
-        /** Standard sine wave which smoothly changes from low to high and back again. */
+        /// Standard sine wave which smoothly changes from low to high and back again.
         WFT_SINE,
-        /** An angular wave with a constant increase / decrease speed with pointed peaks. */
+        /// An angular wave with a constant increase / decrease speed with pointed peaks.
         WFT_TRIANGLE,
-        /** Half of the time is spent at the min, half at the max with instant transition between. */
+        /// Half of the time is spent at the min, half at the max with instant transition between.
         WFT_SQUARE,
-        /** Gradual steady increase from min to max over the period with an instant return to min at the end. */
+        /// Gradual steady increase from min to max over the period with an instant return to min at the end.
         WFT_SAWTOOTH,
-        /** Gradual steady decrease from max to min over the period, with an instant return to max at the end. */
+        /// Gradual steady decrease from max to min over the period, with an instant return to max at the end.
         WFT_INVERSE_SAWTOOTH
     };
 
-
-    /** The broad type of detail for rendering.
-    */
+    /** The broad type of detail for rendering. */
     enum SceneDetailLevel
     {
+		/// Only points are rendered.
         SDL_POINTS,
+		/// Wireframe models are rendered.
         SDL_WIREFRAME,
+		/// Solid polygons are rendered.
         SDL_SOLID
     };
 
+	/** The pixel format used for textures. */
+	enum PixelFormat
+	{
+		/// Unknown pixel format.
+		PF_UNKNOWN,
+		/// 8-bit pixel format, all bits luminace.
+		PF_L8,
+		/// 8-bit pixel format, all bits alpha.
+		PF_A8,
+		/// 8-bit pixel format, 4 bits alpha, 4 bits luminace.
+		PF_A4L4,
+		/// 8-bit pixel format, 4 bits luminace, 4 bits alpha.
+		PF_L4A4,
+		/// 16-bit pixel format, 5 bits red, 6 bits green, 5 bits blue.
+		PF_R5G6B5,
+		/// 16-bit pixel format, 5 bits blue, 6 bits green, 5 bits red.
+		PF_B5G6R5,
+		/// 16-bit pixel format, 4 bits for alpha, red, green and blue.
+		PF_A4R4G4B4,
+		/// 16-bit pixel format, 4 bits for blue, green, red and alpha.
+		PF_B4G4R4A4,
+		/// 24-bit pixel format, 8 bits for red, green and blue.
+		PF_R8G8B8,
+		/// 24-bit pixel format, 8 bits for blue, green and red.
+		PF_B8R8G8,
+		/// 32-bit pixel format, 8 bits for alpha, red, green and blue.
+		PF_A8R8G8B8,
+		/// 32-bit pixel format, 8 bits for blue, green, red and alpha.
+		PF_B8G8R8A8,
+		/// 32-bit pixel format, 2 bits for alpha, 10 bits for red, green and blue.
+		PF_A2R10G10B10,
+		/// 32-bit pixel format, 10 bits for blue, green and red, 2 bits for alpha.
+		PF_B10G10R10A2
+	};
+
+#ifdef OGRE_NONCLIENT_BUILD
+	PixelFormat ilFormat2OgreFormat( int ImageFormat, int BytesPerPixel );
+	std::pair< int, int > OgreFormat2ilFormat( PixelFormat format );
+#endif
 }
 
 #endif
