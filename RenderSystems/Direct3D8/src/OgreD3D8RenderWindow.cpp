@@ -1,6 +1,5 @@
 #include "OgreD3D8RenderWindow.h"
 
-#include <cstdarg>
 #include "OgreLogManager.h"
 #include "OgreViewport.h"
 #include "OgreException.h"
@@ -9,8 +8,6 @@
 #include <d3d8.h>
 #include "OgreMemoryMacros.h"
 #include "dxutil.h"
-
-//#include "OgreD3D8TextureManager.h"
 
 namespace Ogre
 {
@@ -188,7 +185,6 @@ namespace Ogre
 		ShowWindow( hWnd, SW_SHOWNORMAL );
 		UpdateWindow( hWnd );
 
-		setParam( "HWND", &hWnd, sizeof(HWND) );
 		mHWnd = hWnd;
 
 		// store info
