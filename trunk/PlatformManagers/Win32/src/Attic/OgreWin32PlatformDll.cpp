@@ -137,11 +137,11 @@ namespace Ogre {
         if( fdwReason == DLL_THREAD_DETACH ) {
             if( g_iCreatedConfigDiag )
                 LogManager::logMessage( "Memory Leak: Not all platform configuration dialogs were destroyed!!!", LML_CRITICAL );
-            if( g_iCreatedConfigDiag )
+            if( g_iCreatedErrorDiag )
                 LogManager::logMessage( "Memory Leak: Not all platform error dialogs were destroyed!!!", LML_CRITICAL );
-            if( g_iCreatedConfigDiag )
+            if( g_iCreatedRenderWindow )
                 LogManager::logMessage( "Memory Leak: Not all platform render windows were destroyed!!!", LML_CRITICAL );
-            if( g_iCreatedConfigDiag )
+            if( g_iCreatedInputReader )
                 LogManager::logMessage( "Memory Leak: Not all platform input readers were destroyed!!!", LML_CRITICAL );
         }
     }
