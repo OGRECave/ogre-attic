@@ -33,37 +33,63 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     //-----------------------------------------------------------------------
-    String StringConverter::toString(Real val)
+    String StringConverter::toString(Real val, unsigned short precision, 
+        unsigned short width, char fill, std::ios::fmtflags flags)
     {
         StringUtil::StrStreamType stream;
+        stream.precision(precision);
+        stream.width(width);
+        stream.fill(fill);
+        if (flags)
+            stream.setf(flags);
         stream << val;
         return stream.str();
     }
     //-----------------------------------------------------------------------
-    String StringConverter::toString(int val)
+    String StringConverter::toString(int val, 
+        unsigned short width, char fill, std::ios::fmtflags flags)
     {
         StringUtil::StrStreamType stream;
+        stream.width(width);
+        stream.fill(fill);
+        if (flags)
+            stream.setf(flags);
         stream << val;
         return stream.str();
     }
     //-----------------------------------------------------------------------
-    String StringConverter::toString(unsigned int val)
+    String StringConverter::toString(unsigned int val, 
+        unsigned short width, char fill, std::ios::fmtflags flags)
     {
         StringUtil::StrStreamType stream;
+        stream.width(width);
+        stream.fill(fill);
+        if (flags)
+            stream.setf(flags);
         stream << val;
         return stream.str();
     }
     //-----------------------------------------------------------------------
-    String StringConverter::toString(long val)
+    String StringConverter::toString(long val, 
+        unsigned short width, char fill, std::ios::fmtflags flags)
     {
         StringUtil::StrStreamType stream;
+        stream.width(width);
+        stream.fill(fill);
+        if (flags)
+            stream.setf(flags);
         stream << val;
         return stream.str();
     }
     //-----------------------------------------------------------------------
-    String StringConverter::toString(unsigned long val)
+    String StringConverter::toString(unsigned long val, 
+        unsigned short width, char fill, std::ios::fmtflags flags)
     {
         StringUtil::StrStreamType stream;
+        stream.width(width);
+        stream.fill(fill);
+        if (flags)
+            stream.setf(flags);
         stream << val;
         return stream.str();
     }
