@@ -576,6 +576,13 @@ namespace Ogre {
                 case M_MESH_BONE_ASSIGNMENT:
                     readMeshBoneAssignment(chunk);
                     break;
+                default:
+                    // Not a recognised chunk, must be non-nested
+                    // Break out
+                    // Backpedal back to start of chunk
+                    chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
+                    return;
+
                 }
 
                 if (!chunk.isEOF())
@@ -636,6 +643,13 @@ namespace Ogre {
                 case M_SUBMESH_BONE_ASSIGNMENT:
                     readSubMeshBoneAssignment(chunk, sm);
                     break;
+                default:
+                    // Not a recognised chunk, must be non-nested
+                    // Break out
+                    // Backpedal back to start of chunk
+                    chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
+                    return;
+
                 }
 
                 if (!chunk.isEOF())
@@ -822,6 +836,9 @@ namespace Ogre {
 // (for more info, see http://www.cvshome.org/docs/manual/cvs_12.html#SEC103 )
 //
 // $Log$
+// Revision 1.13  2002/08/22 23:07:51  sinbad
+// Fixed problem with not loading all submeshes
+//
 // Revision 1.12  2002/08/22 14:52:14  cearny
 // Linux changes.
 //
