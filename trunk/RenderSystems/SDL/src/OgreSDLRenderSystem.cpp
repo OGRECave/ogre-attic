@@ -1478,6 +1478,8 @@ namespace Ogre {
         case CMPF_GREATER:
             return GL_GREATER;
         };
+        // to keep compiler happy
+        return GL_ALWAYS;
     }
     //---------------------------------------------------------------------
     GLint SDLRenderSystem::convertStencilOp(StencilOperation op)
@@ -1497,6 +1499,23 @@ namespace Ogre {
         case SOP_INVERT:
             return GL_INVERT;
         };
+        // to keep compiler happy
+        return SOP_KEEP;
     }
+    //---------------------------------------------------------------------
+    void SDLRenderSystem::setStencilBufferParams(CompareFunction func, ulong refValue, 
+        ulong mask, StencilOperation stencilFailOp, 
+        StencilOperation depthFailOp, StencilOperation passOp)
+    {
+        // optimise this into 2 calls instead of many
+        mStencilFunc = convertCompareFunction(func);
+        mStencilRef = refValue;
+        mStencilMask = mask;
+        mStencilFail = convertStencilOp(stencilFailOp);
+        mStencilZFail = convertStencilOp(depthFailOp);
+        mStencilPass = convertStencilOp(passOp);
+        glStencilFunc(mStencilFunc, mStencilRef, mStencilMask);
+        glStencilOp(mStencilFail, mStencilZFail, mStencilPass);
 
+    }
 }
