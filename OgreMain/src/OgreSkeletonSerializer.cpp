@@ -372,7 +372,7 @@ namespace Ogre {
             if (!stream->eof())
             {
                 // Backpedal back to start of this stream if we've found a non-track
-                stream->skip(-(long)STREAM_OVERHEAD_SIZE);
+                stream->skip(-STREAM_OVERHEAD_SIZE);
             }
 
         }
@@ -411,7 +411,7 @@ namespace Ogre {
             if (!stream->eof())
             {
                 // Backpedal back to start of this stream if we've found a non-keyframe
-                stream->skip(-(long)STREAM_OVERHEAD_SIZE);
+                stream->skip(-STREAM_OVERHEAD_SIZE);
             }
 
         }
