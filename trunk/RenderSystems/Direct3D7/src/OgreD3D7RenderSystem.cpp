@@ -500,49 +500,15 @@ namespace Ogre {
                 lastStartTime = fTime;
 
                 // Render a frame during idle time (no messages are waiting)
-				for( uchar i = 0; i < 10; i++ )
-					for( RenderTargetList::iterator j = mPrioritisedRenderTargets[ i ].begin(); j != mPrioritisedRenderTargets[ i ].end(); j++ )
-						if( (*j)->isActive() )
-						{
-							bool isTexture; (*j)->getCustomAttribute( "isTexture", &isTexture );
-							/*
-							if( isTexture )
-							{
-							*/
-								/*
-								Matrix4 m4 = Matrix4::IDENTITY; m4[2][0] = -1.0; m4[2][1] = -1.0;
-								D3DMATRIX d3dm = makeD3DMatrix( m4 );
-								mlpD3DDevice->SetTransform( D3DTRANSFORMSTATE_TEXTURE0, &d3dm );
-								*/
-							
-							Matrix4 matTrans = Matrix4::ZERO; 
-							//matTrans[1][2] = 0.5;
-							//matTrans[0][2] = 0.5;
-							//matTrans[2][0] = 0.5;
-							//matTrans[2][1] = 0.5;
-							_setTextureMatrix( 0, matTrans );
-								
-							/*
-							}
-							*/
-
-							(*j)->update();
-
-							/*
-							if( isTexture )
-							{
-							*/
-								/*
-								Matrix4 m4 = Matrix4::IDENTITY;
-								D3DMATRIX d3dm = makeD3DMatrix( m4 );
-								mlpD3DDevice->SetTransform( D3DTRANSFORMSTATE_TEXTURE0, &d3dm );
-								*/
-								/*
-								mlpD3DDevice->SetTextureStageState( 0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_DISABLE );
-								mlpD3DDevice->SetTextureStageState( 1, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_DISABLE );
-								*/
-							//}
-						}
+                RenderTargetPriorityMap::iterator itarg, itargend;
+                itargend = mPrioritisedRenderTargets.end();
+				for( itarg = mPrioritisedRenderTargets.begin(); itarg != itargend; ++itarg )
+                {
+					if( itarg->second->isActive() )
+					{
+						itarg->second->update();
+					}
+                }
 
                 // Do frame ended event
                 fTime = clock(); // Get current time

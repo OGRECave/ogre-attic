@@ -281,10 +281,15 @@ namespace Ogre {
             lastStartTime = fTime;
 
             // Render a frame during idle time (no messages are waiting)
-            for( uchar i = 0; i < 10; i++ )
-				for( RenderTargetList::iterator j = mPrioritisedRenderTargets[ i ].begin(); j != mPrioritisedRenderTargets[ i ].end(); j++ )
-					if( (*j)->isActive() )
-						(*j)->update();
+            RenderTargetPriorityMap::iterator itarg, itargend;
+            itargend = mPrioritisedRenderTargets.end();
+			for( itarg = mPrioritisedRenderTargets.begin(); itarg != itargend; ++itarg )
+            {
+				if( itarg->second->isActive() )
+				{
+					itarg->second->update();
+				}
+            }
 
             // Do frame ended event
             fTime = clock(); // Get current time

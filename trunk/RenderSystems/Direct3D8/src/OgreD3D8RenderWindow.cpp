@@ -130,7 +130,6 @@ namespace Ogre
 		mActive = false;
 		mReady = false;
 		mClosed = false;
-		mpDbgFont = NULL;
 	}
 
 	D3D8RenderWindow::~D3D8RenderWindow()
@@ -332,10 +331,6 @@ namespace Ogre
 			if( FAILED( hr ) )
 				Except( hr, "Failed to create Direct3D8 Device", "D3D8RenderWindow::create" );
 
-			// Create our debug output font
-			mpDbgFont = new CD3DFont( "Arial", 8 );
-			mpDbgFont->InitDeviceObjects( mpD3DDevice );
-			mpDbgFont->RestoreDeviceObjects();
 				
 		}
 		else
@@ -346,7 +341,6 @@ namespace Ogre
 
 	void D3D8RenderWindow::destroy()
 	{
-		SAFE_DELETE( mpDbgFont );
 		SAFE_RELEASE( mpD3DDevice );
 
 		DestroyWindow( mHWnd );
@@ -375,8 +369,6 @@ namespace Ogre
 			{
 				// TODO: Restore surfaces
 				// restoreD3DSurfaces();
-				mpDbgFont->InvalidateDeviceObjects();
-				mpDbgFont->RestoreDeviceObjects();
 			}
 			else if( FAILED(hr) )
 			{
@@ -437,14 +429,7 @@ namespace Ogre
 
 	void D3D8RenderWindow::outputText( int x, int y, const String& text )
 	{
-		// I have to figure out a better way to do this.  The problem here is that I *may* (most likely)
-		// need to setup a new scene, and this could slow the system down
-		static TCHAR buff[MAX_PATH] = _TO_CHAR("");
-		_tcsncpy( buff, text.c_str(), MAX_PATH );
-		HRESULT hr = mpD3DDevice->BeginScene();
-		mpDbgFont->DrawText( (FLOAT)x, (FLOAT)y, D3DCOLOR_XRGB( 255, 255, 0 ), buff );
-		if( SUCCEEDED(hr) )
-			mpD3DDevice->EndScene();
+        // Deprecated
 	}
 
 	void D3D8RenderWindow::WindowMovedOrResized()
