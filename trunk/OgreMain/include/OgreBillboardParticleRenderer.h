@@ -123,6 +123,8 @@ namespace Ogre {
         void _notifyParticleResized(void);
         /// @copydoc ParticleSystemRenderer::_notifyParticleQuota
         void _notifyParticleQuota(size_t quota);
+        /// @copydoc ParticleSystemRenderer::_notifyAttached
+        void _notifyAttached(Node* parent, bool isTagPoint = false);
 
     protected:
         static CmdBillboardType msBillboardTypeCmd;

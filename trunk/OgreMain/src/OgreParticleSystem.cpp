@@ -672,6 +672,15 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
+    void ParticleSystem::_notifyAttached(Node* parent, bool isTagPoint)
+    {
+        MovableObject::_notifyAttached(parent, isTagPoint);
+        if (mRenderer)
+        {
+            mRenderer->_notifyAttached(parent, isTagPoint);
+        }
+    }
+    //-----------------------------------------------------------------------
     void ParticleSystem::setMaterialName(const String& name)
     {
         mMaterialName = name;
