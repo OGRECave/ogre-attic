@@ -165,8 +165,10 @@ namespace Ogre {
         Technique* createTechnique(void);
         /** Gets the indexed technique. */
         Technique* getTechnique(unsigned short index);
-        /** Removes the technique at the given index. */
-        void removeTechnique(unsigned short index);
+		/** Retrieves the number of techniques. */
+        unsigned short getNumTechniques(void) const;
+        /** Removes the technique at the given index. */		
+        void removeTechnique(unsigned short index);		
         /** Removes all the techniques in this Material. */
         void removeAllTechniques(void);
         typedef VectorIterator<Techniques> TechniqueIterator;
@@ -179,6 +181,11 @@ namespace Ogre {
             an empty list, try calling Material::load.
         */
         TechniqueIterator getSupportedTechniqueIterator(void);
+		
+		/** Gets the indexed supported technique. */
+        Technique* getSupportedTechnique(unsigned short index);
+		/** Retrieves the number of supported techniques. */
+        unsigned short getNumSupportedTechniques(void) const;
 
         /** Gets the number of levels-of-detail this material has, based on 
             Technique::setLodIndex. 

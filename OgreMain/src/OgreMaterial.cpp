@@ -205,7 +205,23 @@ namespace Ogre {
         assert (index < mTechniques.size() && "Index out of bounds.");
         return mTechniques[index];
     }
-    //-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------	
+    unsigned short Material::getNumTechniques(void) const
+    {
+		return static_cast<unsigned short>(mTechniques.size());
+    }
+	//-----------------------------------------------------------------------
+    Technique* Material::getSupportedTechnique(unsigned short index)
+    {
+        assert (index < mSupportedTechniques.size() && "Index out of bounds.");
+        return mSupportedTechniques[index];
+    }
+    //-----------------------------------------------------------------------	
+    unsigned short Material::getNumSupportedTechniques(void) const
+    {
+		return static_cast<unsigned short>(mSupportedTechniques.size());
+    }
+	//-----------------------------------------------------------------------------
     Technique* Material::getBestTechnique(unsigned short lodIndex)
     {
         if (mSupportedTechniques.empty())
@@ -587,4 +603,3 @@ namespace Ogre {
     }
 
 }
-
