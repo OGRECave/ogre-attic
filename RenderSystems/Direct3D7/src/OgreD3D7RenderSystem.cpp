@@ -864,9 +864,31 @@ namespace Ogre {
         // Ogre, OpenGL and everything else uses coloumn vectors i.e. M*V
         D3DMATRIX d3dMat;
 
+        d3dMat.m[0][0] = mat[0][0];
+        d3dMat.m[0][1] = mat[1][0];
+        d3dMat.m[0][2] = mat[2][0];
+        d3dMat.m[0][3] = mat[3][0];
+
+        d3dMat.m[1][0] = mat[0][1];
+        d3dMat.m[1][1] = mat[1][1];
+        d3dMat.m[1][2] = mat[2][1];
+        d3dMat.m[1][3] = mat[3][1];
+
+        d3dMat.m[2][0] = mat[0][2];
+        d3dMat.m[2][1] = mat[1][2];
+        d3dMat.m[2][2] = mat[2][2];
+        d3dMat.m[2][3] = mat[3][2];
+
+        d3dMat.m[3][0] = mat[0][3];
+        d3dMat.m[3][1] = mat[1][3];
+        d3dMat.m[3][2] = mat[2][3];
+        d3dMat.m[3][3] = mat[3][3];
+
+        /*
         for (int row = 0; row < 4; ++row)
             for (int col = 0; col < 4; ++col)
                 d3dMat.m[col][row] = mat[row][col];
+        */
 
         return d3dMat;
 

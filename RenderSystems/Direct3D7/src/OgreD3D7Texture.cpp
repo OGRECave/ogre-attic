@@ -45,171 +45,76 @@ namespace Ogre {
 
     D3DTexture::~D3DTexture()
     {
-        if (mIsLoaded)
+        if( mIsLoaded )
             unload();
     }
 
-    // -------------------------------------------------------------------
-    void D3DTexture::loadRawRGB(void* buffer, int width, int height)
+    void D3DTexture::blitToTexture( 
+        const Image &src, unsigned uStartX, unsigned uStartY )
     {
-        // Load from RGB
-        if (mIsLoaded)
-        {
-            unload();
-            mIsLoaded = false;
-        }
-
-        char msg[100];
-        sprintf(msg, "D3DTexture: Loading %s with %d mipmaps from raw RGB stream.", mName.c_str(), mNumMipMaps);
-        LogManager::getSingleton().logMessage(msg);
-
-        mSrcBpp = 24;
-        mHasAlpha = false;
-
-        mSrcWidth = width;
-        mSrcHeight = height;
-
-        // Create DD surfaces
-        createSurfaces();
-
-        applyGamma((unsigned char*)buffer,width*height*(mSrcBpp>>3), mSrcBpp);
-
-        copyMemoryToSurface((unsigned char*)buffer);
-
-        // Generate mipmaps
-        generateMipMaps();
-
-        // Update size (NB final size, not including temp space)
-        short bytesPerPixel = mFinalBpp >> 3;
-        if ((!mHasAlpha) && (mFinalBpp == 32))
-        {
-            bytesPerPixel--;
-        }
-        mSize = mWidth * mHeight * bytesPerPixel;
-
-        mIsLoaded = true;
-
+        // I have no FREAKING idea how this is done in DX7 and besides, I don't
+        // have the API docs installed. Sorry, guys :(
     }
 
-    // -------------------------------------------------------------------
-    void D3DTexture::loadRawRGBA(void* buffer, int width, int height)
+    void D3DTexture::loadImage( const Image & img )
     {
-        // Load from RGB
-        if (mIsLoaded)
+        if( mIsLoaded )
         {
             unload();
-            mIsLoaded = false;
         }
 
-        char msg[100];
-        sprintf(msg, "D3DTexture: Loading %s with %d mipmaps from raw RGBA stream.", mName.c_str(), mNumMipMaps);
-        LogManager::getSingleton().logMessage(msg);
+        LogManager::getSingleton().logMessage( 
+            LML_TRIVIAL,
+            "D3DTexture: Loading %s with %d mipmaps from Image.", 
+            mName.c_str(), mNumMipMaps );
 
-        mSrcBpp = 32;
-        mHasAlpha = true;
-
-        mSrcWidth = width;
-        mSrcHeight = height;
-
-        // Create DD surfaces
-        createSurfaces();
-
-        applyGamma((unsigned char*)buffer,width*height*(mSrcBpp>>3), mSrcBpp);
-
-        copyMemoryToSurface((unsigned char*)buffer);
-
-        // Generate mipmaps
-        generateMipMaps();
-
-        // Update size (NB final size, not including temp space)
-        short bytesPerPixel = mFinalBpp >> 3;
-        if ((!mHasAlpha) && (mFinalBpp == 32))
+        if( img.getFormat() & Image::FMT_ALPHA )
         {
-            bytesPerPixel--;
-        }
-        mSize = mWidth * mHeight * bytesPerPixel;
-
-        mIsLoaded = true;
-
-    }
-
-    // -------------------------------------------------------------------
-    void D3DTexture::load(void)
-    {
-
-        // Load from specified 'name'
-        if (mIsLoaded)
-        {
-            unload();
-            mIsLoaded = false;
-        }
-
-        char msg[100];
-        sprintf(msg, "D3DTexture: Loading %s with %d mipmaps.", mName.c_str(), mNumMipMaps);
-        LogManager::getSingleton().logMessage(msg);
-
-        // Get extension
-        // Manipulate using C-strings as case-insensitive compare is hard in STL?
-        char extension[4];
-
-
-        // Read data from whatever source
-        DataChunk chunk;
-        TextureManager::getSingleton()._findResourceData(mName, chunk);
-
-        size_t pos = mName.find_last_of(".");
-		if( pos == String::npos )
-            Except( 
-			Exception::ERR_INVALIDPARAMS, 
-			"Unable to load texture - invalid extension.",
-            "D3DTexture::load" );
-
-        strcpy(extension, mName.substr(pos + 1, 3).c_str());
-
-        // NB - BMP support removed
-        // Load using Image object
-        Image img;
-        // Load from memory chunk
-        img.load(chunk,extension);
-        chunk.clear();
-        if (img.isGreyscale())
-        {
-            mSrcBpp = 8;
+            mSrcBpp = 32;
+            mHasAlpha = true;
         }
         else
         {
             mSrcBpp = 24;
+            mHasAlpha = false;
         }
 
-        if (mHasAlpha = img.hasAlphaChannel())
-        {
-            mSrcBpp += 8;
-        }
         mSrcWidth = img.getWidth();
         mSrcHeight = img.getHeight();
-        // Create DD surfaces
+
+        uchar *pTempData = new uchar[ img.getSize() ];
+        memcpy( pTempData, img.getConstData(), img.getSize() );
+
         createSurfaces();
-
-        applyGamma(img.getData(), mSrcWidth*mSrcHeight*(mSrcBpp>>3), mSrcBpp);
-        copyMemoryToSurface(img.getData());
-
-        // Generate mipmaps
+        applyGamma( pTempData, img.getSize(), mSrcBpp );
+        copyMemoryToSurface( pTempData );
         generateMipMaps();
 
-        // Update size (NB final size, not including temp space)
+        delete [] pTempData;
+
+        // Update size (the final size, not including temp space)
         short bytesPerPixel = mFinalBpp >> 3;
-        if ((!mHasAlpha) && (mFinalBpp == 32))
+        if( !mHasAlpha && mFinalBpp == 32 )
         {
             bytesPerPixel--;
         }
-        mSize = mWidth * mHeight * bytesPerPixel;
+        mSize = mWidth * mHeight * bytesPerPixel;        
 
         mIsLoaded = true;
+    }    
+    
+    // -------------------------------------------------------------------
+    void D3DTexture::load(void)
+    {
+        Image img;
+        img.load( mName );
+
+        loadImage( img );
     }
 
     void D3DTexture::unload(void)
     {
-        if (mIsLoaded)
+        if( mIsLoaded )
         {
             releaseSurfaces();
             mIsLoaded = false;
@@ -268,7 +173,6 @@ namespace Ogre {
         else if (mFinalBpp == 16 && !mHasAlpha)
             d3dxSurf = D3DX_SF_R5G6B5;
 
-
         // Set up copies of core information
         // D3DX required pointers to these, & I want to know if they change
         unsigned long d3dxMipMaps, d3dxHeight, d3dxWidth;
@@ -280,7 +184,8 @@ namespace Ogre {
         if (getNumMipMaps() == 0)
             flags |= D3DX_TEXTURE_NOMIPMAP;
 
-        HRESULT hr = D3DXCreateTexture(mD3DDevice, &flags, &d3dxWidth, &d3dxHeight,
+        HRESULT hr = D3DXCreateTexture(
+            mD3DDevice, &flags, &d3dxWidth, &d3dxHeight,
             &d3dxSurf, 0, &mSurface, &d3dxMipMaps);
 
         if (FAILED(hr))
@@ -306,7 +211,6 @@ namespace Ogre {
         // Record actual width/height
         mWidth = d3dxWidth;
         mHeight = d3dxHeight;
-
     }
     // -------------------------------------------------------------------
     void D3DTexture::releaseSurfaces(void)

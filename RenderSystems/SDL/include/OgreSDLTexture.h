@@ -45,20 +45,25 @@ namespace Ogre {
     {
     public:
         // Constructor, called from SDLTextureManager
-        SDLTexture(String name);
-        virtual ~SDLTexture();
-        /** Overridden - see Texture. */
-        void loadRawRGB(void* buffer, int width, int height);
-        void loadRawRGBA( void *buffer, int width, int height );
-        void load(void);
-        void unload(void);
+        SDLTexture( String name );
+        virtual ~SDLTexture();        
+        
+        void load();
+        void loadImage( const Image &img );
+
+        void unload();
+
+        void blitToTexture( const Image& src, 
+            unsigned uStartX, unsigned uStartY );
 
         GLuint getGLID() const
         {
             return mTextureID;
         }
+
     protected:
-        void generateMipMaps(void* data);
+        void generateMipMaps( uchar *data );
+
     private:
         GLuint mTextureID;
     };
