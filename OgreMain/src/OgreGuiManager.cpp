@@ -200,8 +200,8 @@ namespace Ogre {
 
             // Destroy
             fi->second->destroyGuiElement(i->second);
-			elementMap.erase(i);
         }
+		elementMap.clear();
 
     }
     //---------------------------------------------------------------------
