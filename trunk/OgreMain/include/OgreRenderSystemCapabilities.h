@@ -79,7 +79,26 @@ namespace Ogre {
             /// The number of integer constants fragment programs support
             ushort mFragmentProgramConstantIntCount;           
             /// The number of boolean constants fragment programs support
-            ushort mFragmentProgramConstantBoolCount;           
+            ushort mFragmentProgramConstantBoolCount;
+            /** The minimum granularity of floating point constant parameters, this determines
+                the boundary at which you can set separate params. */
+            ushort mVertexProgramConstantFloatBoundary;
+            /** The minimum granularity of integer constant parameters, this determines
+                the boundary at which you can set separate params. */
+            ushort mVertexProgramConstantIntBoundary;
+            /** The minimum granularity of boolean constant parameters, this determines
+                the boundary at which you can set separate params. */
+            ushort mVertexProgramConstantBoolBoundary;
+            /** The minimum granularity of floating point constant parameters, this determines
+                the boundary at which you can set separate params. */
+            ushort mFragmentProgramConstantFloatBoundary;
+            /** The minimum granularity of integer constant parameters, this determines
+                the boundary at which you can set separate params. */
+            ushort mFragmentProgramConstantIntBoundary;
+            /** The minimum granularity of boolean constant parameters, this determines
+                the boundary at which you can set separate params. */
+            ushort mFragmentProgramConstantBoolBoundary;
+
     	public:	
             RenderSystemCapabilities ();
             ~RenderSystemCapabilities ();
@@ -245,6 +264,69 @@ namespace Ogre {
             {
                 mFragmentProgramConstantBoolCount = c;           
             }
+
+            /** The minimum granularity of float constant parameters, this determines
+                the boundary at which you can set separate params. */
+            ushort getVertexProgramConstantFloatBoundary(void)
+            {
+                return mVertexProgramConstantFloatBoundary;
+            }
+            void setVertexProgramConstantFloatBoundary(ushort b)
+            {
+                mVertexProgramConstantFloatBoundary = b;
+            }
+            /** The minimum granularity of integer constant parameters, this determines
+                the boundary at which you can set separate params. */
+            ushort getVertexProgramConstantIntBoundary(void)
+            {
+                return mVertexProgramConstantIntBoundary;
+            }
+            void setVertexProgramConstantIntBoundary(ushort b)
+            {
+                mVertexProgramConstantIntBoundary = b;
+            }
+            /** The minimum granularity of float constant parameters, this determines
+                the boundary at which you can set separate params. */
+            ushort getFragmentProgramConstantFloatBoundary(void)
+            {
+                return mFragmentProgramConstantFloatBoundary;
+            }
+            void setFragmentProgramConstantFloatBoundary(ushort b)
+            {
+                mFragmentProgramConstantFloatBoundary = b;
+            }
+            /** The minimum granularity of integer constant parameters, this determines
+                the boundary at which you can set separate params. */
+            ushort getFragmentProgramConstantIntBoundary(void)
+            {
+                return mFragmentProgramConstantIntBoundary;
+            }
+            void setFragmentProgramConstantIntBoundary(ushort b)
+            {
+                mFragmentProgramConstantIntBoundary = b;
+            }
+            /** The minimum granularity of boolean constant parameters, this determines
+                the boundary at which you can set separate params. */
+            ushort getVertexProgramConstantBoolBoundary(void)
+            {
+                return mVertexProgramConstantBoolBoundary;
+            }
+            void setVertexProgramConstantBoolBoundary(ushort b)
+            {
+                mVertexProgramConstantBoolBoundary = b;
+            }
+            /** The minimum granularity of boolean constant parameters, this determines
+                the boundary at which you can set separate params. */
+            ushort getFragmentProgramConstantBoolBoundary(void)
+            {
+                return mFragmentProgramConstantBoolBoundary;
+            }
+            void setFragmentProgramConstantBoolBoundary(ushort b)
+            {
+                mFragmentProgramConstantBoolBoundary = b;
+            }
+
+
 
 
     };

@@ -271,6 +271,9 @@
 				RelativePath="..\src\OgreGpuProgram.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreGpuProgramManager.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreGuiContainer.cpp">
 			</File>
 			<File

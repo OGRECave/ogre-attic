@@ -163,6 +163,9 @@ namespace Ogre {
 		    String.trim(true,true))
 	    */
 	    String getLine( bool trimAfter = true );
+
+        /** Get the entire contents of the chunk as a string. */
+        String getAsString(void);
     };
 
 } // namespace

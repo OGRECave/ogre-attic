@@ -24,12 +24,19 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreStableHeaders.h"
 #include "OgreGpuProgram.h"
+#include "OgreGpuProgramManager.h"
 
 namespace Ogre
 {
 	//-----------------------------------------------------------------------------
-	GpuProgram::GpuProgram(GpuProgramType gptype) : mType(gptype)
+	GpuProgram::GpuProgram(GpuProgramType gptype) : mType(gptype), mLoadFromFile(true)
 	{
+	}
+	//-----------------------------------------------------------------------------
+    void GpuProgram::setSource(const String& source)
+    {
+        mSource = source;
+        mLoadFromFile = false;
 	}
 	//-----------------------------------------------------------------------------
 	void GpuProgram::setConstant(size_t index, Real val)
@@ -61,5 +68,26 @@ namespace Ogre
 		setConstant(index++, &vec.y, 1);
 		setConstant(index++, &vec.z, 1);
 	}
+	//-----------------------------------------------------------------------------
+	void GpuProgram::load(void)
+	{
+        if (mIsLoaded)
+        {
+            unload();
+        }
+        if (mLoadFromFile)
+        {
+            // find & load source code
+            SDDataChunk chunk;
+            GpuProgramManager::getSingleton()._findResourceData(mName, chunk);
+            mSource = chunk.getAsString();
+        }
+
+        // Call polymorphic load
+        loadFromSource();
+
+        mIsLoaded = true;
+    }
+
 
 }
