@@ -24,6 +24,7 @@ http://www.gnu.org/copyleft/gpl.html.
 */
 
 #include "OgrePanelGuiElement.h"
+#include "OgreMaterial.h"
 
 
 namespace Ogre {
@@ -34,18 +35,43 @@ namespace Ogre {
         : GuiContainer(name)
     {
         mTransparent = 0;
+        // Setup render op in advance
+        // TODO make this more VB friendly
+        mRenderOp.numTextureCoordSets = 1;
+        mRenderOp.numTextureDimensions[0] = 2;
+        mRenderOp.numVertices = 4;
+        mRenderOp.operationType = RenderOperation::OT_TRIANGLE_STRIP;
         for (ushort i = 0; i < OGRE_MAX_TEXTURE_LAYERS; ++i)
         {
             mTileX[i] = 1.0f;
             mTileY[i] = 1.0f;
+            mRenderOp.pTexCoords[i] = 0;
+            mRenderOp.texCoordStride[i] = 0;
         }
-
+        mRenderOp.pVertices = new Real[4*3];
+        mRenderOp.useIndexes = false;
+        // No normals or colours
+        mRenderOp.vertexOptions = RenderOperation::VO_TEXTURE_COORDS;
+        mRenderOp.vertexStride = 0;
+    }
+    //---------------------------------------------------------------------
+    PanelGuiElement::~PanelGuiElement()
+    {
+        delete mRenderOp.pVertices;
+        for (ushort i = 0; i < OGRE_MAX_TEXTURE_LAYERS; ++i)
+        {
+            if (mRenderOp.pTexCoords[i])
+            {
+                delete mRenderOp.pTexCoords[i];
+            }
+        }
 
     }
     //---------------------------------------------------------------------
     void PanelGuiElement::setTiling(Real x, Real y, ushort layer)
     {
         assert (layer >= 0 && layer < OGRE_MAX_TEXTURE_LAYERS);
+        assert (x != 0 && y != 0);
 
         mTileX[layer] = x;
         mTileY[layer] = y;
@@ -102,10 +128,81 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void PanelGuiElement::updatePositionGeometry(void)
     {
+        /*
+            3-----2
+            |    /|
+            |  /  |
+            |/    |
+            0-----1
+        */
+        Real left, right, top, bottom;
+
+        // Convert positions into -1, 1 coordinate space (homogenous clip space)
+        // Left / right is simple range conversion
+        // Top / bottom also need inverting since y is upside down
+        left = _getDerivedLeft() * 2 - 1;
+        right = left + (mWidth * 2);
+        top = -((_getDerivedTop() * 2) - 1);
+        bottom =  top -  (mHeight * 2);
+
+        Real* pPos = mRenderOp.pVertices;
+        
+        // Use -1 for Z position, furthest forward in homogenous clip space
+        *pPos++ = left;
+        *pPos++ = bottom;
+        *pPos++ = -1;
+
+        *pPos++ = right;
+        *pPos++ = bottom;
+        *pPos++ = -1;
+
+        *pPos++ = right;
+        *pPos++ = top;
+        *pPos++ = -1;
+
+        *pPos++ = left;
+        *pPos++ = top;
+        *pPos++ = -1;
     }
     //---------------------------------------------------------------------
     void PanelGuiElement::updateTextureGeometry(void)
     {
+        // Generate for as many texture layers as there are in material
+        if (mpMaterial)
+        {
+            ushort numLayers = mpMaterial->getNumTextureLayers();
+            for (ushort i = 0; i < numLayers; ++i)
+            {
+                // Allocate if necessary
+                if (mRenderOp.pTexCoords[i] == 0)
+                {
+                    mRenderOp.pTexCoords[i] = new Real[4*2];
+                }
+                // Calc upper tex coords
+                Real upperX = 1.0f / mTileX[i];
+                Real upperY = 1.0f / mTileY[i];
+                /*
+                    3-----2
+                    |    /|
+                    |  /  |
+                    |/    |
+                    0-----1
+                */
+                Real* pTex = mRenderOp.pTexCoords[i];
+
+                *pTex++ = 0.0f;
+                *pTex++ = 0.0f;
+
+                *pTex++ = upperX;
+                *pTex++ = 0.0f;
+
+                *pTex++ = upperX;
+                *pTex++ = upperY;
+
+                *pTex++ = 0.0f;
+                *pTex++ = upperY;
+            }
+        }
     }
 
 }

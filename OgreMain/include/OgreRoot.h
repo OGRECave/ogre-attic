@@ -95,6 +95,7 @@ namespace Ogre
         MeshManager* mMeshManager;
         ParticleSystemManager* mParticleManager;
         SkeletonManager* mSkeletonManager;
+        GuiManager* mGuiManager;
         ArchiveFactory *mZipArchiveFactory;
         Codec* mPNGCodec, *mJPGCodec, *mJPEGCodec, *mTGACodec;
 

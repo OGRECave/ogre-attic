@@ -52,6 +52,7 @@ namespace Ogre {
     public:
         /** Constructor. */
         PanelGuiElement(const String& name);
+        ~PanelGuiElement();
 
         /** Sets the number of times textures should repeat. 
         @param x The number of times the texture should repeat horizontally
@@ -87,7 +88,6 @@ namespace Ogre {
         Real mTileY[OGRE_MAX_TEXTURE_LAYERS];
 
         RenderOperation mRenderOp;
-        GeometryData mGeometry;
 
         /// internal method for setting up geometry, called by GuiElement::update
         void updatePositionGeometry(void);

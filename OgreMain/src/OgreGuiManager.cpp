@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lgpl.html.
 #include "OgreGuiElement.h"
 #include "OgreGuiElementFactory.h"
 #include "OgreException.h"
+#include "OgreLogManager.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
@@ -112,6 +113,9 @@ namespace Ogre {
     {
         // Add / replace
         mFactories[elemFactory->getTypeName()] = elemFactory;
+
+        LogManager::getSingleton().logMessage("GuiElementFactory for type " + elemFactory->getTypeName()
+            + " registered.");
     }
     //---------------------------------------------------------------------
     GuiManager& GuiManager::getSingleton(void)

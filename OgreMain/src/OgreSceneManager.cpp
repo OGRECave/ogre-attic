@@ -629,7 +629,7 @@ namespace Ogre {
         _findVisibleObjects(camera);
 
 
-        // Set viewport, view and projection matrices
+        // Set viewport
         mDestRenderSystem->_setViewport(vp);
         mDestRenderSystem->_setViewMatrix(camera->getViewMatrix());
         mDestRenderSystem->_setProjectionMatrix(camera->getProjectionMatrix());
@@ -667,9 +667,6 @@ namespace Ogre {
         
         /*
         // BEGIN TEST HUD HACK
-        // NB works in SDL but in D3D depth buffer is not right (objects show thru)
-        // I think this is because I'm not compensating for D3D's {0,1} Z range
-        // in homogenous clip space, GL and OGRE use {-1, 1} : TODO FIX!
         //---------------------------------------------------------------------
         mDestRenderSystem->_setWorldMatrix(Matrix4::IDENTITY);
         mDestRenderSystem->_setViewMatrix(Matrix4::IDENTITY);
@@ -1368,6 +1365,9 @@ namespace Ogre {
                                 mDestRenderSystem->_setWorldMatrix(*xform);
                             }
 
+                            // Issue view / projection changes if any
+                            useRenderableViewProjMode(*irend);
+
                             // Set up rendering operation
                             (*irend)->getRenderOperation(ro);
 
@@ -1778,5 +1778,38 @@ namespace Ogre {
         
     }
     //---------------------------------------------------------------------
+    void SceneManager::useRenderableViewProjMode(Renderable* pRend)
+    {
+        // Check view matrix
+        static bool lastViewWasIdentity = false;
+        bool useIdentityView = pRend->useIdentityView();
+        if (useIdentityView && !lastViewWasIdentity)
+        {
+            // Using identity view now, change it
+            mDestRenderSystem->_setViewMatrix(Matrix4::IDENTITY);
+            lastViewWasIdentity = true;
+        }
+        else if (!useIdentityView && lastViewWasIdentity)
+        {
+            // Coming back to normal from identity view
+            mDestRenderSystem->_setViewMatrix(mCameraInProgress->getViewMatrix());
+            lastViewWasIdentity = false;
+        }
+        
+        static bool lastProjWasIdentity = false;
+        bool useIdentityProj = pRend->useIdentityProjection();
+        if (useIdentityProj && !lastProjWasIdentity)
+        {
+            // Using flat projection now
+            mDestRenderSystem->_setProjectionMatrix(Matrix4::IDENTITY);
+            lastViewWasIdentity = true;
+        }
+        else if (!useIdentityProj && lastProjWasIdentity)
+        {
+            // Coming back from flat projection
+            mDestRenderSystem->_setProjectionMatrix(mCameraInProgress->getProjectionMatrix());
+            lastViewWasIdentity = false;
+        }
+    }
 
 }
