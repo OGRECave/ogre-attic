@@ -100,7 +100,66 @@ namespace Ogre {
         return mSphere;
     }
     //-----------------------------------------------------------------------
-
+    RaySceneQuery::RaySceneQuery(SceneManager* mgr) : SceneQuery(mgr)
+    {
+    }
+    //-----------------------------------------------------------------------
+    RaySceneQuery::~RaySceneQuery()
+    {
+    }
+    //-----------------------------------------------------------------------
+    void RaySceneQuery::setRay(const Ray& ray)
+    {
+        mRay = ray;
+    }
+    //-----------------------------------------------------------------------
+    const Ray& RaySceneQuery::getRay(void)
+    {
+        return mRay;
+    }
+    //-----------------------------------------------------------------------
+    PyramidSceneQuery::PyramidSceneQuery(SceneManager* mgr) : SceneQuery(mgr)
+    {
+    }
+    //-----------------------------------------------------------------------
+    PyramidSceneQuery::~PyramidSceneQuery()
+    {
+    }
+    //-----------------------------------------------------------------------
+    IntersectionSceneQuery::IntersectionSceneQuery(SceneManager* mgr)
+    : mLastResult(NULL), mParentSceneMgr(mgr), mQueryMask(0xFFFFFFFF)
+    {
+    }
+    //-----------------------------------------------------------------------
+    IntersectionSceneQuery::~IntersectionSceneQuery()
+    {
+        clearResults();
+    }
+    //-----------------------------------------------------------------------
+    IntersectionSceneQueryResult& IntersectionSceneQuery::getLastResults(void)
+    {
+        assert(mLastResult);
+        return *mLastResult;
+    }
+    //-----------------------------------------------------------------------
+    void IntersectionSceneQuery::clearResults(void)
+    {
+        if (mLastResult)
+        {
+            delete mLastResult;
+        }
+        mLastResult = NULL;
+    }
+    //-----------------------------------------------------------------------
+    void IntersectionSceneQuery::setQueryMask(unsigned long mask)
+    {
+        mQueryMask = mask;
+    }
+    //-----------------------------------------------------------------------
+    unsigned long IntersectionSceneQuery::getQueryMask(void)
+    {
+        return mQueryMask;
+    }
 
 
 
