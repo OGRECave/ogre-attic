@@ -156,7 +156,8 @@ namespace Ogre {
         warpMouse=useMouse;
 
         // Get the center and put the mouse there
-        int width, height, depth, left, top;
+        unsigned int width, height, depth;
+        int left, top;
         pWindow->getMetrics(width, height, depth, left, top);
 
         mMouseX = mMouseCenterX = width / 2;
