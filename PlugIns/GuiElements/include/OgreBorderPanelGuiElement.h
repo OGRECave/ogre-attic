@@ -48,6 +48,7 @@ namespace Ogre {
     */
     class _OgreGuiElementExport BorderPanelGuiElement : public PanelGuiElement
     {
+        friend class BorderRenderable;
     public:
         /** Constructor */
         BorderPanelGuiElement(const String& name);
@@ -266,32 +267,30 @@ namespace Ogre {
         static CmdBorderTopRightUV msCmdBorderTopRightUV;
         static CmdBorderBottomRightUV msCmdBorderBottomRightUV;
 
-    public:
-
-        /** Nested class for rendering the border.
-        @remarks
-            We need this because we have to render twice, once with the inner panel's repeating
-            material (handled by superclass) and once for the border's separate meterial. 
-        */
-        class _OgreGuiElementExport BorderRenderable : public Renderable
-        {
-        protected:
-            BorderPanelGuiElement* mParent;
-        public:
-            /** Constructed with pointers to parent. */
-            BorderRenderable(BorderPanelGuiElement* parent) : mParent(parent) {}
-            Material* getMaterial(void) const { return mParent->mpBorderMaterial; }
-            void getRenderOperation(RenderOperation& rend) { rend = mParent->mRenderOp2; }
-            void getWorldTransforms(Matrix4* xform) { mParent->getWorldTransforms(xform); }
-            unsigned short getNumWorldTransforms(void) { return 1; }
-            bool useIdentityProjection(void) { return true; }
-            bool useIdentityView(void) { return true; }
-        };
     protected:
         BorderRenderable* mBorderRenderable;
 
     };
 
+    /** Class for rendering the border of a BorderPanelGuiElement.
+    @remarks
+        We need this because we have to render twice, once with the inner panel's repeating
+        material (handled by superclass) and once for the border's separate meterial. 
+    */
+    class _OgreGuiElementExport BorderRenderable : public Renderable
+    {
+    protected:
+        BorderPanelGuiElement* mParent;
+    public:
+        /** Constructed with pointers to parent. */
+        BorderRenderable(BorderPanelGuiElement* parent) : mParent(parent) {}
+        Material* getMaterial(void) const { return mParent->mpBorderMaterial; }
+        void getRenderOperation(RenderOperation& rend) { rend = mParent->mRenderOp2; }
+        void getWorldTransforms(Matrix4* xform) { mParent->getWorldTransforms(xform); }
+        unsigned short getNumWorldTransforms(void) { return 1; }
+        bool useIdentityProjection(void) { return true; }
+        bool useIdentityView(void) { return true; }
+    };
 
 }
 
