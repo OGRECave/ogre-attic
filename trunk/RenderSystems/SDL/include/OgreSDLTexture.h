@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePlatform.h"
 #include "OgreTexture.h"
+#include "OgreRenderTexture.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32
 #   include <windows.h>
@@ -55,12 +56,17 @@ namespace Ogre {
     public:
         // Constructor, called from SDLTextureManager
         SDLTexture( String name );
+        SDLTexture( String name, uint width, uint height, uint num_mips, 
+            PixelFormat format, TextureUsage usage );
+
         virtual ~SDLTexture();        
         
         void load();
         void loadImage( const Image &img );
 
         void unload();
+
+        void createRenderTexture();
 
         void blitToTexture( const Image& src, 
             unsigned uStartX, unsigned uStartY );
@@ -75,6 +81,21 @@ namespace Ogre {
 
     private:
         GLuint mTextureID;
+    };
+
+    class SDLRenderTexture : public RenderTexture
+    {
+    public:
+        SDLRenderTexture(const String& name, uint width, uint height) 
+            : RenderTexture(name, width, height) 
+        {
+        }
+
+        void _copyToTexture(void);
+
+        bool requiresTextureFlipping() const { return false; }
+        virtual void writeContentsToFile( const String & filename ) {}
+        virtual void outputText(int x, int y, const String& text) {}
     };
 }
 

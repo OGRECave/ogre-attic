@@ -103,6 +103,16 @@ namespace Ogre {
 		bool requiresTextureFlipping() const { return true; }
         virtual void writeContentsToFile( const String & filename ) {}
         virtual void outputText(int x, int y, const String& text) {}
+    protected:
+        /// The texture to which rendering takes place.
+        Texture * mPrivateTex;
+		
+    protected:
+        virtual void _copyToTexture()
+        {
+            // Copy the newly-rendered data to the public texture surface.
+            mPrivateTex->copyToTexture( mTexture );
+        }
     };
 }
 

@@ -379,7 +379,9 @@ namespace Ogre {
 
     RenderTexture * SDLRenderSystem::createRenderTexture( const String & name, int width, int height )
     {
-        return NULL;
+        RenderTexture* rt = new SDLRenderTexture(name, width, height);
+        attachRenderTarget(*rt);
+        return rt;
     }
 
     //-----------------------------------------------------------------------
@@ -660,7 +662,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void SDLRenderSystem::_setTexture(int stage, bool enabled, const String &texname)
     {
-        SDLTexture* tex = (SDLTexture*)TextureManager::getSingleton().getByName(texname);
+        SDLTexture* tex = static_cast<SDLTexture*>(TextureManager::getSingleton().getByName(texname));
 
         glActiveTextureARB( GL_TEXTURE0_ARB + stage );
         if (enabled && tex)

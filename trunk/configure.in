@@ -117,6 +117,9 @@ AC_CONFIG_FILES([Makefile \
     Samples/ParticleFX/Makefile \
     Samples/ParticleFX/src/Makefile \
     Samples/ParticleFX/include/Makefile \
+    Samples/RenderToTexture/Makefile \
+    Samples/RenderToTexture/src/Makefile \
+    Samples/RenderToTexture/include/Makefile \
     Samples/TextureFX/Makefile \
     Samples/TextureFX/src/Makefile \
     Samples/TextureFX/include/Makefile \

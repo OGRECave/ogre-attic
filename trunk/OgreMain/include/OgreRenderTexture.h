@@ -39,13 +39,11 @@ namespace Ogre
     protected:
 		RenderTexture() {};
 		virtual void firePostUpdate();
+		virtual void _copyToTexture() = 0;
 
 	protected:
 		/// The texture that gets accesses by the rest of the API.
         Texture * mTexture;
-
-		/// The texture to which rendering takes place.
-		Texture * mPrivateTex;
     };
 }
 
