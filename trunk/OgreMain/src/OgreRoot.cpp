@@ -529,8 +529,9 @@ namespace Ogre {
                 return false;
         }
 
-        // Tell buffer manager to free temp buffers used this fram
-        HardwareBufferManager::getSingleton()._releaseBufferCopies();
+        // Tell buffer manager to free temp buffers used this frame
+        if (HardwareBufferManager::getSingletonPtr())
+            HardwareBufferManager::getSingleton()._releaseBufferCopies();
 
         return true;
     }
