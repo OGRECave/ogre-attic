@@ -234,7 +234,7 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 					Name="Debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalOptions="/Zm300"/>
+						AdditionalOptions="/Zm500"/>
 				</FileConfiguration>
 			</File>
 			<File
@@ -399,7 +399,7 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 					Name="Debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalOptions="/Zm135"/>
+						AdditionalOptions="/Zm300"/>
 				</FileConfiguration>
 			</File>
 			<File
