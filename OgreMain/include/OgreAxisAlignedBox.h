@@ -350,6 +350,11 @@ namespace Ogre {
         {
             return !(mMinimum > v || mMaximum < v);
         }
+		/// Gets the centre of the box
+		Vector3 getCentre(void)
+		{
+			return Vector3(mMinimum + (mMaximum - mMinimum) * 0.5);
+		}
 
 
     };
