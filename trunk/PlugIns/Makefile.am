@@ -1,4 +1,8 @@
-SUBDIRS = BSPSceneManager CgProgramManager FileSystem ParticleFX OctreeSceneManager GuiElements NatureSceneManager
+SUBDIRS = BSPSceneManager FileSystem ParticleFX OctreeSceneManager GuiElements NatureSceneManager
+
+if BUILD_CGPLUGIN
+SUBDIRS += CgProgramManager
+endif
 
 if BUILD_EXRPLUGIN
 SUBDIRS += EXRCodec
