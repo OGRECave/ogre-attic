@@ -1669,7 +1669,7 @@ def convert_armature(skeleton, obj, debugskel):
       rotQuat = bbone.getRestMatrix('bonespace').toQuat()
 
     else:
-      rotQuat = bbone.getRestMatrix('worldspace').toQuat()
+      rotQuat = (bbone.getRestMatrix('worldspace')*Mathutils.Matrix(*BASE_MATRIX)).toQuat()
 
     rot = (rotQuat.x, rotQuat.y, rotQuat.z, rotQuat.w)
     x, y, z = pos
