@@ -22,7 +22,7 @@ Exports selected meshs with armature animations to Ogre3D.
 # Ogre exporter written by Jens Hoffmann and Michael Reimpell
 # based on the Cal3D exporter v0.5 written by Jean-Baptiste LAMY
 
-# Copyright (C) 2004 Michael Reimpell -- <M.Reimpell@tu-bs.de>
+# Copyright (C) 2004-2005 Michael Reimpell -- <M.Reimpell@tu-bs.de>
 # Copyright (C) 2003 Jens Hoffmann -- <hoffmajs@gmx.de>
 # Copyright (C) 2003 Jean-Baptiste LAMY -- jiba@tuxfamily.org
 #
@@ -1739,10 +1739,16 @@ class GameEngineMaterial(DefaultMaterial):
 	def __init__(self, blenderMesh, blenderFace):
 		self.mesh = blenderMesh
 		self.face = blenderFace
+		# check if a Blender material is assigned
+		try:
+			blenderMaterial = self.mesh.getMaterials(1)[self.face.materialIndex]
+		except:
+			blenderMaterial = None
+		self.material = blenderMaterial
 		DefaultMaterial.__init__(self, self._createName())
 		return
 	def writeTechniques(self, f):
-		mat = self.mesh.getMaterials(1)[self.face.materialIndex]
+		mat = self.material
 		if (not(mat)
 			and not(self.mesh.hasVertexColours())
 			and not(self.mesh.hasVertexUV() or self.mesh.hasFaceUV())):
@@ -1845,9 +1851,8 @@ class GameEngineMaterial(DefaultMaterial):
 		"""
 		materialName = ''
 		# nonempty rendering material?
-		faceMaterial = self.mesh.getMaterials(1)[self.face.materialIndex]
-		if faceMaterial:
-			materialName += faceMaterial.getName() + '/'
+		if self.material:
+			materialName += self.material.getName() + '/'
 		# blend mode
 		if (self.face.transp == Blender.NMesh.FaceTranspModes['ALPHA']):
 			materialName += 'ALPHA'
@@ -2988,7 +2993,7 @@ def export_mesh(object, exportOptions):
 		# faces assign to objectMaterial keys
 		objectMaterialFacesDict = {}
 
-		# note: these are blender materials. Evene if nMaterials = 0
+		# note: these are blender materials. Even if nMaterials = 0
 		#       the face can still have a texture (see above)
 		meshMaterialList = data.getMaterials(1)
 		# note: material slots may be empty, resp. meshMaterialList entries may be None
@@ -3000,7 +3005,11 @@ def export_mesh(object, exportOptions):
 			# choose "rendering materials" or "game engine materials"
 			if not(gameEngineMaterialsToggle.val):
 				# rendering materials
-				blenderMaterial = meshMaterialList[face.materialIndex]
+				try:
+					blenderMaterial = meshMaterialList[face.materialIndex]
+				except:
+					exportLogger.logError("Material assignment missing for object \"%s\"!" % data.name)
+					blenderMaterial = None
 				if blenderMaterial:
 					# non-empty material slot
 					faceMaterial = RenderingMaterial(data, face)
@@ -3013,7 +3022,16 @@ def export_mesh(object, exportOptions):
 						and not(face.flag & Blender.NMesh.FaceFlags['HIDE'])):
 						faceMaterial = GameEngineMaterial(data, face)
 				else:
-					faceMaterial = GameEngineMaterial(data, face)
+					# check if a Blender material is assigned
+					try:
+						blenderMaterial = meshMaterialList[face.materialIndex]
+					except:
+						blenderMaterial = None
+					if blenderMaterial:
+						faceMaterial = GameEngineMaterial(data, face)
+					else:
+						exportLogger.logWarning("Face of object \"%s\" without material assignment! Using default material." % data.name)
+						faceMaterial = DefaultMaterial('default')
 			if faceMaterial:
 				# insert into Dicts
 				materialName = faceMaterial.getName()
