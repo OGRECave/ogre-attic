@@ -2572,7 +2572,7 @@ namespace Ogre {
                     break;
                 }
             case FO_POINT:
-            case TFO_NONE:
+            case FO_NONE:
                 return D3DTFN_POINT;
                 break;
             }
@@ -2615,7 +2615,7 @@ namespace Ogre {
                     return D3DTFP_POINT;
                     break;
                 }
-            case TFO_NONE:
+            case FO_NONE:
                 return D3DTFP_NONE;
                 break;
             }
