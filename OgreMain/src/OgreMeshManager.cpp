@@ -47,78 +47,8 @@ namespace Ogre
     void MeshManager::_initialise(void)
     {
         // Create prefab objects
-        // PLANE
-        Mesh* msh = (Mesh*)create("Prefab_Plane");
-        SubMesh* sub = msh->createSubMesh();
-        Real vertices[12] = {-100, -100, 0,
-                              100, -100, 0,
-                              100,  100, 0,
-                             -100,  100, 0 };
-        Real normals[12] = {0,0,1,
-                            0,0,1,
-                            0,0,1,
-                            0,0,1,};
-        Real texCoords[8] = {0,0,
-                             1,0,
-                             1,1,
-                             0,1 };
-        msh->sharedGeometry.hasColours = false;
-        msh->sharedGeometry.hasNormals = true;
-        msh->sharedGeometry.numTexCoords = 1;
-        msh->sharedGeometry.numTexCoordDimensions[0] = 2;
-        msh->sharedGeometry.numVertices = 4;
-        msh->sharedGeometry.pVertices = new Real[12];
-        memcpy(msh->sharedGeometry.pVertices, vertices, sizeof(Real)*12);
-        msh->sharedGeometry.pNormals = new Real[12];
-        memcpy(msh->sharedGeometry.pNormals, normals, sizeof(Real)*12);
-        msh->sharedGeometry.pTexCoords[0] = new Real[8];
-        memcpy(msh->sharedGeometry.pTexCoords[0], texCoords, sizeof(Real)*8);
+        createPrefabPlane();
 
-        sub->useSharedVertices = true;
-        sub->faceVertexIndices = new unsigned short[6];
-        unsigned short faces[6] = {0,1,2,
-                                   0,2,3 };
-        memcpy(sub->faceVertexIndices, faces, sizeof(unsigned short)*6);
-        sub->numFaces = 2;
-
-        mResources[msh->getName()] = msh;
-
-
-        // Splash screen
-        msh = (Mesh*)create("Prefab_Splash_Screen");
-        sub = msh->createSubMesh();
-        Real vertices2[12] = {-1, -1, 0,
-                              1, -1, 0,
-                              1,  1, 0,
-                             -1,  1, 0 };
-        Real normals2[12] = {0,0,1,
-                            0,0,1,
-                            0,0,1,
-                            0,0,1,};
-        Real texCoords2[8] = {0,0,
-                             1,0,
-                             1,1,
-                             0,1 };
-        msh->sharedGeometry.hasColours = false;
-        msh->sharedGeometry.hasNormals = true;
-        msh->sharedGeometry.numTexCoords = 1;
-        msh->sharedGeometry.numTexCoordDimensions[0] = 2;
-        msh->sharedGeometry.numVertices = 4;
-        msh->sharedGeometry.pVertices = new Real[12];
-        memcpy(msh->sharedGeometry.pVertices, vertices2, sizeof(Real)*12);
-        msh->sharedGeometry.pNormals = new Real[12];
-        memcpy(msh->sharedGeometry.pNormals, normals2, sizeof(Real)*12);
-        msh->sharedGeometry.pTexCoords[0] = new Real[8];
-        memcpy(msh->sharedGeometry.pTexCoords[0], texCoords2, sizeof(Real)*8);
-
-        sub->useSharedVertices = true;
-        sub->faceVertexIndices = new unsigned short[6];
-        unsigned short faces2[6] = {0,1,2,
-                                   0,2,3 };
-        memcpy(sub->faceVertexIndices, faces2, sizeof(unsigned short)*6);
-        sub->numFaces = 2;
-
-        mResources[msh->getName()] = msh;
 
     }
     //-----------------------------------------------------------------------
@@ -469,10 +399,49 @@ namespace Ogre
     }
 
     //-----------------------------------------------------------------------
+    void MeshManager::createPrefabPlane(void)
+    {
+        Mesh* msh = (Mesh*)create("Prefab_Plane");
+        SubMesh* sub = msh->createSubMesh();
+        Real vertices[12] = {-100, -100, 0,
+                              100, -100, 0,
+                              100,  100, 0,
+                             -100,  100, 0 };
+        Real normals[12] = {0,0,1,
+                            0,0,1,
+                            0,0,1,
+                            0,0,1,};
+        Real texCoords[8] = {0,0,
+                             1,0,
+                             1,1,
+                             0,1 };
+        msh->sharedGeometry.hasColours = false;
+        msh->sharedGeometry.hasNormals = true;
+        msh->sharedGeometry.numTexCoords = 1;
+        msh->sharedGeometry.numTexCoordDimensions[0] = 2;
+        msh->sharedGeometry.numVertices = 4;
+        msh->sharedGeometry.pVertices = new Real[12];
+        memcpy(msh->sharedGeometry.pVertices, vertices, sizeof(Real)*12);
+        msh->sharedGeometry.pNormals = new Real[12];
+        memcpy(msh->sharedGeometry.pNormals, normals, sizeof(Real)*12);
+        msh->sharedGeometry.pTexCoords[0] = new Real[8];
+        memcpy(msh->sharedGeometry.pTexCoords[0], texCoords, sizeof(Real)*8);
+
+        sub->useSharedVertices = true;
+        sub->faceVertexIndices = new unsigned short[6];
+        unsigned short faces[6] = {0,1,2,
+                                   0,2,3 };
+        memcpy(sub->faceVertexIndices, faces, sizeof(unsigned short)*6);
+        sub->numFaces = 2;
+
+        mResources[msh->getName()] = msh;
+    }
+    //-----------------------------------------------------------------------
     MeshManager& MeshManager::getSingleton(void)
     {
         return Singleton<MeshManager>::getSingleton();
     }
+    //-----------------------------------------------------------------------
 
 
 

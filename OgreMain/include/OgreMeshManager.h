@@ -158,6 +158,8 @@ namespace Ogre {
         /** Utility method for tesselating 2D meshes.
         */
         void tesselate2DMesh(SubMesh* pSub, int meshWidth, int meshHeight, bool doubleSided = false);
+
+        void createPrefabPlane(void);
     };
 
 
