@@ -116,11 +116,11 @@ namespace Ogre {
         void ToAxes (Vector3* akAxis) const;
         void ToAxes (Vector3& xAxis, Vector3& yAxis, Vector3& zAxis) const;
         /// Get the local x-axis
-        Vector3 xAxis(void);
+        Vector3 xAxis(void) const;
         /// Get the local y-axis
-        Vector3 yAxis(void);
+        Vector3 yAxis(void) const;
         /// Get the local z-axis
-        Vector3 zAxis(void);
+        Vector3 zAxis(void) const;
 
         inline Quaternion& operator= (const Quaternion& rkQ)
 		{
@@ -134,7 +134,7 @@ namespace Ogre {
         Quaternion operator- (const Quaternion& rkQ) const;
         Quaternion operator* (const Quaternion& rkQ) const;
         Quaternion operator* (Real fScalar) const;
-        friend Quaternion operator* (Real fScalar,
+        _OgreExport friend Quaternion operator* (Real fScalar,
             const Quaternion& rkQ);
         Quaternion operator- () const;
         inline bool operator== (const Quaternion& rhs) const
