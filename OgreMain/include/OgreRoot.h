@@ -89,6 +89,9 @@ namespace Ogre
         ParticleSystemManager* mParticleManager;
         SkeletonManager* mSkeletonManager;
         GuiManager* mGuiManager;
+        OverlayElementFactory* mPanelFactory;
+        OverlayElementFactory* mBorderPanelFactory;
+        OverlayElementFactory* mTextAreaFactory;
         OverlayManager* mOverlayManager;
         FontManager* mFontManager;
         ArchiveFactory *mZipArchiveFactory;
