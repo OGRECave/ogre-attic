@@ -30,16 +30,28 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-	 MouseEvent::MouseEvent(PositionTarget* source, int id, int whichButton, Real when, int modifiers,
+	MouseEvent::MouseEvent(PositionTarget* source, int id, int whichButton, Real when, int modifiers,
 		Real x, Real y, Real z, int clickCount) :
 		InputEvent(source, id, when, modifiers),
 		mButtonID(whichButton),
-		mX(x),
-		mY(y),
-		mZ(z),
+		mX(x),mY(y),mZ(z),
+        mRelX(0), mRelY(0), mRelZ(0),
 		mClickCount(clickCount)
 	{
 	} 
+
+    MouseEvent::MouseEvent(PositionTarget* source, int id, int whichButton, Real when, int modifiers,
+		Real x, Real y, Real z,
+        Real relx, Real rely, Real relz,
+        int clickCount) :
+		InputEvent(source, id, when, modifiers),
+		mButtonID(whichButton),
+		mX(x), mY(y), mZ(z),
+        mRelX(relx), mRelY(rely), mRelZ(relz),
+		mClickCount(clickCount)
+	{
+	} 
+
 
 	/**
 	 * Return the number of mouse clicks associated with this event.

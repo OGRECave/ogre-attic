@@ -47,6 +47,9 @@ namespace Ogre {
 		mMouseY = 0.5;
 		mMouseZ = 0.5;
 
+        mRelX = 0.0;
+        mRelY = 0.0;
+        mRelZ = 0.0;
 	}
 
     //-----------------------------------------------------------------------
@@ -59,6 +62,7 @@ namespace Ogre {
 	void Cursor::addToX(Real val)
 	{
 		Real valReal = val * mScale;
+        mRelX = valReal;
 		mMouseX = limit(mMouseX + valReal,mXLowLimit, mXHighLimit);
 	}
 
@@ -66,6 +70,7 @@ namespace Ogre {
 	void Cursor::addToY(Real val)
 	{
 		Real valReal = val * mScale;
+        mRelY = valReal;
 		mMouseY = limit(mMouseY + valReal,mYLowLimit, mYHighLimit);
 	}
 
@@ -73,6 +78,7 @@ namespace Ogre {
 	void Cursor::addToZ(Real val)
 	{
 		Real valReal = val * mScale;
+        mRelZ = valReal;
 		mMouseZ = limit(mMouseZ + valReal,mZLowLimit, mZHighLimit);
 	}
 
@@ -93,6 +99,10 @@ namespace Ogre {
 			processMouseMotionEvent(static_cast<MouseEvent*>(e));
 			break;
 		}
+
+        mRelX = 0.0;
+        mRelY = 0.0;
+        mRelZ = 0.0;
 	}
 
     //-----------------------------------------------------------------------

@@ -100,8 +100,15 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	void InputReader::createMouseEvent(int id, int button)
 	{
-		MouseEvent* me = new MouseEvent(NULL, id, button, 0, // hack fix time
-			mModifiers, mCursor->getX(), mCursor->getY(), mCursor->getZ(),0);	// hack fix click count
+		MouseEvent* me =
+            new MouseEvent(
+                NULL, id, button, 0, // hack fix time
+			    mModifiers,
+                mCursor->getX(), mCursor->getY(), mCursor->getZ(),
+                mCursor->getRelX(), mCursor->getRelY(), mCursor->getRelZ(),
+                0
+            );	// hack fix click count
+
 		mCursor->processEvent(me);
 		mEventQueue->push(me);
 

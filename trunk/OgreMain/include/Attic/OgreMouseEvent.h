@@ -179,6 +179,11 @@ namespace Ogre {
 		 */
 		Real mZ;
 
+
+        Real mRelX;
+        Real mRelY;
+        Real mRelZ;
+
 		/**
 		 * Which button was pressed
 		 */
@@ -226,7 +231,11 @@ namespace Ogre {
 		 */
 		MouseEvent(PositionTarget* source, int id, int whichButton, Real when, int modifiers,
 			Real x, Real y, Real z, int clickCount);
-		/**
+
+        MouseEvent(PositionTarget* source, int id, int whichButton, Real when, int modifiers,
+			Real x, Real y, Real z, Real relx, Real rely, Real relz, int clickCount);
+		
+         /**
 		 * Return the number of mouse clicks associated with this event.
 		 *
 		 * @return integer value for the number of clicks - NOT IMPLEMENTED
@@ -259,6 +268,15 @@ namespace Ogre {
 		 *            the MouseTarget
 		 */
 		 Real getZ();
+
+         /** get relative X cursor movement */
+         Real getRelX() const {return mRelX;}
+         
+         /** get relative Y cursor movement */
+         Real getRelY() const {return mRelY;}
+         
+         /** get relative Z cursor movement */
+         Real getRelZ() const {return mRelZ;}
 
 		/**
 		 * Returns a parameter string identifying this event.
