@@ -70,8 +70,8 @@ namespace Ogre {
                     "Could not initalize JPEG loader.");
         }
     
-        ret_data->width = CGImageGetHeight(image);
-        ret_data->height = CGImageGetWidth(image);
+        ret_data->width = CGImageGetWidth(image);
+        ret_data->height = CGImageGetHeight(image);
     
         uint components;
         CGColorSpaceRef colorSpace;
@@ -111,6 +111,10 @@ namespace Ogre {
         CGRect destRect = CGRectMake(0, 0, ret_data->width, ret_data->height);
         CGContextDrawImage(destContext, destRect, image);
     
+		ret_data->size = imageSize;
+		ret_data->num_mipmaps = 0;
+		ret_data->flags = 0;
+		
         CFRelease( destContext );
         CFRelease( colorSpace );
         CFRelease( image );

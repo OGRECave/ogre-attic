@@ -23,7 +23,7 @@
 			sourceTree = "<group>";
 		};
 		034768DEFF38A45A11DB9C8B = {
-			expectedFileType = wrapper.framework;
+			explicitFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
 			path = Ogre.framework;
@@ -63,6 +63,7 @@
 				66B99E52045CB129000001C9,
 				66B99E85045CB22A000001C9,
 				66B99EB1045CB2E5000001C9,
+				66F4D6DF059DD1B600AD7366,
 			);
 		};
 		0867D691FE84028FC02AAC07 = {
@@ -103,8 +104,8 @@
 				0867D6A2FE84028FC02AAC07,
 			);
 			buildSettings = {
-				DYLIB_COMPATIBILITY_VERSION = 0.10.0;
-				DYLIB_CURRENT_VERSION = 0.10.0;
+				DYLIB_COMPATIBILITY_VERSION = 0.13.0;
+				DYLIB_CURRENT_VERSION = 0.13.0;
 				FRAMEWORK_SEARCH_PATHS = ../../Frameworks;
 				FRAMEWORK_VERSION = A;
 				HEADER_SEARCH_PATHS = ../../Frameworks/freetype.framework/Versions/A/Headers;
@@ -135,7 +136,7 @@
 	<key>CFBundleExecutable</key>
 	<string>Ogre</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Ogre 3D Graphics Engine. See http://ogre.sf.net</string>
+	<string>Ogre 3D Graphics Engine. See http://www.ogre3d.org</string>
 	<key>CFBundleIconFile</key>
 	<string></string>
 	<key>CFBundleIdentifier</key>
@@ -147,11 +148,11 @@
 	<key>CFBundlePackageType</key>
 	<string>FMWK</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.10.1</string>
+	<string>0.13.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>0.10.0 Development</string>
+	<string>0.13.0 Development</string>
 	<key>CSResourcesFileMapped</key>
 	<true/>
 </dict>
@@ -348,6 +349,7 @@
 				82457B84057D689A003BAF7F,
 				82457B85057D689A003BAF7F,
 				82457BAA057D7B3F003BAF7F,
+				8295DF9405B1FF4200127B2D,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -501,6 +503,7 @@
 				82EC48BF0569D3F1003A8A6D,
 				82457B7A057D6841003BAF7F,
 				82457B7B057D6841003BAF7F,
+				8295DF9205B1FF1A00127B2D,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -541,9 +544,9 @@
 			sourceTree = SOURCE_ROOT;
 		};
 		089C1667FE841158C02AAC07 = {
-			expectedFileType = text.plist.strings;
 			fileEncoding = 10;
 			isa = PBXFileReference;
+			lastKnownFileType = text.plist.strings;
 			name = English;
 			path = English.lproj/InfoPlist.strings;
 			refType = 4;
@@ -556,9 +559,9 @@
 			};
 		};
 		08FB77AAFE841565C02AAC07 = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = Carbon.framework;
 			path = /System/Library/Frameworks/Carbon.framework;
 			refType = 0;
@@ -612,9 +615,9 @@
 //663
 //664
 		6602A6B2047FBD75000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = macOgreConfigWindowController.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
@@ -626,9 +629,9 @@
 			};
 		};
 		6602A6B4047FC3D0000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = OgreSDLConfig.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
@@ -640,18 +643,18 @@
 			};
 		};
 		661490F304B8A3CB000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreSDLGLSupport.cpp;
 			path = ../../../RenderSystems/GL/src/SDL/OgreSDLGLSupport.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		661490F404B8A3CB000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreSDLWindow.cpp;
 			path = ../../../RenderSystems/GL/src/SDL/OgreSDLWindow.cpp;
 			refType = 2;
@@ -670,9 +673,9 @@
 			};
 		};
 		661490F704B8A758000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreSDLWindow.h;
 			path = ../../../RenderSystems/GL/include/OgreSDLWindow.h;
 			refType = 2;
@@ -685,36 +688,36 @@
 			};
 		};
 		661490F904B8A93E000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreHardwareBuffer.h;
 			path = ../../../OgreMain/include/OgreHardwareBuffer.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		661490FA04B8A93E000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreHardwareBufferManager.h;
 			path = ../../../OgreMain/include/OgreHardwareBufferManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		661490FB04B8A93E000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreHardwareIndexBuffer.h;
 			path = ../../../OgreMain/include/OgreHardwareIndexBuffer.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		661490FC04B8A93E000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreHardwareVertexBuffer.h;
 			path = ../../../OgreMain/include/OgreHardwareVertexBuffer.h;
 			refType = 2;
@@ -757,9 +760,9 @@
 			};
 		};
 		661D106304AA66F6000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreGLUtil.h;
 			path = ../../../RenderSystems/GL/src/SDL/OgreGLUtil.h;
 			refType = 2;
@@ -772,9 +775,9 @@
 			};
 		};
 		662158C2045F5CF0000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			path = macOgreImageCodec.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
@@ -786,9 +789,9 @@
 			};
 		};
 		664445DD04632EB6000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreTTYGuiElement.cpp;
 			path = ../../../PlugIns/GuiElements/src/OgreTTYGuiElement.cpp;
 			refType = 2;
@@ -801,9 +804,9 @@
 			};
 		};
 		664445DF04632ECF000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreTTYGuiElement.h;
 			path = ../../../PlugIns/GuiElements/include/OgreTTYGuiElement.h;
 			refType = 2;
@@ -816,9 +819,9 @@
 			};
 		};
 		664E9964046D4A56000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			path = macPlugins.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
@@ -830,17 +833,17 @@
 			};
 		};
 		664E9ACF046D4DF2000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = macOgreSDLConfig.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		664E9AD0046D4DF2000001C9 = {
-			expectedFileType = sourcecode.cpp.objcpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.objcpp;
 			path = macOgreSDLConfig.mm;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
@@ -858,45 +861,45 @@
 			};
 		};
 		664E9C3E046D5BAD000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreGLEngineDll.cpp;
 			path = ../../../RenderSystems/GL/src/OgreGLEngineDll.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		664E9C3F046D5BAD000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreGLRenderSystem.cpp;
 			path = ../../../RenderSystems/GL/src/OgreGLRenderSystem.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		664E9C40046D5BAD000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreGLSupport.cpp;
 			path = ../../../RenderSystems/GL/src/OgreGLSupport.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		664E9C41046D5BAD000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreGLTexture.cpp;
 			path = ../../../RenderSystems/GL/src/OgreGLTexture.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		664E9C42046D5BAD000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreGLTextureManager.cpp;
 			path = ../../../RenderSystems/GL/src/OgreGLTextureManager.cpp;
 			refType = 2;
@@ -933,63 +936,63 @@
 			};
 		};
 		664E9C4C046D5BB6000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreGLPrerequisites.h;
 			path = ../../../RenderSystems/GL/include/OgreGLPrerequisites.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		664E9C4D046D5BB6000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreGLRenderSystem.h;
 			path = ../../../RenderSystems/GL/include/OgreGLRenderSystem.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		664E9C4E046D5BB6000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreGLSupport.h;
 			path = ../../../RenderSystems/GL/include/OgreGLSupport.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		664E9C4F046D5BB6000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreGLTexture.h;
 			path = ../../../RenderSystems/GL/include/OgreGLTexture.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		664E9C50046D5BB6000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreGLTextureManager.h;
 			path = ../../../RenderSystems/GL/include/OgreGLTextureManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		664E9C51046D5BB6000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreSDLGLSupport.h;
 			path = ../../../RenderSystems/GL/include/OgreSDLGLSupport.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		664E9C52046D5BB6000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreSDLPrerequisites.h;
 			path = ../../../RenderSystems/GL/include/OgreSDLPrerequisites.h;
 			refType = 2;
@@ -1044,9 +1047,9 @@
 			};
 		};
 		669E89AF045B283C000001C9 = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = freetype.framework;
 			path = ../../Frameworks/freetype.framework;
 			refType = 2;
@@ -1280,7 +1283,7 @@
 ";
 		};
 		66B99E53045CB129000001C9 = {
-			expectedFileType = "wrapper.plug-in";
+			explicitFileType = wrapper.cfbundle;
 			fallbackIsa = PBXFileReference;
 			isa = PBXBundleReference;
 			path = Plugin_BSPSceneManager.bundle;
@@ -1297,72 +1300,72 @@
 			shellScript = ./copyPlugin;
 		};
 		66B99E55045CB156000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreBspLevel.cpp;
 			path = ../../../PlugIns/BSPSceneManager/src/OgreBspLevel.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E56045CB156000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreBspNode.cpp;
 			path = ../../../PlugIns/BSPSceneManager/src/OgreBspNode.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E57045CB156000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreBspResourceManager.cpp;
 			path = ../../../PlugIns/BSPSceneManager/src/OgreBspResourceManager.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E58045CB156000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreBspSceneManager.cpp;
 			path = ../../../PlugIns/BSPSceneManager/src/OgreBspSceneManager.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E59045CB156000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreBspSceneManagerDll.cpp;
 			path = ../../../PlugIns/BSPSceneManager/src/OgreBspSceneManagerDll.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E5A045CB156000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreQuake3Level.cpp;
 			path = ../../../PlugIns/BSPSceneManager/src/OgreQuake3Level.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E5B045CB156000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreQuake3Shader.cpp;
 			path = ../../../PlugIns/BSPSceneManager/src/OgreQuake3Shader.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E5C045CB156000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreQuake3ShaderManager.cpp;
 			path = ../../../PlugIns/BSPSceneManager/src/OgreQuake3ShaderManager.cpp;
 			refType = 2;
@@ -1417,81 +1420,81 @@
 			};
 		};
 		66B99E65045CB16A000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreBspLevel.h;
 			path = ../../../PlugIns/BSPSceneManager/include/OgreBspLevel.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E66045CB16A000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreBspNode.h;
 			path = ../../../PlugIns/BSPSceneManager/include/OgreBspNode.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E67045CB16A000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreBspPrerequisites.h;
 			path = ../../../PlugIns/BSPSceneManager/include/OgreBspPrerequisites.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E68045CB16A000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreBspResourceManager.h;
 			path = ../../../PlugIns/BSPSceneManager/include/OgreBspResourceManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E69045CB16A000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreBspSceneManager.h;
 			path = ../../../PlugIns/BSPSceneManager/include/OgreBspSceneManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E6A045CB16A000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreQuake3Level.h;
 			path = ../../../PlugIns/BSPSceneManager/include/OgreQuake3Level.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E6B045CB16A000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreQuake3Shader.h;
 			path = ../../../PlugIns/BSPSceneManager/include/OgreQuake3Shader.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E6C045CB16A000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreQuake3ShaderManager.h;
 			path = ../../../PlugIns/BSPSceneManager/include/OgreQuake3ShaderManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E6D045CB16A000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreQuake3Types.h;
 			path = ../../../PlugIns/BSPSceneManager/include/OgreQuake3Types.h;
 			refType = 2;
@@ -1758,7 +1761,7 @@
 ";
 		};
 		66B99E86045CB22A000001C9 = {
-			expectedFileType = "wrapper.plug-in";
+			explicitFileType = wrapper.cfbundle;
 			fallbackIsa = PBXFileReference;
 			isa = PBXBundleReference;
 			path = Plugin_NatureSceneManager.bundle;
@@ -1775,63 +1778,63 @@
 			shellScript = ./copyPlugin;
 		};
 		66B99E89045CB25C000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = HeightmapLoader.cpp;
 			path = ../../../PlugIns/NatureSceneManager/src/HeightmapLoader.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E8A045CB25C000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = NatureCustomPatch.cpp;
 			path = ../../../PlugIns/NatureSceneManager/src/NatureCustomPatch.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E8B045CB25C000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = NaturePatch.cpp;
 			path = ../../../PlugIns/NatureSceneManager/src/NaturePatch.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E8C045CB25C000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = NaturePatchManager.cpp;
 			path = ../../../PlugIns/NatureSceneManager/src/NaturePatchManager.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E8D045CB25C000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = NatureSceneManager.cpp;
 			path = ../../../PlugIns/NatureSceneManager/src/NatureSceneManager.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E8E045CB25C000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = NatureSceneManagerDll.cpp;
 			path = ../../../PlugIns/NatureSceneManager/src/NatureSceneManagerDll.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E8F045CB25C000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = NatureTerrainPatch.cpp;
 			path = ../../../PlugIns/NatureSceneManager/src/NatureTerrainPatch.cpp;
 			refType = 2;
@@ -1880,72 +1883,72 @@
 			};
 		};
 		66B99E99045CB268000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = HeightmapLoader.h;
 			path = ../../../PlugIns/NatureSceneManager/include/HeightmapLoader.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E9A045CB268000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = NatureConfig.h;
 			path = ../../../PlugIns/NatureSceneManager/include/NatureConfig.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E9B045CB268000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = NatureCustomPatch.h;
 			path = ../../../PlugIns/NatureSceneManager/include/NatureCustomPatch.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E9C045CB268000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = NaturePatch.h;
 			path = ../../../PlugIns/NatureSceneManager/include/NaturePatch.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E9D045CB268000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = NaturePatchLoader.h;
 			path = ../../../PlugIns/NatureSceneManager/include/NaturePatchLoader.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E9E045CB268000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = NaturePatchManager.h;
 			path = ../../../PlugIns/NatureSceneManager/include/NaturePatchManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99E9F045CB268000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = NatureSceneManager.h;
 			path = ../../../PlugIns/NatureSceneManager/include/NatureSceneManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99EA0045CB268000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = NatureTerrainPatch.h;
 			path = ../../../PlugIns/NatureSceneManager/include/NatureTerrainPatch.h;
 			refType = 2;
@@ -2124,7 +2127,7 @@
 ";
 		};
 		66B99EB2045CB2E5000001C9 = {
-			expectedFileType = "wrapper.plug-in";
+			explicitFileType = wrapper.cfbundle;
 			fallbackIsa = PBXFileReference;
 			isa = PBXBundleReference;
 			path = Plugin_OctreeSceneManager.bundle;
@@ -2146,54 +2149,54 @@
 			shellScript = ./copyPlugin;
 		};
 		66B99EB8045CB36A000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreOctree.h;
 			path = ../../../PlugIns/OctreeSceneManager/include/OgreOctree.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99EB9045CB36A000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreOctreeCamera.h;
 			path = ../../../PlugIns/OctreeSceneManager/include/OgreOctreeCamera.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99EBA045CB36A000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreOctreeNode.h;
 			path = ../../../PlugIns/OctreeSceneManager/include/OgreOctreeNode.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99EBB045CB36A000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreOctreeSceneManager.h;
 			path = ../../../PlugIns/OctreeSceneManager/include/OgreOctreeSceneManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99EBC045CB36A000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreTerrainRenderable.h;
 			path = ../../../PlugIns/OctreeSceneManager/include/OgreTerrainRenderable.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99EBD045CB36A000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreTerrainSceneManager.h;
 			path = ../../../PlugIns/OctreeSceneManager/include/OgreTerrainSceneManager.h;
 			refType = 2;
@@ -2236,63 +2239,63 @@
 			};
 		};
 		66B99EC4045CB377000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreOctree.cpp;
 			path = ../../../PlugIns/OctreeSceneManager/src/OgreOctree.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99EC5045CB377000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreOctreeCamera.cpp;
 			path = ../../../PlugIns/OctreeSceneManager/src/OgreOctreeCamera.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99EC6045CB377000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreOctreeNode.cpp;
 			path = ../../../PlugIns/OctreeSceneManager/src/OgreOctreeNode.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99EC7045CB377000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreOctreeSceneManager.cpp;
 			path = ../../../PlugIns/OctreeSceneManager/src/OgreOctreeSceneManager.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99EC8045CB377000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreOctreeSceneManagerDll.cpp;
 			path = ../../../PlugIns/OctreeSceneManager/src/OgreOctreeSceneManagerDll.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99EC9045CB377000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreTerrainRenderable.cpp;
 			path = ../../../PlugIns/OctreeSceneManager/src/OgreTerrainRenderable.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B99ECA045CB377000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreTerrainSceneManager.cpp;
 			path = ../../../PlugIns/OctreeSceneManager/src/OgreTerrainSceneManager.cpp;
 			refType = 2;
@@ -2436,277 +2439,277 @@
 			sourceTree = "<group>";
 		};
 		66CAE423045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreSubEntity.cpp;
 			path = ../../../OgreMain/src/OgreSubEntity.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE424045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreActionEvent.cpp;
 			path = ../../../OgreMain/src/OgreActionEvent.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE425045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreSceneNode.cpp;
 			path = ../../../OgreMain/src/OgreSceneNode.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE426045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreDataChunk.cpp;
 			path = ../../../OgreMain/src/OgreDataChunk.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE427045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreWireBoundingBox.cpp;
 			path = ../../../OgreMain/src/OgreWireBoundingBox.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE428045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreOverlay.cpp;
 			path = ../../../OgreMain/src/OgreOverlay.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE429045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreQuaternion.cpp;
 			path = ../../../OgreMain/src/OgreQuaternion.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE42A045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreParticleIterator.cpp;
 			path = ../../../OgreMain/src/OgreParticleIterator.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE42B045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreParticleEmitterCommands.cpp;
 			path = ../../../OgreMain/src/OgreParticleEmitterCommands.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE42C045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreLight.cpp;
 			path = ../../../OgreMain/src/OgreLight.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE42E045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreAnimationState.cpp;
 			path = ../../../OgreMain/src/OgreAnimationState.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE42F045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreParticleEmitter.cpp;
 			path = ../../../OgreMain/src/OgreParticleEmitter.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE430045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreMaterialSerializer.cpp;
 			path = ../../../OgreMain/src/OgreMaterialSerializer.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE431045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreRenderSystem.cpp;
 			path = ../../../OgreMain/src/OgreRenderSystem.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE432045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreInput.cpp;
 			path = ../../../OgreMain/src/OgreInput.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE433045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreRenderQueue.cpp;
 			path = ../../../OgreMain/src/OgreRenderQueue.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE434045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreScrollEvent.cpp;
 			path = ../../../OgreMain/src/OgreScrollEvent.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE435045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreCursor.cpp;
 			path = ../../../OgreMain/src/OgreCursor.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE436045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreInputEvent.cpp;
 			path = ../../../OgreMain/src/OgreInputEvent.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE437045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreSerializer.cpp;
 			path = ../../../OgreMain/src/OgreSerializer.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE438045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreZipArchiveFactory.cpp;
 			path = ../../../OgreMain/src/OgreZipArchiveFactory.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE439045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreMatrix3.cpp;
 			path = ../../../OgreMain/src/OgreMatrix3.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE43B045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreStringConverter.cpp;
 			path = ../../../OgreMain/src/OgreStringConverter.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE43C045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreFontManager.cpp;
 			path = ../../../OgreMain/src/OgreFontManager.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE43D045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreVector3.cpp;
 			path = ../../../OgreMain/src/OgreVector3.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE43E045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreNode.cpp;
 			path = ../../../OgreMain/src/OgreNode.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE43F045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreStringVector.cpp;
 			path = ../../../OgreMain/src/OgreStringVector.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE440045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreRenderTarget.cpp;
 			path = ../../../OgreMain/src/OgreRenderTarget.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE441045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreTimer.cpp;
 			path = ../../../OgreMain/src/OgreTimer.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE442045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreUserDefinedObject.cpp;
 			path = ../../../OgreMain/src/OgreUserDefinedObject.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE443045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
+			explicitFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			name = OgreMemoryManager.cpp;
@@ -2715,738 +2718,738 @@
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE444045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreKeyEvent.cpp;
 			path = ../../../OgreMain/src/OgreKeyEvent.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE445045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreCodec.cpp;
 			path = ../../../OgreMain/src/OgreCodec.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE446045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreRenderWindow.cpp;
 			path = ../../../OgreMain/src/OgreRenderWindow.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE447045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreOverlayManager.cpp;
 			path = ../../../OgreMain/src/OgreOverlayManager.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE448045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreController.cpp;
 			path = ../../../OgreMain/src/OgreController.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE449045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreViewport.cpp;
 			path = ../../../OgreMain/src/OgreViewport.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE44A045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreSingleton.cpp;
 			path = ../../../OgreMain/src/OgreSingleton.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE44B045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreMath.cpp;
 			path = ../../../OgreMain/src/OgreMath.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE44C045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreColourValue.cpp;
 			path = ../../../OgreMain/src/OgreColourValue.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE44D045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreScrollTarget.cpp;
 			path = ../../../OgreMain/src/OgreScrollTarget.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE44E045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreCamera.cpp;
 			path = ../../../OgreMain/src/OgreCamera.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE44F045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreArchiveEx.cpp;
 			path = ../../../OgreMain/src/OgreArchiveEx.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE450045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreTagPoint.cpp;
 			path = ../../../OgreMain/src/OgreTagPoint.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE451045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreEventDispatcher.cpp;
 			path = ../../../OgreMain/src/OgreEventDispatcher.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE452045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreBillboard.cpp;
 			path = ../../../OgreMain/src/OgreBillboard.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE453045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreMesh.cpp;
 			path = ../../../OgreMain/src/OgreMesh.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE454045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreAnimation.cpp;
 			path = ../../../OgreMain/src/OgreAnimation.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE455045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreSubMesh.cpp;
 			path = ../../../OgreMain/src/OgreSubMesh.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE456045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreEventQueue.cpp;
 			path = ../../../OgreMain/src/OgreEventQueue.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE457045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreTextureManager.cpp;
 			path = ../../../OgreMain/src/OgreTextureManager.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE458045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreGuiElement.cpp;
 			path = ../../../OgreMain/src/OgreGuiElement.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE459045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreBitwise.cpp;
 			path = ../../../OgreMain/src/OgreBitwise.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE45A045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreRoot.cpp;
 			path = ../../../OgreMain/src/OgreRoot.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE45B045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreGuiControl.cpp;
 			path = ../../../OgreMain/src/OgreGuiControl.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE45C045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreBone.cpp;
 			path = ../../../OgreMain/src/OgreBone.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE45D045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreString.cpp;
 			path = ../../../OgreMain/src/OgreString.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE45E045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreSimpleSpline.cpp;
 			path = ../../../OgreMain/src/OgreSimpleSpline.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE45F045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreMouseMotionTarget.cpp;
 			path = ../../../OgreMain/src/OgreMouseMotionTarget.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE460045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreParticleSystemManager.cpp;
 			path = ../../../OgreMain/src/OgreParticleSystemManager.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE461045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgrePredefinedControllers.cpp;
 			path = ../../../OgreMain/src/OgrePredefinedControllers.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE462045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreResourceManager.cpp;
 			path = ../../../OgreMain/src/OgreResourceManager.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE463045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreDynLibManager.cpp;
 			path = ../../../OgreMain/src/OgreDynLibManager.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE464045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreException.cpp;
 			path = ../../../OgreMain/src/OgreException.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE465045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreMaterial.cpp;
 			path = ../../../OgreMain/src/OgreMaterial.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE466045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreImage.cpp;
 			path = ../../../OgreMain/src/OgreImage.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE467045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreSceneManagerEnumerator.cpp;
 			path = ../../../OgreMain/src/OgreSceneManagerEnumerator.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE468045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreTexture.cpp;
 			path = ../../../OgreMain/src/OgreTexture.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE469045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreParticleSystem.cpp;
 			path = ../../../OgreMain/src/OgreParticleSystem.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE46A045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreProgressiveMesh.cpp;
 			path = ../../../OgreMain/src/OgreProgressiveMesh.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE46B045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreLog.cpp;
 			path = ../../../OgreMain/src/OgreLog.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE46C045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreSDDataChunk.cpp;
 			path = ../../../OgreMain/src/OgreSDDataChunk.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE46D045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreMeshSerializer.cpp;
 			path = ../../../OgreMain/src/OgreMeshSerializer.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE46E045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreMouseEvent.cpp;
 			path = ../../../OgreMain/src/OgreMouseEvent.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE46F045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreMatrix4.cpp;
 			path = ../../../OgreMain/src/OgreMatrix4.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE470045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreMouseTarget.cpp;
 			path = ../../../OgreMain/src/OgreMouseTarget.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE471045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreRenderTexture.cpp;
 			path = ../../../OgreMain/src/OgreRenderTexture.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE472045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreMeshManager.cpp;
 			path = ../../../OgreMain/src/OgreMeshManager.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE473045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreSkeleton.cpp;
 			path = ../../../OgreMain/src/OgreSkeleton.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE474045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreAxisAlignedBox.cpp;
 			path = ../../../OgreMain/src/OgreAxisAlignedBox.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE475045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreBillboardSet.cpp;
 			path = ../../../OgreMain/src/OgreBillboardSet.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE477045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreDynLib.cpp;
 			path = ../../../OgreMain/src/OgreDynLib.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE478045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreEventMulticaster.cpp;
 			path = ../../../OgreMain/src/OgreEventMulticaster.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE479045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreFont.cpp;
 			path = ../../../OgreMain/src/OgreFont.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE47A045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreKeyTarget.cpp;
 			path = ../../../OgreMain/src/OgreKeyTarget.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE47B045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreSimpleRenderable.cpp;
 			path = ../../../OgreMain/src/OgreSimpleRenderable.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE47C045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreListSelectionTarget.cpp;
 			path = ../../../OgreMain/src/OgreListSelectionTarget.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE47D045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreSceneManager.cpp;
 			path = ../../../OgreMain/src/OgreSceneManager.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE47E045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgrePlane.cpp;
 			path = ../../../OgreMain/src/OgrePlane.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE47F045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreAnimationTrack.cpp;
 			path = ../../../OgreMain/src/OgreAnimationTrack.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE481045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreKeyFrame.cpp;
 			path = ../../../OgreMain/src/OgreKeyFrame.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE482045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreConfigOptionMap.cpp;
 			path = ../../../OgreMain/src/OgreConfigOptionMap.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE483045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreGuiContainer.cpp;
 			path = ../../../OgreMain/src/OgreGuiContainer.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE484045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreControllerManager.cpp;
 			path = ../../../OgreMain/src/OgreControllerManager.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE485045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreLogManager.cpp;
 			path = ../../../OgreMain/src/OgreLogManager.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE486045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreConfigFile.cpp;
 			path = ../../../OgreMain/src/OgreConfigFile.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE487045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreGuiManager.cpp;
 			path = ../../../OgreMain/src/OgreGuiManager.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE489045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgrePlatformManager.cpp;
 			path = ../../../OgreMain/src/OgrePlatformManager.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE48A045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreGuiElementCommands.cpp;
 			path = ../../../OgreMain/src/OgreGuiElementCommands.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE48B045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreMaterialManager.cpp;
 			path = ../../../OgreMain/src/OgreMaterialManager.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE48C045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreMovableObject.cpp;
 			path = ../../../OgreMain/src/OgreMovableObject.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE48D045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreEntity.cpp;
 			path = ../../../OgreMain/src/OgreEntity.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE48E045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreSkeletonSerializer.cpp;
 			path = ../../../OgreMain/src/OgreSkeletonSerializer.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE48F045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreZip.cpp;
 			path = ../../../OgreMain/src/OgreZip.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE490045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreStringInterface.cpp;
 			path = ../../../OgreMain/src/OgreStringInterface.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE491045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreRotationSpline.cpp;
 			path = ../../../OgreMain/src/OgreRotationSpline.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE492045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreSkeletonManager.cpp;
 			path = ../../../OgreMain/src/OgreSkeletonManager.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE493045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreEventProcessor.cpp;
 			path = ../../../OgreMain/src/OgreEventProcessor.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE495045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreSceneQuery.cpp;
 			path = ../../../OgreMain/src/OgreSceneQuery.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE497045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreGuiPressable.cpp;
 			path = ../../../OgreMain/src/OgreGuiPressable.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE498045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreArchiveManager.cpp;
 			path = ../../../OgreMain/src/OgreArchiveManager.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE49B045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgrePatchSurface.cpp;
 			path = ../../../OgreMain/src/OgrePatchSurface.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE49C045A3D4F000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreActionTarget.cpp;
 			path = ../../../OgreMain/src/OgreActionTarget.cpp;
 			refType = 2;
@@ -4143,1485 +4146,1485 @@
 			sourceTree = "<group>";
 		};
 		66CAE519045A3DA3000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreSDLInput.cpp;
 			path = ../../../PlatformManagers/SDL/src/OgreSDLInput.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE51A045A3DA3000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreSDLPlatform.cpp;
 			path = ../../../PlatformManagers/SDL/src/OgreSDLPlatform.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE51B045A3DA3000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreSDLTimer.cpp;
 			path = ../../../PlatformManagers/SDL/src/OgreSDLTimer.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE521045A3DB0000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreSDLError.h;
 			path = ../../../PlatformManagers/SDL/include/OgreSDLError.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE522045A3DB0000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreSDLInput.h;
 			path = ../../../PlatformManagers/SDL/include/OgreSDLInput.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE523045A3DB0000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreSDLTimer.h;
 			path = ../../../PlatformManagers/SDL/include/OgreSDLTimer.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE528045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = Ogre.h;
 			path = ../../../OgreMain/include/Ogre.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE529045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreActionEvent.h;
 			path = ../../../OgreMain/include/OgreActionEvent.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE52A045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreActionTarget.h;
 			path = ../../../OgreMain/include/OgreActionTarget.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE52B045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreAnimation.h;
 			path = ../../../OgreMain/include/OgreAnimation.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE52C045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreAnimationState.h;
 			path = ../../../OgreMain/include/OgreAnimationState.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE52D045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreAnimationTrack.h;
 			path = ../../../OgreMain/include/OgreAnimationTrack.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE52E045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreArchiveEx.h;
 			path = ../../../OgreMain/include/OgreArchiveEx.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE52F045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreArchiveFactory.h;
 			path = ../../../OgreMain/include/OgreArchiveFactory.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE530045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreArchiveManager.h;
 			path = ../../../OgreMain/include/OgreArchiveManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE531045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreAxisAlignedBox.h;
 			path = ../../../OgreMain/include/OgreAxisAlignedBox.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE532045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreBillboard.h;
 			path = ../../../OgreMain/include/OgreBillboard.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE533045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreBillboardSet.h;
 			path = ../../../OgreMain/include/OgreBillboardSet.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE534045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreBitwise.h;
 			path = ../../../OgreMain/include/OgreBitwise.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE535045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreBlendMode.h;
 			path = ../../../OgreMain/include/OgreBlendMode.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE536045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreBone.h;
 			path = ../../../OgreMain/include/OgreBone.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE537045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreCamera.h;
 			path = ../../../OgreMain/include/OgreCamera.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE538045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreCodec.h;
 			path = ../../../OgreMain/include/OgreCodec.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE539045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreColourValue.h;
 			path = ../../../OgreMain/include/OgreColourValue.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE53A045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreCommon.h;
 			path = ../../../OgreMain/include/OgreCommon.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE53B045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreConfig.h;
 			path = ../../../OgreMain/include/OgreConfig.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE53C045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreConfigDialog.h;
 			path = ../../../OgreMain/include/OgreConfigDialog.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE53D045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreConfigFile.h;
 			path = ../../../OgreMain/include/OgreConfigFile.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE53E045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreConfigOptionMap.h;
 			path = ../../../OgreMain/include/OgreConfigOptionMap.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE53F045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreController.h;
 			path = ../../../OgreMain/include/OgreController.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE540045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreControllerManager.h;
 			path = ../../../OgreMain/include/OgreControllerManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE541045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreCursor.h;
 			path = ../../../OgreMain/include/OgreCursor.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE542045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreDataChunk.h;
 			path = ../../../OgreMain/include/OgreDataChunk.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE543045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreDynLib.h;
 			path = ../../../OgreMain/include/OgreDynLib.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE544045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreDynLibManager.h;
 			path = ../../../OgreMain/include/OgreDynLibManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE545045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreEntity.h;
 			path = ../../../OgreMain/include/OgreEntity.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE546045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreErrorDialog.h;
 			path = ../../../OgreMain/include/OgreErrorDialog.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE547045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreEventDispatcher.h;
 			path = ../../../OgreMain/include/OgreEventDispatcher.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE548045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreEventListeners.h;
 			path = ../../../OgreMain/include/OgreEventListeners.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE549045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreEventMulticaster.h;
 			path = ../../../OgreMain/include/OgreEventMulticaster.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE54A045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreEventProcessor.h;
 			path = ../../../OgreMain/include/OgreEventProcessor.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE54B045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreEventQueue.h;
 			path = ../../../OgreMain/include/OgreEventQueue.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE54C045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreEventTarget.h;
 			path = ../../../OgreMain/include/OgreEventTarget.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE54D045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreException.h;
 			path = ../../../OgreMain/include/OgreException.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE54E045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreFactoryObj.h;
 			path = ../../../OgreMain/include/OgreFactoryObj.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE54F045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreFont.h;
 			path = ../../../OgreMain/include/OgreFont.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE550045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreFontManager.h;
 			path = ../../../OgreMain/include/OgreFontManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE551045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreFrameListener.h;
 			path = ../../../OgreMain/include/OgreFrameListener.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE553045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreGuiContainer.h;
 			path = ../../../OgreMain/include/OgreGuiContainer.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE554045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreGuiControl.h;
 			path = ../../../OgreMain/include/OgreGuiControl.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE555045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreGuiElement.h;
 			path = ../../../OgreMain/include/OgreGuiElement.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE556045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreGuiElementCommands.h;
 			path = ../../../OgreMain/include/OgreGuiElementCommands.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE557045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreGuiElementFactory.h;
 			path = ../../../OgreMain/include/OgreGuiElementFactory.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE558045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreGuiManager.h;
 			path = ../../../OgreMain/include/OgreGuiManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE559045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreGuiPressable.h;
 			path = ../../../OgreMain/include/OgreGuiPressable.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE55A045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreImage.h;
 			path = ../../../OgreMain/include/OgreImage.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE55B045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreImageCodec.h;
 			path = ../../../OgreMain/include/OgreImageCodec.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE55C045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreInput.h;
 			path = ../../../OgreMain/include/OgreInput.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE55D045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreInputEvent.h;
 			path = ../../../OgreMain/include/OgreInputEvent.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE55E045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreIteratorWrappers.h;
 			path = ../../../OgreMain/include/OgreIteratorWrappers.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE55F045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreJPEGCodec.h;
 			path = ../../../OgreMain/include/OgreJPEGCodec.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE560045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreKeyEvent.h;
 			path = ../../../OgreMain/include/OgreKeyEvent.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE561045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreKeyFrame.h;
 			path = ../../../OgreMain/include/OgreKeyFrame.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE562045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreKeyTarget.h;
 			path = ../../../OgreMain/include/OgreKeyTarget.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE563045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreLight.h;
 			path = ../../../OgreMain/include/OgreLight.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE564045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreListChanger.h;
 			path = ../../../OgreMain/include/OgreListChanger.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE565045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreListSelectionEvent.h;
 			path = ../../../OgreMain/include/OgreListSelectionEvent.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE566045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreListSelectionTarget.h;
 			path = ../../../OgreMain/include/OgreListSelectionTarget.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE567045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreLog.h;
 			path = ../../../OgreMain/include/OgreLog.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE568045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreLogManager.h;
 			path = ../../../OgreMain/include/OgreLogManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE569045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreMaterial.h;
 			path = ../../../OgreMain/include/OgreMaterial.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE56A045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreMaterialManager.h;
 			path = ../../../OgreMain/include/OgreMaterialManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE56B045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreMaterialSerializer.h;
 			path = ../../../OgreMain/include/OgreMaterialSerializer.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE56C045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreMath.h;
 			path = ../../../OgreMain/include/OgreMath.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE56D045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreMatrix3.h;
 			path = ../../../OgreMain/include/OgreMatrix3.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE56E045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreMatrix4.h;
 			path = ../../../OgreMain/include/OgreMatrix4.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE56F045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreMemoryMacros.h;
 			path = ../../../OgreMain/include/OgreMemoryMacros.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE570045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreMemoryManager.h;
 			path = ../../../OgreMain/include/OgreMemoryManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE571045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreMesh.h;
 			path = ../../../OgreMain/include/OgreMesh.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE572045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreMeshFileFormat.h;
 			path = ../../../OgreMain/include/OgreMeshFileFormat.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE573045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreMeshManager.h;
 			path = ../../../OgreMain/include/OgreMeshManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE574045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreMeshSerializer.h;
 			path = ../../../OgreMain/include/OgreMeshSerializer.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE575045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreMouseEvent.h;
 			path = ../../../OgreMain/include/OgreMouseEvent.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE576045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreMouseMotionTarget.h;
 			path = ../../../OgreMain/include/OgreMouseMotionTarget.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE577045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreMouseTarget.h;
 			path = ../../../OgreMain/include/OgreMouseTarget.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE578045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreMovableObject.h;
 			path = ../../../OgreMain/include/OgreMovableObject.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE579045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreNode.h;
 			path = ../../../OgreMain/include/OgreNode.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE57A045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreNoMemoryMacros.h;
 			path = ../../../OgreMain/include/OgreNoMemoryMacros.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE57D045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreOverlay.h;
 			path = ../../../OgreMain/include/OgreOverlay.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE57E045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreOverlayManager.h;
 			path = ../../../OgreMain/include/OgreOverlayManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE57F045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreParticle.h;
 			path = ../../../OgreMain/include/OgreParticle.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE580045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreParticleAffector.h;
 			path = ../../../OgreMain/include/OgreParticleAffector.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE581045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreParticleAffectorFactory.h;
 			path = ../../../OgreMain/include/OgreParticleAffectorFactory.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE582045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreParticleEmitter.h;
 			path = ../../../OgreMain/include/OgreParticleEmitter.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE583045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreParticleEmitterCommands.h;
 			path = ../../../OgreMain/include/OgreParticleEmitterCommands.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE584045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreParticleEmitterFactory.h;
 			path = ../../../OgreMain/include/OgreParticleEmitterFactory.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE585045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreParticleIterator.h;
 			path = ../../../OgreMain/include/OgreParticleIterator.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE586045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreParticleSystem.h;
 			path = ../../../OgreMain/include/OgreParticleSystem.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE587045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreParticleSystemManager.h;
 			path = ../../../OgreMain/include/OgreParticleSystemManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE588045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgrePatchSurface.h;
 			path = ../../../OgreMain/include/OgrePatchSurface.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE589045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgrePlane.h;
 			path = ../../../OgreMain/include/OgrePlane.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE58A045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgrePlatform.h;
 			path = ../../../OgreMain/include/OgrePlatform.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE58B045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgrePlatformManager.h;
 			path = ../../../OgreMain/include/OgrePlatformManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE58C045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgrePNGCodec.h;
 			path = ../../../OgreMain/include/OgrePNGCodec.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE58D045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgrePositionTarget.h;
 			path = ../../../OgreMain/include/OgrePositionTarget.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE58E045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgrePredefinedControllers.h;
 			path = ../../../OgreMain/include/OgrePredefinedControllers.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE58F045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgrePrerequisites.h;
 			path = ../../../OgreMain/include/OgrePrerequisites.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE590045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreProgressiveMesh.h;
 			path = ../../../OgreMain/include/OgreProgressiveMesh.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE591045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreQuaternion.h;
 			path = ../../../OgreMain/include/OgreQuaternion.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE592045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreRay.h;
 			path = ../../../OgreMain/include/OgreRay.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE593045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreRenderable.h;
 			path = ../../../OgreMain/include/OgreRenderable.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE594045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreRenderOperation.h;
 			path = ../../../OgreMain/include/OgreRenderOperation.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE595045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreRenderQueue.h;
 			path = ../../../OgreMain/include/OgreRenderQueue.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE596045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreRenderQueueListener.h;
 			path = ../../../OgreMain/include/OgreRenderQueueListener.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE597045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreRenderQueueSortingGrouping.h;
 			path = ../../../OgreMain/include/OgreRenderQueueSortingGrouping.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE598045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreRenderSystem.h;
 			path = ../../../OgreMain/include/OgreRenderSystem.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE599045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreRenderTarget.h;
 			path = ../../../OgreMain/include/OgreRenderTarget.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE59A045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreRenderTargetListener.h;
 			path = ../../../OgreMain/include/OgreRenderTargetListener.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE59B045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreRenderTargetTexture.h;
 			path = ../../../OgreMain/include/OgreRenderTargetTexture.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE59C045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreRenderTexture.h;
 			path = ../../../OgreMain/include/OgreRenderTexture.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE59D045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreRenderWindow.h;
 			path = ../../../OgreMain/include/OgreRenderWindow.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE59E045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreResource.h;
 			path = ../../../OgreMain/include/OgreResource.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE59F045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreResourceManager.h;
 			path = ../../../OgreMain/include/OgreResourceManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5A1045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreRoot.h;
 			path = ../../../OgreMain/include/OgreRoot.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5A2045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreRotationalSpline.h;
 			path = ../../../OgreMain/include/OgreRotationalSpline.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5A3045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreSceneManager.h;
 			path = ../../../OgreMain/include/OgreSceneManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5A4045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreSceneManagerEnumerator.h;
 			path = ../../../OgreMain/include/OgreSceneManagerEnumerator.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5A5045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreSceneNode.h;
 			path = ../../../OgreMain/include/OgreSceneNode.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5A6045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreSceneQuery.h;
 			path = ../../../OgreMain/include/OgreSceneQuery.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5A7045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreScrollEvent.h;
 			path = ../../../OgreMain/include/OgreScrollEvent.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5A8045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreScrollTarget.h;
 			path = ../../../OgreMain/include/OgreScrollTarget.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5A9045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreSDDataChunk.h;
 			path = ../../../OgreMain/include/OgreSDDataChunk.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5AA045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreSerializer.h;
 			path = ../../../OgreMain/include/OgreSerializer.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5AB045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreSimpleRenderable.h;
 			path = ../../../OgreMain/include/OgreSimpleRenderable.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5AC045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreSimpleSpline.h;
 			path = ../../../OgreMain/include/OgreSimpleSpline.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5AD045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreSingleton.h;
 			path = ../../../OgreMain/include/OgreSingleton.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5AE045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreSkeleton.h;
 			path = ../../../OgreMain/include/OgreSkeleton.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5AF045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreSkeletonFileFormat.h;
 			path = ../../../OgreMain/include/OgreSkeletonFileFormat.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5B0045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreSkeletonManager.h;
 			path = ../../../OgreMain/include/OgreSkeletonManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5B1045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreSkeletonSerializer.h;
 			path = ../../../OgreMain/include/OgreSkeletonSerializer.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5B2045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreSphere.h;
 			path = ../../../OgreMain/include/OgreSphere.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5B3045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreStaticFaceGroup.h;
 			path = ../../../OgreMain/include/OgreStaticFaceGroup.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5B4045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreStdHeaders.h;
 			path = ../../../OgreMain/include/OgreStdHeaders.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5B5045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreString.h;
 			path = ../../../OgreMain/include/OgreString.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5B6045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreStringConverter.h;
 			path = ../../../OgreMain/include/OgreStringConverter.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5B7045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreStringInterface.h;
 			path = ../../../OgreMain/include/OgreStringInterface.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5B8045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreStringResource.h;
 			path = ../../../OgreMain/include/OgreStringResource.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5B9045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreStringVector.h;
 			path = ../../../OgreMain/include/OgreStringVector.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5BA045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreSubEntity.h;
 			path = ../../../OgreMain/include/OgreSubEntity.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5BB045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreSubMesh.h;
 			path = ../../../OgreMain/include/OgreSubMesh.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5BC045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreTagPoint.h;
 			path = ../../../OgreMain/include/OgreTagPoint.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5BD045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreTargetManager.h;
 			path = ../../../OgreMain/include/OgreTargetManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5BE045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreTexture.h;
 			path = ../../../OgreMain/include/OgreTexture.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5BF045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreTextureManager.h;
 			path = ../../../OgreMain/include/OgreTextureManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5C0045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreTGACodec.h;
 			path = ../../../OgreMain/include/OgreTGACodec.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5C1045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreTimer.h;
 			path = ../../../OgreMain/include/OgreTimer.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5C2045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreUserDefinedObject.h;
 			path = ../../../OgreMain/include/OgreUserDefinedObject.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5C3045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreVector3.h;
 			path = ../../../OgreMain/include/OgreVector3.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5C4045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreVector4.h;
 			path = ../../../OgreMain/include/OgreVector4.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5C5045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreVertexBoneAssignment.h;
 			path = ../../../OgreMain/include/OgreVertexBoneAssignment.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5C6045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreViewport.h;
 			path = ../../../OgreMain/include/OgreViewport.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5C7045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreWireBoundingBox.h;
 			path = ../../../OgreMain/include/OgreWireBoundingBox.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5C8045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreZip.h;
 			path = ../../../OgreMain/include/OgreZip.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5C9045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreZipArchiveFactory.h;
 			path = ../../../OgreMain/include/OgreZipArchiveFactory.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE5CA045A3DD9000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = unzip.h;
 			path = ../../../OgreMain/include/unzip.h;
 			refType = 2;
@@ -7060,6 +7063,7 @@
 		};
 		66CAE66E045A3DE2000001C9 = {
 			children = (
+				8295DF9305B1FF4200127B2D,
 				66F0D756045B0A37000001C9,
 				66F0D743045AF86B000001C9,
 				66F0D736045AEEDF000001C9,
@@ -7255,6 +7259,7 @@
 		};
 		66CAE66F045A3DF3000001C9 = {
 			children = (
+				8295DF9105B1FF1A00127B2D,
 				664E9964046D4A56000001C9,
 				66F0D757045B0A37000001C9,
 				662158C2045F5CF0000001C9,
@@ -7430,6 +7435,7 @@
 			children = (
 				66CAE674045A3E46000001C9,
 				66CAE673045A3E3F000001C9,
+				66F4D6DE059DD18D00AD7366,
 			);
 			isa = PBXGroup;
 			name = "GL Render System";
@@ -7438,20 +7444,23 @@
 		};
 		66CAE673045A3E3F000001C9 = {
 			children = (
+				66F4D6DA059DD15A00AD7366,
+				820AF5F60531D8D5006AB97A,
+				66F4D6D0059DD09D00AD7366,
+				82EC489C0569CCC3003A8A6D,
+				66F4D6D1059DD09D00AD7366,
+				820AF5F70531D8D5006AB97A,
+				820AF5F80531D8D5006AB97A,
+				820AF5F90531D8D5006AB97A,
 				664E9C4C046D5BB6000001C9,
 				664E9C4D046D5BB6000001C9,
 				664E9C4E046D5BB6000001C9,
 				664E9C4F046D5BB6000001C9,
 				664E9C50046D5BB6000001C9,
+				661D106304AA66F6000001C9,
 				664E9C51046D5BB6000001C9,
 				664E9C52046D5BB6000001C9,
 				661490F704B8A758000001C9,
-				661D106304AA66F6000001C9,
-				820AF5F60531D8D5006AB97A,
-				820AF5F70531D8D5006AB97A,
-				820AF5F80531D8D5006AB97A,
-				820AF5F90531D8D5006AB97A,
-				82EC489C0569CCC3003A8A6D,
 				82EC489D0569CCC3003A8A6D,
 			);
 			isa = PBXGroup;
@@ -7461,19 +7470,20 @@
 		};
 		66CAE674045A3E46000001C9 = {
 			children = (
+				820AF5FE0531D957006AB97A,
 				664E9C3E046D5BAD000001C9,
+				66F4D6D6059DD0EA00AD7366,
+				82EC48960569CC7B003A8A6D,
+				82EC48970569CC7B003A8A6D,
+				820AF5FF0531D957006AB97A,
+				820AF6000531D957006AB97A,
+				820AF6010531D957006AB97A,
 				664E9C3F046D5BAD000001C9,
 				664E9C40046D5BAD000001C9,
 				664E9C41046D5BAD000001C9,
 				664E9C42046D5BAD000001C9,
 				661490F304B8A3CB000001C9,
 				661490F404B8A3CB000001C9,
-				820AF5FE0531D957006AB97A,
-				820AF5FF0531D957006AB97A,
-				820AF6000531D957006AB97A,
-				820AF6010531D957006AB97A,
-				82EC48960569CC7B003A8A6D,
-				82EC48970569CC7B003A8A6D,
 			);
 			isa = PBXGroup;
 			name = Source;
@@ -7516,27 +7526,27 @@
 			sourceTree = "<group>";
 		};
 		66CAE690045A3EB5000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = FileSystem.h;
 			path = ../../../PlugIns/FileSystem/include/FileSystem.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE691045A3EB5000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = FileSystemFactory.h;
 			path = ../../../PlugIns/FileSystem/include/FileSystemFactory.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE692045A3EB5000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = SearchOps.h;
 			path = ../../../PlugIns/FileSystem/include/SearchOps.h;
 			refType = 2;
@@ -7554,27 +7564,27 @@
 			sourceTree = "<group>";
 		};
 		66CAE697045A3EC4000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = FileSystem.cpp;
 			path = ../../../PlugIns/FileSystem/src/FileSystem.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE698045A3EC4000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = FileSystemFactory.cpp;
 			path = ../../../PlugIns/FileSystem/src/FileSystemFactory.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CAE699045A3EC4000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = SearchOps.cpp;
 			path = ../../../PlugIns/FileSystem/src/SearchOps.cpp;
 			refType = 2;
@@ -7598,6 +7608,9 @@
 				820AF5FD0531D8D5006AB97A,
 				82EC489E0569CCC3003A8A6D,
 				82EC489F0569CCC3003A8A6D,
+				66F4D6D2059DD09D00AD7366,
+				66F4D6D3059DD09D00AD7366,
+				66F4D6DB059DD15A00AD7366,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -7625,6 +7638,7 @@
 				820AF6050531D957006AB97A,
 				82EC48980569CC7B003A8A6D,
 				82EC48990569CC7B003A8A6D,
+				66F4D6D7059DD0EA00AD7366,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -7636,6 +7650,7 @@
 				66F0D75F045B16EE000001C9,
 				66F0D785045B17F1000001C9,
 				66587A14045B3FC8000001C9,
+				66F4D6DD059DD18500AD7366,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -7659,7 +7674,7 @@
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = ../../Frameworks;
 				HEADER_SEARCH_PATHS = ../../Frameworks/SDL.framework/Versions/A/Headers;
-				OTHER_CFLAGS = "";
+				LIBRARY_SEARCH_PATHS = ../../../RenderSystems/GL/src;
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = RenderSystem_GL;
@@ -7669,6 +7684,7 @@
 			};
 			dependencies = (
 				66DA0149045C64C1000001C9,
+				66F4D6E3059DD24E00AD7366,
 			);
 			isa = PBXBundleTarget;
 			name = "GL Render System";
@@ -7706,7 +7722,7 @@
 ";
 		};
 		66CAE6A3045A3FF8000001C9 = {
-			expectedFileType = "wrapper.plug-in";
+			explicitFileType = wrapper.cfbundle;
 			fallbackIsa = PBXFileReference;
 			isa = PBXBundleReference;
 			path = RenderSystem_GL.bundle;
@@ -7833,7 +7849,7 @@
 ";
 		};
 		66CAE6C7045A402F000001C9 = {
-			expectedFileType = "wrapper.plug-in";
+			explicitFileType = wrapper.cfbundle;
 			fallbackIsa = PBXFileReference;
 			isa = PBXBundleReference;
 			path = OgrePlatform.bundle;
@@ -7989,7 +8005,7 @@
 ";
 		};
 		66CAE6D8045A406F000001C9 = {
-			expectedFileType = "wrapper.plug-in";
+			explicitFileType = wrapper.cfbundle;
 			fallbackIsa = PBXFileReference;
 			isa = PBXBundleReference;
 			path = Plugin_FileSystem.bundle;
@@ -8042,8 +8058,8 @@
 			};
 		};
 		66CC9FB2045C69CE000001C9 = {
-			expectedFileType = wrapper.nib;
 			isa = PBXFileReference;
+			lastKnownFileType = wrapper.nib;
 			path = config.nib;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
@@ -8059,8 +8075,8 @@
 			sourceTree = "<group>";
 		};
 		66CC9FB5045C6A32000001C9 = {
-			expectedFileType = image.jpeg;
 			isa = PBXFileReference;
+			lastKnownFileType = image.jpeg;
 			name = "ogrelogo-small.jpg";
 			path = "../../../Samples/Media/ogrelogo-small.jpg";
 			refType = 2;
@@ -8092,9 +8108,9 @@
 			targetProxy = 82747C800549C16400FBDACA;
 		};
 		66DCDE45049FCD48000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreSharedPtr.h;
 			path = ../../../OgreMain/include/OgreSharedPtr.h;
 			refType = 2;
@@ -8110,36 +8126,36 @@
 			};
 		};
 		66DCDE47049FCFF3000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreColourFaderAffector2.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreColourFaderAffector2.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66DCDE48049FCFF3000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreColourFaderAffectorFactory2.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreColourFaderAffectorFactory2.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66DCDE49049FCFF3000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreScaleAffector.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreScaleAffector.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66DCDE4A049FCFF3000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreScaleAffectorFactory.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreScaleAffectorFactory.h;
 			refType = 2;
@@ -8170,18 +8186,18 @@
 			};
 		};
 		66DCDE4F049FD049000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreColourFaderAffector2.cpp;
 			path = ../../../PlugIns/ParticleFX/src/OgreColourFaderAffector2.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66DCDE50049FD049000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreScaleAffector.cpp;
 			path = ../../../PlugIns/ParticleFX/src/OgreScaleAffector.cpp;
 			refType = 2;
@@ -8200,9 +8216,9 @@
 			};
 		};
 		66DCDE53049FD106000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreBspSceneNode.h;
 			path = ../../../PlugIns/BSPSceneManager/include/OgreBspSceneNode.h;
 			refType = 2;
@@ -8215,9 +8231,9 @@
 			};
 		};
 		66DCDE55049FD14D000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreBspSceneNode.cpp;
 			path = ../../../PlugIns/BSPSceneManager/src/OgreBspSceneNode.cpp;
 			refType = 2;
@@ -8230,9 +8246,9 @@
 			};
 		};
 		66DDA50B045B963F000001C9 = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = Cocoa.framework;
 			path = /System/Library/Frameworks/Cocoa.framework;
 			refType = 0;
@@ -8245,36 +8261,36 @@
 			};
 		};
 		66E155AD05039B3B000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreHardwareBufferManager.cpp;
 			path = ../../../OgreMain/src/OgreHardwareBufferManager.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E155AE05039B3B000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreHardwareIndexBuffer.cpp;
 			path = ../../../OgreMain/src/OgreHardwareIndexBuffer.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E155AF05039B3B000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreHardwareVertexBuffer.cpp;
 			path = ../../../OgreMain/src/OgreHardwareVertexBuffer.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E155B005039B3B000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreRenderSystemCapabilities.cpp;
 			path = ../../../OgreMain/src/OgreRenderSystemCapabilities.cpp;
 			refType = 2;
@@ -8305,9 +8321,9 @@
 			};
 		};
 		66E155B505039B62000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreRenderSystemCapabilities.h;
 			path = ../../../OgreMain/include/OgreRenderSystemCapabilities.h;
 			refType = 2;
@@ -8398,252 +8414,252 @@
 			sourceTree = "<group>";
 		};
 		66E5F50A045C36B4000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreRingEmitter.cpp;
 			path = ../../../PlugIns/ParticleFX/src/OgreRingEmitter.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F50B045C36B4000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgrePointEmitter.cpp;
 			path = ../../../PlugIns/ParticleFX/src/OgrePointEmitter.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F50C045C36B4000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreParticleFX.cpp;
 			path = ../../../PlugIns/ParticleFX/src/OgreParticleFX.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F50D045C36B4000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreLinearForceAffector.cpp;
 			path = ../../../PlugIns/ParticleFX/src/OgreLinearForceAffector.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F50E045C36B4000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreHollowEllipsoidEmitter.cpp;
 			path = ../../../PlugIns/ParticleFX/src/OgreHollowEllipsoidEmitter.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F50F045C36B4000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreAreaEmitter.cpp;
 			path = ../../../PlugIns/ParticleFX/src/OgreAreaEmitter.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F510045C36B4000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreEllipsoidEmitter.cpp;
 			path = ../../../PlugIns/ParticleFX/src/OgreEllipsoidEmitter.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F511045C36B4000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreCylinderEmitter.cpp;
 			path = ../../../PlugIns/ParticleFX/src/OgreCylinderEmitter.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F512045C36B4000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreBoxEmitter.cpp;
 			path = ../../../PlugIns/ParticleFX/src/OgreBoxEmitter.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F513045C36B4000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreColourFaderAffector.cpp;
 			path = ../../../PlugIns/ParticleFX/src/OgreColourFaderAffector.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F514045C36D2000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreAreaEmitter.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreAreaEmitter.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F515045C36D2000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreBoxEmitter.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreBoxEmitter.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F516045C36D2000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreBoxEmitterFactory.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreBoxEmitterFactory.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F517045C36D2000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreColourFaderAffector.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreColourFaderAffector.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F518045C36D2000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreColourFaderAffectorFactory.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreColourFaderAffectorFactory.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F519045C36D2000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreCylinderEmitter.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreCylinderEmitter.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F51A045C36D2000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreCylinderEmitterFactory.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreCylinderEmitterFactory.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F51B045C36D2000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreEllipsoidEmitter.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreEllipsoidEmitter.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F51C045C36D2000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreEllipsoidEmitterFactory.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreEllipsoidEmitterFactory.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F51D045C36D2000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreHollowEllipsoidEmitter.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreHollowEllipsoidEmitter.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F51E045C36D2000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreHollowEllipsoidEmitterFactory.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreHollowEllipsoidEmitterFactory.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F51F045C36D2000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreLinearForceAffector.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreLinearForceAffector.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F520045C36D2000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreLinearForceAffectorFactory.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreLinearForceAffectorFactory.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F521045C36D2000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreParticleFXPrerequisites.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreParticleFXPrerequisites.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F522045C36D2000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgrePointEmitter.h;
 			path = ../../../PlugIns/ParticleFX/include/OgrePointEmitter.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F523045C36D2000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgrePointEmitterFactory.h;
 			path = ../../../PlugIns/ParticleFX/include/OgrePointEmitterFactory.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F524045C36D2000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreRingEmitter.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreRingEmitter.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F525045C36D2000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreRingEmitterFactory.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreRingEmitterFactory.h;
 			refType = 2;
@@ -8787,7 +8803,7 @@
 ";
 		};
 		66E5F52C045C36FB000001C9 = {
-			expectedFileType = "wrapper.plug-in";
+			explicitFileType = wrapper.cfbundle;
 			fallbackIsa = PBXFileReference;
 			isa = PBXBundleReference;
 			path = Plugin_ParticleFX.bundle;
@@ -9145,7 +9161,7 @@
 ";
 		};
 		66E5F5AC045C3811000001C9 = {
-			expectedFileType = "wrapper.plug-in";
+			explicitFileType = wrapper.cfbundle;
 			fallbackIsa = PBXFileReference;
 			isa = PBXBundleReference;
 			path = Plugin_GuiElements.bundle;
@@ -9165,99 +9181,99 @@
 			};
 		};
 		66E5F5B1045C383B000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreBorderButtonGuiElement.cpp;
 			path = ../../../PlugIns/GuiElements/src/OgreBorderButtonGuiElement.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F5B2045C383B000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreBorderPanelGuiElement.cpp;
 			path = ../../../PlugIns/GuiElements/src/OgreBorderPanelGuiElement.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F5B3045C383B000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreButtonGuiElement.cpp;
 			path = ../../../PlugIns/GuiElements/src/OgreButtonGuiElement.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F5B4045C383B000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreCursorGuiElement.cpp;
 			path = ../../../PlugIns/GuiElements/src/OgreCursorGuiElement.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F5B5045C383B000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreGuiElements.cpp;
 			path = ../../../PlugIns/GuiElements/src/OgreGuiElements.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F5B6045C383B000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreListGuiElement.cpp;
 			path = ../../../PlugIns/GuiElements/src/OgreListGuiElement.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F5B7045C383B000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgrePanelGuiElement.cpp;
 			path = ../../../PlugIns/GuiElements/src/OgrePanelGuiElement.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F5B8045C383B000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgrePopupMenuGuiElement.cpp;
 			path = ../../../PlugIns/GuiElements/src/OgrePopupMenuGuiElement.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F5B9045C383B000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreScrollBarGuiElement.cpp;
 			path = ../../../PlugIns/GuiElements/src/OgreScrollBarGuiElement.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F5BA045C383B000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreTextAreaGuiElement.cpp;
 			path = ../../../PlugIns/GuiElements/src/OgreTextAreaGuiElement.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F5BB045C383B000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreTextBoxGuiElement.cpp;
 			path = ../../../PlugIns/GuiElements/src/OgreTextBoxGuiElement.cpp;
 			refType = 2;
@@ -9330,108 +9346,108 @@
 			};
 		};
 		66E5F5C7045C3844000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreBorderButtonGuiElement.h;
 			path = ../../../PlugIns/GuiElements/include/OgreBorderButtonGuiElement.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F5C8045C3844000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreBorderPanelGuiElement.h;
 			path = ../../../PlugIns/GuiElements/include/OgreBorderPanelGuiElement.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F5C9045C3844000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreButtonGuiElement.h;
 			path = ../../../PlugIns/GuiElements/include/OgreButtonGuiElement.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F5CA045C3844000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreCursorGuiElement.h;
 			path = ../../../PlugIns/GuiElements/include/OgreCursorGuiElement.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F5CB045C3844000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreGuiElementFactories.h;
 			path = ../../../PlugIns/GuiElements/include/OgreGuiElementFactories.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F5CC045C3844000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreGuiElementPrerequisites.h;
 			path = ../../../PlugIns/GuiElements/include/OgreGuiElementPrerequisites.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F5CD045C3844000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreListGuiElement.h;
 			path = ../../../PlugIns/GuiElements/include/OgreListGuiElement.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F5CE045C3844000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgrePanelGuiElement.h;
 			path = ../../../PlugIns/GuiElements/include/OgrePanelGuiElement.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F5CF045C3844000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgrePopupMenuGuiElement.h;
 			path = ../../../PlugIns/GuiElements/include/OgrePopupMenuGuiElement.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F5D0045C3844000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreScrollBarGuiElement.h;
 			path = ../../../PlugIns/GuiElements/include/OgreScrollBarGuiElement.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F5D1045C3844000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreTextAreaGuiElement.h;
 			path = ../../../PlugIns/GuiElements/include/OgreTextAreaGuiElement.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66E5F5D2045C3844000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreTextBoxGuiElement.h;
 			path = ../../../PlugIns/GuiElements/include/OgreTextBoxGuiElement.h;
 			refType = 2;
@@ -9510,9 +9526,9 @@
 			};
 		};
 		66EC33EE045A44B7000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = config.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
@@ -9527,9 +9543,9 @@
 			};
 		};
 		66F0D736045AEEDF000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = asm_math.h;
 			path = ../../../OgreMain/include/asm_math.h;
 			refType = 2;
@@ -9550,9 +9566,9 @@
 			};
 		};
 		66F0D743045AF86B000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = macPlugins.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
@@ -9566,8 +9582,8 @@
 			};
 		};
 		66F0D749045B068C000001C9 = {
-			expectedFileType = "compiled.mach-o.dylib";
 			isa = PBXFileReference;
+			lastKnownFileType = "compiled.mach-o.dylib";
 			name = libz.dylib;
 			path = /usr/lib/libz.dylib;
 			refType = 0;
@@ -9580,9 +9596,9 @@
 			};
 		};
 		66F0D750045B0747000001C9 = {
-			expectedFileType = sourcecode.c.c;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.c;
 			name = unzip.c;
 			path = ../../../OgreMain/src/unzip.c;
 			refType = 2;
@@ -9595,9 +9611,9 @@
 			};
 		};
 		66F0D753045B079A000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			path = macOgreJPEGCodec.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
@@ -9609,17 +9625,17 @@
 			};
 		};
 		66F0D756045B0A37000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			path = macDataProvider.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66F0D757045B0A37000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			path = macDataProvider.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
@@ -9639,9 +9655,9 @@
 			};
 		};
 		66F0D75A045B15BE000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 4;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			path = macOgrePNGCodec.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
@@ -9653,9 +9669,9 @@
 			};
 		};
 		66F0D75D045B16EE000001C9 = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = SDL.framework;
 			path = ../../Frameworks/SDL.framework;
 			refType = 2;
@@ -9674,9 +9690,9 @@
 			};
 		};
 		66F0D784045B17F1000001C9 = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = OpenGL.framework;
 			path = /System/Library/Frameworks/OpenGL.framework;
 			refType = 0;
@@ -9694,6 +9710,122 @@
 			settings = {
 			};
 		};
+		66F4D6D0059DD09D00AD7366 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = OgreGLGpuNvparseProgram.h;
+			path = ../../../RenderSystems/GL/include/OgreGLGpuNvparseProgram.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		66F4D6D1059DD09D00AD7366 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = OgreGLGpuProgramManager.h;
+			path = ../../../RenderSystems/GL/include/OgreGLGpuProgramManager.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		66F4D6D2059DD09D00AD7366 = {
+			fileRef = 66F4D6D0059DD09D00AD7366;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		66F4D6D3059DD09D00AD7366 = {
+			fileRef = 66F4D6D1059DD09D00AD7366;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		66F4D6D6059DD0EA00AD7366 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = OgreGLGpuNvparseProgram.cpp;
+			path = ../../../RenderSystems/GL/src/OgreGLGpuNvparseProgram.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		66F4D6D7059DD0EA00AD7366 = {
+			fileRef = 66F4D6D6059DD0EA00AD7366;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		66F4D6DA059DD15A00AD7366 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = nvparse.h;
+			path = ../../../RenderSystems/GL/src/nvparse/nvparse.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		66F4D6DB059DD15A00AD7366 = {
+			fileRef = 66F4D6DA059DD15A00AD7366;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		66F4D6DC059DD18500AD7366 = {
+			explicitFileType = archive.ar;
+			isa = PBXFileReference;
+			name = libnvparse.a;
+			path = ../../../RenderSystems/GL/src/libnvparse.a;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		66F4D6DD059DD18500AD7366 = {
+			fileRef = 66F4D6DC059DD18500AD7366;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		66F4D6DE059DD18D00AD7366 = {
+			children = (
+				66F4D6DC059DD18500AD7366,
+			);
+			isa = PBXGroup;
+			name = Libraries;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		66F4D6DF059DD1B600AD7366 = {
+			buildArgumentsString = "$(ACTION)";
+			buildPhases = (
+			);
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = nvparse;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
+			};
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = ../../../RenderSystems/GL/src/nvparse;
+			dependencies = (
+			);
+			isa = PBXLegacyTarget;
+			name = nvparse;
+			passBuildSettingsInEnvironment = 1;
+			productName = nvparse;
+		};
+		66F4D6E2059DD24E00AD7366 = {
+			containerPortal = 0867D690FE84028FC02AAC07;
+			isa = PBXContainerItemProxy;
+			proxyType = 1;
+			remoteGlobalIDString = 66F4D6DF059DD1B600AD7366;
+			remoteInfo = nvparse;
+		};
+		66F4D6E3059DD24E00AD7366 = {
+			isa = PBXTargetDependency;
+			target = 66F4D6DF059DD1B600AD7366;
+			targetProxy = 66F4D6E2059DD24E00AD7366;
+		};
 //660
 //661
 //662
@@ -9705,36 +9837,36 @@
 //823
 //824
 		820AF5F60531D8D5006AB97A = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreGLDefaultHardwareBufferManager.h;
 			path = ../../../RenderSystems/GL/include/OgreGLDefaultHardwareBufferManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		820AF5F70531D8D5006AB97A = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreGLHardwareBufferManager.h;
 			path = ../../../RenderSystems/GL/include/OgreGLHardwareBufferManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		820AF5F80531D8D5006AB97A = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreGLHardwareIndexBuffer.h;
 			path = ../../../RenderSystems/GL/include/OgreGLHardwareIndexBuffer.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		820AF5F90531D8D5006AB97A = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreGLHardwareVertexBuffer.h;
 			path = ../../../RenderSystems/GL/include/OgreGLHardwareVertexBuffer.h;
 			refType = 2;
@@ -9765,36 +9897,36 @@
 			};
 		};
 		820AF5FE0531D957006AB97A = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreGLDefaultHardwareBufferManager.cpp;
 			path = ../../../RenderSystems/GL/src/OgreGLDefaultHardwareBufferManager.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		820AF5FF0531D957006AB97A = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreGLHardwareBufferManager.cpp;
 			path = ../../../RenderSystems/GL/src/OgreGLHardwareBufferManager.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		820AF6000531D957006AB97A = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreGLHardwareIndexBuffer.cpp;
 			path = ../../../RenderSystems/GL/src/OgreGLHardwareIndexBuffer.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		820AF6010531D957006AB97A = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreGLHardwareVertexBuffer.cpp;
 			path = ../../../RenderSystems/GL/src/OgreGLHardwareVertexBuffer.cpp;
 			refType = 2;
@@ -9825,54 +9957,54 @@
 			};
 		};
 		820AF60B0531DA8B006AB97A = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreColourImageAffector.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreColourImageAffector.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		820AF60C0531DA8B006AB97A = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreColourImageAffectorFactory.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreColourImageAffectorFactory.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		820AF60D0531DA8B006AB97A = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreColourInterpolatorAffector.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreColourInterpolatorAffector.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		820AF60E0531DA8B006AB97A = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreColourInterpolatorAffectorFactory.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreColourInterpolatorAffectorFactory.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		820AF60F0531DA8B006AB97A = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreRotationAffector.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreRotationAffector.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		820AF6100531DA8B006AB97A = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreRotationAffectorFactory.h;
 			path = ../../../PlugIns/ParticleFX/include/OgreRotationAffectorFactory.h;
 			refType = 2;
@@ -9915,27 +10047,27 @@
 			};
 		};
 		820AF6170531DAAF006AB97A = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreColourImageAffector.cpp;
 			path = ../../../PlugIns/ParticleFX/src/OgreColourImageAffector.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		820AF6180531DAAF006AB97A = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreColourInterpolatorAffector.cpp;
 			path = ../../../PlugIns/ParticleFX/src/OgreColourInterpolatorAffector.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		820AF6190531DAAF006AB97A = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreRotationAffector.cpp;
 			path = ../../../PlugIns/ParticleFX/src/OgreRotationAffector.cpp;
 			refType = 2;
@@ -9960,9 +10092,9 @@
 			};
 		};
 		823D960F056A0B3A0056C354 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreDDSCodec.h;
 			path = ../../../OgreMain/include/OgreDDSCodec.h;
 			refType = 2;
@@ -9978,18 +10110,18 @@
 			};
 		};
 		82457B78057D6841003BAF7F = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreHighLevelGpuProgram.cpp;
 			path = ../../../OgreMain/src/OgreHighLevelGpuProgram.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		82457B79057D6841003BAF7F = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreHighLevelGpuProgramManager.cpp;
 			path = ../../../OgreMain/src/OgreHighLevelGpuProgramManager.cpp;
 			refType = 2;
@@ -10008,18 +10140,18 @@
 			};
 		};
 		82457B82057D689A003BAF7F = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreHighLevelGpuProgram.h;
 			path = ../../../OgreMain/include/OgreHighLevelGpuProgram.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		82457B83057D689A003BAF7F = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreHighLevelGpuProgramManager.h;
 			path = ../../../OgreMain/include/OgreHighLevelGpuProgramManager.h;
 			refType = 2;
@@ -10044,9 +10176,9 @@
 			};
 		};
 		82457BA9057D7B3F003BAF7F = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreILImageCodec.h;
 			path = ../../../OgreMain/include/OgreILImageCodec.h;
 			refType = 2;
@@ -10062,9 +10194,9 @@
 			};
 		};
 		8253225E052E565800711072 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreMeshSerializerImpl.cpp;
 			path = ../../../OgreMain/src/OgreMeshSerializerImpl.cpp;
 			refType = 2;
@@ -10077,9 +10209,9 @@
 			};
 		};
 		82532260052E567900711072 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreMeshSerializerImpl.h;
 			path = ../../../OgreMain/include/OgreMeshSerializerImpl.h;
 			refType = 2;
@@ -10213,19 +10345,52 @@
 			remoteGlobalIDString = 66B99EB1045CB2E5000001C9;
 			remoteInfo = "OctreeSceneManager Plugin";
 		};
-		82E200A0054F19D00017F420 = {
-			expectedFileType = sourcecode.cpp.cpp;
+		8295DF9105B1FF1A00127B2D = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = OgreFrustum.cpp;
+			path = ../../../OgreMain/src/OgreFrustum.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8295DF9205B1FF1A00127B2D = {
+			fileRef = 8295DF9105B1FF1A00127B2D;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8295DF9305B1FF4200127B2D = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = OgreFrustum.h;
+			path = ../../../OgreMain/include/OgreFrustum.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8295DF9405B1FF4200127B2D = {
+			fileRef = 8295DF9305B1FF4200127B2D;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		82E200A0054F19D00017F420 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreGpuProgram.cpp;
 			path = ../../../OgreMain/src/OgreGpuProgram.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		82E200A1054F19D00017F420 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreGpuProgramManager.cpp;
 			path = ../../../OgreMain/src/OgreGpuProgramManager.cpp;
 			refType = 2;
@@ -10244,18 +10409,18 @@
 			};
 		};
 		82E200A6054F19F00017F420 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreGpuProgram.h;
 			path = ../../../OgreMain/include/OgreGpuProgram.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		82E200A7054F19F00017F420 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreGpuProgramManager.h;
 			path = ../../../OgreMain/include/OgreGpuProgramManager.h;
 			refType = 2;
@@ -10280,45 +10445,45 @@
 			};
 		};
 		82EC483B0569C9F0003A8A6D = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreAutoParamDataSource.cpp;
 			path = ../../../OgreMain/src/OgreAutoParamDataSource.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		82EC483D0569C9F0003A8A6D = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreGpuProgramUsage.cpp;
 			path = ../../../OgreMain/src/OgreGpuProgramUsage.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		82EC483E0569C9F0003A8A6D = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgrePass.cpp;
 			path = ../../../OgreMain/src/OgrePass.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		82EC483F0569C9F0003A8A6D = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreTechnique.cpp;
 			path = ../../../OgreMain/src/OgreTechnique.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		82EC48400569C9F0003A8A6D = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreTextureUnitState.cpp;
 			path = ../../../OgreMain/src/OgreTextureUnitState.cpp;
 			refType = 2;
@@ -10355,45 +10520,45 @@
 			};
 		};
 		82EC48720569CB2F003A8A6D = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreAutoParamDataSource.h;
 			path = ../../../OgreMain/include/OgreAutoParamDataSource.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		82EC48740569CB2F003A8A6D = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreGpuProgramUsage.h;
 			path = ../../../OgreMain/include/OgreGpuProgramUsage.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		82EC48750569CB2F003A8A6D = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgrePass.h;
 			path = ../../../OgreMain/include/OgrePass.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		82EC48760569CB2F003A8A6D = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreTechnique.h;
 			path = ../../../OgreMain/include/OgreTechnique.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		82EC48770569CB2F003A8A6D = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreTextureUnitState.h;
 			path = ../../../OgreMain/include/OgreTextureUnitState.h;
 			refType = 2;
@@ -10445,18 +10610,18 @@
 			};
 		};
 		82EC48960569CC7B003A8A6D = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreGLGpuProgram.cpp;
 			path = ../../../RenderSystems/GL/src/OgreGLGpuProgram.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		82EC48970569CC7B003A8A6D = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreGLGpuProgramManager.cpp;
 			path = ../../../RenderSystems/GL/src/OgreGLGpuProgramManager.cpp;
 			refType = 2;
@@ -10475,18 +10640,18 @@
 			};
 		};
 		82EC489C0569CCC3003A8A6D = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreGLGpuProgram.h;
 			path = ../../../RenderSystems/GL/include/OgreGLGpuProgram.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		82EC489D0569CCC3003A8A6D = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreGLGpuProgramManager.h;
 			path = ../../../RenderSystems/GL/include/OgreGLGpuProgramManager.h;
 			refType = 2;
@@ -10505,9 +10670,9 @@
 			};
 		};
 		82EC48AE0569CE53003A8A6D = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreBMPCodec.h;
 			path = ../../../OgreMain/include/OgreBMPCodec.h;
 			refType = 2;
@@ -10523,9 +10688,9 @@
 			};
 		};
 		82EC48BE0569D3F1003A8A6D = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			path = macOgreBMPCodec.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
@@ -10537,9 +10702,9 @@
 			};
 		};
 		82F09C0B052E2DD20041B8B8 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreDefaultHardwareBufferManager.cpp;
 			path = ../../../OgreMain/src/OgreDefaultHardwareBufferManager.cpp;
 			refType = 2;
@@ -10552,18 +10717,18 @@
 			};
 		};
 		82F09C0D052E2E470041B8B8 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgrePatchMesh.cpp;
 			path = ../../../OgreMain/src/OgrePatchMesh.cpp;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		82F09C0E052E2E470041B8B8 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreVertexIndexData.cpp;
 			path = ../../../OgreMain/src/OgreVertexIndexData.cpp;
 			refType = 2;
@@ -10582,27 +10747,27 @@
 			};
 		};
 		82F09C11052E2EE10041B8B8 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreDefaultHardwareBufferManager.h;
 			path = ../../../OgreMain/include/OgreDefaultHardwareBufferManager.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		82F09C12052E2EE10041B8B8 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgrePatchMesh.h;
 			path = ../../../OgreMain/include/OgrePatchMesh.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		82F09C13052E2EE10041B8B8 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreVertexIndexData.h;
 			path = ../../../OgreMain/include/OgreVertexIndexData.h;
 			refType = 2;
@@ -10636,18 +10801,18 @@
 			};
 		};
 		82F09C17052E2F660041B8B8 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreProfiler.h;
 			path = ../../../OgreMain/include/OgreProfiler.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		82F09C18052E2F660041B8B8 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = OgreStableHeaders.h;
 			path = ../../../OgreMain/include/OgreStableHeaders.h;
 			refType = 2;
@@ -10672,9 +10837,9 @@
 			};
 		};
 		82F09C1B052E2F970041B8B8 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreProfiler.cpp;
 			path = ../../../OgreMain/src/OgreProfiler.cpp;
 			refType = 2;
