@@ -194,7 +194,7 @@ namespace Ogre {
         /** Overridden member from ShadowCaster. */
         const AxisAlignedBox& getLightCapBounds(void);
         /** Overridden member from ShadowCaster. */
-        const AxisAlignedBox& getDarkCapBounds(const Light& light);
+        const AxisAlignedBox& getDarkCapBounds(const Light& light, Real dirLightExtrusionDist);
         /** Sets whether or not this object will cast shadows.
         @remarks
         This setting simply allows you to turn on/off shadows for a given object.

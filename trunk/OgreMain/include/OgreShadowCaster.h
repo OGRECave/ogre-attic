@@ -116,7 +116,7 @@ namespace Ogre {
         /** Gets the world space bounding box of the light cap */
         virtual const AxisAlignedBox& getLightCapBounds(void) = 0;
         /** Gets the world space bounding box of the dark cap, as extruded using the light provided */
-        virtual const AxisAlignedBox& getDarkCapBounds(const Light& light) = 0;
+        virtual const AxisAlignedBox& getDarkCapBounds(const Light& light, Real dirLightExtrusionDist) = 0;
 
         typedef std::vector<ShadowRenderable*> ShadowRenderableList;
         typedef VectorIterator<ShadowRenderableList> ShadowRenderableListIterator;
