@@ -39,26 +39,27 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     MovablePlane::MovablePlane (const Plane& rhs) : Plane(rhs), 
-        mLastTranlate(Vector3::ZERO), mLastRotate(Quaternion::IDENTITY)
+        mLastTranlate(Vector3::ZERO), mLastRotate(Quaternion::IDENTITY), 
+        mDirty(true)
     {
     }
     //-----------------------------------------------------------------------
     MovablePlane::MovablePlane (const Vector3& rkNormal, Real fConstant)
         : Plane (rkNormal, fConstant), mLastTranlate(Vector3::ZERO), 
-        mLastRotate(Quaternion::IDENTITY)
+        mLastRotate(Quaternion::IDENTITY), mDirty(true)
     {
     }
     //-----------------------------------------------------------------------
     MovablePlane::MovablePlane (const Vector3& rkNormal, const Vector3& rkPoint)
         : Plane(rkNormal, rkPoint), mLastTranlate(Vector3::ZERO), 
-        mLastRotate(Quaternion::IDENTITY)
+        mLastRotate(Quaternion::IDENTITY), mDirty(true)
     {
     }
     //-----------------------------------------------------------------------
     MovablePlane::MovablePlane (const Vector3& rkPoint0, const Vector3& rkPoint1,
         const Vector3& rkPoint2)
         : Plane(rkPoint0, rkPoint1, rkPoint2), mLastTranlate(Vector3::ZERO), 
-        mLastRotate(Quaternion::IDENTITY)
+        mLastRotate(Quaternion::IDENTITY), mDirty(true)
     {
     }
     //-----------------------------------------------------------------------
