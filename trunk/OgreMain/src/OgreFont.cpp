@@ -47,6 +47,7 @@ namespace Ogre
         mSource = "";
         mTtfSize = 0;
         mTtfResolution = 0;
+        mAntialiasColour = false;
 
         if (!mFreetypeInitDone)
         {
