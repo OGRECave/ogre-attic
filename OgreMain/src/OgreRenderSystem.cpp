@@ -103,6 +103,57 @@ namespace Ogre {
         return true;
     }
     //-----------------------------------------------------------------------
+    bool RenderSystem::fireFrameStarted()
+    {
+        clock_t now = clock();
+        FrameEvent evt;
+        evt.timeSinceLastEvent = calculateEventTime(now, FETT_ANY);
+        evt.timeSinceLastFrame = calculateEventTime(now, FETT_STARTED);
+
+        return fireFrameStarted(evt);
+    }
+    //-----------------------------------------------------------------------
+    bool RenderSystem::fireFrameEnded()
+    {
+        clock_t now = clock();
+        FrameEvent evt;
+        evt.timeSinceLastEvent = calculateEventTime(now, FETT_ANY);
+        evt.timeSinceLastFrame = calculateEventTime(now, FETT_ENDED);
+
+        return fireFrameEnded(evt);
+    }
+    //-----------------------------------------------------------------------
+    Real RenderSystem::calculateEventTime(clock_t now, FrameEventTimeType type)
+    {
+        // Calculate the average time passed between events of the given type
+        // during the last 0.1 seconds.
+
+        std::deque<clock_t>& times = mEventTimes[type];
+        times.push_back(now);
+
+        if(times.size() == 1)
+            return 0;
+
+        // Times up to 0.1 seconds old should be kept
+        clock_t discardLimit = now - CLOCKS_PER_SEC/10;
+
+        // Find the oldest time to keep
+        std::deque<clock_t>::iterator it = times.begin(),
+            end = times.end()-2; // We need at least two times
+        while(it != end)
+        {
+            if(*it < discardLimit)
+                ++it;
+            else
+                break;
+        }
+
+        // Remove old times
+        times.erase(times.begin(), it);
+
+        return Real(times.back() - times.front()) / ((times.size()-1) * CLOCKS_PER_SEC);
+    }
+    //-----------------------------------------------------------------------
     void RenderSystem::startRendering(void)
     {
 
@@ -115,6 +166,9 @@ namespace Ogre {
             it->second->resetStatistics();
         }
 
+        // Clear event times
+        for(int i=0; i!=3; ++i)
+            mEventTimes[i].clear();
     }
     //-----------------------------------------------------------------------
     RenderWindow* RenderSystem::initialise(bool autoCreateWindow)

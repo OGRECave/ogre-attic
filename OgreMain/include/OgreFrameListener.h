@@ -37,10 +37,16 @@ namespace Ogre {
         /** Elapsed time in seconds since the last event.
             This gives you time between frame start & frame end,
             and between frame end and next frame start.
+            @remarks
+                This may not be the elapsed time but the average
+                elapsed time between recently fired events.
         */
         Real timeSinceLastEvent;
         /** Elapsed time in seconds since the last event of the same type,
             i.e. time for a complete frame.
+            @remarks
+                This may not be the elapsed time but the average
+                elapsed time between recently fired events of the same type.
         */
         Real timeSinceLastFrame;
     };
