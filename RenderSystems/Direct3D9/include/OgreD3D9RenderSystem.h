@@ -196,6 +196,8 @@ namespace Ogre
 		void _setFog( FogMode mode = FOG_NONE, const ColourValue& colour = ColourValue::White, Real expDensity = 1.0, Real linearStart = 0.0, Real linearEnd = 1.0 );
 		void _makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, 
             Matrix4& dest, bool forGpuProgram = false);
+		void _makeProjectionMatrix(Real left, Real right, Real bottom, Real top, Real nearPlane, 
+            Real farPlane, Matrix4& dest, bool forGpuProgram = false);
 		void _setRasterisationMode(SceneDetailLevel level);
         void _setTextureUnitFiltering(size_t unit, FilterType ftype, FilterOptions filter);
 		void _setTextureLayerAnisotropy(size_t unit, unsigned int maxAnisotropy);
@@ -209,6 +211,8 @@ namespace Ogre
         void clearFrameBuffer(unsigned int buffers, 
             const ColourValue& colour = ColourValue::Black, 
             Real depth = 1.0f, unsigned short stencil = 0);
+		void setClipPlane (ushort index, Real A, Real B, Real C, Real D);
+		void enableClipPlane (ushort index, bool enable);
 	};
 }
 #endif

@@ -166,6 +166,8 @@ namespace Ogre {
         mCurrentVertexProgram = 0;
         mCurrentFragmentProgram = 0;
 
+        mClipPlanes.reserve(6);
+
         OgreUnguard();
     }
 
@@ -683,6 +685,8 @@ namespace Ogre {
          
         makeGLMatrix(mat, mWorldMatrix);
         glMultMatrixf(mat);
+
+        setGLClipPlanes();
     }
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_setProjectionMatrix(const Matrix4 &m)
@@ -1941,6 +1945,54 @@ namespace Ogre {
         }
 
     }
+    // ------------------------------------------------------------------
+    void GLRenderSystem::_makeProjectionMatrix(Real left, Real right, 
+        Real bottom, Real top, Real nearPlane, Real farPlane, Matrix4& dest, 
+        bool forGpuProgram)
+    {
+        Real width = right - left;
+        Real height = top - bottom;
+        Real q = -(farPlane + nearPlane) / (farPlane - nearPlane);
+        Real qn = -2 * (farPlane * nearPlane) / (farPlane - nearPlane);
+        dest = Matrix4::ZERO;
+        dest[0][0] = 2 * nearPlane / width;
+        dest[0][2] = (right+left) / width;
+        dest[1][1] = 2 * nearPlane / height;
+        dest[1][2] = (top+bottom) / height;
+        dest[2][2] = q;
+        dest[2][3] = qn;
+        dest[3][2] = -1;
+    }
+
+    // ------------------------------------------------------------------
+    void GLRenderSystem::setClipPlane (ushort index, Real A, Real B, Real C, Real D)
+    {
+        if (mClipPlanes.size() < index+1)
+            mClipPlanes.resize(index+1);
+        mClipPlanes[index] = Vector4 (A, B, C, D);
+        GLdouble plane[4] = { A, B, C, D };
+        glClipPlane (GL_CLIP_PLANE0 + index, plane);
+    }
+
+    // ------------------------------------------------------------------
+    void GLRenderSystem::setGLClipPlanes() const
+    {
+        int size = mClipPlanes.size();
+        for (int i=0; i<size; i++)
+        {
+            const Vector4 &p = mClipPlanes[i];
+            GLdouble plane[4] = { p.x, p.y, p.z, p.w };
+            glClipPlane (GL_CLIP_PLANE0 + i, plane);
+        }
+    }
+
+    // ------------------------------------------------------------------
+    void GLRenderSystem::enableClipPlane (ushort index, bool enable)
+    {
+        glEnable (GL_CLIP_PLANE0 + index);
+    }
+
+
 
 
 }

@@ -128,10 +128,34 @@ namespace Ogre {
         bool mReflect;
         Matrix4 mReflectMatrix;
         Plane mReflectPlane;
+
+        /** Viewing window. 
+        @remarks
+        Generalize camera class for the case, when viewing frustum doesn't cover all viewport.
+        */
+        Real mWLeft, mWTop, mWRight, mWBottom;
+        /// Is viewing window used.
+        bool mWindowSet;
+        /// Windowed viewport clip planes 
+        mutable std::vector<Plane> mWindowClipPlanes;
+        // Was viewing window changed.
+        mutable bool mRecalcWindow;
+
         // Internal functions for calcs
         void updateFrustum(void) const;
         void updateView(void) const;
         bool isViewOutOfDate(void) const;
+        /// Signal to update frustum information.
+        void invalidateFrustum(void);
+        /// Signal to update view information.
+        void invalidateView(void);
+
+
+        /** Do actual window setting, using parameters set in SetWindow call
+        @remarks
+        The method is called after projection matrix each change
+        */
+        virtual void setWindowImpl(void) const;
 
     public:
         /** Standard constructor.
@@ -207,6 +231,13 @@ namespace Ogre {
         */
         Vector3 getDirection(void) const;
 
+        /** Gets the camera's up vector.
+        */
+        Vector3 getUp(void) const;
+
+        /** Gets the camera's right vector.
+        */
+        Vector3 getRight(void) const;
 
         /** Points the camera at a location in worldspace.
             @remarks
@@ -383,6 +414,25 @@ namespace Ogre {
 
         /** Internal method used by OGRE to update auto-tracking cameras. */
         void _autoTrack(void);
+
+
+        /** Sets the viewing window inside of viewport.
+        @remarks
+        This method can be used to set a subset of the viewport as the rendering
+        target. 
+        @param Left Relative to Viewport - 0 corresponds to left edge, 1 - to right edge (default - 0).
+        @param Top Relative to Viewport - 0 corresponds to top edge, 1 - to bottom edge (default - 0).
+        @param Right Relative to Viewport - 0 corresponds to left edge, 1 - to right edge (default - 1).
+        @param Bottom Relative to Viewport - 0 corresponds to top edge, 1 - to bottom edge (default - 1).
+        */
+        virtual void setWindow (Real Left, Real Top, Real Right, Real Bottom);
+        /// Cancel view window.
+        virtual void resetWindow (void);
+        /// Returns if a viewport window is being used
+        virtual bool isWindowSet(void) { return mWindowSet; }
+        /// Gets the window clip planes, only applicable if isWindowSet == true
+        const std::vector<Plane>& getWindowPlanes(void);
+
 
     };
 

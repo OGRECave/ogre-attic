@@ -508,6 +508,10 @@ namespace Ogre {
     {
         mInvertVertexWinding = invert;
     }
-
+    //-----------------------------------------------------------------------
+    void RenderSystem::setClipPlane (ushort index, const Plane &p)
+    {
+        setClipPlane (index, p.normal.x, p.normal.y, p.normal.z, p.d);
+    }
 }
 

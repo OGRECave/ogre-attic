@@ -86,7 +86,7 @@ namespace Ogre {
     void Frustum::setFOVy(Real fov)
     {
         mFOVy = fov;
-        mRecalcFrustum = true;
+        invalidateFrustum();
     }
 
     //-----------------------------------------------------------------------
@@ -100,7 +100,7 @@ namespace Ogre {
     void Frustum::setFarClipDistance(Real farPlane)
     {
         mFarDist = farPlane;
-        mRecalcFrustum = true;
+        invalidateFrustum();
     }
 
     //-----------------------------------------------------------------------
@@ -116,7 +116,7 @@ namespace Ogre {
             Except(Exception::ERR_INVALIDPARAMS, "Near clip distance must be greater than zero.",
                 "Frustum::setNearClipDistance");
         mNearDist = nearPlane;
-        mRecalcFrustum = true;
+        invalidateFrustum();
     }
 
     //-----------------------------------------------------------------------
@@ -503,7 +503,7 @@ namespace Ogre {
     void Frustum::setAspectRatio(Real r)
     {
         mAspect = r;
-        mRecalcFrustum = true;
+        invalidateFrustum();
     }
 
     //-----------------------------------------------------------------------
@@ -591,6 +591,18 @@ namespace Ogre {
     {
         // NA
     }
+
+    // -------------------------------------------------------------------
+    void Frustum::invalidateFrustum()
+    {
+        mRecalcFrustum = true;
+    }
+    // -------------------------------------------------------------------
+    void Frustum::invalidateView()
+    {
+        mRecalcView = true;
+    }
+
 
 
 } // namespace Ogre

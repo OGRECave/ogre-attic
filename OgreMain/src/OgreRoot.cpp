@@ -114,7 +114,9 @@ namespace Ogre {
 
         // Init
         mActiveRenderer = 0;
-        mVersion = "0.13.0";
+        mVersion = StringConverter::toString(OGRE_VERSION_MAJOR) + "." + 
+            StringConverter::toString(OGRE_VERSION_MINOR) + "." + 
+            StringConverter::toString(OGRE_VERSION_PATCH);
 		mConfigFileName = configFileName;
 
         // Create log manager and default log file
@@ -588,16 +590,21 @@ namespace Ogre {
 			}
 #endif
 
-			if(!_fireFrameStarted())
-				break;
-
-            mActiveRenderer->_updateAllRenderTargets();
-
-			if(!_fireFrameEnded())
-				break;
+            if (!renderOneFrame())
+                break;
 		}
 
 
+    }
+    //-----------------------------------------------------------------------
+    bool Root::renderOneFrame(void)
+    {
+        if(!_fireFrameStarted())
+            return false;
+
+        mActiveRenderer->_updateAllRenderTargets();
+
+        return _fireFrameEnded();
     }
     //-----------------------------------------------------------------------
     void Root::shutdown(void)

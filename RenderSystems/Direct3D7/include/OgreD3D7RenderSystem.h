@@ -330,6 +330,11 @@ namespace Ogre {
         void _makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, 
             Real farPlane, Matrix4& dest, bool forGpuProgram = false);
         /** See
+        RenderSystem
+        */
+        void _makeProjectionMatrix(Real left, Real right, Real bottom, Real top,
+            Real nearPlane, Real farPlane, Matrix4& dest, bool forGpuProgram = false);
+        /** See
           RenderSystem
          */
         void _setRasterisationMode(SceneDetailLevel level);
@@ -387,6 +392,8 @@ namespace Ogre {
             const ColourValue& colour = ColourValue::Black, 
             Real depth = 1.0f, unsigned short stencil = 0);
 
+        void setClipPlane (ushort index, Real A, Real B, Real C, Real D);
+        void enableClipPlane (ushort index, bool enable);
         // ----------------------------------
         // End Overridden members
         // ----------------------------------

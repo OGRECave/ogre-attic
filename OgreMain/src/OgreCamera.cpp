@@ -60,8 +60,8 @@ namespace Ogre {
         mSceneDetail = SDL_SOLID;
         setFixedYawAxis(true);    // Default to fixed yaw, like freelook since most people expect this
 
-        mRecalcFrustum = true;
-        mRecalcView = true;
+        invalidateFrustum();
+        invalidateView();
 
         // Init matrices
         mViewMatrix = Matrix4::ZERO;
@@ -84,7 +84,7 @@ namespace Ogre {
         mVisible = false;
 
 
-        updateView();
+        mWindowSet = false;
     }
 
     //-----------------------------------------------------------------------
@@ -108,7 +108,7 @@ namespace Ogre {
     void Camera::setProjectionType(ProjectionType pt)
     {
         mProjType = pt;
-        mRecalcFrustum = true;
+        invalidateFrustum();
     }
 
     //-----------------------------------------------------------------------
@@ -135,14 +135,14 @@ namespace Ogre {
         mPosition.x = x;
         mPosition.y = y;
         mPosition.z = z;
-        mRecalcView = true;
+        invalidateView();
     }
 
     //-----------------------------------------------------------------------
     void Camera::setPosition(const Vector3& vec)
     {
         mPosition = vec;
-        mRecalcView = true;
+        invalidateView();
     }
 
     //-----------------------------------------------------------------------
@@ -155,7 +155,7 @@ namespace Ogre {
     void Camera::move(const Vector3& vec)
     {
         mPosition = mPosition + vec;
-        mRecalcView = true;
+        invalidateView();
     }
 
     //-----------------------------------------------------------------------
@@ -165,7 +165,7 @@ namespace Ogre {
         Vector3 trans = mOrientation * vec;
 
         mPosition = mPosition + trans;
-        mRecalcView = true;
+        invalidateView();
     }
 
     //-----------------------------------------------------------------------
@@ -226,7 +226,7 @@ namespace Ogre {
         // shortest arc because this will sometimes cause a relative yaw
         // which will tip the camera
 
-        mRecalcView = true;
+        invalidateView();
 
     }
 
@@ -237,6 +237,17 @@ namespace Ogre {
         return mOrientation * -Vector3::UNIT_Z;
     }
 
+    //-----------------------------------------------------------------------
+    Vector3 Camera::getUp(void) const
+    {
+        return mOrientation * Vector3::UNIT_Y;
+    }
+
+    //-----------------------------------------------------------------------
+    Vector3 Camera::getRight(void) const
+    {
+        return mOrientation * Vector3::UNIT_X;
+    }
 
     //-----------------------------------------------------------------------
     void Camera::lookAt(const Vector3& targetPoint)
@@ -263,7 +274,7 @@ namespace Ogre {
         Vector3 zAxis = mOrientation * Vector3::UNIT_Z;
         rotate(zAxis, degrees);
 
-        mRecalcView = true;
+        invalidateView();
     }
 
     //-----------------------------------------------------------------------
@@ -284,7 +295,7 @@ namespace Ogre {
 
         rotate(yAxis, degrees);
 
-        mRecalcView = true;
+        invalidateView();
     }
 
     //-----------------------------------------------------------------------
@@ -294,7 +305,7 @@ namespace Ogre {
         Vector3 xAxis = mOrientation * Vector3::UNIT_X;
         rotate(xAxis, degrees);
 
-        mRecalcView = true;
+        invalidateView();
 
     }
 
@@ -311,7 +322,7 @@ namespace Ogre {
     {
         // Note the order of the mult, i.e. q comes after
         mOrientation = q * mOrientation;
-        mRecalcView = true;
+        invalidateView();
 
     }
 
@@ -438,6 +449,8 @@ namespace Ogre {
             }
             mRecalcFrustum = false;
         }
+        // Set the clipping planes
+        setWindowImpl();
     }
 
     //-----------------------------------------------------------------------
@@ -475,122 +488,135 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Camera::updateView(void) const
     {
-        if (isViewOutOfDate())
+        if (!isViewOutOfDate())
+            return;
+        // ----------------------
+        // Update the view matrix
+        // ----------------------
+
+        // View matrix is:
+        //
+        //  [ Lx  Uy  Dz  Tx  ]
+        //  [ Lx  Uy  Dz  Ty  ]
+        //  [ Lx  Uy  Dz  Tz  ]
+        //  [ 0   0   0   1   ]
+        //
+        // Where T = -(Transposed(Rot) * Pos)
+
+        // This is most efficiently done using 3x3 Matrices
+
+        // Get orientation from quaternion
+
+        Matrix3 rot;
+        mDerivedOrientation.ToRotationMatrix(rot);
+        Vector3 left = rot.GetColumn(0);
+        Vector3 up = rot.GetColumn(1);
+        Vector3 direction = rot.GetColumn(2);
+
+
+        // Make the translation relative to new axes
+        Matrix3 rotT = rot.Transpose();
+        Vector3 trans = -rotT * mDerivedPosition;
+
+        // Make final matrix
+        // Must init entire matrix incase reflection was used
+        mViewMatrix = Matrix4::IDENTITY;
+        mViewMatrix = rotT; // fills upper 3x3
+        mViewMatrix[0][3] = trans.x;
+        mViewMatrix[1][3] = trans.y;
+        mViewMatrix[2][3] = trans.z;
+
+        // Deal with reflections
+        if (mReflect)
         {
-            // ----------------------
-            // Update the view matrix
-            // ----------------------
-
-            // View matrix is:
-            //
-            //  [ Lx  Uy  Dz  Tx  ]
-            //  [ Lx  Uy  Dz  Ty  ]
-            //  [ Lx  Uy  Dz  Tz  ]
-            //  [ 0   0   0   1   ]
-            //
-            // Where T = -(Transposed(Rot) * Pos)
-
-            // This is most efficiently done using 3x3 Matrices
-
-            // Get orientation from quaternion
-
-            Matrix3 rot;
-            mDerivedOrientation.ToRotationMatrix(rot);
-            Vector3 left = rot.GetColumn(0);
-            Vector3 up = rot.GetColumn(1);
-            Vector3 direction = rot.GetColumn(2);
-
-
-            // Make the translation relative to new axes
-            Matrix3 rotT = rot.Transpose();
-            Vector3 trans = -rotT * mDerivedPosition;
-
-            // Make final matrix
-            // Must init entire matrix incase reflection was used
-            mViewMatrix = Matrix4::IDENTITY;
-            mViewMatrix = rotT; // fills upper 3x3
-            mViewMatrix[0][3] = trans.x;
-            mViewMatrix[1][3] = trans.y;
-            mViewMatrix[2][3] = trans.z;
-
-            // Deal with reflections
-            if (mReflect)
-            {
-                mViewMatrix = mViewMatrix * mReflectMatrix;
-            }
-
-
-            // -------------------------
-            // Update the frustum planes
-            // -------------------------
-            updateFrustum();
-            // Use camera view direction for frustum, which is -Z not Z as for matrix calc
-            Vector3 camDirection = mDerivedOrientation* -Vector3::UNIT_Z;
-            // Calc distance along direction to position
-            Real fDdE = camDirection.dotProduct(mDerivedPosition);
-
-            // left plane
-            mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal = mCoeffL[0]*left +
-                mCoeffL[1]*camDirection;
-            mFrustumPlanes[FRUSTUM_PLANE_LEFT].d =
-                -mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal);
-
-            // right plane
-            mFrustumPlanes[FRUSTUM_PLANE_RIGHT].normal = mCoeffR[0]*left +
-                mCoeffR[1]*camDirection;
-            mFrustumPlanes[FRUSTUM_PLANE_RIGHT].d =
-                -mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_RIGHT].normal);
-
-            // bottom plane
-            mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].normal = mCoeffB[0]*up +
-                mCoeffB[1]*camDirection;
-            mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].d =
-                -mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].normal);
-
-            // top plane
-            mFrustumPlanes[FRUSTUM_PLANE_TOP].normal = mCoeffT[0]*up +
-                mCoeffT[1]*camDirection;
-            mFrustumPlanes[FRUSTUM_PLANE_TOP].d =
-                -mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_TOP].normal);
-
-            // far plane
-            mFrustumPlanes[FRUSTUM_PLANE_FAR].normal = -camDirection;
-            // d is distance along normal to origin
-            mFrustumPlanes[FRUSTUM_PLANE_FAR].d = fDdE + mFarDist;
-
-            // near plane
-            mFrustumPlanes[FRUSTUM_PLANE_NEAR].normal = camDirection;
-            mFrustumPlanes[FRUSTUM_PLANE_NEAR].d = -(fDdE + mNearDist);
-
-            // Deal with reflection on frustum planes
-            if (mReflect)
-            {
-                Vector3 pos = mReflectMatrix * mDerivedPosition;
-                Vector3 dir = camDirection.reflect(mReflectPlane.normal);
-                fDdE = dir.dotProduct(pos);
-                for (unsigned int i = 0; i < 6; ++i)
-                {
-                    mFrustumPlanes[i].normal = mFrustumPlanes[i].normal.reflect(mReflectPlane.normal);
-                    // Near / far plane dealt with differently since they don't pass through camera
-                    switch (i)
-                    {
-                    case FRUSTUM_PLANE_NEAR:
-                        mFrustumPlanes[i].d = -(fDdE + mNearDist);
-                        break;
-                    case FRUSTUM_PLANE_FAR:
-                        mFrustumPlanes[i].d = fDdE + mFarDist;
-                        break;
-                    default:
-                        mFrustumPlanes[i].d = -pos.dotProduct(mFrustumPlanes[i].normal);
-                    }
-                }
-            }
-
-
-            mRecalcView = false;
-
+            mViewMatrix = mViewMatrix * mReflectMatrix;
         }
 
+
+        // -------------------------
+        // Update the frustum planes
+        // -------------------------
+        updateFrustum();
+        // Use camera view direction for frustum, which is -Z not Z as for matrix calc
+        Vector3 camDirection = mDerivedOrientation* -Vector3::UNIT_Z;
+        // Calc distance along direction to position
+        Real fDdE = camDirection.dotProduct(mDerivedPosition);
+
+        // left plane
+        mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal = mCoeffL[0]*left +
+            mCoeffL[1]*camDirection;
+        mFrustumPlanes[FRUSTUM_PLANE_LEFT].d =
+            -mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal);
+
+        // right plane
+        mFrustumPlanes[FRUSTUM_PLANE_RIGHT].normal = mCoeffR[0]*left +
+            mCoeffR[1]*camDirection;
+        mFrustumPlanes[FRUSTUM_PLANE_RIGHT].d =
+            -mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_RIGHT].normal);
+
+        // bottom plane
+        mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].normal = mCoeffB[0]*up +
+            mCoeffB[1]*camDirection;
+        mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].d =
+            -mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].normal);
+
+        // top plane
+        mFrustumPlanes[FRUSTUM_PLANE_TOP].normal = mCoeffT[0]*up +
+            mCoeffT[1]*camDirection;
+        mFrustumPlanes[FRUSTUM_PLANE_TOP].d =
+            -mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_TOP].normal);
+
+        // far plane
+        mFrustumPlanes[FRUSTUM_PLANE_FAR].normal = -camDirection;
+        // d is distance along normal to origin
+        mFrustumPlanes[FRUSTUM_PLANE_FAR].d = fDdE + mFarDist;
+
+        // near plane
+        mFrustumPlanes[FRUSTUM_PLANE_NEAR].normal = camDirection;
+        mFrustumPlanes[FRUSTUM_PLANE_NEAR].d = -(fDdE + mNearDist);
+
+        // Deal with reflection on frustum planes
+        if (mReflect)
+        {
+            Vector3 pos = mReflectMatrix * mDerivedPosition;
+            Vector3 dir = camDirection.reflect(mReflectPlane.normal);
+            fDdE = dir.dotProduct(pos);
+            for (unsigned int i = 0; i < 6; ++i)
+            {
+                mFrustumPlanes[i].normal = mFrustumPlanes[i].normal.reflect(mReflectPlane.normal);
+                // Near / far plane dealt with differently since they don't pass through camera
+                switch (i)
+                {
+                case FRUSTUM_PLANE_NEAR:
+                    mFrustumPlanes[i].d = -(fDdE + mNearDist);
+                    break;
+                case FRUSTUM_PLANE_FAR:
+                    mFrustumPlanes[i].d = fDdE + mFarDist;
+                    break;
+                default:
+                    mFrustumPlanes[i].d = -pos.dotProduct(mFrustumPlanes[i].normal);
+                }
+            }
+        }
+
+
+        mRecalcView = false;
+
+        setWindowImpl();
+
+
+    }
+    // -------------------------------------------------------------------
+    void Camera::invalidateView()
+    {
+        mRecalcView = true;
+        mRecalcWindow = true;
+    }
+    // -------------------------------------------------------------------
+    void Camera::invalidateFrustum(void)
+    {
+        mRecalcFrustum = true;
+        mRecalcWindow = true;
     }
     //-----------------------------------------------------------------------
     void Camera::_renderScene(Viewport *vp, bool includeOverlays)
@@ -648,7 +674,7 @@ namespace Ogre {
     void Camera::setOrientation(const Quaternion& q)
     {
         mOrientation = q;
-        mRecalcView = true;
+        invalidateView();
     }
     //-----------------------------------------------------------------------
     Quaternion Camera::getDerivedOrientation(void) const
@@ -721,14 +747,14 @@ namespace Ogre {
         mReflect = true;
         mReflectPlane = p;
         mReflectMatrix = Math::buildReflectionMatrix(p);
-        mRecalcView = true;
+        invalidateView();
         
     }
     //-----------------------------------------------------------------------
     void Camera::disableReflection(void)
     {
         mReflect = false;
-        mRecalcView = true;
+        invalidateView();
     }
     //-----------------------------------------------------------------------
     Ray Camera::getCameraToViewportRay(Real screenX, Real screenY)
@@ -748,4 +774,75 @@ namespace Ogre {
 
         return Ray(getDerivedPosition(), rayDirection);
     } 
+
+    // -------------------------------------------------------------------
+    void Camera::setWindow (Real Left, Real Top, Real Right, Real Bottom)
+    {
+        mWLeft = Left;
+        mWTop = Top;
+        mWRight = Right;
+        mWBottom = Bottom;
+
+        mWindowSet = true;
+        mRecalcWindow = true;
+
+        invalidateView();
+    }
+    // -------------------------------------------------------------------
+    void Camera::resetWindow ()
+    {
+        mWindowSet = false;
+    }
+    // -------------------------------------------------------------------
+    void Camera::setWindowImpl() const
+    {
+        if (!mWindowSet || !mRecalcWindow)
+            return;
+
+
+        Real thetaY = Math::AngleUnitsToRadians(mFOVy / 2.0f);
+        Real tanThetaY = Math::Tan(thetaY);
+        //Real thetaX = thetaY * mAspect;
+        Real tanThetaX = tanThetaY * mAspect;
+
+        Real vpTop = tanThetaY * mNearDist;
+        Real vpLeft = -tanThetaX * mNearDist;
+        Real vpWidth = -2 * vpLeft;
+        Real vpHeight = 2 * vpTop;
+
+        Real wvpLeft   = vpLeft + mWLeft * vpWidth;
+        Real wvpRight  = vpLeft + mWRight * vpWidth;
+        Real wvpTop    = vpTop - mWTop * vpHeight;
+        Real wvpBottom = vpTop - mWBottom * vpHeight;
+
+        Vector3 vp_ul (wvpLeft, wvpTop, -mNearDist);
+        Vector3 vp_ur (wvpRight, wvpTop, -mNearDist);
+        Vector3 vp_bl (wvpLeft, wvpBottom, -mNearDist);
+        Vector3 vp_br (wvpRight, wvpBottom, -mNearDist);
+
+        Matrix4 inv = mViewMatrix.inverse();
+
+        Vector3 vw_ul = inv * vp_ul;
+        Vector3 vw_ur = inv * vp_ur;
+        Vector3 vw_bl = inv * vp_bl;
+        Vector3 vw_br = inv * vp_br;
+
+        Vector3 position = getPosition();
+
+        mWindowClipPlanes.clear();
+        mWindowClipPlanes.push_back(Plane(position, vw_bl, vw_ul));
+        mWindowClipPlanes.push_back(Plane(position, vw_ul, vw_ur));
+        mWindowClipPlanes.push_back(Plane(position, vw_ur, vw_br));
+        mWindowClipPlanes.push_back(Plane(position, vw_br, vw_bl));
+
+        mRecalcWindow = false;
+
+    }
+    // -------------------------------------------------------------------
+    const std::vector<Plane>& Camera::getWindowPlanes(void)
+    {
+        setWindowImpl();
+        return mWindowClipPlanes;
+    }
+
 } // namespace Ogre

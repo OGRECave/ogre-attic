@@ -355,6 +355,12 @@ namespace Ogre
         */
         void startRendering(void);
 
+        /** Render one frame. 
+        @remarks
+            Updates all the render targets automatically and then returns,
+            raising frame events before and after.
+        */
+        bool renderOneFrame(void);
         /** Shuts down the system manually.
             @remarks
                 This is normally done by Ogre automatically so don't think

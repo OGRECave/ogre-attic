@@ -91,6 +91,10 @@ namespace Ogre
         virtual void updateView(void) const;
         virtual bool isViewOutOfDate(void) const;
         virtual bool isFrustumOutOfDate(void) const;
+        /// Signal to update frustum information.
+        virtual void invalidateFrustum(void);
+        /// Signal to update view information.
+        virtual void invalidateView(void);
 
         /// Shared class-level name for Movable type
         static String msMovableType;
