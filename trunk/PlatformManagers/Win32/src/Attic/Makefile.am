@@ -13,7 +13,9 @@ OgreWin32Timer.cpp
 OgrePlatform_la_LDFLAGS = -module $(PLUGIN_FLAGS) -L$(top_builddir)/OgreMain/src
 OgrePlatform_la_LIBADD = resource.lo $(PLATFORM_LIBS) $(GL_LIBS) -lOgreMain
 
-RCFLAGS =  --use-temp-file --verbose -O COFF --include-dir=../include --include-dir=../misc
+RCFLAGS =  --use-temp-file --verbose -O COFF \
+	--include-dir=$(top_srcdir)/PlatformManagers/Win32/include \
+	--include-dir=$(top_srcdir)/PlatformManagers/Win32/misc
 
 resource.lo: ../misc/OgreWin32Resources.rc
 	$(RC) $(RCFLAGS) -o .libs/resource.o $<
