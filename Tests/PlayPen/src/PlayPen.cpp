@@ -740,34 +740,51 @@ protected:
 
 	void testBug()
 	{
-		// Full white diffuse lighting
-		mSceneMgr->setAmbientLight(ColourValue(0.0f, 0.0f, 0.0f));
-		Light* l = mSceneMgr->createLight("MainLight");
-		l->setType(Light::LT_DIRECTIONAL);
-		Vector3 dir(1, -1, -1.5);
-		dir.normalise();
-		l->setDirection(dir);
-		l->setDiffuseColour(1.0, 1.0, 1.0);
 
-		MaterialPtr m = MaterialManager::getSingleton().create("testbug", 
+		MaterialPtr mat = MaterialManager::getSingleton().create("test", 
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-		Pass *p1, *p2, *p3;
-		p1 = m->getTechnique(0)->getPass(0);
-		p2 = m->getTechnique(0)->createPass();
-		p3 = m->getTechnique(0)->createPass();
+		// known png with alpha
+		Pass* pass = mat->getTechnique(0)->getPass(0);
+		TextureUnitState* t = pass->createTextureUnitState();
+		t->setColourOperationEx(LBX_SOURCE1, LBS_MANUAL, LBS_CURRENT, ColourValue(1,0,0));
+		t->setAlphaOperation(LBX_SOURCE1, LBS_MANUAL, LBS_CURRENT, 0.5);
 
-		p1->setDiffuse(ColourValue(1, 0, 0));
-		p2->setDiffuse(ColourValue(0, 0, 1));
-		p2->setSceneBlending(SBT_MODULATE);
-		p3->setDiffuse(ColourValue(0, 1, 0));
-		p3->setSceneBlending(SBT_MODULATE);
-		m->load();
+		pass->setSceneBlending(SBT_TRANSPARENT_ALPHA);
+		// alpha blend
+		//pass->setDepthWriteEnabled(false);
 
-		Entity* e = mSceneMgr->createEntity("1", "ogrehead.mesh");
-		e->setMaterialName("testbug");
-		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+		// alpha reject
+		//pass->setDepthWriteEnabled(true);
+		//pass->setAlphaRejectSettings(CMPF_LESS, 128);
 
+		// Define a floor plane mesh
+		Plane p;
+		p.normal = Vector3::UNIT_Y;
+		p.d = 200;
+		MeshManager::getSingleton().createPlane("FloorPlane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+			p,2000,2000,1,1,true,1,5,5,Vector3::UNIT_Z);
 
+		// Create an entity (the floor)
+		Entity* ent = mSceneMgr->createEntity("floor", "FloorPlane");
+		ent->setMaterialName("test");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
+
+		mSceneMgr->setSkyDome(true, "Examples/CloudySky", 5, 8);
+		mSceneMgr->setAmbientLight(ColourValue::White);
+
+		mat = MaterialManager::getSingleton().create("test2", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		// known png with alpha
+		pass = mat->getTechnique(0)->getPass(0);
+		t = pass->createTextureUnitState();
+		t->setColourOperationEx(LBX_SOURCE1, LBS_MANUAL, LBS_CURRENT, ColourValue(0,1,0));
+		//t->setAlphaOperation(LBX_SOURCE1, LBS_MANUAL, LBS_CURRENT, 0.5);
+
+		pass->setSceneBlending(SBT_TRANSPARENT_ALPHA);
+		ent = mSceneMgr->createEntity("floor2", "FloorPlane");
+		ent->setMaterialName("test2");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(500, 20, 0))->attachObject(ent);
 	}
 
 	void testTransparencyMipMaps()
@@ -776,7 +793,7 @@ protected:
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 		// known png with alpha
 		Pass* pass = mat->getTechnique(0)->getPass(0);
-		pass->createTextureUnitState("New_Ogre_Logo.png");
+		pass->createTextureUnitState("ogretext.png");
 		pass->setSceneBlending(SBT_TRANSPARENT_ALPHA);
 		// alpha blend
 		pass->setDepthWriteEnabled(false);
@@ -802,6 +819,22 @@ protected:
 		mSceneMgr->setAmbientLight(ColourValue::White);
 
 
+		{
+		
+		Real alphaLevel = 0.5f;
+		MaterialPtr alphamat = MaterialManager::getSingleton().create("testy", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* pass = alphamat->getTechnique(0)->getPass(0);
+		pass->setSceneBlending(SBT_TRANSPARENT_ALPHA);
+		pass->setDepthWriteEnabled(false);
+		TextureUnitState* t = pass->createTextureUnitState();
+		t->setAlphaOperation(LBX_SOURCE1, LBS_MANUAL, LBS_CURRENT, alphaLevel);
+
+		ent = mSceneMgr->createEntity("asd", "ogrehead.mesh");
+		ent->setMaterialName("testy");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
+
+		}
 		
 	}
 
@@ -2352,9 +2385,9 @@ protected:
 		//testSimpleMesh();
 		//test2Windows();
 		//testStaticGeometry();
-		//testBug();
+		testBug();
 		//testReloadResources();
-		testTransparencyMipMaps();
+		//testTransparencyMipMaps();
     }
     // Create new frame listener
     void createFrameListener(void)

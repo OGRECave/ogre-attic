@@ -1503,6 +1503,7 @@ namespace Ogre
 		D3DTEXTURESTAGESTATETYPE tss;
 		D3DCOLOR manualD3D;
 
+
 		// choose type of blend.
 		if( bm.blendType == LBT_COLOUR )
 			tss = D3DTSS_COLOROP;
@@ -1525,11 +1526,14 @@ namespace Ogre
 		{
 			tss = D3DTSS_COLORARG1;
 			manualD3D = D3DXCOLOR( bm.colourArg1.r, bm.colourArg1.g, bm.colourArg1.b, bm.colourArg1.a );
+			mManualBlendColours[stage][0] = bm.colourArg1;
 		}
 		else if( bm.blendType == LBT_ALPHA )
 		{
 			tss = D3DTSS_ALPHAARG1;
-			manualD3D = D3DXCOLOR( 0.0, 0.0, 0.0, bm.alphaArg1 );
+			manualD3D = D3DXCOLOR( mManualBlendColours[stage][0].r, 
+				mManualBlendColours[stage][0].g, 
+				mManualBlendColours[stage][0].b, bm.alphaArg1 );
 		}
 		// Set manual factor if required
 		if (bm.source1 == LBS_MANUAL)
@@ -1548,11 +1552,15 @@ namespace Ogre
 		{
 			tss = D3DTSS_COLORARG2;
 			manualD3D = D3DXCOLOR( bm.colourArg2.r, bm.colourArg2.g, bm.colourArg2.b, bm.colourArg2.a );
+			mManualBlendColours[stage][1] = bm.colourArg1;
 		}
 		else if( bm.blendType == LBT_ALPHA )
 		{
 			tss = D3DTSS_ALPHAARG2;
-			manualD3D = D3DXCOLOR( 0.0, 0.0, 0.0, bm.alphaArg2 );
+			manualD3D = D3DXCOLOR( mManualBlendColours[stage][1].r, 
+				mManualBlendColours[stage][1].g, 
+				mManualBlendColours[stage][1].b, 
+				bm.alphaArg2 );
 		}
 		// Set manual factor if required
 		if (bm.source2 == LBS_MANUAL)
