@@ -100,6 +100,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
 						 OgreProfiler.cpp \
                          OgreProgressiveMesh.cpp \
                          OgreQuaternion.cpp \
+						 OgreRectangle2D.cpp \
                          OgreRenderQueue.cpp \
                          OgreRenderSystem.cpp \
                          OgreRenderSystemCapabilities.cpp \

@@ -456,6 +456,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreQuaternion.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreRectangle2D.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreRenderQueue.cpp">
 			</File>
 			<File
@@ -997,6 +1000,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreQuaternion.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreRectangle2D.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreRenderOperation.h">

@@ -42,6 +42,7 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreAnimationState.h"
 #include "OgreRenderQueue.h"
 #include "OgreRenderQueueSortingGrouping.h"
+#include "OgreRectangle2D.h"
 
 namespace Ogre {
 
@@ -237,9 +238,9 @@ namespace Ogre {
 
         /** Internal utility method for rendering a single object. 
         @remarks
-            Assumes that the pass has already bee set up.
+            Assumes that the pass has already been set up.
         */
-        virtual void renderSingleObject(Renderable* rend, Pass* pass);
+        virtual void renderSingleObject(Renderable* rend, Pass* pass, bool doLightIteration);
 
         /// Utility class for calculating automatic parameters for gpu programs
         AutoParamDataSource mAutoParamDataSource;
@@ -248,8 +249,10 @@ namespace Ogre {
         bool mDebugShadows;
         Pass* mShadowDebugPass;
         Pass* mShadowStencilPass;
+        Pass* mShadowModulativePass;
         LightList mLightsAffectingFrustum;
         HardwareIndexBufferSharedPtr mShadowIndexBuffer;
+        Rectangle2D* mFullScreenQuad;
         /** Internal method for locating a list of lights which could be affecting the frustum. 
         @remarks
             Custom scene managers are encouraged to override this method to make use of their
@@ -296,9 +299,11 @@ namespace Ogre {
 		/** Render a group with the added complexity of additive stencil shadows. */
 		virtual void renderModulativeStencilShadowedQueueGroupObjects(RenderQueueGroup* group);
 		/** Render a set of objects */
-		virtual void renderObjects(const RenderPriorityGroup::SolidRenderablePassMap& objs);
+		virtual void renderObjects(const RenderPriorityGroup::SolidRenderablePassMap& objs, 
+            bool doLightIteration);
 		/** Render a set of objects */
-		virtual void renderObjects(const RenderPriorityGroup::TransparentRenderablePassList& objs);
+		virtual void renderObjects(const RenderPriorityGroup::TransparentRenderablePassList& objs, 
+            bool doLightIteration);
 
     public:
         /** Default constructor.

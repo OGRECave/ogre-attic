@@ -96,6 +96,7 @@ namespace Ogre {
         mDebugShadows = false;
         mShadowDebugPass = 0;
         mShadowStencilPass = 0;
+        mFullScreenQuad = 0;
 
 
 		// init render queues that do not need shadows
@@ -109,6 +110,7 @@ namespace Ogre {
     {
         clearScene();
         delete mSceneRoot;
+        delete mFullScreenQuad;
     }
 
     //-----------------------------------------------------------------------
@@ -1243,8 +1245,11 @@ namespace Ogre {
 			pPriorityGrp->sort(mCameraInProgress);
 
 			// Do solids
-			renderObjects(pPriorityGrp->mSolidPasses);
+			renderObjects(pPriorityGrp->mSolidPasses, true);
 		}
+
+        // Clear stencil
+        mDestRenderSystem->clearFrameBuffer(FBT_STENCIL);
 
 		// Iterate over lights, render all volumes to stencil
 		LightList::const_iterator li, liend;
@@ -1258,7 +1263,15 @@ namespace Ogre {
 		}// for each priority
 
 		// render full-screen shadow modulator for all lights
-		// TODO
+		setPass(mShadowModulativePass);
+        // turn stencil check on
+        // NB we render where the stencil is not equal to zero to render shadows, not lit areas
+        mDestRenderSystem->setStencilBufferParams(CMPF_NOT_EQUAL, 0);
+        mDestRenderSystem->setStencilCheckEnabled(true);
+        renderSingleObject(mFullScreenQuad, mShadowModulativePass, false);
+        // Reset stencil params
+        mDestRenderSystem->setStencilBufferParams();
+        mDestRenderSystem->setStencilCheckEnabled(false);
 
 		// Iterate again
 		groupIt = pGroup->getIterator();
@@ -1267,13 +1280,14 @@ namespace Ogre {
 			RenderPriorityGroup* pPriorityGrp = groupIt.getNext();
 
 			// Do transparents
-			renderObjects(pPriorityGrp->mTransparentPasses);
+			renderObjects(pPriorityGrp->mTransparentPasses, true);
 
 		}// for each priority
 
 	}
 	//-----------------------------------------------------------------------
-	void SceneManager::renderObjects(const RenderPriorityGroup::SolidRenderablePassMap& objs)
+	void SceneManager::renderObjects(
+        const RenderPriorityGroup::SolidRenderablePassMap& objs, bool doLightIteration)
 	{
 		// ----- SOLIDS LOOP -----
 		RenderPriorityGroup::SolidRenderablePassMap::const_iterator ipass, ipassend;
@@ -1290,12 +1304,13 @@ namespace Ogre {
 			for (irend = rendList->begin(); irend != irendend; ++irend)
 			{
 				// Render a single object, this will set up auto params if required
-				renderSingleObject(*irend, ipass->first);
+				renderSingleObject(*irend, ipass->first, doLightIteration);
 			}
 		} 
 	}
 	//-----------------------------------------------------------------------
-	void SceneManager::renderObjects(const RenderPriorityGroup::TransparentRenderablePassList& objs)
+	void SceneManager::renderObjects(
+        const RenderPriorityGroup::TransparentRenderablePassList& objs, bool doLightIteration)
 	{
 		// ----- TRANSPARENT LOOP -----
 		// This time we render by Z, not by pass
@@ -1309,7 +1324,7 @@ namespace Ogre {
 		{
 			// For transparents, we have to accept that we can't sort entirely by pass
 			setPass(itrans->pass);
-			renderSingleObject(itrans->renderable, itrans->pass);
+			renderSingleObject(itrans->renderable, itrans->pass, doLightIteration);
 		}
 
 	}
@@ -1341,9 +1356,9 @@ namespace Ogre {
 				pPriorityGrp->sort(mCameraInProgress);
 
 				// Do solids
-				renderObjects(pPriorityGrp->mSolidPasses);
+				renderObjects(pPriorityGrp->mSolidPasses, true);
 				// Do transparents
-				renderObjects(pPriorityGrp->mTransparentPasses);
+				renderObjects(pPriorityGrp->mTransparentPasses, true);
 
 
 			}// for each priority
@@ -1352,7 +1367,7 @@ namespace Ogre {
 
 	}
     //-----------------------------------------------------------------------
-    void SceneManager::renderSingleObject(Renderable* rend, Pass* pass)
+    void SceneManager::renderSingleObject(Renderable* rend, Pass* pass, bool doLightIteration)
     {
         static Matrix4 xform[256];
         unsigned short numMatrices;
@@ -1426,72 +1441,90 @@ namespace Ogre {
         rend->getRenderOperation(ro);
 		ro.srcRenderable = rend;
 
-		// Here's where we issue the rendering operation to the render system
-		// Note that we may do this once per light, therefore it's in a loop
-		// and the light parameters are updated once per traversal through the
-		// loop
-		const LightList& rendLightList = rend->getLights();
-		bool iteratePerLight = pass->getRunOncePerLight();
-		size_t numIterations = iteratePerLight ? rendLightList.size() : 1;
-		const LightList* pLightListToUse;
-		for (size_t i = 0; i < numIterations; ++i)
-		{
-			// Determine light list to use
-			if (iteratePerLight)
-			{
-				// Change the only element of local light list to be
-				// the light at index i
-				localLightList.clear();
-                // Check whether we need to filter this one out
-                if (pass->getRunOnlyForOneLightType() && 
-                    pass->getOnlyLightType() != rendLightList[i]->getType())
+		if (doLightIteration)
+        {
+            // Here's where we issue the rendering operation to the render system
+		    // Note that we may do this once per light, therefore it's in a loop
+		    // and the light parameters are updated once per traversal through the
+		    // loop
+		    const LightList& rendLightList = rend->getLights();
+		    bool iteratePerLight = pass->getRunOncePerLight();
+		    size_t numIterations = iteratePerLight ? rendLightList.size() : 1;
+		    const LightList* pLightListToUse;
+		    for (size_t i = 0; i < numIterations; ++i)
+		    {
+			    // Determine light list to use
+			    if (iteratePerLight)
+			    {
+				    // Change the only element of local light list to be
+				    // the light at index i
+				    localLightList.clear();
+                    // Check whether we need to filter this one out
+                    if (pass->getRunOnlyForOneLightType() && 
+                        pass->getOnlyLightType() != rendLightList[i]->getType())
+                    {
+                        // Skip
+                        continue;
+                    }
+
+				    localLightList.push_back(rendLightList[i]);
+				    pLightListToUse = &localLightList;
+			    }
+			    else
+			    {
+				    // Use complete light list
+				    pLightListToUse = &rendLightList;
+			    }
+
+			    // Do we need to update GPU program parameters?
+			    if (pass->isProgrammable())
+			    {
+				    // Update any automatic gpu params for lights
+				    // Other bits of information will have to be looked up
+                    mAutoParamDataSource.setCurrentLightList(pLightListToUse);
+				    pass->_updateAutoParamsLightsOnly(mAutoParamDataSource);
+				    // NOTE: We MUST bind parameters AFTER updating the autos
+				    // TEST
+				    if (pass->hasVertexProgram())
+				    {
+					    mDestRenderSystem->bindGpuProgramParameters(GPT_VERTEX_PROGRAM, 
+						    pass->getVertexProgramParameters());
+				    }
+				    if (pass->hasFragmentProgram())
+				    {
+					    mDestRenderSystem->bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, 
+						    pass->getFragmentProgramParameters());
+				    }
+			    }
+			    // Do we need to update light states? 
+			    // Only do this if fixed-function vertex lighting applies
+			    if (pass->getLightingEnabled() && !pass->hasVertexProgram())
+			    {
+				    mDestRenderSystem->_useLights(*pLightListToUse, pass->getMaxSimultaneousLights());
+			    }
+			    // issue the render op		
+			    mDestRenderSystem->_render(ro);
+		    } // possibly iterate per light
+        }
+        else // no light processing
+        {
+            // Do we need to update GPU program parameters?
+            if (pass->isProgrammable())
+            {
+                if (pass->hasVertexProgram())
                 {
-                    // Skip
-                    continue;
+                    mDestRenderSystem->bindGpuProgramParameters(GPT_VERTEX_PROGRAM, 
+                        pass->getVertexProgramParameters());
                 }
-
-				localLightList.push_back(rendLightList[i]);
-				pLightListToUse = &localLightList;
-			}
-			else
-			{
-				// Use complete light list
-				pLightListToUse = &rendLightList;
-			}
-
-			// Do we need to update GPU program parameters?
-			if (pass->isProgrammable())
-			{
-				// Update any automatic gpu params for lights
-				// Other bits of information will have to be looked up
-                mAutoParamDataSource.setCurrentLightList(pLightListToUse);
-				pass->_updateAutoParamsLightsOnly(mAutoParamDataSource);
-				// NOTE: We MUST bind parameters AFTER updating the autos
-				// TEST
-				/*
-				LogManager::getSingleton().logMessage("BIND PARAMS FOR " + 
-					pass->getParent()->getParent()->getName());
-				*/
-				if (pass->hasVertexProgram())
-				{
-					mDestRenderSystem->bindGpuProgramParameters(GPT_VERTEX_PROGRAM, 
-						pass->getVertexProgramParameters());
-				}
-				if (pass->hasFragmentProgram())
-				{
-					mDestRenderSystem->bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, 
-						pass->getFragmentProgramParameters());
-				}
-			}
-			// Do we need to update light states? 
-			// Only do this if fixed-function vertex lighting applies
-			if (pass->getLightingEnabled() && !pass->hasVertexProgram())
-			{
-				mDestRenderSystem->_useLights(*pLightListToUse, pass->getMaxSimultaneousLights());
-			}
-			// issue the render op		
-			mDestRenderSystem->_render(ro);
-		} // possibly iterate per light
+                if (pass->hasFragmentProgram())
+                {
+                    mDestRenderSystem->bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, 
+                        pass->getFragmentProgramParameters());
+                }
+            }
+            // issue the render op		
+            mDestRenderSystem->_render(ro);
+        }
     }
     //-----------------------------------------------------------------------
     void SceneManager::setAmbientLight(const ColourValue& colour)
@@ -2144,23 +2177,50 @@ namespace Ogre {
                 // TODO, add hardware extrusion program
             }
             matDebug->compile();
-
-            Material* matStencil = static_cast<Material*>(
-                MaterialManager::getSingleton().getByName("Ogre/StencilShadowVolumes"));
-            if (!matStencil)
-            {
-                // Init
-                matStencil = static_cast<Material*>(
-                    MaterialManager::getSingleton().create("Ogre/StencilShadowVolumes"));
-                mShadowStencilPass = matStencil->getTechnique(0)->getPass(0);
-                if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM))
-                {
-                    // TODO, add hardware extrusion program
-                }
-                // Nothing else, we don't use this like a 'real' pass anyway,
-                // it's more of a placeholder
-            }
         }
+
+        Material* matStencil = static_cast<Material*>(
+            MaterialManager::getSingleton().getByName("Ogre/StencilShadowVolumes"));
+        if (!matStencil)
+        {
+            // Init
+            matStencil = static_cast<Material*>(
+                MaterialManager::getSingleton().create("Ogre/StencilShadowVolumes"));
+            mShadowStencilPass = matStencil->getTechnique(0)->getPass(0);
+            if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM))
+            {
+                // TODO, add hardware extrusion program
+            }
+            // Nothing else, we don't use this like a 'real' pass anyway,
+            // it's more of a placeholder
+        }
+
+        Material* matModStencil = static_cast<Material*>(
+            MaterialManager::getSingleton().getByName("Ogre/StencilShadowModulationPass"));
+        if (!matModStencil)
+        {
+            // Init
+            matModStencil = static_cast<Material*>(
+                MaterialManager::getSingleton().create("Ogre/StencilShadowModulationPass"));
+            mShadowModulativePass = matModStencil->getTechnique(0)->getPass(0);
+            mShadowModulativePass->setSceneBlending(SBF_DEST_COLOUR, SBF_ZERO); 
+            mShadowModulativePass->setLightingEnabled(false);
+            mShadowModulativePass->setDepthWriteEnabled(false);
+            mShadowModulativePass->setDepthCheckEnabled(false);
+            TextureUnitState* t = mShadowModulativePass->createTextureUnitState();
+            t->setColourOperationEx(LBX_MODULATE, LBS_MANUAL, LBS_CURRENT, 
+                ColourValue(0.25, 0.25, 0.25));
+
+        }
+
+        // Also init full screen quad while we're at it
+        if (!mFullScreenQuad)
+        {
+            mFullScreenQuad = new Rectangle2D();
+            mFullScreenQuad->setCorners(-1,1,1,-1);
+        }
+
+
 
     }
     //---------------------------------------------------------------------
@@ -2170,7 +2230,8 @@ namespace Ogre {
         bool stencil2sided = false;
         if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_TWO_SIDED_STENCIL))
         {
-            stencil2sided = true;
+            // TODO enable
+            //stencil2sided = true;
         }
 
         // Do we have access to vertex programs?
@@ -2184,6 +2245,7 @@ namespace Ogre {
         // Turn off colour writing and depth writing
         mDestRenderSystem->_setColourBufferWriteEnabled(false, false, false, false);
         mDestRenderSystem->_setDepthBufferWriteEnabled(false);
+        mDestRenderSystem->setStencilCheckEnabled(true);
 
 
         // Figure out the near clip volume
@@ -2242,12 +2304,12 @@ namespace Ogre {
                         zfailAlgo? SOP_KEEP : SOP_INCREMENT, // front face pass
                         stencil2sided
                         );
-                    renderSingleObject(sr, mShadowStencilPass);
+                    renderSingleObject(sr, mShadowStencilPass, false);
                     
                     if (!stencil2sided)
                     {
                         // Second pass, do back faces (facing inside)
-                        mDestRenderSystem->_setCullingMode(CULL_CLOCKWISE);
+                        mDestRenderSystem->_setCullingMode(CULL_ANTICLOCKWISE);
                         mDestRenderSystem->setStencilBufferParams(
                             CMPF_ALWAYS_PASS, // always pass stencil check
                             0, // no ref value (no compare)
@@ -2257,7 +2319,7 @@ namespace Ogre {
                             zfailAlgo? SOP_KEEP : SOP_DECREMENT, // back face pass
                             stencil2sided
                             );
-                        renderSingleObject(sr, mShadowStencilPass);
+                        renderSingleObject(sr, mShadowStencilPass, false);
                     }
 
                     // Do we need to render a debug shadow marker?
@@ -2266,7 +2328,7 @@ namespace Ogre {
                         // reset stencil & colour ops
                         mDestRenderSystem->setStencilBufferParams();
                         setPass(mShadowDebugPass);
-                        renderSingleObject(sr, mShadowDebugPass);
+                        renderSingleObject(sr, mShadowDebugPass, false);
                         mDestRenderSystem->_setColourBufferWriteEnabled(false, false, false, false);
                     }
                 }
@@ -2278,6 +2340,7 @@ namespace Ogre {
 		// revert depth write state
 		mDestRenderSystem->_setDepthBufferWriteEnabled(true);
 
+        mDestRenderSystem->setStencilCheckEnabled(false);
 
     }
 	//---------------------------------------------------------------------
