@@ -1273,11 +1273,11 @@ namespace Ogre {
 		// Derive the max vertices
 		if (mIndexType == HardwareIndexBuffer::IT_32BIT)
 		{
-			mMaxVertices = 1 << 32;
+			mMaxVertexIndex = 0xFFFFFFFF;
 		}
 		else
 		{
-			mMaxVertices = 1 << 16;
+			mMaxVertexIndex = 0xFFFF;
 		}
 
 		// Check to see if we have blend indices / blend weights
@@ -1368,7 +1368,7 @@ namespace Ogre {
 	{
 		// Do we have enough space?
 		if (mVertexData->vertexCount + qgeom->geometry->vertexData->vertexCount 
-			> mMaxVertices)
+			> mMaxVertexIndex)
 		{
 			return false;
 		}
@@ -1418,7 +1418,7 @@ namespace Ogre {
 			if (stencilShadows && b == posBufferIdx)
 			{
 				vertexCount = vertexCount * 2;
-				assert(vertexCount <= mMaxVertices && 
+				assert(vertexCount <= mMaxVertexIndex && 
 					"Index range exceeded when using stencil shadows, consider "
 					"reducing your region size or reducing poly count");
 			}
