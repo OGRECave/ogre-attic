@@ -95,9 +95,9 @@ http://www.gnu.org/copyleft/lesser.txt
 namespace Ogre {
     // Define ogre version
     #define OGRE_VERSION_MAJOR 1
-    #define OGRE_VERSION_MINOR 0
+    #define OGRE_VERSION_MINOR 1
     #define OGRE_VERSION_PATCH 0
-    #define OGRE_VERSION_NAME "Azathoth"
+    #define OGRE_VERSION_NAME "Dagon"
 
     #if OGRE_DOUBLE_PRECISION == 1
 		/** Software floating point type.
