@@ -27,9 +27,16 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRoot.h"
 #include "OgreLogManager.h"
 
+#ifdef __BORLANDC__
+    #include <stdio.h>
+#endif
+
 namespace Ogre {
-    Exception* Exception::last = 0;
-    std::list<String> Exception::msFunctionStack;
+
+    Exception* Exception::last = NULL;
+
+    OgreChar Exception::msFunctionStack[ 512 ][ 256 ];
+    ushort   Exception::msStackDepth = 0;
 
     Exception::Exception(int num, const String& desc, const String& src) :
         line( 0 ),
@@ -78,7 +85,6 @@ namespace Ogre {
         char strNum[12];
         String desc;
 
-        /** \todo Optimize! Add all string assignments on one line, thus compromising readability */
         sprintf( strNum, "%d", number );
         desc =  "An exception has been thrown!\n"
                 "\n"
@@ -99,24 +105,26 @@ namespace Ogre {
             char szLine[20];
 
             desc += "\nLine: ";
-            snprintf(szLine, 20, "%ld", line);
+            _snprintf(szLine, 20, "%ld", line);
 
             desc += szLine;
         }
 
 #ifdef OGRE_STACK_UNWINDING
-        String funcstack;
-        String currfunc;
+        String funcStack = "\nStack unwinding: ";
 
-        funcstack += "\nStack unwinding: ";
-
-        for( std::list<String>::const_iterator it = msFunctionStack.begin(); it != msFunctionStack.end(); ++it )
+        /* Will cause an overflow, that's why we check that it's smaller.
+           Also note that the call stack index may be greater than the actual call
+           stack size - that's why we begin unrolling with the smallest of the two. */
+        for( 
+            ushort stackUnroll = msStackDepth <= OGRE_CALL_STACK_DEPTH ? ( msStackDepth - 1 ) : ( OGRE_CALL_STACK_DEPTH - 1 ); 
+            stackUnroll < msStackDepth; stackUnroll-- )
         {
-            funcstack += *it;
-            funcstack += "()<-";
+            funcStack += msFunctionStack[ stackUnroll ];
+            funcStack += "(..) <- ";
         }
 
-        desc += funcstack;
+        desc += funcStack;
         desc += "<<beginning of stack>>";
 #endif
 
@@ -136,13 +144,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Exception::_pushFunction( const String& strFuncName ) throw()
     {
-        msFunctionStack.push_front( strFuncName );
+        if( msStackDepth < OGRE_CALL_STACK_DEPTH )
+            strncpy( msFunctionStack[ msStackDepth++ ], strFuncName.c_str(), 255 );
     }
 
     //-----------------------------------------------------------------------
     void Exception::_popFunction() throw()
     {
-        msFunctionStack.pop_front();
+        msStackDepth--;
     }
 }
 

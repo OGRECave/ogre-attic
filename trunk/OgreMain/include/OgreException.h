@@ -69,6 +69,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #endif
 
+#define OGRE_CALL_STACK_DEPTH 512
+
 namespace Ogre {
     /** When thrown, provides information about an error that has occurred inside the engine.
         @remarks
@@ -92,7 +94,9 @@ namespace Ogre {
         String source;
         String file;
         static Exception* last;
-        static std::list<String> msFunctionStack;
+
+        static OgreChar msFunctionStack[ OGRE_CALL_STACK_DEPTH ][ 256 ];
+        static ushort   msStackDepth;
     public:
         /** Static definitions of error codes.
             @todo
