@@ -23,14 +23,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 #include "OgreStableHeaders.h"
-#include "OgreGuiElementCommands.h"
+#include "OgreOverlayElementCommands.h"
 #include "OgreOverlayElement.h"
 #include "OgreStringConverter.h"
 
 
 namespace Ogre {
 
-    namespace GuiElementCommands {
+    namespace OverlayElementCommands {
 
         //-----------------------------------------------------------------------
         String CmdLeft::doGet(const void* target) const

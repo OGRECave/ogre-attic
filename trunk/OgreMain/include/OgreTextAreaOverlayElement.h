@@ -26,13 +26,13 @@ http://www.gnu.org/copyleft/lesser.txt
 #ifndef _TextAreaOverlayElement_H__
 #define _TextAreaOverlayElement_H__
 
-#include "OgreGuiContainer.h"
+#include "OgreOverlayElement.h"
 
 namespace Ogre
 {
     /** OverlayElement representing a flat, single-material (or transparent) panel which can contain other elements.
     @remarks
-    This class subclasses GuiContainer because it can contain other elements. Like other
+    This class subclasses OverlayContainer because it can contain other elements. Like other
     containers, if hidden it's contents are also hidden, if moved it's contents also move etc. 
     The panel itself is a 2D rectangle which is either completely transparent, or is rendered 
     with a single material. The texture(s) on the panel can be tiled depending on your requirements.

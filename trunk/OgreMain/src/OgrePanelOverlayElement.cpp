@@ -43,7 +43,7 @@ namespace Ogre {
 
     //---------------------------------------------------------------------
     PanelOverlayElement::PanelOverlayElement(const String& name)
-        : GuiContainer(name)
+        : OverlayContainer(name)
     {
         mTransparent = false;
         // Init tiling
@@ -140,7 +140,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void PanelOverlayElement::setMaterialName(const String& matName)
     {
-        GuiContainer::setMaterialName(matName);
+        OverlayContainer::setMaterialName(matName);
         updateTextureGeometry();
     }
     //---------------------------------------------------------------------
@@ -303,7 +303,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void PanelOverlayElement::addBaseParameters(void)
     {
-        GuiContainer::addBaseParameters();
+        OverlayContainer::addBaseParameters();
         ParamDictionary* dict = getParamDictionary();
 
         dict->addParameter(ParameterDef("tiling", 

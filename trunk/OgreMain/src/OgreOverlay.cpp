@@ -27,7 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreOverlay.h"
 #include "OgreRoot.h"
 #include "OgreSceneManager.h"
-#include "OgreGuiContainer.h"
+#include "OgreOverlayContainer.h"
 #include "OgreCamera.h"
 #include "OgreOverlayManager.h"
 #include "OgreQuaternion.h"
@@ -71,7 +71,7 @@ namespace Ogre {
         mZOrder = zorder;
 
         // Notify attached 2D elements
-        GuiContainerList::iterator i, iend;
+        OverlayContainerList::iterator i, iend;
         iend = m2DElements.end();
         for (i = m2DElements.begin(); i != iend; ++i)
         {
@@ -100,7 +100,7 @@ namespace Ogre {
         mVisible = false;
     }
     //---------------------------------------------------------------------
-    void Overlay::add2D(GuiContainer* cont)
+    void Overlay::add2D(OverlayContainer* cont)
     {
         m2DElements.push_back(cont);
         // Notify parent
@@ -115,7 +115,7 @@ namespace Ogre {
         cont->_notifyViewport();
     }
     //---------------------------------------------------------------------
-    void Overlay::remove2D(GuiContainer* cont)
+    void Overlay::remove2D(OverlayContainer* cont)
     {
         m2DElements.remove(cont);
     }
@@ -155,10 +155,10 @@ namespace Ogre {
         return mScrollY;
     }
       //---------------------------------------------------------------------
-    GuiContainer* Overlay::getChild(const String& name)
+    OverlayContainer* Overlay::getChild(const String& name)
     {
 
-        GuiContainerList::iterator i, iend;
+        OverlayContainerList::iterator i, iend;
         iend = m2DElements.end();
         for (i = m2DElements.begin(); i != iend; ++i)
         {
@@ -233,7 +233,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void Overlay::_findVisibleObjects(Camera* cam, RenderQueue* queue)
     {
-        GuiContainerList::iterator i, iend;
+        OverlayContainerList::iterator i, iend;
 
         if (OverlayManager::getSingleton().hasViewportChanged())
         {
@@ -247,7 +247,7 @@ namespace Ogre {
         // update elements
         if (mTransformUpdated)
         {
-            GuiContainerList::iterator i, iend;
+            OverlayContainerList::iterator i, iend;
             Matrix4 xform;
 
             _getWorldTransforms(&xform);
@@ -323,7 +323,7 @@ namespace Ogre {
 	{
 		OverlayElement* ret = NULL;
 		int currZ = -1;
-        GuiContainerList::iterator i, iend;
+        OverlayContainerList::iterator i, iend;
         iend = m2DElements.end();
         for (i = m2DElements.begin(); i != iend; ++i)
         {

@@ -48,12 +48,12 @@ namespace Ogre {
         EventDispatcher mEventDispatcher;
 		Overlay* mCursorLevelOverlay;
         bool mCursorGuiInitialised;
-		GuiContainer* mCursorGuiRegistered;
+		OverlayContainer* mCursorGuiRegistered;
 		MouseMotionListener* mCursorListener;
         MouseMotionListenerList mMouseMotionListenerList;
 
         void parseNewElement( DataChunk& chunk, String& elemType, String& elemName, 
-            bool isContainer, Overlay* pOverlay, bool isTemplate, String templateName = String(""), GuiContainer* container = 0);
+            bool isContainer, Overlay* pOverlay, bool isTemplate, String templateName = String(""), OverlayContainer* container = 0);
         void parseAttrib( const String& line, Overlay* pOverlay);
         void parseElementAttrib( const String& line, Overlay* pOverlay, OverlayElement* pElement );
         void parseNewMesh(DataChunk& chunk, String& meshName, String& entityName, Overlay* pOverlay);
@@ -66,7 +66,7 @@ namespace Ogre {
 		StringVector mLoadedOverlays;
 
 	    bool parseChildren( DataChunk& chunk, const String& line,
-            Overlay* pOverlay, bool isTemplate, GuiContainer* parent = NULL);
+            Overlay* pOverlay, bool isTemplate, OverlayContainer* parent = NULL);
 
     public:
         OverlayManager();
@@ -105,16 +105,16 @@ namespace Ogre {
         void processEvent(InputEvent* e);
 
         /** register the default cursor GUI implementation with the manager */
-        void setDefaultCursorGui(GuiContainer* cursor, MouseMotionListener*);
+        void setDefaultCursorGui(OverlayContainer* cursor, MouseMotionListener*);
         /** register the cursor GUI implementation with the manager */
-        void setCursorGui(GuiContainer* cursor);
+        void setCursorGui(OverlayContainer* cursor);
         void addMouseMotionListener(MouseMotionListener* l);
         void removeMouseMotionListener(MouseMotionListener* l);
         Real getMouseX() { return mEventDispatcher.getMouseX(); }
         Real getMouseY() { return mEventDispatcher.getMouseY(); }
         void setDragDrop(bool dragDropOn) { mEventDispatcher.setDragDrop(dragDropOn); }
         /** returns the registered cursor GUI */
-		GuiContainer* getCursorGui();
+		OverlayContainer* getCursorGui();
 
 		/** create the high cursor level overlay and add the registered Cursor GUI implementation to it */
 		void createCursorOverlay();

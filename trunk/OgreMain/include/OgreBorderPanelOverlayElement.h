@@ -163,7 +163,7 @@ namespace Ogre {
         /** Gets the name of the material to use for the borders. */
         const String& getBorderMaterialName(void) const;
 
-        /** Overridden from GuiContainer */
+        /** Overridden from OverlayContainer */
         void _updateRenderQueue(RenderQueue* queue);
 
         /** Overridden from OverlayElement */

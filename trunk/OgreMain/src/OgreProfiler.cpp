@@ -44,7 +44,7 @@ Ogre-dependent is in the visualization/logging routines and the use of the Timer
 #include "OgreOverlay.h"
 #include "OgreGuiManager.h"
 #include "OgreOverlayElement.h"
-#include "OgreGuiContainer.h"
+#include "OgreOverlayContainer.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
@@ -766,9 +766,9 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    GuiContainer* Profiler::createContainer() {
+    OverlayContainer* Profiler::createContainer() {
 
-        GuiContainer* container = (GuiContainer*) GuiManager::getSingleton().createOverlayElement("BorderPanel", "profiler");
+        OverlayContainer* container = (OverlayContainer*) GuiManager::getSingleton().createOverlayElement("BorderPanel", "profiler");
         container->setMetricsMode(GMM_PIXELS);
         container->setMaterialName("Core/StatsBlockCenter");
         container->setHeight(mGuiHeight);

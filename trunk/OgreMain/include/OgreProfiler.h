@@ -242,7 +242,7 @@ namespace Ogre {
             void changeEnableState();
 
             /** An internal function to create the container which will hold our display elements*/
-            GuiContainer* createContainer();
+            OverlayContainer* createContainer();
 
             /** An internal function to create a text area */
             OverlayElement* createTextArea(const String& name, Real width, Real height, Real top, Real left, 
@@ -359,7 +359,7 @@ namespace Ogre {
             Overlay* mOverlay;
 
             /// The window that displays the profiler results
-            GuiContainer* mProfileGui;
+            OverlayContainer* mProfileGui;
 
             /// The height of each bar
             Real mBarHeight;

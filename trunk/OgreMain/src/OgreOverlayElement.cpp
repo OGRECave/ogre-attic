@@ -29,7 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGuiManager.h"
 #include "OgreMaterialManager.h"
 #include "OgreOverlay.h"
-#include "OgreGuiContainer.h"
+#include "OgreOverlayContainer.h"
 #include "OgreMouseEvent.h"
 #include "OgreEventMulticaster.h"
 #include "OgreEventListeners.h"
@@ -42,16 +42,16 @@ namespace Ogre {
 
     //---------------------------------------------------------------------
     // Define static members
-    GuiElementCommands::CmdLeft OverlayElement::msLeftCmd;
-    GuiElementCommands::CmdTop OverlayElement::msTopCmd;
-    GuiElementCommands::CmdWidth OverlayElement::msWidthCmd;
-    GuiElementCommands::CmdHeight OverlayElement::msHeightCmd;
-    GuiElementCommands::CmdMaterial OverlayElement::msMaterialCmd;
-    GuiElementCommands::CmdCaption OverlayElement::msCaptionCmd;
-    GuiElementCommands::CmdMetricsMode OverlayElement::msMetricsModeCmd;
-    GuiElementCommands::CmdHorizontalAlign OverlayElement::msHorizontalAlignCmd;
-    GuiElementCommands::CmdVerticalAlign OverlayElement::msVerticalAlignCmd;
-    GuiElementCommands::CmdVisible OverlayElement::msVisibleCmd;
+    OverlayElementCommands::CmdLeft OverlayElement::msLeftCmd;
+    OverlayElementCommands::CmdTop OverlayElement::msTopCmd;
+    OverlayElementCommands::CmdWidth OverlayElement::msWidthCmd;
+    OverlayElementCommands::CmdHeight OverlayElement::msHeightCmd;
+    OverlayElementCommands::CmdMaterial OverlayElement::msMaterialCmd;
+    OverlayElementCommands::CmdCaption OverlayElement::msCaptionCmd;
+    OverlayElementCommands::CmdMetricsMode OverlayElement::msMetricsModeCmd;
+    OverlayElementCommands::CmdHorizontalAlign OverlayElement::msHorizontalAlignCmd;
+    OverlayElementCommands::CmdVerticalAlign OverlayElement::msVerticalAlignCmd;
+    OverlayElementCommands::CmdVisible OverlayElement::msVisibleCmd;
     //---------------------------------------------------------------------
     OverlayElement::OverlayElement(const String& name)
         : MouseTarget(),
@@ -492,7 +492,7 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
-    void OverlayElement::_notifyParent(GuiContainer* parent, Overlay* overlay)
+    void OverlayElement::_notifyParent(OverlayContainer* parent, Overlay* overlay)
     {
         mParent = parent;
         mOverlay = overlay;
@@ -809,15 +809,15 @@ namespace Ogre {
 		return static_cast<MouseTarget*> (mParent);		// need to choose 1 parent of the EventTarget
 	}
     //-----------------------------------------------------------------------
-	GuiContainer* OverlayElement::getParent() 
+	OverlayContainer* OverlayElement::getParent() 
 	{ 
 		return mParent;		
 	}
 
-    void OverlayElement::copyFromTemplate(OverlayElement* templateGui)
+    void OverlayElement::copyFromTemplate(OverlayElement* templateOverlay)
 	{
-		templateGui->copyParametersTo(this);
-    mSourceTemplate = templateGui ;
+		templateOverlay->copyParametersTo(this);
+    mSourceTemplate = templateOverlay ;
 		return;
 	}
 

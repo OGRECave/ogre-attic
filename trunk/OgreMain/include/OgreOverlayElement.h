@@ -30,7 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreString.h"
 #include "OgreRenderable.h"
 #include "OgreStringInterface.h"
-#include "OgreGuiElementCommands.h"
+#include "OgreOverlayElementCommands.h"
 
 #include "OgreActionTarget.h"
 #include "OgreMouseTarget.h"
@@ -76,8 +76,8 @@ namespace Ogre {
     @remarks
     This class abstracts all the details of a 2D element which will appear in
     an overlay. In fact, not all OverlayElement instances can be directly added to an
-    Overlay, only those which are GuiContainer instances (a subclass of this class).
-    GuiContainer objects can contain any OverlayElement however. This is just to 
+    Overlay, only those which are OverlayContainer instances (a subclass of this class).
+    OverlayContainer objects can contain any OverlayElement however. This is just to 
     enforce some level of grouping on widgets.
     @par
     OverlayElements should be managed using GuiManager. This class is responsible for
@@ -99,16 +99,16 @@ namespace Ogre {
 
     protected:
         // Command object for setting / getting parameters
-        static GuiElementCommands::CmdLeft msLeftCmd;
-        static GuiElementCommands::CmdTop msTopCmd;
-        static GuiElementCommands::CmdWidth msWidthCmd;
-        static GuiElementCommands::CmdHeight msHeightCmd;
-        static GuiElementCommands::CmdMaterial msMaterialCmd;
-        static GuiElementCommands::CmdCaption msCaptionCmd;
-        static GuiElementCommands::CmdMetricsMode msMetricsModeCmd;
-        static GuiElementCommands::CmdHorizontalAlign msHorizontalAlignCmd;
-        static GuiElementCommands::CmdVerticalAlign msVerticalAlignCmd;
-        static GuiElementCommands::CmdVisible msVisibleCmd;
+        static OverlayElementCommands::CmdLeft msLeftCmd;
+        static OverlayElementCommands::CmdTop msTopCmd;
+        static OverlayElementCommands::CmdWidth msWidthCmd;
+        static OverlayElementCommands::CmdHeight msHeightCmd;
+        static OverlayElementCommands::CmdMaterial msMaterialCmd;
+        static OverlayElementCommands::CmdCaption msCaptionCmd;
+        static OverlayElementCommands::CmdMetricsMode msMetricsModeCmd;
+        static OverlayElementCommands::CmdHorizontalAlign msHorizontalAlignCmd;
+        static OverlayElementCommands::CmdVerticalAlign msVerticalAlignCmd;
+        static OverlayElementCommands::CmdVisible msVisibleCmd;
 
 
         String mName;
@@ -137,7 +137,7 @@ namespace Ogre {
         Real mPixelScaleY;
 
         // Parent pointer
-        GuiContainer* mParent;
+        OverlayContainer* mParent;
         // Overlay attached to
         Overlay* mOverlay;
 
@@ -296,7 +296,7 @@ namespace Ogre {
         virtual void _updateFromParent(void);
 
         /** Internal method for notifying the gui element of it's parent and ultimate overlay. */
-        virtual void _notifyParent(GuiContainer* parent, Overlay* overlay);
+        virtual void _notifyParent(OverlayContainer* parent, Overlay* overlay);
 
         /** Gets the 'left' position as derived from own left and that of parents. */
         virtual Real _getDerivedLeft(void);
@@ -444,8 +444,8 @@ namespace Ogre {
         /**
         * Returns the parent container.
         */
-        GuiContainer* getParent() ;
-        void _setParent(GuiContainer* parent) { mParent = parent; }
+        OverlayContainer* getParent() ;
+        void _setParent(OverlayContainer* parent) { mParent = parent; }
 
         /**
         * Returns the zOrder of the element
@@ -467,7 +467,7 @@ namespace Ogre {
             return ll;
         }
 
-        void copyFromTemplate(OverlayElement* templateGui);
+        void copyFromTemplate(OverlayElement* templateOverlay);
         virtual OverlayElement* clone(const String& instanceName);
 
         // Returns the SourceTemplate for this element
