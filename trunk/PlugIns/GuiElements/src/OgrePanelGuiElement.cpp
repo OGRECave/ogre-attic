@@ -25,11 +25,14 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "OgrePanelGuiElement.h"
 #include "OgreMaterial.h"
+#include "OgreStringConverter.h"
 
 
 namespace Ogre {
     //---------------------------------------------------------------------
     String PanelGuiElement::msTypeName = "Panel";
+    PanelGuiElement::CmdTiling PanelGuiElement::msCmdTiling;
+    PanelGuiElement::CmdTransparent PanelGuiElement::msCmdTransparent;
     //---------------------------------------------------------------------
     PanelGuiElement::PanelGuiElement(const String& name)
         : GuiContainer(name)
@@ -54,6 +57,11 @@ namespace Ogre {
         // No normals or colours
         mRenderOp.vertexOptions = RenderOperation::VO_TEXTURE_COORDS;
         mRenderOp.vertexStride = 0;
+
+        if (createParamDictionary("PanelGuiElement"))
+        {
+            addBaseParameters();
+        }
     }
     //---------------------------------------------------------------------
     PanelGuiElement::~PanelGuiElement()
@@ -79,6 +87,16 @@ namespace Ogre {
 
         updateTextureGeometry();
 
+    }
+    //---------------------------------------------------------------------
+    Real PanelGuiElement::getTileX(ushort layer)
+    {
+        return mTileX[layer];
+    }
+    //---------------------------------------------------------------------
+    Real PanelGuiElement::getTileY(ushort layer)
+    {
+        return mTileY[layer];
     }
     //---------------------------------------------------------------------
     void PanelGuiElement::setTransparent(bool isTransparent)
@@ -210,6 +228,58 @@ namespace Ogre {
             }
         }
     }
+    //-----------------------------------------------------------------------
+    void PanelGuiElement::addBaseParameters(void)
+    {
+        GuiElement::addBaseParameters();
+        ParamDictionary* dict = getParamDictionary();
+
+        dict->addParameter(ParameterDef("tiling", 
+            "The number of times to repeat the background texture."
+            , PT_STRING),
+            &msCmdTiling);
+
+        dict->addParameter(ParameterDef("transparent", 
+            "Sets whether the panel is transparent, i.e. invisible itself "
+            "but it's contents are still displayed."
+            , PT_BOOL),
+            &msCmdTransparent);
+    }
+    //-----------------------------------------------------------------------
+    // Command objects
+    //-----------------------------------------------------------------------
+    String PanelGuiElement::CmdTiling::doGet(void* target)
+    {
+        // NB only returns 1st layer tiling
+        String ret = "0 " + StringConverter::toString(
+            static_cast<PanelGuiElement*>(target)->getTileX() );
+        ret += " " + StringConverter::toString(
+            static_cast<PanelGuiElement*>(target)->getTileY() );
+        return ret;
+    }
+    void PanelGuiElement::CmdTiling::doSet(void* target, const String& val)
+    {
+        // 3 params: <layer> <x_tile> <y_tile>
+        // Param count is validated higher up
+        std::vector<String> vec = val.split();
+        ushort layer = (ushort)StringConverter::parseUnsignedInt(vec[0]);
+        Real x_tile = StringConverter::parseReal(vec[1]);
+        Real y_tile = StringConverter::parseReal(vec[2]);
+
+        static_cast<PanelGuiElement*>(target)->setTiling(x_tile, y_tile, layer);
+    }
+    //-----------------------------------------------------------------------
+    String PanelGuiElement::CmdTransparent::doGet(void* target)
+    {
+        return StringConverter::toString(
+            static_cast<PanelGuiElement*>(target)->isTransparent() );
+    }
+    void PanelGuiElement::CmdTransparent::doSet(void* target, const String& val)
+    {
+        static_cast<PanelGuiElement*>(target)->setTransparent(
+            StringConverter::parseBool(val));
+    }
+
 
 }
 

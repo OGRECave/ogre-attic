@@ -2,7 +2,9 @@ INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/PlugIns/GuiElements/include -I$(top
 
 noinst_PROGRAMS = Plugin_GuiElements.so
 
-Plugin_GuiElements_so_SOURCES = OgreGuiElements.cpp OgrePanelGuiElement.cpp
+Plugin_GuiElements_so_SOURCES = OgreBorderPanelGuiElement.cpp \
+				OgreGuiElements.cpp \
+				OgrePanelGuiElement.cpp
 
 Plugin_GuiElements_so_LDFLAGS = -shared
 

@@ -34,6 +34,13 @@ namespace Ogre {
 
 
     //---------------------------------------------------------------------
+    // Define static members
+    GuiElementCommands::CmdLeft GuiElement::msLeftCmd;
+    GuiElementCommands::CmdTop GuiElement::msTopCmd;
+    GuiElementCommands::CmdWidth GuiElement::msWidthCmd;
+    GuiElementCommands::CmdHeight GuiElement::msHeightCmd;
+    GuiElementCommands::CmdMaterial GuiElement::msMaterialCmd;
+    //---------------------------------------------------------------------
     GuiElement::GuiElement(const String& name)
         : mName(name)
     {
@@ -230,6 +237,34 @@ namespace Ogre {
         }
       
     }
+    //-----------------------------------------------------------------------
+    void GuiElement::addBaseParameters(void)    
+    {
+        ParamDictionary* dict = getParamDictionary();
+
+        dict->addParameter(ParameterDef("left", 
+            "The position of the left border of the gui element as a proportion of screen space."
+            , PT_REAL),
+            &msLeftCmd);
+        dict->addParameter(ParameterDef("top", 
+            "The position of the top border of the gui element as a proportion of screen space."
+            , PT_REAL),
+            &msTopCmd);
+        dict->addParameter(ParameterDef("width", 
+            "The width of the element as a proportion of screen space."
+            , PT_REAL),
+            &msWidthCmd);
+        dict->addParameter(ParameterDef("height", 
+            "The height of the element as a proportion of screen space."
+            , PT_REAL),
+            &msWidthCmd);
+        dict->addParameter(ParameterDef("material", 
+            "The name of the material to use."
+            , PT_REAL),
+            &msMaterialCmd);
+    }
+
+
 
 
 

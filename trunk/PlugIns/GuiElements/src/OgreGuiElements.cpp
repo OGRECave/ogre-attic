@@ -45,10 +45,10 @@ namespace Ogre {
         pPanelFactory = new PanelGuiElementFactory();
         GuiManager::getSingleton().addGuiElementFactory(pPanelFactory);
 
-        /*
         pBorderPanelFactory = new BorderPanelGuiElementFactory();
         GuiManager::getSingleton().addGuiElementFactory(pBorderPanelFactory);
 
+        /*
         pTextAreaFactory = new TextAreaGuiElementFactory();
         GuiManager::getSingleton().addGuiElementFactory(pTextAreaFactory);
         */
