@@ -148,7 +148,7 @@ namespace Ogre {
         while( pos != strFileName.length() - 1 )
             strExt += strFileName[++pos];
 
-        Codec * pCodec = Codec::getColl()[ strExt.toLowerCase() ];
+        Codec * pCodec = Codec::getCodec(strExt);
         if( !pCodec )
             Except(
             Exception::ERR_INVALIDPARAMS, 
@@ -191,7 +191,7 @@ namespace Ogre {
 
         String strType = type;
 
-        Codec * pCodec = Codec::getColl()[ strType.toLowerCase() ];
+        Codec * pCodec = Codec::getCodec(strType);
         if( !pCodec )
             Except(
             Exception::ERR_INVALIDPARAMS, 

@@ -139,6 +139,10 @@ namespace Ogre {
         */
         void getCustomAttribute(String name, void* pData);
 
+        /** Overridden - see RenderTarget.
+        */
+        void writeContentsToFile(const String& filename);
+
     protected:
         // Win32-specific data members
         bool mIsUsingDirectDraw;

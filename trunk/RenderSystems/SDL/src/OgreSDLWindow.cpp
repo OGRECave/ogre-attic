@@ -118,5 +118,9 @@ namespace Ogre {
     {
         //XXX FIXME
     }
+    void SDLWindow::writeContentsToFile(const String& filename)
+    {
+        // TODO
+    }
 }
 

@@ -32,13 +32,26 @@ namespace Ogre {
 
     /* set a 16-bit little-endian integer */
     #define SET_LE16(p, val) ((p)[0] = (val), (p)[1] = (val) >> 8)
-
+    //---------------------------------------------------------------------
     void TGACodec::code( const DataChunk& input, DataChunk* output, ... ) const
     {
         OgreGuard( "TGACodec::code" );
+        Except(Exception::UNIMPLEMENTED_FEATURE, "code to memory not implemented",
+            "TGACodec::code");
         OgreUnguard();
     }
+    //---------------------------------------------------------------------
+    void TGACodec::codeToFile( const DataChunk& input, 
+        const String& outFileName, Codec::CodecData* pData) const
+    {
+        OgreGuard( "TGACodec::codeToFile" );
 
+        Except(Exception::UNIMPLEMENTED_FEATURE, "code to file not implemented",
+            "TGACodec::code");
+
+        OgreUnguard();
+    }
+    //---------------------------------------------------------------------
     Codec::CodecData * TGACodec::decode( const DataChunk& input, DataChunk* output, ... ) const
     {
         OgreGuard( "TGACodec::decode" );

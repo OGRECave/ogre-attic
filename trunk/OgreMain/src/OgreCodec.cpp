@@ -23,9 +23,27 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 #include "OgreCodec.h"
+#include "OgreException.h"
+
 
 namespace Ogre {
 
     std::map< String, Codec * > Codec::ms_mapCodecs;
+
+
+    Codec* Codec::getCodec(const String& extension)
+    {
+        String lwrcase = extension;
+        CodecList::const_iterator i = ms_mapCodecs.find(lwrcase.toLowerCase());
+        if (i == ms_mapCodecs.end())
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, 
+                "Cannot find codec for extension " + extension,
+                "Codec::getCodec");
+        }
+
+        return i->second;
+
+    }
 
 }

@@ -10,6 +10,8 @@
 #include <d3d8.h>
 #include "OgreMemoryMacros.h"
 #include "dxutil.h"
+#include "OgreBitwise.h"
+#include "OgreImageCodec.h"
 
 namespace Ogre
 {
@@ -409,4 +411,139 @@ namespace Ogre
 	{
 		// TODO
 	}
+ 
+     void D3D8RenderWindow::writeContentsToFile(const String& filename)
+     {
+         HRESULT hr;
+         LPDIRECT3DSURFACE8 pSurf, pTempSurf;
+         D3DSURFACE_DESC desc;
+ 
+         // Get the back buffer
+         if (FAILED(hr = mpD3DDevice->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO,
+             &pSurf)))
+         {
+             Except(hr, "Cannot access back buffer!",
+                 "D3D8RenderWindow::writeContentsToFile");
+         }
+ 
+         if (FAILED(hr = pSurf->GetDesc(&desc)))
+         {
+             Except(hr, "Cannot get surface description.",
+                 "D3D8RenderWindow::writeContentsToFile");
+         }
+ 
+         // NB we can't lock the back buffer direct because it's no created that way
+         // and to do so hits performance, so copy to another surface
+         // Must be the same format as the source surface
+         hr = mpD3DDevice->CreateImageSurface(desc.Width, desc.Height, desc.Format, &pTempSurf);
+ 
+         // Copy
+         hr = mpD3DDevice->CopyRects(pSurf, 0, 0, pTempSurf, 0);
+ 
+ 
+         D3DLOCKED_RECT lockedRect;
+ 
+         
+         
+         if (FAILED(hr = pTempSurf->LockRect(&lockedRect, NULL, 
+             D3DLOCK_READONLY | D3DLOCK_NOSYSLOCK | D3DLOCK_NO_DIRTY_UPDATE)))
+         {
+             Except(hr, String("Cannot lock surface: ") + DXGetErrorDescription8( hr ),
+                 "D3D8RenderWindow::writeContentsToFile");
+         }
+ 
+ 
+         ImageCodec::ImageData imgData;
+         imgData.ulWidth = desc.Width;
+         imgData.ulHeight = desc.Height;
+         imgData.eFormat = Image::FMT_RGB;
+ 
+         // Allocate contiguous buffer (surfaces aren't necessarily contiguous)
+         uchar* pBuffer = new uchar[desc.Width * desc.Height * 3];
+ 
+         uint x, y;
+         uchar *pData, *pDest;
+ 
+         pData = (uchar*)lockedRect.pBits;
+         pDest = pBuffer;
+         for (y = 0; y < desc.Height; ++y)
+         {
+             uchar *pRow = pData;
+ 
+             for (x = 0; x < desc.Width; ++x)
+             {
+                 switch(desc.Format)
+                 {
+                 case D3DFMT_R5G6B5:
+                     WORD val;
+					 BYTE result;
+                     ushort srcMask;
+                     BYTE destMask;
+ 
+                     destMask = 0xFF;
+                     val = *((WORD*)pRow);
+					 pRow += 2;
+
+					 srcMask = 0xF800;
+                     Bitwise::convertBitPattern(&val, &srcMask, 16, &result, &destMask, 8);
+					 *pDest++ = result;
+                     srcMask = 0x07E0;
+                     Bitwise::convertBitPattern(&val, &srcMask, 16, &result, &destMask, 8);
+					 *pDest++ = result;
+                     srcMask = 0x1F;
+                     Bitwise::convertBitPattern(&val, &srcMask, 16, &result, &destMask, 8);
+					 *pDest++ = result;
+                     break;
+                 case D3DFMT_A8R8G8B8:
+                 case D3DFMT_X8R8G8B8:
+					 // Actual format is BRGA for some reason
+                     *pDest++ = pRow[2]; // R
+                     *pDest++ = pRow[1]; // G
+                     *pDest++ = pRow[0]; // B
+                     pRow += 4; // skip alpha / dummy
+                     break;
+				 case D3DFMT_R8G8B8:
+					 // Actual format is BRGA for some reason
+                     *pDest++ = pRow[2]; // R
+                     *pDest++ = pRow[1]; // G
+                     *pDest++ = pRow[0]; // B
+                     pRow += 3; 
+                     break;
+                 }
+ 
+                 
+             }
+             // increase by one line
+             pData += lockedRect.Pitch;
+ 
+         }
+ 
+ 
+         // Wrap buffer in a chunk
+         DataChunk chunk(pBuffer, desc.Width * desc.Height * 3);
+ 
+         // Get codec 
+         size_t pos = filename.find_last_of(".");
+         String extension;
+ 	    if( pos == String::npos )
+             Except(
+ 		    Exception::ERR_INVALIDPARAMS, 
+ 		    "Unable to determine image type for '" + filename + "' - invalid extension.",
+             "D3D8RenderWindow::writeContentsToFile" );
+ 
+         while( pos != filename.length() - 1 )
+             extension += filename[++pos];
+ 
+         // Get the codec
+         Codec * pCodec = Codec::getCodec(extension);
+ 
+         // Write out
+         pCodec->codeToFile(chunk, filename, &imgData);
+ 
+         delete [] pBuffer;
+ 
+         SAFE_RELEASE(pTempSurf);
+         SAFE_RELEASE(pSurf);
+ 
+     }
 }
