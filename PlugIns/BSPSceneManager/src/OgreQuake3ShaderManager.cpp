@@ -243,7 +243,7 @@ namespace Ogre {
         }
         else if (params[0] == "cull")
         {
-            if (params[1] == "diable" || params[1] == "none")
+            if (params[1] == "disable" || params[1] == "none")
             {
                 pShader->cullMode = MANUAL_CULL_NONE;
             }
