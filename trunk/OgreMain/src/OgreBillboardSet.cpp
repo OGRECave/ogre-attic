@@ -45,7 +45,7 @@ namespace Ogre {
         mAllDefaultSize( true ),
         mAutoExtendPool( true ),
         mFixedTextureCoords(true),
-        mAxesIgnoreLocal(false),
+        mWorldSpace(false),
         mVertexData(0),
         mIndexData(0),
         mCullIndividual( false ),
@@ -69,7 +69,7 @@ namespace Ogre {
         mAllDefaultSize( true ),
         mAutoExtendPool( true ),
         mFixedTextureCoords(true),
-        mAxesIgnoreLocal(false),
+        mWorldSpace(false),
         mVertexData(0),
         mIndexData(0),
         mCullIndividual( false ),
@@ -494,7 +494,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BillboardSet::getWorldTransforms( Matrix4* xform ) const
     {
-        *xform = _getParentNodeFullTransform(); 
+        if (mWorldSpace)
+        {
+            *xform = Matrix4::IDENTITY;
+        }
+        else
+        {
+            *xform = _getParentNodeFullTransform(); 
+        }
     }
     //-----------------------------------------------------------------------
     const Quaternion& BillboardSet::getWorldOrientation(void) const
@@ -776,7 +783,11 @@ namespace Ogre {
         // so orientation of camera (in world space) must be reverse-transformed 
         // into node space to generate the axes
 
-        Quaternion invTransform = mParentNode->_getDerivedOrientation().Inverse();
+        Quaternion invTransform;
+        if (!mWorldSpace)
+        {
+            mParentNode->_getDerivedOrientation().Inverse();
+        }
         Quaternion camQ;
 
         switch (mBillboardType)
@@ -784,7 +795,7 @@ namespace Ogre {
         case BBT_POINT:
             // Get camera world axes for X and Y (depth is irrelevant)
             camQ = cam->getDerivedOrientation();
-            if (!mAxesIgnoreLocal)
+            if (!mWorldSpace)
             {
                 // Convert into billboard local space
                 camQ = invTransform * camQ;
@@ -796,7 +807,7 @@ namespace Ogre {
             // Y-axis is common direction
             // X-axis is cross with camera direction 
             *pY = mCommonDirection;
-            if (!mAxesIgnoreLocal)
+            if (!mWorldSpace)
             {
                 // Convert into billboard local space
                 *pX = invTransform * cam->getDerivedDirection().crossProduct(*pY);
@@ -813,7 +824,7 @@ namespace Ogre {
             // X-axis is cross with camera direction 
             // Scale direction first
             *pY = (bb->mDirection * 0.01);
-            if (!mAxesIgnoreLocal)
+            if (!mWorldSpace)
             {
                 // Convert into billboard local space
                 *pX = invTransform * cam->getDerivedDirection().crossProduct(*pY);
