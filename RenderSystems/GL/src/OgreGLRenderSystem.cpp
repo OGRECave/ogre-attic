@@ -73,6 +73,8 @@ namespace Ogre {
         }
         mRenderTargets.clear();
 
+		if (mTextureManager)
+			delete mTextureManager;
         delete mGLSupport;
     }
 
