@@ -52,6 +52,7 @@ namespace OgreRefApp {
 
         Vector3 mGravity;
 
+        IntersectionSceneQuery* mIntersectionQuery;
 
     public:
         /** Creates an instance of the world, must have a pointer to SceneManager. */
@@ -69,10 +70,22 @@ namespace OgreRefApp {
         OgreRefApp::Plane* createPlane(const String& name, Real width, Real height, const Vector3& pos = Vector3::ZERO, 
             const Quaternion& orientation = Quaternion::IDENTITY);
 
+        /** Create a sphere object. */
+        OgreRefApp::Sphere* createSphere(const String& name, Real radius, const Vector3& pos = Vector3::ZERO, 
+            const Quaternion& orientation = Quaternion::IDENTITY);
+
         void clear(void);
 
         dWorld* getOdeWorld(void);
         dJointGroup* getOdeContactJointGroup(void);
+
+        /** Detects all the collisions in the world and acts on them.
+        @remarks
+            This method performs the appropriate queries to detect all the colliding objects
+            in the world, tells the objects about it and adds the appropriate physical simulation
+            constructs required to apply collision response when applyDynamics is called.
+        */
+        void applyCollision(void);
 
         /** Updates the world simulation. */
         void applyDynamics(Real timeElapsed);
