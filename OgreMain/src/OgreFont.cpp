@@ -28,6 +28,8 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreTextureManager.h"
 #include "OgreFontManager.h"
 #include "OgreSDDataChunk.h"
+#include "OgreLogManager.h"
+#include "OgreStringConverter.h"
 
 
 
@@ -206,13 +208,38 @@ namespace Ogre
 
         for( i = startGlyph, l = 0, m = 0, n = 0; i < endGlyph; i++ )
         {
+            FT_Error ftResult;
+
             FT_Int glyph_index = FT_Get_Char_Index( face, i );
-            FT_Load_Glyph( face, glyph_index, FT_LOAD_RENDER );
-            FT_Render_Glyph( face->glyph, ft_render_mode_normal );
+            // Load glyph
+            ftResult = FT_Load_Glyph( face, glyph_index, FT_LOAD_RENDER );
+            if (ftResult)
+            {
+                // problem loading this glyph, continue
+                LogManager::getSingleton().logMessage("Info: cannot load glyph " +
+                    StringConverter::toString(glyph_index) + " in font " + mName);
+                continue;
+            }
+            ftResult = FT_Render_Glyph( face->glyph, ft_render_mode_normal );
+            if (ftResult)
+            {
+                // problem rendering this glyph, continue
+                LogManager::getSingleton().logMessage("Info: cannot render glyph " +
+                    StringConverter::toString(glyph_index) + " in font " + mName);
+                continue;
+            }
 
             FT_Int advance = (face->glyph->advance.x >> 6 ) + ( face->glyph->metrics.horiBearingX >> 6 );
 
             unsigned char* buffer = face->glyph->bitmap.buffer;
+
+            if (!buffer)
+            {
+                // Yuck, FT didn't detect this but generated a null pointer!
+                LogManager::getSingleton().logMessage("Info: Freetype returned null for glyph " +
+                    StringConverter::toString(glyph_index) + " in font " + mName);
+                continue;
+            }
 
             int y_bearnig = ( max_bear >> 6 ) - ( face->glyph->metrics.horiBearingY >> 6 );
 
@@ -223,10 +250,30 @@ namespace Ogre
                 uchar* pDest = &imageData[(row * data_width) + l * 4];   
                 for( k = 0; k < face->glyph->bitmap.width; k++ )
                 {
-                    // Use the same greyscale pixel for all components RGBA
-                    *pDest++= *buffer;
-                    *pDest++= *buffer;
-                    *pDest++= *buffer;
+                    if (mAntialiasColour)
+                    {
+                        // Use the same greyscale pixel for all components RGBA
+                        *pDest++= *buffer;
+                        *pDest++= *buffer;
+                        *pDest++= *buffer;
+                    }
+                    else
+                    {
+                        // Clamp colour to full white or off
+                        if (*buffer > 0)
+                        {
+                            *pDest++= 0xFF;
+                            *pDest++= 0xFF;
+                            *pDest++= 0xFF;
+                        }
+                        else
+                        {
+                            *pDest++= 0;
+                            *pDest++= 0;
+                            *pDest++= 0;
+                        }
+                    }
+                    // Always use the greyscale value for alpha
                     *pDest++= *buffer++;
                 }
             }

@@ -193,6 +193,17 @@ namespace Ogre
             pFont->setTrueTypeResolution(
                 (uint)StringConverter::parseReal(params[1]) );
         }
+        else if (attrib == "antialias_colour")
+        {
+        	// Check params
+        	if (params.size() != 2)
+        	{
+                logBadAttrib(line, pFont);
+                return;
+        	}
+        	// Set
+            pFont->setAntialiasColour(StringConverter::parseBool(params[1]));
+        }
 
 
 
