@@ -26,15 +26,22 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgrePlatform.h"
 #include "OgreStdHeaders.h"
 
-#ifndef XMD_H
-#   define XMD_H
-#endif
-#ifdef FAR
-#   undef FAR
-#endif
 #if OGRE_COMPILER == COMPILER_MSVC
-#	define HAVE_BOOLEAN
+
+#	ifndef XMD_H
+#		define XMD_H
+#	endif
+
+#	ifndef HAVE_BOOLEAN
+#		define HAVE_BOOLEAN
+#	endif
+
+#	ifdef FAR
+#		undef FAR
+#	endif
+
 #endif
+
 extern "C" {
 #include "jpeglib.h"
 }
