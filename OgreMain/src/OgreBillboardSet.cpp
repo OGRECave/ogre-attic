@@ -34,8 +34,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <algorithm>
 
 namespace Ogre {
-    #define POS_COL_BINDING 0
-    #define TEXCOORD_BINDING 1
+    #define POSITION_BINDING 0
+    #define COLOUR_BINDING 1
+    #define TEXCOORD_BINDING 2
 
     String BillboardSet::msMovableType = "BillboardSet";
     //-----------------------------------------------------------------------
@@ -44,8 +45,6 @@ namespace Ogre {
         mAllDefaultSize( true ),
         mAutoExtendPool( true ),
         mVertexData(0),
-        //mpColours( 0 ),
-        //mpTexCoords( 0 ),
         mIndexData(0),
         mCullIndividual( false ),
         mBillboardType(BBT_POINT)
@@ -63,8 +62,6 @@ namespace Ogre {
         mAllDefaultSize( true ),
         mAutoExtendPool( true ),
         mVertexData(0),
-        //mpColours( 0 ),
-        //mpTexCoords( 0 ),
         mIndexData(0),
         mCullIndividual( false ),
         mBillboardType(BBT_POINT)
@@ -88,19 +85,6 @@ namespace Ogre {
             delete mVertexData;
         if(mIndexData)
             delete mIndexData;
-        /*
-        if (mpPositions)
-            delete [] mpPositions;
-        if (mpIndexes)
-            delete [] mpIndexes;
-            */
-        /*
-        if (mpTexCoords)
-            delete [] mpTexCoords;
-        if (mpColours)
-            delete [] mpColours;
-
-        */
     }
     //-----------------------------------------------------------------------
     Billboard* BillboardSet::createBillboard(
@@ -332,15 +316,20 @@ namespace Ogre {
         // Init num visible
         mNumVisibleBillboards = 0;
 
-        HardwareVertexBufferSharedPtr vbuf = 
-            mVertexData->vertexBufferBinding->getBuffer(POS_COL_BINDING);
+        HardwareVertexBufferSharedPtr vPosBuf = 
+            mVertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);
 
         Real* pV = static_cast<Real*>( 
-            vbuf->lock(0, vbuf->getSizeInBytes(),
+            vPosBuf->lock(0, vPosBuf->getSizeInBytes(),
+                HardwareBuffer::HBL_DISCARD) );
+
+        HardwareVertexBufferSharedPtr vColBuf = 
+            mVertexData->vertexBufferBinding->getBuffer(COLOUR_BINDING);
+
+        RGBA* pC = static_cast<RGBA*>( 
+            vColBuf->lock(0, vColBuf->getSizeInBytes(),
                 HardwareBuffer::HBL_DISCARD) );
         
-        RGBA* pC = 0;
-
         if( mAllDefaultSize ) // If they're all the same size
         {
             /* No per-billboard checking, just blast through.
@@ -403,7 +392,8 @@ namespace Ogre {
             }
         }
 
-        vbuf->unlock();
+        vColBuf->unlock();
+        vPosBuf->unlock();
 
         /*
         // Update bounding box limits
@@ -491,34 +481,13 @@ namespace Ogre {
         op.operationType = RenderOperation::OT_TRIANGLE_LIST;
         op.useIndexes = true;
 
-        /* TODO
-        rend.vertexOptions = LegacyRenderOperation::VO_DIFFUSE_COLOURS | LegacyRenderOperation::VO_TEXTURE_COORDS;
-
-        // Texture-related flags
-        rend.numTextureCoordSets     = 1;
-        rend.numTextureDimensions[0] = 2;
-        rend.pTexCoords[0]           = mpTexCoords;
-        */
-
-        /*
-        op.numVertices = mNumVisibleBillboards * 4;
-        */
         op.vertexData = mVertexData;
+        op.vertexData->vertexCount = mNumVisibleBillboards * 4;
+        op.vertexData->vertexCount = 0;
+
         op.indexData = mIndexData;
-        /*
-        op.indexData->indexCount  = mNumVisibleBillboards * 6;
-        op.indexData->indexStart  = 0;
-        */
-
-        /*
-        rend.pDiffuseColour = mpColours;
-
-        // Dedicated buffers for both components (simpler since types are different)
-        rend.diffuseStride     = 0;
-        rend.vertexStride      = 0;
-        rend.texCoordStride[0] = 0;
-
-        */
+        op.indexData->indexCount = mNumVisibleBillboards * 6;
+        op.indexData->indexStart = 0;
     }
 
     //-----------------------------------------------------------------------
@@ -581,20 +550,27 @@ namespace Ogre {
             VertexBufferBinding* binding = mVertexData->vertexBufferBinding;
 
             size_t offset = 0;
-            decl->addElement(POS_COL_BINDING, offset, VET_FLOAT3, VES_POSITION);
-            offset += VertexElement::getTypeSize(VET_FLOAT2);
-            decl->addElement(POS_COL_BINDING, offset, VET_COLOUR, VES_DIFFUSE);
-            //decl->addElement(TEXCOORD_BINDING, 0, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
+            decl->addElement(POSITION_BINDING, offset, VET_FLOAT3, VES_POSITION);
+            //offset += VertexElement::getTypeSize(VET_FLOAT2);
+            decl->addElement(COLOUR_BINDING, offset, VET_COLOUR, VES_DIFFUSE);
+            decl->addElement(TEXCOORD_BINDING, 0, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
 
             HardwareVertexBufferSharedPtr vbuf = 
                 HardwareBufferManager::getSingleton().createVertexBuffer(
-                    decl->getVertexSize(POS_COL_BINDING),
+                    decl->getVertexSize(POSITION_BINDING),
                     mVertexData->vertexCount, 
                     HardwareBuffer::HBU_STATIC_WRITE_ONLY);
             // bind position and diffuses
-            binding->setBinding(POS_COL_BINDING, vbuf);
+            binding->setBinding(POSITION_BINDING, vbuf);
 
-            /*
+            vbuf = 
+                HardwareBufferManager::getSingleton().createVertexBuffer(
+                    decl->getVertexSize(COLOUR_BINDING),
+                    mVertexData->vertexCount, 
+                    HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+            // bind position and diffuses
+            binding->setBinding(COLOUR_BINDING, vbuf);
+
             vbuf = 
                 HardwareBufferManager::getSingleton().createVertexBuffer(
                     decl->getVertexSize(TEXCOORD_BINDING),
@@ -602,7 +578,6 @@ namespace Ogre {
                     HardwareBuffer::HBU_STATIC_WRITE_ONLY);
             // bind position
             binding->setBinding(TEXCOORD_BINDING, vbuf);
-            */
 
             mIndexData->indexStart = 0;
             mIndexData->indexCount = size * 6;
@@ -636,22 +611,20 @@ namespace Ogre {
                   mIndexData->indexBuffer->getSizeInBytes(),
                   HardwareBuffer::HBL_DISCARD) );
 
-            /*
-            HardwareVertexBufferSharedPtr vbuf2 =
-                mVertexData->vertexBufferBinding->getBuffer(TEXCOORD_BINDING);
+            vbuf = mVertexData->vertexBufferBinding->getBuffer(TEXCOORD_BINDING);
 
-            Real* test = static_cast<Real*>(
-                vbuf2->lock(0, vbuf2->getSizeInBytes(), HardwareBuffer::HBL_DISCARD) );
-            */
+            Real* pT = static_cast<Real*>(
+                vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD) );
 
             for(
-                unsigned short idx, idxOff, bboard = 0;
+                unsigned short idx, idxOff, texOff, bboard = 0;
                 bboard < size;
                 ++bboard )
             {
                 // Do indexes
                 idx    = bboard * 6;
                 idxOff = bboard * 4;
+                texOff = bboard * 4 * 2;
 
                 pIdx[idx] = idxOff; // + 0;, for clarity
                 pIdx[idx+1] = idxOff + 1;
@@ -661,9 +634,17 @@ namespace Ogre {
                 pIdx[idx+5] = idxOff + 2;
 
                 // Do tex coords
-                //memcpy( mpTexCoords + (bboard * 4 * 2), texData, sizeof(Real) * 2 * 4 );
+                pT[texOff]   = texData[0];
+                pT[texOff+1] = texData[1];
+                pT[texOff+2] = texData[2];
+                pT[texOff+3] = texData[3];
+                pT[texOff+4] = texData[4];
+                pT[texOff+5] = texData[5];
+                pT[texOff+6] = texData[6];
+                pT[texOff+7] = texData[7];
             }
 
+            vbuf->unlock();
             mIndexData->indexBuffer->unlock();
         }
     }
@@ -860,34 +841,35 @@ namespace Ogre {
         return mCommonDirection;
     }
     //-----------------------------------------------------------------------
-    void BillboardSet::genVertices(Real **pPos, RGBA **pCol, const Vector3* offsets, const Billboard* pBillboard)
+    void BillboardSet::genVertices(Real **pPos, RGBA** pCol, const Vector3* offsets, const Billboard* pBillboard)
     {
-        // Update colours
-        RGBA colour;
-        Root::getSingleton().convertColourValue(pBillboard->mColour, &colour);
-
         // Positions
 
         // Left-top
         *(*pPos)++ = offsets[0].x + pBillboard->mPosition.x;
         *(*pPos)++ = offsets[0].y + pBillboard->mPosition.y;
         *(*pPos)++ = offsets[0].z + pBillboard->mPosition.z;
-        *(*pPos)++ = colour;
         // Right-top
         *(*pPos)++ = offsets[1].x + pBillboard->mPosition.x;
         *(*pPos)++ = offsets[1].y + pBillboard->mPosition.y;
         *(*pPos)++ = offsets[1].z + pBillboard->mPosition.z;
-        *(*pPos)++ = colour;
         // Left-bottom
         *(*pPos)++ = offsets[2].x + pBillboard->mPosition.x;
         *(*pPos)++ = offsets[2].y + pBillboard->mPosition.y;
         *(*pPos)++ = offsets[2].z + pBillboard->mPosition.z;
-        *(*pPos)++ = colour;
         // Right-bottom
         *(*pPos)++ = offsets[3].x + pBillboard->mPosition.x;
         *(*pPos)++ = offsets[3].y + pBillboard->mPosition.y;
         *(*pPos)++ = offsets[3].z + pBillboard->mPosition.z;
-        *(*pPos)++ = colour;
+
+        // Update colours
+        RGBA colour;
+        Root::getSingleton().convertColourValue(pBillboard->mColour, &colour);
+
+        *(*pCol)++ = colour;
+        *(*pCol)++ = colour;
+        *(*pCol)++ = colour;
+        *(*pCol)++ = colour;
 
     }
     //-----------------------------------------------------------------------

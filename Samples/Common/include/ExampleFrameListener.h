@@ -114,6 +114,8 @@ public:
         mStatsOn = true;
 		mNumScreenShots = 0;
 		mTimeUntilNextToggle = 0;
+
+        showDebugOverlay(true);
     }
     virtual ~ExampleFrameListener()
     {
@@ -276,7 +278,7 @@ public:
         Overlay* o = (Overlay*)OverlayManager::getSingleton().getByName("Core/DebugOverlay");
         if (!o)
             Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find overlay Core/DebugOverlay",
-                "Root::showDebugOverlay" );
+                "showDebugOverlay" );
         if (show)
         {
             o->show();
