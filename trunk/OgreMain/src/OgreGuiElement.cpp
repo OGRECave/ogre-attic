@@ -143,7 +143,14 @@ namespace Ogre {
     //---------------------------------------------------------------------
     Real GuiElement::getWidth(void) const
     {
-        return mWidth;
+        if (mMetricsMode == GMM_PIXELS)
+        {
+			return (Real)mPixelWidth;
+		}
+		else
+		{
+        	return mWidth;
+		}
     }
     //---------------------------------------------------------------------
     void GuiElement::setHeight(Real height)
@@ -161,7 +168,14 @@ namespace Ogre {
     //---------------------------------------------------------------------
     Real GuiElement::getHeight(void) const
     {
-        return mHeight;
+        if (mMetricsMode == GMM_PIXELS)
+        {
+			return (Real)mPixelHeight;
+		}
+		else
+		{
+			return mHeight;
+		}
     }
     //---------------------------------------------------------------------
     void GuiElement::setLeft(Real left)
@@ -180,7 +194,14 @@ namespace Ogre {
     //---------------------------------------------------------------------
     Real GuiElement::getLeft(void) const
     {
-        return mLeft;
+        if (mMetricsMode == GMM_PIXELS)
+        {
+			return (Real)mPixelLeft;
+		}
+		else
+		{
+        	return mLeft;
+		}
     }
     //---------------------------------------------------------------------
     void GuiElement::setTop(Real top)
@@ -200,7 +221,14 @@ namespace Ogre {
     //---------------------------------------------------------------------
     Real GuiElement::getTop(void) const
     {
-        return mTop;
+        if (mMetricsMode == GMM_PIXELS)
+        {
+			return (Real)mPixelTop;
+		}
+		else
+		{
+	        return mTop;
+		}
     }
     //---------------------------------------------------------------------
     const String& GuiElement::getMaterialName(void) const
