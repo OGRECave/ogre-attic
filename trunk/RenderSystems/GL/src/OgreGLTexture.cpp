@@ -90,13 +90,30 @@ namespace Ogre {
         {
             case PF_L8:
                 return GL_LUMINANCE;
+            case PF_L16:
+                return GL_LUMINANCE;
+#if OGRE_ENDIAN == ENDIAN_BIG
+            // Formats are in native endian, so R8G8B8 on little endian is
+            // BGR, on big endian it is RGB.
             case PF_R8G8B8:
                 return GL_RGB;
             case PF_B8G8R8:
                 return GL_BGR;
+#else
+            case PF_R8G8B8:
+                return GL_BGR;
+            case PF_B8G8R8:
+                return GL_RGB;
+#endif
+            case PF_A8R8G8B8:
+                return GL_BGRA;
+            case PF_A8B8G8R8:
+                return GL_RGBA;
             case PF_B8G8R8A8:
                 return GL_BGRA;
-            case PF_A8R8G8B8:
+            case PF_A2R10G10B10:
+                return GL_BGRA;
+            case PF_A2B10G10R10:
                 return GL_RGBA;
             case PF_FP_R16G16B16:
                 return GL_RGB;
@@ -124,9 +141,19 @@ namespace Ogre {
             case PF_L8:
             case PF_R8G8B8:
             case PF_B8G8R8:
-            case PF_B8G8R8A8:
-            case PF_A8R8G8B8:
                 return GL_UNSIGNED_BYTE;
+            case PF_L16:
+                return GL_UNSIGNED_SHORT;
+            case PF_A8B8G8R8:
+                return GL_UNSIGNED_INT_8_8_8_8_REV;
+            case PF_A8R8G8B8:
+                return GL_UNSIGNED_INT_8_8_8_8_REV;
+            case PF_B8G8R8A8:
+                return GL_UNSIGNED_INT_8_8_8_8;
+            case PF_A2R10G10B10:
+                return GL_UNSIGNED_INT_2_10_10_10_REV;
+            case PF_A2B10G10R10:
+                return GL_UNSIGNED_INT_2_10_10_10_REV;
             case PF_FP_R16G16B16:
             case PF_FP_R16G16B16A16:
                 return 0; // GL_HALF_FLOAT_ARB -- nyi
@@ -163,7 +190,7 @@ namespace Ogre {
             case PF_B8G8R8A8:
                 return GL_RGBA8;
             case PF_A2R10G10B10:
-            case PF_B10G10R10A2:
+            case PF_A2B10G10R10:
                 return GL_RGB10_A2;
             case PF_FP_R16G16B16:
                 return GL_RGB_FLOAT16_ATI;
@@ -177,6 +204,12 @@ namespace Ogre {
             case PF_FP_R32G32B32A32:
                 return GL_RGBA_FLOAT32_ATI;
                 //    return GL_RGBA32F_ARB;
+            case PF_DXT1:
+                return GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+            case PF_DXT3:
+                return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+            case PF_DXT5:
+                return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
             default:
                 return GL_RGBA8; // 0?
         }
@@ -282,7 +315,8 @@ namespace Ogre {
             const Image& img = images[i];
 
             StringUtil::StrStreamType str;
-            str << "GLTexture: Loading " << mName << " with "
+            str << "GLTexture: Loading " << mName 
+                << "(" << PixelUtil::getFormatName(img.getFormat()) << ") with "
                 << mNumMipMaps << " mipmaps from Image.";
             LogManager::getSingleton().logMessage( 
                 LML_NORMAL, str.str());
@@ -354,8 +388,9 @@ namespace Ogre {
                 Image img;
                 img.load(mName, mGroup);
 
-                if (StringUtil::endsWith(getName(), "dds") && img.hasFlag(IF_CUBEMAP))
+                if (img.hasFlag(IF_CUBEMAP))
                 {
+                    // Split cubemap into six different images
                     Image newImage;
                     std::vector<Image> images;
                     uint imageSize = img.getSize() / 6;
@@ -378,8 +413,8 @@ namespace Ogre {
                 }
                 else
                 {
-                    // If this is a dds volumetric texture set the texture type flag accordingly.
-                    if(StringUtil::endsWith(getName(), ".dds") && img.getDepth() > 1)
+                    // If this is a volumetric texture set the texture type flag accordingly.
+                    if(img.getDepth() > 1)
                         mTextureType = TEX_TYPE_3D;
 
                     loadImage( img );
@@ -477,7 +512,7 @@ namespace Ogre {
                         mTextureType == TEX_TYPE_CUBE_MAP ?
                             GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceNumber :
                             getGLTextureTarget(), 0,
-                         getGLTextureOriginFormat(), mSrcWidth, mSrcHeight, 0, 
+                         getGLTextureInternalFormat(), mSrcWidth, mSrcHeight, 0, 
                          size, data);
                 }
                 else
