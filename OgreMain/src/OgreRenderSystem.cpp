@@ -364,5 +364,16 @@ namespace Ogre {
     {
         setClipPlane (index, p.normal.x, p.normal.y, p.normal.z, p.d);
     }
+    //-----------------------------------------------------------------------
+    void RenderSystem::_notifyCameraRemoved(const Camera* cam)
+    {
+        RenderTargetMap::iterator i, iend;
+        iend = mRenderTargets.end();
+        for (i = mRenderTargets.begin(); i != iend; ++i)
+        {
+            RenderTarget* target = i->second;
+            target->_notifyCameraRemoved(cam);
+        }
+    }
 }
 

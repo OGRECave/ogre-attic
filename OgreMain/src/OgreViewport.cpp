@@ -173,8 +173,11 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void Viewport::update(void)
     {
-        // Tell Camera to render into me
-        mCamera->_renderScene(this, mShowOverlays);
+        if (mCamera)
+        {
+            // Tell Camera to render into me
+            mCamera->_renderScene(this, mShowOverlays);
+        }
     }
     //---------------------------------------------------------------------
     void Viewport::setBackgroundColour(const ColourValue& colour)

@@ -390,7 +390,7 @@ namespace Ogre {
             (*i)->postViewportUpdate(evt);
         }
     }
-
+    //-----------------------------------------------------------------------
     String RenderTarget::writeContentsToTimestampedFile(const String& filenamePrefix, const String& filenameSuffix)
     {
         struct tm *pTime;
@@ -408,5 +408,20 @@ namespace Ogre {
         writeContentsToFile(filename);
         return filename;
 
+    }
+    //-----------------------------------------------------------------------
+    void RenderTarget::_notifyCameraRemoved(const Camera* cam)
+    {
+        ViewportList::iterator i, iend;
+        iend = mViewportList.end();
+        for (i = mViewportList.begin(); i != iend; ++i)
+        {
+            Viewport* v = i->second;
+            if (v->getCamera() == cam)
+            {
+                // disable camera link
+                v->setCamera(0);
+            }
+        }
     }
 }        

@@ -603,7 +603,10 @@ namespace Ogre {
         */
         virtual void removeAllEntities(void);
 
-        /** Empties the entire scene, inluding all SceneNodes, Cameras, Entities and Lights etc.
+        /** Empties the entire scene, inluding all SceneNodes, Entities, Lights, 
+            BillboardSets etc. Cameras are not deleted at this stage since
+            they are still referenced by viewports, which are not destroyed during
+            this process.
         */
         virtual void clearScene(void);
 
@@ -1026,6 +1029,17 @@ namespace Ogre {
                 scene. If you are unsure, use clearScene.
         */
         virtual void removeBillboardSet(const String& name);
+
+        /** Removes & destroys all BillboardSets.
+        @warning
+        Again, use caution since no BillboardSet must be referred to
+        elsewhere e.g. attached to a SceneNode otherwise a crash
+        is likely. Use clearScene if you are unsure (it clears SceneNode
+        entries too.)
+        @see
+        SceneManager::clearScene
+        */
+        virtual void removeAllBillboardSets(void);
 
         /** Tells the SceneManager whether it should render the SceneNodes which 
             make up the scene as well as the objects in the scene.

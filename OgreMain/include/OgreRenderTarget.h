@@ -274,6 +274,10 @@ namespace Ogre {
 
 		/** Gets the number of triangles rendered in the last update() call. */
 		virtual size_t getTriangleCount(void) const;
+        /** Utility method to notify a render target that a camera has been removed, 
+        incase it was referring to it as a viewer. 
+        */
+        virtual void _notifyCameraRemoved(const Camera* cam);
 
     protected:
         /// The name of this target.

@@ -151,8 +151,8 @@ unsigned long OctreeSceneManager::mColors[ 8 ] = {white, white, white, white, wh
 
 OctreeSceneManager::OctreeSceneManager( ) : SceneManager()
 {
-    AxisAlignedBox b( -500, -500, -500, 500, 500, 500 );
-    int depth = 5; 
+    AxisAlignedBox b( -10000, -10000, -10000, 10000, 10000, 10000 );
+    int depth = 8; 
     mOctree = 0;
     init( b, depth );
 }
@@ -179,6 +179,7 @@ void OctreeSceneManager::init( AxisAlignedBox &box, int depth )
     mOctree = new Octree( 0 );
 
     mMaxDepth = depth;
+    mBox = box;
 
     mOctree -> mBox = box;
 
@@ -777,4 +778,12 @@ bool OctreeSceneManager::getOption( const String & key, void *val )
     return SceneManager::getOption( key, val );
 
 }
+
+void OctreeSceneManager::clearScene(void)
+{
+    SceneManager::clearScene();
+    init(mBox, mMaxDepth);
+
+}
+
 }
