@@ -152,7 +152,7 @@ namespace Ogre {
             mWidth, mHeight, 0, 
             mHasAlpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, 0 );
 
-		// This needs to be set otherwise the texture doesn't get rendered
+        // This needs to be set otherwise the texture doesn't get rendered
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mNumMipMaps );
     }
 
@@ -189,26 +189,25 @@ namespace Ogre {
             mHasAlpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data );
     }
 
-	void SDLRenderTexture::_copyToTexture(void)
-	{
+    void SDLRenderTexture::_copyToTexture(void)
+    {
         if(getNumViewports() != 1)
-		{
-		   LogManager::getSingleton().logMessage(LML_NORMAL, 
-			   "SDLRenderTexture: Invalid number of viewports set %d.  Must onlyy be one", getNumViewports());
-		   return;
-		}
+        {
+            LogManager::getSingleton().logMessage(LML_NORMAL, "SDLRenderTexture: Invalid number of viewports set %d.  Must onlyy be one", getNumViewports());
+            return;
+        }
 
-		Viewport* vp = getViewport(0);
+        Viewport* vp = getViewport(0);
 
-		vp->getCamera()->_renderScene(vp, false);
+        vp->getCamera()->_renderScene(vp, false);
 		
-        glBindTexture(GL_TEXTURE_2D, //12);
-			static_cast<SDLTexture*>(mTexture)->getGLID());
+        glBindTexture(GL_TEXTURE_2D,
+            static_cast<SDLTexture*>(mTexture)->getGLID());
 
-        glCopyTexImage2D(GL_TEXTURE_2D, mTexture->getNumMipMaps(), 
-			mTexture->hasAlpha() ? GL_RGBA : GL_RGB, vp->getActualLeft(), 
-			vp->getActualTop(), vp->getActualWidth(), vp->getActualHeight(), 0);
+        glCopyTexSubImage2D(GL_TEXTURE_2D, mTexture->getNumMipMaps(), 0, 0,
+            vp->getActualLeft(), vp->getActualTop(), vp->getActualWidth(), 
+            vp->getActualHeight());
 
-	}
+    }
 }
 
