@@ -274,17 +274,9 @@ namespace Ogre {
 
 		if (isTemplate)
 		{
-			if (params[0] != "template")
+			if (params[0] == "template")
 			{
-				LogManager::getSingleton().logMessage( 
-					"Bad GuiElement line: '"
-					+ line + "' in " + (pOverlay?pOverlay->getName():"template") + 
-					", template children should be explicitly defined as templates");
-					// not deadly serious error, so don't barf 
-			}
-			else
-			{
-				skipParam++;		// = 1 when the first param = 'template'
+				skipParam++;		// the first param = 'template' on a new child element
 			}
 		}
 						
