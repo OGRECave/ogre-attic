@@ -193,10 +193,18 @@ namespace Ogre {
             mCapabilities->setCapability(RSC_CUBEMAPPING);
         }
         
+        // Check for hardware stencil support
         if(getStencilBufferBitDepth())
         {
-            LogManager::getSingleton().logMessage("- Hardware Stencil Buffer\n");
+            LogManager::getSingleton().logMessage("- Hardware Stencil Buffer");
             mCapabilities->setCapability(RSC_HWSTENCIL);
+        }
+
+        // Check for VBO support
+        if(mGLSupport->checkExtension("GL_ARB_vertex_buffer_object"))
+        {
+            LogManager::getSingleton().logMessage("- Vertex Buffer Object\n");
+            mCapabilities->setCapability(RSC_VBO);
         }
 
         _setCullingMode( mCullingMode );

@@ -42,6 +42,7 @@ namespace Ogre {
         RSC_DOT3         = 0x00000010,
         RSC_CUBEMAPPING  = 0x00000020,
         RSC_HWSTENCIL    = 0x00000040,
+        RSC_VBO          = 0x00000080,
     };
 
     /** singleton class for storing the capabilities of the graphics card. 
