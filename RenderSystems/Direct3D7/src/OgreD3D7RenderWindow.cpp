@@ -213,7 +213,6 @@ namespace Ogre {
         // TODO: deal with child windows
         mParentHWnd = parentHWnd;
 
-#pragma warn( "Why doesn't it show the OGRE icon?" )
 
         // Register the window class
         // NB Allow 4 bytes of window data for Win32Window pointer
