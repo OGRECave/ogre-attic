@@ -483,6 +483,17 @@ namespace Ogre
 			colourDepth = videoMode->getColourDepth();
 
 			autoWindow = this->createRenderWindow( windowTitle, width, height, colourDepth, fullScreen );
+
+            // If we have 16bit depth buffer enable w-buffering.
+            assert( autoWindow );
+            if ( autoWindow->getColourDepth() == 16 ) 
+            { 
+                mWBuffer = true;
+            } 
+            else 
+            {
+                mWBuffer = false;
+            }
 		}
 
         LogManager::getSingleton().logMessage("***************************************");
@@ -492,7 +503,6 @@ namespace Ogre
 
 		// call superclass method
 		RenderSystem::initialise( autoCreateWindow );
-
 
 
 		return autoWindow;
@@ -1494,8 +1504,8 @@ namespace Ogre
 
 		if( enabled )
 		{
-			// Use w-buffer if abialable
-			if( mCaps.RasterCaps & D3DPRASTERCAPS_WBUFFER )
+			// Use w-buffer if available and enabled
+			if( mWBuffer && mCaps.RasterCaps & D3DPRASTERCAPS_WBUFFER )
 				hr = __SetRenderState( D3DRS_ZENABLE, D3DZB_USEW );
 			else
 				hr = __SetRenderState( D3DRS_ZENABLE, D3DZB_TRUE );

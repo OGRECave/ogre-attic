@@ -219,7 +219,20 @@ namespace Ogre
                 normals will not be displayed. If false, no lighting is applied and all geometry will be full brightness.
         */
         virtual void setLightingEnabled(bool enabled) = 0;
-        /** Creates a new rendering window.
+
+        /** Sets whether or not W-buffers are enabled if they are avalible for this renderer.
+			@param
+				enabled If true and the renderer supports them W-buffers will be used.  If false 
+				W-buffers will not be used even if avalible.  W-buffers are enabled by default 
+				for 16bit depth buffers and disabled for all other depths.
+        */
+		void setWBufferEnabled(bool enabled);
+
+		/** Returns true if the renderer will try to use W-buffers when avalible.
+		*/
+		bool getWBufferEnabled(void) const;
+
+		/** Creates a new rendering window.
             @remarks
                 This method creates a new rendering window as specified
                 by the paramteters. The rendering system could be
@@ -835,6 +848,7 @@ namespace Ogre
         CullingMode mCullingMode;
 
         bool mVSync;
+		bool mWBuffer;
 
         size_t mFaceCount;
         size_t mVertexCount;

@@ -416,7 +416,16 @@ namespace Ogre {
             // Create myself a window
             autoWindow = this->createRenderWindow(windowTitle, width, height, colourDepth, fullScreen);
 
-
+            // If we have 16bit depth buffer enable w-buffering.
+            assert( autoWindow );
+            if ( autoWindow->getColourDepth() == 16 ) 
+            { 
+                mWBuffer = true;
+            } 
+            else 
+            {
+                mWBuffer = false;
+            }
 
         }
 
@@ -441,7 +450,7 @@ namespace Ogre {
         // call superclass method
         RenderSystem::initialise(autoCreateWindow);
 
-        // Create buffer manager
+		// Create buffer manager
         mHardwareBufferManager = new D3D7HardwareBufferManager();
         // Create dummy gpu manager
         mGpuProgramManager = new D3D7GpuProgramManager();
@@ -1678,8 +1687,8 @@ namespace Ogre {
 
         if (enabled)
         {
-            // Use w-buffer if available
-            if (mD3DDeviceDesc.dpcTriCaps.dwRasterCaps & D3DPRASTERCAPS_WBUFFER)
+            // Use w-buffer if available and enabled
+            if (mWBuffer && mD3DDeviceDesc.dpcTriCaps.dwRasterCaps & D3DPRASTERCAPS_WBUFFER)
                 hr = __SetRenderState(D3DRENDERSTATE_ZENABLE, D3DZB_USEW);
             else
                 hr = __SetRenderState(D3DRENDERSTATE_ZENABLE, D3DZB_TRUE);
