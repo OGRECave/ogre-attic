@@ -1,21 +1,58 @@
+/*
+-----------------------------------------------------------------------------
+This source file is part of OGRE
+(Object-oriented Graphics Rendering Engine)
+For the latest info, see http://www.stevestreeting.com/ogre/
+
+Copyright © 2000-2002 Steven J. Streeting
+Also see acknowledgements in Readme.html
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation; either version 2 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+Place - Suite 330, Boston, MA 02111-1307, USA, or go to
+http://www.gnu.org/copyleft/gpl.html.
+-----------------------------------------------------------------------------
+*/
 #include "OgreSimpleRenderable.h"
 
 #include "OgreMaterialManager.h"
 
 namespace Ogre {
 
-    int SimpleRenderable::msGenNameCount = 0;
-    String SimpleRenderable::msMovableType = "SimpleRenderable";
+    uint SimpleRenderable::ms_uGenNameCount = 0;
 
-    // These are to quickly set the RO's properties
-    RenderOperation& SimpleRenderable::getRO()
+    SimpleRenderable::SimpleRenderable()
     {
-        return mRO;
-    }
+        m_matWorldTransform = Matrix4::IDENTITY;
 
-    const RenderOperation& SimpleRenderable::getRO() const
-    {
-        return mRO;
+        m_strMatName = "BaseWhite"; 
+        m_pMaterial = reinterpret_cast< Material* >( MaterialManager::getSingleton().getByName( "BaseWhite" ) );
+
+        m_pVertexCache = NULL;
+        m_pIndexCache = NULL;
+        m_pNormalCache = NULL;
+        m_pDiffuseCache = NULL;
+        m_pSpecularCache = NULL;
+
+        for( int i=0; i<OGRE_MAX_TEXTURE_COORD_SETS; i++ )
+            m_pTexCache[i] = NULL;
+
+        m_pParentSceneManager = NULL;
+
+        mParentNode = NULL;
+        m_pCamera = NULL;
+
+        // Generate name
+        m_strName << _T("SimpleRenderable") << ms_uGenNameCount ++;
     }
 
     Real **SimpleRenderable::getVertexCache()
@@ -43,7 +80,7 @@ namespace Ogre {
         return &m_pSpecularCache;
     }
 
-    Real **SimpleRenderable::getTexCoordCcache( unsigned short cn )
+    Real **SimpleRenderable::getTexCoordCache( unsigned short cn )
     {
         assert( cn < OGRE_MAX_TEXTURE_COORD_SETS );
 
@@ -67,22 +104,27 @@ namespace Ogre {
 
     void SimpleRenderable::setRenderOperation( const RenderOperation& rend )
     {
-        mRO = rend;
+        mRendOp = rend;
+    }
+
+    RenderOperation& SimpleRenderable::getRenderOperation()
+    {
+        return mRendOp;
     }
 
     void SimpleRenderable::getRenderOperation( RenderOperation& rend )
     {
-        rend = mRO;
+        rend = mRendOp;
     }
 
     void SimpleRenderable::setWorldTransform( const Matrix4& xform )
     {
-        mWorldTransform = xform;
+        m_matWorldTransform = xform;
     }
 
     void SimpleRenderable::getWorldTransforms( Matrix4* xform )
     {
-        *xform = mParentNode->_getFullTransform();
+        *xform = m_matWorldTransform * mParentNode->_getFullTransform();
     }
 
     SceneNode* SimpleRenderable::getParentNode(void)
@@ -97,17 +139,17 @@ namespace Ogre {
 
     void SimpleRenderable::_notifyCurrentCamera(Camera* cam)
     {
-        m_pCamera = NULL;
+        m_pCamera = cam;
     }
 
-    AxisAlignedBox& SimpleRenderable::getABB()
+    void SimpleRenderable::setBoundingBox( const AxisAlignedBox& box )
     {
-        return mAAB;
+        mBox = box;
     }
 
     const AxisAlignedBox& SimpleRenderable::getBoundingBox(void) const
     {
-        return mAAB;
+        return mBox;
     }
 
     void SimpleRenderable::_updateRenderQueue(RenderQueue* queue)
@@ -137,14 +179,14 @@ namespace Ogre {
             delete[] m_pSpecularCache;
     }
     //-----------------------------------------------------------------------
-    String SimpleRenderable::getName(void)
+    const String& SimpleRenderable::getName(void) const
     {
-        return mName;
+        return m_strName;
     }
     //-----------------------------------------------------------------------
-    String SimpleRenderable::getMovableType(void)
+    const String SimpleRenderable::getMovableType(void) const
     {
-        return msMovableType;
+        return "SimpleRenderable";
     }
 
 }
