@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreException.h"
 #include "OgreArchiveManager.h"
 #include "OgreLogManager.h"
+#include "OgreScriptLoader.h"
 
 namespace Ogre {
 
@@ -130,7 +131,7 @@ namespace Ogre {
 			{
 				(*l)->load();
 				// fire event
-				fireResourceLoad(*l);
+				fireResourceLoaded(*l);
 			}
 		}
 		fireResourceGroupLoadEnded(name);
@@ -449,8 +450,6 @@ namespace Ogre {
 		LogManager::getSingleton().logMessage(
 			"Registering ResourceManager for type " + resourceType);
 		mResourceManagerMap[resourceType] = rm;
-		mResourceManagerOrderMap.insert(
-			ResourceManagerOrderMap::value_type(rm->getLoadingOrder(), rm));
     }
     //-----------------------------------------------------------------------
     void ResourceGroupManager::_unregisterResourceManager(
@@ -463,24 +462,33 @@ namespace Ogre {
 		if (i != mResourceManagerMap.end())
 		{
 			mResourceManagerMap.erase(i);
-			// Erase entry from order map too (deal with >1 manager with same order)
-			Real order = i->second->getLoadingOrder();
-			ResourceManagerOrderMap::iterator oi = mResourceManagerOrderMap.find(order);
-			while (oi != mResourceManagerOrderMap.end() && oi->first == order)
-			{
-				if (oi->second == i->second)
-				{
-					// erase does not invalidate on multimap, except current
-					ResourceManagerOrderMap::iterator del = oi++;
-					mResourceManagerOrderMap.erase(del);
-				}
-				else
-				{
-					++oi;
-				}
-			}
 		}
     }
+	//-----------------------------------------------------------------------
+    void ResourceGroupManager::_registerScriptLoader(ScriptLoader* su)
+	{
+		mScriptLoaderOrderMap.insert(
+			ScriptLoaderOrderMap::value_type(su->getLoadingOrder(), su));
+	}
+	//-----------------------------------------------------------------------
+    void ResourceGroupManager::_unregisterScriptLoader(ScriptLoader* su)
+	{
+		Real order = su->getLoadingOrder();
+		ScriptLoaderOrderMap::iterator oi = mScriptLoaderOrderMap.find(order);
+		while (oi != mScriptLoaderOrderMap.end() && oi->first == order)
+		{
+			if (oi->second == su)
+			{
+				// erase does not invalidate on multimap, except current
+				ScriptLoaderOrderMap::iterator del = oi++;
+				mScriptLoaderOrderMap.erase(del);
+			}
+			else
+			{
+				++oi;
+			}
+		}
+	}
 	//-----------------------------------------------------------------------
 	void ResourceGroupManager::parseResourceGroupScripts(const String& name)
 	{
@@ -500,22 +508,19 @@ namespace Ogre {
 		// Count up the number of scripts we have to parse
 		std::list<DataStreamListPtr> streamListList;
 		size_t scriptCount = 0;
-		// Iterate over resource managers in loading order and get streams
-		ResourceManagerOrderMap::iterator oi;
-		for (oi = mResourceManagerOrderMap.begin();
-			oi != mResourceManagerOrderMap.end(); ++oi)
+		// Iterate over script users in loading order and get streams
+		ScriptLoaderOrderMap::iterator oi;
+		for (oi = mScriptLoaderOrderMap.begin();
+			oi != mScriptLoaderOrderMap.end(); ++oi)
 		{
-			ResourceManager* mgr = oi->second;
-			if (mgr->isScriptingSupported())
+			ScriptLoader* su = oi->second;
+			// Get all the patterns and search them
+			const StringVector& patterns = su->getScriptPatterns();
+			for (StringVector::const_iterator p = patterns.begin(); p != patterns.end(); ++p)
 			{
-				// Get all the patterns and search them
-				const StringVector& patterns = mgr->getScriptPatterns();
-				for (StringVector::const_iterator p = patterns.begin(); p != patterns.end(); ++p)
-				{
-					DataStreamListPtr streamList = _findResources(*p, name);
-					scriptCount += streamList->size();
-					streamListList.push_back(streamList);
-				}
+				DataStreamListPtr streamList = _findResources(*p, name);
+				scriptCount += streamList->size();
+				streamListList.push_back(streamList);
 			}
 		}
 		// Fire scripting event
@@ -523,16 +528,16 @@ namespace Ogre {
 
 		// Iterate over scripts and parse
 		// Note we respect original ordering
-		oi = mResourceManagerOrderMap.begin();
+		oi = mScriptLoaderOrderMap.begin();
 		for (std::list<DataStreamListPtr>::iterator i = streamListList.begin();
 			i != streamListList.end(); ++i, ++oi)
 		{
-			ResourceManager* mgr = oi->second;
+			ScriptLoader* su = oi->second;
 			// Iterate over each item in the list
 			for (DataStreamList::iterator si = (*i)->begin(); si != (*i)->end(); ++si)
 			{
-				mgr->parseScript(*si, name);
-				fireResourceScript((*si)->getName());
+				su->parseScript(*si, name);
+				fireScriptParsed((*si)->getName());
 			}
 		}
 
@@ -746,12 +751,12 @@ namespace Ogre {
 		}
 	}
 	//-----------------------------------------------------------------------
-	void ResourceGroupManager::fireResourceScript(const String& scriptName)
+	void ResourceGroupManager::fireScriptParsed(const String& scriptName)
 	{
 		for (ResourceGroupListenerList::iterator l = mResourceGroupListenerList.begin();
 			l != mResourceGroupListenerList.end(); ++l)
 		{
-			(*l)->resourceScript(scriptName);
+			(*l)->scriptParsed(scriptName);
 		}
 	}
 	//-----------------------------------------------------------------------
@@ -773,12 +778,12 @@ namespace Ogre {
 		}
 	}
 	//-----------------------------------------------------------------------
-	void ResourceGroupManager::fireResourceLoad(const ResourcePtr& resource)
+	void ResourceGroupManager::fireResourceLoaded(const ResourcePtr& resource)
 	{
 		for (ResourceGroupListenerList::iterator l = mResourceGroupListenerList.begin();
 			l != mResourceGroupListenerList.end(); ++l)
 		{
-			(*l)->resourceLoad(resource);
+			(*l)->resourceLoaded(resource);
 		}
 	}
 	//-----------------------------------------------------------------------

@@ -33,6 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreCommon.h"
 #include "OgreDataStream.h"
 #include "OgreStringVector.h"
+#include "OgreScriptLoader.h"
 
 namespace Ogre {
 
@@ -58,7 +59,7 @@ namespace Ogre {
 		but they can only be removed (and thus eventually destroyed) using
 		their parent ResourceManager.
     */
-    class _OgreExport ResourceManager
+	class _OgreExport ResourceManager : public ScriptLoader
     {
     public:
         ResourceManager();
@@ -201,19 +202,8 @@ namespace Ogre {
 			A list of file patterns, in the order they should be searched in.
 		@see isScriptingSupported, parseScript
 		*/
-		virtual const StringVector& getScriptPatterns(void) { return mScriptPatterns; }
+		virtual const StringVector& getScriptPatterns(void) const { return mScriptPatterns; }
 
-		/** Can this ResourceManager read resource definitions from scripts?
-		@remarks
-			Some resource managers can read script files in order to define
-			resources ahead of time. These resources are added to the available
-			list inside the manager, but none are loaded initially. This allows
-			you to load the items that are used on demand, or to load them all 
-			as a group if you wish (through ResourceGroupManager).
-		@see getScriptPatterns, parseScript
-		*/
-		virtual bool isScriptingSupported(void) { return mScriptingSupported; }
-		
 		/** Parse the definition of a set of resources from a script file.
 		@remarks
 			Some resource managers can read script files in order to define
@@ -291,8 +281,6 @@ namespace Ogre {
 
 		/// Patterns to use to look for scripts if supported (e.g. *.overlay)
 		StringVector mScriptPatterns; 
-		/// Whether scripting is supported
-		bool mScriptingSupported; 
 		/// Loading order relative to other managers, higher is later
 		Real mLoadOrder; 
 		/// String identifying the resource type this manager handles

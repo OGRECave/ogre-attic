@@ -62,7 +62,7 @@ namespace Ogre {
 		/** This event is fired when a script has been fully parsed.
 		@param scriptName Name of the script being parsed
 		*/
-		virtual void resourceScript(const String& scriptName) = 0;
+		virtual void scriptParsed(const String& scriptName) = 0;
 		/** This event is fired when a resource group finished parsing scripts. */
 		virtual void resourceGroupScriptingEnded(const String& groupName) = 0;
 
@@ -74,7 +74,7 @@ namespace Ogre {
 		/** This event is fired when a resource is finished loading. 
 		@param resource Weak reference to the resource loaded.
 		*/
-		virtual void resourceLoad(const ResourcePtr& resource) = 0;
+		virtual void resourceLoaded(const ResourcePtr& resource) = 0;
 		/** This event is fired when a resource group finished loading. */
 		virtual void resourceGroupLoadEnded(const String& groupName) = 0;
 
@@ -148,9 +148,9 @@ namespace Ogre {
 		typedef std::map<String, ResourceManager*> ResourceManagerMap;
         ResourceManagerMap mResourceManagerMap;
 
-		/// Map of resource loading order (Real) to ResourceManagers, used to order general tasks e.g. script parsing
-		typedef std::multimap<Real, ResourceManager*> ResourceManagerOrderMap;
-		ResourceManagerOrderMap mResourceManagerOrderMap;
+		/// Map of loading order (Real) to ScriptLoader, used to order script parsing
+		typedef std::multimap<Real, ScriptLoader*> ScriptLoaderOrderMap;
+		ScriptLoaderOrderMap mScriptLoaderOrderMap;
 
 		typedef std::vector<ResourceGroupListener*> ResourceGroupListenerList;
         ResourceGroupListenerList mResourceGroupListenerList;
@@ -221,13 +221,13 @@ namespace Ogre {
 		/// Internal event firing method
 		void fireResourceGroupScriptingStarted(const String& groupName, size_t scriptCount);
 		/// Internal event firing method
-		void fireResourceScript(const String& scriptName);
+		void fireScriptParsed(const String& scriptName);
 		/// Internal event firing method
 		void fireResourceGroupScriptingEnded(const String& groupName);
 		/// Internal event firing method
 		void fireResourceGroupLoadStarted(const String& groupName, size_t resourceCount);
 		/// Internal event firing method
-		void fireResourceLoad(const ResourcePtr& resource);
+		void fireResourceLoaded(const ResourcePtr& resource);
 		/// Internal event firing method
 		void fireResourceGroupLoadEnded(const String& groupName);
 
@@ -460,15 +460,33 @@ namespace Ogre {
         /** Internal method for registering a ResourceManager (which should be
             a singleton). Creators of plugins can register new ResourceManagers
             this way if they wish.
+		@remarks
+			ResourceManagers that wish to parse scripts must also call 
+			_registerScriptLoader.
         @param resourceType String identifying the resource type, must be unique.
         @param rm Pointer to the ResourceManager instance.
         */
         void _registerResourceManager(const String& resourceType, ResourceManager* rm);
 
         /** Internal method for unregistering a ResourceManager.
+		@remarks
+			ResourceManagers that wish to parse scripts must also call 
+			_unregisterScriptLoader.
         @param resourceType String identifying the resource type.
         */
         void _unregisterResourceManager(const String& resourceType);
+
+
+        /** Internal method for registering a ScriptLoader.
+		@remarks ScriptLoaders parse scripts when resource groups are initialised.
+        @param su Pointer to the ScriptLoader instance.
+        */
+        void _registerScriptLoader(ScriptLoader* su);
+
+        /** Internal method for unregistering a ScriptLoader.
+        @param su Pointer to the ScriptLoader instance.
+        */
+        void _unregisterScriptLoader(ScriptLoader* su);
 
 		/** Internal method for getting a registered ResourceManager.
 		@param resourceType String identifying the resource type.

@@ -283,6 +283,7 @@ namespace Ogre {
     class SceneQueryListener;
 	class ScrollEvent;
 	class ScrollListener;
+	class ScriptLoader;
 	class ScrollTarget;
     class Serializer;
     class ShadowCaster;
