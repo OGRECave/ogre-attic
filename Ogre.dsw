@@ -684,6 +684,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "MaterialUpgrader"=.\Tools\MaterialUpgrader\scripts\MaterialUpgrader.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "MeshUpgrader"=.\Tools\MeshUpgrader\scripts\MeshUpgrader.dsp - Package Owner=<4>
 
 Package=<5>
