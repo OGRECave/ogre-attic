@@ -84,11 +84,13 @@ ticked the "Empty Project" tick box.
 Now right click on the project in the solution explorer and change the
 following properties:<br>
 </p>
-<pre><table cellspacing="2" cellpadding="1" border="0"><tbody><tr><td>Debug - Working Directory</td><td>=</td><td>..\Common\Bin\Debug</td></tr><tr><td>C/C++ - Preprocessor Defines</td><td>=</td><td>_WINDOWS,_STLP_USE_DYNAMIC_LIB,OGRE_LIBRARY_IMPORTS,_DEBUG,WIN32</td></tr><tr><td>C/C++ - Additional Include Directories</td><td>=</td><td>..\Common\Include ..\..\OgreMain\include<br></td></tr><tr><td>Linker - Output File</td><td>=</td><td>..\Common\Bin\Debug\APPNAME.EXE</td></tr><tr><td>Linker - Additional Library Directories</td><td>=</td><td>..\..\OgreMain\Lib\Debug</td></tr><tr><td>Linker - Additional Dependencies</td><td>=</td><td>OGREMain.LIB</td></tr></tbody></table><br></pre>
+<pre><table cellspacing="2" cellpadding="1" border="0"><tbody><tr><td>Debug - Working Directory</td><td>=</td><td>..\Common\Bin\Debug</td></tr><tr><td>C/C++ - Preprocessor Defines</td><td>=</td><td>_WINDOWS,_STLP_USE_DYNAMIC_LIB,OGRE_LIBRARY_IMPORTS,_DEBUG,WIN32,_STLP_DEBUG<br></td></tr><tr><td>C/C++ - Additional Include Directories</td><td>=</td><td>..\Common\Include ..\..\OgreMain\include<br></td></tr><tr><td>Linker - Output File</td><td>=</td><td>..\Common\Bin\Debug\APPNAME.EXE</td></tr><tr><td>Linker - Additional Library Directories</td><td>=</td><td>..\..\OgreMain\Lib\Debug</td></tr><tr><td>Linker - Additional Dependencies</td><td>=</td><td>OGREMain.LIB</td></tr></tbody></table><br></pre>
 <br>
 <b>NB:</b> Check that your application is set to use the '<i>Multithreaded
 [Debug] Dll</i>' runtime library (under the code generation options in
 the C++ section).
+<p align="left">In release mode you should change 'Debug' to 'Release',
+and remove the preprocessor defines '_DEBUG' and '_STLP_DEBUG'.</p>
 <p align="left">Copy Samples\Skyplane\Src\SkyPlane.CPP and
 Samples\Skyplane\Include\SkyPlane.H into the directory with your
 project. Right click on the project in the solution explorer and select
@@ -126,7 +128,7 @@ here (legend is T=Tab, C="Category"):<br>
 	<tr>
 		<td>(T) C/C++ - (C) Preprocessor - Preprocessor Definitions</td>
 		<td>=</td>
-		<td>_WINDOWS,_STLP_USE_DYNAMIC_LIB,OGRE_LIBRARY_IMPORTS,_DEBUG,WIN32</td>
+		<td>_WINDOWS,_STLP_USE_DYNAMIC_LIB,OGRE_LIBRARY_IMPORTS,_DEBUG,WIN32,_STLP_DEBUG</td>
 	</tr>
 <tr>
 		<td>(T) C/C++ - (C) Preprocessor - Additional Include Directories</td>
@@ -150,7 +152,14 @@ here (legend is T=Tab, C="Category"):<br>
 		<td>OGREMain.LIB (add to whatever is there)</td>
 	</tr>
 </tbody></table><br></pre>
-<p align="left">
+<p align="left"><b>NB:</b> Check that your application is set to use
+the '<i>Multithreaded
+[Debug] Dll</i>' runtime library (under the code generation options in
+the C++ section).
+<br>
+</p>
+<p align="left">In release mode you should change 'Debug' to 'Release',
+and remove the preprocessor defines '_DEBUG' and '_STLP_DEBUG'.</p>
 Copy Samples\Skyplane\Src\SkyPlane.CPP and
 Samples\Skyplane\Include\SkyPlane.H into the directory with your
 project.
@@ -158,9 +167,9 @@ Select "Project" from the menu then select "Add To Project" and
 finally "Files...". Highlight the two files you just copied, click
 OK and rebuild your solution. Now run it in debug mode. Everything
 should
-work. </p>
-<p align="left">
-Now remove those two files from your project and delete them from your
+work.
+<p align="left">Now remove those two files from your project and delete
+them from your
 projects directory. </p>
 <p align="left">
 The last step that we need to take in setting up the project is to
