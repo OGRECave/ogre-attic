@@ -1,4 +1,7 @@
-#pragma once
+
+#ifndef _LWPOLYGON_H_
+#define _LWPOLYGON_H_
+
 #include "lwo.h"
 
 class lwPolygon {
@@ -38,3 +41,6 @@ public:
 	Vector3       normal;
 	vvertices     vertices;            /* array of vertex records */
 };
+
+#endif // _LWPOLYGON_H_
+

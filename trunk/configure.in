@@ -202,6 +202,9 @@ AC_CONFIG_FILES([Makefile \
     Tools/XMLConverter/Makefile \
     Tools/XMLConverter/src/Makefile \
     Tools/XMLConverter/include/Makefile \
+    Tools/LightwaveConverter/Makefile \
+    Tools/LightwaveConverter/src/Makefile \
+    Tools/LightwaveConverter/include/Makefile \
     OGRE.pc
     ])
 

@@ -1,5 +1,10 @@
-#pragma once
+
+#ifndef _LWENVELOPE_H_
+#define _LWENVELOPE_H_
+
 #include "lwo.h"
+
+#include <iostream>
 
 class lwKey
 {
@@ -65,3 +70,6 @@ public:
 };
 
 typedef vector<lwEnvelope*> venvelopes;
+
+#endif // _LWENVELOPE_H_
+

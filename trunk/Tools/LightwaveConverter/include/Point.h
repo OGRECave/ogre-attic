@@ -1,4 +1,7 @@
-#pragma once
+
+#ifndef _POINT_H_
+#define _POINT_H_
+
 #include "lwo.h"
 #include "Vector3.h"
 
@@ -87,3 +90,6 @@ class Point3 {
 
 		float x, y, z;
 };
+
+#endif // _POINT_H_
+

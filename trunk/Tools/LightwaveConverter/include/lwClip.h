@@ -1,4 +1,6 @@
-#pragma once
+
+#ifndef _LWCLIP_H_
+#define _LWCLIP_H_
 
 class lwClipStill
 {
@@ -153,4 +155,6 @@ public:
 };
 
 typedef vector<lwClip*> vclips;
+
+#endif // _LWCLIP_H_
 

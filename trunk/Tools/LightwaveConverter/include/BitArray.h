@@ -1,4 +1,6 @@
-#pragma once
+
+#ifndef _BITARRAY_H_
+#define _BITARRAY_H_
 
 class BitArray
 {
@@ -114,3 +116,6 @@ public:
 		return arraysize;
 	}
 };
+
+#endif // _BITARRAY_H_
+

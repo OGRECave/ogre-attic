@@ -1,0 +1,40 @@
+
+$Id: readme.linux,v 1.1 2004-10-23 22:24:25 josullivan Exp $
+
+Linux changes
+=============
+"#pragma once" is deprecated, using GCC 3.x, so I've changed all occurances
+of those with "#ifndef _HEADER_H_ ... #endif"
+
+GNU libc does not have _splitpath() and _makepath() functions, so I've written
+some dirty hacks in lwo2mesh.cpp which use a bizarre combination of C and C++.
+
+I've changed Lwo2MeshWriter::makeLayerFileName() and
+Lwo2MeshWriter::makeMaterialFileName() to use _makepath and _splitpath.
+
+Bugs fixed
+----------
+From lwReader.cpp:
+
+        /* skip unread parts of the current subchunk */
+        
+        if ( rlen < sz )
+-           is->seekg(sz - rlen, SEEK_CUR );
++           is->seekg(sz - rlen, ios_base::cur );
+        
+        /* end of the ENVL chunk? */
+
+From lwReader.cpp:
+
+            break;
+ 
+        case ID_GLOS:
+-           surf->glossiness.val = ( float ) log( getU2()) / 20.7944f;
++           surf->glossiness.val = (float) log( (double)getU2() ) / 20.7944f;
+            break;
+ 
+        case ID_SMAN:
+
+
+/Magnus
+

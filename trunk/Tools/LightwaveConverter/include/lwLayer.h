@@ -1,4 +1,7 @@
-#pragma once
+
+#ifndef _LWLAYER_H_
+#define _LWLAYER_H_
+
 #include "lwo.h"
 #include "lwPolygon.h"
 
@@ -45,3 +48,6 @@ public:
 };
 
 typedef vector<lwLayer*> vlayers;
+
+#endif // _LWLAYER_H_
+

@@ -1,4 +1,7 @@
-#pragma once
+
+#ifndef _VECTOR3_H_
+#define _VECTOR3_H_
+
 #include "math.h"
 
 class Vector3
@@ -212,3 +215,6 @@ public:
 	static const Vector3 UNIT_Z;
 	static const Vector3 UNIT_SCALE;
 };
+
+#endif // _VECTOR3_H_
+

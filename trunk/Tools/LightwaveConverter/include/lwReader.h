@@ -1,4 +1,7 @@
-#pragma once
+
+#ifndef _LWREADER_H_
+#define _LWREADER_H_
+
 #include "lwo.h"
 #include "lwObject.h"
 #include <istream>
@@ -66,3 +69,6 @@ private:
 	unsigned long swappedLong(unsigned long w);
 	void revbytes( void *bp, int elsize, int elcount );
 };
+
+#endif // _LWREADER_H_
+

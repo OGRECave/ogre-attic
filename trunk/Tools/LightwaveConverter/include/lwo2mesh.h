@@ -2,12 +2,35 @@
 	Lwo2MeshWriter based on the MilkShape exporter
 	Dennis Verbeek (dennis.verbeek@chello.nl)
 
+	Linux port by Magnus Møller Petersen (magnus@moaner.dk]
+
 	doExportSkeleton is unfinished
 */
 
-#pragma once
+#ifndef _LWO2MESH_H_
+#define _LWO2MESH_H_
+
 #include "lwObject.h"
 #include "Ogre.h"
+
+#if OGRE_PLATFORM == PLATFORM_LINUX
+
+/* GNU libc has no equivalent to _splitpath() and _makepath(), so we'll write my
+ * own using a combination of string functions and dirname() / basname().
+ */
+
+// I've pulled the following values from the top of my head.
+#define _MAX_DRIVE 256
+#define _MAX_FNAME 256
+#define _MAX_DIR   256
+#define _MAX_EXT   256
+
+// Function prototypes.
+void _splitpath( const char *_fn, char *_drive, char *_dir, char *_node, char *_ext );
+void _makepath( char *_fn, const char *_drive, const char *_dir, const char *_node,
+		const char *_ext );
+
+#endif
 
 using namespace Ogre;
 
@@ -77,3 +100,6 @@ private:
 	unsigned int *numLayerSurfaceVertices;
 	unsigned int *numSurfaceVertices;
 };
+
+#endif // _LWO2MESH_H_
+
