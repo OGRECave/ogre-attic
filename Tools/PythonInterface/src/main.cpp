@@ -42,5 +42,16 @@ BOOST_PYTHON_MODULE(Ogre)
     exportFrameListener();
     exportAxisAlignedBox();
     exportSphere();
-	exportNode();
+    exportNode();
+    exportInputEvent();
+    exportKeyEvent();
+    exportKeyListener();
+    exportEventTarget();
+    exportPositionTarget();
+    exportPlatformManager();
+    exportConfigDialog();
+    exportErrorDialog();
+    exportInput();
+    exportEventQueue();
+    exportMouseMotionListener();
 }
