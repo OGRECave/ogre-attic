@@ -95,7 +95,6 @@ public:
 
     bool processUnbufferedKeyInput(const FrameEvent& evt)
     {
-
         if (mInputDevice->isKeyDown(KC_A))
         {
             // Move camera left
@@ -230,6 +229,11 @@ public:
     // Override frameStarted event to process that (don't care about frameEnded)
     bool frameStarted(const FrameEvent& evt)
     {
+
+        if (!mInputTypeSwitchingOn)
+    	{
+            mInputDevice->capture();
+        }
 
 
 		if ( !mUseBufferedInputMouse || !mUseBufferedInputKeys)
