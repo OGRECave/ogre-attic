@@ -143,10 +143,6 @@ void GLHardwarePixelBuffer::upload(PixelBox &data)
 		GLenum format = GLPixelUtil::getClosestGLInternalFormat(mFormat);
 		// Data must be consecutive and at beginning of buffer as PixelStorei not allowed
 		// for compressed formate
-		if(data.getWidth() != data.rowPitch)
-			glPixelStorei(GL_UNPACK_ROW_LENGTH, data.rowPitch);
-		if(data.getHeight()*data.getWidth() != data.slicePitch)
-			glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, (data.slicePitch/data.getWidth()));
 		switch(mTarget) {
 			case GL_TEXTURE_1D:
 				glCompressedTexSubImage1DARB_ptr(GL_TEXTURE_1D, mLevel, 
@@ -177,13 +173,17 @@ void GLHardwarePixelBuffer::upload(PixelBox &data)
 					data.data);
 				break;
 		}
-		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-		glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, 0);
+		
 	} 
 	else if(mSoftwareMipmap)
 	{
 		GLint internalFormat;
 		glGetTexLevelParameteriv(mTarget, mLevel, GL_TEXTURE_INTERNAL_FORMAT, &internalFormat);
+		if(data.getWidth() != data.rowPitch)
+			glPixelStorei(GL_UNPACK_ROW_LENGTH, data.rowPitch);
+		if(data.getHeight()*data.getWidth() != data.slicePitch)
+			glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, (data.slicePitch/data.getWidth()));
+		
 		switch(mTarget)
 		{
 		case GL_TEXTURE_1D:
@@ -219,6 +219,8 @@ void GLHardwarePixelBuffer::upload(PixelBox &data)
 				data.data);
 			break;
 		}
+		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+		glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, 0);
 	} 
 	else
 	{
@@ -231,28 +233,28 @@ void GLHardwarePixelBuffer::upload(PixelBox &data)
 				glTexSubImage1D(GL_TEXTURE_1D, mLevel, 
 					data.left,
 					data.getWidth(),
-					GLPixelUtil::getGLOriginFormat(mFormat), GLPixelUtil::getGLOriginDataType(mFormat),
+					GLPixelUtil::getGLOriginFormat(data.format), GLPixelUtil::getGLOriginDataType(data.format),
 					data.data);
 				break;
 			case GL_TEXTURE_2D:
 				glTexSubImage2D(GL_TEXTURE_2D, mLevel, 
 					data.left, data.top, 
 					data.getWidth(), data.getHeight(),
-					GLPixelUtil::getGLOriginFormat(mFormat), GLPixelUtil::getGLOriginDataType(mFormat),
+					GLPixelUtil::getGLOriginFormat(data.format), GLPixelUtil::getGLOriginDataType(data.format),
 					data.data);
 				break;
 			case GL_TEXTURE_3D:
 				glTexSubImage3DEXT(GL_TEXTURE_3D, mLevel, 
 					data.left, data.top, data.front,
 					data.getWidth(), data.getHeight(), data.getDepth(),
-					GLPixelUtil::getGLOriginFormat(mFormat), GLPixelUtil::getGLOriginDataType(mFormat),
+					GLPixelUtil::getGLOriginFormat(data.format), GLPixelUtil::getGLOriginDataType(data.format),
 					data.data);
 				break;
 			case GL_TEXTURE_CUBE_MAP:
 				glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + mFace, mLevel, 
 					data.left, data.top, 
 					data.getWidth(), data.getHeight(),
-					GLPixelUtil::getGLOriginFormat(mFormat), GLPixelUtil::getGLOriginDataType(mFormat),
+					GLPixelUtil::getGLOriginFormat(data.format), GLPixelUtil::getGLOriginDataType(data.format),
 					data.data);
 				break;
 		}
