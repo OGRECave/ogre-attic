@@ -254,7 +254,7 @@ namespace Ogre {
     {
         // Check size if pixel-based
         if (mMetricsMode == GMM_PIXELS &&
-            (mDerivedOutOfDate || OverlayManager::getSingleton().hasViewportChanged()))
+            (OverlayManager::getSingleton().hasViewportChanged() || mGeomPositionsOutOfDate))
         {
             // Derive parametric version of dimensions
             Real vpWidth, vpHeight;
