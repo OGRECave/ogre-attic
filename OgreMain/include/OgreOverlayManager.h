@@ -25,33 +25,19 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef __OverlayManager_H__
 #define __OverlayManager_H__
 
-#include <set>
 #include "OgrePrerequisites.h"
-#include "OgreEventDispatcher.h"
-#include "OgreEventListeners.h"
-#include "OgreEventTarget.h"
 #include "OgreResourceManager.h"
 #include "OgreSingleton.h"
 #include "OgreStringVector.h"
-#include "OgreEventDispatcher.h"
-#include "OgreTargetManager.h"
 
 namespace Ogre {
 
     /** Manages Overlay objects, parsing them from .overlay files and
         storing a lookup library of them.
     */
-    class _OgreExport OverlayManager : public ResourceManager, public Singleton<OverlayManager>, public TargetManager, public EventTarget
+    class _OgreExport OverlayManager : public ResourceManager, public Singleton<OverlayManager>
     {
     protected:
-        typedef std::list<MouseMotionListener*> MouseMotionListenerList;
-        EventDispatcher mEventDispatcher;
-		Overlay* mCursorLevelOverlay;
-        bool mCursorGuiInitialised;
-		OverlayContainer* mCursorGuiRegistered;
-		MouseMotionListener* mCursorListener;
-        MouseMotionListenerList mMouseMotionListenerList;
-
         void parseNewElement( DataChunk& chunk, String& elemType, String& elemName, 
             bool isContainer, Overlay* pOverlay, bool isTemplate, String templateName = String(""), OverlayContainer* container = 0);
         void parseAttrib( const String& line, Overlay* pOverlay);
@@ -99,25 +85,6 @@ namespace Ogre {
         int getViewportWidth(void) const;
         Real getViewportAspectRatio(void) const;
 
-        /** This returns a PositionTarget at position x,y. */
-        PositionTarget* getPositionTargetAt(Real x, Real y);
-
-        void processEvent(InputEvent* e);
-
-        /** register the default cursor GUI implementation with the manager */
-        void setDefaultCursorGui(OverlayContainer* cursor, MouseMotionListener*);
-        /** register the cursor GUI implementation with the manager */
-        void setCursorGui(OverlayContainer* cursor);
-        void addMouseMotionListener(MouseMotionListener* l);
-        void removeMouseMotionListener(MouseMotionListener* l);
-        Real getMouseX() { return mEventDispatcher.getMouseX(); }
-        Real getMouseY() { return mEventDispatcher.getMouseY(); }
-        void setDragDrop(bool dragDropOn) { mEventDispatcher.setDragDrop(dragDropOn); }
-        /** returns the registered cursor GUI */
-		OverlayContainer* getCursorGui();
-
-		/** create the high cursor level overlay and add the registered Cursor GUI implementation to it */
-		void createCursorOverlay();
         /** Override standard Singleton retrieval.
         @remarks
         Why do we do this? Well, it's because the Singleton

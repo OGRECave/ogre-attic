@@ -25,7 +25,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 
 #include "OgreOverlayManager.h"
-#include "OgreStringVector.h"
 #include "OgreOverlay.h"
 #include "OgreGuiManager.h"
 #include "OgreOverlayContainer.h"
@@ -36,7 +35,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSceneNode.h"
 #include "OgreEntity.h"
 #include "OgrePositionTarget.h"
-#include "OgreEventProcessor.h"
 #include "OgreException.h"
 #include "OgreViewport.h"
 #include "OgreSDDataChunk.h"
@@ -54,13 +52,11 @@ namespace Ogre {
         assert( ms_Singleton );  return ( *ms_Singleton );  
     }
     //---------------------------------------------------------------------
-    OverlayManager::OverlayManager() :
-        mEventDispatcher(this), mCursorGuiInitialised(false), 
-        mLastViewportWidth(0), mLastViewportHeight(0), 
+    OverlayManager::OverlayManager() 
+      : mLastViewportWidth(0), 
+        mLastViewportHeight(0), 
         mViewportDimensionsChanged(false)
     {
-		mCursorGuiRegistered = 0;
-		mCursorLevelOverlay = 0;
     }
     //---------------------------------------------------------------------
     OverlayManager::~OverlayManager()
@@ -548,6 +544,7 @@ namespace Ogre {
 
 	//-----------------------------------------------------------------------------
 
+    /*
 	PositionTarget* OverlayManager::getPositionTargetAt(Real x, Real y)
 	{
 		PositionTarget* ret = NULL;
@@ -596,17 +593,6 @@ namespace Ogre {
             break;
         }
     }
-
-	//-----------------------------------------------------------------------------
-	void OverlayManager::setDefaultCursorGui(OverlayContainer* cursor, MouseMotionListener* cursorListener)
-	{
-		mCursorGuiRegistered = cursor;
-		//mCursorListener = cursorListener;
-        mCursorGuiInitialised = false;
-       
-        //if (mCursorListener != 0)
-        //    addMouseMotionListener(mCursorListener);
-	}
 
 	//-----------------------------------------------------------------------------
 	void OverlayManager::setCursorGui(OverlayContainer* cursor)
@@ -668,12 +654,13 @@ namespace Ogre {
 		EventProcessor::getSingleton().addEventTarget(this);
 
 		// register the new cursor and display it
-		if (mCursorGuiRegistered/* && mCursorListener*/)	
+		if (mCursorGuiRegistered)	
 		{
 			mCursorLevelOverlay->add2D(mCursorGuiRegistered);
             mCursorGuiRegistered->show();
 		}
 	}
+    */
 
 }
 
