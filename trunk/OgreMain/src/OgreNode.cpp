@@ -654,10 +654,14 @@ namespace Ogre {
     void Node::needUpdate()
     {
         // If we're already going to update everything this doesn't matter
+        /* FIX: removed because this causes newly created nodes
+                which already have mNeedUpdate == true not to notify parent when 
+                added!
         if (mNeedUpdate)
         {
             return;
         }
+        */
 
         mNeedUpdate = true;
 
