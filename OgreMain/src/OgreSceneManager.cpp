@@ -1536,6 +1536,27 @@ namespace Ogre {
                 // Hook up projection frustum
                 mShadowReceiverPass->getTextureUnitState(0)->setProjectiveTexturing(
                     true, mCurrentShadowTexture->getViewport(0)->getCamera());
+                // if this light is a spotlight, we need to add the spot fader layer
+                if (l->getType() == Light::LT_SPOTLIGHT)
+                {
+                    // Add spot fader if not present already
+                    if (mShadowReceiverPass->getNumTextureUnitStates() == 1)
+                    {
+                        TextureUnitState* t = 
+                            mShadowReceiverPass->createTextureUnitState("spot_shadow_fade.png");
+                        t->setProjectiveTexturing(
+                            true, mCurrentShadowTexture->getViewport(0)->getCamera());
+                        t->setColourOperation(LBO_ADD);
+                        t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+                    }
+                }
+                else if (mShadowReceiverPass->getNumTextureUnitStates() > 1)
+                {
+                    // remove spot fader layer
+                    mShadowReceiverPass->removeTextureUnitState(1);
+
+                }
+                mShadowReceiverPass->_load();
 
                 if (l->getCastShadows() && pGroup->getShadowsEnabled())
                 {
@@ -3302,8 +3323,8 @@ namespace Ogre {
                 Camera* texCam = shadowTex->getViewport(0)->getCamera();
                 // Set perspective projection
                 texCam->setProjectionType(PT_PERSPECTIVE);
-                // set easy FOV and near dist so that texture covers far dist
-                texCam->setFOVy(light->getSpotlightOuterAngle()*2);
+                // set FOV slightly larger than the spotlight range to ensure coverage
+                texCam->setFOVy(light->getSpotlightOuterAngle()*1.2);
                 texCam->setPosition(light->getDerivedPosition());
                 texCam->setDirection(light->getDerivedDirection());
                 // set near clip the same as main camera, since they are likely
