@@ -43,38 +43,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace OgreMaya {
 
-    typedef float Real;
-
-    template <typename Iterator>
-    bool listEqual(Iterator it1, Iterator it2, Iterator end1, Iterator end2) {        
-        bool eq = true;
-        while(eq && it1!=end1 && it2!=end2) {
-            eq = *it1 == *it2;
-            ++it1;
-            ++it2;
-        }        
-
-        return 
-            eq && it1==end1 && it2==end2;
-    }
-
-
-    struct Vector3 {
-        Real x,y,z;
-
-        bool operator ==(const Vector3& other) const {
-            return x==other.x && y==other.y && z==other.z;
-        }
-    };
-
-    struct ColourValue {
-        Real r,g,b,a;
-
-        bool operator ==(const ColourValue& other) const {
-            return r==other.r && g==other.g && b==other.b && a==other.a;
-        }
-    };
-
 	//	===========================================================================
 	/** \struct		MeshUV
 		Simple structure with single set of UV coordinates for a single vertex.

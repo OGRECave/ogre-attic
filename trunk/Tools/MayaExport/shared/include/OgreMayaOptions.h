@@ -49,14 +49,19 @@ namespace OgreMaya {
     public:
         string
             inFile,
+            
             outMeshFile,
-            outSkelFile;
+            outSkelFile,
+            outMatFile,           
+
+            matPrefix;
 
         bool
             exportSkeleton,
             exportNormals,
             exportColours,
-            exportUVs;
+            exportUVs,
+            exportMaterial;
 
     private:
         bool valid;
@@ -71,6 +76,9 @@ namespace OgreMaya {
         void parseIn();
         void parseMeshOut();
         void parseSkelOut();
+        void parseMatOut();
+        void parseMatPrefix();
+        void parseM();
         void parseS();
         void parseN();
         void parseC();

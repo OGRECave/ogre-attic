@@ -29,4 +29,50 @@ http://www.gnu.org/copyleft/lesser.txt.
 #   pragma warning (disable : 4786)
 #endif
 
+namespace OgreMaya { 
+
+    typedef float Real;
+
+    template <typename Iterator>
+    void deleteAll(Iterator it, Iterator end) {                
+        for(;it!=end; ++it)
+            delete *it;
+    }
+
+    template <typename Iterator>
+    bool listEqual(Iterator it1, Iterator it2, Iterator end1, Iterator end2) {        
+        bool eq = true;
+        while(eq && it1!=end1 && it2!=end2) {
+            eq = *it1 == *it2;
+            ++it1;
+            ++it2;
+        }        
+
+        return 
+            eq && it1==end1 && it2==end2;
+    }
+
+
+    struct Vector3 {
+        Real x,y,z;
+
+        Vector3(): x(0), y(0), z(0) {}
+
+        bool operator ==(const Vector3& other) const {
+            return x==other.x && y==other.y && z==other.z;
+        }
+    };
+
+    struct ColourValue {
+        Real r,g,b,a;
+
+        ColourValue(): r(0), g(0), b(0), a(1) {}
+
+        bool operator ==(const ColourValue& other) const {
+            return r==other.r && g==other.g && b==other.b && a==other.a;
+        }
+    };
+
+}
+
 #endif
