@@ -27,98 +27,36 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "OgrePrerequisites.h"
 
-#include "OgreMatrix3.h"
-#include "OgreMatrix4.h"
-#include "OgreQuaternion.h"
-#include "OgreAxisAlignedBox.h"
+#include "OgreNode.h"
 
 namespace Ogre {
 
     /** Class representing a node in the scene graph.
         @remarks
-            A node in the scene graph is a node in a structured tree
-            containing all objects in the scene. A node contains
-            information about the transformation which will apply to
-            it and all of it's children.
-        @par
-            A SceneNode and it's descendants are related through an inherited
-            transformation, and through a hierarchical set of bounding volumes.
+            A SceneNode is a type of Node which is used to organise objects in a scene.
+            It has the same hierarchical transformation properties of the generic Node class,
+            bu also adds the ability to attach world objects to the node, and stores hierarchical
+            bounding volumes of the nodes in the tree.
             Child nodes are contained within the bounds of the parent, and so on down the
             tree, allowing for fast culling.
     */
-    class _OgreExport SceneNode
+    class _OgreExport SceneNode : public Node
     {
 
     protected:
-        SceneNode* mParent;
-        std::vector<SceneNode*> mChildren;
         std::vector<MovableObject*> mObjects;
         std::vector<Camera*> mCameras;
         std::vector<Light*> mLights;
 
-        /// SceneManager which created this
-        SceneManager* mCreator;
-
-        /// Stores the orientation of the node relative to it's parent.
-        Quaternion mOrientation;
-
-        /// Stores the position/translation of the node relative to its parent.
-        Vector3 mPosition;
-
-        /// Stores the scaling factor applied to this node
-        Vector3 mScale;
-
-        /// Stores whether this node inherits scale from it's parent
-        bool mInheritScale;
-
-        /// Flag indicating derived transform is out of date 
-        bool mDerivedOutOfDate;
-
-        /// Only available internally - notification of parent.
-        void setParent(SceneNode* parent);
-
-    private:
         /// World-Axis aligned bounding box, updated only through _update
         AxisAlignedBox mWorldAABB;
-
-        /** Cached combined orientation.
-            @par
-                This member is the orientation derived by combining the
-                local transformations and those of it's parents.
-                This is updated when _updateFromParent is called by the
-                SceneManager or the nodes parent.
-        */
-        Quaternion mDerivedOrientation;
-
-        /** Cached combined position.
-            @par
-                This member is the position derived by combining the
-                local transformations and those of it's parents.
-                This is updated when _updateFromParent is called by the
-                SceneManager or the nodes parent.
-        */
-        Vector3 mDerivedPosition;
-
-        /** Cached combined scale.
-            @par
-                This member is the position derived by combining the
-                local transformations and those of it's parents.
-                This is updated when _updateFromParent is called by the
-                SceneManager or the nodes parent.
-        */
-        Vector3 mDerivedScale;
-
-        /** Triggers the node to update it's combined transforms.
-            @par
-                This method is called internally by Ogre to ask the node
-                to update it's complete transformation based on it's parents
-                derived transform.
-        */
-        void _updateFromParent(void);
 
         /** Tells the SceneNode to update the world bound info it stores.
         */
         void _updateBounds(void);
+
+        /** See Node. */
+        Node* createChildImpl(void);
 
     public:
         /** Constructor, only to be called by the creator SceneManager.
@@ -126,207 +64,13 @@ namespace Ogre {
         SceneNode(SceneManager* creator);
         ~SceneNode();
 
-        /** Gets this node's parent (0 if this is the root).
-        */
-        SceneNode* getParent(void);
-
-        /** Returns a quaternion representing the nodes orientation.
-        */
-        Quaternion getOrientation();
-
-        /** Sets the orientation of this node via a quaternion.
-        */
-        void setOrientation(Quaternion q);
-
-        /** Resets the nodes orientation (local axes as world axes, no rotation).
-        */
-        void resetOrientation(void);
-
-        /** Sets the position of the node relative to it's parent.
-        */
-        void setPosition(const Vector3& pos);
-
-        /** Sets the position of the node relative to it's parent.
-        */
-        void setPosition(Real x, Real y, Real z);
-
-        /** Gets the position of the node relative to it's parent.
-        */
-        Vector3 getPosition(void);
-
-        /** Sets the scaling factor applied to this node.
-        @remarks
-            Scaling factors, unlike other transforms, are not always inherited by child nodes. 
-            Whether or not scalings affect both the size and position of the child nodes depends on
-            the setInheritScale option of the child. In some cases you want a scaling factor of a parent node
-            to apply to a child node (e.g. where the child node is a part of the same object, so you
-            want it to be the same relative size and position based on the parent's size), but
-            not in other cases (e.g. where the child node is just for positioning another object,
-            you want it to maintain it's own size and relative position). The default is to inherit
-            as with other transforms.
-        @par
-            Note that like rotations, scalings are oriented around the node's origin.
-        */
-        void setScale(const Vector3& scale);
-
-        /** Sets the scaling factor applied to this node.
-        @remarks
-            Scaling factors, unlike other transforms, are not always inherited by child nodes. 
-            Whether or not scalings affect both the size and position of the child nodes depends on
-            the setInheritScale option of the child. In some cases you want a scaling factor of a parent node
-            to apply to a child node (e.g. where the child node is a part of the same object, so you
-            want it to be the same relative size and position based on the parent's size), but
-            not in other cases (e.g. where the child node is just for positioning another object,
-            you want it to maintain it's own size and relative position). The default is to inherit
-            as with other transforms.
-        @par
-            Note that like rotations, scalings are oriented around the node's origin.
-        */
-        void setScale(Real x, Real y, Real z);
-
-        /** Gets the scaling factor of this node.
-        */
-        Vector3 getScale(void);
-
-        /** Tells the node whether it should inherit scaling factors from it's parent node.
-        @remarks
-            Scaling factors, unlike other transforms, are not always inherited by child nodes. 
-            Whether or not scalings affect both the size and position of the child nodes depends on
-            the setInheritScale option of the child. In some cases you want a scaling factor of a parent node
-            to apply to a child node (e.g. where the child node is a part of the same object, so you
-            want it to be the same relative size and position based on the parent's size), but
-            not in other cases (e.g. where the child node is just for positioning another object,
-            you want it to maintain it's own size and relative position). The default is to inherit
-            as with other transforms.
-        @param inherit If true, this node's scale and position will be affected by its parent's scale. If false,
-            it will not be affected.
-        */
-        void setInheritScale(bool inherit);
-
-        /** Returns true if this node is affected by scaling factors applied to the parent node. 
-        @remarks
-            See setInheritScale for more info.
-        */
-        bool getInheritScale(void);
-
-        /** Scales the node, combining it's current scale with the passed in scaling factor. 
-        @remarks
-            This method applies an extra scaling factor to the node's existing scale, (unlike setScale
-            which overwrites it) combining it's current scale with the new one. E.g. calling this 
-            method twice with Vector3(2,2,2) would have the same effect as setScale(Vector3(4,4,4)) if
-            the existing scale was 1.
-        @par
-            Note that like rotations, scalings are oriented around the node's origin.
-        */
-        void scale(const Vector3& scale);
-
-        /** Scales the node, combining it's current scale with the passed in scaling factor. 
-        @remarks
-            This method applies an extra scaling factor to the node's existing scale, (unlike setScale
-            which overwrites it) combining it's current scale with the new one. E.g. calling this 
-            method twice with Vector3(2,2,2) would have the same effect as setScale(Vector3(4,4,4)) if
-            the existing scale was 1.
-        @par
-            Note that like rotations, scalings are oriented around the node's origin.
-        */
-        void scale(Real x, Real y, Real z);
-
-        /** Moves the node along the cartesian axes.
-            @par
-                This method moves the node by the supplied vector along the
-                world cartesian axes, i.e. along world x,y,z
-            @param 
-                d Vector with x,y,z values representing the translation.
-        */
-        void translate(const Vector3& d);
-        /** Moves the node along the cartesian axes.
-            @par
-                This method moves the node by the supplied vector along the
-                world cartesian axes, i.e. along world x,y,z
-            @param 
-                x
-            @param
-                y
-            @param
-                z Real x, y and z values representing the translation.
-        */
-        void translate(Real x, Real y, Real z);
-        /** Moves the node along arbitrary axes.
-            @remarks
-                This method translates the node by a vector which is relative to
-                a custom set of axes.
-            @param 
-                axes A 3x3 Matrix containg 3 column vectors each representing the
-                axes X, Y and Z respectively. In this format the standard cartesian
-                axes would be expressed as:
-                <pre>
-                1 0 0
-                0 1 0
-                0 0 1
-                </pre>
-                i.e. the identity matrix.
-            @param 
-                move Vector relative to the axes above.
-        */
-        void translate(const Matrix3& axes, const Vector3& move);
-        /** Moves the node along arbitrary axes.
-            @remarks
-            This method translates the node by a vector which is relative to
-            a custom set of axes.
-            @param 
-                axes A 3x3 Matrix containg 3 column vectors each representing the
-                axes X, Y and Z respectively. In this format the standard cartesian
-                axes would be expressed as
-                <pre>
-                1 0 0
-                0 1 0
-                0 0 1
-                </pre>
-                i.e. the identity matrix.
-            @param 
-                x,y,z Translation components relative to the axes above.
-        */
-        void translate(const Matrix3& axes, Real x, Real y, Real z);
-
-        /** Rotate the node around the Z-axis.
-        */
-        void roll(Real degrees);
-
-        /** Rotate the node around the X-axis.
-        */
-        void pitch(Real degrees);
-
-        /** Rotate the node around the Y-axis.
-        */
-        void yaw(Real degrees);
-
-        /** Rotate the node around an arbitrary axis.
-        */
-        void rotate(const Vector3& axis, Real degrees);
-
-        /** Rotate the node around an aritrary axis using a Quarternion.
-        */
-        void rotate(const Quaternion& q);
-
-        /** Gets a matrix whose columns are the local axes based on
-            the nodes orientation relative to it's parent. */
-        Matrix3 getLocalAxes(void);
-
-        /** Creates a new SceneNode as a child of this node.
+        /** Creates a new Node as a child of this node.
             @param
                 translate Initial translation offset of child relative to parent
             @param
                 rotate Initial rotation relative to parent
         */
         SceneNode* createChild(const Vector3& translate = Vector3::ZERO, const Quaternion& rotate = Quaternion::IDENTITY);
-
-        /** Adds a (precreated) child scene node to this node.
-        */
-        void addChild(SceneNode* child);
-
-        /** Reports the number of child nodes under this one.
-        */
-        unsigned short numChildren(void);
 
         /** Gets a pointer to a child node.*/
         SceneNode* getChild(unsigned short index);
@@ -335,20 +79,6 @@ namespace Ogre {
             this parent, potentially to be reattached elsewhere.
         */
         SceneNode* removeChild(unsigned short index);
-
-        /** Removes all child SceneNodes attached to this node. Does not delete the nodes, just detaches them from
-            this parent, potentially to be reattached elsewhere.
-        */
-        void removeAllChildren(void);
-
-        /*  Attached objects are listed below
-
-            Remarks:
-                Note that I could have abstracted this using a base class
-                for Entity, Camera and Light, but these objects are used
-                heavily in the rendering loop so I didn't want virtual functions
-                to be used. It's less elegant, but faster this way.
-        */
 
         /** Adds an instance of a scene object to this node.
         */
@@ -410,30 +140,7 @@ namespace Ogre {
         */
         void detachAllCameras(void);
 
-        /** Gets the orientation of the node as derived from all parents.
-        */
-        Quaternion _getDerivedOrientation(void);
-
-        /** Gets the position of the node as derived from all parents.
-        */
-        Vector3 _getDerivedPosition(void);
-
-        /** Gets the scaling factor of the node as derived from all parents.
-        */
-        Vector3 _getDerivedScale(void);
-
-        /** Gets the full transformation matrix for this node.
-            @remarks
-                This method returns the full transformation matrix
-                for this node, including the effect of any parent node
-                transformations, provided they have been updated using the SceneNode::_update method.
-                This should only be called by a SceneManager which knows the
-                derived transforms have been updated before calling this method.
-                Applications using Ogre should just use the relative transforms.
-        */
-        Matrix4 _getFullTransform(void);
-
-        /** Internal method to update the SceneNode.
+        /** Internal method to update the Node.
             @note
                 Updates this scene node and any relevant children to incorporate transforms etc.
                 Don't call this yourself unless you are writing a SceneManager implementation.
@@ -443,7 +150,7 @@ namespace Ogre {
                 updateChildren If true, the update cascades down to all children. Specify false if you wish to
                 update children separately, e.g. because of a more selective SceneManager implementation.
         */
-        void _update(Camera* cam, bool updateChildren = true);
+        virtual void _update(Camera* cam, bool updateChildren = true);
 
         /** Internal method which locates any visible objects attached to this node and adds them to the passed in queue.
             @remarks
