@@ -92,6 +92,7 @@ namespace Ogre {
         char tempBuf[512];
 
         pShader = 0;
+        bool dummy = false;
 
         while(!stream->eof())
         {
@@ -102,6 +103,17 @@ namespace Ogre {
                 if (pShader == 0)
                 {
                     // No current shader
+                    if (getByName(line) == 0)
+                    {
+                        dummy = false;
+                    }
+                    else
+                    {
+                        // Defined before, parse but ignore
+                        // Q3A has duplicates in shaders, doh
+                        dummy = true;
+                    }
+
                     // So first valid data should be a shader name
                     pShader = create(line);
                     // Skip to and over next {
@@ -113,6 +125,10 @@ namespace Ogre {
                     if (line == "}")
                     {
                         // Finished shader
+                        if (dummy && pShader)
+                        {
+                            delete pShader;
+                        }
                         pShader = 0;
                     }
                     else if (line == "{")
@@ -141,7 +157,7 @@ namespace Ogre {
     {
         // Gah, Q3A shader scripts include some duplicates - grr
         Quake3Shader* s = new Quake3Shader(name);
-        if (mShaderMap.find(name) != mShaderMap.end())
+        if (mShaderMap.find(name) == mShaderMap.end())
         {
             mShaderMap[name] = s;
         }
