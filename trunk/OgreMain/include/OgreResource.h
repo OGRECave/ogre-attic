@@ -118,8 +118,18 @@ namespace Ogre {
         { 
             return mIsLoaded; 
         }
+
+        /** A method to make the resource delete itself.
+            @note
+                This exists because Resource objects could be created in other processes,
+                and they need to be destroyed in the process that created them.
+        */
+        virtual void destroy()
+        {
+            delete this;
+        }
     };
 
-} // namespace
+}
 
 #endif
