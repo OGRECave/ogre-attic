@@ -124,7 +124,6 @@ namespace Ogre {
         if (mIsLoaded)
         {
             unload();
-            mIsLoaded = false;
         }
 
         if (!mManuallyDefined)
@@ -180,6 +179,7 @@ namespace Ogre {
 		// Clear SubMesh lists
 		mSubMeshList.clear();
 		mSubMeshNameMap.clear();
+        mIsLoaded = false;
     }
 
     //-----------------------------------------------------------------------
