@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 #include "OgreString.h"
+#include "OgreIteratorWrappers.h"
 
 namespace Ogre {
 
@@ -189,9 +190,15 @@ namespace Ogre {
         static RotationInterpolationMode getDefaultRotationInterpolationMode(void);
 
         typedef std::map<unsigned short, AnimationTrack*> TrackList;
+        typedef ConstMapIterator<TrackList> TrackIterator;
 
         /// Fast access to NON-UPDATEABLE track list
         const TrackList& _getTrackList(void) const;
+
+        /// Get non-updateable iterator over tracks
+        TrackIterator getTrackIterator(void) const
+        { return TrackIterator(mTrackList.begin(), mTrackList.end()); }
+        
 
 
 

@@ -258,9 +258,36 @@ namespace Ogre {
 			TiXmlElement* scaleElem = keyfElem->FirstChildElement("scale");
             if (scaleElem)
             {
-                // Uniform scale only
-                Real factor = StringConverter::parseReal(scaleElem->Attribute("factor"));
-                kf->setScale(Vector3(factor, factor, factor));
+                // Uniform scale or per axis?
+				const char* factorAttrib = scaleElem->Attribute("factor");
+				if (factorAttrib)
+				{
+					// Uniform scale
+					Real factor = StringConverter::parseReal(factorAttrib);
+					kf->setScale(Vector3(factor, factor, factor));
+				}
+				else
+				{
+					// axis scale
+                    Real xs = 1.0f, ys = 1.0f, zs=1.0f;
+                    const char* factorString = scaleElem->Attribute("x");
+                    if(factorString)
+                    {
+                        xs = StringConverter::parseReal(factorString);
+                    }
+                    factorString = scaleElem->Attribute("y");
+                    if(factorString)
+                    {
+                        ys = StringConverter::parseReal(factorString);
+                    }
+                    factorString = scaleElem->Attribute("z");
+                    if(factorString)
+                    {
+                        zs = StringConverter::parseReal(factorString);
+                    }
+					kf->setScale(Vector3(xs, ys, zs));
+					
+				}
             }
 
 			
@@ -437,9 +464,11 @@ namespace Ogre {
         // Write all tracks
         TiXmlElement* tracksNode = 
             animNode->InsertEndChild(TiXmlElement("tracks"))->ToElement();
-        for (unsigned short i = 0; i < anim->getNumTracks(); ++i)
+
+        Animation::TrackIterator trackIt = anim->getTrackIterator();
+        while (trackIt.hasMoreElements())
         {
-            writeAnimationTrack(tracksNode, anim->getTrack(i));
+            writeAnimationTrack(tracksNode, trackIt.getNext());
         }
 
     }
@@ -488,7 +517,7 @@ namespace Ogre {
         key->getRotation().ToAngleAxis(angle, axis);
         TiXmlElement* axisNode = 
             rotNode->InsertEndChild(TiXmlElement("axis"))->ToElement();
-        rotNode->SetAttribute("angle", StringConverter::toString(angle));
+        rotNode->SetAttribute("angle", StringConverter::toString(angle.valueRadians()));
         axisNode->SetAttribute("x", StringConverter::toString(axis.x));
         axisNode->SetAttribute("y", StringConverter::toString(axis.y));
         axisNode->SetAttribute("z", StringConverter::toString(axis.z));
@@ -496,8 +525,10 @@ namespace Ogre {
         
         TiXmlElement* scaleNode = 
             keyNode->InsertEndChild(TiXmlElement("scale"))->ToElement();
-        // only uniform scaling on skeletons
-        scaleNode->SetAttribute("factor", StringConverter::toString(key->getScale().x));
+
+        scaleNode->SetAttribute("x", StringConverter::toString(key->getScale().x));
+        scaleNode->SetAttribute("y", StringConverter::toString(key->getScale().y));
+        scaleNode->SetAttribute("z", StringConverter::toString(key->getScale().z));
 
     }
     //---------------------------------------------------------------------
