@@ -311,6 +311,8 @@ namespace Ogre {
     {
         assert(frameNumber < mNumFrames);
         mCurrentFrame = frameNumber;
+        // this will affect the hash
+        mParent->_recalculateHash();
 
     }
     //-----------------------------------------------------------------------
