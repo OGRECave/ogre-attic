@@ -68,11 +68,9 @@ namespace Ogre {
 
 	    // Set up a lit base white material
 	    Material* baseWhite = (Material*)this->create("BaseWhite");
-        baseWhite->compile();
 	    // Set up an unlit base white material
         Material* baseWhiteNoLighting = (Material*)this->create("BaseWhiteNoLighting");
         baseWhiteNoLighting->setLightingEnabled(false);
-        baseWhiteNoLighting->compile();
 
 		// Parse all .program scripts first
 		parseAllSources(".program");
