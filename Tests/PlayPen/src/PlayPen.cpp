@@ -1754,13 +1754,17 @@ protected:
         mTestNode[2] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(-200, 0, -200));
         mTestNode[2]->attachObject( pEnt );
 
-        // Transparent object (can force cast shadows)
+        // Transparent object 
         pEnt = mSceneMgr->createEntity( "3.5", "knot.mesh" );
         pEnt->setMaterialName("Examples/TransparentTest");
+		pEnt->setCastShadows(false);
         Material* mat3 = (Material*)MaterialManager::getSingleton().getByName("Examples/TransparentTest");
-        //mat3->setTransparencyCastsShadows(true);
         mTestNode[3] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(350, 0, -200));
         mTestNode[3]->attachObject( pEnt );
+
+		// User test
+		pEnt = mSceneMgr->createEntity( "3.6", "ogre_male_endCaps.mesh" );
+		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(0, 0, 100))->attachObject( pEnt );
 
 
         Mesh* msh = MeshManager::getSingleton().load("knot.mesh");
