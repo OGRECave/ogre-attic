@@ -1170,7 +1170,7 @@ namespace Ogre
 		case PF_B4G4R4A4:
 		case PF_A4R4G4B4:
 			return D3DFMT_A4R4G4B4;
-		case PF_B8R8G8:
+		case PF_B8G8R8:
 		case PF_R8G8B8:
 			return D3DFMT_R8G8B8;
 		case PF_B8G8R8A8:
@@ -1208,7 +1208,7 @@ namespace Ogre
 		case PF_R5G6B5:
 		case PF_B5G6R5:
 		case PF_R8G8B8:
-		case PF_B8R8G8:
+		case PF_B8G8R8:
 		default:
 			return false;
 		}

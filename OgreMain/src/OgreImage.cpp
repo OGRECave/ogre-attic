@@ -374,7 +374,7 @@ namespace Ogre {
 		case PF_R5G6B5:
 		case PF_B5G6R5:
 		case PF_R8G8B8:
-		case PF_B8R8G8:
+		case PF_B8G8R8:
 		default:
 			return false;
 		}

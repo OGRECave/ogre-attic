@@ -42,17 +42,17 @@ namespace Ogre {
 
 		memset(mDiffuses,0xFF,sizeof(mDiffuses));
 
-		mRendOp.numVertices = 24; 
-		mRendOp.useIndexes = false; 
-		mRendOp.pNormals = NULL; 
-		mRendOp.pVertices = mVertexData; 
-		mRendOp.pDiffuseColour = (unsigned long*)mDiffuses; 
-		mRendOp.pSpecularColour = NULL; 
-		mRendOp.operationType = LegacyRenderOperation::OT_LINE_LIST; 
-		mRendOp.numTextureCoordSets = 0;
+		mLegacyRendOp.numVertices = 24; 
+		mLegacyRendOp.useIndexes = false; 
+		mLegacyRendOp.pNormals = NULL; 
+		mLegacyRendOp.pVertices = mVertexData; 
+		mLegacyRendOp.pDiffuseColour = (unsigned long*)mDiffuses; 
+		mLegacyRendOp.pSpecularColour = NULL; 
+		mLegacyRendOp.operationType = LegacyRenderOperation::OT_LINE_LIST; 
+		mLegacyRendOp.numTextureCoordSets = 0;
 
 		// only need diffuse colors, other options not needed
-		mRendOp.vertexOptions = LegacyRenderOperation::VO_DIFFUSE_COLOURS; 
+		mLegacyRendOp.vertexOptions = LegacyRenderOperation::VO_DIFFUSE_COLOURS; 
 
 		// setup the bounding box of this SimpleRenderable
 		setBoundingBox(aabb);

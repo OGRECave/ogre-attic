@@ -167,7 +167,7 @@ namespace Ogre {
 			case PF_B4G4R4A4:
 				return 2;
 			case PF_R8G8B8:
-			case PF_B8R8G8:
+			case PF_B8G8R8:
 				return 3;
 			case PF_A8R8G8B8:
 			case PF_B8G8R8A8:
@@ -219,7 +219,7 @@ namespace Ogre {
 			case PF_B4G4R4A4:
 				return 16;
 			case PF_R8G8B8:
-			case PF_B8R8G8:
+			case PF_B8G8R8:
 				return 24;
 			case PF_A8R8G8B8:
 			case PF_B8G8R8A8:
