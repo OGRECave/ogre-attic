@@ -294,7 +294,8 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void _makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, Matrix4& dest);
+        void _makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, 
+            Matrix4& dest, bool forGpuProgram = false);
         /** See
           RenderSystem
          */

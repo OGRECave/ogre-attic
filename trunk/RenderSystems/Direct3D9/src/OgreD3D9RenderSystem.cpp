@@ -842,17 +842,29 @@ namespace Ogre
 		*pDest = colour.getAsLongARGB();
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, Matrix4& dest)
+	void D3D9RenderSystem::_makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, 
+        Real farPlane, Matrix4& dest, bool forGpuProgram)
 	{
 
         D3DXMATRIX d3dMatrix;
-        D3DXMatrixPerspectiveFovLH(&d3dMatrix,
-          Math::AngleUnitsToRadians(fovy),
-          aspect,
-          nearPlane,
-          farPlane);
-
+        if (forGpuProgram)
+        {
+            D3DXMatrixPerspectiveFovRH(&d3dMatrix,
+                Math::AngleUnitsToRadians(fovy),
+                aspect,
+                nearPlane,
+                farPlane);
+        }
+        else
+        {
+            D3DXMatrixPerspectiveFovLH(&d3dMatrix,
+                Math::AngleUnitsToRadians(fovy),
+                aspect,
+                nearPlane,
+                farPlane);
+        }
         dest = D3D9Mappings::convertD3DXMatrix(d3dMatrix);
+
 
         /*
         Real theta = Math::AngleUnitsToRadians(fovy * 0.5);

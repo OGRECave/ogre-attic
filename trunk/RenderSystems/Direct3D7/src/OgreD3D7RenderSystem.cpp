@@ -2236,7 +2236,8 @@ namespace Ogre {
         *pDest = colour.getAsLongARGB();
     }
     //---------------------------------------------------------------------
-    void D3DRenderSystem::_makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, Matrix4& dest)
+    void D3DRenderSystem::_makeProjectionMatrix(Real fovy, Real aspect, 
+        Real nearPlane, Real farPlane, Matrix4& dest, bool forGpuProgram)
     {
         Real theta = Math::AngleUnitsToRadians(fovy * 0.5);
         Real h = 1 / Math::Tan(theta);

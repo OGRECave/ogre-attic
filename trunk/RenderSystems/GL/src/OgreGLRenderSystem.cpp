@@ -1082,7 +1082,7 @@ namespace Ogre {
     }
     
     void GLRenderSystem::_makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, 
-        Real farPlane, Matrix4& dest)
+        Real farPlane, Matrix4& dest, bool forGpuProgram)
     {
         Real thetaY = Math::AngleUnitsToRadians(fovy / 2.0f);
         Real tanThetaY = Math::Tan(thetaY);

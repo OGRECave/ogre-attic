@@ -195,7 +195,8 @@ namespace Ogre
 		void _setDepthBufferFunction( CompareFunction func = CMPF_LESS_EQUAL );
 		void _setDepthBias(ushort bias);
 		void _setFog( FogMode mode = FOG_NONE, const ColourValue& colour = ColourValue::White, Real expDensity = 1.0, Real linearStart = 0.0, Real linearEnd = 1.0 );
-		void _makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, Matrix4& dest);
+		void _makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, 
+            Matrix4& dest, bool forGpuProgram = false);
 		void _setRasterisationMode(SceneDetailLevel level);
         void _setTextureUnitFiltering(size_t unit, FilterType ftype, FilterOptions filter);
 		void _setTextureLayerAnisotropy(size_t unit, int maxAnisotropy);
