@@ -6,4 +6,4 @@ SkyDome_LDFLAGS = -L$(top_srcdir)/OgreMain/src
 SkyDome_LDADD = -lOgreMain
 
 install-exec-local:
-	$(INSTALL_PROGRAM) SkyDome $(top_builddir)/Samples/Common/bin/Debug/SkyDome
+	$(INSTALL_PROGRAM) SkyDome $(top_builddir)/Samples/Common/bin/SkyDome
