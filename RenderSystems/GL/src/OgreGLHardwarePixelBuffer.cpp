@@ -298,7 +298,7 @@ void GLHardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::Box
 		// floating point textures and cannot cope with 3D images.
 		unsigned int newImageSize = PixelUtil::getMemorySize(
 			dstBox.getWidth(), dstBox.getHeight(), dstBox.getDepth(), mFormat);
-        temp = new uchar[ newImageSize ];
+        temp = new uint8[newImageSize];
 		scaled = PixelBox(dstBox, mFormat, temp);
 		Image::scale(src, scaled, Image::FILTER_BOX);
 	}
