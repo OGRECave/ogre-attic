@@ -259,6 +259,34 @@ function computeBList b =
 	)
 )
 
+function addHelpersToHierarchy phy sk =
+(
+	if (sk != undefined) then
+	(
+		for i=1 to (skinOps.GetNumberBones sk) do
+		(
+			bname = skinOps.GetBoneName sk i 1 ;
+			replaceSpaces bname ;
+			d = execute ("$" + bname) ;
+
+			if (iskindof d helper) then
+				append BonesList bname ;
+		)	
+	)
+	else if (phy != undefined) then
+	(
+		for i=1 to (physiqueOps.GetBoneCount $) do
+		(
+			bname = (physiqueOps.GetBones $)[i].name;
+			replaceSpaces bname ;
+			d = execute ("$" + bname) ;
+		
+			if (iskindof d helper) then
+				append BonesList bname ;
+		)	
+	)
+)
+
 -----------------------------------------------------------------
 -- find the root(s) of the rhierarchy
 -----------------------------------------------------------------
@@ -341,12 +369,16 @@ function getHierarchyRoots phy sk =
 -----------------------------------------------------------------
 function computeBonesList phy sk =
 (
-	rootnodes = getHierarchyRoots phy sk ;
+	rootnodes = getHierarchyRoots phy sk ;	-- find the roots of the current hierarchy
 	print rootsnode
 	for b in rootnodes do
 	(
 		computeBList b;
 	)
+	
+	-- add the nodes that are parts of the skin (or physique) modifier but are neither biped_object nor standard bones
+	-- only helpers (Point, Dummy) at the moment...
+	addHelpersToHierarchy phy sk ;
 )
 
 ------------------
