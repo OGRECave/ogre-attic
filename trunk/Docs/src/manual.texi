@@ -490,6 +490,8 @@ Here are the attributes you can use in a 'pass' section of a .material script:
 @item
 @ref{depth_bias}
 @item
+@ref{alpha_rejection}
+@item
 @ref{cull_hardware}
 @item
 @ref{cull_software}
@@ -681,6 +683,19 @@ Format: depth_bias <value>@*@*
 
 Where <value> is between 0 and 16, the default being 0. The higher the value, the greater the offset (for if you want to do multiple overlapping decals).@*@*
 
+@anchor{alpha_rejection}
+@subheading alpha_rejection
+
+Sets the way the pass will have use alpha to totally reject pixels from the pipeline.@*@*
+
+Format: alpha_rejection <function> <value>@*@*
+
+Example: alpha_rejection greater_equal 128@*@*
+
+The function parameter can be any of the options listed in the material depth_function attribute. The value parameter can theoretically be any value between 0 and 255, but is best limited to 0 or 128 for hardware compatibility.@*@*
+
+Default: alpha_rejection always_pass@*@*
+
 @anchor{cull_hardware}
 @subheading cull_hardware
 
@@ -821,8 +836,6 @@ Here are the attributes you can use in a 'texture_unit' section of a .material s
 @ref{max_anisotropy}
 @item
 @ref{colour_op}
-@item
-@ref{alpha_rejection}
 @item
 @ref{colour_op_ex}
 @item
@@ -1002,19 +1015,6 @@ This method is the simplest way to blend texture layers, because it requires onl
 @end table
 @*
 Default: colour_op modulate
-
-@anchor{alpha_rejection}
-@subheading alpha_rejection
-
-Sets the way the layer will have use alpha to totally reject pixels from the pipeline.@*@*
-
-Format: alpha_rejection <function> <value>@*@*
-
-Example: alpha_rejection greater_equal 128@*@*
-
-The function parameter can be any of the options listed in the material depth_function attribute. The value parameter can theoretically be any value between 0 and 255, but is best limited to 0 or 128 for hardware compatibility.@*@*
-
-Default: alpha_rejection always_pass@*@*
 
 @anchor{colour_op_ex}
 @subheading colour_op_ex

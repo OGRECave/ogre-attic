@@ -66,6 +66,7 @@ namespace Ogre {
 
         MaterialPtr mat = MaterialManager::getSingleton().create(matName, 
             ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Ogre::Pass* ogrePass = mat->getTechnique(0)->getPass(0);
 
         LogManager::getSingleton().logMessage("Using Q3 shader " + mName, LML_CRITICAL);
         for (int p = 0; p < numPasses; ++p)
@@ -76,7 +77,7 @@ namespace Ogre {
             {
                 StringUtil::StrStreamType str2;
 				str2 << "@lightmap" << lightmapNumber;
-                t = mat->getTechnique(0)->getPass(0)->createTextureUnitState(str2.str());
+                t = ogrePass->createTextureUnitState(str2.str());
             }
             // Animated texture support
             else if (pass[p].animNumFrames > 0)
@@ -105,7 +106,7 @@ namespace Ogre {
 
                 }
 
-                t = mat->getTechnique(0)->getPass(0)->createTextureUnitState("");
+                t = ogrePass->createTextureUnitState("");
                 t->setAnimatedTextureName(pass[p].frames, pass[p].animNumFrames, sequenceTime);
 
             }
@@ -125,7 +126,7 @@ namespace Ogre {
                         continue;
                     }
                 }
-                t = mat->getTechnique(0)->getPass(0)->createTextureUnitState(pass[p].textureName);
+                t = ogrePass->createTextureUnitState(pass[p].textureName);
             }
             // Blending
             if (p == 0)
@@ -137,6 +138,9 @@ namespace Ogre {
                     mat->setDepthWriteEnabled(false);
 
                 t->setColourOperation(LBO_REPLACE);
+				// Alpha mode
+				ogrePass->setAlphaRejectSettings(
+					pass[p].alphaFunc, pass[p].alphaVal);
             }
             else
             {
@@ -150,6 +154,15 @@ namespace Ogre {
                     // simple layer blend
                     t->setColourOperation(pass[p].blend);
                 }
+				// Alpha mode, prefer 'most alphary'
+				CompareFunction currFunc = ogrePass->getAlphaRejectFunction();
+				unsigned char currVal = ogrePass->getAlphaRejectValue();
+				if (pass[p].alphaFunc > currFunc ||
+					(pass[p].alphaFunc == currFunc && pass[p].alphaVal < currVal))
+				{
+					ogrePass->setAlphaRejectSettings(
+						pass[p].alphaFunc, pass[p].alphaVal);
+				}
             }
             // Tex coords
             if (pass[p].texGen == TEXGEN_BASE)
@@ -231,8 +244,6 @@ namespace Ogre {
             }
             // Address mode
             t->setTextureAddressingMode(pass[p].addressMode);
-            // Alpha mode
-            t->setAlphaRejectSettings(pass[p].alphaFunc, pass[p].alphaVal);
 
             //assert(!t->isBlank());
 

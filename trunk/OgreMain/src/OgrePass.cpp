@@ -64,6 +64,8 @@ namespace Ogre {
         mColourWrite = true;
 	    mDepthFunc = CMPF_LESS_EQUAL;
         mDepthBias = 0;
+		mAlphaRejectFunc = CMPF_ALWAYS_PASS;
+		mAlphaRejectVal = 0;
 	    mCullMode = CULL_CLOCKWISE;
 	    mManualCullMode = MANUAL_CULL_BACK;
 	    mLightingEnabled = true;
@@ -122,6 +124,8 @@ namespace Ogre {
 
 	    mDepthCheck = oth.mDepthCheck;
 	    mDepthWrite = oth.mDepthWrite;
+		mAlphaRejectFunc = oth.mAlphaRejectFunc;
+		mAlphaRejectVal = oth.mAlphaRejectVal;
         mColourWrite = oth.mColourWrite;
 	    mDepthFunc = oth.mDepthFunc;
         mDepthBias = oth.mDepthBias;
@@ -422,6 +426,22 @@ namespace Ogre {
     {
 	    return mDepthFunc;
     }
+	//-----------------------------------------------------------------------
+	void Pass::setAlphaRejectSettings(CompareFunction func, unsigned char value)
+	{
+		mAlphaRejectFunc = func;
+		mAlphaRejectVal = value;
+	}
+	//-----------------------------------------------------------------------
+	void Pass::setAlphaRejectFunction(CompareFunction func)
+	{
+		mAlphaRejectFunc = func;
+	}
+	//-----------------------------------------------------------------------
+	void Pass::setAlphaRejectValue(unsigned char val)
+	{
+		mAlphaRejectVal = val;
+	}
     //-----------------------------------------------------------------------
 	void Pass::setColourWriteEnabled(bool enabled)
 	{

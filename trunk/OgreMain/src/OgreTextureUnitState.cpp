@@ -61,8 +61,6 @@ namespace Ogre {
         mRotate = 0;
         mTexModMatrix = Matrix4::IDENTITY;
         mRecalcTexMatrix = false;
-        mAlphaRejectFunc = CMPF_ALWAYS_PASS;
-        mAlphaRejectVal = 0;
 
         mNumFrames = 0;
         mAnimDuration = 0;
@@ -114,8 +112,6 @@ namespace Ogre {
         mAnimController = 0;
         mTexModMatrix = Matrix4::IDENTITY;
         mRecalcTexMatrix = false;
-        mAlphaRejectFunc = CMPF_ALWAYS_PASS;
-        mAlphaRejectVal = 0;
 
         mCubic = false;
         mTextureType = TEX_TYPE_2D;
@@ -657,22 +653,6 @@ namespace Ogre {
     {
         mVScale = value;
         mRecalcTexMatrix = true;
-    }
-    //-----------------------------------------------------------------------
-    void TextureUnitState::setAlphaRejectSettings(CompareFunction func, unsigned char value)
-    {
-        mAlphaRejectFunc = func;
-        mAlphaRejectVal = value;
-    }
-    //-----------------------------------------------------------------------
-    CompareFunction TextureUnitState::getAlphaRejectFunction(void) const
-    {
-        return mAlphaRejectFunc;
-    }
-    //-----------------------------------------------------------------------
-    unsigned char TextureUnitState::getAlphaRejectValue(void) const
-    {
-        return mAlphaRejectVal;
     }
     //-----------------------------------------------------------------------
     void TextureUnitState::setScrollAnimation(Real uSpeed, Real vSpeed)

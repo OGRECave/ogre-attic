@@ -523,8 +523,9 @@ void parseAlphaRejection(StringVector::iterator& params, int numParams, Material
 			+ pMat->getName() + ", invalid compare function.");
 		return;
 	}
-
-	pTex->setAlphaRejectSettings(cmp, atoi(params[2].c_str()));
+	
+	// set on parent
+	pTex->getParent()->setAlphaRejectSettings(cmp, atoi(params[2].c_str()));
 
 }
 //-----------------------------------------------------------------------

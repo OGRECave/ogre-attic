@@ -373,12 +373,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void FileStreamDataStream::skip(size_t count)
     {
-        mpStream->seekg(count, std::ios::cur);
+		mpStream->seekg(static_cast<std::ifstream::pos_type>(count), std::ios::cur);
     }
     //-----------------------------------------------------------------------
     void FileStreamDataStream::seek( size_t pos )
     {
-        mpStream->seekg(pos, std::ios::beg);
+        mpStream->seekg(static_cast<std::ifstream::pos_type>(pos), std::ios::beg);
     }
     //-----------------------------------------------------------------------
     bool FileStreamDataStream::eof(void) const
@@ -507,7 +507,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool FileHandleDataStream::eof(void) const
     {
-        return feof(mFileHandle);
+        return feof(mFileHandle) != 0;
     }
     //-----------------------------------------------------------------------
     void FileHandleDataStream::close(void)
