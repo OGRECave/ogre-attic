@@ -651,6 +651,9 @@ namespace Ogre
 
         /// Saved set of world matrices
         Matrix4 mWorldMatrices[256];
+
+        /// Temporary buffer for vertex blending in software
+        std::vector<Real> mTempVertexBlendBuffer;
         /** Performs a software vertex blend on the passed in operation. 
         @remarks
             This function is supplied to calculate a vertex blend when no hardware
