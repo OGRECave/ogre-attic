@@ -36,7 +36,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringConverter.h"
 #include "OgreLogManager.h"
 #include "OgreException.h"
-
+#include "OgreParticleAffectorFactory.h"
 
 
 namespace Ogre {
@@ -639,6 +639,37 @@ namespace Ogre {
     {
         static_cast<ParticleSystem*>(target)->setCommonDirection(
             StringConverter::parseVector3(val));
+    }
+    //-----------------------------------------------------------------------
+    ParticleAffector::~ParticleAffector() 
+    {
+    }
+    //-----------------------------------------------------------------------
+    ParticleAffectorFactory::~ParticleAffectorFactory() 
+    {
+        // Destroy all affectors
+        std::vector<ParticleAffector*>::iterator i;
+        for (i = mAffectors.begin(); i != mAffectors.end(); ++i)
+        {
+            delete (*i);
+        }
+            
+        mAffectors.clear();
+
+    }
+    //-----------------------------------------------------------------------
+    void ParticleAffectorFactory::destroyAffector(ParticleAffector* e)
+    {
+        std::vector<ParticleAffector*>::iterator i;
+        for (i = mAffectors.begin(); i != mAffectors.end(); ++i)
+        {
+            if ((*i) == e)
+            {
+                mAffectors.erase(i);
+                delete e;
+                break;
+            }
+        }
     }
 
 }

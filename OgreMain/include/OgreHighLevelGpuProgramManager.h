@@ -38,7 +38,7 @@ namespace Ogre {
 	{
 	public:
         HighLevelGpuProgramFactory() {}
-        virtual ~HighLevelGpuProgramFactory() {}
+        virtual ~HighLevelGpuProgramFactory();
 		/// Get the name of the language this factory creates programs for
 		virtual const String& getLanguage(void) const = 0;
         virtual HighLevelGpuProgram* create(const String& name, GpuProgramType gptype) = 0;

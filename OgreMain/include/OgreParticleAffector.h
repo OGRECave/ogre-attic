@@ -68,7 +68,7 @@ namespace Ogre {
         void addBaseParameters(void) { /* actually do nothing - for future possible use */ }
     public:
         /** Virtual destructor essential. */
-        virtual ~ParticleAffector() {};
+        virtual ~ParticleAffector();
 
         /** Method called to allow the affector to initialize all newly created particles in the system.
         @remarks
@@ -98,8 +98,6 @@ namespace Ogre {
             can be created.
         */
         String getType(void) const { return mType; }
-
-
 
     };
 
