@@ -38,7 +38,8 @@ namespace Ogre {
 //-----------------------------------------------------------------------------  
 D3D9HardwarePixelBuffer::D3D9HardwarePixelBuffer(IDirect3DSurface9 *pSurface):
 	HardwarePixelBuffer(0, 0, 0, PF_UNKNOWN, HBU_DYNAMIC, false, false),
-	mSurface(pSurface), mVolume(0), mTempSurface(0), mTempVolume(0)
+	mSurface(pSurface), mVolume(0), mTempSurface(0), mTempVolume(0),
+	mDoMipmapGen(0), mHWMipmaps(0), mMipTex(0)
 {
 	D3DSURFACE_DESC desc;
 	if(mSurface->GetDesc(&desc) != D3D_OK)
@@ -56,7 +57,8 @@ D3D9HardwarePixelBuffer::D3D9HardwarePixelBuffer(IDirect3DSurface9 *pSurface):
 //-----------------------------------------------------------------------------  
 D3D9HardwarePixelBuffer::D3D9HardwarePixelBuffer(IDirect3DVolume9 *pVolume):
 	HardwarePixelBuffer(0, 0, 0, PF_UNKNOWN, HBU_DYNAMIC, false, false),
-	mSurface(0), mVolume(pVolume), mTempSurface(0), mTempVolume(0)
+	mSurface(0), mVolume(pVolume), mTempSurface(0), mTempVolume(0),
+	mDoMipmapGen(0), mHWMipmaps(0), mMipTex(0)
 {
 	D3DVOLUME_DESC desc;
 	if(mVolume->GetDesc(&desc) != D3D_OK)
@@ -146,6 +148,8 @@ void D3D9HardwarePixelBuffer::unlockImpl(void)
 		// Volume
 		mVolume->UnlockBox();
 	}
+	if(mDoMipmapGen)
+		_genMipmaps();
 }
 //-----------------------------------------------------------------------------  
 void D3D9HardwarePixelBuffer::blit(HardwarePixelBuffer *src, const Image::Box &srcBox, const Image::Box &dstBox)
@@ -222,11 +226,42 @@ void D3D9HardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::B
 		 		"D3D9HardwarePixelBuffer::blitFromMemory");
 		}
 	}
+	if(mDoMipmapGen)
+		_genMipmaps();
 }
 //-----------------------------------------------------------------------------  
 void D3D9HardwarePixelBuffer::blitToMemory(const Image::Box &srcBox, const PixelBox &dst)
 {
 	// TODO
+}
+//-----------------------------------------------------------------------------  
+void D3D9HardwarePixelBuffer::_genMipmaps()
+{
+	assert(mMipTex);
+	// Mipmapping
+	if (mHWMipmaps)
+	{
+		// Hardware mipmaps
+		mMipTex->GenerateMipSubLevels();
+	}
+	else
+	{
+		// Software mipmaps
+		if( D3DXFilterTexture( mMipTex, NULL, D3DX_DEFAULT, D3DX_DEFAULT ) != D3D_OK )
+		{
+			Except( Exception::ERR_RENDERINGAPI_ERROR, 
+			"Failed to filter texture (generate mip maps)",
+			 "D3D9HardwarePixelBuffer::_genMipmaps" );
+		}
+	}
+
+}
+//----------------------------------------------------------------------------- 
+void D3D9HardwarePixelBuffer::_setMipmapping(bool doMipmapGen, bool HWMipmaps, IDirect3DBaseTexture9 *mipTex)
+{
+	mDoMipmapGen = doMipmapGen;
+	mHWMipmaps = HWMipmaps;
+	mMipTex = mipTex;
 }
 
 
