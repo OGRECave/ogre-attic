@@ -188,7 +188,6 @@ namespace Ogre
 		RenderTexture * createRenderTexture( const String & name, int width, int height );
 		String getErrorDescription( long errorNumber );
 		const String& getName(void) const;
-        void setTextureFiltering( TextureFilterOptions fo );
 		// Low-level overridden members
 		void setConfigOption( const String &name, const String &value );
 		void reinitialise();
@@ -241,7 +240,6 @@ namespace Ogre
 		void _setFog( FogMode mode = FOG_NONE, ColourValue colour = ColourValue::White, Real expDensity = 1.0, Real linearStart = 0.0, Real linearEnd = 1.0 );
 		void _makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, Matrix4& dest);
 		void _setRasterisationMode(SceneDetailLevel level);
-        void _setAnisotropy(int maxAnisotropy);
 		void _setTextureLayerFiltering(int unit, const TextureFilterOptions texLayerFilterOps);
 		void _setTextureLayerAnisotropy(int unit, int maxAnisotropy);
 		unsigned short _getNumTextureUnits(void);

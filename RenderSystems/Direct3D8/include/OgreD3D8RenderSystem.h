@@ -66,6 +66,50 @@ namespace Ogre {
 		UINT mStreamsInUse;
 		HardwareIndexBuffer mpIndicies;
 
+		/// enum identifying D3D9 tex. types
+		enum eD3DTexType
+		{
+			/// standard texture
+			D3D_TEX_TYPE_NORMAL,
+			/// cube texture
+			D3D_TEX_TYPE_CUBE,
+			/// volume texture
+			D3D_TEX_TYPE_VOLUME
+		};
+
+		/// return the D3DtexType equivalent of a Ogre tex. type
+		eD3DTexType _ogreTexTypeToD3DTexType(TextureType ogreTexType)
+		{
+			eD3DTexType ret;
+			switch (ogreTexType)
+			{
+			case TEX_TYPE_1D :
+			case TEX_TYPE_2D :
+				ret = D3D_TEX_TYPE_NORMAL;
+				break;
+			case TEX_TYPE_CUBE_MAP :
+				ret = D3D_TEX_TYPE_CUBE;
+				break;
+			default :
+				Except( Exception::ERR_INVALIDPARAMS, "Invalid tex.type", "D3D9RenderSystem::_ogreTexTypeToD3DTexType" );
+				break;
+			}
+			return ret;
+		}
+
+		/// structure holding texture unit settings for every stage
+		struct sD3DTextureStageDesc
+		{
+			/// the type of the texture
+			eD3DTexType texType;
+			/// wich texCoordIndex to use
+			int coordIndex;
+			/// type of auto tex. calc. used
+			TexCoordCalcMethod autoTexCoordType;
+			/// texture, if it's 0/NULL the tex layer is disabled
+			IDirect3DBaseTexture8 *pTex;
+		} mTexStageDesc[OGRE_MAX_TEXTURE_LAYERS];
+
 		// With a quick bit of adding up, I cannot see our vertex shader declaration being larger then 26 items
 		#define D3D_MAX_DECLSIZE 26
 		DWORD mCurrentDecl[D3D_MAX_DECLSIZE];
@@ -101,10 +145,14 @@ namespace Ogre {
         D3DCMPFUNC convertCompareFunction(CompareFunction func);
         D3DSTENCILOP convertStencilOp(StencilOperation op);
 
-		DWORD _getMipFilter(const TextureFilterOptions fo);
-		DWORD _getMagFilter(const TextureFilterOptions fo);
-		DWORD _getMinFilter(const TextureFilterOptions fo);
+		DWORD _getMipFilter(const TextureFilterOptions fo, eD3DTexType texType);
+		DWORD _getMagFilter(const TextureFilterOptions fo, eD3DTexType texType);
+		DWORD _getMinFilter(const TextureFilterOptions fo, eD3DTexType texType);
 		DWORD _getCurrentAnisotropy(int unit);
+
+		// state management methods, very primitive !!!
+		HRESULT __SetRenderState(D3DRENDERSTATETYPE state, DWORD value);
+		HRESULT __SetTextureStageState(DWORD stage, D3DTEXTURESTAGESTATETYPE type, DWORD value);
 
 	public:
 		D3D8RenderSystem( HINSTANCE hInstance );
@@ -123,7 +171,6 @@ namespace Ogre {
 		void startRendering();
 		void setAmbientLight( float r, float g, float b );
 		void setShadingType( ShadeOptions so );
-		void setTextureFiltering( TextureFilterOptions fo );
 		void setLightingEnabled( bool enabled );
         RenderWindow* createRenderWindow(const String &name, int width, int height, int colourDepth,
             bool fullScreen, int left = 0, int top = 0, bool depthBuffer = true,
@@ -149,8 +196,8 @@ namespace Ogre {
 			const ColourValue &emissive, Real shininess );
 		unsigned short _getNumTextureUnits(void);
 		void _setTexture( int unit, bool enabled, const String &texname );
-		void _setTextureCoordSet( int stage, int index );
-		void _setTextureCoordCalculation( int stage, TexCoordCalcMethod m );
+        void _setTextureCoordCalculation(int unit, TexCoordCalcMethod m);
+        void _setTextureCoordSet( int stage, int index );
 		void _setTextureBlendMode( int stage, const LayerBlendModeEx& bm );
 		void _setTextureAddressingMode( int stage, Material::TextureLayer::TextureAddressingMode tam );
 		void _setTextureMatrix( int stage, const Matrix4 &xform );
@@ -212,10 +259,6 @@ namespace Ogre {
           RenderSystem
          */
 		void _setTextureLayerFiltering(int unit, const TextureFilterOptions texLayerFilterOps);
-        /** See
-          RenderSystem
-         */
-		void _setAnisotropy(int maxAnisotropy);
         /** See
           RenderSystem
          */

@@ -205,14 +205,8 @@ namespace Ogre {
         for(unsigned int i = 0; i < images.size(); i++)
         {
             Image img = images[i];
-            if(mTextureType == TEX_TYPE_CUBE_MAP && (i != 2 && i != 3))
-            {
-                img.flipAroundY();
-            }
-            else
-            {
+            if(mTextureType != TEX_TYPE_CUBE_MAP)
                 img.flipAroundX();
-            }
 
             LogManager::getSingleton().logMessage( 
                 LML_NORMAL,
@@ -288,8 +282,7 @@ namespace Ogre {
                 Image img;
                 String baseName, ext;
                 std::vector<Image> images;
-                //String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_fr", "_bk"};
-                String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_bk", "_fr"};
+                String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_fr", "_bk"};
 
                 for(unsigned int i = 0; i < 6; i++)
                 {

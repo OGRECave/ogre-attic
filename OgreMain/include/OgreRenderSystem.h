@@ -247,7 +247,7 @@ namespace Ogre
                 fo The type of filtering to apply. The options are described in
                 TextureFilterOptions
          */
-        virtual void setTextureFiltering(TextureFilterOptions fo) = 0;
+        virtual void setTextureFiltering(TextureFilterOptions fo);
 
         /** Sets whether or not dynamic lighting is enabled.
             @param
@@ -513,7 +513,7 @@ namespace Ogre
 		virtual void _setTextureLayerAnisotropy(int unit, int maxAnisotropy) = 0;
 
 		/** Sets the maximal anisotropy.*/
-		virtual void _setAnisotropy(int maxAnisotropy) = 0;
+		virtual void _setAnisotropy(int maxAnisotropy);
 
 		/** Sets the texture addressing mode for a texture unit.*/
         virtual void _setTextureAddressingMode(int unit, Material::TextureLayer::TextureAddressingMode tam) = 0;

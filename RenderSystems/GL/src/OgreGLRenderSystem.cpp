@@ -197,17 +197,6 @@ namespace Ogre {
         }
     }
 
-    void GLRenderSystem::setTextureFiltering(TextureFilterOptions fo)
-    {
-        OgreGuard( "GLRenderSystem::setTextureFiltering" );        
-
-        for (int i = 0; i < _getNumTextureUnits(); i++)
-			_setTextureLayerFiltering(i, fo);
-
-        glActiveTextureARB( GL_TEXTURE0 );
-
-        OgreUnguard();
-    }
 
     RenderWindow* GLRenderSystem::createRenderWindow(
             const String & name, int width, int height, int colourDepth,
@@ -590,13 +579,16 @@ namespace Ogre {
             glDisable( GL_TEXTURE_GEN_Q );
 
             // We need an extra texture matrix here
+            // This sets the texture matrix to be the inverse of the modelview matrix
             mUseAutoTextureMatrix = true;
             glGetFloatv( GL_MODELVIEW_MATRIX, M );
 
             // Transpose 3x3 in order to invert matrix (rotation)
-            mAutoTextureMatrix[0] = M[0]; mAutoTextureMatrix[1] = M[4]; mAutoTextureMatrix[2] = M[8];
-            mAutoTextureMatrix[4] = M[1]; mAutoTextureMatrix[5] = M[5]; mAutoTextureMatrix[6] = M[9];
-            mAutoTextureMatrix[8] = M[2]; mAutoTextureMatrix[9] = M[6]; mAutoTextureMatrix[10] = M[10];
+            // Note that we need to invert the Z _before_ the rotation
+            // No idea why we have to invert the Z at all, but reflection is wrong without it
+            mAutoTextureMatrix[0] = M[0]; mAutoTextureMatrix[1] = M[4]; mAutoTextureMatrix[2] = -M[8];
+            mAutoTextureMatrix[4] = M[1]; mAutoTextureMatrix[5] = M[5]; mAutoTextureMatrix[6] = -M[9];
+            mAutoTextureMatrix[8] = M[2]; mAutoTextureMatrix[9] = M[6]; mAutoTextureMatrix[10] = -M[10];
             mAutoTextureMatrix[3] = mAutoTextureMatrix[7] = mAutoTextureMatrix[11] = 0.0f;
             mAutoTextureMatrix[12] = mAutoTextureMatrix[13] = mAutoTextureMatrix[14] = 0.0f;
             mAutoTextureMatrix[15] = 1.0f;
@@ -1335,6 +1327,8 @@ namespace Ogre {
 				GL_NEAREST);
 			break;
 		}
+
+        glActiveTextureARB( GL_TEXTURE0 );
 
 		OgreUnguard();
 	}
