@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRefAppBall.h"
 #include "OgreRefAppJointSubtypes.h"
 #include "OgreRefAppBox.h"
+#include "OgreRefAppCollideCamera.h"
 
 //-------------------------------------------------------------------------
 template<> OgreRefApp::World* Ogre::Singleton<OgreRefApp::World>::ms_Singleton = 0;
@@ -313,6 +314,18 @@ namespace OgreRefApp
 
         return box;
     }
+    //-------------------------------------------------------------------------
+    CollideCamera* World::createCamera(const String& name, const Vector3& pos,
+        const Quaternion& orientation )
+    {
+        CollideCamera* cam = new CollideCamera(name);
+        cam->setPosition(pos);
+        cam->setOrientation(orientation);
 
+        mObjects[name] = cam;
+
+        return cam;
+
+    }
 }
 

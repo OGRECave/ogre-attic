@@ -30,19 +30,30 @@ namespace Ogre {
 
     void BspSceneNode::_update(bool updateChildren, bool parentHasChanged)
     {
+        bool checkMovables = false;
+
+        if (mNeedParentUpdate || parentHasChanged)
+        {
+            // This means we've moved
+            checkMovables = true;
+        }
+
         // Call superclass
         SceneNode::_update(updateChildren, parentHasChanged);
 
-        // Check membership of attached objects
-        ObjectMap::const_iterator it, itend;
-        itend = mObjectsByName.end();
-        for (it = mObjectsByName.begin(); it != itend; ++it)
+        if (checkMovables)
         {
-            MovableObject* mov = it->second;
+            // Check membership of attached objects
+            ObjectMap::const_iterator it, itend;
+            itend = mObjectsByName.end();
+            for (it = mObjectsByName.begin(); it != itend; ++it)
+            {
+                MovableObject* mov = it->second;
 
-            static_cast<BspSceneManager*>(mCreator)->_notifyObjectMoved(
-                mov, this->_getDerivedPosition());
+                static_cast<BspSceneManager*>(mCreator)->_notifyObjectMoved(
+                    mov, this->_getDerivedPosition());
 
+            }
         }
 
     }

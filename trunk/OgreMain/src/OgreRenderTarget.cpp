@@ -41,7 +41,7 @@ namespace Ogre {
         mStatFlags = SF_NONE;
         mActive = true;
         mPriority = OGRE_DEFAULT_RT_GROUP;
-		mTimer = PlatformManager::getSingleton().createTimer();
+        mTimer = Timer::getSingletonPtr();
         resetStatistics();
     }
 
@@ -54,7 +54,6 @@ namespace Ogre {
             delete (*i).second;
         }
 
-        PlatformManager::getSingleton().destroyTimer(mTimer);
 
         // Write closing message
         LogManager::getSingleton().logMessage(

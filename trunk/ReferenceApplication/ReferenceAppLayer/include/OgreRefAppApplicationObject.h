@@ -58,12 +58,17 @@ namespace OgreRefApp {
 
 
         bool mDynamicsEnabled;
+        bool mReenableIfInteractedWith;
         bool mCollisionEnabled;
 
 		Real mBounceCoeffRestitution;
 		Real mBounceVelocityThreshold;
 		Real mSoftness;
         Real mFriction;
+        Real mLinearVelDisableThreshold;
+        Real mAngularVelDisableThreshold;
+        Real mDisableTime;
+        Real mDisableTimeEnd;
 
         // Set up method, must override
         virtual void setUp(const String& name) = 0;
@@ -107,16 +112,45 @@ namespace OgreRefApp {
             Objects which have collision enabled must set up an ODE 
             collision proxy as part of their setUp method.
         */
+
+        /** Sets the linear and angular velocity thresholds, below which the 
+        object will have it's dynamics automatically disabled for performance.
+        @remarks
+            These thresholds are used to speed up the simulation and to make it more
+            stable, by turning off dynamics for objects that appear to be at rest.
+            Otherwise, objects which are supposedly stationary can jitter when involved
+            in large stacks, and can consume unnecessary CPU time. Note that if another
+            object interacts with the disabled object, it will automatically reenable itself.
+        @par
+            If you never want to disable dynamics automatically for this object, just 
+            set all the values to 0.
+        @param linearSq The squared linear velocity magnitude threshold
+        @param angularSq The squared angular velocity magnitude threshold
+        @param overTime The number of seconds over which the values must continue to be under
+            this threshold for the dynamics to be disabled. This is to catch cases
+            where the object almost stops moving because of a boundary condition, but
+            would speed up again later (e.g. box teetering on an edge).
+
+        */
+        virtual void setDynamicsDisableThreshold(Real linearSq, Real angularSq, Real overTime);
+
         virtual void setCollisionEnabled(bool enabled);
-        /** Sets whether or not this object is physically simulated.
+        /** Sets whether or not this object is physically simulated at this time.
         @remarks
             Objects which are not physically simulated only move when their
             SceneNode is manually altered. Objects which are physically 
             simulated must set up an ODE body as part of their setUp method.
+        @par
+            You can also use this to temporarily turn off simulation on an object,
+            such that it is not simulated until some other object which IS simulated
+            comes in contact with it, or is attached to it with a joint.
+        @param enabled Specifies whether dynamics is enabled
+        @param reEnableOnInteraction If set to true, this object will reenable if some
+            other dynamically simulated object interacts with it
         */
-        virtual void setDynamicsEnabled(bool enabled);
+        virtual void setDynamicsEnabled(bool enabled, bool reEnableOnInteraction = false);
 
-		/** Sets the 'bounciness' of this object.
+        /** Sets the 'bounciness' of this object.
 		 * @remarks
 		 * Only applies if this object has both collision and dynamics enabled.
 		 * When 2 movable objects collide, the greatest bounce parameters 

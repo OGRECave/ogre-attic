@@ -45,10 +45,6 @@ namespace OgreRefApp {
 
         void _notifyCollided(ApplicationObject* otherObj, const CollisionInfo& info)
         {
-            LogManager::getSingleton().logMessage(String("Box collided ") + 
-                "normal: " + StringConverter::toString(info.normal) + " " +
-                "depth: " + StringConverter::toString(info.penetrationDepth) +
-                "position: " + StringConverter::toString(info.position));
         }
     };
 

@@ -35,6 +35,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRefAppBall.h"
 #include "OgreRefAppJoint.h"
 #include "OgreRefAppBox.h"
+#include "OgreRefAppCollideCamera.h"
 
 
 #endif
