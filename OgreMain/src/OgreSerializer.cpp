@@ -64,7 +64,7 @@ namespace Ogre {
         writeLongs(&size, 1);
     }
     //---------------------------------------------------------------------
-    void Serializer::writeReals(const Real* pReal, size_t count)
+    void Serializer::writeReals(const Real* const pReal, size_t count)
     {
 #	if OGRE_ENDIAN == ENDIAN_BIG
             Real * pRealToWrite = (Real *)malloc(sizeof(Real) * count);
@@ -79,7 +79,7 @@ namespace Ogre {
 #	endif
     }
     //---------------------------------------------------------------------
-    void Serializer::writeShorts(const unsigned short* pShort, size_t count)
+    void Serializer::writeShorts(const unsigned short* const pShort, size_t count)
     {
 #	if OGRE_ENDIAN == ENDIAN_BIG
             unsigned short * pShortToWrite = (unsigned short *)malloc(sizeof(unsigned short) * count);
@@ -94,7 +94,7 @@ namespace Ogre {
 #	endif
     }
     //---------------------------------------------------------------------
-    void Serializer::writeInts(const unsigned int* pInt, size_t count)
+    void Serializer::writeInts(const unsigned int* const pInt, size_t count)
     {
 #	if OGRE_ENDIAN == ENDIAN_BIG
             unsigned int * pIntToWrite = (unsigned int *)malloc(sizeof(unsigned int) * count);
@@ -109,7 +109,7 @@ namespace Ogre {
 #	endif
     }
     //---------------------------------------------------------------------
-    void Serializer::writeLongs(const unsigned long* pLong, size_t count)
+    void Serializer::writeLongs(const unsigned long* const pLong, size_t count)
     {
 #	if OGRE_ENDIAN == ENDIAN_BIG
             unsigned long * pLongToWrite = (unsigned long *)malloc(sizeof(unsigned long) * count);
@@ -124,7 +124,7 @@ namespace Ogre {
 #	endif
     }
     //---------------------------------------------------------------------
-    void Serializer::writeBools(const bool* pBool, size_t count)
+    void Serializer::writeBools(const bool* const pBool, size_t count)
     {
     //no endian flipping for 1-byte bools
     //XXX Nasty Hack to convert to 1-byte bools
@@ -145,7 +145,7 @@ namespace Ogre {
     }
     
     //---------------------------------------------------------------------
-    void Serializer::writeData(const void* buf, size_t size, size_t count)
+    void Serializer::writeData(const void* const buf, size_t size, size_t count)
     {
         fwrite((void* const)buf, size, count, mpfFile);
     }
