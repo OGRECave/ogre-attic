@@ -83,6 +83,7 @@ extern "C" {
 #if OGRE_THREAD_SUPPORT
 #	include <boost/thread/thread.hpp>
 #	include <boost/thread/recursive_mutex.hpp>
+#	include <boost/thread/condition.hpp>
 #endif
 
 #endif
