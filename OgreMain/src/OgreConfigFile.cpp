@@ -33,7 +33,7 @@ namespace Ogre {
     {
     }
     //-----------------------------------------------------------------------
-    void ConfigFile::load(const String& filename, const String& separators)
+    void ConfigFile::load(const String& filename, const String& separators, bool trimWhitespace)
     {
         FILE *fp;
         char rec[100], *ret;
@@ -60,8 +60,11 @@ namespace Ogre {
                 optVal = strtok(NULL, "\n");
                 if (optName.length() != 0 && optVal != 0)
                 {
-                    optVal.trim();
-                    optName.trim();
+                    if (trimWhitespace)
+                    {
+                        optVal.trim();
+                        optName.trim();
+                    }
                     mSettings.insert(std::multimap<String, String>::value_type(optName, optVal));
                 }
             }

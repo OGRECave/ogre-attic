@@ -288,7 +288,8 @@ namespace Ogre {
         RenderSystemList::iterator pRend;
 
         try {
-            cfg.load("ogre.cfg");
+            // Don't trim whitespace
+            cfg.load("ogre.cfg", "\t:=", false);
         }
         catch (Exception& e)
         {
