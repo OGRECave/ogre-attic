@@ -34,6 +34,7 @@ namespace Ogre {
     {
         mEventQueue = 0;
         mScale = 0.002;
+        _visible = true;
     }
 
     SDLInput::~SDLInput()
@@ -46,29 +47,33 @@ namespace Ogre {
     {
         // Hide the cursor
         SDL_ShowCursor(0);
-#		if OGRE_PLATFORM != PLATFORM_APPLE
         SDL_WM_GrabInput(SDL_GRAB_ON);
-#		endif
 
-        if (!mUseBuffered)
-        {
-            // Get the center and put the mouse there
-            int width, height, depth, left, top;
-            pWindow->getMetrics(width, height, depth, left, top);
+        // Get the center and put the mouse there
+        int width, height, depth, left, top;
+        pWindow->getMetrics(width, height, depth, left, top);
 
-            mMouseCenterX = width / 2;
-            mMouseCenterY = height / 2;
+        mMouseCenterX = width / 2;
+        mMouseCenterY = height / 2;
 
-            SDL_WarpMouse(mMouseCenterX, mMouseCenterY);
-        }
-        else
-        {
-            // XXX anything to do here for buffered?
-        }
+        SDL_WarpMouse(mMouseCenterX, mMouseCenterY);
     }
 
     void SDLInput::capture()
     {
+        // Wait until we're visible again
+        if (!_visible)
+        {
+            SDL_Event event;
+            while (SDL_WaitEvent(&event))
+            {
+                if (event.type == SDL_ACTIVEEVENT && event.active.gain == 1)
+                {
+                    break;
+                }
+            }
+        }
+
         if (mUseBuffered)
         {
             processBufferedMouse();
@@ -85,12 +90,12 @@ namespace Ogre {
             if( SDL_GetAppState() & SDL_APPMOUSEFOCUS )
             {
                 mMouseKeys = SDL_GetMouseState( &mMouseX, &mMouseY );
-                SDL_WarpMouse( mMouseCenterX, mMouseCenterY );
             }
 
             // XXX Fix me up
             // Game controller state
         }
+        SDL_WarpMouse( mMouseCenterX, mMouseCenterY );
     }
 
     bool SDLInput::isKeyDown(KeyCode kc)
@@ -369,7 +374,7 @@ namespace Ogre {
 
         int count = SDL_PeepEvents(events, 16, SDL_GETEVENT,
                 (SDL_MOUSEMOTIONMASK | SDL_MOUSEBUTTONDOWNMASK |
-                 SDL_MOUSEBUTTONUPMASK));
+                 SDL_MOUSEBUTTONUPMASK | SDL_ACTIVEEVENTMASK));
         if (!count)
         {
             return;
@@ -383,7 +388,17 @@ namespace Ogre {
             bool button_down = false;
             switch (events[i].type)
             {
+            case SDL_ACTIVEEVENT:
+                _visible = events[i].active.gain ? true : false;
+                break;
             case SDL_MOUSEMOTION:
+                if (events[i].motion.x == mMouseCenterX && 
+                        events[i].motion.y == mMouseCenterY)
+                {
+                    // it moved to the center, probably a warp, ignore it
+                    continue;
+                }
+
                 if (events[i].motion.xrel)
                 {
                     if (Xset)
