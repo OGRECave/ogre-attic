@@ -1526,9 +1526,8 @@ namespace Ogre {
 
         for (i = decl.begin(); i != iend; ++i)
         {
-            GLuint vtxBufferId = static_cast<const GLHardwareVertexBuffer*>(op.vertexData->vertexBufferBinding->getBuffer(i->getSource()).get())->getGLBufferId();
-
-            glBindBufferARB_ptr(GL_ARRAY_BUFFER_ARB, vtxBufferId);
+            const GLHardwareVertexBuffer* vertexBuffer = static_cast<const GLHardwareVertexBuffer*>(op.vertexData->vertexBufferBinding->getBuffer(i->getSource()).get());
+            glBindBufferARB_ptr(GL_ARRAY_BUFFER_ARB, vertexBuffer->getGLBufferId());
 
             GLenum type = 0;
             switch(i->getType())
@@ -1548,27 +1547,29 @@ namespace Ogre {
             case VET_COLOUR:
                 type = GL_UNSIGNED_BYTE;
                 break;
+            default:
+                break;
             };
 
             switch(i->getSemantic())
             {
             case VES_POSITION:
                 glVertexPointer(VertexElement::getTypeCount(i->getType()), 
-                    type, 0, BUFFER_OFFSET(i->getOffset()));
+                    type, vertexBuffer->getVertexSize(), BUFFER_OFFSET(i->getOffset()));
                 glEnableClientState( GL_VERTEX_ARRAY );
                 break;
             case VES_NORMAL:
-                glNormalPointer(type, 0, BUFFER_OFFSET(i->getOffset()));
+                glNormalPointer(type, vertexBuffer->getVertexSize(), BUFFER_OFFSET(i->getOffset()));
                 glEnableClientState( GL_NORMAL_ARRAY );
                 break;
             case VES_DIFFUSE:
-                glColorPointer(4, type, 0, BUFFER_OFFSET(i->getOffset()));
+                glColorPointer(4, type, vertexBuffer->getVertexSize(), BUFFER_OFFSET(i->getOffset()));
                 glEnableClientState( GL_COLOR_ARRAY );
                 break;
             case VES_TEXTURE_COORDINATES:
                 glClientActiveTextureARB_ptr(GL_TEXTURE0 + i->getIndex());
                 glTexCoordPointer(VertexElement::getTypeCount(i->getType()), 
-                    type, 0, BUFFER_OFFSET(i->getOffset()));
+                    type, vertexBuffer->getVertexSize(), BUFFER_OFFSET(i->getOffset()));
                 glEnableClientState( GL_TEXTURE_COORD_ARRAY );
                 break;
             default:
