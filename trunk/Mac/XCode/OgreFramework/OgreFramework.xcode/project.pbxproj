@@ -9914,7 +9914,7 @@
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
 				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				INFOPLIST_FILE = "CGProgramManager Plugin-Info.plist";
+				INFOPLIST_FILE = "CGProgramManager_Plugin-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
@@ -9972,8 +9972,8 @@
 		8207A09106011E620045D784 = {
 			isa = PBXFileReference;
 			lastKnownFileType = text.plist.xml;
-			name = "CGProgramManager Plugin-Info.plist";
-			path = "/Users/temas/cvs/ogre/Mac/XCode/OgreFramework/CGProgramManager Plugin-Info.plist";
+			name = "CGProgramManager_Plugin-Info.plist";
+			path = "/Users/temas/cvs/ogre/Mac/XCode/OgreFramework/CGProgramManager_Plugin-Info.plist";
 			refType = 0;
 			sourceTree = "<absolute>";
 		};
