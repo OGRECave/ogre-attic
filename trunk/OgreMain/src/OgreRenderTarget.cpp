@@ -344,5 +344,23 @@ namespace Ogre {
             (*i)->postRenderTargetUpdate(evt);
         }
     }
+    //-----------------------------------------------------------------------
+    unsigned short RenderTarget::getNumViewports(void)
+    {
+        return (unsigned short)mViewportList.size();
+
+    }
+    //-----------------------------------------------------------------------
+    Viewport* RenderTarget::getViewport(unsigned short index)
+    {
+        assert (index < mViewportList.size() && "Index out of bounds");
+
+        ViewportList::iterator i = mViewportList.begin();
+        while (index)
+            ++i;
+        return i->second;
+
+
+    }
 
 }        
