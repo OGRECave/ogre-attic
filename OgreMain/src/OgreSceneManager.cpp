@@ -1525,6 +1525,12 @@ namespace Ogre {
             {
                 Light* l = *i;
                 mCurrentShadowTexture = *si;
+                // Hook up receiver texture
+                mShadowReceiverPass->getTextureUnitState(0)->setTextureName(
+                    mCurrentShadowTexture->getName());
+                // Hook up projection frustum
+                mShadowReceiverPass->getTextureUnitState(0)->setProjectiveTexturing(
+                    true, mCurrentShadowTexture->getViewport(0)->getCamera());
 
                 if (l->getCastShadows() && pGroup->getShadowsEnabled())
                 {
@@ -1564,9 +1570,6 @@ namespace Ogre {
         while (groupIt.hasMoreElements())
         {
             RenderPriorityGroup* pPriorityGrp = groupIt.getNext();
-
-            // Sort the queue first
-            pPriorityGrp->sort(mCameraInProgress);
 
             // Do solids, override light list incase any vertex programs use them
             renderObjects(pPriorityGrp->_getSolidPasses(), false, &nullLightList);
@@ -2808,6 +2811,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     Pass* SceneManager::deriveShadowReceiverPass(Pass* pass)
     {
+
         switch (mShadowTechnique)
         {
         case SHADOWTYPE_TEXTURE_MODULATIVE:
@@ -2827,14 +2831,6 @@ namespace Ogre {
                 mShadowReceiverPass->setVertexProgram("");
 
             }
-
-            // Hook up receiver texture
-            mShadowReceiverPass->getTextureUnitState(0)->setTextureName(
-                mCurrentShadowTexture->getName());
-            // Hook up projection frustum
-            mShadowReceiverPass->getTextureUnitState(0)->setProjectiveTexturing(
-                true, mCurrentShadowTexture->getViewport(0)->getCamera());
-
             return mShadowReceiverPass;
         case SHADOWTYPE_TEXTURE_SHADOWMAP:
             // todo
@@ -3203,12 +3199,81 @@ namespace Ogre {
             // Directional lights only for now
             if (light->getType() == Light::LT_DIRECTIONAL)
             {
+                Real shadowDist = mShadowFarDist;
+                if (!shadowDist)
+                {
+                    // need a shadow distance, make one up
+                    shadowDist = cam->getNearClipDistance() * 250;
+                }
+
                 // set up the shadow texture
                 Camera* texCam = shadowTex->getViewport(0)->getCamera();
-                // HACK - TODO do this properly
+                // Set ortho projection
+                texCam->setProjectionType(PT_ORTHOGRAPHIC);
+                // set easy FOV and near dist so that texture covers far dist
+                texCam->setFOVy(90);
+                texCam->setNearClipDistance(shadowDist * 0.5);
+
+                // Set size of projection
+
+                // Calculate look at position
+                // We want to look at a spot 0.4 * shadowdist away from near plane
+                // 0.5 is a litle too close for angles
+                Vector3 target = cam->getDerivedPosition() + 
+                    (cam->getDerivedDirection() * (shadowDist * 0.4));
+                // Calculate position
+                // We want to be in the -ve direction of the light direction
+                // far enough to project for the dir light extrusion distance
+                Vector3 pos = target + 
+                    (light->getDerivedDirection() * -mShadowDirLightExtrudeDist);
+
+                texCam->setPosition(pos);
+                // Calculate orientation
+                Vector3 dir = (pos - target); // backwards since point down -z
+                dir.normalise();
+                /*
+                // Next section (camera oriented shadow map) abandoned
+                // Always point in the same direction, if we don't do this then
+                // we get 'shadow swimming' as camera rotates
+                // As it is, we get swimming on moving but this is less noticeable
+
+                // calculate up vector, we want it aligned with cam direction
+                Vector3 up = cam->getDerivedDirection();
+                // Check it's not coincident with dir
+                if (up.dotProduct(dir) >= 1.0f)
+                {
+                    // Use camera up
+                    up = cam->getUp();
+                }
+                */
+                Vector3 up = Vector3::UNIT_Y;
+                // Check it's not coincident with dir
+                if (up.dotProduct(dir) >= 1.0f)
+                {
+                    // Use camera up
+                    up = Vector3::UNIT_Z;
+                }
+                // cross twice to rederive, only direction is unaltered
+                Vector3 left = dir.crossProduct(up);
+                left.normalise();
+                up = dir.crossProduct(left);
+                up.normalise();
+                // Derive quaternion from axes
+                Quaternion q;
+                q.FromAxes(left, up, dir);
+                texCam->setOrientation(q);
+                
+
+
+
+                // Calculate camera projection params
+                // width/height need to be large enough to cover view at far extent
+
+
+                // HACK
                 // Set position / orientation
-                texCam->setPosition(800,600,0);
-                texCam->lookAt(0,0,0);
+                //texCam->setPosition(800,600,0);
+                //texCam->lookAt(0,0,0);
 
                 if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE)
                     shadowTex->getViewport(0)->setBackgroundColour(ColourValue::White);
