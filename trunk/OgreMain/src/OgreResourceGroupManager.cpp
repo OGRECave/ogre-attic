@@ -250,33 +250,33 @@ namespace Ogre {
         grp->locationList.push_back(loc);
         // Index resources
         StringVectorPtr vec = pArch->find("*", recursive);
-        // Determine the index to add this to; case sensitive or case insensitive
-        ResourceLocationIndex& resourceIndex = 
-            pArch->isCaseSensitive() ? 
-                grp->resourceIndexCaseSensitive : grp->resourceIndexCaseInsensitive;
         for( StringVector::iterator it = vec->begin(); it != vec->end(); ++it )
         {
 			ResourceIndexEntry resIdx;
 			resIdx.archive = pArch;
 			resIdx.fullname = (*it);
-            // Deal with case sensitive / insensitive
-            String indexName = resIdx.fullname;
+			// Index under full name, case sensitive
+            grp->resourceIndexCaseSensitive[resIdx.fullname] = resIdx;
             if (!pArch->isCaseSensitive())
             {
+	            // Index under lower case name too for case insensitive match
+    	        String indexName = resIdx.fullname;
                 StringUtil::toLowerCase(indexName);
+	            grp->resourceIndexCaseInsensitive[indexName] = resIdx;
             }
-			// Index under full name
-            resourceIndex[indexName] = resIdx;
             // if recursive, index file under basename too
 			if (recursive)
 			{
 				String baseName, path;
 				StringUtil::splitFilename((*it), baseName, path);
-                if (!pArch->isCaseSensitive())
+   				grp->resourceIndexCaseSensitive[baseName] = resIdx;
+	            if (!pArch->isCaseSensitive())
                 {
-                    StringUtil::toLowerCase(baseName);
+		            // Index under lower case name too for case insensitive match
+    		        String indexName = baseName;
+        	        StringUtil::toLowerCase(indexName);
+	        	    grp->resourceIndexCaseInsensitive[indexName] = resIdx;
                 }
-				resourceIndex[baseName] = resIdx;
 			}
         }
 		
