@@ -1019,7 +1019,7 @@ namespace Ogre
 		// if not present we'v already set it through D3D9RenderSystem::_setTextureCoordSet
 		if (m != TEXCALC_NONE)
 		{
-			hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3D9Mappings::get(m));
+			hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3D9Mappings::get(m, mCaps));
 			if(FAILED(hr))
 				Except( hr, "Unable to set texture auto tex.coord. generation mode", "D3D8RenderSystem::_setTextureCoordCalculation" );
 		}
@@ -1034,11 +1034,13 @@ namespace Ogre
 		// make the ident. matrix in D3D format
 		D3DXMatrixIdentity(&d3dMatId);
 
-		// check if env_map is applyed
-        // Note, only applicable to sphere maps
-        /*
-        It appears D3D9 doesn't need this anymore!
-		if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_ENVIRONMENT_MAP)
+		/* If envmap is applied, but device doesn't support spheremap,
+		then we have to use texture transform to make the camera space normal
+		reference the envmap properly. This isn't exactly the same as spheremap
+		(it looks nasty on flat areas because the camera space normals are the same)
+		but it's the best approximation we have in the absence of a proper spheremap */
+		if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_ENVIRONMENT_MAP &&
+			!(mCaps.VertexProcessingCaps & D3DVTXPCAPS_TEXGEN_SPHEREMAP))
 		{
 			// if so we must concatenate the current with the env_map matrix
 			D3DXMATRIX d3dMatEnvMap; // the env_map matrix
@@ -1054,7 +1056,6 @@ namespace Ogre
 			// concatenate with the xForm
 			newMat = newMat.concatenate(ogreMatEnvMap);
 		}
-        */
 
         // If this is a cubic reflection, we need to modify using the view matrix
         if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_ENVIRONMENT_MAP_REFLECTION)

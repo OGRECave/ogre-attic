@@ -59,7 +59,7 @@ namespace Ogre
 		return D3DLIGHT_FORCE_DWORD;
 	}
 	//---------------------------------------------------------------------
-	DWORD D3D9Mappings::get(TexCoordCalcMethod m)
+	DWORD D3D9Mappings::get(TexCoordCalcMethod m, const D3DCAPS9& caps)
 	{
 		switch( m )
 		{
@@ -72,7 +72,16 @@ namespace Ogre
 		case TEXCALC_ENVIRONMENT_MAP_NORMAL:
 			return D3DTSS_TCI_CAMERASPACENORMAL;
 		case TEXCALC_ENVIRONMENT_MAP:
-			return D3DTSS_TCI_SPHEREMAP;
+			if (caps.VertexProcessingCaps & D3DVTXPCAPS_TEXGEN_SPHEREMAP)
+			{
+				// Use sphere map if available
+				return D3DTSS_TCI_SPHEREMAP;
+			}
+			else
+			{
+				// If not, fall back on camera space normal which isn't as good
+				return D3DTSS_TCI_CAMERASPACENORMAL;
+			}
 		}
 		return 0;
 	}
@@ -408,6 +417,8 @@ namespace Ogre
 			return D3DDECLTYPE_FLOAT3;
 			break;
 		}
+		// to keep compiler happy
+		return D3DDECLTYPE_FLOAT3;
 	}
 	//---------------------------------------------------------------------
 	D3DDECLUSAGE D3D9Mappings::get(VertexElementSemantic sem)
@@ -436,6 +447,8 @@ namespace Ogre
 			return D3DDECLUSAGE_TEXCOORD;
 			break;
 		}
+		// to keep compiler happy
+		return D3DDECLUSAGE_POSITION;
 	}
 
 
