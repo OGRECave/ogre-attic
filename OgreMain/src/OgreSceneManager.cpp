@@ -1241,55 +1241,68 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void SceneManager::_renderVisibleObjects(void)
     {
-        // Just render each entity in turn, grouped by material
-        RenderQueue::RenderQueueMap::iterator imat, imatend;
-        imatend = mRenderQueue.mQueue.end();
-        static Matrix4 xform[256];
-        RenderOperation ro;
-
-        for (imat = mRenderQueue.mQueue.begin(); imat != imatend; ++imat)
+        // Render each separate queue
+        RenderQueue::QueueGroupIterator queueIt = mRenderQueue._getQueueGroupIterator();
+        // NB only queues which have been created are rendered, no time is wasted
+        //   parsing through non-existent queues (even though there are 10 available)
+        while (queueIt.hasMoreElements())
         {
-            // Set Material
-            Material* thisMaterial = imat->first;
-            int matLayersLeft = thisMaterial->getNumTextureLayers();
+            // TODO raise event to say queue is about to be rendered?
+            RenderQueue::RenderQueueMap* pQueue = queueIt.getNext();
 
-            // NB do at least one rendering pass even if no layers! (Untextured materials)
-            do
+            // Just render each entity in turn, grouped by material
+            RenderQueue::RenderQueueMap::iterator imat, imatend;
+            imatend = pQueue->end();
+            static Matrix4 xform[256];
+            RenderOperation ro;
+
+            for (imat = pQueue->begin(); imat != imatend; ++imat)
             {
-                // Set material - will return non-zero if multipass required so loop will continue, 0 otherwise
-                matLayersLeft = setMaterial(thisMaterial, matLayersLeft);
+                // Set Material
+                Material* thisMaterial = imat->first;
+                int matLayersLeft = thisMaterial->getNumTextureLayers();
 
-
-                // Iterate through renderables and render
-                // Note this may happen multiple times for multipass render
-                std::vector<Renderable*>::iterator irend, irendend;
-                irendend = imat->second.end();
-
-                for (irend = imat->second.begin(); irend != irendend; ++irend)
+                // NB do at least one rendering pass even if no layers! (Untextured materials)
+                do
                 {
-                    // Set world transformation
-                    (*irend)->getWorldTransforms(xform);
-                    unsigned short numMatrices = (*irend)->getNumWorldTransforms();
-                    if (numMatrices > 1)
+                    // Set material - will return non-zero if multipass required so loop will continue, 0 otherwise
+                    matLayersLeft = setMaterial(thisMaterial, matLayersLeft);
+
+
+                    // Iterate through renderables and render
+                    // Note this may happen multiple times for multipass render
+                    std::vector<Renderable*>::iterator irend, irendend;
+                    irendend = imat->second.end();
+
+                    for (irend = imat->second.begin(); irend != irendend; ++irend)
                     {
-                        mDestRenderSystem->_setWorldMatrices(xform, numMatrices);
+                        // Set world transformation
+                        (*irend)->getWorldTransforms(xform);
+                        unsigned short numMatrices = (*irend)->getNumWorldTransforms();
+                        if (numMatrices > 1)
+                        {
+                            mDestRenderSystem->_setWorldMatrices(xform, numMatrices);
+                        }
+                        else
+                        {
+                            mDestRenderSystem->_setWorldMatrix(*xform);
+                        }
+
+                        // Set up rendering operation
+                        (*irend)->getRenderOperation(ro);
+
+                        if( ro.numVertices )
+                            mDestRenderSystem->_render(ro);
+
                     }
-                    else
-                    {
-                        mDestRenderSystem->_setWorldMatrix(*xform);
-                    }
-
-                    // Set up rendering operation
-                    (*irend)->getRenderOperation(ro);
-
-                    if( ro.numVertices )
-                        mDestRenderSystem->_render(ro);
-
-                }
-            } while (matLayersLeft > 0);
+                } while (matLayersLeft > 0);
 
 
-        } // for each material
+            } // for each material
+
+            // TODO raise event to say queue has been rendered?
+
+        } // Each queue
 
     }
     //-----------------------------------------------------------------------
