@@ -73,6 +73,8 @@ namespace Ogre {
 		// Now sets some variables
 		ret_data->width = ilGetInteger( IL_IMAGE_WIDTH );
 		ret_data->height = ilGetInteger( IL_IMAGE_HEIGHT );
+        ret_data->num_mipmaps = ilGetInteger ( IL_NUM_MIPMAPS );
+        ret_data->compressed = false;
 
 		uint ImageSize = ilGetInteger( IL_IMAGE_WIDTH ) * ilGetInteger( IL_IMAGE_HEIGHT ) * ilGetInteger( IL_IMAGE_BYTES_PER_PIXEL );
 		
@@ -98,6 +100,7 @@ namespace Ogre {
         }
 
 		ret_data->format = ilFormat2OgreFormat( Imagformat, BytesPerPixel );
+        ret_data->size = ImageSize;
 
 		ilDeleteImages( 1, &ImageName );
 

@@ -34,7 +34,10 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------------
     Image::Image()
-        : m_pBuffer( NULL )
+        : m_uSize(0),
+          m_uNumMipmaps(0),
+          m_uFlags(0),
+          m_pBuffer( NULL )
     {
     }
 
@@ -61,10 +64,12 @@ namespace Ogre {
         m_uWidth = img.m_uWidth;
         m_uHeight = img.m_uHeight;
         m_eFormat = img.m_eFormat;
+        m_uSize = img.m_uSize;
+        m_uFlags = img.m_uFlags;
         m_ucPixelSize = img.m_ucPixelSize;
 
-        m_pBuffer = new uchar[ m_uWidth * m_uHeight * m_ucPixelSize ];
-        memcpy( m_pBuffer, img.m_pBuffer, m_uWidth * m_uHeight * m_ucPixelSize );
+        m_pBuffer = new uchar[ m_uSize ];
+        memcpy( m_pBuffer, img.m_pBuffer, m_uSize );
 
         return *this;
     }
@@ -206,6 +211,7 @@ namespace Ogre {
         m_uHeight = uHeight;
         m_eFormat = eFormat;
         m_ucPixelSize = PF2PS( m_eFormat );
+        m_uSize = m_uWidth * m_uHeight * m_ucPixelSize;
 
         m_pBuffer = new uchar[ uWidth * uHeight * m_ucPixelSize ];
         memcpy( m_pBuffer, pData.getPtr(), uWidth * uHeight * m_ucPixelSize );
@@ -262,8 +268,13 @@ namespace Ogre {
         // Get the format and compute the pixel size
         m_uWidth = pData->width;
         m_uHeight = pData->height;
+        m_uSize = pData->size;
         m_eFormat = pData->format;
+        m_uNumMipmaps = pData->num_mipmaps;
         m_ucPixelSize = PF2PS( m_eFormat );
+
+        if(pData->compressed)
+            m_uFlags |= IF_COMPRESSED;
 
         delete pData;
 
@@ -293,6 +304,10 @@ namespace Ogre {
 
         m_uWidth = pData->width;
         m_uHeight = pData->height;
+        m_uSize = pData->size;
+        m_uNumMipmaps = pData->num_mipmaps;
+        if(pData->compressed)
+            m_uFlags |= IF_COMPRESSED;
         
         // Get the format and compute the pixel size
         m_eFormat = pData->format;
@@ -321,7 +336,26 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     size_t Image::getSize() const
     {
-        return m_uWidth * m_uHeight * m_ucPixelSize;
+       return m_uSize;
+    }
+
+    //-----------------------------------------------------------------------------
+    unsigned short Image::getNumMipmaps() const
+    {
+       return m_uNumMipmaps;
+    }
+
+    //-----------------------------------------------------------------------------
+    bool Image::hasFlag(const ImageFlags imgFlag)
+    {
+        if(m_uFlags & imgFlag)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     //-----------------------------------------------------------------------------
