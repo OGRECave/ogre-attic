@@ -29,6 +29,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreHardwareIndexBuffer.h"
 #include "OgreVector3.h"
 #include "OgreAxisAlignedBox.h"
+#include "OgreRoot.h"
+#include "OgreRenderSystem.h" 
 
 namespace Ogre {
 
@@ -143,11 +145,32 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void VertexData::prepareForShadowVolume(void)
     {
+        /* NOTE
+        I would dearly, dearly love to just use a 4D position buffer in order to 
+        store the extra 'w' value I need to differentiate between extruded and 
+        non-extruded sections of the buffer, so that vertex programs could use that.
+        Hey, it works fine for GL. However, D3D9 in it's infinite stupidity, does not
+        support 4d position vertices in the fixed-function pipeline. If you use them, 
+        you just see nothing. Since we can't know whether the application is going to use
+        fixed function or vertex programs, we have to stick to 3d position vertices and
+        store the 'w' in a separate 1D texture coordinate buffer, which is only used
+        when rendering the shadow.
+        */
+
+        // Upfront, lets check whether we have vertex program capability
+        RenderSystem* rend = Root::getSingleton().getRenderSystem();
+        bool useVertexPrograms = false;
+        if (rend && rend->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM))
+        {
+            useVertexPrograms = true;
+        }
+
 
         // Look for a position element
         const VertexElement* posElem = vertexDeclaration->findElementBySemantic(VES_POSITION);
         if (posElem)
         {
+            size_t v;
             HardwareVertexBufferSharedPtr vbuf = vertexBufferBinding->getBuffer(posElem->getSource());
             bool wasSharedBuffer = false;
             // Are there other elements in the buffer except for the position?
@@ -168,7 +191,7 @@ namespace Ogre {
             size_t oldVertexCount = vbuf->getNumVertices();
             size_t newVertexCount = oldVertexCount * 2;
             newPosBuffer = HardwareBufferManager::getSingleton().createVertexBuffer(
-                VertexElement::getTypeSize(VET_FLOAT4), newVertexCount, vbuf->getUsage(), 
+                VertexElement::getTypeSize(VET_FLOAT3), newVertexCount, vbuf->getUsage(), 
                 vbuf->hasShadowBuffer());
 
             // Iterate over the old buffer, copying the appropriate elements and initialising the rest
@@ -178,12 +201,7 @@ namespace Ogre {
             // Point first destination pointer at the start of the new position buffer,
             // the other one half way along
             Real *pDest = static_cast<Real*>(newPosBuffer->lock(HardwareBuffer::HBL_DISCARD));
-            Real* pDest2 = pDest + oldVertexCount * 4; // *4 because this is VET_FLOAT4
-
-            // Figure out the previous dimensions (probably 3, but no need to assume)
-            unsigned short oldPosDimensions = VertexElement::getTypeCount(posElem->getType());
-            // Also, if it had 4, override the 4th
-            if (oldPosDimensions > 3) oldPosDimensions = 3;
+            Real* pDest2 = pDest + oldVertexCount * 3; 
 
             // Precalculate any dimensions of vertex areas outside the position
             size_t prePosVertexSize, postPosVertexSize, postPosVertexOffset;
@@ -198,42 +216,60 @@ namespace Ogre {
                 // the 2 separate bits together should be the same size as the remainder buffer vertex
                 assert (newRemainderBuffer->getVertexSize() == prePosVertexSize + postPosVertexSize);
             }
-            // Iterate over the vertices
-            for (size_t v = 0; v < oldVertexCount; ++v)
+            if (wasSharedBuffer)
             {
-                unsigned short e;
-                // Copy position, twice
-                posElem->baseVertexPointerToElement(pBaseSrc, &pSrc);
-                for (e = 0; e < oldPosDimensions; ++e)
-                    *pDest++ = *pDest2++ = *pSrc++;
-                // Fill in any missing y or z (e < 3)
-                for (; e < 3; ++e)
-                    *pDest++ = *pDest2++ = 0;
-                // Complete w, 1.0 for the first half, 0.0 for the second (ie at infinity)
-                *pDest++  = 1.0f;
-                *pDest2++ = 0.0f;
-
-                // now deal with any other elements 
-                // Basically we just memcpy the vertex excluding the position
-                if (wasSharedBuffer)
+                // Iterate over the vertices
+                for (v = 0; v < oldVertexCount; ++v)
                 {
+                    // Copy position, into both buffers
+                    posElem->baseVertexPointerToElement(pBaseSrc, &pSrc);
+                    *pDest++ = *pDest2++ = *pSrc++;
+                    *pDest++ = *pDest2++ = *pSrc++;
+                    *pDest++ = *pDest2++ = *pSrc++;
+
+                    // now deal with any other elements 
+                    // Basically we just memcpy the vertex excluding the position
                     if (prePosVertexSize > 0)
                         memcpy(pBaseDestRem, pBaseSrc, prePosVertexSize);
                     if (postPosVertexSize > 0)
                         memcpy(pBaseDestRem + prePosVertexSize, 
                             pBaseSrc + postPosVertexOffset, postPosVertexSize);
                     pBaseDestRem += newRemainderBuffer->getVertexSize();
-                }
 
+                    pBaseSrc += vbuf->getVertexSize();
 
-                pBaseSrc += vbuf->getVertexSize();
-
-            } // next vertex
+                } // next vertex
+            }
+            else
+            {
+                // Unshared buffer, can block copy the whole thing
+                memcpy(pDest, pBaseSrc, vbuf->getSizeInBytes());
+                memcpy(pDest2, pBaseSrc, vbuf->getSizeInBytes());
+            }
 
             vbuf->unlock();
             newPosBuffer->unlock();
             if (wasSharedBuffer)
                 newRemainderBuffer->unlock();
+
+            if (useVertexPrograms)
+            {
+                // Now it's time to set up the w buffer
+                mHardwareShadowVolWBuffer = HardwareBufferManager::getSingleton().createVertexBuffer(
+                    sizeof(Real), newVertexCount, HardwareBuffer::HBU_STATIC_WRITE_ONLY, false);
+                // Fill the first half with 1.0, second half with 0.0
+                pDest = static_cast<Real*>(
+                    mHardwareShadowVolWBuffer->lock(HardwareBuffer::HBL_DISCARD));
+                for (v = 0; v < oldVertexCount; ++v)
+                {
+                    *pDest++ = 1.0f;
+                }
+                for (v = 0; v < oldVertexCount; ++v)
+                {
+                    *pDest++ = 0.0f;
+                }
+                mHardwareShadowVolWBuffer->unlock();
+            }
 
             unsigned short newPosBufferSource; 
             if (wasSharedBuffer)
@@ -264,7 +300,7 @@ namespace Ogre {
                 idx, 
                 newPosBufferSource, // new source buffer
                 0, // no offset now
-                VET_FLOAT4, // now homogenous
+                VET_FLOAT3, 
                 VES_POSITION);
 
             // Note that we don't change vertexCount, because the other buffer(s) are still the same
