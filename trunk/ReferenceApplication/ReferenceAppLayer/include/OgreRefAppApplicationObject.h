@@ -76,6 +76,8 @@ namespace OgreRefApp {
 
         /** Sets the position of this object. */
         virtual void setPosition(const Vector3& vec);
+        /** Sets the position of this object. */
+        virtual void setPosition(Real x, Real y, Real z);
         /** Sets the orientation of this object. */
         virtual void setOrientation(const Quaternion& orientation);
         /** Gets the current position of this object. */
@@ -155,6 +157,14 @@ namespace OgreRefApp {
         @param atPosition The position at which the force is to be applied, in object coordinates.
         */
         virtual void addForce(const Vector3& direction, const Vector3& atPosition = Vector3::ZERO);
+        /** Adds a linear force to this object, in object space, at the position indicated. 
+        @remarks
+            All forces are applied, then reset after World::applyDynamics is called. 
+        @param dir_x, dir_y, dir_z The force direction in object coordinates.
+        @param pos_x, pos_y, pos_z The position at which the force is to be applied, in object coordinates.
+        */
+        virtual void addForce(Real dir_x, Real dir_y, Real dir_z, 
+            Real pos_x = 0, Real pos_y = 0, Real pos_z = 0);
         /** Adds a linear force to this object, in world space, at the position indicated. 
         @remarks
             All forces are applied, then reset after World::applyDynamics is called. 
@@ -162,16 +172,34 @@ namespace OgreRefApp {
         @param atPosition The position at which the force is to be applied, in world coordinates.
         */
         virtual void addForceWorldSpace(const Vector3& direction, const Vector3& atPosition = Vector3::ZERO);
+        /** Adds a linear force to this object, in world space, at the position indicated. 
+        @remarks
+            All forces are applied, then reset after World::applyDynamics is called. 
+        @param dir_x, dir_y, dir_z The force direction in world coordinates.
+        @param pos_x, pos_y, pos_z The position at which the force is to be applied, in world coordinates.
+        */
+        virtual void addForceWorldSpace(Real dir_x, Real dir_y, Real dir_z, 
+        Real pos_x, Real pos_y, Real pos_z);
         /** Adds rotational force to this object, in object space.
         @remarks
             All forces are applied, then reset after World::applyDynamics is called. 
         @param direction The direction of the torque to apply, in object space. */
         virtual void addTorque(const Vector3& direction);
+        /** Adds rotational force to this object, in object space.
+        @remarks
+            All forces are applied, then reset after World::applyDynamics is called. 
+        @param x, y, z The direction of the torque to apply, in object space. */
+        virtual void addTorque(Real x, Real y, Real z);
         /** Adds rotational force to this object, in world space.
         @remarks
             All forces are applied, then reset after World::applyDynamics is called. 
         @param direction The direction of the torque to apply, in world space. */
         virtual void addTorqueWorldSpace(const Vector3& direction);
+        /** Adds rotational force to this object, in world space.
+        @remarks
+            All forces are applied, then reset after World::applyDynamics is called. 
+        @param x, y, z The direction of the torque to apply, in world space. */
+        virtual void addTorqueWorldSpace(Real x, Real y, Real z);
 
         /** Tests to see if there is a detailed collision between this object and the object passed in.
         @remarks
@@ -254,7 +282,13 @@ namespace OgreRefApp {
             it there.
         */ 
         void setLinearVelocity(const Vector3& vel);
-
+        /** Sets the current linear velocity of this object.
+        @remarks
+            Only applicable if dynamics are enabled for this object. This method is useful
+            for starting an object off at a particular speed rather than applying forces to get 
+            it there.
+        */ 
+        void setLinearVelocity(Real x, Real y, Real z);
         /** Gets the current linear velocity of this object.
         @remarks
             Only applicable if dynamics are enabled for this object.
@@ -276,6 +310,65 @@ namespace OgreRefApp {
             it there.
         */ 
         void setAngularVelocity(const Vector3& vel);
+        /** Sets the current angular velocity of this object.
+        @remarks
+            Only applicable if dynamics are enabled for this object. This method is useful
+            for starting an object off rather than applying forces to get 
+            it there.
+        */ 
+        void setAngularVelocity(Real x, Real y, Real z);
+
+        /** Moves the object along it's local  axes.
+            @par
+                This method moves the object by the supplied vector along the
+                local axes of the obect.
+            @param 
+                d Vector with x,y,z values representing the translation.
+        */
+        virtual void translate(const Vector3& d);
+        /** Moves the object along it's local axes.
+            @par
+                This method moves the object by the supplied vector along the
+                local axes of the obect.
+            @param x, y z Real x, y and z values representing the translation.
+        */
+        virtual void translate(Real x, Real y, Real z);
+
+        /** Moves the object along the world axes.
+            @par
+                This method moves the object by the supplied vector along the
+                world axes.
+            @param 
+                d Vector with x,y,z values representing the translation.
+        */
+        virtual void translateWorldSpace(const Vector3& d);
+        /** Moves the object along the world axes.
+            @par
+                This method moves the object by the supplied vector along the
+                local axes of the obect.
+            @param x, y z Real x, y and z values representing the translation.
+        */
+        virtual void translateWorldSpace(Real x, Real y, Real z);
+
+        /** Rotate the object around the local Z-axis.
+        */
+        virtual void roll(Real angleunits);
+
+        /** Rotate the object around the local X-axis.
+        */
+        virtual void pitch(Real angleunits);
+
+        /** Rotate the object around the local Y-axis.
+        */
+        virtual void yaw(Real angleunits);
+
+        /** Rotate the object around an arbitrary axis.
+        */
+        virtual void rotate(const Vector3& axis, Real angleunits);
+
+        /** Rotate the object around an aritrary axis using a Quarternion.
+        */
+        virtual void rotate(const Quaternion& q);
 
 
     };

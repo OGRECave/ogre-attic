@@ -77,9 +77,14 @@ namespace OgreRefApp
     //-------------------------------------------------------------------------
     void ApplicationObject::setPosition(const Vector3& vec)
     {
-        mSceneNode->setPosition(vec);
+        setPosition(vec.x, vec.y, vec.z);
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::setPosition(Real x, Real y, Real z)
+    {
+        mSceneNode->setPosition(x, y, z);
         if (mDynamicsEnabled && mOdeBody)
-            mOdeBody->setPosition(vec.x, vec.y, vec.z);
+            mOdeBody->setPosition(x, y, z);
         updateCollisionProxies();
     }
     //-------------------------------------------------------------------------
@@ -160,32 +165,53 @@ namespace OgreRefApp
     //-------------------------------------------------------------------------
     void ApplicationObject::addForce(const Vector3& direction, const Vector3& atPosition)
     {
-        assert (mOdeBody && "No dynamics body set up for this object");
-        mOdeBody->addRelForceAtRelPos(direction.x, direction.y, direction.z, 
+        addForce(direction.x, direction.y, direction.z, 
             atPosition.x, atPosition.y, atPosition.z);
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::addForce(Real dir_x, Real dir_y, Real dir_z, 
+        Real pos_x, Real pos_y, Real pos_z)
+    {
+        assert (mOdeBody && "No dynamics body set up for this object");
+        mOdeBody->addRelForceAtRelPos(dir_x, dir_y, dir_z, 
+            pos_x, pos_y, pos_z);
 
-        // Test
-        const dReal* force = mOdeBody->getForce();
-        Real val = (Real)force[1];
     }
     //-------------------------------------------------------------------------
     void ApplicationObject::addForceWorldSpace(const Vector3& direction, const Vector3& atPosition)
     {
-        assert (mOdeBody && "No dynamics body set up for this object");
-        mOdeBody->addForceAtPos(direction.x, direction.y, direction.z, 
+        addForceWorldSpace(direction.x, direction.y, direction.z, 
             atPosition.x, atPosition.y, atPosition.z);
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::addForceWorldSpace(Real dir_x, Real dir_y, Real dir_z, 
+        Real pos_x, Real pos_y, Real pos_z)
+    {
+        assert (mOdeBody && "No dynamics body set up for this object");
+        mOdeBody->addRelForceAtPos(dir_x, dir_y, dir_z, 
+            pos_x, pos_y, pos_z);
     }
     //-------------------------------------------------------------------------
     void ApplicationObject::addTorque(const Vector3& direction)
     {
+        addTorque(direction.x, direction.y, direction.z);
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::addTorque(Real x, Real y, Real z)
+    {
         assert (mOdeBody && "No dynamics body set up for this object");
-        mOdeBody->addRelTorque(direction.x, direction.y, direction.z);
+        mOdeBody->addRelTorque(x, y, z);
     }
     //-------------------------------------------------------------------------
     void ApplicationObject::addTorqueWorldSpace(const Vector3& direction)
     {
+        addTorqueWorldSpace(direction.x, direction.y, direction.z);
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::addTorqueWorldSpace(Real x, Real y, Real z)
+    {
         assert (mOdeBody && "No dynamics body set up for this object");
-        mOdeBody->addTorque(direction.x, direction.y, direction.z);
+        mOdeBody->addTorque(x, y, z);
     }
     //-------------------------------------------------------------------------
     SceneNode* ApplicationObject::getSceneNode(void)
@@ -414,10 +440,15 @@ namespace OgreRefApp
     //-------------------------------------------------------------------------
     void ApplicationObject::setLinearVelocity(const Vector3& vel)
     {
+        setLinearVelocity(vel.x, vel.y, vel.z);
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::setLinearVelocity(Real x, Real y, Real z)
+    {
         assert(mOdeBody && mDynamicsEnabled &&
             "Cannot set velocity on an object unless dynamics are enabled and"
             " an ODE body exists");
-        mOdeBody->setLinearVel(vel.x, vel.y, vel.z);
+        mOdeBody->setLinearVel(x, y, z);
     }
     //-------------------------------------------------------------------------
     const Vector3& ApplicationObject::getLinearVelocity(void)
@@ -449,12 +480,65 @@ namespace OgreRefApp
     //-------------------------------------------------------------------------
     void ApplicationObject::setAngularVelocity(const Vector3& vel)
     {
+        setAngularVelocity(vel.x, vel.y, vel.z);
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::setAngularVelocity(Real x, Real y, Real z)
+    {
         assert(mOdeBody && mDynamicsEnabled &&
             "Cannot set velocity on an object unless dynamics are enabled and"
             " an ODE body exists");
-        mOdeBody->setAngularVel(vel.x, vel.y, vel.z);
+        mOdeBody->setAngularVel(x, y, z);
     }
     //-------------------------------------------------------------------------
+    void ApplicationObject::translate(const Vector3& d)
+    {
+        // Adjust position by rotation
+        Vector3 newTrans = mSceneNode->getOrientation() * d;
+        translateWorldSpace(newTrans);
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::translate(Real x, Real y, Real z)
+    {
+        translate(Vector3(x, y, z));
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::translateWorldSpace(const Vector3& d)
+    {
+        setPosition(getPosition() + d);
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::translateWorldSpace(Real x, Real y, Real z)
+    {
+        translateWorldSpace(Vector3(x, y, z));
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::roll(Real angleunits)
+    {
+        rotate(Vector3::UNIT_Z, angleunits);
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::pitch(Real angleunits)
+    {
+        rotate(Vector3::UNIT_X, angleunits);
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::yaw(Real angleunits)
+    {
+        rotate(Vector3::UNIT_Y, angleunits);
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::rotate(const Vector3& axis, Real angleunits)
+    {
+        Quaternion q;
+        q.FromAngleAxis(Math::AngleUnitsToRadians(angleunits),axis);
+        rotate(q);
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::rotate(const Quaternion& q)
+    {
+        setOrientation(getOrientation() * q);
+    }
 
 
 
