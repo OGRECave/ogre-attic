@@ -86,6 +86,9 @@ namespace Ogre {
             case M_MESH:
                 readMesh(chunk);
                 break;
+            case M_MATERIAL:	 // removed in 1.1 but still present in 1.0
+                 readMaterial(chunk);	 
+                 break;                
             }
         }
     }
@@ -197,7 +200,9 @@ namespace Ogre {
             
         }
         // Write bounds information
+        LogManager::getSingleton().logMessage("Exporting bounds information....");
         writeBoundsInfo(pMesh);
+        LogManager::getSingleton().logMessage("Bounds information exported.");
 
 
     }
@@ -477,7 +482,8 @@ namespace Ogre {
 				 chunkID == M_SUBMESH ||
                  chunkID == M_MESH_SKELETON_LINK ||
                  chunkID == M_MESH_BONE_ASSIGNMENT ||
-				 chunkID == M_MESH_LOD))
+				 chunkID == M_MESH_LOD ||
+                 chunkID == M_MESH_BOUNDS))
             {
                 switch(chunkID)
                 {
@@ -514,6 +520,9 @@ namespace Ogre {
                 case M_MESH_LOD:
 					readMeshLodInfo(chunk);
 					break;
+                case M_MESH_BOUNDS:
+                    readBoundsInfo(chunk);
+                    break;
                 }
 
                 if (!chunk.isEOF())
