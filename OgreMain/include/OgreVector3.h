@@ -289,8 +289,9 @@ namespace Ogre
             @note
                 This function will not crash for zero-sized vectors, but there
                 will be no changes made to their components.
+            @returns The previous length of the vector.
         */
-        inline void normalise()
+        inline Real normalise()
         {
             Real fLength = Math::Sqrt( x * x + y * y + z * z );
 
@@ -302,6 +303,8 @@ namespace Ogre
                 y *= fInvLength;
                 z *= fInvLength;
             }
+
+            return fLength;
         }
 
         /** Calculates the cross-product of 2 vectors, i.e. the vector that
@@ -505,6 +508,23 @@ namespace Ogre
             q.z = c.z * invs;
             q.w = s * 0.5;
             return q;
+        }
+
+        /** Returns true if this vector is zero length. */
+        inline bool isZeroLength(void) const
+        {
+            Real sqlen = (x * x) + (y * y) + (z * z);
+            return (sqlen < (1e-06 * 1e-06));
+
+        }
+
+        /** As normalise, except that this vector is unaffected and the
+            normalised vector is returned as a copy. */
+        inline Vector3 normalisedCopy(void) const
+        {
+            Vector3 ret = *this;
+            ret.normalise();
+            return ret;
         }
 
         // special points
