@@ -72,6 +72,8 @@ namespace Ogre {
         }
 		mDispatcherList.clear();
 
+		PlatformManager::getSingleton().destroyInputReader(mInputDevice);
+
 	}
 
 //-----------------------------------------------------------------------------

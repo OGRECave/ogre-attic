@@ -62,6 +62,7 @@ namespace Ogre {
 //	    void addBaseParameters(void);
 
 		ListGuiElement(const String& name);
+		~ListGuiElement();
 
         /** Command object for specifying texture coordinates for the border (see ParamCommand).*/
         class CmdItemTemplate : public ParamCommand

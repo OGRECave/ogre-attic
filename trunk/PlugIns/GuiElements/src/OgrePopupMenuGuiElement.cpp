@@ -63,6 +63,12 @@ namespace Ogre {
 		setSource(this);
 		addMouseMotionListener(this);
 	}
+	//---------------------------------------------------------------------
+	PopupMenuGuiElement::~PopupMenuGuiElement()
+	{
+		for (ResourceList::iterator i = mResourceList.begin(); i != mResourceList.end(); ++i)
+			delete *i;
+	}
 
     //---------------------------------------------------------------------
     void PopupMenuGuiElement::addBaseParameters(void)
@@ -256,6 +262,7 @@ namespace Ogre {
         {
             if (*i == r)
 			{
+				delete *i;
 				mResourceList.erase(i);
 				bFound = true;
 				break;
