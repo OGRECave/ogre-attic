@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreResourceManager.h"
 #include "OgreSingleton.h"
 #include "OgreVector3.h"
+#include "OgreHardwareBuffer.h"
 
 namespace Ogre {
 
@@ -59,19 +60,16 @@ namespace Ogre {
                 control over pre-processed data (such as
                 collision boxes, LOD reductions etc).
 			@param filename The name of the .mesh file
-			@param vertexBuffersDynamic Forces the vertex buffers created for this
-				mesh to be dynamic, therefore modifiable by the system. If left
-				as default, the system will try to use static buffers which are more
-				efficient
-			@param indexBuffersDynamic Forces the index buffers created for this
-				mesh to be dynamic, therefore modifiable by the system. If left
-				as default, the system will try to use static buffers which are more
-				efficient
+			@param vertexBufferUsage The usage flags with which the vertex buffer(s)
+				will be created
+			@param indexBufferUsage The usage flags with which the index buffer(s) created for 
+				this mesh will be created with.
 			@param priority The priority of this mesh in the resource system
         */
         Mesh* load( const String& filename, 
-			bool vertexBuffersDynamic = false, 
-			bool indexBuffersDynamic = false, int priority = 1);
+			HardwareBuffer::Usage vertexBufferUsage = HardwareBuffer::HBU_STATIC, 
+			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC, 
+			int priority = 1);
 
         /** Creates a Mesh resource.
             @note
@@ -111,13 +109,20 @@ namespace Ogre {
                 vTile The number of times the texture should be repeated in the v direction
             @param
                 upVector The 'Up' direction of the plane.
+			@param
+				vertexBufferUsage The usage flag with which the vertex buffer for this plane will be created
+			@param
+				indexBufferUsage The usage flag with which the index buffer for this plane will be created
+
         */
         Mesh* createPlane(
             const String& name, const Plane& plane,
             Real width, Real height,
             int xsegments = 1, int ysegments = 1,
             bool normals = true, int numTexCoordSets = 1,
-            Real uTile = 1.0f, Real vTile = 1.0f, const Vector3& upVector = Vector3::UNIT_Y);
+            Real uTile = 1.0f, Real vTile = 1.0f, const Vector3& upVector = Vector3::UNIT_Y,
+			HardwareBuffer::Usage vertexBufferUsage = HardwareBuffer::HBU_STATIC, 
+			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC);
 
 		/** Creates a curved plane, by default majoring on the x/y axes facing positive Z.
             @param
@@ -169,7 +174,9 @@ namespace Ogre {
     protected:
         /** Utility method for tesselating 2D meshes.
         */
-        void tesselate2DMesh(SubMesh* pSub, int meshWidth, int meshHeight, bool doubleSided = false);
+        void tesselate2DMesh(SubMesh* pSub, int meshWidth, int meshHeight, 
+			bool doubleSided = false, 
+			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC);
 
         void createPrefabPlane(void);
     };

@@ -47,6 +47,29 @@ namespace Ogre {
     {
     }
     //-----------------------------------------------------------------------------
+	size_t VertexElement::getSize(void) const
+	{
+		return getTypeSize(mType);
+	}
+	//-----------------------------------------------------------------------------
+	size_t VertexElement::getTypeSize(VertexElementType etype)
+	{
+		switch(etype)
+		{
+		case VET_COLOUR:
+			return sizeof(RGBA);
+		case VET_FLOAT1:
+			return sizeof(float);
+		case VET_FLOAT2:
+			return sizeof(float)*2;
+		case VET_FLOAT3:
+			return sizeof(float)*3;
+		case VET_FLOAT4:
+			return sizeof(float)*4;
+		}
+		return 0;
+	}
+	//-----------------------------------------------------------------------------
     VertexDeclaration::VertexDeclaration()
     {
     }
@@ -60,13 +83,14 @@ namespace Ogre {
         return mElementList;
     }
     //-----------------------------------------------------------------------------
-    void VertexDeclaration::addElement(unsigned short source, 
+    const VertexElement& VertexDeclaration::addElement(unsigned short source, 
         size_t offset, VertexElementType theType,
         VertexElementSemantic semantic, unsigned short index)
     {
         mElementList.push_back(
             VertexElement(source, offset, theType, semantic, index)
             );
+		return mElementList.back();
     }
     //-----------------------------------------------------------------------------
     void VertexDeclaration::removeElement(unsigned short elem_index)
@@ -104,6 +128,23 @@ namespace Ogre {
 			" the requested semantic and index.", "VertexDeclaration::findElementBySemantic");
 
 
+	}
+    //-----------------------------------------------------------------------------
+	size_t VertexDeclaration::getVertexSize(unsigned short source)
+	{
+		VertexElementList::const_iterator i, iend;
+		iend = mElementList.end();
+		size_t sz = 0;
+
+		for (i = mElementList.begin(); i != iend; ++i)
+		{
+			if (i->getSource() == source)
+			{
+				sz += i->getSize();
+
+			}
+		}
+		return sz;
 	}
     //-----------------------------------------------------------------------------
 	VertexBufferBinding::VertexBufferBinding()

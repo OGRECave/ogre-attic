@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMatrix3.h"
 #include "OgreVector3.h"
 #include "OgrePlane.h"
+#include "OgreHardwareBufferManager.h"
 
 namespace Ogre
 {
@@ -58,14 +59,15 @@ namespace Ogre
     }
     //-----------------------------------------------------------------------
     Mesh* MeshManager::load( const String& filename, 
-		bool vertexBuffersDynamic, bool indexBuffersDynamic, 
+		HardwareBuffer::Usage vertexBufferUsage, 
+		HardwareBuffer::Usage indexBufferUsage, 
 		int priority)
     {
         Mesh* pMesh = (Mesh*)(getByName(filename));
         if (!pMesh)
         {
             pMesh = (Mesh*)create(filename);
-			pMesh->setBufferPolicy(vertexBuffersDynamic, indexBuffersDynamic);
+			pMesh->setBufferPolicy(vertexBufferUsage, indexBufferUsage);
             ResourceManager::load(pMesh, priority);
             //pMesh->_registerMaterials();
         }
@@ -87,32 +89,47 @@ namespace Ogre
     }
     //-----------------------------------------------------------------------
     Mesh* MeshManager::createPlane( const String& name, const Plane& plane, Real width, Real height, int xsegments, int ysegments,
-        bool normals, int numTexCoordSets, Real xTile, Real yTile, const Vector3& upVector)
+        bool normals, int numTexCoordSets, Real xTile, Real yTile, const Vector3& upVector,
+		HardwareBuffer::Usage vertexBufferUsage, HardwareBuffer::Usage indexBufferUsage)
     {
         int i;
         Mesh* pMesh = createManual(name);
         SubMesh *pSub = pMesh->createSubMesh();
 
-		/*
-		// Set options
-        pMesh->sharedGeometry.hasColours = false;
-        pMesh->sharedGeometry.hasNormals = normals;
-        pMesh->sharedGeometry.normalStride = 0;
-        pMesh->sharedGeometry.numTexCoords = numTexCoordSets;
+		// Set up vertex data
+		// Use a single shared buffer
+		VertexData* vertexData = pMesh->sharedVertexData;
+		// Set up Vertex Declaration
+		VertexDeclaration* vertexDecl = vertexData->vertexDeclaration;
+		size_t currOffset = 0;
+		// We always need positions
+		vertexDecl->addElement(0, currOffset, VET_FLOAT3, VES_POSITION);
+		currOffset += VertexElement::getTypeSize(VET_FLOAT3);
+		// Optional normals
+		if(normals)
+		{
+			vertexDecl->addElement(0, currOffset, VET_FLOAT3, VES_NORMAL);
+			currOffset += VertexElement::getTypeSize(VET_FLOAT3);
+		}
+
         for (i = 0; i < numTexCoordSets; ++i)
         {
-            pMesh->sharedGeometry.numTexCoordDimensions[i] = 2;
-            pMesh->sharedGeometry.texCoordStride[i] = 0;
+			// Assumes 2D texture coords
+            vertexDecl->addElement(0, currOffset, VET_FLOAT2, VES_TEXTURE_COORDINATES, i);
+			currOffset += VertexElement::getTypeSize(VET_FLOAT2);
         }
-        pMesh->sharedGeometry.numVertices = (xsegments + 1) * (ysegments + 1);
-        pMesh->sharedGeometry.vertexStride = 0;
 
-        // Allocate memory
-        pMesh->sharedGeometry.pVertices = new Real[pMesh->sharedGeometry.numVertices * 3];
-        if (normals)
-            pMesh->sharedGeometry.pNormals = new Real[pMesh->sharedGeometry.numVertices * 3];
-        for (i = 0; i < numTexCoordSets; ++i)
-            pMesh->sharedGeometry.pTexCoords[i] = new Real[pMesh->sharedGeometry.numVertices * 2];
+		vertexData->vertexCount = (xsegments + 1) * (ysegments + 1);
+
+        // Allocate vertex buffer
+		HardwareVertexBufferSharedPtr vbuf = 
+			HardwareBufferManager::getSingleton().
+			createVertexBuffer(vertexDecl->getVertexSize(0), vertexData->vertexCount,
+			vertexBufferUsage);
+
+		// Set up the binding (one source only)
+		VertexBufferBinding* binding = vertexData->vertexBufferBinding;
+		binding->setBinding(0, vbuf);
 
         // Work out the transform required
         // Default orientation of plane is normal along +z, distance 0
@@ -143,7 +160,10 @@ namespace Ogre
         xform = xlate * rot;
 
         // Generate vertex data
-        Real* pReal;
+		// Lock the whole buffer
+		Real* pBufStart = static_cast<Real*>(
+			vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD) );
+		Real* pReal;
         Real xSpace = width / xsegments;
         Real ySpace = height / ysegments;
         Real halfWidth = width / 2;
@@ -156,7 +176,8 @@ namespace Ogre
         {
             for (int x = 0; x < xsegments + 1; ++x)
             {
-                pReal = pMesh->sharedGeometry.pVertices + (((y * (xsegments+1)) + x) * 3);
+				// Get vertex start
+                pReal = pBufStart + (((y * (xsegments+1)) + x) * vbuf->getVertexSize());
                 // Work out centered on origin
                 vec.x = (x * xSpace) - halfWidth;
                 vec.y = (y * ySpace) - halfHeight;
@@ -164,37 +185,37 @@ namespace Ogre
                 // Transform by orientation and distance
                 vec = xform * vec;
                 // Assign to geometry
-                pReal[0] = vec.x;
-                pReal[1] = vec.y;
-                pReal[2] = vec.z;
+                *pReal++ = vec.x;
+                *pReal++ = vec.y;
+                *pReal++ = vec.z;
 
                 if (normals)
                 {
-                    pReal = pMesh->sharedGeometry.pNormals + (((y * (xsegments+1)) + x) * 3);
                     // Default normal is along unit Z
                     vec = Vector3::UNIT_Z;
                     // Rotate
                     vec = rot * vec;
 
-                    pReal[0] = vec.x;
-                    pReal[1] = vec.y;
-                    pReal[2] = vec.z;
+                    *pReal++ = vec.x;
+                    *pReal++ = vec.y;
+                    *pReal++ = vec.z;
                 }
 
                 for (i = 0; i < numTexCoordSets; ++i)
                 {
-                    pReal = pMesh->sharedGeometry.pTexCoords[i] + (((y * (xsegments+1)) + x) * 2);
-                    pReal[0] = x * xTex;
-                    pReal[1] = y * yTex;
+                    *pReal++ = x * xTex;
+                    *pReal++ = y * yTex;
                 }
 
             } // x
         } // y
 
-        // Generate face list
-        tesselate2DMesh(pSub, xsegments + 1, ysegments + 1, false);
+		// Unlock
+		vbuf->unlock();
 
-		*/
+        // Generate face list
+        tesselate2DMesh(pSub, xsegments + 1, ysegments + 1, false, indexBufferUsage);
+
         pMesh->_updateBounds();
 		
         return pMesh;
@@ -328,7 +349,8 @@ namespace Ogre
     }
 
     //-----------------------------------------------------------------------
-    void MeshManager::tesselate2DMesh(SubMesh* sm, int meshWidth, int meshHeight, bool doubleSided)
+    void MeshManager::tesselate2DMesh(SubMesh* sm, int meshWidth, int meshHeight, 
+		bool doubleSided, HardwareBuffer::Usage indexBufferUsage)
     {
         // The mesh is built, just make a list of indexes to spit out the triangles
         int vInc, uInc, v, u, iterations;
@@ -347,15 +369,19 @@ namespace Ogre
             v = 0;
         }
 
-		/* TODO
         // Allocate memory for faces
-        // Num faces, width*height*2 (2 tris per square)
-        sm->numFaces = (meshWidth-1) * (meshHeight-1) * 2 * iterations;
-        sm->faceVertexIndices = new unsigned short[sm->numFaces * 3];
+        // Num faces, width*height*2 (2 tris per square), index count is * 3 on top
+        sm->indexData->indexCount = (meshWidth-1) * (meshHeight-1) * 2 * iterations * 3;
+		sm->indexData->indexBuffer = HardwareBufferManager::getSingleton().
+			createIndexBuffer(HardwareIndexBuffer::IT_16BIT,
+			sm->indexData->indexCount, indexBufferUsage);
 
         int v1, v2, v3;
         //bool firstTri = true;
-        unsigned short* pIndexes = sm->faceVertexIndices;
+		HardwareIndexBufferSharedPtr ibuf = sm->indexData->indexBuffer;
+		// Lock the whole buffer
+		unsigned short* pIndexes = static_cast<unsigned short*>(
+			ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD) );
 
         while (iterations--)
         {
@@ -403,7 +429,8 @@ namespace Ogre
             vInc = -vInc;
 
         }
-		*/
+		// Unlock
+		ibuf->unlock();
 
     }
 

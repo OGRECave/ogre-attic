@@ -34,6 +34,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreAnimationState.h"
 #include "OgreIteratorWrappers.h"
 #include "OgreProgressiveMesh.h"
+#include "OgreHardwareVertexBuffer.h"
 
 
 namespace Ogre {
@@ -375,7 +376,8 @@ namespace Ogre {
 			MeshManager::load if you wish; this means the Mesh is loaded with those options
 			the first time instead of you having to reload the mesh after changing these options.
 		*/
-		void setBufferPolicy(bool vertexBuffersDynamic, bool indexBuffersDynamic);
+		void setBufferPolicy(HardwareBuffer::Usage vertexBufferUsage, 
+			HardwareBuffer::Usage indexBufferUsage);
 
     private:
         typedef std::vector<SubMesh*> SubMeshList;
@@ -421,8 +423,8 @@ namespace Ogre {
 		typedef std::vector<MeshLodUsage> MeshLodUsageList;
 		MeshLodUsageList mMeshLodUsageList;
 
-		bool mVertexBuffersDynamic;
-		bool mIndexBuffersDynamic;
+		HardwareBuffer::Usage mVertexBufferUsage;
+		HardwareBuffer::Usage mIndexBufferUsage;
 
 
     };

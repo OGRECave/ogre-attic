@@ -130,6 +130,11 @@ namespace Ogre {
         VertexElementSemantic getSemantic(void) const { return mSemantic; }
         /// Gets the index of this element, only applicable for repeating elements
         unsigned short getIndex(void) const { return mIndex; }
+		/// Gets the size of this element in bytes
+		size_t getSize(void) const;
+		/// Utility method for helping to calculate offsets
+		static size_t getTypeSize(VertexElementType etype);
+
 
     };
     /** This class declares the format of a set of vertex inputs, which
@@ -167,8 +172,9 @@ namespace Ogre {
         @param theType The data format of the element (3 floats, a colour etc)
         @param semantic The meaning of the data (position, normal, diffuse colour etc)
         @param index Optional index for multi-input elements like texture coordinates
+		@returns A reference to the VertexElement added.
         */
-        virtual void addElement(unsigned short source, size_t offset, VertexElementType theType,
+        virtual const VertexElement& addElement(unsigned short source, size_t offset, VertexElementType theType,
             VertexElementSemantic semantic, unsigned short index = 0);
 
         /** Remove the element at the given index from this declaration. */
@@ -182,7 +188,10 @@ namespace Ogre {
 			one element with the same semantic. 
 		*/
 		virtual const VertexElement& findElementBySemantic(VertexElementSemantic sem, unsigned short index = 0);
-
+		/** Based on the current elements, gets the size of the vertex for a given buffer source. 
+		@param source The buffer binding index for which to get the vertex size.
+		*/
+		virtual size_t getVertexSize(unsigned short source);
 
     };
 

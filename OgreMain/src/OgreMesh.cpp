@@ -53,8 +53,8 @@ namespace Ogre {
 		mMeshLodUsageList.push_back(lod);
 		mIsLodManual = false;
 
-		mVertexBuffersDynamic = false;
-		mIndexBuffersDynamic = false;
+		mVertexBufferUsage = HardwareBuffer::HBU_STATIC;
+		mIndexBufferUsage = HardwareBuffer::HBU_STATIC;
 
     }
 
@@ -225,7 +225,6 @@ namespace Ogre {
         Vector3 min, max;
         bool first = true;
         bool useShared = false;
-        int vert;
 
 		Real maxSquaredLength = -1.0f;
 
@@ -643,10 +642,10 @@ namespace Ogre {
         return mBoundRadius;
     }
     //---------------------------------------------------------------------
-	void Mesh::setBufferPolicy(bool vertexBuffersDynamic, bool indexBuffersDynamic)
+	void Mesh::setBufferPolicy(HardwareBuffer::Usage vbUsage, HardwareBuffer::Usage ibUsage)
 	{
-		mVertexBuffersDynamic = vertexBuffersDynamic;
-		mIndexBuffersDynamic = indexBuffersDynamic;
+		mVertexBufferUsage = vbUsage;
+		mIndexBufferUsage = ibUsage;
 	}
 
 }

@@ -97,7 +97,7 @@ namespace Ogre {
 		AxisAlignedBox localBox;
 		Vector3 min, max;
 		bool first = true;
-		for (int vert = 0; vert < pBuf->getNumVertices(); ++vert)
+		for (size_t vert = 0; vert < pBuf->getNumVertices(); ++vert)
 		{
 			Real* pVert = (Real*)pRaw;
 
