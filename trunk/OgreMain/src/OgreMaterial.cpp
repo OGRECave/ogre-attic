@@ -70,6 +70,8 @@ namespace Ogre {
 
 		mTextureFiltering = MaterialManager::getSingleton().getDefaultTextureFiltering();
 		mMaxAniso = MaterialManager::getSingleton().getDefaultAnisotropy();
+		mIsDefFiltering = true;
+		mIsDefAniso = true;
     }
     //-----------------------------------------------------------------------
     Material::Material( const String& name, bool deferLoad)
@@ -84,6 +86,8 @@ namespace Ogre {
 		// Apply default texture filtering & anisotropy level
 		mTextureFiltering = MaterialManager::getSingleton().getDefaultTextureFiltering();
 		mMaxAniso = MaterialManager::getSingleton().getDefaultAnisotropy();
+		mIsDefFiltering = true;
+		mIsDefAniso = true;
     }
     //-----------------------------------------------------------------------
     Material& Material::operator=(const Material& rhs)
@@ -235,7 +239,8 @@ namespace Ogre {
 	    mTextureLayers[mNumTextureLayers].setDeferredLoad(mDeferLoad);
 	    mTextureLayers[mNumTextureLayers].setTextureName(textureName);
 	    mTextureLayers[mNumTextureLayers].setTextureCoordSet(texCoordSet);
-	    mTextureLayers[mNumTextureLayers].setTextureLayerFiltering(mTextureFiltering);
+	    mTextureLayers[mNumTextureLayers]._setDefTextureLayerFiltering(mTextureFiltering);
+	    mTextureLayers[mNumTextureLayers]._setDefTextureAnisotropy(mMaxAniso);
 	    return &mTextureLayers[mNumTextureLayers++];
     }
     //-----------------------------------------------------------------------
@@ -368,18 +373,6 @@ namespace Ogre {
     ShadeOptions Material::getShadingMode(void) const
     {
 	    return mShadeOptions;
-    }
-    //-----------------------------------------------------------------------
-    void Material::setTextureFiltering(TextureFilterOptions mode)
-    {
-	    mTextureFiltering = mode;
-		for (int n = 0; n < mNumTextureLayers; n++)
-			mTextureLayers[n].setTextureLayerFiltering(mTextureFiltering);
-    }
-    //-----------------------------------------------------------------------
-    TextureFilterOptions Material::getTextureFiltering(void) const
-    {
-	    return mTextureFiltering;
     }
     //-----------------------------------------------------------------------
     void Material::applyDefaults(void)
@@ -522,16 +515,51 @@ namespace Ogre {
         return mDepthBias;
     }
     //-----------------------------------------------------------------------
+	void Material::_setDefAnisotropy(int maxAniso)
+	{
+		if (mIsDefAniso)
+		{
+			mMaxAniso = maxAniso;
+			for (int n = 0; n < mNumTextureLayers; n++)
+				mTextureLayers[n]._setDefTextureAnisotropy(mMaxAniso);
+		}
+	}
+    //-----------------------------------------------------------------------
 	void Material::setAnisotropy(int maxAniso)
 	{
 		mMaxAniso = maxAniso;
 		for (int n = 0; n < mNumTextureLayers; n++)
-			mTextureLayers[n].setTextureAnisotropy(mMaxAniso);
+			mTextureLayers[n]._setDefTextureAnisotropy(mMaxAniso);
+		mIsDefAniso = false;
 	}
     //-----------------------------------------------------------------------
 	int Material::getAnisotropy() const
 	{
 		return mMaxAniso;
 	}
+    //-----------------------------------------------------------------------
+    void Material::_setDefTextureFiltering(TextureFilterOptions mode)
+    {
+		if (mIsDefFiltering)
+		{
+			mTextureFiltering = mode;
+			for (int n = 0; n < mNumTextureLayers; n++)
+				mTextureLayers[n]._setDefTextureLayerFiltering(mTextureFiltering);
+		}
+    }
+    //-----------------------------------------------------------------------
+    void Material::setTextureFiltering(TextureFilterOptions mode)
+    {
+	    mTextureFiltering = mode;
+		for (int n = 0; n < mNumTextureLayers; n++)
+			mTextureLayers[n]._setDefTextureLayerFiltering(mTextureFiltering);
+		mIsDefFiltering = false;
+    }
+    //-----------------------------------------------------------------------
+    TextureFilterOptions Material::getTextureFiltering(void) const
+    {
+	    return mTextureFiltering;
+    }
+    //-----------------------------------------------------------------------
 }
 
