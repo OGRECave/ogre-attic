@@ -60,6 +60,9 @@ namespace Ogre {
                 FileInfo info;
                 // Get basename / path
                 StringUtil::splitFilename(zzipEntry.d_name, info.basename, info.path);
+                // ignore folder entries
+                if (info.basename.empty())
+                    continue;
                 // Get sizes
                 info.compressedSize = static_cast<size_t>(zzipEntry.d_csize);
                 info.uncompressedSize = static_cast<size_t>(zzipEntry.st_size);
