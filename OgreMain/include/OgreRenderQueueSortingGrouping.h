@@ -91,8 +91,8 @@ namespace Ogre {
             {
                 if (a.renderable == b.renderable)
                 {
-                    // Same renderable, sort by pass
-                    return a.pass < b.pass;
+                    // Same renderable, sort by pass hash
+                    return a.pass->getHash() < b.pass->getHash();
                 }
                 else
                 {
