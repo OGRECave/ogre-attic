@@ -636,7 +636,6 @@ namespace Ogre {
             OverlayManager::getSingleton()._queueOverlaysForRendering(camera, &mRenderQueue);
         }
 
-
         // Set viewport
         mDestRenderSystem->_setViewport(vp);
         // Don't do view / proj here anymore
@@ -1049,6 +1048,8 @@ namespace Ogre {
         Matrix4 mat = Matrix4::IDENTITY;
         mat.setTrans(cam->getDerivedPosition());
         mDestRenderSystem->_setWorldMatrix(mat);
+        mDestRenderSystem->_setViewMatrix(cam->getViewMatrix());
+        mDestRenderSystem->_setProjectionMatrix(cam->getProjectionMatrix());
 
         m = getMaterial(mSkyPlaneMatHdl);
         // Set the material for the camera
@@ -1078,6 +1079,8 @@ namespace Ogre {
         Matrix4 mat = Matrix4::IDENTITY;
         mat.setTrans(cam->getDerivedPosition());
         mDestRenderSystem->_setWorldMatrix(mat);
+        mDestRenderSystem->_setViewMatrix(cam->getViewMatrix());
+        mDestRenderSystem->_setProjectionMatrix(cam->getProjectionMatrix());
 
         m = getMaterial(mSkyBoxMatHdl);
         for (int plane = 0; plane < 6; ++plane)
@@ -1144,6 +1147,8 @@ namespace Ogre {
         Matrix4 mat = Matrix4::IDENTITY;
         mat.setTrans(cam->getDerivedPosition());
         mDestRenderSystem->_setWorldMatrix(mat);
+        mDestRenderSystem->_setViewMatrix(cam->getViewMatrix());
+        mDestRenderSystem->_setProjectionMatrix(cam->getProjectionMatrix());
 
         baseName = "SkyDomePlane_";
 
