@@ -41,7 +41,7 @@ namespace Ogre {
         const char *il_extensions = ilGetString ( IL_LOAD_EXT );
         LogManager::getSingleton().logMessage(
          LML_NORMAL,
-            "DevIL image formats: %s", il_extensions);
+            "DevIL image formats: " + String(il_extensions));
         std::stringstream ext;
         String str;
         ext << il_extensions;
