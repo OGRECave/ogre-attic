@@ -79,6 +79,10 @@ http://www.gnu.org/copyleft/lesser.txt
 // define the real number values to be used
 // default to use 'float' unless precompiler option set
 namespace Ogre {
+    // Define ogre version
+    #define OGRE_VERSION_MAJOR 0
+    #define OGRE_VERSION_MINOR 14
+    #define OGRE_VERSION_PATCH 0
 
     #if OGRE_DOUBLE_PRECISION == 1
         typedef double Real;

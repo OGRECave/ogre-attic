@@ -2550,6 +2550,39 @@ namespace Ogre {
                 + msg, "D3DRenderSystem::clearFrameBuffer" );
         }
     }
+    //---------------------------------------------------------------------
+    void D3DRenderSystem::_makeProjectionMatrix(Real left, Real right, 
+        Real bottom, Real top, Real nearPlane, Real farPlane, Matrix4& dest,
+        bool forGpuProgram)
+    {
+        Real width = right - left;
+        Real height = top - bottom;
+        Real Q = farPlane / ( farPlane - nearPlane );
+        dest = Matrix4::ZERO;
+        dest[0][0] = 2 * nearPlane / width;
+        dest[0][2] = (right+left) / width;
+        dest[1][1] = 2 * nearPlane / height;
+        dest[1][2] = (top+bottom) / height;
+        dest[2][2] = Q;
+        dest[3][2] = 1.0f;
+        dest[2][3] = -Q * nearPlane;
+    }
+
+    // ------------------------------------------------------------------
+    void D3DRenderSystem::setClipPlane (ushort index, Real A, Real B, Real C, Real D)
+    {
+        float plane[4] = { A, B, C, D };
+        mlpD3DDevice->SetClipPlane (index, plane);
+    }
+
+    // ------------------------------------------------------------------
+    void D3DRenderSystem::enableClipPlane (ushort index, bool enable)
+    {
+        DWORD prev;
+        mlpD3DDevice->GetRenderState(D3DRENDERSTATE_CLIPPLANEENABLE, &prev);
+        __SetRenderState(D3DRENDERSTATE_CLIPPLANEENABLE, prev | (1 << index));
+    }
+    //---------------------------------------------------------------------
 
 
 

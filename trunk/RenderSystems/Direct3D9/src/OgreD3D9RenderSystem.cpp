@@ -2163,6 +2163,39 @@ namespace Ogre
                 + msg, "D3D9RenderSystem::clearFrameBuffer" );
         }
     }
+    //---------------------------------------------------------------------
+    void D3D9RenderSystem::_makeProjectionMatrix(Real left, Real right, 
+        Real bottom, Real top, Real nearPlane, Real farPlane, Matrix4& dest,
+        bool forGpuProgram)
+    {
+        D3DXMATRIX d3dMatrix;
+        if (forGpuProgram)
+        {
+            D3DXMatrixPerspectiveOffCenterRH(&d3dMatrix, 
+                left, right, bottom, top, nearPlane, farPlane);
+        }
+        else
+        {
+            D3DXMatrixPerspectiveOffCenterRH(&d3dMatrix, 
+                left, right, bottom, top, nearPlane, farPlane);
+        }
+        dest = D3D9Mappings::convertD3DXMatrix(d3dMatrix);
+    }
 
+    // ------------------------------------------------------------------
+    void D3D9RenderSystem::setClipPlane (ushort index, Real A, Real B, Real C, Real D)
+    {
+        float plane[4] = { A, B, C, D };
+        mpD3DDevice->SetClipPlane (index, plane);
+    }
+
+    // ------------------------------------------------------------------
+    void D3D9RenderSystem::enableClipPlane (ushort index, bool enable)
+    {
+        DWORD prev;
+        mpD3DDevice->GetRenderState(D3DRS_CLIPPLANEENABLE, &prev);
+        __SetRenderState(D3DRS_CLIPPLANEENABLE, prev | (1 << index));
+    }
+    //---------------------------------------------------------------------
 
 }

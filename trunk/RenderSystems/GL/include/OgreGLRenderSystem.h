@@ -30,8 +30,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderSystem.h"
 #include "OgreGLHardwareBufferManager.h"
 #include "OgreGLGpuProgramManager.h"
+#include "OgreVector4.h"
 
 #include "OgreGLSupport.h"
+
 
 namespace Ogre {
     /**
@@ -47,6 +49,12 @@ namespace Ogre {
         // Note that a null value indicates a free slot
         #define MAX_LIGHTS 8
         Light* mLights[MAX_LIGHTS];
+
+        // clip planes
+        typedef std::vector<Vector4> PlaneList;
+        PlaneList mClipPlanes;
+        void setGLClipPlanes() const;
+
 
         // view matrix to set world against
         Matrix4 mViewMatrix;
@@ -289,6 +297,19 @@ namespace Ogre {
          */
         void _makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, 
             Matrix4& dest, bool forGpuProgram = false);
+        /** See
+        RenderSystem
+        */
+        void _makeProjectionMatrix(Real left, Real right, Real bottom, Real top, 
+            Real nearPlane, Real farPlane, Matrix4& dest, bool forGpuProgram = false);
+        /** See
+        RenderSystem
+        */
+        void setClipPlane (ushort index, Real A, Real B, Real C, Real D);
+        /** See
+        RenderSystem
+        */
+        void enableClipPlane (ushort index, bool enable);
         /** See
           RenderSystem
          */

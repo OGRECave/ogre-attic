@@ -39,6 +39,7 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreAnimationState.h"
 #include "OgreSceneQuery.h"
 #include "OgreAutoParamDataSource.h"
+#include "OgreAnimationState.h"
 
 namespace Ogre {
 
@@ -1183,6 +1184,7 @@ namespace Ogre {
         typedef MapIterator<EntityList> EntityIterator;
         typedef MapIterator<CameraList> CameraIterator;
         typedef MapIterator<BillboardSetList> BillboardSetIterator;
+        typedef MapIterator<AnimationList> AnimationIterator;
 
         /** Returns a specialised MapIterator over all lights in the scene. */
         LightIterator getLightIterator(void) {
@@ -1199,6 +1201,14 @@ namespace Ogre {
         /** Returns a specialised MapIterator over all BillboardSets in the scene. */
         BillboardSetIterator getBillboardSetIterator(void) {
             return BillboardSetIterator(mBillboardSets.begin(), mBillboardSets.end());
+        }
+        /** Returns a specialised MapIterator over all animations in the scene. */
+        AnimationIterator getAnimationIterator(void) {
+            return AnimationIterator(mAnimationsList.begin(), mAnimationsList.end());
+        }
+        /** Returns a specialised MapIterator over all animation states in the scene. */
+        AnimationStateIterator getAnimationStateIterator(void) {
+            return AnimationStateIterator(mAnimationStates.begin(), mAnimationStates.end());
         }
 
         /** Sets the general shadow technique to be used in this scene.

@@ -594,6 +594,14 @@ namespace Ogre
         virtual void _makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, 
             Matrix4& dest, bool forGpuProgram = false) = 0;
 
+        /** Builds a perspective projection matrix for the case when frustum is
+            not centered around camera.
+        @remarks
+            Viewport coordinates are in camera coordinate frame, i.e. camera is 
+            at the origin.
+        */
+        virtual void _makeProjectionMatrix(Real left, Real right, Real bottom, Real top, 
+            Real nearPlane, Real farPlane, Matrix4& dest, bool forGpuProgram = false) = 0;
         /** Sets how to rasterise triangles, as points, wireframe or solid polys. */
         virtual void _setRasterisationMode(SceneDetailLevel level) = 0;
 
@@ -725,6 +733,14 @@ namespace Ogre
 
         /** Internal method for updating all render targets attached to this rendering system. */
         virtual void _updateAllRenderTargets(void);
+
+        /** Set a clipping plane. */
+        virtual void setClipPlane (ushort index, const Plane &p);
+        /** Set a clipping plane. */
+        virtual void setClipPlane (ushort index, Real A, Real B, Real C, Real D) = 0;
+        /** Enable the clipping plane. */
+        virtual void enableClipPlane (ushort index, bool enable) = 0;
+
         /** Sets whether or not vertex windings set should be inverted; this can be important
             for rendering reflections. */
         virtual void setInvertVertexWinding(bool invert);

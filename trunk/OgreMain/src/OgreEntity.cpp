@@ -570,7 +570,7 @@ namespace Ogre {
         // Init shadow renderable list if required
         if (mShadowRenderables.empty())
         {
-            EdgeData::EdgeGroupList::iterator egi, egiend;
+            EdgeData::EdgeGroupList::iterator egi;
             ShadowRenderableList::iterator si, siend;
             mShadowRenderables.resize(edgeList->edgeGroups.size());
             siend = mShadowRenderables.end();

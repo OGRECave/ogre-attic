@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreString.h"
 #include "OgreController.h"
+#include "OgreIteratorWrappers.h"
 
 namespace Ogre {
 
@@ -100,6 +101,7 @@ namespace Ogre {
 
     // A set of animation states
     typedef std::map<String, AnimationState> AnimationStateSet;
+    typedef MapIterator<AnimationStateSet> AnimationStateIterator;
 
 
 }
