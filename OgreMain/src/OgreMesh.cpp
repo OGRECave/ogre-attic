@@ -153,6 +153,8 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void Mesh::load(void)
 	{
+		OGRE_LOCK_AUTO_MUTEX
+
 		// Overridden to ensure edge lists get built from manual or
 		// loaded meshes
 		Resource::load();
