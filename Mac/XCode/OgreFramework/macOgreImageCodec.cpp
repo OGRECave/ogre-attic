@@ -24,6 +24,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 #include "OgreImageCodec.h"
+#include "OgreILImageCodec.h"
+#include "OgreDataChunk.h"
 #include "OgreException.h"
 
 namespace Ogre {
@@ -45,8 +47,34 @@ namespace Ogre {
         return NULL;
     }
     
-    void ImageCodec::initialiseIL(void)
+    void ILImageCodec::code( const DataChunk& input, DataChunk* output, ... ) const
+    {
+        Except(Exception::UNIMPLEMENTED_FEATURE, "code not implemented", "ILImageCodec::code");
+    }
+    
+    String ILImageCodec::getType() const
+    {
+        return "";
+    }
+    
+    unsigned int ILImageCodec::getILType() const
+    {
+        return 0;
+    }
+    
+    void ILImageCodec::initialiseIL()
     {
         return;
+    }
+    
+    void ILImageCodec::codeToFile( const DataChunk& input, const String& outFileName, CodecData* pData) const
+    {
+        Except(Exception::UNIMPLEMENTED_FEATURE, "codeToFile not implemented", "ILImageCodec::codeToFile");
+    }
+    
+    Codec::CodecData * ILImageCodec::decode( const DataChunk& input, DataChunk* output, ... ) const
+    {
+        Except(Exception::ERR_INTERNAL_ERROR, "ILImageCodec::decode was called directly", "ILImageCodec::decode");
+        return NULL;
     }
 }
