@@ -36,6 +36,7 @@ email                : pjcast@yahoo.com
 #include "OgreExternalTextureSource.h"
 #include "OgreStringConverter.h"
 #include "OgreLogManager.h"
+#include "OgreException.h"
 
 namespace Ogre
 {
@@ -50,7 +51,7 @@ namespace Ogre
 	ExternalTextureSource::ExternalTextureSource()
 	{
 		mInputFileName = "None";
-		mDictionaryName = "ExternalTextureSourcePlugins";
+		mDictionaryName = "NotAssigned";
 		mUpdateEveryFrame = false;
 		mFramesPerSecond = 24;
 		mMode = TextureEffectPause;
@@ -60,6 +61,12 @@ namespace Ogre
 
 	void ExternalTextureSource::addBaseParams()
 	{
+		if( mDictionaryName == "NotAssigned" )
+            Except(Exception::ERR_FILE_NOT_FOUND, 
+                "Plugin " + mPlugInName + 
+				" needs to override default mDictionaryName", 
+                "ExternalTextureSource::addBaseParams");
+
 		//Create Dictionary Here
         if (createParamDictionary( mDictionaryName ))
 		{

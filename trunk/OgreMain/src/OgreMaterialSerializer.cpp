@@ -1852,7 +1852,7 @@ namespace Ogre
         if (vecparams.size() != 1)
 			logParseError("Invalid texture source attribute - expected 1 parameter.",                 context);
         //The only param should identify which ExternalTextureSource is needed
-		ExternalTextureSourceManager::getSingleton().SetCurrentPlugIn( vecparams[0] );
+		ExternalTextureSourceManager::getSingleton().setCurrentPlugIn( vecparams[0] );
 
 		if(	ExternalTextureSourceManager::getSingleton().getCurrentPlugIn() != 0 )
 		{
@@ -2167,7 +2167,8 @@ namespace Ogre
 				//Finish creating texture here
 				String sMaterialName = mScriptContext.material->getName();
 				if(	ExternalTextureSourceManager::getSingleton().getCurrentPlugIn() != 0)
-					ExternalTextureSourceManager::getSingleton().getCurrentPlugIn()->createDefinedTexture( sMaterialName );
+					ExternalTextureSourceManager::getSingleton().getCurrentPlugIn()->
+					createDefinedTexture( sMaterialName, mScriptContext.groupName );
 				//Revert back to texture unit
 				mScriptContext.section = MSS_TEXTUREUNIT;
 			}

@@ -42,6 +42,7 @@ email                : pjcast@yahoo.com
 ***************************************************************************/
 
 #include "OgreStringInterface.h"
+#include "OgreResourceGroupManager.h"
 
 namespace Ogre
 {
@@ -53,10 +54,13 @@ namespace Ogre
 		TextureEffectPlay_Looping = 2	//! Video Plays Instantly && Loops
 	};
 
-	/** Base class that texture plugins derive from. Any specific requirements that the plugin
-	needs to have defined before texture/material creation must be define using the stringinterface
-	before calling create defined texture... or it will fail, though, it is up to the plugin 
-	to report errors to the log file, or raise an exception if need be. */
+	/** IMPORTANT: **Plugins must override default dictionary name!** 
+	Base class that texture plugins derive from. Any specific 
+	requirements that the plugin needs to have defined before 
+	texture/material creation must be define using the stringinterface
+	before calling create defined texture... or it will fail, though, it 
+	is up to the plugin to report errors to the log file, or raise an 
+	exception if need be. */
 	class _OgreExport ExternalTextureSource : public StringInterface
 	{
 	public:
@@ -127,17 +131,21 @@ namespace Ogre
 
 		//Pure virtual functions that plugins must Override
 		/** Call this function from manager to init system */
-		virtual bool Initialise() = 0;
+		virtual bool initialise() = 0;
 		/** Shuts down PlugIn */
-		virtual void ShutDown() = 0;
+		virtual void shutDown() = 0;
 
 		/** Creates a texture into an already defined material or one that is created new
 		(it's up to plugin to use a material or create one)
 		Before calling, ensure that needed params have been defined via the stringInterface
-		class setParameter( .. )*/
-		virtual void createDefinedTexture( String sMaterialName ) = 0;
-		/** Destroys the texture, material, and mem associated with this texture*/
-		virtual void DestroyAdvancedTexture( String sTextureName ) = 0;
+		or regular methods */
+		virtual void createDefinedTexture( const String& sMaterialName,
+			const String& groupName = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME) = 0;
+		/** What this destroys is dependent on the plugin... See specific plugin
+		doc to know what is all destroyed (normally, plugins will destroy only
+		what they created, or used directly - ie. just texture unit) */
+		virtual void destroyAdvancedTexture( const String& sTextureName,
+			const String& groupName = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME) = 0;
 
 	protected:
         static CmdInputFileName msCmdInputFile;		//! Command for setting input file name
@@ -162,8 +170,9 @@ namespace Ogre
 			mStateLevel;
 		//------------------------------------------------------------------//
 
-	private:
-		//! The string name of the dictionary name
+	protected:
+		/** The string name of the dictionary name - each plugin
+		must override default name */
 		String mDictionaryName;
 	};
 }
