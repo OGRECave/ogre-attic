@@ -429,42 +429,6 @@ namespace Ogre {
         return static_cast< unsigned int >( mVertexCount );
     }
     //-----------------------------------------------------------------------
-    void RenderSystem::_render(const LegacyRenderOperation& op)
-    {
-        // Update stats
-        int val;
-
-        if (op.useIndexes)
-            val = op.numIndexes;
-        else
-            val = op.numVertices;
-
-        switch(op.operationType)
-        {
-        case LegacyRenderOperation::OT_TRIANGLE_LIST:
-            mFaceCount += val / 3;
-            break;
-        case LegacyRenderOperation::OT_TRIANGLE_STRIP:
-        case LegacyRenderOperation::OT_TRIANGLE_FAN:
-            mFaceCount += val - 2;
-            break;
-	    case LegacyRenderOperation::OT_POINT_LIST:
-	    case LegacyRenderOperation::OT_LINE_LIST:
-	    case LegacyRenderOperation::OT_LINE_STRIP:
-	        break;
-	    }
-
-        mVertexCount += op.numVertices;
-
-        // Vertex blending: do software if required
-        if ((op.vertexOptions & LegacyRenderOperation::VO_BLEND_WEIGHTS) && 
-            !mCapabilities->hasCapability(RSC_VERTEXBLENDING))
-        {
-            // Software blending required, hack the constness since we need to fudge
-            softwareVertexBlend(const_cast<LegacyRenderOperation&>(op), mWorldMatrices);
-        }
-    }
-    //-----------------------------------------------------------------------
     /*
     bool RenderSystem::_isVertexBlendSupported(void)
     {
@@ -474,8 +438,9 @@ namespace Ogre {
     }
     */
     //-----------------------------------------------------------------------
-    void RenderSystem::softwareVertexBlend(LegacyRenderOperation& op, Matrix4* pMatrices)
+    void RenderSystem::softwareVertexBlend(RenderOperation& op, Matrix4* pMatrices)
     {
+        /* TODO
         // Source vector
         Vector3 sourceVec;
         // Accumulation vectors
@@ -563,7 +528,7 @@ namespace Ogre {
             op.pNormals = &( mTempNormalBlendBuffer.front() );
 
         
-
+        */
 
     }
     //-----------------------------------------------------------------------
@@ -601,9 +566,9 @@ namespace Ogre {
         size_t val;
 
         if (op.useIndexes)
-            val = op.indexData.indexCount;
+            val = op.indexData->indexCount;
         else
-            val = op.vertexData.vertexCount;
+            val = op.vertexData->vertexCount;
 
         switch(op.operationType)
         {
@@ -620,12 +585,12 @@ namespace Ogre {
 	        break;
 	    }
 
-        mVertexCount += op.vertexData.vertexCount;
+        mVertexCount += op.vertexData->vertexCount;
 
         // Vertex blending: do software if required
 		bool vertexBlend = false;
 		const VertexDeclaration::VertexElementList& elemList = 
-			op.vertexData.vertexDeclaration->getElements();
+			op.vertexData->vertexDeclaration.getElements();
 		VertexDeclaration::VertexElementList::const_iterator i, iend;
 		iend = elemList.end();
 		for (i = elemList.begin(); i != iend; ++i)
@@ -643,17 +608,6 @@ namespace Ogre {
             softwareVertexBlend(const_cast<RenderOperation&>(op), mWorldMatrices);
         }
     }
-    //-----------------------------------------------------------------------
-	void RenderSystem::softwareVertexBlend(RenderOperation& op, Matrix4* pMatrices)
-	{
-		// Software blend using new vertex buffers
 
-		// TODO
-		/*
-			We have to take weights and indexes from different buffers
-			We have to derive the number of weights per vertex somehow
-
-		*/
-	}
 }
 

@@ -462,6 +462,8 @@ unsigned int NaturePatch::buildMesh(BinTriNode *binTriBuffer,
 				    ushort *vertexLookup,
 				    Real *texCoordBuffer[2])
 {
+    /* TODO
+
     // Setup buffer pointers
     mBinTriBuffer = binTriBuffer;
     mIndexBuffer  = indexBuffer;
@@ -563,7 +565,7 @@ unsigned int NaturePatch::buildMesh(BinTriNode *binTriBuffer,
 //    mTexCoordCache[1] = new Real[mVertexCount * 2];
 #endif
 
-    // Copy data to the new buffers for the LegacyRenderOperation 
+    // Copy data to the new buffers for the RenderOperation 
     memcpy(mVertexCache, vertexBuffer, mVertexCacheSize * sizeof(Real));
     memcpy(mIndexCache, indexBuffer, mIndexCacheSize * sizeof(ushort));
     memcpy(mTexCoordCache[0], texCoordBuffer[0], mVertexCount*sizeof(Real)*2);
@@ -580,6 +582,7 @@ unsigned int NaturePatch::buildMesh(BinTriNode *binTriBuffer,
 #endif
 //    mNeedsRebuild = false;
 
+*/
     // Return number of triangles generated
     return (mIndexCount / 3);
 }
@@ -875,9 +878,9 @@ void NaturePatch::stitch(int direction, NaturePatch *neighborPatch)
 
 //----------------------------------------------------------------------------
 
-void NaturePatch::getLegacyRenderOperation(LegacyRenderOperation &rend)
+void NaturePatch::getRenderOperation(RenderOperation& op)
 {
-//    printf("getLegacyRenderOperation()\n");
+    /* TODO
     rend.useIndexes = true;
 
     rend.vertexOptions = LegacyRenderOperation::VO_TEXTURE_COORDS;
@@ -907,6 +910,9 @@ void NaturePatch::getLegacyRenderOperation(LegacyRenderOperation &rend)
 
     // lighting
     rend.pNormals = 0;
+
+    */
+    return RenderOperation();
 }
 
 //----------------------------------------------------------------------------

@@ -33,6 +33,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 #include "OgreVector3.h"
+#include "OgreHardwareVertexBuffer.h"
+#include "OgreHardwareIndexBuffer.h"
+#include "OgreRenderOperation.h"
 
 namespace Ogre {
 
@@ -61,17 +64,11 @@ namespace Ogre {
 			/// A proportion of the remaining number of vertices are removed at each reduction
 			VRQ_PROPORTIONAL
 		};
-		/// Struct for holding the returned LOD geometry information
-        struct LODFaceData
-        {
-            ushort numIndexes;
-            ushort* pIndexes;
-        };
 
-        typedef std::vector<LODFaceData> LODFaceList;
+        typedef std::vector<IndexData*> LODFaceList;
 
         /** Constructor, takes the geometry data and index buffer. */
-        ProgressiveMesh(GeometryData* data, ushort* indexBuffer, ushort numIndexes);
+        ProgressiveMesh(const VertexData* vertexData, const IndexData* indexData);
         virtual ~ProgressiveMesh();
 
         /** Adds an extra vertex position buffer. 
@@ -84,7 +81,7 @@ namespace Ogre {
         @param buffer Pointer to x/y/z buffer with vertex positions. The number of vertices
             must be the same as in the original GeometryData passed to the constructor.
         */
-        virtual void addExtraVertexPositionBuffer(Real* buffer);
+        virtual void addExtraVertexPositionBuffer(const VertexData* vertexData);
 
         /** Builds the progressive mesh with the specified number of levels.
         @param numLevels The number of levels to include in the output excluding the full detail version.
@@ -98,9 +95,9 @@ namespace Ogre {
 			VertexReductionQuota quota = VRQ_PROPORTIONAL, Real reductionValue = 0.5f );
 
     protected:
-        GeometryData* mpGeomData;
-        ushort* mpIndexBuffer;
-        ushort mNumIndexes;
+        const VertexData *mpVertexData;
+        const IndexData *mpIndexData;
+
         ushort mCurrNumIndexes;
 		ushort mNumCommonVertices;
 
@@ -191,7 +188,7 @@ namespace Ogre {
         WorstCostList mWorstCosts;
 
         /// Internal method for building PMWorkingData from geometry data
-        void addWorkingData(Real* pPositions, GeometryData* data, ushort* indexBuffer, ushort numIndexes);
+        void addWorkingData(const VertexData* vertexData, const IndexData* indexData);
 
         /// Internal method for initialising the edge collapse costs
         void initialiseEdgeCollapseCosts(void);
@@ -206,7 +203,7 @@ namespace Ogre {
         /// Internal method for getting the index of next best vertex to collapse
         ushort getNextCollapser(void);
         /// Internal method builds an new LOD based on the current state
-        void bakeNewLOD(LODFaceData* pData);
+        void bakeNewLOD(IndexData* pData);
 
         /** Internal method, collapses vertex onto it's saved collapse target. 
         @remarks

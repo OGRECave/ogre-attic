@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 // Precompiler options
 #include "OgrePrerequisites.h"
 #include "OgreHardwareBuffer.h"
+#include "OgreSharedPtr.h"
 
 namespace Ogre {
 
@@ -57,6 +58,17 @@ namespace Ogre {
             size_t getIndexSize(void) { return mIndexSize; }
 
 		    // NB subclasses should override lock, unlock, readData, writeData
+    };
+
+
+    /** Shared pointer implementation used to share index buffers. */
+    class _OgreExport HardwareIndexBufferSharedPtr : public SharedPtr<HardwareIndexBuffer>
+    {
+    public:
+        HardwareIndexBufferSharedPtr() : SharedPtr<HardwareIndexBuffer>() {}
+        HardwareIndexBufferSharedPtr(HardwareIndexBuffer* buf);
+        /// Just override the destroy method to desotry through factory
+        void destroy(void);
     };
 }
 #endif

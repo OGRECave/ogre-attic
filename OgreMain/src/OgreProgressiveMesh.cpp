@@ -30,7 +30,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 #include "OgreProgressiveMesh.h"
-#include "OgreGeometryData.h"
 #include "OgreString.h"
 #include <algorithm>
 
@@ -58,14 +57,13 @@ namespace Ogre {
 		}
 	};
     //---------------------------------------------------------------------
-    ProgressiveMesh::ProgressiveMesh(GeometryData* data, 
-        ushort* indexBuffer, ushort numIndexes)
+    ProgressiveMesh::ProgressiveMesh(const VertexData* vertexData, 
+        const IndexData* indexData)
     {
-        addWorkingData(data->pVertices, data, indexBuffer, numIndexes);
-        mpGeomData = data;
-        mpIndexBuffer = indexBuffer;
-        mNumIndexes = numIndexes;
-        mWorstCosts.resize(data->numVertices);
+        addWorkingData(vertexData, indexData);
+        mpVertexData = vertexData;
+        mpIndexData = indexData;
+        mWorstCosts.resize(vertexData->vertexCount);
 
 
 
@@ -75,15 +73,15 @@ namespace Ogre {
     {
     }
     //---------------------------------------------------------------------
-    void ProgressiveMesh::addExtraVertexPositionBuffer(Real* buffer)
+    void ProgressiveMesh::addExtraVertexPositionBuffer(const VertexData* vertexData)
     {
-        addWorkingData(buffer, mpGeomData, mpIndexBuffer, mNumIndexes);
+        addWorkingData(vertexData, mpIndexData);
     }
     //---------------------------------------------------------------------
     void ProgressiveMesh::build(ushort numLevels, LODFaceList* outList, 
 			VertexReductionQuota quota, Real reductionValue)
     {
-        LODFaceData newLod;
+        IndexData* newLod;
 
         computeAllCosts();
 
@@ -92,9 +90,9 @@ namespace Ogre {
 #endif
 
         // Init
-        mCurrNumIndexes = mNumIndexes;
+        mCurrNumIndexes = mpIndexData->indexCount;
         ushort numVerts, numCollapses;
-        numVerts = mpGeomData->numVertices;
+        numVerts = mpVertexData->vertexCount;
 		
 		PMVertex* test = &(mWorkingData[0].mVertList[347]);
 
@@ -153,7 +151,8 @@ namespace Ogre {
 #endif
 
             // Bake a new LOD and add it to the list
-            bakeNewLOD(&newLod);
+            newLod = new IndexData();
+            bakeNewLOD(newLod);
             outList->push_back(newLod);
 			
         }
@@ -162,8 +161,8 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void ProgressiveMesh::addWorkingData(Real* pPositions, GeometryData* data, 
-        ushort* indexBuffer, ushort numIndexes)
+    void ProgressiveMesh::addWorkingData(const VertexData * vertexData, 
+        const IndexData * indexData)
     {
         // Insert blank working data, then fill 
         mWorkingData.push_back(PMWorkingData());
@@ -173,10 +172,11 @@ namespace Ogre {
         uint i;
         // Build vertex list
 		// Resize face list (this will always be this big)
-		work.mFaceVertList.resize(data->numVertices);
+		work.mFaceVertList.resize(vertexData->vertexCount);
 		// Also resize common vert list to max, to avoid reallocations
-		work.mVertList.resize(data->numVertices);
+		work.mVertList.resize(vertexData->vertexCount);
 
+        /* TODO
         Real* pReal = data->pVertices;
         Vector3 pos;
 		// Map for identifying duplicate position vertices
@@ -244,6 +244,7 @@ namespace Ogre {
             work.mTriList[i].removed = false;
 
         }
+        */
 
     }
     //---------------------------------------------------------------------
@@ -459,7 +460,7 @@ namespace Ogre {
     {
         initialiseEdgeCollapseCosts();
         ushort i;
-        for (i = 0; i < mpGeomData->numVertices; ++i)
+        for (i = 0; i < mpVertexData->vertexCount; ++i)
         {
             computeEdgeCostAtVertex(i);
         }
@@ -614,8 +615,9 @@ namespace Ogre {
         return bestIndex;
     }
     //---------------------------------------------------------------------
-    void ProgressiveMesh::bakeNewLOD(ProgressiveMesh::LODFaceData* pData)
+    void ProgressiveMesh::bakeNewLOD(IndexData* pData)
     {
+        /* TODO
         // Zip through the tri list of any working data copy and bake
         pData->numIndexes = mCurrNumIndexes;
         pData->pIndexes = new ushort[mCurrNumIndexes];
@@ -634,6 +636,7 @@ namespace Ogre {
                 *pIndex++ = tri->vertex[2]->realIndex;
             }
         }
+        */
 
     }
     //---------------------------------------------------------------------

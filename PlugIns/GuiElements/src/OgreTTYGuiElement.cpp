@@ -50,12 +50,14 @@ namespace Ogre {
 		    mpFont = 0;
 
         memset( &mRenderOp, 0, sizeof( mRenderOp ) );
+        /* TODO
         mRenderOp.operationType = LegacyRenderOperation::OT_TRIANGLE_LIST;
         mRenderOp.vertexOptions = LegacyRenderOperation::VO_TEXTURE_COORDS | 
             LegacyRenderOperation::VO_DIFFUSE_COLOURS;
         mRenderOp.numTextureCoordSets = 1;
         mRenderOp.numTextureDimensions[0] = 2;
         mRenderOp.numVertices = 0;
+        */
 
         mColourTop = ColourValue::White;
         mColourBottom = ColourValue::White;
@@ -609,9 +611,9 @@ namespace Ogre {
         return msTypeName;
     }
     //---------------------------------------------------------------------
-    void TTYGuiElement::getLegacyRenderOperation(LegacyRenderOperation& rend)
+    void TTYGuiElement::getRenderOperation(RenderOperation& op)
     {
-        rend = mRenderOp;
+        return mRenderOp;
     }
     //---------------------------------------------------------------------
     void TTYGuiElement::setMaterialName(const String& matName)

@@ -41,14 +41,14 @@ namespace Ogre {
             HardwareBuffer::Usage usage); 
         ~GLHardwareVertexBuffer();
         /** See HardwareBuffer. */
-        unsigned char* lock(size_t offset, size_t length, LockOptions options);
+        void* lock(size_t offset, size_t length, LockOptions options);
         /** See HardwareBuffer. */
         void unlock(void);
         /** See HardwareBuffer. */
-        void readData(size_t offset, size_t length, unsigned char* pDest);
+        void readData(size_t offset, size_t length, void* pDest);
         /** See HardwareBuffer. */
         void writeData(size_t offset, size_t length, 
-            const unsigned char* pSource, bool discardWholeBuffer = false);
+            const void* pSource, bool discardWholeBuffer = false);
 
     };
 

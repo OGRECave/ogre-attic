@@ -35,51 +35,31 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     GLHardwareBufferManager::~GLHardwareBufferManager()
     {
-        for (VertexBufferList::iterator vi = mVertexBuffers.begin();
-            vi != mVertexBuffers.end(); ++vi)
-        {
-            delete *vi;
-        }
-        mVertexBuffers.clear();
-
-        for (IndexBufferList::iterator ii = mIndexBuffers.begin();
-            ii != mIndexBuffers.end(); ++ii)
-        {
-            delete *ii;
-        }
-        mIndexBuffers.clear();
-
     }
     //-----------------------------------------------------------------------
-    HardwareVertexBuffer* GLHardwareBufferManager::createVertexBuffer(
+    HardwareVertexBufferSharedPtr GLHardwareBufferManager::createVertexBuffer(
         size_t vertexSize, size_t numVerts, HardwareBuffer::Usage usage)
     {
-        HardwareVertexBuffer* ret = new GLHardwareVertexBuffer(vertexSize, 
-            numVerts, usage);
-        mVertexBuffers.push_back(ret);
-        return ret;
+        return HardwareVertexBufferSharedPtr(
+            new GLHardwareVertexBuffer(vertexSize, numVerts, usage) );
     }
     //-----------------------------------------------------------------------
     void GLHardwareBufferManager::destroyVertexBuffer(HardwareVertexBuffer* buf)
     {
-        mVertexBuffers.remove(buf);
         delete buf;
     }
     //-----------------------------------------------------------------------
-    HardwareIndexBuffer* 
+    HardwareIndexBufferSharedPtr 
     GLHardwareBufferManager:: createIndexBuffer(
         HardwareIndexBuffer::IndexType itype, size_t numIndexes, 
         HardwareBuffer::Usage usage)
     {
-        HardwareIndexBuffer* ret = new GLHardwareIndexBuffer(itype, numIndexes, 
-            usage);
-        mIndexBuffers.push_back(ret);
-        return ret;
+        return HardwareIndexBufferSharedPtr(
+            new GLHardwareIndexBuffer(itype, numIndexes, usage) );
     }
     //-----------------------------------------------------------------------
     void GLHardwareBufferManager::destroyIndexBuffer(HardwareIndexBuffer* buf)
     {
-        mIndexBuffers.remove(buf);
         delete buf;
     }
     //-----------------------------------------------------------------------

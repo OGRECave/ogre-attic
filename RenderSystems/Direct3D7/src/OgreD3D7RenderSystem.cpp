@@ -1473,8 +1473,9 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void D3DRenderSystem::_render(const LegacyRenderOperation& op)
+    void D3DRenderSystem::_render(const RenderOperation& op)
     {
+        /* TODO
         OgreGuard( "D3DRenderSystem::_render" );
 
         HRESULT hr;
@@ -1629,6 +1630,7 @@ namespace Ogre {
         }
 
         OgreUnguard();
+        */
     }
 
     //-----------------------------------------------------------------------

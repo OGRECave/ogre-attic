@@ -78,7 +78,7 @@ namespace Ogre {
             WFT_SINGLE_INTERSECTION,
             /// Custom geometry as defined by the SceneManager
             WFT_CUSTOM_GEOMETRY,
-            /// General LegacyRenderOperation structure
+            /// General RenderOperation structure
             WFT_RENDER_OPERATION
         };
 
@@ -105,7 +105,7 @@ namespace Ogre {
             /// Custom geometry block, only applicable for WFT_CUSTOM_GEOMETRY
             void* geometry;
             /// General render operation structure, fallback if nothing else is available
-            LegacyRenderOperation* renderOp;
+            RenderOperation* renderOp;
             
         };
     protected:

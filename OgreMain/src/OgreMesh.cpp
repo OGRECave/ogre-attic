@@ -40,30 +40,11 @@ namespace Ogre {
     Mesh::Mesh(String name)
     {
         mName = name;
-        sharedGeometry.hasColours = false;
-        sharedGeometry.hasNormals = false;
-        sharedGeometry.vertexStride = 0;
-        sharedGeometry.colourStride = 0;
-        sharedGeometry.normalStride = 0;
-        sharedGeometry.numTexCoords = 1;
-        sharedGeometry.numTexCoordDimensions[0] = 2;
-        sharedGeometry.numVertices = 0;
-        sharedGeometry.pColours = 0;
-        sharedGeometry.pNormals = 0;
-        sharedGeometry.pBlendingWeights = 0;
-        sharedGeometry.numBlendWeightsPerVertex = 0;
 
-        for (int i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; ++i)
-        {
-            sharedGeometry.pTexCoords[i] = 0;
-            sharedGeometry.texCoordStride[i] = 0;
-        }
-        sharedGeometry.pVertices = 0;
         // Default to load from file
         mManuallyDefined = false;
         mUpdateBounds = true;
         setSkeletonName("");
-        mBoneAssignmentsOutOfDate = false;
 		mNumLods = 1;
 		// Init first (manual) lod
 		MeshLodUsage lod;
@@ -153,11 +134,8 @@ namespace Ogre {
             String& ext = extVec[extVec.size() - 1];
             ext.toLowerCase();
 
-            if (ext == "oof")
-            {
-                serializer.importLegacyOof(chunk, this);
-            }
-            else if (ext == "mesh")
+            // .oof now deprecated
+            if (ext == "mesh")
             {
                 serializer.importMesh(chunk, this);
             }
@@ -185,145 +163,8 @@ namespace Ogre {
         {
             delete *i;
         }
-        if (sharedGeometry.pVertices)
-        {
-            delete[] sharedGeometry.pVertices;
-            sharedGeometry.pVertices = 0;
-        }
-        // Deallocate individual components if they have their own buffers
-        // NB Assuming that if some components use the same buffer, all do and vice versa
-        if (sharedGeometry.vertexStride == 0)
-        {
-
-            // Destroy shared buffers
-            if (sharedGeometry.pColours)
-            {
-                delete[] sharedGeometry.pColours;
-                sharedGeometry.pColours = 0;
-            }
-            if (sharedGeometry.pNormals)
-            {
-                delete[] sharedGeometry.pNormals;
-                sharedGeometry.pNormals = 0;
-            }
-            for (int j = 0; j < OGRE_MAX_TEXTURE_COORD_SETS; ++j)
-            {
-                if (sharedGeometry.pTexCoords[j])
-                {
-                    delete[] sharedGeometry.pTexCoords[j];
-                    sharedGeometry.pTexCoords[j] = 0;
-                }
-            }
-        }
 		// Clear SubMesh names
 		mSubMeshNameMap.clear();
-    }
-
-    //-----------------------------------------------------------------------
-    void Mesh::_dumpContents(String filename)
-    {
-        std::ofstream of;
-
-        of.open(filename);
-
-        of << "-= Debug output of model " << mName << " =-" << std::endl << std::endl;
-        if (sharedGeometry.numVertices > 0)
-        {
-            of << "-= Shared geometry =- " << std::endl;
-            _dumpGeometry(sharedGeometry, of);
-        }
-
-        for (SubMeshList::iterator i = mSubMeshList.begin(); i != mSubMeshList.end(); ++i)
-        {
-            of << "-= SubMesh Entry =-" << std::endl;
-            of << "Material Name = " << (*i)->getMaterialName() << std::endl;
-            of << "numFaces = " << (*i)->numFaces << std::endl;
-            of << "useSharedVertices = " << (*i)->useSharedVertices << std::endl;
-            if (!(*i)->useSharedVertices)
-            {
-                of << "-= Dedicated Geometry =-" << std::endl;
-                _dumpGeometry((*i)->geometry, of);
-            }
-
-            of << "-= Face List =-" << std::endl;
-            for (int idx = 0; idx < (*i)->numFaces; ++idx)
-            {
-                of << (*i)->faceVertexIndices[idx*3] << ", " <<
-                    (*i)->faceVertexIndices[(idx*3) + 1] << ", " <<
-                    (*i)->faceVertexIndices[(idx*3) + 2] << std::endl;
-            }
-        }
-
-        of.close();
-
-
-    }
-
-    void Mesh::_dumpGeometry(GeometryData &g, std::ofstream& of)
-    {
-        int i;
-
-        of << "hasColours = " << g.hasColours << std::endl;
-        of << "hasNormals = " << g.hasNormals << std::endl;
-        of << "numTexCoords = " << g.numTexCoords << std::endl;
-        for (i = 0; i < g.numTexCoords; ++i)
-            of << "numTexCoordDimensions[" << i << "] = " << g.numTexCoordDimensions[i] << std::endl;
-        of << "numVertices = " << g.numVertices << std::endl;
-        // Write out vertices
-        of << "Vertex Position Data:" << std::endl;
-        Real* pReal = g.pVertices;
-        unsigned long* pULong;
-        for (i = 0; i < g.numVertices; ++i)
-        {
-            of << *pReal++ << ", " <<
-                *pReal++ << ", " <<
-                *pReal++ << std::endl;
-            pReal = (Real*)((char*)pReal + g.vertexStride);
-        }
-        if (g.hasColours)
-        {
-            // Write out colours
-            of << "Vertex Colour Data:" << std::endl;
-            pULong = g.pColours;
-            for (int i = 0; i < g.numVertices; ++i)
-            {
-                of << *pULong++ << std::endl;
-                pULong = (unsigned long*)((char*)pULong + g.colourStride);
-            }
-        }
-        if (g.hasNormals)
-        {
-            // Write out Normals
-            of << "Vertex Normal Data:" << std::endl;
-            pReal = g.pNormals;
-            for (int i = 0; i < g.numVertices; ++i)
-            {
-                of << *pReal++ << ", " <<
-                    *pReal++ << ", " <<
-                    *pReal++ << std::endl;
-                pReal = (Real*)((char*)pReal + g.normalStride);
-            }
-        }
-        // Write out textures
-        of << "Vertex Texture Coordinate Data:" << std::endl;
-        int index;
-        index = 0;
-        for (int set = 0; set < g.numTexCoords; ++set)
-        {
-            of << "Set " << set << ":" << std::endl;
-            pReal = g.pTexCoords[set];
-            for ( i = 0; i < g.numVertices; ++i)
-            {
-                for (int d = 0; d < g.numTexCoordDimensions[set]; ++ d)
-                {
-                    of << *pReal++ << " ";
-                }
-                of << std::endl;
-                pReal = (Real*)((char*)pReal + g.texCoordStride[set]);
-            }
-        }
-
-
     }
 
     //-----------------------------------------------------------------------
@@ -341,53 +182,11 @@ namespace Ogre {
         // New Mesh is assumed to be manually defined rather than loaded since you're cloning it for a reason
         Mesh* newMesh = MeshManager::getSingleton().createManual(newName);
 
-        bool isSharedGeometry;
-        isSharedGeometry = false;
-
         // Copy submeshes first
         std::vector<SubMesh*>::iterator subi;
-        SubMesh* newSub;
         for (subi = mSubMeshList.begin(); subi != mSubMeshList.end(); ++subi)
         {
-            newSub = newMesh->createSubMesh();
-            newSub->mMaterialName = (*subi)->mMaterialName;
-            newSub->mMatInitialised = (*subi)->mMatInitialised;
-            newSub->numFaces = (*subi)->numFaces;
-            newSub->parent = newMesh;
-            newSub->useSharedVertices = (*subi)->useSharedVertices;
-            newSub->useTriStrips = (*subi)->useTriStrips;
-
-            if ((*subi)->useSharedVertices)
-            {
-                // Make a note to copy shared geometry later
-                isSharedGeometry = true;
-            }
-            else
-            {
-                // Copy unique geometry
-                cloneGeometry((*subi)->geometry, newSub->geometry);
-            }
-
-            // Copy indexes
-            int numIndexes;
-
-            if ((*subi)->useTriStrips)
-            {
-                numIndexes = (*subi)->numFaces + 2;
-            }
-            else
-            {
-                numIndexes = (*subi)->numFaces * 3;
-            }
-            newSub->faceVertexIndices = new unsigned short[numIndexes];
-            memcpy(newSub->faceVertexIndices, (*subi)->faceVertexIndices, sizeof(unsigned short) * numIndexes);
-
-        }
-
-        // Copy shared geometry, if any
-        if (isSharedGeometry)
-        {
-            cloneGeometry(sharedGeometry, newMesh->sharedGeometry);
+            (*subi)->clone(newMesh);
         }
 
 		// Copy submesh names
@@ -397,6 +196,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
+    /*
     void Mesh::cloneGeometry(GeometryData& source, GeometryData& dest)
     {
         int tex;
@@ -435,6 +235,7 @@ namespace Ogre {
                                                                         source.numTexCoordDimensions[tex]);
         }
     }
+    */
     //-----------------------------------------------------------------------
     void Mesh::_updateBounds(void)
     {
@@ -447,94 +248,22 @@ namespace Ogre {
 
         // Loop through SubMeshes, find extents
         SubMeshList::iterator i;
+        mAABB.setNull();
+
+        AxisAlignedBox smAABB;
+        Real smMaxSquaredLength;
         for (i = mSubMeshList.begin(); i != mSubMeshList.end(); ++i)
         {
-            if ((*i)->useSharedVertices)
-            {
-                useShared = true;
-            }
-            else
-            {
-                for (vert = 0; vert < (*i)->geometry.numVertices * 3; vert+=(3+ (*i)->geometry.vertexStride))
-                {
-                    if (first || (*i)->geometry.pVertices[vert] < min.x)
-                    {
-                        min.x = (*i)->geometry.pVertices[vert];
-                    }
-                    if (first || (*i)->geometry.pVertices[vert+1] < min.y)
-                    {
-                        min.y = (*i)->geometry.pVertices[vert+1];
-                    }
-                    if (first || (*i)->geometry.pVertices[vert+2] < min.z)
-                    {
-                        min.z = (*i)->geometry.pVertices[vert+2];
-                    }
-                    if (first || (*i)->geometry.pVertices[vert] > max.x)
-                    {
-                        max.x = (*i)->geometry.pVertices[vert];
-                    }
-                    if (first || (*i)->geometry.pVertices[vert+1] > max.y)
-                    {
-                        max.y = (*i)->geometry.pVertices[vert+1];
-                    }
-                    if (first || (*i)->geometry.pVertices[vert+2] > max.z)
-                    {
-                        max.z = (*i)->geometry.pVertices[vert+2];
-                    }
-                    first = false;
-
-					Real newSqlLen = 
-                        (*i)->geometry.pVertices[vert]  * (*i)->geometry.pVertices[vert] + 
-						(*i)->geometry.pVertices[vert+1] * (*i)->geometry.pVertices[vert+1] +
-						(*i)->geometry.pVertices[vert+2] * (*i)->geometry.pVertices[vert+2];
-					maxSquaredLength = std::max(newSqlLen, maxSquaredLength);
-                }
-            }
-        }
-
-        // Check shared
-        if (useShared)
-        {
-            for (vert = 0; vert < sharedGeometry.numVertices * 3; vert+=(3 + sharedGeometry.vertexStride))
-            {
-                if (first || sharedGeometry.pVertices[vert] < min.x)
-                {
-                    min.x = sharedGeometry.pVertices[vert];
-                }
-                if (first || sharedGeometry.pVertices[vert+1] < min.y)
-                {
-                    min.y = sharedGeometry.pVertices[vert+1];
-                }
-                if (first || sharedGeometry.pVertices[vert+2] < min.z)
-                {
-                    min.z = sharedGeometry.pVertices[vert+2];
-                }
-                if (first || sharedGeometry.pVertices[vert] > max.x)
-                {
-                    max.x = sharedGeometry.pVertices[vert];
-                }
-                if (first || sharedGeometry.pVertices[vert+1] > max.y)
-                {
-                    max.y = sharedGeometry.pVertices[vert+1];
-                }
-                if (first || sharedGeometry.pVertices[vert+2] > max.z)
-                {
-                    max.z = sharedGeometry.pVertices[vert+2];
-                }
-                first = false;
-				Real newSqlLen = sharedGeometry.pVertices[vert]* sharedGeometry.pVertices[vert] +
-					sharedGeometry.pVertices[vert+1] * sharedGeometry.pVertices[vert+1] +
-					sharedGeometry.pVertices[vert+2] * sharedGeometry.pVertices[vert+2];
-				maxSquaredLength = std::max(newSqlLen, maxSquaredLength);
-            }
+            (*i)->calculateBounds(&smAABB, &smMaxSquaredLength );
+            mAABB.merge(smAABB);
+            maxSquaredLength = std::max(maxSquaredLength, smMaxSquaredLength);
         }
 
         // Pad out the AABB a little, helps with most bounds tests
-        min -= Vector3::UNIT_SCALE;
-        max += Vector3::UNIT_SCALE;
-        mAABB.setExtents(min, max);
+        mAABB.setExtents(mAABB.getMinimum() - Vector3::UNIT_SCALE, 
+                        mAABB.getMaximum() + Vector3::UNIT_SCALE);
         // Pad out the sphere a little too
-		mBoundRadius = Math::Sqrt(maxSquaredLength) * 1.25;
+        mBoundRadius = Math::Sqrt(maxSquaredLength) * 1.25;
         mUpdateBounds = false;
 
     }
@@ -598,28 +327,11 @@ namespace Ogre {
         return mSkeleton;
     }
     //-----------------------------------------------------------------------
-    void Mesh::addBoneAssignment(const VertexBoneAssignment& vertBoneAssign)
-    {
-        mBoneAssignments.insert(
-            VertexBoneAssignmentList::value_type(vertBoneAssign.vertexIndex, vertBoneAssign));
-        mBoneAssignmentsOutOfDate = true;
-    }
-    //-----------------------------------------------------------------------
-    void Mesh::clearBoneAssignments(void)
-    {
-        mBoneAssignments.clear();
-        mBoneAssignmentsOutOfDate = true;
-    }
-    //-----------------------------------------------------------------------
     void Mesh::_initAnimationState(AnimationStateSet* animSet)
     {
         // Delegate to Skeleton
         assert(mSkeleton && "Skeleton not present");
         mSkeleton->_initAnimationState(animSet);
-
-        // Take the opportunity to update the compiled bone assignments
-        if (mBoneAssignmentsOutOfDate)
-            compileBoneAssignments();
 
         SubMeshList::iterator i;
         for (i = mSubMeshList.begin(); i != mSubMeshList.end(); ++i)
@@ -648,90 +360,11 @@ namespace Ogre {
         mSkeleton->_getBoneMatrices(pMatrices);
 
     }
-    //-----------------------------------------------------------------------
-    void Mesh::compileBoneAssignments(void)
-    {
-        // Deallocate
-        if (sharedGeometry.pBlendingWeights)
-        {
-            delete [] sharedGeometry.pBlendingWeights;
-            sharedGeometry.pBlendingWeights = 0;
-        }
-
-        // Iterate through, finding the largest # bones per vertex
-        unsigned short maxBones = 0;
-        unsigned short currBones, lastVertIdx = std::numeric_limits< ushort >::max();
-        VertexBoneAssignmentList::iterator i, iend;
-        i = mBoneAssignments.begin();
-        iend = mBoneAssignments.end();
-        for (; i != iend; ++i)
-        {
-            if (lastVertIdx != i->second.vertexIndex)
-            {
-                // change in vertex
-                if (maxBones < currBones)
-                    maxBones = currBones;
-                currBones = 0;
-            }
-
-            currBones++;
-
-            lastVertIdx = i->second.vertexIndex;
-
-        }
-
-        if (maxBones == 0)
-        {
-            // No bone assignments
-            sharedGeometry.numBlendWeightsPerVertex = 0;
-            return;
-        }
-        // Allocate a buffer for bone weights
-        sharedGeometry.numBlendWeightsPerVertex = maxBones;
-        sharedGeometry.pBlendingWeights = 
-            new LegacyRenderOperation::VertexBlendData[sharedGeometry.numVertices * maxBones];
-
-        // Assign data
-        unsigned short v;
-        i = mBoneAssignments.begin();
-        LegacyRenderOperation::VertexBlendData *pBlend = sharedGeometry.pBlendingWeights;
-        // Iterate by vertex
-        for (v = 0; v < sharedGeometry.numVertices; ++v)
-        {
-            for (unsigned short bone = 0; bone < maxBones; ++bone)
-            {
-                // Do we still have data for this vertex?
-                if (i->second.vertexIndex == v)
-                {
-                    // If so, assign
-                    pBlend->matrixIndex = i->second.boneIndex;
-                    pBlend->blendWeight = i->second.weight;
-                    ++i;
-                }
-                else
-                {
-                    // Ran out of assignments for this vertex, use weight 0 to indicate empty
-                    pBlend->blendWeight = 0;
-                    pBlend->matrixIndex = 0;
-                }
-                ++pBlend;
-            }
-        }
-
-        mBoneAssignmentsOutOfDate = false;
-
-    }
     //---------------------------------------------------------------------
     void Mesh::_notifySkeleton(Skeleton* pSkel)
     {
         mSkeleton = pSkel;
         mSkeletonName = pSkel->getName();
-    }
-    //---------------------------------------------------------------------
-    Mesh::BoneAssignmentIterator Mesh::getBoneAssignmentIterator(void)
-    {
-        return BoneAssignmentIterator(mBoneAssignments.begin(),
-            mBoneAssignments.end());
     }
     //---------------------------------------------------------------------
     const String& Mesh::getSkeletonName(void) const
@@ -754,10 +387,7 @@ namespace Ogre {
         isubend = mSubMeshList.end();
         for (isub = mSubMeshList.begin(); isub != isubend; ++isub)
         {
-            // Set up data for reduction
-            GeometryData* pGeom = (*isub)->useSharedVertices ? &sharedGeometry : &((*isub)->geometry);
-
-            ProgressiveMesh pm(pGeom, (*isub)->faceVertexIndices, (*isub)->numFaces * 3);
+            ProgressiveMesh pm(&(*isub)->vertexData, &(*isub)->indexData);
             pm.build(
             static_cast<ushort>(lodDistances.size()), 
                 &((*isub)->mLodFaceList), 
@@ -877,10 +507,10 @@ namespace Ogre {
 	}
     //---------------------------------------------------------------------
 	void Mesh::_setSubMeshLodFaceList(unsigned short subIdx, unsigned short level, 
-		ProgressiveMesh::LODFaceData& facedata)
+		IndexData& facedata)
 	{
 		SubMesh* sm = mSubMeshList[subIdx];
-		sm->mLodFaceList[level - 1] = facedata;
+		*(sm->mLodFaceList[level - 1]) = facedata;
 
 	}
     //---------------------------------------------------------------------

@@ -39,7 +39,7 @@ namespace Ogre {
     {
         mTransparent = false;
         // Setup render op in advance
-        // TODO make this more VB friendly
+        /** TODO
         mRenderOp.numTextureCoordSets = 1;
         mRenderOp.numTextureDimensions[0] = 2;
         mRenderOp.numVertices = 4;
@@ -57,6 +57,7 @@ namespace Ogre {
         // No normals or colours
         mRenderOp.vertexOptions = LegacyRenderOperation::VO_TEXTURE_COORDS;
         mRenderOp.vertexStride = 0;
+        */
 
         if (createParamDictionary("PanelGuiElement"))
         {
@@ -114,10 +115,10 @@ namespace Ogre {
         return msTypeName;
     }
     //---------------------------------------------------------------------
-    void PanelGuiElement::getLegacyRenderOperation(LegacyRenderOperation& rend)
+    void PanelGuiElement::getRenderOperation(RenderOperation& op)
     {
 
-        rend = mRenderOp;
+        return mRenderOp;
 
     }
     //---------------------------------------------------------------------

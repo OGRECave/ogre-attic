@@ -51,7 +51,7 @@ namespace Ogre {
         // superclass will handle the interior panel area 
 
         // Setup render op in advance
-        // TODO make this more VB friendly
+        /* TODO
         mRenderOp2.numTextureCoordSets = 1;
         mRenderOp2.numTextureDimensions[0] = 2;
         mRenderOp2.numVertices = 4 * 8; // 8 cells, can't necessarily share vertices cos
@@ -68,6 +68,7 @@ namespace Ogre {
         // No normals or colours
         mRenderOp2.vertexOptions = LegacyRenderOperation::VO_TEXTURE_COORDS;
         mRenderOp2.vertexStride = 0;
+        */
 
         /* Each cell is
             0-----2
@@ -76,6 +77,7 @@ namespace Ogre {
             |/    |
             1-----3
         */
+        /* TODO
         mRenderOp2.pIndexes = new ushort[6 * 8];
         ushort* pIdx = mRenderOp2.pIndexes;
         for (int cell = 0; cell < 8; ++cell)
@@ -89,6 +91,7 @@ namespace Ogre {
             *pIdx++ = base + 1;
             *pIdx++ = base + 3;
         }
+        */
 
         if (createParamDictionary("BorderPanelGuiElement"))
         {
@@ -101,9 +104,11 @@ namespace Ogre {
     //---------------------------------------------------------------------
     BorderPanelGuiElement::~BorderPanelGuiElement()
     {
+        /* TODO
         delete [] mRenderOp2.pTexCoords[0];
         delete [] mRenderOp2.pVertices;
         delete [] mRenderOp2.pIndexes;
+        */
         delete mBorderRenderable;
     }
     //---------------------------------------------------------------------

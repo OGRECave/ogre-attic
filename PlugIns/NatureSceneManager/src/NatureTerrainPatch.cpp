@@ -775,8 +775,9 @@ void NatureTerrainPatch::triangulate(int cx, int cz, int node, int level)
 
 //----------------------------------------------------------------------------
 
-void NatureTerrainPatch::getLegacyRenderOperation(LegacyRenderOperation &rend)
+void NatureTerrainPatch::getRenderOperation(RenderOperation& op)
 {
+    /* TODO
     rend.useIndexes = true;
     rend.operationType = LegacyRenderOperation::OT_TRIANGLE_LIST;
     rend.vertexOptions = 0;
@@ -823,6 +824,8 @@ void NatureTerrainPatch::getLegacyRenderOperation(LegacyRenderOperation &rend)
 
     rend.numVertices  = mVertexCount;
     rend.numIndexes   = mIndexCount;
+
+    */
 }
 
 void NatureTerrainPatch::_notifyCurrentCamera(Camera *cam)

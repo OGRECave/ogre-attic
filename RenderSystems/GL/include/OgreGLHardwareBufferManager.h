@@ -33,20 +33,21 @@ namespace Ogre {
     /** Implementation of HardwareBufferManager for OpenGL. */
     class GLHardwareBufferManager : public HardwareBufferManager
     {
+    protected:
+        /// Destroy a hardware vertex buffer
+        void destroyVertexBuffer(HardwareVertexBuffer* buf);
+        /// Destroy a hardware index buffer
+        void destroyIndexBuffer(HardwareIndexBuffer* buf);
     public:
         GLHardwareBufferManager();
         ~GLHardwareBufferManager();
         /// Creates a vertex buffer
-        HardwareVertexBuffer* createVertexBuffer(size_t vertexSize, 
+        HardwareVertexBufferSharedPtr createVertexBuffer(size_t vertexSize, 
             size_t numVerts, HardwareBuffer::Usage usage);
-        /// Destroy a hardware index buffer
-        void destroyVertexBuffer(HardwareVertexBuffer* buf);
         /// Create a hardware vertex buffer
-        HardwareIndexBuffer* createIndexBuffer(
+        HardwareIndexBufferSharedPtr createIndexBuffer(
             HardwareIndexBuffer::IndexType itype, size_t numIndexes, 
             HardwareBuffer::Usage usage);
-        /// Destroy a hardware vertex buffer
-        void destroyIndexBuffer(HardwareIndexBuffer* buf);
 
         /// Creates a vertex declaration, may be overridden by certain rendering APIs
         VertexDeclaration* createVertexDeclaration(void);

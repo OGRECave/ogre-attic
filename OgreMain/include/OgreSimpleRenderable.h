@@ -37,7 +37,6 @@ namespace Ogre {
     class _OgreExport SimpleRenderable : public MovableObject, public Renderable
     {
     protected:
-        LegacyRenderOperation mLegacyRendOp;
         RenderOperation mRendOp;
 
         Matrix4 m_matWorldTransform;
@@ -45,13 +44,6 @@ namespace Ogre {
 
         String m_strMatName;
         Material *m_pMaterial;
-
-        Real *m_pVertexCache;
-        ushort *m_pIndexCache;
-        Real *m_pNormalCache;
-        RGBA *m_pDiffuseCache;
-        RGBA *m_pSpecularCache;
-        Real *m_pTexCache[OGRE_MAX_TEXTURE_COORD_SETS];
 
         /// The scene manager for the current frame.
         SceneManager *m_pParentSceneManager;
@@ -68,23 +60,11 @@ namespace Ogre {
     public:
         SimpleRenderable();
 
-        Real **getVertexCache();
-        ushort **getIndexCache();
-        Real **getNormalCache();
-        RGBA **getDiffuseCache();
-        RGBA **getSpecularCache();
-        Real **getTexCoordCache( unsigned short cn );
-
         void setMaterial( const String& matName );
         virtual Material* getMaterial(void) const;
 
-        virtual void setLegacyRenderOperation( const LegacyRenderOperation& rend );
-        virtual void getLegacyRenderOperation( LegacyRenderOperation& rend );
-        LegacyRenderOperation& getLegacyRenderOperation();
-
         virtual void setRenderOperation( const RenderOperation& rend );
-        virtual void getRenderOperation( RenderOperation& rend );
-        RenderOperation& getRenderOperation();
+        virtual void getRenderOperation(RenderOperation& op);
 
         void setWorldTransform( const Matrix4& xform );
         virtual void getWorldTransforms( Matrix4* xform );

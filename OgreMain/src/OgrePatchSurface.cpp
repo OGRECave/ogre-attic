@@ -40,7 +40,6 @@ namespace Ogre {
     {
         mMesh = 0;
         mType = PST_BEZIER;
-        mCtlPointData.numVertices = 0;
         mMemoryAllocated = false;
     }
     //-----------------------------------------------------------------------
@@ -56,32 +55,22 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void PatchSurface::defineSurface(String meshName, const GeometryData& controlPoints, int width,
+    void PatchSurface::defineSurface(String meshName, const std::vector<Vector3>* controlPoints, int width,
         PatchSurface::PatchSurfaceType pType, int subdivisionLevel, VisibleSide visibleSide)
     {
-        if (controlPoints.numVertices == 0 || width == 0)
+        if (controlPoints->empty() || width == 0)
             return; // Do nothing - garbage
 
         mMeshName = meshName;
-        mCtlPointData = controlPoints;
+        mVecCtlPoints = controlPoints;
         mType = pType;
         mCtlWidth = width;
-        if (mCtlPointData.numVertices % mCtlWidth != 0)
+        if (mVecCtlPoints->size() % mCtlWidth != 0)
         {
             Except(Exception::ERR_INVALIDPARAMS, "Invalid patch width - does not divide equally into number of control points.",
                 "PatchSurface::defineSurface");
         }
-        mCtlHeight = mCtlPointData.numVertices / mCtlWidth;
-
-        // Make a copy of the control point positions as Vector3 objects
-        int vertCount = mCtlPointData.numVertices;
-        Real* pVerts = mCtlPointData.pVertices;
-        mVecCtlPoints.clear();
-        while(vertCount--)
-        {
-            mVecCtlPoints.push_back(Vector3(pVerts));
-            pVerts = (Real*)((char*)pVerts + (sizeof(Real) * 3) + mCtlPointData.vertexStride);
-        }
+        mCtlHeight = mVecCtlPoints->size() / mCtlWidth;
 
         setSubdivisionLevel(subdivisionLevel);
 
@@ -94,7 +83,7 @@ namespace Ogre {
     void PatchSurface::build(void)
     {
 
-        if (mCtlPointData.numVertices == 0)
+        if (mVecCtlPoints->empty())
             return;
 
         allocateMemory();
@@ -133,10 +122,10 @@ namespace Ogre {
         makeTriangles();
 
         // Set bounds based on control points
-        std::vector<Vector3>::iterator ctli;
+        std::vector<Vector3>::const_iterator ctli;
         Vector3 min, max;
         bool first = true;
-        for (ctli = mVecCtlPoints.begin(); ctli != mVecCtlPoints.end(); ++ctli)
+        for (ctli = mVecCtlPoints->begin(); ctli != mVecCtlPoints->end(); ++ctli)
         {
             if (first || ctli->x < min.x)
                 min.x = ctli->x;
@@ -176,9 +165,9 @@ namespace Ogre {
             // Find u level
             for(v = 0; v < mCtlHeight; v++) {
                 for(u = 0; u < mCtlWidth-1; u += 2) {
-                    a = mVecCtlPoints[v * mCtlWidth + u];
-                    b = mVecCtlPoints[v * mCtlWidth + u+1];
-                    c = mVecCtlPoints[v * mCtlWidth + u+2];
+                    a = (*mVecCtlPoints)[v * mCtlWidth + u];
+                    b = (*mVecCtlPoints)[v * mCtlWidth + u+1];
+                    c = (*mVecCtlPoints)[v * mCtlWidth + u+2];
                     if(a!=c) {
                         found=true;
                         break;
@@ -197,9 +186,9 @@ namespace Ogre {
             found=false;
             for(u = 0; u < mCtlWidth; u++) {
                 for(v = 0; v < mCtlHeight-1; v += 2) {
-                    a = mVecCtlPoints[v * mCtlWidth + u];
-                    b = mVecCtlPoints[(v+1) * mCtlWidth + u];
-                    c = mVecCtlPoints[(v+2) * mCtlWidth + u];
+                    a = (*mVecCtlPoints)[v * mCtlWidth + u];
+                    b = (*mVecCtlPoints)[(v+1) * mCtlWidth + u];
+                    c = (*mVecCtlPoints)[(v+2) * mCtlWidth + u];
                     if(a!=c) {
                         found=true;
                         break;
@@ -272,6 +261,9 @@ namespace Ogre {
 
         int tex;
 
+        /* TODO
+            Remember this has been changed somewhat 
+
         // Is the input geometry sharing a buffer for all components?
         if (mCtlPointData.vertexStride == 0)
             // Not shared, separate allocation buffers per vertex component
@@ -295,7 +287,7 @@ namespace Ogre {
         mMesh->sharedGeometry.vertexStride = mCtlPointData.vertexStride;
         mMesh->sharedGeometry.colourStride = mCtlPointData.colourStride;
 
-        /* SubMesh* sm = */ mMesh->createSubMesh();
+        mMesh->createSubMesh();
 
         // Allocate geometry data
         if (mSharedVertexData)
@@ -304,16 +296,6 @@ namespace Ogre {
             // Assume size is vertexStride + vertex pos size
             int vertSize = sizeof(Real) * 3; // position data mandatory
             vertSize += mCtlPointData.vertexStride;
-            /*
-            if (mCtlPointData.hasNormals)
-                vertSize += sizeof(Real) * 3;
-            if (mCtlPointData.hasColours)
-                vertSize += sizeof(int);
-            for (tex = 0; tex < mCtlPointData.numTexCoords; ++tex)
-            {
-                vertSize += sizeof(Real) * mCtlPointData.numTexCoordDimensions[tex];
-            }
-            */
 
 			// We HAVE to use new[] since the de-allocator uses delete[]
             mMesh->sharedGeometry.pVertices = reinterpret_cast<Real *>( new uchar[ vertSize *  mMeshWidth * mMeshHeight ] );
@@ -349,6 +331,7 @@ namespace Ogre {
         }
 
         mMesh->load();
+        */
 
     }
     //-----------------------------------------------------------------------
@@ -364,6 +347,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void PatchSurface::distributeControlPoints(void)
     {
+        /* TODO
         // Insert original control points into expanded mesh
         int uStep = 1 << mULevel;
         int vStep = 1 << mVLevel;
@@ -414,6 +398,8 @@ namespace Ogre {
                 ++srcIdx;
             } // u
         } // v
+
+        */
     }
     //-----------------------------------------------------------------------
     void PatchSurface::subdivideCurve(int startIdx, int stepSize, int numSteps, int iterations)
@@ -481,6 +467,9 @@ namespace Ogre {
         }
 
         // Allocate memory for faces
+
+        /* TODO
+
         SubMesh* sm = mMesh->getSubMesh(0);
         // Num faces, width*height*2 (2 tris per square)
         sm->numFaces = (mMeshWidth-1) * (mMeshHeight-1) * 2 * iterations;
@@ -537,12 +526,14 @@ namespace Ogre {
 
         }
 
+        */
 
 
     }
     //-----------------------------------------------------------------------
     void PatchSurface::interpolateVertexData(int leftIdx, int rightIdx, int destIdx)
     {
+        /* TODO
         GeomVertexPosition *pDestVert, *pLeftVert, *pRightVert;
         GeomVertexNormal *pDestNorm, *pLeftNorm, *pRightNorm;
         Real *pDestReal, *pLeftReal, *pRightReal;
@@ -573,6 +564,7 @@ namespace Ogre {
             for (int dim = 0; dim < mMesh->sharedGeometry.numTexCoordDimensions[tex]; ++dim)
                 *pDestReal++ = ((*pLeftReal++) + (*pRightReal++)) * 0.5;
         }
+        */
     }
 
 }

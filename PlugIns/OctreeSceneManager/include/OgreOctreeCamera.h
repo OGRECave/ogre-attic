@@ -34,7 +34,7 @@ class Octree;
 /** Specialized viewpoint from which an Octree can be rendered.
 @remarks
 This class contains several speciliazations of the Ogre::Camera class. It
-implements the getLegacyRenderOperation method inorder to return displayable geometry
+implements the getRenderOperation method inorder to return displayable geometry
 for debuggin purposes. It also implements a visibility function that is more granular
 than the default.
 */
@@ -62,7 +62,7 @@ public:
 
     /** Sets up the render operation to render the view frustum of the camera
     */
-    virtual void getLegacyRenderOperation( LegacyRenderOperation& rend );
+    virtual void getRenderOperation(RenderOperation& op);
 
     virtual Material* getMaterial(void) const;
 

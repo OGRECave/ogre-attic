@@ -27,7 +27,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 
-#include "OgreGeometryData.h"
 #include "OgreMaterial.h"
 #include "OgreRenderOperation.h"
 #include "OgreVertexBoneAssignment.h"
@@ -56,35 +55,23 @@ namespace Ogre {
         SubMesh();
         ~SubMesh();
 
-
-        /// Indicates if this submesh shares vertex data with other meshes or whether it has it's own vertices.
-        bool useSharedVertices;
-
-        /// Boolean indicating if the face indexes included are for a continuous triangle strip.
-        bool useTriStrips;
-
-
-        /** Dedicated geometry data (only valid if useSharedVertices = false).
-            @remarks
-                This data is completely owned by this submesh.
-                When a submesh uses a very small subset of the shared geometry
-                it is (processor) inefficient since the whole buffer is sent during the
-                submesh rendering operation. Therefore in this case the SubMesh
-                would use it's own vertex data. For other cases it is more
-                memory efficient to use a shared buffer since vertices are not duplicated,
-                or if hardware vertex buffers are available it can be better to
-                use one set of data.
-            @par
-                The use of shared or non-shared buffers is determined when
-                model data is converted to the OGRE .mesh format.
+        /** The render operation this SubMesh will issue.
+        @remarks
+            Note that in previous versions, the SubMesh had an optional
+            facility to share vertex data with other SubMeshes via the Mesh.
+            This facility is still supported, because HardwareVertexBuffer
+            objects can be shared between multiple SubMeshes (and even between 
+            Meshes if you like) through the VertexData structure, therefore the
+            specific shared / dedicated geometry feature of SubMesh is no longer
+            required.
+        @par
+            Note that depending on how the mesh was created, the vertex buffers
+            which are used to hold mesh data may not be modifiable - see HardwareBuffer
+            and MeshManager for full details.
         */
-        GeometryData geometry;
-
-        /// Number of faces contained in this submesh.
-        unsigned short numFaces;
-
-        /// List of indices into geometry to describe faces.
-        unsigned short* faceVertexIndices;
+        VertexData vertexData;
+        /** The index data which describes the faces of this SubMesh. */
+        IndexData indexData;
 
         ProgressiveMesh::LODFaceList mLodFaceList;
 
@@ -99,13 +86,13 @@ namespace Ogre {
         */
         bool isMatInitialised(void) const;
 
-        /** Returns a LegacyRenderOperation structure required to render this mesh.
-            @param 
-                rend Reference to a LegacyRenderOperation structure to populate.
+        /** Returns a RenderOperation structure required to render this mesh.
             @param
                 lodIndex The index of the LOD to use. 
+            @returns 
+                rend Reference to the RenderOperation structure to use for rendering.
         */
-        void _getLegacyRenderOperation(LegacyRenderOperation& rend, ushort lodIndex = 0);
+        void _getRenderOperation(RenderOperation& op, ushort lodIndex = 0);
 
         /** Assigns a vertex to a bone with a given weight, for skeletal animation. 
         @remarks    
@@ -138,6 +125,10 @@ namespace Ogre {
         */
         BoneAssignmentIterator getBoneAssignmentIterator(void);
 
+        /** Clones this SubMesh and creates the clone as a child of the passed in Mesh. */
+        void clone(Mesh* newParent);
+
+
     protected:
 
         /// Name of the material this SubMesh uses.
@@ -157,6 +148,8 @@ namespace Ogre {
         /// Internal method for removing LOD data
         void removeLodLevels(void);
 
+        /** Calculates the bounds for this SubMesh. */
+        void calculateBounds(AxisAlignedBox* boxBounds, Real* sphereBoundSquaredRadius);
 
 
     };

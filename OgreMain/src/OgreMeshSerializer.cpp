@@ -28,7 +28,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMesh.h"
 #include "OgreSubMesh.h"
 #include "OgreException.h"
-#include "OgreOofModelFile.h"
 #include "OgreMaterialManager.h"
 #include "OgreLogManager.h"
 #include "OgreSkeleton.h"
@@ -93,6 +92,8 @@ namespace Ogre {
         // Check header
         readFileHeader(chunk);
 
+        // TODO: deal with reading pre-VBO binary formats (16-bit vertex counts etc)
+
         unsigned short chunkID;
         while(!chunk.isEOF())
         {
@@ -106,67 +107,6 @@ namespace Ogre {
                 readMesh(chunk);
                 break;
             }
-        }
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializer::importLegacyOof(DataChunk& chunk, Mesh* pDest)
-    {
-        // Load from OOF (Ogre Object File)
-        OofModelFile oofModel;
-        MaterialManager& matMgr = MaterialManager::getSingleton();
-
-        oofModel.load(chunk);
-
-        // Set memory deallocation off (allows us to use pointers)
-        oofModel.autoDeallocateMemory = false;
-        // Copy root-level geometry, including pointers
-        // We've told the OofModel not to deallocate
-        pDest->sharedGeometry = oofModel.sharedGeometry;
-        pDest->sharedGeometry.numBlendWeightsPerVertex = 0; // oof does not support skeletons
-
-        // Create sub-meshes from the loaded model
-        for (unsigned int meshNo = 0; meshNo < oofModel.materials.size(); ++meshNo)
-        {
-            SubMesh* sub = pDest->createSubMesh();
-            // Copy submesh geometry if present
-            sub->useSharedVertices = oofModel.materials[meshNo].useSharedVertices;
-            if (!sub->useSharedVertices)
-            {
-                sub->geometry = oofModel.materials[meshNo].materialGeometry;
-                sub->geometry.numBlendWeightsPerVertex = 0; // oof does not support skeletons
-            }
-
-            // Always create materials from oof
-            try 
-            {
-                matMgr.add(oofModel.materials[meshNo].material);
-            }
-            catch (Exception& e)
-            {
-                if(e.getNumber() == Exception::ERR_DUPLICATE_ITEM)
-                {
-                    // Material already exists
-                    char msg[256];
-                    sprintf(msg, "Material '%s' in model '%s' has been ignored "
-                        "because a material with the same name has already "
-                        "been registered.", 
-                        oofModel.materials[meshNo].material.getName().c_str(),
-                        pDest->getName().c_str());
-                    LogManager::getSingleton().logMessage(msg);
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            sub->setMaterialName(oofModel.materials[meshNo].material.getName());
-
-            sub->numFaces = oofModel.materials[meshNo].numFaces;
-            sub->faceVertexIndices = oofModel.materials[meshNo].pIndexes;
-
-
-
         }
     }
     //---------------------------------------------------------------------
@@ -223,9 +163,6 @@ namespace Ogre {
         // Header
         writeChunkHeader(M_MESH, calcMeshSize(pMesh));
 
-        // Write geometry
-        writeGeometry(&pMesh->sharedGeometry);
-
         // Write Submeshes
         for (int i = 0; i < pMesh->getNumSubMeshes(); ++i)
         {
@@ -242,20 +179,6 @@ namespace Ogre {
             writeSkeletonLink(pMesh->getSkeletonName());
             LogManager::getSingleton().logMessage("Skeleton link exported.");
 
-            // Write bone assignments
-            if (!pMesh->mBoneAssignments.empty())
-            {
-                LogManager::getSingleton().logMessage("Exporting shared geometry bone assignments...");
-
-                Mesh::VertexBoneAssignmentList::const_iterator vi;
-                for (vi = pMesh->mBoneAssignments.begin(); 
-                vi != pMesh->mBoneAssignments.end(); ++vi)
-                {
-                    writeMeshBoneAssignment(&(vi->second));
-                }
-
-                LogManager::getSingleton().logMessage("Shared geometry bone assignments exported.");
-            }
         }
 
         // Write LOD data if any
@@ -279,19 +202,23 @@ namespace Ogre {
         writeString(s->getMaterialName());
 
         // bool useSharedVertices
-        writeBools(&s->useSharedVertices, 1);
+        // Always false now
+        writeBools(false, 1);
 
         // unsigned short numFaces
-        writeShorts(&s->numFaces, 1);
+        unsigned short faceCount = s->indexData.indexCount / 3;
+        writeShorts(&faceCount, 1);
 
         // unsigned short* faceVertexIndices ((v1, v2, v3) * numFaces)
-        writeShorts(s->faceVertexIndices, s->numFaces * 3);
+        // TODO - deal with 32-bit indexes!!!!
+        HardwareIndexBufferSharedPtr idxBuf = s->indexData.indexBuffer;
+        unsigned short* pIndexes = static_cast<unsigned short*>(
+            idxBuf->lock(0, idxBuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY) );
+        writeShorts(pIndexes, s->indexData.indexCount);
+        idxBuf->unlock();
 
-        // M_GEOMETRY chunk (Optional: present only if useSharedVertices = false)
-        if (!s->useSharedVertices)
-        {
-            writeGeometry(&s->geometry);
-        }
+        // M_GEOMETRY chunk 
+        writeGeometry(&s->vertexData);
 
         // Bone assignments
         if (!s->mBoneAssignments.empty())
@@ -311,16 +238,20 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void MeshSerializer::writeGeometry(const GeometryData* pGeom)
+    void MeshSerializer::writeGeometry(const VertexData* pGeom)
     {
+        /* TODO
+            TODO: deal with number of vertices over unsigned short limits
+
         // Header
         writeChunkHeader(M_GEOMETRY, calcGeometrySize(pGeom));
+
 
         // unsigned short numVertices
         writeShorts(&pGeom->numVertices, 1);
 
         // Real* pVertices (x, y, z order x numVertices)
-        writeReals(pGeom->pVertices, pGeom->numVertices * 3);
+        writeReals(pGeom->pVertices, pGeom->vertexCount * 3);
 
         if (pGeom->hasNormals)
         {
@@ -347,6 +278,7 @@ namespace Ogre {
             // Real* pTexCoords  (u [v] [w] order, dimensions x numVertices)
             writeReals(pGeom->pTexCoords[t], pGeom->numVertices * pGeom->numTexCoordDimensions[t]);
         }
+        */
 
 
     }
@@ -392,12 +324,6 @@ namespace Ogre {
         // Num shared vertices
         size += sizeof(unsigned short);
 
-        // Geometry
-        if (pMesh->sharedGeometry.numVertices > 0)
-        {
-            size += calcGeometrySize(&(pMesh->sharedGeometry));
-        }
-
         // Submeshes
         for (int i = 0; i < pMesh->getNumSubMeshes(); ++i)
         {
@@ -427,20 +353,21 @@ namespace Ogre {
         // unsigned short numFaces
         size += sizeof(unsigned short);
         // unsigned short* faceVertexIndices ((v1, v2, v3) * numFaces)
-        size += sizeof(unsigned short) * pSub->numFaces * 3;
+        size += sizeof(unsigned short) * pSub->indexData.indexCount;
 
         // Geometry
-        if (!pSub->useSharedVertices)
-        {
-            size += calcGeometrySize(&pSub->geometry);
-        }
+        /* TODO
+        size += calcGeometrySize(&pSub->geometry);
+        */
 
         return size;
     }
     //---------------------------------------------------------------------
+    /* TODO
     unsigned long MeshSerializer::calcGeometrySize(const GeometryData* pGeom)
     {
         unsigned long size = CHUNK_OVERHEAD_SIZE;
+
 
         // Num vertices
         size += sizeof(unsigned short);
@@ -468,6 +395,7 @@ namespace Ogre {
 
         return size;
     }
+    */
     //---------------------------------------------------------------------
     void MeshSerializer::readMaterial(DataChunk& chunk)
     {
@@ -564,14 +492,6 @@ namespace Ogre {
     void MeshSerializer::readMesh(DataChunk& chunk)
     {
         unsigned short chunkID;
-        // M_GEOMETRY chunk
-        chunkID = readChunk(chunk);
-        if (chunkID != M_GEOMETRY)
-        {
-            Except(Exception::ERR_INTERNAL_ERROR, "Missing geometry data in mesh file", 
-                "MeshSerializer::readMesh");
-        }
-        readGeometry(chunk, &mpMesh->sharedGeometry);
 
         // Find all subchunks 
         if (!chunk.isEOF())
@@ -590,9 +510,6 @@ namespace Ogre {
                     break;
                 case M_MESH_SKELETON_LINK:
                     readSkeletonLink(chunk);
-                    break;
-                case M_MESH_BONE_ASSIGNMENT:
-                    readMeshBoneAssignment(chunk);
                     break;
                 case M_MESH_LOD:
 					readMeshLodInfo(chunk);
@@ -624,6 +541,7 @@ namespace Ogre {
         sm->setMaterialName(materialName);
 
         // bool useSharedVertices
+        /* TODO revise all this
         readBools(chunk,&sm->useSharedVertices, 1);
 
         // unsigned short numFaces
@@ -644,6 +562,7 @@ namespace Ogre {
             }
             readGeometry(chunk, &sm->geometry);
         }
+        */
 
 
         // Find all bone assignments (if present) 
@@ -677,6 +596,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void MeshSerializer::readGeometry(DataChunk& chunk, GeometryData* dest)
     {
+        /*
         unsigned short texCoordSet = 0;
 
         // unsigned short numVertices
@@ -738,6 +658,7 @@ namespace Ogre {
             // Store number of texture coordinate sets found
             dest->numTexCoords = texCoordSet;
         }
+        */
     }
     //---------------------------------------------------------------------
     void MeshSerializer::writeSkeletonLink(const String& skelName)
@@ -764,18 +685,6 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void MeshSerializer::writeMeshBoneAssignment(const VertexBoneAssignment* assign)
-    {
-        writeChunkHeader(M_MESH_BONE_ASSIGNMENT, calcBoneAssignmentSize());
-
-        // unsigned short vertexIndex;
-        writeShorts(&(assign->vertexIndex), 1);
-        // unsigned short boneIndex;
-        writeShorts(&(assign->boneIndex), 1);
-        // Real weight;
-        writeReals(&(assign->weight), 1);
-    }
-    //---------------------------------------------------------------------
     void MeshSerializer::writeSubMeshBoneAssignment(const VertexBoneAssignment* assign)
     {
         writeChunkHeader(M_SUBMESH_BONE_ASSIGNMENT, calcBoneAssignmentSize());
@@ -786,21 +695,6 @@ namespace Ogre {
         writeShorts(&(assign->boneIndex), 1);
         // Real weight;
         writeReals(&(assign->weight), 1);
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializer::readMeshBoneAssignment(DataChunk& chunk)
-    {
-        VertexBoneAssignment assign;
-
-        // unsigned short vertexIndex;
-        readShorts(chunk, &(assign.vertexIndex),1);
-        // unsigned short boneIndex;
-        readShorts(chunk, &(assign.boneIndex),1);
-        // Real weight;
-        readReals(chunk, &(assign.weight), 1);
-
-        mpMesh->addBoneAssignment(assign);
-
     }
     //---------------------------------------------------------------------
     void MeshSerializer::readSubMeshBoneAssignment(DataChunk& chunk, SubMesh* sub)
@@ -903,6 +797,8 @@ namespace Ogre {
     void MeshSerializer::writeLodUsageGenerated(const Mesh* pMesh, const Mesh::MeshLodUsage& usage,
 		unsigned short lodNum)
     {
+        /* TODO
+
 		// Usage Header
         unsigned long size = CHUNK_OVERHEAD_SIZE;
 		unsigned short subidx;
@@ -945,7 +841,7 @@ namespace Ogre {
 			writeShorts(sm->mLodFaceList[lodNum - 1].pIndexes, 
 				sm->mLodFaceList[lodNum - 1].numIndexes);
 		}
-
+        */
     }
     //---------------------------------------------------------------------
 	void MeshSerializer::readMeshLodInfo(DataChunk& chunk)
@@ -1021,6 +917,8 @@ namespace Ogre {
 		usage.manualName = "";
 		usage.manualMesh = 0;
 
+        /* TODO
+
 		// Get one set of detail per SubMesh
 		unsigned short numSubs, i;
 		unsigned long chunkID;
@@ -1046,6 +944,7 @@ namespace Ogre {
 			readShorts(chunk, data.pIndexes, data.numIndexes);
 
 		}
+        */
 
 	}
     

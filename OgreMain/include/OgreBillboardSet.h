@@ -439,7 +439,7 @@ namespace Ogre {
             @see
                 MovableObject
         */
-        virtual void getLegacyRenderOperation(LegacyRenderOperation& rend);
+        virtual void getRenderOperation(RenderOperation& op);
 
         /** Overridden from MovableObject
             @see

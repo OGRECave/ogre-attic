@@ -100,7 +100,7 @@ namespace Ogre {
 		    @param options Locking options
 		    @returns Pointer to the locked memory
 		    */
-		    virtual unsigned char* lock(size_t offset, size_t length, LockOptions options) = 0;
+		    virtual void* lock(size_t offset, size_t length, LockOptions options) = 0;
 		    /** Releases the lock on this buffer. 
             @remarks 
                 Locking and unlocking a buffer can, in some rare circumstances such as 
@@ -121,7 +121,7 @@ namespace Ogre {
             @param pDest The area of memory in which to place the data, must be large enough to 
                 accommodate the data!
             */
-            virtual void readData(size_t offset, size_t length, unsigned char* pDest) = 0;
+            virtual void readData(size_t offset, size_t length, void* pDest) = 0;
             /** Writes data to the buffer from an area of system memory; note that you must
                 ensure that your buffer is big enough.
 		    @param offset The byte offset from the start of the buffer to start writing
@@ -130,7 +130,7 @@ namespace Ogre {
 			@param discardWholeBuffer If true, this allows the driver to discard the entire buffer when writing,
 				such that DMA stalls can be avoided; use if you can.
             */
-            virtual void writeData(size_t offset, size_t length, const unsigned char* pSource,
+            virtual void writeData(size_t offset, size_t length, const void* pSource,
 					bool discardWholeBuffer = false) = 0;
 
             /// Returns the size of this buffer in bytes
@@ -139,6 +139,7 @@ namespace Ogre {
             Usage getUsage(void) { return mUsage; }
             /// Returns whether or not this buffer is currently locked.
             bool isLocked(void) { return mIsLocked; };
+
 
 
 

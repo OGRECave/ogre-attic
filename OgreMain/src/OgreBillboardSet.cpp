@@ -467,8 +467,9 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void BillboardSet::getLegacyRenderOperation(LegacyRenderOperation& rend)
+    void BillboardSet::getRenderOperation(RenderOperation& op)
     {
+        /* TODO
         rend.useIndexes = true;
 
         rend.vertexOptions = LegacyRenderOperation::VO_DIFFUSE_COLOURS | LegacyRenderOperation::VO_TEXTURE_COORDS;
@@ -491,6 +492,8 @@ namespace Ogre {
         rend.diffuseStride     = 0;
         rend.vertexStride      = 0;
         rend.texCoordStride[0] = 0;
+
+        */
     }
 
     //-----------------------------------------------------------------------

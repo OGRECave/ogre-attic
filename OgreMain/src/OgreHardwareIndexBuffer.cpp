@@ -23,6 +23,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 #include "OgreHardwareIndexBuffer.h"
+#include "OgreHardwareBufferManager.h"
 
 namespace Ogre {
 
@@ -44,5 +45,18 @@ namespace Ogre {
         mSizeInBytes = mIndexSize * mNumIndexes;
 
     }
+    //-----------------------------------------------------------------------------
+    HardwareIndexBufferSharedPtr::HardwareIndexBufferSharedPtr(HardwareIndexBuffer* buf)
+        : SharedPtr<HardwareIndexBuffer>(buf)
+    {
+
+    }
+    //-----------------------------------------------------------------------------
+    void HardwareIndexBufferSharedPtr::destroy(void)
+    {
+        HardwareBufferManager::getSingleton().destroyIndexBuffer(pRep);
+		delete pUseCount;
+    }
+
 }
 

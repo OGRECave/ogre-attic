@@ -36,52 +36,36 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     D3D9HardwareBufferManager::~D3D9HardwareBufferManager()
     {
-        for (VertexBufferList::iterator vi = mVertexBuffers.begin();
-            vi != mVertexBuffers.end(); ++vi)
-        {
-            delete *vi;
-        }
-        mVertexBuffers.clear();
-
-        for (IndexBufferList::iterator ii = mIndexBuffers.begin();
-            ii != mIndexBuffers.end(); ++ii)
-        {
-            delete *ii;
-        }
-        mIndexBuffers.clear();
-
     }
     //-----------------------------------------------------------------------
-    HardwareVertexBuffer* 
+    HardwareVertexBufferSharedPtr 
     D3D9HardwareBufferManager::
     createVertexBuffer(size_t vertexSize, size_t numVerts, HardwareBuffer::Usage usage)
     {
-        HardwareVertexBuffer* ret = new D3D9HardwareVertexBuffer(vertexSize, 
-            numVerts, usage, mlpD3DDevice);
-        mVertexBuffers.push_back(ret);
-        return ret;
+        return HardwareVertexBufferSharedPtr(
+            new D3D9HardwareVertexBuffer(vertexSize, 
+            numVerts, usage, mlpD3DDevice) );
     }
     //-----------------------------------------------------------------------
 	void D3D9HardwareBufferManager::destroyVertexBuffer(HardwareVertexBuffer* buf)
     {
-        mVertexBuffers.remove(buf);
         delete buf;
     }
     //-----------------------------------------------------------------------
-	HardwareIndexBuffer* 
+	HardwareIndexBufferSharedPtr 
     D3D9HardwareBufferManager::
     createIndexBuffer(HardwareIndexBuffer::IndexType itype, size_t numIndexes, 
         HardwareBuffer::Usage usage)
     {
-        HardwareIndexBuffer* ret = new D3D9HardwareIndexBuffer(itype, numIndexes, 
-            usage, mlpD3DDevice);
-        mIndexBuffers.push_back(ret);
-        return ret;
+        // NB no longer store the buffer in a local list since reference counted
+        return HardwareIndexBufferSharedPtr(
+                new D3D9HardwareIndexBuffer(itype, numIndexes, 
+                usage, mlpD3DDevice) );
+            
     }
     //-----------------------------------------------------------------------
 	void D3D9HardwareBufferManager::destroyIndexBuffer(HardwareIndexBuffer* buf)
     {
-        mIndexBuffers.remove(buf);
         delete buf;
     }
     //-----------------------------------------------------------------------

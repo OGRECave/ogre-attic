@@ -78,11 +78,11 @@ namespace Ogre {
         typedef std::map<Material*, std::vector<StaticFaceGroup*>, materialLess > MaterialFaceGroupMap;
         MaterialFaceGroupMap mMatFaceGroupMap;
         /** Cache of data about to go to the renderer. */
-        LegacyRenderOperation mPendingGeometry;
+        RenderOperation mPendingGeometry;
 
         // Debugging features
         bool mShowNodeAABs;
-        LegacyRenderOperation mAABGeometry;
+        RenderOperation mAABGeometry;
 
         /** Walks the BSP tree looking for the node which the camera
             is in, and tags any geometry which is in a visible leaf for

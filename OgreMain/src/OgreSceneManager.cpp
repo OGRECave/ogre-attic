@@ -1037,6 +1037,8 @@ namespace Ogre {
         Real distance,
         const Quaternion& orientation )
     {
+        /* TODO
+
         Plane plane;
         String meshName;
         Vector3 up;
@@ -1141,17 +1143,9 @@ namespace Ogre {
         }
 
         return planeMesh;
+        */
 
-    }
-    //-----------------------------------------------------------------------
-    void SceneManager::_renderSubMesh(SubMesh* sm)
-    {
-
-        static LegacyRenderOperation ro; // to avoid creating / destroying every time but must be careful to set all fields
-
-        sm->_getLegacyRenderOperation(ro);
-        mDestRenderSystem->_render(ro);
-
+        return NULL;
 
     }
 
@@ -1180,6 +1174,8 @@ namespace Ogre {
         int render_count = 0;
         // Render each separate queue
         RenderQueue::QueueGroupIterator queueIt = mRenderQueue._getQueueGroupIterator();
+        RenderOperation ro;
+
         // NB only queues which have been created are rendered, no time is wasted
         //   parsing through non-existent queues (even though there are 10 available)
         SceneDetailLevel lastDetailLevel, camDetailLevel;
@@ -1215,7 +1211,6 @@ namespace Ogre {
                     RenderPriorityGroup::MaterialGroupMap::iterator imat, imatend;
                     imatend = pPriorityGrp->mMaterialGroups.end();
                     static Matrix4 xform[256];
-                    LegacyRenderOperation ro;
                     int matLayersLeft;
                     Material* thisMaterial;
                     unsigned short numMatrices;
@@ -1271,10 +1266,8 @@ namespace Ogre {
                                 }
 
                                 // Set up rendering operation
-                                (*irend)->getLegacyRenderOperation(ro);
-
-                                if( ro.numVertices )
-                                    mDestRenderSystem->_render(ro);
+                                (*irend)->getRenderOperation(ro);
+                                mDestRenderSystem->_render(ro);
 
                             }
                         } while (matLayersLeft > 0);
@@ -1330,10 +1323,8 @@ namespace Ogre {
                             }
 
                             // Set up rendering operation
-                            (*iTrans)->getLegacyRenderOperation(ro);
-
-                            if( ro.numVertices )
-                                mDestRenderSystem->_render(ro);
+                            (*iTrans)->getRenderOperation(ro);
+                            mDestRenderSystem->_render(ro);
 
                         } while (matLayersLeft > 0);
 
@@ -1392,33 +1383,6 @@ namespace Ogre {
         vp.position = Vector3::ZERO;
         vp.orientation = Quaternion::IDENTITY;
         return vp;
-    }
-    //-----------------------------------------------------------------------
-    void SceneManager::displaySplashScreen( Viewport* vp, const String& name )
-    {
-        mDestRenderSystem->_setViewport(vp);
-        // Reset all matrices
-        mDestRenderSystem->_setWorldMatrix(Matrix4::IDENTITY);
-        mDestRenderSystem->_setViewMatrix(Matrix4::IDENTITY);
-        mDestRenderSystem->_setProjectionMatrix(Matrix4::IDENTITY);
-
-        // Make sure texture is loaded
-        Material mat;
-        mat.addTextureLayer(name);
-        mat.setLightingEnabled(false);
-        mat.setCullingMode(CULL_NONE);
-
-        Mesh* msh = (Mesh*)MeshManager::getSingleton().getByName("Prefab_Splash_Screen");
-
-
-        // Begin the frame
-        mDestRenderSystem->_beginFrame();
-
-        setMaterial(&mat,1);
-        _renderSubMesh(msh->getSubMesh(0));
-
-
-        mDestRenderSystem->_endFrame();
     }
     //-----------------------------------------------------------------------
     void SceneManager::setFog(FogMode mode, ColourValue colour, Real density, Real start, Real end)
@@ -1662,7 +1626,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void SceneManager::manualRender(LegacyRenderOperation* rend, 
+    void SceneManager::manualRender(RenderOperation* rend, 
         Material* mat, Viewport* vp, const Matrix4& worldMatrix, 
         const Matrix4& viewMatrix, const Matrix4& projMatrix) 
     {

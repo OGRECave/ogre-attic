@@ -32,75 +32,15 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     SubMesh::SubMesh()
     {
-        useSharedVertices = true;
-        useTriStrips = false;
-        faceVertexIndices = 0;
-        numFaces = 0;
-        geometry.hasColours = false;
-        geometry.hasNormals = false;
-        geometry.vertexStride = 0;
-        geometry.normalStride =0;
-        geometry.colourStride = 0;
-        geometry.numTexCoords = 1;
-        geometry.numTexCoordDimensions[0] = 2;
-        geometry.numVertices = 0;
-        geometry.pColours = 0;
-        geometry.pNormals = 0;
-        geometry.pBlendingWeights = 0;
-        geometry.numBlendWeightsPerVertex = 0;
-
-        for (int i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; ++i)
-        {
-            geometry.pTexCoords[i] = 0;
-            geometry.texCoordStride[i] = 0;
-        }
-        geometry.pVertices = 0;
-
         mMatInitialised = false;
         mBoneAssignmentsOutOfDate = false;
-
     }
     //-----------------------------------------------------------------------
     SubMesh::~SubMesh()
     {
-        if (geometry.pVertices)
-        {
-            delete[] geometry.pVertices;
-            geometry.pVertices = 0;
-        }
-        // Deallocate individual components if they have their own buffers
-        // NB Assuming that if some components use the same buffer, all do and vice versa
-        if (geometry.vertexStride == 0)
-        {
-            if (geometry.hasColours && geometry.pColours)
-            {
-                delete[] geometry.pColours;
-                geometry.pColours = 0;
-            }
-            if (geometry.hasNormals && geometry.pNormals)
-            {
-                delete[] geometry.pNormals;
-                geometry.pNormals = 0;
-            }
-            for (int i = 0; i < geometry.numTexCoords; ++i)
-            {
-                if (geometry.pTexCoords[i])
-                {
-                    delete[] geometry.pTexCoords[i];
-                    geometry.pTexCoords[i] = 0;
-                }
-            }
-        }
-        if (faceVertexIndices)
-        {
-            delete[] faceVertexIndices;
-            faceVertexIndices = 0;
-        }
-        if (geometry.pBlendingWeights)
-        {
-            delete [] geometry.pBlendingWeights;
-            geometry.pBlendingWeights = 0;
-        }
+        // Destroy vertex and index data
+
+        // TODO
 
 		removeLodLevels();
     }
@@ -123,97 +63,16 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void SubMesh::_getLegacyRenderOperation(LegacyRenderOperation& ro, ushort lodIndex) 
+    void SubMesh::_getRenderOperation(RenderOperation& ro, ushort lodIndex) 
     {
         
-		// SubMeshes always use indexes
-        ro.useIndexes = true;
-        ro.vertexOptions = 0;
-        GeometryData* geom;
-
-        if (useTriStrips)
-            ro.operationType = LegacyRenderOperation::OT_TRIANGLE_STRIP;
-        else
-            ro.operationType = LegacyRenderOperation::OT_TRIANGLE_LIST;
-
-        if (useSharedVertices)
-        {
-			// Use primary mesh geom
-			geom = &(parent->sharedGeometry);
-        }
-        else
-        {
-            geom = &(geometry);
-        }
-
-        if (geom->numTexCoords > 0)
-        {
-            ro.vertexOptions |= LegacyRenderOperation::VO_TEXTURE_COORDS;
-            ro.numTextureCoordSets = geom->numTexCoords;
-            for (int tex = 0; tex < ro.numTextureCoordSets; ++tex)
-            {
-                ro.numTextureDimensions[tex] = geom->numTexCoordDimensions[tex];
-                ro.pTexCoords[tex] = geom->pTexCoords[tex];
-                ro.texCoordStride[tex] = geom->texCoordStride[tex];
-            }
-
-        }
-
-        if (geom->hasNormals)
-        {
-            ro.vertexOptions |= LegacyRenderOperation::VO_NORMALS;
-            ro.pNormals = geom->pNormals;
-        }
-
-        if (geom->hasColours)
-        {
-            ro.vertexOptions |= LegacyRenderOperation::VO_DIFFUSE_COLOURS;
-            ro.pDiffuseColour = geom->pColours;
-        }
-
-        ro.numVertices = geom->numVertices;
-        ro.pVertices = geom->pVertices;
-        ro.diffuseStride = geom->colourStride;
-        ro.normalStride= geom->normalStride;
-        ro.vertexStride = geom->vertexStride;
-
-		ushort currNumFaces;
-		ushort *currFaces;
-
-		if (lodIndex > 0 && static_cast< size_t >( lodIndex - 1 ) < mLodFaceList.size())
-		{
-			// lodIndex - 1 because we don't store full detail version in mLodFaceList
-			currNumFaces = mLodFaceList[lodIndex-1].numIndexes / 3;
-			currFaces = mLodFaceList[lodIndex-1].pIndexes;
-		}
-		else
-		{
-			// Full detail
-			currNumFaces = numFaces;
-			currFaces = faceVertexIndices;
-		}
-		if (useTriStrips)
-            ro.numIndexes = currNumFaces + 2;
-        else
-            ro.numIndexes = currNumFaces * 3;
-
-        ro.pIndexes = currFaces;
-
-        if (geom->numBlendWeightsPerVertex > 0)
-        {
-            ro.vertexOptions |= LegacyRenderOperation::VO_BLEND_WEIGHTS;
-            ro.numBlendWeightsPerVertex = geom->numBlendWeightsPerVertex;
-            ro.pBlendingWeights = geom->pBlendingWeights;
-        }
+        /* TODO
+        */
+       
     }
     //-----------------------------------------------------------------------
     void SubMesh::addBoneAssignment(const VertexBoneAssignment& vertBoneAssign)
     {
-        if (useSharedVertices)
-        {
-            Except(Exception::ERR_INVALIDPARAMS, "This SubMesh uses shared geometry,  you "
-                "must assign bones to the Mesh, not the SubMesh", "SubMesh.addBoneAssignment");
-        }
         mBoneAssignments.insert(
             VertexBoneAssignmentList::value_type(vertBoneAssign.vertexIndex, vertBoneAssign));
         mBoneAssignmentsOutOfDate = true;
@@ -228,6 +87,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void SubMesh::compileBoneAssignments(void)
     {
+        /* TODO
         // Deallocate
         if (geometry.pBlendingWeights)
         {
@@ -296,7 +156,11 @@ namespace Ogre {
             }
         }
 
+        */
+
         mBoneAssignmentsOutOfDate = false;
+
+
 
 
     }
@@ -313,13 +177,25 @@ namespace Ogre {
 		lodend = mLodFaceList.end();
 		for (lodi = mLodFaceList.begin(); lodi != lodend; ++lodi)
 		{
-			delete [] lodi->pIndexes;
+			delete *lodi;
 		}
 
         mLodFaceList.clear();
 
     }
-
+    //---------------------------------------------------------------------
+    void SubMesh::clone(Mesh* newParent)
+    {
+        /* TODO
+         - remember to check if SubMesh has a name, in which case use named createSubMesh
+        */
+    }
+    //---------------------------------------------------------------------
+    void SubMesh::calculateBounds(AxisAlignedBox* boxBounds, Real* sphereBoundSquaredRadius)
+    {
+        /* TODO
+        */
+    }
 
 
 }

@@ -236,7 +236,7 @@
         /** See Renderable */
         Material* getMaterial(void) const;
 
-        // NB getLegacyRenderOperation not implemented, still abstract here
+        // NB getRenderOperation not implemented, still abstract here
 
         /** See Renderable */
         void getWorldTransforms(Matrix4* xform);

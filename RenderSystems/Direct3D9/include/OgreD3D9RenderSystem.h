@@ -29,7 +29,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreString.h"
 #include "OgreStringConverter.h"
 #include "OgreRenderSystem.h"
-#include "OgreD3D9HWBuffers.h"
 #include "OgreD3D9Mappings.h"
 
 #include "OgreNoMemoryMacros.h"
@@ -57,14 +56,8 @@ namespace Ogre
 		/// Direct3D rendering device
 		LPDIRECT3DDEVICE9	mpD3DDevice;
 		
-		/// dynamic vertex buffers manager
-		D3D9DynVBManager *mDVBMgr;
-		/// dynamic index buffers manager
-		D3D9DynIBManager *mDIBMgr;
-
 		// Stored options
 		ConfigOptionMap mOptions;
-
         /// wait for vsync
 		bool mVSync;
 		/// full-screen multisampling antialiasing type
@@ -168,6 +161,8 @@ namespace Ogre
 			return ret;
 		}
 
+        D3D9HardwareBufferManager* mHardwareBufferManager;
+
 	public:
 		// constructor
 		D3D9RenderSystem( HINSTANCE hInstance );
@@ -227,7 +222,6 @@ namespace Ogre
 		void _setAlphaRejectSettings( CompareFunction func, unsigned char value );
 		void _setViewport( Viewport *vp );
 		void _beginFrame(void);
-		void _render(const LegacyRenderOperation &op );
 		void _endFrame(void);
 		void _setCullingMode( CullingMode mode );
 		void _setDepthBufferParams( bool depthTest = true, bool depthWrite = true, CompareFunction depthFunction = CMPF_LESS_EQUAL );

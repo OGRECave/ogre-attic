@@ -47,12 +47,14 @@ namespace Ogre {
         mAlignment = Left;
 		mpFont = 0;
 
+        /* TODO
         memset( &mRenderOp, 0, sizeof( mRenderOp ) );
         mRenderOp.operationType = LegacyRenderOperation::OT_TRIANGLE_LIST;
         mRenderOp.vertexOptions = LegacyRenderOperation::VO_TEXTURE_COORDS | 
             LegacyRenderOperation::VO_DIFFUSE_COLOURS;
         mRenderOp.numTextureCoordSets = 1;
         mRenderOp.numTextureDimensions[0] = 2;
+        */
 
         mColourTop = ColourValue::White;
         mColourBottom = ColourValue::White;
@@ -347,7 +349,7 @@ namespace Ogre {
         return msTypeName;
     }
     //---------------------------------------------------------------------
-    void TextAreaGuiElement::getLegacyRenderOperation(LegacyRenderOperation& rend)
+    void TextAreaGuiElement::getRenderOperation(RenderOperation& op)
     {
         rend = mRenderOp;
     }

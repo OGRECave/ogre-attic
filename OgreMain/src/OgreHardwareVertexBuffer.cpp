@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreColourValue.h"
 #include "OgreException.h"
 #include "OgreStringConverter.h"
+#include "OgreHardwareBufferManager.h"
 
 namespace Ogre {
 
@@ -92,9 +93,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
 	VertexBufferBinding::~VertexBufferBinding()
 	{
+        unsetAllBindings();
 	}
     //-----------------------------------------------------------------------------
-	void VertexBufferBinding::setBinding(unsigned short index, HardwareVertexBuffer* buffer)
+	void VertexBufferBinding::setBinding(unsigned short index, HardwareVertexBufferSharedPtr buffer)
 	{
 		mBindingMap[index] = buffer;
 	}
@@ -111,46 +113,29 @@ namespace Ogre {
 		mBindingMap.erase(i);
 	}
     //-----------------------------------------------------------------------------
+    void VertexBufferBinding::unsetAllBindings(void)
+    {
+        mBindingMap.clear();
+    }
+    //-----------------------------------------------------------------------------
 	const VertexBufferBinding::VertexBufferBindingMap& 
 	VertexBufferBinding::getBindings(void) const
 	{
 		return mBindingMap;
 	}
-
-	/*
-    size_t HardwareVertexBuffer::calcVertexSize(const VertexFormat& format)
+    //-----------------------------------------------------------------------------
+    HardwareVertexBufferSharedPtr::HardwareVertexBufferSharedPtr(HardwareVertexBuffer* buf)
+        : SharedPtr<HardwareVertexBuffer>(buf)
     {
-        size_t sz = 0;
-        if (format.flags & VF_POSITION)
-        {
-            sz += sizeof(Real) * 3;
-        }
-        if (format.flags & VF_NORMAL)
-        {
-            sz += sizeof(Real) * 3;
-        }
-        if (format.flags & VF_DIFFUSE)
-        {
-            sz += sizeof(RGBA);
-        }
-        if (format.flags & VF_SPECULAR)
-        {
-            sz += sizeof(RGBA);
-        }
-        if (format.flags & VF_BLEND_WEIGHTS)
-        {
-            sz += sizeof(Real) * format.numBlendWeights;
-        }
-        if (format.flags & VF_TEXTURE_COORDINATES)
-        {
-            for (int t = 0; t < format.numTextureCoords; ++t)
-            {
-                sz += sizeof(Real) * format.numTextureCoordDimensions[t];
-            }
-        }
-        return sz;
 
     }
-    */
+    //-----------------------------------------------------------------------------
+    void HardwareVertexBufferSharedPtr::destroy(void)
+    {
+        HardwareBufferManager::getSingleton().destroyVertexBuffer(pRep);
+		delete pUseCount;
+    }
+
+
 
 }

@@ -40,7 +40,7 @@ namespace Ogre {
         worthwhile (e.g. ControllerValue)
     */
     template<class T> class SharedPtr {
-	private:
+	protected:
 		T* pRep;
 		unsigned int* pUseCount;
 	public:
@@ -56,21 +56,25 @@ namespace Ogre {
 			if (pRep == r.pRep)
 				return *this;
 			if (--(*pUseCount) == 0) {
-				delete pRep;
-				delete pUseCount;
+                destroy();
 			}
 			pRep = r.pRep;
 			pUseCount = r.pUseCount;
 			++(*pUseCount);
 			return *this;
 		}
-		~SharedPtr() {
+		virtual ~SharedPtr() {
 			assert(pRep && pUseCount);
 			if (--(*pUseCount) == 0) {
-				delete pRep;
-				delete pUseCount;
+                destroy();
 			}
 		}
+
+        virtual void destroy(void)
+        {
+			delete pRep;
+			delete pUseCount;
+        }
 
 
 		inline T& operator*() const { assert(pRep); return *pRep; }

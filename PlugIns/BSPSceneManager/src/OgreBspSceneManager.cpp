@@ -50,6 +50,8 @@ namespace Ogre {
     {
         // Set features for debugging render
         mShowNodeAABs = false;
+
+        /* TODO
         mAABGeometry.useIndexes = true;
         mAABGeometry.numTextureCoordSets = 0; // no textures
         mAABGeometry.vertexOptions = LegacyRenderOperation::VO_DIFFUSE_COLOURS;
@@ -84,6 +86,7 @@ namespace Ogre {
         mPendingGeometry.pTexCoords[1] = 0;
         mPendingGeometry.pNormals = 0;
         mPendingGeometry.pIndexes = 0;
+        */
 
         // Instantiate BspResourceManager
         // Will be managed by singleton

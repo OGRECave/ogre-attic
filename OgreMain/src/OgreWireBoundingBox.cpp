@@ -37,6 +37,7 @@ namespace Ogre {
 
 	void WireBoundingBox::setupBoundingBox(AxisAlignedBox aabb) {
 
+        /* TODO
 		// init the vertices to the aabb
 		setupBoundingBoxVertices(aabb);
 
@@ -48,7 +49,7 @@ namespace Ogre {
 		mLegacyRendOp.pVertices = mVertexData; 
 		mLegacyRendOp.pDiffuseColour = (unsigned long*)mDiffuses; 
 		mLegacyRendOp.pSpecularColour = NULL; 
-		mLegacyRendOp.operationType = LegacyRenderOperation::OT_LINE_LIST; 
+		mLegacyRendOp.operationType = RenderOperation::OT_LINE_LIST; 
 		mLegacyRendOp.numTextureCoordSets = 0;
 
 		// only need diffuse colors, other options not needed
@@ -56,6 +57,8 @@ namespace Ogre {
 
 		// setup the bounding box of this SimpleRenderable
 		setBoundingBox(aabb);
+
+        */
 
 	}
 

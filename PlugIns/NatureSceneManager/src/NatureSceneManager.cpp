@@ -142,10 +142,10 @@ void NatureIntersectionSceneQuery::execute(IntersectionSceneQueryListener* liste
         if ( a->second->getQueryFlags() & mQueryMask)
         {
             const AxisAlignedBox& box = a->second->getWorldBoundingBox();
-            std::list<LegacyRenderOperation> opList;
+            std::list<RenderOperation> opList;
             sceneMgr->mNaturePatchManager->getPatchRenderOpsInBox(box, opList);
             
-            std::list<LegacyRenderOperation>::iterator i, iend;
+            std::list<RenderOperation>::iterator i, iend;
             iend = opList.end();
             for (i = opList.begin(); i != iend; ++i)
             {

@@ -93,6 +93,7 @@ namespace Ogre
         Mesh* pMesh = createManual(name);
         SubMesh *pSub = pMesh->createSubMesh();
 
+        /* TODO
         // Set options
         pMesh->sharedGeometry.hasColours = false;
         pMesh->sharedGeometry.hasNormals = normals;
@@ -190,6 +191,7 @@ namespace Ogre
             } // x
         } // y
 
+        */
         // Generate face list
         tesselate2DMesh(pSub, xsegments + 1, ysegments + 1, false);
 
@@ -206,6 +208,7 @@ namespace Ogre
         Mesh* pMesh = createManual(name);
         SubMesh *pSub = pMesh->createSubMesh();
 
+        /* TODO
         // Set options
         pMesh->sharedGeometry.hasColours = false;
         pMesh->sharedGeometry.hasNormals = normals;
@@ -290,9 +293,9 @@ namespace Ogre
 
                 if (normals)
                 {
-					/* This part is kinda 'wrong' for curved planes... but curved planes are
-					   very valuable outside sky planes, which don't typically need normals
-					   so I'm not going to mess with it for now. */
+					// This part is kinda 'wrong' for curved planes... but curved planes are
+					//   very valuable outside sky planes, which don't typically need normals
+					//   so I'm not going to mess with it for now. 
 
                     pReal = pMesh->sharedGeometry.pNormals + (((y * (xsegments+1)) + x) * 3);
                     // Default normal is along unit Z
@@ -314,6 +317,7 @@ namespace Ogre
 
             } // x
         } // y
+        */
 
         // Generate face list
         tesselate2DMesh(pSub, xsegments + 1, ysegments + 1, false);
@@ -343,6 +347,7 @@ namespace Ogre
             v = 0;
         }
 
+        /* TODO
         // Allocate memory for faces
         // Num faces, width*height*2 (2 tris per square)
         sm->numFaces = (meshWidth-1) * (meshHeight-1) * 2 * iterations;
@@ -398,12 +403,14 @@ namespace Ogre
             vInc = -vInc;
 
         }
+        */
 
     }
 
     //-----------------------------------------------------------------------
     void MeshManager::createPrefabPlane(void)
     {
+        /* TODO
         Mesh* msh = (Mesh*)create("Prefab_Plane");
         SubMesh* sub = msh->createSubMesh();
         Real vertices[12] = {-100, -100, 0,
@@ -438,6 +445,7 @@ namespace Ogre
         sub->numFaces = 2;
 
         mResources[msh->getName()] = msh;
+        */
     }
     //-----------------------------------------------------------------------
     MeshManager& MeshManager::getSingleton(void)

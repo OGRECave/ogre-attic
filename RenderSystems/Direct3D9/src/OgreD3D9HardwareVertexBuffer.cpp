@@ -54,14 +54,14 @@ namespace Ogre {
         SAFE_RELEASE(mlpD3DBuffer);
     }
 	//---------------------------------------------------------------------
-    unsigned char* D3D9HardwareVertexBuffer::lock(size_t offset, 
+    void* D3D9HardwareVertexBuffer::lock(size_t offset, 
         size_t length, LockOptions options)
     {
-        unsigned char* pBuf;
+        void* pBuf;
         HRESULT hr = mlpD3DBuffer->Lock(
             offset, 
             length, 
-            (void**)&pBuf,
+            &pBuf,
             D3D9Mappings::get(options));
 
         if (FAILED(hr))
@@ -86,23 +86,23 @@ namespace Ogre {
     }
 	//---------------------------------------------------------------------
     void D3D9HardwareVertexBuffer::readData(size_t offset, size_t length, 
-        unsigned char* pDest)
+        void* pDest)
     {
         // There is no functional interface in D3D, just do via manual 
         // lock, copy & unlock
-        unsigned char* pSrc = this->lock(offset, length, HardwareBuffer::HBL_READ_ONLY);
+        void* pSrc = this->lock(offset, length, HardwareBuffer::HBL_READ_ONLY);
         memcpy(pDest, pSrc, length);
         this->unlock();
 
     }
 	//---------------------------------------------------------------------
     void D3D9HardwareVertexBuffer::writeData(size_t offset, size_t length, 
-            const unsigned char* pSource,
+            const void* pSource,
 			bool discardWholeBuffer)
     {
         // There is no functional interface in D3D, just do via manual 
         // lock, copy & unlock
-        unsigned char* pDst = this->lock(offset, length, 
+        void* pDst = this->lock(offset, length, 
             discardWholeBuffer ? HardwareBuffer::HBL_DISCARD : HardwareBuffer::HBL_NORMAL);
         memcpy(pDst, pSource, length);
         this->unlock();

@@ -317,7 +317,7 @@ void TerrainRenderable::_updateRenderQueue( RenderQueue* queue )
     queue -> addRenderable( this );
 }
 
-void TerrainRenderable::getLegacyRenderOperation( LegacyRenderOperation& rend )
+void TerrainRenderable::getRenderOperation( RenderOperation& rend )
 {
     //setup indexes for vertices and uvs...
 
@@ -547,6 +547,7 @@ void TerrainRenderable::getLegacyRenderOperation( LegacyRenderOperation& rend )
     }
 
 
+    /* TODO
     rend.useIndexes = true;
     rend.vertexOptions = LegacyRenderOperation::VO_TEXTURE_COORDS;
 
@@ -602,6 +603,7 @@ void TerrainRenderable::getLegacyRenderOperation( LegacyRenderOperation& rend )
 
 
     mRenderLevelChanged = false;
+    */
 
 }
 

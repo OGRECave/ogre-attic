@@ -345,9 +345,6 @@
 				RelativePath="..\src\OgreNode.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreOofModelFile.cpp">
-			</File>
-			<File
 				RelativePath="..\src\OgreOverlay.cpp">
 			</File>
 			<File
@@ -794,15 +791,6 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreNode.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreObjectModel.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreOofFile.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreOofModelFile.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreOverlay.h">

@@ -95,7 +95,7 @@ OctreeCamera::Visibility OctreeCamera::getVisibility( const AxisAlignedBox &boun
 
 }
 
-void OctreeCamera::getLegacyRenderOperation( LegacyRenderOperation& rend )
+void OctreeCamera::getRenderOperation( RenderOperation& rend )
 {
 
     Real * r = mCorners;
@@ -125,6 +125,7 @@ void OctreeCamera::getLegacyRenderOperation( LegacyRenderOperation& rend )
 
     updateView();
 
+    /* TODO
     rend.useIndexes = true;
     rend.numTextureCoordSets = 0; // no textures
     rend.vertexOptions = LegacyRenderOperation::VO_DIFFUSE_COLOURS;
@@ -135,6 +136,7 @@ void OctreeCamera::getLegacyRenderOperation( LegacyRenderOperation& rend )
     rend.pVertices = mCorners;
     rend.pIndexes = mIndexes;
     rend.pDiffuseColour = mColors;
+    */
 
 }
 

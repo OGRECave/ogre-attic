@@ -264,7 +264,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void _render(const LegacyRenderOperation& op);
+        void _render(const RenderOperation& op);
         /** See
           RenderSystem
          */

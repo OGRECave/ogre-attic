@@ -44,13 +44,13 @@ namespace Ogre {
             HardwareBuffer::Usage usage, LPDIRECT3DDEVICE9 pDev);
         ~D3D9HardwareVertexBuffer();
         /** See HardwareBuffer. */
-        unsigned char* lock(size_t offset, size_t length, LockOptions options);
+        void* lock(size_t offset, size_t length, LockOptions options);
         /** See HardwareBuffer. */
 		void unlock(void);
         /** See HardwareBuffer. */
-        void readData(size_t offset, size_t length, unsigned char* pDest);
+        void readData(size_t offset, size_t length, void* pDest);
         /** See HardwareBuffer. */
-        void writeData(size_t offset, size_t length, const unsigned char* pSource,
+        void writeData(size_t offset, size_t length, const void* pSource,
 				bool discardWholeBuffer = false);
 
         /// Get D3D9-specific vertex buffer

@@ -83,12 +83,6 @@ namespace Ogre {
         */
         void importMesh(DataChunk& chunk, Mesh* pDest);
 
-        /** Imports Mesh and (optionally) Material data from legacy .oof file DataChunk.
-        @remarks
-            <b>Deprecated</b>. This method is provided for backwards-compatibility only. 
-            It imports data from a .oof file which was OGRE's previous mesh data format.
-        */
-        void importLegacyOof(DataChunk& chunk, Mesh* pDest);
 
     private:
         typedef std::map<String, Material*> MaterialMap;
@@ -100,9 +94,8 @@ namespace Ogre {
         void writeTextureLayer(const Material::TextureLayer* pTex);
         void writeMesh(const Mesh* pMesh);
         void writeSubMesh(const SubMesh* s);
-        void writeGeometry(const GeometryData* pGeom);
+        void writeGeometry(const VertexData* pVertData);
         void writeSkeletonLink(const String& skelName);
-        void writeMeshBoneAssignment(const VertexBoneAssignment* assign);
         void writeSubMeshBoneAssignment(const VertexBoneAssignment* assign);
         void writeLodInfo(const Mesh* pMesh);
         void writeLodSummary(unsigned short numLevels, bool manual);
@@ -113,7 +106,7 @@ namespace Ogre {
         unsigned long calcTextureLayerSize(const Material::TextureLayer* pTex);
         unsigned long calcMeshSize(const Mesh* pMesh);
         unsigned long calcSubMeshSize(const SubMesh* pSub);
-        unsigned long calcGeometrySize(const GeometryData* pGeom);
+        // TODO unsigned long calcGeometrySize(const GeometryData* pGeom);
         unsigned long calcSkeletonLinkSize(const String& skelName);
         unsigned long calcBoneAssignmentSize(void);
 
@@ -123,7 +116,6 @@ namespace Ogre {
         void readSubMesh(DataChunk& chunk);
         void readGeometry(DataChunk& chunk, GeometryData* dest);
         void readSkeletonLink(DataChunk &chunk);
-        void readMeshBoneAssignment(DataChunk& chunk);
         void readSubMeshBoneAssignment(DataChunk& chunk, SubMesh* sub);
 		void readMeshLodInfo(DataChunk& chunk);
 		void readMeshLodUsageManual(DataChunk& chunk, unsigned short lodNum, Mesh::MeshLodUsage& usage);

@@ -107,7 +107,7 @@ namespace Ogre
         /** See GuiElement. */
         virtual const String& getTypeName(void);
         /** See Renderable. */
-        void getLegacyRenderOperation(LegacyRenderOperation& rend);
+        void getRenderOperation(RenderOperation& op);
         /** Overridden from GuiElement */
         void setMaterialName(const String& matName);
 
@@ -257,7 +257,7 @@ namespace Ogre
         typedef std::deque<TextBlock> TextBlockQueue;
 
         /// Render operation
-        LegacyRenderOperation mRenderOp;
+        RenderOperation mRenderOp;
 
         /// Method for setting up base parameters for this class
         void addBaseParameters(void);

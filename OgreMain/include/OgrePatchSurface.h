@@ -28,8 +28,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 
 #include "OgreVector3.h"
-#include "OgreGeometryData.h"
 #include "OgreString.h"
+#include "OgreRenderOperation.h"
 
 namespace Ogre {
 
@@ -87,7 +87,7 @@ namespace Ogre {
             @param
                 visibleSide Determines which side of the patch (or both) triangles are generated for.
         */
-        void defineSurface(String meshName, const GeometryData& controlPoints, int width,
+        void defineSurface(String meshName, const std::vector<Vector3>* controlPoints, int width,
             PatchSurfaceType pType = PST_BEZIER, int subdivisionLevel = AUTO_LEVEL,
             VisibleSide visibleSide = VS_FRONT);
 
@@ -122,8 +122,8 @@ namespace Ogre {
     protected:
         /// MeshManager registered name
         String mMeshName;
-        /// Control points
-        GeometryData mCtlPointData;
+        /// Vertex data
+        VertexData mVertexData;
         /// The mesh
         Mesh* mMesh;
         /// Flag indicating build required
@@ -148,7 +148,7 @@ namespace Ogre {
         bool mSharedVertexData;
         bool mMemoryAllocated;
 
-        std::vector<Vector3> mVecCtlPoints;
+        const std::vector<Vector3>* mVecCtlPoints;
 
         // Steps for use in buffers
         int mBufPosStep, mBufNormStep, mBufColourStep, mBufTexCoordStep[OGRE_MAX_TEXTURE_COORD_SETS] ;

@@ -47,7 +47,7 @@ namespace Ogre {
         glDeleteBuffersARB(1, &mBufferId);
     }
 	//---------------------------------------------------------------------
-    unsigned char* GLHardwareIndexBuffer::lock(size_t offset, 
+    void* GLHardwareIndexBuffer::lock(size_t offset, 
         size_t length, LockOptions options)
     {
         GLenum access = 0;
@@ -87,8 +87,8 @@ namespace Ogre {
                 "Invalid locking option set", "GLHardwareIndexBuffer::lock");
         }
 
-        unsigned char* pBuffer = 
-          (unsigned char*)glMapBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, access );
+        void* pBuffer = 
+          glMapBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, access );
 
         if(pBuffer == NULL)
         {
@@ -114,7 +114,7 @@ namespace Ogre {
     }
 	//---------------------------------------------------------------------
     void GLHardwareIndexBuffer::readData(size_t offset, size_t length, 
-        unsigned char* pDest)
+        void* pDest)
     {
         if(mUsage == HBU_STATIC)
         {
@@ -122,7 +122,7 @@ namespace Ogre {
         }
         else
         {
-            unsigned char* pSrc = this->lock(offset, length, 
+            void* pSrc = this->lock(offset, length, 
                 HardwareBuffer::HBL_READ_ONLY);
             memcpy(pDest, pSrc, length);
             this->unlock();
@@ -130,7 +130,7 @@ namespace Ogre {
     }
 	//---------------------------------------------------------------------
     void GLHardwareIndexBuffer::writeData(size_t offset, size_t length, 
-            const unsigned char* pSource,
+            const void* pSource,
 			bool discardWholeBuffer)
     {
         glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, mBufferId );
@@ -142,7 +142,7 @@ namespace Ogre {
         }
         else
         {
-            unsigned char* pDst = this->lock(offset, length, 
+            void* pDst = this->lock(offset, length, 
                 discardWholeBuffer ? HardwareBuffer::HBL_DISCARD : HardwareBuffer::HBL_NORMAL);
             memcpy(pDst, pSource, length);
             this->unlock();

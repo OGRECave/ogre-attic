@@ -39,16 +39,18 @@ namespace Ogre {
     of this will be created by the RenderSystem. */
     class _OgreExport HardwareBufferManager : public Singleton<HardwareBufferManager>
     {
+        friend class HardwareVertexBufferSharedPtr;
+        friend class HardwareIndexBufferSharedPtr;
     protected:
-        typedef std::list<HardwareVertexBuffer*> VertexBufferList;
-        typedef std::list<HardwareIndexBuffer*> IndexBufferList;
         typedef std::list<VertexDeclaration*> VertexDeclarationList;
 		typedef std::list<VertexBufferBinding*> VertexBufferBindingList;
-        VertexBufferList mVertexBuffers;
-        IndexBufferList mIndexBuffers;
         VertexDeclarationList mVertexDeclarations;
 		VertexBufferBindingList mVertexBufferBindings;
 
+		/// Destroy a hardware vertex buffer, do not call direct
+		virtual void destroyVertexBuffer(HardwareVertexBuffer* buf) = 0;
+		/// Destroy a hardware index buffer, do not call direct
+		virtual void destroyIndexBuffer(HardwareIndexBuffer* buf) = 0;
     public:
         HardwareBufferManager();
         virtual ~HardwareBufferManager();
@@ -63,20 +65,23 @@ namespace Ogre {
             of the rendering pipeline, e.g. a position, or texture coordinates. This is done 
             using the VertexDeclaration class, which itself contains VertexElement structures
             referring to the source data.
+        @remarks Note that because vertex buffers can be shared, they are reference
+            counted so you do not need to worry about destroying themm this will be done
+            automatically.
         @param vertexSize The size in bytes of each vertex in this buffer; you must calculate
             this based on the kind of data you expect to populate this buffer with.
         @param numVerts The number of vertices in this buffer.
         @param usage One or more members of the HardwareBuffer::Usage enumeration.
         */
-		virtual HardwareVertexBuffer* 
+		virtual HardwareVertexBufferSharedPtr 
             createVertexBuffer(size_t vertexSize, size_t numVerts, HardwareBuffer::Usage usage) = 0;
-		/// Destroy a hardware index buffer
-		virtual void destroyVertexBuffer(HardwareVertexBuffer* buf) = 0;
-		/// Create a hardware vertex buffer
-		virtual HardwareIndexBuffer* 
+		/** Create a hardware vertex buffer.
+        @remarks Note that because buffers can be shared, they are reference
+            counted so you do not need to worry about destroying themm this will be done
+            automatically.
+        */
+		virtual HardwareIndexBufferSharedPtr 
             createIndexBuffer(HardwareIndexBuffer::IndexType itype, size_t numIndexes, HardwareBuffer::Usage usage) = 0;
-		/// Destroy a hardware vertex buffer
-		virtual void destroyIndexBuffer(HardwareIndexBuffer* buf) = 0;
         /// Creates a vertex declaration, may be overridden by certain rendering APIs
         virtual VertexDeclaration* createVertexDeclaration(void);
         /// Destroys a vertex declaration, may be overridden by certain rendering APIs

@@ -39,13 +39,13 @@ namespace Ogre {
 		D3D9HardwareIndexBuffer(IndexType idxType, size_t numIndexes, HardwareBuffer::Usage usage, LPDIRECT3DDEVICE9 pDev);
         ~D3D9HardwareIndexBuffer();
         /** See HardwareBuffer. */
-        unsigned char* lock(size_t offset, size_t length, LockOptions options);
+        void* lock(size_t offset, size_t length, LockOptions options);
         /** See HardwareBuffer. */
 		void unlock(void);
         /** See HardwareBuffer. */
-        void readData(size_t offset, size_t length, unsigned char* pDest);
+        void readData(size_t offset, size_t length, void* pDest);
         /** See HardwareBuffer. */
-        void writeData(size_t offset, size_t length, const unsigned char* pSource,
+        void writeData(size_t offset, size_t length, const void* pSource,
 				bool discardWholeBuffer = false);
 
         /// Get the D3D-specific index buffer
