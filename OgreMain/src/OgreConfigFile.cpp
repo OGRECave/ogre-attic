@@ -77,9 +77,9 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    String ConfigFile::getSetting(const String& key)
+    String ConfigFile::getSetting(const String& key) const
     {
-        std::multimap<String, String>::iterator i;
+        std::multimap<String, String>::const_iterator i;
 
         i = mSettings.find(key);
         if (i == mSettings.end())
@@ -92,11 +92,11 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    StringVector ConfigFile::getMultiSetting(const String& key)
+    StringVector ConfigFile::getMultiSetting(const String& key) const
     {
         StringVector ret;
 
-        std::multimap<String, String>::iterator i;
+        std::multimap<String, String>::const_iterator i;
 
         i = mSettings.find(key);
         // Iterate over matches

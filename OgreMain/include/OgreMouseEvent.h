@@ -283,7 +283,7 @@ namespace Ogre {
 		 *
 		 * @return a string identifying the event and its attributes
 		 */
-		 String paramString();
+		 String paramString() const;
 
 		/**
 		 * Translates the event's coordinates to a new position

@@ -54,7 +54,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ControllerManager::updateAllControllers(void)
     {
-        ControllerList::iterator ci;
+        ControllerList::const_iterator ci;
         for (ci = mControllers.begin(); ci != mControllers.end(); ++ci)
         {
             (*ci)->update();
@@ -71,7 +71,7 @@ namespace Ogre {
         mControllers.clear();
     }
     //-----------------------------------------------------------------------
-    SharedPtr<ControllerValue> ControllerManager::getFrameTimeSource(void)
+    SharedPtr<ControllerValue> ControllerManager::getFrameTimeSource(void) const
     {
         return mFrameTimeController;
     }

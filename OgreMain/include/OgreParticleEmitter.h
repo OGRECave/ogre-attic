@@ -176,7 +176,7 @@ namespace Ogre {
         virtual void setPosition(const Vector3& pos);
 
         /** Returns the position of this emitter relative to thte center of the particle system. */
-        virtual Vector3 getPosition(void);
+        virtual const Vector3& getPosition(void) const;
 
         /** Sets the direction of the emitter.
         @remarks
@@ -190,7 +190,7 @@ namespace Ogre {
         virtual void setDirection(const Vector3& direction);
 
         /** Returns the base direction of the emitter. */
-        virtual Vector3& getDirection(void);
+        virtual const Vector3& getDirection(void) const;
 
         /** Sets the maximum angle away from the emitter direction which particle will be emitted.
         @remarks

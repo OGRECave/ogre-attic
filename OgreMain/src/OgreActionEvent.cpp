@@ -48,7 +48,7 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-	String ActionEvent::paramString() {
+	String ActionEvent::paramString() const {
 		String typeStr;
 		switch(mId) {
 		  case AE_ACTION_PERFORMED:

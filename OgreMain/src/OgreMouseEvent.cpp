@@ -106,7 +106,7 @@ namespace Ogre {
 	 *
 	 * @return a string identifying the event and its attributes
 	 */
-	 String MouseEvent::paramString() {
+	 String MouseEvent::paramString() const {
 		String typeStr;
 		switch(mId) {
 		  case ME_MOUSE_PRESSED:
