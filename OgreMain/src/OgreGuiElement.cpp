@@ -84,6 +84,7 @@ namespace Ogre {
     {
         mWidth = width;
         mHeight = height;
+        mDerivedOutOfDate = true;
     }
     //---------------------------------------------------------------------
     void GuiElement::setPosition(Real left, Real top)
@@ -257,7 +258,7 @@ namespace Ogre {
         dict->addParameter(ParameterDef("height", 
             "The height of the element as a proportion of screen space."
             , PT_REAL),
-            &msWidthCmd);
+            &msHeightCmd);
         dict->addParameter(ParameterDef("material", 
             "The name of the material to use."
             , PT_REAL),

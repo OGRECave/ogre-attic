@@ -64,7 +64,6 @@ namespace Ogre {
     {
 
     protected:
-        String mName;
         ushort mZOrder;
         bool mVisible;
         /// Internal root node, used as parent for 3D objects

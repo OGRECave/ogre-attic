@@ -231,7 +231,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void PanelGuiElement::addBaseParameters(void)
     {
-        GuiElement::addBaseParameters();
+        GuiContainer::addBaseParameters();
         ParamDictionary* dict = getParamDictionary();
 
         dict->addParameter(ParameterDef("tiling", 

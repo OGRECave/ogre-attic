@@ -396,12 +396,15 @@ namespace Ogre {
         mMaterialManager->parseAllSources();
 
 
+
         RenderWindow *retWin =  mActiveRenderer->initialise(autoCreateWindow);
 
         if (autoCreateWindow)
         {
             // Init particle systems manager
             mParticleManager->_initialise();
+            // parse all overlay scripts
+            mOverlayManager->parseAllSources();
         }
 
         return retWin;
@@ -576,6 +579,8 @@ namespace Ogre {
         {
             // Init particle systems manager
             mParticleManager->_initialise();
+            // init overlays
+            mOverlayManager->parseAllSources();
             firstOne = false;
         }
 

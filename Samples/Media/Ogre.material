@@ -54,3 +54,26 @@ Core/NodeMaterial
 		texture axes.png
 	}
 }
+
+Core/StatsBlockBorder
+{
+	cull_hardware none
+	lighting off
+	depth_write off
+	depth_check off
+	scene_blend modulate
+	{
+		texture ogreborder.png
+	}
+}
+Core/StatsBlockCenter
+{
+	cull_hardware none
+	lighting off
+	depth_write off
+	depth_check off
+	scene_blend modulate
+	{
+		texture ogrebordercenter.png
+	}
+}

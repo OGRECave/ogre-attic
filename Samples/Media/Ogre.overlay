@@ -1,0 +1,49 @@
+// Ogre overlay scripts
+Ogre/DebugOverlay
+{
+	zorder 500
+	// Stats block
+	container BorderPanel(StatPanel)
+	{
+		left 0 
+		top 0
+		width 0.25
+		height 0.75
+		material Core/StatsBlockCenter
+        	border_size 0.05 0.05 0.06665 0.06665
+        	border_material Core/StatsBlockBorder
+        	border_topleft_uv     0.0000 1.0000 0.1914 0.7969
+	        border_top_uv         0.1914 1.0000 0.8086 0.7969
+	        border_topright_uv    0.8086 1.0000 1.0000 0.7969
+	        border_left_uv        0.0000 0.7969 0.1914 0.2148
+	        border_right_uv       0.8086 0.7969 1.0000 0.2148
+	        border_bottomleft_uv  0.0000 0.2148 0.1914 0.0000
+        	border_bottom_uv      0.1914 0.2148 0.8086 0.0000
+	        border_bottomright_uv 0.8086 0.2148 1.0000 0.0000
+
+		element BorderPanel(SubPanel)
+		{
+			left 0.02
+			top 0.02
+			width 0.21
+			height 0.2
+			material Core/StatsBlockCenter
+	        	border_size 0.05 0.05 0.06665 0.06665
+        		border_material Core/StatsBlockBorder
+        		border_topleft_uv     0.0000 1.0000 0.1914 0.7969
+		        border_top_uv         0.1914 1.0000 0.8086 0.7969
+		        border_topright_uv    0.8086 1.0000 1.0000 0.7969
+	        	border_left_uv        0.0000 0.7969 0.1914 0.2148
+		        border_right_uv       0.8086 0.7969 1.0000 0.2148
+		        border_bottomleft_uv  0.0000 0.2148 0.1914 0.0000
+        		border_bottom_uv      0.1914 0.2148 0.8086 0.0000
+		        border_bottomright_uv 0.8086 0.2148 1.0000 0.0000
+		}
+				
+	}
+}
+
+
+
+
+
