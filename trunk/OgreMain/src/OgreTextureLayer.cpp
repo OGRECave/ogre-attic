@@ -188,18 +188,18 @@ namespace Ogre {
         }
 
         setCubicTextureName(fullNames, forUVW);
-
     }
     //-----------------------------------------------------------------------
     void Material::TextureLayer::setCubicTextureName(const String* const names, bool forUVW)
     {
         if (forUVW)
         {
-            // TODO - build single cubic texture
+			String msg;
+			LogManager::getSingleton().logMessage(names[0] + " : combinedUVW not supported yet. Texture layer will be blank.");
+			mIsBlank = true;
         }
         else
         {
-
             mNumFrames = 6;
             mCurrentFrame = 0;
             mCubic = true;

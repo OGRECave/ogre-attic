@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreLogManager.h"
 #include "OgreSDDataChunk.h"
 #include "OgreArchiveEx.h"
+#include "OgreStringConverter.h"
 
 namespace Ogre {
 
@@ -424,7 +425,11 @@ namespace Ogre {
 	    bool useUVW;
         String uvOpt = params[numParams-1].toLowerCase();
 	    if (uvOpt == "combineduvw")
+		{
+		    LogManager::getSingleton().logMessage("Material " + pMat->getName() +
+			    ", 'cubic_texture' with 'combinedUVW' is not yet supported.");
 		    useUVW = true;
+		}
 	    else if (uvOpt == "separateuv")
 		    useUVW = false;
 	    else
@@ -575,22 +580,25 @@ namespace Ogre {
 		    return LBS_DIFFUSE;
 	    else if (param == "src_specular")
 		    return LBS_SPECULAR;
+	    else if (param == "src_manual")
+		    return LBS_MANUAL;
 	    else
 		    Except(Exception::ERR_INVALIDPARAMS, "Invalid blend source", "convertBlendSource");
-
     }
     //-----------------------------------------------------------------------
     void parseColourOpEx(StringVector::iterator& params, int numParams, Material* pMat, Material::TextureLayer* pTex)
     {
-	    if (numParams < 4 || numParams > 5)
+	    if (numParams < 4 || numParams > 11)
 	    {
 		    LogManager::getSingleton().logMessage("Bad " + params[0] + " attribute line in "
-			    + pMat->getName() + ", wrong number of parameters (expected 3 or 4)");
+			    + pMat->getName() + ", wrong number of parameters (expected 3 to 10)");
 		    return;
 	    }
 	    LayerBlendOperationEx op;
 	    LayerBlendSource src1, src2;
 	    Real manual = 0.0;
+		ColourValue colSrc1 = ColourValue::White;
+		ColourValue colSrc2 = ColourValue::White;
 
 	    try {
 		    op = convertBlendOpEx(params[1]);
@@ -598,7 +606,7 @@ namespace Ogre {
 		    src2 = convertBlendSource(params[3]);
 		    if (op == LBX_BLEND_MANUAL)
 		    {
-			    if (numParams != 5)
+			    if (numParams < 5)
 			    {
 				    LogManager::getSingleton().logMessage("Bad " + params[0] + " attribute line in "
 					    + pMat->getName() + ", wrong number of parameters (expected 4 for manual blend)");
@@ -606,7 +614,42 @@ namespace Ogre {
 			    }
 			    manual = atof(params[4]);
 		    }
+			if (src1 == LBS_MANUAL)
+			{
+				int parIndex = 4;
+				if (op == LBX_BLEND_MANUAL)
+					parIndex++;
 
+			    if (numParams < parIndex + 3)
+			    {
+				    LogManager::getSingleton().logMessage("Bad " + params[0] + " attribute line in "
+						+ pMat->getName() + ", wrong number of parameters (expected " + StringConverter::toString(parIndex + 2) + ")");
+				    return;
+			    }
+
+				colSrc1.r = atof(params[parIndex++]);
+				colSrc1.g = atof(params[parIndex++]);
+				colSrc1.b = atof(params[parIndex]);
+			}
+			if (src2 == LBS_MANUAL)
+			{
+				int parIndex = 4;
+				if (op == LBX_BLEND_MANUAL)
+					parIndex++;
+				if (src1 == LBS_MANUAL)
+					parIndex += 3;
+
+			    if (numParams < parIndex + 3)
+			    {
+				    LogManager::getSingleton().logMessage("Bad " + params[0] + " attribute line in "
+						+ pMat->getName() + ", wrong number of parameters (expected " + StringConverter::toString(parIndex + 2) + ")");
+				    return;
+			    }
+
+				colSrc2.r = atof(params[parIndex++]);
+				colSrc2.g = atof(params[parIndex++]);
+				colSrc2.b = atof(params[parIndex]);
+			}
 	    }
 	    catch (Exception& e)
 	    {
@@ -615,9 +658,7 @@ namespace Ogre {
 		    return;
 	    }
 
-	    pTex->setColourOperationEx(op, src1, src2, ColourValue::White, ColourValue::White, manual);
-
-
+	    pTex->setColourOperationEx(op, src1, src2, colSrc1, colSrc2, manual);
     }
     //-----------------------------------------------------------------------
     void parseColourOpFallback(StringVector::iterator& params, int numParams, Material* pMat, Material::TextureLayer* pTex)
