@@ -22,7 +22,7 @@
 #include <OgreMovableObject.h>
 #include <OgreAxisAlignedBox.h>
 #include <OgreString.h>
-#include <OgreGeometryData.h>
+#include <OgreHardwareBufferManager.h>
 
 #include <vector>
 
@@ -33,6 +33,7 @@ namespace Ogre
   * An index buffer for terrain tiles.  These are cached once created, and reused
   * for different tiles.
   */
+/*
 class TerrainIndexBuffer
 {
 public:
@@ -49,8 +50,9 @@ public:
     unsigned short * indexes;
     int length;
 };
+*/
 
-typedef std::vector < TerrainIndexBuffer * > IndexArray;
+typedef std::vector < IndexData* > IndexArray;
 typedef std::vector < IndexArray > LevelArray;
 
 /**
@@ -59,15 +61,16 @@ typedef std::vector < IndexArray > LevelArray;
  */
 class TerrainBufferCache
 {
-  public:
-  ~TerrainBufferCache()
+public:
+    ~TerrainBufferCache()
     {
-      for( int i=0; i<mCache.size(); i++ )
-	{
-	  delete mCache[i];
-	}
+        for( int i=0; i<mCache.size(); i++ )
+        {
+            delete mCache[i];
+        }
     }
-  IndexArray mCache;
+
+    IndexArray mCache;
 };
 
 
@@ -292,7 +295,9 @@ protected:
     /** Returns the  vertex coord for the given coordinates */
     inline float _vertex( int x, int z, int n )
     {
+      /* TODO
         return mTerrain.pVertices[ x * 3 + z * mSize * 3 + n ];
+        */
     };
 
 
@@ -331,7 +336,7 @@ protected:
 
     Real _calculateCFactor();
 
-    GeometryData mTerrain;
+    VertexData* mTerrain;
 
     int mNumMipMaps;
     int mRenderLevel;

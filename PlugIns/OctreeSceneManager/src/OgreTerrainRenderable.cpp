@@ -25,6 +25,9 @@ email                : janders@users.sf.net
 
 namespace Ogre
 {
+#define POS_TEX_BINDING 0
+#define NORMAL_BINDING 1
+#define COLOUR_BINDING 2
 
 TerrainBufferCache gIndexCache;
 
@@ -36,13 +39,16 @@ LevelArray TerrainRenderable::mLevelIndex;
 bool TerrainRenderable::mLevelInit = false;
 
 TerrainRenderable::TerrainRenderable()
+    : mTerrain(0)
 {
     mForcedRenderLevel = -1;
+    /* 
     mTerrain.pVertices = 0;
     mTerrain.pNormals = 0;
     mTerrain.pColours = 0;
     mTerrain.pTexCoords[ 0 ] = 0;
     mTerrain.pTexCoords[ 1 ] = 0;
+    */
     mMinLevelDistSqr = 0;
 
     mInit = false;
@@ -68,6 +74,10 @@ TerrainRenderable::~TerrainRenderable()
 
 void TerrainRenderable::deleteGeometry()
 {
+    if(mTerrain)
+        delete mTerrain;
+
+  /* 
     if ( mTerrain.pVertices != 0 )
         delete [] mTerrain.pVertices;
 
@@ -82,6 +92,7 @@ void TerrainRenderable::deleteGeometry()
 
     if ( mTerrain.pTexCoords[ 1 ] != 0 )
         delete [] mTerrain.pTexCoords[ 1 ];
+        */
 
     if ( mMinLevelDistSqr != 0 )
         delete [] mMinLevelDistSqr;
@@ -114,10 +125,6 @@ void TerrainRenderable::init( TerrainOptions &options )
     //calculate min and max heights;
     Real min = 256000, max = 0;
 
-    int m = 0;
-
-    int q = 0;
-
     /* Initialize the variables */
     mLit = options.lit;
 
@@ -137,6 +144,41 @@ void TerrainRenderable::init( TerrainOptions &options )
 
     mNumMipMaps = options.max_mipmap;
 
+    mTerrain = new VertexData;
+    mTerrain->vertexStart = 0;
+    mTerrain->vertexCount = mSize * mSize;
+
+    VertexDeclaration* decl = mTerrain->vertexDeclaration;
+    VertexBufferBinding* bind = mTerrain->vertexBufferBinding;
+
+    // positions
+    size_t offset = 0;
+    decl->addElement(POS_TEX_BINDING, offset, VET_FLOAT3, VES_POSITION);
+    offset += VertexElement::getTypeSize(VET_FLOAT3);
+    // texture coord sets
+    decl->addElement(POS_TEX_BINDING, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
+    offset += VertexElement::getTypeSize(VET_FLOAT2);
+    decl->addElement(POS_TEX_BINDING, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 1);
+    offset += VertexElement::getTypeSize(VET_FLOAT2);
+    decl->addElement(COLOUR_BINDING, 0, VET_COLOUR, VES_DIFFUSE);
+
+    HardwareVertexBufferSharedPtr vbuf =
+        HardwareBufferManager::getSingleton().createVertexBuffer(
+            offset,
+            mTerrain->vertexCount, 
+            HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+
+    bind->setBinding(POS_TEX_BINDING, vbuf);
+
+    vbuf =
+        HardwareBufferManager::getSingleton().createVertexBuffer(
+            decl->getVertexSize(COLOUR_BINDING),
+            mTerrain->vertexCount, 
+            HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+
+    bind->setBinding(COLOUR_BINDING, vbuf);
+
+    /* 
     mTerrain.numVertices = mSize * mSize;
 
     mTerrain.pVertices = new Real[ mSize * mSize * 3 ];
@@ -148,6 +190,7 @@ void TerrainRenderable::init( TerrainOptions &options )
     mTerrain.pTexCoords[ 1 ] = new Real[ mSize * mSize * 2 ];
 
     mTerrain.pColours = new unsigned long [ mSize * mSize ];
+    */
 
     mInit = true;
 
@@ -163,11 +206,15 @@ void TerrainRenderable::init( TerrainOptions &options )
     mScale.z = options.scalez;
 
 
+    RGBA* pCol = static_cast<RGBA*>( vbuf->lock(HardwareBuffer::HBL_DISCARD) );
     for ( int i = 0; i < mSize*mSize; i++ )
     {
+        *pCol++ = 0xFFFFFFFF;
+    /* 
         mTerrain.pColours[ i ] = 0xFFFFFFFF;
+    */
     }
-
+    vbuf->unlock();
 
     int endx = options.startx + options.size;
 
@@ -175,11 +222,26 @@ void TerrainRenderable::init( TerrainOptions &options )
 
     Vector3 left, down, here;
 
+    vbuf = bind->getBuffer(POS_TEX_BINDING);
+
+    Real* pPos = static_cast<Real*>( vbuf->lock(HardwareBuffer::HBL_DISCARD) );
+
     for ( int j = options.startz; j < endz; j++ )
     {
         for ( int i = options.startx; i < endx; i++ )
         {
             Real height = options._worldheight( i, j ) * options.scaley;
+
+            *pPos++ = ( Real ) i * options.scalex; //x
+            *pPos++ = height; //y
+            *pPos++ = ( Real ) j * options.scalez; //z
+
+            *pPos++ = ( Real ) i / ( Real ) options.world_size ;
+            *pPos++ = ( Real ) 1.0 - ( Real ) j / ( Real ) options.world_size;
+
+            *pPos++ = ( ( Real ) i / ( Real ) mSize ) * options.detail_tile;
+            *pPos++ = ( ( Real ) 1.0 - ( Real ) j / ( Real ) mSize ) * options.detail_tile;
+            /* 
             mTerrain.pVertices[ m ] = ( Real ) i * options.scalex; //x
             mTerrain.pVertices[ m + 1 ] = height; //y
             mTerrain.pVertices[ m + 2 ] = ( Real ) j * options.scalez; //z
@@ -188,18 +250,17 @@ void TerrainRenderable::init( TerrainOptions &options )
             mTerrain.pTexCoords[ 0 ][ q + 1 ] = ( Real ) 1.0 - ( Real ) j / ( Real ) options.world_size;
             mTerrain.pTexCoords[ 1 ][ q ] = ( ( Real ) i / ( Real ) mSize ) * options.detail_tile;
             mTerrain.pTexCoords[ 1 ][ q + 1 ] = ( ( Real ) 1.0 - ( Real ) j / ( Real ) mSize ) * options.detail_tile;
+            */
 
             if ( height < min )
                 min = ( Real ) height;
 
             if ( height > max )
                 max = ( Real ) height;
-
-            m += 3;
-
-            q += 2;
         }
     }
+
+    vbuf->unlock();
 
     mBounds.setExtents( ( Real ) options.startx * options.scalex, min, ( Real ) options.startz * options.scalez,
                         ( Real ) ( endx - 1 ) * options.scalex, max, ( Real ) ( endz - 1 ) * options.scalez );
@@ -261,10 +322,12 @@ void TerrainRenderable::_calculateNormals()
 
             //  printf( "Normal = %5f,%5f,%5f\n", norm.x, norm.y, norm.z );
 
+            /* TODO
             mTerrain.pNormals[ m ] = norm.x;
             mTerrain.pNormals[ m + 1 ] = norm.y;
             mTerrain.pNormals[ m + 2 ] = norm.z;
 
+            */
 
             m += 3;
         }
@@ -314,10 +377,10 @@ void TerrainRenderable::_notifyCurrentCamera( Camera* cam )
 
 void TerrainRenderable::_updateRenderQueue( RenderQueue* queue )
 {
-    queue -> addRenderable( this );
+    queue->addRenderable( this );
 }
 
-void TerrainRenderable::getRenderOperation( RenderOperation& rend )
+void TerrainRenderable::getRenderOperation( RenderOperation& op )
 {
     //setup indexes for vertices and uvs...
 
@@ -371,8 +434,6 @@ void TerrainRenderable::getRenderOperation( RenderOperation& rend )
 
     int numIndexes = 0;
 
-    TerrainIndexBuffer *buffer = 0;
-
     if ( mNeighbors[ EAST ] != 0 && mNeighbors[ EAST ] -> mRenderLevel > mRenderLevel )
     {
         east = step; index_array |= TILE_EAST;
@@ -393,18 +454,35 @@ void TerrainRenderable::getRenderOperation( RenderOperation& rend )
         south = step; index_array |= TILE_SOUTH;
     }
 
+    IndexData* indexData = 0;
+
     if ( mLevelIndex[ mRenderLevel ][ index_array ] != 0 )
     {
-        buffer = mLevelIndex[ mRenderLevel ][ index_array ];
+        indexData = mLevelIndex[ mRenderLevel ][ index_array ];
     }
-
     else
     {
         int new_length = ( mSize / step ) * ( mSize / step ) * 2 * 2 * 2 ;
         //this is the maximum for a level.  It wastes a little, but shouldn't be a problem.
+        
+        indexData = new IndexData;
+        indexData->indexBuffer = 
+            HardwareBufferManager::getSingleton().createIndexBuffer(
+                HardwareIndexBuffer::IT_16BIT,
+                new_length, HardwareBuffer::HBU_STATIC_WRITE_ONLY);//, false);
+
+        /* 
         buffer = new TerrainIndexBuffer( new_length );
-	gIndexCache.mCache.push_back( buffer );
+        */
+
+	    gIndexCache.mCache.push_back( indexData );
+
         numIndexes = 0;
+
+        unsigned short* pIdx = static_cast<unsigned short*>(
+            indexData->indexBuffer->lock(0, 
+              indexData->indexBuffer->getSizeInBytes(), 
+              HardwareBuffer::HBL_DISCARD));
 
         for ( int j = north; j < mSize - 1 - south; j += step )
         {
@@ -412,6 +490,15 @@ void TerrainRenderable::getRenderOperation( RenderOperation& rend )
             {
 
                 //triangles
+                *pIdx++ = _index( i, j ); numIndexes++;
+                *pIdx++ = _index( i, j + step ); numIndexes++;
+                *pIdx++ = _index( i + step, j ); numIndexes++;
+
+                *pIdx++ = _index( i, j + step ); numIndexes++;
+                *pIdx++ = _index( i + step, j + step ); numIndexes++;
+                *pIdx++ = _index( i + step, j ); numIndexes++;
+
+                /* 
                 buffer -> indexes[ numIndexes ] = _index( i, j ); numIndexes++;
                 buffer -> indexes[ numIndexes ] = _index( i, j + step ); numIndexes++;
                 buffer -> indexes[ numIndexes ] = _index( i + step, j ); numIndexes++;
@@ -419,6 +506,7 @@ void TerrainRenderable::getRenderOperation( RenderOperation& rend )
                 buffer -> indexes[ numIndexes ] = _index( i, j + step ); numIndexes++;
                 buffer -> indexes[ numIndexes ] = _index( i + step, j + step ); numIndexes++;
                 buffer -> indexes[ numIndexes ] = _index( i + step, j ); numIndexes++;
+                */
 
             }
         }
@@ -434,20 +522,35 @@ void TerrainRenderable::getRenderOperation( RenderOperation& rend )
                 //skip the first bit of the corner if the north side is a different level as well.
                 if ( j > 0 || north == 0 )
                 {
+                    *pIdx++ = _index( 0, j ); numIndexes++;
+                    *pIdx++ = _index( step, j + step ); numIndexes++;
+                    *pIdx++ = _index( step, j ); numIndexes++;
+                  /* 
                     buffer -> indexes[ numIndexes ] = _index( 0, j ); numIndexes++;
                     buffer -> indexes[ numIndexes ] = _index( step, j + step ); numIndexes++;
                     buffer -> indexes[ numIndexes ] = _index( step, j ); numIndexes++;
+                    */
                 }
 
+                *pIdx++ = _index( step, j + step ); numIndexes++;
+                *pIdx++ = _index( 0, j ); numIndexes++;
+                *pIdx++ = _index( 0, j + step + step ); numIndexes++;
+                /*
                 buffer -> indexes[ numIndexes ] = _index( step, j + step ); numIndexes++;
                 buffer -> indexes[ numIndexes ] = _index( 0, j ); numIndexes++;
                 buffer -> indexes[ numIndexes ] = _index( 0, j + step + step ); numIndexes++;
+                */
 
                 if ( j < mSize - 1 - substep || south == 0 )
                 {
+                    *pIdx++ = _index( step, j + step ); numIndexes++;
+                    *pIdx++ = _index( 0, j + step + step ); numIndexes++;
+                    *pIdx++ = _index( step, j + step + step ); numIndexes++;
+                    /*
                     buffer -> indexes[ numIndexes ] = _index( step, j + step ); numIndexes++;
                     buffer -> indexes[ numIndexes ] = _index( 0, j + step + step ); numIndexes++;
                     buffer -> indexes[ numIndexes ] = _index( step, j + step + step ); numIndexes++;
+                    */
 
                 }
             }
@@ -465,20 +568,35 @@ void TerrainRenderable::getRenderOperation( RenderOperation& rend )
                 //skip the first bit of the corner if the north side is a different level as well.
                 if ( j > 0 || north == 0 )
                 {
+                    *pIdx++ = _index( x, j ); numIndexes++;
+                    *pIdx++ = _index( x - step, j ); numIndexes++;
+                    *pIdx++ = _index( x - step, j + step ); numIndexes++;
+                    /*
                     buffer -> indexes[ numIndexes ] = _index( x, j ); numIndexes++;
                     buffer -> indexes[ numIndexes ] = _index( x - step, j ); numIndexes++;
                     buffer -> indexes[ numIndexes ] = _index( x - step, j + step ); numIndexes++;
+                    */
                 }
 
+                *pIdx++ = _index( x, j ); numIndexes++;
+                *pIdx++ = _index( x - step, j + step ); numIndexes++;
+                *pIdx++ = _index( x, j + step + step ); numIndexes++;
+                /*
                 buffer -> indexes[ numIndexes ] = _index( x, j ); numIndexes++;
                 buffer -> indexes[ numIndexes ] = _index( x - step, j + step ); numIndexes++;
                 buffer -> indexes[ numIndexes ] = _index( x, j + step + step ); numIndexes++;
+                */
 
                 if ( j < mSize - 1 - substep || south == 0 )
                 {
+                    *pIdx++ = _index( x, j + step + step ); numIndexes++;
+                    *pIdx++ = _index( x - step, j + step ); numIndexes++;
+                    *pIdx++ = _index( x - step, j + step + step ); numIndexes++;
+                    /*
                     buffer -> indexes[ numIndexes ] = _index( x, j + step + step ); numIndexes++;
                     buffer -> indexes[ numIndexes ] = _index( x - step, j + step ); numIndexes++;
                     buffer -> indexes[ numIndexes ] = _index( x - step, j + step + step ); numIndexes++;
+                    */
                 }
             }
 
@@ -495,20 +613,35 @@ void TerrainRenderable::getRenderOperation( RenderOperation& rend )
                 //skip the first bit of the corner if the north side is a different level as well.
                 if ( j > 0 || west == 0 )
                 {
+                    *pIdx++ = _index( j, x - step ); numIndexes++;
+                    *pIdx++ = _index( j, x ); numIndexes++;
+                    *pIdx++ = _index( j + step, x - step ); numIndexes++;
+                    /*
                     buffer -> indexes[ numIndexes ] = _index( j, x - step ); numIndexes++;
                     buffer -> indexes[ numIndexes ] = _index( j, x ); numIndexes++;
                     buffer -> indexes[ numIndexes ] = _index( j + step, x - step ); numIndexes++;
+                    */
                 }
 
+                *pIdx++ = _index( j + step, x - step ); numIndexes++;
+                *pIdx++ = _index( j, x ); numIndexes++;
+                *pIdx++ = _index( j + step + step, x ); numIndexes++;
+                /*
                 buffer -> indexes[ numIndexes ] = _index( j + step, x - step ); numIndexes++;
                 buffer -> indexes[ numIndexes ] = _index( j, x ); numIndexes++;
                 buffer -> indexes[ numIndexes ] = _index( j + step + step, x ); numIndexes++;
+                */
 
                 if ( j < mSize - 1 - substep || east == 0 )
                 {
+                    *pIdx++ = _index( j + step, x - step ); numIndexes++;
+                    *pIdx++ = _index( j + step + step, x ); numIndexes++;
+                    *pIdx++ = _index( j + step + step, x - step ); numIndexes++;
+                    /* 
                     buffer -> indexes[ numIndexes ] = _index( j + step, x - step ); numIndexes++;
                     buffer -> indexes[ numIndexes ] = _index( j + step + step, x ); numIndexes++;
                     buffer -> indexes[ numIndexes ] = _index( j + step + step, x - step ); numIndexes++;
+                    */
                 }
             }
 
@@ -523,31 +656,47 @@ void TerrainRenderable::getRenderOperation( RenderOperation& rend )
                 //skip the first bit of the corner if the north side is a different level as well.
                 if ( j > 0 || west == 0 )
                 {
+                    *pIdx++ = _index( j, 0 ); numIndexes++;
+                    *pIdx++ = _index( j, step ); numIndexes++;
+                    *pIdx++ = _index( j + step, step ); numIndexes++;
+                    /*
                     buffer -> indexes[ numIndexes ] = _index( j, 0 ); numIndexes++;
                     buffer -> indexes[ numIndexes ] = _index( j, step ); numIndexes++;
                     buffer -> indexes[ numIndexes ] = _index( j + step, step ); numIndexes++;
+                    */
                 }
 
-                buffer -> indexes[ numIndexes ] = _index( j, 0 ); numIndexes++;
-                buffer -> indexes[ numIndexes ] = _index( j + step, step ); numIndexes++;
-                buffer -> indexes[ numIndexes ] = _index( j + step + step, 0 ); numIndexes++;
+                *pIdx++ = _index( j, 0 ); numIndexes++;
+                *pIdx++ = _index( j + step, step ); numIndexes++;
+                *pIdx++ = _index( j + step + step, 0 ); numIndexes++;
 
                 if ( j < mSize - 1 - substep || east == 0 )
                 {
-                    buffer -> indexes[ numIndexes ] = _index( j + step + step, 0 ); numIndexes++;
-                    buffer -> indexes[ numIndexes ] = _index( j + step, step ); numIndexes++;
-                    buffer -> indexes[ numIndexes ] = _index( j + step + step, step ); numIndexes++;
+                    *pIdx++ = _index( j + step + step, 0 ); numIndexes++;
+                    *pIdx++ = _index( j + step, step ); numIndexes++;
+                    *pIdx++ = _index( j + step + step, step ); numIndexes++;
                 }
             }
 
         }
 
+        indexData->indexBuffer->unlock();
+        indexData->indexCount = numIndexes;
+        indexData->indexStart = 0;
+
+        mLevelIndex[ mRenderLevel ][ index_array ] = indexData;
+        /* 
+
         buffer -> length = numIndexes;
-        mLevelIndex[ mRenderLevel ][ index_array ] = buffer;
+    */
     }
 
+    op.useIndexes = true;
+    op.operationType = RenderOperation::OT_TRIANGLE_LIST;
+    op.vertexData = mTerrain;
+    op.indexData = indexData;
 
-    /* TODO
+    /* 
     rend.useIndexes = true;
     rend.vertexOptions = LegacyRenderOperation::VO_TEXTURE_COORDS;
 
@@ -599,11 +748,11 @@ void TerrainRenderable::getRenderOperation( RenderOperation& rend )
 
     rend.numIndexes = buffer -> length;
 
-    mRenderedTris += ( rend.numIndexes / 3 );
+    */
+    mRenderedTris += ( indexData->indexCount / 3 );
 
 
     mRenderLevelChanged = false;
-    */
 
 }
 
@@ -917,6 +1066,7 @@ void TerrainRenderable::_generateVertexLighting( const Vector3 &sun, ColourValue
     {
         for ( int j = 0; j < mSize; j++ )
         {
+    /* TODO
             //  printf( "Checking %f,%f,%f ", pt.x, pt.y, pt.z );
             pt.x = _vertex( i, j, 0 );
             pt.y = _vertex( i, j, 1 );
@@ -958,6 +1108,7 @@ void TerrainRenderable::_generateVertexLighting( const Vector3 &sun, ColourValue
                 Root::getSingleton().convertColourValue( ambient, & ( mTerrain.pColours[ _index( i, j ) ] ) );
             }
 
+    */
         }
 
     }

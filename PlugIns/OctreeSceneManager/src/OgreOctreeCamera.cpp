@@ -97,6 +97,7 @@ OctreeCamera::Visibility OctreeCamera::getVisibility( const AxisAlignedBox &boun
 
 void OctreeCamera::getRenderOperation( RenderOperation& rend )
 {
+    std::cerr << "OctreeCamera::getRenderOperation\n";
 
     Real * r = mCorners;
     //could also project pts using inverse of 4x4 Projection matrix, but no inverse function on that.
