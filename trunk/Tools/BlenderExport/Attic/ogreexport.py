@@ -8,7 +8,7 @@ Tooltip: 'Exports selected meshs with armature animations to Ogre3D'
 """
 
 __author__ = ['Michael Reimpell', 'Jens Hoffmann', 'et al.']
-__version__ = '0.15.0'
+__version__ = ''
 __url__ = ['OGRE website, http://www.ogre3d.org',
 	'Script manual, http://www.ogre3d.org/docs/Tutorials/blender/index.html',
 	'OGRE forum, http://www.ogre3d.org/phpBB2/']
@@ -16,7 +16,7 @@ __bpydoc__ = """\
 Exports selected meshs with armature animations to Ogre3D.
 """
 
-# Blender to Ogre Mesh and Skeleton Exporter v0.15.0
+# Blender to Ogre Mesh and Skeleton Exporter
 # url: http://www.ogre3d.org
 
 # Ogre exporter written by Jens Hoffmann and Michael Reimpell
@@ -25,134 +25,6 @@ Exports selected meshs with armature animations to Ogre3D.
 # Copyright (C) 2004 Michael Reimpell -- <M.Reimpell@tu-bs.de>
 # Copyright (C) 2003 Jens Hoffmann -- <hoffmajs@gmx.de>
 # Copyright (C) 2003 Jean-Baptiste LAMY -- jiba@tuxfamily.org
-#
-# ChangeLog:
-#   0.7 :  released by Jens Hoffman
-#   0.8 :  * Mon Feb 02 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
-#          - added GUI
-#   0.9 :  * Tue Feb 03 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
-#          - added special header to be registered in blenders export menu
-#   0.10:  * Wed Feb 04 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
-#          - blenders broken Draw.Scrollbar replaced with own class
-#          - texture origin changed to top-left (Ogre v0.13.0)
-#          - export log is shown in message window
-#          - dirty hack for blender 2.32 (does not implement IpoCurve.getName()
-#            for action Ipos)
-#   0.11:  * Mon Feb 09 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
-#          - strip path from texture filenames in material file
-#          - back button for doneMessageBox
-#          - changed scrollbar focus behaviour
-#          - log text position offset
-#          - Ogre v0.13.0 material script support
-#            Material specific:
-#             amb * rgbCol          -> ambient <r> <g> <b> 
-#             rgbCol                -> diffuse <r> <g> <b>
-#             spec * specCol, hard  -> specular <r> <g> <b> <hard>
-#             emit*rgbCol           -> emissive <r> <g> <b>
-#             Material.mode
-#              ZINVERT              -> depth_func greater_equal
-#              ENV                  -> depth_func always_fail
-#              SHADELESS            -> lighting off
-#              NOMIST               -> fog_override true
-#            Face specific:
-#             NMFace.mode
-#              INVISIBLE            -> no export
-#              TEX                  -> texture_unit
-#             NMFace.transp
-#              SOLID                -> Default: scene_blend one zero
-#              ADD                  -> scene_blend add
-#              ALPHA                -> scene_blend alpha_blend
-#            Texture specific:
-#             NMFace.image.filename -> texture <name without path>
-#   0.12:  * Mon Feb 16 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
-#          - black border flashing removed
-#          - added material script support for
-#            Material.mode
-#              TEXFACE -> disable ambient, diffuse, specular and emissive
-#          - exit on ESCKEY or QKEY pressed (not released)
-#          - added frame based animation export
-#   0.12.1: * Wed Feb 18 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
-#          - changed two user interface strings to avoid confusion
-#   0.13:  * Mon Feb 23 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
-#          - scrollbar marker moves on focus click without MOUSEY event
-#          - scrollbar marker focus light
-#          - show version number in GUI
-#          - transparent load and save of export settings
-#   0.13.1: * Wed Feb 25 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
-#          - added support for vertices with different uv coordinates but same normal
-#          - improved button handling
-#          - added support for sticky uv coordinates
-#   0.13.2: * Thu Jun 03 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
-#          - added warning if no materials or textures are defined
-#          - added warning if mesh has no visible faces
-#          - displays a message while exporting
-#          - added material script support for
-#            Material.mode
-#              SHADOW -> receive_shadows
-#   0.13.3: * Sun Jun 06 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
-#          - changed GUI positions to ints to avoid DeprecationWarnings (Blender 2.33)
-#          - get frames per second setting from the render buttons (Blender 2.33)
-#          - respect new Armature.getBones() behaviour (Blender 2.33)
-#          - added missing argument in SkeletonMaterial creation
-#          - added option to rotate the coordinate system on export
-#   0.14.0: * Sun Jul 04 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
-#          - script loadable via command line
-#          - Ogre logo added
-#          - changed material mapping:
-#             amb * World.getAmb() -> ambient <r> <g> <b>
-#            where World is the first world returned by Blender.World.Get()
-#          - selected objects menu visible even if "Export Armature" option disabled
-#          - use Blender.Armature.NLA submodule to access Action objects (Blender 2.33)
-#   0.14.1: * Fri Aug 13 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
-#          - additional changes due to new Armature.getBones() behaviour (Blender 2.33)
-#          - ordering of the additional rotation on export changed
-#          - allow actions with less channels than bones
-#          - support for dotted parenting in armature edit mode
-#          - workaround for quaternion naming bug in Blender 2.34
-#          - support for single loc ipo curves
-#          - use Blender.World.GetActive() to get the ambient colour of the current world (Blender 2.34)
-#          - added mousewheel support to the scrollbar (Blender 2.34)
-#          - change keyframes and name of animation according to selected action
-#          - use Object.getMatrix("worldspace") (Blender 2.34)
-#          - smoothed scrollbar movement and removed flicker
-#   0.14.2: * Fri Aug 13 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
-#          - location key frame values fixed
-#          - fixed redraw if action is changed
-#   0.15.0: * Sun Oct 24 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
-#          - scalar product range correction in calc_rootaxis
-#          - made ArmatureAction.createArmatureActionDict a static method
-#          - renamed private methods to begin with an underscore
-#          - switched to javadoc comments
-#          - changed vertex buffer layout to allow software skinning
-#          - settings are now stored inside the .blend file
-#          - importing pickle module now optional
-#          - support for non-uniform keyframe scaling
-#          - export vertex colours
-#   0.15.1: * Michael Reimpell <M.Reimpell@tu-bs.de>
-#          - use Blender.World.GetCurrent() for Blender > 2.34
-#          - fixed calculation of initial bone rotation
-#          - preliminary normal map support
-#          - option to export in objects local coordinates
-#          - changed material file default name to the current scene name
-#          - files are now named after their datablock name
-#          - path selection starts with current export path
-#          - material ambient colour is scaled white
-#          - option to use scaled diffuse colour as ambient
-#          - BPy documentation added
-#          - coloured log
-#          - crossplatform path handling
-#          - allow empty material list entries
-#          - material export distinguishs between rendering and game engine materials
-#   0.15.1: * Sun Nov 27 2004 John Bartholomew <johnb213@users.sourceforge.net>
-#          - option to run OgreXMLConverter automatically on the exported files
-#
-# TODO:
-#          - vertex colours
-#          - code cleanup
-#          - noninteractive mode when called from command line
-#          - TWOSIDE face mode, TWOSIDED mesh mode
-#          - SUBSURF mesh mode
-#          - assign unskinned vertices to a static bone
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -169,9 +41,6 @@ Exports selected meshs with armature animations to Ogre3D.
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 # this export script is assumed to be used with the latest blender version.
-#
-# Usage:
-# select the meshes you want to export and run this script (alt-p)
 
 # KEEP_SETTINGS (enable = 1, disable = 0)
 #  transparently load and save settings to the text 'ogreexport.cfg'
@@ -489,6 +358,10 @@ class ArmatureAction:
 							self.firstKeyFrame = iFrame
 						if ((iFrame > self.lastKeyFrame) or (self.lastKeyFrame is None)):
 							self.lastKeyFrame = iFrame
+		if self.firstKeyFrame == None:
+			self.firstKeyFrame = 1
+		if self.lastKeyFrame == None:
+			self.lastKeyFrame = 1
 		return
 	
 	# static method
@@ -522,7 +395,10 @@ class ArmatureAction:
 			iBone = 0
 			while ((not hasValidChannel) and (iBone < len(boneNameList))):
 				if (linkedActionIpoDict.keys().count(boneNameList[iBone]) == 1):
-					hasValidChannel = 1 # true
+					if len(linkedActionIpoDict[boneNameList[iBone]].getCurves()):
+						hasValidChannel = 1 # true
+					else:
+						iBone += 1
 				else:
 					iBone += 1
 			if hasValidChannel:
@@ -539,7 +415,10 @@ class ArmatureAction:
 				iBone = 0
 				while ((not hasValidChannel) and (iBone < len(boneNameList))):
 					if (actionIpoDict.keys().count(boneNameList[iBone]) == 1):
-						hasValidChannel = 1 # true
+						if len(actionIpoDict[boneNameList[iBone]].getCurves()):
+							hasValidChannel = 1 # true
+						else:
+							iBone += 1
 					else:
 						iBone += 1
 				if hasValidChannel:
@@ -3618,7 +3497,7 @@ def frameDecorator(x, y, width):
 	glRectf(x,y-36,x+width,y-16)
 	glColor3f(1.0,1.0,0)
 	glRasterPos2i(x+85, y-30)
-	Draw.Text("OGRE Exporter 0.15.0", "normal")
+	Draw.Text("OGRE Exporter", "normal")
 
 	# logo
 	glRasterPos2i(x+1, y-48)	
