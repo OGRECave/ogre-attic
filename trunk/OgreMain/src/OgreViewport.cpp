@@ -90,16 +90,16 @@ namespace Ogre {
         mActWidth = (int) (mRelWidth * width);
         mActHeight = (int) (mRelHeight * height);
 
-        // Note that we don't propagate any changes to the Camera
-        // This is because the Camera projects into a space with
-        // range (-1,1), which then gets extrapolated to the viewport
-        // dimensions. Note that if the aspect ratio of the camera
-        // is not the same as that of the viewport, the image will
-        // be distorted in some way.
-
+        // This will check if  the cameras getAutoAspectRation() property is set.
+        // If it's true its aspect ratio is fit to the current viewport
+        // If it's false the camera remains unchanged.
         // This allows cameras to be used to render to many viewports,
         // which can have their own dimensions and aspect ratios.
 
+        if (mCamera->getAutoAspectRatio()) 
+        {
+            mCamera->setAspectRatio((Real) (mActWidth / mActHeight));
+        }
 
         char msg[256];
 

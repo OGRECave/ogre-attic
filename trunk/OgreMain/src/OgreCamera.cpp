@@ -85,6 +85,7 @@ namespace Ogre {
 
 
         mWindowSet = false;
+        mAutoAspectRatio = false;
     }
 
     //-----------------------------------------------------------------------
@@ -603,6 +604,15 @@ namespace Ogre {
     {
         return mDerivedOrientation;
     }
-
+    //-----------------------------------------------------------------------
+    bool Camera::getAutoAspectRatio(void) const
+    {
+        return mAutoAspectRatio;
+    }
+    //-----------------------------------------------------------------------
+    void Camera::setAutoAspectRatio(bool autoratio)
+    {
+        mAutoAspectRatio = autoratio;
+    }
 
 } // namespace Ogre
