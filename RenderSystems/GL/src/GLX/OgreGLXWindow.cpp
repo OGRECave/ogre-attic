@@ -402,7 +402,7 @@ void GLXWindow::writeContentsToFile(const String& filename)
         ImageCodec::ImageData* imgData = new ImageCodec::ImageData;
         imgData->width = mWidth;
        imgData->height = mHeight;
-     imgData->format = PF_R8G8B8;
+     imgData->format = PF_BYTE_RGB;
 
       // Allocate buffer 
         uchar* pBuffer = new uchar[mWidth * mHeight * 3];
@@ -416,7 +416,7 @@ void GLXWindow::writeContentsToFile(const String& filename)
 
        // Need to flip the read data over in Y though
      Image img;
-     img.loadRawData(stream, mWidth, mHeight, PF_R8G8B8 );
+     img.loadRawData(stream, mWidth, mHeight, PF_BYTE_RGB );
       img.flipAroundX();
 
         MemoryDataStreamPtr streamFlipped(new MemoryDataStream(img.getData(), stream->size(), false));

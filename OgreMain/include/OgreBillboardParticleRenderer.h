@@ -127,6 +127,8 @@ namespace Ogre {
         void _notifyAttached(Node* parent, bool isTagPoint = false);
         /// @copydoc ParticleSystemRenderer::_notifyDefaultDimensions
         void _notifyDefaultDimensions(Real width, Real height);
+		/// @copydoc ParticleSystemRenderer::setRenderQueueGroup
+		void setRenderQueueGroup(RenderQueueGroupID queueID);
 
     protected:
         static CmdBillboardType msBillboardTypeCmd;

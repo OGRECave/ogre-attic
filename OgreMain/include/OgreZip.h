@@ -99,6 +99,8 @@ namespace Ogre {
     {
     protected:
         ZZIP_FILE* mZzipFile;
+		/// Temporary zip copy area
+		char mZipTmpArea[OGRE_STREAM_TEMP_SIZE];
     public:
         /// Unnamed constructor
         ZipDataStream(ZZIP_FILE* zzipFile, size_t uncompressedSize);

@@ -121,7 +121,6 @@ material Examples/BumpMapping/SingleLight
 			vertex_program_ref Examples/BumpMapVP
 			{
 				param_named_auto lightPosition light_position_object_space 0
-				param_named_auto eyePosition camera_position_object_space
 				param_named_auto worldViewProj worldviewproj_matrix
 			}
 
@@ -164,7 +163,6 @@ material Examples/BumpMapping/SingleLight
 			vertex_program_ref Examples/BumpMapVP
 			{
 				param_named_auto lightPosition light_position_object_space 0
-				param_named_auto eyePosition camera_position_object_space
 				param_named_auto worldViewProj worldviewproj_matrix
 			}
 
@@ -237,7 +235,6 @@ material Examples/BumpMapping/MultiLight
 			vertex_program_ref Examples/BumpMapVP
 			{
 				param_named_auto lightPosition light_position_object_space 0
-				param_named_auto eyePosition camera_position_object_space
 				param_named_auto worldViewProj worldviewproj_matrix
 			}
 
@@ -327,7 +324,6 @@ material Examples/BumpMapping/MultiLight
 			vertex_program_ref Examples/BumpMapVP
 			{
 				param_named_auto lightPosition light_position_object_space 0
-				param_named_auto eyePosition camera_position_object_space
 				param_named_auto worldViewProj worldviewproj_matrix
 			}
 			
@@ -512,7 +508,6 @@ material Examples/BumpMapping/MultiLightSpecular
 			vertex_program_ref Examples/BumpMapVP
 			{
 				param_named_auto lightPosition light_position_object_space 0
-				param_named_auto eyePosition camera_position_object_space
 				param_named_auto worldViewProj worldviewproj_matrix
 			}
 			
@@ -796,7 +791,6 @@ material Examples/Athene/NormalMapped
 			vertex_program_ref Examples/BumpMapVP
 			{
 				param_named_auto lightPosition light_position_object_space 0
-				param_named_auto eyePosition camera_position_object_space
 				param_named_auto worldViewProj worldviewproj_matrix
 			}
 
@@ -886,7 +880,6 @@ material Examples/Athene/NormalMapped
 			vertex_program_ref Examples/BumpMapVP
 			{
 				param_named_auto lightPosition light_position_object_space 0
-				param_named_auto eyePosition camera_position_object_space
 				param_named_auto worldViewProj worldviewproj_matrix
 			}
 			
@@ -1092,7 +1085,6 @@ material Examples/Athene/NormalMappedSpecular
 			vertex_program_ref Examples/BumpMapVP
 			{
 				param_named_auto lightPosition light_position_object_space 0
-				param_named_auto eyePosition camera_position_object_space
 				param_named_auto worldViewProj worldviewproj_matrix
 			}
 			

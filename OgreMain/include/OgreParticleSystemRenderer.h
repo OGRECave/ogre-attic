@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 #include "OgreStringInterface.h"
 #include "OgreFactoryObj.h"
+#include "OgreRenderQueue.h"
 
 namespace Ogre {
 
@@ -83,6 +84,11 @@ namespace Ogre {
 			behaviour is to do nothing.
 		*/
 		virtual void _destroyVisualData(ParticleVisualData* vis) { assert (vis == 0); }
+
+		/** Sets which render queue group this renderer should target with it's
+			output.
+		*/
+		virtual void setRenderQueueGroup(RenderQueueGroupID queueID) = 0;
 
 
     };

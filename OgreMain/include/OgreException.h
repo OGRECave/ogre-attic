@@ -174,7 +174,12 @@ namespace Ogre {
         /** Gets line number.
         */
         long getLine() {return line; }
-            
+
+		/** Returns a string with only the 'description' field of this exception. Use 
+			getFullDescriptionto get a full description of the error including line number,
+			error number and what function threw the exception.
+        */
+		const String &getDescription(void) const { return description; }
 
         /** Retrieves a pointer to the last exception created.
         */

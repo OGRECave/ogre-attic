@@ -156,6 +156,11 @@ namespace Ogre {
     {
         mBillboardSet->_notifyAttached(parent, isTagPoint);
     }
+	//-----------------------------------------------------------------------
+	void BillboardParticleRenderer::setRenderQueueGroup(RenderQueueGroupID queueID)
+	{
+		mBillboardSet->setRenderQueueGroup(queueID);
+	}
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------

@@ -432,6 +432,7 @@ AC_DEFUN([OGRE_CHECK_CEGUI], [
             [build_cegui_sample=true], [build_cegui_sample=false])
     if test x$build_cegui_sample = xtrue; then
         AC_CONFIG_FILES([Samples/Common/CEGUIRenderer/Makefile \
+                         Samples/Common/CEGUIRenderer/CEGUI-OGRE.pc
                          Samples/Common/CEGUIRenderer/src/Makefile \
                          Samples/Common/CEGUIRenderer/include/Makefile \
                          Samples/Gui/Makefile \

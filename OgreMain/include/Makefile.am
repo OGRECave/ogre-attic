@@ -106,6 +106,7 @@ OgreParticleEmitterFactory.h \
 OgreParticleIterator.h \
 OgreParticleSystem.h \
 OgreParticleSystemManager.h \
+OgreParticleSystemRenderer.h \
 OgrePass.h \
 OgrePatchMesh.h \
 OgrePatchSurface.h \
