@@ -29,6 +29,8 @@ OgreEntity.h \
 OgreErrorDialog.h \
 OgreException.h \
 OgreFactoryObj.h \
+OgreFont.h \
+OgreFontManager.h \
 OgreFrameListener.h \
 OgreGeometryData.h \
 OgreGuiContainer.h \
@@ -117,7 +119,6 @@ OgreSubEntity.h \
 OgreSubMesh.h \
 OgreTGACodec.h \
 OgreTexture.h \
-OgreTextureFont.h \
 OgreTextureManager.h \
 OgreVector3.h \
 OgreVertexBoneAssignment.h \
