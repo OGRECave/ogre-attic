@@ -83,8 +83,7 @@ namespace Ogre {
                     return;
                 }
                 // Check fragment program version
-                if (!GpuProgramManager::getSingleton().isSyntaxSupported(
-                    currPass->getFragmentProgram()->getSyntaxCode() ))
+                if (!currPass->getFragmentProgram()->isSupported())
                 {
                     // Can't do this one
                     return;
@@ -127,8 +126,7 @@ namespace Ogre {
             if (currPass->hasVertexProgram())
             {
                 // Check vertex program version
-                if (!GpuProgramManager::getSingleton().isSyntaxSupported(
-                    currPass->getVertexProgram()->getSyntaxCode() ))
+                if (!currPass->getVertexProgram()->isSupported() )
                 {
                     // Can't do this one
                     return;

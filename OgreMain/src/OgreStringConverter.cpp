@@ -150,6 +150,22 @@ namespace Ogre {
         return stream.str();
     }
     //-----------------------------------------------------------------------
+    String StringConverter::toString(const StringVector& val)
+    {
+        String::StrStreamType stream;
+        StringVector::const_iterator i, iend, ibegin;
+        ibegin = val.begin();
+        iend = val.end();
+        for (i = ibegin; i != iend; ++i)
+        {
+            if (i != ibegin)
+                stream << " ";
+
+            stream << *i; 
+        }
+        return stream.str();
+    }
+    //-----------------------------------------------------------------------
     Real StringConverter::parseReal(const String& val)
     {
         return atof(val.c_str());
@@ -266,6 +282,11 @@ namespace Ogre {
         {
             return ColourValue::Black;
         }
+    }
+    //-----------------------------------------------------------------------
+    StringVector StringConverter::parseStringVector(const String& val)
+    {
+        return val.split();
     }
 }
 

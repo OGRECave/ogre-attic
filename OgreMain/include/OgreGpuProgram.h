@@ -466,6 +466,9 @@ namespace Ogre {
             the program which is bound to the pipeline to a delegate, if required. */
         virtual GpuProgram* _getBindingDelegate(void) { return this; }
 
+        /** Returns whether this program can be supported on the current renderer and hardware. */
+        virtual bool isSupported(void);
+
     protected:
         /// Virtual method which must be implemented by subclasses, load from mSource
         virtual void loadFromSource(void) = 0;

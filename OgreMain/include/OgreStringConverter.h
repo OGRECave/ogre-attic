@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 #include "OgreString.h"
+#include "OgreStringVector.h"
 
 namespace Ogre {
 
@@ -92,6 +93,12 @@ namespace Ogre {
             Format is "r g b a" (i.e. 4x Real values, space delimited). 
         */
         static String toString(const ColourValue& val);
+        /** Converts a StringVector to a string.
+        @remarks
+            Strings must not contain spaces since space is used as a delimeter in
+            the output.
+        */
+        static String toString(const StringVector& val);
 
         /** Converts a String to a Real. 
         @returns
@@ -155,6 +162,12 @@ namespace Ogre {
         */
         static ColourValue parseColourValue(const String& val);
 
+        /** Pareses a StringVector from a string.
+        @remarks
+            Strings must not contain spaces since space is used as a delimeter in
+            the output.
+        */
+        static StringVector parseStringVector(const String& val);
     };
 
 

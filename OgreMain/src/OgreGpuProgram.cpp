@@ -75,6 +75,12 @@ namespace Ogre
         mIsLoaded = true;
     }
 	//-----------------------------------------------------------------------------
+    bool GpuProgram::isSupported(void)
+    {
+        return GpuProgramManager::getSingleton().isSyntaxSupported(mSyntaxCode);
+    }
+	//-----------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------
 	void GpuProgramParameters::setConstant(size_t index, Real val)
 	{
 		setConstant(index, &val, 1);

@@ -174,6 +174,8 @@ namespace Ogre {
         mBMPCodec = new BMPCodec;
         Codec::registerCodec( mBMPCodec );
 
+        mHighLevelGpuProgramManager = new HighLevelGpuProgramManager();
+
         // Auto window
         mAutoWindow = 0;
 
@@ -190,7 +192,6 @@ namespace Ogre {
 
         // Can't create managers until initialised
         mControllerManager = 0;
-        mHighLevelGpuProgramManager = 0;
 
 
         // Seed random number generator for future use
@@ -440,7 +441,6 @@ namespace Ogre {
 
         mAutoWindow =  mActiveRenderer->initialise(autoCreateWindow);
 
-        mHighLevelGpuProgramManager = new HighLevelGpuProgramManager();
         // Parse all material scripts
         mMaterialManager->parseAllSources();
 

@@ -29,9 +29,38 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreHighLevelGpuProgram.h"
 
 namespace Ogre {
+    /** Specialisation of HighLevelGpuProgram to provide support for nVidia's CG language.
+    @remarks
+        Cg can be used to compile common, high-level, C-like code down to assembler
+        language for both GL and Direct3D, for multiple graphics cards. You must
+        supply a list of profiles which your program must support using
+        setProfiles() before the program is loaded in order for this to work. The
+        program will then negotiate with the renderer to compile the appropriate program
+        for the API and graphics card capabilities.
+    */
     class CgProgram : public HighLevelGpuProgram
     {
+    public:
+        /// Command object for setting entry point
+        class CmdEntryPoint : public ParamCommand
+        {
+        public:
+            String doGet(void* target);
+            void doSet(void* target, const String& val);
+        };
+        /// Command object for setting profiles
+        class CmdProfiles : public ParamCommand
+        {
+        public:
+            String doGet(void* target);
+            void doSet(void* target, const String& val);
+        };
+
     protected:
+
+        static CmdEntryPoint msCmdEntryPoint;
+        static CmdProfiles msCmdProfiles;
+
         /// The CG context to use, passed in by factory
         CGcontext mCgContext;
         /// Program handle
@@ -60,6 +89,16 @@ namespace Ogre {
             CGcontext context);
         ~CgProgram();
 
+        /** Sets the entry point for this program ie the first method called. */
+        void setEntryPoint(const String& entryPoint) { mEntryPoint = entryPoint; }
+        /** Gets the entry point defined for this program. */
+        const String& getEntryPoint(void) { return mEntryPoint; }
+        /** Sets the Cg profiles which can be supported by the program. */
+        void setProfiles(const StringVector& profiles);
+        /** Gets the Cg profiles which can be supported by the program. */
+        const StringVector& getProfiles(void) { return mProfiles; }
+        /// Overridden from GpuProgram
+        bool isSupported(void);
     };
 }
 
