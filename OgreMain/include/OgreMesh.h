@@ -91,6 +91,8 @@ namespace Ogre {
 			String manualName;
 			/// Hard link to mesh to avoid looking up each time
 			mutable Mesh* manualMesh;
+            /// Edge list for this LOD level (may be derived from manual mesh)
+            EdgeData* edgeData;
 		};
 
 		typedef std::vector<Real> LodDistanceList;
@@ -160,9 +162,8 @@ namespace Ogre {
 		bool mIndexBufferShadowBuffer;
 
 
-        EdgeData* mEdgeData;
         bool mPreparedForShadowVolumes;
-
+        bool mEdgeListsBuilt;
 
     public:
         /** Default constructor - used by MeshManager
@@ -533,6 +534,8 @@ namespace Ogre {
             among other things.
         */
         void buildEdgeList(void);
+        /** Destroys and frees the edge lists this mesh has built. */
+        void freeEdgeList(void);
 
         /** This method prepares the mesh for generating a renderable shadow volume. 
         @remarks
@@ -558,8 +561,9 @@ namespace Ogre {
         @remarks
             You must ensure that the Mesh as been prepared for shadow volume 
             rendering if you intend to use this information for that purpose.
+        @lodIndex The LOD at which to get the edge list, 0 being the highest.
         */
-        EdgeData* getEdgeList(void);
+        EdgeData* getEdgeList(unsigned int lodIndex = 0);
 
         /** Returns whether this mesh has already had it's geometry prepared for use in 
             rendering shadow volumes. */

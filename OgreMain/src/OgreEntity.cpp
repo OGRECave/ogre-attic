@@ -89,8 +89,10 @@ namespace Ogre {
 			{
 				SubEntityList* sublist = new SubEntityList();
 				const Mesh::MeshLodUsage& usage = mesh->getLodLevel(i);
-				buildSubEntityList(usage.manualMesh, sublist);
-				mLodSubEntityList.push_back(sublist);
+                // Manually create entity
+                Entity* lodEnt = new Entity(name + "Lod" + StringConverter::toString(i), 
+                    usage.manualMesh, mCreatorSceneManager);
+				mLodEntityList.push_back(lodEnt);
 			}
 
 		}
@@ -137,20 +139,13 @@ namespace Ogre {
 			// Delete SubEntity
             delete *i;
         }
-		// Delete LOD submeshes
-		LODSubEntityList::iterator li, liend;
-		liend = mLodSubEntityList.end();
-		for (li = mLodSubEntityList.begin(); li != liend; ++li)
+		// Delete LOD entities
+		LODEntityList::iterator li, liend;
+		liend = mLodEntityList.end();
+		for (li = mLodEntityList.begin(); li != liend; ++li)
 		{
-			iend = (*li)->end();
-			for (i = (*li)->begin(); i != iend; ++i)
-			{
-				// Delete SubEntity
-				delete *i;
-			}
-			// Delete SubMeshList itself
+			// Delete 
 			delete (*li);
-
 		}
 		if (mBoneMatrices)
             delete [] mBoneMatrices;
@@ -308,25 +303,21 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Entity::_updateRenderQueue(RenderQueue* queue)
     {
-		SubEntityList* subEntList;
         // Check we're not using a manual LOD
 		if (mMeshLodIndex > 0 && mMesh->isLodManual())
 		{
-			// Use alternate subentities
-			assert( static_cast< size_t >( mMeshLodIndex - 1 ) < mLodSubEntityList.size() && 
-				"No LOD SubEntityList - did you build the manual LODs after creating the entity?");
+			// Use alternate entity
+			assert( static_cast< size_t >( mMeshLodIndex - 1 ) < mLodEntityList.size() && 
+				"No LOD EntityList - did you build the manual LODs after creating the entity?");
 			// index - 1 as we skip index 0 (original lod)
-			subEntList = mLodSubEntityList[mMeshLodIndex - 1];
-		}
-		else
-		{
-			subEntList = &mSubEntityList;
+			mLodEntityList[mMeshLodIndex - 1]->_updateRenderQueue(queue);
+            return;
 		}
 
 		// Add each visible SubEntity to the queue
         SubEntityList::iterator i, iend;
-        iend = subEntList->end();
-        for (i = subEntList->begin(); i != iend; ++i)
+        iend = mSubEntityList.end();
+        for (i = mSubEntityList.begin(); i != iend; ++i)
         {
           if((*i)->isVisible())  
             queue->addRenderable(*i, mRenderQueueID, RENDERABLE_DEFAULT_PRIORITY);
@@ -718,7 +709,7 @@ namespace Ogre {
     EdgeData* Entity::getEdgeList(void)
     {
         // Get from Mesh
-        return mMesh->getEdgeList();
+        return mMesh->getEdgeList(mMeshLodIndex);
     }
     //-----------------------------------------------------------------------
     void Entity::reevaluateVertexProcessing(void)
@@ -779,6 +770,15 @@ namespace Ogre {
         assert((*indexBuffer)->getType() == HardwareIndexBuffer::IT_16BIT && 
             "Only 16-bit indexes supported for now");
 
+        // Potentially delegate to LOD entity
+        if (mMesh->isLodManual() && mMeshLodIndex > 0)
+        {
+            // delegate, we're using manual LOD and not the top lod index
+            return mLodEntityList[mMeshLodIndex-1]->getShadowVolumeRenderableIterator(
+                shadowTechnique, light, indexBuffer, extrude, 
+                extrusionDistance, flags);
+        }
+        
         bool hasSkeleton = this->hasSkeleton();
 
 
@@ -931,6 +931,19 @@ namespace Ogre {
         Except(Exception::ERR_ITEM_NOT_FOUND, 
             "Cannot find blended version of the vertex data specified.",
             "Entity::findBlendedVertexData");
+    }
+    //-----------------------------------------------------------------------
+    void Entity::_notifyAttached(Node* parent, bool isTagPoint)
+    {
+        MovableObject::_notifyAttached(parent, isTagPoint);
+        // Also notify LOD entities
+        LODEntityList::iterator i, iend;
+        iend = mLodEntityList.end();
+        for (i = mLodEntityList.begin(); i != iend; ++i)
+        {
+            (*i)->_notifyAttached(parent, isTagPoint);
+        }
+
     }
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
