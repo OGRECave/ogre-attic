@@ -66,7 +66,7 @@ namespace Ogre {
 		void changeChild(GuiElement* e, Real add);
 
 	public :
-		const String& getTypeName(void);
+		const String& getTypeName(void) const;
 	    void addBaseParameters(void);
 
 		BorderButtonGuiElement(const String& name);

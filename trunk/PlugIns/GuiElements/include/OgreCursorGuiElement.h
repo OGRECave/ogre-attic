@@ -70,7 +70,7 @@ namespace Ogre {
 	public :
 		CursorGuiElement(const String& name);
 
-		const String& getTypeName(void);
+		const String& getTypeName(void) const;
 
         /** Inherited from PanelGuiElement, should only be called from the OverlayManager */
         void show(void);

@@ -66,7 +66,7 @@ namespace Ogre
     protected:
 
         /// Internal methods
-        void parseAttribute(String& line, Font* pFont);
+        void parseAttribute(const String& line, Font* pFont);
 
         void logBadAttrib(const String& line, Font* pFont);
 

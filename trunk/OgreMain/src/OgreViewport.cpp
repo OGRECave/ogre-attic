@@ -222,7 +222,7 @@ namespace Ogre {
         mShowOverlays = enabled;
     }
     //---------------------------------------------------------------------
-    bool Viewport::getOverlaysEnabled(void)
+    bool Viewport::getOverlaysEnabled(void) const
     {
         return mShowOverlays;
     }

@@ -762,7 +762,7 @@ namespace Ogre {
             );
     }
     //---------------------------------------------------------------------
-    const String& BorderPanelGuiElement::getTypeName(void)
+    const String& BorderPanelGuiElement::getTypeName(void) const
     {
         return msTypeName;
     }

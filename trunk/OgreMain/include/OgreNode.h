@@ -380,7 +380,7 @@ namespace Ogre {
 
         /** Gets a matrix whose columns are the local axes based on
             the nodes orientation relative to it's parent. */
-        virtual Matrix3 getLocalAxes(void);
+        virtual Matrix3 getLocalAxes(void) const;
 
         /** Creates an unnamed new Node as a child of this node.
         @param

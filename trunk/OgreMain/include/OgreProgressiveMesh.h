@@ -135,8 +135,8 @@ namespace Ogre {
             void setDetails(size_t index, PMFaceVertex *v0, PMFaceVertex *v1, PMFaceVertex *v2);
 	        void computeNormal(void);
 	        void replaceVertex(PMFaceVertex *vold, PMFaceVertex *vnew);
-	        bool  hasCommonVertex(PMVertex *v);
-	        bool  hasFaceVertex(PMFaceVertex *v);
+	        bool hasCommonVertex(PMVertex *v) const;
+	        bool hasFaceVertex(PMFaceVertex *v) const;
 			PMFaceVertex* getFaceVertexFromCommon(PMVertex* commonVert);
 	        void notifyRemoved(void);
 

@@ -127,7 +127,7 @@ namespace Ogre {
         return mTransparent;
     }
     //---------------------------------------------------------------------
-    const String& PanelGuiElement::getTypeName(void)
+    const String& PanelGuiElement::getTypeName(void) const
     {
         return msTypeName;
     }

@@ -37,7 +37,7 @@ namespace Ogre
     {
         return 0;
     }
-    const String& UserDefinedObject::getTypeName(void)
+    const String& UserDefinedObject::getTypeName(void) const
     {
         static String sName("Unspecified");
         return sName;

@@ -90,7 +90,7 @@ namespace Ogre {
 
         /** Retrieves info about the size of the resource.
         */
-        virtual size_t getSize(void) 
+        virtual size_t getSize(void) const
         { 
             return mSize; 
         }

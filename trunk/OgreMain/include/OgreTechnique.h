@@ -55,7 +55,7 @@ namespace Ogre {
             This will only be correct after the Technique has been compiled, which is
             usually done from Material::compile.
         */
-        bool isSupported(void);
+        bool isSupported(void) const;
         /** Internal compilation method; see Material::compile. */
         void _compile(bool autoManageTextureUnits);
 
@@ -73,7 +73,7 @@ namespace Ogre {
         /** Retrieves the Pass with the given index. */
         Pass* getPass(unsigned short index);
         /** Retrieves the number of passes. */
-        unsigned short getNumPasses(void);
+        unsigned short getNumPasses(void) const;
         /** Removes the Pass with the given index. */
         void removePass(unsigned short index);
         /** Removes all Passes from this Technique. */
@@ -82,7 +82,7 @@ namespace Ogre {
         /** Gets an iterator over the passes in this Technique. */
         const PassIterator getPassIterator(void);
         /// Gets the parent Material
-        Material* getParent(void) { return mParent; }
+        Material* getParent(void) const { return mParent; }
 
         /** Overloaded operator to copy on Technique to another. */
         Technique& operator=(const Technique& rhs);
@@ -95,7 +95,7 @@ namespace Ogre {
 			scene, may be used for blending, therefore we have to treat
 			the whole Technique as transparent.
 		*/
-		bool isTransparent(void);
+		bool isTransparent(void) const;
 
         /** Internal load method, derived from call to Material::load. */
         void _load(void);
@@ -103,7 +103,7 @@ namespace Ogre {
         void _unload(void);
 
         // Is this loaded?
-        bool isLoaded(void);
+        bool isLoaded(void) const;
 
         /** Tells the technique that it needs recompilation. */
         void _notifyNeedsRecompile(void);

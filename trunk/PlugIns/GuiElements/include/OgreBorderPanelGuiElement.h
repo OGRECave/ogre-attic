@@ -56,7 +56,7 @@ namespace Ogre {
 
         virtual void initialise(void);
 
-		const String& getTypeName(void);
+		const String& getTypeName(void) const;
         /** Sets the size of the border.
         @remarks
             This method sets a constant size for all borders. There are also alternative

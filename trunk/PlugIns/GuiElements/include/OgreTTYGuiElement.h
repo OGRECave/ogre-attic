@@ -108,7 +108,7 @@ namespace Ogre
         const String& getFontName() const;
 
         /** See GuiElement. */
-        virtual const String& getTypeName(void);
+        virtual const String& getTypeName(void) const;
         /** See Renderable. */
         void getRenderOperation(RenderOperation& op);
         /** Overridden from GuiElement */

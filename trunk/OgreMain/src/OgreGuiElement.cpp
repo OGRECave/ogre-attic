@@ -94,7 +94,7 @@ namespace Ogre {
         mVisible = false;
     }
     //---------------------------------------------------------------------
-    bool GuiElement::isVisible(void)
+    bool GuiElement::isVisible(void) const
     {
         return mVisible;
     }

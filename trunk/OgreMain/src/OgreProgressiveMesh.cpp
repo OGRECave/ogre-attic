@@ -742,14 +742,14 @@ namespace Ogre {
         removed = true;
     }
     //---------------------------------------------------------------------
-    bool ProgressiveMesh::PMTriangle::hasCommonVertex(ProgressiveMesh::PMVertex *v) 
+    bool ProgressiveMesh::PMTriangle::hasCommonVertex(ProgressiveMesh::PMVertex *v) const
     {
         return (v == vertex[0]->commonVertex ||
 			v == vertex[1]->commonVertex || 
 			v == vertex[2]->commonVertex);
     }
     //---------------------------------------------------------------------
-	bool ProgressiveMesh::PMTriangle::hasFaceVertex(ProgressiveMesh::PMFaceVertex *v)
+	bool ProgressiveMesh::PMTriangle::hasFaceVertex(ProgressiveMesh::PMFaceVertex *v) const
 	{
 		return (v == vertex[0] ||
 				v == vertex[1] || 

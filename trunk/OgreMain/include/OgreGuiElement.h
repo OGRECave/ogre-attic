@@ -187,7 +187,7 @@ namespace Ogre {
         virtual void hide(void);
 
         /** Returns whether or not the element is visible. */
-        bool isVisible(void);
+        bool isVisible(void) const;
 
         bool isEnabled() const;
         virtual void setEnabled(bool b);
@@ -289,7 +289,7 @@ namespace Ogre {
         virtual void _updateRenderQueue(RenderQueue* queue);
 
         /** Gets the type name of the element. All concrete subclasses must implement this. */
-        virtual const String& getTypeName(void) = 0;
+        virtual const String& getTypeName(void) const = 0;
 
         /** Sets the caption on elements that support it. 
         @remarks

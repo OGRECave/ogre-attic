@@ -240,7 +240,7 @@ namespace Ogre {
 	}
 
     //---------------------------------------------------------------------
-    const String& ScrollBarGuiElement::getTypeName(void)
+    const String& ScrollBarGuiElement::getTypeName(void) const
     {
         return msTypeName;
     }

@@ -80,7 +80,7 @@ namespace Ogre {
         return mZOrder;
     }
     //---------------------------------------------------------------------
-    bool Overlay::isVisible(void)
+    bool Overlay::isVisible(void) const
     {
         return mVisible;
     }

@@ -368,7 +368,7 @@ namespace Ogre {
         delete mRenderOp.vertexData;
     }
     //---------------------------------------------------------------------
-    const String& TextAreaGuiElement::getTypeName(void)
+    const String& TextAreaGuiElement::getTypeName(void) const
     {
         return msTypeName;
     }

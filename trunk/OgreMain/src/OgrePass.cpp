@@ -390,7 +390,7 @@ namespace Ogre {
         mMaxSimultaneousLights = maxLights;
     }
     //-----------------------------------------------------------------------
-    unsigned short Pass::getMaxSimultaneousLights(void)
+    unsigned short Pass::getMaxSimultaneousLights(void) const
     {
         return mMaxSimultaneousLights;
     }

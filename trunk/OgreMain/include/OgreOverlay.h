@@ -108,7 +108,7 @@ namespace Ogre {
         ushort getZOrder(void) const;
 
         /** Gets whether the overlay is displayed or not. */
-        bool isVisible(void);
+        bool isVisible(void) const;
 
         /** Shows the overlay if it was hidden. */
         void show(void);
