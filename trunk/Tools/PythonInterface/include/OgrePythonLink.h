@@ -63,6 +63,7 @@ void exportSubMesh(void);
 void exportLight(void);
 void exportMovableObject(void);
 void exportEntity(void);
+void exportNode(void);
 void exportSceneNode(void);
 void exportFrameListener(void)i;
 void exportNode(void);

@@ -37,6 +37,7 @@ BOOST_PYTHON_MODULE(Ogre)
     exportMovableObject();
     exportEntity();
     exportLight();
+    exportNode();
     exportSceneNode();
     exportFrameListener();
     exportAxisAlignedBox();

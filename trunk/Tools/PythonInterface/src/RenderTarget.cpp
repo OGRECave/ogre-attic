@@ -7,6 +7,8 @@
 using namespace boost::python;
 using namespace Ogre;
 
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(RT_addViewport_stub, addViewport, 1, 6)
+
 void exportRenderTarget()
 {
     scope in_rt(
@@ -18,7 +20,8 @@ void exportRenderTarget()
         .def("getHeight", &RenderTarget::getHeight)
         .def("getColourDepth", &RenderTarget::getColourDepth)
         .def("update", &RenderTarget::update)
-        .def("addViewport", &RenderTarget::addViewport, rir())
+        .def("addViewport", &RenderTarget::addViewport,
+            RT_addViewport_stub()[rir()])
         .def("getNumViewports", &RenderTarget::getNumViewports)
         .def("removeViewport", &RenderTarget::removeViewport)
         .def("removeAllViewports", &RenderTarget::removeAllViewports)

@@ -9,7 +9,8 @@ using namespace Ogre;
 
 void exportColourValue()
 {
-    object cv = class_<ColourValue>("ColourValue", init<Real,Real,Real,Real>())
+    object cv = class_<ColourValue>("ColourValue",
+        init<optional<Real,Real,Real,Real> >())
         .def_readwrite("r", &ColourValue::r)
         .def_readwrite("g", &ColourValue::g)
         .def_readwrite("b", &ColourValue::b)

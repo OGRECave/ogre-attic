@@ -12,6 +12,7 @@ void exportEntity()
     class_<Entity, bases<MovableObject> >("Entity", no_init)
         .def("getMesh", &Entity::getMesh, rir())
         .def("getName", &Entity::getName, ccr())
+        .def("setMaterialName", &Entity::setMaterialName)
     ;
 }
 
