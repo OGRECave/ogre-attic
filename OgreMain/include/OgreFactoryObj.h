@@ -44,15 +44,12 @@ namespace Ogre {
         virtual String getType() = 0;
 
         /** 'Produces' a new object.
-            @param
-                nA First required parameter. It exists because the implementations
-                of createObj may need to get a pointer to the optional parameters
-                list.
+            @param name Name of the object to create
             @return
                 An object created by the factory. The type of the object depends on
                 the factory.
         */
-        virtual T* createObj( int nA, ... ) = 0;    
+        virtual T* createObj( const String& name ) = 0;    
     };
 
 } // namespace

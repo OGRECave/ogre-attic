@@ -38,15 +38,10 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    ArchiveEx *ZipArchiveFactory::createObj( int nA, ... )
+    ArchiveEx *ZipArchiveFactory::createObj( const String& name )
     {
-        va_list lst;
-        va_start( lst, nA );
+        return new Zip( name );
 
-        String * name = va_arg( lst, String* );
-        return new Zip( *name );
-
-        va_end( lst );
     }
 
     String ZipArchiveFactory::getType()
@@ -62,6 +57,9 @@ namespace Ogre {
 // (for more info, see http://www.cvshome.org/docs/manual/cvs_12.html#SEC103 )
 //
 // $Log$
+// Revision 1.6  2002/08/22 23:06:00  sinbad
+// Removed all va_arg use, no good for Linux and causes memory problems
+//
 // Revision 1.5  2002/08/22 14:52:14  cearny
 // Linux changes.
 //

@@ -49,7 +49,7 @@ namespace Ogre {
                 Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot find an archive factory "
                     "to deal with archive of type " + archiveType, "ArchiveManager::load");
 
-            pArch = it->second->createObj( 1, &filename );
+            pArch = it->second->createObj( filename );
 
             ResourceManager::load(pArch, priority);
         }
@@ -94,6 +94,9 @@ namespace Ogre {
 // (for more info, see http://www.cvshome.org/docs/manual/cvs_12.html#SEC103 )
 //
 // $Log$
+// Revision 1.4  2002/08/22 23:06:01  sinbad
+// Removed all va_arg use, no good for Linux and causes memory problems
+//
 // Revision 1.3  2002/08/22 14:52:12  cearny
 // Linux changes.
 //

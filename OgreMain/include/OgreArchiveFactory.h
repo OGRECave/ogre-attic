@@ -51,7 +51,7 @@ namespace Ogre {
     class _OgreExport ArchiveFactory : public FactoryObj< ArchiveEx >
     {
     public:
-        virtual ArchiveEx *createObj( int nA, ... ) = 0;
+        virtual ArchiveEx *createObj(const String& name ) = 0;
         virtual String getType() = 0;
     };
 
