@@ -10,7 +10,7 @@
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 <DIV>
 <H1>Blender to Ogre Exporter</H1>
-Blender is an open source 3D content creation suite for modeling, animation, rendering and video post production. The Blender to Ogre Exporter is a python script to run directly within blender. Currently it supports the export of 
+Blender is an open source 3D content creation suite for modeling, animation, rendering and video post production. The Blender to Ogre Exporter is a python script to run directly within Blender. Currently it supports the export of 
 <UL>
 <LI>mesh objects with multiple materials, uv textures and blend modes,</LI>
 <LI>armature keyframe animations.</LI>
@@ -77,7 +77,7 @@ You will get a detailed log of the export process. Use the OgreXmlConverter to c
 <DT>Update</DT>
 <DD>Updates the list of all objects selected for export from the currently selected objects in the "3D View". Also updates the list of possible actions, deletes animations for removed actions and sets default animations for new actions.</DD>
 <DT>Path</DT>
-<DD>All generated files of the exporter are written into this directory. Mesh files are named after the mesh object name in blender with suffix ".mesh.xml". Skeleton files are named after the armature object name in blender with suffix ".skeleton.xml".</DD>
+<DD>All generated files of the exporter are written into this directory. Mesh files are named after the mesh object name in Blender with suffix ".mesh.xml". Skeleton files are named after the armature object name in Blender with suffix ".skeleton.xml".</DD>
 <DT>Export</DT>
 <DD>Export all objects in the list of objects selected for export.</DD>
 <DT>Quit</DT>
@@ -94,7 +94,7 @@ The script loads and saves its options to a file named after the current .blend 
 <P> The script does not support double sided faces (Double Sided/Two Sided). To make a face double sided, select the face in the "Edit Mode", duplicate it ("Mesh -> Duplicate", RMB) and flip the normals ("Mesh -> Normals -> Flip").</P>
 <H3>Material</H3>
 <P>
-In contrast to Ogre, Blender treats material, uv texture and blend mode separately. Therefore, the name of the exported material consists of blender's material name (if any), the blend mode and the name of the texture file (if any). The parts of the name are separated with slashs. Only textures assigned in the "UV/Image Editor" will be exported. You don't need to assign a material to a mesh in order to export uv textures. The following mapping is done on export:
+In contrast to Ogre, Blender treats material, uv texture and blend mode separately. Therefore, the name of the exported material consists of Blender's material name (if any), the blend mode and the name of the texture file (if any). The parts of the name are separated with slashs. Only textures assigned in the "UV/Image Editor" will be exported. You don't need to assign a material to a mesh in order to export uv textures. The following mapping is done on export:
 </P>
 <H4>Material Specific</H4>
 <TABLE>
@@ -194,10 +194,13 @@ Blender's face settings that affect the exported Ogre material are marked green.
 You must have no more than four weighted bone assignments per mesh vertex. If you have more, the script will eliminate the lowest weighted assignments and renormalise the other weights. All vertices must be assigned to at least one bone.
 </P>
 <P>
-Armature animations are exported based upon keyframe ranges and action names. Action ipos are associated with bones according to their names. Therefore make sure all bone names of all armature objects are unique. Actions need channels for all bones in order to get exported. You can choose any frame as start and end frame of an animation. The script will automatically insert keyframes at the start and end of the exported animation and reverse the exported animation if the end frame is lesser than the start frame. In order to export armature animations of a mesh you don't have to select the armature separately.
+Armature animations are exported based upon keyframe ranges and action names. You can choose any frame as start and end frame of an animation. The script will automatically insert keyframes at the start and end of the exported animation and reverse the exported animation if the end frame is lesser than the start frame. In order to export armature animations of a mesh you don't have to select the armature separately.
 </P>
 <P>
 The script does not evaluate action constraints. To export an action with constraints you have to convert the constraint effects into ipo keys ("Action Editor -> Bake") and choose the baked action in the animation settings.
+</P>
+Ogre does not support nonuniform keyframe scaling. Ogre does not inherit parent bone scaling by default.
+<P>
 </P>
 The animation speed in the export in terms of frames per second is taken from the corresponding scene render button.
 <P>
