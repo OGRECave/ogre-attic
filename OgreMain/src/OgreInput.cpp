@@ -36,6 +36,7 @@ namespace Ogre {
     InputReader::InputReader()
     {
 		mCursor = 0;
+		mModifiers = 0;
 		mEventQueue = 0;
 		mUseBufferedKeys = false;
 		mUseBufferedMouse = false;
