@@ -128,11 +128,7 @@ namespace Ogre {
         for (int i = 0; mVideoModes[i]; i++)
         {
             char szBuf[16];
-#if OGRE_COMPILER == COMPILER_MSVC
-            _snprintf(szBuf, 16, "%d x %d", mVideoModes[i]->w, mVideoModes[i]->h);
-#else
             snprintf(szBuf, 16, "%d x %d", mVideoModes[i]->w, mVideoModes[i]->h);
-#endif
             optVideoMode.possibleValues.push_back(szBuf);
             // Make the first one default
             if (i == 0)
