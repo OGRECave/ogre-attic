@@ -76,7 +76,7 @@ namespace Ogre {
         virtual GuiElement* getChild(const String& name);
 
         void _addChild(GuiElement* elem);
-        void _removeChild(GuiElement* elem) { return _removeChild(elem->getName()); }
+        void _removeChild(GuiElement* elem) { _removeChild(elem->getName()); }
         void _removeChild(const String& name);
 
         /** Gets an object for iterating over all the children of this object. */

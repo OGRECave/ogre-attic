@@ -173,7 +173,7 @@ namespace Ogre
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
 	FloatGpuParameterControllerValue::FloatGpuParameterControllerValue(
-			GpuProgramParametersSharedPtr params, size_t index) :
+			GpuProgramParameters* params, size_t index) :
 		mParams(params), mParamIndex(index)
 	{
 	}

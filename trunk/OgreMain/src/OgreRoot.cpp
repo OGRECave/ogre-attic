@@ -248,14 +248,16 @@ namespace Ogre {
         delete mMeshManager;
         delete mMaterialManager;        
         delete mParticleManager;
+
+        if( mControllerManager )
+            delete mControllerManager;
         if (mHighLevelGpuProgramManager)
             delete mHighLevelGpuProgramManager;
+
 
         unloadPlugins();
 
 
-        if( mControllerManager )
-            delete mControllerManager;
 
         mPlatformManager->destroyTimer(mTimer);
         delete mPlatformManager;

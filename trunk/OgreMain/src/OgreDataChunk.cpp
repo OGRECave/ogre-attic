@@ -49,14 +49,17 @@ namespace Ogre {
 
         if( mData )
             delete [] mData;
-
-        mData = new uchar[size];
-        mSize = size;
+        // Always allocate 1 additional byte, which we set to zero
+        // This is to ensure that string chunks are always null-terminated
+        mSize = size + 1;
+        mData = new uchar[mSize];
         mPos = mData;
-        mEnd = mData + size;
+        mEnd = mData + mSize;
 
         if( ptr )
-            memcpy( mData, ptr, mSize );
+            memcpy( mData, ptr, size );
+
+        mData[mSize-1] = '\0';
 
         return mData;
     }
