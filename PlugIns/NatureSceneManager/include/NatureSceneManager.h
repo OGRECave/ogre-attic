@@ -41,11 +41,14 @@ public:
     virtual void _updateSceneGraph(Camera *cam); 
     IntersectionSceneQuery* createIntersectionQuery(unsigned long mask);
 
+	void clearScene(void);
+
 private:
     SceneNode	    *mNatureRoot;
     // Passthrough call to allow queries to access parent protected entity list
     EntityList& getEntities() { return mEntities; }
 
+	void flushWorldGeometry(void);
     NaturePatchManager *mNaturePatchManager;
     NaturePatchLoader  *mNaturePatchLoader;
 };

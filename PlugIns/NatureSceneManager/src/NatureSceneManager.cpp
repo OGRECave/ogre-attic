@@ -45,7 +45,10 @@ NatureSceneManager::~NatureSceneManager()
 
 void NatureSceneManager::setWorldGeometry (const String &filename)
 {
-    if (!mNatureRoot)
+	// If already instanstiated then flush existing world geometry out of memory
+	flushWorldGeometry();
+
+	if (!mNatureRoot)
     {
 	    mNatureRoot = static_cast<SceneNode*>(getRootSceneNode()->createChild("NaturePluginRoot"));
     }
@@ -93,6 +96,30 @@ bool NatureSceneManager::setOption(const String& strKey, const void *pValue)
     return false;
 }
 
+//----------------------------------------------------------------------------
+
+void NatureSceneManager::clearScene(void)
+{
+	flushWorldGeometry();
+
+	SceneManager::clearScene();
+}
+//----------------------------------------------------------------------------
+
+void NatureSceneManager::flushWorldGeometry()
+{
+    if (mNaturePatchManager != 0)
+	{
+		delete mNaturePatchManager;
+		mNaturePatchManager = 0;
+	}
+
+    if (mNaturePatchLoader != 0)
+	{
+		delete mNaturePatchLoader;
+		mNaturePatchLoader = 0;
+	}
+}
 //----------------------------------------------------------------------------
 
 void NatureSceneManager::_renderVisibleObjects()
