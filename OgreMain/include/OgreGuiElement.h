@@ -189,7 +189,7 @@
         /** Returns whether or not the element is visible. */
         bool isVisible(void);
 
-		bool isEnabled();
+		bool isEnabled() const;
 		virtual void setEnabled(bool b);
 
 
@@ -251,10 +251,10 @@
         const Vector3& getWorldPosition(void) const;
 
         /** See Renderable */
-        bool useIdentityProjection(void);
+        bool useIdentityProjection(void) const;
 
         /** See Renderable */
-        bool useIdentityView(void);
+        bool useIdentityView(void) const;
 
 		/** Tell the object to recalculate */
 		virtual void _positionsOutOfDate(void);
@@ -325,7 +325,7 @@
         */
         virtual void setMetricsMode(GuiMetricsMode gmm);
         /** Retrieves the current settings of how the element metrics are interpreted. */
-        virtual GuiMetricsMode getMetricsMode(void);
+        virtual GuiMetricsMode getMetricsMode(void) const;
         /** Sets the horizontal origin for this element.
         @remarks
             By default, the horizontal origin for a GuiElement is the left edge of the parent container
@@ -343,7 +343,7 @@
         */
         virtual void setHorizontalAlignment(GuiHorizontalAlignment gha);
         /** Gets the horizontal alignment for this element. */
-        virtual GuiHorizontalAlignment getHorizontalAlignment(void);
+        virtual GuiHorizontalAlignment getHorizontalAlignment(void) const;
         /** Sets the vertical origin for this element. 
         @remarks
             By default, the vertical origin for a GuiElement is the top edge of the parent container
@@ -361,7 +361,7 @@
           */
           virtual void setVerticalAlignment(GuiVerticalAlignment gva);
           /** Gets the vertical alignment for this element. */
-          virtual GuiVerticalAlignment getVerticalAlignment(void);
+          virtual GuiVerticalAlignment getVerticalAlignment(void) const;
   
   
   
@@ -381,13 +381,13 @@
     		/**
     		 * returns false as this class is not a container type 
     		 */
-    		inline virtual bool isContainer()
+    		inline virtual bool isContainer() const
     		{ return false; }
     
   		inline virtual bool isKeyEnabled()
   		{ return false; }
   
-    		inline virtual bool isCloneable()
+    		inline virtual bool isCloneable() const
     		{ return mCloneable; }
     
     		inline virtual void setCloneable(bool c)

@@ -100,11 +100,11 @@ namespace Ogre {
         virtual void _updateRenderQueue(RenderQueue* queue);
 
         /** Overridden from GuiElement. */
-		inline bool isContainer()
+		inline bool isContainer() const
 		{ return true; }
 
 		/** Should this container pass events to their children */
-		virtual inline bool isChildrenProcessEvents()
+		virtual inline bool isChildrenProcessEvents() const
 		{ return true; }
 
 		/** Should this container pass events to their children */

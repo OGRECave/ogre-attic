@@ -113,7 +113,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    unsigned short SubEntity::getNumWorldTransforms(void)
+    unsigned short SubEntity::getNumWorldTransforms(void) const
     {
         if (!mParentEntity->mNumBoneMatrices)
             return 1;
@@ -128,7 +128,7 @@ namespace Ogre {
         return n->getSquaredViewDepth(cam);
     }
     //-----------------------------------------------------------------------
-    bool SubEntity::getNormaliseNormals(void) 
+    bool SubEntity::getNormaliseNormals(void) const
     {
         return mParentEntity->mNormaliseNormals;
     }

@@ -91,7 +91,7 @@ namespace Ogre {
 	}
 
     //-----------------------------------------------------------------------
-	bool GuiControl::isPressed()
+	bool GuiControl::isPressed() const
 	{ 
 		return mPressed;
 	}
@@ -103,7 +103,7 @@ namespace Ogre {
 	}
 
     //-----------------------------------------------------------------------
-	bool GuiControl::isEnabled()
+	bool GuiControl::isEnabled() const
 	{ 
 		return mEnabled;
 	}
@@ -125,7 +125,7 @@ namespace Ogre {
 	}
 
     //-----------------------------------------------------------------------
-	bool GuiControl::isMouseWithin()
+	bool GuiControl::isMouseWithin() const
 	{ 
 		return mMouseWithin;
 	}

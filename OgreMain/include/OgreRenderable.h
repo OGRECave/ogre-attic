@@ -95,7 +95,7 @@ namespace Ogre {
             If a renderable does not use vertex blending this method returns 1, which is the default for 
             simplicity.
         */
-        virtual unsigned short getNumWorldTransforms(void) { return 1; }
+        virtual unsigned short getNumWorldTransforms(void) const { return 1; }
 
         /** Returns whether or not to use an 'identity' projection.
         @remarks
@@ -105,7 +105,7 @@ namespace Ogre {
             a {-1, 1} view space. Useful for overlay rendering. Normal renderables need
             not override this.
         */
-        virtual bool useIdentityProjection(void) { return false; }
+        virtual bool useIdentityProjection(void) const { return false; }
 
         /** Returns whether or not to use an 'identity' projection.
         @remarks
@@ -115,7 +115,7 @@ namespace Ogre {
             to be relative to camera space already. Useful for overlay rendering. 
             Normal renderables need not override this.
         */
-        virtual bool useIdentityView(void) { return false; }
+        virtual bool useIdentityView(void) const { return false; }
 
 		/** Returns the camera-relative squared depth of this renderable.
 		@remarks
@@ -126,10 +126,10 @@ namespace Ogre {
 
         /** Returns the preferred rasterisation mode of this renderable.
         */
-        virtual SceneDetailLevel getRenderDetail(){return SDL_SOLID;} 
+        virtual SceneDetailLevel getRenderDetail() const {return SDL_SOLID;} 
 
         /** Returns whether or not this Renderable wishes the hardware to normalise normals. */
-        virtual bool getNormaliseNormals(void) { return false; }
+        virtual bool getNormaliseNormals(void) const { return false; }
 
 
     };

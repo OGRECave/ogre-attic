@@ -71,13 +71,13 @@ namespace Ogre {
 		String getActionCommand();
 		void setActionCommand(const String& action);
 
-		bool isPressed();
+		bool isPressed() const;
 		virtual void setPressed(bool b);
 
-		bool isEnabled();
+		bool isEnabled() const;
 		virtual void setEnabled(bool b);
 
-		bool isMouseWithin();
+		bool isMouseWithin() const;
 		virtual void setMouseWithin(bool b);
     };
 }

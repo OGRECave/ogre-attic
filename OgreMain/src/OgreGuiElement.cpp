@@ -275,12 +275,12 @@ namespace Ogre {
         return mOverlay->getWorldPosition();
     }
     //---------------------------------------------------------------------
-    bool GuiElement::useIdentityProjection(void)
+    bool GuiElement::useIdentityProjection(void) const
     {
         return true;
     }
     //---------------------------------------------------------------------
-    bool GuiElement::useIdentityView(void)
+    bool GuiElement::useIdentityView(void) const
     {
         return true;
     }
@@ -499,7 +499,7 @@ namespace Ogre {
         _positionsOutOfDate();
     }
     //-----------------------------------------------------------------------
-    GuiMetricsMode GuiElement::getMetricsMode(void)
+    GuiMetricsMode GuiElement::getMetricsMode(void) const
     {
         return mMetricsMode;
     }
@@ -510,7 +510,7 @@ namespace Ogre {
         _positionsOutOfDate();
     }
     //-----------------------------------------------------------------------
-    GuiHorizontalAlignment GuiElement::getHorizontalAlignment(void)
+    GuiHorizontalAlignment GuiElement::getHorizontalAlignment(void) const
     {
         return mHorzAlign;
     }
@@ -521,7 +521,7 @@ namespace Ogre {
         _positionsOutOfDate();
     }
     //-----------------------------------------------------------------------
-    GuiVerticalAlignment GuiElement::getVerticalAlignment(void)
+    GuiVerticalAlignment GuiElement::getVerticalAlignment(void) const
     {
         return mVertAlign;
     }
@@ -590,7 +590,7 @@ namespace Ogre {
 	}
 
     //-----------------------------------------------------------------------
-	bool GuiElement::isEnabled()
+	bool GuiElement::isEnabled() const
 	{ 
 		return mEnabled;
 	}
