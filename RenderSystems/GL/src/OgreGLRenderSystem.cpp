@@ -47,6 +47,9 @@ namespace Ogre {
 
         // Get our GLSupport
         mGLSupport = getGLSupport();
+
+        // instanciate RenderSystemCapabilities
+        mCapabilities = new RenderSystemCapabilities;
         
         for( i=0; i<MAX_LIGHTS; i++ )
             mLights[i] = NULL;
@@ -79,8 +82,10 @@ namespace Ogre {
         }
         mRenderTargets.clear();
 
-		if (mTextureManager)
-			delete mTextureManager;
+        if (mTextureManager)
+            delete mTextureManager;
+
+        delete mCapabilities;
         delete mGLSupport;
     }
 
@@ -126,6 +131,65 @@ namespace Ogre {
             "***************************\n"
             "*** GL Renderer Started ***\n"
             "***************************");
+
+        LogManager::getSingleton().logMessage(
+            "The following extensions are available:");
+
+        // Check for hardware mipmapping support
+        if(mGLSupport->checkMinGLVersion("1.4.0") || 
+            mGLSupport->checkExtension("GL_SGIS_generate_mipmap"))
+        {
+            LogManager::getSingleton().logMessage("- Hardware Mipmapping");
+            mCapabilities->setCapability(RSC_AUTOMIPMAP);
+        }
+
+        // Check for blending support
+        if(mGLSupport->checkMinGLVersion("1.3.0") || 
+            mGLSupport->checkExtension("GL_ARB_texture_env_combine") || 
+            mGLSupport->checkExtension("GL_EXT_texture_env_combine"))
+        {
+            LogManager::getSingleton().logMessage("- Blending");
+            mCapabilities->setCapability(RSC_BLENDING);
+        }
+
+        // Check for Multitexturing support
+        if(mGLSupport->checkMinGLVersion("1.3.0") || 
+            mGLSupport->checkExtension("GL_ARB_multitexture"))
+        {
+            LogManager::getSingleton().logMessage("- Multitexturing");
+            mCapabilities->setCapability(RSC_MULTITEXTURE);
+        }
+
+        // Check for Anisotropy support
+        if(mGLSupport->checkExtension("GL_EXT_texture_filter_anisotropic"))
+        {
+            LogManager::getSingleton().logMessage("- Texture Anisotropy");
+            mCapabilities->setCapability(RSC_ANISOTROPY);
+        }
+
+        // Check for DOT3 support
+        if(mGLSupport->checkMinGLVersion("1.3.0") ||
+            mGLSupport->checkExtension("GL_ARB_texture_env_dot3") ||
+            mGLSupport->checkExtension("GL_EXT_texture_env_dot3"))
+        {
+            LogManager::getSingleton().logMessage("- DOT3");
+            mCapabilities->setCapability(RSC_DOT3);
+        }
+
+        // Check for cube mapping
+        if(mGLSupport->checkMinGLVersion("1.3.0") || 
+            mGLSupport->checkExtension("GL_ARB_texture_cube_map") || 
+            mGLSupport->checkExtension("GL_EXT_texture_cube_map"))
+        {
+            LogManager::getSingleton().logMessage("- Cube Mapping");
+            mCapabilities->setCapability(RSC_CUBEMAPPING);
+        }
+        
+        if(getStencilBufferBitDepth())
+        {
+            LogManager::getSingleton().logMessage("- Hardware Stencil Buffer\n");
+            mCapabilities->setCapability(RSC_HWSTENCIL);
+        }
 
         _setCullingMode( mCullingMode );
         
@@ -476,7 +540,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     unsigned short GLRenderSystem::_getNumTextureUnits(void)
     {
-        if (!mGLSupport->hasMultiTexture())
+        if (!mCapabilities->hasCapability(RSC_MULTITEXTURE))
         {
             return 1;
         }
@@ -1343,7 +1407,7 @@ namespace Ogre {
 	//---------------------------------------------------------------------
 	void GLRenderSystem::_setTextureLayerAnisotropy(int unit, int maxAnisotropy)
 	{
-       if (!mGLSupport->hasAnisotropy())
+       if (!mCapabilities->hasCapability(RSC_ANISOTROPY))
 			return;
 
 		GLfloat largest_supported_anisotropy = 0;
@@ -1353,19 +1417,20 @@ namespace Ogre {
 		if (_getCurrentAnisotropy(unit) != maxAnisotropy)
 			glTexParameterf(mTextureTypes[unit], GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy);
 	}
-	//---------------------------------------------------------------------
-	void GLRenderSystem::_setAnisotropy(int maxAnisotropy)
-	{
-       if (!mGLSupport->hasAnisotropy())
-			return;
-		for (int n = 0; n < _getNumTextureUnits(); n++)
-			_setTextureLayerAnisotropy(n, maxAnisotropy);
-	}
+    //---------------------------------------------------------------------
+    void GLRenderSystem::_setAnisotropy(int maxAnisotropy)
+    {
+        if (!mCapabilities->hasCapability(RSC_ANISOTROPY))
+            return;
+
+        for (int n = 0; n < _getNumTextureUnits(); n++)
+            _setTextureLayerAnisotropy(n, maxAnisotropy);
+    }
 	//-----------------------------------------------------------------------------
     void GLRenderSystem::_setTextureBlendMode(int stage, const LayerBlendModeEx& bm)
     {       
         // Check to see if blending is supported
-        if(!mGLSupport->hasBlending())
+        if(!mCapabilities->hasCapability(RSC_BLENDING))
             return;
 
         GLenum src1op, src2op, cmd;
@@ -1461,7 +1526,8 @@ namespace Ogre {
             cmd = GL_INTERPOLATE;
             break;
         case LBX_DOTPRODUCT:
-            cmd = mGLSupport->hasDot3() ? GL_DOT3_RGB : GL_MODULATE;
+            cmd = mCapabilities->hasCapability(RSC_DOT3) 
+                ? GL_DOT3_RGB : GL_MODULATE;
             break;
 		// XXX
 		default:

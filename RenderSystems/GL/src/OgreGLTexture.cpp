@@ -106,6 +106,21 @@ namespace Ogre {
         };
     }
 
+    GLenum GLTexture::getGLTextureFormat(void) const
+    {
+        switch(mFormat)
+        {
+            case PF_L8:
+                return GL_LUMINANCE;
+            case PF_R8G8B8:
+                return GL_RGB;
+            case PF_A8R8G8B8:
+                return GL_RGBA;
+            default:
+                return 0;
+        }
+    }
+
     void GLTexture::blitToTexture( 
         const Image& src, 
         unsigned uStartX, unsigned uStartY )
@@ -123,7 +138,7 @@ namespace Ogre {
             GL_TEXTURE_2D, 0, 
             uStartX, uStartY,
             img.getWidth(), img.getHeight(),
-            img.getHasAlpha() ? GL_RGBA : GL_RGB, 
+            getGLTextureFormat(),
             GL_UNSIGNED_BYTE, img.getData() );
         mGLSupport.end_context();
     }
@@ -145,7 +160,7 @@ namespace Ogre {
 
           pTempData = new uchar[ newImageSize ];
           mGLSupport.begin_context();
-          if(gluScaleImage(mHasAlpha ? GL_RGBA : GL_RGB, mSrcWidth, mSrcHeight,
+          if(gluScaleImage(getGLTextureFormat(), mSrcWidth, mSrcHeight,
                 GL_UNSIGNED_BYTE, src.getData(), newWidth, newHeight, 
                 GL_UNSIGNED_BYTE, pTempData) != 0)
           {
@@ -193,7 +208,7 @@ namespace Ogre {
         glGenTextures( 1, &mTextureID );
         glBindTexture( getGLTextureType(), mTextureID );
 
-        if(mNumMipMaps && GLSupport::getSingleton().hasHWMipmap())
+        if(mNumMipMaps && RenderSystemCapabilities::getSingleton().hasCapability(RSC_AUTOMIPMAP))
         {
             glTexParameteri( getGLTextureType(), GL_GENERATE_MIPMAP, GL_TRUE );
             useSoftwareMipmaps = false;
@@ -252,9 +267,8 @@ namespace Ogre {
         glGenTextures( 1, &mTextureID );
         glBindTexture( GL_TEXTURE_2D, mTextureID );
 
-        glTexImage2D( GL_TEXTURE_2D, 0, mHasAlpha ? GL_RGBA : GL_RGB, 
-            mWidth, mHeight, 0, 
-            mHasAlpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, 0 );
+        glTexImage2D( GL_TEXTURE_2D, 0, getGLTextureFormat(),
+            mWidth, mHeight, 0, getGLTextureFormat(), GL_UNSIGNED_BYTE, 0 );
 
         // This needs to be set otherwise the texture doesn't get rendered
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mNumMipMaps );
@@ -322,17 +336,17 @@ namespace Ogre {
                 mTextureType == TEX_TYPE_CUBE_MAP ? 
                     GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceNumber : 
                     getGLTextureType(), 
-                mHasAlpha ? GL_RGBA : GL_RGB, mSrcWidth, mSrcHeight, 
-                mHasAlpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data);
+                getGLTextureFormat(), mSrcWidth, mSrcHeight, 
+                getGLTextureFormat(), GL_UNSIGNED_BYTE, data);
         }
         else
         {
             glTexImage2D(
                 mTextureType == TEX_TYPE_CUBE_MAP ? 
                     GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceNumber : 
-                    getGLTextureType(), 0,
-                mHasAlpha ? GL_RGBA : GL_RGB, mSrcWidth, mSrcHeight, 0, 
-                mHasAlpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data );
+                    getGLTextureType(), 0, 
+                getGLTextureFormat(), mSrcWidth, mSrcHeight, 0, 
+                getGLTextureFormat(), GL_UNSIGNED_BYTE, data );
         }
         mGLSupport.end_context();
     }

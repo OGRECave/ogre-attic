@@ -57,7 +57,11 @@ namespace Ogre {
         void blitToTexture( const Image& src, 
             unsigned uStartX, unsigned uStartY );
 
+        // Takes the ogre texture type and returns the appropriate GL one
         GLenum getGLTextureType(void) const;
+
+        // Takes the ogre texture format and returns the appropriate GL one
+        GLenum getGLTextureFormat(void) const;
 
         GLuint getGLID() const
         { return mTextureID; }
