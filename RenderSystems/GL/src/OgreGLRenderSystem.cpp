@@ -93,20 +93,41 @@ GL_GetOcclusionQueryuivNV_Func glGetOcclusionQueryuivNV_ptr;
 namespace Ogre {
 
     // Callback function used when registering GLGpuPrograms
-    GpuProgram* createGLArbGpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode)
+    GpuProgram* createGLArbGpuProgram(ResourceManager* creator, 
+        const String& name, ResourceHandle handle, 
+        const String& group, bool isManual, ManualResourceLoader* loader,
+        GpuProgramType gptype, const String& syntaxCode)
     {
-        return new GLArbGpuProgram(name, gptype, syntaxCode);
+        GLArbGpuProgram* ret = new GLArbGpuProgram(
+            creator, name, handle, group, isManual, loader);
+        ret->setType(gptype);
+        ret->setSyntaxCode(syntaxCode);
+        return ret;
     }
 
-    GpuProgram* createGLGpuNvparseProgram(const String& name, GpuProgramType gptype, const String& syntaxCode)
+    GpuProgram* createGLGpuNvparseProgram(ResourceManager* creator, 
+        const String& name, ResourceHandle handle, 
+        const String& group, bool isManual, ManualResourceLoader* loader,
+        GpuProgramType gptype, const String& syntaxCode)
     {
-        return new GLGpuNvparseProgram(name, gptype, syntaxCode);
+        GLGpuNvparseProgram* ret = new GLGpuNvparseProgram(
+            creator, name, handle, group, isManual, loader);
+        ret->setType(gptype);
+        ret->setSyntaxCode(syntaxCode);
+        return ret;
     }
 
-	GpuProgram* createGL_ATI_FS_GpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode)
+    GpuProgram* createGL_ATI_FS_GpuProgram(ResourceManager* creator, 
+        const String& name, ResourceHandle handle, 
+        const String& group, bool isManual, ManualResourceLoader* loader,
+        GpuProgramType gptype, const String& syntaxCode)
 	{
 
-		return new ATI_FS_GLGpuProgram(name, gptype, syntaxCode);
+        ATI_FS_GLGpuProgram* ret = new ATI_FS_GLGpuProgram(
+            creator, name, handle, group, isManual, loader);
+        ret->setType(gptype);
+        ret->setSyntaxCode(syntaxCode);
+        return ret;
 	}
 
     GLRenderSystem::GLRenderSystem()
@@ -887,14 +908,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_setTexture(size_t stage, bool enabled, const String &texname)
     {
-        GLTexture* tex = static_cast<GLTexture*>(TextureManager::getSingleton().getByName(texname));
+        GLTexturePtr tex = TextureManager::getSingleton().getByName(texname);
 
         GLenum lastTextureType = mTextureTypes[stage];
 
 		glActiveTextureARB_ptr( GL_TEXTURE0 + stage );
 		if (enabled)
         {
-            if (tex)
+            if (!tex.isNull())
                 mTextureTypes[stage] = tex->getGLTextureTarget();
             else
                 // assume 2D
@@ -906,7 +927,7 @@ namespace Ogre {
             }
 
 			glEnable( mTextureTypes[stage] );
-			if(tex)
+			if(!tex.isNull())
 				glBindTexture( mTextureTypes[stage], tex->getGLID() );
         }
         else

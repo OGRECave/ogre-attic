@@ -15,6 +15,7 @@ LGPL like the rest of the engine.
  * Started 29.05.2003, 20:54:37
  */
 #include "ExampleApplication.h"
+#include "OgreBillboardParticleRenderer.h"
 #include "WaterMesh.h"
 
 #include <iostream>
@@ -32,7 +33,7 @@ AnimationState* mAnimState;
 
 /* Some global variables */
 SceneNode *headNode ;
-Overlay *waterOverlay ;
+Overlay* waterOverlay ;
 ParticleSystem *particleSystem ;
 ParticleEmitter *particleEmitter ;
 SceneManager *sceneMgr ;
@@ -63,14 +64,16 @@ void prepareCircleMaterial()
 		}
 	}
 	
-	SDDataChunk imgchunk(bmap, 256 * 256 * 4);
+	DataStreamPtr imgstream(new MemoryDataStream(bmap, 256 * 256 * 4));
 	//~ Image img; 
-	//~ img.loadRawData( imgchunk, 256, 256, PF_A8R8G8B8 );
+	//~ img.loadRawData( imgstream, 256, 256, PF_A8R8G8B8 );
 	//~ TextureManager::getSingleton().loadImage( CIRCLES_MATERIAL , img );
 	TextureManager::getSingleton().loadRawData(CIRCLES_MATERIAL,
-		imgchunk, 256, 256, PF_A8R8G8B8);
-	Material *material = (Material*) 
-		MaterialManager::getSingleton().create( CIRCLES_MATERIAL );
+        ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+		imgstream, 256, 256, PF_A8R8G8B8);
+	MaterialPtr material = 
+		MaterialManager::getSingleton().create( CIRCLES_MATERIAL, 
+        ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	TextureUnitState *texLayer = material->getTechnique(0)->getPass(0)->createTextureUnitState( CIRCLES_MATERIAL );
 	texLayer->setTextureAddressingMode( TextureUnitState::TAM_CLAMP );	
 	material->setSceneBlending( SBT_ADD );
@@ -89,7 +92,7 @@ class WaterCircle
 private:
 	String name ;
 	SceneNode *node ;
-	Mesh *mesh ;
+	MeshPtr mesh ;
 	SubMesh *subMesh ;
 	Entity *entity ;
 	Real tm ;
@@ -104,7 +107,8 @@ private:
 	{
 		int i,lvl ;
 		
-		mesh= (Mesh*) MeshManager::getSingleton().createManual(name) ;
+		mesh = MeshManager::getSingleton().createManual(name, 
+            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME) ;
 		subMesh = mesh->createSubMesh();
 		subMesh->useSharedVertices=false;
 
@@ -216,8 +220,7 @@ public:
 	}
 	~WaterCircle()
 	{
-		MeshManager::getSingleton().unload(mesh);
-		delete mesh ; // nice, I think I don't have to delete any buffers here ;)
+		MeshManager::getSingleton().remove(mesh->getHandle());
 		sceneMgr->removeEntity(entity->getName());
 		static_cast<SceneNode*> (sceneMgr->getRootSceneNode())->removeChild(node->getName());
 	}
@@ -295,9 +298,9 @@ protected:
 		while(!pit.end()) {
 			Particle *particle = pit.getNext();
 			Vector3 ppos = particle->getPosition();
-			if (ppos.y<=0 && particle->mTimeToLive>0) { // hits the water!
+			if (ppos.y<=0 && particle->timeToLive>0) { // hits the water!
 				// delete particle
-				particle->mTimeToLive = 0.0f;
+				particle->timeToLive = 0.0f;
 				// push the water
 				float x = ppos.x / PLANE_SIZE * COMPLEXITY ;
 				float y = ppos.z / PLANE_SIZE * COMPLEXITY ;
@@ -384,13 +387,17 @@ protected:
 	void updateMaterial()
 	{
 		String materialName = MATERIAL_PREFIX+StringConverter::toString(materialNumber);
-		Material *material = static_cast<Material*> (MaterialManager::getSingleton().getByName(materialName));
-		if (!material){
-			if(materialNumber){
+		MaterialPtr material = MaterialManager::getSingleton().getByName(materialName);
+		if (material.isNull())
+        {
+			if(materialNumber)
+            {
 				materialNumber = 0 ;
 				updateMaterial();
 				return ;
-			} else {
+			} 
+            else 
+            {
 				Except(Exception::ERR_INTERNAL_ERROR,
 					"Material "+materialName+"doesn't exist!",
 					"WaterListener::updateMaterial");
@@ -599,7 +606,7 @@ protected:
         //mSceneMgr->setFog(FOG_EXP, ColourValue::White, 0.0002);
 
 		// show overlay
-		waterOverlay = (Overlay*)OverlayManager::getSingleton().getByName("Example/WaterOverlay");    
+		waterOverlay = OverlayManager::getSingleton().getByName("Example/WaterOverlay");    
 		waterOverlay->show();
 		
         // Let there be rain
@@ -612,7 +619,7 @@ protected:
         // Fast-forward the rain so it looks more natural
         particleSystem->fastForward(20);
 		// It can't be set in .particle file, and we need it ;)
-		particleSystem->setBillboardOrigin(BBO_BOTTOM_CENTER);
+		static_cast<BillboardParticleRenderer*>(particleSystem->getRenderer())->setBillboardOrigin(BBO_BOTTOM_CENTER);
 		
 		prepareCircleMaterial();
 	}
@@ -649,8 +656,7 @@ int main(int argc, char **argv)
 #if OGRE_PLATFORM == PLATFORM_WIN32
         MessageBox( NULL, e.getFullDescription().c_str(), "An exception has occured!", MB_OK | MB_ICONERROR | MB_TASKMODAL);
 #else
-        fprintf(stderr, "An exception has occured: %s\n",
-                e.getFullDescription().c_str());
+        std::cerr << "An exception has occured: " << e.getFullDescription();
 #endif
     }
 

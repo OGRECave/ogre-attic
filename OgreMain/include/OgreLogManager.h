@@ -90,15 +90,12 @@ namespace Ogre {
         void logMessage( const String& message, LogMessageLevel lml = LML_NORMAL, 
             bool maskDebug = false);
 
-        /** Log a message, smarter form - allows a variable number of
-            arguments.
-            @note
-                <br>The longest string that this function can output is 4096
-                characters long.
+        /** Log a message to the default log (signature for backward compatibility).
         */
-        void logMessage( LogMessageLevel lml, const char* szMessage, ... );
+        void logMessage( LogMessageLevel lml, const String& message,  
+			bool maskDebug = false) { logMessage(message, lml, maskDebug); }
 
-        /** Sets the level of detail of the default log.
+		/** Sets the level of detail of the default log.
         */
         void setLogDetail(LoggingLevel ll);
         /** Override standard Singleton retrieval.

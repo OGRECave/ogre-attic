@@ -1118,7 +1118,7 @@ namespace Ogre {
 		Mesh::MeshLodUsage usage;
 		const char* val = genNode->Attribute("fromdepthsquared");
 		usage.fromDepthSquared = StringConverter::parseReal(val);
-		usage.manualMesh = NULL;
+		usage.manualMesh.setNull();
 		usage.manualName = "";
         usage.edgeData = NULL;
 

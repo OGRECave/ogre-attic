@@ -44,10 +44,11 @@ namespace Ogre {
         temporarily since their instantiations as Materials would use precious resources
         because of the automatic loading of textures etc.
     */
-    class Quake3Shader : public Resource
+    class Quake3Shader 
     {
     protected:
         String getAlternateName(const String& texName);
+        String mName;
 
     public:
 
@@ -55,16 +56,11 @@ namespace Ogre {
         Quake3Shader(const String& name);
         ~Quake3Shader();
 
-        /** Generic load - called by Quake3ShaderManager. */
-        virtual void load(void);
-        /** Generic unload - called by Quake3ShaderManager. */
-        virtual void unload(void);
-
         /** Creates this shader as an OGRE material.
-            Creates a new material based on this shaders settings. Registers it with the
-            SceneManager passed in. Material name shader#lightmap.
+            Creates a new material based on this shaders settings. 
+            Material name shader#lightmap.
         */
-        Material* createAsMaterial(SceneManager* sm, int lightmapNumber);
+        MaterialPtr createAsMaterial(int lightmapNumber);
 
         struct Pass {
             unsigned int flags;

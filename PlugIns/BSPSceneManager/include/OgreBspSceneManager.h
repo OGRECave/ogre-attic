@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSceneManager.h"
 #include "OgreStaticFaceGroup.h"
 #include "OgreRenderOperation.h"
+#include "OgreBspLevel.h"
 #include <set>
 
 
@@ -68,7 +69,7 @@ namespace Ogre {
         BspResourceManager* mBspResMgr;
 
         // World geometry
-        BspLevel* mLevel;
+        BspLevelPtr mLevel;
 
         // State variables for rendering WIP
         // Set of face groups (by index) already included
@@ -125,7 +126,7 @@ namespace Ogre {
         /** Specialised to suggest viewpoints. */
         ViewPoint getSuggestedViewpoint(bool random = false);
 
-        BspLevel* getLevel(void) {return mLevel; }
+        const BspLevelPtr& getLevel(void) {return mLevel; }
 
         /** Overriden from SceneManager. */
         void _findVisibleObjects(Camera* cam, bool onlyShadowCasters);

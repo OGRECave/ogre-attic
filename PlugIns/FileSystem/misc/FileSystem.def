@@ -1,4 +1,0 @@
-LIBRARY Plugin_FileSystem
-EXPORTS	
-	dllStartPlugin @1
-	dllStopPlugin  @2

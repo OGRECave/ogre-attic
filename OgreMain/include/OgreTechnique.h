@@ -46,7 +46,7 @@ namespace Ogre {
         Passes mPasses;
         /// List of derived passes, categorised into IlluminationStage (ordered)
         IlluminationPassList mIlluminationPasses;
-        Material* mParent;
+        Material* mParent; // raw pointer since we don't want child to stop parent's destruction
         bool mIsSupported;
         unsigned short mLodIndex;
 
@@ -100,6 +100,9 @@ namespace Ogre {
 
         /** Overloaded operator to copy on Technique to another. */
         Technique& operator=(const Technique& rhs);
+
+		/// Gets the resource group of the ultimate parent Material
+		const String& getResourceGroup(void) const;
 
 		/** Returns true if this Technique involves transparency. 
 		@remarks

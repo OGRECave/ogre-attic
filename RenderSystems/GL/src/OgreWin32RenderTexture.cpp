@@ -79,17 +79,16 @@ namespace Ogre {
         rs->_registerContext(this, mContext);        
 
 		// Bind texture
-		glBindTexture(GL_TEXTURE_2D,
-	           static_cast<GLTexture*>(mTexture)->getGLID());
+		glBindTexture(GL_TEXTURE_2D, static_cast<GLTexture*>(mTexture.get())->getGLID());
 		_wglBindTexImageARB(mPBuffer, WGL_FRONT_LEFT_ARB);
 	}
 	Win32RenderTexture::~Win32RenderTexture() 
 	{
 		// Unbind texture
 		glBindTexture(GL_TEXTURE_2D,
-		    static_cast<GLTexture*>(mTexture)->getGLID());
+		    static_cast<GLTexture*>(mTexture.get())->getGLID());
 		glBindTexture(GL_TEXTURE_2D,
-			static_cast<GLTexture*>(mTexture)->getGLID());
+			static_cast<GLTexture*>(mTexture.get())->getGLID());
 		_wglReleaseTexImageARB(mPBuffer, WGL_FRONT_LEFT_ARB);
            
         // Unregister and destroy mContext
@@ -179,11 +178,17 @@ namespace Ogre {
 		};
 		int piValues[sizeof(piAttributes)/sizeof(const int)];
 		wglGetPixelFormatAttribivARB(old_hdc,format,0,sizeof(piAttributes)/sizeof(const int),piAttributes,piValues);
+
+        StringUtil::StrStreamType str;
+        str << "Win32RenderTexture::PBuffer -- Chosen pixel format rgba="
+            << piValues[0] << ","  
+            << piValues[1] << ","  
+            << piValues[2] << ","  
+            << piValues[3] 
+            << " depth=" << piValues[4]
+            << " stencil=" << piValues[5];
 		LogManager::getSingleton().logMessage(
-			LML_NORMAL,
-			"Win32RenderTexture::PBuffer -- Chosen pixel format rgba=%i,%i,%i,%i depth=%i stencil=%i",
-			piValues[0],piValues[1],piValues[2],piValues[3],piValues[4],piValues[5]
-	    );
+			LML_NORMAL, str.str());
 
 		mPBuffer = _wglCreatePbufferARB(old_hdc,format,mWidth,mHeight,pattrib);
 		if(!mPBuffer)
@@ -213,10 +218,10 @@ namespace Ogre {
 		int iWidth, iHeight;
 		_wglQueryPbufferARB(mPBuffer, WGL_PBUFFER_WIDTH_ARB, &iWidth);
 		_wglQueryPbufferARB(mPBuffer, WGL_PBUFFER_HEIGHT_ARB, &iHeight);
-		LogManager::getSingleton().logMessage(
-				LML_NORMAL,
-				"Win32RenderTexture::PBuffer created -- Real dimensions %ix%i",iWidth,iHeight
-	    );
+        str.clear();
+        str << "Win32RenderTexture::PBuffer created -- Real dimensions "
+            << mWidth << "x" << mHeight;
+		LogManager::getSingleton().logMessage(LML_NORMAL, str.str());
 		mWidth = iWidth;  
 		mHeight = iHeight;
 	}

@@ -37,7 +37,7 @@ ColourValue _parseColourValue(StringVector::iterator& params, int numParams)
 		(numParams==5) ? StringConverter::parseReal(params[4].c_str()) : 1.0f ) ;
 	return colour ;
 }
-void parseAmbient(StringVector::iterator& params, int numParams, Material* pMat)
+void parseAmbient(StringVector::iterator& params, int numParams, MaterialPtr& pMat)
 {
 	// Must be 3 or 4parameters (+ command = 4 or 5)
 	if (numParams != 4 && numParams != 5)
@@ -51,7 +51,7 @@ void parseAmbient(StringVector::iterator& params, int numParams, Material* pMat)
 	}
 }
 //-----------------------------------------------------------------------
-void parseDiffuse(StringVector::iterator& params, int numParams, Material* pMat)
+void parseDiffuse(StringVector::iterator& params, int numParams, MaterialPtr& pMat)
 {
 	// Must be 3 or 4 parameters (+ command = 4 or 5)
 	if (numParams != 4 && numParams != 5)
@@ -65,7 +65,7 @@ void parseDiffuse(StringVector::iterator& params, int numParams, Material* pMat)
 	}
 }
 //-----------------------------------------------------------------------
-void parseSpecular(StringVector::iterator& params, int numParams, Material* pMat)
+void parseSpecular(StringVector::iterator& params, int numParams, MaterialPtr& pMat)
 {
 	// Must be 4 or 5 parameters (+ command = 5 or 6)
 	if (numParams != 5 && numParams != 6)
@@ -80,7 +80,7 @@ void parseSpecular(StringVector::iterator& params, int numParams, Material* pMat
 	}
 }
 //-----------------------------------------------------------------------
-void parseEmissive(StringVector::iterator& params, int numParams, Material* pMat)
+void parseEmissive(StringVector::iterator& params, int numParams, MaterialPtr& pMat)
 {
 	// Must be 3 or 4 parameters (+ command = 4 or 5)
 	if (numParams != 4 && numParams != 5)
@@ -124,7 +124,7 @@ SceneBlendFactor convertBlendFactor(const String& param)
 
 }
 //-----------------------------------------------------------------------
-void parseSceneBlend(StringVector::iterator& params, int numParams, Material* pMat)
+void parseSceneBlend(StringVector::iterator& params, int numParams, MaterialPtr& pMat)
 {
 	// Should be 1 or 2 params (+ command)
 	if (numParams == 2)
@@ -195,7 +195,7 @@ CompareFunction convertCompareFunction(const String& param)
 
 }
 //-----------------------------------------------------------------------
-void parseDepthParams(StringVector::iterator& params, int numParams, Material* pMat)
+void parseDepthParams(StringVector::iterator& params, int numParams, MaterialPtr& pMat)
 {
 	if (numParams != 2)
 	{
@@ -239,7 +239,7 @@ void parseDepthParams(StringVector::iterator& params, int numParams, Material* p
 
 }
 //-----------------------------------------------------------------------
-void parseCullMode(StringVector::iterator& params, int numParams, Material* pMat)
+void parseCullMode(StringVector::iterator& params, int numParams, MaterialPtr& pMat)
 {
 
 	if (numParams != 2)
@@ -278,7 +278,7 @@ void parseCullMode(StringVector::iterator& params, int numParams, Material* pMat
 	}
 }
 //-----------------------------------------------------------------------
-void parseLighting(StringVector::iterator& params, int numParams, Material* pMat)
+void parseLighting(StringVector::iterator& params, int numParams, MaterialPtr& pMat)
 {
 	if (numParams != 2)
 	{
@@ -295,7 +295,7 @@ void parseLighting(StringVector::iterator& params, int numParams, Material* pMat
 			+ pMat->getName() + ", valid parameters are 'on' or 'off'.");
 }
 //-----------------------------------------------------------------------
-void parseFogging(StringVector::iterator& params, int numParams, Material* pMat)
+void parseFogging(StringVector::iterator& params, int numParams, MaterialPtr& pMat)
 {
 	if (numParams < 2)
 	{
@@ -336,7 +336,7 @@ void parseFogging(StringVector::iterator& params, int numParams, Material* pMat)
 			+ pMat->getName() + ", valid parameters are 'true' or 'false'.");
 }
 //-----------------------------------------------------------------------
-void parseShading(StringVector::iterator& params, int numParams, Material* pMat)
+void parseShading(StringVector::iterator& params, int numParams, MaterialPtr& pMat)
 {
 	if (numParams != 2)
 	{
@@ -356,7 +356,7 @@ void parseShading(StringVector::iterator& params, int numParams, Material* pMat)
 
 }
 //-----------------------------------------------------------------------
-void parseFiltering(StringVector::iterator& params, int numParams, Material* pMat)
+void parseFiltering(StringVector::iterator& params, int numParams, MaterialPtr& pMat)
 {
 	if (numParams != 2)
 	{
@@ -378,7 +378,7 @@ void parseFiltering(StringVector::iterator& params, int numParams, Material* pMa
 }
 //-----------------------------------------------------------------------
 // Texture layer attributes
-void parseTexture(StringVector::iterator& params, int numParams, Material* pMat, TextureUnitState* pTex)
+void parseTexture(StringVector::iterator& params, int numParams, MaterialPtr& pMat, TextureUnitState* pTex)
 {
 	if (numParams != 2)
 	{
@@ -389,7 +389,7 @@ void parseTexture(StringVector::iterator& params, int numParams, Material* pMat,
 	pTex->setTextureName(params[1]);
 }
 //-----------------------------------------------------------------------
-void parseAnimTexture(StringVector::iterator& params, int numParams, Material* pMat, TextureUnitState* pTex)
+void parseAnimTexture(StringVector::iterator& params, int numParams, MaterialPtr& pMat, TextureUnitState* pTex)
 {
 	// Determine which form it is
 	// Must have at least 3 params though
@@ -413,7 +413,7 @@ void parseAnimTexture(StringVector::iterator& params, int numParams, Material* p
 
 }
 //-----------------------------------------------------------------------
-void parseCubicTexture(StringVector::iterator& params, int numParams, Material* pMat, TextureUnitState* pTex)
+void parseCubicTexture(StringVector::iterator& params, int numParams, MaterialPtr& pMat, TextureUnitState* pTex)
 {
 
 	// Get final param
@@ -451,7 +451,7 @@ void parseCubicTexture(StringVector::iterator& params, int numParams, Material* 
 
 }
 //-----------------------------------------------------------------------
-void parseTexCoord(StringVector::iterator& params, int numParams, Material* pMat, TextureUnitState* pTex)
+void parseTexCoord(StringVector::iterator& params, int numParams, MaterialPtr& pMat, TextureUnitState* pTex)
 {
 	if (numParams != 2)
 	{
@@ -463,7 +463,7 @@ void parseTexCoord(StringVector::iterator& params, int numParams, Material* pMat
 
 }
 //-----------------------------------------------------------------------
-void parseTexAddressMode(StringVector::iterator& params, int numParams, Material* pMat, TextureUnitState* pTex)
+void parseTexAddressMode(StringVector::iterator& params, int numParams, MaterialPtr& pMat, TextureUnitState* pTex)
 {
 	if (numParams != 2)
 	{
@@ -483,7 +483,7 @@ void parseTexAddressMode(StringVector::iterator& params, int numParams, Material
 
 }
 //-----------------------------------------------------------------------
-void parseColourOp(StringVector::iterator& params, int numParams, Material* pMat, TextureUnitState* pTex)
+void parseColourOp(StringVector::iterator& params, int numParams, MaterialPtr& pMat, TextureUnitState* pTex)
 {
 	if (numParams != 2)
 	{
@@ -504,7 +504,7 @@ void parseColourOp(StringVector::iterator& params, int numParams, Material* pMat
 			+ pMat->getName() + ", valid parameters are 'replace', 'add', 'modulate' or 'alpha_blend'.");
 }
 //-----------------------------------------------------------------------
-void parseAlphaRejection(StringVector::iterator& params, int numParams, Material* pMat, TextureUnitState* pTex)
+void parseAlphaRejection(StringVector::iterator& params, int numParams, MaterialPtr& pMat, TextureUnitState* pTex)
 {
 	if (numParams != 3)
 	{
@@ -578,7 +578,7 @@ LayerBlendSource convertBlendSource(const String& param)
 		Except(Exception::ERR_INVALIDPARAMS, "Invalid blend source", "convertBlendSource");
 }
 //-----------------------------------------------------------------------
-void parseLayerFiltering(StringVector::iterator& params, int numParams, Material* pMat, TextureUnitState* pTex)
+void parseLayerFiltering(StringVector::iterator& params, int numParams, MaterialPtr& pMat, TextureUnitState* pTex)
 {
 	if (numParams != 2)
 	{
@@ -599,7 +599,7 @@ void parseLayerFiltering(StringVector::iterator& params, int numParams, Material
 			+ pMat->getName() + ", valid parameters are 'none', 'bilinear', 'trilinear' or 'anisotropic'.");
 }
 //-----------------------------------------------------------------------
-void parseColourOpEx(StringVector::iterator& params, int numParams, Material* pMat, TextureUnitState* pTex)
+void parseColourOpEx(StringVector::iterator& params, int numParams, MaterialPtr& pMat, TextureUnitState* pTex)
 {
 	if (numParams < 4 || numParams > 13)
 	{
@@ -677,7 +677,7 @@ void parseColourOpEx(StringVector::iterator& params, int numParams, Material* pM
 	pTex->setColourOperationEx(op, src1, src2, colSrc1, colSrc2, manual);
 }
 //-----------------------------------------------------------------------
-void parseColourOpFallback(StringVector::iterator& params, int numParams, Material* pMat, TextureUnitState* pTex)
+void parseColourOpFallback(StringVector::iterator& params, int numParams, MaterialPtr& pMat, TextureUnitState* pTex)
 {
 	if (numParams != 3)
 	{
@@ -701,7 +701,7 @@ void parseColourOpFallback(StringVector::iterator& params, int numParams, Materi
 	}
 }
 //-----------------------------------------------------------------------
-void parseAlphaOpEx(StringVector::iterator& params, int numParams, Material* pMat, TextureUnitState* pTex)
+void parseAlphaOpEx(StringVector::iterator& params, int numParams, MaterialPtr& pMat, TextureUnitState* pTex)
 {
 	if (numParams < 4 || numParams > 7)
 	{
@@ -772,7 +772,7 @@ void parseAlphaOpEx(StringVector::iterator& params, int numParams, Material* pMa
 	pTex->setAlphaOperation(op, src1, src2, arg1, arg2, manual);
 }
 //-----------------------------------------------------------------------
-void parseEnvMap(StringVector::iterator& params, int numParams, Material* pMat, TextureUnitState* pTex)
+void parseEnvMap(StringVector::iterator& params, int numParams, MaterialPtr& pMat, TextureUnitState* pTex)
 {
 	if (numParams != 2)
 	{
@@ -796,7 +796,7 @@ void parseEnvMap(StringVector::iterator& params, int numParams, Material* pMat, 
 
 }
 //-----------------------------------------------------------------------
-void parseScroll(StringVector::iterator& params, int numParams, Material* pMat, TextureUnitState* pTex)
+void parseScroll(StringVector::iterator& params, int numParams, MaterialPtr& pMat, TextureUnitState* pTex)
 {
 	if (numParams != 3)
 	{
@@ -814,7 +814,7 @@ void parseScroll(StringVector::iterator& params, int numParams, Material* pMat, 
 	}
 }
 //-----------------------------------------------------------------------
-void parseRotate(StringVector::iterator& params, int numParams, Material* pMat, TextureUnitState* pTex)
+void parseRotate(StringVector::iterator& params, int numParams, MaterialPtr& pMat, TextureUnitState* pTex)
 {
 	if (numParams != 2)
 	{
@@ -832,7 +832,7 @@ void parseRotate(StringVector::iterator& params, int numParams, Material* pMat, 
 	}
 }
 //-----------------------------------------------------------------------
-void parseScale(StringVector::iterator& params, int numParams, Material* pMat, TextureUnitState* pTex)
+void parseScale(StringVector::iterator& params, int numParams, MaterialPtr& pMat, TextureUnitState* pTex)
 {
 	if (numParams != 3)
 	{
@@ -843,7 +843,7 @@ void parseScale(StringVector::iterator& params, int numParams, Material* pMat, T
 	pTex->setTextureScale(StringConverter::parseReal(params[1].c_str()), StringConverter::parseReal(params[2].c_str()) );
 }
 //-----------------------------------------------------------------------
-void parseWaveXform(StringVector::iterator& params, int numParams, Material* pMat, TextureUnitState* pTex)
+void parseWaveXform(StringVector::iterator& params, int numParams, MaterialPtr& pMat, TextureUnitState* pTex)
 {
 	if (numParams != 7)
 	{
@@ -893,7 +893,7 @@ void parseWaveXform(StringVector::iterator& params, int numParams, Material* pMa
 
 }
 //-----------------------------------------------------------------------
-void parseDepthBias(StringVector::iterator& params, int numParams, Material* pMat)
+void parseDepthBias(StringVector::iterator& params, int numParams, MaterialPtr& pMat)
 {
 	if (numParams != 2)
 	{
@@ -904,7 +904,7 @@ void parseDepthBias(StringVector::iterator& params, int numParams, Material* pMa
 	pMat->setDepthBias(atoi(params[1].c_str()));
 }
 //-----------------------------------------------------------------------
-void parseAnisotropy(StringVector::iterator& params, int numParams, Material* pMat)
+void parseAnisotropy(StringVector::iterator& params, int numParams, MaterialPtr& pMat)
 {
 	if (numParams != 2)
 	{
@@ -915,7 +915,7 @@ void parseAnisotropy(StringVector::iterator& params, int numParams, Material* pM
 	pMat->setTextureAnisotropy(atoi(params[1].c_str()));
 }
 //-----------------------------------------------------------------------
-void parseLayerAnisotropy(StringVector::iterator& params, int numParams, Material* pMat, TextureUnitState* pTex)
+void parseLayerAnisotropy(StringVector::iterator& params, int numParams, MaterialPtr& pMat, TextureUnitState* pTex)
 {
 	if (numParams != 2)
 	{
@@ -973,27 +973,26 @@ OldMaterialReader::~OldMaterialReader()
 {
 }
 //-----------------------------------------------------------------------
-void OldMaterialReader::parseScript(DataChunk& chunk)
+void OldMaterialReader::parseScript(DataStreamPtr& stream)
 {
 	String line;
-	Material* pMat;
+	MaterialPtr pMat;
 	char tempBuf[512];
 
-	pMat = 0;
-
-	while(!chunk.isEOF())
+	while(!stream->eof())
 	{
-		line = chunk.getLine();
+		line = stream->getLine();
 		// Ignore comments & blanks
 		if (!(line.length() == 0 || line.substr(0,2) == "//"))
 		{
-			if (pMat == 0)
+			if (pMat.isNull())
 			{
 				// No current material
 				// So first valid data should be a material name
-                pMat = (Material*)MaterialManager::getSingleton().create(line);
+                pMat = MaterialManager::getSingleton().create(line, 
+                    ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 				// Skip to and over next {
-				chunk.readUpTo(tempBuf, 511, "{");
+				stream->readLine(tempBuf, 511, "{");
 			}
 			else
 			{
@@ -1001,12 +1000,12 @@ void OldMaterialReader::parseScript(DataChunk& chunk)
 				if (line == "}")
 				{
 					// Finished material
-					pMat = 0;
+					pMat.setNull();
 				}
 				else if (line == "{")
 				{
 					// new pass
-					parseNewTextureLayer(chunk, pMat);
+					parseNewTextureLayer(stream, pMat);
 
 				}
 				else
@@ -1025,7 +1024,7 @@ void OldMaterialReader::parseScript(DataChunk& chunk)
 
 }
 //-----------------------------------------------------------------------
-void OldMaterialReader::parseNewTextureLayer(DataChunk& chunk, Material* pMat)
+void OldMaterialReader::parseNewTextureLayer(DataStreamPtr& stream, MaterialPtr& pMat)
 {
 	String line;
 	TextureUnitState* pLayer;
@@ -1033,9 +1032,9 @@ void OldMaterialReader::parseNewTextureLayer(DataChunk& chunk, Material* pMat)
 	pLayer = pMat->getTechnique(0)->getPass(0)->createTextureUnitState("");
 
 
-	while (!chunk.isEOF())
+	while (!stream->eof())
 	{
-		line = chunk.getLine();
+		line = stream->getLine();
 		// Ignore comments & blanks
 		if (line.length() != 0 && !(line.substr(0,2) == "//"))
 		{
@@ -1054,7 +1053,7 @@ void OldMaterialReader::parseNewTextureLayer(DataChunk& chunk, Material* pMat)
 	}
 }
 //-----------------------------------------------------------------------
-void OldMaterialReader::parseAttrib( const String& line, Material* pMat)
+void OldMaterialReader::parseAttrib( const String& line, MaterialPtr& pMat)
 {
 	StringVector vecparams;
 
@@ -1082,7 +1081,7 @@ void OldMaterialReader::parseAttrib( const String& line, Material* pMat)
 
 }
 //-----------------------------------------------------------------------
-void OldMaterialReader::parseLayerAttrib( const String& line, Material* pMat, TextureUnitState* pLayer)
+void OldMaterialReader::parseLayerAttrib( const String& line, MaterialPtr& pMat, TextureUnitState* pLayer)
 {
 	StringVector vecparams;
 

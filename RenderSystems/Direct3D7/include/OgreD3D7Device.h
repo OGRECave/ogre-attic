@@ -54,10 +54,6 @@ namespace Ogre
 
         DDDriver* mParentDriver;
 
-        // Private functions
-        void createViewport(void);
-        void setViewportSize(void);
-
 
 
 
@@ -85,16 +81,6 @@ namespace Ogre
         bool NeedsZBuffer(void) const;
 
         void createDepthBuffer(LPDIRECTDRAWSURFACE7 renderTarget);
-
-
-        void setViewMatrix(D3DMATRIX *mat);
-        void setProjectionMatrix(D3DMATRIX *mat);
-        void setWorldMatrix(D3DMATRIX *mat);
-
-        void beginScene(void);
-        void endScene(void);
-        void setAmbientLight(float r, float g, float b);
-
 
 
         friend static HRESULT CALLBACK EnumZBuffersCallback(DDPIXELFORMAT* pddpf,

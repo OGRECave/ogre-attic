@@ -39,7 +39,7 @@ public:
     bool initialise(SceneNode *sceneMgr, NaturePatchLoader *loader);
 
     /// Test material thingy
-    Material *createTerrainMaterial();
+    MaterialPtr createTerrainMaterial();
 
     /// Sets target quality and rebuilds all the patches
     void setTargetQuality(Real quality);

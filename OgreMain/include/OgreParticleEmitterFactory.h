@@ -58,7 +58,7 @@ namespace Ogre {
         @remarks
             The subclass MUST add a pointer to the created instance to mEmitters.
         */
-        virtual ParticleEmitter* createEmitter(void) = 0;
+        virtual ParticleEmitter* createEmitter(ParticleSystem* psys) = 0;
 
         /** Destroys the emitter pointed to by the parameter (for early clean up if reauired). */
         virtual void destroyEmitter(ParticleEmitter* e);

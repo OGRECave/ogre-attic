@@ -15,6 +15,7 @@ Author: Martin Persson
 #include <OgreRenderOperation.h>
 #include <OgreCamera.h>
 #include <OgreSceneNode.h>
+#include "OgreMaterial.h"
 
 namespace Ogre
 {
@@ -59,7 +60,7 @@ namespace Ogre
             int heightMapWidth;
 
             // material
-            Material *pMaterial;
+            MaterialPtr pMaterial;
         };
 
         struct CustomData
@@ -71,13 +72,10 @@ namespace Ogre
 
         struct NaturePatchData
         {
-            union
-            {
-                PatchType type;
+            PatchType type;
 
-                TerrainData terrain;
-                CustomData  custom;
-            };
+            TerrainData terrain;
+            CustomData  custom;
         };
 
         NaturePatch()
@@ -190,13 +188,13 @@ namespace Ogre
         }
 
         /// Returns the material
-        virtual Material *getMaterial(void) const
+        virtual const MaterialPtr& getMaterial(void) const
         {
             return mMaterial;
         }
 
         /// Sets the material
-        void setMaterial(Material *material)
+        void setMaterial(MaterialPtr& material)
         {
             mMaterial = material;
         }
@@ -250,7 +248,7 @@ namespace Ogre
         AxisAlignedBox mBounds;
 
         /// Material used for rendering
-        Material *mMaterial;
+        MaterialPtr mMaterial;
 
         /// Pointer to patch data
         NaturePatchData *mData;

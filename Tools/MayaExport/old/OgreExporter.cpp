@@ -710,6 +710,7 @@ MStatus OgreExporter::writer( const MFileObject &file, const MString &optionsStr
     MString mname = file.fullName();
     m_filename = mname.asChar();
 
+    Ogre::ResourceGroupManager resGrpMagr;
     Ogre::MaterialManager matMgr;
     Ogre::LogManager      logMgr;
 

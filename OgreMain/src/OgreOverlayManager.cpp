@@ -25,7 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 
 #include "OgreOverlayManager.h"
-#include "OgreOverlay.h"
+#include "OgreStringVector.h"
 #include "OgreGuiManager.h"
 #include "OgreOverlayContainer.h"
 #include "OgreStringConverter.h"
@@ -37,7 +37,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePositionTarget.h"
 #include "OgreException.h"
 #include "OgreViewport.h"
-#include "OgreSDDataChunk.h"
 
 namespace Ogre {
 
@@ -57,35 +56,138 @@ namespace Ogre {
         mLastViewportHeight(0), 
         mViewportDimensionsChanged(false)
     {
+
+        // Scripting is supported by this manager
+        mScriptPatterns.push_back("*.overlay");
+		ResourceGroupManager::getSingleton()._registerScriptLoader(this);
+
     }
     //---------------------------------------------------------------------
     OverlayManager::~OverlayManager()
     {
+        destroyAll();
+
+        // Unregister with resource group manager
+		ResourceGroupManager::getSingleton()._unregisterScriptLoader(this);
     }
     //---------------------------------------------------------------------
-    void OverlayManager::parseOverlayFile(DataChunk& chunk)
+    const StringVector& OverlayManager::getScriptPatterns(void) const
+    {
+        return mScriptPatterns;
+    }
+    //---------------------------------------------------------------------
+    Real OverlayManager::getLoadingOrder(void) const
+    {
+        // Load late
+        return 1100.0f;
+    }
+    //---------------------------------------------------------------------
+    Overlay* OverlayManager::create(const String& name)
+    {
+        Overlay* ret = new Overlay(name);
+        OverlayMap::iterator i = mOverlayMap.find(name);
+        if (i == mOverlayMap.end())
+        {
+            mOverlayMap[name] = ret;
+        }
+        else
+        {
+            Except(Exception::ERR_DUPLICATE_ITEM, 
+                "Overlay with name '" + name + "' a;ready exists!",
+                "OverlayManager::create");
+        }
+
+        return ret;
+
+    }
+    //---------------------------------------------------------------------
+    Overlay* OverlayManager::getByName(const String& name)
+    {
+        OverlayMap::iterator i = mOverlayMap.find(name);
+        if (i == mOverlayMap.end())
+        {
+            return 0;
+        }
+        else
+        {
+            return i->second;
+        }
+
+    }
+    //---------------------------------------------------------------------
+    void OverlayManager::destroy(const String& name)
+    {
+        OverlayMap::iterator i = mOverlayMap.find(name);
+        if (i == mOverlayMap.end())
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, 
+                "Overlay with name '" + name + "' not found.",
+                "OverlayManager::destroy");
+        }
+        else
+        {
+            delete i->second;
+            mOverlayMap.erase(i);
+        }
+    }
+    //---------------------------------------------------------------------
+    void OverlayManager::destroy(Overlay* overlay)
+    {
+        for (OverlayMap::iterator i = mOverlayMap.begin();
+            i != mOverlayMap.end(); ++i)
+        {
+            if (i->second == overlay)
+            {
+                delete i->second;
+                mOverlayMap.erase(i);
+                return;
+            }
+        }
+
+        Except(Exception::ERR_ITEM_NOT_FOUND, 
+            "Overlay not found.",
+            "OverlayManager::destroy");
+    }
+    //---------------------------------------------------------------------
+    void OverlayManager::destroyAll(void)
+    {
+        for (OverlayMap::iterator i = mOverlayMap.begin();
+            i != mOverlayMap.end(); ++i)
+        {
+            delete i->second;
+        }
+        mOverlayMap.clear();
+    }
+    //---------------------------------------------------------------------
+    OverlayManager::OverlayMapIterator OverlayManager::getOverlayIterator(void)
+    {
+        return OverlayMapIterator(mOverlayMap.begin(), mOverlayMap.end());
+    }
+    //---------------------------------------------------------------------
+    void OverlayManager::parseScript(DataStreamPtr& stream, const String& groupName)
     {
 	    String line;
-	    Overlay* pOverlay;
+	    Overlay* pOverlay = 0;
 		bool skipLine;
 
-	    pOverlay = 0;
-
-	    while(!chunk.isEOF())
+	    while(!stream->eof())
 	    {
 			bool isTemplate = false;
 			skipLine = false;
-		    line = chunk.getLine();
+		    line = stream->getLine();
 		    // Ignore comments & blanks
 		    if (!(line.length() == 0 || line.substr(0,2) == "//"))
 		    {
 				if (line.substr(0,8) == "#include")
 				{
                     std::vector<String> params = StringUtil::split(line, "\t\n ()<>");
-					loadAndParseOverlayFile(params[1]);
+                    DataStreamPtr includeStream = 
+                        ResourceGroupManager::getSingleton()._findResource(
+                            params[1], groupName);
+					parseScript(includeStream, groupName);
 					continue;
 				}
-			    if (pOverlay == 0)
+			    if (!pOverlay)
 			    {
 				    // No current overlay
 
@@ -99,13 +201,13 @@ namespace Ogre {
 					{
 			
 						// So first valid data should be overlay name
-						pOverlay = (Overlay*)create(line);
+						pOverlay = create(line);
 						// Skip to and over next {
-						skipToNextOpenBrace(chunk);
+						skipToNextOpenBrace(stream);
 						skipLine = true;
 					}
 			    }
-			    if ((pOverlay && !skipLine) || isTemplate)
+			    if ((!!pOverlay && !skipLine) || isTemplate)
 			    {
 				    // Already in overlay
                     std::vector<String> params = StringUtil::split(line, "\t\n ()");
@@ -118,7 +220,7 @@ namespace Ogre {
 					    pOverlay = 0;
 						isTemplate = false;
 				    }
-				    else if (parseChildren(chunk,line, pOverlay, isTemplate, NULL))
+				    else if (parseChildren(stream,line, pOverlay, isTemplate, NULL))
 						
 				    {
 
@@ -132,12 +234,12 @@ namespace Ogre {
 			                    "Bad entity line: '"
 			                    + line + "' in " + pOverlay->getName() + 
 			                    ", expecting 'entity meshName(entityName)'");
-                                skipToNextCloseBrace(chunk);
+                                skipToNextCloseBrace(stream);
                         }
                         else
                         {
-                            skipToNextOpenBrace(chunk);
-					        parseNewMesh(chunk, params[1+skipParam], params[2+skipParam], pOverlay);
+                            skipToNextOpenBrace(stream);
+					        parseNewMesh(stream, params[1+skipParam], params[2+skipParam], pOverlay);
                         }
 
 				    }
@@ -159,92 +261,6 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void OverlayManager::parseAllSources(const String& extension)
-    {
-        StringVector overlayFiles;
-
-        std::vector<ArchiveEx*>::iterator i = mVFS.begin();
-
-        // Specific archives
-        for (; i != mVFS.end(); ++i)
-        {
-            overlayFiles = (*i)->getAllNamesLike( "./", extension);
-            for (StringVector::iterator si = overlayFiles.begin(); si!=overlayFiles.end(); ++si)
-            {
-                parseOverlayFile(*i,si[0]);
-            }
-
-        }
-        // search common archives
-        for (i = mCommonVFS.begin(); i != mCommonVFS.end(); ++i)
-        {
-            overlayFiles = (*i)->getAllNamesLike( "./", extension);
-            for (StringVector::iterator si = overlayFiles.begin(); si!=overlayFiles.end(); ++si)
-            {
-                parseOverlayFile(*i,si[0]);
-            }
-        }
-    }
-    //---------------------------------------------------------------------
-    void OverlayManager::loadAndParseOverlayFile(const String& filename)
-    {
-		bool isLoaded = false;
-        for (StringVector::iterator i = mLoadedOverlays.begin(); i != mLoadedOverlays.end(); ++i)
-        {
-			if (*i == filename)
-			{
-				LogManager::getSingleton().logMessage( 
-					"Skipping loading overlay include: '"
-					+ filename+ " as it is already loaded.");
-				isLoaded = true;
-				break;
-
-			}
-        }
-		if (!isLoaded)
-		{
-
-			std::vector<ArchiveEx*>::iterator i = mVFS.begin();
-
-			// Specific archives
-			for (; i != mVFS.end(); ++i)
-			{
-				if ((*i)->fileTest(filename))
-				{
-					parseOverlayFile(*i,filename);
-				}
-
-			}
-			// search common archives
-			for (i = mCommonVFS.begin(); i != mCommonVFS.end(); ++i)
-			{
-				if ((*i)->fileTest(filename))
-				{
-					parseOverlayFile(*i,filename);
-				}
-			}
-		}
-    }
-    //---------------------------------------------------------------------
-    void OverlayManager::parseOverlayFile(ArchiveEx* pArchiveEx, const String& name)
-	{
-        DataChunk* pChunk;
-        SDDataChunk dat; 
-		pChunk = &dat;
-        pArchiveEx->fileRead(name, &pChunk );
-        parseOverlayFile(dat);
-		mLoadedOverlays.push_back(name);
-	}
-
-
-    //---------------------------------------------------------------------
-    Resource* OverlayManager::create( const String& name)
-    {
-        Overlay* s = new Overlay(name);
-        load(s,1);
-        return s;
-    }
-    //---------------------------------------------------------------------
     void OverlayManager::_queueOverlaysForRendering(Camera* cam, 
         RenderQueue* pQueue, Viewport* vp)
     {
@@ -262,16 +278,16 @@ namespace Ogre {
             mViewportDimensionsChanged = false;
         }
 
-        ResourceMap::iterator i, iend;
-        iend = mResources.end();
-        for (i = mResources.begin(); i != iend; ++i)
+        OverlayMap::iterator i, iend;
+        iend = mOverlayMap.end();
+        for (i = mOverlayMap.begin(); i != iend; ++i)
         {
-            Overlay* o = (Overlay*)i->second;
+            Overlay* o = i->second;
             o->_findVisibleObjects(cam, pQueue);
         }
     }
     //---------------------------------------------------------------------
-    void OverlayManager::parseNewElement( DataChunk& chunk, String& elemType, String& elemName, 
+    void OverlayManager::parseNewElement( DataStreamPtr& stream, String& elemType, String& elemName, 
             bool isContainer, Overlay* pOverlay, bool isTemplate, String templateName, OverlayContainer* container)
     {
         String line;
@@ -289,14 +305,14 @@ namespace Ogre {
 			container->addChild(newElement);
 		}
 		// do not add a template to the overlay. For templates overlay = 0
-		else if (pOverlay)	
+		else if (!!pOverlay)	
 		{
 			pOverlay->add2D((OverlayContainer*)newElement);
 		}
 
-        while(!chunk.isEOF())
+        while(!stream->eof())
         {
-            line = chunk.getLine();
+            line = stream->getLine();
             // Ignore comments & blanks
             if (!(line.length() == 0 || line.substr(0,2) == "//"))
             {
@@ -307,7 +323,7 @@ namespace Ogre {
                 }
                 else
                 {
-                    if (isContainer && parseChildren(chunk,line, pOverlay, isTemplate, static_cast<OverlayContainer*>(newElement)))
+                    if (isContainer && parseChildren(stream,line, pOverlay, isTemplate, static_cast<OverlayContainer*>(newElement)))
                     {
 					    // nested children... don't reparse it
                     }
@@ -322,7 +338,7 @@ namespace Ogre {
     }
 
     //---------------------------------------------------------------------
-    bool OverlayManager::parseChildren( DataChunk& chunk, const String& line,
+    bool OverlayManager::parseChildren( DataStreamPtr& stream, const String& line,
             Overlay* pOverlay, bool isTemplate, OverlayContainer* parent)
 	{
 		bool ret = false;
@@ -352,7 +368,7 @@ namespace Ogre {
 						"Bad element/container line: '"
 						+ line + "' in " + parent->getTypeName()+ " " + parent->getName() +
 						", expecting ':' templateName");
-					skipToNextCloseBrace(chunk);
+					skipToNextCloseBrace(stream);
 					// barf 
 					return ret;
 				}
@@ -362,7 +378,7 @@ namespace Ogre {
 						"Bad element/container line: '"
 						+ line + "' in " + parent->getTypeName()+ " " + parent->getName() +
 						", expecting ':' for element inheritance");
-					skipToNextCloseBrace(chunk);
+					skipToNextCloseBrace(stream);
 					// barf 
 					return ret;
 				}
@@ -376,13 +392,13 @@ namespace Ogre {
 					"Bad element/container line: '"
 						+ line + "' in " + parent->getTypeName()+ " " + parent->getName() +
 					", expecting 'element type(name)'");
-				skipToNextCloseBrace(chunk);
+				skipToNextCloseBrace(stream);
 				// barf 
 				return ret;
 			}
        
-			skipToNextOpenBrace(chunk);
-			parseNewElement(chunk, params[1+skipParam], params[2+skipParam], true, pOverlay, isTemplate, templateName, (OverlayContainer*)parent);
+			skipToNextOpenBrace(stream);
+			parseNewElement(stream, params[1+skipParam], params[2+skipParam], true, pOverlay, isTemplate, templateName, (OverlayContainer*)parent);
 
 		}
 
@@ -425,31 +441,31 @@ namespace Ogre {
             // BAD command. BAD!
             LogManager::getSingleton().logMessage("Bad element attribute line: '"
                 + line + "' for element " + pElement->getName() + " in overlay " + 
-                (pOverlay ? pOverlay->getName().c_str() : ""));
+                (!pOverlay ? "" : pOverlay->getName().c_str() ));
         }
     }
     //-----------------------------------------------------------------------
-    void OverlayManager::skipToNextCloseBrace(DataChunk& chunk)
+    void OverlayManager::skipToNextCloseBrace(DataStreamPtr& stream)
     {
         String line = "";
-        while (!chunk.isEOF() && line != "}")
+        while (!stream->eof() && line != "}")
         {
-            line = chunk.getLine();
+            line = stream->getLine();
         }
 
     }
     //-----------------------------------------------------------------------
-    void OverlayManager::skipToNextOpenBrace(DataChunk& chunk)
+    void OverlayManager::skipToNextOpenBrace(DataStreamPtr& stream)
     {
         String line = "";
-        while (!chunk.isEOF() && line != "{")
+        while (!stream->eof() && line != "{")
         {
-            line = chunk.getLine();
+            line = stream->getLine();
         }
 
     }
     //-----------------------------------------------------------------------
-    void OverlayManager::parseNewMesh(DataChunk& chunk, String& meshName, String& entityName, 
+    void OverlayManager::parseNewMesh(DataStreamPtr& stream, String& meshName, String& entityName, 
         Overlay* pOverlay)
     {
         String line;
@@ -467,9 +483,9 @@ namespace Ogre {
 
 
         // parse extra info
-        while(!chunk.isEOF())
+        while(!stream->eof())
         {
-            line = chunk.getLine();
+            line = stream->getLine();
             // Ignore comments & blanks
             if (!(line.length() == 0 || line.substr(0,2) == "//"))
             {

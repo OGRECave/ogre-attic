@@ -97,11 +97,11 @@ namespace Ogre {
         // Check material & technique supplied (the former since the default implementation
         // of getTechnique is based on it for backwards compatibility
         Technique* pTech;
-        if(!rend->getMaterial() || !rend->getTechnique())
+        if(rend->getMaterial().isNull() || !rend->getTechnique())
         {
             // Use default base white
-            pTech = static_cast<Material*>(
-                MaterialManager::getSingleton().getByName("BaseWhite"))->getTechnique(0);
+			MaterialPtr baseWhite = MaterialManager::getSingleton().getByName("BaseWhite");
+            pTech = baseWhite->getTechnique(0);
         }
         else
         {

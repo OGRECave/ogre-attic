@@ -45,7 +45,7 @@ namespace Ogre
     void logParseError(const String& error, const MaterialScriptContext& context)
     {
         // log material name only if filename not specified
-        if (context.filename.empty() && context.material)
+        if (context.filename.empty() && !context.material.isNull())
         {
             LogManager::getSingleton().logMessage(
                 "Error in material " + context.material->getName() + 
@@ -53,7 +53,7 @@ namespace Ogre
         }
         else
         {
-            if (context.material)
+            if (!context.material.isNull())
             {
                 LogManager::getSingleton().logMessage(
                     "Error in material " + context.material->getName() +
@@ -1445,7 +1445,7 @@ namespace Ogre
     bool parseParamIndexed(String& params, MaterialScriptContext& context)
     {
         // NB skip this if the program is not supported or could not be found
-        if (!context.program || !context.program->isSupported())
+        if (context.program.isNull() || !context.program->isSupported())
         {
             return false;
         }
@@ -1470,7 +1470,7 @@ namespace Ogre
     bool parseParamIndexedAuto(String& params, MaterialScriptContext& context)
     {
         // NB skip this if the program is not supported or could not be found
-        if (!context.program || !context.program->isSupported())
+        if (context.program.isNull() || !context.program->isSupported())
         {
             return false;
         }
@@ -1495,7 +1495,7 @@ namespace Ogre
     bool parseParamNamed(String& params, MaterialScriptContext& context)
     {
         // NB skip this if the program is not supported or could not be found
-        if (!context.program || !context.program->isSupported())
+        if (context.program.isNull() || !context.program->isSupported())
         {
             return false;
         }
@@ -1532,7 +1532,7 @@ namespace Ogre
     bool parseParamNamedAuto(String& params, MaterialScriptContext& context)
     {
         // NB skip this if the program is not supported or could not be found
-        if (!context.program || !context.program->isSupported())
+        if (context.program.isNull() || !context.program->isSupported())
         {
             return false;
         }
@@ -1564,8 +1564,8 @@ namespace Ogre
     bool parseMaterial(String& params, MaterialScriptContext& context)
     {
         // Create a brand new material
-        context.material = static_cast<Material*>(
-            MaterialManager::getSingleton().create(params));
+        context.material = 
+			MaterialManager::getSingleton().create(params, context.groupName);
         // Remove pre-created technique from defaults
         context.material->removeAllTechniques();
 
@@ -1626,9 +1626,8 @@ namespace Ogre
         // update section
         context.section = MSS_PROGRAM_REF;
 
-        context.program = static_cast<GpuProgram*>(
-            GpuProgramManager::getSingleton().getByName(params));
-        if (context.program == 0)
+        context.program = GpuProgramManager::getSingleton().getByName(params);
+        if (context.program.isNull())
         {
             // Unknown program
             logParseError("Invalid vertex_program_ref entry - vertex program " 
@@ -1657,9 +1656,8 @@ namespace Ogre
         // update section
         context.section = MSS_PROGRAM_REF;
 
-        context.program = static_cast<GpuProgram*>(
-            GpuProgramManager::getSingleton().getByName(params));
-        if (context.program == 0)
+        context.program = GpuProgramManager::getSingleton().getByName(params);
+        if (context.program.isNull())
         {
             // Unknown program
             logParseError("Invalid vertex_program_ref entry - vertex program " 
@@ -1688,9 +1686,8 @@ namespace Ogre
         // update section
         context.section = MSS_PROGRAM_REF;
 
-        context.program = static_cast<GpuProgram*>(
-            GpuProgramManager::getSingleton().getByName(params));
-        if (context.program == 0)
+        context.program = GpuProgramManager::getSingleton().getByName(params);
+        if (context.program.isNull())
         {
             // Unknown program
             logParseError("Invalid vertex_program_ref entry - vertex program " 
@@ -1719,9 +1716,8 @@ namespace Ogre
         // update section
         context.section = MSS_PROGRAM_REF;
 
-        context.program = static_cast<GpuProgram*>(
-            GpuProgramManager::getSingleton().getByName(params));
-        if (context.program == 0)
+        context.program = GpuProgramManager::getSingleton().getByName(params);
+        if (context.program.isNull())
         {
             // Unknown program
             logParseError("Invalid fragment_program_ref entry - fragment program " 
@@ -2013,11 +2009,11 @@ namespace Ogre
         mProgramDefaultParamAttribParsers.insert(AttribParserList::value_type("param_named", (ATTRIBUTE_PARSER)parseParamNamedAuto));
 
         mScriptContext.section = MSS_NONE;
-        mScriptContext.material = 0;
+        mScriptContext.material.setNull();
         mScriptContext.technique = 0;
         mScriptContext.pass = 0;
         mScriptContext.textureUnit = 0;
-        mScriptContext.program = 0;
+        mScriptContext.program.setNull();
         mScriptContext.lineNo = 0;
         mScriptContext.filename = "";
 		mScriptContext.techLev = -1;
@@ -2028,25 +2024,26 @@ namespace Ogre
     }
 
     //-----------------------------------------------------------------------
-    void MaterialSerializer::parseScript(DataChunk& chunk, const String& filename)
+    void MaterialSerializer::parseScript(DataStreamPtr& stream, const String& groupName)
     {
         String line;
         bool nextIsOpenBrace = false;
 
         mScriptContext.section = MSS_NONE;
-        mScriptContext.material = 0;
+        mScriptContext.material.setNull();
         mScriptContext.technique = 0;
         mScriptContext.pass = 0;
         mScriptContext.textureUnit = 0;
-        mScriptContext.program = 0;
+        mScriptContext.program.setNull();
         mScriptContext.lineNo = 0;
 		mScriptContext.techLev = -1;
 		mScriptContext.passLev = -1;
 		mScriptContext.stateLev = -1;
-        mScriptContext.filename = filename;
-        while(!chunk.isEOF())
+        mScriptContext.filename = stream->getName();
+		mScriptContext.groupName = groupName;
+        while(!stream->eof())
         {
-            line = chunk.getLine();
+            line = stream->getLine();
             mScriptContext.lineNo++;
             
             // DEBUG LINE
@@ -2080,6 +2077,9 @@ namespace Ogre
             logParseError("Unexpected end of file.", mScriptContext);
         }
 
+		// Make sure we invalidate our context shared pointer (don't wanna hold on)
+		mScriptContext.material.setNull();
+
     }
     //-----------------------------------------------------------------------
     bool MaterialSerializer::parseScriptLine(String& line)
@@ -2103,7 +2103,7 @@ namespace Ogre
             {
                 // End of material
                 mScriptContext.section = MSS_NONE;
-                mScriptContext.material = NULL;
+                mScriptContext.material.setNull();
 				//Reset all levels for next material
 				mScriptContext.passLev = -1;
 				mScriptContext.stateLev= -1;
@@ -2178,7 +2178,7 @@ namespace Ogre
             {
                 // End of program
                 mScriptContext.section = MSS_PASS;
-                mScriptContext.program = NULL;
+                mScriptContext.program.setNull();
             }
             else
             {
@@ -2244,7 +2244,7 @@ namespace Ogre
 	{
 		// Now it is time to create the program and propagate the parameters
 		MaterialScriptProgramDefinition* def = mScriptContext.programDef;
-        GpuProgram* gp = 0;
+        GpuProgramPtr gp;
 		if (def->language == "asm")
 		{
 			// Native assembler
@@ -2261,7 +2261,8 @@ namespace Ogre
 			}
 			// Create
 			gp = GpuProgramManager::getSingleton().
-				createProgram(def->name, def->source, def->progType, def->syntax);
+				createProgram(def->name, mScriptContext.groupName, def->source, 
+                    def->progType, def->syntax);
 
 		}
 		else
@@ -2276,8 +2277,10 @@ namespace Ogre
 			// Create
             try 
             {
-			    HighLevelGpuProgram* hgp = HighLevelGpuProgramManager::getSingleton().
-				    createProgram(def->name, def->language, def->progType);
+			    HighLevelGpuProgramPtr hgp = HighLevelGpuProgramManager::getSingleton().
+				    createProgram(def->name, mScriptContext.groupName, 
+                        def->language, def->progType);
+                // Assign to generalised version
                 gp = hgp;
                 // Set source file
                 hgp->setSourceFile(def->source);
@@ -2298,7 +2301,7 @@ namespace Ogre
             {
                 logParseError("Could not create GPU program '"
                     + def->name + "', error reported was: " + e.getFullDescription(), mScriptContext);
-				mScriptContext.program = 0;
+				mScriptContext.program.setNull();
             	mScriptContext.programParams.setNull();
 				return;
             }
@@ -2334,7 +2337,7 @@ namespace Ogre
 
             }
             // Reset
-            mScriptContext.program = 0;
+            mScriptContext.program.setNull();
             mScriptContext.programParams.setNull();
         }
 
@@ -2363,7 +2366,7 @@ namespace Ogre
         }
     }
     //-----------------------------------------------------------------------
-    void MaterialSerializer::exportMaterial(const Material *pMat, const String &fileName, bool exportDefaults)
+    void MaterialSerializer::exportMaterial(const MaterialPtr& pMat, const String &fileName, bool exportDefaults)
     {
         clearQueue();
         mDefaults = exportDefaults;
@@ -2389,7 +2392,7 @@ namespace Ogre
         clearQueue();
     }
     //-----------------------------------------------------------------------
-    void MaterialSerializer::queueForExport(const Material *pMat, bool clearQueued, bool exportDefaults)
+    void MaterialSerializer::queueForExport(const MaterialPtr& pMat, bool clearQueued, bool exportDefaults)
     {
         if (clearQueued)
             clearQueue();
@@ -2408,7 +2411,7 @@ namespace Ogre
         return mBuffer;
     }
     //-----------------------------------------------------------------------
-    void MaterialSerializer::writeMaterial(const Material *pMat)
+    void MaterialSerializer::writeMaterial(const MaterialPtr& pMat)
     {
         LogManager::getSingleton().logMessage("MaterialSerializer : writing material " + pMat->getName() + " to queue.", LML_CRITICAL);
         // Material name
@@ -2452,8 +2455,7 @@ namespace Ogre
 			}
 
             // Iterate over techniques
-            Material::TechniqueIterator it = 
-                const_cast<Material*>(pMat)->getTechniqueIterator();
+            Material::TechniqueIterator it = pMat->getTechniqueIterator();
             while (it.hasMoreElements())
             {
                 writeTechnique(it.getNext());

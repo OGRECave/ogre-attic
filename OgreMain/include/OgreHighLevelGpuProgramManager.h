@@ -41,7 +41,9 @@ namespace Ogre {
         virtual ~HighLevelGpuProgramFactory();
 		/// Get the name of the language this factory creates programs for
 		virtual const String& getLanguage(void) const = 0;
-        virtual HighLevelGpuProgram* create(const String& name, GpuProgramType gptype) = 0;
+        virtual HighLevelGpuProgram* create(ResourceManager* creator, 
+            const String& name, ResourceHandle handle,
+            const String& group, bool isManual, ManualResourceLoader* loader) = 0;
 		virtual void destroy(HighLevelGpuProgram* prog) = 0;
 	};
 	/** This ResourceManager manages high-level vertex and fragment programs. 
@@ -68,27 +70,15 @@ namespace Ogre {
 
 		HighLevelGpuProgramFactory* getFactory(const String& language);
 
+        /// @copydoc ResourceManager::createImpl
+        Resource* createImpl(const String& name, ResourceHandle handle, 
+            const String& group, bool isManual, ManualResourceLoader* loader,
+            const NameValuePairList* params);
 	public:
 		HighLevelGpuProgramManager();
 		~HighLevelGpuProgramManager();
 		/** Add a new factory object for high-level programs of a given language. */
 		void addFactory(HighLevelGpuProgramFactory* factory);
-
-        /** Creates a new blank resource, compatible with this manager.
-            @remarks
-                Resource managers handle disparate types of resources. This method returns a pointer to a
-                valid new instance of the kind of resource managed here. The caller should  complete the
-                details of the returned resource and call ResourceManager::load to load the resource. Note
-                that it is the CALLERS responsibility to destroy this object when it is no longer required
-                (after calling ResourceManager::unload if it had been loaded).
-        */
-		virtual Resource* create( const String& name ) 
-		{
-			// N/A, we need to know the type
-			Except(Exception::ERR_INTERNAL_ERROR, "You should call load "
-				"with a specific type", "HighLevelGpuProgramManager::create");
-		}
-
 
 
         /** Create a new, unloaded HighLevelGpuProgram. 
@@ -97,12 +87,14 @@ namespace Ogre {
 			You will have to call further methods on the returned program in order to 
 			define the program fully before you can load it.
 		@param name The identifying name of the program
+        @param groupName The name of the resource group which this program is
+            to be a member of
 		@param language Code of the language to use (e.g. "cg")
 		@param gptype The type of program to create
 		*/
-		virtual HighLevelGpuProgram* createProgram(
-			const String& name, const String& language, GpuProgramType gptype, 
-            int priority = 1);
+		virtual HighLevelGpuProgramPtr createProgram(
+			const String& name, const String& groupName, 
+            const String& language, GpuProgramType gptype);
 
         /** Override standard Singleton retrieval.
         @remarks

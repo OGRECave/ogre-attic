@@ -74,7 +74,7 @@ namespace Ogre {
         };
 
         /** Default constructor. */
-        RotationAffector();
+        RotationAffector(ParticleSystem* psys);
 
         /** See ParticleAffector. */
 		void _initParticle(Particle* pParticle);

@@ -264,10 +264,12 @@ namespace Ogre {
             ClientToScreen( mHWnd, (POINT*)&rcBlitDest.right );
         }
 
-        LogManager::getSingleton().logMessage( 
-            LML_NORMAL, 
-            "Created Win32 Rendering Window '%s': %i x %i @ %ibpp", 
-            mName.c_str(), mWidth, mHeight, mColourDepth );
+        StringUtil::StrStreamType str;
+        str << "D3D7 : Created D3D7 Rendering Window '"
+            << mName << "' : " << mWidth << "x" << mHeight 
+            << ", " << mColourDepth << "bpp";
+        LogManager::getSingleton().logMessage(
+            LML_NORMAL, str.str());
 
         // Set up DirectDraw if appropriate
         // NB devices & surfaces set up for root window only
@@ -661,10 +663,10 @@ namespace Ogre {
          }
  
  
-         ImageCodec::ImageData imgData;
-         imgData.width = desc.dwWidth;
-         imgData.height = desc.dwHeight;
-         imgData.format = PF_R8G8B8;
+         ImageCodec::ImageData *imgData = new ImageCodec::ImageData();
+         imgData->width = desc.dwWidth;
+         imgData->height = desc.dwHeight;
+         imgData->format = PF_R8G8B8;
  
          // Allocate contiguous buffer (surfaces aren't necessarily contiguous)
          uchar* pBuffer = new uchar[desc.dwWidth * desc.dwHeight * 3];
@@ -715,7 +717,7 @@ namespace Ogre {
  
  
          // Wrap buffer in a chunk
-         DataChunk chunk(pBuffer, desc.dwWidth * desc.dwHeight * 3);
+         MemoryDataStreamPtr stream(new MemoryDataStream(pBuffer, desc.dwWidth * desc.dwHeight * 3, false));
  
          // Get codec 
          size_t pos = filename.find_last_of(".");
@@ -733,7 +735,7 @@ namespace Ogre {
          Codec * pCodec = Codec::getCodec(extension);
  
          // Write out
-         pCodec->codeToFile(chunk, filename, &imgData);
+         pCodec->codeToFile(stream, filename, Codec::CodecDataPtr(imgData));
  
          delete [] pBuffer;
 		 pTempSurf->Release();

@@ -281,6 +281,7 @@ protected:
         waterPlane.d = -30; 
         MeshManager::getSingleton().createPlane(
             "WaterPlane",
+            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
             waterPlane,
             2800, 2800,
             20, 20,

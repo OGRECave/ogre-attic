@@ -30,18 +30,18 @@ using namespace Imf;
 namespace Ogre {
 
 bool O_IStream::read(char c[], int n) {
-    size_t s = _chunk.read(c, n);
+    size_t s = _stream.read(c, n);
     if(s != n)
         throw Iex::InputExc ("Unexpected end of file.");
-    return _chunk.isEOF();
+    return _stream.eof();
 }
 
 Int64 O_IStream::tellg() {
-    return _chunk.getCurrentPtr() - _chunk.getPtr();
+    return _stream.getCurrentPtr() - _stream.getPtr();
 }
 
 void O_IStream::seekg(Int64 pos) {
-    _chunk.seek(pos);
+    _stream.seek(pos);
 }
 
 void O_IStream::clear() {

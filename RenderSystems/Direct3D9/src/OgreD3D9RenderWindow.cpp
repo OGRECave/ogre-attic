@@ -283,9 +283,12 @@ namespace Ogre
 		// track colour depth
 		mColourDepth = colourDepth;
 
+        StringUtil::StrStreamType str;
+        str << "D3D9 : Created D3D9 Rendering Window '"
+            << mName << "' : " << mWidth << "x" << mHeight 
+            << ", " << mColourDepth << "bpp";
 		LogManager::getSingleton().logMessage(
-			LML_NORMAL, "D3D9 : Created D3D9 Rendering Window '%s' : %ix%i, %ibpp",
-			mName.c_str(), mWidth, mHeight, mColourDepth );
+			LML_NORMAL, str.str());
 
 		if( driver && mParentHWnd == NULL )
 		{
@@ -555,10 +558,10 @@ namespace Ogre
 			Except(hr, "can't lock rect!", "D3D9RenderWindow::writeContentsToFile");
 		} 
 
-		ImageCodec::ImageData imgData;
-		imgData.width = desc.Width;
-		imgData.height = desc.Height;
-		imgData.format = PF_R8G8B8;
+        ImageCodec::ImageData *imgData = new ImageCodec::ImageData();
+        imgData->width = desc.Width;
+        imgData->height = desc.Height;
+        imgData->format = PF_R8G8B8;
 
 		// Allocate contiguous buffer (surfaces aren't necessarily contiguous)
 		uchar* pBuffer = new uchar[desc.Width * desc.Height * 3];
@@ -610,7 +613,7 @@ namespace Ogre
 		}
 
 		// Wrap buffer in a chunk
-		DataChunk chunk(pBuffer, desc.Width * desc.Height * 3);
+		MemoryDataStreamPtr stream(new MemoryDataStream(pBuffer, desc.Width * desc.Height * 3, false));
 
 		// Get codec 
 		size_t pos = filename.find_last_of(".");
@@ -628,7 +631,7 @@ namespace Ogre
 		Codec * pCodec = Codec::getCodec(extension);
 
 		// Write out
-		pCodec->codeToFile(chunk, filename, &imgData);
+        pCodec->codeToFile(stream, filename, Codec::CodecDataPtr(imgData));
 
 		delete [] pBuffer;
 

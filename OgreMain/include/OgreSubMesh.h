@@ -52,7 +52,8 @@ namespace Ogre {
     {
         friend class Mesh;
         friend class MeshSerializerImpl;
-        friend class MeshSerializerImpl_v1;
+        friend class MeshSerializerImpl_v1_2;
+        friend class MeshSerializerImpl_v1_1;
     public:
         SubMesh();
         ~SubMesh();
@@ -78,7 +79,7 @@ namespace Ogre {
 
         ProgressiveMesh::LODFaceList mLodFaceList;
 
-        /// Reference to parent Mesh.
+        /// Reference to parent Mesh (not a smart pointer so child does not keep parent alive).
         Mesh* parent;
 
         /// Sets the name of the Material which this SubMesh will use

@@ -56,7 +56,6 @@ namespace Ogre {
     {
         mTransparent = false;
         mAlignment = Left;
-		mpFont = 0;
 
         mColourTop = ColourValue::White;
         mColourBottom = ColourValue::White;
@@ -144,7 +143,7 @@ namespace Ogre {
     {
         Real *pVert;
 
-		if (!mpFont)
+		if (mpFont.isNull())
 		{
 			// not initialised yet, probably due to the order of creation in a template
 			return;
@@ -329,8 +328,8 @@ namespace Ogre {
 
     void TextAreaOverlayElement::setFontName( const String& font )
     {
-        mpFont = (Font*)FontManager::getSingleton().getByName( font );
-        if (!mpFont)
+        mpFont = FontManager::getSingleton().getByName( font );
+        if (mpFont.isNull())
 			Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find font " + font,
 				"TextAreaOverlayElement::setFontName" );
         mpFont->load();

@@ -37,7 +37,8 @@ namespace Ogre {
     RotationAffector::CmdRotationRangeEnd			RotationAffector::msRotationRangeEndCmd;
     
     //-----------------------------------------------------------------------
-	RotationAffector::RotationAffector() :
+	RotationAffector::RotationAffector(ParticleSystem* psys) :
+        ParticleAffector(psys),
 		mRotationSpeedRangeStart(0),
 		mRotationSpeedRangeEnd(0),
 		mRotationRangeStart(0),
@@ -75,10 +76,10 @@ namespace Ogre {
             mRotationRangeStart + 
             (Math::UnitRandom() * 
                 (mRotationRangeEnd - mRotationRangeStart)));
-        pParticle->setRotationSpeed(
+        pParticle->rotationSpeed =
             mRotationSpeedRangeStart + 
             (Math::UnitRandom() * 
-                (mRotationSpeedRangeEnd - mRotationSpeedRangeStart)));
+                (mRotationSpeedRangeEnd - mRotationSpeedRangeStart));
         
 	}
 	//-----------------------------------------------------------------------
@@ -97,7 +98,7 @@ namespace Ogre {
         {
             p = pi.getNext();
 
-			NewRotation = p->getRotation() + (ds * p->getRotationSpeed());
+			NewRotation = p->rotation + (ds * p->rotationSpeed);
 			p->setRotation( NewRotation );
         }
 

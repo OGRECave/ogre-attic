@@ -41,6 +41,7 @@ Ogre-dependent is in the visualization/logging routines and the use of the Timer
 #include "OgrePrerequisites.h"
 #include "OgreSingleton.h"
 #include "OgreString.h"
+#include "OgreOverlay.h"
 
 #if OGRE_PROFILING == 1
 #   if OGRE_COMPILER != COMPILER_BORL

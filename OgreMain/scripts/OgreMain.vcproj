@@ -22,7 +22,7 @@
 				ImproveFloatingPointConsistency="FALSE"
 				OptimizeForProcessor="2"
 				AdditionalIncludeDirectories="..\include;..\..\Dependencies\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_USRDLL;_MT;_DLL;OGRE_NONCLIENT_BUILD"
+				PreprocessorDefinitions="WIN32;_DEBUG;_USRDLL;_MT;OGRE_NONCLIENT_BUILD"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="TRUE"
@@ -39,14 +39,14 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib zlib.lib freetype.lib user32.lib $(NOINHERIT)"
+				AdditionalDependencies="kernel32.lib user32.lib zziplibd.lib zdll.lib freetype219MT_D.lib"
 				OutputFile="$(OutDir)/OgreMain_d.dll"
 				Version="0.99"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\Dependencies\lib\$(ConfigurationName)"
 				IgnoreAllDefaultLibraries="FALSE"
-				IgnoreDefaultLibraryNames=""
+				IgnoreDefaultLibraryNames="LIBCD;LIBCMTD"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/OgreMain_d.pdb"
 				SubSystem="1"
@@ -90,7 +90,7 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				EnableFiberSafeOptimizations="TRUE"
 				OptimizeForProcessor="2"
 				AdditionalIncludeDirectories="..\include;..\..\Dependencies\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_USRDLL;_MT;_DLL;OGRE_NONCLIENT_BUILD"
+				PreprocessorDefinitions="WIN32;NDEBUG;_USRDLL;_MT;OGRE_NONCLIENT_BUILD"
 				StringPooling="TRUE"
 				MinimalRebuild="TRUE"
 				RuntimeLibrary="2"
@@ -106,7 +106,7 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib zlib.lib freetype.lib user32.lib $(NOINHERIT)"
+				AdditionalDependencies="kernel32.lib user32.lib zziplib.lib zdll.lib freetype219MT.lib"
 				OutputFile="$(OutDir)/OgreMain.dll"
 				Version="0.99"
 				LinkIncremental="1"
@@ -160,9 +160,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreAnimationTrack.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreArchiveEx.cpp">
-			</File>
-			<File
 				RelativePath="..\src\OgreArchiveManager.cpp">
 			</File>
 			<File
@@ -173,6 +170,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\src\OgreBillboard.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreBillboardParticleRenderer.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreBillboardSet.cpp">
@@ -214,7 +214,7 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreCursor.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreDataChunk.cpp">
+				RelativePath="..\src\OgreDataStream.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreDefaultHardwareBufferManager.cpp">
@@ -248,6 +248,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\src\OgreExternalTextureSourceManager.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreFileSystem.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreFont.cpp">
@@ -391,6 +394,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgrePanelOverlayElement.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreParticle.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreParticleEmitter.cpp">
 			</File>
 			<File
@@ -474,6 +480,12 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreRenderWindow.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreResource.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreResourceGroupManager.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreResourceManager.cpp">
 			</File>
 			<File
@@ -487,9 +499,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\src\OgreRotationSpline.cpp">
-			</File>
-			<File
-				RelativePath="..\src\OgreSDDataChunk.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreSceneManager.cpp">
@@ -599,26 +608,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			<File
 				RelativePath="..\src\OgreZip.cpp">
 			</File>
-			<File
-				RelativePath="..\src\OgreZipArchiveFactory.cpp">
-			</File>
-			<File
-				RelativePath="..\src\unzip.c">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-						PrecompiledHeaderThrough=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-						PrecompiledHeaderThrough=""/>
-				</FileConfiguration>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -642,7 +631,7 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreAnimationTrack.h">
 			</File>
 			<File
-				RelativePath="..\include\OgreArchiveEx.h">
+				RelativePath="..\include\OgreArchive.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreArchiveFactory.h">
@@ -658,6 +647,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreBillboard.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreBillboardParticleRenderer.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreBillboardSet.h">
@@ -711,7 +703,7 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreCursor.h">
 			</File>
 			<File
-				RelativePath="..\include\OgreDataChunk.h">
+				RelativePath="..\include\OgreDataStream.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreDefaultHardwareBufferManager.h">
@@ -763,6 +755,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreFactoryObj.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreFileSystem.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreFont.h">
@@ -957,6 +952,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreParticleSystemManager.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreParticleSystemRenderer.h">
+			</File>
+			<File
 				RelativePath="..\include\OgrePass.h">
 			</File>
 			<File
@@ -1038,6 +1036,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreResource.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreResourceGroupManager.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreResourceManager.h">
 			</File>
 			<File
@@ -1045,9 +1046,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreRotationalSpline.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreSDDataChunk.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreSceneManager.h">
@@ -1060,6 +1058,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreSceneQuery.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreScriptLoader.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreScrollEvent.h">
@@ -1191,13 +1192,7 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreZip.h">
 			</File>
 			<File
-				RelativePath="..\include\OgreZipArchiveFactory.h">
-			</File>
-			<File
 				RelativePath="..\include\asm_math.h">
-			</File>
-			<File
-				RelativePath="..\include\unzip.h">
 			</File>
 		</Filter>
 		<Filter

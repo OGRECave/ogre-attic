@@ -253,10 +253,9 @@ namespace Ogre {
     {
         OgreGuard( "D3DRenderSystem::setConfigOption" );
 
-        char msg[128];
-
-        sprintf(msg, "RenderSystem Option: %s = %s", name.c_str(), value.c_str());
-        LogManager::getSingleton().logMessage(msg);
+        StringUtil::StrStreamType str;
+        str << "RenderSystem Option: " << name << " = " << value;
+        LogManager::getSingleton().logMessage(str.str());
 
         // Find option
         ConfigOptionMap::iterator it = mOptions.find(name);
@@ -266,9 +265,10 @@ namespace Ogre {
             it->second.currentValue = value;
         else
         {
-            sprintf(msg, "Option named %s does not exist.", name.c_str());
+            str.clear();
+            str << "Option named " << name << " does not exist.";
             Except(Exception::ERR_INVALIDPARAMS,
-                msg, "D3DRenderSystem::setConfigOption");
+                str.str(), "D3DRenderSystem::setConfigOption");
         }
 
         // Refresh other options if DD Driver changed
@@ -904,8 +904,8 @@ namespace Ogre {
     void D3DRenderSystem::_setTexture(size_t stage, bool enabled, const String &texname)
     {
         HRESULT hr;
-        D3DTexture* dt = static_cast< D3DTexture* >(TextureManager::getSingleton().getByName(texname));
-        if (enabled && dt)
+        D3DTexturePtr dt = TextureManager::getSingleton().getByName(texname);
+        if (enabled && !dt.isNull())
         {
             LPDIRECTDRAWSURFACE7 pTex = dt->getDDSurface();
             if (pTex != mTexStageDesc[stage].pTex)

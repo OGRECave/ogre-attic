@@ -30,17 +30,17 @@ http://www.gnu.org/copyleft/lesser.txt.
 using namespace Ogre;
 
 /// Function def for material attribute parser.
-typedef void (*MATERIAL_ATTRIB_PARSER)(StringVector::iterator&, int, Material*);
+typedef void (*MATERIAL_ATTRIB_PARSER)(StringVector::iterator&, int, MaterialPtr&);
 /// Function def for texture layer attribute parser.
-typedef void (*TEXLAYER_ATTRIB_PARSER)(StringVector::iterator&, int, Material*, TextureUnitState*);
+typedef void (*TEXLAYER_ATTRIB_PARSER)(StringVector::iterator&, int, MaterialPtr&, TextureUnitState*);
 /** Class for reading pre-0.13 material scripts
 */
 class OldMaterialReader 
 {
 protected:
-    void parseNewTextureLayer( DataChunk& chunk, Material* pMat );
-    void parseAttrib( const String& line, Material* pMat);
-    void parseLayerAttrib( const String& line, Material* pMat, TextureUnitState* pLayer );
+    void parseNewTextureLayer( DataStreamPtr& stream, MaterialPtr& pMat );
+    void parseAttrib( const String& line, MaterialPtr& pMat);
+    void parseLayerAttrib( const String& line, MaterialPtr& pMat, TextureUnitState* pLayer );
 
     /// Keyword-mapped attribute parsers.
     typedef std::map<String, MATERIAL_ATTRIB_PARSER> MatAttribParserList;
@@ -56,9 +56,9 @@ public:
     OldMaterialReader();
     ~OldMaterialReader();
 
-    /** Parses a Material script file passed as a chunk.
+    /** Parses a Material script file passed as a stream.
     */
-    void parseScript(DataChunk& chunk);
+    void parseScript(DataStreamPtr& stream);
 
 };
 

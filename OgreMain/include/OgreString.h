@@ -135,6 +135,29 @@ namespace Ogre {
         */
         static bool endsWith(const String& str, const String& pattern, bool lowerCase = true);
 
+        /** Method for standardising paths - use forward slashes only, end with slash. 
+        */
+        static String standardisePath( const String &init);
+
+        /** Method for splitting a fully qualified filename into the base name 
+            and path. 
+        @remarks
+            Path is standardised as in standardisePath
+        */
+        static void splitFilename(const String& qualifiedName, 
+            String& outBasename, String& outPath);
+
+        /** Simple pattern-matching routine allowing a wildcard pattern. 
+        @param str String to test
+        @param pattern Pattern to match against; can include simple '*' wildcards
+        @param caseSensitive Whether the match is case sensitive or not
+        */
+        static bool match(const String& str, const String& pattern, bool caseSensitive = true);
+            
+
+
+
+
         /// Constant blank string, useful for returning by ref where local does not exist
         static const String BLANK;
     };

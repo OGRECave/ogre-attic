@@ -45,7 +45,8 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    HollowEllipsoidEmitter::HollowEllipsoidEmitter()
+    HollowEllipsoidEmitter::HollowEllipsoidEmitter(ParticleSystem* psys)
+        : EllipsoidEmitter(psys)
     {
         if (initDefaults("HollowEllipsoid"))
         {
@@ -104,7 +105,7 @@ namespace Ogre {
         genEmissionVelocity(pParticle->mDirection);
 
         // Generate simpler data
-        pParticle->mTimeToLive = pParticle->mTotalTimeToLive = genEmissionTTL();
+        pParticle->timeToLive = pParticle->totalTimeToLive = genEmissionTTL();
         
     }
     //-----------------------------------------------------------------------

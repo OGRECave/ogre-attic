@@ -44,9 +44,11 @@ namespace Ogre {
         return sLanguageName;
     }
     //-----------------------------------------------------------------------
-    HighLevelGpuProgram* D3D9HLSLProgramFactory::create(const String& name, GpuProgramType gptype)
+    HighLevelGpuProgram* D3D9HLSLProgramFactory::create(ResourceManager* creator, 
+        const String& name, ResourceHandle handle,
+        const String& group, bool isManual, ManualResourceLoader* loader)
     {
-        return new D3D9HLSLProgram(name, gptype, sLanguageName);
+        return new D3D9HLSLProgram(creator, name, handle, group, isManual, loader);
     }
     //-----------------------------------------------------------------------
 	void D3D9HLSLProgramFactory::destroy(HighLevelGpuProgram* prog)

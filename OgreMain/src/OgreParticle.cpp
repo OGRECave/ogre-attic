@@ -4,7 +4,7 @@ This source file is part of OGRE
     (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
-Copyright © 2000-2002 The OGRE Team
+Copyright © 2000-2004 The OGRE Team
 Also see acknowledgements in Readme.html
 
 This program is free software; you can redistribute it and/or modify it under
@@ -22,31 +22,36 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#ifndef _StringResource_H__
-#define _StringResource_H__
+#include "OgreStableHeaders.h"
 
-#include "OgrePrerequisites.h"
-#include "OgreResource.h"
-
-#include "OgreString.h"
+#include "OgreParticle.h"
+#include "OgreParticleSystem.h"
 
 namespace Ogre {
 
-	/** Wraps a String as a Resource for generic handling. */
-    class StringResource : public Resource
+    //-----------------------------------------------------------------------
+    void Particle::setRotation(const Radian& rotation)
     {
-    protected:
-    public:
-        StringResource(const String& name) :
-		  Resource()
-        { 
-		  mName = name;
-        }
+        mRotation = rotation;
+        if (mRotation != Radian(0))
+            mParentSystem->_notifyParticleRotated();
+    }
+    //-----------------------------------------------------------------------
+    void Particle::setDimensions(Real width, Real height)
+    {
+        mOwnDimensions = true;
+        mWidth = width;
+        mHeight = height;
+        mParentSystem->_notifyParticleResized();
+    }
+    //-----------------------------------------------------------------------
+    void Particle::_notifyOwner(ParticleSystem* owner)
+    {
+        mParentSystem = owner;
+    }
 
-		virtual void load() {};
 
-    };
 
-} // namespace
 
-#endif //_StringResource_H__
+}
+

@@ -26,7 +26,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGLTexture.h"
 #include "OgreGLSupport.h"
 #include "OgreTextureManager.h"
-#include "OgreDataChunk.h"
 #include "OgreImage.h"
 #include "OgreLogManager.h"
 #include "OgreCamera.h"
@@ -34,7 +33,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRoot.h"
 #include "OgreCodec.h"
 #include "OgreImageCodec.h"
-#include "OgreSDDataChunk.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32
 #   include <windows.h>
@@ -53,28 +51,20 @@ namespace Ogre {
 		return result-1;
 	}
 
-    GLTexture::GLTexture(const String& name, GLSupport& support, TextureType texType) :
-        mGLSupport(support)
-    {
-        mName = name;
-        mTextureType = texType;
-
-        mUsage = TU_DEFAULT;
-        enable32Bit(false);
-    }
-
-    GLTexture::GLTexture(const String& name, GLSupport& support, TextureType texType, 
-        uint width, uint height, uint num_mips, PixelFormat format, 
-        TextureUsage usage) : 
-            Texture(name, texType, width, height, 1, num_mips, format, usage),
-            mGLSupport(support),
-            mTextureID(0)
+    GLTexture::GLTexture(ResourceManager* creator, const String& name, 
+        ResourceHandle handle, const String& group, bool isManual, 
+        ManualResourceLoader* loader, GLSupport& support) 
+        : Texture(creator, name, handle, group, isManual, loader),
+        mGLSupport(support), mTextureID(0)
     {
     }
+
 
     GLTexture::~GLTexture()
     {
-        unload();
+        // have to call this here reather than in Resource destructor
+        // since calling virtual methods in base destructors causes crash
+        unload(); 
     }
 
     GLenum GLTexture::getGLTextureTarget(void) const
@@ -261,6 +251,10 @@ namespace Ogre {
         images.clear();
     }
 
+    void GLTexture::createInternalResources(void)
+    {
+        glGenTextures( 1, &mTextureID );
+    }
 
     void GLTexture::loadImages( const std::vector<Image>& images )
     {
@@ -273,7 +267,8 @@ namespace Ogre {
         }
 
         // Create the GL texture
-        glGenTextures( 1, &mTextureID );
+        createInternalResources();
+
         glBindTexture( getGLTextureTarget(), mTextureID );
 
         if(mNumMipMaps && Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_AUTOMIPMAP))
@@ -286,10 +281,11 @@ namespace Ogre {
         {
             const Image& img = images[i];
 
+            StringUtil::StrStreamType str;
+            str << "GLTexture: Loading " << mName << " with "
+                << mNumMipMaps << " mipmaps from Image.";
             LogManager::getSingleton().logMessage( 
-                LML_NORMAL,
-                "GLTexture: Loading %s with %d mipmaps from Image.", 
-                mName.c_str(), mNumMipMaps );        
+                LML_NORMAL, str.str());
 
             mFormat = img.getFormat();
 
@@ -332,7 +328,8 @@ namespace Ogre {
             Except( Exception::UNIMPLEMENTED_FEATURE, "**** Create render texture implemented only for 2D textures!!! ****", "GLTexture::createRenderTexture" );
 
         // Create the GL texture
-        glGenTextures( 1, &mTextureID );
+        createInternalResources();
+
         glBindTexture( GL_TEXTURE_2D, mTextureID );
 
         glTexImage2D( GL_TEXTURE_2D, 0, getGLTextureInternalFormat(),
@@ -342,7 +339,7 @@ namespace Ogre {
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mNumMipMaps );
     }
 
-    void GLTexture::load()
+    void GLTexture::loadImpl()
     {
         if( mUsage == TU_RENDERTARGET )
         {
@@ -355,7 +352,7 @@ namespace Ogre {
                 mTextureType == TEX_TYPE_3D)
             {
                 Image img;
-                img.load( mName );
+                img.load(mName, mGroup);
 
                 if (StringUtil::endsWith(getName(), "dds") && img.hasFlag(IF_CUBEMAP))
                 {
@@ -368,8 +365,9 @@ namespace Ogre {
                     uint offset = 0;
                     for(int i = 0; i < 6; i++)
                     {
-                        DataChunk chunk(img.getData() + offset, imageSize);
-                        newImage.loadRawData(chunk, img.getWidth(), 
+                        DataStreamPtr stream(
+                            new MemoryDataStream(img.getData() + offset, imageSize, false));
+                        newImage.loadRawData(stream, img.getWidth(), 
                             img.getHeight(), img.getFormat());
                         offset += imageSize;
                         images.push_back(newImage);
@@ -401,7 +399,7 @@ namespace Ogre {
                     ext = mName.substr(pos);
                     String fullName = baseName + suffixes[i] + ext;
 
-                    img.load( fullName );
+                    img.load(fullName, mGroup);
                     images.push_back(img);
                 }
 
@@ -413,13 +411,9 @@ namespace Ogre {
         }
     }
     
-    void GLTexture::unload()
+    void GLTexture::unloadImpl()
     {
-        if( mIsLoaded )
-        {
-            glDeleteTextures( 1, &mTextureID );
-            mIsLoaded = false;
-        }
+        glDeleteTextures( 1, &mTextureID );
     }
 
     void GLTexture::generateMipMaps( const uchar *data, bool useSoftware, 
@@ -502,40 +496,40 @@ namespace Ogre {
 
     void GLRenderTexture::_copyToTexture(void)
     {		
-        glBindTexture(GL_TEXTURE_2D,
-            static_cast<GLTexture*>(mTexture)->getGLID());
+        glBindTexture(GL_TEXTURE_2D, mGLTexture->getGLID());
 			
-        glCopyTexSubImage2D(GL_TEXTURE_2D, mTexture->getNumMipMaps(), 0, 0,
+        glCopyTexSubImage2D(GL_TEXTURE_2D, mGLTexture->getNumMipMaps(), 0, 0,
             0, 0, mWidth, mHeight);
 
     }
     
     void GLRenderTexture::writeContentsToFile( const String & filename ) 
     {
-        ImageCodec::ImageData imgData;
+        ImageCodec::ImageData *imgData = new ImageCodec::ImageData();
         
-        imgData.width = mTexture->getWidth();
-        imgData.height = mTexture->getHeight();
-        imgData.format = PF_R8G8B8;
+        imgData->width = mGLTexture->getWidth();
+        imgData->height = mGLTexture->getHeight();
+        imgData->format = PF_R8G8B8;
 
         // Allocate buffer 
-        uchar* pBuffer = new uchar[imgData.width * imgData.height * 3];
+        uchar* pBuffer = new uchar[imgData->width * imgData->height * 3];
 
         // Read pixels
         // I love GL: it does all the locking & colour conversion for us
-        glBindTexture(GL_TEXTURE_2D,
-            static_cast<GLTexture*>(mTexture)->getGLID());
+        glBindTexture(GL_TEXTURE_2D, mGLTexture->getGLID());
         glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, pBuffer);
 
         // Wrap buffer in a chunk
-        DataChunk chunk(pBuffer, imgData.width * imgData.height * 3);
+        DataStreamPtr stream(new MemoryDataStream(
+            pBuffer, imgData->width * imgData->height * 3, false));
 
         // Need to flip the read data over in Y though
         Image img;
-        img.loadRawData(chunk, imgData.width, imgData.height, imgData.format );
+        img.loadRawData(stream, imgData->width, imgData->height, imgData->format );
         img.flipAroundX();
 
-        DataChunk chunkFlipped(img.getData(), chunk.getSize());
+        MemoryDataStreamPtr streamFlipped(
+            new MemoryDataStream(img.getData(), stream->size(), false));
 
         // Get codec 
         size_t pos = filename.find_last_of(".");
@@ -553,7 +547,8 @@ namespace Ogre {
         Codec * pCodec = Codec::getCodec(extension);
 
         // Write out
-        pCodec->codeToFile(chunkFlipped, filename, &imgData);
+        Codec::CodecDataPtr codecDataPtr(imgData);
+        pCodec->codeToFile(streamFlipped, filename, codecDataPtr);
 
         delete [] pBuffer;
     }

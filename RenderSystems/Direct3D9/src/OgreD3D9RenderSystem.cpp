@@ -271,9 +271,9 @@ namespace Ogre
 	{
 		OgreGuard( "D3D9RenderSystem::setConfigOption" );
 
-		char msg[128];
-		sprintf( msg, "D3D9 : RenderSystem Option: %s = %s", name.c_str(), value.c_str() );
-		LogManager::getSingleton().logMessage( msg );
+        StringUtil::StrStreamType str;
+        str << "D3D9 : RenderSystem Option: " << name << " = " << value;
+		LogManager::getSingleton().logMessage(str.str());
 
 		// Find option
 		ConfigOptionMap::iterator it = mOptions.find( name );
@@ -283,8 +283,9 @@ namespace Ogre
 			it->second.currentValue = value;
 		else
 		{
-			sprintf( msg, "Option named '%s' does not exist.", name.c_str() );
-			Except( Exception::ERR_INVALIDPARAMS, msg, "D3D9RenderSystem::setConfigOption" );
+            str.clear();
+            str << "Option named '" << name << "' does not exist.";
+			Except( Exception::ERR_INVALIDPARAMS, str.str(), "D3D9RenderSystem::setConfigOption" );
 		}
 
 		// Refresh other options if D3DDriver changed
@@ -1182,8 +1183,8 @@ namespace Ogre
 	void D3D9RenderSystem::_setTexture( size_t stage, bool enabled, const String &texname )
 	{
 		HRESULT hr;
-		D3D9Texture *dt = (D3D9Texture *)TextureManager::getSingleton().getByName(texname);
-		if (enabled && dt)
+		D3D9TexturePtr dt = TextureManager::getSingleton().getByName(texname);
+		if (enabled && !dt.isNull())
 		{
 			IDirect3DBaseTexture9 *pTex = dt->getTexture();
 			if (mTexStageDesc[stage].pTex != pTex)
@@ -1928,17 +1929,10 @@ namespace Ogre
         D3D9VertexDeclaration* d3ddecl = 
             static_cast<D3D9VertexDeclaration*>(decl);
 
-        static VertexDeclaration* lastDecl = 0;
-
-        // attempt to detect duplicates
-        if (!lastDecl || !(*lastDecl == *decl))
+        if (FAILED(hr = mpD3DDevice->SetVertexDeclaration(d3ddecl->getD3DVertexDeclaration())))
         {
-
-            if (FAILED(hr = mpD3DDevice->SetVertexDeclaration(d3ddecl->getD3DVertexDeclaration())))
-            {
-                Except(hr, "Unable to set D3D9 vertex declaration", 
-                    "D3D9RenderSystem::setVertexDeclaration");
-            }
+            Except(hr, "Unable to set D3D9 vertex declaration", 
+                "D3D9RenderSystem::setVertexDeclaration");
         }
 
         // UnGuard

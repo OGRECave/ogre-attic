@@ -39,8 +39,8 @@ class O_IStream: public Imf::IStream
 {
 public:
 
-    O_IStream(DataChunk& chunk, const char fileName[]):
-        IStream (fileName), _chunk(chunk) {}
+    O_IStream(MemoryDataStream& stream, const char fileName[]):
+        IStream (fileName), _stream(stream) {}
 
     virtual bool    read (char c[], int n);
     virtual Imf::Int64   tellg ();
@@ -48,7 +48,7 @@ public:
     virtual void    clear ();
 
 private:
-    DataChunk& _chunk;
+    MemoryDataStream& _stream;
 };
 
 };

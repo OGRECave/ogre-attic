@@ -28,8 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMaterial.h"
 #include "OgreStringVector.h"
 #include "OgreLogManager.h"
-#include "OgreSDDataChunk.h"
-#include "OgreArchiveEx.h"
+#include "OgreArchive.h"
 #include "OgreStringConverter.h"
 #include "OgreBlendMode.h"
 #include "OgreTechnique.h"
@@ -57,89 +56,57 @@ namespace Ogre {
 	    mDefaultMipFilter = FO_POINT;
 		mDefaultMaxAniso = 1;
 
+        // Loading order
+        mLoadOrder = 100.0f;
+		// Scripting is supported by this manager
+		mScriptPatterns.push_back("*.program");
+		mScriptPatterns.push_back("*.material");
+		ResourceGroupManager::getSingleton()._registerScriptLoader(this);
+
+		// Resource type
+		mResourceType = "Material";
+
+		// Register with resource group manager
+		ResourceGroupManager::getSingleton()._registerResourceManager(mResourceType, this);
 
     }
     //-----------------------------------------------------------------------
     MaterialManager::~MaterialManager()
     {
-        delete Material::mDefaultSettings;
+        mDefaultSettings.setNull();
 	    // Resources cleared by superclass
+		// Unregister with resource group manager
+		ResourceGroupManager::getSingleton()._unregisterResourceManager(mResourceType);
+		ResourceGroupManager::getSingleton()._unregisterScriptLoader(this);
     }
+	//-----------------------------------------------------------------------
+	Resource* MaterialManager::createImpl(const String& name, ResourceHandle handle, 
+		const String& group, bool isManual, ManualResourceLoader* loader,
+        const NameValuePairList* params)
+	{
+		return new Material(this, name, handle, group, isManual, loader);
+	}
     //-----------------------------------------------------------------------
 	void MaterialManager::initialise(void)
 	{
 		// Set up default material - don't use name contructor as we want to avoid applying defaults
-	    Material::mDefaultSettings = new Material();
-	    Material::mDefaultSettings->mName = "DefaultSettings";
+		mDefaultSettings = create("DefaultSettings", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         // Add a single technique and pass, non-programmable
-        Material::mDefaultSettings->createTechnique()->createPass();
+        mDefaultSettings->createTechnique()->createPass();
 
 	    // Set up a lit base white material
-	    Material* baseWhite = (Material*)this->create("BaseWhite");
+	    create("BaseWhite", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	    // Set up an unlit base white material
-        Material* baseWhiteNoLighting = (Material*)this->create("BaseWhiteNoLighting");
+        MaterialPtr baseWhiteNoLighting = create("BaseWhiteNoLighting", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         baseWhiteNoLighting->setLightingEnabled(false);
-
-		// Parse all .program scripts first
-		parseAllSources(".program");
-		// Parse all .material scripts
-		parseAllSources(".material");
 
 	}
     //-----------------------------------------------------------------------
-    void MaterialManager::parseScript(DataChunk& chunk)
+    void MaterialManager::parseScript(DataStreamPtr& stream, const String& groupName)
     {
         // Delegate to serializer
-        mSerializer.parseScript(chunk);
-    }
-    //-----------------------------------------------------------------------
-    void MaterialManager::parseAllSources(const String& extension)
-    {
-	    StringVector materialFiles;
-	    DataChunk* pChunk;
-
-	    std::vector<ArchiveEx*>::iterator i = mVFS.begin();
-
-	    // Specific archives
-	    for (; i != mVFS.end(); ++i)
-	    {
-		    materialFiles = (*i)->getAllNamesLike( "./", extension);
-		    for (StringVector::iterator si = materialFiles.begin(); si != materialFiles.end(); ++si)
-		    {
-			    SDDataChunk dat; pChunk = &dat;
-			    (*i)->fileRead(si[0], &pChunk );
-			    LogManager::getSingleton().logMessage("Parsing material script: " + si[0]);
-			    mSerializer.parseScript(dat, si[0]);
-		    }
-
-	    }
-	    // search common archives
-	    for (i = mCommonVFS.begin(); i != mCommonVFS.end(); ++i)
-	    {
-		    materialFiles = (*i)->getAllNamesLike( "./", extension);
-		    for (StringVector::iterator si = materialFiles.begin(); si != materialFiles.end(); ++si)
-		    {
-			    SDDataChunk dat; pChunk = &dat;
-			    (*i)->fileRead(si[0], &pChunk );
-			    LogManager::getSingleton().logMessage("Parsing material script: " + si[0]);
-			    mSerializer.parseScript(dat, si[0]);
-		    }
-	    }
-
-
-    }
-    //-----------------------------------------------------------------------
-    Resource* MaterialManager::create( const String& name)
-    {
-	    // Check name not already used
-	    if (getByName(name) != 0)
-		    Except(Exception::ERR_DUPLICATE_ITEM, "Material " + name + " already exists.",
-			    "MaterialManager::create");
-
-	    Material* m = new Material(name);
-        this->add(m);
-
-	    return m;
+        mSerializer.parseScript(stream, groupName);
     }
     //-----------------------------------------------------------------------
 	void MaterialManager::setDefaultTextureFiltering(TextureFilterOptions fo)

@@ -28,10 +28,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSubMesh.h"
 #include "OgreMaterialManager.h"
 #include "OgreLogManager.h"
-#include "OgreDataChunk.h"
 #include "OgreMeshSerializer.h"
 #include "OgreSkeletonManager.h"
-#include "OgreSkeleton.h"
 #include "OgreHardwareBufferManager.h"
 #include "OgreStringConverter.h"
 #include "OgreException.h"
@@ -39,48 +37,72 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreEdgeListBuilder.h"
 
 namespace Ogre {
-
     //-----------------------------------------------------------------------
-    Mesh::Mesh(const String& name)
+    MeshPtr::MeshPtr(const ResourcePtr& r) : SharedPtr<Mesh>()
     {
-        mName = name;
-		sharedVertexData = NULL;
+		// lock & copy other mutex pointer
+		OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+		OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
+        pRep = static_cast<Mesh*>(r.getPointer());
+        pUseCount = r.useCountPointer();
+        if (pUseCount)
+        {
+            ++(*pUseCount);
+        }
+    }
+    //-----------------------------------------------------------------------
+    MeshPtr& MeshPtr::operator=(const ResourcePtr& r)
+    {
+        if (pRep == static_cast<Mesh*>(r.getPointer()))
+            return *this;
+        release();
+		// lock & copy other mutex pointer
+		OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+		OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
+        pRep = static_cast<Mesh*>(r.getPointer());
+        pUseCount = r.useCountPointer();
+        if (pUseCount)
+        {
+            ++(*pUseCount);
+        }
+        return *this;
+    }
+    //-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
+    Mesh::Mesh(ResourceManager* creator, const String& name, ResourceHandle handle,
+        const String& group, bool isManual, ManualResourceLoader* loader)
+        : Resource(creator, name, handle, group, isManual, loader),
+        mBoundRadius(0.0f), 
+        mBoneAssignmentsOutOfDate(false),
+        mIsLodManual(false), 
+        mNumLods(1), 
+        mVertexBufferUsage(HardwareBuffer::HBU_STATIC_WRITE_ONLY),
+        mIndexBufferUsage(HardwareBuffer::HBU_STATIC_WRITE_ONLY),
+        mVertexBufferShadowBuffer(true),
+        mIndexBufferShadowBuffer(true),
+        mPreparedForShadowVolumes(false),
+        mEdgeListsBuilt(false),
+        mAutoBuildEdgeLists(true), // will be set to false by serializers of 1.30 and above
+        sharedVertexData(0)
+    {
 
-        // Default to load from file
-        mManuallyDefined = false;
         setSkeletonName("");
-        mBoneAssignmentsOutOfDate = false;
-		mNumLods = 1;
 		// Init first (manual) lod
 		MeshLodUsage lod;
 		lod.fromDepthSquared = 0.0f;
         lod.edgeData = NULL;
-        lod.manualMesh = NULL;
+        lod.manualMesh.setNull();
 		mMeshLodUsageList.push_back(lod);
-		mIsLodManual = false;
-
-		mVertexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY;
-		mIndexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY;
-		mVertexBufferShadowBuffer = true;
-		mIndexBufferShadowBuffer = true;
-
-        mBoundRadius = 0.0f;
-
-        mPreparedForShadowVolumes = false;
-        mEdgeListsBuilt = false;
-        mAutoBuildEdgeLists = true; // will be set to false by serializers of 1.30 and above
 
     }
-
     //-----------------------------------------------------------------------
     Mesh::~Mesh()
     {
-        if (mIsLoaded)
-        {
-            unload();
-        }
+        // have to call this here reather than in Resource destructor
+        // since calling virtual methods in base destructors causes crash
+        unload(); 
     }
-
     //-----------------------------------------------------------------------
     SubMesh* Mesh::createSubMesh()
     {
@@ -123,41 +145,19 @@ namespace Ogre {
         return const_cast<SubMesh*>(i[index]);
     }
     //-----------------------------------------------------------------------
-    void Mesh::load()
+    void Mesh::loadImpl()
     {
         // Load from specified 'name'
-        if (mIsLoaded)
-        {
-            unload();
-        }
 
-        if (!mManuallyDefined)
+        if (!mIsManual)
         {
             MeshSerializer serializer;
             LogManager::getSingleton().logMessage("Mesh: Loading " + mName + ".");
 
-            DataChunk chunk;
-            MeshManager::getSingleton()._findResourceData(mName, chunk);
+            DataStreamPtr stream = 
+                ResourceGroupManager::getSingleton()._findResource(mName, mGroup);
+            serializer.importMesh(stream, this);
 
-            // Determine file type
-            std::vector<String> extVec = StringUtil::split(mName, ".");
-
-            String& ext = extVec[extVec.size() - 1];
-            StringUtil::toLowerCase(ext);
-
-            if (ext == "mesh")
-            {
-                serializer.importMesh(chunk, this);
-            }
-            else
-            {
-                // Unsupported format
-                chunk.clear();
-                Except(999, "Unsupported object file format.",
-                    "Mesh::load");
-            }
-
-            chunk.clear();
         }
 
         // Prepare for shadow volumes?
@@ -174,14 +174,10 @@ namespace Ogre {
             }
         }
 
-		mIsLoaded = true;
-
-        //_updateBounds();
-
     }
 
     //-----------------------------------------------------------------------
-    void Mesh::unload()
+    void Mesh::unloadImpl()
     {
         // Teardown submeshes
         for (SubMeshList::iterator i = mSubMeshList.begin();
@@ -200,23 +196,25 @@ namespace Ogre {
         // Removes all LOD data
         removeLodLevels();
         mPreparedForShadowVolumes = false;
-        mIsLoaded = false;
     }
 
     //-----------------------------------------------------------------------
-    void Mesh::setManuallyDefined(bool manual)
-    {
-        mManuallyDefined = manual;
-    }
-
-    //-----------------------------------------------------------------------
-    Mesh* Mesh::clone(const String& newName)
+    MeshPtr Mesh::clone(const String& newName, const String& newGroup)
     {
         // This is a bit like a copy constructor, but with the additional aspect of registering the clone with
         //  the MeshManager
 
         // New Mesh is assumed to be manually defined rather than loaded since you're cloning it for a reason
-        Mesh* newMesh = MeshManager::getSingleton().createManual(newName);
+        String theGroup;
+        if (newGroup == StringUtil::BLANK)
+        {
+            theGroup = this->getGroup();
+        }
+        else
+        {
+            theGroup = newGroup;
+        }
+        MeshPtr newMesh = MeshManager::getSingleton().createManual(newName, theGroup);
 
         // Copy submeshes first
         std::vector<SubMesh*>::iterator subi;
@@ -340,17 +338,17 @@ namespace Ogre {
         if (skelName == "")
         {
             // No skeleton
-            mSkeleton = 0;
+            mSkeleton.setNull();
         }
         else
         {
             // Load skeleton
             try {
-                mSkeleton = SkeletonManager::getSingleton().load(skelName);
+                mSkeleton = SkeletonManager::getSingleton().load(skelName, mGroup);
             }
             catch (...)
             {
-                mSkeleton = 0;
+                mSkeleton.setNull();
                 // Log this error
                 String msg = "Unable to load skeleton ";
                 msg += skelName + " for Mesh " + mName
@@ -369,7 +367,7 @@ namespace Ogre {
         return !(mSkeletonName.empty());
     }
     //-----------------------------------------------------------------------
-    Skeleton* Mesh::getSkeleton(void) const
+    const SkeletonPtr& Mesh::getSkeleton(void) const
     {
         return mSkeleton;
     }
@@ -390,7 +388,7 @@ namespace Ogre {
     void Mesh::_initAnimationState(AnimationStateSet* animSet)
     {
         // Delegate to Skeleton
-        assert(mSkeleton && "Skeleton not present");
+        assert(!mSkeleton.isNull() && "Skeleton not present");
         mSkeleton->_initAnimationState(animSet);
 
         // Take the opportunity to update the compiled bone assignments
@@ -624,7 +622,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void Mesh::_notifySkeleton(Skeleton* pSkel)
+    void Mesh::_notifySkeleton(SkeletonPtr& pSkel)
     {
         mSkeleton = pSkel;
         mSkeletonName = pSkel->getName();
@@ -657,10 +655,10 @@ namespace Ogre {
 
         removeLodLevels();
 
-        char msg[128];
-        sprintf(msg, "Generating %d lower LODs for mesh %s.",
-            lodDistances.size(), mName.c_str());
-        LogManager::getSingleton().logMessage(msg);
+		StringUtil::StrStreamType str;
+		str << "Generating " << lodDistances.size() 
+			<< " lower LODs for mesh " << mName;
+        LogManager::getSingleton().logMessage(str.str());
 
         SubMeshList::iterator isub, isubend;
         isubend = mSubMeshList.end();
@@ -687,8 +685,8 @@ namespace Ogre {
             // Record usage
             MeshLodUsage& lod = *++ilod;
             lod.fromDepthSquared = (*idist) * (*idist);
-            lod.edgeData = NULL;
-            lod.manualMesh = NULL;
+            lod.edgeData = 0;
+            lod.manualMesh.setNull();
         }
         mNumLods = static_cast<ushort>(lodDistances.size() + 1);
     }
@@ -701,14 +699,13 @@ namespace Ogre {
     const Mesh::MeshLodUsage& Mesh::getLodLevel(ushort index) const
     {
         assert(index < mMeshLodUsageList.size());
-        if (mIsLodManual && index > 0)
+        if (mIsLodManual && index > 0 && mMeshLodUsageList[index].manualMesh.isNull())
         {
-			if (!mMeshLodUsageList[index].manualMesh)
-			{
-				// Load the mesh now
-				mMeshLodUsageList[index].manualMesh = 
-					MeshManager::getSingleton().load(mMeshLodUsageList[index].manualName);
-			}
+            // Load the mesh now
+            mMeshLodUsageList[index].manualMesh = 
+                MeshManager::getSingleton().load(
+                    mMeshLodUsageList[index].manualName,
+                    mGroup);
             // get the edge data, if required
             if (!mMeshLodUsageList[index].edgeData)
             {
@@ -740,8 +737,8 @@ namespace Ogre {
 		MeshLodUsage lod;
 		lod.fromDepthSquared = fromDepth * fromDepth;
 		lod.manualName = meshName;
-		lod.manualMesh = NULL;
-        lod.edgeData = NULL;
+		lod.manualMesh.setNull();
+        lod.edgeData = 0;
 		mMeshLodUsageList.push_back(lod);
 		++mNumLods;
 
@@ -759,9 +756,9 @@ namespace Ogre {
 		MeshLodUsage* lod = &(mMeshLodUsageList[index]);
 
 		lod->manualName = meshName;
-		lod->manualMesh = NULL;
+		lod->manualMesh.setNull();
         if (lod->edgeData) delete lod->edgeData;
-        lod->edgeData = NULL;
+        lod->edgeData = 0;
 	}
     //---------------------------------------------------------------------
 	ushort Mesh::getLodIndex(Real depth) const
@@ -863,8 +860,8 @@ namespace Ogre {
 		// Init first (manual) lod
 		MeshLodUsage lod;
 		lod.fromDepthSquared = 0.0f;
-        lod.edgeData = NULL;
-        lod.manualMesh = NULL;
+        lod.edgeData = 0;
+        lod.manualMesh.setNull();
 		mMeshLodUsageList.push_back(lod);
 		mIsLodManual = false;
 
@@ -1687,6 +1684,44 @@ namespace Ogre {
 
 
     }
+    //---------------------------------------------------------------------
+	size_t Mesh::calculateSize(void) const
+	{
+		// calculate GPU size
+		size_t ret = 0;
+		size_t i;
+		// Shared vertices
+		if (sharedVertexData)
+		{
+			for (i = 0; 
+				i < sharedVertexData->vertexBufferBinding->getBufferCount(); 
+				++i)
+			{
+				ret += sharedVertexData->vertexBufferBinding
+					->getBuffer(i)->getSizeInBytes();
+			}
+		}
+
+		SubMeshList::const_iterator si;
+		for (si = mSubMeshList.begin(); si != mSubMeshList.end(); ++si)
+		{
+			// Dedicated vertices
+			if (!(*si)->useSharedVertices)
+			{
+				for (i = 0; 
+					i < (*si)->vertexData->vertexBufferBinding->getBufferCount(); 
+					++i)
+				{
+					ret += (*si)->vertexData->vertexBufferBinding
+						->getBuffer(i)->getSizeInBytes();
+				}
+			}
+			// Index data
+			ret += (*si)->indexData->indexBuffer->getSizeInBytes();
+
+		}
+		return ret;
+	}
 
 }
 

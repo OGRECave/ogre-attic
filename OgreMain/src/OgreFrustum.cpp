@@ -69,8 +69,7 @@ namespace Ogre {
                 sizeof(Real)*3, 32, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY) );
 
         // Initialise material
-        mMaterial = static_cast<Material*>(
-            MaterialManager::getSingleton().getByName("BaseWhiteNoLighting"));
+        mMaterial = MaterialManager::getSingleton().getByName("BaseWhiteNoLighting");
         
         // Alter superclass members
         mVisible = false;
@@ -606,7 +605,7 @@ namespace Ogre {
         return (mFarDist == 0)? 100000 : mFarDist;
 	}
     //-----------------------------------------------------------------------
-    Material* Frustum::getMaterial(void) const
+    const MaterialPtr& Frustum::getMaterial(void) const
     {
         return mMaterial;
     }

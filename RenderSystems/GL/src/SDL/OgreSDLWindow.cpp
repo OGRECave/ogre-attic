@@ -83,7 +83,8 @@ namespace Ogre {
         screen = SDL_SetVideoMode(width, height, colourDepth, flags);
         if (!screen)
         {
-            LogManager::getSingleton().logMessage(LML_CRITICAL, "Could not make screen: %s.", SDL_GetError());
+            LogManager::getSingleton().logMessage(LML_CRITICAL, 
+                String("Could not make screen: ") + SDL_GetError());
             exit(1);
         }
         LogManager::getSingleton().logMessage("screen is valid", LML_TRIVIAL);
@@ -142,10 +143,10 @@ namespace Ogre {
 
 	void SDLWindow::writeContentsToFile(const String& filename)
 	{
-		ImageCodec::ImageData imgData;
-		imgData.width = mWidth;
-		imgData.height = mHeight;
-		imgData.format = PF_R8G8B8;
+		ImageCodec::ImageData* imgData = new ImageCodec::ImageData;
+		imgData->width = mWidth;
+		imgData->height = mHeight;
+		imgData->format = PF_R8G8B8;
 
 		// Allocate buffer 
 		uchar* pBuffer = new uchar[mWidth * mHeight * 3];
@@ -154,15 +155,15 @@ namespace Ogre {
 		// I love GL: it does all the locking & colour conversion for us
 		glReadPixels(0,0, mWidth-1, mHeight-1, GL_RGB, GL_UNSIGNED_BYTE, pBuffer);
 
-		// Wrap buffer in a chunk
-		DataChunk chunk(pBuffer, mWidth * mHeight * 3);
+		// Wrap buffer in a memory stream
+        DataStreamPtr stream(new MemoryDataStream(pBuffer, mWidth * mHeight * 3, false));
 
 		// Need to flip the read data over in Y though
 		Image img;
-		img.loadRawData(chunk, mWidth, mHeight, PF_R8G8B8 );
+		img.loadRawData(stream, mWidth, mHeight, PF_R8G8B8 );
 		img.flipAroundX();
 
-		DataChunk chunkFlipped(img.getData(), chunk.getSize());
+        MemoryDataStreamPtr streamFlipped(new MemoryDataStream(img.getData(), stream->size(), false));
 
 		// Get codec 
 		size_t pos = filename.find_last_of(".");
@@ -180,7 +181,8 @@ namespace Ogre {
 		Codec * pCodec = Codec::getCodec(extension);
 
 		// Write out
-		pCodec->codeToFile(chunkFlipped, filename, &imgData);
+		Codec::CodecDataPtr codecDataPtr(imgData);
+		pCodec->codeToFile(streamFlipped, filename, codecDataPtr);
 
 		delete [] pBuffer;
 

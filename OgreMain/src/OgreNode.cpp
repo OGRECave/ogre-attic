@@ -49,9 +49,9 @@ namespace Ogre {
 		mParentNotified = false ;
 
         // Generate a name
-        static char temp[64];
-        sprintf(temp, "Unnamed_%lu", msNextGeneratedNameExt++);
-        mName = temp;
+		StringUtil::StrStreamType str;
+		str << "Unnamed_" << msNextGeneratedNameExt++;
+        mName = str.str();
         mAccumAnimWeight = 0.0f;
 
         needUpdate();
@@ -582,14 +582,14 @@ namespace Ogre {
         return mName;
     }
     //-----------------------------------------------------------------------
-    Material* Node::getMaterial(void) const
+    const MaterialPtr& Node::getMaterial(void) const
     {
-        static Material* pMaterial = 0;
+        static MaterialPtr pMaterial;
 
-        if (!pMaterial)
+        if (pMaterial.isNull())
         {
-            pMaterial = (Material*)MaterialManager::getSingleton().getByName("Core/NodeMaterial");
-			if (!pMaterial)
+            pMaterial = MaterialManager::getSingleton().getByName("Core/NodeMaterial");
+			if (pMaterial.isNull())
 				Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find material Core/NodeMaterial",
 					"Node::getMaterial" );
             pMaterial->load();
@@ -603,7 +603,8 @@ namespace Ogre {
         static SubMesh* pSubMesh = 0;
         if (!pSubMesh)
         {
-            Mesh *pMesh = MeshManager::getSingleton().load("axes.mesh");
+            MeshPtr pMesh = MeshManager::getSingleton().load("axes.mesh", 
+				ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
             pSubMesh = pMesh->getSubMesh(0);
         }
         pSubMesh->_getRenderOperation(op);

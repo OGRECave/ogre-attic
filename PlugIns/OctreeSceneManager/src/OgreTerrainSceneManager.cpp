@@ -259,11 +259,13 @@ namespace Ogre
         if (mCustomMaterialName == "")
         {
             // define our own material
-            mOptions.terrainMaterial = static_cast<Material*>(
-                MaterialManager::getSingleton().getByName(TERRAIN_MATERIAL_NAME));
-            if (!mOptions.terrainMaterial)
+            mOptions.terrainMaterial = 
+                MaterialManager::getSingleton().getByName(TERRAIN_MATERIAL_NAME);
+            if (mOptions.terrainMaterial.isNull())
             {
-                mOptions.terrainMaterial = createMaterial( "TerrainSceneManager/Terrain" );
+                mOptions.terrainMaterial = MaterialManager::getSingleton().create(
+                    "TerrainSceneManager/Terrain",
+                    ResourceGroupManager::getSingleton().getWorldResourceGroupName());
 
             }
             else
@@ -286,7 +288,7 @@ namespace Ogre
 
             if (mOptions.lodMorph && 
                 mDestRenderSystem->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM) &&
-				GpuProgramManager::getSingleton().getByName("Terrain/VertexMorph") == 0)
+				GpuProgramManager::getSingleton().getByName("Terrain/VertexMorph").isNull())
             {
                 // Create & assign LOD morphing vertex program
                 String syntax;
@@ -304,8 +306,9 @@ namespace Ogre
                 const String& source = TerrainVertexProgram::getProgramSource(
                     fm, syntax);
 
-                GpuProgram* prog = GpuProgramManager::getSingleton().createProgramFromString(
-                    "Terrain/VertexMorph", source, GPT_VERTEX_PROGRAM, syntax);
+                GpuProgramPtr prog = GpuProgramManager::getSingleton().createProgramFromString(
+                    "Terrain/VertexMorph", ResourceGroupManager::getSingleton().getWorldResourceGroupName(), 
+                    source, GPT_VERTEX_PROGRAM, syntax);
 
                 // Attach
                 pass->setVertexProgram("Terrain/VertexMorph");
@@ -337,8 +340,8 @@ namespace Ogre
         else
         {
             // Custom material
-            mOptions.terrainMaterial = static_cast<Material*>(
-                MaterialManager::getSingleton().getByName(mCustomMaterialName));
+            mOptions.terrainMaterial = 
+                MaterialManager::getSingleton().getByName(mCustomMaterialName);
             mOptions.terrainMaterial->load();
 
         }
@@ -412,6 +415,9 @@ namespace Ogre
     //-------------------------------------------------------------------------
     void TerrainSceneManager::setWorldGeometry( const String& filename )
     {
+        // Clear out any existing world resources
+        ResourceGroupManager::getSingleton().clearResourceGroup(
+            ResourceGroupManager::getSingleton().getWorldResourceGroupName());
         mTerrainPages.clear();
         // Load the configuration
         loadConfig(filename);
@@ -849,7 +855,7 @@ namespace Ogre
 
     }
     //-------------------------------------------------------------------------
-    Material* TerrainSceneManager::getTerrainMaterial(void)
+    MaterialPtr& TerrainSceneManager::getTerrainMaterial(void)
     {
         return mOptions.terrainMaterial;
     }

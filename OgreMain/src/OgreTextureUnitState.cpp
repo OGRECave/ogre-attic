@@ -272,9 +272,9 @@ namespace Ogre {
 
         if (numFrames > MAX_FRAMES)
         {
-            char cmsg[128];
-            sprintf(cmsg, "Maximum number of frames is %d.", MAX_FRAMES);
-            Except(Exception::ERR_INVALIDPARAMS, cmsg, "TextureUnitState::setAnimatedTextureName");
+			StringUtil::StrStreamType str;
+            str << "Maximum number of frames is " << MAX_FRAMES << ".";
+            Except(Exception::ERR_INVALIDPARAMS, str.str(), "TextureUnitState::setAnimatedTextureName");
         }
         mNumFrames = numFrames;
         mAnimDuration = duration;
@@ -283,10 +283,9 @@ namespace Ogre {
 
         for (unsigned int i = 0; i < mNumFrames; ++i)
         {
-            char suffix[5];
-            sprintf(suffix, "_%d", i);
-
-            mFrames[i] = baseName + suffix + ext;
+			StringUtil::StrStreamType str;
+            str << baseName << "_" << i << ext;
+            mFrames[i] = str.str();
         }
 
         // Load immediately if Material loaded
@@ -303,9 +302,9 @@ namespace Ogre {
     {
         if (numFrames > MAX_FRAMES)
         {
-            char cmsg[128];
-            sprintf(cmsg, "Maximum number of frames is %d.", MAX_FRAMES);
-            Except(Exception::ERR_INVALIDPARAMS, cmsg, "TextureUnitState::setAnimatedTextureName");
+			StringUtil::StrStreamType str;
+			str << "Maximum number of frames is " << MAX_FRAMES << ".";
+            Except(Exception::ERR_INVALIDPARAMS, str.str(), "TextureUnitState::setAnimatedTextureName");
         }
         mNumFrames = numFrames;
         mAnimDuration = duration;
@@ -328,8 +327,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     std::pair< uint, uint > TextureUnitState::getTextureDimensions( unsigned int frame ) const
     {
-        Texture *tex = (Texture *)TextureManager::getSingleton().getByName( mFrames[ frame ] );
-		if (!tex)
+        TexturePtr tex = TextureManager::getSingleton().getByName( mFrames[ frame ] );
+
+		if (tex.isNull())
 			Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find texture " + mFrames[ frame ],
 				"TextureUnitState::getTextureDimensions" );
         return std::pair< uint, uint >( tex->getWidth(), tex->getHeight() );
@@ -725,7 +725,8 @@ namespace Ogre {
                 // Ensure texture is loaded, default MipMaps and priority
                 try {
 
-                    TextureManager::getSingleton().load(mFrames[i], mTextureType);
+                    TextureManager::getSingleton().load(mFrames[i], 
+						mParent->getResourceGroup(), mTextureType);
                     mIsBlank = false;
                 }
                 catch (...) {

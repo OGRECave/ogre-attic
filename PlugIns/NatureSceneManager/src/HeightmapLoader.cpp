@@ -35,8 +35,7 @@ HeightmapLoader::HeightmapLoader(SceneNode *sceneRoot)
     mHeightMap = 0;
 
     // get default material
-    mMaterial = reinterpret_cast<Material *>
-	(MaterialManager::getSingleton().getByName("BaseWhite"));
+    mMaterial = MaterialManager::getSingleton().getByName("BaseWhite");
 }
 
 //----------------------------------------------------------------------------
@@ -96,7 +95,7 @@ bool HeightmapLoader::initialise(const String& filename)
     String heightmap = config.getSetting("HeightMap");
 
     mHeightMap = new Image();
-    mHeightMap->load(heightmap);
+    mHeightMap->load(heightmap, ResourceGroupManager::getSingleton().getWorldResourceGroupName());
 
     mScale.x = atof(config.getSetting("Scale.x").c_str());
     mScale.y = atof(config.getSetting("Scale.y").c_str());
@@ -137,11 +136,12 @@ bool HeightmapLoader::initialise(const String& filename)
     String texture = config.getSetting("WorldTexture");
     if (texture != "")
     {
-		// get material
-		mMaterial = mSceneRoot->getCreator()->getMaterial("NaturePatchMaterial");
-		if (mMaterial != 0) MaterialManager::getSingleton().unload(mMaterial);
+		// remove existing material
+        mMaterial.setNull();
+		MaterialManager::getSingleton().remove("NaturePatchMaterial");
 
-		mMaterial = mSceneRoot->getCreator()->createMaterial("NaturePatchMaterial");
+        mMaterial = MaterialManager::getSingleton().create("NaturePatchMaterial", 
+            ResourceGroupManager::getSingleton().getWorldResourceGroupName());
 	    
 		TextureUnitState *layer;
 		layer = mMaterial->getTechnique(0)->getPass(0)->createTextureUnitState(texture, 1);

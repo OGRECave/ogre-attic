@@ -135,9 +135,9 @@ namespace Ogre {
 			it->second.currentValue = value;
 		else
 		{
-			char msg[128];
-			sprintf( msg, "Option named '%s' does not exist.", name.c_str() );
-			Except( Exception::ERR_INVALIDPARAMS, msg, "Win32GLSupport::setConfigOption" );
+            StringUtil::StrStreamType str;
+            str << "Option named '" << name << "' does not exist.";
+			Except( Exception::ERR_INVALIDPARAMS, str.str(), "Win32GLSupport::setConfigOption" );
 		}
 
 		if( name == "Video Mode" )
@@ -247,16 +247,17 @@ namespace Ogre {
 		if(!_wglGetExtensionsStringEXT)
 			return;
 		const char *wgl_extensions = _wglGetExtensionsStringEXT();
+        StringUtil::StrStreamType str;
+        str << "Supported WGL extensions: " << wgl_extensions;
 		LogManager::getSingleton().logMessage(
-			LML_NORMAL,
-			"Supported WGL extensions: %s", wgl_extensions);
+			LML_NORMAL, str.str());
 		// Parse the, and add them to the main list
 		std::stringstream ext;
-        String str;
+        String instr;
 		ext << wgl_extensions;
-        while(ext >> str)
+        while(ext >> instr)
         {
-            extensionList.insert(str);
+            extensionList.insert(instr);
         }
 	}
 

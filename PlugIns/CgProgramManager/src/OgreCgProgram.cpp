@@ -136,13 +136,14 @@ namespace Ogre {
         mAssemblerProgram = 
             GpuProgramManager::getSingleton().createProgramFromString(
                 mName, 
+                mGroup,
                 cgGetProgramString(mCgProgram, CG_COMPILED_PROGRAM),
                 mType, 
                 mSelectedProfile);
 
     }
     //-----------------------------------------------------------------------
-    void CgProgram::unloadImpl(void)
+    void CgProgram::unloadHighLevelImpl(void)
     {
         // Unload Cg Program
         // Lowlevel program will get unloaded elsewhere
@@ -216,13 +217,17 @@ namespace Ogre {
         
     }
     //-----------------------------------------------------------------------
-    CgProgram::CgProgram(const String& name, GpuProgramType gpType, 
-        const String& language, CGcontext context)
-        : HighLevelGpuProgram(name, gpType, language), mCgContext(context), 
-        mCgProgram(0), mSelectedCgProfile(CG_PROFILE_UNKNOWN), mCgArguments(0)
+    CgProgram::CgProgram(ResourceManager* creator, const String& name, 
+        ResourceHandle handle, const String& group, bool isManual, 
+        ManualResourceLoader* loader, CGcontext context)
+        : HighLevelGpuProgram(creator, name, handle, group, isManual, loader), 
+        mCgContext(context), mCgProgram(0), 
+        mSelectedCgProfile(CG_PROFILE_UNKNOWN), mCgArguments(0)
     {
         if (createParamDictionary("CgProgram"))
         {
+            setupBaseParamDictionary();
+
             ParamDictionary* dict = getParamDictionary();
 
             dict->addParameter(ParameterDef("entry_point", 
@@ -241,7 +246,9 @@ namespace Ogre {
     CgProgram::~CgProgram()
     {
         freeCgArgs();
-        // unload will be called by superclass
+        // have to call this here reather than in Resource destructor
+        // since calling virtual methods in base destructors causes crash
+        unload(); 
     }
     //-----------------------------------------------------------------------
     bool CgProgram::isSupported(void) const

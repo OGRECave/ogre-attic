@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMath.h"
 #include "OgreLogManager.h"
 #include "OgreTextureManager.h"
+#include "OgreRoot.h"
 
 namespace Ogre {
 
@@ -54,34 +55,27 @@ namespace Ogre {
     {
     }
     //-----------------------------------------------------------------------
-    void Quake3Shader::load(void)
+    MaterialPtr Quake3Shader::createAsMaterial(int lightmapNumber)
     {
-        // Do nothing
-    }
-    //-----------------------------------------------------------------------
-    void Quake3Shader::unload(void)
-    {
-        // Do nothing
-    }
-    //-----------------------------------------------------------------------
-    Material* Quake3Shader::createAsMaterial(SceneManager* sm, int lightmapNumber)
-    {
-        char matName[72];
-        sprintf(matName, "%s#%d", mName.c_str(), lightmapNumber);
-        Material* mat = sm->createMaterial(matName);
+		String matName;
+		StringUtil::StrStreamType str;
 
-        char msg[256];
-        sprintf(msg, "Using Q3 shader %s", mName.c_str());
-        LogManager::getSingleton().logMessage(msg, LML_CRITICAL);
+        str << mName << "#" << lightmapNumber;
+		matName = str.str();
+
+        MaterialPtr mat = MaterialManager::getSingleton().create(matName, 
+            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+
+        LogManager::getSingleton().logMessage("Using Q3 shader " + mName, LML_CRITICAL);
         for (int p = 0; p < numPasses; ++p)
         {
             TextureUnitState* t;
             // Create basic texture
             if (pass[p].textureName == "$lightmap")
             {
-                char lightmapName[16];
-                sprintf(lightmapName, "@lightmap%d", lightmapNumber);
-                t = mat->getTechnique(0)->getPass(0)->createTextureUnitState(lightmapName);
+				str.clear();
+				str << "@lightmap" << lightmapNumber;
+                t = mat->getTechnique(0)->getPass(0)->createTextureUnitState(str.str());
             }
             // Animated texture support
             else if (pass[p].animNumFrames > 0)
@@ -96,14 +90,18 @@ namespace Ogre {
                 for (unsigned int alt = 0; alt < pass[p].animNumFrames; ++alt)
                 {
                     try {
-                        TextureManager::getSingleton().load(pass[p].frames[alt]);
+                        TextureManager::getSingleton().load(
+                            pass[p].frames[alt], 
+                            ResourceGroupManager::getSingleton().getWorldResourceGroupName());
                     }
                     catch (...)
                     {
                         // Try alternate extension
                         pass[p].frames[alt] = getAlternateName(pass[p].frames[alt]);
                         try {
-                            TextureManager::getSingleton().load(pass[p].frames[alt]);
+                            TextureManager::getSingleton().load(
+                                pass[p].frames[alt], 
+                                ResourceGroupManager::getSingleton().getWorldResourceGroupName());
                         }
                         catch (...)
                         { // stuffed - no texture
@@ -121,14 +119,18 @@ namespace Ogre {
                 // Quake3 can still include alternate extension filenames e.g. jpg instead of tga
                 // Pain in the arse - have to check for failure
                 try {
-                    TextureManager::getSingleton().load(pass[p].textureName);
+                    TextureManager::getSingleton().load(
+                        pass[p].textureName, 
+                        ResourceGroupManager::getSingleton().getWorldResourceGroupName());
                 }
                 catch (...)
                 {
                     // Try alternate extension
                     pass[p].textureName = getAlternateName(pass[p].textureName);
                     try {
-                        TextureManager::getSingleton().load(pass[p].textureName);
+                        TextureManager::getSingleton().load(
+                            pass[p].textureName, 
+                            ResourceGroupManager::getSingleton().getWorldResourceGroupName());
                     }
                     catch (...)
                     { // stuffed - no texture
@@ -256,7 +258,8 @@ namespace Ogre {
             Quaternion q;
             q.FromAngleAxis(Radian(Math::HALF_PI), Vector3::UNIT_X);
             // Also draw last, and make close to camera (far clip plane is shorter)
-            sm->setSkyDome(true, matName, 20 - (cloudHeight / 256 * 18), 12, 2000, false, q);
+            Root::getSingleton().getSceneManager(ST_INTERIOR)
+                ->setSkyDome(true, matName, 20 - (cloudHeight / 256 * 18), 12, 2000, false, q);
         }
 
 

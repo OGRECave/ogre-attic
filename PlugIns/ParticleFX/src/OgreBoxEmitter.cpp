@@ -33,7 +33,8 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    BoxEmitter::BoxEmitter()
+    BoxEmitter::BoxEmitter(ParticleSystem* psys)
+        : AreaEmitter(psys)
     {
         initDefaults("Box");
     }
@@ -58,7 +59,7 @@ namespace Ogre {
         genEmissionVelocity(pParticle->mDirection);
 
         // Generate simpler data
-        pParticle->mTimeToLive = pParticle->mTotalTimeToLive = genEmissionTTL();
+        pParticle->timeToLive = pParticle->totalTimeToLive = genEmissionTTL();
         
     }
 

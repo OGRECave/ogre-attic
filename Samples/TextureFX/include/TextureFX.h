@@ -89,7 +89,8 @@ protected:
 
 
         // Set up a material for the skydome
-        Material *skyMat = mSceneMgr->createMaterial("SkyMat");
+        MaterialPtr skyMat = MaterialManager::getSingleton().create("SkyMat",
+            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         // Perform no dynamic lighting on the sky
         skyMat->setLightingEnabled(false);
         // Use a cloudy sky

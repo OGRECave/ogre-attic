@@ -47,7 +47,7 @@ namespace Ogre {
         if ((mLogLevel + lml) >= LOG_THRESHOLD)
         {
             if (mDebugOut && !maskDebug)
-                fprintf( stderr, "%s\n", message.c_str());
+                std::cerr << message << std::endl;
 
             // Write time into log
             struct tm *pTime;

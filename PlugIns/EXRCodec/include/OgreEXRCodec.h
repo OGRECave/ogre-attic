@@ -38,14 +38,12 @@ namespace Ogre {
         EXRCodec();
         virtual ~EXRCodec();
 
-        void code( const DataChunk& input, DataChunk* output, ... ) const;
-        CodecData * decode( const DataChunk& input, DataChunk* output, ... ) const;
-        /** Encodes data to a file.
-        @param input Chunk containing data to write
-        @param outFileName Filename to output to (extension implies type)
-        @param pData ImageData pointer
-        */
-        void codeToFile( const DataChunk& input, const String& outFileName, CodecData* pData) const;
+        /// @copydoc Codec::code
+        DataStreamPtr code(MemoryDataStreamPtr& input, CodecData* pData) const;
+        /// @copydoc Codec::codeToFile
+        void codeToFile(MemoryDataStreamPtr& input, const String& outFileName, CodecData* pData) const;
+        /// @copydoc Codec::decode
+        DecodeResult decode(DataStreamPtr& input) const;
 
         String getType() const;
     };

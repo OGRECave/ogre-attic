@@ -30,7 +30,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSceneNode.h"
 #include "OgreIteratorWrappers.h"
 #include "OgreMatrix4.h"
-#include "OgreResource.h"
 
 namespace Ogre {
 
@@ -59,14 +58,13 @@ namespace Ogre {
         don't want the overlay displayed in the smaller viewports. You turn this off for 
         a specific viewport by calling the Viewport::setDisplayOverlays method.
     */
-    class _OgreExport Overlay : public Resource
+    class _OgreExport Overlay 
     {
 
     public:
               typedef std::list<OverlayContainer*> OverlayContainerList;
     protected:
-        ulong mZOrder;
-        bool mVisible;
+        String mName;
         /// Internal root node, used as parent for 3D objects
         SceneNode* mRootNode;
         // 2D elements
@@ -84,18 +82,16 @@ namespace Ogre {
         mutable Matrix4 mTransform;
         mutable bool mTransformOutOfDate;
         bool mTransformUpdated;
+        ulong mZOrder;
+        bool mVisible;
         /** Internal lazy update method. */
         void updateTransform(void) const;
 
     public:
-        /// Constructor: do not call direct, use SceneManager::createOverlay
+        /// Constructor: do not call direct, use OverlayManager::create
         Overlay(const String& name);
         virtual ~Overlay();
 
-        /** Generic load - called by OverlayManager. */
-        virtual void load(void);
-        /** Generic unload - called by OverlayManager. */
-        virtual void unload(void);
 
 	    OverlayContainer* getChild(const String& name);
 
@@ -256,8 +252,6 @@ namespace Ogre {
         }
 
     };
-
-
 
 }
 

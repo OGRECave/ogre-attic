@@ -25,7 +25,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 #include "OgreEntity.h"
 
-#include "OgreMesh.h"
 #include "OgreSubMesh.h"
 #include "OgreSubEntity.h"
 #include "OgreException.h"
@@ -59,7 +58,7 @@ namespace Ogre {
         mSkeletonInstance = 0;
     }
     //-----------------------------------------------------------------------
-    Entity::Entity( const String& name, Mesh* mesh, SceneManager* creator) :
+    Entity::Entity( const String& name, MeshPtr& mesh, SceneManager* creator) :
     mName(name),
         mMesh(mesh),
         mCreatorSceneManager(creator),
@@ -70,7 +69,7 @@ namespace Ogre {
         mSharedBlendedVertexData = NULL;
 
         // Is mesh skeletally animated?
-        if (mMesh->hasSkeleton() && mMesh->getSkeleton() != NULL)
+        if (mMesh->hasSkeleton() && !mMesh->getSkeleton().isNull())
         {
             mSkeletonInstance = new SkeletonInstance(mMesh->getSkeleton());
             mSkeletonInstance->load();
@@ -197,7 +196,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    Mesh* Entity::getMesh(void)
+    MeshPtr& Entity::getMesh(void)
     {
         return mMesh;
     }
@@ -511,11 +510,11 @@ namespace Ogre {
             // We make the assumption that lower LOD meshes will have
             //   fewer bones than the full LOD, therefore marix stack will be
             //   big enough.
-            Mesh* theMesh;
+            Mesh* theMesh; // raw to avoid reference counting overhead (don't need it)
             if (mMesh->isLodManual() && mMeshLodIndex > 1)
             {
                 // Use lower detail skeleton
-                theMesh = mMesh->getLodLevel(mMeshLodIndex).manualMesh;
+                theMesh = mMesh->getLodLevel(mMeshLodIndex).manualMesh.getPointer();
                 // Lower detail may not have skeleton
                 if (!theMesh->hasSkeleton())
                 {
@@ -526,7 +525,7 @@ namespace Ogre {
             else
             {
                 // Use normal mesh
-                theMesh = mMesh;
+                theMesh = mMesh.getPointer();
             }
 
             mSkeletonInstance->setAnimationState(*mAnimationState);
@@ -594,7 +593,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void Entity::buildSubEntityList(Mesh* mesh, SubEntityList* sublist)
+    void Entity::buildSubEntityList(MeshPtr& mesh, SubEntityList* sublist)
     {
         // Create SubEntities
         unsigned short i, numSubMeshes;
@@ -874,7 +873,7 @@ namespace Ogre {
         iend = mSubEntityList.end();
         for (i = mSubEntityList.begin(); i != iend; ++i, firstPass = false)
         {
-            Material* m = (*i)->getMaterial();
+            const MaterialPtr& m = (*i)->getMaterial();
             // Make sure it's loaded
             m->load();
             Technique* t = m->getBestTechnique();

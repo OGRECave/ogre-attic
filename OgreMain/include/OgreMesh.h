@@ -35,11 +35,28 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreIteratorWrappers.h"
 #include "OgreProgressiveMesh.h"
 #include "OgreHardwareVertexBuffer.h"
+#include "OgreSkeleton.h"
 
 
 namespace Ogre {
 
 
+    /** Specialisation of SharedPtr to allow SharedPtr to be assigned to MeshPtr 
+    @note Has to be a subclass since we need operator=.
+    We could templatise this instead of repeating per Resource subclass, 
+    except to do so requires a form VC6 does not support i.e.
+    ResourceSubclassPtr<T> : public SharedPtr<T>
+    */
+    class _OgreExport MeshPtr : public SharedPtr<Mesh> 
+    {
+    public:
+        MeshPtr() : SharedPtr<Mesh>() {}
+        MeshPtr(Mesh* rep) : SharedPtr<Mesh>(rep) {}
+        MeshPtr(const MeshPtr& r) : SharedPtr<Mesh>(r) {} 
+        MeshPtr(const ResourcePtr& r);
+        /// Operator used to convert a ResourcePtr to a MeshPtr
+        MeshPtr& operator=(const ResourcePtr& r);
+    };
 
     /** Resource holding data about 3D mesh.
         @remarks
@@ -78,10 +95,11 @@ namespace Ogre {
 
     class _OgreExport Mesh: public Resource
     {
-        friend class MeshSerializerImpl;
-        friend class MeshSerializerImpl_v1_1;
-        friend class MeshSerializerImpl_v1_2;
         friend class SubMesh;
+        friend class MeshSerializerImpl;
+        friend class MeshSerializerImpl_v1_2;
+        friend class MeshSerializerImpl_v1_1;
+
     public:
 		/** A way of recording the way each LODs is recorded this Mesh. */
 		struct MeshLodUsage
@@ -91,7 +109,7 @@ namespace Ogre {
 			/// Only relevant if mIsLodManual is true, the name of the alternative mesh to use
 			String manualName;
 			/// Hard link to mesh to avoid looking up each time
-			mutable Mesh* manualMesh;
+			mutable MeshPtr manualMesh;
             /// Edge list for this LOD level (may be derived from manual mesh)
             mutable EdgeData* edgeData;
 		};
@@ -127,12 +145,9 @@ namespace Ogre {
 		/// Local bounding sphere radius (centered on object)
 		Real mBoundRadius;
 
-        bool mManuallyDefined;
-
-
         /// Optional linked skeleton
         String mSkeletonName;
-        Skeleton* mSkeleton;
+        SkeletonPtr mSkeleton;
 
        
         VertexBoneAssignmentList mBoneAssignments;
@@ -164,21 +179,21 @@ namespace Ogre {
         bool mEdgeListsBuilt;
         bool mAutoBuildEdgeLists;
 
+        /// @copydoc Resource::loadImpl
+        void loadImpl(void);
+        /// @copydoc Resource::unloadImpl
+        void unloadImpl(void);
+		/// @copydoc Resource::calculateSize
+		size_t calculateSize(void) const;
+
     public:
         /** Default constructor - used by MeshManager
             @warning
                 Do not call this method directly.
         */
-        Mesh(const String& name);
+        Mesh(ResourceManager* creator, const String& name, ResourceHandle handle,
+            const String& group, bool isManual = false, ManualResourceLoader* loader = 0);
         ~Mesh();
-
-        /** Generic load - called by MeshManager.
-        */
-        virtual void load(void);
-
-        /** Generic unload - called by MeshManager.
-        */
-        virtual void unload(void);
 
         // NB All methods below are non-virtual since they will be
         // called in the rendering loop - speed is of the essence.
@@ -233,21 +248,16 @@ namespace Ogre {
         */
         VertexData *sharedVertexData;
 
-        /** Call this to indicate that this Mesh will be manually defined rather than loaded from a file.
-            @remarks
-                Normally, when load() is called on a Resource such as a Mesh, a file of data is loaded. However,
-                by calling this method with a parameter of 'true' you are indicating that the contents of this
-                Mesh will be defined programmatically rather than by loading from a file. Note that the load() method
-                must still be called in order to confirm the Mesh's use for the renderer, set up materials etc.
-        */
-        void setManuallyDefined(bool manuallyDefined);
-
         /** Makes a copy of this mesh object and gives it a new name.
             @remarks
                 This is useful if you want to tweak an existing mesh without affecting the original one. The
                 newly cloned mesh is registered with the MeshManager under the new name.
+            @param newName The name to give the clone
+            @param newGroup Optional name of the new group to assign the clone to;
+                if you leave this blank, the clone will be assigned to the same
+                group as this Mesh.
         */
-        Mesh* clone(const String& newName);
+        MeshPtr clone(const String& newName, const String& newGroup = StringUtil::BLANK);
 
         /** Get the axis-aligned bounding box for this mesh.
         */
@@ -290,8 +300,10 @@ namespace Ogre {
         /** Returns true if this Mesh has a linked Skeleton. */
         bool hasSkeleton(void) const;
 
-        /** Gets a pointer to any linked Skeleton. */
-        Skeleton* getSkeleton(void) const;
+        /** Gets a pointer to any linked Skeleton. 
+        @returns Weak reference to the skeleton - copy this if you want to hold a strong pointer.
+        */
+        const SkeletonPtr& getSkeleton(void) const;
 
         /** Gets the name of any linked Skeleton */
         const String& getSkeletonName(void) const;
@@ -328,7 +340,7 @@ namespace Ogre {
             Skeleton. Best to let OGRE deal with this, don't call it yourself unless you
             really know what you're doing.
         */
-        void _notifySkeleton(Skeleton* pSkel);
+        void _notifySkeleton(SkeletonPtr& pSkel);
 
 
         /** Gets an iterator for access all bone assignments. 
@@ -627,6 +639,7 @@ namespace Ogre {
 
 
     };
+
 
 
 } // namespace

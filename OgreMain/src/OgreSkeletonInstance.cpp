@@ -30,15 +30,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
     //-------------------------------------------------------------------------
-    SkeletonInstance::SkeletonInstance(Skeleton* masterCopy) 
-        : Skeleton(""), mSkeleton(masterCopy)
+    SkeletonInstance::SkeletonInstance(const SkeletonPtr& masterCopy) 
+        : Skeleton(), mSkeleton(masterCopy)
     {
         mNextTagPointAutoHandle = 0;
     }
     //-------------------------------------------------------------------------
     SkeletonInstance::~SkeletonInstance()
     {
-        unload();
     }
     //-------------------------------------------------------------------------
     unsigned short SkeletonInstance::getNumAnimations(void) const
@@ -97,10 +96,8 @@ namespace Ogre {
         }
     }
     //-------------------------------------------------------------------------
-    void SkeletonInstance::load(void)
+    void SkeletonInstance::loadImpl(void)
     {
-        assert(!mIsLoaded && "skeleton instance can not load more than once!");
-
         mNextAutoHandle = mSkeleton->mNextAutoHandle;
         mNextTagPointAutoHandle = 0;
         // construct self from master
@@ -114,12 +111,11 @@ namespace Ogre {
             b->_update(true, false);
         }
         setBindingPose();
-        mIsLoaded = true;
     }
     //-------------------------------------------------------------------------
-    void SkeletonInstance::unload(void)
+    void SkeletonInstance::unloadImpl(void)
     {
-        Skeleton::unload();
+        Skeleton::unloadImpl();
 
         // destroy TagPoints
         for (ActiveTagPointList::const_iterator it = mActiveTagPoints.begin(); it != mActiveTagPoints.end(); ++it)

@@ -70,7 +70,7 @@ namespace Ogre {
         String mMaterialName;
 
         /// Cached pointer to material.
-        Material* mpMaterial;
+        MaterialPtr mpMaterial;
 
         // Pointer to the SubMesh defining geometry.
         SubMesh* mSubMesh;
@@ -114,7 +114,7 @@ namespace Ogre {
 
         /** Overridden - see Renderable.
         */
-        Material* getMaterial(void) const;
+        const MaterialPtr& getMaterial(void) const;
 
         /** Overridden - see Renderable.
         */

@@ -107,22 +107,17 @@ namespace Ogre {
         // No need to differentiate between SW and HW anymore
         memcpy(&mD3DDeviceDesc, lpD3DDeviceDesc, sizeof(D3DDEVICEDESC7));
 
-        char msg[255];
-        sprintf(msg, "Detected Direct3D Device %s.", lpDeviceDesc);
-        LogManager::getSingleton().logMessage(msg);
+        StringUtil::StrStreamType str;
+        str << "Detected Direct3D Device " << lpDeviceDesc;
+        LogManager::getSingleton().logMessage(str.str());
         logCaps();
 
         // Do we need a Z Buffer?
         mNeedsZBuffer = !(mD3DDeviceDesc.dpcTriCaps.dwRasterCaps & D3DPRASTERCAPS_ZBUFFERLESSHSR);
         if (mNeedsZBuffer)
-            sprintf(msg, "This device needs a Z-Buffer");
+            LogManager::getSingleton().logMessage("This device needs a Z-Buffer");
         else
-            sprintf(msg, "This device does not need a Z-Buffer");
-
-        LogManager::getSingleton().logMessage(msg);
-
-
-
+            LogManager::getSingleton().logMessage("This device does not need a Z-Buffer");
 
 
     }
@@ -200,142 +195,6 @@ namespace Ogre {
         // Release DirectX Objects
 
         lpD3D = NULL;
-    }
-
-
-    void D3DDevice::createViewport(void)
-    {
-        /*
-        HRESULT hr;
-        char msg[255];
-        sprintf(msg, "Creating Direct3D Viewport For %s.", mDeviceDescription.c_str());
-        LogManager::getSingleton().logMessage(msg);
-
-        // Create the viewport (D3D interface)
-        // No need to create from device anymore
-
-        // Set size (based on render target surface)
-        setViewportSize();
-
-        // Set current viewport for device
-        hr = lpD3DDevice->SetViewport(&mViewport);
-        if FAILED(hr)
-            throw Exception(hr, "Error setting current viewport for device", "D3DDevice - setActive");
-
-        LogManager::getSingleton().logMessage("Viewport Created OK");
-
-        // Set up initial camera position
-        //mCamera = new CCamera(this);
-        //mCamera->setLocation(0.0f,0.0f,-10.0f);
-        //mCamera->setTarget(0.0f,0.0f,0.0f);
-
-        */
-    }
-
-    void D3DDevice::setViewportSize(void)
-    {
-
-        /*
-        DDSURFACEDESC2 renderDesc;
-        HRESULT hr;
-        // Get surface desc of render target
-        renderDesc.dwSize = sizeof(DDSURFACEDESC2);
-        hr = lpRenderTarget->GetSurfaceDesc(&renderDesc);
-
-
-        if FAILED(hr)
-            throw Exception(hr, "Error getting render target surface description", "D3DDevice - setActive");
-
-        // Set viewport to match the surface
-        mViewport.dwX            = 0;
-        mViewport.dwY            = 0;
-        mViewport.dwWidth      = renderDesc.dwWidth;
-        mViewport.dwHeight     = renderDesc.dwHeight;
-        mViewport.dvMinZ       = 0.0f;
-        mViewport.dvMaxZ       = 1.0f;
-
-
-
-        // Set the parameters for the new viewport.
-
-        // Store viewport sizes
-        rcViewportRect.x1 = 0;
-        rcViewportRect.x2 = renderDesc.dwWidth;
-        rcViewportRect.y1 = 0;
-        rcViewportRect.y2 = renderDesc.dwHeight;
-        */
-    }
-
-    void D3DDevice::setViewMatrix(D3DMATRIX *mat)
-    {
-        /*
-        HRESULT hr;
-
-        hr = lpD3DDevice->SetTransform(D3DTRANSFORMSTATE_VIEW, mat);
-
-        if (FAILED(hr))
-            throw Exception(hr, "Error setting view matrix.",
-                "D3DDevice - setViewMatrix");
-        */
-     }
-
-    void D3DDevice::setProjectionMatrix(D3DMATRIX *mat)
-    {
-        /*
-        HRESULT hr;
-        hr = lpD3DDevice->SetTransform(D3DTRANSFORMSTATE_PROJECTION, mat);
-
-        if (FAILED(hr))
-            throw Exception(hr, "Error setting projection matrix.",
-                "D3DDevice - setProjectionMatrix");
-        */
-    }
-
-    void D3DDevice::setWorldMatrix(D3DMATRIX *mat)
-    {
-        /*
-        HRESULT hr;
-        hr = lpD3DDevice->SetTransform(D3DTRANSFORMSTATE_WORLD, mat);
-
-        if (FAILED(hr))
-            throw Exception(hr, "Error setting world matrix.",
-                "D3DDevice - setWorldMatrix");
-        */
-    }
-
-    void D3DDevice::beginScene(void)
-    {
-        /*
-        HRESULT hr;
-
-        // Clear viewport
-        hr = lpD3DDevice->Clear(0, NULL,
-            D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x0, 1L, 0L);
-        if (FAILED(hr))
-            throw Exception(hr, "Can't clear viewport.",
-                "D3DDevice - beginScene");
-
-        // BEGIN
-
-        hr = lpD3DDevice->BeginScene();
-        if (FAILED(hr))
-            throw Exception(hr, "Can't begin scene.",
-                "D3DDevice - beginScene");
-        */
-    }
-
-    void D3DDevice::endScene(void)
-    {
-        //lpD3DDevice->EndScene();
-    }
-
-
-    void D3DDevice::setAmbientLight(float r, float g, float b)
-    {
-
-        // Just set white for now
-        //HRESULT hr;
-        //hr = lpD3DDevice->SetRenderState(D3DRENDERSTATE_AMBIENT, 0xffffffff );
     }
 
 
@@ -437,11 +296,11 @@ namespace Ogre {
             // Log stencil buffer depth
             mStencilBufferDepth = ddsd.ddpfPixelFormat.dwStencilBitDepth;
 
+            StringUtil::StrStreamType str;
+            str << "Depth-Buffer created (" << ddsd.ddpfPixelFormat.dwZBufferBitDepth
+                << "-bit, " << mStencilBufferDepth << "-bit stencil)";
             LogManager::getSingleton().logMessage( 
-                LML_NORMAL, 
-                "Depth-Buffer created (%i-bit, %i-bit stencil)", 
-                ddsd.ddpfPixelFormat.dwZBufferBitDepth,
-                mStencilBufferDepth);
+                LML_NORMAL, str.str());
             if (mStencilBufferDepth == 0)
             {
                 LogManager::getSingleton().logMessage("Warning: software stencilling " 

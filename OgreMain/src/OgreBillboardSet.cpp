@@ -37,9 +37,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <algorithm>
 
 namespace Ogre {
-    #define POSITION_BINDING 0
-    #define COLOUR_BINDING 1
-    #define TEXCOORD_BINDING 2
 
     String BillboardSet::msMovableType = "BillboardSet";
     //-----------------------------------------------------------------------
@@ -48,12 +45,14 @@ namespace Ogre {
         mAllDefaultSize( true ),
         mAutoExtendPool( true ),
         mFixedTextureCoords(true),
+        mAxesIgnoreLocal(false),
         mVertexData(0),
         mIndexData(0),
         mCullIndividual( false ),
         mBillboardType(BBT_POINT),
         mBuffersCreated(false),
-        mPoolSize(0)
+        mPoolSize(0),
+        mExternalData(false)
     {
         setDefaultDimensions( 100, 100 );
         setMaterialName( "BaseWhite" );
@@ -63,18 +62,21 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     BillboardSet::BillboardSet(
         const String& name,
-        unsigned int poolSize ) :
+        unsigned int poolSize, 
+        bool externalData) :
         mName( name ),
         mOriginType( BBO_CENTER ),
         mAllDefaultSize( true ),
         mAutoExtendPool( true ),
         mFixedTextureCoords(true),
+        mAxesIgnoreLocal(false),
         mVertexData(0),
         mIndexData(0),
         mCullIndividual( false ),
         mBillboardType(BBT_POINT),
         mBuffersCreated(false),
-        mPoolSize(poolSize)
+        mPoolSize(poolSize),
+        mExternalData(externalData)
     {
         setDefaultDimensions( 100, 100 );
         setMaterialName( "BaseWhite" );
@@ -255,10 +257,9 @@ namespace Ogre {
     {
         mMaterialName = name;
 
-        mpMaterial = static_cast<Material *>(
-            MaterialManager::getSingleton().getByName(name) );
+        mpMaterial = MaterialManager::getSingleton().getByName(name);
 
-		if (!mpMaterial)
+		if (mpMaterial.isNull())
 			Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find material " + name,
 				"BillboardSet::setMaterialName" );
 
@@ -277,6 +278,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BillboardSet::_notifyCurrentCamera( Camera* cam )
     {
+        mCurrentCamera = cam;
         /* Generate the vertices for all the billboards relative to the camera
            Also take the opportunity to update the vertex colours
            May as well do it here to save on loops elsewhere
@@ -297,143 +299,109 @@ namespace Ogre {
            use hardware TnL if it is available.
         */
 
-        /*
-        // Min and max bounds for AABB
-        Vector3 min( Math::POS_INFINITY, Math::POS_INFINITY, Math::POS_INFINITY );
-        Vector3 max( Math::NEG_INFINITY, Math::NEG_INFINITY, Math::NEG_INFINITY );
-        */
-
         // create vertex and index buffers if they haven't already been
         if(!mBuffersCreated)
             _createBuffers();
 
-        ActiveBillboardList::iterator it;
-        // Parametric offsets of origin
-        Real leftOff, rightOff, topOff, bottomOff;
 
-        // Boundary offsets based on origin and camera orientation
-        // Vector3 vLeftOff, vRightOff, vTopOff, vBottomOff;
-        // Final vertex offsets, used where sizes all default to save calcs
-        Vector3 vOffset[4];
 
         // Get offsets for origin type
-        getParametricOffsets(leftOff, rightOff, topOff, bottomOff);
-        // Get camera axes in billboard space
-        Vector3 camX, camY;
+        getParametricOffsets(mLeftOff, mRightOff, mTopOff, mBottomOff);
 
         // Generate axes etc up-front if not oriented per-billboard
         if (mBillboardType != BBT_ORIENTED_SELF)
         {
-            genBillboardAxes(*cam, &camX, &camY);
+            genBillboardAxes(cam, &mCamX, &mCamY);
 
             /* If all billboards are the same size we can precalculate the
                offsets and just use '+' instead of '*' for each billboard,
                and it should be faster.
             */
-            genVertOffsets(leftOff, rightOff, topOff, bottomOff, 
-                mDefaultWidth, mDefaultHeight, camX, camY, vOffset);
+            genVertOffsets(mLeftOff, mRightOff, mTopOff, mBottomOff, 
+                mDefaultWidth, mDefaultHeight, mCamX, mCamY, mVOffset);
 
         }
 
+        
+
+        // If we're driving this from our own data, go ahead
+        if (!mExternalData)
+        {
+            beginBillboards();
+            ActiveBillboardList::iterator it;
+            for(it = mActiveBillboards.begin();
+                it != mActiveBillboards.end();
+                ++it )
+            {
+                injectBillboard(*(*it));
+            }
+            endBillboards();
+        }
+
+
+
+    }
+    //-----------------------------------------------------------------------
+    void BillboardSet::beginBillboards(void)
+    {
         // Init num visible
         mNumVisibleBillboards = 0;
 
-        HardwareVertexBufferSharedPtr vPosBuf = 
-            mVertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);
+        mLockPtr = static_cast<Real*>( 
+            mMainBuf->lock(HardwareBuffer::HBL_DISCARD) );
 
-        Real* pV = static_cast<Real*>( 
-            vPosBuf->lock(HardwareBuffer::HBL_DISCARD) );
+    }
+    //-----------------------------------------------------------------------
+    void BillboardSet::injectBillboard(const Billboard& bb)
+    {
+        // Skip if not visible (NB always true if not bounds checking individual billboards)
+        if (!billboardVisible(mCurrentCamera, bb)) return;
 
-        HardwareVertexBufferSharedPtr vColBuf = 
-            mVertexData->vertexBufferBinding->getBuffer(COLOUR_BINDING);
-
-        RGBA* pC = static_cast<RGBA*>( 
-            vColBuf->lock(HardwareBuffer::HBL_DISCARD) );
-
-        HardwareVertexBufferSharedPtr vTexBuf = 
-            mVertexData->vertexBufferBinding->getBuffer(TEXCOORD_BINDING);
-
-		Real* pT = 0;
-        if (!mFixedTextureCoords)
+        if (mBillboardType == BBT_ORIENTED_SELF)
         {
-            pT = static_cast<Real*>( 
-                vTexBuf->lock(HardwareBuffer::HBL_DISCARD) );
+            // Have to generate axes & offsets per billboard
+            genBillboardAxes(mCurrentCamera, &mCamX, &mCamY, &bb);
         }
 
-		for(it = mActiveBillboards.begin();
-			it != mActiveBillboards.end();
-			++it )
-		{
-			// Skip if not visible (NB always true if not bounds checking individual billboards)
-			if (!billboardVisible(cam, it)) continue;
+        if( mAllDefaultSize ) // If they're all the same size
+        {
+            /* No per-billboard checking, just blast through.
+            Saves us an if clause every billboard which may
+            make a difference.
+            */
 
-			if (mBillboardType == BBT_ORIENTED_SELF)
-			{
-				// Have to generate axes & offsets per billboard
-				genBillboardAxes(*cam, &camX, &camY, *it);
+            if (mBillboardType == BBT_ORIENTED_SELF)
+            {
+                genVertOffsets(mLeftOff, mRightOff, mTopOff, mBottomOff, 
+                    mDefaultWidth, mDefaultHeight, mCamX, mCamY, mVOffset);
             }
-
-            if( mAllDefaultSize ) // If they're all the same size
-            {
-                /* No per-billboard checking, just blast through.
-                   Saves us an if clause every billboard which may
-                   make a difference.
-                */
-
-			    if (mBillboardType == BBT_ORIENTED_SELF)
-			    {
-					genVertOffsets(leftOff, rightOff, topOff, bottomOff, 
-						mDefaultWidth, mDefaultHeight, camX, camY, vOffset);
-				}
-				genVertices(&pV, &pC, &pT, vOffset, *it);
-			}
-            else // not all default size
-            {
-                Vector3 vOwnOffset[4];
-				// If it has own dimensions, or self-oriented, gen offsets
-                if (mBillboardType == BBT_ORIENTED_SELF || 
-                    (*it)->mOwnDimensions)
-			    {
-					// Generate using own dimensions
-					genVertOffsets(leftOff, rightOff, topOff, bottomOff, 
-						(*it)->mWidth, (*it)->mHeight, camX, camY, vOwnOffset);
-					// Create vertex data            
-					genVertices(&pV, &pC, &pT, vOwnOffset, *it);
-			    } 
-				else // Use default dimension, already computed before the loop, for faster creation
-				{
-					genVertices(&pV, &pC, &pT, vOffset, *it);
-				}
-			}
-			// Increment visibles
-			mNumVisibleBillboards++;
+            genVertices(mVOffset, bb);
         }
-
-		if (!mFixedTextureCoords)
-            vTexBuf->unlock();
-        vColBuf->unlock();
-        vPosBuf->unlock();
-
-        /*
-        // Update bounding box limits
-        unsigned int vertBufferSize = mNumVisibleBillboards * 4 * 3;
-
-        for( j = 0; j < vertBufferSize; j += 3 )
+        else // not all default size
         {
-                min.makeFloor( Vector3(
-                                   mpPositions[j],
-                                   mpPositions[j+1],
-                                   mpPositions[j+2] ) );
-
-                max.makeCeil( Vector3(
-                                   mpPositions[j],
-                                   mpPositions[j+1],
-                                   mpPositions[j+2] ) );
+            Vector3 vOwnOffset[4];
+            // If it has own dimensions, or self-oriented, gen offsets
+            if (mBillboardType == BBT_ORIENTED_SELF || 
+                bb.mOwnDimensions)
+            {
+                // Generate using own dimensions
+                genVertOffsets(mLeftOff, mRightOff, mTopOff, mBottomOff, 
+                    bb.mWidth, bb.mHeight, mCamX, mCamY, vOwnOffset);
+                // Create vertex data            
+                genVertices(vOwnOffset, bb);
+            } 
+            else // Use default dimension, already computed before the loop, for faster creation
+            {
+                genVertices(mVOffset, bb);
+            }
         }
-
-        // Set AABB
-        mAABB.setExtents(min, max);
-        */
+        // Increment visibles
+        mNumVisibleBillboards++;
+    }
+    //-----------------------------------------------------------------------
+    void BillboardSet::endBillboards(void)
+    {
+        mMainBuf->unlock();
     }
     //-----------------------------------------------------------------------
     void BillboardSet::_updateBounds(void)
@@ -496,7 +464,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    Material* BillboardSet::getMaterial(void) const
+    const MaterialPtr& BillboardSet::getMaterial(void) const
     {
         return mpMaterial;
     }
@@ -593,34 +561,20 @@ namespace Ogre {
         VertexBufferBinding* binding = mVertexData->vertexBufferBinding;
 
         size_t offset = 0;
-        decl->addElement(POSITION_BINDING, offset, VET_FLOAT3, VES_POSITION);
-        //offset += VertexElement::getTypeSize(VET_FLOAT2);
-        decl->addElement(COLOUR_BINDING, offset, VET_COLOUR, VES_DIFFUSE);
-        decl->addElement(TEXCOORD_BINDING, 0, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
+        decl->addElement(0, offset, VET_FLOAT3, VES_POSITION);
+        offset += VertexElement::getTypeSize(VET_FLOAT3);
+        decl->addElement(0, offset, VET_COLOUR, VES_DIFFUSE);
+        offset += VertexElement::getTypeSize(VET_COLOUR);
+        decl->addElement(0, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
 
-        HardwareVertexBufferSharedPtr vbuf = 
+        mMainBuf = 
             HardwareBufferManager::getSingleton().createVertexBuffer(
-                decl->getVertexSize(POSITION_BINDING),
+                decl->getVertexSize(0),
                 mVertexData->vertexCount, 
                 HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
         // bind position and diffuses
-        binding->setBinding(POSITION_BINDING, vbuf);
+        binding->setBinding(0, mMainBuf);
 
-        vbuf = 
-            HardwareBufferManager::getSingleton().createVertexBuffer(
-                decl->getVertexSize(COLOUR_BINDING),
-                mVertexData->vertexCount, 
-                HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
-        // bind position and diffuses
-        binding->setBinding(COLOUR_BINDING, vbuf);
-
-        vbuf = 
-            HardwareBufferManager::getSingleton().createVertexBuffer(
-                decl->getVertexSize(TEXCOORD_BINDING),
-                mVertexData->vertexCount, 
-                HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
-        // bind position
-        binding->setBinding(TEXCOORD_BINDING, vbuf);
 
         mIndexData->indexStart = 0;
         mIndexData->indexCount = mPoolSize * 6;
@@ -630,7 +584,7 @@ namespace Ogre {
                 mIndexData->indexCount,
                 HardwareBuffer::HBU_STATIC_WRITE_ONLY);
 
-        /* Create indexes and tex coords (will be the same every frame)
+        /* Create indexes (will be the same every frame)
            Using indexes because it means 1/3 less vertex transforms (4 instead of 6)
 
            Billboard layout relative to camera:
@@ -642,32 +596,19 @@ namespace Ogre {
             0-----1
         */
 
-        // Create template texcoord data
-        Real texData[8] = {
-            0.0, 1.0,
-            1.0, 1.0,
-            0.0, 0.0,
-            1.0, 0.0 };
-
         ushort* pIdx = static_cast<ushort*>(
             mIndexData->indexBuffer->lock(0,
               mIndexData->indexBuffer->getSizeInBytes(),
               HardwareBuffer::HBL_DISCARD) );
 
-        vbuf = mVertexData->vertexBufferBinding->getBuffer(TEXCOORD_BINDING);
-
-        Real* pT = static_cast<Real*>(
-            vbuf->lock(HardwareBuffer::HBL_DISCARD) );
-
         for(
-            size_t idx, idxOff, texOff, bboard = 0;
+            size_t idx, idxOff, bboard = 0;
             bboard < mPoolSize;
             ++bboard )
         {
             // Do indexes
             idx    = bboard * 6;
             idxOff = bboard * 4;
-            texOff = bboard * 4 * 2;
 
             pIdx[idx] = static_cast<unsigned short>(idxOff); // + 0;, for clarity
             pIdx[idx+1] = static_cast<unsigned short>(idxOff + 1);
@@ -676,18 +617,8 @@ namespace Ogre {
             pIdx[idx+4] = static_cast<unsigned short>(idxOff + 3);
             pIdx[idx+5] = static_cast<unsigned short>(idxOff + 2);
 
-            // Do tex coords
-            pT[texOff]   = texData[0];
-            pT[texOff+1] = texData[1];
-            pT[texOff+2] = texData[2];
-            pT[texOff+3] = texData[3];
-            pT[texOff+4] = texData[4];
-            pT[texOff+5] = texData[5];
-            pT[texOff+6] = texData[6];
-            pT[texOff+7] = texData[7];
         }
 
-        vbuf->unlock();
         mIndexData->indexBuffer->unlock();
         mBuffersCreated = true;
     }
@@ -785,7 +716,7 @@ namespace Ogre {
         mCullIndividual = cullIndividual;
     }
     //-----------------------------------------------------------------------
-    bool BillboardSet::billboardVisible(Camera* cam, ActiveBillboardList::iterator bill)
+    bool BillboardSet::billboardVisible(Camera* cam, const Billboard& bill)
     {
         // Return always visible if not culling individually
         if (!mCullIndividual) return true;
@@ -796,11 +727,11 @@ namespace Ogre {
 
         getWorldTransforms(&xworld);
 
-        sph.setCenter(xworld * (*bill)->mPosition);
+        sph.setCenter(xworld * bill.mPosition);
 
-        if ((*bill)->mOwnDimensions)
+        if (bill.mOwnDimensions)
         {
-            sph.setRadius(std::max((*bill)->mWidth, (*bill)->mHeight));
+            sph.setRadius(std::max(bill.mWidth, bill.mHeight));
         }
         else
         {
@@ -825,7 +756,8 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void BillboardSet:: genBillboardAxes(const Camera& cam, Vector3* pX, Vector3 *pY, const Billboard* pBill)
+    void BillboardSet::genBillboardAxes(Camera* cam, Vector3* pX, 
+        Vector3 *pY, const Billboard* bb)
     {
         // Default behaviour is that billboards are in local node space
         // so orientation of camera (in world space) must be reverse-transformed 
@@ -838,9 +770,12 @@ namespace Ogre {
         {
         case BBT_POINT:
             // Get camera world axes for X and Y (depth is irrelevant)
-            camQ = cam.getDerivedOrientation();
-            // Convert into billboard local space
-            camQ = invTransform * camQ;
+            camQ = cam->getDerivedOrientation();
+            if (!mAxesIgnoreLocal)
+            {
+                // Convert into billboard local space
+                camQ = invTransform * camQ;
+            }
             *pX = camQ * Vector3::UNIT_X;
             *pY = camQ * Vector3::UNIT_Y;
             break;
@@ -848,17 +783,32 @@ namespace Ogre {
             // Y-axis is common direction
             // X-axis is cross with camera direction 
             *pY = mCommonDirection;
-            // Convert into billboard local space
-            *pX = invTransform * cam.getDerivedDirection().crossProduct(*pY);
+            if (!mAxesIgnoreLocal)
+            {
+                // Convert into billboard local space
+                *pX = invTransform * cam->getDerivedDirection().crossProduct(*pY);
+            }
+            else
+            {
+                *pX = cam->getDerivedDirection().crossProduct(*pY);
+            }
             pX->normalise();
             
             break;
         case BBT_ORIENTED_SELF:
             // Y-axis is direction
             // X-axis is cross with camera direction 
-            *pY = pBill->mDirection;
-            // Convert into billboard local space
-            *pX = invTransform * cam.getDerivedDirection().crossProduct(*pY);
+            // Scale direction first
+            *pY = (bb->mDirection * 0.01);
+            if (!mAxesIgnoreLocal)
+            {
+                // Convert into billboard local space
+                *pX = invTransform * cam->getDerivedDirection().crossProduct(*pY);
+            }
+            else
+            {
+                *pX = cam->getDerivedDirection().crossProduct(*pY);
+            }
             pX->normalise();
 
             break;
@@ -886,63 +836,112 @@ namespace Ogre {
         return mCommonDirection;
     }
     //-----------------------------------------------------------------------
-    void BillboardSet::genVertices(Real **pPos, RGBA** pCol, Real **pTex, const Vector3* const offsets, const Billboard* const pBillboard)
+    void BillboardSet::genVertices( 
+        const Vector3* const offsets, const Billboard& bb)
     {
-		// Texcoords
+        RGBA colour;
+        Root::getSingleton().convertColourValue(bb.mColour, &colour);
+		RGBA* pCol;
+        static Real basicTexData[8] = {
+            0.0, 1.0,
+            1.0, 1.0,
+            0.0, 0.0,
+            1.0, 0.0 };
+        static Real rotTexDataBase[8] = {
+            -0.5, 0.5,
+             0.5, 0.5,
+            -0.5,-0.5,
+             0.5,-0.5 };
+        static Real rotTexData[8];
 
-       	if (!mFixedTextureCoords)
-		{
-			// Create template texcoord data
-			Real texData[8] = {
-				-0.5, 0.5,
-				 0.5, 0.5,
-				-0.5,-0.5,
-				 0.5,-0.5 };
+		Real* pTexData;
 
-			const Radian    rotation ( pBillboard->mRotation );
-			const Real      cos_rot  ( Math::Cos(rotation)   );
-			const Real      sin_rot  ( Math::Sin(rotation)   );
+        // Texcoords
+        if (mFixedTextureCoords)
+        {
+			pTexData = basicTexData;
+        }
+        else
+        {
+
+            const Real      cos_rot  ( Math::Cos(bb.mRotation)   );
+            const Real      sin_rot  ( Math::Sin(bb.mRotation)   );
+
+            rotTexData[0] = (cos_rot * rotTexDataBase[0]) + (sin_rot * rotTexDataBase[1]) + 0.5;
+            rotTexData[1] = (sin_rot * rotTexDataBase[0]) - (cos_rot * rotTexDataBase[1]) + 0.5;
+
+            rotTexData[2] = (cos_rot * rotTexDataBase[2]) + (sin_rot * rotTexDataBase[3]) + 0.5;
+            rotTexData[3] = (sin_rot * rotTexDataBase[2]) - (cos_rot * rotTexDataBase[3]) + 0.5;
+
+            rotTexData[4] = (cos_rot * rotTexDataBase[4]) + (sin_rot * rotTexDataBase[5]) + 0.5;
+            rotTexData[5]= (sin_rot * rotTexDataBase[4]) - (cos_rot * rotTexDataBase[5]) + 0.5;
+
+            rotTexData[6] = (cos_rot * rotTexDataBase[6]) + (sin_rot * rotTexDataBase[7]) + 0.5;
+            rotTexData[7] = (sin_rot * rotTexDataBase[6]) - (cos_rot * rotTexDataBase[7]) + 0.5;
+			pTexData = rotTexData;
+        }
 		
-			*(*pTex)++ = (cos_rot * texData[0]) + (sin_rot * texData[1]) + 0.5;
-			*(*pTex)++ = (sin_rot * texData[0]) - (cos_rot * texData[1]) + 0.5;
-
-			*(*pTex)++ = (cos_rot * texData[2]) + (sin_rot * texData[3]) + 0.5;
-			*(*pTex)++ = (sin_rot * texData[2]) - (cos_rot * texData[3]) + 0.5;
-
-			*(*pTex)++ = (cos_rot * texData[4]) + (sin_rot * texData[5]) + 0.5;
-			*(*pTex)++ = (sin_rot * texData[4]) - (cos_rot * texData[5]) + 0.5;
-
-			*(*pTex)++ = (cos_rot * texData[6]) + (sin_rot * texData[7]) + 0.5;
-			*(*pTex)++ = (sin_rot * texData[6]) - (cos_rot * texData[7]) + 0.5;
-		}
-
-        // Positions
 
         // Left-top
-        *(*pPos)++ = offsets[0].x + pBillboard->mPosition.x;
-        *(*pPos)++ = offsets[0].y + pBillboard->mPosition.y;
-        *(*pPos)++ = offsets[0].z + pBillboard->mPosition.z;
-        // Right-top
-        *(*pPos)++ = offsets[1].x + pBillboard->mPosition.x;
-        *(*pPos)++ = offsets[1].y + pBillboard->mPosition.y;
-        *(*pPos)++ = offsets[1].z + pBillboard->mPosition.z;
-        // Left-bottom
-        *(*pPos)++ = offsets[2].x + pBillboard->mPosition.x;
-        *(*pPos)++ = offsets[2].y + pBillboard->mPosition.y;
-        *(*pPos)++ = offsets[2].z + pBillboard->mPosition.z;
-        // Right-bottom
-        *(*pPos)++ = offsets[3].x + pBillboard->mPosition.x;
-        *(*pPos)++ = offsets[3].y + pBillboard->mPosition.y;
-        *(*pPos)++ = offsets[3].z + pBillboard->mPosition.z;
+		// Positions
+        *mLockPtr++ = offsets[0].x + bb.mPosition.x;
+        *mLockPtr++ = offsets[0].y + bb.mPosition.y;
+        *mLockPtr++ = offsets[0].z + bb.mPosition.z;
+		// Colour
+		// Convert Real* to RGBA*
+        pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
+        *pCol++ = colour;
+        // Update lock pointer
+        mLockPtr = static_cast<Real*>(static_cast<void*>(pCol));
+		// Texture coords
+		*mLockPtr++ = *pTexData++;
+		*mLockPtr++ = *pTexData++;
 
-        // Update colours
-        RGBA colour;
-        Root::getSingleton().convertColourValue(pBillboard->mColour, &colour);
 
-        *(*pCol)++ = colour;
-        *(*pCol)++ = colour;
-        *(*pCol)++ = colour;
-        *(*pCol)++ = colour;
+		// Right-top
+		// Positions
+        *mLockPtr++ = offsets[1].x + bb.mPosition.x;
+        *mLockPtr++ = offsets[1].y + bb.mPosition.y;
+        *mLockPtr++ = offsets[1].z + bb.mPosition.z;
+		// Colour
+		// Convert Real* to RGBA*
+        pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
+        *pCol++ = colour;
+        // Update lock pointer
+        mLockPtr = static_cast<Real*>(static_cast<void*>(pCol));
+		// Texture coords
+		*mLockPtr++ = *pTexData++;
+		*mLockPtr++ = *pTexData++;
+
+		// Left-bottom
+		// Positions
+        *mLockPtr++ = offsets[2].x + bb.mPosition.x;
+        *mLockPtr++ = offsets[2].y + bb.mPosition.y;
+        *mLockPtr++ = offsets[2].z + bb.mPosition.z;
+		// Colour
+		// Convert Real* to RGBA*
+        pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
+        *pCol++ = colour;
+        // Update lock pointer
+        mLockPtr = static_cast<Real*>(static_cast<void*>(pCol));
+		// Texture coords
+		*mLockPtr++ = *pTexData++;
+		*mLockPtr++ = *pTexData++;
+
+		// Right-bottom
+		// Positions
+        *mLockPtr++ = offsets[3].x + bb.mPosition.x;
+        *mLockPtr++ = offsets[3].y + bb.mPosition.y;
+        *mLockPtr++ = offsets[3].z + bb.mPosition.z;
+		// Colour
+		// Convert Real* to RGBA*
+        pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
+        *pCol++ = colour;
+        // Update lock pointer
+        mLockPtr = static_cast<Real*>(static_cast<void*>(pCol));
+		// Texture coords
+		*mLockPtr++ = *pTexData++;
+		*mLockPtr++ = *pTexData++;
 
     }
     //-----------------------------------------------------------------------
