@@ -1,6 +1,6 @@
 #!/bin/bash
-rm -R samples
-mkdir samples
+rm -R samples/refapp
+rm -R samples/scripts
 mkdir samples/scripts
 mkdir samples/refapp
 mkdir samples/refapp/scripts

@@ -19,8 +19,8 @@ OgreSDK/
 		release/
 			Release dependency dlls
 			Target for release examples
-		media/
-			Contents as per Samples/Common/Media
+	media/
+		Contents as per Samples/Common/Media
 	lib/
 		OgreMain[_d].lib 
 		OgreGuiRenderer[_d].lib 
