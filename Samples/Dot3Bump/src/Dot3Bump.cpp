@@ -36,16 +36,56 @@ LGPL like the rest of the engine.
 // 4 entities we'll use
 Entity *mEnt1, *mEnt2, *mEnt3, *mEnt4;
 
-#define NUM_LIGHTS 5
+#define NUM_LIGHTS 3
 
 // the light
 Light *mLights[NUM_LIGHTS];
+// billboards for lights
+Billboard* mLightFlares[NUM_LIGHTS];
+// Positions for lights
+Vector3 mLightPositions[NUM_LIGHTS] = 
+{
+	Vector3(300,0,0),
+	Vector3(-200,50,0),
+	Vector3(0, -300, -100)
+};
+// Colours for the lights
+ColourValue mDiffuseLightColours[NUM_LIGHTS] =
+{
+	ColourValue(1, 1, 1),
+	ColourValue(1, 0, 0),
+	ColourValue(1, 1, 0.5)
+};
+ColourValue mSpecularLightColours[NUM_LIGHTS] =
+{
+	ColourValue(1, 1, 1),
+	ColourValue(1, 0.8, 0.8),
+	ColourValue(1, 1, 0.8)
+};
+// Which lights are enabled
+bool mLightState[NUM_LIGHTS] = 
+{
+	true,
+	true,
+	false
+};
+// The materials
+String mMaterialNames[3] = 
+{
+	"Examples/BumpMapping/SingleLight",
+	"Examples/BumpMapping/MultiLight",
+	"Examples/BumpMapping/MultiLightSpecular"
+};
+size_t mCurrentMaterial = 1;
+
 // the scene node of the entity
 SceneNode *mMainNode;
 // the light nodes
 SceneNode* mLightNodes[NUM_LIGHTS];
 // the light node pivots
 SceneNode* mLightPivots[NUM_LIGHTS];
+
+
 // struct wich hold 2D tex.coords.
 struct sTexCoord
 {
@@ -289,15 +329,13 @@ public:
 		static String matName = "Examples/BumpMapping/1";
 		// switch materials
 		if (mInputDevice->isKeyDown(KC_F1))
-			matName = "Examples/BumpMapping/1";
+			mCurrentMaterial = 0;
         if (mInputDevice->isKeyDown(KC_F2))
-			matName = "Examples/DP3Mat2";
+			mCurrentMaterial = 1;
         if (mInputDevice->isKeyDown(KC_F3))
-			matName = "Examples/DP3Mat3";
-        if (mInputDevice->isKeyDown(KC_F4))
-			matName = "Examples/DP3Mat4";
+			mCurrentMaterial = 2;
 		// set material
-		pEnt->setMaterialName(matName);
+		pEnt->setMaterialName(mMaterialNames[mCurrentMaterial]);
 
 		// animate the lights
 		mLightPivots[0]->rotate(Vector3::UNIT_Y, 30 * evt.timeSinceLastFrame);
@@ -317,10 +355,18 @@ protected:
 
 	void createScene(void)
     {
-        // First check that dot3 is supported
-        if (!Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_DOT3))
+        // First check that vertex programs and dot3 or fragment programs are supported
+		const RenderSystemCapabilities* caps = Root::getSingleton().getRenderSystem()->getCapabilities();
+        if (!caps->hasCapability(RSC_VERTEX_PROGRAM))
         {
-            Except(1, "Your card does not support the DOT3 blending operation, so cannot "
+            Except(1, "Your card does not support vertex programs, so cannot "
+                "run this demo. Sorry!", 
+                "Dot3Bump::createScene");
+        }
+        if (!(caps->hasCapability(RSC_FRAGMENT_PROGRAM) 
+			|| caps->hasCapability(RSC_DOT3)) )
+        {
+            Except(1, "Your card does not support dot3 blending or fragment programs, so cannot "
                 "run this demo. Sorry!", 
                 "Dot3Bump::createScene");
         }
@@ -369,24 +415,22 @@ protected:
         for (unsigned int i = 0; i < NUM_LIGHTS; ++i)
         {
             mLightPivots[i] = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-            mLightNodes[i] = mLightPivots[i]->createChildSceneNode();
             // Create a light, use default parameters
             mLights[i] = mSceneMgr->createLight("Light" + StringConverter::toString(i));
-            // turn them all off by default
-            mLights[i]->setVisible(false);
+			mLights[i]->setPosition(mLightPositions[i]);
+			mLights[i]->setDiffuseColour(mDiffuseLightColours[i]);
+			mLights[i]->setSpecularColour(mSpecularLightColours[i]);
+			mLights[i]->setVisible(mLightState[i]);
             // Attach light
-            mLightNodes[i]->attachObject(mLights[i]);
+            mLightPivots[i]->attachObject(mLights[i]);
+			// Create billboard for light
+			BillboardSet* bbset = mSceneMgr->createBillboardSet("Flare" + StringConverter::toString(i));
+			bbset->setMaterialName("Examples/Flare");
+			mLightPivots[i]->attachObject(bbset);
+			mLightFlares[i] = bbset->createBillboard(mLightPositions[i]);
+			mLightFlares[i]->setColour(mDiffuseLightColours[i]);
+			bbset->setVisible(mLightState[i]);
         }
-        // Enable light 0 only for now
-        mLights[0]->setVisible(true);
-		mLights[0]->setDiffuseColour(ColourValue(1, 1, 1));
-        mLightNodes[0]->translate(300,0,0);
-
-        // Enable light 1 now
-        mLights[1]->setVisible(true);
-		mLights[1]->setDiffuseColour(ColourValue(1, 0, 0));
-        mLightNodes[1]->translate(-200, 50,0);
-
         // move the camera a bit right and make it look at the knot
 		mCamera->moveRelative(Vector3(50, 0, 20));
 		mCamera->lookAt(0, 0, 0);
