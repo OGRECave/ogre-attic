@@ -729,8 +729,9 @@ namespace Ogre {
             break;
 
         case TEXCALC_ENVIRONMENT_MAP_PLANAR:            
-            glTexGeni( GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR );
-            glTexGeni( GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR );
+            // XXX This doesn't seem right?!
+            glTexGeni( GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );
+            glTexGeni( GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );
             glEnable( GL_TEXTURE_GEN_S );
             glEnable( GL_TEXTURE_GEN_T );
             break;
