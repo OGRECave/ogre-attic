@@ -142,17 +142,11 @@ a 'BspSceneManager' class which optimises the scene management for indoor levels
 meaning you get both performance <I>and</I> an easy to learn interface. All applications 
 have to do is hint about the kind of scene they will be creating and let OGRE 
 choose the most appropriate implementation - this is covered in a later tutorial.</P><P>OGRE's 
-object-oriented nature makes all this possible. Unfortunately because of time 
-constraints I have only been able to write the classes required to implement OGRE 
-on Windows under DirectX. However it is important to stress that as I have designed 
-the base interfaces I have been checking how I <I>would </I>do it under OpenGL 
-or another windowing system, thus I am confident that an implementation on other 
-3D APIs and platforms will be straight forward, given the time. I have been balancing 
-my time between API implementations and engine features, and so an OpenGL/Linux 
-implementation has taken a back seat for the moment. In the meantime though, applications 
-can use OGRE at the abstract level, and will <I>automatically</I> be able to take 
-advantage of extra platform and API support when it is added becuse they will 
-contain no platform or API specific code.</P><TABLE WIDTH="100%" BORDER="0" CELLSPACING="2" CELLPADDING="0"><TR><TD WIDTH="14%"><A HREF="../index.html">Back 
+object-oriented nature makes all this possible. Currently OGRE runs on both Windows 
+and Linux, using plugins to drive the underlying rendering API (currently Direct3D 
+or OpenGL). Applications use OGRE at the abstract level, thus ensuring that they 
+automatically operate on all platforms and rendering subsystems that OGRE provides 
+without any need for platform or API specific code.</P><TABLE WIDTH="100%" BORDER="0" CELLSPACING="2" CELLPADDING="0"><TR><TD WIDTH="14%"><A HREF="../index.html">Back 
 to Index</A></TD><TD WIDTH="39%">&nbsp;</TD><TD WIDTH="22%"><A HREF="../index.html">&lt;&lt; 
 Previous section</A></TD><TD WIDTH="25%"><A HREF="objects.html">Next section &gt;&gt;</A></TD></TR></TABLE><P>&nbsp;</P><P>&nbsp;</P><P>&nbsp;</P><P CLASS="SectionHeader">&nbsp;</P>
 </body>
