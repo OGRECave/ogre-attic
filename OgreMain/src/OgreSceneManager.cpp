@@ -36,6 +36,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreMath.h"
 #include "OgreControllerManager.h"
 #include "OgreMaterialManager.h"
+#include "OgreAnimation.h"
 
 // This class implements the most basic scene manager
 
@@ -336,6 +337,9 @@ namespace Ogre {
         mBillboardSets.clear();
         // Clear lights
         //removeAllLights();
+
+        // Clear animations
+        destroyAllAnimations();
 
 
 
@@ -1423,5 +1427,50 @@ namespace Ogre {
     void SceneManager::setDisplaySceneNodes(bool display)
     {
         mDisplayNodes = display;
+    }
+    //-----------------------------------------------------------------------
+    Animation* SceneManager::createAnimation(const String& name, Real length)
+    {
+        Animation* pAnim = new Animation(name, length);
+        mAnimationsList[name] = pAnim;
+        return pAnim;
+    }
+    //-----------------------------------------------------------------------
+    Animation* SceneManager::getAnimation(const String& name) const
+    {
+        AnimationList::const_iterator i = mAnimationsList.find(name);
+        if (i == mAnimationsList.end())
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot find animation with name " + name, 
+                "SceneManager::getAnimation");
+        }
+        return i->second;
+    }
+    //-----------------------------------------------------------------------
+    void SceneManager::destroyAnimation(const String& name)
+    {
+        AnimationList::iterator i = mAnimationsList.find(name);
+        if (i == mAnimationsList.end())
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot find animation with name " + name, 
+                "SceneManager::getAnimation");
+        }
+
+        // Free memory
+        delete i->second;
+
+        mAnimationsList.erase(i);
+
+    }
+    //-----------------------------------------------------------------------
+    void SceneManager::destroyAllAnimations(void)
+    {
+        AnimationList::iterator i;
+        for (i = mAnimationsList.begin(); i != mAnimationsList.end(); ++i)
+        {
+            // destroy
+            delete i->second;
+        }
+        mAnimationsList.clear();
     }
 }

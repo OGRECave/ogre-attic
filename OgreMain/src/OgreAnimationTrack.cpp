@@ -68,21 +68,21 @@ namespace Ogre {
         Real totalAnimationLength = mParent->getLength();
 
         // Wrap time 
-        while (timePos >= totalAnimationLength)
+        while (timePos > totalAnimationLength)
         {
             timePos -= totalAnimationLength;
         }
 
         KeyFrameList::const_iterator i = mKeyFrames.begin();
         // Find last keyframe before or on current time
-        while (i != mKeyFrames.end() && (*i)->getTime() <= timePos)
+        while (i != mKeyFrames.end() && (*i)->getTime() < timePos)
         {
             *keyFrame1 = *i++;
         }
 
         // Parametric time
         // t1 = time of previous keyframe
-        // t2 = time of next keyframe (or end of animation)
+        // t2 = time of next keyframe 
         Real t1, t2;
         // Find first keyframe after the time
         // If no next keyframe, wrap back to first
@@ -172,6 +172,24 @@ namespace Ogre {
         KeyFrame *k1, *k2;
 
         Real t = this->getKeyFramesAtTime(timeIndex, &k1, &k2);
+
+
+        // DEBUG
+        String msg;
+        msg = "Keyframe interpolation at time ";
+        msg << timeIndex << " : ";
+        if (t == 0.0)
+        {
+            msg << "(Single keyframe) time=" << k1->getTime();
+        }
+        else
+        {
+            msg << "k1 time=" << k1->getTime() << ";k2 time=" << k2->getTime();
+            msg << ";t=" << t;
+
+        }
+        LogManager::getSingleton().logMessage(msg);
+
 
         if (t == 0.0)
         {

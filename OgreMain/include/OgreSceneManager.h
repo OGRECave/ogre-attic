@@ -198,6 +198,10 @@ namespace Ogre {
         // Flag indicating whether SceneNodes will be rendered as a set of 3 axes
         bool mDisplayNodes;
 
+        /// Storage of animations, lookup by name
+        typedef std::map<String, Animation*> AnimationList;
+        AnimationList mAnimationsList;
+
 
     public:
         /** Default constructor.
@@ -886,6 +890,41 @@ namespace Ogre {
             the orientation of the nodes.
         */
         virtual void setDisplaySceneNodes(bool display);
+
+        /** Creates an animation which can be used to animate scene nodes.
+        @remarks
+            An animation is a collection of 'tracks' which over time change the position / orientation
+            of Node objects. In this case, the animation will likely have tracks to modify the position
+            / orientation of SceneNode objects, e.g. to make objects move along a path.
+        @par
+            You don't need to use an Animation object to move objects around - you can do it yourself
+            using the methods of the Node in your FrameListener class. However, when you need relatively
+            complex scripted animation, this is the class to use since it will interpolate between
+            keyframes for you and generally make the whole process easier to manage.
+        @par
+            A single animation can affect multiple Node objects (each AnimationTrack affects a single Node).
+            In addition, through animation blending a single Node can be affected by multiple animations,
+            athough this is more useful when performing skeletal animation (see Skeleton::createAnimation).
+        @par
+            Note that whilst it uses the same classes, the animations created here are kept separate from the
+            skeletal animations of meshes (each Skeleton owns those animations).
+        @param name The name of the animation, must be unique within this SceneManager.
+        @param length The total length of the animation.
+        */
+        virtual Animation* createAnimation(const String& name, Real length);
+
+        /** Looks up an Animation object previously created with createAnimation. */
+        virtual Animation* getAnimation(const String& name) const;
+
+        /** Destroys an Animation. 
+        @remarks
+            You should ensure that none of your code is referencing this animation objects since the 
+            memory will be freed.
+        */
+        virtual void destroyAnimation(const String& name);
+
+        /** Removes all animations created using this SceneManager. */
+        virtual void destroyAllAnimations(void);
     };
 
 
