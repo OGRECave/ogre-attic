@@ -144,9 +144,9 @@ namespace Ogre {
 
         // Now update immediate-mode emulation state
         /* Set the new absolute position. */
-        mMouseState.Xabs += mCursor->getX();
-        mMouseState.Yabs += mCursor->getY();
-        mMouseState.Zabs += mCursor->getZ();            
+        mMouseState.Xabs = mCursor->getX();
+        mMouseState.Yabs = mCursor->getY();
+        mMouseState.Zabs = mCursor->getZ();            
 
         /* Compute the new relative position. */
         mMouseState.Xrel = mCursor->getRelX();
