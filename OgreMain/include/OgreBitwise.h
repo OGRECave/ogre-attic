@@ -94,7 +94,7 @@ namespace Ogre {
                 // Use old fashioned division, probably better than a loop
                 if(value == 0)
                         value = 0;
-                else if(value == (1<<n)-1)
+                else if(value == (static_cast<unsigned int>(1)<<n)-1)
                         value = (1<<p)-1;
                 else    value = value*(1<<p)/((1<<n)-1);
             }
@@ -174,14 +174,15 @@ namespace Ogre {
             return 0; // ?
         }
 
-        /**
-         * Convert a float32 to a float16 (NV_half_float)
-         * Courtesy of OpenEXR
-         */
+        /** Convert a float32 to a float16 (NV_half_float)
+         	Courtesy of OpenEXR
+        */
         static inline uint16 floatToHalf(float i)
         {
             return floatToHalfI(*reinterpret_cast<uint32*>(&i));
         }
+		/** Converts float in uint32 format to a a half in uint16 format
+		*/
         static inline uint16 floatToHalfI(uint32 i)
         {
             register int s =  (i >> 16) & 0x00008000;
@@ -230,6 +231,9 @@ namespace Ogre {
             uint32 r = halfToFloatI(y);
             return *reinterpret_cast<float*>(&r);
         }
+		/** Converts a half in uint16 format to a float
+		 	in uint32 format
+		 */
         static inline uint32 halfToFloatI(uint16 y)
         {
             register int s = (y >> 15) & 0x00000001;
