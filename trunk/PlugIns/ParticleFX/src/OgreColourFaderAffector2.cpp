@@ -230,7 +230,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Real ColourFaderAffector2::getAlphaAdjust2(void)
     {
-        return mAlphaAdj1;
+        return mAlphaAdj2;
     }
     //-----------------------------------------------------------------------
     void ColourFaderAffector2::setStateChange(Real NewValue)
