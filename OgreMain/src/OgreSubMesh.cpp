@@ -102,12 +102,7 @@ namespace Ogre {
             geometry.pBlendingWeights = 0;
         }
 
-		ProgressiveMesh::LODFaceList::iterator lodi, lodend;
-		lodend = mLodFaceList.end();
-		for (lodi = mLodFaceList.begin(); lodi != lodend; ++lodi)
-		{
-			delete [] lodi->pIndexes;
-		}
+		removeLodLevels();
     }
 
     //-----------------------------------------------------------------------
@@ -310,6 +305,19 @@ namespace Ogre {
     {
         return BoneAssignmentIterator(mBoneAssignments.begin(),
             mBoneAssignments.end());
+    }
+    //---------------------------------------------------------------------
+    void SubMesh::removeLodLevels(void)
+    {
+        ProgressiveMesh::LODFaceList::iterator lodi, lodend;
+		lodend = mLodFaceList.end();
+		for (lodi = mLodFaceList.begin(); lodi != lodend; ++lodi)
+		{
+			delete [] lodi->pIndexes;
+		}
+
+        mLodFaceList.clear();
+
     }
 
 

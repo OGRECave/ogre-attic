@@ -154,6 +154,9 @@ namespace Ogre {
         /** Must be called once to compile bone assignments into geometry buffer. */
         void compileBoneAssignments(void);
 
+        /// Internal method for removing LOD data
+        void removeLodLevels(void);
+
 
 
     };

@@ -849,12 +849,12 @@ namespace Ogre {
 			if (manual)
 			{
 				readLodUsageManual(usageElem, i);
-				usageElem = lodNode->NextSiblingElement("lodmanual");
+				usageElem = usageElem->NextSiblingElement();
 			}
 			else
 			{
 				readLodUsageGenerated(usageElem, i);
-				usageElem = lodNode->NextSiblingElement("lodgenerated");
+				usageElem = usageElem->NextSiblingElement();
 			}
 			++i;
 		}
