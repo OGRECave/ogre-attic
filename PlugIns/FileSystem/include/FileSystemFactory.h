@@ -9,8 +9,13 @@ namespace Ogre {
     class FileSystemFactory : public ArchiveFactory
     {
     public:
+        virtual ~FileSystemFactory();
+
         String getArchiveType(void);
         ArchiveEx* createArchive(const String& name);
+
+        ArchiveEx *createObj( int nA, ... );
+        String getType();        
     };
 
 }
