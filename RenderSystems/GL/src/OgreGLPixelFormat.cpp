@@ -186,8 +186,7 @@ namespace Ogre  {
 		case GL_RGBA4:
 			return PF_A4R4G4B4;
 		case GL_RGB8:
-			// return PF_R8G8B8; -- slow uploading and al, just use RGBA for RGB textures and
-			// ignore the A (kind of like D3DFMT_X8R8G8B8)
+			return PF_X8R8G8B8;
 		case GL_RGBA8:
 			return PF_A8R8G8B8;
 		case GL_RGB10_A2:
