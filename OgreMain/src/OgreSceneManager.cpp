@@ -1589,5 +1589,28 @@ namespace Ogre {
 
 
     }
+    //---------------------------------------------------------------------
+    void SceneManager::manualRender(RenderOperation* rend, 
+        Material* mat, Viewport* vp, const Matrix4& worldMatrix, 
+        const Matrix4& viewMatrix, const Matrix4& projMatrix) 
+    {
+        mDestRenderSystem->_setViewport(vp);
+        mDestRenderSystem->_setWorldMatrix(worldMatrix);
+        mDestRenderSystem->_setViewMatrix(viewMatrix);
+        mDestRenderSystem->_setProjectionMatrix(projMatrix);
+
+        mDestRenderSystem->_beginFrame();
+
+        // NB do at least one rendering pass even if no layers! (Untextured materials)
+        unsigned short layersLeft = mat->getNumTextureLayers(); 
+        do
+        {
+            layersLeft = setMaterial(mat, layersLeft);
+            mDestRenderSystem->_render(*rend);
+        } while (layersLeft > 0);
+
+        mDestRenderSystem->_endFrame();
+        
+    }
 
 }
