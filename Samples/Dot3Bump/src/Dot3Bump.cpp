@@ -281,9 +281,9 @@ protected:
 		mCamera->lookAt(0, 0, 0);
 		// show overlay
 		Overlay* pOver = OverlayManager::getSingleton().getByName("Example/DP3Overlay");    
-        mObjectInfo = GuiManager::getSingleton().getOverlayElement("Example/DP3/ObjectInfo");
-        mMaterialInfo = GuiManager::getSingleton().getOverlayElement("Example/DP3/MaterialInfo");
-        mInfo = GuiManager::getSingleton().getOverlayElement("Example/DP3/Info");
+        mObjectInfo = OverlayManager::getSingleton().getOverlayElement("Example/DP3/ObjectInfo");
+        mMaterialInfo = OverlayManager::getSingleton().getOverlayElement("Example/DP3/MaterialInfo");
+        mInfo = OverlayManager::getSingleton().getOverlayElement("Example/DP3/Info");
 
         mObjectInfo->setCaption("Current: " + mEntityMeshes[mCurrentEntity]);
         mMaterialInfo->setCaption("Current: " + mMaterialNames[mCurrentEntity][mCurrentMaterial]);

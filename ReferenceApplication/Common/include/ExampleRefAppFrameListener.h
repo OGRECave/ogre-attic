@@ -54,10 +54,10 @@ private:
         static String tris = "Triangle Count: ";
 
         // update stats when necessary
-        OverlayElement* guiAvg = GuiManager::getSingleton().getOverlayElement("Core/AverageFps");
-        OverlayElement* guiCurr = GuiManager::getSingleton().getOverlayElement("Core/CurrFps");
-        OverlayElement* guiBest = GuiManager::getSingleton().getOverlayElement("Core/BestFps");
-        OverlayElement* guiWorst = GuiManager::getSingleton().getOverlayElement("Core/WorstFps");
+        OverlayElement* guiAvg = OverlayManager::getSingleton().getOverlayElement("Core/AverageFps");
+        OverlayElement* guiCurr = OverlayManager::getSingleton().getOverlayElement("Core/CurrFps");
+        OverlayElement* guiBest = OverlayManager::getSingleton().getOverlayElement("Core/BestFps");
+        OverlayElement* guiWorst = OverlayManager::getSingleton().getOverlayElement("Core/WorstFps");
         
         guiAvg->setCaption(avgFps + StringConverter::toString(mWindow->getAverageFPS()));
         guiCurr->setCaption(currFps + StringConverter::toString(mWindow->getLastFPS()));
@@ -66,10 +66,10 @@ private:
         guiWorst->setCaption(worstFps + StringConverter::toString(mWindow->getWorstFPS())
             +" "+StringConverter::toString(mWindow->getWorstFrameTime())+" ms");
             
-        OverlayElement* guiTris = GuiManager::getSingleton().getOverlayElement("Core/NumTris");
+        OverlayElement* guiTris = OverlayManager::getSingleton().getOverlayElement("Core/NumTris");
         guiTris->setCaption(tris + StringConverter::toString(mWindow->getTriangleCount()));
 
-        OverlayElement* guiDbg = GuiManager::getSingleton().getOverlayElement("Core/DebugText");
+        OverlayElement* guiDbg = OverlayManager::getSingleton().getOverlayElement("Core/DebugText");
         guiDbg->setCaption(mWindow->getDebugText());
     }
     

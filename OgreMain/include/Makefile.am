@@ -48,7 +48,6 @@ OgreFont.h \
 OgreFontManager.h \
 OgreFrameListener.h \
 OgreFrustum.h \
-OgreGuiManager.h \
 OgreGpuProgram.h \
 OgreGpuProgramManager.h \
 OgreGpuProgramUsage.h \

@@ -209,24 +209,24 @@ public:
 	// GUI updaters
 	void updateInfoParamK()
 	{
-		GuiManager::getSingleton().getOverlayElement("Example/DynTex/Param_K") \
+		OverlayManager::getSingleton().getOverlayElement("Example/DynTex/Param_K") \
 			->setCaption("[1/2]k: "+StringConverter::toString(TOFLOAT(k)));		
 	}
 	void updateInfoParamF()
 	{
-		GuiManager::getSingleton().getOverlayElement("Example/DynTex/Param_F") \
+		OverlayManager::getSingleton().getOverlayElement("Example/DynTex/Param_F") \
 			->setCaption("[3/4]F: "+StringConverter::toString(TOFLOAT(F)));		
 	}
 	void updateInfoParamA0()
 	{
 		// Diffusion rate for chemical 1
-		GuiManager::getSingleton().getOverlayElement("Example/DynTex/Param_A0") \
+		OverlayManager::getSingleton().getOverlayElement("Example/DynTex/Param_A0") \
 			->setCaption("[5/6]Diffusion 1: "+StringConverter::toString(TOFLOAT(hdiv0)));		
 	}
 	void updateInfoParamA1()
 	{
 		// Diffusion rate for chemical 2
-		GuiManager::getSingleton().getOverlayElement("Example/DynTex/Param_A1") \
+		OverlayManager::getSingleton().getOverlayElement("Example/DynTex/Param_A1") \
 			->setCaption("[7/8]Diffusion 2: "+StringConverter::toString(TOFLOAT(hdiv1)));		
 	}
 

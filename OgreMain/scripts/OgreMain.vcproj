@@ -271,9 +271,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreGpuProgramUsage.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreGuiManager.cpp">
-			</File>
-			<File
 				RelativePath="..\src\OgreHardwareBufferManager.cpp">
 			</File>
 			<File
@@ -500,7 +497,7 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 					Name="Debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalOptions="/Zm200"/>
+						AdditionalOptions="/Zm135"/>
 				</FileConfiguration>
 			</File>
 			<File
@@ -508,6 +505,12 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\src\OgreSceneManager.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalOptions="/Zm200"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\OgreSceneManagerEnumerator.cpp">
@@ -787,9 +790,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreGpuProgramUsage.h">
 			</File>
 			<File
-				RelativePath="..\include\OgreGuiManager.h">
-			</File>
-			<File
 				RelativePath="..\include\OgreHardwareBuffer.h">
 			</File>
 			<File
@@ -1046,6 +1046,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreResource.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreResourceBackgroundQueue.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreResourceGroupManager.h">

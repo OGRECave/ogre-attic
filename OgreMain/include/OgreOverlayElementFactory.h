@@ -39,7 +39,7 @@ namespace Ogre {
         To allow the OverlayElement types available for inclusion on 
         overlays to be extended, OGRE allows external apps or plugins
         to register their ability to create custom OverlayElements with
-        the GuiManager, using the addOverlayElementFactory method. Classes
+        the OverlayManager, using the addOverlayElementFactory method. Classes
         wanting to do this must implement this interface.
     @par
         Each OverlayElementFactory creates a single type of OverlayElement, 

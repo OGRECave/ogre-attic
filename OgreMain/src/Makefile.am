@@ -44,7 +44,6 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreGpuProgram.cpp \
                          OgreGpuProgramManager.cpp \
                          OgreGpuProgramUsage.cpp \
-                         OgreGuiManager.cpp \
 						 OgreHardwareBufferManager.cpp \
 						 OgreHardwareIndexBuffer.cpp \
 						 OgreHardwareOcclusionQuery.cpp \

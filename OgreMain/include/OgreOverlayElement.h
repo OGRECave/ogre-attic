@@ -77,7 +77,7 @@ namespace Ogre {
     OverlayContainer objects can contain any OverlayElement however. This is just to 
     enforce some level of grouping on widgets.
     @par
-    OverlayElements should be managed using GuiManager. This class is responsible for
+    OverlayElements should be managed using OverlayManager. This class is responsible for
     instantiating / deleting elements, and also for accepting new types of element
     from plugins etc.
     @par
@@ -176,7 +176,7 @@ namespace Ogre {
         virtual void addBaseParameters(void);
 
     public:
-        /// Constructor: do not call direct, use GuiManager::createElement
+        /// Constructor: do not call direct, use OverlayManager::createElement
         OverlayElement(const String& name);
         virtual ~OverlayElement();
 
