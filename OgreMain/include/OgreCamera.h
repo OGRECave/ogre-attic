@@ -38,6 +38,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreQuaternion.h"
 #include "OgreCommon.h"
 #include "OgreFrustum.h"
+#include "OgreRay.h"
 
 
 namespace Ogre {
@@ -555,6 +556,13 @@ namespace Ogre {
         const Matrix4& getReflectionMatrix(void) { return mReflectMatrix; }
         /// Returns the reflection plane of the camera if appropriate
         const Plane& getReflectionPlane(void) { return mReflectPlane; }
+
+
+        /** Gets a world space ray as cast from the camera through a viewport position.
+        @param screenx, screeny The x and y position at which the ray should intersect the viewport, 
+            in normalised screen coordinates [0,1]
+        */
+        Ray getCameraToViewportRay(Real screenx, Real screeny);
 
 		/** Internal method for OGRE to use for LOD calculations. */
 		Real _getLodBiasInverse(void) const;
