@@ -203,6 +203,17 @@ void PixelFormatTests::testBulkConversion()
     testCase(PF_L8, PF_B8G8R8A8);
     testCase(PF_L8, PF_L16);
     testCase(PF_L16, PF_L8);
+    testCase(PF_R8G8B8, PF_B8G8R8);
+    testCase(PF_B8G8R8, PF_R8G8B8);
+    testCase(PF_B8G8R8, PF_R8G8B8);
+    testCase(PF_R8G8B8, PF_B8G8R8);
+    testCase(PF_R8G8B8, PF_A8R8G8B8);
+    testCase(PF_B8G8R8, PF_A8R8G8B8);
+    testCase(PF_R8G8B8, PF_A8B8G8R8);
+    testCase(PF_B8G8R8, PF_A8B8G8R8);
+    testCase(PF_R8G8B8, PF_B8G8R8A8);
+    testCase(PF_B8G8R8, PF_B8G8R8A8);
+
     //CPPUNIT_ASSERT_MESSAGE("Conversion mismatch", false);
 }
 
