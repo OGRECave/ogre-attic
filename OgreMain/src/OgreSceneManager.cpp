@@ -811,7 +811,7 @@ namespace Ogre {
 
         meshName = "SkyBoxPlane_";
         // Set up plane equation
-        plane.d = -distance;
+        plane.d = distance;
         switch(bp)
         {
         case BP_FRONT:
@@ -881,7 +881,7 @@ namespace Ogre {
 
         meshName = "SkyDomePlane_";
         // Set up plane equation
-        plane.d = -distance;
+        plane.d = distance;
         switch(bp)
         {
         case BP_FRONT:
@@ -993,7 +993,7 @@ namespace Ogre {
         // Translate the plane by the camera position (constant distance)
         // The plane position relative to the camera has already been set up
         Matrix4 mat = Matrix4::IDENTITY;
-        mat.setTrans(cam->getPosition());
+        mat.setTrans(cam->getDerivedPosition());
         mDestRenderSystem->_setWorldMatrix(mat);
 
         m = getMaterial(mSkyPlaneMatHdl);
@@ -1022,7 +1022,7 @@ namespace Ogre {
         // Translate the box by the camera position (constant distance)
         // The plane position relative to the camera has already been set up
         Matrix4 mat = Matrix4::IDENTITY;
-        mat.setTrans(cam->getPosition());
+        mat.setTrans(cam->getDerivedPosition());
         mDestRenderSystem->_setWorldMatrix(mat);
 
         m = getMaterial(mSkyBoxMatHdl);
@@ -1088,7 +1088,7 @@ namespace Ogre {
         // Translate the box by the camera position (constant distance)
         // The plane position relative to the camera has already been set up
         Matrix4 mat = Matrix4::IDENTITY;
-        mat.setTrans(cam->getPosition());
+        mat.setTrans(cam->getDerivedPosition());
         mDestRenderSystem->_setWorldMatrix(mat);
 
         baseName = "SkyDomePlane_";
