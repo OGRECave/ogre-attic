@@ -247,6 +247,36 @@ namespace OgreRefApp {
         /** Gets the ODE mass parameters for this object. */
         const dMass* getOdeMass(void);
 
+        /** Sets the current linear velocity of this object.
+        @remarks
+            Only applicable if dynamics are enabled for this object. This method is useful
+            for starting an object off at a particular speed rather than applying forces to get 
+            it there.
+        */ 
+        void setLinearVelocity(const Vector3& vel);
+
+        /** Gets the current linear velocity of this object.
+        @remarks
+            Only applicable if dynamics are enabled for this object.
+        @returns Vector3 representing the velocity in units per second.
+        */
+        const Vector3& getLinearVelocity(void);
+
+        /** Gets the current angular velocity of this object.
+        @remarks
+            Only applicable if dynamics are enabled for this object.
+        @returns Vector3 representing the angular velocity in units per second around each axis.
+        */
+        const Vector3& getAngularVelocity(void);
+
+        /** Sets the current angular velocity of this object.
+        @remarks
+            Only applicable if dynamics are enabled for this object. This method is useful
+            for starting an object off rather than applying forces to get 
+            it there.
+        */ 
+        void setAngularVelocity(const Vector3& vel);
+
 
     };
 

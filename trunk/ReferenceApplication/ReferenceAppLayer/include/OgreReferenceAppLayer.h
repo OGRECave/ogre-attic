@@ -33,6 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRefAppOgreHead.h"
 #include "OgreRefAppPlane.h"
 #include "OgreRefAppBall.h"
+#include "OgreRefAppJoint.h"
 
 
 #endif

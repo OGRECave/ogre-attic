@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRefAppOgreHead.h"
 #include "OgreRefAppPlane.h"
 #include "OgreRefAppBall.h"
+#include "OgreRefAppJointSubtypes.h"
 
 //-------------------------------------------------------------------------
 template<> OgreRefApp::World* Ogre::Singleton<OgreRefApp::World>::ms_Singleton = 0;
@@ -102,6 +103,13 @@ namespace OgreRefApp
             delete i->second;
         }
         mObjects.clear();
+
+        JointMap::iterator ji;
+        for (ji = mJoints.begin(); ji != mJoints.end(); ++ji)
+        {
+            delete ji->second;
+        }
+        mJoints.clear();
     }
     //-------------------------------------------------------------------------
     World& World::getSingleton(void)
@@ -192,6 +200,34 @@ namespace OgreRefApp
             // Do detailed collision test
             ao1->testCollide(ao2);
         }
+    }
+    //-------------------------------------------------------------------------
+    Joint* World::createJoint(const String& name, Joint::JointType jtype,
+        ApplicationObject* obj1, ApplicationObject* obj2)
+    {
+        Joint* ret;
+        switch (jtype)
+        {
+        case Joint::JT_BALL:
+            ret = new BallJoint(jtype, obj1, obj2);
+            break;
+        case Joint::JT_HINGE:
+            ret = new HingeJoint(jtype, obj1, obj2);
+            break;
+        case Joint::JT_HINGE2:
+            ret = new Hinge2Joint(jtype, obj1, obj2);
+            break;
+        case Joint::JT_SLIDER:
+            ret = new SliderJoint(jtype, obj1, obj2);
+            break;
+        case Joint::JT_UNIVERSAL:
+            ret = new UniversalJoint(jtype, obj1, obj2);
+            break;
+
+        }
+
+        mJoints[name] = ret;
+        return ret;
     }
 
 }

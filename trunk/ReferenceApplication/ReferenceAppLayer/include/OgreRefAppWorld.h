@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __REFAPP_WORLD_H__
 
 #include "OgreRefAppPrerequisites.h"
+#include "OgreRefAppJoint.h"
 #include <OgreSingleton.h>
 
 namespace OgreRefApp {
@@ -39,6 +40,9 @@ namespace OgreRefApp {
         typedef std::map<String, ApplicationObject*> ObjectMap;
         /// Main list of objects
         ObjectMap mObjects;
+
+        typedef std::map<String, Joint*> JointMap;
+        JointMap mJoints;
 
         typedef std::set<ApplicationObject*> ObjectSet;
         /// Set of dynamics objects (those to perform physics on)
@@ -74,6 +78,7 @@ namespace OgreRefApp {
         OgreRefApp::Ball* createBall(const String& name, Real radius, const Vector3& pos = Vector3::ZERO, 
             const Quaternion& orientation = Quaternion::IDENTITY);
 
+        /** Clears the scene. */
         void clear(void);
 
         dWorld* getOdeWorld(void);
@@ -102,6 +107,15 @@ namespace OgreRefApp {
 
         /** Gets the gravity vector. */
         const Vector3& getGravity(void);
+
+        /** Creates a Joint object for linking objects together in the world. 
+        @param name The name of the Joint.
+        @param jtype The type of joint, see Joint::JointType.
+        @param obj1 The first object to attach, or NULL to attach to the static world.
+        @param obj2 The second object to attach, or NULL to attach to the static world.
+        */
+        Joint* createJoint(const String& name, Joint::JointType jtype,
+            ApplicationObject* obj1, ApplicationObject* obj2);
 
         /** Override standard Singleton retrieval.
             @remarks
