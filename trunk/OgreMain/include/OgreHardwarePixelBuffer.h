@@ -33,7 +33,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreImage.h"
 
 namespace Ogre {
-    /** Specialisation of HardwareBuffer for a pixel buffer. */
+    /** Specialisation of HardwareBuffer for a pixel buffer. The
+    	HardwarePixelbuffer abstracts an 1D, 2D or 3D quantity of pixels
+    	stored by the rendering API. The buffer can be located on the card
+    	or in main memory depending on its usage. One mipmap level of a
+    	texture is an example of a HardwarePixelBuffer.
+    */
     class _OgreExport HardwarePixelBuffer : public HardwareBuffer
     {
     protected: 
@@ -62,12 +67,25 @@ namespace Ogre {
                 HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer);
         ~HardwarePixelBuffer();
 
-        virtual const PixelBox &lock(const Image::Box lockBox, LockOptions options);        
+		/** Lock the buffer for (potentially) reading / writing.
+		    @param lockBox Region of the buffer to lock
+		    @param options Locking options
+		    @returns PixelBox containing the locked region, the pitches and
+		    	the pixel format
+		*/
+		virtual const PixelBox &lock(const Image::Box lockBox, LockOptions options);
+		/// @copydoc HardwareBuffer::lock
         virtual void* lock(size_t offset, size_t length, LockOptions options);
-		void* lock(LockOptions options) {
-			lock(0, mSizeInBytes, options);
-		}
-        
+
+		void* lock(LockOptions options)
+        {
+        	return this->lock(0, mSizeInBytes, options);
+        }
+
+		/** Get the current locked region. This is the same value as returned
+		    by lock(const Image::Box, LockOptions)
+		    @returns PixelBox containing the locked region
+		*/        
         const PixelBox &getCurrentLock();
 		
 		/// @copydoc HardwareBuffer::readData
@@ -76,29 +94,39 @@ namespace Ogre {
 		virtual void writeData(size_t offset, size_t length, const void* pSource,
 				bool discardWholeBuffer = false);
         
-        /**
-         * Blits a box from the source PixelBuffer to a region of the destination 
-         * PixelBuffer. Only call this function when both buffers are unlocked. 
-         * Source and target boxes must be equally sized.
+        /** Copies a box from this PixelBuffer to a region of the 
+        	destination PixelBuffer. Only call this function when both 
+        	buffers are unlocked. 
+        	@param srcBox	Image::Box describing the source region in this buffer
+        	@param dst		Destination pixel buffer
+        	@param dstBox	Image::Box describing the destination region in dst
+        	@remarks Source and target boxes must be equally sized
          */        
         virtual void blit(const Image::Box &srcBox, HardwarePixelBuffer *dst, const Image::Box &dstBox);
 		
-		/**
-		 * Blits a ragion from normal memory to a region of this pixelbuffer. The source and
-		 * destination box dimensions do not neccesarily have to match.
-		 */
+		/** Copies a region from normal memory to a region of this pixelbuffer. 
+		   	@param src		PixelBox containing the source pixels and format in memory
+		   	@param dstBox	Image::Box describing the destination region in this buffer
+		   	@remarks The source and destination regions don't have to match, in which
+		   	case scaling is done.
+		*/
 		virtual void blitFromMemory(const PixelBox &src, const Image::Box &dstBox) = 0;
 		
-		/**
-		 * Blits a ragion from normal memory to a region of this pixelbuffer. The source and
-		 * destination box dimensions do not neccesarily have to match.
+		/** Copies a region of this pixelbuffer to normal memory.
+		   	@param srcBox	Image::Box describing the source region of this buffer
+		   	@param dst		PixelBox describing the destination pixels and format in memory
+		   	@remarks The source and destination regions don't have to match, in which
+		   	case scaling is done.
 		 */
 		virtual void blitToMemory(const Image::Box &srcBox, const PixelBox &dst) = 0;
         
-        /** Trivial accessors */
+        /// Gets the width of this buffer
         size_t getWidth() const { return mWidth; }
+        /// Gets the height of this buffer
         size_t getHeight() const { return mHeight; }
+        /// Gets the depth of this buffer
         size_t getDepth() const { return mDepth; }
+        /// Gets the native pixel format of this buffer
         PixelFormat getFormat() const { return mFormat; }
     };
 
