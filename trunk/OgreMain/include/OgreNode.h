@@ -98,6 +98,9 @@ namespace Ogre {
         /// Stores whether this node inherits scale from it's parent
         bool mInheritScale;
 
+		/// Material pointer should this node be rendered
+		mutable MaterialPtr mpMaterial;
+
         /// Only available internally - notification of parent.
         virtual void setParent(Node* parent);
 
