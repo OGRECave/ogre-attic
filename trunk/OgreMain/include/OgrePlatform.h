@@ -59,16 +59,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #endif
 
-/* Hack to get the release version of STLport 4.5.3 to compile when using
-   the release build in VC7.   
-*/
-#if OGRE_COMPILER == COMPILER_MSVC
-    // Has to be nested because some compilers return strings for their version
-#   if OGRE_COMP_VER >= 1300
-#       define _STLP_LIB_BASENAME "stlport_vc7"
-#   endif
-#endif
-
 /* See if we can use __forceinline or if we need to use __inline instead */
 #if OGRE_COMPILER == COMPILER_MSVC 
 #   if OGRE_COMP_VER >= 1200
