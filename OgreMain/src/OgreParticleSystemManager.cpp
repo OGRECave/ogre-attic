@@ -549,4 +549,26 @@ namespace Ogre {
 	void ParticleSystemManager::setTimeFactor(Real tf) {
 		if(tf >= 0) mTimeFactor = tf;
 	}
+	//-----------------------------------------------------------------------
+	ParticleSystemManager::ParticleAffectorFactoryIterator 
+	ParticleSystemManager::getAffectorFactoryIterator(void)
+	{
+		return ParticleAffectorFactoryIterator(
+			mAffectorFactories.begin(), mAffectorFactories.end());
+	}
+	//-----------------------------------------------------------------------
+	ParticleSystemManager::ParticleEmitterFactoryIterator 
+	ParticleSystemManager::getEmitterFactoryIterator(void)
+	{
+		return ParticleEmitterFactoryIterator(
+			mEmitterFactories.begin(), mEmitterFactories.end());
+	}
+	//-----------------------------------------------------------------------
+	ParticleSystemManager::ParticleRendererFactoryIterator 
+	ParticleSystemManager::getRendererFactoryIterator(void)
+	{
+		return ParticleRendererFactoryIterator(
+			mRendererFactories.begin(), mRendererFactories.end());
+	}
+	//-----------------------------------------------------------------------
 }

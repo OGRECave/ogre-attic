@@ -59,6 +59,8 @@ namespace Ogre {
     {
 	public:
         typedef std::map<String, ParticleSystem*> ParticleTemplateMap;
+		typedef std::map<String, ParticleAffectorFactory*> ParticleAffectorFactoryMap;
+		typedef std::map<String, ParticleEmitterFactory*> ParticleEmitterFactoryMap;
 		typedef std::map<String, ParticleSystemRendererFactory*> ParticleSystemRendererFactoryMap;
     protected:
         /// Templates based on scripts
@@ -68,11 +70,9 @@ namespace Ogre {
         /// Actual instantiated particle systems (may be based on template, may be manual)
         ParticleSystemMap mSystems;
 
-        typedef std::map<String, ParticleEmitterFactory*> ParticleEmitterFactoryMap;
         /// Factories for named emitter types (can be extended using plugins)
         ParticleEmitterFactoryMap mEmitterFactories;
 
-        typedef std::map<String, ParticleAffectorFactory*> ParticleAffectorFactoryMap;
         /// Factories for named affector types (can be extended using plugins)
         ParticleAffectorFactoryMap mAffectorFactories;
 
@@ -338,6 +338,17 @@ namespace Ogre {
         void parseScript(DataStreamPtr& stream, const String& groupName);
         /// @copydoc ScriptLoader::getLoadingOrder
         Real getLoadingOrder(void) const;
+
+		typedef MapIterator<ParticleAffectorFactoryMap> ParticleAffectorFactoryIterator;
+		typedef MapIterator<ParticleEmitterFactoryMap> ParticleEmitterFactoryIterator;
+		typedef MapIterator<ParticleSystemRendererFactoryMap> ParticleRendererFactoryIterator;
+		/** Return an iterator over the affector factories currently registered */
+		ParticleAffectorFactoryIterator getAffectorFactoryIterator(void);
+		/** Return an iterator over the emitter factories currently registered */
+		ParticleEmitterFactoryIterator getEmitterFactoryIterator(void);
+		/** Return an iterator over the renderer factories currently registered */
+		ParticleRendererFactoryIterator getRendererFactoryIterator(void);
+
 
 		/** Return relative speed of time as perceived by particle systems.
         @remarks

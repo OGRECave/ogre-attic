@@ -65,7 +65,7 @@ namespace Ogre {
         mWorldAABB.setExtents(min, max);
 
         // Default to billboard renderer
-        setRenderer("Billboard");
+        setRenderer("billboard");
 
     }
     //-----------------------------------------------------------------------
@@ -88,7 +88,7 @@ namespace Ogre {
         mWorldAABB.setExtents(min, max);
 
         // Default to billboard renderer
-        setRenderer("Billboard");
+        setRenderer("billboard");
     }
     //-----------------------------------------------------------------------
     ParticleSystem::~ParticleSystem()
@@ -552,6 +552,10 @@ namespace Ogre {
                 PT_BOOL),
                 &msCullCmd);
 
+			dict->addParameter(ParameterDef("renderer", 
+				"Sets the particle system renderer to use (default 'billboard').",
+				PT_STRING),
+				&msRendererCmd);
 
         }
     }
