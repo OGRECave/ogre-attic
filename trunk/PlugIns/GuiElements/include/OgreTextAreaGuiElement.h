@@ -26,7 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt
 #ifndef _TextAreaGuiElement_H__
 #define _TextAreaGuiElement_H__
 
-#include "OgrePrerequisites.h"
+#include "OgreGuiElementPrerequisites.h"
 #include "OgreGuiContainer.h"
 #include "OgreMaterial.h"
 #include "OgreStringConverter.h"
@@ -51,7 +51,7 @@ namespace Ogre
     layers, scrolling / animated textures etc. For multiple texture layers, you have to set 
     the tiling level for each layer.
     */
-    class TextAreaGuiElement : public GuiElement
+    class _OgreGuiElementExport TextAreaGuiElement : public GuiElement
     {
     public:
         enum Alignment

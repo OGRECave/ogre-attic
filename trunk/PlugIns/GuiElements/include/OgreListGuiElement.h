@@ -55,7 +55,7 @@ namespace Ogre {
 	 * the <code>MouseEvent</code> is passed to it.
 	 *
 	 */
-	class ListGuiElement : public PanelGuiElement, public ListSelectionTarget, public ListChanger, public MouseListener
+	class _OgreGuiElementExport ListGuiElement : public PanelGuiElement, public ListSelectionTarget, public ListChanger, public MouseListener
     {
 	public :
 //	    void addBaseParameters(void);
