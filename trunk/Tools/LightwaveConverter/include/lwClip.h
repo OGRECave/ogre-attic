@@ -1,4 +1,3 @@
-
 #ifndef _LWCLIP_H_
 #define _LWCLIP_H_
 

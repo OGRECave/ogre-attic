@@ -2190,7 +2190,7 @@ lwSurface *lwReader::lwGetLWOBSurface( lwObject *obj )
 			break;
 
 		case ID_GLOS:
-			surf->glossiness.val = ( float ) log( (double)getU2()) / 20.7944f;
+			surf->glossiness.val = (float)log((double)getU2()) / 20.7944f;
 			break;
 
 		case ID_SMAN:

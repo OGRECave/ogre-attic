@@ -1,4 +1,3 @@
-
 #ifndef _LWPOLYGON_H_
 #define _LWPOLYGON_H_
 

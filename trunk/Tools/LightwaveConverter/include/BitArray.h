@@ -1,4 +1,3 @@
-
 #ifndef _BITARRAY_H_
 #define _BITARRAY_H_
 
