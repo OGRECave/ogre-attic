@@ -448,7 +448,7 @@ namespace Ogre {
                 std::cout << "Creating material: " << name << std::endl;
                 newMat = (Material*)matMgr.createDeferred(name);
             }
-            catch (Exception& e)
+            catch( Exception& )
             {
                 continue;
             }
@@ -618,7 +618,7 @@ namespace Ogre {
                 std::vector<String> vecSets = sets.split(" ");
                 std::vector<String> vecDims = dims.split(" ");
 
-                for (int v = 0; v < vecSets.size(); ++v)
+                for (size_t v = 0; v < vecSets.size(); ++v)
                 {
                     int set = StringConverter::parseInt(vecSets[v]);
                     int dim = StringConverter::parseInt(vecDims[v]);
