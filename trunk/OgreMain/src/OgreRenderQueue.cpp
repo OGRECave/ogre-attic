@@ -29,6 +29,30 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreMaterial.h"
 
 namespace Ogre {
+
+    //---------------------------------------------------------------------
+    RenderQueue::RenderQueue()
+    {
+        // Create the 'main' queue up-front since we'll always need that
+        mQueues.insert(RenderQueueGroup::value_type(RENDER_QUEUE_MAIN, new RenderQueueMap()));
+
+    }
+    //---------------------------------------------------------------------
+    RenderQueue::~RenderQueue()
+    {
+        // Destroy the queues for good
+        RenderQueueGroup::iterator i, iend;
+        i = mQueues.begin();
+        iend = mQueues.end();
+        for (; i != iend; ++i)
+        {
+            delete i->second;
+        }
+        mQueues.clear();
+
+
+    }
+    //---------------------------------------------------------------------
     bool RenderQueue::queueItemLess::operator() (const Material* x, const Material* y) const
     {
         // If x transparent and y not, x > y (since x has to overlap y)
@@ -50,28 +74,60 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void RenderQueue::addRenderable(Renderable* pRend)
+    void RenderQueue::addRenderable(Renderable* pRend, RenderQueueGroupID groupID)
     {
+        // Find group first 
+        RenderQueueGroup::iterator groupIt;
+        RenderQueueMap* pQueue;
+
+        groupIt = mQueues.find(groupID);
+        if (groupIt == mQueues.end())
+        {
+            // Insert new
+            pQueue = new RenderQueueMap();
+            mQueues.insert(RenderQueueGroup::value_type(groupID, pQueue));
+        }
+        else
+        {
+            pQueue = groupIt->second;
+        }
+
+        // Try to insert vector of renderables by map
+        // This will just return an iterator to the existing vector
+        // if already there which is OK
         Material* m = pRend->getMaterial();
         // Find material (if exists in map)
-        std::pair<RenderQueueMap::iterator, bool> insRet;
-        /*
-        RenderQueueMap::iterator i = mQueue.find(m);
-        if (i = mQueue.end())
-        {
-            // Not there yet, insert new material entry
-            i = mQueue.insert(RenderQueueMap::value_type(m, newVec));
-        }
-        */
+        std::pair<RenderQueueMap::iterator, bool> queuePair;
         std::vector<Renderable*> newVec;
-        insRet = mQueue.insert(RenderQueueMap::value_type(m, newVec));
+
+        queuePair = pQueue->insert(RenderQueueMap::value_type(m, newVec));
         // Insert new Renderable
-        insRet.first->second.push_back(pRend);
+        // queuePair.first is iterator on map (Material*, std::vector)
+        // queuePair.first->second is the vector of renderables
+        queuePair.first->second.push_back(pRend);
     }
     //-----------------------------------------------------------------------
     void RenderQueue::clear(void)
     {
-        mQueue.clear();
+        // Clear the queues
+        RenderQueueGroup::iterator i, iend;
+        i = mQueues.begin();
+        iend = mQueues.end();
+        for (; i != iend; ++i)
+        {
+            i->second->clear();
+        }
+
+        // NB this leaves the RenderQueueMap items present (but empty)
+        //  and also leaves the entries in the groupID
+        // We're assuming that frame-by-frame, the same groups are likely to 
+        //  be used, so no point destroying the vectors and incurring the overhead
+        //  that would cause, let them be destroyed in the destructor.
+    }
+    //-----------------------------------------------------------------------
+    RenderQueue::QueueGroupIterator RenderQueue::_getQueueGroupIterator(void)
+    {
+        return QueueGroupIterator(mQueues.begin(), mQueues.end());
     }
 }
 
