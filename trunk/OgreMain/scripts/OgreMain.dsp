@@ -244,6 +244,10 @@ SOURCE=..\src\OgreMovableObject.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreNode.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreOofModelFile.cpp
 # End Source File
 # Begin Source File
@@ -589,6 +593,10 @@ SOURCE=..\include\OgreMeshSerializer.h
 # Begin Source File
 
 SOURCE=..\include\OgreMovableObject.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreNode.h
 # End Source File
 # Begin Source File
 
