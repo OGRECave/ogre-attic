@@ -1587,8 +1587,8 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
-    void GLRenderSystem::setStencilBufferParams(CompareFunction func, ulong refValue, 
-        ulong mask, StencilOperation stencilFailOp, 
+    void GLRenderSystem::setStencilBufferParams(CompareFunction func, 
+        uint32 refValue, uint32 mask, StencilOperation stencilFailOp, 
         StencilOperation depthFailOp, StencilOperation passOp, 
         bool twoSidedOperation)
     {
