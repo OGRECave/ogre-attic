@@ -42,6 +42,7 @@ identical to this one.@*@*
 * The Core Objects::
 * Scripts::
 * Mesh Tools::
+* Hardware Buffers::
 @detailmenu
 @end detailmenu
 @end menu
@@ -2067,7 +2068,7 @@ OgreMeshUpgrade <oldmesh> <newmesh>
 @end example
 The OGRE release notes will notify you when this is necessary with a new release.
 
-
+@include vbos.inc
 
 @bye
 
