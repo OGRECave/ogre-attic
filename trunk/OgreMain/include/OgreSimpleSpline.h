@@ -24,7 +24,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 #ifndef __SimpleSpline_H__
-#define __Simplepline_H__
+#define __SimpleSpline_H__
 
 #include "OgrePrerequisites.h"
 #include "OgreVector3.h"
