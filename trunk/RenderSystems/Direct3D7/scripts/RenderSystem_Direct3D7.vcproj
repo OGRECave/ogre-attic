@@ -142,6 +142,9 @@
 				RelativePath="..\src\OgreD3D7EngineDll.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreD3D7HardwarePixelBuffer.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreD3D7RenderSystem.cpp">
 			</File>
 			<File
@@ -189,6 +192,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreD3D7HardwareBufferManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreD3D7HardwarePixelBuffer.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreD3D7Prerequisites.h">
