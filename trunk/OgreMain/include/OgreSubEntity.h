@@ -147,6 +147,8 @@ namespace Ogre {
         const LightList& getLights(void) const;
         /// Get the temporary blended vertex data for this subentity
         const VertexData* getBlendedVertexData(void) { return mBlendedVertexData; }
+        /** @copydoc Renderable::getCastsShadows */
+        bool getCastsShadows(void); 
     };
 
 }

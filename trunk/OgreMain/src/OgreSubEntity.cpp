@@ -193,5 +193,10 @@ namespace Ogre {
             mParentEntity->cloneVertexDataRemoveBlendInfo(mSubMesh->vertexData);
         mParentEntity->extractTempBufferInfo(mBlendedVertexData, &mTempBlendedBuffer);
     }
+    //-----------------------------------------------------------------------
+    bool SubEntity::getCastsShadows(void)
+    {
+        return mParentEntity->getCastShadows();
+    }
 
 }

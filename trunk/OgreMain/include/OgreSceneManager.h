@@ -207,8 +207,10 @@ namespace Ogre {
                 pass The Pass details to set.
         */
         virtual void setPass(Pass* pass);
-        /// A pass designed to let us render black on white for texture shadows
+        /// A pass designed to let us render shadow colour on white for texture shadows
         Pass* mShadowCasterPlainBlackPass;
+        /// A pass designed to let us render shadow receivers for texture shadows
+        Pass* mShadowReceiverPass;
         /** Internal method for turning a regular pass into a shadow caster pass.
         @remarks
             This is only used for texture shadows, basically we're trying to
@@ -219,6 +221,31 @@ namespace Ogre {
             passes with vertex programs. 
         */
         Pass* deriveShadowCasterPass(Pass* pass);
+        /** Internal method for turning a regular pass into a shadow receiver pass.
+        @remarks
+        This is only used for texture shadows, basically we're trying to
+        ensure that objects are rendered with a projective texture.
+        This method will usually return a standard single-texture pass for
+        all fixed function passes, but will merge in a vertex program
+        for passes with vertex programs. 
+        */
+        Pass* deriveShadowReceiverPass(Pass* pass);
+    
+        /** Internal method to validate whether a Pass should be allowed to render.
+        @remarks
+            Called just before a pass is about to be used for rendering a group to
+            allow the SceneManager to omit it if required. A return value of false
+            skips this pass. 
+        */
+        bool validatePassForRendering(Pass* pass);
+
+        /** Internal method to validate whether a Renderable should be allowed to render.
+        @remarks
+        Called just before a pass is about to be used for rendering a Renderable to
+        allow the SceneManager to omit it if required. A return value of false
+        skips it. 
+        */
+        bool validateRenderableForRendering(Pass* pass, Renderable* rend);
 
         enum BoxPlane
         {
@@ -293,6 +320,7 @@ namespace Ogre {
 
         ShadowTechnique mShadowTechnique;
         bool mDebugShadows;
+        ColourValue mShadowColour;
         Pass* mShadowDebugPass;
         Pass* mShadowStencilPass;
         Pass* mShadowModulativePass;
@@ -306,6 +334,7 @@ namespace Ogre {
         unsigned short mShadowTextureCount;
         typedef std::vector<RenderTexture*> ShadowTextureList;
         ShadowTextureList mShadowTextures;
+        RenderTexture* mCurrentShadowTexture;
 
         /** Internal method for locating a list of lights which could be affecting the frustum. 
         @remarks

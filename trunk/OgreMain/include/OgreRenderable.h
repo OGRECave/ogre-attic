@@ -141,6 +141,14 @@ namespace Ogre {
 
         virtual const PlaneList& getClipPlanes() const { return msDummyPlaneList; };
 
+        /** Method which reports whether this renderable would normally cast a
+            shadow. 
+        @remarks
+            Subclasses should override this if they could have been used to 
+            generate a shadow.
+        */
+        virtual bool getCastsShadows(void) { return false; }
+
     private:
         static const PlaneList msDummyPlaneList;
     };

@@ -59,7 +59,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-
     SceneManager::SceneManager()
     {
         // Root scene node
@@ -99,6 +98,7 @@ namespace Ogre {
         mShadowStencilPass = 0;
         mShadowModulativePass = 0;
         mShadowCasterPlainBlackPass = 0;
+        mShadowReceiverPass = 0;
         mFullScreenQuad = 0;
         mShadowCasterSphereQuery = 0;
         mShadowCasterAABBQuery = 0;
@@ -109,6 +109,7 @@ namespace Ogre {
 		mShadowIndexBufferSize = 51200;
         mShadowTextureSize = 512;
         mShadowTextureCount = 1;
+        mShadowColour = ColourValue(0.25, 0.25, 0.25);
 
 
     }
@@ -560,6 +561,10 @@ namespace Ogre {
         {
             // Derive a special shadow caster pass from this one
             pass = deriveShadowCasterPass(pass);
+        }
+        else if (mIlluminationStage == IRS_RENDER_MODULATIVE_PASS)
+        {
+            pass = deriveShadowReceiverPass(pass);
         }
 
         // TEST
@@ -1296,7 +1301,35 @@ namespace Ogre {
         if (mIlluminationStage != IRS_NONE)
             return;
 
+        IlluminationRenderStage savedIlluminationStage = mIlluminationStage;
+        mIlluminationStage = IRS_RENDER_MODULATIVE_PASS;
 
+        // Iterate per shadow texture used
+        LightList::iterator i, iend;
+        ShadowTextureList::iterator si, siend;
+        iend = mLightsAffectingFrustum.end();
+        siend = mShadowTextures.end();
+        for (i = mLightsAffectingFrustum.begin(), si = mShadowTextures.begin();
+            i != iend && si != siend; ++i, ++si)
+        {
+            Light* light = *i;
+            mCurrentShadowTexture = *si;
+
+            // Render all the receivers which have shadows enabled
+            RenderQueue::QueueGroupIterator queueIt = getRenderQueue()->_getQueueGroupIterator();
+
+            while (queueIt.hasMoreElements())
+            {
+                // Get queue group id
+                RenderQueueGroupID qId = queueIt.peekNextKey();
+                RenderQueueGroup* pGroup = queueIt.getNext();
+
+                if (pGroup->getShadowsEnabled())
+                    renderTextureShadowReceiverQueueGroupObjects(pGroup);
+
+            } // for each queue group
+        }
+        mIlluminationStage = savedIlluminationStage;
 
     }
     //-----------------------------------------------------------------------
@@ -1472,8 +1505,10 @@ namespace Ogre {
         // Iterate through priorities
         RenderQueueGroup::PriorityMapIterator groupIt = pGroup->getIterator();
 
-        // Override auto param ambient to stop vertex programs using it to colour
-        mAutoParamDataSource.setAmbientLightColour(ColourValue::Black);
+        // Override auto param ambient to force vertex programs and fixed function to 
+        // use shadow colour
+        mAutoParamDataSource.setAmbientLightColour(mShadowColour);
+        mDestRenderSystem->setAmbientLight(mShadowColour.r, mShadowColour.g, mShadowColour.b);
 
         while (groupIt.hasMoreElements())
         {
@@ -1487,14 +1522,66 @@ namespace Ogre {
             renderObjects(pPriorityGrp->_getSolidPassesNoShadow(), false, &nullLightList);
 
         }// for each priority
+        
+        // reset ambient light
+        mAutoParamDataSource.setAmbientLightColour(mAmbientLight);
+        mDestRenderSystem->setAmbientLight(mAmbientLight.r, mAmbientLight.g, mAmbientLight.b);
     }
     //-----------------------------------------------------------------------
-    void SceneManager::renderTextureShadowReceiverQueueGroupObjects(RenderQueueGroup* group)
+    void SceneManager::renderTextureShadowReceiverQueueGroupObjects(RenderQueueGroup* pGroup)
     {
-        // Shadow receivers are already separated from non-shadow receivers
-        // Shadow casters should also have been filtered out already
+        static LightList nullLightList;
 
-        // Never render transparents
+        // Iterate through priorities
+        RenderQueueGroup::PriorityMapIterator groupIt = pGroup->getIterator();
+
+        // Override auto param ambient to force vertex programs to go full-bright
+        mAutoParamDataSource.setAmbientLightColour(ColourValue::White);
+        mDestRenderSystem->setAmbientLight(1, 1, 1);
+
+        while (groupIt.hasMoreElements())
+        {
+            RenderPriorityGroup* pPriorityGrp = groupIt.getNext();
+
+            // Sort the queue first
+            pPriorityGrp->sort(mCameraInProgress);
+
+            // Do solids, override light list incase any vertex programs use them
+            renderObjects(pPriorityGrp->_getSolidPasses(), false, &nullLightList);
+
+            // Don't render transparents or passes which have shadow receipt disabled
+
+        }// for each priority
+
+        // reset ambient
+        mAutoParamDataSource.setAmbientLightColour(mAmbientLight);
+        mDestRenderSystem->setAmbientLight(mAmbientLight.r, mAmbientLight.g, mAmbientLight.b);
+
+    }
+    //-----------------------------------------------------------------------
+    bool SceneManager::validatePassForRendering(Pass* pass)
+    {
+        // Bypass if we're doing a texture shadow render and 
+        // this pass is after the first (only 1 pass needed for shadow texture)
+        if ((mIlluminationStage == IRS_RENDER_TO_TEXTURE ||
+            mIlluminationStage == IRS_RENDER_MODULATIVE_PASS) && 
+            pass->getIndex() > 0)
+            return false;
+
+        return true;
+    }
+    //-----------------------------------------------------------------------
+    bool SceneManager::validateRenderableForRendering(Pass* pass, Renderable* rend)
+    {
+        // Skip this renderable if we're doing texture shadows, it casts shadows
+        // and we're doing the render receivers pass
+        if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE && 
+            mIlluminationStage == IRS_RENDER_MODULATIVE_PASS && 
+            rend->getCastsShadows())
+            return false;
+
+        return true;
+
     }
 	//-----------------------------------------------------------------------
 	void SceneManager::renderObjects(
@@ -1506,19 +1593,23 @@ namespace Ogre {
 		ipassend = objs.end();
 		for (ipass = objs.begin(); ipass != ipassend; ++ipass)
 		{
-            // Fast bypass if we're doing a texture shadow render and 
-            // this pass is after the first (only 1 pass needed for shadow texture)
-            if (mIlluminationStage == IRS_RENDER_TO_TEXTURE && ipass->first->getIndex() > 0)
+            // Fast bypass if this group is now empty
+            if (ipass->second->empty()) continue;
+
+            // Give SM a chance to eliminate this pass
+            if (!validatePassForRendering(ipass->first))
                 continue;
-			// Fast bypass if this group is now empty
-			if (ipass->second->empty()) continue;
-			// For solids, we try to do each pass in turn
+
+            // For solids, we try to do each pass in turn
 			setPass(ipass->first);
 			RenderPriorityGroup::RenderableList* rendList = ipass->second;
 			RenderPriorityGroup::RenderableList::const_iterator irend, irendend;
 			irendend = rendList->end();
 			for (irend = rendList->begin(); irend != irendend; ++irend)
 			{
+                // Give SM a chance to eliminate
+                if (!validateRenderableForRendering(ipass->first, *irend))
+                    continue;
 				// Render a single object, this will set up auto params if required
 				renderSingleObject(*irend, ipass->first, doLightIteration, manualLightList);
 			}
@@ -2616,7 +2707,7 @@ namespace Ogre {
             mShadowModulativePass->setDepthCheckEnabled(false);
             TextureUnitState* t = mShadowModulativePass->createTextureUnitState();
             t->setColourOperationEx(LBX_MODULATE, LBS_MANUAL, LBS_CURRENT, 
-                ColourValue(0.25, 0.25, 0.25));
+                mShadowColour);
 
         }
 
@@ -2635,16 +2726,30 @@ namespace Ogre {
             matPlainBlack = static_cast<Material*>(
                 MaterialManager::getSingleton().create("Ogre/TextureShadowCaster"));
             mShadowCasterPlainBlackPass = matPlainBlack->getTechnique(0)->getPass(0);
-            // Lighting has to be on, because we need black objects
-            // however, all lighting components are zero
+            // Lighting has to be on, because we need shadow coloured objects
             // Note that because we can't predict vertex programs, we'll have to
-            // bind light values of 0 to those
-            mShadowCasterPlainBlackPass->setAmbient(ColourValue::Black);
+            // bind light values to those, and so we bind White to ambient
+            // reflectance, and we'll set the ambient colour to the shadow colour
+            mShadowCasterPlainBlackPass->setAmbient(ColourValue::White);
             mShadowCasterPlainBlackPass->setDiffuse(ColourValue::Black);
             mShadowCasterPlainBlackPass->setSelfIllumination(ColourValue::Black);
             mShadowCasterPlainBlackPass->setSpecular(ColourValue::Black);
             // no textures or anything else, we will bind vertex programs
             // every so often though
+        }
+
+        Material* matShadRec = static_cast<Material*>(
+            MaterialManager::getSingleton().getByName("Ogre/TextureShadowReceiver"));
+        if (!matShadRec)
+        {
+            matShadRec = static_cast<Material*>(
+                MaterialManager::getSingleton().create("Ogre/TextureShadowReceiver"));
+            mShadowReceiverPass = matShadRec->getTechnique(0)->getPass(0);
+            mShadowReceiverPass->setSceneBlending(SBF_ONE_MINUS_DEST_COLOUR, SBF_ZERO);
+            // No lighting, one texture unit 
+            // everything else will be bound as needed during the receiver pass
+            mShadowReceiverPass->setLightingEnabled(false);
+            mShadowReceiverPass->createTextureUnitState();
         }
 
 
@@ -2671,6 +2776,45 @@ namespace Ogre {
 
             }
             return mShadowCasterPlainBlackPass;
+        case SHADOWTYPE_TEXTURE_SHADOWMAP:
+            // todo
+            return pass;
+        default:
+            return pass;
+        };
+
+    }
+    //---------------------------------------------------------------------
+    Pass* SceneManager::deriveShadowReceiverPass(Pass* pass)
+    {
+        switch (mShadowTechnique)
+        {
+        case SHADOWTYPE_TEXTURE_MODULATIVE:
+            if (pass->hasVertexProgram())
+            {
+                // Have to merge the vertex program in
+                // TODO: look for a projective texture capable vertex program
+                // if not found, use fixed function version
+
+                //mShadowReceiverPass->setVertexProgram(
+                //    pass->getProjectiveVertexProgramName());
+                // Also have to hack the light autoparams, that is done later
+            }
+            else if (mShadowReceiverPass->hasVertexProgram())
+            {
+                // reset
+                mShadowReceiverPass->setVertexProgram("");
+
+            }
+
+            // Hook up receiver texture
+            mShadowReceiverPass->getTextureUnitState(0)->setTextureName(
+                mCurrentShadowTexture->getName());
+            // Hook up projection frustum
+            mShadowReceiverPass->getTextureUnitState(0)->setProjectiveTexturing(
+                true, mCurrentShadowTexture->getViewport(0)->getCamera());
+
+            return mShadowReceiverPass;
         case SHADOWTYPE_TEXTURE_SHADOWMAP:
             // todo
             return pass;
@@ -2871,7 +3015,9 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void SceneManager::setShadowColour(const ColourValue& colour)
     {
-        if (!mShadowModulativePass)
+        mShadowColour = colour;
+
+        if (!mShadowModulativePass && !mShadowCasterPlainBlackPass)
             initShadowVolumeMaterials();
 
         mShadowModulativePass->getTextureUnitState(0)->setColourOperationEx(
@@ -2880,11 +3026,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     const ColourValue& SceneManager::getShadowColour(void) const
     {
-        if (!mShadowModulativePass)
-            return ColourValue::Black;
-
-        return mShadowModulativePass->getTextureUnitState(0)
-            ->getColourBlendMode().colourArg1;
+        return mShadowColour;
     }
     //---------------------------------------------------------------------
     void SceneManager::setShadowFarDistance(Real distance)
