@@ -272,6 +272,8 @@ void meshToXML(XmlOptions opts)
     fclose( pFile );
 
     Mesh mesh("conversion");
+    
+    MeshManager meshManager;
 
     meshSerializer->importMesh(chunk, &mesh);
    

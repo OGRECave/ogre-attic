@@ -851,14 +851,16 @@ namespace Ogre {
         Real currRadius = mpMesh->getBoundingSphereRadius();
         if (currBox.isNull())
         {
-            mpMesh->_setBounds(AxisAlignedBox(min, max));
+	    //do not pad the bounding box
+            mpMesh->_setBounds(AxisAlignedBox(min, max), false);
             mpMesh->_setBoundingSphereRadius(Math::Sqrt(maxSquaredRadius));
         }
         else
         {
             AxisAlignedBox newBox(min, max);
             newBox.merge(currBox);
-            mpMesh->_setBounds(newBox);
+	    //do not pad the bounding box
+            mpMesh->_setBounds(newBox, false);
             mpMesh->_setBoundingSphereRadius(std::max(Math::Sqrt(maxSquaredRadius), currRadius));
         }
         

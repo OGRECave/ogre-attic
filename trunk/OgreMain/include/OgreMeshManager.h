@@ -332,6 +332,17 @@ namespace Ogre {
         */
         static MeshManager* getSingletonPtr(void);
 
+	/*
+	*Gets the factor by which the bounding box of an entity is padded
+	*Default is 0.01
+	*/
+        Real MeshManager::getBoundsPaddingFactor(void);
+	
+	/*
+	*Gets the factor by which the bounding box of an entity is padded
+	*/
+        void MeshManager::setBoundsPaddingFactor(Real paddingFactor);
+
     protected:
         /** Utility method for tesselating 2D meshes.
         */
@@ -343,6 +354,9 @@ namespace Ogre {
         void createPrefabPlane(void);
 
         bool mPrepAllMeshesForShadowVolumes;
+	
+	//the factor by which the bounding box of an entity is padded	
+	Real mBoundsPaddingFactor;
     };
 
 

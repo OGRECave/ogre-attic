@@ -105,15 +105,16 @@ namespace Ogre {
         Real sqLen = std::max(vmax.squaredLength(), vmin.squaredLength());
         mRadius = Math::Sqrt(sqLen);
 		
-		// inflate the wire bounding box just a bit so that it will set apart from
-		//      a solid object
-		Real maxx = vmax.x + 1.0;
-		Real maxy = vmax.y + 1.0;
-		Real maxz = vmax.z + 1.0;
+
 		
-		Real minx = vmin.x - 1.0;
-		Real miny = vmin.y - 1.0;
-		Real minz = vmin.z - 1.0;
+		
+		Real maxx = vmax.x;
+		Real maxy = vmax.y;
+		Real maxz = vmax.z;
+		
+		Real minx = vmin.x;
+		Real miny = vmin.y;
+		Real minz = vmin.z;
 		
 		// fill in the Vertex buffer: 12 lines with 2 endpoints each make up a box
         HardwareVertexBufferSharedPtr vbuf =

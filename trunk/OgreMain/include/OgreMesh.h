@@ -130,9 +130,6 @@ namespace Ogre {
         bool mManuallyDefined;
 
 
-        /// Flag to indicate that bounds need updating
-        //bool mUpdateBounds;
-
         /// Optional linked skeleton
         String mSkeletonName;
         Skeleton* mSkeleton;
@@ -265,9 +262,9 @@ namespace Ogre {
             update the bounds for you, because it cannot necessarily read vertex data back from 
             the vertex buffers which this mesh uses (they very well might be write-only, and even
             if they are not, reading data from a hardware buffer is a bottleneck).
-
+            @param pad If true, a certain padding will be added to the bounding box to separate it from the mesh
         */
-        void _setBounds(const AxisAlignedBox& bounds);
+        void _setBounds(const AxisAlignedBox& bounds, bool pad = true);
 
         /** Manually set the bounding radius. 
         @remarks
