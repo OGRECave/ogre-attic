@@ -28,7 +28,7 @@ http://www.gnu.org/copyleft/gpl.html.
 
 WaterMesh::WaterMesh(const String& meshName, Real planeSize, int complexity)
 {
-	int x,b; // I prefer to initialize for() variables inside it, but VC doesn't like it ;(
+	int x,y,b; // I prefer to initialize for() variables inside it, but VC doesn't like it ;(
 	
 	this->meshName = meshName ;
 	this->complexity =  complexity ;
@@ -62,7 +62,7 @@ WaterMesh::WaterMesh(const String& meshName, Real planeSize, int complexity)
 	subMesh->geometry.pTexCoords[0] = new Real[numVertices * 2];
 	subMesh->geometry.pNormals = new Real[numVertices * 3] ;
 	// prepare faces
-	for(int y=0 ; y<complexity ; y++) {
+	for(y=0 ; y<complexity ; y++) {
 		for(int x=0 ; x<complexity ; x++) {
 			unsigned short *twoface = subMesh->faceVertexIndices + (y*complexity+x)*2*3;
 			int p0 = y*(complexity+1) + x ;
