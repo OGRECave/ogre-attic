@@ -44,7 +44,7 @@ namespace Ogre {
             You are free to create your own subclasses in order to define any function you wish.
     */
 	template <typename T>
-    class _OgreExport ControllerFunction
+    class ControllerFunction
     {
     protected:
         /// If true, function will add imput values together and wrap at 1.0 before evaluating
@@ -89,7 +89,7 @@ namespace Ogre {
     /** Can either be used as an input or output value.
     */
 	template <typename T>
-    class _OgreExport ControllerValue
+    class ControllerValue
     {
 
     public:
@@ -120,7 +120,7 @@ namespace Ogre {
 
     */
 	template <typename T>
-    class _OgreExport Controller
+    class Controller
     {
     protected:
         /// Source value
