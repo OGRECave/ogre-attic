@@ -30,21 +30,6 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreString.h"
 #include "OgreDataChunk.h"
 
-// Library includes
-#include "png.h"
-// jpeglib hack to stop redefinition of INT32
-#ifndef XMD_H
-#   define XMD_H
-#endif
-// hack to stop warning about re-definition of FAR
-#ifdef FAR
-#   undef FAR
-#endif
-extern "C" {
-    #include "jpeglib.h"
-}
-
-
 namespace Ogre {
     /** Class representing an image file.
         @remarks
@@ -66,6 +51,13 @@ namespace Ogre {
 
         Image();
         ~Image();
+
+        void flipX();
+        void flipY();
+
+        void Image::loadRawRGB( Byte *pData, UInt32 ulWidth, UInt32 ulHeight );
+        void Image::loadRawRGBA( Byte *pData, UInt32 ulWidth, UInt32 ulHeight );
+
         /** Loads an image file and returns a pointer to the raw image data.
             @remarks
                 This method loads an image into memory held in the object, and passes a
@@ -76,7 +68,7 @@ namespace Ogre {
             @param
                 filename Name of a PNG or JPG file to load.
         */
-        unsigned char* load(String filename);
+        Byte * load( const String& strFileName );
         /** Loads an image file from a chunk of memory and returns a pointer to the uncompressed image data.
             @remarks
                 This method works in the same way as the filename-based load method except it loads the image from
@@ -93,7 +85,7 @@ namespace Ogre {
             @param
                 extension The extension associated with the file type, e.g. PNG, JPG, TGA
         */
-        unsigned char* load(DataChunk& chunk, String extension);
+        unsigned char* load(DataChunk& chunk, const String& extension);
 
         /** Returns a pointer to the image data.
         */
@@ -121,6 +113,12 @@ namespace Ogre {
         */
         bool hasAlphaChannel(void);
 
+        static void setFlipX( Bool b ) { ms_bFlipX = b; }
+        static void setFlipY( Bool b ) { ms_bFlipY = b; }
+
+        static Bool getFlipX( ) { return ms_bFlipX; }
+        static Bool getFlipY( ) { return ms_bFlipY; }
+
     private:
         unsigned short mWidth, mHeight;
         unsigned short mRowSpan;
@@ -128,39 +126,9 @@ namespace Ogre {
         bool mIsGreyscale;
         bool mHasAlpha;
 
-        /** Internal utility method for loading from a PNG file.
-        */
-        void loadFromPNG(String filename);
-
-        /** Internal utility method for loading PNG data.
-        */
-        void loadFromPNGChunk(DataChunk& chunk);
-
-        /** Internal utility method for loading from a JPG file.
-        */
-        void loadFromJPG(String filename);
-
-        /** Internal utility method for loading JPG data.
-        */
-        void loadFromJPGChunk(DataChunk& chunk);
-
-        /** Internal utility method for loading a TGA file.
-        */
-        void loadFromTGA(String filename);
-
-        /** Internal utility method for loading TGA data.
-        */
-        void loadFromTGAChunk(DataChunk& chunk);
-
-        /** Internal Jpeg decoder implementation.
-        */
-        void decodeJPG(jpeg_decompress_struct* cinfo);
-
-        /** Internal PNG decoder implementation.
-        */
-        void decodePNG(png_structp png_ptr, png_infop info_ptr);
+        static Bool ms_bFlipX;
+        static Bool ms_bFlipY;
     };
 }
-
 
 #endif
