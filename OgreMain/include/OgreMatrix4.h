@@ -118,7 +118,7 @@ namespace Ogre
             return m[iRow];
         }
 
-        inline Matrix4 concatenate(const Matrix4 &m2)
+        inline Matrix4 concatenate(const Matrix4 &m2) const
         {
             Matrix4 r;
             r.m[0][0] = m[0][0] * m2.m[0][0] + m[0][1] * m2.m[1][0] + m[0][2] * m2.m[2][0] + m[0][3] * m2.m[3][0];
@@ -146,7 +146,7 @@ namespace Ogre
 
         /** Matrix concatenation using '*'.
         */
-        inline Matrix4 operator * ( const Matrix4 &m2 )
+        inline Matrix4 operator * ( const Matrix4 &m2 ) const
         {
             return concatenate( m2 );
         }
@@ -204,7 +204,7 @@ namespace Ogre
 
         /** Matrix subtraction.
         */
-        inline Matrix4 operator - ( const Matrix4 &m2 )
+        inline Matrix4 operator - ( const Matrix4 &m2 ) const
         {
             Matrix4 r;
             r.m[0][0] = m[0][0] - m2.m[0][0];
@@ -265,7 +265,7 @@ namespace Ogre
             m[2][0] = mat3.m[2][0]; m[2][1] = mat3.m[2][1]; m[2][2] = mat3.m[2][2];
         }
 
-        inline Matrix4 transpose(void)
+        inline Matrix4 transpose(void) const
         {
             return Matrix4(m[0][0], m[1][0], m[2][0], m[3][0],
                            m[0][1], m[1][1], m[2][1], m[3][1],
@@ -376,7 +376,7 @@ namespace Ogre
         /** Extracts the rotation / scaling part of the Matrix as a 3x3 matrix. 
         @param m3x3 Destination Matrix3
         */
-        inline void extract3x3Matrix(Matrix3& m3x3)
+        inline void extract3x3Matrix(Matrix3& m3x3) const
         {
             m3x3.m[0][0] = m[0][0];
             m3x3.m[0][1] = m[0][1];

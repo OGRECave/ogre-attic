@@ -128,7 +128,7 @@ namespace Ogre
             return *this;
         }
 
-        inline Vector4 operator * (const Matrix4& mat)
+        inline Vector4 operator * (const Matrix4& mat) const
         {
             return Vector4(
                 x*mat[0][0] + y*mat[1][0] + z*mat[2][0] + w*mat[3][0],

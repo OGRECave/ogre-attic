@@ -44,9 +44,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    Real Quaternion::ms_fEpsilon = 1e-03;
-    Quaternion Quaternion::ZERO(0.0,0.0,0.0,0.0);
-    Quaternion Quaternion::IDENTITY(1.0,0.0,0.0,0.0);
+    const Real Quaternion::ms_fEpsilon = 1e-03;
+    const Quaternion Quaternion::ZERO(0.0,0.0,0.0,0.0);
+    const Quaternion Quaternion::IDENTITY(1.0,0.0,0.0,0.0);
 
     //-----------------------------------------------------------------------
     Quaternion::Quaternion (Real fW, Real fX, Real fY, Real fZ)

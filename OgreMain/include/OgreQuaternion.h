@@ -102,11 +102,11 @@ namespace Ogre {
             const Quaternion& rkQ);
 
         // cutoff for sine near zero
-        static Real ms_fEpsilon;
+        static const Real ms_fEpsilon;
 
         // special values
-        static Quaternion ZERO;
-        static Quaternion IDENTITY;
+        static const Quaternion ZERO;
+        static const Quaternion IDENTITY;
 
         Real w, x, y, z;
 
