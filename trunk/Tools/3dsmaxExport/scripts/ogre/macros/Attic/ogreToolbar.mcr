@@ -20,7 +20,7 @@ macroScript showOgreExportTools
 	Icon:#("Maintoolbar",49)
 (
 	-- create a floater
-	OgreExportFloater = newRolloutFloater "Ogre Exporter" 280 800 ;
+	OgreExportFloater = newRolloutFloater "Ogre Exporter - 1.18" 280 800 ;
 	
 	rollout OgreExportOptions "Options" width:270 height:140 rolledUp:true
 	(
