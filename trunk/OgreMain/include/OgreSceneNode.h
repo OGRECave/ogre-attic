@@ -49,6 +49,8 @@ namespace Ogre {
 
     protected:
         ObjectMap mObjectsByName;
+        LightList mLightList;
+        bool mLightListDirty;
 
 		/// Pointer to a Wire Bounding Box for this Node
 		WireBoundingBox *mWireBoundingBox;
@@ -262,6 +264,15 @@ namespace Ogre {
                 rotate Initial rotation relative to parent
         */
         virtual SceneNode* createChildSceneNode(const String& name, const Vector3& translate = Vector3::ZERO, const Quaternion& rotate = Quaternion::IDENTITY);
+
+        /** Allows retrieval of the nearest lights to the centre of this SceneNode.
+        @remarks
+            This method allows a list of lights, ordered by proximity to the centre of
+            this SceneNode, to be retrieved. Multiple access to this method when neither 
+            the node nor the lights have moved will result in the same list being returned
+            without recalculation. Can be useful when implementing Renderable::getLightList.
+        */
+        const LightList& getLights(void);
 
     };
 

@@ -37,13 +37,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
     //-----------------------------------------------------------------------
     SceneNode::SceneNode(SceneManager* creator) 
-    : Node(), mWireBoundingBox(0), mShowBoundingBox(false), mCreator(creator)
+    : Node(), mLightListDirty(true), mWireBoundingBox(0), mShowBoundingBox(false), mCreator(creator)
     {
         needUpdate();
     }
     //-----------------------------------------------------------------------
     SceneNode::SceneNode(SceneManager* creator, const String& name) 
-    : Node(name), mWireBoundingBox(0), mShowBoundingBox(false), mCreator(creator)
+    : Node(name), mLightListDirty(true), mWireBoundingBox(0), mShowBoundingBox(false), mCreator(creator)
     {
         needUpdate();
     }
@@ -59,6 +59,7 @@ namespace Ogre {
     {
         Node::_update(updateChildren, parentHasChanged);
         _updateBounds();
+        mLightListDirty = true;
 
     }
 
@@ -343,6 +344,18 @@ namespace Ogre {
 	{
 		return static_cast<SceneNode*>(this->createChild(name, translate, rotate));
 	}
+    //-----------------------------------------------------------------------
+    const LightList& SceneNode::getLights(void)
+    {
+        if (mLightListDirty)
+        {
+            // Use SceneManager to calculate
+            mCreator->_populateLightList(this->_getDerivedPosition(), mLightList);
+            mLightListDirty = false;
+        }
+        return mLightList;
+
+    }
 
 
 }

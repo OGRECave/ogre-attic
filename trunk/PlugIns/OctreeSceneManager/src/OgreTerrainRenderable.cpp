@@ -981,5 +981,10 @@ Real TerrainRenderable::getSquaredViewDepth(const Camera* cam) const
     return diff.squaredLength();
 }
 
+//-----------------------------------------------------------------------
+const LightList& TerrainRenderable::getLights(void)
+{
+    return mParentNode->getLights();
+}
 
 } //namespace

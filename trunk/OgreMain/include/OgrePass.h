@@ -92,6 +92,8 @@ namespace Ogre {
 
         /// Lighting enabled?
         bool mLightingEnabled;
+        /// Max simultaneous lights
+        unsigned short mMaxSimultaneousLights;
 
         /// Shading options
         ShadeOptions mShadeOptions;
@@ -480,6 +482,18 @@ namespace Ogre {
         /** Returns whether or not dynamic lighting is enabled.
         */
         bool getLightingEnabled(void) const;
+
+        /** Sets the maximum number of lights to be used by this pass. 
+        @remarks
+            During rendering, if lighting is enabled (or if the pass uses an automatic
+            program parameter based on a light) the engine will request the nearest lights 
+            to the object being rendered in order to work out which ones to use. This
+            parameter sets the limit on the number of lights which should apply to objects 
+            rendered with this pass. 
+        */
+        void setMaxSimultaneousLights(unsigned short maxLights);
+        /** Gets the maximum number of lights to be used by this pass. */
+        unsigned short getMaxSimultaneousLights(void);
 
         /** Sets the type of light shading required
         @note

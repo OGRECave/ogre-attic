@@ -89,6 +89,8 @@ namespace Ogre {
         /** Overridden from MovableObject */
         virtual const String& getMovableType(void) const;
 
+        /** @copydoc Renderable::getLightList */
+        const LightList& getLights(void);
 
     };
 }

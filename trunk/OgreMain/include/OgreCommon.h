@@ -173,6 +173,8 @@ namespace Ogre {
 
 	PixelFormat ilFormat2OgreFormat( int ImageFormat, int BytesPerPixel );
 	std::pair< int, int > OgreFormat2ilFormat( PixelFormat format );
+
+    typedef std::vector<Light*> LightList;
 }
 
 #endif

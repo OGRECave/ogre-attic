@@ -132,5 +132,12 @@ namespace Ogre {
     {
         return mParentEntity->mNormaliseNormals;
     }
+    //-----------------------------------------------------------------------
+    const LightList& SubEntity::getLights(void)
+    {
+        Node* n = mParentEntity->getParentNode();
+        assert(n);
+        return n->getLights();
+    }
 
 }

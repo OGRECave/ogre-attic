@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://ogre.sourceforge.net/
 
 Copyright © 2000-2002 The OGRE Team
@@ -33,107 +33,108 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreQuaternion.h"
 
 
-using namespace Ogre;
+namespace Ogre {
 
-
-TagPoint::TagPoint(unsigned short handle, Skeleton* creator): Bone(handle, creator)
-{
-    mParentEntity = 0; 
-    mChildObject = 0; 
-}
-
-
-TagPoint::~TagPoint()
-{
-}
-
-Entity *TagPoint::getParentEntity(void)
-{
-	return mParentEntity;
-}
-
-void TagPoint::setParentEntity(Entity *pEntity)
-{
-	mParentEntity = pEntity;
-}
-
-
-void TagPoint::setChildObject(MovableObject *pObject)
-{
-	mChildObject = pObject;
-}
-
-Matrix4 TagPoint::_getFullTransform(void)
-{
-	//return getParentEntityTransform() * Node::_getFullTransform();
-    // Now that we're overriding updateFromParent(), this doesn't need to be different
-    return Node::_getFullTransform();
-}
-
-Matrix4 TagPoint::_getFullLocalTransform(void)
-{
-	return mFullLocalTransform;
-}
-
-
-Matrix4 TagPoint::getParentEntityTransform()
-{
-	
-	return mParentEntity->_getParentNodeFullTransform();
-}
-
-
-void TagPoint::_update(bool updateChildren, bool parentHasChanged)
-{
-	//It's the parent entity that is currently updating the skeleton and his bones
-	if(mParentEntity == mCreator->getCurrentEntity())
-	{
-		Node::_update(updateChildren, parentHasChanged);
-	}
-}
-
-void TagPoint::needUpdate()
-{
-    // We need to tell parent entities node
-    if (mParentEntity)
+    //-----------------------------------------------------------------------------
+    TagPoint::TagPoint(unsigned short handle, Skeleton* creator): Bone(handle, creator)
     {
-        Node* n = mParentEntity->getParentNode();
-        if (n)
+        mParentEntity = 0; 
+        mChildObject = 0; 
+    }
+    //-----------------------------------------------------------------------------
+    TagPoint::~TagPoint()
+    {
+    }
+    //-----------------------------------------------------------------------------
+    Entity *TagPoint::getParentEntity(void)
+    {
+        return mParentEntity;
+    }
+    //-----------------------------------------------------------------------------
+    void TagPoint::setParentEntity(Entity *pEntity)
+    {
+        mParentEntity = pEntity;
+    }
+    //-----------------------------------------------------------------------------
+    void TagPoint::setChildObject(MovableObject *pObject)
+    {
+        mChildObject = pObject;
+    }
+    //-----------------------------------------------------------------------------
+    Matrix4 TagPoint::_getFullTransform(void)
+    {
+        //return getParentEntityTransform() * Node::_getFullTransform();
+        // Now that we're overriding updateFromParent(), this doesn't need to be different
+        return Node::_getFullTransform();
+    }
+    //-----------------------------------------------------------------------------
+    Matrix4 TagPoint::_getFullLocalTransform(void)
+    {
+        return mFullLocalTransform;
+    }
+    //-----------------------------------------------------------------------------
+    Matrix4 TagPoint::getParentEntityTransform()
+    {
+
+        return mParentEntity->_getParentNodeFullTransform();
+    }
+    //-----------------------------------------------------------------------------
+    void TagPoint::_update(bool updateChildren, bool parentHasChanged)
+    {
+        //It's the parent entity that is currently updating the skeleton and his bones
+        if(mParentEntity == mCreator->getCurrentEntity())
         {
-            n->needUpdate();
+            Node::_update(updateChildren, parentHasChanged);
+        }
+    }
+    //-----------------------------------------------------------------------------
+    void TagPoint::needUpdate()
+    {
+        // We need to tell parent entities node
+        if (mParentEntity)
+        {
+            Node* n = mParentEntity->getParentNode();
+            if (n)
+            {
+                n->needUpdate();
+            }
+
         }
 
     }
-
-}
-
-void TagPoint::_updateFromParent(void) const
-{
-    // Call superclass
-    Bone::_updateFromParent();
-
-    // Save transform for local skeleton
-    makeTransform(mDerivedPosition, mDerivedScale, mDerivedOrientation, mFullLocalTransform);
-
-    // Include Entity transform
-    if (mParentEntity)
+    //-----------------------------------------------------------------------------
+    void TagPoint::_updateFromParent(void) const
     {
-        Node* entityParentNode = mParentEntity->getParentNode();
-        if (entityParentNode)
+        // Call superclass
+        Bone::_updateFromParent();
+
+        // Save transform for local skeleton
+        makeTransform(mDerivedPosition, mDerivedScale, mDerivedOrientation, mFullLocalTransform);
+
+        // Include Entity transform
+        if (mParentEntity)
         {
-            Quaternion mParentQ = entityParentNode->_getDerivedOrientation();
-            mDerivedOrientation = mParentQ * mDerivedOrientation;
+            Node* entityParentNode = mParentEntity->getParentNode();
+            if (entityParentNode)
+            {
+                Quaternion mParentQ = entityParentNode->_getDerivedOrientation();
+                mDerivedOrientation = mParentQ * mDerivedOrientation;
 
-            // Change position vector based on parent's orientation
-            mDerivedPosition = mParentQ * mDerivedPosition;
+                // Change position vector based on parent's orientation
+                mDerivedPosition = mParentQ * mDerivedPosition;
 
 
-            // Add altered position vector to parents
-            mDerivedPosition += entityParentNode->_getDerivedPosition();
+                // Add altered position vector to parents
+                mDerivedPosition += entityParentNode->_getDerivedPosition();
+            }
         }
+
+
+    }
+    //-----------------------------------------------------------------------------
+    const LightList& TagPoint::getLights(void)
+    {
+        return mParentEntity->getParentNode()->getLights();
     }
 
 }
-
-
-

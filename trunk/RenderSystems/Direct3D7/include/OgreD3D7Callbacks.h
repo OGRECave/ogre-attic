@@ -28,8 +28,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 // Precompiler options
 #include "OgreD3D7Prerequisites.h"
-#include "ddraw.h"
-#include "d3d.h"
 
 namespace Ogre {
 

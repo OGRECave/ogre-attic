@@ -30,7 +30,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreTextureManager.h"
 #include "OgreD3D7Texture.h"
 
-#include <d3d.h>
 
 namespace Ogre {
     /** Direct3D-specific implementation of a TextureManager */

@@ -29,10 +29,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreD3D7Prerequisites.h"
 #include "OgreString.h"
 
-// Include D3D and DirectDraw stuff
-#define D3D_OVERLOADS
-#include <ddraw.h>
-#include <d3d.h>
 
 
 #include "OgreRenderSystem.h"
@@ -59,13 +55,6 @@ namespace Ogre {
         DDDriverList* mDriverList;
         // Currently active driver
         DDDriver* mActiveDDDriver;
-
-        // Array of up to 8 lights, indexed as per API
-        // Note that a null value indicates a free slot
-        #define MAX_LIGHTS 8
-        Light* mLights[MAX_LIGHTS];
-
-
 
 
         HINSTANCE mhInstance;
@@ -148,6 +137,8 @@ namespace Ogre {
         HardwareBufferManager* mHardwareBufferManager;
 
         bool mForcedNormalisation;
+
+        unsigned short mCurrentLights;
 
 
 	public:
@@ -235,27 +226,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void _addLight(Light *lt);
-        /** See
-          RenderSystem
-         */
-        void _removeLight(Light *lt);
-        /** See
-          RenderSystem
-         */
-        void _modifyLight(Light* lt);
-        /** See
-          RenderSystem
-         */
-        void _removeAllLights(void);
-        /** See
-          RenderSystem
-         */
-        void _pushRenderState(void);
-        /** See
-          RenderSystem
-         */
-        void _popRenderState(void);
+        void _useLights(const LightList& lights, unsigned short limit);
         /** See
           RenderSystem
          */

@@ -166,16 +166,14 @@ namespace Ogre {
     Light* SceneManager::createLight(const String& name)
     {
         Light *l = new Light(name);
-        mLights.insert(LightList::value_type(name, l));
-        // Add light to render system
-        mDestRenderSystem->_addLight(l);
+        mLights.insert(SceneLightList::value_type(name, l));
         return l;
     }
 
     //-----------------------------------------------------------------------
     Light* SceneManager::getLight(const String& name)
     {
-        LightList::iterator i = mLights.find(name);
+        SceneLightList::iterator i = mLights.find(name);
         if (i == mLights.end())
         {
             return 0;
@@ -190,13 +188,12 @@ namespace Ogre {
     void SceneManager::removeLight(Light *l)
     {
         // Find in list
-        LightList::iterator i = mLights.begin();
+        SceneLightList::iterator i = mLights.begin();
         for (; i != mLights.end(); ++i)
         {
             if (i->second == l)
             {
                 mLights.erase(i);
-                mDestRenderSystem->_removeLight(l);
                 delete l;
                 break;
             }
@@ -208,11 +205,10 @@ namespace Ogre {
     void SceneManager::removeLight(const String& name)
     {
         // Find in list
-        LightList::iterator i = mLights.find(name);
+        SceneLightList::iterator i = mLights.find(name);
         if (i != mLights.end())
         {
             delete i->second;
-            mDestRenderSystem->_removeLight(i->second);
             mLights.erase(i);
         }
 
@@ -222,13 +218,54 @@ namespace Ogre {
     void SceneManager::removeAllLights(void)
     {
 
-        LightList::iterator i = mLights.begin();
+        SceneLightList::iterator i = mLights.begin();
         for (; i != mLights.end(); ++i)
         {
-            mDestRenderSystem->_removeLight(i->second);
             delete i->second;
         }
         mLights.clear();
+    }
+    //-----------------------------------------------------------------------
+    bool SceneManager::lightLess::operator()(const Light* a, const Light* b) const
+    {
+        return a->tempSquareDist < b->tempSquareDist;
+    }
+    //-----------------------------------------------------------------------
+    void SceneManager::_populateLightList(const Vector3& position, LightList& destList)
+    {
+        // Really basic trawl of the lights, then sort
+        destList.clear();
+
+        SceneLightList::iterator i, iend;
+        iend = mLights.end();
+        for (i = mLights.begin(); i != iend; ++i)
+        {
+            Light* lt = i->second;
+            if (lt->isVisible())
+            {
+                if (lt->getType() == Light::LT_DIRECTIONAL)
+                {
+                    // No distance
+                    lt->tempSquareDist = 0.0f;
+                    destList.push_back(lt);
+                }
+                else
+                {
+                    // Calc squared distance
+                    lt->tempSquareDist = (lt->getDerivedPosition() - position).squaredLength();
+                    // only add in-range lights
+                    if (lt->tempSquareDist <= lt->getAttenuationRange())
+                    {
+                        destList.push_back(lt);
+                    }
+                }
+            }
+        }
+
+        // Sort
+        std::sort(destList.begin(), destList.end(), lightLess());
+
+
     }
     //-----------------------------------------------------------------------
     Entity* SceneManager::createEntity(const String& entityName, PrefabType ptype)
@@ -579,7 +616,6 @@ namespace Ogre {
         // Update the scene
         _applySceneAnimations();
         _updateSceneGraph(camera);
-        _updateDynamicLights();
 
         // Auto-track camera if required
         camera->_autoTrack();
@@ -1173,6 +1209,13 @@ namespace Ogre {
         // Issue view / projection changes if any
         useRenderableViewProjMode(rend);
 
+        // Do we need to update light states? 
+        // Only do this if fixed-function vertex lighting applies
+        if (pass->getLightingEnabled() && !pass->hasVertexProgram())
+        {
+            mDestRenderSystem->_useLights(rend->getLights(), pass->getMaxSimultaneousLights());
+        }
+
         // Reissue any texture gen settings which are dependent on view matrix
         Pass::TextureUnitStateIterator texIter =  pass->getTextureUnitStateIterator();
         size_t unit = 0;
@@ -1215,20 +1258,6 @@ namespace Ogre {
 			ro.srcRenderable = rend;
 		#endif
         mDestRenderSystem->_render(ro);
-    }
-    //-----------------------------------------------------------------------
-    void SceneManager::_updateDynamicLights(void)
-    {
-        // Update all lights
-        LightList::iterator i;
-        Light* lt;
-        for (i = mLights.begin(); i != mLights.end(); ++i)
-        {
-            lt = i->second;
-            if (lt->isModified())
-                mDestRenderSystem->_modifyLight(lt);
-
-        }
     }
     //-----------------------------------------------------------------------
     void SceneManager::setAmbientLight(const ColourValue& colour)

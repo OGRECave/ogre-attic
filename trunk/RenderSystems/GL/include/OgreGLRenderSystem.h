@@ -100,6 +100,8 @@ namespace Ogre {
 
         HardwareBufferManager* mHardwareBufferManager;
 
+        unsigned short mCurrentLights;
+
     public:
         // Default constructor / destructor
         GLRenderSystem();
@@ -186,27 +188,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void _addLight(Light *lt);
-        /** See
-          RenderSystem
-         */
-        void _removeLight(Light *lt);
-        /** See
-          RenderSystem
-         */
-        void _modifyLight(Light* lt);
-        /** See
-          RenderSystem
-         */
-        void _removeAllLights(void);
-        /** See
-          RenderSystem
-         */
-        void _pushRenderState(void);
-        /** See
-          RenderSystem
-         */
-        void _popRenderState(void);
+        void _useLights(const LightList& lights, unsigned short limit);
         /** See
           RenderSystem
          */

@@ -58,9 +58,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #define OGRE_MAX_TEXTURE_COORD_SETS 6
 
-/** Define max number of texture layers allowed per material. 
+/** Define max number of texture layers allowed per pass. 
 */
 #define OGRE_MAX_TEXTURE_LAYERS 8
+
+/** Define max number of lights allowed per pass. 
+*/
+#define OGRE_MAX_SIMULTANEOUS_LIGHTS 8
 
 /** Define max number of blending weights allowed per vertex.
 */
