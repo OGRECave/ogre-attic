@@ -831,9 +831,7 @@ namespace Ogre {
                 // since a temporary buffer is requested each frame
                 // therefore, we need to update the EntityShadowRenderable
                 // with the current position buffer
-                const VertexData *pVertData = 0;
-                pVertData = findBlendedVertexData(egi->vertexData);
-                static_cast<EntityShadowRenderable*>(*si)->rebindPositionBuffer(pVertData);
+                static_cast<EntityShadowRenderable*>(*si)->rebindPositionBuffer();
                 
             }
             // Get shadow renderable
@@ -899,6 +897,9 @@ namespace Ogre {
         HardwareIndexBufferSharedPtr* indexBuffer, const VertexData* vertexData)
         : mParent(parent)
     {
+        // Save link to vertex data
+        mOriginalVertexData = vertexData;
+
         // Initialise render op
         mRenderOp.indexData = new IndexData();
         mRenderOp.indexData->indexBuffer = *indexBuffer;
@@ -913,8 +914,9 @@ namespace Ogre {
             HardwareBufferManager::getSingleton().createVertexBufferBinding();
         // Map in position data
         mRenderOp.vertexData->vertexDeclaration->addElement(0,0,VET_FLOAT3, VES_POSITION);
-        mPositionBuffer = vertexData->vertexBufferBinding->getBuffer(
-                vertexData->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource());
+        mOriginalPosBufferBinding = 
+            vertexData->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource();
+        mPositionBuffer = vertexData->vertexBufferBinding->getBuffer(mOriginalPosBufferBinding);
         mRenderOp.vertexData->vertexBufferBinding->setBinding(0, mPositionBuffer);
         // Map in w-coord buffer (if present)
         if(!vertexData->hardwareShadowVolWBuffer.isNull())
@@ -962,10 +964,10 @@ namespace Ogre {
         return mParent->getParentNode()->_getDerivedPosition();
     }
     //-----------------------------------------------------------------------
-    void Entity::EntityShadowRenderable::rebindPositionBuffer(const VertexData* vertexData)
+    void Entity::EntityShadowRenderable::rebindPositionBuffer(void)
     {
-        mPositionBuffer = vertexData->vertexBufferBinding->getBuffer(
-            vertexData->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource());
+        mPositionBuffer = mOriginalVertexData->vertexBufferBinding->getBuffer(
+            mOriginalPosBufferBinding);
         mRenderOp.vertexData->vertexBufferBinding->setBinding(0, mPositionBuffer);
 
     }
