@@ -61,6 +61,7 @@ OGRE_GET_GLSUPPORT
 
 dnl Find the optional components we should build
 OGRE_BUILD_PYTHON_LINK
+OGRE_CHECK_OPENEXR
 
 dnl This needs to be figured out later (MingW)
 OGRE_SETUP_FOR_HOST

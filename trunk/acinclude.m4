@@ -371,3 +371,28 @@ AC_DEFUN([OGRE_DETECT_ENDIAN],
 	,[AC_DEFINE(CONFIG_BIG_ENDIAN,,[Big endian machine])]
 	,[AC_DEFINE(CONFIG_LITTLE_ENDIAN,,[Little endian machine])])
 ])
+
+AC_DEFUN([OGRE_CHECK_OPENEXR],
+[AC_ARG_ENABLE(openexr,
+              AC_HELP_STRING([--enable-openexr],
+                             [Build the OpenEXR plugin]),
+              [build_exr=true],
+              [build_exr=false])
+
+if test "x$build_exr" = "xtrue" ; then
+	PKG_CHECK_MODULES(OPENEXR, OpenEXR, [build_exr=true], [build_exr=false])
+
+	if test "x$build_exr" = "xtrue" ; then
+	   	AC_CONFIG_FILES([ PlugIns/EXRCodec/Makefile \
+    					 PlugIns/EXRCodec/src/Makefile \
+    					 PlugIns/EXRCodec/include/Makefile])
+		AC_SUBST(OPENEXR_CFLAGS)
+		AC_SUBST(OPENEXR_LIBS)
+
+	fi
+
+fi
+
+AM_CONDITIONAL(BUILD_EXRPLUGIN, test x$build_exr = xtrue)
+
+])
