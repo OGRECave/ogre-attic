@@ -164,6 +164,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     RaySceneQuery::~RaySceneQuery()
     {
+        clearResults();
     }
     //-----------------------------------------------------------------------
     void RaySceneQuery::setRay(const Ray& ray)
