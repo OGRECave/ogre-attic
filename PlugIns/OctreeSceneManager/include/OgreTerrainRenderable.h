@@ -61,12 +61,17 @@ namespace Ogre
     class TerrainBufferCache
     {
     public:
-        ~TerrainBufferCache()
+        void shutdown(void)
         {
             for( size_t i=0; i<mCache.size(); i++ )
             {
                 delete mCache[i];
             }
+            mCache.clear();
+        }
+        ~TerrainBufferCache()
+        {
+            shutdown();
         }
 
         IndexArray mCache;
@@ -285,7 +290,11 @@ namespace Ogre
         void updateCustomGpuParameter(
             const GpuProgramParameters::AutoConstantEntry& constantEntry,
             GpuProgramParameters* params) const;
+        /// Get the static list of indexes cached (internal use only)
+        static TerrainBufferCache& _getIndexCache(void) {return msIndexCache;}
     protected:
+        /// Static list of index buffers
+        static TerrainBufferCache msIndexCache;
         /// Static link to static shared options
         static const TerrainOptions* msOptions;
 

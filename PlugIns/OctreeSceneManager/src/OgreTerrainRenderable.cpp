@@ -52,7 +52,7 @@ namespace Ogre
     #define DELTA_BINDING 1
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
-    TerrainBufferCache gIndexCache;
+    TerrainBufferCache TerrainRenderable::msIndexCache;
     String TerrainRenderable::mType = "TerrainMipMap";
     LevelArray TerrainRenderable::mLevelIndex;
     bool TerrainRenderable::mLevelInit = false;
@@ -1030,7 +1030,7 @@ namespace Ogre
             HardwareIndexBuffer::IT_16BIT,
             new_length, HardwareBuffer::HBU_STATIC_WRITE_ONLY);//, false);
 
-        gIndexCache.mCache.push_back( indexData );
+        msIndexCache.mCache.push_back( indexData );
 
         unsigned short* pIdx = static_cast<unsigned short*>(
             indexData->indexBuffer->lock(0, 
@@ -1222,7 +1222,7 @@ namespace Ogre
             HardwareIndexBuffer::IT_16BIT,
             new_length, HardwareBuffer::HBU_STATIC_WRITE_ONLY);//, false);
 
-        gIndexCache.mCache.push_back( indexData );
+        msIndexCache.mCache.push_back( indexData );
 
         unsigned short* pIdx = static_cast<unsigned short*>(
             indexData->indexBuffer->lock(0, 

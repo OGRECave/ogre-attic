@@ -76,6 +76,9 @@ namespace Ogre
     //-------------------------------------------------------------------------
     TerrainSceneManager::~TerrainSceneManager()
     {
+        // Make sure the indexes are destroyed during orderly shutdown
+        // and not when statics are destroyed (may be too late)
+        TerrainRenderable::_getIndexCache().shutdown();
     }
     //-------------------------------------------------------------------------
     void TerrainSceneManager::loadConfig(const String& filename)
