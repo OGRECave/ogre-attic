@@ -922,8 +922,8 @@ namespace Ogre {
 			hr = mpD3DDevice->SetTextureStageState( stage, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2 );
 			
 			D3DXMatrixIdentity( &matTrans );
-			matTrans(0,0) = 0.0f;
-			matTrans(3,0) = 0.0f;
+			matTrans(0,0) = 0.5f;
+			matTrans(3,0) = 0.5f;
 			matTrans(1,1) = -0.5f;
 			matTrans(3,1) = 0.5f;
 			hr = mpD3DDevice->SetTransform( (D3DTRANSFORMSTATETYPE)(D3DTS_TEXTURE0 + stage), &matTrans );
@@ -1377,7 +1377,7 @@ namespace Ogre {
 			// Resize the vertex buffer
 			SAFE_RELEASE( mpXYZBuffer.buffer );
 			if( FAILED( hr = mpD3DDevice->CreateVertexBuffer( sizeof(D3DXVECTOR3)*op.numVertices, 
-				/*D3DUSAGE_DYNAMIC*/D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &mpXYZBuffer.buffer ) ) )
+				D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &mpXYZBuffer.buffer ) ) )
 			{
 				Except( hr, "Failed to create XYZ vertex buffer", "D3D8RenderSystem::_render" );
 			}
@@ -1399,7 +1399,7 @@ namespace Ogre {
 			{
 				SAFE_RELEASE( mpNormalBuffer.buffer );
 				if( FAILED( hr = mpD3DDevice->CreateVertexBuffer( sizeof(D3DXVECTOR3)*op.numVertices, 
-					/*D3DUSAGE_DYNAMIC*/D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &mpNormalBuffer.buffer ) ) )
+					D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &mpNormalBuffer.buffer ) ) )
 				{
 					Except( hr, "Failed to create normals vertex buffer", "D3D8RenderSystem::_render" );
 				}
@@ -1418,7 +1418,7 @@ namespace Ogre {
 			{
 				SAFE_RELEASE( mpDiffuseBuffer.buffer );
 				if( FAILED( hr = mpD3DDevice->CreateVertexBuffer( sizeof(D3DCOLOR)*op.numVertices, 
-					/*D3DUSAGE_DYNAMIC*/D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &mpDiffuseBuffer.buffer ) ) )
+					D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &mpDiffuseBuffer.buffer ) ) )
 				{
 					Except( hr, "Failed to create diffuse vertex buffer", "D3D8RenderSystem::_render" );
 				}
@@ -1436,7 +1436,7 @@ namespace Ogre {
 			{
 				SAFE_RELEASE( mpSpecularBuffer.buffer );
 				if( FAILED( hr = mpD3DDevice->CreateVertexBuffer( sizeof(D3DCOLOR)*op.numVertices, 
-					/*D3DUSAGE_DYNAMIC*/D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &mpSpecularBuffer.buffer ) ) )
+					D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &mpSpecularBuffer.buffer ) ) )
 				{
 					Except( hr, "Failed to create specular vertex buffer", "D3D8RenderSystem::_render" );
 				}
@@ -1460,7 +1460,7 @@ namespace Ogre {
 					{
 						SAFE_RELEASE( mpTextures[i][0].buffer );
 						if( FAILED( hr = mpD3DDevice->CreateVertexBuffer( sizeof(float)*op.numVertices, 
-							/*D3DUSAGE_DYNAMIC*/D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &mpTextures[i][0].buffer ) ) )
+							D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &mpTextures[i][0].buffer ) ) )
 						{
 							Except( hr, "Failed to create texture vertex buffer", "D3D8RenderSystem::_render" );
 						}
@@ -1479,7 +1479,7 @@ namespace Ogre {
 					{
 						SAFE_RELEASE( mpTextures[i][1].buffer );
 						if( FAILED( hr = mpD3DDevice->CreateVertexBuffer( sizeof(float)*2*op.numVertices, 
-							/*D3DUSAGE_DYNAMIC*/D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &mpTextures[i][1].buffer ) ) )
+							D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &mpTextures[i][1].buffer ) ) )
 						{
 							Except( hr, "Failed to create texture vertex buffer", "D3D8RenderSystem::_render" );
 						}
@@ -1498,7 +1498,7 @@ namespace Ogre {
 					{
 						SAFE_RELEASE( mpTextures[i][2].buffer );
 						if( FAILED( hr = mpD3DDevice->CreateVertexBuffer( sizeof(float)*3*op.numVertices, 
-							/*D3DUSAGE_DYNAMIC*/D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &mpTextures[i][2].buffer ) ) )
+							D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &mpTextures[i][2].buffer ) ) )
 						{
 							Except( hr, "Failed to create texture vertex buffer", "D3D8RenderSystem::_render" );
 						}
@@ -1517,7 +1517,7 @@ namespace Ogre {
 					{
 						SAFE_RELEASE( mpTextures[i][3].buffer );
 						if( FAILED( hr = mpD3DDevice->CreateVertexBuffer( sizeof(float)*4*op.numVertices, 
-							/*D3DUSAGE_DYNAMIC*/D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &mpTextures[i][3].buffer ) ) )
+							D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &mpTextures[i][3].buffer ) ) )
 						{
 							Except( hr, "Failed to create texture vertex buffer", "D3D8RenderSystem::_render" );
 						}
@@ -1670,14 +1670,14 @@ namespace Ogre {
 			D3DCOLOR* pCol;
 			float* pFloat;
 			
-			if( FAILED( hr = mpXYZBuffer.buffer->Lock( 0, 0, (BYTE**)&pVec3, /*D3DLOCK_DISCARD*/0 ) ) )
+			if( FAILED( hr = mpXYZBuffer.buffer->Lock( 0, 0, (BYTE**)&pVec3, D3DLOCK_DISCARD ) ) )
 				Except( hr, "Failed to lock XYZ buffer", "D3D8RenderSystem::_render" );
 			memcpy( pVec3, op.pVertices, sizeof(D3DXVECTOR3)*op.numVertices );
 			mpXYZBuffer.buffer->Unlock();
 
 			if( op.vertexOptions & RenderOperation::VO_NORMALS )
 			{
-				if( FAILED( hr = mpNormalBuffer.buffer->Lock( 0, 0, (BYTE**)&pVec3, /*D3DLOCK_DISCARD*/0 ) ) )
+				if( FAILED( hr = mpNormalBuffer.buffer->Lock( 0, 0, (BYTE**)&pVec3, D3DLOCK_DISCARD ) ) )
 					Except( hr, "Failed to lock normal buffer", "D3D8RenderSystem::_render" );
 				memcpy( pVec3, op.pNormals, sizeof(D3DXVECTOR3)*op.numVertices );
 				mpNormalBuffer.buffer->Unlock();
@@ -1685,7 +1685,7 @@ namespace Ogre {
 
 			if( op.vertexOptions & RenderOperation::VO_DIFFUSE_COLOURS )
 			{
-				if( FAILED( hr = mpDiffuseBuffer.buffer->Lock( 0, 0, (BYTE**)&pCol, /*D3DLOCK_DISCARD*/0 ) ) )
+				if( FAILED( hr = mpDiffuseBuffer.buffer->Lock( 0, 0, (BYTE**)&pCol, D3DLOCK_DISCARD ) ) )
 					Except( hr, "Failed to lock diffuse buffer", "D3D8RenderSystem::_render" );
 				memcpy( pCol, op.pDiffuseColour, sizeof(D3DCOLOR)*op.numVertices );
 				mpDiffuseBuffer.buffer->Unlock();
@@ -1693,7 +1693,7 @@ namespace Ogre {
 
 			if( op.vertexOptions & RenderOperation::VO_SPECULAR_COLOURS )
 			{
-				if( FAILED( hr = mpSpecularBuffer.buffer->Lock( 0, 0, (BYTE**)&pCol, /*D3DLOCK_DISCARD*/0 ) ) )
+				if( FAILED( hr = mpSpecularBuffer.buffer->Lock( 0, 0, (BYTE**)&pCol, D3DLOCK_DISCARD ) ) )
 					Except( hr, "Failed to lock specular buffer", "D3D8RenderSystem::_render" );
 				memcpy( pCol, op.pSpecularColour, sizeof(D3DCOLOR)*op.numVertices );
 				mpSpecularBuffer.buffer->Unlock();
@@ -1701,7 +1701,7 @@ namespace Ogre {
 
 			for( i=0; i < op.numTextureCoordSets; i++ )
 			{
-				if( FAILED( hr = pTextureBuffers[i]->Lock( 0, 0, (BYTE**)&pFloat, /*D3DLOCK_DISCARD*/0 ) ) )
+				if( FAILED( hr = pTextureBuffers[i]->Lock( 0, 0, (BYTE**)&pFloat, D3DLOCK_DISCARD ) ) )
 					Except( hr, "Failed to lock texture buffer", "D3D8RenderSystem::_render" );
 				memcpy( pFloat, op.pTexCoords[i], pTextureBufferSizes[i]*op.numVertices );
 				pTextureBuffers[i]->Unlock();
@@ -1735,7 +1735,7 @@ namespace Ogre {
 			}
 			
 			BYTE* pByte;
-			if( FAILED( hr = mpIndicies.buffer->Lock( 0, 0, (BYTE**)&pByte, /*D3DLOCK_DISCARD*/0 ) ) )
+			if( FAILED( hr = mpIndicies.buffer->Lock( 0, 0, (BYTE**)&pByte, D3DLOCK_DISCARD ) ) )
 				Except( hr, "Failed to lock index buffer", "D3D8RenderSystem::_render" );
 			memcpy( pByte, op.pIndexes, op.numIndexes * sizeof(unsigned short) );
 			mpIndicies.buffer->Unlock();
