@@ -28,11 +28,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 
 #include "OgreSingleton.h"
-#include "OgreRenderWindow.h"
-#include "OgreConfigDialog.h"
-#include "OgreErrorDialog.h"
-#include "OgreTimer.h"
-
 
 namespace Ogre {
     typedef void (*DLL_CREATECONFIGDIALOG)(ConfigDialog** ppDlg);

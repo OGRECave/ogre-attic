@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreSDDataChunk.h"
 #include "OgreLogManager.h"
 #include "OgreStringConverter.h"
+#include "OgreRenderWindow.h"
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
