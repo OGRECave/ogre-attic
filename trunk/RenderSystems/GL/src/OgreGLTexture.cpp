@@ -212,24 +212,24 @@ namespace Ogre {
 					case TEX_TYPE_1D:
 						glTexImage1D(GL_TEXTURE_1D, mip, format,
 							width, 0, 
-							GL_RGBA, GL_UNSIGNED_INT, 0);
+							GL_RGBA, GL_UNSIGNED_BYTE, 0);
 	
 						break;
 					case TEX_TYPE_2D:
 						glTexImage2D(GL_TEXTURE_2D, mip, format,
 							width, height, 0, 
-							GL_RGBA, GL_UNSIGNED_INT, 0);
+							GL_RGBA, GL_UNSIGNED_BYTE, 0);
 						break;
 					case TEX_TYPE_3D:
 						glTexImage3D(GL_TEXTURE_3D, mip, format,
 							width, height, depth, 0, 
-							GL_RGBA, GL_UNSIGNED_INT, 0);
+							GL_RGBA, GL_UNSIGNED_BYTE, 0);
 						break;
 					case TEX_TYPE_CUBE_MAP:
 						for(int face=0; face<6; face++) {
 							glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, mip, format,
 								width, height, 0, 
-								GL_RGBA, GL_UNSIGNED_INT, 0);
+								GL_RGBA, GL_UNSIGNED_BYTE, 0);
 						}
 						break;
 				};
