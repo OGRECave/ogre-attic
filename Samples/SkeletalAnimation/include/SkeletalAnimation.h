@@ -82,7 +82,7 @@ protected:
         // Add entity to the root scene node
         mSceneMgr->getRootSceneNode()->createChild()->attachObject(ent);
 
-        mAnimState = ent->getAnimationState("Walk");
+        mAnimState = ent->getAnimationState("Die");
         mAnimState->setEnabled(true);
 
         // Give it a little ambience with lights

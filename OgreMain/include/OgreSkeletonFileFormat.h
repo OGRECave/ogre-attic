@@ -51,6 +51,7 @@ namespace Ogre {
         // Bones are assigned indexes automatically based on their order of declaration
         // starting with 0.
 
+            // char* name                       : name of the bone
             // unsigned short handle            : handle of the bone, should be contiguous & start at 0
             // Vector3 position                 : position of this bone relative to parent 
             // Quaternion orientation           : orientation of this bone relative to parent 

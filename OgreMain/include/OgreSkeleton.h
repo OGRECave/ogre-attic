@@ -126,6 +126,19 @@ namespace Ogre {
         */
         Bone* createBone(const String& name);
 
+        /** Creates a brand new Bone owned by this Skeleton. 
+        @remarks
+            This method creates an unattached new Bone for this skeleton and assigns it a 
+            specific name and handle. Unless this is to
+            be the root bone (there must only be one of these), you must
+            attach it to another Bone in the skeleton using addChild for it to be any use. 
+            For this reason you will likely be better off creating child bones using the
+            Bone::createChild method instead, once you have created the root bone. 
+        @param name The name to give to this new bone - must be unique within this skeleton. 
+        @param handle The handle to give to this new bone - must be unique within this skeleton. 
+        */
+        Bone* createBone(const String& name, unsigned short handle);
+
         /** Returns the number of bones in this skeleton. */
         unsigned short getNumBones(void) const;
 
