@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreFrameListener.h"
 #include "OgreSingleton.h"
 #include "OgreIteratorWrappers.h"
+#include "OgreScriptLoader.h"
 
 namespace Ogre {
 
@@ -52,7 +53,8 @@ namespace Ogre {
         describing named particle system templates. Instances of particle systems using these templates can
         then be created easily through the createParticleSystem method.
     */
-    class _OgreExport ParticleSystemManager: public Singleton<ParticleSystemManager>, public FrameListener
+    class _OgreExport ParticleSystemManager: public Singleton<ParticleSystemManager>, 
+        public FrameListener, public ScriptLoader
     {
 	public:
         typedef std::map<String, ParticleSystem> ParticleTemplateMap;
@@ -75,6 +77,8 @@ namespace Ogre {
 
 		/// Map of renderer types to factories
 		ParticleSystemRendererFactoryMap mRendererFactories;
+
+        StringVector mScriptPatterns;
 
 		/// Controls time
 		Real mTimeFactor;
@@ -318,13 +322,12 @@ namespace Ogre {
         */
         void _initialise(void);
 
-        /** Parses a particle system script file passed as a chunk.
-        */
-        void parseScript(DataStreamPtr& chunk);
-
-        /** Parses all particle system script files in resource folders & archives.
-        */
-        void parseAllSources(const String& extension = ".particle");
+        /// @copydoc ScriptLoader::getScriptPatterns
+        const StringVector& getScriptPatterns(void) const;
+        /// @copydoc ScriptLoader::parseScript
+        void parseScript(DataStreamPtr& stream, const String& groupName);
+        /// @copydoc ScriptLoader::getLoadingOrder
+        virtual Real getLoadingOrder(void) const;
 
 		/** Return relative speed of time as perceived by particle systems.
         @remarks

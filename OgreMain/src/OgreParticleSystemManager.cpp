@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRoot.h"
 #include "OgreLogManager.h"
 #include "OgreString.h"
+#include "OgreParticleSystemRenderer.h"
 
 
 namespace Ogre {
@@ -47,6 +48,8 @@ namespace Ogre {
     ParticleSystemManager::ParticleSystemManager()
     {
 		mTimeFactor = 1;
+        mScriptPatterns.push_back("*.particle");
+        ResourceGroupManager::getSingleton()._registerScriptLoader(this);
     }
     //-----------------------------------------------------------------------
     ParticleSystemManager::~ParticleSystemManager()
@@ -60,9 +63,21 @@ namespace Ogre {
             delete i->second;
         }
         mSystems.clear();
+        ResourceGroupManager::getSingleton()._unregisterScriptLoader(this);
     }
     //-----------------------------------------------------------------------
-    void ParticleSystemManager::parseScript(DataStreamPtr& chunk)
+    const StringVector& ParticleSystemManager::getScriptPatterns(void) const
+    {
+        return mScriptPatterns;
+    }
+    //-----------------------------------------------------------------------
+    Real ParticleSystemManager::getLoadingOrder(void) const
+    {
+        /// Load late
+        return 1000.0f;
+    }
+    //-----------------------------------------------------------------------
+    void ParticleSystemManager::parseScript(DataStreamPtr& stream, const String& groupName)
     {
         String line;
         ParticleSystem* pSys;
@@ -70,9 +85,9 @@ namespace Ogre {
 
         pSys = 0;
 
-        while(!chunk.isEOF())
+        while(!stream->eof())
         {
-            line = chunk.getLine();
+            line = stream->getLine();
             // Ignore comments & blanks
             if (!(line.length() == 0 || line.substr(0,2) == "//"))
             {
@@ -82,7 +97,7 @@ namespace Ogre {
                     // So first valid data should be a system name
                     pSys = createTemplate(line);
                     // Skip to and over next {
-                    skipToNextOpenBrace(chunk);
+                    skipToNextOpenBrace(stream);
                 }
                 else
                 {
@@ -102,11 +117,11 @@ namespace Ogre {
                             // Oops, bad emitter
                             LogManager::getSingleton().logMessage("Bad particle system emitter line: '"
                                 + line + "' in " + pSys->getName());
-                            skipToNextCloseBrace(chunk);
+                            skipToNextCloseBrace(stream);
 
                         }
-                        skipToNextOpenBrace(chunk);
-                        parseNewEmitter(vecparams[1], chunk, pSys);
+                        skipToNextOpenBrace(stream);
+                        parseNewEmitter(vecparams[1], stream, pSys);
 
                     }
                     else if (line.substr(0,8) == "affector")
@@ -119,11 +134,11 @@ namespace Ogre {
                             // Oops, bad emitter
                             LogManager::getSingleton().logMessage("Bad particle system affector line: '"
                                 + line + "' in " + pSys->getName());
-                            skipToNextCloseBrace(chunk);
+                            skipToNextCloseBrace(stream);
 
                         }
-                        skipToNextOpenBrace(chunk);
-                        parseNewAffector(vecparams[1],chunk, pSys);
+                        skipToNextOpenBrace(stream);
+                        parseNewAffector(vecparams[1],stream, pSys);
                     }
                     else
                     {
@@ -139,23 +154,6 @@ namespace Ogre {
         }
 
 
-    }
-    //-----------------------------------------------------------------------
-    void ParticleSystemManager::parseAllSources(const String& extension)
-    {
-        std::set<String> particleFiles;
-
-        particleFiles = ResourceManager::_getAllCommonNamesLike("./", extension);
-
-        // Iterate through returned files
-        std::set<String>::iterator i;
-        for (i = particleFiles.begin(); i != particleFiles.end(); ++i)
-        {
-            SDDataChunk chunk;
-            LogManager::getSingleton().logMessage("Parsing particle script " + *i);
-            ResourceManager::_findCommonResourceData(*i, chunk);
-            parseScript(chunk);
-        }
     }
     //-----------------------------------------------------------------------
     void ParticleSystemManager::addEmitterFactory(ParticleEmitterFactory* factory)
@@ -336,7 +334,7 @@ namespace Ogre {
                 "ParticleSystemManager::_createRenderer");
         }
 
-        return pFact->second->createInstance();
+        return pFact->second->createInstance(rendererType);
 	}
 	//-----------------------------------------------------------------------
     void ParticleSystemManager::_destroyRenderer(ParticleSystemRenderer* renderer)
@@ -379,20 +377,18 @@ namespace Ogre {
         // Register self as a frame listener
         Root::getSingleton().addFrameListener(this);
 
-        // Parse all scripts
-        parseAllSources();
     }
     //-----------------------------------------------------------------------
-    void ParticleSystemManager::parseNewEmitter(const String& type, DataStreamPtr& chunk, ParticleSystem* sys)
+    void ParticleSystemManager::parseNewEmitter(const String& type, DataStreamPtr& stream, ParticleSystem* sys)
     {
         // Create new emitter
         ParticleEmitter* pEmit = sys->addEmitter(type);
         // Parse emitter details
         String line;
 
-        while(!chunk.isEOF())
+        while(!stream->eof())
         {
-            line = chunk.getLine();
+            line = stream->getLine();
             // Ignore comments & blanks
             if (!(line.length() == 0 || line.substr(0,2) == "//"))
             {
@@ -414,16 +410,16 @@ namespace Ogre {
         
     }
     //-----------------------------------------------------------------------
-    void ParticleSystemManager::parseNewAffector(const String& type, DataStreamPtr& chunk, ParticleSystem* sys)
+    void ParticleSystemManager::parseNewAffector(const String& type, DataStreamPtr& stream, ParticleSystem* sys)
     {
         // Create new affector
         ParticleAffector* pAff = sys->addAffector(type);
         // Parse affector details
         String line;
 
-        while(!chunk.isEOF())
+        while(!stream->eof())
         {
-            line = chunk.getLine();
+            line = stream->getLine();
             // Ignore comments & blanks
             if (!(line.length() == 0 || line.substr(0,2) == "//"))
             {
@@ -490,22 +486,22 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void ParticleSystemManager::skipToNextCloseBrace(DataStreamPtr& chunk)
+    void ParticleSystemManager::skipToNextCloseBrace(DataStreamPtr& stream)
     {
         String line = "";
-        while (!chunk.isEOF() && line != "}")
+        while (!stream->eof() && line != "}")
         {
-            line = chunk.getLine();
+            line = stream->getLine();
         }
 
     }
     //-----------------------------------------------------------------------
-    void ParticleSystemManager::skipToNextOpenBrace(DataStreamPtr& chunk)
+    void ParticleSystemManager::skipToNextOpenBrace(DataStreamPtr& stream)
     {
         String line = "";
-        while (!chunk.isEOF() && line != "{")
+        while (!stream->eof() && line != "{")
         {
-            line = chunk.getLine();
+            line = stream->getLine();
         }
 
     }

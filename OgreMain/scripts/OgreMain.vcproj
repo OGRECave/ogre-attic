@@ -1089,6 +1089,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreSceneQuery.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreScriptLoader.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreScrollEvent.h">
 			</File>
 			<File
