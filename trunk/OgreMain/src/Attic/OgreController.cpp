@@ -37,6 +37,7 @@ namespace Ogre
         mFunc = func;
         mSource = src;
         mDest = dest;
+		mEnabled = true;
     }
     //-----------------------------------------------------------------------
     Controller::~Controller()
@@ -73,8 +74,20 @@ namespace Ogre
         return mFunc;
     }
     //-----------------------------------------------------------------------
+    void Controller::setEnabled(bool enabled)
+	{
+		mEnabled = enabled;
+	}
+    //-----------------------------------------------------------------------
+	bool Controller::getEnabled(void) const
+	{
+		return mEnabled;
+	}
+
+    //-----------------------------------------------------------------------
     void Controller::update(void)
     {
-        mDest->setValue(mFunc->calculate(mSource->getValue()));
+		if(mEnabled)
+			mDest->setValue(mFunc->calculate(mSource->getValue()));
     }
 }
