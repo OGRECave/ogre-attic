@@ -809,8 +809,8 @@ namespace Ogre
 		// set source image attributes
 		mSrcWidth = width; 
 		mSrcHeight = height; 
-		mSrcBpp = _getPFBpp(format); 
-        mHasAlpha = Image::formatHasAlpha(format); 
+		mSrcBpp = PixelUtil::getNumElemBits(format); 
+        mHasAlpha = PixelUtil::getFlags(format) & PFF_HASALPHA; 
 		// say to the world what we are doing
 		switch (this->getTextureType())
 		{
