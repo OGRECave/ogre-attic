@@ -403,13 +403,15 @@ namespace Ogre {
     void BillboardSet::_updateBounds(void)
     {
         Vector3 min, max;
+        min = max = Vector3::ZERO;
         ActiveBillboardList::iterator i, iend;
 
         iend = mActiveBillboards.end();
         for (i = mActiveBillboards.begin(); i != iend; ++i)
         {
-            min.makeFloor((*i)->getPosition());
-            max.makeCeil((*i)->getPosition());
+            const Vector3& pos = (*i)->getPosition();
+            min.makeFloor(pos);
+            max.makeCeil(pos);
         }
         // Adjust for billboard size
         Real adjust = std::max(mDefaultWidth, mDefaultHeight);
