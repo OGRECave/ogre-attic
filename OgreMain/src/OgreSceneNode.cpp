@@ -350,6 +350,11 @@ namespace Ogre {
     {
         return ObjectIterator(mObjectsByName.begin(), mObjectsByName.end());
     }
+	//-----------------------------------------------------------------------
+	SceneNode::ConstObjectIterator SceneNode::getAttachedObjectIterator(void) const
+	{
+		return ConstObjectIterator(mObjectsByName.begin(), mObjectsByName.end());
+	}
     //-----------------------------------------------------------------------
     SceneManager* SceneNode::getCreator(void) const
     {
