@@ -400,10 +400,19 @@ void TerrainRenderable::_notifyCurrentCamera( Camera* cam )
 
         // Bind the correct delta buffer if it has changed
         // nextLevel - 1 since the first entry is for LOD 1 (since LOD 0 never needs it)
-        if (mLastNextLevel != nextLevel && nextLevel > 0)
+        if (mLastNextLevel != nextLevel)
         {
-            mTerrain->vertexBufferBinding->setBinding(DELTA_BINDING, 
-                mDeltaBuffers[nextLevel - 1]);
+            if (nextLevel > 0)
+            {
+                mTerrain->vertexBufferBinding->setBinding(DELTA_BINDING, 
+                    mDeltaBuffers[nextLevel - 1]);
+            }
+            else
+            {
+                // bind dummy (incase bindings checked)
+                mTerrain->vertexBufferBinding->setBinding(DELTA_BINDING, 
+                    mDeltaBuffers[0]);
+            }
         }
         mLastNextLevel = nextLevel;
 

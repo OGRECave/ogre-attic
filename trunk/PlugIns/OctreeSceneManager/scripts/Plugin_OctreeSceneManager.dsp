@@ -130,6 +130,10 @@ SOURCE=..\src\OgreTerrainRenderable.cpp
 
 SOURCE=..\src\OgreTerrainSceneManager.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreTerrainVertexProgram.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -157,6 +161,10 @@ SOURCE=..\include\OgreTerrainRenderable.h
 # Begin Source File
 
 SOURCE=..\include\OgreTerrainSceneManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreTerrainVertexProgram.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

@@ -150,6 +150,9 @@
 			<File
 				RelativePath="..\src\OgreTerrainSceneManager.cpp">
 			</File>
+			<File
+				RelativePath="..\src\OgreTerrainVertexProgram.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -171,6 +174,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreTerrainSceneManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreTerrainVertexProgram.h">
 			</File>
 		</Filter>
 		<Filter
