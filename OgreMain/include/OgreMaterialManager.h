@@ -90,16 +90,6 @@ namespace Ogre {
         */
         virtual ~MaterialManager();
 
-        /** Adds a copy of a material created outside the MaterialManager to the master Material list.
-            @note
-                MaterialManager copies the Material so there are no memory management issues.
-                However note that the Material's internal handle will be regenerated to ensure uniqueness.
-            @par
-                Note it is usually better to just use the create() method instead.
-            @param mat A reference to a manually created Material
-            @returns A pointer to the newly created Material based on the one passed in
-        */
-        Material* add(const Material& mat);
 
         /** Overridden from ResourceManager, adds an existing Resource. */
         void add(Resource* res);

@@ -391,13 +391,6 @@ namespace Ogre {
         return Material::mDefaultSettings;
     }
     //-----------------------------------------------------------------------
-    void SceneManager::addMaterial(const Material& mat)
-    {
-        // Add using MaterialManager
-        /* Material* newMat = */ MaterialManager::getSingleton().add(mat);
-    }
-
-    //-----------------------------------------------------------------------
     Material* SceneManager::getMaterial(const String& name)
     {
         return (Material*)MaterialManager::getSingleton().getByName(name);

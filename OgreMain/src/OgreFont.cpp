@@ -35,6 +35,9 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreException.h"
 #include "OgreBlendMode.h"
 #include "OgreTextureUnitState.h"
+#include "OgreTechnique.h"
+#include "OgrePass.h"
+#include "OgreMaterial.h"
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
@@ -149,13 +152,13 @@ namespace Ogre
             if (mType == FT_TRUETYPE)
             {
                 createTextureFromFont();
-                texLayer = mpMaterial->getTextureLayer(0);
+                texLayer = mpMaterial->getTechnique(0)->getPass(0)->getTextureUnitState(0);
                 // Always blend by alpha
                 blendByAlpha = true;
             }
             else
             {
-                texLayer = mpMaterial->addTextureLayer(mSource);
+                texLayer = mpMaterial->getTechnique(0)->getPass(0)->createTextureUnitState(mSource);
                 Texture* tex = (Texture*)TextureManager::getSingleton().getByName(mSource);
 				if (!tex)
 				    Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find texture " + mSource,
@@ -168,12 +171,12 @@ namespace Ogre
             // Set up blending
             if (blendByAlpha)
             {
-                mpMaterial->setSceneBlending( SBT_TRANSPARENT_ALPHA );
+                mpMaterial->getTechnique(0)->getPass(0)->setSceneBlending( SBT_TRANSPARENT_ALPHA );
             }
             else
             {
                 // Use add if no alpha (assume black background)
-                mpMaterial->setSceneBlending(SBT_ADD);
+                mpMaterial->getTechnique(0)->getPass(0)->setSceneBlending(SBT_ADD);
             }
         }
         mIsLoaded = true;
@@ -344,7 +347,7 @@ namespace Ogre
 
         String texName = mName + "Texture";
         TextureManager::getSingleton().loadImage( texName , img );
-        mpMaterial->addTextureLayer( texName );
+        mpMaterial->getTechnique(0)->getPass(0)->createTextureUnitState( texName );
         
         // SDDatachunk will delete imageData
 

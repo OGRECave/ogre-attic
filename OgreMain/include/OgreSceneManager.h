@@ -336,15 +336,6 @@ namespace Ogre {
         */
         virtual Material* getDefaultMaterialSettings(void);
 
-        /** Adds a material created outside the SceneManager to it's internal
-            list.
-            @remarks
-                Note that SceneManager copies the Material so there are no memory
-                management issues. However note that the Material's internal
-                handle will be regenerated to ensure uniqueness.
-        */
-        virtual void addMaterial(const Material& mat);
-
         /** Gets a reference to a named Material.
         */
         virtual Material* getMaterial(const String& name);

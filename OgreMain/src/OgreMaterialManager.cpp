@@ -31,6 +31,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSDDataChunk.h"
 #include "OgreArchiveEx.h"
 #include "OgreStringConverter.h"
+#include "OgreBlendMode.h"
+#include "OgreTechnique.h"
+#include "OgrePass.h"
+#include "OgreTextureUnitState.h"
+#include "OgreException.h"
 
 namespace Ogre {
 
@@ -152,7 +157,7 @@ namespace Ogre {
 				    + pMat->getName() + ", unrecognised parameter '" + params[1] + "'");
 				return ;
 		    }
-		    pMat->setSceneBlending(stype);
+		    pMat->getTechnique(0)->getPass(0)->setSceneBlending(stype);
 
 	    }
 	    else if (numParams == 3)
@@ -163,7 +168,7 @@ namespace Ogre {
 		    try {
 			    src = convertBlendFactor(params[1]);
 			    dest = convertBlendFactor(params[2]);
-			    pMat->setSceneBlending(src,dest);
+			    pMat->getTechnique(0)->getPass(0)->setSceneBlending(src,dest);
 		    }
 		    catch (Exception& e)
 		    {
@@ -595,13 +600,13 @@ namespace Ogre {
 		    return;
 	    }
 	    if (params[1]=="none")
-		    pTex->setTextureLayerFiltering(TFO_NONE);
+		    pTex->setTextureFiltering(TFO_NONE);
 	    else if (params[1]=="bilinear")
-		    pTex->setTextureLayerFiltering(TFO_BILINEAR);
+		    pTex->setTextureFiltering(TFO_BILINEAR);
 	    else if (params[1]=="trilinear")
-		    pTex->setTextureLayerFiltering(TFO_TRILINEAR);
+		    pTex->setTextureFiltering(TFO_TRILINEAR);
 	    else if (params[1]=="anisotropic")
-		    pTex->setTextureLayerFiltering(TFO_ANISOTROPIC);
+		    pTex->setTextureFiltering(TFO_ANISOTROPIC);
 	    else
 		    LogManager::getSingleton().logMessage("Bad texture layer filtering attribute line in "
 			    + pMat->getName() + ", valid parameters are 'none', 'bilinear', 'trilinear' or 'anisotropic'.");
@@ -920,7 +925,7 @@ namespace Ogre {
 			    + pMat->getName() + ", wrong number of parameters (expected 2)");
 		    return;
 	    }
-	    pMat->setAnisotropy(atoi(params[1].c_str()));
+	    pMat->setTextureAnisotropy(atoi(params[1].c_str()));
     }
 	//-----------------------------------------------------------------------
     void parseLayerAnisotropy(StringVector::iterator& params, int numParams, Material* pMat, TextureUnitState* pTex)
@@ -944,6 +949,8 @@ namespace Ogre {
 		// Set up default material - don't use name contructor as we want to avoid applying defaults
 	    Material::mDefaultSettings = new Material();
 	    Material::mDefaultSettings->mName = "DefaultSettings";
+        // Add a single technique and pass, non-programmable
+        Material::mDefaultSettings->createTechnique()->createPass(false);
 
 	    // Set up a lit base white material
 	    this->create("BaseWhite");
@@ -1015,8 +1022,7 @@ namespace Ogre {
 			    {
 				    // No current material
 				    // So first valid data should be a material name
-				    // NB defer loading until later
-				    pMat = (Material*)createDeferred(line);
+				    pMat = (Material*)create(line);
 				    // Skip to and over next {
 				    chunk.readUpTo(tempBuf, 511, "{");
 			    }
@@ -1090,7 +1096,7 @@ namespace Ogre {
 	    String line;
 	    TextureUnitState* pLayer;
 
-	    pLayer = pMat->addTextureLayer("");
+	    pLayer = pMat->getTechnique(0)->getPass(0)->createTextureUnitState("");
 
 
 	    while (!chunk.isEOF())
@@ -1181,20 +1187,7 @@ namespace Ogre {
 	    return Singleton<MaterialManager>::getSingleton();
     }
     //-----------------------------------------------------------------------
-    Material* MaterialManager::add(const Material& mat)
-    {
-	    // Copy Material
-	    Material* newMat = new Material();
-	    *newMat = mat;
-	    if (newMat->getHandle() == -1)
-		    newMat->assignNextHandle();
-
-        this->add(newMat);
-
-	    return newMat;
-    }
-    //-----------------------------------------------------------------------
-    MaterialManager::add(Resource* res)
+    void MaterialManager::add(Resource* res)
     {
         // Call superclass
         ResourceManager::add(res);
@@ -1217,17 +1210,14 @@ namespace Ogre {
 	    }
     }
     //-----------------------------------------------------------------------
-    Material* MaterialManager::create( const String& name)
+    Resource* MaterialManager::create( const String& name)
     {
 	    // Check name not already used
 	    if (getByName(name) != 0)
 		    Except(Exception::ERR_DUPLICATE_ITEM, "Material " + name + " already exists.",
 			    "MaterialManager::create");
 
-	    Material* m = new Material(name, true);
-	    m->assignNextHandle();
-	    // Defer load until used
-
+	    Material* m = new Material(name);
         this->add(m);
 
 	    return m;
@@ -1236,9 +1226,6 @@ namespace Ogre {
 	void MaterialManager::setDefaultTextureFiltering(TextureFilterOptions fo)
 	{
 		mDefTextureFiltering = fo;
-		MaterialHandleList::iterator i;
-		for (i = mHandles.begin(); i != mHandles.end(); ++i)
-			i->second->_setDefTextureFiltering(mDefTextureFiltering);
 	}
     //-----------------------------------------------------------------------
 	TextureFilterOptions MaterialManager::getDefaultTextureFiltering() const
@@ -1249,9 +1236,6 @@ namespace Ogre {
 	void MaterialManager::setDefaultAnisotropy(int maxAniso)
 	{
 		mDefAniso = maxAniso;
-		MaterialHandleList::iterator i;
-		for (i = mHandles.begin(); i != mHandles.end(); ++i)
-			i->second->_setDefAnisotropy(mDefAniso);
 	}
     //-----------------------------------------------------------------------
 	int MaterialManager::getDefaultAnisotropy() const
