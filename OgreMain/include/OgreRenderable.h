@@ -73,7 +73,11 @@ namespace Ogre {
                 does use vertex blending it will fill the passed in pointer with an array of matrices,
                 the length being the value returned from getNumWorldTransforms.
         */
-        virtual void getWorldTransforms(Matrix4* xform) = 0;
+        virtual void getWorldTransforms(Matrix4* xform) const = 0;
+        /** @copydoc Renderable::getWorldOrientation */
+        virtual const Quaternion& getWorldOrientation(void) const = 0;
+        /** @copydoc Renderable::getWorldPosition */
+        virtual const Vector3& getWorldPosition(void) const = 0;
 
         /** Returns the number of world transform matrices this renderable requires.
         @remarks
@@ -118,6 +122,19 @@ namespace Ogre {
 
         /** Returns whether or not this Renderable wishes the hardware to normalise normals. */
         virtual bool getNormaliseNormals(void) { return false; }
+
+        /** Gets the worldspace orientation of this renderable; this is used in order to
+            more efficiently update parameters to vertex & fragment programs, since inverting Quaterion
+            and Vector in order to derive object-space positions / directions for cameras and
+            lights is much more efficient than inverting a complete 4x4 matrix, and also 
+            eliminates problems introduced by scaling. */
+        virtual const Quaternion& getWorldOrientation(void);
+        /** Gets the worldspace orientation of this renderable; this is used in order to
+            more efficiently update parameters to vertex & fragment programs, since inverting Quaterion
+            and Vector in order to derive object-space positions / directions for cameras and
+            lights is much more efficient than inverting a complete 4x4 matrix, and also 
+            eliminates problems introduced by scaling. */
+        virtual const Vector3& getWorldPosition(void);
 
     };
 

@@ -556,10 +556,20 @@ namespace Ogre {
         pSubMesh->_getRenderOperation(op);
     }
     //-----------------------------------------------------------------------
-    void Node::getWorldTransforms(Matrix4* xform)
+    void Node::getWorldTransforms(Matrix4* xform) const
     {
         // Assumes up to date
         *xform = this->_getFullTransform();
+    }
+    //-----------------------------------------------------------------------
+    const Quaternion& Node::getWorldOrientation(void) const
+    {
+        return _getDerivedOrientation();
+    }
+    //-----------------------------------------------------------------------
+    const Vector3& Node::getWorldPosition(void) const
+    {
+        return _getDerivedPosition();
     }
     //-----------------------------------------------------------------------
     void Node::setInitialState(void)

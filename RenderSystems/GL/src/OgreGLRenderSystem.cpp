@@ -1774,7 +1774,7 @@ namespace Ogre {
         // TODO
     }
 	//---------------------------------------------------------------------
-    void GLRenderSystem::bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParameters* params)
+    void GLRenderSystem::bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParametersSharedPtr params)
     {
         // TODO
     }

@@ -33,6 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreEventMulticaster.h"
 #include "OgreEventListeners.h"
 #include "OgreOverlayManager.h"
+#include "OgreException.h"
 
 namespace Ogre {
 
@@ -258,9 +259,19 @@ namespace Ogre {
         return mpMaterial;
     }
     //---------------------------------------------------------------------
-    void GuiElement::getWorldTransforms(Matrix4* xform)
+    void GuiElement::getWorldTransforms(Matrix4* xform) const
     {
         mOverlay->_getWorldTransforms(xform);
+    }
+    //-----------------------------------------------------------------------
+    const Quaternion& GuiElement::getWorldOrientation(void) const
+    {
+        return mOverlay->getWorldOrientation();
+    }
+    //-----------------------------------------------------------------------
+    const Vector3& GuiElement::getWorldPosition(void) const
+    {
+        return mOverlay->getWorldPosition();
     }
     //---------------------------------------------------------------------
     bool GuiElement::useIdentityProjection(void)

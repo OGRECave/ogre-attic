@@ -222,6 +222,9 @@ namespace Ogre {
 		/** Flag that indicates if all of the scene node's bounding boxes should be shown as a wireframe. */
 		bool mShowBoundingBoxes;       
 
+        /** Internal utility method for rendering a single object. */
+        virtual void renderSingleObject(Renderable* rend, Pass* pass);
+
     public:
         /** Default constructor.
         */
@@ -999,24 +1002,19 @@ namespace Ogre {
             let it do. However, there are times where it may be useful to have this manual interface,
             for example overlaying something on top of the scene rendered by OGRE.
         @par
-            Why use this instead of calling RenderSystem direct? Well, because SceneManagers cache
-            state information about the last requested operations in RenderSystem in order to minimise
-            render state changes, and you need to maintain this by ensuring calls go through the 
-            SceneManager. The other reason is that it's simpler: 1 call instead of many.
-        @par
             Because this is an instant rendering method, timing is important. The best 
             time to call it is from a RenderTargetListener event handler.
         @par
             Don't call this method a lot, it's designed for rare (1 or 2 times per frame) use. 
             Calling it regularly per frame will cause frame rate drops!
         @param rend A RenderOperation object describing the rendering op
-        @param mat The material to use
+        @param pass The Pass to use for this render
         @param vp Pointer to the viewport to render to
         @param worldMatrix The transform to apply from object to world space
         @param viewMatrix The transform to apply from world to view space
         @param projMatrix The transform to apply from view to screen space
         */
-        virtual void manualRender(RenderOperation* rend, Material* mat, Viewport* vp, 
+        virtual void manualRender(RenderOperation* rend, Pass* pass, Viewport* vp, 
             const Matrix4& worldMatrix, const Matrix4& viewMatrix, const Matrix4& projMatrix) ;
 
         /** Creates a new Overlay.

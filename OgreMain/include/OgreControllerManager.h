@@ -31,7 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSingleton.h"
 #include "OgreController.h"
 #include "OgrePredefinedControllers.h"
-#include "OgreMaterial.h"
+#include "OgreTextureUnitState.h"
 #include "OgreSharedPtr.h"
 
 namespace Ogre {

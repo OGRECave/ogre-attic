@@ -210,7 +210,7 @@ namespace Ogre
         void _render(const RenderOperation& op);
         void bindGpuProgram(GpuProgram* prg);
         void unbindGpuProgram(GpuProgramType gptype);
-        void bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParameters* params);
+        void bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParametersSharedPtr params);
 
 	};
 }

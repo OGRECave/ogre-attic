@@ -33,6 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMath.h"
 #include "OgreSphere.h"
 #include "OgreRoot.h"
+#include "OgreException.h"
 #include <algorithm>
 
 namespace Ogre {
@@ -546,11 +547,20 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void BillboardSet::getWorldTransforms( Matrix4* xform )
+    void BillboardSet::getWorldTransforms( Matrix4* xform ) const
     {
         *xform = _getParentNodeFullTransform(); 
     }
-
+    //-----------------------------------------------------------------------
+    const Quaternion& BillboardSet::getWorldOrientation(void) const
+    {
+        return mParentNode->_getDerivedOrientation();
+    }
+    //-----------------------------------------------------------------------
+    const Vector3& BillboardSet::getWorldPosition(void) const
+    {
+        return mParentNode->_getDerivedPosition();
+    }
     //-----------------------------------------------------------------------
     void BillboardSet::setAutoextend( bool autoextend )
     {

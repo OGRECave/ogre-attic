@@ -29,6 +29,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSceneManager.h"
 #include "OgreGuiContainer.h"
 #include "OgreCamera.h"
+#include "OgreQuaternion.h"
+#include "OgreVector3.h"
 
 
 namespace Ogre {
@@ -198,7 +200,7 @@ namespace Ogre {
         return mScaleY;
     }
     //---------------------------------------------------------------------
-    void Overlay::_getWorldTransforms(Matrix4* xform)
+    void Overlay::_getWorldTransforms(Matrix4* xform) const
     {
         if (mTransformOutOfDate)
         {
@@ -206,6 +208,18 @@ namespace Ogre {
         }
         *xform = mTransform;
 
+    }
+    //-----------------------------------------------------------------------
+    const Quaternion& Overlay::getWorldOrientation(void) const
+    {
+        // n/a
+        return Quaternion::IDENTITY;
+    }
+    //-----------------------------------------------------------------------
+    const Vector3& Overlay::getWorldPosition(void) const
+    {
+        // n/a
+        return Vector3::ZERO;
     }
     //---------------------------------------------------------------------
     void Overlay::_findVisibleObjects(Camera* cam, RenderQueue* queue)
@@ -237,7 +251,7 @@ namespace Ogre {
        
     }
     //---------------------------------------------------------------------
-    void Overlay::updateTransform(void)
+    void Overlay::updateTransform(void) const
     {
         // Ordering:
         //    1. Scale

@@ -382,7 +382,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParameters* params);
+        void bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParametersSharedPtr params);
 
         // ----------------------------------
         // End Overridden members

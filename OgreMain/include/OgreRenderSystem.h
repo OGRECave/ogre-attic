@@ -807,7 +807,7 @@ namespace Ogre
         virtual void bindGpuProgram(GpuProgram* prg) = 0;
 
         /** Bind Gpu program parameters. */
-        virtual void bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParameters* params) = 0;
+        virtual void bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParametersSharedPtr params) = 0;
         /** Unbinds GpuPrograms of a given GpuProgramType.
         @remarks
             This returns the pipeline to fixed-function processing for this type.

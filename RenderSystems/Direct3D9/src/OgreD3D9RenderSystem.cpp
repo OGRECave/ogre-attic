@@ -671,7 +671,7 @@ namespace Ogre
                 return "ps_1_2";
             case 3:
                 return "ps_1_3";
-            case 3:
+            case 4:
                 return "ps_1_4";
             }
         case 2:
@@ -1983,7 +1983,8 @@ namespace Ogre
         };
     }
 	//---------------------------------------------------------------------
-    void D3D9RenderSystem::bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParameters* params)
+    void D3D9RenderSystem::bindGpuProgramParameters(GpuProgramType gptype, 
+        GpuProgramParametersSharedPtr params)
     {
         HRESULT hr;
         // D3D can only accept constant parameters in multiples of 4
