@@ -55,7 +55,7 @@ namespace Ogre {
         void parseNewElement( DataChunk& chunk, String& elemType, String& elemName, 
             bool isContainer, Overlay* pOverlay, bool isTemplate, String templateName = String(""), GuiContainer* container = 0);
         void parseAttrib( const String& line, Overlay* pOverlay);
-        void parseElementAttrib( const String& line, Overlay* pOverlay, GuiElement* pElement );
+        void parseElementAttrib( const String& line, Overlay* pOverlay, OverlayElement* pElement );
         void parseNewMesh(DataChunk& chunk, String& meshName, String& entityName, Overlay* pOverlay);
         void skipToNextCloseBrace(DataChunk& chunk);
         void skipToNextOpenBrace(DataChunk& chunk);
@@ -87,7 +87,7 @@ namespace Ogre {
         void _queueOverlaysForRendering(Camera* cam, RenderQueue* pQueue, Viewport *vp);
 
         /** Method for determining if the viewport has changed dimensions. 
-        @remarks This is used by pixel-based GuiElements to work out if they need to
+        @remarks This is used by pixel-based OverlayElements to work out if they need to
             reclaculate their sizes.
         */
         bool hasViewportChanged(void) const;

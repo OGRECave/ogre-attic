@@ -146,7 +146,7 @@ namespace Ogre {
 	}
 
     //-----------------------------------------------------------------------
-	void ButtonGuiElement::changeChild(GuiElement* e, Real add)
+	void ButtonGuiElement::changeChild(OverlayElement* e, Real add)
 	{
 		e->setLeft(e->getLeft() + add);
 		e->setTop(e->getTop() + add);
@@ -251,7 +251,7 @@ namespace Ogre {
 		if (mInsideObject)
 		{
 			removeChild(mInsideObject->getName());
-			GuiManager::getSingleton().destroyGuiElement(mInsideObject);
+			GuiManager::getSingleton().destroyOverlayElement(mInsideObject);
 			mInsideObject = NULL;
 		}
 		if (name == "")
@@ -260,7 +260,7 @@ namespace Ogre {
 		}
 
 		mInsideObject = 
-			GuiManager::getSingleton().createGuiElementFromTemplate(templateName, "", mName + "/caption");
+			GuiManager::getSingleton().createOverlayElementFromTemplate(templateName, "", mName + "/caption");
 
 		// change left/top etc to relative
 //		mInsideObject->setLeft(mInsideObject->getLeft()*mWidth);

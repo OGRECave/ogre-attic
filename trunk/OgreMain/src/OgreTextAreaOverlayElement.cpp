@@ -49,7 +49,7 @@ namespace Ogre {
     #define COLOUR_BINDING 1
     //---------------------------------------------------------------------
     TextAreaOverlayElement::TextAreaOverlayElement(const String& name)
-        : GuiElement(name)
+        : OverlayElement(name)
     {
         mTransparent = false;
         mAlignment = Left;
@@ -409,13 +409,13 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void TextAreaOverlayElement::setMaterialName(const String& matName)
     {
-        GuiElement::setMaterialName(matName);
+        OverlayElement::setMaterialName(matName);
         updateGeometry();
     }
     //---------------------------------------------------------------------
     void TextAreaOverlayElement::addBaseParameters(void)
     {
-        GuiElement::addBaseParameters();
+        OverlayElement::addBaseParameters();
         ParamDictionary* dict = getParamDictionary();
 
         dict->addParameter(ParameterDef("char_height", 
@@ -531,7 +531,7 @@ namespace Ogre {
         vpHeight = (Real) (OverlayManager::getSingleton().getViewportHeight());
 		mViewportAspectCoef = vpHeight/vpWidth;
 
-		GuiElement::setMetricsMode(gmm);
+		OverlayElement::setMetricsMode(gmm);
         if (gmm != GMM_RELATIVE)
         {
             // Set pixel variables based on viewport multipliers
@@ -558,7 +558,7 @@ namespace Ogre {
             mSpaceWidth = (Real) mPixelSpaceWidth / vpHeight;
 			mGeomPositionsOutOfDate = true;
         }
-        GuiElement::_update();
+        OverlayElement::_update();
     }
     //---------------------------------------------------------------------------------------------
     // Char height command object

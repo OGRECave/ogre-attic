@@ -139,12 +139,12 @@ namespace Ogre {
 		if (mTextArea)
 		{
 			removeChild(mTextArea->getName());
-			GuiManager::getSingleton().destroyGuiElement(mTextArea);
+			GuiManager::getSingleton().destroyOverlayElement(mTextArea);
 			mTextArea = NULL;
 		}
 
 		mTextArea = static_cast<TextAreaOverlayElement*>
-			(GuiManager::getSingleton().createGuiElementFromTemplate(mTextAreaTemplateName, "", mName + "/textArea"));
+			(GuiManager::getSingleton().createOverlayElementFromTemplate(mTextAreaTemplateName, "", mName + "/textArea"));
 
 		mCaption = name;
 		setCaptionToTextArea();
@@ -174,12 +174,12 @@ namespace Ogre {
 		if (mBackPanel)
 		{
 			removeChild(mBackPanel->getName());
-			GuiManager::getSingleton().destroyGuiElement(mBackPanel);
+			GuiManager::getSingleton().destroyOverlayElement(mBackPanel);
 			mBackPanel = NULL;
 		}
 
 		mBackPanel = static_cast<GuiContainer*>
-			(GuiManager::getSingleton().createGuiElementFromTemplate(mBackPanelTemplateName, "", mName + "/backPanel"));
+			(GuiManager::getSingleton().createOverlayElementFromTemplate(mBackPanelTemplateName, "", mName + "/backPanel"));
 
 		// do not make this cloneable, otherwise there will be 2 copies of it when it is cloned,
 		// one copy when the children are copied, and another copy when setTextArea is set.

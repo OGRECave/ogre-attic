@@ -46,7 +46,6 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreGpuProgramUsage.cpp \
                          OgreGuiContainer.cpp \
                          OgreGuiControl.cpp \
-						 OgreGuiElement.cpp \
                          OgreGuiElementCommands.cpp \
                          OgreGuiManager.cpp \
 						 OgreGuiPressable.cpp \
@@ -86,6 +85,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
 						 OgreMovablePlane.cpp \
                          OgreNode.cpp \
                          OgreOverlay.cpp \
+						 OgreOverlayElement.cpp \
                          OgreOverlayManager.cpp \
                          OgrePanelOverlayElement.cpp \
                          OgreParticleEmitter.cpp \

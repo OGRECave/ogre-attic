@@ -68,9 +68,9 @@ namespace Ogre {
 		bool mSetCaptionDisabledColor;
 
         static String msTypeName;
-		GuiElement* mInsideObject;
+		OverlayElement* mInsideObject;
 		
-		void changeChild(GuiElement* e, Real add);
+		void changeChild(OverlayElement* e, Real add);
 
 	public :
 		const String& getTypeName(void) const;

@@ -34,7 +34,7 @@ namespace Ogre {
 
     /** This class acts as a repository and regitrar of overlay components.
     @remarks
-        GuiManager's job is to manage the lifecycle of GuiElement (subclass)
+        GuiManager's job is to manage the lifecycle of OverlayElement (subclass)
         instances, and also to register plugin suppliers of new components.
     */
     class _OgreExport GuiManager : public Singleton<GuiManager>
@@ -42,60 +42,60 @@ namespace Ogre {
     public:
         GuiManager();
         virtual ~GuiManager();
-        /** Creates a new GuiElement of the type requested.
+        /** Creates a new OverlayElement of the type requested.
         @remarks
             The type of element to create is passed in as a string because this
             allows plugins to register new types of component.
         @param typeName The type of element to create.
         @param instanceName The name to give the new instance.
         */
-        GuiElement* createGuiElement(const String& typeName, const String& instanceName, bool isTemplate = false);
+        OverlayElement* createOverlayElement(const String& typeName, const String& instanceName, bool isTemplate = false);
 
         /** Gets a reference to an existing element. */
-        GuiElement* getGuiElement(const String& name, bool isTemplate = false);
+        OverlayElement* getOverlayElement(const String& name, bool isTemplate = false);
         
-        /** Destroys a GuiElement. 
+        /** Destroys a OverlayElement. 
         @remarks
             Make sure you're not still using this in an Overlay. If in
             doubt, let OGRE destroy elements on shutdown.
         */
-        void destroyGuiElement(const String& instanceName, bool isTemplate = false);
+        void destroyOverlayElement(const String& instanceName, bool isTemplate = false);
 
-        /** Destroys a GuiElement. 
+        /** Destroys a OverlayElement. 
         @remarks
             Make sure you're not still using this in an Overlay. If in
             doubt, let OGRE destroy elements on shutdown.
         */
-        void destroyGuiElement(GuiElement* pInstance, bool isTemplate = false);
+        void destroyOverlayElement(OverlayElement* pInstance, bool isTemplate = false);
 
-        /** Destroys all the GuiElement  created so far.
+        /** Destroys all the OverlayElement  created so far.
         @remarks
             Best to leave this to the engine to call internally, there
             should rarely be a need to call it yourself.
         */
-        void destroyAllGuiElements(bool isTemplate = false);
+        void destroyAllOverlayElements(bool isTemplate = false);
 
 
 
 
-        /** Registers a new GuiElementFactory with this manager.
+        /** Registers a new OverlayElementFactory with this manager.
         @remarks
             Should be used by plugins or other apps wishing to provide
-            a new GuiElement subclass.
+            a new OverlayElement subclass.
         */
-        void addGuiElementFactory(GuiElementFactory* elemFactory);
+        void addOverlayElementFactory(OverlayElementFactory* elemFactory);
 
-        GuiElement* createGuiElementFromTemplate(const String& templateName, const String& typeName, const String& instanceName, bool isTemplate = false);
+        OverlayElement* createOverlayElementFromTemplate(const String& templateName, const String& typeName, const String& instanceName, bool isTemplate = false);
         /**
          *  @remarks
-         *  Creates a new GuiElement object from the specified template name.  The new
+         *  Creates a new OverlayElement object from the specified template name.  The new
          *  object's name, and all of it's children, will be instanceName/orignalName.
          */
-        GuiElement* cloneGuiElementFromTemplate(const String& templateName, const String& instanceName);
+        OverlayElement* cloneOverlayElementFromTemplate(const String& templateName, const String& instanceName);
 
-        GuiElement* createGuiElementFromFactory(const String& typeName, const String& instanceName);
+        OverlayElement* createOverlayElementFromFactory(const String& typeName, const String& instanceName);
 
-        typedef std::map<String, GuiElement*> ElementMap;
+        typedef std::map<String, OverlayElement*> ElementMap;
         typedef MapIterator<ElementMap> TemplateIterator;
         /** Returns an iterator over all templates in this manager.*/
         TemplateIterator getTemplateIterator ()
@@ -140,7 +140,7 @@ namespace Ogre {
         */
         static GuiManager* getSingletonPtr(void);
 	protected:
-        typedef std::map<String, GuiElementFactory*> FactoryMap;
+        typedef std::map<String, OverlayElementFactory*> FactoryMap;
         FactoryMap mFactories;
 
         ElementMap mInstances;
@@ -150,15 +150,15 @@ namespace Ogre {
 
 	    ElementMap& getElementMap(bool isTemplate);
 
-        GuiElement* createGuiElementImpl(const String& typeName, const String& instanceName, ElementMap& elementMap);
+        OverlayElement* createOverlayElementImpl(const String& typeName, const String& instanceName, ElementMap& elementMap);
 
-        GuiElement* getGuiElementImpl(const String& name, ElementMap& elementMap);
+        OverlayElement* getOverlayElementImpl(const String& name, ElementMap& elementMap);
         
-        void destroyGuiElementImpl(const String& instanceName, ElementMap& elementMap);
+        void destroyOverlayElementImpl(const String& instanceName, ElementMap& elementMap);
 
-        void destroyGuiElementImpl(GuiElement* pInstance, ElementMap& elementMap);
+        void destroyOverlayElementImpl(OverlayElement* pInstance, ElementMap& elementMap);
 
-        void destroyAllGuiElementsImpl(ElementMap& elementMap);
+        void destroyAllOverlayElementsImpl(ElementMap& elementMap);
 
     };
 

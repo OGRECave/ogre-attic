@@ -135,7 +135,7 @@ namespace Ogre {
 		mUpButtonName = val;
 		Real buttonSize = getWidth();
 		mUpButton = static_cast<ButtonGuiElement*> (
-			GuiManager::getSingleton().createGuiElementFromTemplate(mUpButtonName, "", mName + "/" + "UpButton"));
+			GuiManager::getSingleton().createOverlayElementFromTemplate(mUpButtonName, "", mName + "/" + "UpButton"));
 
 
 		// do not make this cloneable, otherwise there will be 2 copies of it when it is cloned,
@@ -151,7 +151,7 @@ namespace Ogre {
 		Real buttonSize = getWidth();
 		mDownButtonName = val;
 		mDownButton = static_cast<ButtonGuiElement*> (
-			GuiManager::getSingleton().createGuiElementFromTemplate(mDownButtonName, "", mName + "/" + "DownButton"));
+			GuiManager::getSingleton().createOverlayElementFromTemplate(mDownButtonName, "", mName + "/" + "DownButton"));
 
 		// do not make this cloneable, otherwise there will be 2 copies of it when it is cloned,
 		// one copy when the children are copied, and another copy when setDownButtonName is set.
@@ -165,7 +165,7 @@ namespace Ogre {
 		Real buttonSize = getWidth();
 		mScrollBitName = val;
 		mScrollBit = static_cast<PanelOverlayElement*> (
-			GuiManager::getSingleton().createGuiElementFromTemplate(mScrollBitName, "", mName + "/" + "ScrollBit"));
+			GuiManager::getSingleton().createOverlayElementFromTemplate(mScrollBitName, "", mName + "/" + "ScrollBit"));
 		// do not make this cloneable, otherwise there will be 2 copies of it when it is cloned,
 		// one copy when the children are copied, and another copy when setScrollBitName is set.
 		mScrollBit->setCloneable(false);
@@ -320,12 +320,12 @@ namespace Ogre {
 		Real vertSpacing = (mSpacing * 4.0F) / 3.0F;
 
 		Real mouseY = e->getY() - mDerivedTop;
-		if ((MouseTarget*)e->getSource() == (GuiElement*)(mScrollBit))
+		if ((MouseTarget*)e->getSource() == (OverlayElement*)(mScrollBit))
 		{
 			mouseHeldAtY = mouseY;
 			mouseDragBitOffset = e->getY() - getTop() - mScrollBit->getTop();
 		}
-		else if ((MouseTarget*)e->getSource() == (GuiElement*)this)
+		else if ((MouseTarget*)e->getSource() == (OverlayElement*)this)
 		{
 			size_t newStartingItem = (int)mStartingItem;
 			if ( mouseY < mScrollBit->getTop() )

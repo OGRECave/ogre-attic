@@ -24,7 +24,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreStableHeaders.h"
 #include "OgreGuiElementCommands.h"
-#include "OgreGuiElement.h"
+#include "OgreOverlayElement.h"
 #include "OgreStringConverter.h"
 
 
@@ -36,63 +36,63 @@ namespace Ogre {
         String CmdLeft::doGet(const void* target) const
         {
             return StringConverter::toString(
-                static_cast<const GuiElement*>(target)->getLeft() );
+                static_cast<const OverlayElement*>(target)->getLeft() );
         }
         void CmdLeft::doSet(void* target, const String& val)
         {
-            static_cast<GuiElement*>(target)->setLeft(StringConverter::parseReal(val));
+            static_cast<OverlayElement*>(target)->setLeft(StringConverter::parseReal(val));
         }
         //-----------------------------------------------------------------------
         String CmdTop::doGet(const void* target) const
         {
             return StringConverter::toString(
-                static_cast<const GuiElement*>(target)->getTop() );
+                static_cast<const OverlayElement*>(target)->getTop() );
         }
         void CmdTop::doSet(void* target, const String& val)
         {
-            static_cast<GuiElement*>(target)->setTop(StringConverter::parseReal(val));
+            static_cast<OverlayElement*>(target)->setTop(StringConverter::parseReal(val));
         }
         //-----------------------------------------------------------------------
         String CmdWidth::doGet(const void* target) const
         {
             return StringConverter::toString(
-                static_cast<const GuiElement*>(target)->getWidth() );
+                static_cast<const OverlayElement*>(target)->getWidth() );
         }
         void CmdWidth::doSet(void* target, const String& val)
         {
-            static_cast<GuiElement*>(target)->setWidth(StringConverter::parseReal(val));
+            static_cast<OverlayElement*>(target)->setWidth(StringConverter::parseReal(val));
         }
         //-----------------------------------------------------------------------
         String CmdHeight::doGet(const void* target) const
         {
             return StringConverter::toString(
-                static_cast<const GuiElement*>(target)->getHeight() );
+                static_cast<const OverlayElement*>(target)->getHeight() );
         }
         void CmdHeight::doSet(void* target, const String& val)
         {
-            static_cast<GuiElement*>(target)->setHeight(StringConverter::parseReal(val));
+            static_cast<OverlayElement*>(target)->setHeight(StringConverter::parseReal(val));
         }
         //-----------------------------------------------------------------------
         String CmdMaterial::doGet(const void* target) const
         {
-            return static_cast<const GuiElement*>(target)->getMaterialName();
+            return static_cast<const OverlayElement*>(target)->getMaterialName();
         }
         void CmdMaterial::doSet(void* target, const String& val)
         {
 			if (val != "")
 			{
-				static_cast<GuiElement*>(target)->setMaterialName(val);
+				static_cast<OverlayElement*>(target)->setMaterialName(val);
 			}
         }
         //-----------------------------------------------------------------------
         //-----------------------------------------------------------------------
         String CmdCaption::doGet(const void* target) const
         {
-            return static_cast<const GuiElement*>(target)->getCaption();
+            return static_cast<const OverlayElement*>(target)->getCaption();
         }
         void CmdCaption::doSet(void* target, const String& val)
         {
-            static_cast<GuiElement*>(target)->setCaption(val);
+            static_cast<OverlayElement*>(target)->setCaption(val);
         }
         //-----------------------------------------------------------------------
         //-----------------------------------------------------------------------
@@ -100,7 +100,7 @@ namespace Ogre {
         String CmdMetricsMode::doGet(const void* target) const
         {
             GuiMetricsMode gmm = 
-                static_cast<const GuiElement*>(target)->getMetricsMode();
+                static_cast<const OverlayElement*>(target)->getMetricsMode();
 
             switch (gmm)
             {
@@ -118,15 +118,15 @@ namespace Ogre {
         {
             if (val == "pixels")
             {
-                static_cast<GuiElement*>(target)->setMetricsMode(GMM_PIXELS);
+                static_cast<OverlayElement*>(target)->setMetricsMode(GMM_PIXELS);
             }
             else if (val == "relative_aspect_adjusted")
             {
-                static_cast<GuiElement*>(target)->setMetricsMode(GMM_RELATIVE_ASPECT_ADJUSTED);
+                static_cast<OverlayElement*>(target)->setMetricsMode(GMM_RELATIVE_ASPECT_ADJUSTED);
             }
             else
             {
-                static_cast<GuiElement*>(target)->setMetricsMode(GMM_RELATIVE);
+                static_cast<OverlayElement*>(target)->setMetricsMode(GMM_RELATIVE);
             }
         }
         //-----------------------------------------------------------------------
@@ -135,7 +135,7 @@ namespace Ogre {
         String CmdHorizontalAlign::doGet(const void* target) const
         {
             GuiHorizontalAlignment gha = 
-                static_cast<const GuiElement*>(target)->getHorizontalAlignment();
+                static_cast<const OverlayElement*>(target)->getHorizontalAlignment();
             switch(gha)
             {
             case GHA_LEFT:
@@ -152,15 +152,15 @@ namespace Ogre {
         {
             if (val == "left")
             {
-                static_cast<GuiElement*>(target)->setHorizontalAlignment(GHA_LEFT);
+                static_cast<OverlayElement*>(target)->setHorizontalAlignment(GHA_LEFT);
             }
             else if (val == "right")
             {
-                static_cast<GuiElement*>(target)->setHorizontalAlignment(GHA_RIGHT);
+                static_cast<OverlayElement*>(target)->setHorizontalAlignment(GHA_RIGHT);
             }
             else
             {
-                static_cast<GuiElement*>(target)->setHorizontalAlignment(GHA_CENTER);
+                static_cast<OverlayElement*>(target)->setHorizontalAlignment(GHA_CENTER);
             }
         }
         //-----------------------------------------------------------------------
@@ -169,7 +169,7 @@ namespace Ogre {
         String CmdVerticalAlign::doGet(const void* target) const
         {
             GuiVerticalAlignment gva = 
-                static_cast<const GuiElement*>(target)->getVerticalAlignment();
+                static_cast<const OverlayElement*>(target)->getVerticalAlignment();
             switch(gva)
             {
             case GVA_TOP:
@@ -186,15 +186,15 @@ namespace Ogre {
         {
             if (val == "top")
             {
-                static_cast<GuiElement*>(target)->setVerticalAlignment(GVA_TOP);
+                static_cast<OverlayElement*>(target)->setVerticalAlignment(GVA_TOP);
             }
             else if (val == "bottom")
             {
-                static_cast<GuiElement*>(target)->setVerticalAlignment(GVA_BOTTOM);
+                static_cast<OverlayElement*>(target)->setVerticalAlignment(GVA_BOTTOM);
             }
             else
             {
-                static_cast<GuiElement*>(target)->setVerticalAlignment(GVA_CENTER);
+                static_cast<OverlayElement*>(target)->setVerticalAlignment(GVA_CENTER);
             }
         }
         //-----------------------------------------------------------------------
@@ -204,7 +204,7 @@ namespace Ogre {
         String CmdVisible::doGet(const void* target) const
         {
             bool visible = 
-                static_cast<const GuiElement*>(target)->isVisible();
+                static_cast<const OverlayElement*>(target)->isVisible();
             switch(visible)
             {
             case true:
@@ -219,11 +219,11 @@ namespace Ogre {
         {
             if (val == "true")
             {
-                static_cast<GuiElement*>(target)->show();
+                static_cast<OverlayElement*>(target)->show();
             }
             else if (val == "false")
             {
-                static_cast<GuiElement*>(target)->hide();
+                static_cast<OverlayElement*>(target)->hide();
             }
         }
         //-----------------------------------------------------------------------

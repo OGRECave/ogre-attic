@@ -188,8 +188,6 @@ namespace Ogre {
     class GpuProgram;
     class GpuProgramManager;
 	class GpuProgramUsage;
-    class GuiElement;
-    class GuiElementFactory;
     class GuiManager;
     class HardwareIndexBuffer;
     class HardwareOcclusionQuery;
@@ -230,6 +228,8 @@ namespace Ogre {
 	class MouseTarget;
     class Node;
     class Overlay;
+    class OverlayElement;
+    class OverlayElementFactory;
     class OverlayManager;
     class Particle;
     class ParticleAffector;

@@ -27,7 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __GuiElementFactories_H__
 
 #include "OgreGuiElementPrerequisites.h"
-#include "OgreGuiElementFactory.h"
+#include "OgreOverlayElementFactory.h"
 #include "OgreCursorGuiElement.h"
 #include "OgrePanelOverlayElement.h"
 #include "OgreBorderPanelOverlayElement.h"
@@ -40,21 +40,21 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreTTYGuiElement.h"
 
 
-// This file includes definitions for all the GuiElement factories provided with OGRE
+// This file includes definitions for all the OverlayElement factories provided with OGRE
 // These classes are exported incase anyone wants to extend them
 
 namespace Ogre {
 
     /** Factory for creating PanelOverlayElement instances. */
-    class _OgreGuiElementExport CursorGuiElementFactory: public GuiElementFactory
+    class _OgreGuiElementExport CursorGuiElementFactory: public OverlayElementFactory
     {
     public:
-        /** See GuiElementFactory */
-        GuiElement* createGuiElement(const String& instanceName)
+        /** See OverlayElementFactory */
+        OverlayElement* createOverlayElement(const String& instanceName)
         {
             return new CursorGuiElement(instanceName);
         }
-        /** See GuiElementFactory */
+        /** See OverlayElementFactory */
         const String& getTypeName(void) const
         {
             static String name = "Cursor";
@@ -63,15 +63,15 @@ namespace Ogre {
     };
 
     /** Factory for creating PanelOverlayElement instances. */
-    class _OgreGuiElementExport PanelGuiElementFactory: public GuiElementFactory
+    class _OgreGuiElementExport PanelGuiElementFactory: public OverlayElementFactory
     {
     public:
-        /** See GuiElementFactory */
-        GuiElement* createGuiElement(const String& instanceName)
+        /** See OverlayElementFactory */
+        OverlayElement* createOverlayElement(const String& instanceName)
         {
             return new PanelOverlayElement(instanceName);
         }
-        /** See GuiElementFactory */
+        /** See OverlayElementFactory */
         const String& getTypeName(void) const
         {
             static String name = "Panel";
@@ -80,15 +80,15 @@ namespace Ogre {
     };
 
     /** Factory for creating BorderPanelOverlayElement instances. */
-    class _OgreGuiElementExport BorderPanelGuiElementFactory: public GuiElementFactory
+    class _OgreGuiElementExport BorderPanelGuiElementFactory: public OverlayElementFactory
     {
     public:
-        /** See GuiElementFactory */
-        GuiElement* createGuiElement(const String& instanceName)
+        /** See OverlayElementFactory */
+        OverlayElement* createOverlayElement(const String& instanceName)
         {
             return new BorderPanelOverlayElement(instanceName);
         }
-        /** See GuiElementFactory */
+        /** See OverlayElementFactory */
         const String& getTypeName(void) const
         {
             static String name = "BorderPanel";
@@ -97,15 +97,15 @@ namespace Ogre {
     };
 
     /** Factory for creating TextAreaOverlayElement instances. */
-    class _OgreGuiElementExport TextAreaGuiElementFactory: public GuiElementFactory
+    class _OgreGuiElementExport TextAreaGuiElementFactory: public OverlayElementFactory
     {
     public:
-        /** See GuiElementFactory */
-        GuiElement* createGuiElement(const String& instanceName)
+        /** See OverlayElementFactory */
+        OverlayElement* createOverlayElement(const String& instanceName)
         {
             return new TextAreaOverlayElement(instanceName);
         }
-        /** See GuiElementFactory */
+        /** See OverlayElementFactory */
         const String& getTypeName(void) const
         {
             static String name = "TextArea";
@@ -114,15 +114,15 @@ namespace Ogre {
     };
 
     /** Factory for creating TextBoxGuiElement instances. */
-    class _OgreGuiElementExport TextBoxGuiElementFactory: public GuiElementFactory
+    class _OgreGuiElementExport TextBoxGuiElementFactory: public OverlayElementFactory
     {
     public:
-        /** See GuiElementFactory */
-        GuiElement* createGuiElement(const String& instanceName)
+        /** See OverlayElementFactory */
+        OverlayElement* createOverlayElement(const String& instanceName)
         {
             return new TextBoxGuiElement(instanceName);
         }
-        /** See GuiElementFactory */
+        /** See OverlayElementFactory */
         const String& getTypeName(void) const
         {
             static String name = "TextBox";
@@ -132,15 +132,15 @@ namespace Ogre {
 
 
     /** Factory for creating ButtonGuiElement instances. */
-    class _OgreGuiElementExport ButtonGuiElementFactory: public GuiElementFactory
+    class _OgreGuiElementExport ButtonGuiElementFactory: public OverlayElementFactory
     {
     public:
-        /** See GuiElementFactory */
-        GuiElement* createGuiElement(const String& instanceName)
+        /** See OverlayElementFactory */
+        OverlayElement* createOverlayElement(const String& instanceName)
         {
             return new ButtonGuiElement(instanceName);
         }
-        /** See GuiElementFactory */
+        /** See OverlayElementFactory */
         const String& getTypeName(void) const
         {
             static String name = "Button";
@@ -149,15 +149,15 @@ namespace Ogre {
     };
 
     /** Factory for creating ButtonGuiElement instances. */
-    class _OgreGuiElementExport BorderButtonGuiElementFactory: public GuiElementFactory
+    class _OgreGuiElementExport BorderButtonGuiElementFactory: public OverlayElementFactory
     {
     public:
-        /** See GuiElementFactory */
-        GuiElement* createGuiElement(const String& instanceName)
+        /** See OverlayElementFactory */
+        OverlayElement* createOverlayElement(const String& instanceName)
         {
             return new BorderButtonGuiElement(instanceName);
         }
-        /** See GuiElementFactory */
+        /** See OverlayElementFactory */
         const String& getTypeName(void) const
         {
             static String name = "BorderButton";
@@ -166,15 +166,15 @@ namespace Ogre {
     };
 
     /** Factory for creating ButtonGuiElement instances. */
-    class _OgreGuiElementExport ListGuiElementFactory: public GuiElementFactory
+    class _OgreGuiElementExport ListGuiElementFactory: public OverlayElementFactory
     {
     public:
-        /** See GuiElementFactory */
-        GuiElement* createGuiElement(const String& instanceName)
+        /** See OverlayElementFactory */
+        OverlayElement* createOverlayElement(const String& instanceName)
         {
             return new ListGuiElement(instanceName);
         }
-        /** See GuiElementFactory */
+        /** See OverlayElementFactory */
         const String& getTypeName(void) const
         {
             static String name = "List";
@@ -184,15 +184,15 @@ namespace Ogre {
  
 
     /** Factory for creating ButtonGuiElement instances. */
-    class _OgreGuiElementExport ScrollBarGuiElementFactory: public GuiElementFactory
+    class _OgreGuiElementExport ScrollBarGuiElementFactory: public OverlayElementFactory
     {
     public:
-        /** See GuiElementFactory */
-        GuiElement* createGuiElement(const String& instanceName)
+        /** See OverlayElementFactory */
+        OverlayElement* createOverlayElement(const String& instanceName)
         {
             return new ScrollBarGuiElement(instanceName);
         }
-        /** See GuiElementFactory */
+        /** See OverlayElementFactory */
         const String& getTypeName(void) const
         {
             static String name = "ScrollBar";
@@ -200,15 +200,15 @@ namespace Ogre {
         }
     };
     /** Factory for creating ButtonGuiElement instances. */
-    class _OgreGuiElementExport PopupMenuGuiElementFactory: public GuiElementFactory
+    class _OgreGuiElementExport PopupMenuGuiElementFactory: public OverlayElementFactory
     {
     public:
-        /** See GuiElementFactory */
-        GuiElement* createGuiElement(const String& instanceName)
+        /** See OverlayElementFactory */
+        OverlayElement* createOverlayElement(const String& instanceName)
         {
             return new PopupMenuGuiElement(instanceName);
         }
-        /** See GuiElementFactory */
+        /** See OverlayElementFactory */
         const String& getTypeName(void) const
         {
             static String name = "PopupMenu";
@@ -216,15 +216,15 @@ namespace Ogre {
         }
     };
     /** Factory for creating TTYGuiElement instances. */
-    class _OgreGuiElementExport TTYGuiElementFactory: public GuiElementFactory
+    class _OgreGuiElementExport TTYGuiElementFactory: public OverlayElementFactory
     {
     public:
-        /** See GuiElementFactory */
-        GuiElement* createGuiElement(const String& instanceName)
+        /** See OverlayElementFactory */
+        OverlayElement* createOverlayElement(const String& instanceName)
         {
             return new TTYGuiElement(instanceName);
         }
-        /** See GuiElementFactory */
+        /** See OverlayElementFactory */
         const String& getTypeName(void) const
         {
             static String name = "TTY";

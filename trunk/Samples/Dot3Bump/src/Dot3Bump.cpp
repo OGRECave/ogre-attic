@@ -117,9 +117,9 @@ SceneNode* mLightNodes[NUM_LIGHTS];
 // the light node pivots
 SceneNode* mLightPivots[NUM_LIGHTS];
 
-GuiElement* mObjectInfo;
-GuiElement* mMaterialInfo;
-GuiElement* mInfo;
+OverlayElement* mObjectInfo;
+OverlayElement* mMaterialInfo;
+OverlayElement* mInfo;
 
 #define KEY_PRESSED(_key,_timeDelay, _macro) \
 { \
@@ -280,9 +280,9 @@ protected:
 		mCamera->lookAt(0, 0, 0);
 		// show overlay
 		Overlay *pOver = (Overlay *)OverlayManager::getSingleton().getByName("Example/DP3Overlay");    
-        mObjectInfo = GuiManager::getSingleton().getGuiElement("Example/DP3/ObjectInfo");
-        mMaterialInfo = GuiManager::getSingleton().getGuiElement("Example/DP3/MaterialInfo");
-        mInfo = GuiManager::getSingleton().getGuiElement("Example/DP3/Info");
+        mObjectInfo = GuiManager::getSingleton().getOverlayElement("Example/DP3/ObjectInfo");
+        mMaterialInfo = GuiManager::getSingleton().getOverlayElement("Example/DP3/MaterialInfo");
+        mInfo = GuiManager::getSingleton().getOverlayElement("Example/DP3/Info");
 
         mObjectInfo->setCaption("Current: " + mEntityMeshes[mCurrentEntity]);
         mMaterialInfo->setCaption("Current: " + mMaterialNames[mCurrentEntity][mCurrentMaterial]);

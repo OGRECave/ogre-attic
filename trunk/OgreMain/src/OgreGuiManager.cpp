@@ -28,9 +28,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreString.h"
 #include "OgreGuiManager.h"
-#include "OgreGuiElement.h"
+#include "OgreOverlayElement.h"
 #include "OgreGuiContainer.h"
-#include "OgreGuiElementFactory.h"
+#include "OgreOverlayElementFactory.h"
 #include "OgreException.h"
 #include "OgreLogManager.h"
 
@@ -52,8 +52,8 @@ namespace Ogre {
     //---------------------------------------------------------------------
     GuiManager::~GuiManager()
     {
-        destroyAllGuiElements(false);
-        destroyAllGuiElements(true);
+        destroyAllOverlayElements(false);
+        destroyAllOverlayElements(true);
     }
 
     //---------------------------------------------------------------------
@@ -63,19 +63,19 @@ namespace Ogre {
 	}
 
     //---------------------------------------------------------------------
-    GuiElement* GuiManager::createGuiElementFromTemplate(const String& templateName, const String& typeName, const String& instanceName, bool isTemplate)
+    OverlayElement* GuiManager::createOverlayElementFromTemplate(const String& templateName, const String& typeName, const String& instanceName, bool isTemplate)
     {
 
-		GuiElement* newObj  = NULL;
+		OverlayElement* newObj  = NULL;
 
 		if (templateName == "")
 		{
-			newObj = createGuiElement(typeName, instanceName, isTemplate);
+			newObj = createOverlayElement(typeName, instanceName, isTemplate);
 		}
 		else
 		{
 			// no template 
-			GuiElement* templateGui = getGuiElement(templateName, true);
+			OverlayElement* templateGui = getOverlayElement(templateName, true);
 	
 			String typeNameToCreate;
 			if (typeName == "")
@@ -87,7 +87,7 @@ namespace Ogre {
 				typeNameToCreate = typeName;
 			}
 
-			newObj = createGuiElement(typeNameToCreate, instanceName, isTemplate);
+			newObj = createOverlayElement(typeNameToCreate, instanceName, isTemplate);
 
 			((GuiContainer*)newObj)->copyFromTemplate(templateGui);
 		}
@@ -97,29 +97,29 @@ namespace Ogre {
 
 
     //---------------------------------------------------------------------
-    GuiElement* GuiManager::cloneGuiElementFromTemplate(const String& templateName, const String& instanceName)
+    OverlayElement* GuiManager::cloneOverlayElementFromTemplate(const String& templateName, const String& instanceName)
     {
-        GuiElement* templateGui = getGuiElement(templateName, true);
+        OverlayElement* templateGui = getOverlayElement(templateName, true);
         return templateGui->clone(instanceName);
     }
 
     //---------------------------------------------------------------------
-    GuiElement* GuiManager::createGuiElement(const String& typeName, const String& instanceName, bool isTemplate)
+    OverlayElement* GuiManager::createOverlayElement(const String& typeName, const String& instanceName, bool isTemplate)
     {
-		return createGuiElementImpl(typeName, instanceName, getElementMap(isTemplate));
+		return createOverlayElementImpl(typeName, instanceName, getElementMap(isTemplate));
 	}
 
     //---------------------------------------------------------------------
-    GuiElement* GuiManager::createGuiElementImpl(const String& typeName, const String& instanceName, ElementMap& elementMap)
+    OverlayElement* GuiManager::createOverlayElementImpl(const String& typeName, const String& instanceName, ElementMap& elementMap)
     {
         // Check not duplicated
         ElementMap::iterator ii = elementMap.find(instanceName);
         if (ii != elementMap.end())
         {
-            Except(Exception::ERR_DUPLICATE_ITEM, "GuiElement with name " + instanceName +
-                " already exists.", "GuiManager::createGuiElement" );
+            Except(Exception::ERR_DUPLICATE_ITEM, "OverlayElement with name " + instanceName +
+                " already exists.", "GuiManager::createOverlayElement" );
         }
-		GuiElement* newElem = createGuiElementFromFactory(typeName, instanceName);
+		OverlayElement* newElem = createOverlayElementFromFactory(typeName, instanceName);
         newElem->initialise();
 
         // Register
@@ -131,59 +131,59 @@ namespace Ogre {
     }
 
     //---------------------------------------------------------------------
-    GuiElement* GuiManager::createGuiElementFromFactory(const String& typeName, const String& instanceName)
+    OverlayElement* GuiManager::createOverlayElementFromFactory(const String& typeName, const String& instanceName)
     {
         // Look up factory
         FactoryMap::iterator fi = mFactories.find(typeName);
         if (fi == mFactories.end())
         {
             Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot locate factory for element type " + typeName,
-                "GuiManager::createGuiElement");
+                "GuiManager::createOverlayElement");
         }
 
         // create
-        return fi->second->createGuiElement(instanceName);
+        return fi->second->createOverlayElement(instanceName);
 	}
 
     //---------------------------------------------------------------------
-    GuiElement* GuiManager::getGuiElement(const String& name, bool isTemplate)
+    OverlayElement* GuiManager::getOverlayElement(const String& name, bool isTemplate)
 	{
-		return getGuiElementImpl(name, getElementMap(isTemplate));
+		return getOverlayElementImpl(name, getElementMap(isTemplate));
 	}
     //---------------------------------------------------------------------
-    GuiElement* GuiManager::getGuiElementImpl(const String& name, ElementMap& elementMap)
+    OverlayElement* GuiManager::getOverlayElementImpl(const String& name, ElementMap& elementMap)
     {
         // Locate instance
         ElementMap::iterator ii = elementMap.find(name);
         if (ii == elementMap.end())
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, "GuiElement with name " + name +
-                " not found.", "GuiManager::destroyGugetGuiElementiElement" );
+            Except(Exception::ERR_ITEM_NOT_FOUND, "OverlayElement with name " + name +
+                " not found.", "GuiManager::getOverlayElementImpl" );
         }
 
         return ii->second;
     }
     //---------------------------------------------------------------------
-    void GuiManager::destroyGuiElement(const String& instanceName, bool isTemplate)
+    void GuiManager::destroyOverlayElement(const String& instanceName, bool isTemplate)
 	{
-		destroyGuiElementImpl(instanceName, getElementMap(isTemplate));
+		destroyOverlayElementImpl(instanceName, getElementMap(isTemplate));
 	}
 
     //---------------------------------------------------------------------
-    void GuiManager::destroyGuiElement(GuiElement* pInstance, bool isTemplate)
+    void GuiManager::destroyOverlayElement(OverlayElement* pInstance, bool isTemplate)
 	{
-		destroyGuiElementImpl(pInstance->getName(), getElementMap(isTemplate));
+		destroyOverlayElementImpl(pInstance->getName(), getElementMap(isTemplate));
 	}
 
     //---------------------------------------------------------------------
-    void GuiManager::destroyGuiElementImpl(const String& instanceName, ElementMap& elementMap)
+    void GuiManager::destroyOverlayElementImpl(const String& instanceName, ElementMap& elementMap)
     {
         // Locate instance
         ElementMap::iterator ii = elementMap.find(instanceName);
         if (ii == elementMap.end())
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, "GuiElement with name " + instanceName +
-                " not found.", "GuiManager::destroyGuiElement" );
+            Except(Exception::ERR_ITEM_NOT_FOUND, "OverlayElement with name " + instanceName +
+                " not found.", "GuiManager::destroyOverlayElement" );
         }
         // Look up factory
         const String& typeName = ii->second->getTypeName();
@@ -191,25 +191,25 @@ namespace Ogre {
         if (fi == mFactories.end())
         {
             Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot locate factory for element type " + typeName,
-                "GuiManager::destroyGuiElement");
+                "GuiManager::destroyOverlayElement");
         }
 
-        fi->second->destroyGuiElement(ii->second);
+        fi->second->destroyOverlayElement(ii->second);
 		elementMap.erase(ii);
     }
     //---------------------------------------------------------------------
-    void GuiManager::destroyAllGuiElements(bool isTemplate)
+    void GuiManager::destroyAllOverlayElements(bool isTemplate)
 	{
-		destroyAllGuiElementsImpl(getElementMap(isTemplate));
+		destroyAllOverlayElementsImpl(getElementMap(isTemplate));
 	}
     //---------------------------------------------------------------------
-    void GuiManager::destroyAllGuiElementsImpl(ElementMap& elementMap)
+    void GuiManager::destroyAllOverlayElementsImpl(ElementMap& elementMap)
     {
         ElementMap::iterator i;
 
         while ((i = elementMap.begin()) != elementMap.end())
         {
-            GuiElement* element = i->second;
+            OverlayElement* element = i->second;
 
             // Get factory to delete
             FactoryMap::iterator fi = mFactories.find(element->getTypeName());
@@ -217,7 +217,7 @@ namespace Ogre {
             {
                 Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot locate factory for element " 
                     + element->getName(),
-                    "GuiManager::destroyAllGuiElements");
+                    "GuiManager::destroyAllOverlayElements");
             }
 
             // remove from parent, if any
@@ -229,17 +229,17 @@ namespace Ogre {
 
             // children of containers will be auto-removed when container is destroyed.
             // destroy the element and remove it from the list
-            fi->second->destroyGuiElement(element);
+            fi->second->destroyOverlayElement(element);
             elementMap.erase(i);
         }
     }
     //---------------------------------------------------------------------
-    void GuiManager::addGuiElementFactory(GuiElementFactory* elemFactory)
+    void GuiManager::addOverlayElementFactory(OverlayElementFactory* elemFactory)
     {
         // Add / replace
         mFactories[elemFactory->getTypeName()] = elemFactory;
 
-        LogManager::getSingleton().logMessage("GuiElementFactory for type " + elemFactory->getTypeName()
+        LogManager::getSingleton().logMessage("OverlayElementFactory for type " + elemFactory->getTypeName()
             + " registered.");
     }
 

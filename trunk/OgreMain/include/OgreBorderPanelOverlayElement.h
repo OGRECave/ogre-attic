@@ -166,10 +166,10 @@ namespace Ogre {
         /** Overridden from GuiContainer */
         void _updateRenderQueue(RenderQueue* queue);
 
-        /** Overridden from GuiElement */
+        /** Overridden from OverlayElement */
         void setMetricsMode(GuiMetricsMode gmm);
 
-        /** Overridden from GuiElement */
+        /** Overridden from OverlayElement */
         void _update(void);
 
 
@@ -262,7 +262,7 @@ namespace Ogre {
 
         static String msTypeName;
 
-        /// internal method for setting up geometry, called by GuiElement::update
+        /// internal method for setting up geometry, called by OverlayElement::update
         void updatePositionGeometry(void);
 
         /// Internal method for setting up parameters

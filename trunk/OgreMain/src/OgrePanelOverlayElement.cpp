@@ -151,7 +151,7 @@ namespace Ogre {
 
             if (!mTransparent && mpMaterial)
             {
-                GuiElement::_updateRenderQueue(queue);
+                OverlayElement::_updateRenderQueue(queue);
             }
 
             // Also add children

@@ -29,13 +29,13 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreGuiContainer.h"
 #include "OgreMaterial.h"
 #include "OgreStringConverter.h"
-#include "OgreGuiElementFactory.h"
+#include "OgreOverlayElementFactory.h"
 #include "OgreFont.h"
 #include "OgreFontManager.h"
 
 namespace Ogre
 {
-    /** GuiElement representing a flat, single-material (or transparent) panel which can contain other elements.
+    /** OverlayElement representing a flat, single-material (or transparent) panel which can contain other elements.
     @remarks
     This class subclasses GuiContainer because it can contain other elements. Like other
     containers, if hidden it's contents are also hidden, if moved it's contents also move etc. 
@@ -50,7 +50,7 @@ namespace Ogre
     layers, scrolling / animated textures etc. For multiple texture layers, you have to set 
     the tiling level for each layer.
     */
-    class _OgreExport TextAreaOverlayElement : public GuiElement
+    class _OgreExport TextAreaOverlayElement : public OverlayElement
     {
     public:
         enum Alignment
@@ -78,11 +78,11 @@ namespace Ogre
         void setFontName( const String& font );
         const String& getFontName() const;
 
-        /** See GuiElement. */
+        /** See OverlayElement. */
         virtual const String& getTypeName(void) const;
         /** See Renderable. */
         void getRenderOperation(RenderOperation& op);
-        /** Overridden from GuiElement */
+        /** Overridden from OverlayElement */
         void setMaterialName(const String& matName);
 
         /** Sets the colour of the text. 
@@ -124,10 +124,10 @@ namespace Ogre
             return mAlignment;
         }
 
-        /** Overridden from GuiElement */
+        /** Overridden from OverlayElement */
         void setMetricsMode(GuiMetricsMode gmm);
 
-        /** Overridden from GuiElement */
+        /** Overridden from OverlayElement */
         void _update(void);
 
         //-----------------------------------------------------------------------------------------

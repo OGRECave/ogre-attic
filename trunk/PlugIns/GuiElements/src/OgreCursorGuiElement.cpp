@@ -89,7 +89,7 @@ namespace Ogre {
         mOffsetY = y;
 	}
     //---------------------------------------------------------------------
-	GuiElement* CursorGuiElement::findElementAt(Real x, Real y) 		// relative to parent
+	OverlayElement* CursorGuiElement::findElementAt(Real x, Real y) 		// relative to parent
 	{
 		return NULL;	// override this so it won't find itself!
 	}

@@ -151,13 +151,13 @@ namespace Ogre {
 		virtual Resource* popFront() ;
 		virtual size_t getListSize() const;
 
-        /** See GuiElement. */
+        /** See OverlayElement. */
         const String& getTypeName(void) const;
 
 
     protected:
-		virtual void setSelectedItem(GuiElement* item, bool on);
-		virtual void setSelectedItem(GuiElement* item);
+		virtual void setSelectedItem(OverlayElement* item, bool on);
+		virtual void setSelectedItem(OverlayElement* item);
 
 	    void addBaseParameters(void);
 		String getListItemName(Resource* r) const;
@@ -185,7 +185,7 @@ namespace Ogre {
 
 		ResourceList mResourceList; 
 
-		GuiElement* mSelectedElement;
+		OverlayElement* mSelectedElement;
     };
 
 }

@@ -133,7 +133,7 @@ namespace Ogre {
 
         /** Removes a 2D container from the overlay. 
         @remarks
-            NOT FAST. Consider GuiElement::hide.
+            NOT FAST. Consider OverlayElement::hide.
         */
         void remove2D(GuiContainer* cont);
 
@@ -242,8 +242,8 @@ namespace Ogre {
         /** Internal method to put the overlay contents onto the render queue. */
         void _findVisibleObjects(Camera* cam, RenderQueue* queue);
 
-        /** This returns a GuiElement at position x,y. */
-		virtual GuiElement* findElementAt(Real x, Real y);
+        /** This returns a OverlayElement at position x,y. */
+		virtual OverlayElement* findElementAt(Real x, Real y);
 
         /** Returns an iterator over all 2D elements in this manager.
         @remarks

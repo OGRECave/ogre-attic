@@ -25,7 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreStableHeaders.h"
 
-#include "OgreGuiElement.h"
+#include "OgreOverlayElement.h"
 #include "OgreGuiManager.h"
 #include "OgreMaterialManager.h"
 #include "OgreOverlay.h"
@@ -42,18 +42,18 @@ namespace Ogre {
 
     //---------------------------------------------------------------------
     // Define static members
-    GuiElementCommands::CmdLeft GuiElement::msLeftCmd;
-    GuiElementCommands::CmdTop GuiElement::msTopCmd;
-    GuiElementCommands::CmdWidth GuiElement::msWidthCmd;
-    GuiElementCommands::CmdHeight GuiElement::msHeightCmd;
-    GuiElementCommands::CmdMaterial GuiElement::msMaterialCmd;
-    GuiElementCommands::CmdCaption GuiElement::msCaptionCmd;
-    GuiElementCommands::CmdMetricsMode GuiElement::msMetricsModeCmd;
-    GuiElementCommands::CmdHorizontalAlign GuiElement::msHorizontalAlignCmd;
-    GuiElementCommands::CmdVerticalAlign GuiElement::msVerticalAlignCmd;
-    GuiElementCommands::CmdVisible GuiElement::msVisibleCmd;
+    GuiElementCommands::CmdLeft OverlayElement::msLeftCmd;
+    GuiElementCommands::CmdTop OverlayElement::msTopCmd;
+    GuiElementCommands::CmdWidth OverlayElement::msWidthCmd;
+    GuiElementCommands::CmdHeight OverlayElement::msHeightCmd;
+    GuiElementCommands::CmdMaterial OverlayElement::msMaterialCmd;
+    GuiElementCommands::CmdCaption OverlayElement::msCaptionCmd;
+    GuiElementCommands::CmdMetricsMode OverlayElement::msMetricsModeCmd;
+    GuiElementCommands::CmdHorizontalAlign OverlayElement::msHorizontalAlignCmd;
+    GuiElementCommands::CmdVerticalAlign OverlayElement::msVerticalAlignCmd;
+    GuiElementCommands::CmdVisible OverlayElement::msVisibleCmd;
     //---------------------------------------------------------------------
-    GuiElement::GuiElement(const String& name)
+    OverlayElement::OverlayElement(const String& name)
         : MouseTarget(),
           MouseMotionTarget(),
           mName(name)
@@ -83,31 +83,31 @@ namespace Ogre {
         mSourceTemplate = NULL;
     }
     //---------------------------------------------------------------------
-    GuiElement::~GuiElement()
+    OverlayElement::~OverlayElement()
     {
     }
     //---------------------------------------------------------------------
-    const String& GuiElement::getName(void) const
+    const String& OverlayElement::getName(void) const
     {
         return mName;
     }
     //---------------------------------------------------------------------
-    void GuiElement::show(void)
+    void OverlayElement::show(void)
     {
         mVisible = true;
     }
     //---------------------------------------------------------------------
-    void GuiElement::hide(void)
+    void OverlayElement::hide(void)
     {
         mVisible = false;
     }
     //---------------------------------------------------------------------
-    bool GuiElement::isVisible(void) const
+    bool OverlayElement::isVisible(void) const
     {
         return mVisible;
     }
     //---------------------------------------------------------------------
-    void GuiElement::setDimensions(Real width, Real height)
+    void OverlayElement::setDimensions(Real width, Real height)
     {
         if (mMetricsMode != GMM_RELATIVE)
         {
@@ -123,7 +123,7 @@ namespace Ogre {
         _positionsOutOfDate();
     }
     //---------------------------------------------------------------------
-    void GuiElement::setPosition(Real left, Real top)
+    void OverlayElement::setPosition(Real left, Real top)
     {
         if (mMetricsMode != GMM_RELATIVE)
         {
@@ -140,7 +140,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void GuiElement::setWidth(Real width)
+    void OverlayElement::setWidth(Real width)
     {
         if (mMetricsMode != GMM_RELATIVE)
         {
@@ -154,7 +154,7 @@ namespace Ogre {
         _positionsOutOfDate();
     }
     //---------------------------------------------------------------------
-    Real GuiElement::getWidth(void) const
+    Real OverlayElement::getWidth(void) const
     {
         if (mMetricsMode != GMM_RELATIVE)
         {
@@ -166,7 +166,7 @@ namespace Ogre {
 		}
     }
     //---------------------------------------------------------------------
-    void GuiElement::setHeight(Real height)
+    void OverlayElement::setHeight(Real height)
     {
         if (mMetricsMode != GMM_RELATIVE)
         {
@@ -180,7 +180,7 @@ namespace Ogre {
         _positionsOutOfDate();
     }
     //---------------------------------------------------------------------
-    Real GuiElement::getHeight(void) const
+    Real OverlayElement::getHeight(void) const
     {
         if (mMetricsMode != GMM_RELATIVE)
         {
@@ -192,7 +192,7 @@ namespace Ogre {
 		}
     }
     //---------------------------------------------------------------------
-    void GuiElement::setLeft(Real left)
+    void OverlayElement::setLeft(Real left)
     {
         if (mMetricsMode != GMM_RELATIVE)
         {
@@ -206,7 +206,7 @@ namespace Ogre {
         _positionsOutOfDate();
     }
     //---------------------------------------------------------------------
-    Real GuiElement::getLeft(void) const
+    Real OverlayElement::getLeft(void) const
     {
         if (mMetricsMode != GMM_RELATIVE)
         {
@@ -218,7 +218,7 @@ namespace Ogre {
 		}
     }
     //---------------------------------------------------------------------
-    void GuiElement::setTop(Real top)
+    void OverlayElement::setTop(Real top)
     {
         if (mMetricsMode != GMM_RELATIVE)
         {
@@ -233,7 +233,7 @@ namespace Ogre {
         _positionsOutOfDate();
     }
     //---------------------------------------------------------------------
-    Real GuiElement::getTop(void) const
+    Real OverlayElement::getTop(void) const
     {
         if (mMetricsMode != GMM_RELATIVE)
         {
@@ -245,7 +245,7 @@ namespace Ogre {
 		}
     }
     //---------------------------------------------------------------------
-    void GuiElement::_setLeft(Real left)
+    void OverlayElement::_setLeft(Real left)
     {
         mLeft = left;
         mPixelLeft = left / mPixelScaleX;
@@ -254,7 +254,7 @@ namespace Ogre {
         _positionsOutOfDate();
     }
     //---------------------------------------------------------------------
-    void GuiElement::_setTop(Real top)
+    void OverlayElement::_setTop(Real top)
     {
         mTop = top;
         mPixelTop = top / mPixelScaleY;
@@ -263,7 +263,7 @@ namespace Ogre {
         _positionsOutOfDate();
     }
     //---------------------------------------------------------------------
-    void GuiElement::_setWidth(Real width)
+    void OverlayElement::_setWidth(Real width)
     {
         mWidth = width;
         mPixelWidth = width / mPixelScaleX;
@@ -272,7 +272,7 @@ namespace Ogre {
         _positionsOutOfDate();
     }
     //---------------------------------------------------------------------
-    void GuiElement::_setHeight(Real height)
+    void OverlayElement::_setHeight(Real height)
     {
         mHeight = height;
         mPixelHeight = height / mPixelScaleY;
@@ -281,7 +281,7 @@ namespace Ogre {
         _positionsOutOfDate();
     }
     //---------------------------------------------------------------------
-    void GuiElement::_setPosition(Real left, Real top)
+    void OverlayElement::_setPosition(Real left, Real top)
     {
         mLeft = left;
         mTop  = top;
@@ -292,7 +292,7 @@ namespace Ogre {
         _positionsOutOfDate();
     }
     //---------------------------------------------------------------------
-    void GuiElement::_setDimensions(Real width, Real height)
+    void OverlayElement::_setDimensions(Real width, Real height)
     {
         mWidth  = width;
         mHeight = height;
@@ -303,19 +303,19 @@ namespace Ogre {
         _positionsOutOfDate();
     }
     //---------------------------------------------------------------------
-    const String& GuiElement::getMaterialName(void) const
+    const String& OverlayElement::getMaterialName(void) const
     {
         return mMaterialName;
 
     }
     //---------------------------------------------------------------------
-    void GuiElement::setMaterialName(const String& matName)
+    void OverlayElement::setMaterialName(const String& matName)
     {
         mMaterialName = matName;
         mpMaterial = (Material*)MaterialManager::getSingleton().getByName(matName);
 		if (!mpMaterial)
 			Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find material " + matName,
-				"GuiElement::setMaterialName" );
+				"OverlayElement::setMaterialName" );
         mpMaterial->load();
         // Set some prerequisites to be sure
         mpMaterial->setLightingEnabled(false);
@@ -323,44 +323,44 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    Material* GuiElement::getMaterial(void) const
+    Material* OverlayElement::getMaterial(void) const
     {
         return mpMaterial;
     }
     //---------------------------------------------------------------------
-    void GuiElement::getWorldTransforms(Matrix4* xform) const
+    void OverlayElement::getWorldTransforms(Matrix4* xform) const
     {
         mOverlay->_getWorldTransforms(xform);
     }
     //-----------------------------------------------------------------------
-    const Quaternion& GuiElement::getWorldOrientation(void) const
+    const Quaternion& OverlayElement::getWorldOrientation(void) const
     {
         return mOverlay->getWorldOrientation();
     }
     //-----------------------------------------------------------------------
-    const Vector3& GuiElement::getWorldPosition(void) const
+    const Vector3& OverlayElement::getWorldPosition(void) const
     {
         return mOverlay->getWorldPosition();
     }
     //---------------------------------------------------------------------
-    bool GuiElement::useIdentityProjection(void) const
+    bool OverlayElement::useIdentityProjection(void) const
     {
         return true;
     }
     //---------------------------------------------------------------------
-    bool GuiElement::useIdentityView(void) const
+    bool OverlayElement::useIdentityView(void) const
     {
         return true;
     }
 
     //---------------------------------------------------------------------
-	void GuiElement::_positionsOutOfDate(void)
+	void OverlayElement::_positionsOutOfDate(void)
 	{
 		mGeomPositionsOutOfDate = true;
 	}
 
     //---------------------------------------------------------------------
-    void GuiElement::_update(void)
+    void OverlayElement::_update(void)
     {
         // Check size if pixel-based
         switch (mMetricsMode)
@@ -415,7 +415,7 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
-    void GuiElement::_updateFromParent(void)
+    void OverlayElement::_updateFromParent(void)
     {
         Real parentLeft, parentTop, parentBottom, parentRight;
 
@@ -492,7 +492,7 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
-    void GuiElement::_notifyParent(GuiContainer* parent, Overlay* overlay)
+    void OverlayElement::_notifyParent(GuiContainer* parent, Overlay* overlay)
     {
         mParent = parent;
         mOverlay = overlay;
@@ -500,7 +500,7 @@ namespace Ogre {
         mDerivedOutOfDate = true;
     }
     //---------------------------------------------------------------------
-    Real GuiElement::_getDerivedLeft(void)
+    Real OverlayElement::_getDerivedLeft(void)
     {
         if (mDerivedOutOfDate)
         {
@@ -509,7 +509,7 @@ namespace Ogre {
         return mDerivedLeft;
     }
     //---------------------------------------------------------------------
-    Real GuiElement::_getDerivedTop(void)
+    Real OverlayElement::_getDerivedTop(void)
     {
         if (mDerivedOutOfDate)
         {
@@ -518,7 +518,7 @@ namespace Ogre {
         return mDerivedTop;
     }
     //---------------------------------------------------------------------    
-    void GuiElement::_getClippingRegion(Rectangle &clippingRegion)
+    void OverlayElement::_getClippingRegion(Rectangle &clippingRegion)
     {
         if (mDerivedOutOfDate)
         {
@@ -527,19 +527,19 @@ namespace Ogre {
         clippingRegion = mClippingRegion;
     }
     //---------------------------------------------------------------------
-    void GuiElement::_notifyZOrder(ushort newZOrder)
+    void OverlayElement::_notifyZOrder(ushort newZOrder)
     {
         mZOrder = newZOrder;
     }
 
     //---------------------------------------------------------------------
-    void GuiElement::_notifyWorldTransforms(const Matrix4& xform)
+    void OverlayElement::_notifyWorldTransforms(const Matrix4& xform)
     {
         mXForm = xform;
     }
 
     //---------------------------------------------------------------------
-    void GuiElement::_notifyViewport()
+    void OverlayElement::_notifyViewport()
     {
         switch (mMetricsMode)
         {
@@ -586,7 +586,7 @@ namespace Ogre {
     }
 
     //---------------------------------------------------------------------
-    void GuiElement::_updateRenderQueue(RenderQueue* queue)
+    void OverlayElement::_updateRenderQueue(RenderQueue* queue)
     {
         if (mVisible)
         {
@@ -595,7 +595,7 @@ namespace Ogre {
       
     }
     //-----------------------------------------------------------------------
-    void GuiElement::addBaseParameters(void)    
+    void OverlayElement::addBaseParameters(void)    
     {
         ParamDictionary* dict = getParamDictionary();
 
@@ -641,28 +641,28 @@ namespace Ogre {
             &msVisibleCmd);
     }
     //-----------------------------------------------------------------------
-    void GuiElement::setCaption( const String& caption )
+    void OverlayElement::setCaption( const String& caption )
     {
         mCaption = caption;
         _positionsOutOfDate();
     }
     //-----------------------------------------------------------------------
-    const String& GuiElement::getCaption() const
+    const String& OverlayElement::getCaption() const
     {
         return mCaption;
     }
     //-----------------------------------------------------------------------
-    void GuiElement::setColour(const ColourValue& col)
+    void OverlayElement::setColour(const ColourValue& col)
     {
         mColour = col;
     }
     //-----------------------------------------------------------------------
-    const ColourValue& GuiElement::getColour(void) const
+    const ColourValue& OverlayElement::getColour(void) const
     {
         return mColour;
     }
     //-----------------------------------------------------------------------
-    void GuiElement::setMetricsMode(GuiMetricsMode gmm)
+    void OverlayElement::setMetricsMode(GuiMetricsMode gmm)
     {
         switch (gmm)
         {
@@ -726,29 +726,29 @@ namespace Ogre {
         _positionsOutOfDate();
     }
     //-----------------------------------------------------------------------
-    GuiMetricsMode GuiElement::getMetricsMode(void) const
+    GuiMetricsMode OverlayElement::getMetricsMode(void) const
     {
         return mMetricsMode;
     }
     //-----------------------------------------------------------------------
-    void GuiElement::setHorizontalAlignment(GuiHorizontalAlignment gha)
+    void OverlayElement::setHorizontalAlignment(GuiHorizontalAlignment gha)
     {
         mHorzAlign = gha;
         _positionsOutOfDate();
     }
     //-----------------------------------------------------------------------
-    GuiHorizontalAlignment GuiElement::getHorizontalAlignment(void) const
+    GuiHorizontalAlignment OverlayElement::getHorizontalAlignment(void) const
     {
         return mHorzAlign;
     }
     //-----------------------------------------------------------------------
-    void GuiElement::setVerticalAlignment(GuiVerticalAlignment gva)
+    void OverlayElement::setVerticalAlignment(GuiVerticalAlignment gva)
     {
         mVertAlign = gva;
         _positionsOutOfDate();
     }
     //-----------------------------------------------------------------------
-    GuiVerticalAlignment GuiElement::getVerticalAlignment(void) const
+    GuiVerticalAlignment OverlayElement::getVerticalAlignment(void) const
     {
         return mVertAlign;
     }
@@ -756,15 +756,15 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-	bool GuiElement::contains(Real x, Real y) const
+	bool OverlayElement::contains(Real x, Real y) const
 	{
         return mClippingRegion.inside(x, y);
 	}
 
     //-----------------------------------------------------------------------
-	GuiElement* GuiElement::findElementAt(Real x, Real y) 		// relative to parent
+	OverlayElement* OverlayElement::findElementAt(Real x, Real y) 		// relative to parent
 	{
-		GuiElement* ret = NULL;
+		OverlayElement* ret = NULL;
 		if (contains(x , y ))
 		{
 			ret = this;
@@ -773,7 +773,7 @@ namespace Ogre {
 	}
 
     //-----------------------------------------------------------------------
-	void GuiElement::processEvent(InputEvent* e) 
+	void OverlayElement::processEvent(InputEvent* e) 
 	{
 
 		if (!mEnabled || e->isConsumed())
@@ -804,41 +804,41 @@ namespace Ogre {
 	}
 
     //-----------------------------------------------------------------------
-	PositionTarget* GuiElement::getPositionTargetParent() const 
+	PositionTarget* OverlayElement::getPositionTargetParent() const 
 	{ 
 		return static_cast<MouseTarget*> (mParent);		// need to choose 1 parent of the EventTarget
 	}
     //-----------------------------------------------------------------------
-	GuiContainer* GuiElement::getParent() 
+	GuiContainer* OverlayElement::getParent() 
 	{ 
 		return mParent;		
 	}
 
-    void GuiElement::copyFromTemplate(GuiElement* templateGui)
+    void OverlayElement::copyFromTemplate(OverlayElement* templateGui)
 	{
 		templateGui->copyParametersTo(this);
     mSourceTemplate = templateGui ;
 		return;
 	}
 
-    GuiElement* GuiElement::clone(const String& instanceName)
+    OverlayElement* OverlayElement::clone(const String& instanceName)
     {
-        GuiElement* newElement;
+        OverlayElement* newElement;
 
-        newElement = GuiManager::getSingleton().createGuiElement(getTypeName(), instanceName + "/" + mName);
+        newElement = GuiManager::getSingleton().createOverlayElement(getTypeName(), instanceName + "/" + mName);
         copyParametersTo(newElement);
 
         return newElement;
     }
 
     //-----------------------------------------------------------------------
-	bool GuiElement::isEnabled() const
+	bool OverlayElement::isEnabled() const
 	{ 
 		return mEnabled;
 	}
 
     //-----------------------------------------------------------------------
-	void GuiElement::setEnabled(bool b) 
+	void OverlayElement::setEnabled(bool b) 
 	{
 		mEnabled = b;
 	}

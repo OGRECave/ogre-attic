@@ -69,17 +69,17 @@ namespace Ogre {
 
 
 		/**
-		 * Constructs a ListSelectionEvent object with the specified source GuiElement,
+		 * Constructs a ListSelectionEvent object with the specified source OverlayElement,
 		 * type, modifiers, coordinates, and click count.
 		 *
-		 * @param source       the GuiElement that originated the event
+		 * @param source       the OverlayElement that originated the event
 		 * @param id           the integer that identifies the event
 		 * @param when         a long int that gives the time the event occurred
 		 * @param modifiers    the modifier keys down during event
 		 *                     (shift, ctrl, alt, meta)
 		 * @param listSelectionCommand   - Gives specific details of the event
 		 */
-		 ListSelectionEvent(GuiElement* source, int id, Real when, int modifiers);
+		 ListSelectionEvent(OverlayElement* source, int id, Real when, int modifiers);
 
 		/**
 		 * Returns a parameter string identifying this ListSelection event.
