@@ -70,6 +70,9 @@ namespace Ogre {
         void loadImpl(void);
         /// @copydoc Resource::unloadImpl
         void unloadImpl(void);
+		
+		uchar* rescaleNPower2( const Image& src );
+		void generateMipmaps( const uchar *data, bool useSoftware,  bool isCompressed, size_t faceNumber);
 
 		/** internal method, create GLHardwarePixelBuffers for every face and
 			 mipmap level. This method must be called after the GL texture object was created,
