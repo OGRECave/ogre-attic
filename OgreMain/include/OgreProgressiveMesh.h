@@ -146,6 +146,7 @@ namespace Ogre {
 	        void setDetails(const Vector3& v, int index);
 	        void removeIfNonNeighbor(PMVertex *n);
 			bool isBorder(void);/// true if this vertex is on the edge of an open geometry patch
+			bool isManifoldEdgeWith(PMVertex* v); // is edge this->src a manifold edge?
 			void notifyRemoved(void);
 
             Vector3  position;  // location of point in euclidean space
