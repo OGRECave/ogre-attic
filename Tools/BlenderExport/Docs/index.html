@@ -37,19 +37,22 @@ In the "Scripts Window" run "Scripts -> Update Menus".
 You will get a detailed log of the export process. Use the OgreXmlConverter to convert the generated XML files to binary .mesh and .skeleton files.
 <P>
 <DIV ID=exporter>
-<IMG SRC="images/exporter.png" WIDTH="473" HEIGHT="373" />
+<IMG SRC="images/exporter.png" WIDTH="473" HEIGHT="397" />
 <P>Screenshot of the exporter interface.</P>
 </DIV>
 <H3>Options</H3>
 <DL COMPACT>
+<DT>Material File</DT>
+<DD>The name of the material script file that will be generated.</DD>
 <DT>Export Textures</DT>
 <DD>Export uv texture coordinates and texture names.</DD>
 <DT>Export Armature</DT>
 <DD>Export armatures and armature animations.</DD>
-<DT>Export Armature as Mesh</DT>
-<DD>Generate an animated extra mesh in the form of the skeleton.</DD>
-<DT>Material File</DT>
-<DD>The name of the material script file that will be generated.</DD>
+<DT>World Coordinates</DT>
+<DD>Export objects in world coordinates instead of object coordinates.</DD>
+<DT>Coloured Ambient</DT>
+<DD>Use scaled diffuse colour as ambient colour instead of scaled white.
+This does only work for materials for which TexFace is not set.</DD>
 <DT>Mesh Scale Factor</DT>
 <DD>All meshs and bones are scaled on export by this factor.</DD>
 <DT>RotX</DT>
@@ -86,6 +89,9 @@ You will get a detailed log of the export process. Use the OgreXmlConverter to c
 <P>
 The script loads and saves its options to a text buffer "ogreexport.cfg" inside the current .blend file. You can disable this behaviour by changing the script variable KEEP_SETTINGS to 0.
 </P>
+<P>
+If the OGRE_XML_CONVERTER script variable is set to the OgreXMLConverter executable, the converter is called on the exported XML files.
+</P>
 </P>
 <H2>Specifics</H2>
 <H3>Mesh</H3>
@@ -103,7 +109,7 @@ In contrast to Ogre, Blender treats material, uv texture and blend mode separate
 <TH>Ogre</TH>
 </TR>
 <TR>
-<TD>Amb*AmbR Amb*AmbG Amb*AmbB</TD>
+<TD>Amb or Amb*Col</TD>
 <TD>ambient R G B</TD>
 </TR>
 <TR>
@@ -148,10 +154,6 @@ In contrast to Ogre, Blender treats material, uv texture and blend mode separate
 <TD>depth_func always_fail</TD>
 </TR>
 </TABLE>
-<P>
-<IMG SRC="images/world.png" WIDTH="288" HEIGHT="203" />
-</P>
-Blender's world settings that affect the exported Ogre material are marked green.
 <P>
 <IMG SRC="images/material.png" WIDTH="288" HEIGHT="203" />
 </P>
@@ -203,7 +205,7 @@ Armature animations are exported based upon keyframe ranges and action names. Yo
 <P>
 The script does not evaluate action constraints. To export an action with constraints you have to convert the constraint effects into ipo keys ("Action Editor -> Bake") and choose the baked action in the animation settings.
 </P>
-Ogre does not support nonuniform keyframe scaling. Ogre does not inherit parent bone scaling by default.
+Ogre does not inherit parent bone scaling by default.
 <P>
 </P>
 The animation speed in the export in terms of frames per second is taken from the corresponding scene render button.
