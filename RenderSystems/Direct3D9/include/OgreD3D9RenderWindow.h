@@ -34,7 +34,13 @@ namespace Ogre
 	class D3D9RenderWindow : public RenderWindow
 	{
 	public:
-		D3D9RenderWindow(HINSTANCE instance, D3D9Driver *driver);
+		/** Constructor.
+		@param instance The application instance
+		@param driver The root driver
+		@param deviceIfSwapChain The existing D3D device to create an additional swap chain from, if this is not
+			the first window.
+		*/
+		D3D9RenderWindow(HINSTANCE instance, D3D9Driver *driver, LPDIRECT3DDEVICE9 deviceIfSwapChain = 0);
 		~D3D9RenderWindow();
 		void create(const String& name, unsigned int width, unsigned int height,
 	            bool fullScreen, const NameValuePairList *miscParams);
@@ -45,9 +51,8 @@ namespace Ogre
 		void resize( unsigned int width, unsigned int height );
 		void swapBuffers( bool waitForVSync = true );
 		HWND getWindowHandle() const { return mHWnd; }
-		HWND getParentWindowHandle() const { return mParentHWnd; }
 
-		D3D9Driver* getDirectD3DDriver() { return mpD3DDriver; }
+		D3D9Driver* getDirectD3DDriver() { return mDriver; }
 		LPDIRECT3DDEVICE9 getD3DDevice() { return mpD3DDevice; }
 
 		void getCustomAttribute( const String& name, void* pData );
@@ -68,14 +73,18 @@ namespace Ogre
 		/// @copydoc RenderTarget::update
 		void update(void);
 
+		/** Create (or recreate) the D3D device or SwapChain for this window.
+		*/
+		void createD3DResources(void);
+	
 	protected:
 		HINSTANCE mInstance;			// Process instance
 		D3D9Driver *mDriver;			// D3D9 driver
 		HWND	mHWnd;					// Win32 Window handle
-		HWND	mParentHWnd;			// Parent Win32 window handle
 		bool	mActive;				// Is active i.e. visible
 		bool	mReady;					// Is ready i.e. available for update
 		bool	mClosed;
+		bool	mIsSwapChain;			// Is this a secondary window?
 
 		static LRESULT CALLBACK WndProc(
 			HWND hWnd,
@@ -87,17 +96,20 @@ namespace Ogre
 		// DirectX-specific
 		// -------------------------------------------------------
 
-		// Pointer to D3DDriver encapsulating Direct3D driver
-		D3D9Driver* mpD3DDriver;
-
-		// Pointer to the 3D device specific for this window
+		// Pointer to the 3D device - window 'owns' this if !mIsSwapChain
 		LPDIRECT3DDEVICE9	mpD3DDevice;
+		// Pointer to swap chain, only valid if mIsSwapChain
+		LPDIRECT3DSWAPCHAIN9 mpSwapChain;
 		D3DPRESENT_PARAMETERS md3dpp;
 		LPDIRECT3DSURFACE9 mpRenderSurface;
 		LPDIRECT3DSURFACE9 mpRenderZBuffer;
+		D3DMULTISAMPLE_TYPE mFSAAType;
+		DWORD mFSAAQuality;
+		bool mVSync;
 
 		// just check if the multisampling requested is supported by the device
 		bool _checkMultiSampleQuality(D3DMULTISAMPLE_TYPE type, DWORD *outQuality, D3DFORMAT format, UINT adapterNum, D3DDEVTYPE deviceType, BOOL fullScreen);
+
 	};
 }
 #endif
