@@ -304,6 +304,10 @@ namespace Ogre {
         /** See
           RenderSystem
          */
+        void setStencilCheckEnabled(bool enabled);
+        /** See
+          RenderSystem
+         */
         bool hasHardwareStencil(void);
         /** See
           RenderSystem

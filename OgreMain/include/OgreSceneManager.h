@@ -215,6 +215,13 @@ namespace Ogre {
         /// Controller flag for determining if we need to set view/proj matrices
         bool mCamChanged;
 
+        typedef std::vector<RenderQueueListener*> RenderQueueListenerList;
+        RenderQueueListenerList mRenderQueueListeners;
+
+        /// Internal method for firing the queue start event, returns true if queue is to be skipped
+        bool fireRenderQueueStarted(RenderQueueGroupID id);
+        /// Internal method for firing the queue end event, returns true if queue is to be repeated
+        bool fireRenderQueueEnded(RenderQueueGroupID id);
     public:
         /** Default constructor.
         */
@@ -288,7 +295,6 @@ namespace Ogre {
         /** Removes and destroys all lights in the scene.
         */
         virtual void removeAllLights(void);
-
 
         /** Creates a new (blank) material with the specified name.
         */
@@ -1027,16 +1033,25 @@ namespace Ogre {
         @param zorder The zorder of the overlay relative to it's peers, higher zorders
             appear on top of lower ones.
         */
-        Overlay* createOverlay(const String& name, ushort zorder = 100); 
+        virtual Overlay* createOverlay(const String& name, ushort zorder = 100); 
 
         /** Gets a pointer to the named Overlay, previously created using createOverlay. */
-        Overlay* getOverlay(const String& name);
+        virtual Overlay* getOverlay(const String& name);
 
         /** Destroys the named Overlay. */
-        void destroyOverlay(const String& name);
+        virtual void destroyOverlay(const String& name);
         
         /** Destroys all the overlays. */
-        void destroyAllOverlays(void);
+        virtual void destroyAllOverlays(void);
+
+        /** Registers a new RenderQueueListener which will be notified when render queues
+            are processed.
+        */
+        virtual void addRenderQueueListener(RenderQueueListener* newListener);
+
+        /** Removes a listener previously added with addRenderQueueListener. */
+        virtual void removeRenderQueueListener(RenderQueueListener* delListener);
+       
 
 
 

@@ -131,6 +131,7 @@ namespace Ogre {
 		void _removeLight( Light* lt );
 		void _modifyLight( Light* lt );
 		void _removeAllLights(void);
+
 		void _pushRenderState(void);
 		void _popRenderState(void);
 		void _setWorldMatrix( const Matrix4 &m );
@@ -159,6 +160,13 @@ namespace Ogre {
 		void _setFog( FogMode mode = FOG_NONE, ColourValue colour = ColourValue::White, Real expDensity = 1.0, Real linearStart = 0.0, Real linearEnd = 1.0 );
         void _makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, Matrix4& dest);
         void _setRasterisationMode(SceneDetailLevel level);
+        /** See
+          RenderSystem
+         */
+        void setStencilCheckEnabled(bool enabled);
+        /** See
+          RenderSystem
+         */
         bool hasHardwareStencil(void);
         /** See
           RenderSystem

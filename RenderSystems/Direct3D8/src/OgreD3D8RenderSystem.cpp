@@ -671,6 +671,7 @@ namespace Ogre {
 		setD3D8Light( i, lt );
 	}
 
+
 	void D3D8RenderSystem::_removeAllLights()
 	{
 		for( int i=0; i < MAX_LIGHTS; i++ )
@@ -690,53 +691,58 @@ namespace Ogre {
 		D3DLIGHT8 d3dLight;
 		ZeroMemory( &d3dLight, sizeof(d3dLight) );
 
-		switch( lt->getType() )
-		{
-		case Light::LT_POINT:
-			d3dLight.Type = D3DLIGHT_POINT;
-			break;
 
-		case Light::LT_DIRECTIONAL:
-			d3dLight.Type = D3DLIGHT_DIRECTIONAL;
-			break;
+        if (lt->isVisible())
+        {
+            switch( lt->getType() )
+		    {
+		    case Light::LT_POINT:
+			    d3dLight.Type = D3DLIGHT_POINT;
+			    break;
 
-		case Light::LT_SPOTLIGHT:
-			d3dLight.Type = D3DLIGHT_SPOT;
-			d3dLight.Falloff = lt->getSpotlightFalloff();
-			d3dLight.Theta = Math::getSingleton().DegreesToRadians( lt->getSpotlightInnerAngle() );
-			d3dLight.Phi = Math::getSingleton().DegreesToRadians( lt->getSpotlightOuterAngle() );
-			break;
-		}
+		    case Light::LT_DIRECTIONAL:
+			    d3dLight.Type = D3DLIGHT_DIRECTIONAL;
+			    break;
 
-		ColourValue col;
-		col = lt->getDiffuseColour();
-		d3dLight.Diffuse = D3DXCOLOR( col.r, col.g, col.b, col.a );
+		    case Light::LT_SPOTLIGHT:
+			    d3dLight.Type = D3DLIGHT_SPOT;
+			    d3dLight.Falloff = lt->getSpotlightFalloff();
+			    d3dLight.Theta = Math::getSingleton().DegreesToRadians( lt->getSpotlightInnerAngle() );
+			    d3dLight.Phi = Math::getSingleton().DegreesToRadians( lt->getSpotlightOuterAngle() );
+			    break;
+		    }
 
-		col = lt->getSpecularColour();
-		d3dLight.Specular = D3DXCOLOR( col.r, col.g, col.b, col.a );
+		    ColourValue col;
+		    col = lt->getDiffuseColour();
+		    d3dLight.Diffuse = D3DXCOLOR( col.r, col.g, col.b, col.a );
 
-		Vector3 vec;
-		if( lt->getType() != Light::LT_DIRECTIONAL )
-		{
-			vec = lt->getDerivedPosition();
-			d3dLight.Position = D3DXVECTOR3( vec.x, vec.y, vec.z );
-		}
-		if( lt->getType() != Light::LT_POINT )
-		{
-			vec = lt->getDerivedDirection();
-			d3dLight.Direction = D3DXVECTOR3( vec.x, vec.y, vec.z );
-		}
+		    col = lt->getSpecularColour();
+		    d3dLight.Specular = D3DXCOLOR( col.r, col.g, col.b, col.a );
 
-		d3dLight.Range = lt->getAttenuationRange();
-		d3dLight.Attenuation0 = lt->getAttenuationConstant();
-		d3dLight.Attenuation1 = lt->getAttenuationLinear();
-		d3dLight.Attenuation2 = lt->getAttenuationQuadric();
+		    Vector3 vec;
+		    if( lt->getType() != Light::LT_DIRECTIONAL )
+		    {
+			    vec = lt->getDerivedPosition();
+			    d3dLight.Position = D3DXVECTOR3( vec.x, vec.y, vec.z );
+		    }
+		    if( lt->getType() != Light::LT_POINT )
+		    {
+			    vec = lt->getDerivedDirection();
+			    d3dLight.Direction = D3DXVECTOR3( vec.x, vec.y, vec.z );
+		    }
 
-		if( FAILED( hr = mpD3DDevice->SetLight( index, &d3dLight ) ) )
-			Except( hr, "Unable to set light details", "D3D8RenderSystem::setD3D8Light" );
+		    d3dLight.Range = lt->getAttenuationRange();
+		    d3dLight.Attenuation0 = lt->getAttenuationConstant();
+		    d3dLight.Attenuation1 = lt->getAttenuationLinear();
+		    d3dLight.Attenuation2 = lt->getAttenuationQuadric();
 
-		if( FAILED( hr = mpD3DDevice->LightEnable( index, TRUE ) ) )
-			Except( hr, "Unable to enable light", "D3D8RenderSystem::setD3D8Light" );
+		    if( FAILED( hr = mpD3DDevice->SetLight( index, &d3dLight ) ) )
+			    Except( hr, "Unable to set light details", "D3D8RenderSystem::setD3D8Light" );
+
+        }
+
+        if( FAILED( hr = mpD3DDevice->LightEnable( index, lt->isVisible() ) ) )
+			Except( hr, "Unable to enable/disable light", "D3D8RenderSystem::setD3D8Light" );
 
 		lt->_clearModified();
 	}
@@ -1280,11 +1286,6 @@ namespace Ogre {
             hr = mpD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
             if (FAILED(hr))
                 Except(hr, "Error enabling alpha blending option.",
-                    "D3D8RenderSystem::_beginFrame");
-            // Allow stencilling
-            hr = mpD3DDevice->SetRenderState(D3DRS_STENCILENABLE, TRUE);
-            if (FAILED(hr))
-                Except(hr, "Error enabling stencilling.",
                     "D3D8RenderSystem::_beginFrame");
             firstTime = false;
 		}
@@ -1910,6 +1911,16 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
+    void D3D8RenderSystem::setStencilCheckEnabled(bool enabled)
+    {
+        // Allow stencilling
+        HRESULT hr = mpD3DDevice->SetRenderState(D3DRS_STENCILENABLE, enabled);
+        if (FAILED(hr))
+            Except(hr, "Error enabling / disabling stencilling.",
+                "D3D8RenderSystem::setStencilCheckEnabled");
+        
+    }
+    //---------------------------------------------------------------------
     bool D3D8RenderSystem::hasHardwareStencil(void)
     {
 
@@ -1917,7 +1928,7 @@ namespace Ogre {
         D3DSURFACE_DESC surfDesc;
         mpD3DDevice->GetDepthStencilSurface(&pSurf);
         pSurf->GetDesc(&surfDesc);
-        if (surfDesc.Format == D3DFMT_D24X8)
+        if (surfDesc.Format == D3DFMT_D24S8)
         {
             return true;
         }
