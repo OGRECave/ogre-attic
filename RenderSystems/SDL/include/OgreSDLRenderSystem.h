@@ -42,6 +42,14 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include <GL/glu.h>
 
+
+//---------------------------------------------------------------------
+// This next #define turns off multitexturing support in SDL
+// This will drop performance but prevents problems with some cards
+// Try enabling it if you like but it's not 100% guaranteed
+//---------------------------------------------------------------------
+#define OGRE_SDL_USE_MULTITEXTURING 0
+
 namespace Ogre {
 
     /**

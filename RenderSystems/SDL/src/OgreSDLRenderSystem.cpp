@@ -672,9 +672,13 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     unsigned short SDLRenderSystem::_getNumTextureUnits(void)
     {
-        GLint units;
-        glGetIntegerv( GL_MAX_TEXTURE_UNITS_ARB, &units );
-        return (unsigned short)units;
+        #if OGRE_SDL_USE_MULTITEXTURING
+            GLint units;
+            glGetIntegerv( GL_MAX_TEXTURE_UNITS_ARB, &units );
+            return (unsigned short)units;
+        #else
+            return 1;
+        #endif
 
     }
 
