@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePlane.h"
 #include "OgreHardwareBufferManager.h"
 #include "OgrePatchSurface.h"
+#include "OgreException.h"
 
 namespace Ogre
 {
@@ -696,6 +697,7 @@ namespace Ogre
             0,1 
 		};
         msh->sharedVertexData = new VertexData();
+        msh->sharedVertexData->vertexCount = 4;
 		VertexDeclaration* decl = msh->sharedVertexData->vertexDeclaration;
 		VertexBufferBinding* bind = msh->sharedVertexData->vertexBufferBinding;
 
