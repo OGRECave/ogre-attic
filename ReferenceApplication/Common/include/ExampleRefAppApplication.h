@@ -94,6 +94,11 @@ protected:
         // Set default mipmap level (NB some APIs ignore this)
         TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
+		// Create any resource listeners (for loading screens)
+		createResourceListener();
+		// Load resources
+		loadResources();
+
         // Create the scene
         createScene();
 
@@ -182,6 +187,20 @@ protected:
     {
         mWorld = new World(mSceneMgr);
     }
+	/// Optional override method where you can create resource listeners (e.g. for loading screens)
+	virtual void createResourceListener(void)
+	{
+
+	}
+
+	/// Optional override method where you can perform resource group loading
+	/// Must at least do ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+	virtual void loadResources(void)
+	{
+		// Initialise, parse scripts etc
+		ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+
+	}
 
 
 
