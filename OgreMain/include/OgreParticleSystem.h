@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #define __ParticleSystem_H__
 
 #include "OgrePrerequisites.h"
+
 #include "OgreBillboardSet.h"
 #include "OgreVector3.h"
 #include "OgreString.h"
@@ -115,7 +116,7 @@ namespace Ogre {
         virtual ~ParticleSystem();
 
         /** Gets the name of this particle system */
-        String getName(void);
+        virtual const String& getName(void) const;
 
         /** Adds an emitter to this particle system.
         @remarks
@@ -251,7 +252,8 @@ namespace Ogre {
         */
         void getWorldTransforms(Matrix4* xform);
 
-        /** Overridden from BillboardSet */
+        /** Overridden from BillboardSet
+        */
         void _notifyCurrentCamera(Camera* cam);
 
         /** Fast-forwards this system by the required number of seconds.
@@ -316,13 +318,7 @@ namespace Ogre {
 
         /** Internal method for initialising string interface. */
         void initParameters(void);
-
-
-
-
-
     };
-
 }
 
 #endif

@@ -119,14 +119,9 @@ namespace Ogre {
         */
         ~Entity();
 
-        /** Retrieves the Entity's name (cannot be changed after creation).
-        */
-        const String& getName(void) const;
-
         /** Gets the Mesh that this Entity is based on.
         */
         Mesh* getMesh(void);
-
 
         /** Gets a pointer to a SubEntity, ie a part of an Entity.
         */
@@ -170,10 +165,10 @@ namespace Ogre {
         void _updateRenderQueue(RenderQueue* queue);
 
         /** Overridden from MovableObject */
-        String getName(void);
+        const String& getName(void) const;
 
         /** Overridden from MovableObject */
-        String getMovableType(void);
+        const String getMovableType(void) const;
 
         /** For entities based on animated meshes, gets the AnimationState object for a single animation.
         @remarks
