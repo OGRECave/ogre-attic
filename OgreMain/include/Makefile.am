@@ -25,6 +25,7 @@ OgreController.h \
 OgreControllerManager.h \
 OgreCursor.h \
 OgreDataChunk.h \
+OgreDefaultHardwareBufferManager.h \
 OgreDynLib.h \
 OgreDynLibManager.h \
 OgreEntity.h \

@@ -24,6 +24,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreControllerManager.cpp \
                          OgreCursor.cpp \
                          OgreDataChunk.cpp \
+			 OgreDefaultHardwareBufferManager.cpp \
                          OgreDynLib.cpp \
                          OgreDynLibManager.cpp \
                          OgreEntity.cpp \

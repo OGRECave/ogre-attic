@@ -207,6 +207,9 @@
 				RelativePath="..\src\OgreDataChunk.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreDefaultHardwareBufferManager.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreDynLib.cpp">
 			</File>
 			<File
@@ -605,6 +608,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreDataChunk.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreDefaultHardwareBufferManager.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreDllInteface.h">
