@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 #include "OgreResourceManager.h"
 #include "OgreSingleton.h"
+#include "OgreStringVector.h"
 #include "OgreEventDispatcher.h"
 #include "OgreTargetManager.h"
 
@@ -53,6 +54,7 @@ namespace Ogre {
         int mLastViewportWidth, mLastViewportHeight;
         bool mViewportDimensionsChanged;
 
+		StringVector mLoadedOverlays;
 //		void dispatchEvent(InputEvent* e, 
 
 	    bool parseChildren( DataChunk& chunk, const String& line,
@@ -66,7 +68,9 @@ namespace Ogre {
         void parseOverlayFile(DataChunk& chunk);
         /** Parses all overlay files in resource folders & archives. */
         void parseAllSources(const String& extension = ".overlay");
+	    void parseOverlayFile(ArchiveEx* pArchiveEx, const String& name);
 
+	    void loadAndParseOverlayFile(const String& filename);
 
         /** Create implementation required by ResourceManager. */
         virtual Resource* create( const String& name);
