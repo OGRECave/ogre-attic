@@ -458,7 +458,7 @@ namespace Ogre {
         // Render this window
         PeekMessage( &msg, NULL, 0U, 0U, PM_NOREMOVE );
 
-        while( WM_QUIT != msg.message  )
+        while( /*WM_QUIT != msg.message*/ true  ) // no need to check for WM_QUIT anymore
         {
             // Check all windows to see if any are active / closed
             isActive = false;
