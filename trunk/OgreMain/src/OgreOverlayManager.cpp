@@ -26,7 +26,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreOverlayManager.h"
 #include "OgreStringVector.h"
-#include "OgreGuiManager.h"
 #include "OgreOverlayContainer.h"
 #include "OgreStringConverter.h"
 #include "OgreLogManager.h"
@@ -37,6 +36,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePositionTarget.h"
 #include "OgreException.h"
 #include "OgreViewport.h"
+#include "OgreOverlayElementFactory.h"
 
 namespace Ogre {
 
@@ -65,6 +65,8 @@ namespace Ogre {
     //---------------------------------------------------------------------
     OverlayManager::~OverlayManager()
     {
+		destroyAllOverlayElements(false);
+		destroyAllOverlayElements(true);
         destroyAll();
 
         // Unregister with resource group manager
@@ -294,7 +296,7 @@ namespace Ogre {
 
 		OverlayElement* newElement = NULL;
 		newElement = 
-				GuiManager::getSingleton().createOverlayElementFromTemplate(templateName, elemType, elemName, isTemplate);
+				OverlayManager::getSingleton().createOverlayElementFromTemplate(templateName, elemType, elemName, isTemplate);
 
 			// do not add a template to an overlay
 
@@ -557,5 +559,191 @@ namespace Ogre {
         return (Real)mLastViewportHeight / (Real)mLastViewportWidth;
     }
     //---------------------------------------------------------------------
+	//---------------------------------------------------------------------
+	OverlayManager::ElementMap& OverlayManager::getElementMap(bool isTemplate)
+	{
+		return (isTemplate)?mTemplates:mInstances;
+	}
+
+	//---------------------------------------------------------------------
+	OverlayElement* OverlayManager::createOverlayElementFromTemplate(const String& templateName, const String& typeName, const String& instanceName, bool isTemplate)
+	{
+
+		OverlayElement* newObj  = NULL;
+
+		if (templateName == "")
+		{
+			newObj = createOverlayElement(typeName, instanceName, isTemplate);
+		}
+		else
+		{
+			// no template 
+			OverlayElement* templateGui = getOverlayElement(templateName, true);
+
+			String typeNameToCreate;
+			if (typeName == "")
+			{
+				typeNameToCreate = templateGui->getTypeName();
+			}
+			else
+			{
+				typeNameToCreate = typeName;
+			}
+
+			newObj = createOverlayElement(typeNameToCreate, instanceName, isTemplate);
+
+			((OverlayContainer*)newObj)->copyFromTemplate(templateGui);
+		}
+
+		return newObj;
+	}
+
+
+	//---------------------------------------------------------------------
+	OverlayElement* OverlayManager::cloneOverlayElementFromTemplate(const String& templateName, const String& instanceName)
+	{
+		OverlayElement* templateGui = getOverlayElement(templateName, true);
+		return templateGui->clone(instanceName);
+	}
+
+	//---------------------------------------------------------------------
+	OverlayElement* OverlayManager::createOverlayElement(const String& typeName, const String& instanceName, bool isTemplate)
+	{
+		return createOverlayElementImpl(typeName, instanceName, getElementMap(isTemplate));
+	}
+
+	//---------------------------------------------------------------------
+	OverlayElement* OverlayManager::createOverlayElementImpl(const String& typeName, const String& instanceName, ElementMap& elementMap)
+	{
+		// Check not duplicated
+		ElementMap::iterator ii = elementMap.find(instanceName);
+		if (ii != elementMap.end())
+		{
+			Except(Exception::ERR_DUPLICATE_ITEM, "OverlayElement with name " + instanceName +
+				" already exists.", "OverlayManager::createOverlayElement" );
+		}
+		OverlayElement* newElem = createOverlayElementFromFactory(typeName, instanceName);
+		newElem->initialise();
+
+		// Register
+		elementMap.insert(ElementMap::value_type(instanceName, newElem));
+
+		return newElem;
+
+
+	}
+
+	//---------------------------------------------------------------------
+	OverlayElement* OverlayManager::createOverlayElementFromFactory(const String& typeName, const String& instanceName)
+	{
+		// Look up factory
+		FactoryMap::iterator fi = mFactories.find(typeName);
+		if (fi == mFactories.end())
+		{
+			Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot locate factory for element type " + typeName,
+				"OverlayManager::createOverlayElement");
+		}
+
+		// create
+		return fi->second->createOverlayElement(instanceName);
+	}
+
+	//---------------------------------------------------------------------
+	OverlayElement* OverlayManager::getOverlayElement(const String& name, bool isTemplate)
+	{
+		return getOverlayElementImpl(name, getElementMap(isTemplate));
+	}
+	//---------------------------------------------------------------------
+	OverlayElement* OverlayManager::getOverlayElementImpl(const String& name, ElementMap& elementMap)
+	{
+		// Locate instance
+		ElementMap::iterator ii = elementMap.find(name);
+		if (ii == elementMap.end())
+		{
+			Except(Exception::ERR_ITEM_NOT_FOUND, "OverlayElement with name " + name +
+				" not found.", "OverlayManager::getOverlayElementImpl" );
+		}
+
+		return ii->second;
+	}
+	//---------------------------------------------------------------------
+	void OverlayManager::destroyOverlayElement(const String& instanceName, bool isTemplate)
+	{
+		destroyOverlayElementImpl(instanceName, getElementMap(isTemplate));
+	}
+
+	//---------------------------------------------------------------------
+	void OverlayManager::destroyOverlayElement(OverlayElement* pInstance, bool isTemplate)
+	{
+		destroyOverlayElementImpl(pInstance->getName(), getElementMap(isTemplate));
+	}
+
+	//---------------------------------------------------------------------
+	void OverlayManager::destroyOverlayElementImpl(const String& instanceName, ElementMap& elementMap)
+	{
+		// Locate instance
+		ElementMap::iterator ii = elementMap.find(instanceName);
+		if (ii == elementMap.end())
+		{
+			Except(Exception::ERR_ITEM_NOT_FOUND, "OverlayElement with name " + instanceName +
+				" not found.", "OverlayManager::destroyOverlayElement" );
+		}
+		// Look up factory
+		const String& typeName = ii->second->getTypeName();
+		FactoryMap::iterator fi = mFactories.find(typeName);
+		if (fi == mFactories.end())
+		{
+			Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot locate factory for element type " + typeName,
+				"OverlayManager::destroyOverlayElement");
+		}
+
+		fi->second->destroyOverlayElement(ii->second);
+		elementMap.erase(ii);
+	}
+	//---------------------------------------------------------------------
+	void OverlayManager::destroyAllOverlayElements(bool isTemplate)
+	{
+		destroyAllOverlayElementsImpl(getElementMap(isTemplate));
+	}
+	//---------------------------------------------------------------------
+	void OverlayManager::destroyAllOverlayElementsImpl(ElementMap& elementMap)
+	{
+		ElementMap::iterator i;
+
+		while ((i = elementMap.begin()) != elementMap.end())
+		{
+			OverlayElement* element = i->second;
+
+			// Get factory to delete
+			FactoryMap::iterator fi = mFactories.find(element->getTypeName());
+			if (fi == mFactories.end())
+			{
+				Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot locate factory for element " 
+					+ element->getName(),
+					"OverlayManager::destroyAllOverlayElements");
+			}
+
+			// remove from parent, if any
+			OverlayContainer* parent;
+			if ((parent = element->getParent()) != 0)
+			{
+				parent->_removeChild(element->getName());
+			}
+
+			// children of containers will be auto-removed when container is destroyed.
+			// destroy the element and remove it from the list
+			fi->second->destroyOverlayElement(element);
+			elementMap.erase(i);
+		}
+	}
+	//---------------------------------------------------------------------
+	void OverlayManager::addOverlayElementFactory(OverlayElementFactory* elemFactory)
+	{
+		// Add / replace
+		mFactories[elemFactory->getTypeName()] = elemFactory;
+
+		LogManager::getSingleton().logMessage("OverlayElementFactory for type " + elemFactory->getTypeName()
+			+ " registered.");
+	}
 }
 

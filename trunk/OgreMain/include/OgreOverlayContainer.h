@@ -40,7 +40,7 @@ namespace Ogre {
         elements. These are also the smallest elements that can be attached directly
         to an Overlay.
     @remarks
-        OverlayContainers should be managed using GuiManager. This class is responsible for
+        OverlayContainers should be managed using OverlayManager. This class is responsible for
         instantiating / deleting elements, and also for accepting new types of element
         from plugins etc.
     */
@@ -60,7 +60,7 @@ namespace Ogre {
 		bool mChildrenProcessEvents;
  
     public:
-        /// Constructor: do not call direct, use GuiManager::createContainer
+        /// Constructor: do not call direct, use OverlayManager::createContainer
         OverlayContainer(const String& name);
         virtual ~OverlayContainer();
 

@@ -131,7 +131,7 @@ namespace Ogre {
     {
         mRootNode->removeAllChildren();
         m2DElements.clear();
-        // Note no deallocation, memory handled by GuiManager & SceneManager
+        // Note no deallocation, memory handled by OverlayManager & SceneManager
     }
     //---------------------------------------------------------------------
     void Overlay::setScroll(Real x, Real y)

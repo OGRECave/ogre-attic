@@ -41,7 +41,6 @@ Ogre-dependent is in the visualization/logging routines and the use of the Timer
 #include "OgreLogManager.h"
 #include "OgreStringConverter.h"
 #include "OgreOverlayManager.h"
-#include "OgreGuiManager.h"
 #include "OgreOverlayElement.h"
 #include "OgreOverlayContainer.h"
 
@@ -767,7 +766,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     OverlayContainer* Profiler::createContainer() {
 
-        OverlayContainer* container = (OverlayContainer*) GuiManager::getSingleton().createOverlayElement("BorderPanel", "profiler");
+        OverlayContainer* container = (OverlayContainer*) 
+			OverlayManager::getSingleton().createOverlayElement(
+				"BorderPanel", "profiler");
         container->setMetricsMode(GMM_PIXELS);
         container->setMaterialName("Core/StatsBlockCenter");
         container->setHeight(mGuiHeight);
@@ -793,7 +794,8 @@ namespace Ogre {
                                          uint fontSize, const String& caption, bool show) {
 
 
-        OverlayElement* textArea = GuiManager::getSingleton().createOverlayElement("TextArea", name);
+        OverlayElement* textArea = 
+			OverlayManager::getSingleton().createOverlayElement("TextArea", name);
         textArea->setMetricsMode(GMM_PIXELS);
         textArea->setWidth(width);
         textArea->setHeight(height);
@@ -819,7 +821,8 @@ namespace Ogre {
     OverlayElement* Profiler::createPanel(const String& name, Real width, Real height, Real top, Real left, 
                                       const String& materialName, bool show) {
 
-        OverlayElement* panel = GuiManager::getSingleton().createOverlayElement("Panel", name);
+        OverlayElement* panel = 
+			OverlayManager::getSingleton().createOverlayElement("Panel", name);
         panel->setMetricsMode(GMM_PIXELS);
         panel->setWidth(width);
         panel->setHeight(height);

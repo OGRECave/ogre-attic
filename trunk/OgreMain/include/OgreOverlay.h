@@ -116,13 +116,13 @@ namespace Ogre {
 
         /** Adds a 2D 'container' to the overlay.
         @remarks
-            Containers are created and managed using the GuiManager. A container
+            Containers are created and managed using the OverlayManager. A container
             could be as simple as a square panel, or something more complex like
             a grid or tree view. Containers group collections of other elements,
             giving them a relative coordinate space and a common z-order.
             If you want to attach a gui widget to an overlay, you have to do it via
             a container.
-        @param cont Pointer to a container to add, created using GuiManager.
+        @param cont Pointer to a container to add, created using OverlayManager.
         */
         void add2D(OverlayContainer* cont);
 

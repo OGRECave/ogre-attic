@@ -346,27 +346,27 @@ protected:
 	// GUI updaters
 	void updateInfoParamC()
 	{
-		GuiManager::getSingleton().getOverlayElement("Example/Water/Param_C") \
+		OverlayManager::getSingleton().getOverlayElement("Example/Water/Param_C") \
 			->setCaption("[1/2]Ripple speed: "+StringConverter::toString(waterMesh->PARAM_C));		
 	}
 	void updateInfoParamD()
 	{
-		GuiManager::getSingleton().getOverlayElement("Example/Water/Param_D") \
+		OverlayManager::getSingleton().getOverlayElement("Example/Water/Param_D") \
 			->setCaption("[3/4]Distance: "+StringConverter::toString(waterMesh->PARAM_D));		
 	}
 	void updateInfoParamU()
 	{
-		GuiManager::getSingleton().getOverlayElement("Example/Water/Param_U") \
+		OverlayManager::getSingleton().getOverlayElement("Example/Water/Param_U") \
 			->setCaption("[5/6]Viscosity: "+StringConverter::toString(waterMesh->PARAM_U));		
 	}
 	void updateInfoParamT()
 	{
-		GuiManager::getSingleton().getOverlayElement("Example/Water/Param_T") \
+		OverlayManager::getSingleton().getOverlayElement("Example/Water/Param_T") \
 			->setCaption("[7/8]Frame time: "+StringConverter::toString(waterMesh->PARAM_T));		
 	}
 	void updateInfoNormals()
 	{
-		GuiManager::getSingleton().getOverlayElement("Example/Water/Normals") \
+		OverlayManager::getSingleton().getOverlayElement("Example/Water/Normals") \
 			->setCaption(String("[N]Normals: ")+((waterMesh->useFakeNormals)?"fake":"real"));
 	}
 	void switchNormals()
@@ -376,12 +376,12 @@ protected:
 	}
 	void updateInfoHeadDepth()
 	{
-		GuiManager::getSingleton().getOverlayElement("Example/Water/Depth") \
+		OverlayManager::getSingleton().getOverlayElement("Example/Water/Depth") \
 			->setCaption(String("[U/J]Head depth: ")+StringConverter::toString(headDepth));
 	}
 	void updateInfoSkyBox()
 	{
-		GuiManager::getSingleton().getOverlayElement("Example/Water/SkyBox")
+		OverlayManager::getSingleton().getOverlayElement("Example/Water/SkyBox")
 			->setCaption(String("[B]SkyBox: ")+String((skyBoxOn)?"On":"Off") );
 	}
 	void updateMaterial()
@@ -404,7 +404,7 @@ protected:
 			}
 		}
 		waterEntity->setMaterialName(materialName);
-		GuiManager::getSingleton().getOverlayElement("Example/Water/Material") \
+		OverlayManager::getSingleton().getOverlayElement("Example/Water/Material") \
 			->setCaption(String("[M]Material: ")+materialName);
 	}
 

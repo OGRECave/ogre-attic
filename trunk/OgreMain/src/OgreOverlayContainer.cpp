@@ -28,7 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreOverlayContainer.h"
 #include "OgreException.h"
 #include "OgreMouseEvent.h"
-#include "OgreGuiManager.h"
+#include "OgreOverlayManager.h"
 
 namespace Ogre {
 
@@ -324,17 +324,19 @@ namespace Ogre {
 		    if (templateOverlay->isContainer() && isContainer())
 		    {
     	     OverlayContainer::ChildIterator it = static_cast<OverlayContainer*>(templateOverlay)->getChildIterator();
-  		     while (it.hasMoreElements())
-			     {
-				       OverlayElement* oldChildElement = it.getNext();
-				       if (oldChildElement->isCloneable())
-				       {
-                   OverlayElement* newChildElement = 
-                       GuiManager::getSingleton().createOverlayElement(oldChildElement->getTypeName(), mName+"/"+oldChildElement->getName());
-                   oldChildElement->copyParametersTo(newChildElement);
-                   addChild((OverlayContainer*)newChildElement);
-               }
-           }
+			 while (it.hasMoreElements())
+			 {
+				 OverlayElement* oldChildElement = it.getNext();
+				 if (oldChildElement->isCloneable())
+				 {
+					 OverlayElement* newChildElement = 
+						 OverlayManager::getSingleton().createOverlayElement(
+							oldChildElement->getTypeName(), 
+							mName+"/"+oldChildElement->getName());
+					 oldChildElement->copyParametersTo(newChildElement);
+					 addChild((OverlayContainer*)newChildElement);
+				 }
+			 }
         }
     }
 

@@ -40,7 +40,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreTextureManager.h"
 #include "OgreParticleSystemManager.h"
 #include "OgreSkeletonManager.h"
-#include "OgreGuiManager.h"
 #include "OgreOverlayElementFactory.h"
 #include "OgreOverlayManager.h"
 #include "OgreProfiler.h"
@@ -172,17 +171,15 @@ namespace Ogre {
 
         // Overlay manager
         mOverlayManager = new OverlayManager();
-        // Gui Manager
-        mGuiManager = new GuiManager();
 
         mPanelFactory = new PanelOverlayElementFactory();
-        mGuiManager->addOverlayElementFactory(mPanelFactory);
+        mOverlayManager->addOverlayElementFactory(mPanelFactory);
 
         mBorderPanelFactory = new BorderPanelOverlayElementFactory();
-        mGuiManager->addOverlayElementFactory(mBorderPanelFactory);
+        mOverlayManager->addOverlayElementFactory(mBorderPanelFactory);
 
         mTextAreaFactory = new TextAreaOverlayElementFactory();
-        mGuiManager->addOverlayElementFactory(mTextAreaFactory);
+        mOverlayManager->addOverlayElementFactory(mTextAreaFactory);
         // Font manager
         mFontManager = new FontManager();
 
@@ -237,7 +234,6 @@ namespace Ogre {
 #if OGRE_PROFILING
         delete mProfiler;
 #endif
-        delete mGuiManager;
         delete mOverlayManager;
         delete mFontManager;
         delete mArchiveManager;

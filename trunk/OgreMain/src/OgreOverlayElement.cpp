@@ -28,7 +28,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRoot.h"
 #include "OgreRenderSystem.h"
 #include "OgreOverlayElement.h"
-#include "OgreGuiManager.h"
 #include "OgreMaterialManager.h"
 #include "OgreOverlay.h"
 #include "OgreOverlayContainer.h"
@@ -796,7 +795,8 @@ namespace Ogre {
     {
         OverlayElement* newElement;
 
-        newElement = GuiManager::getSingleton().createOverlayElement(getTypeName(), instanceName + "/" + mName);
+        newElement = OverlayManager::getSingleton().createOverlayElement(
+			getTypeName(), instanceName + "/" + mName);
         copyParametersTo(newElement);
 
         return newElement;

@@ -268,10 +268,6 @@ SOURCE=..\src\OgreGpuProgramUsage.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\OgreGuiManager.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\OgreHardwareBufferManager.cpp
 # End Source File
 # Begin Source File
@@ -930,10 +926,6 @@ SOURCE=..\include\OgreGpuProgramManager.h
 # Begin Source File
 
 SOURCE=..\include\OgreGpuProgramUsage.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreGuiManager.h
 # End Source File
 # Begin Source File
 
