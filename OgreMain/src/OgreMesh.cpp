@@ -497,11 +497,13 @@ namespace Ogre {
     {
 		// No deallocation required, shared ptr will deal with that
         // Update vertex declaration - remove existing if present
-		unsigned short bindIndex = -1;
+		bool shareBindIndex = false;
+        unsigned short bindIndex;
 		VertexDeclaration* decl = targetVertexData->vertexDeclaration;
 		if (const VertexElement* elem = decl->findElementBySemantic(VES_BLEND_INDICES))
 		{
 			bindIndex = elem->getIndex(); // reuse
+            shareBindIndex = true;
 			decl->removeElement(VES_BLEND_INDICES);
 		}
 		if (decl->findElementBySemantic(VES_BLEND_WEIGHTS))
@@ -509,7 +511,8 @@ namespace Ogre {
 			decl->removeElement(VES_BLEND_WEIGHTS);
 		}
 		// If binding not found already, get next
-		if (bindIndex == -1) bindIndex = targetVertexData->vertexBufferBinding->getNextIndex();
+		if (!shareBindIndex) 
+            bindIndex = targetVertexData->vertexBufferBinding->getNextIndex();
 		// Add declarations for weights and indices
 		decl->addElement(
 			bindIndex, 
