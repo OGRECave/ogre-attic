@@ -53,6 +53,7 @@ namespace Ogre {
         int mMouseCenterX, mMouseCenterY;
         Real mScale;
         Uint8 mMouseKeys;
+        bool _visible;
 
         void processBufferedMouse();
     };
