@@ -601,12 +601,12 @@ namespace Ogre {
 		if (!shareBindIndex) 
             bindIndex = targetVertexData->vertexBufferBinding->getNextIndex();
 		// Add declarations for weights and indices
-		decl->addElement(
+		const VertexElement& pWeightElem = decl->addElement(
 			bindIndex, 
 			0, 
 			VertexElement::multiplyTypeCount(VET_FLOAT1, numBlendWeightsPerVertex),
 			VES_BLEND_WEIGHTS);
-		decl->addElement(
+		const VertexElement& pIdxElem = decl->addElement(
 			bindIndex, 
 			sizeof(float) * numBlendWeightsPerVertex, 
 			VertexElement::multiplyTypeCount(VET_SHORT1, numBlendWeightsPerVertex),
@@ -623,16 +623,16 @@ namespace Ogre {
         size_t v;
         VertexBoneAssignmentList::const_iterator i;
         i = boneAssignments.begin();
-		Real *pWeight = static_cast<Real*>(
+		unsigned char *pBase = static_cast<unsigned char*>(
 			mBlendingVB->lock(HardwareBuffer::HBL_DISCARD)); 
         // Iterate by vertex
+		Real *pWeight;
+		unsigned short *pIndex;
         for (v = 0; v < targetVertexData->vertexCount; ++v)
         {
-			/// Convert to index pointer, via void*
-			unsigned short *pIndex = static_cast<unsigned short*>(
-				static_cast<void*>(
-					pWeight + numBlendWeightsPerVertex)
-					);
+			/// Convert to specific pointers
+			pWeightElem.baseVertexPointerToElement(pBase, &pWeight);
+			pIdxElem.baseVertexPointerToElement(pBase, &pIndex);
             for (unsigned short bone = 0; bone < numBlendWeightsPerVertex; ++bone)
 			{
                 // Do we still have data for this vertex?
@@ -650,6 +650,7 @@ namespace Ogre {
                     *pIndex++ = 0;
                 }
             }
+			pBase += mBlendingVB->getVertexSize();
         }
 
 		mBlendingVB->unlock();
