@@ -56,6 +56,8 @@ namespace Ogre {
 
         // No fog
         mFogMode = FOG_NONE;
+
+        mDisplayNodes = false;
     }
 
     SceneManager::~SceneManager()
