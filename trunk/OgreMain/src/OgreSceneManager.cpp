@@ -1251,7 +1251,7 @@ namespace Ogre {
 
         // Set up the solid / wireframe override
         SceneDetailLevel reqDetail = rend->getRenderDetail();
-        if (reqDetail != lastDetailLevel)
+        if (reqDetail != lastDetailLevel || reqDetail != camDetailLevel)
         {
             if (reqDetail > camDetailLevel)
             {
