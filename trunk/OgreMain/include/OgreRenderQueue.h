@@ -52,6 +52,9 @@ namespace Ogre {
         /// Use this queue for objects which must be rendered last e.g. overlays
         RENDER_QUEUE_OVERLAY = 10
     };
+
+    #define RENDERABLE_DEFAULT_PRIORITY  100
+
     /** Class to manage the scene object rendering queue.
         @remarks
             Objects are grouped by material to minimise rendering state changes. The map from
@@ -65,23 +68,12 @@ namespace Ogre {
     */
     class _OgreExport RenderQueue
     {
-        /** Comparator for material map, for sorting materials into render order (e.g. transparent last).
-        */
-        struct queueItemLess
-        {
-            _OgreExport bool operator()(const Material* x, const Material* y) const;
-        };
-
-        friend class SceneManager;
     public:
-        /// Map on material within each queue group, outsort transparent
-        typedef std::map<Material*, std::vector<Renderable*>, queueItemLess > RenderQueueMap;
-        /// Map on queue group number overall, orders by ascending groupID
-        typedef std::map< RenderQueueGroupID, RenderQueueMap* > RenderQueueGroup;
+        typedef std::map< RenderQueueGroupID, RenderQueueGroup* > RenderQueueGroupMap;
         /// Iterator over queue groups
-        typedef MapIterator<RenderQueueGroup> QueueGroupIterator;
+        typedef MapIterator<RenderQueueGroupMap> QueueGroupIterator;
     protected:
-        RenderQueueGroup mQueues;
+        RenderQueueGroupMap mGroups;
     public:
         RenderQueue();
         virtual ~RenderQueue();
@@ -104,8 +96,15 @@ namespace Ogre {
             respects the divisions between the groupings and does not reorder them outside these
             boundaries. This can be handy for overlays where no matter what you want the overlay to 
             be rendered last.
+        @param
+            priority Controls the priority of the renderable within the queue group. If this number
+            is raised, the renderable will be rendered later in the group compared to it's peers.
+            Don't use this unless you really need to, manually ordering renderables prevents OGRE
+            from sorting them for best efficiency. However this could be useful for ordering 2D
+            elements manually for example.
         */
-        void addRenderable(Renderable* pRend, RenderQueueGroupID groupID = RENDER_QUEUE_MAIN);
+        void addRenderable(Renderable* pRend, RenderQueueGroupID groupID = RENDER_QUEUE_MAIN, 
+            ushort priority = RENDERABLE_DEFAULT_PRIORITY);
 
         /** Internal method, returns an iterator for the queue groups. */
         QueueGroupIterator _getQueueGroupIterator(void);

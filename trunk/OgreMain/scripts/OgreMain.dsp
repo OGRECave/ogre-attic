@@ -776,6 +776,10 @@ SOURCE=..\include\OgreRenderQueue.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreRenderQueueSortingGrouping.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreRenderSystem.h
 # End Source File
 # Begin Source File

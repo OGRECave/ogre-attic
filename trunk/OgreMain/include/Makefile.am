@@ -75,6 +75,7 @@ OgrePrerequisites.h \
 OgreQuaternion.h \
 OgreRenderOperation.h \
 OgreRenderQueue.h \
+OgreRenderQueueSortingGrouping.h \
 OgreRenderSystem.h \
 OgreRenderTarget.h \
 OgreRenderTargetListener.h \

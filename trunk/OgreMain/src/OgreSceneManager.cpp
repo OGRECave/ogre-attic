@@ -38,6 +38,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreMaterialManager.h"
 #include "OgreAnimation.h"
 #include "OgreAnimationTrack.h"
+#include "OgreRenderQueueSortingGrouping.h"
 
 // This class implements the most basic scene manager
 
@@ -658,10 +659,10 @@ namespace Ogre {
         // Place at -1 z (as far forward in homogenous clip space as you can get)
         // Use {-1, 1} 2D coords, make slightly smaller than total for effect
         Real testPositions[4*3] = {
-            -1, -1, 0,
-             1, -1, 0,
-             1,  1, 0, 
-            -1,  1, 0};
+            -1, -1, -1,
+             1, -1, -1,
+             1,  1, -1, 
+            -1,  1, -1};
         Real testUV[4*2] = {
             0, 0,
             1, 0,
@@ -1302,61 +1303,70 @@ namespace Ogre {
         while (queueIt.hasMoreElements())
         {
             // TODO raise event to say queue is about to be rendered?
-            RenderQueue::RenderQueueMap* pQueue = queueIt.getNext();
+            RenderQueueGroup* pGroup = queueIt.getNext();
 
-            // Just render each entity in turn, grouped by material
-            RenderQueue::RenderQueueMap::iterator imat, imatend;
-            imatend = pQueue->end();
-            static Matrix4 xform[256];
-            RenderOperation ro;
+            // Iterate through priorities
+            RenderQueueGroup::PriorityMapIterator groupIt = pGroup->getIterator();
 
-            for (imat = pQueue->begin(); imat != imatend; ++imat)
+            while (groupIt.hasMoreElements())
             {
-                // Set Material
-                Material* thisMaterial = imat->first;
-                int matLayersLeft = thisMaterial->getNumTextureLayers();
+                RenderPriorityGroup* pPriorityGrp = groupIt.getNext();
 
-                // NB do at least one rendering pass even if no layers! (Untextured materials)
-                do
+                // Just render each entity in turn, grouped by material
+                RenderPriorityGroup::MaterialGroupMap::iterator imat, imatend;
+                imatend = pPriorityGrp->mMaterialGroups.end();
+                static Matrix4 xform[256];
+                RenderOperation ro;
+
+                for (imat = pPriorityGrp->mMaterialGroups.begin(); imat != imatend; ++imat)
                 {
-                    // Set material - will return non-zero if multipass required so loop will continue, 0 otherwise
-                    matLayersLeft = setMaterial(thisMaterial, matLayersLeft);
+                    // Set Material
+                    Material* thisMaterial = imat->first;
+                    int matLayersLeft = thisMaterial->getNumTextureLayers();
 
-
-                    // Iterate through renderables and render
-                    // Note this may happen multiple times for multipass render
-                    std::vector<Renderable*>::iterator irend, irendend;
-                    irendend = imat->second.end();
-
-                    for (irend = imat->second.begin(); irend != irendend; ++irend)
+                    // NB do at least one rendering pass even if no layers! (Untextured materials)
+                    do
                     {
-                        // Set world transformation
-                        (*irend)->getWorldTransforms(xform);
-                        unsigned short numMatrices = (*irend)->getNumWorldTransforms();
-                        if (numMatrices > 1)
+                        // Set material - will return non-zero if multipass required so loop will continue, 0 otherwise
+                        matLayersLeft = setMaterial(thisMaterial, matLayersLeft);
+
+
+                        // Iterate through renderables and render
+                        // Note this may happen multiple times for multipass render
+                        std::vector<Renderable*>::iterator irend, irendend;
+                        irendend = imat->second.end();
+
+                        for (irend = imat->second.begin(); irend != irendend; ++irend)
                         {
-                            mDestRenderSystem->_setWorldMatrices(xform, numMatrices);
+                            // Set world transformation
+                            (*irend)->getWorldTransforms(xform);
+                            unsigned short numMatrices = (*irend)->getNumWorldTransforms();
+                            if (numMatrices > 1)
+                            {
+                                mDestRenderSystem->_setWorldMatrices(xform, numMatrices);
+                            }
+                            else
+                            {
+                                mDestRenderSystem->_setWorldMatrix(*xform);
+                            }
+
+                            // Set up rendering operation
+                            (*irend)->getRenderOperation(ro);
+
+                            if( ro.numVertices )
+                                mDestRenderSystem->_render(ro);
+
                         }
-                        else
-                        {
-                            mDestRenderSystem->_setWorldMatrix(*xform);
-                        }
-
-                        // Set up rendering operation
-                        (*irend)->getRenderOperation(ro);
-
-                        if( ro.numVertices )
-                            mDestRenderSystem->_render(ro);
-
-                    }
-                } while (matLayersLeft > 0);
+                    } while (matLayersLeft > 0);
 
 
-            } // for each material
+                } // for each material
 
+            }// for each priority
+        
             // TODO raise event to say queue has been rendered?
 
-        } // Each queue
+        } // for each queue group
 
     }
     //-----------------------------------------------------------------------

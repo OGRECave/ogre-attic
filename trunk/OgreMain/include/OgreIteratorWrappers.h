@@ -70,6 +70,13 @@ namespace Ogre {
         {
             return *mCurrent++;
         }
+        /** Returns the next element in the collection, without advancing to the next. */
+        typename T::value_type peekNext(void)
+        {
+            return *mCurrent;
+        }
+
+
 
     };
 
@@ -114,6 +121,17 @@ namespace Ogre {
         {
             return (mCurrent++)->second;
         }
+        /** Returns the next value element in the collection, without advancing to the next. */
+        typename T::mapped_type peekNextValue(void)
+        {
+            return mCurrent->second;
+        }
+        /** Returns the next key element in the collection, without advancing to the next. */
+        typename T::key_type peekNextKey(void)
+        {
+            return mCurrent->first;
+        }
+
 
     };
 

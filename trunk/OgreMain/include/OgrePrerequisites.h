@@ -157,7 +157,9 @@ namespace Ogre {
     class Plane;
     class Quaternion;
     class Renderable;
+    class RenderPriorityGroup;
     class RenderQueue;
+    class RenderQueueGroup;
     class RenderSystem;
     class RenderTarget;
     class RenderTargetListener;
