@@ -84,10 +84,10 @@ namespace Ogre {
     DDDriver::~DDDriver()
     {
         // Delete related system objects
-        //if (mDeviceList)
-            //delete mDeviceList;
-        //if (mVideoModeList)
-            //delete mVideoModeList;
+        if (mDeviceList)
+            delete mDeviceList;
+        if (mVideoModeList)
+            delete mVideoModeList;
 
     }
 

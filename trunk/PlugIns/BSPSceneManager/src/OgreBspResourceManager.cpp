@@ -37,7 +37,12 @@ namespace Ogre {
     BspResourceManager::BspResourceManager()
     {
         // Also create related shader manager (singleton managed)
-        Quake3ShaderManager *shaderMgr = new Quake3ShaderManager();
+        mShaderMgr = new Quake3ShaderManager();
+    }
+    //-----------------------------------------------------------------------
+    BspResourceManager::~BspResourceManager()
+    {
+        delete mShaderMgr;
     }
     //-----------------------------------------------------------------------
     BspLevel* BspResourceManager::load( const String& filename, int priority)

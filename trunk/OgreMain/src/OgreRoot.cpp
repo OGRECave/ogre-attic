@@ -130,17 +130,17 @@ namespace Ogre {
         // Platform manager
         mPlatformManager = new PlatformManager();
 
-        ArchiveManager::getSingleton().addArchiveFactory( new ZipArchiveFactory );
+        mZipArchiveFactory = new ZipArchiveFactory();
+        ArchiveManager::getSingleton().addArchiveFactory( mZipArchiveFactory );
 
-        Codec *pCodec;
-        pCodec = new PNGCodec;
-        Codec::registerCodec( pCodec );
-        pCodec = new JPEGCodec;
-        Codec::registerCodec( pCodec );
-        pCodec = new TGACodec;
-        Codec::registerCodec( pCodec );
-        pCodec = new JPGCodec;
-        Codec::registerCodec( pCodec );
+        mPNGCodec = new PNGCodec;
+        Codec::registerCodec( mPNGCodec );
+        mJPEGCodec = new JPEGCodec;
+        Codec::registerCodec( mJPEGCodec );
+        mTGACodec = new TGACodec;
+        Codec::registerCodec( mTGACodec );
+        mJPGCodec = new JPGCodec;
+        Codec::registerCodec( mJPGCodec );
 
         // Load plugins
         loadPlugins();        
@@ -188,6 +188,11 @@ namespace Ogre {
         shutdown();
         delete mSceneManagerEnum;
 
+        delete mTGACodec;
+        delete mJPGCodec;
+        delete mJPEGCodec;
+        delete mPNGCodec;
+        delete mZipArchiveFactory;
         delete mArchiveManager;
         delete mSkeletonManager;
         delete mMeshManager;

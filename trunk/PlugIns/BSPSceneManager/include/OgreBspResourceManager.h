@@ -43,6 +43,7 @@ namespace Ogre {
     {
     public:
         BspResourceManager();
+        ~BspResourceManager();
 
         /** Loads a BSP-based level from the named file.
             Currently only supports loading of Quake3 .bsp files.
@@ -63,6 +64,9 @@ namespace Ogre {
             single compilation unit, preventing link errors.
         */
         static BspResourceManager& getSingleton(void);
+    protected:
+        // Singleton managed by this class
+        Quake3ShaderManager *mShaderMgr;
 
     };
 

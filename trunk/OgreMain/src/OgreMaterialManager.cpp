@@ -802,6 +802,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     MaterialManager::~MaterialManager()
     {
+        delete Material::mDefaultSettings;
 	    // Resources cleared by superclass
     }
     //-----------------------------------------------------------------------

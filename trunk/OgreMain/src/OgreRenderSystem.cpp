@@ -61,13 +61,12 @@ namespace Ogre {
     RenderSystem::~RenderSystem()
     {
         // Destroy render windows created
-        /*
         for (RenderWindowMap::iterator i = mRenderWindows.begin();
                 i != mRenderWindows.end(); ++i)
         {
-            delete (*i).second;
+            delete i->second;
         }
-        */
+        mRenderWindows.clear();
 
     }
     //-----------------------------------------------------------------------

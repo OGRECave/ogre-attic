@@ -95,6 +95,8 @@ namespace Ogre
         MeshManager* mMeshManager;
         ParticleSystemManager* mParticleManager;
         SkeletonManager* mSkeletonManager;
+        ArchiveFactory *mZipArchiveFactory;
+        Codec* mPNGCodec, *mJPGCodec, *mJPEGCodec, *mTGACodec;
 
         std::vector<DynLib*> mPluginLibs;
         /** Method reads a plugins configuration file and instantiates all

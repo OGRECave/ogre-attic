@@ -70,7 +70,7 @@ namespace Ogre {
     DDDriverList::~DDDriverList()
     {
         // Release drivers
-        mDriverList.erase( mDriverList.begin(), mDriverList.begin() + mDriverList.size() - 1 );
+        mDriverList.clear();
     }
 
     BOOL DDDriverList::enumerate()
