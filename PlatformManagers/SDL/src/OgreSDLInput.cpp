@@ -72,6 +72,7 @@ namespace Ogre {
         _key_map.insert(InputKeyMap::value_type(SDLK_j, KC_J));
         _key_map.insert(InputKeyMap::value_type(SDLK_k, KC_K));
         _key_map.insert(InputKeyMap::value_type(SDLK_l, KC_L));
+        _key_map.insert(InputKeyMap::value_type(SDLK_BACKQUOTE, KC_GRAVE));
         _key_map.insert(InputKeyMap::value_type(SDLK_LSHIFT, KC_LSHIFT));
         _key_map.insert(InputKeyMap::value_type(SDLK_BACKSLASH, KC_BACKSLASH));
         _key_map.insert(InputKeyMap::value_type(SDLK_z, KC_Z));
@@ -305,7 +306,7 @@ namespace Ogre {
         case KC_SEMICOLON:
         case KC_APOSTROPHE:
         case KC_GRAVE:  /* accent grave */
-            break;
+            return mKeyboardBuffer[SDLK_BACKQUOTE];
         case KC_LSHIFT:
             return mKeyboardBuffer[SDLK_LSHIFT];
         case KC_BACKSLASH:
