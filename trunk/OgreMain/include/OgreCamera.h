@@ -477,7 +477,7 @@ namespace Ogre {
         void _updateRenderQueue(RenderQueue* queue);
 
         /** Overridden from MovableObject */
-        const String getMovableType(void) const;
+        const String& getMovableType(void) const;
 
         /** Enables / disables automatic tracking of a SceneNode.
         @remarks

@@ -216,7 +216,7 @@ namespace Ogre {
         const String& getName(void) const;
 
         /** Overridden from MovableObject */
-        const String getMovableType(void) const;
+        const String& getMovableType(void) const;
 
         /** For entities based on animated meshes, gets the AnimationState object for a single animation.
         @remarks
