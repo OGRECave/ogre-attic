@@ -92,6 +92,10 @@ void ATI_FS_GLGpuProgram::loadFromSource(void)
 
     PS_1_4 PS1_4Assembler;
 	// attempt to compile the source
+#ifdef _DEBUG
+	PS1_4Assembler.test(); // run compiler tests in debug mode
+#endif
+
     bool Error = !PS1_4Assembler.compile(mSource.c_str());
 
     if(!Error) { 
@@ -111,14 +115,14 @@ void ATI_FS_GLGpuProgram::loadFromSource(void)
     }
     else {
 		// an error occured when compiling the ps_1_4 source code
-		char buff[100];
-        sprintf(buff,"error at position: %d\n%s\n", PS1_4Assembler.mCurrentLine, &mSource.c_str()[PS1_4Assembler.mCharPos] );
+		char buff[50];
+        sprintf(buff,"error on line %d in pixel shader source\n", PS1_4Assembler.mCurrentLine);
 
 		LogManager::getSingleton().logMessage("Warning: atifs compiler reported the following errors:");
-		LogManager::getSingleton().logMessage(buff);
+		LogManager::getSingleton().logMessage(buff + mName);
 
 		Except(Exception::ERR_INTERNAL_ERROR, 
-			"Cannot Compile ATI fragment shader :" + mName + "\n" + buff, mName);// + 
+			"Cannot Compile ATI fragment shader : " + mName + "\n\n" + buff , mName);// + 
     }
 
 

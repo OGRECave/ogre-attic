@@ -23,7 +23,6 @@ http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,7 +30,9 @@ http://www.gnu.org/copyleft/gpl.html.
 
 Compiler2Pass::Compiler2Pass()
 {
+	// reserve some memory space in the containers being used
 	mTokenInstructions.reserve(100);
+	mConstants.reserve(80);
 	// default contexts allows all contexts
 	// subclass should change it to fit the language being compiled
 	mActiveContexts = 0xffffffff;
@@ -40,51 +41,45 @@ Compiler2Pass::Compiler2Pass()
 
 
 
-void Compiler2Pass::InitTypeLibText()
+void Compiler2Pass::InitSymbolTypeLib()
 {
+	uint token_ID;
+	// find a default text for all Symbol Types in library
 
-  // find a default text for all Symbol Types in library
-  for(int i=0; i < mASMSymbolTypeLibCnt; i++) {
-    // search for the first occurrence of text with same type
-    for(int j=0; j < mASMSymbolTextLibCnt; j++) {
-      if( mASMSymbolTextLib[j].mID == mASMSymbolTypeLib[i].mID) {
-        mASMSymbolTypeLib[i].mDefTextID = j;
-        break;
-      }
-    }// end of for:  j<ASMSymbolTextLibCnt
-  }// end of for: i<ASMSymbolTypeLibCnt
+	// scan through all the rules and initialize TypeLib with index to text and index to rules for non-terminal tokens
+	for(int i = 0; i < mRulePathLibCnt; i++) {
+		token_ID = mRootRulePath[i].mTokenID;
+		switch(mRootRulePath[i].mOperation) {
+			case otRULE:
+				// if operation is a rule then update typelib
+				mSymbolTypeLib[token_ID].mRuleID = i;
 
-}
-
-
-bool Compiler2Pass::checkTokenSemantics(uint ID1, uint ID2)
-{
-  ASMSymbolDef* tokenleft = &mASMSymbolTypeLib[ID1];
-  ASMSymbolDef* tokenright = &mASMSymbolTypeLib[ID2];
-  // both left and right results must be true for semantic check to pass
-  return (tokenleft->mRightRules & tokenright->mInstType) && (tokenright->mLeftRules & tokenleft->mInstType);
+			case otAND:
+			case otOR:
+			case otOPTIONAL:
+				// update text index in typelib
+				if (mRootRulePath[i].mSymbol != NULL) mSymbolTypeLib[token_ID].mDefTextID = i;
+				break;
+		}
+	}
 
 }
 
 
 bool Compiler2Pass::compile(const char* source)
 {
-  bool Passed;
+	bool Passed = false;
 
-  mCurrentLine = 1;
-  mCharPos = 0;
-  // reset position in Constants array
-  mConstantsPos = 0;
-  mSource = source;
-  mEndOfSource = strlen(mSource);
+	mSource = source;
+	// start compiling if there is a rule base to work with
+	if(mRootRulePath != NULL) {
+		 Passed = doPass1();
 
-  // start compiling
-  Passed = doPass1();
-  if(Passed) {
-    Passed = doPass2();
-  }
-
-  return Passed;
+		if(Passed) {
+			Passed = doPass2();
+		}
+	}
+	return Passed;
 }
 
 
@@ -93,71 +88,186 @@ bool Compiler2Pass::doPass1()
 	// scan through Source string and build a token list using TokenInstructions
 	// this is a simple brute force lexical scanner/analyzer that also parses the formed
 	// token for proper semantics and context in one pass
-	bool success = true;
-	bool finished = false;
-	uint tokenfound;
-	bool semantics_ok;
-	TokenInst newtoken;
 
-#ifdef _DEBUG
-  //MessageBox(NULL, "starting pass 1", "ATI fs compiler", MB_OK);
-  //MessageBox(NULL, mSource, "ATI fs compiler", MB_OK);
-#endif
+	mCurrentLine = 1;
+	mCharPos = 0;
+	// reset position in Constants container
+	mConstants.clear();
+	mEndOfSource = strlen(mSource);
+
 	// start with a clean slate
 	mTokenInstructions.clear();
 	// tokenize and check semantics untill an error occurs or end of source is reached
-	while(success && !finished) {
-		// assume going to fail
-		success = false;
+	// assume RootRulePath has pointer to rules so start at index + 1 for first rule path
+	// first rule token would be a rule definition so skip over it
+	bool passed = processRulePath(0);
+	// if a symbol in source still exists then the end of source was not reached andthere was a problem some where
+	if (positionToNextSymbol()) passed = false;
+	return passed;
 
-		if(positionToNextSymbol()) {
-			tokenfound = Tokenize();
-			if(tokenfound != BAD_TOKEN) {
-				// a token has been found
-				// check for correct semantics if there is a token to the left
-				if(mTokenInstructions.size() > 0) {
-					semantics_ok = checkTokenSemantics(mTokenInstructions[mTokenInstructions.size() - 1].mID, tokenfound);
+}
+
+
+bool Compiler2Pass::processRulePath( uint rulepathIDX)
+{
+	// rule path determines what tokens and therefore what symbols are acceptable from the source
+	// it is assumed that the tokens with the longest similar symbols are arranged first so
+	// if a match is found it is accepted and no further searching is done
+
+	// record position of last token in container
+	// to be used as the rollback position if a valid token is not found
+	uint TokenContainerOldSize = mTokenInstructions.size();
+	int OldCharPos = mCharPos;
+	int OldLinePos = mCurrentLine;
+	uint OldConstantsSize = mConstants.size();
+
+	// keep track of what non-terminal token activated the rule
+	uint ActiveNTTRule = mRootRulePath[rulepathIDX].mTokenID;
+	// start rule path at next position for definition
+	rulepathIDX++;
+
+	// assume the rule will pass
+	bool Passed = true;
+	bool EndFound = false;
+
+	// keep following rulepath until the end is reached
+	while (EndFound == false) {
+		switch (mRootRulePath[rulepathIDX].mOperation) {
+
+			case otAND:
+				// only validate if the previous rule passed
+				if(Passed) Passed = ValidateToken(rulepathIDX, ActiveNTTRule); 
+				break;
+
+			case otOR:
+				// only validate if the previous rule failed
+				if ( Passed == false ) {
+					// clear previous tokens from entry and try again
+					mTokenInstructions.resize(TokenContainerOldSize);
+					Passed = ValidateToken(rulepathIDX, ActiveNTTRule);
 				}
-				else {
-					semantics_ok = true;
+				else { // path passed up to this point therefore finished so pretend end marker found
+					EndFound = true;
 				}
+				break;
+
+			case otOPTIONAL:
+				// if previous passed then try this rule but it does not effect succes of rule since its optional
+				if(Passed) ValidateToken(rulepathIDX, ActiveNTTRule); 
+				break;
+
+			case otREPEAT:
+				// repeat until no tokens of this type found 
+				// at least one must be found
+				if(Passed) {
+					int TokensPassed = 0;
+					// keep calling until failure
+					while ( Passed = ValidateToken(rulepathIDX, ActiveNTTRule)) {
+						// increment count for previous passed token
+						TokensPassed++;
+					}
+					// defaults to Passed = fail
+					// if at least one token found then return passed = true
+					if (TokensPassed > 0) Passed = true;
+				}
+				break;
+
+			case otEND:
+				// end of rule found so time to return
+				EndFound = true;
+				if(Passed == false) {
+					// the rule did not validate so get rid of tokens decoded
+					// roll back the token container end position to what it was when rule started
+					// this will get rid of all tokens that had been pushed on the container while
+					// trying to validating this rule
+					mTokenInstructions.resize(TokenContainerOldSize);
+					mConstants.resize(OldConstantsSize);
+					mCharPos = OldCharPos;
+					mCurrentLine = OldLinePos;
+				}
+				break;
+
+			default:
+				// an exception should be raised since the code should never get here
+				Passed = false;
+				EndFound = true;
+				break;
+
+		}
 
 
-				if(semantics_ok) {
-					newtoken.mID = tokenfound;
+		// move on to the next rule in the path
+		rulepathIDX++;
+	}
+
+	return Passed;
+
+}
+
+
+bool Compiler2Pass::ValidateToken(uint rulepathIDX, uint activeRuleID)
+{
+	int tokenlength = 0;
+	// assume the test is going to fail
+	bool Passed = false;
+	uint TokenID = mRootRulePath[rulepathIDX].mTokenID;
+	// only validate token if context is correct
+	if (mSymbolTypeLib[TokenID].mContextKey & mActiveContexts) {
+	
+		// if terminal token then compare text of symbol with what is in source
+		if ( mSymbolTypeLib[TokenID].mRuleID == 0){
+
+			if (positionToNextSymbol()) {
+				// if Token is supposed to be a number then check if its a numerical constant
+				if (TokenID == mValueID) {
+					float constantvalue;
+					if(Passed = isFloatValue(constantvalue, tokenlength)) {
+						mConstants.push_back(constantvalue);
+					}
+					
+				}
+				// compare token symbol text with source text
+				else Passed = isSymbol(mRootRulePath[rulepathIDX].mSymbol, tokenlength);
+					
+				if(Passed) {
+					TokenInst newtoken;
+					// push token onto end of container
+					newtoken.mID = TokenID;
+					newtoken.mNTTRuleID = activeRuleID;
 					newtoken.mLine = mCurrentLine;
 					newtoken.mPos = mCharPos;
+
 					mTokenInstructions.push_back(newtoken);
-					// if the token is a constant value then put value in Constants container
-					if (tokenfound == mValueID) {
-						mConstants[mConstantsPos] = mConstantFloatValue;
-						mConstantsPos++;
-					}
+					// update source position
+					mCharPos += tokenlength;
+
 					// allow token instruction to change the ActiveContexts
-					// token contexts pattern clear ActiveContexts pattern bits
-					mActiveContexts &= ~mASMSymbolTypeLib[tokenfound].mContextPatternClear;
-					// token contexts pattern set ActiveContexts pattern bits
-					mActiveContexts |= mASMSymbolTypeLib[tokenfound].mContextPatternSet;
-					success = true;
-				}// end of if(tokenok)
-			}
-		}
-		else {
-			// check for end of source
-			if(mCharPos == mEndOfSource) {
-				finished = true;
-				success = true;
+					// use token contexts pattern to clear ActiveContexts pattern bits
+					mActiveContexts &= ~mSymbolTypeLib[TokenID].mContextPatternClear;
+					// use token contexts pattern to set ActiveContexts pattern bits
+					mActiveContexts |= mSymbolTypeLib[TokenID].mContextPatternSet;
+				}
 			}
 
 		}
+		// else a non terminal token was found
+		else {
+
+			// execute rule for non-terminal
+			// get rule_ID for index into  rulepath to be called
+			Passed = processRulePath(mSymbolTypeLib[TokenID].mRuleID);
+		}
 	}
-	return success;
+
+
+	return Passed;
+
 }
 
 
 char* Compiler2Pass::getTypeDefText(uint sid)
 {
-	return mASMSymbolTextLib[mASMSymbolTypeLib[sid].mDefTextID].mName;
+	return mRootRulePath[mSymbolTypeLib[sid].mDefTextID].mSymbol;
 }
 
 
@@ -236,6 +346,7 @@ void Compiler2Pass::findEOL()
 	char* newpos = strchr(&mSource[mCharPos], '\n');
 	if(newpos) {
 		mCharPos += newpos - &mSource[mCharPos];
+		mCurrentLine++;
 	}
 	// couldn't find end of line so skip to the end
 	else mCharPos = mEndOfSource - 1;
@@ -259,50 +370,5 @@ void Compiler2Pass::skipWhiteSpace()
 {
 	// FIX - this method kinda slow
 	while((mSource[mCharPos] == ' ') || (mSource[mCharPos] == '\t')) mCharPos++; // find first non white space character
-}
-
-
-
-uint Compiler2Pass::Tokenize()
-{
-	// assume that CharPos is at an alpha numeric character that may represent a symbol in the library
-	// iterate through the library until a symbol is found
-	// the same symbol could be used in different contexts and may have different meanings
-	// each symbol has a context key
-	// the same symbols in the library are assumed to have a unique context key so that symbol conflicts can be resolved in Pass 1
-	// the symbol context key is tested in the ActiveContext pattern to see if it fits
-	// if the symbol context key fits in the ActiveContext pattern then the symbol can be used as a token
-	// if can't be tokenized then return BAD_TOKEN
-	uint tokenID = BAD_TOKEN;
-	int tokenlength = 0;
-	int length;
-
-	// scan the whole library and use the token with the longest name
-	// that fits the context
-	// use straight linear scan for now
-	// should move to a HASH map
-	for(int i= 0; i < mASMSymbolTextLibCnt; i++) {
-		if(isSymbol(mASMSymbolTextLib[i].mName, length)) {
-			if(length >= tokenlength) {
-				// check token context key fits in Active Context
-				if (mASMSymbolTypeLib[mASMSymbolTextLib[i].mID].mContextKey & mActiveContexts) {
-			
-					tokenID = mASMSymbolTextLib[i].mID;
-					tokenlength = length;
-				}
-
-			}
-		}
-
-		// if no symbol found then check if its a numerical constant
-		if (tokenID == BAD_TOKEN) {
-			if(isFloatValue(mConstantFloatValue, tokenlength)) tokenID = mValueID;
-		}
-	}
-
-	if(tokenID != BAD_TOKEN) mCharPos += tokenlength;
-
-	return tokenID;
-
 }
 
