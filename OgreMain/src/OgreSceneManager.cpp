@@ -37,6 +37,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreControllerManager.h"
 #include "OgreMaterialManager.h"
 #include "OgreAnimation.h"
+#include "OgreAnimationTrack.h"
 
 // This class implements the most basic scene manager
 
@@ -595,6 +596,7 @@ namespace Ogre {
     void SceneManager::_renderScene(Camera* camera, Viewport* vp)
     {
         mCameraInProgress = camera;
+
 
         _updateSceneGraph(camera);
         _updateDynamicLights();
@@ -1477,4 +1479,109 @@ namespace Ogre {
         }
         mAnimationsList.clear();
     }
+    //-----------------------------------------------------------------------
+    AnimationState* SceneManager::createAnimationState(const String& animName)
+    {
+        if (mAnimationStates.find(animName) != mAnimationStates.end())
+        {
+            Except(Exception::ERR_DUPLICATE_ITEM, 
+                "Cannot create, AnimationState already exists.", 
+                "SceneManager::createAnimationState");
+        }
+
+        // Get animation, this will throw an exception if not found
+        Animation* anim = getAnimation(animName);
+
+        // Create new state
+        AnimationState newState(animName, 0, anim->getLength());
+
+        // Record it
+        std::pair<AnimationStateSet::iterator, bool> retPair = 
+            mAnimationStates.insert(AnimationStateSet::value_type(animName, newState));
+
+        // Check boolean return
+        if (retPair.second)
+        {
+            // insert was OK
+            // Get pointer from iterator in pair
+            return &(retPair.first->second);
+        }
+        else
+        {
+            // Problem
+            // Not because of duplicate item, that's checked for above
+            Except(Exception::ERR_INTERNAL_ERROR, "Unexpected error creating new animation state.",
+                "SceneManager::createAnimationState");
+        }
+
+
+    }
+    //-----------------------------------------------------------------------
+    AnimationState* SceneManager::getAnimationState(const String& animName) 
+    {
+        AnimationStateSet::iterator i = mAnimationStates.find(animName);
+
+        if (i == mAnimationStates.end())
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, 
+                "Cannot locate animation state for animation " + animName,
+                "SceneManager::getAnimationState");
+        }
+
+        return &(i->second);
+
+    }
+    //-----------------------------------------------------------------------
+    void SceneManager::destroyAnimationState(const String& name)
+    {
+        AnimationStateSet::iterator i = mAnimationStates.find(name);
+
+        if (i == mAnimationStates.end())
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, 
+                "Cannot locate animation state for animation " + name,
+                "SceneManager::destroyAnimationState");
+        }
+
+        mAnimationStates.erase(i);
+
+
+    }
+    //-----------------------------------------------------------------------
+    void SceneManager::destroyAllAnimationStates(void)
+    {
+        mAnimationStates.clear();
+    }
+    //-----------------------------------------------------------------------
+    void SceneManager::_applySceneAnimations(void)
+    {
+        AnimationStateSet::const_iterator i, iend;
+
+        i = mAnimationStates.begin();
+        iend = mAnimationStates.end();
+    
+        for (;i != iend; ++i)
+        {
+            Animation* anim = getAnimation(i->second.getAnimationName());
+
+            // Reset any nodes involved
+            // NB this excludes blended animations
+            const Animation::TrackList& trackList = anim->_getTrackList();
+            Animation::TrackList::const_iterator ti, tend;
+            ti = trackList.begin();
+            tend = trackList.end();
+            for (;ti != tend; ++ti)
+            {
+                Node* nd = ti->second->getAssociatedNode();
+                nd->resetToInitialState();
+            }
+
+
+            // Apply the animation
+            anim->apply(i->second.getTimePosition(), i->second.getWeight());
+        }
+
+
+    }
+
 }

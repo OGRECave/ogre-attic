@@ -140,12 +140,15 @@ namespace Ogre {
         static InterpolationMode getDefaultInterpolationMode(void);
 
 
+        typedef std::map<unsigned short, AnimationTrack*> TrackList;
+
+        /// Fast access to NON-UPDATEABLE track list
+        const TrackList& _getTrackList(void) const;
 
 
 
     protected:
         /// Tracks, indexed by handle
-        typedef std::map<unsigned short, AnimationTrack*> TrackList;
         TrackList mTrackList;
         String mName;
 
