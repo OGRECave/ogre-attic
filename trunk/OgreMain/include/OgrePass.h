@@ -780,8 +780,44 @@ namespace Ogre {
 
         /** Queue this pass for deletion when appropriate. */
         void queueForDeletion(void);
+
+        /** Returns whether this pass is ambient only.
+        */
+        bool isAmbientOnly(void);
+
         
     };
+
+    enum IlluminationStage
+    {
+        /// Part of the rendering which occurs without any kind of direct lighting
+        IS_AMBIENT,
+        /// Part of the rendering which occurs per light
+        IS_PER_LIGHT,
+        /// Post-lighting rendering
+        IS_DECAL
+    };
+    /** Struct recording a pass which can be used for a specific illumination stage.
+    @remarks
+        This structure is used to record categorised passes which fit into a 
+        number of distinct illumination phases - ambient, diffuse / specular 
+        (per-light) and decal (post-lighting texturing).
+        An original pass may fit into one of these categories already, or it
+        may require splitting into its component parts in order to be categorised 
+        properly.
+    */
+    struct IlluminationPass
+    {
+        IlluminationStage stage;
+        /// The pass to use in this stage
+        Pass* pass;
+        /// Whether this pass is one which should be deleted itself
+        bool destroyOnShutdown;
+        /// The original pass which spawned this one
+        Pass* originalPass;
+    };
+
+    typedef std::vector<IlluminationPass*> IlluminationPassList;
 
 
 }

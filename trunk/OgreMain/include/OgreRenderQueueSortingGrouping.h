@@ -4,7 +4,7 @@ This source file is part of OGRE
     (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
-Copyright © 2000-2002 The OGRE Team
+Copyright © 2000-2004 The OGRE Team
 Also see acknowledgements in Readme.html
 
 This program is free software; you can redistribute it and/or modify it under
@@ -62,7 +62,6 @@ namespace Ogre {
             RenderablePass(Renderable* rend, Pass* p) :renderable(rend), pass(p) {}
         };
 
-        friend class Ogre::SceneManager;
         /// Comparator to order non-transparent object passes
         struct SolidQueueItemLess
         {
@@ -123,160 +122,86 @@ namespace Ogre {
         important. */
         typedef std::map<Pass*, RenderableList*, SolidQueueItemLess> SolidRenderablePassMap;
     protected:
-        /// Solid pass list
+        /// Parent queue group
+        RenderQueueGroup* mParent;
+        bool mSplitPassesByLightingType;
+        /// Solid pass list, used when no shadows or modulative shadows
         SolidRenderablePassMap mSolidPasses;
+        /// Solid ambient only pass list, used with additive shadows
+        SolidRenderablePassMap mSolidPassesAmbient;
+        /// Solid per-light pass list, used with additive shadows
+        SolidRenderablePassMap mSolidPassesDiffuseSpecular;
+        /// Solid decal (texture) pass list, used with additive shadows
+        SolidRenderablePassMap mSolidPassesDecal;
+
 		/// Transparent list
 		TransparentRenderablePassList mTransparentPasses;
 
-        /** Storage of transparent RenderablePass structs, this is separate from list because
-            it makes sorting faster */
-        typedef std::vector<RenderablePass> TransparentRenderablePasses;
-        TransparentRenderablePasses mRenderablePasses;
+        /// Totally empties and destroys a solid pass map
+        void destroySolidPassMap(SolidRenderablePassMap& passmap);
+
+        /// remove a pass entry from all solid pass maps
+        void removeSolidPassEntry(Pass* p);
+
+        /// Clear a solid pass map at the end of a frame
+        void clearSolidPassMap(SolidRenderablePassMap& passmap);
+        /// Internal method for adding a solid renderable
+        void addSolidRenderable(Technique* pTech, Renderable* rend);
+        /// Internal method for adding a solid renderable
+        void addSolidRenderableSplitByLightType(Technique* pTech, Renderable* rend);
+        /// Internal method for adding a transparent renderable
+        void addTransparentRenderable(Technique* pTech, Renderable* rend);
 
     public:
-        RenderPriorityGroup() {}
+        RenderPriorityGroup(RenderQueueGroup* parent, bool splitPassesByLightingType) 
+            :mParent(parent), mSplitPassesByLightingType(splitPassesByLightingType) { }
 
         ~RenderPriorityGroup() {
             // destroy all the pass map entries
-            SolidRenderablePassMap::iterator i, iend;
-            iend = mSolidPasses.end();
-            for (i = mSolidPasses.begin(); i != iend; ++i)
-            {
-                // Free the list associated with this pass
-                delete i->second;
-            }
-            mSolidPasses.clear();
+            destroySolidPassMap(mSolidPasses);
+            destroySolidPassMap(mSolidPassesAmbient);
+            destroySolidPassMap(mSolidPassesDecal);
+            destroySolidPassMap(mSolidPassesDiffuseSpecular);
             mTransparentPasses.clear();
 
         }
 
+        /** Get the collection of solid passes currently queued */
+        const SolidRenderablePassMap& _getSolidPasses(void) 
+        { return mSolidPasses; }
+        /** Get the collection of solid passes currently queued (ambient only) */
+        const SolidRenderablePassMap& _getSolidPassesAmbient(void) 
+        { return mSolidPassesAmbient; }
+        /** Get the collection of solid passes currently queued (per-light) */
+        const SolidRenderablePassMap& _getSolidPassesDiffuseSpecular(void) 
+        { return mSolidPassesDiffuseSpecular; }
+        /** Get the collection of solid passes currently queued (decal textures)*/
+        const SolidRenderablePassMap& _getSolidPassesDecal(void) 
+        { return mSolidPassesDecal; }
+        /** Get the collection of transparent passes currently queued */
+        const TransparentRenderablePassList& _getTransparentPasses(void)
+        { return mTransparentPasses; }
+
+
+
         /** Add a renderable to this group. */
-        void addRenderable(Renderable* pRend)
-        {
-            // Check material & technique supplied (the former since the default implementation
-            // of getTechnique is based on it for backwards compatibility
-            Technique* pTech;
-            if(!pRend->getMaterial() || !pRend->getTechnique())
-            {
-                // Use default base white
-                pTech = static_cast<Material*>(
-                    MaterialManager::getSingleton().getByName("BaseWhite"))->getTechnique(0);
-            }
-            else
-            {
-                // Get technique
-                pTech = pRend->getTechnique();
-            }
-            Technique::PassIterator pi = pTech->getPassIterator();
-
-            if (pTech->isTransparent())
-			{
-                while (pi.hasMoreElements())
-                {
-				    // Insert into transparent list
-				    mTransparentPasses.push_back(RenderablePass(pRend, pi.getNext()));
-			    }
-            }
-			else
-			{
-                while (pi.hasMoreElements())
-                {
-                    // Insert into solid list
-                    Pass* p = pi.getNext();
-                    SolidRenderablePassMap::iterator i = mSolidPasses.find(p);
-                    if (i == mSolidPasses.end())
-                    {
-                        std::pair<SolidRenderablePassMap::iterator, bool> retPair;
-                        // Create new pass entry, build a new list
-                        // Note that this pass and list are never destroyed until the engine
-                        // shuts down, although the lists will be cleared
-                        retPair = mSolidPasses.insert(
-                            SolidRenderablePassMap::value_type(p, new RenderableList() ) );
-                        assert(retPair.second && "Error inserting new pass entry into SolidRenderablePassMap");
-                        i = retPair.first;
-                    }
-                    // Insert renderable
-                    i->second->push_back(pRend);
-
-			    }
-            }
-
-        }
+        void addRenderable(Renderable* pRend);
 
 		/** Sorts the objects which have been added to the queue; transparent objects by their 
             depth in relation to the passed in Camera. */
-		void sort(const Camera* cam)
-		{
-            TransparentQueueItemLess transFunctor;
-            transFunctor.camera = cam;
-
-			std::stable_sort(mTransparentPasses.begin(), mTransparentPasses.end(), 
-                transFunctor);
-		}
-
-		 
+		void sort(const Camera* cam);
 
         /** Clears this group of renderables. 
         */
-        void clear(void)
+        void clear(void);
+
+        /** Sets whether or not the queue will split passes by their lighting type,
+        ie ambient, per-light and decal. 
+        */
+        void setSplitPassesByLightingType(bool split)
         {
-            SolidRenderablePassMap::iterator i, iend;
-
-            
-            // Delete queue groups which are using passes which are to be
-            // deleted, we won't need these any more and they clutter up 
-            // the list and can cause problems with future clones
-            const Pass::PassSet& graveyardList = Pass::getPassGraveyard();
-            Pass::PassSet::const_iterator gi, giend;
-            giend = graveyardList.end();
-            for (gi = graveyardList.begin(); gi != giend; ++gi)
-            {
-                Pass* p = *gi;
-                i = mSolidPasses.find(p);
-                if (i != mSolidPasses.end())
-                {
-                    // free memory
-                    delete i->second;
-                    // erase from map
-                    mSolidPasses.erase(i);
-                }
-            }
-
-            // Now remove any dirty passes, these will have their hashes recalculated
-            // by the parent queue after all groups have been processed
-            // If we don't do this, the std::map will become inconsistent for new insterts
-            const Pass::PassSet& dirtyList = Pass::getDirtyHashList();
-		    Pass::PassSet::const_iterator di, diend;
-		    diend = dirtyList.end();
-		    for (di = dirtyList.begin(); di != diend; ++di)
-		    {
-			    Pass* p = *di;
-                i = mSolidPasses.find(p);
-                if (i != mSolidPasses.end())
-                {
-                    // free memory
-                    delete i->second;
-                    // erase from map
-                    mSolidPasses.erase(i);
-                }
-		    }
-            // NB we do NOT clear the graveyard or the dirty list here, because 
-            // it needs to be acted on for all groups, the parent queue takes 
-            // care of this afterwards
-
-            // We do not clear the unchanged solid pass maps, only the contents of each list
-            // This is because we assume passes are reused a lot and it saves resorting
-            iend = mSolidPasses.end();
-            for (i = mSolidPasses.begin(); i != iend; ++i)
-            {
-                // Clear the list associated with this pass, but leave the pass entry
-                i->second->clear();
-            }
-            // Always empty the transparents list
-            mTransparentPasses.clear();
-
+            mSplitPassesByLightingType = split;
         }
-
 
 
     };
@@ -297,6 +222,8 @@ namespace Ogre {
         typedef std::map<ushort, RenderPriorityGroup*, std::less<ushort> > PriorityMap;
         typedef MapIterator<PriorityMap> PriorityMapIterator;
     protected:
+        RenderQueue* mParent;
+        bool mSplitPassesByLightingType;
         /// Map of RenderPriorityGroup objects
         PriorityMap mPriorityGroups;
 		/// Whether shadows are enabled for this queue
@@ -304,7 +231,9 @@ namespace Ogre {
 
 
     public:
-		RenderQueueGroup() :mShadowsEnabled(true) {}
+		RenderQueueGroup(RenderQueue* parent, bool splitPassesByLightingType) 
+            :mParent(parent), mSplitPassesByLightingType(splitPassesByLightingType),
+            mShadowsEnabled(true) {}
 
         ~RenderQueueGroup() {
             // destroy contents now
@@ -330,7 +259,7 @@ namespace Ogre {
             if (i == mPriorityGroups.end())
             {
                 // Missing, create
-                pPriorityGrp = new RenderPriorityGroup();
+                pPriorityGrp = new RenderPriorityGroup(this, mSplitPassesByLightingType);
                 mPriorityGroups.insert(PriorityMap::value_type(priority, pPriorityGrp));
             }
             else
@@ -376,6 +305,20 @@ namespace Ogre {
 
 		/** Are shadows enabled for this queue? */
 		bool getShadowsEnabled(void) { return mShadowsEnabled; }
+
+        /** Sets whether or not the queue will split passes by their lighting type,
+        ie ambient, per-light and decal. 
+        */
+        void setSplitPassesByLightingType(bool split)
+        {
+            PriorityMap::iterator i, iend;
+            iend = mPriorityGroups.end();
+            for (i = mPriorityGroups.begin(); i != iend; ++i)
+            {
+                i->second->setSplitPassesByLightingType(split);
+            }
+        }
+
     };
 
 

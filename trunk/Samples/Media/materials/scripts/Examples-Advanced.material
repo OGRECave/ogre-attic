@@ -225,6 +225,9 @@ material Examples/BumpMapping/SingleLight
 	{
 		pass
 		{
+			// base colours, not needed for rendering, but as information
+			// to lighting pass categorisation routine
+			ambient 0 0 0 
 			// Vertex program reference
 			vertex_program_ref Examples/BumpMapVP
 			{
@@ -265,6 +268,9 @@ material Examples/BumpMapping/SingleLight
 	{
 		pass
 		{
+			// base colours, not needed for rendering, but as information
+			// to lighting pass categorisation routine
+			ambient 0 0 0 
 			// Vertex program reference
 			vertex_program_ref Examples/BumpMapVP
 			{
@@ -308,6 +314,11 @@ material Examples/BumpMapping/MultiLight
 		// Base ambient pass
 		pass
 		{
+			// base colours, not needed for rendering, but as information
+			// to lighting pass categorisation routine
+			ambient 1 1 1
+			diffuse 0 0 0 
+			specular 0 0 0 
 			// Really basic vertex program
 			// NB we don't use fixed function here because GL does not like
 			// mixing fixed function and vertex programs, depth fighting can
@@ -361,6 +372,9 @@ material Examples/BumpMapping/MultiLight
 		// Decal pass
 		pass
 		{
+			// base colours, not needed for rendering, but as information
+			// to lighting pass categorisation routine
+			lighting off
 			// Really basic vertex program
 			// NB we don't use fixed function here because GL does not like
 			// mixing fixed function and vertex programs, depth fighting can
@@ -387,6 +401,11 @@ material Examples/BumpMapping/MultiLight
 		// Base ambient pass
 		pass
 		{
+			// base colours, not needed for rendering, but as information
+			// to lighting pass categorisation routine
+			ambient 1 1 1
+			diffuse 0 0 0 
+			specular 0 0 0 
 			// Really basic vertex program
 			// NB we don't use fixed function here because GL does not like
 			// mixing fixed function and vertex programs, depth fighting can
@@ -436,6 +455,7 @@ material Examples/BumpMapping/MultiLight
 		// Decal pass
 		pass
 		{
+			lighting off
 			// Really basic vertex program
 			// NB we don't use fixed function here because GL does not like
 			// mixing fixed function and vertex programs, depth fighting can
@@ -467,6 +487,11 @@ material Examples/BumpMapping/MultiLightSpecular
 		// Base ambient pass
 		pass
 		{
+			// base colours, not needed for rendering, but as information
+			// to lighting pass categorisation routine
+			ambient 1 1 1
+			diffuse 0 0 0 
+			specular 0 0 0 
 			// Really basic vertex program
 			// NB we don't use fixed function here because GL does not like
 			// mixing fixed function and vertex programs, depth fighting can
@@ -528,6 +553,7 @@ material Examples/BumpMapping/MultiLightSpecular
 		// Decal pass
 		pass
 		{
+			lighting off
 			// Really basic vertex program
 			// NB we don't use fixed function here because GL does not like
 			// mixing fixed function and vertex programs, depth fighting can
@@ -554,6 +580,11 @@ material Examples/BumpMapping/MultiLightSpecular
 		// Base ambient pass
 		pass
 		{
+			// base colours, not needed for rendering, but as information
+			// to lighting pass categorisation routine
+			ambient 1 1 1
+			diffuse 0 0 0 
+			specular 0 0 0 
 			// Really basic vertex program
 			// NB we don't use fixed function here because GL does not like
 			// mixing fixed function and vertex programs, depth fighting can
@@ -603,6 +634,7 @@ material Examples/BumpMapping/MultiLightSpecular
 		// Decal pass
 		pass
 		{
+			lighting off
 			// Really basic vertex program
 			// NB we don't use fixed function here because GL does not like
 			// mixing fixed function and vertex programs, depth fighting can

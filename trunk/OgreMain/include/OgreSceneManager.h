@@ -286,7 +286,7 @@ namespace Ogre {
         AxisAlignedBoxSceneQuery* mShadowCasterAABBQuery;
 
         /// Inner class to use as callback for shadow caster scene query
-        class ShadowCasterSceneQueryListener : public SceneQueryListener
+        class _OgreExport ShadowCasterSceneQueryListener : public SceneQueryListener
         {
         protected:
             ShadowCasterList* mCasterList;

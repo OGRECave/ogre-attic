@@ -104,6 +104,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreQuaternion.cpp \
 						 OgreRectangle2D.cpp \
                          OgreRenderQueue.cpp \
+						 OgreRenderQueueSortingGrouping.cpp \
                          OgreRenderSystem.cpp \
                          OgreRenderSystemCapabilities.cpp \
                          OgreRenderTarget.cpp \
