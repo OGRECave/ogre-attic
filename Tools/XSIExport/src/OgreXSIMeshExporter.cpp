@@ -25,13 +25,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreXSIMeshExporter.h"
 #include <xsi_model.h>
 #include <xsi_primitive.h>
-#include <xsi_point.h>
 #include <xsi_polygonnode.h>
 #include <xsi_polygonmesh.h>
-#include <xsi_facet.h>
 #include <xsi_material.h>
 #include <xsi_vertex.h>
-#include <xsi_triangle.h>
 #include <xsi_trianglevertex.h>
 #include <xsi_cluster.h>
 #include <xsi_kinematics.h>
@@ -56,7 +53,7 @@ namespace Ogre {
         : initialised(false), position(Vector3::ZERO), normal(Vector3::ZERO), colour(0), nextIndex(0)
     {
         for (int i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; ++i)
-            uv[i] = Vector2::ZERO;
+            uv[i] = Vector3::ZERO;
     }
     //-----------------------------------------------------------------------
     bool XsiMeshExporter::UniqueVertex::operator==(const UniqueVertex& rhs) const
@@ -265,17 +262,58 @@ namespace Ogre {
 
         // Ok, we now have our array of UV sets
         numUVs = uvClusterPropertiesRefArray.GetCount();
-        CDoubleArray* uvValueArray = new CDoubleArray[numUVs];
-
+		size_t numSamplerPoints = xsiMesh.GetNodes().GetCount();
+		// list of UVs stored in order of sampler points (use 3D coords by default)
+		std::vector<Vector3*> uvSamplerSets;
+		std::vector<ushort> uvSamplerDimensions; // actual dimensions
+		uvSamplerSets.reserve(numUVs);
+		uvSamplerDimensions.reserve(numUVs);
         for(i = 0; i < numUVs; ++i)
         {
-            ClusterProperty uvProp(uvClusterPropertiesRefArray[i]);
+			// init sampler points
+			Vector3* samplerUVs = new Vector3[numSamplerPoints];
+			uvSamplerSets.push_back(samplerUVs);
 
-            // Get the elements, they are always UVW elements
-            // TODO: we need some way to figure out whether to use 2D or 3D coords?
-            // for now we only do 2D
-            CClusterPropertyElementArray uvElementArray = uvProp.GetElements();
-            uvValueArray[i] = uvElementArray.GetArray();
+			// Detect the dimensions by figuring out if any are all 0
+			bool hasU, hasV, hasW;
+			hasU = hasV = hasW = false;
+
+			// Pull out all the UV data for this set and reorder it based on 
+			// samples, we'll need this for reference later
+			// get Elements from uvspace Property
+            ClusterProperty uvProp(uvClusterPropertiesRefArray[i]);
+			CClusterPropertyElementArray uvElements = uvProp.GetElements();
+
+			// Now, each Element here is actually a CDoubleArray of the u,v,w values
+			// However it's not in order of samplers, we need to use the Array
+			// linked to from the Elements collection under the cluster (not the 
+			// cluster property, confusing I know) to figure out what sampler 
+			// index it is, i.e.
+			// samplerUVs[Array[j]] = Element[j]
+			// In all cases in XSI element properties are referenced back to 
+			// their original poly index via this array, ie all cluster properties
+			// in the same cluster are dereferenced in the same way. 
+			CLongArray derefArray = samplePointClusterUV.GetElements().GetArray();
+
+			for (int j = 0; j < uvElements.GetCount(); ++j)
+			{
+				CDoubleArray curUVW(uvElements.GetItem(j));
+				size_t samplerIndex = derefArray[j];
+				samplerUVs[samplerIndex].x = curUVW[0];//u
+				samplerUVs[samplerIndex].y = curUVW[1];//v
+				samplerUVs[samplerIndex].z = curUVW[2];//w
+
+				if (!hasU && curUVW[0] > 0)
+					hasU = true;
+				if (!hasV && curUVW[1] > 0)
+					hasV = true;
+				if (!hasW && curUVW[2] > 0)
+					hasW = true;
+
+			}
+			
+			// save dimensions
+			uvSamplerDimensions.push_back((hasU?1:0) + (hasV?1:0) + (hasW?1:0));
 
         }
 
@@ -314,6 +352,11 @@ namespace Ogre {
         for (long t = 0; t < triArray.GetCount(); ++t)
         {
             Triangle tri(triArray[t]);
+			// derive sampler indices for triangle
+			size_t samplerIndices[3];
+			CPolygonFaceRefArray polys(xsiMesh.GetPolygons());
+			deriveSamplerIndices(tri, polys[tri.GetPolygonIndex()], samplerIndices);
+
             CTriangleVertexRefArray points = tri.GetPoints();
             for (long p = 0; p < 3; ++p)
             {
@@ -332,10 +375,13 @@ namespace Ogre {
 				rotTrans.SetRotation(xsiTransform.GetRotation());
 				xsinorm *= rotTrans;
                 vertex.normal = XSItoOgre(xsinorm);
-                // TODO: should index multiple UVs from cluster properties
-                // but how? no UV element index and TriangleVertex only has 1 UV
-                vertex.uv[0].x = point.GetUV().u;
-                vertex.uv[0].y = point.GetUV().v;
+
+				for (int i = 0; i < numUVs; ++i)
+				{
+					// sampler indices can correctly dereference to sampler-order
+					// uv sets we built earlier
+					vertex.uv[i] = (uvSamplerSets[i])[samplerIndices[p]];
+				}
                 
                 if (hasVertexColours)
                     vertex.colour = XSItoOgre(point.GetColor());
@@ -346,7 +392,13 @@ namespace Ogre {
             }
         }
 
-        delete [] uvValueArray;
+		// free temp UV data now
+		for(i = 0; i < numUVs; ++i)
+		{
+			// init sampler points
+			delete [] uvSamplerSets[i];
+		}
+        uvSamplerSets.clear();
 
         // Now bake final geometry
         sm->vertexData->vertexCount = mUniqueVertices.size();
@@ -398,13 +450,15 @@ namespace Ogre {
             sm->vertexData->vertexDeclaration->addElement(buf, offset, VET_COLOUR, VES_DIFFUSE);
             offset += VertexElement::getTypeSize(VET_COLOUR);
         }
-        // TODO - remove hack
-        // HACK - see issues above with indexing multiple UVs
-        numUVs = 1;
+        // Write uvs
         for (unsigned short uvi = 0; uvi < numUVs; ++uvi)
         {
-            sm->vertexData->vertexDeclaration->addElement(buf, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, i);
-            offset += VertexElement::getTypeSize(VET_FLOAT2);
+			VertexElementType uvType = 
+				VertexElement::multiplyTypeCount(
+					VET_FLOAT1, uvSamplerDimensions[uvi]);
+            sm->vertexData->vertexDeclaration->addElement(
+				buf, offset, uvType, VES_TEXTURE_COORDINATES, uvi);
+            offset += VertexElement::getTypeSize(uvType);
         }
 
         // create & fill buffer(s)
@@ -444,6 +498,78 @@ namespace Ogre {
 
 
     }
+	//-----------------------------------------------------------------------
+	void XsiMeshExporter::deriveSamplerIndices(const Triangle& tri, const PolygonFace& face, 
+		size_t* samplerIndices)
+	{
+		//We want to find what is the SampleIndex associated with 3 vertex in a Triangle
+		CPointRefArray facePoints = face.GetPoints();
+
+		//Get the position of the 3 vertex in the triangle
+		MATH::CVector3Array triPos = tri.GetPositionArray();
+
+		//Get the position of the N Points in the polygon
+		MATH::CVector3Array facePos = facePoints.GetPositionArray();
+
+		//To know if the 3 vertex have a point in the same position
+		bool found[3];
+		found[0] = false;
+		found[1] = false;
+		found[2] = false;
+
+		int p,t;
+		//For the 3 triangle vertices
+		for(t=0; t<3 ; t++)
+		{       //for each polygon point
+			for(p=0; p<facePos.GetCount() && !found[t]; p++)
+			{
+				//Check if the position is the same
+				if(triPos[t] == facePos[p])
+				{
+					//if so, we know the PolygonPointIndex of the TriangleVertex
+					//then, we must find what is the sample index associated with this Point
+					samplerIndices[t] = getSamplerIndex(Facet(face), facePoints[p]);
+					found[t] = true;
+				}
+			}
+
+		}
+
+		if (!found[0] || !found[1] || !found[2] )
+		{
+			// Problem!
+			mXsiApp.LogMessage(L"!! Couldn't find a matching UV point!");
+		}
+
+	}
+	//-----------------------------------------------------------------------
+	size_t XsiMeshExporter::getSamplerIndex(const Facet &f, const Point &p)
+	{
+		//This function check if a Sample is shared by a Facet and a Point
+		//just by using the operator=
+		//Only one Sample can be shared.
+
+		Sample curFacetSample;
+		CSampleRefArray facetSamples( f.GetSamples() );
+		CSampleRefArray pointSamples( p.GetSamples() );
+
+		for(int i = 0; i < facetSamples.GetCount(); i++ )
+		{
+
+			curFacetSample = Sample( facetSamples[i] );
+
+			for(int j = 0; j < pointSamples.GetCount(); j++)
+			{
+				if(curFacetSample == Sample(pointSamples[j]))
+				{
+					return curFacetSample.GetIndex();
+				}
+			}
+		}
+		// Problem!
+		mXsiApp.LogMessage(L"!! Couldn't find a matching sample point!");
+		return 0;
+	}
     //-----------------------------------------------------------------------
     template <typename T> 
     void XsiMeshExporter::writeIndexes(T* buf)
@@ -500,8 +626,11 @@ namespace Ogre {
                     break;
                 case VES_TEXTURE_COORDINATES:
                     elem.baseVertexPointerToElement(pBase, &pFloat);
-                    *pFloat++ = srci->uv[elem.getIndex()].x;
-                    *pFloat++ = srci->uv[elem.getIndex()].y;
+					for (int t = 0; t < VertexElement::getTypeCount(elem.getType()); ++t)
+					{
+						Real val = srci->uv[elem.getIndex()][t];
+						*pFloat++ = val;
+					}
                     break;
                 }
             }

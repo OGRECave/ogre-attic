@@ -34,6 +34,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <xsi_string.h>
 #include <xsi_application.h>
 #include <xsi_geometry.h>
+#include <xsi_triangle.h>
+#include <xsi_polygonface.h>
+#include <xsi_facet.h>
+#include <xsi_point.h>
 
 namespace Ogre {
 
@@ -76,7 +80,7 @@ namespace Ogre {
             bool initialised;
             Vector3 position;
             Vector3 normal;
-            Vector2 uv[OGRE_MAX_TEXTURE_COORD_SETS];
+            Vector3 uv[OGRE_MAX_TEXTURE_COORD_SETS];
             RGBA colour;
             // The index of the next component with the same base details
             // but with some variation
@@ -133,6 +137,12 @@ namespace Ogre {
 
         /** Create and fill a vertex buffer */
         void createVertexBuffer(VertexData* vd, unsigned short bufIdx);
+
+		/** Find out the sampler indices for the given triangle */
+		void deriveSamplerIndices(const XSI::Triangle& tri, const XSI::PolygonFace& face, 
+			size_t* samplerIndices);
+		/** Get a single sampler index */
+		size_t getSamplerIndex(const XSI::Facet &f, const XSI::Point &p);
 
 
 
