@@ -24,6 +24,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreMath.h"
 #include "asm_math.h"
+#include "OgreVector3.h"
+#include "OgreRay.h"
+#include "OgreSphere.h"
+#include "OgreAxisAlignedBox.h"
+#include "OgrePlane.h"
+
 
 namespace Ogre
 {
@@ -372,5 +378,269 @@ namespace Ogre
     {
         return Singleton<Math>::getSingleton();
     }
+    //-----------------------------------------------------------------------
+    std::pair<bool, Real> Math::intersects(const Ray& ray, const Plane& plane)
+    {
+
+        Real denom = plane.normal.dotProduct(ray.getDirection());
+        if (denom < std::numeric_limits<Real>::epsilon())
+        {
+            // Parallel
+            return std::pair<bool, Real>(false, 0);
+        }
+        else
+        {
+            Real nom = plane.normal.dotProduct(ray.getOrigin()) + plane.d;
+            Real t = -(nom/denom);
+            return std::pair<bool, Real>(t >= 0, t);
+        }
+        
+    }
+    //-----------------------------------------------------------------------
+    std::pair<bool, Real> Math::intersects(const Ray& ray, const Sphere& sphere)
+    {
+        const Vector3& raydir = ray.getDirection();
+        // Adjust ray origin relative to sphere center
+        const Vector3& rayorig = ray.getOrigin() - sphere.getCenter();
+        Real radius = sphere.getRadius();
+
+        // Check origin inside first
+        if (rayorig.squaredLength() <= radius*radius)
+        {
+            return std::pair<bool, Real>(true, 0);
+        }
+
+        // Mmm, quadratics
+        // Build coeffs which can be used with std quadratic solver
+        // ie t = (-b +/- sqrt(b*b + 4ac)) / 2a
+        Real a = raydir.dotProduct(raydir);
+        Real b = 2 * rayorig.dotProduct(raydir);
+        Real c = rayorig.dotProduct(rayorig) - radius*radius;
+
+        // Calc determinant
+        Real d = (b*b) - (4 * a * c);
+        if (d < 0)
+        {
+            // No intersection
+            return std::pair<bool, Real>(false, 0);
+        }
+        else
+        {
+            // BTW, if d=0 there is one intersection, if d > 0 there are 2
+            // But we only want the closest one, so that's ok, just use the 
+            // '-' version of the solver
+            Real t = ( -b - Math::Sqrt(d) ) / (2 * a);
+            return std::pair<bool, Real>(true, t);
+        }
+
+
+    }
+    //-----------------------------------------------------------------------
+    std::pair<bool, Real> Math::intersects(const Ray& ray, const AxisAlignedBox& box)
+    {
+        if (box.isNull()) return std::pair<bool, Real>(false, 0);
+
+        Real lowt = 0.0f;
+        Real t;
+        bool hit = false;
+        Vector3 hitpoint;
+        const Vector3& min = box.getMinimum();
+        const Vector3& max = box.getMaximum();
+        const Vector3& rayorig = ray.getOrigin();
+        const Vector3& raydir = ray.getDirection();
+
+        // Check origin inside first
+        if ( !(rayorig < min || rayorig > max) )
+        {
+            return std::pair<bool, Real>(true, 0);
+        }
+
+        // Check each face in turn, only check closest 3
+        // Min x
+        if (rayorig.x < min.x && raydir.x > 0)
+        {
+            t = (min.x - rayorig.x) / raydir.x;
+            if (t > 0)
+            {
+                // Substitute t back into ray and check bounds and dist
+                hitpoint = rayorig + raydir * t;
+                if (hitpoint.y >= min.y && hitpoint.y <= max.y &&
+                    hitpoint.z >= min.z && hitpoint.z <= max.z &&
+                    t < lowt)
+                {
+                    hit = true;
+                    lowt = t;
+                }
+            }
+        }
+        // Max x
+        if (rayorig.x > max.x && raydir.x < 0)
+        {
+            t = (max.x - rayorig.x) / raydir.x;
+            if (t > 0)
+            {
+                // Substitute t back into ray and check bounds and dist
+                hitpoint = rayorig + raydir * t;
+                if (hitpoint.y >= min.y && hitpoint.y <= max.y &&
+                    hitpoint.z >= min.z && hitpoint.z <= max.z &&
+                    t < lowt)
+                {
+                    hit = true;
+                    lowt = t;
+                }
+            }
+        }
+        // Min y
+        if (rayorig.y < min.y && raydir.y > 0)
+        {
+            t = (min.y - rayorig.y) / raydir.y;
+            if (t > 0)
+            {
+                // Substitute t back into ray and check bounds and dist
+                hitpoint = rayorig + raydir * t;
+                if (hitpoint.x >= min.x && hitpoint.x <= max.x &&
+                    hitpoint.z >= min.z && hitpoint.z <= max.z &&
+                    t < lowt)
+                {
+                    hit = true;
+                    lowt = t;
+                }
+            }
+        }
+        // Max y
+        if (rayorig.y > max.y && raydir.y < 0)
+        {
+            t = (max.y - rayorig.y) / raydir.y;
+            if (t > 0)
+            {
+                // Substitute t back into ray and check bounds and dist
+                hitpoint = rayorig + raydir * t;
+                if (hitpoint.x >= min.x && hitpoint.x <= max.x &&
+                    hitpoint.z >= min.z && hitpoint.z <= max.z &&
+                    t < lowt)
+                {
+                    hit = true;
+                    lowt = t;
+                }
+            }
+        }
+        // Min z
+        if (rayorig.z < min.z && raydir.z > 0)
+        {
+            t = (min.z - rayorig.z) / raydir.z;
+            if (t > 0)
+            {
+                // Substitute t back into ray and check bounds and dist
+                hitpoint = rayorig + raydir * t;
+                if (hitpoint.x >= min.x && hitpoint.x <= max.x &&
+                    hitpoint.y >= min.y && hitpoint.y <= max.y &&
+                    t < lowt)
+                {
+                    hit = true;
+                    lowt = t;
+                }
+            }
+        }
+        // Max z
+        if (rayorig.z > max.z && raydir.z < 0)
+        {
+            t = (max.z - rayorig.z) / raydir.z;
+            if (t > 0)
+            {
+                // Substitute t back into ray and check bounds and dist
+                hitpoint = rayorig + raydir * t;
+                if (hitpoint.x >= min.x && hitpoint.x <= max.x &&
+                    hitpoint.y >= min.y && hitpoint.y <= max.y &&
+                    t < lowt)
+                {
+                    hit = true;
+                    lowt = t;
+                }
+            }
+        }
+
+        return std::pair<bool, Real>(hit, lowt);
+
+    }
+    //-----------------------------------------------------------------------
+    bool Math::intersects(const Sphere& sphere, const AxisAlignedBox& box)
+    {
+        if (box.isNull()) return false;
+
+        // Use splitting planes
+        const Vector3& center = sphere.getCenter();
+        Real radius = sphere.getRadius();
+        const Vector3& min = box.getMinimum();
+        const Vector3& max = box.getMaximum();
+
+        // just test facing planes, early fail if sphere is totally outside
+        if (center.x < min.x && 
+            min.x - center.x > radius)
+        {
+            return false;
+        }
+        if (center.x > max.x && 
+            center.x  - max.x > radius)
+        {
+            return false;
+        }
+
+        if (center.y < min.y && 
+            min.y - center.y > radius)
+        {
+            return false;
+        }
+        if (center.y > max.y && 
+            center.y  - max.y > radius)
+        {
+            return false;
+        }
+
+        if (center.z < min.z && 
+            min.z - center.z > radius)
+        {
+            return false;
+        }
+        if (center.z > max.z && 
+            center.z  - max.z > radius)
+        {
+            return false;
+        }
+
+        // Must intersect
+        return true;
+
+    }
+    //-----------------------------------------------------------------------
+    bool Math::intersects(const Plane& plane, const AxisAlignedBox& box)
+    {
+        if (box.isNull()) return false;
+
+        // Get corners of the box
+        const Vector3* pCorners = box.getAllCorners();
+
+
+        // Test which side of the plane the corners are
+        // Intersection occurs when at least one corner is on the 
+        // opposite side to another
+        Plane::Side lastSide = plane.getSide(pCorners[0]);
+        for (int corner = 1; corner < 8; ++corner)
+        {
+            if (plane.getSide(pCorners[corner]) != lastSide)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool Math::intersects(const Sphere& sphere, const Plane& plane)
+    {
+        return (
+            Math::Abs(plane.normal.dotProduct(sphere.getCenter()))
+            <= sphere.getRadius() );
+    }
+    //-----------------------------------------------------------------------
 
 }

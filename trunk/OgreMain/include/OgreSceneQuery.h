@@ -169,7 +169,7 @@ namespace Ogre {
             or 'false' to abandon any further results from this query.
         */
         virtual bool queryResult(SceneQuery::WorldFragment* fragment) = 0;
-        
+
     };
 
     typedef std::list<MovableObject*> SceneQueryResultMovableList;
@@ -189,7 +189,8 @@ namespace Ogre {
         a set of individual results in a region. See the SceneQuery class for abstract
         information, and subclasses for the detail of each query type.
     */
-    class _OgreExport RegionSceneQuery : public SceneQuery
+    class _OgreExport RegionSceneQuery
+        : public SceneQuery, public SceneQueryListener
     {
     protected:
         SceneQueryResult* mLastResult;
@@ -205,7 +206,7 @@ namespace Ogre {
             executed, or clearResults() is called. An more lightweight version of
             this method that returns results through a listener is also available.
         */
-        virtual SceneQueryResult& execute(void) = 0;
+        virtual SceneQueryResult& execute(void);
 
         /** Executes the query and returns each match through a listener interface. 
         @remarks
@@ -227,6 +228,11 @@ namespace Ogre {
             results itself when executing and when destroying itself.
         */
         virtual void clearResults(void);
+
+        /** Self-callback in order to deal with execute which returns collection. */
+        bool queryResult(MovableObject* first);
+        /** Self-callback in order to deal with execute which returns collection. */
+        bool queryResult(SceneQuery::WorldFragment* fragment);
     };
 
     /** Specialises the SceneQuery class for querying within an axis aligned box. */
@@ -306,13 +312,15 @@ namespace Ogre {
 
     };
 
-    /** Specialises the SceneQuery class for querying within a pyramid. */
+    /*
+    /// Specialises the SceneQuery class for querying within a pyramid. 
     class _OgreExport PyramidSceneQuery : public RegionSceneQuery
     {
     public:
         PyramidSceneQuery(SceneManager* mgr);
         virtual ~PyramidSceneQuery();
     };
+    */
 
 
     /** Alternative listener class for dealing with IntersectionSceneQuery.
@@ -370,7 +378,8 @@ namespace Ogre {
         this slightly different focus, the return types and listener interface are
         different for this class.
     */
-    class _OgreExport IntersectionSceneQuery : public SceneQuery
+    class _OgreExport IntersectionSceneQuery
+        : public SceneQuery, public IntersectionSceneQueryListener 
     {
     protected:
         IntersectionSceneQueryResult* mLastResult;
@@ -386,7 +395,7 @@ namespace Ogre {
             executed, or clearResults() is called. An more lightweight version of
             this method that returns results through a listener is also available.
         */
-        virtual IntersectionSceneQueryResult& execute(void) = 0;
+        virtual IntersectionSceneQueryResult& execute(void);
 
         /** Executes the query and returns each match through a listener interface. 
         @remarks
@@ -409,11 +418,10 @@ namespace Ogre {
         */
         virtual void clearResults(void);
 
-
-
-        
-
-
+        /** Self-callback in order to deal with execute which returns collection. */
+        bool queryResult(MovableObject* first, MovableObject* second);
+        /** Self-callback in order to deal with execute which returns collection. */
+        bool queryResult(MovableObject* movable, SceneQuery::WorldFragment* fragment);
     };
     
 

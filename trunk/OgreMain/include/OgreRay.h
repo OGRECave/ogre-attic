@@ -4,7 +4,7 @@ This source file is part of OGRE
     (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://ogre.sourceforge.net/
 
-Copyright © 2000-2002 The OGRE Team
+Copyright © 2000-2003 The OGRE Team
 Also see acknowledgements in Readme.html
 
 This program is free software; you can redistribute it and/or modify it under
@@ -53,6 +53,47 @@ namespace Ogre {
         void setDirection(const Vector3& dir) {mDirection = dir;} 
         /** Gets the direction of the ray. */
         const Vector3& getDirection(void) const {return mDirection;} 
+
+		/** Gets the position of a point t units along the ray. */
+		Vector3 getPoint(Real t) const { 
+			return Vector3(mOrigin + (mDirection * t));
+		}
+		
+		/** Gets the position of a point t units along the ray. */
+		Vector3 operator*(Real t) const { 
+			return getPoint(t);
+		};
+
+		/** Tests whether this ray intersects the given plane. 
+		@returns A pair structure where the first element indicates whether
+			an intersection occurs, and if true, the second element will
+			indicate the distance along the ray at which it intersects. 
+			This can be converted to a point in space by calling getPoint().
+		*/
+		std::pair<bool, Real> intersects(const Plane& p) const
+		{
+			return Math::intersects(*this, p);
+		}
+		/** Tests whether this ray intersects the given sphere. 
+		@returns A pair structure where the first element indicates whether
+			an intersection occurs, and if true, the second element will
+			indicate the distance along the ray at which it intersects. 
+			This can be converted to a point in space by calling getPoint().
+		*/
+		std::pair<bool, Real> intersects(const Sphere& s) const
+		{
+			return Math::intersects(*this, s);
+		}
+		/** Tests whether this ray intersects the given box. 
+		@returns A pair structure where the first element indicates whether
+			an intersection occurs, and if true, the second element will
+			indicate the distance along the ray at which it intersects. 
+			This can be converted to a point in space by calling getPoint().
+		*/
+		std::pair<bool, Real> intersects(const AxisAlignedBox& box) const
+		{
+			return Math::intersects(*this, box);
+		}
 
     };
 

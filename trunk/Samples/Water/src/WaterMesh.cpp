@@ -39,7 +39,7 @@ WaterMesh::WaterMesh(const String& meshName, Real planeSize, int complexity)
 	PARAM_C = 0.3f ; // ripple speed 
 	PARAM_D = 0.4f ; // distance
 	PARAM_U = 0.05f ; // viscosity
-	PARAM_T = 0.1f ; // time
+	PARAM_T = 0.13f ; // time
 	useFakeNormals = false ;
 	
 	// allocate space for normal calculation

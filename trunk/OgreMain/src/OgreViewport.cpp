@@ -78,8 +78,8 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void Viewport::_updateDimensions(void)
     {
-        float height = (float) mTarget->getHeight();
-        float width = (float) mTarget->getWidth();
+        Real height = (Real) mTarget->getHeight();
+        Real width = (Real) mTarget->getWidth();
 
         mActLeft = (int) (mRelLeft * width);
         mActTop = (int) (mRelTop * height);

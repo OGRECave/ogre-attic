@@ -139,6 +139,17 @@ namespace Ogre
         }
 
 
+        /** Calculates the dot (scalar) product of this vector with another.
+            @param
+                vec Vector with which to calculate the dot product (together
+                with this one).
+            @returns
+                A float representing the dot product value.
+        */
+        inline Real dotProduct(const Vector4& vec) const
+        {
+            return x * vec.x + y * vec.y + z * vec.z + w * vec.w;
+        }
         /** Function for writing to a stream.
         */
         inline _OgreExport friend std::ostream& operator <<

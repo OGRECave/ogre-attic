@@ -202,6 +202,26 @@ namespace Ogre
         */
         static bool pointInTri2D( Real px, Real pz, Real ax, Real az, Real bx, Real bz, Real cx, Real cz );
 
+        /** Ray / plane intersection, returns boolean result and distance. */
+        static std::pair<bool, Real> intersects(const Ray& ray, const Plane& plane);
+
+        /** Ray / sphere intersection, returns boolean result and distance. */
+        static std::pair<bool, Real> intersects(const Ray& ray, const Sphere& sphere);
+        
+        /** Ray / box intersection, returns boolean result and distance. */
+        static std::pair<bool, Real> intersects(const Ray& ray, const AxisAlignedBox& sphere);
+
+        /** Sphere / box intersection test. */
+        static bool intersects(const Sphere& sphere, const AxisAlignedBox& box);
+
+        /** Plane / box intersection test. */
+        static bool intersects(const Plane& plane, const AxisAlignedBox& box);
+
+        /** Sphere / plane intersection test. 
+        @remarks NB just do a plane.getDistance(sphere.getCenter()) for more detail!
+        */
+        static bool intersects(const Sphere& sphere, const Plane& plane);
+
         /** Compare 2 reals, using tolerance for inaccuracies.
         */
         static bool RealEqual(Real a, Real b,

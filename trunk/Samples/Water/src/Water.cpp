@@ -164,7 +164,7 @@ public:
     {
 		this->waterMesh = waterMesh ;
 		this->waterEntity = waterEntity ;
-		materialNumber = 0;
+		materialNumber = 5;
 		timeoutDelay = 0.0f;
 		headDepth = 2.0f;
 		
@@ -256,7 +256,7 @@ protected:
     {
 
         // Set ambient light
-        mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+        mSceneMgr->setAmbientLight(ColourValue(0.75, 0.75, 0.75));
 
         // Create a light
         Light* l = mSceneMgr->createLight("MainLight");
