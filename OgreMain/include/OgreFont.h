@@ -188,6 +188,8 @@ namespace Ogre
         /** Sets the texture coordinates of a glyph.
         @remarks
             You only need to call this if you're setting up a font loaded from a texture manually.
+        @note
+            Also sets the aspect ratio (width / height) of this character. 
         */
         inline void setGlyphTexCoords( OgreChar id, Real u1, Real v1, Real u2, Real v2 )
         {
@@ -196,6 +198,7 @@ namespace Ogre
             mTexCoords_v1[ idx ] = v1;
             mTexCoords_u2[ idx ] = u2;
             mTexCoords_v2[ idx ] = v2;
+            mAspectRatio[ idx ] = ( u2 - u1 ) / ( v1 - v2 );
         }
         /** Gets the aspect ratio (width / height) of this character. */
         inline Real getGlyphAspectRatio( OgreChar id ) const
@@ -203,9 +206,10 @@ namespace Ogre
             OgreChar idx = OGRE_GLYPH_INDEX(id);
             return mAspectRatio[ idx ];
         }
-        /** Sets the aspect ratio (width / height) of this character. 
+        /** Sets the aspect ratio (width / height) of this character.
         @remarks
-            You only need to call this if you're setting up a font loaded from a texture manually.
+            You only need to call this if you're setting up a font loaded from a texture manually,
+            and your aspect ratio is really freaky.
         */
         inline void setGlyphAspectRatio( OgreChar id, Real ratio )
         {

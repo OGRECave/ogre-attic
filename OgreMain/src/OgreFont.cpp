@@ -248,7 +248,6 @@ namespace Ogre
                 (Real)( l + ( face->glyph->advance.x >> 6 ) ) / (Real)tex_side, // u2
                 1.0 - ( ( m + ( max_height >> 6 ) ) / (Real)tex_side ) // v2
                 );
-            this->setGlyphAspectRatio( i, (Real)(advance) / (Real)( max_height >> 6 ) );
 
             // Advance a column
             l += (advance + char_spacer);
