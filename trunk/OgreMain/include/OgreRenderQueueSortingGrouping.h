@@ -122,7 +122,7 @@ namespace Ogre {
             TransparentQueueItemLess lessFunctor;
             lessFunctor.camera = cam;
 
-			std::sort(mTransparentObjects.begin(), mTransparentObjects.end(), 
+			std::stable_sort(mTransparentObjects.begin(), mTransparentObjects.end(), 
                 lessFunctor);
 		}
 		 
