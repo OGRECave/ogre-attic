@@ -84,6 +84,93 @@ CODE.str {
 <p align="center" class="header">OGRE (Object-Oriented Graphics
 Rendering Engine)</p>
 <p align="center" class="header">Change Log</p>
+<p align="left" class="MainHeader">v0.13.0 (18 January 2004) - Major
+Release<br>
+</p>
+<p align="left">Changes since 0.12.3:<br>
+</p>
+<ul>
+  <li><span style="font-weight: bold; color: rgb(255, 255, 0);">Major
+material upgrade</span>! This is a subsection of it's own..</li>
+  <ul>
+    <li>Support for <span style="color: rgb(255, 255, 0);">vertex and
+fragment programs</span> (shaders), including:</li>
+    <ul>
+      <li><span style="color: rgb(255, 255, 0);">Low-level assembler
+programs</span> under D3D9 (vs_1_1, vs_2_x, ps_1_x, ps_2_x) and GL
+(NV_texture_shader, NV_register_combiners, arbvp1, arbfp1,
+ATI_fragment_shader)</li>
+      <li><span style="color: rgb(255, 255, 0);">High-level program
+support</span> via plugins, so far we support Cg and D3D9 HLSL. Cg
+compiles down to D3D and GL assembler, and includes converters to
+non-assembler formats including NV_register_combiners and
+ATI_fragment_shader so you can write a single program for all targets.</li>
+      <li>Support for automatically updated parameter bindings such as
+'object space camera position', 'object space light direction' and many
+more</li>
+      <li>Programs can be defined and reused many times with different
+parameters, all through .material scripts</li>
+    </ul>
+    <li>Materials now support <span style="color: rgb(255, 255, 0);">multiple
+'techniques'</span>, which can be used as automatic fallbacks for older
+cards which don't support the requisite features for your preferred
+shading approach<br>
+    </li>
+    <li><span style="color: rgb(255, 255, 0);">Material LOD</span> -
+you can tell materials to change technique over distance to save
+rendering power on distant objects; this is subject to the same control
+parameters (camera bias and entity bias) that is used for mesh LOD so
+you can tweak it heavily</li>
+    <li><span style="color: rgb(255, 255, 0);">Scriptable multipass
+rendering</span>; you can now specify multiple passes in one material
+if you wish, and those passes can also be iterated once per light
+automatically, and the engine will call the pass with each nearby light</li>
+    <li>The .material script format has been extensively upgraded to
+handle all these new options; however if you have 0.12.x or previous
+scripts you can automatically update them using the OgreMaterialUpgrade
+tool</li>
+  </ul>
+  <li><span style="font-weight: bold; color: rgb(255, 255, 0);">Light
+management upgraded</span>; you can now have an unlimited number of
+lights in the scene, and OGRE will pick and use the 'n' closest lights
+('n' is configurable per pass in the material scripts) which are within
+their attenuation range when rendering an object. This makes light
+management much more practical, especially when using vertex and
+fragment programs. As mentioned above, passes can even be configured to
+iterate using the 'n' nearest lights.</li>
+  <li><span style="color: rgb(255, 255, 0); font-weight: bold;">More
+texture formats supported</span>: we now support <span
+ style="color: rgb(255, 255, 0);">1D</span> textures, <span
+ style="color: rgb(255, 255, 0);">compressed textures</span> (DXT
+formats), <span style="color: rgb(255, 255, 0);">volume textures</span>
+(true 3D textures, not just 6 faces like cube maps), and loading all of
+the above from the <span style="color: rgb(255, 255, 0);">.dds format</span>,
+even in GL.</li>
+  <li><span style="font-weight: bold; color: rgb(255, 255, 0);">XCode </span>IDE
+support on Mac OSX<br>
+  </li>
+  <li>Precompiled header support on VC6 and VC7, this makes compilation
+a lot faster.</li>
+  <li>Updated 3DS and Maya exporters<br>
+  </li>
+  <li>Frame events can now be raised externally, which makes it easier
+to update the internal state of particle systems, controllers et al
+when you're running your own rendering loop instead of using
+Root::startRendering.</li>
+  <li>Texture filtering can now be controlled more finely by optionally
+setting the min, mag an mip filter instead of one abstracted filter
+type.<br>
+  </li>
+  <li>Fonts now look cleaner, texture size has been optimised and
+filtering tuned <br>
+  </li>
+  <li>The 'v' texture coordinate has been flipped so that the origin is
+now in the top-left, this removes the need to flip textures and
+improves loading times as well as making compressed texture support
+feasible. The .mesh format will be converted on the fly automatically,
+but you should use OgreMeshUpgrade to fix it permanently</li>
+</ul>
+<p align="left"></p>
 <p align="left" class="MainHeader">v0.12.3 (4 January 2004) -
 Maintenance Release<br>
 </p>
