@@ -2005,8 +2005,9 @@ namespace Ogre
 				}
 				else
 				{
+                    String cmd = splitCmd.size() >= 2? splitCmd[1]:String::BLANK;
 					// Use parser with remainder
-                    iparser->second(splitCmd.size() >= 2? splitCmd[1]:String::BLANK, mScriptContext );
+                    iparser->second(cmd, mScriptContext );
 				}
 				
             }
@@ -2092,10 +2093,9 @@ namespace Ogre
         }
         else
         {
+            String cmd = splitCmd.size() >= 2 ? splitCmd[1] : String::BLANK;
             // Use parser, make sure we have 2 params before using splitCmd[1]
-            return iparser->second(
-                splitCmd.size() >= 2 ? splitCmd[1] : String::BLANK, 
-                mScriptContext );
+            return iparser->second( cmd, mScriptContext );
         }
     }
     //-----------------------------------------------------------------------
