@@ -22,64 +22,40 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#include "OgrePythonPrerequisites.h"
 #include "Ogre.h"
 
+#ifdef HAVE_SNPRINTF
+#   undef HAVE_SNPRINTF
+#endif
 
-#include <boost/python/class_builder.hpp>
+#include <boost/python.hpp>
+#include <boost/python/return_internal_reference.hpp>
 
-using namespace boost::python;
+// Shorten the names
+typedef boost::python::return_value_policy<boost::python::copy_const_reference> ccr;
+typedef boost::python::return_internal_reference<> rir;
 
-
-namespace Ogre {
-
-    /** Class for defining the link between Ogre and Python
-     *
-     * This class exposes Ogre objects to the Python scripting language, using
-     * Boost Python for the detail (www.boost.org).
-     * Note that no platform or API specific classes are exported (eg. Win32Window, D3DRenderSystem)
-     * since whilst these objects are created by Ogre the user application only interacts with them
-     * through their non-specific superclasses i.e. RenderWindow and RenderSystem respectively.
-     */
-    class PythonLink
-    {
-    protected:
-        module_builder* boostModule;
-
-        void exportGeneral(void);
-        void exportVector3(void);
-        void exportMatrix3(void);
-        void exportMatrix4(void);
-        void exportAxisAlignedBox();
-        void exportQuaternion(void);
-        void exportRoot(void);
-        void exportRenderWindow(void);
-        void exportResource(void);
-        void exportTextureManager(void);
-        void exportSceneManager(void);
-        void exportViewport(void);
-        void exportCamera(void);
-        void exportColourValue(void);
-        void exportPlane(void);
-        void exportRenderSystem(void);
-        void exportMaterial(void);
-        void exportMeshManager(void);
-        void exportMesh(void);
-        void exportLight(void);
-        void exportEntity(void);
-        void exportSceneNode(void);
-        void exportFrameListener(void);
-
-    public:
-        PythonLink();
-        ~PythonLink();
-
-        /** Exports all the Ogre classes to Python - should be called as part of Python initOgre()) */
-        void exportClasses(void);
-
-
-    };
-
-}
-
-
+void exportEnums(void);
+void exportGeneral(void);
+void exportVector3(void);
+void exportMatrix3(void);
+void exportMatrix4(void);
+void exportAxisAlignedBox();
+void exportQuaternion(void);
+void exportRoot(void);
+void exportRenderWindow(void);
+void exportResource(void);
+void exportTextureManager(void);
+void exportSceneManager(void);
+void exportViewport(void);
+void exportCamera(void);
+void exportColourValue(void);
+void exportPlane(void);
+void exportRenderSystem(void);
+void exportMaterial(void);
+void exportMeshManager(void);
+void exportMesh(void);
+void exportLight(void);
+void exportEntity(void);
+void exportSceneNode(void);
+void exportFrameListener(void);
