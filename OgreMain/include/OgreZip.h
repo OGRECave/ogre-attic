@@ -81,7 +81,7 @@ namespace Ogre {
     {
     public:
         virtual ~ZipArchiveFactory() {}
-        /// @copydoc FactoryObj::getArchiveType
+        /// @copydoc FactoryObj::getType
         String getType(void) const { return "Zip"; }       
         /// @copydoc FactoryObj::createInstance
         Archive *createInstance( const String& name ) 
