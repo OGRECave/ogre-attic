@@ -32,9 +32,9 @@ http://www.gnu.org/copyleft/gpl.html.
     is happy.
 */
 // Probably obsolete now
-//#ifndef _STLP_USE_DYNAMIC_LIB
-//#define _STLP_USE_DYNAMIC_LIB
-//#endif
+#ifndef _STLP_USE_DYNAMIC_LIB
+#define _STLP_USE_DYNAMIC_LIB
+#endif
 
 /** If set to 1, stack unwinding code is compiled into the library and called
     in case an exception is thrown in order to show the call stack.
