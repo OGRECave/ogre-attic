@@ -657,6 +657,25 @@ namespace Ogre
 			mCapabilities->setCapability(RSC_VERTEX_FORMAT_UBYTE4);
 		}
 
+		// Infinite projection?
+		// We have no capability for this, so we have to base this on our
+		// experience and reports from users
+		// Non-vertex program capable hardware does not appear to support it
+		if (mCapabilities->hasCapability(RSC_VERTEX_PROGRAM))
+		{
+			// GeForce4 Ti (and presumably GeForce3) does not
+			// render infinite projection properly, even though it does in GL
+            // So exclude all cards prior to the FX range from doing infinite
+            D3DADAPTER_IDENTIFIER9 adapterID = mActiveD3DDriver->getAdapterIdentifier();
+			if (adapterID.VendorId != 0x10DE || // not nVidia
+                adapterID.DeviceId >= 0x0301) // or GeForce FX or above
+			{
+				mCapabilities->setCapability(RSC_INFINITE_FAR_PLANE);
+			}
+			
+		}
+				
+
         mCapabilities->log(LogManager::getSingleton().getDefaultLog());
     }
     //---------------------------------------------------------------------

@@ -264,6 +264,28 @@ namespace Ogre {
     {
         return mCurrentRenderTarget;
     }
-
+    //-----------------------------------------------------------------------------
+	void AutoParamDataSource::setShadowDirLightExtrusionDistance(Real dist)
+	{
+		mDirLightExtrusionDistance = dist;
+	}
+    //-----------------------------------------------------------------------------
+	Real AutoParamDataSource::getShadowExtrusionDistance(void) const
+	{
+		const Light& l = getLight(0); // only ever applies to one light at once
+		if (l.getType() == Light::LT_DIRECTIONAL)
+		{
+			// use constant
+			return mDirLightExtrusionDistance;
+		}
+		else
+		{
+			// Calculate based on object space light distance
+			// compared to light attenuation range
+			Vector3 objPos = getInverseWorldMatrix() * 
+				l.getDerivedPosition();
+			return l.getAttenuationRange() - objPos.length();
+		}
+	}
 }
 

@@ -71,7 +71,9 @@ namespace Ogre {
         /// Supports user clipping planes
         RSC_USER_CLIP_PLANES		= 0x00040000,
 		/// Supports the VET_UBYTE4 vertex element type
-		RSC_VERTEX_FORMAT_UBYTE4	= 0x00080000
+		RSC_VERTEX_FORMAT_UBYTE4	= 0x00080000,
+		/// Supports infinite far plane projection
+		RSC_INFINITE_FAR_PLANE      = 0x00100000
 
     };
 

@@ -94,6 +94,15 @@ namespace Ogre {
             ACT_LIGHT_POSITION_OBJECT_SPACE,
             /// A light direction in object space (index determined by setAutoConstant call)
             ACT_LIGHT_DIRECTION_OBJECT_SPACE,
+			/** The distance of the light from the center of the object
+				a useful approximation as an alternative to per-vertex distance
+				calculations.
+			*/
+			ACT_LIGHT_DISTANCE_OBJECT_SPACE,
+			/** The distance a shadow volume should be extruded when using
+			    finite extrusion programs.
+			*/
+			ACT_SHADOW_EXTRUSION_DISTANCE,
             /// The current camera's position in object space 
             ACT_CAMERA_POSITION_OBJECT_SPACE,
 			/// The ambient light colour set in the scene

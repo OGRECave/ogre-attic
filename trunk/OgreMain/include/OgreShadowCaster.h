@@ -166,7 +166,11 @@ namespace Ogre {
         */
         static void extrudeVertices(HardwareVertexBufferSharedPtr vertexBuffer, 
             size_t originalVertexCount, const Vector4& lightPos, Real extrudeDist);
+        /** Get the distance to extrude for a point/spot light */
+        virtual Real getPointExtrusionDistance(const Light* l) const = 0;
     protected:
+        /// Helper moethod for calculating extrusion distance
+        Real getExtrusionDistance(const Vector3& objectPos, const Light* light) const;
         /** Tells the caster to perform the tasks necessary to update the 
             edge data's light listing. Can be overridden if the subclass needs 
             to do additional things. 

@@ -316,5 +316,11 @@ namespace Ogre {
         }
 
     }
+    // ------------------------------------------------------------------------
+    Real ShadowCaster::getExtrusionDistance(const Vector3& objectPos, const Light* light) const
+    {
+        Vector3 diff = objectPos - light->getDerivedPosition();
+        return light->getAttenuationRange() - diff.length();
+    }
 
 }

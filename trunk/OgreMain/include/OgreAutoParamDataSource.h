@@ -59,7 +59,8 @@ namespace Ogre {
         mutable Vector4 mCameraPositionObjectSpace;
         mutable Matrix4 mTextureViewProjMatrix;
         mutable Matrix4 mProjectionMatrix;
-
+		mutable Real mDirLightExtrusionDistance;
+		
         mutable bool mWorldMatrixDirty;
         mutable bool mWorldViewMatrixDirty;
         mutable bool mViewProjMatrixDirty;
@@ -91,6 +92,8 @@ namespace Ogre {
         void setTextureProjector(const Frustum* frust);
         /** Sets the current render target */
         void setCurrentRenderTarget(const RenderTarget* target);
+		/** Sets the shadow extrusion distance to be used for point lights. */
+		void setShadowDirLightExtrusionDistance(Real dist);
 
         const Matrix4& getWorldMatrix(void) const;
         const Matrix4* getWorldMatrixArray(void) const;
@@ -110,7 +113,7 @@ namespace Ogre {
 		const ColourValue& getAmbientLightColour(void) const;
         const Matrix4& getTextureViewProjMatrix(void) const;
         const RenderTarget* getCurrentRenderTarget(void) const;
-
+		Real getShadowExtrusionDistance(void) const;
 
     };
 }

@@ -210,6 +210,8 @@ namespace Ogre {
         void setCastShadows(bool enabled) { mCastShadows = enabled; }
         /** Returns whether shadow casting is enabled for this object. */
         bool getCastShadows(void) const { return mCastShadows; }
+        /** Get the distance to extrude for a point/spot light */
+        Real getPointExtrusionDistance(const Light* l) const;
 
 
 
