@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 21 2003 by texi2html 1.64 -->
+<!-- Created on , 23 2003 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -27,7 +27,7 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_15.html#SEC24"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_15.html#SEC24"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_17.html#SEC30"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_17.html#SEC28"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -55,115 +55,60 @@ Another important factor is that material names must be unique throughout ALL sc
 <H2> Format </H2>
 <!--docid::SEC27::-->
 
-Several materials may be defined in a single script. The script format is pseudo-C++, with sections delimited by curly braces ({}), and comments indicated by starting a line with '//' (note, no nested form comments allowed). The general format is shown below in a typical example:<BR><BR>
+Several materials may be defined in a single script. The script format is pseudo-C++, with sections delimited by curly braces ({}), and comments indicated by starting a line with '//' (note, no nested form comments allowed). The general format is shown below in the example below (note that to start with, we only consider fixed-function materials which don't use vertex or fragment programs, these are covered later):<BR><BR>
 <TABLE><tr><td>&nbsp;</td><td class=example><pre>// This is a comment
-walls/funkywall1
+material walls/funkywall1
 {
-    ambient 0.5 0.5 0.5
-    diffuse 1.0 1.0 1.0
+    // first, preferred technique
+    technique
     {
-        // Texture layer 1
-        texture wibbly.jpg
-        scroll_anim 0.1 0.0
-        wave_xform scale sine 0.0 0.7 0.0 1.0
+        // first pass
+	pass
+	{
+	    ambient 0.5 0.5 0.5
+            diffuse 1.0 1.0 1.0
+			
+            // Texture unit 0
+            texture_unit 
+	    {
+                texture wibbly.jpg
+                scroll_anim 0.1 0.0
+                wave_xform scale sine 0.0 0.7 0.0 1.0
+	    }
+	    // Texture unit 1 (this is a multitexture pass)
+	    texture_unit
+	    {
+	        texture wobbly.png
+		rotate_anim 0.25
+		colour_op add
+	    }
+	}
     }
 
+    // Second technique, can be used as a fallback or LOD level
+    technique
     {
-        // Texture Layer 2
-        texture wobbly.png
-        rotate_anim 0.25
-        colour_op add
+    	// .. and so on
     }
+		
 }
 </pre></td></tr></table>
-Every material in the script must be given a name, which is the line before the first opening '{'. This name must be globally unique. It can include path characters (as in the example) to logically divide up your materials, and also to avoid duplicate names, but the engine does not treat the name a hierarchical, just as a string.<BR><BR>
+Every material in the script must be given a name, which is the line 'material &#60;blah&#62;' before the first opening '{'. This name must be globally unique. It can include path characters (as in the example) to logically divide up your materials, and also to avoid duplicate names, but the engine does not treat the name a hierarchical, just as a string.<BR><BR>
 
-A material can have top-level attributes set using the scripting commands available, such as 'ambient' to set the amount &#38; colour of the ambient light reflected by the material. Texture layers are added by nesting braces within the material definition, and attributes defined within these braces apply to the texture layer only. The order of the texture layers is important; subsequent texture layers are applied on top of existing ones in the script.<BR><BR>
+A material can be made up of many techniques (See section <A HREF="manual_17.html#SEC28">3.1.1 Techniques</A>)- a technique is one way of achieving the effect you are looking for. You can supply more than one technique in order to provide fallback approaches where a card does not have the ability to render the preferred technique, or where you wish to define lower level of detail versions of the material in order to conserve rendering power when objects are more distant. <BR><BR>
 
-For a detailed description of the material and layer attributes, see the list below.
+Each technique can be made up of many passes (See section <A HREF="manual_18.html#SEC29">3.1.2 Passes</A>), that is a complete render of the object can be performed multiple times with different settings in order to produce composite effects. Ogre may also split the passes you have defined into many passes at runtime, if you define a pass which uses too many texture units for the card you are currently running on (note that it can only do this if you are not using a fragment program). Each pass has a number of top-level attributes such as 'ambient' to set the amount &#38; colour of the ambient light reflected by the material. Some of these options do not apply if you are using vertex programs, See section <A HREF="manual_18.html#SEC29">3.1.2 Passes</A> for more details. <BR><BR>
 
-<A NAME="SEC28"></A>
-<H2> Available Material Attributes </H2>
-<!--docid::SEC28::-->
-<UL>
-<LI>
-<A HREF="manual_17.html#SEC31">ambient</A>
-<LI>
-<A HREF="manual_17.html#SEC32">diffuse</A>
-<LI>
-<A HREF="manual_17.html#SEC33">specular</A>
-<LI>
-<A HREF="manual_17.html#SEC34">emissive</A>
-<LI>
-<A HREF="manual_17.html#SEC35">scene_blend</A>
-<LI>
-<A HREF="manual_17.html#SEC36">depth_check</A>
-<LI>
-<A HREF="manual_17.html#SEC37">depth_write</A>
-<LI>
-<A HREF="manual_17.html#SEC38">depth_func</A>
-<LI>
-<A HREF="manual_17.html#SEC39">depth_bias</A>
-<LI>
-<A HREF="manual_17.html#SEC40">cull_hardware</A>
-<LI>
-<A HREF="manual_17.html#SEC41">cull_software</A>
-<LI>
-<A HREF="manual_17.html#SEC42">lighting</A>
-<LI>
-<A HREF="manual_17.html#SEC43">shading</A>
-<LI>
-<A HREF="manual_17.html#SEC44">filtering</A>
-<LI>
-<A HREF="manual_17.html#SEC45">fog_override</A>
-</UL>
+Within each pass, there can be zero or many texture units in use (See section <A HREF="manual_19.html#SEC47">3.1.3 Texture Units</A>). These define the texture to be used, and optionally some blending operations (which use multitexturing) and texture effects.<BR><BR>
 
-<A NAME="SEC29"></A>
-<H2> Available Texture Layer Attributes </H2>
-<!--docid::SEC29::-->
-<UL>
-<LI>
-<A HREF="manual_18.html#SEC47">texture</A>
-<LI>
-<A HREF="manual_18.html#SEC48">anim_texture</A>
-<LI>
-<A HREF="manual_18.html#SEC49">cubic_texture</A>
-<LI>
-<A HREF="manual_18.html#SEC50">tex_coord_set</A>
-<LI>
-<A HREF="manual_18.html#SEC51">tex_address_mode</A>
-<LI>
-<A HREF="manual_18.html#SEC52">colour_op</A>
-<LI>
-<A HREF="manual_18.html#SEC53">alpha_rejection</A>
-<LI>
-<A HREF="manual_18.html#SEC54">colour_op_ex</A>
-<LI>
-<A HREF="manual_18.html#SEC55">colour_op_multipass_fallback</A>
-<LI>
-<A HREF="manual_18.html#SEC56">alpha_op_ex</A>
-<LI>
-<A HREF="manual_18.html#SEC57">env_map</A>
-<LI>
-<A HREF="manual_18.html#SEC58">scroll</A>
-<LI>
-<A HREF="manual_18.html#SEC59">scroll_anim</A>
-<LI>
-<A HREF="manual_18.html#SEC60">rotate</A>
-<LI>
-<A HREF="manual_18.html#SEC61">rotate_anim</A>
-<LI>
-<A HREF="manual_18.html#SEC62">scale</A>
-<LI>
-<A HREF="manual_18.html#SEC63">wave_xform</A>
-</UL>
+You can also define vertex and fragment programs in a .material script, and reference those programs in a pass with a given set of parameters. See section <A HREF="manual_20.html#SEC68">3.1.4 Declaring Vertex and Fragment Programs</A> and <A HREF="manual_21.html#SEC70">3.1.5 Using Vertex and Fragment Programs in a Pass</A>.
 
-<A NAME="Material Attributes"></A>
+<A NAME="Techniques"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_15.html#SEC24"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_15.html#SEC24"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_17.html#SEC30"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_17.html#SEC28"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -172,7 +117,7 @@ For a detailed description of the material and layer attributes, see the list be
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 21 2003</I>
+by <I>Steve Streeting</I> on <I>, 23 2003</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

@@ -12,7 +12,9 @@ td {  font-size: 10pt}
 th {  font-size: 10pt}
 .Annotation {  font-size: 10px}
 
-H1 { text-align: center; }
+H1 { text-align: center; color: #FFFF00 }
+H2 {color: #FFFF00; }
+H3 { color: #FFFF00; }
 A.qindex {}
 A.qindexRef {}
 A.el { text-decoration: none; font-weight: bold }

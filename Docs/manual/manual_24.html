@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 21 2003 by texi2html 1.64 -->
+<!-- Created on , 23 2003 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual: Particle Affectors</TITLE>
+<TITLE>OGRE Manual: Particle Emitters</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual: Particle Affectors">
-<META NAME="keywords" CONTENT="OGRE Manual: Particle Affectors">
+<META NAME="description" CONTENT="OGRE Manual: Particle Emitters">
+<META NAME="keywords" CONTENT="OGRE Manual: Particle Emitters">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,32 +23,62 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC96"></A>
+<A NAME="SEC87"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC89"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC64"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_25.html#SEC97"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC80"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC76"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_25.html#SEC89"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H3> 3.2.5 Particle Affectors </H3>
-<!--docid::SEC96::-->
+<H3> 3.2.2 Particle Emitters </H3>
+<!--docid::SEC87::-->
+Particle emitters are classified by 'type' e.g. 'Point' emitters emit from a single point whilst 'Box' emitters emit randomly from an area. New emitters can be added to Ogre by creating plugins. You add an emitter to a system by nesting another section within it, headed with the keyword 'emitter' followed by the name of the type of emitter (case sensitive). Ogre currently supports 'Point', 'Box', 'Cylinder', 'Ellipsoid', 'HollowEllipsoid' and 'Ring' emitters.
 
-Particle affectors modify particles over their lifetime. They are classified by 'type' e.g. 'LinearForce' affectors apply a force to all particles, whilst 'ColourFader' affectors alter the colour of particles in flight. New affectors can be added to Ogre by creating plugins. You add an affector to a system by nesting another section within it, headed with the keyword 'affector' followed by the name of the type of affector (case sensitive). Ogre currently supports 'LinearForce' and 'ColourFader' affectors.<BR><BR>
+<A NAME="SEC88"></A>
+<H3> Particle Emitter Universal Attributes </H3>
+<!--docid::SEC88::-->
+<UL>
+<LI>
+<A HREF="manual_25.html#SEC90">angle</A>
+<LI>
+<A HREF="manual_25.html#SEC91">colour</A>
+<LI>
+ <A HREF="manual_25.html#colour_range_start">colour_range_start</A>
+<LI>
+ <A HREF="manual_25.html#colour_range_end">colour_range_end</A>
+<LI>
+<A HREF="manual_25.html#SEC93">direction</A>
+<LI>
+<A HREF="manual_25.html#SEC94">emission_rate</A>
+<LI>
+<A HREF="manual_25.html#SEC95">position</A>
+<LI>
+<A HREF="manual_25.html#SEC96">velocity</A>
+<LI>
+ <A HREF="manual_25.html#velocity_min">velocity_min</A>
+<LI>
+ <A HREF="manual_25.html#velocity_max">velocity_max</A>
+<LI>
+<A HREF="manual_25.html#SEC98">time_to_live</A>
+<LI>
+ <A HREF="manual_25.html#time_to_live_min">time_to_live_min</A>
+<LI>
+ <A HREF="manual_25.html#time_to_live_max">time_to_live_max</A>
+</UL>
+<BR><BR>
+See also: <A HREF="manual_22.html#SEC76">3.2 Particle Scripts</A>, <A HREF="manual_27.html#SEC108">3.2.5 Particle Affectors</A>
 
-Particle affectors actually have no universal attributes; they are all specific to the type of affector.<BR><BR>
 
-See also: <A HREF="manual_25.html#SEC97">3.2.6 Standard Particle Affectors</A>, <A HREF="manual_19.html#SEC64">3.2 Particle Scripts</A>, <A HREF="manual_21.html#SEC75">3.2.2 Particle Emitters</A>
-
-<A NAME="Standard Particle Affectors"></A>
+<A NAME="Particle Emitter Attributes"></A>
 <HR SIZE=1>
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 21 2003</I>
+by <I>Steve Streeting</I> on <I>, 23 2003</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

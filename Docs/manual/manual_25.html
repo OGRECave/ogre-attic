@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 21 2003 by texi2html 1.64 -->
+<!-- Created on , 23 2003 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual: Standard Particle Affectors</TITLE>
+<TITLE>OGRE Manual: Particle Emitter Attributes</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual: Standard Particle Affectors">
-<META NAME="keywords" CONTENT="OGRE Manual: Standard Particle Affectors">
+<META NAME="description" CONTENT="OGRE Manual: Particle Emitter Attributes">
+<META NAME="keywords" CONTENT="OGRE Manual: Particle Emitter Attributes">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,10 +23,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC97"></A>
+<A NAME="SEC89"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_24.html#SEC96"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC64"> Up </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_24.html#SEC87"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC76"> Up </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC101"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
@@ -34,108 +34,148 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H3> 3.2.6 Standard Particle Affectors </H3>
+<H3> 3.2.3 Particle Emitter Attributes </H3>
+<!--docid::SEC89::-->
+This section describes the common attributes of all particle emitters. Specific emitter types may also support their own extra attributes.<BR><BR>
+
+<A NAME="angle"></A>
+<A NAME="SEC90"></A>
+<H3> angle </H3>
+<!--docid::SEC90::-->
+
+Sets the maximum angle (in degrees) which emitted particles may deviate from the direction of the emitter (see direction). Setting this to 10 allows particles to deviate up to 10 degrees in any direction away from the emitter's direction. A value of 180 means emit in any direction, whilst 0 means emit always exactly in the direction of the emitter.<BR><BR>
+
+format: angle &#60;degrees&#62;<BR>
+example: angle 30<BR>
+default: 0<BR>
+
+<A NAME="colour"></A>
+<A NAME="SEC91"></A>
+<H3> colour </H3>
+<!--docid::SEC91::-->
+
+Sets a static colour for all particle emitted. Also see the colour_range_start and colour_range_end attributes for setting a range of colours. The format of the colour parameter is "r g b a", where each component is a value from 0 to 1, and the alpha value is optional (assumes 1 if not specified).<BR><BR>
+
+format: colour &#60;r&#62; &#60;g&#62; &#60;b&#62; [&#60;a&#62;]<BR>
+example: colour 1 0 0 1<BR>
+default: 1 1 1 1<BR>
+
+<A NAME="colour_range_start"></A>
+<A NAME="colour_range_end"></A>
+<A NAME="SEC92"></A>
+<H3> colour_range_start &#38; colour_range_end </H3>
+<!--docid::SEC92::-->
+
+As the 'colour' attribute, except these 2 attributes must be specified together, and indicate the range of colours available to emitted particles. The actual colour will be randomly chosen between these 2 values.<BR><BR>
+
+format: as colour<BR>
+example (generates random colours between red and blue):<BR>
+    colour_range_start 1 0 0<BR>
+    colour_range_end 0 0 1<BR>
+default: both 1 1 1 1<BR>
+
+<A NAME="direction"></A>
+<A NAME="SEC93"></A>
+<H3> direction </H3>
+<!--docid::SEC93::-->
+
+Sets the direction of the emitter. This is relative to the SceneNode which the particle system is attached to, meaning that as with other movable objects changing the orientation of the node will also move the emitter.<BR><BR>
+
+format: direction &#60;x&#62; &#60;y&#62; &#60;z&#62;<BR>
+example: direction 0 1 0<BR>
+default: 1 0 0<BR>
+
+<A NAME="emission_rate"></A>
+<A NAME="SEC94"></A>
+<H3> emission_rate </H3>
+<!--docid::SEC94::-->
+
+Sets how many particles per second should be emitted. The specific emitter does not have to emit these in a continuous burst - this is a relative parameter
+and the emitter may choose to emit all of the second's worth of particles every half-second for example, the behaviour depends on the emitter. The emission rate will also be limited by the particle system's 'quota' setting.<BR><BR>
+
+format: emission_rate &#60;particles_per_second&#62;<BR>
+example: emission_rate 50<BR>
+default: 10<BR>
+
+<A NAME="position"></A>
+<A NAME="SEC95"></A>
+<H3> position </H3>
+<!--docid::SEC95::-->
+
+Sets the position of the emitter relative to the SceneNode the particle system is attached to.<BR><BR>
+
+format: position &#60;x&#62; &#60;y&#62; &#60;z&#62;<BR>
+example: position 10 0 40<BR>
+default: 0 0 0<BR>
+
+<A NAME="velocity"></A>
+<A NAME="SEC96"></A>
+<H3> velocity </H3>
+<!--docid::SEC96::-->
+
+Sets a constant velocity for all particles at emission time. See also the velocity_min and velocity_max attributes which allow you to set a range of velocities instead of a fixed one.<BR><BR>
+
+format: velocity &#60;world_units_per_second&#62;<BR>
+example: velocity 100<BR>
+default: 1<BR>
+
+<A NAME="velocity_min"></A>
+<A NAME="velocity_max"></A>
+<A NAME="SEC97"></A>
+<H3> velocity_min &#38; velocity_max </H3>
 <!--docid::SEC97::-->
-Ogre comes preconfigured with a few particle affectors. New ones can be added by creating plugins: see the Plugin_ParticleFX project as an example of how you would do this (this is where these affectors are implemented).
 
-<UL>
-<LI>
-<A HREF="manual_25.html#SEC98">Linear Force Affector</A>
-<LI>
-<A HREF="manual_25.html#SEC99">ColourFader Affector</A>
-<LI>
-<A HREF="manual_25.html#SEC100">Scaler Affector</A>
-</UL>
+As 'velocity' except these attributes set a velocity range and each particle is emitted with a random velocity within this range.<BR><BR>
 
-<A NAME="Linear Force Affector"></A>
+format: as velocity<BR>
+example:<BR>
+    velocity_min 50<BR>
+    velocity_max 100<BR>
+default: both 1<BR>
+
+<A NAME="time_to_live"></A>
 <A NAME="SEC98"></A>
-<H3> Linear Force Affector </H3>
+<H3> time_to_live </H3>
 <!--docid::SEC98::-->
 
-This affector applies a force vector to all particles to modify their trajectory. Can be used for gravity, wind, or any other linear force. It's extra attributes are:<BR><BR>
-<DL COMPACT>
-<DT>force_vector
-<DD>Sets the vector for the force to be applied to every particle. The magnitude of this vector determines how strong the force is.<BR>
-    format: force_vector &#60;x&#62; &#60;y&#62; &#60;z&#62;<BR>
-    example: force_vector 50 0 -50<BR>
-    default: 0 -100 0 (a fair gravity effect)<BR>
-<DT>force_application
-<DD>
-Sets the way in which the force vector is applied to particle momentum.<BR>
-    format: force_application &#60;add|average&#62;<BR>
-    example: force_application average<BR>
-    default: add<BR>
-The options are:
-<DL COMPACT>
-<DT>average
-<DD>	The resulting momentum is the average of the force vector and the particle's current motion. Is self-stabilising but the speed at which the particle changes direction is non-linear.
-<DT>add
-<DD>	The resulting momentum is the particle's current motion plus the force vector. This is traditional force acceleration but can potentially result in unlimited velocity.
-</DL>
-</DL>
-<BR>
-To create a linear force affector, include a section like this within your particle system script:
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>affector LinearForce
-{
-    // Settings go here
-}
-</pre></td></tr></table>Please note that the name of the affector type ('LinearForce') is case-sensitive.
+Sets the number of seconds each particle will 'live' for before being destroyed. NB it is possible for particle affectors to alter this in flight, but this is the value given to particles on emission. See also the time_to_live_min and time_to_live_max attributes which let you set a lifetime range instead of a fixed one.<BR><BR>
 
-<A NAME="ColourFader Affector"></A>
+format: time_to_live &#60;seconds&#62;<BR>
+example: time_to_live 10<BR>
+default: 5<BR>
+
+<A NAME="time_to_live_min"></A>
+<A NAME="time_to_live_max"></A>
 <A NAME="SEC99"></A>
-<H3> ColourFader Affector </H3>
+<H3> time_to_live_min &#38; time_to_live_max </H3>
 <!--docid::SEC99::-->
+As time_to_live, except this sets a range of lifetimes and each particle gets a random value inbetween on emission.<BR><BR>
 
-This affector modifies the colour of particles in flight. It's extra attributes are:
-<DL COMPACT>
-<DT>red
-<DD>Sets the adjustment to be made to the red component of the particle colour per second.<BR>
-    format: red &#60;delta_value&#62;<BR>
-    example: red -0.1<BR>
-    default: 0<BR>
-<DT>green
-<DD>Sets the adjustment to be made to the green component of the particle colour per second.<BR>
-    format: green &#60;delta_value&#62;<BR>
-    example: green -0.1<BR>
-    default: 0<BR>
-<DT>blue
-<DD>Sets the adjustment to be made to the blue component of the particle colour per second.<BR>
-    format: blue &#60;delta_value&#62;<BR>
-    example: blue -0.1<BR>
-    default: 0<BR>
-<DT>alpha
-<DD>Sets the adjustment to be made to the alpha component of the particle colour per second.<BR>
-    format: alpha &#60;delta_value&#62;<BR>
-example: alpha -0.1<BR>
-default: 0<BR>
-</DL>
-To create a colour fader affector, include a section like this within your particle system script:
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>affector ColourFader
-{
-    // Settings go here
-}
-</pre></td></tr></table>
-<A NAME="Scaler Affector"></A>
+format: as time_to_live<BR>
+example:<BR>
+    time_to_live_min 2<BR>
+    time_to_live_max 5<BR>
+default: both 5<BR>
+<BR>
+
+<A NAME="common_direction"></A>
 <A NAME="SEC100"></A>
-<H3> Scaler Affector </H3>
+<H3> common_direction </H3>
 <!--docid::SEC100::-->
+Only required if <A HREF="manual_23.html#SEC86">billboard_type</A> is set to oriented_common, this vector is the common direction vector used to orient all particles in the system.
+<BR><BR>
+format: common_direction &#60;x&#62; &#60;y&#62; &#60;z&#62;<BR>
+example: common_direction 0 -1 0<BR>
+default: none<BR>
 
-This affector scales particles in flight. It's extra attributes are:
-<DL COMPACT>
-<DT>rate
-<DD>The amount by which to scale the particles in both the x and y direction per second.
-</DL>
-To create a scale affector, include a section like this within your particle system script:
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>affector Scaler
-{
-    // Settings go here
-}
-</pre></td></tr></table>
-<A NAME="Overlay Scripts"></A>
+See also: <A HREF="manual_26.html#SEC101">3.2.4 Standard Particle Emitters</A>, <A HREF="manual_22.html#SEC76">3.2 Particle Scripts</A>, <A HREF="manual_27.html#SEC108">3.2.5 Particle Affectors</A>
+
+
+<A NAME="Standard Particle Emitters"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_24.html#SEC96"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC64"> Up </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_24.html#SEC87"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC76"> Up </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC101"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
@@ -145,7 +185,7 @@ To create a scale affector, include a section like this within your particle sys
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 21 2003</I>
+by <I>Steve Streeting</I> on <I>, 23 2003</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
