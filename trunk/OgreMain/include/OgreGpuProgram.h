@@ -139,7 +139,6 @@ namespace Ogre {
         /// Mapping from parameter names to indexes - high-level programs are expected to populate this
         typedef std::map<String, size_t> ParamNameMap;
         ParamNameMap mParamNameMap;
-        size_t getParamIndex(const String& name);
 
     public:
 		GpuProgramParameters() {}
@@ -370,6 +369,9 @@ namespace Ogre {
         void setNamedAutoConstant(const String& name, AutoConstantType acType, size_t extraInfo = 0);
         /// Internal method for associating a parameter name with an index
         void _mapParameterNameToIndex(const String& name, size_t index);
+
+        /** Gets the constant index associated with a named parameter. */
+        size_t getParamIndex(const String& name);
     };
 
     /// Shared pointer used to hold references to GpuProgramParameters instances

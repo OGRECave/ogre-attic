@@ -53,6 +53,10 @@ namespace Ogre {
         Matrix4 mWorldMatrix;
         Matrix4 mTextureMatrix;
 
+        // Last min & mip filtering options, so we can combine them
+        FilterOptions mMinFilter;
+        FilterOptions mMipFilter;
+
         // XXX 8 max texture units?
         int mTextureCoordIndex[OGRE_MAX_TEXTURE_COORD_SETS];
 
@@ -103,6 +107,8 @@ namespace Ogre {
         GLGpuProgramManager* mGpuProgramManager;
 
         unsigned short mCurrentLights;
+
+        GLuint getCombinedMinMipFilter(void);
 
     public:
         // Default constructor / destructor
@@ -334,11 +340,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-		void _setTextureLayerFiltering(size_t unit, const TextureFilterOptions texLayerFilterOps);
-        /** See
-          RenderSystem
-         */
-		void _setAnisotropy(int maxAnisotropy);
+        void _setTextureUnitFiltering(size_t unit, FilterType ftype, FilterOptions filter);
         /** See
           RenderSystem
          */

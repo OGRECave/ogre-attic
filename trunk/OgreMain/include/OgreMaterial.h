@@ -115,6 +115,7 @@ namespace Ogre {
         */
         Material();
 
+        ~Material();
         /** Assignment operator to allow easy copying between materials.
         */
         Material& operator=( const Material& rhs );

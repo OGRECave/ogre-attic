@@ -1,74 +1,119 @@
-// A material for the environment mapped knot
-Ogre/Earring
+
+material Ogre/Earring
 {
-	ambient 0.5 0.5 0.0
-	diffuse 1.0 1.0 0.0
-	// Texture layer 0
+	technique
 	{
-		texture spheremap.png
-		colour_op add
-		env_map spherical
+		pass
+		{
+			ambient 0.5 0.5 0
+			diffuse 1 1 0
+
+			texture_unit
+			{
+				texture spheremap.png
+				colour_op_ex add src_texture src_current
+				colour_op_multipass_fallback one one
+				env_map spherical
+			}
+		}
 	}
 }
-
-Ogre/Skin
+material Ogre/Skin
 {
-	ambient 0.7 0.7 0.7
-	diffuse 1.0 1.0 1.0
-	cull_hardware none
+	technique
 	{
-		texture GreenSkin.jpg
-		tex_address_mode mirror
+		pass
+		{
+			ambient 0.7 0.7 0.7
+			cull_hardware none
+
+			texture_unit
+			{
+				texture GreenSkin.jpg
+				tex_address_mode mirror
+			}
+		}
 	}
 }
-
-Ogre/Tusks
+material Ogre/Tusks
 {
-	ambient 0.5 0.5 0.4
-	diffuse 1.0 1.0 0.8
+	technique
 	{
-		texture dirt01.jpg
-		colour_op add
-	}
+		pass
+		{
+			ambient 0.5 0.5 0.4
+			diffuse 1 1 0.8
 
-}
-
-Ogre/Eyes
-{
-	ambient 1.0 1.0 1.0
-	// Texture layer 0
-	{
-		texture WeirdEye.png
+			texture_unit
+			{
+				texture dirt01.jpg
+				colour_op_ex add src_texture src_current
+				colour_op_multipass_fallback one one
+			}
+		}
 	}
 }
-
-
-Cursor/default
+material Ogre/Eyes
 {
-         scene_blend alpha_blend
-         {
-                 tex_address_mode clamp
-                 texture cursor.png
-         }
-}
-Core/StatsBlockBorder/Down
-{
-	lighting off
-	depth_check off
-	scene_blend alpha_blend
+	technique
 	{
-		texture ogreborder.png
+		pass
+		{
+
+			texture_unit
+			{
+				texture WeirdEye.png
+			}
+		}
 	}
 }
-
-Core/StatsBlockBorder/Up
+material Cursor/default
 {
-	lighting off
-	depth_check off
-	scene_blend alpha_blend
+	technique
 	{
-		texture ogreborderUp.png
+		pass
+		{
+			scene_blend alpha_blend
+
+			texture_unit
+			{
+				texture cursor.png
+				tex_address_mode clamp
+			}
+		}
 	}
 }
+material Core/StatsBlockBorder/Down
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend alpha_blend
+			depth_check off
 
+			texture_unit
+			{
+				texture ogreborder.png
+			}
+		}
+	}
+}
+material Core/StatsBlockBorder/Up
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend alpha_blend
+			depth_check off
 
+			texture_unit
+			{
+				texture ogreborderUp.png
+			}
+		}
+	}
+}

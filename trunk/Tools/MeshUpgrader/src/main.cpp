@@ -89,9 +89,14 @@ int main(int numargs, char** args)
     struct stat tagStat;
 
     SDDataChunk chunk;
+    FILE* pFile = fopen( source.c_str(), "rb" );
+    if (!pFile)
+    {
+        Except(Exception::ERR_FILE_NOT_FOUND, 
+            "File " + source + " not found.", "OgreMeshUpgrade");
+    }
     stat( source, &tagStat );
     chunk.allocate( tagStat.st_size );
-    FILE* pFile = fopen( source.c_str(), "rb" );
     fread( (void*)chunk.getPtr(), tagStat.st_size, 1, pFile );
     fclose( pFile );
 

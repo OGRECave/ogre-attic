@@ -346,35 +346,35 @@ material walls/funkywall1
 {
     // first, preferred technique
     technique
-	{
-	    // first pass
-	    pass
-		{
-		    ambient 0.5 0.5 0.5
+    {
+        // first pass
+        pass
+        {
+            ambient 0.5 0.5 0.5
             diffuse 1.0 1.0 1.0
 			
             // Texture unit 0
             texture_unit 
-			{
+            {
                 texture wibbly.jpg
                 scroll_anim 0.1 0.0
                 wave_xform scale sine 0.0 0.7 0.0 1.0
-			}
-			// Texture unit 1 (this is a multitexture pass)
-			texture_unit
-			{
-				texture wobbly.png
-				rotate_anim 0.25
-				colour_op add
-			}
-		}
-	}
+            }
+            // Texture unit 1 (this is a multitexture pass)
+            texture_unit
+            {
+                texture wobbly.png
+                rotate_anim 0.25
+                colour_op add
+            }
+        }
+    }
 
-	// Second technique, can be used as a fallback or LOD level
-	technique
-	{
-		// .. and so on
-	}
+    // Second technique, can be used as a fallback or LOD level
+    technique
+    {
+        // .. and so on
+    }
 		
 }
 @end example
@@ -767,6 +767,8 @@ Here are the attributes you can use in a 'texture_unit' section of a .material s
 @item
 @ref{filtering}
 @item
+@ref{max_anisotropy}
+@item
 @ref{colour_op}
 @item
 @ref{alpha_rejection}
@@ -878,11 +880,45 @@ Default: tex_address_mode wrap@*@*
 @anchor{filtering}
 @subheading filtering
 
-Sets the type of texture filtering used when magnifying or minifying a texture.@*@*
-
-Format: filtering <none|bilinear|trilinear>@*@*
-
+Sets the type of texture filtering used when magnifying or minifying a texture. There are 2 formats to this attribute, the simple format where you simply specify the name of a predefined set of filtering options, and the complex format, where you individually set the minification, magnification, and mip filters yourself.@*@*
+@strong{Simple Format}@*
+Format: filtering <none|bilinear|trilinear|anisotropic>@*
 Default: filtering bilinear@*@*
+With this format, you only need to provide a single parameter which is one of the following:
+@table @asis
+@item none
+	No filtering or mipmapping is used. This is equivalent to the complex format 'filtering point point none'.
+@item bilinear
+	2x2 box filtering is performed when magnifying or reducing a texture, and a mipmap is picked from the list but no filtering is done between the levels of the mipmaps. This is equivalent to the complex format 'filtering linear linear point'.
+@item trilinear
+	2x2 box filtering is performed when magnifying and reducing a texture, and the closest 2 mipmaps are filtered together. This is equivalent to the complex format 'filtering linear linear linear'.
+@item anisotropic
+	This is the same as 'trilinear', except the filtering algorithm takes account of the slope of the triangle in relation to the camera rather than simply doing a 2x2 pixel filter in all cases. This makes triangles at acute angles look less fuzzy. Equivalent to the complex format 'filtering anisotropic anisotropic linear'. Note that in order for this to make any difference, you must also set the @ref{max_anisotropy} attribute too.
+@end table
+@*@*
+@strong{Complex Format}@*
+Format: filtering <minification> <magnification> <mip>@*
+Default: filtering linear linear point@*@*
+This format gives you complete control over the minification, magnification, and mip filters. Each parameter can be one of the following:
+@table @asis
+@item none
+	Nothing - only a valid option for the 'mip' filter , since this turns mipmapping off completely. The lowest setting for min and mag is 'point'. 
+@item point
+	Pick the closet pixel in min or mag modes. In mip mode, this picks the closet matching mipmap.
+@item linear
+	Filter a 2x2 box of pixels around the closest one. In the 'mip' filter this enables filtering between mipmap levels.
+@item anisotropic
+	Only valid for min and mag modes, makes the filter compensate for camera-space slope of the triangles. Note that in order for this to make any difference, you must also set the @ref{max_anisotropy} attribute too.
+@end table
+
+@anchor{max_anisotropy}
+@subheading max_anisotropy
+
+Sets the maximum degree of anisotropy that the renderer will try to compensate for when filtering textures. The degree of anisotropy is the ratio between the height of the texture segment visible in a screen space region versus the width - so for example a floor plane, which stretches on into the distance and thus the vertical texture coordinates change much faster than the horizontal ones, has a higher anisotropy than a wall which is facing you head on (which has an anisotropy of 1 if your line of sight is perfectly perpendicular to it). You should set the max_anisotropy value to something greater than 1 to begin compensating; higher values can compensate for more acute angles.@*@*
+In order for this to be used, you have to set the minification and/or the magnification @ref{filtering} option on this texture to anisotropic.
+
+Format: max_anisotropy <value>@*
+Default: max_anisotropy 1
 
 @anchor{colour_op}
 @subheading colour_op
@@ -1159,7 +1195,7 @@ As well as naming the program in question, you can also provide parameters to it
 @example
 vertex_program_ref myVertexProgram
 {
-	param_indexed_auto 0 WORLDVIEWPROJ_MATRIX
+	param_indexed_auto 0 worldviewproj_matrix
 	param_indexed      4 float4  10.0 0 0 0
 }
 @end example
@@ -1201,33 +1237,33 @@ example: param_indexed_auto 0 WORLDVIEWPROJ_MATRIX@*@*
 
 'value_code' is one of a list of recognised values:@*
 @table @asis
-@item WORLD_MATRIX
+@item world_matrix
 The current world matrix.
-@item VIEW_MATRIX
+@item view_matrix
 The current view matrix.
-@item PROJECTION_MATRIX
+@item projection_matrix
 The current projection matrix.
-@item WORLDVIEW_MATRIX
+@item worldview_matrix
 The current world and view matrices concatenated.
-@item WORLDVIEWPROJ_MATRIX
+@item worldviewproj_matrix
 The current world, view and projection matrices concatenated.
-@item INVERSE_WORLD_MATRIX
+@item inverse_world_matrix
 The inverse of the current world matrix.
-@item INVERSE_WORLDVIEW_MATRIX
+@item inverse_worldview_matrix
 The inverse of the current concatenated world and view matrices.
-@item LIGHT_DIFFUSE_COLOUR
+@item light_diffuse_colour
 The diffuse colour of a given light; this requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to black.
-@item LIGHT_SPECULAR_COLOUR
+@item light_specular_colour
 The specular colour of a given light; this requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to black.
-@item LIGHT_ATTENUATION
+@item light_attenuation
 A float4 containing the 4 light attenuation variables for a given light. This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to all zeroes. The order of the parameters is range, constant attenuation, linear attenuation, quadric attenuation.
-@item LIGHT_POSITION_OBJECT_SPACE
+@item light_position_object_space
 The position of a given light in object space (ie when the object is at (0,0,0)). This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to all zeroes.
-@item LIGHT_DIRECTION_OBJECT_SPACE
+@item light_direction_object_space
 The direction of a given light in object space (ie when the object is at (0,0,0)). This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to all zeroes.
-@item AMBIENT_LIGHT_COLOUR
+@item ambient_light_colour
 The colour of the ambient light currently set in the scene.
-@item CAMERA_POSITION_OBJECT_SPACE
+@item camera_position_object_space
 The current cameras position in object space (ie when the object is at (0,0,0)).
 @end table
 

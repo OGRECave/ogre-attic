@@ -1551,22 +1551,15 @@ namespace Ogre
 			"D3D9RenderSystem::setStencilBufferPassOperation");
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_setTextureLayerFiltering(size_t unit, const TextureFilterOptions texLayerFilterOps)
+    void D3D9RenderSystem::_setTextureUnitFiltering(size_t unit, FilterType ftype, 
+        FilterOptions filter)
 	{
 		HRESULT hr;
 		D3D9Mappings::eD3DTexType texType = mTexStageDesc[unit].texType;
-		// set mag. filter
-		hr = __SetSamplerState( unit, D3DSAMP_MAGFILTER, D3D9Mappings::get(texLayerFilterOps, mCaps, texType, D3D9Mappings::D3D_FUSAGE_MAG) );
+        hr = __SetSamplerState( unit, D3D9Mappings::get(ftype), 
+            D3D9Mappings::get(ftype, filter, mCaps, texType));
 		if (FAILED(hr))
-			Except(hr, "Failed to set MagFilter", "D3D9RenderSystem::_setTextureLayerFiltering");
-		// set min. filter
-		hr = __SetSamplerState( unit, D3DSAMP_MINFILTER, D3D9Mappings::get(texLayerFilterOps, mCaps, texType, D3D9Mappings::D3D_FUSAGE_MIN) );
-		if (FAILED(hr))
-			Except(hr, "Failed to set MinFilter", "D3D9RenderSystem::_setTextureLayerFiltering");
-		// set mip filter
-		hr = __SetSamplerState( unit, D3DSAMP_MIPFILTER, D3D9Mappings::get(texLayerFilterOps, mCaps, texType, D3D9Mappings::D3D_FUSAGE_MIP) );
-		if (FAILED(hr))
-			Except(hr, "Failed to set MipFilter", "D3D9RenderSystem::_setTextureLayerFiltering");
+			Except(hr, "Failed to set texture filter ", "D3D9RenderSystem::_setTextureUnitFiltering");
 	}
     //---------------------------------------------------------------------
 	DWORD D3D9RenderSystem::_getCurrentAnisotropy(size_t unit)

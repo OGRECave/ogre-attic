@@ -1,155 +1,175 @@
-// Main Water demo material
-Examples/Water0
-{ 
-   ambient 1 1 1 0.8
-   diffuse 1 1 1 0.8
-   scene_blend modulate
-   { 
-      texture Water01.jpg 
-      scroll_anim .01 .01 
-      env_map spherical 
-   } 
-} 
 
-// If you want, you can add more materials, all have to follow this pattern:
-// Exampels/Water[0-9]+
-// They have to be continuous
-
-Examples/Water1
-{ 
-   ambient 1 1 1 0.8
-   diffuse 1 1 1 0.8
-   scene_blend modulate
-	{ 
-		texture BeachStones.jpg 
-	//	env_map spherical 
-		scale 0.25 0.25 
-	} 
-   { 
-      texture Water01.jpg 
-      scroll_anim .01 .01 
-      env_map spherical 
-   } 
-} 
-
-// If you want, you can add more materials, all have to follow this pattern:
-// Exampels/Water[0-9]+
-// They have to be continuous
-
-Examples/Water2
-{ 
-   ambient 1 1 1 1
-   diffuse 1 1 1 1
-//   cull_hardware none 
-//   cull_software none 
-   scene_blend modulate
-   { 
-      texture Water01.jpg 
-      scroll_anim .01 .01 
-   } 
-} 
-
-Examples/Water3
-{ 
-   ambient 1 1 1 0.8
-   diffuse 1 1 1 0.8
-   scene_blend modulate
-   { 
-      texture Water02.jpg 
-      scroll_anim .01 .01 
-      rotate_anim .03
-      env_map spherical 
-   } 
-} 
-
-// From Antiarc #1
-Examples/Water4
-{ 
-   ambient 1 1 1 1 
-   diffuse 1 1 1 1 
-   cull_hardware none 
-   cull_software none 
-   { 
-      texture Water02.jpg 
-      scroll_anim .01 .01 
-      env_map spherical 
-   } 
-}
-
-// From Antiarc #2
-Examples/Water5
-{ 
-   ambient 1 1 1 1 
-   diffuse 1 1 1 1 
-   cull_hardware none 
-   cull_software none 
-   { 
-      texture BeachStones.jpg 
-      //env_map spherical 
-      scale 0.25 0.25 
-   } 
-   { 
-      texture Water01.jpg 
-      scroll_anim .01 .01 
-      env_map spherical 
-   } 
-} 
-
-Examples/Water6
+material Examples/Water0
 {
-    // No dynamic lighting, fully lit
-    lighting off
-    
-    // Texture layer 0
-    {
-        // 6-sided texture, cubemap_fr.jpg, cubemap_up.jpg etc
-        cubic_texture cubescene.jpg combinedUVW
-        // set reflection environment map
-        env_map cubic_reflection
-        // clamp to avoid fuzziness at edges due to filtering
-        tex_address_mode clamp
-    }
+	technique
+	{
+		pass
+		{
+			scene_blend modulate
+
+			texture_unit
+			{
+				texture Water01.jpg
+				env_map spherical
+				scroll_anim 0.01 0.01
+			}
+		}
+	}
 }
-
-// From Antiarc #2 with cubemap
-Examples/Water7
-{ 
-   ambient 1 1 1 1 
-   diffuse 1 1 1 1 
-   cull_hardware none 
-   cull_software none 
-   { 
-      texture BeachStones.jpg 
-      scale 0.25 0.25 
-   } 
-   { 
-        // 6-sided texture, cubemap_fr.jpg, cubemap_up.jpg etc
-        cubic_texture cubescene.jpg combinedUVW
-        // set reflection environment map
-        env_map cubic_reflection
-        // clamp to avoid fuzziness at edges due to filtering
-        tex_address_mode clamp  
-   } 
-} 
-
-Examples/Water8
+material Examples/Water1
 {
-    // No dynamic lighting, fully lit
-   lighting off
-   ambient 1 1 1 0.5
-   diffuse 1 1 1 0.5
-   cull_hardware none 
-   cull_software none 
-   scene_blend add
-    
-    // Texture layer 0
-    {
-        // 6-sided texture, cubemap_fr.jpg, cubemap_up.jpg etc
-        cubic_texture cubescene.jpg combinedUVW
-        // set reflection environment map
-        env_map cubic_reflection
-        // clamp to avoid fuzziness at edges due to filtering
-        tex_address_mode clamp
-    }
-}
+	technique
+	{
+		pass
+		{
+			scene_blend modulate
 
+			texture_unit
+			{
+				texture BeachStones.jpg
+			}
+
+			texture_unit
+			{
+				texture Water01.jpg
+				env_map spherical
+				scroll_anim 0.01 0.01
+			}
+		}
+	}
+}
+material Examples/Water2
+{
+	technique
+	{
+		pass
+		{
+			scene_blend modulate
+
+			texture_unit
+			{
+				texture Water01.jpg
+				scroll_anim 0.01 0.01
+			}
+		}
+	}
+}
+material Examples/Water3
+{
+	technique
+	{
+		pass
+		{
+			scene_blend modulate
+
+			texture_unit
+			{
+				texture Water02.jpg
+				env_map spherical
+				scroll_anim 0.01 0.01
+				rotate_anim 0.03
+			}
+		}
+	}
+}
+material Examples/Water4
+{
+	technique
+	{
+		pass
+		{
+			cull_hardware none
+			cull_software none
+
+			texture_unit
+			{
+				texture Water02.jpg
+				env_map spherical
+				scroll_anim 0.01 0.01
+			}
+		}
+	}
+}
+material Examples/Water5
+{
+	technique
+	{
+		pass
+		{
+			cull_hardware none
+			cull_software none
+
+			texture_unit
+			{
+				texture BeachStones.jpg
+			}
+
+			texture_unit
+			{
+				texture Water01.jpg
+				env_map spherical
+				scroll_anim 0.01 0.01
+			}
+		}
+	}
+}
+material Examples/Water6
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+
+			texture_unit
+			{
+				cubic_texture cubescene.jpg combinedUVW
+				tex_address_mode clamp
+				env_map cubic_reflection
+			}
+		}
+	}
+}
+material Examples/Water7
+{
+	technique
+	{
+		pass
+		{
+			cull_hardware none
+			cull_software none
+
+			texture_unit
+			{
+				texture BeachStones.jpg
+			}
+
+			texture_unit
+			{
+				cubic_texture cubescene.jpg combinedUVW
+				tex_address_mode clamp
+				env_map cubic_reflection
+			}
+		}
+	}
+}
+material Examples/Water8
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend add
+			cull_hardware none
+			cull_software none
+
+			texture_unit
+			{
+				cubic_texture cubescene.jpg combinedUVW
+				tex_address_mode clamp
+				env_map cubic_reflection
+			}
+		}
+	}
+}

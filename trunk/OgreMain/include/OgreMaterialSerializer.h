@@ -29,11 +29,84 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMaterial.h"
 #include "OgreBlendMode.h"
 #include "OgreTextureUnitState.h"
+#include "OgreGpuProgram.h"
 
 namespace Ogre {
-    /** Class for serializing a Material to a material.script.*/
+
+    /** Enum to identify material sections. */
+    enum MaterialScriptSection
+    {
+        MSS_NONE,
+        MSS_MATERIAL,
+        MSS_TECHNIQUE,
+        MSS_PASS,
+        MSS_TEXTUREUNIT,
+        MSS_PROGRAM
+    };
+    /** Struct for holding the script context while parsing. */
+    struct MaterialScriptContext 
+    {
+        MaterialScriptSection section;
+        Material* material;
+        Technique* technique;
+        Pass* pass;
+        TextureUnitState* textureUnit;
+        GpuProgram* program;
+        GpuProgramParametersSharedPtr programParams;
+        size_t lineNo;
+        String filename;
+    };
+    /// Function def for material attribute parser; return value determines if the next line should be {
+    typedef bool (*ATTRIBUTE_PARSER)(String& params, MaterialScriptContext& context);
+
+    /** Class for serializing Materials to / from a .material script.*/
     class _OgreExport MaterialSerializer
     {
+    protected:
+        /// Keyword-mapped attribute parsers.
+        typedef std::map<String, ATTRIBUTE_PARSER> AttribParserList;
+
+        MaterialScriptContext mScriptContext;
+
+        /** internal method for parsing a material
+        @returns true if it expects the next line to be a {
+        */
+        bool parseScriptLine(String& line);
+        /** internal method for finding & invoking an attribute parser. */
+        bool invokeParser(String& line, AttribParserList& parsers);
+        /// Parsers for the root of the material script
+        AttribParserList mRootAttribParsers;
+        /// Parsers for the material section of a script
+        AttribParserList mMaterialAttribParsers;
+        /// Parsers for the technique section of a script
+        AttribParserList mTechniqueAttribParsers;
+        /// Parsers for the pass section of a script
+        AttribParserList mPassAttribParsers;
+        /// Parsers for the texture unit section of a script
+        AttribParserList mTextureUnitAttribParsers;
+        /// Parsers for the program reference section of a script
+        AttribParserList mProgramAttribParsers;
+
+        void writeMaterial(const Material *pMat);
+        void writeTechnique(const Technique* pTech);
+        void writePass(const Pass* pPass);
+		void writeTextureUnit(const TextureUnitState *pTex);
+
+		void writeSceneBlendFactor(const SceneBlendFactor sbf_src, const SceneBlendFactor sbf_dest);
+		void writeSceneBlendFactor(const SceneBlendFactor sbf);
+		void writeCompareFunction(const CompareFunction cf);
+		void writeColourValue(const ColourValue &colour, bool writeAlpha = false);
+		void writeLayerBlendOperationEx(const LayerBlendOperationEx op);
+		void writeLayerBlendSource(const LayerBlendSource lbs);
+		
+		typedef std::multimap<TextureUnitState::TextureEffectType, TextureUnitState::TextureEffect> EffectMap;
+
+		void writeRotationEffect(const TextureUnitState::TextureEffect& effect, const TextureUnitState *pTex);
+		void writeTransformEffect(const TextureUnitState::TextureEffect& effect, const TextureUnitState *pTex);
+		void writeScrollEffect(const TextureUnitState::TextureEffect& effect, const TextureUnitState *pTex);
+		void writeEnvironmentMapEffect(const TextureUnitState::TextureEffect& effect, const TextureUnitState *pTex);
+
+        String convertFiltering(FilterOptions fo);
     public:
 		/** default constructor*/
 		MaterialSerializer();
@@ -51,25 +124,14 @@ namespace Ogre {
 		/** Clears the internal buffer */
 		void clearQueue();
 
-    protected:
-		void writeMaterial(const Material *pMat);
-        void writeTechnique(const Technique* pTech);
-        void writePass(const Pass* pPass);
-		void writeTextureUnit(const TextureUnitState *pTex);
+        /** Parses a Material script file passed as a chunk.
+        @remarks
+            The filename is optional, if specified it will appear in the log
+            of any errors which are reported.
+        */
+        void parseScript(DataChunk& chunk, const String& filename = "");
 
-		void writeSceneBlendFactor(const SceneBlendFactor sbf_src, const SceneBlendFactor sbf_dest);
-		void writeSceneBlendFactor(const SceneBlendFactor sbf);
-		void writeCompareFunction(const CompareFunction cf);
-		void writeColourValue(const ColourValue &colour, bool writeAlpha = false);
-		void writeLayerBlendOperationEx(const LayerBlendOperationEx op);
-		void writeLayerBlendSource(const LayerBlendSource lbs);
-		
-		typedef std::multimap<TextureUnitState::TextureEffectType, TextureUnitState::TextureEffect> EffectMap;
 
-		void writeRotationEffect(const TextureUnitState::TextureEffect effect, const TextureUnitState *pTex);
-		void writeTransformEffect(const TextureUnitState::TextureEffect effect, const TextureUnitState *pTex);
-		void writeScrollEffect(const TextureUnitState::TextureEffect effect, const TextureUnitState *pTex);
-		void writeEnvironmentMapEffect(const TextureUnitState::TextureEffect effect, const TextureUnitState *pTex);
 
 	private:
 		String mBuffer;

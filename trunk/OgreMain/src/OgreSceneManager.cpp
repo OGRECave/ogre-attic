@@ -598,7 +598,10 @@ namespace Ogre {
         mDestRenderSystem->_setDepthBufferCheckEnabled(pass->getDepthCheckEnabled());
         mDestRenderSystem->_setDepthBufferWriteEnabled(pass->getDepthWriteEnabled());
         mDestRenderSystem->_setDepthBias(pass->getDepthBias());
-
+        // Set colour write mode
+        // Right now we only use on/off, not per-channel
+        bool colWrite = pass->getColourWriteEnabled();
+        mDestRenderSystem->_setColourBufferWriteEnabled(colWrite, colWrite, colWrite, colWrite);
         // Culling mode
         mDestRenderSystem->_setCullingMode(pass->getCullingMode());
         // Shading

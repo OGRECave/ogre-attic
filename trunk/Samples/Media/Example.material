@@ -1,426 +1,596 @@
-// A material for the environment mapped knot
-Examples/EnvMappedRustySteel
-{
-	ambient 1.0 1.0 1.0
-	diffuse 1.0 1.0 1.0
-	// Texture layer 0
-	{
-		texture RustySteel.jpg
-	}
-	// Texture layer 1
-	{
-		texture spheremap.png
-		colour_op add
-		env_map spherical
 
-	}
-}
-
-// Ogre logo
-Examples/OgreLogo
+material Examples/EnvMappedRustySteel
 {
-	ambient 0.8 0.8 0.8
-	diffuse 1.0 1.0 1.0
-	// Texture layer 0
+	technique
 	{
-		texture ogrelogo.jpg
+		pass
+		{
+
+			texture_unit
+			{
+				texture RustySteel.jpg
+			}
+
+			texture_unit
+			{
+				texture spheremap.png
+				colour_op_ex add src_texture src_current
+				colour_op_multipass_fallback one one
+				env_map spherical
+			}
+		}
 	}
 }
-
-// Plain material for lights
-Examples/DarkMaterial
+material Examples/OgreLogo
 {
-	ambient 0.1 0.1 0.1
-	diffuse 1.0 1.0 1.0
-
-	// Texture layer 0
+	technique
 	{
-		texture BeachStones.jpg
+		pass
+		{
+			ambient 0.8 0.8 0.8
+
+			texture_unit
+			{
+				texture ogrelogo.jpg
+			}
+		}
 	}
 }
-
-// Skybox
-Examples/SpaceSkyBox
+material Examples/DarkMaterial
 {
-	// No dynamic lighting, fully lit
-	lighting off
-	// Depth writing off (always display stuff in front of it)
-	depth_write off
-
-	// Texture layer 0
+	technique
 	{
-		// 6-sided texture, stevecube_fr.jpg, stevecube_up.jpg etc
-		cubic_texture stevecube.jpg separateUV
-		// clamp to avoid fuzziness at edges due to filtering
-		tex_address_mode clamp
+		pass
+		{
+			ambient 0.1 0.1 0.1
+
+			texture_unit
+			{
+				texture BeachStones.jpg
+			}
+		}
 	}
 }
-
-Examples/SceneSkyBox1
+material Examples/SpaceSkyBox
 {
-    // No dynamic lighting, fully lit
-    lighting off
-    // Depth writing off (always display stuff in front of it)
-    depth_write off 
-    
-    // Texture layer 0
-    {
-        // 6-sided texture, cubemap_fr.jpg, cubemap_up.jpg etc
-        cubic_texture cubemap.jpg separateUV
-        // clamp to avoid fuzziness at edges due to filtering
-        tex_address_mode clamp
-    }
-}
-
-Examples/SceneCubeMap1
-{
-    // No dynamic lighting, fully lit
-    lighting off
-    
-    // Texture layer 0
-    {
-        // 6-sided texture, cubemap_fr.jpg, cubemap_up.jpg etc
-        cubic_texture cubemap.jpg combinedUVW
-        // set reflection environment map
-        env_map cubic_reflection
-        // clamp to avoid fuzziness at edges due to filtering
-        tex_address_mode clamp
-    }
-}
-
-Examples/SceneSkyBox2
-{
-    // No dynamic lighting, fully lit
-    lighting off
-    // Depth writing off (always display stuff in front of it)
-    depth_write off 
-    
-    // Texture layer 0
-    {
-        // 6-sided texture, cubemap_fr.jpg, cubemap_up.jpg etc
-        cubic_texture cubescene.jpg separateUV
-        // clamp to avoid fuzziness at edges due to filtering
-        tex_address_mode clamp
-    }
-}
-
-Examples/SceneCubeMap2
-{
-    // No dynamic lighting, fully lit
-    lighting off
-    
-    // Texture layer 0
-    {
-        // 6-sided texture, cubemap_fr.jpg, cubemap_up.jpg etc
-        cubic_texture cubescene.jpg combinedUVW
-        // set reflection environment map
-        env_map cubic_reflection
-        // clamp to avoid fuzziness at edges due to filtering
-        tex_address_mode clamp
-    }
-}
-
-// Scrolling cloudy sky
-Examples/CloudySky
-{
-	// No dynamic lighting, fully lit
-	lighting off
-	// Depth writing off (always display stuff in front of it)
-	depth_write off
-
-	// Texture layer 0
+	technique
 	{
-		texture clouds.jpg
-		scroll_anim 0.15 0
+		pass
+		{
+			lighting off
+			depth_write off
+
+			texture_unit
+			{
+				cubic_texture stevecube_fr.jpg stevecube_bk.jpg stevecube_lf.jpg stevecube_rt.jpg stevecube_up.jpg stevecube_dn.jpg separateUV
+				tex_address_mode clamp
+			}
+		}
 	}
 }
-
-// Plain rusty steel
-Examples/RustySteel
+material Examples/SceneSkyBox1
 {
+	technique
 	{
-		texture RustySteel.jpg
+		pass
+		{
+			lighting off
+			depth_write off
+
+			texture_unit
+			{
+				cubic_texture cubemap_fr.jpg cubemap_bk.jpg cubemap_lf.jpg cubemap_rt.jpg cubemap_up.jpg cubemap_dn.jpg separateUV
+				tex_address_mode clamp
+			}
+		}
 	}
 }
-
-// Chrome effect
-Examples/Chrome
+material Examples/SceneCubeMap1
 {
+	technique
 	{
-		texture Chrome.jpg
-		env_map spherical
+		pass
+		{
+			lighting off
+
+			texture_unit
+			{
+				cubic_texture cubemap.jpg combinedUVW
+				tex_address_mode clamp
+				env_map cubic_reflection
+			}
+		}
 	}
 }
-
-// SpaceSkyPlane
-Examples/SpaceSkyPlane
+material Examples/SceneSkyBox2
 {
-	// No dynamic lighting, fully lit
-	lighting off
-	// Depth writing off (always display stuff in front of it)
-	depth_write off
-
+	technique
 	{
-		texture spacesky.jpg
+		pass
+		{
+			lighting off
+			depth_write off
 
-	}	
-}
-
-// Rotation and wave scale
-Examples/TextureEffect1
-{
-	ambient 0.75 0.75 0.75
-	// double-sided
-	cull_hardware none
-	cull_software none
-	// Tex layer 0
-	{
-		texture BumpyMetal.jpg
-		// Scale in x and y over a wave
-		wave_xform scale_x sine 1 0.1 0 5
-		wave_xform scale_y sine 0.5 0.2 0.5 3
-		// Constant rotate
-		rotate_anim 0.2
+			texture_unit
+			{
+				cubic_texture cubescene_fr.jpg cubescene_bk.jpg cubescene_lf.jpg cubescene_rt.jpg cubescene_up.jpg cubescene_dn.jpg separateUV
+				tex_address_mode clamp
+			}
+		}
 	}
 }
-
-// Scroll only
-Examples/TextureEffect2
+material Examples/SceneCubeMap2
 {
+	technique
 	{
-		texture Water02.jpg
-		scroll_anim 0.5 0
+		pass
+		{
+			lighting off
+
+			texture_unit
+			{
+				cubic_texture cubescene.jpg combinedUVW
+				tex_address_mode clamp
+				env_map cubic_reflection
+			}
+		}
 	}
 }
-//	ambient 0.2 0.2 0.2
-
-
-
-//Watery effect
-Examples/TextureEffect3
+material Examples/CloudySky
 {
-	ambient 0.7 0.7 0.7
-	// double-sided
-	cull_hardware none
-	cull_software none
+	technique
+	{
+		pass
+		{
+			lighting off
+			depth_write off
 
-	{
-		texture Water01.jpg
-		scroll_anim -0.25 0.1
-	}
-	{
-		texture Water01.jpg
-		scroll_anim -0.1 0.25
-		colour_op add
+			texture_unit
+			{
+				texture clouds.jpg
+				scroll_anim 0.15 0
+			}
+		}
 	}
 }
-
-//Watery effect 
-Examples/TextureEffect4
-{ 
-   ambient 0.3 0.3 0.3 
-   scene_blend modulate
-   // double-sided 
-   cull_hardware none 
-   cull_software none 
-
-   { 
-      texture Water02.jpg 
-      scroll_anim .01 .01
-   } 
-} 
-
-// Plain metal (2-sided)
-Examples/BumpyMetal
+material Examples/RustySteel
 {
-	cull_hardware none
-	cull_software none
-	ambient 0.75 0.75 0.75
+	technique
 	{
-		texture BumpyMetal.jpg
+		pass
+		{
+
+			texture_unit
+			{
+				texture RustySteel.jpg
+			}
+		}
 	}
 }
-
-// Transparent knots
-Examples/TransparentTest
+material Examples/Chrome
 {
-	ambient 0.2 0.2 0.2
-	scene_blend add
-	depth_write off
+	technique
+	{
+		pass
+		{
 
-	{
-		texture Water01.jpg
-		scroll_anim 0.25 0
-	}
-	{
-		texture Water01.jpg
-		wave_xform scroll_y sine 0 0.1 0 0.5
-		colour_op modulate
-	}
-
-}
-
-// Flare effects
-Examples/Flare
-{
-	lighting off
-	scene_blend add
-	depth_write off
-	{
-		texture flare.png
-	}
-	
-}
-Examples/Flare2
-{
-	lighting off
-	scene_blend add
-	depth_write off
-	{
-		texture flaretrail.png
-	}
-	
-}
-
-// Tree material
-Examples/Tree
-{
-	{
-		texture tree1.tga
-	}	
-}
-
-Examples/Droplet
-{
-	diffuse 1.0 1.0 1.0
-	depth_write off
-	scene_blend modulate
-	{
-		texture basic_droplet.png
+			texture_unit
+			{
+				texture Chrome.jpg
+				env_map spherical
+			}
+		}
 	}
 }
-
-
-Examples/Robot
+material Examples/SpaceSkyPlane
 {
-	diffuse 1.0 1.0 1.0
+	technique
 	{
-		texture r2skin.jpg
+		pass
+		{
+			lighting off
+			depth_write off
+
+			texture_unit
+			{
+				texture spacesky.jpg
+			}
+		}
 	}
 }
-
-
-// Scrollbar Textures
-Examples/Scrollbar/Up
+material Examples/TextureEffect1
 {
+	technique
 	{
-		texture scr-up.png
+		pass
+		{
+			ambient 0.75 0.75 0.75
+			cull_hardware none
+			cull_software none
+
+			texture_unit
+			{
+				texture BumpyMetal.jpg
+				rotate_anim 0.2
+				wave_xform scale_x sine 1 0.1 0 5
+				wave_xform scale_y sine 0.5 0.2 0.5 3
+			}
+		}
 	}
 }
-
-
-// Scrollbar Textures
-Examples/Scrollbar/Up/Pressed
+material Examples/TextureEffect2
 {
+	technique
 	{
-		texture scr-up-p.png
+		pass
+		{
+
+			texture_unit
+			{
+				texture Water02.jpg
+				scroll_anim 0.5 0
+			}
+		}
 	}
 }
-
-
-// Scrollbar Textures
-Examples/Scrollbar/Down
+material Examples/TextureEffect3
 {
+	technique
 	{
-		texture scr-down.png
+		pass
+		{
+			ambient 0.7 0.7 0.7
+			cull_hardware none
+			cull_software none
+
+			texture_unit
+			{
+				texture Water01.jpg
+				scroll_anim -0.25 0.1
+			}
+
+			texture_unit
+			{
+				texture Water01.jpg
+				colour_op_ex add src_texture src_current
+				colour_op_multipass_fallback one one
+				scroll_anim -0.1 0.25
+			}
+		}
 	}
 }
-
-
-// Scrollbar Textures
-Examples/Scrollbar/Down/Pressed
+material Examples/TextureEffect4
 {
+	technique
 	{
-		texture scr-down-p.png
+		pass
+		{
+			ambient 0.3 0.3 0.3
+			scene_blend modulate
+			cull_hardware none
+			cull_software none
+
+			texture_unit
+			{
+				texture Water02.jpg
+				scroll_anim 0.01 0.01
+			}
+		}
 	}
 }
-
-
-// Scrollbar Textures
-Examples/Scrollbar/Thumb
+material Examples/BumpyMetal
 {
+	technique
 	{
-		texture scr-thumb.png
+		pass
+		{
+			ambient 0.75 0.75 0.75
+			cull_hardware none
+			cull_software none
+
+			texture_unit
+			{
+				texture BumpyMetal.jpg
+			}
+		}
 	}
 }
-
-
-// Scrollbar Textures
-Examples/Scrollbar/Background
+material Examples/TransparentTest
 {
+	technique
 	{
-		texture scr-back.png
+		pass
+		{
+			ambient 0.2 0.2 0.2
+			scene_blend add
+			depth_write off
+
+			texture_unit
+			{
+				texture Water01.jpg
+				scroll_anim 0.25 0
+			}
+
+			texture_unit
+			{
+				texture Water01.jpg
+				wave_xform scroll_y sine 0 0.1 0 0.5
+			}
+		}
 	}
 }
+material Examples/Flare
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend add
+			depth_write off
 
+			texture_unit
+			{
+				texture flare.png
+			}
+		}
+	}
+}
+material Examples/Flare2
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend add
+			depth_write off
 
-Examples/Hilite/Yellow
-{
-	{
-		texture dkyellow.png
+			texture_unit
+			{
+				texture flaretrail.png
+			}
+		}
 	}
 }
+material Examples/Tree
+{
+	technique
+	{
+		pass
+		{
 
-Examples/Rocky
-{
-	ambient 0.2 0.2 0.2
-	diffuse 1.0 1.0 1.0
-	{
-		texture egyptrockyfull.jpg
+			texture_unit
+			{
+				texture tree1.tga
+			}
+		}
 	}
 }
-Examples/10PointBlock
+material Examples/Droplet
 {
+	technique
 	{
-		texture 10points.png
-	}
+		pass
+		{
+			scene_blend modulate
+			depth_write off
 
+			texture_unit
+			{
+				texture basic_droplet.png
+			}
+		}
+	}
 }
+material Examples/Robot
+{
+	technique
+	{
+		pass
+		{
 
-// -- This section deals with materials for really old meshes
-// -- Embedded material definitions has been removed from 1.1 mesh format
+			texture_unit
+			{
+				texture r2skin.jpg
+			}
+		}
+	}
+}
+material Examples/Scrollbar/Up
+{
+	technique
+	{
+		pass
+		{
 
-// Razor
-Material__25
-{
-	{
-		texture texmap2.jpg
+			texture_unit
+			{
+				texture scr-up.png
+			}
+		}
 	}
 }
-// Knot
-2 - Default
+material Examples/Scrollbar/Up/Pressed
 {
+	technique
 	{
-		texture MTLPLAT2.JPG
-	}
-}
-// Dragon
-Material #8
-{
-	{
-		texture BODY.jpg
-	}
-}
-Material #3
-{
-	{
-		texture HEAD4.jpg
-	}
-}
-Material #9
-{
-	{
-		texture LEGS.jpg
-	}
-}
+		pass
+		{
 
+			texture_unit
+			{
+				texture scr-up-p.png
+			}
+		}
+	}
+}
+material Examples/Scrollbar/Down
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture scr-down.png
+			}
+		}
+	}
+}
+material Examples/Scrollbar/Down/Pressed
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture scr-down-p.png
+			}
+		}
+	}
+}
+material Examples/Scrollbar/Thumb
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture scr-thumb.png
+			}
+		}
+	}
+}
+material Examples/Scrollbar/Background
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture scr-back.png
+			}
+		}
+	}
+}
+material Examples/Hilite/Yellow
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture dkyellow.png
+			}
+		}
+	}
+}
+material Examples/Rocky
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.2 0.2 0.2
+
+			texture_unit
+			{
+				texture egyptrockyfull.jpg
+			}
+		}
+	}
+}
+material Examples/10PointBlock
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture 10points.png
+			}
+		}
+	}
+}
+material Material__25
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture texmap2.jpg
+			}
+		}
+	}
+}
+material 2 - Default
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture MTLPLAT2.JPG
+			}
+		}
+	}
+}
+material Material #8
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture BODY.jpg
+			}
+		}
+	}
+}
+material Material #3
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture HEAD4.jpg
+			}
+		}
+	}
+}
+material Material #9
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture LEGS.jpg
+			}
+		}
+	}
+}

@@ -109,6 +109,8 @@ namespace Ogre {
         glGetBufferSubDataARB_ptr = 0;
 
         mCurrentLights = 0;
+        mMinFilter = FO_LINEAR;
+        mMipFilter = FO_POINT;
 
         OgreUnguard();
     }
@@ -1233,60 +1235,98 @@ namespace Ogre {
         glStencilOp(mStencilFail, mStencilZFail, mStencilPass);
     }
 	//---------------------------------------------------------------------
-	void GLRenderSystem::_setTextureLayerFiltering(size_t unit, const TextureFilterOptions texLayerFilterOps)
+    GLuint GLRenderSystem::getCombinedMinMipFilter(void)
+    {
+        switch(mMinFilter)
+        {
+        case FO_ANISOTROPIC:
+        case FO_LINEAR:
+            switch(mMipFilter)
+            {
+            case FO_ANISOTROPIC:
+            case FO_LINEAR:
+                // linear min, linear mip
+                return GL_LINEAR_MIPMAP_LINEAR;
+                break;
+            case FO_POINT:
+                // linear min, point mip
+                return GL_LINEAR_MIPMAP_NEAREST;
+                break;
+            case FO_NONE:
+                // linear min, no mip
+                return GL_LINEAR;
+                break;
+            }
+            break;
+        case FO_POINT:
+        case FO_NONE:
+            switch(mMipFilter)
+            {
+            case FO_ANISOTROPIC:
+            case FO_LINEAR:
+                // nearest min, linear mip
+                return GL_NEAREST_MIPMAP_LINEAR;
+                break;
+            case FO_POINT:
+                // nearest min, point mip
+                return GL_NEAREST_MIPMAP_NEAREST;
+                break;
+            case FO_NONE:
+                // nearest min, no mip
+                return GL_NEAREST;
+                break;
+            }
+            break;
+        }
+
+        // should never get here
+        return 0;
+
+    }
+	//---------------------------------------------------------------------
+    void GLRenderSystem::_setTextureUnitFiltering(size_t unit, 
+        FilterType ftype, FilterOptions fo)
 	{
-        OgreGuard( "GLRenderSystem::_setTextureLayerFiltering" );        
+        OgreGuard( "GLRenderSystem::_setTextureUnitFiltering" );        
 
 		glActiveTextureARB_ptr( GL_TEXTURE0 + unit );
-		switch( texLayerFilterOps )
-		{
-		case TFO_ANISOTROPIC:
+        switch(ftype)
+        {
+        case FT_MIN:
+            mMinFilter = fo;
+            // Combine with existing mip filter
 			glTexParameteri(
                 mTextureTypes[unit],
-				GL_TEXTURE_MAG_FILTER, 
-				GL_LINEAR);
-
+				GL_TEXTURE_MIN_FILTER, 
+				getCombinedMinMipFilter());
+            break;
+        case FT_MAG:
+            switch (fo)
+            {
+            case FO_ANISOTROPIC: // GL treats linear and aniso the same
+            case FO_LINEAR:
+			    glTexParameteri(
+                    mTextureTypes[unit],
+				    GL_TEXTURE_MAG_FILTER, 
+				    GL_LINEAR);
+                break;
+            case FO_POINT:
+            case FO_NONE:
+			    glTexParameteri(
+                    mTextureTypes[unit],
+				    GL_TEXTURE_MAG_FILTER, 
+				    GL_NEAREST);
+                break;
+            }
+            break;
+        case FT_MIP:
+            mMipFilter = fo;
+            // Combine with existing min filter
 			glTexParameteri(
-				mTextureTypes[unit], 
-				GL_TEXTURE_MIN_FILTER,
-				GL_LINEAR_MIPMAP_LINEAR);
-			break;
-
-		case TFO_TRILINEAR:
-			glTexParameteri(
-				mTextureTypes[unit], 
-				GL_TEXTURE_MAG_FILTER, 
-				GL_LINEAR);
-
-			glTexParameteri(
-				mTextureTypes[unit], 
-				GL_TEXTURE_MIN_FILTER,
-				GL_LINEAR_MIPMAP_LINEAR);
-			break;
-
-		case TFO_BILINEAR:
-			glTexParameteri(
-				mTextureTypes[unit], 
-				GL_TEXTURE_MAG_FILTER, 
-				GL_LINEAR);
-
-			glTexParameteri(
-				mTextureTypes[unit], 
-				GL_TEXTURE_MIN_FILTER,
-				GL_LINEAR_MIPMAP_NEAREST);
-			break;
-
-		case TFO_NONE:
-			glTexParameteri(
-				mTextureTypes[unit], 
-				GL_TEXTURE_MAG_FILTER, 
-				GL_NEAREST);
-
-			glTexParameteri(
-				mTextureTypes[unit], 
-				GL_TEXTURE_MIN_FILTER,
-				GL_NEAREST);
-			break;
+                mTextureTypes[unit],
+				GL_TEXTURE_MIN_FILTER, 
+				getCombinedMinMipFilter());
+            break;
 		}
 
         glActiveTextureARB_ptr( GL_TEXTURE0 );
@@ -1314,15 +1354,6 @@ namespace Ogre {
 		if (_getCurrentAnisotropy(unit) != maxAnisotropy)
 			glTexParameterf(mTextureTypes[unit], GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy);
 	}
-    //---------------------------------------------------------------------
-    void GLRenderSystem::_setAnisotropy(int maxAnisotropy)
-    {
-        if (!mCapabilities->hasCapability(RSC_ANISOTROPY))
-            return;
-
-        for (int n = 0; n < mCapabilities->getNumTextureUnits(); n++)
-            _setTextureLayerAnisotropy(n, maxAnisotropy);
-    }
 	//-----------------------------------------------------------------------------
     void GLRenderSystem::_setTextureBlendMode(size_t stage, const LayerBlendModeEx& bm)
     {       

@@ -2396,12 +2396,11 @@ namespace Ogre {
         return oldVal;
     }
 
-    void D3DRenderSystem::_setTextureLayerFiltering(size_t unit, const TextureFilterOptions texLayerFilterOps)
+    
+    void D3DRenderSystem::_setTextureUnitFiltering(size_t unit, 
+        FilterType ftype, FilterOptions filter)
     {
-        __SetTextureStageState(unit,D3DTSS_MAGFILTER, _getMagFilter(texLayerFilterOps));
-        __SetTextureStageState(unit,D3DTSS_MINFILTER, _getMinFilter(texLayerFilterOps));
-        __SetTextureStageState(unit,D3DTSS_MIPFILTER, _getMipFilter(texLayerFilterOps));
-        // NB D3D7 doesn't allow mipmapping to be turned off by filter options like D3D9
+        __SetTextureStageState(unit, _getFilterCode(ftype), _getFilter(ftype, filter));
     }
 
     void D3DRenderSystem::_setTextureLayerAnisotropy(size_t unit, int maxAnisotropy)
@@ -2423,100 +2422,98 @@ namespace Ogre {
         // TODO
     }
     //-----------------------------------------------------------------------
-    DWORD D3DRenderSystem::_getMagFilter(const TextureFilterOptions fo)
+    D3DTEXTURESTAGESTATETYPE D3DRenderSystem::_getFilterCode(FilterType ft)
     {
-        DWORD ret;
-        switch( fo )
+        switch (ft)
         {
-            // NOTE: Fall through if device doesn't support requested type
-        case TFO_ANISOTROPIC:
-            if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_MAGFANISOTROPIC )
-            {
-                ret = D3DTFG_ANISOTROPIC;
-                break;
-            }
-        case TFO_TRILINEAR:
-            if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_MAGFLINEAR )
-            {
-                ret = D3DTFG_LINEAR;
-                break;
-            }
-        case TFO_BILINEAR:
-            if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_MAGFLINEAR )
-            {
-                ret = D3DTFG_LINEAR;
-                break;
-            }
-        case TFO_NONE:
-            ret = D3DTFG_POINT;
+        case FT_MIN:
+            return D3DTSS_MINFILTER;
+            break;
+        case FT_MAG:
+            return D3DTSS_MAGFILTER;
+            break;
+        case FT_MIP:
+            return D3DTSS_MIPFILTER;
             break;
         }
 
-        return ret;
+        // to keep compiler happy
+        return D3DTSS_MINFILTER;
     }
     //-----------------------------------------------------------------------
-    DWORD D3DRenderSystem::_getMinFilter(const TextureFilterOptions fo)
+    DWORD D3DRenderSystem::_getFilter(FilterType ft, FilterOptions fo)
     {
-        DWORD ret;
-        switch( fo )
+        switch (ft)
         {
+        case FT_MIN:
+            switch( fo )
+            {
+                // NOTE: Fall through if device doesn't support requested type
+            case FO_ANISOTROPIC:
+                if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_MINFANISOTROPIC )
+                {
+                    return D3DTFN_ANISOTROPIC;
+                    break;
+                }
+            case FO_LINEAR:
+                if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_MINFLINEAR )
+                {
+                    return D3DTFN_LINEAR;
+                    break;
+                }
+            case FO_POINT:
+            case TFO_NONE:
+                return D3DTFN_POINT;
+                break;
+            }
+            break;
+        case FT_MAG:
+            switch( fo )
+            {
             // NOTE: Fall through if device doesn't support requested type
-        case TFO_ANISOTROPIC:
-            if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_MINFANISOTROPIC )
-            {
-                ret = D3DTFN_ANISOTROPIC;
+            case FO_ANISOTROPIC:
+                if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_MAGFANISOTROPIC )
+                {
+                    return D3DTFG_ANISOTROPIC;
+                    break;
+                }
+            case FO_LINEAR:
+                if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_MAGFLINEAR )
+                {
+                    return D3DTFG_LINEAR;
+                    break;
+                }
+            case FO_POINT:
+            case FO_NONE:
+                return D3DTFG_POINT;
                 break;
             }
-        case TFO_TRILINEAR:
-            if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_MINFLINEAR )
+            break;
+        case FT_MIP:
+            switch( fo )
             {
-                ret = D3DTFN_LINEAR;
+            case FO_ANISOTROPIC:
+            case FO_LINEAR:
+                if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_LINEARMIPLINEAR )
+                {
+                    return D3DTFP_LINEAR;
+                    break;
+                }
+            case FO_POINT:
+                if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_LINEAR )
+                {
+                    return D3DTFP_POINT;
+                    break;
+                }
+            case TFO_NONE:
+                return D3DTFP_NONE;
                 break;
             }
-        case TFO_BILINEAR:
-            if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_MINFLINEAR )
-            {
-                ret = D3DTFN_LINEAR;
-                break;
-            }
-        case TFO_NONE:
-            ret = D3DTFN_POINT;
             break;
         }
 
-        return ret;
-    }
-    //-----------------------------------------------------------------------
-    DWORD D3DRenderSystem::_getMipFilter(const TextureFilterOptions fo)
-    {
-        DWORD ret;
-        switch( fo )
-        {
-            // NOTE: Fall through if device doesn't support requested type
-        case TFO_ANISOTROPIC:
-            if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_LINEARMIPLINEAR )
-            {
-                ret = D3DTFP_LINEAR;
-                break;
-            }
-        case TFO_TRILINEAR:
-            if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_LINEARMIPLINEAR )
-            {
-                ret = D3DTFP_LINEAR;
-                break;
-            }
-        case TFO_BILINEAR:
-            if( mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_LINEAR )
-            {
-                ret = D3DTFP_POINT;
-                break;
-            }
-        case TFO_NONE:
-            ret = D3DTFP_NONE;
-            break;
-        }
-
-        return ret;
+        // should never get here
+        return 0;
     }
     //---------------------------------------------------------------------
     void D3DRenderSystem::setNormaliseNormals(bool normalise)

@@ -791,13 +791,32 @@ namespace Ogre {
         // get the animated-texture animation duration
         Real getAnimationDuration(void) const;
 
-        /** set this layer texture filtering
+        /** Set the texture filtering for this unit, using the simplified interface.
+        @remarks
+            You also have the option of specifying the minification, magnification
+            and mip filter individually if you want more control over filtering
+            options. See the alternative setTextureFiltering methods for details.
         @note
         This option applies in both the fixed function and the programmable pipeline.
+        @param filterType The high-level filter type to use.
         */
         void setTextureFiltering(TextureFilterOptions filterType);
-        // get this layer texture filtering
-        TextureFilterOptions getTextureFiltering() const;
+        /** Set a single filtering option on this texture unit. 
+        @params ftype The filtering type to set
+        @params opts The filtering option to set
+        */
+        void setTextureFiltering(FilterType ftype, FilterOptions opts);
+        /** Set a the detailed filtering options on this texture unit. 
+        @params minFilter The filtering to use when reducing the size of the texture. 
+            Can be FO_POINT, FO_LINEAR or FO_ANISOTROPIC
+        @params magFilter The filtering to use when increasing the size of the texture
+            Can be FO_POINT, FO_LINEAR or FO_ANISOTROPIC
+        @params mipFilter The filtering to use between mip levels
+            Can be FO_NONE (turns off mipmapping), FO_POINT or FO_LINEAR (trilinear filtering)
+        */
+        void setTextureFiltering(FilterOptions minFilter, FilterOptions magFilter, FilterOptions mipFilter);
+        // get the texture filtering for the given type
+        FilterOptions getTextureFiltering(FilterType ftpye) const;
 
         /** Sets the anisotropy level to be used for this texture level.
         @par maxAniso The maximal anisotropy level, should be between 2 and the maximum supported by hardware (1 is the default, ie. no anisotrophy).
@@ -864,8 +883,12 @@ protected:
         Real mUScrollAnim, mVScrollAnim;
         Real mRotateAnim;
 
-        /// Texture filtering
-        TextureFilterOptions mTextureFiltering;
+        /// Texture filtering - minification
+        FilterOptions mMinFilter;
+        /// Texture filtering - magnification
+        FilterOptions mMagFilter;
+        /// Texture filtering - mipmapping
+        FilterOptions mMipFilter;
         ///Texture anisotropy
         int mMaxAniso;
 

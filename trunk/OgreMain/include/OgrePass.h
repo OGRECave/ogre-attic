@@ -276,6 +276,11 @@ namespace Ogre {
         /** Inserts a new TextureUnitState object into the Pass.
         @remarks
         This unit is is added on top of all previous units. 
+        */
+        TextureUnitState* createTextureUnitState(void);
+        /** Inserts a new TextureUnitState object into the Pass.
+        @remarks
+        This unit is is added on top of all previous units. 
         @param
         name The basic name of the texture e.g. brickwall.jpg, stonefloor.png
         @param

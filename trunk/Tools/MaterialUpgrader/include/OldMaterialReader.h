@@ -29,6 +29,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 using namespace Ogre;
 
+/// Function def for material attribute parser.
+typedef void (*MATERIAL_ATTRIB_PARSER)(StringVector::iterator&, int, Material*);
+/// Function def for texture layer attribute parser.
+typedef void (*TEXLAYER_ATTRIB_PARSER)(StringVector::iterator&, int, Material*, TextureUnitState*);
 /** Class for reading pre-0.13 material scripts
 */
 class OldMaterialReader 
