@@ -217,6 +217,9 @@ namespace Ogre {
         BspLevelPtr(const BspLevelPtr& r) : SharedPtr<BspLevel>(r) {} 
         BspLevelPtr(const ResourcePtr& r) : SharedPtr<BspLevel>()
         {
+			// lock & copy other mutex pointer
+			OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
             pRep = static_cast<BspLevel*>(r.getPointer());
             pUseCount = r.useCountPointer();
             if (pUseCount)
@@ -231,6 +234,9 @@ namespace Ogre {
             if (pRep == static_cast<BspLevel*>(r.getPointer()))
                 return *this;
             release();
+			// lock & copy other mutex pointer
+			OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
             pRep = static_cast<BspLevel*>(r.getPointer());
             pUseCount = r.useCountPointer();
             if (pUseCount)

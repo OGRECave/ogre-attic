@@ -38,19 +38,31 @@ namespace Ogre {
         of objects more intentional (in blocks, say). However in some cases you
         really cannot tell how many people are using an object, and this approach is
         worthwhile (e.g. ControllerValue)
+	@par
+		If OGRE_THREAD_SUPPORT is defined to be 1, use of this class is thread-safe.
     */
     template<class T> class SharedPtr {
 	protected:
 		T* pRep;
 		unsigned int* pUseCount;
 	public:
+		OGRE_AUTO_SHARED_MUTEX // public to allow external locking
 		/** Constructor, does not initialise the SharedPtr.
 			@remarks
 				<b>Dangerous!</b> You have to call bind() before using the SharedPtr.
 		*/
 		SharedPtr() : pRep(0), pUseCount(0) {}
-		explicit SharedPtr(T* rep) : pRep(rep), pUseCount(new unsigned int(1)) {}
-		SharedPtr(const SharedPtr& r) : pRep(r.pRep), pUseCount(r.pUseCount) { 
+		explicit SharedPtr(T* rep) : pRep(rep), pUseCount(new unsigned int(1)) 
+		{
+			OGRE_NEW_AUTO_SHARED_MUTEX
+		}
+		SharedPtr(const SharedPtr& r) 
+		{
+			// lock & copy other mutex pointer
+			OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
+			pRep = r.pRep;
+			pUseCount = r.pUseCount; 
 			// Handle zero pointer gracefully to manage STL containers
 			if(pUseCount)
 			{
@@ -60,7 +72,10 @@ namespace Ogre {
 		SharedPtr& operator=(const SharedPtr& r) {
 			if (pRep == r.pRep)
 				return *this;
-            release();
+			release();
+			// lock & copy other mutex pointer
+			OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
 			pRep = r.pRep;
 			pUseCount = r.pUseCount;
 			if (pUseCount)
@@ -84,12 +99,14 @@ namespace Ogre {
 		*/
 		void bind(T* rep) {
 			assert(!pRep && !pUseCount);
+			OGRE_NEW_AUTO_SHARED_MUTEX
+			OGRE_LOCK_AUTO_SHARED_MUTEX
 			pUseCount = new unsigned int(1);
 			pRep = rep;
 		}
 
-		inline bool unique() const { assert(pUseCount); return *pUseCount == 1; }
-		inline unsigned int useCount() const { assert(pUseCount); return *pUseCount; }
+		inline bool unique() const { assert(pUseCount); OGRE_LOCK_AUTO_SHARED_MUTEX return *pUseCount == 1; }
+		inline unsigned int useCount() const { assert(pUseCount); OGRE_LOCK_AUTO_SHARED_MUTEX return *pUseCount; }
 		inline unsigned int* useCountPointer() const { return pUseCount; }
 
 		inline T* getPointer() const { return pRep; }
@@ -97,26 +114,37 @@ namespace Ogre {
 		inline bool isNull(void) const { return pRep == 0; }
 
         inline void setNull(void) { 
+			// can't scope lock mutex before release incase deleted
             release();
             pRep = 0;
             pUseCount = 0;
+			OGRE_COPY_AUTO_SHARED_MUTEX(0)
         }
 
     protected:
 
         inline void release(void) {
-            if (pUseCount)
-            {
-                if (--(*pUseCount) == 0) {
-                    destroy();
-                }
+			bool destroyThis = false;
+			{
+				// lock own mutex in limited scope (must unlock before destroy)
+				OGRE_LOCK_AUTO_SHARED_MUTEX
+				if (pUseCount)
+				{
+					if (--(*pUseCount) == 0) 
+					{
+						destroyThis = true;
+	                }
+				}
             }
+			if (destroyThis)
+				destroy();
         }
 
         virtual void destroy(void)
         {
             delete pRep;
             delete pUseCount;
+			OGRE_DELETE_AUTO_SHARED_MUTEX
         }
 	};
 

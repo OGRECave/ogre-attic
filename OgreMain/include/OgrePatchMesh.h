@@ -80,6 +80,9 @@ namespace Ogre {
         PatchMeshPtr(const PatchMeshPtr& r) : SharedPtr<PatchMesh>(r) {} 
         PatchMeshPtr(const ResourcePtr& r) : SharedPtr<PatchMesh>()
         {
+			// lock & copy other mutex pointer
+			OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
             pRep = static_cast<PatchMesh*>(r.getPointer());
             pUseCount = r.useCountPointer();
             if (pUseCount)
@@ -94,6 +97,9 @@ namespace Ogre {
             if (pRep == static_cast<PatchMesh*>(r.getPointer()))
                 return *this;
             release();
+			// lock & copy other mutex pointer
+			OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
             pRep = static_cast<PatchMesh*>(r.getPointer());
             pUseCount = r.useCountPointer();
             if (pUseCount)
@@ -108,6 +114,9 @@ namespace Ogre {
             if (pRep == static_cast<PatchMesh*>(r.getPointer()))
                 return *this;
             release();
+			// lock & copy other mutex pointer
+			OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
             pRep = static_cast<PatchMesh*>(r.getPointer());
             pUseCount = r.useCountPointer();
             if (pUseCount)

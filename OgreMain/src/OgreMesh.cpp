@@ -40,6 +40,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     MeshPtr::MeshPtr(const ResourcePtr& r) : SharedPtr<Mesh>()
     {
+		// lock & copy other mutex pointer
+		OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+		OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
         pRep = static_cast<Mesh*>(r.getPointer());
         pUseCount = r.useCountPointer();
         if (pUseCount)
@@ -53,6 +56,9 @@ namespace Ogre {
         if (pRep == static_cast<Mesh*>(r.getPointer()))
             return *this;
         release();
+		// lock & copy other mutex pointer
+		OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+		OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
         pRep = static_cast<Mesh*>(r.getPointer());
         pUseCount = r.useCountPointer();
         if (pUseCount)

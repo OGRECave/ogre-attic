@@ -238,6 +238,9 @@ namespace Ogre {
         TexturePtr(const TexturePtr& r) : SharedPtr<Texture>(r) {} 
         TexturePtr(const ResourcePtr& r) : SharedPtr<Texture>()
         {
+			// lock & copy other mutex pointer
+			OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
             pRep = static_cast<Texture*>(r.getPointer());
             pUseCount = r.useCountPointer();
             if (pUseCount)
@@ -252,6 +255,9 @@ namespace Ogre {
             if (pRep == static_cast<Texture*>(r.getPointer()))
                 return *this;
             release();
+			// lock & copy other mutex pointer
+			OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
             pRep = static_cast<Texture*>(r.getPointer());
             pUseCount = r.useCountPointer();
             if (pUseCount)

@@ -136,6 +136,32 @@ namespace Ogre {
 	
 	typedef _StringBase String;
 
+	// Useful threading defines
+	#define OGRE_AUTO_MUTEX_NAME mutex
+	#if OGRE_THREAD_SUPPORT
+		#define OGRE_AUTO_MUTEX mutable boost::recursive_mutex OGRE_AUTO_MUTEX_NAME;
+		#define OGRE_LOCK_AUTO_MUTEX boost::recursive_mutex::scoped_lock ogreAutoMutexLock(OGRE_AUTO_MUTEX_NAME);
+		#define OGRE_MUTEX(name) mutable boost::recursive_mutex name;
+		#define OGRE_LOCK_MUTEX(name) boost::recursive_mutex::scoped_lock ogrenameLock(name);
+		// like OGRE_AUTO_MUTEX but mutex held by pointer
+		#define OGRE_AUTO_SHARED_MUTEX mutable boost::recursive_mutex *OGRE_AUTO_MUTEX_NAME;
+		#define OGRE_LOCK_AUTO_SHARED_MUTEX boost::recursive_mutex::scoped_lock ogreAutoMutexLock(*OGRE_AUTO_MUTEX_NAME);
+		#define OGRE_NEW_AUTO_SHARED_MUTEX OGRE_AUTO_MUTEX_NAME = new boost::recursive_mutex();
+		#define OGRE_DELETE_AUTO_SHARED_MUTEX delete OGRE_AUTO_MUTEX_NAME;
+		#define OGRE_COPY_AUTO_SHARED_MUTEX(from) OGRE_AUTO_MUTEX_NAME = from;
+	#else
+		#define OGRE_AUTO_MUTEX 
+		#define OGRE_LOCK_AUTO_MUTEX 
+		#define OGRE_MUTEX(name)
+		#define OGRE_LOCK_MUTEX(name)
+		#define OGRE_AUTO_SHARED_MUTEX 
+		#define OGRE_LOCK_AUTO_SHARED_MUTEX
+		#define OGRE_NEW_AUTO_SHARED_MUTEX 
+		#define OGRE_DELETE_AUTO_SHARED_MUTEX 
+		#define OGRE_COPY_AUTO_SHARED_MUTEX(from) 
+	#endif
+
+
 // Pre-declare classes
 // Allows use of pointers in header files without including individual .h
 // so decreases dependencies between files

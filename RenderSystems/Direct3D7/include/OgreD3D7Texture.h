@@ -101,6 +101,9 @@ namespace Ogre {
         D3DTexturePtr(const D3DTexturePtr& r) : SharedPtr<D3DTexture>(r) {} 
         D3DTexturePtr(const ResourcePtr& r) : SharedPtr<D3DTexture>()
         {
+			// lock & copy other mutex pointer
+			OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
             pRep = static_cast<D3DTexture*>(r.getPointer());
             pUseCount = r.useCountPointer();
             if (pUseCount)
@@ -115,6 +118,9 @@ namespace Ogre {
             if (pRep == static_cast<D3DTexture*>(r.getPointer()))
                 return *this;
             release();
+			// lock & copy other mutex pointer
+			OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
             pRep = static_cast<D3DTexture*>(r.getPointer());
             pUseCount = r.useCountPointer();
             if (pUseCount)
