@@ -8,6 +8,9 @@
 #include "OgreWin32GLSupport.h"
 
 #include "OgreWin32Window.h"
+#include "OgreWin32RenderTexture.h"
+
+#define HW_RTT
 
 #ifdef HW_RTT
 #include "OgreWin32RenderTexture.h"
@@ -17,7 +20,8 @@ using namespace Ogre;
 
 namespace Ogre {
     Win32GLSupport::Win32GLSupport():
-        mExternalWindowHandle(0)
+        mExternalWindowHandle(0),
+		mCurrentContext(0,0)
     {
     } 
 
@@ -212,7 +216,7 @@ namespace Ogre {
 			Except(999, "Can't find Colour Depth options!", "Win32GLSupport::newWindow");
 		unsigned int displayFrequency = StringConverter::parseUnsignedInt(opt->second.currentValue);
 
-		Win32Window* window = new Win32Window();
+		Win32Window* window = new Win32Window(*this);
 		if (!fullScreen && mExternalWindowHandle) // ADD CONTROL IF WE HAVE A WINDOW)
 		{
 			Win32Window *pWin32Window = (Win32Window *)window;
@@ -286,9 +290,39 @@ namespace Ogre {
 	{
 #ifdef HW_RTT
 		if(Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_HWRENDER_TO_TEXTURE))
-			return new Win32RenderTexture(name, width, height, texType, format);
+			return new Win32RenderTexture(*this, name, width, height, texType, format);
 		else
 #endif
 			return new GLRenderTexture(name, width, height, texType, format);
+	}
+
+	void Win32GLSupport::pushContext(HDC hdc, HGLRC hglrc) {
+		W32Context newCtx = W32Context(hdc, hglrc);
+		// We don't care what the outer context is
+		if(mContextStack.empty()) {
+			mContextStack.push_front(W32Context(0,0));
+		} else {
+			// Push current ctx to stack
+			mContextStack.push_front(mCurrentContext);
+		}
+		// Set new context as current
+		if(mCurrentContext != newCtx) {
+			// Optimalisation to prevent superfluous wglMakeCurrent, as those are expensive
+			// especially on ATI hardware.
+			wglMakeCurrent(hdc, hglrc);
+			mCurrentContext = newCtx;
+		}
+	}
+	void Win32GLSupport::popContext() {
+		// Push current ctx to stack
+		W32Context oldCtx = mContextStack.front();
+		mContextStack.pop_front();
+		// Check if mCurrentContext is not already equal to the old context, and that
+		// we don't change the context when going to the most context (so that it's still
+		// possible to change textures and hardware buffers)
+		if(mCurrentContext != oldCtx && oldCtx.first!=0) {
+			wglMakeCurrent(oldCtx.first, oldCtx.second);
+			mCurrentContext = oldCtx;
+		}
 	}
 }

@@ -24,6 +24,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 #include "OgreWin32RenderTexture.h"
+#include "OgreWin32GLSupport.h"
 #include "OgreLogManager.h"
 #include "OgreRenderSystem.h"
 #include "OgreImageCodec.h"
@@ -51,8 +52,9 @@ namespace Ogre {
 	static PFNWGLRELEASETEXIMAGEARBPROC _wglReleaseTexImageARB = 0;
 	static PFNWGLGETPIXELFORMATATTRIBIVARBPROC _wglGetPixelFormatAttribivARB = 0;
 
-	Win32RenderTexture::Win32RenderTexture( const String & name, uint width, uint height, TextureType texType,  PixelFormat format ):
-		GLRenderTexture(name, width, height, texType, format) 
+	Win32RenderTexture::Win32RenderTexture(Win32GLSupport &glsupport, const String & name, uint width, uint height, TextureType texType,  PixelFormat format ):
+		GLRenderTexture(name, width, height, texType, format),
+		mGLSupport(glsupport)
 	{
 		if(!_wglChoosePixelFormatARB) _wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
 		if(!_wglCreatePbufferARB) _wglCreatePbufferARB = (PFNWGLCREATEPBUFFERARBPROC)wglGetProcAddress("wglCreatePbufferARB");
@@ -91,14 +93,16 @@ namespace Ogre {
 	{
 		//SwapBuffers(mHDC);
 		// Enable current context
-		wglMakeCurrent(mHDC, mGlrc);
+		mGLSupport.pushContext(mHDC, mGlrc);
 		// Fire default preupdate
 		GLRenderTexture::firePreUpdate();
 	}
 	void Win32RenderTexture::firePostUpdate(void) 
 	{
+		// Fire default postupdate
 		GLRenderTexture::firePostUpdate();
-		
+		// Possibly enable previous context
+		mGLSupport.popContext();
 	}
 
 	void Win32RenderTexture::createPBuffer() 
