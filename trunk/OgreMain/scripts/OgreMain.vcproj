@@ -319,9 +319,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreLight.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreListSelectionTarget.cpp">
-			</File>
-			<File
 				RelativePath="..\src\OgreLog.cpp">
 			</File>
 			<File
@@ -484,6 +481,12 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\src\OgreRoot.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalOptions="/Zm200"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\OgreRotationSpline.cpp">
@@ -844,15 +847,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreLight.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreListChanger.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreListSelectionEvent.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreListSelectionTarget.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreLog.h">

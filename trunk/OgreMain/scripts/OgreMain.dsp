@@ -268,14 +268,6 @@ SOURCE=..\src\OgreGpuProgramUsage.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\OgreOverlayContainer.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\OgreOverlayElementCommands.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\OgreGuiManager.cpp
 # End Source File
 # Begin Source File
@@ -337,10 +329,6 @@ SOURCE=..\src\OgreKeyTarget.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreLight.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\OgreListSelectionTarget.cpp
 # End Source File
 # Begin Source File
 
@@ -424,7 +412,15 @@ SOURCE=..\src\OgreOverlay.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreOverlayContainer.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreOverlayElement.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreOverlayElementCommands.cpp
 # End Source File
 # Begin Source File
 
@@ -918,14 +914,6 @@ SOURCE=..\include\OgreGpuProgramUsage.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\OgreOverlayContainer.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreOverlayElementCommands.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\include\OgreGuiManager.h
 # End Source File
 # Begin Source File
@@ -999,18 +987,6 @@ SOURCE=..\include\OgreKeyTarget.h
 # Begin Source File
 
 SOURCE=..\include\OgreLight.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreListChanger.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreListSelectionEvent.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreListSelectionTarget.h
 # End Source File
 # Begin Source File
 
@@ -1110,7 +1086,15 @@ SOURCE=..\include\OgreOverlay.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreOverlayContainer.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreOverlayElement.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreOverlayElementCommands.h
 # End Source File
 # Begin Source File
 
