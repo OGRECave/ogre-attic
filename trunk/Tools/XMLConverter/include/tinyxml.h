@@ -906,13 +906,13 @@ public:
 	#ifdef TIXML_USE_STL
 	bool LoadFile( const std::string& filename )			///< STL std::string version.
 	{
-		StringToBuffer f( filename );
-		return ( f.buffer && LoadFile( f.buffer ));
+		//StringToBuffer f( filename );
+		return ( LoadFile( filename.c_str() ));
 	}
 	bool SaveFile( const std::string& filename ) const		///< STL std::string version.
 	{
-		StringToBuffer f( filename );
-		return ( f.buffer && SaveFile( f.buffer ));
+		//StringToBuffer f( filename );
+		return ( SaveFile( filename.c_str() ));
 	}
 	#endif
 

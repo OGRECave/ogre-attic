@@ -39,6 +39,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "3ds2oof", "Tools\3ds2oof\sc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo_SkeletalAnimation", "Samples\SkeletalAnimation\scripts\Demo_SkeletalAnimation.vcproj", "{EDD4B978-5ABA-448B-8DA7-A02F99714D66}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RenderSystem_Direct3D8", "RenderSystems\Direct3D8\scripts\RenderSystem_Direct3D8.vcproj", "{0F172B9C-E5D5-4EB1-BFDB-93D787A37461}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XMLConverter", "Tools\XMLConverter\scripts\XMLConverter.vcproj", "{B4FB6BCF-FA5A-42C2-9FA5-F1653B95ADE3}"
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		ConfigName.0 = Debug
@@ -228,6 +232,7 @@ Global
 		{EDD4B978-5ABA-448B-8DA7-A02F99714D66}.13 = {80DECC17-BDDD-4412-8CF8-F7C1C17A7436}
 		{EDD4B978-5ABA-448B-8DA7-A02F99714D66}.14 = {4FCE5A80-E8AC-448E-AAA0-B1A35AB9551B}
 		{EDD4B978-5ABA-448B-8DA7-A02F99714D66}.15 = {3AD3E5EF-0CC8-4A69-9827-7D42C270007F}
+		{B4FB6BCF-FA5A-42C2-9FA5-F1653B95ADE3}.0 = {35AFBABB-DF05-43DE-91A7-BB828A874015}
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
 		{35AFBABB-DF05-43DE-91A7-BB828A874015}.Debug.ActiveCfg = Debug|Win32
@@ -310,6 +315,14 @@ Global
 		{EDD4B978-5ABA-448B-8DA7-A02F99714D66}.Debug.Build.0 = Debug|Win32
 		{EDD4B978-5ABA-448B-8DA7-A02F99714D66}.Release.ActiveCfg = Release|Win32
 		{EDD4B978-5ABA-448B-8DA7-A02F99714D66}.Release.Build.0 = Release|Win32
+		{0F172B9C-E5D5-4EB1-BFDB-93D787A37461}.Debug.ActiveCfg = Debug|Win32
+		{0F172B9C-E5D5-4EB1-BFDB-93D787A37461}.Debug.Build.0 = Debug|Win32
+		{0F172B9C-E5D5-4EB1-BFDB-93D787A37461}.Release.ActiveCfg = Release|Win32
+		{0F172B9C-E5D5-4EB1-BFDB-93D787A37461}.Release.Build.0 = Release|Win32
+		{B4FB6BCF-FA5A-42C2-9FA5-F1653B95ADE3}.Debug.ActiveCfg = Debug|Win32
+		{B4FB6BCF-FA5A-42C2-9FA5-F1653B95ADE3}.Debug.Build.0 = Debug|Win32
+		{B4FB6BCF-FA5A-42C2-9FA5-F1653B95ADE3}.Release.ActiveCfg = Release|Win32
+		{B4FB6BCF-FA5A-42C2-9FA5-F1653B95ADE3}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		DPBuild = 5
