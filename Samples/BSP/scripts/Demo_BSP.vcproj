@@ -131,7 +131,10 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
-				RelativePath="..\include\BSP.h">
+				RelativePath="..\..\Common\include\ExampleApplication.h">
+			</File>
+			<File
+				RelativePath="..\..\Common\include\ExampleFrameListener.h">
 			</File>
 		</Filter>
 		<Filter
