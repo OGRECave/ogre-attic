@@ -420,7 +420,8 @@ namespace Ogre {
     void BspSceneManager::freeMemory(void)
     {
         // no need to delete index buffer, will be handled by shared pointer
-        delete mRenderOp.indexData; 
+        delete mRenderOp.indexData;
+		mRenderOp.indexData = 0;
     }
     //-----------------------------------------------------------------------
     void BspSceneManager::showNodeBoxes(bool show)
@@ -558,6 +559,7 @@ namespace Ogre {
 	void BspSceneManager::clearScene(void)
 	{
 		SceneManager::clearScene();
+		freeMemory();
 		// Clear level
 		mLevel.setNull();
 	}
