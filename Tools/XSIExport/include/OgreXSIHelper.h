@@ -82,6 +82,10 @@ inline Ogre::Vector3 XSItoOgre(const XSI::MATH::CVector3& xsiVec)
 {
     return Ogre::Vector3(xsiVec.GetX(), xsiVec.GetY(), xsiVec.GetZ());
 }
+inline Ogre::Quaternion XSItoOgre(const XSI::MATH::CQuaternion& xsiQuat)
+{
+	return Ogre::Quaternion(xsiQuat.GetW(), xsiQuat.GetX(), xsiQuat.GetY(), xsiQuat.GetZ());
+}
 
 inline Ogre::RGBA XSItoOgre(const XSI::CVertexColor& xsiColour)
 {

@@ -92,6 +92,7 @@ namespace Ogre {
 		bool edgeLists, bool tangents, LodData* lod, const String& skeletonName)
     {
 
+		mXsiApp.LogMessage(L"** Begin OGRE Mesh Export **");
         // Derive the scene root
         X3DObject sceneRoot(mXsiApp.GetActiveSceneRoot());
 
@@ -143,6 +144,8 @@ namespace Ogre {
         serializer.exportMesh(pMesh.getPointer(), XSItoOgre(fileName));
 
 		cleanupPolygonMeshList();
+
+		mXsiApp.LogMessage(L"** OGRE Mesh Export Complete **");
 
 		return mXsiDeformerList;
     }
