@@ -25,12 +25,12 @@ Features of the exporter:<br>
   <li>exports meshes</li>
   <li>exports bones, vertex assignements and bones animation, using the
 skin modifier</li>
-  <li>optionally exports embedded material definitions, however you are
-better to simply assign named materials and use an OGRE .material script
+  <li>exports .material files, however you are
+better to use an OGRE .material script
 to define them, since you can then use the full OGRE material
 properties.</li>
   <li>exports everything to XML, which allows you to review or alter
-the exported details if you wish. The CML must be converted to OGRE
+the exported details if you wish. The XML must be converted to OGRE
 binary format using XMLConverter before runtime use.<br>
   </li>
 </ul>
@@ -63,7 +63,8 @@ files, and combine the extra animations in one XML file by adding the
 <span style="font-weight: bold; text-decoration: underline;">Converting
 XML to binary files</span><br>
 Once you're happy with the files, you need to convert them to OGRE's
-binary formats to use them at runtime (XML is too inefficient to use for
+binary formats to use them at runtime (XML is too inefficient to use
+for
 large data structures like meshes at runtime).<br>
 <br>
 To do this, you need to use the XMLConverter tool, provided in the Ogre
@@ -74,41 +75,17 @@ precompiled binary if required. Simply run:<br>
 produce .mesh and .skeleton binary files out of the XML. These can then
 be placed into your OGRE resource locations for runtime use.<br>
 <br>
-<span style="font-weight: bold; text-decoration: underline;">Issues<br>
-</span>
-<ul>
-  <li><span style="font-weight: bold;">WARNING </span>: Always create
-new bones as children of another AND don't unlink and re-link a bone.
-For example, if you have created a leg, copy all the bones and then use
-position controller in a track view to move it and so get the other leg. <br>
-  </li>
-  <li><span style="font-weight: bold;">WARNING</span> : Don't use mirror
-when you create your bones because results are strange.</li>
-  <li>Sometimes XMLConverter reports a message about not being able to
-find the .skeleton file when converting a .mesh.xml. Do not worry about
-this, this is because the converter uses the runtime objects from OGRE
-itself and has not established any resource locations; <br>
-this message will not affect the validity of the .mesh produced.</li>
-  <li>At every keyframe, you have to had a key for position x,y,z and
-rotation x,y,z, otherwise you will have an error message: "a key missing
-for a track" or something like that. To get around this, use the&nbsp;
-'Add missing keys for selected object' button at the bottom of the
-export dialog.</li>
-  <li>Frame 0 must be a keyframe and at this keyframe, bones mustn't be
-rotated, they must be in their rest position. If you want to begin your
-animation with a different position, start animating at a higher frame
-number and tell the exporter to start from there.</li>
-  <li>There is sometimes a problem with mapping. Try to add a UVW map
-modifier.</li>
-  <li>Only skeletal animation is supported, so a 'skin' modifier is
-required.</li>
-  <li><span style="font-weight: bold;"></span>A new material is
-available in the material editor: OGRE Material. Only this kind of
-material can be embedded in the .mesh; however, in any case it is better
-to simply name your materials and use a .material script to define the
-material, that way you can use all the OGRE material properties.</li>
-</ul>
-The OGRE team would like to thank John Martin and EarthquakeProof for
+<span style="font-weight: bold; text-decoration: underline;">More
+information and tutorials</span><br>
+In samples directory, you can found 4 max files which show exporter
+features.
+Even if standard Ogre maps have been chosen, you may have to specify
+where are the bitmaps in the material editor.<br>
+<br>
+But before using these examples, please read the 2 tutorials you can
+found <a href="Docs/index.html">here</a>.<br>
+<br>
+The OGRE team would like to thank Etienne 'earthquakeProof' Mallard for
 developing this exporter.<br>
 <br>
 </body>
