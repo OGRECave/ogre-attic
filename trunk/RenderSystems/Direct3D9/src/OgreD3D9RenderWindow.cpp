@@ -177,7 +177,6 @@ namespace Ogre
 	{
 		HINSTANCE hInst = mInstance;
 		D3D9Driver* driver = mDriver;
-		long tempPtr;
 		
 		HWND parentHWnd = 0;
 		HWND externalHandle = 0;
@@ -504,7 +503,9 @@ namespace Ogre
 			}
 			if( D3DERR_DEVICELOST == hr )
 			{
-				// Ignore, should be restored in update() later
+				static_cast<D3D9RenderSystem*>(
+					Root::getSingleton().getRenderSystem())->_notifyDeviceLost();
+				Sleep(500);
 
 			}
 			else if( FAILED(hr) )
@@ -725,32 +726,45 @@ namespace Ogre
 	//-----------------------------------------------------------------------------
 	void D3D9RenderWindow::update(void)
 	{
-		// Test the cooperative mode first
-		HRESULT hr = mpD3DDevice->TestCooperativeLevel();
-		switch (hr)
+		D3D9RenderSystem* rs = static_cast<D3D9RenderSystem*>(
+			Root::getSingleton().getRenderSystem());
+		if (rs->isDeviceLost())
 		{
-		case D3DERR_DEVICELOST:
-			// device lost, and we can't reset
-			// can't do anything about it here, wait until we get 
-			// D3DERR_DEVICENOTRESET; rendering calls will silently fail until 
-			// then (except Present, but we ignore device lost there too)
-			mpRenderSurface = 0;
-			mpRenderZBuffer = 0;
-			return;
-		case D3DERR_DEVICENOTRESET:
-			// device lost, and we can reset
-			static_cast<D3D9RenderSystem*>(Root::getSingleton().getRenderSystem())
-				->restoreLostDevice();
-			// re-qeuery buffers
-			mpD3DDevice->GetRenderTarget( 0, &mpRenderSurface );
-			mpD3DDevice->GetDepthStencilSurface( &mpRenderZBuffer );
-			// release immediately so we don't hog them
-			mpRenderSurface->Release();
-			mpRenderZBuffer->Release();
+			// Test the cooperative mode first
+			HRESULT hr = mpD3DDevice->TestCooperativeLevel();
+			if (hr == D3DERR_DEVICELOST)
+			{
+				// device lost, and we can't reset
+				// can't do anything about it here, wait until we get 
+				// D3DERR_DEVICENOTRESET; rendering calls will silently fail until 
+				// then (except Present, but we ignore device lost there too)
+				mpRenderSurface = 0;
+				mpRenderZBuffer = 0;
+				Sleep(500);
+				return;
+			}
+			else if (hr == D3DERR_DEVICENOTRESET)
+			{
+				// device lost, and we can reset
+				rs->restoreLostDevice();
 
-			// intentionally fall through to default
-		default:
-			RenderWindow::update();
+				// Still lost?
+				if (rs->isDeviceLost())
+				{
+					// Wait a while
+					Sleep(500);
+					return;
+				}
+			
+				// re-qeuery buffers
+				mpD3DDevice->GetRenderTarget( 0, &mpRenderSurface );
+				mpD3DDevice->GetDepthStencilSurface( &mpRenderZBuffer );
+				// release immediately so we don't hog them
+				mpRenderSurface->Release();
+				mpRenderZBuffer->Release();
+			}
+
 		}
+		RenderWindow::update();
 	}
 }
