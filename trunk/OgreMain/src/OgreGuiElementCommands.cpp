@@ -101,12 +101,16 @@ namespace Ogre {
         {
             GuiMetricsMode gmm = 
                 static_cast<const GuiElement*>(target)->getMetricsMode();
-            if (gmm == GMM_PIXELS)
+
+            switch (gmm)
             {
+            case GMM_PIXELS :
                 return "pixels";
-            }
-            else
-            {
+
+            case GMM_RELATIVE_ASPECT_ADJUSTED :
+                return "relative_aspect_adjusted";
+
+            default :
                 return "relative";
             }
         }
@@ -115,6 +119,10 @@ namespace Ogre {
             if (val == "pixels")
             {
                 static_cast<GuiElement*>(target)->setMetricsMode(GMM_PIXELS);
+            }
+            else if (val == "relative_aspect_adjusted")
+            {
+                static_cast<GuiElement*>(target)->setMetricsMode(GMM_RELATIVE_ASPECT_ADJUSTED);
             }
             else
             {

@@ -41,6 +41,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreTimer.h"
 
 namespace Ogre {
+
+    const PlaneList Renderable::msDummyPlaneList; // FIX ME: temporary
+
     //-----------------------------------------------------------------------
     RenderSystem::RenderSystem()
     {

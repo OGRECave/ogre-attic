@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef __Plane_H__
 #define __Plane_H__
 
+#include <vector>
 #include "OgrePrerequisites.h"
 
 #include "OgreVector3.h"
@@ -88,6 +89,7 @@ namespace Ogre {
         _OgreExport friend std::ostream& operator<< (std::ostream& o, Plane& p);
     };
 
+    typedef std::vector<Plane> PlaneList;
 
 } // namespace Ogre
 

@@ -1946,6 +1946,40 @@ namespace Ogre {
         }
     }
 	//---------------------------------------------------------------------
+    void GLRenderSystem::setClipPlanes(const PlaneList& clipPlanes)
+    {
+        size_t i;
+        size_t numClipPlanes;
+        GLdouble clipPlane[4];
+
+        numClipPlanes = clipPlanes.size();
+        for (i = 0; i < numClipPlanes; ++i)
+        {
+            GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0 + i);
+            const Plane& plane = clipPlanes[i];
+
+            if (i >= GL_MAX_CLIP_PLANES)
+            {
+                Except(0, "Unable to set clip plane", 
+                    "GLRenderSystem::setClipPlanes");
+            }
+
+            clipPlane[0] = plane.normal.x;
+            clipPlane[1] = plane.normal.y;
+            clipPlane[2] = plane.normal.z;
+            clipPlane[3] = -plane.d;
+
+            glClipPlane(clipPlaneId, clipPlane);
+            glEnable(clipPlaneId);
+        }
+
+            // disable remaining clip planes
+        for ( ; i < 6/*GL_MAX_CLIP_PLANES*/; ++i)
+        {
+            glDisable(static_cast<GLenum>(GL_CLIP_PLANE0 + i));
+        }
+    }
+	//---------------------------------------------------------------------
     void GLRenderSystem::setScissorTest(bool enabled, size_t left, 
         size_t top, size_t right, size_t bottom)
     {
@@ -2061,7 +2095,6 @@ namespace Ogre {
     {
         return new GLHardwareOcclusionQuery(); 
     }
-
 
 
 

@@ -219,7 +219,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void BorderPanelGuiElement::setBorderSize(Real size)
     {
-        if (mMetricsMode == GMM_PIXELS)
+        if (mMetricsMode != GMM_RELATIVE)
         {
             mPixelLeftBorderSize = mPixelRightBorderSize = 
                 mPixelTopBorderSize = mPixelBottomBorderSize = size;
@@ -234,7 +234,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void BorderPanelGuiElement::setBorderSize(Real sides, Real topAndBottom)
     {
-        if (mMetricsMode == GMM_PIXELS)
+        if (mMetricsMode != GMM_RELATIVE)
         {
             mPixelLeftBorderSize = mPixelRightBorderSize = sides;
             mPixelTopBorderSize = mPixelBottomBorderSize = topAndBottom;
@@ -251,7 +251,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void BorderPanelGuiElement::setBorderSize(Real left, Real right, Real top, Real bottom)
     {
-        if (mMetricsMode == GMM_PIXELS)
+        if (mMetricsMode != GMM_RELATIVE)
         {
             mPixelLeftBorderSize = left;
             mPixelRightBorderSize = right;
@@ -587,7 +587,7 @@ namespace Ogre {
     void BorderPanelGuiElement::setMetricsMode(GuiMetricsMode gmm)
     {
         PanelGuiElement::setMetricsMode(gmm);
-        if (gmm == GMM_PIXELS)
+        if (gmm != GMM_RELATIVE)
         {
             mPixelBottomBorderSize = mBottomBorderSize;
             mPixelLeftBorderSize = mLeftBorderSize;
@@ -598,22 +598,16 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BorderPanelGuiElement::_update(void)
     {
-        if (mMetricsMode == GMM_PIXELS && 
-            (OverlayManager::getSingleton().hasViewportChanged() || mGeomPositionsOutOfDate))
-        {
-            // Recalc border size
-            Real vpWidth, vpHeight;
-            vpWidth = (Real) (OverlayManager::getSingleton().getViewportWidth());
-            vpHeight = (Real) (OverlayManager::getSingleton().getViewportHeight());
-
-            mLeftBorderSize = (Real) mPixelLeftBorderSize / vpWidth;
-            mRightBorderSize = (Real) mPixelRightBorderSize / vpWidth;
-            mTopBorderSize = (Real) mPixelTopBorderSize / vpHeight;
-            mBottomBorderSize = (Real) mPixelBottomBorderSize / vpHeight;
-			mGeomPositionsOutOfDate = true;
-        }
         PanelGuiElement::_update();
 
+        if (mMetricsMode != GMM_RELATIVE && 
+            (OverlayManager::getSingleton().hasViewportChanged() || mGeomPositionsOutOfDate))
+        {
+            mLeftBorderSize = mPixelLeftBorderSize * mPixelScaleX;
+            mRightBorderSize = mPixelRightBorderSize * mPixelScaleX;
+            mTopBorderSize = mPixelTopBorderSize * mPixelScaleY;
+            mBottomBorderSize = mPixelBottomBorderSize * mPixelScaleY;
+        }
     }
     //-----------------------------------------------------------------------
     //---------------------------------------------------------------------

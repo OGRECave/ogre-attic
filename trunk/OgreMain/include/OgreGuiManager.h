@@ -98,7 +98,13 @@ namespace Ogre {
         */
         static GuiManager& getSingleton(void);
 
-	    GuiElement* createGuiElementFromTemplate(const String& templateName, const String& typeName, const String& instanceName, bool isTemplate = false);
+        GuiElement* createGuiElementFromTemplate(const String& templateName, const String& typeName, const String& instanceName, bool isTemplate = false);
+        /**
+         *  @remarks
+         *  Creates a new GuiElement object from the specified template name.  The new
+         *  object's name, and all of it's children, will be instanceName/orignalName.
+         */
+        GuiElement* cloneGuiElementFromTemplate(const String& templateName, const String& instanceName);
 
         GuiElement* createGuiElementFromFactory(const String& typeName, const String& instanceName);
 

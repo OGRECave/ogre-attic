@@ -251,7 +251,7 @@ namespace Ogre
 
 
         /// Internal method to update the geometry
-        void updateGeometry();
+        virtual void updateGeometry();
         /// Internal method to allocate memory, only reallocates when necessary
         void checkMemoryAllocation( size_t numChars );
         /// Inherited function

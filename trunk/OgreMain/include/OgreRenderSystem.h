@@ -40,6 +40,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreFrameListener.h"
 #include "OgreConfigOptionMap.h"
 #include "OgreGpuProgram.h"
+#include "OgrePlane.h"
 
 namespace Ogre
 {
@@ -720,6 +721,10 @@ namespace Ogre
             This returns the pipeline to fixed-function processing for this type.
         */
         virtual void unbindGpuProgram(GpuProgramType gptype) = 0;
+
+        /** sets the clipping region.
+        */
+        virtual void setClipPlanes(const PlaneList& clipPlanes) = 0;
 
         /** Utility method for initialising all render targets attached to this rendering system. */
         virtual void _initRenderTargets(void);

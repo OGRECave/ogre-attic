@@ -92,6 +92,7 @@ namespace Ogre
 
 		void setCaptionToTextArea() ;
 
+        bool mActionOnReturn;
 		GuiContainer* mBackPanel;
 		TextAreaGuiElement* mTextArea;
 		String mTextAreaTemplateName;

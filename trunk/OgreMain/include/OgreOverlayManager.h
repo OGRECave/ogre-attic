@@ -64,7 +64,6 @@ namespace Ogre {
         bool mViewportDimensionsChanged;
 
 		StringVector mLoadedOverlays;
-//		void dispatchEvent(InputEvent* e, 
 
 	    bool parseChildren( DataChunk& chunk, const String& line,
             Overlay* pOverlay, bool isTemplate, GuiContainer* parent = NULL);
@@ -98,6 +97,7 @@ namespace Ogre {
         
         /** Gets the width of the destination viewport in pixels. */
         int getViewportWidth(void) const;
+        Real getViewportAspectRatio(void) const;
 
         /** Override standard Singleton retrieval.
             Why do we do this? Well, it's because the Singleton implementation is in a .h file,

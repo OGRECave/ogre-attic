@@ -535,6 +535,11 @@ namespace Ogre {
         return mLastViewportWidth;
     }
     //---------------------------------------------------------------------
+    Real OverlayManager::getViewportAspectRatio(void) const
+    {
+        return (Real)mLastViewportHeight / (Real)mLastViewportWidth;
+    }
+    //---------------------------------------------------------------------
 
 	//-----------------------------------------------------------------------------
 
@@ -581,7 +586,7 @@ namespace Ogre {
 
         case MouseEvent::ME_MOUSE_DRAGGED :
             iEnd = mMouseMotionListenerList.end();
-            for (i = mMouseMotionListenerList.begin(); i != iEnd; ++i) // FIX ME
+            for (i = mMouseMotionListenerList.begin(); i != iEnd; ++i)
                 (*i)->mouseDragged(static_cast<MouseEvent*>(e));
             break;
         }

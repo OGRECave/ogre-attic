@@ -36,6 +36,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMouseTarget.h"
 #include "OgreMouseMotionTarget.h"
 #include "OgreColourValue.h"
+#include "OgreRectangle.h"
 
 namespace Ogre {
 
@@ -47,7 +48,9 @@ namespace Ogre {
         /// 'left', 'top', 'height' and 'width' are parametrics from 0.0 to 1.0
         GMM_RELATIVE,
         /// Positions & sizes are in absolute pixels
-        GMM_PIXELS
+        GMM_PIXELS,
+        /// Positions & sizes are in virtual pixels
+        GMM_RELATIVE_ASPECT_ADJUSTED
     };
 
     /** Enum describing where '0' is in relation to the parent in the horizontal dimension.
@@ -119,16 +122,19 @@ namespace Ogre {
         Material* mpMaterial;
         String mCaption;
         ColourValue mColour;
+        Rectangle mClippingRegion;
 
         GuiMetricsMode mMetricsMode;
         GuiHorizontalAlignment mHorzAlign;
         GuiVerticalAlignment mVertAlign;
 
-        // Pixel-mode positions, used in GMM_PIXELS mode.
-        short mPixelTop;
-        short mPixelLeft;
-        short mPixelWidth;
-        short mPixelHeight;
+        // metric-mode positions, used in GMM_PIXELS & GMM_RELATIVE_ASPECT_ADJUSTED mode.
+        Real mPixelTop;
+        Real mPixelLeft;
+        Real mPixelWidth;
+        Real mPixelHeight;
+        Real mPixelScaleX;
+        Real mPixelScaleY;
 
         // Parent pointer
         GuiContainer* mParent;
@@ -147,6 +153,8 @@ namespace Ogre {
         // Derived from parent
         ushort mZOrder;
 
+        // world transforms
+        Matrix4 mXForm;
 
         // is element enabled
         bool mEnabled;
@@ -222,6 +230,26 @@ namespace Ogre {
         /** Gets the top of this element in relation to the screen (where 0 = top, 1.0 = bottom)  */
         Real getTop(void) const;
 
+        /** Gets the left of this element in relation to the screen (where 0 = far left, 1.0 = far right)  */
+        Real _getLeft(void) const { return mLeft; }
+        /** Gets the top of this element in relation to the screen (where 0 = far left, 1.0 = far right)  */
+        Real _getTop(void) const { return mTop; }
+        /** Gets the width of this element in relation to the screen (where 1.0 = screen width)  */
+        Real _getWidth(void) const { return mWidth; }
+        /** Gets the height of this element in relation to the screen (where 1.0 = screen height)  */
+        Real _getHeight(void) const { return mHeight; }
+        /** Sets the left of this element in relation to the screen (where 1.0 = screen width) */
+        void _setLeft(Real left);
+        /** Sets the top of this element in relation to the screen (where 1.0 = screen width) */
+        void _setTop(Real top);
+        /** Sets the width of this element in relation to the screen (where 1.0 = screen width) */
+        void _setWidth(Real width);
+        /** Sets the height of this element in relation to the screen (where 1.0 = screen width) */
+        void _setHeight(Real height);
+        /** Sets the left and top of this element in relation to the screen (where 1.0 = screen width) */
+        void _setPosition(Real left, Real top);
+        /** Sets the width and height of this element in relation to the screen (where 1.0 = screen width) */
+        void _setDimensions(Real width, Real height);
 
         /** Gets the name of the material this element uses. */
         virtual const String& getMaterialName(void) const;
@@ -276,6 +304,9 @@ namespace Ogre {
         /** Gets the 'top' position as derived from own left and that of parents. */
         virtual Real _getDerivedTop(void);
 
+        /** Gets the clipping region of the element */
+        virtual void _getClippingRegion(Rectangle &clippingRegion);
+
         /** Internal method to notify the element when Zorder of parent overlay
         has changed.
         @remarks
@@ -286,6 +317,16 @@ namespace Ogre {
         final zorder which is used to render the element.
         */
         virtual void _notifyZOrder(ushort newZOrder);
+
+        /** Internal method to notify the element when it's world transform
+         of parent overlay has changed.
+        */
+        virtual void _notifyWorldTransforms(const Matrix4& xform);
+
+        /** Internal method to notify the element when the viewport
+         of parent overlay has changed.
+        */
+        virtual void _notifyViewport();
 
         /** Internal method to put the contents onto the render queue. */
         virtual void _updateRenderQueue(RenderQueue* queue);
@@ -404,6 +445,7 @@ namespace Ogre {
         * Returns the parent container.
         */
         GuiContainer* getParent() ;
+        void _setParent(GuiContainer* parent) { mParent = parent; }
 
         /**
         * Returns the zOrder of the element
@@ -426,6 +468,7 @@ namespace Ogre {
         }
 
         void copyFromTemplate(GuiElement* templateGui);
+        virtual GuiElement* clone(const String& instanceName);
 
         // Returns the SourceTemplate for this element
         const GuiElement* getSourceTemplate () const {

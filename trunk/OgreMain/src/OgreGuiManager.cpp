@@ -22,6 +22,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
+
+#include <vector>
 #include "OgreStableHeaders.h"
 
 #include "OgreString.h"
@@ -84,6 +86,14 @@ namespace Ogre {
         
 		return newObj;
 	}
+
+
+    //---------------------------------------------------------------------
+    GuiElement* GuiManager::cloneGuiElementFromTemplate(const String& templateName, const String& instanceName)
+    {
+        GuiElement* templateGui = getGuiElement(templateName, true);
+        return templateGui->clone(instanceName);
+    }
 
     //---------------------------------------------------------------------
     GuiElement* GuiManager::createGuiElement(const String& typeName, const String& instanceName, bool isTemplate)
@@ -187,24 +197,33 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void GuiManager::destroyAllGuiElementsImpl(ElementMap& elementMap)
     {
-        ElementMap::iterator i, iend;
-        iend = elementMap.end();
-        for (i = elementMap.begin(); i != iend; ++i)
+        ElementMap::iterator i;
+
+        while ((i = elementMap.begin()) != elementMap.end())
         {
+            GuiElement* element = i->second;
+
             // Get factory to delete
-            FactoryMap::iterator fi = mFactories.find(i->second->getTypeName());
+            FactoryMap::iterator fi = mFactories.find(element->getTypeName());
             if (fi == mFactories.end())
             {
                 Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot locate factory for element " 
-                    + i->second->getName(),
+                    + element->getName(),
                     "GuiManager::destroyAllGuiElements");
             }
 
-            // Destroy
-            fi->second->destroyGuiElement(i->second);
-        }
-		elementMap.clear();
+            // remove from parent, if any
+            GuiContainer* parent;
+            if ((parent = element->getParent()) != 0)
+            {
+                parent->_removeChild(element->getName());
+            }
 
+            // children of containers will be auto-removed when container is destroyed.
+            // destroy the element and remove it from the list
+            fi->second->destroyGuiElement(element);
+            elementMap.erase(i);
+        }
     }
     //---------------------------------------------------------------------
     void GuiManager::addGuiElementFactory(GuiElementFactory* elemFactory)

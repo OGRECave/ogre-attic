@@ -23,6 +23,7 @@ Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA or go to
 http://www.gnu.org/copyleft/lesser.txt
 -------------------------------------------------------------------------*/
 
+#include "OgreActionEvent.h"
 #include "OgreTextBoxGuiElement.h"
 #include "OgreKeyEvent.h"
 #include "OgreInput.h"
@@ -39,11 +40,12 @@ namespace Ogre {
     TextBoxGuiElement::TextBoxGuiElement(const String& name)
         : PanelGuiElement(name)
     {
-      if (createParamDictionary("TextBoxGuiElement"))
+        if (createParamDictionary("TextBoxGuiElement"))
         {
             addBaseParameters();
         }
 
+        mActionOnReturn = false;
 		setTransparent(true);
 		mBackPanel = 0;
 		mTextArea = 0;
@@ -234,26 +236,40 @@ namespace Ogre {
 				case KeyEvent::KE_KEY_PRESSED:
 					KeyEvent* ke = static_cast<KeyEvent*> (e);
 
-					if (ke->getKey() == KC_BACK)
-					{
-						mCaption = mCaption.substr(0,mCaption.length() -1);
-						setCaptionToTextArea();
+                    switch (ke->getKey())
+                    {
+                    case KC_BACK :
+		                mCaption = mCaption.substr(0,mCaption.length() -1);
+			            setCaptionToTextArea();
+                        break;
 
-					}
-					else
-					{
-						OgreChar newKey = ke->getKeyChar();
-						Font* font = static_cast<Font*> (FontManager::getSingleton().getByName(mTextArea->getFontName()));
-						if (!font)
-							Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find font " + mTextArea->getFontName(),
-								"TextBoxGuiElement::processEvent" );
-						
-						if (font->getGlyphAspectRatio(newKey)*mTextArea->getCharHeight() + mTextArea->getWidth() < getWidth() - mTextArea->getSpaceWidth())
-						{
-							mCaption += newKey;
-							setCaptionToTextArea();
-						}
-					}
+                    case KC_RETURN :
+                        if (mActionOnReturn)
+                        {
+                            ActionEvent* ae = new ActionEvent(this, ActionEvent::AE_ACTION_PERFORMED, 0, 0, mName);
+		                    processActionEvent(ae);
+		                    delete ae;
+                        }
+                        // fall through
+
+                    default : {
+			            OgreChar newKey = ke->getKeyChar();
+                        if (newKey != '\0')
+                        {
+			                Font* font = static_cast<Font*> (FontManager::getSingleton().getByName(mTextArea->getFontName()));
+			                if (!font)
+			                    Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find font " + mTextArea->getFontName(),
+				                    "TextBoxGuiElement::processEvent" );
+                  						
+			                if (font->getGlyphAspectRatio(newKey)*mTextArea->getCharHeight() + mTextArea->getWidth() < getWidth() - mTextArea->getSpaceWidth())
+			                {
+			                    mCaption += newKey;
+				                setCaptionToTextArea();
+			                }
+                        }
+                        }
+                        break;
+				    }
 					break;
 				}
 			}

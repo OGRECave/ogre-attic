@@ -51,8 +51,8 @@ namespace Ogre {
         Light* mLights[MAX_LIGHTS];
 
         // clip planes
-        typedef std::vector<Vector4> PlaneList;
-        PlaneList mClipPlanes;
+        typedef std::vector<Vector4> PlaneList2;
+        PlaneList2 mClipPlanes;
         void setGLClipPlanes() const;
 
 
@@ -358,6 +358,10 @@ namespace Ogre {
           RenderSystem
          */
         void bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParametersSharedPtr params);
+        /** See
+          RenderSystem
+         */
+        void setClipPlanes(const PlaneList& clipPlanes);
         /** See
           RenderSystem
          */

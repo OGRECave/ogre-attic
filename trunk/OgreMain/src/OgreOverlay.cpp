@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSceneManager.h"
 #include "OgreGuiContainer.h"
 #include "OgreCamera.h"
+#include "OgreOverlayManager.h"
 #include "OgreQuaternion.h"
 #include "OgreVector3.h"
 
@@ -46,6 +47,7 @@ namespace Ogre {
         mScrollY = 0.0f;
         mVisible = false;
         mTransformOutOfDate = true;
+        mTransformUpdated = true;
         mZOrder = 100; // Default
         mRootNode = new SceneNode(NULL);
 
@@ -103,6 +105,11 @@ namespace Ogre {
         // Set Z order, scaled to separate overlays
         // NB max 100 container levels per overlay, should be plenty
         cont->_notifyZOrder(mZOrder * 100);
+
+        Matrix4 xform;
+        _getWorldTransforms(&xform);
+        cont->_notifyWorldTransforms(xform);
+        cont->_notifyViewport();
     }
     //---------------------------------------------------------------------
     void Overlay::remove2D(GuiContainer* cont)
@@ -132,6 +139,7 @@ namespace Ogre {
         mScrollX = x;
         mScrollY = y;
         mTransformOutOfDate = true;
+        mTransformUpdated = true;
     }
     //---------------------------------------------------------------------
     Real Overlay::getScrollX(void) const
@@ -165,12 +173,14 @@ namespace Ogre {
         mScrollX += xoff;
         mScrollY += yoff;
         mTransformOutOfDate = true;
+        mTransformUpdated = true;
     }
     //---------------------------------------------------------------------
     void Overlay::setRotate(Real angleunits)
     {
         mRotate = angleunits;
         mTransformOutOfDate = true;
+        mTransformUpdated = true;
     }
     //---------------------------------------------------------------------
     Real Overlay::getRotate(void) const
@@ -188,6 +198,7 @@ namespace Ogre {
         mScaleX = x;
         mScaleY = y;
         mTransformOutOfDate = true;
+        mTransformUpdated = true;
     }
     //---------------------------------------------------------------------
     Real Overlay::getScaleX(void) const
@@ -224,6 +235,17 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void Overlay::_findVisibleObjects(Camera* cam, RenderQueue* queue)
     {
+        GuiContainerList::iterator i, iend;
+
+        if (OverlayManager::getSingleton().hasViewportChanged())
+        {
+            iend = m2DElements.end();
+            for (i = m2DElements.begin(); i != iend; ++i)
+            {
+                (*i)->_notifyViewport();
+            }
+        }
+
         if (!mVisible)
             return;
 
@@ -239,8 +261,23 @@ namespace Ogre {
         queue->setDefaultQueueGroup(oldgrp);
 
 
+            // update elements
+        if (mTransformUpdated)
+        {
+            GuiContainerList::iterator i, iend;
+            Matrix4 xform;
+
+            _getWorldTransforms(&xform);
+            iend = m2DElements.end();
+            for (i = m2DElements.begin(); i != iend; ++i)
+            {
+                (*i)->_notifyWorldTransforms(xform);
+            }
+
+            mTransformUpdated = false;
+        }
+
         // Add 2D elements
-        GuiContainerList::iterator i, iend;
         iend = m2DElements.end();
         for (i = m2DElements.begin(); i != iend; ++i)
         {
@@ -304,5 +341,6 @@ namespace Ogre {
         }
 		return ret;
 	}
+
 }
 

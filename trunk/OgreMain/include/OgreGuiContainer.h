@@ -75,6 +75,10 @@ namespace Ogre {
         /** Gets the named child of this container. */
         virtual GuiElement* getChild(const String& name);
 
+        void _addChild(GuiElement* elem);
+        void _removeChild(GuiElement* elem) { return _removeChild(elem->getName()); }
+        void _removeChild(const String& name);
+
         /** Gets an object for iterating over all the children of this object. */
         virtual ChildIterator getChildIterator(void);
 
@@ -92,6 +96,12 @@ namespace Ogre {
 
         /** Overridden from GuiElement. */
         virtual void _notifyZOrder(ushort newZOrder);
+
+        /** Overridden from GuiElement. */
+        virtual void _notifyViewport();
+
+        /** Overridden from GuiElement. */
+        virtual void _notifyWorldTransforms(const Matrix4& xform);
 
         /** Overridden from GuiElement. */
 	    virtual void _notifyParent(GuiContainer* parent, Overlay* overlay);
@@ -115,6 +125,7 @@ namespace Ogre {
 		virtual GuiElement* findElementAt(Real x, Real y);		// relative to parent
 
 	    void copyFromTemplate(GuiElement* templateGui);
+        virtual GuiElement* clone(const String& instanceName);
 
     };
 
