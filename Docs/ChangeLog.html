@@ -80,20 +80,43 @@ CODE.str {
 
 <body bgcolor="#FFFFFF" text="#000000">
 <p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p><p align="center" class="header">Change 
-Log</p><p align="left" class="MainHeader">v0.11.0 (18 June 2003)</p><P ALIGN="left">Changes 
-since 0.10.0:</P><UL><LI> SceneQuery introduced; a generic way to query the SceneManager 
-database of objects and world geometry in a way which is optimised per scene management 
-technique but transparent for the client application. Currently only IntersectionSceneQuery 
-is implemented but RaySceneQuery, SphereSceneQuery and others will soon be available 
-too</LI><LI> ReferenceApplication introduced; this is a new library which sits 
-on top of the main OGRE library in order to provide a reference implementation 
-of combining OGRE with other libraries for use in a full application. Currently 
-combines OGRE and ODE to provide an easy to use collision and realistic physics 
-system, utilising the new SceneQuery functions for generic collision detection. 
-Object to object collision is currently supported, together this object to world 
-collision for the BspSceneManager (ie collision against Quake3 levels), see the 
-BspCollision demo for an example. Per-object friction, bounciness and mass parameters 
-are all definable, also most of the ODE joint types ie ball, hinge, hinge2, universal. 
+Log</p><p align="left" class="MainHeader">v0.12.0 (23 September 2003)</p><p align="left">Changes 
+since 0.11.0:</p><UL><LI>Complete overhaul of core geometry usage resulting in 
+optimised use of hardware vertex and index buffers, providing significant speed 
+boosts on all cards, typically of between 50 and 200% depending on the application. 
+ATI 9500+ cards on DirectX9 will see particularly large increases (often five-fold) 
+due to their particular affinity to this approach.</LI><LI>Geometry structures 
+redesigned to support the above and also to provide the basis for vertex and pixel 
+shaders. This will not affect you unless you manipulated geometry structures such 
+as the old GeometryData directly - those who did <A HREF="vbo-update/index.html">should 
+read about the details of the changes</A>.</LI><LI>Transparent materials no longer 
+assume that depth writing needs to be off, this setting was causing some problems 
+with those using alpha blending. Those of you using transparent materials which 
+do need depth writing to be turned off will need to set it in your material scripts</LI><LI>DirectX 
+8 rendersystem retired, the current DirectX rendersystem is now DirectX9, with 
+legacy cards supported through the DirectX7 rendersystem or OpenGL</LI><LI>Support 
+for cubic textures and cubic reflection mapping added</LI><LI>Support for DOT3 
+bump mapping added</LI><LI>Significant speed improvements on rebuilding bezier 
+patch surfaces, changing detail level is now a lot faster</LI><LI>DTDs for .mesh.xml 
+and .skeleton.xml added</LI><LI>Added Gtk platform manager with support for ogre 
+as a Gtk/GL widget</LI><LI>3D Studio Exporter now supports IK and Biped </LI><LI>Memory 
+leaks with controllers removed</LI><LI>Lightwave converter added</LI><LI>Wings3D 
+converter added</LI><LI>Visual real-time profiling tool added</LI><LI>Many bugfixes 
+and minor enhancements</LI></UL><p align="left" class="MainHeader">v0.11.0 (18 
+June 2003)</p><P ALIGN="left">Changes since 0.10.0:</P><UL><LI> SceneQuery introduced; 
+a generic way to query the SceneManager database of objects and world geometry 
+in a way which is optimised per scene management technique but transparent for 
+the client application. Currently only IntersectionSceneQuery is implemented but 
+RaySceneQuery, SphereSceneQuery and others will soon be available too</LI><LI> 
+ReferenceApplication introduced; this is a new library which sits on top of the 
+main OGRE library in order to provide a reference implementation of combining 
+OGRE with other libraries for use in a full application. Currently combines OGRE 
+and ODE to provide an easy to use collision and realistic physics system, utilising 
+the new SceneQuery functions for generic collision detection. Object to object 
+collision is currently supported, together this object to world collision for 
+the BspSceneManager (ie collision against Quake3 levels), see the BspCollision 
+demo for an example. Per-object friction, bounciness and mass parameters are all 
+definable, also most of the ODE joint types ie ball, hinge, hinge2, universal. 
 World collision for the terrain managers will be added shortly.</LI><LI> Many 
 structural enhancements to the GLRenderSystem, including an extension manager, 
 separation of window creation etc into a GLSupport class (to enable platform specific 
