@@ -40,14 +40,19 @@ namespace Ogre
         object to have it's own number of keyframes, i.e. you do not have to have the
         maximum number of keyframes for all animable objects just to cope with the most
         animated one.
-    @par
-        Subclasses like BoneTrack will complete the specific behaviour.
+    @remarks
+        Since the most common animable object is a Node, there are options in this class for associating
+        the track with a Node which will receive keyframe updates automatically when the 'apply' method
+        is called.
     */
     class _OgreExport AnimationTrack
     {
     public:
         /// Constructor, creates KeyFrame at 0.0 for you
         AnimationTrack(Animation* parent);
+        /// Constructor, associates with a Node
+        AnimationTrack(Animation* parent, Node* targetNode);
+
         virtual ~AnimationTrack();
 
         /** Returns the number of keyframes in this animation. */
@@ -106,11 +111,32 @@ namespace Ogre
         */
         KeyFrame getInterpolatedKeyFrame(Real timeIndex);
 
+        /** Applies an animation track at a certain position to the target node.
+        @remarks
+            When a track has bee associated with a target node, you can eaisly apply the animation
+            to the target by calling this method.
+        @param timePos The time position in the animation to apply.
+        @param weight The influence to give to this track, 1.0 for full influence, less to blend with
+          other animations.
+        */
+        void apply(Real timePos, Real weight = 1.0);
+
+        /** Returns a pointer to the associated Node object (if any). */
+        Node* getAssociatedNode(void);
+
+        /** Sets the associated Node object which will be automatically affected by calls to 'apply'. */
+        void setAssociatedNode(Node* node);
+
+        /** As the 'apply' method but applies to a specified Node instead of associated node. */
+        void applyToNode(Node* node, Real timePos, Real weight = 1.0);
+
+
     protected:
         typedef std::vector<KeyFrame*> KeyFrameList;
         KeyFrameList mKeyFrames;
         Real mMaxKeyFrameTime;
         Animation* mParent;
+        Node* mTargetNode;
 
     };
 }

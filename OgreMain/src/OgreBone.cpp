@@ -24,7 +24,7 @@ http://www.gnu.org/copyleft/gpl.html.
 */
 
 #include "OgreBone.h"
-#include "ogreSkeleton.h"
+#include "OgreSkeleton.h"
 
 
 namespace Ogre {
@@ -72,6 +72,20 @@ namespace Ogre {
         return mCreator->createBone();
     }
     //---------------------------------------------------------------------
+    void Bone::setBindingPose(void)
+    {
+        // Bake the current status into the binding pose
+        mOriginalOrientation = mOrientation;
+        mOriginalPosition = mPosition;
+    }
+    //---------------------------------------------------------------------
+    void Bone::reset(void)
+    {
+        // Restore from binding pose
+        mOrientation = mOriginalOrientation;
+        mPosition = mOriginalPosition;
+    }
+
 
 
 

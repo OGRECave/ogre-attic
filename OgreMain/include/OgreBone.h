@@ -83,6 +83,19 @@ namespace Ogre
         /** Gets the numeric handle for this bone (unique within the skeleton). */
         unsigned short getHandle(void);
 
+        /** Sets the current position / orientation to be the 'binding pose' ie the layout in which 
+            bones were originally bound to a mesh.
+        */
+        void setBindingPose(void);
+
+        /** Resets the position and orientation of this Bone to the original binding position.
+        @remarks
+            Bones are bound to the mesh in a binding pose. They are then modified from this
+            position during animation. This method returns the bone to it's original position and
+            orientation.
+        */
+        void reset(void);
+
 
     protected:
         /// The numeric handle of this bone
@@ -93,6 +106,11 @@ namespace Ogre
 
         /// Pointer back to creator, for child creation (central memory allocation)
         Skeleton* mCreator;
+
+        /// Original orientation in binding pose
+        Quaternion mOriginalOrientation;
+        /// Original position in binding pose
+        Vector3 mOriginalPosition;
 
     };
 

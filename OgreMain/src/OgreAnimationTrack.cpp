@@ -25,11 +25,20 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreAnimationTrack.h"
 #include "OgreAnimation.h"
 #include "OgreKeyFrame.h"
+#include "OgreNode.h"
 
 namespace Ogre {
 
     //---------------------------------------------------------------------
     AnimationTrack::AnimationTrack(Animation* parent) : mParent(parent)
+    {
+        // Create first keyframe
+        createKeyFrame(0.0);
+        mTargetNode = 0;
+    }
+    //---------------------------------------------------------------------
+    AnimationTrack::AnimationTrack(Animation* parent, Node* targetNode) 
+        : mTargetNode(targetNode)
     {
         // Create first keyframe
         createKeyFrame(0.0);
@@ -187,5 +196,31 @@ namespace Ogre {
         
     }
     //---------------------------------------------------------------------
+    void AnimationTrack::apply(Real timePos, Real weight)
+    {
+        applyToNode(mTargetNode, timePos, weight);
+        
+    }
+    //---------------------------------------------------------------------
+    Node* AnimationTrack::getAssociatedNode(void)
+    {
+        return mTargetNode;
+    }
+    //---------------------------------------------------------------------
+    void AnimationTrack::setAssociatedNode(Node* node)
+    {
+        mTargetNode = node;
+    }
+    //---------------------------------------------------------------------
+    void AnimationTrack::applyToNode(Node* node, Real timePos, Real weight)
+    {
+        KeyFrame kf = this->getInterpolatedKeyFrame(timePos);
+
+        node->rotate(kf.getRotation() * weight);
+        node->translate(kf.getTranslate() * weight);
+
+    }
+
+
 }
 

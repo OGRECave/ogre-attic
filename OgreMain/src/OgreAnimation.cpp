@@ -25,7 +25,6 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreAnimation.h"
 #include "OgreKeyFrame.h"
 #include "OgreAnimationTrack.h"
-#include "OgreBoneTrack.h"
 #include "OgreException.h"
 
 namespace Ogre {
@@ -45,16 +44,22 @@ namespace Ogre {
         return mLength;
     }
     //---------------------------------------------------------------------
-    AnimationTrack* Animation::createTrack(const String& typeName, unsigned short handle)
+    AnimationTrack* Animation::createTrack(unsigned short handle)
     {
         AnimationTrack* ret;
-        // TODO: do the selection of track type through plugin factory objects?
-        if (typeName == "Bone")
-        {
-            ret = new BoneTrack(this);
-        }
+
+        ret = new AnimationTrack(this);
 
         mTrackList[handle] = ret;
+        return ret;
+    }
+    //---------------------------------------------------------------------
+    AnimationTrack* Animation::createTrack(unsigned short handle, Node* node)
+    {
+        AnimationTrack* ret = createTrack(handle);
+
+        ret->setAssociatedNode(node);
+
         return ret;
     }
     //---------------------------------------------------------------------
@@ -100,6 +105,17 @@ namespace Ogre {
     String Animation::getName(void)
     {
         return mName;
+    }
+    //---------------------------------------------------------------------
+    void Animation::apply(Real timePos, Real weight)
+    {
+        TrackList::iterator i;
+        for (i = mTrackList.begin(); i != mTrackList.end(); ++i)
+        {
+            i->second->apply(timePos, weight);
+        }
+
+
     }
 
 }

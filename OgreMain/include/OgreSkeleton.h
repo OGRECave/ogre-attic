@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "OgrePrerequisites.h"
 #include "OgreResource.h"
+#include "OgreAnimationState.h"
 
 namespace Ogre {
 
@@ -106,6 +107,51 @@ namespace Ogre {
         /** Gets the root bone of the skeleton. */
         Bone* getRootBone(void);
 
+        /** Sets the current position / orientation to be the 'binding pose' ie the layout in which 
+            bones were originally bound to a mesh.
+        */
+        void setBindingPose(void);
+
+        /** Resets the position and orientation of all bones in this skeleton to their original binding position.
+        @remarks
+            A skeleton is bound to a mesh in a binding pose. Bone positions are then modified from this
+            position during animation. This method returns all the bones to their original position and
+            orientation.
+        */
+        void reset(void);
+
+        /** Creates a new Animation object for animating this skeleton. 
+        @param name The name of this animation
+        @param length The length of the animation in seconds
+        */
+        Animation* createAnimation(const String& name, Real length);
+
+        /** Returns the named Animation object. */
+        Animation* getAnimation(const String& name);
+
+        /** Removes an Animation from this skeleton. */
+        void removeAnimation(const String& name);
+
+        /** Changes the state of the skeleton to reflect the application of the passed in collection of animations.
+        @remarks
+            Animating a skeleton involves both interpolating between keyframes of a specific animation,
+            and blending between the animations themselves. Calling this method sets the state of
+            the skeleton so that it reflects the combination of all the passed in animations, at the
+            time index specified for each, using the weights specified. Note that the weights between 
+            animations do not have to sum to 1.0, because some animations may affect only subsets
+            of the skeleton. If the weights exceed 1.0 for the same area of the skeleton, the 
+            movement will just be exaggerated.
+            @param 
+        */
+        void setAnimationState(const AnimationStateSet& animSet);
+
+        /** Gets the last animation state of this skeleton, also useful for initialising
+            Entities which also keep an animation state. */
+        const AnimationStateSet& getAnimationState(void);
+        
+
+
+
 
     protected:
         /// Storage of bones, lookup by bone handle
@@ -115,6 +161,14 @@ namespace Ogre {
         Bone *mRootBone;
         /// Automatic handles
         unsigned short mNextAutoHandle;
+
+        /// Storage of animations, lookup by name
+        typedef std::map<String, Animation*> AnimationList;
+        AnimationList mAnimationsList;
+
+
+        /// Saved version of last animation
+        AnimationStateSet mLastAnimationState;
 
 
     };

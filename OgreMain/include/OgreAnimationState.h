@@ -23,10 +23,12 @@ http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __AnimationState_H__
-#define __AnimationState_H__
+#ifndef __AnimationSet_H__
+#define __AnimationSet_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreString.h"
+
 
 namespace Ogre {
 
@@ -34,26 +36,52 @@ namespace Ogre {
     class _OgreExport AnimationState
     {
     public:
-        /** Default constructor*/
+        /// Default constructor for STL only
         AnimationState();
-        /** Constructor.
-        @param animName The name of the animation.
-        @param timePos The position of the animation in seconds
-        @param length The total length of the animation
-        @param weight Weight to apply (1.0 = full weight)
-        */
-        AnimationState(const String& animName, Real timePos, Real length, Real weight = 1.0);
+        
+        /// Normal constructor with all params supplied
+        AnimationState(const String& animName, Real timePos, Real length, Real weight = 1.0, bool enabled = false);
+        /// Gets the name of the animation to which this state applies
+        String getAnimationName() const;
+        /// Sets the name of the animation to which this state applies
+        void setAnimationName(const String& name);
+        /// Gets the time position for this animation
+        Real getTimePosition(void) const;
+        /// Sets the time position for this animation
+        void setTimePosition(Real timePos);
+        /// Gets the total length of this animation (may be shorter than whole animation)
+        Real getLength() const;
+        /// Sets the total length of this animation (may be shorter than whole animation)
+        void setLength(Real len);
+        /// Gets the weight (influence) of this animation
+        Real getWeight(void) const;
+        /// Sets the weight (influence) of this animation
+        void setWeight(Real weight);
+        /// Modifies the time position, adjusting for animation length
+        void addTime(Real offset);
 
+        /// Returns true if this animation is currently enabled
+        bool getEnabled(void) const;
+        /// Sets whether this animation is enabled
+        void setEnabled(bool enabled);
+
+        /// Equality operator
+        bool operator==(const AnimationState& rhs) const;
+        // Inequality operator
+        bool operator!=(const AnimationState& rhs) const;
+
+     
     protected:
         String mAnimationName;
         Real mTimePos;
         Real mLength;
         Real mWeight;
+        bool mEnabled;
 
     };
 
-    // Define a set of animation states
-    typedef std::vector<AnimationState> AnimationStateSet;
+    // A set of animation states
+    typedef std::map<String, AnimationState> AnimationStateSet;
 
 
 }
