@@ -336,6 +336,16 @@ namespace Ogre {
           RenderSystem
          */
         void setStencilBufferPassOperation(StencilOperation op);
+        /** See RenderSystem.
+        @remarks
+            This is overridden because GL likes to set stencil options together, so we can
+            provide a better custom implementation of this than using the superclass.
+         */
+        void setStencilBufferParams(CompareFunction func = CMPF_ALWAYS_PASS, 
+            ulong refValue = 0, ulong mask = 0xFFFFFFFF, 
+            StencilOperation stencilFailOp = SOP_KEEP, 
+            StencilOperation depthFailOp = SOP_KEEP,
+            StencilOperation passOp = SOP_KEEP);
         // ----------------------------------
         // End Overridden members
         // ----------------------------------
