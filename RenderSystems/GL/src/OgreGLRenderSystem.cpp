@@ -36,8 +36,10 @@ http://www.gnu.org/copyleft/lesser.txt.s
 #include "OgreGLUtil.h"
 #include "OgreGLGpuProgram.h"
 #include "OgreGLGpuNvparseProgram.h"
+#include "ATI_FS_GLGpuProgram.h"
 #include "OgreGLGpuProgramManager.h"
 #include "OgreException.h"
+#include "OgreGLATIFSInit.h"
 
 
 #ifdef HAVE_CONFIG_H
@@ -88,6 +90,11 @@ namespace Ogre {
         return new GLGpuNvparseProgram(name, gptype, syntaxCode);
     }
 
+	GpuProgram* createGL_ATI_FS_GpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode)
+	{
+
+		return new ATI_FS_GLGpuProgram(name, gptype, syntaxCode);
+	}
 
     GLRenderSystem::GLRenderSystem()
       : mDepthWrite(true), mHardwareBufferManager(0), mGpuProgramManager(0)
@@ -340,6 +347,32 @@ namespace Ogre {
             mGpuProgramManager->registerProgramFactory("fp20", createGLGpuNvparseProgram);
         }
 
+
+		// NFZ - check for ATI fragment shader support
+		if (mGLSupport->checkExtension("GL_ATI_fragment_shader"))
+		{
+            mCapabilities->setCapability(RSC_FRAGMENT_PROGRAM);
+            mCapabilities->setMaxFragmentProgramVersion("ps_1_4");
+            // no boolean params allowed
+            mCapabilities->setFragmentProgramConstantBoolCount(0);
+            // no integer params allowed
+            mCapabilities->setFragmentProgramConstantIntCount(0);
+
+			// only 8 Vector4 constant floats supported
+            mCapabilities->setFragmentProgramConstantFloatCount(8);
+
+            mGpuProgramManager->_pushSyntaxCode("ps_1_4");
+            mGpuProgramManager->_pushSyntaxCode("ps_1_3");
+            mGpuProgramManager->_pushSyntaxCode("ps_1_2");
+            mGpuProgramManager->_pushSyntaxCode("ps_1_1");
+
+            mGpuProgramManager->registerProgramFactory("ps_1_4", createGL_ATI_FS_GpuProgram);
+            mGpuProgramManager->registerProgramFactory("ps_1_3", createGL_ATI_FS_GpuProgram);
+            mGpuProgramManager->registerProgramFactory("ps_1_2", createGL_ATI_FS_GpuProgram);
+            mGpuProgramManager->registerProgramFactory("ps_1_1", createGL_ATI_FS_GpuProgram);
+		}
+
+
         if (mGLSupport->checkExtension("GL_ARB_fragment_program"))
         {
             mCapabilities->setCapability(RSC_FRAGMENT_PROGRAM);
@@ -424,6 +457,7 @@ namespace Ogre {
             (GL_FinalCombinerInputNV_Func)mGLSupport->getProcAddress("glFinalCombinerInputNV");
         glTrackMatrixNV_ptr = 
             (GL_TrackMatrixNV_Func)mGLSupport->getProcAddress("glTrackMatrixNV");
+        InitATIFragmentShaderExtensions(*mGLSupport);
 
         mCapabilities->log(LogManager::getSingleton().getDefaultLog());
     }

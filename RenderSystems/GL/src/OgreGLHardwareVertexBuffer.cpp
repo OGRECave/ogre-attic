@@ -78,7 +78,6 @@ namespace Ogre {
                 */
 
             access = (mUsage & HBU_DYNAMIC) ? GL_READ_WRITE_ARB : GL_WRITE_ONLY_ARB;
-
         }
         else if(options == HBL_READ_ONLY)
         {

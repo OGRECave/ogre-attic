@@ -11,13 +11,10 @@ SDLGLSupport::SDLGLSupport()
 {
 
     SDL_Init(SDL_INIT_VIDEO);
-
-    atexit(SDL_Quit);
 }
 
 SDLGLSupport::~SDLGLSupport()
 {
-    SDL_Quit();
 }
 
 void SDLGLSupport::addConfig(void)
