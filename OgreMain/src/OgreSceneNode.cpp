@@ -377,7 +377,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     const LightList& SceneNode::getLights(void) const
     {
-        if (mLightListDirty)
+        // TEMP FIX
+        // If a scene node is static and lights have moved, light list won't change
+        // can't use a simple global boolean flag since this is only called for
+        // visible nodes, so temporarily visible nodes will not be updated
+        // Since this is only called for visible nodes, skip the check for now
+        //if (mLightListDirty)
         {
             // Use SceneManager to calculate
             mCreator->_populateLightList(this->_getDerivedPosition(), mLightList);
