@@ -34,7 +34,7 @@ class ogre_writer:
 		if mesh.shared_geometry:
 			self.add_geometry(self.sharedgeometry_elem, mesh.glverts)
 		else:
-			self.sharedgeometry_elem.setProp("count", "0")
+			self.sharedgeometry_elem.setProp("vertexcount", "0")
 		for submesh in mesh.subs:
 			self.add_material(submesh.mat_data)
 			self.add_submesh(submesh, mesh.shared_geometry)
@@ -65,7 +65,7 @@ class ogre_writer:
 	def add_geometry(self, geometry_elem, vertices):
 		"add given vertices to an XML element"
 
-		geometry_elem.setProp("count", str(len(vertices)))
+		geometry_elem.setProp("vertexcount", str(len(vertices)))
 
 		vb_position_elem = geometry_elem.newChild(None, "vertexbuffer", None)
 		vb_position_elem.setProp("positions", "true")
@@ -87,8 +87,8 @@ class ogre_writer:
 			vb_texcoord_elem.setProp("normals", "false")
 			vb_texcoord_elem.setProp("colours", "false")
 			vb_texcoord_elem.setProp("numtexcoords", "1")
-			vb_texcoord_elem.setProp("texcoordsets", "0")
-			vb_texcoord_elem.setProp("texcoorddimensions", "2")
+			vb_texcoord_elem.setProp("texture_coords", "0")
+			vb_texcoord_elem.setProp("texture_coord_dimensions_0", "2")
 
 		try:
 			for vert in vertices:
@@ -125,13 +125,15 @@ class ogre_writer:
 		submesh_elem = self.submeshes_elem.newChild(None, "submesh", None)
 		submesh_elem.setProp("material", submesh.mat_data.name)
 		if use_shared:
-			submesh_elem.setProp("useSharedVertices", "true")
+			submesh_elem.setProp("usesharedvertices", "true")
 			self.add_faces(submesh_elem, submesh.gltris)
 		else:
-			submesh_elem.setProp("useSharedVertices", "false")
+			submesh_elem.setProp("usesharedvertices", "false")
 			self.add_faces(submesh_elem, submesh.gltris)
 			geometry_elem = submesh_elem.newChild(None, "geometry", None)
 			self.add_geometry(geometry_elem, submesh.glverts)
+		submesh_elem.setProp("use32bitindexes", "false")
+		submesh_elem.setProp("operationtype", str("triangle_list"))
 
 	def write(self, filename):
 		self.xmldoc.saveFormatFile(filename, 1)
