@@ -506,7 +506,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Material::setDepthBias(ushort bias)
     {
-        assert(bias >= 0 && bias <= 16 && "Depth bias must be between 0 and 16");
+        assert(bias <= 16 && "Depth bias must be between 0 and 16");
         mDepthBias = bias;
     }
     //-----------------------------------------------------------------------
