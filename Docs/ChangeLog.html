@@ -84,6 +84,78 @@ CODE.str {
 <p align="center" class="header">OGRE (Object-Oriented Graphics
 Rendering Engine)</p>
 <p align="center" class="header">Change Log</p>
+<p align="left" class="MainHeader">v0.15.2 [Hastur] (13 January 2005)
+-
+Maintenance Release<br>
+</p>
+<p align="left">Changes:<br>
+</p>
+<ul>
+	<li><span style="color: rgb(255, 255, 51);">Stencil shadows</span>:
+		<ul>
+			<li>Runtime performance improvements</li>
+			<li>Edge list construction can now deal with non-manifold meshes, and is faster. You can re-calculate edge lists on your affected .mesh files by using OgreXmlConverter to convert to XML and back.</li>
+			<li>Shadow culling fixes including in reflected camera scenarios</li>
+		</ul>
+	</li>
+	<li><span style="color: rgb(255, 255, 51);">TerrainSceneManager</span>:  Fixed crash when you clear the terrain scene but don't call setWorldGeometry again</li>
+	<li><span style="color: rgb(255, 255, 51);">Direct3D textures</span>: Prefer D3DFMT_X8R8G8B8 over D3DFMT_R8G8B8 for texture formats, and disable auto mipmap generation when mipmaps == 0</li>
+	<li><span style="color: rgb(255, 255, 51);">BillboardSet</span>: avoid double-free crashes under certain calling orders.</li>
+	<li><span style="color: rgb(255, 255, 51);">Camera</span>: 
+		<ul>
+			<li>Better safety checks for bad parameters to setDirection</li>
+			<li>Camera::getCameraToViewportRay now works for orthographic projection</li>
+		</ul>
+	</li>
+	<li><span style="color: rgb(255, 255, 51);">GL</span>: 
+		<ul>
+			<li>Added virtual keyword to GLSupport::setExternalWindowHandle</li>
+			<li>Fix a couple of potential consistency issues in fixed-function lighting states</li>
+		</ul>
+	</li>
+	<li><span style="color: rgb(255, 255, 51);">Scene Queries</span>:
+		<ul>
+			<li>Query mask flags for world geometry made more explicit</li>
+			<li>Boolean result from query listeners consistently respected</li>
+			<li>Added specialised BspRaySceneQuery for fast BSP ray results</li>
+			<li>Don't match objects which are attached to detached subtrees of the scene graph</li>
+		</ul>
+	</li>
+	<li><span style="color: rgb(255, 255, 51);">Font</span>: several fixes to make on-screen fonts much crisper</li>
+	<li><span style="color: rgb(255, 255, 51);">Windows</span>: requested size now translated to client area size in windowed mode (except if full window size exceeds the desktop size)</li>
+	<li><span style="color: rgb(255, 255, 51);">Material scripts</span>: automatic GPU program parameter 'projection_matrix' now parsed correctly</li>
+	<li><span style="color: rgb(255, 255, 51);">VC7.1+ STL</span>: Avoid long shutdown in debug mode</li>
+	<li><span style="color: rgb(255, 255, 51);">VC6</span>: Added /Zm option to VC6 to avoid compiler out of heap space errors</li>
+	<li><span style="color: rgb(255, 255, 51);">Blender exporter</span>:
+		<ul>
+			<li>Fixed calculation of initial bone rotation.</li>
+			<li>Restored possibility to export an armature as mesh.</li>
+			<li>Option to export in objects local coordinates.</li>
+			<li>Allow image textures to be assigned via a material texture channel.</li>
+			<li>Preliminary bump map support.</li>
+			<li>Option to run OgreXMLConverter automatically</li>
+		</ul>
+	</li>
+	<li><span style="color: rgb(255, 255, 51);">3DS exporter</span>:
+		<ul>
+			<li>Export vertex alpha export as the a component of the vertex color</li>
+			<li>Fixed a couple of bugs in UV export (inc multi-UV export)</li>
+			<li>Fix a bug for IK export</li>
+			<li>Speed up the mesh export process. No very easy to notice for small objects but great speed improvements for very big objects.</li>
+			<li>Any kind of objects can now be part of the hierarchy if they are part of the Skin/Physique modifier.</li>
+			<li>Log a warning when there is a vertex with more than 4 bones assigned.</li>
+			<li>Scale of 0.0 is no longer possible. 0.0 is replaced by 1.0 when used.</li>
+			<li>Animation names are properly exported when using multiple animations.</li>
+		</ul>
+	</li>
+	<li><span style="color: rgb(255, 255, 51);">Memory manager</span>: Fix use of memory macros without namespace Ogre</li>
+	<li><span style="color: rgb(255, 255, 51);">Manual updates</span>:
+		<ul>
+			<li>Mention optional alpha components to ambient / diffuse / specular / emissive</li>
+			<li>Documented additional community-contributed particle emitters / affectors</li>
+		</ul>
+	</li>
+</ul>  
 <p align="left" class="MainHeader">v0.15.1 [Hastur] (28 November 2004)
 -
 Maintenance Release<br>
