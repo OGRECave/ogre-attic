@@ -235,8 +235,6 @@ protected:
     Matrix4 mScaleFactor;
 
 };
-template< class T>
-void _findNodes( const T &r, std::list < SceneNode * > &list, SceneNode *exclude, bool full, Octree *octant );
 
 
 }
