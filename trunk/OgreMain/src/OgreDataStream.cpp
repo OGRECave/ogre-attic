@@ -231,7 +231,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void MemoryDataStream::skip(ssize_t count)
+    void MemoryDataStream::skip(size_t count)
     {
         size_t newpos = (size_t)( ( mPos - mData ) + count );
         assert( mData + newpos <= mEnd );        
@@ -371,7 +371,7 @@ namespace Ogre {
         return total;
     }
     //-----------------------------------------------------------------------
-    void FileStreamDataStream::skip(ssize_t count)
+    void FileStreamDataStream::skip(size_t count)
     {
 		mpStream->seekg(static_cast<std::ifstream::pos_type>(count), std::ios::cur);
     }
@@ -495,7 +495,7 @@ namespace Ogre {
         return readLine(nullBuf, 1024, delim);
     }
     //-----------------------------------------------------------------------
-    void FileHandleDataStream::skip(ssize_t count)
+    void FileHandleDataStream::skip(size_t count)
     {
         fseek(mFileHandle, count, SEEK_CUR);
     }
