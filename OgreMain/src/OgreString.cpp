@@ -179,6 +179,7 @@ namespace Ogre {
         if (i == String::npos)
         {
             outPath = "";
+			outBasename = qualifiedName;
         }
         else
         {
@@ -206,8 +207,14 @@ namespace Ogre {
             {
                 // Skip over looking for next character
                 ++patIt;
-                if (patIt != tmpPattern.end())
+                if (patIt == tmpPattern.end())
+				{
+					// Skip right to the end since * matches the entire rest of the string
+					strIt = tmpStr.end();
+				}
+				else
                 {
+					// scan until we find next pattern character
                     while(strIt != tmpStr.end() && *strIt != *patIt)
                         ++strIt;
                 }
@@ -226,7 +233,15 @@ namespace Ogre {
             }
 
         }
-        return true;
+		// If we reached the end of both the pattern and the string, we succeeded
+		if (patIt == tmpPattern.end() && strIt == tmpStr.end())
+		{
+        	return true;
+		}
+		else
+		{
+			return false;
+		}
 
     }
 
