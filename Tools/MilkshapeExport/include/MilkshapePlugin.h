@@ -59,13 +59,18 @@ public:
     static BOOL CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam);
 
     bool exportMaterials;
+    bool generateLods;
+    unsigned short numLods;
+    float lodDepthIncrement;
+    Ogre::ProgressiveMesh::VertexReductionQuota lodReductionMethod;
+    float lodReductionAmount;
     bool exportMesh;
     bool exportSkeleton;
     bool splitAnimations;
     float fps; 
 
 protected:
-    void showOptions(void);
+    bool showOptions(void);
     void doExportMesh(msModel* pModel);
     void doExportMaterials(msModel* pModel);
     void doExportAnimations(msModel* pModel, Ogre::Skeleton* skel);
