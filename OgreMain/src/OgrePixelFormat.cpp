@@ -119,15 +119,15 @@ namespace Ogre {
         0x0F, 0, 0, 0xF0, 0, 0, 0, 4
         },
 	//-----------------------------------------------------------------------
-        {"PF_L4A4", 
+        {"PF_BYTE_LA", 
         /* Bytes per element */ 
-        1,  
+        2,  
         /* Flags */
-        PFF_HASALPHA | PFF_LUMINANCE | PFF_NATIVEENDIAN,  
+        PFF_HASALPHA | PFF_LUMINANCE,  
         /* rbits, gbits, bbits, abits */
-        4, 0, 0, 4,
+        8, 0, 0, 8,
         /* Masks and shifts */
-        0xF0, 0, 0, 0x0F, 4, 0, 0, 0 
+        0,0,0,0,0,0,0,0
         },
 	//-----------------------------------------------------------------------
         {"PF_R5G6B5", 
@@ -649,6 +649,10 @@ namespace Ogre {
                 ((uint16*)dest)[2] = Bitwise::floatToFixed(b, 16);
                 ((uint16*)dest)[3] = Bitwise::floatToFixed(a, 16);
 				break;
+			case PF_BYTE_LA:
+				((uint8*)dest)[0] = Bitwise::floatToFixed(r, 8);
+                ((uint8*)dest)[1] = Bitwise::floatToFixed(a, 8);
+				break;
             default:
                 // Not yet supported
                 Except(
@@ -761,6 +765,10 @@ namespace Ogre {
                 *g = Bitwise::fixedToFloat(((uint16*)src)[1], 16);
 				*b = Bitwise::fixedToFloat(((uint16*)src)[2], 16);
 				*a = Bitwise::fixedToFloat(((uint16*)src)[3], 16);
+				break;
+			case PF_BYTE_LA:
+				*r = *g = *b = Bitwise::fixedToFloat(((uint8*)src)[0], 8);
+				*a = Bitwise::fixedToFloat(((uint8*)src)[1], 8);
 				break;
             default:
                 // Not yet supported
@@ -958,8 +966,7 @@ namespace Ogre {
             }
             break;            
         case IL_LUMINANCE_ALPHA:
-            //fmt = PF_A4L4;
-			fmt = PF_A8R8G8B8; // better to return this, as it is at least supported by all rendersystems, and has more precision
+			fmt = PF_BYTE_LA;
             break;
         }  
         return fmt;
@@ -970,9 +977,10 @@ namespace Ogre {
     ILUtil::ILFormat ILUtil::OgreFormat2ilFormat( PixelFormat format )
     {
 		switch(format) {
-            case PF_L8: return ILFormat(1, IL_LUMINANCE, IL_UNSIGNED_BYTE);
-			case PF_A8: return ILFormat(1, IL_LUMINANCE, IL_UNSIGNED_BYTE);
-			case PF_L16: return ILFormat(1, IL_LUMINANCE, IL_UNSIGNED_SHORT);
+            case PF_BYTE_L: return ILFormat(1, IL_LUMINANCE, IL_UNSIGNED_BYTE);
+			case PF_BYTE_A: return ILFormat(1, IL_LUMINANCE, IL_UNSIGNED_BYTE);
+			case PF_SHORT_L: return ILFormat(1, IL_LUMINANCE, IL_UNSIGNED_SHORT);
+			case PF_BYTE_LA: return ILFormat(2, IL_LUMINANCE_ALPHA, IL_UNSIGNED_BYTE);
 			case PF_BYTE_RGB: return ILFormat(3, IL_RGB, IL_UNSIGNED_BYTE);
 			case PF_BYTE_RGBA: return ILFormat(4, IL_RGBA, IL_UNSIGNED_BYTE);
             case PF_BYTE_BGR: return ILFormat(3, IL_BGR, IL_UNSIGNED_BYTE);
