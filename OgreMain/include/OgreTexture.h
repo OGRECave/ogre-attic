@@ -113,7 +113,7 @@ namespace Ogre {
                 Basic algo taken from Titan engine, copyright (c) 2000 Ignacio 
                 Castano Iguado
         */
-        void applyGamma(unsigned char* p, int size, int bpp);
+        void applyGamma(unsigned char* p, uint size, int bpp);
     };
 }
 
