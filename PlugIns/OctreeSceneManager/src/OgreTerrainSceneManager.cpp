@@ -275,7 +275,7 @@ void TerrainSceneManager::setupTerrainMaterial(void)
                 bool found = false;
                 while (aci.hasMoreElements())
                 {
-                    GpuProgramParameters::AutoConstantEntry& ace = aci.getNext();
+                    const GpuProgramParameters::AutoConstantEntry& ace = aci.getNext();
                     if (ace.paramType == GpuProgramParameters::ACT_CUSTOM && 
                         ace.data == MORPH_CUSTOM_PARAM_ID)
                     {
