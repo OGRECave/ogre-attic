@@ -257,7 +257,9 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
             ogreSubMesh->geometry.pVertices[(j*3)+2] = Vertex[2];
 
             ogreSubMesh->geometry.pTexCoords[0][j*2] = uv[0];
-            ogreSubMesh->geometry.pTexCoords[0][(j*2)+1] = uv[1];
+            // Invert the 'v' texture coordinate, Milkshape appears to treat 0 as the TOP of the texture
+            //   like D3D, OGRE uses the reverse
+            ogreSubMesh->geometry.pTexCoords[0][(j*2)+1] = 1 - uv[1];
 
             int boneIdx = msVertex_GetBoneIndex(pVertex);
             if (boneIdx != -1)
