@@ -165,18 +165,10 @@ namespace Ogre {
                 }
 
             }
-            // update next indexStart (all renderables sharing the buffer)
-            indexStart += shadOp->indexData->indexCount;
 
             // Do light cap
-            // Have to do this as a separate render op because depth function
-            // has to be set to 'always fail'
             if (flags & SRF_INCLUDE_LIGHT_CAP) 
             {
-                ShadowRenderable* lightCapRend = (*si)->getLightCapRenderable();
-                RenderOperation* lightShadOp = lightCapRend->getRenderOperationForUpdate();
-                lightShadOp->indexData->indexCount = 0;
-                lightShadOp->indexData->indexStart = indexStart;
 
                 EdgeData::TriangleList::iterator ti, tiend;
                 tiend = edgeData->triangles.end();
@@ -189,13 +181,13 @@ namespace Ogre {
                         *pIdx++ = t.vertIndex[0];
                         *pIdx++ = t.vertIndex[1];
                         *pIdx++ = t.vertIndex[2];
-                        lightShadOp->indexData->indexCount += 3;
+                        shadOp->indexData->indexCount += 3;
                     }
                 }
 
-                // Increment index past light cap renderable
-                indexStart += lightShadOp->indexData->indexCount;
             }
+            // update next indexStart (all renderables sharing the buffer)
+            indexStart += shadOp->indexData->indexCount;
 
 
         }

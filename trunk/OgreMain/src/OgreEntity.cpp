@@ -823,7 +823,7 @@ namespace Ogre {
                 {
                     pVertData = egi->vertexData;
                 }
-                *si = new EntityShadowRenderable(this, indexBuffer, pVertData, false);
+                *si = new EntityShadowRenderable(this, indexBuffer, pVertData);
             }
             // Get shadow renderable
             esr = static_cast<EntityShadowRenderable*>(*si);
@@ -885,8 +885,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     Entity::EntityShadowRenderable::EntityShadowRenderable(Entity* parent, 
-        HardwareIndexBufferSharedPtr* indexBuffer, const VertexData* vertexData, 
-        bool isLightCap)
+        HardwareIndexBufferSharedPtr* indexBuffer, const VertexData* vertexData)
         : mParent(parent)
     {
         // Initialise render op
@@ -915,21 +914,10 @@ namespace Ogre {
         }
         // Use same vertex start as input
         mRenderOp.vertexData->vertexStart = vertexData->vertexStart;
-        if (isLightCap)
-        {
-            // Use original vertex count, no extrusion
-            mRenderOp.vertexData->vertexCount = vertexData->vertexCount;
-        }
-        else
-        {
-            // Vertex count must take into account the doubling of the buffer,
-            // because second half of the buffer is the extruded copy
-            mRenderOp.vertexData->vertexCount = 
-                vertexData->vertexCount * 2;
-            // Create child light cap
-            mLightCap = new EntityShadowRenderable(parent, 
-                indexBuffer, vertexData, true);
-        }
+        // Vertex count must take into account the doubling of the buffer,
+        // because second half of the buffer is the extruded copy
+        mRenderOp.vertexData->vertexCount = 
+            vertexData->vertexCount * 2;
     }
     //-----------------------------------------------------------------------
     Entity::EntityShadowRenderable::~EntityShadowRenderable()
