@@ -5,7 +5,7 @@ lib_LTLIBRARIES=libOgreReferenceAppLayer.la
 libOgreReferenceAppLayer_la_SOURCES = OgreRefAppApplicationObject.cpp \
 			OgreRefAppOgreHead.cpp \
 			OgreRefAppJoint.cpp \
-			OgreRefAppJointSubtypes.h \
+			OgreRefAppJointSubtypes.cpp \
 			OgreRefAppPlane.cpp \
 			OgreRefAppWorld.cpp
 
