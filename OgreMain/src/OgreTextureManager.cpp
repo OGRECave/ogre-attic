@@ -30,53 +30,33 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     TextureManager::~TextureManager(){}
     //-----------------------------------------------------------------------
-    Texture* TextureManager::load(String filename, int numMipMaps, Real gamma, int priority)
+    Texture * TextureManager::load(
+        const String &name, int numMipMaps, Real gamma, int priority )
     {
-        Texture* tex = (Texture*)getByName(filename);
-        if (tex == 0)
+        Texture* tex = (Texture*)getByName( name );
+
+        if( tex == NULL )
         {
-            tex = (Texture*)create(filename);
+            tex = (Texture*)create( name );
+
             if (numMipMaps == -1)
                 tex->setNumMipMaps(mDefaultNumMipMaps);
             else
                 tex->setNumMipMaps(numMipMaps);
-            tex->setGamma(gamma);
-            tex->enable32Bit(mIs32Bit);
-            ResourceManager::load(tex, priority);
+
+            tex->setGamma( gamma );
+            tex->enable32Bit( mIs32Bit );
+
+            ResourceManager::load( tex, priority );
         }
+
         return tex;
     }
-    //-----------------------------------------------------------------------
-    void TextureManager::loadRawRGB(String name, void* buffer, int width, int height, int numMipMaps, Real gamma)
-    {
-        Texture* tex = (Texture*)create(name);
-        if (numMipMaps == -1)
-            tex->setNumMipMaps(mDefaultNumMipMaps);
-        else
-            tex->setNumMipMaps(numMipMaps);
-        tex->setGamma(gamma);
-        tex->enable32Bit(mIs32Bit);
-        tex->loadRawRGB(buffer, width, height);
 
-        mResources[tex->getName()] = tex;
-    }
-	//-----------------------------------------------------------------------
-	void TextureManager::loadRawRGBA(String name, void* buffer, int width, int height, int numMipMaps, Real gamma)
-	{
-		Texture* tex = (Texture*)create(name);
-		if (numMipMaps == -1)
-			tex->setNumMipMaps(mDefaultNumMipMaps);
-		else
-			tex->setNumMipMaps(numMipMaps);
-		tex->setGamma(gamma);
-		tex->enable32Bit(mIs32Bit);
-		tex->loadRawRGBA(buffer, width, height);
-
-		mResources[tex->getName()] = tex;
-	}
     //-----------------------------------------------------------------------
-    void TextureManager::loadImage( const String &name, Image &img, 
-        int iNumMipMaps /* = -1 */, Real gamma /* = 1.0f  */ )
+    Texture * TextureManager::loadImage( 
+        const String &name, const Image &img, 
+        int iNumMipMaps /* = -1 */, Real gamma /* = 1.0f  */, int priority /* = 1 */ )
     {
         Texture *tex = (Texture*)create( name );
         if( iNumMipMaps == -1 )
@@ -85,27 +65,20 @@ namespace Ogre {
             tex->setNumMipMaps( iNumMipMaps );
 
         tex->setGamma( gamma );        
-        if( img.hasAlphaChannel() )
-        {
-            tex->enable32Bit( true );
-            tex->loadRawRGBA( img.getData(), img.getWidth(), img.getHeight() );
-        }
-        else
-        {
-            tex->enable32Bit( false );
-            tex->loadRawRGB( img.getData(), img.getWidth(), img.getHeight() );
-        }
+        tex->loadImage( img );
 
         mResources[ tex->getName() ] = tex;
+
+        return tex;
     }
     //-----------------------------------------------------------------------
-    void TextureManager::unload(String filename)
+    void TextureManager::unload( String filename )
     {
-        Resource* res = getByName(filename);
-        ResourceManager::unload(res);
+        Resource* res = getByName( filename );
+        ResourceManager::unload( res );
     }
     //-----------------------------------------------------------------------
-    void TextureManager::enable32BitTextures(bool setting)
+    void TextureManager::enable32BitTextures( bool setting )
     {
         // Reload all textures
         for( ResourceMap::iterator it = mResources.begin(); it != mResources.end(); ++it )
@@ -116,7 +89,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void TextureManager::setDefaultNumMipMaps(int num)
+    void TextureManager::setDefaultNumMipMaps( int num )
     {
         mDefaultNumMipMaps = num;
     }

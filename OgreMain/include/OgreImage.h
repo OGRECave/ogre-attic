@@ -22,113 +22,256 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
-#ifndef __Image_H__
-#define __Image_H__
+#ifndef _Image_H__
+#define _Image_H__
 
 #include "OgrePrerequisites.h"
 
 #include "OgreString.h"
 #include "OgreDataChunk.h"
 
-namespace Ogre {
-    /** Class representing an image file.
-        @remarks
-            This class can load & hold the data for image files. Currently it
-            loads PNG and JPG files. I could have supported BMP but chose not to
-            because it is not platform independant. Loading BMPs as textures is
-            supported by Ogre on Win32 platforms, however, just not through this
-            class (the D3DTexture class will load BMPs).
-        @par
-            I chose not to support GIF since a) it's copyrighted and b) for a 3D
-            engine these days, 16-bit colour textures is really the accepted minimum.
-            Palettised textures are rarely used anymore. It also simplifies my job!
-        @note
-            Image data is always in RGB(A) format (optional alpha channel, only in PNG)
+BEGIN_OGRE_NAMESPACE
+
+/** Class representing an image file.
+    @remarks
+        The Image class usually holds uncompressed image data and is the
+        only object that can be loaded in a texture. Image  objects handle 
+        image data decoding themselves by the means of locating the correct 
+        Codec object for each data type.
+    @par
+        Typically, you would want to use an Image object to load a texture
+        when extra processing needs to be done on an image before it is
+        loaded or when you want to blit to an existing texture.
+*/
+class _OgreExport Image
+{
+public:
+    /** Pixel formats allowed by the Image class.
     */
-    class _OgreExport Image
+    enum PixelFormat
     {
-    public:
-
-        Image();
-        ~Image();
-
-        void flipX();
-        void flipY();
-
-        void Image::loadRawRGB( Byte *pData, UInt32 ulWidth, UInt32 ulHeight );
-        void Image::loadRawRGBA( Byte *pData, UInt32 ulWidth, UInt32 ulHeight );
-
-        /** Loads an image file and returns a pointer to the raw image data.
-            @remarks
-                This method loads an image into memory held in the object, and passes a
-                pointer to it back to the caller. The data will be in one of 3 formats:
-                Greyscale, i.e. one byte per pixel, RGB or RGBA. The type can be determined by
-                calling isGreyscale() and hasAlphaChannel(). Note that the memory associated
-                with this buffer is destroyed when the Image object is.
-            @param
-                filename Name of a PNG or JPG file to load.
-        */
-        Byte * load( const String& strFileName );
-        /** Loads an image file from a chunk of memory and returns a pointer to the uncompressed image data.
-            @remarks
-                This method works in the same way as the filename-based load method except it loads the image from
-                a DataChunk object, i.e. a chunk of memory. This DataChunk is expected to contain the encoded
-                data as it would be held in a file. This method is here to support loading from compressed archives
-                where you decompress the data from the archive into memory first. This method will then decode the
-                data and return a raw image data stream.
-            @par
-                The data will be in one of 3 formats: Greyscale, i.e. one byte per pixel, RGB or RGBA. The type
-                can be determined by calling isGreyscale() and hasAlphaChannel(). Note that the memory associated
-                with this buffer is destroyed when the Image object is.
-            @param
-                chunk The source data.
-            @param
-                extension The extension associated with the file type, e.g. PNG, JPG, TGA
-        */
-        unsigned char* load(DataChunk& chunk, const String& extension);
-
-        /** Returns a pointer to the image data.
-        */
-        unsigned char* getData(void);
-
-        /** Gets the width of the image in pixels.
-        */
-        unsigned short getWidth(void);
-
-        /** Gets the height of the image in pixels.
-        */
-        unsigned short getHeight(void);
-
-        /** Gets the physical width in bytes of each row of pixels.
-        */
-        unsigned short getRowSpan(void);
-
-        /** Returns true if colour data is greyscale i.e. 1 byte per pixel colour. Otherwise data is
-            3 or 4 bytes per pixel (RGB(A)).
-        */
-        bool isGreyscale(void);
-
-        /** Returns true if colour data has an embedded alpha channel. Alpha channel is
-            only available in PNG files.
-        */
-        bool hasAlphaChannel(void);
-
-        static void setFlipX( Bool b ) { ms_bFlipX = b; }
-        static void setFlipY( Bool b ) { ms_bFlipY = b; }
-
-        static Bool getFlipX( ) { return ms_bFlipX; }
-        static Bool getFlipY( ) { return ms_bFlipY; }
-
-    private:
-        unsigned short mWidth, mHeight;
-        unsigned short mRowSpan;
-        unsigned char* mpBuffer;
-        bool mIsGreyscale;
-        bool mHasAlpha;
-
-        static Bool ms_bFlipX;
-        static Bool ms_bFlipY;
+        FMT_UNKNOWN = 0,
+        FMT_ALPHA = 1,
+        FMT_GREY = 2,
+        FMT_GREY_ALPHA = 3,
+        FMT_RGB = 4,
+        FMT_RGB_ALPHA = 5
     };
-}
+public:
+
+    /** Standard constructor.
+    */
+    Image();
+    /** Copy-constructor - copies all the data from the target image.
+    */
+    Image( const Image &img );
+
+    /** Standard destructor.
+    */
+    ~Image();
+
+    /** Assignment operator - copies all the data from the target image.
+    */
+    Image & operator = ( const Image & img );
+
+    /** Flips (mirrors) the image around the Y-axis. 
+        @remarks
+            An example of an original and flipped image:
+            <pre>
+                    flip axis
+                        |
+            originalimg|gmilanigiro
+            00000000000|00000000000
+            00000000000|00000000000
+            00000000000|00000000000
+            00000000000|00000000000
+            00000000000|00000000000
+            </pre>
+    */
+    Image & flipAroundY();
+
+    /** Flips (mirrors) the image around the X-axis.
+        @remarks
+            An example of an original and flipped image:
+            <pre>                
+            originalimg
+            00000000000
+            00000000000
+            00000000000
+            00000000000
+            00000000000
+            ------------> flip axis
+            00000000000
+            00000000000
+            00000000000
+            00000000000
+            00000000000
+            originalimg
+            </pre>
+    */                 
+    Image & flipAroundX();
+
+    /** Returns the pixel size  for a given PixelFormat
+        @param
+            eFormat the PixelFormat to get the pixel size for
+        @returns
+            the number of bytes per pixel of data
+    */
+    static uchar PF2PS( PixelFormat eFormat )
+    {
+        uchar res = 0;
+
+        if( eFormat & FMT_ALPHA )
+        {
+            res += 1;
+        }
+        if( eFormat & FMT_RGB )
+        {
+            res += 3;
+        }
+        else
+        {
+            res += 1;
+        }
+
+        return res;
+    }
+
+    /** Returns the BPP for a given PixelFormat
+        @param
+            eFormat the PixelFormat to get the BPP for
+        @returns
+            the number of bits per pixel of data
+    */
+    static uchar PF2BPP( PixelFormat fmt )
+    {
+        uchar res = 0;
+
+        if( fmt & FMT_ALPHA )
+            res = 8;
+
+        if( fmt & FMT_GREY )
+            res += 8;
+        else
+            res += 24;
+
+        return res;
+    }
+
+    /** Converts a BPP value into a pixel format.
+    */
+    static PixelFormat BPP2PF( uchar bpp )
+    {
+        if( bpp == 8 )
+            return FMT_GREY;
+        if( bpp == 16 )
+            return FMT_GREY_ALPHA;
+        if( bpp == 24 )
+            return FMT_RGB;
+        if( bpp == 32 )
+            return FMT_RGB_ALPHA;
+        return FMT_UNKNOWN;
+    }
+
+    /** Converts a pixel size value into a pixel format.
+    */
+    static PixelFormat PS2PF( uchar bpp )
+    {
+        if( bpp == 1 )
+            return FMT_GREY;
+        if( bpp == 2 )
+            return FMT_GREY_ALPHA;
+        if( bpp == 3 )
+            return FMT_RGB;
+        if( bpp == 4 )
+            return FMT_RGB_ALPHA;
+        return FMT_UNKNOWN;
+    }
+
+    /** Loads raw data from memory. The pixel format has to be specified.
+    */
+    Image & loadRawData( 
+        const DataChunk &pData, 
+        ushort uWidth, ushort uHeight, 
+        PixelFormat eFormat );
+
+    /** Loads an image file.
+        @remarks
+            This method loads an image into memory held in the object. The 
+            pixel format will be either greyscale or RGB with an optional
+            Alpha component.
+            The type can be determined by calling getFormat().             
+        @param
+            strFileName Name of a file file to load.
+        @note
+            The memory associated with this buffer is destroyed with the
+            Image object.
+    */
+    Image & load( const String& strFileName );
+
+    /** Loads an image file from a chunk of memory.
+        @remarks
+            This method works in the same way as the filename-based load 
+            method except it loads the image from a DataChunk object, ie 
+            a chunk of memory. This DataChunk is expected to contain the 
+            encoded data as it would be held in a file. 
+        @par
+            This method is here to support loading from compressed archives
+            where you decompress the data from the archive into memory 
+            first. This method will then decode the data and return a raw 
+            image data stream.
+        @param
+            chunk The source data.
+        @param
+            type The type of the image. Used to decide what decompression
+            codec to use.
+        @see
+            Image::load( const String& strFileName )
+    */
+    Image & load( const DataChunk& chunk, const String& type );
+
+    /** Returns a pointer to the internal image buffer.
+    */
+    uchar* getData(void);
+
+    /** Returns a const pointer to the internal image buffer.
+    */
+    const uchar * getConstData() const;       
+
+    /** REturns the size of the data buffer.
+    */
+    size_t getSize() const;
+
+    /** Gets the width of the image in pixels.
+    */
+    ushort getWidth(void) const;
+
+    /** Gets the height of the image in pixels.
+    */
+    ushort getHeight(void) const;
+
+    /** Gets the physical width in bytes of each row of pixels.
+    */
+    ushort getRowSpan(void) const;
+
+    /** Returns the image format.
+    */
+    PixelFormat getFormat() const;
+
+private:
+    // The width of the image in pixels
+    ushort m_uWidth;
+    // The height of the image in pixels
+    ushort m_uHeight;
+
+    // The pixel format of the image
+    PixelFormat m_eFormat;
+
+    // The number of bytes per pixel
+    uchar m_ucPixelSize;
+    uchar* m_pBuffer;
+};
+
+END_OGRE_NAMESPACE
 
 #endif

@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgrePrerequisites.h"
 
 #include "OgreResource.h"
+#include "OgreImage.h"
 
 namespace Ogre {
 
@@ -64,15 +65,29 @@ namespace Ogre {
         */
         void setGamma(float g) { mGamma = g; }
 
+        /** Returns the height of the texture.
+        */
         unsigned int getHeight(void) { return mHeight; }
+
+        /** Returns the width of the texture.
+        */
         unsigned int getWidth(void) { return mHeight; }
 
-        void enable32Bit(bool setting = true) {setting ? mFinalBpp = 32 : mFinalBpp = 16;}
+        /** Blits the contents of src on the texture.
+            @param
+                src the image with the source data
+        */
+        virtual void blitToTexture( 
+            const Image &src, unsigned uStartX, unsigned uStartY ) = 0;
 
-        /** Load a texture from a raw 24-bit RGB stream */
-        virtual void loadRawRGB(void *buffer, int width, int height) = 0;
-        /** Load a texture from a raw 32-bit RGBA stream */
-        virtual void loadRawRGBA( void *buffer, int width, int height ) = 0;
+        /** Loads the data from an image.
+        */
+        virtual void loadImage( const Image &img ) = 0;
+
+        void enable32Bit( bool setting = true ) 
+        {
+            setting ? mFinalBpp = 32 : mFinalBpp = 16;
+        }
 
     protected:
         // NB: No indexed colour support - deliberately
@@ -87,50 +102,13 @@ namespace Ogre {
         unsigned short mFinalBpp;
         bool mHasAlpha;
 
-
         /** Internal method for gamma adjustment.
-            Basic algo taken from Titan engine, copyright (c) 2000 Ignacio Castano Iguado
+            @note
+                Basic algo taken from Titan engine, copyright (c) 2000 Ignacio 
+                Castano Iguado
         */
-        void applyGamma(unsigned char* p, int size, int bpp)
-        {
-            if (mGamma == 1.0f) return;
-
-            float factor = mGamma;
-
-            //NB only 24/32-bit supported
-            if (bpp != 24 && bpp != 32) return;
-
-            int stride = bpp >> 3;
-
-            for(int i = 0; i < size/stride; i++, p+=stride) {
-                float r,g,b;
-                r = (float) p[0];
-                g = (float) p[1];
-                b = (float) p[2];
-                r = r * factor / 255.0f;
-                g = g * factor / 255.0f;
-                b = b * factor / 255.0f;
-                float scale=1.0f,tmp;
-                if(r>1.0f && (tmp=(1.0f/r))<scale) scale=tmp;
-                if(g>1.0f && (tmp=(1.0f/g))<scale) scale=tmp;
-                if(b>1.0f && (tmp=(1.0f/b))<scale) scale=tmp;
-                scale*=255.0f;
-                r*=scale;
-                g*=scale;
-                b*=scale;
-                p[0]=(unsigned char)r;
-                p[1]=(unsigned char)g;
-                p[2]=(unsigned char)b;
-            }
-        }
-
-
-        // Inherits name, size values etc from Resource
-
-        // No concrete representation
+        void applyGamma(unsigned char* p, int size, int bpp);
     };
-
 }
-
 
 #endif
