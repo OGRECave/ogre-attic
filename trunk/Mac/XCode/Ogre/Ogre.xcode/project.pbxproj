@@ -10191,6 +10191,7 @@
 				82270CD10701181700E6B1F9,
 				82270CD20701181700E6B1F9,
 				82270CD30701181700E6B1F9,
+				823CF8360729B5320048D983,
 			);
 			isa = PBXResourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -10209,6 +10210,7 @@
 				82270CE70701183000E6B1F9,
 				82270CE80701183000E6B1F9,
 				82270CE90701183000E6B1F9,
+				823CF8340729B51A0048D983,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -10301,6 +10303,7 @@
 		};
 		82270CBC070117DA00E6B1F9 = {
 			children = (
+				823CF8350729B5320048D983,
 				82270CBE0701181700E6B1F9,
 				82270CBF0701181700E6B1F9,
 				82270CC00701181700E6B1F9,
@@ -10320,6 +10323,7 @@
 		};
 		82270CBD070117E000E6B1F9 = {
 			children = (
+				823CF8330729B51A0048D983,
 				82270CD40701183000E6B1F9,
 				82270CD50701183000E6B1F9,
 				82270CD60701183000E6B1F9,
@@ -10907,6 +10911,36 @@
 		};
 		82270D0807011C0800E6B1F9 = {
 			fileRef = 82270D0707011C0800E6B1F9;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		823CF8330729B51A0048D983 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = OgreOctreeSceneQuery.cpp;
+			path = ../../../PlugIns/OctreeSceneManager/src/OgreOctreeSceneQuery.cpp;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		823CF8340729B51A0048D983 = {
+			fileRef = 823CF8330729B51A0048D983;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		823CF8350729B5320048D983 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = OgreOctreeSceneQuery.h;
+			path = ../../../PlugIns/OctreeSceneManager/include/OgreOctreeSceneQuery.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		823CF8360729B5320048D983 = {
+			fileRef = 823CF8350729B5320048D983;
 			isa = PBXBuildFile;
 			settings = {
 			};

@@ -1631,7 +1631,6 @@
 		82AFC7E80705F15A00CF9DB7 = {
 			buildActionMask = 2147483647;
 			files = (
-				82AFC7F10705F17A00CF9DB7,
 				82AFC8840705F50300CF9DB7,
 				82AFC8BB0705F54900CF9DB7,
 				82AFC8BC0705F54900CF9DB7,
@@ -1731,28 +1730,12 @@
 		82AFC7EF0705F16000CF9DB7 = {
 			children = (
 				82AFC7F20705F18900CF9DB7,
-				82AFC7F00705F17A00CF9DB7,
 				82AFC7EE0705F15A00CF9DB7,
 			);
 			isa = PBXGroup;
 			name = RenderToTexture;
 			refType = 4;
 			sourceTree = "<group>";
-		};
-		82AFC7F00705F17A00CF9DB7 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.c.h;
-			name = RenderToTexture.h;
-			path = ../../../Samples/RenderToTexture/include/RenderToTexture.h;
-			refType = 4;
-			sourceTree = "<group>";
-		};
-		82AFC7F10705F17A00CF9DB7 = {
-			fileRef = 82AFC7F00705F17A00CF9DB7;
-			isa = PBXBuildFile;
-			settings = {
-			};
 		};
 		82AFC7F20705F18900CF9DB7 = {
 			fileEncoding = 30;
