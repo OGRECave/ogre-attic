@@ -103,34 +103,50 @@ namespace Ogre {
         ushort* mpIndexBuffer;
         ushort mNumIndexes;
         ushort mCurrNumIndexes;
+		ushort mNumCommonVertices;
 
         // Internal classes
         class PMTriangle;
         class PMVertex;
+		/** A vertex as used by a face. This records the index of the actual vertex which is used
+		by the face, and a pointer to the common vertex used for surface evaluation. */
+		class PMFaceVertex {
+		public:
+			ushort realIndex;
+			PMVertex* commonVertex;
+		};
+
         /** A triangle in the progressive mesh, holds extra info like face normal. */
         class PMTriangle {
         public:
             PMTriangle();
-            void setDetails(ushort index, PMVertex *v0, PMVertex *v1, PMVertex *v2);
+            void setDetails(ushort index, PMFaceVertex *v0, PMFaceVertex *v1, PMFaceVertex *v2);
 	        void computeNormal(void);
-	        void replaceVertex(PMVertex *vold, PMVertex *vnew);
-	        bool  hasVertex(PMVertex *v);
+	        void replaceVertex(PMFaceVertex *vold, PMFaceVertex *vnew);
+	        bool  hasCommonVertex(PMVertex *v);
+	        bool  hasFaceVertex(PMFaceVertex *v);
+			PMFaceVertex* getFaceVertexFromCommon(PMVertex* commonVert);
 	        void notifyRemoved(void);
 
-	        PMVertex* vertex[3]; // the 3 points that make this tri
+	        PMFaceVertex* vertex[3]; // the 3 points that make this tri
 	        Vector3   normal;    // unit vector othogonal to this face
             bool      removed;   // true if this tri is now removed
 			ushort index;
         };
 
-        /** A vertex in the progressive mesh, holds info like collapse cost etc. */
+        /** A vertex in the progressive mesh, holds info like collapse cost etc. 
+		This vertex can actually represent several vertices in the final model, because
+		vertices along texture seams etc will have been duplicated. In order to properly
+		evaluate the surface properties, a single common vertex is used for these duplicates,
+		and the faces hold the detail of the duplicated vertices.
+		*/
         class PMVertex {
         public:
             PMVertex();
 	        void setDetails(const Vector3& v, int index);
 	        void removeIfNonNeighbor(PMVertex *n);
-	        bool isBorder(void);
-            void notifyRemoved(void);
+			bool isBorder(void);/// true if this vertex is on the edge of an open geometry patch
+			void notifyRemoved(void);
 
             Vector3  position;  // location of point in euclidean space
 	        ushort index;       // place of vertex in original list
@@ -139,22 +155,27 @@ namespace Ogre {
             NeighborList neighbor; // adjacent vertices
 	        typedef std::set<PMTriangle *> FaceList;
             FaceList face;     // adjacent triangles
-			NeighborList borderJoined; // Vertices the other side of a border join
 
 	        Real collapseCost;  // cached cost of collapsing edge
 	        PMVertex * collapseTo; // candidate vertex for collapse
             bool      removed;   // true if this vert is now removed
+			bool	  toBeRemoved; // denug
+
+			bool seam;	/// true if this vertex is on a model seam where vertices are duplicated
+
         };
 
         typedef std::vector<PMTriangle> TriangleList;
-        typedef std::vector<PMVertex> VertexList;
+        typedef std::vector<PMFaceVertex> FaceVertexList;
+        typedef std::vector<PMVertex> CommonVertexList;
         typedef std::vector<Real> WorstCostList;
 
         /// Data used to calculate the collapse costs
         struct PMWorkingData
         {
             TriangleList mTriList; /// List of faces
-            VertexList mVertList; // The vertex details referenced by the triangles
+            FaceVertexList mFaceVertList; // The vertex details referenced by the triangles
+			CommonVertexList mVertList; // The master list of common vertices
         };
 
         typedef std::vector<PMWorkingData> WorkingDataList;
