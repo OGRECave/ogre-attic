@@ -446,12 +446,30 @@ namespace Ogre {
         OgreUnguard();
     }
     //---------------------------------------------------------------------------------------------
+HRESULT WINAPI testEnumAtt( 
+  LPDIRECTDRAWSURFACE7 lpDDSurface,  
+  LPDDSURFACEDESC2 desc,  
+  LPVOID lpContext                  
+)
+{
+    if (desc->dwWidth == 512)
+    {
+        int i = 0;
+        i = 1;
+    }
+    return DDENUMRET_OK;
+
+}
+
     void D3DTexture::blitImage3D( const Image src[], 
             const Image::Rect imgRect, const Image::Rect texRect )
     {
         OgreGuard( "D3DTexture::blitImage3D" );
 
         HRESULT hr;
+
+        //mSurface->EnumAttachedSurfaces(NULL, testEnumAtt);
+
 
         for (int face = 0; face < 6; ++face)
 		{
@@ -561,14 +579,6 @@ namespace Ogre {
 			finalRect.left   = Real( imgRect.left )   * fWidthFactor;
 			finalRect.right  = Real( imgRect.right )  * fWidthFactor;
 
-			/* We have to use a mirror up/down (around the X axis) effect since in DirectX the
-			positive Y is downward, which is different from OGRE's way. */
-			DDBLTFX  ddbltfx;
-			ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-
-			ddbltfx.dwSize = sizeof(ddbltfx);
-			ddbltfx.dwDDFX = DDBLTFX_MIRRORUPDOWN;
-
 			// Get cube map face to blit to
 			LPDIRECTDRAWSURFACE7 pCubeFace;
 			DDSCAPS2 cubeCaps;
@@ -577,11 +587,20 @@ namespace Ogre {
 			{
 			case 0:
 				// left
-				cubeCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_NEGATIVEX;
+
+                // WTF???
+                // If we try to retrieve DDSCAPS2_CUBEMAP_POSITIVEX we actually get
+                // the FIRST MIPMAP of the +X cubemap surface and we fail on exit
+                // the size is wrong
+                // IS THIS A D3D7 BUG??
+                // The below hack to get around it for now but leaves surface blank
+                //continue;
+                //
+				cubeCaps.dwCaps2 = DDSCAPS2_CUBEMAP_POSITIVEX;
 				break;
 			case 1:
 				// right
-				cubeCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_POSITIVEX;
+				cubeCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_NEGATIVEX;
 				break;
 			case 2:
 				// up
@@ -593,32 +612,35 @@ namespace Ogre {
 				break;
 			case 4:
 				// front - NB DirectX is backwards
-				cubeCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_NEGATIVEZ;
+				cubeCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_POSITIVEZ;
 				break;
 			case 5:
 				// back - NB DirectX is backwards
-				cubeCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_POSITIVEZ;
+				cubeCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_NEGATIVEZ;
 				break;
 			}
 
-			if (FAILED(hr = mSurface->GetAttachedSurface( &cubeCaps, &pCubeFace)))
+            if (FAILED(hr = mSurface->GetAttachedSurface( &cubeCaps, &pCubeFace)))
 			{
 				pddsTempSurface->Release();
 				Except( hr, "Error getting cube face surface.", "D3DTexture::blitImage" );
 			}
 
-			if( FAILED( hr = pCubeFace->Blt(
-				(RECT*)&texRect,
+            if( FAILED( hr = pCubeFace->Blt(
+				NULL,
 				pddsTempSurface, 
-				(RECT*)&finalRect,
-				DDBLT_WAIT | DDBLT_DDFX,
-				&ddbltfx ) ) )
+				NULL,
+				DDBLT_WAIT,
+				NULL ) ) )
 			{
 				pddsTempSurface->Release();
-				Except( hr, "Error during blit operation.", "D3DTexture::blitImage" );
+                char msg[256];
+                D3DXGetErrorString(hr, 256, msg);
+                Except( hr, String("Error during blit operation: ") + msg, "D3DTexture::blitImage" );
 			}
 
-			/* Load the image in all the mip-maps (if there are any, that is). */
+			/// Load the image in all the mip-maps (if there are any, that is). 
+            
 			LPDIRECTDRAWSURFACE7 ddsMipLevel, ddsNextLevel;
 			DDSCAPS2 ddsCaps;
 			HRESULT mipRes = DD_OK;
@@ -627,14 +649,14 @@ namespace Ogre {
 			ZeroMemory(&ddsCaps, sizeof(DDSCAPS2));
 			ddsCaps.dwCaps = DDSCAPS_TEXTURE | DDSCAPS_MIPMAP;
 
-			/* Get the base level and increae the reference count. */
+			// Get the base level and increae the reference count. 
 			ddsMipLevel = pCubeFace;
 			ddsMipLevel->AddRef();
 
-			/* While we can get a next level in the mip-map chain. */
+			/// While we can get a next level in the mip-map chain. 
 			while( ddsMipLevel->GetAttachedSurface( &ddsCaps, &ddsNextLevel ) == DD_OK )
 			{
-				/* Calculate the destination rect. */
+				// Calculate the destination rect. 
 				RECT mipRect = { 
 					texRect.left >> mipLevel,
 					texRect.top  >> mipLevel,
@@ -642,7 +664,7 @@ namespace Ogre {
 					texRect.bottom >> mipLevel
 				};
 
-				/* Blit using D3DX in order to use bilinear filtering. */
+				// Blit using D3DX in order to use bilinear filtering. 
 				D3DXLoadTextureFromSurface(
 					mD3DDevice,
 					ddsNextLevel,
@@ -652,14 +674,15 @@ namespace Ogre {
 					(RECT*)&mipRect,
 					D3DX_FT_LINEAR );
 
-				/* Release the current level and get the next one, incrementing the mip depth. */
+				// Release the current level and get the next one, incrementing the mip depth. 
 				ddsMipLevel->Release();
 				ddsMipLevel = ddsNextLevel;
 				mipLevel++;
 			}
 
-			/* Release the last mip-map level surface. */
+			// Release the last mip-map level surface. 
 			ddsMipLevel->Release();
+            
 		}
         OgreUnguard();
     }
@@ -1078,6 +1101,7 @@ namespace Ogre {
         mHeight = ddsd.dwHeight;
         mIsLoaded = true;
 
+
         LPDIRECTDRAWSURFACE7 pddsRender;
         LPDIRECTDRAW7        pDD;
 
@@ -1106,6 +1130,7 @@ namespace Ogre {
                 "Could not create DirectDraw surface.",
                 "D3DTexture::createSurfaces" );
         }
+
 
         if( mUsage == TU_RENDERTARGET )
         {
