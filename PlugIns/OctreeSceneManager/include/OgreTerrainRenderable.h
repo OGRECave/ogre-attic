@@ -29,29 +29,6 @@
 namespace Ogre
 {
 
-/**
-  * An index buffer for terrain tiles.  These are cached once created, and reused
-  * for different tiles.
-  */
-/*
-class TerrainIndexBuffer
-{
-public:
-    TerrainIndexBuffer( int s )
-    {
-        indexes = new unsigned short[ s ];
-    }
-
-    ~TerrainIndexBuffer()
-    {
-        delete []indexes;
-    }
-
-    unsigned short * indexes;
-    int length;
-};
-*/
-
 typedef std::vector < IndexData* > IndexArray;
 typedef std::vector < IndexArray > LevelArray;
 
@@ -72,8 +49,6 @@ public:
 
     IndexArray mCache;
 };
-
-
 
 inline Real _max( Real x, Real y )
 {
@@ -295,7 +270,15 @@ protected:
     /** Returns the  vertex coord for the given coordinates */
     inline float _vertex( int x, int z, int n )
     {
-      /* TODO
+        HardwareVertexBufferSharedPtr vbuf = 
+            mTerrain->vertexBufferBinding->getBuffer(0);
+
+        Real vertex = 0.0;
+
+        vbuf->readData((x * 3 + z * mSize * 3 + n) * sizeof(Real), 1 * sizeof(Real), &vertex);
+
+        return vertex;
+      /* 
         return mTerrain.pVertices[ x * 3 + z * mSize * 3 + n ];
         */
     };
