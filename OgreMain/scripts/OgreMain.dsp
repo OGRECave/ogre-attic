@@ -243,6 +243,10 @@ SOURCE=..\src\OgreGpuProgramManager.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreGpuProgramUsage.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreGuiContainer.cpp
 # End Source File
 # Begin Source File
@@ -417,6 +421,10 @@ SOURCE=..\src\OgreParticleSystemManager.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgrePass.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgrePatchMesh.cpp
 # End Source File
 # Begin Source File
@@ -484,10 +492,6 @@ SOURCE=..\src\OgreRenderWindow.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreResourceManager.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\OgreResourceMap.cpp
 # End Source File
 # Begin Source File
 
@@ -585,16 +589,20 @@ SOURCE=..\src\OgreTagPoint.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\OgreTexture.cpp
+SOURCE=..\src\OgreTechnique.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\OgreTextureLayer.cpp
+SOURCE=..\src\OgreTexture.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=..\src\OgreTextureManager.cpp
 # SUBTRACT CPP /YX /Yc /Yu
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreTextureUnitState.cpp
 # End Source File
 # Begin Source File
 
@@ -835,6 +843,10 @@ SOURCE=..\include\OgreGpuProgramManager.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreGpuProgramUsage.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreGuiContainer.h
 # End Source File
 # Begin Source File
@@ -1059,6 +1071,10 @@ SOURCE=..\include\OgreParticleSystemManager.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgrePass.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgrePatchMesh.h
 # End Source File
 # Begin Source File
@@ -1160,10 +1176,6 @@ SOURCE=..\include\OgreResource.h
 # Begin Source File
 
 SOURCE=..\include\OgreResourceManager.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreResourceMap.h
 # End Source File
 # Begin Source File
 
@@ -1291,11 +1303,19 @@ SOURCE=..\include\OgreTargetManager.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreTechnique.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreTexture.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\include\OgreTextureManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreTextureUnitState.h
 # End Source File
 # Begin Source File
 
