@@ -2831,6 +2831,7 @@ namespace Ogre {
                 mShadowReceiverPass->setVertexProgram("");
 
             }
+
             return mShadowReceiverPass;
         case SHADOWTYPE_TEXTURE_SHADOWMAP:
             // todo
@@ -3181,6 +3182,17 @@ namespace Ogre {
         IlluminationRenderStage savedStage = mIlluminationStage;
         mIlluminationStage = IRS_RENDER_TO_TEXTURE;
 
+        // Determine far shadow distance
+        Real shadowDist = mShadowFarDist;
+        if (!shadowDist)
+        {
+            // need a shadow distance, make one up
+            shadowDist = cam->getNearClipDistance() * 300;
+        }
+        // set fogging to hide the shadow edge
+        mShadowReceiverPass->setFog(true, FOG_LINEAR, ColourValue::White, 
+            0, shadowDist * 0.65, shadowDist * 0.8);
+
         // Iterate over the lights we've found, max out at the limit of light textures
 
         LightList::iterator i, iend;
@@ -3199,12 +3211,6 @@ namespace Ogre {
             // Directional lights only for now
             if (light->getType() == Light::LT_DIRECTIONAL)
             {
-                Real shadowDist = mShadowFarDist;
-                if (!shadowDist)
-                {
-                    // need a shadow distance, make one up
-                    shadowDist = cam->getNearClipDistance() * 250;
-                }
 
                 // set up the shadow texture
                 Camera* texCam = shadowTex->getViewport(0)->getCamera();
@@ -3221,13 +3227,13 @@ namespace Ogre {
                 // 0.5 is a litle too close for angles
                 Vector3 target = cam->getDerivedPosition() + 
                     (cam->getDerivedDirection() * (shadowDist * 0.4));
+
                 // Calculate position
                 // We want to be in the -ve direction of the light direction
                 // far enough to project for the dir light extrusion distance
                 Vector3 pos = target + 
                     (light->getDerivedDirection() * -mShadowDirLightExtrudeDist);
 
-                texCam->setPosition(pos);
                 // Calculate orientation
                 Vector3 dir = (pos - target); // backwards since point down -z
                 dir.normalise();
@@ -3262,14 +3268,16 @@ namespace Ogre {
                 Quaternion q;
                 q.FromAxes(left, up, dir);
                 texCam->setOrientation(q);
-                
 
-
-
-                // Calculate camera projection params
-                // width/height need to be large enough to cover view at far extent
-
-
+                // Round local x/y position based on a world-space texel; this helps to reduce
+                // jittering caused by the projection moving with the camera
+                // Viewport is 2 * near clip distance across (90 degree fov)
+                Real worldTexelSize = (texCam->getNearClipDistance() * 20) / mShadowTextureSize;
+                pos.x -= fmod(pos.x, worldTexelSize);
+                pos.y -= fmod(pos.y, worldTexelSize);
+                pos.z -= fmod(pos.z, worldTexelSize);
+                // Finally set position
+                texCam->setPosition(pos);
                 // HACK
                 // Set position / orientation
                 //texCam->setPosition(800,600,0);
