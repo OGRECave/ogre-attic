@@ -40,6 +40,7 @@ http://www.gnu.org/copyleft/lesser.txt.s
 #include "OgreGLGpuProgramManager.h"
 #include "OgreException.h"
 #include "OgreGLATIFSInit.h"
+#include "OgreGLSLExtSupport.h"
 #include "OgreGLHardwareOcclusionQuery.h"
 
 
@@ -205,6 +206,7 @@ namespace Ogre {
             delete mHardwareBufferManager;
 		if (mGpuProgramManager)
         	delete mGpuProgramManager;
+
         delete mCapabilities;
         delete mGLSupport;
     }
@@ -339,7 +341,8 @@ namespace Ogre {
         // XXX Probably nv1 as well for older cards
         // GPU Program Manager setup
         mGpuProgramManager = new GLGpuProgramManager();
-        if(mGLSupport->checkExtension("GL_ARB_vertex_program"))
+
+		if(mGLSupport->checkExtension("GL_ARB_vertex_program"))
         {
             mCapabilities->setCapability(RSC_VERTEX_PROGRAM);
 
@@ -404,7 +407,18 @@ namespace Ogre {
             mGpuProgramManager->registerProgramFactory("arbfp1", createGLArbGpuProgram);
         }
 
-        // Check for texture compression
+		// NFZ - check if GLSL is supported
+		if ( mGLSupport->checkExtension("GL_ARB_shading_language_100") &&
+			 mGLSupport->checkExtension("GL_ARB_shader_objects") &&
+			 mGLSupport->checkExtension("GL_ARB_fragment_shader") &&
+			 mGLSupport->checkExtension("GL_ARB_vertex_shader") )
+		{
+			// NFZ - check for GLSL vertex and fragment shader support successful
+            mGpuProgramManager->_pushSyntaxCode("glsl");
+			LogManager::getSingleton().logMessage("GLSL support detected");
+		}
+
+		// Check for texture compression
         if(mGLSupport->checkMinGLVersion("1.3.0") ||
             mGLSupport->checkExtension("GL_ARB_texture_compression"))
         {   
@@ -510,6 +524,7 @@ namespace Ogre {
         glCompressedTexImage2DARB_ptr =
             (PFNGLCOMPRESSEDTEXIMAGE2DARBPROC)mGLSupport->getProcAddress("glCompressedTexImage2DARB");
         InitATIFragmentShaderExtensions(*mGLSupport);
+		InitGLShaderLanguageExtensions(*mGLSupport);
         glActiveStencilFaceEXT_ptr = 
             (GL_ActiveStencilFaceEXT_Func)mGLSupport->getProcAddress("glActiveStencilFaceEXT");
         glGenOcclusionQueriesNV_ptr =

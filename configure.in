@@ -124,6 +124,9 @@ AC_CONFIG_FILES([Makefile \
     RenderSystems/GL/src/atifs/Makefile \
     RenderSystems/GL/src/atifs/include/Makefile \
     RenderSystems/GL/src/atifs/src/Makefile \
+    RenderSystems/GL/src/GLSL/Makefile \
+    RenderSystems/GL/src/GLSL/include/Makefile \
+    RenderSystems/GL/src/GLSL/src/Makefile \
     Samples/Makefile \
     Samples/Common/Makefile \
     Samples/Common/include/Makefile \

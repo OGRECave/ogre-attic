@@ -164,6 +164,8 @@ namespace Ogre {
         ParamNameMap mParamNameMap;
         /// Do we need to transpose matrices?
         bool mTransposeMatrices;
+		/// flag to indicate if names not found will be automatically added
+		bool mAutoAddParamName;
 
     public:
 		GpuProgramParameters();
@@ -239,7 +241,26 @@ namespace Ogre {
         RealConstantIterator getRealConstantIterator(void) const;
         /// Gets an iterator over the integer constant parameters
         IntConstantIterator getIntConstantIterator(void) const;
+
+		/** Gets a specific Real Constant entry if index is in valid range
+			otherwise returns a NULL
+		@parem index which entry is to be retrieved
+		*/
+		RealConstantEntry* getRealConstantEntry(const size_t index);
+		/** Gets a specific Int Constant entry if index is in valid range
+			otherwise returns a NULL
+		@parem index which entry is to be retrieved
+		*/
+		IntConstantEntry* getIntConstantEntry(const size_t index);
         
+		/** Gets a Named Real Constant entry if the name is found otherwise returns a NULL
+		@parem name The name of the entry  to be retrieved
+		*/
+		RealConstantEntry* getNamedRealConstantEntry(const String& name);
+		/** Gets a named Int Constant entry if name is found otherwise returns a NULL
+		@parem name The name of the entry to be retrieved
+		*/
+		IntConstantEntry* getNamedIntConstantEntry(const String& name);
         /// Gets the number of Real constants that have been set
         size_t getRealConstantCount(void) const { return mRealConstants.size(); }
         /// Gets the number of int constants that have been set
@@ -280,6 +301,19 @@ namespace Ogre {
         void _updateAutoParamsNoLights(const AutoParamDataSource& source);
         /** Updates the automatic parameters for lights based on the details provided. */
         void _updateAutoParamsLightsOnly(const AutoParamDataSource& source);
+
+		/** Sets the auto add parameter name flag
+		@remarks
+			Not all GPU programs make named parameters available after the high level
+			source is compiled.  GLSL is one such case.  If parameter names are not loaded
+			prior to the material serializer reading in parameter names in a script then
+			an exception is generated.  Set AutoAddParamName to true to have names not found
+			in the map added to the map.
+		@note
+			The index of the parameter name will be set to the end of the Real Constant List.
+		@param state true to enable automatic name
+		*/
+		void setAutoAddParamName(bool state) { mAutoAddParamName = state; }
 
 		/** Sets a single value constant floating-point parameter to the program.
         @remarks
@@ -429,7 +463,8 @@ namespace Ogre {
         void _mapParameterNameToIndex(const String& name, size_t index);
 
         /** Gets the constant index associated with a named parameter. */
-        size_t getParamIndex(const String& name) const;
+        size_t getParamIndex(const String& name);
+
 
         /** Sets whether or not we need to transpose the matrices passed in from the rest of OGRE.
         @remarks
@@ -478,6 +513,8 @@ namespace Ogre {
         bool mSkeletalAnimation;
 		/// The default parameters for use with this object
 		GpuProgramParametersSharedPtr mDefaultParams;
+		/// Does this program want light states passed through fixed pipeline
+		bool mPassSurfaceAndLightStates;
 
 	public:
 
@@ -555,6 +592,21 @@ namespace Ogre {
 		*/
 		virtual GpuProgramParametersSharedPtr getDefaultParameters(void);
 
+		/** Sets whether a vertex program requires light and material states to be passed
+		to through fixed pipeline low level API rendering calls.
+		@remarks
+		If this is set to true, OGRE will pass all active light states to the fixed function
+		pipeline.  This is useful for high level shaders like GLSL that can read the OpenGL
+		light and material states.  This way the user does not have to use autoparameters to 
+		pass light position, color etc.
+		*/
+		virtual void setSurfaceAndPassLightStates(bool state)
+			{ mPassSurfaceAndLightStates = state; }
+
+		/** Returns whether a vertex program wants light and material states to be passed
+		through fixed pipeline low level API rendering calls
+		*/
+		virtual bool getPassSurfaceAndLightStates(void) const { return mPassSurfaceAndLightStates; }
 
     protected:
         /// Virtual method which must be implemented by subclasses, load from mSource

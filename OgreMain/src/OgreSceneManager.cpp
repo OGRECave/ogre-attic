@@ -580,12 +580,15 @@ namespace Ogre {
         LogManager::getSingleton().logMessage("BEGIN PASS " + StringConverter::toString(pass->getIndex()) + 
             " of " + pass->getParent()->getParent()->getName());
         */
+		bool passSurfaceAndLightParams = true;
 
         if (pass->hasVertexProgram())
         {
             mDestRenderSystem->bindGpuProgram(pass->getVertexProgram()->_getBindingDelegate());
             // bind parameters later since they can be per-object
             lastUsedVertexProgram = true;
+			// does the vertex program want surface and light params passed to rendersystem?
+			passSurfaceAndLightParams = pass->getVertexProgram()->getPassSurfaceAndLightStates();
         }
         else
         {
@@ -596,21 +599,24 @@ namespace Ogre {
                 lastUsedVertexProgram = false;
             }
             // Set fixed-function vertex parameters
+		}
+		
+		if (passSurfaceAndLightParams)
+		{
+			// Set surface reflectance properties, only valid if lighting is enabled
+			if (pass->getLightingEnabled())
+			{
+				mDestRenderSystem->_setSurfaceParams( 
+					pass->getAmbient(), 
+					pass->getDiffuse(), 
+					pass->getSpecular(), 
+					pass->getSelfIllumination(), 
+					pass->getShininess() );
+			}
 
-            // Set surface reflectance properties, only valid if lighting is enabled
-            if (pass->getLightingEnabled())
-            {
-                mDestRenderSystem->_setSurfaceParams( 
-                    pass->getAmbient(), 
-                    pass->getDiffuse(), 
-                    pass->getSpecular(), 
-                    pass->getSelfIllumination(), 
-                    pass->getShininess() );
-            }
-
-            // Dynamic lighting enabled?
-            mDestRenderSystem->setLightingEnabled(pass->getLightingEnabled());
-        }
+			// Dynamic lighting enabled?
+			mDestRenderSystem->setLightingEnabled(pass->getLightingEnabled());
+		}
 
         // Using a fragment program?
         if (pass->hasFragmentProgram())

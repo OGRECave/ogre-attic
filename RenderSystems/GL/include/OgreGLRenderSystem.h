@@ -32,8 +32,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGLGpuProgramManager.h"
 #include "OgreVector4.h"
 
-#include "OgreGLSupport.h"
-
 
 namespace Ogre {
     /**

@@ -39,7 +39,8 @@ namespace Ogre
 {
 	//-----------------------------------------------------------------------------
 	GpuProgram::GpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode) 
-		: mType(gptype), mLoadFromFile(true), mSyntaxCode(syntaxCode), mSkeletalAnimation(false)
+		: mType(gptype), mLoadFromFile(true), mSyntaxCode(syntaxCode), mSkeletalAnimation(false),
+		mPassSurfaceAndLightStates(false)
 	{
 		mName = name;
 	}
@@ -113,7 +114,7 @@ namespace Ogre
 	}
     //-----------------------------------------------------------------------------
 	GpuProgramParameters::GpuProgramParameters()
-        : mTransposeMatrices(false)
+        : mTransposeMatrices(false), mAutoAddParamName(false)
     {
     }
     //-----------------------------------------------------------------------------
@@ -367,13 +368,30 @@ namespace Ogre
         mParamNameMap[name] = index;
     }
     //---------------------------------------------------------------------------
-    size_t GpuProgramParameters::getParamIndex(const String& name) const
+    size_t GpuProgramParameters::getParamIndex(const String& name)
     {
         ParamNameMap::const_iterator i = mParamNameMap.find(name);
         if (i == mParamNameMap.end())
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot find a parameter named " + name,
-                "GpuProgramParameters::getParamIndex");
+			// name not found in map, should it be added to the map?
+			if(mAutoAddParamName)
+			{
+				// determine index
+				// don't know which Constants list the name is for
+				// so pick the largest index
+				size_t index = (mRealConstants.size() > mIntConstants.size()) ?
+					mRealConstants.size() : mIntConstants.size();
+				// allow for at least one Vector4
+        		mRealConstants.resize(index + 1);
+        		mIntConstants.resize(index + 1);
+				_mapParameterNameToIndex(name, index);
+				return index;
+			}
+			else
+			{
+				Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot find a parameter named " + name,
+					"GpuProgramParameters::getParamIndex");
+			}
         }
         return i->second;
     }
@@ -448,10 +466,75 @@ namespace Ogre
     //---------------------------------------------------------------------------
     GpuProgramParameters::IntConstantIterator GpuProgramParameters::getIntConstantIterator(void) const
     {
-        return IntConstantIterator(mIntConstants.begin(), mIntConstants.end());
+		return IntConstantIterator(mIntConstants.begin(), mIntConstants.end());
     }
+
     //---------------------------------------------------------------------------
-	void GpuProgramParameters::copyConstantsFrom(const GpuProgramParameters& source)
+	GpuProgramParameters::RealConstantEntry* GpuProgramParameters::getRealConstantEntry(const size_t index)
+	{
+        if (index < mRealConstants.size())
+		{
+			return &(mRealConstants[index]);
+		}
+		else
+		{
+			return NULL;
+		}
+	}
+
+    //---------------------------------------------------------------------------
+	GpuProgramParameters::IntConstantEntry* GpuProgramParameters::getIntConstantEntry(const size_t index)
+	{
+        if (index < mIntConstants.size())
+		{
+			return &(mIntConstants[index]);
+		}
+		else
+		{
+			return NULL;
+		}
+	}
+
+    //---------------------------------------------------------------------------
+	GpuProgramParameters::RealConstantEntry* GpuProgramParameters::getNamedRealConstantEntry(const String& name)
+	{
+		// check if name is found
+        ParamNameMap::const_iterator i = mParamNameMap.find(name);
+
+        if (i == mParamNameMap.end())
+		{
+			// no valid name found
+			return NULL;
+		}
+		else
+		{
+			// name found: return the entry
+			return getRealConstantEntry(i->second);
+		}
+
+	}
+
+	//---------------------------------------------------------------------------
+	GpuProgramParameters::IntConstantEntry* GpuProgramParameters::getNamedIntConstantEntry(const String& name)
+	{
+		// check if name is found
+        ParamNameMap::const_iterator i = mParamNameMap.find(name);
+
+        if (i == mParamNameMap.end())
+		{
+			// no valid name found
+			return NULL;
+		}
+		else
+		{
+			// name found: return the entry
+			return getIntConstantEntry(i->second);
+		}
+
+	}
+
+	//---------------------------------------------------------------------------
+		void GpuProgramParameters::copyConstantsFrom(const GpuProgramParameters& source)
 	{
 		// Iterate over fixed parameters
 		RealConstantIterator ri = source.getRealConstantIterator();
@@ -488,6 +571,8 @@ namespace Ogre
 			setAutoConstant(ae.index, ae.paramType, ae.data);
 		}
 
+		// need to copy Parameter names from the source
+		mParamNameMap = source.mParamNameMap;
 		
 	}
 
