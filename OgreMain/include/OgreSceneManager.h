@@ -294,6 +294,8 @@ namespace Ogre {
         ShadowCasterList mShadowCasterList;
         SphereSceneQuery* mShadowCasterSphereQuery;
         AxisAlignedBoxSceneQuery* mShadowCasterAABBQuery;
+        Real mShadowFarDist;
+        Real mShadowFarDistSquared;
 
         /// Inner class to use as callback for shadow caster scene query
         class _OgreExport ShadowCasterSceneQueryListener : public SceneQueryListener
@@ -304,6 +306,7 @@ namespace Ogre {
             const PlaneBoundedVolumeList* mLightClipVolumeList;
             const Camera* mCamera;
             const Light* mLight;
+            Real mFarDistSquared;
         public:
             ShadowCasterSceneQueryListener() : mCasterList(0), 
                 mIsLightInFrustum(false), mLightClipVolumeList(0), 
@@ -311,13 +314,15 @@ namespace Ogre {
             // Prepare the listener for use with a set of parameters  
             void prepare(bool lightInFrustum, 
                 const PlaneBoundedVolumeList* lightClipVolumes, 
-                const Light* light, const Camera* cam, ShadowCasterList* casterList) 
+                const Light* light, const Camera* cam, ShadowCasterList* casterList, 
+                Real farDistSquared) 
             {
                 mCasterList = casterList;
                 mIsLightInFrustum = lightInFrustum;
                 mLightClipVolumeList = lightClipVolumes;
                 mCamera = cam;
                 mLight = light;
+                mFarDistSquared = farDistSquared;
             }
             bool queryResult(MovableObject* object);
             bool queryResult(SceneQuery::WorldFragment* fragment);
@@ -1384,7 +1389,27 @@ namespace Ogre {
         /** Gets the distance a shadow volume is extruded for a directional light.
         */
         virtual Real getShadowDirectionalLightExtrusionDistance(void);
-
+        /** Sets the maximum distance away from the camera that shadows
+        will be visible.
+        @remarks
+        Shadow techniques can be expensive, therefore it is a good idea
+        to limit them to being rendered close to the camera if possible,
+        and to skip the expense of rendering shadows for distance objects.
+        This method allows you to set the distance at which shadows will no
+        longer be rendered.
+        @note
+        Each shadow technique can interpret this subtely differently.
+        For example, one technique may use this to eliminate casters,
+        another might use it to attenuate the shadows themselves.
+        You should tweak this value to suit your chosen shadow technique
+        and scene setup.
+        */
+        virtual void setShadowFarDistance(Real distance);
+        /** Gets the maximum distance away from the camera that shadows
+        will be visible.
+        */
+        virtual Real getShadowFarDistance(void) 
+        { return mShadowFarDist; }
     };
 
     /** Default implementation of IntersectionSceneQuery. */

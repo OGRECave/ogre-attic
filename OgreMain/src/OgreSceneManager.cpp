@@ -102,6 +102,8 @@ namespace Ogre {
         mShadowCasterAABBQuery = 0;
         mShadowDirLightExtrudeDist = 10000;
         mIlluminationStage = IS_NONE;
+        mShadowFarDist = 10000;
+        mShadowFarDistSquared = 10000 * 10000;
 
 
 		// init render queues that do not need shadows
@@ -2243,6 +2245,17 @@ namespace Ogre {
     {
         if (object->getCastShadows() && object->isVisible())
         {
+            // Check object is within the shadow far distance
+            Vector3 toObj = object->getParentNode()->_getDerivedPosition() 
+                - mCamera->getDerivedPosition();
+            Real radius = object->getWorldBoundingSphere().getRadius();
+            Real dist =  toObj.squaredLength();               
+            if (dist - (radius * radius) > mFarDistSquared)
+            {
+                // skip, beyond max range
+                return true;
+            }
+
             // If the object is in the frustum, we can always see the shadow
             if (mCamera->isVisible(object->getWorldBoundingBox()))
             {
@@ -2314,7 +2327,7 @@ namespace Ogre {
             // Execute, use callback
             mShadowCasterQueryListener.prepare(false, 
                 &(light->_getFrustumClipVolumes(camera)), 
-                light, camera, &mShadowCasterList);
+                light, camera, &mShadowCasterList, mShadowFarDistSquared);
             mShadowCasterAABBQuery->execute(&mShadowCasterQueryListener);
 
 
@@ -2342,7 +2355,7 @@ namespace Ogre {
 
                 // Execute, use callback
                 mShadowCasterQueryListener.prepare(lightInFrustum, 
-                    volList, light, camera, &mShadowCasterList);
+                    volList, light, camera, &mShadowCasterList, mShadowFarDistSquared);
                 mShadowCasterSphereQuery->execute(&mShadowCasterQueryListener);
 
             }
@@ -2617,6 +2630,12 @@ namespace Ogre {
 
         return mShadowModulativePass->getTextureUnitState(0)
             ->getColourBlendMode().colourArg1;
+    }
+    //---------------------------------------------------------------------
+    void SceneManager::setShadowFarDistance(Real distance)
+    {
+        mShadowFarDist = distance;
+        mShadowFarDistSquared = distance * distance;
     }
     //---------------------------------------------------------------------
     void SceneManager::setShadowDirectionalLightExtrusionDistance(Real dist)
