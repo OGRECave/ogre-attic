@@ -166,6 +166,11 @@ namespace Ogre {
         /** Gets a pointer to a SubEntity, ie a part of an Entity.
         */
         SubEntity* getSubEntity(unsigned int index);
+	
+		/** Gets a pointer to a SubEntity by name
+			@remarks - names should be initialized during a Mesh creation.
+		*/
+		SubEntity* getSubEntity( const String& name );
 
         /** Retrieves the number of SubEntity objects making up this entity.
         */
