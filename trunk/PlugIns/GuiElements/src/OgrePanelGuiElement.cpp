@@ -205,8 +205,8 @@ namespace Ogre {
                     mRenderOp.pTexCoords[i] = new Real[4*2];
                 }
                 // Calc upper tex coords
-                Real upperX = 1.0f / mTileX[i];
-                Real upperY = 1.0f / mTileY[i];
+                Real upperX = 1.0f * mTileX[i];
+                Real upperY = 1.0f * mTileY[i];
                 /*
                     0-----2
                     |    /|
