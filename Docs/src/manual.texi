@@ -381,7 +381,7 @@ material walls/funkywall1
 }
 @end example
 
-Every material in the script must be given a name, which is the line 'material <blah>' before the first opening '{'. This name must be globally unique. It can include path characters (as in the example) to logically divide up your materials, and also to avoid duplicate names, but the engine does not treat the name a hierarchical, just as a string.@*@*
+Every material in the script must be given a name, which is the line 'material <blah>' before the first opening '{'. This name must be globally unique. It can include path characters (as in the example) to logically divide up your materials, and also to avoid duplicate names, but the engine does not treat the name as hierarchical, just as a string.@*@*
 
 A material can be made up of many techniques (@xref{Techniques})- a technique is one way of achieving the effect you are looking for. You can supply more than one technique in order to provide fallback approaches where a card does not have the ability to render the preferred technique, or where you wish to define lower level of detail versions of the material in order to conserve rendering power when objects are more distant. @*@*
 
@@ -390,6 +390,20 @@ Each technique can be made up of many passes (@xref{Passes}), that is a complete
 Within each pass, there can be zero or many texture units in use (@xref{Texture Units}). These define the texture to be used, and optionally some blending operations (which use multitexturing) and texture effects.@*@*
 
 You can also reference vertex and fragment programs (or vertex and pixel shaders, if you want to use that terminology) in a pass with a given set of parameters. Programs themselves are declared in separate .program scripts (@xref{Declaring Vertex and Fragment Programs}) and are used as described in @ref{Using Vertex and Fragment Programs in a Pass}.
+
+@subheading Top-level material attributes
+The outermost section of a material definition does not have a lot of attributes of its own (most of the configurable parameters are within the child sections. However, it does have some, and here they are:@*@*
+@anchor{lod_distances}
+@subheading lod_distances
+This attribute controls the distances at which different Techniques can come into effect. @xref{Techniques} for a full discussion of this option.
+@*@*
+@anchor{receive_shadows}
+@subheading receive_shadows
+This attribute controls whether objects using this material can have shadows cast upon them.@*@* 
+
+Format: receive_shadows <on|off>@*@*
+
+Whether or not an object receives a shadow is the combination of a number of factors, @xref{Shadows} for full details; however this allows you to make a material opt-out of receiving shadows if required. Note that transparent materials never receive shadows so this option only has an effect on solid materials.
 
 @node Techniques
 @subsection Techniques

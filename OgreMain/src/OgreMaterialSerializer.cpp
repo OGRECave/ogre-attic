@@ -1715,6 +1715,22 @@ namespace Ogre
 		
 		return false;
 	}
+    //-----------------------------------------------------------------------
+    bool parseReceiveShadows(String& params, MaterialScriptContext& context)
+    {
+        params.toLowerCase();
+        if (params == "on")
+            context.material->setReceiveShadows(true);
+        else if (params == "off")
+            context.material->setReceiveShadows(false);
+        else
+            logParseError(
+            "Bad receive_shadows attribute, valid parameters are 'on' or 'off'.", 
+            context);
+
+        return false;
+
+    }
 	
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
@@ -1726,6 +1742,7 @@ namespace Ogre
         mRootAttribParsers.insert(AttribParserList::value_type("fragment_program", (ATTRIBUTE_PARSER)parseFragmentProgram));
         // Set up material attribute parsers
         mMaterialAttribParsers.insert(AttribParserList::value_type("lod_distances", (ATTRIBUTE_PARSER)parseLodDistances));
+        mMaterialAttribParsers.insert(AttribParserList::value_type("receive_shadows", (ATTRIBUTE_PARSER)parseReceiveShadows));
         mMaterialAttribParsers.insert(AttribParserList::value_type("technique", (ATTRIBUTE_PARSER)parseTechnique));
         // Set up technique attribute parsers
         mTechniqueAttribParsers.insert(AttribParserList::value_type("lod_index", (ATTRIBUTE_PARSER)parseLodIndex));
@@ -2132,6 +2149,33 @@ namespace Ogre
         writeAttribute(0, "material " + pMat->getName());
         beginSection(0);
         {
+            // Write LOD information
+            Material::LodDistanceIterator distIt = pMat->getLodDistanceIterator();
+            // Skip zero value
+            if (distIt.hasMoreElements())
+                distIt.getNext();
+            String attributeVal;
+            while (distIt.hasMoreElements())
+            {
+                Real sqdist = distIt.getNext();
+                attributeVal.append(StringConverter::toString(Math::Sqrt(sqdist)));
+                if (distIt.hasMoreElements())
+                    attributeVal.append(" ");
+            }
+            if (!attributeVal.empty())
+            {
+                writeAttribute(1, "lod_distances");
+                writeValue(attributeVal);
+            }
+
+
+            // Shadow receive
+            if (mDefaults || 
+                pMat->getReceiveShadows() != true)
+            {
+                writeAttribute(1, "receive_shadows");
+                writeValue(pMat->getReceiveShadows() ? "on" : "off");
+            }
             // Iterate over techniques
             Material::TechniqueIterator it = 
                 const_cast<Material*>(pMat)->getTechniqueIterator();

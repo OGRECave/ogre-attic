@@ -91,7 +91,7 @@ namespace Ogre {
 		itargend = mPrioritisedRenderTargets.end();
 		for( itarg = mPrioritisedRenderTargets.begin(); itarg != itargend; ++itarg )
 		{
-			if( itarg->second->isActive() )
+			if( itarg->second->isActive() && itarg->second->isAutoUpdated())
 				itarg->second->update();
 		}
     }

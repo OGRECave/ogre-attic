@@ -125,12 +125,15 @@ namespace Ogre {
         /// Parent queue group
         RenderQueueGroup* mParent;
         bool mSplitPassesByLightingType;
+        bool mSplitNoShadowPasses;
         /// Solid pass list, used when no shadows, modulative shadows, or ambient passes for additive
         SolidRenderablePassMap mSolidPasses;
         /// Solid per-light pass list, used with additive shadows
         SolidRenderablePassMap mSolidPassesDiffuseSpecular;
         /// Solid decal (texture) pass list, used with additive shadows
         SolidRenderablePassMap mSolidPassesDecal;
+        /// Solid pass list, used when shadows are enabled but shadow receive is turned off for these passes
+        SolidRenderablePassMap mSolidPassesNoShadow;
 
 		/// Transparent list
 		TransparentRenderablePassList mTransparentPasses;
@@ -144,21 +147,24 @@ namespace Ogre {
         /// Clear a solid pass map at the end of a frame
         void clearSolidPassMap(SolidRenderablePassMap& passmap);
         /// Internal method for adding a solid renderable
-        void addSolidRenderable(Technique* pTech, Renderable* rend);
+        void addSolidRenderable(Technique* pTech, Renderable* rend, bool toNoShadowMap);
         /// Internal method for adding a solid renderable
         void addSolidRenderableSplitByLightType(Technique* pTech, Renderable* rend);
         /// Internal method for adding a transparent renderable
         void addTransparentRenderable(Technique* pTech, Renderable* rend);
 
     public:
-        RenderPriorityGroup(RenderQueueGroup* parent, bool splitPassesByLightingType) 
-            :mParent(parent), mSplitPassesByLightingType(splitPassesByLightingType) { }
+        RenderPriorityGroup(RenderQueueGroup* parent, 
+            bool splitPassesByLightingType, bool splitNoShadowPasses) 
+            :mParent(parent), mSplitPassesByLightingType(splitPassesByLightingType),
+            mSplitNoShadowPasses(splitNoShadowPasses) { }
 
         ~RenderPriorityGroup() {
             // destroy all the pass map entries
             destroySolidPassMap(mSolidPasses);
             destroySolidPassMap(mSolidPassesDecal);
             destroySolidPassMap(mSolidPassesDiffuseSpecular);
+            destroySolidPassMap(mSolidPassesNoShadow);
             mTransparentPasses.clear();
 
         }
@@ -172,6 +178,9 @@ namespace Ogre {
         /** Get the collection of solid passes currently queued (decal textures)*/
         const SolidRenderablePassMap& _getSolidPassesDecal(void) 
         { return mSolidPassesDecal; }
+        /** Get the collection of solid passes for which shadow receipt is disabled*/
+        const SolidRenderablePassMap& _getSolidPassesNoShadow(void) 
+        { return mSolidPassesNoShadow; }
         /** Get the collection of transparent passes currently queued */
         const TransparentRenderablePassList& _getTransparentPasses(void)
         { return mTransparentPasses; }
@@ -197,6 +206,14 @@ namespace Ogre {
             mSplitPassesByLightingType = split;
         }
 
+        /** Sets whether or not passes which have shadow receive disabled should
+            be separated. 
+        */
+        void setSplitNoShadowPasses(bool split)
+        {
+            mSplitNoShadowPasses = split;
+        }
+
 
     };
 
@@ -218,6 +235,7 @@ namespace Ogre {
     protected:
         RenderQueue* mParent;
         bool mSplitPassesByLightingType;
+        bool mSplitNoShadowPasses;
         /// Map of RenderPriorityGroup objects
         PriorityMap mPriorityGroups;
 		/// Whether shadows are enabled for this queue
@@ -225,9 +243,10 @@ namespace Ogre {
 
 
     public:
-		RenderQueueGroup(RenderQueue* parent, bool splitPassesByLightingType) 
+		RenderQueueGroup(RenderQueue* parent, bool splitPassesByLightingType, 
+            bool splitNoShadowPasses) 
             :mParent(parent), mSplitPassesByLightingType(splitPassesByLightingType),
-            mShadowsEnabled(true) {}
+            mSplitNoShadowPasses(splitNoShadowPasses), mShadowsEnabled(true) {}
 
         ~RenderQueueGroup() {
             // destroy contents now
@@ -253,7 +272,8 @@ namespace Ogre {
             if (i == mPriorityGroups.end())
             {
                 // Missing, create
-                pPriorityGrp = new RenderPriorityGroup(this, mSplitPassesByLightingType);
+                pPriorityGrp = new RenderPriorityGroup(this, 
+                    mSplitPassesByLightingType, mSplitNoShadowPasses);
                 mPriorityGroups.insert(PriorityMap::value_type(priority, pPriorityGrp));
             }
             else
@@ -311,6 +331,20 @@ namespace Ogre {
             for (i = mPriorityGroups.begin(); i != iend; ++i)
             {
                 i->second->setSplitPassesByLightingType(split);
+            }
+        }
+        /** Sets whether or not the queue will split passes which have shadow receive
+        turned off (in their parent material), which is needed when certain shadow
+        techniques are used.
+        */
+        void setSplitNoShadowPasses(bool split)
+        {
+            mSplitNoShadowPasses = split;
+            PriorityMap::iterator i, iend;
+            iend = mPriorityGroups.end();
+            for (i = mPriorityGroups.begin(); i != iend; ++i)
+            {
+                i->second->setSplitNoShadowPasses(split);
             }
         }
 

@@ -42,6 +42,7 @@ namespace Ogre {
         // Default to no stats display
         mStatFlags = SF_NONE;
         mActive = true;
+        mAutoUpdate = true;
         mPriority = OGRE_DEFAULT_RT_GROUP;
         mTimer = Root::getSingleton().getTimer();
         resetStatistics();
@@ -424,4 +425,16 @@ namespace Ogre {
             }
         }
     }
+    //-----------------------------------------------------------------------
+    void RenderTarget::setAutoUpdated(bool autoup)
+    {
+        mAutoUpdate = autoup;
+    }
+    //-----------------------------------------------------------------------
+    bool RenderTarget::isAutoUpdated(void)
+    {
+        return mAutoUpdate;
+    }
+
+
 }        

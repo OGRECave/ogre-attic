@@ -81,6 +81,7 @@ namespace Ogre {
     public:
         /// distance list used to specify LOD
         typedef std::vector<Real> LodDistanceList;
+        typedef ConstVectorIterator<LodDistanceList> LodDistanceIterator;
     protected:
 
         /// Default material settings - set up by SceneManager
@@ -99,6 +100,7 @@ namespace Ogre {
         /// Does this material require compilation?
         bool mCompilationRequired;
         LodDistanceList mLodDistances;
+        bool mReceiveShadows;
 
     public:
 
@@ -128,6 +130,23 @@ namespace Ogre {
             whether any Techniques say they involve transparency).
         */
         bool isTransparent(void) const;
+
+        /** Sets whether objects using this material will receive shadows.
+        @remarks
+            This method allows a material to opt out of receiving shadows, if
+            it would otherwise do so. Shadows will not be cast on any objects
+            unless the scene is set up to support shadows 
+            (@see SceneManager::setShadowTechnique), and not all techniques cast
+            shadows on all objects. In any case, if you have a need to prevent
+            shadows being received by material, this is the method you call to
+            do it.
+        @note 
+            Transparent materials never receive shadows despite this setting. 
+            The default is to receive shadows.
+        */
+        void setReceiveShadows(bool enabled) { mReceiveShadows = enabled; }
+        /** Returns whether or not objects using this material will receive shadows. */
+        bool getReceiveShadows(void) const { return mReceiveShadows; }
 
         /** Creates a new Technique for this Material.
         @remarks
@@ -500,6 +519,14 @@ namespace Ogre {
             from a distance of 0).
         */
         void setLodLevels(const LodDistanceList& lodDistances);
+        /** Gets an iterator over the list of distances at which each LOD comes into effect. 
+        @remarks
+            Note that the iterator returned from this method is not totally anagolous to 
+            the one passed in by calling setLodLevels - the list includes a zero
+            entry at the start (since the highest LOD starts at distance 0), and
+            the other distances are held as their squared value for efficiency.
+        */
+        LodDistanceIterator getLodDistanceIterator(void) const;
 
         /** Gets the LOD index to use at the given distance. */
         unsigned short getLodIndex(Real d) const;

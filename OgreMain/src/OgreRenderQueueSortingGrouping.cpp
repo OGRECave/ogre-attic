@@ -70,6 +70,14 @@ namespace Ogre {
             // erase from map
             mSolidPassesDecal.erase(i);
         }
+        i = mSolidPassesNoShadow.find(p);
+        if (i != mSolidPassesNoShadow.end())
+        {
+            // free memory
+            delete i->second;
+            // erase from map
+            mSolidPassesNoShadow.erase(i);
+        }
 
     }
     //-----------------------------------------------------------------------
@@ -108,34 +116,54 @@ namespace Ogre {
         }
         else
         {
-            if (mSplitPassesByLightingType)
+            if (mSplitNoShadowPasses && !pTech->getParent()->getReceiveShadows())
             {
-                addSolidRenderableSplitByLightType(pTech, rend);
+                // Add solid renderable and add passes to no-shadow group
+                addSolidRenderable(pTech, rend, true);
             }
             else
             {
-                addSolidRenderable(pTech, rend);
+                if (mSplitPassesByLightingType)
+                {
+                    addSolidRenderableSplitByLightType(pTech, rend);
+                }
+                else
+                {
+                    addSolidRenderable(pTech, rend, false);
+                }
             }
         }
 
     }
     //-----------------------------------------------------------------------
-    void RenderPriorityGroup::addSolidRenderable(Technique* pTech, Renderable* rend)
+    void RenderPriorityGroup::addSolidRenderable(Technique* pTech, 
+        Renderable* rend, bool addToNoShadow)
     {
         Technique::PassIterator pi = pTech->getPassIterator();
+
+        SolidRenderablePassMap* passMap;
+        if (addToNoShadow)
+        {
+            passMap = &mSolidPassesNoShadow;
+        }
+        else
+        {
+            passMap = &mSolidPasses;
+        }
+
 
         while (pi.hasMoreElements())
         {
             // Insert into solid list
             Pass* p = pi.getNext();
-            SolidRenderablePassMap::iterator i = mSolidPasses.find(p);
-            if (i == mSolidPasses.end())
+            SolidRenderablePassMap::iterator i = passMap->find(p);
+            if (i == passMap->end())
             {
                 std::pair<SolidRenderablePassMap::iterator, bool> retPair;
                 // Create new pass entry, build a new list
                 // Note that this pass and list are never destroyed until the engine
                 // shuts down, although the lists will be cleared
-                retPair = mSolidPasses.insert(
+                retPair = passMap->insert(
                     SolidRenderablePassMap::value_type(p, new RenderableList() ) );
                 assert(retPair.second && "Error inserting new pass entry into SolidRenderablePassMap");
                 i = retPair.first;
@@ -240,6 +268,7 @@ namespace Ogre {
         clearSolidPassMap(mSolidPasses);
         clearSolidPassMap(mSolidPassesDecal);
         clearSolidPassMap(mSolidPassesDiffuseSpecular);
+        clearSolidPassMap(mSolidPassesNoShadow);
 
         // Always empty the transparents list
         mTransparentPasses.clear();
