@@ -68,7 +68,10 @@ namespace Ogre {
         Resource* create( const String& name);
 
         /** Creates a new Mesh specifically for manual definition rather
-            than loading from an object file.
+            than loading from an object file. 
+		@remarks
+			Note that once you've defined your mesh, you must call Mesh::_updateBounds
+			in order to define the bounding box of your mesh.
         */
         Mesh* createManual( const String& name);
 
