@@ -5,6 +5,7 @@
 	Date: 2003/03/02
 
 	Author: Martin Persson
+	Modified by Mike Prosser
 
 *****************************************************************************/
 
@@ -72,13 +73,13 @@ unsigned char* HeightmapLoader::loadRAWHeightmap(const char *filename,
 
     while (readBytes < (requestSize * requestSize))
     {
-	// read 1 row of data
-	fread(&heightMap[off], requestSize, 1, fp);
-	off += requestSize;
-	readBytes += requestSize;
+		// read 1 row of data
+		fread(&heightMap[off], requestSize, 1, fp);
+		off += requestSize;
+		readBytes += requestSize;
 
-	// seek to the next row
-	fseek(fp, (realSize - requestSize), SEEK_CUR);
+		// seek to the next row
+		fseek(fp, (realSize - requestSize), SEEK_CUR);
     }
 
     fclose(fp);
@@ -109,23 +110,23 @@ bool HeightmapLoader::initialise(const String& filename)
     
     // check that heightmap is of correct size
     if ((sx * PATCH_SIZE) + 1 != mHeightMap->getWidth() || 
-	(sy * PATCH_SIZE) + 1 != mHeightMap->getHeight())
+		(sy * PATCH_SIZE) + 1 != mHeightMap->getHeight())
     {
-	mMapSizeX = mMapSizeY = 0;
+		mMapSizeX = mMapSizeY = 0;
 
-        String err = "Error: Invalid heightmap size : "
-		   + StringConverter::toString(mHeightMap->getWidth())
-		   + "," + StringConverter::toString(mHeightMap->getHeight()) 
-		   + ". Should be 64*n+1, 64*n+1";
-	
-	std::cout << err << std::endl;
-	return false;
+			String err = "Error: Invalid heightmap size : "
+			+ StringConverter::toString(mHeightMap->getWidth())
+			+ "," + StringConverter::toString(mHeightMap->getHeight()) 
+			+ ". Should be 64*n+1, 64*n+1";
+		
+		std::cout << err << std::endl;
+		return false;
     }
 
     if (mHeightMap->getFormat() != PF_L8)
     {
-	std::cout << "Error: Heightmap is not a grayscale image." << std::endl;
-	return false;
+		std::cout << "Error: Heightmap is not a grayscale image." << std::endl;
+		return false;
     }
 
     mMapSizeX = sx;
@@ -136,23 +137,25 @@ bool HeightmapLoader::initialise(const String& filename)
     String texture = config.getSetting("WorldTexture");
     if (texture != "")
     {
-	mMaterial = mSceneRoot->getCreator()->createMaterial("NaturePatchMaterial");
-    
-	TextureUnitState *layer;
-	layer = mMaterial->getTechnique(0)->getPass(0)->createTextureUnitState(texture, 1);
-//	layer->setColourOperation(LBO_REPLACE);
+		// get material
+		mMaterial = mSceneRoot->getCreator()->getMaterial("NaturePatchMaterial");
+		if (mMaterial != 0) MaterialManager::getSingleton().unload(mMaterial);
 
-#if USE_NORMALS
-	mMaterial->setLightingEnabled(true);
-#endif
+		mMaterial = mSceneRoot->getCreator()->createMaterial("NaturePatchMaterial");
+	    
+		TextureUnitState *layer;
+		layer = mMaterial->getTechnique(0)->getPass(0)->createTextureUnitState(texture, 1);
 
-	String detail_texture = config.getSetting("DetailTexture");
-	if (detail_texture != "")
-	{
-	    layer = mMaterial->getTechnique(0)->getPass(0)->createTextureUnitState(detail_texture, 0);
-//	    layer->setColourOperation(LBO_MODULATE);
-	    layer->setTextureScale(0.2, 0.2);
-	}
+	#if USE_NORMALS
+		mMaterial->setLightingEnabled(true);
+	#endif
+
+		String detail_texture = config.getSetting("DetailTexture");
+		if (detail_texture != "")
+		{
+			layer = mMaterial->getTechnique(0)->getPass(0)->createTextureUnitState(detail_texture, 0);
+			layer->setTextureScale(0.2, 0.2);
+		}
     }
 #endif
 
