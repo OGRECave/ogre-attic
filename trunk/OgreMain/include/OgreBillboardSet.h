@@ -527,7 +527,7 @@ namespace Ogre {
         virtual const String& getMovableType(void) const;
 
         /** Overridden, see Renderable */
-        Real getSquaredViewDepth(const Camera* const cam) const;
+        Real getSquaredViewDepth(const Camera* cam) const;
 
         /** Update the bounds of the billboardset */
         virtual void _updateBounds(void);
