@@ -298,6 +298,101 @@ namespace Ogre {
         }
 		return ret;
 	}
+    //-----------------------------------------------------------------------
+    const PlaneBoundedVolume& Light::_getNearClipVolume(const Camera* cam)
+    {
+        // First check if the light is close to the near plane, since
+        // in this case we have to build a degenerate clip volume
+        mNearClipVolume.planes.clear();
+        mNearClipVolume.outside = Plane::NEGATIVE_SIDE;
+
+        Real n = cam->getNearClipDistance();
+        // Homogenous position
+        Vector4 lightPos = getAs4DVector();
+        // 3D version (not the same as _getDerivedPosition, is -direction for
+        // directional lights)
+        Vector3 lightPos3 = Vector3(lightPos.x, lightPos.y, lightPos.z);
+
+        // Get eye-space light position
+        // use 4D vector so directional lights still work
+        Vector4 eyeSpaceLight = cam->getViewMatrix() * lightPos;
+        Matrix4 eyeToWorld = cam->getViewMatrix().inverse();
+        // Find distance to light, project onto -Z axis
+        Real d = eyeSpaceLight.dotProduct(
+            Vector4(0, 0, -1, -n) );
+        #define THRESHOLD 1e-6
+        if (d > THRESHOLD || d < -THRESHOLD)
+        {
+            // light is not too close to the near plane
+            // First find the worldspace positions of the corners of the viewport
+            Real y = Math::Tan(cam->getFOVy() * 0.5);
+            Real x = cam->getAspectRatio() * y;
+            Vector3 corner[4] = {
+                eyeToWorld * Vector3( x,  y, -n),
+                eyeToWorld * Vector3(-x,  y, -n),
+                eyeToWorld * Vector3(-x, -y, -n),
+                eyeToWorld * Vector3( x, -y, -n),
+            };
+            // Iterate over world points and form side planes
+            Vector3 normal;
+            Vector3 lightDir;
+            for (unsigned int i = 0; i < 4; ++i)
+            {
+                // Figure out light dir
+                lightDir = lightPos3 - (corner[i] * lightPos.w);
+                // Cross with anticlockwise corner, therefore normal points in
+                normal = (corner[i] - corner[(i-1)%4])
+                    .crossProduct(lightDir);
+                normal.normalise();
+                // NB last param to Plane constructor is negated because it's -d
+                mNearClipVolume.planes.push_back(
+                    Plane(normal, normal.dotProduct(corner[i])));
+
+            }
+
+            // Now do the near plane plane
+            if (d > THRESHOLD)
+            {
+                // In front of near plane
+                // remember the -d negation in plane constructor
+                mNearClipVolume.planes.push_back(
+                    Plane(eyeToWorld * -Vector3::UNIT_Z, n));
+            }
+            else
+            {
+                // Behind near plane
+                // remember the -d negation in plane constructor
+                mNearClipVolume.planes.push_back(
+                    Plane(eyeToWorld * Vector3::UNIT_Z, -n));
+            }
+
+            // Finally, for a point/spot light we can add a sixth plane
+            // This prevents false positives from behind the light
+            if (mLightType != LT_DIRECTIONAL)
+            {
+                // Direction from light to centre point of viewport 
+                normal = (eyeToWorld * Vector3(0,0,-n)) - lightPos3;
+                normal.normalise();
+                // remember the -d negation in plane constructor
+                mNearClipVolume.planes.push_back(
+                    Plane(normal, normal.dotProduct(lightPos3)));
+
+            }
+
+
+        }
+        else
+        {
+            // light is close to being on the near plane
+            // degenerate volume including the entire scene 
+            // we will always require light / dark caps
+            mNearClipVolume.planes.push_back(Plane(Vector3::UNIT_Z, -n));
+            mNearClipVolume.planes.push_back(Plane(-Vector3::UNIT_Z, n));
+        }
+
+        return mNearClipVolume;
+
+    }
 
 
 

@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreVector4.h"
 #include "OgreString.h"
 #include "OgreMovableObject.h"
+#include "OgrePlaneBoundedVolume.h"
 
 namespace Ogre {
 
@@ -292,6 +293,17 @@ namespace Ogre {
 		*/
 		Vector4 getAs4DVector(void) const;
 
+        /** Internal method for calculating the 'near clip volume', which is
+            the volume formed between the near clip rectangle of the 
+            camera and the light.
+        @remarks This volume is a pyramid for a point/spot light and
+            a cuboid for a directional light. It can used to detect whether
+            an object could be casting a shadow on the viewport. Note that
+            the reference returned is to a shared volume which will be 
+            reused across calls to this method.
+        */
+        const PlaneBoundedVolume& _getNearClipVolume(const Camera* cam);
+
 
     private:
         /// internal method for synchronising with parent node (if any)
@@ -321,6 +333,8 @@ namespace Ogre {
 
         /// Shared class-level name for Movable type
         static String msMovableType;
+
+        PlaneBoundedVolume mNearClipVolume;
 
 
 

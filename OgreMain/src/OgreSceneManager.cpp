@@ -2020,6 +2020,10 @@ namespace Ogre {
         for (li = mLightsAffectingFrustum.begin(); li != liend; ++li)
         {
             Light* l = *li;
+            // Figure out the near clip volume
+            const PlaneBoundedVolume& nearClipVol = 
+                l->_getNearClipVolume(camera);
+
             const ShadowCasterList& casters = findShadowCastersForLight(l, camera);
             ShadowCasterList::const_iterator si, siend;
             siend = casters.end();
@@ -2032,8 +2036,8 @@ namespace Ogre {
                     bool zfailAlgo = false;
                     unsigned long flags = 0;
 
-                    // TODO
-                    // - determine if zfail is required
+                    // Determine if zfail is required
+                    zfailAlgo = nearClipVol.intersects(caster->getWorldBoundingBox());
 
                     if (zfailAlgo)
                     {
