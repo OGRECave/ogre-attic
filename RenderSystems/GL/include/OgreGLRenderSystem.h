@@ -317,6 +317,10 @@ namespace Ogre {
         /** See
         RenderSystem
         */
+		void _applyObliqueDepthProjection(Matrix4& matrix, const Plane& plane);
+        /** See
+        RenderSystem
+        */
         void setClipPlane (ushort index, Real A, Real B, Real C, Real D);
         /** See
         RenderSystem

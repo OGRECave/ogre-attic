@@ -139,9 +139,9 @@ namespace Ogre {
         void updateView(void) const;
         bool isViewOutOfDate(void) const;
         /// Signal to update frustum information.
-        void invalidateFrustum(void);
+        void invalidateFrustum(void) const;
         /// Signal to update view information.
-        void invalidateView(void);
+        void invalidateView(void) const;
 
 
         /** Do actual window setting, using parameters set in SetWindow call

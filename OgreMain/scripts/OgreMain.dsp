@@ -416,6 +416,10 @@ SOURCE=..\src\OgreMovableObject.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreMovablePlane.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreNode.cpp
 # End Source File
 # Begin Source File
@@ -1083,6 +1087,10 @@ SOURCE=..\include\OgreMouseTarget.h
 # Begin Source File
 
 SOURCE=..\include\OgreMovableObject.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreMovablePlane.h
 # End Source File
 # Begin Source File
 

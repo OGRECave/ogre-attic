@@ -96,6 +96,7 @@ OgreMouseEvent.h \
 OgreMouseMotionTarget.h \
 OgreMouseTarget.h \
 OgreMovableObject.h \
+OgreMovablePlane.h \
 OgreNoMemoryMacros.h \
 OgreNode.h \
 OgreOverlay.h \

@@ -82,6 +82,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreMouseMotionTarget.cpp \
                          OgreMouseTarget.cpp \
                          OgreMovableObject.cpp \
+						 OgreMovablePlane.cpp \
                          OgreNode.cpp \
                          OgreOverlay.cpp \
                          OgreOverlayManager.cpp \

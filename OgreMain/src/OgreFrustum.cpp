@@ -44,23 +44,22 @@ namespace Ogre {
     String Frustum::msMovableType = "Frustum";
     const Real Frustum::INFINITE_FAR_PLANE_ADJUST = 0.00001;
     //-----------------------------------------------------------------------
-    Frustum::Frustum()
+    Frustum::Frustum() : 
+        mProjType(PT_PERSPECTIVE), 
+        mFOVy(Radian(Math::PI/4.0)), 
+        mFarDist(100000.0f), 
+        mNearDist(100.0f), 
+        mAspect(1.33333333333333f), 
+        mProjMatrix(Matrix4::ZERO), 
+        mViewMatrix(Matrix4::ZERO), 
+        mRecalcFrustum(true), 
+        mRecalcView(true), 
+        mReflect(false), 
+        mReflectMatrix(Matrix4::ZERO), 
+        mLinkedReflectPlane(0),
+        mObliqueDepthProjection(false), 
+        mLinkedObliqueProjPlane(0)
     {
-        // Reasonable defaults to Frustum params
-        mFOVy = Radian(Math::PI/4.0);
-        mNearDist = 100.0f;
-        mFarDist = 100000.0f;
-        mAspect = 1.33333333333333f;
-        mProjType = PT_PERSPECTIVE;
-
-        mRecalcFrustum = true;
-        mRecalcView = true;
-
-        // Init matrices
-        mViewMatrix = Matrix4::ZERO;
-        mProjMatrix = Matrix4::ZERO;
-        mReflectMatrix = Matrix4::ZERO;
-
         // Initialise vertex & index data
         mVertexData.vertexDeclaration->addElement(0, 0, VET_FLOAT3, VES_POSITION);
         mVertexData.vertexCount = 32;
@@ -72,14 +71,14 @@ namespace Ogre {
         // Initialise material
         mMaterial = static_cast<Material*>(
             MaterialManager::getSingleton().getByName("BaseWhiteNoLighting"));
-
-        // Default to not visible
+        
+        // Alter superclass members
         mVisible = false;
-
-        // no reflection
-        mReflect = false;
-
         mParentNode = 0;
+
+        mLastLinkedReflectionPlane.normal = Vector3::ZERO;
+        mLastLinkedObliqueProjPlane.normal = Vector3::ZERO;
+
 
         updateView();
     }
@@ -432,23 +431,34 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool Frustum::isViewOutOfDate(void) const
     {
+        bool returnVal = false;
         // Attached to node?
         if (mParentNode)
         {
             if (!mRecalcView && mParentNode->_getDerivedOrientation() == mLastParentOrientation &&
                 mParentNode->_getDerivedPosition() == mLastParentPosition)
             {
-                return false;
+                returnVal = false;
             }
             else
             {
                 // Ok, we're out of date with SceneNode we're attached to
                 mLastParentOrientation = mParentNode->_getDerivedOrientation();
                 mLastParentPosition = mParentNode->_getDerivedPosition();
-                return true;
+                returnVal = true;
             }
         }
-        return mRecalcView;
+        // Deriving reflection from linked plane?
+        if (mReflect && mLinkedReflectPlane && 
+            !(mLastLinkedReflectionPlane == mLinkedReflectPlane->_getDerivedPlane()))
+        {
+            mReflectPlane = mLinkedReflectPlane->_getDerivedPlane();
+            mReflectMatrix = Math::buildReflectionMatrix(mReflectPlane);
+            mLastLinkedReflectionPlane = mLinkedReflectPlane->_getDerivedPlane();
+            returnVal = true;
+        }
+
+        return mRecalcView || returnVal;
     }
 
     //-----------------------------------------------------------------------
@@ -705,12 +715,12 @@ namespace Ogre {
     }
 
     // -------------------------------------------------------------------
-    void Frustum::invalidateFrustum()
+    void Frustum::invalidateFrustum() const
     {
         mRecalcFrustum = true;
     }
     // -------------------------------------------------------------------
-    void Frustum::invalidateView()
+    void Frustum::invalidateView() const
     {
         mRecalcView = true;
     }
@@ -748,14 +758,26 @@ namespace Ogre {
     {
         mReflect = true;
         mReflectPlane = p;
+        mLinkedReflectPlane = 0;
         mReflectMatrix = Math::buildReflectionMatrix(p);
         invalidateView();
 
     }
     //-----------------------------------------------------------------------
+    void Frustum::enableReflection(const MovablePlane* p)
+    {
+        mReflect = true;
+        mLinkedReflectPlane = p;
+        mReflectPlane = mLinkedReflectPlane->_getDerivedPlane();
+        mReflectMatrix = Math::buildReflectionMatrix(mReflectPlane);
+        mLastLinkedReflectionPlane = mLinkedReflectPlane->_getDerivedPlane();
+        invalidateView();
+    }
+    //-----------------------------------------------------------------------
     void Frustum::disableReflection(void)
     {
         mReflect = false;
+        mLastLinkedReflectionPlane.normal = Vector3::ZERO;
         invalidateView();
     }
     //---------------------------------------------------------------------
@@ -798,7 +820,22 @@ namespace Ogre {
         return (*left != -1.0f) || (*top != 1.0f) || (*right != 1.0f) || (*bottom != -1.0f);
 
     }
-
+    //---------------------------------------------------------------------
+    void Frustum::enableCustomNearClipPlane(const MovablePlane* plane)
+    {
+        // TODO
+    }
+    //---------------------------------------------------------------------
+    void Frustum::enableCustomNearClipPlane(const Plane& plane)
+    {
+        // TODO
+    }
+    //---------------------------------------------------------------------
+    void Frustum::disableCustomNearClipPlane(void)
+    {
+        // TODO
+    }
+    //---------------------------------------------------------------------
 
 
 } // namespace Ogre
