@@ -52,7 +52,7 @@ namespace Ogre {
 		@param animList List of animation splits
 		*/
 		void exportSkeleton(const String& skeletonFileName, 
-			DeformerList& deformers, float framesPerSecond, 
+			DeformerMap& deformers, float framesPerSecond, 
 			AnimationList& animList);
 	protected:
 		// XSI Objects
@@ -61,28 +61,33 @@ namespace Ogre {
 		std::map<String, int> mXSITrackTypeNames; 
 
 		/// Build the bone hierarchy from a simple list of bones
-		void buildBoneHierarchy(Skeleton* pSkeleton, DeformerList& deformers);
+		void buildBoneHierarchy(Skeleton* pSkeleton, DeformerMap& deformers, 
+			AnimationList& animList);
 		/** Link the current bone with it's parent
-		@returns True if it linked, false otherwise
 		*/
-		bool linkBoneWithParent(Skeleton* pSkeleton, XSI::X3DObject& child, DeformerList& deformers, 
-			bool createIfRoot);
+		void linkBoneWithParent(DeformerEntry* deformer, 
+			DeformerMap& deformers, std::list<DeformerEntry*>& deformerList);
+		/** Eliminate the current bone if it has no animated parameters
+		*/
+		void eliminateStaticBone(DeformerEntry* deformer, 
+			DeformerMap& deformers, std::list<DeformerEntry*>& deformerList, 
+			AnimationList& animList);
 		/*
 		/// Find all the action sources in the scene for the list of deformers
-		void findActionSources(DeformerList& deformers);
+		void findActionSources(DeformerMap& deformers);
 		/// Find all the action sources against the given model for the list of deformers
-		void findActionSources(const XSI::Model& obj, DeformerList& deformers);
+		void findActionSources(const XSI::Model& obj, DeformerMap& deformers);
 		*/
 		/// Process an action source
-		void processActionSource(const XSI::ActionSource& source, DeformerList& deformers);
+		void processActionSource(const XSI::ActionSource& source, DeformerMap& deformers);
 		/// Bake animations
-		void createAnimations(Skeleton* pSkel, DeformerList& deformers, 
+		void createAnimations(Skeleton* pSkel, DeformerMap& deformers, 
 			float framesPerSecond, AnimationList& animList);
 		/// Bake animation tracks, and return the time length found
 		void createAnimationTracks(Animation* pAnim, AnimationEntry& animEntry, 
-			DeformerList& deformers, float fps);
+			DeformerMap& deformers, float fps);
 		/// Pre-parse the deformers animation to find the keyframe numbers
-		void buildKeyframeList(DeformerList& deformers, AnimationEntry& animEntry);		
+		void buildKeyframeList(DeformerMap& deformers, AnimationEntry& animEntry);		
 		/// Derive a keyframe value from XSI's tracks
 		float deriveKeyFrameValue(XSI::AnimationSourceItem item, long frame);
 		

@@ -67,17 +67,14 @@ namespace Ogre
 	}
 	//-----------------------------------------------------------------------------
 	void XsiSkeletonExporter::exportSkeleton(const String& skeletonFileName, 
-		DeformerList& deformers, float framesPerSecond, AnimationList& animList)
+		DeformerMap& deformers, float framesPerSecond, AnimationList& animList)
 	{
-		mXsiApp.LogMessage(L"** Begin OGRE Skeleton Export **");
+		LogOgreAndXSI(L"** Begin OGRE Skeleton Export **");
 
 		SkeletonPtr skeleton = SkeletonManager::getSingleton().create("export",
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 		// construct the hierarchy
-		buildBoneHierarchy(skeleton.get(), deformers);
-
-		// find all the action sources matching deformers
-		//findActionSources(deformers);
+		buildBoneHierarchy(skeleton.get(), deformers, animList);
 
 		// create animations 
 		createAnimations(skeleton.get(), deformers, framesPerSecond, animList);
@@ -86,54 +83,86 @@ namespace Ogre
 		SkeletonSerializer ser;
 		ser.exportSkeleton(skeleton.get(), skeletonFileName);
 
-		mXsiApp.LogMessage(L"** OGRE Skeleton Export Complete **");
+		LogOgreAndXSI(L"** OGRE Skeleton Export Complete **");
 
 
 	}
 	//-----------------------------------------------------------------------------
 	void XsiSkeletonExporter::buildBoneHierarchy(Skeleton* pSkeleton, 
-		DeformerList& deformers)
+		DeformerMap& deformers, AnimationList& animList)
 	{
+		/// Copy all entries from map into a list so iterators won't get invalidated
+		std::list<DeformerEntry*> deformerList;
+		LogOgreAndXSI(L"-- Bones with vertex assignments:");
+		for (DeformerMap::iterator i = deformers.begin(); i != deformers.end(); ++i)
+		{
+			DeformerEntry* deformer = i->second;
+			deformerList.push_back(deformer);
+			LogOgreAndXSI(deformer->obj.GetName());
+		}
+
 		/* XSI allows you to use any object at all as a bone, not just chain elements.
 		   A typical choice is a hierarchy of nulls, for example. In order to 
 		   build a skeleton hierarchy which represents the actual one, we need
 		   to find the relationships between all the deformers that we found.
-		   We also need to include any objects which are between 2 bones, e.g.
-		   if the bone hierarchy is A-B-C, but only bones A and C had envelopes
-		   assigned to them, we still need to export B - so we need to pick that
-		   one up during this pass.
+		   
 		   Well do this by navigating up the scene tree from each bone, looking for
-		   a match in the existing bone list. We'll keep a track of the bones 
-		   we're traversing so that we can include intermediate bones. If the
-		   traversal hits the scene root without finding another bone, this bone
-		   is clearly a root bone (there may be more than one). 
+		   a match in the existing bone list or creating a new one where we need it
+		   to reach the root. We add bones even if they're not assigned vertices
+		   because the animation may depend on them. If the
+		   traversal hits the scene root this bone is clearly a root bone 
+		   (there may be more than one). 
 	   */
-		// Store current list size, to detect creation of new intermediate bones
-		size_t listSize = deformers.size();
-		for (DeformerList::iterator i = deformers.begin(); i != deformers.end(); ++i)
+		for (std::list<DeformerEntry*>::iterator i = deformerList.begin(); i != deformerList.end(); ++i)
 		{
-			DeformerEntry* deformer = i->second;
+			DeformerEntry* deformer = *i;
 			if (deformer->parentName.empty())
 			{
-				linkBoneWithParent(pSkeleton, deformer->obj, deformers, true);
-			}
-			if (deformers.size() != listSize)
-			{
-				// list has changed, iterator will be invalid
-				// reset - we won't process the completed ones again
-				i = deformers.begin();
-				listSize = deformers.size();
+				linkBoneWithParent(deformer, deformers, deformerList);
 			}
 		}
-		// Now that we've created all the bones, including transitive ones
-		// we can link the Bone hierarchy
-		for (DeformerList::iterator i = deformers.begin(); i != deformers.end(); ++i)
+
+		// Now eliminate all bones without any animated kine parameters
+		// Need to do this after we've determined all relationships
+		for (std::list<DeformerEntry*>::iterator i = deformerList.begin(); i != deformerList.end(); ++i)
+		{
+			DeformerEntry* deformer = *i;
+			if (deformer->parentName.empty())
+			{
+				eliminateStaticBone(deformer, deformers, deformerList, animList);
+			}
+		}
+
+		// Now create bones and link
+		for (DeformerMap::iterator i = deformers.begin(); i != deformers.end(); ++i)
 		{
 			DeformerEntry* deformer = i->second;
+
+			if (!deformer->pBone)
+			{
+				String name = XSItoOgre(deformer->obj.GetName());
+				deformer->pBone = pSkeleton->createBone(name, deformer->boneID);
+				MATH::CTransformation trans; 
+
+				if (deformer->parentName.empty())
+				{
+					// set transform on bone to global transform since no parents
+					trans = deformer->obj.GetKinematics().GetGlobal().GetTransform();
+				}
+				else
+				{
+					// set transform on bone to local transform (since child)
+					trans = deformer->obj.GetKinematics().GetLocal().GetTransform();
+				}
+				deformer->pBone->setPosition(XSItoOgre(trans.GetTranslation()));
+				deformer->pBone->setOrientation(XSItoOgre(trans.GetRotation().GetQuaternion()));
+				deformer->pBone->setScale(XSItoOgre(trans.GetScaling()));
+			}
+
 			// link to parent
 			if (!deformer->parentName.empty())
 			{
-				DeformerList::iterator p = deformers.find(deformer->parentName);
+				DeformerMap::iterator p = deformers.find(deformer->parentName);
 				assert (p != deformers.end() && "Parent not found");
 				assert (deformer->pBone && "Child bone not created");
 				assert(p->second->pBone && "Parent bone not created");
@@ -145,108 +174,69 @@ namespace Ogre
 
 	}
 	//-----------------------------------------------------------------------------
-	bool XsiSkeletonExporter::linkBoneWithParent(Skeleton* pSkeleton, 
-		X3DObject& child, DeformerList& deformers, bool createIfRoot)
+	void XsiSkeletonExporter::linkBoneWithParent(DeformerEntry* child, 
+		DeformerMap& deformers, std::list<DeformerEntry*>& deformerList)
 	{
-		X3DObject parent(child.GetParent());
-		String childName = XSItoOgre(child.GetName());
+		X3DObject parent(child->obj.GetParent());
+		String childName = XSItoOgre(child->obj.GetName());
 		String parentName = XSItoOgre(parent.GetName());
 
+		if (child->obj == mXsiSceneRoot /* safety check for start node */)
+			return;
+
 		// is the parent the scene root?
-		if (parent == mXsiSceneRoot 
-			|| child == mXsiSceneRoot /* safety check for start node */)
+		if (parent == mXsiSceneRoot)
 		{
-			// clearly we didn't find any matching bones
-			if (createIfRoot)
-			{
-				// create a root bone
-				DeformerList::iterator c = deformers.find(childName);
-				if (c != deformers.end())
-				{
-					DeformerEntry* deformer = c->second;
-					if (!deformer->pBone)
-					{
-						deformer->pBone = pSkeleton->createBone(childName, deformer->boneID);
-						// set transform on bone to global transform since no parents
-						MATH::CTransformation trans = 
-							deformer->obj.GetKinematics().GetGlobal().GetTransform();
-						deformer->pBone->setPosition(XSItoOgre(trans.GetTranslation()));
-						deformer->pBone->setOrientation(XSItoOgre(trans.GetRotation().GetQuaternion()));
-						deformer->pBone->setScale(XSItoOgre(trans.GetScaling()));
-					}
-				}
-			}
-
-			return false;
-		}
-
-		// Otherwise, check to see if the parent is in the deformer list
-		DeformerList::iterator i = deformers.find(XSItoOgre(parent.GetName()));
-		bool createLink = createIfRoot;
-		if (i == deformers.end())
-		{
-			// not found, check higher
-			bool foundLink = linkBoneWithParent(pSkeleton, parent, deformers, false);
-			if (!foundLink)
-			{
-				// this was a root bone
-				parentName.clear();
-			}
-			else
-			{
-				// transient connection
-				createLink = true;
-			}
+			// we hit the root node
 		}
 		else
 		{
-			// ok, found one, add it
-			createLink = true;
-		}
 
-		if (createLink)
-		{
-			// Link child with parent
-			// Check child is present first (will not be if transient)
-			DeformerList::iterator c = deformers.find(childName);
-			DeformerEntry* deformer = 0;
-			if (c == deformers.end())
+			// Otherwise, check to see if the parent is in the deformer list
+			DeformerMap::iterator i = deformers.find(parentName);
+			DeformerEntry* parentDeformer = 0;
+			if (i == deformers.end())
 			{
-				deformer = new DeformerEntry(deformers.size(), child);
-				deformers[childName] = deformer;
+				// not found, create entry for parent 
+				parentDeformer = new DeformerEntry(deformers.size(), parent);
+				deformers[parentName] = parentDeformer;
+				deformerList.push_back(parentDeformer);
+				LogOgreAndXSI(CString(L"Added ") + parent.GetName() + 
+					CString(L" as a parent of ") + child->obj.GetName() );
 			}
 			else
 			{
-				deformer = c->second;
+				parentDeformer = i->second;
 			}
-			// link child to parent
-			deformer->parentName = parentName;
-			// create bone
-			if (!deformer->pBone)
-			{
-				deformer->pBone = pSkeleton->createBone(childName, deformer->boneID);
-				// set transform on bone to local transform 
-				MATH::CTransformation trans;
-				if (parentName.empty())
-					trans = deformer->obj.GetKinematics().GetGlobal().GetTransform();
-				else
-					trans = deformer->obj.GetKinematics().GetLocal().GetTransform();
 
-				deformer->pBone->setPosition(XSItoOgre(trans.GetTranslation()));
-				deformer->pBone->setOrientation(XSItoOgre(trans.GetRotation().GetQuaternion()));
-				deformer->pBone->setScale(XSItoOgre(trans.GetScaling()));
-			}
+			// Link child entry with parent (not bone yet)
+			// link child to parent by name
+			child->parentName = parentName;
+			parentDeformer->childNames.push_back(childName);
 
 
 		}
 
-		return createLink;
+	}
+	//-----------------------------------------------------------------------------
+	void XsiSkeletonExporter::eliminateStaticBone(DeformerEntry* deformer, 
+		DeformerMap& deformers, std::list<DeformerEntry*>& deformerList, 
+		AnimationList& animList)
+	{
+		/* The purpose of this method is to find out whether a node in the 
+		   bone hierarchy is animated, and if not, to eliminate it and propagate
+		   it's static transform contribution to it's children.
+		   We do this because it's quite easy in XSI to build deep bone chains
+		   with intermediate points that are only used for manipulation. We
+		   don't want to include all of those.
+	   */
 
+		// TODO
 
 	}
 	//-----------------------------------------------------------------------------
 	/*
-	void XsiSkeletonExporter::findActionSources(DeformerList& deformers)
+	void XsiSkeletonExporter::findActionSources(DeformerMap& deformers)
 	{
 		// We're interested in the ActionSourceItem instances which have a
 		// target string which begins with a deformer name. XSI has ActionSources,
@@ -276,7 +266,7 @@ namespace Ogre
 		}
 
 		// look against deformers themselves; look for all parameter sources
-		for (DeformerList::iterator di = deformers.begin(); di != deformers.end(); ++di)
+		for (DeformerMap::iterator di = deformers.begin(); di != deformers.end(); ++di)
 		{
 			CRefArray paramList = di->second->obj.GetParameters();
 			for (int p = 0; p < paramList.GetCount(); ++p)
@@ -296,7 +286,7 @@ namespace Ogre
 	}
 	//-----------------------------------------------------------------------------
 	void XsiSkeletonExporter::findActionSources(const XSI::Model& obj, 
-		DeformerList& deformers)
+		DeformerMap& deformers)
 	{			if (
 
 		CRefArray sources = obj.GetSources();
@@ -316,10 +306,10 @@ namespace Ogre
 	*/
 	//-----------------------------------------------------------------------------
 	void XsiSkeletonExporter::processActionSource(const XSI::ActionSource& actSource,
-		DeformerList& deformers)
+		DeformerMap& deformers)
 	{
 		// Clear existing deformer links
-		for(DeformerList::iterator di = deformers.begin(); di != deformers.end(); ++di)
+		for(DeformerMap::iterator di = deformers.begin(); di != deformers.end(); ++di)
 		{
 			for (int tt = XTT_POS_X; tt < XTT_COUNT; ++tt)
 			{
@@ -342,7 +332,7 @@ namespace Ogre
 				String paramName = target.substr(lastDotPos+1, 
 					target.size() - lastDotPos - 1);
 				// locate deformer
-				DeformerList::iterator di = deformers.find(targetName);
+				DeformerMap::iterator di = deformers.find(targetName);
 				if (di != deformers.end())
 				{
 					DeformerEntry* deformer = di->second;
@@ -359,7 +349,7 @@ namespace Ogre
 	}
 	//-----------------------------------------------------------------------------
 	void XsiSkeletonExporter::createAnimations(Skeleton* pSkel, 
-		DeformerList& deformers, float fps, AnimationList& animList)
+		DeformerMap& deformers, float fps, AnimationList& animList)
 	{
 		for (AnimationList::iterator ai = animList.begin(); ai != animList.end(); ++ai)
 		{
@@ -379,11 +369,11 @@ namespace Ogre
 		}
 	}
 	//-----------------------------------------------------------------------------
-	void XsiSkeletonExporter::buildKeyframeList(DeformerList& deformers, 
+	void XsiSkeletonExporter::buildKeyframeList(DeformerMap& deformers, 
 		AnimationEntry& animEntry)
 	{
 		bool first = true;
-		for (DeformerList::iterator di = deformers.begin(); di != deformers.end(); ++di)
+		for (DeformerMap::iterator di = deformers.begin(); di != deformers.end(); ++di)
 		{
 			DeformerEntry* deformer = di->second;
 			for (int tt = XTT_POS_X; tt < XTT_COUNT; ++tt)
@@ -426,7 +416,7 @@ namespace Ogre
 	}
 	//-----------------------------------------------------------------------------
 	void XsiSkeletonExporter::createAnimationTracks(Animation* pAnim, 
-		AnimationEntry& animEntry, DeformerList& deformers, float fps)
+		AnimationEntry& animEntry, DeformerMap& deformers, float fps)
 	{
 		/* We have to iterate over the list of deformers, and create a track
 		 * for each one. Since XSI stores keys for all 9 components separately,
@@ -437,7 +427,7 @@ namespace Ogre
 		 * We will also use this to ensure there is a keyframe at the start and end of the
 		 * animation.
 		 */
-		for (DeformerList::iterator di = deformers.begin(); di != deformers.end(); ++di)
+		for (DeformerMap::iterator di = deformers.begin(); di != deformers.end(); ++di)
 		{
 			DeformerEntry* deformer = di->second;
 
