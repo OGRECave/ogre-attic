@@ -75,7 +75,7 @@ namespace Ogre
     }
 
 
-    void Win32ErrorDialog::display(String errorMessage, String logName)
+    void Win32ErrorDialog::display(const String& errorMessage, String logName)
     {
         // Display dialog
         // Don't return to caller until dialog dismissed

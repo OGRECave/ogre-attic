@@ -53,7 +53,7 @@ public:
     };
 
     /* Standard Constructor */
-    OctreeCamera( String name, SceneManager* sm );
+    OctreeCamera( const String& name, SceneManager* sm );
     /* Standard destructor */
     ~OctreeCamera();
 

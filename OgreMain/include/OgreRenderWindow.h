@@ -83,7 +83,7 @@ namespace Ogre
                 miscParam A variable number of pointers to platform-specific arguments. The
                 actual requirements must be defined by the implementing subclasses.
         */
-        virtual void create(String name, int width, int height, int colourDepth,
+        virtual void create(const String& name, int width, int height, int colourDepth,
             bool fullScreen, int left, int top, bool depthBuffer, void* miscParam, ...) = 0;
 
         /** Destroys the window.

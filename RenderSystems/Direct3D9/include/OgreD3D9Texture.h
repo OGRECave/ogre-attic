@@ -103,7 +103,7 @@ namespace Ogre {
 		/// internal method, set the device and fillIn the device caps
 		void _setDevice(IDirect3DDevice9 *pDev);
 		/// internal method, construct full cube texture face names from a given string
-		void _constructCubeFaceNames(const String name);
+		void _constructCubeFaceNames(const String& name);
 		/// internal method, set Texture class source image protected attributes
 		void _setSrcAttributes(unsigned long width, unsigned long height, PixelFormat format);
 		/// internal method, set Texture class final texture protected attributes
@@ -124,9 +124,9 @@ namespace Ogre {
 
 	public:
 		/// constructor 1
-		D3D9Texture( String name, TextureType texType, IDirect3DDevice9 *pD3DDevice, TextureUsage usage );
+		D3D9Texture( const String& name, TextureType texType, IDirect3DDevice9 *pD3DDevice, TextureUsage usage );
 		/// constructor 2
-		D3D9Texture( String name, TextureType texType, IDirect3DDevice9 *pD3DDevice, uint width, uint height, uint numMips, PixelFormat format, TextureUsage usage );
+		D3D9Texture( const String& name, TextureType texType, IDirect3DDevice9 *pD3DDevice, uint width, uint height, uint numMips, PixelFormat format, TextureUsage usage );
 		/// destructor
 		~D3D9Texture();
 
@@ -171,7 +171,7 @@ namespace Ogre {
 			SAFE_DELETE(mPrivateTex);
         }
 
-		virtual void getCustomAttribute( String name, void *pData )
+		virtual void getCustomAttribute( const String& name, void *pData )
         {
 			if( name == "DDBACKBUFFER" )
             {

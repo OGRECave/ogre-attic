@@ -38,7 +38,7 @@ namespace Ogre {
         { }
 
         // Simply defined here
-        void display(String errorMessage, String logName = "")
+        void display(const String& errorMessage, String logName = "")
         {
             std::cout << "*** ERROR: " << errorMessage << std::endl;
         }

@@ -248,7 +248,7 @@ namespace Ogre {
         if (params[0] != "map" && params[0] != "clampmap" && params[0] != "animmap")
         {
             // lower case all except textures
-            for (int i = 1; i < vecparams.size(); ++i)
+            for (size_t i = 1; i < vecparams.size(); ++i)
                 params[i] = params[i].toLowerCase();
         }
 

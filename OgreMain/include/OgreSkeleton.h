@@ -78,7 +78,7 @@ namespace Ogre {
             them together appropriately. Unless you state otherwise by attaching it to 
             a higher bone, the first bone you create is deemed to be the root bone.
         */
-        Skeleton(String name);
+        Skeleton(const String& name);
         ~Skeleton();
 
         /** Generic load - called by SkeletonManager.

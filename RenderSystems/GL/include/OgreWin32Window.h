@@ -37,7 +37,7 @@ namespace Ogre {
         Win32Window();
         ~Win32Window();
 
-        void create(String name, int width, int height, int colourDepth,
+        void create(const String& name, int width, int height, int colourDepth,
             bool fullScreen, int left, int top, bool depthBuffer, void* miscParam, ...);
         void destroy(void);
         bool isActive(void);

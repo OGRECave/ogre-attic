@@ -171,7 +171,7 @@ namespace Ogre {
 
 
 
-    void D3D7RenderWindow::create(String name, int width, int height, int colourDepth,
+    void D3D7RenderWindow::create(const String& name, int width, int height, int colourDepth,
             bool fullScreen, int left, int top, bool depthBuffer, void* miscParam, ...)
     {
 
@@ -586,7 +586,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void D3D7RenderWindow::getCustomAttribute( String name, void* pData )
+    void D3D7RenderWindow::getCustomAttribute( const String& name, void* pData )
     {
         // Valid attributes and their equivalent native functions:
         // D3DDEVICE            : getD3DDeviceDriver

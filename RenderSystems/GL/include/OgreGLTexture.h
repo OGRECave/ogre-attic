@@ -38,9 +38,9 @@ namespace Ogre {
     {
     public:
         // Constructor, called from SDLTextureManager
-        GLTexture( String name, GLSupport& support, 
+        GLTexture( const String& name, GLSupport& support, 
                    TextureType texType = TEX_TYPE_2D );
-        GLTexture( String name, GLSupport& support, TextureType texType, 
+        GLTexture( const String& name, GLSupport& support, TextureType texType, 
                    uint width, uint height, uint num_mips, PixelFormat format,
                    TextureUsage usage );
 

@@ -31,7 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     //-----------------------------------------------------------------------
-	GuiPressable::GuiPressable(String name)
+	GuiPressable::GuiPressable(const String& name)
 	{
 		mPressed = false;
 		mActionCommand = name;

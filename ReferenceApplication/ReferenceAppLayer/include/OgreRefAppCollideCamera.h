@@ -46,7 +46,7 @@ namespace OgreRefApp {
         /// Triggers recacl of collison bounds
         void nearDistChanged(void);
     public:
-        CollideCamera(String name);
+        CollideCamera(const String& name);
 
         /** Gets the internal Camera object. */
         Camera* getRealCamera(void) { return mCamera; }

@@ -52,7 +52,7 @@ namespace Ogre {
         }
     }
 
-    GLTexture::GLTexture(String name, GLSupport& support, TextureType texType) :
+    GLTexture::GLTexture(const String& name, GLSupport& support, TextureType texType) :
         mGLSupport(support)
     {
         mName = name;
@@ -63,7 +63,7 @@ namespace Ogre {
     }
 
     // XXX init rather than assign
-    GLTexture::GLTexture(String name, GLSupport& support, TextureType texType, 
+    GLTexture::GLTexture(const String& name, GLSupport& support, TextureType texType, 
         uint width, uint height, uint num_mips, PixelFormat format, 
         TextureUsage usage) : mGLSupport(support)
     {

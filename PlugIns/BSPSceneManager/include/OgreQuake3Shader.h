@@ -47,12 +47,12 @@ namespace Ogre {
     class Quake3Shader : public Resource
     {
     protected:
-        String getAlternateName(String texName);
+        String getAlternateName(const String& texName);
 
     public:
 
         /** Default constructor - used by Quake3ShaderManager (do not call directly) */
-        Quake3Shader(String name);
+        Quake3Shader(const String& name);
         ~Quake3Shader();
 
         /** Generic load - called by Quake3ShaderManager. */

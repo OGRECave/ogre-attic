@@ -43,7 +43,7 @@ namespace Ogre {
                 logName Optional name of the log to display in the detail
                 pane.
         */
-        virtual void display(String errorMessage, String logName = "") = 0;
+        virtual void display(const String& errorMessage, String logName = "") = 0;
 
     };
 

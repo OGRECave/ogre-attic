@@ -91,27 +91,27 @@ namespace Ogre {
 			mBuffer += "\n\t}";
 		}
 
-		void writeAttribute(String att)
+		void writeAttribute(const String& att)
 		{
 			mBuffer += ("\n\t" + att);
 		}
 
-		void writeValue(String val)
+		void writeValue(const String& val)
 		{
 			mBuffer += (" " + val);
 		}
 
-		void writeSubAttribute(String att)
+		void writeSubAttribute(const String& att)
 		{
 			mBuffer += ("\n\t\t" + att);
 		}
 
-		void writeComment(String comment)
+		void writeComment(const String& comment)
 		{
 			mBuffer += ("\n\t//" + comment);
 		}
 
-		void writeSubComment(String comment)
+		void writeSubComment(const String& comment)
 		{
 			mBuffer += ("\n\t\t//" + comment);
 		}

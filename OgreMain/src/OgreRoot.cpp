@@ -69,13 +69,11 @@ namespace Ogre {
     // Termination handler
     extern "C" _OgreExport void handleTerminate(void)
     {
-        Root& r = Root::getSingleton();
+        LogManager::getSingleton().logMessage(LML_CRITICAL, "Termination handler: uncaught exception!");
 
-        r.shutdown();
+        Root::getSingleton().shutdown();
 
-        ErrorDialog* dlg;
-
-        dlg = PlatformManager::getSingleton().createErrorDialog();
+        ErrorDialog* dlg = PlatformManager::getSingleton().createErrorDialog();
 
         Exception* e = Exception::getLastException();
 
@@ -656,7 +654,7 @@ namespace Ogre {
     }
     */
     //-----------------------------------------------------------------------
-	void Root::loadPlugin(String pluginName)
+	void Root::loadPlugin(const String& pluginName)
 	{
 		// Load plugin library
         DynLib* lib = DynLibManager::getSingleton().load( pluginName );
@@ -672,7 +670,7 @@ namespace Ogre {
 		pFunc();
 	}
     //-----------------------------------------------------------------------
-	void Root::unloadPlugin(String pluginName)
+	void Root::unloadPlugin(const String& pluginName)
 	{
         std::vector<DynLib*>::iterator i;
 

@@ -41,7 +41,7 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    BspLevel::BspLevel(String name)
+    BspLevel::BspLevel(const String& name)
     {
         mName = name;
         mRootNode = 0;

@@ -38,7 +38,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     //-----------------------------------------------------------------------
-    Mesh::Mesh(String name)
+    Mesh::Mesh(const String& name)
     {
         mName = name;
 		sharedVertexData = NULL;
@@ -185,7 +185,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    Mesh* Mesh::clone(String newName)
+    Mesh* Mesh::clone(const String& newName)
     {
         // This is a bit like a copy constructor, but with the additional aspect of registering the clone with
         //  the MeshManager

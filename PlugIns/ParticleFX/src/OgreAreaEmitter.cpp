@@ -38,7 +38,7 @@ namespace Ogre {
     AreaEmitter::CmdDepth AreaEmitter::msDepthCmd;
 
     //-----------------------------------------------------------------------
-    void AreaEmitter::initDefaults(String t)
+    void AreaEmitter::initDefaults(const String& t)
     {
         // called by the constructor as initDefaults("Type")
 

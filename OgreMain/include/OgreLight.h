@@ -77,7 +77,7 @@ namespace Ogre {
 
         /** Normal constructor. Should not be called directly, but rather the SceneManager::createLight method should be used.
         */
-        Light(String name);
+        Light(const String& name);
 
         /** Standard destructor.
         */

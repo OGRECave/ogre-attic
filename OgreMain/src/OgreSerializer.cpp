@@ -235,7 +235,7 @@ namespace Ogre {
     String Serializer::readString(DataChunk& chunk)
     {
         char str[255];
-        int readcount;
+        size_t readcount;
         readcount = chunk.readUpTo(str, 255);
         str[readcount] = '\0';
         return str;

@@ -39,7 +39,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     //---------------------------------------------------------------------
-    Skeleton::Skeleton(String name) 
+    Skeleton::Skeleton(const String& name) 
     {
         mName = name;
 

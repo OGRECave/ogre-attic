@@ -41,10 +41,10 @@ namespace Ogre {
     {
     public:
         // Constructor, called from D3DTextureManager
-        D3DTexture( String name, TextureType texType, IDirect3DDevice7 * lpDirect3dDevice, TextureUsage usage );
+        D3DTexture( const String& name, TextureType texType, IDirect3DDevice7 * lpDirect3dDevice, TextureUsage usage );
 		/** Constructor that can be used to manually create a texture and set its parameters. */
 		D3DTexture( 
-			String name, 
+			const String& name, 
 			TextureType texType, 
 			IDirect3DDevice7 * lpDirect3dDevice, 
 			uint width, 
@@ -111,7 +111,7 @@ namespace Ogre {
 
 		bool requiresTextureFlipping() const { return true; }
 
-        virtual void getCustomAttribute( String name, void* pData )
+        virtual void getCustomAttribute( const String& name, void* pData )
         {
             if( name == "DDBACKBUFFER" )
             {

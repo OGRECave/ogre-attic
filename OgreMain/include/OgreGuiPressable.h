@@ -62,7 +62,7 @@ namespace Ogre {
 		void fireActionPerformed();
 
 	public :
-		GuiPressable(String name);
+		GuiPressable(const String& name);
 
 		void setSource(GuiElement* source);
 		String getActionCommand();
