@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreOofModelFile.h"
 #include "OgreMaterialManager.h"
 #include "OgreLogManager.h"
+#include "OgreSkeleton.h"
 
 
 namespace Ogre {
@@ -220,6 +221,12 @@ namespace Ogre {
             writeSubMesh(pMesh->getSubMesh(i));
         }
 
+        // Write skeleton link if required
+        if (pMesh->hasSkeleton())
+        {
+            writeSkeletonLink(pMesh->getSkeleton());
+        }
+
 
     }
     //---------------------------------------------------------------------
@@ -339,6 +346,12 @@ namespace Ogre {
         for (int i = 0; i < pMesh->getNumSubMeshes(); ++i)
         {
             size += calcSubMeshSize(pMesh->getSubMesh(i));
+        }
+
+        // Skeleton link
+        if (pMesh->hasSkeleton())
+        {
+            size += calcSkeletonLinkSize(pMesh->getSkeleton());
         }
 
         return size;
@@ -504,21 +517,33 @@ namespace Ogre {
         }
         readGeometry(chunk, &mpMesh->sharedGeometry);
 
-        // Find all submeshes
-        chunkID = readChunk(chunk);
-        while(chunkID == M_SUBMESH && !chunk.isEOF())
-        {
-            readSubMesh(chunk);
-            if (!chunk.isEOF())
-            {
-                chunkID = readChunk(chunk);
-            }
-        }
-        // Get next chunk
+        // Find all subchunks 
         if (!chunk.isEOF())
         {
-            // Backpedal back to start of non-submesh chunk
-            chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
+            chunkID = readChunk(chunk);
+            while(!chunk.isEOF())
+            {
+                switch(chunkID)
+                {
+                case M_SUBMESH:
+                    readSubMesh(chunk);
+                    break;
+                case M_MESH_SKELETON_LINK:
+                    readSkeletonLink(chunk);
+                    break;
+                }
+
+                if (!chunk.isEOF())
+                {
+                    chunkID = readChunk(chunk);
+                }
+
+            }
+            if (!chunk.isEOF())
+            {
+                // Backpedal back to start of chunk
+                chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
+            }
         }
 
     }
@@ -621,6 +646,29 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
+    void MeshSerializer::writeSkeletonLink(const Skeleton* pSkel)
+    {
+        writeChunkHeader(M_MESH_SKELETON_LINK, calcSkeletonLinkSize(pSkel));
+
+        writeString(pSkel->getName());
+
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializer::readSkeletonLink(DataChunk &chunk)
+    {
+        String skelName = readString(chunk);
+        mpMesh->setSkeletonName(skelName);
+    }
+    //---------------------------------------------------------------------
+    unsigned long MeshSerializer::calcSkeletonLinkSize(const Skeleton* pSkel)
+    {
+        unsigned long size = CHUNK_OVERHEAD_SIZE;
+
+        size += (unsigned long)pSkel->getName().length() + 1;
+
+        return size;
+
+    }
 
 
 }

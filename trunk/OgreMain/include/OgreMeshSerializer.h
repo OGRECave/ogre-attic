@@ -101,18 +101,21 @@ namespace Ogre {
         void writeMesh(const Mesh* pMesh);
         void writeSubMesh(const SubMesh* s);
         void writeGeometry(const GeometryData* pGeom);
+        void writeSkeletonLink(const Skeleton* pSkel);
 
         unsigned long calcMaterialSize(const Material* pMat);
         unsigned long calcTextureLayerSize(const Material::TextureLayer* pTex);
         unsigned long calcMeshSize(const Mesh* pMesh);
         unsigned long calcSubMeshSize(const SubMesh* pSub);
         unsigned long calcGeometrySize(const GeometryData* pGeom);
+        unsigned long calcSkeletonLinkSize(const Skeleton* pSkel);
 
         void readMaterial(DataChunk& chunk);
         void readTextureLayer(DataChunk& chunk, Material* pMat);
         void readMesh(DataChunk& chunk);
         void readSubMesh(DataChunk& chunk);
         void readGeometry(DataChunk& chunk, GeometryData* dest);
+        void readSkeletonLink(DataChunk &chunk);
 
 
 
