@@ -7,7 +7,7 @@ Group: 'Export'
 Tooltip: 'Export Mesh and Armature to Ogre'
 """
 
-# Blender to Ogre Mesh and Skeleton Exporter v0.12
+# Blender to Ogre Mesh and Skeleton Exporter v0.12.1
 # url: http://www.ogre3d.org
 
 # Ogre exporter written by Jens Hoffmann and Michael Reimpell
@@ -62,6 +62,8 @@ Tooltip: 'Export Mesh and Armature to Ogre'
 #              TEXFACE -> disable ambient, diffuse, specular and emissive
 #          - exit on ESCKEY or QKEY pressed (not released)
 #          - added frame based animation export
+#   0.12.1: * Wed Feb 18 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
+#          - changed two user interface strings to avoid confusion
 #
 # TODO:
 #          - TWOSIDE face mode, TWOSIDED mesh mode
@@ -2154,7 +2156,7 @@ def gui():
 	# first row
 	uvToggle = Draw.Toggle("Export Textures", BUTTON_EVENT_UVTOGGLE, \
 				remainRect[0], remainRect[3]-25, 220, 20, \
-				uvToggle.val, "export sticky uv coordinates, if available") 
+				uvToggle.val, "export uv coordinates and texture names, if available")
 	# Material file
 	materialString = Draw.String("Material File: ", BUTTON_EVENT_MATERIALSTRING, \
 			remainRect[0]+230,remainRect[3]-25, 220, 20, \
@@ -2194,7 +2196,7 @@ def gui():
 	
 	# rename animation part	
 	if (armatureToggle.val == 1):
-		animationText = "Export animations of"
+		animationText = "Animation settings of"
 		glRasterPos2i(remainRect[0],remainRect[3]-15)
 		Draw.Text(animationText)
 		xOffset = Draw.GetStringWidth(animationText) + 5
