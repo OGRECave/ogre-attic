@@ -1,3 +1,16 @@
+/*
+-----------------------------------------------------------------------------
+This source file is part of OGRE
+    (Object-oriented Graphics Rendering Engine)
+For the latest info, see http://www.ogre3d.org/
+
+Copyright © 2000-2003 The OGRE Team
+Also see acknowledgements in Readme.html
+
+You may use this sample code for anything you like, it is not covered by the
+LGPL like the rest of the engine.
+-----------------------------------------------------------------------------
+*/
 /**
     \file 
         Nature.h
