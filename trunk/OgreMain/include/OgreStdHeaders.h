@@ -21,11 +21,9 @@
 #ifdef EXT_HASH
 #   include <ext/hash_map>
 #   include <ext/hash_set>
-#   include <ext/slist>
 #else
 #   include <hash_set>
 #   include <hash_map>
-#   include <slist>
 #endif
 
 // STL algorithms & functions
@@ -38,12 +36,22 @@
 #include <iomanip>
 #include <sstream>
 
-#if OGRE_PLATFORM == PLATFORM_WIN32
-#   include <direct.h>
-#   include <io.h>
+extern "C" {
+
 #   include <sys/types.h>
 #   include <sys/stat.h>
+
+}
+
+#if OGRE_PLATFORM == PLATFORM_WIN32
+
+extern "C" {
+
+#   include <direct.h>
+#   include <io.h>
 #   include <windows.h>
+
+}
 
 #undef min
 #undef max
@@ -51,8 +59,12 @@
 #endif
 
 #if OGRE_PLATFORM == PLATFORM_LINUX
+extern "C" {
+
 #   include <unistd.h>
 #   include <dlfcn.h>
+
+}
 #endif
 
 #endif
