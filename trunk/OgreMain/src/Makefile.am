@@ -110,6 +110,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreRenderTexture.cpp \
                          OgreRenderWindow.cpp \
                          OgreResource.cpp \
+                         OgreResourceBackgroundQueue.cpp \
                          OgreResourceGroupManager.cpp \
                          OgreResourceManager.cpp \
                          OgreRoot.cpp \

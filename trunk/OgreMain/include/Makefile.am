@@ -138,6 +138,7 @@ OgreRenderTexture.h \
 OgreRenderWindow.h \
 OgreRenderable.h \
 OgreResource.h \
+OgreResourceBackgroundQueue.h \
 OgreResourceGroupManager.h \
 OgreResourceManager.h \
 OgreRoot.h \

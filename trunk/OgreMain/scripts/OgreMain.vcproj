@@ -230,6 +230,12 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\src\OgreEntity.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalOptions="/Zm300"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\OgreEventDispatcher.cpp">
@@ -389,6 +395,12 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\src\OgreOverlayManager.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalOptions="/Zm135"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\OgrePanelOverlayElement.cpp">
@@ -435,6 +447,7 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 					Name="Debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
+						AdditionalOptions="/Zm130"
 						UsePrecompiledHeader="1"
 						PrecompiledHeaderThrough="OgreStableHeaders.h"/>
 				</FileConfiguration>
@@ -486,6 +499,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreResource.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreResourceBackgroundQueue.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreResourceGroupManager.cpp">
 			</File>
 			<File
@@ -497,7 +513,7 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 					Name="Debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalOptions="/Zm135"/>
+						AdditionalOptions="/Zm200"/>
 				</FileConfiguration>
 			</File>
 			<File
@@ -509,7 +525,7 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 					Name="Debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalOptions="/Zm200"/>
+						AdditionalOptions="/Zm135"/>
 				</FileConfiguration>
 			</File>
 			<File
