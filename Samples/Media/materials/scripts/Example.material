@@ -538,7 +538,7 @@ material 2 - Default
 
 			texture_unit
 			{
-				texture MTLPLAT2.JPG
+				texture MtlPlat2.jpg
 			}
 		}
 	}
