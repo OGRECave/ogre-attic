@@ -61,7 +61,7 @@ PRE {
   <meta http-equiv="reply-to" content="vastrim@hotmail.com">
   <meta content="Sat, 13 Jul, 2002 12:32:59 p GMT" name="creation_date">
 </head>
-<body style="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);">
+<body ">
 <p class="header" align="center">OGRE (Object-Oriented Graphics
 Rendering Engine)</p>
 <p class="header" align="center">Creating project files for OGRE </p>
@@ -184,9 +184,123 @@ This doesn't compile does it? No, because we have not written
 APPNAMEApplication.h yet. That will be discussed in the next section.
 </p>
 <p class="SectionHeader" align="left">Linux</p>
-<p align="left">Under construction. </p>
-<p class="SectionHeader" align="left">Borland</p>
-<p align="left">Under construction. </p>
+<p>
+To begin, make the Samples/Space directory for your project and copy these files into it:
+<ul>
+<li>Samples/SkyPlane/src/SkyPlane.cpp</li>
+<li>Samples/SkyPlane/include/SkyPlane.h</li>
+<li>Samples/Common/include/ExampleApplication.h</li>
+<li>Samples/Common/include/ExampleFrameListener.h</li>
+</ul>
+<p>
+Next we will set up a basic build system, for which we are going to use GNU <a href="http://www.gnu.org/software/automake/">automake</a> and <a href="http://www.gnu.org/software/autoconf/">autoconf</a>.  If you want to learn more about these tools, I suggest reading the <a href="http://autotoolset.sourceforge.net/tutorial.html">excellent tutorial</a> at the autotools website.  First we will write Samples/Space/configure.ac, which tells autoconf which programs and libraries we are going to use to compile our application:
+
+<pre class="code">
+AC_INIT([Ogre Space Tutorial],
+        [0.0.1],
+        [Mark Ivey zovirl@zovirl.com],
+        [Space])
+AM_CONFIG_HEADER(config.h)
+AM_INIT_AUTOMAKE([dist-bzip2])
+
+AC_PROG_CC
+AC_PROG_CXX
+AC_PROG_LIBTOOL
+
+PKG_CHECK_MODULES(OGRE, OGRE >= 0.14.1,,AC_MSG_ERROR("OGRE not found!"))
+AM_CXXFLAGS="$AM_CXXFLAGS $OGRE_CFLAGS"
+AM_LDFLAGS="$AM_LDFLAGS $OGRE_LIBS"
+
+AC_SUBST(AM_CXXFLAGS, "$AM_CXXFLAGS")
+AC_SUBST(AM_LDFLAGS, "$AM_LDFLAGS")
+AC_SUBST(PKGDATADIR, "${datadir}/${PACKAGE}")
+
+AC_CONFIG_FILES([
+   Makefile
+])
+
+AC_OUTPUT
+</pre>
+Most of that is boiler-plate.  The two important parts are "PKG_CHECK_MODULES(OGRE...)" which tells autoconf we will be using OGRE (and it should go find the correct compiler flags for us) library and "AC_CONFIG_FILES(...)" which tells autoconf which files we want it to generate.
+</p>
+<p>
+Next we will write Samples/Space/Makefile.am, which tells automake how to compile our program:
+<pre class="code">
+bin_PROGRAMS = Space
+ 
+noinst_HEADERs= ExampleApplication.h \
+                ExampleFrameListener.h \
+                SkyPlane.h
+ 
+Space_SOURCES= SkyPlane.cpp
+
+EXTRA_DIST = bootstrap configure
+</pre>
+</p>
+<p>
+Ok, the last part of the build system is a short script to set everything up for us, Samples/Space/bootstrap:
+<pre class="code">
+#!/bin/sh
+
+set -x
+rm -f config.cache &&
+libtoolize --force &&
+aclocal &&
+autoconf &&
+autoheader &&
+automake --foreign --add-missing
+
+</pre>
+make that executable with "chmod +x bootstrap"
+</p>
+<p>
+You are ready to compile (from the Samples/Space/ directory):
+<pre class="code">
+./bootstrap
+./configure
+make
+</pre>
+Finally, you should be able to go into the data directory (Samples/Common/bin) and run ../../Space/Space.
+</p>
+<p>
+Ok, the build system is done, now it is time to add the real source code.  Remove SkyPlane.cpp and SkyPlane.h and edit Makefile.am to reflect the new files you are about to add:
+<pre class="code">
+bin_PROGRAMS = Space
+ 
+noinst_HEADERs= ExampleApplication.h \
+                ExampleFrameListener.h \
+                SpaceApplication.h
+ 
+Space_SOURCES= SpaceApplication.cpp
+
+EXTRA_DIST = bootstrap configure
+</pre>
+</p>
+<p>
+
+Finally, add the code for the application's main loop in SpaceApplication.cpp:
+<pre class="code">
+#include "Ogre.h"
+#include "SpaceApplication.h"
+
+int main(int argc, char *argv[])
+{
+   // Create application object
+   SpaceApplication  app;
+   try {
+      app.go();
+   } catch( Ogre::Exception& e ) {
+
+   std::cerr &lt;&lt; "An exception has occured: " &lt;&lt;
+   	e.getFullDescription().c_str() &lt;&lt; std::endl;
+   }
+
+   return 0;
+}
+</pre>
+</p>
+
+
 <p class="SectionHeader" align="left">Mac OSX</p>
 <p align="left">The first thing you need to do is to download a sample <a
  href="http://www.ogre3d.org/docs/Tutorials/2_HumbleBeginnings/MacOSX/Makefile">Makefile</a>
