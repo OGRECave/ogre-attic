@@ -1,6 +1,6 @@
 To install the 3ds exporter, do the following:
 
-1. Copy the folders scripts, and UI to your 3dsMax root folder (e.g. c:\3dsMax)
+1. Copy the folders plugins, scripts, and UI to your 3dsMax root folder (e.g. c:\3dsMax)
 2. Start 3D Studio
 3. Open the 'Customize' menu and select 'Load Custom UI Scheme'
 4. In the dialog, change 'Files of Type' to 'UI File(*.cui)'
