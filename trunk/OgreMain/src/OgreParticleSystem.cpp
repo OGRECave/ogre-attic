@@ -670,6 +670,10 @@ namespace Ogre {
     {
         mDefaultWidth = width;
         mDefaultHeight = height;
+        if (mRenderer)
+        {
+            mRenderer->_notifyDefaultDimensions(width, height);
+        }
     }
     //-----------------------------------------------------------------------
     void ParticleSystem::setDefaultWidth(Real width)
