@@ -81,6 +81,13 @@ namespace Ogre {
                 "Material does not exist. Have you forgotten to define it in a "
                 ".material script?");
             mpMaterial = (Material*)MaterialManager::getSingleton().getByName("BaseWhite");
+            if (!mpMaterial)
+            {
+                Except(Exception::ERR_INTERNAL_ERROR, "Can't assign default material "
+                    "to SubEntity of " + mParentEntity->getName() + ". Did "
+                    "you forget to call MaterialManager::initialise()?",
+                    "SubEntity.setMaterialName");
+            }
         }
         // Ensure new material loaded (will not load again if already loaded)
         mpMaterial->load();
