@@ -38,6 +38,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreEventProcessor.h"
 #include "OgreException.h"
 #include "OgreViewport.h"
+#include "OgreSDDataChunk.h"
 
 namespace Ogre {
 
@@ -159,7 +160,7 @@ namespace Ogre {
             overlayFiles = (*i)->getAllNamesLike( "./", extension);
             for (StringVector::iterator si = overlayFiles.begin(); si!=overlayFiles.end(); ++si)
             {
-                DataChunk dat; pChunk = &dat;
+                SDDataChunk dat; pChunk = &dat;
                 (*i)->fileRead(si[0], &pChunk );
                 parseOverlayFile(dat);
             }
@@ -171,7 +172,7 @@ namespace Ogre {
             overlayFiles = (*i)->getAllNamesLike( "./", extension);
             for (StringVector::iterator si = overlayFiles.begin(); si!=overlayFiles.end(); ++si)
             {
-                DataChunk dat; pChunk = &dat;
+                SDDataChunk dat; pChunk = &dat;
                 (*i)->fileRead(si[0], &pChunk );
                 parseOverlayFile(dat);
             }

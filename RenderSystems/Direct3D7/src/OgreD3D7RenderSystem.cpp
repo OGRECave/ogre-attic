@@ -79,6 +79,9 @@ namespace Ogre {
 
         if (mTextureManager)
             delete mTextureManager;
+        if (mDriverList)
+            delete mDriverList;
+
         D3DXUninitialize();
         LogManager::getSingleton().logMessage(getName() + " destroyed.");
 

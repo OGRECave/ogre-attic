@@ -27,7 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMaterial.h"
 #include "OgreStringVector.h"
 #include "OgreLogManager.h"
-#include "OgreDataChunk.h"
+#include "OgreSDDataChunk.h"
 #include "OgreArchiveEx.h"
 
 namespace Ogre {
@@ -926,7 +926,7 @@ namespace Ogre {
 		    materialFiles = (*i)->getAllNamesLike( "./", extension);
 		    for (StringVector::iterator si = materialFiles.begin(); si != materialFiles.end(); ++si)
 		    {
-			    DataChunk dat; pChunk = &dat;
+			    SDDataChunk dat; pChunk = &dat;
 			    (*i)->fileRead(si[0], &pChunk );
 			    LogManager::getSingleton().logMessage("Parsing material script: " + si[0]);
 			    parseScript(dat);
@@ -939,7 +939,7 @@ namespace Ogre {
 		    materialFiles = (*i)->getAllNamesLike( "./", extension);
 		    for (StringVector::iterator si = materialFiles.begin(); si != materialFiles.end(); ++si)
 		    {
-			    DataChunk dat; pChunk = &dat;
+			    SDDataChunk dat; pChunk = &dat;
 			    (*i)->fileRead(si[0], &pChunk );
 			    LogManager::getSingleton().logMessage("Parsing material script: " + si[0]);
 			    parseScript(dat);
