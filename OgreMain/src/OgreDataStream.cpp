@@ -320,14 +320,22 @@ namespace Ogre {
 			trimCR = true;
 		}
         mpStream->getline(buf, maxCount, delim.at(0));
-        size_t ret = mpStream->gcount() - 1;
+        size_t ret = mpStream->gcount();
 
-		// trim off CR if we found CR/LF
-		if (trimCR && buf[ret-1] == '\r')
-		{
-			--ret;
-			buf[ret] = '\0';
-		}
+		if (!ret)
+        {
+            buf[1] = '\0';
+        }
+        else
+        {
+            --ret; // gcount returns count including separator
+            // trim off CR if we found CR/LF
+		    if (trimCR && buf[ret-1] == '\r')
+		    {
+			    --ret;
+			    buf[ret] = '\0';
+		    }
+        }
 
         return ret;
     }
