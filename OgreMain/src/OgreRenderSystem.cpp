@@ -192,7 +192,14 @@ namespace Ogre {
         // The method _disableTextureUnit is called to turn a unit off
 
         // Texture name
-        _setTexture(texUnit, true, tl.getTextureName());
+		if (tl.isBlank())
+		{
+			_setTexture(texUnit, true, StringUtil::BLANK);
+		}
+		else
+		{
+			_setTexture(texUnit, true, tl.getTextureName());
+		}
 
         // Set texture coordinate set
         _setTextureCoordSet(texUnit, tl.getTextureCoordSet());
