@@ -231,7 +231,25 @@ namespace Ogre {
 
 
 	}
-    //-----------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------
+	VertexDeclaration::VertexElementList VertexDeclaration::findElementsBySource(
+		unsigned short source)
+	{
+		VertexElementList retList;
+		VertexElementList::const_iterator ei, eiend;
+		eiend = mElementList.end();
+		for (ei = mElementList.begin(); ei != eiend; ++ei)
+		{
+			if (ei->getSource() == source)
+			{
+				retList.push_back(*ei);
+			}
+		}
+		return retList;
+
+	}
+
+	//-----------------------------------------------------------------------------
 	size_t VertexDeclaration::getVertexSize(unsigned short source)
 	{
 		VertexElementList::const_iterator i, iend;

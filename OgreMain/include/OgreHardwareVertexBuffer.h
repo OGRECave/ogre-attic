@@ -226,6 +226,14 @@ namespace Ogre {
 		/** Based on the current elements, gets the size of the vertex for a given buffer source. 
 		@param source The buffer binding index for which to get the vertex size.
 		*/
+
+		/** Gets a list of elements which use a given source. 
+		@remarks
+			Note that the list of elements is returned by value therefore is separate from
+			the declaration as soon as this method returns. 
+		*/
+		virtual VertexElementList findElementsBySource(unsigned short source);
+		
 		virtual size_t getVertexSize(unsigned short source);
 
         inline bool operator== (const VertexDeclaration& rhs) const
