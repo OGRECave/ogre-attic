@@ -660,6 +660,24 @@ namespace Ogre {
         /** Update any automatic parameters on this pass */
         void _updateAutoParams(Renderable* rend, Camera* cam);
 
+        /** Set texture filtering for every texture unit 
+        @note
+            This property actually exists on the TextureUnitState class
+            For simplicity, this method allows you to set these properties for 
+            every current TeextureUnitState, If you need more precision, retrieve the  
+            TextureUnitState instance and set the property there.
+        @see TextureUnitState::setTextureFiltering
+        */
+        void setTextureFiltering(TextureFilterOptions filterType);
+        /** Sets the anisotropy level to be used for all textures.
+        @note
+            This property has been moved to the TextureUnitState class, which is accessible via the 
+            Technique and Pass. For simplicity, this method allows you to set these properties for 
+            every current TeextureUnitState, If you need more precision, retrieve the Technique, 
+            Pass and TextureUnitState instances and set the property there.
+        @see TextureUnitState::setTextureAnisotropy
+        */
+        void setTextureAnisotropy(int maxAniso);
         // --------------------------------------------------------------------
     };
 
