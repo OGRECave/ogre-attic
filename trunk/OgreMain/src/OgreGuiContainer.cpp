@@ -89,7 +89,7 @@ namespace Ogre {
             // Give children ZOrder 1 higher than this
             GuiElement* pElemChild = it.getNext();
 			pElemChild->_notifyParent(cont, mOverlay);
-            pElemChild->_notifyZOrder(mZOrder + 1);
+            pElemChild->_notifyZOrder(cont->getZOrder() + 1);
         }
         // Now add to specific map too
         mChildContainers.insert(ChildContainerMap::value_type(cont->getName(), cont));
