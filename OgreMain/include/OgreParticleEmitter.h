@@ -128,7 +128,8 @@ namespace Ogre {
         /// Repeat delay left
         Real mRepeatDelayRemain;
 
-
+		// Fractions of particles wanted to be emitted last time
+		Real mRemainder;
 
         // NB Method below here are to help out people implementing emitters by providing the
         // most commonly used approaches as piecemeal methods
