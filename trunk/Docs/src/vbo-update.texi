@@ -43,13 +43,9 @@ and rendering operation classes in OGRE v0.12.
 @node Introduction
 @chapter Introduction
 
-@section The way it used to be, and why we had to change
-Geometry handling, for obvious reasons, is at the centre of any 3D engine.
-OGRE inherited much of its core geometry structures from a previous engine I 
-designed for DirectX 6 / OpenGL, and it has worked quite well. It was based
-around the historical premise that applications wanted to construct a lot
-of geometry in main memory, manipulate it on the CPU, and upload it in small
-chunks for the hardware to process every frame. This was fine because the card
+Geometry handling, for obvious reasons, is at the centre of any 3D engine. OGRE inherited much of its core geometry structures from a previous engine I 
+designed for DirectX 6 / OpenGL, and it has worked quite well. It was based around the historical premise that applications wanted to construct a lot
+of geometry in main memory, manipulate it on the CPU, and upload it in small chunks for the hardware to process every frame. This was fine because the card
 couldn't handle enormous amounts of polys anyway, so it was up to the application to pick the most appropriate subset to upload. 
 @*@*
 Times changed, however, with graphics processors beginning to have more and more of their own memory, and being able to process the transformation and lighting on the card itself, or in AGP memory, rather than main memory. This made it feasible to upload static geometry to the card and keep it there, avoiding the bandwidth requirements of the per-frame upload. The advent of vertex shaders has allowed programs to process the vertices in custom ways without having to shuffle them between main memory and the card. We'll call these GPU and AGP-based buffers 'Hardware Buffers'. We often refer to them as 'VBOs' (Vertex Buffer Objects) for speed, although the term is not exactly accurate since they can hold both vertex and index data. The use of hardware buffers can significantly improve the rendering speed of a scene, especially one with a large amount of repeating geometry or one which uses lots of multipass effects.

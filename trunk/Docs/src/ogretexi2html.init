@@ -11,7 +11,7 @@
 # Copy this file and make changes to it, if you like.
 # Afterwards, either, load it with command-line option -init_file <your_init_file>
 #
-# $Id: ogretexi2html.init,v 1.1 2003-09-13 22:13:55 sinbad Exp $
+# $Id: ogretexi2html.init,v 1.2 2003-09-14 23:48:52 sinbad Exp $
 
 ######################################################################
 # stuff which can also be set by command-line options
@@ -123,7 +123,7 @@ $T2H_OPTIONS -> {I} =
 # extension is manipulated appropriately, if necessary.
 # If empty, <basename of document>.html is used
 # Typically, you would set this to "index.html".
-$T2H_TOP_FILE = '';
+$T2H_TOP_FILE = 'index.html';
 $T2H_OPTIONS -> {top_file} =
 {
  type => '=s',
@@ -1364,8 +1364,8 @@ $FIGURE_SCALE_FACTOR = 1.6;
 #  of the navigation panel in the first node/page of a converted document
 #  will point to $EXTERNAL_UP_LINK. $EXTERNAL_UP_TITLE should be set
 #  to some text which describes this external link.
-$EXTERNAL_UP_LINK = "";
-$EXTERNAL_UP_TITLE = "";
+$EXTERNAL_UP_LINK = "../Readme.html";
+$EXTERNAL_UP_TITLE = "Up to OGRE Readme";
 
 # If this is set then the resulting HTML will look marginally better if viewed 
 # with Netscape.
