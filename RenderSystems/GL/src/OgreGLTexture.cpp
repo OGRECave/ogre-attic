@@ -51,12 +51,12 @@ namespace Ogre {
         }
     }
 
-    GLTexture::GLTexture(String name)
+    GLTexture::GLTexture(String name) : mName(name), mUsage(TU_DEFAULT)
     {
-        mName = name;
         enable32Bit(false);
     }
 
+    // XXX init rather than assign
     GLTexture::GLTexture(String name, uint width, uint height, uint num_mips,
         PixelFormat format, TextureUsage usage)
     {
