@@ -90,7 +90,7 @@ namespace Ogre
     void TextureFrameControllerValue::setValue(Real value)
     {
         int numFrames = mTextureLayer->getNumFrames();
-        mTextureLayer->setCurrentFrame((int)(value * numFrames));
+        mTextureLayer->setCurrentFrame((int)(value * numFrames) % numFrames);
     }
     //-----------------------------------------------------------------------
     // TexCoordModifierControllerValue
