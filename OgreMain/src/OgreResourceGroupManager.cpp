@@ -847,6 +847,7 @@ namespace Ogre {
 		{
 			// Set current group to indicate ignoring of notifications
 			mCurrentGroup = grp;
+			groupSet = true;
 		}
 		// delete all the load list entries
 		ResourceGroup::LoadResourceOrderMap::iterator j, jend;
