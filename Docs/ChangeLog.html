@@ -1,8 +1,8 @@
 <html>
 <head>
 <title>OGRE ChangeLog</title> <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"> 
-<style type="text/css">
-
+<STYLE TYPE="text/css">
+<!--
 .MainHeader {  font-weight: bold; color: #FFFF33; background-color: #006600; font-size: 10pt}
 body {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC; background-color: #003300}
 .BorderHeader {  background-color: #999900; font-size: 8pt; font-weight: bold; color: #333300; text-align: center}
@@ -72,12 +72,15 @@ CODE.str {
     COLOR: #ffcc33;
     font-style: italic
 }
-</style> 
+.SectionHeader {  font-size: 14px; color: #FFFFCC; font-weight: bold}
+.header {  font-size: 16px; font-weight: bold; color: #FFFFCC}
+-->
+</STYLE> 
 </head>
 
 <body bgcolor="#FFFFFF" text="#000000">
 <p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p><p align="center" class="header">Change 
-Log</p><p align="left" class="MainHeader">v0.99c (14 July 2002)</p><P ALIGN="left">Changes 
+Log</p><p align="left" class="MainHeader">v0.99c (19 July 2002)</p><P ALIGN="left">Changes 
 since 0.99b:</P><BLOCKQUOTE><P>Enhancements:</P><UL><LI>New MeshSerializer class 
 for importing / exporting mesh data, to be used as the framework for all future 
 modelling tool exporters </LI><LI>Milkshape3D exporter provided, which uses MeshSerializer 
@@ -89,9 +92,12 @@ including the option to inherit parent scale or just use own</LI><LI>Completely
 new source code folder layout; should be more obvious than the old one. All dependencies 
 are now included in the code structure to avoid having to distribute binary libraries</LI><LI>Boost 
 added to the Dependencies area</LI><LI>New tutorial added, kindly written by Nicholas 
-Green</LI><LI>SDL / OpenGL render system implementation provided, not totally 
-complete yet but almost there</LI></UL><P>Bugfixes:</P><UL><LI>Math::NEG_INFINITY 
-now correctly defined</LI><LI>ColourValue getAsLongARGB alpha bug fixed</LI></UL></BLOCKQUOTE><p align="left" class="MainHeader">v0.99b 
+Green</LI></UL><P>Work-in-progress:</P><UL><LI>Linux makefiles now present, buildable 
+with gcc 3+</LI><LI>SDL / OpenGL render system implementation provided, not totally 
+complete yet but almost there</LI><LI>Skeletal animation classes (Animation, AnimationTrack, 
+KeyFrame, Skeleton, Bone) </LI></UL><P>Bugfixes:</P><UL><LI>Math::NEG_INFINITY 
+now correctly defined</LI><LI>ColourValue getAsLongARGB alpha bug fixed</LI><LI>Problems 
+with camera positioning &amp; lookat behaviour when attached to a SceneNode fixed</LI></UL></BLOCKQUOTE><p align="left" class="MainHeader">v0.99b 
 (9 June 2002)</p><P ALIGN="left">Changes since 0.98b:</P><BLOCKQUOTE><P>Enhancements:</P><UL><LI>Particle 
 systems implemented, including customisable emitters / affectors through the use 
 of plugins, defining particle system templates through text scripts for easy modification, 
