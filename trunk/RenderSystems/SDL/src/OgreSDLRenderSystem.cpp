@@ -1336,11 +1336,11 @@ namespace Ogre {
     {
         Real thetaY = Math::DegreesToRadians(fovy / 2.0f);
         Real tanThetaY = Math::Tan(thetaY);
-        Real thetaX = thetaY * aspect;
-        Real tanThetaX = Math::Tan(thetaX);
+        //Real thetaX = thetaY * aspect;
+        //Real tanThetaX = Math::Tan(thetaX);
 
         // Calc matrix elements
-        Real w = 1.0f / tanThetaX;
+        Real w = (1.0f / tanThetaY) / aspect;
         Real h = 1.0f / tanThetaY;
         Real q = -(farPlane + nearPlane) / (farPlane - nearPlane);
         //Real qn= q * mNearDist;

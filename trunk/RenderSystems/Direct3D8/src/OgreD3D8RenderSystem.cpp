@@ -1862,8 +1862,8 @@ namespace Ogre {
     void D3D8RenderSystem::_makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, Matrix4& dest)
     {
         Real theta = Math::DegreesToRadians(fovy * 0.5);
-        Real w = 1 / Math::Tan(theta * aspect);
         Real h = 1 / Math::Tan(theta);
+        Real w = h / aspect;
         Real Q = farPlane / ( farPlane - nearPlane );
 
         dest = Matrix4::ZERO;

@@ -483,8 +483,8 @@ namespace Ogre {
                 // Taken from ideas in WildMagic 0.2 http://www.magic-software.com
                 Real thetaY = Math::DegreesToRadians(mFOVy / 2.0f);
                 Real tanThetaY = Math::Tan(thetaY);
-                Real thetaX = thetaY * mAspect;
-                Real tanThetaX = Math::Tan(thetaX);
+                //Real thetaX = thetaY * mAspect;
+                Real tanThetaX = tanThetaY * mAspect;
 
                 Real vpTop = tanThetaY * mNearDist;
                 Real vpRight = tanThetaX * mNearDist;
