@@ -85,16 +85,25 @@ namespace Ogre {
             const String& name, 
             int numMipMaps = -1, Real gamma = 1.0f, int priority = 1 );
 
-        virtual void load( Resource *res, int priority = 1 )
-        {
-            ResourceManager::load( res, priority );
-        }
-
         virtual Texture * loadImage( 
             const String &name, const Image &img, 
             int iNumMipMaps = -1, Real gamma = 1.0f, int priority = 1 );
 
+		/** @copydoc ResourceManager::load */
+		virtual void load( Resource *res, int priority = 1 )
+        {
+            ResourceManager::load( res, priority );
+        }
+
         virtual Texture * createAsRenderTarget( const String& name ) = 0;
+
+		virtual Texture * createManual( 
+			const String & name,
+			uint width,
+			uint height,
+			uint num_mips,
+			PixelFormat format,
+			TextureUsage usage ) = 0;
 
         /** Manually unloads a texture from the loaded set.
         */

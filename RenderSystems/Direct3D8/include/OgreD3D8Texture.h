@@ -20,7 +20,6 @@ namespace Ogre {
 	protected:
 		LPDIRECT3DDEVICE8	mpD3DDevice;
 		LPDIRECT3DTEXTURE8	mpTexture;          //< The actual texture surface
-        LPDIRECT3DTEXTURE8  mpRenderSurface;    //< This surface is used as the render target
         LPDIRECT3DSURFACE8  mpRenderZBuffer;    //< The z-buffer for the render surface.
 		LPDIRECT3DTEXTURE8  mpTempTexture;	    //< This is just a temporary texture to create the real one from
         bool m_bIsRenderTarget;
@@ -32,9 +31,18 @@ namespace Ogre {
 
 	public:
 		D3D8Texture( String name, LPDIRECT3DDEVICE8 pD3DDevice, TextureUsage usage );
+		D3D8Texture( 
+			String name, 
+			IDirect3DDevice8 * device, 
+			uint width, 
+			uint height, 
+			uint num_mips,
+			PixelFormat format,
+			TextureUsage usage );
 		virtual ~D3D8Texture();
 
         virtual void blitToTexture( const Image &src, unsigned uStartX, unsigned uStartY );
+		virtual void copyToTexture( Texture * target );
 
 		virtual void load();
 		virtual void loadImage( const Image &img );
@@ -44,6 +52,7 @@ namespace Ogre {
         virtual void outputText( int x, int y, const String& text ) {}
 
 		IDirect3DTexture8 * getD3DTexture() { return mpTexture; }
+        IDirect3DSurface8 * getDepthStencil() { return mpRenderZBuffer; }
 	};
 
     class D3D8RenderTexture : public RenderTexture
@@ -60,7 +69,7 @@ namespace Ogre {
             {
                 IDirect3DSurface8 ** pSurf = (IDirect3DSurface8 **)pData;
 
-                ((D3D8Texture*)mTexture)->getD3DTexture()->GetSurfaceLevel( 0, &(*pSurf) );
+                ((D3D8Texture*)mPrivateTex)->getD3DTexture()->GetSurfaceLevel( 0, &(*pSurf) );
                 (*pSurf)->Release();
                 return;
             }
@@ -68,14 +77,14 @@ namespace Ogre {
             {
                 IDirect3DSurface8 ** pSurf = (IDirect3DSurface8 **)pData;
 
-                *pSurf = NULL;
+                *pSurf = ((D3D8Texture*)mPrivateTex)->getDepthStencil();
                 return;
             }
             else if( name == "DDFRONTBUFFER" )
             {
                 IDirect3DSurface8 ** pSurf = (IDirect3DSurface8 **)pData;
 
-                ((D3D8Texture*)mTexture)->getD3DTexture()->GetSurfaceLevel( 0, &(*pSurf) );
+                ((D3D8Texture*)mPrivateTex)->getD3DTexture()->GetSurfaceLevel( 0, &(*pSurf) );
                 (*pSurf)->Release();
                 return;
             }

@@ -13,6 +13,19 @@ Disclaimer
 #define DIRECTINPUT_VERSION 0x0800
 
 namespace Ogre {
+
+	template< typename _Interf >
+    inline void __safeRelease( _Interf **interf ) throw ()
+    {
+        if( *interf )
+        {
+            (*interf)->Release();
+            (*interf) = NULL;
+        }
+    }
+
+#define __d3dExcept( hr, func ) Except( Exception::ERR_RENDERINGAPI_ERROR, DXGetErrorDescription8( hr ), func );
+
 	// Predefine classes
 	class D3D8Device;
 	class D3D8DeviceList;

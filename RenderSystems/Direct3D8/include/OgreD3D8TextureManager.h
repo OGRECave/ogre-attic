@@ -24,6 +24,14 @@ namespace Ogre {
 		virtual Resource * create( const String& name );
         virtual Texture * createAsRenderTarget( const String& name );
 
+		virtual Texture * createManual( 
+			const String & name,
+			uint width,
+			uint height,
+			uint num_mips,
+			PixelFormat format,
+			TextureUsage usage );
+
 		void unloadAndDestroyAll();
 	};
 

@@ -38,7 +38,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     template< typename _Interf >
-    inline void __safeRelease( _Interf **interf )
+    inline void __safeRelease( _Interf **interf ) throw ()
     {
         if( *interf )
         {

@@ -36,6 +36,17 @@ namespace Ogre {
         return newTex;
     }
 
+	Texture * D3D8TextureManager::createManual( 
+		const String & name,
+		uint width,
+		uint height,
+		uint num_mips,
+		PixelFormat format,
+		TextureUsage usage )
+	{
+		return new D3D8Texture( name, mpD3DDevice, width, height, num_mips, format, usage );
+	}
+
 	void D3D8TextureManager::unloadAndDestroyAll()
 	{
 		// Unload & delete resources in turn

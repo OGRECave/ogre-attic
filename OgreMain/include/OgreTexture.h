@@ -123,21 +123,26 @@ namespace Ogre {
             setting ? mFinalBpp = 32 : mFinalBpp = 16;
         }
 
-        /** Returns true if the texture has an alpha layer.
-        */
+		/** Returns the pixel format for the texture surface. */
+		virtual PixelFormat getFormat() const
+		{
+			return mFormat;
+		}
+
+        /** Returns true if the texture has an alpha layer. */
         virtual bool hasAlpha(void)
         {
             return mHasAlpha;
         }
 
     protected:
-        // NB: No indexed colour support - deliberately
         unsigned long mHeight;
         unsigned long mWidth;
 
         unsigned short mNumMipMaps;
         float mGamma;
 
+		PixelFormat mFormat;
         TextureUsage mUsage;
 
         unsigned short mSrcBpp;

@@ -46,6 +46,8 @@ namespace Ogre {
         */
         virtual Texture * createAsRenderTarget( const String& name ) { return NULL; }
 
+        virtual Texture * createManual( const String& name, uint width, uint height, uint num_mips, PixelFormat format, TextureUsage usage ) { return NULL; }
+
         /** Unloads & destroys textures. */
         void unloadAndDestroyAll();
     };

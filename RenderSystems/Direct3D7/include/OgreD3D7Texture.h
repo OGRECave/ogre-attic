@@ -41,7 +41,16 @@ namespace Ogre {
     {
     public:
         // Constructor, called from D3DTextureManager
-        D3DTexture(String name, LPDIRECT3DDEVICE7 lpDirect3dDevice, TextureUsage usage );
+        D3DTexture( String name, IDirect3DDevice7 * lpDirect3dDevice, TextureUsage usage );
+		/** Constructor that can be used to manually create a texture and set its parameters. */
+		D3DTexture( 
+			String name, 
+			IDirect3DDevice7 * lpDirect3dDevice, 
+			uint width, 
+			uint height, 
+			uint num_mips,
+			PixelFormat format,
+			TextureUsage usage );
         virtual ~D3DTexture();
 
         virtual void load(void);
@@ -67,16 +76,15 @@ namespace Ogre {
     {
     public:
         D3D7RenderTexture( const String & name, uint width, uint height )
+			: RenderTexture( name, width, height )
         {
-			mName = name;
-			mWidth = width;
-			mHeight = height;
-			mPriority = 2;
-			mTexture = TextureManager::getSingleton().createAsRenderTarget( mName );
-			TextureManager::getSingleton().load( static_cast< Resource * >( mTexture ) );
-
-			mPrivateTex = TextureManager::getSingleton().createAsRenderTarget( mName + "_PRIVATE##" );
         }
+
+		virtual ~D3D7RenderTexture()
+		{
+			mPrivateTex->unload();
+			delete mPrivateTex;
+		}
 
 		bool requiresTextureFlipping() const { return true; }
 
