@@ -127,9 +127,12 @@ namespace Ogre {
             throw Exception(hr, "Unable to create DirectInput keyboard buffer.",
                 "Win32Input8 - initialise");
 
-        // Acquire input
-        hr = mlpDIKeyboard->Acquire();
-        if (FAILED(hr))
+        // Acquire input... we could have lost focus if the
+		// user tabbed away during init or perhaps we're in
+		// the debugger.  In either case when the input is 
+		// checked we will try to acquire again.
+		hr = mlpDIKeyboard->Acquire();
+		if (FAILED(hr) && hr != DIERR_OTHERAPPHASPRIO)
             throw Exception(hr, "Unable to set aquire DirectInput keyboard device.",
                 "Win32Input8 - initialise");
 
@@ -188,9 +191,11 @@ namespace Ogre {
                 "Win32Input8 - initialise");
 
 
-        // Acquire input
-        hr = mlpDIKeyboard->Acquire();
-        if (FAILED(hr))
+        // Acquire input... we could have lost focus if the
+		// user tabbed away during init or perhaps we're in
+		// the debugger.  In either case when the input is 
+		// checked we will try to acquire again.        hr = mlpDIKeyboard->Acquire();
+		if (FAILED(hr) && hr != DIERR_OTHERAPPHASPRIO)
             throw Exception(hr, "Unable to set aquire DirectInput keyboard device.",
                 "Win32Input8 - initialise");
 
@@ -286,9 +291,12 @@ namespace Ogre {
             throw Exception(hr, "Unable to create DirectInput mouse buffer.",
                 "Win32Input8 - initialise");
 
-        // Acquire input
-        hr = mlpDIMouse->Acquire();
-        if (FAILED(hr))
+        // Acquire input... we could have lost focus if the
+		// user tabbed away during init or perhaps we're in
+		// the debugger.  In either case when the input is 
+		// checked we will try to acquire again.
+		hr = mlpDIMouse->Acquire();
+        if (FAILED(hr) && hr != DIERR_OTHERAPPHASPRIO)
             throw Exception(hr, "Unable to set aquire DirectInput mouse device.",
                 "Win32Input8 - initialise");
 
