@@ -37,7 +37,7 @@ namespace Ogre {
         @remarks
             A SceneNode is a type of Node which is used to organise objects in a scene.
             It has the same hierarchical transformation properties of the generic Node class,
-            bu also adds the ability to attach world objects to the node, and stores hierarchical
+            but also adds the ability to attach world objects to the node, and stores hierarchical
             bounding volumes of the nodes in the tree.
             Child nodes are contained within the bounds of the parent, and so on down the
             tree, allowing for fast culling.
