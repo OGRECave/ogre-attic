@@ -80,6 +80,7 @@ namespace Ogre {
         mRenderQueueID = RENDER_QUEUE_MAIN;
 
 		mMeshLodFactorInv = 1.0f;
+        mMeshLodIndex = 0;
 		mMaxMeshLodIndex = 0; 		// Backwards, remember low value = high detail
 		mMinMeshLodIndex = 99;
 
