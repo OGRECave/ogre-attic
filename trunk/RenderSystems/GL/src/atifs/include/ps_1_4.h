@@ -274,8 +274,8 @@ private:
 
 	uint mTexm3x3padCount; // keep track of how many texm3x3pad instructions are used so know which mask to use
 
-	uint mLastInstructionPos; // keep track of last phase 2 ALU instruction to check for R0 setting
-	uint mSecondLastInstructionPos;
+	size_t mLastInstructionPos; // keep track of last phase 2 ALU instruction to check for R0 setting
+	size_t mSecondLastInstructionPos;
 
 	// keep track if phase marker found: determines which phase the ALU instructions go into
 	bool mPhaseMarkerFound; 
@@ -305,7 +305,7 @@ private:
 	void optimize();
 
 	// the method is expected to be recursive to allow for inline expansion of instructions if required
-	bool Pass2scan(const TokenInst * Tokens, const uint size);
+	bool Pass2scan(const TokenInst * Tokens, const size_t size);
 
 	// supply virtual functions for Compiler2Pass
 	/// Pass 1 is completed so now take tokens generated and build machine instructions
@@ -330,9 +330,9 @@ private:
 	bool expandMachineInstruction();
 
 	// mainly used by tests - too slow for use in binding
-	uint getMachineInst(uint Idx);
+	size_t getMachineInst(size_t Idx);
 
-	uint getMachineInstCount();
+	size_t getMachineInstCount();
 
 	void addMachineInst(PhaseType phase, const uint inst);
 
