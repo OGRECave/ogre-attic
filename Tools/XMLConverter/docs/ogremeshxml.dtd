@@ -1,6 +1,5 @@
-<?xml version="1.0"?>
-<!DOCTYPE mesh (sharedgeometry?, submeshes, 
-	skeletonlink?, boneassignments?, levelofdetail?) >
+<!ELEMENT mesh (sharedgeometry?, submeshes, 
+	skeletonlink?, boneassignments?, levelofdetail?)>
 <!ELEMENT sharedgeometry (vertexbuffer+)>
 <!ATTLIST sharedgeometry
 	vertexcount CDATA #REQUIRED>
@@ -19,10 +18,12 @@
 	v2		CDATA	#REQUIRED
 	v3		CDATA	#REQUIRED>
 <!ELEMENT geometry (vertexbuffer+)>
+<!ATTLIST geometry
+	vertexcount		CDATA		#REQUIRED >
 <!ELEMENT skeletonlink EMPTY>
 <!ATTLIST skeletonlink
 	name	CDATA	#REQUIRED>
-<!ELEMENT boneassignments (vertexboneassignement+)>
+<!ELEMENT boneassignments (vertexboneassignment+)>
 <!ELEMENT vertexboneassignment EMPTY>
 <!ATTLIST vertexboneassignment 
 	vertexindex		CDATA	#REQUIRED
@@ -84,7 +85,6 @@
 	v	CDATA	"0"	
 	w	CDATA	"0" >
 
-	
 	
 				
 	
