@@ -243,13 +243,13 @@ namespace Ogre {
             and often between objects which are being rendered. This feature allows you 
             to set up a certain number of predefined parameter mappings that are kept up to 
             date for you.
-        @param acType The type of automatic constant to set
         @param index The location in the constant list to place this updated constant every time
             it is changed. Note that because of the nature of the types, we know how big the 
             parameter details will be so you don't need to set that like you do for manual constants.
+        @param acType The type of automatic constant to set
         @param extraInfo If the constant type needs more information (like a light index) put it here.
         */
-        virtual void setAutoConstant(AutoConstantType acType, size_t index, size_t extraInfo = 0);
+        virtual void setAutoConstant(size_t index, AutoConstantType acType, size_t extraInfo = 0);
         /** Clears all the existing automatic constants. */
         virtual void clearAutoConstants(void);
         typedef VectorIterator<AutoConstantList> AutoConstantIterator;
@@ -259,6 +259,13 @@ namespace Ogre {
         virtual bool hasAutoConstants(void){ return !(mAutoConstants.empty()); }
         /** Updates the automatic parameters based on the details provided. */
         virtual void _updateAutoParams(const AutoParamDataSource& source);
+		/** Aligns the number of parameters in this GpuProgram to a multiple of
+		 the passed in value, padding out the end with zeroes.
+		 @remarks
+		 	This is useful for compatibility with rendersystems that require
+			values to be set on certain boundaries.
+		*/
+		virtual void _align(size_t intAlignment, size_t realAlignment);
     };
 
     /// Shared pointer used to hold references to GpuProgramParameters instances

@@ -133,7 +133,7 @@ namespace Ogre
 
     }
 	//-----------------------------------------------------------------------------
-    void GpuProgramParameters::setAutoConstant(AutoConstantType acType, size_t index, size_t extraInfo)
+    void GpuProgramParameters::setAutoConstant(size_t index, AutoConstantType acType, size_t extraInfo)
     {
         mAutoConstants.push_back(AutoConstantEntry(acType, index, extraInfo));
     }
@@ -213,5 +213,17 @@ namespace Ogre
             }
         }
     }
+	//-----------------------------------------------------------------------------
+	void GpuProgramParameters::_align(size_t intAlignment, size_t realAlignment)	
+	{
+		size_t rem = mIntConstants.size() % intAlignment;
+        if (rem != 0 )
+			mIntConstants.resize(mIntConstants.size() + rem);
+		
+		rem = mRealConstants.size() % realAlignment;
+        if (rem != 0 )
+			mRealConstants.resize(mRealConstants.size() + rem);
+			
+	}
 
 }

@@ -2016,14 +2016,12 @@ namespace Ogre
         GpuProgramParametersSharedPtr params)
     {
         HRESULT hr;
-        // D3D can only accept constant parameters in multiples of 4
-        assert(params->getRealConstantCount() % 4 == 0 &&
-            params->getIntConstantCount() % 4 == 0 &&
-            "D3D can only accept shader parameters in multiples of 4 items");
 
         switch(gptype)
         {
         case GPT_VERTEX_PROGRAM:
+			// Align first
+			params->_align(4, 4);
             // Bind floats
             if (params->hasRealConstantParams())
             {
@@ -2050,6 +2048,8 @@ namespace Ogre
             }
             break;
         case GPT_FRAGMENT_PROGRAM:
+			// Align first
+			params->_align(4, 4);
             // Bind floats
             if (params->hasRealConstantParams())
             {

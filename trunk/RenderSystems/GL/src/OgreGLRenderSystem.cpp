@@ -1746,9 +1746,8 @@ namespace Ogre {
 	//---------------------------------------------------------------------
     void GLRenderSystem::bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParametersSharedPtr params)
     {
-        assert(params->getRealConstantCount() % 4 == 0 &&
-               params->getIntConstantCount() % 4 == 0 &&
-               "GL can only accept GPU program parameters in multiples of 4 items.");
+		// Align first
+		params->_align(4, 4);
 
         GLenum type = (gptype == GPT_VERTEX_PROGRAM) ? 
             GL_VERTEX_PROGRAM_ARB : GL_FRAGMENT_PROGRAM_ARB;
