@@ -40,6 +40,8 @@ namespace Ogre
     const Real Math::PI = Real( 4.0 * atan( 1.0 ) );
     const Real Math::TWO_PI = Real( 2.0 * PI );
     const Real Math::HALF_PI = Real( 0.5 * PI );
+	const Real Math::fDeg2Rad = PI / Real(180.0);
+	const Real Math::fRad2Deg = Real(180.0) / PI;
 
     int Math::mTrigTableSize;
    Math::AngleUnit Math::msAngleUnit;
@@ -87,20 +89,28 @@ namespace Ogre
             mTanTable[i] = tan(angle);
         }
     }
-    //-----------------------------------------------------------------------
-    int Math::IAbs (int iValue)
+	//-----------------------------------------------------------------------	
+	Real Math::SinTable (Real fValue)
     {
-        return ( iValue >= 0 ? iValue : -iValue );
+        // Convert range to index values, wrap if required
+        int idx;
+        if (fValue >= 0)
+        {
+            idx = int(fValue * mTrigTableFactor) % mTrigTableSize;
+        }
+        else
+        {
+            idx = mTrigTableSize - (int(-fValue * mTrigTableFactor) % mTrigTableSize) - 1;
+        }
+
+        return mSinTable[idx];
     }
-    //-----------------------------------------------------------------------
-    int Math::ICeil (float fValue)
+	//-----------------------------------------------------------------------
+	Real Math::TanTable (Real fValue)
     {
-        return int(ceil(fValue));
-    }
-    //-----------------------------------------------------------------------
-    int Math::IFloor (float fValue)
-    {
-        return int(floor(fValue));
+        // Convert range to index values, wrap if required
+		int idx = int(fValue *= mTrigTableFactor) % mTrigTableSize;
+		return mTanTable[idx];
     }
     //-----------------------------------------------------------------------
     int Math::ISign (int iValue)
@@ -108,17 +118,12 @@ namespace Ogre
         return ( iValue > 0 ? +1 : ( iValue < 0 ? -1 : 0 ) );
     }
     //-----------------------------------------------------------------------
-    Real Math::Abs (Real fValue)
-    {
-        return Real(fabs(fValue));
-    }
-    //-----------------------------------------------------------------------
     Real Math::ACos (Real fValue)
     {
         if ( -1.0 < fValue )
         {
             if ( fValue < 1.0 )
-                return Real(asm_arccos(fValue));
+                return Real(acos(fValue));
             else
                 return 0.0;
         }
@@ -133,7 +138,7 @@ namespace Ogre
         if ( -1.0 < fValue )
         {
             if ( fValue < 1.0 )
-                return Real(asm_arcsin(fValue));
+                return Real(asin(fValue));
             else
                 return -HALF_PI;
         }
@@ -141,57 +146,6 @@ namespace Ogre
         {
             return HALF_PI;
         }
-    }
-    //-----------------------------------------------------------------------
-    Real Math::ATan (Real fValue)
-    {
-        return Real(asm_arctan(fValue));
-    }
-    //-----------------------------------------------------------------------
-    Real Math::ATan2 (Real fY, Real fX)
-    {
-        return Real(atan2(fY,fX));
-    }
-    //-----------------------------------------------------------------------
-    Real Math::Ceil (Real fValue)
-    {
-        return Real(ceil(fValue));
-    }
-    //-----------------------------------------------------------------------
-    Real Math::Cos (Real fValue, bool useTables)
-    {
-        if (useTables)
-        {
-            // Convert to sin equivalent
-            fValue += Math::HALF_PI;
-
-            return Sin(fValue, useTables);
-
-        }
-        else
-        {
-            return Real(asm_cos(fValue));
-        }
-    }
-    //-----------------------------------------------------------------------
-    Real Math::Exp (Real fValue)
-    {
-        return Real(exp(fValue));
-    }
-    //-----------------------------------------------------------------------
-    Real Math::Floor (Real fValue)
-    {
-        return Real(floor(fValue));
-    }
-    //-----------------------------------------------------------------------
-    Real Math::Log (Real fValue)
-    {
-        return Real(asm_ln(fValue));
-    }
-    //-----------------------------------------------------------------------
-    Real Math::Pow (Real fBase, Real fExponent)
-    {
-        return Real(pow(fBase,fExponent));
     }
     //-----------------------------------------------------------------------
     Real Math::Sign (Real fValue)
@@ -204,44 +158,11 @@ namespace Ogre
 
         return 0.0;
     }
-    //-----------------------------------------------------------------------
-    Real Math::Sin (Real fValue, bool useTables)
-    {
-        if (useTables)
-        {
-            // Convert range to index values, wrap if required
-            int idx;
-            if (fValue >= 0)
-            {
-                idx = int(fValue * mTrigTableFactor) % mTrigTableSize;
-            }
-            else
-            {
-                idx = mTrigTableSize - (int(-fValue * mTrigTableFactor) % mTrigTableSize) - 1;
-            }
-
-            return mSinTable[idx];
-        }
-        else
-        {
-            return Real(asm_sin(fValue));
-        }
-    }
-    //-----------------------------------------------------------------------
-    Real Math::Sqr (Real fValue)
-    {
-        return fValue*fValue;
-    }
-    //-----------------------------------------------------------------------
-    Real Math::Sqrt (Real fValue)
-    {
-        return Real(asm_sqrt(fValue));
-    }
-    //-----------------------------------------------------------------------
-    Real Math::InvSqrt (Real fValue)
-    {
-        return Real(asm_rsq(fValue));
-    }
+	//-----------------------------------------------------------------------
+	Real Math::InvSqrt(Real fValue)
+	{
+		return Real(asm_rsq(fValue));
+	}
     //-----------------------------------------------------------------------
     Real Math::UnitRandom ()
     {
@@ -260,22 +181,6 @@ namespace Ogre
 		return 2.0f * UnitRandom() - 1.0f;
     }
 
-    //-----------------------------------------------------------------------
-    Real Math::DegreesToRadians(Real degrees)
-    {
-        static Real fDeg2Rad = PI / Real(180.0);
-
-        return degrees * fDeg2Rad;
-    }
-
-    //-----------------------------------------------------------------------
-    Real Math::RadiansToDegrees(Real radians)
-    {
-        static Real fRad2Deg = Real(180.0) / PI;
-
-        return radians * fRad2Deg;
-    }
-
    //-----------------------------------------------------------------------
     void Math::setAngleUnit(Math::AngleUnit unit)
    {
@@ -289,8 +194,6 @@ namespace Ogre
     //-----------------------------------------------------------------------
     Real Math::AngleUnitsToRadians(Real angleunits)
     {
-        static Real fDeg2Rad = PI / Real(180.0);
-
        if (msAngleUnit == AU_DEGREE)
            return angleunits * fDeg2Rad;
        else
@@ -300,8 +203,6 @@ namespace Ogre
     //-----------------------------------------------------------------------
     Real Math::RadiansToAngleUnits(Real radians)
     {
-        static Real fRad2Deg = Real(180.0) / PI;
-
        if (msAngleUnit == AU_DEGREE)
            return radians * fRad2Deg;
        else
@@ -347,21 +248,6 @@ namespace Ogre
 
         // Clean up the #defines
         #undef Clockwise
-    }
-
-    //-----------------------------------------------------------------------
-    Real Math::Tan(Real radians, bool useTables)
-    {
-        if (useTables)
-        {
-            // Convert range to index values, wrap if required
-            int idx = int(radians *= mTrigTableFactor) % mTrigTableSize;
-            return mTanTable[idx];
-        }
-        else
-        {
-            return Real(asm_tan(radians));
-        }
     }
 
     //-----------------------------------------------------------------------

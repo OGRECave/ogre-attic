@@ -37,46 +37,6 @@ namespace Ogre
     const int Matrix3::ms_iSvdMaxIterations = 32;
 
     //-----------------------------------------------------------------------
-    Matrix3::Matrix3 ()
-    {
-        // For efficiency reasons, do not initialize matrix.
-    }
-    //-----------------------------------------------------------------------
-    Matrix3::Matrix3 (const Real aafEntry[3][3])
-    {
-        memcpy(m,aafEntry,9*sizeof(Real));
-    }
-    //-----------------------------------------------------------------------
-    Matrix3::Matrix3 (const Matrix3& rkMatrix)
-    {
-        memcpy(m,rkMatrix.m,9*sizeof(Real));
-    }
-    //-----------------------------------------------------------------------
-    Matrix3::Matrix3 (Real fEntry00, Real fEntry01, Real fEntry02,
-        Real fEntry10, Real fEntry11, Real fEntry12, Real fEntry20,
-        Real fEntry21, Real fEntry22)
-    {
-        m[0][0] = fEntry00;
-        m[0][1] = fEntry01;
-        m[0][2] = fEntry02;
-        m[1][0] = fEntry10;
-        m[1][1] = fEntry11;
-        m[1][2] = fEntry12;
-        m[2][0] = fEntry20;
-        m[2][1] = fEntry21;
-        m[2][2] = fEntry22;
-    }
-    //-----------------------------------------------------------------------
-    Real* Matrix3::operator[] (int iRow) const
-    {
-        return (Real*)m[iRow];
-    }
-    //-----------------------------------------------------------------------
-    Matrix3::operator Real* ()
-    {
-        return (Real*)m[0];
-    }
-    //-----------------------------------------------------------------------
     Vector3 Matrix3::GetColumn (int iCol) const
     {
         assert( 0 <= iCol && iCol < 3 );
@@ -102,12 +62,6 @@ namespace Ogre
     }
 
     //-----------------------------------------------------------------------
-    Matrix3& Matrix3::operator= (const Matrix3& rkMatrix)
-    {
-        memcpy(m,rkMatrix.m,9*sizeof(Real));
-        return *this;
-    }
-    //-----------------------------------------------------------------------
     bool Matrix3::operator== (const Matrix3& rkMatrix) const
     {
         for (int iRow = 0; iRow < 3; iRow++)
@@ -120,11 +74,6 @@ namespace Ogre
         }
 
         return true;
-    }
-    //-----------------------------------------------------------------------
-    bool Matrix3::operator!= (const Matrix3& rkMatrix) const
-    {
-        return !operator==(rkMatrix);
     }
     //-----------------------------------------------------------------------
     Matrix3 Matrix3::operator+ (const Matrix3& rkMatrix) const
@@ -438,7 +387,7 @@ namespace Ogre
         Real fY = kA[0][0] - (Math::Abs(fRoot1-fT22) <=
             Math::Abs(fRoot2-fT22) ? fRoot1 : fRoot2);
         Real fZ = kA[0][1];
-        Real fInvLength = 1.0/Math::Sqrt(fY*fY+fZ*fZ);
+		Real fInvLength = Math::InvSqrt(fY*fY+fZ*fZ);
         Real fSin = fZ*fInvLength;
         Real fCos = -fY*fInvLength;
 
@@ -461,7 +410,7 @@ namespace Ogre
         // adjust left
         fY = kA[0][0];
         fZ = kA[1][0];
-        fInvLength = 1.0/Math::Sqrt(fY*fY+fZ*fZ);
+        fInvLength = Math::InvSqrt(fY*fY+fZ*fZ);
         fSin = fZ*fInvLength;
         fCos = -fY*fInvLength;
 
@@ -485,7 +434,7 @@ namespace Ogre
         // adjust right
         fY = kA[0][1];
         fZ = kA[0][2];
-        fInvLength = 1.0/Math::Sqrt(fY*fY+fZ*fZ);
+        fInvLength = Math::InvSqrt(fY*fY+fZ*fZ);
         fSin = fZ*fInvLength;
         fCos = -fY*fInvLength;
 
@@ -508,7 +457,7 @@ namespace Ogre
         // adjust left
         fY = kA[1][1];
         fZ = kA[2][1];
-        fInvLength = 1.0/Math::Sqrt(fY*fY+fZ*fZ);
+        fInvLength = Math::InvSqrt(fY*fY+fZ*fZ);
         fSin = fZ*fInvLength;
         fCos = -fY*fInvLength;
 
@@ -562,7 +511,7 @@ namespace Ogre
                     fTmp = (kA[1][1]*kA[1][1] - kA[2][2]*kA[2][2] +
                         kA[1][2]*kA[1][2])/(kA[1][2]*kA[2][2]);
                     fTan0 = 0.5*(fTmp+Math::Sqrt(fTmp*fTmp + 4.0));
-                    fCos0 = 1.0/Math::Sqrt(1.0+fTan0*fTan0);
+                    fCos0 = Math::InvSqrt(1.0+fTan0*fTan0);
                     fSin0 = fTan0*fCos0;
 
                     for (iCol = 0; iCol < 3; iCol++)
@@ -574,7 +523,7 @@ namespace Ogre
                     }
 
                     fTan1 = (kA[1][2]-kA[2][2]*fTan0)/kA[1][1];
-                    fCos1 = 1.0/Math::Sqrt(1.0+fTan1*fTan1);
+                    fCos1 = Math::InvSqrt(1.0+fTan1*fTan1);
                     fSin1 = -fTan1*fCos1;
 
                     for (iRow = 0; iRow < 3; iRow++)
@@ -601,7 +550,7 @@ namespace Ogre
                     fTmp = (kA[0][0]*kA[0][0] + kA[1][1]*kA[1][1] -
                         kA[0][1]*kA[0][1])/(kA[0][1]*kA[1][1]);
                     fTan0 = 0.5*(-fTmp+Math::Sqrt(fTmp*fTmp + 4.0));
-                    fCos0 = 1.0/Math::Sqrt(1.0+fTan0*fTan0);
+                    fCos0 = Math::InvSqrt(1.0+fTan0*fTan0);
                     fSin0 = fTan0*fCos0;
 
                     for (iCol = 0; iCol < 3; iCol++)
@@ -613,7 +562,7 @@ namespace Ogre
                     }
 
                     fTan1 = (kA[0][1]-kA[1][1]*fTan0)/kA[0][0];
-                    fCos1 = 1.0/Math::Sqrt(1.0+fTan1*fTan1);
+                    fCos1 = Math::InvSqrt(1.0+fTan1*fTan1);
                     fSin1 = -fTan1*fCos1;
 
                     for (iRow = 0; iRow < 3; iRow++)
@@ -688,7 +637,7 @@ namespace Ogre
         // product of vectors A and B.
 
         // compute q0
-        Real fInvLength = 1.0/Math::Sqrt(m[0][0]*m[0][0]
+        Real fInvLength = Math::InvSqrt(m[0][0]*m[0][0]
             + m[1][0]*m[1][0] +
             m[2][0]*m[2][0]);
 
@@ -706,7 +655,7 @@ namespace Ogre
         m[1][1] -= fDot0*m[1][0];
         m[2][1] -= fDot0*m[2][0];
 
-        fInvLength = 1.0/Math::Sqrt(m[0][1]*m[0][1] +
+        fInvLength = Math::InvSqrt(m[0][1]*m[0][1] +
             m[1][1]*m[1][1] +
             m[2][1]*m[2][1]);
 
@@ -729,7 +678,7 @@ namespace Ogre
         m[1][2] -= fDot0*m[1][0] + fDot1*m[1][1];
         m[2][2] -= fDot0*m[2][0] + fDot1*m[2][1];
 
-        fInvLength = 1.0/Math::Sqrt(m[0][2]*m[0][2] +
+        fInvLength = Math::InvSqrt(m[0][2]*m[0][2] +
             m[1][2]*m[1][2] +
             m[2][2]*m[2][2]);
 
@@ -769,7 +718,7 @@ namespace Ogre
         // U stores the entries U[0] = u01, U[1] = u02, U[2] = u12
 
         // build orthogonal matrix Q
-        Real fInvLength = 1.0/Math::Sqrt(m[0][0]*m[0][0]
+        Real fInvLength = Math::InvSqrt(m[0][0]*m[0][0]
             + m[1][0]*m[1][0] +
             m[2][0]*m[2][0]);
         kQ[0][0] = m[0][0]*fInvLength;
@@ -781,7 +730,7 @@ namespace Ogre
         kQ[0][1] = m[0][1]-fDot*kQ[0][0];
         kQ[1][1] = m[1][1]-fDot*kQ[1][0];
         kQ[2][1] = m[2][1]-fDot*kQ[2][0];
-        fInvLength = 1.0/Math::Sqrt(kQ[0][1]*kQ[0][1] + kQ[1][1]*kQ[1][1] +
+        fInvLength = Math::InvSqrt(kQ[0][1]*kQ[0][1] + kQ[1][1]*kQ[1][1] +
             kQ[2][1]*kQ[2][1]);
         kQ[0][1] *= fInvLength;
         kQ[1][1] *= fInvLength;
@@ -797,7 +746,7 @@ namespace Ogre
         kQ[0][2] -= fDot*kQ[0][1];
         kQ[1][2] -= fDot*kQ[1][1];
         kQ[2][2] -= fDot*kQ[2][1];
-        fInvLength = 1.0/Math::Sqrt(kQ[0][2]*kQ[0][2] + kQ[1][2]*kQ[1][2] +
+        fInvLength = Math::InvSqrt(kQ[0][2]*kQ[0][2] + kQ[1][2]*kQ[1][2] +
             kQ[2][2]*kQ[2][2]);
         kQ[0][2] *= fInvLength;
         kQ[1][2] *= fInvLength;

@@ -52,32 +52,65 @@ namespace Ogre
     /** A 3x3 matrix which can represent rotations around axes.
         @note
             <b>All the code is adapted from the Wild Magic 0.2 Matrix
-            library (http://www.magic-software.com).
+            library (http://www.magic-software.com).</b>
         @par
             The coordinate system is assumed to be <b>right-handed</b>.
     */
     class _OgreExport Matrix3
     {
     public:
-        // construction
-        Matrix3 ();
-        Matrix3 (const Real arr[3][3]);
-        Matrix3 (const Matrix3& rkMatrix);
+        /** Default constructor.
+            @note
+                It does <b>NOT</b> initialize the matrix for efficiency.
+        */
+		inline Matrix3 () {};
+        inline Matrix3 (const Real arr[3][3])
+		{
+			memcpy(m,arr,9*sizeof(Real));
+		}
+        inline Matrix3 (const Matrix3& rkMatrix)
+		{
+			memcpy(m,rkMatrix.m,9*sizeof(Real));
+		}
         Matrix3 (Real fEntry00, Real fEntry01, Real fEntry02,
                     Real fEntry10, Real fEntry11, Real fEntry12,
-                    Real fEntry20, Real fEntry21, Real fEntry22);
+                    Real fEntry20, Real fEntry21, Real fEntry22)
+		{
+			m[0][0] = fEntry00;
+			m[0][1] = fEntry01;
+			m[0][2] = fEntry02;
+			m[1][0] = fEntry10;
+			m[1][1] = fEntry11;
+			m[1][2] = fEntry12;
+			m[2][0] = fEntry20;
+			m[2][1] = fEntry21;
+			m[2][2] = fEntry22;
+		}
 
         // member access, allows use of construct mat[r][c]
-        Real* operator[] (int iRow) const;
-        operator Real* ();
+        inline Real* operator[] (int iRow) const
+		{
+			return (Real*)m[iRow];
+		}
+        inline operator Real* ()
+		{
+			return (Real*)m[0];
+		}
         Vector3 GetColumn (int iCol) const;
         void SetColumn(int iCol, const Vector3& vec);
         void FromAxes(const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis);
 
         // assignment and comparison
-        Matrix3& operator= (const Matrix3& rkMatrix);
+        inline Matrix3& operator= (const Matrix3& rkMatrix)
+		{
+			memcpy(m,rkMatrix.m,9*sizeof(Real));
+			return *this;
+		}
         bool operator== (const Matrix3& rkMatrix) const;
-        bool operator!= (const Matrix3& rkMatrix) const;
+        inline bool operator!= (const Matrix3& rkMatrix) const
+		{
+			return !operator==(rkMatrix);
+		}
 
         // arithmetic operations
         Matrix3 operator+ (const Matrix3& rkMatrix) const;
