@@ -116,16 +116,21 @@ namespace OgreRefApp
     //-------------------------------------------------------------------------
     void World::applyDynamics(Real timeElapsed)
     {
-        mOdeWorld->step(dReal(timeElapsed));
-        // Now update the objects in the world
-        ObjectSet::iterator i, iend;
-        iend = mDynamicsObjects.end();
-        for (i = mDynamicsObjects.begin(); i != iend; ++i)
+        if (timeElapsed != 0.0f)
         {
-            (*i)->_updateFromDynamics();
+            // ODE will throw an error if timestep = 0
+
+            mOdeWorld->step(dReal(timeElapsed));
+            // Now update the objects in the world
+            ObjectSet::iterator i, iend;
+            iend = mDynamicsObjects.end();
+            for (i = mDynamicsObjects.begin(); i != iend; ++i)
+            {
+                (*i)->_updateFromDynamics();
+            }
+            // Clear contacts
+            mOdeContactGroup->empty();
         }
-        // Clear contacts
-        mOdeContactGroup->empty();
 
     }
     //-------------------------------------------------------------------------
