@@ -430,6 +430,9 @@ namespace Ogre
 		case TEX_TYPE_CUBE_MAP:
 			this->_createCubeTex();
 			break;
+		case TEX_TYPE_3D:
+			this->_createVolumeTex();
+			break;
 		default:
 			Except( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::createInternalResources" );
 			this->_freeResources();
@@ -583,6 +586,89 @@ namespace Ogre
 			this->_freeResources();
 		}
 		this->_setFinalAttributes(desc.Width, desc.Height, 1, this->_getPF(desc.Format));
+		
+		// create a depth stencil if this is a render target
+		if (mUsage & TU_RENDERTARGET)
+			this->_createDepthStencil();
+
+		// Set best filter type
+		if(mAutoGenMipmaps)
+		{
+			hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
+			if(FAILED(hr))
+			{
+				Except( hr, "Could not set best autogen filter type", "D3D9Texture::_createCubeTex" );
+			}
+		}
+	}
+	/****************************************************************************************/
+	void D3D9Texture::_createVolumeTex()
+	{
+		// we must have those defined here
+		assert(mWidth > 0 && mHeight > 0 && mDepth>0);
+
+		// determine wich D3D9 pixel format we'll use
+		HRESULT hr;
+		D3DFORMAT d3dPF = (mUsage & TU_RENDERTARGET) ? mBBPixelFormat : this->_chooseD3DFormat();
+
+		// Use D3DX to help us create the texture, this way it can adjust any relevant sizes
+		DWORD usage = (mUsage & TU_RENDERTARGET) ? D3DUSAGE_RENDERTARGET : 0;
+		UINT numMips = mNumMipmaps + 1;
+		// check if mip map cube textures are supported
+		if (mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPVOLUMEMAP)
+		{
+			// use auto.gen. if available
+            mAutoGenMipmaps = this->_canAutoGenMipmaps(usage, D3DRTYPE_VOLUMETEXTURE, d3dPF);
+			if (mAutoGenMipmaps)
+			{
+				usage |= D3DUSAGE_AUTOGENMIPMAP;
+				numMips = 0;
+			}
+		}
+		else
+		{
+			// no mip map support for this kind of textures :(
+			mNumMipmaps = 0;
+			numMips = 1;
+		}
+
+		// create the texture
+		hr = D3DXCreateVolumeTexture(	
+				mpDev,								// device
+				mWidth,								// dimension
+				mHeight,
+				mDepth,
+				numMips,							// number of mip map levels
+				usage,								// usage
+				d3dPF,								// pixel format
+                (mUsage & TU_RENDERTARGET)?
+                D3DPOOL_DEFAULT : D3DPOOL_MANAGED,	// memory pool
+				&mpVolumeTex);						// data pointer
+		// check result and except if failed
+		if (FAILED(hr))
+		{
+			this->_freeResources();
+			Except( hr, "Error creating texture", "D3D9Texture::_createVolumeTex" );
+		}
+
+		// set the base texture we'll use in the render system
+		hr = mpVolumeTex->QueryInterface(IID_IDirect3DBaseTexture9, (void **)&mpTex);
+		if (FAILED(hr))
+		{
+			Except( hr, "Can't get base texture", "D3D9Texture::_createVolumeTex" );
+			this->_freeResources();
+		}
+		
+		// set final tex. attributes from tex. description
+		// they may differ from the source image !!!
+		D3DVOLUME_DESC desc;
+		hr = mpVolumeTex->GetLevelDesc(0, &desc);
+		if (FAILED(hr))
+		{
+			Except( hr, "Can't get texture description", "D3D9Texture::_createVolumeTex" );
+			this->_freeResources();
+		}
+		this->_setFinalAttributes(desc.Width, desc.Height, desc.Depth, this->_getPF(desc.Format));
 		
 		// create a depth stencil if this is a render target
 		if (mUsage & TU_RENDERTARGET)
