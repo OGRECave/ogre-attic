@@ -471,10 +471,8 @@ namespace Ogre {
                 if (i->second->isClosed())
                 {
                     // Window has been closed, destroy
-                    destroyRenderWindow(i->second);
-
                     RenderWindowMap::iterator j = i; ++j;
-                    mRenderWindows.erase(i);
+                    destroyRenderWindow(i->second);                    
                     i = j;
                 }
                 else
