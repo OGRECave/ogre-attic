@@ -276,7 +276,7 @@ namespace Ogre {
             BoxPlane bp,
             Real curvature, Real tiling, Real distance,
             const Quaternion& orientation,
-            int xsegments = 16, int ysegments = 16, int ySegmentsToKeep = -1, 
+            int xsegments, int ysegments, int ySegmentsToKeep, 
             const String& groupName);
 
         // Flag indicating whether SceneNodes will be rendered as a set of 3 axes
