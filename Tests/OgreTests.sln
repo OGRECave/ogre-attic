@@ -1,5 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 7.00
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OgreTests", "TestOgreMain.vcproj", "{0DC410D4-73C1-46F5-9A23-F4026B0B08F7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestOgreMain", "TestOgreMain.vcproj", "{0DC410D4-73C1-46F5-9A23-F4026B0B08F7}"
 EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
