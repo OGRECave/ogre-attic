@@ -267,9 +267,9 @@ namespace Ogre {
 
         if (light.w == 0)
         {
-            extrusionDir.x = light.x;
-            extrusionDir.y = light.y;
-            extrusionDir.z = light.z;
+            extrusionDir.x = -light.x;
+            extrusionDir.y = -light.y;
+            extrusionDir.z = -light.z;
             extrusionDir.normalise();
             extrusionDir *= extrudeDist;
             box.setExtents(box.getMinimum() + extrusionDir, 

@@ -2411,10 +2411,8 @@ namespace Ogre {
                 {
                     flags |= SRF_INCLUDE_LIGHT_CAP;
                 }
-                // Dark caps are not needed for directional lights if
-                // extrusion is done in hardware (since extruded to infinity)
-                if((light->getType() != Light::LT_DIRECTIONAL || extrudeInSoftware)
-                    && camera->isVisible(caster->getDarkCapBounds(*light)))
+                // Dark cap
+                if(camera->isVisible(caster->getDarkCapBounds(*light, mShadowDirLightExtrudeDist)))
                 {
                     flags |= SRF_INCLUDE_DARK_CAP;
                 }
