@@ -1133,6 +1133,8 @@ namespace Ogre {
                     ipassend = pPriorityGrp->mSolidPasses.end();
                     for (ipass = pPriorityGrp->mSolidPasses.begin(); ipass != ipassend; ++ipass)
                     {
+                        // Fast bypass if this group is now empty
+                        if (ipass->second->empty()) continue;
                         // For solids, we try to do each pass in turn
                         setPass(ipass->first);
                         RenderPriorityGroup::RenderableList* rendList = ipass->second;
