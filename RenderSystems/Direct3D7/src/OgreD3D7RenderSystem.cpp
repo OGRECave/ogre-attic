@@ -424,8 +424,6 @@ namespace Ogre {
     {
         RenderWindow* autoWindow = 0;
 
-        // call superclass method
-        RenderSystem::initialise(autoCreateWindow);
 
         LogManager::getSingleton().logMessage(
             "***************************************\n"
@@ -528,7 +526,10 @@ namespace Ogre {
         LogManager::getSingleton().logMessage("*** Direct3D Subsystem Initialised Ok ***");
         LogManager::getSingleton().logMessage("*****************************************");
 
-        LogManager::getSingleton().logMessage(
+        // call superclass method
+        RenderSystem::initialise(autoCreateWindow);
+
+		LogManager::getSingleton().logMessage(
             "The following capabilities are available:");
 
         // Check for hardware stencil support
@@ -543,7 +544,8 @@ namespace Ogre {
         // Set the number of texture units based on details from current device
         mCapabilities->setNumTextureUnits(mD3DDeviceDesc.wMaxSimultaneousTextures);
 
-        return autoWindow;
+
+		return autoWindow;
 
     }
 

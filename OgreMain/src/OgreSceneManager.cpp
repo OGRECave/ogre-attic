@@ -1037,7 +1037,6 @@ namespace Ogre {
         Real distance,
         const Quaternion& orientation )
     {
-        /* TODO
 
         Plane plane;
         String meshName;
@@ -1093,7 +1092,9 @@ namespace Ogre {
         // Create new
         Real planeSize = distance * 2;
         const int BOX_SEGMENTS = 16;
-        planeMesh = mm.createPlane(meshName, plane, planeSize, planeSize, BOX_SEGMENTS, BOX_SEGMENTS, false, 1, 1, 1, up);
+        planeMesh = mm.createPlane(meshName, plane, planeSize, planeSize, 
+			BOX_SEGMENTS, BOX_SEGMENTS, false, 1, 1, 1, up, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
+			true, false);
 
         //planeMesh->_dumpContents(meshName);
 
@@ -1102,7 +1103,7 @@ namespace Ogre {
         // The lower the curvature, the larger the sphere
         // Use the angle from viewer to the points on the plane
         // Credit to Aftershock for the general approach
-        Real* pTex;
+        Real *pBase, *pTex;
         Vector3 vertPos;  // position relative to camera
         Real sphDist;      // Distance from camera to sphere along box vertex vector
         // Vector3 camToSph; // camera position to sphere
@@ -1117,11 +1118,22 @@ namespace Ogre {
         sphereRadius = SPHERE_RAD - curvature;
         camPos = sphereRadius - CAM_DIST;
 
+		// Get element for texture coords in order to update the buffer
+		const VertexElement* elem = planeMesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_TEXTURE_COORDINATES,0);
+		HardwareVertexBufferSharedPtr vbuf = planeMesh->sharedVertexData->vertexBufferBinding->getBuffer(elem->getSource());
+		pBase = static_cast<Real*>(
+			vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_NORMAL));
+		const VertexElement* poselem = planeMesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
+		ushort texOffset, vertSize;
+		texOffset = elem->getOffset() / sizeof(Real);
+		vertSize = vbuf->getVertexSize() / sizeof(Real);
+
+		/* TODO
         for (int y = 0; y < BOX_SEGMENTS + 1; ++y)
         {
             for (int x = 0; x < BOX_SEGMENTS + 1; ++x)
             {
-                pTex = planeMesh->sharedGeometry.pTexCoords[0] + (((y * (BOX_SEGMENTS+1)) + x) * 2);
+                pTex = pBase + (((y * (BOX_SEGMENTS+1)) + x) * vertSize) + texOffset;
 
                 // Get position of box vertex in view space
                 vertPos = Vector3(planeMesh->sharedGeometry.pVertices + (((y * (BOX_SEGMENTS+1)) + x) * 3));
@@ -1141,11 +1153,9 @@ namespace Ogre {
 
             }
         }
-
+		*/
+		vbuf->unlock();
         return planeMesh;
-        */
-
-        return NULL;
 
     }
 

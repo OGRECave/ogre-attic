@@ -559,43 +559,40 @@ namespace Ogre {
 		}
 
 
-        // M_GEOMETRY chunk (optional)
-        chunkID = readChunk(chunk);
-        if (chunkID == M_GEOMETRY)
-        {
-			mpMesh->sharedVertexData = new VertexData();
-            try {
-			    readGeometry(chunk, mpMesh->sharedVertexData);
-            }
-            catch (Exception& e)
-            {
-                if (e.getNumber() == Exception::ERR_ITEM_NOT_FOUND)
-                {
-                    // duff geometry data entry with 0 vertices
-                    delete mpMesh->sharedVertexData;
-                    mpMesh->sharedVertexData = 0;
-                    // Skip this chunk (pointer will have been returned to just after header)
-                    chunk.skip(mCurrentChunkLen - CHUNK_OVERHEAD_SIZE);
-                }
-                else
-                {
-                    throw;
-                }
-            }
-        }
-
         // Find all subchunks 
         if (!chunk.isEOF())
         {
             chunkID = readChunk(chunk);
             while(!chunk.isEOF() &&
-                (chunkID == M_SUBMESH ||
+                (chunkID == M_GEOMETRY ||
+				 chunkID == M_SUBMESH ||
                  chunkID == M_MESH_SKELETON_LINK ||
                  chunkID == M_MESH_BONE_ASSIGNMENT ||
 				 chunkID == M_MESH_LOD))
             {
                 switch(chunkID)
                 {
+				case M_GEOMETRY:
+					mpMesh->sharedVertexData = new VertexData();
+					try {
+						readGeometry(chunk, mpMesh->sharedVertexData);
+					}
+					catch (Exception& e)
+					{
+						if (e.getNumber() == Exception::ERR_ITEM_NOT_FOUND)
+						{
+							// duff geometry data entry with 0 vertices
+							delete mpMesh->sharedVertexData;
+							mpMesh->sharedVertexData = 0;
+							// Skip this chunk (pointer will have been returned to just after header)
+							chunk.skip(mCurrentChunkLen - CHUNK_OVERHEAD_SIZE);
+						}
+						else
+						{
+							throw;
+						}
+					}
+					break;
                 case M_SUBMESH:
                     readSubMesh(chunk);
                     break;
@@ -1012,6 +1009,8 @@ namespace Ogre {
 			SubMesh* sm = pMesh->getSubMesh(subidx);
             const IndexData* indexData = sm->mLodFaceList[lodNum - 1];
 
+            // bool indexes32Bit
+			size += sizeof(bool);
 			// unsigned short*/int* faceIndexes;  
             if (indexData->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT)
             {
@@ -1036,6 +1035,8 @@ namespace Ogre {
 			size += sizeof(unsigned int);
 			SubMesh* sm = pMesh->getSubMesh(subidx);
             const IndexData* indexData = sm->mLodFaceList[lodNum - 1];
+            // bool indexes32Bit
+			size += sizeof(bool);
 			// unsigned short*/int* faceIndexes;  
             if (indexData->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT)
             {
@@ -1051,7 +1052,10 @@ namespace Ogre {
 			writeInts(&idxCount, 1);
             // Lock index buffer to write
             HardwareIndexBufferSharedPtr ibuf = indexData->indexBuffer;
-            if (ibuf->getType() == HardwareIndexBuffer::IT_32BIT)
+			// bool indexes32bit
+			bool idx32 = (ibuf->getType() == HardwareIndexBuffer::IT_32BIT);
+			writeBools(&idx32, 1);
+            if (idx32)
             {
                 unsigned int* pIdx = static_cast<unsigned int*>(
                     ibuf->lock(0, ibuf->getSizeInBytes(),  HardwareBuffer::HBL_READ_ONLY));

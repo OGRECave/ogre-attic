@@ -126,8 +126,6 @@ namespace Ogre {
 
     RenderWindow* GLRenderSystem::initialise(bool autoCreateWindow)
     {
-        //The main startup
-        RenderSystem::initialise(autoCreateWindow);
 
         mGLSupport->start();
 		RenderWindow* autoWindow = mGLSupport->createWindow(autoCreateWindow, this);
@@ -138,7 +136,10 @@ namespace Ogre {
             "*** GL Renderer Started ***\n"
             "***************************");
 
-        LogManager::getSingleton().logMessage(
+        //The main startup
+        RenderSystem::initialise(autoCreateWindow);
+
+		LogManager::getSingleton().logMessage(
             "The following extensions are available:");
 
         // Check for hardware mipmapping support.
@@ -226,7 +227,8 @@ namespace Ogre {
 
         _setCullingMode( mCullingMode );
         
-        return autoWindow;
+
+		return autoWindow;
     }
 
     void GLRenderSystem::reinitialise(void)

@@ -247,34 +247,48 @@ namespace Ogre
 
 	//-----------------------------------------------------------------------
 	Mesh* MeshManager::createCurvedPlane( const String& name, const Plane& plane, Real width, Real height, Real bow, int xsegments, int ysegments,
-        bool normals, int numTexCoordSets, Real xTile, Real yTile, const Vector3& upVector)
+        bool normals, int numTexCoordSets, Real xTile, Real yTile, const Vector3& upVector,
+			HardwareBuffer::Usage vertexBufferUsage, HardwareBuffer::Usage indexBufferUsage,
+			bool vertexShadowBuffer, bool indexShadowBuffer)
     {
         int i;
         Mesh* pMesh = createManual(name);
         SubMesh *pSub = pMesh->createSubMesh();
 
-		/* TODO
         // Set options
-        pMesh->sharedGeometry.hasColours = false;
-        pMesh->sharedGeometry.hasNormals = normals;
-        pMesh->sharedGeometry.normalStride = 0;
-        pMesh->sharedGeometry.numTexCoords = numTexCoordSets;
+		pMesh->sharedVertexData = new VertexData();
+		pMesh->sharedVertexData->vertexStart = 0;
+		VertexBufferBinding* bind = pMesh->sharedVertexData->vertexBufferBinding;
+		VertexDeclaration* decl = pMesh->sharedVertexData->vertexDeclaration;
+
+        pMesh->sharedVertexData->vertexCount = (xsegments + 1) * (ysegments + 1);
+
+		size_t offset = 0;
+		decl->addElement(0, offset, VET_FLOAT3, VES_POSITION);
+		offset += VertexElement::getTypeSize(VET_FLOAT3);
+		if (normals)
+		{
+			decl->addElement(0, 0, VET_FLOAT3, VES_NORMAL);
+			offset += VertexElement::getTypeSize(VET_FLOAT3);
+		}
+
         for (i = 0; i < numTexCoordSets; ++i)
         {
-            pMesh->sharedGeometry.numTexCoordDimensions[i] = 2;
-            pMesh->sharedGeometry.texCoordStride[i] = 0;
+			decl->addElement(0, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, i);
+			offset += VertexElement::getTypeSize(VET_FLOAT2);
         }
-        pMesh->sharedGeometry.numVertices = (xsegments + 1) * (ysegments + 1);
-        pMesh->sharedGeometry.vertexStride = 0;
+
 
         // Allocate memory
-        pMesh->sharedGeometry.pVertices = new Real[pMesh->sharedGeometry.numVertices * 3];
-        if (normals)
-            pMesh->sharedGeometry.pNormals = new Real[pMesh->sharedGeometry.numVertices * 3];
-        for (i = 0; i < numTexCoordSets; ++i)
-            pMesh->sharedGeometry.pTexCoords[i] = new Real[pMesh->sharedGeometry.numVertices * 2];
+		HardwareVertexBufferSharedPtr vbuf = 
+			HardwareBufferManager::getSingleton().createVertexBuffer(
+				offset, 
+				pMesh->sharedVertexData->vertexCount, 
+				vertexBufferUsage, 
+				vertexShadowBuffer);
+		bind->setBinding(0, vbuf);
 
-        // Work out the transform required
+		// Work out the transform required
         // Default orientation of plane is normal along +z, distance 0
         Matrix4 xlate, xform, rot;
         Matrix3 rot3;
@@ -303,8 +317,10 @@ namespace Ogre
         xform = xlate * rot;
 
         // Generate vertex data
+		Real* pBase = static_cast<Real*>(
+			vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD)); 
         Real* pReal;
-        Real xSpace = width / xsegments;
+		Real xSpace = width / xsegments;
         Real ySpace = height / ysegments;
         Real halfWidth = width / 2;
         Real halfHeight = height / 2;
@@ -312,13 +328,17 @@ namespace Ogre
         Real yTex = (1.0f * yTile) / ysegments;
         Vector3 vec;
 
+		Vector3 min, max;
+		Real maxSqLen;
+		bool first = true;
+
 		Real diff_x, diff_y, dist;
 
         for (int y = 0; y < ysegments + 1; ++y)
         {
             for (int x = 0; x < xsegments + 1; ++x)
             {
-                pReal = pMesh->sharedGeometry.pVertices + (((y * (xsegments+1)) + x) * 3);
+                pReal = pBase + (((y * (xsegments+1)) + x) * vbuf->getVertexSize());
                 // Work out centered on origin
                 vec.x = (x * xSpace) - halfWidth;
                 vec.y = (y * ySpace) - halfHeight;
@@ -332,49 +352,63 @@ namespace Ogre
                 // Transform by orientation and distance
                 vec = xform * vec;
                 // Assign to geometry
-                pReal[0] = vec.x;
-                pReal[1] = vec.y;
-                pReal[2] = vec.z;
+                *pReal++ = vec.x;
+                *pReal++ = vec.y;
+                *pReal++ = vec.z;
 
-                if (normals)
+				// Record bounds
+				if (first)
+				{
+					min = max = vec;
+					maxSqLen = vec.squaredLength();
+					first = false;
+				}
+				else
+				{
+					min.makeFloor(vec);
+					max.makeCeil(vec);
+					maxSqLen = std::max(maxSqLen, vec.squaredLength());
+				}
+				
+				if (normals)
                 {
 					// This part is kinda 'wrong' for curved planes... but curved planes are
 					//   very valuable outside sky planes, which don't typically need normals
 					//   so I'm not going to mess with it for now. 
 
-                    pReal = pMesh->sharedGeometry.pNormals + (((y * (xsegments+1)) + x) * 3);
                     // Default normal is along unit Z
                     vec = Vector3::UNIT_Z;
                     // Rotate
                     vec = rot * vec;
 
-                    pReal[0] = vec.x;
-                    pReal[1] = vec.y;
-                    pReal[2] = vec.z;
+                    *pReal++ = vec.x;
+                    *pReal++ = vec.y;
+                    *pReal++ = vec.z;
                 }
 
                 for (i = 0; i < numTexCoordSets; ++i)
                 {
-                    pReal = pMesh->sharedGeometry.pTexCoords[i] + (((y * (xsegments+1)) + x) * 2);
-                    pReal[0] = x * xTex;
-                    pReal[1] = y * yTex;
+                    *pReal++ = x * xTex;
+                    *pReal++ = y * yTex;
                 }
 
             } // x
         } // y
+		vbuf->unlock();
 
         // Generate face list
-        tesselate2DMesh(pSub, xsegments + 1, ysegments + 1, false);
+        tesselate2DMesh(pSub, xsegments + 1, ysegments + 1, 
+			false, indexBufferUsage, indexShadowBuffer);
 
-        pMesh->_updateBounds();
-		*/
+        pMesh->_setBounds(AxisAlignedBox(min, max));
+		pMesh->_setBoundingSphereRadius(Math::Sqrt(maxSqLen));
 
         return pMesh;
     }
 
     //-----------------------------------------------------------------------
     void MeshManager::tesselate2DMesh(SubMesh* sm, int meshWidth, int meshHeight, 
-		bool doubleSided, HardwareBuffer::Usage indexBufferUsage, bool indexSystemMemory)
+		bool doubleSided, HardwareBuffer::Usage indexBufferUsage, bool indexShadowBuffer)
     {
         // The mesh is built, just make a list of indexes to spit out the triangles
         int vInc, uInc, v, u, iterations;
@@ -398,7 +432,7 @@ namespace Ogre
         sm->indexData->indexCount = (meshWidth-1) * (meshHeight-1) * 2 * iterations * 3;
 		sm->indexData->indexBuffer = HardwareBufferManager::getSingleton().
 			createIndexBuffer(HardwareIndexBuffer::IT_16BIT,
-			sm->indexData->indexCount, indexBufferUsage, indexSystemMemory);
+			sm->indexData->indexCount, indexBufferUsage, indexShadowBuffer);
 
         int v1, v2, v3;
         //bool firstTri = true;
@@ -463,38 +497,52 @@ namespace Ogre
     {
         Mesh* msh = (Mesh*)create("Prefab_Plane");
         SubMesh* sub = msh->createSubMesh();
-        Real vertices[12] = {-100, -100, 0,
-                              100, -100, 0,
-                              100,  100, 0,
-                             -100,  100, 0 };
-        Real normals[12] = {0,0,1,
-                            0,0,1,
-                            0,0,1,
-                            0,0,1,};
-        Real texCoords[8] = {0,0,
-                             1,0,
-                             1,1,
-                             0,1 };
-		/* TODO
-        msh->sharedGeometry.hasColours = false;
-        msh->sharedGeometry.hasNormals = true;
-        msh->sharedGeometry.numTexCoords = 1;
-        msh->sharedGeometry.numTexCoordDimensions[0] = 2;
-        msh->sharedGeometry.numVertices = 4;
-        msh->sharedGeometry.pVertices = new Real[12];
-        memcpy(msh->sharedGeometry.pVertices, vertices, sizeof(Real)*12);
-        msh->sharedGeometry.pNormals = new Real[12];
-        memcpy(msh->sharedGeometry.pNormals, normals, sizeof(Real)*12);
-        msh->sharedGeometry.pTexCoords[0] = new Real[8];
-        memcpy(msh->sharedGeometry.pTexCoords[0], texCoords, sizeof(Real)*8);
+        Real vertices[32] = {
+			-100, -100, 0,	// pos
+			0,0,1,			// normal
+			0,0,			// texcoord
+            100, -100, 0,
+            0,0,1,
+            1,0,
+            100,  100, 0,
+            0,0,1,
+            1,1,
+            -100,  100, 0 ,
+			0,0,1,
+            0,1 
+		};
+        msh->sharedVertexData = new VertexData();
+		VertexDeclaration* decl = msh->sharedVertexData->vertexDeclaration;
+		VertexBufferBinding* bind = msh->sharedVertexData->vertexBufferBinding;
 
-        sub->useSharedVertices = true;
-        sub->faceVertexIndices = new unsigned short[6];
+		size_t offset = 0;
+		decl->addElement(0, offset, VET_FLOAT3, VES_POSITION);
+		offset += VertexElement::getTypeSize(VET_FLOAT3);
+		decl->addElement(0, offset, VET_FLOAT3, VES_NORMAL);
+		offset += VertexElement::getTypeSize(VET_FLOAT3);
+		decl->addElement(0, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
+		offset += VertexElement::getTypeSize(VET_FLOAT2);
+
+		HardwareVertexBufferSharedPtr vbuf = 
+			HardwareBufferManager::getSingleton().createVertexBuffer(
+				offset, 4, HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+		bind->setBinding(0, vbuf);
+
+		vbuf->writeData(0, vbuf->getSizeInBytes(), vertices, true);
+
+		sub->useSharedVertices = true;
+		HardwareIndexBufferSharedPtr ibuf = HardwareBufferManager::getSingleton().
+			createIndexBuffer(
+				HardwareIndexBuffer::IT_16BIT, 
+				6, 
+				HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+
         unsigned short faces[6] = {0,1,2,
                                    0,2,3 };
-        memcpy(sub->faceVertexIndices, faces, sizeof(unsigned short)*6);
-        sub->numFaces = 2;
-		*/
+        sub->indexData->indexBuffer = ibuf;
+		sub->indexData->indexCount = 6;
+		sub->indexData->indexStart =0;
+        ibuf->writeData(0, ibuf->getSizeInBytes(), faces, true);
 
         mResources[msh->getName()] = msh;
     }

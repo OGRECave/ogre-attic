@@ -45,6 +45,21 @@ namespace Ogre {
  	    This abstract class defines the core interface which is common to all
 	    buffers, whether it be vertex buffers, index buffers, texture memory
 	    or framebuffer memory etc.
+	@par
+		Buffers have the ability to be 'shadowed' in system memory, this is because
+		the kinds of access allowed on hardware buffers is not always as flexible as
+		that allowed for areas of system memory - for example it is often either 
+		impossible, or extremely undesirable from a performance standpoint to read from
+		a hardware buffer; when writing to hardware buffers, you should also write every
+		byte and do it sequentially. In situations where this is too restrictive, 
+		it is possible to create a hardware, write-only buffer (the most efficient kind) 
+		and to back it with a system memory 'shadow' copy which can be read and updated arbitrarily.
+		Ogre handles synchronising this buffer with the real hardware buffer (which should still be
+		created with the HBU_DYNAMIC flag if you intend to update it very frequently). Whilst this
+		approach does have it's own costs, such as increased memory overhead, these costs can 
+		often be outweighed by the performance benefits of using a more hardware efficient buffer.
+		You should look for the 'useShadowBuffer' parameter on the creation methods used to create
+		the buffer of the type you require (see HardwareBufferManager) to enable this feature.
     */
     class _OgreExport HardwareBuffer 
     {
@@ -97,6 +112,8 @@ namespace Ogre {
 		    size_t mSizeInBytes;
 		    Usage mUsage;
 		    bool mIsLocked;
+			size_t mLockStart;
+			size_t mLockSize;
 			bool mSystemMemory;
             bool mUseShadowBuffer;
             HardwareBuffer* mpShadowBuffer;
@@ -123,20 +140,27 @@ namespace Ogre {
             {
                 assert(!mIsLocked && "Cannot lock this buffer, it is already locked!");
                 void* ret;
-                if (mUseShadowBuffer)
+				// if lock is to discard, then we obviously do not have a requirement to read
+				// therefore we can lock the real buffer all the time
+				if (mUseShadowBuffer && options != HBL_DISCARD)
                 {
-                    if (options != HBL_READ_ONLY)
-                    {
-                        // we have to assume the buffer is being updated so tag for sync next time
+					if (options != HBL_READ_ONLY)
+					{
+						// we have to assume a read / write lock so we use the shadow buffer
+						// and tag for sync on unlock()
                         mShadowUpdated = true;
                     }
                     ret = mpShadowBuffer->lock(offset, length, options);
                 }
                 else
                 {
+					// Lock the real buffer if there is no shadow buffer or we're
+					// discarding the contents
                     ret = lockImpl(offset, length, options);
                 }
                 mIsLocked = true;
+				mLockStart = offset;
+				mLockSize = length;
                 return ret;
             }
 		    /** Releases the lock on this buffer. 
@@ -155,7 +179,8 @@ namespace Ogre {
             {
                 assert(mIsLocked && "Cannot unlock this buffer, it is not locked!");
 
-                if (mUseShadowBuffer)
+				// If we used the shadow buffer this time...
+                if (mUseShadowBuffer && mpShadowBuffer->isLocked())
                 {
                     mpShadowBuffer->unlock();
                     // Potentially update the 'real' buffer from the shadow buffer
@@ -163,6 +188,7 @@ namespace Ogre {
                 }
                 else
                 {
+					// Otherwise, unlock the real one
                     unlockImpl();
                 }
                 mIsLocked = false;
@@ -211,7 +237,8 @@ namespace Ogre {
             {
                 if (mUseShadowBuffer && mShadowUpdated)
                 {
-                    copyData(*mpShadowBuffer, 0, 0, mSizeInBytes, true);
+					// Copy only the region which was locked for efficiency
+                    copyData(*mpShadowBuffer, mLockStart, mLockStart, mLockSize, true);
                     mShadowUpdated = false;
                 }
             }

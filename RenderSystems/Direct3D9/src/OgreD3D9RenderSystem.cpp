@@ -405,8 +405,6 @@ namespace Ogre
 	RenderWindow* D3D9RenderSystem::initialise( bool autoCreateWindow )
 	{
 		RenderWindow* autoWindow = NULL;
-		// call superclass method
-		RenderSystem::initialise( autoCreateWindow );
 		LogManager::getSingleton().logMessage( "D3D9 : Subsystem Initialising" );
 
 		// Init using current settings
@@ -465,7 +463,10 @@ namespace Ogre
 		LogManager::getSingleton().logMessage("*** D3D9 : Subsystem Initialised OK ***");
         LogManager::getSingleton().logMessage("***************************************");
 
-        LogManager::getSingleton().logMessage(
+		// call superclass method
+		RenderSystem::initialise( autoCreateWindow );
+
+		LogManager::getSingleton().logMessage(
             "The following capabilities are available:");
 
         // Check for hardware stencil support
@@ -485,6 +486,7 @@ namespace Ogre
 
         // Set number of texture units
         mCapabilities->setNumTextureUnits(mCaps.MaxSimultaneousTextures);
+
 
 		return autoWindow;
 	}

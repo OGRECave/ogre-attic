@@ -119,10 +119,12 @@ namespace Ogre {
 			@param
 				indexBufferUsage The usage flag with which the index buffer for this plane will be created
 			@param
-				vertexSystemMemory If this flag is set to true, the vertex buffer will be created in system memory,
+				vertexShadowBuffer If this flag is set to true, the vertex buffer will be created 
+				with a system memory shadow buffer,
 				allowing you to read it back more efficiently than if it is in hardware
 			@param
-				indexSystemMemory If this flag is set to true, the vertex buffer will be created in system memory,
+				indexShadowBuffer If this flag is set to true, the index buffer will be 
+				created with a system memory shadow buffer,
 				allowing you to read it back more efficiently than if it is in hardware
         */
         Mesh* createPlane(
@@ -133,7 +135,7 @@ namespace Ogre {
             Real uTile = 1.0f, Real vTile = 1.0f, const Vector3& upVector = Vector3::UNIT_Y,
 			HardwareBuffer::Usage vertexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
 			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY,
-			bool vertexSystemMemory = false, bool indexSystemMemory = false);
+			bool vertexShadowBuffer = false, bool indexShadowBuffer = false);
 
 		/** Creates a curved plane, by default majoring on the x/y axes facing positive Z.
             @param
@@ -161,13 +163,28 @@ namespace Ogre {
                 vTile The number of times the texture should be repeated in the v direction
             @param
                 upVector The 'Up' direction of the plane.
+			@param
+				vertexBufferUsage The usage flag with which the vertex buffer for this plane will be created
+			@param
+				indexBufferUsage The usage flag with which the index buffer for this plane will be created
+			@param
+				vertexShadowBuffer If this flag is set to true, the vertex buffer will be created 
+				with a system memory shadow buffer,
+				allowing you to read it back more efficiently than if it is in hardware
+			@param
+				indexShadowBuffer If this flag is set to true, the index buffer will be 
+				created with a system memory shadow buffer,
+				allowing you to read it back more efficiently than if it is in hardware
         */
 		Mesh* createCurvedPlane( 
 			const String& name, const Plane& plane, 
 			Real width, Real height, Real bow = 0.5f, 
 			int xsegments = 1, int ysegments = 1,
 			bool normals = false, int numTexCoordSets = 1, 
-			Real xTile = 1.0f, Real yTile = 1.0f, const Vector3& upVector = Vector3::UNIT_Y);
+			Real xTile = 1.0f, Real yTile = 1.0f, const Vector3& upVector = Vector3::UNIT_Y,
+			HardwareBuffer::Usage vertexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
+			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY,
+			bool vertexShadowBuffer = false, bool indexShadowBuffer = false);
 
         /** Override standard Singleton retrieval.
             @remarks
