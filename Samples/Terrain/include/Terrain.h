@@ -79,7 +79,8 @@ class TerrainListener : public ExampleFrameListener
         // Grab input device state
         mInputDevice->capture();
 
-        SceneNode *waterNode = mCamera->getSceneManager()->getRootSceneNode()->getChild("WaterNode");
+        SceneNode *waterNode = static_cast<SceneNode*>(
+            mCamera->getSceneManager()->getRootSceneNode()->getChild("WaterNode"));
         if(waterNode)
         {
             if(flowUp)
@@ -261,7 +262,8 @@ protected:
         waterEntity = mSceneMgr->createEntity("water", "WaterPlane"); 
         waterEntity->setMaterialName("Examples/TextureEffect4"); 
 
-        SceneNode *waterNode = mSceneMgr->getRootSceneNode()->createChild("WaterNode"); 
+        SceneNode *waterNode = static_cast<SceneNode*>(
+            mSceneMgr->getRootSceneNode()->createChild("WaterNode")); 
         waterNode->attachObject(waterEntity); 
         waterNode->translate(1000, 0, 1000);
 

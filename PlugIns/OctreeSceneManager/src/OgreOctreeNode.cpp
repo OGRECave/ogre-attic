@@ -53,14 +53,14 @@ void OctreeNode::_removeNodeAndChildren( )
         ++it;
     }
 }
-SceneNode * OctreeNode::removeChild( unsigned short index )
+Node * OctreeNode::removeChild( unsigned short index )
 {
     OctreeNode *on = static_cast<OctreeNode* >( SceneNode::removeChild( index ) );
     on -> _removeNodeAndChildren(); 
     return on; 
 }
     
-SceneNode * OctreeNode::removeChild( const String & name )
+Node * OctreeNode::removeChild( const String & name )
 {
     OctreeNode *on = static_cast< OctreeNode * >( SceneNode::removeChild(  name ) );
     on -> _removeNodeAndChildren( ); 

@@ -137,7 +137,7 @@ void TerrainSceneManager::setWorldGeometry( const String& filename )
     mTerrainMaterial -> setLightingEnabled( options.lit );
 
     //create a root terrain node.
-    mTerrainRoot = getRootSceneNode() -> createChild( "Terrain" );
+    mTerrainRoot = static_cast<SceneNode*>(getRootSceneNode() -> createChild( "Terrain" ));
 
     //setup the tile array.
     int num_tiles = ( options.world_size - 1 ) / ( options.size - 1 );
@@ -166,7 +166,7 @@ void TerrainSceneManager::setWorldGeometry( const String& filename )
             options.startz = j;
             sprintf( name, "tile[%d,%d]", p, q );
 
-            SceneNode *c = mTerrainRoot -> createChild( name );
+            SceneNode *c = static_cast<SceneNode*>(mTerrainRoot -> createChild( name ));
             TerrainRenderable *tile = new TerrainRenderable();
 
             tile -> setMaterial( mTerrainMaterial );

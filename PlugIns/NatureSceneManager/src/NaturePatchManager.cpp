@@ -495,7 +495,7 @@ bool NaturePatchManager::loadPatch(int x, int y, int edge)
 		addToRenderQueue(mPatches[idx]);
 
 		String name = "NaturePatch["+toString(x)+","+toString(y)+"]";
-		SceneNode *sn = mSceneRoot->createChild(name);
+		SceneNode *sn = static_cast<SceneNode*>(mSceneRoot->createChild(name));
 		sn->attachObject(mPatches[idx]);
 
 //		std::cout << "ADDING: " << name << std::endl;

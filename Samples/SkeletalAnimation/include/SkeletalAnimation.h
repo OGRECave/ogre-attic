@@ -80,7 +80,7 @@ protected:
         Entity *ent = mSceneMgr->createEntity("robot", "robot.mesh");
 
         // Add entity to the root scene node
-        mSceneMgr->getRootSceneNode()->createChild()->attachObject(ent);
+        static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild())->attachObject(ent);
 
         mAnimState = ent->getAnimationState("Walk");
         mAnimState->setEnabled(true);

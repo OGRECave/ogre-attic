@@ -50,19 +50,6 @@ namespace Ogre
         /** Creates a new Bone as a child of this bone.
         @remarks
             This method creates a new bone which will inherit the transforms of this
-            bone. Note that the numeric handle of the new bone will be generated - 
-            if you need to specify it then you should use the alternate form of this
-            method which takes a handle as a parameter.
-            @param
-                translate Initial translation offset of child relative to parent
-            @param
-                rotate Initial rotation relative to parent
-        */
-        Bone* createChild(const Vector3& translate = Vector3::ZERO, const Quaternion& rotate = Quaternion::IDENTITY);
-
-        /** Creates a new Bone as a child of this bone.
-        @remarks
-            This method creates a new bone which will inherit the transforms of this
             bone, with the handle specified.
             @param 
                 handle The numeric handle to give the new bone; must be unique within the Skeleton.
@@ -73,28 +60,7 @@ namespace Ogre
         */
         Bone* createChild(unsigned short handle, 
             const Vector3& translate = Vector3::ZERO, const Quaternion& rotate = Quaternion::IDENTITY);
-        /** Creates a new Bone as a child of this bone.
-        @remarks
-            This method creates a new bone which will inherit the transforms of this
-            bone, and also gives it the name specified. This bone can then be looked up in 
-            the Skeleton using it's name if required.
-            @param 
-                handle The numeric handle to give the new bone; must be unique within the Skeleton.
-            @param
-                translate Initial translation offset of child relative to parent
-            @param
-                rotate Initial rotation relative to parent
-        */
-        Bone* createChild(const String& name , 
-            const Vector3& translate = Vector3::ZERO, const Quaternion& rotate = Quaternion::IDENTITY);
 
-        /** Gets a pointer to a child node.*/
-        Bone* getChild(unsigned short index) const;
-
-        /** Drops the specified child from this node. Does not delete the node, just detaches it from
-            this parent, potentially to be reattached elsewhere.
-        */
-        Bone* removeChild(unsigned short index);
 
 		TagPoint *createChildTagPoint(const Quaternion &offsetOrientation = Quaternion::IDENTITY, 
 								      const Vector3	   &offsetPosition    = Vector3::UNIT_SCALE);

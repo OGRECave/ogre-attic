@@ -379,18 +379,12 @@ namespace Ogre {
         virtual Matrix3 getLocalAxes(void);
 
         /** Creates an unnamed new Node as a child of this node.
-        @par
-            NOTE NON-VIRTUAL!
-            This is actually in order to maintain the previous interfaces of the subclass
-            SceneNode which must return a SceneNode pointer instead. Because of lack of
-            support for covariant return types in some compilers (inc VC6) methods which
-            differ only by return type cannot be virtual.
         @param
             translate Initial translation offset of child relative to parent
         @param
             rotate Initial rotation relative to parent
         */
-        Node* createChild(
+        virtual Node* createChild(
             const Vector3& translate = Vector3::ZERO, 
             const Quaternion& rotate = Quaternion::IDENTITY );
 
@@ -403,7 +397,7 @@ namespace Ogre {
             @param
                 rotate Initial rotation relative to parent
         */
-        Node* createChild(const String& name, const Vector3& translate = Vector3::ZERO, const Quaternion& rotate = Quaternion::IDENTITY);
+        virtual Node* createChild(const String& name, const Vector3& translate = Vector3::ZERO, const Quaternion& rotate = Quaternion::IDENTITY);
 
         /** Adds a (precreated) child scene node to this node.
         */
@@ -416,24 +410,12 @@ namespace Ogre {
         /** Gets a pointer to a child node.
         @remarks
             There is an alternate getChild method which returns a named child.
-        @par
-            NOTE NON-VIRTUAL!
-            This is actually in order to maintain the previous interfaces of the subclass
-            SceneNode which must return a SceneNode pointer instead. Because of lack of
-            support for covariant return types in some compilers (inc VC6) methods which
-            differ only by return type cannot be virtual.
         */
-        Node* getChild(unsigned short index) const;    
+        virtual Node* getChild(unsigned short index) const;    
 
         /** Gets a pointer to a named child node.
-        @par
-            NOTE NON-VIRTUAL!
-            This is actually in order to maintain the previous interfaces of the subclass
-            SceneNode which must return a SceneNode pointer instead. Because of lack of
-            support for covariant return types in some compilers (inc VC6) methods which
-            differ only by return type cannot be virtual.
         */
-        Node* getChild(const String& name) const;
+        virtual Node* getChild(const String& name) const;
 
         /** Retrieves an iterator for efficiently looping through all children of this node.
         @remarks
@@ -445,7 +427,7 @@ namespace Ogre {
             store up changes for later. Note that calling methods on returned items in 
             the iterator IS allowed and does not invalidate the iterator.
         */
-        ChildNodeIterator getChildIterator(void);
+        virtual ChildNodeIterator getChildIterator(void);
 
         /** Drops the specified child from this node. 
         @remarks
@@ -453,27 +435,15 @@ namespace Ogre {
             this parent, potentially to be reattached elsewhere. 
             There is also an alternate version which drops a named
             child from this node.
-        @par
-            NOTE NON-VIRTUAL!
-            This is actually in order to maintain the previous interfaces of the subclass
-            SceneNode which must return a SceneNode pointer instead. Because of lack of
-            support for covariant return types in some compilers (inc VC6) methods which
-            differ only by return type cannot be virtual.
         */
-        Node* removeChild(unsigned short index);
+        virtual Node* removeChild(unsigned short index);
 
         /** Drops the named child from this node. 
         @remarks
             Does not delete the node, just detaches it from
             this parent, potentially to be reattached elsewhere.
-        @par
-            NOTE NON-VIRTUAL!
-            This is actually in order to maintain the previous interfaces of the subclass
-            SceneNode which must return a SceneNode pointer instead. Because of lack of
-            support for covariant return types in some compilers (inc VC6) methods which
-            differ only by return type cannot be virtual.
         */
-        Node* removeChild(const String& name);
+        virtual Node* removeChild(const String& name);
         /** Removes all child Nodes attached to this node. Does not delete the nodes, just detaches them from
             this parent, potentially to be reattached elsewhere.
         */

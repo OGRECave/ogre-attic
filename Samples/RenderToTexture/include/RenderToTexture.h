@@ -56,7 +56,8 @@ public:
         Vector3 vPos = rttCam->getDerivedPosition();
         Vector3 vDir = rttCam->getDerivedDirection();
 
-        SceneNode *head = mCamera->getSceneManager()->getRootSceneNode()->getChild( "Head" );
+        SceneNode *head = static_cast<SceneNode*>(
+            mCamera->getSceneManager()->getRootSceneNode()->getChild( "Head" ));
         head->setOrientation( q );
         head->setPosition( vPos + vDir.normalise() * -250.0 );
 
@@ -107,7 +108,7 @@ protected:
         SceneNode* rootNode = mSceneMgr->getRootSceneNode();
         rootNode->attachObject(planeEnt);
 
-        rootNode->createChild( "Head" )->attachObject( ogreHead );
+        static_cast<SceneNode*>(rootNode->createChild( "Head" ))->attachObject( ogreHead );
 
         Camera *rttCam = mSceneMgr->createCamera( "rttCam" );
         rootNode->attachCamera( rttCam ); rttCam->setPosition( 0.0, 0.0, -0.1 ); rttCam->setDirection( 0.0, 0.0, -100.0 );

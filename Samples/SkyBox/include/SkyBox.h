@@ -149,7 +149,8 @@ protected:
         pEmit1->setPosition( Vector3( 5.7f, 0.0f, 0.0f ) );
         pEmit2->setPosition( Vector3( -18.0f, 0.0f, 0.0f ) );
 
-        mSceneMgr->getRootSceneNode()->createChild( Vector3( 0.0f, 6.5f, -67.0f ) )->attachObject(pThrusters);
+        static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild( Vector3( 0.0f, 6.5f, -67.0f ) ))
+            ->attachObject(pThrusters);
     }
 
 };

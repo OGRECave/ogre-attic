@@ -100,10 +100,10 @@ protected:
         ent = mSceneMgr->createEntity("floor", "FloorPlane");
         ent->setMaterialName("Examples/RustySteel");
         // Attach to child of root node, better for culling (otherwise bounds are the combination of the 2)
-        mSceneMgr->getRootSceneNode()->createChild()->attachObject(ent);
+        static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild())->attachObject(ent);
 
         // Add a head, give it it's own node
-        SceneNode* headNode = mSceneMgr->getRootSceneNode()->createChild();
+        SceneNode* headNode = static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild());
         ent = mSceneMgr->createEntity("head", "ogrehead.mesh");
         headNode->attachObject(ent);
 
@@ -111,7 +111,7 @@ protected:
         mCamera->setAutoTracking(true, headNode);
 
         // Create the camera node & attach camera
-        SceneNode* camNode = mSceneMgr->getRootSceneNode()->createChild();
+        SceneNode* camNode = static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild());
         camNode->attachObject(mCamera);
 
         // set up spline animation of node
