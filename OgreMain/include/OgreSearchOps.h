@@ -33,7 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePlatform.h"
 
-#if OGRE_PLATFORM != PLATFORM_WIN32
+#if OGRE_PLATFORM != OGRE_PLATFORM_WIN32
 
 #include <dirent.h>
 #include <unistd.h>

@@ -30,7 +30,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( FileSystemArchiveTests );
 
 void FileSystemArchiveTests::setUp()
 {
-#if OGRE_PLATFORM == PLATFORM_WIN32
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
     testPath = "../../../../Tests/OgreMain/misc/ArchiveTest/";
 #else
     testPath = "../../../Tests/OgreMain/misc/ArchiveTest/";

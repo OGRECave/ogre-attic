@@ -455,7 +455,7 @@ void info(lwObject *object, char *filename)
 		print_vmaps( object );
 }
 
-#if OGRE_PLATFORM == PLATFORM_WIN32
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 int readFiles( char *source, char *dest)
 {
 	long h, err;

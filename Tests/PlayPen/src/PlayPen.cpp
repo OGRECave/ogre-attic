@@ -41,7 +41,7 @@ Description: Somewhere to play in the sand...
 */
 
 /*
-#if OGRE_PLATFORM == PLATFORM_WIN32
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #include "OgreNoMemoryMacros.h"
 #include <crtdbg.h>
 #endi*/
@@ -2232,7 +2232,7 @@ public:
 
 
 
-#if OGRE_PLATFORM == PLATFORM_WIN32
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
 
@@ -2248,7 +2248,7 @@ int main(int argc, char **argv)
     try {
         app.go();
     } catch( Exception& e ) {
-#if OGRE_PLATFORM == PLATFORM_WIN32
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
         MessageBox( NULL, e.getFullDescription().c_str(), "An exception has occured!", MB_OK | MB_ICONERROR | MB_TASKMODAL);
 #else
         std::cerr << "An exception has occured: " << e.getFullDescription();
