@@ -49,8 +49,9 @@ namespace Ogre {
     private:
         typename T::iterator mCurrent;
         typename T::iterator mEnd;
+        /// Private constructor since only the parameterised constructor should be used
+        VectorIterator() {};
     public:
-        VectorIterator();
         /** Constructor.
         @remarks
             Provide a start and end iterator to initialise.
@@ -101,8 +102,9 @@ namespace Ogre {
     private:
         typename T::iterator mCurrent;
         typename T::iterator mEnd;
+        /// Private constructor since only the parameterised constructor should be used
+        MapIterator() {};
     public:
-        MapIterator();
         /** Constructor.
         @remarks
             Provide a start and end iterator to initialise.
