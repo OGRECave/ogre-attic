@@ -74,7 +74,7 @@ namespace Ogre {
         // Use memory loader
         load(tempChunk);
 
-        tempChunk.free();
+        tempChunk.clear();
     }
 
     void OofModelFile::load(DataChunk& chunk)
