@@ -340,6 +340,63 @@ namespace Ogre {
 
         }
 
+		/// Calculate the area of intersection of this box and another
+		inline AxisAlignedBox intersection(const AxisAlignedBox& b2) const
+		{
+			if (!this->intersects(b2))
+			{
+				return AxisAlignedBox();
+			}
+			Vector3 intMin, intMax;
+
+			const Vector3& b2max = b2.getMaximum();
+			const Vector3& b2min = b2.getMinimum();
+
+			if (b2max.x > mMaximum.x && mMaximum.x > b2min.x)
+				intMax.x = mMaximum.x;
+			else 
+				intMax.x = b2max.x;
+			if (b2max.y > mMaximum.y && mMaximum.y > b2min.y)
+				intMax.y = mMaximum.y;
+			else 
+				intMax.y = b2max.y;
+			if (b2max.z > mMaximum.z && mMaximum.z > b2min.z)
+				intMax.z = mMaximum.z;
+			else 
+				intMax.z = b2max.z;
+
+			if (b2min.x < mMinimum.x && mMinimum.x < b2max.x)
+				intMin.x = mMinimum.x;
+			else
+				intMin.x= b2min.x;
+			if (b2min.y < mMinimum.y && mMinimum.y < b2max.y)
+				intMin.y = mMinimum.y;
+			else
+				intMin.y= b2min.y;
+			if (b2min.z < mMinimum.z && mMinimum.z < b2max.z)
+				intMin.z = mMinimum.z;
+			else
+				intMin.z= b2min.z;
+
+			return AxisAlignedBox(intMin, intMax);
+
+		}
+
+		/// Calculate the volume of this box
+		Real volume(void) const
+		{
+			if (mNull)
+			{
+				return 0.0f;
+			}
+			else
+			{
+				Vector3 diff = mMaximum - mMinimum;
+				return diff.x * diff.y * diff.z;
+			}
+
+		}
+
         /** Scales the AABB by the vector given. */
         inline void scale(const Vector3& s)
         {
