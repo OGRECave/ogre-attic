@@ -192,7 +192,7 @@ namespace Ogre {
     {
         String tmpStr = str;
 		String tmpPattern = pattern;
-        if (caseSensitive)
+        if (!caseSensitive)
         {
             StringUtil::toLowerCase(tmpStr);
             StringUtil::toLowerCase(tmpPattern);
