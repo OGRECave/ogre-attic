@@ -122,7 +122,7 @@ namespace Ogre {
             ++it)
         {
             it->second->unload();
-            it->second->destroy();
+            delete it->second;
         }
 
         // Empty the list

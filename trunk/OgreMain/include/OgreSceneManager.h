@@ -123,6 +123,8 @@ namespace Ogre {
 
         /// Camera in progress
         Camera* mCameraInProgress;
+        // Viewport in progress
+        Viewport* mViewportInProgress;
 
         /// Root scene node
         SceneNode* mSceneRoot;

@@ -108,8 +108,9 @@ namespace Ogre {
         // FS setting possiblities
         optFullScreen.name = "Full Screen";
         optFullScreen.possibleValues.push_back("Yes");
-        optFullScreen.possibleValues.push_back("no");
+        optFullScreen.possibleValues.push_back("No");
         optFullScreen.currentValue = "Yes";
+        optFullScreen.immutable = false;
 
         // Video mode possiblities
         optVideoMode.name = "Video Mode";

@@ -52,7 +52,8 @@ namespace Ogre {
 
         mChildren.insert(ChildMap::value_type(name, elem));
 
-        // tell child about ZOrder
+        // tell child about parent & ZOrder
+        elem->_notifyParent(this, mOverlay);
         elem->_notifyZOrder(mZOrder + 1);
 
 

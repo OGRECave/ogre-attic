@@ -612,6 +612,7 @@ namespace Ogre {
     void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverlays)
     {
         mCameraInProgress = camera;
+        mViewportInProgress = vp;
 
 
         // Update the scene
@@ -627,12 +628,16 @@ namespace Ogre {
 
         // Parse the scene and tag visibles
         _findVisibleObjects(camera);
+        // Add overlays
+        _queueOverlays(camera);
 
 
         // Set viewport
         mDestRenderSystem->_setViewport(vp);
-        mDestRenderSystem->_setViewMatrix(camera->getViewMatrix());
-        mDestRenderSystem->_setProjectionMatrix(camera->getProjectionMatrix());
+        // Don't do view / proj here anymore
+        // Checked per renderable now, although only changed when required
+        //mDestRenderSystem->_setViewMatrix(camera->getViewMatrix());
+        //mDestRenderSystem->_setProjectionMatrix(camera->getProjectionMatrix());
 
         mDestRenderSystem->_beginGeometryCount();
         // Begin the frame
@@ -663,53 +668,8 @@ namespace Ogre {
         if (mSkyDomeEnabled && !mSkyDomeDrawFirst)
             _renderSkyDome(camera);
 
-
         
-        /*
-        // BEGIN TEST HUD HACK
-        //---------------------------------------------------------------------
-        mDestRenderSystem->_setWorldMatrix(Matrix4::IDENTITY);
-        mDestRenderSystem->_setViewMatrix(Matrix4::IDENTITY);
-        mDestRenderSystem->_setProjectionMatrix(Matrix4::IDENTITY);
-        // Place at -1 z (as far forward in homogenous clip space as you can get)
-        // Use {-1, 1} 2D coords, make slightly smaller than total for effect
-        Real testPositions[4*3] = {
-            -1, -1, -1,
-             1, -1, -1,
-             1,  1, -1, 
-            -1,  1, -1};
-        Real testUV[4*2] = {
-            0, 0,
-            1, 0,
-            1, 1, 
-            0, 1};
-        ushort testIndices[6] = {
-            0, 1, 2,
-            0, 2, 3 };
-
-        RenderOperation op;
-        op.numVertices = 4;
-        op.numIndexes = 6;
-        op.vertexOptions = RenderOperation::VO_TEXTURE_COORDS;
-        op.numTextureCoordSets = 1;
-        op.numTextureDimensions[0] = 2;
-        op.vertexStride = 0;
-        op.texCoordStride[0] = 0;
-        op.operationType = RenderOperation::OT_TRIANGLE_LIST;
-        op.pVertices = testPositions;
-        op.pTexCoords[0] = testUV;
-        op.pIndexes = testIndices;
         
-        Material* mat = getMaterial("Examples/OgreLogo");
-        mat->setSceneBlending(SBT_ADD);
-        mat->load();
-        mat->setLightingEnabled(false);
-        mat->setDepthCheckEnabled(false);
-        setMaterial(mat,1);
-        mDestRenderSystem->_render(op);
-        //---------------------------------------------------------------------
-        // END HUD TEST HACK 
-        */
         
 
         // End frame
@@ -1223,65 +1183,6 @@ namespace Ogre {
     {
 
         static RenderOperation ro; // to avoid creating / destroying every time but must be careful to set all fields
-        /*
-
-        // SubMeshes always use indexes
-        ro.useIndexes = true;
-        GeometryData* geom;
-
-        if (sm->useTriStrips)
-            ro.operationType = RenderOperation::OT_TRIANGLE_STRIP;
-        else
-            ro.operationType = RenderOperation::OT_TRIANGLE_LIST;
-
-        if (sm->useSharedVertices)
-        {
-            geom = &(sm->parent->sharedGeometry);
-        }
-        else
-        {
-            geom = &(sm->geometry);
-        }
-
-        if (geom->numTexCoords > 0)
-        {
-            ro.vertexOptions = RenderOperation::VO_TEXTURE_COORDS;
-            ro.numTextureCoordSets = geom->numTexCoords;
-            for (int tex = 0; tex < ro.numTextureCoordSets; ++tex)
-            {
-                ro.numTextureDimensions[tex] = geom->numTexCoordDimensions[tex];
-                ro.pTexCoords[tex] = geom->pTexCoords[tex];
-                ro.texCoordStride[tex] = geom->texCoordStride[tex];
-            }
-
-        }
-
-        if (geom->hasNormals)
-        {
-            ro.vertexOptions |= RenderOperation::VO_NORMALS;
-            ro.pNormals = geom->pNormals;
-        }
-
-        if (geom->hasColours)
-        {
-            ro.vertexOptions = RenderOperation::VO_DIFFUSE_COLOURS;
-            ro.pDiffuseColour = geom->pColours;
-        }
-
-        ro.numVertices = geom->numVertices;
-        ro.pVertices = geom->pVertices;
-        ro.diffuseStride = geom->colourStride;
-        ro.normalStride= geom->normalStride;
-        ro.vertexStride = geom->vertexStride;
-
-        if (sm->useTriStrips)
-            ro.numIndexes = sm->numFaces + 2;
-        else
-            ro.numIndexes = sm->numFaces * 3;
-
-        ro.pIndexes = sm->faceVertexIndices;
-
-        */
 
         sm->_getRenderOperation(ro);
         mDestRenderSystem->_render(ro);
@@ -1385,6 +1286,54 @@ namespace Ogre {
             // TODO raise event to say queue has been rendered?
 
         } // for each queue group
+
+        
+        /*
+        // BEGIN TEST HUD HACK
+        //---------------------------------------------------------------------
+        mDestRenderSystem->_setWorldMatrix(Matrix4::IDENTITY);
+        mDestRenderSystem->_setViewMatrix(Matrix4::IDENTITY);
+        mDestRenderSystem->_setProjectionMatrix(Matrix4::IDENTITY);
+        // Place at -1 z (as far forward in homogenous clip space as you can get)
+        // Use {-1, 1} 2D coords, make slightly smaller than total for effect
+        Real testPositions[4*3] = {
+            -0.5, -0.5, -1,
+             0.5, -0.5, -1,
+             0.5,  0.5, -1, 
+            -0.5,  0.5, -1};
+        Real testUV[4*2] = {
+            0, 0,
+            1, 0,
+            1, 1, 
+            0, 1};
+        ushort testIndices[6] = {
+            0, 1, 2,
+            0, 2, 3 };
+
+        RenderOperation op;
+        op.numVertices = 4;
+        op.numIndexes = 6;
+        op.vertexOptions = RenderOperation::VO_TEXTURE_COORDS;
+        op.numTextureCoordSets = 1;
+        op.numTextureDimensions[0] = 2;
+        op.vertexStride = 0;
+        op.texCoordStride[0] = 0;
+        op.operationType = RenderOperation::OT_TRIANGLE_LIST;
+        op.pVertices = testPositions;
+        op.pTexCoords[0] = testUV;
+        op.pIndexes = testIndices;
+        
+        Material* mat = getMaterial("Examples/OgreLogo");
+        mat->load();
+        mat->setLightingEnabled(false);
+        mat->setDepthCheckEnabled(false);
+        setMaterial(mat,1);
+        mDestRenderSystem->_render(op);
+        //---------------------------------------------------------------------
+        // END HUD TEST HACK 
+        */
+        
+
 
     }
     //-----------------------------------------------------------------------
@@ -1781,15 +1730,16 @@ namespace Ogre {
     void SceneManager::useRenderableViewProjMode(Renderable* pRend)
     {
         // Check view matrix
+        static bool firstTime = true;
         static bool lastViewWasIdentity = false;
         bool useIdentityView = pRend->useIdentityView();
-        if (useIdentityView && !lastViewWasIdentity)
+        if (useIdentityView && (firstTime || !lastViewWasIdentity))
         {
             // Using identity view now, change it
             mDestRenderSystem->_setViewMatrix(Matrix4::IDENTITY);
             lastViewWasIdentity = true;
         }
-        else if (!useIdentityView && lastViewWasIdentity)
+        else if (!useIdentityView && (firstTime || lastViewWasIdentity))
         {
             // Coming back to normal from identity view
             mDestRenderSystem->_setViewMatrix(mCameraInProgress->getViewMatrix());
@@ -1798,18 +1748,31 @@ namespace Ogre {
         
         static bool lastProjWasIdentity = false;
         bool useIdentityProj = pRend->useIdentityProjection();
-        if (useIdentityProj && !lastProjWasIdentity)
+
+        if (useIdentityProj && (firstTime || !lastProjWasIdentity))
         {
             // Using flat projection now
+            /*
+            // NB not quite identity projection, adjust for viewport aspect ratio
+            static Matrix4 proj = Matrix4::IDENTITY;
+            Real ratio = (Real)mViewportInProgress->getActualHeight()
+                / (Real)mViewportInProgress->getActualWidth();
+            proj[0][0] = ratio;
+            mDestRenderSystem->_setProjectionMatrix(proj);
+            */
             mDestRenderSystem->_setProjectionMatrix(Matrix4::IDENTITY);
-            lastViewWasIdentity = true;
+
+            lastProjWasIdentity = true;
         }
-        else if (!useIdentityProj && lastProjWasIdentity)
+        else if (!useIdentityProj && (firstTime || lastProjWasIdentity))
         {
             // Coming back from flat projection
             mDestRenderSystem->_setProjectionMatrix(mCameraInProgress->getProjectionMatrix());
-            lastViewWasIdentity = false;
+            lastProjWasIdentity = false;
         }
+
+        firstTime = false;
+
     }
 
 }

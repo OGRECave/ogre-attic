@@ -71,6 +71,10 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreAnimationTrack.h"
 #include "OgreKeyFrame.h"
 #include "OgreRenderTargetListener.h"
+#include "OgreGuiManager.h"
+#include "OgreGuiElement.h"
+#include "OgreGuiContainer.h"
+#include "OgreOverlay.h"
 // .... more to come
 
 #endif

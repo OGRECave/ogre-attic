@@ -41,11 +41,17 @@ namespace Ogre {
         Overlay, only those which are GuiContainer instances (a subclass of this class).
         GuiContainer objects can contain any GuiElement however. This is just to 
         enforce some level of grouping on widgets.
-    @remarks
+    @par
         GuiElements should be managed using GuiManager. This class is responsible for
         instantiating / deleting elements, and also for accepting new types of element
         from plugins etc.
-    @remarks
+    @par
+        Note that positions / dimensions of 2D screen elements are expressed as parametric
+        values (0.0 - 1.0) because this makes them resolution-independent. However, most
+        screen resolutions have an aspect ratio of 1.3333:1 (width : height) so note that
+        in physical pixels 0.5 is wider than it is tall, so a 0.5x0.5 panel will not be
+        square on the screen (but it will take up exactly half the screen in both dimensions).
+    @par
         Because this class is designed to be extensible, it subclasses from StringInterface
         so its parameters can be set in a generic way.
     */
