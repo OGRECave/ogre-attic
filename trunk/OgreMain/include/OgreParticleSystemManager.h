@@ -305,7 +305,7 @@ namespace Ogre {
         @remarks
             See setTimeFactor for full information on the meaning of this value.
 		*/
-		Real getTimeFactor(void);
+		Real getTimeFactor(void) const;
 
 		/** Set the relative speed of time as perceived by particle systems.
         @remarks

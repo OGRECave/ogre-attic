@@ -471,7 +471,7 @@ namespace Ogre {
 
     }
 	//-----------------------------------------------------------------------
-	Real ParticleSystemManager::getTimeFactor(void) {
+	Real ParticleSystemManager::getTimeFactor(void) const {
 		return mTimeFactor;
 	}
 	//-----------------------------------------------------------------------
