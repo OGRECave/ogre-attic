@@ -58,9 +58,12 @@ AC_OUTPUT(Makefile \
     PlugIns/FileSystem/Makefile \
     PlugIns/FileSystem/src/Makefile \
     PlugIns/FileSystem/include/Makefile \
+    PlugIns/GuiElements/Makefile \
+    PlugIns/GuiElements/src/Makefile \
+    PlugIns/GuiElements/include/Makefile \
     PlugIns/OctreeSceneManager/Makefile \
-    PlugIns/OctreeSceneManager/src/Makefile
-    PlugIns/OctreeSceneManager/include/Makefile
+    PlugIns/OctreeSceneManager/src/Makefile \
+    PlugIns/OctreeSceneManager/include/Makefile \
     PlugIns/ParticleFX/Makefile \
     PlugIns/ParticleFX/src/Makefile
     PlugIns/ParticleFX/include/Makefile

@@ -1,1 +1,1 @@
-SUBDIRS = BSPSceneManager FileSystem ParticleFX OctreeSceneManager
+SUBDIRS = BSPSceneManager FileSystem ParticleFX OctreeSceneManager GuiElements

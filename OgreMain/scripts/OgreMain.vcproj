@@ -213,6 +213,9 @@
 				RelativePath="..\src\OgreGuiElement.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreGuiManager.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreImage.cpp">
 			</File>
 			<File
@@ -524,6 +527,12 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreGuiElement.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreGuiElementFactory.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreGuiManager.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreImage.h">

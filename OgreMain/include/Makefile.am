@@ -31,6 +31,10 @@ OgreException.h \
 OgreFactoryObj.h \
 OgreFrameListener.h \
 OgreGeometryData.h \
+OgreGuiContainer.h \
+OgreGuiElement.h \
+OgreGuiElementFactory.h \
+OgreGuiManager.h \
 OgreImage.h \
 OgreImageCodec.h \
 OgreInput.h \

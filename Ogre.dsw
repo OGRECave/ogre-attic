@@ -471,6 +471,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "Plugin_GuiElements"=.\PlugIns\GuiElements\scripts\Plugin_GuiElements.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "Plugin_OctreeSceneManager"=.\PlugIns\OctreeSceneManager\scripts\Plugin_OctreeSceneManager.dsp - Package Owner=<4>
 
 Package=<5>

@@ -24,6 +24,9 @@ libOgreMain_la_SOURCES = OgreAnimation.cpp \
                          OgreDynLibManager.cpp \
                          OgreEntity.cpp \
                          OgreException.cpp \
+			 OgreGuiContainer.cpp \
+			 OgreGuiElement.cpp \
+			 OgreGuiManager.cpp \
                          OgreImage.cpp \
                          OgreInput.cpp \
                          OgreJPEGCodec.cpp \

@@ -166,6 +166,9 @@ namespace Ogre {
     {
         _updateFromParent();
         // NB container subclasses will update children too
+
+        // Tell self to update own position geometry
+        updatePositionGeometry();
     }
     //---------------------------------------------------------------------
     void GuiElement::_updateFromParent(void)
@@ -217,7 +220,10 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void GuiElement::_updateRenderQueue(RenderQueue* queue)
     {
-        queue->addRenderable(this, RENDER_QUEUE_OVERLAY, mZOrder);
+        if (mVisible)
+        {
+            queue->addRenderable(this, RENDER_QUEUE_OVERLAY, mZOrder);
+        }
       
     }
 
