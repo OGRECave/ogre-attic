@@ -220,6 +220,10 @@ SOURCE=..\src\OgreMeshManager.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreMeshSerializer.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreMovableObject.cpp
 # End Source File
 # Begin Source File
@@ -540,7 +544,15 @@ SOURCE=..\include\OgreMesh.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreMeshFileFormat.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreMeshManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreMeshSerializer.h
 # End Source File
 # Begin Source File
 
