@@ -31,9 +31,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreProgressiveMesh.h"
 #include "OgreGeometryData.h"
+#include "OgreString.h"
 #include <algorithm>
 
+#include <iostream>
+
+std::ofstream of;
+
 namespace Ogre {
+	#define NEVER_COLLAPSE_COST 99999.9f
     //---------------------------------------------------------------------
     ProgressiveMesh::ProgressiveMesh(GeometryData* data, 
         ushort* indexBuffer, ushort numIndexes)
@@ -43,6 +49,8 @@ namespace Ogre {
         mpIndexBuffer = indexBuffer;
         mNumIndexes = numIndexes;
         mWorstCosts.resize(data->numVertices);
+
+
 
     }
     //---------------------------------------------------------------------
@@ -59,21 +67,36 @@ namespace Ogre {
     {
         LODGeometryData newLod;
 
+#if OGRE_DEBUG_MODE
+		dumpContents("pm_before.log");
+#endif
+
         computeAllCosts();
         // Init
         mCurrNumIndexes = mNumIndexes;
         ushort numVerts, numCollapses;
         numVerts = mpGeomData->numVertices;
+		
+		// Bake top-level LOD
+        bakeNewLOD(&newLod);
+        outList->push_back(newLod);
 
-        while (numLevels--)
+		PMVertex* test = &(mWorkingData[0].mVertList[347]);
+
+		of.open("progressivemesh.log");
+
+		numCollapses = 0;
+		while (numLevels--)
         {
             // Halve vertices every time
             numCollapses = numVerts * 0.5f;
             // Minimum 3 verts!
             if ( (numVerts - numCollapses) < 3) 
                 numCollapses = numVerts - 3;
+			// Store new number of verts
+			numVerts = numVerts - numCollapses;
 
-            while(numCollapses--)
+			while(numCollapses--)
             {
                 ushort nextIndex = getNextCollapser();
                 // Collapse on every buffer
@@ -81,16 +104,27 @@ namespace Ogre {
                 idataend = mWorkingData.end();
                 for (idata = mWorkingData.begin(); idata != idataend; ++idata)
                 {
-                    PMVertex* collapser = &( idata->mVertList.at( /*begin() + */nextIndex ) );
+                    PMVertex* collapser = &( idata->mVertList.at( nextIndex ) );
                     // This will reduce mCurrNumIndexes and recalc costs as required
+					of << "Collapsing index " << collapser->index << "(border: "<< collapser->isBorder() <<
+						") to " << collapser->collapseTo->index << "(border: "<< collapser->collapseTo->isBorder() <<
+						std::endl;
+
+					assert(collapser->collapseTo->removed == false);
+
                     collapse(collapser);
                 }
             }
+#if OGRE_DEBUG_MODE
+			char logname[20];
+			sprintf(logname, "pm_level%d.log", numLevels);
+			dumpContents(logname);
+#endif
 
             // Bake a new LOD and add it to the list
             bakeNewLOD(&newLod);
             outList->push_back(newLod);
-
+			
 
         }
 
@@ -126,10 +160,22 @@ namespace Ogre {
         work.mTriList.resize(numTris); // assumed tri list
         for (i = 0; i < numTris; ++i)
         {
+			PMVertex *v0, *v1, *v2;
+			ushort vindex = *pIdx++;
+			v0 = &(work.mVertList[vindex]);
+			vindex = *pIdx++;
+			v1 = &(work.mVertList[vindex]);
+			vindex = *pIdx++;
+			v2 = &(work.mVertList[vindex]);
+
+			work.mTriList[i].setDetails(i, v0, v1, v2);
+
+			/*
             work.mTriList[i].setDetails(
                 &(work.mVertList[*pIdx++]),
                 &(work.mVertList[*pIdx++]),
                 &(work.mVertList[*pIdx++]) );
+			*/
 
             work.mTriList[i].removed = false;
 
@@ -187,7 +233,8 @@ namespace Ogre {
             // src is on a border, but the src-dest edge has more than one tri on it
             // So it must be collapsing inwards
             // Mark as high-value cost
-            curvature = 1.0f;
+            //curvature = 1.0f;
+			return NEVER_COLLAPSE_COST;
         } 
 
         // check for texture seam ripping
@@ -225,7 +272,8 @@ namespace Ogre {
 
 
         // Cost is the product of the edge length and the curvature
-        return edgeVector.length() * curvature;
+        //return edgeVector.length() * curvature;
+		return curvature;
     }
     //---------------------------------------------------------------------
     void ProgressiveMesh::initialiseEdgeCollapseCosts(void)
@@ -239,7 +287,7 @@ namespace Ogre {
             for (v = i->mVertList.begin(); v != vend; ++v)
             {
                 v->collapseTo = NULL;
-                v->collapseCost = -0.01f;
+                v->collapseCost = NEVER_COLLAPSE_COST;
             }
         }
 
@@ -300,7 +348,16 @@ namespace Ogre {
     {
         PMVertex *dest = src->collapseTo;
 
-	    // Collapse the edge uv by moving vertex u onto v
+		// Abort if we're never supposed to collapse
+		if (src->collapseCost == NEVER_COLLAPSE_COST) 
+			return;
+
+		// Remove this vertex from the running for the next check
+		src->collapseTo = 0;
+		src->collapseCost = NEVER_COLLAPSE_COST;
+		mWorstCosts[src->index] = NEVER_COLLAPSE_COST;
+
+		// Collapse the edge uv by moving vertex u onto v
 	    // Actually remove tris on uv, then update tris that
 	    // have u to have v, and then remove u.
 	    if(!dest) {
@@ -312,21 +369,35 @@ namespace Ogre {
         // Notify others to replace src with dest
         PMVertex::FaceList::iterator f, fend;
         fend = src->face.end();
+		// Queue of faces for removal / replacement
+		// prevents us screwing up the iterators while we parse
+		PMVertex::FaceList faceRemovalList, faceReplacementList;
 	    for(f = src->face.begin(); f != fend; ++f) 
         {
 		    if((*f)->hasVertex(dest)) 
             {
                 // Tri is on src-dest therefore is gone
-			    (*f)->notifyRemoved();
+				faceRemovalList.insert(*f);
                 // Reduce index count by 3 (useful for quick allocation later)
                 mCurrNumIndexes -= 3;
 		    }
             else
             {
                 // Only src involved, replace with dest
-                (*f)->replaceVertex(src, dest);
+				faceReplacementList.insert(*f);
             }
 	    }
+
+		// Remove all the faces queued for removal
+	    for(f = faceRemovalList.begin(); f != faceRemovalList.end(); ++f) 
+		{
+			(*f)->notifyRemoved();
+		}
+		// Replace all the faces queued for replacement
+	    for(f = faceReplacementList.begin(); f != faceReplacementList.end(); ++f) 
+		{
+            (*f)->replaceVertex(src, dest);
+		}
 
         // Notify the vertex that it is gone
         src->notifyRemoved();
@@ -341,11 +412,14 @@ namespace Ogre {
         {
 		    computeEdgeCostAtVertex((*n)->index);
 	    }
+
+
+
     }
     //---------------------------------------------------------------------
     void ProgressiveMesh::computeEdgeCostAtVertex(ushort vertIndex)
     {
-        // Call computer for each buffer on this vertex
+		// Call computer for each buffer on this vertex
         Real worstCost = -0.01f;
         WorkingDataList::iterator i, iend;
         iend = mWorkingData.end();
@@ -362,7 +436,7 @@ namespace Ogre {
     {
         // Scan
         // Not done as a sort because want to keep the lookup simple for now
-        Real bestVal = 99999.9f;
+        Real bestVal = NEVER_COLLAPSE_COST;
         ushort i, bestIndex;
         for (i = 0; i < mpGeomData->numVertices; ++i)
         {
@@ -402,12 +476,13 @@ namespace Ogre {
     {
     }
     //---------------------------------------------------------------------
-    void ProgressiveMesh::PMTriangle::setDetails(PMVertex *v0, PMVertex *v1, 
+    void ProgressiveMesh::PMTriangle::setDetails(ushort newindex, PMVertex *v0, PMVertex *v1, 
         PMVertex *v2)
     {
         assert(v0!=v1 && v1!=v2 && v2!=v0);
 
-        vertex[0]=v0;
+        index = newindex;
+		vertex[0]=v0;
         vertex[1]=v1;
         vertex[2]=v2;
 
@@ -537,7 +612,8 @@ namespace Ogre {
             }
             assert(count>0); // Must be at least one!
             // This edge has only 1 tri on it, it's a border
-            if(count == 1) return true;
+            if(count == 1) 
+				return true;
         }
         return false;
     } 
@@ -558,6 +634,51 @@ namespace Ogre {
 
         neighbor.erase(n);
     }
+    //---------------------------------------------------------------------
+    void ProgressiveMesh::dumpContents(const String& log)
+	{
+		std::ofstream ofdump(log);
+
+		// Just dump 1st working data for now
+		WorkingDataList::iterator worki = mWorkingData.begin();
+
+		VertexList::iterator vi, vend;
+		vend = worki->mVertList.end();
+		ofdump << "-------== VERTEX LIST ==-----------------" << std::endl;
+		for (vi = worki->mVertList.begin(); vi != vend; ++vi)
+		{
+			ofdump << "Vertex " << vi->index << " pos: " << vi->position << " removed: " 
+				<< vi->removed << " isborder: " << vi->isBorder() << std::endl;
+			ofdump << "    Faces:" << std::endl;
+			PMVertex::FaceList::iterator f, fend;
+			fend = vi->face.end();
+			for(f = vi->face.begin(); f != fend; ++f)
+			{
+				ofdump << "    Triangle index " << (*f)->index << std::endl;
+			}
+			ofdump << "    Neighbours:" << std::endl;
+			PMVertex::NeighborList::iterator n, nend;
+			nend = vi->neighbor.end();
+			for (n = vi->neighbor.begin(); n != nend; ++n)
+			{
+				ofdump << "    Vertex index " << (*n)->index << std::endl;
+			}
+
+		}
+
+		TriangleList::iterator ti, tend;
+		tend = worki->mTriList.end();
+		ofdump << "-------== TRIANGLE LIST ==-----------------" << std::endl;
+		for(ti = worki->mTriList.begin(); ti != tend; ++ti)
+		{
+			ofdump << "Triangle " << ti->index << " norm: " << ti->normal << " removed: " << ti->removed << std::endl;
+			ofdump << "    Vertex 0: " << ti->vertex[0]->index << std::endl;
+			ofdump << "    Vertex 1: " << ti->vertex[1]->index << std::endl;
+			ofdump << "    Vertex 2: " << ti->vertex[2]->index << std::endl;
+		}
+
+		ofdump.close();
+	}
 
 
 }
