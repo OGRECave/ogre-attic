@@ -1129,3 +1129,4 @@ TIXML_OSTREAM & operator<< (TIXML_OSTREAM & out, const TiXmlNode & base)
 	base.StreamOut (& out);
 	return out;
 }
+
