@@ -260,8 +260,14 @@ namespace Ogre
 			StringConverter::toString(tex_side) + "x" + StringConverter::toString(tex_side)); 
 
         uchar* imageData = new uchar[tex_side * tex_side * 4];
-		// Reset content
-		memset(imageData, 0, tex_side * tex_side * 4);
+		// Reset content (White, transparent)
+        for (i = 0; i < tex_side * tex_side * 4; i += 4)
+        {
+            imageData[i + 0] = 0xFF; // red
+            imageData[i + 1] = 0xFF; // green
+            imageData[i + 2] = 0xFF; // blue
+            imageData[i + 3] = 0x00; // alpha
+        } 
 
         for( i = startGlyph, l = 0, m = 0, n = 0; i < endGlyph; i++ )
         {
@@ -306,23 +312,14 @@ namespace Ogre
                     }
                     else
                     {
-                        // Clamp colour to full white or off
-                        if (*buffer > 0)
-                        {
-                            *pDest++= 0xFF;
-                            *pDest++= 0xFF;
-                            *pDest++= 0xFF;
-                        }
-                        else
-                        {
-                            *pDest++= 0;
-                            *pDest++= 0;
-                            *pDest++= 0;
-                        }
+                        // Always white whether 'on' or 'off' pixel, since alpha
+                        // will turn off
+                        *pDest++= 0xFF;
+                        *pDest++= 0xFF;
+                        *pDest++= 0xFF;
                     }
                     // Always use the greyscale value for alpha
-                    *pDest++= *buffer++;
-                }
+                    *pDest++= *buffer++;                 }
             }
 
             this->setGlyphTexCoords( i, 
