@@ -20,7 +20,7 @@ email                : janders@users.sf.net
 #include <OgreRenderQueue.h>
 #include <OgreRenderOperation.h>
 #include <OgreCamera.h>
-
+#include <OgreRoot.h>
 
 
 namespace Ogre
@@ -35,11 +35,12 @@ bool TerrainRenderable::mLevelInit = false;
 
 TerrainRenderable::TerrainRenderable()
 {
+    mForcedRenderLevel = -1;
     mTerrain.pVertices = 0;
     mTerrain.pNormals = 0;
     mTerrain.pColours = 0;
-    mTerrain.pTexCoords[0] = 0;
-    mTerrain.pTexCoords[1] = 0;
+    mTerrain.pTexCoords[ 0 ] = 0;
+    mTerrain.pTexCoords[ 1 ] = 0;
     mMinLevelDistSqr = 0;
 
     mInit = false;
@@ -59,21 +60,28 @@ TerrainRenderable::TerrainRenderable()
 
 TerrainRenderable::~TerrainRenderable()
 {
+
     deleteGeometry();
 }
+
 void TerrainRenderable::deleteGeometry()
 {
-    if(mTerrain.pVertices != 0)
+    if ( mTerrain.pVertices != 0 )
         delete mTerrain.pVertices;
-    if(mTerrain.pNormals != 0 )
+
+    if ( mTerrain.pNormals != 0 )
         delete mTerrain.pNormals;
-    if(mTerrain.pColours != 0 )
+
+    if ( mTerrain.pColours != 0 )
         delete mTerrain.pColours;
-    if(mTerrain.pTexCoords[0] != 0 )
-        delete mTerrain.pTexCoords[0];
-    if(mTerrain.pTexCoords[1] != 0 )
-        delete mTerrain.pTexCoords[1];
-    if(mMinLevelDistSqr != 0 )
+
+    if ( mTerrain.pTexCoords[ 0 ] != 0 )
+        delete mTerrain.pTexCoords[ 0 ];
+
+    if ( mTerrain.pTexCoords[ 1 ] != 0 )
+        delete mTerrain.pTexCoords[ 1 ];
+
+    if ( mMinLevelDistSqr != 0 )
         delete mMinLevelDistSqr;
 }
 
@@ -137,7 +145,7 @@ void TerrainRenderable::init( TerrainOptions &options )
 
     mTerrain.pTexCoords[ 1 ] = new Real[ mSize * mSize * 2 ];
 
-    mColors = new unsigned long [ mSize * mSize ];
+    mTerrain.pColours = new unsigned long [ mSize * mSize ];
 
     mInit = true;
 
@@ -146,11 +154,16 @@ void TerrainRenderable::init( TerrainOptions &options )
     mMinLevelDistSqr = new Real[ mNumMipMaps ];
 
 
+    mScale.x = options.scalex;
+
+    mScale.y = options.scaley;
+
+    mScale.z = options.scalez;
 
 
     for ( int i = 0; i < mSize*mSize; i++ )
     {
-        mColors[ i ] = 0xFF0000FF;
+        mTerrain.pColours[ i ] = 0xFFFFFFFF;
     }
 
 
@@ -201,9 +214,40 @@ void TerrainRenderable::init( TerrainOptions &options )
 
 }
 
+void TerrainRenderable::_getNormalAt( float x, float z, Vector3 * result )
+{
+
+    Vector3 here, left, down;
+    here.x = x;
+    here.y = getHeightAt( x, z );
+    here.z = z;
+
+    left.x = x - 1;
+    left.y = getHeightAt( x - 1, z );
+    left.z = z;
+
+    down.x = x;
+    down.y = getHeightAt( x, z + 1 );
+    down.z = z + 1;
+
+    left = left - here;
+
+    down = down - here;
+
+    left.normalise();
+    down.normalise();
+
+    *result = left.crossProduct( down );
+    result -> normalise();
+
+    // result->x = - result->x;
+    // result->y = - result->y;
+    // result->z = - result->z;
+}
+
 void TerrainRenderable::_calculateNormals()
 {
-    Vector3 left, down, here, norm;
+    Vector3 norm;
     int m = 0;
 
     for ( int j = 0; j < mSize; j++ )
@@ -211,73 +255,9 @@ void TerrainRenderable::_calculateNormals()
         for ( int i = 0; i < mSize; i++ )
         {
 
-            here.x = _vertex( i, j, 0 );
-            here.y = _vertex( i, j, 1 );
-            here.z = _vertex( i, j, 2 );
+            _getNormalAt( _vertex( i, j, 0 ), _vertex( i, j, 2 ), &norm );
 
-            if ( i == 0 )
-            {
-
-                if ( mNeighbors[ WEST ] != 0 )
-                {
-
-                    left.x = mNeighbors[ WEST ] -> _vertex( mSize - 2, j, 0 );
-                    left.y = mNeighbors[ WEST ] -> _vertex( mSize - 2, j, 1 );
-                    left.z = mNeighbors[ WEST ] -> _vertex( mSize - 2, j, 2 );
-                }
-
-                else
-                {
-                    left.x = here.x - 1;
-                    left.y = here.y;
-                    left.z = here.z;
-                }
-
-            }
-
-            else
-            {
-                left.x = _vertex( i - 1, j, 0 );
-                left.y = _vertex( i - 1, j, 1 );
-                left.z = _vertex( i - 1, j, 2 );
-            }
-
-
-            if ( j == mSize - 1 )
-            {
-
-                if ( mNeighbors[ SOUTH ] != 0 )
-                {
-                    down.x = mNeighbors[ SOUTH ] -> _vertex( i, 1, 0 );
-                    down.y = mNeighbors[ SOUTH ] -> _vertex( i, 1, 1 );
-                    down.z = mNeighbors[ SOUTH ] -> _vertex( i, 1, 2 );
-                }
-
-                else
-                {
-                    down.x = here.x;
-                    down.y = here.y;
-                    down.z = here.z + 1;
-                }
-            }
-
-            else
-            {
-                down.x = _vertex( i, j + 1, 0 );
-                down.y = _vertex( i, j + 1, 1 );
-                down.z = _vertex( i, j + 1, 2 );
-
-            }
-
-
-            left = left - here;
-            down = down - here;
-
-            left.normalise();
-            down.normalise();
-
-            norm = left.crossProduct( down );
-            norm.normalise();
+            //  printf( "Normal = %5f,%5f,%5f\n", norm.x, norm.y, norm.z );
 
             mTerrain.pNormals[ m ] = norm.x;
             mTerrain.pNormals[ m + 1 ] = norm.y;
@@ -293,6 +273,14 @@ void TerrainRenderable::_calculateNormals()
 
 void TerrainRenderable::_notifyCurrentCamera( Camera* cam )
 {
+
+    if ( mForcedRenderLevel >= 0 )
+    {
+        mRenderLevel = mForcedRenderLevel;
+        return ;
+    }
+
+
     int old_level = mRenderLevel;
 
     Vector3 cpos = cam -> getPosition();
@@ -316,6 +304,9 @@ void TerrainRenderable::_notifyCurrentCamera( Camera* cam )
 
     if ( mRenderLevel < 0 )
         mRenderLevel = mNumMipMaps - 1;
+
+
+    // mRenderLevel = 4;
 
 }
 
@@ -547,6 +538,7 @@ void TerrainRenderable::getRenderOperation( RenderOperation& rend )
             }
 
         }
+
         buffer -> length = numIndexes;
         mLevelIndex[ mRenderLevel ][ index_array ] = buffer;
     }
@@ -564,7 +556,11 @@ void TerrainRenderable::getRenderOperation( RenderOperation& rend )
     rend.operationType = RenderOperation::OT_TRIANGLE_LIST;
 
     if ( mColored )
-        rend.pDiffuseColour = mColors;
+    {
+        rend.pDiffuseColour = mTerrain.pColours;
+        rend.diffuseStride = 0;
+    }
+
     else
         rend.pDiffuseColour = 0;
 
@@ -709,16 +705,34 @@ void TerrainRenderable::_initLevelIndexes()
     mLevelInit = true;
 }
 
+void TerrainRenderable::_adjustRenderLevel( int i )
+{
+
+    mRenderLevel = i;
+    _alignNeighbors();
+
+}
 
 void TerrainRenderable::_alignNeighbors()
 {
 
     //ensure that there aren't any gaps...
+
     for ( int i = 0; i < 4;i++ )
     {
         if ( mNeighbors[ i ] != 0 && mNeighbors[ i ] ->mRenderLevel + 1 < mRenderLevel )
-            mRenderLevel = mNeighbors[ i ] ->mRenderLevel + 1;
+            mNeighbors[ i ] -> _adjustRenderLevel( mRenderLevel - 1 );
     }
+
+    /*
+
+    //always go up, rather than down...
+          if ( mNeighbors[ EAST  ] != 0 && mNeighbors[ EAST ] ->mRenderLevel + 1 < mRenderLevel )
+                 mNeighbors[ EAST ] -> _adjustRenderLevel(  mRenderLevel - 1 );
+
+            if ( mNeighbors[ SOUTH  ] != 0 && mNeighbors[ SOUTH ] ->mRenderLevel + 1 < mRenderLevel )
+                mNeighbors[ SOUTH ] -> _adjustRenderLevel(  mRenderLevel - 1 );
+    */
 }
 
 Real TerrainRenderable::_calculateCFactor()
@@ -734,59 +748,233 @@ Real TerrainRenderable::_calculateCFactor()
 
 float TerrainRenderable::getHeightAt( float x, float z )
 {
-    float offset_x, offset_z;
-    float tile_x, tile_z;
-    int index_x, index_z;
-    float delta_x, delta_z;
+    Vector3 start;
+    Vector3 end;
 
-    offset_x = x - _vertex( 0, 0, 0 );
-    offset_z = z - _vertex( 0, 0, 2 );
+    start.x = _vertex( 0, 0, 0 );
+    start.y = _vertex( 0, 0, 1 );
+    start.z = _vertex( 0, 0, 2 );
 
-    tile_x = ( offset_x / _vertex( mSize - 1, mSize - 1, 0 ) ) * mSize;
-    tile_z = ( offset_z / _vertex( mSize - 1, mSize - 1, 2 ) ) * mSize;
+    end.x = _vertex( mSize - 1, mSize - 1, 0 );
+    end.y = _vertex( mSize - 1, mSize - 1, 1 );
+    end.z = _vertex( mSize - 1, mSize - 1, 2 );
 
-    index_x = ( int ) tile_x;
-    index_z = ( int ) tile_z;
+    /* Safety catch, if the point asked for is outside
+     * of this tile, it will ask the appropriate tile
+     */
 
-    delta_x = tile_x - index_x;
-    delta_z = tile_z - index_z;
+    if ( x < start.x )
+    {
+        if ( mNeighbors[ WEST ] != 0 )
+            return mNeighbors[ WEST ] ->getHeightAt( x, z );
+        else
+            x = start.x;
+    }
 
-    Real h1, h2, h3, h4;
+    if ( x > end.x )
+    {
+        if ( mNeighbors[ EAST ] != 0 )
+            return mNeighbors[ EAST ] ->getHeightAt( x, z );
+        else
+            x = end.x;
+    }
 
-    h1 = _vertex( index_x, index_z, 1 );
+    if ( z < start.z )
+    {
+        if ( mNeighbors[ NORTH ] != 0 )
+            return mNeighbors[ NORTH ] ->getHeightAt( x, z );
+        else
+            z = start.z;
+    }
 
-    if ( index_x + 1 < mSize )
-        h2 = _vertex( index_x + 1, index_z, 1 );
-    else if ( mNeighbors[ EAST ] != 0 )
-        h2 = mNeighbors[ EAST ] ->_vertex( 1, index_z, 1 );
-    else
-        h2 = _vertex( index_x, index_z, 1 );
+    if ( z > end.z )
+    {
+        if ( mNeighbors[ SOUTH ] != 0 )
+            return mNeighbors[ SOUTH ] ->getHeightAt( x, z );
+        else
+            z = end.z;
+    }
 
-    if ( index_x + 1 < mSize && index_z + 1 < mSize )
-        h3 = _vertex( index_x + 1, index_z + 1, 1 );
-    else if ( index_x + 1 < mSize && mNeighbors[ SOUTH ] != 0 )
-        h3 = mNeighbors[ SOUTH ] ->_vertex( index_x + 1, 1, 1 );
-    else if ( index_z + 1 < mSize && mNeighbors[ EAST ] != 0 )
-        h3 = mNeighbors[ EAST ] -> _vertex( 1, index_z + 1, 1 );
-    else if ( mNeighbors[ EAST ] -> mNeighbors[ SOUTH ] != 0 )
-        h3 = mNeighbors[ EAST ] -> mNeighbors[ SOUTH ] -> _vertex( 1, 1, 1 );
-    else
-        h3 = _vertex( index_x, index_z, 1 );
 
-    if ( index_z < mSize )
-        h4 = _vertex( index_x, index_z + 1, 1 );
-    else if ( mNeighbors[ SOUTH ] != 0 )
-        h4 = mNeighbors[ SOUTH ] ->_vertex( index_x, 1, 1 );
-    else
-        h4 = _vertex( index_x, index_z, 1 );
 
-    //interpolated height
-    float top = h4 * ( 1.0f - delta_x ) + delta_x * h3;
+    float x_pct = ( x - start.x ) / ( end.x - start.x );
+    float z_pct = ( z - start.z ) / ( end.z - start.z );
 
-    float bottom = h1 * ( 1.0f - delta_x ) + delta_x * h2;
+    float x_pt = x_pct * ( float ) ( mSize - 1 );
+    float z_pt = z_pct * ( float ) ( mSize - 1 );
 
-    return top*( 1.0f - delta_z ) + delta_z * bottom;
+    int x_index = ( int ) x_pt;
+    int z_index = ( int ) z_pt;
 
+    x_pct = x_pt - x_index;
+    z_pct = z_pt - z_index;
+
+    //bilinear interpolate to find the height.
+
+    float t1 = _vertex( x_index, z_index, 1 );
+    float t2 = _vertex( x_index + 1, z_index, 1 );
+    float b1 = _vertex( x_index, z_index + 1, 1 );
+    float b2 = _vertex( x_index + 1, z_index + 1, 1 );
+
+    float t = ( t1 * ( 1 - x_pct ) ) + ( t2 * ( x_pct ) );
+    float b = ( b1 * ( 1 - x_pct ) ) + ( b2 * ( x_pct ) );
+
+    float h = ( t * ( 1 - z_pct ) ) + ( b * ( z_pct ) );
+
+    return h;
 }
+
+bool TerrainRenderable::intersectSegment( const Vector3 & start, const Vector3 & end, Vector3 * result )
+{
+    Vector3 dir = end - start;
+    Vector3 ray = start;
+
+    dir.normalise();
+
+    //dir.x *= mScale.x;
+    //dir.y *= mScale.y;
+    //dir.z *= mScale.z;
+
+    const Vector3 * corners = getBoundingBox().getAllCorners();
+
+    //start with the next one...
+    ray += dir;
+
+    while ( ! ( ( ray.x < corners[ 0 ].x ) ||
+                ( ray.x > corners[ 4 ].x ) ||
+                ( ray.z < corners[ 0 ].z ) ||
+                ( ray.z > corners[ 4 ].z ) ) )
+    {
+        //do quick checks...
+        /*
+        if( ray.y < corners[0].y && end.y < corners[0].y )
+          {
+            if( result != 0 )
+              *result = Vector3(-1, -1, -1);
+            return false;
+          }
+        if( ray.y > corners[4].y && end.y > corners[4].y )
+          {
+            if( result != 0 )
+              *result = Vector3(-1, -1, -1);
+            return false;
+          }
+            
+              if( ray.y < corners[0].y && end.y < corners[0].y )
+              {
+              if( result != 0 )
+              *result = Vector3(-1, -1, -1);
+              return false;
+              }
+              
+              if( ray.y > corners[4].y && end.y > corners[4].y )
+              {
+              if( result != 0 )
+              *result = Vector3(-1, -1, -1);
+              return false;
+              }
+        */
+
+        float h = getHeightAt( ray.x, ray.z );
+        // printf( "Ray = %f,%f,%f  height = %f\n", ray.x, ray.y, ray.z, h);
+
+        if ( ray.y <= h )
+        {
+            if ( result != 0 )
+                * result = ray;
+
+            return true;
+        }
+
+        else
+        {
+            ray += dir;
+        }
+
+    }
+
+    if ( ray.x < corners[ 0 ].x && mNeighbors[ WEST ] != 0 )
+        return mNeighbors[ WEST ] ->intersectSegment( ray, end, result );
+    else if ( ray.z < corners[ 0 ].z && mNeighbors[ NORTH ] != 0 )
+        return mNeighbors[ NORTH ] ->intersectSegment( ray, end, result );
+    else if ( ray.x > corners[ 4 ].x && mNeighbors[ EAST ] != 0 )
+        return mNeighbors[ EAST ] ->intersectSegment( ray, end, result );
+    else if ( ray.z > corners[ 4 ].z && mNeighbors[ SOUTH ] != 0 )
+        return mNeighbors[ SOUTH ] ->intersectSegment( ray, end, result );
+    else
+    {
+        if ( result != 0 )
+            * result = Vector3( -1, -1, -1 );
+
+        return false;
+    }
+}
+
+void TerrainRenderable::_generateVertexLighting( const Vector3 &sun, ColourValue ambient )
+{
+    if ( !mColored )
+    {
+        printf( "Can't generate terrain vertex lighting with out vertex colors enabled.\n" );
+        return ;
+    }
+
+
+    Vector3 pt;
+    Vector3 normal;
+    Vector3 light;
+
+    //for each point in the terrain, see if it's in the line of sight for the sun.
+    for ( int i = 0; i < mSize; i++ )
+    {
+        for ( int j = 0; j < mSize; j++ )
+        {
+            pt.x = _vertex( i, j, 0 );
+            pt.y = _vertex( i, j, 1 );
+            pt.z = _vertex( i, j, 2 );
+
+            light = sun - pt;
+
+            light.normalise();
+
+            if ( ! intersectSegment( pt, sun, 0 ) )
+            {
+                //
+                _getNormalAt( i, j, &normal );
+
+                float l = light.dotProduct( normal );
+
+                ColourValue v;
+                v.r = ambient.r + l;
+                v.g = ambient.g + l;
+                v.b = ambient.b + l;
+
+                if ( v.r > 1 ) v.r = 1;
+
+                if ( v.g > 1 ) v.g = 1;
+
+                if ( v.b > 1 ) v.b = 1;
+
+                if ( v.r < 0 ) v.r = 0;
+
+                if ( v.g < 0 ) v.g = 0;
+
+                if ( v.b < 0 ) v.b = 0;
+
+                Root::getSingleton().convertColourValue( v, & ( mTerrain.pColours[ _index( i, j ) ] ) );
+
+            }
+
+            else
+            {
+                Root::getSingleton().convertColourValue( ambient, & ( mTerrain.pColours[ _index( i, j ) ] ) );
+            }
+
+        }
+
+    }
+
+    printf( "." );
+}
+
 
 } //namespace

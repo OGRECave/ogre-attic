@@ -38,6 +38,8 @@ class OctreeCamera;
 
 typedef std::list < AxisAlignedBox * > BoxList;
 typedef std::list < unsigned long > ColorList;
+//typedef std::list < SceneNode * > SceneNodeList;
+
 
 /** Specialized SceneManager that divides the geometry into an octree in order to faciliate spatial queries.
 @remarks
@@ -80,6 +82,12 @@ public:
     /** Recurses through the octree determining which nodes are visible. */
     virtual void _findVisibleObjects ( Camera * cam );
 
+    /** Alerts each unculled object, notifying it that it will be drawn.
+     * Useful for doing calculations only on nodes that will be drawn, prior
+     * to drawing them...
+     */
+    virtual void _alertVisibleObjects( void );
+
     /** Walks through the octree, adding any visible objects to the render queue.
     @remarks
     If any octant in the octree if completely within the the view frustum,
@@ -100,12 +108,23 @@ public:
     /** Recurses the octree, adding any nodes intersecting with the box into the given list.
     It ignores the exclude scene node.
     */
-    void findNodesIn( const AxisAlignedBox &box, std::list < SceneNode * > &list, SceneNode *exclude = 0, bool full = false, Octree *octant = 0 );
+    void findNodesIn( const AxisAlignedBox &box, std::list < SceneNode * > &list, SceneNode *exclude = 0 );
 
     /** Recurses the octree, adding any nodes intersecting with the sphere into the given list.
     It ignores the exclude scene node.
     */
-    void findNodesIn( const Sphere &sphere, std::list < SceneNode * > &list, SceneNode *exclude = 0, bool full = false, Octree *octant = 0 );
+    void findNodesIn( const Sphere &sphere, std::list < SceneNode * > &list, SceneNode *exclude = 0 );
+
+
+    /** Recurses the octree, adding any nodes intersecting with the box into the given list.
+    It ignores the exclude scene node.
+    */
+    void _findNodes( const AxisAlignedBox &box, std::list < SceneNode * > &list, SceneNode *exclude = 0, bool full = false, Octree *octant = 0 );
+
+    /** Recurses the octree, adding any nodes intersecting with the sphere into the given list.
+    It ignores the exclude scene node.
+    */
+    void _findNodes( const Sphere &sphere, std::list < SceneNode * > &list, SceneNode *exclude = 0, bool full = false, Octree *octant = 0 );
 
 
     /** Sets the box visibility flag */
@@ -152,6 +171,10 @@ public:
 
 
 protected:
+
+    Material * mBlankMaterial;
+
+    NodeList mVisible;
 
     /** Inserts the boxes corners into the Real array */
     void getBoxVerts( AxisAlignedBox &box, Real *r );

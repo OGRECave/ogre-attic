@@ -1,9 +1,9 @@
 /***************************************************************************
-                         terrainscenemanager.h  -  description
-                            -------------------
-   begin                : Mon Sep 23 2002
-   copyright            : (C) 2002 by Jon Anderson
-   email                : janders@users.sf.net
+                        terrainscenemanager.h  -  description
+                           -------------------
+  begin                : Mon Sep 23 2002
+  copyright            : (C) 2002 by Jon Anderson
+  email                : janders@users.sf.net
 ***************************************************************************/
 
 /***************************************************************************
@@ -58,11 +58,20 @@ public:
     /** Returns the height at the given terrain coordinates. */
     float getHeightAt( float x, float y );
 
+
+    bool intersectSegment( const Vector3 & start, const Vector3 & end, Vector3 * result );
+
+
     /** Returns the normal at the given terrain coordinates. */
     Vector3 & getNormalAt( float x, float y )
     {
         return mTempNormal;
     };
+
+    /** Returns the TerrainRenderable that contains the given pt.
+        If no tile exists at the point, it returns 0;
+    */
+    TerrainRenderable * getTerrainTile( const Vector3 & pt );
 
 
 protected:
@@ -95,8 +104,6 @@ protected:
     SceneNode * mTerrainRoot;
 
     Terrain2D mTiles;
-
-    Image * mImage;
 
 };
 

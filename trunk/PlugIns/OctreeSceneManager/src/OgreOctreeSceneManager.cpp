@@ -124,9 +124,9 @@ Intersection intersect( const Sphere &one, const AxisAlignedBox &two )
 
 unsigned long white = 0xFFFFFFFF;
 
-unsigned short OctreeSceneManager::mIndexes[ 24 ] = {0, 1, 1, 2, 2, 3, 3, 0,     //back
-        0, 6, 6, 5, 5, 1,           //left
-        3, 7, 7, 4, 4, 2,           //right
+unsigned short OctreeSceneManager::mIndexes[ 24 ] = {0, 1, 1, 2, 2, 3, 3, 0,      //back
+        0, 6, 6, 5, 5, 1,            //left
+        3, 7, 7, 4, 4, 2,            //right
         6, 7, 5, 4 };          //front
 unsigned long OctreeSceneManager::mColors[ 8 ] = {white, white, white, white, white, white, white, white };
 
@@ -198,6 +198,14 @@ void OctreeSceneManager::init( AxisAlignedBox &box, int depth )
     Vector3 v( 1.5, 1.5, 1.5 );
 
     mScaleFactor.setScale( v );
+
+    mBlankMaterial = getMaterial( "OctreeBlankMaterial" );
+
+    if ( mBlankMaterial == 0 )
+    {
+        mBlankMaterial = getDefaultMaterialSettings( ) -> clone ( "OctreeBlankMaterial" );
+        mBlankMaterial -> setLightingEnabled( false );
+    }
 
     // setDisplaySceneNodes( true );
     // setShowBoxes( true );
@@ -285,8 +293,9 @@ void OctreeSceneManager::_updateOctreeNode( OctreeNode * onode )
 */
 void OctreeSceneManager::_removeOctreeNode( OctreeNode * n )
 {
-    Octree* oct = n -> getOctant();
-    if (oct)
+    Octree * oct = n -> getOctant();
+
+    if ( oct )
     {
         oct -> _removeNode( n );
     }
@@ -383,34 +392,59 @@ void OctreeSceneManager::_updateSceneGraph( Camera * cam )
     SceneManager::_updateSceneGraph( cam );
 }
 
+void OctreeSceneManager::_alertVisibleObjects( void )
+{
+    NodeList::iterator it = mVisible.begin();
+
+    while ( it != mVisible.end() )
+    {
+        OctreeNode * node = *it;
+
+        ++it;
+    }
+}
+
 void OctreeSceneManager::_renderVisibleObjects( void )
 {
 
-    if ( mShowBoxes )
+    if ( mShowBoxes || mCullCamera )
     {
-        mDestRenderSystem->_setWorldMatrix( Matrix4::IDENTITY );
 
         BoxList::iterator it = mBoxes.begin();
 
-        while ( it != mBoxes.end() )
+        mDestRenderSystem->_setWorldMatrix( Matrix4::IDENTITY );
+        mDestRenderSystem->_setViewMatrix( mCameraInProgress->getViewMatrix() );
+        mDestRenderSystem->_setProjectionMatrix( mCameraInProgress -> getProjectionMatrix() );
+
+        mDestRenderSystem->_beginFrame();
+        setMaterial( mBlankMaterial, 0 );
+
+        if ( mShowBoxes )
         {
-            getBoxVerts( *( *it ), mRenderOp.pVertices );
-            mDestRenderSystem->_render( mRenderOp );
-            ++it;
+            while ( it != mBoxes.end() )
+            {
+                getBoxVerts( *( *it ), mRenderOp.pVertices );
+
+                mDestRenderSystem->_render( mRenderOp );
+                ++it;
+            }
         }
+
+        if ( mCullCamera )
+        {
+            Camera * c = getCamera( "CullCamera" );
+
+            if ( c != 0 )
+            {
+                RenderOperation r;
+                static_cast < OctreeCamera* > ( c ) -> getRenderOperation( r );
+                mDestRenderSystem -> _render( r );
+            }
+        }
+
+        mDestRenderSystem -> _endFrame();
     }
 
-    if ( mCullCamera )
-    {
-        Camera * c = getCamera( "CullCamera" );
-
-        if ( c != 0 )
-        {
-            RenderOperation r;
-            static_cast < OctreeCamera* > ( c ) -> getRenderOperation( r );
-            mDestRenderSystem -> _render( r );
-        }
-    }
 
     SceneManager::_renderVisibleObjects( );
 
@@ -435,6 +469,7 @@ void OctreeSceneManager::_findVisibleObjects( Camera * cam )
 
     mRenderQueue.clear();
     mBoxes.clear();
+    mVisible.clear();
 
     if ( mCullCamera )
     {
@@ -506,6 +541,8 @@ void OctreeSceneManager::walkOctree( OctreeCamera *camera, RenderQueue *queue, O
                 mNumObjects++;
                 sn -> _addToRenderQueue( queue );
 
+                mVisible.push_back( sn );
+
                 if ( mDisplayNodes )
                     queue -> addRenderable( sn );
 
@@ -534,7 +571,17 @@ void OctreeSceneManager::walkOctree( OctreeCamera *camera, RenderQueue *queue, O
 
 }
 
-void OctreeSceneManager::findNodesIn( const AxisAlignedBox &box, std::list < SceneNode * > &list, SceneNode *exclude, bool full, Octree *octant )
+void OctreeSceneManager::findNodesIn( const AxisAlignedBox &box, std::list < SceneNode * > &list, SceneNode *exclude )
+{
+    _findNodes( box, list, exclude );
+}
+
+void OctreeSceneManager::findNodesIn( const Sphere &sphere, std::list < SceneNode * > &list, SceneNode *exclude )
+{
+    _findNodes( sphere, list, exclude );
+}
+
+void OctreeSceneManager::_findNodes( const AxisAlignedBox &box, std::list < SceneNode * > &list, SceneNode *exclude, bool full, Octree *octant )
 {
     if ( octant == 0 )
     {
@@ -585,25 +632,25 @@ void OctreeSceneManager::findNodesIn( const AxisAlignedBox &box, std::list < Sce
 
 
 
-    if ( octant -> mChildren[ 0 ][ 0 ][ 0 ] != 0 ) findNodesIn( box, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 0 ] );
+    if ( octant -> mChildren[ 0 ][ 0 ][ 0 ] != 0 ) _findNodes( box, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 0 ] );
 
-    if ( octant -> mChildren[ 1 ][ 0 ][ 0 ] != 0 ) findNodesIn( box, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 0 ] );
+    if ( octant -> mChildren[ 1 ][ 0 ][ 0 ] != 0 ) _findNodes( box, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 0 ] );
 
-    if ( octant -> mChildren[ 0 ][ 1 ][ 0 ] != 0 ) findNodesIn( box, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 0 ] );
+    if ( octant -> mChildren[ 0 ][ 1 ][ 0 ] != 0 ) _findNodes( box, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 0 ] );
 
-    if ( octant -> mChildren[ 1 ][ 1 ][ 0 ] != 0 ) findNodesIn( box, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 0 ] );
+    if ( octant -> mChildren[ 1 ][ 1 ][ 0 ] != 0 ) _findNodes( box, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 0 ] );
 
-    if ( octant -> mChildren[ 0 ][ 0 ][ 1 ] != 0 ) findNodesIn( box, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 1 ] );
+    if ( octant -> mChildren[ 0 ][ 0 ][ 1 ] != 0 ) _findNodes( box, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 1 ] );
 
-    if ( octant -> mChildren[ 1 ][ 0 ][ 1 ] != 0 ) findNodesIn( box, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 1 ] );
+    if ( octant -> mChildren[ 1 ][ 0 ][ 1 ] != 0 ) _findNodes( box, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 1 ] );
 
-    if ( octant -> mChildren[ 0 ][ 1 ][ 1 ] != 0 ) findNodesIn( box, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 1 ] );
+    if ( octant -> mChildren[ 0 ][ 1 ][ 1 ] != 0 ) _findNodes( box, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 1 ] );
 
-    if ( octant -> mChildren[ 1 ][ 1 ][ 1 ] != 0 ) findNodesIn( box, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 1 ] );
+    if ( octant -> mChildren[ 1 ][ 1 ][ 1 ] != 0 ) _findNodes( box, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 1 ] );
 
 }
 
-void OctreeSceneManager::findNodesIn( const Sphere &sphere, std::list < SceneNode * > &list, SceneNode *exclude, bool full, Octree *octant )
+void OctreeSceneManager::_findNodes( const Sphere &sphere, std::list < SceneNode * > &list, SceneNode *exclude, bool full, Octree *octant )
 {
     if ( octant == 0 )
     {
@@ -652,21 +699,21 @@ void OctreeSceneManager::findNodesIn( const Sphere &sphere, std::list < SceneNod
 
 
 
-    if ( octant -> mChildren[ 0 ][ 0 ][ 0 ] != 0 ) findNodesIn( sphere, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 0 ] );
+    if ( octant -> mChildren[ 0 ][ 0 ][ 0 ] != 0 ) _findNodes( sphere, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 0 ] );
 
-    if ( octant -> mChildren[ 1 ][ 0 ][ 0 ] != 0 ) findNodesIn( sphere, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 0 ] );
+    if ( octant -> mChildren[ 1 ][ 0 ][ 0 ] != 0 ) _findNodes( sphere, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 0 ] );
 
-    if ( octant -> mChildren[ 0 ][ 1 ][ 0 ] != 0 ) findNodesIn( sphere, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 0 ] );
+    if ( octant -> mChildren[ 0 ][ 1 ][ 0 ] != 0 ) _findNodes( sphere, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 0 ] );
 
-    if ( octant -> mChildren[ 1 ][ 1 ][ 0 ] != 0 ) findNodesIn( sphere, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 0 ] );
+    if ( octant -> mChildren[ 1 ][ 1 ][ 0 ] != 0 ) _findNodes( sphere, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 0 ] );
 
-    if ( octant -> mChildren[ 0 ][ 0 ][ 1 ] != 0 ) findNodesIn( sphere, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 1 ] );
+    if ( octant -> mChildren[ 0 ][ 0 ][ 1 ] != 0 ) _findNodes( sphere, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 1 ] );
 
-    if ( octant -> mChildren[ 1 ][ 0 ][ 1 ] != 0 ) findNodesIn( sphere, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 1 ] );
+    if ( octant -> mChildren[ 1 ][ 0 ][ 1 ] != 0 ) _findNodes( sphere, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 1 ] );
 
-    if ( octant -> mChildren[ 0 ][ 1 ][ 1 ] != 0 ) findNodesIn( sphere, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 1 ] );
+    if ( octant -> mChildren[ 0 ][ 1 ][ 1 ] != 0 ) _findNodes( sphere, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 1 ] );
 
-    if ( octant -> mChildren[ 1 ][ 1 ][ 1 ] != 0 ) findNodesIn( sphere, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 1 ] );
+    if ( octant -> mChildren[ 1 ][ 1 ][ 1 ] != 0 ) _findNodes( sphere, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 1 ] );
 
 }
 
@@ -675,7 +722,7 @@ void OctreeSceneManager::resize( const AxisAlignedBox &box )
     std::list < SceneNode * > nodes;
     std::list < SceneNode * > ::iterator it;
 
-    findNodesIn( mOctree->mBox, nodes, 0, true, mOctree );
+    _findNodes( mOctree->mBox, nodes, 0, true, mOctree );
 
     delete mOctree;
 
