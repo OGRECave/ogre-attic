@@ -596,13 +596,14 @@ namespace Ogre
     void D3D9RenderSystem::initCapabilities(void)
     {
 		// get caps
-		mpD3D->GetDeviceCaps( mActiveD3DDriver->getAdapterNumber(), D3DDEVTYPE_HAL, &mCaps );
+		mpD3DDevice->GetDeviceCaps( &mCaps );
 
         // Check for hardware stencil support
 		LPDIRECT3DSURFACE9 pSurf;
 		D3DSURFACE_DESC surfDesc;
 		mpD3DDevice->GetDepthStencilSurface(&pSurf);
 		pSurf->GetDesc(&surfDesc);
+		pSurf->Release();
 
 		if (surfDesc.Format == D3DFMT_D24S8 || surfDesc.Format == D3DFMT_D24X8)
 		{
@@ -1206,29 +1207,25 @@ namespace Ogre
 	void D3D9RenderSystem::_setTextureCoordSet( size_t stage, size_t index )
 	{
 		HRESULT hr;
-		hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, index );
-		if( FAILED( hr ) )
-			Except( hr, "Unable to set texture coord. set index", "D3D8RenderSystem::_setTextureCoordSet" );
         // Record settings
         mTexStageDesc[stage].coordIndex = index;
+
+		hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3D9Mappings::get(mTexStageDesc[stage].autoTexCoordType, mCaps) | index );
+		if( FAILED( hr ) )
+			Except( hr, "Unable to set texture coord. set index", "D3D8RenderSystem::_setTextureCoordSet" );
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setTextureCoordCalculation( size_t stage, TexCoordCalcMethod m,
         const Frustum* frustum)
 	{
-		HRESULT hr = S_OK;
+		HRESULT hr;
 		// record the stage state
 		mTexStageDesc[stage].autoTexCoordType = m;
         mTexStageDesc[stage].frustum = frustum;
 
-		// set aut.tex.coord.gen.mode if present
-		// if not present we'v already set it through D3D9RenderSystem::_setTextureCoordSet
-		if (m != TEXCALC_NONE)
-		{
-			hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3D9Mappings::get(m, mCaps));
-			if(FAILED(hr))
-				Except( hr, "Unable to set texture auto tex.coord. generation mode", "D3D8RenderSystem::_setTextureCoordCalculation" );
-		}
+		hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3D9Mappings::get(m, mCaps) | mTexStageDesc[stage].coordIndex );
+		if(FAILED(hr))
+			Except( hr, "Unable to set texture auto tex.coord. generation mode", "D3D8RenderSystem::_setTextureCoordCalculation" );
 	}
     //---------------------------------------------------------------------
 	void D3D9RenderSystem::_setTextureMatrix( size_t stage, const Matrix4& xForm )

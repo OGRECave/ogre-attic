@@ -912,6 +912,25 @@ namespace Ogre {
             mTexStageDesc[stage].pTex = NULL;
         }
     }
+    //---------------------------------------------------------------------
+    DWORD getD3DTexCalc(TexCoordCalcMethod tcc)
+    {
+        switch (tcc)
+        {
+        case TEXCALC_NONE:
+            return 0;
+        case TEXCALC_ENVIRONMENT_MAP: 
+            // D3D7 does not support spherical reflection
+            return D3DTSS_TCI_CAMERASPACENORMAL;
+        case TEXCALC_ENVIRONMENT_MAP_REFLECTION:
+            return D3DTSS_TCI_CAMERASPACEREFLECTIONVECTOR;
+        case TEXCALC_ENVIRONMENT_MAP_PLANAR:
+        case TEXCALC_PROJECTIVE_TEXTURE:
+            return D3DTSS_TCI_CAMERASPACEPOSITION;
+        case TEXCALC_ENVIRONMENT_MAP_NORMAL:
+            return D3DTSS_TCI_CAMERASPACENORMAL;
+        }
+    }
     //-----------------------------------------------------------------------
     void D3DRenderSystem::_setTextureCoordCalculation(size_t stage, TexCoordCalcMethod m, 
         const Frustum* frustum)
@@ -921,26 +940,8 @@ namespace Ogre {
         mTexStageDesc[stage].autoTexCoordType = m;
         mTexStageDesc[stage].frustum = frustum;
 
-        switch( m )
-        {
-        case TEXCALC_NONE:
-		    // if no calc we've already set index through D3D9RenderSystem::_setTextureCoordSet
-            break;
-        case TEXCALC_ENVIRONMENT_MAP: 
-            // D3D7 does not support spherical reflection
-            hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3DTSS_TCI_CAMERASPACENORMAL );
-            break;
-        case TEXCALC_ENVIRONMENT_MAP_REFLECTION:
-            hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3DTSS_TCI_CAMERASPACEREFLECTIONVECTOR );
-            break;
-        case TEXCALC_ENVIRONMENT_MAP_PLANAR:
-        case TEXCALC_PROJECTIVE_TEXTURE:
-            hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3DTSS_TCI_CAMERASPACEPOSITION );
-            break;
-        case TEXCALC_ENVIRONMENT_MAP_NORMAL:
-            hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3DTSS_TCI_CAMERASPACENORMAL );
-            break;
-        }
+        hr = __SetTextureStageState(stage, D3DTSS_TEXCOORDINDEX, 
+            getD3DTexCalc(m) | mTexStageDesc[stage].coordIndex);
         if( FAILED( hr ) )
             Except( hr, "Error setting texture coord calculation", "D3DRenderSystem::_setTextureCoordCalculation" );
 
@@ -1078,7 +1079,8 @@ namespace Ogre {
 	void D3DRenderSystem::_setTextureCoordSet( size_t stage, size_t index )
 	{
 		HRESULT hr;
-		hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, index );
+		hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, 
+            getD3DTexCalc(mTexStageDesc[stage].autoTexCoordType) | index );
 		if( FAILED( hr ) )
 			Except( hr, "Unable to set texture coord. set index", "D3DRenderSystem::_setTextureCoordSet" );
         // Record settings
