@@ -243,7 +243,8 @@ namespace Ogre {
     void GuiElement::_update(void)
     {
         // Check size if pixel-based
-        if (mMetricsMode == GMM_PIXELS && OverlayManager::getSingleton().hasViewportChanged())
+        if (mMetricsMode == GMM_PIXELS &&
+            (mDerivedOutOfDate || OverlayManager::getSingleton().hasViewportChanged()))
         {
             // Derive parametric version of dimensions
             Real vpWidth, vpHeight;
