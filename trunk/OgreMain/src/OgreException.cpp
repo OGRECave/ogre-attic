@@ -46,8 +46,8 @@ namespace Ogre {
         source( src ),
         stackDepth( msStackDepth )
     {
-        // Log this error
-        LogManager::getSingleton().logMessage(this->getFullDescription());
+        // Log this error - not any more, allow catchers to do it
+        //LogManager::getSingleton().logMessage(this->getFullDescription());
 
         // Set last
         last = this;
