@@ -91,7 +91,6 @@ namespace Ogre
 
 		mLastVertexSourceCount = 0;
 
-        mForcedNormalisation = false;
         mCurrentLights = 0;
 
 
@@ -1107,20 +1106,6 @@ namespace Ogre
 		// record the stage state
 		mTexStageDesc[stage].autoTexCoordType = m;
 
-		// choose normalization method
-		if (m == TEXCALC_ENVIRONMENT_MAP_NORMAL || m == TEXCALC_ENVIRONMENT_MAP)
-        {
-            mForcedNormalisation = true;
-			setNormaliseNormals(true);
-        }
-		else
-        {
-            mForcedNormalisation = false;
-			setNormaliseNormals(false);
-        }
-		if (FAILED(hr))
-			Except( hr, "Unable to set auto-normalisation", "D3D9RenderSystem::_setTextureCoordCalculation" );
-
 		// set aut.tex.coord.gen.mode if present
 		// if not present we'v already set it through D3D9RenderSystem::_setTextureCoordSet
 		if (m != TEXCALC_NONE)
@@ -1932,7 +1917,7 @@ namespace Ogre
     void D3D9RenderSystem::setNormaliseNormals(bool normalise)
     {
         __SetRenderState(D3DRS_NORMALIZENORMALS, 
-            (normalise || mForcedNormalisation) ? TRUE : FALSE);
+            normalise ? TRUE : FALSE);
     }
 	//---------------------------------------------------------------------
     void D3D9RenderSystem::bindGpuProgram(GpuProgram* prg)
