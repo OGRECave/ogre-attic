@@ -157,7 +157,7 @@ namespace Ogre {
 
     // c4 is the light position/direction in these
     // c5 is extrusion distance
-     String ShadowVolumeExtrudeProgram::mPointArbvp1Finite = 
+    String ShadowVolumeExtrudeProgram::mPointArbvp1Finite = 
         "!!ARBvp1.0\n" 
         "PARAM c6 = { 1, 0, 0, 0 };\n"
         "TEMP R0;\n"
@@ -176,52 +176,57 @@ namespace Ogre {
         "DPH result.position.w, R0.xyzz, c0[3];\n"
         "END\n";
 
-     String ShadowVolumeExtrudeProgram::mPointVs_1_1Finite = 
-         "vs_1_1\n"
-         "def c6, 1, 0, 0, 0\n"
-         "dcl_texcoord0 v7\n"
-         "dcl_position v0\n"
-         "add r0.x, c6.x, -v7.x\n"
-         "mul r0.w, r0.x, c5.x\n"
-         "add r0.xyz, v0.xyz, -c4.xyz\n"
-         "mad r0.xyz, r0.w, r0.xyz, v0.xyz\n"
-         "mov r0.w, c6.x\n"
-         "dp4 oPos.x, c0, r0\n"
-         "dp4 oPos.y, c1, r0\n"
-         "dp4 oPos.z, c2, r0\n"
-         "dp4 oPos.w, c3, r0\n";
-     String ShadowVolumeExtrudeProgram::mDirArbvp1Finite = 
-         "!!ARBvp1.0\n"
-         "PARAM c6 = { 1, 0, 0, 0 };\n"
-         "TEMP R0;\n"
-         "ATTRIB v24 = vertex.texcoord[0];\n"
-         "ATTRIB v16 = vertex.position;\n"
-         "PARAM c0[4] = { program.local[0..3] };\n"
-         "PARAM c4 = program.local[4];\n"
-         "PARAM c5 = program.local[5];\n"
-         "MUL R0.x, v24.x, c5.x;\n"
-         "MAD R0.xyz, -R0.x, c4.xyzx, v16.xyzx;\n"
-         "DPH result.position.x, R0.xyzz, c0[0];\n"
-         "DPH result.position.y, R0.xyzz, c0[1];\n"
-         "DPH result.position.z, R0.xyzz, c0[2];\n"
-         "DPH result.position.w, R0.xyzz, c0[3];\n"
-         "END\n";
-     String ShadowVolumeExtrudeProgram::mDirVs_1_1Finite = 
-         "vs_1_1\n"
-         "def c6, 1, 0, 0, 0\n"
-         "dcl_texcoord0 v7\n"
-         "dcl_position v0\n"
-         "mul r0.x, v7.x, c5.x\n"
-         "mad r0.xyz, -r0.x, c4.xyz, v0.xyz\n"
-         "mov r0.w, c6.x\n"
-         "dp4 oPos.x, c0, r0\n"
-         "dp4 oPos.y, c1, r0\n"
-         "dp4 oPos.z, c2, r0\n"
-         "dp4 oPos.w, c3, r0\n";
-     String ShadowVolumeExtrudeProgram::mPointArbvp1FiniteDebug = 
+    String ShadowVolumeExtrudeProgram::mPointVs_1_1Finite = 
+        "vs_1_1\n"
+        "def c6, 1, 0, 0, 0\n"
+        "dcl_texcoord0 v7\n"
+        "dcl_position v0\n"
+        "add r0.x, c6.x, -v7.x\n"
+        "mul r1.x, r0.x, c5.x\n"
+        "add r0.yzw, v0.xxyz, -c4.xxyz\n"
+        "dp3 r0.x, r0.yzw, r0.yzw\n"
+        "rsq r0.x, r0.x\n"
+        "mul r0.xyz, r0.x, r0.yzw\n"
+        "mad r0.xyz, r1.x, r0.xyz, v0.xyz\n"
+        "mov r0.w, c6.x\n"
+        "dp4 oPos.x, c0, r0\n"
+        "dp4 oPos.y, c1, r0\n"
+        "dp4 oPos.z, c2, r0\n"
+        "dp4 oPos.w, c3, r0\n";
+    String ShadowVolumeExtrudeProgram::mDirArbvp1Finite = 
         "!!ARBvp1.0\n"
-        "PARAM c6 = { 1, 0, 0, 0 };"
+        "PARAM c6 = { 1, 0, 0, 0 };\n"
         "TEMP R0;\n"
+        "ATTRIB v24 = vertex.texcoord[0];\n"
+        "ATTRIB v16 = vertex.position;\n"
+        "PARAM c0[4] = { program.local[0..3] };\n"
+        "PARAM c4 = program.local[4];\n"
+        "PARAM c5 = program.local[5];\n"
+        "ADD R0.x, c6.x, -v24.x;\n"
+        "MUL R0.x, R0.x, c5.x;\n"
+        "MAD R0.xyz, -R0.x, c4.xyzx, v16.xyzx;\n"
+        "DPH result.position.x, R0.xyzz, c0[0];\n"
+        "DPH result.position.y, R0.xyzz, c0[1];\n"
+        "DPH result.position.z, R0.xyzz, c0[2];\n"
+        "DPH result.position.w, R0.xyzz, c0[3];\n"
+        "END\n";
+    String ShadowVolumeExtrudeProgram::mDirVs_1_1Finite = 
+        "vs_1_1\n"
+        "def c6, 1, 0, 0, 0\n"
+        "dcl_texcoord0 v7\n"
+        "dcl_position v0\n"
+        "add r0.x, c6.x, -v7.x\n"
+        "mul r0.x, r0.x, c5.x\n"
+        "mad r0.xyz, -r0.x, c4.xyz, v0.xyz\n"
+        "mov r0.w, c6.x\n"
+        "dp4 oPos.x, c0, r0\n"
+        "dp4 oPos.y, c1, r0\n"
+        "dp4 oPos.z, c2, r0\n"
+        "dp4 oPos.w, c3, r0\n";
+    String ShadowVolumeExtrudeProgram::mPointArbvp1FiniteDebug = 
+        "!!ARBvp1.0\n"
+        "PARAM c6 = { 1, 0, 0, 0 };\n"
+        "TEMP R0, R1;\n"
         "ATTRIB v24 = vertex.texcoord[0];\n"
         "ATTRIB v16 = vertex.position;\n"
         "PARAM c0[4] = { program.local[0..3] };\n"
@@ -229,30 +234,36 @@ namespace Ogre {
         "PARAM c4 = program.local[4];\n"
         "MOV result.color.front.primary, c6.x;\n"
         "ADD R0.x, c6.x, -v24.x;\n"
-        "MUL R0.w, R0.x, c5.x;\n"
-        "ADD R0.xyz, v16.xyzx, -c4.xyzx;\n"
-        "MAD R0.xyz, R0.w, R0.xyzx, v16.xyzx;\n"
+        "MUL R1.x, R0.x, c5.x;\n"
+        "ADD R0.yzw, v16.xxyz, -c4.xxyz;\n"
+        "DP3 R0.x, R0.yzwy, R0.yzwy;\n"
+        "RSQ R0.x, R0.x;\n"
+        "MUL R0.xyz, R0.x, R0.yzwy;\n"
+        "MAD R0.xyz, R1.x, R0.xyzx, v16.xyzx;\n"
         "DPH result.position.x, R0.xyzz, c0[0];\n"
         "DPH result.position.y, R0.xyzz, c0[1];\n"
         "DPH result.position.z, R0.xyzz, c0[2];\n"
         "DPH result.position.w, R0.xyzz, c0[3];\n"
         "END\n";
-     String ShadowVolumeExtrudeProgram::mPointVs_1_1FiniteDebug = 
-         "vs_1_1\n"
-         "def c6, 1, 0, 0, 0\n"
-         "dcl_texcoord0 v7\n"
-         "dcl_position v0\n"
-         "mov oD0, c6.x\n"
-         "add r0.x, c6.x, -v7.x\n"
-         "mul r0.w, r0.x, c5.x\n"
-         "add r0.xyz, v0.xyz, -c4.xyz\n"
-         "mad r0.xyz, r0.w, r0.xyz, v0.xyz\n"
-         "mov r0.w, c6.x\n"
-         "dp4 oPos.x, c0, r0\n"
-         "dp4 oPos.y, c1, r0\n"
-         "dp4 oPos.z, c2, r0\n"
-         "dp4 oPos.w, c3, r0\n";
-     String ShadowVolumeExtrudeProgram::mDirArbvp1FiniteDebug = 
+    String ShadowVolumeExtrudeProgram::mPointVs_1_1FiniteDebug = 
+        "vs_1_1\n"
+        "def c6, 1, 0, 0, 0\n"
+        "dcl_texcoord0 v7\n"
+        "dcl_position v0\n"
+        "mov oD0, c6.x\n"
+        "add r0.x, c6.x, -v7.x\n"
+        "mul r1.x, r0.x, c5.x\n"
+        "add r0.yzw, v0.xxyz, -c4.xxyz\n"
+        "dp3 r0.x, r0.yzw, r0.yzw\n"
+        "rsq r0.x, r0.x\n"
+        "mul r0.xyz, r0.x, r0.yzw\n"
+        "mad r0.xyz, r1.x, r0.xyz, v0.xyz\n"
+        "mov r0.w, c6.x\n"
+        "dp4 oPos.x, c0, r0\n"
+        "dp4 oPos.y, c1, r0\n"
+        "dp4 oPos.z, c2, r0\n"
+        "dp4 oPos.w, c3, r0\n";
+    String ShadowVolumeExtrudeProgram::mDirArbvp1FiniteDebug = 
         "!!ARBvp1.0\n"
         "PARAM c6 = { 1, 0, 0, 0 };\n"
         "TEMP R0;\n"
@@ -262,119 +273,121 @@ namespace Ogre {
         "PARAM c4 = program.local[4];\n"
         "PARAM c5 = program.local[5];\n"
         "MOV result.color.front.primary, c6.x;\n"
-        "MUL R0.x, v24.x, c5.x;\n"
+        "ADD R0.x, c6.x, -v24.x;\n"
+        "MUL R0.x, R0.x, c5.x;\n"
         "MAD R0.xyz, -R0.x, c4.xyzx, v16.xyzx;\n"
         "DPH result.position.x, R0.xyzz, c0[0];\n"
         "DPH result.position.y, R0.xyzz, c0[1];\n"
         "DPH result.position.z, R0.xyzz, c0[2];\n"
         "DPH result.position.w, R0.xyzz, c0[3];\n"
         "END\n";
-     String ShadowVolumeExtrudeProgram::mDirVs_1_1FiniteDebug = 
-         "vs_1_1\n"
-         "def c6, 1, 0, 0, 0\n"
-         "dcl_texcoord0 v7\n"
-         "dcl_position v0\n"
-         "mov oD0, c6.x\n"
-         "mul r0.x, v7.x, c5.x\n"
-         "mad r0.xyz, -r0.x, c4.xyz, v0.xyz\n"
-         "mov r0.w, c6.x\n"
-         "dp4 oPos.x, c0, r0\n"
-         "dp4 oPos.y, c1, r0\n"
-         "dp4 oPos.z, c2, r0\n"
-         "dp4 oPos.w, c3, r0\n";
+    String ShadowVolumeExtrudeProgram::mDirVs_1_1FiniteDebug = 
+        "vs_1_1\n"
+        "def c6, 1, 0, 0, 0\n"
+        "dcl_texcoord0 v7\n"
+        "dcl_position v0\n"
+        "mov oD0, c6.x\n"
+        "add r0.x, c6.x, -v7.x\n"
+        "mul r0.x, r0.x, c5.x\n"
+        "mad r0.xyz, -r0.x, c4.xyz, v0.xyz\n"
+        "mov r0.w, c6.x\n"
+        "dp4 oPos.x, c0, r0\n"
+        "dp4 oPos.y, c1, r0\n"
+        "dp4 oPos.z, c2, r0\n"
+        "dp4 oPos.w, c3, r0\n";
 
 
-     const String ShadowVolumeExtrudeProgram::programNames[NUM_SHADOW_EXTRUDER_PROGRAMS] = 
-     {
+    const String ShadowVolumeExtrudeProgram::programNames[NUM_SHADOW_EXTRUDER_PROGRAMS] = 
+    {
         "Ogre/ShadowExtrudePointLight",
-        "Ogre/ShadowExtrudePointLightDebug",
-        "Ogre/ShadowExtrudeDirLight",
-        "Ogre/ShadowExtrudeDirLightDebug",
-        "Ogre/ShadowExtrudePointLightFinite",
-        "Ogre/ShadowExtrudePointLightFiniteDebug",
-        "Ogre/ShadowExtrudeDirLightFinite",
-        "Ogre/ShadowExtrudeDirLightFiniteDebug"
-     };
+            "Ogre/ShadowExtrudePointLightDebug",
+            "Ogre/ShadowExtrudeDirLight",
+            "Ogre/ShadowExtrudeDirLightDebug",
+            "Ogre/ShadowExtrudePointLightFinite",
+            "Ogre/ShadowExtrudePointLightFiniteDebug",
+            "Ogre/ShadowExtrudeDirLightFinite",
+            "Ogre/ShadowExtrudeDirLightFiniteDebug"
+    };
 
-     //---------------------------------------------------------------------
-     //---------------------------------------------------------------------
-     void ShadowVolumeExtrudeProgram::initialise(void)
-     {
-         String syntax;
-         bool vertexProgramFinite[8] = 
-         {
-             false, false, false, false, 
-                 true, true, true, true
-         };
-         bool vertexProgramDebug[8] = 
-         {
-             false, true, false, true, 
-                 false, true, false, true
-         };
-         Light::LightTypes vertexProgramLightTypes[8] = 
-         {
-             Light::LT_POINT, Light::LT_POINT, 
-                 Light::LT_DIRECTIONAL, Light::LT_DIRECTIONAL, 
-                 Light::LT_POINT, Light::LT_POINT, 
-                 Light::LT_DIRECTIONAL, Light::LT_DIRECTIONAL 
-         };
+    //---------------------------------------------------------------------
+    //---------------------------------------------------------------------
+    void ShadowVolumeExtrudeProgram::initialise(void)
+    {
+        String syntax;
+        bool vertexProgramFinite[8] = 
+        {
+            false, false, false, false, 
+                true, true, true, true
+        };
+        bool vertexProgramDebug[8] = 
+        {
+            false, true, false, true, 
+                false, true, false, true
+        };
+        Light::LightTypes vertexProgramLightTypes[8] = 
+        {
+            Light::LT_POINT, Light::LT_POINT, 
+                Light::LT_DIRECTIONAL, Light::LT_DIRECTIONAL, 
+                Light::LT_POINT, Light::LT_POINT, 
+                Light::LT_DIRECTIONAL, Light::LT_DIRECTIONAL 
+        };
 
-         // load hardware extrusion programs for point & dir lights
-         if (GpuProgramManager::getSingleton().isSyntaxSupported("arbvp1"))
-         {
-             // ARBvp1
-             syntax = "arbvp1";
-         }
-         else if (GpuProgramManager::getSingleton().isSyntaxSupported("vs_1_1"))
-         {
-             syntax = "vs_1_1";
-         }
-         else
-         {
-             Except(Exception::ERR_INTERNAL_ERROR, 
-                 "Vertex programs are supposedly supported, but neither "
-                 "arbvp1 nor vs_1_1 syntaxes are present.", 
-                 "SceneManager::initShadowVolumeMaterials");
-         }
-         // Create all programs
-         for (unsigned short v = 0; v < NUM_SHADOW_EXTRUDER_PROGRAMS; ++v)
-         {
-             // Create debug extruders
-             if (!GpuProgramManager::getSingleton().getByName(
-                 programNames[v]))
-             {
-                 GpuProgram* vp = 
-                     GpuProgramManager::getSingleton().createProgramFromString(
-                     programNames[v],
-                     ShadowVolumeExtrudeProgram::getProgramSource(
-                     vertexProgramLightTypes[v], syntax, 
-                     vertexProgramFinite[v], vertexProgramDebug[v]),
-                     GPT_VERTEX_PROGRAM, syntax);
-                 vp->load();
-             }
-         }
-     }
-     //---------------------------------------------------------------------
-     const String& ShadowVolumeExtrudeProgram::getProgramSource(
-         Light::LightTypes lightType, const String syntax, bool finite, bool debug)
-     {
-         if (lightType == Light::LT_DIRECTIONAL)
-         {
-             if (syntax == "arbvp1")
-             {
-                 if (finite)
-                 {
-                     if (debug)
-                     {
-                         return getDirectionalLightExtruderArbvp1FiniteDebug();
-                     }
-                     else
-                     {
-                         return getDirectionalLightExtruderArbvp1Finite();
-                     }
-                 }
-                 else
-                 {
+        // load hardware extrusion programs for point & dir lights
+        if (GpuProgramManager::getSingleton().isSyntaxSupported("arbvp1"))
+        {
+            // ARBvp1
+            syntax = "arbvp1";
+        }
+        else if (GpuProgramManager::getSingleton().isSyntaxSupported("vs_1_1"))
+        {
+            syntax = "vs_1_1";
+        }
+        else
+        {
+            Except(Exception::ERR_INTERNAL_ERROR, 
+                "Vertex programs are supposedly supported, but neither "
+                "arbvp1 nor vs_1_1 syntaxes are present.", 
+                "SceneManager::initShadowVolumeMaterials");
+        }
+        // Create all programs
+        for (unsigned short v = 0; v < NUM_SHADOW_EXTRUDER_PROGRAMS; ++v)
+        {
+            // Create debug extruders
+            if (!GpuProgramManager::getSingleton().getByName(
+                programNames[v]))
+            {
+                GpuProgram* vp = 
+                    GpuProgramManager::getSingleton().createProgramFromString(
+                    programNames[v],
+                    ShadowVolumeExtrudeProgram::getProgramSource(
+                    vertexProgramLightTypes[v], syntax, 
+                    vertexProgramFinite[v], vertexProgramDebug[v]),
+                    GPT_VERTEX_PROGRAM, syntax);
+                vp->load();
+            }
+        }
+    }
+    //---------------------------------------------------------------------
+    const String& ShadowVolumeExtrudeProgram::getProgramSource(
+        Light::LightTypes lightType, const String syntax, bool finite, bool debug)
+    {
+        if (lightType == Light::LT_DIRECTIONAL)
+        {
+            if (syntax == "arbvp1")
+            {
+                if (finite)
+                {
+                    if (debug)
+                    {
+                        return getDirectionalLightExtruderArbvp1FiniteDebug();
+                    }
+                    else
+                    {
+                        return getDirectionalLightExtruderArbvp1Finite();
+                    }
+                }
+                else
+                {
                     if (debug)
                     {
                         return getDirectionalLightExtruderArbvp1Debug();
@@ -383,23 +396,23 @@ namespace Ogre {
                     {
                         return getDirectionalLightExtruderArbvp1();
                     }
-                 }
-             }
-             else
-             {
-                 if (finite)
-                 {
-                     if (debug)
-                     {
-                         return getDirectionalLightExtruderVs_1_1FiniteDebug();
-                     }
-                     else
-                     {
-                         return getDirectionalLightExtruderVs_1_1Finite();
-                     }
-                 }
-                 else
-                 {
+                }
+            }
+            else
+            {
+                if (finite)
+                {
+                    if (debug)
+                    {
+                        return getDirectionalLightExtruderVs_1_1FiniteDebug();
+                    }
+                    else
+                    {
+                        return getDirectionalLightExtruderVs_1_1Finite();
+                    }
+                }
+                else
+                {
                     if (debug)
                     {
                         return getDirectionalLightExtruderVs_1_1Debug();
@@ -408,120 +421,120 @@ namespace Ogre {
                     {
                         return getDirectionalLightExtruderVs_1_1();
                     }
-                 }
-             }
-         }
-         else
-         {
-             if (syntax == "arbvp1")
-             {
-                 if (finite)
-                 {
-                     if (debug)
-                     {
-                         return getPointLightExtruderArbvp1FiniteDebug();
-                     }
-                     else
-                     {
-                         return getPointLightExtruderArbvp1Finite();
-                     }
-                 }
-                 else
-                 {
-                     if (debug)
-                     {
-                         return getPointLightExtruderArbvp1Debug();
-                     }
-                     else
-                     {
-                         return getPointLightExtruderArbvp1();
-                     }
-                 }
-             }
-             else
-             {
-                 if (finite)
-                 {
-                     if (debug)
-                     {
-                         return getPointLightExtruderVs_1_1FiniteDebug();
-                     }
-                     else
-                     {
-                         return getPointLightExtruderVs_1_1Finite();
-                     }
-                 }
-                 else
-                 {
-                     if (debug)
-                     {
-                         return getPointLightExtruderVs_1_1Debug();
-                     }
-                     else
-                     {
-                         return getPointLightExtruderVs_1_1();
-                     }
-                 }
-             }
-         }
-         // to keep compiler happy
-         return String::BLANK;
-     }
-     //---------------------------------------------------------------------
-     const String& ShadowVolumeExtrudeProgram::getProgramName(
-         Light::LightTypes lightType, bool finite, bool debug)
-     {
-         if (lightType == Light::LT_DIRECTIONAL)
-         {
-             if (finite)
-             {
-                 if (debug)
-                 {
-                     return programNames[DIRECTIONAL_LIGHT_FINITE_DEBUG];
-                 }
-                 else
-                 {
-                     return programNames[DIRECTIONAL_LIGHT_FINITE];
-                 }
-             }
-             else
-             {
-                 if (debug)
-                 {
-                     return programNames[DIRECTIONAL_LIGHT_DEBUG];
-                 }
-                 else
-                 {
-                     return programNames[DIRECTIONAL_LIGHT];
-                 }
-             }
-         }
-         else
-         {
-             if (finite)
-             {
-                 if (debug)
-                 {
-                     return programNames[POINT_LIGHT_FINITE_DEBUG];
-                 }
-                 else
-                 {
-                     return programNames[POINT_LIGHT_FINITE];
-                 }
-             }
-             else
-             {
-                 if (debug)
-                 {
-                     return programNames[POINT_LIGHT_DEBUG];
-                 }
-                 else
-                 {
-                     return programNames[POINT_LIGHT];
-                 }
-             }
-         }
-     }
+                }
+            }
+        }
+        else
+        {
+            if (syntax == "arbvp1")
+            {
+                if (finite)
+                {
+                    if (debug)
+                    {
+                        return getPointLightExtruderArbvp1FiniteDebug();
+                    }
+                    else
+                    {
+                        return getPointLightExtruderArbvp1Finite();
+                    }
+                }
+                else
+                {
+                    if (debug)
+                    {
+                        return getPointLightExtruderArbvp1Debug();
+                    }
+                    else
+                    {
+                        return getPointLightExtruderArbvp1();
+                    }
+                }
+            }
+            else
+            {
+                if (finite)
+                {
+                    if (debug)
+                    {
+                        return getPointLightExtruderVs_1_1FiniteDebug();
+                    }
+                    else
+                    {
+                        return getPointLightExtruderVs_1_1Finite();
+                    }
+                }
+                else
+                {
+                    if (debug)
+                    {
+                        return getPointLightExtruderVs_1_1Debug();
+                    }
+                    else
+                    {
+                        return getPointLightExtruderVs_1_1();
+                    }
+                }
+            }
+        }
+        // to keep compiler happy
+        return String::BLANK;
+    }
+    //---------------------------------------------------------------------
+    const String& ShadowVolumeExtrudeProgram::getProgramName(
+        Light::LightTypes lightType, bool finite, bool debug)
+    {
+        if (lightType == Light::LT_DIRECTIONAL)
+        {
+            if (finite)
+            {
+                if (debug)
+                {
+                    return programNames[DIRECTIONAL_LIGHT_FINITE_DEBUG];
+                }
+                else
+                {
+                    return programNames[DIRECTIONAL_LIGHT_FINITE];
+                }
+            }
+            else
+            {
+                if (debug)
+                {
+                    return programNames[DIRECTIONAL_LIGHT_DEBUG];
+                }
+                else
+                {
+                    return programNames[DIRECTIONAL_LIGHT];
+                }
+            }
+        }
+        else
+        {
+            if (finite)
+            {
+                if (debug)
+                {
+                    return programNames[POINT_LIGHT_FINITE_DEBUG];
+                }
+                else
+                {
+                    return programNames[POINT_LIGHT_FINITE];
+                }
+            }
+            else
+            {
+                if (debug)
+                {
+                    return programNames[POINT_LIGHT_DEBUG];
+                }
+                else
+                {
+                    return programNames[POINT_LIGHT];
+                }
+            }
+        }
+    }
 
 
 
