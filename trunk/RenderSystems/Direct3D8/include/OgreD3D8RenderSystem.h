@@ -44,7 +44,6 @@ namespace Ogre {
 		LPDIRECT3D8			mpD3D;
 		LPDIRECT3DDEVICE8	mpD3DDevice;
 		
-		bool mVSync;
 		// List of D3D drivers installed (video cards)
 		// Enumerates itself
 		D3D8DriverList* mDriverList;
@@ -78,6 +77,9 @@ namespace Ogre {
 		Light* mLights[MAX_LIGHTS];
 
 		HINSTANCE mhInstance;
+
+		// Stored options
+		ConfigOptionMap mOptions;
 
 		D3D8DriverList* getDirect3DDrivers(void);
 		void refreshD3DSettings(void);

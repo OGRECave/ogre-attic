@@ -30,7 +30,11 @@ http://www.gnu.org/copyleft/lesser.txt.s
 #include "OgreCamera.h"
 #include "OgreGLTextureManager.h"
 
-#include "OgreSDLGLSupport.h"
+#if OGRE_PLATFORM != PLATFORM_WIN32
+#	include "OgreSDLGLSupport.h"
+#else
+#	include "OgreWin32GLSupport.h"
+#endif
 
 #ifdef HAVE_CONFIG_H
 #   include "config.h"
@@ -45,7 +49,11 @@ namespace Ogre {
         LogManager::getSingleton().logMessage(getName() + " created.");
 
         // Get our GLSupport
+#if OGRE_PLATFORM != PLATFORM_WIN32
         mGLSupport = new SDLGLSupport();
+#else
+		mGLSupport = new Win32GLSupport();
+#endif
         
         for( int i=0; i<MAX_LIGHTS; i++ )
             mLights[i] = NULL;
@@ -87,82 +95,33 @@ namespace Ogre {
     void GLRenderSystem::initConfigOptions(void)
     {
         OgreGuard("GLRenderSystem::initConfigOptions");
-        mGLSupport->addConfig(mOptions);
+        mGLSupport->addConfig();
         OgreUnguard();
     }
     
     ConfigOptionMap& GLRenderSystem::getConfigOptions(void)
     {
-        return mOptions;
+        return mGLSupport->getConfigOptions();
     }
 
-    void GLRenderSystem::setConfigOption(const String &name, 
-                                          const String &value)
+    void GLRenderSystem::setConfigOption(const String &name, const String &value)
     {
-        ConfigOptionMap::iterator it = mOptions.find(name);
-
-        if (it != mOptions.end())
-            it->second.currentValue = value;
+        mGLSupport->setConfigOption(name, value);
     }
 
     String GLRenderSystem::validateConfigOptions(void)
     {
         // XXX Return an error string if something is invalid
-        return mGLSupport->validateConfig(mOptions);
+        return mGLSupport->validateConfig();
     }
 
     RenderWindow* GLRenderSystem::initialise(bool autoCreateWindow)
     {
-        RenderWindow* autoWindow = NULL;
-
         //The main startup
         RenderSystem::initialise(autoCreateWindow);
 
         mGLSupport->start();
-
-        if (autoCreateWindow)
-        {
-            bool fullscreen = false;
-
-            ConfigOptionMap::iterator opt = mOptions.find("Full Screen");
-            if (opt == mOptions.end())
-            {
-                Except(999, "Can't find full screen options!",
-                        "GLRenderSystem::initialise");
-            }
-
-            if (opt->second.currentValue == "Yes")
-                fullscreen = true;
-            else
-                fullscreen = false;
-
-            int w, h;
-            opt = mOptions.find("Video Mode");
-            if (opt == mOptions.end())
-            {
-                Except(999, "Can't find full screen options!",
-                        "GLRenderSystem::initialise");
-            }
-
-            std::string val = opt->second.currentValue;
-            std::string::size_type pos = val.find("x");
-            if (pos == std::string::npos)
-            {
-                Except(999, "Invalid Video Mode provided",
-                        "GLRenderSystem::initialise");
-            }
-
-            w = atoi(val.substr(0, pos).c_str());
-            h = atoi(val.substr(pos + 1).c_str());
-            autoWindow = createRenderWindow("OGRE Render Window", w, h, 32, fullscreen);
-        }
-        else
-        {
-            // XXX What is the else?
-        }
-        
-        // XXX Investigate vSync
-
+		RenderWindow* autoWindow = mGLSupport->createWindow(autoCreateWindow, this);
         mGLSupport->initialiseExtensions();
 
         LogManager::getSingleton().logMessage(
@@ -266,9 +225,8 @@ namespace Ogre {
         }
 
         // Create the window
-        RenderWindow* win = mGLSupport->newWindow();
-        win->create(name, width, height, colourDepth, fullScreen,
-            left, top, depthBuffer, parentWindowHandle);
+        RenderWindow* win = mGLSupport->newWindow(name, width, height, colourDepth, fullScreen,
+			left, top, depthBuffer, parentWindowHandle, mVSync);
 
         attachRenderTarget( *win );
 

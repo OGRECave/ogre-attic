@@ -73,6 +73,8 @@ namespace Ogre {
 
 
 
+		// Stored options
+		ConfigOptionMap mOptions;
 
         // Private utilities
         DDDriverList* getDirectDrawDrivers(void);

@@ -134,6 +134,14 @@ SOURCE=..\src\OgreSDLGLSupport.cpp
 
 SOURCE=..\src\OgreSDLWindow.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreWin32GLSupport.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreWin32Window.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -169,6 +177,18 @@ SOURCE=..\include\OgreSDLPrerequisites.h
 # Begin Source File
 
 SOURCE=..\include\OgreSDLWindow.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreWin32GLSupport.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreWin32Prerequisites.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreWin32Window.h
 # End Source File
 # Begin Source File
 

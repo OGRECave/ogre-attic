@@ -266,7 +266,6 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BillboardSet::_notifyCurrentCamera( Camera* cam )
     {
-        unsigned int j;
         /* Generate the vertices for all the billboards relative to the camera
            Also take the opportunity to update the vertex colours
            May as well do it here to save on loops elsewhere
