@@ -23,13 +23,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 
-#include <vector>
 #include "OgreStableHeaders.h"
 
 #include "OgreString.h"
 #include "OgreGuiManager.h"
 #include "OgreOverlayElement.h"
-#include "OgreGuiContainer.h"
+#include "OgreOverlayContainer.h"
 #include "OgreOverlayElementFactory.h"
 #include "OgreException.h"
 #include "OgreLogManager.h"
@@ -89,7 +88,7 @@ namespace Ogre {
 
 			newObj = createOverlayElement(typeNameToCreate, instanceName, isTemplate);
 
-			((GuiContainer*)newObj)->copyFromTemplate(templateGui);
+			((OverlayContainer*)newObj)->copyFromTemplate(templateGui);
 		}
         
 		return newObj;
@@ -221,7 +220,7 @@ namespace Ogre {
             }
 
             // remove from parent, if any
-            GuiContainer* parent;
+            OverlayContainer* parent;
             if ((parent = element->getParent()) != 0)
             {
                 parent->_removeChild(element->getName());

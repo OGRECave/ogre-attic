@@ -26,7 +26,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreMouseEvent.h"
 #include "OgreEventDispatcher.h"
-#include "OgreGuiContainer.h"
 #include "OgreTargetManager.h"
 #include "OgreEventProcessor.h"
 #include "OgrePositionTarget.h"

@@ -25,28 +25,18 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreString.h"
 #include "OgreGuiManager.h"
-#include "OgreGuiElementFactories.h"
+#include "OgreOverlayElementFactory.h"
 #include "OgreException.h"
 #include "OgreStringVector.h"
 #include "OgreRoot.h"
-#include "OgreCursorGuiElement.h"
 #include "OgreOverlayManager.h"
 
 namespace Ogre {
 
     //-----------------------------------------------------------------------
-    OverlayElementFactory* pCursorFactory = NULL;
     OverlayElementFactory* pPanelFactory = NULL;
     OverlayElementFactory* pBorderPanelFactory = NULL;
     OverlayElementFactory* pTextAreaFactory = NULL;
-    OverlayElementFactory* pTextBoxFactory = NULL;
-    OverlayElementFactory* pButtonFactory = NULL;
-    OverlayElementFactory* pBorderButtonFactory = NULL;
-    OverlayElementFactory* pListFactory = NULL;
-    OverlayElementFactory* pScrollBarFactory = NULL;
-    OverlayElementFactory* pPopupMenuFactory = NULL;
-    OverlayElementFactory* pTTYFactory = NULL;
-  	CursorGuiElement*  pCursorGui = NULL;
     //-----------------------------------------------------------------------
 
     //-----------------------------------------------------------------------
@@ -54,9 +44,6 @@ namespace Ogre {
     {
         SET_TERM_HANDLER;
         
-        pCursorFactory = new CursorGuiElementFactory();
-        GuiManager::getSingleton().addOverlayElementFactory(pCursorFactory);
-
         pPanelFactory = new PanelOverlayElementFactory();
         GuiManager::getSingleton().addOverlayElementFactory(pPanelFactory);
 
@@ -65,31 +52,6 @@ namespace Ogre {
         
         pTextAreaFactory = new TextAreaOverlayElementFactory();
         GuiManager::getSingleton().addOverlayElementFactory(pTextAreaFactory);
-
-        pTextBoxFactory = new TextBoxGuiElementFactory();
-        GuiManager::getSingleton().addOverlayElementFactory(pTextBoxFactory);
-
-		pButtonFactory = new ButtonGuiElementFactory();
-        GuiManager::getSingleton().addOverlayElementFactory(pButtonFactory);
-
-		pBorderButtonFactory = new BorderButtonGuiElementFactory();
-        GuiManager::getSingleton().addOverlayElementFactory(pBorderButtonFactory);
-
-		pListFactory = new ListGuiElementFactory();
-        GuiManager::getSingleton().addOverlayElementFactory(pListFactory);
-
-		pScrollBarFactory = new ScrollBarGuiElementFactory();
-        GuiManager::getSingleton().addOverlayElementFactory(pScrollBarFactory);
-
-		pPopupMenuFactory = new PopupMenuGuiElementFactory();
-        GuiManager::getSingleton().addOverlayElementFactory(pPopupMenuFactory);
-        
-        pTTYFactory = new TTYGuiElementFactory();
-        GuiManager::getSingleton().addOverlayElementFactory(pTTYFactory);
-
-            // create default cursor
-		pCursorGui = new CursorGuiElement("Cursor default");
-		OverlayManager::getSingleton().setDefaultCursorGui(pCursorGui, pCursorGui);
     } 
 
     //-----------------------------------------------------------------------
@@ -98,15 +60,6 @@ namespace Ogre {
         delete pPanelFactory;
         delete pBorderPanelFactory;
         delete pTextAreaFactory;
-        delete pTextBoxFactory;
-		delete pButtonFactory;
-		delete pScrollBarFactory;
-        delete pPopupMenuFactory;
-		delete pBorderButtonFactory;
-		delete pListFactory;
-		delete pCursorGui;
-        delete pTTYFactory;
-            delete pCursorFactory; 
 
     }
 

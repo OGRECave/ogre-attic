@@ -26,14 +26,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef __PanelOverlayElement_H__
 #define __PanelOverlayElement_H__
 
-#include "OgreGuiContainer.h"
+#include "OgreOverlayContainer.h"
 
 namespace Ogre {
 
 
-    /** GuiElement representing a flat, single-material (or transparent) panel which can contain other elements.
+    /** OverlayElement representing a flat, single-material (or transparent) panel which can contain other elements.
     @remarks
-        This class subclasses GuiContainer because it can contain other elements. Like other
+        This class subclasses OverlayContainer because it can contain other elements. Like other
         containers, if hidden it's contents are also hidden, if moved it's contents also move etc. 
         The panel itself is a 2D rectangle which is either completely transparent, or is rendered 
         with a single material. The texture(s) on the panel can be tiled depending on your requirements.
@@ -46,7 +46,7 @@ namespace Ogre {
         layers, scrolling / animated textures etc. For multiple texture layers, you have to set 
         the tiling level for each layer.
     */
-    class _OgreExport PanelOverlayElement : public GuiContainer
+    class _OgreExport PanelOverlayElement : public OverlayContainer
     {
     public:
         /** Constructor. */
@@ -79,13 +79,13 @@ namespace Ogre {
         /** Returns whether this panel is transparent. */
         bool isTransparent(void) const;
 
-        /** See GuiElement. */
+        /** See OverlayElement. */
         virtual const String& getTypeName(void) const;
         /** See Renderable. */
         void getRenderOperation(RenderOperation& op);
-        /** Overridden from GuiElement */
+        /** Overridden from OverlayElement */
         void setMaterialName(const String& matName);
-        /** Overridden from GuiContainer */
+        /** Overridden from OverlayContainer */
         void _updateRenderQueue(RenderQueue* queue);
 
 
@@ -113,7 +113,7 @@ namespace Ogre {
 
         RenderOperation mRenderOp;
 
-        /// internal method for setting up geometry, called by GuiElement::update
+        /// internal method for setting up geometry, called by OverlayElement::update
         virtual void updatePositionGeometry(void);
 
         /// Called to update the texture coords when layers change

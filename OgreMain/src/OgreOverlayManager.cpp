@@ -28,7 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringVector.h"
 #include "OgreOverlay.h"
 #include "OgreGuiManager.h"
-#include "OgreGuiContainer.h"
+#include "OgreOverlayContainer.h"
 #include "OgreStringConverter.h"
 #include "OgreLogManager.h"
 #include "OgreSceneManagerEnumerator.h"
@@ -276,7 +276,7 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------
     void OverlayManager::parseNewElement( DataChunk& chunk, String& elemType, String& elemName, 
-            bool isContainer, Overlay* pOverlay, bool isTemplate, String templateName, GuiContainer* container)
+            bool isContainer, Overlay* pOverlay, bool isTemplate, String templateName, OverlayContainer* container)
     {
         String line;
 
@@ -295,7 +295,7 @@ namespace Ogre {
 		// do not add a template to the overlay. For templates overlay = 0
 		else if (pOverlay)	
 		{
-			pOverlay->add2D((GuiContainer*)newElement);
+			pOverlay->add2D((OverlayContainer*)newElement);
 		}
 
         while(!chunk.isEOF())
@@ -311,7 +311,7 @@ namespace Ogre {
                 }
                 else
                 {
-                    if (isContainer && parseChildren(chunk,line, pOverlay, isTemplate, static_cast<GuiContainer*>(newElement)))
+                    if (isContainer && parseChildren(chunk,line, pOverlay, isTemplate, static_cast<OverlayContainer*>(newElement)))
                     {
 					    // nested children... don't reparse it
                     }
@@ -327,7 +327,7 @@ namespace Ogre {
 
     //---------------------------------------------------------------------
     bool OverlayManager::parseChildren( DataChunk& chunk, const String& line,
-            Overlay* pOverlay, bool isTemplate, GuiContainer* parent)
+            Overlay* pOverlay, bool isTemplate, OverlayContainer* parent)
 	{
 		bool ret = false;
 		std::vector<String> params;
@@ -386,7 +386,7 @@ namespace Ogre {
 			}
        
 			skipToNextOpenBrace(chunk);
-			parseNewElement(chunk, params[1+skipParam], params[2+skipParam], true, pOverlay, isTemplate, templateName, (GuiContainer*)parent);
+			parseNewElement(chunk, params[1+skipParam], params[2+skipParam], true, pOverlay, isTemplate, templateName, (OverlayContainer*)parent);
 
 		}
 
@@ -598,7 +598,7 @@ namespace Ogre {
     }
 
 	//-----------------------------------------------------------------------------
-	void OverlayManager::setDefaultCursorGui(GuiContainer* cursor, MouseMotionListener* cursorListener)
+	void OverlayManager::setDefaultCursorGui(OverlayContainer* cursor, MouseMotionListener* cursorListener)
 	{
 		mCursorGuiRegistered = cursor;
 		//mCursorListener = cursorListener;
@@ -609,7 +609,7 @@ namespace Ogre {
 	}
 
 	//-----------------------------------------------------------------------------
-	void OverlayManager::setCursorGui(GuiContainer* cursor)
+	void OverlayManager::setCursorGui(OverlayContainer* cursor)
 	{
             // remove old cursor and listener, if any
         if (mCursorGuiRegistered != 0)
@@ -629,7 +629,7 @@ namespace Ogre {
 	}
 
 	//-----------------------------------------------------------------------------
-	GuiContainer* OverlayManager::getCursorGui()
+	OverlayContainer* OverlayManager::getCursorGui()
 	{
         if(!mCursorGuiInitialised)
         {

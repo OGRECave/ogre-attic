@@ -63,16 +63,16 @@ namespace Ogre {
     {
 
     public:
-              typedef std::list<GuiContainer*> GuiContainerList;
+              typedef std::list<OverlayContainer*> OverlayContainerList;
     protected:
         ulong mZOrder;
         bool mVisible;
         /// Internal root node, used as parent for 3D objects
         SceneNode* mRootNode;
         // 2D elements
-        // GuiContainers, linked list for easy sorting by zorder later
+        // OverlayContainers, linked list for easy sorting by zorder later
         // Not a map because sort can be saved since changes infrequent (unlike render queue)
-        GuiContainerList m2DElements;
+        OverlayContainerList m2DElements;
 
         // Degrees of rotation around center
         Radian mRotate;
@@ -97,7 +97,7 @@ namespace Ogre {
         /** Generic unload - called by OverlayManager. */
         virtual void unload(void);
 
-	    GuiContainer* getChild(const String& name);
+	    OverlayContainer* getChild(const String& name);
 
         /** Gets the name of this overlay. */
         const String& getName(void) const;
@@ -128,14 +128,14 @@ namespace Ogre {
             a container.
         @param cont Pointer to a container to add, created using GuiManager.
         */
-        void add2D(GuiContainer* cont);
+        void add2D(OverlayContainer* cont);
 
 
         /** Removes a 2D container from the overlay. 
         @remarks
             NOT FAST. Consider OverlayElement::hide.
         */
-        void remove2D(GuiContainer* cont);
+        void remove2D(OverlayContainer* cont);
 
         /** Adds a node capable of holding 3D objects to the overlay.
         @remarks    
@@ -249,7 +249,7 @@ namespace Ogre {
         @remarks
             VectorIterator is actually a too generic name, since it also works for lists.
         */
-        typedef VectorIterator<GuiContainerList> Overlay2DElementsIterator ;
+        typedef VectorIterator<OverlayContainerList> Overlay2DElementsIterator ;
         Overlay2DElementsIterator get2DElementsIterator ()
         {
             return Overlay2DElementsIterator (m2DElements.begin(), m2DElements.end());

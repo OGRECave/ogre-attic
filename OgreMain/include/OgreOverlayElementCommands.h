@@ -22,8 +22,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#ifndef __GuiElementEmitterCommands_H__
-#define __GuiElementEmitterCommands_H__
+#ifndef __OverlayElementEmitterCommands_H__
+#define __OverlayElementEmitterCommands_H__
 
 #include "OgrePrerequisites.h"
 #include "OgreStringInterface.h"
@@ -31,71 +31,71 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre  {
 
 
-    namespace GuiElementCommands {
-        /// Command object for GuiElement  - see ParamCommand 
+    namespace OverlayElementCommands {
+        /// Command object for OverlayElement  - see ParamCommand 
         class _OgreExport CmdLeft : public ParamCommand
         {
         public:
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
-        /// Command object for GuiElement  - see ParamCommand 
+        /// Command object for OverlayElement  - see ParamCommand 
         class _OgreExport CmdTop : public ParamCommand
         {
         public:
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
-        /// Command object for GuiElement  - see ParamCommand 
+        /// Command object for OverlayElement  - see ParamCommand 
         class _OgreExport CmdWidth : public ParamCommand
         {
         public:
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
-        /// Command object for GuiElement  - see ParamCommand 
+        /// Command object for OverlayElement  - see ParamCommand 
         class _OgreExport CmdHeight : public ParamCommand
         {
         public:
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
-        /// Command object for GuiElement  - see ParamCommand 
+        /// Command object for OverlayElement  - see ParamCommand 
         class _OgreExport CmdMaterial : public ParamCommand
         {
         public:
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
-        /// Command object for GuiElement  - see ParamCommand 
+        /// Command object for OverlayElement  - see ParamCommand 
         class _OgreExport CmdCaption : public ParamCommand
         {
         public:
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
-        /// Command object for GuiElement  - see ParamCommand 
+        /// Command object for OverlayElement  - see ParamCommand 
         class _OgreExport CmdMetricsMode : public ParamCommand
         {
         public:
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
-        /// Command object for GuiElement  - see ParamCommand 
+        /// Command object for OverlayElement  - see ParamCommand 
         class _OgreExport CmdHorizontalAlign : public ParamCommand
         {
         public:
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
-        /// Command object for GuiElement  - see ParamCommand 
+        /// Command object for OverlayElement  - see ParamCommand 
         class _OgreExport CmdVerticalAlign : public ParamCommand
         {
         public:
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
-        /// Command object for GuiElement  - see ParamCommand 
+        /// Command object for OverlayElement  - see ParamCommand 
         class _OgreExport CmdVisible : public ParamCommand
         {
         public:

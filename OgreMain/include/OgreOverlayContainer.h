@@ -23,8 +23,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __GuiContainer_H__
-#define __GuiContainer_H__
+#ifndef __OverlayContainer_H__
+#define __OverlayContainer_H__
 
 #include "OgrePrerequisites.h"
 #include "OgreOverlayElement.h"
@@ -40,16 +40,16 @@ namespace Ogre {
         elements. These are also the smallest elements that can be attached directly
         to an Overlay.
     @remarks
-        GuiContainers should be managed using GuiManager. This class is responsible for
+        OverlayContainers should be managed using GuiManager. This class is responsible for
         instantiating / deleting elements, and also for accepting new types of element
         from plugins etc.
     */
-    class _OgreExport GuiContainer : public OverlayElement
+    class _OgreExport OverlayContainer : public OverlayElement
     {
     public:
         typedef std::map<String, OverlayElement*> ChildMap;
         typedef MapIterator<ChildMap> ChildIterator;
-        typedef std::map<String, GuiContainer*> ChildContainerMap;
+        typedef std::map<String, OverlayContainer*> ChildContainerMap;
         typedef MapIterator<ChildContainerMap> ChildContainerIterator;
     protected:
         // Map of all children
@@ -61,15 +61,15 @@ namespace Ogre {
  
     public:
         /// Constructor: do not call direct, use GuiManager::createContainer
-        GuiContainer(const String& name);
-        virtual ~GuiContainer();
+        OverlayContainer(const String& name);
+        virtual ~OverlayContainer();
 
         /** Adds another OverlayElement to this container. */
         virtual void addChild(OverlayElement* elem);
         /** Adds another OverlayElement to this container. */
         virtual void addChildImpl(OverlayElement* elem);
         /** Add a nested container to this container. */
-        virtual void addChildImpl(GuiContainer* cont);
+        virtual void addChildImpl(OverlayContainer* cont);
         /** Removes a named element from this container. */
         virtual void removeChild(const String& name);
         /** Gets the named child of this container. */
@@ -104,7 +104,7 @@ namespace Ogre {
         virtual void _notifyWorldTransforms(const Matrix4& xform);
 
         /** Overridden from OverlayElement. */
-	    virtual void _notifyParent(GuiContainer* parent, Overlay* overlay);
+	    virtual void _notifyParent(OverlayContainer* parent, Overlay* overlay);
 
         /** Overridden from OverlayElement. */
         virtual void _updateRenderQueue(RenderQueue* queue);
@@ -124,7 +124,7 @@ namespace Ogre {
         /** This returns a OverlayElement at position x,y. */
 		virtual OverlayElement* findElementAt(Real x, Real y);		// relative to parent
 
-	    void copyFromTemplate(OverlayElement* templateGui);
+	    void copyFromTemplate(OverlayElement* templateOverlay);
         virtual OverlayElement* clone(const String& instanceName);
 
     };

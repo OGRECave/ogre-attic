@@ -25,7 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreStableHeaders.h"
 
-#include "OgreGuiContainer.h"
+#include "OgreOverlayContainer.h"
 #include "OgreException.h"
 #include "OgreMouseEvent.h"
 #include "OgreGuiManager.h"
@@ -33,15 +33,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     //---------------------------------------------------------------------
-    GuiContainer::GuiContainer(const String& name)
+    OverlayContainer::OverlayContainer(const String& name)
         : OverlayElement(name),
 		mChildrenProcessEvents(true)
     {
     }
     //---------------------------------------------------------------------
-    GuiContainer::~GuiContainer()
+    OverlayContainer::~OverlayContainer()
     {
-        GuiContainer::ChildIterator ci = getChildIterator();
+        OverlayContainer::ChildIterator ci = getChildIterator();
         while (ci.hasMoreElements())
         {
             OverlayElement* child = ci.getNext();
@@ -49,11 +49,11 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
-    void GuiContainer::addChild(OverlayElement* elem)
+    void OverlayContainer::addChild(OverlayElement* elem)
     {
         if (elem->isContainer())
 		{
-			addChildImpl(static_cast<GuiContainer*>(elem));
+			addChildImpl(static_cast<OverlayContainer*>(elem));
 		}
 		else
 		{
@@ -62,14 +62,14 @@ namespace Ogre {
 
 	}
     //---------------------------------------------------------------------
-    void GuiContainer::addChildImpl(OverlayElement* elem)
+    void OverlayContainer::addChildImpl(OverlayElement* elem)
     {
         String name = elem->getName();
         ChildMap::iterator i = mChildren.find(name);
         if (i != mChildren.end())
         {
             Except(Exception::ERR_DUPLICATE_ITEM, "Child with name " + name + 
-                " already defined.", "GuiContainer::addChild");
+                " already defined.", "OverlayContainer::addChild");
         }
 
         mChildren.insert(ChildMap::value_type(name, elem));
@@ -81,7 +81,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void GuiContainer::addChildImpl(GuiContainer* cont)
+    void OverlayContainer::addChildImpl(OverlayContainer* cont)
     {
         // Add to main map first 
         // This will pick up duplicates
@@ -110,13 +110,13 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void GuiContainer::removeChild(const String& name)
+    void OverlayContainer::removeChild(const String& name)
     {
         ChildMap::iterator i = mChildren.find(name);
         if (i == mChildren.end())
         {
             Except(Exception::ERR_ITEM_NOT_FOUND, "Child with name " + name + 
-                " not found.", "GuiContainer::removeChild");
+                " not found.", "OverlayContainer::removeChild");
         }
 
         OverlayElement* element = i->second;
@@ -130,11 +130,11 @@ namespace Ogre {
         element->_setParent(0);
     }
     //---------------------------------------------------------------------
-    void GuiContainer::_addChild(OverlayElement* elem)
+    void OverlayContainer::_addChild(OverlayElement* elem)
     {
         if (elem->isContainer())
 		{
-			addChildImpl(static_cast<GuiContainer*>(elem));
+			addChildImpl(static_cast<OverlayContainer*>(elem));
 		}
 		else
 		{
@@ -142,13 +142,13 @@ namespace Ogre {
 		}
 	}
     //---------------------------------------------------------------------
-    void GuiContainer::_removeChild(const String& name)
+    void OverlayContainer::_removeChild(const String& name)
     {
         ChildMap::iterator i = mChildren.find(name);
         if (i == mChildren.end())
         {
             Except(Exception::ERR_ITEM_NOT_FOUND, "Child with name " + name + 
-                " not found.", "GuiContainer::removeChild");
+                " not found.", "OverlayContainer::removeChild");
         }
 
         OverlayElement* element = i->second;
@@ -162,30 +162,30 @@ namespace Ogre {
         element->_setParent(0);
     }
     //---------------------------------------------------------------------
-    OverlayElement* GuiContainer::getChild(const String& name)
+    OverlayElement* OverlayContainer::getChild(const String& name)
     {
         ChildMap::iterator i = mChildren.find(name);
         if (i == mChildren.end())
         {
             Except(Exception::ERR_ITEM_NOT_FOUND, "Child with name " + name + 
-                " not found.", "GuiContainer::getChild");
+                " not found.", "OverlayContainer::getChild");
         }
 
         return i->second;
     }
     //---------------------------------------------------------------------
-    GuiContainer::ChildIterator GuiContainer::getChildIterator(void)
+    OverlayContainer::ChildIterator OverlayContainer::getChildIterator(void)
     {
         return ChildIterator(mChildren.begin(), mChildren.end());
     }
     //---------------------------------------------------------------------
-    GuiContainer::ChildContainerIterator GuiContainer::getChildContainerIterator(void)
+    OverlayContainer::ChildContainerIterator OverlayContainer::getChildContainerIterator(void)
     {
         return ChildContainerIterator(mChildContainers.begin(), mChildContainers.end());
     }
 
     //---------------------------------------------------------------------
-	void GuiContainer::_positionsOutOfDate(void)
+	void OverlayContainer::_positionsOutOfDate(void)
 	{
 		OverlayElement::_positionsOutOfDate();
 
@@ -197,7 +197,7 @@ namespace Ogre {
 	}
 
     //---------------------------------------------------------------------
-    void GuiContainer::_update(void)
+    void OverlayContainer::_update(void)
     {
         // call superclass
         OverlayElement::_update();
@@ -212,7 +212,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void GuiContainer::_notifyZOrder(ushort newZOrder)
+    void OverlayContainer::_notifyZOrder(ushort newZOrder)
     {
         OverlayElement::_notifyZOrder(newZOrder);
 
@@ -225,7 +225,7 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
-    void GuiContainer::_notifyWorldTransforms(const Matrix4& xform)
+    void OverlayContainer::_notifyWorldTransforms(const Matrix4& xform)
     {
         OverlayElement::_notifyWorldTransforms(xform);
 
@@ -237,7 +237,7 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
-    void GuiContainer::_notifyViewport()
+    void OverlayContainer::_notifyViewport()
     {
         OverlayElement::_notifyViewport();
 
@@ -249,7 +249,7 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
-    void GuiContainer::_notifyParent(GuiContainer* parent, Overlay* overlay)
+    void OverlayContainer::_notifyParent(OverlayContainer* parent, Overlay* overlay)
     {
         OverlayElement::_notifyParent(parent, overlay);
 
@@ -263,7 +263,7 @@ namespace Ogre {
     }
 
     //---------------------------------------------------------------------
-    void GuiContainer::_updateRenderQueue(RenderQueue* queue)
+    void OverlayContainer::_updateRenderQueue(RenderQueue* queue)
     {
         if (mVisible)
         {
@@ -282,7 +282,7 @@ namespace Ogre {
     }
 
 
-	OverlayElement* GuiContainer::findElementAt(Real x, Real y) 		// relative to parent
+	OverlayElement* OverlayContainer::findElementAt(Real x, Real y) 		// relative to parent
 	{
 
 		OverlayElement* ret = NULL;
@@ -317,13 +317,13 @@ namespace Ogre {
 		return ret;
 	}
 
-    void GuiContainer::copyFromTemplate(OverlayElement* templateGui)
+    void OverlayContainer::copyFromTemplate(OverlayElement* templateOverlay)
     {
-        OverlayElement::copyFromTemplate(templateGui);
+        OverlayElement::copyFromTemplate(templateOverlay);
 
-		    if (templateGui->isContainer() && isContainer())
+		    if (templateOverlay->isContainer() && isContainer())
 		    {
-    	     GuiContainer::ChildIterator it = static_cast<GuiContainer*>(templateGui)->getChildIterator();
+    	     OverlayContainer::ChildIterator it = static_cast<OverlayContainer*>(templateOverlay)->getChildIterator();
   		     while (it.hasMoreElements())
 			     {
 				       OverlayElement* oldChildElement = it.getNext();
@@ -332,17 +332,17 @@ namespace Ogre {
                    OverlayElement* newChildElement = 
                        GuiManager::getSingleton().createOverlayElement(oldChildElement->getTypeName(), mName+"/"+oldChildElement->getName());
                    oldChildElement->copyParametersTo(newChildElement);
-                   addChild((GuiContainer*)newChildElement);
+                   addChild((OverlayContainer*)newChildElement);
                }
            }
         }
     }
 
-    OverlayElement* GuiContainer::clone(const String& instanceName)
+    OverlayElement* OverlayContainer::clone(const String& instanceName)
     {
-        GuiContainer *newContainer;
+        OverlayContainer *newContainer;
 
-        newContainer = static_cast<GuiContainer*>(OverlayElement::clone(instanceName));
+        newContainer = static_cast<OverlayContainer*>(OverlayElement::clone(instanceName));
 
     	  ChildIterator it = getChildIterator();
   		  while (it.hasMoreElements())

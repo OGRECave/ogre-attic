@@ -184,7 +184,6 @@ namespace Ogre {
     struct FrameEvent;
     class FrameListener;
     class Frustum;
-    class GuiContainer;
     class GpuProgram;
     class GpuProgramManager;
 	class GpuProgramUsage;
@@ -228,6 +227,7 @@ namespace Ogre {
 	class MouseTarget;
     class Node;
     class Overlay;
+    class OverlayContainer;
     class OverlayElement;
     class OverlayElementFactory;
     class OverlayManager;
