@@ -66,7 +66,7 @@ namespace Ogre {
 
         mActive = true;
 
-        if (!fullscreen)
+        if (!fullScreen)
             SDL_WM_SetCaption("OGRE Render Window", 0);
 
     }
