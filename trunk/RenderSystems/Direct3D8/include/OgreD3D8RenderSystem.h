@@ -22,12 +22,12 @@ namespace Ogre {
 	class D3D8DriverList;
 	class D3D8Driver;
 
-	struct HardwareVertexBuffer
+	struct D3D8VertexBuffer
 	{
 		LPDIRECT3DVERTEXBUFFER8 buffer;
 		UINT count;
 	};
-	struct HardwareIndexBuffer
+	struct D3D8IndexBuffer
 	{
 		LPDIRECT3DINDEXBUFFER8 buffer;
 		UINT count;
@@ -58,13 +58,13 @@ namespace Ogre {
 		// Vertex buffers.  Currently for rendering we need to place all the data
 		// that we receive into one of the following vertex buffers (one for each 
 		// component type).
-		HardwareVertexBuffer mpXYZBuffer;
-		HardwareVertexBuffer mpNormalBuffer;
-		HardwareVertexBuffer mpDiffuseBuffer;
-		HardwareVertexBuffer mpSpecularBuffer;
-		HardwareVertexBuffer mpTextures[OGRE_MAX_TEXTURE_LAYERS][4]; // max 8 textures with max 4 units per texture
+		D3D8VertexBuffer mpXYZBuffer;
+		D3D8VertexBuffer mpNormalBuffer;
+		D3D8VertexBuffer mpDiffuseBuffer;
+		D3D8VertexBuffer mpSpecularBuffer;
+		D3D8VertexBuffer mpTextures[OGRE_MAX_TEXTURE_LAYERS][4]; // max 8 textures with max 4 units per texture
 		UINT mStreamsInUse;
-		HardwareIndexBuffer mpIndicies;
+		D3D8IndexBuffer mpIndicies;
 
 		/// enum identifying D3D9 tex. types
 		enum eD3DTexType
