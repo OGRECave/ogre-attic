@@ -46,6 +46,10 @@ namespace Ogre
         Since the most common animable object is a Node, there are options in this class for associating
         the track with a Node which will receive keyframe updates automatically when the 'apply' method
         is called.
+	@remarks
+		By default rotation is done using shortest-path algorithm.
+		It is possible to change this behaviour using
+		setUseShortestRotationPath() method.
     */
     class _OgreExport AnimationTrack
     {
@@ -134,7 +138,12 @@ namespace Ogre
 
         /** As the 'apply' method but applies to a specified Node instead of associated node. */
         void applyToNode(Node* node, Real timePos, Real weight = 1.0, bool accumulate = false);
-
+		
+		/** Sets the method of rotation calculation */
+		void setUseShortestRotationPath(bool useShortestPath);
+		
+		/** Gets the method of rotation calculation */
+		bool getUseShortestRotationPath() const;
 
     protected:
         typedef std::vector<KeyFrame*> KeyFrameList;
@@ -151,6 +160,8 @@ namespace Ogre
         mutable SimpleSpline mPositionSpline;
         mutable SimpleSpline mScaleSpline;
         mutable RotationalSpline mRotationSpline;
+		/// Defines if rotation is done using shortest path
+		mutable bool mUseShortestRotationPath ;
       
 
     };

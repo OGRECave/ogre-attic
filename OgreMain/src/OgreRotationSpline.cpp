@@ -47,7 +47,7 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
-    Quaternion RotationalSpline::interpolate(Real t)
+    Quaternion RotationalSpline::interpolate(Real t, bool useShortestPath)
     {
         // Work out which segment this is in
         Real fSeg = t * mPoints.size();
@@ -55,11 +55,12 @@ namespace Ogre {
         // Apportion t 
         t = fSeg - segIdx;
 
-        return interpolate(segIdx, t);
+        return interpolate(segIdx, t, useShortestPath);
 
     }
     //---------------------------------------------------------------------
-    Quaternion RotationalSpline::interpolate(unsigned int fromIndex, Real t)
+    Quaternion RotationalSpline::interpolate(unsigned int fromIndex, Real t,
+		bool useShortestPath)
     {
         // Bounds check
         assert (fromIndex >= 0 && fromIndex < mPoints.size() &&
@@ -90,7 +91,7 @@ namespace Ogre {
         Quaternion &b = mTangents[fromIndex+1];
 
         // NB interpolate to nearest rotation
-        return Quaternion::Squad(t, p, a, b, q, true);
+        return Quaternion::Squad(t, p, a, b, q, useShortestPath);
 
     }
     //---------------------------------------------------------------------
