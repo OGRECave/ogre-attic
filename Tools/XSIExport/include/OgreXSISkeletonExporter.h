@@ -66,10 +66,12 @@ namespace Ogre {
 		@returns True if it linked, false otherwise
 		*/
 		bool linkBoneWithParent(Skeleton* pSkeleton, XSI::X3DObject& child, DeformerList& deformers);
+		/*
 		/// Find all the action sources in the scene for the list of deformers
 		void findActionSources(DeformerList& deformers);
 		/// Find all the action sources against the given model for the list of deformers
 		void findActionSources(const XSI::Model& obj, DeformerList& deformers);
+		*/
 		/// Process an action source
 		void processActionSource(const XSI::ActionSource& source, DeformerList& deformers);
 		/// Bake animations
@@ -81,7 +83,7 @@ namespace Ogre {
 		/// Pre-parse the deformers animation to find the highest keyframe number
 		long getMaxKeyFrame(DeformerList& deformerList);
 		/// Derive a keyframe value from XSI's tracks
-		float deriveKeyFrameValue(XSI::CRefArray animSourceItemList, long frame);
+		float deriveKeyFrameValue(XSI::AnimationSourceItem item, long frame);
 		
 
 	};
