@@ -40,8 +40,14 @@ if test x$GCC = xyes; then
     fi
 fi
 
+AC_ARG_ENABLE(gl-multitexture, AC_HELP_STRING([--enable-gl-multitexture],
+              [Turn on true multitexture support]),
+              AC_DEFINE([OGRE_SDL_USE_MULTITEXTURING],,[Enable Multitexture Support]))
+
 dnl This needs to be figured out later (MingW)
 AC_DEFINE(OGRE_LINUX,,Linux Build of OGRE)
+
+CXXFLAGS="$CXXFLAGS -D_POSIX_SOURCE -D_REENTRANT"
 
 dnl Create the makefiles
 AC_OUTPUT(Makefile \

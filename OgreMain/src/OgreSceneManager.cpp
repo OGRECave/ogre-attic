@@ -871,11 +871,11 @@ namespace Ogre {
                 //??? Why is back/front BACKWARDS from 3D Studio???
                 // I thought LEFT was relative to looking FRONT, but appears not when you look at the output
                 // Quake3 images also have this
-                if ((BoxPlane)i == Material::TextureLayer::CUBE_BACK)
+                if ((Material::TextureLayer::TextureCubeFace)i == Material::TextureLayer::CUBE_BACK)
                 {
                     boxMat->getTextureLayer(0)->setCurrentFrame(Material::TextureLayer::CUBE_FRONT);
                 }
-                else if ((BoxPlane)i == Material::TextureLayer::CUBE_FRONT)
+                else if ((Material::TextureLayer::TextureCubeFace)i == Material::TextureLayer::CUBE_FRONT)
                 {
                     boxMat->getTextureLayer(0)->setCurrentFrame(Material::TextureLayer::CUBE_BACK);
                 }
