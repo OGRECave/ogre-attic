@@ -753,12 +753,6 @@ void MilkshapePlugin::doExportMaterials(msModel* pModel)
 
 	// Set up
 	logMgr.logMessage("Trying to create Material object");
-	Ogre::MaterialManager *matMgr = Ogre::MaterialManager::getSingletonPtr();
-	if (!matMgr)
-	{
-		logMgr.logMessage("Error: MaterialManager not found.");
-		return;
-	}
 
 	Ogre::MaterialSerializer matSer;
 
@@ -769,7 +763,7 @@ void MilkshapePlugin::doExportMaterials(msModel* pModel)
 		msg = "Creating material ";
 		msg << mat->szName;
 		logMgr.logMessage(msg);
-        Ogre::Material *ogremat = (Ogre::Material*)matMgr->create(mat->szName);
+        Ogre::Material *ogremat = (Ogre::Material*)matMgrSgl.create(mat->szName);
 		logMgr.logMessage("Created.");
 
 		ogremat->setAmbient(msVec4ToColourValue(mat->Ambient));
