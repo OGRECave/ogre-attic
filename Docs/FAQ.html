@@ -113,32 +113,43 @@ folders.</LI><LI>Close VC++ to save the settings</LI></OL><P CLASS="MainHeader">
 What is the 'Dependencies' folder for? </P><P CLASS="MainContent">Ogre depends 
 on a number of external libraries such as jpeglib, libpng, zlib, and SDL. Rather 
 than expect people to have these already or download them separately, and to minimise 
-problems with incompatible versions of these libraries, they are included with 
-the OGRE distribution (NB the exception is STLport - this is not distributed because 
-it is only required for Microsoft compilers).</P><P CLASS="MainContent">The dependencies 
-are built for you automatically as part of the build process so you should not 
-need to do anything with these folders.</P><P CLASS="MainHeader">Q: When I try 
-to debug a sample or my own application, I get an error saying plugins.cfg is 
-not found, why?</P><P>The relative location of OGRE library files and configuration 
-files are very important for successfully starting an OGRE application, in debug 
-mode or otherwise. The existing samples provided copy their executables into 'Samples\Common\bin\Debug' 
-or 'Samples\Common\bin\Release', where all the other files are placed correctly. 
-It is recommended that you set up your own examples to place their executables 
-in the same location to avoid problems, and debug them from there too. </P><P>If 
-you do want to move the files, bear in mind the following dependencies:</P><UL><LI>The 
-OgreMain and OgrePlatform libraries must be in the same folder as the executable, 
-or on the path</LI><LI>The plugins.cfg file must be in the same folder as the 
-executable</LI><LI>The plugin libraries listed in plugins.cfg must be located 
-in the folder specified in the 'PluginFolder' setting in plugins.cfg</LI></UL><P CLASS="MainHeader">Q: 
-I have problems loading some resource files (textures, meshes, material definitions 
-etc)</P><P>Check the following:</P><OL><LI>Make sure the case of the filenames 
-is correct. Some operating systems are case-sensitive in their file operations, 
-and all of OGRE's internal lookups for reusing resources is case-sensitive so 
-assume that case IS important.</LI><LI>Make sure the location of the resource 
-is on the resource path. You can add resource paths by calling Root::addResourceLocation 
-and supplying either a folder or a ZIP compressed archive to search in</LI><LI>If 
-you're trying to use a material or particle system scripted from a .material or 
-.particle file, ensure that the resource locations are added <I>before </I>you 
-call Root::initialise</LI></OL>
+problems with incompatible versions of these libraries, you can download them 
+from the <A HREF="http://ogre.sourceforge.net/downloads.php">Ogre download page</A> 
+(get the '3rd party libraries' download). You only need this if you are using 
+Microsoft Visual C++ because Linux comes with these libraries built in.</P><P CLASS="MainHeader">Q: 
+Why do I get a message like 'unable to open zlib.h' or some other header file?</P><P>If 
+you're using VC++, make sure you've downloaded the 3rd-party libraries distribution 
+from the <A HREF="http://ogre.sourceforge.net/downloads.php">Ogre download page</A>. 
+This archive should be extracted into the parent folder of the 'ogrenew' folder.</P><P CLASS="MainHeader">Q: 
+How do I extract the .tar.bz2 archives?</P><P>If you're using Linux, or you have 
+downloaded the <A HREF="http://www.cygwin.com">Cygwin tools</A> under Windows, 
+just type the followiing commands in the same folder as the file:</P><P>bunzip2 
+&lt;file&gt;.tar.bz2</P><P>tar -xvf &lt;file&gt;.tar</P><P>If you're using Windows 
+without the Cygwin tools, just use a decent archive GUI like <A HREF="http://www.powerarchiver.com">PowerArchiver</A> 
+which supports bzip2 and tar formats.</P><P CLASS="MainHeader">Q: Why have you 
+changed from zip format to .tar.bz2?</P><P>Because the files created by bzip2 
+are up to half the size of the equivalent zip file. This makes your downloads 
+quicker. </P><P CLASS="MainHeader">Q: When I try to debug a sample or my own application, 
+I get an error saying plugins.cfg is not found, why?</P><P>The relative location 
+of OGRE library files and configuration files are very important for successfully 
+starting an OGRE application, in debug mode or otherwise. The existing samples 
+provided copy their executables into 'Samples\Common\bin\Debug' or 'Samples\Common\bin\Release', 
+where all the other files are placed correctly. It is recommended that you set 
+up your own examples to place their executables in the same location to avoid 
+problems, and debug them from there too. </P><P>If you do want to move the files, 
+bear in mind the following dependencies:</P><UL><LI>The OgreMain and OgrePlatform 
+libraries must be in the same folder as the executable, or on the path</LI><LI>The 
+plugins.cfg file must be in the same folder as the executable</LI><LI>The plugin 
+libraries listed in plugins.cfg must be located in the folder specified in the 
+'PluginFolder' setting in plugins.cfg</LI></UL><P CLASS="MainHeader">Q: I have 
+problems loading some resource files (textures, meshes, material definitions etc)</P><P>Check 
+the following:</P><OL><LI>Make sure the case of the filenames is correct. Some 
+operating systems are case-sensitive in their file operations, and all of OGRE's 
+internal lookups for reusing resources is case-sensitive so assume that case IS 
+important.</LI><LI>Make sure the location of the resource is on the resource path. 
+You can add resource paths by calling Root::addResourceLocation and supplying 
+either a folder or a ZIP compressed archive to search in</LI><LI>If you're trying 
+to use a material or particle system scripted from a .material or .particle file, 
+ensure that the resource locations are added <I>before </I>you call Root::initialise</LI></OL>
 </body>
 </html>
