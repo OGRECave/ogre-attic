@@ -83,9 +83,9 @@ protected:
             SceneNode* node = mSceneMgr->createSceneNode();
             // Random translate
             Vector3 nodePos;
-            nodePos.x = Math::getSingleton().SymmetricRandom() * 500;
-            nodePos.y = Math::getSingleton().SymmetricRandom() * 500;
-            nodePos.z = Math::getSingleton().SymmetricRandom() * 500;
+            nodePos.x = Math::SymmetricRandom() * 500.0;
+            nodePos.y = Math::SymmetricRandom() * 500.0;
+            nodePos.z = Math::SymmetricRandom() * 500.0;
             node->setPosition(nodePos);
             rootNode->addChild(node);
             // Clone knot
@@ -96,9 +96,6 @@ protected:
             node->attachObject(cloneEnt);
 
         }
-
-
-
     }
 
 };
