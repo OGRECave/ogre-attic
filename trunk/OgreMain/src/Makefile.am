@@ -1,4 +1,4 @@
-INCLUDES = $(STLPORT_CFLAGS) $(FT2_CFLAGS) -I$(top_srcdir)/OgreMain/include -DOGRE_NONCLIENT_BUILD $(ZZIPLIB_CFLAGS)
+INCLUDES = $(STLPORT_CFLAGS) $(FT2_CFLAGS) -I$(top_srcdir)/OgreMain/include -DOGRE_NONCLIENT_BUILD $(ZZIPLIB_CFLAGS) $(DEVIL_CFLAGS)
 
 lib_LTLIBRARIES=libOgreMain.la
 
@@ -51,8 +51,6 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
 						 OgreHardwarePixelBuffer.cpp \
 						 OgreHighLevelGpuProgram.cpp \
 						 OgreHighLevelGpuProgramManager.cpp \
-                         OgreILImageCodec.cpp \
-                         OgreILCodecs.cpp \
                          OgreImage.cpp \
                          OgreInput.cpp \
                          OgreInputEvent.cpp \
@@ -153,6 +151,12 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreViewport.cpp \
                          OgreWireBoundingBox.cpp \
                          OgreZip.cpp
+
+if USE_DEVIL
+libOgreMain_la_SOURCES +=OgreILImageCodec.cpp \
+                         OgreILCodecs.cpp \
+                         OgreILUtil.cpp
+endif
 
 libOgreMain_la_LIBADD= $(STLPORT_LIBS) $(FT2_LIBS) $(ZZIPLIB_LIBS)
 libOgreMain_la_LDFLAGS = $(SHARED_FLAGS) -version-info @OGREMAIN_VERSION_INFO@

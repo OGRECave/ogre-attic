@@ -382,6 +382,34 @@ AM_CONDITIONAL(BUILD_DX9RENDERSYSTEM, test x$build_dx9 = xtrue)
 
 ])
 
+AC_DEFUN([OGRE_CHECK_DEVIL],
+[AC_ARG_ENABLE(devil,
+              AC_HELP_STRING([--disable-devil],
+                             [Don't use DevIL for image loading. This is not recommended unless you provide your own image loading codecs.]),
+              [build_il=false],
+              [build_il=true])
+
+AM_CONDITIONAL(USE_DEVIL, test x$build_il = xtrue)
+
+if [ test x$build_il = xtrue ]; then
+	AC_CHECK_LIB(IL, ilInit,,AC_MSG_ERROR([
+****************************************************************
+* You do not have DevIL installed.  This is required to build. *
+* You may find it at http://openil.sourceforge.net/.           *
+* Note: You can also provide --disable-devil to the build      *
+* process to build without DevIL. This is an advanced option   *
+* useful only if you provide your own image loading codecs.    *
+****************************************************************]))
+	AC_CHECK_LIB(ILU, iluFlipImage)
+	DEVIL_CFLAGS=""
+else
+	DEVIL_CFLAGS="-DOGRE_NO_DEVIL"
+fi
+AC_SUBST(DEVIL_CFLAGS)
+
+])
+
+
 AC_DEFUN([OGRE_CHECK_PIC],
 [
 AC_MSG_CHECKING([whether -fPIC is needed])

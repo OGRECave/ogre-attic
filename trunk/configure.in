@@ -44,12 +44,6 @@ AC_CHECK_FT2(9.0.0)
 AC_CHECK_LIB(dl, dlopen)
 AC_CHECK_LIB(m, pow)
 AC_CHECK_LIB(z, gzopen)
-AC_CHECK_LIB(IL, ilInit,,AC_MSG_ERROR([
-****************************************************************
-* You do not have DevIL installed.  This is required to build. *
-* You may find it at http://openil.sourceforge.net/.           *
-****************************************************************]))
-AC_CHECK_LIB(ILU, iluFlipImage)
 AC_CHECK_LIB(pthread, pthread_create)
 AC_CHECK_FUNC(snprintf, AC_DEFINE(HAVE_SNPRINTF,,snprintf))
 AC_CHECK_FUNC(vsnprintf, AC_DEFINE(HAVE_VSNPRINTF,,vsnprintf))
@@ -69,6 +63,7 @@ OGRE_GET_PLATFORM
 OGRE_GET_GLSUPPORT
 
 dnl Find the optional components we should build
+OGRE_CHECK_DEVIL
 OGRE_CHECK_CG
 OGRE_CHECK_OPENEXR
 OGRE_CHECK_DX9
