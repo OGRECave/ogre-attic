@@ -29,17 +29,19 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMaterialManager.h"
 #include "OgreException.h"
 #include "OgreGpuProgramUsage.h"
+#include "OgreTextureUnitState.h"
 
 namespace Ogre {
 	
     //-----------------------------------------------------------------------------
-	Pass::Pass(Technique* parent, bool programmable)
-        : mParent(parent), mIsProgrammable(programmable)
+	Pass::Pass(Technique* parent, unsigned short index, bool programmable)
+        : mParent(parent), mIndex(index), mIsProgrammable(programmable)
     {
         // Default to white ambient & diffuse, no specular / emissive
 	    mAmbient = mDiffuse = ColourValue::White;
 	    mSpecular = mEmissive = ColourValue::Black;
 	    mShininess = 0;
+        mHash = 0;
 
 	    // No fog
 	    mFogOverride = false;
@@ -77,10 +79,11 @@ namespace Ogre {
    }
 	
     //-----------------------------------------------------------------------------
-	Pass::Pass(Technique *parent, const Pass& oth)
+	Pass::Pass(Technique *parent, unsigned short index, const Pass& oth)
     {
         *this = oth;
         mParent = parent;
+        mIndex = index;
     }
     //-----------------------------------------------------------------------------
     Pass::~Pass()
@@ -133,11 +136,11 @@ namespace Ogre {
 
 		// Copy texture units
 		removeAllTextureUnitStates();
-		TextureUnitStates::iterator i, iend;
+		TextureUnitStates::const_iterator i, iend;
 		iend = oth.mTextureUnitStates.end();
 		for (i = oth.mTextureUnitStates.begin(); i != iend; ++i)
 		{
-			TextureUnitState* t = new TextureUnitState(this, *i);
+			TextureUnitState* t = new TextureUnitState(this, *(*i));
 			mTextureUnitStates.push_back(t);
 		}
 
@@ -583,7 +586,35 @@ namespace Ogre {
     {
         return mParent->isLoaded();
     }
+	//-----------------------------------------------------------------------
+    unsigned long Pass::getHash(void)
+    {
+        return mHash;
+    }
+	//-----------------------------------------------------------------------
+    void Pass::_recalculateHash(void)
+    {
+        /* Hash format is 32-bit, divided as follows (high to low bits)
+           bits   purpose
+            4     Pass index (i.e. max 16 passes!)
+           14     Hashed texture name from unit 0
+           14     Hashed texture name from unit 1
 
+           Note that at the moment we don't sort on the 3rd texture unit plus
+           on the assumption that these are less frequently used; sorting on 
+           the first 2 gives us the most benefit for now.
+       */
+        _StringHash H;
+        mHash = (mIndex << 28) +  
+            (( H(mTextureUnitStates[0]->getTextureName()) % (2^14)) << 14 ) + 
+            ( H(mTextureUnitStates[1]->getTextureName()) % (2^14)); 
+    }
+
+    //-----------------------------------------------------------------------
+    void Pass::_notifyNeedsRecompile(void)
+    {
+        mParent->_notifyNeedsRecompile();
+    }
 
 
 }

@@ -26,6 +26,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __TextureUnitState_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreCommon.h"
+#include "OgreBlendMode.h"
+#include "OgreMatrix4.h"
+#include "OgreIteratorWrappers.h"
+#include "OgreString.h"
 
 namespace Ogre {
     /** Class representing the state of a single texture unit during a Pass of a
@@ -813,6 +818,9 @@ namespace Ogre {
 
         // Is this loaded?
         bool isLoaded(void);
+        /** Tells the class that it needs recompilation. */
+        void _notifyNeedsRecompile(void);
+
 	
 protected:
         Pass* mParent;
