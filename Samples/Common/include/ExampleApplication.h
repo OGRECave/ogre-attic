@@ -126,7 +126,6 @@ protected:
         mCamera->lookAt(Vector3(0,0,-300));
         mCamera->setNearClipDistance(5);
 
-
     }
     virtual void createFrameListener(void)
     {
