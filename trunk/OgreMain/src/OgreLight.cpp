@@ -327,7 +327,6 @@ namespace Ogre {
         // Get eye-space light position
         // use 4D vector so directional lights still work
         Vector4 eyeSpaceLight = cam->getViewMatrix() * lightPos;
-        Matrix4 eyeToWorld = cam->getViewMatrix().inverse();
         // Find distance to light, project onto -Z axis
         Real d = eyeSpaceLight.dotProduct(
             Vector4(0, 0, -1, -n) );
@@ -337,6 +336,7 @@ namespace Ogre {
             // light is not too close to the near plane
             // First find the worldspace positions of the corners of the viewport
             const Vector3 *corner = cam->getWorldSpaceCorners();
+            int winding = (d < 0) ^ cam->isReflected() ? +1 : -1;
             // Iterate over world points and form side planes
             Vector3 normal;
             Vector3 lightDir;
@@ -345,54 +345,37 @@ namespace Ogre {
                 // Figure out light dir
                 lightDir = lightPos3 - (corner[i] * lightPos.w);
                 // Cross with anticlockwise corner, therefore normal points in
-                normal = (corner[i] - corner[(i-1)%4])
+                normal = (corner[i] - corner[(i+winding)%4])
                     .crossProduct(lightDir);
                 normal.normalise();
-                if (d < THRESHOLD)
-                {
-                    // invert normal
-                    normal = -normal;
-                }
-                // NB last param to Plane constructor is negated because it's -d
-                mNearClipVolume.planes.push_back(
-                    Plane(normal, normal.dotProduct(corner[i])));
-
+                mNearClipVolume.planes.push_back(Plane(normal, corner[i]));
             }
 
             // Now do the near plane plane
-            if (d > THRESHOLD)
-            {
-                // In front of near plane
-                // remember the -d negation in plane constructor
-                normal = eyeToWorld * -Vector3::UNIT_Z;
-                normal.normalise();
-                mNearClipVolume.planes.push_back(
-                    Plane(normal, -normal.dotProduct(cam->getDerivedPosition())));
-            }
-            else
+            normal = cam->getFrustumPlane(FRUSTUM_PLANE_NEAR).normal;
+            if (d < 0)
             {
                 // Behind near plane
-                // remember the -d negation in plane constructor
-                normal = eyeToWorld * Vector3::UNIT_Z;
-                normal.normalise();
-                mNearClipVolume.planes.push_back(
-                    Plane(normal, -normal.dotProduct(cam->getDerivedPosition())));
+                normal = -normal;
             }
+            // HACK: There bug in Camera::getDerivedPosition() which should be
+            // take reflection into account.
+            Vector3 cameraPos = cam->getDerivedPosition();
+            if (cam->isReflected())
+            {
+                // Camera is reflected, used the reflect of
+                // derived position as world position
+                cameraPos = cam->getReflectionMatrix() * cameraPos;
+            }
+            mNearClipVolume.planes.push_back(Plane(normal, cameraPos));
 
             // Finally, for a point/spot light we can add a sixth plane
             // This prevents false positives from behind the light
             if (mLightType != LT_DIRECTIONAL)
             {
-                // Direction from light to centre point of viewport 
-                normal = (eyeToWorld * Vector3(0,0,-n)) - lightPos3;
-                normal.normalise();
-                // remember the -d negation in plane constructor
-                mNearClipVolume.planes.push_back(
-                    Plane(normal, normal.dotProduct(lightPos3)));
-
+                // Direction from light perpendicular to near plane
+                mNearClipVolume.planes.push_back(Plane(-normal, lightPos3));
             }
-
-
         }
         else
         {
@@ -404,7 +387,6 @@ namespace Ogre {
         }
 
         return mNearClipVolume;
-
     }
     //-----------------------------------------------------------------------
     const PlaneBoundedVolumeList& Light::_getFrustumClipVolumes(const Camera* const cam) const
@@ -418,9 +400,9 @@ namespace Ogre {
 
         const Vector3 *clockwiseVerts[4];
 
-        Matrix4 eyeToWorld = cam->getViewMatrix().inverse();
         // Get worldspace frustum corners
         const Vector3* corners = cam->getWorldSpaceCorners();
+        int winding = cam->isReflected() ? +1 : -1;
 
         bool infiniteViewDistance = (cam->getFarClipDistance() == 0);
 
@@ -442,7 +424,7 @@ namespace Ogre {
                 // facing into the volume we create
 
                 mFrustumClipVolumes.push_back(PlaneBoundedVolume());
-                PlaneBoundedVolume& vol = mFrustumClipVolumes[mFrustumClipVolumes.size() - 1];
+                PlaneBoundedVolume& vol = mFrustumClipVolumes.back();
                 switch(n)
                 {
                 case(FRUSTUM_PLANE_NEAR):
@@ -491,14 +473,11 @@ namespace Ogre {
                 {
                     // Figure out light dir
                     lightDir = lightPos3 - (*(clockwiseVerts[i]) * lightPos.w);
-                    Vector3 edgeDir = *(clockwiseVerts[i]) - *(clockwiseVerts[(i-1)%4]);
+                    Vector3 edgeDir = *(clockwiseVerts[i]) - *(clockwiseVerts[(i+winding)%4]);
                     // Cross with anticlockwise corner, therefore normal points in
                     normal = edgeDir.crossProduct(lightDir);
                     normal.normalise();
-                    // NB last param to Plane constructor is negated because it's -d
-                    vol.planes.push_back(
-                        Plane(normal, normal.dotProduct(*(clockwiseVerts[i]))));
-
+                    vol.planes.push_back(Plane(normal, *(clockwiseVerts[i])));
                 }
 
                 // Now do the near plane (this is the plane of the side we're 
@@ -510,16 +489,11 @@ namespace Ogre {
                 if (mLightType != LT_DIRECTIONAL)
                 {
                     // re-use our own plane normal
-                    // remember the -d negation in plane constructor
-                    vol.planes.push_back(
-                        Plane(plane.normal, 
-                            plane.normal.dotProduct(lightPos3)));
-
+                    vol.planes.push_back(Plane(plane.normal, lightPos3));
                 }
-
-
             }
         }
+
         return mFrustumClipVolumes;
     }
 

@@ -2601,7 +2601,7 @@ void SceneManager::setShadowTechnique(ShadowTechnique technique)
             mShadowIndexBuffer = HardwareBufferManager::getSingleton().
                 createIndexBuffer(HardwareIndexBuffer::IT_16BIT, 
                 mShadowIndexBufferSize, 
-                HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, 
+                HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE, 
                 false);
             // tell all meshes to prepare shadow volumes
             MeshManager::getSingleton().setPrepareAllMeshesForShadowVolumes(true);
@@ -2908,7 +2908,7 @@ void SceneManager::initShadowVolumeMaterials(void)
             TextureUnitState* t = mShadowModulativePass->createTextureUnitState();
             t->setColourOperationEx(LBX_MODULATE, LBS_MANUAL, LBS_CURRENT, 
                 mShadowColour);
-
+            mShadowModulativePass->setCullingMode(CULL_NONE);
         }
         else
         {
@@ -3081,6 +3081,14 @@ Pass* SceneManager::deriveShadowReceiverPass(Pass* pass)
 //---------------------------------------------------------------------
 void SceneManager::renderShadowVolumesToStencil(const Light* light, const Camera* camera)
 {
+    // Get the shadow caster list
+    const ShadowCasterList& casters = findShadowCastersForLight(light, camera);
+    // Check there are some shadow casters to render
+    if (casters.empty())
+    {
+        // No casters, just do nothing
+        return;
+    }
 
     // Set up scissor test (point & spot lights only)
     bool scissored = false;
@@ -3170,49 +3178,43 @@ void SceneManager::renderShadowVolumesToStencil(const Light* light, const Camera
 
     // Turn off colour writing and depth writing
     mDestRenderSystem->_setColourBufferWriteEnabled(false, false, false, false);
-    mDestRenderSystem->_setDepthBufferWriteEnabled(false);
+	mDestRenderSystem->_disableTextureUnitsFrom(0);
+    mDestRenderSystem->_setDepthBufferParams(true, false, CMPF_LESS);
     mDestRenderSystem->setStencilCheckEnabled(true);
-    mDestRenderSystem->_setDepthBufferFunction(CMPF_LESS);
 
     // Calculate extrusion distance
-    Real extrudeDist;
-    if (light->getType() == Light::LT_DIRECTIONAL)
-    {
-        extrudeDist = mShadowDirLightExtrudeDist;
-    }
+    // Use direction light extrusion distance now, just form optimize code
+    // generate a little, point/spot light will up to date later
+    Real extrudeDist = mShadowDirLightExtrudeDist;
 
     // Figure out the near clip volume
     const PlaneBoundedVolume& nearClipVol = 
         light->_getNearClipVolume(camera);
 
-    // Get the shadow caster list
-    const ShadowCasterList& casters = findShadowCastersForLight(light, camera);
+    // Now iterate over the casters and render
     ShadowCasterList::const_iterator si, siend;
     siend = casters.end();
 
-    // Determine whether zfail is required
-    // We need to use zfail for ALL objects if we find a single object which
-    // requires it
-    bool zfailAlgo = false;
-    unsigned long flags = 0;
-
+	// Determine whether zfail is required
+	// We need to use zfail for ALL objects if we find a single object which
+	// requires it
+	bool zfailAlgo = false;
     for (si = casters.begin(); si != siend; ++si)
     {
-        ShadowCaster* caster = *si;
+		ShadowCaster* caster = *si;
+		if (nearClipVol.intersects(caster->getWorldBoundingBox()))
+		{
+			// We have a zfail case, we must use zfail for all objects
+			zfailAlgo = true;
+			break;
+		}
+	}
 
-        if (nearClipVol.intersects(caster->getWorldBoundingBox()))
-        {
-            // We have a zfail case, we must use zfail for all objects
-            zfailAlgo = true;
-            break;
-        }
-    }
-
-    // Now iterate over the casters and render
-    for (si = casters.begin(); si != siend; ++si)
-    {
+	// Now iterate over the casters and render
+	for (si = casters.begin(); si != siend; ++si)
+	{
         ShadowCaster* caster = *si;
-        flags = 0;
+		unsigned long flags = 0;
 
         if (light->getType() != Light::LT_DIRECTIONAL)
         {
@@ -3249,34 +3251,33 @@ void SceneManager::renderShadowVolumesToStencil(const Light* light, const Camera
             light, &mShadowIndexBuffer, extrudeInSoftware, 
             extrudeDist, flags);
 
-        // If using one-sided stencil, render the first pass of all shadow
-        // renderables before all the second passes
-        for (int i = 0; i < (stencil2sided ? 1 : 2); i++)
+        // Render a shadow volume here
+        //  - if we have 2-sided stencil, one render with no culling
+        //  - otherwise, 2 renders, one with each culling method and invert the ops
+        setShadowVolumeStencilState(false, zfailAlgo, stencil2sided);
+        renderShadowVolumeObjects(iShadowRenderables, mShadowStencilPass, &lightList, flags,
+            false, zfailAlgo, stencil2sided);
+        if (!stencil2sided)
         {
-            if (i == 1)
-                iShadowRenderables = caster->getLastShadowVolumeRenderableIterator();
+            // Second pass
+            setShadowVolumeStencilState(true, zfailAlgo, false);
+            renderShadowVolumeObjects(iShadowRenderables, mShadowStencilPass, &lightList, flags,
+                true, zfailAlgo, false);
+        }
 
-            while (iShadowRenderables.hasMoreElements())
-            {
-                ShadowRenderable* sr = iShadowRenderables.getNext();
-                // omit hidden renderables
-                if (sr->isVisible())
-                {
-                    // render volume, including dark and (maybe) light caps
-                    renderSingleShadowVolumeToStencil(sr, zfailAlgo, stencil2sided, &lightList, i != 0);
-
-                    // optionally render separate light cap
-                    if (sr->isLightCapSeparate() && (flags & SRF_INCLUDE_LIGHT_CAP))
-                    {
-                        // must always fail depth check
-                        mDestRenderSystem->_setDepthBufferFunction(CMPF_ALWAYS_FAIL);
-                        assert(sr->getLightCapRenderable() && "Shadow renderable is missing a separate light cap renderable!");
-                        renderSingleShadowVolumeToStencil(sr->getLightCapRenderable(), zfailAlgo, stencil2sided, &lightList, i != 0);
-                        // reset depth function
-                        mDestRenderSystem->_setDepthBufferFunction(CMPF_LESS);
-                    }
-                }
-            }
+        // Do we need to render a debug shadow marker?
+        if (mDebugShadows)
+        {
+            // reset stencil & colour ops
+            mDestRenderSystem->setStencilBufferParams();
+            mShadowDebugPass->getTextureUnitState(0)->
+                setColourOperationEx(LBX_MODULATE, LBS_MANUAL, LBS_CURRENT,
+                zfailAlgo ? ColourValue(0.7, 0.0, 0.2) : ColourValue(0.0, 0.7, 0.2));
+            setPass(mShadowDebugPass);
+            renderShadowVolumeObjects(iShadowRenderables, mShadowDebugPass, &lightList, flags,
+                true, false, false);
+            mDestRenderSystem->_setColourBufferWriteEnabled(false, false, false, false);
+            mDestRenderSystem->_setDepthBufferFunction(CMPF_LESS);
         }
     }
 
@@ -3297,43 +3298,109 @@ void SceneManager::renderShadowVolumesToStencil(const Light* light, const Camera
 
 }
 //---------------------------------------------------------------------
-void SceneManager::renderSingleShadowVolumeToStencil(ShadowRenderable* sr, bool zfailAlgo, bool stencil2sided, const LightList *manualLightList, bool bSecondPass)
+void SceneManager::renderShadowVolumeObjects(ShadowCaster::ShadowRenderableListIterator iShadowRenderables,
+                                             Pass* pass,
+                                             const LightList *manualLightList,
+                                             unsigned long flags,
+                                             bool secondpass, bool zfail, bool twosided)
 {
-    // Render a shadow volume here
-    //  - if we have 2-sided stencil, one render with no culling
-    //  - otherwise, 2 renders, one with each culling method and invert the ops
-    if (!bSecondPass)
+    // ----- SHADOW VOLUME LOOP -----
+    // Render all shadow renderables with same stencil operations
+    while (iShadowRenderables.hasMoreElements())
     {
-        setShadowVolumeStencilState(false, zfailAlgo, stencil2sided);
-        renderSingleObject(sr, mShadowStencilPass, false, manualLightList);
-    }
+        ShadowRenderable* sr = iShadowRenderables.getNext();
 
-    if (!stencil2sided && bSecondPass)
-    {
-        // Second pass
-        setShadowVolumeStencilState(true, zfailAlgo, false);
-        renderSingleObject(sr, mShadowStencilPass, false);
-    }
+        // omit hidden renderables
+        if (sr->isVisible())
+        {
+            // render volume, including dark and (maybe) light caps
+            renderSingleObject(sr, pass, false, manualLightList);
 
-    // Do we need to render a debug shadow marker?
-    if (mDebugShadows && (bSecondPass || stencil2sided))
-    {
-        // reset stencil & colour ops
-        mDestRenderSystem->setStencilBufferParams();
-        setPass(mShadowDebugPass);
-        renderSingleObject(sr, mShadowDebugPass, false, manualLightList);
-        mDestRenderSystem->_setColourBufferWriteEnabled(false, false, false, false);
+            // optionally render separate light cap
+            if (sr->isLightCapSeparate() && (flags & SRF_INCLUDE_LIGHT_CAP))
+            {
+                ShadowRenderable* lightCap = sr->getLightCapRenderable();
+                assert(lightCap && "Shadow renderable is missing a separate light cap renderable!");
+
+                // We must take care with light caps when we could 'see' the back facing
+                // triangles directly:
+                //   1. The front facing light caps must render as always fail depth
+                //      check to avoid 'depth fighting'.
+                //   2. The back facing light caps must use normal depth function to
+                //      avoid break the standard depth check
+                //
+                // TODO:
+                //   1. Separate light caps rendering doesn't need for the 'closed'
+                //      mesh that never touch the near plane, because in this instance,
+                //      we couldn't 'see' any back facing triangles directly. The
+                //      'closed' mesh must determinate by edge list builder.
+                //   2. There still exists 'depth fighting' bug with coplane triangles
+                //      that has opposite facing. This usually occur when use two side
+                //      material in the modeling tools and the model exporting tools
+                //      exporting double triangles to represent this model. This bug
+                //      can't fixed in GPU only, there must has extra work on edge list
+                //      builder and shadow volume generater to fix it.
+                //
+                if (twosided)
+                {
+                    // select back facing light caps to render
+                    mDestRenderSystem->_setCullingMode(CULL_ANTICLOCKWISE);
+                    // use normal depth function for back facing light caps
+                    renderSingleObject(lightCap, pass, false, manualLightList);
+
+                    // select front facing light caps to render
+                    mDestRenderSystem->_setCullingMode(CULL_CLOCKWISE);
+                    // must always fail depth check for front facing light caps
+                    mDestRenderSystem->_setDepthBufferFunction(CMPF_ALWAYS_FAIL);
+                    renderSingleObject(lightCap, pass, false, manualLightList);
+
+                    // reset depth function
+                    mDestRenderSystem->_setDepthBufferFunction(CMPF_LESS);
+                    // reset culling mode
+                    mDestRenderSystem->_setCullingMode(CULL_NONE);
+                }
+                else if ((secondpass || zfail) && !(secondpass && zfail))
+                {
+                    // use normal depth function for back facing light caps
+                    renderSingleObject(lightCap, pass, false, manualLightList);
+                }
+                else
+                {
+                    // must always fail depth check for front facing light caps
+                    mDestRenderSystem->_setDepthBufferFunction(CMPF_ALWAYS_FAIL);
+                    renderSingleObject(lightCap, pass, false, manualLightList);
+
+                    // reset depth function
+                    mDestRenderSystem->_setDepthBufferFunction(CMPF_LESS);
+                }
+            }
+        }
     }
 }
 //---------------------------------------------------------------------
 void SceneManager::setShadowVolumeStencilState(bool secondpass, bool zfail, bool twosided)
 {
+    // Determinate the best stencil operation
+    StencilOperation incrOp, decrOp;
+    if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_STENCIL_WRAP))
+    {
+        incrOp = SOP_INCREMENT_WRAP;
+        decrOp = SOP_DECREMENT_WRAP;
+    }
+    else
+    {
+        incrOp = SOP_INCREMENT;
+        decrOp = SOP_DECREMENT;
+    }
+
     // First pass, do front faces if zpass
     // Second pass, do back faces if zpass
     // Invert if zfail
     // this is to ensure we always increment before decrement
-    if ( (secondpass || zfail) &&
-        !(secondpass && zfail) )
+    // When two-sided stencil, always pass front face stencil
+    // operation parameters and the inverse of them will happen
+    // for back faces
+    if ( !twosided && ((secondpass || zfail) && !(secondpass && zfail)) )
     {
         mDestRenderSystem->_setCullingMode(
             twosided? CULL_NONE : CULL_ANTICLOCKWISE);
@@ -3342,8 +3409,8 @@ void SceneManager::setShadowVolumeStencilState(bool secondpass, bool zfail, bool
             0, // no ref value (no compare)
             0xFFFFFFFF, // no mask
             SOP_KEEP, // stencil test will never fail
-            zfail? (twosided? SOP_INCREMENT_WRAP : SOP_INCREMENT) : SOP_KEEP, // back face depth fail
-            zfail? SOP_KEEP : (twosided? SOP_DECREMENT_WRAP : SOP_DECREMENT), // back face pass
+            zfail ? incrOp : SOP_KEEP, // back face depth fail
+            zfail ? SOP_KEEP : decrOp, // back face pass
             twosided
             );
     }
@@ -3356,8 +3423,8 @@ void SceneManager::setShadowVolumeStencilState(bool secondpass, bool zfail, bool
             0, // no ref value (no compare)
             0xFFFFFFFF, // no mask
             SOP_KEEP, // stencil test will never fail
-            zfail? (twosided? SOP_DECREMENT_WRAP : SOP_DECREMENT) : SOP_KEEP, // front face depth fail
-            zfail? SOP_KEEP : (twosided? SOP_INCREMENT_WRAP : SOP_INCREMENT), // front face pass
+            zfail ? decrOp : SOP_KEEP, // front face depth fail
+            zfail ? SOP_KEEP : incrOp, // front face pass
             twosided
             );
     }
@@ -3367,8 +3434,8 @@ void SceneManager::setShadowColour(const ColourValue& colour)
 {
     mShadowColour = colour;
 
-    if (!mShadowModulativePass && !mShadowCasterPlainBlackPass)
-        initShadowVolumeMaterials();
+    // Prep materials first
+    initShadowVolumeMaterials();
 
     mShadowModulativePass->getTextureUnitState(0)->setColourOperationEx(
         LBX_MODULATE, LBS_MANUAL, LBS_CURRENT, colour);
@@ -3403,7 +3470,7 @@ void SceneManager::setShadowIndexBufferSize(size_t size)
         mShadowIndexBuffer = HardwareBufferManager::getSingleton().
             createIndexBuffer(HardwareIndexBuffer::IT_16BIT, 
             mShadowIndexBufferSize, 
-            HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, 
+            HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE, 
             false);
     }
     mShadowIndexBufferSize = size;

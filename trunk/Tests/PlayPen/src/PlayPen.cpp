@@ -54,6 +54,7 @@ SceneNode* camNode;
 Entity* mEntity;
 Real animTime = 0;
 Animation* mAnim = 0;
+std::vector<AnimationState*> mAnimStateList;
 AnimationState* mAnimState = 0;
 Overlay* mpOverlay;
 Entity* pPlaneEnt;
@@ -196,7 +197,11 @@ public:
         
         if (mAnimState && animate)
             mAnimState->addTime(evt.timeSinceLastFrame);
-
+		std::vector<AnimationState*>::iterator animi;
+		for (animi = mAnimStateList.begin(); animi != mAnimStateList.end(); ++animi)
+		{
+			(*animi)->addTime(evt.timeSinceLastFrame);
+		}
 
         if (mInputDevice->isKeyDown(KC_R) && timeUntilNextToggle <= 0)
         {
@@ -1745,17 +1750,21 @@ protected:
 
         mTestNode[0] = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 
+		// Hardware skin
         Entity* pEnt;
         pEnt = mSceneMgr->createEntity( "1", "robot.mesh" );
-        mAnimState = pEnt->getAnimationState("Walk");
-        mAnimState->setEnabled(true);
-        // Uncomment the below to test software skinning
-        //pEnt->setMaterialName("Examples/Rocky");
-        mTestNode[0]->attachObject( pEnt );
+        AnimationState* anim = pEnt->getAnimationState("Walk");
+        anim->setEnabled(true);
+		mAnimStateList.push_back(anim);
+		mTestNode[0]->attachObject( pEnt );
 
-        // TEST - SET SHADOW TYPE AFTER LOADING ANIMATED MESH
-        // Set shadow type, should be the first thing we do
-        //mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_MODULATIVE);
+		// Software skin
+		pEnt = mSceneMgr->createEntity( "12", "robot.mesh" );
+		anim = pEnt->getAnimationState("Walk");
+		anim->setEnabled(true);
+		mAnimStateList.push_back(anim);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(100, 0, 0))->attachObject(pEnt);
+		pEnt->setMaterialName("Examples/Rocky");
 
 
         // Does not receive shadows
@@ -2071,7 +2080,7 @@ protected:
         //testClearScene();
 
         //testProjection();
-        //testStencilShadows(SHADOWTYPE_STENCIL_ADDITIVE, true, true);
+        testStencilShadows(SHADOWTYPE_STENCIL_ADDITIVE, true, true);
         //testStencilShadows(SHADOWTYPE_STENCIL_MODULATIVE, false, true);
         //testTextureShadows();
         //testOverlayZOrder();

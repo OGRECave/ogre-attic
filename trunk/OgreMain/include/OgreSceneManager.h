@@ -388,8 +388,10 @@ namespace Ogre {
         @param twosided Should we use a 2-sided stencil?
         */
         virtual void setShadowVolumeStencilState(bool secondpass, bool zfail, bool twosided);
-        /** Render a single shadow volume to the stencil buffer. */
-        void renderSingleShadowVolumeToStencil(ShadowRenderable* sr, bool zfail, bool stencil2sided, const LightList* manualLightList, bool bSecondPass);
+        /** Render a set of shadow renderables. */
+        void renderShadowVolumeObjects(ShadowCaster::ShadowRenderableListIterator iShadowRenderables,
+            Pass* pass, const LightList *manualLightList, unsigned long flags,
+            bool secondpass, bool zfail, bool twosided);
         typedef std::vector<ShadowCaster*> ShadowCasterList;
         ShadowCasterList mShadowCasterList;
         SphereSceneQuery* mShadowCasterSphereQuery;
