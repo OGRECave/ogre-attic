@@ -216,10 +216,10 @@ void TerrainRenderable::init( TerrainOptions &options )
             *pPos++ = ( Real ) j * options.scalez; //z
 
             *pTex++ = ( Real ) i / ( Real ) options.world_size ;
-            *pTex++ = ( Real ) 1.0 - ( Real ) j / ( Real ) options.world_size;
+            *pTex++ = ( Real ) ( Real ) j / ( Real ) options.world_size;
 
             *pTex++ = ( ( Real ) i / ( Real ) mSize ) * options.detail_tile;
-            *pTex++ = ( ( Real ) 1.0 - ( Real ) j / ( Real ) mSize ) * options.detail_tile;
+            *pTex++ = ( ( Real ) ( Real ) j / ( Real ) mSize ) * options.detail_tile;
 
             if ( height < min )
                 min = ( Real ) height;
