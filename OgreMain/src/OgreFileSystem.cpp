@@ -53,7 +53,8 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     void FileSystemArchive::findFiles(const String& pattern, bool recursive, 
-        StringVectorPtr& list, const String& currentDir)
+        StringVector* simpleList, Archive::FileInfoList* detailList, 
+        const String& currentDir)
     {
         long lHandle, res;
         struct _finddata_t tagData;
@@ -62,18 +63,26 @@ namespace Ogre {
         res = 0;
         while (lHandle != -1 && res != -1)
         {
-            if((tagData.attrib & _A_SUBDIR) && recursive)
+            if (recursive)
             {
-                // recurse
-                String dir = currentDir + tagData.name + "/";
-                pushDirectory(dir);
-                findFiles(pattern, recursive, list, dir);
-                popDirectory();
-            }
-            else
-            {
-                list->push_back(currentDir + tagData.name);
-                res = _findnext( lHandle, &tagData );
+                if(!(tagData.attrib & _A_SUBDIR))
+                {
+                    if (simpleList)
+                    {
+                        simpleList->push_back(currentDir + tagData.name);
+                    }
+                    else if (detailList)
+                    {
+                        FileInfo fi;
+                        fi.filename = currentDir + tagData.name;
+                        fi.basename = tagData.name;
+                        fi.path = currentDir;
+                        fi.compressedSize = tagData.size;
+                        fi.uncompressedSize = tagData.size;
+                        detailList->push_back(fi);
+                    }
+                    res = _findnext( lHandle, &tagData );
+                }
             }
         }
         // Close if we found any files
@@ -82,42 +91,32 @@ namespace Ogre {
             _findclose(lHandle);
         }
 
-    }
-    //-----------------------------------------------------------------------
-    void FileSystemArchive::findFiles(const String& pattern, bool recursive, 
-        Archive::FileInfoListPtr& list, const String& currentDir)
-    {
-        long lHandle, res;
-        struct _finddata_t tagData;
-
-        lHandle = _findfirst(pattern.c_str(), &tagData);
-        res = 0;
-        while (lHandle != -1 && res != -1)
+        // Now find directories
+        if (recursive)
         {
-            if((tagData.attrib & _A_SUBDIR) && recursive)
+
+            lHandle = _findfirst("*", &tagData);
+            res = 0;
+            while (lHandle != -1 && res != -1)
             {
-                // recurse
-                String dir = currentDir + tagData.name + "/";
-                pushDirectory(dir);
-                findFiles(pattern, recursive, list, dir);
-                popDirectory();
-            }
-            else
-            {
-                FileInfo fi;
-                fi.filename = currentDir + tagData.name;
-                fi.basename = tagData.name;
-                fi.path = currentDir;
-                fi.compressedSize = tagData.size;
-                fi.uncompressedSize = tagData.size;
-                list->push_back(fi);
+                if((tagData.attrib & _A_SUBDIR)
+                    && strcmp(tagData.name, ".")
+                    && strcmp(tagData.name, ".."))
+                {
+                    // recurse
+                    String dir = currentDir + tagData.name + "/";
+                    pushDirectory(tagData.name);
+                    findFiles(pattern, recursive, simpleList, detailList, dir);
+                    popDirectory();
+                }
                 res = _findnext( lHandle, &tagData );
             }
-        }
-        // Close if we found any files
-        if(lHandle != -1)
-        {
-            _findclose(lHandle);
+            // Close if we found any files
+            if(lHandle != -1)
+            {
+                _findclose(lHandle);
+            }
+
         }
 
     }
@@ -199,7 +198,7 @@ namespace Ogre {
         pushDirectory(mBasePath);
         StringVectorPtr ret(new StringVector());
 
-        findFiles("*", recursive, ret);
+        findFiles("*", recursive, ret.getPointer(), 0);
 
         popDirectory();
 
@@ -211,20 +210,19 @@ namespace Ogre {
         pushDirectory(mBasePath);
         Archive::FileInfoListPtr ret(new Archive::FileInfoList());
 
-        findFiles("*", recursive, ret);
+        findFiles("*", recursive, 0, ret.getPointer());
 
         popDirectory();
 
         return ret;
     }
     //-----------------------------------------------------------------------
-    StringVectorPtr FileSystemArchive::find(const String& pattern, bool recursive, 
-        bool caseSensitive)
+    StringVectorPtr FileSystemArchive::find(const String& pattern, bool recursive)
     {
         pushDirectory(mBasePath);
         StringVectorPtr ret(new StringVector());
 
-        findFiles(pattern, recursive, ret);
+        findFiles(pattern, recursive, ret.getPointer(), 0);
 
         popDirectory();
 
@@ -233,12 +231,12 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     Archive::FileInfoListPtr FileSystemArchive::findFileInfo(const String& pattern, 
-        bool recursive, bool caseSensitive)
+        bool recursive)
     {
         pushDirectory(mBasePath);
         Archive::FileInfoListPtr ret(new Archive::FileInfoList());
 
-        findFiles(pattern, recursive, ret);
+        findFiles(pattern, recursive, 0, ret.getPointer());
 
         popDirectory();
 

@@ -52,22 +52,13 @@ namespace Ogre {
         /** Utility method to retrieve all files in a directory matching pattern.
         @param pattern File pattern
         @param recursive Whether to cascade down directories
-        @param list The list to which to add the files
+        @param simpleList Populated if retrieving a simple list
+        @param detailList Populated if retrieving a detailed list
         @param currentDir The current directory relative to the base of the 
             archive, for file naming
         */
-        void findFiles(const String& pattern, bool recursive, StringVectorPtr& list, 
-            const String& currentDir = "");
-
-        /** Utility method to retrieve all files in a directory matching pattern.
-        @param pattern File pattern
-        @param recursive Whether to cascade down directories
-        @param list The list to which to add the files
-        @param currentDir The current directory relative to the base of the 
-            archive, for file naming
-        */
-        void findFiles(const String& pattern, bool recursive, Archive::FileInfoListPtr& list, 
-            const String& currentDir = "");
+        void findFiles(const String& pattern, bool recursive, StringVector* simpleList,
+            Archive::FileInfoList* detailList, const String& currentDir = "");
 
         /// Utility method to change the current directory
         void changeDirectory(const String& dir) const;
@@ -94,12 +85,10 @@ namespace Ogre {
         FileInfoListPtr listFileInfo(bool recursive = true );
 
         /// @copydoc Archive::find
-        StringVectorPtr find(const String& pattern, bool recursive = true, 
-            bool caseSensitive = true);
+        StringVectorPtr find(const String& pattern, bool recursive = true);
 
         /// @copydoc Archive::findFileInfo
-        FileInfoListPtr findFileInfo(const String& pattern, bool recursive = true,
-            bool caseSensitive = true);
+        FileInfoListPtr findFileInfo(const String& pattern, bool recursive = true);
 
     };
 

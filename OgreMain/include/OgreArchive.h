@@ -143,23 +143,20 @@ namespace Ogre {
         @param pattern The pattern to search for; wildcards (*) are allowed
         @param recursive Whether all paths of the archive are searched (if the 
             archive has a concept of that)
-        @param caseSensitive Determines whether the matching is case sensitive
         @returns A list of filenames matching the criteria, all are fully qualified
         */
-        virtual StringVectorPtr find(const String& pattern, bool recursive = true,
-            bool caseSensitive = true ) = 0;
+        virtual StringVectorPtr find(const String& pattern, bool recursive = true) = 0;
 
         /** Find all files matching a given pattern in this archive and get 
             some detailed information about them.
         @param pattern The pattern to search for; wildcards (*) are allowed
         @param recursive Whether all paths of the archive are searched (if the 
         archive has a concept of that)
-        @param caseSensitive Determines whether the matching is case sensitive
         @returns A list of file information structures for all files matching 
             the criteria.
         */
         virtual FileInfoListPtr findFileInfo(const String& pattern, 
-            bool recursive = true, bool caseSensitive = true ) = 0;
+            bool recursive = true) = 0;
 
         /// Return the type code of this Archive
         const String& getType(void) const { return mType; }

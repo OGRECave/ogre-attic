@@ -64,12 +64,10 @@ namespace Ogre {
         FileInfoListPtr listFileInfo(bool recursive = true );
 
         /// @copydoc Archive::find
-        StringVectorPtr find(const String& pattern, bool recursive = true, 
-            bool caseSensitive = true);
+        StringVectorPtr find(const String& pattern, bool recursive = true);
 
         /// @copydoc Archive::findFileInfo
-        FileInfoListPtr findFileInfo(const String& pattern, bool recursive = true,
-            bool caseSensitive = true);
+        FileInfoListPtr findFileInfo(const String& pattern, bool recursive = true);
 
     };
 

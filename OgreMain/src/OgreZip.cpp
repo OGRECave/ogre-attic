@@ -126,8 +126,7 @@ namespace Ogre {
         return ret;
     }
     //-----------------------------------------------------------------------
-    StringVectorPtr ZipArchive::find(const String& pattern, bool recursive, 
-        bool caseSensitive)
+    StringVectorPtr ZipArchive::find(const String& pattern, bool recursive)
     {
         ZZIP_DIRENT zzipEntry;
         StringVectorPtr ret = StringVectorPtr(new StringVector());
@@ -141,7 +140,7 @@ namespace Ogre {
                 String basename, path;
                 StringUtil::splitFilename(name, basename, path);
                 // Check name matches pattern
-                if (StringUtil::match(basename, pattern, caseSensitive))
+                if (StringUtil::match(basename, pattern))
                 {
                     ret->push_back(name);
                 }
@@ -151,7 +150,7 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
 	Archive::FileInfoListPtr ZipArchive::findFileInfo(const String& pattern, 
-        bool recursive, bool caseSensitive)
+        bool recursive)
     {
         ZZIP_DIRENT zzipEntry;
         FileInfoListPtr ret = FileInfoListPtr(new FileInfoList());
@@ -166,7 +165,7 @@ namespace Ogre {
                 // Get basename / path
                 StringUtil::splitFilename(name, info.basename, info.path);
                 // Check name matches pattern
-                if (StringUtil::match(info.basename, pattern, caseSensitive))
+                if (StringUtil::match(info.basename, pattern))
                 {
                     // Get sizes
                     info.compressedSize = static_cast<size_t>(zzipEntry.d_csize);
