@@ -195,9 +195,9 @@ namespace Ogre {
 						}
 						break;
 				};
-				width = (width+1)/2;
-				height = (height+1)/2;
-				depth = (depth+1)/2;
+				if(width>1)		width = width/2;
+				if(height>1)	height = height/2;
+				if(depth>1)		depth = depth/2;
 			}
 			delete tmpdata;
 		}
@@ -233,9 +233,9 @@ namespace Ogre {
 						}
 						break;
 				};
-				width = (width+1)/2;
-				height = (height+1)/2;
-				depth = (depth+1)/2;
+				if(width>1)		width = width/2;
+				if(height>1)	height = height/2;
+				if(depth>1)		depth = depth/2;
 			}
 		}
 		_createSurfaceList();
