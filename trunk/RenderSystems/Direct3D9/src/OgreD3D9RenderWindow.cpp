@@ -428,16 +428,24 @@ namespace Ogre
 			if (!mpD3DDevice)
 			{
 				// We haven't created the device yet, this must be the first time
+
+				// Do we want to preserve the FPU mode? Might be useful for scientific apps
+				DWORD extraFlags = 0;
+				ConfigOptionMap& options = Root::getSingleton().getRenderSystem()->getConfigOptions();
+				ConfigOptionMap::iterator opti = options.find("Floating-point mode");
+				if (opti != options.end() && opti->second.currentValue == "Consistent")
+					extraFlags |= D3DCREATE_FPU_PRESERVE;
+
 				hr = pD3D->CreateDevice( mDriver->getAdapterNumber(), devType, mHWnd,
-					D3DCREATE_HARDWARE_VERTEXPROCESSING, &md3dpp, &mpD3DDevice );
+					D3DCREATE_HARDWARE_VERTEXPROCESSING | extraFlags, &md3dpp, &mpD3DDevice );
 				if( FAILED( hr ) )
 				{
 					hr = pD3D->CreateDevice( mDriver->getAdapterNumber(), devType, mHWnd,
-						D3DCREATE_MIXED_VERTEXPROCESSING, &md3dpp, &mpD3DDevice );
+						D3DCREATE_MIXED_VERTEXPROCESSING | extraFlags, &md3dpp, &mpD3DDevice );
 					if( FAILED( hr ) )
 					{
 						hr = pD3D->CreateDevice( mDriver->getAdapterNumber(), devType, mHWnd,
-							D3DCREATE_SOFTWARE_VERTEXPROCESSING, &md3dpp, &mpD3DDevice );
+							D3DCREATE_SOFTWARE_VERTEXPROCESSING | extraFlags, &md3dpp, &mpD3DDevice );
 					}
 				}
 				// TODO: make this a bit better e.g. go from pure vertex processing to software

@@ -183,6 +183,7 @@ namespace Ogre
 		ConfigOption optFullScreen;
 		ConfigOption optVSync;
 		ConfigOption optAA;
+		ConfigOption optFPUMode;
 
 		driverList = this->getDirect3DDrivers();
 
@@ -221,11 +222,19 @@ namespace Ogre
 		optAA.possibleValues.push_back( "None" );
 		optAA.currentValue = "None";
 
+		optFPUMode.name = "Floating-point mode";
+		optFPUMode.currentValue = "Fastest";
+		optFPUMode.possibleValues.clear();
+		optFPUMode.possibleValues.push_back("Fastest");
+		optFPUMode.possibleValues.push_back("Consistent");
+		optFPUMode.immutable = false;
+
 		mOptions[optDevice.name] = optDevice;
 		mOptions[optVideoMode.name] = optVideoMode;
 		mOptions[optFullScreen.name] = optFullScreen;
 		mOptions[optVSync.name] = optVSync;
 		mOptions[optAA.name] = optAA;
+		mOptions[optFPUMode.name] = optFPUMode;
 
 		refreshD3DSettings();
 
