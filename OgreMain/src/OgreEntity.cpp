@@ -297,11 +297,12 @@ namespace Ogre {
 			subEntList = &mSubEntityList;
 		}
 
-		// Add each SubEntity to the queue
+		// Add each visible SubEntity to the queue
         SubEntityList::iterator i, iend;
         iend = subEntList->end();
         for (i = subEntList->begin(); i != iend; ++i)
         {
+          if((*i)->isVisible())  
             queue->addRenderable(*i, mRenderQueueID, RENDERABLE_DEFAULT_PRIORITY);
         }
 

@@ -39,6 +39,7 @@ namespace Ogre {
         mpMaterial = static_cast<Material*>(MaterialManager::getSingleton().getByName("BaseWhite"));
         mMaterialLodIndex = 0;
         mRenderDetail = SDL_SOLID;
+        mVisible = true;
     }
     //-----------------------------------------------------------------------
     SubMesh* SubEntity::getSubMesh(void)
@@ -144,6 +145,17 @@ namespace Ogre {
         Node* n = mParentEntity->getParentNode();
         assert(n);
         return n->getLights();
+    }
+    //-----------------------------------------------------------------------
+    void SubEntity::setVisible(bool visible)
+    {
+        mVisible = visible;
+    }
+    //-----------------------------------------------------------------------
+    bool SubEntity::isVisible(void) const
+    {
+        return mVisible;
+
     }
 
 }
