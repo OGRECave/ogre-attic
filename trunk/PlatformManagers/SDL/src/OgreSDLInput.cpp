@@ -217,11 +217,10 @@ namespace Ogre {
             mMouseState.Yrel = relMouseY;
             mMouseState.Zrel = 0;
 
-            mMouseState.Buttons = 0;
 
-            for(int i = 0; i < 3; i++ )
-                if( mMouseKeys & SDL_BUTTON( i ) )
-                    mMouseState.Buttons |= ( 1 << i );
+            mMouseState.Buttons =  (mMouseKeys & SDL_BUTTON(1)) ? 1 : 0; // left
+            mMouseState.Buttons |= (mMouseKeys & SDL_BUTTON(3)) ? 2 : 0; // right
+            mMouseState.Buttons |= (mMouseKeys & SDL_BUTTON(2)) ? 4 : 0; // middle 
 
             // XXX Fix me up
             // Game controller state
