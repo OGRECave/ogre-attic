@@ -44,8 +44,8 @@ namespace Ogre {
         class ImageData : public Codec::CodecData
         {
         public:
-            UInt32 ulHeight;
-            UInt32 ulWidth;
+            uint ulHeight;
+            uint ulWidth;
 
             Image::PixelFormat eFormat;
 

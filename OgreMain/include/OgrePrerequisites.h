@@ -84,32 +84,11 @@ namespace Ogre {
 // define the Char type as either char or wchar_t
 #if OGRE_WCHAR_T_STRINGS == 1
 	typedef wchar_t Char;
-#	define _T( x ) L # x
+#	define _T( x ) L##x
 #else
 	typedef char Char;
-#	define _T( x ) # x
+#	define _T( x ) x
 #endif
-
-//-----------------------------------------
-// These should get removed
-//
-    typedef bool Bool;
-    typedef bool Boolean;
-
-#ifdef Byte
-#undef Byte
-#endif
-    typedef unsigned char Byte;
-
-    typedef signed char Int8;
-    typedef unsigned char UInt8;
-
-    typedef signed short Int16;
-    typedef unsigned short UInt16;
-
-    typedef signed long Int32;
-    typedef unsigned long UInt32;
-//-----------------------------------------
 
     /** In order to avoid finger-aches :)
     */
@@ -152,6 +131,7 @@ namespace Ogre {
     class Math;
     class Matrix3;
     class Matrix4;
+    class MemoryManager;
     class Mesh;
     class MeshManager;
     class MovableObject;
