@@ -146,7 +146,7 @@ namespace Ogre {
         if (mVisible)
         {
 
-            if (!mTransparent)
+            if (!mTransparent && mpMaterial)
             {
                 GuiElement::_updateRenderQueue(queue);
             }
