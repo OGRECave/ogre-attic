@@ -255,11 +255,11 @@ namespace Ogre {
             if (useVertexPrograms)
             {
                 // Now it's time to set up the w buffer
-                mHardwareShadowVolWBuffer = HardwareBufferManager::getSingleton().createVertexBuffer(
+                hardwareShadowVolWBuffer = HardwareBufferManager::getSingleton().createVertexBuffer(
                     sizeof(Real), newVertexCount, HardwareBuffer::HBU_STATIC_WRITE_ONLY, false);
                 // Fill the first half with 1.0, second half with 0.0
                 pDest = static_cast<Real*>(
-                    mHardwareShadowVolWBuffer->lock(HardwareBuffer::HBL_DISCARD));
+                    hardwareShadowVolWBuffer->lock(HardwareBuffer::HBL_DISCARD));
                 for (v = 0; v < oldVertexCount; ++v)
                 {
                     *pDest++ = 1.0f;
@@ -268,7 +268,7 @@ namespace Ogre {
                 {
                     *pDest++ = 0.0f;
                 }
-                mHardwareShadowVolWBuffer->unlock();
+                hardwareShadowVolWBuffer->unlock();
             }
 
             unsigned short newPosBufferSource; 

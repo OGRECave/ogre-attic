@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __EdgeListBuilder_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreVector4.h"
 
 namespace Ogre {
 
@@ -49,7 +50,8 @@ namespace Ogre {
             size_t vertIndex[3];/// Vertex indexes, relative to the original buffer
             size_t sharedVertIndex[3]; /// Vertex indexes, relative to a shared vertex buffer with 
                                         // duplicates eliminated (this buffer is not exposed)
-	        Vector3 normal;   // unit vector othogonal to this face 
+	        Vector4 normal;   // unit vector othogonal to this face, plus distance from origin
+            bool lightFacing; // Working vector used when calculating the silhouette
         };
         /** Edge data. */
         struct Edge {
@@ -82,6 +84,19 @@ namespace Ogre {
         typedef std::vector<EdgeGroup> EdgeGroupList;
         TriangleList triangles;
         EdgeGroupList edgeGroups;
+
+        /** Calculate the light facing state of the triangles in this edge list
+        @remarks
+            This is normally the first stage of calculating a silhouette, ie
+            establishing which tris are facing the light and which are facing
+            away. This state is stored in the 'lightFacing' flag in each 
+            Triangle.
+        @param lightPos 4D position of the light in object space, note that 
+            for directional lights (which have no position), the w component
+            is 0 and the x/y/z position are the direction.
+        */
+        void updateTriangleLightFacing(const Vector4& lightPos);
+
 
         // Debugging method
         void log(void);

@@ -36,6 +36,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreCamera.h"
 #include "OgreTagPoint.h"
 #include "OgreAxisAlignedBox.h"
+#include "OgreHardwareBufferManager.h"
+#include "OgreVector4.h"
 
 namespace Ogre {
     String Entity::msMovableType = "Entity";
@@ -545,6 +547,13 @@ namespace Ogre {
         unsigned long flags, HardwareIndexBufferSharedPtr* indexBuffer)
     {
         assert(indexBuffer && "Only external index buffers are supported right now");
+        assert((*indexBuffer)->getType() == HardwareIndexBuffer::IT_16BIT && 
+            "Only 16-bit indexes supported for now");
+
+
+        // Prep mesh if required
+        if(!mMesh->isPreparedForShadowVolumes())
+            mMesh->prepareForShadowVolume();
 
 
         // TODO: for skeletal animation, use an intermediate buffer or some such
@@ -555,46 +564,88 @@ namespace Ogre {
         // Init shadow renderable list if required
         if (mShadowRenderables.empty())
         {
-            mShadowRenderables.resize(edgeList->edgeGroups.size());
-            ShadowRenderableList::iterator si, siend;
-            siend = mShadowRenderables.end();
             EdgeData::EdgeGroupList::iterator egi, egiend;
-            egiend = edgeList->edgeGroups.end();
+            ShadowRenderableList::iterator si, siend;
+            mShadowRenderables.resize(edgeList->edgeGroups.size());
+            siend = mShadowRenderables.end();
+            egi = edgeList->edgeGroups.begin();
             for (si = mShadowRenderables.begin(); si != siend; ++si, ++egi)
             {
                 // Determine which vertex data to use for this renderable
-                *si = new EntityShadowRenderable(this, indexBuffer, egi->vertexData);
+                EntityShadowRenderable* esr = 
+                    new EntityShadowRenderable(this, indexBuffer, egi->vertexData);
+                *si = esr;
             }
         }
 
-        // Iterate over the groups and form renderables for each based on the light
-        // TODO
+        // Calculate the object space light details
+        Vector4 lightPos;
+        if (light->getType() == Light::LT_DIRECTIONAL)
+        {
+            // lightPos = dir.x, dir.y, dir.z, 0.0
+            lightPos = mParentNode->_getDerivedOrientation().Inverse() *
+                light->getDirection();
+            lightPos.w = 0.0f;
+        }
+        else
+        {
+            // lightPos = pos.x, pos.y, pos.z, 1.0
+            Matrix4 world2Obj = mParentNode->_getFullTransform().inverse();
+            lightPos =  world2Obj * light->getPosition(); // sets w=1.0f
+        }
+        // Calc triangle light facing
+        updateEdgeListLightFacing(edgeList, lightPos);
 
+        // Generate indexes and update renderables
+        generateShadowVolume(edgeList, *indexBuffer, light,
+            mShadowRenderables, flags);
 
         return ShadowRenderableListIterator(mShadowRenderables.begin(), mShadowRenderables.end());
     }
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     Entity::EntityShadowRenderable::EntityShadowRenderable(Entity* parent, 
-                HardwareIndexBufferSharedPtr* indexBuffer, const VertexData* vertexData)
-                : mParent(parent)
+        HardwareIndexBufferSharedPtr* indexBuffer, const VertexData* vertexData)
+        : mParent(parent)
     {
         // Initialise render op
         mRenderOp.indexData = new IndexData();
         mRenderOp.indexData->indexBuffer = *indexBuffer;
+        mRenderOp.indexData->indexStart = 0;
         // index start and count are sorted out later
 
-        // Use shared vertex data
-        // Nasty const cast, can't really be avoided here 
-        // but we promises not to not hurt the VertexData, we promises....
-        mRenderOp.vertexData = const_cast<VertexData*>(vertexData);
-
+        // Create vertex data which just references position component (and 2 component)
+        mRenderOp.vertexData = new VertexData();
+        mRenderOp.vertexData->vertexDeclaration = 
+            HardwareBufferManager::getSingleton().createVertexDeclaration();
+        mRenderOp.vertexData->vertexBufferBinding = 
+            HardwareBufferManager::getSingleton().createVertexBufferBinding();
+        // Map in position data
+        mRenderOp.vertexData->vertexDeclaration->addElement(0,0,VET_FLOAT3, VES_POSITION);
+        mPositionBuffer = vertexData->vertexBufferBinding->getBuffer(
+                vertexData->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource());
+        mRenderOp.vertexData->vertexBufferBinding->setBinding(0, mPositionBuffer);
+        // Map in w-coord buffer (if present)
+        if(!vertexData->hardwareShadowVolWBuffer.isNull())
+        {
+            mRenderOp.vertexData->vertexDeclaration->addElement(1,0,VET_FLOAT1, VES_TEXTURE_COORDINATES, 0);
+            mWBuffer = vertexData->hardwareShadowVolWBuffer;
+            mRenderOp.vertexData->vertexBufferBinding->setBinding(1, mWBuffer);
+        }
+        // Use same vertex start as input
+        mRenderOp.vertexData->vertexStart = vertexData->vertexStart;
+        // Vertex count must take into account the doubling of the buffer,
+        // because second half of the buffer is the extruded copy
+        mRenderOp.vertexData->vertexCount = 
+            vertexData->vertexCount * 2;
+        
 
     }
     //-----------------------------------------------------------------------
     Entity::EntityShadowRenderable::~EntityShadowRenderable()
     {
         delete mRenderOp.indexData;
+        delete mRenderOp.vertexData;
     }
     //-----------------------------------------------------------------------
     void Entity::EntityShadowRenderable::getWorldTransforms(Matrix4* xform) const

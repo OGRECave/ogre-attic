@@ -203,6 +203,7 @@ namespace Ogre {
             tri.vertexSet = vertexSet;
 
             unsigned int index[3];
+            Vector3 v[3];
             for (size_t i = 0; i < 3; ++i)
             {
                 if (indexData->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT)
@@ -218,24 +219,23 @@ namespace Ogre {
                 tri.vertIndex[i] = index[i];
 
                 // Retrieve the vertex position
-                Vector3 v;
                 unsigned char* pVertex = pBaseVertex + (index[i] * vbuf->getVertexSize());
                 posElem->baseVertexPointerToElement(pVertex, &pReal);
-                v.x = *pReal++;
-                v.y = *pReal++;
-                v.z = *pReal++;
+                v[i].x = *pReal++;
+                v[i].y = *pReal++;
+                v[i].z = *pReal++;
                 // Try to find this vertex in the existing vertex map
                 CommonVertexMap::iterator iCommon;
-                iCommon = mVertexLookup.find(v);
+                iCommon = mVertexLookup.find(v[i]);
                 if (iCommon == mVertexLookup.end())
                 {
                     // Not found, insert position, use current size as index, into lookup
                     tri.sharedVertIndex[i] = mVertexLookup.size();
-                    mVertexLookup.insert(CommonVertexMap::value_type(v, tri.sharedVertIndex[i]));
+                    mVertexLookup.insert(CommonVertexMap::value_type(v[i], tri.sharedVertIndex[i]));
                     // Insert into common data list
                     CommonVertex cv;
                     cv.index = index[i];
-                    cv.position = v;
+                    cv.position = v[i];
                     cv.vertexSet = vertexSet;
                     mVertices.push_back(cv);
                 }
@@ -244,6 +244,14 @@ namespace Ogre {
                     tri.sharedVertIndex[i] = iCommon->second;
                 }
             }
+            // Calculate triangle normal (NB will require recalculation for 
+            // skeletally animated meshes)
+            // The cross product sets up the xyz
+            Vector3 normal = (v[1] - v[0]).crossProduct(v[2] - v[0]);
+            normal.normalise();
+            tri.normal = normal;
+            // Now set up the w (distance of tri from origin
+            tri.normal.w = -(normal.dotProduct(v[0]));
             // Add triangle to list
             mEdgeData->triangles.push_back(tri);
             // Create edges from common list
@@ -351,6 +359,25 @@ namespace Ogre {
         
         // no edge
         return 0;
+
+    }
+    //---------------------------------------------------------------------
+    //---------------------------------------------------------------------
+    void EdgeData::updateTriangleLightFacing(const Vector4& lightPos)
+    {
+        // Iterate over the triangles, and determine if they are light facing
+        EdgeData::TriangleList::iterator ti, tiend;
+        tiend = triangles.end();
+        Vector3 vertToLight;
+        for (ti = triangles.begin(); ti != tiend; ++ti)
+        {
+            EdgeData::Triangle& t = *ti;
+            // Get pointer to positions, and reference the first position
+
+            Real dp = t.normal.dotProduct(lightPos);
+            t.lightFacing = dp > 0? true : false;
+
+        }
 
     }
 

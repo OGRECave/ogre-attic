@@ -162,6 +162,7 @@ namespace Ogre {
 
 
         EdgeData* mEdgeData;
+        bool mPreparedForShadowVolumes;
 
 
     public:
@@ -569,6 +570,10 @@ namespace Ogre {
             rendering if you intend to use this information for that purpose.
         */
         EdgeData* getEdgeList(void);
+
+        /** Returns whether this mesh has already had it's geometry prepared for use in 
+            rendering shadow volumes. */
+        bool isPreparedForShadowVolumes(void) { return mPreparedForShadowVolumes; }
 
     };
 

@@ -557,6 +557,10 @@ SOURCE=..\src\OgreSerializer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreShadowCaster.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreSimpleRenderable.cpp
 # End Source File
 # Begin Source File

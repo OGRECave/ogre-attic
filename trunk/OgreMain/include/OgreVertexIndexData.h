@@ -90,7 +90,7 @@ namespace Ogre {
             Note that we don't store any vertex declaration or vertex buffer binding here becuase this
             can be reused in the shadow algorithm.
         */
-        HardwareVertexBufferSharedPtr mHardwareShadowVolWBuffer;
+        HardwareVertexBufferSharedPtr hardwareShadowVolWBuffer;
 
 
 

@@ -115,6 +115,33 @@ namespace Ogre {
             ShadowTechnique shadowTechnique, const Light* light, 
             unsigned long flags = 0, HardwareIndexBufferSharedPtr* useThisIndexBuffer = 0) = 0;
 
+    protected:
+        /** Tells the caster to perform the tasks necessary to update the 
+            edge data's light listing. Can be overridden if the subclass needs 
+            to do additional things. 
+        @param edgeData The edge information to update
+        @param lightPos 4D vector representing the light, a directional light
+            has w=0.0
+       */
+        virtual void updateEdgeListLightFacing(EdgeData* edgeData, 
+            const Vector4& lightPos);
+
+        /** Generates the indexes required to render a shadow volume into the 
+            index buffer which is passed in, and updates shadow renderables
+            to use it.
+        @param edgeData The edge information to use
+        @param indexBuffer The buffer into which to write data into; current 
+            contents are assumed to be discardable.
+        @param light The light, mainly for type info as silhouette calculations
+            should already have been done in updateEdgeListLightFacing
+        @param shadowRenderables A list of shadow renderables which has 
+            already been constructed but will need populating with details of
+            the index ranges to be used.
+        @param flags Additional controller flags, see ShadowRenderableFlags
+        */
+        virtual void generateShadowVolume(EdgeData* edgeData, 
+            HardwareIndexBufferSharedPtr indexBuffer, const Light* light,
+            ShadowRenderableList& shadowRenderables, unsigned long flags);
 
     };
 }

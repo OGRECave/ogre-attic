@@ -170,6 +170,11 @@ namespace Ogre {
         {
         protected:
             Entity* mParent;
+            // Shared link to position buffer
+            HardwareVertexBufferSharedPtr mPositionBuffer;
+            // Shared link to w-coord buffer (optional)
+            HardwareVertexBufferSharedPtr mWBuffer;
+
         public:
             EntityShadowRenderable(Entity* parent, 
                 HardwareIndexBufferSharedPtr* indexBuffer, const VertexData* vertexData);
@@ -180,6 +185,9 @@ namespace Ogre {
             const Quaternion& getWorldOrientation(void) const;
             /// Overridden from ShadowRenderable
             const Vector3& getWorldPosition(void) const;
+            HardwareVertexBufferSharedPtr getPositionBuffer(void) { return mPositionBuffer; }
+            HardwareVertexBufferSharedPtr getWBuffer(void) { return mWBuffer; }
+
         };
     public:
         /** Default destructor.
