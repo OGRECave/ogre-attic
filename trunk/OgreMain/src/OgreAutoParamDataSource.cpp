@@ -53,17 +53,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void AutoParamDataSource::setCurrentRenderable(const Renderable* rend)
     {
-        if (rend != mCurrentRenderable)
-        {
-            mCurrentRenderable = rend;
-            mWorldMatrixDirty = true;
-            mWorldViewMatrixDirty = true;
-            mWorldViewProjMatrixDirty = true;
-            mInverseWorldMatrixDirty = true;
-            mInverseWorldViewMatrixDirty = true;
-            mCameraPositionObjectSpaceDirty = true;
-            mLightListDirty = true;
-        }
+		mCurrentRenderable = rend;
+		mWorldMatrixDirty = true;
+		mWorldViewMatrixDirty = true;
+		mWorldViewProjMatrixDirty = true;
+		mInverseWorldMatrixDirty = true;
+		mInverseWorldViewMatrixDirty = true;
+		mCameraPositionObjectSpaceDirty = true;
+		mLightListDirty = true;
     }
     //-----------------------------------------------------------------------------
     void AutoParamDataSource::setCurrentCamera(const Camera* cam)
